@@ -27,10 +27,7 @@
 
 | Name                      | Type       | Description                                    |
 | ------------------------- | ---------- | ---------------------------------------------- |
-| state_rcv_discover_s      | e          | States                                         |
-| rcv_adp_discover_r        | reg        | RCV_ADP_DISCOVER EVENT related register        |
 | grandmaster_id_r          | reg [63:0] | GM_EVENT related registers                     |
-| gm_change_r               | reg        | Grandmaster id changed                         |
 | zero_four_sec_cnt_r       | reg [2:0]  | TMR_DELAY and TMR_ADVERTISE related registers. |
 | delay_value_r             | reg [2:0]  | Register that takes the value from 0 to 4.     |
 | start_tmr_delay_cnt_r     | reg        | Start signal for KL_counter.                   |
@@ -39,30 +36,20 @@
 
 ## Processes
 - counter_logic: ( @(posedge clk_i) )
-  - **Type:** always
+  - **Type:** always_ff
   - **Description**
-  Free-running counter logic - value in between 0-4 
+  Free-running counter logic - value in between 0-4 
 - tmr_delay_process: ( @(posedge clk_i) )
-  - **Type:** always
+  - **Type:** always_ff
   - **Description**
-  Process for assigning the delay value for TMR_DELAY_COUNTER 
+  Process for assigning the delay value for TMR_DELAY_COUNTER 
 - grandmaster_control: ( @(posedge clk_i) )
-  - **Type:** always
+  - **Type:** always_ff
   - **Description**
-  Process for checking whether grandmaster_id has changed  for the ATDECC Entity. 
-- rcv_adp_discover_event: ( @(posedge clk_i) )
-  - **Type:** always
-  - **Description**
-  Process for handling the RCV_ADP_DISCOVER EVENT;  When the rcv_adp_discover input arrives, control the  rcvd_entity_info.entity_id whether it is ZERO or   ATDECC Entity's Entity_ID(entity_id_i) 
+  Process for checking whether grandmaster_id has changed  for the ATDECC Entity. 
 
 ## Instantiations
 
 - TMR_ADVERTISE_COUNTER: KL_counter
-  -  Advertise counter - Static 5 sec delay- TMR_DELAY_COUNTER: KL_counter
-  -  Delay counter - random value between 0-4 delay
-## State machines
-
-- Process for handling the RCV_ADP_DISCOVER EVENT;
-When the rcv_adp_discover input arrives, control the
-rcvd_entity_info.entity_id whether it is ZERO or
-ATDECC Entity's Entity_ID(entity_id_i)![Diagram_state_machine_0]( fsm_KL_advertise_controller_00.svg "Diagram")
+  -  Advertise counter - Static 5 sec delay- TMR_DELAY_COUNTER: KL_counter
+  -  Delay counter - random value between 0-4 delay
