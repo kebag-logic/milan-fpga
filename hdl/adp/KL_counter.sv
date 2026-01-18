@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Oguz Kahraman <oguz.kahraman@kebag-logic.com>
+ * SPDX-FileCopyrightText: 2025 Cemal Dogan <cemal.dogan@kebag-logic.com>
  *
  * SPDX-License-Identifier: CERN-OHL-W-2.0
 */
@@ -86,7 +86,7 @@ module KL_counter
                 low_counter_val_r <= 16'd0;
               end
               else begin
-                low_counter_val_r <= low_counter_val + 16'd1;
+                low_counter_val_r <= low_counter_val_r + 16'd1;
               end
             end
           end

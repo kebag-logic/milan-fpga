@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 Oguz Kahraman <oguz.kahraman@kebag-logic.com>
+ * SPDX-FileCopyrightText: 2025 Cemal Dogan <cemal.dogan@kebag-logic.com>
  *
  * SPDX-License-Identifier: CERN-OHL-W-2.0
 */
@@ -46,23 +46,9 @@ module KL_advertise_controller
 
     output adp_advertise_event_t advertise_event_o //! All Advertise related evenet - to KL_advertise_state
   );
-  
-  typedef enum bit [1:0] {
-    IDLE_S,
-    CHECK_ENTITY_S,
-    UPDATE_EVENT_S
-  } state_rcv_discover_t;
-
-  state_rcv_discover_t cntrller_state;
-
-  //! RCV_ADP_DISCOVER EVENT related register
-  reg rcv_adp_discover_r;
 
   //! GM_EVENT related registers
   reg [63:0] grandmaster_id_r;
-  //! Grandmaster id changed
-  reg gm_change_r;
-
   //! TMR_DELAY and TMR_ADVERTISE related registers.
   reg [2:0] zero_four_sec_cnt_r;
   //! Register that takes the value from 0 to 4.
@@ -79,8 +65,8 @@ module KL_advertise_controller
   assign advertise_event_o.LINK_DOWN = link_down_i;
   assign advertise_event_o.LINK_UP = link_up_i;
   assign advertise_event_o.SHUTDOWN = shutdown_i;
-  assign advertise_event_o.RCV_ADP_DISCOVER = rcv_adp_discover_r;
-  assign advertise_event_o.GM_CHANGE = gm_change_r;
+  assign advertise_event_o.GM_CHANGE = (grandmaster_id_i != grandmaster_id_r);
+  assign advertise_event_o.RCV_ADP_DISCOVER = rcv_adp_discover_i && (rcv_entity_id_i == 64'd0 || rcv_entity_id_i == entity_id_i);
   assign advertise_event_o.TMR_ADVERTISE = tmr_advertise_completed_r;
   assign advertise_event_o.TMR_DELAY = tmr_delay_completed_r;
 
@@ -117,7 +103,6 @@ module KL_advertise_controller
     end
   end
 
-
   //! Process for assigning the delay value for TMR_DELAY_COUNTER
   always_ff @(posedge clk_i) begin : tmr_delay_process
     if (!rst_n) begin
@@ -138,50 +123,8 @@ module KL_advertise_controller
   //! Process for checking whether grandmaster_id has changed
   //! for the ATDECC Entity.
   always_ff @(posedge clk_i) begin : grandmaster_control
-    if (!rst_n) begin
-      grandmaster_id_r <= 64'd0;
-      gm_change_r <= 1'd0;
-    end
-    else begin
-      grandmaster_id_r <= grandmaster_id_i;
-      if (grandmaster_id_r != grandmaster_id_i)
-        gm_change_r <= 1'd1;
-      else
-        gm_change_r <= 1'd0;
-    end
-  end
-
-  //! Process for handling the RCV_ADP_DISCOVER EVENT;
-  //! When the rcv_adp_discover input arrives, control the
-  //! rcvd_entity_info.entity_id whether it is ZERO or 
-  //! ATDECC Entity's Entity_ID(entity_id_i)
-  always_ff @(posedge clk_i) begin : rcv_adp_discover_event
-    if (!rst_n) begin
-      rcv_adp_discover_r <= 1'd0;
-      cntrller_state <= IDLE_S;
-    end
-    else begin
-      case (cntrller_state)
-
-        IDLE_S : begin
-          rcv_adp_discover_r <= 1'd0;
-          if (rcv_adp_discover_i)
-            cntrller_state <= CHECK_ENTITY_S;
-        end
-
-        CHECK_ENTITY_S : begin
-          if (rcv_entity_id_i == 64'd0 || rcv_entity_id_i == entity_id_i)
-            cntrller_state <= UPDATE_EVENT_S;
-          else
-            cntrller_state <= IDLE_S;
-        end
-
-        UPDATE_EVENT_S : begin
-          rcv_adp_discover_r <= 1'd1;
-          cntrller_state <= IDLE_S;
-        end
-      endcase
-    end
+    if (!rst_n) grandmaster_id_r <= 64'd0;
+    else grandmaster_id_r <= grandmaster_id_i;
   end
 
 endmodule

@@ -87,7 +87,6 @@ module tb_top();
     rcv_adp_discover = 1'd1;
     @(posedge clk);
     rcv_adp_discover = 1'd0;
-    repeat (2) @(posedge clk);
     if (advertise_event.RCV_ADP_DISCOVER) 
       $display("[INFO][TOP] : TP.UT.ADVERTISE_CNTRL_0001 Successful");
     else $fatal("TP.UT.ADVERTISE_CNTRL_0001 Failed");
@@ -102,7 +101,6 @@ module tb_top();
     rcv_adp_discover = 1'd1;
     @(posedge clk);
     rcv_adp_discover = 1'd0;
-    repeat (2) @(posedge clk);
     if (advertise_event.RCV_ADP_DISCOVER) 
       $display("[INFO][TOP] : TP.UT.ADVERTISE_CNTRL_0002 Successful");
     else $fatal("TP.UT.ADVERTISE_CNTRL_0002 Failed");
@@ -117,7 +115,6 @@ module tb_top();
     rcv_adp_discover = 1'd1;
     @(posedge clk);
     rcv_adp_discover = 1'd0;
-    repeat (2) @(posedge clk);
     if (!advertise_event.RCV_ADP_DISCOVER) 
       $display("[INFO][TOP] : TP.UT.ADVERTISE_CNTRL_0003 Successful");
     else $fatal("TP.UT.ADVERTISE_CNTRL_0003 Failed");
@@ -127,6 +124,7 @@ module tb_top();
     $display("[INFO][TOP] : ------------------------------------");
     $display("[INFO][TOP] : ----------- TP.UT.ADVERTISE_CNTRL_0004 -----------");
     $display("[INFO][TOP] : Give different grandmaster_id and observe the GM_CHANGE event");
+    #1ns
     grandmaster_id = 64'hCDCD_CDCD_CDCD_CDCD;
     @(posedge clk);
     if (advertise_event.GM_CHANGE)
