@@ -100,6 +100,11 @@ module KL_counter
           low_counter_val_r <= 16'd0;
           cnter_state <= START_S;
         end
+
+        default : begin
+          cnter_state <= START_S;
+        end
+        
       endcase
     end
   end

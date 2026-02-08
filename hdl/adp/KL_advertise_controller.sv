@@ -39,10 +39,7 @@ module KL_advertise_controller
     input wire link_up_i,   //! Link up event from Upper Management Module (TBD)
     input wire shutdown_i,  //! Shutdown evenet from Upper Management Module (TBD)
 
-    input wire start_tmr_delay_i,     //! Start TMR_DELAY counter command - from KL_advertise_state Module
-    input wire start_tmr_advertise_i, //! Start TMR_ADVERTISE counter command - from KL_advertise_state Module
-    input wire stop_tmr_delay_i,      //! Stop TMR_DELAY counter command from KL_advertise_state Module
-    input wire stop_tmr_advertise_i,  //! Stop TMR_ADVERTISE counter command from KL_advertise_state Module
+    input tmr_events_t tmr_events,    //! ADP Timer events inputs
 
     output adp_advertise_event_t advertise_event_o //! All Advertise related evenet - to KL_advertise_state
   );
@@ -50,9 +47,9 @@ module KL_advertise_controller
   //! GM_EVENT related registers
   reg [63:0] grandmaster_id_r;
   //! TMR_DELAY and TMR_ADVERTISE related registers.
-  reg [2:0] zero_four_sec_cnt_r;
+  reg [$clog2(MAX_SECOND)-1:0] zero_four_sec_cnt_r;
   //! Register that takes the value from 0 to 4.
-  reg [2:0] delay_value_r;
+  reg [$clog2(MAX_SECOND)-1:0] delay_value_r;
   //! Start signal for KL_counter.
   reg start_tmr_delay_cnt_r;
   //! TMR_ADVERTISE_COUNTER finished counting.
@@ -74,8 +71,8 @@ module KL_advertise_controller
   KL_counter TMR_ADVERTISE_COUNTER (
     .clk_i         ( clk_i ),
     .rst_n         ( rst_n ),
-    .start_i       ( start_tmr_advertise_i ),
-    .stop_i        ( stop_tmr_advertise_i ),
+    .start_i       ( tmr_events.start_tmr_advertise ),
+    .stop_i        ( tmr_events.stop_tmr_advertise ),
     .delay_value_i ( 3'd5 ),
     .completed_o   ( tmr_advertise_completed_r )
   );
@@ -85,7 +82,7 @@ module KL_advertise_controller
     .clk_i         ( clk_i ),
     .rst_n         ( rst_n ),
     .start_i       ( start_tmr_delay_cnt_r ),
-    .stop_i        ( stop_tmr_delay_i ),
+    .stop_i        ( tmr_events.stop_tmr_delay ),
     .delay_value_i ( delay_value_r ),
     .completed_o   ( tmr_delay_completed_r )
   );
@@ -94,23 +91,23 @@ module KL_advertise_controller
   //! Free-running counter logic - value in between 0-4
   always_ff @(posedge clk_i) begin : counter_logic
     if (!rst_n) 
-      zero_four_sec_cnt_r <= 3'd0;
+      zero_four_sec_cnt_r <= 'd0;
     else begin
-      if (zero_four_sec_cnt_r == 3'd4)
-        zero_four_sec_cnt_r <= 3'd0;
+      if (zero_four_sec_cnt_r == 'd4)
+        zero_four_sec_cnt_r <= 'd0;
       else
-        zero_four_sec_cnt_r <= zero_four_sec_cnt_r + 3'd1;
+        zero_four_sec_cnt_r <= zero_four_sec_cnt_r + 'd1;
     end
   end
 
   //! Process for assigning the delay value for TMR_DELAY_COUNTER
   always_ff @(posedge clk_i) begin : tmr_delay_process
     if (!rst_n) begin
-      delay_value_r <= 3'd0;
+      delay_value_r <= 'd0;
       start_tmr_delay_cnt_r <= 1'd0;
     end
     else begin
-      if (start_tmr_delay_i) begin
+      if (tmr_events.start_tmr_delay) begin
         delay_value_r <= zero_four_sec_cnt_r;
         start_tmr_delay_cnt_r <= 1'd1;
       end 

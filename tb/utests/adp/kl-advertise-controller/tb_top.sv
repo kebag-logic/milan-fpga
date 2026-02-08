@@ -13,6 +13,7 @@ module tb_top();
   bit link_down;
   bit link_up;
   bit shutdown;
+  tmr_events_t tmr_events;
   bit start_tmr_delay;
   bit stop_tmr_delay;
   bit start_tmr_advertise;
@@ -33,10 +34,7 @@ module tb_top();
     .link_down_i(link_down),
     .link_up_i(link_up),
     .shutdown_i(shutdown),
-    .start_tmr_delay_i(start_tmr_delay),
-    .start_tmr_advertise_i(start_tmr_advertise),
-    .stop_tmr_delay_i(stop_tmr_delay),
-    .stop_tmr_advertise_i(stop_tmr_advertise),
+    .tmr_events(tmr_events),
     .advertise_event_o(advertise_event)
   );
 
@@ -135,11 +133,11 @@ module tb_top();
     $display("[INFO][TOP] : ----------- TP.UT.ADVERTISE_CNTRL_0005 -----------");
     $display("[INFO][TOP] : Start both counters and wait for EVENT");
     @(posedge clk);
-    start_tmr_advertise = 1'd1;
-    start_tmr_delay = 1'd1;
+    tmr_events.start_tmr_advertise = 1'd1;
+    tmr_events.start_tmr_delay = 1'd1;
     @(posedge clk);
-    start_tmr_advertise = 1'd0;
-    start_tmr_delay = 1'd0;
+    tmr_events.start_tmr_advertise = 1'd0;
+    tmr_events.start_tmr_delay = 1'd0;
 
 
     fork
