@@ -15,7 +15,7 @@ package adp_pkg;
   localparam [7:0]  SV_VER_MSG_TYPE_AVAILABLE_C = 8'h00;
   localparam [7:0]  SV_VER_MSG_TYPE_DEPARTING_C = 8'h01;
   //! Total bytes in hex
-  localparam [7:0]  CTRL_DATA_LENGTH_C = 8'h38;
+  localparam [10:0]  CTRL_DATA_LENGTH_C = 11'h38;
 
   //! Typedef for adp_message_type
   typedef enum logic[3:0] {
