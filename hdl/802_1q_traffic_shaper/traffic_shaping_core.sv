@@ -32,11 +32,11 @@ import ethernet_packet_pkg::*;
 `default_nettype none
 
 module traffic_shaping_core #(
-  parameter int TDATA_WIDTH = 64,     //! Widht of tdata bus
+  parameter int TDATA_WIDTH = 64,     //! Width of tdata bus
   parameter int NUMBER_OF_QUEUES = 4  //! Number of network queues
 )(
   input wire clk,                     //! clock signal
-  input wire resetn,                  //! syncronous active low reset
+  input wire resetn,                  //! synchronous active low reset
   //! One-hot: indicates which queues contain data
   input wire [NUMBER_OF_QUEUES-1:0] queue_has_data_i,
   input wire is_1g_i,                 //! High when the link rate is 1GBps
@@ -59,8 +59,8 @@ module traffic_shaping_core #(
   logic [$clog2(NUMBER_OF_QUEUES)-1:0] active_queue;
   //! Latch to hold current grant until end of packet (tlast)
   logic hold_grant;
-  //! Priory encode selection
-  int sel;
+  //! Priority-encoded index of highest eligible queue; -1 if none
+  int sel_comb;
 
   assign m_axis.tdata = s_axis.tdata;
   assign m_axis.tvalid = s_axis.tvalid;
@@ -76,8 +76,8 @@ module traffic_shaping_core #(
     credit_based_shaper #(
       .IDLE_SLOPE_1G(IDLE_SLOPE_1G[i]),
       .IDLE_SLOPE_100M(IDLE_SLOPE_100M[i]),
-      .HI_CREDIT (HI_CREDIT),
-      .LO_CREDIT (LO_CREDIT),
+      .HI_CREDIT (HI_CREDIT[i]),
+      .LO_CREDIT (LO_CREDIT[i]),
       .CLK_FREQ_HZ(CLK_FREQ_HZ)
     ) u_cbs (
       .clk               (clk),
@@ -85,6 +85,7 @@ module traffic_shaping_core #(
       .queue_has_data_i  (queue_has_data_i[i]),
       .is_1g_i           (is_1g_i),
       .is_transmitting_i (is_transmitting[i]),
+      .is_granted_i (hold_grant && active_queue == i),
       .bytes_sent_i      (bytes_sent[i]),
       .allow_transmit_o  (allow_transmit[i])
     );
@@ -93,19 +94,23 @@ module traffic_shaping_core #(
   for (genvar i = 0; i < NUMBER_OF_QUEUES; i++) begin : gen_transmit_info
     //! Track transmission status and byte count
     always_comb begin : transmissionStatus
-      is_transmitting_raw[i] = ((m_axis.tdest == i) && m_axis.tvalid && m_axis.tready);
+      is_transmitting_raw[i] = (hold_grant && (active_queue == i) && m_axis.tvalid && m_axis.tready);
       bytes_sent_raw[i] = is_transmitting_raw[i] ? $countones(m_axis.tkeep) : 0;
     end
 
     always_ff @(posedge clk) begin
       if (!resetn) begin
-        bytes_sent[i] <= 0;
-        is_transmitting[i] <= 0;
+        bytes_sent[i] <= 'd0;
+        is_transmitting[i] <= 'd0;
       end else begin
         bytes_sent[i] <= bytes_sent_raw[i];
         is_transmitting[i] <= is_transmitting_raw[i];
       end
     end
+  end
+
+  always_comb begin : queue_selection
+    sel_comb = priority_encode(allow_transmit & queue_has_data_i);
   end
 
   //! Queue grant logic - one queue should be grant a time
@@ -119,9 +124,8 @@ module traffic_shaping_core #(
         if (m_axis.tvalid && m_axis.tready && m_axis.tlast)
           hold_grant <= 0;
       end else begin
-      sel = priority_encode(allow_transmit & queue_has_data_i);
-      if (sel >= 0) begin
-        active_queue <= sel;
+      if (sel_comb >= 0) begin
+        active_queue <= sel_comb;
         hold_grant   <= 1;
       end
     end

@@ -4,6 +4,30 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
 
+/*
+------------------------------------------------------------------------------
+  File        : milan_top.sv
+  Author      : Oguz Kahraman
+
+                oguz.kahraman@kebag-logic.com
+
+  Date        : 2025-07-18
+  Description : Top-level integration module for the Milan FPGA platform.
+
+                Subsystems:
+                - milan_dma_wrapper  : Zynq PS + DMA + AXI interconnect
+                - traffic_controller : IEEE 802.1Q CBS-based egress shaper
+                - ptp_timestamp      : PTP hardware timestamping (TX + RX)
+                - ethernet_mac       : 1G RGMII MAC with TX/RX FIFOs
+                - ethernet_counters  : Ethernet event statistics
+
+                TX path: DMA -> Traffic Shaper -> PTP TS -> MAC -> RGMII
+                RX path: RGMII -> MAC -> PTP TS -> DMA
+
+  Company     : Kebag Logic
+  Project     : Milan FPGA Platform
+------------------------------------------------------------------------------
+*/
 
 `default_nettype none
 `include "ethernet_events.svh"
@@ -46,23 +70,29 @@ module milan_top#(
 
 );
 
+  //! AXI-Stream logic clock (from PS, 100 MHz)
   wire axis_clk;
+  //! Active-low synchronous reset for axis_clk domain
   wire axis_resetn;
+  //! 125 MHz TX clock, 90° phase shifted for RGMII DDR alignment
   wire gtx90_clk;
+  //! 125 MHz Gigabit TX reference clock
   wire gtx_clk;
+  //! Active-low synchronous reset for gtx_clk domain
   wire gtx_resetn;
-  wire axis_clk_raw;
-  wire gtx_clk_raw;
-  wire gtx90_clk_raw;
-  wire axis_resetn_raw;
-  wire gtx_resetn_raw;
 
 
+  //! RX path: MAC output → PTP timestamping core
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_ts();
+  //! RX path: PTP timestamping output → DMA
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_dma();
+  //! TX path: DMA output → 802.1Q traffic shaper
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_shaper();
+  //! TX path: Traffic shaper output → PTP timestamping core
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_shaper_to_ts();
+  //! TX path: PTP timestamping output → MAC
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+  //! PTP timestamp metadata stream: PTP core → DMA (timestamp + seq_id + direction)
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) ts_metadata_axis();
 
 
@@ -90,11 +120,11 @@ module milan_top#(
     .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
     .MDIO_link_1_mdc(MDIO_link_1_mdc),
     .MDIO_link_1_mdio_io(MDIO_link_1_mdio_io),
-    .axis_clk(axis_clk_raw),
-    .axis_resetn(axis_resetn_raw),
-    .gtx90_clk(gtx90_clk_raw),
-    .gtx_clk(gtx_clk_raw),
-    .gtx_reset_n(gtx_resetn_raw),
+    .axis_clk(axis_clk),
+    .axis_resetn(axis_resetn),
+    .gtx90_clk(gtx90_clk),
+    .gtx_clk(gtx_clk),
+    .gtx_reset_n(gtx_resetn),
     .m_axis_tx_eth_tdata(tx_axis_to_shaper.tdata),
     .m_axis_tx_eth_tkeep(tx_axis_to_shaper.tkeep),
     .m_axis_tx_eth_tlast(tx_axis_to_shaper.tlast),
@@ -111,13 +141,6 @@ module milan_top#(
     .s_axis_ts_metadata_tready(ts_metadata_axis.tready),
     .s_axis_ts_metadata_tvalid(ts_metadata_axis.tvalid)
   );
-
-  BUFG bufg_axis_clk (.I(axis_clk_raw), .O(axis_clk));
-  BUFG bufg_gtx_clk (.I(gtx_clk_raw), .O(gtx_clk));
-  BUFG bufg_gtx90_clk (.I(gtx90_clk_raw), .O(gtx90_clk));
-
-  BUFG bufg_axis_resetn (.I(axis_resetn_raw), .O(axis_resetn));
-  BUFG bufg_gtx_resetn (.I(gtx_resetn_raw), .O(gtx_resetn));
 
   traffic_controller_802_1q #(
     .TDATA_WIDTH(TDATA_WIDTH),
@@ -175,13 +198,12 @@ module milan_top#(
 
   logic [_ETH_EVENT_COUNTER-1:0] mac_events;
   wire [1:0] speed_w;
-  (*mark_debug="true"*) logic[1:0] speed_deb;
 
   ethernet_events ethernet_counters(
     .clk(axis_clk),
     .resetn(axis_resetn),
     // TODO Add VIO
-    .stats_reset(),
+    .stats_reset(1'b0),
     .events(mac_events)
   );
 
@@ -195,10 +217,10 @@ module milan_top#(
   ) ethernet_mac(
     .gtx_clk(gtx_clk),
     .gtx_clk90(gtx90_clk),
-    .gtx_rst(gtx_resetn),
+    .gtx_rst(!gtx_resetn),
 
     .logic_clk(axis_clk),
-    .logic_rst(axis_resetn),
+    .logic_rst(!axis_resetn),
 
     .tx_axis_tdata(tx_axis_to_mac.tdata),
     .tx_axis_tkeep(tx_axis_to_mac.tkeep),
@@ -236,9 +258,6 @@ module milan_top#(
     .cfg_rx_enable('d1)
   );
 
-  always_ff @( axis_clk) begin : speed_debug
-    speed_deb <= speed_w;
-  end
 
 endmodule
 
