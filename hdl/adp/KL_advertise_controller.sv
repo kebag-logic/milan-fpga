@@ -35,9 +35,8 @@ module KL_advertise_controller
     input wire [63:0] grandmaster_id_i, //! grandmaster_id - from PTP module
 
     input wire rcv_adp_discover_i, //! ADP Discovery packet is received and rcv_entity_id_i field is valid- from KL_adp_parser
-    input wire link_down_i, //! Link down event from Upper Management Module (TBD)
-    input wire link_up_i,   //! Link up event from Upper Management Module (TBD)
-    input wire shutdown_i,  //! Shutdown evenet from Upper Management Module (TBD)
+
+    input link_status_t link_status, //! Link Status related inputs from Upper Management Module
 
     input tmr_events_t tmr_events,    //! ADP Timer events inputs
 
@@ -59,9 +58,9 @@ module KL_advertise_controller
 
 
 // ------------ ASYNC ASSIGNMENT ------ ------ //
-  assign advertise_event_o.LINK_DOWN = link_down_i;
-  assign advertise_event_o.LINK_UP = link_up_i;
-  assign advertise_event_o.SHUTDOWN = shutdown_i;
+  assign advertise_event_o.LINK_DOWN = link_status.link_down;
+  assign advertise_event_o.LINK_UP = link_status.link_up;
+  assign advertise_event_o.SHUTDOWN = link_status.shutdown;
   assign advertise_event_o.GM_CHANGE = (grandmaster_id_i != grandmaster_id_r);
   assign advertise_event_o.RCV_ADP_DISCOVER = rcv_adp_discover_i && (rcv_entity_id_i == 64'd0 || rcv_entity_id_i == entity_id_i);
   assign advertise_event_o.TMR_ADVERTISE = tmr_advertise_completed_r;

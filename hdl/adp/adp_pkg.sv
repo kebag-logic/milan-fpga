@@ -47,6 +47,13 @@ package adp_pkg;
     logic stop_tmr_advertise;
   } tmr_events_t;
 
+  //! Link Status from Upper Management Module
+  typedef struct packed {
+    logic link_down;
+    logic link_up;
+    logic shutdown;
+  } link_status_t;
+
   //! ADP Discovery Related Events
   typedef struct {
     logic RCV_ADP_AVAILABLE;

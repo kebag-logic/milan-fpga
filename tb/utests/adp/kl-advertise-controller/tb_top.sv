@@ -13,6 +13,7 @@ module tb_top();
   bit link_down;
   bit link_up;
   bit shutdown;
+  link_status_t link_status;
   tmr_events_t tmr_events;
   bit start_tmr_delay;
   bit stop_tmr_delay;
@@ -31,9 +32,7 @@ module tb_top();
     .entity_id_i(entity_id),
     .grandmaster_id_i(grandmaster_id),
     .rcv_adp_discover_i(rcv_adp_discover),
-    .link_down_i(link_down),
-    .link_up_i(link_up),
-    .shutdown_i(shutdown),
+    .link_status(link_status),
     .tmr_events(tmr_events),
     .advertise_event_o(advertise_event)
   );
@@ -65,17 +64,17 @@ module tb_top();
 
     $display("[INFO][TOP] : ----------- TP.UT.ADVERTISE_CNTRL_0000 -----------");
     $display("[INFO][TOP] : Giving link_up, link_down and shutdown signals and observing the advertise event");
-    link_up = 1'd1;
-    link_down = 1'd1;
-    shutdown = 1'd1;
+    link_status.link_up = 1'd1;
+    link_status.link_down = 1'd1;
+    link_status.shutdown = 1'd1;
     @(posedge clk);
     if (advertise_event.LINK_UP & advertise_event.LINK_DOWN & advertise_event.SHUTDOWN)
       $display("[INFO][TOP] : TP.UT.ADVERTISE_CNTRL_0000 Successful");
     else $fatal("TP.UT.ADVERTISE_CNTRL_0000 Failed");
 
-    link_up = 1'd0;
-    link_down = 1'd0;
-    shutdown = 1'd0;
+    link_status.link_up = 1'd0;
+    link_status.link_down = 1'd0;
+    link_status.shutdown = 1'd0;
 
     $display("[INFO][TOP] : ------------------------------------");
     $display("[INFO][TOP] : ------------------------------------");
