@@ -10,10 +10,7 @@ module tb_top();
   bit [63:0] grandmaster_id;
   bit [7:0] gptp_domain_number;
 
-  wire start_tmr_delay;
-  wire start_tmr_advertise;
-  wire stop_tmr_delay;
-  wire stop_tmr_advertise;
+  tmr_events_t tmr_events;
 
   logic [63:0] dut_pkt[$];
   logic [63:0] ref_available_pkt[$];
@@ -30,10 +27,7 @@ module tb_top();
     .advertise_event_i(advertise_event),
     .grandmaster_id_i(grandmaster_id),
     .gptp_domain_number_i(gptp_domain_number),
-    .start_tmr_delay_o(start_tmr_delay),
-    .start_tmr_advertise_o(start_tmr_advertise),
-    .stop_tmr_delay_o(stop_tmr_delay),
-    .stop_tmr_advertise_o(stop_tmr_advertise),
+    .tmr_events_o(tmr_events),
     .m_axis(m_axis)
   );
 
@@ -124,7 +118,7 @@ module tb_top();
     $display("-----------------------------------------------------------------------------");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0000]- Test Case TP_UT_ADVERTISE_STATE_0000");
     give_strobe(advertise_event.LINK_UP);
-    wait (start_tmr_delay);
+    wait (tmr_events.start_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0000]- START_TMR_DELAY detected");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0000]- Successful");
   endtask;
@@ -134,7 +128,7 @@ module tb_top();
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0001]- Test Case TP_UT_ADVERTISE_STATE_0001");
     #100;
     give_strobe(advertise_event.TMR_DELAY);
-    wait (start_tmr_advertise);
+    wait (tmr_events.start_tmr_advertise);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0001]- START_TMR_ADVERTISE detected");
     save_m_axis(dut_pkt);
     compare_pkts(ref_available_pkt, dut_pkt, status);
@@ -150,11 +144,11 @@ module tb_top();
     #100;
 
     give_strobe(advertise_event.LINK_UP);
-    wait (start_tmr_delay);
+    wait (tmr_events.start_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0002]- START_TMR_DELAY detected");
     #50;
     give_strobe(advertise_event.LINK_DOWN);
-    wait (stop_tmr_delay);
+    wait (tmr_events.stop_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0002]- STOP_TMR_DELAY detected");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0002]- Successful");
   endtask;
@@ -165,11 +159,11 @@ module tb_top();
     #100;
 
     give_strobe(advertise_event.LINK_UP);
-    wait (start_tmr_delay);
+    wait (tmr_events.start_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0003]- START_TMR_DELAY detected");
     #50;
     give_strobe(advertise_event.SHUTDOWN);
-    wait (stop_tmr_delay);
+    wait (tmr_events.stop_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0003]- STOP_TMR_DELAY detected");
     save_m_axis(dut_pkt);
     compare_pkts(ref_departing_pkt, dut_pkt, status);
@@ -189,7 +183,7 @@ module tb_top();
     give_strobe(advertise_event.TMR_DELAY);
     #50;
     give_strobe(advertise_event.RCV_ADP_DISCOVER);
-    wait (stop_tmr_advertise && start_tmr_delay);
+    wait (tmr_events.stop_tmr_advertise && tmr_events.start_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0004]- START_TMR_DELAY and STOP_TMR_ADVERTISE detected");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0004]- Successful");
   endtask;
@@ -202,7 +196,7 @@ module tb_top();
     give_strobe(advertise_event.TMR_DELAY);
     #50;
     give_strobe(advertise_event.TMR_ADVERTISE);
-    wait (start_tmr_delay);
+    wait (tmr_events.start_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0005]- START_TMR_DELAY detected");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0005]- Successful");
   endtask;
@@ -215,7 +209,7 @@ module tb_top();
     give_strobe(advertise_event.TMR_DELAY);
     #50;
     give_strobe(advertise_event.LINK_DOWN);
-    wait (stop_tmr_advertise);
+    wait (tmr_events.stop_tmr_advertise);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0006]- STOP_TMR_ADVERTISE detected");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0006]- Successful");
   endtask;
@@ -229,7 +223,7 @@ module tb_top();
     give_strobe(advertise_event.TMR_DELAY);
     #50;
     give_strobe(advertise_event.GM_CHANGE);
-    wait (start_tmr_delay);
+    wait (tmr_events.start_tmr_delay);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0007]- START_TMR_DELAY detected");
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0007]- Successful");
   endtask;
@@ -239,7 +233,7 @@ module tb_top();
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0008]- Test Case TP_UT_ADVERTISE_STATE_0008");
     #100;
     give_strobe(advertise_event.SHUTDOWN);
-    wait (stop_tmr_advertise);
+    wait (tmr_events.stop_tmr_advertise);
     $display("[INFO][TOP][TP_UT_ADVERTISE_STATE_0008]- STOP_TMR_ADVERTISE detected");
     save_m_axis(dut_pkt);
     compare_pkts(ref_departing_pkt, dut_pkt, status);

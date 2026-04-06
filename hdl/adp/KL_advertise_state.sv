@@ -37,10 +37,7 @@ module KL_advertise_state
     input wire [63:0] grandmaster_id_i,
     input wire [7:0] gptp_domain_number_i,
 
-    output wire start_tmr_delay_o,
-    output wire start_tmr_advertise_o,
-    output wire stop_tmr_delay_o,
-    output wire stop_tmr_advertise_o,
+    output tmr_events_t tmr_events_o,
     axi_stream_if.master m_axis
   );
 
@@ -77,22 +74,22 @@ module KL_advertise_state
   //! RCV_ADP_DISCOVER event received in WAITING state ||
   //! TMR_ADVERTISE event received in WAITING state ||
   //! GM_CHANGE event received in WAITING state
-  assign start_tmr_delay_o = ((state_advertise == LINK_DOWN_S && advertise_event_i.LINK_UP) || 
+  assign tmr_events_o.start_tmr_delay = ((state_advertise == LINK_DOWN_S && advertise_event_i.LINK_UP) || 
   (state_advertise == WAITING_S && (advertise_event_i.RCV_ADP_DISCOVER || advertise_event_i.TMR_ADVERTISE || advertise_event_i.GM_CHANGE)));
 
   //! Stop the TMR DELAY counter when;
   //! LINK_DOWN or SHUTDOWN event occur in DELAY state
-  assign stop_tmr_delay_o = (state_advertise == DELAY_S && (advertise_event_i.LINK_DOWN || 
+  assign tmr_events_o.stop_tmr_delay = (state_advertise == DELAY_S && (advertise_event_i.LINK_DOWN || 
                              advertise_event_i.SHUTDOWN));
 
   //! Start the TMR ADVERTISE counter when;
   //! TMR_DELAY event received in DELAY state
-  assign start_tmr_advertise_o = (state_advertise == DELAY_S && advertise_event_i.TMR_DELAY);
+  assign tmr_events_o.start_tmr_advertise = (state_advertise == DELAY_S && advertise_event_i.TMR_DELAY);
 
   //! Stop the TMR ADVERTISE counter when;
   //! RCV_ADP_DISCOVER or LINK_DOWN or SHUTDOWN event received
   //! in WAITING STATE
-  assign stop_tmr_advertise_o = ((state_advertise == WAITING_S && (advertise_event_i.RCV_ADP_DISCOVER ||
+  assign tmr_events_o.stop_tmr_advertise = ((state_advertise == WAITING_S && (advertise_event_i.RCV_ADP_DISCOVER ||
                                  advertise_event_i.LINK_DOWN || advertise_event_i.SHUTDOWN)));
 
   assign m_axis.tlast = (data_counter_r == MAX_DATA_CNT_C);
@@ -220,6 +217,7 @@ module KL_advertise_state
             endcase
           end
         end
+        default : state_encap <= COMMAND_S;
       endcase
     end
   end
