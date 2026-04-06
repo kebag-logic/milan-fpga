@@ -36,9 +36,9 @@ module KL_advertise_controller
 
     input wire rcv_adp_discover_i, //! ADP Discovery packet is received and rcv_entity_id_i field is valid- from KL_adp_parser
 
-    input link_status_t link_status, //! Link Status related inputs from Upper Management Module
+    input link_status_t link_status_i, //! Link Status related inputs from Upper Management Module
 
-    input tmr_events_t tmr_events,    //! ADP Timer events inputs
+    input tmr_events_t tmr_events_i,    //! ADP Timer events inputs
 
     output adp_advertise_event_t advertise_event_o //! All Advertise related evenet - to KL_advertise_state
   );
@@ -58,9 +58,9 @@ module KL_advertise_controller
 
 
 // ------------ ASYNC ASSIGNMENT ------ ------ //
-  assign advertise_event_o.LINK_DOWN = link_status.link_down;
-  assign advertise_event_o.LINK_UP = link_status.link_up;
-  assign advertise_event_o.SHUTDOWN = link_status.shutdown;
+  assign advertise_event_o.LINK_DOWN = link_status_i.link_down;
+  assign advertise_event_o.LINK_UP = link_status_i.link_up;
+  assign advertise_event_o.SHUTDOWN = link_status_i.shutdown;
   assign advertise_event_o.GM_CHANGE = (grandmaster_id_i != grandmaster_id_r);
   assign advertise_event_o.RCV_ADP_DISCOVER = rcv_adp_discover_i && (rcv_entity_id_i == 64'd0 || rcv_entity_id_i == entity_id_i);
   assign advertise_event_o.TMR_ADVERTISE = tmr_advertise_completed_r;
@@ -70,8 +70,8 @@ module KL_advertise_controller
   KL_counter TMR_ADVERTISE_COUNTER (
     .clk_i         ( clk_i ),
     .rst_n         ( rst_n ),
-    .start_i       ( tmr_events.start_tmr_advertise ),
-    .stop_i        ( tmr_events.stop_tmr_advertise ),
+    .start_i       ( tmr_events_i.start_tmr_advertise ),
+    .stop_i        ( tmr_events_i.stop_tmr_advertise ),
     .delay_value_i ( 3'd5 ),
     .completed_o   ( tmr_advertise_completed_r )
   );
@@ -81,7 +81,7 @@ module KL_advertise_controller
     .clk_i         ( clk_i ),
     .rst_n         ( rst_n ),
     .start_i       ( start_tmr_delay_cnt_r ),
-    .stop_i        ( tmr_events.stop_tmr_delay ),
+    .stop_i        ( tmr_events_i.stop_tmr_delay ),
     .delay_value_i ( delay_value_r ),
     .completed_o   ( tmr_delay_completed_r )
   );
@@ -106,7 +106,7 @@ module KL_advertise_controller
       start_tmr_delay_cnt_r <= 1'd0;
     end
     else begin
-      if (tmr_events.start_tmr_delay) begin
+      if (tmr_events_i.start_tmr_delay) begin
         delay_value_r <= zero_four_sec_cnt_r;
         start_tmr_delay_cnt_r <= 1'd1;
       end 

@@ -32,8 +32,8 @@ module tb_top();
     .entity_id_i(entity_id),
     .grandmaster_id_i(grandmaster_id),
     .rcv_adp_discover_i(rcv_adp_discover),
-    .link_status(link_status),
-    .tmr_events(tmr_events),
+    .link_status_i(link_status),
+    .tmr_events_i(tmr_events),
     .advertise_event_o(advertise_event)
   );
 
