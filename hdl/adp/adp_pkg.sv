@@ -17,6 +17,9 @@ package adp_pkg;
   //! Total bytes in hex
   localparam [10:0]  CTRL_DATA_LENGTH_C = 11'h38;
 
+  //! Maximum Delay in seconds for TMR Counters
+  localparam int MAX_SECOND = 'd5;
+
   //! Typedef for adp_message_type
   typedef enum logic[3:0] {
     ENTITY_AVAILABLE,
@@ -35,6 +38,21 @@ package adp_pkg;
     logic GM_CHANGE;
     logic SHUTDOWN;
   } adp_advertise_event_t;
+
+  //! ADP Timer Events
+  typedef struct packed {
+    logic start_tmr_delay;
+    logic start_tmr_advertise;
+    logic stop_tmr_delay;
+    logic stop_tmr_advertise;
+  } tmr_events_t;
+
+  //! Link Status from Upper Management Module
+  typedef struct packed {
+    logic link_down;
+    logic link_up;
+    logic shutdown;
+  } link_status_t;
 
   //! ADP Discovery Related Events
   typedef struct {
