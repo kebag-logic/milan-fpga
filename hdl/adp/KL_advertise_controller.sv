@@ -40,7 +40,7 @@ module KL_advertise_controller
 
     input tmr_events_t tmr_events_i,    //! ADP Timer events inputs
 
-    output adp_advertise_event_t advertise_event_o //! All Advertise related evenet - to KL_advertise_state
+    output adp_advertise_event_t advertise_event_o //! All Advertise related event - to KL_advertise_state
   );
 
   //! GM_EVENT related registers
