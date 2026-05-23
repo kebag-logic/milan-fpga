@@ -40,44 +40,24 @@
 
 import adp_pkg::*; 
 
-// ----------- MODULE DECLARATION ----------- //
 module KL_discovery_controller
   (
-    input wire clk_i,
-    input wire rst_n,
+    input wire clk_i, //! Global clock
+    input wire rst_n, //! Active-low Reset
 
-    // From ACMP Top
-    input wire [63:0] talker_entity_id_i,
-    input wire talker_entity_id_valid_i,
-    input wire talker_departed_i,
+    input wire [63:0] talker_entity_id_i, //! From ACMP Top - Talker entity Id
+    input wire talker_entity_id_valid_i, //! From ACMP Top - Talker entity Id is valid
+    input wire talker_departed_i, //! From ACMP Top - Talker is departed
 
-    // From KL_adp_parser
-    input wire rcv_adp_available_i,
-    input wire rcv_adp_departing_i,
+    input wire rcv_adp_available_i, //! Received packet is Available
+    input wire rcv_adp_departing_i, //! Received packet is Departing
 
-    // Received rcv_entity_info_o
-    input entity_info_t rx_entity_info_i,
+    input entity_info_t rcv_entity_info_i, //! Received ATDECC Entity Info
+    output entity_info_t rcv_entity_info_o, //! Entity Info to Discovery state module
 
-    input wire [63:0] rcv_entity_id_i,
-    input wire [31:0] rcv_available_index_i,
-    input wire [15:0] rcv_interface_index_i,
-    input wire [63:0] rcv_gptp_grandmaster_id_i,
-    input wire [7:0] rcv_gptp_domain_number_i,
-    input wire [4:0] rcv_valid_time_i,
-
-    // To KL_discovery_state
-    output entity_info_t rx_entity_info_o,
-
-    output wire [31:0] rcv_available_index_o,
-    output wire [15:0] rcv_interface_index_o,
-    output wire [4:0] rcv_valid_time_o,
-    output wire [63:0] rcv_gptp_grandmaster_id_o,
-    output wire [7:0] rcv_gptp_domain_number_o,
-    output wire [MAX_BOUNDED_TALKER_CNT_C -1 : 0] active_talker_o,
-    output adp_discovery_event_t discovery_events
+    output wire [MAX_BOUNDED_TALKER_CNT_C -1 : 0] active_talker_o, //! Active talkers
+    output adp_discovery_event_t discovery_events_o //! Discovery events to Discovery state module
   );
-
-// ---------- CONSTANT DECLARATION ---------- //
 
   typedef enum bit [1:0] {
     CTRL_IDLE_S,
@@ -99,16 +79,9 @@ module KL_discovery_controller
     INDEX_WAIT_S
   } state_index_t;
 
-// ---------- REG/WIRE DECLARATION ---------- //
-
   reg rcv_adp_available_r;
   reg rcv_adp_departing_r;
-  reg [63:0] rcv_entity_id_r;
-  reg [31:0] rcv_available_index_r;
-  reg [15:0] rcv_interface_index_r;
-  reg [63:0] rcv_gptp_grandmaster_id_r;
-  reg [7:0] rcv_gptp_domain_number_r;
-  reg [4:0] rcv_valid_time_r;
+  entity_info_t rcv_entity_info_r;
   reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] matched_index_r;
   state_control_t control_state;
 
@@ -134,11 +107,13 @@ module KL_discovery_controller
   state_index_t delete_state;
 
 // ------------ ASYNC ASSIGNMENT ------------ //
-  assign rcv_available_index_o = (control_state == CTRL_MATCHED_S) ? rcv_available_index_r : 0;
-  assign rcv_interface_index_o = (control_state == CTRL_MATCHED_S) ? rcv_interface_index_r : 0;
-  assign rcv_gptp_grandmaster_id_o = (control_state == CTRL_MATCHED_S) ? rcv_gptp_grandmaster_id_r : 0;
-  assign rcv_gptp_domain_number_o = (control_state == CTRL_MATCHED_S) ? rcv_gptp_domain_number_r : 0;
-  assign rcv_valid_time_o = (control_state == CTRL_MATCHED_S) ? rcv_valid_time_r : 0;
+  assign rcv_entity_info_o.available_index = (control_state == CTRL_MATCHED_S) ? rcv_entity_info_r.available_index : 0;
+  assign rcv_entity_info_o.interface_index = (control_state == CTRL_MATCHED_S) ? rcv_entity_info_r.interface_index : 0;
+  assign rcv_entity_info_o.gptp_grandmaster_id = (control_state == CTRL_MATCHED_S) ? rcv_entity_info_r.gptp_grandmaster_id : 0;
+  assign rcv_entity_info_o.gptp_domain_number = (control_state == CTRL_MATCHED_S) ? rcv_entity_info_r.gptp_domain_number : 0;
+  assign rcv_entity_info_o.valid_time = (control_state == CTRL_MATCHED_S) ? rcv_entity_info_r.valid_time : 0;
+  assign rcv_entity_info_o.entity_info_valid = control_state == CTRL_MATCHED_S;
+
   assign active_talker_o = active_talker_r;
 
 // --------------- MAIN LOGIC --------------- //
@@ -147,25 +122,18 @@ module KL_discovery_controller
     any entity_id in database.
     - Activate the state machine when rcv_adp_available_i or rcv_adp_departing_i
     - Search through the database and check if rcv_entity_id_r == bounded_talker_db_r
-    - If matched, provide discovery_events.RCV_ADP_AVAILABLE || discovery_events.RCV_ADP_DEPARTING
+    - If matched, provide discovery_events_o.RCV_ADP_AVAILABLE || discovery_events_o.RCV_ADP_DEPARTING
     alongside with matched_index_r
   */
   always @(posedge clk_i) begin
     if (!rst_n) begin
-      rcv_entity_id_r <= 64'd0;
-      rcv_adp_available_r <= 1'd0;
-      rcv_adp_departing_r <= 1'd0;
-      rcv_available_index_r <= 32'd0;
-      rcv_interface_index_r <= 16'd0;
-      rcv_gptp_grandmaster_id_r <= 64'd0;
-      rcv_gptp_domain_number_r <= 8'd0;
-      rcv_valid_time_r <= 5'd0;
+      rcv_entity_info_r <= '0;
       matched_index_r <= '0;
       control_state <= CTRL_IDLE_S;
       for (j = 0 ; j < MAX_BOUNDED_TALKER_CNT_C; j++) begin
-        discovery_events.RCV_ADP_AVAILABLE[j] <= 1'd0;
-        discovery_events.RCV_ADP_DEPARTING[j] <= 1'd0;
-        discovery_events.TMR_NO_ADP[j] <= 1'd0;
+        discovery_events_o.RCV_ADP_AVAILABLE[j] <= 1'd0;
+        discovery_events_o.RCV_ADP_DEPARTING[j] <= 1'd0;
+        discovery_events_o.TMR_NO_ADP[j] <= 1'd0;
       end
     end
     else begin
@@ -174,17 +142,13 @@ module KL_discovery_controller
         CTRL_IDLE_S : begin
           matched_index_r <= '0;
           // Save inputs in case KL_adp_parser receives another packet
-          rcv_entity_id_r <= rcv_entity_id_i;
-          rcv_available_index_r <= rcv_available_index_i;
-          rcv_interface_index_r <= rcv_interface_index_i;
-          rcv_valid_time_r <= rcv_valid_time_i;
-          rcv_gptp_grandmaster_id_r <= rcv_gptp_grandmaster_id_i;
-          rcv_gptp_domain_number_r <= rcv_gptp_domain_number_i;
           if (rcv_adp_available_i) begin
+            rcv_entity_info_r <= rcv_entity_info_i;
             rcv_adp_available_r <= 1'd1;
             control_state <= CTRL_SEARCH_S;
           end
           if (rcv_adp_departing_i) begin
+            rcv_entity_info_r <= rcv_entity_info_i;
             rcv_adp_departing_r <= 1'd1;
             control_state <= CTRL_SEARCH_S;
           end
@@ -197,11 +161,11 @@ module KL_discovery_controller
             control_state <= CTRL_IDLE_S;
           end
           else begin
-            if ((bounded_talker_db_r[matched_index_r] == rcv_entity_id_r) && active_talker_r[matched_index_r]) begin
+            if ((bounded_talker_db_r[matched_index_r] == rcv_entity_info_r.entity_id) && active_talker_r[matched_index_r]) begin
               if (rcv_adp_available_r)
-                discovery_events.RCV_ADP_AVAILABLE[matched_index_r] <= 1'd1;
+                discovery_events_o.RCV_ADP_AVAILABLE[matched_index_r] <= 1'd1;
               if (rcv_adp_departing_r)
-                discovery_events.RCV_ADP_DEPARTING[matched_index_r] <= 1'd1;
+                discovery_events_o.RCV_ADP_DEPARTING[matched_index_r] <= 1'd1;
               control_state <= CTRL_MATCHED_S;
             end
             else begin
@@ -213,8 +177,8 @@ module KL_discovery_controller
         CTRL_MATCHED_S : begin
           rcv_adp_available_r <= 1'd0;
           rcv_adp_departing_r <= 1'd0;
-          discovery_events.RCV_ADP_AVAILABLE[matched_index_r] <= 1'd0;
-          discovery_events.RCV_ADP_DEPARTING[matched_index_r] <= 1'd0;
+          discovery_events_o.RCV_ADP_AVAILABLE[matched_index_r] <= 1'd0;
+          discovery_events_o.RCV_ADP_DEPARTING[matched_index_r] <= 1'd0;
           control_state <= CTRL_IDLE_S;
         end
 

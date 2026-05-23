@@ -20,6 +20,9 @@ package adp_pkg;
   //! Maximum Delay in seconds for TMR Counters
   localparam int MAX_SECOND = 'd5;
 
+  //! Maximum number of bounded talker that logic can save
+  localparam [7:0] MAX_BOUNDED_TALKER_CNT_C = 8'd16;
+  
   //! Typedef for adp_message_type
   typedef enum logic[3:0] {
     ENTITY_AVAILABLE,
