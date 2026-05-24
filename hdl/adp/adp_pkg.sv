@@ -58,10 +58,10 @@ package adp_pkg;
   } link_status_t;
 
   //! ADP Discovery Related Events
-  typedef struct {
-    logic RCV_ADP_AVAILABLE;
-    logic RCV_ADP_DEPARING;
-    logic TMR_NO_ADP;
+  typedef struct packed {
+    logic [MAX_BOUNDED_TALKER_CNT_C-1:0] RCV_ADP_AVAILABLE;
+    logic [MAX_BOUNDED_TALKER_CNT_C-1:0] RCV_ADP_DEPARTING;
+    logic [MAX_BOUNDED_TALKER_CNT_C-1:0] TMR_NO_ADP;
   } adp_discovery_event_t;
 
   //! Struct for holding the parsed packet information.

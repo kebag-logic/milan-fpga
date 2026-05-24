@@ -35,6 +35,17 @@
 */
 //---------------------------------------------------------------------------//
 
+//! Controller for KL_discovery_state
+//! Tasks;
+//!   1- Save the talker_entity_ids from ACMP - When bound happened talker_entity_id_valid_i
+//!   will be high
+//!   2- Get the rcv_adp_available, rcv_adp_departing, rcv_entity_id, rcv_available_index
+//!   rcv_interface_index and rcv_valid_time from KL_adp_parser. 
+//!   3- Loop all the possible talker_entity_ids and compare individually with rcv_entity_id
+//!   whenever rcv_adp_available OR rcv_adp_departing arrived.
+//!   4- If ids are matched -> Provide RCV_ADP_AVAILABE OR RCV_ADP_DEPARTING events to 
+//!   KL_discovery_state
+//!   5- Align events available_index_o, interface_index_o and valid_time_o
 
 `default_nettype none
 
@@ -59,12 +70,13 @@ module KL_discovery_controller
     output adp_discovery_event_t discovery_events_o //! Discovery events to Discovery state module
   );
 
+  //! Controller state, drive Database and index states
   typedef enum bit [1:0] {
     CTRL_IDLE_S,
     CTRL_SEARCH_S,
     CTRL_MATCHED_S
   } state_control_t;
-
+  //! Database operations state
   typedef enum bit [2:0] {
     DB_IDLE_S,
     DB_SAVE_S,
@@ -72,37 +84,48 @@ module KL_discovery_controller
     DB_DEL_DONE_S,
     DB_SAVE_DONE_S
   } state_database_t;
-
+  //! Search index state
   typedef enum bit [1:0] {
     INDEX_IDLE_S,
     INDEX_SEARCH_S,
     INDEX_WAIT_S
   } state_index_t;
 
+  //! ADP available received
   reg rcv_adp_available_r;
+  //! ADP departing received
   reg rcv_adp_departing_r;
+  //! Save the received entity info
   entity_info_t rcv_entity_info_r;
+  //! Matched index register
   reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] matched_index_r;
+  //! control state
   state_control_t control_state;
 
-  // Holds the entity_id's of bounded talkers and status field
-  // [63:0] talker_entity_id
+  //! Holds the entity_id's of bounded talkers and status field
   reg [63:0] talker_entity_id_r;
+  //! Bounded talkers
   reg [MAX_BOUNDED_TALKER_CNT_C-1 : 0][63:0] bounded_talker_db_r;
+  //! Current active talkers
   reg [MAX_BOUNDED_TALKER_CNT_C-1 : 0] active_talker_r;
-  reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] number_of_talker_r; // Keep track of the total number_of_talkers that are active
+  //! Keep track of the total number_of_talkers that are active
+  reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] number_of_talker_r;
   int i,j;
+  //! Database state
   state_database_t database_state;
 
-  // Index of holding the next available slot to save within bounded_talker_db_r
+  //! Index of holding the next available slot to save within bounded_talker_db_r
   reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] save_index_r;
   reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] save_index_counter_r;
+  //! Saving index found
   reg save_index_ready_r;
+  //! Save index
   state_index_t save_state;
 
-  // Index of holding the bounded talker to be de-activate
+  //! Index of holding the bounded talker to be de-activate
   reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] delete_index_r;
   reg [$clog2(MAX_BOUNDED_TALKER_CNT_C)-1 : 0] delete_index_counter_r;
+  //! Delete index found
   reg delete_index_ready_r;
   state_index_t delete_state;
 
@@ -125,16 +148,14 @@ module KL_discovery_controller
     - If matched, provide discovery_events_o.RCV_ADP_AVAILABLE || discovery_events_o.RCV_ADP_DEPARTING
     alongside with matched_index_r
   */
-  always @(posedge clk_i) begin
+  always @(posedge clk_i) begin : control_fsm
     if (!rst_n) begin
       rcv_entity_info_r <= '0;
       matched_index_r <= '0;
       control_state <= CTRL_IDLE_S;
-      for (j = 0 ; j < MAX_BOUNDED_TALKER_CNT_C; j++) begin
-        discovery_events_o.RCV_ADP_AVAILABLE[j] <= 1'd0;
-        discovery_events_o.RCV_ADP_DEPARTING[j] <= 1'd0;
-        discovery_events_o.TMR_NO_ADP[j] <= 1'd0;
-      end
+      discovery_events_o.RCV_ADP_AVAILABLE <= '0;
+      discovery_events_o.RCV_ADP_DEPARTING <= '0;
+      discovery_events_o.TMR_NO_ADP <= '0;
     end
     else begin
       case (control_state)
@@ -196,7 +217,7 @@ module KL_discovery_controller
     However, in real case scenario we do not expect a talker to bound within 50ns.
     Since the ACMP message transmission is not that short.! 
   */
-  always @(posedge clk_i) begin
+  always @(posedge clk_i) begin : database_fsm
     if (!rst_n) begin
       talker_entity_id_r <= '0;
       number_of_talker_r <= '0;
@@ -250,7 +271,7 @@ module KL_discovery_controller
     available index.
     Provide the index and ready registers to database
   */
-  always @(posedge clk_i) begin
+  always @(posedge clk_i) begin : index_fsm
     if (!rst_n) begin
       save_index_r <= '0;
       save_index_counter_r <= '0;
@@ -292,7 +313,7 @@ module KL_discovery_controller
       Loop through the database and find the index 
       Provide the index and ready registers to database
   */
-  always @(posedge clk_i) begin
+  always @(posedge clk_i) begin : delete_fsm
     if (!rst_n) begin
       delete_index_r <= '0;
       delete_index_counter_r <= '0;

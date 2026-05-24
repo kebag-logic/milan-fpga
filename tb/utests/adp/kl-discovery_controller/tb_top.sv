@@ -12,22 +12,13 @@ module tb_top();
   logic talker_departed;
   logic rcv_adp_available;
   logic rcv_adp_departing;
-  logic [63:0] rcv_entity_id;
-  logic [31:0] rcv_available_index;
-  logic [15:0] rcv_interface_index;
-  logic [63:0] rcv_gptp_grandmaster_id;
-  logic [7:0] rcv_gptp_domain_number;
-  logic [4:0] rcv_valid_time;
 
-  // Outputs 
-  wire [31:0] available_index;
-  wire [15:0] interface_index;
-  wire [63:0] gptp_grandmaster_id;
-  wire [7:0] gptp_domain_number;
-  wire [4:0] valid_time;
+  entity_info_t rcv_entity_info_i;
+  entity_info_t rcv_entity_info_o;
+
   wire [MAX_BOUNDED_TALKER_CNT_C-1:0] active_talker_o;
 
-  adp_discovery_event_t discovery_events;
+  adp_discovery_event_t discovery_events_o;
 
   // Save the given/deleted talker entity ids to compare with DUT
   logic [MAX_BOUNDED_TALKER_CNT_C-1:0][63:0] bounded_talker_db;
@@ -45,19 +36,10 @@ module tb_top();
     .talker_departed_i(talker_departed),
     .rcv_adp_available_i(rcv_adp_available),
     .rcv_adp_departing_i(rcv_adp_departing),
-    .rcv_entity_id_i(rcv_entity_id),
-    .rcv_available_index_i(rcv_available_index),
-    .rcv_interface_index_i(rcv_interface_index),
-    .rcv_gptp_grandmaster_id_i(rcv_gptp_grandmaster_id),
-    .rcv_gptp_domain_number_i(rcv_gptp_domain_number),
-    .rcv_valid_time_i(rcv_valid_time),
-    .rcv_available_index_o(available_index),
-    .rcv_interface_index_o(interface_index),
-    .rcv_valid_time_o(valid_time),
-    .rcv_gptp_grandmaster_id_o(gptp_grandmaster_id),
-    .rcv_gptp_domain_number_o(gptp_domain_number),
+    .rcv_entity_info_i(rcv_entity_info_i),
+    .rcv_entity_info_o(rcv_entity_info_o),
     .active_talker_o(active_talker_o),
-    .discovery_events(discovery_events)
+    .discovery_events_o(discovery_events_o)
   );
 
   always #(T/2) clk = ~clk;
@@ -70,12 +52,14 @@ module tb_top();
     talker_departed = '0;
     rcv_adp_available = '0;
     rcv_adp_departing = '0;
-    rcv_entity_id = '0;
-    rcv_available_index = '0;
-    rcv_interface_index = '0;
-    rcv_gptp_grandmaster_id = '0;
-    rcv_gptp_domain_number = '0;
-    rcv_valid_time = '0;
+
+    rcv_entity_info_i.entity_id = '0;
+    rcv_entity_info_i.available_index = '0;
+    rcv_entity_info_i.interface_index = '0;
+    rcv_entity_info_i.gptp_grandmaster_id = '0;
+    rcv_entity_info_i.gptp_domain_number = '0;
+    rcv_entity_info_i.valid_time = '0;
+
     bounded_talker_db = '0;
     active_talker = '0;
     rst_n = 1'd1;
@@ -150,15 +134,15 @@ module tb_top();
         while(!active_talker[random_number]) begin
           random_number = $urandom_range(0,MAX_BOUNDED_TALKER_CNT_C-1);
         end
-        rcv_entity_id = bounded_talker_db[random_number];
+        rcv_entity_info_i.entity_id = bounded_talker_db[random_number];
         $display("[INFO][TOP][GIVE_RCV_AVAILABLE] : Giving a entity_id equal to the bounded talker id %dth", random_number);
       end
 
       if (s == "NEGATIVE") begin
-        rcv_entity_id = {$urandom, $urandom};
+        rcv_entity_info_i.entity_id = {$urandom, $urandom};
         for (int i = 0; i < MAX_BOUNDED_TALKER_CNT_C; i++) begin
           if (bounded_talker_db[i] == rcv_entity_id) begin
-            rcv_entity_id = {$urandom, $urandom};
+            rcv_entity_info_i.entity_id = {$urandom, $urandom};
             i = 0;
           end
         end
@@ -214,14 +198,28 @@ module tb_top();
     $display("---------------------------------------------");
     $display("[INFO][TOP] : ------ TP.UT.DISCOVERY_CONTROLLER_0001 --------- ");
     $display("[INFO][TOP] : Giving RCV_ADP_AVAILABLE input with CORRECT entity_id within Database");
-    give_adp_pkt(rcv_entity_id, rcv_adp_available, rcv_adp_departing, rcv_available_index, rcv_interface_index,rcv_gptp_grandmaster_id,rcv_gptp_domain_number,rcv_valid_time, active_talker, bounded_talker_db, "POSITIVE", "ADP_AVAILABLE", random_number);
-    @(posedge discovery_events.RCV_ADP_AVAILABLE[random_number]);
-    $display("[INFO][TOP] : Comparing the output");
-    status &= (rcv_available_index == available_index);
-    status &= (rcv_interface_index == interface_index);
-    status &= (rcv_gptp_grandmaster_id == gptp_grandmaster_id);
-    status &= (rcv_gptp_domain_number == gptp_domain_number);
-    status &= (rcv_valid_time == valid_time);
+    give_adp_pkt(
+      rcv_entity_info_i.entity_id,
+      rcv_adp_available,
+      rcv_adp_departing,
+      rcv_entity_info_i.available_index,
+      rcv_entity_info_i.interface_index,
+      rcv_entity_info_i.gptp_grandmaster_id,
+      rcv_entity_info_i.gptp_domain_number,
+      rcv_entity_info_i.valid_time,
+      active_talker,
+      bounded_talker_db,
+      "POSITIVE",
+      "ADP_AVAILABLE",
+      random_number
+    );
+    @(posedge discovery_events_o.RCV_ADP_AVAILABLE[random_number]);
+    $display("[INFO][TOP] : Comparing the output %t ", $time);
+    status &= (rcv_entity_info_i.available_index     == rcv_entity_info_o.available_index);
+    status &= (rcv_entity_info_i.interface_index     == rcv_entity_info_o.interface_index);
+    status &= (rcv_entity_info_i.gptp_grandmaster_id == rcv_entity_info_o.gptp_grandmaster_id);
+    status &= (rcv_entity_info_i.gptp_domain_number  == rcv_entity_info_o.gptp_domain_number);
+    status &= (rcv_entity_info_i.valid_time          == rcv_entity_info_o.valid_time);
     if (!status)
       $fatal(1,"[FATAL][TOP] : TP.UT.DISCOVERY_CONTROLLER_0001 Failed");
     $display("[INFO][TOP] : TP.UT.DISCOVERY_CONTROLLER_0001 Succesfull");
@@ -231,14 +229,28 @@ module tb_top();
     $display("---------------------------------------------");
     $display("[INFO][TOP] : ------ TP.UT.DISCOVERY_CONTROLLER_0002 --------- ");
     $display("[INFO][TOP] : Giving RCV_ADP_DEPARTING input with CORRECT entity_id within Database");
-    give_adp_pkt(rcv_entity_id, rcv_adp_available, rcv_adp_departing, rcv_available_index, rcv_interface_index,rcv_gptp_grandmaster_id,rcv_gptp_domain_number,rcv_valid_time, active_talker, bounded_talker_db, "POSITIVE", "ADP_DEPARTING", random_number);
-    $display("[INFO][TOP] : Comparing the output");
-    @(posedge discovery_events.RCV_ADP_DEPARTING[random_number]);    
-    status &= (rcv_available_index == available_index);
-    status &= (rcv_interface_index == interface_index);
-    status &= (rcv_gptp_grandmaster_id == gptp_grandmaster_id);
-    status &= (rcv_gptp_domain_number == gptp_domain_number);
-    status &= (rcv_valid_time == valid_time);
+    give_adp_pkt(
+      rcv_entity_info_i.entity_id,
+      rcv_adp_available,
+      rcv_adp_departing,
+      rcv_entity_info_i.available_index,
+      rcv_entity_info_i.interface_index,
+      rcv_entity_info_i.gptp_grandmaster_id,
+      rcv_entity_info_i.gptp_domain_number,
+      rcv_entity_info_i.valid_time,
+      active_talker,
+      bounded_talker_db,
+      "POSITIVE",
+      "ADP_DEPARTING",
+      random_number
+    );
+    $display("[INFO][TOP] : Comparing the output %t ", $time);
+    @(posedge discovery_events_o.RCV_ADP_DEPARTING[random_number]);    
+    status &= (rcv_entity_info_i.available_index     == rcv_entity_info_o.available_index);
+    status &= (rcv_entity_info_i.interface_index     == rcv_entity_info_o.interface_index);
+    status &= (rcv_entity_info_i.gptp_grandmaster_id == rcv_entity_info_o.gptp_grandmaster_id);
+    status &= (rcv_entity_info_i.gptp_domain_number  == rcv_entity_info_o.gptp_domain_number);
+    status &= (rcv_entity_info_i.valid_time          == rcv_entity_info_o.valid_time);
     if (!status)
       $fatal(1,"[FATAL][TOP] : TP.UT.DISCOVERY_CONTROLLER_0002 Failed");
     $display("[INFO][TOP] : TP.UT.DISCOVERY_CONTROLLER_0002 Succesfull");
@@ -247,12 +259,25 @@ module tb_top();
     $display("---------------------------------------------");
     $display("[INFO][TOP] : ------ TP.UT.DISCOVERY_CONTROLLER_0003 --------- ");
     $display("[INFO][TOP] : Giving RCV_ADP_AVAILABLE input with WRONG entity_id within Database");
-    give_adp_pkt(rcv_entity_id, rcv_adp_available, rcv_adp_departing, rcv_available_index, rcv_interface_index,rcv_gptp_grandmaster_id,rcv_gptp_domain_number,rcv_valid_time, active_talker, bounded_talker_db, "NEGATIVE", "ADP_AVAILABLE", random_number);
-
+    give_adp_pkt(
+      rcv_entity_info_i.entity_id,
+      rcv_adp_available,
+      rcv_adp_departing,
+      rcv_entity_info_i.available_index,
+      rcv_entity_info_i.interface_index,
+      rcv_entity_info_i.gptp_grandmaster_id,
+      rcv_entity_info_i.gptp_domain_number,
+      rcv_entity_info_i.valid_time,
+      active_talker,
+      bounded_talker_db,
+      "NEGATIVE",
+      "ADP_AVAILABLE",
+      random_number
+    );
     fork
       begin
         // event must not occured, since entity id is not matched
-        @(posedge discovery_events.RCV_ADP_AVAILABLE[random_number]);
+        @(posedge discovery_events_o.RCV_ADP_AVAILABLE[random_number]);
         status = 0;
       end
       begin
@@ -269,12 +294,25 @@ module tb_top();
     $display("---------------------------------------------");
     $display("[INFO][TOP] : ------ TP.UT.DISCOVERY_CONTROLLER_0004 --------- ");
     $display("[INFO][TOP] : Giving RCV_ADP_DEPARTING input with WRONG entity_id within Database");
-    give_adp_pkt(rcv_entity_id, rcv_adp_available, rcv_adp_departing, rcv_available_index, rcv_interface_index,rcv_gptp_grandmaster_id,rcv_gptp_domain_number,rcv_valid_time, active_talker, bounded_talker_db, "NEGATIVE", "ADP_DEPARTING",random_number);
-
+    give_adp_pkt(
+      rcv_entity_info_i.entity_id,
+      rcv_adp_available,
+      rcv_adp_departing,
+      rcv_entity_info_i.available_index,
+      rcv_entity_info_i.interface_index,
+      rcv_entity_info_i.gptp_grandmaster_id,
+      rcv_entity_info_i.gptp_domain_number,
+      rcv_entity_info_i.valid_time,
+      active_talker,
+      bounded_talker_db,
+      "NEGATIVE",
+      "ADP_DEPARTING",
+      random_number
+    );
     fork
       begin
         // event must not occured, since entity id is not matched
-        @(posedge discovery_events.RCV_ADP_DEPARTING[random_number]);
+        @(posedge discovery_events_o.RCV_ADP_DEPARTING[random_number]);
         status = 0;
       end
       begin
@@ -289,6 +327,4 @@ module tb_top();
     $finish;
   end
 
-
-  
 endmodule

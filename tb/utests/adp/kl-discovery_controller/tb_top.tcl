@@ -37,7 +37,7 @@ variable script_file
 set script_file "tb_top.tcl"
 
 # Create project
-create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7a35tcpg236-1
+create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7z020iclg400-1L
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -53,7 +53,7 @@ set_property -name "enable_vhdl_2008" -value "1" -objects $obj
 set_property -name "ip_cache_permissions" -value "read write" -objects $obj
 set_property -name "ip_output_repo" -value "$proj_dir/${_xil_proj_name_}.cache/ip" -objects $obj
 set_property -name "mem.enable_memory_map_generation" -value "1" -objects $obj
-set_property -name "part" -value "xc7a35tcpg236-1" -objects $obj
+set_property -name "part" -value "xc7z020iclg400-1L" -objects $obj
 set_property -name "revised_directory_structure" -value "1" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
@@ -95,16 +95,15 @@ set_property -name "xsim.simulate.runtime" -value "0" -objects $obj
 set_property -name {xsim.simulate.runtime} -value {0} -objects [get_filesets sim_1]
 # To change the seed value
 set_property -name {xsim.simulate.xsim.more_options} -value {-sv_seed 1453} -objects [get_filesets sim_1]
-start_gui
 
-# launch_simulation
-# run 100us
+launch_simulation
+run 100us
 
-# close_sim
+close_sim
 
-# puts "INFO : Cleaning the directory"
+puts "INFO : Cleaning the directory"
 
-# file delete {*}[glob *.log]
-# file delete {*}[glob *.jou]
+file delete {*}[glob *.log]
+file delete {*}[glob *.jou]
 
-# file delete -force -- $origin_dir/${_xil_proj_name_}
+file delete -force -- $origin_dir/${_xil_proj_name_}
