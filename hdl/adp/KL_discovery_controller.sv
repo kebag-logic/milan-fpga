@@ -102,6 +102,14 @@ module KL_discovery_controller
   //! control state
   state_control_t control_state;
 
+  //! 100 MHz → 1-second prescaler (counts 0..99_999_999)
+  localparam int unsigned ONE_SECOND_C = 100_000_000 - 1;
+  reg [26:0] second_prescaler_r;
+  wire       one_second_pulse_w = (second_prescaler_r == 27'(ONE_SECOND_C));
+
+  //! Per-talker valid_time countdown (seconds remaining, reloaded on each RCV_ADP_AVAILABLE match)
+  reg [4:0] talker_valid_time_r [MAX_BOUNDED_TALKER_CNT_C-1:0];
+
   //! Holds the entity_id's of bounded talkers and status field
   reg [63:0] talker_entity_id_r;
   //! Bounded talkers
@@ -155,7 +163,7 @@ module KL_discovery_controller
       control_state <= CTRL_IDLE_S;
       discovery_events_o.RCV_ADP_AVAILABLE <= '0;
       discovery_events_o.RCV_ADP_DEPARTING <= '0;
-      discovery_events_o.TMR_NO_ADP <= '0;
+      // discovery_events_o.TMR_NO_ADP is driven exclusively by tmr_no_adp_fsm below
     end
     else begin
       case (control_state)
@@ -176,22 +184,23 @@ module KL_discovery_controller
         end
 
         CTRL_SEARCH_S : begin
-          if (matched_index_r == MAX_BOUNDED_TALKER_CNT_C - 1) begin // No Matched! 
+          // Check current slot first, then decide whether to advance or exit.
+          // Previously the exit check fired BEFORE the slot-15 comparison,
+          // so the last slot was never searched (off-by-one).
+          if ((bounded_talker_db_r[matched_index_r] == rcv_entity_info_r.entity_id) && active_talker_r[matched_index_r]) begin
+            if (rcv_adp_available_r)
+              discovery_events_o.RCV_ADP_AVAILABLE[matched_index_r] <= 1'd1;
+            if (rcv_adp_departing_r)
+              discovery_events_o.RCV_ADP_DEPARTING[matched_index_r] <= 1'd1;
+            control_state <= CTRL_MATCHED_S;
+          end
+          else if (matched_index_r == 4'(MAX_BOUNDED_TALKER_CNT_C - 1)) begin // All slots searched, no match
             rcv_adp_available_r <= 1'd0;
             rcv_adp_departing_r <= 1'd0;
             control_state <= CTRL_IDLE_S;
           end
           else begin
-            if ((bounded_talker_db_r[matched_index_r] == rcv_entity_info_r.entity_id) && active_talker_r[matched_index_r]) begin
-              if (rcv_adp_available_r)
-                discovery_events_o.RCV_ADP_AVAILABLE[matched_index_r] <= 1'd1;
-              if (rcv_adp_departing_r)
-                discovery_events_o.RCV_ADP_DEPARTING[matched_index_r] <= 1'd1;
-              control_state <= CTRL_MATCHED_S;
-            end
-            else begin
-              matched_index_r <= matched_index_r + 1;
-            end
+            matched_index_r <= matched_index_r + 1;
           end
         end
 
@@ -235,8 +244,10 @@ module KL_discovery_controller
             number_of_talker_r <= number_of_talker_r + 1;
             database_state <= DB_SAVE_S;
           end
-          if (talker_departed_i) begin // after EVT_TK_DEPARTED provided to ACMP
+          else if (talker_departed_i) begin // after EVT_TK_DEPARTED provided to ACMP
           // from discovery_state module, this input is expected with correct entity_id
+          // Changed from 'if' to 'else if': simultaneous SAVE+DEPART cannot both win;
+          // SAVE takes priority and the departing event is ignored (will not occur in practice).
             talker_entity_id_r <= talker_entity_id_i;
             number_of_talker_r <= number_of_talker_r - 1;
             database_state <= DB_DELETE_S;
@@ -282,6 +293,7 @@ module KL_discovery_controller
       case (save_state)
         INDEX_IDLE_S : begin
           save_index_r <= '0;
+          save_index_counter_r <= '0; // Reset counter so search always begins at slot 0
           save_state <= INDEX_SEARCH_S;
         end
 
@@ -335,6 +347,12 @@ module KL_discovery_controller
             delete_index_ready_r <= 1'd1;
             delete_state <= INDEX_WAIT_S;
           end
+          else if (delete_index_counter_r == 4'(MAX_BOUNDED_TALKER_CNT_C - 1)) begin
+            // Reached last slot without a match – entity_id not in DB.
+            // Return to IDLE to avoid an infinite wrap-around loop.
+            delete_index_counter_r <= '0;
+            delete_state <= INDEX_IDLE_S;
+          end
           else begin // no match, keep searching
             delete_index_counter_r <= delete_index_counter_r + 1;
           end
@@ -350,6 +368,57 @@ module KL_discovery_controller
       endcase
     end
   end
+  /*
+    Per-talker TMR_NO_ADP timer (Milan §5.6.4)
+    Each time a matching RCV_ADP_AVAILABLE is processed, reload the slot's
+    valid_time countdown (in whole seconds).  Every second tick decrement all
+    active slots; when a slot's counter reaches 1→0 assert TMR_NO_ADP for that
+    slot for exactly one clock cycle so the discovery state machine sees a pulse.
+  */
+  always_ff @(posedge clk_i) begin : tmr_no_adp_fsm
+    integer k;
+    if (!rst_n) begin
+      second_prescaler_r <= '0;
+      for (k = 0; k < MAX_BOUNDED_TALKER_CNT_C; k++)
+        talker_valid_time_r[k] <= '0;
+      discovery_events_o.TMR_NO_ADP <= '0;
+    end
+    else begin
+      // --- 1-second prescaler ---
+      if (one_second_pulse_w)
+        second_prescaler_r <= '0;
+      else
+        second_prescaler_r <= second_prescaler_r + 1;
+
+      // --- Default: clear pulse outputs each cycle ---
+      discovery_events_o.TMR_NO_ADP <= '0;
+
+      // --- Reload timer when a matching AVAILABLE packet is fully processed ---
+      // control_fsm enters CTRL_MATCHED_S for exactly one cycle with rcv_adp_available_r set.
+      if (control_state == CTRL_MATCHED_S && rcv_adp_available_r)
+        talker_valid_time_r[matched_index_r] <= rcv_entity_info_r.valid_time;
+
+      // --- Invalidate timer when talker is deactivated ---
+      if (database_state == DB_DEL_DONE_S)
+        talker_valid_time_r[delete_index_r] <= '0;
+
+      // --- Per-slot countdown every second ---
+      if (one_second_pulse_w) begin
+        for (k = 0; k < MAX_BOUNDED_TALKER_CNT_C; k++) begin
+          if (active_talker_r[k] && talker_valid_time_r[k] != '0) begin
+            if (talker_valid_time_r[k] == 5'd1) begin
+              discovery_events_o.TMR_NO_ADP[k] <= 1'd1; // one-cycle pulse
+              talker_valid_time_r[k] <= '0;
+            end
+            else begin
+              talker_valid_time_r[k] <= talker_valid_time_r[k] - 1;
+            end
+          end
+        end
+      end
+    end
+  end
+
 endmodule
 
 `default_nettype wire

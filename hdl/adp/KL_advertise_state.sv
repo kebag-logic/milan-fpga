@@ -178,7 +178,7 @@ module KL_advertise_state
               end
 
               2 : begin // 6th 64-bit transaction
-                m_axis.tdata <= {mmap_entity_info_r.entity_capabilities, mmap_entity_info_r.talker_stream_sources, mmap_entity_info_r.talker_capabilities, mmap_entity_info_i.listener_stream_sinks};
+                m_axis.tdata <= {mmap_entity_info_r.entity_capabilities, mmap_entity_info_r.talker_stream_sources, mmap_entity_info_r.talker_capabilities, mmap_entity_info_r.listener_stream_sinks};
                 data_counter_r <= data_counter_r + 4'd1;
               end
 
@@ -193,7 +193,7 @@ module KL_advertise_state
               end
 
               5 : begin // 9th 64-bit transaction
-                m_axis.tdata <= {grandmaster_id_i[15:0], gptp_domain_number_i, 8'd0, mmap_entity_info_r.current_configuration_index, mmap_entity_info_i.identify_control_index};
+                m_axis.tdata <= {grandmaster_id_i[15:0], gptp_domain_number_i, 8'd0, mmap_entity_info_r.current_configuration_index, mmap_entity_info_r.identify_control_index};
                 data_counter_r <= data_counter_r + 4'd1;
               end
 
@@ -222,12 +222,14 @@ module KL_advertise_state
     end
   end
 
-  //! Catch the entity_info_tvalid strobe from input and register the mmap structure
+  //! Catch the entity_info_tvalid strobe from input and register the mmap structure.
+  //! Guard: only update when not mid-transmission (COMMAND_S) so the snapshot
+  //! used for a packet-in-flight is never corrupted by a concurrent mmap write.
   always_ff @(posedge clk_i) begin : mmap_entity_info
     if (!rst_n) mmap_entity_info_r <= '0;
     else begin
-      if (mmap_entity_info_i.entity_info_valid) 
-      mmap_entity_info_r <= mmap_entity_info_i;
+      if (mmap_entity_info_i.entity_info_valid && state_encap == COMMAND_S)
+        mmap_entity_info_r <= mmap_entity_info_i;
     end
   end
 
