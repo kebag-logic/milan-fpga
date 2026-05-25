@@ -29,7 +29,7 @@ package adp_pkg;
   } adp_message_type_t;
 
   //! ADP Advertise Related Events
-  typedef struct {
+  typedef struct packed {
     logic RCV_ADP_DISCOVER;
     logic TMR_ADVERTISE;
     logic TMR_DELAY;
