@@ -1,22 +1,55 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Cemal Dogan <cemal.dogan@kebag-logic.com>
+ *
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ */
+
+/*
+------------------------------------------------------------------------------
+  File        : KL_avtp_common_parser.sv
+  Author      : Cemal Dogan, Maximilien Pinaud
+
+                cemal.dogan@kebag-logic.com
+
+  Date        : 2025-03-20
+  Description : The module is used to route the AXI stream packets depending on their TDEST value to the matching destinations port. Each output AXI master interface has an associated TDEST value that is being parsed in real time.
+
+  Company     : Kebag Logic
+  Project     : Milan ADP
+
+------------------------------------------------------------------------------
+*/
 `default_nettype none
-module buffered_switch # (
-    parameter bit   IN_REG          = 1,                    //! Enable input stream registering
-    parameter bit   OUT_REG         = 1,                    //! Enable output stream registering
-    parameter int   FIFO_DEPTH      = 128,                  //! The depth in terms of samples of the FIFO
-    parameter int NUM_M_AXIS_IF = 3,
-    parameter int PORT_VALUES[NUM_M_AXIS_IF] = '{1, 2, 3}
+module KL_avtp_packet_switch # (
+    parameter bit IN_REG                     = 1,          //! Enable input stream registering
+    parameter bit OUT_REG                    = 1,          //! Enable output stream registering
+    parameter int FIFO_DEPTH                 = 128,        //! The depth in terms of samples of the FIFO
+    parameter int NUM_M_AXIS_IF              = 3,          //! Number of axis stream master interfaces
+    parameter int PORT_VALUES[NUM_M_AXIS_IF] = '{1, 2, 3}  //! Array defining the tdest values for each master axis interface 
     )(
-    input wire              i_clk, i_resetn,                //! Clock and Reset Signals 
-    axi_stream_if.slave     s_axis,                         //! AXI4-Stream Slave interface
-    axi_stream_if.master    m_axis[NUM_M_AXIS_IF]              //! AXI4-Stream Master interface
+    input wire              clk_i, resetn_i,               //! Clock and Reset Signals 
+    axi_stream_if.slave     s_axis,                        //! AXI4-Stream Slave interface
+    axi_stream_if.master    m_axis[NUM_M_AXIS_IF]          //! AXI4-Stream Master interface
 );
 
-localparam int TDATA_WIDTH          =    $bits(s_axis.tdata);    //! Measure of the axis data port width
-localparam int TUSER_WIDTH          =    $bits(s_axis.tuser);    //! Measure of the axis user port width
-localparam int TDEST_WIDTH          =    $bits(s_axis.tdest);    //! Measure of the axis destination port width
-localparam int TID_WIDTH            =    $bits(s_axis.tid);      //! Measure of the axis id width
-localparam int TSTRB_WIDTH          =    $bits(s_axis.tstrb);    //! Measure of the axis strobe width
-localparam int OUT_PIPELINE_LENGTH  =    2;                      //! Defines the output pipeline length for the skid buffer 
+
+localparam int TDATA_WIDTH = $bits(s_axis.tdata);
+localparam int TUSER_WIDTH = $bits(s_axis.tuser);
+localparam int TDEST_WIDTH = $bits(s_axis.tdest);
+localparam int TID_WIDTH   = $bits(s_axis.tid);
+localparam int TKEEP_WIDTH = TDATA_WIDTH/8;
+
+typedef struct packed{
+    logic [TDATA_WIDTH-1:0]     tdata;
+    logic [TKEEP_WIDTH-1:0]     tkeep;
+    logic [TDEST_WIDTH-1:0]     tdest;
+    logic [TUSER_WIDTH-1:0]     tuser;
+    logic [TID_WIDTH-1:0]       tid;
+    logic [TKEEP_WIDTH-1:0]     tstrb;
+    logic                       tvalid;
+    logic                       tlast;
+    logic                       tready;
+} axis_t;
 
 initial begin 
     //! Check for duplicate port values on instantiation of the module
@@ -37,20 +70,7 @@ initial begin
     $error("FIFO size should be larger than 0 and a power of 2");
 end 
 
-//! axis streaming struct used throughout the design
-typedef struct packed {
-  logic [TDATA_WIDTH-1:0]       tdata;
-  logic [(TDATA_WIDTH/8)-1:0]   tkeep;
-  logic [TDEST_WIDTH-1:0]       tdest;
-  logic [TUSER_WIDTH-1:0]       tuser;
-  logic [TID_WIDTH-1:0]         tid;
-  logic [TSTRB_WIDTH-1:0]       tstrb;
-  logic                         tvalid;
-  logic                         tlast;
-  logic                         tready;
-} axis_t;
-
-axis_t wi_fifo,wo_fifo; 
+axis_t wi_fifo, wo_fifo;
 logic fifo_ready;
 
 generate
@@ -59,9 +79,9 @@ generate
         //! When the input registering is enable a skid buffer is generated
         axis_t fifo_data, fifo_hold;
         logic in_full;
-        always_ff@(posedge i_clk)
+        always_ff@(posedge clk_i)
         begin
-            if(~i_resetn)
+            if(!resetn_i)
             begin
                 in_full         <= 'b0;
             end
@@ -79,7 +99,7 @@ generate
                 begin
                     in_full     <= 'b0;
                 end
-                else if (fifo_data.tvalid && ~wi_fifo.tready && ~in_full)
+                else if (fifo_data.tvalid && !wi_fifo.tready && !in_full)
                 begin
                     in_full     <= 1'b1;
                     fifo_hold   <= fifo_data;
@@ -90,7 +110,7 @@ generate
             wi_fifo        <= (in_full) ? fifo_hold : fifo_data;
             wi_fifo.tready <= fifo_ready;
         end
-        assign s_axis.tready = ~in_full;
+        assign s_axis.tready = !in_full;
     end
     else
     begin
@@ -121,8 +141,8 @@ xpm_fifo_axis #(
 
 )
 xpm_fifo_axis_inst_A(
-.s_aclk(i_clk),
-.s_aresetn(i_resetn),
+.s_aclk(clk_i),
+.s_aresetn(resetn_i),
 
 .s_axis_tdata   (wi_fifo.tdata),
 .s_axis_tkeep   (wi_fifo.tkeep),
@@ -184,23 +204,23 @@ endgenerate
 
 //! skid buffer in order to register data and avoid a high fanout
 logic full, m_axis_tready;
-assign wo_fifo.tready = ~full;
+assign wo_fifo.tready = !full;
 axis_t hold_data, r_data;
-always_ff@(posedge i_clk)
+always_ff@(posedge clk_i)
 begin
-    if(~i_resetn)
+    if(!resetn_i)
     begin
         full <= 'b0;
     end
     else
     begin
-        r_data          <= (~full) ? wo_fifo : r_data;
-        out_sel         <= (~full) ? valid_sel : out_sel;
+        r_data          <= (!full) ? wo_fifo : r_data;
+        out_sel         <= (!full) ? valid_sel : out_sel;
         if (m_axis_tready)
         begin
             full        <= 'b0;
         end
-        else if (r_data.tvalid && ~m_axis_tready && ~full)
+        else if (r_data.tvalid && !m_axis_tready && !full)
         begin
             full        <= 1'b1;
             hold_data   <= r_data;
@@ -217,8 +237,8 @@ generate
     begin
         for (genvar i = 0; i < NUM_M_AXIS_IF; i++) begin
             assign tready_vec[i] = (full) ? 
-                                   ~out_full[i] && hold_sel[i] : 
-                                   ~out_full[i] && out_sel[i];
+                                   !out_full[i] && hold_sel[i] : 
+                                   !out_full[i] && out_sel[i];
         end
     end
     else
@@ -248,20 +268,20 @@ generate
         begin
             //! When the output registering is enable a skid buffer is generated for each interface
             axis_t [NUM_M_AXIS_IF-1:0] out_hold, out_data;
-            always_ff@(posedge i_clk)
+            always_ff@(posedge clk_i)
             begin
-                if(~i_resetn)
+                if(!resetn_i)
                 begin
                     out_full[i]         <= 'b0;
                 end
                 else
                 begin
-                    out_data[i] <= (~out_full[i])? r_axis[i] : out_data[i]; 
+                    out_data[i] <= (!out_full[i])? r_axis[i] : out_data[i]; 
                     if(r_axis[i].tready)
                     begin
                         out_full[i]     <= 'b0;
                     end
-                    else if (out_data[i].tvalid && ~r_axis[i].tready && ~out_full[i])
+                    else if (out_data[i].tvalid && !r_axis[i].tready && !out_full[i])
                     begin
                         out_full[i]     <= 1'b1;
                         out_hold[i]     <= out_data[i];

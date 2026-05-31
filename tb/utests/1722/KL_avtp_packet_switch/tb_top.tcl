@@ -20,7 +20,7 @@ set origin_dir [pwd]
 puts $origin_dir
 
 # Set the project name
-set _xil_proj_name_ "buffered_switch_tb"
+set _xil_proj_name_ "KL_avtp_packet_switch_tb"
 
 variable script_file
 set script_file "tb_top.tcl"
@@ -53,13 +53,13 @@ set obj [get_filesets sources_1]
 set files [list \
  [file normalize "${origin_dir}/../../../../hdl/common/axi_stream_if.sv"] \
  [file normalize "${origin_dir}/../../../../hdl/1722/avtp_subtype_pkg.sv"] \
- [file normalize "${origin_dir}/../../../../hdl/1722/buffered_switch.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/1722/KL_avtp_packet_switch.sv"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "buffered_switch" -objects $obj
+set_property -name "top" -value "KL_avtp_packet_switch" -objects $obj
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
@@ -71,7 +71,7 @@ set obj [get_filesets sim_1]
 set files [list \
  [file normalize "${origin_dir}/../../../../hdl/common/axi_stream_if.sv"] \
  [file normalize "${origin_dir}/../../../../hdl/1722/avtp_subtype_pkg.sv"] \
- [file normalize "${origin_dir}/../../../../hdl/1722/buffered_switch.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/1722/KL_avtp_packet_switch.sv"] \
  [file normalize "${origin_dir}/../../../avtp_packet_gen_sv/pkgs/avtp_pkt_common_pkg.sv"] \
  [file normalize "${origin_dir}/../../../avtp_packet_gen_sv/pkgs/avtp_alter_pkg.sv"] \
  [file normalize "${origin_dir}/../../../avtp_packet_gen_sv/pkgs/avtp_control_pkg.sv"] \
