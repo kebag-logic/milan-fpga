@@ -36,7 +36,7 @@ module traffic_controller_802_1q #(
   parameter bit BIG_ENDIAN = 1,               //! Determines byte order for classifier
   parameter int CLASSIFIER_FIFO_DEPTH = 64,   //! FIFO depth for classification stage
   parameter int NUMBER_OF_QUEUES = 4,         //! Number of traffic classes/queues
-  parameter int BUFFER_FIFO_DEPTH = 8192     //! Per-queue FIFO depth
+  parameter int BUFFER_FIFO_DEPTH = 1024     //! Per-queue FIFO depth
 )(
   input wire clk,                             //! Clock signal
   input wire resetn,                          //! Active-low synchronous reset

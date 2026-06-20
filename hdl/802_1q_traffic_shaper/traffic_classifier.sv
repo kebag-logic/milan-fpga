@@ -41,12 +41,12 @@ import ethernet_packet_pkg::*;
 `default_nettype none
 
 module traffic_classifier #(
-  parameter int TDATA_WIDTH = 64,  //! Widht of tdata bus
+  parameter int TDATA_WIDTH = 64,  //! Width of tdata bus
   parameter bit BIG_ENDIAN = 1,    //! Big endian logic
   parameter int FIFO_DEPTH = 64    //! FIFO depth
 )(
   input wire clk,                  //! clock signal
-  input wire resetn,               //! syncronous active low reset
+  input wire resetn,               //! synchronous active low reset
 
   axi_stream_if.slave s_axis,      //! slave interface of AXIS
   axi_stream_if.master m_axis      //! master interface of AXIS
