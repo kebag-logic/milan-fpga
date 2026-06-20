@@ -14,3 +14,4 @@ import avtp_stream_pkg::*;
 `include "avtp_stream_subtype.svh"
 `include "avtp_random_subtype.svh"
 `include "avtp_adp_packet_gen.svh"
+`include "avtp_aecp_packet_gen.svh"

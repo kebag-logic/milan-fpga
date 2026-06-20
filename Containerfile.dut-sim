@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2025 Kebag Logic <contact@kebag-logic.com>
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Container image for the Verilator DUT simulation server (T1 tier).
+# See aem-aecp.md §5.2 and §5.3.
+
+FROM ubuntu:22.04
+LABEL org.opencontainers.image.title="aecp-verilator-dut"
+LABEL org.opencontainers.image.description="KL_aecp_* DUT under Verilator with UNIX-socket AXI-Stream bridge"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      verilator \
+      g++ \
+      make \
+      python3 \
+      python3-pip \
+      git \
+      ca-certificates \
+   && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+# Source is mounted at runtime from the host:
+#   podman run -v <repo>:/work ...
+# Build is triggered by the entrypoint.
+COPY scripts/run-dut-sim.sh /usr/local/bin/run-dut-sim.sh
+RUN chmod +x /usr/local/bin/run-dut-sim.sh
+
+ENTRYPOINT ["/usr/local/bin/run-dut-sim.sh"]
+CMD ["KL_aecp_packet_validator"]
