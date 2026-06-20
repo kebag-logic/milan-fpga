@@ -190,7 +190,6 @@ endtask
   initial begin
     aresetn = 0;
     s_axis.tvalid = 0;
-   // m_axis.tready = 1;
     buffer_m_axis.tready = 1;
 
     repeat (5) @(posedge clk);

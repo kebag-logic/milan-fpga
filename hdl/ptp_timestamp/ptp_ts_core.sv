@@ -93,9 +93,15 @@ logic src_rcv;
 logic src_send;
 //! Assertion of signal inform that the data is ready to be used in dest domain
 logic dest_req;
+//! Assertion of signal informs the State Machine fresh TS captured
+logic ts_fresh;
+//! Assertion of signal that the PTP message is pending for the State Machine
+logic ptp_pending;
 
-//! Metadata packet to send to PS
+//! Metadata packet captured
 ts_metadata ts;
+//! Metadata packet to send to PS
+ts_metadata ts_reg;
 
 typedef enum logic[1:0]{
   IDLE_S,      //! Waiting for end of PTP packet
@@ -285,15 +291,34 @@ always_ff @(posedge ts_dst_clk)begin
   if(!ts_dst_resetn)begin
     ts.timestamp <= 'd0;
     ts.seq_id <= 'd0;
+    ts_fresh <= 'd0;
   end
   else begin
     if(dest_req && is_ptp)begin
       ts.timestamp <= ts_cdc_out;
+      ts_fresh <= 'd1;
+    end
+    else if (ts_state == SEND_LOW_S && ts_m_axis.tready)begin
+      ts_fresh <= 'd0;
     end
     if(ptp_seq_id_valid)begin
       ts.seq_id <= (BIG_ENDIAN) ? ptp_seq_id : {ptp_seq_id[7:0],ptp_seq_id[15:8]};
     end
     ts.direction <= IS_TX;
+  end
+end
+
+always_ff @(posedge ts_dst_clk) begin : mark_ptp_messages_for_SM
+  if(!ts_dst_resetn)begin
+    ptp_pending <= 'd0;
+  end
+  else begin
+    if(s_axis.tvalid && s_axis.tready && s_axis.tlast && is_ptp) begin
+      ptp_pending <= 'd1;
+    end
+    else if(ts_state == SEND_HIGH_S && ts_m_axis.tready)begin
+      ptp_pending <= 'd0;
+    end
   end
 end
 // -----------------------------------------------------------------------------
@@ -310,8 +335,9 @@ always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
   else begin
     case(ts_state)
       IDLE_S: begin
-        if(s_axis.tvalid && s_axis.tready && s_axis.tlast && is_ptp)begin
+        if(ptp_pending && ts_fresh)begin
           ts_state <= SEND_HIGH_S;
+          ts_reg <= ts;
         end
         else begin
           ts_m_axis.tvalid <= 'd0;
@@ -326,7 +352,7 @@ always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
         ts_m_axis.tvalid <= 'd1;
         ts_m_axis.tlast <= 'd0;
         ts_m_axis.tkeep <= 8'hff;
-        ts_m_axis.tdata <= ts.timestamp;
+        ts_m_axis.tdata <= ts_reg.timestamp;
         if(ts_m_axis.tready)begin
           ts_state <= SEND_LOW_S;
         end
@@ -338,8 +364,8 @@ always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
       SEND_LOW_S : begin
         ts_m_axis.tvalid <= 'd1;
         ts_m_axis.tlast <= 'd1;
-        ts_m_axis.tkeep <= 8'he0;
-        ts_m_axis.tdata <= {ts.seq_id, 7'd0, ts.direction, 40'd0};
+        ts_m_axis.tkeep <= 8'h07;
+        ts_m_axis.tdata <= {40'd0, ts_reg.seq_id, 7'd0, ts_reg.direction};
         if(ts_m_axis.tready)begin
           ts_state <= IDLE_S;
         end

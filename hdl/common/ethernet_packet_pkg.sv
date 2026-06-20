@@ -181,15 +181,48 @@ parameter int IDLE_SLOPE_100M [0:NUMBER_OF_QUEUES-1] = '{
   10_000_000   //!< Best Effort(lowest BW)
 };
 
+//! Maximum  frame length for MTU1500
+parameter int MAX_FRAME_SIZE = 1522;
+
+//! Function that calculates high credit given idle_slope and port_rate
+function automatic int calc_hi_credit(
+  input int idle_slope,
+  input int port_rate
+);
+  longint tmp;
+  tmp = (longint'(MAX_FRAME_SIZE) * longint'(idle_slope)) / longint'(port_rate);
+  return int'(tmp);
+endfunction
+
+//! Function that calculates low credit given idle_slope and port_rate
+function automatic int calc_lo_credit(
+  input int idle_slope,
+  input int port_rate
+);
+  longint tmp;
+  tmp = (longint'(MAX_FRAME_SIZE) * (longint'(idle_slope) - longint'(port_rate))) / longint'(port_rate);
+  return int'(tmp);
+endfunction
+
 //! Maksimum credit threshold (in bytes).
 //! A queue can accumulate credit up to this value during idle periods. Beyond this, credit
 //! accumulation stops.
-parameter int HI_CREDIT   = 1536;
+parameter int HI_CREDIT [0:NUMBER_OF_QUEUES-1] = '{
+  calc_hi_credit(IDLE_SLOPE_1G[0], 1_000_000_000),
+  calc_hi_credit(IDLE_SLOPE_1G[1], 1_000_000_000),
+  calc_hi_credit(IDLE_SLOPE_1G[2], 1_000_000_000),
+  calc_hi_credit(IDLE_SLOPE_1G[3], 1_000_000_000)
+};
 
 //! Minimum credit threshold (in bytes).
-//! If credit drops below this value during transmission, the queue must wait to regain credit
-//! before continuing.
-parameter int LO_CREDIT   = -1536;
+//! A queue can lose credit up to this value during send periods. Beyond this, credit
+//! decrement stops.
+parameter int LO_CREDIT [0:NUMBER_OF_QUEUES-1] = '{
+  calc_lo_credit(IDLE_SLOPE_1G[0], 1_000_000_000),
+  calc_lo_credit(IDLE_SLOPE_1G[1], 1_000_000_000),
+  calc_lo_credit(IDLE_SLOPE_1G[2], 1_000_000_000),
+  calc_lo_credit(IDLE_SLOPE_1G[3], 1_000_000_000)
+};
 
 //! Clock frequency used for credit slope calculations.
 //! Unit: Hertz (Hz). Determines the slope-per-cycle resolution.
