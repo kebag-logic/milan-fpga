@@ -2,29 +2,33 @@
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
 # Configurable single-core RISC-V SoC that BOOTS Linux with the Milan TSN NIC and
-# its driver — the fully-FPGA target from docs/FULLY_FPGA_RISCV_MIGRATION.md,
-# reduced to the smallest bootable config: ONE NaxRiscv core (MMU, Linux-capable)
-# + a system clock/reset + UART + integrated RAM, with the Milan datapath wired in
-# as a memory-mapped peripheral (CSR @ 0x43C0_0000 + IRQs).
+# its driver — the fully-FPGA target from docs/FULLY_FPGA_RISCV_MIGRATION.md. One
+# NaxRiscv core (MMU, Linux-capable) + clock/reset + UART + integrated RAM, with the
+# Milan datapath as a memory-mapped peripheral (CSR @ 0x9000_0000 + IRQs), and —
+# with --full — the AXIS<->memory DMA (§A.6) and the 1G MAC + RGMII PHY (§A.7).
 #
-#   ./milan_soc.py                         # elaborate + export gateware (no vendor P&R)
-#   ./milan_soc.py --no-milan              # bare SoC (bring-up smoke; fully self-contained)
+#   ./milan_soc.py                         # NIC (CSR only); elaborate + export gateware
+#   ./milan_soc.py --full                  # FULL FPGA solution: NIC + DMA + MAC + PHY
+#   ./milan_soc.py --with-dma / --with-mac # attach just one boundary
+#   ./milan_soc.py --no-milan              # bare SoC (bring-up smoke; self-contained)
 #   ./milan_soc.py --xlen 32               # RV32 + sv32 MMU (default RV64GC + sv39)
-#   ./milan_soc.py --build                 # + run Vivado P&R -> bitstream (needs Artix-7 in Vivado)
-#   ./milan_soc.py --build --load          # + program the board
+#   ./milan_soc.py --full --build          # + run Vivado P&R -> bitstream (needs Artix-7)
+#   ./milan_soc.py --full --build --load   # + program the board
 #
 # The Artix-7 (xc7a100t) bitstream needs Vivado with Artix-7 device support. This
 # box only has Spartan-7 installed, so `--build` P&R is blocked here; gateware
-# EXPORT (the default, run=False) works with no vendor tools. The CPU + full flow
-# are proven by the Verilator sim boot (see sw/litex/evidence/, `litex_sim`).
+# EXPORT (the default, run=False) works with no vendor tools. The CPU⇄CSR path is
+# proven on the softcore in sim: sw/litex/milan_sim.py -> the BIOS reads ID="MILN"
+# (M-A2), evidence in sw/litex/evidence/naxriscv_reads_MILN.log.
 
 import os
 import sys
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance
+from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux
 
 from litex.gen import LiteXModule
+from litex.soc.interconnect import stream
 
 from litex.build.io import DDROutput
 
@@ -50,8 +54,11 @@ MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(LiteXModule):
-    """Clock/reset: PLL the 200 MHz board clock down to the system clock."""
-    def __init__(self, platform, sys_clk_freq):
+    """Clock/reset: PLL the 200 MHz board clock down to the system clock.
+
+    With `with_eth`, also produces the 200 MHz `idelay_ref` clock + IDELAYCTRL the
+    Artix-7 RGMII PHY (LiteEth s7rgmii) needs for its IODELAY calibration."""
+    def __init__(self, platform, sys_clk_freq, with_eth=False):
         self.cd_sys = ClockDomain()
 
         clk200 = platform.request("clk200")
@@ -62,6 +69,13 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
+
+        if with_eth:
+            # 200 MHz IDELAY reference + controller for the RGMII PHY's IODELAYs.
+            from litex.soc.cores.clock import S7IDELAYCTRL
+            self.cd_idelay = ClockDomain()
+            pll.create_clkout(self.cd_idelay, 200e6)
+            self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 
 # Milan NIC ----------------------------------------------------------------------------------------
@@ -84,10 +98,10 @@ class MilanNIC(LiteXModule):
     which still elaborates and exports gateware and keeps the CPU⇄CSR path live
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
-    def __init__(self, platform, axil):
+    def __init__(self, platform, axil, dma_mac_ports=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/rx/ts come from the §A.6 DMA
-        # engine (not built yet) → held 0; csr is driven by the datapath.
+        # engine (held 0 until it is attached); csr is driven by the datapath.
         self.submodules.ev = ev = EventManager()
         ev.tx  = EventSourceLevel()
         ev.rx  = EventSourceLevel()
@@ -95,41 +109,7 @@ class MilanNIC(LiteXModule):
         ev.csr = EventSourceLevel()
         ev.finalize()
         self.comb += [ev.tx.trigger.eq(0), ev.rx.trigger.eq(0), ev.ts.trigger.eq(0)]
-
-        self.specials += Instance("milan_datapath",
-            # ---- clocks / reset (gtx_clk = 125 MHz for MAC-RX PTP; sys for now) ----
-            i_axis_clk    = ClockSignal("sys"),  i_axis_resetn = ~ResetSignal("sys"),
-            i_gtx_clk     = ClockSignal("sys"),  i_gtx_resetn  = ~ResetSignal("sys"),
-            # ---- AXI4-Lite CSR slave (from the CPU bus bridge) ----
-            i_s_axi_awaddr  = axil.aw.addr[:16], i_s_axi_awvalid = axil.aw.valid,
-            o_s_axi_awready = axil.aw.ready,
-            i_s_axi_wdata   = axil.w.data,  i_s_axi_wstrb = axil.w.strb,
-            i_s_axi_wvalid  = axil.w.valid, o_s_axi_wready = axil.w.ready,
-            o_s_axi_bresp   = axil.b.resp,  o_s_axi_bvalid = axil.b.valid,
-            i_s_axi_bready  = axil.b.ready,
-            i_s_axi_araddr  = axil.ar.addr[:16], i_s_axi_arvalid = axil.ar.valid,
-            o_s_axi_arready = axil.ar.ready,
-            o_s_axi_rdata   = axil.r.data,  o_s_axi_rresp = axil.r.resp,
-            o_s_axi_rvalid  = axil.r.valid, i_s_axi_rready = axil.r.ready,
-            # ---- TX/RX/TS DMA AXIS — §A.6 engine attaches here (idle stub) ----
-            i_s_axis_tx_tdata = 0, i_s_axis_tx_tkeep = 0, i_s_axis_tx_tvalid = 0,
-            i_s_axis_tx_tlast = 0,
-            i_m_axis_rx_tready = 0, i_m_axis_ts_tready = 0,
-            # ---- MAC-facing AXIS — §A.7 MAC attaches here (idle stub) ----
-            i_m_axis_mac_tx_tready = 0,
-            i_s_axis_mac_rx_tdata = 0, i_s_axis_mac_rx_tkeep = 0,
-            i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
-            # ---- MAC status (from the external MAC; constants until §A.7) ----
-            i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
-            # ---- interrupt (csr aggregate; DMA-done IRQs come from §A.6) ----
-            o_o_irq_csr = ev.csr.trigger,
-        )
-        # RTL sources for elaboration / P&R. Curated list (NOT add_source_dir) so the
-        # Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded from the fabric
-        # build — same file set the tb/verilator/milan_dp + syn/yosys checks use.
-        base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # milan-fpga/
-        for f in _MILAN_DATAPATH_SOURCES:
-            platform.add_source(os.path.join(base, f))
+        add_milan_datapath(self, platform, axil, ev.csr.trigger, extra_ports=dma_mac_ports)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -153,11 +133,192 @@ _MILAN_DATAPATH_SOURCES = [
 ]
 
 
+def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None):
+    """Instantiate `milan_datapath` and add its RTL sources — the single place the
+    wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
+    (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
+    interrupt. `extra_ports` overrides/adds Instance ports to attach the DMA (§A.6)
+    and MAC (§A.7) at the exposed AXIS boundary — without it, those ports are tied
+    idle (still elaborates; keeps the CPU⇄CSR path live). Instance ports for RTL
+    signals already named `i_*`/`o_*` get the doubled migen prefix (e.g. milan port
+    `i_i_mac_speed`, `o_o_irq_csr`) — that is correct, not a typo."""
+    ports = dict(
+        # clocks / reset (gtx_clk = 125 MHz for MAC-RX PTP; tied to sys until §A.4b)
+        i_axis_clk    = ClockSignal("sys"),  i_axis_resetn = ~ResetSignal("sys"),
+        i_gtx_clk     = ClockSignal("sys"),  i_gtx_resetn  = ~ResetSignal("sys"),
+        # AXI4-Lite CSR slave (from the CPU bus bridge)
+        i_s_axi_awaddr  = axil.aw.addr[:16], i_s_axi_awvalid = axil.aw.valid,
+        o_s_axi_awready = axil.aw.ready,
+        i_s_axi_wdata   = axil.w.data,  i_s_axi_wstrb = axil.w.strb,
+        i_s_axi_wvalid  = axil.w.valid, o_s_axi_wready = axil.w.ready,
+        o_s_axi_bresp   = axil.b.resp,  o_s_axi_bvalid = axil.b.valid,
+        i_s_axi_bready  = axil.b.ready,
+        i_s_axi_araddr  = axil.ar.addr[:16], i_s_axi_arvalid = axil.ar.valid,
+        o_s_axi_arready = axil.ar.ready,
+        o_s_axi_rdata   = axil.r.data,  o_s_axi_rresp = axil.r.resp,
+        o_s_axi_rvalid  = axil.r.valid, i_s_axi_rready = axil.r.ready,
+        # TX/RX/TS DMA AXIS — §A.6 engine attaches here (idle stub)
+        i_s_axis_tx_tdata = 0, i_s_axis_tx_tkeep = 0, i_s_axis_tx_tvalid = 0,
+        i_s_axis_tx_tlast = 0,
+        i_m_axis_rx_tready = 0, i_m_axis_ts_tready = 0,
+        # MAC-facing AXIS — §A.7 MAC attaches here (idle stub)
+        i_m_axis_mac_tx_tready = 0,
+        i_s_axis_mac_rx_tdata = 0, i_s_axis_mac_rx_tkeep = 0,
+        i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
+        # MAC status (from the external MAC; constants until §A.7)
+        i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+        # interrupt (csr aggregate; DMA-done IRQs come from §A.6)
+        o_o_irq_csr = o_irq_csr,
+    )
+    if extra_ports:
+        ports.update(extra_ports)
+    host.specials += Instance("milan_datapath", **ports)
+    # RTL sources for elaboration / P&R. Curated list (NOT add_source_dir) so the
+    # Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded from the fabric build
+    # — same file set the tb/verilator/milan_dp + syn/yosys checks use.
+    base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # milan-fpga/
+    # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
+    # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
+    for inc in ("hdl/common", "hdl/802_1q_traffic_shaper", "hdl/ptp_timestamp",
+                "hdl/adp", "hdl/csr", "hdl/eth_event_counter"):
+        platform.add_verilog_include_path(os.path.join(base, inc))
+    for f in _MILAN_DATAPATH_SOURCES:
+        platform.add_source(os.path.join(base, f))
+
+
+# MAC (§A.7) ---------------------------------------------------------------------------------------
+
+class MilanMAC(LiteXModule):
+    """The 1G MAC + RGMII PHY (§A.7), attached at the milan_datapath MAC-facing AXIS
+    boundary. Uses LiteEth's `LiteEthPHYRGMII` (Artix-7 s7rgmii) + `LiteEthMACCore`
+    (preamble/CRC/padding, PHY-width conversion) and a thin stream↔AXIS adapter, so
+    the Milan datapath owns *all* packet processing (classify/CBS/PTP/filter/ADP) and
+    the MAC core just does L1/framing.
+
+    `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives — pass
+    it as `MilanNIC(..., dma_mac_ports=mac.dp_ports)`.
+
+    NOTE (board-gated): the exact `last_be`↔`tkeep` byte-enable mapping and the
+    link/speed status (MDIO) are wired to sensible values for elaboration; they are
+    validated on hardware (there is no RGMII PHY to exercise in sim). See
+    docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
+    def __init__(self, platform, data_width=64, phy_index=0):
+        from liteeth.phy.s7rgmii import LiteEthPHYRGMII
+        from liteeth.mac.core    import LiteEthMACCore
+
+        clk_pads = platform.request("eth_clocks", phy_index)
+        pads     = platform.request("eth",        phy_index)
+        self.phy  = LiteEthPHYRGMII(clk_pads, pads, with_hw_init_reset=True)
+        self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
+                                   with_preamble_crc=True, with_padding=True)
+
+        nb = data_width // 8
+        # datapath -> MAC (TX)
+        tx_tdata  = Signal(data_width)
+        tx_tkeep  = Signal(nb)
+        tx_tvalid = Signal()
+        tx_tlast  = Signal()
+        tx_tready = Signal()
+        # MAC -> datapath (RX)
+        rx_tready = Signal()
+        rx_tkeep  = Signal(nb)
+
+        self.comb += [
+            # TX AXIS (datapath) -> core.sink (LiteEth stream)
+            self.core.sink.valid.eq(tx_tvalid),
+            self.core.sink.data.eq(tx_tdata),
+            self.core.sink.last.eq(tx_tlast),
+            self.core.sink.last_be.eq(tx_tkeep),   # last-byte enable ~ tkeep of last beat
+            tx_tready.eq(self.core.sink.ready),
+            # RX core.source -> RX AXIS (datapath); full lanes except the last beat
+            self.core.source.ready.eq(rx_tready),
+            rx_tkeep.eq(Mux(self.core.source.last, self.core.source.last_be, 2**nb - 1)),
+        ]
+
+        self.dp_ports = dict(
+            o_m_axis_mac_tx_tdata  = tx_tdata,  o_m_axis_mac_tx_tkeep = tx_tkeep,
+            o_m_axis_mac_tx_tvalid = tx_tvalid, o_m_axis_mac_tx_tlast = tx_tlast,
+            i_m_axis_mac_tx_tready = tx_tready,
+            i_s_axis_mac_rx_tdata  = self.core.source.data,  i_s_axis_mac_rx_tkeep = rx_tkeep,
+            i_s_axis_mac_rx_tvalid = self.core.source.valid, i_s_axis_mac_rx_tlast = self.core.source.last,
+            o_s_axis_mac_rx_tready = rx_tready,
+            # MAC status: 1G/up/full-duplex until MDIO link tracking lands (§A.7 refine);
+            # RMON event pulses (i_mac_events) are 0 — the LiteEth core doesn't expose the
+            # same event set as the Forencich MAC, so those RMON lanes stay 0 here.
+            i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+        )
+
+
+# DMA (§A.6) ---------------------------------------------------------------------------------------
+
+class MilanDMA(LiteXModule):
+    """AXIS ↔ system-memory DMA (§A.6), attaching the milan_datapath TX/RX/TS DMA
+    AXIS ports to the CPU's memory via three LiteX simple-mode DMA engines:
+
+      * TX  — `WishboneDMAReader` : memory → `s_axis_tx`  (frames to transmit)
+      * RX  — `WishboneDMAWriter` : `m_axis_rx`  → memory (received frames)
+      * TS  — `WishboneDMAWriter` : `m_axis_ts`  → memory (PTP timestamp metadata)
+
+    Each engine is `with_csr=True`, i.e. it exposes a **simple-mode** register block
+    (`base` [64], `length` [32], `enable`, `done`, `loop`, `offset`) auto-mapped in
+    the SoC CSR space — this is the ABI the Linux driver programs (mirrors the Zynq
+    axi_dma simple mode). Each engine is its own Wishbone bus master into the SoC
+    interconnect (width-adapted to the main bus automatically).
+
+    `dp_ports` is merged with the MAC's into the single `milan_datapath` Instance.
+
+    NOTE (board-gated): this elaborates against integrated RAM here; on the board it
+    targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
+    upgrade — see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
+    def __init__(self, soc, data_width=64):
+        from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
+        from litex.soc.interconnect import wishbone
+        import math
+        nb      = data_width // 8
+        adr_w   = 32 - int(math.log2(nb))     # word-addressed wishbone
+
+        def mk_bus():
+            return wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
+
+        # TX: memory -> datapath (reader)
+        self.tx = WishboneDMAReader(mk_bus(), with_csr=True)
+        soc.bus.add_master("milan_dma_tx", master=self.tx.bus)
+        # RX + TS: datapath -> memory (writers)
+        self.rx = WishboneDMAWriter(mk_bus(), with_csr=True)
+        soc.bus.add_master("milan_dma_rx", master=self.rx.bus)
+        self.ts = WishboneDMAWriter(mk_bus(), with_csr=True)
+        soc.bus.add_master("milan_dma_ts", master=self.ts.bus)
+
+        # RX/TS output signals from the datapath -> writer sinks.
+        rx_tready = Signal(); ts_tready = Signal()
+        rx_data = Signal(data_width); rx_valid = Signal(); rx_last = Signal()
+        ts_data = Signal(data_width); ts_valid = Signal(); ts_last = Signal()
+        self.comb += [
+            self.rx.sink.valid.eq(rx_valid), self.rx.sink.data.eq(rx_data),
+            self.rx.sink.last.eq(rx_last),   rx_tready.eq(self.rx.sink.ready),
+            self.ts.sink.valid.eq(ts_valid), self.ts.sink.data.eq(ts_data),
+            self.ts.sink.last.eq(ts_last),   ts_tready.eq(self.ts.sink.ready),
+        ]
+
+        self.dp_ports = dict(
+            # TX: reader.source (mem data) -> datapath s_axis_tx
+            i_s_axis_tx_tdata  = self.tx.source.data,  i_s_axis_tx_tkeep = 2**nb - 1,
+            i_s_axis_tx_tvalid = self.tx.source.valid, i_s_axis_tx_tlast = self.tx.source.last,
+            o_s_axis_tx_tready = self.tx.source.ready,
+            # RX: datapath m_axis_rx -> writer.sink
+            o_m_axis_rx_tdata  = rx_data,  o_m_axis_rx_tvalid = rx_valid,
+            o_m_axis_rx_tlast  = rx_last,  i_m_axis_rx_tready = rx_tready,
+            # TS: datapath m_axis_ts -> writer.sink
+            o_m_axis_ts_tdata  = ts_data,  o_m_axis_ts_tvalid = ts_valid,
+            o_m_axis_ts_tlast  = ts_last,  i_m_axis_ts_tready = ts_tready,
+        )
+
+
 # SoC ----------------------------------------------------------------------------------------------
 
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
-                 with_milan=True, main_ram_size=0x8000, **kwargs):
+                 with_milan=True, with_mac=False, with_dma=False, main_ram_size=0x8000, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
         # with its own args, take the defaults, override xlen/cpu-count, then args_read
@@ -182,7 +343,7 @@ class MilanSoC(SoCCore):
                          ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core",
                          **kwargs)
 
-        self.crg = _CRG(platform, sys_clk_freq)
+        self.crg = _CRG(platform, sys_clk_freq, with_eth=with_mac)
 
         if with_milan:
             # AXI-Lite bridge from the CPU bus to the Milan CSR window.
@@ -190,9 +351,17 @@ class MilanSoC(SoCCore):
             self.bus.add_slave("milan_csr", axil,
                                region=SoCRegion(origin=MILAN_CSR_BASE, size=MILAN_CSR_SIZE,
                                                 cached=False))
-            # The MAC (§A.7) + RGMII pads attach at the MAC-facing AXIS boundary in a
-            # later step; the datapath itself no longer owns the PHY pins.
-            self.milan = MilanNIC(platform, axil)
+            # §A.6 DMA + §A.7 MAC: attach the memory-DMA and the 1G MAC/RGMII PHY at
+            # the datapath's DMA/MAC-facing AXIS boundary. Both contribute Instance
+            # ports; merge them (idle stubs remain for any port neither drives).
+            dp_ports = {}
+            if with_dma:
+                self.milan_dma = MilanDMA(self, data_width=64)
+                dp_ports.update(self.milan_dma.dp_ports)
+            if with_mac:
+                self.milan_mac = MilanMAC(platform, data_width=64)
+                dp_ports.update(self.milan_mac.dp_ports)
+            self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
 
@@ -207,6 +376,12 @@ def main():
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
+    ap.add_argument("--with-mac", action="store_true",
+                    help="attach the 1G MAC + RGMII PHY (§A.7) at the datapath MAC boundary")
+    ap.add_argument("--with-dma", action="store_true",
+                    help="attach the AXIS<->memory DMA engines (§A.6) with simple-mode CSRs")
+    ap.add_argument("--full", action="store_true",
+                    help="full FPGA config: NIC + DMA + MAC (equivalent to --with-dma --with-mac)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
     ap.add_argument("--load",  action="store_true")
     builder_args(ap)
@@ -215,6 +390,8 @@ def main():
     platform = alinx_ax7101.Platform()
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, with_milan=not args.no_milan,
+                   with_mac=args.with_mac or args.full,
+                   with_dma=args.with_dma or args.full,
                    main_ram_size=args.main_ram_size)
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)      # run=False => elaborate + export gateware, no Vivado
