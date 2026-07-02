@@ -119,10 +119,15 @@ Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
    - ⏳ `traffic_queues` — deferred to **T1.3**: it adds `tdest` + `prog_empty_axis`
      flow-control entangled with its `axis_switch`, so it is swapped there with a
      harness in the same step.
-3. **T1.3 — AXIS switch/mux (X2,X3).** Replace the generated `axis_switch_*` in
-   `traffic_queues` with `axis_demux` (1→4 by tdest) + `axis_arb_mux` (4→1).
-   **Verify:** `traffic_queues` now Verilates → new `tb/verilator/queues` harness
-   (per-queue routing + egress arbitration, mirrors the `shaper_core` style).
+3. **T1.3 — AXIS switch/mux (X2,X3) + the deferred FIFO.** ✅ DONE. Replaced the
+   generated `axis_switch_1in_4out`/`4in_1out` in `traffic_queues` with `axis_demux`
+   (1→4 by `tdest`) + `axis_arb_mux` (4→1), and the per-queue `xpm_fifo_axis` with
+   `axis_fifo` (`prog_empty` → `status_depth ≤ thresh`). CBS grant suppression is
+   reproduced by gating **both** the arbiter input `tvalid` **and** the FIFO `tready`
+   with `queue_grant_i` (gating `tvalid` alone lets the arbiter's prefetch drain and
+   discard the frame — caught by the harness). **Verify:** [`tb/verilator/queues/`](queues)
+   (11 checks, PASS) + `traffic_controller_802_1q` now **elaborates end-to-end** in
+   Verilator (classifier + queues + CBS, no XPM left in the 802.1Q subtree).
 4. **T1.4 — PTP CDC (X4,X5).** Replace `xpm_cdc_pulse`/`xpm_cdc_handshake` in
    `ptp_ts_core` with the toggle-sync pattern / `ptp_clock_cdc`. **Verify:**
    `ptp_ts_core` now Verilates → extend the `ptp` harness across the CDC.
