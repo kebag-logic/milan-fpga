@@ -194,11 +194,11 @@ module milan_dma_wrapper
   wire s_axis_ts_metadata_tready;
   wire s_axis_ts_metadata_tvalid;
 
-  IOBUF MDIO_link_1_mdio_iobuf
-       (.I(MDIO_link_1_mdio_o),
-        .IO(MDIO_link_1_mdio_io),
-        .O(MDIO_link_1_mdio_i),
-        .T(MDIO_link_1_mdio_t));
+  // Inferred tristate MDIO pad (T2.1): portable — Vivado infers an IOBUF from this
+  // on the top-level inout, other toolchains model the tristate directly. Replaces
+  // the Xilinx IOBUF primitive (docs/OPEN_SOURCE_MIGRATION.md).
+  assign MDIO_link_1_mdio_io = MDIO_link_1_mdio_t ? 1'bz : MDIO_link_1_mdio_o;
+  assign MDIO_link_1_mdio_i  = MDIO_link_1_mdio_io;
   milan_dma milan_dma_i
        (.m_axi_csr_awaddr(m_axi_csr_awaddr),
         .m_axi_csr_awprot(m_axi_csr_awprot),
