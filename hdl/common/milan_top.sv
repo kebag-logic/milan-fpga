@@ -93,7 +93,9 @@ module milan_top import ethernet_packet_pkg::*; #(
 
   //! RX path: MAC output → PTP timestamping core
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_ts();
-  //! RX path: PTP timestamping output → DMA
+  //! RX path: PTP timestamping output → RX dest-MAC filter
+  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_ptp_to_filt();
+  //! RX path: dest-MAC filter output → DMA
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_to_dma();
   //! TX path: DMA output → 802.1Q traffic shaper
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_shaper();
@@ -165,6 +167,12 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH-1:0]   adp_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] adp_tx_tkeep;
   wire                     adp_tx_tvalid, adp_tx_tlast, adp_tx_tready;
+
+  //! RX dest-MAC TCAM filter programming (from milan_csr 0x700 group)
+  wire        cfg_tcam_default_pass, cfg_tcam_wr_en, cfg_tcam_wr_valid;
+  wire [4:0]  cfg_tcam_wr_index;
+  wire [47:0] cfg_tcam_wr_key, cfg_tcam_wr_mask;
+  wire [7:0]  cfg_tcam_wr_action;
 
   //! `mac_speed` is generated in the MAC's gtx_clk (125 MHz) domain; synchronise
   //! it into axis_clk with a 2-FF synchroniser before it is used by the CSR
@@ -350,6 +358,14 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_adp_advertise_p    (cfg_adp_advertise_p),
     .o_adp_depart_p       (cfg_adp_depart_p),
     .i_adp_available_index(adp_available_index),
+    // RX dest-MAC TCAM filter programming (0x700 group)
+    .o_tcam_default_pass(cfg_tcam_default_pass),
+    .o_tcam_wr_en       (cfg_tcam_wr_en),
+    .o_tcam_wr_index    (cfg_tcam_wr_index),
+    .o_tcam_wr_valid    (cfg_tcam_wr_valid),
+    .o_tcam_wr_key      (cfg_tcam_wr_key),
+    .o_tcam_wr_mask     (cfg_tcam_wr_mask),
+    .o_tcam_wr_action   (cfg_tcam_wr_action),
     // interrupts
     .i_evt_tx_ts_ready  (evt_tx_ts_ready),
     .i_evt_link_change  (evt_link_change),
@@ -425,17 +441,45 @@ module milan_top import ethernet_packet_pkg::*; #(
     .s_axis_rx_tlast(rx_axis_to_ts.tlast),
     .s_axis_rx_tkeep(rx_axis_to_ts.tkeep),
 
-    .m_axis_rx_tdata(rx_axis_to_dma.tdata),
-    .m_axis_rx_tvalid(rx_axis_to_dma.tvalid),
-    .m_axis_rx_tready(rx_axis_to_dma.tready),
-    .m_axis_rx_tlast(rx_axis_to_dma.tlast),
-    .m_axis_rx_tkeep(rx_axis_to_dma.tkeep),
+    .m_axis_rx_tdata(rx_axis_ptp_to_filt.tdata),
+    .m_axis_rx_tvalid(rx_axis_ptp_to_filt.tvalid),
+    .m_axis_rx_tready(rx_axis_ptp_to_filt.tready),
+    .m_axis_rx_tlast(rx_axis_ptp_to_filt.tlast),
+    .m_axis_rx_tkeep(rx_axis_ptp_to_filt.tkeep),
 
     .ts_m_axis_tdata(ts_metadata_axis.tdata),
     .ts_m_axis_tvalid(ts_metadata_axis.tvalid),
     .ts_m_axis_tready(ts_metadata_axis.tready),
     .ts_m_axis_tlast(ts_metadata_axis.tlast),
     .ts_m_axis_tkeep(ts_metadata_axis.tkeep)
+  );
+
+  // ==========================================================================
+  //  RX destination-MAC filter (TCAM, REQ-MAC-02): accept/drop RX frames by
+  //  destination MAC, programmed from the milan_csr 0x700 TCAM group. Sits after
+  //  PTP timestamping so accepted frames keep their RX timestamp. default_pass=1
+  //  at reset => accept-all until software installs entries (safe bring-up).
+  // ==========================================================================
+  rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
+    .clk_i(axis_clk), .rst_n(axis_resetn),
+    .default_pass_i (cfg_tcam_default_pass),
+    .tcam_wr_en_i   (cfg_tcam_wr_en),
+    .tcam_wr_index_i(cfg_tcam_wr_index[3:0]),
+    .tcam_wr_valid_i(cfg_tcam_wr_valid),
+    .tcam_wr_key_i  (cfg_tcam_wr_key),
+    .tcam_wr_mask_i (cfg_tcam_wr_mask),
+    .tcam_wr_action_i(cfg_tcam_wr_action),
+    .s_tdata (rx_axis_ptp_to_filt.tdata),
+    .s_tkeep (rx_axis_ptp_to_filt.tkeep),
+    .s_tvalid(rx_axis_ptp_to_filt.tvalid),
+    .s_tlast (rx_axis_ptp_to_filt.tlast),
+    .s_tready(rx_axis_ptp_to_filt.tready),
+    .m_tdata (rx_axis_to_dma.tdata),
+    .m_tkeep (rx_axis_to_dma.tkeep),
+    .m_tvalid(rx_axis_to_dma.tvalid),
+    .m_tlast (rx_axis_to_dma.tlast),
+    .m_tready(rx_axis_to_dma.tready),
+    .frame_action_o(), .frame_match_o(), .frame_dropped_o()
   );
 
   // ==========================================================================

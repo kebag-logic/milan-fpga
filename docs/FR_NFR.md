@@ -140,6 +140,24 @@ grandmaster/bridge; **SRP** bridge; local **media** app.
 | FR-MGT-01 | The IDENTIFY CONTROL MUST put the device into identification mode while its value ≠ 0. | M | T |
 | FR-MGT-02 | Names (entity/group/config) MUST be settable and persisted; factory reset MUST restore defaults. | S | T |
 
+### 2.10 Host Linux driver  *(Phase 7 / `REQ-DRV-*`; needs a kernel tree — not buildable in this repo)*
+
+The `kl,dma-ether` platform net driver (`../kl-linux-drivers`). Extends the existing
+`REQ-DRV-01..08` with the explicitly-requested NAPI/XDP/PTP/ethtool surface.
+
+| ID | Requirement | Pri | Ver |
+|----|-------------|-----|-----|
+| FR-DRV-N1 | RX/TX MUST use **NAPI** poll (IRQ→poll, budgeted `napi_poll`, GRO on RX) over the fabric DMA rings; per-queue NAPI contexts for the N HW queues. | M | T |
+| FR-DRV-N2 | The netdev MUST expose the **N HW queues** as real TX/RX queues (`netif_set_real_num_{tx,rx}_queues`), so `tc mqprio`/CBS map to hardware. | M | T |
+| FR-DRV-X1 | The driver MUST support **XDP**: `ndo_bpf`/`ndo_xdp_xmit`, the `XDP_{PASS,DROP,TX,REDIRECT,ABORTED}` actions, page-pool RX buffers, and headroom for `bpf_xdp_adjust_head`. | M | T |
+| FR-DRV-X2 | **AF_XDP zero-copy** (`XDP_ZEROCOPY`, `xsk_pool` per queue) SHOULD be supported for kernel-bypass RX/TX to the media plane. | S | T |
+| FR-DRV-P1 | The driver MUST register a **PHC** (`ptp_clock_info`: `gettimex64`/`settime64`/`adjfine`/`adjtime`, `enable` for PPS/perout) backed by the `0x500` PTP CSRs; `gettimex64` MUST return the paired host/PHC crosstimestamp. | M | T |
+| FR-DRV-P2 | **HW timestamping** MUST be wired: `SIOCSHWTSTAMP`/`ndo_hwtstamp_set`, TX/RX descriptor timestamps from the PTP metadata stream into `skb_hwtstamps`/`skb_tstamp_tx`, and `ethtool -T` MUST advertise the PHC + `SOF_TIMESTAMPING_{TX,RX}_HARDWARE|RAW_HARDWARE`. | M | T |
+| FR-DRV-E1 | **ethtool_ops** MUST provide: `get_ts_info` (`-T`), `get/set_channels` (`-l`/`-L`), `get/set_ringparam` (`-g`/`-G`), `get/set_coalesce` (`-c`/`-C`), `get_strings`/`get_sset_count`/`get_ethtool_stats` (`-S`, from the RMON CSRs), `get_link_ksettings`/`nway_reset`. | M | T |
+| FR-DRV-E2 | **CBS / TSN offload** MUST be exposed via `ndo_setup_tc` (`TC_SETUP_QDISC_CBS` → the `0x400` CBS CSRs, `mqprio`; `taprio` MAY). | M | T |
+| FR-DRV-C1 | **MDIO/phylib**: register the fabric MDIO bus, `phy_connect` (rgmii-id), `adjust_link` drives MAC speed/duplex + PHY-reset GPIO. | M | T |
+| FR-DRV-R1 | RX **dest-MAC filter** programming MUST be exposed: `ndo_set_rx_mode` maps the multicast/unicast list onto the HW filter (MC_HASH and/or the TCAM `0x700` group). | S | T |
+
 ---
 
 ## 3. Non-Functional Requirements (NFR)

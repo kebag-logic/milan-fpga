@@ -55,7 +55,7 @@
 module milan_csr #(
   parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
-  parameter logic [31:0] VERSION = 32'h0001_0002 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor)
+  parameter logic [31:0] VERSION = 32'h0001_0003 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor)
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -147,6 +147,15 @@ module milan_csr #(
   output wire                    o_adp_depart_p,      //! 1-cycle: send ENTITY_DEPARTING (ADP_CMD[1])
   input  wire [31:0]             i_adp_available_index, //! current available_index from the advertiser (ADP_STATUS)
 
+  // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
+  output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
+  output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
+  output wire [4:0]              o_tcam_wr_index,     //! entry index (TCAM_CMD[4:0])
+  output wire                    o_tcam_wr_valid,     //! 1 = add/update, 0 = remove (TCAM_CMD[8])
+  output wire [47:0]             o_tcam_wr_key,       //! match key {TCAM_KEY_HI[15:0], TCAM_KEY_LO}
+  output wire [47:0]             o_tcam_wr_mask,      //! care mask {TCAM_MASK_HI[15:0], TCAM_MASK_LO}
+  output wire [7:0]              o_tcam_wr_action,    //! action/tag (TCAM_ACTION[7:0])
+
   // ---- Interrupt (REQ-CSR-04) ----
   input  wire                    i_evt_tx_ts_ready,   //! Event: TX egress timestamp available (sets IRQ_STATUS[0])
   input  wire                    i_evt_link_change,   //! Event: link/speed change (sets IRQ_STATUS[1])
@@ -193,7 +202,10 @@ module milan_csr #(
     A_ADP_MIDHI   = 'h610, A_ADP_ECAPS= 'h614, A_ADP_TALK = 'h618, A_ADP_LIST  = 'h61C,
     A_ADP_CCAPS   = 'h620, A_ADP_GMLO = 'h624, A_ADP_GMHI = 'h628, A_ADP_DOMAIN= 'h62C,
     A_ADP_IDX0    = 'h630, A_ADP_IDX1 = 'h634, A_ADP_ASLO = 'h638, A_ADP_ASHI  = 'h63C,
-    A_ADP_CMD     = 'h640, A_ADP_STATUS='h644;
+    A_ADP_CMD     = 'h640, A_ADP_STATUS='h644,
+    // ---- 0x700 RX dest-MAC TCAM filter ----
+    A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
+    A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -289,6 +301,15 @@ module milan_csr #(
   logic adp_adv_p;                       //! ADP advertise/info-changed strobe (1 cycle)
   logic adp_dep_p;                       //! ADP depart strobe (1 cycle)
 
+  // RX dest-MAC TCAM filter programming (0x700 group)
+  logic [31:0] tcam_ctrl;                //! TCAM_CTRL: [0]=default_pass
+  logic [31:0] tcam_klo, tcam_khi;       //! TCAM key {khi[15:0], klo}
+  logic [31:0] tcam_mlo, tcam_mhi;       //! TCAM mask {mhi[15:0], mlo}
+  logic [31:0] tcam_act;                 //! TCAM action ([7:0])
+  logic        tcam_wr_p;                //! entry-commit strobe (1 cycle)
+  logic [4:0]  tcam_wr_index;            //! latched entry index for the commit
+  logic        tcam_wr_valid_r;          //! latched add(1)/remove(0) for the commit
+
   // CBS power-on defaults: mirror ethernet_packet_pkg SR classes; leave the
   // non-SR classes (control, best-effort) unshaped per REQ-CBS-02. Software
   // reprograms all of these at bring-up (e.g. from `tc ... cbs`). The idleSlopes
@@ -327,11 +348,15 @@ module milan_csr #(
       adp_ecaps <= 32'h0; adp_talk <= 32'h0; adp_list <= 32'h0; adp_ccaps <= 32'h0;
       adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_domain <= 32'h0;
       adp_idx0 <= 32'h0; adp_idx1 <= 32'h0; adp_aslo <= 32'h0; adp_ashi <= 32'h0;
+      tcam_ctrl <= 32'h1;   // default_pass = 1 (accept-all until software programs entries)
+      tcam_klo <= 32'h0; tcam_khi <= 32'h0; tcam_mlo <= 32'h0; tcam_mhi <= 32'h0;
+      tcam_act <= 32'h0; tcam_wr_index <= 5'h0; tcam_wr_valid_r <= 1'b0;
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
+      tcam_wr_p <= 1'b0;
 
       // gettime result: latch the PHC snapshot when it returns (crosses CDC
       // asynchronously to the snapshot command, REQ-PTP-03/CSR-03).
@@ -400,6 +425,19 @@ module milan_csr #(
             if (s_axi_wdata[0]) adp_adv_p <= 1'b1; // advertise now + bump available_index
             if (s_axi_wdata[1]) adp_dep_p <= 1'b1; // send ENTITY_DEPARTING
           end
+          A_TCAM_CTRL: tcam_ctrl <= s_axi_wdata;
+          A_TCAM_KLO:  tcam_klo  <= s_axi_wdata;
+          A_TCAM_KHI:  tcam_khi  <= s_axi_wdata;
+          A_TCAM_MLO:  tcam_mlo  <= s_axi_wdata;
+          A_TCAM_MHI:  tcam_mhi  <= s_axi_wdata;
+          A_TCAM_ACT:  tcam_act  <= s_axi_wdata;
+          A_TCAM_CMD: begin // [4:0] index, [8] valid, [16] commit (W1S) -> pulse entry write
+            if (s_axi_wdata[16]) begin
+              tcam_wr_p       <= 1'b1;
+              tcam_wr_index   <= s_axi_wdata[4:0];
+              tcam_wr_valid_r <= s_axi_wdata[8];
+            end
+          end
           default: begin
             // per-queue CBS window 0x400 + q*0x20 (stride 0x20 => off[5+:QW] = queue)
             if (wr_addr >= A_CBS_BASE && wr_addr < A_CBS_END) begin
@@ -443,7 +481,7 @@ module milan_csr #(
       A_VERSION:    rd_mux = VERSION;
       A_CAP:        rd_mux = { 8'h00,                       // [31:24] reserved
                                8'd64,                       // [23:16] ts_width
-                               3'h0, 1'b1,                  // [15:13] reserved [12]ADP
+                               2'h0, 1'b1, 1'b1,            // [15:14] reserved [13]TCAM [12]ADP
                                1'b1, 1'b1, 1'b1, 1'b1,      // [11]RXF [10]STATS [9]PTP [8]CBS
                                4'h0,                        // [7:4] reserved
                                4'(NUM_QUEUES) };            // [3:0] num_queues
@@ -495,6 +533,13 @@ module milan_csr #(
       A_ADP_ASHI:   rd_mux = adp_ashi;
       A_ADP_CMD:    rd_mux = 32'h0;                         // strobes read 0
       A_ADP_STATUS: rd_mux = i_adp_available_index;         // RO available_index readback
+      A_TCAM_CTRL:  rd_mux = tcam_ctrl;
+      A_TCAM_KLO:   rd_mux = tcam_klo;
+      A_TCAM_KHI:   rd_mux = tcam_khi;
+      A_TCAM_MLO:   rd_mux = tcam_mlo;
+      A_TCAM_MHI:   rd_mux = tcam_mhi;
+      A_TCAM_ACT:   rd_mux = tcam_act;
+      A_TCAM_CMD:   rd_mux = 32'h0;                         // commit strobe reads 0
       default: begin
         if (rd_addr >= A_STATS_BASE && rd_addr < A_STATS_END)
           rd_mux = stat_snap[soff[2 +: 4]];
@@ -579,6 +624,14 @@ module milan_csr #(
   assign o_adp_association_id  = {adp_ashi, adp_aslo};
   assign o_adp_advertise_p     = adp_adv_p;
   assign o_adp_depart_p        = adp_dep_p;
+
+  assign o_tcam_default_pass = tcam_ctrl[0];
+  assign o_tcam_wr_en        = tcam_wr_p;
+  assign o_tcam_wr_index     = tcam_wr_index;
+  assign o_tcam_wr_valid     = tcam_wr_valid_r;
+  assign o_tcam_wr_key       = {tcam_khi[15:0], tcam_klo};
+  assign o_tcam_wr_mask      = {tcam_mhi[15:0], tcam_mlo};
+  assign o_tcam_wr_action    = tcam_act[7:0];
 
   assign o_irq = |(irq_status & irq_mask);
 

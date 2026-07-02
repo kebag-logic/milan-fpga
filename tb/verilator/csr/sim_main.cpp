@@ -28,6 +28,8 @@ enum {
   A_ADP_CTRL=0x600, A_ADP_EIDLO=0x604, A_ADP_EIDHI=0x608, A_ADP_ECAPS=0x614,
   A_ADP_TALK=0x618, A_ADP_GMLO=0x624, A_ADP_GMHI=0x628, A_ADP_DOMAIN=0x62C,
   A_ADP_IDX0=0x630, A_ADP_CMD=0x640, A_ADP_STATUS=0x644,
+  A_TCAM_CTRL=0x700, A_TCAM_KLO=0x704, A_TCAM_KHI=0x708, A_TCAM_MLO=0x70C,
+  A_TCAM_MHI=0x710, A_TCAM_ACT=0x714, A_TCAM_CMD=0x718,
 };
 
 static Vmilan_csr* dut;
@@ -37,6 +39,10 @@ static long fails = 0, checks = 0;
 static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
 static bool seen_stats_snap, seen_stats_reset;
 static bool seen_adp_adv, seen_adp_dep;
+// TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
+static bool     seen_tcam_wr;
+static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
+static uint64_t tcam_wr_key, tcam_wr_mask;
 
 static void posedge() {
   dut->aclk = 1; dut->eval();
@@ -47,6 +53,12 @@ static void posedge() {
   seen_stats_reset |= dut->o_stats_reset;
   seen_adp_adv     |= dut->o_adp_advertise_p;
   seen_adp_dep     |= dut->o_adp_depart_p;
+  if (dut->o_tcam_wr_en) {          // latch the committed entry
+    seen_tcam_wr = true;
+    tcam_wr_index = dut->o_tcam_wr_index; tcam_wr_valid = dut->o_tcam_wr_valid;
+    tcam_wr_key = dut->o_tcam_wr_key; tcam_wr_mask = dut->o_tcam_wr_mask;
+    tcam_wr_action = dut->o_tcam_wr_action;
+  }
   dut->aclk = 0; dut->eval();
 }
 
@@ -113,13 +125,14 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010002);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010003);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
   ck("CAP.PTP",        (cap >> 9) & 1, 1);
   ck("CAP.STATS",      (cap >> 10) & 1, 1);
   ck("CAP.ADP",        (cap >> 12) & 1, 1);
+  ck("CAP.TCAM",       (cap >> 13) & 1, 1);
   ck("CAP.ts_width",   (cap >> 16) & 0xFF, 64);
 
   printf("-- reset values --\n");
@@ -255,6 +268,34 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_CMD, 0x2);             // depart
   ck("o_adp_depart_p pulsed", seen_adp_dep, 1);
   ck("ADP_CMD reads 0 (strobe)", axi_read(A_ADP_CMD), 0);
+
+  printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
+  ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
+  dut->eval();
+  ck("o_tcam_default_pass", dut->o_tcam_default_pass, 1);
+  // program one entry: key=91E0F0010000, mask=FFFFFFFFFFFF, action=0x22, index=3, add
+  axi_write(A_TCAM_KLO, 0xF0010000);
+  axi_write(A_TCAM_KHI, 0x000091E0);
+  axi_write(A_TCAM_MLO, 0xFFFFFFFF);
+  axi_write(A_TCAM_MHI, 0x0000FFFF);
+  axi_write(A_TCAM_ACT, 0x00000022);
+  dut->eval();
+  ck("o_tcam_wr_key",    dut->o_tcam_wr_key,    0x91E0F0010000ULL);
+  ck("o_tcam_wr_mask",   dut->o_tcam_wr_mask,   0xFFFFFFFFFFFFULL);
+  ck("o_tcam_wr_action", dut->o_tcam_wr_action, 0x22);
+  seen_tcam_wr = false;
+  axi_write(A_TCAM_CMD, (1u << 16) | (1u << 8) | 3);   // commit: index=3, valid=1
+  ck("o_tcam_wr_en pulsed", seen_tcam_wr, 1);
+  ck("committed index",  tcam_wr_index, 3);
+  ck("committed valid",  tcam_wr_valid, 1);
+  ck("committed key",    tcam_wr_key,   0x91E0F0010000ULL);
+  ck("committed action", tcam_wr_action, 0x22);
+  ck("TCAM_CMD reads 0 (strobe)", axi_read(A_TCAM_CMD), 0);
+  // remove entry 3
+  seen_tcam_wr = false;
+  axi_write(A_TCAM_CMD, (1u << 16) | (0u << 8) | 3);   // commit: index=3, valid=0 (remove)
+  ck("remove commit pulsed", seen_tcam_wr, 1);
+  ck("remove valid=0", tcam_wr_valid, 0);
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
