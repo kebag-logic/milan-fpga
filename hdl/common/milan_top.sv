@@ -44,7 +44,13 @@ module milan_top import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
   parameter int TX_FIFO_DEPTH = 2048,
   parameter int RX_FIFO_DEPTH = 2048,
-  parameter int NUM_QUEUES = NUMBER_OF_QUEUES
+  parameter int NUM_QUEUES = NUMBER_OF_QUEUES,
+  //! MAC synthesis target (portability, docs/OPEN_SOURCE_MIGRATION.md T2.1):
+  //! "XILINX" for the Artix/Zynq bitstream; "GENERIC" for open flows / other
+  //! devices / Verilator (the Forencich MAC then uses generic DDR I/O, no SelectIO).
+  parameter MAC_TARGET      = "XILINX",
+  parameter MAC_IODDR_STYLE = "IODDR",   //! "IODDR" (Xilinx) or "IODDR2"/"GENERIC"
+  parameter MAC_CLK_STYLE   = "BUFR"     //! "BUFR"/"BUFG" (Xilinx) or "GENERIC"
 )(
   inout wire [14:0] DDR_addr,
   inout wire [2:0] DDR_ba,
@@ -586,9 +592,9 @@ module milan_top import ethernet_packet_pkg::*; #(
   );
 
   eth_mac_1g_rgmii_fifo #(
-    .TARGET("XILINX"),
-    .IODDR_STYLE("IODDR"),
-    .CLOCK_INPUT_STYLE("BUFR"),
+    .TARGET(MAC_TARGET),
+    .IODDR_STYLE(MAC_IODDR_STYLE),
+    .CLOCK_INPUT_STYLE(MAC_CLK_STYLE),
     .AXIS_DATA_WIDTH(TDATA_WIDTH),
     .TX_FIFO_DEPTH(TX_FIFO_DEPTH),
     .RX_FIFO_DEPTH(RX_FIFO_DEPTH)
