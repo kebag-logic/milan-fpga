@@ -30,8 +30,8 @@ MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0002` | `[31:16]` major, `[15:0]` minor (0x0002 adds the ADP group) |
-| `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[23:16]` ts_width |
+| `0x004` | `VERSION` | RO | `0x0001_0003` | `[31:16]` major, `[15:0]` minor (0x0002 ADP group, 0x0003 TCAM group) |
+| `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
 | `0x014` | `IRQ_MASK` | RW | `0` | 1 = interrupt enabled; masked bits still visible in `IRQ_RAW` |
@@ -117,6 +117,16 @@ lowers hiCredit below the current credit, so shrinking a slope takes effect at
 once. The driver must keep Σ idleSlope of the *shaped* queues ≤ 75 % of the port
 rate.
 
+**Shaping applies per queue, not globally.** A frame is credit-based-shaped **only
+when both** hold: (1) its PCP maps — through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` →
+`CLS_TC_QUEUE_MAP` — to a queue, **and** (2) that queue's `CBS_CTRL[0]` shaped-enable
+is **1**. A queue with `CBS_CTRL[0]=0` (or a PCP that maps to it) is **strict
+priority / unshaped** (`allow_transmit` forced 1 in `credit_based_shaper.sv`). At
+reset **only q0 and q1 are shaped** (`CBS_EN_RST = 0b0011`); q2/q3 (best-effort,
+control) run unshaped. Software chooses which queues are SR/shaped (subject to the
+75 % Σ idleSlope budget) by programming the PCP→queue map and the per-queue enables
+together — e.g. `tc mqprio` + `tc cbs offload`.
+
 ### 0x500 — PTP hardware clock  `(REQ-PTP-01..04, 06)`
 
 | Offset | Name | Acc | Reset | Description |
@@ -133,6 +143,31 @@ rate.
 | `0x534` | `PTP_TOD_RD_HI` | RO | `0` | latched TOD `[63:32]` |
 | `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction (ns) |
 | `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction (ns) |
+
+### 0x700 — RX destination-MAC TCAM filter  `(REQ-MAC-02)`
+
+A ternary CAM (`tcam.sv`) in the RX path (`rx_mac_filter`) that accepts/drops
+frames by destination MAC — exact **or** wildcard/range (per-bit `mask`). Precise
+alternative to the approximate `MC_HASH` hash filter. Software programs one indexed
+entry per commit: write the KEY/MASK/ACTION shadows, then `TCAM_CMD`. Reset:
+`default_pass=1` (accept-all until entries are installed — safe bring-up).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x700` | `TCAM_CTRL` | RW | `0x1` | `[0]` default_pass (1 = accept frames that miss the table) |
+| `0x704` | `TCAM_KEY_LO` | RW | `0` | match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no — see note) |
+| `0x708` | `TCAM_KEY_HI` | RW | `0` | match key `[47:32]` in `[15:0]` |
+| `0x70C` | `TCAM_MASK_LO` | RW | `0` | care mask `[31:0]` (1 = compare, 0 = wildcard) |
+| `0x710` | `TCAM_MASK_HI` | RW | `0` | care mask `[47:32]` in `[15:0]` |
+| `0x714` | `TCAM_ACTION` | RW | `0` | `[0]` drop-on-match (else accept), `[7:1]` steer tag |
+| `0x718` | `TCAM_CMD` | W1S | `0` | `[4:0]` entry index, `[8]` valid (1 = add/update, 0 = remove), `[16]` commit (self-clearing) — latches KEY/MASK/ACTION shadows into the entry |
+
+The 48-bit `key`/`mask` = `{HI[15:0], LO}` and are compared MSB-first against the
+destination MAC in standard notation (`01-80-C2-00-00-0E` → `0x0180C200000E`).
+Whitelist: `default_pass=0` + accept entries (`ACTION[0]=0`). Blacklist:
+`default_pass=1` + drop entries (`ACTION[0]=1`). Example ternary entry: reserved
+multicast block `01-80-C2-00-00-0x` = key `0x0180C2000000`, mask `0xFFFFFFFFFFF0`.
+See [`../hdl/common/doc/tcam.md`](../hdl/common/doc/tcam.md).
 
 `PTP_CMD` strobes cross into the `gtx_clk` PTP domain via `ptp_csr_sync`
 (value + toggle-synchronised apply strobe, `REQ-CSR-03`). `gettime` is

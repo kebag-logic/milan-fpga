@@ -310,8 +310,22 @@ original plan:
 - **CBS/mqprio offload, HW timestamping, ethtool_ops** — unchanged CSR ABI, so the
   bulk of `REQ-DRV-05..08` is portable verbatim.
 
-**Deliverable A.11:** `ip link` shows the netdev; `ping` over the RGMII PHY works;
-`ethtool -T` advertises the PHC.
+**Required driver feature surface** (`FR-DRV-*` in [`FR_NFR.md`](FR_NFR.md) §2.10):
+- **NAPI** RX/TX poll with per-queue contexts over the fabric DMA rings; the N HW
+  queues exposed as real netdev queues (so `tc mqprio`/CBS map to hardware).
+- **XDP**: `ndo_bpf`/`ndo_xdp_xmit`, all `XDP_*` actions, page-pool RX + headroom;
+  **AF_XDP zero-copy** (per-queue `xsk_pool`) for kernel-bypass to the media plane.
+- **PTP**: a `ptp_clock_info` PHC on the `0x500` CSRs (`gettimex64` crosstimestamp vs
+  RISC-V `rdtime`/CLINT mtime), `SIOCSHWTSTAMP` + TX/RX HW timestamps from the PTP
+  metadata stream into `skb_hwtstamps`.
+- **ethtool**: `-T` (PHC + HW-timestamp caps), `-S` (RMON CSR stats), `-l/-L`
+  (channels), `-g/-G` (rings), `-c/-C` (coalesce), link settings, and `ndo_setup_tc`
+  CBS/mqprio offload.
+- **RX filter**: `ndo_set_rx_mode` programs the MC_HASH / TCAM (`0x700`) dest-MAC filter.
+
+**Deliverable A.11:** `ip link` shows the netdev with N queues; `ping` over RGMII;
+`ethtool -T` advertises the PHC; `ethtool -S` shows RMON; an `XDP_DROP` program
+attaches and drops; `ptp4l` locks.
 
 ### A.12 — Device tree (Phase 8, re-hosted)
 LiteX **auto-generates** most of the SoC DT (`--csr-json` → `litex_json2dts_linux`).
