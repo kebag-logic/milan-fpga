@@ -22,10 +22,11 @@ straight into CI.
 | [`rx_filter/`](rx_filter) | `rx_mac_filter.sv` | TCAM-driven RX dest-MAC filter (`REQ-MAC-02`): whitelist/blacklist, ternary range accept, mask exclusion, cut-through byte-exact forwarding of accepted frames (14 checks). | `cd rx_filter && make` |
 | [`cdc/`](cdc) | `cdc_pulse.sv` + `cdc_handshake.sv` | Open CDC primitives that replaced `xpm_cdc_*` (T1.4): across two *independent* clocks — every source pulse yields one dest pulse; each value crosses byte-exact with req/ack (16 checks). | `cd cdc && make` |
 | [`datapath/`](datapath) | `traffic_controller_802_1q.sv` | **End-to-end** de-Xilinx'd 802.1Q TX datapath (T1.5): classifier → Forencich per-queue FIFOs → CBS shaper. VLAN frames in → byte-exact egress, PCP→queue routing (exact `tdest`), all 4 queues, strict-priority + CBS modes, burst (15 checks). | `cd datapath && make` |
+| [`milan_dp/`](milan_dp) | `milan_datapath.sv` | **Whole-wrapper integration** (§A.9 PS-less datapath the LiteX SoC instantiates): drive the AXI4-Lite CSR slave to read `ID="MILN"` (**M-A2**), VERSION, CAP bits; program the classifier over the CSR (readback); push a frame TX-DMA-port → MAC-port and MAC-port → RX-DMA-port, both byte-exact through classify→CBS→PTP→ADP-arbiter and PTP-RX→dest-MAC-filter (11 checks). | `cd milan_dp && make` |
 
 ```sh
 # run everything
-for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter cdc datapath; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
+for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter cdc datapath milan_dp; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 ```
 
 ## Conventions
