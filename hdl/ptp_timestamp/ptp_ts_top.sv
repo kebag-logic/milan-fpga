@@ -31,13 +31,14 @@
 module ptp_ts_top#(
   parameter int TDATA_WIDTH = 64,          //! AXI-Stream data width
   parameter int TS_WIDTH = 64,             //! Timestamp width
-  parameter int STEP_SIZE = 8,             //! Step size per clock cycle
+  parameter int INCR_WIDTH = 32,           //! PHC increment/addend width
+  parameter int FRAC_WIDTH = 24,           //! PHC fractional-ns bits: PTP_INCR is Q8.24
   parameter int METADATA_TDATA_WIDTH = 64, //! Metadata output width
   parameter bit BIG_ENDIAN = 0,            //! Endianness for field extraction
   parameter bit [15:0] ETH_TYPE = 'hF788  //! EtherType for PTP
 )(
 
-  //! Timestamp clock domain
+  //! Timestamp clock domain (PHC clock — fixed 125 MHz recommended, REQ-PTP-07)
   input  wire gtx_clk,
   //! Timestamp reset domain
   input  wire gtx_resetn,
@@ -45,6 +46,19 @@ module ptp_ts_top#(
   input  wire axis_clk,
   //! AXIS reset domain
   input  wire axis_resetn,
+
+  //! --- PTP hardware clock control (from milan_csr, axis_clk domain, REQ-PTP-01..04) ---
+  input  wire                 i_ptp_enable,       //! PHC enable
+  input  wire [INCR_WIDTH-1:0] i_ptp_incr,        //! Nominal per-tick increment, Q(INT).FRAC ns
+  input  wire [INCR_WIDTH-1:0] i_ptp_adj,         //! Signed adjfine addend, Q(INT).FRAC ns
+  input  wire [TS_WIDTH-1:0]  i_ptp_tod_wr,       //! settime target time-of-day, ns
+  input  wire [TS_WIDTH-1:0]  i_ptp_offset,       //! adjtime signed delta, ns
+  input  wire                 i_ptp_cmd_load,     //! settime apply strobe (axis_clk)
+  input  wire                 i_ptp_cmd_adjust,   //! adjtime apply strobe (axis_clk)
+  input  wire                 i_ptp_cmd_snapshot, //! gettime apply strobe (axis_clk)
+  output wire [TS_WIDTH-1:0]  o_ptp_tod_rd,       //! gettime result, ns (axis_clk)
+  output wire                 o_ptp_tod_rd_valid, //! gettime result valid (1 axis_clk pulse)
+  output wire                 o_tx_ts_ready,      //! TX egress timestamp available (IRQ pulse, axis_clk)
 
   //! TX AXI-Stream inputs
   input  wire [TDATA_WIDTH-1:0] s_axis_tx_tdata,
@@ -104,6 +118,18 @@ module ptp_ts_top#(
   //! internal timestamp signal
   wire[TS_WIDTH-1:0] timestamp;
 
+  //! PHC control signals synchronised into the gtx_clk (PHC) domain.
+  wire                  ptp_enable_ts;
+  wire [INCR_WIDTH-1:0] ptp_incr_ts;
+  wire [INCR_WIDTH-1:0] ptp_adj_ts;
+  wire [TS_WIDTH-1:0]   ptp_tod_wr_ts;
+  wire                  ptp_cmd_load_ts;
+  wire [TS_WIDTH-1:0]   ptp_offset_ts;
+  wire                  ptp_cmd_adjust_ts;
+  wire                  ptp_cmd_snapshot_ts;
+  wire [TS_WIDTH-1:0]   ptp_tod_snapshot_ts;
+  wire                  ptp_tod_snapshot_valid_ts;
+
   // ===========================================================================
   // AXI-Stream Assignments
   // ===========================================================================
@@ -136,14 +162,57 @@ module ptp_ts_top#(
   //! ts_counter: 64-bit counter for time stamping packets
   // ---------------------------------------------------------------------------
 
+  //! CSR -> PHC clock-domain crossing (axis_clk -> gtx_clk + snapshot return).
+  ptp_csr_sync #(
+    .TS_WIDTH(TS_WIDTH),
+    .INCR_WIDTH(INCR_WIDTH)
+  ) ptp_sync (
+    .aclk           (axis_clk),
+    .aresetn        (axis_resetn),
+    .a_enable       (i_ptp_enable),
+    .a_incr         (i_ptp_incr),
+    .a_adj          (i_ptp_adj),
+    .a_tod_wr       (i_ptp_tod_wr),
+    .a_offset       (i_ptp_offset),
+    .a_cmd_load     (i_ptp_cmd_load),
+    .a_cmd_adjust   (i_ptp_cmd_adjust),
+    .a_cmd_snapshot (i_ptp_cmd_snapshot),
+    .a_tod_rd       (o_ptp_tod_rd),
+    .a_tod_rd_valid (o_ptp_tod_rd_valid),
+
+    .ts_clk         (gtx_clk),
+    .ts_resetn      (gtx_resetn),
+    .t_enable       (ptp_enable_ts),
+    .t_incr         (ptp_incr_ts),
+    .t_adj          (ptp_adj_ts),
+    .t_tod_wr       (ptp_tod_wr_ts),
+    .t_cmd_load     (ptp_cmd_load_ts),
+    .t_offset       (ptp_offset_ts),
+    .t_cmd_adjust   (ptp_cmd_adjust_ts),
+    .t_cmd_snapshot (ptp_cmd_snapshot_ts),
+    .t_tod_snapshot       (ptp_tod_snapshot_ts),
+    .t_tod_snapshot_valid (ptp_tod_snapshot_valid_ts)
+  );
+
   timestamp_counter #(
     .COUNTER_WIDTH(TS_WIDTH),
-    .STEP_SIZE(STEP_SIZE)
+    .INCR_WIDTH(INCR_WIDTH),
+    .FRAC_WIDTH(FRAC_WIDTH)
   )
   ts_counter(
     .clk(gtx_clk),
     .resetn(gtx_resetn),
-    .timestamp_out(timestamp)
+    .enable_i(ptp_enable_ts),
+    .incr_i(ptp_incr_ts),
+    .adj_i(ptp_adj_ts),
+    .tod_wr_i(ptp_tod_wr_ts),
+    .cmd_load_i(ptp_cmd_load_ts),
+    .offset_i(ptp_offset_ts),
+    .cmd_adjust_i(ptp_cmd_adjust_ts),
+    .cmd_snapshot_i(ptp_cmd_snapshot_ts),
+    .timestamp_out(timestamp),
+    .tod_snapshot_o(ptp_tod_snapshot_ts),
+    .tod_snapshot_valid_o(ptp_tod_snapshot_valid_ts)
   );
 
   // ---------------------------------------------------------------------------
@@ -193,6 +262,18 @@ module ptp_ts_top#(
     .m_axis(m_axis_rx),
     .ts_m_axis(ts_m_axis_rx)
   );
+
+  //! TX egress-timestamp ready pulse (REQ-PTP-04): assert for one axis_clk cycle
+  //! when a completed TX timestamp record (last metadata beat) is accepted into
+  //! the TX ts buffer. milan_csr latches this into IRQ_STATUS[0].
+  reg tx_ts_ready_r;
+  always_ff @(posedge axis_clk) begin : tx_ts_ready_pulse
+    if (!axis_resetn)
+      tx_ts_ready_r <= 1'b0;
+    else
+      tx_ts_ready_r <= ts_m_axis_tx.tvalid && ts_m_axis_tx.tready && ts_m_axis_tx.tlast;
+  end
+  assign o_tx_ts_ready = tx_ts_ready_r;
 
   // ===========================================================================
   // TX Timestamp Buffer FIFO (Pre-Switch)

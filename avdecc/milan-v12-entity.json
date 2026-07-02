@@ -1,0 +1,341 @@
+{
+  "_schema": "kebag-logic/milan-aem-entity",
+  "_schema_version": "1.0.0",
+  "_description": "Single IEEE 1722.1-2021 AEM entity, AVnu Milan v1.2 profile. Byte-accurate mirror of the reference software entity in PipeWire module-avb (entity-model-milan-v12.h / aecp-vendor-unique-milan-v12.h). Drives BOTH the FPGA 4-level AEM memory (see ../aem-and-aecp.md) and a software entity. See ./README.md.",
+  "spec": {
+    "aem": "IEEE 1722.1-2021",
+    "profile": "AVnu Milan v1.2",
+    "avtp": "IEEE 1722-2016 (AAF / CRF stream formats)",
+    "gptp": "IEEE 802.1AS",
+    "sources_of_truth": [
+      "srcs/buildroot/dl/pipewire-upstream/git/src/modules/module-avb/entity-model-milan-v12.h",
+      "srcs/buildroot/dl/pipewire-upstream/git/src/modules/module-avb/aecp-vendor-unique-milan-v12.h",
+      "milan-fpga/aem-and-aecp.md  (FPGA 4-level AEM memory + AECP state machines)"
+    ],
+    "field_class_legend": {
+      "static": "compile-time constant; lives in factory read-only NVM / ROM. Never written by AECP.",
+      "semi_static": "provisioned at build/first-boot (e.g. MAC-derived); NVM, rarely changes.",
+      "nonvolatile": "settable by AECP (SET_NAME/SET_CONFIGURATION/...) and persisted; survives reboot, cleared by factory-reset.",
+      "dynamic": "live state (SET_STREAM_FORMAT / SET_CLOCK_SOURCE / SET_CONTROL / counters / gPTP); volatile mirror, not persisted."
+    },
+    "convention": "A field written as a bare scalar is class=static. A field written as {value,class,access,...} carries its class and the AEM command that reads/writes it. Descriptor addressing is (configuration_index, descriptor_type, descriptor_index) which maps 1:1 onto the aem-and-aecp.md L1/L2/L3 memory levels."
+  },
+
+  "avtp_subtypes": { "ADP": "0xFA", "AECP": "0xFB", "ACMP": "0xFC", "MAAP": "0xFE" },
+
+  "milan_mvu": {
+    "_ref": "Milan v1.2 Sec 5.4.3 (AECP Vendor Unique / MVU)",
+    "protocol_id": "00-1B-C5-0A-C1-00",
+    "protocol_id_note": "Avnu OUI-36 00-1B-C5-0A-C + 12-bit MVU id 0x100.",
+    "commands": {
+      "GET_MILAN_INFO": "0x0000",
+      "SET_SYSTEM_UNIQUE_ID": "0x0001",
+      "GET_SYSTEM_UNIQUE_ID": "0x0002",
+      "SET_MEDIA_CLOCK_REFERENCE_INFO": "0x0003",
+      "GET_MEDIA_CLOCK_REFERENCE_INFO": "0x0004"
+    },
+    "commands_note": "GET_MILAN_INFO is confirmed in the reference SW header (AVB_AECP_MVU_CMD_GET_MILAN_INFO=0x0000). The SYSTEM_UNIQUE_ID and MEDIA_CLOCK_REFERENCE_INFO codes follow Milan v1.2 Sec 5.4 + aem-and-aecp.md; confirm the exact codes against the Milan v1.2 spec before wire use.",
+    "get_milan_info_response": {
+      "protocol_version": { "value": 1, "class": "static" },
+      "features_flags": {
+        "value": { "MILAN_REDUNDANCY": false },
+        "raw_hex": "0x00000000",
+        "class": "static",
+        "note": "Seamless network redundancy is OUT OF SCOPE for now (single AVB_INTERFACE). MILAN_REDUNDANCY stays 0. Revisit if/when a 2nd MAC + redundant configuration is added."
+      },
+      "certification_version": { "value": "1.2.0.0", "raw_hex": "0x01020000", "class": "static" }
+    },
+    "system_unique_id": { "value": 0, "class": "nonvolatile", "note": "Milan grouping id; GET/SET via MVU." },
+    "media_clock_reference_info": {
+      "class": "dynamic",
+      "note": "Milan v1.2 media-clock reference chain state (reference priority / domain). Exposed via GET/SET_MEDIA_CLOCK_REFERENCE_INFO; tracks the CLOCK_DOMAIN below."
+    }
+  },
+
+  "adp": {
+    "_ref": "IEEE 1722.1-2021 Sec 6 (ADP). HW advertiser mirrors these ENTITY fields.",
+    "_note": "ADPDU body is 64 bytes; fields below are the advertised copy of the ENTITY descriptor. valid_time and available_index are owned by the HW ADP advertiser (Part B of the migration plan).",
+    "valid_time_s": { "value": 62, "class": "static", "note": "Milan: 2*valid_time seconds re-advertise; must be >= 2 and even. 62 => advertise every ~31 s (Milan recommends valid_time such that re-advertise <= 5 s? use 4 => 2 s). Set per Milan v1.2 timing." },
+    "available_index": { "value": 0, "class": "dynamic", "note": "Increments on every state change / re-advertise. MUST match ENTITY.available_index and never decrease without an entity restart." },
+    "identify_control_index": { "value": 0, "class": "static", "note": "valid because entity_capabilities.AEM_IDENTIFY_CONTROL_INDEX_VALID is set => CONTROL[0]." },
+    "interface_index": { "value": 0, "class": "static", "note": "valid because entity_capabilities.AEM_INTERFACE_INDEX_VALID is set => AVB_INTERFACE[0]." }
+  },
+
+  "counters": {
+    "_ref": "GET_COUNTERS (AEM cmd 0x0029). IEEE 1722.1-2021 Table 7.130 (STREAM_INPUT), Sec 7.4.42 Table 7.51 (AVB_INTERFACE) + Milan v1.2.",
+    "STREAM_INPUT": ["MEDIA_LOCKED","MEDIA_UNLOCKED","STREAM_INTERRUPTED","SEQ_NUM_MISMATCH","MEDIA_RESET","TIMESTAMP_UNCERTAIN","TIMESTAMP_VALID","TIMESTAMP_NOT_VALID","UNSUPPORTED_FORMAT","LATE_TIMESTAMP","EARLY_TIMESTAMP","FRAMES_RX","FRAMES_TX"],
+    "STREAM_OUTPUT": ["STREAM_START","STREAM_STOP","MEDIA_RESET","TIMESTAMP_UNCERTAIN","FRAMES_TX"],
+    "AVB_INTERFACE": ["LINK_UP","LINK_DOWN","FRAMES_TX","FRAMES_RX","RX_CRC_ERROR","GPTP_GM_CHANGED"]
+  },
+
+  "entity": {
+    "descriptor_type": "ENTITY",
+    "descriptor_index": 0,
+    "_ref": "IEEE 1722.1-2021 Sec 7.2.1 / Table 7-2; Milan v1.2 Sec 5.3.3.1",
+    "fields": {
+      "entity_id":       { "value": "0xDEAD00BEEF00FEED", "class": "semi_static", "access": "READ_ONLY", "note": "EUI-64. Milan: derive from the AVB_INTERFACE MAC (MAC-48 -> insert FF-FE). Placeholder here matches the reference SW." },
+      "entity_model_id": { "value": "0x0000000000000000", "class": "static", "note": "EUI-64 identifying THIS static model. 0 in reference SW; assign a vendor EUI-64 (OUI 00-1B-C5) per released model." },
+      "entity_capabilities": {
+        "flags": ["AEM_SUPPORTED","CLASS_A_SUPPORTED","GPTP_SUPPORTED","VENDOR_UNIQUE_SUPPORTED","AEM_IDENTIFY_CONTROL_INDEX_VALID","AEM_INTERFACE_INDEX_VALID"],
+        "raw_hex": "0x0000C588",
+        "class": "static"
+      },
+      "talker_stream_sources": { "value": 8, "class": "static", "note": "max STREAM_OUTPUT count across all configurations." },
+      "talker_capabilities":   { "flags": ["IMPLEMENTED","AUDIO_SOURCE"], "class": "static" },
+      "listener_stream_sinks": { "value": 8, "class": "static" },
+      "listener_capabilities": { "flags": ["IMPLEMENTED","AUDIO_SINK"], "class": "static" },
+      "controller_capabilities": { "value": 0, "class": "static" },
+      "available_index":  { "value": 0, "class": "dynamic", "note": "same value advertised in ADP; increments on change." },
+      "association_id":   { "value": 0, "class": "dynamic" },
+      "entity_name":      { "value": "PipeWire", "class": "nonvolatile", "access": "SET_NAME", "max_octets": 64 },
+      "vendor_name_string": { "value": 2, "class": "static", "note": "localized ref -> STRINGS[2] = 'Kebag Logic'." },
+      "model_name_string":  { "value": 0, "class": "static", "note": "localized ref -> STRINGS[0] = 'PipeWire'." },
+      "firmware_version": { "value": "0.3.48", "class": "semi_static", "max_octets": 64 },
+      "group_name":       { "value": "Kebag Logic", "class": "nonvolatile", "access": "SET_NAME", "max_octets": 64 },
+      "serial_number":    { "value": "0xBEBEDEAD", "class": "semi_static", "max_octets": 64 },
+      "configurations_count": { "value": 1, "class": "static", "note": "Single configuration. Redundancy (which would add a 2nd config) is out of scope for now; sample rates 48/96/192 kHz are handled within this one configuration via SET_SAMPLING_RATE." },
+      "current_configuration": { "value": 0, "class": "nonvolatile", "access": "SET_CONFIGURATION" }
+    },
+
+    "configurations": [
+      {
+        "descriptor_type": "CONFIGURATION",
+        "descriptor_index": 0,
+        "_ref": "IEEE 1722.1-2021 Sec 7.2.2 / Table 7-3; Milan v1.2 Sec 5.3.3.2",
+        "fields": {
+          "object_name": { "value": "48/96/192 kHz", "class": "nonvolatile", "max_octets": 64 },
+          "localized_description": 1,
+          "descriptor_counts_offset": 74,
+          "descriptor_counts": [
+            { "descriptor_type": "AUDIO_UNIT",    "count": 1 },
+            { "descriptor_type": "STREAM_INPUT",  "count": 2 },
+            { "descriptor_type": "STREAM_OUTPUT", "count": 1 },
+            { "descriptor_type": "AVB_INTERFACE", "count": 1 },
+            { "descriptor_type": "CLOCK_DOMAIN",  "count": 1 },
+            { "descriptor_type": "CLOCK_SOURCE",  "count": 3 },
+            { "descriptor_type": "CONTROL",       "count": 1 },
+            { "descriptor_type": "LOCALE",        "count": 1 }
+          ]
+        },
+
+        "descriptors": [
+          {
+            "descriptor_type": "AUDIO_UNIT", "descriptor_index": 0,
+            "_ref": "Sec 7.2.3; Milan v1.2 Sec 5.3.3.3",
+            "object_name": "", "localized_description": "0xFFFF",
+            "clock_domain_index": 0,
+            "number_of_stream_input_ports": 1,  "base_stream_input_port": 0,
+            "number_of_stream_output_ports": 1, "base_stream_output_port": 0,
+            "number_of_external_input_ports": 8, "base_external_input_port": 0,
+            "number_of_external_output_ports": 8, "base_external_output_port": 0,
+            "number_of_controls": 0, "base_control": 0,
+            "current_sampling_rate": { "value_hz": 48000, "pull": 0, "raw_hex": "0x0000BB80", "class": "dynamic", "access": "SET_SAMPLING_RATE" },
+            "sampling_rates_offset": 144,
+            "sampling_rates": [
+              { "value_hz": 48000,  "pull": 0, "raw_hex": "0x0000BB80" },
+              { "value_hz": 96000,  "pull": 0, "raw_hex": "0x00017700" },
+              { "value_hz": 192000, "pull": 0, "raw_hex": "0x0002EE00" }
+            ]
+          },
+          {
+            "descriptor_type": "STREAM_INPUT", "descriptor_index": 0,
+            "_ref": "Sec 7.2.6; Milan v1.2 Sec 5.3.3.4  (audio / AAF listener sink)",
+            "_listener_adaptation": "ADAPTIVE (Milan v1.2 §5.4): current_format is set to the connected talker's format via SET_STREAM_FORMAT; formats[] lists the supported set. Here it spans 48/96/192 kHz at 8ch; a fully general listener would also enumerate channel-count variants (cf. the reference 1/2/4/6/8ch). Only the talker's format is fixed.",
+            "object_name": "Stream 1", "localized_description": "0xFFFF",
+            "clock_domain_index": 0,
+            "stream_flags": ["SYNC_SOURCE","CLASS_A"],
+            "avb_interface_index": 0,
+            "buffer_length_ns": 2126000,
+            "current_format": { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000, "channels": 8, "sample_bits": 32, "samples_per_frame": 6 }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
+            "formats": [
+              { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 6 } },
+              { "raw_hex": "0x020702200200C000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 96000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 12 } },
+              { "raw_hex": "0x0209022002018000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 192000, "channels": 8, "sample_bits": 32, "samples_per_frame": 24 } }
+            ]
+          },
+          {
+            "descriptor_type": "STREAM_INPUT", "descriptor_index": 1,
+            "_ref": "Sec 7.2.6; Milan v1.2 Sec 5.3.3.4  (CRF media-clock reference sink)",
+            "_status": "defined in the model; descriptors.c build of the CRF input is still TODO in the reference SW.",
+            "object_name": "CRF", "localized_description": "0xFFFF",
+            "clock_domain_index": 0,
+            "stream_flags": ["SYNC_SOURCE","CLASS_A"],
+            "avb_interface_index": 0,
+            "buffer_length_ns": 2126000,
+            "current_format": { "raw_hex": "0x041060010000BB80", "decoded": { "type": "CRF", "base_frequency_hz": 48000, "note": "CRF_AUDIO_SAMPLE media clock reference" }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
+            "formats": [
+              { "raw_hex": "0x041060010000BB80", "decoded": { "type": "CRF", "base_frequency_hz": 48000 } },
+              { "raw_hex": "0x0410600100017700", "decoded": { "type": "CRF", "base_frequency_hz": 96000 }, "_note": "base_frequency updated to 96000; confirm timestamp_interval/timestamps_per_pdu (bytes 1-3) against IEEE 1722-2016 CRF if the media-clock packet rate must change." },
+              { "raw_hex": "0x041060010002EE00", "decoded": { "type": "CRF", "base_frequency_hz": 192000 }, "_note": "base_frequency updated to 192000; confirm timestamp_interval/timestamps_per_pdu (bytes 1-3)." }
+            ]
+          },
+          {
+            "descriptor_type": "STREAM_OUTPUT", "descriptor_index": 0,
+            "_ref": "Sec 7.2.7; Milan v1.2 Sec 5.3.3.4  (AAF talker source)",
+            "_talker_format": "The talker SOURCES a fixed format per connection (formats[] = what it can produce, one active at a time). Unlike the listener, it does not adapt to a peer.",
+            "object_name": "Stream output 1", "localized_description": "0xFFFF",
+            "clock_domain_index": 0,
+            "stream_flags": ["CLASS_A"],
+            "avb_interface_index": 0,
+            "buffer_length_ns": 8,
+            "current_format": { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000, "channels": 8, "sample_bits": 32, "samples_per_frame": 6 }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
+            "formats": [
+              { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 6 } },
+              { "raw_hex": "0x020702200200C000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 96000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 12 } },
+              { "raw_hex": "0x0209022002018000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 192000, "channels": 8, "sample_bits": 32, "samples_per_frame": 24 } }
+            ]
+          },
+          {
+            "descriptor_type": "AVB_INTERFACE", "descriptor_index": 0,
+            "_ref": "Sec 7.2.8; Milan v1.2 Sec 5.3.3.5",
+            "object_name": "", "localized_description": "0xFFFF",
+            "mac_address": { "value": "00:00:00:00:00:00", "class": "semi_static", "note": "station MAC from the board; also seeds entity_id EUI-64." },
+            "interface_flags": ["GPTP_GRANDMASTER_SUPPORTED","GPTP_SUPPORTED","SRP_SUPPORTED"],
+            "clock_identity": { "value": "0x3CC0C6FFFE0002CB", "class": "dynamic", "note": "gPTP clockIdentity; reflects live 802.1AS state." },
+            "priority1": { "value": "0xF8", "class": "dynamic" },
+            "clock_class": { "value": "0xF8", "class": "dynamic" },
+            "offset_scaled_log_variance": { "value": "0x436A", "class": "dynamic" },
+            "clock_accuracy": { "value": "0x21", "class": "dynamic" },
+            "priority2": { "value": "0xF8", "class": "dynamic" },
+            "domain_number": 0,
+            "log_sync_interval": 0,
+            "log_announce_interval": 0,
+            "log_pdelay_interval": 0,
+            "port_number": 0
+          },
+          {
+            "descriptor_type": "CLOCK_SOURCE", "descriptor_index": 0,
+            "_ref": "Sec 7.2.9; Milan v1.2 Sec 5.3.3.6  (internal oscillator)",
+            "object_name": "Internal", "localized_description": "0xFFFF",
+            "clock_source_flags": "0x0002",
+            "clock_source_type": "INTERNAL",
+            "clock_source_identifier": { "value": 0, "class": "dynamic" },
+            "clock_source_location_type": "CLOCK_SOURCE",
+            "clock_source_location_index": 0
+          },
+          {
+            "descriptor_type": "CLOCK_SOURCE", "descriptor_index": 1,
+            "_ref": "Sec 7.2.9; Milan v1.2 Sec 5.3.3.6  (AAF stream-derived)",
+            "object_name": "Stream Clock", "localized_description": "0xFFFF",
+            "clock_source_flags": "0x0002",
+            "clock_source_type": "INPUT_STREAM",
+            "clock_source_identifier": { "value": 0, "class": "dynamic" },
+            "clock_source_location_type": "STREAM_INPUT",
+            "clock_source_location_index": 0
+          },
+          {
+            "descriptor_type": "CLOCK_SOURCE", "descriptor_index": 2,
+            "_ref": "Sec 7.2.9; Milan v1.2 Sec 5.3.3.6  (CRF media-clock-derived)",
+            "object_name": "CRF Clock", "localized_description": "0xFFFF",
+            "clock_source_flags": "0x0002",
+            "clock_source_type": "INPUT_STREAM",
+            "clock_source_identifier": { "value": 0, "class": "dynamic" },
+            "clock_source_location_type": "STREAM_INPUT",
+            "clock_source_location_index": 1
+          },
+          {
+            "descriptor_type": "CLOCK_DOMAIN", "descriptor_index": 0,
+            "_ref": "Sec 7.2.32; Milan v1.2 Sec 5.3.3.11",
+            "object_name": "Clock Reference Format", "localized_description": "0xFFFF",
+            "clock_source_index": { "value": 0, "class": "dynamic", "access": "SET_CLOCK_SOURCE", "note": "index into clock_sources[]; selects Internal/AAF/CRF." },
+            "clock_sources": [0, 1, 2]
+          },
+          {
+            "descriptor_type": "CONTROL", "descriptor_index": 0,
+            "_ref": "Sec 7.2.22; Milan v1.2 Sec 5.3.3.10  (IDENTIFY)",
+            "object_name": "Identify", "localized_description": "0xFFFF",
+            "block_latency": 500, "control_latency": 500, "control_domain": 0,
+            "control_value_type": "CONTROL_LINEAR_UINT8",
+            "control_type": "AEM_CTRL_TYPE_IDENTIFY",
+            "reset_time": 3,
+            "number_of_values": 1,
+            "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0,
+            "value": { "minimum": 0, "maximum": 255, "step": 255, "default": 0,
+              "current": { "value": 0, "class": "dynamic", "access": "SET_CONTROL",
+                "note": "Milan v1.2: entity stays in identify mode while != 0 (reset_time is advisory)." } }
+          },
+          {
+            "descriptor_type": "LOCALE", "descriptor_index": 0,
+            "_ref": "Sec 7.2.11",
+            "locale_identifier": "en-EN",
+            "number_of_strings": 1,
+            "base_strings": 0
+          },
+          {
+            "descriptor_type": "STRINGS", "descriptor_index": 0,
+            "_ref": "Sec 7.2.12  (up to 7 localized strings)",
+            "strings": ["PipeWire", "48/96/192 kHz", "Kebag Logic", "Kebag Logic", "Alexandre Malki", "Simon Gapp", ""]
+          },
+          {
+            "descriptor_type": "STREAM_PORT_INPUT", "descriptor_index": 0,
+            "_ref": "Sec 7.2.13; Milan v1.2 Sec 5.3.3.7",
+            "clock_domain_index": 0,
+            "port_flags": ["CLOCK_SYNC_SOURCE"],
+            "number_of_controls": 0, "base_control": 0,
+            "number_of_clusters": 8, "base_cluster": 0,
+            "number_of_maps": 1, "base_map": 0
+          },
+          {
+            "descriptor_type": "STREAM_PORT_OUTPUT", "descriptor_index": 0,
+            "_ref": "Sec 7.2.14; Milan v1.2 Sec 5.3.3.7",
+            "clock_domain_index": 0,
+            "port_flags": [],
+            "number_of_controls": 0, "base_control": 0,
+            "number_of_clusters": 8, "base_cluster": 8,
+            "number_of_maps": 1, "base_map": 1
+          },
+
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 0,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 1,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 2,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 3,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 4,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 5,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 6,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 7,  "_group": "STREAM_PORT_INPUT[0]",  "object_name": "Input",  "localized_description": "0xFFFF", "signal_type": "0xFFFF", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 8,  "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 9,  "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 10, "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 11, "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 12, "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 13, "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 14, "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+          { "descriptor_type": "AUDIO_CLUSTER", "descriptor_index": 15, "_group": "STREAM_PORT_OUTPUT[0]", "object_name": "Output", "localized_description": "0xFFFF", "signal_type": "AUDIO_UNIT", "signal_index": 0, "signal_output": 0, "path_latency_ns": 500, "block_latency_ns": 500, "channel_count": 1, "format": "MBLA" },
+
+          {
+            "descriptor_type": "AUDIO_MAP", "descriptor_index": 0,
+            "_ref": "Sec 7.2.19; Milan v1.2 Sec 5.3.3.9  (STREAM_PORT_INPUT[0] default map)",
+            "mappings": [
+              { "mapping_stream_index": 0, "mapping_stream_channel": 0, "mapping_cluster_offset": 0, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 1, "mapping_cluster_offset": 1, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 2, "mapping_cluster_offset": 2, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 3, "mapping_cluster_offset": 3, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 4, "mapping_cluster_offset": 4, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 5, "mapping_cluster_offset": 5, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 6, "mapping_cluster_offset": 6, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 7, "mapping_cluster_offset": 7, "mapping_cluster_channel": 0 }
+            ],
+            "class": "dynamic", "access": "ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS",
+            "note": "Milan dynamic mappings: the 8 entries are the power-on default; controllers may add/remove at runtime."
+          },
+          {
+            "descriptor_type": "AUDIO_MAP", "descriptor_index": 1,
+            "_ref": "Sec 7.2.19; Milan v1.2 Sec 5.3.3.9  (STREAM_PORT_OUTPUT[0] default map)",
+            "mappings": [
+              { "mapping_stream_index": 0, "mapping_stream_channel": 0, "mapping_cluster_offset": 0, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 1, "mapping_cluster_offset": 1, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 2, "mapping_cluster_offset": 2, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 3, "mapping_cluster_offset": 3, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 4, "mapping_cluster_offset": 4, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 5, "mapping_cluster_offset": 5, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 6, "mapping_cluster_offset": 6, "mapping_cluster_channel": 0 },
+              { "mapping_stream_index": 0, "mapping_stream_channel": 7, "mapping_cluster_offset": 7, "mapping_cluster_channel": 0 }
+            ],
+            "class": "dynamic", "access": "ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS"
+          }
+        ]
+      }
+    ],
+    "_redundancy_note": "OUT OF SCOPE for now: Milan Seamless Network Redundancy (which would add a second CONFIGURATION with 2x AVB_INTERFACE and redundant stream pairs) is intentionally not modeled. This entity is single-configuration, single-interface. If added later: append a redundant CONFIGURATION[1], set entity.configurations_count=2, and flip milan_mvu.get_milan_info_response.features_flags.MILAN_REDUNDANCY=true."
+  }
+}

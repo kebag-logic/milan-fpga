@@ -1,0 +1,484 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ */
+
+/*
+------------------------------------------------------------------------------
+  File        : milan_csr.sv
+  Author      : Kebag Logic
+
+  Date        : 2026-07-01
+  Description : AXI4-Lite control/status-register (CSR) block for the Milan TSN
+                network interface. This is the memory-mapped control plane
+                (REQUIREMENTS.md REQ-CSR-*) that the Linux driver binds to; it
+                turns the previously compile-time-only TSN knobs (MAC config,
+                802.1Q classifier map, 802.1Qav CBS slopes, PTP clock control)
+                into runtime-writable registers, and exposes MAC statistics,
+                link status and interrupts back to software.
+
+                The full register map / ABI is documented in
+                docs/REGISTER_MAP.md and mirrored by the self-checking harness
+                in tb/verilator/csr. Register groups:
+
+                  0x000  ID / VERSION / CAPABILITIES / IRQ
+                  0x100  MAC control + status
+                  0x200  Statistics (RMON) snapshot window
+                  0x300  802.1Q classifier (PCP->TC map, default priority)
+                  0x400  802.1Qav CBS, per queue (stride 0x20)
+                  0x500  PTP hardware clock (adjfine/adjtime/settime/gettime)
+
+                Design notes:
+                  * AXI4-Lite slave uses the combinational-ready, single-
+                    outstanding pattern: a transfer commits on the same rising
+                    edge that *READY is asserted, so a master that drops *VALID
+                    right after the handshake still commits (no lost writes).
+                  * Configuration values leave on flat o_* output ports for the
+                    rest of milan_top to consume. Status (link, RMON counters,
+                    PTP TOD) and event pulses arrive on i_* input ports.
+                  * Command strobes (PTP settime/adjtime/snapshot, stats
+                    snapshot/reset) are emitted as single-cycle o_*_cmd_* /
+                    o_stats_* pulses. Fields consumed in the gtx_clk (PTP/TX)
+                    domain must be CDC-synchronised at the consumer using these
+                    apply strobes (REQ-CSR-03); this block is purely in the
+                    aclk (AXI) domain.
+                  * s_axi_wstrb is intentionally ignored: the ABI mandates full
+                    32-bit register writes.
+
+  Company     : Kebag Logic
+  Project     : Milan FPGA Platform
+------------------------------------------------------------------------------
+*/
+
+`default_nettype none
+
+module milan_csr #(
+  parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
+  parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
+  parameter logic [31:0] VERSION = 32'h0001_0001 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor)
+)(
+  input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
+  input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
+
+  // ---- AXI4-Lite slave ----
+  input  wire [ADDR_WIDTH-1:0]   s_axi_awaddr,   //! Write address (byte offset into the register window)
+  input  wire                    s_axi_awvalid,  //! Write address valid
+  output wire                    s_axi_awready,  //! Write address ready (combinational)
+  input  wire [31:0]             s_axi_wdata,    //! Write data
+  input  wire [3:0]              s_axi_wstrb,    //! Write byte strobes (ignored; full 32-bit writes only)
+  input  wire                    s_axi_wvalid,   //! Write data valid
+  output wire                    s_axi_wready,   //! Write data ready (combinational)
+  output wire [1:0]              s_axi_bresp,    //! Write response (always OKAY)
+  output wire                    s_axi_bvalid,   //! Write response valid
+  input  wire                    s_axi_bready,   //! Write response ready
+  input  wire [ADDR_WIDTH-1:0]   s_axi_araddr,   //! Read address (byte offset into the register window)
+  input  wire                    s_axi_arvalid,  //! Read address valid
+  output wire                    s_axi_arready,  //! Read address ready (combinational)
+  output wire [31:0]             s_axi_rdata,    //! Read data
+  output wire [1:0]              s_axi_rresp,    //! Read response (always OKAY)
+  output wire                    s_axi_rvalid,   //! Read data valid
+  input  wire                    s_axi_rready,   //! Read data ready
+
+  // ---- MAC control / status (REQ-MAC-01..03) ----
+  output wire                    o_mac_tx_en,    //! MAC transmit enable (MAC_CTRL[0])
+  output wire                    o_mac_rx_en,    //! MAC receive enable (MAC_CTRL[1])
+  output wire                    o_mac_promisc,  //! Promiscuous mode: accept all frames (MAC_CTRL[2])
+  output wire                    o_mac_allmulti, //! Accept all multicast (MAC_CTRL[3])
+  output wire                    o_mac_is_1g,    //! Link-rate select: 1 = 1 Gb/s, 0 = 100 Mb/s (MAC_CTRL[4])
+  output wire [7:0]              o_mac_ifg,      //! Inter-frame gap, bytes (MAC_IFG)
+  output wire [47:0]             o_mac_addr,     //! Station MAC address {MAC_ADDR_HI[15:0], MAC_ADDR_LO}
+  output wire [63:0]             o_mc_hash,      //! Multicast hash filter {MC_HASH_HI, MC_HASH_LO}
+  output wire                    o_phy_reset_n,  //! PHY reset, active-low (PHY_RESET[0])
+  input  wire                    i_link_up,      //! Link status from PHY/MAC (MAC_STATUS[0])
+  input  wire [1:0]              i_speed,        //! Negotiated speed 0=10,1=100,2=1000 (MAC_STATUS[2:1])
+  input  wire                    i_full_duplex,  //! Full-duplex indication (MAC_STATUS[3])
+
+  // ---- Statistics / RMON (REQ-MAC-04) ----
+  output wire                    o_stats_snapshot, //! 1-cycle pulse: latch live counters into the read window
+  output wire                    o_stats_reset,    //! 1-cycle pulse: clear the external event counters
+  input  wire [32*9-1:0]         i_stats,          //! Live RMON counters, packed {STAT8,...,STAT0}, 9x32b
+
+  // ---- 802.1Q classifier (REQ-CLS-01..04) ----
+  output wire                    o_cls_use_pcp,      //! 1 = classify by PCP table, 0 = legacy EtherType (CLS_CTRL[0])
+  output wire                    o_cls_dmac_check,   //! Enable reserved-DMAC validation (CLS_CTRL[1])
+  output wire [2:0]              o_cls_default_pcp,  //! Default port priority for untagged frames (CLS_DEFAULT_PCP)
+  output wire [23:0]             o_cls_pcp_tc_map,   //! Priority->traffic-class table, 8x3 bits (CLS_PCP_TC_MAP)
+  output wire [23:0]             o_cls_prio_regen,   //! Priority regeneration table, 8x3 bits (CLS_PRIO_REGEN)
+  output wire [31:0]             o_cls_tc_queue_map, //! Traffic-class->queue map (CLS_TC_QUEUE_MAP)
+
+  // ---- 802.1Qav CBS, per queue, packed [q*32 +: 32] (REQ-CBS-01..03) ----
+  output wire [32*NUM_QUEUES-1:0] o_cbs_idle_slope, //! Per-queue idleSlope, bits/s (CBS_IDLE_SLOPE)
+  output wire [32*NUM_QUEUES-1:0] o_cbs_hi_credit,  //! Per-queue hiCredit, signed bytes (CBS_HI_CREDIT)
+  output wire [32*NUM_QUEUES-1:0] o_cbs_lo_credit,  //! Per-queue loCredit, signed bytes (CBS_LO_CREDIT)
+  output wire [NUM_QUEUES-1:0]    o_cbs_enable,     //! Per-queue shaped-enable; 0 = strict priority (CBS_CTRL[0])
+
+  // ---- PTP hardware clock (REQ-PTP-01..04,06) ----
+  output wire                    o_ptp_enable,      //! PTP counter enable (PTP_CTRL[0])
+  output wire [31:0]             o_ptp_incr,        //! Nominal per-tick increment, ns.frac (PTP_INCR)
+  output wire [31:0]             o_ptp_adj,         //! Signed adjfine addend added each tick (PTP_ADJ)
+  output wire [63:0]             o_ptp_tod_wr,      //! settime target TOD {PTP_TOD_WR_HI, PTP_TOD_WR_LO}
+  output wire [63:0]             o_ptp_offset,      //! adjtime signed delta {PTP_OFFSET_HI, PTP_OFFSET_LO}
+  output wire                    o_ptp_cmd_load,    //! settime apply strobe (1-cycle pulse, PTP_CMD[0])
+  output wire                    o_ptp_cmd_adjust,  //! adjtime apply strobe (1-cycle pulse, PTP_CMD[1])
+  output wire                    o_ptp_cmd_snapshot,//! gettime latch strobe (1-cycle pulse, PTP_CMD[2])
+  output wire [31:0]             o_ptp_ingress_lat, //! Ingress latency correction, ns (PTP_INGRESS_LAT)
+  output wire [31:0]             o_ptp_egress_lat,  //! Egress latency correction, ns (PTP_EGRESS_LAT)
+  input  wire [63:0]             i_ptp_tod,         //! gettime snapshot value from the PHC (gtx_clk, synchronised)
+  input  wire                    i_ptp_tod_valid,   //! 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD (REQ-PTP-03/CSR-03)
+
+  // ---- Interrupt (REQ-CSR-04) ----
+  input  wire                    i_evt_tx_ts_ready,   //! Event: TX egress timestamp available (sets IRQ_STATUS[0])
+  input  wire                    i_evt_link_change,   //! Event: link/speed change (sets IRQ_STATUS[1])
+  input  wire                    i_evt_rmon_rollover, //! Event: RMON counter rollover (sets IRQ_STATUS[2])
+  output wire                    o_irq                //! Level interrupt to PS = |(IRQ_STATUS & IRQ_MASK)
+);
+
+  // ==========================================================================
+  //  Local parameters
+  // ==========================================================================
+  localparam int NS = 9;                         //! Number of RMON statistics counters
+  localparam int QW = (NUM_QUEUES <= 1) ? 1 : $clog2(NUM_QUEUES); //! Queue-index width
+
+  // --------------------------------------------------------------------------
+  //  Register byte offsets (single HDL source of the map; see docs/REGISTER_MAP.md)
+  //
+  //    0x000 ID          0x100 MAC_CTRL     0x300 CLS_CTRL     0x500 PTP_CTRL
+  //    0x004 VERSION     0x104 MAC_IFG      0x304 CLS_DEF_PCP  0x504 PTP_INCR
+  //    0x008 CAP         0x108 MAC_ADDR_LO  0x308 CLS_PCP_TC   0x508 PTP_ADJ
+  //    0x00C SCRATCH     0x10C MAC_ADDR_HI  0x30C CLS_REGEN    0x510 PTP_TOD_WR_LO
+  //    0x010 IRQ_STATUS  0x110 MAC_STATUS   0x310 CLS_TC_QUEUE 0x514 PTP_TOD_WR_HI
+  //    0x014 IRQ_MASK    0x114 MC_HASH_LO                      0x518 PTP_OFFSET_LO
+  //    0x018 IRQ_RAW     0x118 MC_HASH_HI   0x400+q*0x20 CBS:  0x51C PTP_OFFSET_HI
+  //                      0x11C PHY_RESET      +0x00 IDLE_SLOPE 0x520 PTP_CMD
+  //    0x200 STATS_CTRL                       +0x04 HI_CREDIT  0x530 PTP_TOD_RD_LO
+  //    0x210..0x230 STAT0..STAT8              +0x08 LO_CREDIT  0x534 PTP_TOD_RD_HI
+  //                                           +0x0C CTRL       0x540 PTP_INGRESS_LAT
+  //                                                            0x544 PTP_EGRESS_LAT
+  // --------------------------------------------------------------------------
+  localparam [ADDR_WIDTH-1:0]
+    A_ID          = 'h000, A_VERSION = 'h004, A_CAP     = 'h008, A_SCRATCH  = 'h00C,
+    A_IRQ_STATUS  = 'h010, A_IRQ_MASK= 'h014, A_IRQ_RAW = 'h018,
+    A_MAC_CTRL    = 'h100, A_MAC_IFG = 'h104, A_MAC_ALO = 'h108, A_MAC_AHI  = 'h10C,
+    A_MAC_STATUS  = 'h110, A_MC_LO   = 'h114, A_MC_HI   = 'h118, A_PHY_RST  = 'h11C,
+    A_STATS_CTRL  = 'h200,
+    A_CLS_CTRL    = 'h300, A_CLS_DPCP= 'h304, A_CLS_MAP = 'h308, A_CLS_REGEN= 'h30C,
+    A_CLS_TCQ     = 'h310,
+    A_PTP_CTRL    = 'h500, A_PTP_INCR= 'h504, A_PTP_ADJ = 'h508,
+    A_PTP_TWLO    = 'h510, A_PTP_TWHI= 'h514, A_PTP_OFLO= 'h518, A_PTP_OFHI = 'h51C,
+    A_PTP_CMD     = 'h520, A_PTP_TRLO= 'h530, A_PTP_TRHI= 'h534,
+    A_PTP_ILAT    = 'h540, A_PTP_ELAT= 'h544;
+  localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
+  localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
+  localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
+  localparam [ADDR_WIDTH-1:0] A_CBS_END    = A_CBS_BASE   + ADDR_WIDTH'(NUM_QUEUES*32); //! One past last CBS reg
+
+  // ==========================================================================
+  //  AXI4-Lite slave handshake (combinational-ready, single outstanding)
+  // ==========================================================================
+  logic         b_valid;                 //! Write-response valid, held until BREADY
+  logic         r_valid;                 //! Read-data valid, held until RREADY
+  logic [31:0]  r_data;                  //! Registered read data
+
+  wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid; //! Write commits this cycle
+  wire rd_fire = s_axi_arvalid && !r_valid;                 //! Read commits this cycle
+  wire [ADDR_WIDTH-1:0] wr_addr = s_axi_awaddr;             //! Decoded write address
+  wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;             //! Decoded read address
+
+  assign s_axi_awready = wr_fire;
+  assign s_axi_wready  = wr_fire;
+  assign s_axi_arready = rd_fire;
+  assign s_axi_bvalid  = b_valid;
+  assign s_axi_bresp   = 2'b00;
+  assign s_axi_rvalid  = r_valid;
+  assign s_axi_rdata   = r_data;
+  assign s_axi_rresp   = 2'b00;
+
+  //! AXI response-channel valids: raise on a transfer, clear when accepted
+  always_ff @(posedge aclk) begin : axi_resp_fsm
+    if (!aresetn) begin
+      b_valid <= 1'b0; r_valid <= 1'b0;
+    end else begin
+      if (wr_fire)           b_valid <= 1'b1;
+      else if (s_axi_bready) b_valid <= 1'b0;
+      if (rd_fire)           r_valid <= 1'b1;
+      else if (s_axi_rready) r_valid <= 1'b0;
+    end
+  end
+
+  // ==========================================================================
+  //  Register storage
+  // ==========================================================================
+  logic [31:0] scratch;                  //! SCRATCH: R/W bus-liveness test register
+  logic [31:0] irq_mask;                 //! IRQ_MASK: 1 = interrupt source enabled
+  logic [31:0] irq_status;               //! IRQ_STATUS: W1C latched event bits
+  logic [31:0] mac_ctrl;                 //! MAC_CTRL: tx/rx enable, promisc, allmulti, is_1g
+  logic [31:0] mac_ifg;                  //! MAC_IFG: inter-frame gap (bytes)
+  logic [31:0] mac_alo;                  //! MAC_ADDR_LO: station MAC [31:0]
+  logic [31:0] mac_ahi;                  //! MAC_ADDR_HI: station MAC [47:32]
+  logic [31:0] mc_lo;                    //! MC_HASH_LO: multicast hash [31:0]
+  logic [31:0] mc_hi;                    //! MC_HASH_HI: multicast hash [63:32]
+  logic [31:0] phy_rst;                  //! PHY_RESET: PHY reset (active-low bit 0)
+  logic [31:0] cls_ctrl;                 //! CLS_CTRL: classifier mode bits
+  logic [31:0] cls_dpcp;                 //! CLS_DEFAULT_PCP: default port priority
+  logic [31:0] cls_map;                  //! CLS_PCP_TC_MAP: PCP->TC table
+  logic [31:0] cls_regen;                //! CLS_PRIO_REGEN: priority regeneration table
+  logic [31:0] cls_tcq;                  //! CLS_TC_QUEUE_MAP: TC->queue map
+  logic [31:0] ptp_ctrl;                 //! PTP_CTRL: PTP clock enable
+  logic [31:0] ptp_incr;                 //! PTP_INCR: nominal per-tick increment
+  logic [31:0] ptp_adj;                  //! PTP_ADJ: signed adjfine addend
+  logic [31:0] ptp_twlo;                 //! PTP_TOD_WR_LO: settime target low
+  logic [31:0] ptp_twhi;                 //! PTP_TOD_WR_HI: settime target high
+  logic [31:0] ptp_oflo;                 //! PTP_OFFSET_LO: adjtime delta low
+  logic [31:0] ptp_ofhi;                 //! PTP_OFFSET_HI: adjtime delta high
+  logic [31:0] ptp_ilat;                 //! PTP_INGRESS_LAT: ingress latency correction
+  logic [31:0] ptp_elat;                 //! PTP_EGRESS_LAT: egress latency correction
+  logic [63:0] ptp_tod_rd;               //! PTP_TOD_RD: TOD latched on snapshot (gettime)
+  logic [31:0] stat_snap [0:NS-1];       //! Coherent snapshot of the RMON counters
+
+  logic [31:0] cbs_idle [0:NUM_QUEUES-1];//! Per-queue CBS idleSlope (bits/s)
+  logic [31:0] cbs_hi   [0:NUM_QUEUES-1];//! Per-queue CBS hiCredit (signed bytes)
+  logic [31:0] cbs_lo   [0:NUM_QUEUES-1];//! Per-queue CBS loCredit (signed bytes)
+  logic [NUM_QUEUES-1:0] cbs_en;         //! Per-queue CBS shaped-enable
+
+  logic stats_snap_p;                    //! Stats snapshot command strobe (1 cycle)
+  logic stats_rst_p;                     //! Stats reset command strobe (1 cycle)
+  logic ptp_load_p;                      //! PTP settime apply strobe (1 cycle)
+  logic ptp_adj_p;                       //! PTP adjtime apply strobe (1 cycle)
+  logic ptp_snap_p;                      //! PTP gettime snapshot strobe (1 cycle)
+
+  // CBS power-on defaults: mirror ethernet_packet_pkg SR classes; leave the
+  // non-SR classes (control, best-effort) unshaped per REQ-CBS-02. Software
+  // reprograms all of these at bring-up (e.g. from `tc ... cbs`). The idleSlopes
+  // sum to 750 Mb/s = 75 % of the 1 Gb/s port rate (REQ-CBS-03); hi/lo credit
+  // are calc_hi/lo_credit(idleSlope, 1e9) for MAX_FRAME_SIZE = 1522.
+  localparam int CBS_IDLE_RST [0:3] = '{300_000_000, 200_000_000, 150_000_000, 100_000_000}; //! idleSlope bps
+  localparam int CBS_HI_RST   [0:3] = '{456, 304, 228, 152};       //! hiCredit bytes
+  localparam int CBS_LO_RST   [0:3] = '{-1065, -1217, -1293, -1369}; //! loCredit bytes
+  localparam bit [3:0] CBS_EN_RST   = 4'b0011;                    //! Shape q0,q1 only at reset
+
+  integer i;                             //! Loop index for reset/stats iteration
+
+  //! Register file write path: synchronous reset defaults, hardware event
+  //! latching (before W1C), AXI-Lite register writes, W1C on IRQ_STATUS, and
+  //! the single-cycle command strobes (stats snapshot/reset, PTP load/adjust/
+  //! snapshot). Per-queue CBS registers live in the 0x400 window.
+  always_ff @(posedge aclk) begin : register_write
+    if (!aresetn) begin
+      scratch <= 32'h0; irq_mask <= 32'h0; irq_status <= 32'h0;
+      mac_ctrl <= 32'h13; mac_ifg <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
+      mc_lo <= 32'h0; mc_hi <= 32'h0; phy_rst <= 32'h1;
+      cls_ctrl <= 32'h1; cls_dpcp <= 32'h0; cls_map <= 32'h00FAC688;
+      cls_regen <= 32'h00688FAC; cls_tcq <= 32'h000000E4;
+      ptp_ctrl <= 32'h1; ptp_incr <= 32'h0800_0000; ptp_adj <= 32'h0;
+      ptp_twlo <= 32'h0; ptp_twhi <= 32'h0; ptp_oflo <= 32'h0; ptp_ofhi <= 32'h0;
+      ptp_ilat <= 32'h0; ptp_elat <= 32'h0; ptp_tod_rd <= 64'h0;
+      for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
+      for (i = 0; i < NUM_QUEUES; i = i + 1) begin
+        cbs_idle[i] <= (i < 4) ? CBS_IDLE_RST[i][31:0] : 32'h0;
+        cbs_hi[i]   <= (i < 4) ? CBS_HI_RST[i][31:0]   : 32'h0;
+        cbs_lo[i]   <= (i < 4) ? CBS_LO_RST[i][31:0]   : 32'h0;
+      end
+      cbs_en <= CBS_EN_RST[NUM_QUEUES-1:0];
+    end else begin
+      // command strobes are single-cycle: default low, pulsed by writes below
+      stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
+      ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
+
+      // gettime result: latch the PHC snapshot when it returns (crosses CDC
+      // asynchronously to the snapshot command, REQ-PTP-03/CSR-03).
+      if (i_ptp_tod_valid) ptp_tod_rd <= i_ptp_tod;
+
+      if (wr_fire) begin
+        unique case (wr_addr)
+          A_SCRATCH:   scratch  <= s_axi_wdata;
+          A_IRQ_MASK:  irq_mask <= s_axi_wdata;
+          A_IRQ_STATUS: begin // write-1-to-clear
+            if (s_axi_wdata[0]) irq_status[0] <= 1'b0;
+            if (s_axi_wdata[1]) irq_status[1] <= 1'b0;
+            if (s_axi_wdata[2]) irq_status[2] <= 1'b0;
+          end
+          A_MAC_CTRL:  mac_ctrl <= s_axi_wdata;
+          A_MAC_IFG:   mac_ifg  <= s_axi_wdata;
+          A_MAC_ALO:   mac_alo  <= s_axi_wdata;
+          A_MAC_AHI:   mac_ahi  <= s_axi_wdata;
+          A_MC_LO:     mc_lo    <= s_axi_wdata;
+          A_MC_HI:     mc_hi    <= s_axi_wdata;
+          A_PHY_RST:   phy_rst  <= s_axi_wdata;
+          A_STATS_CTRL: begin
+            if (s_axi_wdata[0]) begin // snapshot: latch all counters coherently
+              stats_snap_p <= 1'b1;
+              for (i = 0; i < NS; i = i + 1)
+                stat_snap[i] <= i_stats[i*32 +: 32];
+            end
+            if (s_axi_wdata[1]) stats_rst_p <= 1'b1; // reset external counters
+          end
+          A_CLS_CTRL:  cls_ctrl  <= s_axi_wdata;
+          A_CLS_DPCP:  cls_dpcp  <= s_axi_wdata;
+          A_CLS_MAP:   cls_map   <= s_axi_wdata;
+          A_CLS_REGEN: cls_regen <= s_axi_wdata;
+          A_CLS_TCQ:   cls_tcq   <= s_axi_wdata;
+          A_PTP_CTRL:  ptp_ctrl  <= s_axi_wdata;
+          A_PTP_INCR:  ptp_incr  <= s_axi_wdata;
+          A_PTP_ADJ:   ptp_adj   <= s_axi_wdata;
+          A_PTP_TWLO:  ptp_twlo  <= s_axi_wdata;
+          A_PTP_TWHI:  ptp_twhi  <= s_axi_wdata;
+          A_PTP_OFLO:  ptp_oflo  <= s_axi_wdata;
+          A_PTP_OFHI:  ptp_ofhi  <= s_axi_wdata;
+          A_PTP_ILAT:  ptp_ilat  <= s_axi_wdata;
+          A_PTP_ELAT:  ptp_elat  <= s_axi_wdata;
+          A_PTP_CMD: begin // command strobes, self-clearing (read back 0)
+            if (s_axi_wdata[0]) ptp_load_p <= 1'b1;
+            if (s_axi_wdata[1]) ptp_adj_p  <= 1'b1;
+            if (s_axi_wdata[2]) ptp_snap_p <= 1'b1; // gettime; PTP_TOD_RD latched on i_ptp_tod_valid
+          end
+          default: begin
+            // per-queue CBS window 0x400 + q*0x20 (stride 0x20 => off[5+:QW] = queue)
+            if (wr_addr >= A_CBS_BASE && wr_addr < A_CBS_END) begin
+              logic [ADDR_WIDTH-1:0] off;
+              off = wr_addr - A_CBS_BASE;
+              case (off[4:0])
+                5'h00: cbs_idle[off[5 +: QW]] <= s_axi_wdata;
+                5'h04: cbs_hi  [off[5 +: QW]] <= s_axi_wdata;
+                5'h08: cbs_lo  [off[5 +: QW]] <= s_axi_wdata;
+                5'h0C: cbs_en  [off[5 +: QW]] <= s_axi_wdata[0];
+                default: ;
+              endcase
+            end
+          end
+        endcase
+      end
+
+      // Hardware-set event latches, applied AFTER the W1C write above so a
+      // hardware event coincident with a software acknowledge is NOT lost: the
+      // set wins the same-cycle race (REQ-CSR-04).
+      if (i_evt_tx_ts_ready)   irq_status[0] <= 1'b1;
+      if (i_evt_link_change)   irq_status[1] <= 1'b1;
+      if (i_evt_rmon_rollover) irq_status[2] <= 1'b1;
+    end
+  end
+
+  // ==========================================================================
+  //  Read decode
+  // ==========================================================================
+  logic [31:0] rd_mux;                   //! Combinational read-data selection
+
+  //! Combinational read address decode. The result is registered into r_data on
+  //! the AR handshake (read_data_reg) so RDATA is stable while RVALID is held.
+  always_comb begin : read_mux
+    logic [ADDR_WIDTH-1:0] soff, coff;   //! STAT / CBS window offsets
+    rd_mux = 32'h0;
+    soff = rd_addr - A_STATS_BASE;
+    coff = rd_addr - A_CBS_BASE;
+    unique case (rd_addr)
+      A_ID:         rd_mux = 32'h4D49_4C4E;                 // "MILN"
+      A_VERSION:    rd_mux = VERSION;
+      A_CAP:        rd_mux = { 8'h00,                       // [31:24] reserved
+                               8'd64,                       // [23:16] ts_width
+                               4'h0,                        // [15:12] reserved
+                               1'b1, 1'b1, 1'b1, 1'b1,      // [11]RXF [10]STATS [9]PTP [8]CBS
+                               4'h0,                        // [7:4] reserved
+                               4'(NUM_QUEUES) };            // [3:0] num_queues
+      A_SCRATCH:    rd_mux = scratch;
+      A_IRQ_STATUS: rd_mux = irq_status;
+      A_IRQ_MASK:   rd_mux = irq_mask;
+      A_IRQ_RAW:    rd_mux = irq_status;
+      A_MAC_CTRL:   rd_mux = mac_ctrl;
+      A_MAC_IFG:    rd_mux = mac_ifg;
+      A_MAC_ALO:    rd_mux = mac_alo;
+      A_MAC_AHI:    rd_mux = mac_ahi;
+      A_MAC_STATUS: rd_mux = { 28'h0, i_full_duplex, i_speed, i_link_up };
+      A_MC_LO:      rd_mux = mc_lo;
+      A_MC_HI:      rd_mux = mc_hi;
+      A_PHY_RST:    rd_mux = phy_rst;
+      A_STATS_CTRL: rd_mux = 32'h0;                         // strobes read 0
+      A_CLS_CTRL:   rd_mux = cls_ctrl;
+      A_CLS_DPCP:   rd_mux = cls_dpcp;
+      A_CLS_MAP:    rd_mux = cls_map;
+      A_CLS_REGEN:  rd_mux = cls_regen;
+      A_CLS_TCQ:    rd_mux = cls_tcq;
+      A_PTP_CTRL:   rd_mux = ptp_ctrl;
+      A_PTP_INCR:   rd_mux = ptp_incr;
+      A_PTP_ADJ:    rd_mux = ptp_adj;
+      A_PTP_TWLO:   rd_mux = ptp_twlo;
+      A_PTP_TWHI:   rd_mux = ptp_twhi;
+      A_PTP_OFLO:   rd_mux = ptp_oflo;
+      A_PTP_OFHI:   rd_mux = ptp_ofhi;
+      A_PTP_CMD:    rd_mux = 32'h0;                         // strobes read 0
+      A_PTP_TRLO:   rd_mux = ptp_tod_rd[31:0];
+      A_PTP_TRHI:   rd_mux = ptp_tod_rd[63:32];
+      A_PTP_ILAT:   rd_mux = ptp_ilat;
+      A_PTP_ELAT:   rd_mux = ptp_elat;
+      default: begin
+        if (rd_addr >= A_STATS_BASE && rd_addr < A_STATS_END)
+          rd_mux = stat_snap[soff[2 +: 4]];
+        else if (rd_addr >= A_CBS_BASE && rd_addr < A_CBS_END) begin
+          case (coff[4:0])
+            5'h00:   rd_mux = cbs_idle[coff[5 +: QW]];
+            5'h04:   rd_mux = cbs_hi  [coff[5 +: QW]];
+            5'h08:   rd_mux = cbs_lo  [coff[5 +: QW]];
+            5'h0C:   rd_mux = {31'h0, cbs_en[coff[5 +: QW]]};
+            default: rd_mux = 32'h0;
+          endcase
+        end
+      end
+    endcase
+  end
+
+  //! Register read data on the AR handshake so RDATA is held stable with RVALID
+  always_ff @(posedge aclk) begin : read_data_reg
+    if (!aresetn) r_data <= 32'h0;
+    else if (rd_fire) r_data <= rd_mux;
+  end
+
+  // ==========================================================================
+  //  Output wiring (register fields -> flat config ports)
+  // ==========================================================================
+  assign o_mac_tx_en    = mac_ctrl[0];
+  assign o_mac_rx_en    = mac_ctrl[1];
+  assign o_mac_promisc  = mac_ctrl[2];
+  assign o_mac_allmulti = mac_ctrl[3];
+  assign o_mac_is_1g    = mac_ctrl[4];
+  assign o_mac_ifg      = mac_ifg[7:0];
+  assign o_mac_addr     = {mac_ahi[15:0], mac_alo};
+  assign o_mc_hash      = {mc_hi, mc_lo};
+  assign o_phy_reset_n  = phy_rst[0];
+
+  assign o_stats_snapshot = stats_snap_p;
+  assign o_stats_reset    = stats_rst_p;
+
+  assign o_cls_use_pcp      = cls_ctrl[0];
+  assign o_cls_dmac_check   = cls_ctrl[1];
+  assign o_cls_default_pcp  = cls_dpcp[2:0];
+  assign o_cls_pcp_tc_map   = cls_map[23:0];
+  assign o_cls_prio_regen   = cls_regen[23:0];
+  assign o_cls_tc_queue_map = cls_tcq;
+
+  genvar g;
+  generate
+    for (g = 0; g < NUM_QUEUES; g = g + 1) begin : gen_cbs_out
+      assign o_cbs_idle_slope[g*32 +: 32] = cbs_idle[g];
+      assign o_cbs_hi_credit [g*32 +: 32] = cbs_hi[g];
+      assign o_cbs_lo_credit [g*32 +: 32] = cbs_lo[g];
+      assign o_cbs_enable[g]              = cbs_en[g];
+    end
+  endgenerate
+
+  assign o_ptp_enable       = ptp_ctrl[0];
+  assign o_ptp_incr         = ptp_incr;
+  assign o_ptp_adj          = ptp_adj;
+  assign o_ptp_tod_wr       = {ptp_twhi, ptp_twlo};
+  assign o_ptp_offset       = {ptp_ofhi, ptp_oflo};
+  assign o_ptp_cmd_load     = ptp_load_p;
+  assign o_ptp_cmd_adjust   = ptp_adj_p;
+  assign o_ptp_cmd_snapshot = ptp_snap_p;
+  assign o_ptp_ingress_lat  = ptp_ilat;
+  assign o_ptp_egress_lat   = ptp_elat;
+
+  assign o_irq = |(irq_status & irq_mask);
+
+  //! wstrb is intentionally ignored (ABI: full 32-bit writes); tie off to satisfy lint
+  wire _unused_ok = &{1'b0, s_axi_wstrb};
+
+endmodule
+
+`default_nettype wire

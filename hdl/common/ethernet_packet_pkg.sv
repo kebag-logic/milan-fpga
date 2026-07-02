@@ -22,6 +22,9 @@
 
 `include "parameters.svh"
 
+`ifndef ETHERNET_PACKET_PKG_SV
+`define ETHERNET_PACKET_PKG_SV
+
 package ethernet_packet_pkg;
 
 // -----------------------------------------------------------------------------
@@ -164,9 +167,15 @@ endfunction
 //! Array of idle slopes (bps) for each traffic class for 1GBps.
 //! The idle slope defines the rate at which credit increases when the queue is idle and has data.
 //! It is proportional to the guaranteed bandwidth for that traffic class.
+//!
+//! These are the *reset defaults* only: at runtime the shaper is reprogrammed
+//! per queue from the milan_csr CBS registers (REQ-CBS-01). The sum across all
+//! four classes is 750 Mb/s = 75 % of the 1 Gb/s port rate, honouring the
+//! 802.1Qav deltaBandwidth <= 75 % guidance (REQ-CBS-03); the milan_csr reset
+//! defaults mirror these values.
 parameter int IDLE_SLOPE_1G [0:NUMBER_OF_QUEUES-1] = '{
-  500_000_000,  //!< Class A (high BW)
-  250_000_000,  //!< gPTP
+  300_000_000,  //!< Class A (high BW)
+  200_000_000,  //!< gPTP
   150_000_000,  //!< Control traffic
   100_000_000   //!< Best Effort(lowest BW)
 };
@@ -174,9 +183,10 @@ parameter int IDLE_SLOPE_1G [0:NUMBER_OF_QUEUES-1] = '{
 //! Array of idle slopes (bps) for each traffic class for 100MBps.
 //! The idle slope defines the rate at which credit increases when the queue is idle and has data.
 //! It is proportional to the guaranteed bandwidth for that traffic class.
+//! Sum is 75 Mb/s = 75 % of the 100 Mb/s port rate (REQ-CBS-03).
 parameter int IDLE_SLOPE_100M [0:NUMBER_OF_QUEUES-1] = '{
-  50_000_000,  //!< Class A (high BW)
-  25_000_000,  //!< gPTP
+  30_000_000,  //!< Class A (high BW)
+  20_000_000,  //!< gPTP
   15_000_000,  //!< Control traffic
   10_000_000   //!< Best Effort(lowest BW)
 };
@@ -285,3 +295,5 @@ typedef struct packed {
 } ts_metadata;
 
 endpackage
+
+`endif // ETHERNET_PACKET_PKG_SV
