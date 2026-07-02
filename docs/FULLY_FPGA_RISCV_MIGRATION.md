@@ -242,17 +242,32 @@ the `ilconcat_0 → IRQ_F2P` collector (`milan-dma.tcl:918-971`).
 
 **Deliverable A.8:** Linux `/proc/interrupts` shows all four lines and they increment.
 
-### A.9 — Integrating the Milan RTL into the LiteX SoC
-Add the existing HDL as external sources (no rewrite):
-```python
-platform.add_source_dir("milan-fpga/hdl")          # all *.sv/*.v/*.svh
-self.specials += Instance("traffic_controller_802_1q", ...)   # or a milan_datapath wrapper
-```
-Recommended: create a **`milan_datapath.sv`** thin wrapper that instantiates
-`traffic_controller_802_1q` + `ptp_ts_top` + `eth_mac_1g_rgmii_fifo` +
-`ethernet_events` with just AXIS + CSR + RGMII + clock ports — i.e. `milan_top.sv`
-*minus* `milan_dma_wrapper` (the PS). LiteX instances that one module. This keeps a
-single clean HW/gateware boundary and lets `milan_top.sv` remain the Zynq variant.
+### A.9 — Integrating the Milan RTL into the LiteX SoC ✅ WRAPPER DONE + VERIFIED
+**`hdl/common/milan_datapath.sv`** is the PS-less wrapper (created + verified). It
+instantiates `milan_csr` + `traffic_controller_802_1q` (classify + CBS) + `ptp_ts_top`
++ `rx_mac_filter` + `adp_advertiser`/`adp_tx_arbiter` + `ethernet_events` — i.e.
+`milan_top.sv` **minus `milan_dma_wrapper` (the PS) and minus the MAC**. `milan_top.sv`
+stays the Zynq variant.
+
+> **Refinement vs the original sketch:** the MAC (`eth_mac_1g_rgmii_fifo`) is **not**
+> inside the wrapper — it is exposed as a **MAC-facing AXIS pair** (`m_axis_mac_tx_*`
+> / `s_axis_mac_rx_*`) + MAC cfg/status ports, so the MAC attaches at the board layer
+> (LiteEth `LiteEthMAC`, or the Forencich MAC). Rationale: (a) the wrapper is then
+> fully open-toolchain verifiable with **zero vendor / verilog-ethernet dependency**;
+> (b) the MAC becomes swappable per host; (c) it matches a LiteX SoC's natural
+> MAC/PHY boundary. The wrapper boundary is: **AXI4-Lite CSR slave · TX/RX/TS DMA
+> AXIS · MAC-facing AXIS · MAC cfg/status · `o_irq_csr`** (see the file header).
+
+`sw/litex/milan_soc.py` instantiates this real module via `Instance("milan_datapath")`
+with a curated source list (excludes the Zynq-only `milan_top`/`milan_dma_wrapper`);
+the DMA (§A.6) and MAC (§A.7) attach to the exposed AXIS ports next.
+
+**Verified now (open-toolchain, no Vivado):**
+- `tb/verilator/milan_dp/` — 11 checks: CPU reads **`ID="MILN"` (M-A2 reached)**,
+  VERSION/CAP; classifier programmed over the CSR; a frame goes TX-DMA→MAC byte-exact
+  and MAC→RX-DMA byte-exact through the full pipeline.
+- `syn/yosys/` — `milan_datapath` passes `hierarchy -check` + generic `synth`
+  (device-independent, no vendor primitives); 18/18 tops.
 
 **SystemVerilog note:** Vivado (the LiteX Xilinx toolchain backend) handles the SV;
 ensure the `read_verilog -sv` path is used. The OOC-synth pass in this repo already
@@ -267,7 +282,10 @@ interface-width artifact and the AXIS-switch IP — see the session notes).
 > portable RTL.
 
 **Deliverable A.9:** the full SoC synthesizes and routes on `xc7a100t`; capture the
-resource report (budget target below).
+resource report (budget target below). *Status: the wrapper is built + verified
+(Verilator 11/11, Yosys generic synth) and instantiated in the SoC, which
+elaborates + exports gateware. The `xc7a100t` P&R + resource report await Artix-7
+Vivado device support (blocked — Spartan-7-only install; see the memory note).*
 
 **Rough resource budget (xc7a100t = 63 400 LUT):**
 | Block | ~LUT | Notes |
@@ -375,8 +393,12 @@ block-design flow, only swapping the PS box):
 a fallback if LiteX/AX7101 integration proves troublesome.
 
 ### A.15 — Part A milestones & exit criteria
-1. **M-A1** LiteX empty SoC: BIOS + DRAM memtest on AX7101. *(§A.2–A.4)*
-2. **M-A2** CPU reaches `milan_csr`: reads `ID="MILN"`. *(§A.5)*
+1. **M-A1** LiteX empty SoC: BIOS + DRAM memtest on AX7101. *(§A.2–A.4)* — SoC boots
+   in `litex_sim` (BIOS to `litex>`, evidence in `sw/litex/evidence/`); DRAM memtest
+   awaits the board.
+2. **M-A2** CPU reaches `milan_csr`: reads `ID="MILN"`. *(§A.5)* — ✅ **reached in
+   simulation** (`tb/verilator/milan_dp`: AXI4-Lite read of `ID` = `0x4D494C4E`
+   through the real `milan_datapath`). On-board repeat awaits the bitstream.
 3. **M-A3** DMA loopback + IRQs. *(§A.6, A.8)*
 4. **M-A4** Linux boots to shell. *(§A.10)*
 5. **M-A5** Driver up: `ping` over RGMII, `ethtool -T` PHC, `ptp4l` locks, `tc cbs` shapes. *(§A.11–A.13)*  ← **this is "Milan fully on FPGA"**

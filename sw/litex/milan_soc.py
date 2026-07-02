@@ -67,28 +67,39 @@ class _CRG(LiteXModule):
 # Milan NIC ----------------------------------------------------------------------------------------
 
 class MilanNIC(LiteXModule):
-    """The Milan TSN datapath (milan_top / milan_datapath) wired into the SoC.
+    """The Milan TSN datapath (`milan_datapath.sv`) wired into the SoC.
 
-    Exposes an AXI4-Lite slave (the milan_csr control plane), the RGMII pins to
-    the PHY, and four interrupt lines (tx/rx/ts-dma + csr) surfaced to the CPU
-    through a LiteX EventManager. The RTL is added as external Verilog; here we
-    build only the bus/IRQ/pad glue. `milan_datapath` = milan_top minus the Zynq
-    PS wrapper (migration §A.9) — a black box until that wrapper lands, which is
-    fine for gateware export but required for P&R.
+    `milan_datapath` is the **PS-less §A.9 wrapper** (milan_top minus the Zynq PS
+    and minus the MAC) — a real, Verilator+Yosys-verified module (tb/verilator/
+    milan_dp, syn/yosys). It exposes:
+      * an AXI4-Lite CSR slave (milan_csr control plane) — wired here to the CPU bus;
+      * three DMA AXIS ports (tx from DRAM / rx to DRAM / ts to DRAM) — the §A.6 DMA
+        engine attaches here (stubbed idle for now);
+      * a MAC-facing AXIS pair + MAC cfg/status — the §A.7 MAC (LiteEth `LiteEthMAC`
+        or Forencich `eth_mac_1g_rgmii_fifo` + RGMII PHY) attaches here (stubbed);
+      * `o_irq_csr` (link/PTP/RMON aggregate) — routed to the PLIC below.
+
+    This makes the SoC instantiate REAL RTL (no black box). The DMA + MAC attach are
+    the next migration steps (§A.6/§A.7); until then their AXIS ports are tied idle,
+    which still elaborates and exports gateware and keeps the CPU⇄CSR path live
+    (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
-    def __init__(self, platform, pads, clk_pads, axil):
-        # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler.
+    def __init__(self, platform, axil):
+        # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
+        # match the DT/driver (tx/rx/ts-dma + csr); tx/rx/ts come from the §A.6 DMA
+        # engine (not built yet) → held 0; csr is driven by the datapath.
         self.submodules.ev = ev = EventManager()
         ev.tx  = EventSourceLevel()
         ev.rx  = EventSourceLevel()
         ev.ts  = EventSourceLevel()
         ev.csr = EventSourceLevel()
         ev.finalize()
+        self.comb += [ev.tx.trigger.eq(0), ev.rx.trigger.eq(0), ev.ts.trigger.eq(0)]
 
         self.specials += Instance("milan_datapath",
-            # ---- clocks / reset ----
-            i_axis_clk    = ClockSignal("sys"),
-            i_axis_resetn = ~ResetSignal("sys"),
+            # ---- clocks / reset (gtx_clk = 125 MHz for MAC-RX PTP; sys for now) ----
+            i_axis_clk    = ClockSignal("sys"),  i_axis_resetn = ~ResetSignal("sys"),
+            i_gtx_clk     = ClockSignal("sys"),  i_gtx_resetn  = ~ResetSignal("sys"),
             # ---- AXI4-Lite CSR slave (from the CPU bus bridge) ----
             i_s_axi_awaddr  = axil.aw.addr[:16], i_s_axi_awvalid = axil.aw.valid,
             o_s_axi_awready = axil.aw.ready,
@@ -100,19 +111,46 @@ class MilanNIC(LiteXModule):
             o_s_axi_arready = axil.ar.ready,
             o_s_axi_rdata   = axil.r.data,  o_s_axi_rresp = axil.r.resp,
             o_s_axi_rvalid  = axil.r.valid, i_s_axi_rready = axil.r.ready,
-            # ---- RGMII to PHY0 (clocks come from the eth_clocks group) ----
-            i_rgmii_rx_clk = clk_pads.rx, i_rgmii_rxd = pads.rx_data, i_rgmii_rx_ctl = pads.rx_ctl,
-            o_rgmii_tx_clk = clk_pads.tx, o_rgmii_txd = pads.tx_data, o_rgmii_tx_ctl = pads.tx_ctl,
-            o_mdc = pads.mdc, io_mdio = pads.mdio, o_phy_rst_n = pads.rst_n,
-            # ---- interrupts: tx-dma, rx-dma, ts-dma, csr ----
-            o_irq_tx = ev.tx.trigger, o_irq_rx = ev.rx.trigger,
-            o_irq_ts = ev.ts.trigger, o_irq_csr = ev.csr.trigger,
-            # MAC synthesis target: GENERIC/SIM off-Xilinx, XILINX on the Artix build
-            p_MAC_TARGET = "XILINX",
+            # ---- TX/RX/TS DMA AXIS — §A.6 engine attaches here (idle stub) ----
+            i_s_axis_tx_tdata = 0, i_s_axis_tx_tkeep = 0, i_s_axis_tx_tvalid = 0,
+            i_s_axis_tx_tlast = 0,
+            i_m_axis_rx_tready = 0, i_m_axis_ts_tready = 0,
+            # ---- MAC-facing AXIS — §A.7 MAC attaches here (idle stub) ----
+            i_m_axis_mac_tx_tready = 0,
+            i_s_axis_mac_rx_tdata = 0, i_s_axis_mac_rx_tkeep = 0,
+            i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
+            # ---- MAC status (from the external MAC; constants until §A.7) ----
+            i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+            # ---- interrupt (csr aggregate; DMA-done IRQs come from §A.6) ----
+            o_o_irq_csr = ev.csr.trigger,
         )
-        # Provide the RTL for P&R (milan_datapath + vendored cores + verilog-ethernet MAC):
-        # platform.add_source_dir("../../hdl")
-        # platform.add_source_dir("../../third_party/verilog-axis/rtl")
+        # RTL sources for elaboration / P&R. Curated list (NOT add_source_dir) so the
+        # Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded from the fabric
+        # build — same file set the tb/verilator/milan_dp + syn/yosys checks use.
+        base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # milan-fpga/
+        for f in _MILAN_DATAPATH_SOURCES:
+            platform.add_source(os.path.join(base, f))
+
+
+# The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
+# Verilator Makefile and the syn/yosys entry — the single source of truth for what
+# the §A.9 wrapper is built from.
+_MILAN_DATAPATH_SOURCES = [
+    "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv", "hdl/adp/adp_pkg.sv",
+    "third_party/verilog-axis/rtl/axis_fifo.v", "third_party/verilog-axis/rtl/axis_demux.v",
+    "third_party/verilog-axis/rtl/axis_arb_mux.v", "third_party/verilog-axis/rtl/arbiter.v",
+    "third_party/verilog-axis/rtl/priority_encoder.v",
+    "hdl/802_1q_traffic_shaper/traffic_class_map.sv", "hdl/802_1q_traffic_shaper/traffic_classifier.sv",
+    "hdl/802_1q_traffic_shaper/credit_based_shaper.sv", "hdl/802_1q_traffic_shaper/traffic_shaping_core.sv",
+    "hdl/802_1q_traffic_shaper/traffic_queues.sv", "hdl/802_1q_traffic_shaper/traffic_controller_802_1q.sv",
+    "hdl/ptp_timestamp/timestamp_counter.sv", "hdl/ptp_timestamp/ptp_csr_sync.sv",
+    "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv", "hdl/common/axis_mux_rr_2in_1out.sv",
+    "hdl/ptp_timestamp/ptp_ts_core.sv", "hdl/ptp_timestamp/ptp_ts_top.sv",
+    "hdl/common/tcam.sv", "hdl/common/rx_mac_filter.sv",
+    "hdl/adp/adp_advertiser.sv", "hdl/adp/adp_tx_arbiter.sv",
+    "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
+    "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
+]
 
 
 # SoC ----------------------------------------------------------------------------------------------
@@ -152,9 +190,9 @@ class MilanSoC(SoCCore):
             self.bus.add_slave("milan_csr", axil,
                                region=SoCRegion(origin=MILAN_CSR_BASE, size=MILAN_CSR_SIZE,
                                                 cached=False))
-            pads     = platform.request("eth", 0)        # RGMII PHY0 data/mgmt
-            clk_pads = platform.request("eth_clocks", 0) # RGMII PHY0 tx/rx clocks
-            self.milan = MilanNIC(platform, pads, clk_pads, axil)
+            # The MAC (§A.7) + RGMII pads attach at the MAC-facing AXIS boundary in a
+            # later step; the datapath itself no longer owns the PHY pins.
+            self.milan = MilanNIC(platform, axil)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
 
