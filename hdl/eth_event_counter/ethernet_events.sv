@@ -45,7 +45,12 @@ module ethernet_events #(
   input  wire  clk,                             //! Clock signal
   input  wire  resetn,                          //! Synchronous active-low global reset
   input  wire  stats_reset,                     //! 1-bit reset for all stats
-  input  wire  [_ETH_EVENT_COUNTER-1:0] events  //! Event pulses
+  input  wire  [_ETH_EVENT_COUNTER-1:0] events, //! Event pulses
+  //! Packed counter snapshot for milan_csr, one WIDTH-bit lane per event
+  //! (lane index == ethernet_events_t enum value). Feeds i_stats (REQ-MAC-04).
+  output wire  [WIDTH*_ETH_EVENT_COUNTER-1:0] counts_o,
+  //! 1-cycle pulse when any counter wraps past its maximum (RMON rollover IRQ)
+  output wire  rollover_o
 );
 
 //! counter values
@@ -88,6 +93,28 @@ always_ff @( posedge clk ) begin : counter_assignment
   rx_fifo_bad_frame_cnt <= counters[RX_FIFO_BAD_FRAME];
   rx_fifo_good_frame_cnt <= counters[RX_FIFO_GOOD_FRAME];
 end
+
+//! Pack counters (enum order) for the CSR read window.
+genvar gi;
+generate
+  for (gi = 0; gi < _ETH_EVENT_COUNTER; gi++) begin : gen_pack
+    assign counts_o[gi*WIDTH +: WIDTH] = counters[gi];
+  end
+endgenerate
+
+//! Rollover detection: a counter about to wrap (at max and incrementing).
+logic rollover_r;
+always_ff @(posedge clk) begin : rollover_detect
+  if (!resetn) begin
+    rollover_r <= 1'b0;
+  end else begin
+    rollover_r <= 1'b0;
+    for (int k = 0; k < _ETH_EVENT_COUNTER; k++)
+      if (events[k] && !stats_reset && (counters[k] == {WIDTH{1'b1}}))
+        rollover_r <= 1'b1;
+  end
+end
+assign rollover_o = rollover_r;
 
 endmodule //! ethernet_events
 

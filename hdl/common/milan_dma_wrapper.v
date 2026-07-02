@@ -8,10 +8,37 @@
 //Design      : milan_dma_wrapper
 //Purpose     : IP block netlist
 //--------------------------------------------------------------------------------
+// MANUAL EXTENSION (2026-07-01, Kebag Logic): the AXI4-Lite CSR master
+// (M_AXI_CSR, driven by the PS M_AXI_GP0 via axi_smc M02) and the CSR interrupt
+// input (irq_csr, into ilconcat In3) were added to expose the milan_csr control
+// plane to milan_top. This mirrors the edits in bd/milan-dma.tcl; regenerate
+// this wrapper from that .tcl in Vivado (`generate_target`) to keep it in sync.
+// The M_AXI_CSR window is 64 KB at 0x43C0_0000 (see docs/REGISTER_MAP.md).
+//--------------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
 module milan_dma_wrapper
-   (DDR_addr,
+   (m_axi_csr_awaddr,
+    m_axi_csr_awprot,
+    m_axi_csr_awvalid,
+    m_axi_csr_awready,
+    m_axi_csr_wdata,
+    m_axi_csr_wstrb,
+    m_axi_csr_wvalid,
+    m_axi_csr_wready,
+    m_axi_csr_bresp,
+    m_axi_csr_bvalid,
+    m_axi_csr_bready,
+    m_axi_csr_araddr,
+    m_axi_csr_arprot,
+    m_axi_csr_arvalid,
+    m_axi_csr_arready,
+    m_axi_csr_rdata,
+    m_axi_csr_rresp,
+    m_axi_csr_rvalid,
+    m_axi_csr_rready,
+    irq_csr,
+    DDR_addr,
     DDR_ba,
     DDR_cas_n,
     DDR_ck_n,
@@ -54,6 +81,28 @@ module milan_dma_wrapper
     s_axis_ts_metadata_tlast,
     s_axis_ts_metadata_tready,
     s_axis_ts_metadata_tvalid);
+  // AXI4-Lite CSR master (from PS M_AXI_GP0 via axi_smc M02), 32b data / 32b addr
+  output [31:0]m_axi_csr_awaddr;
+  output [2:0]m_axi_csr_awprot;
+  output m_axi_csr_awvalid;
+  input m_axi_csr_awready;
+  output [31:0]m_axi_csr_wdata;
+  output [3:0]m_axi_csr_wstrb;
+  output m_axi_csr_wvalid;
+  input m_axi_csr_wready;
+  input [1:0]m_axi_csr_bresp;
+  input m_axi_csr_bvalid;
+  output m_axi_csr_bready;
+  output [31:0]m_axi_csr_araddr;
+  output [2:0]m_axi_csr_arprot;
+  output m_axi_csr_arvalid;
+  input m_axi_csr_arready;
+  input [31:0]m_axi_csr_rdata;
+  input [1:0]m_axi_csr_rresp;
+  input m_axi_csr_rvalid;
+  output m_axi_csr_rready;
+  // CSR level interrupt into PS IRQ_F2P (ilconcat In3)
+  input irq_csr;
   inout [14:0]DDR_addr;
   inout [2:0]DDR_ba;
   inout DDR_cas_n;
@@ -151,7 +200,27 @@ module milan_dma_wrapper
         .O(MDIO_link_1_mdio_i),
         .T(MDIO_link_1_mdio_t));
   milan_dma milan_dma_i
-       (.DDR_addr(DDR_addr),
+       (.m_axi_csr_awaddr(m_axi_csr_awaddr),
+        .m_axi_csr_awprot(m_axi_csr_awprot),
+        .m_axi_csr_awvalid(m_axi_csr_awvalid),
+        .m_axi_csr_awready(m_axi_csr_awready),
+        .m_axi_csr_wdata(m_axi_csr_wdata),
+        .m_axi_csr_wstrb(m_axi_csr_wstrb),
+        .m_axi_csr_wvalid(m_axi_csr_wvalid),
+        .m_axi_csr_wready(m_axi_csr_wready),
+        .m_axi_csr_bresp(m_axi_csr_bresp),
+        .m_axi_csr_bvalid(m_axi_csr_bvalid),
+        .m_axi_csr_bready(m_axi_csr_bready),
+        .m_axi_csr_araddr(m_axi_csr_araddr),
+        .m_axi_csr_arprot(m_axi_csr_arprot),
+        .m_axi_csr_arvalid(m_axi_csr_arvalid),
+        .m_axi_csr_arready(m_axi_csr_arready),
+        .m_axi_csr_rdata(m_axi_csr_rdata),
+        .m_axi_csr_rresp(m_axi_csr_rresp),
+        .m_axi_csr_rvalid(m_axi_csr_rvalid),
+        .m_axi_csr_rready(m_axi_csr_rready),
+        .irq_csr(irq_csr),
+        .DDR_addr(DDR_addr),
         .DDR_ba(DDR_ba),
         .DDR_cas_n(DDR_cas_n),
         .DDR_ck_n(DDR_ck_n),

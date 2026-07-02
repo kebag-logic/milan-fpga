@@ -1,5 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2025 Oguz Kahraman <oguz.kahraman@kebag-logic.com>
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
  *
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
@@ -7,11 +8,9 @@
 /*
 ------------------------------------------------------------------------------
   File        : traffic_shaping_core.sv
-  Author      : Oguz Kahraman
+  Author      : Oguz Kahraman / Kebag Logic
 
-                oguz.kahraman@kebag-logic.com
-
-  Date        : 2025-07-05
+  Date        : 2025-07-05 (runtime-config rework 2026-07-01)
   Description : Top-level module for IEEE 802.1Qav Credit-Based Traffic Shaping.
                 Implements multi-queue arbitration using per-queue CBS instances.
 
@@ -20,9 +19,14 @@
                 - Grants are held until the end of a packet (`tlast`).
                 - Transmission eligibility is driven by credit logic (CBS).
 
+                Runtime configuration (REQ-CBS-01/02): the per-queue idleSlope,
+                hiCredit, loCredit and shaped-enable arrive packed from milan_csr
+                (o_cbs_*). Unshaped queues (shaped_i = 0) behave as strict-
+                priority: their CBS forces `allow_transmit` high, so the priority
+                encoder always considers them eligible when they have data.
+
   Company     : Kebag Logic
   Project     : 802.1Q Traffic Shaper
-
 ------------------------------------------------------------------------------
 */
 
@@ -40,6 +44,12 @@ module traffic_shaping_core #(
   //! One-hot: indicates which queues contain data
   input wire [NUMBER_OF_QUEUES-1:0] queue_has_data_i,
   input wire is_1g_i,                 //! High when the link rate is 1GBps
+
+  //! --- per-queue CBS runtime config, packed [q*32 +: 32] (from milan_csr) ---
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_i, //! idleSlope per queue, bits/s
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_i,  //! hiCredit per queue, signed bytes
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_i,  //! loCredit per queue, signed bytes
+  input wire [NUMBER_OF_QUEUES-1:0]    cbs_shaped_i,     //! 1 = shaped, 0 = strict priority
 
   //! One-hot: indicates which queue is granted
   output logic [NUMBER_OF_QUEUES-1:0] grant_queue_o,
@@ -72,20 +82,20 @@ module traffic_shaping_core #(
   assign grant_queue_o = hold_grant ? (1 << active_queue) : '0;
 
   for (genvar i = 0; i < NUMBER_OF_QUEUES; i++) begin : gen_cbs
-    //! CBS modules instantiation, parameters are located on ethernet_packet_pkg.sv
+    //! Per-queue CBS instance, configured at runtime from milan_csr.
     credit_based_shaper #(
-      .IDLE_SLOPE_1G(IDLE_SLOPE_1G[i]),
-      .IDLE_SLOPE_100M(IDLE_SLOPE_100M[i]),
-      .HI_CREDIT (HI_CREDIT[i]),
-      .LO_CREDIT (LO_CREDIT[i]),
       .CLK_FREQ_HZ(CLK_FREQ_HZ)
     ) u_cbs (
       .clk               (clk),
       .resetn            (resetn),
+      .shaped_i          (cbs_shaped_i[i]),
+      .idle_slope_i      (cbs_idle_slope_i[i*32 +: 32]),
+      .hi_credit_i       (cbs_hi_credit_i[i*32 +: 32]),
+      .lo_credit_i       (cbs_lo_credit_i[i*32 +: 32]),
       .queue_has_data_i  (queue_has_data_i[i]),
       .is_1g_i           (is_1g_i),
       .is_transmitting_i (is_transmitting[i]),
-      .is_granted_i (hold_grant && active_queue == i),
+      .is_granted_i      (hold_grant && active_queue == i),
       .bytes_sent_i      (bytes_sent[i]),
       .allow_transmit_o  (allow_transmit[i])
     );

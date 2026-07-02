@@ -41,12 +41,21 @@ import ethernet_packet_pkg::*;
 `default_nettype none
 
 module traffic_classifier #(
-  parameter int TDATA_WIDTH = 64,  //! Width of tdata bus
-  parameter bit BIG_ENDIAN = 1,    //! Big endian logic
-  parameter int FIFO_DEPTH = 64    //! FIFO depth
+  parameter int TDATA_WIDTH = 64,      //! Width of tdata bus
+  parameter bit BIG_ENDIAN = 1,        //! Big endian logic
+  parameter int NUMBER_OF_QUEUES = 4,  //! Number of egress queues
+  parameter int FIFO_DEPTH = 64        //! FIFO depth
 )(
   input wire clk,                  //! clock signal
   input wire resetn,               //! synchronous active low reset
+
+  //! --- runtime configuration (milan_csr classifier group, REQ-CLS-01..04) ---
+  input wire        use_pcp_i,      //! 1 = PCP-table classification, 0 = legacy EtherType
+  input wire        dmac_check_i,   //! Enable reserved-DMAC validation (placeholder, REQ-CLS-07)
+  input wire [2:0]  default_pcp_i,  //! Default port priority for untagged frames
+  input wire [23:0] pcp_tc_map_i,   //! PCP->traffic-class table, 8x3 bits
+  input wire [23:0] prio_regen_i,   //! Priority regeneration table, 8x3 bits
+  input wire [31:0] tc_queue_map_i, //! Traffic-class->queue table, 8x4 bits
 
   axi_stream_if.slave s_axis,      //! slave interface of AXIS
   axi_stream_if.master m_axis      //! master interface of AXIS
@@ -108,8 +117,16 @@ logic tlast_delay  [0:LATENCY_SAFE-1];
 
 //! ethernet_vlan_hdr_t struct instantiation.
 ethernet_vlan_hdr_t eth_packet;
-//! network_priority_t enumaration instantiation.
-network_priority_t network_priority;
+
+//! Parsed VLAN/priority fields fed to the runtime class map.
+wire        vlan_valid = (eth_packet.vlan_tpid == ETH_TYPE_VLAN);
+wire [2:0]  frame_pcp  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1 -: PCP_BIT_WIDTH];
+wire        frame_dei  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1-PCP_BIT_WIDTH];
+//! network priority / queue index from the runtime class map.
+wire [$clog2(NUMBER_OF_QUEUES)-1:0] network_priority;
+
+//! dmac_check_i is reserved for reserved-DMAC validation (REQ-CLS-07); tie off.
+wire _unused_dmac = dmac_check_i;
 
 assign header_ready = (byte_counter >= ETH_HEADER_WIDTH);
 
@@ -121,24 +138,21 @@ assign m_axis.tlast  = (LATENCY == 0) ? m_axis_fifo.tlast  : tlast_delay[LATENCY
 assign m_axis.tdest = network_priority;
 assign m_axis_fifo.tready = m_axis.tready;
 
-//! Assign network priority for following rules
-always_comb begin : network_priority_rules
-  unique case (1'b1)
-    (eth_packet.eth_common_hdr.eth_type == ETH_TYPE_PTP):
-      network_priority = GPTP_CLASS;
-
-    ((eth_packet.vlan_tpid == ETH_TYPE_VLAN) &&
-     (eth_packet.eth_common_hdr.eth_type == ETH_TYPE_AVTP)):
-      network_priority = SRA_CLASS;
-
-    ((eth_packet.eth_common_hdr.eth_type == ETH_TYPE_AVTP) &&
-     (eth_packet.vlan_tpid != ETH_TYPE_VLAN)):
-      network_priority = CONTROL_CLASS;
-
-    default:
-      network_priority = BEST_EFFORT;
-  endcase
-end
+//! Runtime 802.1Q priority-to-queue classification (REQ-CLS-01..04).
+traffic_class_map #(
+  .NUMBER_OF_QUEUES(NUMBER_OF_QUEUES)
+) class_map (
+  .use_pcp_i     (use_pcp_i),
+  .default_pcp_i (default_pcp_i),
+  .pcp_tc_map_i  (pcp_tc_map_i),
+  .prio_regen_i  (prio_regen_i),
+  .tc_queue_map_i(tc_queue_map_i),
+  .vlan_valid_i  (vlan_valid),
+  .pcp_i         (frame_pcp),
+  .dei_i         (frame_dei),
+  .eth_type_i    (eth_packet.eth_common_hdr.eth_type),
+  .tdest_o       (network_priority)
+);
 
 
 //! If headers are not ready add tdata into the eth_header slice, if the module is instantiated

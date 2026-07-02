@@ -233,8 +233,19 @@ proc create_root_design { parentCell } {
 
   set MDIO_link_1 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:mdio_rtl:1.0 MDIO_link_1 ]
 
+  # AXI4-Lite CSR master exposed to milan_top (drives milan_csr). 32b data/addr,
+  # associated with axis_clk. (milan_csr integration, 2026-07-01)
+  set M_AXI_CSR [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI_CSR ]
+  set_property -dict [ list \
+    CONFIG.ADDR_WIDTH {32} \
+    CONFIG.DATA_WIDTH {32} \
+    CONFIG.PROTOCOL {AXI4LITE} \
+  ] $M_AXI_CSR
+
 
   # Create ports
+  # CSR level interrupt from milan_top (milan_csr o_irq) into IRQ_F2P via ilconcat In3.
+  set irq_csr [ create_bd_port -dir I -type intr irq_csr ]
   set gtx_clk [ create_bd_port -dir O -type clk gtx_clk ]
   set gtx90_clk [ create_bd_port -dir O -type clk gtx90_clk ]
   set gtx_reset_n [ create_bd_port -dir O -from 0 -to 0 -type rst gtx_reset_n ]
@@ -888,9 +899,11 @@ proc create_root_design { parentCell } {
   set rst_ps_gtx [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps_gtx ]
 
   # Create instance: axi_smc, and set properties
+  # NUM_MI raised 2 -> 3 to add the milan_csr AXI4-Lite master (M02) alongside
+  # the two DMA S_AXI_LITE masters (M00, M01). (milan_csr integration, 2026-07-01)
   set axi_smc [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 axi_smc ]
   set_property -dict [list \
-    CONFIG.NUM_MI {2} \
+    CONFIG.NUM_MI {3} \
     CONFIG.NUM_SI {1} \
   ] $axi_smc
 
@@ -901,8 +914,9 @@ proc create_root_design { parentCell } {
 
 
   # Create instance: ilconcat_0, and set properties
+  # NUM_PORTS raised 3 -> 4 to add the milan_csr level interrupt on In3.
   set ilconcat_0 [ create_bd_cell -type inline_hdl -vlnv xilinx.com:inline_hdl:ilconcat:1.0 ilconcat_0 ]
-  set_property CONFIG.NUM_PORTS {3} $ilconcat_0
+  set_property CONFIG.NUM_PORTS {4} $ilconcat_0
 
 
   # Create instance: smartconnect_0, and set properties
@@ -917,6 +931,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_dma_ts_metadata_M_AXI_S2MM [get_bd_intf_pins axi_dma_ts_metadata/M_AXI_S2MM] [get_bd_intf_pins smartconnect_0/S02_AXI]
   connect_bd_intf_net -intf_net axi_smc_M00_AXI [get_bd_intf_pins axi_smc/M00_AXI] [get_bd_intf_pins axi_dma_eth_packet/S_AXI_LITE]
   connect_bd_intf_net -intf_net axi_smc_M01_AXI [get_bd_intf_pins axi_smc/M01_AXI] [get_bd_intf_pins axi_dma_ts_metadata/S_AXI_LITE]
+  connect_bd_intf_net -intf_net axi_smc_M02_AXI [get_bd_intf_pins axi_smc/M02_AXI] [get_bd_intf_ports M_AXI_CSR]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_pins processing_system7_0/DDR] [get_bd_intf_ports DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_pins processing_system7_0/FIXED_IO] [get_bd_intf_ports FIXED_IO]
   connect_bd_intf_net -intf_net processing_system7_0_MDIO_ETHERNET_1 [get_bd_intf_pins processing_system7_0/MDIO_ETHERNET_1] [get_bd_intf_ports MDIO_link_1]
@@ -954,6 +969,7 @@ proc create_root_design { parentCell } {
   [get_bd_pins rst_ps_gtx/dcm_locked]
   connect_bd_net -net ilconcat_0_dout  [get_bd_pins ilconcat_0/dout] \
   [get_bd_pins processing_system7_0/IRQ_F2P]
+  connect_bd_net -net irq_csr_1 [get_bd_ports irq_csr] [get_bd_pins ilconcat_0/In3]
   connect_bd_net -net ilconstant_0_dout  [get_bd_pins ilconstant_0/dout] \
   [get_bd_pins processing_system7_0/SDIO1_CDN]
   connect_bd_net -net processing_system7_0_FCLK_CLK1  [get_bd_pins processing_system7_0/FCLK_CLK0] \
@@ -971,6 +987,7 @@ proc create_root_design { parentCell } {
   [get_bd_ports gtx_reset_n]
 
   # Create address segments
+  assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs M_AXI_CSR/Reg] -force
   assign_bd_address -offset 0x40410000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_dma_eth_packet/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0x40400000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_dma_ts_metadata/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces axi_dma_ts_metadata/Data_S2MM] [get_bd_addr_segs processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] -force

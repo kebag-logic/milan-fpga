@@ -29,6 +29,9 @@
 ------------------------------------------------------------------------------
 */
 
+`include "ethernet_packet_pkg.sv"
+import ethernet_packet_pkg::*;
+
 `default_nettype none
 
 module traffic_controller_802_1q #(
@@ -41,7 +44,21 @@ module traffic_controller_802_1q #(
   input wire clk,                             //! Clock signal
   input wire resetn,                          //! Active-low synchronous reset
   input wire is_1g_i,                         //! High when the link rate is 1GBps
-  
+
+  //! --- 802.1Q classifier runtime config (from milan_csr, REQ-CLS-01..04) ---
+  input wire        cls_use_pcp_i,            //! 1 = classify by PCP table, 0 = legacy EtherType
+  input wire        cls_dmac_check_i,         //! Enable reserved-DMAC validation (unused placeholder)
+  input wire [2:0]  cls_default_pcp_i,        //! Default port priority for untagged frames
+  input wire [23:0] cls_pcp_tc_map_i,         //! PCP->traffic-class table, 8x3 bits
+  input wire [23:0] cls_prio_regen_i,         //! Priority regeneration table, 8x3 bits
+  input wire [31:0] cls_tc_queue_map_i,       //! Traffic-class->queue map, 8x4 bits
+
+  //! --- per-queue CBS runtime config, packed [q*32 +: 32] (from milan_csr) ---
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_idle_slope_i, //! idleSlope per queue, bits/s
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_hi_credit_i,  //! hiCredit per queue, signed bytes
+  input wire [32*NUMBER_OF_QUEUES-1:0] cbs_lo_credit_i,  //! loCredit per queue, signed bytes
+  input wire [NUMBER_OF_QUEUES-1:0]    cbs_shaped_i,     //! 1 = shaped, 0 = strict priority
+
   axi_stream_if.slave s_axis,                 //! slave interface of AXIS
   axi_stream_if.master m_axis                 //! master interface of AXIS
 );
@@ -66,11 +83,18 @@ module traffic_controller_802_1q #(
   traffic_classifier #(
     .TDATA_WIDTH(TDATA_WIDTH),
     .BIG_ENDIAN(BIG_ENDIAN),
+    .NUMBER_OF_QUEUES(NUMBER_OF_QUEUES),
     .FIFO_DEPTH(CLASSIFIER_FIFO_DEPTH)
   )
   classifier(
     .clk(clk),
     .resetn(resetn),
+    .use_pcp_i(cls_use_pcp_i),
+    .dmac_check_i(cls_dmac_check_i),
+    .default_pcp_i(cls_default_pcp_i),
+    .pcp_tc_map_i(cls_pcp_tc_map_i),
+    .prio_regen_i(cls_prio_regen_i),
+    .tc_queue_map_i(cls_tc_queue_map_i),
     .s_axis(s_axis),
     .m_axis(classifier_to_queue)
   );
@@ -106,6 +130,10 @@ module traffic_controller_802_1q #(
     .resetn(resetn),
     .queue_has_data_i(queue_has_data),
     .is_1g_i(is_1g_i),
+    .cbs_idle_slope_i(cbs_idle_slope_i),
+    .cbs_hi_credit_i(cbs_hi_credit_i),
+    .cbs_lo_credit_i(cbs_lo_credit_i),
+    .cbs_shaped_i(cbs_shaped_i),
     .grant_queue_o(queue_grant),
     .s_axis(queue_to_shaper),
     .m_axis(m_axis)
