@@ -114,7 +114,17 @@ Run: `cd tb/verilator/adp && make` → `RESULT: PASS`.
 
 ## 6. Integration status & next steps
 - **Done:** RTL + Verilator harness (this block), byte-exact, lint-clean, PASS.
-- **Next (migration plan §B):** wire `station_mac`/identity/events from `milan_csr`
-  + `KL_adp_parser`; arbitrate the ADP TX stream into the MAC TX ahead of the CBS
-  path (control queue); add the 1 s tick prescaler. Then M-B2 (a controller sees
-  the entity appear/depart) is complete.
+- **Done — CSR wiring:** the identity/control inputs come from the `milan_csr`
+  **0x600 ADP group** (`docs/REGISTER_MAP.md`); `available_index_o` reads back at
+  `ADP_STATUS`. `station_mac_i` = `MAC_ADDR`. Software strobes `ADP_CMD[0]`
+  (advertise/field-change) → `info_changed_i`, `ADP_CMD[1]` (depart) → `shutdown_i`.
+  CSR harness extended (62 checks, PASS).
+- **Done — MAC TX integration:** [`adp_tx_arbiter.sv`](../adp_tx_arbiter.sv) merges
+  the ADP stream with the datapath into the MAC TX between frames (never mid-frame);
+  verified in [`tb/verilator/adp_tx/`](../../../tb/verilator/adp_tx) (26 checks, PASS).
+  Wired in `milan_top.sv` (advertiser + arbiter + 1 s tick + link-edge pulses); all
+  ports connectivity-checked; `milan_top` elaborates the ADP modules cleanly.
+- **Next:** `rcv_discover_i` and `gm_change_i` are tied 0 pending the `KL_adp_parser`
+  RX tap (§B.1) and gPTP GM tracking; `link_up` is still tied high (REQ-MAC-03) so the
+  advertise pulse fires once on power-up. On real hardware/LiteX, a controller then
+  sees the entity appear (M-B2 complete) once those events are live.

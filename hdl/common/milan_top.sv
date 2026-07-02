@@ -99,7 +99,9 @@ module milan_top import ethernet_packet_pkg::*; #(
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_shaper();
   //! TX path: Traffic shaper output → PTP timestamping core
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_shaper_to_ts();
-  //! TX path: PTP timestamping output → MAC
+  //! TX path: PTP timestamping output → ADP/datapath TX arbiter
+  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_dp_to_arb();
+  //! TX path: TX arbiter output (datapath + ADP merged) → MAC
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
   //! PTP timestamp metadata stream: PTP core → DMA (timestamp + seq_id + direction)
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) ts_metadata_axis();
@@ -147,6 +149,22 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire [63:0] ptp_tod_rd;
   wire        ptp_tod_rd_valid;
   wire        evt_tx_ts_ready;
+
+  //! ADP advertiser config (from milan_csr 0x600 group) + status
+  wire        cfg_adp_enable;
+  wire [4:0]  cfg_adp_valid_time;
+  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id, cfg_adp_gptp_gm, cfg_adp_association_id;
+  wire [31:0] cfg_adp_entity_caps, cfg_adp_controller_caps;
+  wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
+  wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
+  wire [7:0]  cfg_adp_gptp_domain;
+  wire [15:0] cfg_adp_current_config, cfg_adp_identify_index, cfg_adp_interface_index;
+  wire        cfg_adp_advertise_p, cfg_adp_depart_p;
+  wire [31:0] adp_available_index;
+  //! ADP advertiser TX AXIS (flat) → TX arbiter s_adp
+  wire [TDATA_WIDTH-1:0]   adp_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] adp_tx_tkeep;
+  wire                     adp_tx_tvalid, adp_tx_tlast, adp_tx_tready;
 
   //! `mac_speed` is generated in the MAC's gtx_clk (125 MHz) domain; synchronise
   //! it into axis_clk with a 2-FF synchroniser before it is used by the CSR
@@ -312,6 +330,26 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_ptp_egress_lat  (cfg_ptp_egress_lat),
     .i_ptp_tod         (ptp_tod_rd),
     .i_ptp_tod_valid   (ptp_tod_rd_valid),
+    // ADP advertiser identity/control (0x600 group, FR-DISC-*)
+    .o_adp_enable         (cfg_adp_enable),
+    .o_adp_valid_time     (cfg_adp_valid_time),
+    .o_adp_entity_id      (cfg_adp_entity_id),
+    .o_adp_entity_model_id(cfg_adp_entity_model_id),
+    .o_adp_entity_caps    (cfg_adp_entity_caps),
+    .o_adp_talker_sources (cfg_adp_talker_sources),
+    .o_adp_talker_caps    (cfg_adp_talker_caps),
+    .o_adp_listener_sinks (cfg_adp_listener_sinks),
+    .o_adp_listener_caps  (cfg_adp_listener_caps),
+    .o_adp_controller_caps(cfg_adp_controller_caps),
+    .o_adp_gptp_gm        (cfg_adp_gptp_gm),
+    .o_adp_gptp_domain    (cfg_adp_gptp_domain),
+    .o_adp_current_config (cfg_adp_current_config),
+    .o_adp_identify_index (cfg_adp_identify_index),
+    .o_adp_interface_index(cfg_adp_interface_index),
+    .o_adp_association_id (cfg_adp_association_id),
+    .o_adp_advertise_p    (cfg_adp_advertise_p),
+    .o_adp_depart_p       (cfg_adp_depart_p),
+    .i_adp_available_index(adp_available_index),
     // interrupts
     .i_evt_tx_ts_ready  (evt_tx_ts_ready),
     .i_evt_link_change  (evt_link_change),
@@ -375,11 +413,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .s_axis_tx_tlast(tx_axis_shaper_to_ts.tlast),
     .s_axis_tx_tkeep(tx_axis_shaper_to_ts.tkeep),
 
-    .m_axis_tx_tdata(tx_axis_to_mac.tdata),
-    .m_axis_tx_tvalid(tx_axis_to_mac.tvalid),
-    .m_axis_tx_tready(tx_axis_to_mac.tready),
-    .m_axis_tx_tlast(tx_axis_to_mac.tlast),
-    .m_axis_tx_tkeep(tx_axis_to_mac.tkeep),
+    .m_axis_tx_tdata(tx_axis_dp_to_arb.tdata),
+    .m_axis_tx_tvalid(tx_axis_dp_to_arb.tvalid),
+    .m_axis_tx_tready(tx_axis_dp_to_arb.tready),
+    .m_axis_tx_tlast(tx_axis_dp_to_arb.tlast),
+    .m_axis_tx_tkeep(tx_axis_dp_to_arb.tkeep),
 
     .s_axis_rx_tdata(rx_axis_to_ts.tdata),
     .s_axis_rx_tvalid(rx_axis_to_ts.tvalid),
@@ -398,6 +436,97 @@ module milan_top import ethernet_packet_pkg::*; #(
     .ts_m_axis_tready(ts_metadata_axis.tready),
     .ts_m_axis_tlast(ts_metadata_axis.tlast),
     .ts_m_axis_tkeep(ts_metadata_axis.tkeep)
+  );
+
+  // ==========================================================================
+  //  ADP advertiser (IEEE 1722.1 / Milan v1.2) + MAC-TX arbiter
+  //  The advertiser builds ADPDU frames from the milan_csr 0x600 identity/control
+  //  registers; adp_tx_arbiter merges them into the MAC TX stream between frames.
+  // ==========================================================================
+  //! 1-second tick for the ADP re-advertise timer (axis_clk = 100 MHz).
+  localparam int ADP_TICK_DIV = 100_000_000;
+  reg [26:0] adp_tick_cnt;
+  reg        adp_tick_1s;
+  always_ff @(posedge axis_clk) begin : adp_tick_gen
+    if (!axis_resetn) begin
+      adp_tick_cnt <= 27'd0; adp_tick_1s <= 1'b0;
+    end else if (adp_tick_cnt >= ADP_TICK_DIV-1) begin
+      adp_tick_cnt <= 27'd0; adp_tick_1s <= 1'b1;
+    end else begin
+      adp_tick_cnt <= adp_tick_cnt + 27'd1; adp_tick_1s <= 1'b0;
+    end
+  end
+
+  //! Link-status edge pulses drive advertise (up) / depart (down). `link_up` is
+  //! still tied high today (REQ-MAC-03 TODO) so the up-pulse fires once after
+  //! reset — the entity advertises on power-up, which is the desired behaviour.
+  reg link_up_q; reg adp_link_up_p, adp_link_down_p;
+  always_ff @(posedge axis_clk) begin : adp_link_edge
+    if (!axis_resetn) begin
+      link_up_q <= 1'b0; adp_link_up_p <= 1'b0; adp_link_down_p <= 1'b0;
+    end else begin
+      link_up_q       <= link_up;
+      adp_link_up_p   <=  link_up & ~link_up_q;
+      adp_link_down_p <= ~link_up &  link_up_q;
+    end
+  end
+
+  adp_advertiser adp_adv (
+    .clk_i (axis_clk),
+    .rst_n (axis_resetn),
+    .enable_i (cfg_adp_enable),
+    .tick_i   (adp_tick_1s),
+    .link_up_i     (adp_link_up_p),
+    .link_down_i   (adp_link_down_p),
+    .shutdown_i    (cfg_adp_depart_p),   // software depart (ADP_CMD[1])
+    .gm_change_i   (1'b0),               // TODO: from gPTP GM tracking (REQ-PTP)
+    .info_changed_i(cfg_adp_advertise_p),// software advertise / field change (ADP_CMD[0])
+    .rcv_discover_i(1'b0),               // TODO: from KL_adp_parser.rcv_adp_discover_o (§B.1)
+    .station_mac_i (cfg_mac_addr),
+    .valid_time_i  (cfg_adp_valid_time),
+    .entity_id_i             (cfg_adp_entity_id),
+    .entity_model_id_i       (cfg_adp_entity_model_id),
+    .entity_capabilities_i   (cfg_adp_entity_caps),
+    .talker_stream_sources_i (cfg_adp_talker_sources),
+    .talker_capabilities_i   (cfg_adp_talker_caps),
+    .listener_stream_sinks_i (cfg_adp_listener_sinks),
+    .listener_capabilities_i (cfg_adp_listener_caps),
+    .controller_capabilities_i(cfg_adp_controller_caps),
+    .gptp_grandmaster_id_i   (cfg_adp_gptp_gm),
+    .gptp_domain_number_i    (cfg_adp_gptp_domain),
+    .current_configuration_index_i(cfg_adp_current_config),
+    .identify_control_index_i(cfg_adp_identify_index),
+    .interface_index_i       (cfg_adp_interface_index),
+    .association_id_i        (cfg_adp_association_id),
+    .m_axis_tdata (adp_tx_tdata),
+    .m_axis_tkeep (adp_tx_tkeep),
+    .m_axis_tvalid(adp_tx_tvalid),
+    .m_axis_tlast (adp_tx_tlast),
+    .m_axis_tready(adp_tx_tready),
+    .available_index_o(adp_available_index),
+    .busy_o (),
+    .frame_sent_o ()
+  );
+
+  //! Merge datapath (ptp_ts_top output) + ADP into the single MAC TX stream.
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
+    .clk_i (axis_clk),
+    .rst_n (axis_resetn),
+    .s_data_tdata (tx_axis_dp_to_arb.tdata),
+    .s_data_tkeep (tx_axis_dp_to_arb.tkeep),
+    .s_data_tvalid(tx_axis_dp_to_arb.tvalid),
+    .s_data_tlast (tx_axis_dp_to_arb.tlast),
+    .s_data_tready(tx_axis_dp_to_arb.tready),
+    .s_adp_tdata (adp_tx_tdata),
+    .s_adp_tkeep (adp_tx_tkeep),
+    .s_adp_tvalid(adp_tx_tvalid),
+    .s_adp_tlast (adp_tx_tlast),
+    .s_adp_tready(adp_tx_tready),
+    .m_tdata (tx_axis_to_mac.tdata),
+    .m_tkeep (tx_axis_to_mac.tkeep),
+    .m_tvalid(tx_axis_to_mac.tvalid),
+    .m_tlast (tx_axis_to_mac.tlast),
+    .m_tready(tx_axis_to_mac.tready)
   );
 
 

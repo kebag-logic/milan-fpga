@@ -30,8 +30,8 @@ MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0001` | `[31:16]` major, `[15:0]` minor |
-| `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[23:16]` ts_width |
+| `0x004` | `VERSION` | RO | `0x0001_0002` | `[31:16]` major, `[15:0]` minor (0x0002 adds the ADP group) |
+| `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
 | `0x014` | `IRQ_MASK` | RW | `0` | 1 = interrupt enabled; masked bits still visible in `IRQ_RAW` |
@@ -140,6 +140,40 @@ asynchronous: writing `PTP_CMD[2]` pulses the snapshot command into the PHC; the
 sampled TOD returns across the CDC and lands in `PTP_TOD_RD_{LO,HI}` a few cycles
 later (the driver reads it after the round trip). `PTP_INCR`/`PTP_ADJ` are the
 Q8.24-ns rate controls consumed by `timestamp_counter`.
+
+### 0x600 — ADP advertiser  `(IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)`
+
+Identity and control for the hardware ADP transmit engine (`adp_advertiser`). The
+software AVDECC stack programs the entity identity here (typically mirroring the
+`avdecc/milan-v12-entity.json` ENTITY descriptor); the hardware owns the advertise
+timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes from
+`MAC_ADDR_{LO,HI}`, not this group.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x600` | `ADP_CTRL` | RW | `0x0000_1F00` | `[0]` advertise-enable, `[12:8]` valid_time (units of 2 s; reset 31 ⇒ 62 s validity) |
+| `0x604` | `ADP_ENTITY_ID_LO` | RW | `0` | entity_id `[31:0]` (EUI-64) |
+| `0x608` | `ADP_ENTITY_ID_HI` | RW | `0` | entity_id `[63:32]` |
+| `0x60C` | `ADP_MODEL_ID_LO` | RW | `0` | entity_model_id `[31:0]` |
+| `0x610` | `ADP_MODEL_ID_HI` | RW | `0` | entity_model_id `[63:32]` |
+| `0x614` | `ADP_ENTITY_CAPS` | RW | `0` | entity_capabilities (e.g. `0xC588` for a Milan PAAD) |
+| `0x618` | `ADP_TALKER` | RW | `0` | `[15:0]` talker_stream_sources, `[31:16]` talker_capabilities |
+| `0x61C` | `ADP_LISTENER` | RW | `0` | `[15:0]` listener_stream_sinks, `[31:16]` listener_capabilities |
+| `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | controller_capabilities |
+| `0x624` | `ADP_GPTP_GM_LO` | RW | `0` | gptp_grandmaster_id `[31:0]` |
+| `0x628` | `ADP_GPTP_GM_HI` | RW | `0` | gptp_grandmaster_id `[63:32]` |
+| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `0` | `[7:0]` gptp_domain_number |
+| `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
+| `0x634` | `ADP_IDX1` | RW | `0` | `[15:0]` interface_index |
+| `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | association_id `[31:0]` |
+| `0x63C` | `ADP_ASSOC_ID_HI` | RW | `0` | association_id `[63:32]` |
+| `0x640` | `ADP_CMD` | W1S | `0` | `[0]` advertise-now (+ bump available_index), `[1]` depart — self-clearing |
+| `0x644` | `ADP_STATUS` | RO | `0` | `[31:0]` available_index (owned by the advertiser; equals the value on the wire) |
+
+The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F0`,
+subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
+`available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
+on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md).
 
 ## Notes
 

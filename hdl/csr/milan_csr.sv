@@ -55,7 +55,7 @@
 module milan_csr #(
   parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
-  parameter logic [31:0] VERSION = 32'h0001_0001 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor)
+  parameter logic [31:0] VERSION = 32'h0001_0002 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor)
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -126,6 +126,27 @@ module milan_csr #(
   input  wire [63:0]             i_ptp_tod,         //! gettime snapshot value from the PHC (gtx_clk, synchronised)
   input  wire                    i_ptp_tod_valid,   //! 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD (REQ-PTP-03/CSR-03)
 
+  // ---- ADP advertiser identity/control (IEEE 1722.1 / Milan v1.2, FR-DISC-*) ----
+  output wire                    o_adp_enable,        //! ADP advertising enable (ADP_CTRL[0])
+  output wire [4:0]              o_adp_valid_time,    //! ADP valid_time, units of 2 s (ADP_CTRL[12:8])
+  output wire [63:0]             o_adp_entity_id,     //! Entity ID (EUI-64) {ADP_EID_HI, ADP_EID_LO}
+  output wire [63:0]             o_adp_entity_model_id, //! Entity model ID (EUI-64) {ADP_MID_HI, ADP_MID_LO}
+  output wire [31:0]             o_adp_entity_caps,   //! entity_capabilities (ADP_ECAPS)
+  output wire [15:0]             o_adp_talker_sources,//! talker_stream_sources (ADP_TALK[15:0])
+  output wire [15:0]             o_adp_talker_caps,   //! talker_capabilities (ADP_TALK[31:16])
+  output wire [15:0]             o_adp_listener_sinks,//! listener_stream_sinks (ADP_LIST[15:0])
+  output wire [15:0]             o_adp_listener_caps, //! listener_capabilities (ADP_LIST[31:16])
+  output wire [31:0]             o_adp_controller_caps, //! controller_capabilities (ADP_CCAPS)
+  output wire [63:0]             o_adp_gptp_gm,       //! gptp_grandmaster_id {ADP_GM_HI, ADP_GM_LO}
+  output wire [7:0]              o_adp_gptp_domain,   //! gptp_domain_number (ADP_DOMAIN[7:0])
+  output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
+  output wire [15:0]             o_adp_identify_index,//! identify_control_index (ADP_IDX0[31:16])
+  output wire [15:0]             o_adp_interface_index, //! interface_index (ADP_IDX1[15:0])
+  output wire [63:0]             o_adp_association_id,//! association_id {ADP_ASSOC_HI, ADP_ASSOC_LO}
+  output wire                    o_adp_advertise_p,   //! 1-cycle: advertise now + bump available_index (ADP_CMD[0])
+  output wire                    o_adp_depart_p,      //! 1-cycle: send ENTITY_DEPARTING (ADP_CMD[1])
+  input  wire [31:0]             i_adp_available_index, //! current available_index from the advertiser (ADP_STATUS)
+
   // ---- Interrupt (REQ-CSR-04) ----
   input  wire                    i_evt_tx_ts_ready,   //! Event: TX egress timestamp available (sets IRQ_STATUS[0])
   input  wire                    i_evt_link_change,   //! Event: link/speed change (sets IRQ_STATUS[1])
@@ -166,7 +187,13 @@ module milan_csr #(
     A_PTP_CTRL    = 'h500, A_PTP_INCR= 'h504, A_PTP_ADJ = 'h508,
     A_PTP_TWLO    = 'h510, A_PTP_TWHI= 'h514, A_PTP_OFLO= 'h518, A_PTP_OFHI = 'h51C,
     A_PTP_CMD     = 'h520, A_PTP_TRLO= 'h530, A_PTP_TRHI= 'h534,
-    A_PTP_ILAT    = 'h540, A_PTP_ELAT= 'h544;
+    A_PTP_ILAT    = 'h540, A_PTP_ELAT= 'h544,
+    // ---- 0x600 ADP advertiser (IEEE 1722.1 / Milan v1.2) ----
+    A_ADP_CTRL    = 'h600, A_ADP_EIDLO= 'h604, A_ADP_EIDHI= 'h608, A_ADP_MIDLO = 'h60C,
+    A_ADP_MIDHI   = 'h610, A_ADP_ECAPS= 'h614, A_ADP_TALK = 'h618, A_ADP_LIST  = 'h61C,
+    A_ADP_CCAPS   = 'h620, A_ADP_GMLO = 'h624, A_ADP_GMHI = 'h628, A_ADP_DOMAIN= 'h62C,
+    A_ADP_IDX0    = 'h630, A_ADP_IDX1 = 'h634, A_ADP_ASLO = 'h638, A_ADP_ASHI  = 'h63C,
+    A_ADP_CMD     = 'h640, A_ADP_STATUS='h644;
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -246,6 +273,22 @@ module milan_csr #(
   logic ptp_adj_p;                       //! PTP adjtime apply strobe (1 cycle)
   logic ptp_snap_p;                      //! PTP gettime snapshot strobe (1 cycle)
 
+  // ADP advertiser identity/control registers (0x600 group)
+  logic [31:0] adp_ctrl;                 //! ADP_CTRL: [0]=enable, [12:8]=valid_time
+  logic [31:0] adp_eidlo, adp_eidhi;     //! ADP_EID: entity_id (EUI-64)
+  logic [31:0] adp_midlo, adp_midhi;     //! ADP_MID: entity_model_id (EUI-64)
+  logic [31:0] adp_ecaps;                //! ADP_ECAPS: entity_capabilities
+  logic [31:0] adp_talk;                 //! ADP_TALK: {talker_caps[31:16], talker_sources[15:0]}
+  logic [31:0] adp_list;                 //! ADP_LIST: {listener_caps[31:16], listener_sinks[15:0]}
+  logic [31:0] adp_ccaps;                //! ADP_CCAPS: controller_capabilities
+  logic [31:0] adp_gmlo, adp_gmhi;       //! ADP_GM: gptp_grandmaster_id
+  logic [31:0] adp_domain;               //! ADP_DOMAIN: [7:0]=gptp_domain_number
+  logic [31:0] adp_idx0;                 //! ADP_IDX0: {identify_control_index[31:16], current_config[15:0]}
+  logic [31:0] adp_idx1;                 //! ADP_IDX1: [15:0]=interface_index
+  logic [31:0] adp_aslo, adp_ashi;       //! ADP_ASSOC: association_id
+  logic adp_adv_p;                       //! ADP advertise/info-changed strobe (1 cycle)
+  logic adp_dep_p;                       //! ADP depart strobe (1 cycle)
+
   // CBS power-on defaults: mirror ethernet_packet_pkg SR classes; leave the
   // non-SR classes (control, best-effort) unshaped per REQ-CBS-02. Software
   // reprograms all of these at bring-up (e.g. from `tc ... cbs`). The idleSlopes
@@ -279,10 +322,16 @@ module milan_csr #(
         cbs_lo[i]   <= (i < 4) ? CBS_LO_RST[i][31:0]   : 32'h0;
       end
       cbs_en <= CBS_EN_RST[NUM_QUEUES-1:0];
+      adp_ctrl <= 32'h0000_1F00;   // enable=0, valid_time=31 (validity 62 s)
+      adp_eidlo <= 32'h0; adp_eidhi <= 32'h0; adp_midlo <= 32'h0; adp_midhi <= 32'h0;
+      adp_ecaps <= 32'h0; adp_talk <= 32'h0; adp_list <= 32'h0; adp_ccaps <= 32'h0;
+      adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_domain <= 32'h0;
+      adp_idx0 <= 32'h0; adp_idx1 <= 32'h0; adp_aslo <= 32'h0; adp_ashi <= 32'h0;
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
+      adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
 
       // gettime result: latch the PHC snapshot when it returns (crosses CDC
       // asynchronously to the snapshot command, REQ-PTP-03/CSR-03).
@@ -331,6 +380,26 @@ module milan_csr #(
             if (s_axi_wdata[1]) ptp_adj_p  <= 1'b1;
             if (s_axi_wdata[2]) ptp_snap_p <= 1'b1; // gettime; PTP_TOD_RD latched on i_ptp_tod_valid
           end
+          A_ADP_CTRL:   adp_ctrl  <= s_axi_wdata;
+          A_ADP_EIDLO:  adp_eidlo <= s_axi_wdata;
+          A_ADP_EIDHI:  adp_eidhi <= s_axi_wdata;
+          A_ADP_MIDLO:  adp_midlo <= s_axi_wdata;
+          A_ADP_MIDHI:  adp_midhi <= s_axi_wdata;
+          A_ADP_ECAPS:  adp_ecaps <= s_axi_wdata;
+          A_ADP_TALK:   adp_talk  <= s_axi_wdata;
+          A_ADP_LIST:   adp_list  <= s_axi_wdata;
+          A_ADP_CCAPS:  adp_ccaps <= s_axi_wdata;
+          A_ADP_GMLO:   adp_gmlo  <= s_axi_wdata;
+          A_ADP_GMHI:   adp_gmhi  <= s_axi_wdata;
+          A_ADP_DOMAIN: adp_domain<= s_axi_wdata;
+          A_ADP_IDX0:   adp_idx0  <= s_axi_wdata;
+          A_ADP_IDX1:   adp_idx1  <= s_axi_wdata;
+          A_ADP_ASLO:   adp_aslo  <= s_axi_wdata;
+          A_ADP_ASHI:   adp_ashi  <= s_axi_wdata;
+          A_ADP_CMD: begin // W1S self-clearing strobes
+            if (s_axi_wdata[0]) adp_adv_p <= 1'b1; // advertise now + bump available_index
+            if (s_axi_wdata[1]) adp_dep_p <= 1'b1; // send ENTITY_DEPARTING
+          end
           default: begin
             // per-queue CBS window 0x400 + q*0x20 (stride 0x20 => off[5+:QW] = queue)
             if (wr_addr >= A_CBS_BASE && wr_addr < A_CBS_END) begin
@@ -374,7 +443,7 @@ module milan_csr #(
       A_VERSION:    rd_mux = VERSION;
       A_CAP:        rd_mux = { 8'h00,                       // [31:24] reserved
                                8'd64,                       // [23:16] ts_width
-                               4'h0,                        // [15:12] reserved
+                               3'h0, 1'b1,                  // [15:13] reserved [12]ADP
                                1'b1, 1'b1, 1'b1, 1'b1,      // [11]RXF [10]STATS [9]PTP [8]CBS
                                4'h0,                        // [7:4] reserved
                                4'(NUM_QUEUES) };            // [3:0] num_queues
@@ -408,6 +477,24 @@ module milan_csr #(
       A_PTP_TRHI:   rd_mux = ptp_tod_rd[63:32];
       A_PTP_ILAT:   rd_mux = ptp_ilat;
       A_PTP_ELAT:   rd_mux = ptp_elat;
+      A_ADP_CTRL:   rd_mux = adp_ctrl;
+      A_ADP_EIDLO:  rd_mux = adp_eidlo;
+      A_ADP_EIDHI:  rd_mux = adp_eidhi;
+      A_ADP_MIDLO:  rd_mux = adp_midlo;
+      A_ADP_MIDHI:  rd_mux = adp_midhi;
+      A_ADP_ECAPS:  rd_mux = adp_ecaps;
+      A_ADP_TALK:   rd_mux = adp_talk;
+      A_ADP_LIST:   rd_mux = adp_list;
+      A_ADP_CCAPS:  rd_mux = adp_ccaps;
+      A_ADP_GMLO:   rd_mux = adp_gmlo;
+      A_ADP_GMHI:   rd_mux = adp_gmhi;
+      A_ADP_DOMAIN: rd_mux = adp_domain;
+      A_ADP_IDX0:   rd_mux = adp_idx0;
+      A_ADP_IDX1:   rd_mux = adp_idx1;
+      A_ADP_ASLO:   rd_mux = adp_aslo;
+      A_ADP_ASHI:   rd_mux = adp_ashi;
+      A_ADP_CMD:    rd_mux = 32'h0;                         // strobes read 0
+      A_ADP_STATUS: rd_mux = i_adp_available_index;         // RO available_index readback
       default: begin
         if (rd_addr >= A_STATS_BASE && rd_addr < A_STATS_END)
           rd_mux = stat_snap[soff[2 +: 4]];
@@ -473,6 +560,25 @@ module milan_csr #(
   assign o_ptp_cmd_snapshot = ptp_snap_p;
   assign o_ptp_ingress_lat  = ptp_ilat;
   assign o_ptp_egress_lat   = ptp_elat;
+
+  assign o_adp_enable          = adp_ctrl[0];
+  assign o_adp_valid_time      = adp_ctrl[12:8];
+  assign o_adp_entity_id       = {adp_eidhi, adp_eidlo};
+  assign o_adp_entity_model_id = {adp_midhi, adp_midlo};
+  assign o_adp_entity_caps     = adp_ecaps;
+  assign o_adp_talker_sources  = adp_talk[15:0];
+  assign o_adp_talker_caps     = adp_talk[31:16];
+  assign o_adp_listener_sinks  = adp_list[15:0];
+  assign o_adp_listener_caps   = adp_list[31:16];
+  assign o_adp_controller_caps = adp_ccaps;
+  assign o_adp_gptp_gm         = {adp_gmhi, adp_gmlo};
+  assign o_adp_gptp_domain     = adp_domain[7:0];
+  assign o_adp_current_config  = adp_idx0[15:0];
+  assign o_adp_identify_index  = adp_idx0[31:16];
+  assign o_adp_interface_index = adp_idx1[15:0];
+  assign o_adp_association_id  = {adp_ashi, adp_aslo};
+  assign o_adp_advertise_p     = adp_adv_p;
+  assign o_adp_depart_p        = adp_dep_p;
 
   assign o_irq = |(irq_status & irq_mask);
 

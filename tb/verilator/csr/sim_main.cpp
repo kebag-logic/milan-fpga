@@ -25,6 +25,9 @@ enum {
   A_CBS3_CTRL=0x46C,
   A_PTP_CTRL=0x500, A_PTP_INCR=0x504, A_PTP_TWLO=0x510, A_PTP_TWHI=0x514,
   A_PTP_CMD=0x520, A_PTP_TRLO=0x530, A_PTP_TRHI=0x534,
+  A_ADP_CTRL=0x600, A_ADP_EIDLO=0x604, A_ADP_EIDHI=0x608, A_ADP_ECAPS=0x614,
+  A_ADP_TALK=0x618, A_ADP_GMLO=0x624, A_ADP_GMHI=0x628, A_ADP_DOMAIN=0x62C,
+  A_ADP_IDX0=0x630, A_ADP_CMD=0x640, A_ADP_STATUS=0x644,
 };
 
 static Vmilan_csr* dut;
@@ -33,6 +36,7 @@ static long fails = 0, checks = 0;
 // sticky captures of single-cycle strobe outputs
 static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
 static bool seen_stats_snap, seen_stats_reset;
+static bool seen_adp_adv, seen_adp_dep;
 
 static void posedge() {
   dut->aclk = 1; dut->eval();
@@ -41,6 +45,8 @@ static void posedge() {
   seen_ptp_snap    |= dut->o_ptp_cmd_snapshot;
   seen_stats_snap  |= dut->o_stats_snapshot;
   seen_stats_reset |= dut->o_stats_reset;
+  seen_adp_adv     |= dut->o_adp_advertise_p;
+  seen_adp_dep     |= dut->o_adp_depart_p;
   dut->aclk = 0; dut->eval();
 }
 
@@ -98,6 +104,7 @@ int main(int argc, char** argv) {
   dut->i_evt_tx_ts_ready = dut->i_evt_link_change = dut->i_evt_rmon_rollover = 0;
   dut->i_link_up = 1; dut->i_speed = 2; dut->i_full_duplex = 1;
   dut->i_ptp_tod = 0; dut->i_ptp_tod_valid = 0;
+  dut->i_adp_available_index = 0;
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
@@ -106,12 +113,13 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010001);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010002);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
   ck("CAP.PTP",        (cap >> 9) & 1, 1);
   ck("CAP.STATS",      (cap >> 10) & 1, 1);
+  ck("CAP.ADP",        (cap >> 12) & 1, 1);
   ck("CAP.ts_width",   (cap >> 16) & 0xFF, 64);
 
   printf("-- reset values --\n");
@@ -207,6 +215,46 @@ int main(int argc, char** argv) {
   seen_stats_reset = false;
   axi_write(A_STATS_CTRL, 0x2);          // reset pulse
   ck("o_stats_reset pulsed", seen_stats_reset, 1);
+
+  printf("-- ADP advertiser identity/control (FR-DISC-*) --\n");
+  ck("ADP_CTRL(reset valid_time=31)", axi_read(A_ADP_CTRL), 0x00001F00);
+  axi_write(A_ADP_EIDLO, 0xEF00FEED);
+  axi_write(A_ADP_EIDHI, 0xDEAD00BE);
+  dut->eval();
+  ck("o_adp_entity_id", dut->o_adp_entity_id, 0xDEAD00BEEF00FEEDULL);
+  axi_write(A_ADP_ECAPS, 0x0000C588);
+  dut->eval();
+  ck("o_adp_entity_caps", dut->o_adp_entity_caps, 0x0000C588);
+  axi_write(A_ADP_TALK, 0x00010008);     // talker_caps=0x0001, sources=8
+  dut->eval();
+  ck("o_adp_talker_sources", dut->o_adp_talker_sources, 8);
+  ck("o_adp_talker_caps",    dut->o_adp_talker_caps, 0x0001);
+  axi_write(A_ADP_GMLO, 0x44556677);
+  axi_write(A_ADP_GMHI, 0x00112233);
+  dut->eval();
+  ck("o_adp_gptp_gm", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
+  axi_write(A_ADP_DOMAIN, 0x00000005);
+  dut->eval();
+  ck("o_adp_gptp_domain", dut->o_adp_gptp_domain, 5);
+  axi_write(A_ADP_IDX0, 0x00050002);     // identify_index=5, current_config=2
+  dut->eval();
+  ck("o_adp_current_config", dut->o_adp_current_config, 2);
+  ck("o_adp_identify_index", dut->o_adp_identify_index, 5);
+  axi_write(A_ADP_CTRL, (31u << 8) | 1); // enable=1, valid_time=31
+  dut->eval();
+  ck("o_adp_enable",     dut->o_adp_enable, 1);
+  ck("o_adp_valid_time", dut->o_adp_valid_time, 31);
+  // available_index is owned by the advertiser; ADP_STATUS reads it back (RO)
+  dut->i_adp_available_index = 0x00000007; dut->eval();
+  ck("ADP_STATUS avail_index", axi_read(A_ADP_STATUS), 7);
+  // W1S command strobes pulse the advertiser triggers
+  seen_adp_adv = false;
+  axi_write(A_ADP_CMD, 0x1);             // advertise/info-changed
+  ck("o_adp_advertise_p pulsed", seen_adp_adv, 1);
+  seen_adp_dep = false;
+  axi_write(A_ADP_CMD, 0x2);             // depart
+  ck("o_adp_depart_p pulsed", seen_adp_dep, 1);
+  ck("ADP_CMD reads 0 (strobe)", axi_read(A_ADP_CMD), 0);
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
