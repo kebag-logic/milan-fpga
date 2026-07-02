@@ -440,13 +440,20 @@ them to a control handler. Add a **control tap**:
 **Deliverable B.1:** AVDECC control frames arrive in a dedicated netdev queue and the
 `KL_adp_parser` strobes are observable in a CSR.
 
-### B.2 — HW ADP advertiser + discovery FSM (the missing TX side)  ✅ RTL DONE
-> **Status (implemented + verified):** [`hdl/adp/adp_advertiser.sv`](../hdl/adp/adp_advertiser.sv)
-> is written and Verilator-verified — [`tb/verilator/adp/`](../tb/verilator/adp), **121
-> self-checks PASS** (byte-exact 82-byte ADPDU, AVAILABLE/DEPARTING, `available_index`
-> bump-on-change/hold-on-readvertise, advertise timer, back-pressure integrity). Design
-> doc: [`hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md). Remaining for
-> M-B2: wire its CSR/event inputs and arbitrate its TX stream into the MAC path (below).
+### B.2 — HW ADP advertiser + discovery FSM (the missing TX side)  ✅ DONE + INTEGRATED
+> **Status (implemented, integrated, verified):**
+> - [`hdl/adp/adp_advertiser.sv`](../hdl/adp/adp_advertiser.sv) — [`tb/verilator/adp/`](../tb/verilator/adp) **121 checks PASS**.
+> - **CSR wiring:** `milan_csr` **0x600 ADP group** (identity/control + `available_index` RO);
+>   [`tb/verilator/csr/`](../tb/verilator/csr) extended to **62 checks PASS**; ABI in
+>   [`REGISTER_MAP.md`](REGISTER_MAP.md) §0x600.
+> - **MAC TX integration:** [`hdl/adp/adp_tx_arbiter.sv`](../hdl/adp/adp_tx_arbiter.sv) merges
+>   ADP into the MAC TX between frames — [`tb/verilator/adp_tx/`](../tb/verilator/adp_tx) **26 checks PASS**.
+> - **Wired in `milan_top.sv`** (advertiser + arbiter + 1 s tick + link-edge pulses); all ports
+>   connectivity-checked; `milan_top` elaborates the ADP modules cleanly. Design docs:
+>   [`hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md).
+>
+> Remaining for M-B2 to be *observable*: tie in `rcv_discover_i` (from `KL_adp_parser`, §B.1)
+> and `gm_change_i` (gPTP), and real `link_up` (REQ-MAC-03). Full regression: **8 harnesses green**.
 
 Implement the counterpart the repo lacks — an **ADPDU builder + advertise state
 machine** realizing `adp_pkg`'s event structs:
