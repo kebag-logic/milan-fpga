@@ -1,0 +1,12 @@
+# NaxRiscv (LiteX BIOS) reads the Milan milan_csr ID + VERSION over the CPU bus
+# migration milestone M-A2 — proof captured from sw/litex/milan_sim.py under Verilator
+# 0x90000000: 4e 4c 49 4d = LE 0x4D494C4E = 'MILN' (ID);  03 00 01 00 = 0x00010003 (VERSION)
+
+litex> mem_read 0x90000000 16
+Memory dump:
+0x90000000  4e 4c 49 4d 03 00 01 00 04 3f 40 00 00 00 00 00  NLIM.....?@.....
+litex> mem_read 0x90000000 8
+Memory dump:
+0x90000000  4e 4c 49 4d 03 00 01 00                          NLIM....        
+litex> 
+[sim] sys_clk=1.000MHz, simulated=1.292s, elapsed=40.005s, performance=0.032x realtime, stop=SIGTERM
