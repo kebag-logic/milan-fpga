@@ -21,10 +21,11 @@ straight into CI.
 | [`tcam/`](tcam) | `tcam.sv` | Ternary CAM dest-MAC database (`REQ-MAC-02`): exact + wildcard/range match, priority among overlaps, multi-hit vector, add/remove/update entries, clean miss (19 checks). | `cd tcam && make` |
 | [`rx_filter/`](rx_filter) | `rx_mac_filter.sv` | TCAM-driven RX dest-MAC filter (`REQ-MAC-02`): whitelist/blacklist, ternary range accept, mask exclusion, cut-through byte-exact forwarding of accepted frames (14 checks). | `cd rx_filter && make` |
 | [`cdc/`](cdc) | `cdc_pulse.sv` + `cdc_handshake.sv` | Open CDC primitives that replaced `xpm_cdc_*` (T1.4): across two *independent* clocks — every source pulse yields one dest pulse; each value crosses byte-exact with req/ack (16 checks). | `cd cdc && make` |
+| [`datapath/`](datapath) | `traffic_controller_802_1q.sv` | **End-to-end** de-Xilinx'd 802.1Q TX datapath (T1.5): classifier → Forencich per-queue FIFOs → CBS shaper. VLAN frames in → byte-exact egress, PCP→queue routing (exact `tdest`), all 4 queues, strict-priority + CBS modes, burst (15 checks). | `cd datapath && make` |
 
 ```sh
 # run everything
-for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter cdc; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
+for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter cdc datapath; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 ```
 
 ## Conventions
