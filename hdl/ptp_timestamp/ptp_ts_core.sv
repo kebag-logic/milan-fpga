@@ -130,19 +130,17 @@ assign is_ptp = (eth_type == ETH_TYPE);
 //! SOP Pulse CDC: Triggers timestamp capture from SOP event
 // -----------------------------------------------------------------------------
 
-xpm_cdc_pulse #(
-    .DEST_SYNC_FF(2),
-    .INIT_SYNC_FF(0),
-    .REG_OUTPUT(1),
-    .RST_USED(1),
-    .SIM_ASSERT_CHK(0)
+//! Open-core pulse CDC (replaces xpm_cdc_pulse) — SOP event AXIS domain -> PTP
+//! counter domain. See docs/OPEN_SOURCE_MIGRATION.md Track 1.4.
+cdc_pulse #(
+    .DEST_SYNC_FF(2)
 ) sop_pulse_cdc (
-    .dest_pulse(cdc_trigger),
-    .dest_clk(ts_src_clk),
-    .dest_rst(!ts_src_resetn),
-    .src_pulse(sop_detected),
     .src_clk(ts_dst_clk),
-    .src_rst(!ts_dst_resetn)
+    .src_rst_n(ts_dst_resetn),
+    .src_pulse(sop_detected),
+    .dest_clk(ts_src_clk),
+    .dest_rst_n(ts_src_resetn),
+    .dest_pulse(cdc_trigger)
 );
 
 // -----------------------------------------------------------------------------
@@ -168,22 +166,22 @@ end
 // -----------------------------------------------------------------------------
 // Timestamp CDC to AXI Domain
 // -----------------------------------------------------------------------------
-xpm_cdc_handshake #(
-   .DEST_EXT_HSK(0),
+//! Open-core value CDC (replaces xpm_cdc_handshake) — captured timestamp PTP
+//! domain -> AXIS domain via a 4-phase handshake. Track 1.4.
+cdc_handshake #(
+   .WIDTH(TS_WIDTH),
    .DEST_SYNC_FF(2),
-   .INIT_SYNC_FF(0),
-   .SIM_ASSERT_CHK(0),
-   .SRC_SYNC_FF(2),
-   .WIDTH(TS_WIDTH)
+   .SRC_SYNC_FF(2)
 ) timestamp_cdc (
-   .dest_out(ts_cdc_out),
-   .dest_req(dest_req),
-   .src_rcv(src_rcv),
-   .dest_ack(),
-   .dest_clk(ts_dst_clk),
    .src_clk(ts_src_clk),
+   .src_rst_n(ts_src_resetn),
    .src_in(ts_captured_src),
-   .src_send(src_send)
+   .src_send(src_send),
+   .src_rcv(src_rcv),
+   .dest_clk(ts_dst_clk),
+   .dest_rst_n(ts_dst_resetn),
+   .dest_out(ts_cdc_out),
+   .dest_req(dest_req)
 );
 
 // -----------------------------------------------------------------------------

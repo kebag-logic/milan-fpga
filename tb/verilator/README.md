@@ -20,10 +20,11 @@ straight into CI.
 | [`queues/`](queues) | `traffic_queues.sv` | Per-queue buffering after the `axis_switch` IP + `xpm_fifo_axis` → Forencich `axis_demux`/`axis_fifo`/`axis_arb_mux` swap (T1.3): per-queue `tdest` routing, grant suppression (no drain w/o grant), `queue_has_data`, byte-exact per-queue delivery (11 checks). | `cd queues && make` |
 | [`tcam/`](tcam) | `tcam.sv` | Ternary CAM dest-MAC database (`REQ-MAC-02`): exact + wildcard/range match, priority among overlaps, multi-hit vector, add/remove/update entries, clean miss (19 checks). | `cd tcam && make` |
 | [`rx_filter/`](rx_filter) | `rx_mac_filter.sv` | TCAM-driven RX dest-MAC filter (`REQ-MAC-02`): whitelist/blacklist, ternary range accept, mask exclusion, cut-through byte-exact forwarding of accepted frames (14 checks). | `cd rx_filter && make` |
+| [`cdc/`](cdc) | `cdc_pulse.sv` + `cdc_handshake.sv` | Open CDC primitives that replaced `xpm_cdc_*` (T1.4): across two *independent* clocks — every source pulse yields one dest pulse; each value crosses byte-exact with req/ack (16 checks). | `cd cdc && make` |
 
 ```sh
 # run everything
-for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
+for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter cdc; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 ```
 
 ## Conventions
@@ -38,11 +39,11 @@ for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam 
 
 ## Notes
 
-* As the XPM/vendor IP is replaced by open cores (Forencich `verilog-axis`, see
-  [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/OPEN_SOURCE_MIGRATION.md)), more
-  integrating modules become testable here: `traffic_classifier` (T1.2) and
-  `traffic_queues` (T1.3) now Verilate and have full-module harnesses above, so
-  `traffic_controller_802_1q` (classifier + queues + CBS) elaborates end-to-end.
-* Still XPM-gated (validated in Vivado for now, harnesses land with their track):
-  `ptp_ts_top`/`ptp_ts_core` (`xpm_cdc_*`, T1.4) and `milan_top` (MAC RGMII SelectIO +
-  the Zynq PS block design, T2).
+* The XPM/vendor IP is **gone** (Forencich open cores, see
+  [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/OPEN_SOURCE_MIGRATION.md)): `hdl/` is
+  XPM-free (T1.2 FIFOs, T1.3 switch/mux, T1.4 CDC). `traffic_classifier`,
+  `traffic_queues`, `traffic_controller_802_1q` and `ptp_ts_top` all Verilate.
+* Device portability is proven separately by the open Yosys synthesis check in
+  [`syn/yosys/`](../../syn/yosys) (generic + Lattice ECP5).
+* Still vendor-gated (T2): `milan_top` (MAC RGMII SelectIO cells + the Zynq PS block
+  design).

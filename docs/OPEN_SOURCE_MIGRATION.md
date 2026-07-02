@@ -128,9 +128,14 @@ Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
    discard the frame — caught by the harness). **Verify:** [`tb/verilator/queues/`](queues)
    (11 checks, PASS) + `traffic_controller_802_1q` now **elaborates end-to-end** in
    Verilator (classifier + queues + CBS, no XPM left in the 802.1Q subtree).
-4. **T1.4 — PTP CDC (X4,X5).** Replace `xpm_cdc_pulse`/`xpm_cdc_handshake` in
-   `ptp_ts_core` with the toggle-sync pattern / `ptp_clock_cdc`. **Verify:**
-   `ptp_ts_core` now Verilates → extend the `ptp` harness across the CDC.
+4. **T1.4 — PTP CDC (X4,X5).** ✅ DONE. Replaced `xpm_cdc_pulse`/`xpm_cdc_handshake`
+   in `ptp_ts_core` with two open, FPGA-independent primitives:
+   [`cdc_pulse.sv`](../hdl/common/cdc_pulse.sv) (toggle synchroniser) and
+   [`cdc_handshake.sv`](../hdl/common/cdc_handshake.sv) (4-phase req/ack value
+   transfer). **`hdl/` is now completely XPM-free**, and `ptp_ts_top` elaborates
+   end-to-end in Verilator. **Verify:** [`tb/verilator/cdc/`](../tb/verilator/cdc)
+   (16 checks, PASS) drives two *independent* clocks (2:3) and checks pulse-count
+   preservation + byte-exact value crossing with req/ack.
 5. **T1.5 — the big win.** With T1.2–T1.4 done, `traffic_controller_802_1q`,
    `ptp_ts_top`, and the TSN half of `milan_top` are fully Verilatable → add an
    **end-to-end datapath harness** (`tb/verilator/datapath`): inject frames, check
@@ -158,9 +163,21 @@ Vendor as pinned submodules (`third_party/verilog-axis`, `-axi`, `-ethernet`); d
 copy files in, so upstream fixes flow via submodule bumps. Keep a `THIRD_PARTY.md`
 listing each submodule, its commit, and which of our modules use it.
 
-## 6. Definition of done
-- No `xpm_*`, no generated `axis_switch_*` IP, no `IOBUF` in `hdl/`.
-- `milan_top` (TSN datapath) **elaborates and simulates in Verilator** end-to-end.
-- All existing harnesses green + new `queues` / `datapath` harnesses green.
+## 6. Open-toolchain synthesis check (device portability)
+
+Being XPM-free is only useful if the RTL actually maps to *other* devices. The
+[`syn/yosys/`](../syn/yosys) flow proves it: **sv2v** converts the SystemVerilog to
+Verilog-2005 and **Yosys** runs generic `synth` + `hierarchy -check` (which fails on
+any leftover vendor/undefined primitive). **17/17 tops PASS** device-independent
+synthesis, and `make ecp5` maps them to a real non-Xilinx FPGA (Lattice ECP5,
+e.g. `tcam`→~1.7 k `TRELLIS_FF`). Run: `cd syn/yosys && make` (needs `yosys` + `sv2v`).
+
+## 7. Definition of done
+- ✅ No `xpm_*`, no generated `axis_switch_*` IP in `hdl/` (T1.2–T1.4 done). `IOBUF`
+  remains only in `milan_dma_wrapper` (the PS wrapper, T2).
+- The 802.1Q datapath (`traffic_controller_802_1q`) and `ptp_ts_top` **elaborate in
+  Verilator**; `milan_top`'s TSN half follows once the MAC has a `TARGET("GENERIC")`
+  sim build (T2.1).
+- All Verilator harnesses green (**13**) + Yosys generic synthesis green (**17 tops**).
 - The only remaining vendor primitives are the free Xilinx SelectIO RGMII cells,
   gated behind the MAC `TARGET` param (absent in `GENERIC`/`SIM` builds).

@@ -15,10 +15,6 @@ interface axi_stream_if #(
     input bit rst_n
   );
 
-  clocking 
-    cb @(posedge clk);
-  endclocking : cb
-
   logic tready;
   logic tvalid;
   logic tlast;
