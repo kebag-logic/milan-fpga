@@ -278,55 +278,68 @@ module ptp_ts_top#(
   // ===========================================================================
   // TX Timestamp Buffer FIFO (Pre-Switch)
   // ===========================================================================
-  xpm_fifo_axis #(
-    .CLOCKING_MODE("common_clock"),
-    .FIFO_DEPTH(16),
-    .FIFO_MEMORY_TYPE("distributed"),
-    .PACKET_FIFO("false"),
-    .TDATA_WIDTH(METADATA_TDATA_WIDTH)
+  //! Open-core AXIS FIFO (Forencich verilog-axis) — replaces xpm_fifo_axis
+  //! (docs/OPEN_SOURCE_MIGRATION.md Track 1.2). Common-clock, non-packet.
+  axis_fifo #(
+    .DEPTH(16),
+    .DATA_WIDTH(METADATA_TDATA_WIDTH),
+    .KEEP_ENABLE(1), .KEEP_WIDTH(METADATA_TDATA_WIDTH/8),
+    .LAST_ENABLE(1), .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0), .FRAME_FIFO(0)
   )
   tx_ts_buffer(
-   .s_aclk(axis_clk),
-   .s_aresetn(axis_resetn),
- 
+   .clk(axis_clk),
+   .rst(~axis_resetn),
+
    .s_axis_tdata(ts_m_axis_tx.tdata),
    .s_axis_tkeep(ts_m_axis_tx.tkeep),
-   .s_axis_tlast(ts_m_axis_tx.tlast),
-   .s_axis_tready(ts_m_axis_tx.tready),
    .s_axis_tvalid(ts_m_axis_tx.tvalid),
- 
+   .s_axis_tready(ts_m_axis_tx.tready),
+   .s_axis_tlast(ts_m_axis_tx.tlast),
+   .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
+
    .m_axis_tdata(ts_tx_buffered.tdata),
    .m_axis_tkeep(ts_tx_buffered.tkeep),
-   .m_axis_tlast(ts_tx_buffered.tlast),
+   .m_axis_tvalid(ts_tx_buffered.tvalid),
    .m_axis_tready(ts_tx_buffered.tready),
-   .m_axis_tvalid(ts_tx_buffered.tvalid)
+   .m_axis_tlast(ts_tx_buffered.tlast),
+   .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
+
+   .pause_req(1'b0), .pause_ack(),
+   .status_depth(), .status_depth_commit(),
+   .status_overflow(), .status_bad_frame(), .status_good_frame()
   );
 
   // ===========================================================================
   // RX Timestamp Buffer FIFO (Pre-Switch)
   // ===========================================================================
-  xpm_fifo_axis #(
-    .CLOCKING_MODE("common_clock"),
-    .FIFO_DEPTH(16),
-    .FIFO_MEMORY_TYPE("distributed"),
-    .PACKET_FIFO("false"),
-    .TDATA_WIDTH(METADATA_TDATA_WIDTH)
+  //! Open-core AXIS FIFO (Forencich verilog-axis) — replaces xpm_fifo_axis.
+  axis_fifo #(
+    .DEPTH(16),
+    .DATA_WIDTH(METADATA_TDATA_WIDTH),
+    .KEEP_ENABLE(1), .KEEP_WIDTH(METADATA_TDATA_WIDTH/8),
+    .LAST_ENABLE(1), .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0), .FRAME_FIFO(0)
   )
   rx_ts_buffer(
-   .s_aclk(axis_clk),
-   .s_aresetn(axis_resetn),
- 
+   .clk(axis_clk),
+   .rst(~axis_resetn),
+
    .s_axis_tdata(ts_m_axis_rx.tdata),
    .s_axis_tkeep(ts_m_axis_rx.tkeep),
-   .s_axis_tlast(ts_m_axis_rx.tlast),
-   .s_axis_tready(ts_m_axis_rx.tready),
    .s_axis_tvalid(ts_m_axis_rx.tvalid),
- 
+   .s_axis_tready(ts_m_axis_rx.tready),
+   .s_axis_tlast(ts_m_axis_rx.tlast),
+   .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
+
    .m_axis_tdata(ts_rx_buffered.tdata),
    .m_axis_tkeep(ts_rx_buffered.tkeep),
-   .m_axis_tlast(ts_rx_buffered.tlast),
+   .m_axis_tvalid(ts_rx_buffered.tvalid),
    .m_axis_tready(ts_rx_buffered.tready),
-   .m_axis_tvalid(ts_rx_buffered.tvalid)
+   .m_axis_tlast(ts_rx_buffered.tlast),
+   .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
+
+   .pause_req(1'b0), .pause_ack(),
+   .status_depth(), .status_depth_commit(),
+   .status_overflow(), .status_bad_frame(), .status_good_frame()
   );
 
   // ===========================================================================
@@ -360,28 +373,34 @@ module ptp_ts_top#(
   // ---------------------------------------------------------------------------
   //! AXIS fifo to store timestamp before DMA engine
   // ---------------------------------------------------------------------------
-  xpm_fifo_axis #(
-    .CLOCKING_MODE("common_clock"),
-    .FIFO_DEPTH(16),
-    .FIFO_MEMORY_TYPE("distributed"),
-    .PACKET_FIFO("false"),
-    .TDATA_WIDTH(METADATA_TDATA_WIDTH)
+  //! Open-core AXIS FIFO (Forencich verilog-axis) — replaces xpm_fifo_axis.
+  axis_fifo #(
+    .DEPTH(16),
+    .DATA_WIDTH(METADATA_TDATA_WIDTH),
+    .KEEP_ENABLE(1), .KEEP_WIDTH(METADATA_TDATA_WIDTH/8),
+    .LAST_ENABLE(1), .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0), .FRAME_FIFO(0)
   )
   ts_buffer_to_ps(
-   .s_aclk(axis_clk),
-   .s_aresetn(axis_resetn),
- 
+   .clk(axis_clk),
+   .rst(~axis_resetn),
+
    .s_axis_tdata(ts_switch_to_fifo.tdata),
    .s_axis_tkeep(ts_switch_to_fifo.tkeep),
-   .s_axis_tlast(ts_switch_to_fifo.tlast),
-   .s_axis_tready(ts_switch_to_fifo.tready),
    .s_axis_tvalid(ts_switch_to_fifo.tvalid),
- 
+   .s_axis_tready(ts_switch_to_fifo.tready),
+   .s_axis_tlast(ts_switch_to_fifo.tlast),
+   .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
+
    .m_axis_tdata(ts_m_axis_tdata),
    .m_axis_tkeep(ts_m_axis_tkeep),
+   .m_axis_tvalid(ts_m_axis_tvalid),
+   .m_axis_tready(ts_m_axis_tready),
    .m_axis_tlast(ts_m_axis_tlast),
-   .m_axis_tready(ts_m_axis_tready), //m_axis_fifo_to_dma.tready),
-   .m_axis_tvalid(ts_m_axis_tvalid)
+   .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
+
+   .pause_req(1'b0), .pause_ack(),
+   .status_depth(), .status_depth_commit(),
+   .status_overflow(), .status_bad_frame(), .status_good_frame()
   );
 
   // ---------------------------------------------------------------------------

@@ -70,28 +70,49 @@ localparam int LATENCY_SAFE = (LATENCY > 0) ? LATENCY : 1;
 //! Master axis interface from fifo.
 axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) m_axis_fifo();
 //! Storing incoming packets in the fifo till headers parsing is completed.
-xpm_fifo_axis #(
-   .CLOCKING_MODE("common_clock"),
-   .FIFO_DEPTH(FIFO_DEPTH),
-   .FIFO_MEMORY_TYPE("distributed"),
-   .PACKET_FIFO("false"),
-   .TDATA_WIDTH(TDATA_WIDTH)
+//! Open-core AXIS FIFO (Forencich verilog-axis), replacing xpm_fifo_axis — makes
+//! this module Verilator-simulatable and vendor-neutral (see docs/OPEN_SOURCE_MIGRATION.md).
+//! Common-clock, non-packet (FRAME_FIFO=0), tkeep+tlast, no tid/tdest/tuser.
+axis_fifo #(
+   .DEPTH(FIFO_DEPTH),
+   .DATA_WIDTH(TDATA_WIDTH),
+   .KEEP_ENABLE(1),
+   .KEEP_WIDTH(TDATA_WIDTH/8),
+   .LAST_ENABLE(1),
+   .ID_ENABLE(0),
+   .DEST_ENABLE(0),
+   .USER_ENABLE(0),
+   .FRAME_FIFO(0)
 )
 eth_packet_buffer(
-  .s_aclk(clk),
-  .s_aresetn(resetn),
+  .clk(clk),
+  .rst(~resetn),
 
   .s_axis_tdata(s_axis.tdata),
   .s_axis_tkeep(s_axis.tkeep),
-  .s_axis_tlast(s_axis.tlast),
-  .s_axis_tready(s_axis.tready),
   .s_axis_tvalid(s_axis.tvalid),
+  .s_axis_tready(s_axis.tready),
+  .s_axis_tlast(s_axis.tlast),
+  .s_axis_tid('0),
+  .s_axis_tdest('0),
+  .s_axis_tuser('0),
 
   .m_axis_tdata(m_axis_fifo.tdata),
   .m_axis_tkeep(m_axis_fifo.tkeep),
-  .m_axis_tlast(m_axis_fifo.tlast),
+  .m_axis_tvalid(m_axis_fifo.tvalid),
   .m_axis_tready(m_axis_fifo.tready),
-  .m_axis_tvalid(m_axis_fifo.tvalid)
+  .m_axis_tlast(m_axis_fifo.tlast),
+  .m_axis_tid(),
+  .m_axis_tdest(),
+  .m_axis_tuser(),
+
+  .pause_req(1'b0),
+  .pause_ack(),
+  .status_depth(),
+  .status_depth_commit(),
+  .status_overflow(),
+  .status_bad_frame(),
+  .status_good_frame()
 );
 
 //! Flag indicates ethernet headers are received.

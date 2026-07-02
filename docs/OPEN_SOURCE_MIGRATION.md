@@ -108,13 +108,17 @@ All **MIT-licensed**. Vendor as git submodules under `third_party/`.
 ### Track 1 — datapath de-Xilinx (independent of the host decision; do first)
 Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
 
-1. **T1.1 — vendor the cores.** Add `verilog-axis`, `verilog-axi`, `verilog-ethernet`
-   as git submodules under `third_party/`; add their `rtl/` to the Verilator/Vivado
-   source lists. *(no RTL change)*
-2. **T1.2 — AXIS FIFOs (X1).** Replace the 5 `xpm_fifo_axis` with `axis_fifo`
-   (same-clock) / `axis_async_fifo` (CDC) in `traffic_classifier`, `traffic_queues`,
-   `ptp_ts_top`. **Verify:** each host module now Verilates → add/extend a harness;
-   the existing `cbs`/`cls`/`ptp` leaf tests stay green.
+1. **T1.1 — vendor the cores.** ✅ `verilog-axis` added as a submodule at
+   `third_party/verilog-axis` (pinned `48ff7a7`); see [`../THIRD_PARTY.md`](../THIRD_PARTY.md).
+   *(verilog-axi / verilog-ethernet to add in T2.)*
+2. **T1.2 — AXIS FIFOs (X1).** 🟡 IN PROGRESS. All 5 are `common_clock` → `axis_fifo`.
+   - ✅ `traffic_classifier` — swapped + **fully verified**: [`tb/verilator/classifier/`](classifier)
+     (6 checks, PASS) proves it now Verilates and the swap is lossless/byte-exact.
+   - ✅ `ptp_ts_top` ×3 (tx/rx/ps ts buffers) — swapped; `ptp_ts_top` now parses with
+     **only `xpm_cdc_*` missing** (its full harness lands with T1.4).
+   - ⏳ `traffic_queues` — deferred to **T1.3**: it adds `tdest` + `prog_empty_axis`
+     flow-control entangled with its `axis_switch`, so it is swapped there with a
+     harness in the same step.
 3. **T1.3 — AXIS switch/mux (X2,X3).** Replace the generated `axis_switch_*` in
    `traffic_queues` with `axis_demux` (1→4 by tdest) + `axis_arb_mux` (4→1).
    **Verify:** `traffic_queues` now Verilates → new `tb/verilator/queues` harness
