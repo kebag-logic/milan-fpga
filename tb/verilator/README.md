@@ -17,10 +17,11 @@ straight into CI.
 | [`adp/`](adp) | `adp_advertiser.sv` | ADP transmit (IEEE 1722.1 / Milan v1.2, `REQ`/FR-DISC-01..04): byte-exact 82-byte ADPDU decoded like a controller — Ethernet/subtype/cdl/fields, AVAILABLE vs DEPARTING, `available_index` bump-on-change/hold-on-readvertise, advertise timer, back-pressure integrity (121 checks). | `cd adp && make` |
 | [`adp_tx/`](adp_tx) | `adp_tx_arbiter.sv` | 2-input AXIS packet arbiter merging the ADP stream into the MAC TX: no frame interleave, per-source in-order byte-exact delivery, round-robin fairness, back-pressure integrity (26 checks). | `cd adp_tx && make` |
 | [`classifier/`](classifier) | `traffic_classifier.sv` | Full classifier after the `xpm_fifo_axis`→`axis_fifo` (Forencich) swap — proves it now Verilates; lossless in-order byte-exact passthrough + `tdest` stable per frame, under back-pressure (6 checks). Needs `third_party/verilog-axis`. | `cd classifier && make` |
+| [`queues/`](queues) | `traffic_queues.sv` | Per-queue buffering after the `axis_switch` IP + `xpm_fifo_axis` → Forencich `axis_demux`/`axis_fifo`/`axis_arb_mux` swap (T1.3): per-queue `tdest` routing, grant suppression (no drain w/o grant), `queue_has_data`, byte-exact per-queue delivery (11 checks). | `cd queues && make` |
 
 ```sh
 # run everything
-for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
+for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 ```
 
 ## Conventions
@@ -35,8 +36,11 @@ for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier; do ( cd "$d
 
 ## Notes
 
-* The harnesses target pure-RTL leaf blocks. The integrating modules
-  (`milan_top`, `traffic_classifier`, `ptp_ts_top`) instantiate Xilinx XPM/MAC
-  primitives and are validated by elaboration/synthesis in Vivado, not here; the
-  standards-relevant logic each contains is factored into the units tested above
-  (`traffic_class_map`, `timestamp_counter`, `credit_based_shaper`).
+* As the XPM/vendor IP is replaced by open cores (Forencich `verilog-axis`, see
+  [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/OPEN_SOURCE_MIGRATION.md)), more
+  integrating modules become testable here: `traffic_classifier` (T1.2) and
+  `traffic_queues` (T1.3) now Verilate and have full-module harnesses above, so
+  `traffic_controller_802_1q` (classifier + queues + CBS) elaborates end-to-end.
+* Still XPM-gated (validated in Vivado for now, harnesses land with their track):
+  `ptp_ts_top`/`ptp_ts_core` (`xpm_cdc_*`, T1.4) and `milan_top` (MAC RGMII SelectIO +
+  the Zynq PS block design, T2).

@@ -46,148 +46,108 @@ module traffic_queues #(
 );
 
   //! Width of `tdest` field
-  localparam TDEST_WIDTH = $clog2(NUMBER_OF_QUEUES);
-  localparam string FIFO_TYPES [NUMBER_OF_QUEUES] = '{"block","block","block","distributed"};
-  localparam int FIFO_CASCADE_HEIGHTS [NUMBER_OF_QUEUES] = '{0, 0, 0, 32};
+  localparam TDEST_WIDTH = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES);
+  localparam int KW = TDATA_WIDTH/8;
+  //! prog_empty threshold: queue reports "has data" only above this depth (was the
+  //! xpm PROG_EMPTY_THRESH; keeps the CBS scheduler's underrun margin unchanged).
+  localparam int PROG_EMPTY_THRESH = 5;
 
+  // ==========================================================================
+  //  Open-core datapath (Forencich verilog-axis) replacing the Xilinx
+  //  axis_switch IP + xpm_fifo_axis (docs/OPEN_SOURCE_MIGRATION.md Track 1.3):
+  //    axis_demux (1->N by tdest) -> N x axis_fifo -> axis_arb_mux (N->1).
+  //  The 4->1 grant suppression (s_req_suppress) is reproduced by gating each
+  //  arbiter input's tvalid with queue_grant_i; the final m_axis.tdest is the
+  //  granted queue index (reconstructed at the arbiter), matching the old switch.
+  // ==========================================================================
 
-  //! Packed signals for mux switch outputs (to FIFOs)
-  wire [(NUMBER_OF_QUEUES*TDATA_WIDTH)-1:0] mux_to_fifo_tdata;
-  wire [(NUMBER_OF_QUEUES*(TDATA_WIDTH/8))-1:0] mux_to_fifo_tkeep;
-  wire [NUMBER_OF_QUEUES-1:0] mux_to_fifo_tvalid;
-  wire [NUMBER_OF_QUEUES-1:0] mux_to_fifo_tready;
-  wire [NUMBER_OF_QUEUES-1:0] mux_to_fifo_tlast;
-  wire [(NUMBER_OF_QUEUES*TDEST_WIDTH)-1:0] mux_to_fifo_tdest;
+  //! demux (1 -> N) outputs, packed
+  wire [NUMBER_OF_QUEUES*TDATA_WIDTH-1:0] dm_tdata;
+  wire [NUMBER_OF_QUEUES*KW-1:0]          dm_tkeep;
+  wire [NUMBER_OF_QUEUES-1:0]             dm_tvalid, dm_tready, dm_tlast;
 
-  //! Packed signals for FIFO outputs (to demux)
-  wire [(NUMBER_OF_QUEUES*TDATA_WIDTH)-1:0] fifo_to_demux_tdata;
-  wire [(NUMBER_OF_QUEUES*(TDATA_WIDTH/8))-1:0] fifo_to_demux_tkeep;
-  wire [NUMBER_OF_QUEUES-1:0] fifo_to_demux_tvalid;
-  wire [NUMBER_OF_QUEUES-1:0] fifo_to_demux_tready;
-  wire [NUMBER_OF_QUEUES-1:0] fifo_to_demux_tlast;
-  wire [(NUMBER_OF_QUEUES*TDEST_WIDTH)-1:0] fifo_to_demux_tdest;
+  //! fifo outputs, packed
+  wire [NUMBER_OF_QUEUES*TDATA_WIDTH-1:0] ff_tdata;
+  wire [NUMBER_OF_QUEUES*KW-1:0]          ff_tkeep;
+  wire [NUMBER_OF_QUEUES-1:0]             ff_tvalid, ff_tlast;
+  wire [NUMBER_OF_QUEUES-1:0]             arb_tready;   //! tready driven by the arbiter
+  wire fifo_empty [NUMBER_OF_QUEUES-1:0];
 
-  //! Unpacked array views for easier indexing inside generate
-  wire [TDATA_WIDTH-1:0]    mux_to_fifo_tdata_array[NUMBER_OF_QUEUES-1:0];
-  wire [(TDATA_WIDTH/8)-1:0] mux_to_fifo_tkeep_array[NUMBER_OF_QUEUES-1:0];
-  wire mux_to_fifo_tvalid_array[NUMBER_OF_QUEUES-1:0];
-  wire mux_to_fifo_tready_array[NUMBER_OF_QUEUES-1:0];
-  wire mux_to_fifo_tlast_array[NUMBER_OF_QUEUES-1:0];
-  wire [TDEST_WIDTH-1:0] mux_to_fifo_tdest_array[NUMBER_OF_QUEUES-1:0];
+  //! route select = incoming tdest (queue index), resized to the demux select width
+  wire [TDEST_WIDTH-1:0] route_sel = TDEST_WIDTH'(s_axis.tdest);
 
-  wire [TDATA_WIDTH-1:0] fifo_to_demux_tdata_array[NUMBER_OF_QUEUES-1:0];
-  wire [(TDATA_WIDTH/8)-1:0] fifo_to_demux_tkeep_array[NUMBER_OF_QUEUES-1:0];
-  wire [TDEST_WIDTH-1:0] fifo_to_demux_tdest_array[NUMBER_OF_QUEUES-1:0];
-  wire fifo_to_demux_tvalid_array[NUMBER_OF_QUEUES-1:0];
-  wire fifo_to_demux_tready_array[NUMBER_OF_QUEUES-1:0];
-  wire fifo_to_demux_tlast_array[NUMBER_OF_QUEUES-1:0];
-  wire fifo_empty[NUMBER_OF_QUEUES-1:0];
-
-  //! --- Assign packed to unpacked and vice versa ---
-  genvar i;
-  generate
-    for(i=0; i < NUMBER_OF_QUEUES; i++) begin
-      //! mux_to_fifo unpack
-      assign mux_to_fifo_tdata_array[i] = mux_to_fifo_tdata[(i+1)*TDATA_WIDTH-1 -: TDATA_WIDTH];
-      assign mux_to_fifo_tkeep_array[i] = mux_to_fifo_tkeep[(i+1)*(TDATA_WIDTH/8)-1 -:
-                                          (TDATA_WIDTH/8)];
-      assign mux_to_fifo_tvalid_array[i] = mux_to_fifo_tvalid[i];
-      assign mux_to_fifo_tlast_array[i] = mux_to_fifo_tlast[i];
-      assign mux_to_fifo_tdest_array[i] = mux_to_fifo_tdest[ (i+1)*TDEST_WIDTH-1 -: TDEST_WIDTH];
-
-      //! mux_to_fifo ready packed from array
-      assign mux_to_fifo_tready[i] = mux_to_fifo_tready_array[i];
-
-      //! output queue_has_data logic derived from fifo_empty signal
-      assign queue_has_data_o[i] = ~fifo_empty[i];
-
-      //! fifo_to_demux pack
-      assign fifo_to_demux_tdata[(i+1)*TDATA_WIDTH-1 -: TDATA_WIDTH] = fifo_to_demux_tdata_array[i];
-      assign fifo_to_demux_tkeep[(i+1)*(TDATA_WIDTH/8)-1 -:
-                                            (TDATA_WIDTH/8)] = fifo_to_demux_tkeep_array[i] ;
-      assign fifo_to_demux_tdest[(i+1)*TDEST_WIDTH-1 -: TDEST_WIDTH] = fifo_to_demux_tdest_array[i];
-      assign fifo_to_demux_tvalid[i] = fifo_to_demux_tvalid_array[i];
-      assign fifo_to_demux_tlast[i] = fifo_to_demux_tlast_array[i];
-
-      // fifo_to_demux ready packed from array
-      assign fifo_to_demux_tready_array[i] = fifo_to_demux_tready[i];
-    end
-  endgenerate
-
-
-  //! Instantiate axis_switch: multiple inputs, single output (mux)
-  axis_switch_1in_4out_64b_tdest_2b_tlast mux_queues (
-    .aclk(clk),
-    .aresetn(resetn),
-    .s_axis_tvalid(s_axis.tvalid),
-    .s_axis_tready(s_axis.tready),
-    .s_axis_tdata(s_axis.tdata),
-    .s_axis_tkeep(s_axis.tkeep),
-    .s_axis_tlast(s_axis.tlast),
-    .s_axis_tdest(s_axis.tdest),
-    .m_axis_tvalid(mux_to_fifo_tvalid),
-    .m_axis_tready(mux_to_fifo_tready),
-    .m_axis_tdata(mux_to_fifo_tdata),
-    .m_axis_tkeep(mux_to_fifo_tkeep),
-    .m_axis_tlast(mux_to_fifo_tlast),
-    .m_axis_tdest(mux_to_fifo_tdest),
-    .s_decode_err()
+  //! 1 -> N demultiplex by tdest into the per-queue FIFOs
+  axis_demux #(
+    .M_COUNT(NUMBER_OF_QUEUES), .DATA_WIDTH(TDATA_WIDTH),
+    .KEEP_ENABLE(1), .KEEP_WIDTH(KW),
+    .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0), .TDEST_ROUTE(0)
+  ) mux_queues (
+    .clk(clk), .rst(~resetn),
+    .s_axis_tdata(s_axis.tdata), .s_axis_tkeep(s_axis.tkeep),
+    .s_axis_tvalid(s_axis.tvalid), .s_axis_tready(s_axis.tready),
+    .s_axis_tlast(s_axis.tlast), .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
+    .m_axis_tdata(dm_tdata), .m_axis_tkeep(dm_tkeep),
+    .m_axis_tvalid(dm_tvalid), .m_axis_tready(dm_tready), .m_axis_tlast(dm_tlast),
+    .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
+    .enable(1'b1), .drop(1'b0), .select(route_sel)
   );
 
-  //! Instantiate FIFO per queue, connecting unpacked array signals
+  //! per-queue AXIS FIFO
+  genvar i;
   generate
-    for(i=0; i < NUMBER_OF_QUEUES; i++) begin : fifo_gen
-      xpm_fifo_axis #(
-        .CLOCKING_MODE("common_clock"),
-        .CASCADE_HEIGHT(FIFO_CASCADE_HEIGHTS[i]),
-        .FIFO_DEPTH(FIFO_DEPTH),
-        .FIFO_MEMORY_TYPE(FIFO_TYPES[i]),
-        .PACKET_FIFO("false"),
-        .TDATA_WIDTH(TDATA_WIDTH),
-        .TDEST_WIDTH(TDEST_WIDTH),
-        .USE_ADV_FEATURES("1200"), //! enable prog empty signal
-        .PROG_EMPTY_THRESH(5)      //! assert prog_empty_axis when FIFO <= 5 word
+    for (i = 0; i < NUMBER_OF_QUEUES; i++) begin : fifo_gen
+      wire [$clog2(FIFO_DEPTH):0] depth;
+      axis_fifo #(
+        .DEPTH(FIFO_DEPTH), .DATA_WIDTH(TDATA_WIDTH),
+        .KEEP_ENABLE(1), .KEEP_WIDTH(KW),
+        .LAST_ENABLE(1), .ID_ENABLE(0), .DEST_ENABLE(0), .USER_ENABLE(0), .FRAME_FIFO(0)
       ) eth_packet_buffer (
-        .s_aclk(clk),
-        .s_aresetn(resetn),
-
-        .s_axis_tdata(mux_to_fifo_tdata_array[i]),
-        .s_axis_tkeep(mux_to_fifo_tkeep_array[i]),
-        .s_axis_tlast(mux_to_fifo_tlast_array[i]),
-        .s_axis_tdest(mux_to_fifo_tdest_array[i]),
-        .s_axis_tready(mux_to_fifo_tready_array[i]),
-        .s_axis_tvalid(mux_to_fifo_tvalid_array[i]),
-
-        .m_axis_tdata(fifo_to_demux_tdata_array[i]),
-        .m_axis_tkeep(fifo_to_demux_tkeep_array[i]),
-        .m_axis_tlast(fifo_to_demux_tlast_array[i]),
-        .m_axis_tdest(fifo_to_demux_tdest_array[i]),
-        .m_axis_tready(fifo_to_demux_tready_array[i]),
-        .m_axis_tvalid(fifo_to_demux_tvalid_array[i]),
-        .prog_empty_axis(fifo_empty[i])
+        .clk(clk), .rst(~resetn),
+        .s_axis_tdata(dm_tdata[i*TDATA_WIDTH +: TDATA_WIDTH]),
+        .s_axis_tkeep(dm_tkeep[i*KW +: KW]),
+        .s_axis_tvalid(dm_tvalid[i]), .s_axis_tready(dm_tready[i]),
+        .s_axis_tlast(dm_tlast[i]), .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
+        .m_axis_tdata(ff_tdata[i*TDATA_WIDTH +: TDATA_WIDTH]),
+        .m_axis_tkeep(ff_tkeep[i*KW +: KW]),
+        .m_axis_tvalid(ff_tvalid[i]),
+        //! drain only while granted: gate tready too (the arbiter prefetches its
+        //! input skid reg via tready, so gating tvalid alone would eat the frame)
+        .m_axis_tready(arb_tready[i] & queue_grant_i[i]),
+        .m_axis_tlast(ff_tlast[i]), .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
+        .pause_req(1'b0), .pause_ack(),
+        .status_depth(depth), .status_depth_commit(),
+        .status_overflow(), .status_bad_frame(), .status_good_frame()
       );
+      //! prog_empty equivalent: below the underrun-margin threshold
+      assign fifo_empty[i]        = (depth <= PROG_EMPTY_THRESH[$clog2(FIFO_DEPTH):0]);
+      assign queue_has_data_o[i]  = ~fifo_empty[i];
     end
   endgenerate
 
+  //! Arbiter input valids gated by the CBS grant (reproduces s_req_suppress).
+  wire [NUMBER_OF_QUEUES-1:0] arb_tvalid = ff_tvalid & queue_grant_i;
+  //! Reconstruct per-input tdest = queue index, so m_axis.tdest = granted queue.
+  wire [NUMBER_OF_QUEUES*TDEST_WIDTH-1:0] arb_tdest;
+  generate
+    for (i = 0; i < NUMBER_OF_QUEUES; i++)
+      assign arb_tdest[i*TDEST_WIDTH +: TDEST_WIDTH] = TDEST_WIDTH'(i);
+  endgenerate
 
-  //! Instantiate axis_switch: multiple inputs, single output (demux)
-  axis_switch_4in_1out_64b_tlast demux_queues (
-    .aclk(clk),
-    .aresetn(resetn),
-    .s_axis_tvalid(fifo_to_demux_tvalid),
-    .s_axis_tready(fifo_to_demux_tready),
-    .s_axis_tdata(fifo_to_demux_tdata),
-    .s_axis_tkeep(fifo_to_demux_tkeep),
-    .s_axis_tlast(fifo_to_demux_tlast),
-    .s_axis_tuser(fifo_to_demux_tdest),
-    .m_axis_tvalid(m_axis.tvalid),
-    .m_axis_tready(m_axis.tready),
-    .m_axis_tdata(m_axis.tdata),
-    .m_axis_tkeep(m_axis.tkeep),
-    .m_axis_tlast(m_axis.tlast),
-    .m_axis_tuser(m_axis.tdest),
-    .s_req_suppress(~queue_grant_i), //! Suppress queues not granted by CBS
-    .s_decode_err()
+  //! N -> 1 arbitrated mux (round-robin among granted queues, locks per frame)
+  axis_arb_mux #(
+    .S_COUNT(NUMBER_OF_QUEUES), .DATA_WIDTH(TDATA_WIDTH),
+    .KEEP_ENABLE(1), .KEEP_WIDTH(KW),
+    .ID_ENABLE(0), .DEST_ENABLE(1), .DEST_WIDTH(TDEST_WIDTH),
+    .USER_ENABLE(0), .LAST_ENABLE(1),
+    .ARB_TYPE_ROUND_ROBIN(1), .ARB_LSB_HIGH_PRIORITY(1)
+  ) demux_queues (
+    .clk(clk), .rst(~resetn),
+    .s_axis_tdata(ff_tdata), .s_axis_tkeep(ff_tkeep),
+    .s_axis_tvalid(arb_tvalid), .s_axis_tready(arb_tready), .s_axis_tlast(ff_tlast),
+    .s_axis_tid('0), .s_axis_tdest(arb_tdest), .s_axis_tuser('0),
+    .m_axis_tdata(m_axis.tdata), .m_axis_tkeep(m_axis.tkeep),
+    .m_axis_tvalid(m_axis.tvalid), .m_axis_tready(m_axis.tready), .m_axis_tlast(m_axis.tlast),
+    .m_axis_tid(), .m_axis_tdest(m_axis.tdest), .m_axis_tuser()
   );
 
 endmodule
