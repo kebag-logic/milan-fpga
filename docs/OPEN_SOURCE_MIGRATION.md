@@ -136,10 +136,13 @@ Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
    end-to-end in Verilator. **Verify:** [`tb/verilator/cdc/`](../tb/verilator/cdc)
    (16 checks, PASS) drives two *independent* clocks (2:3) and checks pulse-count
    preservation + byte-exact value crossing with req/ack.
-5. **T1.5 — the big win.** With T1.2–T1.4 done, `traffic_controller_802_1q`,
-   `ptp_ts_top`, and the TSN half of `milan_top` are fully Verilatable → add an
-   **end-to-end datapath harness** (`tb/verilator/datapath`): inject frames, check
-   classification + CBS shaping + PTP timestamps + ADP insertion at the MAC boundary.
+5. **T1.5 — the big win.** ✅ DONE. `traffic_controller_802_1q` (classifier +
+   Forencich queues + CBS shaper) is fully Verilatable → the **end-to-end datapath
+   harness** [`tb/verilator/datapath/`](../tb/verilator/datapath) (15 checks, PASS)
+   injects VLAN frames and proves, through the whole pipeline: byte-exact egress,
+   PCP→queue classification (identity map, exact `tdest`), all 4 queues, both
+   strict-priority and CBS-shaped modes, and burst delivery. (PTP-timestamp / ADP
+   insertion stages have their own harnesses — `ptp`, `adp`, `adp_tx`.)
 
 ### Track 2 — I/O + host de-Xilinx
 6. **T2.1 — MDIO (X6,X7).** Replace `IOBUF` with inferred tristate; instantiate
