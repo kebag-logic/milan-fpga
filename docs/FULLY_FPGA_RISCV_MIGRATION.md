@@ -259,6 +259,13 @@ ensure the `read_verilog -sv` path is used. The OOC-synth pass in this repo alre
 proved these modules synthesize (10/12 clean; the 2 "failures" were an OOC-only
 interface-width artifact and the AXIS-switch IP — see the session notes).
 
+> **De-Xilinx first (recommended):** before this, run **Track 1** of
+> [`OPEN_SOURCE_MIGRATION.md`](OPEN_SOURCE_MIGRATION.md) — replace the XPM FIFOs /
+> `axis_switch` IP / `xpm_cdc_*` with Forencich `verilog-axis`/`-axi`/`-ethernet`
+> cores. That makes the whole TSN datapath Verilator-simulatable (not just leaf
+> blocks) and removes vendor lock-in, so the LiteX integration here is against clean,
+> portable RTL.
+
 **Deliverable A.9:** the full SoC synthesizes and routes on `xc7a100t`; capture the
 resource report (budget target below).
 
