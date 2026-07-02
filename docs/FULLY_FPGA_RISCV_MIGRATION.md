@@ -195,9 +195,17 @@ decoded — `milan_top.sv:251`). Attach it to the CPU:
 **Deliverable A.5:** from the LiteX BIOS, `mem_read 0x43c00000` returns `0x4D494C4E`
 ("MILN", the `ID` register) — proving the CPU reaches the CSR plane.
 
-### A.6 — DMA: AXIS ↔ DRAM (replaces PS S4 — the biggest new block)
-The PS provided two **simple-mode** `axi_dma` engines. In fabric, replace them with
-a LiteDRAM-frontend DMA. Two viable designs:
+### A.6 — DMA: AXIS ↔ memory (replaces PS S4) ✅ ASSEMBLED (elaborates)
+**Done:** `MilanDMA` in `sw/litex/milan_soc.py` (`--with-dma`/`--full`) attaches three
+LiteX simple-mode DMA engines to the `milan_datapath` DMA AXIS ports — TX
+`WishboneDMAReader` (memory→`s_axis_tx`), RX + TS `WishboneDMAWriter`
+(`m_axis_rx`/`m_axis_ts`→memory). Each is `with_csr=True`, giving the
+`base`/`length`/`enable`/`done`/`loop`/`offset` simple-mode register block the driver
+expects (documented in [`REGISTER_MAP.md`](REGISTER_MAP.md) → DMA registers). Each is
+its own Wishbone master, width-adapted 64→32 into the SoC interconnect. Verified:
+`ELAB` gateware export (masters + CSRs present in `csr.csv`). Board-gated: on hardware
+these target LiteDRAM (§A.3) instead of integrated RAM; a loopback + DMA-done IRQ test
+closes **M-A3**. The original design notes (kept for reference):
 
 **Option 6a (recommended): LiteDRAM DMA + a thin descriptor/CSR shim.**
 - TX (MM2S, DRAM→AXIS): `litedram.frontend.dma.LiteDRAMDMAReader` streaming into the
@@ -221,8 +229,18 @@ bottleneck (aligns with the deferred **Phase 6 multi-channel DMA**).
 **Deliverable A.6:** a loopback test moves a frame DRAM→MAC→(external loopback)→MAC→DRAM
 and both DMA-done IRQs fire.
 
-### A.7 — MDIO master + PHY reset in fabric (replaces PS S7; closes REQ-MAC-06/08)
-GEM1 EMIO MDIO is gone. Add:
+### A.7 — MAC + RGMII PHY (+ MDIO/PHY-reset) in fabric ✅ MAC ASSEMBLED (elaborates)
+**Done:** `MilanMAC` in `sw/litex/milan_soc.py` (`--with-mac`/`--full`) attaches a real
+1G MAC (LiteEth `LiteEthMACCore`, 64-bit, preamble/CRC/padding) + the Artix-7 RGMII
+PHY (`LiteEthPHYRGMII`, `s7rgmii`) at the `milan_datapath` MAC-facing AXIS boundary via
+a stream↔AXIS adapter. The `_CRG` adds the 200 MHz `IDELAYCTRL` the PHY needs. Verified
+`ELAB` (PHY + MAC + RGMII pads in the exported gateware/XDC). This is the clean split
+that let the datapath stay vendor-neutral: the Milan datapath does all packet
+processing, the MAC core does L1/framing. `milan_top.sv` keeps the Forencich
+`eth_mac_1g_rgmii_fifo` for the Zynq variant.
+
+Board-gated refinements (the remainder of §A.7, below): MDIO link/speed status back
+into `i_i_mac_speed`/`i_i_link_up`, PHY-reset GPIO, and the RMON event mapping. Add:
 - A **soft MDIO master**: either LiteEth's `LiteEthPHYMDIO`, or a small clause-22
   MDIO master with CSR regs (`mdio_addr`, `mdio_reg`, `mdio_wdata`, `mdio_rdata`,
   `mdio_start/busy`). Drive the AX7101 PHY0 `mdc`/`mdio` pins.

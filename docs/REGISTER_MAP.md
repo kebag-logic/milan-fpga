@@ -6,8 +6,11 @@ Memory-mapped control/status registers for the Milan TSN NIC. This is the
 Satisfies `REQ-CSR-05`; implements the control surface for `REQ-CSR/PTP/CBS/CLS/
 MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 
-* **Bus:** AXI4-Lite, 32-bit data, little-endian. Base (suggested)
-  `0x43C0_0000`, window 64 KB.
+* **Bus:** AXI4-Lite, 32-bit data, little-endian. **Base is host-specific** — the
+  register *offsets* below are fixed, only the window base differs per SoC:
+  `0x43C0_0000` on the Zynq PS build, **`0x9000_0000`** on the fully-FPGA NaxRiscv
+  SoC (an MMIO peripheral must live in the CPU IO region ≥ `0x8000_0000`). The
+  device-tree `reg` base must match the target. Window 64 KB.
 * **Access:** `RO` read-only, `RW` read-write, `W1C` write-1-to-clear,
   `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
 * Unused bits read 0; writes to `RO` fields are ignored; unmapped offsets read 0
@@ -209,6 +212,29 @@ The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F
 subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
 `available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
 on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md).
+
+## DMA registers (fully-FPGA build only — separate CSR space)
+
+On the fully-FPGA NaxRiscv SoC the AXIS↔memory DMA (§A.6, `MilanDMA`) is **not** part
+of the `milan_csr` window above — it uses three LiteX simple-mode DMA engines whose
+registers are auto-mapped in the **LiteX CSR space** (their absolute addresses appear
+in the generated `build/csr.csv`; the device tree exposes them via the `dma-tx`,
+`dma-rx`, `dma-ts` `reg` entries). Each engine has the same simple-mode layout, which
+mirrors the Zynq `axi_dma` simple mode the driver already targets:
+
+| Register | Access | Meaning |
+|----------|--------|---------|
+| `<eng>_base`   | RW (64-bit) | DMA buffer base address in system memory |
+| `<eng>_length` | RW (32-bit) | transfer length (bus words) |
+| `<eng>_enable` | RW | 1 = arm/start the transfer |
+| `<eng>_done`   | RO | 1 = transfer complete (raises the `<eng>` IRQ) |
+| `<eng>_loop`   | RW | 1 = continuous (ring) mode |
+| `<eng>_offset` | RO | current transfer offset (progress) |
+
+`<eng>` ∈ { `milan_dma_tx` (memory→TX), `milan_dma_rx` (RX→memory),
+`milan_dma_ts` (timestamp-metadata→memory) }. Driver flow: set `base`+`length`,
+pulse `enable`, wait for `done`/IRQ. (Scatter-gather / multi-queue is the later
+Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 ## Notes
 

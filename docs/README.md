@@ -6,10 +6,15 @@ Documentation for the Milan TSN FPGA network interface.
 
 | Document | Purpose |
 |----------|---------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, and a "where to change things" guide. **Read first.** |
+| [FULL_FPGA_SOLUTION.md](FULL_FPGA_SOLUTION.md) | **The master guide to the fully-FPGA solution** — high- and medium-level architecture, the three datapath boundaries, build/run, and the roadmap. **Read first for the softcore/FPGA work.** |
+| [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_MATRIX.md) | **Every protocol × where it's implemented × the test that validates it** — the validation contract for the FPGA-only solution. |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, and a "where to change things" guide. |
+| [FULLY_FPGA_RISCV_MIGRATION.md](FULLY_FPGA_RISCV_MIGRATION.md) | The deep, step-numbered migration plan (§A.x parts: DDR, clocking, CSR, DMA, MAC, IRQ, wrapper, boot, driver, DT). |
+| [AXIS_CORES_ON_NAXRISCV.md](AXIS_CORES_ON_NAXRISCV.md) | How to attach AXI-Stream cores to the NaxRiscv SoC (control/data/event planes). |
 | [../REQUIREMENTS.md](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (what's missing and why). |
 | [../TODO.md](../TODO.md) | Phased, dependency-ordered task list with status. |
 | [REGISTER_MAP.md](REGISTER_MAP.md) | AXI4-Lite CSR ABI — the contract shared by HDL, the Linux driver, and the device tree. |
+| [MILAN_V12_DEPENDENCY_MATRIX.md](MILAN_V12_DEPENDENCY_MATRIX.md) | Milan v1.2 → FR/NFR dependency matrix with verification traceability. |
 
 ## Module & verification docs
 

@@ -31,6 +31,27 @@ Remaining (need a kernel tree / Vivado / hardware): Linux driver (Phase 7),
 device tree (Phase 8), multi-channel DMA (Phase 6), block-design regeneration,
 and end-to-end bring-up (Phase 9).
 
+## Progress — 2026-07-02 (fully-FPGA softcore solution — open toolchain)
+
+The design was ported off the Zynq PS to a **NaxRiscv RV64GC + LiteX** SoC and the
+full-FPGA solution is **assembled and elaborating** end-to-end. See
+[`docs/FULL_FPGA_SOLUTION.md`](docs/FULL_FPGA_SOLUTION.md) (master guide) and
+[`docs/PROTOCOL_VALIDATION_MATRIX.md`](docs/PROTOCOL_VALIDATION_MATRIX.md) (protocol×test).
+
+* **De-Xilinx complete** — all XPM/vendor IP replaced by Forencich `verilog-axis`
+  + open CDC/TCAM; 15 Verilator harnesses + 18 Yosys tops (incl. Lattice ECP5).
+* **`milan_datapath.sv`** — PS-less §A.9 wrapper; verified `tb/verilator/milan_dp`.
+* **Softcore** — NaxRiscv boots the LiteX BIOS in sim; the CPU reads the NIC
+  `ID="MILN"` over the bus (**M-A2**) — `sw/litex/milan_sim.py`, evidence saved.
+* **`milan_soc.py --full`** — the whole FPGA SoC (NIC + §A.6 DMA + §A.7 MAC/RGMII
+  PHY) elaborates and exports gateware; only the Artix-7 Vivado bitstream is blocked
+  (device-support install).
+* Device tree (`sw/dts/`), driver ABI (`sw/driver/`), and the DMA CSR ABI documented.
+
+Remaining for on-hardware bring-up (roadmap in FULL_FPGA_SOLUTION.md §9): Artix-7
+Vivado device install → LiteDRAM → board M-A2/M-A3 → Linux (M-A4) → driver (M-A5) →
+AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
+
 ---
 
 ## Phase 0 — Verification & docs (start here; partly done)
