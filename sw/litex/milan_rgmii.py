@@ -52,9 +52,13 @@ class MilanRGMIIRX(LiteXModule):
         for i in range(4):
             self.specials += [
                 Instance("IBUF", i_I=pads.rx_data[i], o_O=rx_data_ibuf[i]),
+                # Q1/Q2 SWAPPED vs stock: inverting the RX clock swaps which DDR edge
+                # captures the low vs high nibble, so without this every SFD (0xD5)
+                # arrives nibble-swapped (0x5D) → 100% preamble errors (hardware-
+                # confirmed: +1 preamble error per frame). Swapping restores byte order.
                 Instance("IDDR", p_DDR_CLK_EDGE="SAME_EDGE_PIPELINED",
                     i_C=ClockSignal("eth_rx"), i_CE=1, i_S=0, i_R=0,
-                    i_D=rx_data_ibuf[i], o_Q1=rx_data[i], o_Q2=rx_data[i+4]),
+                    i_D=rx_data_ibuf[i], o_Q1=rx_data[i+4], o_Q2=rx_data[i]),
             ]
         rx_ctl_d = Signal()
         self.sync += rx_ctl_d.eq(rx_ctl)
