@@ -21,12 +21,47 @@ from litex.gen import LiteXModule
 from litex.soc.cores.clock import S7PLL
 from litex.soc.interconnect.csr import CSRStorage
 
+from litex.soc.interconnect import stream
+from liteeth.common import eth_phy_description
 from liteeth.phy.common import LiteEthPHYHWReset
-from liteeth.phy.s7rgmii import LiteEthPHYRGMIITX, LiteEthPHYRGMIIRX
+from liteeth.phy.s7rgmii import LiteEthPHYRGMIITX
 try:
     from liteeth.phy.common import LiteEthPHYMDIO
 except ImportError:  # older/newer liteeth layouts
     LiteEthPHYMDIO = None
+
+
+class MilanRGMIIRX(LiteXModule):
+    """RGMII RX matching the Alinx AX7101 vendor design: raw IBUF data straight into an
+    IDDR clocked by the (inverted) eth_rx clock, with **no IDELAY**. LiteEth's stock RX
+    always inserts an IDELAYE2 whose ~0.6 ns floor mis-aligns sampling on this board —
+    the vendor `util_gmii_to_rgmii.v` uses none. Datapath logic (valid/data/last) is
+    identical to LiteEth's."""
+    def __init__(self, pads):
+        self.source = source = stream.Endpoint(eth_phy_description(8))
+        rx_ctl_ibuf  = Signal()
+        rx_ctl       = Signal()
+        rx_data_ibuf = Signal(4)
+        rx_data      = Signal(8)
+        self.specials += [
+            Instance("IBUF", i_I=pads.rx_ctl, o_O=rx_ctl_ibuf),
+            Instance("IDDR", p_DDR_CLK_EDGE="SAME_EDGE_PIPELINED",
+                i_C=ClockSignal("eth_rx"), i_CE=1, i_S=0, i_R=0,
+                i_D=rx_ctl_ibuf, o_Q1=rx_ctl, o_Q2=Signal()),
+        ]
+        for i in range(4):
+            self.specials += [
+                Instance("IBUF", i_I=pads.rx_data[i], o_O=rx_data_ibuf[i]),
+                Instance("IDDR", p_DDR_CLK_EDGE="SAME_EDGE_PIPELINED",
+                    i_C=ClockSignal("eth_rx"), i_CE=1, i_S=0, i_R=0,
+                    i_D=rx_data_ibuf[i], o_Q1=rx_data[i], o_Q2=rx_data[i+4]),
+            ]
+        rx_ctl_d = Signal()
+        self.sync += rx_ctl_d.eq(rx_ctl)
+        last = Signal()
+        self.comb += last.eq(~rx_ctl & rx_ctl_d)
+        self.sync += [source.valid.eq(rx_ctl), source.data.eq(rx_data)]
+        self.comb += source.last.eq(last)
 
 
 class _MilanRGMIICRG(LiteXModule):
@@ -86,7 +121,9 @@ class MilanRGMIIPHY(LiteXModule):
         self.crg = _MilanRGMIICRG(clock_pads, pads, with_hw_init_reset, tx_delay,
                                   hw_reset_cycles, rx_clk_invert)
         self.tx  = ClockDomainsRenamer("eth_tx")(LiteEthPHYRGMIITX(pads))
-        self.rx  = ClockDomainsRenamer("eth_rx")(LiteEthPHYRGMIIRX(pads, rx_delay, iodelay_clk_freq))
+        self.rx  = ClockDomainsRenamer("eth_rx")(MilanRGMIIRX(pads))  # no IDELAY (Alinx)
         self.sink, self.source = self.tx.sink, self.rx.source
+        # rx_delay / iodelay_clk_freq are accepted for API compat but unused: this RX
+        # samples raw data with the inverted clock (no IDELAYE2), matching the vendor.
         if LiteEthPHYMDIO is not None and hasattr(pads, "mdc"):
             self.mdio = LiteEthPHYMDIO(pads)
