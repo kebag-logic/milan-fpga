@@ -85,10 +85,11 @@ the entity model under `avdecc/`.
 | TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | 15 Verilator harnesses green; 18 Yosys tops |
 | `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | `tb/verilator/milan_dp` (11 checks); Yosys |
 | NaxRiscv SoC (CPU + CSR + IRQ) | ✅ boots in sim | `sw/litex/evidence/naxriscv_sim_boot.log` |
-| **CPU reads NIC ID="MILN" (M-A2)** | ✅ proven on softcore | `sw/litex/evidence/naxriscv_reads_MILN.log` |
-| §A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ assembled + elaborates | `milan_soc.py --with-dma` gateware export |
-| §A.7 MAC + RGMII PHY (LiteEth s7rgmii) | ✅ assembled + elaborates | `milan_soc.py --with-mac` gateware export |
-| **Full SoC (`--full`: NIC+DMA+MAC)** | ✅ elaborates + exports gateware | `milan_soc.py --full` |
+| **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
+| **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
+| §A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
+| §A.7 MAC + PHY (LiteEth **GMII** — AX7101 is GMII, not RGMII) | 🔄 GMII bring-up on the rig | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17 |
+| **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots on silicon | `deploy.sh` |
 | HW ADP advertiser | ✅ complete + verified | `tb/verilator/adp` (121 checks) |
 | AVDECC SW (AECP/ACMP/MAAP/MVU) | 🟡 entity model + prior work | `avdecc/`, `docs/aem-and-aecp.md` |
 | Linux driver (kl-eth) | 🟡 ABI defined | `sw/driver/README.md`, DT binding |
@@ -236,12 +237,15 @@ Ordered; each item names the file(s) to touch and the test that closes it.
    `MT41J256M16` (migration §A.3). Closes: BIOS DRAM memtest on the board (**M-A1**).
 3. **Board bring-up of the CSR path** — program the bitstream, repeat the M-A2
    `mem_read` on hardware. Closes M-A2 on-board.
-4. **DMA loopback + IRQs** — driver programs `milan_dma_*` base/length/enable; frame
-   goes memory→MAC→(external loopback)→MAC→memory; DMA-done IRQs fire. Closes **M-A3**.
-5. **Linux boot** — OpenSBI + kernel + Buildroot + the `kl,dma-ether` DT overlay.
-   Closes **M-A4**.
-6. **Driver bring-up** — `kl-eth` up: `ping` over RGMII, `ethtool -T` (PHC),
-   `ptp4l` locks, `tc … cbs offload` shapes q0/q1. Closes **M-A5** = "Milan on FPGA".
+4. **Data path on the wire (M-A3)** — *in progress on the rig.* The memory→DMA→AXIS-CDC
+   →datapath half is verified on silicon (DMA `done=1`); the MAC→wire half was blocked by
+   a wrong PHY interface — **the AX7101 is GMII (8-bit), not RGMII** (100 % preamble
+   errors; see TROUBLESHOOTING §17). Now on `LiteEthPHYGMII`; test = i210↔FPGA via the
+   ProfiTap taps, RX-DMA→memory + DMA-TX→i210. Then DMA-done IRQs.
+5. **Linux boot (M-A4)** — OpenSBI + kernel + Buildroot + the `kl,dma-ether` DT overlay.
+   *(rootfs build is network-gated: the 6.12 kernel tarball 404s / kernel.org unreachable.)*
+6. **Driver bring-up (M-A5)** — `kl-eth` up: `ping`, `ethtool -T` (PHC), `ptp4l` locks,
+   `tc … cbs offload` shapes q0/q1. Closes **M-A5** = "Milan on FPGA".
 7. **AVDECC protocols** — AECP/AEM enumeration, ACMP connect, MAAP, MVU, then
    SRP/MSRP/MVRP, then (optional) the AVTP media datapath. Each row in the
    [`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md) names its test.
