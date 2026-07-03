@@ -245,6 +245,34 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         platform.add_source(os.path.join(base, f))
 
 
+# AXIS clock-domain crossing (DMA/MAC boundary) ---------------------------------------------------
+
+class _AxisDP:
+    """Pair of stream endpoints for one AXIS lane crossing the datapath boundary:
+    `.dp` is bound to the `milan_datapath` Instance, `.sys` to the sys-domain DMA/MAC."""
+    def __init__(self, dp, sys):
+        self.dp  = dp
+        self.sys = sys
+
+def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath):
+    """Cross one AXIS lane between the sys domain (DMA engine / MAC core) and the
+    datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
+    (the "use a FIFO to compensate the timing" boundary). `to_datapath=True` is a
+    sys->milan_cd lane (memory->TX, MAC-RX->datapath); False is milan_cd->sys
+    (datapath->RX/TS memory, datapath->MAC-TX). When `milan_cd == "sys"` there is no
+    crossing: `.dp` and `.sys` are the same endpoint (direct wire)."""
+    if milan_cd == "sys":
+        ep = stream.Endpoint(layout)
+        return _AxisDP(dp=ep, sys=ep)
+    if to_datapath:                                        # sys -> milan_cd
+        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=16)
+        setattr(host, name, cdc)                           # LiteXModule auto-submodule
+        return _AxisDP(dp=cdc.source, sys=cdc.sink)
+    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=16)  # milan_cd -> sys
+    setattr(host, name, cdc)
+    return _AxisDP(dp=cdc.sink, sys=cdc.source)
+
+
 # MAC (§A.7) ---------------------------------------------------------------------------------------
 
 class MilanMAC(LiteXModule):
@@ -261,7 +289,7 @@ class MilanMAC(LiteXModule):
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
-    def __init__(self, platform, data_width=64, phy_index=0):
+    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys"):
         from liteeth.phy.s7rgmii import LiteEthPHYRGMII
         from liteeth.mac.core    import LiteEthMACCore
 
@@ -272,35 +300,35 @@ class MilanMAC(LiteXModule):
                                    with_preamble_crc=True, with_padding=True)
 
         nb = data_width // 8
-        # datapath -> MAC (TX)
-        tx_tdata  = Signal(data_width)
-        tx_tkeep  = Signal(nb)
-        tx_tvalid = Signal()
-        tx_tlast  = Signal()
-        tx_tready = Signal()
-        # MAC -> datapath (RX)
-        rx_tready = Signal()
-        rx_tkeep  = Signal(nb)
-
+        L  = [("data", data_width), ("keep", nb)]
+        # The datapath-facing endpoints are in `milan_cd`; the MAC core is in sys.
+        # When they differ, an async-FIFO stream CDC bridges each direction (`keep`
+        # carries the last-beat byte-enable). `_axis_dp_cdc` returns the endpoint the
+        # datapath binds to, wiring the CDC (or a direct pass-through) to `sys_ep`.
+        tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False)  # dp -> MAC
+        rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True)   # MAC -> dp
         self.comb += [
-            # TX AXIS (datapath) -> core.sink (LiteEth stream)
-            self.core.sink.valid.eq(tx_tvalid),
-            self.core.sink.data.eq(tx_tdata),
-            self.core.sink.last.eq(tx_tlast),
-            self.core.sink.last_be.eq(tx_tkeep),   # last-byte enable ~ tkeep of last beat
-            tx_tready.eq(self.core.sink.ready),
-            # RX core.source -> RX AXIS (datapath); full lanes except the last beat
-            self.core.source.ready.eq(rx_tready),
-            rx_tkeep.eq(Mux(self.core.source.last, self.core.source.last_be, 2**nb - 1)),
+            # datapath TX endpoint -> core.sink (LiteEth), in sys
+            self.core.sink.valid.eq(tx_dp.sys.valid),
+            self.core.sink.data.eq(tx_dp.sys.data),
+            self.core.sink.last.eq(tx_dp.sys.last),
+            self.core.sink.last_be.eq(tx_dp.sys.keep),   # last-byte enable ~ tkeep of last beat
+            tx_dp.sys.ready.eq(self.core.sink.ready),
+            # core.source -> datapath RX endpoint, in sys; full lanes except the last beat
+            rx_dp.sys.valid.eq(self.core.source.valid),
+            rx_dp.sys.data.eq(self.core.source.data),
+            rx_dp.sys.last.eq(self.core.source.last),
+            rx_dp.sys.keep.eq(Mux(self.core.source.last, self.core.source.last_be, 2**nb - 1)),
+            self.core.source.ready.eq(rx_dp.sys.ready),
         ]
 
         self.dp_ports = dict(
-            o_m_axis_mac_tx_tdata  = tx_tdata,  o_m_axis_mac_tx_tkeep = tx_tkeep,
-            o_m_axis_mac_tx_tvalid = tx_tvalid, o_m_axis_mac_tx_tlast = tx_tlast,
-            i_m_axis_mac_tx_tready = tx_tready,
-            i_s_axis_mac_rx_tdata  = self.core.source.data,  i_s_axis_mac_rx_tkeep = rx_tkeep,
-            i_s_axis_mac_rx_tvalid = self.core.source.valid, i_s_axis_mac_rx_tlast = self.core.source.last,
-            o_s_axis_mac_rx_tready = rx_tready,
+            o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
+            o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
+            i_m_axis_mac_tx_tready = tx_dp.dp.ready,
+            i_s_axis_mac_rx_tdata  = rx_dp.dp.data,  i_s_axis_mac_rx_tkeep = rx_dp.dp.keep,
+            i_s_axis_mac_rx_tvalid = rx_dp.dp.valid, i_s_axis_mac_rx_tlast = rx_dp.dp.last,
+            o_s_axis_mac_rx_tready = rx_dp.dp.ready,
             # MAC status: 1G/up/full-duplex until MDIO link tracking lands (§A.7 refine);
             # RMON event pulses (i_mac_events) are 0 — the LiteEth core doesn't expose the
             # same event set as the Forencich MAC, so those RMON lanes stay 0 here.
@@ -329,7 +357,7 @@ class MilanDMA(LiteXModule):
     NOTE (board-gated): this elaborates against integrated RAM here; on the board it
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade — see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
-    def __init__(self, soc, data_width=64):
+    def __init__(self, soc, data_width=64, milan_cd="sys"):
         from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
         from litex.soc.interconnect import wishbone
         import math
@@ -348,28 +376,37 @@ class MilanDMA(LiteXModule):
         self.ts = WishboneDMAWriter(mk_bus(), with_csr=True)
         soc.bus.add_master("milan_dma_ts", master=self.ts.bus)
 
-        # RX/TS output signals from the datapath -> writer sinks.
-        rx_tready = Signal(); ts_tready = Signal()
-        rx_data = Signal(data_width); rx_valid = Signal(); rx_last = Signal()
-        ts_data = Signal(data_width); ts_valid = Signal(); ts_last = Signal()
+        # datapath-facing endpoints in `milan_cd`, async-FIFO CDC'd to the sys-domain
+        # DMA engines when the domains differ (see _axis_dp_cdc). TX is mem->datapath;
+        # RX/TS are datapath->mem.
+        L = [("data", data_width), ("keep", nb)]
+        tx_dp = _axis_dp_cdc(self, "dma_tx_cdc", L, milan_cd, to_datapath=True)
+        rx_dp = _axis_dp_cdc(self, "dma_rx_cdc", L, milan_cd, to_datapath=False)
+        ts_dp = _axis_dp_cdc(self, "dma_ts_cdc", L, milan_cd, to_datapath=False)
         self.comb += [
-            self.rx.sink.valid.eq(rx_valid), self.rx.sink.data.eq(rx_data),
-            self.rx.sink.last.eq(rx_last),   rx_tready.eq(self.rx.sink.ready),
-            self.ts.sink.valid.eq(ts_valid), self.ts.sink.data.eq(ts_data),
-            self.ts.sink.last.eq(ts_last),   ts_tready.eq(self.ts.sink.ready),
+            # TX: reader.source (sys) -> datapath TX endpoint (full keep)
+            tx_dp.sys.valid.eq(self.tx.source.valid), tx_dp.sys.data.eq(self.tx.source.data),
+            tx_dp.sys.last.eq(self.tx.source.last),   tx_dp.sys.keep.eq(2**nb - 1),
+            self.tx.source.ready.eq(tx_dp.sys.ready),
+            # RX: datapath RX endpoint (sys side) -> writer.sink
+            self.rx.sink.valid.eq(rx_dp.sys.valid), self.rx.sink.data.eq(rx_dp.sys.data),
+            self.rx.sink.last.eq(rx_dp.sys.last),    rx_dp.sys.ready.eq(self.rx.sink.ready),
+            # TS: datapath TS endpoint (sys side) -> writer.sink
+            self.ts.sink.valid.eq(ts_dp.sys.valid), self.ts.sink.data.eq(ts_dp.sys.data),
+            self.ts.sink.last.eq(ts_dp.sys.last),    ts_dp.sys.ready.eq(self.ts.sink.ready),
         ]
 
         self.dp_ports = dict(
             # TX: reader.source (mem data) -> datapath s_axis_tx
-            i_s_axis_tx_tdata  = self.tx.source.data,  i_s_axis_tx_tkeep = 2**nb - 1,
-            i_s_axis_tx_tvalid = self.tx.source.valid, i_s_axis_tx_tlast = self.tx.source.last,
-            o_s_axis_tx_tready = self.tx.source.ready,
+            i_s_axis_tx_tdata  = tx_dp.dp.data,  i_s_axis_tx_tkeep = tx_dp.dp.keep,
+            i_s_axis_tx_tvalid = tx_dp.dp.valid, i_s_axis_tx_tlast = tx_dp.dp.last,
+            o_s_axis_tx_tready = tx_dp.dp.ready,
             # RX: datapath m_axis_rx -> writer.sink
-            o_m_axis_rx_tdata  = rx_data,  o_m_axis_rx_tvalid = rx_valid,
-            o_m_axis_rx_tlast  = rx_last,  i_m_axis_rx_tready = rx_tready,
+            o_m_axis_rx_tdata  = rx_dp.dp.data,  o_m_axis_rx_tvalid = rx_dp.dp.valid,
+            o_m_axis_rx_tlast  = rx_dp.dp.last,  i_m_axis_rx_tready = rx_dp.dp.ready,
             # TS: datapath m_axis_ts -> writer.sink
-            o_m_axis_ts_tdata  = ts_data,  o_m_axis_ts_tvalid = ts_valid,
-            o_m_axis_ts_tlast  = ts_last,  i_m_axis_ts_tready = ts_tready,
+            o_m_axis_ts_tdata  = ts_dp.dp.data,  o_m_axis_ts_tvalid = ts_dp.dp.valid,
+            o_m_axis_ts_tlast  = ts_dp.dp.last,  i_m_axis_ts_tready = ts_dp.dp.ready,
         )
 
 
@@ -432,20 +469,15 @@ class MilanSoC(SoCCore):
             # the datapath's DMA/MAC-facing AXIS boundary. Both contribute Instance
             # ports; merge them (idle stubs remain for any port neither drives).
             dp_ports = {}
+            milan_cd = "milan" if milan_clk_freq else "sys"
             if with_dma:
-                self.milan_dma = MilanDMA(self, data_width=64)
+                self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
-                self.milan_mac = MilanMAC(platform, data_width=64)
+                self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd)
                 dp_ports.update(self.milan_mac.dp_ports)
-            if milan_clk_freq and (with_dma or with_mac):
-                raise NotImplementedError(
-                    "--milan-clk-freq (datapath CDC) with DMA/MAC needs the AXIS stream "
-                    "CDC on the DMA/MAC boundary, which is not wired yet. Use --with-dram "
-                    "(no --with-dma/--with-mac) for the CDC 100 MHz path, or omit "
-                    "--milan-clk-freq for the single-clock --full at a lower sys clock.")
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
-                                  milan_cd="milan" if milan_clk_freq else "sys")
+                                  milan_cd=milan_cd)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
 
@@ -459,9 +491,9 @@ def main():
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--milan-clk-freq", default=None, type=float,
                     help="run the Milan datapath in its own slower clock domain (Hz, e.g. "
-                         "50e6), CDC'd to the sys AXI-Lite CSR bus — lifts the dense datapath "
-                         "off the 100 MHz sys critical path. Datapath still exceeds 1 GbE. "
-                         "Not yet combinable with --with-dma/--with-mac (needs AXIS CDC).")
+                         "50e6), async-FIFO CDC'd to sys on the AXI-Lite CSR bus and the "
+                         "DMA/MAC AXIS boundary — lifts the dense datapath off the 100 MHz "
+                         "sys critical path (it still exceeds 1 GbE). Works with --full.")
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
@@ -471,8 +503,12 @@ def main():
                     help="attach the AXIS<->memory DMA engines (§A.6) with simple-mode CSRs")
     ap.add_argument("--with-dram", action="store_true",
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16) — needed for Linux (§A.3)")
-    ap.add_argument("--full", action="store_true",
-                    help="full FPGA config: NIC + DMA + MAC + DDR3 (--with-dma --with-mac --with-dram)")
+    ap.add_argument("--all-blocks", "--full", dest="all_blocks", action="store_true",
+                    help="enable ALL fabric blocks: NIC + DMA + MAC + DDR3 (= --with-dma "
+                         "--with-mac --with-dram). This means 'every block instantiated', NOT "
+                         "a complete/validated NIC — MDIO/PHY mgmt, the kl-eth driver, DMA "
+                         "scatter-gather, and on-hardware traffic (M-A3..M-A5) are still open. "
+                         "(--full is a legacy alias for this flag.)")
     ap.add_argument("--uart-baudrate", default=115200, type=int,
                     help="console UART baud (default 115200; the AX7101 factory demo uses 9600)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
@@ -487,9 +523,9 @@ def main():
     platform = alinx_ax7101.Platform()
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, with_milan=not args.no_milan,
-                   with_mac=args.with_mac or args.full,
-                   with_dma=args.with_dma or args.full,
-                   with_dram=args.with_dram or args.full,
+                   with_mac=args.with_mac or args.all_blocks,
+                   with_dma=args.with_dma or args.all_blocks,
+                   with_dram=args.with_dram or args.all_blocks,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq,
                    uart_baudrate=args.uart_baudrate)
