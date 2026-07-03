@@ -312,18 +312,28 @@ class MilanMAC(LiteXModule):
         # datapath binds to, wiring the CDC (or a direct pass-through) to `sys_ep`.
         tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False)  # dp -> MAC
         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True)   # MAC -> dp
+        # LiteEth's `last_be` is NOT an AXIS keep mask — it is a **one-hot pointer to the
+        # last valid byte** of the final beat (liteeth/mac/padding.py Case: 0x01->1 byte,
+        # 0x02->2 … 0x80->8; the RX side builds it by up-converting a single `last` bit).
+        # AXIS `tkeep` is a contiguous byte mask (0xFF = 8 valid). Passing the mask straight
+        # through makes the 64->8 TX StrideConverter read the *lowest* set bit -> 1 valid
+        # byte, so a full word egresses as a single byte (hardware-measured `ff:00:..`) and
+        # multi-beat frames never terminate -> nothing on the wire. Convert both ways:
+        #   TX  keep(mask) -> last_be(one-hot of the highest set bit): keep & ~(keep>>1)
+        #   RX  last_be(one-hot) -> keep(mask up to that byte):        (last_be<<1) - 1
         self.comb += [
             # datapath TX endpoint -> core.sink (LiteEth), in sys
             self.core.sink.valid.eq(tx_dp.sys.valid),
             self.core.sink.data.eq(tx_dp.sys.data),
             self.core.sink.last.eq(tx_dp.sys.last),
-            self.core.sink.last_be.eq(tx_dp.sys.keep),   # last-byte enable ~ tkeep of last beat
+            self.core.sink.last_be.eq(tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1)),
             tx_dp.sys.ready.eq(self.core.sink.ready),
             # core.source -> datapath RX endpoint, in sys; full lanes except the last beat
             rx_dp.sys.valid.eq(self.core.source.valid),
             rx_dp.sys.data.eq(self.core.source.data),
             rx_dp.sys.last.eq(self.core.source.last),
-            rx_dp.sys.keep.eq(Mux(self.core.source.last, self.core.source.last_be, 2**nb - 1)),
+            rx_dp.sys.keep.eq(Mux(self.core.source.last,
+                                  (self.core.source.last_be << 1) - 1, 2**nb - 1)),
             self.core.source.ready.eq(rx_dp.sys.ready),
         ]
 

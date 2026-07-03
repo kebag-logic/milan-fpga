@@ -224,16 +224,23 @@ mirrors the Zynq `axi_dma` simple mode the driver already targets:
 
 | Register | Access | Meaning |
 |----------|--------|---------|
-| `<eng>_base`   | RW (64-bit) | DMA buffer base address in system memory |
-| `<eng>_length` | RW (32-bit) | transfer length (bus words) |
+| `<eng>_base`   | RW (64-bit) | DMA buffer base **byte** address in system memory |
+| `<eng>_length` | RW (32-bit) | transfer length in **bytes** |
 | `<eng>_enable` | RW | 1 = arm/start the transfer |
 | `<eng>_done`   | RO | 1 = transfer complete (raises the `<eng>` IRQ) |
 | `<eng>_loop`   | RW | 1 = continuous (ring) mode |
-| `<eng>_offset` | RO | current transfer offset (progress) |
+| `<eng>_offset` | RO | current transfer offset (progress, in **bus words**) |
 
 `<eng>` ∈ { `milan_dma_tx` (memory→TX), `milan_dma_rx` (RX→memory),
 `milan_dma_ts` (timestamp-metadata→memory) }. Driver flow: set `base`+`length`,
-pulse `enable`, wait for `done`/IRQ. (Scatter-gather / multi-queue is the later
+pulse `enable`, wait for `done`/IRQ.
+
+> **⚠ `base` and `length` are BYTE quantities, not words.** LiteX's simple-mode DMA
+> (`WishboneDMAReader`/`Writer.add_csr`) declares both as bytes and shifts `>>3` internally
+> for the 64-bit bus (`base.eq(self.base[3:])`, `length.eq(self.length[3:])`). Hardware-
+> confirmed: writing `length=8` transmits **one** 8-byte word, not eight; a 64-byte frame
+> needs `length=64`. `offset` counts **bus words** (8 B), so a completed 64-byte transfer
+> reads back `offset=8`. Getting this wrong silently truncates every frame. (Scatter-gather / multi-queue is the later
 Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 > **⚠ Caveat — this DMA window uses a *different* register layout than `milan_csr`.**

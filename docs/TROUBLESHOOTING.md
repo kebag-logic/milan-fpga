@@ -383,3 +383,33 @@ console (no toolchain needed).
 **Meta-lesson.** Confirm the PHY interface (GMII vs RGMII) from the board vendor's *working*
 example before writing the PHY — the LiteEth default for a "1G Artix + RTL8211" is RGMII,
 which was simply wrong for this board.
+
+## Section 18: TX frames egress truncated / not at all — AXIS `tkeep` vs LiteEth `last_be`
+
+**Symptom.** With the GMII bitstream, GMII RX proven, and the TX-DMA reading memory
+correctly (`milan_dma_tx_done=1`, `_offset`=word-count for both ROM and DRAM), driving
+DMA-TX still put **no correct frame on the wire**: a single-word (8-byte) transfer egressed
+as `ff:00:00:00:00:00` (only byte 0 survived, rest zero), and a full 64-byte frame
+**never egressed at all** (i210 `rx_packets` delta = 0 over 300 frames).
+
+**Not the cause (each eliminated).** DMA read (proven via `done`/`offset` on ROM+DRAM and an
+isolated Migen sim of the 64→32 converter); the datapath TX (byte-exact in
+`tb/verilator/datapath`, tkeep-preserving `traffic_queues.sv`); CBS (`CBS_CTRL[0]=0` is
+*unshaped*, not starved); DMA `length` units (a separate bug — it's **bytes**, see
+`REGISTER_MAP.md`, so `length=8` sent one word).
+
+**Root cause.** `MilanMAC` mapped AXIS `tkeep` straight onto LiteEth `core.sink.last_be`.
+LiteEth's `last_be` is a **one-hot pointer to the last valid byte** (`liteeth/mac/padding.py`
+Case: `0x01`→1 B, `0x02`→2 … `0x80`→8 B), *not* a keep mask. The 64→8 TX `StrideConverter`
+reads `0xFF`'s **lowest** set bit → 1 valid byte, truncating a full word to one byte and
+breaking multi-beat frame termination. RX had the mirror defect (one-hot fed where the
+datapath expects a mask).
+
+**Fix.** Convert in both directions in `MilanMAC` (`milan_soc.py`):
+`last_be = keep & ~(keep>>1)` (mask→one-hot of the highest byte), and
+`keep = last ? (last_be<<1)-1 : 0xFF` (one-hot→mask). `keep=0xFF ↔ last_be=0x80`.
+
+**Meta-lesson.** AXIS `tkeep` (contiguous mask) and LiteEth `last_be` (one-hot last-byte
+pointer) are different encodings — never wire one onto the other. And the Verilator datapath
+harness checks egress `m_tdata` but **not `m_tkeep`**; a keep/last_be bug in the LiteX glue
+(`milan_soc.py`) is covered by no RTL harness. See `evidence/hw_ma3_dma_datapath_100mhz.md`.
