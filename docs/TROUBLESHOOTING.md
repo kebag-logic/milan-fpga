@@ -1,0 +1,264 @@
+# Troubleshooting — every problem hit bringing up the full-FPGA solution, and its fix
+
+This is the field log of every real problem encountered building and simulating the
+fully-FPGA Milan softcore solution, with the **symptom**, the **cause**, and the
+**fix**. It is meant to save the next developer the debugging time. Grouped as:
+toolchain/environment ([Sections 1–2](#section-1-import-litex-resolves-to-a-namespace-package)),
+LiteX/SoC build ([Sections 3–6](#section-3-identifier-string-must-not-contain-commas)),
+Verilator simulation ([Sections 7–8](#section-7-verilator-cannot-find-include-file)),
+shell/process ([Section 9](#section-9-pkill--f-self-matches-the-running-shell)),
+synthesis ([Section 10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)),
+and RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)).
+
+Companion: [`SIMULATION.md`](SIMULATION.md) (how the sim works) and
+[`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) (the architecture).
+
+---
+
+## Section 1: import litex resolves to a namespace package
+
+**Symptom.** All CPU imports fail with
+`ImportError: cannot import name 'get_data_mod' from 'litex'`, and
+`litex.__file__` is `None`.
+
+**Cause.** The LiteX repos are installed *editable* into the venv, but they live under
+`~/litex-milan/`, and that directory *also* contains a subdir literally named
+`litex/`. When Python is started with `~/litex-milan` as the working directory (or on
+`sys.path`), `import litex` resolves to that **repo-root directory** — a namespace
+package with no `__init__.py` — instead of the editable-installed inner package that
+defines `get_data_mod`. Hence `__file__ is None` and the symbol is missing.
+
+**Fix.** Run every build/sim command from a directory that is **not** the litex-repos
+parent — e.g. `~/litex-milan/work/`:
+```sh
+cd ~/litex-milan/work         # anywhere except ~/litex-milan itself
+python .../milan_soc.py ...
+```
+Verify: `python -c "import litex; print(litex.__file__)"` must print a real path
+ending `…/litex/litex/__init__.py`, not `None`.
+
+## Section 2: NaxRiscv generation needs JAVA_HOME
+
+**Symptom.** The SoC build dies during "NaxRiscv netlist generation", or `sbt` fails
+to launch, or the AMD/Xilinx installer's bundled JRE is reported missing.
+
+**Cause.** The NaxRiscv core is generated on demand from **SpinalHDL (Scala)**: LiteX
+clones `SpinalHDL/NaxRiscv` and runs `sbt "runMain naxriscv.platform.litex.NaxGen …"`.
+That needs a JDK on `PATH`/`JAVA_HOME`. It is not installed by default.
+
+**Fix.** Install JDK 17 + sbt and export `JAVA_HOME`:
+```sh
+sudo pacman -S --needed jdk17-openjdk sbt
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+First generation also downloads Scala/SpinalHDL (network needed once); subsequent
+builds reuse the cached netlist (`NaxRiscvLitex_<hash>.v`).
+
+## Section 3: Identifier string must not contain commas
+
+**Symptom.** `ValueError: Identifier string must not contain commas` from
+`litex/soc/cores/identifier.py` during SoC construction.
+
+**Cause.** `SoCCore(ident=…)` writes the identifier into a hardware string ROM and
+forbids commas. The first draft used `ident=f"Milan TSN SoC (NaxRiscv RV{xlen}, …)"`.
+
+**Fix.** Remove commas from the ident string:
+```python
+ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core"
+```
+
+## Section 4: SoCError at _finalize_cpu_reset_address (no ROM)
+
+**Symptom.** The build reaches `builder.build(...)` then raises a bare
+`litex.soc.integration.soc.SoCError` from `_finalize_cpu_reset_address`. The bus
+slave list shows only `sram`, `main_ram`, `csr` — no `rom`.
+
+**Cause.** The CPU's reset vector points at the integrated ROM, but no integrated ROM
+was added, so LiteX cannot place the reset address.
+
+**Fix.** Give the SoC an integrated ROM (the BIOS lives there and holds the reset
+vector):
+```python
+kwargs.setdefault("integrated_rom_size", 0x20000)
+```
+
+## Section 5: NaxRiscv has no attribute no_netlist_cache
+
+**Symptom.** `AttributeError: type object 'NaxRiscv' has no attribute
+'no_netlist_cache'` in `naxriscv/core.py:add_sources`.
+
+**Cause.** NaxRiscv keeps its configuration in **class attributes** that are normally
+populated by its own argparse flow (`args_fill()` + `args_read(args)`). The first
+draft hand-set only `xlen`/`data_width`, so other required attributes
+(`no_netlist_cache`, `update_repo`, `with_fpu`, `l2_bytes`, …) were never set.
+
+**Fix.** Drive the CPU's own arg pipeline — fill a parser with its args, take the
+defaults, override just xlen/cpu-count, then `args_read`:
+```python
+_p = argparse.ArgumentParser(); NaxRiscv.args_fill(_p)
+_na, _ = _p.parse_known_args([]); _na.xlen = xlen; _na.cpu_count = cpu_count
+NaxRiscv.args_read(_na)
+```
+
+## Section 6: Region not in IO region, it must be cached
+
+**Symptom.**
+`ERROR:SoCBusHandler:milan_csr Region not in IO region, it must be cached: Origin:
+0x43c00000 … Cached: False` and the build aborts with `SoCError`.
+
+**Cause.** On NaxRiscv the address map marks `0x8000_0000–0xFFFF_FFFF` as the uncached
+**IO region**; any uncached MMIO slave must live there. The Zynq build put `milan_csr`
+at `0x43C0_0000`, which is below the IO region, so it is rejected as uncached.
+
+**Fix.** Map the CSR window inside the IO region — the design uses **`0x9000_0000`**.
+The register *offsets* are unchanged; only the base is host-specific (documented in
+[`REGISTER_MAP.md`](REGISTER_MAP.md)). The device-tree `reg` base must match the host.
+
+## Section 7: Verilator cannot find include file
+
+**Symptom.** The softcore sim build fails with
+`%Error: … Cannot find include file: 'ethernet_packet_pkg.sv'` (and `ethernet_events.svh`),
+even though those files are added as sources.
+
+**Cause.** ``include "ethernet_packet_pkg.sv"`` is a bare include with no path.
+**Vivado auto-searches the directories of all added source files; Verilator does
+not** — it only searches `-I`/`+incdir` paths. The RTL sources were added, but their
+directories were never added as include paths, so the sim (Verilator backend)
+couldn't resolve the includes. (The board Vivado build worked, masking the problem.)
+
+**Fix.** Add the include directories explicitly. In the shared datapath helper:
+```python
+for inc in ("hdl/common", "hdl/802_1q_traffic_shaper", "hdl/ptp_timestamp",
+            "hdl/adp", "hdl/csr", "hdl/eth_event_counter"):
+    platform.add_verilog_include_path(os.path.join(base, inc))
+```
+The RTL harness Makefiles do the same with `+incdir+<dir>`.
+
+## Section 8: The interactive and non-interactive sim both block
+
+**Symptom.** Driving the softcore sim to run a `mem_read` was flaky: a pty driver got
+`OSError: Subprocess failed` from `_run_sim`; fixed sleep-then-command timing sent the
+command *during* the multi-minute Verilator compile; and `milan_sim.py
+--non-interactive` never returned so a chained piped run never started.
+
+**Cause (three-part).**
+1. LiteX **couples build and run** — `builder.build(sim_config, interactive=…)` builds
+   the `Vsim` binary *and* runs it in the same call.
+2. `--non-interactive` still **runs** the sim; with no stdin it just sits at the
+   `litex>` prompt forever, so any command chained after it never executes.
+3. The `OSError` from `_run_sim` was simply the sim exiting non-zero because the
+   driver **SIGKILL'd** it — expected, not the real failure. The real failure was the
+   command being consumed before the prompt existed (compile still running).
+
+**Fix.** Separate build from run: build once, then run the **cached `Vsim` binary
+directly** with the command on a plain stdin pipe (`serial2console` bridges the sim
+UART to stdio). Verilator caches the compile, so the direct run boots in seconds:
+```sh
+# build once (Ctrl-C at the first "litex>"), then:
+cd build_milan_sim/gateware
+{ sleep 4; printf 'mem_read 0x90000000 16\n'; sleep 5; } | ./obj_dir/Vsim
+```
+Also set `BIOS_NO_DELAYS` + `BIOS_NO_MEMTEST` so the prompt appears in seconds (the
+memtest/memspeed are very slow at the simulated 1 MHz), guaranteeing the piped command
+lands *after* the prompt. See
+[Section 3.3](SIMULATION.md#section-33-the-scripted-path-used-to-capture-the-evidence)
+of [`SIMULATION.md`](SIMULATION.md).
+
+## Section 9: pkill -f self-matches the running shell
+
+**Symptom.** Commands that tried to clean up the sim exited with `144`/`143` and no
+output; the shell appeared to be killed mid-command.
+
+**Cause.** `pkill -f "milan_sim.py …"` matches against **full command lines** — and the
+very shell running the `pkill` has that pattern in *its own* argv, so `pkill` kills its
+own parent shell.
+
+**Fix.** Kill by the exact process name, never the pattern:
+```sh
+pkill -x Vsim           # exact binary name — cannot match the shell
+```
+
+## Section 10: Yosys / sv2v cannot find axis_mux_rr_2in_1out
+
+**Symptom.** The Yosys device-portability check passes 17 tops then fails
+`milan_datapath` with
+`ERROR: Module '\axis_mux_rr_2in_1out' referenced in module '\ptp_ts_top' … is not
+part of the design`. The Verilator build of the same module had *not* complained.
+
+**Cause.** `ptp_ts_top` instantiates `axis_mux_rr_2in_1out` (in `hdl/common/`), which
+was missing from the explicit source list. **Verilator auto-resolves undefined modules
+from the directories of the input files** (so it silently found it), but **sv2v/Yosys
+only compile the files you list** — so the module was undefined there.
+
+**Fix.** Add the file explicitly to both flows (`syn/yosys/run.sh` top entry and the
+`tb/verilator/milan_dp` Makefile source list):
+```
+hdl/common/axis_mux_rr_2in_1out.sv
+```
+General rule: never rely on Verilator's directory auto-resolution — list every source
+explicitly so sv2v/Yosys and Verilator agree.
+
+## Section 11: milan_dp AXI-write BFM did not commit writes
+
+**Symptom.** In the `milan_dp` harness, a CSR written over AXI-Lite read back as `0`
+(`CLS_REGEN` read `0x0` instead of the written `0x00FAC688`), while reads of reset
+values worked.
+
+**Cause.** The first AXI-write BFM sampled `awready`/`wready` *after* the rising clock
+edge and deasserted `awvalid`/`wvalid` independently. `milan_csr` is a
+**single-outstanding** slave that accepts AW and W together; that timing let the write
+address/data desynchronize so the write never committed.
+
+**Fix.** Copy the proven pattern from the `csr` harness: sample `*ready` while the
+clock is **low** (combinationally), then pulse the rising edge to commit, holding AW
+and W valid together until both readys assert:
+```cpp
+for (int g = 0; g < 64; g++) { lo(); bool acc = awready && wready; hi(); if (acc) break; }
+```
+All 11 `milan_dp` checks pass after this. (This same class of bug — sampling on the
+wrong clock phase — is worth checking first whenever a write "silently does nothing".)
+
+## Section 12: Benign Verilator warnings (PINMISSING and SELRANGE)
+
+**Symptom.** Verilator prints `%Warning-PINMISSING` and `%Warning-SELRANGE` during
+harness builds.
+
+**Cause / why safe.**
+- `PINMISSING` on `axi_stream_if`: the interface declares optional `clk`/`rst_n` pins
+  that the datapath instances legitimately leave unconnected (unused in those blocks).
+- `SELRANGE` inside Forencich `axis_fifo.v`: `m_axis[ID_OFFSET +: ID_WIDTH]` and the
+  DEST/USER equivalents select out-of-range bits, but only inside ternary branches
+  that are **dead** because `ID_ENABLE`/`DEST_ENABLE`/`USER_ENABLE` are 0.
+
+**Fix.** Suppress them in the harness `VFLAGS` (they are noise, not defects):
+```
+-Wno-PINMISSING -Wno-SELRANGE
+```
+
+## Section 13: traffic_queues silently dropped a frame
+
+**Symptom.** (Earlier, `queues` harness.) A frame routed into a queue was lost — the
+`queue_has_data`/output collapsed as if the frame were discarded.
+
+**Cause.** Only the arbiter's `tvalid` was gated by the per-queue grant, while the FIFO
+read (`m_axis_tready`) was left ungated. The `axis_arb_mux` prefetches
+(`s_axis_tready = ~s_axis_tvalid_reg | …`), so it *drained and dropped* the frame from
+the FIFO even when it had no grant to forward it.
+
+**Fix.** Gate **both** sides by the grant — the arbiter `tvalid` **and** the FIFO
+`m_axis_tready` — so a queue without a grant neither presents nor drains data. Caught
+directly by the `queues` harness (`has_data` collapsing to one queue).
+
+## Section 14: datapath harness "≥2 queues" assertion failed
+
+**Symptom.** (Earlier, `datapath` harness.) A check expecting frames to land in ≥2
+distinct queues failed — everything clustered into one queue.
+
+**Cause.** The classifier's *reset* PCP→TC→queue map clusters PCP 0–3 into the same
+class, so distinct PCPs did not fan out to distinct queues.
+
+**Fix.** Program an **identity** classifier config in the harness so PCP `p` → prio
+`p` → TC `p` → queue `p` (`cls_prio_regen=0x00FAC688`, `cls_pcp_tc_map=0x00FAC688`,
+`cls_tc_queue_map=0x000000E4`), then assert `tdest == pcp`. This is also why the
+`milan_dp` harness programs the identity map over the CSR before the TX test.
