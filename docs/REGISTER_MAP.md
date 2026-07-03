@@ -236,6 +236,21 @@ mirrors the Zynq `axi_dma` simple mode the driver already targets:
 pulse `enable`, wait for `done`/IRQ. (Scatter-gather / multi-queue is the later
 Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
+> **⚠ Caveat — this DMA window uses a *different* access convention than `milan_csr`.**
+> The `milan_csr` control plane (`0x9000_0000`) is a plain little-endian 32-bit AXI-Lite
+> slave (offset = register; my 64-bit regs are explicit hi/lo pairs). The DMA registers
+> live in the **LiteX CSR bus** (a *separate* window, `0xf000_0000` family) and follow
+> LiteX CSR conventions: `config_csr_data_width = 32` (each CSR is a 32-bit word at a
+> 4-byte stride) and `config_csr_ordering_big` — so the **64-bit `base` register is split
+> into two 32-bit words in MSW-first (big) order**: `base[63:32]` at `+0x0`,
+> `base[31:0]` at `+0x4` (`milan_dma_tx_base` = `0xf0002800..0x2807`, `_length` at
+> `0xf0002808`). Reading/writing `base` as one native little-endian 64-bit access
+> **swaps the halves and programs the wrong DMA address** (silent memory corruption /
+> faults). Access `base` as two 32-bit words in that order (or use the LiteX `csr.h`
+> accessors). Single-word regs (`length`/`enable`/`done`) are plain `readl`/`writel`.
+> This is LiteX-specific — on Zynq the DMA was a standalone plain-MMIO `axi_dma` block.
+> See also `sw/dts/README.md` (the two `reg` windows) and `sw/driver/README.md`.
+
 ## Notes
 
 * All command strobes (`STATS_CTRL[0]`, `PTP_CMD[*]`) read back 0 (self-clearing).
