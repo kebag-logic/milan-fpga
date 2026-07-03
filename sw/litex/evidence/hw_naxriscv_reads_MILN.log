@@ -1,0 +1,48 @@
+
+        __   _ __      _  __
+       / /  (_) /____ | |/_/
+      / /__/ / __/ -_)>  <
+     /____/_/\__/\__/_/|_|
+   Build your hardware, easily!
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+ BIOS CRC passed (fae3196b)
+
+ LiteX git sha1: a1e1c36
+
+--================ SoC =================--
+CPU:		NaxRiscv 64-bit @ 25MHz
+BUS:		wishbone 32-bit data/32-bit addr
+CSR:		32-bit data big ordering
+ROM:		128.0KiB
+SRAM:		8.0KiB
+MAIN RAM:	32.0KiB
+
+--=========== Initialization ===========--
+Memtest at 0x40000000 (32.0KiB)...
+  Write: 0x40000000-0x40000000 0B     Write: 0x40000000-0x40008000 32.0KiB   
+   Read: 0x40000000-0x40000000 0B      Read: 0x40000000-0x40008000 32.0KiB   
+Memtest OK
+Memspeed at 0x40000000 (Sequential, 32.0KiB)...
+  Write speed: 82.3MiB/s
+   Read speed: 78.1MiB/s
+--================ Boot ================--
+Booting from serial...
+Press Q or ESC to abort boot completely.
+sL5DdSMmkekro
+Timeout
+No boot medium found
+
+--============== Console ===============--
+
+litex> mem_read 0x90000000 16
+Memory dump:
+0x90000000  4e 4c 49 4d 03 00 01 00 04 3f 40 00 00 00 00 00  NLIM.....?@.....
+litex> 
+litex> mem_read 0x90000004 16
+Memory dump:
+0x90000004  03 00 01 00 04 3f 40 00 00 00 00 00 00 00 00 00  .....?@.........
+litex> 
+litex> 
