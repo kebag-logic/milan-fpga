@@ -87,3 +87,22 @@ hardware in seconds, watching `preamble_errors` drop to 0. That converts the RGM
 from an N×25-min loop into one rebuild + a fast on-board sweep. TX delay (`tx_delay`,
 90° clock phase) likely needs the matching treatment. This is the concrete last step to
 **M-A3 on silicon** (first packet across the NIC).
+
+## ROOT CAUSE (resolved): the AX7101 is GMII, not RGMII
+None of the RGMII delay/inversion/nibble variants worked, and the tell was that
+`preamble_errors` incremented **exactly once per frame** — a *20000-frame blast → +20000
+preamble errors, 0 CRC errors, 0 captured*. That is a **structural** data corruption, not
+a timing margin. Checking the Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`)
+settled it: it declares **`input [7:0] e_rxd`** with **separate `e_rxdv` / `e_rxer`** and
+`assign e_gtxc = e_rxc` — i.e. the RTL8211E on the AX7101 is strapped for **GMII (8-bit,
+single-data-rate)**, *not* RGMII (4-bit DDR). Reading a 4-bit-DDR RGMII stream off an
+8-bit-SDR GMII bus corrupts every byte (RX_DV, a level, still sampled fine → frames
+detected → the per-frame preamble error). All the RGMII delay/clock-invert/nibble work was
+debugging the wrong interface.
+
+**Fix:** platform eth0 rewired to the **8-bit GMII** pinout (`rx_data[0:7]` = N22 H18 H17
+M21 L21 N20 M20 N19, separate `rx_dv`=M22 / `rx_er`=N18, `tx_data[0:7]`, `gtx`=G21 / `rx`=
+K18 / `tx`=K21), and `MilanMAC` switched to **`LiteEthPHYGMII`** (the RGMII s7rgmii/
+`milan_rgmii.py` path is retired for this board). Rebuilding all-blocks @100 MHz; retest =
+i210 broadcast → FPGA GMII RX → RX-DMA → memory (expect `preamble_errors` flat + a frame in
+the buffer) = **M-A3 RX on silicon**.

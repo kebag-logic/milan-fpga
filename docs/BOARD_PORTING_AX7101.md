@@ -40,11 +40,20 @@ re-derived if the board revision changes:
    the A7DDRPHY subsignal names `a/ba/ras_n/cas_n/we_n/cs_n/dm/dq/dqs_p/dqs_n/clk_p/
    clk_n/cke/odt/reset_n`). This avoids transcription errors on the largest group.
 
-### RGMII mapping (per port)
-The Alinx example exposes the full PHY pinset (GMII, 8-bit). The Milan datapath uses
-**RGMII** (4-bit DDR), so only the RGMII subset is wired: `rxd[0:3]`, `txd[0:3]`,
-`rx_clk = e_rxc`, `tx_clk = e_gtxc`, `rx_ctl = e_rxdv`, `tx_ctl = e_txen`, plus
-`rst_n = e_reset`.
+### PHY mapping (per port) — GMII, not RGMII
+> **CORRECTION (hardware bring-up):** the AX7101 RTL8211E is strapped for **GMII
+> (8-bit SDR)**, *not* RGMII (4-bit DDR). This was initially ported as RGMII (matching
+> LiteEth's default for a 1G Artix + RTL8211), and it produced **100 % MAC preamble
+> errors** on silicon — reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
+> byte. The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) is explicit:
+> `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`. Full story in
+> `docs/TROUBLESHOOTING.md` §17 + `sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`.
+
+The **GMII (8-bit)** wiring per port is therefore: `rx_data[0:7]`, `tx_data[0:7]`,
+`rx_dv = e_rxdv`, `rx_er = e_rxer`, `tx_en = e_txen`, clocks `rx = e_rxc` /
+`gtx = e_gtxc` (1G) / `tx = e_txc` (MII), plus `rst_n = e_reset`. `MilanMAC` uses
+**`LiteEthPHYGMII`** (the earlier RGMII `s7rgmii`/`milan_rgmii.py` path is retired for
+this board).
 
 ## 3. What changed
 

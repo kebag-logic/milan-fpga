@@ -9,8 +9,10 @@ Verilator simulation ([Sections 7–8](#section-7-verilator-cannot-find-include-
 shell/process ([Section 9](#section-9-pkill--f-self-matches-the-running-shell)),
 synthesis ([Section 10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)),
 RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
-and P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
-CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz).
+P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
+CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz),
+and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up--dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
+the AX7101 PHY is GMII, not RGMII).
 
 Companion: [`SIMULATION.md`](SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) (the architecture).
@@ -341,3 +343,43 @@ plus the 50/200 MHz clocks force no valid VCO between 100 and 125). Faster DDR3
 own clock with a memory-bus FIFO (LiteDRAM `crossbar.get_port(clock_domain=…)`), a
 bigger change for a mostly-latency gain — not pursued (3.2 GB/s already exceeds a 100 MHz
 core's bandwidth demand).
+
+## Section 17: on-hardware NIC bring-up — DMA works, but no packet on the wire (it's GMII, not RGMII)
+
+**Symptom.** With the live rig (ProfiTap ProfiShark 1G+ taps between the FPGA eth ports and
+Intel i210 traffic generators), the copper link comes up at **1000/Full**, and the FPGA's
+whole internal path is verified on silicon (DDR3 → DMA → AXIS-CDC → datapath, `done=1`).
+But **no frame crosses the wire either direction**: the i210 receives nothing from an FPGA
+DMA-TX, and an FPGA RX-DMA captures nothing from i210 broadcasts.
+
+**Diagnosis (the useful part).** The LiteEth MAC exposes RX error counters (`milan_mac` @
+`0xf0003800`: `rx_datapath_preamble_errors` @ `0xf0003808`, `rx_datapath_crc_errors` @
+`0xf000380c`). Blasting a known count of frames from the i210 and reading these gives a
+precise signal (the milan RMON at `0x90000200` is useless here — `MilanMAC` ties
+`i_mac_events=0`). The result: a **20000-frame blast → `preamble_errors` +20000, `crc` +0,
+0 captured**. *Exactly one preamble error per frame* ⇒ every frame reaches the MAC (RX_DV
+sampled fine) but the **data is structurally corrupted** — not a timing margin (that would
+give a *fraction* of errors), and not the datapath (frames never get past the preamble).
+
+**False trails (all the wrong interface).** Assuming RGMII, we chased: the s7rgmii IDELAY
+value (0 vs 2 ns), inverting the RX clock (the Alinx `util_gmii_to_rgmii` does
+`BUFG(~rgmii_rxc)`), removing the IDELAY entirely, swapping the IDDR nibbles. Each was a
+~25-min rebuild; none moved the 100% error rate. Lesson: a **100%-deterministic** data
+error is structural — stop tuning timing and question the interface/pinout.
+
+**Root cause.** The AX7101's RTL8211E is strapped for **GMII (8-bit SDR)**, *not* RGMII
+(4-bit DDR). The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) makes it
+explicit: `input [7:0] e_rxd`, **separate** `e_rxdv`/`e_rxer`, and `assign e_gtxc=e_rxc`.
+A 4-bit-DDR RGMII read of an 8-bit-SDR bus corrupts every byte (and RX_DV, a level, still
+reads fine → the tell-tale one-preamble-error-per-frame).
+
+**Fix.** Platform `eth0` → 8-bit GMII pinout (`rx_data[0:7]`, separate `rx_dv`/`rx_er`,
+`gtx`/`rx`/`tx` clocks — all from the Alinx `top.xdc`), and `MilanMAC` → **`LiteEthPHYGMII`**
+(the RGMII `milan_rgmii.py` path is retired for this board). See
+`evidence/hw_ma3_dma_datapath_100mhz.md` for the full sequence and the exact `mem_write`/
+`mem_read` console recipe used to drive DMA-TX/RX and read the MAC counters over the BIOS
+console (no toolchain needed).
+
+**Meta-lesson.** Confirm the PHY interface (GMII vs RGMII) from the board vendor's *working*
+example before writing the PHY — the LiteEth default for a "1G Artix + RTL8211" is RGMII,
+which was simply wrong for this board.
