@@ -1,0 +1,35 @@
+# M-A3 (partial) — DMA + AXIS-CDC data path on silicon (100 MHz, all-blocks)
+
+Driven from the LiteX BIOS console (`mem_write`/`mem_read`) on the AX7101, all-blocks
+100 MHz bitstream (datapath in the 50 MHz `milan` CDC domain). No toolchain needed.
+
+## Verified on hardware ✅
+- **DDR3 R/W of a real Ethernet frame** — wrote a broadcast frame to `0x40010000`,
+  read back `ff ff ff ff ff ff 02 00 00 00 00 01 08 00 aa aa …` (dst bcast / src
+  02:00:…:01 / EtherType 0x0800 / payload).
+- **DMA TX simple-mode CSRs program correctly** — `milan_dma_tx_base` @ `0xf0003000`
+  is a 64-bit **word address, MSW-first** (`base = frame_byte_addr >> 3 = 0x08002000`;
+  readback `00 00 00 00 | 00 20 00 08` ✓). Extends M-A2 to the DMA register block.
+- **DMA TX engine runs** — after `length=8` (64-bit words) + `enable=1`,
+  `milan_dma_tx_done` = **1**: the engine read the 8 words from DDR3 and pushed them
+  into `s_axis_tx`.
+- **AXIS clock-domain crossing works on silicon** — done=1 means the milan-domain
+  async-FIFO accepted the whole frame across the sys(100)→milan(50) boundary. First
+  on-hardware proof of the `--milan-clk-freq` datapath CDC on the *data* path.
+- **MAC sees a link** — `MAC_STATUS` (`0x90000110`) = `0x0d` = link_up, 1000, full-duplex
+  (the hardcoded LiteEth status until MDIO lands).
+
+## NOT confirmable here ❌ (needs rig / a fix)
+- **Whether the frame actually egressed the MAC onto the RGMII.** The milan RMON TX
+  counters (`0x90000210…`) stayed 0 even after a `STATS_CTRL` snapshot — but that is
+  **expected and not evidence of failure**: `MilanMAC` wires `i_mac_events = 0`
+  (the LiteEth MAC core doesn't expose the Forencich event set), so those counters are
+  tied low regardless of egress. Confirming egress needs one of:
+  1. the ProfiTap capture rig (see the frame on the wire), or
+  2. a MAC TX→RX loopback (plug or PHY-internal via MDIO) + read it back via the RX DMA, or
+  3. wiring LiteEth's own MAC statistics to `i_mac_events` (a real follow-up).
+
+## Net
+The **memory → DMA → AXIS-CDC → datapath** half of M-A3 is proven on silicon; the
+**datapath → MAC → wire** half is untestable from the console alone (rig-gated + the
+`i_mac_events` stub). RX loopback (the other half of M-A3) needs a link partner / plug.
