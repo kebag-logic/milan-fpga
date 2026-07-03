@@ -72,3 +72,20 @@ The generator, schema, and binding are unchanged — that is the point.
 - The LiteX build exposes a single aggregate NIC interrupt (`milan_interrupt`, the
   `milan` EventManager); the driver demuxes via `milan_csr` `IRQ_STATUS`. The Zynq IR
   models four discrete GIC lines. Both are valid under the binding (`interrupts` minItems 1).
+
+- **Caveat — on the LiteX build the `csr` and `dma-*` `reg` entries are in two different
+  windows** (`0x9000_0000` AXI-Lite vs the `0xf000_0000` LiteX CSR bus). This is *not*
+  an issue for the device tree itself — `reg` is a list of independent ranges and the
+  driver `ioremap`s each `reg-name` separately, so split/non-contiguous windows are
+  normal. It *is* a driver caveat in two ways:
+  1. **Different access convention per window.** The `csr` window is plain little-endian
+     MMIO; the `dma-*` window is LiteX-CSR-encoded — notably the 64-bit DMA `base` is two
+     32-bit words in **MSW-first (big) order**. A driver must not treat both windows
+     identically (a native 64-bit access to `base` swaps its halves → wrong DMA address).
+     Full detail in [`../../docs/REGISTER_MAP.md`](../../docs/REGISTER_MAP.md) → DMA registers.
+  2. **The `dma-*` ranges are sub-page (28 B) inside the shared LiteX CSR bus** that
+     other LiteX peripherals (uart/timer/soc-controller) also occupy. Map them with
+     `devm_ioremap` (non-exclusive), not `devm_ioremap_resource` (which does an exclusive
+     `request_mem_region` and can clash with the LiteX soc-controller/syscon); or map the
+     whole `milan_dma` block once. On Zynq the DMA was a standalone plain-MMIO `axi_dma`
+     block, so neither point applies there — the caveat is LiteX-specific.

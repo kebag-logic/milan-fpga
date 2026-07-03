@@ -29,3 +29,13 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 (reset `<0 1>`); Σ idleSlope of the shaped queues must stay ≤ 75 % of the port rate
 (the HW forces every other queue to strict priority — `credit_based_shaper.sv`,
 `REGISTER_MAP` §0x400).
+
+## Caveat — the `dma-*` reg window is not plain MMIO (LiteX build)
+The `csr` reg (`0x9000_0000`) is plain little-endian AXI-Lite MMIO, but the `dma-tx/rx/ts`
+regs live in the LiteX CSR bus (`0xf000_0000` family) with a different convention: the
+64-bit DMA `base` is two 32-bit words in **MSW-first (big) order** — program it as
+`hi @ +0x0`, `lo @ +0x4` (a native `iowrite64` swaps the halves → wrong DMA address).
+Map the `dma-*` ranges with `devm_ioremap` (they are sub-page, inside the shared CSR
+bus), not the exclusive `devm_ioremap_resource`. On Zynq the DMA was a plain-MMIO
+`axi_dma` block, so this only applies to the fully-FPGA build. See `docs/REGISTER_MAP.md`
+→ DMA registers.
