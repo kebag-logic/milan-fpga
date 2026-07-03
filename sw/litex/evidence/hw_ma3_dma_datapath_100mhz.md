@@ -50,8 +50,23 @@ carrier at all* means the FPGA-side PHY is **not operational** — most likely h
 reset / not clocked, not merely an RGMII-data problem. The break is the last, least-
 validated stage: **LiteEth `LiteEthPHYRGMII` → RGMII → RTL8211E**.
 
-**Next (FPGA gateware bring-up loop, iterative):** verify/fix the PHY reset (polarity +
-the `e_reset` pin; the milan_csr `PHY_RESET` @0x11C is a stub here — LiteEthPHYRGMII owns
-it), confirm the PHY reference clock, wire **MDIO** (needs the `mdio` pin from
-`AX7101_EX_SCH.pdf` — absent from the Alinx GMII example) to read PHY link status, then
-check the s7rgmii TX/RX IODELAY timing. Each iteration = ~20 min rebuild + tap retest.
+## Root cause (once the tap ports were enabled and the link came up)
+With the ProfiShark ports up, `amx-pw0` i210 shows **`carrier=1, 1000Mb/s, Full`** — the
+copper link negotiates. But **no data flows either way**: 250 single-shot FPGA DMA-TX
+frames → i210 `rx_packets/rx_errors/rx_dropped` all **+0**; i210 broadcast bursts (ARP,
+tx_packets↑) → FPGA RX-DMA `done=0`, buffer all zeros. Link up + zero data in *both*
+directions = the **RGMII MAC↔PHY delay is wrong**.
+
+`liteeth/phy/s7rgmii.py` adds **2 ns MAC-side** on both RX (IDELAYE2) and TX (125 MHz
+clock at 90° = `tx_phase = 125e6·tx_delay·360`). That is correct only for a PHY in plain
+**"rgmii"** (no internal delay). The design/DT target **"rgmii-id"** (PHY internal delay);
+if the RTL8211E straps enable it, MAC 2 ns + PHY 2 ns = **~4 ns double delay** → RGMII data
+unsampleable both ways — exactly the symptom. MDIO is un-wired so the PHY can't be
+reconfigured; the fix is MAC-side: **`LiteEthPHYRGMII(tx_delay=0, rx_delay=0)`** (let the
+PHY's rgmii-id delay do the work). Made a build option — `milan_soc.py
+--rgmii-tx-delay/--rgmii-rx-delay` (ns).
+
+**Status:** rebuilding all-blocks @100 MHz with `--rgmii-*-delay 0`; retest RX
+(i210→FPGA RX-DMA→memory) + TX (FPGA→i210). If 0 ns doesn't link the RGMII, sweep the
+delays or wire MDIO (needs the `mdio` pin from `AX7101_EX_SCH.pdf`; `mdc` = J17/AB21) to
+read the PHY's strap/link registers directly. Iterative (~25 min/rebuild + tap retest).

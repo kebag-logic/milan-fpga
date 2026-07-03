@@ -289,13 +289,19 @@ class MilanMAC(LiteXModule):
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
-    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys"):
+    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
+                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9):
         from liteeth.phy.s7rgmii import LiteEthPHYRGMII
         from liteeth.mac.core    import LiteEthMACCore
 
         clk_pads = platform.request("eth_clocks", phy_index)
         pads     = platform.request("eth",        phy_index)
-        self.phy  = LiteEthPHYRGMII(clk_pads, pads, with_hw_init_reset=True)
+        # RGMII MAC-side clock/data delay. s7rgmii adds 2 ns on RX (IDELAY) + TX (90°
+        # clock) — correct for a plain-"rgmii" PHY. If the RTL8211E straps enable
+        # "rgmii-id" (internal delay), set these to 0 so the delay isn't doubled
+        # (see docs/TROUBLESHOOTING.md + evidence/hw_ma3_*). Board-dependent.
+        self.phy  = LiteEthPHYRGMII(clk_pads, pads, with_hw_init_reset=True,
+                                    tx_delay=rgmii_tx_delay, rx_delay=rgmii_rx_delay)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
 
@@ -415,7 +421,8 @@ class MilanDMA(LiteXModule):
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
-                 main_ram_size=0x8000, milan_clk_freq=None, **kwargs):
+                 main_ram_size=0x8000, milan_clk_freq=None,
+                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
         # with its own args, take the defaults, override xlen/cpu-count, then args_read
@@ -474,7 +481,9 @@ class MilanSoC(SoCCore):
                 self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
-                self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd)
+                self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
+                                          rgmii_tx_delay=rgmii_tx_delay,
+                                          rgmii_rx_delay=rgmii_rx_delay)
                 dp_ports.update(self.milan_mac.dp_ports)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd)
@@ -509,6 +518,11 @@ def main():
                          "a complete/validated NIC — MDIO/PHY mgmt, the kl-eth driver, DMA "
                          "scatter-gather, and on-hardware traffic (M-A3..M-A5) are still open. "
                          "(--full is a legacy alias for this flag.)")
+    ap.add_argument("--rgmii-tx-delay", default=2e-9, type=float,
+                    help="RGMII MAC-side TX clock delay, seconds (default 2e-9). Set 0 if the "
+                         "PHY straps enable rgmii-id internal delay (else the delay doubles).")
+    ap.add_argument("--rgmii-rx-delay", default=2e-9, type=float,
+                    help="RGMII MAC-side RX data delay, seconds (default 2e-9; 0 for rgmii-id).")
     ap.add_argument("--uart-baudrate", default=115200, type=int,
                     help="console UART baud (default 115200; the AX7101 factory demo uses 9600)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
@@ -528,6 +542,8 @@ def main():
                    with_dram=args.with_dram or args.all_blocks,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq,
+                   rgmii_tx_delay=args.rgmii_tx_delay,
+                   rgmii_rx_delay=args.rgmii_rx_delay,
                    uart_baudrate=args.uart_baudrate)
     builder = Builder(soc, **builder_argdict(args))
     # Aggressive timing closure (opt-in): enables the post-place phys_opt pass
