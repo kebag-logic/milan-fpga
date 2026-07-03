@@ -26,6 +26,7 @@ import sys
 import argparse
 
 from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux
+from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
 from litex.soc.interconnect import stream
@@ -60,7 +61,8 @@ class _CRG(LiteXModule):
     `with_dram` or `with_eth`, the 200 MHz `idelay` reference + IDELAYCTRL that both
     the Artix-7 DDR3 PHY (A7DDRPHY) and the RGMII PHY (LiteEth s7rgmii) need for their
     IODELAY calibration."""
-    def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False):
+    def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False,
+                 milan_clk_freq=None):
         self.cd_sys = ClockDomain()
 
         clk200 = platform.request("clk200")
@@ -71,6 +73,17 @@ class _CRG(LiteXModule):
         pll.register_clkin(clk200, 200e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
+
+        if milan_clk_freq:
+            # Separate, slower clock for the Milan TSN datapath (rx_filter/CAM/CBS/
+            # classifier/PTP/csr). That block is dense and was the sys (100 MHz)
+            # critical path, but it only has to keep up with 1 GbE: a 64-bit datapath
+            # at >=50 MHz is >3 Gb/s, so running it below sys costs no throughput while
+            # lifting its logic off the 100 MHz timing budget entirely. The CPU + DDR3
+            # stay at sys; the CSR (AXI-Lite) crosses via AXILiteClockDomainCrossing.
+            self.cd_milan = ClockDomain()
+            pll.create_clkout(self.cd_milan, milan_clk_freq)
+            platform.add_false_path_constraints(self.cd_sys.clk, self.cd_milan.clk)
 
         if with_dram:
             # A7DDRPHY needs 4x (and 4x @90° for DQS) system clocks.
@@ -107,7 +120,7 @@ class MilanNIC(LiteXModule):
     which still elaborates and exports gateware and keeps the CPU⇄CSR path live
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
-    def __init__(self, platform, axil, dma_mac_ports=None):
+    def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys"):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/rx/ts come from the §A.6 DMA
         # engine (held 0 until it is attached); csr is driven by the datapath.
@@ -118,7 +131,8 @@ class MilanNIC(LiteXModule):
         ev.csr = EventSourceLevel()
         ev.finalize()
         self.comb += [ev.tx.trigger.eq(0), ev.rx.trigger.eq(0), ev.ts.trigger.eq(0)]
-        add_milan_datapath(self, platform, axil, ev.csr.trigger, extra_ports=dma_mac_ports)
+        add_milan_datapath(self, platform, axil, ev.csr.trigger,
+                           extra_ports=dma_mac_ports, milan_cd=milan_cd)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -142,7 +156,7 @@ _MILAN_DATAPATH_SOURCES = [
 ]
 
 
-def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None):
+def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys"):
     """Instantiate `milan_datapath` and add its RTL sources — the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -151,21 +165,38 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None):
     idle (still elaborates; keeps the CPU⇄CSR path live). Instance ports for RTL
     signals already named `i_*`/`o_*` get the doubled migen prefix (e.g. milan port
     `i_i_mac_speed`, `o_o_irq_csr`) — that is correct, not a typo."""
+    # Run the datapath in `milan_cd`. When that is not `sys`, cross the CPU's
+    # AXI-Lite CSR bus (sys) into `milan_cd` with an async-FIFO CDC — so the dense
+    # datapath logic leaves the sys (100 MHz) timing budget while the CPU/DDR3 stay
+    # fast. `milan_cd == "sys"` (the default, and what the sim uses) keeps the old
+    # single-clock direct wiring. The DMA/MAC AXIS boundary is likewise crossed by
+    # its own stream CDC in MilanDMA/MilanMAC when `milan_cd != "sys"`.
+    if milan_cd != "sys":
+        csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
+        host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
+            axil, csr_axil, cd_from="sys", cd_to=milan_cd)
+        # The aggregate CSR IRQ is a level in milan_cd; 2-FF-synchronise it into the
+        # sys-domain EventManager (o_irq_csr) to avoid metastability.
+        irq_port = Signal()
+        host.specials += MultiReg(irq_port, o_irq_csr, odomain="sys")
+    else:
+        csr_axil = axil
+        irq_port = o_irq_csr
     ports = dict(
-        # clocks / reset (gtx_clk = 125 MHz for MAC-RX PTP; tied to sys until §A.4b)
-        i_axis_clk    = ClockSignal("sys"),  i_axis_resetn = ~ResetSignal("sys"),
-        i_gtx_clk     = ClockSignal("sys"),  i_gtx_resetn  = ~ResetSignal("sys"),
-        # AXI4-Lite CSR slave (from the CPU bus bridge)
-        i_s_axi_awaddr  = axil.aw.addr[:16], i_s_axi_awvalid = axil.aw.valid,
-        o_s_axi_awready = axil.aw.ready,
-        i_s_axi_wdata   = axil.w.data,  i_s_axi_wstrb = axil.w.strb,
-        i_s_axi_wvalid  = axil.w.valid, o_s_axi_wready = axil.w.ready,
-        o_s_axi_bresp   = axil.b.resp,  o_s_axi_bvalid = axil.b.valid,
-        i_s_axi_bready  = axil.b.ready,
-        i_s_axi_araddr  = axil.ar.addr[:16], i_s_axi_arvalid = axil.ar.valid,
-        o_s_axi_arready = axil.ar.ready,
-        o_s_axi_rdata   = axil.r.data,  o_s_axi_rresp = axil.r.resp,
-        o_s_axi_rvalid  = axil.r.valid, i_s_axi_rready = axil.r.ready,
+        # clocks / reset — the whole datapath runs in `milan_cd`
+        i_axis_clk    = ClockSignal(milan_cd),  i_axis_resetn = ~ResetSignal(milan_cd),
+        i_gtx_clk     = ClockSignal(milan_cd),  i_gtx_resetn  = ~ResetSignal(milan_cd),
+        # AXI4-Lite CSR slave (from the CPU bus bridge, CDC'd into milan_cd above)
+        i_s_axi_awaddr  = csr_axil.aw.addr[:16], i_s_axi_awvalid = csr_axil.aw.valid,
+        o_s_axi_awready = csr_axil.aw.ready,
+        i_s_axi_wdata   = csr_axil.w.data,  i_s_axi_wstrb = csr_axil.w.strb,
+        i_s_axi_wvalid  = csr_axil.w.valid, o_s_axi_wready = csr_axil.w.ready,
+        o_s_axi_bresp   = csr_axil.b.resp,  o_s_axi_bvalid = csr_axil.b.valid,
+        i_s_axi_bready  = csr_axil.b.ready,
+        i_s_axi_araddr  = csr_axil.ar.addr[:16], i_s_axi_arvalid = csr_axil.ar.valid,
+        o_s_axi_arready = csr_axil.ar.ready,
+        o_s_axi_rdata   = csr_axil.r.data,  o_s_axi_rresp = csr_axil.r.resp,
+        o_s_axi_rvalid  = csr_axil.r.valid, i_s_axi_rready = csr_axil.r.ready,
         # TX/RX/TS DMA AXIS — §A.6 engine attaches here (idle stub)
         i_s_axis_tx_tdata = 0, i_s_axis_tx_tkeep = 0, i_s_axis_tx_tvalid = 0,
         i_s_axis_tx_tlast = 0,
@@ -176,8 +207,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None):
         i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
         # MAC status (from the external MAC; constants until §A.7)
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
-        # interrupt (csr aggregate; DMA-done IRQs come from §A.6)
-        o_o_irq_csr = o_irq_csr,
+        # interrupt (csr aggregate; DMA-done IRQs come from §A.6). CDC'd to sys above.
+        o_o_irq_csr = irq_port,
     )
     if extra_ports:
         ports.update(extra_ports)
@@ -347,7 +378,7 @@ class MilanDMA(LiteXModule):
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
-                 main_ram_size=0x8000, **kwargs):
+                 main_ram_size=0x8000, milan_clk_freq=None, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
         # with its own args, take the defaults, override xlen/cpu-count, then args_read
@@ -374,7 +405,8 @@ class MilanSoC(SoCCore):
                          ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core",
                          **kwargs)
 
-        self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac)
+        self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
+                        milan_clk_freq=milan_clk_freq)
 
         # ---- 512 MB DDR3 (LiteDRAM, A7DDRPHY + MT41J256M16) — migration §A.3 ----
         if with_dram:
@@ -406,7 +438,14 @@ class MilanSoC(SoCCore):
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64)
                 dp_ports.update(self.milan_mac.dp_ports)
-            self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None)
+            if milan_clk_freq and (with_dma or with_mac):
+                raise NotImplementedError(
+                    "--milan-clk-freq (datapath CDC) with DMA/MAC needs the AXIS stream "
+                    "CDC on the DMA/MAC boundary, which is not wired yet. Use --with-dram "
+                    "(no --with-dma/--with-mac) for the CDC 100 MHz path, or omit "
+                    "--milan-clk-freq for the single-clock --full at a lower sys clock.")
+            self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
+                                  milan_cd="milan" if milan_clk_freq else "sys")
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
 
@@ -418,6 +457,11 @@ def main():
                     help="NaxRiscv width (64 = RV64GC/sv39 default; 32 = RV32/sv32)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
+    ap.add_argument("--milan-clk-freq", default=None, type=float,
+                    help="run the Milan datapath in its own slower clock domain (Hz, e.g. "
+                         "50e6), CDC'd to the sys AXI-Lite CSR bus — lifts the dense datapath "
+                         "off the 100 MHz sys critical path. Datapath still exceeds 1 GbE. "
+                         "Not yet combinable with --with-dma/--with-mac (needs AXIS CDC).")
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
@@ -447,6 +491,7 @@ def main():
                    with_dma=args.with_dma or args.full,
                    with_dram=args.with_dram or args.full,
                    main_ram_size=args.main_ram_size,
+                   milan_clk_freq=args.milan_clk_freq,
                    uart_baudrate=args.uart_baudrate)
     builder = Builder(soc, **builder_argdict(args))
     # Aggressive timing closure (opt-in): enables the post-place phys_opt pass
