@@ -410,8 +410,10 @@ def main():
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16) — needed for Linux (§A.3)")
     ap.add_argument("--full", action="store_true",
                     help="full FPGA config: NIC + DMA + MAC + DDR3 (--with-dma --with-mac --with-dram)")
+    ap.add_argument("--uart-baudrate", default=115200, type=int,
+                    help="console UART baud (default 115200; the AX7101 factory demo uses 9600)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
-    ap.add_argument("--load",  action="store_true")
+    ap.add_argument("--load",  action="store_true", help="program the board over JTAG (openFPGALoader -c ft232)")
     builder_args(ap)
     args = ap.parse_args()
 
@@ -421,7 +423,8 @@ def main():
                    with_mac=args.with_mac or args.full,
                    with_dma=args.with_dma or args.full,
                    with_dram=args.with_dram or args.full,
-                   main_ram_size=args.main_ram_size)
+                   main_ram_size=args.main_ram_size,
+                   uart_baudrate=args.uart_baudrate)
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)      # run=False => elaborate + export gateware, no Vivado
     if args.load:
