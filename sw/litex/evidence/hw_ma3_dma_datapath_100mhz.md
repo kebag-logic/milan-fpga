@@ -66,7 +66,24 @@ reconfigured; the fix is MAC-side: **`LiteEthPHYRGMII(tx_delay=0, rx_delay=0)`**
 PHY's rgmii-id delay do the work). Made a build option — `milan_soc.py
 --rgmii-tx-delay/--rgmii-rx-delay` (ns).
 
-**Status:** rebuilding all-blocks @100 MHz with `--rgmii-*-delay 0`; retest RX
-(i210→FPGA RX-DMA→memory) + TX (FPGA→i210). If 0 ns doesn't link the RGMII, sweep the
-delays or wire MDIO (needs the `mdio` pin from `AX7101_EX_SCH.pdf`; `mdc` = J17/AB21) to
-read the PHY's strap/link registers directly. Iterative (~25 min/rebuild + tap retest).
+## Breakthrough — the RGMII RX is ALIVE, just mis-sampled (delay tuning)
+The LiteEth MAC exposes RX error counters (`milan_mac` @ `0xf0003800`):
+`rx_datapath_preamble_errors` @ `0xf0003808`, `rx_datapath_crc_errors` @ `0xf000380c`,
+`phy_crg_reset` @ `0xf0003800` (the *real* PHY reset; the milan_csr 0x11C one is a stub).
+With the **`--rgmii-*-delay 0`** bitstream, driving broadcast frames from the i210:
+- `phy_crg_reset` = 0 (PHY not held in reset) ✓
+- **`preamble_errors` 0x06 → 0x0C** (incremented) when the i210 transmitted, `crc_errors`
+  stayed 0.
+
+⇒ **The RGMII RX clock + data path are live — frames DO reach the FPGA MAC** — but they're
+sampled at the wrong point (garbled preamble, so they never get to a CRC check or the
+datapath). Both 0 ns and 2 ns are wrong, so the correct IODELAY tap is **in between**.
+This is a pure **RX-delay-tuning** problem now, not "is the PHY/RGMII alive".
+
+**Efficient finish:** `s7rgmii` uses a FIXED IDELAYE2, so sweeping means one ~25-min
+rebuild *per tap*. The right move is to make the RX IDELAY **VARIABLE + runtime-loadable
+via a CSR** (IDELAYCTRL is already present for DDR3/RGMII) — then sweep all 32 taps on
+hardware in seconds, watching `preamble_errors` drop to 0. That converts the RGMII bring-up
+from an N×25-min loop into one rebuild + a fast on-board sweep. TX delay (`tx_delay`,
+90° clock phase) likely needs the matching treatment. This is the concrete last step to
+**M-A3 on silicon** (first packet across the NIC).
