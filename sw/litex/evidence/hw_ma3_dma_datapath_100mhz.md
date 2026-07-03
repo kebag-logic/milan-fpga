@@ -126,3 +126,137 @@ the DMA writes DDR3 while the CPU `mem_read` hits stale L2 (the 2 MB boot memtes
 cached, and untouched regions read uninit). The Linux `kl-eth` driver handles this correctly
 (dma_map + descriptor addresses); the raw console is a crude tool for it. Does not affect the
 proven result that frames are received and DMA'd.
+
+## TX end-to-end bring-up — DMA proven good, bug isolated to the CDC/MAC handoff (2026-07-03)
+
+Deep dive to get a **correct TX frame onto the wire** end-to-end (memory → TX-DMA →
+AXIS-CDC → datapath → LiteEth MAC → GMII → i210). Driven from the BIOS console; egress
+observed on the `amx-pw0` i210 (`enp6s0`) via `rx_packets` deltas + `tcpdump`. Findings,
+in the order they eliminated hypotheses:
+
+**1. The LiteX simple-mode DMA `length` is in BYTES, not words.**
+`WishboneDMAReader.add_csr()` → `_length = CSRStorage(32, "…length in bytes")`, and
+`length.eq(self.length[shift:])` (shift=3 for a 64-bit bus). Writing `length=8` transmits
+**one** 64-bit word, not eight. All TX programming must use `len_bytes` (e.g. 64 for a
+64-byte frame). This is an ABI fact the `kl-eth` driver must honor. (Base is likewise a
+**byte** address, MSW at the lower CSR word: `0xf0003000`=bits[63:32], `0xf0003004`=[31:0].)
+
+**2. The DMA reader itself is correct — proven two ways.**
+  - *Isolated Migen sim* (`scratchpad/sim_dma.py`): a 64-bit `WishboneDMAReader` →
+    `wishbone.Converter` (64→32) → 32-bit `wishbone.SRAM` preloaded with a ramp, driven by
+    the same simple-mode CSRs, produces **all 8 beats with correct data**. The 64→32 width
+    conversion the SoC interconnect inserts is *not* the bug.
+  - *On silicon, deterministic register readback* (no wire): program base+length, pulse
+    `enable`, read `milan_dma_tx_done` (`0xf0003010`) and `…_offset` (`0xf0003018`):
+
+    | source | length | `done` | `offset` |
+    |--------|--------|--------|----------|
+    | DRAM `0x40010000` | 64 B | **1** | **8 words** |
+    | ROM  `0x00000000` | 64 B | **1** | **8 words** |
+    | DRAM `0x40010000` |  8 B | **1** | **1 word** |
+
+    The engine completes every transfer and reads the exact word count from **both** ROM and
+    DRAM. So "the DMA can't read DDR3" is **false** — earlier all-zero egress was the
+    length-in-bytes bug (1 word), not a dead read path.
+
+**3. The datapath TX pipeline is byte-exact — Verilator `tb/verilator/datapath`.**
+It injects 8-beat VLAN frames through `s_axis_tx` (with `tkeep=0xFF`, `tlast` on the last
+beat) and checks **byte-exact egress** on `m_axis_mac_tx` through classify → CBS → PTP →
+ADP-arbiter. `traffic_queues.sv` stores/forwards `tkeep` in every FIFO (`KEEP_ENABLE(1)`),
+so the shaper preserves it. **Caveat found:** the harness captures egress `m_tdata` but
+**never checks `m_tkeep`** — a datapath-egress keep bug would pass the TB (a real test gap).
+
+**4. CBS is correctly bypassed.** `CBS_CTRL[0]=0` (`0x9000040c`/`…42c`/`…44c`/`…46c` = 0) is
+**unshaped / strict-priority / credit forced eligible** — *not* a starved shaper. Ruled out.
+
+**5. The symptom, pinned deterministically (i210 `rx_packets` delta, filter-independent):**
+  - **single-beat** (8-byte) DMA-TX → **egresses**, but truncated — content `ff 00 00 …`,
+    i.e. LiteEth `last_be` seen as `0x01` (**1 valid byte**) instead of `0xFF`/`0x80`.
+  - **multi-beat** (64-byte) DMA-TX → **`rx_packets` delta = 0 over 300 frames**: the frame
+    **never reaches the wire**, even though the DMA `done=1`/`offset=8`.
+  - RX-DMA armed + 3000 i210 broadcast frames (raw `0x88b5`) → `done=0`, `offset=0`, target
+    memory untouched, preamble/CRC = 0 (clean frames arrived, datapath forwarded none —
+    consistent with the same integration break on the RX side, plus rx-filter selectivity).
+
+**Localization (definitive).** DMA read = ✅, datapath (single-clock) = ✅, config = ✅.
+The break is in the **only untested delta**: the milan-domain **AXIS clock-domain-crossing
+layer** (`--milan-clk-freq 50e6` runs the datapath at 50 MHz behind five async-FIFO
+`stream.ClockDomainCrossing`s + the AXI-Lite CDC — the 100 MHz timing fix) **and/or** the
+`m_axis_mac_tx → core.sink.last_be` handoff in `MilanMAC` (`core.sink.last_be.eq(keep)`,
+where LiteEth's `last_be` is a **one-hot pointer to the last valid byte**, not an AXIS keep
+mask — `liteeth/mac/padding.py` Case). The generated CDC (`main_milan_mac_tx_dp_cdc_*`)
+does carry `data/keep/first/last`, so the suspect narrows to CDC *timing/handshake under
+multi-beat flow* and/or the `last_be` encoding.
+
+**Why it can't be a no-CDC HW A/B on this board:** the post-fix datapath critical path
+(~15–19 ns) needs sys ≤ ~50–66 MHz to close, but DDR3 (A7DDRPHY DLL, sys4x ≥ ~303 MHz)
+needs sys ≥ ~76 MHz — the conflict the CDC was introduced to resolve. A no-CDC build must
+drop to integrated SRAM at ~50 MHz (changes two variables).
+
+### ROOT CAUSE FOUND + FIX (2026-07-03) — `tkeep`↔`last_be` encoding mismatch in `MilanMAC`
+
+The break is the AXIS↔LiteEth byte-enable handoff in `MilanMAC` (`milan_soc.py`), *not*
+the CDC. LiteEth's `last_be` is a **one-hot pointer to the last valid byte** of the final
+beat (proof: `liteeth/mac/padding.py` decodes `0x01→1 byte, 0x02→2 … 0x40→7`; `mac/
+last_be.py` RX builds it by up-converting a single `last` bit). AXIS `tkeep` is a
+**contiguous byte mask** (`0xFF` = 8 valid). The old code wired the mask straight across:
+
+```python
+self.core.sink.last_be.eq(tx_dp.sys.keep)                 # WRONG: 0xFF mask as one-hot
+rx_dp.sys.keep.eq(Mux(..last, self.core.source.last_be..)) # WRONG: one-hot as mask
+```
+
+The 64→8 TX `StrideConverter` reads `0xFF`'s **lowest** set bit → **1 valid byte**, so a
+full 64-bit word egresses as a single byte (measured `ff:00:00:00:00:00`), and for a
+multi-beat frame the malformed last-byte marker breaks frame termination → **nothing on
+the wire** (measured `rx_packets` delta = 0). The RX side had the mirror defect (one-hot
+fed where the datapath/rx-filter expect a mask), consistent with RX-DMA capturing nothing.
+
+**Fix** (`MilanMAC`, verified in generated verilog):
+```python
+self.core.sink.last_be.eq(tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1))            # mask -> one-hot (highest set bit)
+rx_dp.sys.keep.eq(Mux(self.core.source.last, (self.core.source.last_be << 1) - 1, 2**nb - 1))  # one-hot -> mask
+```
+`keep=0xFF → last_be=0x80` (8 bytes); `last_be=0x08 → keep=0x0F` (4 bytes). Why the
+Verilator TB missed it: `tb/verilator/datapath` checks egress `m_tdata` but **not
+`m_tkeep`**, and the `last_be` mapping lives in the LiteX integration (`milan_soc.py`),
+which no RTL harness covers. Follow-up: add an egress-`tkeep` assertion to
+`tb/verilator/datapath`.
+
+### CONFIRMED ON SILICON — the `last_be` fix makes frames egress (2026-07-03)
+
+`build_gmii_lastbe` built (timing met), loaded, NIC `ID=MILN`. Driving DMA-TX of a 64-byte
+frame (`length=64` **bytes**), measured on the `amx-pw0` i210 hardware counters:
+- **`rx_packets` Δ = exactly the frames fired** (150→150, 300→300, 500→443-with-serial-loss)
+  — **was Δ=0 for multi-beat before the fix**.
+- **`rx_crc_errors`=0, `rx_errors`=0, `rx_length_errors`=0**; `rx_bytes` ≈ 64 B/frame.
+
+⇒ **The `last_be` fix is confirmed on silicon**: multi-beat frames now leave the FPGA as
+**clean, full-size, good-FCS Ethernet** — the datapath → milan-CDC → LiteEth MAC → GMII →
+wire path produces valid frames. **This is the M-A3 TX breakthrough** (the "no correct
+frame on the wire" blocker is resolved).
+
+### Remaining: CPU↔DMA cache coherency (driver-scope, not the NIC)
+
+The *content* the DMA transmits is stale — a CPU↔DMA coherency gap, proven cleanly with
+the i210 counters (no capture needed):
+
+| DMA base | DRAM there | i210 Δ`rx_packets` | meaning |
+|----------|-----------|--------------------|---------|
+| `0x40010000` (old test region) | stale broadcast bytes | = frame count, as **broadcast** | DMA reads committed-but-stale DRAM |
+| `0x40810000` (fresh, 3× `flush_cpu_dcache`+`flush_l2_cache`) | zeros | **0** | all-zero unicast frame → i210 drops it |
+
+The CPU reads its frame back correctly at `0x40010000` (`02 00 00 00 00 aa 02 00 …` ramp),
+but the DMA transmits only what is **committed to DRAM** — and neither `flush_cpu_dcache`
+(NaxRiscv `.word 0x500F`) nor `flush_l2_cache` gets the CPU's write there. NaxRiscv accesses
+DRAM via a cached path that the BIOS flushes don't push through to the DMA's DRAM view.
+A byte-swap of my unicast dst would still be **unicast**, but the i210 counts these as
+**broadcast/multicast**, so this is **coherency, not endianness** — no further gateware fix
+is needed. The `kl-eth` driver (M-A5) handles this exactly like the Zynq path
+(`dma_alloc_coherent` / `dma_map_single` + `flush_dcache_range` around descriptors); the raw
+BIOS console cannot. TX-DMA reads, the datapath, the `last_be` handoff, GMII RX, and now
+GMII TX-egress are all proven on silicon.
+
+**Rig note:** amx-pw0 `tcpdump` captured nothing (even self-sent outgoing frames) and the
+ProfiShark taps (`amx-ubuntu-server` `enxe8eb1b3*`) were flaky, so byte-level content was
+read via the i210 stats + counters instead of pcap. Capture-tooling issue, not the NIC.
