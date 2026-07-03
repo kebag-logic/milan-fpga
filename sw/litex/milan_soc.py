@@ -290,18 +290,20 @@ class MilanMAC(LiteXModule):
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
-                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9):
-        from liteeth.phy.s7rgmii import LiteEthPHYRGMII
-        from liteeth.mac.core    import LiteEthMACCore
+                 rgmii_tx_delay=2e-9, rgmii_rx_delay=0e-9, rgmii_rx_clk_invert=True):
+        from milan_rgmii import MilanRGMIIPHY
+        from liteeth.mac.core import LiteEthMACCore
 
         clk_pads = platform.request("eth_clocks", phy_index)
         pads     = platform.request("eth",        phy_index)
-        # RGMII MAC-side clock/data delay. s7rgmii adds 2 ns on RX (IDELAY) + TX (90°
-        # clock) — correct for a plain-"rgmii" PHY. If the RTL8211E straps enable
-        # "rgmii-id" (internal delay), set these to 0 so the delay isn't doubled
-        # (see docs/TROUBLESHOOTING.md + evidence/hw_ma3_*). Board-dependent.
-        self.phy  = LiteEthPHYRGMII(clk_pads, pads, with_hw_init_reset=True,
-                                    tx_delay=rgmii_tx_delay, rx_delay=rgmii_rx_delay)
+        # RGMII PHY for the AX7101 RTL8211E: MilanRGMIIPHY = LiteEth s7rgmii with the
+        # RX clock INVERTED (the Alinx vendor design), which is what actually aligns RX
+        # sampling on this board (stock s7rgmii gives preamble errors at any IDELAY —
+        # hardware-confirmed; see evidence/hw_ma3_* + docs/TROUBLESHOOTING.md). rx_delay
+        # then defaults to 0; tx_delay/rx_delay/rx_clk_invert stay tunable per board.
+        self.phy  = MilanRGMIIPHY(clk_pads, pads, with_hw_init_reset=True,
+                                  tx_delay=rgmii_tx_delay, rx_delay=rgmii_rx_delay,
+                                  rx_clk_invert=rgmii_rx_clk_invert)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
 
@@ -519,10 +521,10 @@ def main():
                          "scatter-gather, and on-hardware traffic (M-A3..M-A5) are still open. "
                          "(--full is a legacy alias for this flag.)")
     ap.add_argument("--rgmii-tx-delay", default=2e-9, type=float,
-                    help="RGMII MAC-side TX clock delay, seconds (default 2e-9). Set 0 if the "
-                         "PHY straps enable rgmii-id internal delay (else the delay doubles).")
-    ap.add_argument("--rgmii-rx-delay", default=2e-9, type=float,
-                    help="RGMII MAC-side RX data delay, seconds (default 2e-9; 0 for rgmii-id).")
+                    help="RGMII MAC-side TX clock delay, seconds (default 2e-9).")
+    ap.add_argument("--rgmii-rx-delay", default=0e-9, type=float,
+                    help="RGMII MAC-side RX IDELAY, seconds (default 0 — the AX7101 PHY uses "
+                         "RX-clock inversion, not IDELAY, to centre sampling; see milan_rgmii.py).")
     ap.add_argument("--uart-baudrate", default=115200, type=int,
                     help="console UART baud (default 115200; the AX7101 factory demo uses 9600)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
