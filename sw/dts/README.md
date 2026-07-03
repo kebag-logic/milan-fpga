@@ -78,11 +78,13 @@ The generator, schema, and binding are unchanged — that is the point.
   an issue for the device tree itself — `reg` is a list of independent ranges and the
   driver `ioremap`s each `reg-name` separately, so split/non-contiguous windows are
   normal. It *is* a driver caveat in two ways:
-  1. **Different access convention per window.** The `csr` window is plain little-endian
-     MMIO; the `dma-*` window is LiteX-CSR-encoded — notably the 64-bit DMA `base` is two
-     32-bit words in **MSW-first (big) order**. A driver must not treat both windows
-     identically (a native 64-bit access to `base` swaps its halves → wrong DMA address).
-     Full detail in [`../../docs/REGISTER_MAP.md`](../../docs/REGISTER_MAP.md) → DMA registers.
+  1. **Different register layout per window.** Both windows are **native-endian** 32-bit
+     MMIO (`readl`/`writel` — do *not* set a `big-endian` node property or use `ioread32be`;
+     that would byte-swap and corrupt). The difference is multi-word *word* order: on the
+     LiteX `dma-*` window the 64-bit `base` is two 32-bit words with the **MS word at the
+     lower address** (`config_csr_ordering_big` = word order, not byte order), so a native
+     64-bit access to `base` swaps its halves → wrong DMA address. Full detail in
+     [`../../docs/REGISTER_MAP.md`](../../docs/REGISTER_MAP.md) → DMA registers.
   2. **The `dma-*` ranges are sub-page (28 B) inside the shared LiteX CSR bus** that
      other LiteX peripherals (uart/timer/soc-controller) also occupy. Map them with
      `devm_ioremap` (non-exclusive), not `devm_ioremap_resource` (which does an exclusive
