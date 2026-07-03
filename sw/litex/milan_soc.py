@@ -577,6 +577,8 @@ def main():
                     help="console UART baud (default 115200; the AX7101 factory demo uses 9600)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
     ap.add_argument("--load",  action="store_true", help="program the board over JTAG (openFPGALoader -c ft232)")
+    ap.add_argument("--vivado-max-threads", type=int, default=min(os.cpu_count() or 1, 32),
+                    help="max Vivado synth/place/route threads (set_param general.maxThreads; Vivado caps at 32)")
     ap.add_argument("--timing-opt", action="store_true",
                     help="aggressive Vivado place/route/phys-opt directives to squeeze out "
                          "the last ns of setup slack (slower P&R; use when WNS is marginally "
@@ -607,6 +609,11 @@ def main():
         vivado_route_directive               = "Explore",
         vivado_post_route_phys_opt_directive = "AggressiveExplore",
     ) if args.timing_opt else {}
+    # Use as many CPU cores as Vivado allows for synth/place/route (`set_param
+    # general.maxThreads N`). Vivado caps this at 32 regardless of host cores, so
+    # request min(cores, 32) — the rest of the box is idle during a single P&R run.
+    if args.vivado_max_threads:
+        build_kwargs["vivado_max_threads"] = args.vivado_max_threads
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     if args.load:
         prog = platform.create_programmer()

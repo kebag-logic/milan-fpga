@@ -297,3 +297,17 @@ path. The loopback stayed byte-exact only because the read-swap and write-swap c
 == wire order, both directions; loopback still symmetric. Verifying in `build_gmii_final`:
 loopback still byte-exact + TX broadcast counts as broadcast on the i210 + RX memory matches
 wire order.
+
+### CONFIRMED ON SILICON — full TX/RX correct, both directions (`build_gmii_final`, 2026-07-03)
+
+`endianness="big"` build loaded (ID=MILN). Four checks, all pass:
+1. **Loopback** (regression) — `0x40020000` byte-identical to the written frame ✓ (no flush).
+2. **RX order** — amx-pw0 → FPGA; `0x40030000` = **wire order** `ff ff ff ff ff ff 02 aa bb cc
+   dd ee 88 b5 10 11 …` (was reversed before) ✓.
+3. **TX broadcast** — i210 `rx_broadcast` Δ=290/300 ✓ (correct `ff:ff:ff:ff:ff:ff` dst on wire).
+4. **TX → i210 MAC** — dst = `68:05:ca:95:b2:d1`; i210 `rx_unicast` Δ=295/300 ✓ (accepted
+   unicast-to-self, so the on-wire bytes are correct).
+
+⇒ **M-A3 complete on silicon**: correct frames cross the Milan NIC in **both directions** —
+coherent DMA (no cache flush), correct byte order, and the internal loopback is byte-exact.
+The `last_be`, coherent-DMA, and endianness fixes together close first-correct-frame end to end.
