@@ -1,0 +1,8 @@
+{
+  "_comment": "Board-specific device-tree values for the Alinx AX7101 (xc7a100t) that are NOT derivable from the gateware csr.json. Fed to 'milan_dt.py extract' to fill the parts of the IR the extractor cannot read from the SoC description. One of these per board.",
+  "interrupt_parent": "intc0",
+  "phy": { "reg": 1, "mode": "rgmii-id", "reset_gpio": "&gpio 0 1" },
+  "mac_address": "00:1b:c5:00:00:01",
+  "ptp": { "present": true, "clock_hz": 125000000 },
+  "queues": { "txq": 4, "rxq": 4, "shaped": [0, 1] }
+}

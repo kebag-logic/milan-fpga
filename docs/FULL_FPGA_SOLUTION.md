@@ -163,8 +163,11 @@ control/data/event pattern documented generically in
 
 ### 5.4 Events — IRQ → PLIC
 - `o_irq_csr` (link-change / PTP-TX-ready / RMON-rollover aggregate) plus the three
-  DMA-done lines are surfaced through a LiteX `EventManager` to the NaxRiscv **PLIC**,
-  matching the device-tree `interrupts = <1..4>` (`sw/dts/milan.dtsi`).
+  DMA-done sources are collected by a LiteX `EventManager` into **one** NaxRiscv
+  **PLIC** line (`milan_interrupt`); the driver demuxes via `milan_csr` `IRQ_STATUS` +
+  the EventManager `pending` register. The device tree therefore lists a single
+  interrupt on the LiteX build (four discrete GIC lines on Zynq) — generated per
+  platform, see [`../sw/dts/README.md`](../sw/dts/README.md).
 
 ## 6. Build & run (medium level)
 
@@ -191,7 +194,9 @@ cd syn/yosys && ./run.sh                       # 18 device-portability tops
 
 # --- Linux (needs the board / a bitstream) ---
 litex_json2dts_linux build/csr.json > milan.dts
-cat sw/dts/milan.dtsi >> milan.dts             # kl,dma-ether (set reg base 0x90000000)
+sw/dts/milan_dt.py extract --platform litex build/csr.json --board sw/dts/boards/ax7101.json \
+  > sw/dts/ir/milan-dt.litex.json
+sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-ether (generated, real addrs)
 # build Image + OpenSBI + Buildroot; boot; then bring the NIC up (ethtool/ptp4l/tc cbs)
 ```
 

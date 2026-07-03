@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://kebag-logic.com/dt/milan-dt.schema.json",
+  "title": "Milan NIC device-tree intermediate representation (IR)",
+  "description": "Platform-neutral description of where the Milan TSN NIC (kl,dma-ether) lives on one SoC. An extractor produces this from a platform (LiteX csr.json, a Zynq export, ...); the generator (sw/dts/milan_dt.py gen) renders the kl,dma-ether node from it. The invariant node contract (compatible, reg-names/interrupt-names ordering, property names) lives in the generator, NOT here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["platform", "reg", "interrupts"],
+  "properties": {
+    "platform": {
+      "type": "string",
+      "description": "Free-form platform id, e.g. 'litex-naxriscv' or 'zynq7000'."
+    },
+    "address_cells": {
+      "type": "integer", "enum": [1, 2], "default": 1,
+      "description": "#address-cells / #size-cells the overlay's parent uses. 1 = 32-bit reg (all current platforms); 2 = 64-bit, splits each base/size into hi/lo cells."
+    },
+    "interrupt_parent": {
+      "type": ["string", "null"],
+      "description": "Label of the SoC interrupt controller in the base tree ('intc0' for a LiteX PLIC, 'intc' for the Zynq GIC). null => the node is placed under a parent that already sets interrupt-parent (inherit)."
+    },
+    "reg": {
+      "type": "object",
+      "description": "Register windows keyed by binding reg-name; the generator emits reg/reg-names in canonical order (csr, dma-tx, dma-rx, dma-ts), present keys only.",
+      "additionalProperties": false,
+      "required": ["csr"],
+      "properties": {
+        "csr":    { "$ref": "#/$defs/window" },
+        "dma-tx": { "$ref": "#/$defs/window" },
+        "dma-rx": { "$ref": "#/$defs/window" },
+        "dma-ts": { "$ref": "#/$defs/window" }
+      }
+    },
+    "interrupts": {
+      "type": "array",
+      "description": "The NIC's interrupt line(s). LiteX exposes ONE aggregate line (EventManager-muxed, name 'csr'); Zynq exposes four (tx-dma/rx-dma/ts-dma/csr). The generator emits interrupts + interrupt-names from this list.",
+      "minItems": 1, "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "oneOf": [ { "required": ["num"] }, { "required": ["cells"] } ],
+        "properties": {
+          "name":  { "type": "string", "enum": ["tx-dma", "rx-dma", "ts-dma", "csr"] },
+          "num":   { "type": "integer", "minimum": 0, "description": "single-cell interrupt id (PLIC)." },
+          "cells": { "type": "array", "items": { "type": "integer" }, "description": "raw interrupt-specifier cells for controllers with #interrupt-cells>1, e.g. a Zynq GIC SPI line [0, 29, 4]." }
+        }
+      }
+    },
+    "phy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reg":        { "type": "integer", "description": "MDIO PHY address (ethernet-phy@<reg>)." },
+        "mode":       { "type": "string",  "description": "phy-mode, e.g. 'rgmii-id'." },
+        "reset_gpio": { "type": "string",  "description": "phy-reset-gpios cell contents, e.g. '&gpio 0 1'." }
+      }
+    },
+    "mac_address": {
+      "type": "string",
+      "pattern": "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$",
+      "description": "local-mac-address, colon-separated."
+    },
+    "ptp": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "present":  { "type": "boolean", "description": "emit kl,ptp." },
+        "clock_hz": { "type": "integer", "description": "kl,ptp-clock-hz." }
+      }
+    },
+    "queues": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "txq":    { "type": "integer" },
+        "rxq":    { "type": "integer" },
+        "shaped": { "type": "array", "items": { "type": "integer" }, "description": "kl,shaped-queues." }
+      }
+    }
+  },
+  "$defs": {
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "size"],
+      "properties": {
+        "base": { "type": ["integer", "string"], "description": "byte base address (int, or a hex string like '0x40410000')." },
+        "size": { "type": ["integer", "string"], "description": "byte size (int or hex string)." }
+      }
+    }
+  }
+}

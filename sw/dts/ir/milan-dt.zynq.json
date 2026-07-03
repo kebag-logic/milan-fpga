@@ -1,0 +1,21 @@
+{
+  "platform": "zynq7000",
+  "address_cells": 1,
+  "interrupt_parent": "intc",
+  "reg": {
+    "csr":    { "base": "0x43c00000", "size": "0x10000" },
+    "dma-tx": { "base": "0x40410000", "size": "0x10000" },
+    "dma-rx": { "base": "0x40410000", "size": "0x10000" },
+    "dma-ts": { "base": "0x40400000", "size": "0x10000" }
+  },
+  "interrupts": [
+    { "name": "tx-dma", "cells": [0, 29, 4] },
+    { "name": "rx-dma", "cells": [0, 30, 4] },
+    { "name": "ts-dma", "cells": [0, 31, 4] },
+    { "name": "csr",    "cells": [0, 32, 4] }
+  ],
+  "phy": { "reg": 1, "mode": "rgmii-id", "reset_gpio": "&gpio 0 1" },
+  "mac_address": "00:1b:c5:00:00:01",
+  "ptp": { "present": true, "clock_hz": 125000000 },
+  "queues": { "txq": 4, "rxq": 4, "shaped": [0, 1] }
+}
