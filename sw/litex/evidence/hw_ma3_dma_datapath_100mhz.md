@@ -260,3 +260,40 @@ GMII TX-egress are all proven on silicon.
 **Rig note:** amx-pw0 `tcpdump` captured nothing (even self-sent outgoing frames) and the
 ProfiShark taps (`amx-ubuntu-server` `enxe8eb1b3*`) were flaky, so byte-level content was
 read via the i210 stats + counters instead of pcap. Capture-tooling issue, not the NIC.
+
+## Coherent DMA + internal loopback + endianness (2026-07-03, `build_gmii_coh`/`_final`)
+
+After the `last_be` fix landed frames on the wire, two more issues remained: the DMA read
+**stale** DRAM (content wrong), and the on-wire bytes were **reversed**. Both fixed:
+
+### (a) Cache-coherent DMA — the DMA read stale DRAM
+Root cause in `naxriscv/core.py`: NaxRiscv reaches DRAM via a **direct `memory_buses` →
+LiteDRAM** port, while the Milan DMA masters went through `pbus → wishbone → LiteX-L2 →
+LiteDRAM` — two different paths, so CPU writes and DMA reads never shared a view (BIOS
+`flush_cpu_dcache`/`flush_l2_cache` don't bridge them). **Fix:** enable NaxRiscv
+`--with-coherent-dma` (exposes a cache-snooping `soc.dma_bus`) and attach the DMA masters
+there (`getattr(soc, "dma_bus", soc.bus).add_master(...)`). New `milan_soc.py --coherent-dma`.
+
+### (b) Internal MAC loopback CSR — self-contained verification
+`milan_mac_loopback` (`0xf0003810`, 1 bit): feeds the datapath's MAC-TX AXIS straight back
+into MAC-RX (bypassing LiteEth core + PHY), so a full frame is verifiable
+`memory → TX-DMA → datapath → RX-DMA → memory` with **no wire/rig**.
+
+**Loopback result (CONFIRMED on silicon, `build_gmii_coh`, no cache flush):** CPU wrote a
+64-byte frame at `0x40010000`; RX-DMA `done=1`, `offset=8`; `0x40020000` read back
+**byte-identical** (`ff ff ff ff ff ff 02 00 00 00 00 01 88 b5 00 01 02 03 …`). Proves
+**coherent DMA + the entire datapath + all four AXIS CDCs, end-to-end, byte-exact, with zero
+cache management.**
+
+### (c) DMA endianness — on-wire bytes were reversed
+With coherent DMA, RX frames landed in memory **byte-reversed within each 64-bit word**
+(wire `ff ff ff ff ff ff 02 aa` → memory `aa 02 ff ff ff ff ff ff`). That also mangled TX:
+a broadcast `ff:..:ff` egressed as `00:02:ff:..` (unicast!) so the i210 dropped every frame
+(`rx_packets` Δ=0 — *not* a dead wire path; the frames egress, the dst is just scrambled).
+Cause: `WishboneDMAReader/Writer` default `endianness="little"` **byte-swaps** each word
+(`dma.py`: `little → with_byteswap=True`), which reverses vs LiteEth's little-endian GMII
+path. The loopback stayed byte-exact only because the read-swap and write-swap cancel.
+**Fix:** `endianness="big"` (no swap) on all three DMA engines — Wishbone word order == AXIS
+== wire order, both directions; loopback still symmetric. Verifying in `build_gmii_final`:
+loopback still byte-exact + TX broadcast counts as broadcast on the i210 + RX memory matches
+wire order.

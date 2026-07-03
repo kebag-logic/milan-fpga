@@ -65,7 +65,7 @@ static std::vector<uint64_t> vlan_frame(int pcp, uint8_t marker) {
     return beats;
 }
 
-struct Res { std::vector<uint64_t> data; int dest = -1; bool got = false; };
+struct Res { std::vector<uint64_t> data; std::vector<uint8_t> keep; int dest = -1; bool got = false; };
 
 // stream one frame in while draining the output; run for `cycles`
 static Res run_frame(const std::vector<uint64_t>& beats, int cycles) {
@@ -77,7 +77,7 @@ static Res run_frame(const std::vector<uint64_t>& beats, int cycles) {
         dut->s_tlast  = have ? (bi == beats.size()-1) : 0;
         dut->s_tvalid = have; dut->m_tready = 1;
         lo();
-        if (dut->m_tvalid && dut->m_tready) { r.data.push_back(dut->m_tdata); r.dest = dut->m_tdest; r.got = true; }
+        if (dut->m_tvalid && dut->m_tready) { r.data.push_back(dut->m_tdata); r.keep.push_back(dut->m_tkeep); r.dest = dut->m_tdest; r.got = true; }
         bool sacc = have && dut->s_tvalid && dut->s_tready;
         hi();
         if (sacc) bi++;
@@ -122,6 +122,11 @@ int main(int argc, char** argv) {
         bool eq = (r.data.size() == f.size());
         for (size_t i = 0; eq && i < f.size(); i++) eq = (r.data[i] == f[i]);
         ck("byte-exact end-to-end", eq ? 1 : 0, 1);
+        // egress tkeep must be full (0xFF) on every beat of these full-word frames —
+        // guards the AXIS keep the LiteEth last_be handoff depends on (milan_soc MilanMAC).
+        bool keep_ok = (r.keep.size() == f.size());
+        for (size_t i = 0; keep_ok && i < r.keep.size(); i++) keep_ok = (r.keep[i] == 0xFF);
+        ck("egress tkeep = 0xFF (full beats)", keep_ok ? 1 : 0, 1);
         ck("tdest == queue (PCP p -> q p)", r.dest, pcp);   // identity map -> exact routing
         if (r.dest >= 0) dests.insert(r.dest);
     }

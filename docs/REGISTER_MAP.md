@@ -243,6 +243,18 @@ pulse `enable`, wait for `done`/IRQ.
 > reads back `offset=8`. Getting this wrong silently truncates every frame. (Scatter-gather / multi-queue is the later
 Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
+> **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
+> the DMA masters attach to NaxRiscv's cache-snooping `dma_bus`, so a CPU-written TX frame
+> is DMA-read correctly and a DMA-written RX frame is CPU-read correctly **without any cache
+> maintenance**. Without it, NaxRiscv reaches DRAM by a direct memory bus while the DMA uses
+> the wishbone/L2 — a different path, so the DMA sees stale DRAM (hardware-confirmed). The
+> DMA engines use `endianness="big"` (no byte-swap) so the Wishbone/AXIS/on-wire byte order
+> all match; the LiteX default `"little"` byte-swaps each word and reverses every frame.
+>
+> **MAC loopback** — `milan_mac_loopback` (`0xf0003810`, bit 0): `1` feeds the datapath's
+> MAC-TX stream straight back into MAC-RX (bypassing LiteEth core + PHY), for a
+> memory→TX-DMA→datapath→RX-DMA→memory self-test with no wire. `0` = normal (to the PHY).
+
 > **⚠ Caveat — this DMA window uses a *different* register layout than `milan_csr`.**
 > The `milan_csr` control plane (`0x9000_0000`) is a plain 32-bit AXI-Lite slave
 > (offset = register; my 64-bit regs are explicit hi/lo pairs). The DMA registers live

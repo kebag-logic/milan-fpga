@@ -25,7 +25,7 @@ import os
 import sys
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux
+from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If
 from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
@@ -35,6 +35,7 @@ from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import S7PLL
 from litex.soc.interconnect import axi
+from litex.soc.interconnect.csr import CSRStorage
 from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
@@ -321,20 +322,39 @@ class MilanMAC(LiteXModule):
         # multi-beat frames never terminate -> nothing on the wire. Convert both ways:
         #   TX  keep(mask) -> last_be(one-hot of the highest set bit): keep & ~(keep>>1)
         #   RX  last_be(one-hot) -> keep(mask up to that byte):        (last_be<<1) - 1
+        #
+        # `loopback` (CSR, sys domain): when 1, the datapath's MAC-TX stream is fed straight
+        # back into its MAC-RX stream (bypassing the LiteEth core + PHY) so a full frame can
+        # be verified memory->TX-DMA->datapath->RX-DMA->memory with no wire/rig. Both are
+        # AXIS keep-masks here, so no last_be conversion is needed on the loop path.
+        self.loopback = CSRStorage(1, description="1 = internal MAC-TX->MAC-RX AXIS loopback")
+        lb = self.loopback.storage
         self.comb += [
-            # datapath TX endpoint -> core.sink (LiteEth), in sys
-            self.core.sink.valid.eq(tx_dp.sys.valid),
+            # TX payload -> core.sink is driven unconditionally (harmless when valid=0);
+            # only `valid`/`ready` and the RX source are muxed by `loopback`.
             self.core.sink.data.eq(tx_dp.sys.data),
             self.core.sink.last.eq(tx_dp.sys.last),
             self.core.sink.last_be.eq(tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1)),
-            tx_dp.sys.ready.eq(self.core.sink.ready),
-            # core.source -> datapath RX endpoint, in sys; full lanes except the last beat
-            rx_dp.sys.valid.eq(self.core.source.valid),
-            rx_dp.sys.data.eq(self.core.source.data),
-            rx_dp.sys.last.eq(self.core.source.last),
-            rx_dp.sys.keep.eq(Mux(self.core.source.last,
-                                  (self.core.source.last_be << 1) - 1, 2**nb - 1)),
-            self.core.source.ready.eq(rx_dp.sys.ready),
+            If(lb,
+                # internal loopback: datapath TX -> datapath RX (sys domain), both keep-masks
+                rx_dp.sys.valid.eq(tx_dp.sys.valid),
+                rx_dp.sys.data.eq(tx_dp.sys.data),
+                rx_dp.sys.last.eq(tx_dp.sys.last),
+                rx_dp.sys.keep.eq(tx_dp.sys.keep),
+                tx_dp.sys.ready.eq(rx_dp.sys.ready),
+                self.core.sink.valid.eq(0),      # nothing to the wire
+                self.core.source.ready.eq(0),    # ignore wire RX
+            ).Else(
+                self.core.sink.valid.eq(tx_dp.sys.valid),
+                tx_dp.sys.ready.eq(self.core.sink.ready),
+                # core.source -> datapath RX endpoint; one-hot last_be -> keep mask on last beat
+                rx_dp.sys.valid.eq(self.core.source.valid),
+                rx_dp.sys.data.eq(self.core.source.data),
+                rx_dp.sys.last.eq(self.core.source.last),
+                rx_dp.sys.keep.eq(Mux(self.core.source.last,
+                                      (self.core.source.last_be << 1) - 1, 2**nb - 1)),
+                self.core.source.ready.eq(rx_dp.sys.ready),
+            ),
         ]
 
         self.dp_ports = dict(
@@ -382,14 +402,29 @@ class MilanDMA(LiteXModule):
         def mk_bus():
             return wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
 
+        # Attach the DMA masters to the CPU's **coherent** DMA port when it exists
+        # (NaxRiscv --with-coherent-dma exposes soc.dma_bus, which snoops the CPU caches);
+        # otherwise fall back to the plain SoC bus. Without the coherent port, NaxRiscv
+        # reaches DRAM via a direct LiteDRAM memory bus while these masters go through the
+        # wishbone L2 — a different path, so CPU writes and DMA reads are NOT coherent
+        # (hardware-confirmed: the DMA transmits stale DRAM). Coherent DMA closes that gap
+        # so a CPU-written frame is DMA-read correctly without manual cache flushes.
+        dma_bus = getattr(soc, "dma_bus", soc.bus)
+        # `endianness="big"` = **no** byte-swap (with_byteswap=False): keep the Wishbone word
+        # order == AXIS stream order == on-the-wire byte order. The LiteX default "little"
+        # byte-swaps each word, which (with LiteEth's little-endian GMII path) reverses every
+        # frame word vs memory — hardware-confirmed: an RX frame `ff ff ff ff ff ff 02 aa`
+        # landed in memory as `aa 02 ff ff ff ff ff ff`, and TX broadcast egressed with a
+        # mangled `00:02:ff:..` dst so the peer dropped it. "big" makes memory<->wire match
+        # in both directions (and the internal loopback stays byte-exact, being symmetric).
         # TX: memory -> datapath (reader)
-        self.tx = WishboneDMAReader(mk_bus(), with_csr=True)
-        soc.bus.add_master("milan_dma_tx", master=self.tx.bus)
+        self.tx = WishboneDMAReader(mk_bus(), endianness="big", with_csr=True)
+        dma_bus.add_master("milan_dma_tx", master=self.tx.bus)
         # RX + TS: datapath -> memory (writers)
-        self.rx = WishboneDMAWriter(mk_bus(), with_csr=True)
-        soc.bus.add_master("milan_dma_rx", master=self.rx.bus)
-        self.ts = WishboneDMAWriter(mk_bus(), with_csr=True)
-        soc.bus.add_master("milan_dma_ts", master=self.ts.bus)
+        self.rx = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
+        dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
+        self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
+        dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
 
         # datapath-facing endpoints in `milan_cd`, async-FIFO CDC'd to the sys-domain
         # DMA engines when the domains differ (see _axis_dp_cdc). TX is mem->datapath;
@@ -430,7 +465,7 @@ class MilanDMA(LiteXModule):
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
-                 main_ram_size=0x8000, milan_clk_freq=None,
+                 main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
@@ -442,6 +477,10 @@ class MilanSoC(SoCCore):
         _nax_args, _ = _nax_parser.parse_known_args([])
         _nax_args.xlen      = xlen
         _nax_args.cpu_count = cpu_count
+        # Cache-coherent DMA: NaxRiscv then exposes a snooping `dma_bus` (soc.dma_bus) that
+        # the Milan DMA masters attach to, so CPU writes and DMA reads share one coherent
+        # view of DRAM (see MilanDMA). Without it the DMA reads stale DRAM (HW-confirmed).
+        _nax_args.with_coherent_dma = coherent_dma
         NaxRiscv.args_read(_nax_args)
 
         kwargs["cpu_type"]    = "naxriscv"
@@ -521,6 +560,8 @@ def main():
                     help="attach the AXIS<->memory DMA engines (§A.6) with simple-mode CSRs")
     ap.add_argument("--with-dram", action="store_true",
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16) — needed for Linux (§A.3)")
+    ap.add_argument("--coherent-dma", action="store_true",
+                    help="cache-coherent DMA (NaxRiscv snooping dma_bus; needed for correct DMA content without manual cache flushes)")
     ap.add_argument("--all-blocks", "--full", dest="all_blocks", action="store_true",
                     help="enable ALL fabric blocks: NIC + DMA + MAC + DDR3 (= --with-dma "
                          "--with-mac --with-dram). This means 'every block instantiated', NOT "
@@ -551,6 +592,7 @@ def main():
                    with_dram=args.with_dram or args.all_blocks,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq,
+                   coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
                    uart_baudrate=args.uart_baudrate)
