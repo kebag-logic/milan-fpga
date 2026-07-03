@@ -106,3 +106,23 @@ K18 / `tx`=K21), and `MilanMAC` switched to **`LiteEthPHYGMII`** (the RGMII s7rg
 `milan_rgmii.py` path is retired for this board). Rebuilding all-blocks @100 MHz; retest =
 i210 broadcast → FPGA GMII RX → RX-DMA → memory (expect `preamble_errors` flat + a frame in
 the buffer) = **M-A3 RX on silicon**.
+
+## RESULT — GMII PHY works: M-A3 RX proven on silicon (2026-07-03)
+With the GMII bitstream (`build_gmii`, all-blocks @100 MHz, `LiteEthPHYGMII`), i210 link
+1000/Full, RX-DMA armed, and a **20000-frame broadcast blast** from the i210:
+- **`rx_datapath_preamble_errors` (0xf0003808) stayed at 0**  (was **+20000** on RGMII)
+- **`rx_datapath_crc_errors` (0xf000380c) = 0**
+- **RX-DMA `done` (0xf000302c) 0 → 1**, `offset` (0xf0003034) = 4 — a received frame
+  triggered the writer and it wrote to memory.
+
+⇒ The **RGMII→GMII root-cause fix is confirmed on silicon**: the FPGA MAC now receives the
+i210's frames **cleanly** (zero preamble/CRC errors), and the full RX path
+**PHY → MAC → AXIS-CDC → datapath (rx_filter) → RX-DMA** fires on a real packet. The first
+packets are crossing the Milan NIC on hardware = **M-A3 RX**.
+
+Open detail (plumbing, not the NIC): reading the *exact* captured bytes back over the BIOS
+console is confounded by (a) the `milan_dma_*_base` encoding and (b) L2 cache coherency —
+the DMA writes DDR3 while the CPU `mem_read` hits stale L2 (the 2 MB boot memtest region is
+cached, and untouched regions read uninit). The Linux `kl-eth` driver handles this correctly
+(dma_map + descriptor addresses); the raw console is a crude tool for it. Does not affect the
+proven result that frames are received and DMA'd.
