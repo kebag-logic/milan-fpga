@@ -19,8 +19,11 @@ STEP="${1:-all}"
 BAUD="${BAUD:-115200}"
 CONSOLE="$(ls /dev/serial/by-id/*CP2102* 2>/dev/null | head -1 || echo /dev/ttyUSB0)"
 
-do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" --full --build --uart-baudrate "$BAUD"; }
-do_load()   { echo "[deploy] load   (JTAG, openFPGALoader -c ft232)"; "$HERE/milan_soc.py" --full --load --uart-baudrate "$BAUD"; }
+# All fabric blocks (NIC+DMA+MAC+DDR3), datapath in its own 50 MHz domain so sys+DDR3
+# close a clean 100 MHz (see docs/TROUBLESHOOTING.md §16); --timing-opt for margin.
+MILAN_OPTS="--all-blocks --milan-clk-freq 50e6 --timing-opt"
+do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" $MILAN_OPTS --build --uart-baudrate "$BAUD"; }
+do_load()   { echo "[deploy] load   (JTAG, openFPGALoader -c ft232)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
 do_console(){ echo "[deploy] console $CONSOLE @ $BAUD  (picocom; exit: Ctrl-a Ctrl-x)"; exec picocom -b "$BAUD" "$CONSOLE"; }
 
 case "$STEP" in
