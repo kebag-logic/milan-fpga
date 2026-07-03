@@ -70,6 +70,7 @@ public:
     void reset() {
         credit = 0;
         send_delta = 0; credit_add_idle = 0;
+        isc_r = 0; ssb_r = 0;
         istx = false; qhd = false; isg = false; shaped = false;
         allow = false;
     }
@@ -94,10 +95,15 @@ public:
 
         // ---- next-state values (nonblocking: all computed from current) ----
 
-        // stage1_pipe (computed from THIS cycle's config, then registered)
-        int64_t n_send_delta      = send_slope_per_byte(in.is_1g, in.idle_slope)
-                                        * (int64_t)(int16_t)in.bytes_sent;
-        int64_t n_credit_add_idle = idle_slope_per_cycle(in.is_1g, in.idle_slope);
+        // stage0 slope_pipe: register the combinational constant-divide slope
+        // terms (computed from THIS cycle's config). The credit datapath below
+        // consumes the *registered* copies (isc_r/ssb_r), one cycle later.
+        int64_t n_ssb_r = send_slope_per_byte(in.is_1g, in.idle_slope);
+        int64_t n_isc_r = idle_slope_per_cycle(in.is_1g, in.idle_slope);
+
+        // stage1_pipe (uses the REGISTERED slope terms from the previous cycle)
+        int64_t n_send_delta      = ssb_r * (int64_t)(int16_t)in.bytes_sent;
+        int64_t n_credit_add_idle = isc_r;
         bool    n_istx = in.is_transmitting;
         bool    n_qhd  = in.queue_has_data;
         bool    n_isg  = in.is_granted;
@@ -130,9 +136,11 @@ public:
         // ---- commit, honouring synchronous reset ----
         if (!in.resetn) {
             credit = 0; send_delta = 0; credit_add_idle = 0;
+            isc_r = 0; ssb_r = 0;
             istx = false; qhd = false; isg = false; shaped = false; allow = false;
         } else {
             credit = n_credit;
+            isc_r = n_isc_r; ssb_r = n_ssb_r;
             send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
             allow = n_allow;
@@ -147,6 +155,7 @@ public:
     const CbsConfig cfg;
     int64_t credit;
     int64_t send_delta, credit_add_idle;
+    int64_t isc_r, ssb_r;   // stage-0 registered slope terms (mirrors slope_pipe)
     bool istx, qhd, isg, shaped, allow;
 };
 
@@ -159,6 +168,7 @@ public:
 
     void reset() {
         credit = 0.0; send_delta = 0.0; credit_add_idle = 0.0;
+        isc_r = 0.0; ssb_r = 0.0;
         istx = false; qhd = false; isg = false; shaped = false; allow = false;
     }
 
@@ -175,8 +185,11 @@ public:
         const double HIc = (double)in.hi_credit;
         const double LOc = (double)in.lo_credit;
 
-        double n_send_delta      = send_rate_per_byte(in.is_1g, in.idle_slope) * (double)in.bytes_sent;
-        double n_credit_add_idle = idle_rate_per_cycle(in.is_1g, in.idle_slope);
+        // stage0 slope_pipe (registered), then stage1 uses the registered copies
+        double n_ssb_r = send_rate_per_byte(in.is_1g, in.idle_slope);
+        double n_isc_r = idle_rate_per_cycle(in.is_1g, in.idle_slope);
+        double n_send_delta      = ssb_r * (double)in.bytes_sent;
+        double n_credit_add_idle = isc_r;
         bool   n_istx = in.is_transmitting, n_qhd = in.queue_has_data, n_isg = in.is_granted;
         bool   n_shaped = in.shaped;
 
@@ -200,9 +213,11 @@ public:
 
         if (!in.resetn) {
             credit = 0.0; send_delta = 0.0; credit_add_idle = 0.0;
+            isc_r = 0.0; ssb_r = 0.0;
             istx = qhd = isg = shaped = allow = false;
         } else {
             credit = n_credit; send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
+            isc_r = n_isc_r; ssb_r = n_ssb_r;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped; allow = n_allow;
         }
     }
@@ -212,6 +227,7 @@ public:
 
     const CbsConfig cfg;
     double credit, send_delta, credit_add_idle;
+    double isc_r, ssb_r;   // stage-0 registered slope terms (mirrors slope_pipe)
     bool istx, qhd, isg, shaped, allow;
 };
 

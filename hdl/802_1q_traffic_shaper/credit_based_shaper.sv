@@ -94,6 +94,23 @@ module credit_based_shaper #(
   logic signed [47:0] hi_credit_q16;
   logic signed [47:0] lo_credit_q16;
 
+  //! stage-0 pipeline registers: the two constant-divide slope terms, held for
+  //! timing. idle_slope_per_cycle / send_slope_per_byte are functions only of
+  //! the quasi-static config (idle_slope_i, is_1g_i), so registering them here
+  //! isolates the wide constant-divide combinational cone from the per-cycle
+  //! multiply/accumulate below — the divide no longer shares a single clock
+  //! period with `send_slope_per_byte * bytes_sent`. Because the source config
+  //! is stable for millions of cycles, the config->slope_r path is declared a
+  //! multicycle path in the SoC XDC (see milan_soc.py). Bit-exactly modelled by
+  //! the Verilator FixedPointRef (one extra slope register stage).
+  //! dont_touch keeps these as real fabric registers: without it the synthesiser
+  //! absorbs them into the credit/send_delta DSP input registers, which (a) leaves
+  //! the wide constant-divide combinational into the DSP (still a single-period
+  //! ~21 ns path) and (b) erases the cell the multicycle XDC in milan_soc.py
+  //! targets. Preserved, they form the register boundary the multicycle relies on.
+  (* dont_touch = "true" *) logic signed [47:0] idle_slope_per_cycle_r;
+  (* dont_touch = "true" *) logic signed [47:0] send_slope_per_byte_r;
+
   //! registered allow_transmit signal
   logic allow_transmit_reg;
 
@@ -137,7 +154,24 @@ module credit_based_shaper #(
     end
   end
 
-  //! Register every input for better timing (stage 1 of the credit pipeline)
+  //! Stage 0: register the constant-divide slope terms (multicycle-constrained
+  //! config->slope_r path; see the declaration comment). Purely combinational
+  //! divides feed these; the per-cycle datapath below uses the registered copies.
+  always_ff @(posedge clk) begin : slope_pipe
+    if(!resetn)begin
+      idle_slope_per_cycle_r <= 'd0;
+      send_slope_per_byte_r  <= 'd0;
+    end
+    else begin
+      idle_slope_per_cycle_r <= idle_slope_per_cycle;
+      send_slope_per_byte_r  <= send_slope_per_byte;
+    end
+  end
+
+  //! Register every input for better timing (stage 1 of the credit pipeline).
+  //! send_delta / credit_add_idle now derive from the *registered* slope terms
+  //! (send_slope_per_byte_r / idle_slope_per_cycle_r), so this cycle only pays
+  //! for the send_slope_per_byte_r * bytes_sent multiply, not the divide.
   always_ff @(posedge clk) begin : stage1_pipe
     if(!resetn)begin
       send_delta      <= 'd0;
@@ -148,8 +182,8 @@ module credit_based_shaper #(
       shaped          <= 'd0;
     end
     else begin
-      send_delta      <= send_slope_per_byte * $signed(bytes_sent_i);
-      credit_add_idle <= idle_slope_per_cycle;
+      send_delta      <= send_slope_per_byte_r * $signed(bytes_sent_i);
+      credit_add_idle <= idle_slope_per_cycle_r;
       is_transmitting <= is_transmitting_i;
       queue_has_data  <= queue_has_data_i;
       is_granted      <= is_granted_i;

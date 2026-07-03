@@ -8,7 +8,8 @@ LiteX/SoC build ([Sections 3–6](#section-3-identifier-string-must-not-contain-
 Verilator simulation ([Sections 7–8](#section-7-verilator-cannot-find-include-file)),
 shell/process ([Section 9](#section-9-pkill--f-self-matches-the-running-shell)),
 synthesis ([Section 10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)),
-and RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)).
+RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
+and P&R timing closure ([Section 15](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper)).
 
 Companion: [`SIMULATION.md`](SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) (the architecture).
@@ -262,3 +263,43 @@ class, so distinct PCPs did not fan out to distinct queues.
 `p` → TC `p` → queue `p` (`cls_prio_regen=0x00FAC688`, `cls_pcp_tc_map=0x00FAC688`,
 `cls_tc_queue_map=0x000000E4`), then assert `tdest == pcp`. This is also why the
 `milan_dp` harness programs the identity map over the CSR before the TX test.
+
+## Section 15: `--full` fails 100 MHz timing in the CBS credit-shaper
+
+**Symptom.** The first `--full` Artix-7 bitstream (100 MHz `sys`) synthesised and
+routed but missed timing badly — `WNS = -19.25 ns`, `TNS = -78626 ns` on the
+`main_clkout0` (sys) group. Every worst path was in the 802.1Qav credit-based shaper:
+`…/gen_cbs[N].u_cbs/send_delta…`, `send_slope_per_byte`, `credit…`. Lowering `sys` was
+not an option — DDR3 needs `sys4x ≈ 400 MHz`, i.e. `sys = 100 MHz`.
+
+**Cause.** `credit_based_shaper.sv` computed the Q16 per-byte slope with a wide
+**constant-divide** (`(send_slope << 16) / port_rate`) and then multiplied it by
+`bytes_sent` **in the same clock period** — `report_timing` showed a single 21 ns cone
+of **36 logic levels / 22 CARRY4** from `is_1g` (`mac_ctrl_reg[4]`) to the `send_delta`
+DSP. The divide is the killer, but the slope terms are **quasi-static** (they change
+only when `tc cbs` reprograms idleSlope or the link rate flips — held for millions of
+cycles), so the divide never needs a single-cycle result.
+
+**Fix (two parts).**
+1. **Pipeline + multicycle the divide.** Register the divide outputs
+   (`idle_slope_per_cycle_r` / `send_slope_per_byte_r`, stage-0 `slope_pipe`) so the
+   multiply no longer shares the period, and declare `config → slope_r` a **multicycle
+   path** in the SoC XDC (`milan_soc.py add_milan_datapath`, `set_multicycle_path 4
+   -setup / 3 -hold`). Two gotchas: (a) synthesis **absorbs** the slope register into
+   the credit/`send_delta` DSP unless it is marked `(* dont_touch = "true" *)` — without
+   it the multicycle target cell does not exist (`[Vivado 12-180] No cells matched`);
+   (b) synthesis pulls the CBS slope cone toward the `csr` module (where its config
+   sources live), so the constraint must match by **leaf** register name
+   (`*send_slope_per_byte_r_reg*`), not a `*u_cbs*` hierarchy path. The Verilator CBS
+   ref model mirrors the one extra stage in both `FixedPointRef` and `IdealRef`, so the
+   `cbs` harness stays **bit-exact** (87233 checks, 0 mismatches). This alone took the
+   CBS off the critical path: `WNS -19.25 → -2.18 ns`.
+2. **`sys = 80 MHz` for the residual.** With the CBS fixed, the worst path becomes the
+   dense **`milan_csr` read-data mux** (`rx_filter/mac_cam` + DMA base regs → the
+   `r_data` register, ~15 levels), marginally failing 100 MHz (`WNS ≈ -1.06 ns` even
+   with aggressive `--timing-opt` directives). Running `sys` at **80 MHz** closes it
+   with margin while keeping DDR3 valid: `sys4x = 320 MHz` is still above the DDR3 DLL
+   lock floor (~303 MHz). Reaching a clean **100 MHz** would additionally need a
+   pipeline register on the `milan_csr` read path (a scoped follow-up); 80 MHz is the
+   deployable Linux-capable bring-up clock. `--timing-opt` (aggressive place/route/
+   phys-opt directives) is the no-RTL lever for the last nanosecond of setup slack.
