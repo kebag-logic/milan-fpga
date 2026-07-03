@@ -236,20 +236,31 @@ mirrors the Zynq `axi_dma` simple mode the driver already targets:
 pulse `enable`, wait for `done`/IRQ. (Scatter-gather / multi-queue is the later
 Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
-> **⚠ Caveat — this DMA window uses a *different* access convention than `milan_csr`.**
-> The `milan_csr` control plane (`0x9000_0000`) is a plain little-endian 32-bit AXI-Lite
-> slave (offset = register; my 64-bit regs are explicit hi/lo pairs). The DMA registers
-> live in the **LiteX CSR bus** (a *separate* window, `0xf000_0000` family) and follow
-> LiteX CSR conventions: `config_csr_data_width = 32` (each CSR is a 32-bit word at a
-> 4-byte stride) and `config_csr_ordering_big` — so the **64-bit `base` register is split
-> into two 32-bit words in MSW-first (big) order**: `base[63:32]` at `+0x0`,
+> **⚠ Caveat — this DMA window uses a *different* register layout than `milan_csr`.**
+> The `milan_csr` control plane (`0x9000_0000`) is a plain 32-bit AXI-Lite slave
+> (offset = register; my 64-bit regs are explicit hi/lo pairs). The DMA registers live
+> in the **LiteX CSR bus** (a *separate* window, `0xf000_0000` family), with
+> `config_csr_data_width = 32`: each CSR is a **native-endian** 32-bit word at a 4-byte
+> stride — plain `readl`/`writel` (verified: LiteX's `CSR_MMPTR` is
+> `*(volatile uint32_t *)`, no byte-swap). So `length`/`enable`/`done`/`offset` are just
+> `readl`/`writel`.
+>
+> The one twist is **`config_csr_ordering_big`, which is WORD order, not byte order**: a
+> register wider than 32 bits is split into 32-bit words with the **most-significant word
+> at the lower address**. The 64-bit `base` is therefore `base[63:32]` at `+0x0` and
 > `base[31:0]` at `+0x4` (`milan_dma_tx_base` = `0xf0002800..0x2807`, `_length` at
-> `0xf0002808`). Reading/writing `base` as one native little-endian 64-bit access
-> **swaps the halves and programs the wrong DMA address** (silent memory corruption /
-> faults). Access `base` as two 32-bit words in that order (or use the LiteX `csr.h`
-> accessors). Single-word regs (`length`/`enable`/`done`) are plain `readl`/`writel`.
-> This is LiteX-specific — on Zynq the DMA was a standalone plain-MMIO `axi_dma` block.
-> See also `sw/dts/README.md` (the two `reg` windows) and `sw/driver/README.md`.
+> `0xf0002808`; matches the generated `base_read` = `read(0x2800)<<32 | read(0x2804)`).
+> A native 64-bit `iowrite64`/`readq` to `base` swaps the two halves → wrong DMA address
+> → silent corruption. Write it as two 32-bit words (hi @ `+0x0`, lo @ `+0x4`) or use the
+> LiteX `csr.h` accessors.
+>
+> **On "endian":** (a) the DTB encodes all `reg`/`interrupts` cells big-endian by spec,
+> but that is the blob format — `of_*`/`be32_to_cpu` convert it transparently and it does
+> **not** change register access. (b) These CSRs are **native-endian**, so do **NOT** put
+> a `big-endian` property on the node or use `ioread32be`/a BE regmap — that would
+> byte-swap and corrupt every read. The only "big" here is the multi-word *word* order
+> above. This whole caveat is LiteX-specific — on Zynq the DMA was a plain-MMIO `axi_dma`
+> block. See also `sw/dts/README.md` and `sw/driver/README.md`.
 
 ## Notes
 
