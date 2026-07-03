@@ -13,7 +13,7 @@
 
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
-from litex.build.openocd import OpenOCD
+from litex.build.openfpgaloader import OpenFPGALoader
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -113,7 +113,10 @@ class Platform(Xilinx7SeriesPlatform):
         ]
 
     def create_programmer(self):
-        return OpenOCD("openocd_xc7_ft2232.cfg", "bscan_spi_xc7a100t.bit")
+        # AX7101 JTAG = onboard Digilent FT232H (USB 0403:6014). Verified on hardware:
+        # `openFPGALoader -c ft232 --detect` reads IDCODE = xc7a100t. `--load` SRAM-loads
+        # the bitstream over JTAG.
+        return OpenFPGALoader(cable="ft232")
 
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
