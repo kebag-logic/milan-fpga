@@ -79,5 +79,9 @@ gateware** (exit 0):
 - **Artix-7 bitstream** — `--full --build` still needs Vivado with Artix-7 device
   support (this host has only Spartan-7 installed). The gateware/pins are ready; only
   the vendor P&R is blocked.
-- **On-board bring-up** — program (JTAG: FT232H on `/dev/ttyUSB0`; console: CP2102 on
-  `/dev/ttyUSB1`), then M-A1…M-A5 (see `FULL_FPGA_SOLUTION.md` §9).
+- **On-board bring-up** — the board is attached and **verified reachable**:
+  **JTAG** = Digilent FT232H (`0403:6014`), `openFPGALoader -c ft232` reads IDCODE
+  `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
+  Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
+  (the `ttyUSBn` numbers flip on re-plug). Program with `sw/litex/deploy.sh`, then
+  M-A1…M-A5 (see `FULL_FPGA_SOLUTION.md` §9). Still gated on the Artix-7 bitstream.
