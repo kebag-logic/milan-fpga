@@ -9,7 +9,8 @@ Verilator simulation ([Sections 7–8](#section-7-verilator-cannot-find-include-
 shell/process ([Section 9](#section-9-pkill--f-self-matches-the-running-shell)),
 synthesis ([Section 10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)),
 RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
-and P&R timing closure ([Section 15](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper)).
+and P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
+CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz).
 
 Companion: [`SIMULATION.md`](SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) (the architecture).
@@ -299,7 +300,44 @@ cycles), so the divide never needs a single-cycle result.
    `r_data` register, ~15 levels), marginally failing 100 MHz (`WNS ≈ -1.06 ns` even
    with aggressive `--timing-opt` directives). Running `sys` at **80 MHz** closes it
    with margin while keeping DDR3 valid: `sys4x = 320 MHz` is still above the DDR3 DLL
-   lock floor (~303 MHz). Reaching a clean **100 MHz** would additionally need a
-   pipeline register on the `milan_csr` read path (a scoped follow-up); 80 MHz is the
-   deployable Linux-capable bring-up clock. `--timing-opt` (aggressive place/route/
-   phys-opt directives) is the no-RTL lever for the last nanosecond of setup slack.
+   lock floor (~303 MHz). 80 MHz is a valid Linux-capable bring-up clock, but the clean
+   fix is Section 16 (run the datapath in its own clock). `--timing-opt` (aggressive
+   place/route/phys-opt directives) is the no-RTL lever for the last ns of setup slack.
+
+## Section 16: clean 100 MHz — run the dense datapath in its own clock domain
+
+**Symptom.** Even after the CBS fix (Section 15), the full DDR3 SoC would not close a
+clean **100 MHz** `sys`: the worst path kept landing in the dense TSN datapath
+(`rx_filter/mac_cam` TCAM readback, CSR read mux), `WNS ≈ -1 to -2 ns`.
+
+**Cause.** `report_timing` showed the offenders were **routing-dominated** (~72% route,
+high-fanout nets from a BRAM in `rx_filter`), not logic depth — a *congestion* problem
+in a datapath that is simply too dense to route at 100 MHz on this Artix-7 (-2). A
+`milan_csr` read-mux pipeline made it **worse** (added 256 registers of congestion,
+`WNS -1.06 → -1.92`) — the wrong lever, reverted.
+
+**Fix.** The datapath does not need 100 MHz — it only has to service 1 GbE (a 64-bit
+datapath at 50 MHz is 3.2 Gb/s). And `milan_datapath` was built with a **separate
+`axis_clk`/`gtx_clk`** for exactly this. So run the whole datapath in its own slower
+clock domain and cross the CPU boundary with a FIFO:
+- `milan_soc.py --milan-clk-freq 50e6` adds `cd_milan` (50 MHz) in `_CRG`, drives the
+  datapath's `i_axis_clk`/`i_gtx_clk` from it (`add_milan_datapath(..., milan_cd)`), and
+  crosses the CPU's AXI-Lite CSR bus with **`axi.AXILiteClockDomainCrossing`** (async
+  FIFOs per channel) + a **`MultiReg`** for the level IRQ into the sys EventManager.
+- `sys` (100 MHz) now carries only CPU + DDR3 + bus + the CSR async-FIFO — the dense
+  logic is off its budget. Result: **"All user specified timing constraints are met"** at
+  100 MHz; on the AX7101, NaxRiscv @100 MHz + **DDR3-800** (up from 640 @80 MHz), memtest
+  OK, `MILN` reads correctly across the CDC (`evidence/hw_ddr3_800_cdc_100mhz.log`).
+- `milan_cd="sys"` (the default) keeps the single-clock direct wiring for the sim. The
+  DMA/MAC AXIS boundary needs its own stream CDC before `--milan-clk-freq` combines with
+  `--with-dma/--with-mac` (guarded with `NotImplementedError`).
+
+**DDR3 ceiling.** DDR3 rate = `8×sys`, and the CPU shares `sys`; **NaxRiscv caps `sys`
+at ~102 MHz** (register-file path), so DDR3-800 is the max with a shared clock — the
+MT41J256M16 part is rated 1600, i.e. the CPU is the limit, not the DRAM. The S7PLL also
+rejects intermediate frequencies (115 MHz → `No PLL config found`, since `sys4x=4·sys`
+plus the 50/200 MHz clocks force no valid VCO between 100 and 125). Faster DDR3
+(DDR3-1000 @ a 125 MHz `dram` domain) would need the controller+PHY decoupled onto their
+own clock with a memory-bus FIFO (LiteDRAM `crossbar.get_port(clock_domain=…)`), a
+bigger change for a mostly-latency gain — not pursued (3.2 GB/s already exceeds a 100 MHz
+core's bandwidth demand).
