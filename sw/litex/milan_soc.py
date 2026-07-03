@@ -289,21 +289,18 @@ class MilanMAC(LiteXModule):
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
-    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
-                 rgmii_tx_delay=2e-9, rgmii_rx_delay=0e-9, rgmii_rx_clk_invert=True):
-        from milan_rgmii import MilanRGMIIPHY
+    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys", **_rgmii):
+        from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
 
         clk_pads = platform.request("eth_clocks", phy_index)
         pads     = platform.request("eth",        phy_index)
-        # RGMII PHY for the AX7101 RTL8211E: MilanRGMIIPHY = LiteEth s7rgmii with the
-        # RX clock INVERTED (the Alinx vendor design), which is what actually aligns RX
-        # sampling on this board (stock s7rgmii gives preamble errors at any IDELAY —
-        # hardware-confirmed; see evidence/hw_ma3_* + docs/TROUBLESHOOTING.md). rx_delay
-        # then defaults to 0; tx_delay/rx_delay/rx_clk_invert stay tunable per board.
-        self.phy  = MilanRGMIIPHY(clk_pads, pads, with_hw_init_reset=True,
-                                  tx_delay=rgmii_tx_delay, rx_delay=rgmii_rx_delay,
-                                  rx_clk_invert=rgmii_rx_clk_invert)
+        # The AX7101 RTL8211E is strapped for **GMII** (8-bit SDR), per the Alinx
+        # example top (`input [7:0] e_rxd`, separate rxdv/rxer, gtx=rxc). An RGMII
+        # (4-bit DDR) read of this bus corrupts every byte — hardware-confirmed as 100%
+        # MAC preamble errors (evidence/hw_ma3_*). LiteEthPHYGMII is the right PHY.
+        # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
+        self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
 

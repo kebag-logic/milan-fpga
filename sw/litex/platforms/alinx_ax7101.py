@@ -35,23 +35,27 @@ _io = [
     ("user_led", 0, Pins("E17"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("F16"), IOStandard("LVCMOS33")),
 
-    # RGMII PHY0 = the AX7101 "e1" RTL8211E (the Milan NIC first port).
+    # GMII PHY0 = the AX7101 "e1" RTL8211E (the Milan NIC first port). The board wires
+    # the RTL8211E in **GMII** mode — 8-bit SDR, separate RX_DV/RX_ER, gtx+rx+tx clocks
+    # (per the Alinx SRC/15_ethernet_test top: `input [7:0] e_rxd`, e_rxdv, e_rxer,
+    # `assign e_gtxc=e_rxc`). NOT RGMII: a 4-bit-DDR RGMII read of this 8-bit-SDR bus
+    # corrupts every byte (hardware-confirmed: 100% MAC preamble errors).
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("G21")),   # e1_gtxc (FPGA->PHY 125 MHz)
-        Subsignal("rx", Pins("K18")),   # e1_rxc  (PHY->FPGA)
+        Subsignal("rx",  Pins("K18")),   # e1_rxc  (PHY->FPGA 125 MHz)
+        Subsignal("gtx", Pins("G21")),   # e1_gtxc (FPGA->PHY 125 MHz, 1G TX)
+        Subsignal("tx",  Pins("K21")),   # e1_txc  (MII 25 MHz, 10/100)
         IOStandard("LVCMOS33"),
     ),
     ("eth", 0,
         Subsignal("rst_n",   Pins("G20"), IOStandard("LVCMOS33")),   # e1_reset
-        # PHY management: e1_mdc = J17; the MDIO *data* pin is not in the Alinx GMII
-        # example XDC (take it from SCH/AX7101_EX_SCH.pdf). Left unwired for now — the
-        # RGMII data path works on the PHY power-on straps; MDIO management is §A.7.
-        # Subsignal("mdc", Pins("J17"), IOStandard("LVCMOS33")),
-        # Subsignal("mdio", Pins("<from schematic>"), IOStandard("LVCMOS33")),
-        Subsignal("rx_ctl",  Pins("M22"), IOStandard("LVCMOS33")),   # e1_rxdv
-        Subsignal("rx_data", Pins("N22 H18 H17 M21"), IOStandard("LVCMOS33")),  # e1_rxd[0:3]
-        Subsignal("tx_ctl",  Pins("G22"), IOStandard("LVCMOS33")),   # e1_txen
-        Subsignal("tx_data", Pins("D22 H20 H22 J22"), IOStandard("LVCMOS33")),  # e1_txd[0:3]
+        Subsignal("rx_dv",   Pins("M22"), IOStandard("LVCMOS33")),   # e1_rxdv
+        Subsignal("rx_er",   Pins("N18"), IOStandard("LVCMOS33")),   # e1_rxer
+        Subsignal("rx_data", Pins("N22 H18 H17 M21 L21 N20 M20 N19"),
+                  IOStandard("LVCMOS33")),                            # e1_rxd[0:7]
+        Subsignal("tx_en",   Pins("G22"), IOStandard("LVCMOS33")),   # e1_txen
+        Subsignal("tx_data", Pins("D22 H20 H22 J22 K22 L19 K19 L20"),
+                  IOStandard("LVCMOS33")),                            # e1_txd[0:7]
+        # MDIO (e1_mdc=J17, mdio from SCH) left unwired — PHY runs on straps (§A.7).
     ),
     # RGMII PHY1 = the AX7101 "e2" RTL8211E (the Milan NIC second port).
     ("eth_clocks", 1,
