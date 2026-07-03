@@ -33,3 +33,25 @@ Driven from the LiteX BIOS console (`mem_write`/`mem_read`) on the AX7101, all-b
 The **memory → DMA → AXIS-CDC → datapath** half of M-A3 is proven on silicon; the
 **datapath → MAC → wire** half is untestable from the console alone (rig-gated + the
 `i_mac_events` stub). RX loopback (the other half of M-A3) needs a link partner / plug.
+
+## Update — tested against the live rig (ProfiTap ProfiShark 1G+ taps)
+Rig up: `amx-pw0`/`amx-pw1` i210s (`enp6s0`), `amx-ubuntu-server` with the `pt3usb`
+driver loaded + two ProfiShark 1G+ capture ifaces (`enxe8eb1b37e2c0`/`…39111a`). Armed
+continuous FPGA **loop-TX** (DMA `loop=1`, `enable=1`) of the broadcast frame and
+captured on both taps:
+- **No FPGA frame on either tap** (`ether src 02:00:00:00:00:01` = 0 hits; only
+  amx-ubuntu's own IPv6 MLD on the capture iface).
+- **i210 `carrier=0 / Link detected: no`** on both ports, even with the taps active.
+
+**Localization (definitive):** the FPGA moves the frame all the way DDR3 → DMA →
+AXIS-CDC → datapath (`done=1`), but **nothing egresses onto the wire**. Because the
+RTL8211E does copper auto-negotiation independently of the MAC, the i210 seeing *no
+carrier at all* means the FPGA-side PHY is **not operational** — most likely held in
+reset / not clocked, not merely an RGMII-data problem. The break is the last, least-
+validated stage: **LiteEth `LiteEthPHYRGMII` → RGMII → RTL8211E**.
+
+**Next (FPGA gateware bring-up loop, iterative):** verify/fix the PHY reset (polarity +
+the `e_reset` pin; the milan_csr `PHY_RESET` @0x11C is a stub here — LiteEthPHYRGMII owns
+it), confirm the PHY reference clock, wire **MDIO** (needs the `mdio` pin from
+`AX7101_EX_SCH.pdf` — absent from the Alinx GMII example) to read PHY link status, then
+check the s7rgmii TX/RX IODELAY timing. Each iteration = ~20 min rebuild + tap retest.
