@@ -1,0 +1,47 @@
+{
+  "platform": "litex-naxriscv",
+  "address_cells": 1,
+  "interrupt_parent": "intc0",
+  "reg": {
+    "csr": {
+      "base": 2415919104,
+      "size": 65536
+    },
+    "dma-tx": {
+      "base": 4026542080,
+      "size": 28
+    },
+    "dma-rx": {
+      "base": 4026542108,
+      "size": 28
+    },
+    "dma-ts": {
+      "base": 4026542136,
+      "size": 28
+    }
+  },
+  "interrupts": [
+    {
+      "name": "csr",
+      "num": 3
+    }
+  ],
+  "phy": {
+    "reg": 1,
+    "mode": "rgmii-id",
+    "reset_gpio": "&gpio 0 1"
+  },
+  "mac_address": "00:1b:c5:00:00:01",
+  "ptp": {
+    "present": true,
+    "clock_hz": 125000000
+  },
+  "queues": {
+    "txq": 4,
+    "rxq": 4,
+    "shaped": [
+      0,
+      1
+    ]
+  }
+}

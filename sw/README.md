@@ -28,7 +28,7 @@ device tree. This is the smallest bootable slice of
 | [`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log) | Captured `litex_sim` boot: the NaxRiscv core running the LiteX BIOS to the `litex>` prompt. |
 | [`litex/evidence/naxriscv_reads_MILN.log`](litex/evidence/naxriscv_reads_MILN.log) | Captured `mem_read 0x90000000` = `MILN` + VERSION — **M-A2** on the softcore. |
 | [`../docs/AXIS_CORES_ON_NAXRISCV.md`](../docs/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
-| [`dts/milan.dtsi`](dts/milan.dtsi) | The `kl,dma-ether` device-tree node the driver binds to. |
+| [`dts/`](dts/) | The `kl,dma-ether` device tree — **generated per-platform** from an intermediate JSON so it converges for any SoC (`dts/milan_dt.py`, `dts/README.md`). |
 | [`dts/bindings/kl,dma-ether.yaml`](dts/bindings/kl,dma-ether.yaml) | Normative DT binding (the DT requirements, `FR-DT-*`). |
 | [`driver/README.md`](driver/README.md) | The `kl-eth` platform driver (NAPI/XDP/PTP/ethtool, `FR-DRV-*`) and its DT match. |
 
@@ -76,9 +76,10 @@ cd litex
 ## Boot Linux (needs the board / a bitstream)
 
 ```sh
-# generate the base DT from the SoC, then overlay the NIC node:
+# generate the base DT from the SoC, then overlay the NIC node (generated from csr.json):
 litex_json2dts_linux build/csr.json > milan.dts
-cat ../dts/milan.dtsi >> milan.dts                 # kl,dma-ether (adjust reg base, see below)
+../dts/milan_dt.py extract --platform litex build/csr.json --board ../dts/boards/ax7101.json > ../dts/ir/milan-dt.litex.json
+../dts/milan_dt.py gen ../dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-ether (real addrs)
 # build Image + OpenSBI + Buildroot (linux-on-litex-vexriscv drives naxriscv), then over serial:
 ip link set eth0 up && udhcpc -i eth0
 ethtool -T eth0        # PHC + HW timestamping     (FR-DRV-P/E)
