@@ -56,9 +56,11 @@ MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
 class _CRG(LiteXModule):
     """Clock/reset: PLL the 200 MHz board clock down to the system clock.
 
-    With `with_eth`, also produces the 200 MHz `idelay_ref` clock + IDELAYCTRL the
-    Artix-7 RGMII PHY (LiteEth s7rgmii) needs for its IODELAY calibration."""
-    def __init__(self, platform, sys_clk_freq, with_eth=False):
+    With `with_dram`, also produces the DDR3 PHY clocks (`sys4x`, `sys4x_dqs`); with
+    `with_dram` or `with_eth`, the 200 MHz `idelay` reference + IDELAYCTRL that both
+    the Artix-7 DDR3 PHY (A7DDRPHY) and the RGMII PHY (LiteEth s7rgmii) need for their
+    IODELAY calibration."""
+    def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False):
         self.cd_sys = ClockDomain()
 
         clk200 = platform.request("clk200")
@@ -70,8 +72,15 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
 
-        if with_eth:
-            # 200 MHz IDELAY reference + controller for the RGMII PHY's IODELAYs.
+        if with_dram:
+            # A7DDRPHY needs 4x (and 4x @90° for DQS) system clocks.
+            self.cd_sys4x     = ClockDomain()
+            self.cd_sys4x_dqs = ClockDomain()
+            pll.create_clkout(self.cd_sys4x,     4 * sys_clk_freq)
+            pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90)
+
+        if with_dram or with_eth:
+            # 200 MHz IDELAY reference + controller (DDR3 PHY + RGMII PHY IODELAYs).
             from litex.soc.cores.clock import S7IDELAYCTRL
             self.cd_idelay = ClockDomain()
             pll.create_clkout(self.cd_idelay, 200e6)
@@ -318,7 +327,8 @@ class MilanDMA(LiteXModule):
 
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
-                 with_milan=True, with_mac=False, with_dma=False, main_ram_size=0x8000, **kwargs):
+                 with_milan=True, with_mac=False, with_dma=False, with_dram=False,
+                 main_ram_size=0x8000, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
         # with its own args, take the defaults, override xlen/cpu-count, then args_read
@@ -334,16 +344,32 @@ class MilanSoC(SoCCore):
         kwargs["cpu_type"]    = "naxriscv"
         kwargs["cpu_variant"] = "standard"
         kwargs["cpu_count"]   = cpu_count
-        # Self-contained: integrated ROM (BIOS) + main RAM, so the SoC boots without
-        # external DRAM. (A board bring-up adds LiteDRAM; not needed to prove build/boot.)
-        kwargs.setdefault("integrated_rom_size",      0x20000)   # BIOS lives here; reset vector
-        kwargs.setdefault("integrated_main_ram_size", main_ram_size)
+        # BIOS ROM always integrated. Main RAM: external LiteDRAM (--with-dram, needed
+        # for Linux) OR integrated SRAM (self-contained smoke/sim). Don't add integrated
+        # main RAM when DRAM provides it.
+        kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
+        if not with_dram:
+            kwargs.setdefault("integrated_main_ram_size", main_ram_size)
 
         SoCCore.__init__(self, platform, sys_clk_freq,
                          ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core",
                          **kwargs)
 
-        self.crg = _CRG(platform, sys_clk_freq, with_eth=with_mac)
+        self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac)
+
+        # ---- 512 MB DDR3 (LiteDRAM, A7DDRPHY + MT41J256M16) — migration §A.3 ----
+        if with_dram:
+            from litedram.phy import s7ddrphy
+            from litedram.modules import MT41J256M16
+            self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
+                memtype        = "DDR3",
+                nphases        = 4,
+                sys_clk_freq   = sys_clk_freq,
+                iodelay_clk_freq = 200e6)
+            self.add_sdram("sdram",
+                phy    = self.ddrphy,
+                module = MT41J256M16(sys_clk_freq, "1:4"),
+                l2_cache_size = 8192)
 
         if with_milan:
             # AXI-Lite bridge from the CPU bus to the Milan CSR window.
@@ -380,8 +406,10 @@ def main():
                     help="attach the 1G MAC + RGMII PHY (§A.7) at the datapath MAC boundary")
     ap.add_argument("--with-dma", action="store_true",
                     help="attach the AXIS<->memory DMA engines (§A.6) with simple-mode CSRs")
+    ap.add_argument("--with-dram", action="store_true",
+                    help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16) — needed for Linux (§A.3)")
     ap.add_argument("--full", action="store_true",
-                    help="full FPGA config: NIC + DMA + MAC (equivalent to --with-dma --with-mac)")
+                    help="full FPGA config: NIC + DMA + MAC + DDR3 (--with-dma --with-mac --with-dram)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
     ap.add_argument("--load",  action="store_true")
     builder_args(ap)
@@ -392,6 +420,7 @@ def main():
                    cpu_count=args.cpu_count, with_milan=not args.no_milan,
                    with_mac=args.with_mac or args.full,
                    with_dma=args.with_dma or args.full,
+                   with_dram=args.with_dram or args.full,
                    main_ram_size=args.main_ram_size)
     builder = Builder(soc, **builder_argdict(args))
     builder.build(run=args.build)      # run=False => elaborate + export gateware, no Vivado

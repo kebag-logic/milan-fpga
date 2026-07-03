@@ -11,6 +11,7 @@ Documentation for the Milan TSN FPGA network interface.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, and a "where to change things" guide. |
 | [FULLY_FPGA_RISCV_MIGRATION.md](FULLY_FPGA_RISCV_MIGRATION.md) | The deep, step-numbered migration plan (§A.x parts: DDR, clocking, CSR, DMA, MAC, IRQ, wrapper, boot, driver, DT). |
 | [AXIS_CORES_ON_NAXRISCV.md](AXIS_CORES_ON_NAXRISCV.md) | How to attach AXI-Stream cores to the NaxRiscv SoC (control/data/event planes). |
+| [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) | How the SoC was ported to the real Alinx AX7101 board — pin extraction from the official constraints, DDR3/LiteDRAM integration, verification. |
 | [SIMULATION.md](SIMULATION.md) | How the design is simulated at all three layers (Verilator RTL harnesses, softcore boot, softcore+NIC M-A2) — step by step. |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Field log of every problem hit bringing up the full-FPGA solution, with symptom → cause → fix. |
 | [../REQUIREMENTS.md](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (what's missing and why). |
