@@ -328,7 +328,8 @@ class MilanMAC(LiteXModule):
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
-    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys", **_rgmii):
+    def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
+                 gtx_tx_invert=False, **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
 
@@ -339,7 +340,8 @@ class MilanMAC(LiteXModule):
         # (4-bit DDR) read of this bus corrupts every byte — hardware-confirmed as 100%
         # MAC preamble errors (evidence/hw_ma3_*). LiteEthPHYGMII is the right PHY.
         # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
-        self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True)
+        self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
+                                   tx_clk_invert=gtx_tx_invert)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
 
@@ -662,7 +664,7 @@ class MilanDebug(LiteXModule):
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
-                 with_spiflash=False, flashboot="kernel",
+                 with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
@@ -743,6 +745,7 @@ class MilanSoC(SoCCore):
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
+                                          gtx_tx_invert=gtx_tx_invert,
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 dp_ports.update(self.milan_mac.dp_ports)
@@ -825,6 +828,10 @@ def main():
                          "a complete/validated NIC — MDIO/PHY mgmt, the kl-eth driver, DMA "
                          "scatter-gather, and on-hardware traffic (M-A3..M-A5) are still open. "
                          "(--full is a legacy alias for this flag.)")
+    ap.add_argument("--gtx-tx-invert", action="store_true",
+                    help="forward GMII gtx_clk 180° out of phase with TXD so the PHY samples "
+                         "mid-bit — the fix for the marginal GMII-TX setup/hold at the RTL8211E "
+                         "(docs/kl-eth-tx-debug §GMII-TX). Default off = edge-aligned (upstream).")
     ap.add_argument("--rgmii-tx-delay", default=2e-9, type=float,
                     help="RGMII MAC-side TX clock delay, seconds (default 2e-9).")
     ap.add_argument("--rgmii-rx-delay", default=0e-9, type=float,
@@ -851,6 +858,7 @@ def main():
                    with_dram=args.with_dram or args.all_blocks,
                    with_spiflash=args.with_spiflash or args.all_blocks,
                    flashboot=args.flashboot,
+                   gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq,
                    coherent_dma=args.coherent_dma,

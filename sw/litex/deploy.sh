@@ -41,6 +41,9 @@ BIT="${BIT:-$(ls -t "$HERE"/*/gateware/alinx_ax7101.bit 2>/dev/null | head -1 ||
 LAYOUT="${LAYOUT:-$(ls -t "$HERE"/*/flashboot_layout.json 2>/dev/null | head -1 || true)}"
 PYTHON="${PYTHON:-python3}"
 FLASH_SIZE=$((16*1024*1024))  # N25Q128 = 16 MB
+# openFPGALoader needs the FPGA part to pick its JTAG→SPI proxy when writing a RAW file
+# (a bitstream carries the part; raw data doesn't → "missing device-package information").
+FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
 # All fabric blocks (NIC+DMA+MAC+DDR3), datapath in its own 50 MHz domain so sys+DDR3
 # close a clean 100 MHz (see docs/TROUBLESHOOTING.md §16); --timing-opt for margin.
@@ -75,7 +78,7 @@ do_flash_images() {
         printf "[deploy]   %-8s %9d B  -> flash @ 0x%06x  (budget %d B, from %s)\n" "$name" "$sz" "$off" "$budget" "$src"
         [ "$sz" -le "$budget" ] || {
             echo "[deploy]   ERROR: '$name' ($sz B) exceeds its $budget B slot — slim it or move offsets (docs/QSPI_FLASHBOOT.md)"; exit 2; }
-        openFPGALoader -c "$CABLE" -o "$off" --write-flash --file-type raw --verify "$fbi"
+        openFPGALoader -c "$CABLE" --fpga-part "$FPGA_PART" -o "$off" --write-flash --file-type raw --verify "$fbi"
     done < <("$PYTHON" - "$LAYOUT" "$FLASH_SIZE" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1])); fs = int(sys.argv[2])
