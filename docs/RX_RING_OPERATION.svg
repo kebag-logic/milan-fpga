@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" font-family="Helvetica,Arial,sans-serif">
+<rect width="1500" height="900" fill="#ffffff"/>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#37474F"/></marker><marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#C62828"/></marker></defs>
+<text x="24" y="36" font-size="20" fill="#263238" font-weight="bold">RX ring DMA v2 — how it works (RingDMAWriter in milan_soc.py ⇄ kl-eth ring walk)</text>
+<text x="24" y="58" font-size="12" fill="#546E7A">one shared contract: 7 CSRs + the ring memory format; HW commits whole frames, SW consumes and releases space</text>
+<text x="24" y="92" font-size="14.5" fill="#1565C0" font-weight="bold">① GATEWARE: always-ready ingress -&gt; store-and-forward -&gt; AXI bursts</text>
+<rect x="24" y="108" width="170" height="92" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="109.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">datapath m_axis_rx</text>
+<text x="109.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">64-bit AXIS @50 MHz</text>
+<text x="109.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">(frames, tlast)</text>
+<rect x="234" y="108" width="120" height="92" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="294.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">CDC</text>
+<text x="294.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">async FIFO</text>
+<text x="294.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">50 -&gt; 100 MHz</text>
+<rect x="394" y="108" width="250" height="92" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="519.0" y="127" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">ingress (sink.ready == 1)</text>
+<text x="519.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">frame START decision:</text>
+<text x="519.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">free &lt; 256 beats? len queue full?</text>
+<text x="519.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">disabled?  -&gt; swallow WHOLE frame</text>
+<text x="519.0" y="189" font-size="11.5" fill="#37474F" text-anchor="middle">else store beats; push len at tlast</text>
+<rect x="684" y="108" width="210" height="92" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="789.0" y="127" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">BRAM buffers</text>
+<text x="789.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">data FIFO 2048 x 64 b (16 KB)</text>
+<text x="789.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">+ length FIFO 64 x 9 b</text>
+<text x="789.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">(a frame is complete before</text>
+<text x="789.0" y="189" font-size="11.5" fill="#37474F" text-anchor="middle">its length is visible)</text>
+<rect x="934" y="108" width="250" height="92" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="1059.0" y="127" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">drain FSM (burst engine)</text>
+<text x="1059.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">pops one length, checks ring fit,</text>
+<text x="1059.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">streams header+payload as</text>
+<text x="1059.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">INCR bursts &lt;= 16 beats,</text>
+<text x="1059.0" y="189" font-size="11.5" fill="#37474F" text-anchor="middle">split at ring-wrap + 4 KB</text>
+<rect x="1224" y="108" width="252" height="92" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1350.0" y="127" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">NaxRiscv dma_bus (AXI4)</text>
+<text x="1350.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">coherent: snoops L1/L2,</text>
+<text x="1350.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">CPU sees DMA data without</text>
+<text x="1350.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">cache maintenance</text>
+<text x="1350.0" y="189" font-size="11.5" fill="#37474F" text-anchor="middle">B response = write done</text>
+<path d="M194 154 L230 154" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M354 154 L390 154" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M644 154 L680 154" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M894 154 L930 154" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M1184 154 L1220 154" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="1202.0" y="147.0" font-size="11" fill="#37474F" text-anchor="middle">AW/W/B</text>
+<path d="M519 200 L519 232" stroke="#C62828" stroke-width="2.2" fill="none" marker-end="url(#r)"/>
+<text x="519.0" y="209.0" font-size="11" fill="#C62828" text-anchor="middle">drop: dropped++</text>
+<path d="M1059 200 L1059 232" stroke="#C62828" stroke-width="2.2" fill="none" marker-end="url(#r)"/>
+<text x="1059.0" y="209.0" font-size="11" fill="#C62828" text-anchor="middle">ring full: DISCARD, dropped++</text>
+<text x="24" y="260" font-size="14.5" fill="#EF6C00" font-weight="bold">② the drain FSM, per frame</text>
+<rect x="40" y="274" width="190" height="84" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="135.0" y="293" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">IDLE</text>
+<text x="135.0" y="310" font-size="11.5" fill="#37474F" text-anchor="middle">length FIFO non-empty?</text>
+<text x="135.0" y="325" font-size="11.5" fill="#37474F" text-anchor="middle">fit: free &gt;= 8+len+8</text>
+<text x="135.0" y="340" font-size="11.5" fill="#37474F" text-anchor="middle">no fit / disabled -&gt; DISCARD</text>
+<rect x="280" y="274" width="190" height="84" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="375.0" y="293" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">AW</text>
+<text x="375.0" y="310" font-size="11.5" fill="#37474F" text-anchor="middle">addr = base+((wr+done)&amp;mask)</text>
+<text x="375.0" y="325" font-size="11.5" fill="#37474F" text-anchor="middle">len = blen-1, INCR, 8 B/beat</text>
+<text x="375.0" y="340" font-size="11.5" fill="#37474F" text-anchor="middle">blen = min(rem, 16, wrap, 4K)</text>
+<rect x="520" y="274" width="190" height="84" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="615.0" y="293" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">W  (x blen)</text>
+<text x="615.0" y="310" font-size="11.5" fill="#37474F" text-anchor="middle">beat 0 of frame = HEADER</text>
+<text x="615.0" y="325" font-size="11.5" fill="#37474F" text-anchor="middle">{rsvd, seq, len_bytes}</text>
+<text x="615.0" y="340" font-size="11.5" fill="#37474F" text-anchor="middle">then payload from data FIFO</text>
+<rect x="760" y="274" width="190" height="84" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="855.0" y="293" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">WAIT_B</text>
+<text x="855.0" y="310" font-size="11.5" fill="#37474F" text-anchor="middle">all B responses in</text>
+<text x="855.0" y="325" font-size="11.5" fill="#37474F" text-anchor="middle">(outstanding == 0) -&gt;</text>
+<text x="855.0" y="340" font-size="11.5" fill="#37474F" text-anchor="middle">COMMIT: wr += 8+len; seq++</text>
+<rect x="1000" y="274" width="190" height="84" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="1095.0" y="293" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">DISCARD</text>
+<text x="1095.0" y="310" font-size="11.5" fill="#37474F" text-anchor="middle">pop len beats from FIFO</text>
+<text x="1095.0" y="325" font-size="11.5" fill="#37474F" text-anchor="middle">dropped++ -&gt; IDLE</text>
+<text x="1095.0" y="340" font-size="11.5" fill="#37474F" text-anchor="middle">(committed data untouched)</text>
+<path d="M230 316 L276 316" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="253.0" y="309.0" font-size="11" fill="#37474F" text-anchor="middle">fit</text>
+<path d="M470 316 L516 316" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="493.0" y="309.0" font-size="11" fill="#37474F" text-anchor="middle">aw.ready</text>
+<path d="M710 316 L756 316" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="733.0" y="309.0" font-size="11" fill="#37474F" text-anchor="middle">last beat</text>
+<path d="M615 358 L615 386" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M615 386 L375 386" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M375 386 L375 362" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="375.0" y="367.0" font-size="11" fill="#37474F" text-anchor="middle">more bursts</text>
+<path d="M855 358 L855 394" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M855 394 L135 394" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M135 394 L135 362" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="135.0" y="371.0" font-size="11" fill="#37474F" text-anchor="middle">next frame</text>
+<path d="M135 274 L135 266 L1095 266 L1095 272" stroke="#C62828" stroke-width="2.2" fill="none" marker-end="url(#r)"/>
+<text x="640" y="261" font-size="11" fill="#C62828" text-anchor="middle">no fit / disabled</text>
+<rect x="1240" y="274" width="236" height="84" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="1358.0" y="293" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">why commit-after-B</text>
+<text x="1358.0" y="310" font-size="11.5" fill="#37474F" text-anchor="middle">software polls wr_ptr; it moves</text>
+<text x="1358.0" y="325" font-size="11.5" fill="#37474F" text-anchor="middle">only when the frame is fully in</text>
+<text x="1358.0" y="340" font-size="11.5" fill="#37474F" text-anchor="middle">DRAM -&gt; a partial frame is</text>
+<text x="1358.0" y="355" font-size="11.5" fill="#37474F" text-anchor="middle">never observable</text>
+<text x="24" y="438" font-size="14.5" fill="#2E7D32" font-weight="bold">③ the ring in DRAM (base, size = mask+1 = 256 KB; all offsets byte, 8-aligned)</text>
+<rect x="40" y="474" width="60" height="46" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.6"/>
+<text x="70.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">consumed</text>
+<text x="70.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">(free)</text>
+<rect x="100" y="474" width="40" height="46" fill="#C8E6C9" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="120.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">hdr</text>
+<text x="120.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">seq=41</text>
+<rect x="140" y="474" width="150" height="46" fill="#C8E6C9" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="215.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">payload 1514 B</text>
+<text x="215.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">(stored as 1520)</text>
+<rect x="290" y="474" width="40" height="46" fill="#C8E6C9" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="310.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">hdr</text>
+<text x="310.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">seq=42</text>
+<rect x="330" y="474" width="90" height="46" fill="#C8E6C9" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="375.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">payload 176 B</text>
+<rect x="420" y="474" width="40" height="46" fill="#FFE0B2" stroke="#EF6C00" stroke-width="1.6"/>
+<text x="440.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">hdr</text>
+<text x="440.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">seq=43</text>
+<rect x="460" y="474" width="140" height="46" fill="#FFE0B2" stroke="#EF6C00" stroke-width="1.6"/>
+<text x="530.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">being written (bursts)</text>
+<text x="530.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">wr_ptr NOT yet advanced</text>
+<rect x="600" y="474" width="420" height="46" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.6"/>
+<text x="810.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">free</text>
+<text x="810.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">(&gt;= 8 spare kept: wr never catches rd)</text>
+<rect x="1020" y="474" width="110" height="46" fill="#C8E6C9" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="1075.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">tail of frame seq=40</text>
+<text x="1075.0" y="510.0" font-size="10" fill="#37474F" text-anchor="middle">wraps -&gt;</text>
+<rect x="1130" y="474" width="110" height="46" fill="#ECEFF1" stroke="#546E7A" stroke-width="1.6"/>
+<text x="1185.0" y="495.0" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle"></text>
+<text x="1185" y="499.0" font-size="10" fill="#546E7A" font-weight="bold">(same frame continues at offset 0)</text>
+<path d="M100 546 L100 522" stroke="#1565C0" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="110" y="544" font-size="11" fill="#1565C0">rd_ptr (SW writes back)</text>
+<path d="M420 458 L420 472" stroke="#2E7D32" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="430" y="462" font-size="11" fill="#2E7D32">wr_ptr (HW commit point)</text>
+<rect x="40" y="560" width="460" height="86" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="270.0" y="579" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">header word (8 B, written as burst beat 0)</text>
+<text x="270.0" y="596" font-size="11.5" fill="#37474F" text-anchor="middle">bits [15:0]  len   — payload bytes, 8-aligned (padded)</text>
+<text x="270.0" y="611" font-size="11.5" fill="#37474F" text-anchor="middle">bits [31:16] seq   — increments per committed frame</text>
+<text x="270.0" y="626" font-size="11.5" fill="#37474F" text-anchor="middle">bits [63:32] rsvd — 0</text>
+<rect x="540" y="560" width="440" height="86" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="760.0" y="579" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">space rule</text>
+<text x="760.0" y="596" font-size="11.5" fill="#37474F" text-anchor="middle">a frame needs 8 + len + 8 spare bytes free:</text>
+<text x="760.0" y="611" font-size="11.5" fill="#37474F" text-anchor="middle">free = size - ((wr - rd) &amp; mask); no fit -&gt; whole-frame</text>
+<text x="760.0" y="626" font-size="11.5" fill="#37474F" text-anchor="middle">DISCARD (never a partial write, never overwrite)</text>
+<rect x="1020" y="560" width="456" height="86" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1248.0" y="579" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">wrap rule</text>
+<text x="1248.0" y="596" font-size="11.5" fill="#37474F" text-anchor="middle">frames may cross the ring end: addresses are masked,</text>
+<text x="1248.0" y="611" font-size="11.5" fill="#37474F" text-anchor="middle">bursts are split at the boundary; software does the</text>
+<text x="1248.0" y="626" font-size="11.5" fill="#37474F" text-anchor="middle">mirror: two memcpys when rd + len &gt; size</text>
+<text x="24" y="678" font-size="14.5" fill="#6A1B9A" font-weight="bold">④ DRIVER (kl-eth NAPI poll) — the consumer side of the same contract</text>
+<rect x="40" y="692" width="300" height="96" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="190.0" y="711" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">poll (adaptive 20/200 us)</text>
+<text x="190.0" y="728" font-size="11.5" fill="#37474F" text-anchor="middle">read RING_WR (one CSR read)</text>
+<text x="190.0" y="743" font-size="11.5" fill="#37474F" text-anchor="middle">frames pending if rd != wr</text>
+<text x="190.0" y="758" font-size="11.5" fill="#37474F" text-anchor="middle">mirror RING_DROPPED into</text>
+<text x="190.0" y="773" font-size="11.5" fill="#37474F" text-anchor="middle">rx_missed_errors</text>
+<rect x="380" y="692" width="300" height="96" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="530.0" y="711" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">walk headers rd -&gt; wr</text>
+<text x="530.0" y="728" font-size="11.5" fill="#37474F" text-anchor="middle">hdr = ring[rd]; sanity: 0 &lt; len</text>
+<text x="530.0" y="743" font-size="11.5" fill="#37474F" text-anchor="middle">&lt;= 2048 and len % 8 == 0</text>
+<text x="530.0" y="758" font-size="11.5" fill="#37474F" text-anchor="middle">(else desync recovery: rd = wr,</text>
+<text x="530.0" y="773" font-size="11.5" fill="#37474F" text-anchor="middle">count rx_length_errors)</text>
+<rect x="720" y="692" width="300" height="96" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="870.0" y="711" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">copy out + deliver</text>
+<text x="870.0" y="728" font-size="11.5" fill="#37474F" text-anchor="middle">memcpy to skb (2 copies if the</text>
+<text x="870.0" y="743" font-size="11.5" fill="#37474F" text-anchor="middle">frame wraps), strip pad via</text>
+<text x="870.0" y="758" font-size="11.5" fill="#37474F" text-anchor="middle">eth_type_trans + IP length</text>
+<text x="870.0" y="773" font-size="11.5" fill="#37474F" text-anchor="middle">netif_receive_skb</text>
+<rect x="1060" y="692" width="300" height="96" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="1210.0" y="711" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">release space</text>
+<text x="1210.0" y="728" font-size="11.5" fill="#37474F" text-anchor="middle">rd = (rd + 8 + len) &amp; mask</text>
+<text x="1210.0" y="743" font-size="11.5" fill="#37474F" text-anchor="middle">write back RING_RD -&gt;</text>
+<text x="1210.0" y="758" font-size="11.5" fill="#37474F" text-anchor="middle">HW sees the freed bytes</text>
+<text x="1210.0" y="773" font-size="11.5" fill="#37474F" text-anchor="middle">on its next fit check</text>
+<path d="M340 740 L376 740" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M680 740 L716 740" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M1020 740 L1056 740" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="808" width="1320" height="58" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="700.0" y="827" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">CSR block (kl-eth regs.h names, byte offsets in the dma-rx window @ 0xf000301c)</text>
+<text x="700.0" y="844" font-size="11.5" fill="#37474F" text-anchor="middle">+0x00 RING_BASE_HI  +0x04 RING_BASE_LO  +0x08 RING_MASK  +0x0c RING_WR (RO)  +0x10 RING_RD (RW)  +0x14 RING_EN  +0x18 RING_DROPPED (RO)</text>
+<text x="700.0" y="859" font-size="11.5" fill="#37474F" text-anchor="middle">identical footprint to the old simple-mode block -&gt; device tree and driver probe unchanged</text>
+</svg>
