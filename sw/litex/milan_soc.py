@@ -23,9 +23,10 @@
 
 import os
 import sys
+import json
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If
+from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat
 from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
@@ -35,7 +36,8 @@ from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import S7PLL
 from litex.soc.interconnect import axi
-from litex.soc.interconnect.csr import CSRStorage
+from litex.soc.interconnect.csr import CSRStorage, CSRStatus
+from litex.gen.genlib.cdc import BusSynchronizer
 from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
@@ -51,6 +53,42 @@ import alinx_ax7101
 # build used 0x43C0_0000. The device-tree `reg` base must match the host (see sw/README).
 MILAN_CSR_BASE = 0x9000_0000
 MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
+
+# ---- QSPI flash boot ("gain time" — skip the ~4-min serial image upload) -------------------------
+# The AX7101 flash is a Micron N25Q128 = 16 MB (confirmed from the Alinx repo datasheet).
+# The Linux boot images total ~23 MB (14 MB kernel Image + 8.7 MB rootfs.cpio.gz + 0.26 MB
+# OpenSBI + 3 KB dtb), so they do NOT all fit in 16 MB at once. Two supported layouts:
+#
+#   "kernel" (DEFAULT) — flash only the big, static 14 MB kernel; the BIOS pre-loads it
+#       from flash into DRAM, then serialboot uploads only OpenSBI+dtb+rootfs (~9 MB).
+#       Cuts the per-boot upload ~60 %. The bitstream is JTAG-loaded (not in flash).
+#   "full" — flash every image and boot with ZERO serial upload. Only fits once the
+#       kernel is slimmed below ~6.5 MB (see docs/QSPI_FLASHBOOT.md).
+#
+# Offsets are relative to the SPIFLASH region base (resolved at run time from SPIFLASH_BASE);
+# each image is written as a LiteX FBI (little-endian [length][crc32][data], via crcfbigen).
+# DRAM targets match the OpenSBI fw_jump map (kernel 0x4000_0000, dtb 0x40ef_0000, OpenSBI
+# 0x40f0_0000 = entry with a0=hartid/a1=0, rootfs/initrd 0x4100_0000). deploy.sh writes the
+# generated <build>/flashboot_layout.json so gateware + flashing never drift.
+FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
+# Flash offsets (64 KB-aligned, 16 MB device) and their DRAM targets. The kernel always
+# lives at offset 0. The opensbi/dtb/rootfs offsets only apply to the "full" (zero-upload)
+# manifest and assume a SLIM kernel ≤ 5.5 MB (0x58_0000) — the *un*-slimmed 14 MB kernel
+# does not leave room for the 8.7 MB rootfs in 16 MB, which is exactly why "full" requires
+# slimming (docs/QSPI_FLASHBOOT.md). In the default "kernel" manifest only the kernel is
+# flashed, so its 14 MB span (0..0xE0_0000) is free to use these otherwise-unused offsets.
+FLASHBOOT_LAYOUT = {
+    #  name       flash_offset      dram_addr        budget (full layout)
+    "kernel":  {"offset": 0x00_0000, "addr": 0x4000_0000},  # ≤ 5.5 MB when "full"
+    "opensbi": {"offset": 0x58_0000, "addr": 0x40F0_0000},  # 256 KB
+    "dtb":     {"offset": 0x5C_0000, "addr": 0x40EF_0000},  # 256 KB
+    "rootfs":  {"offset": 0x60_0000, "addr": 0x4100_0000},  # up to 10 MB → ends ≤ 16 MB
+}
+FLASHBOOT_MANIFESTS = {
+    "none":   [],
+    "kernel": ["kernel"],                              # partial: pre-load kernel, serial rest
+    "full":   ["opensbi", "dtb", "kernel", "rootfs"],  # zero-upload (needs a slim kernel)
+}
 
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -313,6 +351,11 @@ class MilanMAC(LiteXModule):
         # datapath binds to, wiring the CDC (or a direct pass-through) to `sys_ep`.
         tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False)  # dp -> MAC
         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True)   # MAC -> dp
+        # Debug/telemetry taps (sys side): datapath->MAC-TX out and MAC-RX->datapath in.
+        # `MilanDebug` also taps self.core.sink/source (LiteEth in/out) and
+        # self.phy.sink/source (GMII wire, eth_tx/eth_rx).
+        self.dbg_tx_dp = tx_dp.sys
+        self.dbg_rx_dp = rx_dp.sys
         # LiteEth's `last_be` is NOT an AXIS keep mask — it is a **one-hot pointer to the
         # last valid byte** of the final beat (liteeth/mac/padding.py Case: 0x01->1 byte,
         # 0x02->2 … 0x80->8; the RX side builds it by up-converting a single `last` bit).
@@ -334,7 +377,18 @@ class MilanMAC(LiteXModule):
             # only `valid`/`ready` and the RX source are muxed by `loopback`.
             self.core.sink.data.eq(tx_dp.sys.data),
             self.core.sink.last.eq(tx_dp.sys.last),
-            self.core.sink.last_be.eq(tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1)),
+            # `last_be` is a one-hot pointer to the last valid byte and is ONLY valid on
+            # the last beat — it must be 0 on every non-last beat. LiteEth's TX last-BE
+            # handler asserts end-of-frame on *any* beat with `last_be != 0`
+            # (LiteEthLastHandler: `source.last = (sink.last_be != 0)`, then WAIT-LAST
+            # discards the rest). Driving the highest-set-bit unconditionally put
+            # `last_be = 0x80` on every beat, so the 64->8 converter tagged byte 7 of the
+            # FIRST beat as last -> the frame was truncated to 8 bytes and the tail (bytes
+            # 8..N) discarded. Only the dst-MAC (beat 0) survived, so wire captures showed
+            # a 60-byte runt and the peer dropped it (M-A3's dst-only rx_broadcast counter
+            # check masked this). Gate it by `last` so only the final beat carries last_be.
+            self.core.sink.last_be.eq(Mux(tx_dp.sys.last,
+                                          tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1), 0)),
             If(lb,
                 # internal loopback: datapath TX -> datapath RX (sys domain), both keep-masks
                 rx_dp.sys.valid.eq(tx_dp.sys.valid),
@@ -460,11 +514,155 @@ class MilanDMA(LiteXModule):
         )
 
 
+# Debug / pipeline telemetry ----------------------------------------------------------------------
+
+class MilanDebug(LiteXModule):
+    """Memory-mapped observability for the whole TX+RX AXIS pipeline — the numbers a HW
+    developer wants to localise where a frame is lost or where it queues up.
+
+    At each pipeline stage it counts, free-running (reset via `reset`):
+      * `*_frames` — completed frames (valid & ready & last). A frame present at stage N
+        but missing at N+1 pinpoints the loss.
+      * `*_beats`  — beats transferred (valid & ready). frames→size, beats→throughput.
+      * `*_stalls` — cycles the stage was back-pressured (valid & ~ready). The bottleneck
+        stage is the one with high stalls upstream of it.
+
+    Stages (see the pipeline both ways):
+      TX:  dma_out → dp_out → core_in → [LiteEth] → tx_wire (GMII)
+      RX:  rx_wire (GMII) → [LiteEth] → core_out → dp_in → dma_in
+
+    `tx_wire`/`rx_wire` count frames on the GMII pins (eth_tx/eth_rx domains, brought to
+    sys with a BusSynchronizer) — the answer to "did it actually reach the wire?".
+
+    `*_inflight_acc` accumulate Σ(in-flight) each cycle across the black-box datapath
+    (in-flight = frames_in − frames_out). By Little's law: **avg occupancy = acc/cycles**
+    and **avg latency (wait time) = acc/frames** — the average FIFO depth and the average
+    time a frame spends crossing the datapath. `cycles` is the free-running normaliser.
+
+    **Coherent capture.** All counters run live; writing `capture` latches EVERY counter
+    into a shadow at the same clock edge, and the CSRs read the shadow. So software does:
+    one write to `capture`, then read the whole set — a consistent snapshot, not values
+    still moving between reads. `reset` zeroes the live counters.
+
+    **Extensible.** The probe primitives are public methods — `sys_probe`, `wire_probe`,
+    `match_probe`, `ethertype_probe`, `inflight_acc` (all auto-`snap`'d and CSR-mapped).
+    Add a new observable in one line, either inline below or via the `extra(dbg)` hook,
+    e.g. count gPTP frames (done here), PTP-event frames, a VLAN/PCP, a dst-MAC match, a
+    drop point, another FIFO's occupancy … The gPTP TX/RX counters below are the worked
+    example of `ethertype_probe`.
+
+    **Cross-platform (LiteX vs Zynq).** This class is the **LiteX** binding — it uses
+    LiteX for the LiteX-specific things: LiteX `CSRStatus` registers, `BusSynchronizer`
+    for the CDC, and taps on the LiteX edges (the `WishboneDMAReader/Writer` and the
+    `LiteEthPHYGMII` wire). The *shared* observables — everything at the `milan_datapath`
+    AXIS boundary (tx_dp/rx_dp) and inside it — are the same on Zynq; the cross-platform
+    home for those is the shared `milan_datapath.sv` counters exposed through the shared
+    `milan_csr` block (0x9000_0000 on LiteX, 0x43c0_0000 on Zynq), so the Zynq wrapper
+    gets them for free and only re-binds its own edges (axi_dma, its MAC). Keep new
+    *datapath-internal* probes in the SV/`milan_csr` path; keep *edge/SoC-fabric* probes
+    (DMA-to-memory, MAC-to-wire) in the per-platform wrapper like this one."""
+    def __init__(self, dma, mac, extra=None):
+        self.reset   = CSRStorage(1, description="write 1 to zero all live counters")
+        self.capture = CSRStorage(1, description="write 1 to LATCH a coherent snapshot of every counter, then read them")
+        self._rst = self.reset.storage
+        self._cap = self.capture.re               # 1-cycle pulse on write → latch all shadows together
+
+        cyc = Signal(64)
+        self.sync += If(self._rst, cyc.eq(0)).Else(cyc.eq(cyc + 1))
+        self._snap(cyc, 64, "cycles", "free-running sys cycles at capture — normaliser")
+
+        # --- standard TX/RX stage probes (frames / beats / stalls) ---
+        tx_dma = self.sys_probe("tx_dma",  dma.tx.source,   "TX: DMA read -> AXIS")
+        tx_dp  = self.sys_probe("tx_dp",   mac.dbg_tx_dp,   "TX: datapath -> MAC")
+        self.sys_probe("tx_core", mac.core.sink,   "TX: -> LiteEth core")
+        self.sys_probe("rx_core", mac.core.source, "RX: LiteEth core ->")
+        rx_dp  = self.sys_probe("rx_dp",   mac.dbg_rx_dp,   "RX: datapath -> AXIS")
+        rx_dma = self.sys_probe("rx_dma",  dma.rx.sink,     "RX: -> DMA write")
+
+        # --- wire-level GMII frame counts (eth_tx/eth_rx) ---
+        phy_tx = getattr(mac.phy, "sink", None)   or getattr(getattr(mac.phy, "tx", None), "sink", None)
+        phy_rx = getattr(mac.phy, "source", None) or getattr(getattr(mac.phy, "rx", None), "source", None)
+        self.wire_probe("tx_wire", phy_tx, "eth_tx", "TX: frames onto the GMII wire")
+        self.wire_probe("rx_wire", phy_rx, "eth_rx", "RX: frames off the GMII wire")
+
+        # --- datapath occupancy / latency (Little's law) ---
+        self.inflight_acc("tx_datapath", tx_dma, tx_dp, "TX datapath Σ in-flight/cycle (avg occ=acc/cycles, avg wait=acc/tx_dp_frames)")
+        self.inflight_acc("rx_datapath", rx_dp, rx_dma, "RX datapath Σ in-flight/cycle (avg occ=acc/cycles, avg wait=acc/rx_dma_frames)")
+
+        # --- EXAMPLE filtered probes: gPTP (802.1AS, EtherType 0x88F7) TX + RX ---
+        self.ethertype_probe("tx_gptp", mac.dbg_tx_dp, 0x88F7, "TX gPTP (0x88F7) frames")
+        self.ethertype_probe("rx_gptp", mac.dbg_rx_dp, 0x88F7, "RX gPTP (0x88F7) frames")
+
+        # --- user extension hook: extra(dbg) may add any further probes ---
+        if extra is not None:
+            extra(self)
+
+    # ---- probe primitives (public → extensible) --------------------------------------------
+    def _snap(self, live, width, name, desc):
+        """Latch `live` into a shadow on `capture` and expose it as a CSR."""
+        sh = Signal(width)
+        self.sync += If(self._cap, sh.eq(live))
+        cs = CSRStatus(width, name=name, description=desc)
+        setattr(self, name, cs)
+        self.comb += cs.status.eq(sh)
+
+    def sys_probe(self, name, ep, desc):
+        """frames / beats / stalls at a sys-domain AXIS endpoint. Returns the frame counter."""
+        frames, beats, stalls = Signal(32), Signal(32), Signal(32)
+        self.sync += If(self._rst, frames.eq(0), beats.eq(0), stalls.eq(0)).Else(
+            If(ep.valid & ep.ready & ep.last, frames.eq(frames + 1)),
+            If(ep.valid & ep.ready,           beats.eq(beats + 1)),
+            If(ep.valid & ~ep.ready,          stalls.eq(stalls + 1)),
+        )
+        self._snap(frames, 32, f"{name}_frames", f"{desc} — completed frames")
+        self._snap(beats,  32, f"{name}_beats",  f"{desc} — beats (valid&ready)")
+        self._snap(stalls, 32, f"{name}_stalls", f"{desc} — back-pressure cycles")
+        return frames
+
+    def wire_probe(self, name, ep, cd, desc):
+        """Frame count at an endpoint in clock domain `cd`, brought to sys and captured."""
+        if ep is None:
+            return
+        fr = Signal(32)
+        getattr(self.sync, cd).__iadd__(If(ep.valid & ep.ready & ep.last, fr.eq(fr + 1)))
+        bs = BusSynchronizer(32, cd, "sys"); setattr(self, f"{name}_bs", bs)
+        self.comb += bs.i.eq(fr)
+        self._snap(bs.o, 32, f"{name}_frames", desc)
+
+    def match_probe(self, name, ep, match, desc):
+        """Count only frames for which `match` (held over the frame) is asserted at `last`."""
+        frames = Signal(32)
+        self.sync += If(self._rst, frames.eq(0)).Elif(
+            ep.valid & ep.ready & ep.last & match, frames.eq(frames + 1))
+        self._snap(frames, 32, f"{name}_frames", desc)
+
+    def ethertype_probe(self, name, ep, etype, desc):
+        """Count frames whose (untagged) EtherType == `etype`. `ep` must carry `.data`
+        (>= 64-bit): byte 12/13 = the EtherType land in beat 1 (bytes 8..15). VLAN-tagged
+        frames carry it 4 bytes later — extend here if you need the tagged case."""
+        # beat 1 = frame bytes 8..15; EtherType = frame bytes 12,13 = word bytes 4,5 =
+        # data[32:40], data[40:48]. et = byte12<<8 | byte13 -> 0x88F7 for gPTP.
+        beat, et = Signal(4), Signal(16)
+        self.sync += If(ep.valid & ep.ready,
+            If(ep.last, beat.eq(0)).Else(beat.eq(beat + 1)),
+            If(beat == 1, et.eq(Cat(ep.data[40:48], ep.data[32:40]))),  # [7:0]=byte13, [15:8]=byte12
+        )
+        self.match_probe(name, ep, et == etype, desc)
+
+    def inflight_acc(self, name, cin, cout, desc):
+        """Σ(cin−cout) per cycle across a segment: avg occupancy = acc/cycles, avg wait = acc/frames."""
+        acc, inflight = Signal(64), Signal(16)
+        self.comb += inflight.eq(cin - cout)
+        self.sync += If(self._rst, acc.eq(0)).Else(acc.eq(acc + inflight))
+        self._snap(acc, 64, f"{name}_inflight_acc", desc)
+
+
 # SoC ----------------------------------------------------------------------------------------------
 
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
+                 with_spiflash=False, flashboot="kernel",
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
@@ -514,6 +712,21 @@ class MilanSoC(SoCCore):
                 module = MT41J256M16(sys_clk_freq, "1:4"),
                 l2_cache_size = 8192)
 
+        # ---- QSPI config flash (memory-mapped) + Linux flash-boot manifest ----
+        # Maps the on-board N25Q128 (16 MB) into the CPU address space so the BIOS can
+        # copy boot images straight from flash into DRAM (~10 MB/s quad) instead of the
+        # ~4-min 1.5 Mbaud serial upload. `flashboot` selects which images live in flash
+        # (see FLASHBOOT_MANIFESTS); the emitted MILAN_FLASHBOOT_* constants drive the
+        # `linux_flashboot` BIOS method (sw/litex/patches/0001-milan-linux-flashboot.patch).
+        if with_spiflash:
+            from litespi.modules import N25Q128A13
+            from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
+            # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
+            # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
+            self.add_spi_flash(mode="4x", module=N25Q128A13(SpiCodes.READ_1_1_4),
+                               with_master=True)
+            self._add_flashboot_constants(flashboot)
+
         if with_milan:
             # AXI-Lite bridge from the CPU bus to the Milan CSR window.
             axil = axi.AXILiteInterface(data_width=32, address_width=32)
@@ -533,9 +746,43 @@ class MilanSoC(SoCCore):
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 dp_ports.update(self.milan_mac.dp_ports)
+            # Pipeline telemetry (memory-mapped): frame/beat/stall counts at every TX+RX
+            # AXIS stage + GMII wire counts + datapath occupancy/latency + gPTP counters,
+            # all coherently snapshot-latched by one `capture` write. Needs both engines.
+            if with_dma and with_mac:
+                self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
+
+    def _add_flashboot_constants(self, manifest_name):
+        """Emit the MILAN_FLASHBOOT_* BIOS constants for the chosen flash manifest.
+
+        `linux_flashboot` (the patched BIOS boot method) reads, for each image in the
+        manifest, `MILAN_FLASHBOOT_<IMG>_OFFSET/_ADDR` and copies it from the memory-mapped
+        flash (`SPIFLASH_BASE + OFFSET`) into DRAM. If the manifest is *complete* (holds the
+        whole boot set) it also emits `MILAN_FLASHBOOT_COMPLETE`, so the BIOS boots OpenSBI
+        straight from flash with no serial upload; otherwise it pre-loads what it has and
+        falls through to serialboot for the rest. The constants are inert (#defines nobody
+        reads) unless the BIOS patch is applied — so building with --with-spiflash is safe
+        either way. The layout is stored for deploy.sh in `_flashboot_layout` (written to
+        <build>/flashboot_layout.json by main()), keeping gateware and flashing in lock-step.
+        """
+        images = FLASHBOOT_MANIFESTS[manifest_name]
+        self._flashboot_layout = {"manifest": manifest_name, "entry": FLASHBOOT_ENTRY,
+                                  "complete": images == FLASHBOOT_MANIFESTS["full"],
+                                  "images": []}
+        if not images:
+            return
+        for name in images:
+            e = FLASHBOOT_LAYOUT[name]
+            self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_OFFSET", e["offset"])
+            self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_ADDR",   e["addr"])
+            self._flashboot_layout["images"].append(
+                {"name": name, "offset": e["offset"], "addr": e["addr"]})
+        self.add_constant("MILAN_FLASHBOOT_ENTRY", FLASHBOOT_ENTRY)
+        if self._flashboot_layout["complete"]:
+            self.add_constant("MILAN_FLASHBOOT_COMPLETE")  # zero-upload full boot
 
 
 # Build --------------------------------------------------------------------------------------------
@@ -562,6 +809,16 @@ def main():
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16) — needed for Linux (§A.3)")
     ap.add_argument("--coherent-dma", action="store_true",
                     help="cache-coherent DMA (NaxRiscv snooping dma_bus; needed for correct DMA content without manual cache flushes)")
+    ap.add_argument("--with-spiflash", action="store_true",
+                    help="memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can "
+                         "flash-boot Linux images instead of the ~4-min serial upload (§QSPI). "
+                         "Included by --all-blocks.")
+    ap.add_argument("--flashboot", default="kernel", choices=["none", "kernel", "full"],
+                    help="which boot images live in flash (needs --with-spiflash): 'kernel' "
+                         "(default) pre-loads the 14 MB kernel from flash and serial-uploads "
+                         "the rest (~60%% faster); 'full' flash-boots everything with zero "
+                         "upload (only fits with a slimmed <6.5 MB kernel — see "
+                         "docs/QSPI_FLASHBOOT.md); 'none' maps the flash but adds no boot method.")
     ap.add_argument("--all-blocks", "--full", dest="all_blocks", action="store_true",
                     help="enable ALL fabric blocks: NIC + DMA + MAC + DDR3 (= --with-dma "
                          "--with-mac --with-dram). This means 'every block instantiated', NOT "
@@ -592,6 +849,8 @@ def main():
                    with_mac=args.with_mac or args.all_blocks,
                    with_dma=args.with_dma or args.all_blocks,
                    with_dram=args.with_dram or args.all_blocks,
+                   with_spiflash=args.with_spiflash or args.all_blocks,
+                   flashboot=args.flashboot,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq,
                    coherent_dma=args.coherent_dma,
@@ -615,6 +874,13 @@ def main():
     if args.vivado_max_threads:
         build_kwargs["vivado_max_threads"] = args.vivado_max_threads
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    # Persist the flash-boot layout so deploy.sh writes the exact same offsets the BIOS
+    # was compiled with (single source of truth — see FLASHBOOT_LAYOUT / deploy.sh flash-images).
+    if getattr(soc, "_flashboot_layout", None):
+        layout_path = os.path.join(builder.output_dir, "flashboot_layout.json")
+        with open(layout_path, "w") as f:
+            json.dump(soc._flashboot_layout, f, indent=2)
+        print(f"[milan] flash-boot layout ({args.flashboot}) -> {layout_path}")
     if args.load:
         prog = platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))

@@ -13,6 +13,7 @@ Documentation for the Milan TSN FPGA network interface.
 | [AXIS_CORES_ON_NAXRISCV.md](AXIS_CORES_ON_NAXRISCV.md) | How to attach AXI-Stream cores to the NaxRiscv SoC (control/data/event planes). |
 | [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) | How the SoC was ported to the real Alinx AX7101 board — pin extraction from the official constraints, DDR3/LiteDRAM integration, verification. |
 | [SIMULATION.md](SIMULATION.md) | How the design is simulated at all three layers (Verilator RTL harnesses, softcore boot, softcore+NIC M-A2) — step by step. |
+| [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md) | **Boot Linux from the on-board QSPI flash** instead of the ~4-min serial upload — the 16 MB-flash layout, the `linux_flashboot` BIOS method, `deploy.sh flash-images`, and the path to zero-upload. |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Field log of every problem hit bringing up the full-FPGA solution, with symptom → cause → fix. |
 | [../REQUIREMENTS.md](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (what's missing and why). |
 | [../TODO.md](../TODO.md) | Phased, dependency-ordered task list with status. |

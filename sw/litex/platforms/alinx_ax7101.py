@@ -73,6 +73,33 @@ _io = [
         Subsignal("tx_data", Pins("L15 K16 W15 W16"), IOStandard("LVCMOS33")),  # e2_txd[0:3]
     ),
 
+    # QSPI configuration flash = Micron N25Q128 (128 Mbit / 16 MB), confirmed from the
+    # Alinx AX7101 repo (DATASHEET/QSPI FLASH/N25Q128.pdf). The FPGA boots its bitstream
+    # from here in master-SPI x4 mode; after configuration the LiteSPI core re-drives it
+    # (litespi module `N25Q128A13`, quad read 0x6B, 3-byte address → the whole 16 MB is
+    # reachable). Pins are the Xilinx dedicated config pins for the FGG484 package (BANK14
+    # data + FCS_B, BANK0 CCLK) — cross-checked against three independent xc7a*t-fgg484
+    # LiteX boards (myir_myc_j7a100t, alchitry_pt_v2, numato_mimas_a7):
+    #   cs_n = T19 (FCS_B) ; dq = P22 R22 P21 R21 (D00_MOSI D01_DIN D02/WP# D03/HOLD#).
+    # CCLK is NOT a fabric pin: LiteSPI drives it through the STARTUPE2/USRCCLKO primitive
+    # (litespi/clkgen.py), so no `clk` subsignal is listed. mode="4x" drives all four DQ,
+    # so WP#/HOLD# are never left floating (which Vivado's default UNUSEDPIN=PULLDOWN would
+    # otherwise pull low and freeze the chip).
+    ("spiflash4x", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("dq",   Pins("P22 R22 P21 R21")),
+        IOStandard("LVCMOS33"),
+    ),
+    # 1x fallback (single-lane 0x03 read) — same pads; use if quad ever misbehaves.
+    ("spiflash", 0,
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("mosi", Pins("P22")),
+        Subsignal("miso", Pins("R22")),
+        Subsignal("wp",   Pins("P21")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # DDR3 — 512 MB (2× MT41J256M16, 32-bit). Parsed from the AX7101 MIG UCF (ddr3.ucf).
     ("ddram", 0,
         Subsignal("a", Pins("AA4 AB2 AA5 AB5 AB1 U3 W1 T1 V2 U2 Y1 W2 Y2 U1 V3"), IOStandard("SSTL15")),
