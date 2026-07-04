@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net"><diagram name="tx-starvation-fix"><mxGraphModel dx="1400" dy="1000" grid="0" page="1" pageWidth="1500" pageHeight="892"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="n2" value="TX-to-wire silence — root cause &amp; fix (silicon, 2026-07-04)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;verticalAlign=top;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="900" height="30" as="geometry"/></mxCell><mxCell id="n3" value="TX DMA
+Wishbone reads
+DRAM wait states
+→ BURSTY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="28" y="118" width="150" height="88" as="geometry"/></mxCell><mxCell id="n4" value="Milan datapath
+50 MHz CDC
+classifier/CBS
+(cut-through)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="218" y="118" width="150" height="88" as="geometry"/></mxCell><mxCell id="n5" value="LiteEthMACCore
+BARE core =
+CUT-THROUGH
+(no frame buffer!)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="408" y="118" width="168" height="88" as="geometry"/></mxCell><mxCell id="n6" value="GMII PHY TX
+tx_en = valid
+cycle-by-cycle
+NO mid-frame pause" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="616" y="118" width="178" height="88" as="geometry"/></mxCell><mxCell id="n7" value="RTL8211E
+sees tx_en glitch
+→ aborts frame
+→ emits fragment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="834" y="118" width="158" height="88" as="geometry"/></mxCell><mxCell id="n8" value="peer i210
+fragment = PCS noise
+dropped WITHOUT
+any counter ➜ SILENCE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1032" y="118" width="180" height="88" as="geometry"/></mxCell><mxCell id="n9" value="mask #1 — the last_be truncation bug
+ungated last_be cut every frame to 8 bytes at the LastBE stage;
+padding + CRC are then LOCALLY generated in eth_tx
+→ immune to source bubbles → &#x27;worked&#x27; (truncated!)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="28" y="294" width="440" height="92" as="geometry"/></mxCell><mxCell id="n10" value="mask #2 — dst-keyed counters lie
+peer rx_broadcast counts a truncated frame as happily as
+a full one (dst MAC survives in beat 0) — &#x27;verified TX&#x27;
+twice on frames that carried 8 real bytes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="496" y="294" width="440" height="92" as="geometry"/></mxCell><mxCell id="n11" value="mask #3 — non-coherent DMA builds
+--coherent-dma is NOT implied by --all-blocks: TX read stale
+DRAM → garbage dst-MAC frames that the peer address-filters
+silently → looked like a PHY bug; wasn&#x27;t" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="964" y="294" width="440" height="92" as="geometry"/></mxCell><mxCell id="n12" value="gtx clock phase (for SILENCE)
+edge vs 180°: both silent — phase was
+NOT the silence bug. (It IS the margin
+fix once FFs are IOB-packed — see ⑤)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="28" y="424" width="300" height="74" as="geometry"/></mxCell><mxCell id="n13" value="TX FF placement
+fabric X14 vs OLOGIC (IOB-packed,
+DCP-verified): both silent —
+placement wasn&#x27;t the killer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="352" y="424" width="300" height="74" as="geometry"/></mxCell><mxCell id="n14" value="XDC trap found on the way
+set_property inside if {...} is SILENTLY
+ignored — XDC executes no TCL control flow.
+Verify constraints in the routed .dcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="676" y="424" width="360" height="74" as="geometry"/></mxCell><mxCell id="n15" value="sim harness trap
+a sys-domain monitor on an eth_tx stream
+ALIASES (samples 8ns data at 10ns = drops
+1-in-5) — run monitors in the right domain" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1060" y="424" width="344" height="74" as="geometry"/></mxCell><mxCell id="n16" value="TX DMA
+bursty
+(unchanged)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="28" y="538" width="150" height="88" as="geometry"/></mxCell><mxCell id="n17" value="Milan datapath
+bursty
+(unchanged)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="218" y="538" width="150" height="88" as="geometry"/></mxCell><mxCell id="n18" value="PacketFIFO 4 KB
+store-and-forward
+releases only
+COMPLETE frames" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="408" y="538" width="190" height="88" as="geometry"/></mxCell><mxCell id="n19" value="LiteEthMACCore
+cut-through is now
+fine: its source is
+gapless by construction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="638" y="538" width="168" height="88" as="geometry"/></mxCell><mxCell id="n20" value="GMII PHY TX
+tx_en solid high
+for every frame" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="846" y="538" width="158" height="88" as="geometry"/></mxCell><mxCell id="n21" value="peer i210
+full 64-byte payload
+in tcpdump +
+counters move" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1044" y="538" width="170" height="88" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

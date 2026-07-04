@@ -47,11 +47,14 @@ FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
 # All fabric blocks (NIC+DMA+MAC+DDR3), datapath in its own 50 MHz domain so sys+DDR3
 # close a clean 100 MHz (see docs/TROUBLESHOOTING.md §16); --timing-opt for margin.
+# --gtx-tx-invert is REQUIRED on this board: the GMII TX FFs are IOB-packed (deterministic
+# skew ~0 vs the forwarded gtx_clk), so edge-aligned sampling is hold-marginal at the
+# RTL8211E — measured 25-40 % corrupt frames edge-aligned vs 0 % with mid-bit sampling.
 # --coherent-dma is NOT implied by --all-blocks and is REQUIRED for a working NIC under
 # Linux: without it the DMA masters bypass the NaxRiscv snooping dma_bus, so RX data is
 # never CPU-visible (all-zero skbs -> stack drops every frame) and TX reads stale skb
 # data (garbage dst MAC -> the peer NIC filters the frames; hardware-confirmed 2026-07-04).
-MILAN_OPTS="--all-blocks --coherent-dma --milan-clk-freq 50e6 --timing-opt"
+MILAN_OPTS="--all-blocks --coherent-dma --milan-clk-freq 50e6 --gtx-tx-invert --timing-opt"
 do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" $MILAN_OPTS --build --uart-baudrate "$BAUD"; }
 do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
 do_flash()  {

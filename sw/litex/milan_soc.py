@@ -332,6 +332,8 @@ class MilanMAC(LiteXModule):
                  gtx_tx_invert=False, **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
+        from liteeth.common import eth_phy_description
+        from litex.soc.interconnect.packet import PacketFIFO
 
         clk_pads = platform.request("eth_clocks", phy_index)
         pads     = platform.request("eth",        phy_index)
@@ -355,6 +357,19 @@ class MilanMAC(LiteXModule):
             "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
+        # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
+        # CUT-THROUGH and GMII has no mid-frame flow control (`tx_en = sink.valid` cycle by
+        # cycle), while our DMA/datapath source can drop below 1 Gbps mid-frame (Wishbone
+        # wait states) -> a single `valid` bubble becomes a tx_en glitch -> the PHY emits a
+        # fragment the peer NIC discards WITHOUT counting (total silence). Sim-reproduced
+        # (starved source -> 6 bubbles/frame) and sim-fixed by this FIFO: it releases a
+        # frame downstream only once COMPLETELY buffered, so the drain is always gapless.
+        # 512 x 8 B = 4 KB >= 2 max-size frames; 8 frame slots.
+        # (Full LiteEthMAC has SRAM buffering for exactly this reason; we drive the bare
+        # core, so we provide it here. docs/kl-eth-tx-debug.md #Second bug.)
+        self.tx_sf = PacketFIFO(eth_phy_description(data_width),
+                                payload_depth=512, param_depth=8)
+        self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
         L  = [("data", data_width), ("keep", nb)]
@@ -388,8 +403,8 @@ class MilanMAC(LiteXModule):
         self.comb += [
             # TX payload -> core.sink is driven unconditionally (harmless when valid=0);
             # only `valid`/`ready` and the RX source are muxed by `loopback`.
-            self.core.sink.data.eq(tx_dp.sys.data),
-            self.core.sink.last.eq(tx_dp.sys.last),
+            self.tx_sf.sink.data.eq(tx_dp.sys.data),
+            self.tx_sf.sink.last.eq(tx_dp.sys.last),
             # `last_be` is a one-hot pointer to the last valid byte and is ONLY valid on
             # the last beat — it must be 0 on every non-last beat. LiteEth's TX last-BE
             # handler asserts end-of-frame on *any* beat with `last_be != 0`
@@ -400,8 +415,8 @@ class MilanMAC(LiteXModule):
             # 8..N) discarded. Only the dst-MAC (beat 0) survived, so wire captures showed
             # a 60-byte runt and the peer dropped it (M-A3's dst-only rx_broadcast counter
             # check masked this). Gate it by `last` so only the final beat carries last_be.
-            self.core.sink.last_be.eq(Mux(tx_dp.sys.last,
-                                          tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1), 0)),
+            self.tx_sf.sink.last_be.eq(Mux(tx_dp.sys.last,
+                                           tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1), 0)),
             If(lb,
                 # internal loopback: datapath TX -> datapath RX (sys domain), both keep-masks
                 rx_dp.sys.valid.eq(tx_dp.sys.valid),
@@ -409,11 +424,11 @@ class MilanMAC(LiteXModule):
                 rx_dp.sys.last.eq(tx_dp.sys.last),
                 rx_dp.sys.keep.eq(tx_dp.sys.keep),
                 tx_dp.sys.ready.eq(rx_dp.sys.ready),
-                self.core.sink.valid.eq(0),      # nothing to the wire
+                self.tx_sf.sink.valid.eq(0),     # nothing to the wire
                 self.core.source.ready.eq(0),    # ignore wire RX
             ).Else(
-                self.core.sink.valid.eq(tx_dp.sys.valid),
-                tx_dp.sys.ready.eq(self.core.sink.ready),
+                self.tx_sf.sink.valid.eq(tx_dp.sys.valid),
+                tx_dp.sys.ready.eq(self.tx_sf.sink.ready),
                 # core.source -> datapath RX endpoint; one-hot last_be -> keep mask on last beat
                 rx_dp.sys.valid.eq(self.core.source.valid),
                 rx_dp.sys.data.eq(self.core.source.data),

@@ -10,12 +10,13 @@ Adds `tx_clk_invert` to `LiteEthPHYGMII(CRG)`: forwards `gtx_clk` **180° out of
 with TXD via the ODDR. Default `False` = upstream edge-aligned behavior. Exposed as
 `milan_soc.py --gtx-tx-invert`.
 
-**Measured verdict on the AX7101 (RTL8211E), 2026-07-04 — DO NOT enable it there:** a
-controlled on-silicon A/B (identical BIOS-level TX bursts) gave **edge-aligned = 10/10
-frames at the peer, inverted = 0/10**. The upstream phase is correct for this board; the
-"TX dies after the pins" symptom that motivated the patch was actually builds missing
-`--coherent-dma` (see `docs/kl-eth-tx-debug.md` §Second bug). The knob is kept for other
-board/PHY combinations where the TX skew genuinely differs.
+**Final measured verdict on the AX7101 (RTL8211E), 2026-07-04 — REQUIRED (with IOB-packed
+TX FFs):** the phase was never the *silence* bug (that was the cut-through/starvation issue
++ missing `--coherent-dma` — see `docs/kl-eth-tx-debug.md`), but once the GMII TX launch
+FFs are packed into the IOB (deterministic skew ≈ 0 vs the forwarded clock), edge-aligned
+sampling is hold-marginal: measured 25–40 % corrupt frames (`rx_crc_errors` at the peer) vs
+**20/20 pings + 0 CRC errors with the invert** (mid-bit sampling, ~4 ns/4 ns margins).
+`deploy.sh` enables `--gtx-tx-invert` by default for this board.
 
 ## `0001-milan-linux-flashboot.patch` — QSPI Linux flash-boot
 
