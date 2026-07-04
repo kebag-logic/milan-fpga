@@ -1,0 +1,41 @@
+diff --git a/liteeth/phy/gmii.py b/liteeth/phy/gmii.py
+index d23e586..3935c8b 100644
+--- a/liteeth/phy/gmii.py
++++ b/liteeth/phy/gmii.py
+@@ -52,7 +52,7 @@ class LiteEthPHYGMIIRX(LiteXModule):
+ # LiteEth PHY GMII RX ------------------------------------------------------------------------------
+ 
+ class LiteEthPHYGMIICRG(LiteXModule):
+-    def __init__(self, clock_pads, pads, with_hw_init_reset, mii_mode=0, model=False):
++    def __init__(self, clock_pads, pads, with_hw_init_reset, mii_mode=0, model=False, tx_clk_invert=False):
+         self._reset = CSRStorage(description="PHY reset.")
+ 
+         # # #
+@@ -69,7 +69,13 @@ class LiteEthPHYGMIICRG(LiteXModule):
+ 
+             # TX clock: GMII: Drive clock_pads.gtx, clock_pads.tx unused.
+             #           MII : Use PHY clock_pads.tx as eth_tx_clk, do not drive clock_pads.gtx.
+-            self.specials += DDROutput(1, mii_mode, clock_pads.gtx, ClockSignal("eth_tx"))
++            # tx_clk_invert=True forwards gtx 180° out of phase with eth_tx, so its rising
++            # edge lands mid-bit of TXD (TXD is registered on eth_tx rising) instead of at the
++            # TXD transition — the fix for the marginal GMII-TX setup/hold at the RTL8211E
++            # (docs/kl-eth-tx-debug §GMII-TX). Edge-aligned (default) samples at the transition.
++            self.specials += DDROutput(0 if tx_clk_invert else 1,
++                                       1 if tx_clk_invert else mii_mode,
++                                       clock_pads.gtx, ClockSignal("eth_tx"))
+             eth_tx_clk = Signal()
+             self.comb += [
+                 If(mii_mode,
+@@ -108,9 +114,10 @@ class LiteEthPHYGMII(LiteXModule):
+     dw          = 8
+     tx_clk_freq = 125e6
+     rx_clk_freq = 125e6
+-    def __init__(self, clock_pads, pads, with_hw_init_reset=True, model=False):
++    def __init__(self, clock_pads, pads, with_hw_init_reset=True, model=False, tx_clk_invert=False):
+         self.model = model
+-        self.crg   = LiteEthPHYGMIICRG(clock_pads, pads, with_hw_init_reset, model=model)
++        self.crg   = LiteEthPHYGMIICRG(clock_pads, pads, with_hw_init_reset, model=model,
++                                       tx_clk_invert=tx_clk_invert)
+         self.tx    = ClockDomainsRenamer("eth_tx")(LiteEthPHYGMIITX(pads))
+         self.rx    = ClockDomainsRenamer("eth_rx")(LiteEthPHYGMIIRX(pads))
+         self.sink, self.source = self.tx.sink, self.rx.source

@@ -1,7 +1,16 @@
-# LiteX BIOS patches
+# LiteX-ecosystem patches
 
-Small additions to the **LiteX BIOS** that live in the LiteX source tree (vendored or
-pip-installed), shipped here as patches and applied in place by `apply.sh`.
+Small additions to the **LiteX / LiteEth** source trees (vendored or pip-installed),
+shipped here as patches and applied in place by `apply.sh` (idempotent; discovers each
+tree from the active Python env; re-run after every LiteX/LiteEth update).
+
+## `0002-liteeth-gmii-tx-clk-invert.patch` — GMII TX clock phase option
+
+Adds `tx_clk_invert` to `LiteEthPHYGMII(CRG)`: forwards `gtx_clk` **180° out of phase**
+with TXD (via the ODDR), so the PHY samples mid-bit instead of at the TXD transition —
+the fix for the marginal, per-boot GMII-TX setup/hold at the AX7101's RTL8211E
+(`docs/kl-eth-tx-debug.md` §GMII-TX). Default `False` = upstream edge-aligned behavior.
+Used by `milan_soc.py --gtx-tx-invert`.
 
 ## `0001-milan-linux-flashboot.patch` — QSPI Linux flash-boot
 
