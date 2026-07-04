@@ -368,7 +368,7 @@ class MilanMAC(LiteXModule):
         # (Full LiteEthMAC has SRAM buffering for exactly this reason; we drive the bare
         # core, so we provide it here. docs/kl-eth-tx-debug.md #Second bug.)
         self.tx_sf = PacketFIFO(eth_phy_description(data_width),
-                                payload_depth=512, param_depth=8)
+                                payload_depth=1024, param_depth=8)
         self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
@@ -492,7 +492,7 @@ class RingDMAWriter(LiteXModule):
     the DT `dma-rx` window and every downstream CSR address stay put):
       base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
     """
-    def __init__(self, bus, max_frame_beats=256, fifo_beats=2048, burst_beats=16):
+    def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16):
         self.bus  = bus                 # axi.AXIInterface(data_width=64), byte-addressed
         self.sink = sink = stream.Endpoint([("data", 64), ("keep", 8)])
 
@@ -515,11 +515,42 @@ class RingDMAWriter(LiteXModule):
 
         # ---- ingress: always-ready store-and-forward, whole-frame drop ----------------
         self.data_fifo = data_fifo = stream.SyncFIFO([("data", 64)], depth=fifo_beats, buffered=True)
-        self.len_fifo  = len_fifo  = stream.SyncFIFO([("beats", 9)],  depth=64)
+        self.len_fifo  = len_fifo  = stream.SyncFIFO([("beats", 11), ("csum", 16)], depth=64)
 
         in_frame = Signal()             # mid-frame (first beat already seen)
         in_drop  = Signal()             # this frame is being swallowed
-        in_beats = Signal(9)            # beats stored for the current frame
+        in_beats = Signal(11)           # beats stored for the current frame
+
+        # TIMING (build_ring6): the checksum adders may not load the upstream CDC
+        # FIFO's BRAM output directly (BRAM clk-to-out + adder cone missed 100 MHz by
+        # -0.36 ns), so the stream is registered once at entry — free, because
+        # sink.ready is CONSTANT 1 (no handshake to pipeline) — and the end-of-frame
+        # FOLD runs one cycle AFTER the last beat (delayed length push).
+        s_valid = Signal()
+        s_data  = Signal(64)
+        s_last  = Signal()
+        self.sync += [
+            s_valid.eq(sink.valid),
+            s_data.eq(sink.data),
+            s_last.eq(sink.last),
+        ]
+        self.comb += sink.ready.eq(1)   # THE invariant: upstream is never backpressured
+
+        # RX checksum offload (CHECKSUM_COMPLETE): ones-complement sum of ALL stored
+        # bytes (16-bit LE lanes, exactly what the RISC-V kernel's csum_partial computes
+        # over the same memory), accumulated as beats stream in and delivered to
+        # software in the frame header's spare bits — the kernel then skips its own
+        # per-byte checksum pass. Invalid last-beat lanes ARE summed on purpose: the
+        # padded bytes land in the skb too, so the sum matches the skb contents
+        # (pskb_trim_rcsum subtracts trimmed bytes itself).
+        lanes    = Signal(18)           # this beat's four 16-bit lanes, summed
+        acc      = Signal(30)           # frame accumulator (512 beats max fits easily)
+        acc_fin  = Signal(30)           # final acc, registered at end-of-frame
+        fold_a   = Signal(17)
+        csum16   = Signal(16)
+
+        pend       = Signal()           # a length+csum push is due (1 cycle after last)
+        pend_beats = Signal(11)
 
         fifo_free  = Signal(max=fifo_beats + 1)
         start_drop = Signal()           # drop decision, valid on the FIRST beat only
@@ -531,67 +562,89 @@ class RingDMAWriter(LiteXModule):
                           | ~self.enable.storage),
             drop_now.eq(Mux(in_frame, in_drop, start_drop)),
             # store the beat unless dropping or past the truncation cap
-            take.eq(sink.valid & ~drop_now & (in_beats != max_frame_beats)),
-            sink.ready.eq(1),           # THE invariant: upstream is never backpressured
+            take.eq(s_valid & ~drop_now & (in_beats != max_frame_beats)),
             data_fifo.sink.valid.eq(take),
-            data_fifo.sink.data.eq(sink.data),
-            # commit the frame's length when its last beat arrives (all beats stored)
-            len_fifo.sink.valid.eq(sink.valid & sink.last & ~drop_now),
-            len_fifo.sink.beats.eq(Mux(in_beats != max_frame_beats, in_beats + 1,
-                                       max_frame_beats)),
+            data_fifo.sink.data.eq(s_data),
+            lanes.eq(s_data[0:16] + s_data[16:32] + s_data[32:48] + s_data[48:64]),
+            # end-of-frame double fold, one full cycle after the final accumulate
+            fold_a.eq(acc_fin[:16] + acc_fin[16:]),
+            csum16.eq(fold_a[:16] + fold_a[16]),
+            len_fifo.sink.valid.eq(pend),
+            len_fifo.sink.beats.eq(pend_beats),
+            len_fifo.sink.csum.eq(csum16),
         ]
         self.sync += [
-            If(sink.valid,
-                If(sink.last,
+            # a pending push completes in one cycle (the len FIFO can never be full
+            # here: the frame-start drop decision reserved the slot); a new end-of-
+            # frame in the same cycle just re-loads pend — the old push has completed.
+            pend.eq(0),
+            If(s_valid,
+                If(s_last,
                     in_frame.eq(0),
                     in_drop.eq(0),
                     in_beats.eq(0),
-                    If(drop_now, drops.eq(drops + 1)),
+                    acc.eq(0),
+                    If(drop_now,
+                        drops.eq(drops + 1),
+                    ).Else(
+                        pend.eq(1),
+                        pend_beats.eq(Mux(in_beats != max_frame_beats, in_beats + 1,
+                                          max_frame_beats)),
+                        acc_fin.eq(acc + Mux(take, lanes, 0)),
+                    ),
                 ).Else(
                     in_frame.eq(1),
                     If(~in_frame, in_drop.eq(start_drop)),
-                    If(take, in_beats.eq(in_beats + 1)),
+                    If(take,
+                        in_beats.eq(in_beats + 1),
+                        acc.eq(acc + lanes),
+                    ),
                 )
             )
         ]
 
         # ---- drain: AXI burst engine ---------------------------------------------------
-        frame_beats = Signal(9)         # payload beats of the frame being written
-        total_beats = Signal(10)        # + header
-        done        = Signal(10)        # beats issued on W so far (all bursts)
-        cur_blen    = Signal(9)         # beats in the burst in flight
+        # TIMING NOTE (silicon, build_ring4): computing the burst address/length in one
+        # combinational cone (ptr + done*8 -> mask -> base+off -> 4K/wrap mins -> awlen)
+        # missed 100 MHz by ~0.6 ns at 512-beat widths. So the geometry runs off a small
+        # REGISTERED state instead: `off_r` (next ring offset) and `rem_r` (beats left)
+        # update incrementally per burst, and a PREP state registers each burst's
+        # address/length before AW. Costs 1-2 cycles per <=16-beat burst — noise.
+        frame_beats = Signal(11)        # payload beats of the frame being written
+        total_beats = Signal(12)        # + header (registered in IDLE)
         wcnt        = Signal(9)         # W beats sent in the current burst
-        disc        = Signal(9)         # beats left to discard (ring full)
+        disc        = Signal(11)        # beats left to discard (ring full)
         outstanding = Signal(6)         # AW issued minus B received
-        self.comb += total_beats.eq(frame_beats + 1)
+        off_r       = Signal(32)        # ring byte offset of the next beat to issue
+        rem_r       = Signal(12)        # beats (incl. header) not yet issued
+        blen_r      = Signal(10)        # burst length, registered in PREP
+        addr_r      = Signal(32)        # burst address, registered in PREP
+        hdr_sent    = Signal()
+        frame_csum  = Signal(16)        # ones-complement sum for CHECKSUM_COMPLETE
 
         # ring-fit check for the WHOLE frame (header+payload+8 spare so wr never == rd
-        # when full) — evaluated in IDLE against the candidate at the len FIFO head.
+        # when full) — evaluated in CHECK from registered frame_beats.
         used, free, need = Signal(32), Signal(33), Signal(15)
         no_fit = Signal()
         self.comb += [
             used.eq((wr - self.rd_ptr.storage) & self.mask.storage),
             free.eq(self.mask.storage + 1 - used),
-            need.eq(((len_fifo.source.beats + 1) << 3) + 8),
+            need.eq(((frame_beats + 1) << 3) + 8),
             no_fit.eq(free < need),
         ]
 
-        # burst geometry: cap at burst_beats, the ring end, and the AXI 4 KB boundary
-        cur_off  = Signal(32)           # ring byte offset of the next beat to issue
-        cur_addr = Signal(32)           # absolute byte address of that beat
-        rem      = Signal(10)           # frame beats not yet issued
+        # burst geometry from the REGISTERED off_r/rem_r (registered again in PREP)
+        cur_addr = Signal(32)
         to_wrap  = Signal(30)           # beats to the ring end
         to_4k    = Signal(10)           # beats to the next 4 KB boundary
-        blen_a   = Signal(10)
-        blen_b   = Signal(10)
-        blen     = Signal(10)
+        blen_a   = Signal(12)
+        blen_b   = Signal(12)
+        blen     = Signal(12)
         self.comb += [
-            cur_off.eq((wr + (done << 3)) & self.mask.storage),
-            cur_addr.eq(self.base.storage[:32] + cur_off),
-            rem.eq(total_beats - done),
-            to_wrap.eq((self.mask.storage + 1 - cur_off) >> 3),
+            cur_addr.eq(self.base.storage[:32] + off_r),
+            to_wrap.eq((self.mask.storage + 1 - off_r) >> 3),
             to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
-            blen_a.eq(Mux(rem > burst_beats, burst_beats, rem)),
+            blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
             blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
             blen.eq(Mux(blen_b > to_4k, to_4k, blen_b)),
         ]
@@ -601,7 +654,7 @@ class RingDMAWriter(LiteXModule):
         is_hdr    = Signal()
         len_bytes = Signal(16)
         self.comb += [
-            is_hdr.eq((done == 0) & (wcnt == 0)),
+            is_hdr.eq(~hdr_sent),
             len_bytes.eq(frame_beats << 3),
         ]
 
@@ -617,43 +670,56 @@ class RingDMAWriter(LiteXModule):
             If(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
-                NextValue(done, 0),
-                If(~self.enable.storage | no_fit,
-                    NextValue(disc, len_fifo.source.beats),
-                    NextState("DISCARD"),
-                ).Else(
-                    NextState("AW"),
-                )
+                NextValue(total_beats, len_fifo.source.beats + 1),
+                NextValue(frame_csum, len_fifo.source.csum),
+                NextValue(rem_r, len_fifo.source.beats + 1),
+                NextValue(off_r, wr),               # header slot first
+                NextValue(hdr_sent, 0),
+                NextState("CHECK"),
             )
+        )
+        fsm.act("CHECK",
+            If(~self.enable.storage | no_fit,
+                NextValue(disc, frame_beats),
+                NextState("DISCARD"),
+            ).Else(
+                NextState("PREP"),
+            )
+        )
+        fsm.act("PREP",                             # register this burst's geometry
+            NextValue(blen_r, blen),
+            NextValue(addr_r, cur_addr),
+            NextState("AW"),
         )
         fsm.act("AW",
             self.bus.aw.valid.eq(1),
-            self.bus.aw.addr.eq(cur_addr),
-            self.bus.aw.len.eq(blen - 1),
+            self.bus.aw.addr.eq(addr_r),
+            self.bus.aw.len.eq(blen_r - 1),
             self.bus.aw.size.eq(3),                 # 8 bytes/beat
             self.bus.aw.burst.eq(1),                # INCR
             If(self.bus.aw.ready,
-                NextValue(cur_blen, blen),
                 NextValue(wcnt, 0),
+                NextValue(off_r, (off_r + (blen_r << 3)) & self.mask.storage),
+                NextValue(rem_r, rem_r - blen_r),
                 NextState("W"),
             )
         )
         fsm.act("W",
             self.bus.w.valid.eq(is_hdr | data_fifo.source.valid),
             self.bus.w.data.eq(Mux(is_hdr,
-                Cat(len_bytes, seq, Signal(32)),                 # {0, seq, len-bytes}
+                Cat(len_bytes, seq, frame_csum, Signal(16)),     # {0, csum, seq, len}
                 data_fifo.source.data)),
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
-            self.bus.w.last.eq(wcnt == cur_blen - 1),
+            self.bus.w.last.eq(wcnt == blen_r - 1),
             If(self.bus.w.valid & self.bus.w.ready,
                 data_fifo.source.ready.eq(~is_hdr),
+                NextValue(hdr_sent, 1),
                 NextValue(wcnt, wcnt + 1),
                 If(self.bus.w.last,
-                    NextValue(done, done + cur_blen),
-                    If(done + cur_blen == total_beats,
+                    If(rem_r == 0,                  # updated at AW: post-burst remaining
                         NextState("WAIT_B"),
                     ).Else(
-                        NextState("AW"),
+                        NextState("PREP"),
                     )
                 )
             )
@@ -672,6 +738,171 @@ class RingDMAWriter(LiteXModule):
                 If(disc == 1,
                     NextValue(drops, drops + 1),
                     NextState("IDLE"),
+                )
+            )
+        )
+
+
+class RingDMAReader(LiteXModule):
+    """Circular-DRAM-ring -> AXIS-frame **AXI burst** DMA reader (TX upgrade, 2026-07-04).
+
+    Mirror image of RingDMAWriter, replacing the simple-mode WishboneDMAReader whose
+    protocol capped TX two ways (both silicon-measured):
+      * one classic-Wishbone read per beat = the full coherent-bus round trip per 8 B
+        (same ~38 sys-cycles as the RX writer measured) -> ~21 MB/s = ~170 Mbit/s wire
+        ceiling (masked so far by the CPU-bound stack, but it also throttles ACK
+        egress and thereby PEER->FPGA TCP);
+      * one frame in flight with a base/length/enable CSR dance + a DONE wait per
+        frame -> the driver poll cadence sat in the TX hot path.
+
+    With the ring, software memcpys a frame into the ring, writes ONE CSR (wr_ptr)
+    and returns; hardware walks rd -> wr at burst speed. ~40 MTU frames queue in a
+    64 KB ring, so the NIC streams back-to-back while the CPU prepares the next.
+
+    Ring protocol (BYTES, 8-aligned, wrap via `mask`) — same slot format as RX:
+      * frame slot = 8-byte header + payload padded to 8 B;
+      * header word = {rsvd[47:0], length[15:0]}, length = EXACT payload bytes — the
+        last AXIS beat carries the true byte mask in `keep` (the MAC glue converts it
+        to LiteEth's one-hot last_be), so wire frames are no longer 8-padded;
+      * frames may wrap the ring end (bursts split there; software splits its memcpy);
+      * a nonsense header (len 0 or > max_frame_bytes) can only mean a software bug:
+        hardware resyncs rd := wr and drops the ring content rather than streaming
+        garbage to the MAC.
+
+    Downstream elasticity: MilanMAC's store-and-forward PacketFIFO (the TX starvation
+    fix) launches a frame onto GMII only when fully buffered, so this reader may be
+    arbitrarily bursty — R-channel backpressure mid-frame is harmless.
+
+    CSRs (7 words — SAME footprint as the simple-mode block it replaces, so the DT
+    `dma-tx` window and every downstream CSR address stay put; roles mirror RX):
+      base[64] | mask[32] | wr_ptr[32] RW | rd_ptr[32] RO | enable[1] | sent[32] RO
+    """
+    def __init__(self, bus, max_frame_bytes=4096, burst_beats=16):
+        self.bus    = bus               # axi.AXIInterface(data_width=64), byte-addressed
+        self.source = source = stream.Endpoint([("data", 64), ("keep", 8)])
+
+        self.base   = CSRStorage(64, description="Ring base address (bytes, 8-aligned).")
+        self.mask   = CSRStorage(32, description="Ring size-1 (size = power of two).")
+        self.wr_ptr = CSRStorage(32, description="SW write pointer (frames queued up to here).")
+        self.rd_ptr = CSRStatus(32,  description="HW read pointer (consumed up to here).")
+        self.enable = CSRStorage(1,  description="Ring enable.")
+        self.sent   = CSRStatus(32,  description="Frames streamed to the datapath.")
+
+        # # #
+
+        rd    = Signal(32)              # HW consumption pointer (== rd_ptr CSR)
+        nsent = Signal(32)
+        self.comb += [
+            self.rd_ptr.status.eq(rd),
+            self.sent.status.eq(nsent),
+        ]
+
+        frame_bytes = Signal(16)        # exact payload bytes (from the header)
+        frame_beats = Signal(11)        # ceil(bytes/8)
+        rbeat       = Signal(12)        # payload beats already streamed on R
+        rlast_keep  = Signal(8)
+        self.comb += [
+            frame_beats.eq((frame_bytes + 7)[3:]),
+            # last-beat byte mask from the exact length (0 -> all 8 valid)
+            rlast_keep.eq(Mux(frame_bytes[:3] == 0, 0xFF,
+                              (1 << frame_bytes[:3]) - 1)),
+        ]
+
+        # burst geometry over the PAYLOAD region. Same TIMING NOTE as the writer: the
+        # geometry cone runs off REGISTERED off_r/rem_r (updated incrementally per
+        # burst) and each burst's address/length is registered in PREP before AR.
+        off_r  = Signal(32)             # ring byte offset of the next payload beat
+        rem_r  = Signal(12)             # payload beats not yet requested
+        blen_r = Signal(12)             # burst length, registered in PREP
+        addr_r = Signal(32)             # burst address, registered in PREP
+        bcnt   = Signal(12)             # R beats received in the current burst
+        cur_addr = Signal(32)
+        to_wrap  = Signal(30)
+        to_4k    = Signal(10)
+        blen_a   = Signal(12)
+        blen_b   = Signal(12)
+        blen     = Signal(12)
+        self.comb += [
+            cur_addr.eq(self.base.storage[:32] + off_r),
+            to_wrap.eq((self.mask.storage + 1 - off_r) >> 3),
+            to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
+            blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
+            blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
+            blen.eq(Mux(blen_b > to_4k, to_4k, blen_b)),
+        ]
+
+        hdr_addr = Signal(32)
+        self.comb += hdr_addr.eq(self.base.storage[:32] + rd)
+
+        self.comb += [
+            self.bus.ar.size.eq(3),     # 8 bytes/beat
+            self.bus.ar.burst.eq(1),    # INCR
+        ]
+
+        fb_new = Signal(11)             # ceil(len/8) of the header being parsed
+        self.comb += fb_new.eq((self.bus.r.data[:16] + 7)[3:])
+
+        self.fsm = fsm = FSM(reset_state="IDLE")
+        fsm.act("IDLE",
+            If(self.enable.storage & (self.wr_ptr.storage != rd),
+                NextValue(rbeat, 0),
+                NextState("HDR_AR"),
+            )
+        )
+        fsm.act("HDR_AR",
+            self.bus.ar.valid.eq(1),
+            self.bus.ar.addr.eq(hdr_addr),
+            self.bus.ar.len.eq(0),      # single-beat header read
+            If(self.bus.ar.ready,
+                NextState("HDR_R"),
+            )
+        )
+        fsm.act("HDR_R",
+            self.bus.r.ready.eq(1),
+            If(self.bus.r.valid,
+                NextValue(frame_bytes, self.bus.r.data[:16]),
+                NextValue(rem_r, fb_new),
+                NextValue(off_r, (rd + 8) & self.mask.storage),
+                # len==0 / oversized can only be a software bug: resync, don't stream garbage
+                If((self.bus.r.data[:16] == 0) | (self.bus.r.data[:16] > max_frame_bytes),
+                    NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                    NextState("IDLE"),
+                ).Else(
+                    NextState("PREP"),
+                )
+            )
+        )
+        fsm.act("PREP",                 # register this burst's geometry
+            NextValue(blen_r, blen),
+            NextValue(addr_r, cur_addr),
+            NextState("PAY_AR"),
+        )
+        fsm.act("PAY_AR",
+            self.bus.ar.valid.eq(1),
+            self.bus.ar.addr.eq(addr_r),
+            self.bus.ar.len.eq(blen_r - 1),
+            If(self.bus.ar.ready,
+                NextValue(bcnt, 0),
+                NextValue(off_r, (off_r + (blen_r << 3)) & self.mask.storage),
+                NextValue(rem_r, rem_r - blen_r),
+                NextState("PAY_R"),
+            )
+        )
+        fsm.act("PAY_R",
+            source.valid.eq(self.bus.r.valid),
+            source.data.eq(self.bus.r.data),
+            source.last.eq(rbeat == frame_beats - 1),
+            source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
+            self.bus.r.ready.eq(source.ready),
+            If(self.bus.r.valid & self.bus.r.ready,
+                NextValue(rbeat, rbeat + 1),
+                NextValue(bcnt, bcnt + 1),
+                If(rbeat == frame_beats - 1,            # whole frame streamed
+                    NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
+                    NextValue(nsent, nsent + 1),
+                    NextState("IDLE"),
+                ).Elif(bcnt == blen_r - 1,               # burst fully streamed, more to go
+                    NextState("PREP"),
                 )
             )
         )
@@ -721,8 +952,13 @@ class MilanDMA(LiteXModule):
         # landed in memory as `aa 02 ff ff ff ff ff ff`, and TX broadcast egressed with a
         # mangled `00:02:ff:..` dst so the peer dropped it. "big" makes memory<->wire match
         # in both directions (and the internal loopback stays byte-exact, being symmetric).
-        # TX: memory -> datapath (reader)
-        self.tx = WishboneDMAReader(mk_bus(), endianness="big", with_csr=True)
+        # TX: memory -> datapath. RingDMAReader (see its docstring) — a native AXI
+        # burst master like the RX writer: software queues frames in a DRAM ring and
+        # writes ONE CSR per frame; the per-frame base/length/enable+DONE dance (and
+        # the ~21 MB/s per-beat wishbone ceiling) are gone. Same 7-word CSR footprint,
+        # so the DT `dma-tx` window and all later CSR addresses stay put.
+        self.tx = RingDMAReader(axi.AXIInterface(data_width=data_width, address_width=32,
+                                                 id_width=4))
         dma_bus.add_master("milan_dma_tx", master=self.tx.bus)
         # RX: datapath -> circular DRAM ring (RingDMAWriter — see its docstring; replaces
         # the single-shot writer whose re-arm-per-frame protocol corrupted RX under load).
@@ -746,9 +982,11 @@ class MilanDMA(LiteXModule):
         rx_dp = _axis_dp_cdc(self, "dma_rx_cdc", L, milan_cd, to_datapath=False)
         ts_dp = _axis_dp_cdc(self, "dma_ts_cdc", L, milan_cd, to_datapath=False)
         self.comb += [
-            # TX: reader.source (sys) -> datapath TX endpoint (full keep)
+            # TX: reader.source (sys) -> datapath TX endpoint. The ring reader carries
+            # the exact last-beat byte mask (from the header's byte length), so wire
+            # frames are no longer padded to 8 B — the MAC glue turns keep into last_be.
             tx_dp.sys.valid.eq(self.tx.source.valid), tx_dp.sys.data.eq(self.tx.source.data),
-            tx_dp.sys.last.eq(self.tx.source.last),   tx_dp.sys.keep.eq(2**nb - 1),
+            tx_dp.sys.last.eq(self.tx.source.last),   tx_dp.sys.keep.eq(self.tx.source.keep),
             self.tx.source.ready.eq(tx_dp.sys.ready),
             # RX: datapath RX endpoint (sys side) -> writer.sink
             self.rx.sink.valid.eq(rx_dp.sys.valid), self.rx.sink.data.eq(rx_dp.sys.data),

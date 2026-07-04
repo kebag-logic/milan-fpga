@@ -139,8 +139,20 @@ class Harness:
     def ring_word(self, off):
         return self.mem.get(BASE + (off & (self.ring - 1)), None)
 
+    @staticmethod
+    def csum_ref(words):
+        """Ones-complement sum of 16-bit LE lanes — what the ingress must deliver."""
+        s = 0
+        for w in words:
+            for k in range(4):
+                s += (w >> (16 * k)) & 0xFFFF
+        while s >> 16:
+            s = (s & 0xFFFF) + (s >> 16)
+        return s
+
     def read_frames(self, rd, count):
-        """Walk `count` committed frames from ring offset rd; return (frames, seqs, rd)."""
+        """Walk `count` committed frames from ring offset rd; return (frames, seqs, rd).
+        Verifies each header's CHECKSUM_COMPLETE field against the stored payload."""
         frames, seqs = [], []
         for _ in range(count):
             hdr = self.ring_word(rd)
@@ -151,6 +163,9 @@ class Harness:
             words = []
             for k in range(length // 8):
                 words.append(self.ring_word(rd + 8 + 8 * k))
+            hw_csum = (hdr >> 32) & 0xFFFF
+            assert hw_csum == self.csum_ref(words), \
+                f"csum mismatch @+0x{rd:x}: hw {hw_csum:#x} != ref {self.csum_ref(words):#x}"
             frames.append(words)
             rd = (rd + 8 + length) & (self.ring - 1)
         return frames, seqs, rd

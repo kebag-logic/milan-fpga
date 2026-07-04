@@ -216,11 +216,34 @@ on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../hdl/adp/do
 ## DMA registers (fully-FPGA build only — separate CSR space)
 
 On the fully-FPGA NaxRiscv SoC the AXIS↔memory DMA (§A.6, `MilanDMA`) is **not** part
-of the `milan_csr` window above — it uses three LiteX simple-mode DMA engines whose
-registers are auto-mapped in the **LiteX CSR space** (their absolute addresses appear
-in the generated `build/csr.csv`; the device tree exposes them via the `dma-tx`,
-`dma-rx`, `dma-ts` `reg` entries). Each engine has the same simple-mode layout, which
-mirrors the Zynq `axi_dma` simple mode the driver already targets:
+of the `milan_csr` window above — its engines' registers are auto-mapped in the
+**LiteX CSR space** (absolute addresses in the generated `build/csr.csv`; the device
+tree exposes them via the `dma-tx`, `dma-rx`, `dma-ts` `reg` entries).
+
+**`dma-tx` and `dma-rx` are ring engines** (2026-07-04: `RingDMAReader`/`RingDMAWriter`,
+native AXI-burst masters on the coherent dma_bus — see
+[`RX_RING_DMA.md`](RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
+throughput-broken). Both share one 7-word layout over a circular coherent buffer of
+frame slots `[8 B header][payload padded to 8 B]`, wrapping via `mask`:
+
+| Offset | Register | dma-rx (writer) | dma-tx (reader) |
+|--------|----------|-----------------|-----------------|
+| `+0x00/+0x04` | `base` hi/lo | ring base **byte** address (64-bit, MS word first) | same |
+| `+0x08` | `mask`   | ring size−1 (power of two) | same |
+| `+0x0c` | `wr_ptr` | **RO** — HW commits a whole frame at a time | **RW** — SW advances after queueing a frame |
+| `+0x10` | `rd_ptr` | **RW** — SW releases consumed bytes | **RO** — HW consumption pointer |
+| `+0x14` | `enable` | ring enable | same |
+| `+0x18` | `dropped` / `sent` | RO: whole frames dropped (ingress/ring full) | RO: frames streamed to the datapath |
+
+Header word: RX = `{rsvd[31:0], seq[15:0], len[15:0]}` (len = padded payload bytes);
+TX = `{rsvd[47:0], len[15:0]}` (len = **exact** bytes — HW derives the last-beat byte
+mask, so TX wire frames are not 8-padded). RX `wr_ptr` only moves after the frame's
+last AXI B response (software never sees a partial frame); TX HW resyncs `rd := wr`
+on a nonsense header (len 0 or > 4096) instead of streaming garbage. Frame slots may
+wrap the ring end — software splits its memcpy, hardware splits its bursts (also at
+4 KB AXI boundaries). Max frame 4096 B incl. header.
+
+**`dma-ts` remains a LiteX simple-mode engine** (mirrors Zynq `axi_dma` simple mode):
 
 | Register | Access | Meaning |
 |----------|--------|---------|
@@ -231,17 +254,10 @@ mirrors the Zynq `axi_dma` simple mode the driver already targets:
 | `<eng>_loop`   | RW | 1 = continuous (ring) mode |
 | `<eng>_offset` | RO | current transfer offset (progress, in **bus words**) |
 
-`<eng>` ∈ { `milan_dma_tx` (memory→TX), `milan_dma_rx` (RX→memory),
-`milan_dma_ts` (timestamp-metadata→memory) }. Driver flow: set `base`+`length`,
-pulse `enable`, wait for `done`/IRQ.
-
-> **⚠ `base` and `length` are BYTE quantities, not words.** LiteX's simple-mode DMA
-> (`WishboneDMAReader`/`Writer.add_csr`) declares both as bytes and shifts `>>3` internally
-> for the 64-bit bus (`base.eq(self.base[3:])`, `length.eq(self.length[3:])`). Hardware-
-> confirmed: writing `length=8` transmits **one** 8-byte word, not eight; a 64-byte frame
-> needs `length=64`. `offset` counts **bus words** (8 B), so a completed 64-byte transfer
-> reads back `offset=8`. Getting this wrong silently truncates every frame. (Scatter-gather / multi-queue is the later
-Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
+> **⚠ `base`/`length` are BYTE quantities, not words** (simple-mode: hardware-confirmed
+> `length=8` transmits ONE 8-byte word; `offset` counts words). The ring pointers/masks
+> are byte quantities too, always 8-aligned. (Descriptor rings / multi-queue remain the
+> later Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
 > the DMA masters attach to NaxRiscv's cache-snooping `dma_bus`, so a CPU-written TX frame
