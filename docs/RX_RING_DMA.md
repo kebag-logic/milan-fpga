@@ -97,6 +97,66 @@ and the kl-eth driver. Ring overload shows up as `rx_missed_errors`, never corru
     whole-frame overload behavior; the remaining delivered-throughput ceiling is the
     single 100 MHz CPU (see FULLY_FPGA_RISCV_MIGRATION.md for the RV64GC/SMP paths).
 
+## The TX mirror — `RingDMAReader` (same night, same disease, same cure)
+
+TX had the identical per-beat wishbone ceiling (~21 MB/s ≈ 170 Mbit/s wire) plus a
+protocol tax all its own: one frame in flight, a `base/length/enable` CSR dance and a
+`DONE` wait per frame, putting the driver poll cadence in the TX hot path — and
+throttling ACK egress, which taxes peer→FPGA TCP too.
+
+`RingDMAReader` mirrors the RX writer: software memcpys a frame into a coherent DRAM
+ring (`[8 B header {len}] [payload]`), writes **one CSR** (`wr_ptr`) and returns;
+hardware walks `rd → wr` with 16-beat AXI read bursts (split at ring-wrap/4 KB) and
+streams to the datapath. The header's `len` is the **exact** byte count — the reader
+emits the true last-beat `keep` mask (the MAC glue converts it to LiteEth's one-hot
+`last_be`), so TX frames are no longer padded to 8-byte multiples on the wire. The
+MilanMAC store-and-forward PacketFIFO (the TX-starvation fix) makes the reader's
+burstiness harmless. Nonsense headers (len 0/oversized — only possible via a software
+bug) resync `rd := wr` rather than streaming garbage. Same 7-CSR footprint as the
+simple-mode block it replaces (`wr_ptr` RW / `rd_ptr` RO — roles mirrored from RX);
+DT untouched. Sim: `test_ring_tx.py` (exact lengths incl. non-×8 + keep masks,
+backpressure, wrap, 4 KB splits, desync-resync) — ALL PASS.
+
+### Measured ladder (silicon, night of 2026-07-04/05 — each step verified end-to-end)
+
+| step (build) | TX TCP | RX TCP | notes |
+|---|---|---|---|
+| single-slot TX (morning) | 16.3 | 58.4 | RTT ~1.7 ms |
+| + TX ring, MTU 1500 (ring3) | 18.1 | 57.3 | RTT **0.88 ms**; TX UDP 27.5 lossless; 531 *spurious* retr |
+| + MTU 2026 (ring3) | 50.5 | 79.4 | retr storm gone (0 retr); TX UDP 31.9 |
+| + 4096-B frames, MTU 4074 (ring5) | 55.0 | 85.6 | TX UDP **47.2 Mbit/s, 0 % loss** |
+| + RX csum offload (ring7) | 53.7 | **92.0** | kernel skips its checksum pass |
+
+Notes:
+* Telemetry confirmed every DMA-submitted frame reached the wire
+  (`tx_dma == tx_dp == tx_core == tx_wire`) with the peer's error counters at zero —
+  the MTU-1500 TCP retransmits were *spurious* (congestion-window collapse from
+  ACK-timing artifacts); MTU ≥ 2026 eliminated them entirely.
+* Both directions are CPU-bound (the single 100 MHz RV64 measures ~86 % busy during
+  RX TCP), which is why the per-packet levers pay: **MTU** (both ends must match;
+  `max_mtu` = 4074) and **RX `CHECKSUM_COMPLETE` offload** (the ingress FIFO sums
+  every stored byte for free as beats stream in; the header's spare 16 bits carry it;
+  the driver hands the kernel a ready-made `skb->csum`). The TCP transfers completing
+  cleanly *is* the checksum correctness proof — the kernel validates every segment
+  against the HW sum (plus the sim checks it against a Python reference in every RX
+  test).
+* Parallel streams (`-P 4`) measure slightly *below* single-stream — more connection
+  state on the same CPU.
+* **4-hour bidirectional soak (ring7, 240 × 55 s `iperf3 --bidir`): PASSED.** Both
+  rings + the checksum path exercised simultaneously on the shared AXI dma_bus:
+  27,550,006 RX + 7,927,449 TX frames, every telemetry stage count identical
+  end-to-end, **0 RX stalls, 0 desyncs, 0 `InCsumErrors`, 0 length errors**; TX
+  stalls 1803 total across 3.68 G beats (momentary read/write bus contention,
+  ~5·10⁻⁷/beat). Throughput at run 240 == run 1 (59+17 Mbit/s bidirectional). The
+  16-bit seq wrapped ~420 times and the rings wrapped ~10⁵ times without incident.
+* **Timing lessons** (both engines): the burst-geometry cone (`ptr + done·8 → mask →
+  base+off → 4K/wrap mins → awlen`) must be REGISTERED — computed combinationally it
+  missed 100 MHz by −0.59 ns at 512-beat widths (ring4); a PREP state + incremental
+  offset registers closed it at **+0.43 ns** (ring5). Same story for the checksum:
+  summing straight off the CDC FIFO's BRAM output missed by −0.36 ns (ring6); an
+  input pipeline register (free — `sink.ready` is constant 1) + a one-cycle-delayed
+  length push closed it at **+0.32 ns** (ring7).
+
 ## Related
 
 * `docs/kl-eth-tx-debug.md` — the TX-side saga (coherent-dma, cut-through starvation,
@@ -104,7 +164,8 @@ and the kl-eth driver. Ring overload shows up as `rx_missed_errors`, never corru
   TX starvation (stream vs memory-bus rate mismatch), on the opposite direction.
 * `docs/pipeline-telemetry.md` — the stage counters used for the smoking-gun
   measurement here (`rx_dma` stalls/beats).
-* Remaining known ceiling: the **TX** DMA reader still does per-beat Wishbone reads
-  (~21 MB/s sustained ≈ 170 Mbit/s wire ceiling, hidden behind the 4 KB PacketFIFO for
-  now; CPU-bound TCP is far below it anyway). Same AXI-burst treatment applies if TX
-  throughput ever becomes the limit (M-A6, descriptor rings).
+* Remaining known ceiling: the single 100 MHz RV64 CPU (soft checksums + copies).
+  The DMA/wire side sustains line rate in both directions; delivered socket
+  throughput scales with MTU (see the TX table above). Next levers beyond MTU:
+  hardware checksum offload in the datapath, RV64GC/SMP SoC upgrades
+  (FULLY_FPGA_RISCV_MIGRATION.md), descriptor rings + IRQ (M-A6).
