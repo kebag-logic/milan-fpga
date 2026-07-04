@@ -1,0 +1,125 @@
+diff --git a/litex/soc/software/bios/boot.c b/litex/soc/software/bios/boot.c
+index a65d7cf..6d917aa 100644
+--- a/litex/soc/software/bios/boot.c
++++ b/litex/soc/software/bios/boot.c
+@@ -773,7 +773,10 @@ void netboot(int nb_params, char **params)
+ /* Flash Boot                                                            */
+ /*-----------------------------------------------------------------------*/
+ 
+-#ifdef FLASH_BOOT_ADDRESS
++/* MILAN_FLASHBOOT_ENTRY (from generated/soc.h, emitted by milan_soc.py --with-spiflash)
++   also needs the flash-image helpers below even though it does not set FLASH_BOOT_ADDRESS
++   (the BIOS is not booted from flash; only the Linux images are). See linux_flashboot(). */
++#if defined(FLASH_BOOT_ADDRESS) || defined(MILAN_FLASHBOOT_ENTRY)
+ 
+ /* Sanity limit on the flash image length field (catches erased/garbage
+    flash). Defaults to the Main RAM size when available since the image has to
+@@ -808,7 +811,7 @@ static unsigned int check_image_in_flash(unsigned int base_address)
+ 	return length;
+ }
+ 
+-#if defined(MAIN_RAM_BASE_VA) && defined(FLASH_BOOT_ADDRESS)
++#if defined(MAIN_RAM_BASE_VA) && (defined(FLASH_BOOT_ADDRESS) || defined(MILAN_FLASHBOOT_ENTRY))
+ static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned long ram_address)
+ {
+ 	uint32_t length;
+@@ -845,6 +848,7 @@ static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned lon
+ }
+ #endif
+ 
++#ifdef FLASH_BOOT_ADDRESS
+ void flashboot(void)
+ {
+ 	printf("Booting from flash...\n");
+@@ -864,8 +868,52 @@ void flashboot(void)
+ 	boot(0, 0, 0, (FLASH_BOOT_ADDRESS + 2 * sizeof(uint32_t)));
+ #endif
+ }
++#endif /* FLASH_BOOT_ADDRESS (flashboot) */
++#endif /* FLASH_BOOT_ADDRESS || MILAN_FLASHBOOT_ENTRY (flash image helpers) */
+ 
++/*-----------------------------------------------------------------------*/
++/* Milan Linux flash-boot                                                */
++/*-----------------------------------------------------------------------*/
++/* Copy the Linux boot images that live in the on-board QSPI flash (memory-mapped at
++ * SPIFLASH_BASE, written as LiteX FBIs -- [length][crc32][data] -- by `deploy.sh
++ * flash-images`) straight into DRAM, skipping the multi-minute 1.5 Mbaud serial upload.
++ * The image set and its flash offsets/DRAM targets come from generated/soc.h
++ * (MILAN_FLASHBOOT_*), emitted by milan_soc.py (FLASHBOOT_LAYOUT). See docs/QSPI_FLASHBOOT.md.
++ *
++ * If the flash holds the COMPLETE boot set (MILAN_FLASHBOOT_COMPLETE) we jump to OpenSBI
++ * directly -- zero serial upload. Otherwise we pre-load whatever IS in flash (by default the
++ * big, static 14 MB kernel) and RETURN, so the normal serialboot then uploads only the
++ * remaining, smaller images (a boot.json that omits the flashed ones). A CRC/length failure
++ * on any image aborts the copy and falls through to serialboot, so an empty or mid-update
++ * flash can never brick the boot. Registered at priority -10 in main.c (before serialboot). */
++#if defined(MILAN_FLASHBOOT_ENTRY) && defined(MAIN_RAM_BASE_VA)
++void linux_flashboot(void)
++{
++	printf("Milan: pre-loading boot images from QSPI flash...\n");
++#ifdef MILAN_FLASHBOOT_OPENSBI_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_OPENSBI_OFFSET, MILAN_FLASHBOOT_OPENSBI_ADDR))
++		return;
++#endif
++#ifdef MILAN_FLASHBOOT_DTB_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_DTB_OFFSET, MILAN_FLASHBOOT_DTB_ADDR))
++		return;
+ #endif
++#ifdef MILAN_FLASHBOOT_KERNEL_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET, MILAN_FLASHBOOT_KERNEL_ADDR))
++		return;
++#endif
++#ifdef MILAN_FLASHBOOT_ROOTFS_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_ROOTFS_OFFSET, MILAN_FLASHBOOT_ROOTFS_ADDR))
++		return;
++#endif
++#ifdef MILAN_FLASHBOOT_COMPLETE
++	/* Whole boot set is in DRAM -> OpenSBI (boot_helper leaves a0=hartid, a1=0). */
++	boot(0, 0, 0, MILAN_FLASHBOOT_ENTRY);
++#else
++	printf("Milan: flashed images pre-loaded to DRAM; serialboot will upload the rest.\n");
++#endif
++}
++#endif /* MILAN_FLASHBOOT_ENTRY && MAIN_RAM_BASE_VA */
+ 
+ /*-----------------------------------------------------------------------*/
+ /* SDCard Boot                                                           */
+diff --git a/litex/soc/software/bios/boot.h b/litex/soc/software/bios/boot.h
+index 9b323f6..78f1d2a 100644
+--- a/litex/soc/software/bios/boot.h
++++ b/litex/soc/software/bios/boot.h
+@@ -39,6 +39,7 @@ void __attribute__((noreturn)) boot(unsigned long r1, unsigned long r2, unsigned
+ int serialboot(void);
+ void netboot(int nb_params, char **params);
+ void flashboot(void);
++void linux_flashboot(void);
+ void romboot(void);
+ void sdcardboot(int nb_params, char **params);
+ void sataboot(int nb_params, char **params);
+diff --git a/litex/soc/software/bios/main.c b/litex/soc/software/bios/main.c
+index 1eb6069..81b13b5 100644
+--- a/litex/soc/software/bios/main.c
++++ b/litex/soc/software/bios/main.c
+@@ -81,6 +81,22 @@ static int flash_boot_method(void)
+ define_boot_method(flash, flash_boot_method, FLASH_BOOT_PRIORITY);
+ #endif
+ 
++/* Milan Linux flash-boot: copy Linux images from the on-board QSPI flash into DRAM before
++   serialboot (priority -10 < serial's 0), so a normal power-on boots from flash with no --
++   or, for the partial manifest, minimal -- serial upload. Falls through to serialboot if the
++   flash is empty/updating. Enabled by milan_soc.py --with-spiflash (emits MILAN_FLASHBOOT_*). */
++#if defined(MILAN_FLASHBOOT_ENTRY) && defined(MAIN_RAM_BASE_VA) && !defined(MILAN_FLASHBOOT_DISABLE)
++#ifndef MILAN_FLASH_BOOT_PRIORITY
++#define MILAN_FLASH_BOOT_PRIORITY -10
++#endif
++static int milan_flash_boot_method(void)
++{
++	linux_flashboot();
++	return BOOT_METHOD_CONTINUE;
++}
++define_boot_method(milan_flash, milan_flash_boot_method, MILAN_FLASH_BOOT_PRIORITY);
++#endif
++
+ #if defined(ROM_BOOT_ADDRESS) && !defined(ROM_BOOT_DISABLE)
+ #ifndef ROM_BOOT_PRIORITY
+ #define ROM_BOOT_PRIORITY 20
