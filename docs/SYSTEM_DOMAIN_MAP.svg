@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="1338" viewBox="0 0 1340 1338" font-family="Helvetica,Arial,sans-serif">
+<rect width="1340" height="1338" fill="#ffffff"/>
+<text x="30" y="40" font-size="24" font-weight="bold" fill="#263238">Milan TSN NIC — system domain map</text>
+<text x="30" y="66" font-size="13" fill="#546E7A">every module by domain / language · software (top) → silicon (bottom) · host tooling generates &amp; deploys the stack</text>
+<rect x="30" y="90" width="900" height="120" rx="8" fill="#B2DFDB" stroke="#00796B" stroke-width="2"/>
+<text x="44" y="115" font-size="16" font-weight="bold" fill="#212121">Userspace</text>
+<text x="44" y="115" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="115" font-size="11.5" fill="#00796B" text-anchor="end">on target · C / config</text>
+<rect x="40" y="142" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#00796B" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="159" font-size="12.5" fill="#212121">PipeWire + module-avb (AVB talker/listener)</text>
+<rect x="40" y="174" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#00796B" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="191" font-size="12.5" fill="#212121">alsa-lib · buildroot rootfs (busybox init, cpio→tmpfs)</text>
+<rect x="30" y="226" width="900" height="184" rx="8" fill="#F8BBD0" stroke="#AD1457" stroke-width="2"/>
+<text x="44" y="251" font-size="16" font-weight="bold" fill="#212121">Linux kernel</text>
+<text x="44" y="251" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="251" font-size="11.5" fill="#AD1457" text-anchor="end">on target · C (in-tree + out-of-tree)</text>
+<rect x="40" y="278" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#AD1457" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="295" font-size="12.5" fill="#212121">kl-eth — out-of-tree Milan NIC driver (TX/RX DMA, telemetry sysfs, PTP)</text>
+<rect x="40" y="310" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#AD1457" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="327" font-size="12.5" fill="#212121">in-tree: liteuart, litex-soc-controller, sifive-plic, clint-timer</text>
+<rect x="40" y="342" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#AD1457" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="359" font-size="12.5" fill="#212121">net: PTP-1588 core · sch_cbs + mqprio qdisc · AF_PACKET · 8021Q</text>
+<rect x="40" y="374" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#AD1457" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="391" font-size="12.5" fill="#212121">device tree: milan_ax7101_linux.dts  ·  kernel .config: linux.fragment</text>
+<rect x="30" y="426" width="900" height="120" rx="8" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="44" y="451" font-size="16" font-weight="bold" fill="#212121">Boot firmware</text>
+<text x="44" y="451" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="451" font-size="11.5" fill="#EF6C00" text-anchor="end">on target · C</text>
+<rect x="40" y="478" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#EF6C00" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="495" font-size="12.5" fill="#212121">LiteX BIOS (ROM) + linux_flashboot (QSPI→DRAM image copy)</text>
+<rect x="40" y="510" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#EF6C00" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="527" font-size="12.5" fill="#212121">OpenSBI — custom litex_nax platform (M-mode fw_jump, embedded DTB)</text>
+<rect x="30" y="562" width="900" height="152" rx="8" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="44" y="587" font-size="16" font-weight="bold" fill="#212121">SoC integration — LiteX / Migen</text>
+<text x="44" y="587" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="587" font-size="11.5" fill="#2E7D32" text-anchor="end">dev host · Python → Verilog  (sw/litex/milan_soc.py)</text>
+<rect x="40" y="614" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="631" font-size="12.5" fill="#212121">MilanSoC (top: NaxRiscv + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)</text>
+<rect x="40" y="646" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="663" font-size="12.5" fill="#212121">MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)</text>
+<rect x="40" y="678" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="695" font-size="12.5" fill="#212121">MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)</text>
+<rect x="30" y="730" width="900" height="280" rx="8" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="44" y="755" font-size="16" font-weight="bold" fill="#212121">Milan datapath — RTL</text>
+<text x="44" y="755" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="755" font-size="11.5" fill="#1565C0" text-anchor="end">FPGA fabric · SystemVerilog / Verilog  (hdl/)</text>
+<rect x="40" y="782" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="799" font-size="12.5" fill="#212121">common: milan_top · milan_datapath · rx_mac_filter · tcam · milan_dma_wrapper · cdc_*</text>
+<rect x="40" y="814" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="831" font-size="12.5" fill="#212121">csr: milan_csr  (the AXI-Lite register ABI shared with the driver + DT)</text>
+<rect x="40" y="846" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="863" font-size="12.5" fill="#212121">802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·</text>
+<rect x="40" y="878" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="895" font-size="12.5" fill="#212121">            traffic_controller_802_1q · traffic_queues · traffic_shaping_core</text>
+<rect x="40" y="910" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="927" font-size="12.5" fill="#212121">PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync</text>
+<rect x="40" y="942" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="959" font-size="12.5" fill="#212121">1722 AVTP: KL_avtp_common_parser   ·   ADP: adp_advertiser · adp_tx_arbiter · KL_adp_parser</text>
+<rect x="40" y="974" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="991" font-size="12.5" fill="#212121">events: ethernet_events · event_counter</text>
+<rect x="30" y="1026" width="900" height="120" rx="8" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="44" y="1051" font-size="16" font-weight="bold" fill="#212121">Vendored IP</text>
+<text x="44" y="1051" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="1051" font-size="11.5" fill="#6A1B9A" text-anchor="end">FPGA fabric · 3rd-party cores</text>
+<rect x="40" y="1078" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1095" font-size="12.5" fill="#212121">NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)</text>
+<rect x="40" y="1110" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1127" font-size="12.5" fill="#212121">LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)</text>
+<rect x="30" y="1162" width="900" height="120" rx="8" fill="#CFD8DC" stroke="#37474F" stroke-width="2"/>
+<text x="44" y="1187" font-size="16" font-weight="bold" fill="#212121">Board / silicon</text>
+<text x="44" y="1187" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="1187" font-size="11.5" fill="#37474F" text-anchor="end">physical</text>
+<rect x="40" y="1214" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#37474F" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1231" font-size="12.5" fill="#212121">XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)</text>
+<rect x="40" y="1246" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#37474F" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1263" font-size="12.5" fill="#212121">QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk</text>
+<rect x="970" y="90" width="340" height="248" rx="8" fill="#FFF9C4" stroke="#F9A825" stroke-width="2"/>
+<text x="984" y="115" font-size="16" font-weight="bold" fill="#212121">Host tooling</text>
+<text x="984" y="115" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="1296" y="115" font-size="11.5" fill="#F9A825" text-anchor="end">Python / bash</text>
+<rect x="980" y="142" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
+<text x="990" y="159" font-size="12.5" fill="#212121">milan_soc.py — SoC/gateware generator</text>
+<rect x="980" y="174" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
+<text x="990" y="191" font-size="12.5" fill="#212121">milan_dt.py — device-tree generator (csr.json→dts)</text>
+<rect x="980" y="206" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
+<text x="990" y="223" font-size="12.5" fill="#212121">deploy.sh — build / load / flash / flash-images</text>
+<rect x="980" y="238" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
+<text x="990" y="255" font-size="12.5" fill="#212121">boot.sh — serialboot (+ FLASH_KERNEL mode)</text>
+<rect x="980" y="270" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
+<text x="990" y="287" font-size="12.5" fill="#212121">patches/apply.sh — BIOS linux_flashboot</text>
+<rect x="980" y="302" width="320" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#F9A825" stroke-opacity="0.5" stroke-width="1"/>
+<text x="990" y="319" font-size="12.5" fill="#212121">crcfbigen — FBI image wrapper</text>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#F9A825"/></marker></defs>
+<path d="M1140 338 L1140 760 L938 760" fill="none" stroke="#F9A825" stroke-width="2.5" marker-end="url(#a)" stroke-dasharray="6 4"/>
+<text x="970" y="366" font-size="12" fill="#F57F17">generates · flashes · boots the whole stack</text>
+</svg>

@@ -9,6 +9,7 @@ Documentation for the Milan TSN FPGA network interface.
 | [FULL_FPGA_SOLUTION.md](FULL_FPGA_SOLUTION.md) | **The master guide to the fully-FPGA solution** — high- and medium-level architecture, the three datapath boundaries, build/run, and the roadmap. **Read first for the softcore/FPGA work.** |
 | [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_MATRIX.md) | **Every protocol × where it's implemented × the test that validates it** — the validation contract for the FPGA-only solution. |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, and a "where to change things" guide. |
+| [SYSTEM_DOMAIN_MAP.md](SYSTEM_DOMAIN_MAP.md) | **Which module lives in which domain/language** — a one-picture map of the whole stack (userspace → kernel → firmware → LiteX → RTL → vendored IP → silicon) plus the host tooling. |
 | [FULLY_FPGA_RISCV_MIGRATION.md](FULLY_FPGA_RISCV_MIGRATION.md) | The deep, step-numbered migration plan (§A.x parts: DDR, clocking, CSR, DMA, MAC, IRQ, wrapper, boot, driver, DT). |
 | [AXIS_CORES_ON_NAXRISCV.md](AXIS_CORES_ON_NAXRISCV.md) | How to attach AXI-Stream cores to the NaxRiscv SoC (control/data/event planes). |
 | [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) | How the SoC was ported to the real Alinx AX7101 board — pin extraction from the official constraints, DDR3/LiteDRAM integration, verification. |
