@@ -120,3 +120,29 @@ memory, full length) and then an end-to-end ping to the peer + the peer's `rx_*`
   the skb/stack/coherency variables and gives an exact memory→wire transform.
 - `dma_tx_offset == length/8` proves the DMA moved the whole frame; truncation after that is
   downstream (datapath or MAC core), which loopback then localizes.
+
+## Second bug — intermittent TX-to-wire (open, board-side): the GMII-TX clock phase
+
+After the `last_be` fix, TX still failed to reach the peer on most boots (worked on boot 1,
+dead on later boots; RX always fine). The `milan_tlm` pipeline telemetry
+([pipeline-telemetry.md](pipeline-telemetry.md)) localized it precisely: a ping burst gave
+`tx_dma = tx_dp = tx_core = tx_wire` all incrementing (**the whole FPGA fabric passes every
+frame, right up to the GMII pins**) while the peer i210 `rx` stayed **Δ0**. So the loss is
+**downstream of `phy.sink`** — the GMII-TX → RTL8211E → copper layer, not the fabric.
+
+**Root cause (identified, in the LiteEth GMII CRG).** `LiteEthPHYGMIICRG` (liteeth
+`phy/gmii.py`) drives the outgoing `gtx_clk` **edge-aligned** with TXD: TXD is registered on
+`eth_tx` (a BUFG of the PHY's rx-derived 125 MHz), and `gtx_clk` is that same clock forwarded
+through an `ODDR` (`DDROutput(1, mii_mode, clock_pads.gtx, ClockSignal("eth_tx"))`). Both edges
+line up, so the RTL8211E samples TXD right at the clock transition — a marginal setup/hold at
+the PHY that resolves differently per boot (temperature/PVT). RX is reliable because it uses the
+PHY-*sourced* `rx_clk` (already centered).
+
+**Fix (board-validated gateware — the focused next step).** Phase-shift `gtx_clk` ~90° so the
+PHY samples in the middle of the data eye (or, equivalently, delay TXD): feed the rx-derived
+125 MHz into an MMCM and forward a phase-shifted output on `gtx_clk`. Make the phase a build
+knob (e.g. `--gtx-tx-phase`, default = current edge-aligned behavior so it can't regress) and
+**A/B the phase on the board** — 90° is the textbook start; sweep if the trace delay skews it.
+Alternatively set the TX skew via the PHY's MDIO (RTL8211E TXDLY strap/register), but the MMCM
+phase is deterministic and in-gateware. Validate with a controlled `devmem` frame + the peer's
+`ethtool -S` (and `tx_wire` vs peer rx) exactly as in the diagnostic chain above.
