@@ -121,28 +121,98 @@ memory, full length) and then an end-to-end ping to the peer + the peer's `rx_*`
 - `dma_tx_offset == length/8` proves the DMA moved the whole frame; truncation after that is
   downstream (datapath or MAC core), which loopback then localizes.
 
-## Second bug — intermittent TX-to-wire (open, board-side): the GMII-TX clock phase
+## Second bug — TX-to-wire: the 2026-07-04 investigation log (OPEN, bisection running)
 
-After the `last_be` fix, TX still failed to reach the peer on most boots (worked on boot 1,
-dead on later boots; RX always fine). The `milan_tlm` pipeline telemetry
-([pipeline-telemetry.md](pipeline-telemetry.md)) localized it precisely: a ping burst gave
-`tx_dma = tx_dp = tx_core = tx_wire` all incrementing (**the whole FPGA fabric passes every
-frame, right up to the GMII pins**) while the peer i210 `rx` stayed **Δ0**. So the loss is
-**downstream of `phy.sink`** — the GMII-TX → RTL8211E → copper layer, not the fabric.
+After the `last_be` fix, TX to the peer kept failing. This section is the **complete,
+chronological experiment log** — including two wrong theories that measurements later
+killed, because knowing *why they were wrong* is as valuable as the result.
 
-**Root cause (identified, in the LiteEth GMII CRG).** `LiteEthPHYGMIICRG` (liteeth
-`phy/gmii.py`) drives the outgoing `gtx_clk` **edge-aligned** with TXD: TXD is registered on
-`eth_tx` (a BUFG of the PHY's rx-derived 125 MHz), and `gtx_clk` is that same clock forwarded
-through an `ODDR` (`DDROutput(1, mii_mode, clock_pads.gtx, ClockSignal("eth_tx"))`). Both edges
-line up, so the RTL8211E samples TXD right at the clock transition — a marginal setup/hold at
-the PHY that resolves differently per boot (temperature/PVT). RX is reliable because it uses the
-PHY-*sourced* `rx_clk` (already centered).
+### The instrument set
 
-**Fix (board-validated gateware — the focused next step).** Phase-shift `gtx_clk` ~90° so the
-PHY samples in the middle of the data eye (or, equivalently, delay TXD): feed the rx-derived
-125 MHz into an MMCM and forward a phase-shifted output on `gtx_clk`. Make the phase a build
-knob (e.g. `--gtx-tx-phase`, default = current edge-aligned behavior so it can't regress) and
-**A/B the phase on the board** — 90° is the textbook start; sweep if the trace delay skews it.
-Alternatively set the TX skew via the PHY's MDIO (RTL8211E TXDLY strap/register), but the MMCM
-phase is deterministic and in-gateware. Validate with a controlled `devmem` frame + the peer's
-`ethtool -S` (and `tx_wire` vs peer rx) exactly as in the diagnostic chain above.
+* `milan_tlm` pipeline telemetry ([pipeline-telemetry.md](pipeline-telemetry.md)) — frame
+  counts at every fabric stage, readable from Linux sysfs **and from the BIOS**
+  (`mem_write 0xf0004004 1` = capture, `mem_read 0xf0004058` = tx_wire).
+* Controlled BIOS-level TX (no kernel needed): boot to `litex>` (no uploader), then
+  `mem_write 0x90000100 0x13` (MAC en), frame words at `0x40000000` (wire byte order),
+  TX-DMA `0xf0003000/4/8` (base hi/lo, length bytes), toggle `0xf000300c` 0→1 per frame;
+  `mem_read 0xf0003010` = done, `0xf0003018` = offset in 8-byte words.
+* Peer i210: `ethtool -S` **full-diff** (not selected counters) + promiscuous
+  `tcpdump -e -xx`.
+* Vivado `open_checkpoint` on the routed `.dcp` — physical placement of the TX launch FFs.
+
+### The result matrix (identical 10-frame broadcast burst everywhere)
+
+| build | source/flags | DMA | TXD launch (DCP-verified) | gtx phase | tx_wire | peer |
+|---|---|---|---|---|---|---|
+| build_gmii_final (Jul 3) | pre-gating `last_be` (truncates to 8 B!) | coherent | fabric `SLICE_X1` | edge | 10 | **10/10** ⚠ truncated frames |
+| build_qspi_gtx | Jul 4 code | **non-coherent** | fabric | 180° | 10 | 0/10 |
+| build_qspi_gtx_coh | Jul 4 code | coherent | fabric | 180° | 10 | 0/10 |
+| build_final | Jul 4 code | coherent | fabric `SLICE_X14` | edge | 6 | 0/6 |
+| build_iob/_inv | Jul 4 code (IOB constraint **silently skipped**) | coherent | fabric `SLICE_X14` | edge/180° | 10 | 0/10 |
+| build_iob2/_inv | Jul 4 code (IOB fixed) | coherent | **OLOGIC_X0** | edge/180° | 10 | 0/10 |
+
+Plus, under Linux on `build_qspi_gtx_coh`/`build_final` (coherent): **RX is fully healthy**
+(peer ARPs → `rx_wire=rx_core=rx_dp=rx_dma` → netdev 0-dropped → neighbor learned,
+`devmem` of the RX buffer shows correct wire bytes), and TX is fabric-perfect with real
+data (`tx_dma=tx_dp=tx_core=tx_wire`, byte counts matching) — yet nothing reaches the peer.
+
+### What is PROVEN
+
+1. **`--coherent-dma` is mandatory** (not implied by `--all-blocks`; deploy.sh now carries
+   it). Without it: RX skbs are all zeros (stack drops 100 %), TX reads stale DRAM (frames
+   egress with garbage dst-MAC that the peer silently address-filters — Δ0 *without* CRC
+   errors, a perfect PHY-problem impostor). Boot-to-boot "intermittency" = cache-eviction
+   luck.
+2. **The FPGA fabric TX path is correct in every build** (counters + real data verified).
+3. **The wire + PHY TX are capable** — gmii_final transmits 10/10 *today*.
+4. **On every Jul-4 build the PHY emits NOTHING onto copper**: full peer counter diff shows
+   no movement (not even undersize/CRC/error counters); promiscuous tcpdump captures zero
+   frames — while `tx_wire` counts frames *into* the PHY and the eth_tx clock demonstrably
+   runs (the counter lives in that domain). Silence, not corruption ⇒ **not a
+   sampling-margin problem**.
+
+### What is DISPROVEN (and by what)
+
+* **"gtx_clk↔TXD phase (edge-aligned) is the bug"** — OLOGIC-placed data with 180°-shifted
+  clock (textbook mid-bit sampling) is equally silent. Phase changes nothing measurable.
+* **"TX FF placement/skew is the bug"** — OLOGIC (pad-locked, skew≈0) equally silent.
+  (Placement *does* matter for margin once TX talks again — keep the IOB constraint — but
+  it is not what silences the PHY.)
+* **My `--gtx-tx-invert` "fix"** — never validated; keep OFF pending re-test.
+
+### Traps documented (each cost real time)
+
+1. **dst-keyed counters lie — twice now.** gmii_final "passing 10/10" was itself the trap
+   re-sprung: its pre-gating `last_be` truncates every frame to 8 bytes + MAC padding, and
+   the peer's `rx_broadcast` counts truncated frames indistinguishably from full ones. A
+   valid TX pass **requires tcpdump content verification** of the full frame.
+2. **XDC does not execute TCL control flow.** A `set_property` wrapped in `if {…}` is
+   silently ignored — verify constraints took effect in the routed `.dcp`
+   (`get_cells -of …` → expect `OLOGIC`, not `SLICE`), never trust the .xdc text.
+3. **buildroot `linux-reconfigure` does not rebuild out-of-tree modules** (and MODVERSIONS
+   is off): a stale `kl-eth.ko` vermagic-matches, loads, and oopses on shifted struct
+   layouts (`devm_register_netdev → devres_add`, NULL+0x270). Always
+   `make kl-eth-rebuild rootfs-cpio` after kernel .config changes.
+4. **The peer NIC address-filters garbage-MAC frames without counting them anywhere** —
+   "nothing at the peer" ≠ "nothing on the wire" unless tcpdump ran in promisc.
+
+### Open question + bisection (running)
+
+The one systematic difference between the *talking* build and every *silent* one is the
+**Jul-4 source itself** — prime suspect: the gated `last_be` change (its full-frame TX has
+in fact never been observed working), plus telemetry/MilanMAC edits, spiflash, 1.5 M UART.
+Two concurrent discriminating builds:
+
+* **B1** — Jul-4 code, gmii_final-equivalent flags (no spiflash, 115200): splits
+  {feature set} vs {code}.
+* **R0** — the actual `bc5783b` source rebuilt with today's toolchain (worktree):
+  splits {source} vs {toolchain/patch drift}.
+
+| B1 | R0 | conclusion |
+|---|---|---|
+| talks | talks | spiflash or 1.5 M UART silences the PHY |
+| silent | talks | Jul-4 milan-fpga code (bisect: last_be gate → telemetry → MilanMAC edits) |
+| silent | silent | toolchain / liteeth-or-litex patch drift |
+
+Acceptance for ANY "fixed" claim: 10/10 at the peer **and** tcpdump shows the full 64-byte
+payload **and** a Linux ping round-trip completes.

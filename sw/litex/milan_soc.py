@@ -342,6 +342,17 @@ class MilanMAC(LiteXModule):
         # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
         self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
                                    tx_clk_invert=gtx_tx_invert)
+        # GMII TX output timing is otherwise UNCONSTRAINED, so the placer may put the
+        # tx_data/tx_en launch FFs anywhere: measured on silicon, FFs at SLICE_X1 (next to
+        # the IO column, data-vs-gtx skew ~1-2 ns) TX 10/10 frames; FFs at SLICE_X14
+        # (~4-6 ns skew) TX 0/10 — outside the RTL8211E sampling window (~(0,6) ns @ 8 ns).
+        # Pack the launch FFs into the IOB so clock-to-out is pad-locked on every build.
+        # Plain set_property lines only — XDC does not execute TCL `if` guards (verified:
+        # a guarded version was silently skipped and the FFs stayed in fabric).
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
 
