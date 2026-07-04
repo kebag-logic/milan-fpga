@@ -1,0 +1,75 @@
+<mxfile host="app.diagrams.net"><diagram name="RX_RING_OPERATION"><mxGraphModel dx="1400" dy="900" grid="0" page="1" pageWidth="1500" pageHeight="900"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="n2" value="RX ring DMA v2 — how it works (gateware writer + ring format + kl-eth walk)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;verticalAlign=top;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="1100" height="30" as="geometry"/></mxCell><mxCell id="n3" value="datapath m_axis_rx
+64-bit AXIS @50 MHz
+(frames, tlast)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="24" y="108" width="170" height="92" as="geometry"/></mxCell><mxCell id="n4" value="CDC
+async FIFO
+50 -&gt; 100 MHz" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="234" y="108" width="120" height="92" as="geometry"/></mxCell><mxCell id="n5" value="ingress (sink.ready == 1)
+frame START decision:
+free &lt; 256 beats? len queue full?
+disabled?  -&gt; swallow WHOLE frame
+else store beats; push len at tlast" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="394" y="108" width="250" height="92" as="geometry"/></mxCell><mxCell id="n6" value="BRAM buffers
+data FIFO 2048 x 64 b (16 KB)
++ length FIFO 64 x 9 b
+(a frame is complete before
+its length is visible)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="684" y="108" width="210" height="92" as="geometry"/></mxCell><mxCell id="n7" value="drain FSM (burst engine)
+pops one length, checks ring fit,
+streams header+payload as
+INCR bursts &lt;= 16 beats,
+split at ring-wrap + 4 KB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="934" y="108" width="250" height="92" as="geometry"/></mxCell><mxCell id="n8" value="NaxRiscv dma_bus (AXI4)
+coherent: snoops L1/L2,
+CPU sees DMA data without
+cache maintenance
+B response = write done" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1224" y="108" width="252" height="92" as="geometry"/></mxCell><mxCell id="n9" value="IDLE
+length FIFO non-empty?
+fit: free &gt;= 8+len+8
+no fit / disabled -&gt; DISCARD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="274" width="190" height="84" as="geometry"/></mxCell><mxCell id="n10" value="AW
+addr = base+((wr+done)&amp;mask)
+len = blen-1, INCR, 8 B/beat
+blen = min(rem, 16, wrap, 4K)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="280" y="274" width="190" height="84" as="geometry"/></mxCell><mxCell id="n11" value="W  (x blen)
+beat 0 of frame = HEADER
+{rsvd, seq, len_bytes}
+then payload from data FIFO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="520" y="274" width="190" height="84" as="geometry"/></mxCell><mxCell id="n12" value="WAIT_B
+all B responses in
+(outstanding == 0) -&gt;
+COMMIT: wr += 8+len; seq++" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="760" y="274" width="190" height="84" as="geometry"/></mxCell><mxCell id="n13" value="DISCARD
+pop len beats from FIFO
+dropped++ -&gt; IDLE
+(committed data untouched)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1000" y="274" width="190" height="84" as="geometry"/></mxCell><mxCell id="n14" value="why commit-after-B
+software polls wr_ptr; it moves
+only when the frame is fully in
+DRAM -&gt; a partial frame is
+never observable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1240" y="274" width="236" height="84" as="geometry"/></mxCell><mxCell id="n15" value="consumed
+(free)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="474" width="60" height="46" as="geometry"/></mxCell><mxCell id="n16" value="hdr
+seq=41" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="100" y="474" width="40" height="46" as="geometry"/></mxCell><mxCell id="n17" value="payload 1514 B
+(stored as 1520)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="140" y="474" width="150" height="46" as="geometry"/></mxCell><mxCell id="n18" value="hdr
+seq=42" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="290" y="474" width="40" height="46" as="geometry"/></mxCell><mxCell id="n19" value="payload 176 B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="330" y="474" width="90" height="46" as="geometry"/></mxCell><mxCell id="n20" value="hdr
+seq=43" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="420" y="474" width="40" height="46" as="geometry"/></mxCell><mxCell id="n21" value="being written (bursts)
+wr_ptr NOT yet advanced" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="460" y="474" width="140" height="46" as="geometry"/></mxCell><mxCell id="n22" value="free
+(&gt;= 8 spare kept: wr never catches rd)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="600" y="474" width="420" height="46" as="geometry"/></mxCell><mxCell id="n23" value="tail of frame seq=40
+wraps -&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1020" y="474" width="110" height="46" as="geometry"/></mxCell><mxCell id="n24" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1130" y="474" width="110" height="46" as="geometry"/></mxCell><mxCell id="n25" value="header word (8 B, written as burst beat 0)
+bits [15:0]  len   — payload bytes, 8-aligned (padded)
+bits [31:16] seq   — increments per committed frame
+bits [63:32] rsvd — 0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="560" width="460" height="86" as="geometry"/></mxCell><mxCell id="n26" value="space rule
+a frame needs 8 + len + 8 spare bytes free:
+free = size - ((wr - rd) &amp; mask); no fit -&gt; whole-frame
+DISCARD (never a partial write, never overwrite)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="540" y="560" width="440" height="86" as="geometry"/></mxCell><mxCell id="n27" value="wrap rule
+frames may cross the ring end: addresses are masked,
+bursts are split at the boundary; software does the
+mirror: two memcpys when rd + len &gt; size" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1020" y="560" width="456" height="86" as="geometry"/></mxCell><mxCell id="n28" value="poll (adaptive 20/200 us)
+read RING_WR (one CSR read)
+frames pending if rd != wr
+mirror RING_DROPPED into
+rx_missed_errors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="692" width="300" height="96" as="geometry"/></mxCell><mxCell id="n29" value="walk headers rd -&gt; wr
+hdr = ring[rd]; sanity: 0 &lt; len
+&lt;= 2048 and len % 8 == 0
+(else desync recovery: rd = wr,
+count rx_length_errors)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="380" y="692" width="300" height="96" as="geometry"/></mxCell><mxCell id="n30" value="copy out + deliver
+memcpy to skb (2 copies if the
+frame wraps), strip pad via
+eth_type_trans + IP length
+netif_receive_skb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="720" y="692" width="300" height="96" as="geometry"/></mxCell><mxCell id="n31" value="release space
+rd = (rd + 8 + len) &amp; mask
+write back RING_RD -&gt;
+HW sees the freed bytes
+on its next fit check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1060" y="692" width="300" height="96" as="geometry"/></mxCell><mxCell id="n32" value="CSR block (kl-eth regs.h names, byte offsets in the dma-rx window @ 0xf000301c)
++0x00 RING_BASE_HI  +0x04 RING_BASE_LO  +0x08 RING_MASK  +0x0c RING_WR (RO)  +0x10 RING_RD (RW)  +0x14 RING_EN  +0x18 RING_DROPPED (RO)
+identical footprint to the old simple-mode block -&gt; device tree and driver probe unchanged" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="808" width="1320" height="58" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

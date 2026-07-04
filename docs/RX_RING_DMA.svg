@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="620" viewBox="0 0 1500 620" font-family="Helvetica,Arial,sans-serif">
+<rect width="1500" height="620" fill="#ffffff"/>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#37474F"/></marker></defs>
+<text x="24" y="36" font-size="20" fill="#263238" font-weight="bold">RX ring DMA — the drain-rate deficit that lost EVERY large frame, and the AXI-burst fix</text>
+<text x="24" y="58" font-size="12" fill="#546E7A">measured on silicon 2026-07-04 (AX7101, NaxRiscv 100 MHz sys / 50 MHz datapath, GMII 1 Gbps)</text>
+<text x="24" y="92" font-size="14.5" fill="#C62828" font-weight="bold">① v1 (wishbone ring writer): the wire outruns the DMA INSIDE every large frame</text>
+<rect x="24" y="108" width="130" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="89.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">wire</text>
+<text x="89.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">1 Gbps</text>
+<text x="89.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">8 B / 64 ns</text>
+<rect x="194" y="108" width="170" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="279.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">LiteEth MAC RX</text>
+<text x="279.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">eth_rx 125 MHz</text>
+<text x="279.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">CANNOT stall the wire</text>
+<rect x="404" y="108" width="170" height="88" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="489.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">CDC + dp FIFOs</text>
+<text x="489.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">~70 beats elastic</text>
+<text x="489.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">overflow = beats lost</text>
+<text x="489.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">SILENTLY (incl. last)</text>
+<rect x="614" y="108" width="190" height="88" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="709.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">RingDMA v1</text>
+<text x="709.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">1 Wishbone write / beat</text>
+<text x="709.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">adapter waits B each time</text>
+<text x="709.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">~38 sys-cycles / 8 B</text>
+<rect x="844" y="108" width="200" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="944.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">NaxRiscv dma_bus</text>
+<text x="944.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">coherent (snoops L1/L2)</text>
+<text x="944.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">the port is FULL AXI4 —</text>
+<text x="944.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">wishbone was the adapter</text>
+<path d="M154 152 L190 152" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M364 152 L400 152" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M574 152 L610 152" stroke="#C62828" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<text x="592.0" y="145.0" font-size="11" fill="#C62828" text-anchor="middle">stalls</text>
+<path d="M804 152 L840 152" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="1084" y="108" width="392" height="88" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="1280.0" y="127" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">measured drain: ~21 MB/s  (need 125)</text>
+<text x="1280.0" y="144" font-size="11.5" fill="#37474F" text-anchor="middle">telemetry rx_dma: 9,805,345 stalls / 542,240 beats</text>
+<text x="1280.0" y="159" font-size="11.5" fill="#37474F" text-anchor="middle">= 18 stall-cycles per beat @ 50 MHz -&gt; 380 ns/beat</text>
+<text x="1280.0" y="174" font-size="11.5" fill="#37474F" text-anchor="middle">backlog grows ~0.83 beat/beat inside a frame</text>
+<text x="24" y="220" font-size="14.5" fill="#EF6C00" font-weight="bold">② the failure signature (why it looked like &#x27;RX at rate&#x27; but was &#x27;RX any large frame&#x27;)</text>
+<rect x="40" y="234" width="450" height="96" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="265.0" y="253" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">ping payload sweep (peer-&gt;FPGA)</text>
+<text x="265.0" y="270" font-size="11.5" fill="#37474F" text-anchor="middle">200/400/600 B: 0% loss   |   800/1000/1200 B: 100% loss</text>
+<text x="265.0" y="285" font-size="11.5" fill="#37474F" text-anchor="middle">threshold ~700 B frame = the ~70-beat elasticity</text>
+<text x="265.0" y="300" font-size="11.5" fill="#37474F" text-anchor="middle">small frames fit the FIFOs; large frames overflow mid-frame</text>
+<rect x="510" y="234" width="450" height="96" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="735.0" y="253" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">merged frames (ring desync)</text>
+<text x="735.0" y="270" font-size="11.5" fill="#37474F" text-anchor="middle">lost `last` merges two wire frames into one ring frame:</text>
+<text x="735.0" y="285" font-size="11.5" fill="#37474F" text-anchor="middle">hdr len=2608 B == wr-rd-8 exactly (writer honest, input corrupt)</text>
+<text x="735.0" y="300" font-size="11.5" fill="#37474F" text-anchor="middle">iperf3 TCP: control OK, bulk 0 B  |  UDP 10M: 0 delivered</text>
+<rect x="980" y="234" width="496" height="96" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1228.0" y="253" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">v1 also had a latent stale-data bug</text>
+<text x="1228.0" y="270" font-size="11.5" fill="#37474F" text-anchor="middle">the wishbone cycle wasn&#x27;t gated on sink.valid — a mid-frame</text>
+<text x="1228.0" y="285" font-size="11.5" fill="#37474F" text-anchor="middle">bubble wrote stale sink.data as an extra beat. Never hit in</text>
+<text x="1228.0" y="300" font-size="11.5" fill="#37474F" text-anchor="middle">sim (source never bubbled) -&gt; now a regression test.</text>
+<text x="24" y="354" font-size="14.5" fill="#2E7D32" font-weight="bold">③ v2 (this fix): always-ready drop-FIFO ingress + native AXI4 burst drain</text>
+<rect x="24" y="370" width="130" height="96" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="89.0" y="389" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">wire</text>
+<text x="89.0" y="406" font-size="11.5" fill="#37474F" text-anchor="middle">1 Gbps</text>
+<rect x="194" y="370" width="180" height="96" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="284.0" y="389" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">MAC + CDC + dp</text>
+<text x="284.0" y="406" font-size="11.5" fill="#37474F" text-anchor="middle">never backpressured</text>
+<text x="284.0" y="421" font-size="11.5" fill="#37474F" text-anchor="middle">-&gt; can never lose</text>
+<text x="284.0" y="436" font-size="11.5" fill="#37474F" text-anchor="middle">mid-frame beats</text>
+<rect x="414" y="370" width="240" height="96" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="534.0" y="389" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">ingress frame FIFO (16 KB)</text>
+<text x="534.0" y="406" font-size="11.5" fill="#37474F" text-anchor="middle">sink.ready == 1 ALWAYS</text>
+<text x="534.0" y="421" font-size="11.5" fill="#37474F" text-anchor="middle">store-and-forward; drop decision</text>
+<text x="534.0" y="436" font-size="11.5" fill="#37474F" text-anchor="middle">at frame START, WHOLE frames</text>
+<text x="534.0" y="451" font-size="11.5" fill="#37474F" text-anchor="middle">dropped++ when full</text>
+<rect x="694" y="370" width="250" height="96" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="819.0" y="389" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">AXI burst engine</text>
+<text x="819.0" y="406" font-size="11.5" fill="#37474F" text-anchor="middle">length known up front -&gt; header</text>
+<text x="819.0" y="421" font-size="11.5" fill="#37474F" text-anchor="middle">streams FIRST in the burst chain</text>
+<text x="819.0" y="436" font-size="11.5" fill="#37474F" text-anchor="middle">16-beat INCR bursts, split at</text>
+<text x="819.0" y="451" font-size="11.5" fill="#37474F" text-anchor="middle">ring-wrap + 4 KB boundaries</text>
+<rect x="984" y="370" width="200" height="96" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="1084.0" y="389" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">dma_bus (AXI4)</text>
+<text x="1084.0" y="406" font-size="11.5" fill="#37474F" text-anchor="middle">bursts amortize the</text>
+<text x="1084.0" y="421" font-size="11.5" fill="#37474F" text-anchor="middle">coherency round trip</text>
+<text x="1084.0" y="436" font-size="11.5" fill="#37474F" text-anchor="middle">~6x fewer transactions</text>
+<rect x="1224" y="370" width="252" height="96" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="1350.0" y="389" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">commit rule (ABI unchanged)</text>
+<text x="1350.0" y="406" font-size="11.5" fill="#37474F" text-anchor="middle">wr_ptr moves only after the</text>
+<text x="1350.0" y="421" font-size="11.5" fill="#37474F" text-anchor="middle">LAST B response -&gt; software</text>
+<text x="1350.0" y="436" font-size="11.5" fill="#37474F" text-anchor="middle">never sees a partial frame</text>
+<text x="1350.0" y="451" font-size="11.5" fill="#37474F" text-anchor="middle">seq/len header format identical</text>
+<path d="M154 418 L190 418" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M374 418 L410 418" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M654 418 L690 418" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M944 418 L980 418" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M1184 418 L1220 418" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="490" width="700" height="104" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="390.0" y="509" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">what did NOT change (zero driver/DT churn)</text>
+<text x="390.0" y="526" font-size="11.5" fill="#37474F" text-anchor="middle">CSR block: base[64] | mask | wr_ptr | rd_ptr | enable | dropped — same 7 words @0xf000301c</text>
+<text x="390.0" y="541" font-size="11.5" fill="#37474F" text-anchor="middle">ring format: [8 B header {rsvd,seq,len}] + payload padded to 8 B, frames wrap, sw splits the copy</text>
+<text x="390.0" y="556" font-size="11.5" fill="#37474F" text-anchor="middle">kl-eth walks the ring exactly as before; overload now = clean whole-frame drops in</text>
+<text x="390.0" y="571" font-size="11.5" fill="#37474F" text-anchor="middle">rx_missed_errors (RING_DROPPED), never corruption</text>
+<rect x="780" y="490" width="696" height="104" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1128.0" y="509" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">verification</text>
+<text x="1128.0" y="526" font-size="11.5" fill="#37474F" text-anchor="middle">sim (test_ring_dma.py): content/seq, mid-frame bubbles, slow-drain whole-frame drops,</text>
+<text x="1128.0" y="541" font-size="11.5" fill="#37474F" text-anchor="middle">ring-full discard, wrap + rd-release, 4 KB burst split — ALL PASS, sink.ready monitored ==1</text>
+<text x="1128.0" y="556" font-size="11.5" fill="#37474F" text-anchor="middle">silicon acceptance: large-ping sweep clean, iperf3 -R + UDP envelope, telemetry rx_dma</text>
+<text x="1128.0" y="571" font-size="11.5" fill="#37474F" text-anchor="middle">stalls ~= 0 under load, rx_missed_errors counts drops (not desyncs) at overload</text>
+</svg>
