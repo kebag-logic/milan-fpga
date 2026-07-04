@@ -16,6 +16,8 @@ Documentation for the Milan TSN FPGA network interface.
 | [SIMULATION.md](SIMULATION.md) | How the design is simulated at all three layers (Verilator RTL harnesses, softcore boot, softcore+NIC M-A2) — step by step. |
 | [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md) | **Boot Linux from the on-board QSPI flash** instead of the ~4-min serial upload — the 16 MB-flash layout, the `linux_flashboot` BIOS method, `deploy.sh flash-images`, and the path to zero-upload. |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Field log of every problem hit bringing up the full-FPGA solution, with symptom → cause → fix. |
+| [kl-eth-tx-debug.md](kl-eth-tx-debug.md) | **The TX debugging saga** — truncation (`last_be`), coherency, and the cut-through/starvation root cause, as a chronological measured log with every trap documented. One-picture summary: [TX_STARVATION_FIX.svg](TX_STARVATION_FIX.svg) (editable [.drawio](TX_STARVATION_FIX.drawio)). |
+| [pipeline-telemetry.md](pipeline-telemetry.md) | The `milan_tlm` in-fabric observability block — per-stage frame/beat/stall counters, coherent snapshot capture, Little's-law occupancy/latency, sysfs + BIOS access. |
 | [../REQUIREMENTS.md](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (what's missing and why). |
 | [../TODO.md](../TODO.md) | Phased, dependency-ordered task list with status. |
 | [REGISTER_MAP.md](REGISTER_MAP.md) | AXI4-Lite CSR ABI — the contract shared by HDL, the Linux driver, and the device tree. |

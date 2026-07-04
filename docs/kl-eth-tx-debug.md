@@ -196,23 +196,60 @@ data (`tx_dma=tx_dp=tx_core=tx_wire`, byte counts matching) — yet nothing reac
 4. **The peer NIC address-filters garbage-MAC frames without counting them anywhere** —
    "nothing at the peer" ≠ "nothing on the wire" unless tcpdump ran in promisc.
 
-### Open question + bisection (running)
+### ROOT CAUSE FOUND (2026-07-04 evening) — cut-through core + bubbly source
 
-The one systematic difference between the *talking* build and every *silent* one is the
-**Jul-4 source itself** — prime suspect: the gated `last_be` change (its full-frame TX has
-in fact never been observed working), plus telemetry/MilanMAC edits, spiflash, 1.5 M UART.
-Two concurrent discriminating builds:
+![root cause & fix](TX_STARVATION_FIX.svg)
 
-* **B1** — Jul-4 code, gmii_final-equivalent flags (no spiflash, 115200): splits
-  {feature set} vs {code}.
-* **R0** — the actual `bc5783b` source rebuilt with today's toolchain (worktree):
-  splits {source} vs {toolchain/patch drift}.
+*(One-picture version: [TX_STARVATION_FIX.svg](TX_STARVATION_FIX.svg), editable [.drawio](TX_STARVATION_FIX.drawio); regenerate via [TX_STARVATION_FIX.gen.py](TX_STARVATION_FIX.gen.py).)*
 
-| B1 | R0 | conclusion |
-|---|---|---|
-| talks | talks | spiflash or 1.5 M UART silences the PHY |
-| silent | talks | Jul-4 milan-fpga code (bisect: last_be gate → telemetry → MilanMAC edits) |
-| silent | silent | toolchain / liteeth-or-litex patch drift |
+Bisection results: B1 (Jul-4 code, gmii_final flags) **silent**; R0 (bc5783b source, today's
+toolchain) **talks**; B2 (HEAD, gate reverted) **talks**; B3 (HEAD, gate kept, telemetry
+removed) **silent** → the gated `last_be` change correlated 1:1 with silence. But simulation
+of the exact LiteEth `MACCore(dw=64)` + 8-bit PHY showed the gated stream is handled
+**byte-exactly** — the RTL was innocent. The missing variable was **source density**:
 
-Acceptance for ANY "fixed" claim: 10/10 at the peer **and** tcpdump shows the full 64-byte
-payload **and** a Linux ping round-trip completes.
+* The bare `LiteEthMACCore` is **CUT-THROUGH** (the full `LiteEthMAC` wraps it in SRAM
+  store-and-forward buffers precisely for this; we drive the bare core).
+* `LiteEthPHYGMIITX` mirrors `tx_en = sink.valid` cycle-by-cycle, and GMII has **no
+  mid-frame flow control**.
+* Our TX source (Wishbone DMA reads + 50 MHz datapath CDC) drops below the 1 Gbps drain
+  mid-frame → `valid` bubbles → **tx_en glitches** → the PHY emits fragments the peer NIC
+  discards **without incrementing any counter** (PCS-level noise). Total silence.
+* **Why ungated "worked":** frames were cut to 8 bytes at the LastBE stage, after which
+  padding + CRC are **locally generated** in the eth_tx domain — immune to source bubbles.
+  The truncation bug had been masking the starvation bug all along.
+
+Sim proof (`sim_tx64.py`): dense source → gated frame byte-exact & gapless; starved source
+(≈0.6 Gbps) → **6 mid-frame bubbles** at the PHY with gated framing, zero with ungated.
+
+**The fix (MilanMAC):** a store-and-forward `PacketFIFO(eth_phy_description(64),
+payload_depth=512)` between the datapath glue and `core.sink` — a frame is released
+downstream only once completely buffered, so the drain is gapless by construction.
+Sim-verified (starved source → gapless). Silicon validation: builds `f1` (edge-aligned) /
+`f2` (invert), acceptance = full 64-byte payload in peer tcpdump + Linux ping round-trip.
+
+
+### FINAL LAYERS + VERDICT — IT PINGS (2026-07-04 evening)
+
+With the PacketFIFO in, the BIOS-level burst passed the raised bar: **10/10 frames at the
+peer, full 64-byte payload byte-exact in tcpdump**. Linux then exposed two last layers:
+
+1. **skb alignment (driver):** Linux frames arrived at the peer **shifted right by 2 bytes**
+   (`dst = 00:00:ff:ff:ff:ff`) — the driver DMA'd `skb->data` directly, but skbs are
+   IP-aligned (`addr % 8 == 2`) while the DMA reads whole aligned 8-byte words → 2 stale
+   bytes prepended. Fix (kl-eth): a coherent **8-byte-aligned TX bounce buffer** (one memcpy
+   per frame). The BIOS tests never saw this because `devmem` frames are aligned.
+2. **TX phase margin (the invert's redemption):** with the TX FFs now IOB-packed
+   (deterministic skew ≈ 0 vs the forwarded gtx_clk), **edge-aligned sampling is
+   hold-marginal**: Linux ping showed 25–40 % loss with `rx_crc_errors +8` at the peer.
+   `--gtx-tx-invert` (mid-bit sampling) fixed it completely: **20/20 pings, 0 CRC errors,
+   RTT 1.3–1.8 ms** — the first ICMP round-trips ever on the fully-FPGA NIC. So the phase
+   knob was never the *silence* bug, but it IS required *for margin* once the launch FFs are
+   pad-locked; `deploy.sh` now carries `--gtx-tx-invert` by default for this board.
+
+**Final working configuration** (deploy.sh defaults): `--all-blocks --coherent-dma
+--milan-clk-freq 50e6 --gtx-tx-invert --timing-opt` + `--with-spiflash --flashboot kernel`,
+MilanMAC store-and-forward PacketFIFO, IOB-packed GMII TX FFs, kl-eth aligned TX bounce
+buffer. Remaining known limitation: the driver's single TX slot + single RX buffer + NAPI
+polling (no DMA IRQ) — descriptor rings are the follow-up; telemetry already quantifies the
+backpressure (`rx_dma stalls`).

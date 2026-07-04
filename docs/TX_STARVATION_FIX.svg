@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="892" viewBox="0 0 1500 892" font-family="Helvetica,Arial,sans-serif">
+<rect width="1500" height="892" fill="#ffffff"/>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#37474F"/></marker><marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#C62828"/></marker></defs>
+<text x="28" y="38" font-size="22" fill="#263238" font-weight="bold" text-anchor="start">TX-to-wire silence — root cause &amp; fix (measured on silicon, 2026-07-04)</text>
+<text x="28" y="62" font-size="12.5" fill="#546E7A" text-anchor="start">symptom: fabric counters perfect (tx_dma=tx_dp=tx_core=tx_wire), peer i210 sees NOTHING — no rx, no CRC errors, empty promisc tcpdump</text>
+<text x="28" y="100" font-size="15" fill="#C62828" font-weight="bold" text-anchor="start">① WHAT HAPPENED — a cut-through MAC fed by a source slower than the wire</text>
+<rect x="28" y="118" width="150" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="103.0" y="137" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">TX DMA</text>
+<text x="103.0" y="154" font-size="12" fill="#37474F" text-anchor="middle">Wishbone reads</text>
+<text x="103.0" y="169" font-size="12" fill="#37474F" text-anchor="middle">DRAM wait states</text>
+<text x="103.0" y="184" font-size="12" fill="#37474F" text-anchor="middle">→ BURSTY</text>
+<rect x="218" y="118" width="150" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="293.0" y="137" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">Milan datapath</text>
+<text x="293.0" y="154" font-size="12" fill="#37474F" text-anchor="middle">50 MHz CDC</text>
+<text x="293.0" y="169" font-size="12" fill="#37474F" text-anchor="middle">classifier/CBS</text>
+<text x="293.0" y="184" font-size="12" fill="#37474F" text-anchor="middle">(cut-through)</text>
+<rect x="408" y="118" width="168" height="88" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="492.0" y="137" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">LiteEthMACCore</text>
+<text x="492.0" y="154" font-size="12" fill="#37474F" text-anchor="middle">BARE core =</text>
+<text x="492.0" y="169" font-size="12" fill="#37474F" text-anchor="middle">CUT-THROUGH</text>
+<text x="492.0" y="184" font-size="12" fill="#37474F" text-anchor="middle">(no frame buffer!)</text>
+<rect x="616" y="118" width="178" height="88" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="705.0" y="137" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">GMII PHY TX</text>
+<text x="705.0" y="154" font-size="12" fill="#37474F" text-anchor="middle">tx_en = valid</text>
+<text x="705.0" y="169" font-size="12" fill="#37474F" text-anchor="middle">cycle-by-cycle</text>
+<text x="705.0" y="184" font-size="12" fill="#37474F" text-anchor="middle">NO mid-frame pause</text>
+<rect x="834" y="118" width="158" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="913.0" y="137" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">RTL8211E</text>
+<text x="913.0" y="154" font-size="12" fill="#37474F" text-anchor="middle">sees tx_en glitch</text>
+<text x="913.0" y="169" font-size="12" fill="#37474F" text-anchor="middle">→ aborts frame</text>
+<text x="913.0" y="184" font-size="12" fill="#37474F" text-anchor="middle">→ emits fragment</text>
+<rect x="1032" y="118" width="180" height="88" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="1122.0" y="137" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">peer i210</text>
+<text x="1122.0" y="154" font-size="12" fill="#37474F" text-anchor="middle">fragment = PCS noise</text>
+<text x="1122.0" y="169" font-size="12" fill="#37474F" text-anchor="middle">dropped WITHOUT</text>
+<text x="1122.0" y="184" font-size="12" fill="#37474F" text-anchor="middle">any counter ➜ SILENCE</text>
+<path d="M178 162 L214 162" stroke="#37474F" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<path d="M368 162 L404 162" stroke="#37474F" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<text x="386.0" y="152" font-size="11.5" fill="#37474F" text-anchor="middle">&lt; 1 Gbps</text>
+<path d="M576 162 L612 162" stroke="#C62828" stroke-width="2.4" fill="none" marker-end="url(#r)"/>
+<text x="594.0" y="152" font-size="11.5" fill="#C62828" text-anchor="middle">valid BUBBLE</text>
+<path d="M794 162 L830 162" stroke="#C62828" stroke-width="2.4" fill="none" marker-end="url(#r)"/>
+<text x="812.0" y="152" font-size="11.5" fill="#C62828" text-anchor="middle">tx_en glitch</text>
+<path d="M992 162 L1028 162" stroke="#C62828" stroke-width="2.4" fill="none" marker-end="url(#r)"/>
+<text x="28" y="248" font-size="12.5" fill="#C62828" font-weight="bold" text-anchor="start">tx_en on the wire (broken):</text>
+<path d="M240 254 h60 v-14 h70 v14 h24 v-14 h60 v14 h20 v-14 h90 v14 h180" stroke="#C62828" stroke-width="2.5" fill="none"/>
+<text x="510" y="238" font-size="11.5" fill="#C62828" text-anchor="start">gaps INSIDE the frame = fragments</text>
+<text x="760" y="248" font-size="12" fill="#546E7A" text-anchor="start">sim proof: starved source → 6 bubbles/frame; dense source → 0  (sim_tx64.py)</text>
+<text x="28" y="280" font-size="15" fill="#EF6C00" font-weight="bold" text-anchor="start">② WHY IT HID — two other bugs stacked on top</text>
+<rect x="28" y="294" width="440" height="92" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="248.0" y="313" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">mask #1 — the last_be truncation bug</text>
+<text x="248.0" y="330" font-size="12" fill="#37474F" text-anchor="middle">ungated last_be cut every frame to 8 bytes at the LastBE stage;</text>
+<text x="248.0" y="345" font-size="12" fill="#37474F" text-anchor="middle">padding + CRC are then LOCALLY generated in eth_tx</text>
+<text x="248.0" y="360" font-size="12" fill="#37474F" text-anchor="middle">→ immune to source bubbles → &#x27;worked&#x27; (truncated!)</text>
+<rect x="496" y="294" width="440" height="92" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="716.0" y="313" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">mask #2 — dst-keyed counters lie</text>
+<text x="716.0" y="330" font-size="12" fill="#37474F" text-anchor="middle">peer rx_broadcast counts a truncated frame as happily as</text>
+<text x="716.0" y="345" font-size="12" fill="#37474F" text-anchor="middle">a full one (dst MAC survives in beat 0) — &#x27;verified TX&#x27;</text>
+<text x="716.0" y="360" font-size="12" fill="#37474F" text-anchor="middle">twice on frames that carried 8 real bytes</text>
+<rect x="964" y="294" width="440" height="92" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="1184.0" y="313" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">mask #3 — non-coherent DMA builds</text>
+<text x="1184.0" y="330" font-size="12" fill="#37474F" text-anchor="middle">--coherent-dma is NOT implied by --all-blocks: TX read stale</text>
+<text x="1184.0" y="345" font-size="12" fill="#37474F" text-anchor="middle">DRAM → garbage dst-MAC frames that the peer address-filters</text>
+<text x="1184.0" y="360" font-size="12" fill="#37474F" text-anchor="middle">silently → looked like a PHY bug; wasn&#x27;t</text>
+<text x="28" y="410" font-size="15" fill="#6A1B9A" font-weight="bold" text-anchor="start">③ RULED OUT BY MEASUREMENT — the red herrings</text>
+<rect x="28" y="424" width="300" height="74" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="178.0" y="443" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">gtx clock phase (for SILENCE)</text>
+<text x="178.0" y="460" font-size="12" fill="#37474F" text-anchor="middle">edge vs 180°: both silent — phase was</text>
+<text x="178.0" y="475" font-size="12" fill="#37474F" text-anchor="middle">NOT the silence bug. (It IS the margin</text>
+<text x="178.0" y="490" font-size="12" fill="#37474F" text-anchor="middle">fix once FFs are IOB-packed — see ⑤)</text>
+<rect x="352" y="424" width="300" height="74" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="502.0" y="443" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">TX FF placement</text>
+<text x="502.0" y="460" font-size="12" fill="#37474F" text-anchor="middle">fabric X14 vs OLOGIC (IOB-packed,</text>
+<text x="502.0" y="475" font-size="12" fill="#37474F" text-anchor="middle">DCP-verified): both silent —</text>
+<text x="502.0" y="490" font-size="12" fill="#37474F" text-anchor="middle">placement wasn&#x27;t the killer</text>
+<rect x="676" y="424" width="360" height="74" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="856.0" y="443" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">XDC trap found on the way</text>
+<text x="856.0" y="460" font-size="12" fill="#37474F" text-anchor="middle">set_property inside if {...} is SILENTLY</text>
+<text x="856.0" y="475" font-size="12" fill="#37474F" text-anchor="middle">ignored — XDC executes no TCL control flow.</text>
+<text x="856.0" y="490" font-size="12" fill="#37474F" text-anchor="middle">Verify constraints in the routed .dcp</text>
+<rect x="1060" y="424" width="344" height="74" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="1232.0" y="443" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">sim harness trap</text>
+<text x="1232.0" y="460" font-size="12" fill="#37474F" text-anchor="middle">a sys-domain monitor on an eth_tx stream</text>
+<text x="1232.0" y="475" font-size="12" fill="#37474F" text-anchor="middle">ALIASES (samples 8ns data at 10ns = drops</text>
+<text x="1232.0" y="490" font-size="12" fill="#37474F" text-anchor="middle">1-in-5) — run monitors in the right domain</text>
+<text x="28" y="522" font-size="15" fill="#2E7D32" font-weight="bold" text-anchor="start">④ THE FIX — store-and-forward: release a frame only when it is COMPLETELY buffered</text>
+<rect x="28" y="538" width="150" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="103.0" y="557" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">TX DMA</text>
+<text x="103.0" y="574" font-size="12" fill="#37474F" text-anchor="middle">bursty</text>
+<text x="103.0" y="589" font-size="12" fill="#37474F" text-anchor="middle">(unchanged)</text>
+<rect x="218" y="538" width="150" height="88" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="293.0" y="557" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">Milan datapath</text>
+<text x="293.0" y="574" font-size="12" fill="#37474F" text-anchor="middle">bursty</text>
+<text x="293.0" y="589" font-size="12" fill="#37474F" text-anchor="middle">(unchanged)</text>
+<rect x="408" y="538" width="190" height="88" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="503.0" y="557" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">PacketFIFO 4 KB</text>
+<text x="503.0" y="574" font-size="12" fill="#37474F" text-anchor="middle">store-and-forward</text>
+<text x="503.0" y="589" font-size="12" fill="#37474F" text-anchor="middle">releases only</text>
+<text x="503.0" y="604" font-size="12" fill="#37474F" text-anchor="middle">COMPLETE frames</text>
+<rect x="638" y="538" width="168" height="88" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="722.0" y="557" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">LiteEthMACCore</text>
+<text x="722.0" y="574" font-size="12" fill="#37474F" text-anchor="middle">cut-through is now</text>
+<text x="722.0" y="589" font-size="12" fill="#37474F" text-anchor="middle">fine: its source is</text>
+<text x="722.0" y="604" font-size="12" fill="#37474F" text-anchor="middle">gapless by construction</text>
+<rect x="846" y="538" width="158" height="88" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="925.0" y="557" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">GMII PHY TX</text>
+<text x="925.0" y="574" font-size="12" fill="#37474F" text-anchor="middle">tx_en solid high</text>
+<text x="925.0" y="589" font-size="12" fill="#37474F" text-anchor="middle">for every frame</text>
+<rect x="1044" y="538" width="170" height="88" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="1129.0" y="557" font-size="13" font-weight="bold" fill="#212121" text-anchor="middle">peer i210</text>
+<text x="1129.0" y="574" font-size="12" fill="#37474F" text-anchor="middle">full 64-byte payload</text>
+<text x="1129.0" y="589" font-size="12" fill="#37474F" text-anchor="middle">in tcpdump +</text>
+<text x="1129.0" y="604" font-size="12" fill="#37474F" text-anchor="middle">counters move</text>
+<path d="M178 582 L214 582" stroke="#37474F" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<path d="M368 582 L404 582" stroke="#37474F" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<text x="386.0" y="572" font-size="11.5" fill="#37474F" text-anchor="middle">bubbles OK here</text>
+<path d="M598 582 L634 582" stroke="#2E7D32" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<text x="616.0" y="572" font-size="11.5" fill="#2E7D32" text-anchor="middle">≥ 1 Gbps, gapless</text>
+<path d="M806 582 L842 582" stroke="#2E7D32" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<path d="M1004 582 L1040 582" stroke="#2E7D32" stroke-width="2.4" fill="none" marker-end="url(#a)"/>
+<text x="28" y="664" font-size="12.5" fill="#2E7D32" font-weight="bold" text-anchor="start">tx_en on the wire (fixed):</text>
+<path d="M240 670 h40 v-14 h180 v14 h60 v-14 h180 v14 h100" stroke="#2E7D32" stroke-width="2.5" fill="none"/>
+<text x="560" y="654" font-size="11.5" fill="#2E7D32" text-anchor="start">one clean burst per frame + inter-frame gap</text>
+<text x="830" y="664" font-size="12" fill="#546E7A" text-anchor="start">MilanMAC: PacketFIFO(eth_phy_description(64), payload_depth=512) → core.sink</text>
+<text x="28" y="692" font-size="15" fill="#1565C0" font-weight="bold" text-anchor="start">⑤ RULES THIS BURNS IN</text>
+<circle cx="36" cy="710" r="3" fill="#1565C0"/>
+<text x="48" y="714" font-size="12.5" fill="#263238" text-anchor="start">GMII/RGMII MAC cores need a gapless TX source — bare LiteEthMACCore is cut-through; buffer frames (PacketFIFO) or use full LiteEthMAC (SRAM buffers).</text>
+<circle cx="36" cy="731" r="3" fill="#1565C0"/>
+<text x="48" y="735" font-size="12.5" fill="#263238" text-anchor="start">Prove TX with raw payload capture (tcpdump -e -xx) — never with dst-keyed counters; a truncated or garbage frame can still count.</text>
+<circle cx="36" cy="752" r="3" fill="#1565C0"/>
+<text x="48" y="756" font-size="12.5" fill="#263238" text-anchor="start">&#x27;Peer sees nothing at all&#x27; (no CRC errors either) means framing/PCS-level breakage or filtered garbage — not sampling margin.</text>
+<circle cx="36" cy="773" r="3" fill="#1565C0"/>
+<text x="48" y="777" font-size="12.5" fill="#263238" text-anchor="start">Verify every constraint in the routed .dcp and every sim monitor&#x27;s clock domain — both lied once today.</text>
+<circle cx="36" cy="794" r="3" fill="#1565C0"/>
+<text x="48" y="798" font-size="12.5" fill="#263238" text-anchor="start">--coherent-dma is mandatory for the NIC; it is NOT implied by --all-blocks.</text>
+<circle cx="36" cy="815" r="3" fill="#1565C0"/>
+<text x="48" y="819" font-size="12.5" fill="#263238" text-anchor="start">With IOB-packed TX FFs (skew≈0) use --gtx-tx-invert: edge-aligned = hold-marginal (25-40% corrupt frames); mid-bit = 20/20 pings, 0 CRC errors.</text>
+<circle cx="36" cy="836" r="3" fill="#1565C0"/>
+<text x="48" y="840" font-size="12.5" fill="#263238" text-anchor="start">Linux skbs are IP-aligned (data%8==2) — an 8-byte-word DMA needs an aligned bounce buffer or frames shift 2 bytes on the wire.</text>
+</svg>
