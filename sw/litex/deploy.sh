@@ -47,7 +47,11 @@ FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
 # All fabric blocks (NIC+DMA+MAC+DDR3), datapath in its own 50 MHz domain so sys+DDR3
 # close a clean 100 MHz (see docs/TROUBLESHOOTING.md §16); --timing-opt for margin.
-MILAN_OPTS="--all-blocks --milan-clk-freq 50e6 --timing-opt"
+# --coherent-dma is NOT implied by --all-blocks and is REQUIRED for a working NIC under
+# Linux: without it the DMA masters bypass the NaxRiscv snooping dma_bus, so RX data is
+# never CPU-visible (all-zero skbs -> stack drops every frame) and TX reads stale skb
+# data (garbage dst MAC -> the peer NIC filters the frames; hardware-confirmed 2026-07-04).
+MILAN_OPTS="--all-blocks --coherent-dma --milan-clk-freq 50e6 --timing-opt"
 do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" $MILAN_OPTS --build --uart-baudrate "$BAUD"; }
 do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
 do_flash()  {

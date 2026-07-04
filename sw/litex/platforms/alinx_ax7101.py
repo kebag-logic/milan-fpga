@@ -152,3 +152,7 @@ class Platform(Xilinx7SeriesPlatform):
     def do_finalize(self, fragment):
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9 / 200e6)
+        # NOTE: the GMII TX IOB-packing constraint lives in MilanMAC (milan_soc.py), which
+        # emits it only when the MAC/pads exist. It must be plain `set_property` lines: XDC
+        # does NOT execute TCL control flow, so an `if {...}` guard here is silently skipped
+        # (hardware-diagnosed: the "guarded" constraint left the TX FFs in fabric at X14).

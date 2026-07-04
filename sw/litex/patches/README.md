@@ -7,10 +7,15 @@ tree from the active Python env; re-run after every LiteX/LiteEth update).
 ## `0002-liteeth-gmii-tx-clk-invert.patch` — GMII TX clock phase option
 
 Adds `tx_clk_invert` to `LiteEthPHYGMII(CRG)`: forwards `gtx_clk` **180° out of phase**
-with TXD (via the ODDR), so the PHY samples mid-bit instead of at the TXD transition —
-the fix for the marginal, per-boot GMII-TX setup/hold at the AX7101's RTL8211E
-(`docs/kl-eth-tx-debug.md` §GMII-TX). Default `False` = upstream edge-aligned behavior.
-Used by `milan_soc.py --gtx-tx-invert`.
+with TXD via the ODDR. Default `False` = upstream edge-aligned behavior. Exposed as
+`milan_soc.py --gtx-tx-invert`.
+
+**Measured verdict on the AX7101 (RTL8211E), 2026-07-04 — DO NOT enable it there:** a
+controlled on-silicon A/B (identical BIOS-level TX bursts) gave **edge-aligned = 10/10
+frames at the peer, inverted = 0/10**. The upstream phase is correct for this board; the
+"TX dies after the pins" symptom that motivated the patch was actually builds missing
+`--coherent-dma` (see `docs/kl-eth-tx-debug.md` §Second bug). The knob is kept for other
+board/PHY combinations where the TX skew genuinely differs.
 
 ## `0001-milan-linux-flashboot.patch` — QSPI Linux flash-boot
 

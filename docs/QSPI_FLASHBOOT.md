@@ -106,7 +106,7 @@ the `MILAN_FLASHBOOT_*` constants are inert and the build still works (serial bo
 ```sh
 sw/litex/deploy.sh build            # --all-blocks already implies --with-spiflash --flashboot kernel
 # or explicitly:
-sw/litex/milan_soc.py --all-blocks --milan-clk-freq 50e6 --with-spiflash --flashboot kernel --build
+sw/litex/milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot kernel --build
 ```
 
 ### Flash the kernel once (partial mode)
@@ -143,7 +143,7 @@ boot uploads *nothing*:
 2. Rebuild; confirm `Image` ≤ 5.5 MB.
 3. Build `--flashboot full`, flash all four images, boot with no serial step:
    ```sh
-   sw/litex/milan_soc.py --all-blocks --milan-clk-freq 50e6 --with-spiflash --flashboot full --build
+   sw/litex/milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot full --build
    KERNEL=…/Image OPENSBI=…/opensbi.bin DTB=…/milan.dtb ROOTFS=…/rootfs.cpio.gz \
        sw/litex/deploy.sh flash-images
    sw/litex/deploy.sh load     # BIOS flash-boots directly; no boot.sh needed
@@ -156,6 +156,10 @@ kernel fails loudly instead of half-writing.
 
 ## Caveats
 
+* **`--coherent-dma` is mandatory and NOT implied by `--all-blocks`.** Without it the NIC's
+  DMA masters bypass the NaxRiscv snooping `dma_bus`: RX data never becomes CPU-visible (the
+  stack drops every frame — all-zero skbs) and TX reads stale skb data (garbage dst MAC that
+  the peer NIC silently filters). Hardware-confirmed 2026-07-04; `deploy.sh` includes it.
 * **No bitstream in flash (kernel layout).** The kernel sits at offset 0, so a power-cycle
   will not auto-configure the FPGA from flash — always JTAG-`load`. This is the normal dev
   flow. (`deploy.sh flash` writes a *bitstream* to offset 0 and is mutually exclusive with
