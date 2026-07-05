@@ -1160,7 +1160,8 @@ class MilanSoC(SoCCore):
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
                  with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
-                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, **kwargs):
+                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
+                 **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
         # with its own args, take the defaults, override xlen/cpu-count, then args_read
@@ -1180,6 +1181,16 @@ class MilanSoC(SoCCore):
         # out of DDR3 (each miss pays the full DRAM round trip on this 100 MHz core).
         if l2_bytes:
             _nax_args.l2_bytes = int(l2_bytes)
+        # Hardware FPU. TWO things must happen and LiteX's --with-fpu only does the
+        # first: (1) with_fpu sets the TOOLCHAIN arch/abi to rv64imafd / lp64d; (2) the
+        # actual FP hardware is a NaxRiscv Scala-config option (gen.scala `arg("rvf")`
+        # / `arg("rvd")`), enabled via --scala-args — WITHOUT this the softcore has NO
+        # FPU even though the toolchain is hard-float (HW-confirmed 2026-07-05: misa
+        # reported rv64ima and a CONFIG_FPU kernel hung on FP init). scala_args ARE in
+        # the netlist hash, so this regenerates a distinct FPU netlist.
+        _nax_args.with_fpu = with_fpu
+        if with_fpu:
+            _nax_args.scala_args = (_nax_args.scala_args or []) + ["rvf=true,rvd=true"]
         NaxRiscv.args_read(_nax_args)
 
         kwargs["cpu_type"]    = "naxriscv"
@@ -1294,6 +1305,7 @@ def main():
     ap.add_argument("--xlen", default=64, type=int, choices=[32, 64],
                     help="NaxRiscv width (64 = RV64GC/sv39 default; 32 = RV32/sv32)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
+    ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--l2-bytes", default=None, type=float,
                     help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
@@ -1362,6 +1374,7 @@ def main():
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
+                   with_fpu=args.with_fpu,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
