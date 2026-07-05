@@ -1,0 +1,77 @@
+<mxfile host="app.diagrams.net"><diagram name="AVB_SWITCH_DIRECTION"><mxGraphModel dx="1400" dy="900" grid="0" page="1" pageWidth="1540" pageHeight="975"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="n2" value="Endpoint -&gt; 8-port AVB switch: change hooks (AVTP/TSO/RSC), fabric forwarding, memory reality" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;verticalAlign=top;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="1100" height="30" as="geometry"/></mxCell><mxCell id="n3" value="CPU / Linux
+sockets
+PipeWire" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="24" y="100" width="120" height="74" as="geometry"/></mxCell><mxCell id="n4" value="TX ring DMA
+AXI read bursts
+(done tonight)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="184" y="100" width="150" height="74" as="geometry"/></mxCell><mxCell id="n5" value="datapath (50 MHz SV)
+classifier -&gt; CBS queues
+-&gt; PTP ts -&gt; arbiter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="374" y="100" width="190" height="74" as="geometry"/></mxCell><mxCell id="n6" value="MAC + PHY
+GMII 1G" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="604" y="100" width="130" height="74" as="geometry"/></mxCell><mxCell id="n7" value="wire
+1500 B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="774" y="100" width="80" height="74" as="geometry"/></mxCell><mxCell id="n8" value="RX ring DMA
+drop-FIFO ingress +
+AXI bursts + csum ✓" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="184" y="192" width="150" height="74" as="geometry"/></mxCell><mxCell id="n9" value="datapath RX
+PTP ts -&gt; classifier
+-&gt; filter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="374" y="192" width="190" height="74" as="geometry"/></mxCell><mxCell id="n10" value="MAC + PHY
+" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="604" y="192" width="130" height="74" as="geometry"/></mxCell><mxCell id="n11" value="AVTP stream engine (NEW block)
+taps the classifier: matched stream IDs never
+reach the ring/stack. RX: strip AVTP, write raw
+samples + presentation ts into per-stream sample
+rings (PipeWire mmaps; wakes per PERIOD ~375/s,
+not per packet 8000/s). TX: samples -&gt; AVTP
+frames + gPTP ts, CBS-shaped. CPU media cost ~0." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="880" y="166" width="300" height="118" as="geometry"/></mxCell><mxCell id="n12" value="TSO — TCP Segmentation Offload (TX)
+the stack builds ONE 64 KB TCP super-packet and traverses TCP/IP/qdisc/driver ONCE;
+hardware slices it into ~43 wire frames of 1500 B, cloning the headers and fixing
+IP len/id, TCP seq/flags and both checksums per slice.
+-&gt; per-packet stack cost /43 at unchanged wire MTU. (Every commercial NIC does this.)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="322" width="710" height="96" as="geometry"/></mxCell><mxCell id="n13" value="RSC/LRO — Receive Segment Coalescing (RX)
+hardware recognises consecutive in-order segments of the same TCP flow and merges
+them into ONE large frame (up to 64 KB) before the driver sees it; flushed on a
+sequence gap, PSH/FIN, other-flow interleave, or a short timer.
+-&gt; the stack pays once per 64 KB — the hardware twin of what GRO does in software." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="790" y="322" width="710" height="96" as="geometry"/></mxCell><mxCell id="n14" value="port 0: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="464" width="150" height="34" as="geometry"/></mxCell><mxCell id="n15" value="port 1: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="504" width="150" height="34" as="geometry"/></mxCell><mxCell id="n16" value="port 2: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="544" width="150" height="34" as="geometry"/></mxCell><mxCell id="n17" value="port 3: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="584" width="150" height="34" as="geometry"/></mxCell><mxCell id="n18" value="port 4: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="624" width="150" height="34" as="geometry"/></mxCell><mxCell id="n19" value="port 5: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="664" width="150" height="34" as="geometry"/></mxCell><mxCell id="n20" value="port 6: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="704" width="150" height="34" as="geometry"/></mxCell><mxCell id="n21" value="port 7: MAC + PTP ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="744" width="150" height="34" as="geometry"/></mxCell><mxCell id="n22" value="per-port ingress
+PCP classify (802.1Q)
++ TCAM dst-MAC lookup
+(hdl/common/tcam.sv ✓)
++ SRP stream police
+
+learning: CPU writes
+TCAM via CSR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1565C0;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="230" y="464" width="190" height="314" as="geometry"/></mxCell><mxCell id="n23" value="shared-BRAM switch fabric
+output-queued, segmented
+shared buffer 256-512 KB BRAM
+
+aggregate need: 8x1G in +
+8x1G out = 2 GB/s sustained
+= 128-bit @ 125-200 MHz
+internal bus - comfortable in
+fabric, IMPOSSIBLE via DDR3
+
+CBS bounds AVB queue depth,
+so BRAM suffices; BE spills
+-&gt; drop (counted), never DRAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B2EBF2;strokeColor=#00838F;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="460" y="464" width="250" height="314" as="geometry"/></mxCell><mxCell id="n24" value="per-port egress
+8 queues x CBS shaper
+(credit_based_shaper.sv ✓)
+
+class A/B shaped,
+best-effort strict-low
+
+gPTP: per-port ts ✓
+-&gt; transparent-clock
+residence-time correction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="750" y="464" width="190" height="314" as="geometry"/></mxCell><mxCell id="n25" value="port 0: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="464" width="150" height="34" as="geometry"/></mxCell><mxCell id="n26" value="port 1: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="504" width="150" height="34" as="geometry"/></mxCell><mxCell id="n27" value="port 2: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="544" width="150" height="34" as="geometry"/></mxCell><mxCell id="n28" value="port 3: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="584" width="150" height="34" as="geometry"/></mxCell><mxCell id="n29" value="port 4: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="624" width="150" height="34" as="geometry"/></mxCell><mxCell id="n30" value="port 5: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="664" width="150" height="34" as="geometry"/></mxCell><mxCell id="n31" value="port 6: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="704" width="150" height="34" as="geometry"/></mxCell><mxCell id="n32" value="port 7: MAC + PHY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="744" width="150" height="34" as="geometry"/></mxCell><mxCell id="n33" value="CPU port (= the whole endpoint, panel ①)
+the existing rings/datapath attach to the fabric
+as internal port 8. CPU sees ONLY:
+gPTP event frames (servo), MSRP/MVRP, AVDECC,
+management. It touches ZERO forwarded frames -
+the 100 MHz RV64 is comfortably enough for a
+full Milan control plane." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1170" y="464" width="330" height="150" as="geometry"/></mxCell><mxCell id="n34" value="hardware reality (AX7101 = ONE PHY)
+8 external ports need new I/O: the xc7a100t has
+4 GTP transceivers -&gt; 2 lanes of QSGMII = 8x1G
+via two quad PHYs (daughter board), or a new
+carrier (Artix-200T/Kintex) for margin: 8 MACs +
+fabric + 8x8 CBS queues will crowd the 100T.
+Prototype path: 2-3 ports on GTP SGMII first." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1170" y="628" width="330" height="150" as="geometry"/></mxCell><mxCell id="n35" value="endpoint today: NO
+the socket path is CPU-bound: at 92 Mbit/s the DMA moves ~12 MB/s through
+DDR3-800 x16 (~1.2 GB/s effective) = &lt;2 % utilisation. Widening the bus
+changes nothing; the 100 MHz core saturates first (measured ~86 % busy).
+Telemetry: 0 RX stalls at every stage across 35 M frames." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="818" width="710" height="104" as="geometry"/></mxCell><mxCell id="n36" value="switch forwarding through DRAM: NEVER
+8 ports store-and-forward via DRAM would need ~2 GB/s sustained + CPU + refresh
+arbitration — over the DDR3-800 x16 ceiling and latency-jittery (AVB latency
+guarantees die). The fix is not a wider DRAM bus: it is keeping forwarding in
+on-chip BRAM (panel ③) where 2 GB/s is one 128-bit internal path. DRAM stays
+for the CPU + control plane only." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="790" y="818" width="710" height="104" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

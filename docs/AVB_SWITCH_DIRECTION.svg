@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="975" viewBox="0 0 1540 975" font-family="Helvetica,Arial,sans-serif">
+<rect width="1540" height="975" fill="#ffffff"/>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#37474F"/></marker><marker id="g" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2E7D32"/></marker></defs>
+<text x="24" y="34" font-size="20" fill="#263238" font-weight="bold">From 1-NIC endpoint to an 8-port AVB switch — where each change lands</text>
+<text x="24" y="55" font-size="12" fill="#546E7A">MTU stays 1500 everywhere; the CPU leaves the per-packet path — that is the whole architecture</text>
+<text x="24" y="86" font-size="14" fill="#1565C0" font-weight="bold">① TODAY&#x27;S ENDPOINT DATAPATH + the three hooks (A = AVTP engine, T = TSO, R = RSC)</text>
+<rect x="24" y="100" width="120" height="74" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="84.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">CPU / Linux</text>
+<text x="84.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">sockets</text>
+<text x="84.0" y="146" font-size="11" fill="#37474F" text-anchor="middle">PipeWire</text>
+<rect x="184" y="100" width="150" height="74" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="259.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">TX ring DMA</text>
+<text x="259.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">AXI read bursts</text>
+<text x="259.0" y="146" font-size="11" fill="#37474F" text-anchor="middle">(done tonight)</text>
+<rect x="374" y="100" width="190" height="74" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="469.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">datapath (50 MHz SV)</text>
+<text x="469.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">classifier -&gt; CBS queues</text>
+<text x="469.0" y="146" font-size="11" fill="#37474F" text-anchor="middle">-&gt; PTP ts -&gt; arbiter</text>
+<rect x="604" y="100" width="130" height="74" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="669.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">MAC + PHY</text>
+<text x="669.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">GMII 1G</text>
+<rect x="774" y="100" width="80" height="74" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="814.0" y="117" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">wire</text>
+<text x="814.0" y="132" font-size="11" fill="#37474F" text-anchor="middle">1500 B</text>
+<path d="M144 137 L180 137" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M334 137 L370 137" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M564 137 L600 137" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M734 137 L770 137" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="184" y="192" width="150" height="74" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="259.0" y="209" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">RX ring DMA</text>
+<text x="259.0" y="224" font-size="11" fill="#37474F" text-anchor="middle">drop-FIFO ingress +</text>
+<text x="259.0" y="238" font-size="11" fill="#37474F" text-anchor="middle">AXI bursts + csum ✓</text>
+<rect x="374" y="192" width="190" height="74" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="469.0" y="209" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">datapath RX</text>
+<text x="469.0" y="224" font-size="11" fill="#37474F" text-anchor="middle">PTP ts -&gt; classifier</text>
+<text x="469.0" y="238" font-size="11" fill="#37474F" text-anchor="middle">-&gt; filter</text>
+<rect x="604" y="192" width="130" height="74" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="669.0" y="209" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">MAC + PHY</text>
+<text x="669.0" y="224" font-size="11" fill="#37474F" text-anchor="middle"></text>
+<path d="M180 229 L148 229" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M370 229 L338 229" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M600 229 L568 229" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<path d="M770 229 L738 229" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<circle cx="330" cy="106" r="11" fill="#C62828"/>
+<text x="330" y="110" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">T</text>
+<circle cx="330" cy="198" r="11" fill="#EF6C00"/>
+<text x="330" y="202" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">R</text>
+<text x="24" y="284" font-size="11.5" fill="#546E7A">T = TSO slots into the TX ring reader   ·   R = RSC slots into the RX ingress drop-FIFO   ·   both detailed in ② — the wire keeps MTU 1500</text>
+<circle cx="940" cy="150" r="11" fill="#2E7D32"/>
+<text x="940" y="154" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">A</text>
+<rect x="880" y="166" width="300" height="118" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="1030.0" y="183" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">AVTP stream engine (NEW block)</text>
+<text x="1030.0" y="198" font-size="11" fill="#37474F" text-anchor="middle">taps the classifier: matched stream IDs never</text>
+<text x="1030.0" y="212" font-size="11" fill="#37474F" text-anchor="middle">reach the ring/stack. RX: strip AVTP, write raw</text>
+<text x="1030.0" y="226" font-size="11" fill="#37474F" text-anchor="middle">samples + presentation ts into per-stream sample</text>
+<text x="1030.0" y="240" font-size="11" fill="#37474F" text-anchor="middle">rings (PipeWire mmaps; wakes per PERIOD ~375/s,</text>
+<text x="1030.0" y="254" font-size="11" fill="#37474F" text-anchor="middle">not per packet 8000/s). TX: samples -&gt; AVTP</text>
+<text x="1030.0" y="268" font-size="11" fill="#37474F" text-anchor="middle">frames + gPTP ts, CBS-shaped. CPU media cost ~0.</text>
+<path d="M564 164 L880 210" stroke="#2E7D32" stroke-width="2.2" fill="none" marker-end="url(#g)"/>
+<text x="24" y="308" font-size="14" fill="#EF6C00" font-weight="bold">② TSO + RSC in one line each — the wire NEVER sees anything but 1500 B</text>
+<rect x="40" y="322" width="710" height="96" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="395.0" y="339" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">TSO — TCP Segmentation Offload (TX)</text>
+<text x="395.0" y="354" font-size="11" fill="#37474F" text-anchor="middle">the stack builds ONE 64 KB TCP super-packet and traverses TCP/IP/qdisc/driver ONCE;</text>
+<text x="395.0" y="368" font-size="11" fill="#37474F" text-anchor="middle">hardware slices it into ~43 wire frames of 1500 B, cloning the headers and fixing</text>
+<text x="395.0" y="382" font-size="11" fill="#37474F" text-anchor="middle">IP len/id, TCP seq/flags and both checksums per slice.</text>
+<text x="395.0" y="396" font-size="11" fill="#37474F" text-anchor="middle">-&gt; per-packet stack cost /43 at unchanged wire MTU. (Every commercial NIC does this.)</text>
+<rect x="790" y="322" width="710" height="96" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1145.0" y="339" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">RSC/LRO — Receive Segment Coalescing (RX)</text>
+<text x="1145.0" y="354" font-size="11" fill="#37474F" text-anchor="middle">hardware recognises consecutive in-order segments of the same TCP flow and merges</text>
+<text x="1145.0" y="368" font-size="11" fill="#37474F" text-anchor="middle">them into ONE large frame (up to 64 KB) before the driver sees it; flushed on a</text>
+<text x="1145.0" y="382" font-size="11" fill="#37474F" text-anchor="middle">sequence gap, PSH/FIN, other-flow interleave, or a short timer.</text>
+<text x="1145.0" y="396" font-size="11" fill="#37474F" text-anchor="middle">-&gt; the stack pays once per 64 KB — the hardware twin of what GRO does in software.</text>
+<text x="24" y="448" font-size="14" fill="#6A1B9A" font-weight="bold">③ THE 8-PORT AVB SWITCH — forwarding lives ENTIRELY in fabric; the endpoint above becomes the CPU port</text>
+<rect x="40" y="464" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="481" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 0: MAC + PTP ts</text>
+<path d="M190 481 L226 481" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="504" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="521" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 1: MAC + PTP ts</text>
+<path d="M190 521 L226 521" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="544" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="561" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 2: MAC + PTP ts</text>
+<path d="M190 561 L226 561" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="584" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="601" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 3: MAC + PTP ts</text>
+<path d="M190 601 L226 601" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="624" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="641" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 4: MAC + PTP ts</text>
+<path d="M190 641 L226 641" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="664" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="681" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 5: MAC + PTP ts</text>
+<path d="M190 681 L226 681" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="704" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="721" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 6: MAC + PTP ts</text>
+<path d="M190 721 L226 721" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="40" y="744" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="115.0" y="761" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 7: MAC + PTP ts</text>
+<path d="M190 761 L226 761" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="230" y="464" width="190" height="314" rx="7" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<text x="325.0" y="481" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">per-port ingress</text>
+<text x="325.0" y="496" font-size="11" fill="#37474F" text-anchor="middle">PCP classify (802.1Q)</text>
+<text x="325.0" y="510" font-size="11" fill="#37474F" text-anchor="middle">+ TCAM dst-MAC lookup</text>
+<text x="325.0" y="524" font-size="11" fill="#37474F" text-anchor="middle">(hdl/common/tcam.sv ✓)</text>
+<text x="325.0" y="538" font-size="11" fill="#37474F" text-anchor="middle">+ SRP stream police</text>
+<text x="325.0" y="552" font-size="11" fill="#37474F" text-anchor="middle"></text>
+<text x="325.0" y="566" font-size="11" fill="#37474F" text-anchor="middle">learning: CPU writes</text>
+<text x="325.0" y="580" font-size="11" fill="#37474F" text-anchor="middle">TCAM via CSR</text>
+<path d="M420 621 L456 621" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="460" y="464" width="250" height="314" rx="7" fill="#B2EBF2" stroke="#00838F" stroke-width="2"/>
+<text x="585.0" y="481" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">shared-BRAM switch fabric</text>
+<text x="585.0" y="496" font-size="11" fill="#37474F" text-anchor="middle">output-queued, segmented</text>
+<text x="585.0" y="510" font-size="11" fill="#37474F" text-anchor="middle">shared buffer 256-512 KB BRAM</text>
+<text x="585.0" y="524" font-size="11" fill="#37474F" text-anchor="middle"></text>
+<text x="585.0" y="538" font-size="11" fill="#37474F" text-anchor="middle">aggregate need: 8x1G in +</text>
+<text x="585.0" y="552" font-size="11" fill="#37474F" text-anchor="middle">8x1G out = 2 GB/s sustained</text>
+<text x="585.0" y="566" font-size="11" fill="#37474F" text-anchor="middle">= 128-bit @ 125-200 MHz</text>
+<text x="585.0" y="580" font-size="11" fill="#37474F" text-anchor="middle">internal bus - comfortable in</text>
+<text x="585.0" y="594" font-size="11" fill="#37474F" text-anchor="middle">fabric, IMPOSSIBLE via DDR3</text>
+<text x="585.0" y="608" font-size="11" fill="#37474F" text-anchor="middle"></text>
+<text x="585.0" y="622" font-size="11" fill="#37474F" text-anchor="middle">CBS bounds AVB queue depth,</text>
+<text x="585.0" y="636" font-size="11" fill="#37474F" text-anchor="middle">so BRAM suffices; BE spills</text>
+<text x="585.0" y="650" font-size="11" fill="#37474F" text-anchor="middle">-&gt; drop (counted), never DRAM</text>
+<path d="M710 621 L746 621" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="750" y="464" width="190" height="314" rx="7" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="845.0" y="481" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">per-port egress</text>
+<text x="845.0" y="496" font-size="11" fill="#37474F" text-anchor="middle">8 queues x CBS shaper</text>
+<text x="845.0" y="510" font-size="11" fill="#37474F" text-anchor="middle">(credit_based_shaper.sv ✓)</text>
+<text x="845.0" y="524" font-size="11" fill="#37474F" text-anchor="middle"></text>
+<text x="845.0" y="538" font-size="11" fill="#37474F" text-anchor="middle">class A/B shaped,</text>
+<text x="845.0" y="552" font-size="11" fill="#37474F" text-anchor="middle">best-effort strict-low</text>
+<text x="845.0" y="566" font-size="11" fill="#37474F" text-anchor="middle"></text>
+<text x="845.0" y="580" font-size="11" fill="#37474F" text-anchor="middle">gPTP: per-port ts ✓</text>
+<text x="845.0" y="594" font-size="11" fill="#37474F" text-anchor="middle">-&gt; transparent-clock</text>
+<text x="845.0" y="608" font-size="11" fill="#37474F" text-anchor="middle">residence-time correction</text>
+<path d="M940 481 L976 481" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="464" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="481" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 0: MAC + PHY</text>
+<path d="M940 521 L976 521" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="504" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="521" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 1: MAC + PHY</text>
+<path d="M940 561 L976 561" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="544" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="561" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 2: MAC + PHY</text>
+<path d="M940 601 L976 601" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="584" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="601" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 3: MAC + PHY</text>
+<path d="M940 641 L976 641" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="624" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="641" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 4: MAC + PHY</text>
+<path d="M940 681 L976 681" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="664" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="681" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 5: MAC + PHY</text>
+<path d="M940 721 L976 721" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="704" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="721" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 6: MAC + PHY</text>
+<path d="M940 761 L976 761" stroke="#37474F" stroke-width="2.2" fill="none" marker-end="url(#a)"/>
+<rect x="980" y="744" width="150" height="34" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="1055.0" y="761" font-size="11" font-weight="bold" fill="#212121" text-anchor="middle">port 7: MAC + PHY</text>
+<rect x="1170" y="464" width="330" height="150" rx="7" fill="#C8E6C9" stroke="#2E7D32" stroke-width="2"/>
+<text x="1335.0" y="481" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">CPU port (= the whole endpoint, panel ①)</text>
+<text x="1335.0" y="496" font-size="11" fill="#37474F" text-anchor="middle">the existing rings/datapath attach to the fabric</text>
+<text x="1335.0" y="510" font-size="11" fill="#37474F" text-anchor="middle">as internal port 8. CPU sees ONLY:</text>
+<text x="1335.0" y="524" font-size="11" fill="#37474F" text-anchor="middle">gPTP event frames (servo), MSRP/MVRP, AVDECC,</text>
+<text x="1335.0" y="538" font-size="11" fill="#37474F" text-anchor="middle">management. It touches ZERO forwarded frames -</text>
+<text x="1335.0" y="552" font-size="11" fill="#37474F" text-anchor="middle">the 100 MHz RV64 is comfortably enough for a</text>
+<text x="1335.0" y="566" font-size="11" fill="#37474F" text-anchor="middle">full Milan control plane.</text>
+<rect x="1170" y="628" width="330" height="150" rx="7" fill="#FFE0B2" stroke="#EF6C00" stroke-width="2"/>
+<text x="1335.0" y="645" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">hardware reality (AX7101 = ONE PHY)</text>
+<text x="1335.0" y="660" font-size="11" fill="#37474F" text-anchor="middle">8 external ports need new I/O: the xc7a100t has</text>
+<text x="1335.0" y="674" font-size="11" fill="#37474F" text-anchor="middle">4 GTP transceivers -&gt; 2 lanes of QSGMII = 8x1G</text>
+<text x="1335.0" y="688" font-size="11" fill="#37474F" text-anchor="middle">via two quad PHYs (daughter board), or a new</text>
+<text x="1335.0" y="702" font-size="11" fill="#37474F" text-anchor="middle">carrier (Artix-200T/Kintex) for margin: 8 MACs +</text>
+<text x="1335.0" y="716" font-size="11" fill="#37474F" text-anchor="middle">fabric + 8x8 CBS queues will crowd the 100T.</text>
+<text x="1335.0" y="730" font-size="11" fill="#37474F" text-anchor="middle">Prototype path: 2-3 ports on GTP SGMII first.</text>
+<text x="24" y="804" font-size="14" fill="#C62828" font-weight="bold">④ &#x27;WOULD A WIDER MEMORY BUS HELP?&#x27;</text>
+<rect x="40" y="818" width="710" height="104" rx="7" fill="#ECEFF1" stroke="#546E7A" stroke-width="2"/>
+<text x="395.0" y="835" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">endpoint today: NO</text>
+<text x="395.0" y="850" font-size="11" fill="#37474F" text-anchor="middle">the socket path is CPU-bound: at 92 Mbit/s the DMA moves ~12 MB/s through</text>
+<text x="395.0" y="864" font-size="11" fill="#37474F" text-anchor="middle">DDR3-800 x16 (~1.2 GB/s effective) = &lt;2 % utilisation. Widening the bus</text>
+<text x="395.0" y="878" font-size="11" fill="#37474F" text-anchor="middle">changes nothing; the 100 MHz core saturates first (measured ~86 % busy).</text>
+<text x="395.0" y="892" font-size="11" fill="#37474F" text-anchor="middle">Telemetry: 0 RX stalls at every stage across 35 M frames.</text>
+<rect x="790" y="818" width="710" height="104" rx="7" fill="#FFCDD2" stroke="#C62828" stroke-width="2"/>
+<text x="1145.0" y="835" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">switch forwarding through DRAM: NEVER</text>
+<text x="1145.0" y="850" font-size="11" fill="#37474F" text-anchor="middle">8 ports store-and-forward via DRAM would need ~2 GB/s sustained + CPU + refresh</text>
+<text x="1145.0" y="864" font-size="11" fill="#37474F" text-anchor="middle">arbitration — over the DDR3-800 x16 ceiling and latency-jittery (AVB latency</text>
+<text x="1145.0" y="878" font-size="11" fill="#37474F" text-anchor="middle">guarantees die). The fix is not a wider DRAM bus: it is keeping forwarding in</text>
+<text x="1145.0" y="892" font-size="11" fill="#37474F" text-anchor="middle">on-chip BRAM (panel ③) where 2 GB/s is one 128-bit internal path. DRAM stays</text>
+<text x="1145.0" y="906" font-size="11" fill="#37474F" text-anchor="middle">for the CPU + control plane only.</text>
+</svg>
