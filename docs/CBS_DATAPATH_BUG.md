@@ -64,17 +64,37 @@ class before it even reached the (buggy) queue routing. Fixed to identity in
 * the 1-beat data-delay alignment registers and the single staged header
   (`eth_header_buf`/`packet_in_progress`) are deleted entirely.
 
-`traffic_queues` is **unchanged**: with a correct per-frame `tdest`, its demux (which
-samples `select` combinationally at each frame's first beat) and the grant-gated
-`axis_arb_mux` are correct. Two earlier theories are explicitly retired:
+### Second defect: arbiter cross-lock in `traffic_queues` (the actual TX wedger)
 
-* the "demux samples select one cycle late" theory — wrong (verified in
-  `axis_demux.v`: `select_ctl` is taken comb at start-of-frame);
-* the "double-arbiter prefetch eats a beat / cross-locks" theory — an artifact: the
-  first repro harness sampled handshakes **after** the clock edge, mis-advancing its
-  own feeder and fabricating beat loss that survived every RTL change. With cycle-true
-  sampling (drive → settle → sample → edge, like every block harness), classifier v2 +
-  the unmodified queues module run byte-exact.
+With the classifier `tdest` fixed, single-flow shaping worked on silicon (see
+Verification) — but a **two-flow interference** run still wedged TX. Root cause,
+localized in `tb/verilator/controller_rate` (mixed ACK-sized + MTU frames, alternating
+queues) via a full grant-state dump:
+
+`traffic_queues` drained the per-queue FIFOs through an `axis_arb_mux` — its **own**
+round-robin arbiter with a per-frame lock — fed by grant-gated valids. That stacks a
+**second arbiter on top of the CBS grant**, and the two can lock onto *different*
+queues: the mux latches its round-robin pointer at one frame's start, then the CBS
+grant moves to another queue at the next frame boundary; the mux waits forever for a
+valid from its now-ungranted (gated-off) input while the granted queue's full FIFO
+never drains. Dump at the hang: `grant=q1, hold=1` but the mux parked on q0,
+`queue_to_shaper` valid stuck at 0, `dep1=1024` (full). A hard circular deadlock — the
+TX wedge.
+
+**Fix:** replace the `axis_arb_mux` with a plain **combinational mux selected by the CBS
+grant**. `traffic_shaping_core` already frame-locks the grant (`hold_grant` until
+`tlast`), so a single grant-indexed selector *is* the arbiter — there is no second
+pointer to diverge. (An earlier "demux samples `select` one cycle late" theory was
+checked and retired: `axis_demux.v` takes `select_ctl` combinationally at start-of-frame,
+and with a correct per-frame `tdest` the input demux is fine — only the *output* mux
+needed the change.)
+
+**Harness-sampling trap, for the record:** the first repro sampled handshakes *after*
+the clock edge, mis-advancing its own feeder and fabricating a phantom "one beat short
+per frame" that survived every RTL change and briefly sent this investigation down a
+wrong path. Fixed to cycle-true sampling (drive → settle → sample → edge, like every
+block harness); the mixed-size scenario then cleanly exposes the real cross-lock and
+verifies the fix byte-exact.
 
 ## Verification
 
@@ -83,17 +103,37 @@ samples `select` combinationally at each frame's first beat) and the grant-gated
   backpressure). The OLD classifier fails these 4 checks (proving both the bug and the
   test); v2 passes 14/14. Wrapper now instantiates `BIG_ENDIAN=0` to match production.
 * `tb/verilator/controller_rate`: the end-to-end repro is now a **gating** test —
-  back-to-back different-queue frames at ~25 % duty egress pacing, per-frame byte
-  integrity, 0 failures.
+  a **mixed ACK-sized + MTU, alternating-queue** stream at ~25 % duty egress pacing
+  (the interference profile), content-checked byte-exact with a deadlock detector.
+  Reproduces both the classifier `tdest` bug and the arbiter cross-lock on the OLD
+  RTL; 0 failures / no deadlock on the fixed RTL (219 frames, 140,430 bytes).
 * Full sweep green after the fix: classifier, cls, queues, shaper_core, cbs, milan_dp,
   csr, datapath, adp, adp_tx, cdc, ptp, ptp_sync, rx_filter, tcam, controller_rate.
 
+## Silicon verification (ring9 = classifier fix only, 2026-07-05)
+
+Hardware CBS on `eth0`, reserved = VLAN PCP1 UDP (→ shaped queue), q idleSlope 10 Mbit/s,
+peer i210:
+
+| phase | config | offered | delivered | verdict |
+|---|---|---|---|---|
+| A | CBS on, under slope | 8 Mbit/s | **7.98** | reserved passes untouched |
+| B | CBS on, over slope | 18 Mbit/s | **9.95** | clipped to idleSlope, 0 loss |
+| C | CBS off (strict-prio) | 18 Mbit/s | **17.9** | control: unshaped |
+
+Textbook 802.1Qav, and the `PRIO_REGEN` identity reset put PCP 1 on the shaped queue
+straight from reset (no table pokes). **But the two-flow interference run still wedged
+TX** — that is the arbiter cross-lock above, fixed in `traffic_queues` and pending its
+own silicon re-test (ring10).
+
 ## Status
 
-* `CLS_PRIO_REGEN` identity reset — **fixed**.
-* Classifier `tdest` mis-timing + parse-FSM end-of-frame handling — **fixed** (this
-  commit), silicon CBS interference re-test tracked below.
-* Remaining known limitation (architectural, documented in `AVB_SWITCH_DIRECTION.md`):
-  single-ingress **head-of-line blocking** — a heavily-shaped queue's backlog stalls
-  the shared classifier ingress and starves other queues' *ingress* (egress precedence
-  is unaffected). The real cure is per-class TX rings / the multi-queue fabric (S2).
+* `CLS_PRIO_REGEN` identity reset — **fixed**, silicon-confirmed.
+* Classifier `tdest` mis-timing + parse-FSM end-of-frame handling — **fixed**,
+  single-flow CBS shaping silicon-confirmed (A/B/C above).
+* `traffic_queues` arbiter cross-lock (two-flow TX wedge) — **fixed** (grant-indexed
+  mux), sim-verified; silicon interference re-test on ring10.
+* Remaining architectural limit (documented in `AVB_SWITCH_DIRECTION.md`): the shared
+  single-ingress classifier means a full queue backpressures *ingress* for all queues
+  (bounded, not a deadlock, once the cross-lock is gone). Per-class ingress / the
+  multi-queue fabric (S2) is the structural cure.
