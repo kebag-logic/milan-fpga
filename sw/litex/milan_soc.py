@@ -1161,45 +1161,73 @@ class MilanSoC(SoCCore):
                  with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
-                 extra_scala_args=None,
+                 extra_scala_args=None, cpu="naxriscv",
                  **kwargs):
-        # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
-        # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
-        # with its own args, take the defaults, override xlen/cpu-count, then args_read
-        # (this sets xlen/data_width/gcc_triple/l2/netlist-cache/update-repo/… for us).
-        from litex.soc.cores.cpu.naxriscv import NaxRiscv
-        _nax_parser = argparse.ArgumentParser()
-        NaxRiscv.args_fill(_nax_parser)
-        _nax_args, _ = _nax_parser.parse_known_args([])
-        _nax_args.xlen      = xlen
-        _nax_args.cpu_count = cpu_count
-        # Cache-coherent DMA: NaxRiscv then exposes a snooping `dma_bus` (soc.dma_bus) that
-        # the Milan DMA masters attach to, so CPU writes and DMA reads share one coherent
-        # view of DRAM (see MilanDMA). Without it the DMA reads stale DRAM (HW-confirmed).
-        _nax_args.with_coherent_dma = coherent_dma
-        # IPC knob I1 (AVB_SWITCH_DIRECTION.md): the shared L2 is BRAM and its size is
-        # a pure config choice — a bigger L2 keeps the ring buffers + stack working set
-        # out of DDR3 (each miss pays the full DRAM round trip on this 100 MHz core).
-        if l2_bytes:
-            _nax_args.l2_bytes = int(l2_bytes)
-        # Hardware FPU. TWO things must happen and LiteX's --with-fpu only does the
-        # first: (1) with_fpu sets the TOOLCHAIN arch/abi to rv64imafd / lp64d; (2) the
-        # actual FP hardware is a NaxRiscv Scala-config option (gen.scala `arg("rvf")`
-        # / `arg("rvd")`), enabled via --scala-args — WITHOUT this the softcore has NO
-        # FPU even though the toolchain is hard-float (HW-confirmed 2026-07-05: misa
-        # reported rv64ima and a CONFIG_FPU kernel hung on FP init). scala_args ARE in
-        # the netlist hash, so this regenerates a distinct FPU netlist.
-        _nax_args.with_fpu = with_fpu
-        _nax_args.scala_args = list(_nax_args.scala_args or [])
-        if with_fpu:
-            _nax_args.scala_args += ["rvf=true,rvd=true"]
-        if extra_scala_args:
-            _nax_args.scala_args += list(extra_scala_args)
-        NaxRiscv.args_read(_nax_args)
+        # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
+        #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
+        #      VexiiRiscv (in-order, higher fmax + smaller — the AVB-switch direction,
+        #      see AVB_SWITCH_DIRECTION.md "CPU budget"). BOTH expose a coherent AXI
+        #      `dma_bus` (soc.dma_bus) that the Milan DMA masters attach to identically
+        #      (MilanDMA reads getattr(soc, "dma_bus", soc.bus)), and BOTH map csr @
+        #      0xf000_0000 / clint @ 0xf001_0000 / plic @ 0xf0c0_0000 — so the datapath
+        #      and the ring DMA port over with no address changes.
+        if cpu == "vexiiriscv":
+            from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
+            _vex_parser = argparse.ArgumentParser()
+            VexiiRiscv.args_fill(_vex_parser)
+            _vex_args, _ = _vex_parser.parse_known_args([])
+            # cpu_variant is a SoCCore-level arg (not in the CPU parser) — set it here.
+            # "linux" = rv64imasu + sv39 MMU + L1$ + BTB/RAS/gshare (no C, no FPU);
+            # "debian" additionally enables C + F + D. We use "linux" for the smallest,
+            # highest-fmax Linux core (matches our no-C/no-FPU kernel); the --xlen=64 in
+            # vexii-args makes it RV64 (the linux variant otherwise defaults to RV32).
+            _vex_args.cpu_variant = "linux"
+            _vex_args.cpu_count   = cpu_count
+            _vex_args.with_dma    = coherent_dma          # coherent AXI dma_bus
+            _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
+            vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
+            _vex_args.vexii_args  = ("--xlen=64 " + vexii_extra).strip()
+            VexiiRiscv.args_read(_vex_args)
+            kwargs["cpu_type"]    = "vexiiriscv"
+            kwargs["cpu_variant"] = "linux"
+            kwargs["cpu_count"]   = cpu_count
+        else:
+            # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
+            # with its own args, take the defaults, override xlen/cpu-count, then args_read
+            # (this sets xlen/data_width/gcc_triple/l2/netlist-cache/update-repo/… for us).
+            from litex.soc.cores.cpu.naxriscv import NaxRiscv
+            _nax_parser = argparse.ArgumentParser()
+            NaxRiscv.args_fill(_nax_parser)
+            _nax_args, _ = _nax_parser.parse_known_args([])
+            _nax_args.xlen      = xlen
+            _nax_args.cpu_count = cpu_count
+            # Cache-coherent DMA: NaxRiscv then exposes a snooping `dma_bus` (soc.dma_bus)
+            # that the Milan DMA masters attach to, so CPU writes and DMA reads share one
+            # coherent view of DRAM (see MilanDMA). Without it the DMA reads stale DRAM.
+            _nax_args.with_coherent_dma = coherent_dma
+            # IPC knob I1 (AVB_SWITCH_DIRECTION.md): the shared L2 is BRAM and its size is
+            # a pure config choice — a bigger L2 keeps the ring buffers + stack working set
+            # out of DDR3 (each miss pays the full DRAM round trip on this 100 MHz core).
+            if l2_bytes:
+                _nax_args.l2_bytes = int(l2_bytes)
+            # Hardware FPU. TWO things must happen and LiteX's --with-fpu only does the
+            # first: (1) with_fpu sets the TOOLCHAIN arch/abi to rv64imafd / lp64d; (2) the
+            # actual FP hardware is a NaxRiscv Scala-config option (gen.scala `arg("rvf")`
+            # / `arg("rvd")`), enabled via --scala-args — WITHOUT this the softcore has NO
+            # FPU even though the toolchain is hard-float (HW-confirmed 2026-07-05: misa
+            # reported rv64ima and a CONFIG_FPU kernel hung on FP init). scala_args ARE in
+            # the netlist hash, so this regenerates a distinct FPU netlist.
+            _nax_args.with_fpu = with_fpu
+            _nax_args.scala_args = list(_nax_args.scala_args or [])
+            if with_fpu:
+                _nax_args.scala_args += ["rvf=true,rvd=true"]
+            if extra_scala_args:
+                _nax_args.scala_args += list(extra_scala_args)
+            NaxRiscv.args_read(_nax_args)
 
-        kwargs["cpu_type"]    = "naxriscv"
-        kwargs["cpu_variant"] = "standard"
-        kwargs["cpu_count"]   = cpu_count
+            kwargs["cpu_type"]    = "naxriscv"
+            kwargs["cpu_variant"] = "standard"
+            kwargs["cpu_count"]   = cpu_count
         # BIOS ROM always integrated. Main RAM: external LiteDRAM (--with-dram, needed
         # for Linux) OR integrated SRAM (self-contained smoke/sim). Don't add integrated
         # main RAM when DRAM provides it.
@@ -1309,6 +1337,7 @@ def main():
     ap.add_argument("--xlen", default=64, type=int, choices=[32, 64],
                     help="NaxRiscv width (64 = RV64GC/sv39 default; 32 = RV32/sv32)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
+    ap.add_argument("--cpu",          default="naxriscv", choices=["naxriscv","vexiiriscv"], help="soft CPU (vexiiriscv = higher fmax, smaller — AVB-switch direction)")
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
     ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
@@ -1370,7 +1399,7 @@ def main():
 
     platform = alinx_ax7101.Platform()
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
-                   cpu_count=args.cpu_count, with_milan=not args.no_milan,
+                   cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
                    with_mac=args.with_mac or args.all_blocks,
                    with_dma=args.with_dma or args.all_blocks,
                    with_dram=args.with_dram or args.all_blocks,
