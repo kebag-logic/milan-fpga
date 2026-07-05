@@ -542,7 +542,8 @@ class RingDMAWriter(LiteXModule):
         ]
         self.sync += [
             ne_prev.eq(self.non_empty),
-            If(self.non_empty & ~ne_prev, irq_cnt.eq(irq_cnt + 1)),
+            If(~self.enable.storage, irq_cnt.eq(0)).Elif(self.non_empty & ~ne_prev,
+                                                         irq_cnt.eq(irq_cnt + 1)),
         ]
 
         # ---- ingress: always-ready store-and-forward, whole-frame drop ----------------
@@ -664,7 +665,9 @@ class RingDMAWriter(LiteXModule):
             need.eq(((frame_beats + 1) << 3) + 8),
             no_fit.eq(free < need),
         ]
-        self.sync += If(used > occ_hi, occ_hi.eq(used))   # telemetry: occupancy high-water
+        # telemetry high-water, reset when the ring is disabled (driver re-init clears the
+        # stale `wr-rd` spike a reload would otherwise latch — occ_hi is now per-session).
+        self.sync += If(~self.enable.storage, occ_hi.eq(0)).Elif(used > occ_hi, occ_hi.eq(used))
 
         # burst geometry from the REGISTERED off_r/rem_r (registered again in PREP)
         cur_addr = Signal(32)
@@ -700,7 +703,12 @@ class RingDMAWriter(LiteXModule):
 
         self.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            If(len_fifo.source.valid,
+            # While the ring is disabled, hold wr/seq/frames at 0 so a driver re-init (which
+            # toggles enable) starts a truly-empty ring — no stale mid-ring `wr` for the fresh
+            # rd=0 to read as ~full (the occ_hi reload artifact), and per-session `frames`.
+            If(~self.enable.storage,
+                NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
+            ).Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
                 NextValue(total_beats, len_fifo.source.beats + 1),
