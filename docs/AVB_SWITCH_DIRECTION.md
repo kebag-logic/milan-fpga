@@ -55,6 +55,32 @@ ring DMA engines.
   bounds AVB queue depth by construction, so BRAM suffices; best-effort overflow drops
   (counted) rather than spilling to DRAM. DRAM remains CPU/control-plane only.
 
+## CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)
+
+The number of CPU cores is **constrained by the switch fabric**, not chosen freely. Measured
+Slice-LUT usage with today's 1-port datapath:
+
+| config | Slice LUTs | % of 100T |
+|---|---|---|
+| 1 core + FPU (rv64imafd, verified) | 48,751 | 77 % |
+| 1 core, no FPU | ~43,000 | ~68 % |
+| **2 cores + FPU (2-issue)** | **77,366** | **122 % — does NOT fit** |
+
+Going 1→4 GMII adds 3 MACs + the shared-BRAM fabric + TCAM + 4× CBS ≈ **+25–35k LUTs**. So:
+one Linux core + the 4-port switch lands **right at the ceiling**; the FPU alongside it is
+marginal; **two cores + the 4-port switch cannot fit this part.** Constraints are firm —
+**Linux is mandatory** (kept: MMU sv39 + supervisor on every candidate, incl. single-issue) and
+**4× GMII is mandatory** — so the 100T production config is **one Linux core + the 4-port
+switch** (FPU only if it fits after the fabric lands). Two cores is a deliberate part upgrade
+(Artix-200T / Kintex) or a VexiiRiscv swap (smaller cores + higher fmax), **not** a place-time
+surprise.
+
+**SMP is coded and ready** for that upgrade: `milan_soc.py --cpu-count 2` (+ the `--scala-args`
+passthrough for issue width), a 2-hart DTB (`fpga/dts/milan_ax7101_smp.dts`, regenerated from
+the build's `csr.json` with correct PLIC/CLINT contexts), OpenSBI `NAX_HART_COUNT` (set 2 for
+SMP), and the kernel's `CONFIG_SMP=y`. Flipping `--cpu-count 2` on a bigger part is all it
+takes. The 2-core build was verified to *fit-fail* on the 100T (122 %), which is the point.
+
 ## Hardware reality
 
 The AX7101 has **one** PHY. 8 external ports need new I/O: the xc7a100t's 4 GTP

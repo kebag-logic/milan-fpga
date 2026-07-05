@@ -1161,6 +1161,7 @@ class MilanSoC(SoCCore):
                  with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
+                 extra_scala_args=None,
                  **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
@@ -1189,8 +1190,11 @@ class MilanSoC(SoCCore):
         # reported rv64ima and a CONFIG_FPU kernel hung on FP init). scala_args ARE in
         # the netlist hash, so this regenerates a distinct FPU netlist.
         _nax_args.with_fpu = with_fpu
+        _nax_args.scala_args = list(_nax_args.scala_args or [])
         if with_fpu:
-            _nax_args.scala_args = (_nax_args.scala_args or []) + ["rvf=true,rvd=true"]
+            _nax_args.scala_args += ["rvf=true,rvd=true"]
+        if extra_scala_args:
+            _nax_args.scala_args += list(extra_scala_args)
         NaxRiscv.args_read(_nax_args)
 
         kwargs["cpu_type"]    = "naxriscv"
@@ -1306,6 +1310,7 @@ def main():
                     help="NaxRiscv width (64 = RV64GC/sv39 default; 32 = RV32/sv32)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
+    ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--l2-bytes", default=None, type=float,
                     help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
@@ -1374,7 +1379,7 @@ def main():
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
-                   with_fpu=args.with_fpu,
+                   with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
