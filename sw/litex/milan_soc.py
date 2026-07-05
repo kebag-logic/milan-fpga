@@ -1160,7 +1160,7 @@ class MilanSoC(SoCCore):
                  with_milan=True, with_mac=False, with_dma=False, with_dram=False,
                  with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
-                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, **kwargs):
+                 rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, **kwargs):
         # ---- ONE RISC-V core, MMU, Linux-capable (NaxRiscv RV64GC/sv39 or RV32/sv32) ----
         # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
         # with its own args, take the defaults, override xlen/cpu-count, then args_read
@@ -1175,6 +1175,11 @@ class MilanSoC(SoCCore):
         # the Milan DMA masters attach to, so CPU writes and DMA reads share one coherent
         # view of DRAM (see MilanDMA). Without it the DMA reads stale DRAM (HW-confirmed).
         _nax_args.with_coherent_dma = coherent_dma
+        # IPC knob I1 (AVB_SWITCH_DIRECTION.md): the shared L2 is BRAM and its size is
+        # a pure config choice — a bigger L2 keeps the ring buffers + stack working set
+        # out of DDR3 (each miss pays the full DRAM round trip on this 100 MHz core).
+        if l2_bytes:
+            _nax_args.l2_bytes = int(l2_bytes)
         NaxRiscv.args_read(_nax_args)
 
         kwargs["cpu_type"]    = "naxriscv"
@@ -1290,6 +1295,8 @@ def main():
                     help="NaxRiscv width (64 = RV64GC/sv39 default; 32 = RV32/sv32)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
+    ap.add_argument("--l2-bytes", default=None, type=float,
+                    help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
                     help="run the Milan datapath in its own slower clock domain (Hz, e.g. "
                          "50e6), async-FIFO CDC'd to sys on the AXI-Lite CSR bus and the "
@@ -1354,7 +1361,7 @@ def main():
                    flashboot=args.flashboot,
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
-                   milan_clk_freq=args.milan_clk_freq,
+                   milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
