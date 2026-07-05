@@ -55,6 +55,35 @@ ring DMA engines.
   bounds AVB queue depth by construction, so BRAM suffices; best-effort overflow drops
   (counted) rather than spilling to DRAM. DRAM remains CPU/control-plane only.
 
+## VexiiRiscv migration — VERIFIED on silicon (2026-07-05)
+
+The CPU-budget wall (below) is solved by swapping NaxRiscv → **VexiiRiscv** (same author,
+same LiteX/SpinalHDL flow). `milan_soc.py --cpu vexiiriscv` (RV64IMA "linux" variant + MMU
+sv39). The feared integration risk was a non-issue: VexiiRiscv exposes the **same coherent
+AXI `dma_bus`** and the **same mem-map** (csr/clint/plic at identical addresses), so the ring
+DMA, the whole `--all-blocks` datapath, and the driver **port over with zero changes** (one
+DTB fix only: the grafted NIC node needs an explicit `interrupt-parent = <&intc0>`).
+
+Measured on the AX7101 (both at 100 MHz sys / -2 Artix):
+
+| metric | NaxRiscv | **VexiiRiscv (RV64IMA)** |
+|---|---|---|
+| Slice LUTs | 43k–49k (68–77 %) | **31k (49 %)** |
+| WNS @ 100 MHz | +0.004 (w/ FPU) … +0.08 | **+0.143 ns** |
+| Linux boot | ✓ | ✓ (rv64ima, sv39) |
+| NIC probe / link / ping | ✓ | ✓ (ID=MILN, 1000 Mbps, 0 % loss) |
+| RX / TX TCP | 66.7 / 62.3 | 30.4 / 27.0 Mbit/s |
+
+**Why this is the right trade for the switch:** the ~28 % LUT drop (49 % vs 68–77 %) leaves
+**~32k LUTs free — enough for the ~25–35k 4-port switch fabric alongside one core** (the
+NaxRiscv config could not fit it). The +0.143 ns margin (vs NaxRiscv's +0.004 knife-edge) gives
+real headroom to clock higher (the core reaches ~186 MHz), which recovers the throughput. And
+socket throughput dropping to ~30 Mbit/s (single-issue in-order IPC vs NaxRiscv OoO) **does not
+matter here**: the CPU is the control plane (gPTP servo, MSRP/MVRP, AVDECC, management); the
+switch forwards 4×1G in fabric, never touching the CPU. Linux is fully preserved (MMU +
+supervisor). FPU is available via the VexiiRiscv "debian" variant (adds F/D/C) if a workload
+needs it. **Net: VexiiRiscv is the CPU for the 4-port AVB switch on the 100T.**
+
 ## CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)
 
 The number of CPU cores is **constrained by the switch fabric**, not chosen freely. Measured
