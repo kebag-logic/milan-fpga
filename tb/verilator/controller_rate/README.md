@@ -16,9 +16,7 @@ store-and-forward PacketFIFO — the TX-dead symptom observed on silicon.
 The block harnesses miss it: `tb/verilator/classifier` checks tdest *stability*,
 not *correctness*, and never feeds two different-queue frames back to back.
 
-`make` runs the repro and **prints the diagnosis; it exits 0** (it is a documented
-open-bug reproduction, not a gating test) until the classifier tdest handoff is
-reworked. The fix must: (1) make `tdest` correct from a frame's first output beat,
-(2) fix the header-parse FSM's short-frame / back-to-back byte_counter handling,
-(3) add a tdest-*correctness* check to `tb/verilator/classifier`, then flip this
-harness to gating (`return integrity_fails ? 1 : 0`).
+**Status: the bug is FIXED** (classifier per-frame tdest sideband redesign, same day)
+and this harness is **gating** (`make` fails on any per-frame byte-integrity error).
+It drives back-to-back different-queue frames with randomized ~25 % duty egress
+pacing through the full chain — the scenario every block harness misses.

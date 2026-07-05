@@ -61,12 +61,6 @@ module traffic_classifier #(
   axi_stream_if.master m_axis      //! master interface of AXIS
 );
 
-//! Latency assignment to make aligment with tdest in master axis interface.
-localparam int LATENCY = (TDATA_WIDTH == 32) ? 'd3 : (TDATA_WIDTH == 64) ? 'd1 :
-                      (TDATA_WIDTH == 128) ? 'd0 : 'd1;
-//! When Latency is 0, t*_delay ports will be invalid therefore safe calculation.
-localparam int LATENCY_SAFE = (LATENCY > 0) ? LATENCY : 1;
-
 //! Master axis interface from fifo.
 axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) m_axis_fifo();
 //! Storing incoming packets in the fifo till headers parsing is completed.
@@ -117,24 +111,55 @@ eth_packet_buffer(
 
 //! Flag indicates ethernet headers are received.
 logic header_ready;
-//! Ethernet header buffer assigned combinationally.
+//! Ethernet header staging buffer (input-side shift, big-endian byte order).
 logic [ETH_HEADER_BUFFER_WIDTH-1:0] eth_header;
-//! Ethernet header buffer assigned sequentially.
-logic [ETH_HEADER_BUFFER_WIDTH-1:0] eth_header_buf;
 //! Counter for detecting whether ethernet header is captured or not.
 logic [$clog2(ETH_HEADER_WIDTH):0] byte_counter;
 //! ethernet type register when VLAN tag exists it is 8100.
 logic [ETH_TYPE_BIT_WIDTH-1:0] eth_type_raw;
-//! Flag that indicates a packet is being sent currently.
-logic packet_in_progress;
-//! tdata delay register.
-logic [TDATA_WIDTH-1:0] tdata_delay   [0:LATENCY_SAFE-1];
-//! tkeep delay register.
-logic [TDATA_WIDTH/8-1:0] tkeep_delay [0:LATENCY_SAFE-1];
-//! tvalid delay register.
-logic tvalid_delay [0:LATENCY_SAFE-1];
-//! tlast delay register.
-logic tlast_delay  [0:LATENCY_SAFE-1];
+
+//! ---- per-frame tdest sideband (REDESIGN 2026-07-05, docs/CBS_DATAPATH_BUG.md) ----
+//! The old scheme delayed the DATA by a fixed 1 beat and drove tdest
+//! combinationally from a single staged header. Broken two ways on silicon:
+//! (a) 1 beat of delay cannot cover the 3-beat header parse, so under
+//! back-to-back frames the first output beats carried the PREVIOUS frame's
+//! classification — the downstream demux then split frames across queues,
+//! stranding beats and wedging the store-and-forward PacketFIFO (the CBS
+//! interference TX lockup); (b) the parse counter was only reset by a tlast
+//! that arrived with header_ready, so tight/short frames desynced the parser.
+//! Now the input side classifies each frame as soon as its header completes
+//! (or at tlast for sub-header runts) and pushes ONE queue index into this
+//! sideband queue; the output side gates each frame's FIRST beat on its entry
+//! and pops at tlast. tdest is correct and stable from the first output beat
+//! by construction, with no data-path delay registers at all.
+localparam int TQ_DEPTH = 32;   //! > max frames resident in the data FIFO
+localparam int TQW = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES);
+logic [TQW-1:0] tq_mem [0:TQ_DEPTH-1];
+logic [$clog2(TQ_DEPTH):0] tq_wr, tq_rd;
+wire tq_empty = (tq_wr == tq_rd);
+wire [$clog2(TQ_DEPTH)-1:0] tq_wr_idx = tq_wr[$clog2(TQ_DEPTH)-1:0];
+wire [$clog2(TQ_DEPTH)-1:0] tq_rd_idx = tq_rd[$clog2(TQ_DEPTH)-1:0];
+//! this frame's classification has been pushed (one push per input frame)
+logic tq_pushed;
+
+//! input-side helper views
+wire in_acc = s_axis.tvalid && s_axis.tready;
+//! current beat in big-endian parse order (mirrors the original shift path)
+wire [TDATA_WIDTH-1:0] beat_be = BIG_ENDIAN ? s_axis.tdata
+                                            : reorder_endian_func(s_axis.tdata, TDATA_WIDTH);
+//! staging buffer as it will look AFTER shifting in the current beat
+wire [ETH_HEADER_BUFFER_WIDTH-1:0] hdr_shifted =
+      {eth_header[ETH_HEADER_BUFFER_WIDTH-TDATA_WIDTH-1:0], beat_be};
+//! the current beat completes the header
+wire completes_now = !header_ready &&
+      (byte_counter + (TDATA_WIDTH / BYTE_TO_BIT) >= ETH_HEADER_WIDTH);
+//! classify-and-push this cycle: once per frame, at header completion — or at
+//! tlast for sub-header runts (classified from a partial buffer: garbage-but-
+//! deterministic queue for an already-invalid frame; the point is ONE entry
+//! per frame so the output gating can never starve).
+wire do_push = in_acc && !tq_pushed && (completes_now || s_axis.tlast);
+//! header view used for the classification pushed THIS cycle
+wire [ETH_HEADER_BUFFER_WIDTH-1:0] hdr_eff = header_ready ? eth_header : hdr_shifted;
 
 //! ethernet_vlan_hdr_t struct instantiation.
 ethernet_vlan_hdr_t eth_packet;
@@ -152,12 +177,16 @@ wire _unused_dmac = dmac_check_i;
 assign header_ready = (byte_counter >= ETH_HEADER_WIDTH);
 
 
-assign m_axis.tdata  = (LATENCY == 0) ? m_axis_fifo.tdata  : tdata_delay[LATENCY-1];
-assign m_axis.tkeep  = (LATENCY == 0) ? m_axis_fifo.tkeep  : tkeep_delay[LATENCY-1];
-assign m_axis.tvalid = (LATENCY == 0) ? m_axis_fifo.tvalid : tvalid_delay[LATENCY-1];
-assign m_axis.tlast  = (LATENCY == 0) ? m_axis_fifo.tlast  : tlast_delay[LATENCY-1];
-assign m_axis.tdest = network_priority;
-assign m_axis_fifo.tready = m_axis.tready;
+//! Output = data-FIFO passthrough, gated so a frame's FIRST beat waits until
+//! its classification is at the head of the sideband queue (mid-frame beats
+//! then stream freely; the entry pops at tlast). tdest is stable and correct
+//! for the whole frame, so the downstream demux can never split a frame.
+assign m_axis.tdata  = m_axis_fifo.tdata;
+assign m_axis.tkeep  = m_axis_fifo.tkeep;
+assign m_axis.tvalid = m_axis_fifo.tvalid && !tq_empty;
+assign m_axis.tlast  = m_axis_fifo.tlast;
+assign m_axis.tdest  = tq_mem[tq_rd_idx];
+assign m_axis_fifo.tready = m_axis.tready && !tq_empty;
 
 //! Runtime 802.1Q priority-to-queue classification (REQ-CLS-01..04).
 traffic_class_map #(
@@ -176,95 +205,74 @@ traffic_class_map #(
 );
 
 
-//! If headers are not ready add tdata into the eth_header slice, if the module is instantiated
-//! little endian, parser logic will convert into big endian for ONLY parsing logic, data will be
-//! conveyed little endian again.
+//! Input-side parse: shift header beats into the staging buffer (converted to
+//! big endian for parsing only — data is conveyed unmodified through the FIFO),
+//! and reset the parse state on EVERY end-of-frame, including frames that end
+//! before the header completes (the old code only reset when a tlast arrived
+//! with header_ready, desyncing the parser on tight/short frames).
 always_ff @(posedge clk)begin : data_slice
   if(!resetn)begin
     byte_counter <= 'd0;
     eth_header <= 'd0;
   end
-  else begin
-    if(s_axis.tready && s_axis.tvalid && !header_ready) begin
+  else if (in_acc) begin
+    if (s_axis.tlast)
+      byte_counter <= 'd0;                       // next frame parses fresh
+    else if (!header_ready)
       byte_counter <= byte_counter + (TDATA_WIDTH / BYTE_TO_BIT);
-      if(BIG_ENDIAN) begin
-        eth_header <= {eth_header[ETH_HEADER_BUFFER_WIDTH-TDATA_WIDTH-1:0], s_axis.tdata};
-      end
-      else begin
-        eth_header <= {eth_header[ETH_HEADER_BUFFER_WIDTH-TDATA_WIDTH-1:0],
-                      reorder_endian_func(s_axis.tdata, TDATA_WIDTH)};
-      end
-    end
-    else if(s_axis.tready && s_axis.tvalid && s_axis.tlast) begin
-      byte_counter <= 'd0;
-    end
+    if (!header_ready)
+      eth_header <= hdr_shifted;
   end
 end
 
-//! register eth_header content to not lose due to immediate new packet override.
-always_ff @(posedge clk)begin : eth_hdr_buffer
+//! Sideband push/pop: one classification per input frame (at do_push), one pop
+//! per output frame (at the egress tlast handshake). The queue cannot overflow:
+//! the data FIFO backpressures the input long before TQ_DEPTH frames of >= 1
+//! beat each are resident, and it cannot starve: every frame pushes no later
+//! than its tlast beat.
+always_ff @(posedge clk)begin : tdest_sideband
   if(!resetn) begin
-    eth_header_buf <= 'd0;
-    packet_in_progress <= 'd0;
+    tq_wr <= '0;
+    tq_rd <= '0;
+    tq_pushed <= 1'b0;
   end
   else begin
-    if(header_ready && !packet_in_progress)begin
-      eth_header_buf <= eth_header;
-      packet_in_progress <= 'd1;
+    if (do_push) begin
+      tq_mem[tq_wr_idx] <= network_priority;
+      tq_wr <= tq_wr + 1'b1;
     end
-    if(m_axis.tvalid && m_axis.tready && m_axis.tlast)begin
-      packet_in_progress <= 'd0;
-    end
+    if (in_acc)
+      tq_pushed <= s_axis.tlast ? 1'b0 : (tq_pushed || do_push);
+    if (m_axis.tvalid && m_axis.tready && m_axis.tlast)
+      tq_rd <= tq_rd + 1'b1;
   end
 end
 
-//! Immediately decode eth_header_buf combinationally.
+//! Decode the effective header view combinationally — `hdr_eff` includes the
+//! beat completing the header THIS cycle, so the classification registered
+//! into the sideband at do_push is that of the frame being received.
 always_comb begin : parse_eth_header
   //! Default assignments
   eth_packet = '0;
   eth_type_raw = '0;
 
-  //! Decode Ethernet fields from eth_header_buf
+  //! Decode Ethernet fields from the effective header view
   eth_packet.eth_common_hdr.dst_mac =
-    eth_header_buf[ETH_HEADER_BUFFER_WIDTH-1 -: MAC_ADDR_BIT_WIDTH];
+    hdr_eff[ETH_HEADER_BUFFER_WIDTH-1 -: MAC_ADDR_BIT_WIDTH];
   eth_packet.eth_common_hdr.src_mac =
-    eth_header_buf[ETH_HEADER_BUFFER_WIDTH-MAC_ADDR_BIT_WIDTH-1 -: MAC_ADDR_BIT_WIDTH];
+    hdr_eff[ETH_HEADER_BUFFER_WIDTH-MAC_ADDR_BIT_WIDTH-1 -: MAC_ADDR_BIT_WIDTH];
   eth_type_raw =
-    eth_header_buf[ETH_HEADER_BUFFER_WIDTH-(2*MAC_ADDR_BIT_WIDTH)-1 -: ETH_TYPE_BIT_WIDTH];
+    hdr_eff[ETH_HEADER_BUFFER_WIDTH-(2*MAC_ADDR_BIT_WIDTH)-1 -: ETH_TYPE_BIT_WIDTH];
   //! VLAN case (tagged)
   if(eth_type_raw == ETH_TYPE_VLAN)begin
     eth_packet.vlan_tpid = eth_type_raw;
-    eth_packet.vlan_tci = eth_header_buf[ETH_HEADER_BUFFER_WIDTH-(2*MAC_ADDR_BIT_WIDTH)-
+    eth_packet.vlan_tci = hdr_eff[ETH_HEADER_BUFFER_WIDTH-(2*MAC_ADDR_BIT_WIDTH)-
                             ETH_TYPE_BIT_WIDTH-1 -: VLAN_TCI_BIT_WIDTH];
-    eth_packet.eth_common_hdr.eth_type = eth_header_buf[ETH_HEADER_BUFFER_WIDTH-(2*MAC_ADDR_BIT_WIDTH)-
+    eth_packet.eth_common_hdr.eth_type = hdr_eff[ETH_HEADER_BUFFER_WIDTH-(2*MAC_ADDR_BIT_WIDTH)-
                             ETH_TYPE_BIT_WIDTH-VLAN_TCI_BIT_WIDTH-1 -: ETH_TYPE_BIT_WIDTH];
   end
   else begin //! if it is not VLAN tagged then eth_type_raw is real eth_type
     eth_packet.eth_common_hdr.eth_type = eth_type_raw;
-  end
-end
-
-//! Delay master interface for tdest alignment.
-always_ff @(posedge clk) begin : m_axis_allignment
-  if (!resetn) begin
-    for (int i = 0; i < LATENCY; i++) begin
-      tdata_delay[i]   <= '0;
-      tkeep_delay[i]   <= '0;
-      tvalid_delay[i]  <= '0;
-      tlast_delay[i]   <= '0;
-    end
-  end else begin
-    tdata_delay[0]   <= m_axis_fifo.tdata;
-    tkeep_delay[0]   <= m_axis_fifo.tkeep;
-    tvalid_delay[0]  <= m_axis_fifo.tvalid;
-    tlast_delay[0]   <= m_axis_fifo.tlast;
-
-    for (int i = 1; i < LATENCY; i++) begin
-      tdata_delay[i]   <= tdata_delay[i-1];
-      tkeep_delay[i]   <= tkeep_delay[i-1];
-      tvalid_delay[i]  <= tvalid_delay[i-1];
-      tlast_delay[i]   <= tlast_delay[i-1];
-    end
   end
 end
 

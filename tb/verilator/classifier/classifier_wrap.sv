@@ -54,6 +54,7 @@ module classifier_wrap #(
 
   traffic_classifier #(
     .TDATA_WIDTH(TDATA_WIDTH),
+    .BIG_ENDIAN(0),               // matches milan_datapath/milan_top (LE beats)
     .NUMBER_OF_QUEUES(NUMBER_OF_QUEUES)
   ) dut (
     .clk(clk),
