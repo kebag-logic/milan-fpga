@@ -73,6 +73,7 @@ system is debugged.
 | [../tb/verilator/README.md](../tb/verilator/README.md) | Runnable self-checking harnesses — how to run and what they prove (16 suites). |
 | [../tb/verilator/cbs/README.md](../tb/verilator/cbs/README.md) | 802.1Qav CBS credit-math verification detail. |
 | [../tb/verilator/controller_rate/README.md](../tb/verilator/controller_rate/README.md) | End-to-end classify→queue→shape integrity harness (gating; born from the CBS bug). |
+| `../tb/verilator/avtp_stream/` | AVTP stream-parser harness — stream-id / presentation-time extraction + programmable stream match (the S1 AVTP-engine foundation). |
 | [../tb/verilator/csr/README.md](../tb/verilator/csr/README.md) | CSR verification detail. |
 | [../THIRD_PARTY.md](../THIRD_PARTY.md) | Vendored third-party code and licenses. |
 
