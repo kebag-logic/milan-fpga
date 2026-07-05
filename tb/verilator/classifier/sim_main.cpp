@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
     dut->resetn = 0;
     dut->s_tvalid = dut->s_tlast = 0; dut->m_tready = 1;
     dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
-    dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00688FAC; dut->tc_queue_map_i = 0x000000E4;
+    dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688; dut->tc_queue_map_i = 0x000000E4;
     for (int i = 0; i < 6; i++) { lo(); hi(); }
     dut->resetn = 1;
     for (int i = 0; i < 2; i++) { lo(); hi(); }
