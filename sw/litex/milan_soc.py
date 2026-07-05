@@ -26,7 +26,7 @@ import sys
 import json
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, FSM, NextValue, NextState
+from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, FSM, NextValue, NextState
 from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
@@ -521,6 +521,25 @@ class RingDMAWriter(LiteXModule):
         self.frames  = CSRStatus(32, description="RX frames committed (HW delivered).")
         self.occ_hi  = CSRStatus(32, description="Ring occupancy high-water (bytes used, max seen).")
         self.irqs    = CSRStatus(32, description="ev.rx rising edges (empty->non-empty; ~one per IRQ batch).")
+        # ---- BD (buffer-descriptor) mode — CPPI-style zero-copy RX (P2/P4, 2026-07-05) ----
+        # Instead of the byte-ring, the driver POSTS per-frame buffers (write the 8-aligned
+        # phys addr to `post`; 64-deep FIFO) and the engine DMA-writes each frame's payload
+        # STRAIGHT into the next posted buffer (no ring, no header, no driver memcpy), then
+        # DMA-writes a 16 B completion BD {magic,seq,len,csum | buf_addr} into a coherent
+        # DRAM BD ring. The driver detects frames by reading the BD from CACHED memory (one
+        # coherent read) — no wr_ptr MMIO, no DRAM header read, no 35 us/1500 B copy (the
+        # two measured per-frame costs, LATENCY_INVESTIGATION §4-6). No posted buffer when a
+        # frame arrives => whole-frame drop (`dropped`++) — the always-ready invariant holds.
+        # bd_base==0 (reset) = BD mode off => the legacy byte-ring path is bit-identical.
+        # In BD mode the existing ring CSRs are REUSED for the BD ring: `mask` = BD-ring
+        # bytes-1 (entries*16-1), `wr_ptr` = HW BD write offset, `rd_ptr` = SW consumed-BD
+        # offset — so `non_empty` (ev.rx), occupancy telemetry and the IRQ path all work
+        # unchanged; `base` is unused. BD (16 B, 2 beats, little-endian):
+        #   word0 = {drops[15:0], csum[15:0], len_bytes[15:0], seq[7:0], magic 0xBD}
+        #   word1 = posted buffer phys addr (debug/robustness; consumption order == post order)
+        self.post    = CSRStorage(32, description="Write a posted RX buffer phys addr (8-aligned, >= max frame). FIFO of 64.")
+        self.bd_base = CSRStorage(64, description="Completion-BD ring base (coherent, 16 B/entry, 16-aligned). 0 = BD mode off.")
+        self.posted  = CSRStatus(8,   description="Posted buffers currently queued (telemetry).")
 
         # # #
 
@@ -549,6 +568,24 @@ class RingDMAWriter(LiteXModule):
         # ---- ingress: always-ready store-and-forward, whole-frame drop ----------------
         self.data_fifo = data_fifo = stream.SyncFIFO([("data", 64)], depth=fifo_beats, buffered=True)
         self.len_fifo  = len_fifo  = stream.SyncFIFO([("beats", 11), ("csum", 16)], depth=64)
+
+        # ---- BD mode: posted-buffer FIFO + completion-BD state -------------------------
+        bd_mode = Signal()
+        self.post_fifo = post_fifo = stream.SyncFIFO([("addr", 32)], depth=64)
+        buf_addr_r = Signal(32)         # posted buffer being filled (registered at pop)
+        wb_beat    = Signal()           # 0 = BD word0 (meta), 1 = word1 (buf addr)
+        post_pop = Signal()             # FSM pops the next posted buffer this cycle
+        self.comb += [
+            bd_mode.eq(self.bd_base.storage != 0),
+            post_fifo.sink.valid.eq(self.post.re),    # one push per CSR write
+            post_fifo.sink.addr.eq(self.post.storage),
+            self.posted.status.eq(post_fifo.level),
+            # DRAIN the posted-buffer FIFO while the ring is disabled: buffers posted by a
+            # previous driver load would otherwise SURVIVE a reload and desync the FIFO<->
+            # driver pairing by their count — the HW then fills freed memory and every BD
+            # pairs with the wrong buffer (silicon bug 2026-07-05: reload -> 100% garbage RX).
+            post_fifo.source.ready.eq(post_pop | ~self.enable.storage),
+        ]
 
         in_frame = Signal()             # mid-frame (first beat already seen)
         in_drop  = Signal()             # this frame is being swallowed
@@ -677,8 +714,12 @@ class RingDMAWriter(LiteXModule):
         blen_b   = Signal(12)
         blen     = Signal(12)
         self.comb += [
-            cur_addr.eq(self.base.storage[:32] + off_r),
-            to_wrap.eq((self.mask.storage + 1 - off_r) >> 3),
+            # BD mode: the write target is the posted buffer (linear, never wraps — cap the
+            # wrap term above the max frame). Ring mode: base+offset with ring-wrap splits.
+            cur_addr.eq(Mux(bd_mode, buf_addr_r + off_r,
+                                     self.base.storage[:32] + off_r)),
+            to_wrap.eq(Mux(bd_mode, max_frame_beats + 1,
+                                    (self.mask.storage + 1 - off_r) >> 3)),
             to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
             blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
             blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
@@ -708,6 +749,23 @@ class RingDMAWriter(LiteXModule):
             # rd=0 to read as ~full (the occ_hi reload artifact), and per-session `frames`.
             If(~self.enable.storage,
                 NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
+            ).Elif(len_fifo.source.valid & bd_mode,
+                # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
+                len_fifo.source.ready.eq(1),
+                NextValue(frame_beats, len_fifo.source.beats),
+                NextValue(total_beats, len_fifo.source.beats),   # no header beat
+                NextValue(frame_csum, len_fifo.source.csum),
+                NextValue(rem_r, len_fifo.source.beats),
+                NextValue(off_r, 0),
+                NextValue(hdr_sent, 1),                          # suppress the header
+                If(post_fifo.source.valid,
+                    post_pop.eq(1),
+                    NextValue(buf_addr_r, post_fifo.source.addr),
+                    NextState("PREP"),
+                ).Else(                                          # no buffer -> drop whole
+                    NextValue(disc, len_fifo.source.beats),
+                    NextState("DISCARD"),
+                )
             ).Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
@@ -740,7 +798,11 @@ class RingDMAWriter(LiteXModule):
             self.bus.aw.burst.eq(1),                # INCR
             If(self.bus.aw.ready,
                 NextValue(wcnt, 0),
-                NextValue(off_r, (off_r + (blen_r << 3)) & self.mask.storage),
+                # BD mode: off_r is a LINEAR offset into the posted buffer — masking it with
+                # the (BD-ring!) mask wrapped it at ring-size bytes and overwrote the frame
+                # head (silicon bug 2026-07-05: >1 KB frames corrupt, ping fine, TCP dead).
+                NextValue(off_r, Mux(bd_mode, off_r + (blen_r << 3),
+                                     (off_r + (blen_r << 3)) & self.mask.storage)),
                 NextValue(rem_r, rem_r - blen_r),
                 NextState("W"),
             )
@@ -767,37 +829,57 @@ class RingDMAWriter(LiteXModule):
         )
         fsm.act("WAIT_B",
             If(outstanding == 0,
-                NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
-                NextValue(seq, seq + 1),
-                NextValue(frames, frames + 1),        # telemetry: HW-committed frame count
-                If(self.status.storage != 0,
+                If(bd_mode,
+                    # payload fully committed to the posted buffer -> write the BD
                     NextState("WB_AW"),
                 ).Else(
-                    NextState("IDLE"),
+                    NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
+                    NextValue(seq, seq + 1),
+                    NextValue(frames, frames + 1),    # telemetry: HW-committed frame count
+                    If(self.status.storage != 0,
+                        NextState("WB_AW"),
+                    ).Else(
+                        NextState("IDLE"),
+                    )
                 )
             )
         )
-        # ---- pointer writeback: one 8-byte AXI write of {dropped, wr_ptr} to the shadow so
-        # software polls the ring head FROM CACHE, not an MMIO CSR (perf, 2026-07-05). `wr`
-        # already holds the just-committed value here, so a frame is only ever advertised in
-        # the shadow AFTER its data's last B response — same visibility guarantee as wr_ptr.
+        # ---- writeback: ring mode = one 8-byte {dropped, wr_ptr} shadow write (poll from
+        # cache, not MMIO); BD mode = the 16-byte completion BD (meta + buf addr) to
+        # bd_base+wr. Either way the write happens only AFTER the payload's last B response,
+        # so software never observes a frame before its data is globally visible.
         fsm.act("WB_AW",
             self.bus.aw.valid.eq(1),
-            self.bus.aw.addr.eq(self.status.storage[:32]),
-            self.bus.aw.len.eq(0),                  # single beat
-            self.bus.aw.size.eq(3),                 # 8 bytes
+            self.bus.aw.addr.eq(Mux(bd_mode, self.bd_base.storage[:32] + wr,
+                                             self.status.storage[:32])),
+            self.bus.aw.len.eq(Mux(bd_mode, 1, 0)),   # BD = 2 beats, shadow = 1
+            self.bus.aw.size.eq(3),                   # 8 bytes/beat
             self.bus.aw.burst.eq(1),
-            If(self.bus.aw.ready, NextState("WB_W")),
+            If(self.bus.aw.ready, NextValue(wb_beat, 0), NextState("WB_W")),
         )
         fsm.act("WB_W",
             self.bus.w.valid.eq(1),
-            self.bus.w.data.eq(Cat(wr, drops)),     # {drops[63:32], wr[31:0]}
+            self.bus.w.data.eq(Mux(bd_mode,
+                Mux(wb_beat, buf_addr_r,              # word1: where the frame landed
+                    # word0: {drops[15:0], csum, len, seq[7:0], magic 0xBD}
+                    Cat(C(0xBD, 8), seq[:8], len_bytes, frame_csum, drops[:16])),
+                Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
-            self.bus.w.last.eq(1),
-            If(self.bus.w.ready, NextState("WB_B")),
+            self.bus.w.last.eq(~bd_mode | wb_beat),
+            If(self.bus.w.valid & self.bus.w.ready,
+                NextValue(wb_beat, 1),
+                If(~bd_mode | wb_beat, NextState("WB_B")),
+            )
         )
         fsm.act("WB_B",
-            If(self.bus.b.valid, NextState("IDLE")),
+            If(self.bus.b.valid,
+                If(bd_mode,                           # commit: BD slot consumed, frame live
+                    NextValue(wr, (wr + 16) & self.mask.storage),
+                    NextValue(seq, seq + 1),
+                    NextValue(frames, frames + 1),
+                ),
+                NextState("IDLE"),
+            )
         )
         fsm.act("DISCARD",                          # ring full/disabled: pop + count
             data_fifo.source.ready.eq(1),
