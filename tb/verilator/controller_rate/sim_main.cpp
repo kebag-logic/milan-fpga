@@ -45,13 +45,20 @@ int main(int argc, char** argv) {
         dut->s_tdata=d; dut->s_tkeep=(vb==8)?0xFF:((1u<<vb)-1);
         dut->s_tvalid=1; dut->s_tlast=(beat==nbeats-1);
         dut->m_tready=((rng()&7)<2);                 // ~25% duty: 1G wire pacing
-        dut->clk=0; dut->eval(); dut->clk=1; dut->eval();
-        if (dut->s_tvalid && dut->s_tready) {
+        // sample handshakes PRE-EDGE (settled comb state = what the posedge commits);
+        // post-edge sampling mis-advances the feeder and fabricates beat loss
+        dut->clk=0; dut->eval();
+        bool in_hs  = dut->s_tvalid && dut->s_tready;
+        bool out_hs = dut->m_tvalid && dut->m_tready;
+        int  okeep  = __builtin_popcount(dut->m_tkeep);
+        bool olast  = dut->m_tlast;
+        dut->clk=1; dut->eval();
+        if (in_hs) {
             if (dut->s_tlast){ beat=0; tagged=!tagged; fp=tagged?&ft:&fu; } else beat++;
         }
-        if (dut->m_tvalid && dut->m_tready) {
-            cur += __builtin_popcount(dut->m_tkeep);
-            if (dut->m_tlast){ egress_frames++; if(cur!=1514) integrity_fails++; cur=0; }
+        if (out_hs) {
+            cur += okeep;
+            if (olast){ egress_frames++; if(cur!=1514) integrity_fails++; cur=0; }
         }
     }
     printf("[controller_rate] egress=%llu frames, integrity_fails=%llu\n",
@@ -63,5 +70,5 @@ int main(int argc, char** argv) {
     else
         printf("[controller_rate] no integrity failures — bug appears FIXED; "
                "flip this harness to gating (return integrity_fails?1:0).\n");
-    return 0;   // documented reproduction: never fails CI (see README.md)
+    return integrity_fails ? 1 : 0;   // gating since the 2026-07-05 classifier fix
 }

@@ -38,7 +38,8 @@ static void hi() { dut->clk = 1; dut->eval(); }
 
 // Drive `frames` through the DUT and collect the output; check integrity.
 // bp!=0 toggles m_tready to exercise back-pressure.
-static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, const char* tag) {
+static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, const char* tag,
+                       const std::vector<int>* exp_dest = nullptr) {
     // flatten expected input
     std::vector<Beat> expect;
     for (auto& f : frames) for (auto& b : f) expect.push_back(b);
@@ -88,6 +89,19 @@ static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, con
         if (got[i].last) frame_dest = -1;   // next frame may differ
     }
     ck((std::string(tag) + ": tdest stable per frame").c_str(), dest_stable ? 1 : 0, 1);
+
+    // ---- tdest CORRECTNESS per frame (the check the 2026-07-05 bug slipped past:
+    // stability alone passes a classifier that consistently reports the PREVIOUS
+    // frame's class — see docs/CBS_DATAPATH_BUG.md) ----
+    if (exp_dest) {
+        bool dest_ok = got.size() == total;
+        size_t fidx = 0;
+        for (size_t i = 0; dest_ok && i < got.size(); i++) {
+            if (fidx < exp_dest->size() && got_dest[i] != (*exp_dest)[fidx]) dest_ok = false;
+            if (got[i].last) fidx++;
+        }
+        ck((std::string(tag) + ": tdest CORRECT per frame").c_str(), dest_ok ? 1 : 0, 1);
+    }
 }
 
 int main(int argc, char** argv) {
@@ -117,6 +131,42 @@ int main(int argc, char** argv) {
 
     run_frames(frames, /*bp=*/0, "no-bp");
     run_frames(frames, /*bp=*/1, "backpressure");
+
+    // ---- REAL headers, BACK-TO-BACK, alternating queues (regression for
+    // docs/CBS_DATAPATH_BUG.md: first beats must carry THIS frame's class) ----
+    // expected-queue model == traffic_class_map with the configured tables
+    auto expq = [&](bool tagged, int pcp) {
+        int eff   = tagged ? pcp : (int)dut->default_pcp_i;
+        int regen = (dut->prio_regen_i  >> (3 * eff))   & 7;
+        int tc    = (dut->pcp_tc_map_i  >> (3 * regen)) & 7;
+        return (int)((dut->tc_queue_map_i >> (2 * tc)) & 3);
+    };
+    // little-endian beats (BIG_ENDIAN=0 instance): wire byte n = beat[n%8] lane n%8
+    auto mkhdr = [](bool tagged, int pcp, int nbeats) {
+        std::vector<uint8_t> f(nbeats * 8, 0xA5);
+        for (int i = 0; i < 6; i++) { f[i] = 0x68; f[6 + i] = 0x02; }
+        if (tagged) {
+            f[12] = 0x81; f[13] = 0x00;
+            f[14] = (uint8_t)(pcp << 5); f[15] = 0x02;   // TCI: PCP, VID 2
+            f[16] = 0x08; f[17] = 0x00;
+        } else { f[12] = 0x08; f[13] = 0x00; }
+        std::vector<Beat> fr;
+        for (int b = 0; b < nbeats; b++) {
+            uint64_t d = 0;
+            for (int k = 0; k < 8; k++) d |= (uint64_t)f[b * 8 + k] << (8 * k);
+            fr.push_back({ d, 0xFF, b == nbeats - 1 });
+        }
+        return fr;
+    };
+    std::vector<std::vector<Beat>> real;
+    std::vector<int> expd;
+    for (int r = 0; r < 4; r++)                    // tagged PCP1 / untagged, alternating
+        for (int pcp = 0; pcp < 8; pcp += 2) {
+            real.push_back(mkhdr(true,  pcp, 4 + (pcp & 3))); expd.push_back(expq(true,  pcp));
+            real.push_back(mkhdr(false, 0,   3 + (pcp & 1))); expd.push_back(expq(false, 0));
+        }
+    run_frames(real, /*bp=*/0, "real-hdr b2b",       &expd);
+    run_frames(real, /*bp=*/1, "real-hdr b2b bp",    &expd);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

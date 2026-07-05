@@ -1,8 +1,10 @@
-# CBS datapath bug — classifier `tdest` mis-timing under back-to-back frames
+# CBS datapath bug — classifier `tdest` mis-timing under back-to-back frames [FIXED]
 
 *Found 2026-07-05 during the hardware CBS interference bring-up (the long-deferred
-"prove 802.1Qav protects a reserved class" test). Root-caused in sim; the RTL fix is
-scoped below as a follow-up. Reproduction: `tb/verilator/controller_rate`.*
+"prove 802.1Qav protects a reserved class" test); root-caused in sim and **fixed the
+same day** (classifier redesign, see "The fix" below). Regression:
+`tb/verilator/controller_rate` (gating) + tdest-correctness checks in
+`tb/verilator/classifier`.*
 
 ## Symptom (silicon)
 
@@ -48,36 +50,50 @@ class before it even reached the (buggy) queue routing. Fixed to identity in
 `hdl/csr/milan_csr.sv` + `REGISTER_MAP.md` (verified: `tb/verilator/cls`,
 `tb/verilator/classifier` green with the identity constant).
 
-## The fix (scoped follow-up — not shipped in this commit)
+## The fix (shipped)
 
-The classifier needs `tdest` correct **and** stable from a frame's *first* output beat.
-The clean shape (attempted, reverted for careful re-verification):
+`traffic_classifier` redesigned around a **per-frame `tdest` sideband queue**:
 
-* replace the fixed 1-beat data delay + single staged header with a **per-frame `tdest`
-  sideband FIFO**: push one classification per frame when its header parses, pop one per
-  output `tlast`, and gate a frame's first output beat until its entry exists;
-* rework `data_slice`'s end-of-frame handling so `byte_counter`/`eth_header` reset
-  correctly on every `tlast` including sub-header-length and back-to-back frames;
-* keep `traffic_queues` as-is (its demux is correct **given** a correct per-frame
-  `tdest`).
+* the input side classifies each frame as soon as its header completes (or at `tlast`
+  for sub-header runts — garbage-but-deterministic class for an already-invalid frame,
+  so the pipeline can never starve) and pushes ONE queue index per frame;
+* the output side gates each frame's FIRST beat on its sideband entry and pops at
+  `tlast` — `tdest` is correct and stable from the first output beat by construction;
+* `data_slice` now resets `byte_counter` on EVERY end-of-frame (the old code only reset
+  when `tlast` arrived with `header_ready`, desyncing the parser on tight frames);
+* the 1-beat data-delay alignment registers and the single staged header
+  (`eth_header_buf`/`packet_in_progress`) are deleted entirely.
 
-Verification gate for the fix:
+`traffic_queues` is **unchanged**: with a correct per-frame `tdest`, its demux (which
+samples `select` combinationally at each frame's first beat) and the grant-gated
+`axis_arb_mux` are correct. Two earlier theories are explicitly retired:
 
-1. add a `tdest`-**correctness** assertion to `tb/verilator/classifier` (each frame's
-   output `tdest` must equal the independently-computed expected queue), with a
-   back-to-back different-queue scenario;
-2. flip `tb/verilator/controller_rate` from a print-only reproduction to a gating test
-   (`return integrity_fails ? 1 : 0`);
-3. on silicon: re-run the CBS interference test — a reserved class shaped at `idleSlope`
-   keeps ~its rate with low jitter while a best-effort flood saturates the link, and TX
-   never wedges.
+* the "demux samples select one cycle late" theory — wrong (verified in
+  `axis_demux.v`: `select_ctl` is taken comb at start-of-frame);
+* the "double-arbiter prefetch eats a beat / cross-locks" theory — an artifact: the
+  first repro harness sampled handshakes **after** the clock edge, mis-advancing its
+  own feeder and fabricating beat loss that survived every RTL change. With cycle-true
+  sampling (drive → settle → sample → edge, like every block harness), classifier v2 +
+  the unmodified queues module run byte-exact.
+
+## Verification
+
+* `tb/verilator/classifier`: new **real-header back-to-back alternating-queue**
+  scenarios with per-frame `tdest`-**correctness** assertions (and byte-exactness under
+  backpressure). The OLD classifier fails these 4 checks (proving both the bug and the
+  test); v2 passes 14/14. Wrapper now instantiates `BIG_ENDIAN=0` to match production.
+* `tb/verilator/controller_rate`: the end-to-end repro is now a **gating** test —
+  back-to-back different-queue frames at ~25 % duty egress pacing, per-frame byte
+  integrity, 0 failures.
+* Full sweep green after the fix: classifier, cls, queues, shaper_core, cbs, milan_dp,
+  csr, datapath, adp, adp_tx, cdc, ptp, ptp_sync, rx_filter, tcam, controller_rate.
 
 ## Status
 
-* `CLS_PRIO_REGEN` identity reset — **fixed** (this commit).
-* Classifier `tdest` mis-timing + parse-FSM short-frame handling — **open**, reproduced
-  deterministically in `tb/verilator/controller_rate`, fix scoped above.
-* Until fixed, **do not enable CBS shaping on a queue that carries live traffic** on
-  silicon (it can wedge TX). Unshaped operation (the default for BE/control queues) is
-  unaffected — all the throughput results in `RX_RING_DMA.md` ran with CBS effectively
-  transparent.
+* `CLS_PRIO_REGEN` identity reset — **fixed**.
+* Classifier `tdest` mis-timing + parse-FSM end-of-frame handling — **fixed** (this
+  commit), silicon CBS interference re-test tracked below.
+* Remaining known limitation (architectural, documented in `AVB_SWITCH_DIRECTION.md`):
+  single-ingress **head-of-line blocking** — a heavily-shaped queue's backlog stalls
+  the shared classifier ingress and starves other queues' *ingress* (egress precedence
+  is unaffected). The real cure is per-class TX rings / the multi-queue fabric (S2).
