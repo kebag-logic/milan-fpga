@@ -123,8 +123,31 @@ peer i210:
 
 Textbook 802.1Qav, and the `PRIO_REGEN` identity reset put PCP 1 on the shaped queue
 straight from reset (no table pokes). **But the two-flow interference run still wedged
-TX** — that is the arbiter cross-lock above, fixed in `traffic_queues` and pending its
-own silicon re-test (ring10).
+TX** — that is the arbiter cross-lock above.
+
+## Silicon re-test with the cross-lock fix (ring10, 2026-07-05)
+
+Same rig, now with **two concurrent flows** — reserved VLAN-PCP1 UDP (shaped q,
+idleSlope 10 Mbit/s) *and* a best-effort TCP flood — the exact scenario that wedged
+ring9:
+
+| flow | offered | delivered | loss |
+|---|---|---|---|
+| reserved (shaped) | 8 Mbit/s  | 4.86 Mbit/s | 0 |
+| reserved (shaped) | 18 Mbit/s | 4.86 Mbit/s | 0 |
+| best-effort TCP   | line      | 6.7–23.8 Mbit/s | — |
+
+**TX never wedged** — both flows ran to completion and the board pinged clean at
+~0.58 ms immediately after each pass (ring9 hung permanently here). The arbiter
+cross-lock is fixed on silicon.
+
+Residual, expected behavior (NOT a bug — the documented single-ingress limit): the
+reserved class flows losslessly but is **throughput-degraded to ~4.86 Mbit/s** (below
+its 10 Mbit/s reservation) while best-effort runs, because both classes share ONE
+classifier ingress — BE frames occupy ingress slots and delay reserved frames into
+their queue. CBS still bounds egress correctly (single-flow B clips to 9.95); it cannot
+protect the *reservation* from ingress contention when ingress is shared. The cure is
+per-class ingress / the multi-queue fabric (S2 in `AVB_SWITCH_DIRECTION.md`).
 
 ## Status
 
