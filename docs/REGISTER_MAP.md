@@ -86,7 +86,7 @@ Order follows the `ethernet_events_t` enum in
 | `0x300` | `CLS_CTRL` | RW | `0x1` | `[0]` use_pcp (1 = classify by PCP table, 0 = legacy EtherType), `[1]` dmac_check |
 | `0x304` | `CLS_DEFAULT_PCP` | RW | `0` | `[2:0]` default port priority for untagged frames |
 | `0x308` | `CLS_PCP_TC_MAP` | RW | `0xFAC688`* | PCP→traffic-class, 8×3 bits: TC of PCP `p` = `[3p+2:3p]` |
-| `0x30C` | `CLS_PRIO_REGEN` | RW | `0x688FAC`* | priority regeneration, 8×3 bits (ingress PCP→internal prio) |
+| `0x30C` | `CLS_PRIO_REGEN` | RW | `0xFAC688` (identity) | priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05 — a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity. |
 | `0x310` | `CLS_TC_QUEUE_MAP` | RW | `0xE4` | TC→queue, `N`×`ceil(log2 N)` bits (default identity `3,2,1,0`) |
 
 \* Reset packs the Table 8-5 default PCP→TC for 4 classes; driver overwrites via

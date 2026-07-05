@@ -332,7 +332,11 @@ module milan_csr #(
       mac_ctrl <= 32'h13; mac_ifg <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
       mc_lo <= 32'h0; mc_hi <= 32'h0; phy_rst <= 32'h1;
       cls_ctrl <= 32'h1; cls_dpcp <= 32'h0; cls_map <= 32'h00FAC688;
-      cls_regen <= 32'h00688FAC; cls_tcq <= 32'h000000E4;
+      // PRIO_REGEN resets to IDENTITY (0xFAC688 packs p->p at 3 bits/entry).
+      // The previous 0x688FAC half-swapped priorities (0..3 <-> 4..7), silently
+      // regenerating PCP 1..3 to 5..7 so SR-class frames landed in the wrong
+      // queue (HW-diagnosed 2026-07-05 during the CBS interference bring-up).
+      cls_regen <= 32'h00FAC688; cls_tcq <= 32'h000000E4;
       ptp_ctrl <= 32'h1; ptp_incr <= 32'h0800_0000; ptp_adj <= 32'h0;
       ptp_twlo <= 32'h0; ptp_twhi <= 32'h0; ptp_oflo <= 32'h0; ptp_ofhi <= 32'h0;
       ptp_ilat <= 32'h0; ptp_elat <= 32'h0; ptp_tod_rd <= 64'h0;
