@@ -63,11 +63,59 @@ board), or move to a bigger carrier (Artix-200T/Kintex) — 8 MACs + fabric + 64
 queues will crowd the 100T. Prototype path: 2-3 SGMII ports on the GTPs first, with the
 current board as the CPU/endpoint port.
 
-## Suggested phasing
+## Decision matrix (2026-07-05, scope: **4× GMII/RGMII copper ports**, MTU fixed 1500)
 
-1. **A** (AVTP engine) on the current 1-port endpoint — Milan roadmap value immediately,
-   and it is the switch's CPU-port media path unchanged.
-2. 2-3-port switch prototype on GTP SGMII: fabric + TCAM + per-port CBS, gPTP
-   transparent-clock residence-time correction.
-3. Scale to 8 ports on the target carrier; T/R (TSO/RSC) only if bulk socket throughput
-   at MTU 1500 turns out to be a real product requirement rather than a benchmark.
+The reframe that drives everything: forwarding lives in fabric, so "1 Gbps through
+sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to be
+*good enough*, not line-rate.
+
+### Track 1 — switch data plane (the mission)
+
+| # | Work item | Notes at 4-port scope | Risk | Priority |
+|---|---|---|---|---|
+| S1 | **AVTP stream engine** (panel ① hook A) | Endpoint deliverable + switch CPU-port media path; CPU wakes per audio period, not per packet | Med | **1st** |
+| S2 | **4-port fabric**: shared-BRAM output-queued + TCAM + per-port CBS egress | Aggregate 1 GB/s = one 128-bit @ 125 MHz BRAM path — comfortable | Med | 2nd |
+| S3 | gPTP transparent clock (per-port ts → residence-time correction) | Rides S2 | Med | 2nd |
+| S4 | SRP/MSRP + bridge management (software) | Control plane, low rates | Low-Med | 3rd |
+| S5 | **3 extra RGMII copper PHYs on the AX7101 expansion headers** | ~12 pins/port × 3 on the 40-pin headers; no SerDes; all GMII lessons (IOB TX FFs, per-PHY gtx-invert A/B) reuse directly. Tasks: header pin/bank audit, PHY daughter card, 100T utilization check | Low-Med | with S2 |
+| — | Wider DRAM bus for forwarding | Forwarding never touches DRAM (panel ④) | — | rejected |
+
+### Track 2 — CPU-port socket path at MTU 1500
+
+| # | Work item | Gain | Risk | Status |
+|---|---|---|---|---|
+| C1 | **Coalescing bundle (driver-only)**: `NETIF_F_SG` + software GSO + checksum-in-copy (`skb_copy_and_csum_dev`); GRO already on | TX ~18 → est. 40-50 @1500 — the OS-level twin of TSO, zero gateware | Low | **in flight** |
+| C2 | **Diagnose the MTU-1500 "531 spurious retransmits"** (TLP-probe hypothesis: check `TcpExtTCPLossProbes` under load) | Recovers whatever capped TX at 18; mandatory now 1500 is production | Low | **in flight** |
+| C3 | Completion IRQ via PLIC | +2-5%, latency | Low | opportunistic |
+| C4 | HW TSO / RSC (panel ② as RTL) | The step beyond C1 | High | deferred — C1 captures most of it |
+| C5 | SMP 2nd core | ×~1.8 sockets | Med-High | downgraded: a switch control plane doesn't need it |
+| C6 | Zero-copy rings / TOE / jumbo / +2.5 MHz | — | — | rejected |
+
+### Track 3 — CPU IPC at constant 100 MHz
+
+| # | Lever | Expected | Risk | Status |
+|---|---|---|---|---|
+| I1 | **L2 128 → 256 KB** (`milan_soc.py --l2-bytes`, netlist regen via sbt — verified working on this host) | Ring buffers + stack working set stay out of DDR3 | Low (BRAM + timing re-close) | **in flight (build_ring8)** |
+| I2 | L1 I$/D$ + BTB sizing via `--scala-args` | Copy/branch-heavy hot loops | Low-Med | after I1 |
+| I3 | Wider dispatch / 2nd ALU (NaxRiscv Scala regen) | +20-50 % integer IPC **if** fmax holds — issue width usually trades against the ~102 MHz Nax ceiling on this -2 Artix | Med-High | prototype build; judge by WNS before believing it |
+| I4 | Zba/Zbb bitmanip + `-march` world rebuild | Address/byte-op hot loops | Med | investigate with I2 |
+| I5 | RVC (currently no-C) | Fewer I$ misses | Med | only if doing I4 anyway |
+| I6 | Hand-tuned rv64 memcpy/csum in driver hot paths | +10-20 % of the copy passes | Low | add-on to C1 |
+
+### Execution order
+
+**C1+C2+I1 (one session, running now)** → S1 (AVTP engine) → S2+S3+S5 (4-port fabric
+prototype on copper) → S4 (SRP) → I2/I3 experiments during build waits → C4 only if a
+proven CPU-port bulk-TCP requirement appears.
+
+### Step plan for the in-flight session (C1/C2/I1)
+
+1. Gateware `build_ring8` = ring7 + `--l2-bytes 262144` (new Nax netlist, sbt regen).
+2. Driver: `NETIF_F_SG|NETIF_F_HW_CSUM` declared; TX copy is frag-aware
+   (`skb_copy_bits`) with checksum-in-copy (`skb_copy_and_csum_dev`) on the linear path
+   and a software-csum fallback on the rare ring-wrap path.
+3. Boot at **MTU 1500 both ends** (production config), measure: TX/RX TCP + UDP,
+   `TcpExtTCPLossProbes`/`TCPSpuriousRTOs` during the TX run (C2 verdict), acceptance
+   counters (desync/InCsumErrors == 0), telemetry stalls == 0.
+4. A/B the L2 effect: same driver, ring7 (128 KB) vs ring8 (256 KB) numbers.
+5. Update this doc + RX_RING_DMA.md with measured results; commit both repos.
