@@ -84,8 +84,8 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 
 | # | Work item | Gain | Risk | Status |
 |---|---|---|---|---|
-| C1 | **Coalescing bundle (driver-only)**: `NETIF_F_SG` + software GSO + checksum-in-copy (`skb_copy_and_csum_dev`); GRO already on | TX ~18 → est. 40-50 @1500 — the OS-level twin of TSO, zero gateware | Low | **in flight** |
-| C2 | **Diagnose the MTU-1500 "531 spurious retransmits"** (TLP-probe hypothesis: check `TcpExtTCPLossProbes` under load) | Recovers whatever capped TX at 18; mandatory now 1500 is production | Low | **in flight** |
+| C1 | **Coalescing bundle (driver-only)**: `NETIF_F_SG` + software GSO + checksum-in-copy (`skb_copy_and_csum_dev`); GRO already on | **MEASURED @1500: TX 18.1 → 57.6 Mbit/s (3.2×), RX 57.3 → 63.6** — beats even the MTU-4074 numbers; one 64 KB stack traversal beats 43 | Low | **DONE 2026-07-05** |
+| C2 | Diagnose the MTU-1500 "531 spurious retransmits" | **CLOSED, cured by C1**: with GSO, retr = 0 and `TCPLossProbes` delta = 0 over a full run — the storm was an artifact of the per-segment send timing GSO eliminates | Low | **DONE** |
 | C3 | Completion IRQ via PLIC | +2-5%, latency | Low | opportunistic |
 | C4 | HW TSO / RSC (panel ② as RTL) | The step beyond C1 | High | deferred — C1 captures most of it |
 | C5 | SMP 2nd core | ×~1.8 sockets | Med-High | downgraded: a switch control plane doesn't need it |
@@ -95,7 +95,7 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 
 | # | Lever | Expected | Risk | Status |
 |---|---|---|---|---|
-| I1 | **L2 128 → 256 KB** (`milan_soc.py --l2-bytes`, netlist regen via sbt — verified working on this host) | Ring buffers + stack working set stay out of DDR3 | Low (BRAM + timing re-close) | **in flight (build_ring8)** |
+| I1 | **L2 128 → 256 KB** (`milan_soc.py --l2-bytes`, netlist regen via sbt — verified working on this host) | **MEASURED @1500 (ring8, WNS +0.084): TX 57.6 → 62.3 (+8 %), RX 63.6 → 66.7 (+5 %)** — a real win for a config flag; now a deploy.sh default | Low | **DONE 2026-07-05** |
 | I2 | L1 I$/D$ + BTB sizing via `--scala-args` | Copy/branch-heavy hot loops | Low-Med | after I1 |
 | I3 | Wider dispatch / 2nd ALU (NaxRiscv Scala regen) | +20-50 % integer IPC **if** fmax holds — issue width usually trades against the ~102 MHz Nax ceiling on this -2 Artix | Med-High | prototype build; judge by WNS before believing it |
 | I4 | Zba/Zbb bitmanip + `-march` world rebuild | Address/byte-op hot loops | Med | investigate with I2 |
@@ -108,7 +108,12 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 prototype on copper) → S4 (SRP) → I2/I3 experiments during build waits → C4 only if a
 proven CPU-port bulk-TCP requirement appears.
 
-### Step plan for the in-flight session (C1/C2/I1)
+**Production scoreboard @ MTU 1500** (2026-07-05, ring8 + C1 driver): **TX TCP 62.3
+Mbit/s 0 retr · RX TCP 66.7 · TX UDP 27.5 lossless · 0 desync/InCsumErrors · 0 fabric
+stalls.** (Reference: the same platform measured TX 16.3 / RX 58.4 twenty-four hours
+earlier.) Next in sequence: S1 (AVTP engine).
+
+### Step plan for the executed session (C1/C2/I1)
 
 1. Gateware `build_ring8` = ring7 + `--l2-bytes 262144` (new Nax netlist, sbt regen).
 2. Driver: `NETIF_F_SG|NETIF_F_HW_CSUM` declared; TX copy is frag-aware
