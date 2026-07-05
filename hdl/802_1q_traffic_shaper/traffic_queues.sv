@@ -124,31 +124,36 @@ module traffic_queues #(
     end
   endgenerate
 
-  //! Arbiter input valids gated by the CBS grant (reproduces s_req_suppress).
-  wire [NUMBER_OF_QUEUES-1:0] arb_tvalid = ff_tvalid & queue_grant_i;
-  //! Reconstruct per-input tdest = queue index, so m_axis.tdest = granted queue.
-  wire [NUMBER_OF_QUEUES*TDEST_WIDTH-1:0] arb_tdest;
+  //! N -> 1 GRANT-INDEXED MUX (fix 2026-07-05, docs/CBS_DATAPATH_BUG.md).
+  //! This was an axis_arb_mux — its OWN round-robin arbiter + per-frame lock —
+  //! fed by grant-gated valids. That stacked a SECOND arbiter on top of the CBS
+  //! grant, and the two could lock onto DIFFERENT queues: the arb mux locks its
+  //! round-robin pointer at one frame's start, then the CBS grant moves to
+  //! another queue at the next frame; the arb mux waits forever for a valid
+  //! from its (now un-granted, gated-off) input while the granted queue's full
+  //! FIFO never drains — a hard cross-lock (silicon: TX wedge under CBS
+  //! two-flow interference; sim: tb/verilator/controller_rate mixed-size, state
+  //! grant=q1 while the arb mux is parked on q0, q2s_valid stuck at 0). The CBS
+  //! grant in traffic_shaping_core is ALREADY frame-locked (hold_grant until
+  //! tlast), so a plain combinational mux selected by the grant IS the arbiter:
+  //! one selector, nothing to cross-lock.
+  logic [TDEST_WIDTH-1:0] gsel;
+  always_comb begin
+    gsel = '0;
+    for (int k = 0; k < NUMBER_OF_QUEUES; k++)
+      if (queue_grant_i[k]) gsel = TDEST_WIDTH'(k);
+  end
+  assign m_axis.tdata  = ff_tdata[gsel*TDATA_WIDTH +: TDATA_WIDTH];
+  assign m_axis.tkeep  = ff_tkeep[gsel*KW +: KW];
+  assign m_axis.tvalid = (|queue_grant_i) && ff_tvalid[gsel];
+  assign m_axis.tlast  = ff_tlast[gsel];
+  assign m_axis.tdest  = gsel;
+  //! the granted FIFO pops when the downstream accepts (its m_axis_tready is
+  //! already & queue_grant_i above); ungranted FIFOs hold.
   generate
     for (i = 0; i < NUMBER_OF_QUEUES; i++)
-      assign arb_tdest[i*TDEST_WIDTH +: TDEST_WIDTH] = TDEST_WIDTH'(i);
+      assign arb_tready[i] = m_axis.tready;
   endgenerate
-
-  //! N -> 1 arbitrated mux (round-robin among granted queues, locks per frame)
-  axis_arb_mux #(
-    .S_COUNT(NUMBER_OF_QUEUES), .DATA_WIDTH(TDATA_WIDTH),
-    .KEEP_ENABLE(1), .KEEP_WIDTH(KW),
-    .ID_ENABLE(0), .DEST_ENABLE(1), .DEST_WIDTH(TDEST_WIDTH),
-    .USER_ENABLE(0), .LAST_ENABLE(1),
-    .ARB_TYPE_ROUND_ROBIN(1), .ARB_LSB_HIGH_PRIORITY(1)
-  ) demux_queues (
-    .clk(clk), .rst(~resetn),
-    .s_axis_tdata(ff_tdata), .s_axis_tkeep(ff_tkeep),
-    .s_axis_tvalid(arb_tvalid), .s_axis_tready(arb_tready), .s_axis_tlast(ff_tlast),
-    .s_axis_tid('0), .s_axis_tdest(arb_tdest), .s_axis_tuser('0),
-    .m_axis_tdata(m_axis.tdata), .m_axis_tkeep(m_axis.tkeep),
-    .m_axis_tvalid(m_axis.tvalid), .m_axis_tready(m_axis.tready), .m_axis_tlast(m_axis.tlast),
-    .m_axis_tid(), .m_axis_tdest(m_axis.tdest), .m_axis_tuser()
-  );
 
 endmodule
 
