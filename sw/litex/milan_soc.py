@@ -159,17 +159,22 @@ class MilanNIC(LiteXModule):
     which still elaborates and exports gateware and keeps the CPU⇄CSR path live
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
-    def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys"):
+    def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
-        # match the DT/driver (tx/rx/ts-dma + csr); tx/rx/ts come from the §A.6 DMA
-        # engine (held 0 until it is attached); csr is driven by the datapath.
+        # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
+        # (held 0 until attached); csr is driven by the datapath.
         self.submodules.ev = ev = EventManager()
         ev.tx  = EventSourceLevel()
         ev.rx  = EventSourceLevel()
         ev.ts  = EventSourceLevel()
         ev.csr = EventSourceLevel()
         ev.finalize()
-        self.comb += [ev.tx.trigger.eq(0), ev.rx.trigger.eq(0), ev.ts.trigger.eq(0)]
+        # ev.rx = RX-completion interrupt: level-high while the RX ring is non-empty
+        # (RingDMAWriter.non_empty, sys domain — same as ev, no CDC), so the driver delivers
+        # on arrival (interrupt-driven NAPI) instead of the hrtimer poll. 0 when no DMA.
+        self.comb += [ev.tx.trigger.eq(0),
+                      ev.rx.trigger.eq(rx_irq if rx_irq is not None else 0),
+                      ev.ts.trigger.eq(0)]
         add_milan_datapath(self, platform, axil, ev.csr.trigger,
                            extra_ports=dma_mac_ports, milan_cd=milan_cd)
 
@@ -502,15 +507,42 @@ class RingDMAWriter(LiteXModule):
         self.rd_ptr  = CSRStorage(32, description="SW read pointer (consumed up to here).")
         self.enable  = CSRStorage(1,  description="Ring enable.")
         self.dropped = CSRStatus(32,  description="Whole frames dropped (ingress/ring full).")
+        # Pointer-writeback shadow (perf, 2026-07-05): after each frame commit the engine
+        # DMA-writes {dropped[63:32], wr_ptr[31:0]} to this coherent 8-byte address, so the
+        # driver detects new frames by reading the shadow FROM CACHE instead of stalling the
+        # in-order CPU on an MMIO wr_ptr/dropped CSR read every poll (the measured hot-path
+        # cost — backing the poll off 200us->4ms alone gave +32% RX). 0 = writeback off.
+        self.status  = CSRStorage(64, description="Coherent addr of the {dropped,wr_ptr} writeback shadow (0=off).")
+        # RX-path telemetry (2026-07-05): make the interrupt/CPPI behaviour observable —
+        # `frames` = HW-committed frame count (vs the driver's rx_packets shows SW keeping up);
+        # `occ_hi` = ring occupancy high-water in bytes (near 0 => latency-bound / starving,
+        # near `mask` => driver too slow / filling); `irqs` = empty->non-empty edges (~one per
+        # IRQ batch, so frames/irqs = batching factor). Also exposes `non_empty` for ev.rx.
+        self.frames  = CSRStatus(32, description="RX frames committed (HW delivered).")
+        self.occ_hi  = CSRStatus(32, description="Ring occupancy high-water (bytes used, max seen).")
+        self.irqs    = CSRStatus(32, description="ev.rx rising edges (empty->non-empty; ~one per IRQ batch).")
 
         # # #
 
-        drops = Signal(32)
-        seq   = Signal(16)
-        wr    = Signal(32)              # committed ring write offset (== wr_ptr CSR)
+        drops   = Signal(32)
+        seq     = Signal(16)
+        wr      = Signal(32)            # committed ring write offset (== wr_ptr CSR)
+        frames  = Signal(32)           # committed frame counter (telemetry)
+        occ_hi  = Signal(32)           # occupancy high-water (telemetry)
+        irq_cnt = Signal(32)           # non_empty rising edges (telemetry)
+        ne_prev = Signal()
+        self.non_empty = Signal()      # -> ev.rx.trigger (level RX-completion interrupt)
         self.comb += [
             self.wr_ptr.status.eq(wr),
             self.dropped.status.eq(drops),
+            self.frames.status.eq(frames),
+            self.occ_hi.status.eq(occ_hi),
+            self.irqs.status.eq(irq_cnt),
+            self.non_empty.eq(wr != self.rd_ptr.storage),
+        ]
+        self.sync += [
+            ne_prev.eq(self.non_empty),
+            If(self.non_empty & ~ne_prev, irq_cnt.eq(irq_cnt + 1)),
         ]
 
         # ---- ingress: always-ready store-and-forward, whole-frame drop ----------------
@@ -632,6 +664,7 @@ class RingDMAWriter(LiteXModule):
             need.eq(((frame_beats + 1) << 3) + 8),
             no_fit.eq(free < need),
         ]
+        self.sync += If(used > occ_hi, occ_hi.eq(used))   # telemetry: occupancy high-water
 
         # burst geometry from the REGISTERED off_r/rem_r (registered again in PREP)
         cur_addr = Signal(32)
@@ -728,8 +761,35 @@ class RingDMAWriter(LiteXModule):
             If(outstanding == 0,
                 NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
                 NextValue(seq, seq + 1),
-                NextState("IDLE"),
+                NextValue(frames, frames + 1),        # telemetry: HW-committed frame count
+                If(self.status.storage != 0,
+                    NextState("WB_AW"),
+                ).Else(
+                    NextState("IDLE"),
+                )
             )
+        )
+        # ---- pointer writeback: one 8-byte AXI write of {dropped, wr_ptr} to the shadow so
+        # software polls the ring head FROM CACHE, not an MMIO CSR (perf, 2026-07-05). `wr`
+        # already holds the just-committed value here, so a frame is only ever advertised in
+        # the shadow AFTER its data's last B response — same visibility guarantee as wr_ptr.
+        fsm.act("WB_AW",
+            self.bus.aw.valid.eq(1),
+            self.bus.aw.addr.eq(self.status.storage[:32]),
+            self.bus.aw.len.eq(0),                  # single beat
+            self.bus.aw.size.eq(3),                 # 8 bytes
+            self.bus.aw.burst.eq(1),
+            If(self.bus.aw.ready, NextState("WB_W")),
+        )
+        fsm.act("WB_W",
+            self.bus.w.valid.eq(1),
+            self.bus.w.data.eq(Cat(wr, drops)),     # {drops[63:32], wr[31:0]}
+            self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
+            self.bus.w.last.eq(1),
+            If(self.bus.w.ready, NextState("WB_B")),
+        )
+        fsm.act("WB_B",
+            If(self.bus.b.valid, NextState("IDLE")),
         )
         fsm.act("DISCARD",                          # ring full/disabled: pop + count
             data_fifo.source.ready.eq(1),
@@ -750,7 +810,7 @@ class RingDMAReader(LiteXModule):
     protocol capped TX two ways (both silicon-measured):
       * one classic-Wishbone read per beat = the full coherent-bus round trip per 8 B
         (same ~38 sys-cycles as the RX writer measured) -> ~21 MB/s = ~170 Mbit/s wire
-        ceiling (masked so far by the CPU-bound stack, but it also throttles ACK
+        ceiling (masked so far by the latency-bound stack, but it also throttles ACK
         egress and thereby PEER->FPGA TCP);
       * one frame in flight with a base/length/enable CSR dance + a DONE wait per
         frame -> the driver poll cadence sat in the TX hot path.
@@ -1297,7 +1357,8 @@ class MilanSoC(SoCCore):
             if with_dma and with_mac:
                 self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
-                                  milan_cd=milan_cd)
+                                  milan_cd=milan_cd,
+                                  rx_irq=self.milan_dma.rx.non_empty if with_dma else None)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
     def _add_flashboot_constants(self, manifest_name):
@@ -1394,6 +1455,14 @@ def main():
                     help="aggressive Vivado place/route/phys-opt directives to squeeze out "
                          "the last ns of setup slack (slower P&R; use when WNS is marginally "
                          "negative, e.g. the 100 MHz --full CBS path)")
+    ap.add_argument("--floorplan", action="store_true",
+                    help="attempt to attack the 100 MHz critical path (sys_rst, fanout ~3900, "
+                         "8.9 ns route, 0 logic levels) for a higher sys clock. NOTE: reset "
+                         "replication does NOT work here — Vivado protects the reset control set "
+                         "(DONT_TOUCH on the synchronizer clock), so the RTL max_fanout attr this "
+                         "sets AND the forced phys_opt both leave sys_rst at fo~3969. The real fix "
+                         "is a multicycle/false-path on the reset, not this flag; the clock itself "
+                         "is set via --sys-clk-freq. See docs/LATENCY_INVESTIGATION.md §8.")
     builder_args(ap)
     args = ap.parse_args()
 
@@ -1413,6 +1482,29 @@ def main():
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
                    uart_baudrate=args.uart_baudrate)
+    if args.floorplan:
+        # The 100 MHz critical path is the sys reset (fanout ~3900, 8.9 ns of PURE route,
+        # 0 logic levels), which also caps the clock. The obvious fix is to REPLICATE the
+        # reset into compact local copies — but on this design that PROVED IMPOSSIBLE: all
+        # three replication methods FAILED to fracture `sys_rst` (each left it at fo~3969,
+        # 8.9 ns route, the +0.043 ns path):
+        #   1. post-synth XDC set_property MAX_FANOUT,
+        #   2. the RTL (* max_fanout = 100 *) attribute set below (applied at synthesis), and
+        #   3. phys_opt_design -force_replication_on_nets (the -force variant, below).
+        # Root cause: Vivado protects the reset CONTROL SET because the reset synchronizer's
+        # clock carries a DONT_TOUCH — no lever (XDC / RTL attr / forced phys_opt) will touch
+        # it. THE WORKING FIX (this flag): declare the reset a MULTICYCLE path. `sys_rst` is
+        # async-assert / sync-deassert (AsyncResetSynchronizer) and HELD for many cycles at
+        # boot / soc_ctrl reset, so its synchronous-deassertion arc need NOT close in one cycle
+        # — a 1-cycle skew in reset RELEASE is harmless (all flops are still held reset for the
+        # surrounding cycles, and the deassertion is already synchronised at the source). Giving
+        # the arc 2 cycles (-setup 2 / -hold 1) lets the ~8.9 ns fanout-3969 route arrive within
+        # 20 ns, so the reset stops being a timing constraint DETERMINISTICALLY (not placer
+        # luck) — the same pattern LiteX already uses for the CBS slope path above. (The sys
+        # clock is raised separately via --sys-clk-freq; the 112.5 MHz fp builds are in
+        # docs/LATENCY_INVESTIGATION.md §8.)
+        soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
+        soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))
     # Aggressive timing closure (opt-in): enables the post-place phys_opt pass
     # (off by default in LiteX) and steps place/route/phys-opt up to their

@@ -8,8 +8,9 @@ MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 
 * **Bus:** AXI4-Lite, 32-bit data, little-endian. **Base is host-specific** — the
   register *offsets* below are fixed, only the window base differs per SoC:
-  `0x43C0_0000` on the Zynq PS build, **`0x9000_0000`** on the fully-FPGA NaxRiscv
-  SoC (an MMIO peripheral must live in the CPU IO region ≥ `0x8000_0000`). The
+  `0x43C0_0000` on the Zynq PS build, **`0x9000_0000`** on the fully-FPGA VexiiRiscv
+  (formerly NaxRiscv) SoC (an MMIO peripheral must live in the CPU IO region ≥
+  `0x8000_0000`; the mem-map is identical across the two cores, so the ABI is unchanged). The
   device-tree `reg` base must match the target. Window 64 KB.
 * **Access:** `RO` read-only, `RW` read-write, `W1C` write-1-to-clear,
   `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
@@ -215,8 +216,8 @@ on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../hdl/adp/do
 
 ## DMA registers (fully-FPGA build only — separate CSR space)
 
-On the fully-FPGA NaxRiscv SoC the AXIS↔memory DMA (§A.6, `MilanDMA`) is **not** part
-of the `milan_csr` window above — its engines' registers are auto-mapped in the
+On the fully-FPGA VexiiRiscv (formerly NaxRiscv) SoC the AXIS↔memory DMA (§A.6,
+`MilanDMA`) is **not** part of the `milan_csr` window above — its engines' registers are auto-mapped in the
 **LiteX CSR space** (absolute addresses in the generated `build/csr.csv`; the device
 tree exposes them via the `dma-tx`, `dma-rx`, `dma-ts` `reg` entries).
 
@@ -260,9 +261,9 @@ wrap the ring end — software splits its memcpy, hardware splits its bursts (al
 > later Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
-> the DMA masters attach to NaxRiscv's cache-snooping `dma_bus`, so a CPU-written TX frame
-> is DMA-read correctly and a DMA-written RX frame is CPU-read correctly **without any cache
-> maintenance**. Without it, NaxRiscv reaches DRAM by a direct memory bus while the DMA uses
+> the DMA masters attach to VexiiRiscv's (formerly NaxRiscv's) cache-snooping `dma_bus`, so
+> a CPU-written TX frame is DMA-read correctly and a DMA-written RX frame is CPU-read correctly
+> **without any cache maintenance**. Without it, the CPU reaches DRAM by a direct memory bus while the DMA uses
 > the wishbone/L2 — a different path, so the DMA sees stale DRAM (hardware-confirmed). The
 > DMA engines use `endianness="big"` (no byte-swap) so the Wishbone/AXIS/on-wire byte order
 > all match; the LiteX default `"little"` byte-swaps each word and reverses every frame.

@@ -132,14 +132,16 @@ Notes:
   (`tx_dma == tx_dp == tx_core == tx_wire`) with the peer's error counters at zero —
   the MTU-1500 TCP retransmits were *spurious* (congestion-window collapse from
   ACK-timing artifacts); MTU ≥ 2026 eliminated them entirely.
-* Both directions are CPU-bound (the single 100 MHz RV64 measures ~86 % busy during
-  RX TCP), which is why the per-packet levers pay: **MTU** (both ends must match;
-  `max_mtu` = 4074) and **RX `CHECKSUM_COMPLETE` offload** (the ingress FIFO sums
-  every stored byte for free as beats stream in; the header's spare 16 bits carry it;
-  the driver hands the kernel a ready-made `skb->csum`). The TCP transfers completing
-  cleanly *is* the checksum correctness proof — the kernel validates every segment
-  against the HW sum (plus the sim checks it against a Python reference in every RX
-  test).
+* Both directions are CPU-bound on this **NaxRiscv-era** build (the single 100 MHz RV64
+  measures ~86 % busy during RX TCP), which is why the per-packet levers pay: **MTU**
+  (both ends must match; `max_mtu` = 4074) and **RX `CHECKSUM_COMPLETE` offload** (the
+  ingress FIFO sums every stored byte for free as beats stream in; the header's spare 16
+  bits carry it; the driver hands the kernel a ready-made `skb->csum`). The TCP transfers
+  completing cleanly *is* the checksum correctness proof — the kernel validates every
+  segment against the HW sum (plus the sim checks it against a Python reference in every RX
+  test). *(Update: on the current VexiiRiscv core the single flow is instead **94 % idle /
+  latency-bound**, not ~86 % CPU-busy — see `LATENCY_INVESTIGATION.md`; the per-packet
+  levers above still pay for the same reason.)*
 * Parallel streams (`-P 4`) measure slightly *below* single-stream — more connection
   state on the same CPU.
 * **4-hour bidirectional soak (ring7, 240 × 55 s `iperf3 --bidir`): PASSED.** Both

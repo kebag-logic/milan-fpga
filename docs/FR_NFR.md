@@ -2,7 +2,7 @@
 
 **System:** a small **Milan v1.2** audio endpoint (PAAD — Professional Audio AVB
 Device) — a **stereo (2-channel) talker + listener at 48 kHz** — implemented on
-the fully-FPGA RISC-V platform (NaxRiscv + LiteX on Alinx AX7101), designed to
+the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv historical), designed to
 **scale up** (more channels / streams / sample rates) and **scale out** (more than
 one softcore).
 
@@ -28,7 +28,7 @@ One entity, one network port, on **one softcore**:
             │  1722.1 AVDECC (L2)                          │ audio
             ▼                                              ▼
    ┌───────────────────────── AX7101 (xc7a100t) ────────────────────────┐
-   │  NaxRiscv core0 + Linux                                            │
+   │  VexiiRiscv core0 + Linux                                          │
    │   • PipeWire module-avb: ADP/AECP/ACMP/MAAP + AVDECC entity        │
    │   • OpenAvnu mrpd: MSRP/MVRP   • linuxptp: gPTP (802.1AS)          │
    │   • kl-eth driver: PHC, HW timestamps, CBS offload                 │

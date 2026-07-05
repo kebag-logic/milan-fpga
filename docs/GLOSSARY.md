@@ -71,8 +71,9 @@ each; deeper treatment is linked where a dedicated doc exists.
 |------|---------|
 | **LiteX / Migen** | The Python SoC builder and its HDL eDSL — `sw/litex/milan_soc.py` is the SoC. |
 | **LiteEth / LiteDRAM / LiteSPI** | LiteX ecosystem cores: Ethernet MAC+PHY glue, DDR3 controller, (Q)SPI flash. |
-| **NaxRiscv** | The out-of-order RISC-V soft CPU (RV64, MMU, Linux-capable) generated from SpinalHDL/Scala; netlists regenerate via sbt (`--scala-args`, `--l2-bytes`). |
-| **SpinalHDL** | The Scala HDL NaxRiscv is written in. |
+| **VexiiRiscv** | The **current** AVB-switch soft CPU: in-order RISC-V (RV64IMA, sv39 MMU, Linux-capable) from the same SpinalHDL author/flow — smaller and higher-fmax than NaxRiscv, so it leaves fabric for the 4-port switch; exposes the same coherent `dma_bus` + mem-map (drop-in). See `AVB_SWITCH_DIRECTION.md`. |
+| **NaxRiscv** | The out-of-order RISC-V soft CPU (RV64GC, MMU, Linux-capable) generated from SpinalHDL/Scala; the **historical** core, now retained only as a pure-NIC/FPU bitstream (`~/litex-milan/work/fpu32.bit`) — superseded by VexiiRiscv for the switch. Netlists regenerate via sbt (`--scala-args`, `--l2-bytes`). |
+| **SpinalHDL** | The Scala HDL NaxRiscv and VexiiRiscv are written in. |
 | **CSR** | Control/Status Register. Two spaces here: the `milan_csr` AXI-Lite window (`0x9000_0000`, `REGISTER_MAP.md`) and the LiteX CSR bus (`0xf000_xxxx`, DMA/telemetry). |
 | **Wishbone / AXI4 / AXI-Lite / AXIS** | Bus protocols: LiteX's native bus; ARM's memory-mapped burst bus (the coherent dma_bus is AXI4); its register-access subset; and AXI-Stream for the datapath. |
 | **tvalid/tready/tlast/tkeep** | AXI-Stream handshake, end-of-frame, and byte-enable mask signals. |

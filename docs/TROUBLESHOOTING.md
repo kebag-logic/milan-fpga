@@ -334,9 +334,13 @@ clock domain and cross the CPU boundary with a FIFO:
   DMA/MAC AXIS boundary needs its own stream CDC before `--milan-clk-freq` combines with
   `--with-dma/--with-mac` (guarded with `NotImplementedError`).
 
-**DDR3 ceiling.** DDR3 rate = `8×sys`, and the CPU shares `sys`; **NaxRiscv caps `sys`
-at ~102 MHz** (register-file path), so DDR3-800 is the max with a shared clock — the
-MT41J256M16 part is rated 1600, i.e. the CPU is the limit, not the DRAM. The S7PLL also
+**DDR3 ceiling.** DDR3 rate = `8×sys`, and the CPU shares `sys`; the **NaxRiscv** core
+capped `sys` at **~102 MHz** (register-file path), so DDR3-800 was the max with a shared
+clock — the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not the DRAM.
+(**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific — a VexiiRiscv
+build closed and ran **112.5 MHz / DDR3-900** on silicon, memtest OK. It was nonetheless
+reverted to 100 MHz / DDR3-800 because the higher clock *worsened* memory latency and the
+UDP-flood pps ceiling — see `LATENCY_INVESTIGATION.md` §8.) The S7PLL also
 rejects intermediate frequencies (115 MHz → `No PLL config found`, since `sys4x=4·sys`
 plus the 50/200 MHz clocks force no valid VCO between 100 and 125). Faster DDR3
 (DDR3-1000 @ a 125 MHz `dram` domain) would need the controller+PHY decoupled onto their
