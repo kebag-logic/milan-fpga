@@ -91,7 +91,7 @@ Read with:
 
 | # | Feature | HW/SW | Module(s) | Status | Validating test(s) |
 |---|---------|-------|-----------|--------|--------------------|
-| H-1 | NaxRiscv RV64GC + Sv39 MMU boot | HW | `milan_soc.py` (LiteX + NaxRiscv) | ✅ | `SIM` litex_sim boot to `litex>` (evidence) |
+| H-1 | VexiiRiscv RV64IMA + sv39 MMU boot (NaxRiscv RV64GC historical) | HW | `milan_soc.py` (LiteX + VexiiRiscv) | ✅ | `BOARD` boots Linux on silicon; `SIM` litex_sim boot to `litex>` (evidence) |
 | H-2 | CPU reaches milan_csr, reads ID="MILN" (M-A2) | HW | `milan_datapath` + LiteX bus | ✅ | `SIM` `milan_sim.py` mem_read (evidence log) |
 | H-3 | `milan_datapath` §A.9 wrapper integrity | HW | `milan_datapath.sv` | ✅ | `RTL` milan_dp (11: ID + TX/RX byte-exact); `SYN` |
 | H-4 | AXIS↔memory DMA, simple-mode CSRs (§A.6) | HW | `MilanDMA` (WishboneDMA ×3) | 🟩 | `ELAB` `--with-dma` (CSRs in csr.csv); `BOARD` loopback (M-A3) |

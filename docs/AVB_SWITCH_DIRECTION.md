@@ -1,4 +1,4 @@
-# Direction: from the 1-NIC endpoint to an 8-port AVB switch (MTU fixed at 1500)
+# Direction: from the 1-NIC endpoint to a 4-port AVB switch (MTU fixed at 1500)
 
 *Design note, 2026-07-05. One-picture summary below (source `AVB_SWITCH_DIRECTION.gen.py`,
 editable `.drawio`). Companion to [`RX_RING_DMA.md`](RX_RING_DMA.md) (the endpoint ring
@@ -12,7 +12,7 @@ DMA work this builds on).*
   off the table, and at 1 Gbps that means **81,274 packets/s ≈ 1,230 CPU cycles/packet**
   on the 100 MHz RV64. No software per-packet path fits in that. Every design below is a
   way of taking the CPU out of the per-packet path.
-* **Target platform role: an 8-port AVB switch.** Forwarding 8×1G must not touch the CPU
+* **Target platform role: a 4-port AVB switch.** Forwarding 4×1G must not touch the CPU
   at all — the CPU is the control plane (gPTP servo, MSRP/MVRP, AVDECC, management).
 
 ## The three endpoint hooks (panel ①/②)
@@ -46,12 +46,13 @@ ring DMA engines.
 
 ## Memory: "would a wider bus help?" (panel ④)
 
-* **Endpoint, today: no.** The socket path is CPU-bound; at 92 Mbit/s the DMA uses <2 %
+* **Endpoint, today: no.** The socket path is latency/compute-bound (single flow, 94 %
+  idle; memory-bound only under flood — see `LATENCY_INVESTIGATION.md`); the DMA uses <2 %
   of DDR3-800 x16 (~1.2 GB/s effective). Telemetry: 0 RX stalls across 35 M frames.
-* **Switch: the question inverts.** 8×1G in + 8×1G out ≈ **2 GB/s sustained** — above the
+* **Switch: the question inverts.** 4×1G in + 4×1G out ≈ **1 GB/s sustained** — near the
   DDR3 ceiling and hostage to refresh/CPU arbitration jitter (AVB latency guarantees
-  die). The answer is not a wider DRAM bus but **keeping forwarding on-chip**: 2 GB/s is
-  one 128-bit @ 125-200 MHz internal path into a 256-512 KB segmented BRAM buffer. CBS
+  die). The answer is not a wider DRAM bus but **keeping forwarding on-chip**: 1 GB/s is
+  one 128-bit @ 125 MHz internal path into a 256-512 KB segmented BRAM buffer. CBS
   bounds AVB queue depth by construction, so BRAM suffices; best-effort overflow drops
   (counted) rather than spilling to DRAM. DRAM remains CPU/control-plane only.
 
@@ -112,11 +113,12 @@ takes. The 2-core build was verified to *fit-fail* on the 100T (122 %), which is
 
 ## Hardware reality
 
-The AX7101 has **one** PHY. 8 external ports need new I/O: the xc7a100t's 4 GTP
-transceivers can carry 8×1G as **2 lanes of QSGMII** into two quad PHYs (daughter
-board), or move to a bigger carrier (Artix-200T/Kintex) — 8 MACs + fabric + 64 CBS
-queues will crowd the 100T. Prototype path: 2-3 SGMII ports on the GTPs first, with the
-current board as the CPU/endpoint port.
+The AX7101 has **one** PHY. The 3 more copper ports (4-port total) need new I/O on the
+**40-pin expansion headers** — ~12 pins/port of GMII/RGMII (no SerDes) into 3 more copper
+PHYs (daughter card), reusing every GMII lesson (IOB TX FFs, per-PHY gtx-invert). 4 MACs +
+fabric + 32 CBS queues fit the 100T (see the CPU-budget section); a bigger carrier
+(Artix-200T/Kintex) or the GTP SerDes is only needed to scale *beyond* 4 ports. Prototype
+path: bring up 1-2 extra copper ports first, with the current board as the CPU/endpoint port.
 
 ## Decision matrix (2026-07-05, scope: **4× GMII/RGMII copper ports**, MTU fixed 1500)
 
@@ -144,7 +146,7 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 | C2 | Diagnose the MTU-1500 "531 spurious retransmits" | **CLOSED, cured by C1**: with GSO, retr = 0 and `TCPLossProbes` delta = 0 over a full run — the storm was an artifact of the per-segment send timing GSO eliminates | Low | **DONE** |
 | C3 | Completion IRQ via PLIC | +2-5%, latency | Low | opportunistic |
 | C4 | HW TSO / RSC (panel ② as RTL) | The step beyond C1 | High | deferred — C1 captures most of it |
-| C5 | SMP 2nd core | ×~1.8 sockets | Med-High | downgraded: a switch control plane doesn't need it |
+| C5 | SMP 2nd core | **no single-flow benefit (measured)** — single flow is latency-bound, core idle; parallel streams don't aggregate | Med-High | downgraded: a switch control plane doesn't need it |
 | C6 | Zero-copy rings / TOE / jumbo / +2.5 MHz | — | — | rejected |
 
 ### Track 3 — CPU IPC at constant 100 MHz
@@ -164,10 +166,13 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 prototype on copper) → S4 (SRP) → I2/I3 experiments during build waits → C4 only if a
 proven CPU-port bulk-TCP requirement appears.
 
-**Production scoreboard @ MTU 1500** (2026-07-05, ring8 + C1 driver): **TX TCP 62.3
-Mbit/s 0 retr · RX TCP 66.7 · TX UDP 27.5 lossless · 0 desync/InCsumErrors · 0 fabric
-stalls.** (Reference: the same platform measured TX 16.3 / RX 58.4 twenty-four hours
-earlier.) Next in sequence: S1 (AVTP engine).
+**Production scoreboard @ MTU 1500** — the ladder below (ring8 + C1 driver) was measured on
+the **historical NaxRiscv** CPU (2026-07-05): TX TCP 62.3 Mbit/s 0 retr · RX TCP 66.7 · TX UDP
+27.5 lossless · 0 desync/InCsumErrors · 0 fabric stalls. (Reference: the same platform measured
+TX 16.3 / RX 58.4 twenty-four hours earlier.) The **current shipping CPU is VexiiRiscv**, whose
+single-flow socket numbers are lower — **TX ~27 / RX ~30 Mbit/s** at the same MTU (single-issue
+in-order IPC; see the migration table above) — which **does not gate the switch**, since
+forwarding runs in fabric and never touches the CPU. Next in sequence: S1 (AVTP engine).
 
 ### Step plan for the executed session (C1/C2/I1)
 

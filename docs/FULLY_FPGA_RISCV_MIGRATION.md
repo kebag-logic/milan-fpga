@@ -23,18 +23,26 @@ and cross-references the current RTL. For *what/why* see
 | # | Decision | Chosen default | Status |
 |---|----------|----------------|--------|
 | D1 | Target device / board | **XC7A100T-2FGG484 on Alinx AX7101** | ✅ confirmed |
-| D2 | RISC-V softcore + OS | **NaxRiscv RV64GC (Sv39 MMU) + LiteX + Buildroot Linux** | ✅ confirmed (RV64; see §A.4a) |
+| D2 | RISC-V softcore + OS | **VexiiRiscv RV64IMA (sv39 MMU) + LiteX + Buildroot Linux** (NaxRiscv RV64GC was the original choice — see §A.4a) | ✅ VexiiRiscv **superseded NaxRiscv** for the switch config (smaller, leaves fabric for the 4-port fabric; see `AVB_SWITCH_DIRECTION.md`) |
 | D3 | SoC integration framework | **LiteX** (Migen) generating the SoC; Milan RTL integrated as external Verilog | ✅ (Vivado-native alt in §A.14) |
 | D4 | ADP / AVDECC depth | **Full AVDECC entity + ADP**, IEEE 1722.1-2021 / **Milan v1.2** | ✅ confirmed |
 | D5 | AVTP media talker/listener datapath | **Out of scope** for this plan (NIC + control only) | ⚠️ confirm |
 
-> **D2 — NaxRiscv RV64 vs RV32.** NaxRiscv is chosen (over VexRiscv). Its
+> **D2 — NaxRiscv RV64 vs RV32 (original choice).** NaxRiscv was chosen (over VexRiscv). Its
 > best-supported Linux target is **RV64GC + Sv39 MMU** (the author's Debian/Buildroot
 > demos are RV64), and a 64-bit Linux userspace is the standard footing for the
 > AVDECC software stack (PipeWire `module-avb`, `la_avdecc`). In LiteX:
 > `--cpu-type naxriscv --xlen 64 --with-fpu --with-rvc`. RV32 (`--xlen 32`, Sv32)
 > remains a fallback if fabric/timing on `xc7a100t` gets tight — NaxRiscv supports
 > both, so this is a one-flag change.
+>
+> **UPDATE (2026-07-05) — VexiiRiscv superseded NaxRiscv.** The shipping core is now
+> **VexiiRiscv RV64IMA + sv39** (`--cpu-type vexiiriscv`, same author/flow, same coherent
+> `dma_bus` + mem-map so the datapath/driver port over unchanged). It is chosen for the
+> **4-port AVB switch** because it is ~28 % smaller in LUTs (leaving room for the switch
+> fabric) with more timing headroom; single-flow socket throughput is lower but does not
+> gate the switch (forwarding is in fabric). NaxRiscv is retained only as a pure-NIC/FPU
+> bitstream option (`~/litex-milan/work/fpu32.bit`). See `AVB_SWITCH_DIRECTION.md`.
 
 **Board facts to verify against the AX7101 schematic** (used throughout; correct
 them if your board differs):

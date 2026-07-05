@@ -1,8 +1,8 @@
 # milan-fpga — IEEE 1722 / 1722.1 / Milan v1.2 on FPGA
 
 A Milan-profile TSN/AVB network interface implemented as a **fully-FPGA softcore
-system** (NaxRiscv RV64 Linux SoC + TSN datapath on an Alinx AX7101 / Artix-7), now
-evolving toward a **4-port AVB switch**. Verified on silicon: ring-DMA networking at
+system** (VexiiRiscv RV64IMA Linux SoC — NaxRiscv retained as a pure-NIC option — + TSN
+datapath on an Alinx AX7101 / Artix-7), now evolving toward a **4-port AVB switch**. Verified on silicon: ring-DMA networking at
 line-rate ingest, hardware 802.1Qav CBS, PTP timestamping, ADP advertisement, QSPI
 flash-boot.
 

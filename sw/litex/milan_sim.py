@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
-# Verilator simulation of the Milan SoC: the SAME NaxRiscv core as the board build,
-# with `milan_datapath` attached as an AXI4-Lite CSR slave at 0x9000_0000, running
+# Verilator simulation of the Milan SoC. NOTE: this sim still uses the historical
+# NaxRiscv core, whereas the board build now runs VexiiRiscv (RV64IMA) — the CSR/mem-map
+# and `milan_datapath` wiring are identical across the two, so M-A2 proven here holds.
+# `milan_datapath` is attached as an AXI4-Lite CSR slave at 0x9000_0000, running
 # the real LiteX BIOS. This is the board-independent proof of migration milestone
 # **M-A2** — "CPU reaches milan_csr and reads ID='MILN'" — on the actual softcore
 # (not just a Verilator RTL harness): boot to the BIOS prompt and `mem_read` the ID.
