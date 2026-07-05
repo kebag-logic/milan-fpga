@@ -413,3 +413,51 @@ datapath expects a mask).
 pointer) are different encodings — never wire one onto the other. And the Verilator datapath
 harness checks egress `m_tdata` but **not `m_tkeep`**; a keep/last_be bug in the LiteX glue
 (`milan_soc.py`) is covered by no RTL harness. See `evidence/hw_ma3_dma_datapath_100mhz.md`.
+
+## Section 19: kernel hangs after OpenSBI (no `Linux version`) — a STALE `litex_term` served the wrong boot manifest
+
+**Symptom (2026-07-05, FPU bring-up).** After loading a bitstream, the console showed the
+LiteX BIOS, then OpenSBI's full banner ending at `Boot HART MEDELEG …`, and then **nothing** —
+no `Linux version`, no panic, a silent hang at the OpenSBI→kernel handoff. It reproduced
+across *every* combination tried: FPU kernel and no-FPU kernel, FPU gateware and the known-good
+`ring10` gateware, corrected `riscv,isa` strings, both `--with-fpu` netlists. Hours were spent
+suspecting the FPU (timing at +0.004 ns), then the kernel `CONFIG_FPU`, then a rebuild config
+regression — **all red herrings.**
+
+**Root cause — the kernel was never loaded to `0x40000000`.** The boot console showed
+serialboot uploading only `milan.dtb`, `rootfs.cpio.gz`, `opensbi.bin` — **the `Image` was
+never uploaded.** That file set is exactly `boot_flashkernel.json` (kernel-from-QSPI), *not*
+`boot.json` (kernel-over-serial). A **stale `litex_term` process from earlier QSPI-boot work
+was still holding the serial port and serving `boot_flashkernel.json`**; `tmux send-keys C-c`
+plus a fresh `litex_term …–images boot.json` command did **not** replace it (the C-c reached
+the tmux pane but the old process kept the port, and the new command couldn't open the busy
+device). Every board reset — triggered by each `openFPGALoader` reload — was answered by the
+old process. And because the QSPI had been `--bulk-erase`d for the FPU work, linux_flashboot
+printed `Error: invalid image length 0xffffffff` and fell through, so **no kernel came from
+QSPI either.** OpenSBI dutifully jumped to `0x40000000`, which held only memtest patterns →
+silent hang.
+
+**Diagnosis method that finally worked.** Read the *upload lines* in the boot log, not just
+the hang point: `Uploading …/milan.dtb`, `…/rootfs.cpio.gz`, `…/opensbi.bin` — and the
+conspicuous **absence of `Uploading …/Image to 0x40000000`**. Then `pgrep -af litex_term`
+revealed the live process still pointed at `boot_flashkernel.json`.
+
+**Fix.** Kill the stale term by its exact PID (`pgrep -af litex_term` → `kill <pid>`; confirm
+`sudo fuser <by-id-dev>` shows the port free), start a fresh `litex_term … --images boot.json`,
+then reload the bitstream. The log now shows `Uploading …/Image to 0x40000000 (11900984
+bytes)…` and the kernel boots.
+
+**Lessons.**
+- When a Linux boot hangs right after OpenSBI, **first confirm the kernel was actually loaded**
+  (look for the `Image` upload line, or `Copying …to 0x40000000` for the QSPI path) *before*
+  suspecting the CPU/kernel. OpenSBI running proves the CPU executes; a jump into an unloaded
+  address hangs identically to a broken CPU.
+- `tmux send-keys C-c` is **not** a reliable way to replace a serial-holding process — verify
+  with `pgrep -af litex_term` that the *intended* manifest is being served. Prefer killing the
+  old PID and starting fresh.
+- Don't `--bulk-erase` the QSPI and then boot expecting the resident kernel — pair an erase with
+  either a re-flash *or* a full-serial `boot.json` (kernel included), and make sure the term
+  actually serves that manifest. (See also the QSPI pre-erase rule in the milan-fpga-nic skill.)
+- This masqueraded perfectly as an FPU/timing bug. The FPU hardware was fine the whole time
+  (misa `rv64imafd`, fits at 58 % BRAM / 77 % LUT, timing met) — see the FPU notes in
+  `board-session-state`.
