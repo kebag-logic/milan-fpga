@@ -74,3 +74,46 @@ descriptor-compatible; the `kl,dma-ether` binding gains a BD-RAM `reg` window.
 For **switched** traffic the CPU is never in this path (fabric/ALE forwards at line rate),
 so CPPI matters for **CPU-terminated** traffic (management, gPTP, AVDECC) and for the host
 port — exactly TI's split (CPPI on the host port, ALE for the fabric).
+
+---
+
+## Bring-up log & current state (2026-07-05, end of session)
+
+**HW path: WORKING and sim-regressed.** Three silicon bugs found (each via the layer
+telemetry), fixed, and locked with sim regressions in `sw/litex/test_ring_bd.py` (6 tests):
+1. **off_r masked with the BD-ring mask** → frames >1 KB overwrote their own head
+   (ping fine, TCP dead; HW-frames == delivered told us payload, not delivery).
+   Fix: linear `off_r` in BD mode. Regression: 1520 B/12-burst byte-exact content test.
+2. **Post FIFO survived driver reloads** → stale freed-buffer addresses desynced the
+   FIFO↔driver pairing (100 % garbage RX after rmmod; `posted`=64 vs 32 was the tell).
+   Fix: FIFO drains while `enable=0`. Regression: reload-flush test.
+   **Driver contract: post buffers only AFTER `RING_EN=1`** (posts while disabled drain).
+3. Driver `posted=0` after fix #2 → driver posted before enable; reordered.
+
+**Perf status: NOT yet at parity — the bottleneck is the Linux stack's handling of the
+delivered skbs, not the HW.** Layer view on silicon (`lview.sh` methodology below):
+wire 1257 fps → datapath 1181 → drops ~0 → BDs 1125 → delivered ~800, **CPU 97 % sys**.
+In-driver stage counters (get_cycles instrumentation, printed per 2048 frames):
+build_skb 12.8 µs + meta 4.3 µs + **stack (napi_gro_receive) 490 µs/frame** + post 8.9 µs.
+Ruled out on silicon: GRO off (no change), TCP window 2 M (no change), RX-interrupt off
+via `devmem` on ev_enable — IRQD=0 (no change), sender retransmits (14, clean).
+A hybrid (BD HW path + right-sized `napi_alloc_skb` copy, pool page recycled immediately)
+still measured ~150 µs in-stack — ~6× the ring driver's whole per-frame budget.
+
+**OPEN — the control experiment**: the ring rootfs driver re-measured on the *same* bd3
+bitstream/boot (all attempts were eaten by serial-console corruption). If it also gives
+~15 Mbit/s → the regression is bd3/boot-wide, not the BD driver path; if ~30 → the delta
+is in the BD driver software path alone. **Run this first next session.**
+
+## Layer-per-layer debug method (use `lview.sh`)
+
+One 5 s sample under load prints per-layer rates; the first layer whose rate collapses
+vs the one above is the problem layer:
+```
+L1 wire (tlm rx_wire) → L2 datapath (tlm rx_dp) → L3 eng-drops (CSR dropped)
+→ L4 BDs-out (CSR frames) → L6 delivered (rx_packets) → L7 tcp → L8 CPU (vmstat)
+```
+Plus: `posted` CSR (0xf0003058) = HW buffer-FIFO level (48 = healthy, 0 = repost broken,
+64 = stale reload entries); in-driver stage counters print as `bd-stage ns/frame` in dmesg.
+Serial-console rule: the console DROPS characters — set variables and `echo`-verify them
+before use; verify every rmmod/insmod via `lsmod`/dmesg timestamps, never assume.
