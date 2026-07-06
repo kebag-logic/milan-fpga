@@ -679,7 +679,54 @@ class RingDMAWriter(LiteXModule):
         ap_csrc   = Signal()            # close origin: 0=parked frame, 1=PSH/arm-path
         self.rsc_dbg = CSRStatus(32, description="RSC parse of the last captured frame: "
                                  "{eligible, doff[3:0], flags[7:0], totlen[15:0]}.")
-        self.comb += in_hdrr.eq(bd_mode & self.rsc_en.storage & (fbeat < hdr_cnt))
+        # ---- RSC ACK-run merging (2026-07-06): coalesce runs of PURE ACKs ----------
+        # A mergeable ACK (flags==ACK only, no payload, doff 5 or the Linux
+        # timestamp-only option layout 01 01 08 0A) lives ENTIRELY in hdr_reg
+        # (<= 9 beats incl. 60 B pad). One pending slot: a same-flow successor
+        # REPLACES it (TCP acks are cumulative — the stale one carries nothing);
+        # a different flow / idle timeout flushes it as a NORMAL v1 single-frame
+        # BD (zero driver change). SACK ACKs (other option layouts) never match
+        # the predicate and pass through untouched, preserving loss recovery.
+        # Cuts the dominant RX cost of a TX-heavy workload: the per-ACK driver
+        # build+GRO (~90 us/ACK at 115 Mbit/s was ~40% of the NAPI hart).
+        p_mack = Signal()
+        self.comb += p_mack.eq(
+            p_eth_ip & p_ihl5 & p_tcp & p_nofrag &
+            (p_flags == 0x10) & (p_plen == 0) &
+            ((p_doff == 5) | ((p_doff == 8) & (_b(54) == 1) & (_b(55) == 1) &
+                              (_b(56) == 8) & (_b(57) == 10))))
+        ack_open  = Signal()
+        ack_srcip = Signal(32)
+        ack_dstip = Signal(32)
+        ack_ports = Signal(32)
+        ack_hdr   = Array([Signal(64) for _ in range(9)])
+        ack_beats = Signal(11)          # captured frame beats (len_bytes = beats*8)
+        ack_csum  = Signal(16)
+        ack_wb    = Signal()            # W stage streams from ack_hdr (flush in flight)
+        ack_ret   = Signal()            # after the flush WB: 1 = re-DISPATCH newcomer
+        nc_beats  = Signal(11)          # parked newcomer's geometry (the flush reuses
+        nc_csum   = Signal(16)          # frame_beats/frame_csum; restore at WB_B)
+        ack_match = Signal()
+        self.acks_merged = CSRStatus(32, description="Pure ACKs absorbed by ACK-run merging (telemetry).")
+        ack_timer = Signal(24)
+        ack_touch = Signal()
+        ack_expired = Signal()
+        self.comb += [
+            ack_match.eq(ack_open & (p_srcip == ack_srcip) &
+                         (p_dstip == ack_dstip) & (p_ports == ack_ports)),
+            ack_expired.eq(ack_open & (ack_timer >= self.rsc_tout.storage)),
+        ]
+        ack_merged = Signal(32)
+        self.comb += self.acks_merged.status.eq(ack_merged)
+        self.sync += [
+            If(~ack_open | ack_touch,
+                ack_timer.eq(0),
+            ).Elif(~ack_expired,
+                ack_timer.eq(ack_timer + 1),
+            ),
+        ]
+        self.comb += in_hdrr.eq(bd_mode & self.rsc_en.storage &
+                                (ack_wb | (fbeat < hdr_cnt)))
         self.sync += If(hdr_cnt == hdr_take,
             self.rsc_dbg.status.eq(Cat(p_totlen, p_flags, p_doff, p_eligible)))
         self.comb += [
@@ -849,6 +896,37 @@ class RingDMAWriter(LiteXModule):
         ]
         self.sync += outstanding.eq(outstanding + aw_fire - self.bus.b.valid)
 
+        def ack_capture():
+            """latch the just-parsed pure ACK (fully in hdr_reg) into the pending slot"""
+            return ([NextValue(ack_hdr[i], hdr_reg[i]) for i in range(9)] +
+                    [NextValue(ack_beats, frame_beats),
+                     NextValue(ack_csum, frame_csum),
+                     NextValue(ack_srcip, p_srcip), NextValue(ack_dstip, p_dstip),
+                     NextValue(ack_ports, p_ports),
+                     NextValue(ack_open, 1),
+                     ack_touch.eq(1)])
+
+        def ack_flush(ret):
+            """emit the pending ACK as a normal v1 single BD (via ACK_POP);
+            ret=1 re-DISPATCHes the frame parked in hdr_reg afterwards"""
+            return [
+                NextValue(nc_beats, frame_beats),
+                NextValue(nc_csum, frame_csum),
+                NextValue(frame_beats, ack_beats),
+                NextValue(total_beats, ack_beats),
+                NextValue(frame_csum, ack_csum),
+                NextValue(rem_r, ack_beats),
+                NextValue(off_r, 0),
+                NextValue(hdr_sent, 1),
+                NextValue(fbeat, 0),
+                NextValue(ap_append, 0),
+                NextValue(ap_arm, 0),
+                NextValue(ack_wb, 1),
+                NextValue(ack_ret, ret),
+                NextValue(ack_open, 0),
+                NextState("ACK_POP"),
+            ]
+
         self.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             # While the ring is disabled, hold wr/seq/frames at 0 so a driver re-init (which
@@ -857,6 +935,8 @@ class RingDMAWriter(LiteXModule):
             If(~self.enable.storage,
                 NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
                 NextValue(agg_open, 0), NextValue(ap_close, 0),
+                NextValue(ack_open, 0), NextValue(ack_wb, 0),
+                NextValue(ack_merged, 0),
             ).Elif(len_fifo.source.valid & bd_mode,
                 # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
                 len_fifo.source.ready.eq(1),
@@ -885,6 +965,9 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_close, 1),
                 NextValue(ap_csrc, 1),
                 NextState("WB_AW"),
+            ).Elif(bd_mode & ack_expired,
+                # ACK-run idle-timeout — deliver the latest pending ACK
+                *ack_flush(ret=0)
             ).Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
@@ -917,8 +1000,21 @@ class RingDMAWriter(LiteXModule):
         ]
         tl_lane   = Signal(3)
         self.comb += tl_lane.eq((agg_off + p_plen - 1)[:3])
+
         fsm.act("DISPATCH",
-            If(agg_match,
+            If(self.rsc_en.storage & p_mack,
+                # pure-ACK run: replace-in-place (cumulative ack), open, or flush
+                # the other flow's pending ACK first (newcomer re-dispatches).
+                # NOTE: the frame is FULLY inside hdr_reg (beats <= 9), so absorbing
+                # it consumes nothing from data_fifo — the disc=0 rule.
+                If(ack_match | ~ack_open,
+                    *(ack_capture() +
+                      [If(ack_match, NextValue(ack_merged, ack_merged + 1)),
+                       NextState("IDLE")])
+                ).Else(
+                    *ack_flush(ret=1)
+                )
+            ).Elif(agg_match,
                 # payload-only append into the OPEN aggregate's buffer
                 NextValue(ap_append, 1),
                 NextValue(ap_arm, 0),
@@ -957,6 +1053,23 @@ class RingDMAWriter(LiteXModule):
                 ).Else(
                     NextValue(disc, frame_beats - hdr_take),
                     NextState("DISCARD"),
+                )
+            )
+        )
+        fsm.act("ACK_POP",              # pending-ACK flush: needs a posted buffer
+            If(post_fifo.source.valid,
+                post_pop.eq(1),
+                NextValue(buf_addr_r, post_fifo.source.addr),
+                NextState("PREP"),
+            ).Else(                     # no buffer -> the pending ACK drops whole
+                NextValue(drops, drops + 1),
+                NextValue(ack_wb, 0),
+                If(ack_ret,
+                    NextValue(frame_beats, nc_beats),   # restore parked newcomer
+                    NextValue(frame_csum, nc_csum),
+                    NextState("DISPATCH"),
+                ).Else(
+                    NextState("IDLE"),
                 )
             )
         )
@@ -1026,7 +1139,9 @@ class RingDMAWriter(LiteXModule):
             self.bus.w.data.eq(Mux(is_hdr,
                 Cat(len_bytes, seq, frame_csum, Signal(16)),     # {0, csum, seq, len}
                 Mux(ap_append, ap_out,
-                    Mux(in_hdrr, hdr_reg[fbeat[:4]], data_fifo.source.data)))),
+                    Mux(in_hdrr, Mux(ack_wb, ack_hdr[fbeat[:4]],
+                                     hdr_reg[fbeat[:4]]),
+                        data_fifo.source.data)))),
             self.bus.w.strb.eq(Mux(ap_append,
                                    Mux(ap_first, ap_head, 0xFF) &
                                    Mux(ap_last, ap_tail, 0xFF),
@@ -1152,6 +1267,16 @@ class RingDMAWriter(LiteXModule):
                         NextState("IDLE"),
                     ).Else(
                         NextState("DISPATCH"),        # parked newcomer re-dispatches
+                    )
+                ).Elif(ack_wb,
+                    NextValue(ack_wb, 0),
+                    If(ack_ret,
+                        # restore the parked newcomer's geometry the flush reused
+                        NextValue(frame_beats, nc_beats),
+                        NextValue(frame_csum, nc_csum),
+                        NextState("DISPATCH"),        # parked newcomer re-dispatches
+                    ).Else(
+                        NextState("IDLE"),
                     )
                 ).Else(
                     NextState("IDLE"),
