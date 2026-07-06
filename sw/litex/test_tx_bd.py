@@ -227,6 +227,56 @@ def test_bd_csum_insert():
     print("PASS TX-BD HW csum-insert (offsets x lengths, folded+patched correctly)")
 
 
+def test_bd_csum_chain():
+    """cs-across-BDs (soft-TSO enabler): w1 {en,off} on the chain's FIRST BD makes
+    the engine pre-pass the WHOLE chain (accumulator survives BD hops), rewind the
+    BD ring, and stream the assembled frame with the folded sum patched at the
+    frame-relative csum_off. Shape mirrors the TSO driver: a +2-aligned header BD
+    + arbitrary payload BDs. Also proves rd only PUBLISHES at frame end (the
+    pre-pass rd excursion must stay invisible to the reaping driver)."""
+    import random
+    random.seed(11)
+    for trial in range(3):
+        hdr_len = 66
+        csoff = 50                                   # TCP check field, frame-relative
+        p1 = random.choice([137, 200, 1000])
+        p2 = random.choice([3, 61, 448])
+        h = BDHarness(ring_size=4096, cycles=250000)
+        hdr = bytearray(((i * 13) ^ 0x77) & 0xFF for i in range(hdr_len))
+        hdr[csoff:csoff + 2] = b'\x9a\x04'           # pseudo-header seed
+        d1 = bytes(((trial * 31 + k * 3) ^ 0x1F) & 0xFF for k in range(p1))
+        d2 = bytes(((trial * 17 + k * 5) ^ 0xA5) & 0xFF for k in range(p2))
+        h.put_seg(SEG_A, b'\xEE' * 2 + bytes(hdr))   # +2 arena alignment
+        h.put_seg(SEG_B, d1)
+        h.put_seg(SEG_B + 0x2000, b'\xEE' * 6 + d2)  # odd offset frag
+        h.put_bd(0, SEG_A + 2, hdr_len, eof=False)
+        h.mem[BD_BASE + 8] = (1 << 63) | (csoff << 16)   # w1 on the FIRST BD
+        h.put_bd(1, SEG_B, p1, eof=False)
+        h.put_bd(2, SEG_B + 0x2000 + 6, p2, eof=True)
+
+        def stim(h=h):
+            yield from h.init_bd()
+            yield h.dut.wr_ptr.storage.eq(48)
+            yield
+            for _ in range(40000):
+                if (yield h.dut.sent.status) == 1:
+                    break
+                yield
+            assert (yield h.dut.sent.status) == 1, "chain-csum frame stuck"
+            assert (yield h.dut.rd_ptr.status) == 48, "rd must publish 3 BDs"
+        h.run(stim)
+        frame = bytes(hdr) + d1 + d2
+        exp_csum = _csum_ref(frame)
+        expect = bytearray(frame)
+        expect[csoff] = exp_csum & 0xFF
+        expect[csoff + 1] = exp_csum >> 8
+        got = h.rx_bytes()
+        assert got == bytes(expect), \
+            f"trial {trial}: chain csum mismatch got {got[csoff:csoff+2].hex()} " \
+            f"want {bytes(expect[csoff:csoff+2]).hex()} (lens {p1}/{p2})"
+    print("PASS TX-BD cs-across-BDs (chain pre-pass + rewind + patch, rd published at EOF)")
+
+
 def test_bd_arbitrary_chain():
     """Cross-BD continuity: mid-segments of ARBITRARY length (the old %8 contract is
     dead) at arbitrary offsets — one seamless wire frame, byte-exact, exact tail keep.
@@ -271,5 +321,6 @@ if __name__ == "__main__":
     test_bd_wrap_and_disable()
     test_bd_unaligned_offsets()
     test_bd_csum_insert()
+    test_bd_csum_chain()
     test_bd_arbitrary_chain()
     print("ALL PASS")
