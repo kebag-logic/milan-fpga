@@ -1356,6 +1356,9 @@ class RingDMAReader(LiteXModule):
         in_last = Signal()
         raw_al  = Signal(64)
         raw_msk = Signal(64)
+        m_first = Signal(8)             # byte-valid masks, REGISTERED at BD parse
+        m_tail  = Signal(8)             # (the 65-bit variable-shift mask was -4.4 WNS)
+        msk8    = Signal(8)
         ins_sh  = Signal(120)
         a_nxt   = Signal(120)
         occ_nxt = Signal(5)
@@ -1368,7 +1371,9 @@ class RingDMAReader(LiteXModule):
             # CRITICAL: mask to the v_in VALID bytes — unmasked tail garbage ORs into
             # A_reg, survives frames, and corrupts every later frame's first bytes
             # (silicon-only: sim memory beyond segments reads 0; real DRAM does not).
-            raw_msk.eq(raw_al & ((C(1, 65) << Cat(C(0, 3), v_in)) - 1)[:64]),
+            # Masks are REGISTERED per segment; per-beat cone = one byte-select level.
+            msk8.eq(Mux(first_in, m_first, Mux(in_last, m_tail, 0xFF))),
+            raw_msk.eq(Cat(*[Mux(msk8[i], raw_al[8*i:8*i+8], 0) for i in range(8)])),
             ins_sh.eq(raw_msk << Cat(C(0, 3), aocc[:3])),
             a_nxt.eq(A_reg | ins_sh),
             occ_nxt.eq(aocc + v_in),
@@ -1430,6 +1435,12 @@ class RingDMAReader(LiteXModule):
                         8 - self.bus.r.data[:3])),
                     NextValue(f_tail, ((self.bus.r.data[:3] +
                                         self.bus.r.data[32:48] - 1) & 0x7) + 1),
+                    NextValue(m_first, ((C(1, 9) << Mux(
+                        self.bus.r.data[32:48] < (8 - self.bus.r.data[:3]),
+                        self.bus.r.data[32:36],
+                        8 - self.bus.r.data[:3])) - 1)[:8]),
+                    NextValue(m_tail, ((C(1, 9) << (((self.bus.r.data[:3] +
+                        self.bus.r.data[32:48] - 1) & 0x7) + 1)) - 1)[:8]),
                     NextValue(seg_eof, self.bus.r.data[48]),
                     NextValue(off_r, Mux(bd_mode, 0, (rd + 8) & self.mask.storage)),
                     NextValue(bd_beat2, 1),
