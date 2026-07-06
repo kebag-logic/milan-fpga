@@ -1229,7 +1229,8 @@ class RingDMAReader(LiteXModule):
 
         # # #
 
-        rd    = Signal(32)              # HW consumption pointer (== rd_ptr CSR)
+        rd    = Signal(32)              # HW consumption pointer (internal; may rewind)
+        rd_pub = Signal(32)             # PUBLISHED rd (== rd_ptr CSR): frame ends only
         nsent = Signal(32)
         bd_mode  = Signal()
         seg_addr = Signal(32)           # current segment base (BD mode; MAY be unaligned)
@@ -1245,7 +1246,7 @@ class RingDMAReader(LiteXModule):
         carry_v  = Signal()
         obeat    = Signal(12)           # OUTPUT beats emitted (drives last/keep)
         self.comb += [
-            self.rd_ptr.status.eq(rd),
+            self.rd_ptr.status.eq(rd_pub),   # pre-pass rd excursions stay hidden
             self.sent.status.eq(nsent),
             bd_mode.eq(self.bd_base.storage != 0),
         ]
@@ -1263,7 +1264,14 @@ class RingDMAReader(LiteXModule):
         cs_lanes = Signal(18)
         cs_fold1 = Signal(17)
         cs_pass  = Signal()             # 1 = silent checksum pre-pass through PAY/DRAIN
-        cs_inb   = Signal(12)           # segment input beats, to restart the real pass
+        # cs-across-BDs (2026-07-06): the pre-pass walks the WHOLE BD chain (the
+        # accumulator survives seg_finish), then rewinds the BD ring to the chain's
+        # first BD and re-walks it for real. cs fields latch ONLY from the first BD's
+        # w1; rd_pub shields the driver from the pre-pass rd excursion (reap would
+        # otherwise free skbs the real pass still reads).
+        rd_c     = Signal(32)           # BD-ring offset of the chain's first BD
+        cs_done  = Signal()             # pre-pass finished: real pass in flight
+        chain_first = Signal()          # next parsed BD is the chain's first
         # pipelined accumulate (2026-07-07): the keep-decode+mask+lane-add+32b-accumulate
         # cone was the design's critical path (21 levels; -0.065 with the 2nd hart).
         # Stage 1 registers the beat's lane sum; stage 2 adds it. Sum identical; the
@@ -1394,9 +1402,13 @@ class RingDMAReader(LiteXModule):
         fsm.act("IDLE",
             If(~self.enable.storage,
                 NextValue(rd, 0),       # reload hygiene (mirror of the RX post-FIFO drain)
+                NextValue(rd_pub, 0),
             ).Elif(self.wr_ptr.storage != rd,
                 NextValue(rbeat, 0),
                 NextValue(bd_beat2, 0),
+                NextValue(rd_c, rd),    # chain anchor for the csum-restart rewind
+                NextValue(cs_done, 0),
+                NextValue(chain_first, 1),
                 NextState("HDR_AR"),
             )
         )
@@ -1412,16 +1424,22 @@ class RingDMAReader(LiteXModule):
             self.bus.r.ready.eq(1),
             If(self.bus.r.valid,
                 If(bd_mode & bd_beat2,
-                    # second BD word: {en[63], csum_off[31:16], csum_start[15:0]}
-                    NextValue(cs_en,    self.bus.r.data[63]),
-                    NextValue(cs_start, self.bus.r.data[:16]),
-                    NextValue(cs_off,   self.bus.r.data[16:32]),
-                    NextValue(cs_sel_lo, Mux(self.bus.r.data[63],
-                                             1 << self.bus.r.data[16:19], 0)),
-                    NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
-                                             2 << self.bus.r.data[16:19], 0)),
-                    cs_clr.eq(1),
-                    NextValue(cs_pass, self.bus.r.data[63]),
+                    # second BD word: {en[63], csum_off[31:16], csum_start[15:0]}.
+                    # cs state latches ONLY from the chain's FIRST BD, and only on
+                    # the pre-pass entry (~cs_done) — mid-chain w1s are ignored and
+                    # the post-rewind re-parse must not restart the pre-pass.
+                    If(chain_first & ~cs_done,
+                        NextValue(cs_en,    self.bus.r.data[63]),
+                        NextValue(cs_start, self.bus.r.data[:16]),
+                        NextValue(cs_off,   self.bus.r.data[16:32]),
+                        NextValue(cs_sel_lo, Mux(self.bus.r.data[63],
+                                                 1 << self.bus.r.data[16:19], 0)),
+                        NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
+                                                 2 << self.bus.r.data[16:19], 0)),
+                        cs_clr.eq(1),
+                        NextValue(cs_pass, self.bus.r.data[63]),
+                    ),
+                    NextValue(chain_first, 0),
                     NextState("PREP"),
                 ).Else(
                     NextValue(frame_bytes, Mux(bd_mode, self.bus.r.data[32:48],
@@ -1429,7 +1447,6 @@ class RingDMAReader(LiteXModule):
                     # input beats = ceil((off + len)/8); output beats = ceil(len/8)
                     NextValue(rem_r, Mux(bd_mode,
                         (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new)),
-                    NextValue(cs_inb, (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:]),
                     NextValue(seg_addr, self.bus.r.data[:32]),
                     NextValue(seg_off, self.bus.r.data[:3]),
                     NextValue(sh_lo, Cat(C(0, 3), self.bus.r.data[:3])),
@@ -1458,11 +1475,13 @@ class RingDMAReader(LiteXModule):
                         If((self.bus.r.data[32:48] == 0) |
                            (self.bus.r.data[32:48] > max_frame_bytes),
                             NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                            NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
                             NextValue(bd_beat2, 1),      # still drain the 2nd beat
                             NextState("BD_FLUSH"),
                         )
                     ).Elif((self.bus.r.data[:16] == 0) | (self.bus.r.data[:16] > max_frame_bytes),
                         NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                        NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
                         NextState("IDLE"),
                     ).Else(
                         NextState("PREP"),
@@ -1499,16 +1518,23 @@ class RingDMAReader(LiteXModule):
             return [
                 If(bd_mode,
                     NextValue(rd, (rd + 16) & self.mask.storage),  # consume the BD
-                    NextValue(rbeat, 0),
+                    # rbeat is FRAME-relative across the chain (patch_here indexes
+                    # the assembled output); IDLE re-zeroes it per frame.
                     NextValue(bd_beat2, 0),
                     If(seg_eof,
                         NextValue(nsent, nsent + 1),
+                        # publish rd only at committed frame ends — the csum
+                        # pre-pass advances rd through the chain and REWINDS;
+                        # exposing that excursion would let the driver reap
+                        # skbs the real pass still reads.
+                        NextValue(rd_pub, (rd + 16) & self.mask.storage),
                         NextState("IDLE"),
                     ).Else(
                         NextState("HDR_AR"),            # next segment of the same frame
                     )
                 ).Else(
                     NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
+                    NextValue(rd_pub, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
                     NextValue(nsent, nsent + 1),
                     NextState("IDLE"),
                 )
@@ -1526,17 +1552,24 @@ class RingDMAReader(LiteXModule):
             return Cat(*byts)
 
         def cs_restart():
-            """end of the silent pre-pass: fold is combinational; rerun for real."""
+            """end of the silent pre-pass: fold is combinational; rerun for real.
+            cs-across-BDs: rewind the BD ring to the chain's first BD and re-walk
+            the whole chain through HDR_AR (per-BD geometry reloads on re-parse;
+            cs_done blocks a second pre-pass). Ring mode rewinds trivially (rd
+            never moved). The accumulator's trailing pipeline add completes during
+            HDR_AR/HDR_R, well before the first patched beat."""
             return [
                 NextValue(cs_pass, 0),
-                NextValue(rem_r, cs_inb),
-                NextValue(off_r, 0),
+                NextValue(cs_done, 1),
+                NextValue(chain_first, 1),
+                NextValue(rd, rd_c),
                 NextValue(rbeat, 0),
+                NextValue(bd_beat2, 0),
                 NextValue(carry_v, 0),
                 NextValue(A_reg, 0),
                 NextValue(aocc, 0),
                 NextValue(first_in, 1),
-                NextState("PREP"),
+                NextState("HDR_AR"),
             ]
 
         pay_last = Signal()             # this output beat is the segment's final one
