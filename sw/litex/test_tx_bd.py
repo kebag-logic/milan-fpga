@@ -145,9 +145,40 @@ def test_bd_wrap_and_disable():
     print("PASS TX-BD ring wrap + disable-reset")
 
 
+def test_bd_unaligned_offsets():
+    """v2 realign: segment addresses at every offset 0..7 (Ethernet's skb->data is
+    ≡2 mod 8 essentially always — o=2 is THE production case), including the 1-input
+    'DRAIN-only' segment (o+len <= 8) and a >1-burst segment (carry across bursts)."""
+    for off in range(8):
+        for length in (6, 60, 1000, 1514):
+            if off + length <= 8 and length > 6:
+                continue
+            h = BDHarness(ring_size=4096, cycles=40000)
+            pay = bytes(((i * 13) ^ off) & 0xFF for i in range(length))
+
+            def stim(h=h, pay=pay, off=off):
+                yield from h.init_bd()
+                base = SEG_A + off
+                # place the payload at the unaligned address
+                blob = b'\xEE' * off + pay
+                h.put_seg(SEG_A, blob)
+                h.put_bd(0, base, len(pay), eof=True)
+                yield h.dut.wr_ptr.storage.eq(16)
+                yield
+                for _ in range(6000):
+                    if (yield h.dut.sent.status) == 1:
+                        break
+                    yield
+                assert (yield h.dut.sent.status) == 1, f"stuck o={off} len={len(pay)}"
+            h.run(stim)
+            assert h.rx_bytes() == pay, f"payload mismatch o={off} len={length}"
+    print("PASS TX-BD unaligned offsets (o=0..7 x lengths incl. drain + multi-burst)")
+
+
 if __name__ == "__main__":
     test_bd_single_segment()
     test_bd_multi_segment()
     test_bd_bad_descriptor()
     test_bd_wrap_and_disable()
+    test_bd_unaligned_offsets()
     print("ALL PASS")

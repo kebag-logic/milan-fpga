@@ -959,13 +959,27 @@ class RingDMAReader(LiteXModule):
         rd    = Signal(32)              # HW consumption pointer (== rd_ptr CSR)
         nsent = Signal(32)
         bd_mode  = Signal()
-        seg_addr = Signal(32)           # current segment base (BD mode)
+        seg_addr = Signal(32)           # current segment base (BD mode; MAY be unaligned)
         seg_eof  = Signal()             # this segment ends the frame
+        # v2 byte-offset realignment (2026-07-06): Ethernet's 14-byte header makes
+        # skb->data =2 mod 8 essentially always, so true zero-copy TX must read from
+        # UNALIGNED addresses. The engine reads aligned beats from addr&~7 and realigns
+        # through a one-beat carry: out = carry>>8o | in<<(64-8o); ceil((o+len)/8) input
+        # beats produce ceil(len/8) outputs (+ at most one DRAIN beat from the carry).
+        seg_off  = Signal(3)            # byte offset within the first beat
+        sh_lo    = Signal(6)            # 8*seg_off, registered at BD parse
+        carry    = Signal(64)
+        carry_v  = Signal()
+        obeat    = Signal(12)           # OUTPUT beats emitted (drives last/keep)
         self.comb += [
             self.rd_ptr.status.eq(rd),
             self.sent.status.eq(nsent),
             bd_mode.eq(self.bd_base.storage != 0),
         ]
+        # realigned data path (pure comb from carry + live r.data)
+        shifted = Signal(64)
+        self.comb += shifted.eq((carry >> sh_lo) |
+                                Mux(sh_lo == 0, 0, self.bus.r.data << (64 - sh_lo)))
 
         frame_bytes = Signal(16)        # exact payload bytes (from the header)
         frame_beats = Signal(11)        # ceil(bytes/8)
@@ -995,7 +1009,7 @@ class RingDMAReader(LiteXModule):
         self.comb += [
             # BD mode: segment reads are LINEAR from skb memory (no ring wrap — cap the
             # wrap term above any segment). Ring mode: base+offset with wrap splits.
-            cur_addr.eq(Mux(bd_mode, seg_addr + off_r,
+            cur_addr.eq(Mux(bd_mode, Cat(C(0, 3), seg_addr[3:]) + off_r,
                                      self.base.storage[:32] + off_r)),
             to_wrap.eq(Mux(bd_mode, 1024,
                                     (self.mask.storage + 1 - off_r) >> 3)),
@@ -1045,8 +1059,14 @@ class RingDMAReader(LiteXModule):
                 ).Else(
                     NextValue(frame_bytes, Mux(bd_mode, self.bus.r.data[32:48],
                                                         self.bus.r.data[:16])),
-                    NextValue(rem_r, Mux(bd_mode, (self.bus.r.data[32:48] + 7)[3:], fb_new)),
+                    # input beats = ceil((off + len)/8); output beats = ceil(len/8)
+                    NextValue(rem_r, Mux(bd_mode,
+                        (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new)),
                     NextValue(seg_addr, self.bus.r.data[:32]),
+                    NextValue(seg_off, self.bus.r.data[:3]),
+                    NextValue(sh_lo, Cat(C(0, 3), self.bus.r.data[:3])),
+                    NextValue(carry_v, 0),
+                    NextValue(obeat, 0),
                     NextValue(seg_eof, self.bus.r.data[48]),
                     NextValue(off_r, Mux(bd_mode, 0, (rd + 8) & self.mask.storage)),
                     NextValue(bd_beat2, 1),
@@ -1091,36 +1111,84 @@ class RingDMAReader(LiteXModule):
                 NextState("PAY_R"),
             )
         )
-        fsm.act("PAY_R",
-            source.valid.eq(self.bus.r.valid),
-            source.data.eq(self.bus.r.data),
-            # BD mode: `last` only on the EOF segment's final beat (mid segments are
-            # 8-aligned by driver contract, so their keep is naturally 0xFF)
-            source.last.eq((rbeat == frame_beats - 1) & (~bd_mode | seg_eof)),
-            source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
-            self.bus.r.ready.eq(source.ready),
-            If(self.bus.r.valid & self.bus.r.ready,
-                NextValue(rbeat, rbeat + 1),
-                NextValue(bcnt, bcnt + 1),
-                If(rbeat == frame_beats - 1,            # segment fully streamed
-                    If(bd_mode,
-                        NextValue(rd, (rd + 16) & self.mask.storage),  # consume the BD
-                        NextValue(rbeat, 0),
-                        NextValue(bd_beat2, 0),
-                        If(seg_eof,
-                            NextValue(nsent, nsent + 1),
-                            NextState("IDLE"),
-                        ).Else(
-                            NextState("HDR_AR"),        # next segment of the same frame
-                        )
-                    ).Else(
-                        NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
+        # segment-finish micro-sequence, shared by aligned / realigned / drain exits
+        def seg_finish():
+            return [
+                If(bd_mode,
+                    NextValue(rd, (rd + 16) & self.mask.storage),  # consume the BD
+                    NextValue(rbeat, 0),
+                    NextValue(bd_beat2, 0),
+                    If(seg_eof,
                         NextValue(nsent, nsent + 1),
                         NextState("IDLE"),
+                    ).Else(
+                        NextState("HDR_AR"),            # next segment of the same frame
                     )
-                ).Elif(bcnt == blen_r - 1,               # burst fully streamed, more to go
-                    NextState("PREP"),
+                ).Else(
+                    NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
+                    NextValue(nsent, nsent + 1),
+                    NextState("IDLE"),
                 )
+            ]
+
+        fsm.act("PAY_R",
+            If(~bd_mode | (sh_lo == 0),
+                # aligned path: input beats == output beats (bit-identical to pre-v2)
+                source.valid.eq(self.bus.r.valid),
+                source.data.eq(self.bus.r.data),
+                source.last.eq((rbeat == frame_beats - 1) & (~bd_mode | seg_eof)),
+                source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
+                self.bus.r.ready.eq(source.ready),
+                If(self.bus.r.valid & self.bus.r.ready,
+                    NextValue(rbeat, rbeat + 1),
+                    NextValue(bcnt, bcnt + 1),
+                    If(rbeat == frame_beats - 1,
+                        *seg_finish()
+                    ).Elif(bcnt == blen_r - 1,
+                        NextState("PREP"),
+                    )
+                )
+            ).Elif(~carry_v,
+                # realign warm-up: first input beat fills the carry, emits nothing
+                self.bus.r.ready.eq(1),
+                If(self.bus.r.valid,
+                    NextValue(carry, self.bus.r.data),
+                    NextValue(carry_v, 1),
+                    NextValue(bcnt, bcnt + 1),
+                    If((rem_r == 0) & (bcnt == blen_r - 1),
+                        NextState("DRAIN"),             # 1-input segment: residual only
+                    ).Elif(bcnt == blen_r - 1,
+                        NextState("PREP"),
+                    )
+                )
+            ).Else(
+                # realign steady state: each input pairs with one shifted output
+                source.valid.eq(self.bus.r.valid),
+                source.data.eq(shifted),
+                source.last.eq(seg_eof & (rbeat == frame_beats - 1)),
+                source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
+                self.bus.r.ready.eq(source.ready),
+                If(self.bus.r.valid & self.bus.r.ready,
+                    NextValue(carry, self.bus.r.data),
+                    NextValue(rbeat, rbeat + 1),
+                    NextValue(bcnt, bcnt + 1),
+                    If(rbeat == frame_beats - 1,        # outputs complete on this input
+                        *seg_finish()
+                    ).Elif((rem_r == 0) & (bcnt == blen_r - 1),
+                        NextState("DRAIN"),             # inputs done, one output left
+                    ).Elif(bcnt == blen_r - 1,
+                        NextState("PREP"),
+                    )
+                )
+            )
+        )
+        fsm.act("DRAIN",                                # residual output from the carry
+            source.valid.eq(1),
+            source.data.eq(carry >> sh_lo),
+            source.last.eq(seg_eof),
+            source.keep.eq(rlast_keep),
+            If(source.ready,
+                *seg_finish()
             )
         )
 
