@@ -26,7 +26,7 @@ import sys
 import json
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, FSM, NextValue, NextState
+from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState
 from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
@@ -579,6 +579,46 @@ class RingDMAWriter(LiteXModule):
         buf_addr_r = Signal(32)         # posted buffer being filled (registered at pop)
         wb_beat    = Signal()           # 0 = BD word0 (meta), 1 = word1 (buf addr)
         post_pop = Signal()             # FSM pops the next posted buffer this cycle
+        # ---- RSC phase A (HW_GRO_RSC.md): capture the first 9 beats into a register
+        # file and parse eth/IPv4/TCP fields. Phase A is OBSERVE-ONLY (frames still
+        # stream unchanged as single-frame BDs); rsc_dbg exposes the parse for sims.
+        self.rsc_en = CSRStorage(1, description="RSC parse enable (phase A: observe-only).")
+        hdr_reg  = Array([Signal(64) for _ in range(9)])
+        hdr_cnt  = Signal(4)
+        hdr_take = Signal(4)            # beats to capture = min(total_beats, 9)
+        fbeat    = Signal(12)           # frame-beat index for the regfile replay
+        in_hdrr  = Signal()
+        def _b(idx):                    # frame byte idx as an 8-bit slice of the regfile
+            return hdr_reg[idx >> 3][8*(idx & 7):8*(idx & 7)+8]
+        p_eth_ip  = Signal()
+        p_ihl5    = Signal()
+        p_tcp     = Signal()
+        p_nofrag  = Signal()
+        p_flags   = Signal(8)
+        p_doff    = Signal(4)
+        p_eligible = Signal()
+        p_seq     = Signal(32)
+        p_totlen  = Signal(16)
+        self.comb += [
+            p_eth_ip.eq((_b(12) == 0x08) & (_b(13) == 0x00)),
+            p_ihl5.eq(_b(14) == 0x45),
+            p_tcp.eq(_b(23) == 6),
+            p_nofrag.eq(((_b(20) & 0x3F) == 0) & (_b(21) == 0)),
+            p_flags.eq(_b(47)),
+            p_doff.eq(_b(46)[4:8]),
+            p_seq.eq(Cat(_b(41), _b(40), _b(39), _b(38))),
+            p_totlen.eq(Cat(_b(17), _b(16))),
+            # data segment, flags subset {ACK(0x10), PSH(0x08)}, sane doff
+            p_eligible.eq(p_eth_ip & p_ihl5 & p_tcp & p_nofrag &
+                          ((p_flags & 0xE7) == 0) & (p_flags[4]) &
+                          (p_doff >= 5) &
+                          (p_totlen > (20 + Cat(C(0, 2), p_doff)))),
+        ]
+        self.rsc_dbg = CSRStatus(32, description="RSC parse of the last captured frame: "
+                                 "{eligible, doff[3:0], flags[7:0], totlen[15:0]}.")
+        self.comb += in_hdrr.eq(bd_mode & self.rsc_en.storage & (fbeat < hdr_cnt))
+        self.sync += If(hdr_cnt == hdr_take,
+            self.rsc_dbg.status.eq(Cat(p_totlen, p_flags, p_doff, p_eligible)))
         self.comb += [
             bd_mode.eq(self.bd_base.storage != 0),
             post_fifo.sink.valid.eq(self.post.re),    # one push per CSR write
@@ -765,7 +805,15 @@ class RingDMAWriter(LiteXModule):
                 If(post_fifo.source.valid,
                     post_pop.eq(1),
                     NextValue(buf_addr_r, post_fifo.source.addr),
-                    NextState("PREP"),
+                    NextValue(hdr_cnt, 0),
+                    NextValue(fbeat, 0),
+                    NextValue(hdr_take, Mux(len_fifo.source.beats > 9, 9,
+                                            len_fifo.source.beats)),
+                    If(self.rsc_en.storage,
+                        NextState("HDR_CAP"),
+                    ).Else(
+                        NextState("PREP"),
+                    )
                 ).Else(                                          # no buffer -> drop whole
                     NextValue(disc, len_fifo.source.beats),
                     NextState("DISCARD"),
@@ -779,6 +827,16 @@ class RingDMAWriter(LiteXModule):
                 NextValue(off_r, wr),               # header slot first
                 NextValue(hdr_sent, 0),
                 NextState("CHECK"),
+            )
+        )
+        fsm.act("HDR_CAP",              # RSC: consume the head beats into the regfile
+            data_fifo.source.ready.eq(1),
+            If(data_fifo.source.valid,
+                NextValue(hdr_reg[hdr_cnt], data_fifo.source.data),
+                NextValue(hdr_cnt, hdr_cnt + 1),
+                If(hdr_cnt == hdr_take - 1,
+                    NextState("PREP"),
+                )
             )
         )
         fsm.act("CHECK",
@@ -812,16 +870,17 @@ class RingDMAWriter(LiteXModule):
             )
         )
         fsm.act("W",
-            self.bus.w.valid.eq(is_hdr | data_fifo.source.valid),
+            self.bus.w.valid.eq(is_hdr | in_hdrr | data_fifo.source.valid),
             self.bus.w.data.eq(Mux(is_hdr,
                 Cat(len_bytes, seq, frame_csum, Signal(16)),     # {0, csum, seq, len}
-                data_fifo.source.data)),
+                Mux(in_hdrr, hdr_reg[fbeat[:4]], data_fifo.source.data))),
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
             self.bus.w.last.eq(wcnt == blen_r - 1),
             If(self.bus.w.valid & self.bus.w.ready,
-                data_fifo.source.ready.eq(~is_hdr),
+                data_fifo.source.ready.eq(~is_hdr & ~in_hdrr),
                 NextValue(hdr_sent, 1),
                 NextValue(wcnt, wcnt + 1),
+                If(~is_hdr, NextValue(fbeat, fbeat + 1)),
                 If(self.bus.w.last,
                     If(rem_r == 0,                  # updated at AW: post-burst remaining
                         NextState("WAIT_B"),
