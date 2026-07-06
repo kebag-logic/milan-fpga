@@ -117,3 +117,21 @@ Plus: `posted` CSR (0xf0003058) = HW buffer-FIFO level (48 = healthy, 0 = repost
 64 = stale reload entries); in-driver stage counters print as `bd-stage ns/frame` in dmesg.
 Serial-console rule: the console DROPS characters — set variables and `echo`-verify them
 before use; verify every rmmod/insmod via `lsmod`/dmesg timestamps, never assume.
+
+### 2026-07-06 addendum — batching + a false-parity retraction
+
+**Batching implemented** (driver): consume all pending BDs per NAPI poll, then ONE
+`RING_RD` write + batch replenish (was 2 CSR writes + a pool op PER FRAME). Also: `bd=0`
+module param forces the ring path (one module, both paths, identical stage timers) and an
+xmit-stage timer (ACK transmits run *inside* `napi_gro_receive`, so they land in the gro
+stage — decompose before blaming the stack).
+
+**RETRACTION / lesson**: the first "batched-BD = 31.5 = parity" measurement was FALSE —
+the A/B module was built against a NEWER kernel tree than the board was running;
+`page_pool_create` failed silently and `kl_bd_init` fell back to the ring path, so the
+31.5 was the ring baseline re-measured. Tells that caught it: **no `BD zero-copy` probe
+line in dmesg** and **`posted`=0 under load** (the user's "are you still feeding the DMA?"
+question). RULES: (1) after every driver load, verify the probe line SAYS which path is
+active; (2) module and kernel must come from the same build tree; (3) `posted` ≈ 48 under
+load is the feed-health check. Batched-BD performance is **still unverified** — first test
+on the flash-booted matching kernel.

@@ -189,3 +189,21 @@ kernel fails loudly instead of half-writing.
 
 See also [pipeline-telemetry.md](pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
 and `sw/litex/patches/README.md`.
+
+---
+
+## 2026-07-06: zero-upload ACHIEVED — the sizes that made "full" fit
+
+The blockers fell in two rounds (fragment: `br2-external/board/milan_naxriscv/linux.fragment`):
+
+| Item | Before | After | How |
+|---|---|---|---|
+| kernel `Image` | 11.9 MB | **8.14 MB** | `-Os` (CC_OPTIMIZE_FOR_SIZE, −25 % alone); SELinux/kexec off; `CONFIG_EXPERT=y` (without it the VT/INPUT disables **silently fail** — they need EXPERT); kallsyms off (~1 MB; oops decode moves offline via vmlinux); LOG_BUF 15. +THP added for the 300 Mbit/s plan. |
+| rootfs | 9.13 MB (cpio.gz) | **5.59 MB** (cpio.xz) | `BR2_TARGET_ROOTFS_CPIO_XZ` + kernel `RD_XZ` — the BIOS only memcpys flash→DRAM; the *kernel* unpacks the initramfs, so xz costs nothing at the BIOS level. |
+
+Final measured layout (total 14.3 of 16 MiB): kernel ≤8.5 MiB @0 · **opensbi 512 KB @0x88_0000**
+(fw_jump is 261 KB + 8 B FBI wrapper — the original 256 KB slot was 4.7 KB short; `flash-images`'s
+slot check caught it) · dtb 256 KB @0x90_0000 · rootfs ≤6.75 MiB @0x94_0000.
+
+Flash: `LAYOUT=<build>/flashboot_layout.json KERNEL=… OPENSBI=… DTB=… ROOTFS=…
+sw/litex/deploy.sh flash-images` (needs the litex venv on PATH for `crcfbigen`).
