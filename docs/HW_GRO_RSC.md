@@ -71,3 +71,67 @@ A: parser+hdr regfile (sim: field extraction). B: aggregate open/append (write r
 (sim: 2-seg merge). C: close matrix + BD v2 + timeout. D: driver (16 K pool + fixup).
 E: silicon A/B (rsc_en, iperf + profile: expect tcp_v4_rcv/locks ÷K). F(v2): HW csum
 verify, multi-flow slots, ACK-run merging.
+
+---
+
+## Implementation status (2026-07-07) — phases A+B DONE, sim-verified
+
+**Phase A — parser + header regfile (commit `a158711`).** New `HDR_CAP` FSM state in the
+RX BD engine: with `rsc_en=1` (CSR, default 0) the first ≤9 beats of each frame are
+consumed into a 9×64 b register file before dispatch; the eth/IPv4/TCP fields
+(totlen/flags/doff/seq/ack/win/4-tuple/eligibility) parse combinationally off the regs,
+and `rsc_dbg` (CSR) exposes `{eligible,doff,flags,totlen}` of the last capture. The
+captured beats are replayed **byte-exact** through the same W path. With `rsc_en=0` the
+FSM never enters `HDR_CAP`/`DISPATCH` — bit-identical legacy behaviour (regression-held).
+
+**Phase B — aggregate open/append/close (commit `8f0dfc5`).** `DISPATCH` decides 4-way:
+**append** (matches the open aggregate → payload-only into its buffer at `agg_off`),
+**close-first** (aggregate open but no match → emit its v2 BD, park the newcomer,
+re-dispatch it), **fresh-open** (eligible, no aggregate → whole frame into a posted
+buffer, aggregate opens after the last B), **plain single** (v1 BD, today's path).
+Single-slot aggregate state (4-tuple, expected seq, byte-granular `agg_off`, buffer
+handle, seg count, mss, last ack/win, psh-or). **Write-side realign** as designed:
+carry+rotate on the source stream (an `APRIME` state preloads one beat when source
+lane > destination lane) + **AXI WSTRB partial head/tail beats**; `rsc_bufsz` (CSR) guards
+buffer overflow via the match term. Close fires on **PSH / seq-gap / flow-change or
+ineligible newcomer / 16 segments / buffer-full**; **timeout close is phase C**. BD v2 on
+close, as specified: `w0={magic 0xBD, seq[7:0], total_len[15:0], mss[15:0], drops[7:0],
+flags[7:0] (bit0 MERGED, bit1 PSH)}`, `w1={ack[31:0], win[15:0], seg_count[7:0], doff<<2}`.
+
+### As-built rules — where the implementation pins down (or diverges from) the spec text
+- **Aggregates of 1 emit a v2 BD with the MERGED flag set** — NOT the v1 format the sim-plan
+  item (10) parenthetical hoped for. Opening an aggregate defers the BD, and the v1 csum
+  (CHECKSUM_COMPLETE raw sum) is not carried in aggregate state, so a close-at-1 can only
+  emit v2. Driver consequence: v2 handling must not assume `seg_count ≥ 2` (asserted in
+  `test_rsc_gap_closes`).
+- **An eligible frame arriving with PSH already set does NOT open an aggregate** — the arm
+  term is `ap_arm & ~PSH`, so it takes the plain-single leg and emits a **v1 BD** (the
+  spec's merge-then-close would have built a 1-segment v2 for nothing). Interactive /
+  short-flow segments stay on the v1 fast path.
+- **Close-on-PSH merges the PSH segment first, then closes** (as specified) — implemented
+  from the append completion in `WAIT_B` (`psh_or |= PSH`; close when PSH or seg 16), not
+  as a separate pre-close pass.
+- **True singles (ineligible frames, pure ACKs) emit v1 BDs unchanged** (as specified).
+  Merged BDs carry **no checksum** in v1 of the feature (driver trust via
+  `rsc_csum_trust`; HW verify is phase F).
+
+### Sim inventory — 14/14 green (`sw/litex/test_ring_bd.py`)
+At `8f0dfc5` (12/12): the 6 BD-engine regressions (zero-copy, no-buffer drop, ring wrap,
+1520 B content, reload flush, throughput) + RSC: parse fields + **byte-exact regfile
+replay**; eligibility (SYN rejected / data-ACK accepted); **3-segment byte-exact merge** →
+ONE v2 BD (len 414 = 166+200+48, mss 100, flags MERGED|PSH, segs 3, doff 0x20), closed by
+PSH; **seq-gap close + fresh-open** (parked-frame re-dispatch: 1-seg aggregate v2 then a
+2-seg aggregate, the newcomer landing whole in the second buffer). Coverage follow-up
+(`024dde2`, → 14/14): **alignment sweep** (doff 5 and 8 × chained lengths walking
+`agg_off` through ALL dest lanes = the pass-through / rotate / rotate+prime shifter
+regimes, byte-exact each close); **16-segment cap auto-close**; **pure ACK mid-flow**
+(closes the aggregate, delivered as a plain v1 single). Harness note: the sim AXI memory
+model (`test_ring_dma.py`) is now **WSTRB-aware** — the realign path writes partial beats,
+and a strobe-ignoring model would hide corruption.
+
+### Remaining
+**C** — timeout close (µs counter, runs from IDLE) + close-matrix completion (ring
+disable, non-TCP passthrough mid-aggregate). **D** — driver: order-2 16 KB pool,
+merged-BD header fixup (`ip.tot_len`/ack/win/PSH), `gso_size=mss`/`gso_segs`,
+CHECKSUM_UNNECESSARY. **E** — silicon A/B (`rsc_en`, iperf + tick-profile: expect
+per-frame stack cost ÷K). **F** (v2) — HW csum verify, multi-flow slots, ACK-run merging.
