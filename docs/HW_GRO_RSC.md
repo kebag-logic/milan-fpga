@@ -160,3 +160,28 @@ The ÷K arithmetic landed exactly (46.5 × ~4.4 ≈ 203 at K=9). CPU now has 32 
 Day total: RX **8.1×**, achieved via profile-guided steps: 3-copies fix (copybreak+frag),
 dual-hart SMP, and HW receive coalescing. TX (58) is the next frontier if needed —
 levers: HW-TSO (spec'd), O2 kernel via BIOS-LZ4.
+
+## TX ≥200 campaign — design (2026-07-07 profile-guided)
+
+TX@61 profile: skb_segment payload memcpy 11.7% (SW-GSO with SG off copies per wire
+segment) + usercopy 10.6% (irreducible) + allocator ~9% + locks 6.4%; tcp_ack only 1.2%
+(ACK-RX is NOT the wall); idle 13%.
+
+**Step 1 — cross-BD realign continuity (TX RingDMAReader)**: byte-granular output
+position (`frame_olane` 0-7 + partial `hold` beat) carried ACROSS the BD chain of one
+frame; per-segment shift p = (s_lane − frame_olane) mod 8; DRAIN emits the residual
+only at EOF. Removes the `len%8==0` mid-segment contract. Implementation shape: rework
+PAY realign as an occupancy shifter (hold 0-7 bytes; emit when ≥8; valid_in = 8 except
+seg-head (8−s_lane) and seg-tail). Sims: multi-frag frames, arbitrary lengths ×
+alignments, byte-exact wire image (extend test_tx_bd).
+**Step 2 — driver SG**: NETIF_F_SG on in TX-BD mode; kl_xmit_bd posts BD chains
+(linear head BD + one BD per frag, EOF last; per-chain slot bookkeeping; reap unmaps
+the walked frags). SW-GSO then splits super-skbs by frag reference → the 11.7% copy
+and most per-seg allocs disappear. Expected TX ≈ 90-120.
+**Step 3 — HW TSO** (the 200 lever): first-BD w1 {tso_en, mss, hdr16}; engine caches
+the ≤96 B header in a regfile once, replays it per MSS-cut with patches (ip.tot_len,
+ip.id+=k with end-around-carry check fix from driver-precomputed check_full/check_last,
+tcp.seq += k·mss, FIN/PSH only on last, tcp.check per segment = fold(driver-const
+pseudo+hdr sum + seq_k halves + engine per-segment payload pre-pass sum — the v2b
+double-read machinery)); payload phase consumes the continuity stream with cuts at
+mss. Stack cost then runs once per 64 KB: TCP output ÷44, skb_segment gone entirely.
