@@ -101,6 +101,10 @@ Read with:
 | H-8 | Linux driver: NAPI/XDP/PTP/ethtool | SW | `kl-eth` (`sw/driver/`) | 🟡 ABI | `BOARD` bring-up (M-A5) |
 | H-9 | Device tree `kl,dma-ether` | SW | `sw/dts/milan.dtsi` + binding | ✅ struct | `dtc` parse; `BOARD` driver binds |
 | H-10 | Artix-7 bitstream (place & route) | HW | `--full --build` | ⛔ blocked | `BOARD` — needs Vivado Artix-7 device install |
+| H-11 | Soft-TSO via BD chains (driver-segmented GSO: header arena + zero-copy frag BDs) | SW | `kl-eth` (milan-tests-avb `e7b9c77`) + `RingDMAReader` continuity | ✅ | `BOARD` iperf3 @ MTU 1500: TX 58→88 single-flow (103 w/ `-l 1M`) |
+| H-12 | TX cs-across-BDs (chain-wide csum pre-pass + BD-ring rewind + published-rd) | HW+SW | `RingDMAReader` v2b (`milan_soc.py`, `e633032`, bitstream rsc6) | ✅ | `SIM` `test_tx_bd.py::test_bd_csum_chain` (suite 8/8); `BOARD` rsc6 iperf3 |
+| H-13 | Multi-flow (`-P4`) stability (doorbell-before-stop, reaper-owned cursor, DISCARD black-hole fix, single-seg RSC clamp) | HW+SW | `kl-eth` + `RingDMAWriter` (`9584927`, bitstream rsc5) | ✅ | `SIM` `test_ring_bd.py::test_rsc_tiny_drop_recovers`; `BOARD` iperf3 `-P4` stable |
+| H-14 | ACK-run merging (RSC pending-ACK slot: pure-ACK runs → latest-only v1 BD, SACK passthrough) | HW+SW | `RingDMAWriter` (`ee52742`, bitstream rsc7) + `kl-eth` `rsc_tout=25600` (milan-tests-avb `85122fa`) | ✅ | `SIM` `test_ring_bd.py::test_rsc_ack_merge` + `::test_rsc_ack_passthrough_and_ts`; `BOARD` rsc7, `rsc_tout` sweep validated (TX 109→121) |
 
 ---
 
