@@ -991,6 +991,8 @@ class RingDMAReader(LiteXModule):
         cs_fold1 = Signal(17)
         cs_pass  = Signal()             # 1 = silent checksum pre-pass through PAY/DRAIN
         cs_inb   = Signal(12)           # segment input beats, to restart the real pass
+        cs_sel_lo = Signal(8)           # one-hot byte select for csum low byte (REGISTERED
+        cs_sel_hi = Signal(8)           # at parse — keeps comparators out of the data cone)
         # checksum datapath: byte-mask the candidate output beat by its keep, sum as
         # 16-bit LE lanes (same convention as the RX offload the kernel already accepts)
         cs_beat  = Signal(64)           # the would-be output beat during the pre-pass
@@ -1087,6 +1089,10 @@ class RingDMAReader(LiteXModule):
                     NextValue(cs_en,    self.bus.r.data[63]),
                     NextValue(cs_start, self.bus.r.data[:16]),
                     NextValue(cs_off,   self.bus.r.data[16:32]),
+                    NextValue(cs_sel_lo, Mux(self.bus.r.data[63],
+                                             1 << self.bus.r.data[16:19], 0)),
+                    NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
+                                             2 << self.bus.r.data[16:19], 0)),
                     NextValue(cs_acc, 0),
                     NextValue(cs_pass, self.bus.r.data[63]),
                     NextState("PREP"),
@@ -1167,11 +1173,13 @@ class RingDMAReader(LiteXModule):
             ]
 
         def cs_patched(base):
-            """base beat with the folded checksum muxed into bytes cs_off[2:0], +1."""
+            """base beat with the folded checksum muxed in — REGISTERED one-hot selects
+            (cs_sel_lo/hi), so the cone is one 2-level per-byte mux, no comparators
+            (the +0.039 flake fix: this mux sits in the datapath even with csum off)."""
             byts = []
             for i in range(8):
-                byts.append(Mux(cs_en & (cs_off[:3] == i), cs_val[:8],
-                            Mux(cs_en & (cs_off[:3] == i - 1), cs_val[8:16],
+                byts.append(Mux(cs_sel_lo[i], cs_val[:8],
+                            Mux(cs_sel_hi[i], cs_val[8:16],
                                 base[8*i:8*i+8])))
             return Cat(*byts)
 
