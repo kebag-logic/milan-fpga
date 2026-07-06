@@ -402,8 +402,9 @@ def test_rsc_align_sweep():
 
 
 def test_rsc_segcap_and_ack():
-    """16-segment cap auto-closes; a pure ACK mid-flow closes the aggregate and is
-    delivered as a plain v1 single."""
+    """16-segment cap auto-closes; a pure ACK mid-flow now goes to the ACK-merge
+    slot (it no longer force-closes the data aggregate) — both the 1-seg aggregate
+    and the pending ACK flush on the idle timeout."""
     h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=2048, cycles=500000)
     sq = 70000
     frames = []
@@ -416,16 +417,17 @@ def test_rsc_segcap_and_ack():
         yield from h.init_bd()
         yield h.dut.rsc_en.storage.eq(1)
         yield h.dut.rsc_bufsz.storage.eq(8192)
+        yield h.dut.rsc_tout.storage.eq(600)
         yield
         for b in (BUFS[0], BUFS[1], BUFS[2]):
             yield from h.post_buf(b)
         for w in frames:
             yield from h.send_frame(w)
         yield from h.send_frame(ackw)
-        yield from h.wait_idle(settle=800)
-        # BD1: 16-seg aggregate (cap). BD2: 1-seg aggregate (seg 17) closed by the ACK.
-        # BD3: the ACK itself as v1 single.
-        assert (yield h.dut.frames.status) == 3, "cap+ack must yield 3 BDs"
+        yield from h.wait_idle(settle=3000)
+        # BD1: 16-seg aggregate (cap). BD2: 1-seg aggregate (seg 17), timeout-closed
+        # (its timer predates the ACK's). BD3: the pending ACK, timeout-flushed v1.
+        assert (yield h.dut.frames.status) == 3, "cap+agg-tout+ack-tout = 3 BDs"
     h.run(stim)
     w0a, v1a = h.read_bd(0)
     assert ((v1a >> 48) & 0xFF) == 16, f"segcap {(v1a>>48)&0xFF}"
@@ -434,7 +436,7 @@ def test_rsc_segcap_and_ack():
     w0c, _ = h.read_bd(2)
     assert ((w0c >> 56) & 1) == 0, "ACK must be a v1 single"
     assert ((w0c >> 16) & 0xFFFF) == 56, "ACK len 8-padded (54->56)"
-    print("PASS RSC seg-cap(16) close + pure-ACK mid-flow close (v1 single)")
+    print("PASS RSC seg-cap(16) close + pure-ACK via merge slot (timeout flushes)")
 
 
 def test_rsc_timeout():
@@ -499,6 +501,92 @@ def test_rsc_disable_clears_aggregate():
     print("PASS RSC disable clears open aggregate (reload hygiene)")
 
 
+def tcp_ack(seq, sport=0x1451, opts=None):
+    """pure-ACK builder: doff=5, or doff=8 with the given 12 option bytes."""
+    doff = 5 if opts is None else 8
+    eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
+    tot = 20 + doff*4
+    ip = bytes([0x45,0, tot>>8, tot&0xFF, 0,0, 0x40,0, 64,6, 0,0,
+                192,168,127,2, 192,168,127,1])
+    tcp = bytes([sport>>8, sport&0xFF, 0x14,0x51,
+                 (seq>>24)&0xFF,(seq>>16)&0xFF,(seq>>8)&0xFF,seq&0xFF,
+                 0,0,0,0, (doff<<4), 0x10, 0x20,0, 0,0, 0,0]) + (opts or b'')
+    blob = eth + ip + tcp
+    blob += bytes((-len(blob)) % 8)
+    return [int.from_bytes(blob[i:i+8], 'little') for i in range(0, len(blob), 8)], blob
+
+TS_OPTS = bytes([1, 1, 8, 10]) + bytes(8)      # NOP NOP TS(kind8,len10) — mergeable
+SACKISH = bytes([1, 1, 5, 10]) + bytes(8)      # SACK-shaped — must pass through
+
+
+def test_rsc_ack_merge():
+    """ACK-run merging: N same-flow pure ACKs collapse to ONE v1 BD holding the
+    LATEST ACK's bytes (replace-in-place); a different-flow ACK flushes the pending
+    one first; acks_merged telemetry counts the absorbed ones."""
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=300000)
+    a1, _  = tcp_ack(seq=1000)
+    a2, _  = tcp_ack(seq=2000)
+    a3, b3 = tcp_ack(seq=3000)                 # the survivor of flow A
+    bf, bb = tcp_ack(seq=500, sport=0x9999)    # flow B: flushes A
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield h.dut.rsc_tout.storage.eq(500)
+        yield
+        for b in (BUFS[0], BUFS[1]):
+            yield from h.post_buf(b)
+        for w in (a1, a2, a3):
+            yield from h.send_frame(w)
+        yield from h.send_frame(bf)            # mismatch -> flush A, park B
+        yield from h.wait_idle(settle=2500)    # B then flushes on timeout
+        assert (yield h.dut.frames.status) == 2, "A-run + B = exactly 2 BDs"
+        assert (yield h.dut.acks_merged.status) == 2, "a1,a2 absorbed"
+    h.run(stim)
+    w0a, w1a = h.read_bd(0)
+    assert ((w0a >> 56) & 1) == 0 and ((w0a >> 16) & 0xFFFF) == 56
+    got = b''.join((h.mem.get(BUFS[0] + 8*k, 0)).to_bytes(8, 'little') for k in range(7))
+    assert got[:54] == b3.ljust(56, b'\x00')[:54], "flushed A must be the LATEST (a3)"
+    gotb = b''.join((h.mem.get(BUFS[1] + 8*k, 0)).to_bytes(8, 'little') for k in range(7))
+    assert gotb[:54] == bb.ljust(56, b'\x00')[:54], "flow-B ACK content"
+    print("PASS RSC ACK-run merge (replace-in-place, latest wins, mismatch+timeout flush)")
+
+
+def test_rsc_ack_passthrough_and_ts():
+    """Merge eligibility: timestamp-only options (01 01 08 0A) merge; any other
+    option layout (SACK-shaped) must pass straight through as v1 singles."""
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=300000)
+    t1, _  = tcp_ack(seq=100, opts=TS_OPTS)
+    t2, b2 = tcp_ack(seq=200, opts=TS_OPTS)
+    s1, sb1 = tcp_ack(seq=300, opts=SACKISH)
+    s2, sb2 = tcp_ack(seq=400, opts=SACKISH)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield h.dut.rsc_tout.storage.eq(500)
+        yield
+        for b in (BUFS[0], BUFS[1], BUFS[2]):
+            yield from h.post_buf(b)
+        yield from h.send_frame(s1)            # SACK-shaped: v1 immediately
+        yield from h.send_frame(t1)            # ts-ACK: pending
+        yield from h.send_frame(t2)            # ts-ACK: replaces t1
+        yield from h.send_frame(s2)            # SACK-shaped: v1 immediately (ack still pending)
+        yield from h.wait_idle(settle=2500)    # t2 flushes on timeout
+        assert (yield h.dut.frames.status) == 3, "s1 + s2 + merged-ts = 3 BDs"
+        assert (yield h.dut.acks_merged.status) == 1, "t1 absorbed"
+    h.run(stim)
+    got0 = b''.join((h.mem.get(BUFS[0] + 8*k, 0)).to_bytes(8, 'little') for k in range(9))
+    assert got0[:len(sb1)] == sb1, "BD0 = SACK-shaped s1 untouched"
+    got1 = b''.join((h.mem.get(BUFS[1] + 8*k, 0)).to_bytes(8, 'little') for k in range(9))
+    assert got1[:len(sb2)] == sb2, "BD1 = SACK-shaped s2 untouched"
+    got2 = b''.join((h.mem.get(BUFS[2] + 8*k, 0)).to_bytes(8, 'little') for k in range(9))
+    assert got2[:len(b2)] == b2, "BD2 = latest ts-ACK t2"
+    print("PASS RSC ACK merge eligibility (ts-only merges, SACK-shaped passes through)")
+
+
 def test_rsc_tiny_drop_recovers():
     """The -P4 RX-wedge regression (silicon 2026-07-06): with rsc_en=1 and an EMPTY
     post FIFO, a frame small enough to live entirely in hdr_reg (beats <= 9, e.g. a
@@ -548,4 +636,6 @@ if __name__ == "__main__":
     test_rsc_timeout()
     test_rsc_disable_clears_aggregate()
     test_rsc_tiny_drop_recovers()
+    test_rsc_ack_merge()
+    test_rsc_ack_passthrough_and_ts()
     print("ALL PASS")
