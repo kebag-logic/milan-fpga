@@ -947,8 +947,17 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_first, 0),
                 NextState("PREP"),
             ).Else(
-                NextValue(disc, frame_beats - hdr_take),
-                NextState("DISCARD"),
+                # no free buffer -> drop. A frame with beats <= hdr_take lives ENTIRELY
+                # in hdr_reg — data_fifo holds none of it, so entering DISCARD with
+                # disc=0 would eat 2047 beats of FOLLOWING frames (11-bit wrap) and
+                # permanently desync len/data FIFOs (the -P4 RX wedge, 2026-07-06).
+                If(frame_beats == hdr_take,
+                    NextValue(drops, drops + 1),
+                    NextState("IDLE"),
+                ).Else(
+                    NextValue(disc, frame_beats - hdr_take),
+                    NextState("DISCARD"),
+                )
             )
         )
         fsm.act("APRIME",
