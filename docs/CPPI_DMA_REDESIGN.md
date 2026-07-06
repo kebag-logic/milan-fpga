@@ -165,3 +165,36 @@ WNS +0.528. Measured ladder, xmit cost per frame → TX throughput:
 throughput exactly as the per-frame arithmetic predicts. The wall is now the **RX side**
 (build ~150 µs + stack ~120 µs on the slim kernel) — next targets, plus part B
 (HW csum-insert) and the residual ~30 µs of the BD post (uncached BD-ring writes suspected).
+
+### P5 v2b HW checksum-insert — VERIFIED + full perf/counter analysis (2026-07-07)
+
+**Checksum correctness proven 4 ways** (after two bugs: +0.039 timing flake → registered
+one-hot patch selects, WNS +0.221; and driver seed algebra — `csum_fold` complements, seed
+must be `~csum_fold(...)`):
+1. Numeric chain: driver+RTL formula predicts the exact correct field (0x4d55) — the buggy
+   `eae1` predicted 0x6d80, which is what the pre-fix wire showed.
+2. TCP sustains 34 Mbit/s (a single wrong checksum drops that segment → 0 throughput).
+3. `/proc/net/snmp` `InCsumErrors = 0`.
+4. `tcpdump -vv` on the peer: `cksum … (correct)` (was `(incorrect -> …)` with `eae1`).
+
+**Perf matrix** (txbd4 gateware + `c72e` driver: TX-BD v2 zero-copy realign + HW csum,
+1 ms/5 ms coalescing, MTU 1500):
+| direction | throughput | note |
+|---|---|---|
+| TCP TX | ~34 Mbit/s | zero CPU checksum work (HW insert) |
+| TCP RX | ~25 Mbit/s | ack-clocked |
+| UDP TX | 19.5 Mbit/s, 0% loss | iperf3 userspace sender bound (~1.6 kpps) on the 100 MHz core |
+| UDP RX flood | see counters ↓ | |
+
+**Counter analysis — where UDP RX loss lives (definitive):** peer offered ~9.8 kpps.
+- Driver `rx_packets` delta = **22,561 delivered** to the stack during the sample.
+- HW ring `rx_missed_errors = 0` — the always-ready ring **never dropped** a frame.
+- `InCsumErrors = 0` — RX checksum offload clean.
+- **`Udp RcvbufErrors = 180,748` = every datagram overflowed the socket buffer**; iperf3
+  (single-threaded, 100 MHz) drained only ~764.
+- **CPU = 99 % sys, 0 % idle** during bulk RX.
+
+Conclusion: the HW + driver RX path delivers everything; the ceiling is the **single-thread
+userspace consumer on the 100 MHz core**, not the NIC. The AVTP media path (fabric-consumed,
+no userspace recv) never hits this; for CPU-terminated bulk the remaining lever is HW-GRO/RSC
+(fewer, larger deliveries per CPU event).
