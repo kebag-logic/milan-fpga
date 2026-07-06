@@ -198,3 +198,54 @@ Conclusion: the HW + driver RX path delivers everything; the ceiling is the **si
 userspace consumer on the 100 MHz core**, not the NIC. The AVTP media path (fabric-consumed,
 no userspace recv) never hits this; for CPU-terminated bulk the remaining lever is HW-GRO/RSC
 (fewer, larger deliveries per CPU event).
+
+### 2026-07-07 campaign — SMP, the three-copies profile, copybreak RX, stall verdict
+
+**Goal set: ≥200 Mbit/s TCP @ MTU 1500.** Start of day **RX 25 / TX 35.6** → end of day
+**RX 46.5 / TX 57.5–59 Mbit/s** (all measured on silicon: AX7101, VexiiRiscv @100 MHz).
+
+**SMP — dual-hart VexiiRiscv is live** (`smp: Brought up 2 CPUs`): `milan_soc.py
+--cpu-count 2` (`build_smp2b`), WNS **+0.574**, LUTs **59 %** — the RV64IMA 2-hart config
+*fits* the 100T (the 122 %-doesn't-fit result was the NaxRiscv 2-issue+FPU config).
+**TX 35.6 → 59 (+66 %)**; **RX unchanged** — the RX path is one serialized NAPI chain, so
+a second hart cannot parallelize it (RPS measured neutral). Timing prerequisite: the v2b
+**csum-accumulate cone (21 logic levels) was the design critical path**; pipelined
+(lane-sum register + deferred add, commit `a82fc2e`) → the dual-core build closes +0.574.
+Three OpenSBI gotchas, solved (details in `the-private-test-repo/fpga/README.md`):
+1. the custom `litex_nax` platform **hard-codes `hart_count`** — it does NOT read the DTB;
+2. `build_opensbi.sh` **copies `the-private-test-repo/fpga/opensbi/litex_nax/platform.c` over the
+   OpenSBI tree on every run** — edit the repo copy, never `~/opensbi-nax`;
+3. fix = the **`NAX_HARTS=2`** env param to `build_opensbi.sh`.
+SMP DTS: `the-private-test-repo/fpga/dts/milan_ax7101_smp.dts` (`cpu@1` + both harts' CLINT
+`interrupts-extended = <&L0 3 &L0 7 &L1 3 &L1 7>` and PLIC `<&L0 11 &L0 9 &L1 11 &L1 9>`).
+
+**Kernel tick-profile — RX CPU time is THREE COPIES of every byte** (`CONFIG_PROFILING` +
+`profile=4` bootargs, readprofile-style analysis):
+| where | % ticks | what |
+|---|---:|---|
+| driver ring→skb `memcpy` | 6.3 % | copy #1 |
+| TCP receive-queue coalesce `__pi_memmove` | 9.2 % | copy #2 (`skb_try_coalesce` on linear skbs) |
+| scalar usercopy (kernel→user) | 9.7 % | copy #3 |
+| TCP protocol logic | ~1 % per function | cheap |
+| locks + task-switch | ~12 % | |
+| idle | 18.8 % | |
+
+**The stack logic is cheap — bytes are expensive.** Fix shipped (`kl-eth`, the-private-test-repo
+commit `2786912`): **header-copybreak (192 B) + page-frag payload RX** — payload delivered
+via `skb_add_rx_frag` + `skb_mark_for_recycle`, so TCP coalesces by frag pointers instead
+of memmove (frames ≤192 B keep full-copy+recycle). **RX 25 → 45.6.** Re-profile: memmove
+9.2 → 2.3 %, memcpy 6.3 → 2.0 %. Copy #3 (kernel→user, scalar word-wise) is the
+irreducible app-delivery cost — ~44 MB/s effective on cold data on this core.
+
+**TX stalls — hardware exonerated.** User-reported 0-bit/s intervals (Retr=0, cwnd flat):
+6/6 scripted monitored rounds ran clean and `TX_EN` never dropped; every hardware theory
+was disproven by experiment (no link flap; concurrent CSR hammer 0/400k errors on both
+harts; per-hart pinned IO monitors clean). Best-fit explanation: **garbled serial-console
+input executing mutated `devmem` commands**. Mitigated permanently by the SSH workflow —
+the board now boots dropbear on :2222 from flash (see `the-private-test-repo/fpga/README.md`);
+the 1.5 Mbaud serial console drops input characters and is for boot logs only.
+
+**Active workstream toward ≥200: [HW-GRO/RSC](HW_GRO_RSC.md)** — the ÷K lever (merge K
+in-order TCP segments in gateware; the stack pays per super-segment). Spec commit
+`710a670`; **phases A+B implemented and sim-verified** (parser+regfile capture, aggregate
+open/append/close with write-side realign, BD v2) — status section in that doc.

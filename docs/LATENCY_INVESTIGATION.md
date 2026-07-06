@@ -9,6 +9,16 @@ ceiling, including **two conclusions I had to retract mid-investigation** (kept 
 purpose — the retractions are the lesson). Every number below was measured on silicon or
 in cycle-accurate sim; nothing is estimated unless labelled "model".
 
+> **Forward pointer (2026-07-07):** the per-frame cost decomposition below was completed
+> (and, where it stopped at "per-frame CPU cost", superseded) by a kernel **tick-profile**
+> (`CONFIG_PROFILING` + `profile=4`): at MTU 1500 the RX CPU time is **three copies of
+> every byte** — driver ring→skb memcpy, TCP receive-queue coalesce memmove, and the
+> kernel→user usercopy — while the TCP protocol logic itself costs ~1 % per function.
+> See the **2026-07-07 campaign** addendum in
+> [CPPI_DMA_REDESIGN.md](CPPI_DMA_REDESIGN.md) for the profile and the copybreak/page-frag
+> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md](HW_GRO_RSC.md) for the ÷K plan toward
+> ≥200. This document's history below is unchanged.
+
 ---
 
 ## TL;DR
