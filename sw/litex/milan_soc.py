@@ -991,6 +991,14 @@ class RingDMAReader(LiteXModule):
         cs_fold1 = Signal(17)
         cs_pass  = Signal()             # 1 = silent checksum pre-pass through PAY/DRAIN
         cs_inb   = Signal(12)           # segment input beats, to restart the real pass
+        # pipelined accumulate (2026-07-07): the keep-decode+mask+lane-add+32b-accumulate
+        # cone was the design's critical path (21 levels; -0.065 with the 2nd hart).
+        # Stage 1 registers the beat's lane sum; stage 2 adds it. Sum identical; the
+        # trailing add completes during PREP, one cycle before any consumer.
+        cs_take  = Signal()             # comb strobe: pre-pass beat accepted this cycle
+        cs_clr   = Signal()             # comb strobe: new BD parsed — reset accumulator
+        cs_lanes_r = Signal(18)
+        cs_lv    = Signal()
         cs_sel_lo = Signal(8)           # one-hot byte select for csum low byte (REGISTERED
         cs_sel_hi = Signal(8)           # at parse — keeps comparators out of the data cone)
         # checksum datapath: byte-mask the candidate output beat by its keep, sum as
@@ -1004,6 +1012,16 @@ class RingDMAReader(LiteXModule):
                         cs_masked[32:48] + cs_masked[48:64]),
             cs_fold1.eq(cs_acc[:16] + cs_acc[16:]),
             cs_val.eq(~(cs_fold1[:16] + cs_fold1[16])),
+        ]
+        self.sync += [
+            If(cs_take,
+                cs_lanes_r.eq(cs_lanes),
+                cs_lv.eq(1),
+            ).Else(
+                cs_lv.eq(0),
+            ),
+            If(cs_lv, cs_acc.eq(cs_acc + cs_lanes_r)),
+            If(cs_clr, cs_acc.eq(0), cs_lv.eq(0)),
         ]
         # patch mux for the real pass: replace the 2 checksum bytes in their beat
         patch_hit = Signal()
@@ -1093,7 +1111,7 @@ class RingDMAReader(LiteXModule):
                                              1 << self.bus.r.data[16:19], 0)),
                     NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
                                              2 << self.bus.r.data[16:19], 0)),
-                    NextValue(cs_acc, 0),
+                    cs_clr.eq(1),
                     NextValue(cs_pass, self.bus.r.data[63]),
                     NextState("PREP"),
                 ).Else(
@@ -1213,7 +1231,7 @@ class RingDMAReader(LiteXModule):
                 cs_beat.eq(self.bus.r.data),
                 cs_keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
                 If(self.bus.r.valid & self.bus.r.ready,
-                    If(cs_pass, NextValue(cs_acc, cs_acc + cs_lanes)),
+                    cs_take.eq(cs_pass),
                     NextValue(rbeat, rbeat + 1),
                     NextValue(bcnt, bcnt + 1),
                     If(rbeat == frame_beats - 1,
@@ -1245,7 +1263,7 @@ class RingDMAReader(LiteXModule):
                 cs_beat.eq(shifted),
                 cs_keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
                 If(self.bus.r.valid & self.bus.r.ready,
-                    If(cs_pass, NextValue(cs_acc, cs_acc + cs_lanes)),
+                    cs_take.eq(cs_pass),
                     NextValue(carry, self.bus.r.data),
                     NextValue(rbeat, rbeat + 1),
                     NextValue(bcnt, bcnt + 1),
@@ -1267,7 +1285,7 @@ class RingDMAReader(LiteXModule):
             cs_beat.eq(carry >> sh_lo),
             cs_keep.eq(rlast_keep),
             If(cs_pass,
-                NextValue(cs_acc, cs_acc + cs_lanes),
+                cs_take.eq(1),
                 *cs_restart()
             ).Elif(source.ready,
                 *seg_finish()
