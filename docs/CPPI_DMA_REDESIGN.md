@@ -154,3 +154,14 @@ memory tax cannot be dodged in software on this no-MLP core.
 first beat (true zero-copy from any skb address), plus HW checksum-insert in the MilanMAC
 PacketFIFO (frame is store-and-forward there: sum on ingress, patch on egress) — removes
 BOTH remaining CPU payload touches. Sim harnesses (`test_tx_bd.py`) are ready to extend.
+
+### P5 v2 (byte-offset realign) — silicon results (2026-07-06)
+
+The engine now reads segments from **any byte address** (aligned-beat reads + carry/shift
+realign + a DRAIN residual beat; offsets 0–7 × lengths sim-verified before the bitstream).
+WNS +0.528. Measured ladder, xmit cost per frame → TX throughput:
+`199 µs (slab fallback) → 99 µs (bounce) → 38.6 µs (true zero-copy)` → TX
+`12.5 → 16.2 → 18.2 Mbit/s` (copy-path baseline 16.7). The freed cycles converted to
+throughput exactly as the per-frame arithmetic predicts. The wall is now the **RX side**
+(build ~150 µs + stack ~120 µs on the slim kernel) — next targets, plus part B
+(HW csum-insert) and the residual ~30 µs of the BD post (uncached BD-ring writes suspected).
