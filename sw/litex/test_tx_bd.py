@@ -175,10 +175,60 @@ def test_bd_unaligned_offsets():
     print("PASS TX-BD unaligned offsets (o=0..7 x lengths incl. drain + multi-burst)")
 
 
+def _csum_ref(data: bytes) -> int:
+    """16-bit LE-lane ones-complement sum, folded (the engine's convention)."""
+    if len(data) & 1:
+        data += b'\x00'
+    t = 0
+    for i in range(0, len(data), 2):
+        t += data[i] | (data[i + 1] << 8)
+    while t >> 16:
+        t = (t & 0xFFFF) + (t >> 16)
+    return (~t) & 0xFFFF
+
+
+def test_bd_csum_insert():
+    """v2b HW checksum-insert: BD w1 {en<<63, off<<16}; the engine pre-passes the
+    segment, folds the ones-complement sum (csum field pre-seeded like checksum_help
+    expects), and patches the folded value into bytes [off, off+2). Tested across
+    offsets/alignments incl. the o=2 Ethernet case."""
+    for off in (0, 2):
+        for length, csoff in ((60, 40), (1000, 50), (1514, 50)):
+            h = BDHarness(ring_size=4096, cycles=60000)
+            pay = bytearray(((i * 11) ^ 0x5A) & 0xFF for i in range(length))
+            pay[csoff:csoff + 2] = b'\x34\x12'          # seeded csum field
+            pay = bytes(pay)
+
+            def stim(h=h, pay=pay, off=off, csoff=csoff):
+                yield from h.init_bd()
+                h.put_seg(SEG_A, b'\xEE' * off + pay)
+                w0 = ((SEG_A + off) & 0xFFFFFFFF) | (len(pay) << 32) | (1 << 48)
+                h.mem[BD_BASE] = w0
+                h.mem[BD_BASE + 8] = (1 << 63) | (csoff << 16)   # en + csum_off
+                yield h.dut.wr_ptr.storage.eq(16)
+                yield
+                for _ in range(9000):
+                    if (yield h.dut.sent.status) == 1:
+                        break
+                    yield
+                assert (yield h.dut.sent.status) == 1, f"stuck o={off} len={len(pay)}"
+            h.run(stim)
+            got = h.rx_bytes()
+            exp_csum = _csum_ref(pay)
+            expect = bytearray(pay)
+            expect[csoff] = exp_csum & 0xFF
+            expect[csoff + 1] = exp_csum >> 8
+            assert got == bytes(expect), \
+                f"csum patch wrong o={off} len={length}: got {got[csoff:csoff+2].hex()} " \
+                f"want {bytes(expect[csoff:csoff+2]).hex()}"
+    print("PASS TX-BD HW csum-insert (offsets x lengths, folded+patched correctly)")
+
+
 if __name__ == "__main__":
     test_bd_single_segment()
     test_bd_multi_segment()
     test_bd_bad_descriptor()
     test_bd_wrap_and_disable()
     test_bd_unaligned_offsets()
+    test_bd_csum_insert()
     print("ALL PASS")
