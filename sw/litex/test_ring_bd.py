@@ -233,6 +233,65 @@ def test_bd_throughput():
           f"(sim wall: ring {t['ring']:.1f}s, bd {t['bd']:.1f}s)")
 
 
+def tcp_frame(payload_len=100, flags=0x10, doff=8, seq=0x11223344):
+    """Minimal eth+IPv4+TCP frame as 64-bit LE words (RSC parser test vector)."""
+    eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
+    tot = 20 + doff*4 + payload_len
+    ip = bytes([0x45,0, tot>>8, tot&0xFF, 0,0, 0x40,0, 64,6, 0,0,
+                192,168,127,2, 192,168,127,1])
+    tcp = bytes([0x14,0x51, 0x14,0x51,
+                 (seq>>24)&0xFF,(seq>>16)&0xFF,(seq>>8)&0xFF,seq&0xFF,
+                 0,0,0,0, (doff<<4), flags, 0x20,0, 0,0, 0,0]) + bytes(4*(doff-5))
+    pay = bytes((i*3) & 0xFF for i in range(payload_len))
+    blob = eth + ip + tcp + pay
+    blob += bytes((-len(blob)) % 8)
+    return [int.from_bytes(blob[i:i+8], 'little') for i in range(0, len(blob), 8)], blob
+
+
+def test_rsc_parse_and_replay():
+    """RSC phase A: with rsc_en=1 the head beats detour through the regfile —
+    the delivered payload must stay byte-exact, and rsc_dbg must report the parse."""
+    words, blob = tcp_frame(payload_len=200, flags=0x18, doff=8)   # ACK|PSH, timestamps
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=256, cycles=40000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield
+        yield from h.post_buf(BUFS[0])
+        yield from h.send_frame(words)
+        yield from h.wait_idle()
+        assert (yield h.dut.frames.status) == 1
+        dbg = (yield h.dut.rsc_dbg.status)
+        totlen = dbg & 0xFFFF
+        flags = (dbg >> 16) & 0xFF
+        doff = (dbg >> 24) & 0xF
+        elig = (dbg >> 28) & 1
+        assert totlen == 20 + 32 + 200, f"totlen {totlen}"
+        assert flags == 0x18 and doff == 8 and elig == 1, f"f={flags:#x} d={doff} e={elig}"
+    h.run(stim)
+    got = h.read_buf(BUFS[0], len(words))
+    assert got == words, "regfile replay corrupted the frame"
+    print("PASS RSC phase A (parse fields + byte-exact regfile replay)")
+
+
+def test_rsc_ineligible():
+    """SYN and non-TCP frames must parse as ineligible."""
+    for kw, exp in ((dict(flags=0x12), 0), (dict(flags=0x10), 1)):   # SYN|ACK vs ACK
+        words, _ = tcp_frame(payload_len=64, **kw)
+        h = BDHarness(ring_size=4096, cycles=30000)
+        def stim(h=h, words=words, exp=exp):
+            yield from h.init_bd()
+            yield h.dut.rsc_en.storage.eq(1)
+            yield
+            yield from h.post_buf(BUFS[1])
+            yield from h.send_frame(words)
+            yield from h.wait_idle()
+            assert ((yield h.dut.rsc_dbg.status) >> 28) & 1 == exp
+        h.run(stim)
+    print("PASS RSC eligibility (SYN rejected, pure-ACK-data accepted)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -240,4 +299,6 @@ if __name__ == "__main__":
     test_bd_large_frame_content()
     test_bd_reload_flush()
     test_bd_throughput()
+    test_rsc_parse_and_replay()
+    test_rsc_ineligible()
     print("ALL PASS")
