@@ -646,6 +646,18 @@ class RingDMAWriter(LiteXModule):
         agg_psh   = Signal()
         agg_match = Signal()
         self.rsc_bufsz = CSRStorage(16, reset=2048, description="RSC aggregate buffer bytes (driver posts this size).")
+        self.rsc_tout  = CSRStorage(24, reset=5000, description="RSC aggregate idle-close timeout (milan_clk cycles; 5000 = 100 us @ 50 MHz).")
+        agg_timer  = Signal(24)
+        agg_touch  = Signal()           # comb strobe: aggregate armed/extended this cycle
+        agg_expired = Signal()
+        self.comb += agg_expired.eq(agg_open & (agg_timer >= self.rsc_tout.storage))
+        self.sync += [
+            If(~agg_open | agg_touch,
+                agg_timer.eq(0),
+            ).Elif(~agg_expired,
+                agg_timer.eq(agg_timer + 1),
+            )
+        ]
         self.comb += agg_match.eq(agg_open & p_eligible &
                                   (p_srcip == agg_srcip) & (p_dstip == agg_dstip) &
                                   (p_ports == agg_ports) & (p_doff == agg_doff) &
@@ -662,6 +674,9 @@ class RingDMAWriter(LiteXModule):
         ap_inrem  = Signal(12)          # input beats still to consume
         ap_flush  = Signal(2)           # trailing pad beats to sink after payload
         ap_carry  = Signal(64)
+        ap_prime  = Signal()            # s>r regime: preload one beat into carry
+        ap_first  = Signal()            # next W beat is the append's first (head strb)
+        ap_csrc   = Signal()            # close origin: 0=parked frame, 1=PSH/arm-path
         self.rsc_dbg = CSRStatus(32, description="RSC parse of the last captured frame: "
                                  "{eligible, doff[3:0], flags[7:0], totlen[15:0]}.")
         self.comb += in_hdrr.eq(bd_mode & self.rsc_en.storage & (fbeat < hdr_cnt))
@@ -841,6 +856,7 @@ class RingDMAWriter(LiteXModule):
             # rd=0 to read as ~full (the occ_hi reload artifact), and per-session `frames`.
             If(~self.enable.storage,
                 NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
+                NextValue(agg_open, 0), NextValue(ap_close, 0),
             ).Elif(len_fifo.source.valid & bd_mode,
                 # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
                 len_fifo.source.ready.eq(1),
@@ -864,6 +880,11 @@ class RingDMAWriter(LiteXModule):
                     NextValue(disc, len_fifo.source.beats),
                     NextState("DISCARD"),
                 )
+            ).Elif(bd_mode & agg_expired,
+                # RSC: idle-timeout — flush the open aggregate so latency stays bounded
+                NextValue(ap_close, 1),
+                NextValue(ap_csrc, 1),
+                NextState("WB_AW"),
             ).Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
@@ -894,9 +915,6 @@ class RingDMAWriter(LiteXModule):
             r_lane.eq(agg_off[:3]),
             ap_outb.eq((r_lane + p_plen + 7)[3:]),
         ]
-        ap_prime  = Signal()            # s>r regime: preload one beat into carry
-        ap_first  = Signal()            # next W beat is the append's first (head strb)
-        ap_csrc   = Signal()            # close origin: 0=parked frame, 1=PSH/arm-path
         tl_lane   = Signal(3)
         self.comb += tl_lane.eq((agg_off + p_plen - 1)[:3])
         fsm.act("DISPATCH",
@@ -1043,6 +1061,7 @@ class RingDMAWriter(LiteXModule):
                     NextValue(agg_ack, p_ack), NextValue(agg_win, p_win),
                     NextValue(agg_psh, 0),
                     NextValue(ap_arm, 0),
+                    agg_touch.eq(1),
                     NextState("IDLE"),
                 ).Elif(bd_mode & ap_append,
                     # RSC: payload appended — update aggregate, maybe close
@@ -1052,6 +1071,7 @@ class RingDMAWriter(LiteXModule):
                     NextValue(agg_ack, p_ack), NextValue(agg_win, p_win),
                     NextValue(agg_psh, agg_psh | p_flags[3]),
                     NextValue(ap_append, 0),
+                    agg_touch.eq(1),
                     If(p_flags[3] | (agg_segs == 15),
                         NextValue(ap_close, 1),
                         NextValue(ap_csrc, 1),
