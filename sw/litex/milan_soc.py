@@ -84,9 +84,9 @@ FLASHBOOT_LAYOUT = {
     #  CPIO-XZ = 5.6 MB (kernel RD_XZ unpacks it — the BIOS only memcpys) in a 7 MiB
     #  slot. Total 14.0 MB of 16 MiB N25Q128.)
     "kernel":  {"offset": 0x00_0000, "addr": 0x4000_0000},  # ≤ 8.5 MiB when "full"
-    "opensbi": {"offset": 0x88_0000, "addr": 0x40F0_0000},  # 256 KB
-    "dtb":     {"offset": 0x8C_0000, "addr": 0x40EF_0000},  # 256 KB
-    "rootfs":  {"offset": 0x90_0000, "addr": 0x4100_0000},  # up to 7 MiB → ends = 16 MiB
+    "opensbi": {"offset": 0x88_0000, "addr": 0x40F0_0000},  # 512 KB (fw_jump = 261 KB + FBI)
+    "dtb":     {"offset": 0x90_0000, "addr": 0x40EF_0000},  # 256 KB
+    "rootfs":  {"offset": 0x94_0000, "addr": 0x4100_0000},  # up to 6.75 MiB → ends = 16 MiB
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
@@ -941,14 +941,30 @@ class RingDMAReader(LiteXModule):
         self.rd_ptr = CSRStatus(32,  description="HW read pointer (consumed up to here).")
         self.enable = CSRStorage(1,  description="Ring enable.")
         self.sent   = CSRStatus(32,  description="Frames streamed to the datapath.")
+        # ---- TX BD (descriptor) mode — P5 zero-copy TX (2026-07-06) -------------------
+        # xmit stage timers measured skb_copy_and_csum_dev at ~166 us/frame: the CPU's
+        # SERIAL cold-DRAM reads (no MLP) are the cost, while this engine's 16-beat bursts
+        # hide the same latency. So in BD mode software writes 16-byte descriptors instead
+        # of copying payload: the engine reads each segment STRAIGHT from skb memory.
+        #   BD w0 (LE): addr[31:0] | len[15:0]<<32 | flags[15:0]<<48; flags bit0 = EOF.
+        #   w1: reserved (v2: csum_start/csum_off for HW checksum insert).
+        # CSR reuse (same trick as RX BD): mask = BD-ring bytes-1, wr_ptr = SW BD tail
+        # (doorbell), rd_ptr = HW consumed-BD offset. DRIVER CONTRACT: every segment addr
+        # is 8-aligned; non-EOF segments have len%8 == 0 (no inter-segment byte shifter);
+        # the EOF segment's exact len drives the last-beat keep. bd_base==0 = ring mode.
+        self.bd_base = CSRStorage(64, description="TX BD ring base (16 B/entry, coherent). 0 = byte-ring mode.")
 
         # # #
 
         rd    = Signal(32)              # HW consumption pointer (== rd_ptr CSR)
         nsent = Signal(32)
+        bd_mode  = Signal()
+        seg_addr = Signal(32)           # current segment base (BD mode)
+        seg_eof  = Signal()             # this segment ends the frame
         self.comb += [
             self.rd_ptr.status.eq(rd),
             self.sent.status.eq(nsent),
+            bd_mode.eq(self.bd_base.storage != 0),
         ]
 
         frame_bytes = Signal(16)        # exact payload bytes (from the header)
@@ -977,8 +993,12 @@ class RingDMAReader(LiteXModule):
         blen_b   = Signal(12)
         blen     = Signal(12)
         self.comb += [
-            cur_addr.eq(self.base.storage[:32] + off_r),
-            to_wrap.eq((self.mask.storage + 1 - off_r) >> 3),
+            # BD mode: segment reads are LINEAR from skb memory (no ring wrap — cap the
+            # wrap term above any segment). Ring mode: base+offset with wrap splits.
+            cur_addr.eq(Mux(bd_mode, seg_addr + off_r,
+                                     self.base.storage[:32] + off_r)),
+            to_wrap.eq(Mux(bd_mode, 1024,
+                                    (self.mask.storage + 1 - off_r) >> 3)),
             to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
             blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
             blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
@@ -986,7 +1006,8 @@ class RingDMAReader(LiteXModule):
         ]
 
         hdr_addr = Signal(32)
-        self.comb += hdr_addr.eq(self.base.storage[:32] + rd)
+        self.comb += hdr_addr.eq(Mux(bd_mode, self.bd_base.storage[:32] + rd,
+                                              self.base.storage[:32] + rd))
 
         self.comb += [
             self.bus.ar.size.eq(3),     # 8 bytes/beat
@@ -996,17 +1017,21 @@ class RingDMAReader(LiteXModule):
         fb_new = Signal(11)             # ceil(len/8) of the header being parsed
         self.comb += fb_new.eq((self.bus.r.data[:16] + 7)[3:])
 
+        bd_beat2 = Signal()             # BD reads are 2 beats: w0 parsed, w1 skipped
         self.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            If(self.enable.storage & (self.wr_ptr.storage != rd),
+            If(~self.enable.storage,
+                NextValue(rd, 0),       # reload hygiene (mirror of the RX post-FIFO drain)
+            ).Elif(self.wr_ptr.storage != rd,
                 NextValue(rbeat, 0),
+                NextValue(bd_beat2, 0),
                 NextState("HDR_AR"),
             )
         )
         fsm.act("HDR_AR",
             self.bus.ar.valid.eq(1),
             self.bus.ar.addr.eq(hdr_addr),
-            self.bus.ar.len.eq(0),      # single-beat header read
+            self.bus.ar.len.eq(Mux(bd_mode, 1, 0)),   # BD = 2 beats, ring header = 1
             If(self.bus.ar.ready,
                 NextState("HDR_R"),
             )
@@ -1014,17 +1039,37 @@ class RingDMAReader(LiteXModule):
         fsm.act("HDR_R",
             self.bus.r.ready.eq(1),
             If(self.bus.r.valid,
-                NextValue(frame_bytes, self.bus.r.data[:16]),
-                NextValue(rem_r, fb_new),
-                NextValue(off_r, (rd + 8) & self.mask.storage),
-                # len==0 / oversized can only be a software bug: resync, don't stream garbage
-                If((self.bus.r.data[:16] == 0) | (self.bus.r.data[:16] > max_frame_bytes),
-                    NextValue(rd, self.wr_ptr.storage & self.mask.storage),
-                    NextState("IDLE"),
-                ).Else(
+                If(bd_mode & bd_beat2,
+                    # second BD word (reserved / v2 csum fields): consume and launch
                     NextState("PREP"),
+                ).Else(
+                    NextValue(frame_bytes, Mux(bd_mode, self.bus.r.data[32:48],
+                                                        self.bus.r.data[:16])),
+                    NextValue(rem_r, Mux(bd_mode, (self.bus.r.data[32:48] + 7)[3:], fb_new)),
+                    NextValue(seg_addr, self.bus.r.data[:32]),
+                    NextValue(seg_eof, self.bus.r.data[48]),
+                    NextValue(off_r, Mux(bd_mode, 0, (rd + 8) & self.mask.storage)),
+                    NextValue(bd_beat2, 1),
+                    # len==0 / oversized can only be a software bug: resync, don't stream garbage
+                    If(bd_mode,
+                        If((self.bus.r.data[32:48] == 0) |
+                           (self.bus.r.data[32:48] > max_frame_bytes),
+                            NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                            NextValue(bd_beat2, 1),      # still drain the 2nd beat
+                            NextState("BD_FLUSH"),
+                        )
+                    ).Elif((self.bus.r.data[:16] == 0) | (self.bus.r.data[:16] > max_frame_bytes),
+                        NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                        NextState("IDLE"),
+                    ).Else(
+                        NextState("PREP"),
+                    )
                 )
             )
+        )
+        fsm.act("BD_FLUSH",             # bad BD: eat the second beat, then resync'd IDLE
+            self.bus.r.ready.eq(1),
+            If(self.bus.r.valid, NextState("IDLE")),
         )
         fsm.act("PREP",                 # register this burst's geometry
             NextValue(blen_r, blen),
@@ -1037,7 +1082,11 @@ class RingDMAReader(LiteXModule):
             self.bus.ar.len.eq(blen_r - 1),
             If(self.bus.ar.ready,
                 NextValue(bcnt, 0),
-                NextValue(off_r, (off_r + (blen_r << 3)) & self.mask.storage),
+                # BD mode: LINEAR segment offset — masking with the (BD-ring!) mask would
+                # wrap the read at ring-size bytes (the same class of bug the RX BD mode
+                # shipped with; its 1520 B content test is the template for test_tx_bd).
+                NextValue(off_r, Mux(bd_mode, off_r + (blen_r << 3),
+                                     (off_r + (blen_r << 3)) & self.mask.storage)),
                 NextValue(rem_r, rem_r - blen_r),
                 NextState("PAY_R"),
             )
@@ -1045,16 +1094,30 @@ class RingDMAReader(LiteXModule):
         fsm.act("PAY_R",
             source.valid.eq(self.bus.r.valid),
             source.data.eq(self.bus.r.data),
-            source.last.eq(rbeat == frame_beats - 1),
+            # BD mode: `last` only on the EOF segment's final beat (mid segments are
+            # 8-aligned by driver contract, so their keep is naturally 0xFF)
+            source.last.eq((rbeat == frame_beats - 1) & (~bd_mode | seg_eof)),
             source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
             self.bus.r.ready.eq(source.ready),
             If(self.bus.r.valid & self.bus.r.ready,
                 NextValue(rbeat, rbeat + 1),
                 NextValue(bcnt, bcnt + 1),
-                If(rbeat == frame_beats - 1,            # whole frame streamed
-                    NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
-                    NextValue(nsent, nsent + 1),
-                    NextState("IDLE"),
+                If(rbeat == frame_beats - 1,            # segment fully streamed
+                    If(bd_mode,
+                        NextValue(rd, (rd + 16) & self.mask.storage),  # consume the BD
+                        NextValue(rbeat, 0),
+                        NextValue(bd_beat2, 0),
+                        If(seg_eof,
+                            NextValue(nsent, nsent + 1),
+                            NextState("IDLE"),
+                        ).Else(
+                            NextState("HDR_AR"),        # next segment of the same frame
+                        )
+                    ).Else(
+                        NextValue(rd, (rd + 8 + (frame_beats << 3)) & self.mask.storage),
+                        NextValue(nsent, nsent + 1),
+                        NextState("IDLE"),
+                    )
                 ).Elif(bcnt == blen_r - 1,               # burst fully streamed, more to go
                     NextState("PREP"),
                 )
