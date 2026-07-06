@@ -1344,6 +1344,32 @@ class RingDMAReader(LiteXModule):
         fb_new = Signal(11)             # ceil(len/8) of the header being parsed
         self.comb += fb_new.eq((self.bus.r.data[:16] + 7)[3:])
 
+        # ---- cross-BD continuity assembly (TX>=200 step 1) ----
+        # A holds 0-14 pending OUTPUT bytes across the BD chain of one frame; each R
+        # beat inserts its valid bytes at A[aocc]; a full 8 emits. No %8 contract.
+        A_reg   = Signal(120)
+        aocc    = Signal(4)
+        first_in = Signal()
+        f_first = Signal(4)
+        f_tail  = Signal(4)
+        v_in    = Signal(4)
+        in_last = Signal()
+        raw_al  = Signal(64)
+        ins_sh  = Signal(120)
+        a_nxt   = Signal(120)
+        occ_nxt = Signal(5)
+        emit_now = Signal()
+        eof_done = Signal()
+        self.comb += [
+            in_last.eq((rem_r == 0) & (bcnt == blen_r - 1)),
+            v_in.eq(Mux(first_in, f_first, Mux(in_last, f_tail, 8))),
+            raw_al.eq(Mux(first_in, self.bus.r.data >> sh_lo, self.bus.r.data)),
+            ins_sh.eq(raw_al << Cat(C(0, 3), aocc[:3])),
+            a_nxt.eq(A_reg | ins_sh),
+            occ_nxt.eq(aocc + v_in),
+            emit_now.eq(occ_nxt >= 8),
+            eof_done.eq(in_last & seg_eof),
+        ]
         bd_beat2 = Signal()             # BD reads are 2 beats: w0 parsed, w1 skipped
         self.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
@@ -1390,6 +1416,15 @@ class RingDMAReader(LiteXModule):
                     NextValue(sh_lo, Cat(C(0, 3), self.bus.r.data[:3])),
                     NextValue(carry_v, 0),
                     NextValue(obeat, 0),
+                    # continuity (TX>=200 step 1): per-segment byte-valid counts for the
+                    # assembly shifter; f_first covers tiny one-beat segments too
+                    NextValue(first_in, 1),
+                    NextValue(f_first, Mux(
+                        self.bus.r.data[32:48] < (8 - self.bus.r.data[:3]),
+                        self.bus.r.data[32:36],
+                        8 - self.bus.r.data[:3])),
+                    NextValue(f_tail, ((self.bus.r.data[:3] +
+                                        self.bus.r.data[32:48] - 1) & 0x7) + 1),
                     NextValue(seg_eof, self.bus.r.data[48]),
                     NextValue(off_r, Mux(bd_mode, 0, (rd + 8) & self.mask.storage)),
                     NextValue(bd_beat2, 1),
@@ -1473,6 +1508,9 @@ class RingDMAReader(LiteXModule):
                 NextValue(off_r, 0),
                 NextValue(rbeat, 0),
                 NextValue(carry_v, 0),
+                NextValue(A_reg, 0),
+                NextValue(aocc, 0),
+                NextValue(first_in, 1),
                 NextState("PREP"),
             ]
 
@@ -1484,7 +1522,7 @@ class RingDMAReader(LiteXModule):
         ]
 
         fsm.act("PAY_R",
-            If(~bd_mode | (sh_lo == 0),
+            If(~bd_mode,
                 # aligned path: input beats == output beats (bit-identical to pre-v2)
                 source.valid.eq(self.bus.r.valid & ~cs_pass),
                 source.data.eq(Mux(patch_here, cs_patched(self.bus.r.data),
@@ -1504,54 +1542,59 @@ class RingDMAReader(LiteXModule):
                         NextState("PREP"),
                     )
                 )
-            ).Elif(~carry_v,
-                # realign warm-up: first input beat fills the carry, emits nothing
-                self.bus.r.ready.eq(1),
-                If(self.bus.r.valid,
-                    NextValue(carry, self.bus.r.data),
-                    NextValue(carry_v, 1),
-                    NextValue(bcnt, bcnt + 1),
-                    If((rem_r == 0) & (bcnt == blen_r - 1),
-                        NextState("DRAIN"),             # 1-input segment: residual only
-                    ).Elif(bcnt == blen_r - 1,
-                        NextState("PREP"),
-                    )
-                )
             ).Else(
-                # realign steady state: each input pairs with one shifted output
-                source.valid.eq(self.bus.r.valid & ~cs_pass),
-                source.data.eq(Mux(patch_here, cs_patched(shifted), shifted)),
-                source.last.eq(seg_eof & pay_last),
-                source.keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
-                self.bus.r.ready.eq(source.ready | cs_pass),
-                cs_beat.eq(shifted),
-                cs_keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
+                # assembly path: insert v_in bytes at A[aocc]; emit on >=8. Continuity:
+                # A/aocc persist across non-EOF segments (no drain mid-frame).
+                source.valid.eq(self.bus.r.valid & emit_now & ~cs_pass),
+                source.data.eq(Mux(patch_here, cs_patched(a_nxt[:64]), a_nxt[:64])),
+                source.last.eq(eof_done & (occ_nxt == 8)),
+                source.keep.eq(0xFF),
+                self.bus.r.ready.eq(~emit_now | source.ready | cs_pass),
+                cs_beat.eq(a_nxt[:64]),
+                cs_keep.eq(0xFF),
                 If(self.bus.r.valid & self.bus.r.ready,
-                    cs_take.eq(cs_pass),
-                    NextValue(carry, self.bus.r.data),
-                    NextValue(rbeat, rbeat + 1),
+                    cs_take.eq(cs_pass & emit_now),
+                    NextValue(first_in, 0),
                     NextValue(bcnt, bcnt + 1),
-                    If(rbeat == frame_beats - 1,        # outputs complete on this input
-                        If(cs_pass, *cs_restart()).Else(*seg_finish())
-                    ).Elif((rem_r == 0) & (bcnt == blen_r - 1),
-                        NextState("DRAIN"),             # inputs done, one output left
+                    If(emit_now,
+                        NextValue(A_reg, a_nxt[64:]),
+                        NextValue(aocc, occ_nxt - 8),
+                        NextValue(rbeat, rbeat + 1),
+                    ).Else(
+                        NextValue(A_reg, a_nxt),
+                        NextValue(aocc, occ_nxt),
+                    ),
+                    If(eof_done,
+                        If(occ_nxt == 8,                # frame ends beat-aligned
+                            If(cs_pass, *cs_restart()).Else(*seg_finish())
+                        ).Else(
+                            NextState("DRAIN"),         # residual bytes flush
+                        )
+                    ).Elif(in_last,                     # non-EOF: A/aocc carry over
+                        *seg_finish()
                     ).Elif(bcnt == blen_r - 1,
                         NextState("PREP"),
                     )
                 )
             )
         )
-        fsm.act("DRAIN",                                # residual output from the carry
+        drain_keep = Signal(8)
+        self.comb += drain_keep.eq((1 << aocc[:3]) - 1)
+        fsm.act("DRAIN",                                # assembly residual flush (EOF)
             source.valid.eq(~cs_pass),
-            source.data.eq(Mux(patch_here, cs_patched(carry >> sh_lo), carry >> sh_lo)),
-            source.last.eq(seg_eof),
-            source.keep.eq(rlast_keep),
-            cs_beat.eq(carry >> sh_lo),
-            cs_keep.eq(rlast_keep),
+            source.data.eq(Mux(patch_here, cs_patched(A_reg[:64]), A_reg[:64])),
+            source.last.eq(1),
+            source.keep.eq(drain_keep),
+            cs_beat.eq(A_reg[:64]),
+            cs_keep.eq(drain_keep),
             If(cs_pass,
                 cs_take.eq(1),
+                NextValue(A_reg, 0),
+                NextValue(aocc, 0),
                 *cs_restart()
             ).Elif(source.ready,
+                NextValue(A_reg, 0),
+                NextValue(aocc, 0),
                 *seg_finish()
             )
         )

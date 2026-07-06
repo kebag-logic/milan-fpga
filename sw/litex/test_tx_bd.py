@@ -224,6 +224,43 @@ def test_bd_csum_insert():
     print("PASS TX-BD HW csum-insert (offsets x lengths, folded+patched correctly)")
 
 
+def test_bd_arbitrary_chain():
+    """Cross-BD continuity: mid-segments of ARBITRARY length (the old %8 contract is
+    dead) at arbitrary offsets — one seamless wire frame, byte-exact, exact tail keep.
+    This is the SG-enabling property: TCP frags have arbitrary sizes."""
+    import random
+    random.seed(7)
+    for trial in range(4):
+        segs = [(random.randrange(8), random.choice([3, 13, 61, 97, 200, 1000]))
+                for _ in range(random.randrange(2, 6))]
+        h = BDHarness(ring_size=4096, cycles=200000)
+        payload = b''
+        addr = SEG_A
+        for i, (off, ln) in enumerate(segs):
+            data = bytes(((i * 29 + k * 7) ^ 0xC3) & 0xFF for k in range(ln))
+            h.put_seg(addr, b'\x55' * off + data)
+            h.put_bd(i, addr + off, ln, eof=(i == len(segs) - 1))
+            payload += data
+            addr += 0x1000
+        def stim(h=h, n=len(segs)):
+            yield from h.init_bd()
+            yield h.dut.wr_ptr.storage.eq((16 * n) & 127)
+            yield
+            for _ in range(30000):
+                if (yield h.dut.sent.status) == 1:
+                    break
+                yield
+            assert (yield h.dut.sent.status) == 1, f"trial {trial} stuck"
+        h.run(stim)
+        got = h.rx_bytes()
+        assert got == payload, \
+            f"trial {trial} segs={segs}: mismatch at " \
+            f"{next(i for i,(a,b) in enumerate(zip(got,payload)) if a!=b)}"
+        lasts = [l for _, _, l in h.beats]
+        assert sum(lasts) == 1 and lasts[-1] == 1
+    print("PASS TX-BD arbitrary-length chains (SG-ready: %8 contract removed)")
+
+
 if __name__ == "__main__":
     test_bd_single_segment()
     test_bd_multi_segment()
@@ -231,4 +268,5 @@ if __name__ == "__main__":
     test_bd_wrap_and_disable()
     test_bd_unaligned_offsets()
     test_bd_csum_insert()
+    test_bd_arbitrary_chain()
     print("ALL PASS")
