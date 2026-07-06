@@ -185,3 +185,115 @@ tcp.seq += k·mss, FIN/PSH only on last, tcp.check per segment = fold(driver-con
 pseudo+hdr sum + seq_k halves + engine per-segment payload pre-pass sum — the v2b
 double-read machinery)); payload phase consumes the continuity stream with cuts at
 mss. Stack cost then runs once per 64 KB: TCP output ÷44, skb_segment gone entirely.
+
+## TX ladder — EXECUTED on silicon (2026-07-06): soft-TSO + cs-across-BDs, TX 58 → 103
+
+Step 3 landed as **soft-TSO**: no per-MSS header-replay gateware — the DRIVER does the
+MSS cutting by writing BDs, and the Step-1 continuity engine does the stitching.
+
+**Soft-TSO via BD choreography (driver `kl-eth`, the-private-test-repo `e7b9c77`).**
+`NETIF_F_TSO` advertised; each gso super-skb is segmented by the driver writing
+per-segment BD chains: a per-segment header built in a coherent **header arena**
+(256 slots × 128 B, one slot per BD index, headers at **slot+2** so the IP/TCP fields
+are 4-byte aligned) + payload BDs pointing straight into the super-skb frags (**no data
+copy**). The continuity engine (assembly shifter) stitches the arbitrary offsets/lengths
+into one wire frame. BD ring 64 → 256 entries (driver constant; the ring mask CSR is
+programmable).
+
+**The +2 alignment lesson.** Headers first went into the arena at +0 → iph at +14, tcph
+at +34 (2 mod 4): every u32 field store trapped to SBI misaligned-emulation on
+VexiiRiscv — ≈ **56 µs per 94-byte header = 69 % of the whole TSO cost** (measured with
+the driver stage timers). Moving headers to slot+2 (NET_IP_ALIGN) took TX
+**42 → 88 Mbit/s**.
+
+**Measured TX ladder @ MTU 1500** (iperf3, peer i210):
+
+| | baseline | soft-TSO @ +0 (misaligned) | **+2 fix** | `-P2` | `-l 1M` single-flow |
+|---|---|---|---|---|---|
+| TCP TX | 58 | 42 | **88** | 98 | **103** |
+
+RX regression holds at **203 Mbit/s**.
+
+**cs-across-BDs (gateware `e633032`, bitstream `rsc6`).** The TX v2b checksum pre-pass
+now walks the WHOLE BD chain (the accumulator survives BD hops), **rewinds the BD ring
+to the chain's first BD** (new `rd_c` anchor), and re-walks it streaming with the folded
+ones-complement sum patched at the frame-relative `csum_off`. cs fields latch ONLY from
+the chain's **first** BD w1; a new **published rd** (`rd_pub`) hides the pre-pass rd
+excursion from the driver — otherwise the reaper frees skbs the real pass still reads.
+Driver side: the per-segment TCP checksum seed = pseudo − sum(pre-TCP header bytes),
+field patched by HW — the SW payload `csum_partial` pass (**845 µs/64 KB super-skb,
+16 %**) is deleted. Non-TSO chained PARTIAL skbs also switch from `skb_checksum_help`
+to the same first-BD w1 mechanism. Sim: `test_tx_bd.py::test_bd_csum_chain` (chain
+pre-pass + rewind + patch + rd publish); whole suite **8/8**.
+
+### Multi-flow hardening — the `-P4` root causes (2026-07-06)
+
+Three `-P4` stability root causes found & fixed on silicon, plus an RSC crash exposed
+alongside:
+
+1. **Lost doorbell at ring-full (driver).** The xmit_more-deferred doorbell was lost
+   when the ring filled. Fix: flush the doorbell BEFORE `netif_stop_queue`.
+2. **Zombie-full ring (driver).** xmit wrote `kl->txbd_rd` (the REAPER's cursor) on the
+   full-path refresh → the cursor jumped past unfreed slots → permanently-full ring.
+   Rule: **only the reaper owns the cursor**; xmit re-checks against a LOCAL hw rd read.
+3. **RSC DISCARD black hole (gateware `9584927`, bitstream `rsc5`).** A frame with
+   beats ≤ hdr_take (any pure ACK ≤ 9 beats) dropped with an EMPTY post FIFO entered
+   DISCARD with `disc=0`, which wraps 11 bits and eats **2047 beats of FOLLOWING
+   frames** → permanent len/data FIFO desync (drops tick forever, frames frozen).
+   Fix: count the drop and return to IDLE without touching `data_fifo`. Regression:
+   `test_ring_bd.py::test_rsc_tiny_drop_recovers`.
+4. **RSC single-segment aggregate panic (driver, 2026-07-06).** Single-segment
+   aggregates (timeout / newcomer-closed, len ≤ copybreak 192) crashed the kernel:
+   `skb_add_rx_frag(len - copybreak)` wrapped as u32 → `skb->len < data_len` →
+   `eth_type_trans` BUG → panic in interrupt. Fix: clamp the linear part
+   (`lin = min(len, copybreak)`), recycle the page when fully linear, gso fields only
+   when `segs > 1`, and reject `len < 54` v2 BDs.
+
+**Profiling methodology.** Driver `get_cycles()` stage timers (per-stage buckets printed
+every 2048 frames) + `/proc/profile` tick profiling (`profile=4`) + capacity reasoning —
+**books must balance**: the 56 µs header cost was found because b1 dominated the stage
+print, and the misalignment hypothesis was confirmed by the **9.4× drop after +2**.
+
+### ACK-run merging — LIVE on silicon (2026-07-07): TX 109 → 121
+
+The phase-F item landed (gateware `ee52742`, bitstream `rsc7`, WNS +0.146): the RSC
+writer grew a **pending-ACK slot** that absorbs runs of pure ACKs (flags == ACK-only,
+plen == 0, doff = 5 or timestamp-only options `01 01 08 0A`), delivering only the
+LATEST as a normal **v1 BD** — **zero driver changes needed**. SACK-shaped ACKs pass
+through untouched.
+
+**The `rsc_tout` sweep (silicon, 2026-07-07).** `rsc_tout` is the SHARED idle-flush
+timeout — data aggregates AND the pending ACK. At the 100 µs default the merge never
+engages: peer ACK spacing is ~200 µs at 115 Mbit/s, so each pending ACK flushes before
+its successor arrives (merge rate ~8/s). At **512 µs** (25600 cycles @50 MHz) the merge
+fully engages (~2,000 ACKs/s absorbed) and single-flow TX goes **109 → 121 Mbit/s**. At
+**≥1 ms TX COLLAPSES** to ~300 Kbit/s — the sender's ACK clock starves. RX is
+insensitive across 100 µs–2 ms (201-206 Mbit/s). The driver (the-private-test-repo `85122fa`)
+programs 25600 at init.
+
+**Final measured ladder @ MTU 1500** (`rsc7` + driver `85122fa`; session baseline TX 58):
+
+| | single-flow | `-P2` | `-l 1M` | zerocopy | RX |
+|---|---|---|---|---|---|
+| TCP | **118-121** | 136 | 132 | **142** | **201-206** |
+
+zerocopy = iperf3 `-Z` (sendfile), board-as-client, measured on `rsc6`.
+
+### Post-mortem corrections (2026-07-07)
+
+- **The "-P4 wedge" is NOT a hang or a HW/driver bug** — it is an extreme TCP crawl
+  (~1-2 frames/s) under 4-flow competition. Driver+engine were proven alive during it
+  via a poll heartbeat (rd/seq advancing, BD ring config intact). Page-pool exhaustion
+  (4× pool test) and CSR/BD-config corruption theories: disproven. Open item: TCP
+  dynamics under 4-flow competition on the 2×100 MHz SoC.
+- **"bd_base cleared to 0" was an instrumentation error** — a debugging gotcha: LiteX
+  64-bit CSRs expose the HIGH word at the LISTED address (`milan_dma_rx_bd_base`
+  0xf0003058 reads bits[63:32], always 0 for 32-bit DMA addresses; the live value is
+  at +4).
+
+### Driver robustness (the-private-test-repo `85122fa`)
+
+RX and TX **BD-ring self-heal** paths: full CSR reprogram (base/mask/rd/tout/enable) +
+page/skb reclaim, behind a **race-free detector** — re-read the BD after sampling the
+HW `wr` (the engine commits BDs before advancing `wr`, so a BD that appears on re-read
+was a lost race, not a wedge). Plus rate-limited poll/bd dmesg heartbeats.
