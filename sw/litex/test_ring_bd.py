@@ -499,6 +499,39 @@ def test_rsc_disable_clears_aggregate():
     print("PASS RSC disable clears open aggregate (reload hygiene)")
 
 
+def test_rsc_tiny_drop_recovers():
+    """The -P4 RX-wedge regression (silicon 2026-07-06): with rsc_en=1 and an EMPTY
+    post FIFO, a frame small enough to live entirely in hdr_reg (beats <= 9, e.g. a
+    pure ACK) reached DISCARD with disc=0 — which wraps 11 bits and eats 2047 beats
+    of FOLLOWING frames, permanently desyncing len/data FIFOs (drops tick forever,
+    frames frozen). The drop must instead be counted with NO data_fifo consumption."""
+    wa, _ = tcp_frame(payload_len=0, flags=0x10, doff=8, seq=100)     # 66 B = 9 beats
+    assert len(wa) <= 9, "vector must fit hdr_reg to hit the disc=0 path"
+    wd, bd = tcp_frame(payload_len=120, flags=0x18, doff=8, seq=200)  # recovery frame
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=120000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield
+        yield from h.send_frame(wa)        # NO buffer -> tiny-frame drop (disc=0 path)
+        yield from h.send_frame(wa)        # twice: any residual desync compounds
+        yield from h.wait_idle(settle=400)
+        assert (yield h.dut.dropped.status) == 2, "tiny drops must count"
+        assert (yield h.dut.frames.status) == 0
+        yield from h.post_buf(BUFS[0])     # recovery: buffer + PSH data frame
+        yield from h.send_frame(wd)
+        yield from h.wait_idle(settle=400)
+        assert (yield h.dut.frames.status) == 1, "engine wedged after tiny drop"
+        assert (yield h.dut.dropped.status) == 2
+    h.run(stim)
+    got_words = h.read_buf(BUFS[0], (len(bd)+7)//8)
+    got = b''.join((w or 0).to_bytes(8,'little') for w in got_words)[:len(bd)]
+    assert got == bd, "recovery frame corrupted -> FIFOs desynced"
+    print("PASS RSC tiny-frame drop recovers (disc=0 black hole regression)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -514,4 +547,5 @@ if __name__ == "__main__":
     test_rsc_segcap_and_ack()
     test_rsc_timeout()
     test_rsc_disable_clears_aggregate()
+    test_rsc_tiny_drop_recovers()
     print("ALL PASS")
