@@ -359,6 +359,84 @@ def test_rsc_gap_closes():
     print("PASS RSC gap-close + fresh-open (parked-frame redispatch)")
 
 
+def test_rsc_align_sweep():
+    """Phase B coverage: chain segments whose lengths walk agg_off through ALL dest
+    lanes, for doff 5 and 8 (source lanes 6 and 2) -> exercises every shifter regime
+    (pass-through, rotate, rotate+prime) and head/tail strobes. Byte-exact each close."""
+    for doff in (5, 8):
+        plens = [97, 61, 40, 123, 200, 33, 55, 64]     # off mod 8 walks the lanes
+        base = 40000
+        frames, blobs, seqs = [], [], []
+        sq = base
+        for i, pl in enumerate(plens):
+            fl = 0x18 if i == len(plens) - 1 else 0x10   # PSH on the last
+            w, b = tcp_frame(payload_len=pl, flags=fl, doff=doff, seq=sq)
+            frames.append(w); blobs.append(b); seqs.append(sq)
+            sq += pl
+        h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=2048, cycles=400000)
+
+        def stim(h=h, frames=frames):
+            yield from h.init_bd()
+            yield h.dut.rsc_en.storage.eq(1)
+            yield h.dut.rsc_bufsz.storage.eq(8192)
+            yield
+            yield from h.post_buf(BUFS[0])
+            for w in frames:
+                yield from h.send_frame(w)
+            yield from h.wait_idle(settle=600)
+            assert (yield h.dut.frames.status) == 1, "one aggregate expected"
+        h.run(stim)
+        hdr = 34 + doff * 4 + 14 - 34   # eth+ip+tcp bytes = 14+20+doff*4
+        hdrlen = 14 + 20 + doff * 4
+        exp = blobs[0][:hdrlen + plens[0]]
+        for b, pl in zip(blobs[1:], plens[1:]):
+            exp += b[hdrlen:hdrlen + pl]
+        got_words = h.read_buf(BUFS[0], (len(exp) + 7) // 8)
+        got = b''.join((w or 0).to_bytes(8, 'little') for w in got_words)[:len(exp)]
+        bad = next((i for i, (a, e) in enumerate(zip(got, exp)) if a != e), None)
+        assert bad is None, f"doff={doff}: mismatch at byte {bad} "                             f"(got {got[bad]:#x} exp {exp[bad]:#x})"
+        w0, wv1 = h.read_bd(0)
+        assert ((w0 >> 16) & 0xFFFF) == len(exp)
+        assert ((wv1 >> 48) & 0xFF) == len(plens)
+    print("PASS RSC alignment sweep (doff 5+8, all dest lanes, prime+rotate+pass)")
+
+
+def test_rsc_segcap_and_ack():
+    """16-segment cap auto-closes; a pure ACK mid-flow closes the aggregate and is
+    delivered as a plain v1 single."""
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=2048, cycles=500000)
+    sq = 70000
+    frames = []
+    for i in range(17):                                  # 17 no-PSH data segments
+        w, _ = tcp_frame(payload_len=40, flags=0x10, doff=5, seq=sq)
+        frames.append(w); sq += 40
+    ackw, _ = tcp_frame(payload_len=0, flags=0x10, doff=5, seq=sq)   # pure ACK
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(8192)
+        yield
+        for b in (BUFS[0], BUFS[1], BUFS[2]):
+            yield from h.post_buf(b)
+        for w in frames:
+            yield from h.send_frame(w)
+        yield from h.send_frame(ackw)
+        yield from h.wait_idle(settle=800)
+        # BD1: 16-seg aggregate (cap). BD2: 1-seg aggregate (seg 17) closed by the ACK.
+        # BD3: the ACK itself as v1 single.
+        assert (yield h.dut.frames.status) == 3, "cap+ack must yield 3 BDs"
+    h.run(stim)
+    w0a, v1a = h.read_bd(0)
+    assert ((v1a >> 48) & 0xFF) == 16, f"segcap {(v1a>>48)&0xFF}"
+    w0b, v1b = h.read_bd(1)
+    assert ((v1b >> 48) & 0xFF) == 1 and ((w0b >> 56) & 1) == 1
+    w0c, _ = h.read_bd(2)
+    assert ((w0c >> 56) & 1) == 0, "ACK must be a v1 single"
+    assert ((w0c >> 16) & 0xFFFF) == 56, "ACK len 8-padded (54->56)"
+    print("PASS RSC seg-cap(16) close + pure-ACK mid-flow close (v1 single)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -370,4 +448,6 @@ if __name__ == "__main__":
     test_rsc_ineligible()
     test_rsc_merge3()
     test_rsc_gap_closes()
+    test_rsc_align_sweep()
+    test_rsc_segcap_and_ack()
     print("ALL PASS")
