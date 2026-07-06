@@ -437,6 +437,68 @@ def test_rsc_segcap_and_ack():
     print("PASS RSC seg-cap(16) close + pure-ACK mid-flow close (v1 single)")
 
 
+def test_rsc_timeout():
+    """Phase C: an idle aggregate closes on the timeout (no closing frame needed),
+    and merges RESET the timer (no premature close between spaced segments)."""
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=120000)
+    w1, _ = tcp_frame(payload_len=64, flags=0x10, doff=8, seq=100)
+    w2, _ = tcp_frame(payload_len=64, flags=0x10, doff=8, seq=164)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield h.dut.rsc_tout.storage.eq(300)
+        yield
+        yield from h.post_buf(BUFS[0])
+        yield from h.send_frame(w1)
+        for _ in range(200):              # < timeout: must stay open
+            yield
+        assert (yield h.dut.frames.status) == 0, "closed too early"
+        yield from h.send_frame(w2)       # merge resets the timer
+        for _ in range(200):
+            yield
+        assert (yield h.dut.frames.status) == 0, "timer did not reset on merge"
+        for _ in range(400):              # now exceed the timeout
+            yield
+        assert (yield h.dut.frames.status) == 1, "timeout close missing"
+    h.run(stim)
+    w0, v1 = h.read_bd(0)
+    assert ((v1 >> 48) & 0xFF) == 2 and ((w0 >> 56) & 1) == 1
+    print("PASS RSC timeout close (idle flush + timer reset on merge)")
+
+
+def test_rsc_disable_clears_aggregate():
+    """Phase C: ring disable while an aggregate is open resets it (no stray BD)."""
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=90000)
+    w1, _ = tcp_frame(payload_len=64, flags=0x10, doff=8, seq=100)
+    w2, b2 = tcp_frame(payload_len=64, flags=0x18, doff=8, seq=500)   # PSH single
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield h.dut.rsc_tout.storage.eq(2000)
+        yield
+        yield from h.post_buf(BUFS[0])
+        yield from h.send_frame(w1)       # arms an aggregate
+        for _ in range(80):
+            yield
+        yield h.dut.enable.storage.eq(0)  # driver reload
+        for _ in range(20):
+            yield
+        yield h.dut.enable.storage.eq(1)
+        yield
+        yield from h.post_buf(BUFS[1])
+        yield from h.send_frame(w2)       # arm+PSH -> v1 single
+        yield from h.wait_idle(settle=400)
+        assert (yield h.dut.frames.status) == 1, "exactly the post-reload frame"
+    h.run(stim)
+    w0, _ = h.read_bd(0)
+    assert ((w0 >> 56) & 1) == 0, "post-reload PSH single must be v1"
+    print("PASS RSC disable clears open aggregate (reload hygiene)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -450,4 +512,6 @@ if __name__ == "__main__":
     test_rsc_gap_closes()
     test_rsc_align_sweep()
     test_rsc_segcap_and_ack()
+    test_rsc_timeout()
+    test_rsc_disable_clears_aggregate()
     print("ALL PASS")
