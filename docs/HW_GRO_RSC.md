@@ -129,9 +129,15 @@ regimes, byte-exact each close); **16-segment cap auto-close**; **pure ACK mid-f
 model (`test_ring_dma.py`) is now **WSTRB-aware** — the realign path writes partial beats,
 and a strobe-ignoring model would hide corruption.
 
+### Phase C — DONE (commit `18fcec3`, 16/16 sims)
+Idle-timeout close: `rsc_tout` CSR (24-bit milan_clk cycles, reset 5000 = 100 µs
+@50 MHz); the timer resets on every arm/merge (`agg_touch`) and the close fires from
+IDLE (frame processing has priority — a pending frame merges or closes first). Ring
+disable clears any open aggregate (reload hygiene, no stray BD). Tests: timeout flush,
+timer-reset-on-merge (no premature close), disable-with-open-aggregate.
+
 ### Remaining
-**C** — timeout close (µs counter, runs from IDLE) + close-matrix completion (ring
-disable, non-TCP passthrough mid-aggregate). **D** — driver: order-2 16 KB pool,
+**D** — driver: order-2 16 KB pool,
 merged-BD header fixup (`ip.tot_len`/ack/win/PSH), `gso_size=mss`/`gso_segs`,
 CHECKSUM_UNNECESSARY. **E** — silicon A/B (`rsc_en`, iperf + tick-profile: expect
 per-frame stack cost ÷K). **F** (v2) — HW csum verify, multi-flow slots, ACK-run merging.
