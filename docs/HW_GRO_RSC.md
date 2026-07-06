@@ -141,3 +141,22 @@ timer-reset-on-merge (no premature close), disable-with-open-aggregate.
 merged-BD header fixup (`ip.tot_len`/ack/win/PSH), `gso_size=mss`/`gso_segs`,
 CHECKSUM_UNNECESSARY. **E** — silicon A/B (`rsc_en`, iperf + tick-profile: expect
 per-frame stack cost ÷K). **F** (v2) — HW csum verify, multi-flow slots, ACK-run merging.
+
+## Phase E — SILICON RESULT (2026-07-07): **GOAL MET — 203 Mbit/s TCP RX @ MTU 1500**
+
+`build_rsc1` (dual-hart + RSC A–C): WNS +0.667 (healthiest recent build — the realign
+shifter closes with margin), 61.3 % LUTs (~1.3 k for RSC). Driver `rsc=1` (af65df6).
+Measured, sustained 15 s iperf3, wire MTU 1500:
+
+| | before campaign | copybreak | **RSC** |
+|---|---|---|---|
+| TCP RX | 25 | 46.5 | **203 Mbit/s** |
+| merge factor | — | — | **9.0 segs/BD** (rx_packets/BDs) |
+| CPU during RX | 99 % sys, 0 idle | 90 % | **66 % sys, 32 % idle** |
+| TCP TX | 35.6 | 57.5 | 58 |
+
+The ÷K arithmetic landed exactly (46.5 × ~4.4 ≈ 203 at K=9). CPU now has 32 % idle at
+200 Mbit/s — headroom remains. Ring drops during the run: 2 (negligible); ~1.5 k IRQ/s.
+Day total: RX **8.1×**, achieved via profile-guided steps: 3-copies fix (copybreak+frag),
+dual-hart SMP, and HW receive coalescing. TX (58) is the next frontier if needed —
+levers: HW-TSO (spec'd), O2 kernel via BIOS-LZ4.
