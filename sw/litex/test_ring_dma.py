@@ -73,7 +73,17 @@ class Harness:
                     yield
                     while not (yield bus.w.valid):
                         yield
-                    self.mem[addr + 8 * got] = (yield bus.w.data)
+                    _d = (yield bus.w.data)
+                    _st = (yield bus.w.strb)
+                    if _st == 0xFF:
+                        self.mem[addr + 8 * got] = _d
+                    else:                          # partial write: merge by strb
+                        _m = 0
+                        for _i in range(8):
+                            if _st & (1 << _i):
+                                _m |= 0xFF << (8 * _i)
+                        _o = self.mem.get(addr + 8 * got, 0)
+                        self.mem[addr + 8 * got] = (_o & ~_m) | (_d & _m)
                     is_last = (yield bus.w.last)
                     got += 1
                     if is_last != (1 if got == blen else 0):

@@ -609,11 +609,59 @@ class RingDMAWriter(LiteXModule):
             p_seq.eq(Cat(_b(41), _b(40), _b(39), _b(38))),
             p_totlen.eq(Cat(_b(17), _b(16))),
             # data segment, flags subset {ACK(0x10), PSH(0x08)}, sane doff
-            p_eligible.eq(p_eth_ip & p_ihl5 & p_tcp & p_nofrag &
+            p_eligible.eq((hdr_take >= 7) & p_eth_ip & p_ihl5 & p_tcp & p_nofrag &
                           ((p_flags & 0xE7) == 0) & (p_flags[4]) &
                           (p_doff >= 5) &
                           (p_totlen > (20 + Cat(C(0, 2), p_doff)))),
         ]
+        p_ack   = Signal(32)
+        p_win   = Signal(16)
+        p_plen  = Signal(16)            # exact TCP payload bytes (from ip.tot_len)
+        p_soff  = Signal(8)             # payload start byte in the frame = 34 + doff*4
+        p_srcip = Signal(32)
+        p_dstip = Signal(32)
+        p_ports = Signal(32)
+        self.comb += [
+            p_ack.eq(Cat(_b(45), _b(44), _b(43), _b(42))),
+            p_win.eq(Cat(_b(49), _b(48))),
+            p_plen.eq(p_totlen - 20 - Cat(C(0, 2), p_doff)),
+            p_soff.eq(34 + Cat(C(0, 2), p_doff)),
+            p_srcip.eq(Cat(_b(26), _b(27), _b(28), _b(29))),
+            p_dstip.eq(Cat(_b(30), _b(31), _b(32), _b(33))),
+            p_ports.eq(Cat(_b(34), _b(35), _b(36), _b(37))),
+        ]
+        # ---- RSC phase B: single-slot aggregate state ----
+        agg_open  = Signal()
+        agg_srcip = Signal(32)
+        agg_dstip = Signal(32)
+        agg_ports = Signal(32)
+        agg_doff  = Signal(4)
+        agg_eseq  = Signal(32)          # expected next seq
+        agg_off   = Signal(16)          # exact bytes used in the aggregate buffer
+        agg_buf   = Signal(32)          # the posted buffer being aggregated into
+        agg_segs  = Signal(8)
+        agg_mss   = Signal(16)
+        agg_ack   = Signal(32)
+        agg_win   = Signal(16)
+        agg_psh   = Signal()
+        agg_match = Signal()
+        self.rsc_bufsz = CSRStorage(16, reset=2048, description="RSC aggregate buffer bytes (driver posts this size).")
+        self.comb += agg_match.eq(agg_open & p_eligible &
+                                  (p_srcip == agg_srcip) & (p_dstip == agg_dstip) &
+                                  (p_ports == agg_ports) & (p_doff == agg_doff) &
+                                  (p_seq == agg_eseq) &
+                                  ((agg_off + p_plen) <= self.rsc_bufsz.storage))
+        # append-path registers (set at DISPATCH — keeps cones off the data path)
+        ap_append = Signal()            # this frame appends payload-only
+        ap_arm    = Signal()            # this frame opens an aggregate at WAIT_B
+        ap_close  = Signal()            # WB emits the aggregate BD
+        ap_p      = Signal(3)           # byte rotate = (s_lane - r_lane) mod 8
+        ap_pass   = Signal()            # p == 0 passthrough
+        ap_head   = Signal(8)           # first-beat wstrb
+        ap_tail   = Signal(8)           # last-beat wstrb
+        ap_inrem  = Signal(12)          # input beats still to consume
+        ap_flush  = Signal(2)           # trailing pad beats to sink after payload
+        ap_carry  = Signal(64)
         self.rsc_dbg = CSRStatus(32, description="RSC parse of the last captured frame: "
                                  "{eligible, doff[3:0], flags[7:0], totlen[15:0]}.")
         self.comb += in_hdrr.eq(bd_mode & self.rsc_en.storage & (fbeat < hdr_cnt))
@@ -802,18 +850,16 @@ class RingDMAWriter(LiteXModule):
                 NextValue(rem_r, len_fifo.source.beats),
                 NextValue(off_r, 0),
                 NextValue(hdr_sent, 1),                          # suppress the header
-                If(post_fifo.source.valid,
-                    post_pop.eq(1),
-                    NextValue(buf_addr_r, post_fifo.source.addr),
+                If(self.rsc_en.storage,
                     NextValue(hdr_cnt, 0),
                     NextValue(fbeat, 0),
                     NextValue(hdr_take, Mux(len_fifo.source.beats > 9, 9,
                                             len_fifo.source.beats)),
-                    If(self.rsc_en.storage,
-                        NextState("HDR_CAP"),
-                    ).Else(
-                        NextState("PREP"),
-                    )
+                    NextState("HDR_CAP"),        # buffer pop decided at DISPATCH
+                ).Elif(post_fifo.source.valid,
+                    post_pop.eq(1),
+                    NextValue(buf_addr_r, post_fifo.source.addr),
+                    NextState("PREP"),
                 ).Else(                                          # no buffer -> drop whole
                     NextValue(disc, len_fifo.source.beats),
                     NextState("DISCARD"),
@@ -835,8 +881,74 @@ class RingDMAWriter(LiteXModule):
                 NextValue(hdr_reg[hdr_cnt], data_fifo.source.data),
                 NextValue(hdr_cnt, hdr_cnt + 1),
                 If(hdr_cnt == hdr_take - 1,
+                    NextState("DISPATCH"),
+                )
+            )
+        )
+        # DISPATCH: decide append / close-first / fresh-open / plain single
+        s_lane  = Signal(3)
+        r_lane  = Signal(3)
+        ap_outb = Signal(12)            # output beats for the append
+        self.comb += [
+            s_lane.eq(p_soff[:3]),
+            r_lane.eq(agg_off[:3]),
+            ap_outb.eq((r_lane + p_plen + 7)[3:]),
+        ]
+        ap_prime  = Signal()            # s>r regime: preload one beat into carry
+        ap_first  = Signal()            # next W beat is the append's first (head strb)
+        ap_csrc   = Signal()            # close origin: 0=parked frame, 1=PSH/arm-path
+        tl_lane   = Signal(3)
+        self.comb += tl_lane.eq((agg_off + p_plen - 1)[:3])
+        fsm.act("DISPATCH",
+            If(agg_match,
+                # payload-only append into the OPEN aggregate's buffer
+                NextValue(ap_append, 1),
+                NextValue(ap_arm, 0),
+                NextValue(ap_p, s_lane - r_lane),
+                NextValue(ap_pass, s_lane == r_lane),
+                NextValue(ap_prime, s_lane > r_lane),
+                NextValue(ap_first, 1),
+                NextValue(ap_head, 0xFF & (0xFF << r_lane)),
+                NextValue(ap_tail, (0x1FF & ((2 << tl_lane) - 1))[:8]),
+                NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
+                NextValue(fbeat, p_soff[3:]),
+                NextValue(rem_r, ap_outb),
+                NextValue(off_r, Cat(C(0, 3), agg_off[3:])),
+                NextValue(buf_addr_r, agg_buf),
+                NextState("APRIME"),
+            ).Elif(agg_open,
+                # parked newcomer: close the aggregate first, then re-dispatch
+                NextValue(ap_close, 1),
+                NextValue(ap_csrc, 0),
+                NextState("WB_AW"),
+            ).Elif(post_fifo.source.valid,
+                post_pop.eq(1),
+                NextValue(buf_addr_r, post_fifo.source.addr),
+                NextValue(ap_append, 0),
+                NextValue(ap_arm, p_eligible),      # open an aggregate at WAIT_B
+                NextValue(ap_first, 0),
+                NextState("PREP"),
+            ).Else(
+                NextValue(disc, frame_beats - hdr_take),
+                NextState("DISCARD"),
+            )
+        )
+        fsm.act("APRIME",
+            If(ap_prime,                             # consume ONE source beat into carry
+                If(in_hdrr,
+                    NextValue(ap_carry, hdr_reg[fbeat[:4]]),
+                    NextValue(fbeat, fbeat + 1),
+                    NextValue(ap_inrem, ap_inrem - 1),
+                    NextState("PREP"),
+                ).Elif(data_fifo.source.valid,
+                    data_fifo.source.ready.eq(1),
+                    NextValue(ap_carry, data_fifo.source.data),
+                    NextValue(fbeat, fbeat + 1),
+                    NextValue(ap_inrem, ap_inrem - 1),
                     NextState("PREP"),
                 )
+            ).Else(
+                NextState("PREP"),
             )
         )
         fsm.act("CHECK",
@@ -869,18 +981,45 @@ class RingDMAWriter(LiteXModule):
                 NextState("W"),
             )
         )
+        raw_beat = Signal(64)           # current source beat (regfile / FIFO / drain-0)
+        ap_out   = Signal(64)           # realigned append beat
+        ap_srcv  = Signal()             # source valid for this beat
+        ap_last  = Signal()             # final beat of the whole append
+        self.comb += [
+            raw_beat.eq(Mux(ap_inrem == 0, 0,
+                        Mux(in_hdrr, hdr_reg[fbeat[:4]], data_fifo.source.data))),
+            ap_srcv.eq((ap_inrem == 0) | in_hdrr | data_fifo.source.valid),
+            ap_out.eq(Mux(ap_pass, raw_beat,
+                      (Cat(ap_carry, raw_beat) >> Cat(C(0, 3), ap_p))[:64])),
+            ap_last.eq((rem_r == 0) & (wcnt == blen_r - 1)),
+        ]
         fsm.act("W",
-            self.bus.w.valid.eq(is_hdr | in_hdrr | data_fifo.source.valid),
+            self.bus.w.valid.eq(Mux(ap_append, ap_srcv,
+                                    is_hdr | in_hdrr | data_fifo.source.valid)),
             self.bus.w.data.eq(Mux(is_hdr,
                 Cat(len_bytes, seq, frame_csum, Signal(16)),     # {0, csum, seq, len}
-                Mux(in_hdrr, hdr_reg[fbeat[:4]], data_fifo.source.data))),
-            self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
+                Mux(ap_append, ap_out,
+                    Mux(in_hdrr, hdr_reg[fbeat[:4]], data_fifo.source.data)))),
+            self.bus.w.strb.eq(Mux(ap_append,
+                                   Mux(ap_first, ap_head, 0xFF) &
+                                   Mux(ap_last, ap_tail, 0xFF),
+                                   2**len(self.bus.w.strb) - 1)),
             self.bus.w.last.eq(wcnt == blen_r - 1),
             If(self.bus.w.valid & self.bus.w.ready,
-                data_fifo.source.ready.eq(~is_hdr & ~in_hdrr),
+                data_fifo.source.ready.eq(~is_hdr & ~in_hdrr &
+                                          (~ap_append | (ap_inrem != 0))),
                 NextValue(hdr_sent, 1),
                 NextValue(wcnt, wcnt + 1),
-                If(~is_hdr, NextValue(fbeat, fbeat + 1)),
+                If(ap_append,
+                    NextValue(ap_first, 0),
+                    NextValue(ap_carry, raw_beat),
+                    If(ap_inrem != 0,
+                        NextValue(fbeat, fbeat + 1),
+                        NextValue(ap_inrem, ap_inrem - 1),
+                    )
+                ).Elif(~is_hdr,
+                    NextValue(fbeat, fbeat + 1),
+                ),
                 If(self.bus.w.last,
                     If(rem_r == 0,                  # updated at AW: post-burst remaining
                         NextState("WAIT_B"),
@@ -892,8 +1031,37 @@ class RingDMAWriter(LiteXModule):
         )
         fsm.act("WAIT_B",
             If(outstanding == 0,
-                If(bd_mode,
-                    # payload fully committed to the posted buffer -> write the BD
+                If(bd_mode & ap_arm & ~p_flags[3],
+                    # RSC: first frame parked — aggregate opens, BD deferred
+                    NextValue(agg_open, 1),
+                    NextValue(agg_srcip, p_srcip), NextValue(agg_dstip, p_dstip),
+                    NextValue(agg_ports, p_ports), NextValue(agg_doff, p_doff),
+                    NextValue(agg_eseq, p_seq + p_plen),
+                    NextValue(agg_off, 14 + p_totlen),
+                    NextValue(agg_buf, buf_addr_r),
+                    NextValue(agg_segs, 1), NextValue(agg_mss, p_plen),
+                    NextValue(agg_ack, p_ack), NextValue(agg_win, p_win),
+                    NextValue(agg_psh, 0),
+                    NextValue(ap_arm, 0),
+                    NextState("IDLE"),
+                ).Elif(bd_mode & ap_append,
+                    # RSC: payload appended — update aggregate, maybe close
+                    NextValue(agg_off, agg_off + p_plen),
+                    NextValue(agg_eseq, agg_eseq + p_plen),
+                    NextValue(agg_segs, agg_segs + 1),
+                    NextValue(agg_ack, p_ack), NextValue(agg_win, p_win),
+                    NextValue(agg_psh, agg_psh | p_flags[3]),
+                    NextValue(ap_append, 0),
+                    If(p_flags[3] | (agg_segs == 15),
+                        NextValue(ap_close, 1),
+                        NextValue(ap_csrc, 1),
+                        NextState("WB_AW"),
+                    ).Else(
+                        NextState("IDLE"),
+                    )
+                ).Elif(bd_mode,
+                    # plain single (incl. arm+PSH: eligible-but-pushed -> v1 BD)
+                    NextValue(ap_arm, 0),
                     NextState("WB_AW"),
                 ).Else(
                     NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
@@ -923,9 +1091,16 @@ class RingDMAWriter(LiteXModule):
         fsm.act("WB_W",
             self.bus.w.valid.eq(1),
             self.bus.w.data.eq(Mux(bd_mode,
-                Mux(wb_beat, buf_addr_r,              # word1: where the frame landed
-                    # word0: {drops[15:0], csum, len, seq[7:0], magic 0xBD}
-                    Cat(C(0xBD, 8), seq[:8], len_bytes, frame_csum, drops[:16])),
+                Mux(ap_close,
+                    Mux(wb_beat,
+                        # v2 w1: {doff, segs, win, ack}
+                        Cat(agg_ack, agg_win, agg_segs, Cat(C(0, 2), agg_doff), C(0, 2)),
+                        # v2 w0: {flags, drops, mss, len, seq, magic}
+                        Cat(C(0xBD, 8), seq[:8], agg_off, agg_mss, drops[:8],
+                            Cat(C(1, 1), agg_psh, C(0, 6)))),
+                    Mux(wb_beat, buf_addr_r,          # word1: where the frame landed
+                        # word0: {drops[15:0], csum, len, seq[7:0], magic 0xBD}
+                        Cat(C(0xBD, 8), seq[:8], len_bytes, frame_csum, drops[:16]))),
                 Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
             self.bus.w.last.eq(~bd_mode | wb_beat),
@@ -941,7 +1116,17 @@ class RingDMAWriter(LiteXModule):
                     NextValue(seq, seq + 1),
                     NextValue(frames, frames + 1),
                 ),
-                NextState("IDLE"),
+                If(ap_close,
+                    NextValue(agg_open, 0),
+                    NextValue(ap_close, 0),
+                    If(ap_csrc,
+                        NextState("IDLE"),
+                    ).Else(
+                        NextState("DISPATCH"),        # parked newcomer re-dispatches
+                    )
+                ).Else(
+                    NextState("IDLE"),
+                )
             )
         )
         fsm.act("DISCARD",                          # ring full/disabled: pop + count

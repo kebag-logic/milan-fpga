@@ -292,6 +292,73 @@ def test_rsc_ineligible():
     print("PASS RSC eligibility (SYN rejected, pure-ACK-data accepted)")
 
 
+def test_rsc_merge3():
+    """Phase B: three in-order same-flow segments -> ONE buffer, ONE v2 BD.
+    Buffer = frame1 whole (exact bytes) ++ payload2 ++ payload3; close on PSH."""
+    w1, b1 = tcp_frame(payload_len=100, flags=0x10, doff=8, seq=1000)
+    w2, b2 = tcp_frame(payload_len=200, flags=0x10, doff=8, seq=1100)
+    w3, b3 = tcp_frame(payload_len=48,  flags=0x18, doff=8, seq=1300)   # PSH closes
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=120000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield
+        yield from h.post_buf(BUFS[0])
+        for w in (w1, w2, w3):
+            yield from h.send_frame(w)
+        yield from h.wait_idle(settle=400)
+        assert (yield h.dut.frames.status) == 1, "must emit exactly ONE BD"
+        assert (yield h.dut.wr_ptr.status) == 16
+    h.run(stim)
+    exp = b1[:14+152] + b2[66:66+200] + b3[66:66+48]     # 166+200+48 = 414 exact bytes
+    got_words = h.read_buf(BUFS[0], (len(exp)+7)//8)
+    got = b''.join((w or 0).to_bytes(8,'little') for w in got_words)[:len(exp)]
+    bad = next((i for i,(a,b) in enumerate(zip(got, exp)) if a!=b), None)
+    assert bad is None, f"buffer mismatch at byte {bad}: got {got[bad]:#x} exp {exp[bad]:#x}"
+    w0, wv1 = h.read_bd(0)
+    assert (w0 & 0xFF) == 0xBD
+    assert ((w0>>16)&0xFFFF) == 414, f"len {(w0>>16)&0xFFFF}"
+    assert ((w0>>32)&0xFFFF) == 100, f"mss {(w0>>32)&0xFFFF}"
+    assert ((w0>>56)&0x3) == 0x3, f"flags {(w0>>56)&0xFF:#x} (merged|psh)"
+    assert ((wv1>>48)&0xFF) == 3, f"segs {(wv1>>48)&0xFF}"
+    assert ((wv1>>56)&0xFF) == 0x20, f"doff {(wv1>>56)&0xFF:#x}"
+    print("PASS RSC 3-segment merge (byte-exact concat, one v2 BD, PSH close)")
+
+
+def test_rsc_gap_closes():
+    """Phase B: a seq gap closes the aggregate; the newcomer opens a fresh one."""
+    w1, b1 = tcp_frame(payload_len=64, flags=0x10, doff=8, seq=5000)
+    w2, b2 = tcp_frame(payload_len=64, flags=0x10, doff=8, seq=9999)   # GAP
+    w3, b3 = tcp_frame(payload_len=32, flags=0x18, doff=8, seq=9999+64)  # merges w/ w2, PSH
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=120000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield
+        yield from h.post_buf(BUFS[0])
+        yield from h.post_buf(BUFS[1])
+        for w in (w1, w2, w3):
+            yield from h.send_frame(w)
+        yield from h.wait_idle(settle=400)
+        assert (yield h.dut.frames.status) == 2, "gap => two BDs"
+    h.run(stim)
+    w0a, _ = h.read_bd(0)
+    w0b, v1b = h.read_bd(1)
+    assert ((w0a>>16)&0xFFFF) == 14+20+32+64, "agg1 len (single-seg aggregate)"
+    assert ((w0a>>56)&1) == 1, "agg1 merged-flag set (1-seg aggregate BD)"
+    assert ((w0b>>16)&0xFFFF) == (14+20+32+64) + 32, "agg2 = frame2 whole + pay3"
+    assert ((v1b>>48)&0xFF) == 2
+    # frame2 landed whole in the SECOND buffer
+    got = h.read_buf(BUFS[1], 4)
+    exp = [int.from_bytes(b2[i:i+8],'little') for i in range(0,32,8)]
+    assert got == exp, "newcomer must start fresh buffer"
+    print("PASS RSC gap-close + fresh-open (parked-frame redispatch)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -301,4 +368,6 @@ if __name__ == "__main__":
     test_bd_throughput()
     test_rsc_parse_and_replay()
     test_rsc_ineligible()
+    test_rsc_merge3()
+    test_rsc_gap_closes()
     print("ALL PASS")
