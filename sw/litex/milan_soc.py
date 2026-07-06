@@ -1355,6 +1355,7 @@ class RingDMAReader(LiteXModule):
         v_in    = Signal(4)
         in_last = Signal()
         raw_al  = Signal(64)
+        raw_msk = Signal(64)
         ins_sh  = Signal(120)
         a_nxt   = Signal(120)
         occ_nxt = Signal(5)
@@ -1364,7 +1365,11 @@ class RingDMAReader(LiteXModule):
             in_last.eq((rem_r == 0) & (bcnt == blen_r - 1)),
             v_in.eq(Mux(first_in, f_first, Mux(in_last, f_tail, 8))),
             raw_al.eq(Mux(first_in, self.bus.r.data >> sh_lo, self.bus.r.data)),
-            ins_sh.eq(raw_al << Cat(C(0, 3), aocc[:3])),
+            # CRITICAL: mask to the v_in VALID bytes — unmasked tail garbage ORs into
+            # A_reg, survives frames, and corrupts every later frame's first bytes
+            # (silicon-only: sim memory beyond segments reads 0; real DRAM does not).
+            raw_msk.eq(raw_al & ((C(1, 65) << Cat(C(0, 3), v_in)) - 1)[:64]),
+            ins_sh.eq(raw_msk << Cat(C(0, 3), aocc[:3])),
             a_nxt.eq(A_reg | ins_sh),
             occ_nxt.eq(aocc + v_in),
             emit_now.eq(occ_nxt >= 8),
@@ -1566,6 +1571,8 @@ class RingDMAReader(LiteXModule):
                     ),
                     If(eof_done,
                         If(occ_nxt == 8,                # frame ends beat-aligned
+                            NextValue(A_reg, 0),
+                            NextValue(aocc, 0),
                             If(cs_pass, *cs_restart()).Else(*seg_finish())
                         ).Else(
                             NextState("DRAIN"),         # residual bytes flush

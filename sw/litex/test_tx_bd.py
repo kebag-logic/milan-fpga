@@ -41,10 +41,13 @@ class BDHarness(Harness):
         self.mem[BD_BASE + 16 * idx + 8] = 0
 
     def put_seg(self, addr, data_bytes):
-        words = [int.from_bytes(data_bytes[i:i+8].ljust(8, b'\0'), 'little')
+        # pad the tail with 0xEE (NOT zero): real DRAM beyond a segment is nonzero —
+        # a shifter that fails to mask tail garbage must fail these tests.
+        words = [int.from_bytes(data_bytes[i:i+8].ljust(8, b'\xee'), 'little')
                  for i in range(0, len(data_bytes), 8)]
         for k, w in enumerate(words):
             self.mem[addr + 8 * k] = w
+        self.mem[addr + 8 * len(words)] = 0xEEEEEEEEEEEEEEEE
 
     def rx_bytes(self):
         out = b''
