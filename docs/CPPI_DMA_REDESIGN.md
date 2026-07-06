@@ -135,3 +135,22 @@ question). RULES: (1) after every driver load, verify the probe line SAYS which 
 active; (2) module and kernel must come from the same build tree; (3) `posted` ≈ 48 under
 load is the feed-health check. Batched-BD performance is **still unverified** — first test
 on the flash-booted matching kernel.
+
+### P5 v1 TX-BD — silicon results (2026-07-06)
+
+**Works end-to-end** ('TX-BD zero-copy: 64 descriptors', both BD directions active), after
+two lessons: (1) adding `bd_base` grew the TX CSR window → every later window shifted →
+DT update needed (LiteX packs windows back-to-back); (2) **OpenSBI embeds the DTB
+(`FW_FDT_PATH` in build_opensbi.sh) and copies it over the flash-loaded one — DT changes
+require an OpenSBI rebuild**, not just a dtb reflash.
+
+**Honest perf: TX 16.2 / RX 20.7 = copy-path parity, not a win.** Root cause: Ethernet's
+14-byte header ⇒ `skb->data ≡ 2 (mod 8)` essentially always ⇒ the 8-aligned zero-copy path
+never fires; v1 falls back to a bounce copy (into cached tx_buf slots — the first fallback
+via `netdev_alloc_skb` cost 199 µs/frame of slab work; the bounce is 99 µs). The per-frame
+memory tax cannot be dodged in software on this no-MLP core.
+
+**v2 (the real win, RTL):** BD gains a byte-offset field + the engine barrel-shifts the
+first beat (true zero-copy from any skb address), plus HW checksum-insert in the MilanMAC
+PacketFIFO (frame is store-and-forward there: sum on ingress, patch on egress) — removes
+BOTH remaining CPU payload touches. Sim harnesses (`test_tx_bd.py`) are ready to extend.
