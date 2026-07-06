@@ -79,10 +79,14 @@ FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
 # flashed, so its 14 MB span (0..0xE0_0000) is free to use these otherwise-unused offsets.
 FLASHBOOT_LAYOUT = {
     #  name       flash_offset      dram_addr        budget (full layout)
-    "kernel":  {"offset": 0x00_0000, "addr": 0x4000_0000},  # ≤ 5.5 MB when "full"
-    "opensbi": {"offset": 0x58_0000, "addr": 0x40F0_0000},  # 256 KB
-    "dtb":     {"offset": 0x5C_0000, "addr": 0x40EF_0000},  # 256 KB
-    "rootfs":  {"offset": 0x60_0000, "addr": 0x4100_0000},  # up to 10 MB → ends ≤ 16 MB
+    # (2026-07-06 zero-upload layout, MEASURED sizes: slimmed kernel 8.14 MB (-Os,
+    #  no SELinux/kexec/kallsyms/VT/INPUT, +THP) in an 8.5 MiB slot; rootfs moved to
+    #  CPIO-XZ = 5.6 MB (kernel RD_XZ unpacks it — the BIOS only memcpys) in a 7 MiB
+    #  slot. Total 14.0 MB of 16 MiB N25Q128.)
+    "kernel":  {"offset": 0x00_0000, "addr": 0x4000_0000},  # ≤ 8.5 MiB when "full"
+    "opensbi": {"offset": 0x88_0000, "addr": 0x40F0_0000},  # 256 KB
+    "dtb":     {"offset": 0x8C_0000, "addr": 0x40EF_0000},  # 256 KB
+    "rootfs":  {"offset": 0x90_0000, "addr": 0x4100_0000},  # up to 7 MiB → ends = 16 MiB
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
