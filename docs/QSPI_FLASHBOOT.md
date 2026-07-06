@@ -207,3 +207,21 @@ slot check caught it) · dtb 256 KB @0x90_0000 · rootfs ≤6.75 MiB @0x94_0000.
 
 Flash: `LAYOUT=<build>/flashboot_layout.json KERNEL=… OPENSBI=… DTB=… ROOTFS=…
 sw/litex/deploy.sh flash-images` (needs the litex venv on PATH for `crcfbigen`).
+
+## Planned: boot-chain compression (BIOS-LZ4 kernel) — bitstream stays JTAG
+
+Stock OpenSBI cannot decompress (`fw_jump` only jumps), and a RISC-V `Image` has no
+self-extracting stub (unlike x86 bzImage). The right layer is the **LiteX BIOS**: our
+patched `linux_flashboot` already does the flash→DRAM copy, so it gains an **LZ4-block
+decompressor** (~200 lines of C, 50–100 MB/s on the 100 MHz core):
+
+| | today | with BIOS-LZ4 |
+|---|---|---|
+| kernel in flash | 8.14 MB raw | ~4.8 MB lz4 (+~0.2 s boot) |
+| free flash | 1.7 MiB | ~5.1 MiB (kernel-growth headroom) |
+
+Rootfs is already maxed (cpio.**xz**, the kernel unpacks it). The freed space would even
+fit the 3.83 MB bitstream for a fully standalone power-on box, but per the 2026-07-06
+decision the **bitstream stays JTAG-loaded** for the iteration loop; only the
+kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x40000000) +
+`deploy.sh` compressing at flash time + a layout shrink — one reflash to adopt.
