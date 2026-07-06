@@ -976,6 +976,35 @@ class RingDMAReader(LiteXModule):
             self.sent.status.eq(nsent),
             bd_mode.eq(self.bd_base.storage != 0),
         ]
+        # v2b HW checksum-insert (2026-07-07): BD w1 = {en[63], csum_off[31:16],
+        # csum_start[15:0]} (frame-relative bytes). The engine burst-reads the region
+        # [start, seg_len) FIRST, accumulates the 16-bit ones-complement sum (the stack
+        # pre-seeds the csum field with the pseudo-header sum, exactly as for software
+        # checksum_help), folds, then streams the frame with the folded sum muxed into
+        # the csum_off beat. Offsets are even so both bytes sit in one beat.
+        cs_en    = Signal()
+        cs_start = Signal(16)
+        cs_off   = Signal(16)
+        cs_acc   = Signal(32)
+        cs_val   = Signal(16)           # folded, ready to patch
+        cs_lanes = Signal(18)
+        cs_fold1 = Signal(17)
+        cs_pass  = Signal()             # 1 = silent checksum pre-pass through PAY/DRAIN
+        cs_inb   = Signal(12)           # segment input beats, to restart the real pass
+        # checksum datapath: byte-mask the candidate output beat by its keep, sum as
+        # 16-bit LE lanes (same convention as the RX offload the kernel already accepts)
+        cs_beat  = Signal(64)           # the would-be output beat during the pre-pass
+        cs_keep  = Signal(8)
+        cs_masked = Signal(64)
+        self.comb += [
+            cs_masked.eq(Cat(*[Mux(cs_keep[i], cs_beat[8*i:8*i+8], 0) for i in range(8)])),
+            cs_lanes.eq(cs_masked[0:16] + cs_masked[16:32] +
+                        cs_masked[32:48] + cs_masked[48:64]),
+            cs_fold1.eq(cs_acc[:16] + cs_acc[16:]),
+            cs_val.eq(~(cs_fold1[:16] + cs_fold1[16])),
+        ]
+        # patch mux for the real pass: replace the 2 checksum bytes in their beat
+        patch_hit = Signal()
         # realigned data path (pure comb from carry + live r.data)
         shifted = Signal(64)
         self.comb += shifted.eq((carry >> sh_lo) |
@@ -1054,7 +1083,12 @@ class RingDMAReader(LiteXModule):
             self.bus.r.ready.eq(1),
             If(self.bus.r.valid,
                 If(bd_mode & bd_beat2,
-                    # second BD word (reserved / v2 csum fields): consume and launch
+                    # second BD word: {en[63], csum_off[31:16], csum_start[15:0]}
+                    NextValue(cs_en,    self.bus.r.data[63]),
+                    NextValue(cs_start, self.bus.r.data[:16]),
+                    NextValue(cs_off,   self.bus.r.data[16:32]),
+                    NextValue(cs_acc, 0),
+                    NextValue(cs_pass, self.bus.r.data[63]),
                     NextState("PREP"),
                 ).Else(
                     NextValue(frame_bytes, Mux(bd_mode, self.bus.r.data[32:48],
@@ -1062,6 +1096,7 @@ class RingDMAReader(LiteXModule):
                     # input beats = ceil((off + len)/8); output beats = ceil(len/8)
                     NextValue(rem_r, Mux(bd_mode,
                         (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new)),
+                    NextValue(cs_inb, (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:]),
                     NextValue(seg_addr, self.bus.r.data[:32]),
                     NextValue(seg_off, self.bus.r.data[:3]),
                     NextValue(sh_lo, Cat(C(0, 3), self.bus.r.data[:3])),
@@ -1131,19 +1166,50 @@ class RingDMAReader(LiteXModule):
                 )
             ]
 
+        def cs_patched(base):
+            """base beat with the folded checksum muxed into bytes cs_off[2:0], +1."""
+            byts = []
+            for i in range(8):
+                byts.append(Mux(cs_en & (cs_off[:3] == i), cs_val[:8],
+                            Mux(cs_en & (cs_off[:3] == i - 1), cs_val[8:16],
+                                base[8*i:8*i+8])))
+            return Cat(*byts)
+
+        def cs_restart():
+            """end of the silent pre-pass: fold is combinational; rerun for real."""
+            return [
+                NextValue(cs_pass, 0),
+                NextValue(rem_r, cs_inb),
+                NextValue(off_r, 0),
+                NextValue(rbeat, 0),
+                NextValue(carry_v, 0),
+                NextState("PREP"),
+            ]
+
+        pay_last = Signal()             # this output beat is the segment's final one
+        patch_here = Signal()           # csum bytes live in THIS output beat
+        self.comb += [
+            pay_last.eq(rbeat == frame_beats - 1),
+            patch_here.eq(cs_en & ~cs_pass & (rbeat == cs_off[3:])),
+        ]
+
         fsm.act("PAY_R",
             If(~bd_mode | (sh_lo == 0),
                 # aligned path: input beats == output beats (bit-identical to pre-v2)
-                source.valid.eq(self.bus.r.valid),
-                source.data.eq(self.bus.r.data),
-                source.last.eq((rbeat == frame_beats - 1) & (~bd_mode | seg_eof)),
-                source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
-                self.bus.r.ready.eq(source.ready),
+                source.valid.eq(self.bus.r.valid & ~cs_pass),
+                source.data.eq(Mux(patch_here, cs_patched(self.bus.r.data),
+                                   self.bus.r.data)),
+                source.last.eq(pay_last & (~bd_mode | seg_eof)),
+                source.keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
+                self.bus.r.ready.eq(source.ready | cs_pass),
+                cs_beat.eq(self.bus.r.data),
+                cs_keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
                 If(self.bus.r.valid & self.bus.r.ready,
+                    If(cs_pass, NextValue(cs_acc, cs_acc + cs_lanes)),
                     NextValue(rbeat, rbeat + 1),
                     NextValue(bcnt, bcnt + 1),
                     If(rbeat == frame_beats - 1,
-                        *seg_finish()
+                        If(cs_pass, *cs_restart()).Else(*seg_finish())
                     ).Elif(bcnt == blen_r - 1,
                         NextState("PREP"),
                     )
@@ -1163,17 +1229,20 @@ class RingDMAReader(LiteXModule):
                 )
             ).Else(
                 # realign steady state: each input pairs with one shifted output
-                source.valid.eq(self.bus.r.valid),
-                source.data.eq(shifted),
-                source.last.eq(seg_eof & (rbeat == frame_beats - 1)),
-                source.keep.eq(Mux(rbeat == frame_beats - 1, rlast_keep, 0xFF)),
-                self.bus.r.ready.eq(source.ready),
+                source.valid.eq(self.bus.r.valid & ~cs_pass),
+                source.data.eq(Mux(patch_here, cs_patched(shifted), shifted)),
+                source.last.eq(seg_eof & pay_last),
+                source.keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
+                self.bus.r.ready.eq(source.ready | cs_pass),
+                cs_beat.eq(shifted),
+                cs_keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
                 If(self.bus.r.valid & self.bus.r.ready,
+                    If(cs_pass, NextValue(cs_acc, cs_acc + cs_lanes)),
                     NextValue(carry, self.bus.r.data),
                     NextValue(rbeat, rbeat + 1),
                     NextValue(bcnt, bcnt + 1),
                     If(rbeat == frame_beats - 1,        # outputs complete on this input
-                        *seg_finish()
+                        If(cs_pass, *cs_restart()).Else(*seg_finish())
                     ).Elif((rem_r == 0) & (bcnt == blen_r - 1),
                         NextState("DRAIN"),             # inputs done, one output left
                     ).Elif(bcnt == blen_r - 1,
@@ -1183,11 +1252,16 @@ class RingDMAReader(LiteXModule):
             )
         )
         fsm.act("DRAIN",                                # residual output from the carry
-            source.valid.eq(1),
-            source.data.eq(carry >> sh_lo),
+            source.valid.eq(~cs_pass),
+            source.data.eq(Mux(patch_here, cs_patched(carry >> sh_lo), carry >> sh_lo)),
             source.last.eq(seg_eof),
             source.keep.eq(rlast_keep),
-            If(source.ready,
+            cs_beat.eq(carry >> sh_lo),
+            cs_keep.eq(rlast_keep),
+            If(cs_pass,
+                NextValue(cs_acc, cs_acc + cs_lanes),
+                *cs_restart()
+            ).Elif(source.ready,
                 *seg_finish()
             )
         )
