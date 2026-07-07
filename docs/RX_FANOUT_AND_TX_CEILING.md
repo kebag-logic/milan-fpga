@@ -1,11 +1,15 @@
 # RX fan-out & the TX throughput ceiling (2026-07-07)
 
 Campaign to raise best-effort TCP throughput on the fully-FPGA dual-VexiiRiscv Milan NIC
-(Alinx AX7101, 2×RV64 @100 MHz, 50 MHz datapath, MTU 1500 everywhere). Three efforts:
-hardware TSO, a profiled single-flow ceiling investigation, and a two-queue RX fan-out.
+(Alinx AX7101, 2×RV64 @100 MHz, 50 MHz datapath, MTU 1500 everywhere). Four efforts:
+hardware TSO, a profiled single-flow ceiling investigation, a two-queue RX fan-out, and a
+datapath-input probe that then justified running the datapath at 100 MHz.
 
-**Outcome:** TX 58 → 186 single-flow; **RX −P2 = 223 Mbit/s (goal ≥200 met)**; TX capped at
-186 by the TX datapath (CBS shaper + reader DRAM latency), *not* the CPU — and located exactly.
+**Outcome:** TX 58 → 186 single-flow; **RX −P2 = 223 Mbit/s (goal ≥200 met)**; the TX ceiling was
+**proven** (datapath-input probe) to be the 50 MHz TX datapath (CBS shaper grant latency), *not*
+the CPU. Raising the datapath to **100 MHz halved the datapath stall (60% → 27%) and moved the wall
+to the reader** (DMA read latency, starve 34% → 70%); TX +19% (145 → 172 unpinned). Next lever is
+the reader, not the CPU or the shaper.
 
 All numbers were measured on silicon over a clean SSH path, with the driver identity verified
 (`MODULE_VERSION`) and the `milan_tlm` HW counters read alongside the CPU profile — no blind
@@ -140,17 +144,50 @@ Three findings settle it:
 is the invariant. `hash_sel=1` bypass must be set before any TCP so the flow is not split onto
 q1 and dropped by a single-queue driver — otherwise SSH/iperf hang, ICMP notwithstanding.)
 
-## To take TX past 200 (next, independent of the above)
+## Effort 04 — the 100 MHz datapath fix (measured on silicon)
 
-Ordered by the datapath-input measurement (stall 60% ≫ starve 34%):
+The datapath-input probe said the wall was per-frame *latency* in the 50 MHz shaper pipeline
+(60% stall, 4% busy), not raw bandwidth. The cheapest attack on cycle-bound latency is to run
+the datapath faster. Turned out to be a **build-flag change, no RTL**: `milan_cd="sys"` (no CDC)
+is already the sim's mode, and `--milan-clk-freq` is what *opts into* the 50 MHz split. Built the
+isolated 100 MHz variant (`--milan-clk-freq 100e6`, keeps the CDC, leaves sys/DDR3 untouched).
 
-1. **Trim the shaper per-frame overhead (primary)** — a passthrough fast-path in
-   `traffic_controller_802_1q` when no CBS shaping is enabled, or raising `milan_cd` 50 → 100 MHz.
-   This attacks the dominant **60% datapath-input stall** and is the only lever that moves the wall.
-2. **Hide the reader's DRAM latency (secondary)** — larger AXI read bursts / prefetch to cut the
-   34% starve. Note `burst_beats` 16 → 64 (cf98505) did **not** move end-to-end TX — consistent
-   with the probe: the reader is not the dominant limit, so amortizing its DRAM reads can't raise
-   a datapath-bound ceiling. Only worth revisiting after the shaper stall is removed.
+Three things made it free: the CBS divide (~21 ns) is already **multicycle-constrained to 4
+cycles** (40 ns at 100 MHz — still holds); `CLK_FREQ_HZ` was already `100e6` in the RTL, so the
+CBS credit math (wrong by 2× at 50 MHz) becomes **correct** at 100 MHz; and the datapath logic
+**closed timing at 100 MHz** (WNS **+0.010 ns** — met, but razor-thin).
+
+**Silicon (build_dp100, single zerocopy TX flow, datapath-input probe):**
+
+| clock | throughput | busy | stall | starve | bottleneck |
+|---|---|:---:|:---:|:---:|---|
+| 50 MHz (build_dpin)  | 145 Mbit/s | 4% | **60%** | 34% | **datapath** (shaper grant) |
+| 100 MHz (build_dp100)| **170–175 Mbit/s** | 3% | **27%** | **70%** | **reader** (DMA read latency) |
+
+The result is unambiguous and matches the prediction:
+- `cyc` **doubled** (447M → 888M over the same ~9 s window) → the datapath really runs at 100 MHz.
+- Datapath **stall halved (60% → 27%)** → the datapath is **no longer the bottleneck**.
+- **starve doubled (34% → 70%)** → the reader can't feed the now-2×-faster datapath; it is the new wall.
+- **Pinning the ACK-NAPI does nothing** (164/173/168 vs 170 unpinned) → confirms **not** CPU-bound.
+  At 50 MHz pinning helped (145 → 186) because the CPU drove a datapath-limited system; at 100 MHz
+  the reader gates everything, so CPU-side tuning is inert.
+
+Throughput rose **+19%** (145 → 172, apples-to-apples unpinned) but did **not** clear 200 — because
+raising the clock *moved* the wall rather than removing it. Two caveats from silicon: the +0.010 ns
+margin is fragile, and **2-queue RxSteer (hash_sel=0) hangs at 100 MHz** — the RX fan-out (223) is a
+regression at this clock (likely the tight margin); single-queue (hash_sel=1) is solid.
+
+## To take TX past 200 (the reader is now the wall)
+
+1. **Cut the reader's DMA read latency (primary now)** — the 100 MHz probe puts **70% starve** on
+   the datapath input: the `RingDMAReader` is serial/latency-exposed (one outstanding coherent read
+   at a time). `burst_beats` 16 → 64 (cf98505) was necessary but not sufficient. Real fixes:
+   **multiple outstanding AXI reads / prefetch the next descriptor+payload** so the reader hides DRAM
+   latency instead of paying it per burst. This is the lever that now moves the ceiling.
+2. **Recover timing margin at 100 MHz** — +0.010 ns is too fragile and broke 2-queue steering. Pipeline
+   the worst path (or floorplan the milan region) to buy slack, then re-enable/verify RxSteer at 100 MHz.
+3. **Then re-check pinning** — once the reader feeds at line rate, the CPU/ACK side may bind again and
+   pinning + the RX fan-out become relevant for the −P2 push past 200.
 
 ## Artifacts
 
@@ -159,6 +196,7 @@ Ordered by the datapath-input measurement (stall 60% ≫ starve 34%):
 | Gateware HW-TSO | `vexii_hwtso.bit` · milan-fpga `78633ed` · WNS +0.123 · 115200 |
 | Gateware RX fan-out | `vexii_rxfan.bit` · milan-fpga `d1bbed7` · WNS +0.135 · 70% LUT |
 | Gateware datapath-input probe | `vexii_dpin.bit` · milan-fpga `064485a` (probe) + `cf98505` (burst-64) |
+| Gateware 100 MHz datapath | `build_dp100/alinx_ax7101.bit` · `--milan-clk-freq 100e6` · WNS **+0.010 ns** · CSR map identical |
 | Datapath-input probe | `MilanDebug.dp_in_probe` (txdp_in) · CSRs busy/stall/starve/cyc @0xf0004060–6c |
 | Driver HW-TSO | kl-eth `tso1` · the-private-test-repo `151032d` |
 | Driver RX fan-out | kl-eth `rxfan1` · the-private-test-repo `01a484c` |
