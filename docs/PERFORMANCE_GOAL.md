@@ -1,11 +1,13 @@
-# Throughput goal — ≥200 Mbit/s RX *and* TX, reach for 1 Gbit/s
+# Throughput goal — >500 Mbit/s RX *and* TX, reach for 1 Gbit/s
 
 **North star for the performance campaign on the fully-FPGA Milan NIC** (Alinx AX7101,
 dual VexiiRiscv RV64IMA @100 MHz, 64-bit datapath, MTU 1500 everywhere).
 
 ## The goal
 
-1. **Sustain ≥ 200 Mbit/s best-effort TCP in *both* directions** (RX and TX) at MTU 1500.
+1. **Sustain > 500 Mbit/s best-effort TCP in *both* directions** (RX and TX) at MTU 1500.
+   **Raised 2026-07-07** from the prior **≥200 milestone, now MET** (measured: TX 238–247, RX
+   209/223). 500 needs roughly **2×** the current best in each direction.
 2. **Reach toward 1 Gbit/s (PHY line rate)** on both directions wherever the hardware allows.
 
 The NIC's PHY is 1 GbE and the 64-bit datapath has ample raw bandwidth (3.2 Gbit/s @ 50 MHz,
@@ -15,14 +17,13 @@ CPU profile side by side — no blind changes.
 
 ## Where we are (measured on silicon, 2026-07-07)
 
-| path | best measured | goal ≥200 | bound by | fix in flight |
-|------|:-------------:|:---------:|----------|---------------|
-| TX TCP single, 50 MHz datapath | 145–186¹ | ✗/≈ | **TX datapath** (CBS shaper grant latency, 60% stall) | ran datapath at 100 MHz → below |
-| TX TCP single, 100 MHz datapath | **238–247** | ✔ | datapath **stall 39%** + ring-empty **idle 39%** (CPU) — **NOT** the reader² | — (met) |
-| RX TCP single (RSC on) | **209** | ✔ | per-frame CPU (amortized by RSC) | — (met) |
-| RX TCP −P2 (2-queue fan-out) | **223** | ✔ | scales across harts | — (met) |
-| UDP TX | 19.5 | ✗ | no TSO (per-frame) | USO offload (not built) |
-| UDP RX | 40 (84% loss @300M) | ✗ | no coalescing for UDP | UDP-GRO offload (not built) |
+| path | best measured | ≥500? | bound by | next lever toward 500+ |
+|------|:-------------:|:-----:|----------|------------------------|
+| TX TCP single, 100 MHz datapath | **238–247**² | ✗ (✓200) | datapath **stall 39%** + ring-empty **idle 39%** (CPU) — **not** the reader | passthrough fast-path (cut `stall`) + batch xmit/doorbells (cut `idle`) |
+| RX TCP single (RSC on) | **209** | ✗ (✓200) | per-frame CPU, amortized by RSC | bigger RSC coalescing + completion IRQ (drop hrtimer poll) |
+| RX TCP −P2 (2-queue fan-out) | **223** | ✗ (✓200) | scales across harts | recover 100 MHz margin → 2-queue works → more queues/harts |
+| TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
+| UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |
 
 ¹ 145 unpinned / 186 pinned-SSH with HW-TSO zerocopy; the datapath-input probe proved the
 50 MHz shaper stage was the wall.
@@ -33,11 +34,14 @@ only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefet
 the walls are datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
 `docs/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
 
-**Status vs goal:** RX **meets ≥200** (209/223 on the 50 MHz gateware; single reverse flow on the
-100 MHz build measured ~187–193 here — re-confirm 2-queue once RxSteer is fixed at 100 MHz). TX
-now **meets ≥200** (238–247 measured, was mis-attributed to the reader at 172). **1 Gbit/s is not
-yet reached on any TCP path** — the remaining TX levers are `stall` (datapath per-frame grant) and
-`idle` (CPU TX-queue rate), NOT the reader. UDP is far below and is a separate (offload) problem.
+**Status vs goal (bar raised to >500):** the prior **≥200 milestone is MET both directions** (TX
+238–247 measured; RX 209/223) — but the bar is now **>500**, so **neither direction is there yet**.
+TX needs ~2× (240→500+): attack the two *measured* walls — datapath back-pressure (`stall` 39%) and
+CPU/ring-empty (`idle` 39%). RX needs ~2.3× (223→500+): more coalescing + parallel queues/harts,
+which first needs the 100 MHz 2-queue RxSteer hang fixed (single reverse flow on the 100 MHz build
+measured only ~187–193 here). Reader prefetch stays **refuted** (see the verdict in
+`TX_READER_PREFETCH_PLAN.md`). 1 Gbit/s remains the stretch beyond 500. UDP is a separate
+(offload) problem. Every step still measured on silicon — HW counters + CPU profile, books balance.
 
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
@@ -56,7 +60,10 @@ in the order they surface as load rises:
   (≈50% TLB walk + 50% DRAM), DDR3-800, 32 KB L2. Both directions are ultimately gated by
   how fast a 100 MHz RV64 core can touch uncached DMA memory per frame.
 
-## Roadmap toward 1 Gbit/s (ordered, each independently measurable)
+## Roadmap toward >500 Mbit/s, then 1 Gbit/s (ordered, each independently measurable)
+
+**Immediate bar: >500 both directions** (≥200 met). The levers below are the same ones that
+carry on to 1 Gbit; items 2–3 are what move TX/RX from ~240/~220 toward 500.
 
 1. ~~**TX reader prefetch (primary TX lever)**~~ — **REFUTED by measurement (2026-07-07)**, do
    not build. Phase-0 measured `L_pay=45 cyc` (not ~140), prefetchable stall ~13%, interconnect
