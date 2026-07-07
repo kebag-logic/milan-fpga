@@ -168,9 +168,11 @@ The result is unambiguous and matches the prediction:
 - `cyc` **doubled** (447M → 888M over the same ~9 s window) → the datapath really runs at 100 MHz.
 - Datapath **stall halved (60% → 27%)** → the datapath is **no longer the bottleneck**.
 - **starve doubled (34% → 70%)** → the reader can't feed the now-2×-faster datapath; it is the new wall.
-- **Pinning the ACK-NAPI does nothing** (164/173/168 vs 170 unpinned) → confirms **not** CPU-bound.
-  At 50 MHz pinning helped (145 → 186) because the CPU drove a datapath-limited system; at 100 MHz
-  the reader gates everything, so CPU-side tuning is inert.
+- **Pinning the ACK-NAPI does nothing** — with *verified* affinities (both `napi/eth0` kthreads → hart1,
+  iperf → hart0, read back from `/proc/pid/status`), throughput is **173 Mbit ≈ 170 unpinned**, and the
+  probe's **starve stays 67%** (vs 70% unpinned). The datapath is starved by the reader regardless of CPU
+  scheduling → **not** CPU-bound. (The kernel already places the active q0 napi on hart1 by default, so
+  there was nothing for explicit pinning to fix — the reader gates everything.)
 
 Throughput rose **+19%** (145 → 172, apples-to-apples unpinned) but did **not** clear 200 — because
 raising the clock *moved* the wall rather than removing it. Two caveats from silicon: the +0.010 ns
