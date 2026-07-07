@@ -18,7 +18,7 @@ CPU profile side by side — no blind changes.
 | path | best measured | goal ≥200 | bound by | fix in flight |
 |------|:-------------:|:---------:|----------|---------------|
 | TX TCP single, 50 MHz datapath | 145–186¹ | ✗/≈ | **TX datapath** (CBS shaper grant latency, 60% stall) | ran datapath at 100 MHz → below |
-| TX TCP single, 100 MHz datapath | **172** | ✗ | **reader** (DMA read latency, 70% starve) | reader prefetch / multi-outstanding reads |
+| TX TCP single, 100 MHz datapath | **238–247** | ✔ | datapath **stall 39%** + ring-empty **idle 39%** (CPU) — **NOT** the reader² | — (met) |
 | RX TCP single (RSC on) | **209** | ✔ | per-frame CPU (amortized by RSC) | — (met) |
 | RX TCP −P2 (2-queue fan-out) | **223** | ✔ | scales across harts | — (met) |
 | UDP TX | 19.5 | ✗ | no TSO (per-frame) | USO offload (not built) |
@@ -26,10 +26,18 @@ CPU profile side by side — no blind changes.
 
 ¹ 145 unpinned / 186 pinned-SSH with HW-TSO zerocopy; the datapath-input probe proved the
 50 MHz shaper stage was the wall.
+² **MEASURED 2026-07-07** on `build_dp100_p0` (reader latency/starve probes, `phase0_measure.sh`,
+two runs, rsc250 hwtso+rsc_clk_mhz=100, hash_sel=1): TX **238/247 Mbit/s, 0 retr**. Reader is only
+**3.8% busy**; `L_pay = 45 cyc` (450 ns, NOT the ~140 assumed); prefetchable read-latency stall is
+only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefetch was refuted** —
+the walls are datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
+`docs/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
 
-**Status vs goal:** RX **meets ≥200** (RSC coalescing on by default, `rsc250` driver). TX is
-**close but not yet** (~172–186). **1 Gbit/s is not yet reached on any TCP path.** UDP is far
-below and is a separate (offload) problem.
+**Status vs goal:** RX **meets ≥200** (209/223 on the 50 MHz gateware; single reverse flow on the
+100 MHz build measured ~187–193 here — re-confirm 2-queue once RxSteer is fixed at 100 MHz). TX
+now **meets ≥200** (238–247 measured, was mis-attributed to the reader at 172). **1 Gbit/s is not
+yet reached on any TCP path** — the remaining TX levers are `stall` (datapath per-frame grant) and
+`idle` (CPU TX-queue rate), NOT the reader. UDP is far below and is a separate (offload) problem.
 
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
@@ -50,9 +58,13 @@ in the order they surface as load rises:
 
 ## Roadmap toward 1 Gbit/s (ordered, each independently measurable)
 
-1. **TX reader prefetch (primary TX lever):** give `RingDMAReader` multiple outstanding AXI
-   reads / descriptor+payload prefetch so it hides DRAM latency instead of paying it per
-   burst. Target: knock the 70% starve down, push TX past 200 at 100 MHz.
+1. ~~**TX reader prefetch (primary TX lever)**~~ — **REFUTED by measurement (2026-07-07)**, do
+   not build. Phase-0 measured `L_pay=45 cyc` (not ~140), prefetchable stall ~13%, interconnect
+   depth 2, and TX already 238–247 (≥200). The reader is 3.8% busy — not the wall. The actual TX
+   levers toward 1 Gbit are: **(a) datapath per-frame grant latency** (`stall` 39% — a best-effort
+   passthrough fast-path in `traffic_controller_802_1q` to bypass classify/queue/CBS-grant when
+   unshaped) and **(b) CPU TX-queue rate** (`idle` 39% — the ring runs empty; cut per-descriptor
+   xmit cost / batch doorbells). See `TX_READER_PREFETCH_PLAN.md` MEASURED VERDICT.
 2. **Recover 100 MHz timing margin:** the isolated 100 MHz datapath closed at only **+0.010 ns**
    and **2-queue RxSteer hangs** at that clock. Pipeline the worst path / floorplan the milan
    region to buy slack, then run *both* directions at 100 MHz with the fan-out intact.
