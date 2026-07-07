@@ -1297,6 +1297,12 @@ class RingDMAWriter(LiteXModule):
             )
         )
 
+        # Phase-0: expose the live AW-outstanding count for MilanDebug.outstanding_hi_probe
+        # — the write-side depth the AXIInterconnectShared actually grants is the pre-build
+        # proxy for the read-side depth TX prefetch would need.
+        self.dbg_outstanding = Signal(6)
+        self.comb += self.dbg_outstanding.eq(outstanding)
+
 
 class RingDMAReader(LiteXModule):
     """Circular-DRAM-ring -> AXIS-frame **AXI burst** DMA reader (TX upgrade, 2026-07-04).
@@ -2086,6 +2092,21 @@ class RingDMAReader(LiteXModule):
             )
         )
 
+        # ---- Phase-0 observability taps (read-only comb; no functional effect) --------
+        # Exposed for MilanDebug's reader probes (rd_latency_probe / rd_produce_probe) so
+        # they can attribute, each sys cycle, WHY the reader is or isn't feeding `source`.
+        # All sys-domain (the reader is a sys master) → the probes need no CDC.
+        self.dbg_cs_pass = Signal()     # 1 = silent csum/TSO pre-pass (source suppressed)
+        self.dbg_reading = Signal()     # in a state that awaits/consumes an R beat
+        self.dbg_idle    = Signal()     # IDLE: no work queued (rd == wr)
+        self.comb += [
+            self.dbg_cs_pass.eq(cs_pass),
+            self.dbg_reading.eq(fsm.ongoing("HDR_R") | fsm.ongoing("PAY_R") |
+                                fsm.ongoing("TSO_EXT_R") | fsm.ongoing("TSO_BD_R") |
+                                fsm.ongoing("BD_FLUSH")),
+            self.dbg_idle.eq(fsm.ongoing("IDLE")),
+        ]
+
 
 class RxSteer(LiteXModule):
     """2-way RX flow-steering front-end (parallel ACK/recv processing, TX>=200 step).
@@ -2510,6 +2531,93 @@ class MilanDebug(LiteXModule):
         self.sync += If(self._rst, acc.eq(0)).Else(acc.eq(acc + inflight))
         self._snap(acc, 64, f"{name}_inflight_acc", desc)
 
+    # ---- Phase-0 reader probes (TX_READER_PREFETCH_PLAN.md Appendix A) ------------------
+    # All sys-domain (the RingDMAReader/Writer are sys masters) → no CDC. Reset-based, like
+    # sys_probe: pulse `reset`, run the load, pulse `capture`, read a coherent snapshot.
+    def rd_latency_probe(self, name, rdr, desc):
+        """AR-accepted -> first-R-beat round-trip latency. Mean L = acc/n cyc (×1000/f_MHz
+        ns); payload-only split (ar.len>=8) excludes header/BD/shadow reads. Phase-0 tool:
+        the single (waiting,lat) pair is exact ONLY while the reader is single-outstanding —
+        which is the gateware Phase-0 runs on (see plan A.1)."""
+        bus = rdr.bus
+        ar_fire = Signal()
+        self.comb += ar_fire.eq(bus.ar.valid & bus.ar.ready)
+        waiting = Signal(); lat = Signal(16); is_pay = Signal()
+        acc = Signal(48); n = Signal(32); mx = Signal(16)
+        pacc = Signal(48); pn = Signal(32)
+        self.sync += If(self._rst,
+            acc.eq(0), n.eq(0), mx.eq(0), pacc.eq(0), pn.eq(0), waiting.eq(0), lat.eq(0),
+        ).Else(
+            If(waiting,
+                If(bus.r.valid,                     # first R beat of this burst: record
+                    waiting.eq(0),
+                    acc.eq(acc + lat), n.eq(n + 1),
+                    If(lat > mx, mx.eq(lat)),
+                    If(is_pay, pacc.eq(pacc + lat), pn.eq(pn + 1)),
+                ).Else(
+                    lat.eq(lat + 1),
+                )
+            ).Elif(ar_fire,                         # start timing (single-outstanding: safe)
+                waiting.eq(1), lat.eq(0), is_pay.eq(bus.ar.len >= 8),
+            ),
+        )
+        for sig, w, tag, d in ((acc, 48, "acc", "sum AR->firstR cyc, all reads"),
+                               (n,   32, "n",   "read count"),
+                               (mx,  16, "max", "worst-case latency cyc"),
+                               (pacc, 48, "pacc", "sum cyc, payload bursts len>=8"),
+                               (pn,  32, "pn",  "payload-burst count")):
+            self._snap(sig, w, f"{name}_{tag}", f"{desc} - {d}")
+
+    def rd_produce_probe(self, name, rdr, desc):
+        """Partition every sys cycle by WHY the reader is/ isn't feeding `source`. Splits the
+        silent pre-pass into read-blocked (PREFETCHABLE) vs summing-beats (STRUCTURAL double-
+        read) — the number that decides whether prefetch alone can reach 200. Books balance:
+        busy+stall+pre_wait+pre_busy+rd_wait+idle+setup == cyc."""
+        src, bus = rdr.source, rdr.bus
+        prod = Signal(); stall = Signal(); nov = Signal(); rwait = Signal()
+        self.comb += [
+            prod.eq(src.valid & src.ready),
+            stall.eq(src.valid & ~src.ready),
+            nov.eq(~src.valid),
+            rwait.eq(rdr.dbg_reading & ~bus.r.valid),
+        ]
+        busy = Signal(32); st = Signal(32); cyc = Signal(32)
+        pre_wait = Signal(32); pre_busy = Signal(32); rd_wait = Signal(32)
+        idle = Signal(32); setup = Signal(32)
+        self.sync += If(self._rst,
+            busy.eq(0), st.eq(0), cyc.eq(0), pre_wait.eq(0), pre_busy.eq(0),
+            rd_wait.eq(0), idle.eq(0), setup.eq(0),
+        ).Else(
+            cyc.eq(cyc + 1),
+            If(prod,  busy.eq(busy + 1)),
+            If(stall, st.eq(st + 1)),
+            If(nov,                                 # not producing → why? (priority order)
+                If(rdr.dbg_cs_pass & rwait, pre_wait.eq(pre_wait + 1)
+                ).Elif(rdr.dbg_cs_pass,     pre_busy.eq(pre_busy + 1)
+                ).Elif(rwait,               rd_wait.eq(rd_wait + 1)
+                ).Elif(rdr.dbg_idle,        idle.eq(idle + 1)
+                ).Else(                     setup.eq(setup + 1)),
+            ),
+        )
+        for sig, tag, d in ((busy, "busy", "producing valid&ready"),
+                            (st, "stall", "source back-pressured by datapath"),
+                            (pre_wait, "pre_wait", "pre-pass read-blocked PREFETCHABLE"),
+                            (pre_busy, "pre_busy", "pre-pass summing beats STRUCTURAL"),
+                            (rd_wait, "rd_wait", "real-pass read-blocked PREFETCHABLE"),
+                            (idle, "idle", "IDLE ring-empty CPU/driver-bound"),
+                            (setup, "setup", "AR-issue/PREP/header setup"),
+                            (cyc, "cyc", "total cycles (normaliser)")):
+            self._snap(sig, 32, f"{name}_{tag}", f"{desc} - {d}")
+
+    def outstanding_hi_probe(self, name, wtr, desc):
+        """Max AW-in-flight high-water on a RingDMAWriter — the read-depth proxy (same
+        AXIInterconnectShared). ≥4 ⇒ read prefetch depth almost certainly available; ≤2 ⇒
+        interconnect/L2 serializing (defer prefetch). Read after RX load."""
+        hi = Signal(6)
+        self.sync += If(self._rst, hi.eq(0)).Elif(wtr.dbg_outstanding > hi,
+                                                  hi.eq(wtr.dbg_outstanding))
+        self._snap(hi, 6, f"{name}_hi", f"{desc} - max AW in flight")
+
 
 # SoC ----------------------------------------------------------------------------------------------
 
@@ -2654,7 +2762,20 @@ class MilanSoC(SoCCore):
             # AXIS stage + GMII wire counts + datapath occupancy/latency + gPTP counters,
             # all coherently snapshot-latched by one `capture` write. Needs both engines.
             if with_dma and with_mac:
-                self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac)
+                # Phase-0 reader instrumentation (TX_READER_PREFETCH_PLAN.md App. A): measure
+                # L, the starve breakdown, and the outstanding-depth proxy BEFORE any prefetch
+                # RTL. Added via MilanDebug's extra hook so it's one closure, trivially dropped.
+                def _phase0(dbg):
+                    dbg.rd_latency_probe("txrd_lat", self.milan_dma.tx,
+                                         "TX reader AR->firstR latency")
+                    dbg.rd_produce_probe("txrd", self.milan_dma.tx,
+                                         "TX reader produce/starve breakdown")
+                    dbg.outstanding_hi_probe("rxw_out", self.milan_dma.rx,
+                                             "RX writer outstanding")
+                    if hasattr(self.milan_dma, "rx1"):
+                        dbg.outstanding_hi_probe("rx1w_out", self.milan_dma.rx1,
+                                                 "RX1 writer outstanding")
+                self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac, extra=_phase0)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd,
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
