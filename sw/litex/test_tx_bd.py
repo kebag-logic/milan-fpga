@@ -277,6 +277,154 @@ def test_bd_csum_chain():
     print("PASS TX-BD cs-across-BDs (chain pre-pass + rewind + patch, rd published at EOF)")
 
 
+def _lanes(data: bytes) -> int:
+    """LE-lane 16-bit sum, unfolded (the engine/kernel convention)."""
+    if len(data) & 1:
+        data += b'\x00'
+    return sum(data[i] | (data[i + 1] << 8) for i in range(0, len(data), 2))
+
+
+def _fold_nc(t: int) -> int:
+    while t >> 16:
+        t = (t & 0xFFFF) + (t >> 16)
+    return t
+
+
+def _ip_check(hdr20: bytes) -> int:
+    """classical BE IP header checksum (returns the two wire bytes as an int)."""
+    t = sum((hdr20[i] << 8) | hdr20[i + 1] for i in range(0, 20, 2))
+    while t >> 16:
+        t = (t & 0xFFFF) + (t >> 16)
+    return (~t) & 0xFFFF
+
+
+def _mk_template(mss, seq0, thlen=20, flags=0x10):
+    """eth+IPv4+TCP template as the DRIVER builds it: tot_len/check for a full-mss
+    segment, tcp.check=0, flags already masked for a FIRST segment."""
+    eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
+    tot = 20 + thlen + mss
+    ip = bytearray([0x45,0, tot>>8, tot&0xFF, 0x13,0x37, 0x40,0, 64,6, 0,0,
+                    192,168,127,2, 192,168,127,1])
+    ck = _ip_check(bytes(ip))
+    ip[10] = ck >> 8; ip[11] = ck & 0xFF
+    tcp = bytes([0x14,0x51, 0x14,0x51,
+                 (seq0>>24)&0xFF,(seq0>>16)&0xFF,(seq0>>8)&0xFF,seq0&0xFF,
+                 0,0,0,0, ((thlen//4)<<4), flags, 0x20,0, 0,0, 0,0]) \
+          + bytes(thlen - 20)
+    return eth + bytes(ip) + tcp
+
+
+def _tso_reference(tmpl, payload, mss, seq0, fmid, flast):
+    """expected wire frames + the driver-side descriptor constants, all checksums
+    computed CLASSICALLY — independently validating the P-seed algebra."""
+    hlen = len(tmpl)
+    thlen = hlen - 34
+    frames = []
+    off = 0
+    k = 0
+    chunk_last = len(payload) - (len(payload) - 1) // mss * mss
+    lenlast = 20 + thlen + chunk_last
+    iplast = bytearray(tmpl[14:34])
+    iplast[2] = lenlast >> 8; iplast[3] = lenlast & 0xFF
+    iplast[10] = iplast[11] = 0
+    cklast = _ip_check(bytes(iplast))
+    while off < len(payload):
+        chunk = min(mss, len(payload) - off)
+        last = (off + chunk == len(payload))
+        hdr = bytearray(tmpl)
+        if last:
+            hdr[16] = lenlast >> 8; hdr[17] = lenlast & 0xFF
+            hdr[24] = cklast >> 8;  hdr[25] = cklast & 0xFF
+        if k > 0:
+            sq = (seq0 + off) & 0xFFFFFFFF
+            hdr[38:42] = sq.to_bytes(4, 'big')
+            hdr[47] = flast if last else fmid
+        pay = payload[off:off + chunk]
+        # classical TCP checksum (BE) -> stored LE-lane like the engine patches it
+        pseudo = tmpl[26:34] + bytes([0, 6]) + (thlen + chunk).to_bytes(2, 'big')
+        t = _lanes(pseudo) + _lanes(bytes(hdr[34:])) + _lanes(pay)
+        ck = (~_fold_nc(t)) & 0xFFFF
+        hdr[50] = ck & 0xFF; hdr[51] = ck >> 8
+        frames.append(bytes(hdr) + pay)
+        off += chunk
+        k += 1
+    # descriptor constants exactly as the driver computes them
+    def P(seg_hdr34, tcplen):
+        pseudo = tmpl[26:34] + bytes([0, 6]) + tcplen.to_bytes(2, 'big')
+        return (_lanes(pseudo) + ((~_fold_nc(_lanes(seg_hdr34))) & 0xFFFF)) & 0xFFFFFFFF
+    hdr_last34 = bytes(tmpl[:16]) + bytes([lenlast >> 8, lenlast & 0xFF]) + \
+                 tmpl[18:24] + bytes([cklast >> 8, cklast & 0xFF]) + tmpl[26:34]
+    return (frames, P(tmpl[:34], thlen + mss), P(hdr_last34, thlen + chunk_last),
+            lenlast, cklast)
+
+
+def test_tso_hw():
+    """HW header-generation TSO: ONE descriptor pair + frag payload BDs -> N wire
+    frames, byte-exact incl. IP/TCP checksums computed classically (independent
+    check of the P-seed algebra). Covers short last segment, exact-mss tail, frag
+    boundaries inside segments, a frag spanning segments, and doff=8 templates."""
+    import random
+    random.seed(23)
+    cases = [
+        dict(mss=200, pay=520,  frags=[520],           thlen=20),  # short last
+        dict(mss=160, pay=480,  frags=[480],           thlen=20),  # exact tail
+        dict(mss=176, pay=600,  frags=[100, 260, 240], thlen=32),  # frags x segs
+        dict(mss=120, pay=444,  frags=[371, 73],       thlen=20),  # frag spans segs
+    ]
+    for ci, c in enumerate(cases):
+        mss, thlen = c['mss'], c['thlen']
+        seq0 = 0x11220000 + ci
+        tmpl = _mk_template(mss, seq0, thlen=thlen, flags=0x10)
+        hlen = len(tmpl)
+        payload = bytes(((ci * 37 + i * 3) ^ 0xA7) & 0xFF for i in range(c['pay']))
+        fmid, flast = 0x10, 0x18                     # PSH only on the last segment
+        frames, Pf, Pl, lenlast, cklast = _tso_reference(tmpl, payload, mss,
+                                                         seq0, fmid, flast)
+        h = BDHarness(ring_size=4096, cycles=600000)
+        h.put_seg(SEG_A, b'\xEE' * 2 + tmpl)         # +2 arena alignment
+        addr = SEG_B
+        fbds = []
+        off = 0
+        for fl in c['frags']:
+            o = random.randrange(8)
+            h.put_seg(addr, b'\xEE' * o + payload[off:off + fl])
+            fbds.append((addr + o, fl))
+            off += fl
+            addr += 0x2000
+        assert off == len(payload)
+
+        def stim(h=h, fbds=fbds, mss=mss, pay=len(payload), hlen=hlen,
+                 Pf=Pf, Pl=Pl, lenlast=lenlast, cklast=cklast, seq0=seq0,
+                 nseg=len(frames)):
+            yield from h.init_bd(entries=16)
+            h.mem[BD_BASE + 0] = (SEG_A + 2) | (hlen << 32) | (1 << 49)
+            h.mem[BD_BASE + 8] = mss | (pay << 16) | (0x10 << 32) | (0x18 << 40)
+            h.mem[BD_BASE + 16] = Pf | (Pl << 32)
+            h.mem[BD_BASE + 24] = lenlast | (cklast << 16) | (seq0 << 32)
+            for i, (fa, fl) in enumerate(fbds):
+                h.put_bd(2 + i, fa, fl, eof=(i == len(fbds) - 1))
+            yield h.dut.wr_ptr.storage.eq((2 + len(fbds)) * 16)
+            yield
+            for _ in range(120000):
+                if (yield h.dut.sent.status) == nseg:
+                    break
+                yield
+            assert (yield h.dut.sent.status) == nseg, \
+                f"case {ci}: sent {(yield h.dut.sent.status)}/{nseg}"
+            assert (yield h.dut.rd_ptr.status) == (2 + len(fbds)) * 16, "rd publish"
+        h.run(stim, throttle=(0.3 if ci == 2 else 0.0), seed=5)
+        got = h.rx_bytes()
+        exp = b''.join(frames)
+        assert len(got) == len(exp), f"case {ci}: len {len(got)} != {len(exp)}"
+        if got != exp:
+            bad = next(i for i, (a, b) in enumerate(zip(got, exp)) if a != b)
+            raise AssertionError(f"case {ci}: byte {bad}: got {got[bad]:#x} "
+                                 f"want {exp[bad]:#x}")
+        lasts = sum(l for _, _, l in h.beats)
+        assert lasts == len(frames), f"case {ci}: {lasts} frames"
+    print("PASS HW-TSO (descriptor -> N frames, classical csums, frags x segments)")
+
+
 def test_bd_arbitrary_chain():
     """Cross-BD continuity: mid-segments of ARBITRARY length (the old %8 contract is
     dead) at arbitrary offsets — one seamless wire frame, byte-exact, exact tail keep.
@@ -322,5 +470,6 @@ if __name__ == "__main__":
     test_bd_unaligned_offsets()
     test_bd_csum_insert()
     test_bd_csum_chain()
+    test_tso_hw()
     test_bd_arbitrary_chain()
     print("ALL PASS")
