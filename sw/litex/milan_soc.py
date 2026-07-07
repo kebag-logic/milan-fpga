@@ -1385,6 +1385,8 @@ class RingDMAReader(LiteXModule):
         cs_start = Signal(16)
         cs_off   = Signal(16)
         cs_acc   = Signal(32)
+        cs_init  = Signal(32)           # registered TSO P seed for the current segment
+        cs_seed  = Signal(32)           # comb: what cs_clr loads (default 0; TSO drives cs_init)
         cs_val   = Signal(16)           # folded, ready to patch
         cs_lanes = Signal(18)
         cs_fold1 = Signal(17)
@@ -1427,7 +1429,10 @@ class RingDMAReader(LiteXModule):
                 cs_lv.eq(0),
             ),
             If(cs_lv, cs_acc.eq(cs_acc + cs_lanes_r)),
-            If(cs_clr, cs_acc.eq(0), cs_lv.eq(0)),
+            # TSO seeds the accumulator with the driver's pseudo-header sum P so the
+            # folded result IS the TCP checksum; non-TSO paths seed 0 (cs_seed is a
+            # comb default-0, driven only by the TSO pre-pass entry).
+            If(cs_clr, cs_acc.eq(cs_seed), cs_lv.eq(0)),
         ]
         # patch mux for the real pass: replace the 2 checksum bytes in their beat
         patch_hit = Signal()
@@ -1523,11 +1528,123 @@ class RingDMAReader(LiteXModule):
             eof_done.eq(in_last & seg_eof),
         ]
         bd_beat2 = Signal()             # BD reads are 2 beats: w0 parsed, w1 skipped
+
+        # ---- HW header-generation TSO (TX>=200 step 3, 2026-07-07) -------------
+        # ONE descriptor pair + the frag payload BDs describe a whole gso super-skb;
+        # the ENGINE loops the segments: per segment it synthesizes a template window
+        # (re-read from the arena) + payload windows sliced from the frag BDs, streams
+        # them through the UNCHANGED continuity/csum machinery, and patches the per-
+        # segment header fields at CONSTANT frame offsets (driver guards eth+ihl5:
+        # tot_len@16 ipck@24 [last seg only, driver-precomputed], seq@38 flags@47
+        # [k>0], tcp.check@50 via the existing cs machinery with cs_acc SEEDED to a
+        # driver-provided pseudo-header sum P — the pre-pass sums the PATCHED beats,
+        # so seq/flag drift self-accounts). IP id stays fixed (DF set — RFC-legal).
+        # Descriptor ABI (2 ring entries, TSO flag = w0 bit 49):
+        #   e0.w0 = tmpl_addr | hlen<<32 | TSO49    e0.w1 = mss | pay<<16 |
+        #           fmid<<32 | flast<<40
+        #   e1.w0 = P_full | P_last<<32             e1.w1 = tot_len_last |
+        #           ipck_last<<16 | seq0<<32
+        tso_on      = Signal()          # segment loop active
+        tso_pend    = Signal()          # descriptor e0.w1 parse pending
+        tso_tmpl    = Signal(32)        # template address (arena, any alignment)
+        tso_hlen    = Signal(8)         # header bytes (54..94)
+        tso_mss     = Signal(14)
+        tso_payrem  = Signal(17)        # payload bytes not yet COMMITTED
+        tso_fmid    = Signal(8)         # flags byte, mid segments (driver-precomputed)
+        tso_flast   = Signal(8)         # flags byte, last segment
+        tso_pfull   = Signal(32)        # cs_acc seed, full-mss segments
+        tso_plast   = Signal(32)        # cs_acc seed, last segment
+        tso_lenlast = Signal(16)        # ip.tot_len, last segment (logical u16)
+        tso_cklast  = Signal(16)        # ip.check,  last segment (logical u16)
+        tso_seq     = Signal(32)        # THIS segment's tcp.seq (logical u32)
+        tso_k0      = Signal()          # first segment (template streams unpatched)
+        tso_last    = Signal()          # last segment
+        tso_chunk   = Signal(14)        # this segment's payload bytes
+        tso_wleft   = Signal(14)        # window walk: chunk bytes not yet windowed
+        pbd_v       = Signal()          # a payload BD is loaded
+        pbd_addr    = Signal(32)
+        pbd_len     = Signal(16)
+        pbd_cons    = Signal(16)        # bytes of the loaded BD consumed
+        anc_rd      = Signal(32)        # segment-start rewind anchors (pre-pass
+        anc_cons    = Signal(16)        #  re-walks the same windows, then rewinds)
+        tbd_beat    = Signal()          # payload-BD read beat toggle
+        twin_addr   = Signal(32)
+        t_avail     = Signal(16)
+        twin_take   = Signal(16)
+        twin_eof    = Signal()
+        self.comb += [
+            twin_addr.eq(pbd_addr + pbd_cons),
+            t_avail.eq(pbd_len - pbd_cons),
+            twin_take.eq(Mux(t_avail < tso_wleft, t_avail, tso_wleft)),
+            twin_eof.eq(twin_take == tso_wleft),
+        ]
+        # per-segment field patches on the assembled OUTPUT beats — all offsets are
+        # constants (rbeat==N compares only), one 2-3 deep byte mux on top of a_nxt;
+        # the check field itself is the existing cs patch (cs_off=50) downstream.
+        t_nxt  = Signal(64)
+        tp_b2  = Signal()
+        tp_b3  = Signal()
+        tp_b4  = Signal()
+        tp_b5  = Signal()
+        self.comb += [
+            tp_b2.eq(tso_on & tso_last & (rbeat == 2)),
+            tp_b3.eq(tso_on & tso_last & (rbeat == 3)),
+            tp_b4.eq(tso_on & ~tso_k0 & (rbeat == 4)),
+            tp_b5.eq(tso_on & ~tso_k0 & (rbeat == 5)),
+            t_nxt.eq(Cat(
+                Mux(tp_b2, tso_lenlast[8:16],
+                    Mux(tp_b3, tso_cklast[8:16],
+                        Mux(tp_b5, tso_seq[8:16], a_nxt[0:8]))),
+                Mux(tp_b2, tso_lenlast[0:8],
+                    Mux(tp_b3, tso_cklast[0:8],
+                        Mux(tp_b5, tso_seq[0:8], a_nxt[8:16]))),
+                a_nxt[16:24], a_nxt[24:32], a_nxt[32:40], a_nxt[40:48],
+                Mux(tp_b4, tso_seq[24:32], a_nxt[48:56]),
+                Mux(tp_b4, tso_seq[16:24],
+                    Mux(tp_b5, Mux(tso_last, tso_flast, tso_fmid),
+                        a_nxt[56:64])))),
+        ]
+
+        def window_setup(addr, ln, eof):
+            """program the streaming machinery for one (addr,len,eof) window —
+            the register set the BD parse fills, fed from TSO registers instead"""
+            a3 = addr[:3]
+            return [
+                NextValue(frame_bytes, ln),
+                NextValue(rem_r, (ln + a3 + 7)[3:]),
+                NextValue(seg_addr, addr),
+                NextValue(seg_off, a3),
+                NextValue(sh_lo, Cat(C(0, 3), a3)),
+                NextValue(carry_v, 0),
+                NextValue(obeat, 0),
+                NextValue(first_in, 1),
+                NextValue(f_first, Mux(ln < (8 - a3), ln[:4], 8 - a3)),
+                NextValue(f_tail, ((a3 + ln - 1) & 0x7) + 1),
+                NextValue(m_first,
+                          ((C(1, 9) << Mux(ln < (8 - a3), ln[:4], 8 - a3)) - 1)[:8]),
+                NextValue(m_tail, ((C(1, 9) << (((a3 + ln - 1) & 0x7) + 1)) - 1)[:8]),
+                NextValue(seg_eof, eof),
+                NextValue(off_r, 0),
+            ]
+
+        def tso_rewind():
+            """end of a segment's silent pre-pass: rewind the payload cursor and
+            re-walk the same windows for real (mirrors cs_restart for chains)"""
+            return [
+                NextValue(cs_pass, 0),
+                NextValue(rd, anc_rd),
+                NextValue(pbd_v, 0),        # pbd regs may hold a LATER BD: re-fetch
+                NextValue(pbd_cons, anc_cons),
+                NextState("TSO_TGO"),
+            ]
+
         self.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             If(~self.enable.storage,
                 NextValue(rd, 0),       # reload hygiene (mirror of the RX post-FIFO drain)
                 NextValue(rd_pub, 0),
+                NextValue(tso_on, 0),
+                NextValue(tso_pend, 0),
             ).Elif(self.wr_ptr.storage != rd,
                 NextValue(rbeat, 0),
                 NextValue(bd_beat2, 0),
@@ -1549,23 +1666,55 @@ class RingDMAReader(LiteXModule):
             self.bus.r.ready.eq(1),
             If(self.bus.r.valid,
                 If(bd_mode & bd_beat2,
-                    # second BD word: {en[63], csum_off[31:16], csum_start[15:0]}.
-                    # cs state latches ONLY from the chain's FIRST BD, and only on
-                    # the pre-pass entry (~cs_done) — mid-chain w1s are ignored and
-                    # the post-rewind re-parse must not restart the pre-pass.
-                    If(chain_first & ~cs_done,
-                        NextValue(cs_en,    self.bus.r.data[63]),
-                        NextValue(cs_start, self.bus.r.data[:16]),
-                        NextValue(cs_off,   self.bus.r.data[16:32]),
-                        NextValue(cs_sel_lo, Mux(self.bus.r.data[63],
-                                                 1 << self.bus.r.data[16:19], 0)),
-                        NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
-                                                 2 << self.bus.r.data[16:19], 0)),
-                        cs_clr.eq(1),
-                        NextValue(cs_pass, self.bus.r.data[63]),
-                    ),
-                    NextValue(chain_first, 0),
-                    NextState("PREP"),
+                    If(tso_pend,
+                        # TSO descriptor e0.w1: {flast[47:40], fmid[39:32],
+                        # pay_total[31:16], mss[13:0]}
+                        NextValue(tso_pend, 0),
+                        NextValue(tso_mss, self.bus.r.data[:14]),
+                        NextValue(tso_payrem, self.bus.r.data[16:32]),
+                        NextValue(tso_fmid, self.bus.r.data[32:40]),
+                        NextValue(tso_flast, self.bus.r.data[40:48]),
+                        NextValue(rd, (rd + 16) & self.mask.storage),
+                        If((self.bus.r.data[:14] == 0) |
+                           (self.bus.r.data[16:32] == 0),
+                            NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                            NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
+                            NextState("IDLE"),
+                        ).Else(
+                            NextState("TSO_EXT_AR"),
+                        )
+                    ).Else(
+                        # second BD word: {en[63], csum_off[31:16], csum_start[15:0]}.
+                        # cs state latches ONLY from the chain's FIRST BD, and only on
+                        # the pre-pass entry (~cs_done) — mid-chain w1s are ignored and
+                        # the post-rewind re-parse must not restart the pre-pass.
+                        If(chain_first & ~cs_done,
+                            NextValue(cs_en,    self.bus.r.data[63]),
+                            NextValue(cs_start, self.bus.r.data[:16]),
+                            NextValue(cs_off,   self.bus.r.data[16:32]),
+                            NextValue(cs_sel_lo, Mux(self.bus.r.data[63],
+                                                     1 << self.bus.r.data[16:19], 0)),
+                            NextValue(cs_sel_hi, Mux(self.bus.r.data[63],
+                                                     2 << self.bus.r.data[16:19], 0)),
+                            cs_clr.eq(1),
+                            NextValue(cs_pass, self.bus.r.data[63]),
+                        ),
+                        NextValue(chain_first, 0),
+                        NextState("PREP"),
+                    )
+                ).Elif(bd_mode & self.bus.r.data[49],
+                    # TSO descriptor e0.w0: {TSO=1<<49, hlen[39:32], tmpl_addr[31:0]}
+                    NextValue(tso_tmpl, self.bus.r.data[:32]),
+                    NextValue(tso_hlen, self.bus.r.data[32:40]),
+                    NextValue(tso_pend, 1),
+                    NextValue(bd_beat2, 1),
+                    If((self.bus.r.data[32:40] < 54) | (self.bus.r.data[32:40] > 94),
+                        # malformed template: resync like any bad BD
+                        NextValue(tso_pend, 0),
+                        NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                        NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
+                        NextState("BD_FLUSH"),
+                    )
                 ).Else(
                     NextValue(frame_bytes, Mux(bd_mode, self.bus.r.data[32:48],
                                                         self.bus.r.data[:16])),
@@ -1729,11 +1878,15 @@ class RingDMAReader(LiteXModule):
                 # assembly path: insert v_in bytes at A[aocc]; emit on >=8. Continuity:
                 # A/aocc persist across non-EOF segments (no drain mid-frame).
                 source.valid.eq(self.bus.r.valid & emit_now & ~cs_pass),
-                source.data.eq(Mux(patch_here, cs_patched(a_nxt[:64]), a_nxt[:64])),
+                source.data.eq(Mux(patch_here, cs_patched(t_nxt), t_nxt)),
                 source.last.eq(eof_done & (occ_nxt == 8)),
                 source.keep.eq(0xFF),
                 self.bus.r.ready.eq(~emit_now | source.ready | cs_pass),
-                cs_beat.eq(a_nxt[:64]),
+                # cs taps the FIELD-PATCHED stream: the pre-pass then sums exactly
+                # what the real pass emits, so per-segment seq/flag drift lands in
+                # the checksum automatically (the check field itself streams as the
+                # template's zeros during accumulation).
+                cs_beat.eq(t_nxt),
                 cs_keep.eq(0xFF),
                 If(self.bus.r.valid & self.bus.r.ready,
                     cs_take.eq(cs_pass & emit_now),
@@ -1751,12 +1904,26 @@ class RingDMAReader(LiteXModule):
                         If(occ_nxt == 8,                # frame ends beat-aligned
                             NextValue(A_reg, 0),
                             NextValue(aocc, 0),
-                            If(cs_pass, *cs_restart()).Else(*seg_finish())
+                            If(cs_pass,
+                                If(tso_on,
+                                    *tso_rewind()
+                                ).Else(
+                                    *cs_restart()
+                                )
+                            ).Elif(tso_on,              # segment committed
+                                NextState("TSO_COMMIT"),
+                            ).Else(
+                                *seg_finish()
+                            )
                         ).Else(
                             NextState("DRAIN"),         # residual bytes flush
                         )
                     ).Elif(in_last,                     # non-EOF: A/aocc carry over
-                        *seg_finish()
+                        If(tso_on,
+                            NextState("TSO_WIN"),       # next synthesized window
+                        ).Else(
+                            *seg_finish()
+                        )
                     ).Elif(bcnt == blen_r - 1,
                         NextState("PREP"),
                     )
@@ -1776,11 +1943,134 @@ class RingDMAReader(LiteXModule):
                 cs_take.eq(1),
                 NextValue(A_reg, 0),
                 NextValue(aocc, 0),
-                *cs_restart()
+                If(tso_on,
+                    *tso_rewind()
+                ).Else(
+                    *cs_restart()
+                )
             ).Elif(source.ready,
                 NextValue(A_reg, 0),
                 NextValue(aocc, 0),
-                *seg_finish()
+                If(tso_on,
+                    NextState("TSO_COMMIT"),
+                ).Else(
+                    *seg_finish()
+                )
+            )
+        )
+
+        # ---- HW-TSO sequencer -------------------------------------------------
+        fsm.act("TSO_EXT_AR",           # fetch descriptor entry 2
+            self.bus.ar.valid.eq(1),
+            self.bus.ar.addr.eq(self.bd_base.storage[:32] + rd),
+            self.bus.ar.len.eq(1),
+            If(self.bus.ar.ready,
+                NextValue(tbd_beat, 0),
+                NextState("TSO_EXT_R"),
+            )
+        )
+        fsm.act("TSO_EXT_R",
+            self.bus.r.ready.eq(1),
+            If(self.bus.r.valid,
+                If(~tbd_beat,
+                    # e1.w0 = {P_last[63:32], P_full[31:0]}
+                    NextValue(tso_pfull, self.bus.r.data[:32]),
+                    NextValue(tso_plast, self.bus.r.data[32:64]),
+                    NextValue(tbd_beat, 1),
+                ).Else(
+                    # e1.w1 = {seq0[63:32], ipck_last[31:16], tot_len_last[15:0]}
+                    NextValue(tso_lenlast, self.bus.r.data[:16]),
+                    NextValue(tso_cklast, self.bus.r.data[16:32]),
+                    NextValue(tso_seq, self.bus.r.data[32:64]),
+                    NextValue(rd, (rd + 16) & self.mask.storage),
+                    NextValue(tso_on, 1),
+                    NextValue(tso_k0, 1),
+                    NextValue(pbd_v, 0),
+                    NextValue(pbd_cons, 0),
+                    NextState("TSO_SEG"),
+                )
+            )
+        )
+        fsm.act("TSO_SEG",              # per-segment setup + rewind anchors
+            NextValue(tso_chunk, Mux(tso_payrem > tso_mss, tso_mss,
+                                     tso_payrem[:14])),
+            NextValue(tso_last, tso_payrem <= tso_mss),
+            NextValue(cs_init, Mux(tso_payrem <= tso_mss, tso_plast, tso_pfull)),
+            NextValue(cs_en, 1),
+            NextValue(cs_off, 50),      # tcp.check, frame-relative (ihl=5 contract)
+            NextValue(cs_sel_lo, 1 << 2),
+            NextValue(cs_sel_hi, 1 << 3),
+            NextValue(cs_pass, 1),
+            NextValue(anc_rd, rd),
+            NextValue(anc_cons, pbd_cons),
+            NextState("TSO_TGO"),
+        )
+        fsm.act("TSO_TGO",              # start a pass: template window first
+            If(cs_pass, cs_clr.eq(1), cs_seed.eq(cs_init)),
+            NextValue(tso_wleft, tso_chunk),
+            NextValue(A_reg, 0),
+            NextValue(aocc, 0),
+            NextValue(rbeat, 0),
+            *window_setup(tso_tmpl, tso_hlen, C(0, 1)),
+            NextState("PREP"),
+        )
+        fsm.act("TSO_WIN",              # next payload window of this segment
+            If(~pbd_v,
+                NextState("TSO_BD_AR"),
+            ).Else(
+                NextValue(tso_wleft, tso_wleft - twin_take),
+                NextValue(pbd_cons, pbd_cons + twin_take),
+                If(pbd_cons + twin_take == pbd_len,   # BD exhausted: consume it
+                    NextValue(rd, (rd + 16) & self.mask.storage),
+                    NextValue(pbd_v, 0),
+                    NextValue(pbd_cons, 0),
+                ),
+                *window_setup(twin_addr, twin_take, twin_eof),
+                NextState("PREP"),
+            )
+        )
+        fsm.act("TSO_BD_AR",            # fetch the next payload BD
+            self.bus.ar.valid.eq(1),
+            self.bus.ar.addr.eq(self.bd_base.storage[:32] + rd),
+            self.bus.ar.len.eq(1),
+            If(self.bus.ar.ready,
+                NextValue(tbd_beat, 0),
+                NextState("TSO_BD_R"),
+            )
+        )
+        fsm.act("TSO_BD_R",
+            self.bus.r.ready.eq(1),
+            If(self.bus.r.valid,
+                If(~tbd_beat,
+                    NextValue(pbd_addr, self.bus.r.data[:32]),
+                    NextValue(pbd_len, self.bus.r.data[32:48]),
+                    NextValue(tbd_beat, 1),
+                    If(self.bus.r.data[32:48] == 0,   # garbage BD: resync
+                        NextValue(tso_on, 0),
+                        NextValue(rd, self.wr_ptr.storage & self.mask.storage),
+                        NextValue(rd_pub, self.wr_ptr.storage & self.mask.storage),
+                        NextState("BD_FLUSH"),
+                    )
+                ).Else(                                # drain w1 (ignored)
+                    NextValue(pbd_v, 1),
+                    NextState("TSO_WIN"),
+                )
+            )
+        )
+        fsm.act("TSO_COMMIT",           # real pass of one segment finished
+            NextValue(tso_payrem, tso_payrem - tso_chunk),
+            NextValue(tso_seq, tso_seq + tso_chunk),
+            NextValue(tso_k0, 0),
+            NextValue(nsent, nsent + 1),
+            # publish: rd only ever advances past FULLY-consumed BDs, and the real
+            # pass has finished reading them — safe for the driver to reap.
+            NextValue(rd_pub, rd),
+            If(tso_payrem == tso_chunk,               # that was the last segment
+                NextValue(tso_on, 0),
+                NextValue(cs_en, 0),
+                NextState("IDLE"),
+            ).Else(
+                NextState("TSO_SEG"),
             )
         )
 
