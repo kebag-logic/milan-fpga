@@ -1332,7 +1332,15 @@ class RingDMAReader(LiteXModule):
     `dma-tx` window and every downstream CSR address stay put; roles mirror RX):
       base[64] | mask[32] | wr_ptr[32] RW | rd_ptr[32] RO | enable[1] | sent[32] RO
     """
-    def __init__(self, bus, max_frame_bytes=4096, burst_beats=16):
+    def __init__(self, bus, max_frame_bytes=4096, burst_beats=64):
+        # burst_beats 16->64 (2026-07-07): the reader is SERIAL (PAY_AR issues one AR,
+        # PAY_R streams it, then the next AR) so every burst pays the full coherent-DMA
+        # read latency (~140 cyc) unhidden. With HW-TSO's csum pre-pass reading each
+        # segment twice, 16-beat bursts left the reader ~45% idle waiting on reads and
+        # capped TX at 186 (silicon-profiled: tx_dma 52% stall + 45% idle, datapath NOT
+        # the limit). 64-beat bursts (512 B, well under the 4 KB split) amortize the
+        # latency ~3x/burst. Still capped by to_4k/to_wrap in the blen chain, so any
+        # frame/ring geometry stays correct.
         self.bus    = bus               # axi.AXIInterface(data_width=64), byte-addressed
         self.source = source = stream.Endpoint([("data", 64), ("keep", 8)])
 
