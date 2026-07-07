@@ -2062,10 +2062,11 @@ class RingDMAReader(LiteXModule):
             NextValue(tso_seq, tso_seq + tso_chunk),
             NextValue(tso_k0, 0),
             NextValue(nsent, nsent + 1),
-            # publish: rd only ever advances past FULLY-consumed BDs, and the real
-            # pass has finished reading them — safe for the driver to reap.
-            NextValue(rd_pub, rd),
             If(tso_payrem == tso_chunk,               # that was the last segment
+                # publish ONLY here: earlier segments still re-read the TEMPLATE
+                # (descriptor entry 0's arena slot) — a mid-frame publish would
+                # let the driver recycle it under the engine.
+                NextValue(rd_pub, rd),
                 NextValue(tso_on, 0),
                 NextValue(cs_en, 0),
                 NextState("IDLE"),
