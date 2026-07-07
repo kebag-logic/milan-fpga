@@ -107,11 +107,50 @@ RX (wire → memory):  MAC → PTP → TCAM filter → RingDMAWriter → ring   
 Every TX frame passes the CBS shaper; RX has no equivalent. That is why RX reaches 200 and TX caps
 at 186, and why the RX fan-out (CPU-side) helps RX cleanly but leaves TX against the datapath wall.
 
+## Direct proof the datapath is the TX limit (datapath-input probe)
+
+Effort 03 *inferred* the TX-datapath ceiling from reader-side counters. To prove it directly,
+a counter (`MilanDebug.dp_in_probe`, bitstream `vexii_dpin.bit`) was placed on the TX datapath
+**input** — the `traffic_controller_802_1q` `s_axis`, in the 50 MHz `milan_cd` domain —
+counting `busy` (valid&ready), `stall` (valid&~ready → the reader offers a beat and the
+datapath *refuses* it) and `starve` (~valid → the reader has nothing to offer). The three
+sum to `cyc` exactly, so the percentages are self-consistent.
+
+Measured on silicon (MTU 1500, single zerocopy TX flow, 8 s window):
+
+| rate | driver | busy | stall | starve | reading |
+|---|---|:---:|:---:|:---:|---|
+| 62.7 Mbit/s | rootfs, no TSO | 2% | 26% | **71%** | datapath starved — has headroom |
+| 145 Mbit/s | rxfan1 HW-TSO | 4% | **60%** | 34% | datapath stalled — it is the wall |
+| 138 Mbit/s | rxfan1 −P2 | 4% | **59%** | 36% | same as single flow |
+
+Three findings settle it:
+1. As offered load rises 62 → 145 Mbit/s the datapath input flips **starve-dominated (71%) →
+   stall-dominated (60%)** — the textbook signature of a stage becoming the bottleneck.
+2. **−P2 (2 flows on 2 harts) matches single-flow** (138 vs 145 total, stall 59 ≈ 60%). A
+   CPU-bound TX would gain from the second hart; it does not → the *shared* TX datapath caps
+   both flows.
+3. It is **not raw bandwidth**: the datapath is 64-bit @ 50 MHz = 3.2 Gbit/s but only **4%
+   busy** at the ceiling. The 60% stall is the shaper's per-frame grant/serialization latency
+   (`classifier → per-queue FIFO → traffic_shaping_core` CBS grant); the 34% starve is the
+   reader's residual DRAM read latency (secondary). This is exactly what a best-effort
+   passthrough fast-path (below) would remove.
+
+(Rates here are unpinned, hence below the pinned-SSH 186 above; the stall-vs-starve conclusion
+is the invariant. `hash_sel=1` bypass must be set before any TCP so the flow is not split onto
+q1 and dropped by a single-queue driver — otherwise SSH/iperf hang, ICMP notwithstanding.)
+
 ## To take TX past 200 (next, independent of the above)
 
-1. **Hide the reader's DRAM latency** — larger AXI read bursts / prefetch to cut the 45% reader idle.
-2. **Trim the shaper per-frame overhead** — a passthrough fast-path in `traffic_controller_802_1q`
-   when no CBS shaping is enabled removes the 52% reader stall for best-effort traffic.
+Ordered by the datapath-input measurement (stall 60% ≫ starve 34%):
+
+1. **Trim the shaper per-frame overhead (primary)** — a passthrough fast-path in
+   `traffic_controller_802_1q` when no CBS shaping is enabled, or raising `milan_cd` 50 → 100 MHz.
+   This attacks the dominant **60% datapath-input stall** and is the only lever that moves the wall.
+2. **Hide the reader's DRAM latency (secondary)** — larger AXI read bursts / prefetch to cut the
+   34% starve. Note `burst_beats` 16 → 64 (cf98505) did **not** move end-to-end TX — consistent
+   with the probe: the reader is not the dominant limit, so amortizing its DRAM reads can't raise
+   a datapath-bound ceiling. Only worth revisiting after the shaper stall is removed.
 
 ## Artifacts
 
@@ -119,6 +158,8 @@ at 186, and why the RX fan-out (CPU-side) helps RX cleanly but leaves TX against
 |---|---|
 | Gateware HW-TSO | `vexii_hwtso.bit` · milan-fpga `78633ed` · WNS +0.123 · 115200 |
 | Gateware RX fan-out | `vexii_rxfan.bit` · milan-fpga `d1bbed7` · WNS +0.135 · 70% LUT |
+| Gateware datapath-input probe | `vexii_dpin.bit` · milan-fpga `064485a` (probe) + `cf98505` (burst-64) |
+| Datapath-input probe | `MilanDebug.dp_in_probe` (txdp_in) · CSRs busy/stall/starve/cyc @0xf0004060–6c |
 | Driver HW-TSO | kl-eth `tso1` · the-private-test-repo `151032d` |
 | Driver RX fan-out | kl-eth `rxfan1` · the-private-test-repo `01a484c` |
 | Sim HW-TSO | `sw/litex/test_tx_bd.py::test_tso_hw` |
