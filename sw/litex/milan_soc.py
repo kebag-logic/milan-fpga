@@ -2281,6 +2281,12 @@ class MilanDMA(LiteXModule):
         tx_dp = _axis_dp_cdc(self, "dma_tx_cdc", L, milan_cd, to_datapath=True)
         rx_dp = _axis_dp_cdc(self, "dma_rx_cdc", L, milan_cd, to_datapath=False)
         ts_dp = _axis_dp_cdc(self, "dma_ts_cdc", L, milan_cd, to_datapath=False)
+        # exposed for MilanDebug's TX datapath-input probe: tx_dp.dp is the milan-domain
+        # endpoint feeding the datapath (traffic_controller s_axis). tx_dp.dp.ready IS
+        # the traffic_controller's backpressure — the direct "is the datapath the TX
+        # limit?" signal (stall = valid&~ready) vs "is the CPU/reader?" (starve = ~valid).
+        self.tx_dp    = tx_dp
+        self.milan_cd = milan_cd
         self.comb += [
             # TX: reader.source (sys) -> datapath TX endpoint. The ring reader carries
             # the exact last-beat byte mask (from the header's byte length), so wire
@@ -2395,6 +2401,16 @@ class MilanDebug(LiteXModule):
         self.wire_probe("tx_wire", phy_tx, "eth_tx", "TX: frames onto the GMII wire")
         self.wire_probe("rx_wire", phy_rx, "eth_rx", "RX: frames off the GMII wire")
 
+        # --- TX datapath INPUT (milan domain): is the datapath the TX limit? -----------
+        # Counts, in the DATAPATH clock domain, the handshake at tx_dp.dp (feeding the
+        # traffic_controller s_axis). busy = beats accepted; stall = data offered but
+        # the datapath back-pressures (datapath-internally-limited); starve = no data
+        # (reader/CPU can't feed it). High stall -> the 50 MHz datapath IS the cap;
+        # high starve -> the CPU/reader is, and the datapath has headroom.
+        self.dp_in_probe("txdp_in", getattr(dma, "tx_dp", None),
+                         getattr(dma, "milan_cd", "sys"),
+                         "TX datapath input (traffic_controller s_axis)")
+
         # --- datapath occupancy / latency (Little's law) ---
         self.inflight_acc("tx_datapath", tx_dma, tx_dp, "TX datapath Σ in-flight/cycle (avg occ=acc/cycles, avg wait=acc/tx_dp_frames)")
         self.inflight_acc("rx_datapath", rx_dp, rx_dma, "RX datapath Σ in-flight/cycle (avg occ=acc/cycles, avg wait=acc/rx_dma_frames)")
@@ -2428,6 +2444,34 @@ class MilanDebug(LiteXModule):
         self._snap(beats,  32, f"{name}_beats",  f"{desc} — beats (valid&ready)")
         self._snap(stalls, 32, f"{name}_stalls", f"{desc} — back-pressure cycles")
         return frames
+
+    def dp_in_probe(self, name, ep, cd, desc):
+        """busy/stall/starve/cyc at a datapath-input endpoint in domain `cd`, to sys.
+
+        Free-running (like wire_probe); the reader takes a delta between two captures.
+        stall (valid & ~ready) = the datapath back-pressures = datapath-limited;
+        starve (~valid)        = no data offered        = reader/CPU-limited."""
+        ep = getattr(ep, "dp", ep) if ep is not None else None
+        if ep is None:
+            return
+        busy, stall, starve, cyc = (Signal(32) for _ in range(4))
+        counts = [
+            cyc.eq(cyc + 1),
+            If(ep.valid & ep.ready,  busy.eq(busy + 1)),
+            If(ep.valid & ~ep.ready, stall.eq(stall + 1)),
+            If(~ep.valid,            starve.eq(starve + 1)),
+        ]
+        pairs = ((busy, "busy"), (stall, "stall"), (starve, "starve"), (cyc, "cyc"))
+        if cd == "sys":                       # same domain: no CDC needed
+            self.sync += counts
+            for sig, tag in pairs:
+                self._snap(sig, 32, f"{name}_{tag}", f"{desc} — {tag}")
+            return
+        getattr(self.sync, cd).__iadd__(counts)
+        for sig, tag in pairs:                # cross the datapath domain to sys
+            bs = BusSynchronizer(32, cd, "sys"); setattr(self, f"{name}_{tag}_bs", bs)
+            self.comb += bs.i.eq(sig)
+            self._snap(bs.o, 32, f"{name}_{tag}", f"{desc} — {tag}")
 
     def wire_probe(self, name, ep, cd, desc):
         """Frame count at an endpoint in clock domain `cd`, brought to sys and captured."""
