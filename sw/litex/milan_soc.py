@@ -163,7 +163,8 @@ class MilanNIC(LiteXModule):
     which still elaborates and exports gateware and keeps the CPU⇄CSR path live
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
-    def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None):
+    def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
+                 rx1_irq=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -176,7 +177,9 @@ class MilanNIC(LiteXModule):
         # ev.rx = RX-completion interrupt: level-high while the RX ring is non-empty
         # (RingDMAWriter.non_empty, sys domain — same as ev, no CDC), so the driver delivers
         # on arrival (interrupt-driven NAPI) instead of the hrtimer poll. 0 when no DMA.
-        self.comb += [ev.tx.trigger.eq(0),
+        # ev.tx is unused by the DMA reader (TX has no completion IRQ — the driver
+        # reaps in NAPI), so the RX fan-out reuses it as RX-queue-1's completion line.
+        self.comb += [ev.tx.trigger.eq(rx1_irq if rx1_irq is not None else 0),
                       ev.rx.trigger.eq(rx_irq if rx_irq is not None else 0),
                       ev.ts.trigger.eq(0)]
         add_milan_datapath(self, platform, axil, ev.csr.trigger,
@@ -2076,6 +2079,118 @@ class RingDMAReader(LiteXModule):
         )
 
 
+class RxSteer(LiteXModule):
+    """2-way RX flow-steering front-end (parallel ACK/recv processing, TX>=200 step).
+
+    A single MTU-1500 RX stream can only be processed by one NAPI on one hart — the
+    ACK-processing ceiling. This splits it into 2 flow-consistent queues so two TCP
+    flows' ACK streams land on two harts. Per frame: buffer the head (<=5 beats),
+    extract the IPv4/TCP 4-tuple (src/dst IP + ports, complete by beat 4), hash to
+    q0/q1, and route the WHOLE frame there. `hash` is over the 4-tuple so a flow's
+    packets never reorder. Non-IPv4/TCP and short frames -> q0 (control/ARP/PTP path).
+
+    Downstream (both RingDMAWriter.sink) is always-ready (drop-on-full), so a small
+    SyncFIFO holds `sink` (constant-ready preserved) while the head is decoded; the
+    FIFO peaks ~5 beats/frame (head re-fill during replay) and never backpressures."""
+    def __init__(self, depth=64):
+        from functools import reduce as _reduce
+        from operator import xor as _xor
+        self.sink    = sink    = stream.Endpoint([("data", 64), ("keep", 8)])
+        self.source0 = source0 = stream.Endpoint([("data", 64), ("keep", 8)])
+        self.source1 = source1 = stream.Endpoint([("data", 64), ("keep", 8)])
+        self.q0_frames = CSRStatus(32, description="frames steered to RX queue 0 (telemetry)")
+        self.q1_frames = CSRStatus(32, description="frames steered to RX queue 1 (telemetry)")
+        self.hash_sel  = CSRStorage(1, reset=0, description="0 = steer by 4-tuple hash; 1 = force all to q0 (bypass)")
+
+        # # #
+        self.fifo = fifo = stream.SyncFIFO([("data", 64), ("keep", 8)], depth=depth, buffered=True)
+        self.comb += sink.connect(fifo.sink)          # sink.ready = fifo.sink.ready (~always 1)
+        src = fifo.source
+
+        NHEAD = 5                                     # beats buffered to cover the 4-tuple
+        obuf_d = Array([Signal(64) for _ in range(NHEAD)])
+        obuf_k = Array([Signal(8)  for _ in range(NHEAD)])
+        obuf_l = Array([Signal()   for _ in range(NHEAD)])
+        ocnt   = Signal(4)                            # beats collected into obuf (0..5)
+        sawlast = Signal()                            # frame ended within the head
+        q      = Signal()                             # latched queue for the current frame
+        ridx   = Signal(4)                            # replay index
+        n0 = Signal(32); n1 = Signal(32)
+        self.comb += [self.q0_frames.status.eq(n0), self.q1_frames.status.eq(n1)]
+
+        def B(beat, byte):                            # byte `byte` (0..7) of head beat `beat`
+            return obuf_d[beat][8*byte:8*byte+8]
+        eth_ip = Signal(); ihl5 = Signal(); tcp = Signal()
+        src_ip = Signal(32); dst_ip = Signal(32); sport = Signal(16); dport = Signal(16)
+        self.comb += [
+            eth_ip.eq((B(1,4) == 0x08) & (B(1,5) == 0x00)),   # ethertype 0x0800 (bytes 12,13)
+            ihl5.eq(B(1,6) == 0x45),                          # IPv4 ihl=5 (byte 14)
+            tcp.eq(B(2,7) == 6),                              # IP proto TCP (byte 23)
+            src_ip.eq(Cat(B(3,2), B(3,3), B(3,4), B(3,5))),   # bytes 26-29
+            dst_ip.eq(Cat(B(3,6), B(3,7), B(4,0), B(4,1))),   # bytes 30-33
+            sport.eq(Cat(B(4,2), B(4,3))),                    # bytes 34-35
+            dport.eq(Cat(B(4,4), B(4,5))),                    # bytes 36-37
+        ]
+        hashbit = Signal()
+        self.comb += hashbit.eq(
+            _reduce(_xor, [src_ip[i] for i in range(32)]) ^
+            _reduce(_xor, [dst_ip[i] for i in range(32)]) ^
+            _reduce(_xor, [sport[i] for i in range(16)]) ^
+            _reduce(_xor, [dport[i] for i in range(16)]))
+        # decision from the (registered) head — evaluated when HEAD is complete
+        qsel = Signal()
+        self.comb += If(sawlast | ~(eth_ip & ihl5) | ~tcp | self.hash_sel.storage,
+                        qsel.eq(0)).Else(qsel.eq(hashbit))
+
+        self.submodules.fsm = fsm = FSM(reset_state="HEAD")
+        fsm.act("HEAD",
+            src.ready.eq(1),
+            If(src.valid,
+                NextValue(obuf_d[ocnt], src.data),
+                NextValue(obuf_k[ocnt], src.keep),
+                NextValue(obuf_l[ocnt], src.last),
+                NextValue(ocnt, ocnt + 1),
+                If(src.last, NextValue(sawlast, 1)),
+                If(src.last | (ocnt == NHEAD - 1),      # short frame, or the 5th beat stored
+                    NextState("DECODE"),                # obuf fully registered next cycle
+                )
+            )
+        )
+        fsm.act("DECODE",                               # obuf[0..ocnt-1] all visible now
+            NextValue(q, qsel),
+            NextValue(ridx, 0),
+            NextState("REPLAY"),
+        )
+        # emit the buffered head (REPLAY) or the streamed tail (PASS) to the chosen queue
+        for s in (source0, source1):
+            self.comb += [
+                s.data.eq(Mux(fsm.ongoing("PASS"), src.data, obuf_d[ridx])),
+                s.keep.eq(Mux(fsm.ongoing("PASS"), src.keep, obuf_k[ridx])),
+                s.last.eq(Mux(fsm.ongoing("PASS"), src.last, obuf_l[ridx])),
+            ]
+        fsm.act("REPLAY",
+            If(q == 0, source0.valid.eq(1)).Else(source1.valid.eq(1)),
+            # both writer sinks are always-ready; advance every cycle
+            NextValue(ridx, ridx + 1),
+            If(obuf_l[ridx],                            # head contained the whole frame
+                NextValue(ocnt, 0), NextValue(sawlast, 0),
+                If(q == 0, NextValue(n0, n0 + 1)).Else(NextValue(n1, n1 + 1)),
+                NextState("HEAD"),
+            ).Elif(ridx == ocnt - 1,                    # head drained; stream the tail
+                NextState("PASS"),
+            )
+        )
+        fsm.act("PASS",
+            src.ready.eq(1),
+            If(q == 0, source0.valid.eq(src.valid)).Else(source1.valid.eq(src.valid)),
+            If(src.valid & src.last,
+                NextValue(ocnt, 0), NextValue(sawlast, 0),
+                If(q == 0, NextValue(n0, n0 + 1)).Else(NextValue(n1, n1 + 1)),
+                NextState("HEAD"),
+            )
+        )
+
+
 class MilanDMA(LiteXModule):
     """AXIS ↔ system-memory DMA (§A.6), attaching the milan_datapath TX/RX/TS DMA
     AXIS ports to the CPU's memory via three LiteX simple-mode DMA engines:
@@ -2095,7 +2210,7 @@ class MilanDMA(LiteXModule):
     NOTE (board-gated): this elaborates against integrated RAM here; on the board it
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade — see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
-    def __init__(self, soc, data_width=64, milan_cd="sys"):
+    def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1):
         from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
         from litex.soc.interconnect import wishbone
         import math
@@ -2139,6 +2254,15 @@ class MilanDMA(LiteXModule):
         self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
                                                  id_width=4))
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
+        # RX fan-out (rx_queues=2): a flow-steering front-end splits the single RX
+        # stream into 2 flow-consistent queues, each its own RingDMAWriter + IRQ +
+        # NAPI, so two TCP flows' ACK/recv processing runs on two harts (breaks the
+        # single-NAPI ACK-processing ceiling). rx1's IRQ reuses the unused ev.tx line.
+        if rx_queues >= 2:
+            self.steer = RxSteer()
+            self.rx1 = RingDMAWriter(axi.AXIInterface(data_width=data_width,
+                                                      address_width=32, id_width=4))
+            dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
 
@@ -2156,13 +2280,27 @@ class MilanDMA(LiteXModule):
             tx_dp.sys.valid.eq(self.tx.source.valid), tx_dp.sys.data.eq(self.tx.source.data),
             tx_dp.sys.last.eq(self.tx.source.last),   tx_dp.sys.keep.eq(self.tx.source.keep),
             self.tx.source.ready.eq(tx_dp.sys.ready),
-            # RX: datapath RX endpoint (sys side) -> writer.sink
-            self.rx.sink.valid.eq(rx_dp.sys.valid), self.rx.sink.data.eq(rx_dp.sys.data),
-            self.rx.sink.last.eq(rx_dp.sys.last),    rx_dp.sys.ready.eq(self.rx.sink.ready),
             # TS: datapath TS endpoint (sys side) -> writer.sink
             self.ts.sink.valid.eq(ts_dp.sys.valid), self.ts.sink.data.eq(ts_dp.sys.data),
             self.ts.sink.last.eq(ts_dp.sys.last),    ts_dp.sys.ready.eq(self.ts.sink.ready),
         ]
+        if rx_queues >= 2:
+            # RX: datapath -> steer -> {rx.sink (q0), rx1.sink (q1)}
+            self.comb += [
+                self.steer.sink.valid.eq(rx_dp.sys.valid),
+                self.steer.sink.data.eq(rx_dp.sys.data),
+                self.steer.sink.keep.eq(rx_dp.sys.keep),
+                self.steer.sink.last.eq(rx_dp.sys.last),
+                rx_dp.sys.ready.eq(self.steer.sink.ready),
+                self.steer.source0.connect(self.rx.sink),
+                self.steer.source1.connect(self.rx1.sink),
+            ]
+        else:
+            # RX: datapath RX endpoint (sys side) -> single writer.sink
+            self.comb += [
+                self.rx.sink.valid.eq(rx_dp.sys.valid), self.rx.sink.data.eq(rx_dp.sys.data),
+                self.rx.sink.last.eq(rx_dp.sys.last),    rx_dp.sys.ready.eq(self.rx.sink.ready),
+            ]
 
         self.dp_ports = dict(
             # TX: reader.source (mem data) -> datapath s_axis_tx
@@ -2329,7 +2467,7 @@ class MilanSoC(SoCCore):
                  with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
-                 extra_scala_args=None, cpu="naxriscv",
+                 extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
@@ -2451,7 +2589,8 @@ class MilanSoC(SoCCore):
             dp_ports = {}
             milan_cd = "milan" if milan_clk_freq else "sys"
             if with_dma:
-                self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd)
+                self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
+                                          rx_queues=rx_queues)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
@@ -2466,7 +2605,9 @@ class MilanSoC(SoCCore):
                 self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd,
-                                  rx_irq=self.milan_dma.rx.non_empty if with_dma else None)
+                                  rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
+                                  rx1_irq=(self.milan_dma.rx1.non_empty
+                                           if (with_dma and rx_queues >= 2) else None))
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
     def _add_flashboot_constants(self, manifest_name):
@@ -2510,6 +2651,8 @@ def main():
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
     ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
+    ap.add_argument("--rx-queues", default=1, type=int,
+                    help="RX DMA queues (2 = flow-steered fan-out for parallel ACK/recv on 2 harts)")
     ap.add_argument("--l2-bytes", default=None, type=float,
                     help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
@@ -2585,6 +2728,7 @@ def main():
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
+                   rx_queues=args.rx_queues,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
