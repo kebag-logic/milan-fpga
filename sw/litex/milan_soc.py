@@ -968,8 +968,17 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_close, 1),
                 NextValue(ap_csrc, 1),
                 NextState("WB_AW"),
-            ).Elif(bd_mode & ack_expired,
-                # ACK-run idle-timeout — deliver the latest pending ACK
+            ).Elif(bd_mode & ack_expired & ~agg_open,
+                # ACK-run idle-timeout — deliver the latest pending ACK. GATED on
+                # ~agg_open (RX-wedge root cause, 2026-07-08, test_bd_ack_flush_vs_
+                # open_agg_order): the flush pops a NEW posted buffer and completes
+                # its v1 BD while the OPEN aggregate still holds an EARLIER buffer
+                # whose v2 BD only comes at close — completion order inverts posted
+                # order, and the driver's FIFO page pairing (page[comp_i++]) then
+                # mispairs EVERY later completion: RX delivery dead while all HW
+                # stages keep flowing (the -P2 silicon wedge). Deferring the flush
+                # until the aggregate closes (its own timeout bounds the wait to
+                # <= rsc_tout) keeps BD order == pop order by construction.
                 *ack_flush(ret=0)
             ).Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
@@ -1014,6 +1023,16 @@ class RingDMAWriter(LiteXModule):
                     *(ack_capture() +
                       [If(ack_match, NextValue(ack_merged, ack_merged + 1)),
                        NextState("IDLE")])
+                ).Elif(agg_open,
+                    # different-flow ACK needs the pending slot, but flushing pops a
+                    # buffer — and an OPEN aggregate holds an earlier one (BD order
+                    # would invert posted order: the RX wedge, see the IDLE gate).
+                    # Close the aggregate first; this mack frame stays parked in
+                    # hdr_reg and re-DISPATCHes after WB_B exactly like a parked
+                    # data newcomer, then takes the flush path with agg closed.
+                    NextValue(ap_close, 1),
+                    NextValue(ap_csrc, 0),
+                    NextState("WB_AW"),
                 ).Else(
                     *ack_flush(ret=1)
                 )
