@@ -1,10 +1,15 @@
-# RX overload wedge — completion-order inversion under RSC + ACK-merge [FIXED in sim]
+# RX overload wedge — TWO bugs: BD-order inversion + drops/v2-marker alias [FIXED, silicon-validated]
 
-*Found 2026-07-07/08 during the >500 Mbit/s campaign (parallel RX testing); localized on
-silicon with the stage probes, root-caused by a deterministic sim repro and **fixed** the
-same night (commit `09e3a09`). Regression net: `sw/litex/test_ring_bd.py` — 22 tests
-including a driver-model lockstep checker, an overload storm, a heal-race sweep and
-seeded fuzz. Silicon validation on `build_dp100_wfix` is the remaining step.*
+*Found 2026-07-07/08 during the >500 Mbit/s campaign (parallel RX testing). TWO independent
+root causes, both localized with the stage probes, sim-repro'd deterministically, fixed and
+**validated on silicon**: (1) completion-order inversion — the pending-ACK flush popping a
+buffer while an open aggregate held an earlier one (`09e3a09`); (2) the v1 BD's 16-bit
+`drops` field aliasing bit 56, the v2 marker, at drops ≥ 256 (`2c44757`) — the one that made
+parallel storms lethal and reload-proof. Regression net: `sw/litex/test_ring_bd.py`, 27
+tests: driver-model lockstep + content/conservation/FIFO-quiesce checkers, overload storms,
+silicon-geometry MSS storms, heal-race sweep, seeded fuzz, and the deterministic repro of
+each bug. Final gateware `build_dp100_v2fix` (WNS +0.123) survives the previously-fatal
+storm sequence end-to-end (see Status).*
 
 Related: [`CBS_DATAPATH_BUG.md`](CBS_DATAPATH_BUG.md) (an earlier, unrelated TX wedge),
 [`CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md) (found the same night),
