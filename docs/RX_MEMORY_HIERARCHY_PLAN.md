@@ -88,6 +88,39 @@ Only if Phase L2 helped.
   partition support (audit first; likely absent → skip).
 - **Gate:** RX −P2 ≥ 300 with the L2 growth curve flat (no cheap capacity left).
 
+## Architecture finding (2026-07-08) — why a network *scratchpad* is the wrong lever HERE
+
+Investigated in response to "use on-chip BRAM, bypass DRAM for the network path." The instinct
+is right in principle (DRAM cold-miss latency **is** the RX wall) but the naive scratchpad form
+is blocked by two verified facts:
+
+1. **The RX buffers are already in DRAM and cost ZERO FPGA BRAM.** They are `page_pool` +
+   `dma_alloc_coherent` kernel pages (kl-eth.c:351–367, `DMA_FROM_DEVICE`). So a scratchpad
+   would *move* 768 KB of buffers *into* the ~100 KB of free BRAM — it **adds** BRAM demand and
+   doesn't fit. It is the opposite of "keep BRAM for logic." The network path does **not**
+   compete with the AVDECC logic for BRAM today; only the **L2** and the **TX shaper FIFOs**
+   (`traffic_queues.sv FIFO_DEPTH=16384`) do.
+2. **The +17 % the L2 gave is kernel-owned state a driver scratchpad cannot relocate.** The
+   reused hot-set that thrashed at 2 harts is socket/TCP/skb/GRO state + code + page-pool
+   metadata — kernel slab/text, not driver buffers. A NIC driver can only place its *own*
+   structures (BD rings, 2 KB — already L2-resident) in a scratchpad. So a scratchpad
+   physically cannot hold the thing that bottlenecks. A **transparent cache (the L2) is the
+   correct tool** precisely because the hot data is kernel-owned and scattered.
+
+**Corollary — prefetch (B.0) viability is unverified on this core.** The CPU is VexiiRiscv
+"linux" = **in-order** (milan_soc.py:2718). Software prefetch only hides latency if the D$ is
+**non-blocking** (hit-under-miss / multiple outstanding refills). If it is blocking, a prefetch
+load just moves the stall earlier — a no-op. **Verify the lsuL1 refill/outstanding config
+before trusting B.0.** On an in-order blocking D$ the only lever is "make the read a hit"
+(cache / stash), not "overlap the miss."
+
+**Therefore the form of the idea that actually works is DDIO / allocate-on-DMA-write (B.3
+below)** — land the DMA data warm in the L2/a stash so the CPU read is a *hit*, DRAM stays the
+backing store. It does not save BRAM (it uses the L2/stash) and it is coherency-path RTL, but
+it is the *architecturally* correct "on-chip for network" and the only one that addresses the
+cold payload. The frugal, zero-BRAM RX lever meanwhile is **B.4 (fewer touches per frame** —
+bigger RSC coalescing cuts the cold-miss *count*), which honors "keep BRAM for logic."
+
 ## Branch B — cold / bandwidth-bound: the dedicated network cache
 
 Only if Phase L2 did **not** help. This is the user's "dedicated cache only for network"
