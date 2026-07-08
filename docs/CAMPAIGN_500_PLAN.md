@@ -4,6 +4,17 @@
 [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md), [`RX_OVERLOAD_WEDGE.md`](RX_OVERLOAD_WEDGE.md),
 [`CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md)). Written 2026-07-08.*
 
+## DECISION (2026-07-08): stay at 100 MHz; next lever = L2/memory
+
+Phase X measured 112.5 MHz = only **+4–8 %** TX (508 projection refuted) at real cost
+(thin timing, SPI-read workaround, wrong board timebase). **100 MHz (`build_dp100_m1`) is
+the standard baseline.** The two RTL changes 112.5 forced — reader-source `stream.Buffer`
+(critical-path relief) and single-lane SPI flash read (robust boot) — are committed and
+carry forward (harmless at 100 MHz). **More cores rejected**: TX isn't hart-bound (proven),
+and RX BRAM won't fit (m1 already 76 %) + 2-hart RX scaling is only +24 % (memory-contended,
+not core-bound). **Next lever = grow the shared L2 (32 KB → 64 KB)** to open the +24%-not-2×
+RX fan-out gap — orthogonal to sys clock, the measured memory wall is the real ceiling.
+
 ## STATUS LEDGER (2026-07-08, end of first execution day)
 
 | phase | status | gate outcome |
