@@ -4,6 +4,28 @@
 [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md), [`RX_OVERLOAD_WEDGE.md`](RX_OVERLOAD_WEDGE.md),
 [`CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md)). Written 2026-07-08.*
 
+## STATUS LEDGER (2026-07-08, end of first execution day)
+
+| phase | status | gate outcome |
+|---|---|---|
+| M1 instrumentation | ✅ `7c024b3` | `build_dp100_m1` WNS +0.056, §V clean, 17 CSRs appended-only |
+| R0 re-baseline | ✅ `a3492fd` | 12-cell signed table, zero wedges, books balance |
+| R1 2-queue fan-out | ✅ `599fb00` | LIVE at 100 MHz, 10/10 storm rounds; split rounds 230–238 0-retr; **238 = both-harts-99 % CPU ceiling** (hands ≥300 to X/cost cuts) |
+| R2 RSC geometry | ⚠ partially refuted | close-reasons: **park 58 %/psh 41 %/cap 0 %**, ratio 7.8–9.5 → window/cap tuning buys nothing; copybreak sweep hash-lottery-confounded — redo split-classified if revisited |
+| T1 TX levers | ✅ **452 Mbit** `44e785c` | gate ≥420 MET; real levers = **board `rx-usecs` 2000 + softirq NAPI**; peer knob mild ±5 % (first sweep was phantom — peer ethtool needs `sudo -n`) |
+| T2 completion-IRQ | ⏸ deprioritized by measurement | IRQ fires per packet; delivery ~1.0 ms fixed, poll-independent (threaded-NAPI wake was 0.65 ms — `threaded=0` now standard); **latency is not the 500-blocker** |
+| T3 2nd TX queue | ⛔ refuted by proxy | dual-process at the operating point = 341 < 417 single-process −P4 |
+| X clock | 🔨 in flight | **112.5 MHz FAILED WNS −0.226** — but the CPU closed; blockers are the TX-reader assembly-cone paths (0.03–0.23 ns short) → future RTL unlock ≈ 508 TX. **106.25 MHz building** (+6.25 % → TX ~480, RX ~253) |
+
+**Scoreboard: TX 452/500 · RX 238/500.** Operating point: peer(sudo) `rx-usecs` 50–200,
+board `rx-usecs` 2000, `threaded=0`, `hash_sel=0`, MTU 1500.
+
+**Honest gap assessment:** TX closes with X (106.25 + top-of-band, or the 112.5 unlock).
+RX cannot reach 500 on this 2-hart/100-ish-MHz CPU by tuning — the measured ceiling is
+CPU per-frame cost with both harts pegged; beyond X (~253), RX needs structural work:
+the reader-cone pipeline (enables 112.5), >2 queues or per-queue aggregate slots (park
+58 % tax), or delivery-path cost cuts — all RTL-scale, all now precisely quantified.
+
 ## The rule (what "carefully" means here)
 
 Three sessions of evidence say intuition on this platform is wrong more often than right

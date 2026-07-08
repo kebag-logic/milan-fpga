@@ -152,6 +152,32 @@ historical). Fewer, larger ACK batches at BOTH ends = less per-wakeup CPU on the
 (2-hart ceiling, R1); its next lift is also T2/X. Operating point recorded: peer=50,
 board=2000, hash_sel=0.
 
+## Phase X status + T2 latency decomposition (2026-07-08)
+
+**X (sys clock):** `build_x1125` (112.5 MHz) **failed timing — WNS −0.226 / TNS −2.58 —
+and is barred from measurement (§V)**. The decisive detail: the **CPU closed**; every
+violating path is the TX reader's byte-assembly cone (`blen_r → in_last → a_nxt → CDC
+FIFO write data`, the historic critical path), short by just 0.03–0.23 ns. **Pipelining
+that cone (RTL, provable with the 28-test regression net) is the designed 112.5 unlock**
+(TX ≈ 508 by scaling). Fallback `build_x10625` (106.25 MHz, +6.25 % CPU) in flight —
+projection TX ~480 / RX ~253.
+
+**T2 (latency), decomposed and deprioritized:** with per-packet IRQs verified (`irqs`
+delta == ping count) the delivery latency is **poll-independent**: peer→board 1.7 ms at
+any active `rx-usecs`. Switching threaded NAPI off (`/sys/class/net/eth0/threaded=0`)
+removes 0.65 ms (kthread wakeup) → **1.08 ms, mdev 36 µs**; the remaining ~1.0 ms is a
+tight unexplained constant (not the poll, not the IRQ, not the peer — peer localhost
+0.058 ms). Throughput A/B: threaded on/off is neutral → **`threaded=0` is the standard
+operating mode** (latency win, no cost). Since TCP runs 0-retr and CPU-pegged at the
+records, **latency is not the 500-blocker** — T2 driver surgery is parked.
+
+**T3 (2nd TX queue): refuted by its proxy** — dual-process at the operating point totals
+341 vs 417 single-process −P4: the xmit path is not the serializer; CPU per-byte is.
+
+**Ops gotcha for the record:** peer-side `ethtool -C` requires `sudo -n` — the first T1
+"peer sweep" silently never applied (peer sat at 1000 µs); always verify with
+`ethtool -c` readback. The genuine peer knob is mild (437/435/452/424 at 3/50/200/1000).
+
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
 The datapath is never the raw-bandwidth limit (64-bit × 50–100 MHz ≫ 1 Gbit). The real walls,
