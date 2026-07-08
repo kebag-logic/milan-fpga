@@ -620,6 +620,308 @@ def test_rsc_tiny_drop_recovers():
     print("PASS RSC tiny-frame drop recovers (disc=0 black hole regression)")
 
 
+# ======================================================================================
+# RX overload-wedge repro (2026-07-08) — the silicon -P2 lockstep break.
+#
+# Silicon signature: under parallel RX every HW stage keeps flowing (stage probes tick,
+# BDs commit) but the DRIVER rejects/mispairs every completion forever — RX delivery
+# dead until a full reset. The driver pairs completions with its posted-page FIFO BY
+# ORDER (page[comp_i++]); the HW contract that makes this sound is:
+#
+#   INVARIANT: completion BDs are written in EXACTLY posted-buffer pop order, and
+#   every popped buffer produces exactly one BD (drops never pop).
+#
+# DriverModel below mirrors kl-eth's reap loop bit-for-bit and asserts the invariant;
+# any violation is the wedge, reproduced in sim with a full trace as the artifact.
+# ======================================================================================
+
+def tcp_flow(payload_len=100, flags=0x10, seq=0x1000, sport=0x1451):
+    """tcp_frame variant with a settable source port (multi-flow) at doff=5 (so
+    payload_len=0/flags=0x10 is also mack-eligible for the ACK-merge slot)."""
+    eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
+    tot = 20 + 20 + payload_len
+    ip = bytes([0x45,0, tot>>8, tot&0xFF, 0,0, 0x40,0, 64,6, 0,0,
+                192,168,127,2, 192,168,127,1])
+    tcp = bytes([(sport>>8)&0xFF, sport&0xFF, 0x14,0x51,
+                 (seq>>24)&0xFF,(seq>>16)&0xFF,(seq>>8)&0xFF,seq&0xFF,
+                 0,0,0,0, (5<<4), flags, 0x20,0, 0,0, 0,0])
+    pay = bytes((i*7 + sport) & 0xFF for i in range(payload_len))
+    blob = eth + ip + tcp + pay
+    blob += bytes((-len(blob)) % 8)
+    return [int.from_bytes(blob[i:i+8], 'little') for i in range(0, len(blob), 8)], blob
+
+
+class DriverModel:
+    """kl-eth's BD reap, mirrored exactly: FIFO page pairing + magic/seq lockstep.
+    reap() walks completions and asserts the invariant; heal() mirrors kl_bd_resync."""
+    def __init__(self, h, bd_entries):
+        self.h, self.n = h, bd_entries
+        self.pages = []                 # driver page[] FIFO, post order
+        self.bd_rd = 0
+        self.seq = 0
+        self.reaped = []                # (kind, page, len) in reap order
+        self.trace = []                 # full post/reap trace for the repro artifact
+
+    def post(self, addr):
+        self.pages.append(addr)
+        self.trace.append(f"post  {addr:#x}")
+
+    def dump(self):
+        lines = [f"  BD ring @{BD_BASE:#x} (rd={self.bd_rd:#x} seq={self.seq}):"]
+        for k in range(self.n):
+            w0 = self.h.mem.get(BD_BASE + 16*k, None)
+            w1 = self.h.mem.get(BD_BASE + 16*k + 8, None)
+            lines.append(f"    slot{k}: w0={w0:#018x} w1={w1:#018x}"
+                         if w0 is not None and w1 is not None else f"    slot{k}: empty")
+        lines.append(f"  page FIFO: {[hex(p) for p in self.pages]}")
+        lines.append("  trace (last 25):")
+        lines += [f"    {t}" for t in self.trace[-25:]]
+        return "\n".join(lines)
+
+    def reap(self):
+        """walk BDs until an empty/foreign slot, asserting lockstep at each."""
+        while True:
+            w0 = self.h.mem.get(BD_BASE + self.bd_rd, None)
+            if w0 is None or (w0 & 0xFF) != 0xBD:
+                return
+            seq = (w0 >> 8) & 0xFF
+            assert seq == self.seq & 0xFF, \
+                f"WEDGE (seq): BD@+{self.bd_rd:#x} seq={seq} expected={self.seq & 0xFF}\n{self.dump()}"
+            v2 = (w0 >> 56) & 1
+            length = (w0 >> 16) & 0xFFFF
+            assert self.pages, \
+                f"WEDGE (extra BD): completion with an EMPTY page FIFO\n{self.dump()}"
+            page = self.pages.pop(0)
+            w1 = self.h.mem.get(BD_BASE + self.bd_rd + 8, 0)
+            if not v2:
+                addr = w1 & 0xFFFFFFFF
+                assert addr == page, \
+                    (f"WEDGE (v1 pairing): BD@+{self.bd_rd:#x} buf={addr:#x} but page-FIFO "
+                     f"head={page:#x} — completion order != post order\n{self.dump()}")
+            else:
+                got = self.h.mem.get(page, None)
+                assert got is not None, \
+                    (f"WEDGE (v2 pairing): aggregate BD@+{self.bd_rd:#x} but page-FIFO "
+                     f"head {page:#x} was never written\n{self.dump()}")
+            self.reaped.append(("v2" if v2 else "v1", page, length))
+            self.trace.append(f"reap  {'v2' if v2 else 'v1'} page={page:#x} len={length}")
+            self.h.mem[BD_BASE + self.bd_rd] = 0        # driver clears the slot
+            self.seq += 1
+            self.bd_rd = (self.bd_rd + 16) & (self.n * 16 - 1)
+
+    def heal(self):
+        """kl_bd_resync: reclaim every page, clear the BD ring, restart lockstep."""
+        self.trace.append("HEAL")
+        self.pages.clear()
+        self.bd_rd = 0
+        self.seq = 0
+        for k in range(self.n):
+            self.h.mem[BD_BASE + 16*k] = 0
+            self.h.mem[BD_BASE + 16*k + 8] = 0
+
+
+PGS = [0x100000 + i * 0x1000 for i in range(16)]      # posted pages, 4 KB apart
+
+
+def _mk_overload_harness(cycles):
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=1024, cycles=cycles)
+    return h
+
+
+def test_bd_ack_flush_vs_open_agg_order():
+    """MINIMAL deterministic wedge candidate: a pending pure-ACK expires and pops a
+    buffer (v1 BD) while an OPEN data aggregate still holds an EARLIER buffer whose
+    v2 BD only comes later — if the BD order inverts the pop order, the driver's
+    FIFO pairing mispairs every completion from then on (the -P2 silicon wedge)."""
+    ACK, _ = tcp_flow(payload_len=0, flags=0x10, seq=7000, sport=0x2222)  # mack, flow X
+    S1,  _ = tcp_flow(payload_len=96, flags=0x10, seq=1000, sport=0x1111) # eligible, flow Y
+    h = _mk_overload_harness(cycles=60000)
+    m = DriverModel(h, bd_entries=8)
+
+    def stim():
+        yield from h.init_bd(bd_entries=8)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(1024)
+        yield h.dut.rsc_tout.storage.eq(600)
+        yield
+        for p in PGS[:2]:
+            yield from h.post_buf(p); m.post(p)
+        yield from h.send_frame(ACK)      # t=0: pending ACK armed (no buffer popped)
+        for _ in range(250):              # age the ACK timer well past the seg's
+            yield
+        yield from h.send_frame(S1)       # t=250: aggregate OPENS on page[0]
+        # now idle: ACK timer expires ~350 cycles before the aggregate's — if the
+        # flush pops page[1] and writes its v1 BD first, the order has inverted.
+        yield from h.wait_idle(settle=2000)
+        assert (yield h.dut.frames.status) == 2, "expected ACK BD + aggregate BD"
+    h.run(stim)
+    m.reap()
+    assert len(m.reaped) == 2, f"expected 2 completions, got {m.reaped}\n{m.dump()}"
+    assert not m.pages, f"pages left unaccounted: {[hex(p) for p in m.pages]}\n{m.dump()}"
+    print("PASS ACK-flush vs open-aggregate completion order (no inversion)")
+
+
+def test_bd_overload_storm_lockstep():
+    """The -P2 cocktail, deterministic: two data flows churning the single aggregate
+    slot (open/park/close), pure-ACK merge traffic, non-TCP frames, and buffer
+    exhaustion with NO reaping mid-storm (the stalled -P2 driver). The DriverModel
+    then reaps everything and asserts the pairing invariant end-to-end."""
+    h = _mk_overload_harness(cycles=250000)
+    m = DriverModel(h, bd_entries=8)
+    seqs = {0x1111: 1000, 0x3333: 5000}   # per-flow tcp seq counters
+
+    def seg(flow, n, flags=0x10):
+        w, _ = tcp_flow(payload_len=n, flags=flags, seq=seqs[flow], sport=flow)
+        seqs[flow] += n
+        return w
+
+    def stim():
+        yield from h.init_bd(bd_entries=8)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(1024)
+        yield h.dut.rsc_tout.storage.eq(400)
+        yield
+        for p in PGS[:4]:
+            yield from h.post_buf(p); m.post(p)
+        # phase 1: two flows interleave -> constant aggregate churn (close-first path)
+        for k in range(3):
+            yield from h.send_frame(seg(0x1111, 96))          # open agg flow A
+            yield from h.send_frame(seg(0x1111, 96))          # append
+            yield from h.send_frame(seg(0x3333, 80))          # park -> close A, open B
+            ack, _ = tcp_flow(0, 0x10, 9000 + k, sport=0x2222)
+            yield from h.send_frame(ack)                      # pending-ACK churn
+            yield from h.send_frame(seg(0x1111, 96))          # park -> close B, open A
+        # phase 2: exhaustion — more consumers than the 4 pages, driver NOT reaping
+        yield from h.send_frame(seg(0x3333, 80, flags=0x18))  # PSH: close -> v1/v2 churn
+        for k in range(4):
+            yield from h.send_frame(frame(0xE0 + k, 6))       # non-TCP, pops if possible
+        yield from h.wait_idle(settle=3000)                   # all timeouts fire dry
+        # phase 3: partial replenish mid-chaos, then more traffic
+        for p in PGS[4:8]:
+            yield from h.post_buf(p); m.post(p)
+        yield from h.send_frame(seg(0x1111, 64, flags=0x18))
+        yield from h.send_frame(frame(0xF7, 5))
+        yield from h.wait_idle(settle=3000)
+    h.run(stim)
+    m.reap()
+    # every page NOT reaped must be genuinely unconsumed (memory at it never written)
+    for p in m.pages:
+        assert h.mem.get(p, None) is None, \
+            f"WEDGE (silent consume): page {p:#x} written but no BD reaped for it\n{m.dump()}"
+    print(f"PASS overload storm lockstep ({len(m.reaped)} completions, "
+          f"{len(m.pages)} pages legitimately unconsumed)")
+
+
+def test_bd_heal_race_lockstep():
+    """kl_bd_resync under fire (silicon flavor-2): disable the ring MID-TRAFFIC at
+    several phases (incl. mid-frame and enable-toggles faster than the FSM visits
+    IDLE), heal the model like the driver, re-enable, re-post, resume — the very
+    first BD after every heal must be seq=0 pairing page[0]; anything else is the
+    silicon 'driver expects seq0@slot0 while HW continues at seq=K' desync."""
+    h = _mk_overload_harness(cycles=300000)
+    m = DriverModel(h, bd_entries=8)
+
+    def stim():
+        yield from h.init_bd(bd_entries=8)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(1024)
+        yield h.dut.rsc_tout.storage.eq(400)
+        yield
+        for phase, wait_cyc in enumerate((0, 3, 12, 40, 150)):
+            # fresh pages for this round
+            for p in PGS[:3]:
+                yield from h.post_buf(p); m.post(p)
+            w1, _ = tcp_flow(96, 0x10, 1000 + phase, sport=0x1111)  # opens an aggregate
+            yield from h.send_frame(w1)
+            w2, _ = tcp_flow(64, 0x18, 4000 + phase, sport=0x3333)  # parks -> close churn
+            yield from h.send_frame(w2)
+            for _ in range(wait_cyc):
+                yield                              # land the disable at a different FSM phase
+            yield h.dut.enable.storage.eq(0)       # ---- driver heal begins (mid-traffic!)
+            yield
+            for _ in range(60):                    # "udelay": in-flight frame drains
+                yield
+            m.heal()                               # driver: reclaim + memset + reset
+            yield h.dut.enable.storage.eq(1)       # re-enable
+            yield
+            for p in PGS[8:11]:
+                yield from h.post_buf(p); m.post(p)
+            w3, _ = tcp_flow(72, 0x18, 8000 + phase, sport=0x5555)  # PSH: immediate v1
+            yield from h.send_frame(w3)
+            yield from h.wait_idle(settle=1500)
+            # the reap inside the loop asserts seq restarts at 0 and pairs page[0]
+            m.reap()
+            assert m.reaped and m.reaped[-1][1] in PGS[8:11], \
+                f"post-heal completion missing/mispaired: {m.reaped[-3:]}\n{m.dump()}"
+            m.pages.clear()                        # round hygiene (unconsumed pages)
+            m.reaped.clear()
+    h.run(stim)
+    print("PASS heal-race lockstep (5 disable phases incl. mid-frame; seq restarts clean)")
+
+
+def test_bd_overload_fuzz(seed=1, nops=260):
+    """Seeded fuzz of the full silicon op-mix against the DriverModel. Ops:
+    eligible segs (2 flows, PSH sprinkled), pure ACKs (merge/flush), non-TCP frames,
+    posts, reap bursts, idle gaps (timeout closes), rare heals. Any lockstep break
+    asserts with the trace."""
+    import random
+    rng = random.Random(seed)
+    h = _mk_overload_harness(cycles=900000)
+    m = DriverModel(h, bd_entries=8)
+    seqs = {0x1111: 1000, 0x3333: 5000}
+    next_page = [0]
+
+    def stim():
+        yield from h.init_bd(bd_entries=8)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(1024)
+        yield h.dut.rsc_tout.storage.eq(300)
+        yield
+        for _ in range(3):
+            p = 0x100000 + (next_page[0] % 48) * 0x1000; next_page[0] += 1
+            yield from h.post_buf(p); m.post(p)
+        for op in range(nops):
+            r = rng.random()
+            if r < 0.30:                                   # eligible data seg
+                flow = 0x1111 if rng.random() < 0.6 else 0x3333
+                fl = 0x18 if rng.random() < 0.25 else 0x10
+                n = rng.choice((48, 80, 96))
+                w, _ = tcp_flow(n, fl, seqs[flow], sport=flow)
+                seqs[flow] += n
+                yield from h.send_frame(w)
+            elif r < 0.45:                                 # pure ACK (merge slot)
+                flow = rng.choice((0x2222, 0x4444))
+                w, _ = tcp_flow(0, 0x10, rng.randrange(1 << 16), sport=flow)
+                yield from h.send_frame(w)
+            elif r < 0.55:                                 # non-TCP frame
+                yield from h.send_frame(frame(rng.randrange(256), rng.choice((3, 6, 9))))
+            elif r < 0.75:                                 # post a page
+                p = 0x100000 + (next_page[0] % 48) * 0x1000; next_page[0] += 1
+                yield from h.post_buf(p); m.post(p)
+            elif r < 0.90:                                 # idle gap (timeouts fire)
+                for _ in range(rng.choice((60, 200, 700))):
+                    yield
+                m.reap()
+            elif r < 0.97:                                 # reap burst (driver catches up)
+                yield from h.wait_idle(settle=600)
+                m.reap()
+            else:                                          # rare mid-traffic heal
+                yield h.dut.enable.storage.eq(0)
+                yield
+                for _ in range(80):
+                    yield
+                m.heal()
+                yield h.dut.enable.storage.eq(1)
+                yield
+        yield from h.wait_idle(settle=4000)
+    h.run(stim)
+    m.reap()
+    for p in m.pages:
+        assert h.mem.get(p, None) is None, \
+            f"WEDGE (silent consume): page {p:#x} written, no BD\n{m.dump()}"
+    print(f"PASS overload fuzz seed={seed} ({nops} ops, {len(m.reaped)} completions)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -638,4 +940,9 @@ if __name__ == "__main__":
     test_rsc_tiny_drop_recovers()
     test_rsc_ack_merge()
     test_rsc_ack_passthrough_and_ts()
+    test_bd_ack_flush_vs_open_agg_order()
+    test_bd_overload_storm_lockstep()
+    test_bd_heal_race_lockstep()
+    test_bd_overload_fuzz(seed=1)
+    test_bd_overload_fuzz(seed=2)
     print("ALL PASS")
