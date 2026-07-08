@@ -22,7 +22,8 @@ CPU profile side by side — no blind changes.
 | TX TCP, 100 MHz dp, **CBS unshaped**³ | **339** (−P4) / **354** (2 proc) / 265 single | ✗ (✓200) | **CPU-saturated** (84–96% both harts) | plan T1/T2/T3: peer-coalesce + −P8 (storms now safe⁴), completion-IRQ, 2nd TX queue if the proxy demands |
 | TX TCP, 100 MHz dp, CBS default (historical²) | 238–247 | ✗ | **CBS shaper pacing BE at 300 Mb/s** (config bug — fixed³) | — (fixed) |
 | RX TCP single (RSC on) | **192–202** (v2fix, 100 MHz gw) / 209 (50 MHz gw, hist.) | ✗ (✓200) | per-frame CPU, amortized by RSC | plan R2: RSC geometry (close-reason counters) + completion IRQ |
-| RX TCP parallel (−P2) | **278–280** (build_l2x2: fan-out + 64 KB L2)⁵ | ✗ | shared-L2 capacity → now DDR3/cold | grow L2 further (Branch A); then dedicated network cache if cold-bound |
+| RX TCP parallel (−P2) | **298** (build_mlp3: fan-out + 64 KB L2 + RPT prefetch)⁵ | ✗ | 2-hart *shared-resource* wall (L2 bw / depth-2 interconnect), scales only ~1.2× single | 3rd rx queue+hart, or fewer touches (bigger RSC to cut drops) |
+| RX TCP single | **277** (build_mlp2: RPT hardware prefetcher, +34 %)⁵ | — | was latency-bound; prefetcher hides the payload-copy cold miss | — |
 | TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
 | UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |
 
@@ -71,7 +72,7 @@ completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Bo
 silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
 runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 `docs/RX_OVERLOAD_WEDGE.md`.
-⁵ **RX memory lever, MEASURED 2026-07-08** (`RX_MEMORY_HIERARCHY_PLAN.md`): RX −P2 was 238 with both harts pegged (+24 %-not-2× fan-out). Perf-free pointer-chase found a sharp 32 KB L2 cliff; **64 KB L2 (`build_l2x2`, WNS +0.140) lifted −P2 to 278–280 (+17 %)** — proving the 2-hart contention was L2 *capacity* (single-flow unchanged), not cold DMA misses. So a bigger L2 is the RX lever; the dedicated-network-cache idea (DDIO/stashing) is deferred unless a later phase turns cold-bound.
+⁵ **RX memory levers, MEASURED 2026-07-08** (`RX_MEMORY_HIERARCHY_PLAN.md` + `LSU_NONBLOCKING_DCACHE.md`). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431 — the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
 **Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
 start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
