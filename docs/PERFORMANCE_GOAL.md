@@ -94,8 +94,11 @@ in the order they surface as load rises:
 
 ## Roadmap toward >500 Mbit/s, then 1 Gbit/s (ordered, each independently measurable)
 
-**Immediate bar: >500 both directions** (≥200 met; TX at 354). The levers below are the same
-ones that carry on to 1 Gbit.
+**Immediate bar: >500 both directions** (≥200 met; TX at 354). The phased, gateware-gated
+execution plan is **`docs/CAMPAIGN_500_PLAN.md`** (M1 instrumentation → R0 re-baseline →
+R1 2-queue fan-out → R2 RSC geometry → T1/T2 TX levers + completion-IRQ → conditional
+T3/X) — every phase has a numeric gate read from HW counters. The levers below are the
+same ones that carry on to 1 Gbit.
 
 0. ~~**Fix the RX overload wedge**~~ — **DONE in sim (2026-07-08, `09e3a09`)**: root cause was
    the pending-ACK flush popping a buffer while an open aggregate held an earlier one (BD order
