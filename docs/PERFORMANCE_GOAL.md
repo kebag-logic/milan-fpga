@@ -154,13 +154,20 @@ board=2000, hash_sel=0.
 
 ## Phase X status + T2 latency decomposition (2026-07-08)
 
-**X (sys clock):** `build_x1125` (112.5 MHz) **failed timing — WNS −0.226 / TNS −2.58 —
-and is barred from measurement (§V)**. The decisive detail: the **CPU closed**; every
-violating path is the TX reader's byte-assembly cone (`blen_r → in_last → a_nxt → CDC
-FIFO write data`, the historic critical path), short by just 0.03–0.23 ns. **Pipelining
-that cone (RTL, provable with the 28-test regression net) is the designed 112.5 unlock**
-(TX ≈ 508 by scaling). Fallback `build_x10625` (106.25 MHz, +6.25 % CPU) in flight —
-projection TX ~480 / RX ~253.
+**X (sys clock) — RTL WIN, throughput measurement pending a boot fix.**
+112.5's first build failed WNS −0.226 with **every violator in the TX reader's byte-assembly
+cone** (`blen_r → in_last → a_nxt → CDC FIFO write` — the CPU itself closed). A `stream.Buffer`
+register stage between the reader `source` and the CDC (`d35f666`) cuts that cone off the
+FIFO write-setup path — reader RTL untouched, +1 cycle TX latency, CSR map identical, 28/28
+sims — and **112.5 MHz now CLOSES at WNS +0.038** (`build_x1125b`). (106.25 was refuted at
+elaboration: no PLL config exists with sys≠100 sharing the 200 MHz input against milan=100 —
+only 100 and 112.5 are legal.) **But the throughput number is not yet measured**: QSPI
+flashboot fails a CRC at 112.5 (the SPI-flash memory-mapped read clock is sys-derived and
+marginal at the higher rate; DRAM/memtest pass, so DRAM is fine). Fix = cap the SPI clock
+independent of sys (`add_spi_flash(clk_freq=25e6)`) or serial-boot — one rebuild. **TX ≈ 508
+(452 × 1.125) remains a PROJECTION until booted and measured** — never-assume applies to our
+own optimism too. RX ≈ 268 likewise. The engineering result (112.5 is reachable) is banked;
+the measurement is the immediate next step.
 
 **T2 (latency), decomposed and deprioritized:** with per-packet IRQs verified (`irqs`
 delta == ping count) the delivery latency is **poll-independent**: peer→board 1.7 ms at
