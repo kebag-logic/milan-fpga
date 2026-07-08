@@ -46,17 +46,25 @@ classes into shaping) — `tb/verilator/csr` updated (76 checks green), built as
 265 single / **339 −P4 @ rx-usecs 1000** / **354 dual-process** — now genuinely **CPU-bound**
 (`/proc/stat` 84–96% busy; the +23% from rx-usecs 500→1000 = fewer ACK-batch wakeups; iperf3 −P is
 single-threaded, hence the dual-process-per-hart test; noZ costs ~20% → zerocopy is load-bearing).
-⁴ **RX overload wedge — the RX blocker, characterized 2026-07-08.** Parallel RX (−P2) reliably
-kills RX **delivery** while **every HW stage keeps flowing** (stage probes wire=core=dp=dma tick in
-lockstep; the writer keeps committing BDs; `rx_dropped` counts buffer-exhaustion drops during the
-burst; BD ring hit full: `occ_hi=768`). Flavor 1: HW commits, but the driver's **FIFO-paired page
-lookup** (`page[comp_i++]`) rejects everything after a popped-buffer drop shifts the pairing — a
-**v1-BD address-verify + realign guard** is now in `kl-eth` (with `KL_BD_ENTRIES` 64→256); flavor 2
-(guard never fires): post-overload delivery stays inconsistent until reset. **Root-cause forensics
-with a sim repro (RSC aggregate + no-buffer drop interleave in `test_ring_bd.py`) is the top next
-task** — it gates all parallel-RX numbers and TX −P8 stability. Also seen: idle RTT is 3–11 ms
-(irq 13 fires but delivery rides the 5 ms fallback poll; `rx-usecs-low` 200 µs storms the CPU) —
-a completion-IRQ-driven NAPI is the latency fix, secondary to the wedge.
+⁴ **RX overload wedge — ROOT-CAUSED IN SIM AND FIXED (2026-07-08, commit `09e3a09`).** Symptom:
+parallel RX (−P2) reliably killed RX **delivery** while **every HW stage kept flowing** (stage
+probes wire=core=dp=dma in lockstep; writer still committing BDs). Root cause, reproduced by a
+minimal deterministic sim (`test_bd_ack_flush_vs_open_agg_order`): the **pending-ACK timeout
+flush (`ACK_POP`) pops a NEW posted buffer and completes its v1 BD while an OPEN RSC aggregate
+still holds an EARLIER buffer whose v2 BD only comes at close** — completion order inverts
+posted-buffer pop order, and the driver's FIFO page pairing (`page[comp_i++]`) then mispairs
+every later completion: RX delivery dead, HW healthy. −P2 made it near-certain (two data flows
+churn the single aggregate slot so one is almost always open; the iperf control connection's
+pure ACKs sit in the merge slot and expire mid-aggregate); single-flow rarely hit the window.
+**Fix:** never flush the pending ACK while an aggregate is open — IDLE gates `ack_expired` on
+`~agg_open`, and DISPATCH closes the aggregate first for a different-flow mack newcomer (the
+extra ACK delay is bounded by the aggregate's own `rsc_tout`). BD order == pop order by
+construction. Verified: `test_ring_bd.py` **22/22** — 17 pre-existing + minimal repro + −P2
+storm cocktail + heal-race (5 disable phases) + seeded fuzz ×2 against a `DriverModel` that
+mirrors kl-eth's reap bit-for-bit. Driver keeps the v1 address-verify realign guard
+(`kl-eth 83aa7ec`) as defense-in-depth. Gateware with the fix: `build_dp100_wfix`.
+Also seen: idle RTT is 3–11 ms (irq 13 fires but delivery rides the 5 ms fallback poll;
+`rx-usecs-low` 200 µs storms the CPU) — a completion-IRQ NAPI is the latency fix, now unblocked.
 
 **Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
 start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
@@ -89,12 +97,12 @@ in the order they surface as load rises:
 **Immediate bar: >500 both directions** (≥200 met; TX at 354). The levers below are the same
 ones that carry on to 1 Gbit.
 
-0. **Fix the RX overload wedge (NEW top item — gates everything parallel).** Parallel RX kills
-   delivery while all HW stages keep flowing (footnote ⁴ above). Sim-reproduce the buffer/BD
-   lockstep break under RSC + no-buffer drops in `test_ring_bd.py`, fix the RTL drop-path
-   contract (a popped buffer must never be consumed without a completion BD — or the BD must
-   carry the address for *every* type, incl. v2), keep the driver's address-verify realign guard
-   as defense-in-depth. Without this there are no stable −P2 RX numbers and no stable TX −P8.
+0. ~~**Fix the RX overload wedge**~~ — **DONE in sim (2026-07-08, `09e3a09`)**: root cause was
+   the pending-ACK flush popping a buffer while an open aggregate held an earlier one (BD order
+   inverted pop order → driver mispaired forever); fixed by gating the flush on `~agg_open` +
+   close-first in DISPATCH (footnote ⁴). `test_ring_bd.py` 22/22 incl. storm/heal-race/fuzz.
+   **Remaining: silicon validation** — flash `build_dp100_wfix`, re-run the −P2 trigger that
+   wedged 100% before, then the full RX matrix and TX −P4/−P8 stability.
 1. ~~**TX reader prefetch**~~ — **REFUTED by measurement (2026-07-07)**; and the `stall` half of
    the old bottleneck map is **also resolved**: it was the CBS default shaping BE (footnote ³,
    fixed in `milan_csr`). The measured TX levers now: cut per-ACK/per-reap/per-wakeup CPU cost
