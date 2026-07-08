@@ -1265,8 +1265,16 @@ class RingDMAWriter(LiteXModule):
                         Cat(C(0xBD, 8), seq[:8], agg_off, agg_mss, drops[:8],
                             Cat(C(1, 1), agg_psh, C(0, 6)))),
                     Mux(wb_beat, buf_addr_r,          # word1: where the frame landed
-                        # word0: {drops[15:0], csum, len, seq[7:0], magic 0xBD}
-                        Cat(C(0xBD, 8), seq[:8], len_bytes, frame_csum, drops[:16]))),
+                        # word0: {0[63:56], drops[7:0], csum, len, seq[7:0], magic 0xBD}.
+                        # drops is 8-bit here ON PURPOSE (matching the v2 encoding): the
+                        # old drops[:16] spilled into bit 56 — the v2-aggregate marker —
+                        # so once the famine counter crossed 256 (parallel storms) EVERY
+                        # v1 completion parsed as a v2 aggregate in the driver: garbage
+                        # gso / permanent reap stall, unrecoverable by reload because
+                        # drops is free-running HW state. The silicon "-P2 delivery
+                        # death", 2026-07-08 (test_bd_drops_overflow_v2_alias).
+                        Cat(C(0xBD, 8), seq[:8], len_bytes, frame_csum, drops[:8],
+                            C(0, 8)))),
                 Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
             self.bus.w.last.eq(~bd_mode | wb_beat),

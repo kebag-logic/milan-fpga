@@ -1273,6 +1273,44 @@ def test_rsc_silicon_geometry(seed=11, nops=60):
           f"v2segs={m.v2segs} merged={h.final_merged} dropped={h.final_drops})")
 
 
+def test_bd_drops_overflow_v2_alias():
+    """THE parallel-storm delivery death (silicon 2026-07-08, decoded off the dead
+    board's BD ring): v1 BD w0 packs 16-bit `drops` into [63:48], which OVERLAPS
+    bit 56 — the v2-aggregate marker. Once the famine counter crosses 256 (only
+    parallel storms get there), EVERY v1 completion parses as a v2 aggregate:
+    the driver delivers garbage gso (segs from w1's address bytes = 0) or, with
+    the half-BD guard, stalls forever. drops is a free-running HW counter, so a
+    driver reload never recovers — only reboot. This test drives drops past 256
+    with buffer famine, then asserts a plain frame still completes as v1."""
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=900000)
+    F = frame(0x5A, 6)
+
+    def stim():
+        yield from h.init_bd(bd_entries=8)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(2048)
+        yield h.dut.rsc_tout.storage.eq(300)
+        yield
+        # 260 famine drops (no buffers posted): tiny frames drop fast via hdr_reg
+        wa, _ = tcp_frame(payload_len=0, flags=0x10, doff=8, seq=1)
+        for k in range(260):
+            yield from h.send_frame(wa)
+        yield from h.wait_idle(settle=800)
+        d = (yield h.dut.dropped.status)
+        assert d >= 256, f"setup: needed drops>=256, got {d}"
+        yield from h.post_buf(BUFS[0])
+        yield from h.send_frame(F)
+        yield from h.wait_idle(settle=800)
+    h.run(stim)
+    w0 = h.mem.get(BD_BASE + 0)
+    assert w0 is not None and (w0 & 0xFF) == 0xBD, "no completion BD"
+    assert ((w0 >> 56) & 1) == 0, \
+        (f"DROPS/V2 ALIAS: v1 BD reads as v2 once drops>=256 "
+         f"(w0={w0:#018x}, drops field={w0 >> 48:#06x}) — the silicon delivery death")
+    assert ((w0 >> 16) & 0xFFFF) == 6 * 8, "len wrong"
+    print("PASS drops>=256 does not alias the v2 marker (v1 BDs stay v1)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -1299,4 +1337,6 @@ if __name__ == "__main__":
     test_rsc_stormhunt(seed=1)
     test_rsc_stormhunt(seed=2)
     test_rsc_stormhunt(seed=3)
+    test_rsc_silicon_geometry(seed=11)
+    test_bd_drops_overflow_v2_alias()
     print("ALL PASS")
