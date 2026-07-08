@@ -13,7 +13,8 @@ the standard baseline.** The two RTL changes 112.5 forced — reader-source `str
 carry forward (harmless at 100 MHz). **More cores rejected**: TX isn't hart-bound (proven),
 and RX BRAM won't fit (m1 already 76 %) + 2-hart RX scaling is only +24 % (memory-contended,
 not core-bound). **Next lever = grow the shared L2 (32 KB → 64 KB)** to open the +24%-not-2×
-RX fan-out gap — orthogonal to sys clock, the measured memory wall is the real ceiling.
+RX fan-out gap — orthogonal to sys clock, the measured memory wall is the real ceiling. Full memory-hierarchy
+decision tree (cold vs capacity, and the dedicated-network-cache branch): **`RX_MEMORY_HIERARCHY_PLAN.md`**.
 
 ## STATUS LEDGER (2026-07-08, end of first execution day)
 
