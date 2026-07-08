@@ -922,6 +922,357 @@ def test_bd_overload_fuzz(seed=1, nops=260):
     print(f"PASS overload fuzz seed={seed} ({nops} ops, {len(m.reaped)} completions)")
 
 
+# ======================================================================================
+# RSC storm-hunt (2026-07-08, second wedge) — content + conservation + FIFO invariants.
+#
+# Silicon: with rsc=1, parallel storms kill RX *delivery* while the ordering canary
+# stays 0 (pairing clean!) and a driver reload does NOT recover (=> corrupt state lives
+# in the HW FIFOs/stream, which a reload never drains). rsc=0 is immune. So the bug is
+# CONTENT/STREAM corruption inside the RSC machinery, invisible to positional pairing.
+#
+# This hunt upgrades the checker with the invariants that CAN see it:
+#   I1 CONSERVATION: every sent frame is exactly one of {delivered v1, coalesced into a
+#      v2 aggregate, absorbed by ACK-merge, dropped}:
+#         sent == #v1 + sum(v2.segs) + acks_merged + dropped
+#   I2 CONTENT: every v1 delivery is byte-exact the sent frame (matched by a unique tag
+#      embedded in each frame); every v2 aggregate is byte-exact
+#      opener ++ payload(seg2) ++ payload(seg3) ... for `segs` in-order segments.
+#   I3 QUIESCE: after the storm drains, data_fifo.level == 0 and len_fifo empty —
+#      any residue is the reload-proof desync state observed on silicon.
+# Generators add what round 1 lacked: MAC pad-to-60 on small frames (real wire!),
+# tiny 1-5 B control-connection segments, zero-gap bursts, buffer famine, retransmits.
+# ======================================================================================
+
+def tcp_tagged(payload_len, flags, seq, sport, tag, pad60=True):
+    """eth+IPv4+TCP(doff=5) frame with a unique 4-byte tag at payload start and
+    real-MAC padding to 60 bytes. Returns (words, blob_unpadded_logical, blob_padded)."""
+    eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
+    tot = 20 + 20 + payload_len
+    ip = bytes([0x45,0, tot>>8, tot&0xFF, 0,0, 0x40,0, 64,6, 0,0,
+                192,168,127,2, 192,168,127,1])
+    tcp = bytes([(sport>>8)&0xFF, sport&0xFF, 0x14,0x51,
+                 (seq>>24)&0xFF,(seq>>16)&0xFF,(seq>>8)&0xFF,seq&0xFF,
+                 0,0,0,0, (5<<4), flags, 0x20,0, 0,0, 0,0])
+    pay = bytes([(tag>>24)&0xFF,(tag>>16)&0xFF,(tag>>8)&0xFF,tag&0xFF])[:payload_len]
+    pay += bytes(((tag + i) * 13) & 0xFF for i in range(max(0, payload_len - 4)))
+    blob = eth + ip + tcp + pay
+    logical = blob
+    if pad60 and len(blob) < 60:
+        blob += bytes(60 - len(blob))
+    blob_p = blob + bytes((-len(blob)) % 8)
+    return ([int.from_bytes(blob_p[i:i+8], 'little') for i in range(0, len(blob_p), 8)],
+            logical, blob_p)
+
+
+class StormModel(DriverModel):
+    """DriverModel + content/conservation accounting (invariants I1/I2)."""
+    def __init__(self, h, bd_entries):
+        super().__init__(h, bd_entries)
+        self.sent = []                  # dicts: tag, kind, blob(padded), logical, plen, soff
+        self.v1 = 0
+        self.v2segs = 0
+        self.errors = []
+
+    def log_sent(self, kind, blob_p, logical, plen=0, tag=None):
+        self.sent.append(dict(kind=kind, blob=blob_p, logical=logical,
+                              plen=plen, tag=tag))
+
+    def _mem_bytes(self, addr, n):
+        out = bytearray()
+        for k in range(0, n, 8):
+            out += (self.h.mem.get(addr + k, 0)).to_bytes(8, 'little')
+        return bytes(out[:n])
+
+    def reap_verify(self):
+        """reap() plus content verification of every completion."""
+        while True:
+            w0 = self.h.mem.get(BD_BASE + self.bd_rd, None)
+            if w0 is None or (w0 & 0xFF) != 0xBD:
+                return
+            seq = (w0 >> 8) & 0xFF
+            if seq != self.seq & 0xFF:
+                self.errors.append(f"SEQ break @+{self.bd_rd:#x}: {seq} != {self.seq&0xFF}")
+                return
+            v2 = (w0 >> 56) & 1
+            length = (w0 >> 16) & 0xFFFF
+            assert self.pages, f"completion with empty page FIFO\n{self.dump()}"
+            page = self.pages.pop(0)
+            got = self._mem_bytes(page, length)
+            if not v2:
+                self.v1 += 1
+                # match by content against the send-log (padded blob prefix)
+                hit = next((s for s in self.sent if s.get("blob")
+                            and s["blob"][:length] == got and not s.get("done")), None)
+                if hit is None:
+                    self.errors.append(
+                        f"V1 CONTENT MISMATCH @BD+{self.bd_rd:#x} page={page:#x} "
+                        f"len={length} head={got[:24].hex()}")
+                else:
+                    hit["done"] = "v1"
+            else:
+                segs = (self.h.mem.get(BD_BASE + self.bd_rd + 8, 0) >> 48) & 0xFF
+                self.v2segs += segs
+                # reconstruct: opener logical frame ++ payloads of the next segs-1
+                # same-flow in-seq sent segs (arrival order)
+                opener = next((s for s in self.sent if s.get("kind") == "seg"
+                               and not s.get("done")
+                               and s["logical"][:length] == got[:len(s["logical"])][:length]
+                               ), None)
+                if opener is None:
+                    self.errors.append(
+                        f"V2 OPENER MISMATCH @BD+{self.bd_rd:#x} page={page:#x} "
+                        f"len={length} segs={segs} head={got[:24].hex()}")
+                else:
+                    expect = bytearray(opener["logical"])
+                    opener["done"] = "v2"
+                    n = 1
+                    i = self.sent.index(opener) + 1
+                    while n < segs and i < len(self.sent):
+                        s = self.sent[i]
+                        if (s.get("kind") == "seg" and not s.get("done")
+                                and s["sport"] == opener["sport"]):
+                            expect += s["logical"][s["soff"]:s["soff"] + s["plen"]]
+                            s["done"] = "v2"
+                            n += 1
+                        i += 1
+                    if bytes(expect[:length]) != got:
+                        d = next((k for k in range(min(len(expect), length))
+                                  if expect[k] != got[k]), length)
+                        self.errors.append(
+                            f"V2 CONTENT MISMATCH @BD+{self.bd_rd:#x} page={page:#x} "
+                            f"len={length} segs={segs} first_diff@{d} "
+                            f"exp={bytes(expect[d:d+8]).hex()} got={got[d:d+8].hex()}")
+            self.h.mem[BD_BASE + self.bd_rd] = 0
+            self.seq += 1
+            self.bd_rd = (self.bd_rd + 16) & (self.n * 16 - 1)
+
+
+def test_rsc_stormhunt(seed=1, nops=220):
+    """Seeded silicon-realistic RSC storm vs invariants I1/I2/I3."""
+    import random
+    rng = random.Random(seed)
+    h = _mk_overload_harness(cycles=1400000)
+    m = StormModel(h, bd_entries=16)     # MUST match init_bd's ring size
+    flows = {0x1111: 1000, 0x3333: 5000, 0x5555: 9000}   # data/control seqs
+    tag = [0x41000000 + seed * 0x100000]
+    next_page = [0]
+
+    def send_seg(flow, plen, flags=0x10):
+        t = tag[0]; tag[0] += 1
+        w, logical, blob = tcp_tagged(plen, flags, flows[flow], flow, t)
+        flows[flow] += plen
+        m.log_sent("seg", blob, logical, plen=plen, tag=t)
+        m.sent[-1]["sport"] = flow
+        m.sent[-1]["soff"] = 54
+        return w
+
+    def send_ack(flow):
+        t = tag[0]; tag[0] += 1
+        w, logical, blob = tcp_tagged(0, 0x10, rng.randrange(1 << 20), flow, t)
+        m.log_sent("ack", blob, logical, tag=t)
+        m.sent[-1]["sport"] = flow
+        return w
+
+    def stim():
+        # driver contract: outstanding (posted-unreaped) buffers < BD entries — the
+        # kl-eth invariant (48 posted < 64 entries; reap frees the BD slot before the
+        # page reposts). The RTL does NOT guard BD-ring fullness itself (first hunt
+        # finding: >entries outstanding silently overwrites unreaped BDs), so the
+        # harness honors the contract: 16-entry ring, <=13 pages outstanding, and a
+        # reap on every op (NAPI reaps continuously on silicon too).
+        yield from h.init_bd(bd_entries=16)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(2048)
+        yield h.dut.rsc_tout.storage.eq(350)
+        yield
+        for _ in range(4):
+            p = 0x100000 + (next_page[0] % 48) * 0x1000; next_page[0] += 1
+            yield from h.post_buf(p); m.post(p)
+        for op in range(nops):
+            for _ in range(30):            # settle: never reap a mid-writeback BD
+                yield
+            m.reap_verify()
+            r = rng.random()
+            if r < 0.26:                              # data seg (2 flows, MSS-ish)
+                flow = 0x1111 if rng.random() < 0.6 else 0x3333
+                fl = 0x18 if rng.random() < 0.2 else 0x10
+                yield from h.send_frame(send_seg(flow, rng.choice((80, 96, 128)), fl))
+            elif r < 0.40:                            # CONTROL-style tiny seg (padded!)
+                yield from h.send_frame(send_seg(0x5555, rng.choice((1, 2, 4, 5)),
+                                                 0x18 if rng.random() < 0.5 else 0x10))
+            elif r < 0.55:                            # pure-ACK runs (merge slot churn)
+                flow = rng.choice((0x2222, 0x4444))
+                for _ in range(rng.choice((1, 1, 3))):
+                    yield from h.send_frame(send_ack(flow))
+            elif r < 0.62:                            # retransmit (same seq again)
+                flow = rng.choice((0x1111, 0x3333))
+                old = flows[flow]; flows[flow] -= 96 if old > 1200 else 0
+                yield from h.send_frame(send_seg(flow, 96))
+            elif r < 0.68:                            # non-TCP
+                w = frame(rng.randrange(256), rng.choice((3, 8, 12)))
+                m.log_sent("raw", b''.join(x.to_bytes(8, 'little') for x in w),
+                           b''.join(x.to_bytes(8, 'little') for x in w))
+                yield from h.send_frame(w)
+            elif r < 0.82:                            # post pages (contract: cap outstanding)
+                for _ in range(rng.choice((1, 2))):
+                    if len(m.pages) >= 13:
+                        break
+                    p = 0x100000 + (next_page[0] % 48) * 0x1000; next_page[0] += 1
+                    yield from h.post_buf(p); m.post(p)
+            elif r < 0.92:                            # idle gap -> timeouts fire
+                for _ in range(rng.choice((80, 400, 900))):
+                    yield
+                m.reap_verify()
+            elif r < 0.96:                            # famine burst: 4 frames, no posts
+                for _ in range(4):
+                    yield from h.send_frame(send_seg(0x1111, 96))
+            else:                                     # driver resync mid-storm (heal)
+                yield h.dut.enable.storage.eq(0)
+                yield
+                for _ in range(90):
+                    yield
+                # frames already buffered in the len/data FIFOs at disable time are
+                # legitimately DELIVERED after re-enable (only the post FIFO drains),
+                # so pending sent-frames stay matchable; ones that truly vanish (e.g.
+                # an open aggregate killed by the disable) just remain unconsumed.
+                m.reap_verify()
+                m.heal()
+                m.any_heal = True        # conservation can't stay exact across a heal
+                yield h.dut.enable.storage.eq(1)
+                yield
+                for _ in range(3):
+                    p = 0x100000 + (next_page[0] % 48) * 0x1000; next_page[0] += 1
+                    yield from h.post_buf(p); m.post(p)
+        yield from h.wait_idle(settle=5000)
+        # ---- I3: quiesce invariants (the reload-proof desync detector) ----
+        lvl = (yield h.dut.data_fifo.level)
+        assert lvl == 0, f"I3 FAIL: data_fifo residue {lvl} beats after quiesce (STREAM DESYNC)"
+        lf = (yield h.dut.len_fifo.source.valid)
+        assert lf == 0, "I3 FAIL: len_fifo entry stranded after quiesce"
+        h.final_drops = (yield h.dut.dropped.status)
+        h.final_merged = (yield h.dut.acks_merged.status)
+    h.run(stim)
+    m.reap_verify()
+    assert not m.errors, ("STORMHUNT FAILURES:\n  " + "\n  ".join(m.errors[:12])
+                          + "\n" + m.dump())
+    # ---- I1: conservation (exact only for heal-free runs) ----
+    sent_n = len(m.sent)
+    if not getattr(m, "any_heal", False):
+        accounted = m.v1 + m.v2segs + h.final_merged + h.final_drops
+        assert accounted == sent_n, \
+            (f"I1 CONSERVATION FAIL: sent={sent_n} but v1={m.v1} + v2segs={m.v2segs} + "
+             f"merged={h.final_merged} + dropped={h.final_drops} = {accounted}\n{m.dump()}")
+    print(f"PASS rsc stormhunt seed={seed} (sent={sent_n}: v1={m.v1} v2segs={m.v2segs} "
+          f"merged={h.final_merged} dropped={h.final_drops}"
+          f"{' [healed]' if getattr(m, 'any_heal', False) else ''}; "
+          f"content byte-exact; FIFOs empty)")
+
+
+def test_rsc_silicon_geometry(seed=11, nops=60):
+    """Storm at REAL silicon geometry: 1448-byte MSS segs (183 beats — deep multi-burst
+    data_fifo traffic), 16 KB aggregate buffers, doff=8+timestamp segs and ts-ACKs,
+    famine + churn. The small-frame fuzz can't see burst-boundary/big-frame bugs."""
+    import random
+    rng = random.Random(seed)
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=2048, cycles=2600000)
+    m = StormModel(h, bd_entries=16)
+    flows = {0x1111: 10000, 0x3333: 50000}
+    tag = [0x51000000]
+    next_page = [0]
+
+    def big_seg(flow, plen=1448, flags=0x10):
+        t = tag[0]; tag[0] += 1
+        # doff=8 with the Linux timestamp option layout (real wire shape)
+        eth = bytes([0x02,0,0,0,0,1, 0x02,0,0,0,0,2, 0x08,0x00])
+        tot = 20 + 32 + plen
+        ip = bytes([0x45,0, tot>>8, tot&0xFF, 0,0, 0x40,0, 64,6, 0,0,
+                    192,168,127,2, 192,168,127,1])
+        seq = flows[flow]; flows[flow] += plen
+        tcp = bytes([(flow>>8)&0xFF, flow&0xFF, 0x14,0x51,
+                     (seq>>24)&0xFF,(seq>>16)&0xFF,(seq>>8)&0xFF,seq&0xFF,
+                     0,0,0,0, (8<<4), flags, 0x20,0, 0,0, 0,0,
+                     1,1,8,10, 0,0,0,1, 0,0,0,2])
+        pay = bytes([(t>>24)&0xFF,(t>>16)&0xFF,(t>>8)&0xFF,t&0xFF]) + \
+              bytes(((t + i) * 7) & 0xFF for i in range(plen - 4))
+        blob = eth + ip + tcp + pay
+        blob_p = blob + bytes((-len(blob)) % 8)
+        m.log_sent("seg", blob_p, blob, plen=plen, tag=t)
+        m.sent[-1]["sport"] = flow
+        m.sent[-1]["soff"] = 66
+        return [int.from_bytes(blob_p[i:i+8], 'little')
+                for i in range(0, len(blob_p), 8)]
+
+    def ts_ack(flow):
+        t = tag[0]; tag[0] += 1
+        w, blob = tcp_ack(seq=rng.randrange(1 << 20),
+                          opts=bytes([1,1,8,10, 0,0,0,3, 0,0,0,4]))
+        m.log_sent("ack", b''.join(x.to_bytes(8, 'little') for x in w)[:len(blob) + (-len(blob)) % 8],
+                   blob, tag=t)
+        m.sent[-1]["sport"] = 0x1451
+        return w
+
+    def stim():
+        yield from h.init_bd(bd_entries=16)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(16384)     # silicon KL_RSC_BUFSZ
+        yield h.dut.rsc_tout.storage.eq(400)
+        yield
+        for _ in range(6):
+            p = 0x100000 + (next_page[0] % 40) * 0x5000; next_page[0] += 1
+            yield from h.post_buf(p); m.post(p)
+        for op in range(nops):
+            for _ in range(40):
+                yield
+            m.reap_verify()
+            r = rng.random()
+            if r < 0.42:                              # MSS seg (aggregating flows)
+                flow = 0x1111 if rng.random() < 0.6 else 0x3333
+                fl = 0x18 if rng.random() < 0.15 else 0x10
+                yield from h.send_frame(big_seg(flow, 1448, fl))
+            elif r < 0.55:                            # ts-ACK into the merge slot
+                yield from h.send_frame(ts_ack(0x1451))
+            elif r < 0.62:                            # tiny padded control seg
+                yield from h.send_frame(send_local_small())
+            elif r < 0.80:                            # post big pages (0x5000 apart)
+                for _ in range(rng.choice((1, 2))):
+                    if len(m.pages) >= 13:
+                        break
+                    p = 0x100000 + (next_page[0] % 40) * 0x5000; next_page[0] += 1
+                    yield from h.post_buf(p); m.post(p)
+            elif r < 0.93:                            # idle: timeouts close aggregates
+                for _ in range(rng.choice((100, 500))):
+                    yield
+                m.reap_verify()
+            else:                                     # famine: 3 MSS frames, no posts
+                for _ in range(3):
+                    yield from h.send_frame(big_seg(0x1111, 1448))
+        yield from h.wait_idle(settle=6000)
+        lvl = (yield h.dut.data_fifo.level)
+        assert lvl == 0, f"I3 FAIL: data_fifo residue {lvl} beats (STREAM DESYNC)"
+        h.final_drops = (yield h.dut.dropped.status)
+        h.final_merged = (yield h.dut.acks_merged.status)
+
+    def send_local_small():
+        # PSH so it takes the arm+PSH -> plain v1 path (never opens an aggregate the
+        # v2 matcher would have to attribute to a "smallseg")
+        t = tag[0]; tag[0] += 1
+        w, logical, blob = tcp_tagged(rng.choice((1, 4)), 0x18, 77000 + t, 0x5555, t)
+        m.log_sent("smallseg", blob, logical, plen=0, tag=t)
+        m.sent[-1]["sport"] = 0x5555
+        return w
+
+    h.run(stim)
+    m.reap_verify()
+    assert not m.errors, ("SILICON-GEOMETRY FAILURES:\n  " + "\n  ".join(m.errors[:10])
+                          + "\n" + m.dump())
+    accounted = m.v1 + m.v2segs + h.final_merged + h.final_drops
+    assert accounted == len(m.sent), \
+        (f"I1 CONSERVATION FAIL: sent={len(m.sent)} vs v1={m.v1}+v2segs={m.v2segs}"
+         f"+merged={h.final_merged}+dropped={h.final_drops}={accounted}\n{m.dump()}")
+    print(f"PASS rsc silicon-geometry seed={seed} (sent={len(m.sent)}: v1={m.v1} "
+          f"v2segs={m.v2segs} merged={h.final_merged} dropped={h.final_drops})")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -945,4 +1296,7 @@ if __name__ == "__main__":
     test_bd_heal_race_lockstep()
     test_bd_overload_fuzz(seed=1)
     test_bd_overload_fuzz(seed=2)
+    test_rsc_stormhunt(seed=1)
+    test_rsc_stormhunt(seed=2)
+    test_rsc_stormhunt(seed=3)
     print("ALL PASS")
