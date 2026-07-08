@@ -145,7 +145,10 @@ int main(int argc, char** argv) {
   ck("PTP_CTRL(reset)",  axi_read(A_PTP_CTRL), 0x1);
   ck("PTP_INCR(reset)",  axi_read(A_PTP_INCR), 0x08000000);
   ck("CBS0_IDLE(reset)", axi_read(A_CBS0_IDLE), 300000000u);
-  ck("CBS0_EN(reset)",   axi_read(A_CBS0_CTRL) & 1, 1);   // shaped
+  // ALL queues unshaped at reset: BE lands on q0 via the default class map, and CBS
+  // must never pace best-effort (REQ-CBS-02) — software opts SR queues in. The old
+  // 4'b0011 default shaped q0 and capped BE TX at ~250 Mbit/s on silicon.
+  ck("CBS0_EN(reset)",   axi_read(A_CBS0_CTRL) & 1, 0);   // unshaped (was 1 pre-fix)
   ck("CBS2_EN(reset)",   axi_read(A_CBS2_CTRL) & 1, 0);   // unshaped
   ck("CBS3_EN(reset)",   axi_read(A_CBS3_CTRL) & 1, 0);
 

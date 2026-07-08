@@ -15,13 +15,14 @@ The NIC's PHY is 1 GbE and the 64-bit datapath has ample raw bandwidth (3.2 Gbit
 memory latency), not a wire limit. Every step is measured on silicon with HW counters +
 CPU profile side by side — no blind changes.
 
-## Where we are (measured on silicon, 2026-07-07)
+## Where we are (measured on silicon, 2026-07-08)
 
 | path | best measured | ≥500? | bound by | next lever toward 500+ |
 |------|:-------------:|:-----:|----------|------------------------|
-| TX TCP single, 100 MHz datapath | **238–247**² | ✗ (✓200) | datapath **stall 39%** + ring-empty **idle 39%** (CPU) — **not** the reader | passthrough fast-path (cut `stall`) + batch xmit/doorbells (cut `idle`) |
-| RX TCP single (RSC on) | **209** | ✗ (✓200) | per-frame CPU, amortized by RSC | bigger RSC coalescing + completion IRQ (drop hrtimer poll) |
-| RX TCP −P2 (2-queue fan-out) | **223** | ✗ (✓200) | scales across harts | recover 100 MHz margin → 2-queue works → more queues/harts |
+| TX TCP, 100 MHz dp, **CBS unshaped**³ | **339** (−P4) / **354** (2 proc) / 265 single | ✗ (✓200) | **CPU-saturated** (84–96% both harts) | cut per-ACK/reap/wakeup CPU cost; 2nd TX queue; fix the wedge⁴ for stable −P4+ |
+| TX TCP, 100 MHz dp, CBS default (historical²) | 238–247 | ✗ | **CBS shaper pacing BE at 300 Mb/s** (config bug — fixed³) | — (fixed) |
+| RX TCP single (RSC on) | **209** (50 MHz gw) / 193 (100 MHz gw) | ✗ (✓200) | per-frame CPU, amortized by RSC | bigger RSC coalescing + completion IRQ |
+| RX TCP parallel (−P2) | **223** (50 MHz gw, historical) | ✗ | **RX overload wedge**⁴ kills delivery | **fix the wedge first**, then 2-queue fan-out |
 | TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
 | UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |
 
@@ -31,17 +32,40 @@ CPU profile side by side — no blind changes.
 two runs, rsc250 hwtso+rsc_clk_mhz=100, hash_sel=1): TX **238/247 Mbit/s, 0 retr**. Reader is only
 **3.8% busy**; `L_pay = 45 cyc` (450 ns, NOT the ~140 assumed); prefetchable read-latency stall is
 only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefetch was refuted** —
-the walls are datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
+the walls were datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
 `docs/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
+³ **CBS root cause, MEASURED + FIXED 2026-07-08.** The 39–42% datapath-input `stall` was the
+**802.1Qav CBS shaper actively pacing best-effort traffic**: `milan_csr` reset `CBS_EN_RST=0011`
+shaped **q0 at idleSlope 300 Mb/s** while the default class map (`cls_dpcp=0`, `cls_tcq=0xE4`)
+routes untagged/BE traffic exactly to q0 — two defaults contradicting each other (the comment even
+says BE stays unshaped per REQ-CBS-02). Verified live on silicon (q0 read back idle=0x11E1A300,
+en=1), then clearing en via `devmem 0x9000_040C` dropped `tx_dma` stalls **418‰ → 4‰** on the spot.
+Permanent fix: **`CBS_EN_RST = 4'b0000`** (all queues strict-priority at reset; SRP/AVDECC opts SR
+classes into shaping) — `tb/verilator/csr` updated (76 checks green), built as `build_dp100_cbs0`
+(WNS **+0.031**), **verified at reset on silicon** (q0–q3 en=0). Un-paced TX then measured
+265 single / **339 −P4 @ rx-usecs 1000** / **354 dual-process** — now genuinely **CPU-bound**
+(`/proc/stat` 84–96% busy; the +23% from rx-usecs 500→1000 = fewer ACK-batch wakeups; iperf3 −P is
+single-threaded, hence the dual-process-per-hart test; noZ costs ~20% → zerocopy is load-bearing).
+⁴ **RX overload wedge — the RX blocker, characterized 2026-07-08.** Parallel RX (−P2) reliably
+kills RX **delivery** while **every HW stage keeps flowing** (stage probes wire=core=dp=dma tick in
+lockstep; the writer keeps committing BDs; `rx_dropped` counts buffer-exhaustion drops during the
+burst; BD ring hit full: `occ_hi=768`). Flavor 1: HW commits, but the driver's **FIFO-paired page
+lookup** (`page[comp_i++]`) rejects everything after a popped-buffer drop shifts the pairing — a
+**v1-BD address-verify + realign guard** is now in `kl-eth` (with `KL_BD_ENTRIES` 64→256); flavor 2
+(guard never fires): post-overload delivery stays inconsistent until reset. **Root-cause forensics
+with a sim repro (RSC aggregate + no-buffer drop interleave in `test_ring_bd.py`) is the top next
+task** — it gates all parallel-RX numbers and TX −P8 stability. Also seen: idle RTT is 3–11 ms
+(irq 13 fires but delivery rides the 5 ms fallback poll; `rx-usecs-low` 200 µs storms the CPU) —
+a completion-IRQ-driven NAPI is the latency fix, secondary to the wedge.
 
-**Status vs goal (bar raised to >500):** the prior **≥200 milestone is MET both directions** (TX
-238–247 measured; RX 209/223) — but the bar is now **>500**, so **neither direction is there yet**.
-TX needs ~2× (240→500+): attack the two *measured* walls — datapath back-pressure (`stall` 39%) and
-CPU/ring-empty (`idle` 39%). RX needs ~2.3× (223→500+): more coalescing + parallel queues/harts,
-which first needs the 100 MHz 2-queue RxSteer hang fixed (single reverse flow on the 100 MHz build
-measured only ~187–193 here). Reader prefetch stays **refuted** (see the verdict in
-`TX_READER_PREFETCH_PLAN.md`). 1 Gbit/s remains the stretch beyond 500. UDP is a separate
-(offload) problem. Every step still measured on silicon — HW counters + CPU profile, books balance.
+**Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
+start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
+**Neither direction is at 500 yet.** TX is now honestly CPU-bound: the remaining ~40% needs
+per-unit CPU cost cuts (ACK path, xmit/reap, poll wakeups) and the wedge fix for stable −P4+.
+RX cannot even run its parallel campaign until the **overload wedge**⁴ is fixed — that fix gates
+the 2-queue fan-out numbers. Reader prefetch stays **refuted**². 1 Gbit/s remains the stretch.
+UDP is a separate (offload) problem. Every step measured on silicon — HW counters + `/proc/stat`
+side by side; the books must balance.
 
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
@@ -62,22 +86,26 @@ in the order they surface as load rises:
 
 ## Roadmap toward >500 Mbit/s, then 1 Gbit/s (ordered, each independently measurable)
 
-**Immediate bar: >500 both directions** (≥200 met). The levers below are the same ones that
-carry on to 1 Gbit; items 2–3 are what move TX/RX from ~240/~220 toward 500.
+**Immediate bar: >500 both directions** (≥200 met; TX at 354). The levers below are the same
+ones that carry on to 1 Gbit.
 
-1. ~~**TX reader prefetch (primary TX lever)**~~ — **REFUTED by measurement (2026-07-07)**, do
-   not build. Phase-0 measured `L_pay=45 cyc` (not ~140), prefetchable stall ~13%, interconnect
-   depth 2, and TX already 238–247 (≥200). The reader is 3.8% busy — not the wall. The actual TX
-   levers toward 1 Gbit are: **(a) datapath per-frame grant latency** (`stall` 39% — a best-effort
-   passthrough fast-path in `traffic_controller_802_1q` to bypass classify/queue/CBS-grant when
-   unshaped) and **(b) CPU TX-queue rate** (`idle` 39% — the ring runs empty; cut per-descriptor
-   xmit cost / batch doorbells). See `TX_READER_PREFETCH_PLAN.md` MEASURED VERDICT.
-2. **Recover 100 MHz timing margin:** the isolated 100 MHz datapath closed at only **+0.010 ns**
-   and **2-queue RxSteer hangs** at that clock. Pipeline the worst path / floorplan the milan
-   region to buy slack, then run *both* directions at 100 MHz with the fan-out intact.
-3. **Cut RX per-frame cost further:** wire a completion IRQ (drop the hrtimer poll), scale the
-   RX fan-out to more queues/harts, and lean on RSC + GRO. Toward line-rate RX needs either
-   fewer frames (bigger coalescing) or more parallel harts.
+0. **Fix the RX overload wedge (NEW top item — gates everything parallel).** Parallel RX kills
+   delivery while all HW stages keep flowing (footnote ⁴ above). Sim-reproduce the buffer/BD
+   lockstep break under RSC + no-buffer drops in `test_ring_bd.py`, fix the RTL drop-path
+   contract (a popped buffer must never be consumed without a completion BD — or the BD must
+   carry the address for *every* type, incl. v2), keep the driver's address-verify realign guard
+   as defense-in-depth. Without this there are no stable −P2 RX numbers and no stable TX −P8.
+1. ~~**TX reader prefetch**~~ — **REFUTED by measurement (2026-07-07)**; and the `stall` half of
+   the old bottleneck map is **also resolved**: it was the CBS default shaping BE (footnote ³,
+   fixed in `milan_csr`). The measured TX levers now: cut per-ACK/per-reap/per-wakeup CPU cost
+   (rx-usecs 1000 already buys +23%), a second TX queue for dual-hart xmit, completion-IRQ
+   latency. See `TX_READER_PREFETCH_PLAN.md` MEASURED VERDICT.
+2. **Recover 100 MHz timing margin:** +0.031 ns on `build_dp100_cbs0`; **2-queue RxSteer at
+   100 MHz** still needs re-validation once the wedge (item 0) is fixed — it may have been the
+   wedge all along. Then run both directions at 100 MHz with the fan-out intact.
+3. **Cut RX per-frame cost further:** wire a completion IRQ (drop the hrtimer poll — idle RTT is
+   3–11 ms today and `rx-usecs-low=200` storms the CPU), scale the RX fan-out to more
+   queues/harts, and lean on RSC + GRO. Line-rate RX needs fewer frames or more parallel harts.
 4. **Attack memory latency:** faster DRAM (DDR3-800 → higher), bigger/smarter L2, huge-page or
    pinned DMA arenas to cut the 50% TLB-walk component. This is what ultimately unlocks 1 Gbit.
 5. **UDP offloads (separate track):** USO (TX segmentation) + UDP-GRO (RX) to bring UDP off the

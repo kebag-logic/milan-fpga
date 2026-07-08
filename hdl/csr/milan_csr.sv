@@ -310,15 +310,20 @@ module milan_csr #(
   logic [4:0]  tcam_wr_index;            //! latched entry index for the commit
   logic        tcam_wr_valid_r;          //! latched add(1)/remove(0) for the commit
 
-  // CBS power-on defaults: mirror ethernet_packet_pkg SR classes; leave the
-  // non-SR classes (control, best-effort) unshaped per REQ-CBS-02. Software
-  // reprograms all of these at bring-up (e.g. from `tc ... cbs`). The idleSlopes
-  // sum to 750 Mb/s = 75 % of the 1 Gb/s port rate (REQ-CBS-03); hi/lo credit
-  // are calc_hi/lo_credit(idleSlope, 1e9) for MAX_FRAME_SIZE = 1522.
+  // CBS power-on defaults: slope/credit values mirror ethernet_packet_pkg SR
+  // classes (idleSlopes sum to 750 Mb/s = 75 % of the 1 Gb/s port rate, REQ-CBS-03;
+  // hi/lo credit are calc_hi/lo_credit(idleSlope, 1e9) for MAX_FRAME_SIZE = 1522) —
+  // but NO queue is shaped at reset. CBS shapes RESERVED SR classes only, never
+  // best-effort (REQ-CBS-02); software (SRP/AVDECC reservation, `tc ... cbs`) opts a
+  // queue in by setting CBS_CTRL[0]. The old default 4'b0011 contradicted the default
+  // class map: cls_tcq=0xE4 routes untagged/BE traffic to q0, so shaping q0 at
+  // idleSlope 300 Mb/s silently paced ALL best-effort TX to ~250 Mbit/s — measured on
+  // silicon 2026-07-07 (datapath-input stall 42 % -> 0.4 % and TX wall moved to the
+  // CPU the moment q0's en bit was cleared live via devmem 0x9000_040C).
   localparam int CBS_IDLE_RST [0:3] = '{300_000_000, 200_000_000, 150_000_000, 100_000_000}; //! idleSlope bps
   localparam int CBS_HI_RST   [0:3] = '{456, 304, 228, 152};       //! hiCredit bytes
   localparam int CBS_LO_RST   [0:3] = '{-1065, -1217, -1293, -1369}; //! loCredit bytes
-  localparam bit [3:0] CBS_EN_RST   = 4'b0011;                    //! Shape q0,q1 only at reset
+  localparam bit [3:0] CBS_EN_RST   = 4'b0000;                    //! ALL unshaped at reset (BE must never be CBS-paced)
 
   integer i;                             //! Loop index for reset/stats iteration
 
