@@ -234,6 +234,7 @@ pointer-chase L2 cliff. Splits verified by steer counters.
 | l2x2 | 64 KB | 1 | – | 110.5 (82 %) | +0.140 | 207 | **280** |
 | mlp1 | 32 KB | 8 | – | 102.5 (76 %) | +0.118 | 198 | 229 |
 | **mlp2** | 32 KB | 8 | **rpt** | 104.5 (77 %) | +0.031 | **276** | 246 |
+| **mlp3** | **64 KB** | 8 | **rpt** | 112.5 (83 %) | +0.102 | 259 | **298** |
 
 **Read the levers by the clean single-variable comparisons:**
 
@@ -253,9 +254,21 @@ pointer-chase L2 cliff. Splits verified by steer counters.
 
 **So RPT and L2 are complementary — RPT = single-flow/latency, L2 = aggregate/capacity.** (The
 naïve mlp2-vs-l2x2 −P2 compare, 246 < 280, is *confounded*: it changes L2 size **and** adds rpt.
-Isolated, rpt helps −P2 too.) **`build_mlp3` (refill+rpt+64 KB L2) tests the combination** →
-expected single ~276 **and** −P2 ≥ 280. It abandons the BRAM-frugality (64 KB L2) but tests whether
-both harts can prefetch without L2-capacity contention — the path to 2-hart scaling toward >500.
+Isolated, rpt helps −P2 too.) **`build_mlp3` (refill+rpt+64 KB L2) MEASURED the combination and it
+is the best config**: −P2 **298** (mean of 281–310, split-verified `steer0=71523 steer1=79149`,
+**§V canary=0**) — the **first break above the ~280 ceiling**, +6 % over l2x2, +21 % over mlp2 at
+32 KB. Also best-yet **TX−P4 431**. So the two levers *do* compound: the 64 KB L2 gives both harts
+the capacity to prefetch without evicting each other. Cost: 112.5 tiles (83 %, +8 vs mlp2). Single
+dipped to 259 (the 64 KB L2's slightly higher hit latency); −P2 still shows **drops (3.6k/6.4k)**
+under 2-hart load — the prefetcher's speculative traffic still stresses the rings, so a gentler
+`--lsu-rpt-block-ahead-max` is the next tuning knob to cut drops and push −P2 higher.
+
+**The 2-hart aggregate is still the wall for >500.** Every lever moved it a little (238→280→298)
+but it scales only ~1.15–1.35× over single — a *shared-resource* ceiling (L2 bandwidth /
+depth-2 DMA interconnect / effective DRAM latency), not per-hart CPU. Reaching >500 needs either
+more parallelism (a 3rd rx queue+hart — the refill slots being FF-cheap helps the budget) or fewer
+memory touches per byte (bigger RSC aggregates to cut the drops and per-frame cost) — both
+follow-on work beyond this D$ study.
 
 **Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
 not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+39 % single); the
