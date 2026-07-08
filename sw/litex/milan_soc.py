@@ -2372,13 +2372,20 @@ class MilanDMA(LiteXModule):
         # limit?" signal (stall = valid&~ready) vs "is the CPU/reader?" (starve = ~valid).
         self.tx_dp    = tx_dp
         self.milan_cd = milan_cd
+        # TX: reader.source (sys) -> REGISTER STAGE -> datapath TX endpoint. The Buffer
+        # cuts the reader's byte-assembly cone (blen_r -> in_last -> a_nxt -> source.data)
+        # off the CDC FIFO's write-port setup path — the exact WNS violators of the
+        # 112.5 MHz sys build (x1125: -0.226, ALL in this cone; the CPU itself closed).
+        # +1 cycle of TX latency, zero protocol change; the reader RTL is untouched.
+        self.tx_buf = tx_buf = stream.Buffer(L)
         self.comb += [
-            # TX: reader.source (sys) -> datapath TX endpoint. The ring reader carries
-            # the exact last-beat byte mask (from the header's byte length), so wire
-            # frames are no longer padded to 8 B — the MAC glue turns keep into last_be.
-            tx_dp.sys.valid.eq(self.tx.source.valid), tx_dp.sys.data.eq(self.tx.source.data),
-            tx_dp.sys.last.eq(self.tx.source.last),   tx_dp.sys.keep.eq(self.tx.source.keep),
-            self.tx.source.ready.eq(tx_dp.sys.ready),
+            # The ring reader carries the exact last-beat byte mask (from the header's
+            # byte length), so wire frames are not padded to 8 B — the MAC glue turns
+            # keep into last_be.
+            self.tx.source.connect(tx_buf.sink),
+            tx_dp.sys.valid.eq(tx_buf.source.valid), tx_dp.sys.data.eq(tx_buf.source.data),
+            tx_dp.sys.last.eq(tx_buf.source.last),   tx_dp.sys.keep.eq(tx_buf.source.keep),
+            tx_buf.source.ready.eq(tx_dp.sys.ready),
             # TS: datapath TS endpoint (sys side) -> writer.sink
             self.ts.sink.valid.eq(ts_dp.sys.valid), self.ts.sink.data.eq(ts_dp.sys.data),
             self.ts.sink.last.eq(ts_dp.sys.last),    ts_dp.sys.ready.eq(self.ts.sink.ready),
