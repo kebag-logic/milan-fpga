@@ -152,6 +152,37 @@ historical). Fewer, larger ACK batches at BOTH ends = less per-wakeup CPU on the
 (2-hart ceiling, R1); its next lift is also T2/X. Operating point recorded: peer=50,
 board=2000, hash_sel=0.
 
+## Phase X MEASURED (2026-07-08) — clock uplift REFUTES the linear projection
+
+**112.5 MHz is reached on silicon** — closed timing (WNS +0.038 via the reader-source
+`stream.Buffer` cut, `d35f666`) AND boots clean from QSPI (single-lane SPI-flash read,
+`a80c955`, after the 4x quad read CRC-failed non-deterministically at the faster sys clock).
+Measured on `build_dp100_x1125d`, **guarded driver verified loaded** (`rsc_clk_mhz=100`,
+`hwtso=Y`, `rsc=Y` — the same stack as the 100 MHz baseline), **peer-side rates** (clock-
+correct; the serial-boot images carried a stale built-in driver — caught and discarded):
+
+| path | 100 MHz | **112.5 MHz** | Δ | vs +12.5% ideal |
+|---|:--:|:--:|:--:|:--:|
+| TX −P4 (operating point) | 452 | **459–479** (avg ~470) | **+4 %** | ⅓ of ideal |
+| TX single | 350 | **379** | **+8 %** | ⅔ of ideal |
+
+**The +12.5 % CPU clock yields only +4 % (−P4) / +8 % (single) — the 508 projection is
+REFUTED.** Measured TX at 112.5 is ~470–479, **still short of 500.** The reason is
+structural: `--milan-clk-freq` keeps the **datapath at 100 MHz** (only sys/CPU moved to
+112.5), so any datapath- or TCP-dynamics-bound fraction of TX does not scale with sys — and
+−P4 (more of that fraction) scales worse than single-flow (more purely CPU-bound). This is
+the measure-don't-assume payoff: the clean CPU-bound story at 452 (reader 66 % idle) does
+**not** translate to linear clock scaling; the operating-point ceiling is a CPU/datapath/TCP
+*mix*, not pure CPU. Caveat: the board ran a 100 MHz-timebase dtb (its own clock miscalibrated
+12.5 %); peer-side rates are unaffected, but a fully-clean run wants the dtb rebuilt for 112.5.
+
+**Consequence for the goal:** neither direction reaches 500 by clock alone. TX needs the
+datapath at a higher clock too (the dense-datapath timing problem that drove the split-clock
+architecture in the first place) or per-frame CPU-cost cuts; RX needs the structural work
+(per-queue aggregate slots vs the park-58 % tax, >2 queues). The single-lane SPI fix and the
+reader-cone cut are permanent wins that make 112.5 usable; the throughput lift it buys is
+real but modest (~+4–8 %), not the projected ~+12.5 %.
+
 ## Phase X status + T2 latency decomposition (2026-07-08)
 
 **X (sys clock) — RTL WIN, throughput measurement pending a boot fix.**
