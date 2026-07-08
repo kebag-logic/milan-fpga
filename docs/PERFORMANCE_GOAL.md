@@ -22,7 +22,7 @@ CPU profile side by side — no blind changes.
 | TX TCP, 100 MHz dp, **CBS unshaped**³ | **339** (−P4) / **354** (2 proc) / 265 single | ✗ (✓200) | **CPU-saturated** (84–96% both harts) | plan T1/T2/T3: peer-coalesce + −P8 (storms now safe⁴), completion-IRQ, 2nd TX queue if the proxy demands |
 | TX TCP, 100 MHz dp, CBS default (historical²) | 238–247 | ✗ | **CBS shaper pacing BE at 300 Mb/s** (config bug — fixed³) | — (fixed) |
 | RX TCP single (RSC on) | **192–202** (v2fix, 100 MHz gw) / 209 (50 MHz gw, hist.) | ✗ (✓200) | per-frame CPU, amortized by RSC | plan R2: RSC geometry (close-reason counters) + completion IRQ |
-| RX TCP parallel | **145 (−P2) / 112 (−P4), STABLE** (v2fix — both wedges fixed⁴) | ✗ | single queue splits capacity | plan R1: **2-queue fan-out @100 MHz** (≈2× across harts) |
+| RX TCP parallel (−P2) | **278–280** (build_l2x2: fan-out + 64 KB L2)⁵ | ✗ | shared-L2 capacity → now DDR3/cold | grow L2 further (Branch A); then dedicated network cache if cold-bound |
 | TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
 | UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |
 
@@ -71,6 +71,7 @@ completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Bo
 silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
 runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 `docs/RX_OVERLOAD_WEDGE.md`.
+⁵ **RX memory lever, MEASURED 2026-07-08** (`RX_MEMORY_HIERARCHY_PLAN.md`): RX −P2 was 238 with both harts pegged (+24 %-not-2× fan-out). Perf-free pointer-chase found a sharp 32 KB L2 cliff; **64 KB L2 (`build_l2x2`, WNS +0.140) lifted −P2 to 278–280 (+17 %)** — proving the 2-hart contention was L2 *capacity* (single-flow unchanged), not cold DMA misses. So a bigger L2 is the RX lever; the dedicated-network-cache idea (DDIO/stashing) is deferred unless a later phase turns cold-bound.
 
 **Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
 start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
