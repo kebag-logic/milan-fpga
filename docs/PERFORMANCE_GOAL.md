@@ -19,10 +19,10 @@ CPU profile side by side — no blind changes.
 
 | path | best measured | ≥500? | bound by | next lever toward 500+ |
 |------|:-------------:|:-----:|----------|------------------------|
-| TX TCP, 100 MHz dp, **CBS unshaped**³ | **339** (−P4) / **354** (2 proc) / 265 single | ✗ (✓200) | **CPU-saturated** (84–96% both harts) | cut per-ACK/reap/wakeup CPU cost; 2nd TX queue; fix the wedge⁴ for stable −P4+ |
+| TX TCP, 100 MHz dp, **CBS unshaped**³ | **339** (−P4) / **354** (2 proc) / 265 single | ✗ (✓200) | **CPU-saturated** (84–96% both harts) | plan T1/T2/T3: peer-coalesce + −P8 (storms now safe⁴), completion-IRQ, 2nd TX queue if the proxy demands |
 | TX TCP, 100 MHz dp, CBS default (historical²) | 238–247 | ✗ | **CBS shaper pacing BE at 300 Mb/s** (config bug — fixed³) | — (fixed) |
-| RX TCP single (RSC on) | **209** (50 MHz gw) / 193 (100 MHz gw) | ✗ (✓200) | per-frame CPU, amortized by RSC | bigger RSC coalescing + completion IRQ |
-| RX TCP parallel (−P2) | **223** (50 MHz gw, historical) | ✗ | **RX overload wedge**⁴ kills delivery | **fix the wedge first**, then 2-queue fan-out |
+| RX TCP single (RSC on) | **192–202** (v2fix, 100 MHz gw) / 209 (50 MHz gw, hist.) | ✗ (✓200) | per-frame CPU, amortized by RSC | plan R2: RSC geometry (close-reason counters) + completion IRQ |
+| RX TCP parallel | **145 (−P2) / 112 (−P4), STABLE** (v2fix — both wedges fixed⁴) | ✗ | single queue splits capacity | plan R1: **2-queue fan-out @100 MHz** (≈2× across harts) |
 | TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
 | UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |
 
@@ -65,13 +65,21 @@ mirrors kl-eth's reap bit-for-bit. Driver keeps the v1 address-verify realign gu
 (`kl-eth 83aa7ec`) as defense-in-depth. Gateware with the fix: `build_dp100_wfix`.
 Also seen: idle RTT is 3–11 ms (irq 13 fires but delivery rides the 5 ms fallback poll;
 `rx-usecs-low` 200 µs storms the CPU) — a completion-IRQ NAPI is the latency fix, now unblocked.
+**UPDATE (later 2026-07-08): a SECOND wedge was subsequently root-caused and fixed** — the v1
+BD's 16-bit `drops` field aliased bit 56 (the v2 marker) at drops ≥ 256, making every v1
+completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Both fixes are
+silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
+runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
+`docs/RX_OVERLOAD_WEDGE.md`.
 
 **Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
 start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
-**Neither direction is at 500 yet.** TX is now honestly CPU-bound: the remaining ~40% needs
-per-unit CPU cost cuts (ACK path, xmit/reap, poll wakeups) and the wedge fix for stable −P4+.
-RX cannot even run its parallel campaign until the **overload wedge**⁴ is fixed — that fix gates
-the 2-queue fan-out numbers. Reader prefetch stays **refuted**². 1 Gbit/s remains the stretch.
+**Neither direction is at 500 yet — but the wedges that gated every parallel measurement are
+fixed and silicon-validated⁴**, so the campaign can finally run. TX is honestly CPU-bound: the
+remaining ~40% comes from per-unit CPU cost cuts (peer ACK batching, completion-IRQ, xmit path).
+RX needs the 2-queue fan-out (parallel currently splits one queue: 145 −P2 vs 192 single) plus
+cheaper aggregates. **The execution plan with per-phase gateware gates is
+`docs/CAMPAIGN_500_PLAN.md`.** Reader prefetch stays **refuted**². 1 Gbit/s remains the stretch.
 UDP is a separate (offload) problem. Every step measured on silicon — HW counters + `/proc/stat`
 side by side; the books must balance.
 
