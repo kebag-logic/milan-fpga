@@ -125,6 +125,9 @@ ones that carry on to 1 Gbit.
 
 | topic | doc |
 |-------|-----|
+| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | `docs/RX_OVERLOAD_WEDGE.md` |
+| **CBS default-shaping bug**: reset config paced BE TX at 300 Mb/s (2026-07-08) | `docs/CBS_DEFAULT_SHAPING_BUG.md` |
+| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | `docs/TX_READER_PREFETCH_PLAN.md` |
 | HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | `docs/RX_FANOUT_AND_TX_CEILING.md` |
 | Memory-latency root cause (1424 ns/miss), floorplan/clock experiments | `docs/LATENCY_INVESTIGATION.md`, `docs/SINGLE_PORT_PERF.md` |
 | RX RSC coalescing + `ethtool -C rx-usecs` (default 250 µs) | `../the-private-test-repo/fpga/kl-eth/README.md` |
