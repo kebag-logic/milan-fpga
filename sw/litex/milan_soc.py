@@ -2817,8 +2817,14 @@ class MilanSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
             # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
+            # clk_freq caps the SPI clock INDEPENDENT of sys_clk_freq: without it LiteSPI
+            # derives the divider from sys, so at sys=112.5 MHz the read clock rose and
+            # QSPI flashboot CRC-failed (silicon 2026-07-08, the reason the +12.5 % build
+            # dropped to `litex>`). 25 MHz is well within the N25Q128 spec and boot-time
+            # negligible (flashboot reads a few MB); it makes the memory-mapped read clean
+            # at any sys clock. DRAM/memtest were always fine — only the flash read broke.
             self.add_spi_flash(mode="4x", module=N25Q128A13(SpiCodes.READ_1_1_4),
-                               with_master=True)
+                               clk_freq=int(25e6), with_master=True)
             self._add_flashboot_constants(flashboot)
 
         if with_milan:
