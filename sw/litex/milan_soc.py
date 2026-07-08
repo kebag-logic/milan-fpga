@@ -553,6 +553,19 @@ class RingDMAWriter(LiteXModule):
         drops   = Signal(32)
         seq     = Signal(16)
         wr      = Signal(32)            # committed ring write offset (== wr_ptr CSR)
+        # ---- M1 telemetry (CAMPAIGN_500_PLAN): WHY aggregates close + coalesce ratio.
+        # Counted at the close-ARMING sites (psh / seg-cap / idle-timeout / parked-
+        # newcomer|mack); v2_segs accumulates each closed aggregate's segment count so
+        # Σsegs/v2_cnt = the measured coalescing factor. Snapped by MilanDebug.
+        close_psh  = Signal(32)
+        close_cap  = Signal(32)
+        close_tout = Signal(32)
+        close_park = Signal(32)
+        v2_cnt     = Signal(32)
+        v2_segs    = Signal(32)
+        self.dbg_close_psh, self.dbg_close_cap = close_psh, close_cap
+        self.dbg_close_tout, self.dbg_close_park = close_tout, close_park
+        self.dbg_v2_cnt, self.dbg_v2_segs = v2_cnt, v2_segs
         frames  = Signal(32)           # committed frame counter (telemetry)
         occ_hi  = Signal(32)           # occupancy high-water (telemetry)
         irq_cnt = Signal(32)           # non_empty rising edges (telemetry)
@@ -967,6 +980,9 @@ class RingDMAWriter(LiteXModule):
                 # RSC: idle-timeout — flush the open aggregate so latency stays bounded
                 NextValue(ap_close, 1),
                 NextValue(ap_csrc, 1),
+                NextValue(close_tout, close_tout + 1),          # M1 telemetry
+                NextValue(v2_cnt, v2_cnt + 1),
+                NextValue(v2_segs, v2_segs + agg_segs),
                 NextState("WB_AW"),
             ).Elif(bd_mode & ack_expired & ~agg_open,
                 # ACK-run idle-timeout — deliver the latest pending ACK. GATED on
@@ -1032,6 +1048,9 @@ class RingDMAWriter(LiteXModule):
                     # data newcomer, then takes the flush path with agg closed.
                     NextValue(ap_close, 1),
                     NextValue(ap_csrc, 0),
+                    NextValue(close_park, close_park + 1),      # M1 telemetry
+                    NextValue(v2_cnt, v2_cnt + 1),
+                    NextValue(v2_segs, v2_segs + agg_segs),
                     NextState("WB_AW"),
                 ).Else(
                     *ack_flush(ret=1)
@@ -1056,6 +1075,9 @@ class RingDMAWriter(LiteXModule):
                 # parked newcomer: close the aggregate first, then re-dispatch
                 NextValue(ap_close, 1),
                 NextValue(ap_csrc, 0),
+                NextValue(close_park, close_park + 1),          # M1 telemetry
+                NextValue(v2_cnt, v2_cnt + 1),
+                NextValue(v2_segs, v2_segs + agg_segs),
                 NextState("WB_AW"),
             ).Elif(post_fifo.source.valid,
                 post_pop.eq(1),
@@ -1221,6 +1243,14 @@ class RingDMAWriter(LiteXModule):
                     If(p_flags[3] | (agg_segs == 15),
                         NextValue(ap_close, 1),
                         NextValue(ap_csrc, 1),
+                        # M1 telemetry: agg_segs is pre-increment here → final = +1
+                        If(p_flags[3],
+                            NextValue(close_psh, close_psh + 1),
+                        ).Else(
+                            NextValue(close_cap, close_cap + 1),
+                        ),
+                        NextValue(v2_cnt, v2_cnt + 1),
+                        NextValue(v2_segs, v2_segs + agg_segs + 1),
                         NextState("WB_AW"),
                     ).Else(
                         NextState("IDLE"),
@@ -2126,12 +2156,19 @@ class RingDMAReader(LiteXModule):
         self.dbg_cs_pass = Signal()     # 1 = silent csum/TSO pre-pass (source suppressed)
         self.dbg_reading = Signal()     # in a state that awaits/consumes an R beat
         self.dbg_idle    = Signal()     # IDLE: no work queued (rd == wr)
+        # M1 telemetry: TX ring/BD occupancy (bytes queued by SW, unconsumed by HW —
+        # "is the CPU keeping the ring fed") + doorbell strobe (wr_ptr CSR writes,
+        # for the frames-per-doorbell batching factor). Tracked/snapped in MilanDebug.
+        self.dbg_occ      = Signal(32)
+        self.dbg_doorbell = Signal()
         self.comb += [
             self.dbg_cs_pass.eq(cs_pass),
             self.dbg_reading.eq(fsm.ongoing("HDR_R") | fsm.ongoing("PAY_R") |
                                 fsm.ongoing("TSO_EXT_R") | fsm.ongoing("TSO_BD_R") |
                                 fsm.ongoing("BD_FLUSH")),
             self.dbg_idle.eq(fsm.ongoing("IDLE")),
+            self.dbg_occ.eq((self.wr_ptr.storage - rd_pub) & self.mask.storage),
+            self.dbg_doorbell.eq(self.wr_ptr.re),
         ]
 
 
@@ -2645,6 +2682,19 @@ class MilanDebug(LiteXModule):
                                                   hi.eq(wtr.dbg_outstanding))
         self._snap(hi, 6, f"{name}_hi", f"{desc} - max AW in flight")
 
+    # ---- M1 probes (CAMPAIGN_500_PLAN §M1) ----------------------------------------------
+    def hiwater_probe(self, name, sig, width, desc):
+        """Track max(sig) since `reset` and snap it (e.g. TX ring occupancy)."""
+        hi = Signal(width)
+        self.sync += If(self._rst, hi.eq(0)).Elif(sig > hi, hi.eq(sig))
+        self._snap(hi, width, f"{name}_hi", desc)
+
+    def pulse_count_probe(self, name, strobe, desc):
+        """Count 1-cycle strobes since `reset` (e.g. TX doorbells = wr_ptr writes)."""
+        n = Signal(32)
+        self.sync += If(self._rst, n.eq(0)).Elif(strobe, n.eq(n + 1))
+        self._snap(n, 32, name, desc)
+
 
 # SoC ----------------------------------------------------------------------------------------------
 
@@ -2802,6 +2852,31 @@ class MilanSoC(SoCCore):
                     if hasattr(self.milan_dma, "rx1"):
                         dbg.outstanding_hi_probe("rx1w_out", self.milan_dma.rx1,
                                                  "RX1 writer outstanding")
+                    # ---- M1 (CAMPAIGN_500_PLAN): the probes the >500 phases gate on ----
+                    # RSC close reasons + coalesce ratio (free-running; read as deltas)
+                    for tag, sig, d in (
+                        ("rsc_close_psh",  self.milan_dma.rx.dbg_close_psh,  "aggregate closes: PSH"),
+                        ("rsc_close_cap",  self.milan_dma.rx.dbg_close_cap,  "aggregate closes: seg-cap 16"),
+                        ("rsc_close_tout", self.milan_dma.rx.dbg_close_tout, "aggregate closes: idle timeout"),
+                        ("rsc_close_park", self.milan_dma.rx.dbg_close_park, "aggregate closes: parked newcomer/mack"),
+                        ("rsc_v2_cnt",     self.milan_dma.rx.dbg_v2_cnt,     "v2 aggregate BDs written"),
+                        ("rsc_v2_segs",    self.milan_dma.rx.dbg_v2_segs,    "sum of segs over v2 BDs (ratio = segs/cnt)"),
+                    ):
+                        dbg._snap(sig, 32, tag, f"{d} (q0, free-running)")
+                    # TX-side CPU-feed evidence: ring occupancy high-water + doorbells
+                    dbg.hiwater_probe("txring_occ", self.milan_dma.tx.dbg_occ, 32,
+                                      "TX ring/BD bytes queued-unconsumed, max since reset")
+                    dbg.pulse_count_probe("tx_doorbells", self.milan_dma.tx.dbg_doorbell,
+                                          "TX wr_ptr CSR writes (frames/doorbell = batching)")
+                    # RX queue-1 stage probe + steer output stalls (fan-out attribution)
+                    if hasattr(self.milan_dma, "rx1"):
+                        dbg.sys_probe("rx1_dma", self.milan_dma.rx1.sink,
+                                      "RX q1: steer -> DMA write")
+                    if hasattr(self.milan_dma, "steer"):
+                        dbg.sys_probe("steer0", self.milan_dma.steer.source0,
+                                      "RxSteer q0 output")
+                        dbg.sys_probe("steer1", self.milan_dma.steer.source1,
+                                      "RxSteer q1 output")
                 self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac, extra=_phase0)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd,

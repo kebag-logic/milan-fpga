@@ -1311,6 +1311,50 @@ def test_bd_drops_overflow_v2_alias():
     print("PASS drops>=256 does not alias the v2 marker (v1 BDs stay v1)")
 
 
+def test_rsc_close_reason_counters():
+    """M1 telemetry (CAMPAIGN_500_PLAN): the close-reason counters + coalesce ratio
+    that Phase R2 gates on. Drives one close of each kind and checks the counts:
+    PSH close (3 segs), idle-timeout close (1 seg), parked-newcomer close (1 seg)."""
+    h = _mk_overload_harness(cycles=200000)
+
+    def seg(flow, seq, n, flags=0x10):
+        w, _ = tcp_flow(n, flags, seq, flow)
+        return w
+
+    def stim():
+        yield from h.init_bd(bd_entries=16)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(2048)
+        yield h.dut.rsc_tout.storage.eq(300)
+        yield
+        for p in PGS[:4]:
+            yield from h.post_buf(p)
+        # 1) PSH close: open + append + PSH-append => segs=3, close_psh
+        yield from h.send_frame(seg(0x1111, 1000, 96))
+        yield from h.send_frame(seg(0x1111, 1096, 96))
+        yield from h.send_frame(seg(0x1111, 1192, 64, flags=0x18))
+        yield from h.wait_idle(settle=600)
+        assert (yield h.dut.dbg_close_psh) == 1, "psh close not counted"
+        assert (yield h.dut.dbg_v2_cnt) == 1
+        assert (yield h.dut.dbg_v2_segs) == 3, \
+            f"segs sum {(yield h.dut.dbg_v2_segs)} != 3"
+        # 2) timeout close: single eligible seg, let rsc_tout expire
+        yield from h.send_frame(seg(0x3333, 5000, 80))
+        yield from h.wait_idle(settle=1200)
+        assert (yield h.dut.dbg_close_tout) == 1, "timeout close not counted"
+        assert (yield h.dut.dbg_v2_segs) == 4
+        # 3) parked-newcomer close: open flow A, then flow B seg parks -> closes A
+        yield from h.send_frame(seg(0x1111, 2000, 96))
+        yield from h.send_frame(seg(0x3333, 6000, 80, flags=0x18))  # parks, closes A
+        yield from h.wait_idle(settle=1200)
+        assert (yield h.dut.dbg_close_park) == 1, "parked-newcomer close not counted"
+        cnt = (yield h.dut.dbg_v2_cnt)
+        segs = (yield h.dut.dbg_v2_segs)
+        assert cnt >= 3 and segs >= 5, f"v2_cnt={cnt} v2_segs={segs}"
+    h.run(stim)
+    print("PASS RSC close-reason counters (psh/timeout/park + coalesce ratio)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -1339,4 +1383,5 @@ if __name__ == "__main__":
     test_rsc_stormhunt(seed=3)
     test_rsc_silicon_geometry(seed=11)
     test_bd_drops_overflow_v2_alias()
+    test_rsc_close_reason_counters()
     print("ALL PASS")
