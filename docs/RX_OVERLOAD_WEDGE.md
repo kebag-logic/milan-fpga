@@ -144,14 +144,31 @@ fails these tests with a full BD-ring/page-FIFO/trace dump.
 * `KL_BD_ENTRIES` 64→256 — reap slack so BD-ring-full (a contract stressor) needs a 4×
   longer driver stall.
 
-## Status / next steps
+## Status — silicon results (2026-07-08, `build_dp100_wfix`, WNS +0.092)
 
-* RTL fix + tests committed (`09e3a09`), docs (`e6a2da7`).
-* `build_dp100_wfix` (= `build_dp100_cbs0` + this fix) — **silicon validation pending**:
-  flash, re-run the `-R -P2` trigger that wedged 100 % pre-fix, then the full RX matrix
-  (2-queue fan-out included — the historical "RxSteer hangs at 100 MHz" may have been
-  this wedge all along) and TX −P4/−P8 stability.
-* Follow-on (unblocked by this): completion-IRQ NAPI to fix the 3–11 ms idle RTT.
+* **The ordering fix is VALIDATED on silicon**: across every storm run of the session —
+  including one that moved 193 MB / ~15 k completions with 897 buffer-exhaustion drops —
+  the driver's realign **canary stayed at 0**: completion order never again diverged
+  from post order. RX single-flow with RSC on measured **202 Mbit/s** on the fixed
+  gateware. The pre-fix `-R -P2` trigger no longer produces the mispairing wedge.
+* **A SECOND, independent RSC bug remains** (was masked behind the first): under
+  *parallel* RX/TX storms with `rsc=1`, RX **delivery** still dies (link dead, driver
+  reload insufficient, reboot clears) while the canary stays 0 and the BD/page pairing
+  is provably clean — a different mechanism. Scoping evidence:
+  - `rsc=0` is **immune**: single 43.7 Mbit + `-R -P4` twice + pings, all healthy;
+  - `rsc=1` dies on `-R -P2/-P4` sequences AND on TX `-P4` (whose ACK streams exercise
+    the RSC ack-merge path);
+  - in every dead state `rsc_dbg` sticks at `0x0000_0800` (a garbage parse:
+    totlen=2048, flags/doff/eligible=0) → prime suspect is the **HDR_CAP/parser or
+    aggregate state machine desyncing under multi-flow + drop interleave**, then
+    mangling all subsequent dispatch. This is the next campaign target
+    (`test_ring_bd.py` fuzz with parser-state asserts; consider an RSC state-probe CSR).
+* **Driver landmine found and reverted** (`e251a0c`): `KL_BD_ENTRIES` 256 broke *all*
+  bulk RX (zero-byte transfers from the first run; 64 works). Root cause TBD — treat
+  the BD-ring size as HW-coupled until the RTL's assumptions are audited.
+* Interim operating guidance: single-flow RX/TX with `rsc=1` is stable (202 RX);
+  parallel-RX experiments need `rsc=0` until the parser/aggregate bug is fixed.
+* Follow-on (unblocked): completion-IRQ NAPI for the 3–11 ms idle RTT.
 
 ## Lessons
 
