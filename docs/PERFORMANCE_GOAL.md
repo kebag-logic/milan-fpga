@@ -124,6 +124,19 @@ directly off the counters. The R1 ≥300 gate therefore hands off to **R2** (che
 aggregates) and **T2** (completion-IRQ pacing), with **X** (112.5 MHz) as the measured
 backstop. Fan-out itself is done and validated.
 
+## T1 result (2026-07-08, `build_dp100_m1` — TX gate ≥420 MET at 417)
+
+The never-measured **peer-side coalesce zone** was the lever: peer `rx-usecs` 50 µs +
+board `rx-usecs` 2000 µs (steer on) scales TX monotonically — board u500→u1k→u2k =
+236→352→**415/417** (−P4, 0 retr, repro band 378–417; u5k 392). **Single-flow TX = 350**
+(from 253). Peer 100/200 µs ≈ 293 (too coarse begins ~100); peer 1000 collapses (207,
+historical). Fewer, larger ACK batches at BOTH ends = less per-wakeup CPU on the board.
+
+**Still CPU-feed-bound**: at 387 Mbit the reader (`txrd`) is 5.8 % busy / **65.8 % idle**
+— T2 (completion-IRQ) and X (112.5 MHz) keep their headroom toward 500. RX stands at 238
+(2-hart ceiling, R1); its next lift is also T2/X. Operating point recorded: peer=50,
+board=2000, hash_sel=0.
+
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
 The datapath is never the raw-bandwidth limit (64-bit × 50–100 MHz ≫ 1 Gbit). The real walls,
