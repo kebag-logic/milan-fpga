@@ -108,6 +108,22 @@ exactly what the close-reason counters were built to decide. (b) TX −P4 ≈ 30
 single-process reference; T1 starts there toward the 420 gate. (c) The wedge fixes hold
 under the full battery.
 
+## R1 result (2026-07-08, `build_dp100_m1`, hash_sel=0 — 2-queue fan-out LIVE)
+
+**The fan-out works and is stable** — the historical "RxSteer hangs at 100 MHz" is gone
+(it was the wedges): 15/15 cells + **10/10 −P2 storm rounds healthy, canary 0**. Results
+are bimodal on the 4-tuple hash: when 2 flows split (52/48 measured, e.g. steer
+q0=107.5k/q1=99.7k), **RX −P2 = 230–238 Mbit with 0 retransmits** (+22 % over single's
+195, famine tax eliminated); when both flows collide on one queue (~50 % of 2-flow
+rounds), 133–144 with 1.2–1.7 k retr — use ≥4 flows or controlled source ports for
+deterministic splits in benchmarks.
+
+**Why split rounds cap at 238, not 2×195:** `/proc/stat` during the 238-Mbit round shows
+**both harts 99–100 % busy** — the 2-hart CPU ceiling at the current per-frame cost, read
+directly off the counters. The R1 ≥300 gate therefore hands off to **R2** (cheaper
+aggregates) and **T2** (completion-IRQ pacing), with **X** (112.5 MHz) as the measured
+backstop. Fan-out itself is done and validated.
+
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
 The datapath is never the raw-bandwidth limit (64-bit × 50–100 MHz ≫ 1 Gbit). The real walls,
