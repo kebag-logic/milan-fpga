@@ -17,7 +17,7 @@
 | T3 2nd TX queue | ⛔ refuted by proxy | dual-process at the operating point = 341 < 417 single-process −P4 |
 | X clock | 🟡 **RTL WIN, measurement blocked** | 106.25 REFUTED (no PLL config: sys must coexist w/ milan=100 from 200 MHz → only 100/112.5 valid). **112.5 MHz now CLOSES: WNS +0.038** via a `stream.Buffer` register between the TX reader source and the CDC (`d35f666`) that cuts the assembly-cone violators — reader RTL untouched, CSR identical, sims pass. **Throughput unmeasured: QSPI flashboot fails CRC at 112.5** (SPI-flash read clock marginal). Fix = `add_spi_flash(clk_freq=25e6)` (cap SPI clk independent of sys) or serial-boot → one rebuild. **TX ~508 stays a PROJECTION until booted.** |
 
-**Scoreboard: TX 452/500 · RX 238/500.** Operating point: peer(sudo) `rx-usecs` 50–200,
+**Scoreboard: TX 452 (100 MHz) / ~470–479 (112.5, MEASURED) · RX 238 — both <500.** Operating point: peer(sudo) `rx-usecs` 50–200,
 board `rx-usecs` 2000, `threaded=0`, `hash_sel=0`, MTU 1500.
 
 **Honest gap assessment:** TX closes with X (106.25 + top-of-band, or the 112.5 unlock).
