@@ -124,6 +124,21 @@ directly off the counters. The R1 ≥300 gate therefore hands off to **R2** (che
 aggregates) and **T2** (completion-IRQ pacing), with **X** (112.5 MHz) as the measured
 backstop. Fan-out itself is done and validated.
 
+## T1 result — CORRECTED (2026-07-08): TX **452**, gate ≥420 MET
+
+**Correction (measure-don't-assume applied to ourselves):** the first T1 sweep's
+"peer rx-usecs" cells never applied — peer-side `ethtool -C` needs sudo and errors were
+suppressed; the peer sat at 1000 µs throughout. The genuine (sudo'd) sweep at the real
+operating point (board `rx-usecs=2000`, softirq NAPI `threaded=0`, steer on, −P4):
+peer 3/50/200/1000 = **437/435/452/424 Mbit/s, all 0 retr** (repeat band 398–452) —
+the peer knob is mild (±5 %); the real levers were **board-side u2000 + softirq**.
+Single-flow TX 350. The threaded→softirq switch also cut idle RTT 1.7→1.08 ms
+(threaded-NAPI wakeup ≈ 0.65 ms; ~1.0 ms fixed remains, poll-independent, IRQ-per-packet
+verified — latency is NOT the 500-blocker, so T2 driver surgery is deprioritized).
+**T3 refuted by its proxy**: dual-process at the operating point = 341 < 417 single-process
+−P4 — a second TX queue is not the binder; CPU per-byte is.
+
+### (original T1 notes below)
 ## T1 result (2026-07-08, `build_dp100_m1` — TX gate ≥420 MET at 417)
 
 The never-measured **peer-side coalesce zone** was the lever: peer `rx-usecs` 50 µs +
