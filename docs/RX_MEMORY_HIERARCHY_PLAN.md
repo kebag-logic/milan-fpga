@@ -46,7 +46,25 @@ cold-vs-capacity from controlled experiments, cheapest first.
 - **`pmu.c`** (scratchpad) — `perf_event_open` reader; **currently returns ENOENT** on this
   kernel. Kept for when/if opensbi is rebuilt with a PMU event table (see Phase C.0).
 
-## Phase L2 (IN FLIGHT) — the disambiguator: 32 → 64 KB shared L2
+## Phase L2 RESULT (2026-07-08) — CAPACITY-bound CONFIRMED; L2 is the lever
+
+`build_l2x2` (64 KB L2, WNS **+0.140** — best margin of the campaign, the L2 *helped* timing;
+BRAM 81.85 %). §V clean (4/4 storm stages delivered, canary 0). Measured:
+
+| | m1 (32 KB L2) | **l2x2 (64 KB L2)** | Δ |
+|---|:--:|:--:|:--:|
+| pointer-chase 32 KB | 227 ns | **178 ns** | −22 % |
+| pointer-chase 48 KB | 340 ns | **306 ns** | −10 % |
+| RX single | 206 | 208 | ~0 |
+| **RX −P2 (split rounds)** | **238** | **278–280** | **+17 %** |
+
+**Verdict: the RX 2-hart contention was CAPACITY misses, not cold.** Doubling the L2 lifted
+−P2 +17 % (single unchanged — one flow's hot-set already fit 32 KB; only *two* harts spilled
+it). A bigger *shared* L2 helping is the definitional signature of a capacity, not cold,
+bottleneck. **So the dedicated network cache (Branch B) is DEFERRED** — the cheap L2 doubling
+is the confirmed RX lever, and it did not require a coherency-path RTL project. → **Branch A.**
+
+## (superseded plan) Phase L2 (IN FLIGHT) — the disambiguator: 32 → 64 KB shared L2
 
 `build_l2x2` (100 MHz, `--l2-bytes 65536`, from HEAD incl. the reader-Buffer + 1x-SPI
 keepers). **Fits: BRAM 81.85 % (110.5/135)**, +8 tiles over m1's 76 %.
