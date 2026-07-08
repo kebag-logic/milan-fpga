@@ -220,29 +220,47 @@ how much each half contributes.
 
 ---
 
-## 7. What we built, and its cost (`build_mlp1`, 2026-07-08)
+## 7. What we built and MEASURED on silicon (2026-07-08)
 
-Config: LiteX "linux" 2-core, **L2 reverted 64 KB → 32 KB**, `--lsu-l1-refill-count=8`, 100 MHz
-datapath. Netlist `VexiiRiscvLitex_ee5c56d9…` **verified: refill slots 0-7 present** (stock had
-only `[0]`), writeback slot 0.
+All numbers this-session, deterministic split harness (a pinned iperf `--cport 40000` forces the
+two −P2 streams onto different rx queues → a guaranteed 2-hart split every round; without it the
+4-tuple hash lotteries ~1/3 of rounds into single-queue collisions). Guarded driver verified each
+boot (`rsc/rsc_clk_mhz=100/hwtso/hwcs`); every gateware confirmed distinct (BIOS CRC) and by the
+pointer-chase L2 cliff. Splits verified by steer counters.
 
-| build | L2 | refill | **BRAM tiles** | LUT | FF | setup WNS | RX −P2 |
-|---|---|---|---|---|---|---|---|
-| m1 | 32 KB | 1 | 102.5 (76 %) | — | — | — | 238 |
-| l2x2 | 64 KB | 1 | 110.5 (82 %) | — | — | +0.140 | 278 |
-| **mlp1** | **32 KB** | **8** | **102.5 (76 %)** | 48736 (77 %) | 40965 (**32 %**) | **+0.118** | *measuring* |
+| build | L2 | refill | rpt | BRAM | setup WNS | **single RX** | **−P2 (2-hart split)** |
+|---|---|---|:--:|---|---|:--:|:--:|
+| m1   | 32 KB | 1 | – | 102.5 (76 %) | – | 206 | 238 |
+| l2x2 | 64 KB | 1 | – | 110.5 (82 %) | +0.140 | 207 | **280** |
+| mlp1 | 32 KB | 8 | – | 102.5 (76 %) | +0.118 | 198 | 229 |
+| **mlp2** | 32 KB | 8 | **rpt** | 104.5 (77 %) | +0.031 | **276** | 246 |
 
-Two things this table proves independent of the throughput result:
+**Read the levers by the clean single-variable comparisons:**
 
-1. **The 8 refill slots cost 0 BRAM** — mlp1 is *identical* to m1 at 102.5 tiles, i.e. **8 tiles
-   below l2x2**. The non-blocking D$ is bought entirely from the FF budget (32 % used). This is
-   the "keep BRAM for the AVDECC logic" property, in the utilization report.
-2. **It closes timing** — WNS **+0.118**, WHS +0.047 at 100 MHz, fully routed. The deeper load
-   path cost only ~0.022 ns vs l2x2. Gate 1 (does the deeper LSU meet 100 MHz?) **passed.**
+- **refill=8 *alone* does nothing** (mlp1 vs m1, same 32 KB L2): single 206→198, −P2 238→229 — no
+  gain, within noise. **Exactly as §5 predicted:** on an in-order core the demand miss REDO-replays
+  one-at-a-time, so 8 empty slots with no filler = the blocking case. The slots cost **0 BRAM**
+  (mlp1 == m1 at 102.5 tiles) and close timing (+0.118) — but capacity for MLP isn't MLP.
+- **Adding the RPT prefetcher is a large single-flow win** (mlp2 vs mlp1, same 32 KB L2): **single
+  198→276 (+39 %)**, −P2 229→246 (+7 %). The prefetcher *fills* the slots — it learns the stride of
+  the sequential payload copy (the dominant RX DRAM traffic) and prefetches ahead, hiding the cold
+  miss. It helps single hugely (bandwidth spare) and −P2 modestly (2-hart is more shared-resource
+  bound). Cost: **+2 BRAM tiles** for the RPT table (104.5), still **6 below l2x2**. Timing closes
+  but tight (+0.031 — the predictor ate ~0.087 ns).
+- **The L2 size is the *aggregate* lever** (l2x2 vs m1): −P2 238→280 (+18 %), single ~flat. A bigger
+  shared L2 cuts the 2-hart capacity misses (fewer DRAM round-trips), which is what the −P2 case is
+  bound by.
 
-**Open gate:** RX −P2 vs m1 (238, isolates the lever) and l2x2 (278, "can MLP at 32 KB replace
-the L2 doubling and hand back 8 tiles?"). Then §V storm-safety. Follow-on if modest:
-`--lsu-hardware-prefetch=rpt` (the slot-filler of §5).
+**So RPT and L2 are complementary — RPT = single-flow/latency, L2 = aggregate/capacity.** (The
+naïve mlp2-vs-l2x2 −P2 compare, 246 < 280, is *confounded*: it changes L2 size **and** adds rpt.
+Isolated, rpt helps −P2 too.) **`build_mlp3` (refill+rpt+64 KB L2) tests the combination** →
+expected single ~276 **and** −P2 ≥ 280. It abandons the BRAM-frugality (64 KB L2) but tests whether
+both harts can prefetch without L2-capacity contention — the path to 2-hart scaling toward >500.
+
+**Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
+not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+39 % single); the
+aggregate lever (L2, +8 tiles) costs BRAM. There is no free lunch for the 2-hart aggregate — it is
+shared-resource bound, and buying it back costs either L2 BRAM or a datapath/interconnect change.
 
 ---
 
