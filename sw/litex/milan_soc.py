@@ -2817,13 +2817,14 @@ class MilanSoC(SoCCore):
             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
             # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
-            # clk_freq caps the SPI clock INDEPENDENT of sys_clk_freq: without it LiteSPI
-            # derives the divider from sys, so at sys=112.5 MHz the read clock rose and
-            # QSPI flashboot CRC-failed (silicon 2026-07-08, the reason the +12.5 % build
-            # dropped to `litex>`). 25 MHz is well within the N25Q128 spec and boot-time
-            # negligible (flashboot reads a few MB); it makes the memory-mapped read clean
-            # at any sys clock. DRAM/memtest were always fine — only the flash read broke.
-            self.add_spi_flash(mode="4x", module=N25Q128A13(SpiCodes.READ_1_1_4),
+            # SINGLE-LANE fast read (0x0B, 1-1-1) + 25 MHz clock cap. At sys=112.5 MHz the
+            # 4x QUAD read (0x6B) CRC-failed QSPI flashboot NON-DETERMINISTICALLY even after
+            # the SCK cap (silicon 2026-07-08: got=685383e7 then 2eac15ab, expected constant)
+            # — the sys-domain sampling of the four DQ lanes is marginal at the faster clock.
+            # 1x drops 3 of the 4 DQ timing paths (only MISO), the most timing-robust MMAP
+            # read; at 25 MHz SCK the sampling window is huge vs a 112.5 MHz sys. Flashboot
+            # reads a few MB → still <1 s. Correct at ANY sys clock; 100 MHz builds unaffected.
+            self.add_spi_flash(mode="1x", module=N25Q128A13(SpiCodes.READ_1_1_1_FAST),
                                clk_freq=int(25e6), with_master=True)
             self._add_flashboot_constants(flashboot)
 
