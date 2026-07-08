@@ -173,7 +173,10 @@ fails these tests with a full BD-ring/page-FIFO/trace dump.
   carries `drops[:8]`, bits [63:56] forced 0) → repro passes, suite **27/27**
   (incl. the new storm-hunt battery: `StormModel` content/conservation/FIFO-quiesce
   invariants, silicon-geometry MSS storms, heal races, fuzz). Driver ABI unchanged
-  (kl-eth never read v1's drops field). Gateware: `build_dp100_v2fix`.
+  (kl-eth never read v1's drops field). **SILICON-VALIDATED on `build_dp100_v2fix`
+  (WNS +0.123): the exact single→P2→P4→P2→single storm that previously died at the
+  first −P2 ran clean end-to-end — 192/145/112/142/196 Mbit with pings alive after
+  every stage, canary=0, and `drops=4792` (18× past the old 256 kill threshold).**
 * **Also hardened while hunting** (`12265b5`): the completion BD lands as two beats —
   a poll can see w0 before w1; the driver now treats `w1==0`/`segs==0` as
   not-yet-complete and retries (was: garbage-gso delivery of half BDs).
