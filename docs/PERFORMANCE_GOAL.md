@@ -83,6 +83,31 @@ cheaper aggregates. **The execution plan with per-phase gateware gates is
 UDP is a separate (offload) problem. Every step measured on silicon — HW counters + `/proc/stat`
 side by side; the books must balance.
 
+## R0 baseline (signed, 2026-07-08, `build_dp100_m1` WNS +0.056 — CAMPAIGN_500_PLAN)
+
+12-cell matrix, per-cell coherent probe capture, **zero wedges, canary 0 throughout**;
+`txrd` books balance (Σbuckets == cyc); steered/coalesce-ratio ≈ committed BDs.
+
+| cell | u500 | u1000 | evidence highlights |
+|---|:--:|:--:|---|
+| TX single | 174 | **253** | wakeup-cost effect confirmed on m1 |
+| TX −P4 | **~306**¹ | ~283¹ | `txrd` idle 73 % — CPU-feed still the wall |
+| TX −P8 | ~294¹ | ~249¹ | first stable −P8 numbers ever |
+| RX single | **206** | 191 | |
+| RX −P2 | 165 (1172 retr) | 140 (1682 retr) | **famine drops 13k/cell** → retransmit tax |
+| RX −P4 | 106 (2173 retr) | 103 (1934 retr) | famine drops 15.7k/cell |
+
+¹ counter-derived (tx_dma frames × 12112 b / txrd_cyc); iperf summary lines lost to a
+harvest nit, hardware numbers authoritative.
+
+**What R0 tells the plan:** (a) RX parallel is stable but pays a measured **famine +
+retransmit tax** and a **park-close tax** (close reasons: park 58 %, psh 41 %, timeout 1 %,
+**seg-cap 0 %**; coalesce ratio 7.8 segs/agg) — R1's 2-queue fan-out attacks *both*
+(per-queue buffer pools + per-queue aggregate slots); window/cap tuning would buy nothing,
+exactly what the close-reason counters were built to decide. (b) TX −P4 ≈ 306 is the new
+single-process reference; T1 starts there toward the 420 gate. (c) The wedge fixes hold
+under the full battery.
+
 ## Why we are not at 1 Gbit/s yet — the bottleneck map
 
 The datapath is never the raw-bandwidth limit (64-bit × 50–100 MHz ≫ 1 Gbit). The real walls,
