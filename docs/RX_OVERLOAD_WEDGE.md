@@ -151,24 +151,40 @@ fails these tests with a full BD-ring/page-FIFO/trace dump.
   the driver's realign **canary stayed at 0**: completion order never again diverged
   from post order. RX single-flow with RSC on measured **202 Mbit/s** on the fixed
   gateware. The pre-fix `-R -P2` trigger no longer produces the mispairing wedge.
-* **A SECOND, independent RSC bug remains** (was masked behind the first): under
-  *parallel* RX/TX storms with `rsc=1`, RX **delivery** still dies (link dead, driver
-  reload insufficient, reboot clears) while the canary stays 0 and the BD/page pairing
-  is provably clean — a different mechanism. Scoping evidence:
-  - `rsc=0` is **immune**: single 43.7 Mbit + `-R -P4` twice + pings, all healthy;
-  - `rsc=1` dies on `-R -P2/-P4` sequences AND on TX `-P4` (whose ACK streams exercise
-    the RSC ack-merge path);
-  - in every dead state `rsc_dbg` sticks at `0x0000_0800` (a garbage parse:
-    totlen=2048, flags/doff/eligible=0) → prime suspect is the **HDR_CAP/parser or
-    aggregate state machine desyncing under multi-flow + drop interleave**, then
-    mangling all subsequent dispatch. This is the next campaign target
-    (`test_ring_bd.py` fuzz with parser-state asserts; consider an RSC state-probe CSR).
-* **Driver landmine found and reverted** (`e251a0c`): `KL_BD_ENTRIES` 256 broke *all*
-  bulk RX (zero-byte transfers from the first run; 64 works). Root cause TBD — treat
-  the BD-ring size as HW-coupled until the RTL's assumptions are audited.
-* Interim operating guidance: single-flow RX/TX with `rsc=1` is stable (202 RX);
-  parallel-RX experiments need `rsc=0` until the parser/aggregate bug is fixed.
-* Follow-on (unblocked): completion-IRQ NAPI for the 3–11 ms idle RTT.
+* **The SECOND bug — the parallel-storm delivery death — is ROOT-CAUSED AND FIXED
+  (2026-07-08, commit `2c44757`), decoded directly off a dead board's BD ring.**
+  The v1 completion BD packed **16-bit `drops` into w0[63:48], overlapping bit 56 —
+  the v2-aggregate marker** (the v2 encoding correctly used `drops[:8]`; the v1 line
+  kept 16 — the inconsistency was the bug). Once the free-running famine counter
+  crossed **256** — which only parallel storms achieve — **every v1 completion parsed
+  as a v2 aggregate in the driver**: garbage-gso deliveries (`segs` decoded from a
+  buffer address's zero byte — the observed `+192 B / +0 pkt` netdev signature), then
+  with the half-BD guard a permanent reap stall. Every mystery symptom follows:
+  - **parallel-only**: single-flow never accumulates 256 drops; −P2/−P4 famine does;
+  - **`rsc=0` immune**: the driver's v2 branch is `kl_rsc`-gated;
+  - **reload-proof**: `drops` is free-running HW state — it stays ≥256 across driver
+    reloads; only reboot/reflash (counter reset) recovered;
+  - **canary silent**: the v2 path never runs the v1 address-verify;
+  - the sticky `rsc_dbg=0x800` was a red herring — that's the **ARP ptype** (bytes
+    16–17 = `08 00`) of the peer re-ARPing a dead board.
+  Forensic chain: dead-state BD dump showed "v2" BDs whose fields decoded as sane v1
+  values with `drops=294` → deterministic repro (`test_bd_drops_overflow_v2_alias`:
+  260 famine drops, then one plain frame → its BD reads v2) → one-line fix (v1 w0
+  carries `drops[:8]`, bits [63:56] forced 0) → repro passes, suite **27/27**
+  (incl. the new storm-hunt battery: `StormModel` content/conservation/FIFO-quiesce
+  invariants, silicon-geometry MSS storms, heal races, fuzz). Driver ABI unchanged
+  (kl-eth never read v1's drops field). Gateware: `build_dp100_v2fix`.
+* **Also hardened while hunting** (`12265b5`): the completion BD lands as two beats —
+  a poll can see w0 before w1; the driver now treats `w1==0`/`segs==0` as
+  not-yet-complete and retries (was: garbage-gso delivery of half BDs).
+* **Sim findings for the record**: the writer has **no BD-ring fullness guard** —
+  more outstanding buffers than BD entries silently overwrites unreaped completions.
+  The driver contract (48 posted < 64 entries, reap-before-repost) makes it
+  unreachable today; documented as a constraint. The `KL_BD_ENTRIES` 256 driver
+  experiment (`e251a0c` revert) likely broke this very contract-boundary — with the
+  alias bug now fixed it could be revisited, but 64 works and stays.
+* Follow-on (unblocked): completion-IRQ NAPI for the 3–11 ms idle RTT; then the RX
+  parallel matrix and 2-queue fan-out numbers.
 
 ## Lessons
 
