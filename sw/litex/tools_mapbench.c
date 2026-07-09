@@ -1,6 +1,7 @@
 /* Per-4KB-page cost: (A) cold memcpy of a page vs (B) map-side page cycle
    (touch-fault + MADV_DONTNEED zap) — proxy for TCP_ZEROCOPY_RECEIVE's
    vm_insert+zap machinery. If B << A, page-flipping beats copying on this core. */
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +26,22 @@ int main(){
     madvise(m,(size_t)N*PG,MADV_DONTNEED);             /* zap + TLB flush */
   }
   double perB=(now()-t0)/mp*1e6;
-  printf("cold-copy 4K: %.2f us/page | map-cycle 4K: %.2f us/page | ratio %.1fx\n",perA,perB,perA/perB);
+  /* C: trap-free batched PTE move — mremap ping-pong of N resident pages.
+     Proxy for tcp_zerocopy_receive's vm_insert_pages (no per-page trap, batched
+     locking): per-page per-move cost of pure PTE manipulation + TLB shootdown. */
+  size_t SZ=(size_t)N*PG;
+  char *a=mmap(NULL,SZ*2,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0);
+  char *hole=a+SZ;                      /* reserved landing zone */
+  for(int i=0;i<N;i++) a[(size_t)i*PG]=1;   /* make resident once */
+  munmap(hole,SZ);
+  t0=now(); long mv=0; char *cur=a; char *dst2=hole;
+  for(int it=0; it<400; it++){
+    char *r=mremap(cur,SZ,SZ,MREMAP_MAYMOVE|MREMAP_FIXED,dst2);
+    if(r==MAP_FAILED){ perror("mremap"); return 1; }
+    char *tmp=cur; cur=r; dst2=tmp; mv+=N;
+  }
+  double perC=(now()-t0)/mv*1e6;
+  printf("cold-copy 4K: %.2f us/page | map-cycle(fault+zap): %.2f us/page | pte-move(mremap batch): %.2f us/page | copy/pte ratio %.1fx\n",
+         perA,perB,perC,perA/perC);
   return 0;
 }
