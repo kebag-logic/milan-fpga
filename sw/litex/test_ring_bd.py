@@ -689,6 +689,16 @@ class DriverModel:
                 f"WEDGE (seq): BD@+{self.bd_rd:#x} seq={seq} expected={self.seq & 0xFF}\n{self.dump()}"
             v2 = (w0 >> 56) & 1
             length = (w0 >> 16) & 0xFFFF
+            # kl-eth half-writeback guard (549-557): w0 lands one beat before w1, so a
+            # freshly-written BD can still carry the PREVIOUS generation's w1 (only w0
+            # is cleared on consume). v2 with segs==0 / v1 with addr==0 = not yet
+            # complete -> stop reaping, retry next poll. (The CQ drain writes BDs
+            # back-to-back, so sim reaps actually hit this window now.)
+            w1_pre = self.h.mem.get(BD_BASE + self.bd_rd + 8, 0)
+            if v2 and ((w1_pre >> 48) & 0xFF) == 0:
+                return
+            if not v2 and (w1_pre & 0xFFFFFFFF) == 0:
+                return
             assert self.pages, \
                 f"WEDGE (extra BD): completion with an EMPTY page FIFO\n{self.dump()}"
             page = self.pages.pop(0)
@@ -706,6 +716,7 @@ class DriverModel:
             self.reaped.append(("v2" if v2 else "v1", page, length))
             self.trace.append(f"reap  {'v2' if v2 else 'v1'} page={page:#x} len={length}")
             self.h.mem[BD_BASE + self.bd_rd] = 0        # driver clears the slot
+            self.h.mem[BD_BASE + self.bd_rd + 8] = 0    # (model: also w1 — no stale gen)
             self.seq += 1
             self.bd_rd = (self.bd_rd + 16) & (self.n * 16 - 1)
 
@@ -995,6 +1006,11 @@ class StormModel(DriverModel):
                 return
             v2 = (w0 >> 56) & 1
             length = (w0 >> 16) & 0xFFFF
+            w1_pre = self.h.mem.get(BD_BASE + self.bd_rd + 8, 0)
+            if v2 and ((w1_pre >> 48) & 0xFF) == 0:
+                return                     # half-written BD (kl-eth guard): retry
+            if not v2 and (w1_pre & 0xFFFFFFFF) == 0:
+                return
             assert self.pages, f"completion with empty page FIFO\n{self.dump()}"
             page = self.pages.pop(0)
             got = self._mem_bytes(page, length)
@@ -1043,6 +1059,7 @@ class StormModel(DriverModel):
                             f"len={length} segs={segs} first_diff@{d} "
                             f"exp={bytes(expect[d:d+8]).hex()} got={got[d:d+8].hex()}")
             self.h.mem[BD_BASE + self.bd_rd] = 0
+            self.h.mem[BD_BASE + self.bd_rd + 8] = 0
             self.seq += 1
             self.bd_rd = (self.bd_rd + 16) & (self.n * 16 - 1)
 
@@ -1052,6 +1069,7 @@ def test_rsc_stormhunt(seed=1, nops=220):
     import random
     rng = random.Random(seed)
     h = _mk_overload_harness(cycles=1400000)
+    globals()['_hunt_h'] = h             # debug stash (R2 bring-up)
     m = StormModel(h, bd_entries=16)     # MUST match init_bd's ring size
     flows = {0x1111: 1000, 0x3333: 5000, 0x5555: 9000}   # data/control seqs
     tag = [0x41000000 + seed * 0x100000]
