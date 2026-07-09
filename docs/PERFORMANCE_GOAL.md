@@ -23,7 +23,7 @@ CPU profile side by side — no blind changes.
 |------|:-------------:|:-----:|----------|------------------------|
 | **TX TCP** (100 MHz dp, CBS unshaped)³ | **−P2 525–536** · −P4 ~410–475 | **✓** | **datapath/shaper-bound**, not CPU (the refill/RPT change was TX-neutral) | done — TX crosses 500 at −P2 |
 | TX TCP, CBS default (historical²) | 238–247 | ✗ | CBS shaper pacing BE at 300 Mb/s (config bug — fixed³) | — (fixed) |
-| **RX TCP parallel (−P2)** | **298** (build_mlp3: fan-out + 64 KB L2 + RPT prefetch)⁵ | ✗ | **the recv payload copy = 51% of RX CPU** (cold DRAM read; perf-verified — *not* the interconnect) | **DDIO / allocate-on-DMA-write** (ceiling 481, task #15) |
+| **RX TCP parallel (−P2)** | **316** (build_l2deep: mlp3 + L2 `downPendingMax` 4→8)⁵ | ✗ | **the recv payload copy = 51% of RX CPU** (cold DRAM read; perf-verified); memory-depth levers exhausted at ~316 (L2=16 flat, LiteDRAM cmd=16 flat) | **copy removal** — header-split + app zero-copy, or a residency-winning stash (ceiling 481, task #17) |
 | RX TCP single | **277** (build_mlp2: RPT prefetcher, +34% over 207)⁵ | ✗ | same recv copy (cold read) | DDIO / app zero-copy (single ceiling 427) |
 | TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
 | UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |

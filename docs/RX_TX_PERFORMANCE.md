@@ -16,7 +16,7 @@ Best-effort TCP throughput **>500 Mbit/s in both directions** on the fully-FPGA 
 | direction | best measured (2026-07-09) | goal | verdict |
 |---|:--:|:--:|---|
 | **TX** | **−P2 525–536**, −P4 ~410–475 | 500 | ✅ **crosses 500** (at −P2) |
-| **RX** | **−P2 298** (mlp3) · single 277 | 500 | ⏳ copy-bound; **481 ceiling** once the copy is removed |
+| **RX** | **−P2 316** (l2deep = mlp3 + L2→DRAM depth 8) · single 277 | 500 | ⏳ copy-bound; **481 ceiling** once the copy is removed; memory-path levers exhausted at ~316 |
 
 The whole campaign on one chart:
 
@@ -114,9 +114,11 @@ headroom is real, but capturing it is a project, not a knob.
 | 64 KB L2 | RX −P2 238 → **280** | capacity (both harts) |
 | refill=8 alone | 229 ≈ 238 (**no gain**) | in-order core; slots need a filler |
 | **RPT prefetcher** | RX single 207 → **277** (+34%) | fills the slots; +2 BRAM tiles |
-| mlp3 (all three) | RX −P2 = **298** (best) | slots cost 0 BRAM |
+| mlp3 (all three) | RX −P2 = **298** | slots cost 0 BRAM |
+| **L2→DRAM depth 8** (l2deep) | RX −P2 = **316 (best)** | `downPendingMax` 4→8: 2 harts stopped serializing at the L2's DRAM port; knee at 8 (16 flat; LiteDRAM cmd 16 flat) |
+| shared-L2 DDIO | ~300 (**flat**) | allocate-on-DMA-write pollutes without warming (residency) |
 | *ceiling if copy removed* | RX −P2 = **481** | via `recv(MSG_TRUNC)` |
-| DDIO (next) | → toward 481 | warm the copy's reads |
+| copy removal (open, task #17) | → toward 481 | header-split + app zero-copy, or a residency-winning stash |
 
 **Refuted along the way** (so we don't retry them): the depth-2 DMA interconnect (RX writer has
 30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),

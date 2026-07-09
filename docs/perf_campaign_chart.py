@@ -3,11 +3,11 @@
 import sys
 
 # --- measured data (Mbit/s) ---
-configs = ["m1", "l2x2", "mlp1", "mlp2", "mlp3", "copy‑removed"]
-sub     = ["32K L2\nblocking D$", "+64K L2", "+refill=8", "+RPT pref.", "+RPT+64K", "(MSG_TRUNC)"]
-rx_s    = [206, 207, 198, 277, 259, 427]
-rx_p2   = [238, 280, 229, 246, 298, 481]
-tx_p4   = [None, 405, None, 375, 414, None]   # TX −P4 median of 3 rounds (l2x2 vs mlp3 ≈ equal)
+configs = ["m1", "l2x2", "mlp1", "mlp2", "mlp3", "l2deep", "copy‑removed"]
+sub     = ["32K L2\nblocking D$", "+64K L2", "+refill=8", "+RPT pref.", "+RPT+64K", "+L2→DRAM\ndepth 8", "(MSG_TRUNC)"]
+rx_s    = [206, 207, 198, 277, 259, 274, 427]
+rx_p2   = [238, 280, 229, 246, 298, 316, 481]
+tx_p4   = [None, 405, None, 375, 414, None, None]   # TX −P4 median of 3 rounds (l2x2 vs mlp3 ≈ equal; l2deep TX unaffected)
 GOAL = 500
 
 # --- layout ---
@@ -69,7 +69,7 @@ for i,(lab,col) in enumerate([("RX single-flow",COL["s"]),("RX −P2  (2 harts)"
 cy = ly+3*26+22
 s.append(f'<text x="{lx}" y="{cy-4}" font-size="12.5" font-weight="700" fill="#333">What moved the needle</text>')
 notes = [
-  ("#1f6fb2","RX −P2:  238 →280 (L2) →298 (RPT)"),
+  ("#1f6fb2","RX −P2: 238→280→298→316 (L2 depth)"),
   ("#7db8e8","RX single:  207 →277  (+34% RPT)"),
   ("#3fae6a","TX −P4 ≈410 both (UNAFFECTED)"),
   ("#3fae6a","TX −P2 peaks 525–536  (&gt;500!)"),
