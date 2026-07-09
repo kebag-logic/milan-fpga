@@ -75,17 +75,31 @@ runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 `docs/RX_OVERLOAD_WEDGE.md`.
 ⁵ **RX memory levers, MEASURED 2026-07-08** (`RX_MEMORY_HIERARCHY_PLAN.md` + `LSU_NONBLOCKING_DCACHE.md`). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431 — the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
-**Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
-start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
-**TX has reached the goal (−P2 crosses 500); RX is at 298 with a measured 481 ceiling** (2026-07-09).
-TX is **datapath/shaper-bound**, not CPU-bound — CPU-memory levers leave it unchanged, and the
-2-queue fan-out is long done. The RX wall is now precisely known: the **recv payload copy**
-(`copy_to_user`, 51% of RX CPU, cold DRAM reads) — proven by `perf` and the `recv(MSG_TRUNC)`
-ceiling test (RX −P2 481 = 96% of goal without the copy). The open RX lever is **DDIO /
-allocate-on-DMA-write** (warm the copy's reads) — see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)
-and task #15. Refuted along the way: depth-2 interconnect, grow-L2-past-64 KB, software prefetch,
-BRAM scratchpad (see [`../CHANGELOG.md`](../CHANGELOG.md)). Reader prefetch stays **refuted**².
+**Status vs goal (>500):** **TX ✅ done (−P2 525–536). RX = 316 — and RX > 500 is a HARD GOAL:
+the campaign does not close without it** (goal reasserted 2026-07-09 evening). Position: the RX
+wall is the **recv payload copy** (`copy_to_user`, ~35–51 % of RX CPU, cold DRAM reads, perf-
+proven); the `recv(MSG_TRUNC)` ceiling says the *rest* of the stack tops at **481** — so **no
+copy trick alone can cross 500**: the path must both close the copy tax *and* raise the stack
+ceiling. Refuted (measured, do not retry): page-flip zero-copy recv (flip 44.9 vs copy 25.0
+µs/page), BRAM stash (residency 1–3 MB), *unscoped* shared-L2 DDIO at default rmem (pollution),
+depth-2 interconnect, L2 > 64 KB for capacity, software prefetch, deeper LiteDRAM cmd queues.
 1 Gbit/s remains the stretch. UDP is a separate (offload) problem. Every step measured on silicon.
+
+## The path to RX > 500 (forced march — each phase gated by silicon numbers)
+
+Budget logic: `RX = min(stack-ceiling, stack-ceiling − copy-tax)`. Today: ceiling 481 (MSG_TRUNC),
+copy-tax ≈ 165 (481−316). 500 requires ceiling ≈ 550+ *and* copy-tax ≤ ~50. Three stacked phases:
+
+| phase | lever | why the refuted-list doesn't block it | gate (measure!) | expected |
+|---|---|---|---|---|
+| **R1 — warm copy** (days, sw + existing bitstreams) | **`build_ddio` (exists) + SMALL receive queue** (`tcp_rmem`/`SO_RCVBUF` ≈ 24–48 KB/flow) + low `rx-usecs` (small BDP needs small RTT; threaded=0). The DDIO flat result was measured at **default rmem = 1–3 MB Recv-Q** — residency was impossible *by configuration*. Cap the queue so in-flight payload **fits the 64 KB L2**, and allocate-on-DMA-write finally lands warm for a copy that runs at L2 speed (~5 µs/page vs 25). Sub-options: 96 KB L2 rebuild (new justification: residency headroom, not capacity), completion-IRQ NAPI (T2, re-entered: cuts RTT → smaller BDP → tighter cap without throttling). | DDIO was never measured with a bounded residency window | perf copy-share < 25 %; **RX −P2 ≥ 380** | 316 → 380–450 |
+| **R2 — raise the ceiling: RSC multi-slot** (RTL + driver, sim-first vs `test_ring_bd.py`) | Kill **park (58–66 % of aggregate closes)** — the single aggregate slot forces early closes whenever flows interleave. 2–4 slots/queue + longer `rsc_tout` ⇒ aggregates 2–3× larger ⇒ fewer skbs/GRO merges/BD reaps per byte — this **raises the 481 no-copy ceiling itself** (and cuts with-copy cost the same way). Buffers are DRAM-side (`KL_RSC_BUFSZ` is a driver alloc) — 0 BRAM. | park% is a measured counter (`rsc_close park=…`), not a hypothesis | park < 10 %; **MSG_TRUNC −P2 ≥ 550**; TCP −P2 ≥ 450 with R1 | ceiling 481 → ~550+; TCP → 450–520 |
+| **R3 — clock 112.5 MHz** (1 build, final mile) | +4–8 % measured system-wide. The earlier "stay at 100" was a *convenience* call — its blocker (QSPI CRC) is already fixed (1×-SPI, `a80c955`; reader-Buffer `d35f666` closes timing) | it was deprioritized, never refuted | WNS ≥ 0, QSPI boot clean, §V; **RX −P2 ≥ 500** | ×1.04–1.08 ⇒ crossing margin |
+
+Fallbacks if a gate fails: R1-miss → 96 KB-L2 residency rebuild, then RX-scoped `allocateOnMiss`
+(only the RX writer's Puts, not all DMA); R2-miss → per-flow aggregate hashing instead of slots;
+final-mile-miss → `AF_PACKET` `PACKET_RX_RING` demonstrator (copy-free by design, the real AVTP
+path) recorded *alongside* — but the socket-TCP number remains the goal of record.
 
 ## R0 baseline (signed, 2026-07-08, `build_dp100_m1` WNS +0.056 — CAMPAIGN_500_PLAN)
 
