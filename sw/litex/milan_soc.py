@@ -505,7 +505,7 @@ class RingDMAWriter(LiteXModule):
       base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
     """
     def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16,
-                 n_slots=4, cq_depth=8):
+                 n_slots=4, cq_depth=8, hs_capable=True):
         self.bus  = bus                 # axi.AXIInterface(data_width=64), byte-addressed
         self.sink = sink = stream.Endpoint([("data", 64), ("keep", 8)])
 
@@ -925,7 +925,12 @@ class RingDMAWriter(LiteXModule):
         self.hs_en = CSRStorage(1, description="Header-split mode (driver must post 4 KB pages + set hs_hdr_base).")
         self.hs_hdr_base = CSRStorage(64, description="Header ring base (32 x 128 B, coherent). Opener header lands at slot v2.w0[63:59].")
         hs = Signal()
-        self.comb += hs.eq(self.hs_en.storage & bd_mode & self.rsc_en.storage)
+        # hs_capable=False (2nd queue) forces hs=0 so synthesis prunes the header-split
+        # datapath + HS_* states — the CSRs stay (map-stable) but the area is gone,
+        # relieving the datapath congestion that the full 2-queue hs build hit (mac_cam
+        # WNS -0.105). q0-only hs is the first-silicon proof vehicle.
+        self.comb += hs.eq(C(1 if hs_capable else 0) & self.hs_en.storage &
+                           bd_mode & self.rsc_en.storage)
         hdr_ctr = Signal(5)             # free-running header-slot allocator (32 slots:
                                         # outstanding v2s are BD-ring/pool bounded < 32)
         hw_cnt  = Signal(4)             # header-write beat counter (fbeat stays for payload)
@@ -2766,7 +2771,8 @@ class MilanDMA(LiteXModule):
         if rx_queues >= 2:
             self.steer = RxSteer()
             self.rx1 = RingDMAWriter(axi.AXIInterface(data_width=data_width,
-                                                      address_width=32, id_width=4))
+                                                      address_width=32, id_width=4),
+                                     hs_capable=False)   # q0-only header-split (area/timing)
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
