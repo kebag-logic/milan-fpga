@@ -5,6 +5,32 @@
 picks the lever by measurement, because the candidate fixes range from a 1-hour L2 rebuild to
 a weeks-long coherency-path RTL change. Same rule as the parent: no big build on a hunch.*
 
+## PERF VERDICT (2026-07-09) — the RX wall is the recv payload copy, measured
+
+Cross-compiled `perf` (from `linux-7.0.11/tools/perf`, wget to board, symbols via host
+`System.map` since `CONFIG_KALLSYMS` is off for flash-fit) and profiled RX −P2. **The 2-hart
+aggregate is CPU-bound (harts 98 % busy, ~99 % in-kernel) and dominated by the recv payload
+copy:**
+
+```
+recv() → tcp_recvmsg → skb_copy_datagram_iter →
+    simple_copy_to_iter .................. 41.7 %   (copy_to_user, plain scalar)
+    fallback_scalar_usercopy_sum_enabled .. 9.2 %   (csum+copy scalar path)
+                                          ─────────
+                              ≈ 51 % of RX −P2 CPU
+```
+
+RISC-V here has **no vector extension** (`CONFIG_RISCV_ISA_V` off, VexiiRiscv "linux"), so the
+copy takes the scalar path — but the arithmetic (≈18 cyc / 8-byte word) shows it is **stalling
+on cold DRAM reads of the DMA'd payload** (first CPU touch = miss), *not* compute-bound. This is
+the SAME cold miss the RPT prefetcher hides (why `mlp2` single jumped +34 %) and that THP already
+halved on the TLB side (`linux.fragment` THP note). **So the interconnect hypothesis is refuted**
+(the RX *writer* `outhi` caps at 2 with ~30× headroom — not the bottleneck); the wall is the
+copy's cold reads, and the aggregate is capped ~300 by two harts contending the shared memory
+path. **The only lever that removes it is zero-copy recv** (task #14) — the prefetcher/L2/THP
+only *speed* the copy, they cannot delete it. `perf` is now in the defconfig + wget-able for
+future measurement.
+
 ## The measured wall
 
 | fact | value | source |
