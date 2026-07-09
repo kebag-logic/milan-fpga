@@ -53,6 +53,18 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
 - perf on the L2-deep board re-confirmed **not software**: self-time ~35 % = the payload copy's
   scalar word-loop (cold reads); scheduling ~4 % + locks ~1.3 % minor.
 
+### Copy-removal endgame (measured 2026-07-09) — 481 unreachable via the socket API
+- **Zero-copy recv contract** (from `net/ipv4/tcp.c can_map_frag()`): frags must be **order-0, exactly
+  4 KB, offset 0, `page->mapping==NULL`** — kl-eth's 16 KB compound RSC pages can never flip, and the
+  loopback "0 %" pre-test was an artifact (pagecache frags always have `mapping` set).
+- **`mapbench` (on-silicon, `tools_mapbench.c`)**: cold-copy 4 KB = **25.0 µs/page**; map-cycle
+  (fault + PTE + `MADV_DONTNEED` zap) = **44.9 µs/page** → **page-flipping costs ~1.8× the copy**
+  on this 100 MHz sv39 core. Even batched `vm_insert_pages` (~10–15 µs/page optimistic) saves ≤ half
+  the copy → ~380–420 best-case, never 481 — for multi-day RTL+driver+app changes. **REFUTED.**
+- **Final RX verdict: ~316 is the practical socket-TCP ceiling on this SoC.** 481 needs consumers
+  that never materialize payload via `recv()` (MSG_TRUNC-class, `AF_PACKET` mmap rings) — which is
+  exactly how the real AVTP media path works (`PACKET_RX_RING`), so AVB is unaffected by the wall.
+
 ### Rejected / refuted levers (measured, not assumed)
 - **112.5 MHz clock** (`757b727`,`d6a0b45`): closed timing but only +4–8 %; not worth boot fragility → stayed 100 MHz.
 - **Dedicated network *scratchpad*** (`c7e4db2`): RX buffers already in DRAM (0 BRAM) → a scratchpad *adds* BRAM; kernel-owned state can't be relocated. *But* the related **DDIO/allocate-on-DMA-write** idea was later vindicated by perf (task #15).
