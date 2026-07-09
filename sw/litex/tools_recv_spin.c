@@ -18,7 +18,7 @@
 #include <sched.h>
 int main(int c, char **v)
 {
-	if (c < 3) { fprintf(stderr, "usage: %s ip port [cport] [secs] [rcvbuf] [trunc] [cpu]\n", v[0]); return 1; }
+	if (c < 3) { fprintf(stderr, "usage: %s ip port [cport] [secs] [rcvbuf] [trunc] [cpu] [rdsz]\n", v[0]); return 1; }
 	if (c > 7 && atoi(v[7]) >= 0) {
 		cpu_set_t s; CPU_ZERO(&s); CPU_SET(atoi(v[7]), &s);
 		sched_setaffinity(0, sizeof(s), &s);
@@ -37,11 +37,14 @@ int main(int c, char **v)
 	if (connect(fd, (void *)&a, sizeof a)) { perror("connect"); return 1; }
 	double secs = c > 4 ? atof(v[4]) : 8.0;
 	static char buf[262144];
+	size_t rdsz = sizeof buf;
+	if (c > 8 && atoi(v[8]) > 0 && (size_t)atoi(v[8]) <= sizeof buf)
+		rdsz = atoi(v[8]);
 	long tot = 0, spins = 0, reads = 0;
 	struct timespec t0, t1;
 	clock_gettime(CLOCK_MONOTONIC, &t0);
 	for (;;) {
-		ssize_t n = recv(fd, buf, sizeof buf, MSG_DONTWAIT | trunc);
+		ssize_t n = recv(fd, buf, rdsz, MSG_DONTWAIT | trunc);
 		if (n > 0) { tot += n; reads++; }
 		else if (n < 0 && errno == EAGAIN) { if ((++spins & 1023) != 0) continue; }
 		else break;
