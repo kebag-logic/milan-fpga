@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 /* Busy-polling TCP receiver: real recv() copies (or MSG_TRUNC), no sleep-wake in the
  * drain loop, optional SO_RCVBUF cap (bounded residency for warm-copy tests).
  * usage: recv_spin ip port [cport] [secs] [rcvbuf] [trunc]
@@ -13,9 +14,15 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
+#define _GNU_SOURCE2
+#include <sched.h>
 int main(int c, char **v)
 {
-	if (c < 3) { fprintf(stderr, "usage: %s ip port [cport] [secs] [rcvbuf] [trunc]\n", v[0]); return 1; }
+	if (c < 3) { fprintf(stderr, "usage: %s ip port [cport] [secs] [rcvbuf] [trunc] [cpu]\n", v[0]); return 1; }
+	if (c > 7 && atoi(v[7]) >= 0) {
+		cpu_set_t s; CPU_ZERO(&s); CPU_SET(atoi(v[7]), &s);
+		sched_setaffinity(0, sizeof(s), &s);
+	}
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (c > 3 && atoi(v[3])) {
 		struct sockaddr_in l = {0}; l.sin_family = AF_INET; l.sin_port = htons(atoi(v[3]));

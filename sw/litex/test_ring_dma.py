@@ -75,6 +75,10 @@ class Harness:
                         yield
                     _d = (yield bus.w.data)
                     _st = (yield bus.w.strb)
+                    if addr + 8 * got >= 0x200000:     # BD-region write log (R2 debug)
+                        if not hasattr(self, 'bdlog'):
+                            self.bdlog = []
+                        self.bdlog.append((addr + 8 * got, _d))
                     if _st == 0xFF:
                         self.mem[addr + 8 * got] = _d
                     else:                          # partial write: merge by strb

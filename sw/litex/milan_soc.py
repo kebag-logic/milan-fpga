@@ -723,6 +723,20 @@ class RingDMAWriter(LiteXModule):
             _hi = If(slot_hit[i], hit_idx.eq(i)).Else(_hi)
             _fi = If(~s_open[i], free_idx.eq(i)).Else(_fi)
         self.comb += [_hi, _fi]
+        # MATCH pipeline stage (timing): the wide per-slot compares + priority encodes
+        # + slot-field muxes fed DISPATCH's branch select as one cone (physopt named
+        # agg_match/state_reg among the -1.2ns violators). A 1-cycle MATCH state
+        # registers them; DISPATCH consumes registers only. Slot state cannot change
+        # between MATCH and DISPATCH (the FSM is sequential), and every re-dispatch
+        # path re-enters through MATCH so freshly-freed slots are re-evaluated.
+        m_hit      = Signal()
+        m_hit_idx  = Signal(max=max(NS, 2))
+        m_free_any = Signal()
+        m_free_idx = Signal(max=max(NS, 2))
+        m_flow_any = Signal()
+        m_flow_idx = Signal(max=max(NS, 2))
+        m_sel_off  = Signal(16)
+        m_sel_buf  = Signal(32)
         # per-slot timers: idle (touch-reset) + lifetime age (never reset while open).
         # Idle close keeps latency bounded when a flow stops; the age cap bounds the CQ
         # head-of-line hold a slow-trickle flow could otherwise stretch to ~segcap*tout.
@@ -795,27 +809,38 @@ class RingDMAWriter(LiteXModule):
         cq_of_exp  = Signal(CQB)
         cq_of_head = Signal(CQB)
         cq_of_vic  = Signal(CQB)
-        cq_of_flow = Signal(CQB)
+        cq_of_mflow = Signal(CQB)
         cq_of_sel  = Signal(CQB)
         self.comb += [
             cq_of_exp.eq(s_cq[exp_idx]),
             cq_of_head.eq(s_cq[head_slot]),
             cq_of_vic.eq(s_cq[victim]),
-            cq_of_flow.eq(s_cq[flow_idx]),
+            cq_of_mflow.eq(s_cq[m_flow_idx]),
             cq_of_sel.eq(s_cq[slot_sel]),
         ]
-        def close_slot(k, cqi, extra_segs=0):
-            """fill slot k's CQ entry (index pre-resolved in `cqi`) with the v2 BD meta
-            + free the slot. seq/drops are patched at drain (WB_W) so they stay live."""
-            return [NextValue(cq_w0[cqi],
+        # v2-close staging (timing): the close cone {slot-field mux(k) + adders -> 64b
+        # Cat -> CQ-entry demux(cqi)} failed 100 MHz as one cycle (route WNS -1.2, all
+        # violators cq_w1*). stage_close() registers the finished meta + target index;
+        # the 1-cycle CQ_FILL state then does the short reg->demux write. Closes are
+        # per-aggregate (rare), so the extra cycle is noise.
+        meta_w0  = Signal(64)
+        meta_w1  = Signal(64)
+        meta_cqi = Signal(CQB)
+        cqf_ret_match = Signal()        # CQ_FILL exit: 1 = re-dispatch (MATCH), 0 = IDLE
+        def stage_close(k, cqi, ret_match, extra_segs=0):
+            """stage slot k's v2 BD meta (index pre-resolved in `cqi`) + free the slot;
+            CQ_FILL commits it next cycle. seq/drops are patched at drain (WB_W)."""
+            return [NextValue(meta_w0,
                         Cat(C(0xBD, 8), C(0, 8), s_off[k], s_mss[k], C(0, 8),
                             Cat(C(1, 1), s_psh[k], C(0, 6)))),
-                    NextValue(cq_w1[cqi],
+                    NextValue(meta_w1,
                         Cat(s_ack[k], s_win[k], s_segs[k], Cat(C(0, 2), s_doff[k]), C(0, 2))),
-                    NextValue(cq_done[cqi], 1),
+                    NextValue(meta_cqi, cqi),
+                    NextValue(cqf_ret_match, ret_match),
                     NextValue(s_open[k], 0),
                     NextValue(v2_cnt, v2_cnt + 1),
-                    NextValue(v2_segs, v2_segs + s_segs[k] + extra_segs)]
+                    NextValue(v2_segs, v2_segs + s_segs[k] + extra_segs),
+                    NextState("CQ_FILL")]
         # append-path registers (set at DISPATCH — keeps cones off the data path)
         ap_append = Signal()            # this frame appends payload-only
         ap_arm    = Signal()            # this frame opens an aggregate at WAIT_B
@@ -1107,12 +1132,12 @@ class RingDMAWriter(LiteXModule):
                 ).Else(
                     NextValue(close_tout, close_tout + 1),
                 ),
-                *close_slot(exp_idx, cq_of_exp),
+                *stage_close(exp_idx, cq_of_exp, 0),
             ).Elif(bd_mode & cq_pressure,
                 # CQ backpressure: the head entry's slot is still open while the queue
                 # fills behind it — force-close it so completions keep flowing.
                 NextValue(close_prs, close_prs + 1),
-                *close_slot(head_slot, cq_of_head),
+                *stage_close(head_slot, cq_of_head, 0),
             ).Elif(len_fifo.source.valid & bd_mode,
                 # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
                 len_fifo.source.ready.eq(1),
@@ -1161,7 +1186,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(hdr_reg[hdr_cnt], data_fifo.source.data),
                 NextValue(hdr_cnt, hdr_cnt + 1),
                 If(hdr_cnt == hdr_take - 1,
-                    NextState("DISPATCH"),
+                    NextState("MATCH"),
                 )
             )
         )
@@ -1171,12 +1196,23 @@ class RingDMAWriter(LiteXModule):
         ap_outb = Signal(12)            # output beats for the append
         self.comb += [
             s_lane.eq(p_soff[:3]),
-            r_lane.eq(sel_off[:3]),     # matched slot's buffer fill point
+            r_lane.eq(m_sel_off[:3]),   # matched slot's fill point (registered at MATCH)
             ap_outb.eq((r_lane + p_plen + 7)[3:]),
         ]
         tl_lane   = Signal(3)
-        self.comb += tl_lane.eq((sel_off + p_plen - 1)[:3])
+        self.comb += tl_lane.eq((m_sel_off + p_plen - 1)[:3])
 
+        fsm.act("MATCH",          # register the slot-selection cones (timing stage)
+            NextValue(m_hit, agg_match),
+            NextValue(m_hit_idx, hit_idx),
+            NextValue(m_free_any, free_any),
+            NextValue(m_free_idx, free_idx),
+            NextValue(m_flow_any, flow_any),
+            NextValue(m_flow_idx, flow_idx),
+            NextValue(m_sel_off, sel_off),
+            NextValue(m_sel_buf, sel_buf),
+            NextState("DISPATCH"),
+        )
         fsm.act("DISPATCH",
             If(self.rsc_en.storage & p_mack,
                 # pure-ACK run: replace-in-place (cumulative ack), open, or flush
@@ -1197,11 +1233,11 @@ class RingDMAWriter(LiteXModule):
                     # so the newcomer replaces it and the old one counts as dropped.
                     *(ack_capture() + [NextValue(drops, drops + 1), NextState("IDLE")])
                 )
-            ).Elif(agg_match,
+            ).Elif(m_hit,
                 # payload-only append into the matched slot's buffer
                 NextValue(ap_append, 1),
                 NextValue(ap_arm, 0),
-                NextValue(slot_sel, hit_idx),
+                NextValue(slot_sel, m_hit_idx),
                 NextValue(ap_p, s_lane - r_lane),
                 NextValue(ap_pass, s_lane == r_lane),
                 NextValue(ap_prime, s_lane > r_lane),
@@ -1211,28 +1247,28 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
                 NextValue(fbeat, p_soff[3:]),
                 NextValue(rem_r, ap_outb),
-                NextValue(off_r, Cat(C(0, 3), sel_off[3:])),
-                NextValue(buf_addr_r, sel_buf),
+                NextValue(off_r, Cat(C(0, 3), m_sel_off[3:])),
+                NextValue(buf_addr_r, m_sel_buf),
                 NextState("APRIME"),
-            ).Elif(flow_any,
+            ).Elif(m_flow_any,
                 # same-flow seq-gap / buffer-full: close that slot now (frame stays
                 # parked in hdr_reg and re-dispatches into a fresh aggregate)
                 NextValue(close_park, close_park + 1),          # M1 telemetry
-                *close_slot(flow_idx, cq_of_flow),
-            ).Elif(p_eligible & self.rsc_en.storage & ~free_any,
+                *stage_close(m_flow_idx, cq_of_mflow, 1),
+            ).Elif(p_eligible & self.rsc_en.storage & ~m_free_any,
                 # all slots busy: park-close the round-robin victim (1-cycle CQ fill),
                 # then this frame re-dispatches into the freed slot. This is the only
                 # interleave park left — expect it rare (slots >= concurrent flows).
                 NextValue(close_park, close_park + 1),          # M1 telemetry
                 NextValue(victim, victim + 1),
-                *close_slot(victim, cq_of_vic),
+                *stage_close(victim, cq_of_vic, 1),
             ).Elif(post_fifo.source.valid & cq_room,
                 post_pop.eq(1),
                 *cq_alloc(),
                 NextValue(buf_addr_r, post_fifo.source.addr),
                 NextValue(ap_append, 0),
                 NextValue(ap_arm, p_eligible),      # open an aggregate at WAIT_B
-                NextValue(slot_sel, free_idx),
+                NextValue(slot_sel, m_free_idx),
                 NextValue(ap_first, 0),
                 NextState("PREP"),
             ).Else(
@@ -1249,6 +1285,16 @@ class RingDMAWriter(LiteXModule):
                 )
             )
         )
+        fsm.act("CQ_FILL",         # commit the staged v2 BD meta (reg -> demux only)
+            NextValue(cq_w0[meta_cqi], meta_w0),
+            NextValue(cq_w1[meta_cqi], meta_w1),
+            NextValue(cq_done[meta_cqi], 1),
+            If(cqf_ret_match,
+                NextState("MATCH"),    # parked frame re-dispatches on fresh slot state
+            ).Else(
+                NextState("IDLE"),
+            )
+        )
         fsm.act("ACK_POP",              # pending-ACK flush: needs a posted buffer
             If(post_fifo.source.valid,
                 post_pop.eq(1),
@@ -1261,7 +1307,7 @@ class RingDMAWriter(LiteXModule):
                 If(ack_ret,
                     NextValue(frame_beats, nc_beats),   # restore parked newcomer
                     NextValue(frame_csum, nc_csum),
-                    NextState("DISPATCH"),
+                    NextState("MATCH"),
                 ).Else(
                     NextState("IDLE"),
                 )
@@ -1386,15 +1432,16 @@ class RingDMAWriter(LiteXModule):
                     slot_touch_sel.eq(1),                # reset the slot's idle timer
                     NextValue(ap_append, 0),
                     If(p_flags[3] | (s_segs[slot_sel] == self.rsc_segcap.storage),
-                        # close with THIS frame folded in (CQ fill, 1 cycle, no WB trip)
-                        NextValue(cq_w0[cq_of_sel],
+                        # close with THIS frame folded in — staged via CQ_FILL (timing)
+                        NextValue(meta_w0,
                             Cat(C(0xBD, 8), C(0, 8), (s_off[slot_sel] + p_plen)[:16],
                                 s_mss[slot_sel], C(0, 8),
                                 Cat(C(1, 1), s_psh[slot_sel] | p_flags[3], C(0, 6)))),
-                        NextValue(cq_w1[cq_of_sel],
+                        NextValue(meta_w1,
                             Cat(p_ack, p_win, (s_segs[slot_sel] + 1)[:8],
                                 Cat(C(0, 2), s_doff[slot_sel]), C(0, 2))),
-                        NextValue(cq_done[cq_of_sel], 1),
+                        NextValue(meta_cqi, cq_of_sel),
+                        NextValue(cqf_ret_match, 0),
                         NextValue(s_open[slot_sel], 0),
                         # M1 telemetry: s_segs is pre-increment here → final = +1
                         If(p_flags[3],
@@ -1404,7 +1451,7 @@ class RingDMAWriter(LiteXModule):
                         ),
                         NextValue(v2_cnt, v2_cnt + 1),
                         NextValue(v2_segs, v2_segs + s_segs[slot_sel] + 1),
-                        NextState("IDLE"),
+                        NextState("CQ_FILL"),
                     ).Else(
                         NextValue(s_off[slot_sel], s_off[slot_sel] + p_plen),
                         NextValue(s_eseq[slot_sel], s_eseq[slot_sel] + p_plen),
@@ -1427,7 +1474,7 @@ class RingDMAWriter(LiteXModule):
                         If(ack_ret,
                             NextValue(frame_beats, nc_beats),
                             NextValue(frame_csum, nc_csum),
-                            NextState("DISPATCH"),
+                            NextState("MATCH"),
                         ).Else(
                             NextState("IDLE"),
                         )
