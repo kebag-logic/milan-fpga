@@ -1,5 +1,7 @@
 # Latency & memory investigation — why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded — for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../CHANGELOG.md). Numbers and "next steps" below are historical.
+
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
 (`192.168.127.2`) · **Load:** iperf3, MTU 1500 · **Driver:** `kl-eth` (IRQ-less polled rings).

@@ -1,5 +1,7 @@
 # CBS default-shaping bug — reset config paced ALL best-effort TX at 300 Mb/s [FIXED]
 
+> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded — for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../CHANGELOG.md). Numbers and "next steps" below are historical.
+
 *Found 2026-07-08 during the >500 Mbit/s campaign, by following the datapath-input
 probe's 39–42 % `stall` to its source instead of assuming it; verified live on silicon
 with two devmem writes; **fixed** the same night (`CBS_EN_RST = 4'b0000`, commit

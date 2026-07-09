@@ -1,5 +1,7 @@
 # RX fan-out & the TX throughput ceiling (2026-07-07)
 
+> ⚠️ **Point-in-time snapshot (2026-07-07).** Superseded — for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../CHANGELOG.md). Numbers and "next steps" below are historical.
+
 Campaign to raise best-effort TCP throughput on the fully-FPGA dual-VexiiRiscv Milan NIC
 (Alinx AX7101, 2×RV64 @100 MHz, 50 MHz datapath, MTU 1500 everywhere). Four efforts:
 hardware TSO, a profiled single-flow ceiling investigation, a two-queue RX fan-out, and a

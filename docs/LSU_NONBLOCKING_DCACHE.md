@@ -243,7 +243,8 @@ pointer-chase L2 cliff. Splits verified by steer counters.
   one-at-a-time, so 8 empty slots with no filler = the blocking case. The slots cost **0 BRAM**
   (mlp1 == m1 at 102.5 tiles) and close timing (+0.118) — but capacity for MLP isn't MLP.
 - **Adding the RPT prefetcher is a large single-flow win** (mlp2 vs mlp1, same 32 KB L2): **single
-  198→276 (+39 %)**, −P2 229→246 (+7 %). The prefetcher *fills* the slots — it learns the stride of
+  198→276 (+39 % here; mlp1's 198 was an anomalous dip — vs the 207 baseline the canonical RPT gain
+  is +34 %)**, −P2 229→246 (+7 %). The prefetcher *fills* the slots — it learns the stride of
   the sequential payload copy (the dominant RX DRAM traffic) and prefetches ahead, hiding the cold
   miss. It helps single hugely (bandwidth spare) and −P2 modestly (2-hart is more shared-resource
   bound). Cost: **+2 BRAM tiles** for the RPT table (104.5), still **6 below l2x2**. Timing closes
@@ -263,17 +264,19 @@ dipped to 259 (the 64 KB L2's slightly higher hit latency); −P2 still shows **
 under 2-hart load — the prefetcher's speculative traffic still stresses the rings, so a gentler
 `--lsu-rpt-block-ahead-max` is the next tuning knob to cut drops and push −P2 higher.
 
-**The 2-hart aggregate is still the wall for >500.** Every lever moved it a little (238→280→298)
-but it scales only ~1.15–1.35× over single — a *shared-resource* ceiling (L2 bandwidth /
-depth-2 DMA interconnect / effective DRAM latency), not per-hart CPU. Reaching >500 needs either
-more parallelism (a 3rd rx queue+hart — the refill slots being FF-cheap helps the budget) or fewer
-memory touches per byte (bigger RSC aggregates to cut the drops and per-frame cost) — both
-follow-on work beyond this D$ study.
+**What actually caps RX (measured after this study, `perf` 2026-07-09).** mlp3's 298 is not an
+interconnect or "shared-resource" ceiling — `perf` shows RX −P2 is **CPU-bound** (harts 98 % busy)
+and **51 % of that is the recv payload copy** (`copy_to_user`), which stalls on **cold DRAM reads**
+of the DMA'd payload. The `recv(MSG_TRUNC)` ceiling test (drains without the copy) reaches −P2 **481**
+= 96 % of the 500 goal. So the RPT prefetcher here is *exactly* the right kind of lever (it hides
+that same cold read for single-flow); the −P2 case just needs the read to be a **hit**, which is
+what **DDIO / allocate-on-DMA-write** does (task #15). The earlier "depth-2 interconnect / more
+parallelism / fewer touches" framing is superseded — see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
 
 **Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
-not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+39 % single); the
-aggregate lever (L2, +8 tiles) costs BRAM. There is no free lunch for the 2-hart aggregate — it is
-shared-resource bound, and buying it back costs either L2 BRAM or a datapath/interconnect change.
+not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+34 % single); the
+capacity lever (64 KB L2, +8 tiles) buys the −P2 headroom. The next RX gain is not more cache — it
+is landing the DMA payload warm (DDIO) so the copy stops reading DRAM cold.
 
 ---
 

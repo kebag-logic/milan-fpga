@@ -29,7 +29,7 @@ Documentation for the Milan TSN FPGA network interface (and its evolution toward
 | [AVB_SWITCH_DIRECTION.md](AVB_SWITCH_DIRECTION.md) | **The current direction: endpoint → 4-port GMII-copper AVB switch** (MTU fixed 1500) — where the AVTP/TSO/RSC hooks land, the all-fabric forwarding plane, the memory-bandwidth reality, the full decision matrix (C/S/I tracks) and the measured production scoreboard. Diagram: [AVB_SWITCH_DIRECTION.svg](AVB_SWITCH_DIRECTION.svg) ([.drawio](AVB_SWITCH_DIRECTION.drawio)). |
 | [FULLY_FPGA_RISCV_MIGRATION.md](FULLY_FPGA_RISCV_MIGRATION.md) | The deep, step-numbered migration plan (§A.x parts: DDR, clocking, CSR, DMA, MAC, IRQ, wrapper, boot, driver, DT). |
 | [CPPI_DMA_REDESIGN.md](CPPI_DMA_REDESIGN.md) | **The DMA/MAC memory-architecture plan + the running perf-campaign log** — the TI-CPSW-style BD-RAM/cut-through/zero-copy plan (2026-07-05) plus dated silicon addenda: BD zero-copy RX bring-up, TX-BD v1/v2/v2b (zero-copy realign + HW checksum-insert, verified 4 ways), and the **2026-07-07 campaign** (dual-hart SMP +66 % TX, the three-copies tick-profile → copybreak/page-frag RX 25→45.6, the TX-stall verdict). |
-| [HW_GRO_RSC.md](HW_GRO_RSC.md) | **HW-GRO/RSC — receive-side coalescing in the RX BD engine** (2026-07-07, the active ≥200 Mbit/s workstream): merge rules, BD-v2 format, write-side realign, driver contract, sim plan — plus the implementation status (**phases A+B done, 14/14 sims** incl. the alignment sweep, as-built divergences documented). |
+| [HW_GRO_RSC.md](HW_GRO_RSC.md) | **HW-GRO/RSC — receive-side coalescing in the RX BD engine** (2026-07-07, an early ≥200 Mbit/s workstream (now part of the >500 campaign — see RX_TX_PERFORMANCE.md)): merge rules, BD-v2 format, write-side realign, driver contract, sim plan — plus the implementation status (**phases A+B done, 14/14 sims** incl. the alignment sweep, as-built divergences documented). |
 | [AXIS_CORES_ON_NAXRISCV.md](AXIS_CORES_ON_NAXRISCV.md) | How to attach AXI-Stream cores to the NaxRiscv SoC (control/data/event planes). |
 | [OPEN_SOURCE_MIGRATION.md](OPEN_SOURCE_MIGRATION.md) | Track 1 (de-Xilinx): vendored `verilog-axis`, XPM removal, Yosys/ECP5 portability checks. |
 
@@ -59,6 +59,15 @@ Documentation for the Milan TSN FPGA network interface (and its evolution toward
 Chronological; each is a full "symptom → measurement chain → root cause → fix →
 verification" write-up with a one-picture diagram. Read these to learn how this
 system is debugged.
+
+> **▶ The >500 Mbit/s RX+TX campaign (2026-07).** Start here: **[RX_TX_PERFORMANCE.md](RX_TX_PERFORMANCE.md)**
+> (current state, story, diagrams) + **[../CHANGELOG.md](../CHANGELOG.md)** (per-lever measured effect,
+> with [perf_campaign.svg](perf_campaign.svg)). Deep dives: [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md)
+> (north star), [LSU_NONBLOCKING_DCACHE.md](LSU_NONBLOCKING_DCACHE.md) (non-blocking D$ + RPT prefetcher),
+> [RX_MEMORY_HIERARCHY_PLAN.md](RX_MEMORY_HIERARCHY_PLAN.md) (cold-vs-capacity → DDIO),
+> [RX_FANOUT_AND_TX_CEILING.md](RX_FANOUT_AND_TX_CEILING.md), [RX_OVERLOAD_WEDGE.md](RX_OVERLOAD_WEDGE.md),
+> [CBS_DEFAULT_SHAPING_BUG.md](CBS_DEFAULT_SHAPING_BUG.md). Diagrams in [diagrams/](diagrams/).
+> **Result: TX crosses 500; RX 298 with a measured 481 ceiling → next lever DDIO.**
 
 | Document | Finding |
 |----------|---------|

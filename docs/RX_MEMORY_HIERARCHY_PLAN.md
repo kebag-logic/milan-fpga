@@ -1,5 +1,7 @@
 # RX memory-hierarchy plan — cold vs capacity, and the dedicated-network-cache decision
 
+> 📌 **The top sections (PERF VERDICT, Phase L2 RESULT) are current; the plan below is the 2026-07-08 cold-vs-capacity exploration.** Outcome: the wall is the recv copy's cold reads, and **DDIO (Branch B) is the chosen next lever — not deferred**. Current state: [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
+
 *Sub-plan of [`CAMPAIGN_500_PLAN.md`](CAMPAIGN_500_PLAN.md), opened 2026-07-08. RX at the
 2-hart fan-out ceiling is memory-bound; this plan disambiguates **which** memory problem and
 picks the lever by measurement, because the candidate fixes range from a 1-hour L2 rebuild to
