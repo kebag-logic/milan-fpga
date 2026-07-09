@@ -797,12 +797,13 @@ class RingDMAWriter(LiteXModule):
         self.comb += _hs
         cq_pressure = Signal()
         self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
+        cq_tail1 = Signal(CQB)          # (tail+1) as a plain Signal: Migen array WRITES
+        self.comb += cq_tail1.eq((cq_tail + 1)[:CQB])   # need non-computed indices
         cur_cq = Signal(CQB)            # CQ entry allocated by the in-flight pop
         def cq_alloc():
             """allocate the tail CQ entry for a buffer pop (call at post_pop sites)"""
             return [NextValue(cur_cq, cq_tail[:CQB]),
                     NextValue(cq_done[cq_tail[:CQB]], 0),
-                    NextValue(cq_hs[cq_tail[:CQB]], 0),
                     NextValue(cq_tail, cq_tail + 1)]
         # single-level comb hops for each close site's CQ index: cq_w0[s_cq[k]] would
         # nest one Array proxy inside another (k is a Signal) — resolve s_cq[k] into a
@@ -930,7 +931,8 @@ class RingDMAWriter(LiteXModule):
         hw_cnt  = Signal(4)             # header-write beat counter (fbeat stays for payload)
         s_cqm   = Array(Signal(CQB, name=f"s_cqm{i}") for i in range(NS))   # v2 meta CQ entry
         s_hidx  = Array(Signal(5,  name=f"s_hidx{i}") for i in range(NS))   # header slot
-        cq_hs   = Array(Signal(name=f"cq_hs{i}")      for i in range(CQD))  # entry uses hs drops6 layout
+        cq_hs   = Signal(CQD)           # per-entry hs-drop6-layout flag (bit-vector: the
+                                        # packed 1-bit Array miscompiled under FSM NextValue)
         pv3_cqi  = Signal(CQB)          # staged last-page v3 fill (closes emit v3 + meta)
         pv3_addr = Signal(32)
         pv3_pend = Signal()
@@ -1175,7 +1177,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
                 *([NextValue(s_open[i], 0) for i in range(NS)] +
                   [NextValue(cq_done[i], 0) for i in range(CQD)] +
-                  [NextValue(cq_hs[i], 0) for i in range(CQD)] +
+                  [NextValue(cq_hs, 0)] +
                   [NextValue(cq_head, 0), NextValue(cq_tail, 0), NextValue(victim, 0),
                    NextValue(pv3_pend, 0), NextValue(cqf_disc, 0), NextValue(hs_cross, 0)]),
                 NextValue(ack_open, 0), NextValue(ack_wb, 0),
@@ -1331,11 +1333,9 @@ class RingDMAWriter(LiteXModule):
                 # through the append rotator (s_lane = soff&7 -> r_lane = 0).
                 post_pop.eq(1),
                 NextValue(cur_cqm, cq_tail[:CQB]),
-                NextValue(cur_cq, (cq_tail + 1)[:CQB]),
+                NextValue(cur_cq, cq_tail1),
                 NextValue(cq_done[cq_tail[:CQB]], 0),
-                NextValue(cq_done[(cq_tail + 1)[:CQB]], 0),
-                NextValue(cq_hs[cq_tail[:CQB]], 0),
-                NextValue(cq_hs[(cq_tail + 1)[:CQB]], 0),
+                NextValue(cq_done[cq_tail1], 0),
                 NextValue(cq_tail, cq_tail + 2),
                 NextValue(cur_hidx, hdr_ctr),
                 NextValue(hdr_ctr, hdr_ctr + 1),
@@ -1385,13 +1385,13 @@ class RingDMAWriter(LiteXModule):
                     Cat(C(0xBD, 8), C(0, 46), pv3_tag, C(1, 1), C(0, 1), C(1, 1), C(0, 5))),
                 NextValue(cq_w1[pv3_cqi], pv3_addr),
                 NextValue(cq_done[pv3_cqi], 1),
-                NextValue(cq_hs[pv3_cqi], 1),
+                NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << pv3_cqi)) | (C(1, 1) << pv3_cqi)),
                 NextValue(pv3_pend, 0),
             ).Else(
                 NextValue(cq_w0[meta_cqi], meta_w0),
                 NextValue(cq_w1[meta_cqi], meta_w1),
                 NextValue(cq_done[meta_cqi], 1),
-                NextValue(cq_hs[meta_cqi], hs),
+                NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << meta_cqi)) | (hs << meta_cqi)),
                 If(cqf_disc & (disc != 0),
                     NextValue(cqf_disc, 0),
                     NextState("DISCARD"),
@@ -1487,13 +1487,12 @@ class RingDMAWriter(LiteXModule):
                 Cat(C(0xBD, 8), C(0, 46), slot_tag2, C(1, 1), C(0, 1), C(1, 1), C(0, 5))),
             NextValue(cq_w1[cur_cq], buf_addr_r),
             NextValue(cq_done[cur_cq], 1),
-            NextValue(cq_hs[cur_cq], 1),
+            NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << cur_cq)) | (C(1, 1) << cur_cq)),
             NextValue(ap_needswap, 0),
             If(post_fifo.source.valid & cq_room,
                 post_pop.eq(1),
                 NextValue(cur_cq, cq_tail[:CQB]),
                 NextValue(cq_done[cq_tail[:CQB]], 0),
-                NextValue(cq_hs[cq_tail[:CQB]], 0),
                 NextValue(cq_tail, cq_tail + 1),
                 NextValue(buf_addr_r, post_fifo.source.addr),
                 NextValue(off_r, 0),
@@ -1721,7 +1720,7 @@ class RingDMAWriter(LiteXModule):
             self.bus.w.data.eq(Mux(bd_mode,
                 Mux(wb_beat, cq_w1[cq_head[:CQB]],
                              cq_w0[cq_head[:CQB]] | (seq[:8] << 8) |
-                             Mux(cq_hs[cq_head[:CQB]],
+                             Mux((cq_hs >> cq_head[:CQB])[0],
                                  (drops6 << 48),          # hs BDs: 6-bit at [53:48]
                                  (drops[:8] << 48))),     # legacy: 8-bit at [55:48]
                 Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
@@ -1738,7 +1737,8 @@ class RingDMAWriter(LiteXModule):
                     NextValue(wr, (wr + 16) & self.mask.storage),
                     NextValue(seq, seq + 1),
                     NextValue(frames, frames + 1),
-                    NextValue(cq_done[cq_head[:CQB]], 0),   # retire the head entry
+                    NextValue(cq_done[cq_head[:CQB]], 0),   # retire: clear done+hs so
+                    NextValue(cq_hs, cq_hs & ~(C(1, CQD) << cq_head[:CQB])),  # reuse=legacy
                     NextValue(cq_head, cq_head + 1),
                     If(cq_more,                       # drain every ready successor now
                         NextState("WB_AW"),
