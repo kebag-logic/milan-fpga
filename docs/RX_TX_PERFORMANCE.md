@@ -85,8 +85,25 @@ code and wouldn't help the `copy_to_user` anyway). Two ways to beat it:
 
 This is the **"dedicated cache for the network"** idea from the very start of the campaign — first
 dismissed, then vindicated once `perf` showed the dominant cost is the copy's cold reads of the
-DMA'd payload. VexiiRiscv's L2 has no allocate-on-DMA-write today, so this is a coherency-path RTL
-change (or a stash cache on the `dma_bus`), sim-first — tracked as the open RX lever.
+DMA'd payload.
+
+**MEASURED on silicon (2026-07-09).** Good news first: VexiiRiscv's coherent L2 (SpinalHDL
+`tilelink.coherent.Cache`) *already has* an `allocateOnMiss` policy hook, and its opcodes include
+the DMA write (`PUT_FULL_DATA`) — so shared-L2 DDIO is **a one-line config, not weeks of RTL**
+(wired as `--l2-ddio`; `build_ddio` closed timing at the same WNS +0.102 and 0 extra BRAM). The
+bad news: **it didn't help** — RX −P2 ~300 (flat vs mlp3's 298), and single/−P4 dipped slightly.
+Allocating *every* DMA write into the 64 KB shared L2 **pollutes** the CPU's working set without
+**warming** the copy: under two harts streaming 16 KB payloads, each payload is **evicted before
+`copy_to_user` reads it** (the NAPI→recv gap). Scoping the allocate to RX-writer Puts would only
+recover the small regression, not fix the *residency* problem.
+
+**So DDIO on this SoC needs the payload to survive from DMA-write to copy-read**, which the shared
+L2 can't guarantee. That points at a **dedicated stash** (a small cache reserved for in-flight RX,
+not competing with the CPU/other DMA) — real RTL, and it still has to win the residency race — or
+the **header-split + app-zero-copy** path (a driver+HW change so `TCP_ZEROCOPY_RECEIVE` can
+page-flip; measured 0% today because the HW-RSC frag isn't page-aligned). Both are substantial.
+**The practical RX ceiling with tractable levers is mlp3's ~298**; the measured 481 says the
+headroom is real, but capturing it is a project, not a knob.
 
 ---
 
