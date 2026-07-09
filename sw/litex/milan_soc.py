@@ -3412,6 +3412,9 @@ def main():
     ap.add_argument("--load",  action="store_true", help="program the board over JTAG (openFPGALoader -c ft232)")
     ap.add_argument("--vivado-max-threads", type=int, default=min(os.cpu_count() or 1, 32),
                     help="max Vivado synth/place/route threads (set_param general.maxThreads; Vivado caps at 32)")
+    ap.add_argument("--place-directive", default=None,
+                    help="override the Vivado place directive (e.g. AltSpreadLogic_high "
+                         "to relieve congestion on a route-dominated critical path).")
     ap.add_argument("--timing-opt", action="store_true",
                     help="aggressive Vivado place/route/phys-opt directives to squeeze out "
                          "the last ns of setup slack (slower P&R; use when WNS is marginally "
@@ -3478,6 +3481,8 @@ def main():
         vivado_route_directive               = "Explore",
         vivado_post_route_phys_opt_directive = "AggressiveExplore",
     ) if args.timing_opt else {}
+    if args.place_directive:
+        build_kwargs["vivado_place_directive"] = args.place_directive
     # Use as many CPU cores as Vivado allows for synth/place/route (`set_param
     # general.maxThreads N`). Vivado caps this at 32 regardless of host cores, so
     # request min(cores, 32) — the rest of the box is idle during a single P&R run.
