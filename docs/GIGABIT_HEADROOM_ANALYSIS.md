@@ -52,7 +52,7 @@ wire means removing bytes from the socket path, not polishing it.**
 | R-1 | **Userspace data-plane on the existing BD ring** (UIO/mmap export of the completion-BD ring + posted buffers; DPDK-style poll-mode consumer; kernel keeps control-plane) | **toward 925** — the ring/buffer architecture already exists and measured 925 through a heavier path; no RTL | driver: UIO/mmap export + small user lib | high (arch exists; the 925 proves the HW side) |
 | R-2 | **AF_PACKET v3 RX_RING for the AVTP/Milan product path** | same class as R-1, standard ABI; copy-free by design | none in RTL; app-side | high — this is the real media path anyway |
 | R-3 | **HW header-split** (writer scatters payload across order-0 4 KB pages at offset 0, headers in a side ring; BD carries the page count) → unlocks `tcp_zerocopy_receive` / io_uring zero-copy RX for *socket TCP* | **MEASURED ENABLER (tonight): batched trap-free PTE moves = 1.22 µs/page vs copy 26.3 µs — 21.5× cheaper** (mremap ping-pong, mapbench mode C). The old refutation (48 µs "map-cycle") was a trap-per-page artifact; the real vm_insert_pages path pays no traps. Budget: copy 0.64 cy/B → ~0.03; socket TCP ~700–870 Mbit becomes arithmetically reachable at 100 MHz | RTL: writer 4 KB-scatter (AW/W already splits at 4 KB boundaries — geometry fits) + driver posts order-0 pages / multi-frag skbs + `tools_recv_zc.c` already exists for validation | **high** — enabler measured; remaining risk is the insert+zap syscall envelope (est. 3–5 µs/page batched, still 5–8× under copy) |
-| R-4 | rpt-block-ahead-max=8 (deeper copy prefetch; `build_r2rpt` in flight) | single-digit %: copy is 0.64 of 4.0 cy/B; halving copy stalls ⇒ ≤ ~8 % | done (build) | measured tonight (A/B pending) |
+| R-4 | ~~rpt-block-ahead-max=8~~ **MEASURED FLAT**: copy 27.04 vs 26.37 µs/4 KB, steady −P8 371–394 ≈ keeper — ahead=4 already saturates the memory path's useful MLP at the downPending=8 knee (`build_r2rpt`, WNS −0.077, not a keeper) | 0 % | done | measured — refuted |
 | R-5 | Pool 63 + rmem ~800 K ×8 flows (pool ≥ Σrwnd, tax-reduction attempt) | +5–10 % **hypothesis** — 196 K rmem was catastrophic (window < 2 aggregates), 1–2 MB untested against pool 7.5 MB max | config | low-medium |
 | R-6 | recv envelope micro-opts (io_uring multishot, busy-poll) | ~5 % class | app/driver | low |
 
@@ -90,8 +90,8 @@ The datapath could carry ~8× more. TX is purely a CPU-feed problem:
    mode C tonight). This is the highest-value RTL investment left in the design:
    4 KB-scatter in the RSC writer + order-0 page posting in kl-eth, validated by
    the existing `tools_recv_zc.c`.
-3. **Keep harvesting the cheap %:** rpt8 (measuring tonight), pool/rmem coupling
-   (R-5), TX feed batching (T-2).
+3. **Keep harvesting the cheap %:** pool/rmem coupling (R-5), TX feed batching
+   (T-2). rpt8 measured flat — struck off.
 4. **Re-open 112.5 MHz only as a real timing campaign** (retime the writer-match and
    reader-assembly cones, floorplan CPU vs datapath) — worth +8–12 % on every
    CPU-bound number above, but not seed-lottery material.
