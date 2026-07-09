@@ -7,8 +7,11 @@ both RX and TX**, reaching for 1 Gbit/s. Platform: Alinx AX7101 (xc7a100t), dual
 **Discipline:** every lever is gated by an on-silicon HW-counter measurement *before and after*
 (the "measure, don't assume" rule). Numbers below are measured, deterministic-split harness.
 
-**Status (2026-07-09):** TX **crosses 500** (−P2 peaks 525–536); RX best **298** (mlp3), with a
-measured **481 ceiling** once the recv copy is removed — the last RX lever (task #15).
+**Status (2026-07-09 evening):** TX **crosses 500** (−P2 peaks 525–536); RX best **316**
+(`build_l2deep`). **RX > 500 is a HARD GOAL — the campaign does not close without it.** The
+measured 481 no-copy ceiling means the path must raise the ceiling *and* close the copy tax:
+**R1** warm copy (`build_ddio` + bounded `tcp_rmem` residency), **R2** RSC multi-slot (kill the
+58–66 % park-closes), **R3** 112.5 MHz final mile — plan in `docs/PERFORMANCE_GOAL.md`.
 
 ![campaign chart](docs/perf_campaign.svg) — regenerate: `python3 docs/perf_campaign_chart.py docs/perf_campaign.svg`
 
