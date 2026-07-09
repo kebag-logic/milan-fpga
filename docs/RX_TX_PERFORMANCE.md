@@ -118,7 +118,14 @@ headroom is real, but capturing it is a project, not a knob.
 | **L2→DRAM depth 8** (l2deep) | RX −P2 = **316 (best)** | `downPendingMax` 4→8: 2 harts stopped serializing at the L2's DRAM port; knee at 8 (16 flat; LiteDRAM cmd 16 flat) |
 | shared-L2 DDIO | ~300 (**flat**) | allocate-on-DMA-write pollutes without warming (residency) |
 | *ceiling if copy removed* | RX −P2 = **481** | via `recv(MSG_TRUNC)` |
-| copy removal (open, task #17) | → toward 481 | header-split + app zero-copy, or a residency-winning stash |
+| copy removal — **CLOSED, measured dead** | (481 unreachable via sockets) | stash: refuted on residency (Recv-Q 1–3 MB ≫ BRAM). Zero-copy recv: the kernel's `can_map_frag()` demands order-0 4 KB driver pages at offset 0 (16 KB compound RSC pages can never flip), **and** `mapbench` measured the flip machinery at **44.9 µs/page vs 25.0 µs/page for the cold copy** — page-flipping *loses* on this 100 MHz sv39 core |
+
+**Final RX verdict (2026-07-09).** The practical ceiling for socket-API TCP RX on this SoC is
+**~316**. The 481 ceiling exists but is only reachable by consumers that never materialize the
+payload through `recv()` — `MSG_TRUNC`-class drains or `AF_PACKET` mmap rings. That is fine for
+the *real* workload: **Milan/AVTP media RX rides raw L2 sockets, where `PACKET_RX_RING` delivers
+into a shared mmap ring copy-free by design** — the copy wall is a TCP-benchmark artifact, not an
+AVB limitation.
 
 **Refuted along the way** (so we don't retry them): the depth-2 DMA interconnect (RX writer has
 30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),
