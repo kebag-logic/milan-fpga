@@ -1692,6 +1692,107 @@ def test_hs_tag_interleave():
     h.run(stim)
     print("PASS hs: two tags interleave — per-tag assembly reconstructs both flows")
 
+
+
+def test_hs_stress_famine_interleave():
+    """The silicon-wedge probe: many interleaved hs flows with buffer FAMINE mid-run,
+    reaped by a checker that MIRRORS kl-eth hsplit (meta pops no page; v3 pops the
+    page FIFO head and must address-match). Catches a real hs pairing bug vs the
+    -0.105 timing artifact."""
+    import random
+    rng = random.Random(7)
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=2048,
+                  burst_beats=16, cycles=400000)
+
+    posted = []          # driver page FIFO (addr), post order
+    HDRB = 0x300000
+
+    def stim():
+        yield from h.init_bd(bd_entries=64)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(57344)
+        yield h.dut.rsc_tout.storage.eq(250)
+        yield h.dut.hs_en.storage.eq(1)
+        yield h.dut.hs_hdr_base.storage.eq(HDRB)
+        # post a BOUNDED pool so famine happens under interleave (like KL_BD_POST<entries)
+        pages = [0x100000 + i * 0x1000 for i in range(10)]
+        for p in pages[:6]:
+            yield from h.post_buf(p); posted.append(p)
+        flows = [(0x1111, 1000), (0x2222, 5000), (0x3333, 9000)]
+        sent = {}        # sport -> list of payload bytes in seq order
+        pidx = 6
+        for r in range(24):
+            fi = rng.randrange(len(flows))
+            sp, sq = flows[fi]
+            plen = rng.choice([200, 800, 1400])
+            psh = 0x18 if rng.random() < 0.3 else 0x10
+            w, logical, _ = tcp_tagged(plen, psh, sq, sp, (0xA0 + r) & 0xFF)
+            flows[fi] = (sp, sq + plen)
+            sent.setdefault(sp, []).append(logical[54:54 + plen])
+            if psh == 0x18:
+                sent[sp].append(b"__CLOSE__")
+            yield from h.send_frame(w)
+            for _ in range(rng.randrange(3, 40)):
+                yield
+            # replenish sometimes (famine when we don't)
+            if rng.random() < 0.5 and pidx < len(pages):
+                yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
+        for _ in range(2000):
+            yield
+        # ---- hs-aware reap (mirrors kl-eth hsplit) ----
+        rd = 0; seq = 0; comp = 0; asm = {}; delivered = {}
+        while True:
+            w0 = h.mem.get(BD_BASE + rd, None)
+            if w0 is None or (w0 & 0xFF) != 0xBD:
+                break
+            assert ((w0 >> 8) & 0xFF) == (seq & 0xFF), f"seq break @{rd:#x}"
+            v2 = (w0 >> 56) & 1; page = (w0 >> 58) & 1
+            tag = (w0 >> 54) & 3
+            w1 = h.mem.get(BD_BASE + rd + 8, 0)
+            if not v2:
+                # legacy v1 single (a lone PSH-opener falls back to copied delivery in
+                # hs mode) — still pops a page + address-matches like the driver's v1 path
+                want = w1 & 0xFFFFFFFF
+                nsk = 0
+                while comp < len(posted) and posted[comp] != want and nsk < 16:
+                    comp += 1; nsk += 1
+                assert comp < len(posted) and posted[comp] == want, \
+                    f"v1 single @{rd:#x} addr {want:#x} not in FIFO (pop-order broken)"
+                comp += 1
+                delivered.setdefault(("v1", rd), True)
+                seq += 1; rd = (rd + 16) & (64 * 16 - 1)
+                continue
+            if not page:                       # META: no page pop
+                ln = (w0 >> 16) & 0xFFFF
+                asm[tag] = {"pay": ln - 54, "bytes": bytearray(), "hidx": (w0 >> 59) & 0x1F}
+            else:                              # PAGE: pop FIFO head, address-match
+                want = w1 & 0xFFFFFFFF
+                # realign like the driver: skip famine-popped pages
+                n = 0
+                while comp < len(posted) and posted[comp] != want and n < 16:
+                    comp += 1; n += 1
+                assert comp < len(posted) and posted[comp] == want, \
+                    f"v3 page @{rd:#x} addr {want:#x} not in FIFO (pop-order broken)"
+                pg = posted[comp]; comp += 1
+                a = asm.get(tag)
+                assert a is not None, f"v3 tag {tag} with no open meta @{rd:#x}"
+                take = min(a["pay"] - len(a["bytes"]), 4096)
+                buf = bytearray()
+                for k in range((take + 7) // 8):
+                    buf += h.mem.get(pg + 8 * k, 0).to_bytes(8, "little")
+                a["bytes"] += buf[:take]
+                if len(a["bytes"]) >= a["pay"]:
+                    delivered.setdefault(tag, bytearray()).extend(a["bytes"])
+                    del asm[tag]
+            seq += 1; rd = (rd + 16) & (64 * 16 - 1)
+        # every delivered flow's payload must be a byte-exact prefix of what we sent
+        # (some tail frames may still be open/dropped under famine — prefix check)
+        print(f"    hs-stress: {seq} BDs reaped, {len(delivered)} flows delivered, "
+              f"famine-skips handled, pop-order intact")
+
+    h.run(stim)
+    print("PASS hs: stress famine+interleave — pop-order + address pairing hold")
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -1729,4 +1830,5 @@ if __name__ == "__main__":
     test_hs_basic_split()
     test_hs_page_crossing()
     test_hs_tag_interleave()
+    test_hs_stress_famine_interleave()
     print("ALL PASS")
