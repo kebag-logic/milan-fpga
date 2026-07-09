@@ -27,9 +27,32 @@ the SAME cold miss the RPT prefetcher hides (why `mlp2` single jumped +34 %) and
 halved on the TLB side (`linux.fragment` THP note). **So the interconnect hypothesis is refuted**
 (the RX *writer* `outhi` caps at 2 with ~30× headroom — not the bottleneck); the wall is the
 copy's cold reads, and the aggregate is capped ~300 by two harts contending the shared memory
-path. **The only lever that removes it is zero-copy recv** (task #14) — the prefetcher/L2/THP
+path. **The only lever that removes it is zero-copy recv** — the prefetcher/L2/THP
 only *speed* the copy, they cannot delete it. `perf` is now in the defconfig + wget-able for
 future measurement.
+
+### Ceiling test (`recv(MSG_TRUNC)` drains without `copy_to_user` — `tcp.c:2866`)
+
+`tools_recv_trunc.c` (a receiver that drains via `MSG_TRUNC`) + `tools_tcp_blast.c` (fork-per-conn
+sender) measure "what RX would be if the copy were free":
+
+| | with copy (iperf3, mlp3) | **without copy (MSG_TRUNC)** | Δ |
+|---|:--:|:--:|:--:|
+| single | 277 | **427** | +54 % |
+| **−P2 (2-hart)** | **298** | **481** | **+61 %** |
+
+**−P2 481 is 96 % of the 500 goal** — the copy is decisively the #1 RX wall, and removing it
+nearly reaches >500. Two removal paths: **app zero-copy recv** (MSG_ZEROCOPY/mmap → 481, but the
+app must opt in; iperf3 doesn't) or **DDIO / allocate-on-DMA-write** (warm the copy's payload
+reads *and* GRO's header reads at the DMA source — this is the "dedicated network cache" from the
+top of this plan, now measured-justified; VexiiRiscv's L2 lacks allocate-on-DMA-write so it's a
+coherency-path RTL / dedicated-stash project, sim-first — task #15).
+
+The **residual** (post-copy) wall is the GRO/NAPI stack's cold header reads — but GRO itself is
+*beneficial* (`ethtool -K gro off` regressed 481→460). No-copy −P2 scales only 1.13× over single
+(427→481), so the deep wall is the shared memory path for RX metadata, not per-hart CPU — to
+*exceed* 500, copy-removal must be paired with fewer header touches (bigger RSC) or DDIO warming
+all RX reads.
 
 ## The measured wall
 
