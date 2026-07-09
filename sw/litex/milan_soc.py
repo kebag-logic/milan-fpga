@@ -504,7 +504,8 @@ class RingDMAWriter(LiteXModule):
     the DT `dma-rx` window and every downstream CSR address stay put):
       base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
     """
-    def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16):
+    def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16,
+                 n_slots=4, cq_depth=8):
         self.bus  = bus                 # axi.AXIInterface(data_width=64), byte-addressed
         self.sink = sink = stream.Endpoint([("data", 64), ("keep", 8)])
 
@@ -561,10 +562,13 @@ class RingDMAWriter(LiteXModule):
         close_cap  = Signal(32)
         close_tout = Signal(32)
         close_park = Signal(32)
+        close_age  = Signal(32)         # lifetime cap closes (multi-slot HOL bound)
+        close_prs  = Signal(32)         # CQ pressure closes (head-of-line open slot)
         v2_cnt     = Signal(32)
         v2_segs    = Signal(32)
         self.dbg_close_psh, self.dbg_close_cap = close_psh, close_cap
         self.dbg_close_tout, self.dbg_close_park = close_tout, close_park
+        self.dbg_close_age, self.dbg_close_prs = close_age, close_prs
         self.dbg_v2_cnt, self.dbg_v2_segs = v2_cnt, v2_segs
         frames  = Signal(32)           # committed frame counter (telemetry)
         occ_hi  = Signal(32)           # occupancy high-water (telemetry)
@@ -646,43 +650,175 @@ class RingDMAWriter(LiteXModule):
             p_dstip.eq(Cat(_b(30), _b(31), _b(32), _b(33))),
             p_ports.eq(Cat(_b(34), _b(35), _b(36), _b(37))),
         ]
-        # ---- RSC phase B: single-slot aggregate state ----
-        agg_open  = Signal()
-        agg_srcip = Signal(32)
-        agg_dstip = Signal(32)
-        agg_ports = Signal(32)
-        agg_doff  = Signal(4)
-        agg_eseq  = Signal(32)          # expected next seq
-        agg_off   = Signal(16)          # exact bytes used in the aggregate buffer
-        agg_buf   = Signal(32)          # the posted buffer being aggregated into
-        agg_segs  = Signal(8)
-        agg_mss   = Signal(16)
-        agg_ack   = Signal(32)
-        agg_win   = Signal(16)
-        agg_psh   = Signal()
-        agg_match = Signal()
+        # ---- RSC phase C (R2, 2026-07-09): N-slot aggregate state + pop-ordered CQ ----
+        # n_slots concurrent aggregates kill the park tax (a different-flow newcomer no
+        # longer closes the open aggregate — it takes its own slot). Correctness rests on
+        # the completion queue below: BDs become VISIBLE strictly in posted-buffer pop
+        # order, so the driver's blind FIFO pairing (RX_OVERLOAD_WEDGE.md invariant)
+        # holds by construction — v2 BDs still carry no address, driver ABI unchanged.
+        NS = n_slots
+        assert NS >= 1 and (NS & (NS - 1)) == 0, "n_slots must be a power of two (victim wrap)"
+        s_open  = Array(Signal(name=f"s_open{i}")       for i in range(NS))
+        s_srcip = Array(Signal(32, name=f"s_srcip{i}")  for i in range(NS))
+        s_dstip = Array(Signal(32, name=f"s_dstip{i}")  for i in range(NS))
+        s_ports = Array(Signal(32, name=f"s_ports{i}")  for i in range(NS))
+        s_doff  = Array(Signal(4,  name=f"s_doff{i}")   for i in range(NS))
+        s_eseq  = Array(Signal(32, name=f"s_eseq{i}")   for i in range(NS))
+        s_off   = Array(Signal(16, name=f"s_off{i}")    for i in range(NS))
+        s_buf   = Array(Signal(32, name=f"s_buf{i}")    for i in range(NS))
+        s_segs  = Array(Signal(8,  name=f"s_segs{i}")   for i in range(NS))
+        s_mss   = Array(Signal(16, name=f"s_mss{i}")    for i in range(NS))
+        s_ack   = Array(Signal(32, name=f"s_ack{i}")    for i in range(NS))
+        s_win   = Array(Signal(16, name=f"s_win{i}")    for i in range(NS))
+        s_psh   = Array(Signal(name=f"s_psh{i}")        for i in range(NS))
+        s_idle  = Array(Signal(24, name=f"s_idle{i}")   for i in range(NS))
+        s_age   = Array(Signal(24, name=f"s_age{i}")    for i in range(NS))
+        s_cq    = Array(Signal(4,  name=f"s_cq{i}")     for i in range(NS))
         self.rsc_bufsz = CSRStorage(16, reset=2048, description="RSC aggregate buffer bytes (driver posts this size).")
         self.rsc_tout  = CSRStorage(24, reset=5000, description="RSC aggregate idle-close timeout (milan_clk cycles; 5000 = 100 us @ 50 MHz).")
-        agg_timer  = Signal(24)
-        agg_touch  = Signal()           # comb strobe: aggregate armed/extended this cycle
-        agg_expired = Signal()
-        self.comb += agg_expired.eq(agg_open & (agg_timer >= self.rsc_tout.storage))
-        self.sync += [
-            If(~agg_open | agg_touch,
-                agg_timer.eq(0),
-            ).Elif(~agg_expired,
-                agg_timer.eq(agg_timer + 1),
-            )
+        # slot selection combs
+        slot_hit  = Signal(NS)          # per-slot: open & same flow & in-seq & fits
+        agg_match = Signal()
+        hit_idx   = Signal(max=max(NS, 2))
+        free_any  = Signal()
+        free_idx  = Signal(max=max(NS, 2))
+        exp_any   = Signal()
+        exp_idx   = Signal(max=max(NS, 2))
+        exp_age   = Signal()            # exp_idx expired by lifetime (vs idle)
+        victim    = Signal(max=max(NS, 2))  # round-robin park victim when all slots busy
+        slot_sel  = Signal(max=max(NS, 2))  # slot the in-flight frame operates on
+        sel_off   = Signal(16)
+        sel_buf   = Signal(32)
+        slot_touch_sel = Signal()       # comb strobe from WAIT_B: reset slot_sel's idle timer
+        self.comb += [slot_hit[i].eq(s_open[i] & p_eligible &
+                                     (p_srcip == s_srcip[i]) & (p_dstip == s_dstip[i]) &
+                                     (p_ports == s_ports[i]) & (p_doff == s_doff[i]) &
+                                     (p_seq == s_eseq[i]) &
+                                     ((s_off[i] + p_plen) <= self.rsc_bufsz.storage))
+                      for i in range(NS)]
+        # same flow but NOT appendable (seq gap / buffer full): the stale aggregate can
+        # never extend — close it immediately (v1 park semantics) instead of leaking a
+        # second slot for the flow and stranding the first until its idle timeout.
+        slot_flow = Signal(NS)
+        flow_any  = Signal()
+        flow_idx  = Signal(max=max(NS, 2))
+        self.comb += [slot_flow[i].eq(s_open[i] & p_eligible & ~slot_hit[i] &
+                                      (p_srcip == s_srcip[i]) & (p_dstip == s_dstip[i]) &
+                                      (p_ports == s_ports[i]))
+                      for i in range(NS)]
+        self.comb += flow_any.eq(slot_flow != 0)
+        _fl = flow_idx.eq(0)
+        for i in reversed(range(NS)):
+            _fl = If(slot_flow[i], flow_idx.eq(i)).Else(_fl)
+        self.comb += _fl
+        self.comb += [
+            agg_match.eq(slot_hit != 0),
+            free_any.eq(Cat(*[s_open[i] for i in range(NS)]) != (2**NS - 1)),
+            sel_off.eq(s_off[hit_idx]),
+            sel_buf.eq(s_buf[hit_idx]),
         ]
-        self.comb += agg_match.eq(agg_open & p_eligible &
-                                  (p_srcip == agg_srcip) & (p_dstip == agg_dstip) &
-                                  (p_ports == agg_ports) & (p_doff == agg_doff) &
-                                  (p_seq == agg_eseq) &
-                                  ((agg_off + p_plen) <= self.rsc_bufsz.storage))
+        _hi = hit_idx.eq(0)
+        _fi = free_idx.eq(0)
+        for i in reversed(range(NS)):
+            _hi = If(slot_hit[i], hit_idx.eq(i)).Else(_hi)
+            _fi = If(~s_open[i], free_idx.eq(i)).Else(_fi)
+        self.comb += [_hi, _fi]
+        # per-slot timers: idle (touch-reset) + lifetime age (never reset while open).
+        # Idle close keeps latency bounded when a flow stops; the age cap bounds the CQ
+        # head-of-line hold a slow-trickle flow could otherwise stretch to ~segcap*tout.
+        # agemax_v aliases the rsc_agemax CSR declared AFTER acks_merged (CSR offsets of
+        # every pre-existing register must not move — the driver bakes them in).
+        agemax_v = Signal(24)
+        s_exp = Signal(NS)
+        s_expage = Signal(NS)
+        for i in range(NS):
+            self.sync += [
+                If(~s_open[i] | (slot_touch_sel & (slot_sel == i)),
+                    s_idle[i].eq(0),
+                ).Elif(s_idle[i] < self.rsc_tout.storage,
+                    s_idle[i].eq(s_idle[i] + 1),
+                ),
+                If(~s_open[i],
+                    s_age[i].eq(0),
+                ).Elif(s_age[i] < agemax_v,
+                    s_age[i].eq(s_age[i] + 1),
+                ),
+            ]
+            self.comb += [
+                s_expage[i].eq(s_open[i] & (s_age[i] >= agemax_v)),
+                s_exp[i].eq((s_open[i] & (s_idle[i] >= self.rsc_tout.storage)) | s_expage[i]),
+            ]
+        self.comb += exp_any.eq(s_exp != 0)
+        _ei = [exp_idx.eq(0), exp_age.eq(s_expage[0])]
+        for i in reversed(range(NS)):
+            _ei = If(s_exp[i], exp_idx.eq(i), exp_age.eq(s_expage[i])).Else(_ei)
+        self.comb += _ei
+        # ---- completion queue: BD visibility in pop order (depth power of 2) ----------
+        CQD = cq_depth
+        CQB = CQD.bit_length() - 1      # index bits (depth must be a power of two)
+        assert (1 << CQB) == CQD
+        cq_w0   = Array(Signal(64, name=f"cq_w0_{i}") for i in range(CQD))
+        cq_w1   = Array(Signal(64, name=f"cq_w1_{i}") for i in range(CQD))
+        cq_done = Array(Signal(name=f"cq_done{i}")    for i in range(CQD))
+        cq_head = Signal(CQB + 1)       # extra bit: full/empty disambiguation
+        cq_tail = Signal(CQB + 1)
+        cq_level = Signal(CQB + 1)
+        cq_room  = Signal()             # a pop may allocate an entry
+        cq_drain = Signal()             # head entry ready to write back
+        cq_nhead = Signal(CQB + 1)
+        cq_more  = Signal()             # after head retires, next is ready too
+        head_open_hit = Signal()        # CQ head entry belongs to a still-open slot
+        head_slot     = Signal(max=max(NS, 2))
+        self.comb += [
+            cq_level.eq(cq_tail - cq_head),
+            cq_room.eq(cq_level < (CQD - 1)),
+            cq_drain.eq((cq_level != 0) & cq_done[cq_head[:CQB]]),
+            cq_nhead.eq(cq_head + 1),
+            cq_more.eq((cq_tail != cq_nhead) & cq_done[cq_nhead[:CQB]]),
+        ]
+        _hs = [head_open_hit.eq(0), head_slot.eq(0)]
+        for i in reversed(range(NS)):
+            _hs = If(s_open[i] & (s_cq[i] == cq_head[:CQB]) & (cq_level != 0),
+                     head_open_hit.eq(1), head_slot.eq(i)).Else(_hs)
+        self.comb += _hs
+        cq_pressure = Signal()
+        self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
+        cur_cq = Signal(CQB)            # CQ entry allocated by the in-flight pop
+        def cq_alloc():
+            """allocate the tail CQ entry for a buffer pop (call at post_pop sites)"""
+            return [NextValue(cur_cq, cq_tail[:CQB]),
+                    NextValue(cq_done[cq_tail[:CQB]], 0),
+                    NextValue(cq_tail, cq_tail + 1)]
+        # single-level comb hops for each close site's CQ index: cq_w0[s_cq[k]] would
+        # nest one Array proxy inside another (k is a Signal) — resolve s_cq[k] into a
+        # plain Signal first so every Array index stays single-level.
+        cq_of_exp  = Signal(CQB)
+        cq_of_head = Signal(CQB)
+        cq_of_vic  = Signal(CQB)
+        cq_of_flow = Signal(CQB)
+        cq_of_sel  = Signal(CQB)
+        self.comb += [
+            cq_of_exp.eq(s_cq[exp_idx]),
+            cq_of_head.eq(s_cq[head_slot]),
+            cq_of_vic.eq(s_cq[victim]),
+            cq_of_flow.eq(s_cq[flow_idx]),
+            cq_of_sel.eq(s_cq[slot_sel]),
+        ]
+        def close_slot(k, cqi, extra_segs=0):
+            """fill slot k's CQ entry (index pre-resolved in `cqi`) with the v2 BD meta
+            + free the slot. seq/drops are patched at drain (WB_W) so they stay live."""
+            return [NextValue(cq_w0[cqi],
+                        Cat(C(0xBD, 8), C(0, 8), s_off[k], s_mss[k], C(0, 8),
+                            Cat(C(1, 1), s_psh[k], C(0, 6)))),
+                    NextValue(cq_w1[cqi],
+                        Cat(s_ack[k], s_win[k], s_segs[k], Cat(C(0, 2), s_doff[k]), C(0, 2))),
+                    NextValue(cq_done[cqi], 1),
+                    NextValue(s_open[k], 0),
+                    NextValue(v2_cnt, v2_cnt + 1),
+                    NextValue(v2_segs, v2_segs + s_segs[k] + extra_segs)]
         # append-path registers (set at DISPATCH — keeps cones off the data path)
         ap_append = Signal()            # this frame appends payload-only
         ap_arm    = Signal()            # this frame opens an aggregate at WAIT_B
-        ap_close  = Signal()            # WB emits the aggregate BD
         ap_p      = Signal(3)           # byte rotate = (s_lane - r_lane) mod 8
         ap_pass   = Signal()            # p == 0 passthrough
         ap_head   = Signal(8)           # first-beat wstrb
@@ -692,7 +828,6 @@ class RingDMAWriter(LiteXModule):
         ap_carry  = Signal(64)
         ap_prime  = Signal()            # s>r regime: preload one beat into carry
         ap_first  = Signal()            # next W beat is the append's first (head strb)
-        ap_csrc   = Signal()            # close origin: 0=parked frame, 1=PSH/arm-path
         self.rsc_dbg = CSRStatus(32, description="RSC parse of the last captured frame: "
                                  "{eligible, doff[3:0], flags[7:0], totlen[15:0]}.")
         # ---- RSC ACK-run merging (2026-07-06): coalesce runs of PURE ACKs ----------
@@ -734,6 +869,12 @@ class RingDMAWriter(LiteXModule):
         ]
         ack_merged = Signal(32)
         self.comb += self.acks_merged.status.eq(ack_merged)
+        # R2 geometry knobs — declared LAST so every pre-existing CSR keeps its offset
+        # (the driver hardcodes them). segcap replaces the v1 `agg_segs == 15` constant;
+        # agemax bounds an open slot's total lifetime (CQ head-of-line + delivery bound).
+        self.rsc_segcap = CSRStorage(8, reset=15, description="RSC aggregate segment cap (close after this many merged segments).")
+        self.rsc_agemax = CSRStorage(24, reset=200000, description="RSC aggregate lifetime cap in cycles (2 ms @ 100 MHz); bounds CQ head-of-line hold.")
+        self.comb += agemax_v.eq(self.rsc_agemax.storage)
         self.sync += [
             If(~ack_open | ack_touch,
                 ack_timer.eq(0),
@@ -950,9 +1091,28 @@ class RingDMAWriter(LiteXModule):
             # rd=0 to read as ~full (the occ_hi reload artifact), and per-session `frames`.
             If(~self.enable.storage,
                 NextValue(wr, 0), NextValue(seq, 0), NextValue(frames, 0),
-                NextValue(agg_open, 0), NextValue(ap_close, 0),
+                *([NextValue(s_open[i], 0) for i in range(NS)] +
+                  [NextValue(cq_done[i], 0) for i in range(CQD)] +
+                  [NextValue(cq_head, 0), NextValue(cq_tail, 0), NextValue(victim, 0)]),
                 NextValue(ack_open, 0), NextValue(ack_wb, 0),
                 NextValue(ack_merged, 0),
+            ).Elif(bd_mode & cq_drain,
+                # pop-ordered BD visibility: write back every ready head entry first
+                NextState("WB_AW"),
+            ).Elif(bd_mode & exp_any,
+                # RSC: close an idle-expired (or lifetime-capped) slot; its BD becomes
+                # drainable and the (possibly blocked) CQ head advances. 1-cycle action.
+                If(exp_age,
+                    NextValue(close_age, close_age + 1),
+                ).Else(
+                    NextValue(close_tout, close_tout + 1),
+                ),
+                *close_slot(exp_idx, cq_of_exp),
+            ).Elif(bd_mode & cq_pressure,
+                # CQ backpressure: the head entry's slot is still open while the queue
+                # fills behind it — force-close it so completions keep flowing.
+                NextValue(close_prs, close_prs + 1),
+                *close_slot(head_slot, cq_of_head),
             ).Elif(len_fifo.source.valid & bd_mode,
                 # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
                 len_fifo.source.ready.eq(1),
@@ -968,33 +1128,21 @@ class RingDMAWriter(LiteXModule):
                     NextValue(hdr_take, Mux(len_fifo.source.beats > 9, 9,
                                             len_fifo.source.beats)),
                     NextState("HDR_CAP"),        # buffer pop decided at DISPATCH
-                ).Elif(post_fifo.source.valid,
+                ).Elif(post_fifo.source.valid & cq_room,
                     post_pop.eq(1),
+                    *cq_alloc(),
                     NextValue(buf_addr_r, post_fifo.source.addr),
                     NextState("PREP"),
-                ).Else(                                          # no buffer -> drop whole
+                ).Else(                                          # no buffer/CQ room -> drop
                     NextValue(disc, len_fifo.source.beats),
                     NextState("DISCARD"),
                 )
-            ).Elif(bd_mode & agg_expired,
-                # RSC: idle-timeout — flush the open aggregate so latency stays bounded
-                NextValue(ap_close, 1),
-                NextValue(ap_csrc, 1),
-                NextValue(close_tout, close_tout + 1),          # M1 telemetry
-                NextValue(v2_cnt, v2_cnt + 1),
-                NextValue(v2_segs, v2_segs + agg_segs),
-                NextState("WB_AW"),
-            ).Elif(bd_mode & ack_expired & ~agg_open,
-                # ACK-run idle-timeout — deliver the latest pending ACK. GATED on
-                # ~agg_open (RX-wedge root cause, 2026-07-08, test_bd_ack_flush_vs_
-                # open_agg_order): the flush pops a NEW posted buffer and completes
-                # its v1 BD while the OPEN aggregate still holds an EARLIER buffer
-                # whose v2 BD only comes at close — completion order inverts posted
-                # order, and the driver's FIFO page pairing (page[comp_i++]) then
-                # mispairs EVERY later completion: RX delivery dead while all HW
-                # stages keep flowing (the -P2 silicon wedge). Deferring the flush
-                # until the aggregate closes (its own timeout bounds the wait to
-                # <= rsc_tout) keeps BD order == pop order by construction.
+            ).Elif(bd_mode & ack_expired & cq_room,
+                # ACK-run idle-timeout — deliver the latest pending ACK. The historical
+                # ~agg_open gate (RX-wedge fix, 2026-07-08) is GONE: the completion
+                # queue serializes BD visibility to pop order by construction, so the
+                # flush may pop while aggregates are open — its BD simply waits its
+                # turn behind theirs (bounded by rsc_tout/rsc_agemax).
                 *ack_flush(ret=0)
             ).Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
@@ -1023,42 +1171,37 @@ class RingDMAWriter(LiteXModule):
         ap_outb = Signal(12)            # output beats for the append
         self.comb += [
             s_lane.eq(p_soff[:3]),
-            r_lane.eq(agg_off[:3]),
+            r_lane.eq(sel_off[:3]),     # matched slot's buffer fill point
             ap_outb.eq((r_lane + p_plen + 7)[3:]),
         ]
         tl_lane   = Signal(3)
-        self.comb += tl_lane.eq((agg_off + p_plen - 1)[:3])
+        self.comb += tl_lane.eq((sel_off + p_plen - 1)[:3])
 
         fsm.act("DISPATCH",
             If(self.rsc_en.storage & p_mack,
                 # pure-ACK run: replace-in-place (cumulative ack), open, or flush
-                # the other flow's pending ACK first (newcomer re-dispatches).
+                # the other flow's pending ACK (newcomer re-dispatches). The flush may
+                # run with aggregates open — the CQ keeps BD order == pop order.
                 # NOTE: the frame is FULLY inside hdr_reg (beats <= 9), so absorbing
                 # it consumes nothing from data_fifo — the disc=0 rule.
                 If(ack_match | ~ack_open,
                     *(ack_capture() +
                       [If(ack_match, NextValue(ack_merged, ack_merged + 1)),
                        NextState("IDLE")])
-                ).Elif(agg_open,
-                    # different-flow ACK needs the pending slot, but flushing pops a
-                    # buffer — and an OPEN aggregate holds an earlier one (BD order
-                    # would invert posted order: the RX wedge, see the IDLE gate).
-                    # Close the aggregate first; this mack frame stays parked in
-                    # hdr_reg and re-DISPATCHes after WB_B exactly like a parked
-                    # data newcomer, then takes the flush path with agg closed.
-                    NextValue(ap_close, 1),
-                    NextValue(ap_csrc, 0),
-                    NextValue(close_park, close_park + 1),      # M1 telemetry
-                    NextValue(v2_cnt, v2_cnt + 1),
-                    NextValue(v2_segs, v2_segs + agg_segs),
-                    NextState("WB_AW"),
-                ).Else(
+                ).Elif(cq_room,
                     *ack_flush(ret=1)
+                ).Else(
+                    # CQ full (extreme corner): flushing would need an entry we don't
+                    # have, and staying here would deadlock (drain runs from IDLE).
+                    # A stale pure ACK is droppable — the wire could have lost it —
+                    # so the newcomer replaces it and the old one counts as dropped.
+                    *(ack_capture() + [NextValue(drops, drops + 1), NextState("IDLE")])
                 )
             ).Elif(agg_match,
-                # payload-only append into the OPEN aggregate's buffer
+                # payload-only append into the matched slot's buffer
                 NextValue(ap_append, 1),
                 NextValue(ap_arm, 0),
+                NextValue(slot_sel, hit_idx),
                 NextValue(ap_p, s_lane - r_lane),
                 NextValue(ap_pass, s_lane == r_lane),
                 NextValue(ap_prime, s_lane > r_lane),
@@ -1068,22 +1211,28 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
                 NextValue(fbeat, p_soff[3:]),
                 NextValue(rem_r, ap_outb),
-                NextValue(off_r, Cat(C(0, 3), agg_off[3:])),
-                NextValue(buf_addr_r, agg_buf),
+                NextValue(off_r, Cat(C(0, 3), sel_off[3:])),
+                NextValue(buf_addr_r, sel_buf),
                 NextState("APRIME"),
-            ).Elif(agg_open,
-                # parked newcomer: close the aggregate first, then re-dispatch
-                NextValue(ap_close, 1),
-                NextValue(ap_csrc, 0),
+            ).Elif(flow_any,
+                # same-flow seq-gap / buffer-full: close that slot now (frame stays
+                # parked in hdr_reg and re-dispatches into a fresh aggregate)
                 NextValue(close_park, close_park + 1),          # M1 telemetry
-                NextValue(v2_cnt, v2_cnt + 1),
-                NextValue(v2_segs, v2_segs + agg_segs),
-                NextState("WB_AW"),
-            ).Elif(post_fifo.source.valid,
+                *close_slot(flow_idx, cq_of_flow),
+            ).Elif(p_eligible & self.rsc_en.storage & ~free_any,
+                # all slots busy: park-close the round-robin victim (1-cycle CQ fill),
+                # then this frame re-dispatches into the freed slot. This is the only
+                # interleave park left — expect it rare (slots >= concurrent flows).
+                NextValue(close_park, close_park + 1),          # M1 telemetry
+                NextValue(victim, victim + 1),
+                *close_slot(victim, cq_of_vic),
+            ).Elif(post_fifo.source.valid & cq_room,
                 post_pop.eq(1),
+                *cq_alloc(),
                 NextValue(buf_addr_r, post_fifo.source.addr),
                 NextValue(ap_append, 0),
                 NextValue(ap_arm, p_eligible),      # open an aggregate at WAIT_B
+                NextValue(slot_sel, free_idx),
                 NextValue(ap_first, 0),
                 NextState("PREP"),
             ).Else(
@@ -1103,6 +1252,7 @@ class RingDMAWriter(LiteXModule):
         fsm.act("ACK_POP",              # pending-ACK flush: needs a posted buffer
             If(post_fifo.source.valid,
                 post_pop.eq(1),
+                *cq_alloc(),            # callers guarantee cq_room
                 NextValue(buf_addr_r, post_fifo.source.addr),
                 NextState("PREP"),
             ).Else(                     # no buffer -> the pending ACK drops whole
@@ -1218,47 +1368,72 @@ class RingDMAWriter(LiteXModule):
         fsm.act("WAIT_B",
             If(outstanding == 0,
                 If(bd_mode & ap_arm & ~p_flags[3],
-                    # RSC: first frame parked — aggregate opens, BD deferred
-                    NextValue(agg_open, 1),
-                    NextValue(agg_srcip, p_srcip), NextValue(agg_dstip, p_dstip),
-                    NextValue(agg_ports, p_ports), NextValue(agg_doff, p_doff),
-                    NextValue(agg_eseq, p_seq + p_plen),
-                    NextValue(agg_off, 14 + p_totlen),
-                    NextValue(agg_buf, buf_addr_r),
-                    NextValue(agg_segs, 1), NextValue(agg_mss, p_plen),
-                    NextValue(agg_ack, p_ack), NextValue(agg_win, p_win),
-                    NextValue(agg_psh, 0),
+                    # RSC: first frame parked — slot_sel opens, BD deferred to close
+                    NextValue(s_open[slot_sel], 1),
+                    NextValue(s_srcip[slot_sel], p_srcip), NextValue(s_dstip[slot_sel], p_dstip),
+                    NextValue(s_ports[slot_sel], p_ports), NextValue(s_doff[slot_sel], p_doff),
+                    NextValue(s_eseq[slot_sel], p_seq + p_plen),
+                    NextValue(s_off[slot_sel], 14 + p_totlen),
+                    NextValue(s_buf[slot_sel], buf_addr_r),
+                    NextValue(s_segs[slot_sel], 1), NextValue(s_mss[slot_sel], p_plen),
+                    NextValue(s_ack[slot_sel], p_ack), NextValue(s_win[slot_sel], p_win),
+                    NextValue(s_psh[slot_sel], 0),
+                    NextValue(s_cq[slot_sel], cur_cq),   # the entry its close will fill
                     NextValue(ap_arm, 0),
-                    agg_touch.eq(1),
                     NextState("IDLE"),
                 ).Elif(bd_mode & ap_append,
-                    # RSC: payload appended — update aggregate, maybe close
-                    NextValue(agg_off, agg_off + p_plen),
-                    NextValue(agg_eseq, agg_eseq + p_plen),
-                    NextValue(agg_segs, agg_segs + 1),
-                    NextValue(agg_ack, p_ack), NextValue(agg_win, p_win),
-                    NextValue(agg_psh, agg_psh | p_flags[3]),
+                    # RSC: payload appended — update slot_sel, maybe close
+                    slot_touch_sel.eq(1),                # reset the slot's idle timer
                     NextValue(ap_append, 0),
-                    agg_touch.eq(1),
-                    If(p_flags[3] | (agg_segs == 15),
-                        NextValue(ap_close, 1),
-                        NextValue(ap_csrc, 1),
-                        # M1 telemetry: agg_segs is pre-increment here → final = +1
+                    If(p_flags[3] | (s_segs[slot_sel] == self.rsc_segcap.storage),
+                        # close with THIS frame folded in (CQ fill, 1 cycle, no WB trip)
+                        NextValue(cq_w0[cq_of_sel],
+                            Cat(C(0xBD, 8), C(0, 8), (s_off[slot_sel] + p_plen)[:16],
+                                s_mss[slot_sel], C(0, 8),
+                                Cat(C(1, 1), s_psh[slot_sel] | p_flags[3], C(0, 6)))),
+                        NextValue(cq_w1[cq_of_sel],
+                            Cat(p_ack, p_win, (s_segs[slot_sel] + 1)[:8],
+                                Cat(C(0, 2), s_doff[slot_sel]), C(0, 2))),
+                        NextValue(cq_done[cq_of_sel], 1),
+                        NextValue(s_open[slot_sel], 0),
+                        # M1 telemetry: s_segs is pre-increment here → final = +1
                         If(p_flags[3],
                             NextValue(close_psh, close_psh + 1),
                         ).Else(
                             NextValue(close_cap, close_cap + 1),
                         ),
                         NextValue(v2_cnt, v2_cnt + 1),
-                        NextValue(v2_segs, v2_segs + agg_segs + 1),
-                        NextState("WB_AW"),
+                        NextValue(v2_segs, v2_segs + s_segs[slot_sel] + 1),
+                        NextState("IDLE"),
                     ).Else(
+                        NextValue(s_off[slot_sel], s_off[slot_sel] + p_plen),
+                        NextValue(s_eseq[slot_sel], s_eseq[slot_sel] + p_plen),
+                        NextValue(s_segs[slot_sel], s_segs[slot_sel] + 1),
+                        NextValue(s_ack[slot_sel], p_ack), NextValue(s_win[slot_sel], p_win),
+                        NextValue(s_psh[slot_sel], s_psh[slot_sel] | p_flags[3]),
                         NextState("IDLE"),
                     )
                 ).Elif(bd_mode,
-                    # plain single (incl. arm+PSH: eligible-but-pushed -> v1 BD)
+                    # plain single (incl. arm+PSH: eligible-but-pushed -> v1 BD):
+                    # fill this pop's CQ entry; seq/drops patched at drain
                     NextValue(ap_arm, 0),
-                    NextState("WB_AW"),
+                    NextValue(cq_w0[cur_cq],
+                        Cat(C(0xBD, 8), C(0, 8), len_bytes, frame_csum, C(0, 16))),
+                    NextValue(cq_w1[cur_cq], buf_addr_r),
+                    NextValue(cq_done[cur_cq], 1),
+                    If(ack_wb,
+                        # pending-ACK flush payload done; restore a parked newcomer
+                        NextValue(ack_wb, 0),
+                        If(ack_ret,
+                            NextValue(frame_beats, nc_beats),
+                            NextValue(frame_csum, nc_csum),
+                            NextState("DISPATCH"),
+                        ).Else(
+                            NextState("IDLE"),
+                        )
+                    ).Else(
+                        NextState("IDLE"),
+                    )
                 ).Else(
                     NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
                     NextValue(seq, seq + 1),
@@ -1286,25 +1461,14 @@ class RingDMAWriter(LiteXModule):
         )
         fsm.act("WB_W",
             self.bus.w.valid.eq(1),
+            # BD mode: drain the CQ head entry — BDs hit memory strictly in posted-
+            # buffer pop order (the wedge invariant, now by queue construction). The
+            # live `seq`/`drops` fields are OR-patched here so BD sequence numbers
+            # reflect WRITE order and drops stay 8-bit at [55:48] ([63:56] belongs to
+            # the v2 marker/flags — the drops/bit-56 alias, 2026-07-08, stays fixed).
             self.bus.w.data.eq(Mux(bd_mode,
-                Mux(ap_close,
-                    Mux(wb_beat,
-                        # v2 w1: {doff, segs, win, ack}
-                        Cat(agg_ack, agg_win, agg_segs, Cat(C(0, 2), agg_doff), C(0, 2)),
-                        # v2 w0: {flags, drops, mss, len, seq, magic}
-                        Cat(C(0xBD, 8), seq[:8], agg_off, agg_mss, drops[:8],
-                            Cat(C(1, 1), agg_psh, C(0, 6)))),
-                    Mux(wb_beat, buf_addr_r,          # word1: where the frame landed
-                        # word0: {0[63:56], drops[7:0], csum, len, seq[7:0], magic 0xBD}.
-                        # drops is 8-bit here ON PURPOSE (matching the v2 encoding): the
-                        # old drops[:16] spilled into bit 56 — the v2-aggregate marker —
-                        # so once the famine counter crossed 256 (parallel storms) EVERY
-                        # v1 completion parsed as a v2 aggregate in the driver: garbage
-                        # gso / permanent reap stall, unrecoverable by reload because
-                        # drops is free-running HW state. The silicon "-P2 delivery
-                        # death", 2026-07-08 (test_bd_drops_overflow_v2_alias).
-                        Cat(C(0xBD, 8), seq[:8], len_bytes, frame_csum, drops[:8],
-                            C(0, 8)))),
+                Mux(wb_beat, cq_w1[cq_head[:CQB]],
+                             cq_w0[cq_head[:CQB]] | (seq[:8] << 8) | (drops[:8] << 48)),
                 Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
             self.bus.w.last.eq(~bd_mode | wb_beat),
@@ -1319,22 +1483,10 @@ class RingDMAWriter(LiteXModule):
                     NextValue(wr, (wr + 16) & self.mask.storage),
                     NextValue(seq, seq + 1),
                     NextValue(frames, frames + 1),
-                ),
-                If(ap_close,
-                    NextValue(agg_open, 0),
-                    NextValue(ap_close, 0),
-                    If(ap_csrc,
-                        NextState("IDLE"),
-                    ).Else(
-                        NextState("DISPATCH"),        # parked newcomer re-dispatches
-                    )
-                ).Elif(ack_wb,
-                    NextValue(ack_wb, 0),
-                    If(ack_ret,
-                        # restore the parked newcomer's geometry the flush reused
-                        NextValue(frame_beats, nc_beats),
-                        NextValue(frame_csum, nc_csum),
-                        NextState("DISPATCH"),        # parked newcomer re-dispatches
+                    NextValue(cq_done[cq_head[:CQB]], 0),   # retire the head entry
+                    NextValue(cq_head, cq_head + 1),
+                    If(cq_more,                       # drain every ready successor now
+                        NextState("WB_AW"),
                     ).Else(
                         NextState("IDLE"),
                     )
@@ -1359,6 +1511,11 @@ class RingDMAWriter(LiteXModule):
         # proxy for the read-side depth TX prefetch would need.
         self.dbg_outstanding = Signal(6)
         self.comb += self.dbg_outstanding.eq(outstanding)
+        # sim-only probe of the W-stage source mux (R2 bring-up)
+        self.dbg_w = Signal(64)
+        self.comb += self.dbg_w.eq(Cat(wcnt, blen_r, rem_r[:10], ap_inrem, fbeat[:8],
+                                       hdr_cnt, self.bus.w.valid, self.bus.w.ready,
+                                       ap_srcv, in_hdrr, ap_append, ap_prime))
 
 
 class RingDMAReader(LiteXModule):
@@ -2891,6 +3048,15 @@ class MilanSoC(SoCCore):
                                       "RxSteer q0 output")
                         dbg.sys_probe("steer1", self.milan_dma.steer.source1,
                                       "RxSteer q1 output")
+                    # R2 multi-slot RSC: the two new close reasons (appended LAST so
+                    # every earlier probe keeps its snapshot address)
+                    for tag, sig, d in (
+                        ("rsc_close_age", self.milan_dma.rx.dbg_close_age,
+                         "aggregate closes: lifetime cap (rsc_agemax)"),
+                        ("rsc_close_prs", self.milan_dma.rx.dbg_close_prs,
+                         "aggregate closes: CQ pressure (head-of-line)"),
+                    ):
+                        dbg._snap(sig, 32, tag, f"{d} (q0, free-running)")
                 self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac, extra=_phase0)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd,

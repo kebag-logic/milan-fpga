@@ -1343,16 +1343,194 @@ def test_rsc_close_reason_counters():
         yield from h.wait_idle(settle=1200)
         assert (yield h.dut.dbg_close_tout) == 1, "timeout close not counted"
         assert (yield h.dut.dbg_v2_segs) == 4
-        # 3) parked-newcomer close: open flow A, then flow B seg parks -> closes A
+        # 3) park close: R2 multi-slot — a different flow now takes its OWN slot, so
+        #    the park that remains is same-flow gap/overflow (or slot exhaustion).
+        #    Open flow A, then an out-of-seq A segment: closes A (park), re-dispatches.
         yield from h.send_frame(seg(0x1111, 2000, 96))
-        yield from h.send_frame(seg(0x3333, 6000, 80, flags=0x18))  # parks, closes A
+        yield from h.send_frame(seg(0x1111, 9000, 80, flags=0x18))  # seq gap: parks A
         yield from h.wait_idle(settle=1200)
-        assert (yield h.dut.dbg_close_park) == 1, "parked-newcomer close not counted"
+        assert (yield h.dut.dbg_close_park) == 1, "same-flow-gap park close not counted"
         cnt = (yield h.dut.dbg_v2_cnt)
         segs = (yield h.dut.dbg_v2_segs)
         assert cnt >= 3 and segs >= 5, f"v2_cnt={cnt} v2_segs={segs}"
     h.run(stim)
     print("PASS RSC close-reason counters (psh/timeout/park + coalesce ratio)")
+
+
+
+
+# ---- R2 multi-slot RSC (2026-07-09): slots + pop-ordered completion queue ----------
+# Contract: N slots aggregate concurrently (a different flow no longer parks); BDs
+# become VISIBLE strictly in posted-buffer pop order (CQ); the remaining parks are
+# same-flow gap/overflow and slot exhaustion; pressure/age caps bound head-of-line.
+
+def test_mslot_interleave_no_park():
+    """A,B,A,B interleave: both flows aggregate concurrently (no park closes); B
+    closes first (PSH) but its BD waits for A (pop order)."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=60000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(16384)
+        yield h.dut.rsc_tout.storage.eq(300)
+        for a in (0x100000, 0x110000, 0x120000, 0x130000):
+            yield from h.post_buf(a)
+        wa1, la1, _ = tcp_tagged(300, 0x10, 1000, 40000, 0xA1)
+        wa2, la2, _ = tcp_tagged(300, 0x10, 1300, 40000, 0xA2)
+        wb1, lb1, _ = tcp_tagged(200, 0x10, 5000, 40001, 0xB1)
+        wb2, lb2, _ = tcp_tagged(200, 0x18, 5200, 40001, 0xB2)   # PSH closes B
+        yield from h.send_frame(wa1)   # A opens (pop #0)
+        yield from h.send_frame(wb1)   # B opens (pop #1) -- NOT a park anymore
+        yield from h.send_frame(wa2)   # A appends
+        yield from h.send_frame(wb2)   # B appends + PSH-closes
+        for _ in range(80):
+            yield
+        assert (yield h.dut.frames.status) == 0, "B's BD leaked before A closed (pop order!)"
+        assert (yield h.dut.dbg_close_park) == 0, "interleave parked - slots not working"
+        for _ in range(500):           # A idle-times out; both BDs drain in order
+            yield
+        assert (yield h.dut.frames.status) == 2, "expected exactly A,B BDs"
+        w0a, w1a = h.read_bd(0)
+        w0b, w1b = h.read_bd(1)
+        assert (w0a >> 56) & 1 and (w0b >> 56) & 1, "both must be v2 aggregates"
+        assert ((w0a >> 8) & 0xFF) == 0 and ((w0b >> 8) & 0xFF) == 1, "BD seq order"
+        assert ((w0a >> 16) & 0xFFFF) == 54 + 600, "A len"
+        assert ((w0b >> 16) & 0xFFFF) == 54 + 400, "B len"
+        assert ((w1a >> 48) & 0xFF) == 2 and ((w1b >> 48) & 0xFF) == 2, "2 segs each"
+        assert (yield h.dut.dbg_close_tout) == 1 and (yield h.dut.dbg_close_psh) == 1
+
+    h.run(stim)
+    print("PASS mslot: A/B interleave aggregates concurrently, 0 parks, BDs pop-ordered")
+
+
+def test_mslot_pop_order_holds_singles():
+    """Open aggregate A, then a v1 single and a PSH-closed flow B: ready BDs stay
+    invisible until A (the CQ head) closes; DriverModel pairing stays green."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=60000)
+
+    def stim():
+        yield from h.init_bd()
+        drv = DriverModel(h, 8)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(16384)
+        yield h.dut.rsc_tout.storage.eq(400)
+        for a in (0x100000, 0x110000, 0x120000):
+            yield from h.post_buf(a)
+            drv.post(a)
+        wa, la, _ = tcp_tagged(256, 0x10, 2000, 40000, 0xAA)   # A opens (pop 0)
+        yield from h.send_frame(wa)
+        yield from h.send_frame(frame(0xF00D, 20))             # non-TCP v1 (pop 1)
+        wb, lb, _ = tcp_tagged(128, 0x18, 9000, 40001, 0xBB)   # open+PSH v1 (pop 2)
+        yield from h.send_frame(wb)
+        for _ in range(100):
+            yield
+        assert (yield h.dut.frames.status) == 0, "nothing may drain while A(head) is open"
+        for _ in range(600):
+            yield
+        assert (yield h.dut.frames.status) == 3, "A, single, B after A's timeout"
+        drv.reap()
+        assert len(drv.reaped) == 3, f"driver reaped {len(drv.reaped)} != 3"
+        assert [k for k, _, _ in drv.reaped] == ["v2", "v1", "v1"]
+
+    h.run(stim)
+    print("PASS mslot: ready BDs wait for the open head (pop order, DriverModel green)")
+
+
+def test_mslot_exhaustion_parks_victim():
+    """n_slots+1 concurrent flows: the 5th park-closes the round-robin victim
+    exactly once; every BD reaps pop-order clean."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=60000)
+
+    def stim():
+        yield from h.init_bd(bd_entries=16)
+        drv = DriverModel(h, 16)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(16384)
+        yield h.dut.rsc_tout.storage.eq(250)
+        for i in range(8):
+            a = 0x100000 + i * 0x10000
+            yield from h.post_buf(a)
+            drv.post(a)
+        for i, sport in enumerate((40000, 40001, 40002, 40003)):
+            w, l, _ = tcp_tagged(200, 0x10, 1000 * (i + 1), sport, 0xC0 + i)
+            yield from h.send_frame(w)     # fills all 4 slots
+        w5, l5, _ = tcp_tagged(200, 0x10, 7777, 40004, 0xC9)
+        yield from h.send_frame(w5)        # 5th flow -> parks the victim
+        for _ in range(300):
+            yield
+        assert (yield h.dut.dbg_close_park) == 1, "expected exactly 1 park close"
+        for _ in range(700):               # the rest time out
+            yield
+        drv.reap()
+        assert len(drv.reaped) == 5, f"driver reaped {len(drv.reaped)} != 5"
+        assert (yield h.dut.dbg_close_tout) == 4
+
+    h.run(stim)
+    print("PASS mslot: slot exhaustion parks the victim once; 5 flows reap clean")
+
+
+def test_mslot_cq_pressure_close():
+    """An open aggregate holds the CQ head while v1 singles pile behind it: at
+    level >= depth-2 the head slot force-closes (close_prs) and BDs keep flowing."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=60000)
+
+    def stim():
+        yield from h.init_bd(bd_entries=16)
+        drv = DriverModel(h, 16)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(16384)
+        yield h.dut.rsc_tout.storage.eq(5000)      # idle close must NOT fire
+        yield h.dut.rsc_agemax.storage.eq(60000)   # age cap must NOT fire
+        for i in range(10):
+            a = 0x100000 + i * 0x10000
+            yield from h.post_buf(a)
+            drv.post(a)
+        wa, la, _ = tcp_tagged(300, 0x10, 4000, 40000, 0xD0)
+        yield from h.send_frame(wa)                # A opens: CQ head, undone
+        for i in range(6):                         # depth 8: pressure at level >= 6
+            yield from h.send_frame(frame(0xE0 + i, 12))
+            for _ in range(30):
+                yield
+        for _ in range(150):
+            yield
+        assert (yield h.dut.dbg_close_prs) == 1, "expected 1 pressure close"
+        assert (yield h.dut.frames.status) == 7, "A + 6 singles all drained"
+        drv.reap()
+        assert len(drv.reaped) == 7
+
+    h.run(stim)
+    print("PASS mslot: CQ pressure force-closes the blocking head; drain continues")
+
+
+def test_mslot_age_cap():
+    """A flow appending forever (every append inside rsc_tout) closes on the
+    lifetime cap: bounded delivery latency for trickle flows."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=60000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(65535)
+        yield h.dut.rsc_tout.storage.eq(400)
+        yield h.dut.rsc_agemax.storage.eq(900)     # lifetime cap fires first
+        yield h.dut.rsc_segcap.storage.eq(60)
+        for a in (0x100000, 0x110000):
+            yield from h.post_buf(a)
+        seq = 3000
+        for i in range(6):                         # appends every ~150 cycles < tout
+            w, l, _ = tcp_tagged(64, 0x10, seq, 40000, 0xF0 + i)
+            yield from h.send_frame(w)
+            seq += 64
+            for _ in range(110):
+                yield
+        for _ in range(500):
+            yield
+        assert (yield h.dut.dbg_close_age) == 1,             f"expected exactly 1 age-cap close, got {(yield h.dut.dbg_close_age)}"
+        assert (yield h.dut.frames.status) >= 1, "the capped aggregate must have drained"
+
+    h.run(stim)
+    print("PASS mslot: lifetime cap closes a never-idle trickle aggregate")
 
 
 if __name__ == "__main__":
@@ -1384,4 +1562,9 @@ if __name__ == "__main__":
     test_rsc_silicon_geometry(seed=11)
     test_bd_drops_overflow_v2_alias()
     test_rsc_close_reason_counters()
+    test_mslot_interleave_no_park()
+    test_mslot_pop_order_holds_singles()
+    test_mslot_exhaustion_parks_victim()
+    test_mslot_cq_pressure_close()
+    test_mslot_age_cap()
     print("ALL PASS")
