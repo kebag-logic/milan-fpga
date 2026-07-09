@@ -1,5 +1,7 @@
 # Throughput goal — >500 Mbit/s RX *and* TX, reach for 1 Gbit/s
 
+> 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
+
 **North star for the performance campaign on the fully-FPGA Milan NIC** (Alinx AX7101,
 dual VexiiRiscv RV64IMA @100 MHz, 64-bit datapath, MTU 1500 everywhere).
 
@@ -15,15 +17,14 @@ The NIC's PHY is 1 GbE and the 64-bit datapath has ample raw bandwidth (3.2 Gbit
 memory latency), not a wire limit. Every step is measured on silicon with HW counters +
 CPU profile side by side — no blind changes.
 
-## Where we are (measured on silicon, 2026-07-08)
+## Where we are (measured on silicon, 2026-07-09)
 
 | path | best measured | ≥500? | bound by | next lever toward 500+ |
 |------|:-------------:|:-----:|----------|------------------------|
-| TX TCP, 100 MHz dp, **CBS unshaped**³ | **339** (−P4) / **354** (2 proc) / 265 single | ✗ (✓200) | **CPU-saturated** (84–96% both harts) | plan T1/T2/T3: peer-coalesce + −P8 (storms now safe⁴), completion-IRQ, 2nd TX queue if the proxy demands |
-| TX TCP, 100 MHz dp, CBS default (historical²) | 238–247 | ✗ | **CBS shaper pacing BE at 300 Mb/s** (config bug — fixed³) | — (fixed) |
-| RX TCP single (RSC on) | **192–202** (v2fix, 100 MHz gw) / 209 (50 MHz gw, hist.) | ✗ (✓200) | per-frame CPU, amortized by RSC | plan R2: RSC geometry (close-reason counters) + completion IRQ |
-| RX TCP parallel (−P2) | **298** (build_mlp3: fan-out + 64 KB L2 + RPT prefetch)⁵ | ✗ | 2-hart *shared-resource* wall (L2 bw / depth-2 interconnect), scales only ~1.2× single | 3rd rx queue+hart, or fewer touches (bigger RSC to cut drops) |
-| RX TCP single | **277** (build_mlp2: RPT hardware prefetcher, +34 %)⁵ | — | was latency-bound; prefetcher hides the payload-copy cold miss | — |
+| **TX TCP** (100 MHz dp, CBS unshaped)³ | **−P2 525–536** · −P4 ~410–475 | **✓** | **datapath/shaper-bound**, not CPU (the refill/RPT change was TX-neutral) | done — TX crosses 500 at −P2 |
+| TX TCP, CBS default (historical²) | 238–247 | ✗ | CBS shaper pacing BE at 300 Mb/s (config bug — fixed³) | — (fixed) |
+| **RX TCP parallel (−P2)** | **298** (build_mlp3: fan-out + 64 KB L2 + RPT prefetch)⁵ | ✗ | **the recv payload copy = 51% of RX CPU** (cold DRAM read; perf-verified — *not* the interconnect) | **DDIO / allocate-on-DMA-write** (ceiling 481, task #15) |
+| RX TCP single | **277** (build_mlp2: RPT prefetcher, +34% over 207)⁵ | ✗ | same recv copy (cold read) | DDIO / app zero-copy (single ceiling 427) |
 | TX TCP single, 50 MHz (historical) | 145–186¹ | ✗ | superseded by the 100 MHz datapath | — |
 | UDP TX / RX | 19.5 / 40 | ✗ | no TSO / no coalescing | USO / UDP-GRO offloads (not built) |
 
@@ -76,14 +77,15 @@ runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 
 **Status vs goal (>500):** ≥200 holds with margin on TX (**354** best stable — was 172 at the
 start of the campaign: **2×**, via the measured CBS root cause + coalesce tuning + dual-process).
-**Neither direction is at 500 yet — but the wedges that gated every parallel measurement are
-fixed and silicon-validated⁴**, so the campaign can finally run. TX is honestly CPU-bound: the
-remaining ~40% comes from per-unit CPU cost cuts (peer ACK batching, completion-IRQ, xmit path).
-RX needs the 2-queue fan-out (parallel currently splits one queue: 145 −P2 vs 192 single) plus
-cheaper aggregates. **The execution plan with per-phase gateware gates is
-`docs/CAMPAIGN_500_PLAN.md`.** Reader prefetch stays **refuted**². 1 Gbit/s remains the stretch.
-UDP is a separate (offload) problem. Every step measured on silicon — HW counters + `/proc/stat`
-side by side; the books must balance.
+**TX has reached the goal (−P2 crosses 500); RX is at 298 with a measured 481 ceiling** (2026-07-09).
+TX is **datapath/shaper-bound**, not CPU-bound — CPU-memory levers leave it unchanged, and the
+2-queue fan-out is long done. The RX wall is now precisely known: the **recv payload copy**
+(`copy_to_user`, 51% of RX CPU, cold DRAM reads) — proven by `perf` and the `recv(MSG_TRUNC)`
+ceiling test (RX −P2 481 = 96% of goal without the copy). The open RX lever is **DDIO /
+allocate-on-DMA-write** (warm the copy's reads) — see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)
+and task #15. Refuted along the way: depth-2 interconnect, grow-L2-past-64 KB, software prefetch,
+BRAM scratchpad (see [`../CHANGELOG.md`](../CHANGELOG.md)). Reader prefetch stays **refuted**².
+1 Gbit/s remains the stretch. UDP is a separate (offload) problem. Every step measured on silicon.
 
 ## R0 baseline (signed, 2026-07-08, `build_dp100_m1` WNS +0.056 — CAMPAIGN_500_PLAN)
 

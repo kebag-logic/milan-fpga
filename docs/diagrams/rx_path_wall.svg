@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1280" height="560" fill="#ffffff"/>
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#555"/></marker><marker id="arrR" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#c0392b"/></marker></defs>
+<text x="640.0" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#111">RX receive path — where the CPU time goes, and the wall</text>
+<text x="640.0" y="57" text-anchor="middle" font-size="13" fill="#666">measured with perf on mlp3 · RX −P2 (2-hart) · 100 MHz</text>
+<text x="60" y="92" text-anchor="start" font-size="12" font-weight="700" fill="#33628f">HARDWARE  (datapath, gateware)</text>
+<rect x="60" y="104" width="150" height="76" rx="8" fill="#f4f7fa" stroke="#33628f" stroke-width="1.6"/>
+<text x="135.0" y="138.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">1 GbE</text>
+<text x="135.0" y="156.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">wire</text>
+<rect x="252" y="104" width="150" height="76" rx="8" fill="#f4f7fa" stroke="#33628f" stroke-width="1.6"/>
+<text x="327.0" y="138.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">RGMII</text>
+<text x="327.0" y="156.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">PHY</text>
+<line x1="214" y1="142.0" x2="248" y2="142.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="444" y="104" width="150" height="76" rx="8" fill="#eef3f8" stroke="#33628f" stroke-width="1.6"/>
+<text x="519.0" y="131.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">MilanMAC</text>
+<text x="519.0" y="149.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">+ HW RSC</text>
+<text x="519.0" y="164.0" text-anchor="middle" font-size="11" fill="#666">coalesces N</text>
+<text x="519.0" y="178.0" text-anchor="middle" font-size="11" fill="#666">frames → 1</text>
+<line x1="406" y1="142.0" x2="440" y2="142.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="636" y="104" width="150" height="76" rx="8" fill="#eef3f8" stroke="#33628f" stroke-width="1.6"/>
+<text x="711.0" y="131.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">RX DMA</text>
+<text x="711.0" y="149.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">writer</text>
+<text x="711.0" y="164.0" text-anchor="middle" font-size="11" fill="#666">burst-writes</text>
+<text x="711.0" y="178.0" text-anchor="middle" font-size="11" fill="#666">to DRAM</text>
+<line x1="598" y1="142.0" x2="632" y2="142.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="834" y="104" width="168" height="76" rx="8" fill="#fdf3e7" stroke="#c98a1e" stroke-width="1.6"/>
+<text x="918.0" y="131.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">DRAM</text>
+<text x="918.0" y="149.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">RX buffer</text>
+<text x="918.0" y="164.0" text-anchor="middle" font-size="11" fill="#666">payload lands here</text>
+<text x="918.0" y="178.0" text-anchor="middle" font-size="11" fill="#666">(cold — never cached)</text>
+<line x1="790" y1="142.0" x2="830" y2="142.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<text x="60" y="324" text-anchor="start" font-size="12" font-weight="700" fill="#7a4fa3">SOFTWARE  (Linux kernel, 2 harts)</text>
+<rect x="60" y="340" width="150" height="76" rx="8" fill="#f3eef8" stroke="#7a4fa3" stroke-width="1.6"/>
+<text x="135.0" y="367.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">NAPI poll</text>
+<text x="135.0" y="385.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">+ GRO</text>
+<text x="135.0" y="400.0" text-anchor="middle" font-size="11" fill="#666">reads BD +</text>
+<text x="135.0" y="414.0" text-anchor="middle" font-size="11" fill="#666">headers (cold)</text>
+<rect x="252" y="340" width="150" height="76" rx="8" fill="#f3eef8" stroke="#7a4fa3" stroke-width="1.6"/>
+<text x="327.0" y="376.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">tcp_recvmsg</text>
+<text x="327.0" y="391.0" text-anchor="middle" font-size="11" fill="#666">receive queue</text>
+<line x1="214" y1="378.0" x2="248" y2="378.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="444" y="340" width="150" height="76" rx="8" fill="#fdecea" stroke="#c0392b" stroke-width="2.4"/>
+<text x="519.0" y="376.0" text-anchor="middle" font-size="14" font-weight="700" fill="#c0392b">copy_to_user</text>
+<text x="519.0" y="391.0" text-anchor="middle" font-size="11" fill="#666">reads payload</text>
+<text x="519.0" y="405.0" text-anchor="middle" font-size="11" fill="#666">COLD from DRAM</text>
+<line x1="406" y1="378.0" x2="440" y2="378.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="636" y="340" width="150" height="76" rx="8" fill="#eef7f0" stroke="#3fae6a" stroke-width="1.6"/>
+<text x="711.0" y="374.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">userspace</text>
+<text x="711.0" y="392.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123">app  (recv)</text>
+<line x1="598" y1="378.0" x2="632" y2="378.0" stroke="#555" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="892.8" y1="184" x2="519.0" y2="336" stroke="#c0392b" stroke-width="2.4" marker-end="url(#arrR)"/>
+<text x="900.8" y="260.0" text-anchor="start" font-size="11" font-weight="700" fill="#c0392b">cold read</text>
+<line x1="842" y1="184" x2="135.0" y2="336" stroke="#999" stroke-width="1.6" marker-end="url(#arr)" stroke-dasharray="4 4"/>
+<rect x="438" y="438" width="162" height="56" rx="6" fill="#c0392b" stroke="#8e1e12" stroke-width="1.6"/>
+<text x="519.0" y="464.0" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">THE WALL</text>
+<text x="519.0" y="479.0" text-anchor="middle" font-size="11" fill="#ffd9d4">51% of RX −P2 CPU</text>
+<text x="519.0" y="493.0" text-anchor="middle" font-size="11" fill="#ffd9d4">~18 cyc / 8-byte word</text>
+<rect x="1042" y="98" width="210" height="150" rx="8" fill="#f7fbf8" stroke="#3fae6a" stroke-width="1.6"/>
+<text x="1147.0" y="178.0" text-anchor="middle" font-size="14" font-weight="700" fill="#123"></text>
+<text x="1056" y="122" text-anchor="start" font-size="12.5" font-weight="700" fill="#2b6">Levers on this cold read</text>
+<text x="1056" y="144" text-anchor="start" font-size="11" font-weight="400" fill="#1f6fb2">• RPT prefetcher HIDES it</text>
+<text x="1056" y="161" text-anchor="start" font-size="11" font-weight="400" fill="#666">  → single 207→277 (+34%)</text>
+<text x="1056" y="178" text-anchor="start" font-size="11" font-weight="400" fill="#1f6fb2">• 64K L2 cuts capacity miss</text>
+<text x="1056" y="195" text-anchor="start" font-size="11" font-weight="400" fill="#666">  → −P2 238→280</text>
+<text x="1056" y="212" text-anchor="start" font-size="11" font-weight="400" fill="#c0392b">• DDIO would WARM it</text>
+<text x="1056" y="229" text-anchor="start" font-size="11" font-weight="400" fill="#666">  (next lever, task #15)</text>
+<line x1="60" y1="500" x2="1080" y2="500" stroke="#ddd" stroke-width="1"/>
+<text x="60" y="524" text-anchor="start" font-size="14" font-weight="700" fill="#c0392b">RX −P2 WITH the copy = 298 Mbit/s</text>
+<text x="470" y="524" text-anchor="start" font-size="14" font-weight="700" fill="#2b7">→  WITHOUT it (MSG_TRUNC ceiling) = 481</text>
+<text x="900" y="524" text-anchor="start" font-size="13" font-weight="400" fill="#444">= 96% of the 500 goal</text>
+</svg>

@@ -1,5 +1,7 @@
 # TX RingDMAReader prefetch — design plan (roadmap step 1, primary TX lever)
 
+> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded — for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../CHANGELOG.md). Numbers and "next steps" below are historical.
+
 **Goal:** push single-flow TCP **TX past 200 Mbit/s** at the 100 MHz datapath by hiding
 DMA read latency in the `RingDMAReader`. This is roadmap item **#1** in
 [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) — the only remaining gap to "≥200 both
