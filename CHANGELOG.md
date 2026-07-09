@@ -33,6 +33,7 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
 | 10 | **RPT + 64 KB L2 (combined)** | RX aggregate | `build_mlp3` (refill+rpt+64K); mech doc `c286108` | **RX −P2 298 (best, +6 % vs l2x2)**; **TX unaffected** (l2x2 vs mlp3 overlap: −P4 ~410, −P2 peak ~530) |
 | 11 | `perf` profiling (cross-built) | *find* the RX wall | `04c8144`; perf in defconfig `b8e2fb6` | **RX −P2 = 51 % `copy_to_user`** (recv payload copy, cold-DRAM-read bound) — interconnect hypothesis refuted |
 | 12 | `MSG_TRUNC` ceiling test | bound >500 feasibility | `2ddf5e4` (`tools_recv_trunc.c`) | **RX without the copy: single 427, −P2 481** (96 % of goal) |
+| 13 | **L2→DRAM depth** (`downPendingMax` 4→8) | stop 2 harts serializing at the L2's DRAM port | `--l2-down-pending=8 --l2-general-slots=16` (patch `sw/litex/patches/0002-vexiiriscv-l2-depth-args.patch`); `build_l2deep` | **RX −P2 296→316 (+7 %)**, single 233→274, §V clean, 0 BRAM, WNS +0.259 — **the keeper config** |
 
 ### DDIO / zero-copy RX levers (measured 2026-07-09, toward the 481 ceiling)
 - **Shared-L2 DDIO** (`build_ddio` = mlp3 + `--l2-ddio`, allocate-on-DMA-write via the SpinalHDL
@@ -42,6 +43,15 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
   Needs a *dedicated stash* (residency), not the shared L2.
 - **App zero-copy recv** (`TCP_ZEROCOPY_RECEIVE`, `tools_recv_zc.c`): **0% zero-copied** — the
   HW-RSC frag isn't page-aligned; TCP mmap needs a driver+HW **header-split** first.
+
+### Memory-depth loop end (measured 2026-07-09) — the knee is L2 downPending=8
+- **L2 downPending 8→16** (`build_l2deep2`): −P2 319 ≈ 316 — **flat** (L2 knee at 8).
+- **LiteDRAM `cmd_buffer_depth` 8→16** (`build_ddrdeep`, per-bank FIFOs RTL-verified 8→16): −P2 313 —
+  **flat**. Every queue from L1 refill slots to the DRAM controller is now deep enough; the residual
+  wall is DDR3 bank/latency physics + the copy itself. **Memory-path ceiling ≈ 316.** Beyond it:
+  only copy-removal (header-split zero-copy / stash — task #17).
+- perf on the L2-deep board re-confirmed **not software**: self-time ~35 % = the payload copy's
+  scalar word-loop (cold reads); scheduling ~4 % + locks ~1.3 % minor.
 
 ### Rejected / refuted levers (measured, not assumed)
 - **112.5 MHz clock** (`757b727`,`d6a0b45`): closed timing but only +4–8 %; not worth boot fragility → stayed 100 MHz.

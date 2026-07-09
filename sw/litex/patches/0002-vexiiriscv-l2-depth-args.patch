@@ -1,0 +1,31 @@
+diff --git a/src/main/scala/vexiiriscv/soc/litex/Soc.scala b/src/main/scala/vexiiriscv/soc/litex/Soc.scala
+index 704a22d..f3ae44b 100644
+--- a/src/main/scala/vexiiriscv/soc/litex/Soc.scala
++++ b/src/main/scala/vexiiriscv/soc/litex/Soc.scala
+@@ -79,6 +79,8 @@ class SocConfig(){
+   var mBusWidth = 64
+   var l2Bytes = 0
+   var l2Ways = 0
++  var l2DownPending = 0 // L2 DRAM-side outstanding (0=default 4)
++  var l2GeneralSlots = 0 // L2 transaction slots (0=default 8)
+   var cpuCount = 1
+   var debugSysBus = false
+   var litedramWidth = 32
+@@ -116,6 +118,8 @@ class SocConfig(){
+     opt[Int]("cpu-count") action { (v, c) => cpuCount = v }
+     opt[Int]("l2-bytes") action { (v, c) => l2Bytes = v }
+     opt[Int]("l2-ways") action { (v, c) => l2Ways = v }
++    opt[Int]("l2-down-pending") action { (v, c) => l2DownPending = v }
++    opt[Int]("l2-general-slots") action { (v, c) => l2GeneralSlots = v }
+     opt[Boolean]("debug-sysbus") action { (v, c) => debugSysBus = v }
+     opt[Unit]("with-dma") action { (v, c) => withDma = true }
+     opt[Unit]("with-cpu-clk") action { (v, c) => withCpuCd = true }
+@@ -475,6 +479,8 @@ class Soc(c : SocConfig) extends Component {
+           cache.parameter.cacheBytes = l2Bytes
+           cache.parameter.selfFlush = selfFlush
+           cache.parameter.readProcessAt = 2+(l2Bytes >= 512*1024).toInt
++          if(l2DownPending > 0) cache.parameter.downPendingMax = l2DownPending // deeper L2->DRAM path
++          if(l2GeneralSlots > 0) cache.parameter.generalSlotCount = l2GeneralSlots
+ //          cache.parameter.generalSlotCount = 12
+ //          cache.parameter.downPendingMax = 8
+ 
