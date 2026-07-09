@@ -7,7 +7,15 @@ both RX and TX**, reaching for 1 Gbit/s. Platform: Alinx AX7101 (xc7a100t), dual
 **Discipline:** every lever is gated by an on-silicon HW-counter measurement *before and after*
 (the "measure, don't assume" rule). Numbers below are measured, deterministic-split harness.
 
-**Status (2026-07-09 evening):** TX **crosses 500** (−P2 peaks 525–536); RX best **316**
+**Status (2026-07-09 night, post-R2):** TX **crosses 500** (513 −P4 re-verified on the R2
+gateware). RX after the R2 multi-slot-RSC campaign (`build_r2slots` + kl-eth `mslot60d`):
+**no-copy stack ceiling 925 Mbit (was 481 — ~93 % of line rate)**, TCP-with-copy
+**~370–410 sustained** (−P8, peer-side time-series; short cells are slow-start-flattered —
+sustain claims require the time-series). R1 warm-copy REFUTED with mechanism (~1 ms
+structural kernel window-cycle at 100 MHz). R3 @112.5 as-built rejected (WNS −0.036 +
+QSPI CRC corruption on-die); R3b (112.5 + rpt-ahead-8) in flight.
+
+*(pre-R2 status below, kept for history)* TX crosses 500 (−P2 peaks 525–536); RX best **316**
 (`build_l2deep`). **RX > 500 is a HARD GOAL — the campaign does not close without it.** The
 measured 481 no-copy ceiling means the path must raise the ceiling *and* close the copy tax:
 **R1** warm copy (`build_ddio` + bounded `tcp_rmem` residency), **R2** RSC multi-slot (kill the

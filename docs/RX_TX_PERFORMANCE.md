@@ -1,7 +1,8 @@
 # RX / TX performance — what we improved, how, and what's next
 
-*Authoritative current-state reference (2026-07-09). Plain-language story of the >500 Mbit/s
-campaign, with the measurements and diagrams. For the per-commit log see [`../CHANGELOG.md`](../CHANGELOG.md);
+*Authoritative current-state reference (2026-07-09, updated after the R2 multi-slot RSC
+campaign). Plain-language story of the >500 Mbit/s campaign, with the measurements and
+diagrams. For the per-commit log see [`../CHANGELOG.md`](../CHANGELOG.md);
 for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](LSU_NONBLOCKING_DCACHE.md) and
 [`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
 snapshots — trust the numbers here.*
@@ -11,12 +12,21 @@ snapshots — trust the numbers here.*
 Best-effort TCP throughput **>500 Mbit/s in both directions** on the fully-FPGA Milan NIC
 (Alinx AX7101, dual VexiiRiscv RV64 @ 100 MHz, DDR3-800, MTU 1500).
 
-## Where we are
+## Where we are (after R2 — `build_r2slots` + kl-eth `mslot60d`)
 
-| direction | best measured (2026-07-09) | goal | verdict |
+| direction | measured (2026-07-09 eve) | goal | verdict |
 |---|:--:|:--:|---|
-| **TX** | **−P2 525–536**, −P4 ~410–475 | 500 | ✅ **crosses 500** (at −P2) |
-| **RX** | **−P2 316** (l2deep = mlp3 + L2→DRAM depth 8) · single 277 | 500 | ⏳ copy-bound; **481 ceiling** once the copy is removed; memory-path levers exhausted at ~316 |
+| **TX** | **−P4 513** on the R2 gateware (historical −P2 525–536) | 500 | ✅ **crosses 500** |
+| **RX, no-copy stack ceiling** | **925** (MSG_TRUNC −P2, ~93 % of line rate; was 481) | — | ✅ the stack itself is line-rate-class now |
+| **RX, TCP with real copies** | **~370–410 sustained** (−P8 spin, peer-tx_bytes time-series, flat, canary 0) · short-cell bursts 520–660 are slow-start transients — do not quote them | 500 | ⏳ 2-hart CPU equilibrium (cpu0 100 % softirq, cpu1 100 % copy); 112.5 MHz + deeper RPT prefetch (R3b) in flight |
+
+**R2 in one line**: 4 RSC aggregate slots + 60 KB buffers + a pop-ordered completion queue
+(the wedge invariant kept *by construction*) took the per-byte stack cost down ~4× —
+interleave parks (90 % of closes) eliminated, coalesce 10.6 → 22.8 segs/aggregate — and
+two real driver bugs fell out (lost-edge IRQ race → 5 ms stalls; posted-pool famine at
+60 KB pages). RX went 316 → ~390 sustained / 925 no-copy. The residual wall is the
+recv-side CPU: the full-queue TCP regime (window updates + sock-lock backlog) costs ~25 %
+over the transient drain rate (≥520 proven).
 
 The whole campaign on one chart:
 
