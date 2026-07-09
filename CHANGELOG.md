@@ -34,6 +34,15 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
 | 11 | `perf` profiling (cross-built) | *find* the RX wall | `04c8144`; perf in defconfig `b8e2fb6` | **RX −P2 = 51 % `copy_to_user`** (recv payload copy, cold-DRAM-read bound) — interconnect hypothesis refuted |
 | 12 | `MSG_TRUNC` ceiling test | bound >500 feasibility | `2ddf5e4` (`tools_recv_trunc.c`) | **RX without the copy: single 427, −P2 481** (96 % of goal) |
 
+### DDIO / zero-copy RX levers (measured 2026-07-09, toward the 481 ceiling)
+- **Shared-L2 DDIO** (`build_ddio` = mlp3 + `--l2-ddio`, allocate-on-DMA-write via the SpinalHDL
+  `Cache.allocateOnMiss` hook — feasible as a config line, WNS +0.102, 0 BRAM): **flat** — RX −P2
+  ~300 ≈ mlp3 298, single/−P4 slightly down. Allocating every DMA write **pollutes** the 64 KB L2
+  without **warming** the copy — payloads evicted before `copy_to_user` reads them (NAPI→recv gap).
+  Needs a *dedicated stash* (residency), not the shared L2.
+- **App zero-copy recv** (`TCP_ZEROCOPY_RECEIVE`, `tools_recv_zc.c`): **0% zero-copied** — the
+  HW-RSC frag isn't page-aligned; TCP mmap needs a driver+HW **header-split** first.
+
 ### Rejected / refuted levers (measured, not assumed)
 - **112.5 MHz clock** (`757b727`,`d6a0b45`): closed timing but only +4–8 %; not worth boot fragility → stayed 100 MHz.
 - **Dedicated network *scratchpad*** (`c7e4db2`): RX buffers already in DRAM (0 BRAM) → a scratchpad *adds* BRAM; kernel-owned state can't be relocated. *But* the related **DDIO/allocate-on-DMA-write** idea was later vindicated by perf (task #15).
