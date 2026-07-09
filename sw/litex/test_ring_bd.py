@@ -1551,6 +1551,147 @@ def test_mslot_age_cap():
     print("PASS mslot: lifetime cap closes a never-idle trickle aggregate")
 
 
+
+
+# ---- R-3 header-split (HEADER_SPLIT_DESIGN.md) --------------------------------------
+HDR_BASE = 0x300000
+
+def _hs_init(h, pages=8):
+    yield from h.init_bd(bd_entries=16)
+    yield h.dut.rsc_en.storage.eq(1)
+    yield h.dut.rsc_bufsz.storage.eq(57344)      # payload cap in hs mode (14 pages)
+    yield h.dut.rsc_tout.storage.eq(400)
+    yield h.dut.hs_en.storage.eq(1)
+    yield h.dut.hs_hdr_base.storage.eq(HDR_BASE)
+    for i in range(pages):
+        yield from h.post_buf(0x100000 + i * 0x1000)   # order-0 4 KB pages
+
+
+def test_hs_basic_split():
+    """One 2-seg aggregate: header lands in ring slot 0, payload at page offset 0
+    byte-exact, BDs = v2 meta (tag/hdr_idx/len) then v3 page (addr)."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=60000)
+
+    def stim():
+        yield from _hs_init(h)
+        w1_, l1, b1 = tcp_tagged(300, 0x10, 1000, 40000, 0xA1)
+        w2_, l2, b2 = tcp_tagged(200, 0x18, 1300, 40000, 0xA2)   # PSH closes
+        yield from h.send_frame(w1_)
+        yield from h.send_frame(w2_)
+        for _ in range(600):
+            yield
+        assert (yield h.dut.frames.status) == 2, "v2 meta + v3 page expected"
+        w0m, w1m = h.read_bd(0)
+        w0p, w1p = h.read_bd(1)
+        # v2 meta: bit56=1, bit58=0(meta), len = payload+hdrlen = 500+54
+        assert (w0m >> 56) & 1 == 1 and (w0m >> 58) & 1 == 0, "meta flags"
+        assert ((w0m >> 16) & 0xFFFF) == 554, f"meta len {(w0m>>16)&0xFFFF} != 554"
+        tag = (w0m >> 54) & 3
+        hidx = (w0m >> 59) & 0x1F
+        assert hidx == 0, f"first header slot, got {hidx}"
+        segs = (w1m >> 48) & 0xFF
+        assert segs == 2, f"segs {segs}"
+        # v3 page: bit56=1, bit58=1, same tag, w1 = the posted page
+        assert (w0p >> 56) & 1 == 1 and (w0p >> 58) & 1 == 1, "page flags"
+        assert ((w0p >> 54) & 3) == tag, "tag mismatch"
+        assert (w1p & 0xFFFFFFFF) == 0x100000, f"page addr {w1p:#x}"
+        # payload at page offset 0: seg1 payload ++ seg2 payload, byte-exact
+        exp = l1[54:54+300] + l2[54:54+200]
+        got = bytearray()
+        for k in range((500 + 7) // 8):
+            got += (h.mem.get(0x100000 + 8*k, 0)).to_bytes(8, "little")
+        assert bytes(got[:500]) == bytes(exp), "payload not at offset 0 / not byte-exact"
+        # header ring slot 0 = opener's frame head (54 B+)
+        hdr = bytearray()
+        for k in range(9):
+            hdr += (h.mem.get(HDR_BASE + 8*k, 0)).to_bytes(8, "little")
+        assert bytes(hdr[:54]) == bytes(l1[:54]), "header slot content"
+
+    h.run(stim)
+    print("PASS hs: basic split — header slot, payload@0 byte-exact, v2+v3 BDs")
+
+
+def test_hs_page_crossing():
+    """Aggregate payload > 4096: JIT page pop mid-append; v3(page0) precedes the
+    close pair; both pages byte-exact; driver-view reassembly matches."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=120000)
+
+    def stim():
+        yield from _hs_init(h)
+        payloads = []
+        seq = 5000
+        for i in range(4):                       # 4 x 1300 = 5200 B > 4096
+            flags = 0x18 if i == 3 else 0x10
+            w_, l, b = tcp_tagged(1300, flags, seq, 40001, 0xB0 + i)
+            payloads.append(l[54:54+1300])
+            yield from h.send_frame(w_)
+            seq += 1300
+        for _ in range(1200):
+            yield
+        assert (yield h.dut.frames.status) == 3,             f"v2 + 2 v3s expected, got {(yield h.dut.frames.status)}"
+        w0m, w1m = h.read_bd(0)      # meta drains first (pop order)
+        w0a, w1a = h.read_bd(1)      # page 0 (v3'd at crossing)
+        w0b, w1b = h.read_bd(2)      # page 1 (v3'd at close)
+        assert (w0m >> 58) & 1 == 0 and (w0a >> 58) & 1 == 1 and (w0b >> 58) & 1 == 1
+        assert ((w0m >> 16) & 0xFFFF) == 5200 + 54, "meta len"
+        assert (w1a & 0xFFFFFFFF) == 0x100000 and (w1b & 0xFFFFFFFF) == 0x101000,             f"pages {w1a:#x} {w1b:#x}"
+        exp = b"".join(payloads)
+        got = bytearray()
+        for k in range(512):
+            got += (h.mem.get(0x100000 + 8*k, 0)).to_bytes(8, "little")
+        for k in range((5200 - 4096 + 7) // 8):
+            got += (h.mem.get(0x101000 + 8*k, 0)).to_bytes(8, "little")
+        assert bytes(got[:5200]) == exp, "cross-page payload mismatch"
+
+    h.run(stim)
+    print("PASS hs: page crossing — JIT pop, v3 ordering, byte-exact across pages")
+
+
+def test_hs_tag_interleave():
+    """Two flows aggregate concurrently in hs mode: v3s carry distinct tags; a
+    driver-view per-tag assembly reconstructs both payloads."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024, burst_beats=16, cycles=120000)
+
+    def stim():
+        yield from _hs_init(h, pages=10)
+        pa, pb = [], []
+        sa, sb = 1000, 9000
+        for i in range(3):
+            wa_, la, _ = tcp_tagged(1000, 0x18 if i == 2 else 0x10, sa, 40000, 0xC0 + i)
+            wb_, lb, _ = tcp_tagged(900, 0x18 if i == 2 else 0x10, sb, 40001, 0xD0 + i)
+            pa.append(la[54:54+1000]); pb.append(lb[54:54+900])
+            yield from h.send_frame(wa_)
+            yield from h.send_frame(wb_)
+            sa += 1000; sb += 900
+        for _ in range(1500):
+            yield
+        n = yield h.dut.frames.status
+        assert n == 4, f"2 metas + 2 pages expected, got {n}"
+        asm = {}
+        metas = {}
+        rd = 0
+        for k in range(n):
+            w0 = h.mem.get(BD_BASE + rd, 0); w1 = h.mem.get(BD_BASE + rd + 8, 0)
+            assert (w0 & 0xFF) == 0xBD
+            tag = (w0 >> 54) & 3
+            if (w0 >> 58) & 1:
+                asm.setdefault(tag, []).append(w1 & 0xFFFFFFFF)
+            else:
+                metas[tag] = (w0 >> 16) & 0xFFFF
+            rd += 16
+        assert len(metas) == 2 and len(asm) == 2, f"metas={metas} asm={asm}"
+        for tag, ln in metas.items():
+            payload = ln - 54
+            got = bytearray()
+            for pg in asm[tag]:
+                for k in range(512):
+                    got += (h.mem.get(pg + 8*k, 0)).to_bytes(8, "little")
+            exp = b"".join(pa) if payload == 3000 else b"".join(pb)
+            assert bytes(got[:payload]) == exp, f"tag {tag} payload mismatch"
+
+    h.run(stim)
+    print("PASS hs: two tags interleave — per-tag assembly reconstructs both flows")
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -1585,4 +1726,7 @@ if __name__ == "__main__":
     test_mslot_exhaustion_parks_victim()
     test_mslot_cq_pressure_close()
     test_mslot_age_cap()
+    test_hs_basic_split()
+    test_hs_page_crossing()
+    test_hs_tag_interleave()
     print("ALL PASS")

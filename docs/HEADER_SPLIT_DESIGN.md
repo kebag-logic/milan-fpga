@@ -25,7 +25,7 @@ measured enabler: batched PTE moves 1.22 µs/page vs 26.3 µs copy (21.5×). Tar
 |---|---|---|
 | w0[7:0] | 0xBD | 0xBD |
 | w0[15:8] | seq | seq |
-| w0[31:16] | total len (hdr+payload, as legacy) | bytes in THIS page |
+| w0[31:16] | total len (hdr+payload, as legacy) | 0 (driver derives per-page bytes from v2.len) |
 | w0[47:32] | mss | 0 |
 | w0[53:48] | drops (6-bit saturating) | drops6 |
 | w0[55:54] | **slot tag** | slot tag |
@@ -57,3 +57,23 @@ time, then steady −P8 time-series.
 ## CSRs (appended after rsc_agemax — all existing offsets preserved)
 
 `hs_en` (1 b, reset 0), `hs_hdr_base` (64 b). Verify via csr.csv diff.
+
+## Implementation record (2026-07-10, sim-green)
+
+- RTL: milan_soc.py RingDMAWriter — `hs_en`/`hs_hdr_base` CSRs (rx: +0x5c/+0x60
+  rel.), HS_HAW/HS_HW (header burst from hdr_reg), opener payload@0 through the
+  existing append rotator (s_lane -> r_lane=0), HS_PGSWAP (JIT page pop at
+  off_r==4096 or the lazy boundary flag; famine = close-with-written + tail
+  discard with regfile-aware disc math), dual CQ alloc at open (meta drains first),
+  CQ_FILL two-pass (v3 then meta), per-entry cq_hs selects the drops6 drain patch.
+  v3 carries tag but NO per-page length — the driver derives it from v2.len.
+- Bit layout final: v2 w0 {BD,seq,len,mss,drops6@53:48,tag@55:54,1@56,psh@57,0@58,
+  hdr_idx@63:59}; v3 w0 {BD,seq,0,0,drops6,tag,1@56,0@57,1@58}; w1 v2 legacy /
+  v3 page addr. v1 untouched (incl. its 8-bit drops).
+- Driver kl-eth `hsplit1`: order-0 pool, 32x128 B header ring, per-tag assembly
+  (meta consumes NO page — consume_nopage; v3 realigns by address like v1),
+  RING_RSC_BUFSZ=57344 payload cap. Map shift: steer 0x308c/90, hash 0x3094,
+  rx1 0xf0003098 (window 0x80).
+- Sim: test_hs_basic_split / test_hs_page_crossing / test_hs_tag_interleave PASS
+  (header slot content, payload@0 byte-exact, cross-page reassembly, tag routing);
+  legacy suite green at hs_en=0.
