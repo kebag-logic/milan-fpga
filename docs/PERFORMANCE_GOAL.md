@@ -2,6 +2,45 @@
 
 > 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
 
+## ⚡ FORCED-MARCH RESULTS (2026-07-09 evening — R1 refuted, R2 LANDED, R3 in flight)
+
+**R1 (warm copy) — REFUTED with mechanism** (details: memory `r1-warm-copy-refuted`,
+tools `tools_wakebench.c`/`tools_recv_spin.c`): bounded receive windows are throttled by a
+**structural ~1 ms kernel window-cycle at 100 MHz** (ICMP kernel turnaround 0.574 ms tight;
+sleep-wake 340–560 µs/leg) → rate ≈ rwnd/1.2 ms ≈ 100–240 Mbit for 48–384 KB buffers,
+regardless of copy warmth. Unbounded windows self-defeat residency (slow copy ⇒ 1–3 MB
+standing Recv-Q ⇒ cold copy). DDIO×spin×paced-entry all measured flat. Keepers: busy-poll
+receiver (`recv_spin`, +8% over iperf3), quickack regime rule (helps lockstep, kills
+streaming — default OFF), threaded=0.
+
+**R2 (RSC multi-slot × geometry) — LANDED, the campaign's structural win** (`build_r2slots`
+WNS +0.018 + kl-eth `mslot60c`, commits a238f84/98b9708/b880cdf/5c6f1a6). Park was 90% of
+closes at −P2 and aggregates were 16 KB-buffer-bound at 10.6 segs — so the fix is 4 aggregate
+slots (kill interleave parks) × 60 KB order-4 buffers (segcap 60, agemax 2 ms) × a
+**pop-ordered completion queue** that keeps BD order == posted-pop order BY CONSTRUCTION
+(the RX-wedge invariant generalized; both historical `~agg_open` gates removed; driver ABI
+unchanged — v2 BDs still carry no address). Timing needed a MATCH pipeline stage + staged
+close-meta (CQ_FILL). Driver: lost-edge IRQ race closed (PLIC edge + re-enable race → BDs
+rode the 5 ms idle poll; p90 5.5 ms stalls measured, re-check after enable_irq).
+**Silicon: no-copy ceiling (MSG_TRUNC −P2) 458 → 925 Mbit (~93% of line rate, 2×);
+coalesce ratio 10.6 → 22.8 segs/agg; TX −P4 513 (no regression); §V storm 5 rounds mixed
+3-flow 620–668 Mbit aggregate, drops delta 0, canary 0.**
+
+**⚠ Transient vs steady (measure-don't-assume, applied to ourselves AGAIN)**: every
+short-cell (6–20 s) TCP number is slow-start-flattered — the 8 Recv-Qs absorb a ~700+
+Mbit ingest burst while the apps drain at copy speed, so an 8 s cell reports 520–660
+"received" (582/610/660 measured) while the **peer tx_bytes time-series shows the steady
+truth: −P8 = 379–407 Mbit flat** (256 KB reads; other read sizes lower in steady despite
+looking better in short cells). Both harts are 100 % (cpu0 all-softirq, cpu1 all-sys/copy)
+— a genuine CPU equilibrium; the full-queue regime costs more per byte than the transient
+(window-update + sock-lock backlog double-handling). mslot60d (KL_BD_POST 48→60) zeroed
+the famine drops. **Sustain claims henceforth require the peer-side time-series.**
+Honest R2 @100 MHz ledger: steady RX ~390–410, transient-drain proof ≥520, ceiling 925.
+
+**R3 (112.5 MHz sys on the R2 keeper) + R3b (112.5 + `--lsu-rpt-block-ahead-max=8`) —
+both building.** Needed for >500 steady: +25 % over 400 — clock gives ~+8–12 %, rpt-8
+attacks the copy's cold-read rate (cpu1 is pure copy). Expected: R3 ~430–450, R3b TBD.
+
 **North star for the performance campaign on the fully-FPGA Milan NIC** (Alinx AX7101,
 dual VexiiRiscv RV64IMA @100 MHz, 64-bit datapath, MTU 1500 everywhere).
 
