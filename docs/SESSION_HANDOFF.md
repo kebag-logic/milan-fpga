@@ -36,9 +36,15 @@ Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
    pressure-close covering the open-slot-PAGE-at-head case (close_prs never fires —
    head_open_hit only matches the META entry), poll cadence, POST >63 (needs HW post
    FIFO deepening past 64).
-3. **XDP / AF_PACKET data plane** (user-approved endgame) — copy-free consumer path
+3. **AREA-70 campaign (user directive 2026-07-10)** — after the 2-queue work:
+   slices 96.8% → ~70% (reclaim ≥4250, more once 2-queue lands). Levers: more
+   Array→LUTRAM diets (CQ-swap pattern), strip-probes ship build (tlm block +
+   Phase-0 probes behind a flag), legacy byte-ring path removal (kills driver
+   bd=0 fallback — decide consciously), Vivado area strategies. The point:
+   headroom for the ADP/AVDECC product blocks.
+4. **XDP / AF_PACKET data plane** (user-approved endgame) — copy-free consumer path
    toward 941; hs page-aligned delivery is the substrate.
-4. Residual single-flow drops (~51/s, lap-independent) — refinement.
+5. Residual single-flow drops (~51/s, lap-independent) — refinement.
 
 ## 2. Topology — what plugs into what
 
