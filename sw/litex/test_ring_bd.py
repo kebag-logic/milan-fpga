@@ -1835,50 +1835,100 @@ if __name__ == "__main__":
 
 
 def test_hs_livelock_orphan():
-    """Task #13 repro: silicon multi-flow livelock = an allocated-but-never-done CQ
-    entry jams the head (hsq4: BDs flow then RX dies; no pairing loss). Regime:
-    6 flows > 4 slots (victim park-close churn) at line rate (0-3 cycle gaps),
-    bounded pool. Jam detector: after the storm + drain, a probe frame on a fresh
-    flow MUST complete to a BD within a bounded window."""
+    """Task #13 iteration 2: silicon multi-flow livelock repro with the DRIVER IN THE
+    LOOP (concurrent reap + repost, mirroring kl-eth hsplit9): 6 flows > 4 slots at
+    line rate, silicon timing (tout=50k cycles=500us, agemax=200k=2ms). Jam detector:
+    a probe frame after the storm must produce BD writeback."""
     import random
     rng = random.Random(13)
     h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=2048,
-                  burst_beats=16, cycles=900000)
-    posted = []
+                  burst_beats=16, cycles=2000000)
     HDRB = 0x300000
-    state = {"bds": 0, "probe_seen": False}
+    state = {"probe_seen": False, "reaped": 0, "reposted": 0}
 
     def stim():
         yield from h.init_bd(bd_entries=64)
         yield h.dut.rsc_en.storage.eq(1)
         yield h.dut.rsc_bufsz.storage.eq(57344)
-        yield h.dut.rsc_tout.storage.eq(250)
-        yield h.dut.rsc_agemax.storage.eq(20000)
+        yield h.dut.rsc_tout.storage.eq(50000)
+        yield h.dut.rsc_agemax.storage.eq(200000)
         yield h.dut.hs_en.storage.eq(1)
         yield h.dut.hs_hdr_base.storage.eq(HDRB)
-        pages = [0x100000 + i * 0x1000 for i in range(120)]
-        pidx = 0
+        pool = [0x100000 + i * 0x1000 for i in range(64)]
+        posted = []          # FIFO of posted addrs (driver mirror)
+        freed = []           # recycled addrs awaiting repost
         for _ in range(60):
-            yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
+            a = pool.pop(0); posted.append(a)
+            yield from h.post_buf(a)
+        rd = {"o": 0, "seq": 0, "ci": 0}
+
+        def reap_once():
+            # returns pages freed this reap (v1/v3 consume; meta doesn't)
+            got = 0
+            while True:
+                w0 = h.mem.get(BD_BASE + rd["o"], None)
+                if w0 is None or (w0 & 0xFF) != 0xBD or ((w0 >> 8) & 0xFF) != (rd["seq"] & 0xFF):
+                    break
+                v2 = (w0 >> 56) & 1; page = (w0 >> 58) & 1
+                w1 = h.mem.get(BD_BASE + rd["o"] + 8, 0)
+                if (not v2) or page:             # page-consuming BD
+                    want = w1 & 0xFFFFFFFF
+                    n = 0
+                    while rd["ci"] < len(posted) and posted[rd["ci"]] != want and n < 32:
+                        freed.append(posted[rd["ci"]]); rd["ci"] += 1; n += 1
+                    assert rd["ci"] < len(posted) and posted[rd["ci"]] == want, \
+                        f"pairing broken @{rd['o']:#x} want={want:#x}"
+                    freed.append(posted[rd["ci"]]); rd["ci"] += 1
+                    got += 1
+                h.mem[BD_BASE + rd["o"]] = 0    # consume (driver zeroes w0)
+                rd["seq"] += 1
+                rd["o"] = (rd["o"] + 16) & (64 * 16 - 1)
+                state["reaped"] += 1
+            return got
+
         flows = [(0x1000 + i, 1000 + 7000 * i) for i in range(6)]
-        for r in range(200):
+        d = h.dut
+        prev = {"tail": 0, "done": [0]*8}
+        def monitor():
+            tl = yield d.dbg_cq_tail
+            if tl != prev["tail"]:
+                print(f"  [alloc] tail {prev['tail']}->{tl}")
+                prev["tail"] = tl
+            for i in range(8):
+                dn = yield d.dbg_cq_done[i]
+                if dn != prev["done"][i]:
+                    print(f"  [done{'+' if dn else '-'}] entry {i}")
+                    prev["done"][i] = dn
+        for r in range(30):
             fi = rng.randrange(len(flows))
             sp, sq = flows[fi]
             plen = rng.choice([1448, 1448, 1448, 200])
             psh = 0x18 if rng.random() < 0.05 else 0x10
             w, logical, _ = tcp_tagged(plen, psh, sq, sp, (0xA0 + r) & 0xFF)
             flows[fi] = (sp, sq + plen)
+            print(f"  [frame {r}] flow={sp:#x} len={plen} psh={psh==0x18}")
             yield from h.send_frame(w)
             for _ in range(rng.randrange(0, 4)):
                 yield
-            if pidx < len(pages) and rng.random() < 0.6:
-                yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
-        for _ in range(30000):     # long drain: touts + agemax fire
-            yield
-        # jam probe: a fresh flow's frame must produce BDs
+                yield from monitor()
+            yield from monitor()
+            if (r % 8) == 7:                     # NAPI-ish cadence
+                reap_once()
+                while freed:                     # repost exactly what was consumed
+                    a = freed.pop(0); posted.append(a)
+                    yield from h.post_buf(a)
+                    state["reposted"] += 1
+        # drain: touts + agemax fire; keep reaping like the driver would
+        for _ in range(12):
+            for __ in range(5000):
+                yield
+            reap_once()
+            while freed:
+                a = freed.pop(0); posted.append(a)
+                yield from h.post_buf(a)
+                state["reposted"] += 1
+        # jam probe
         w, _, _ = tcp_tagged(300, 0x18, 500, 0x9999, 0xEE)
-        if pidx < len(pages):
-            yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
         snap = tuple(h.mem.get(BD_BASE + 8 * k) for k in range(128))
         yield from h.send_frame(w)
         for _ in range(200):
@@ -1887,7 +1937,6 @@ def test_hs_livelock_orphan():
             if tuple(h.mem.get(BD_BASE + 8 * k) for k in range(128)) != snap:
                 state["probe_seen"] = True
                 return
-
         # JAMMED: dump CQ forensics
         d = h.dut
         hd = yield d.dbg_cq_head; tl = yield d.dbg_cq_tail
@@ -1900,9 +1949,9 @@ def test_hs_livelock_orphan():
             sc.append((yield d.dbg_s_cq[i]))
             scm.append((yield d.dbg_s_cqm[i]))
         hoh = yield d.dbg_head_open_hit
-        print(f"JAM: head={hd} tail={tl} done={done} s_open={so} s_cq={sc} s_cqm={scm} head_open_hit={hoh}")
+        print(f"JAM: head={hd} tail={tl} done={done} s_open={so} s_cq={sc} s_cqm={scm} hoh={hoh} reaped={state['reaped']} reposted={state['reposted']}")
 
     h.run(stim)
     assert state["probe_seen"], \
-        "CQ HEAD JAMMED: probe frame produced no BD writeback — orphan repro (forensics above)"
-    print("PASS hs: livelock probe — head never jammed")
+        f"CQ HEAD JAMMED (reaped={state['reaped']}) — orphan repro (forensics above)"
+    print(f"PASS hs: livelock probe v2 — {state['reaped']} BDs reaped live, head never jammed")
