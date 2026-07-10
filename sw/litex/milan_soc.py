@@ -505,7 +505,15 @@ class RingDMAWriter(LiteXModule):
       base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
     """
     def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16,
-                 n_slots=4, cq_depth=8, hs_capable=True):
+                 n_slots=4, cq_depth=8, hs_capable=True, hs_page_bytes=4096):
+        # hs_page_bytes (hsq10): posted-page size the hs page-crossing arithmetic
+        # assumes — MUST match the driver's page-pool order (STRICT pairing, kl-eth
+        # hsplit12 `hs_pgsz`). 16384 quadruples the posted-pool burst absorbency
+        # (60 pages: 240KB->960KB/queue = the legacy 0-drop regime) at the cost of
+        # coarser page granularity. Power of two; only three sites use it (the
+        # crossing compare + the two mod-page slices).
+        assert hs_page_bytes & (hs_page_bytes - 1) == 0
+        PGB = hs_page_bytes.bit_length() - 1
         self.bus  = bus                 # axi.AXIInterface(data_width=64), byte-addressed
         self.sink = sink = stream.Endpoint([("data", 64), ("keep", 8)])
 
@@ -1365,9 +1373,9 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
                 NextValue(fbeat, p_soff[3:]),
                 NextValue(rem_r, ap_outb),
-                NextValue(off_r, Mux(hs, Cat(C(0, 3), m_sel_off[3:12]),
+                NextValue(off_r, Mux(hs, Cat(C(0, 3), m_sel_off[3:PGB]),
                                          Cat(C(0, 3), m_sel_off[3:]))),
-                NextValue(ap_needswap, hs & (m_sel_off[:12] == 0)),
+                NextValue(ap_needswap, hs & (m_sel_off[:PGB] == 0)),
                 NextValue(hs_cross, 0),
                 NextValue(buf_addr_r, m_sel_buf),
                 NextState("APRIME"),
@@ -1505,7 +1513,7 @@ class RingDMAWriter(LiteXModule):
             )
         )
         fsm.act("PREP",                             # register this burst's geometry
-            If(hs & ap_append & ((off_r == 4096) | ap_needswap),
+            If(hs & ap_append & ((off_r == hs_page_bytes) | ap_needswap),
                 NextState("HS_PGSWAP"),             # page full: v3 + JIT next-page pop
             ).Else(
                 NextValue(blen_r, blen),
@@ -2776,7 +2784,7 @@ class MilanDMA(LiteXModule):
     NOTE (board-gated): this elaborates against integrated RAM here; on the board it
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade — see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
-    def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1):
+    def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096):
         from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
         from litex.soc.interconnect import wishbone
         import math
@@ -2824,7 +2832,8 @@ class MilanDMA(LiteXModule):
         # 2026-07-10: 138 Mbit; BUFSZ=16K config probe confirmed the model at 279).
         # 32 fits PAYCAP (meta+14 pages) plus a second aggregate with slack.
         self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
-                                                 id_width=4), cq_depth=32)
+                                                 id_width=4), cq_depth=32,
+                                hs_page_bytes=hs_page_bytes)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
         # RX fan-out (rx_queues=2): a flow-steering front-end splits the single RX
         # stream into 2 flow-consistent queues, each its own RingDMAWriter + IRQ +
@@ -2841,7 +2850,8 @@ class MilanDMA(LiteXModule):
             # drivers keep q1 legacy (hs_en=0 reset => bit-exact legacy behavior).
             self.rx1 = RingDMAWriter(axi.AXIInterface(data_width=data_width,
                                                       address_width=32, id_width=4),
-                                     cq_depth=32, hs_capable=True)
+                                     cq_depth=32, hs_capable=True,
+                                     hs_page_bytes=hs_page_bytes)
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
@@ -3199,7 +3209,7 @@ class MilanSoC(SoCCore):
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
-                 strip_probes=False, **kwargs):
+                 strip_probes=False, hs_page_bytes=4096, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller — the AVB-switch direction,
@@ -3338,7 +3348,8 @@ class MilanSoC(SoCCore):
             milan_cd = "milan" if milan_clk_freq else "sys"
             if with_dma:
                 self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
-                                          rx_queues=rx_queues)
+                                          rx_queues=rx_queues,
+                                          hs_page_bytes=hs_page_bytes)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
@@ -3452,6 +3463,10 @@ def main():
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--rx-queues", default=1, type=int,
                     help="RX DMA queues (2 = flow-steered fan-out for parallel ACK/recv on 2 harts)")
+    ap.add_argument("--hs-page-bytes", default=4096, type=lambda x: int(x, 0),
+                    help="posted-page size the hs crossing arithmetic assumes (power of 2; "
+                         "16384 = 4x burst absorbency, pairs STRICTLY with kl-eth hsplit12 "
+                         "hs_pgsz=16384)")
     ap.add_argument("--strip-probes", action="store_true",
                     help="drop the MilanDebug telemetry block (tlm CSRs @0xf0004000+ incl. "
                          "Phase-0/M1 probes) — the area-70 ship-build diet; kl-eth handles "
@@ -3535,6 +3550,7 @@ def main():
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
+                   hs_page_bytes=args.hs_page_bytes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
