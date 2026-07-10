@@ -2761,8 +2761,14 @@ class MilanDMA(LiteXModule):
         # the wishbone adapter at ~21 MB/s (< the 125 MB/s wire — HW-measured, see the
         # RingDMAWriter docstring). The dma_bus handler is standard "axi", so this master
         # connects through AXIInterconnectShared with bursts intact.
+        # cq_depth=32 (was the 8 default): header-split spends 1+pages CQ entries per
+        # aggregate (legacy spent 1) — at 8, one 20KB aggregate (6 entries) trips the
+        # CQD-2 opener gate and a 39KB cwnd burst overruns mid-frame => PGSWAP no-room
+        # famine => tail discard => TCP loss every burst clamped cwnd~27 (silicon
+        # 2026-07-10: 138 Mbit; BUFSZ=16K config probe confirmed the model at 279).
+        # 32 fits PAYCAP (meta+14 pages) plus a second aggregate with slack.
         self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
-                                                 id_width=4))
+                                                 id_width=4), cq_depth=32)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
         # RX fan-out (rx_queues=2): a flow-steering front-end splits the single RX
         # stream into 2 flow-consistent queues, each its own RingDMAWriter + IRQ +
