@@ -673,7 +673,7 @@ class RingDMAWriter(LiteXModule):
         s_psh   = Array(Signal(name=f"s_psh{i}")        for i in range(NS))
         s_idle  = Array(Signal(24, name=f"s_idle{i}")   for i in range(NS))
         s_age   = Array(Signal(24, name=f"s_age{i}")    for i in range(NS))
-        s_cq    = Array(Signal(4,  name=f"s_cq{i}")     for i in range(NS))
+        s_cq    = Array(Signal(max=cq_depth, name=f"s_cq{i}") for i in range(NS))  # CQ index: MUST track cq_depth (4-bit relic broke CQD=32: closes stamped done on entry&0xF, head starved)
         self.rsc_bufsz = CSRStorage(16, reset=2048, description="RSC aggregate buffer bytes (driver posts this size).")
         self.rsc_tout  = CSRStorage(24, reset=5000, description="RSC aggregate idle-close timeout (milan_clk cycles; 5000 = 100 us @ 50 MHz).")
         # slot selection combs
