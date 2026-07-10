@@ -28,9 +28,14 @@ everywhere. **NEVER load hsplit10 on ≤hsq5 gateware** (silent lap by construct
 Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
 
 **Next work, in order of value:**
-1. **2-queue header-split** — re-add rx1+steer with hs (needs slice diet or CQ-width
-   work; hsq4/5/6 are 1-queue to fit CQD=32). mslot's 368-407 aggregate is a 2-queue
-   number; hs at 295-312 per-queue is knocking on it.
+1. **2-queue header-split** — re-add rx1+steer with hs (hsq7t proves the diet makes
+   2-queue FIT+CLOSE; rx1-hs itself still needs strip-probes headroom). mslot's
+   368-407 aggregate is a 2-queue number; hs at 295-312 per-queue is knocking on it.
+   ⚠ hsplit11 REQUIREMENT (silicon Oops, 2026-07-10 late): **hsplit=1 on gateware
+   with a non-hs q1 PARSES q1's LEGACY BDs AS HS** ("hs: stale asm" → wild page
+   pointers → cpu1 kernel Oops). The driver must scope hs parsing per-queue (probe
+   each queue's hs CSRs, or a gateware hs-capability bit). Until then: hsplit=1 is
+   1-queue-gateware-only; on 2-queue run hsplit=0 (legacy both queues).
 2. **Residual drop shaving** — ~58/flow/s constant reap-gap drops remain (194-319/s
    at P4/P8): opens blocked in µs windows while bursts outrun the poll. Levers:
    pressure-close covering the open-slot-PAGE-at-head case (close_prs never fires —

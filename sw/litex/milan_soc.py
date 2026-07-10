@@ -3180,7 +3180,7 @@ class MilanSoC(SoCCore):
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
-                 **kwargs):
+                 strip_probes=False, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller — the AVB-switch direction,
@@ -3330,7 +3330,11 @@ class MilanSoC(SoCCore):
             # Pipeline telemetry (memory-mapped): frame/beat/stall counts at every TX+RX
             # AXIS stage + GMII wire counts + datapath occupancy/latency + gPTP counters,
             # all coherently snapshot-latched by one `capture` write. Needs both engines.
-            if with_dma and with_mac:
+            # --strip-probes drops the whole block (area-70 lever #2: every counter is
+            # 32 FFs + a capture shadow + increment logic — thousands of LUTs across
+            # ~40 probes). The kl-eth driver probes tlm presence and tolerates absence
+            # ("optional (absent on minimal gateware)"); dev/forensics builds keep it.
+            if with_dma and with_mac and not strip_probes:
                 # Phase-0 reader instrumentation (TX_READER_PREFETCH_PLAN.md App. A): measure
                 # L, the starve breakdown, and the outstanding-depth proxy BEFORE any prefetch
                 # RTL. Added via MilanDebug's extra hook so it's one closure, trivially dropped.
@@ -3429,6 +3433,10 @@ def main():
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--rx-queues", default=1, type=int,
                     help="RX DMA queues (2 = flow-steered fan-out for parallel ACK/recv on 2 harts)")
+    ap.add_argument("--strip-probes", action="store_true",
+                    help="drop the MilanDebug telemetry block (tlm CSRs @0xf0004000+ incl. "
+                         "Phase-0/M1 probes) — the area-70 ship-build diet; kl-eth handles "
+                         "the absence. Keep probes on dev/forensics builds.")
     ap.add_argument("--l2-bytes", default=None, type=float,
                     help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
@@ -3507,7 +3515,7 @@ def main():
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
-                   rx_queues=args.rx_queues,
+                   rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
