@@ -57,6 +57,14 @@ class BDHarness(Harness):
         yield dut.post.re.eq(0)
         yield
 
+    def rd_sync(self, off):
+        """Mirror the driver's RING_RD write after a reap (kl_poll) or heal
+        (kl_bd_resync writes 0). The hsq6 BD-ring full-gate stalls the drain at
+        wr+16==rd_ptr, so a model that reaps without advancing rd_ptr wedges the
+        HW exactly like a dead driver would."""
+        yield self.dut.rd_ptr.storage.eq(off)
+        yield
+
     def read_bd(self, idx):
         w0 = self.mem.get(BD_BASE + 16 * idx, None)
         w1 = self.mem.get(BD_BASE + 16 * idx + 8, None)
@@ -139,6 +147,44 @@ def test_bd_ring_wrap():
         w0, _ = h.read_bd(i)
         assert ((w0 >> 8) & 0xFF) == exp_seq, f"BD slot {i} seq {(w0>>8)&0xFF} != {exp_seq}"
     print("PASS BD ring wrap (slots reused, seq advances)")
+
+
+def test_bd_ring_full_gate():
+    """BD-ring flow control (hsq6): the drain must STALL at wr+16==rd instead of
+    lapping the driver and overwriting unread BDs (the silicon -P4 "RX BD desync"
+    storms at 64 entries; silent seq-aliased corruption at 256). While jammed,
+    CQ-full newcomers drop (counted); advancing rd resumes the drain in order."""
+    h = BDHarness(ring_size=4096)
+    N = 11                                    # 4-entry BD ring, CQ depth 8:
+    F = [frame(0xD0 + i, 2) for i in range(N)]  # 3 drain + 7 in CQ + 1 dropped
+
+    def stim():
+        yield from h.init_bd(bd_entries=4)    # rd frozen at 0 (driver not reaping)
+        for i in range(N):
+            yield from h.post_buf(BUFS[i % 4])
+            yield from h.send_frame(F[i])
+        yield from h.wait_idle()
+        # jam: 3 BDs on the ring (slot 3 would make wr catch rd), CQ full behind it
+        assert (yield h.dut.wr_ptr.status) == 3 * 16, "drain must stall one slot short of rd"
+        assert (yield h.dut.frames.status) == 3
+        assert (yield h.dut.dropped.status) == 1, "CQ-full newcomer must drop (counted)"
+        for k in range(3):                    # slots 0..2 = frames 0..2, NOT lapped
+            w0 = h.mem.get(BD_BASE + 16 * k)
+            assert ((w0 >> 8) & 0xFF) == k, f"BD slot {k} lapped: seq {(w0>>8)&0xFF}"
+        yield h.dut.rd_ptr.storage.eq(16)     # driver reaps ONE BD
+        yield from h.wait_idle()
+        assert (yield h.dut.wr_ptr.status) == 0, "one freed slot => exactly one more BD"
+        assert (yield h.dut.frames.status) == 4
+        while (yield h.dut.frames.status) < N - 1:   # reap like the driver: rd chases wr
+            yield h.dut.rd_ptr.storage.eq((yield h.dut.wr_ptr.status))
+            yield from h.wait_idle()
+        assert (yield h.dut.dropped.status) == 1, "no further drops once reaped"
+    h.run(stim)
+    # 10 BDs over 4 slots: slot k finally holds seq 8,9,6,7
+    for k, exp in ((0, 8), (1, 9), (2, 6), (3, 7)):
+        w0, _ = h.read_bd(k)
+        assert ((w0 >> 8) & 0xFF) == exp, f"BD slot {k} seq {(w0>>8)&0xFF} != {exp}"
+    print("PASS BD ring-full gate (drain stalls at rd, no lap; CQ-full drop; resume in order)")
 
 
 def test_bd_large_frame_content():
@@ -807,7 +853,10 @@ def test_bd_overload_storm_lockstep():
         for k in range(4):
             yield from h.send_frame(frame(0xE0 + k, 6))       # non-TCP, pops if possible
         yield from h.wait_idle(settle=3000)                   # all timeouts fire dry
-        # phase 3: partial replenish mid-chaos, then more traffic
+        # phase 3: partial replenish mid-chaos, then more traffic. The driver reaps
+        # when it replenishes (kl_poll), and 8 total pages = 8 BDs > the 8-ring's
+        # 7-slot cap — without this rd advance the full-gate correctly stalls BD #8.
+        m.reap(); yield from h.rd_sync(m.bd_rd)
         for p in PGS[4:8]:
             yield from h.post_buf(p); m.post(p)
         yield from h.send_frame(seg(0x1111, 64, flags=0x18))
@@ -912,16 +961,17 @@ def test_bd_overload_fuzz(seed=1, nops=260):
             elif r < 0.90:                                 # idle gap (timeouts fire)
                 for _ in range(rng.choice((60, 200, 700))):
                     yield
-                m.reap()
+                m.reap(); yield from h.rd_sync(m.bd_rd)
             elif r < 0.97:                                 # reap burst (driver catches up)
                 yield from h.wait_idle(settle=600)
-                m.reap()
+                m.reap(); yield from h.rd_sync(m.bd_rd)
             else:                                          # rare mid-traffic heal
                 yield h.dut.enable.storage.eq(0)
                 yield
                 for _ in range(80):
                     yield
                 m.heal()
+                yield from h.rd_sync(0)                    # kl_bd_resync writes RING_RD=0
                 yield h.dut.enable.storage.eq(1)
                 yield
         yield from h.wait_idle(settle=4000)
@@ -1093,11 +1143,12 @@ def test_rsc_stormhunt(seed=1, nops=220):
 
     def stim():
         # driver contract: outstanding (posted-unreaped) buffers < BD entries — the
-        # kl-eth invariant (48 posted < 64 entries; reap frees the BD slot before the
-        # page reposts). The RTL does NOT guard BD-ring fullness itself (first hunt
-        # finding: >entries outstanding silently overwrites unreaped BDs), so the
-        # harness honors the contract: 16-entry ring, <=13 pages outstanding, and a
-        # reap on every op (NAPI reaps continuously on silicon too).
+        # kl-eth invariant (reap frees the BD slot before the page reposts). The first
+        # hunt found the RTL did NOT guard BD-ring fullness (>entries outstanding
+        # silently overwrote unreaped BDs) and this harness papered over it with the
+        # <=13-outstanding contract — which hs meta-BDs then broke ON SILICON (the
+        # -P4 "RX BD desync" storms). hsq6 gates the drain at wr+16==rd_ptr, so the
+        # models now also mirror the other half of the contract: RING_RD after reap.
         yield from h.init_bd(bd_entries=16)
         yield h.dut.rsc_en.storage.eq(1)
         yield h.dut.rsc_bufsz.storage.eq(2048)
@@ -1109,7 +1160,7 @@ def test_rsc_stormhunt(seed=1, nops=220):
         for op in range(nops):
             for _ in range(30):            # settle: never reap a mid-writeback BD
                 yield
-            m.reap_verify()
+            m.reap_verify(); yield from h.rd_sync(m.bd_rd)
             r = rng.random()
             if r < 0.26:                              # data seg (2 flows, MSS-ish)
                 flow = 0x1111 if rng.random() < 0.6 else 0x3333
@@ -1140,7 +1191,7 @@ def test_rsc_stormhunt(seed=1, nops=220):
             elif r < 0.92:                            # idle gap -> timeouts fire
                 for _ in range(rng.choice((80, 400, 900))):
                     yield
-                m.reap_verify()
+                m.reap_verify(); yield from h.rd_sync(m.bd_rd)
             elif r < 0.96:                            # famine burst: 4 frames, no posts
                 for _ in range(4):
                     yield from h.send_frame(send_seg(0x1111, 96))
@@ -1155,6 +1206,7 @@ def test_rsc_stormhunt(seed=1, nops=220):
                 # an open aggregate killed by the disable) just remain unconsumed.
                 m.reap_verify()
                 m.heal()
+                yield from h.rd_sync(0)  # kl_bd_resync writes RING_RD=0
                 m.any_heal = True        # conservation can't stay exact across a heal
                 yield h.dut.enable.storage.eq(1)
                 yield
@@ -1241,7 +1293,7 @@ def test_rsc_silicon_geometry(seed=11, nops=60):
         for op in range(nops):
             for _ in range(40):
                 yield
-            m.reap_verify()
+            m.reap_verify(); yield from h.rd_sync(m.bd_rd)
             r = rng.random()
             if r < 0.42:                              # MSS seg (aggregating flows)
                 flow = 0x1111 if rng.random() < 0.6 else 0x3333
@@ -1260,7 +1312,7 @@ def test_rsc_silicon_geometry(seed=11, nops=60):
             elif r < 0.93:                            # idle: timeouts close aggregates
                 for _ in range(rng.choice((100, 500))):
                     yield
-                m.reap_verify()
+                m.reap_verify(); yield from h.rd_sync(m.bd_rd)
             else:                                     # famine: 3 MSS frames, no posts
                 for _ in range(3):
                     yield from h.send_frame(big_seg(0x1111, 1448))
@@ -1797,6 +1849,7 @@ if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
     test_bd_ring_wrap()
+    test_bd_ring_full_gate()
     test_bd_large_frame_content()
     test_bd_reload_flush()
     test_bd_throughput()
@@ -1916,6 +1969,7 @@ def test_hs_livelock_orphan():
                 yield
             if (r % 8) == 7:                     # NAPI-ish cadence
                 reap_once()
+                yield from h.rd_sync(rd["o"])    # driver contract: RING_RD after reap
                 while freed:                     # repost exactly what was consumed
                     a = freed.pop(0); posted.append(a)
                     yield from h.post_buf(a)
@@ -1932,6 +1986,7 @@ def test_hs_livelock_orphan():
                     print(f"  [head] {prevh['h']}->{hd2}")
                     prevh["h"] = hd2
             reap_once()
+            yield from h.rd_sync(rd["o"])
             while freed:
                 a = freed.pop(0); posted.append(a)
                 yield from h.post_buf(a)

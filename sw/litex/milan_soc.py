@@ -797,6 +797,21 @@ class RingDMAWriter(LiteXModule):
         self.comb += _hs
         cq_pressure = Signal()
         self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
+        # DRAM BD-ring flow control (2026-07-10): the drain used to write BDs whenever
+        # the CQ head was done, so under a reap gap the HW LAPPED the driver's rd and
+        # overwrote unread BDs (seq skew of exactly `entries` — detected+resynced at 64
+        # entries = the -P4 "RX BD desync" storms; silently poisonous at 256 where the
+        # 8-bit seq aliases). wr may never catch rd: wr+16==rd IS full (the driver-side
+        # "posted max 63" comment is this same rule from the other side). Stalling the
+        # drain backs pressure into the CQ, so overload becomes counted ingress drops —
+        # never corruption. bd_room2 pre-checks the slot AFTER this one for the WB_B
+        # drain-chain, where wr has already advanced by 16 in the same cycle.
+        bd_room  = Signal()
+        bd_room2 = Signal()
+        self.comb += [
+            bd_room.eq(((wr + 16) & self.mask.storage) != self.rd_ptr.storage),
+            bd_room2.eq(((wr + 32) & self.mask.storage) != self.rd_ptr.storage),
+        ]
         # sim-introspection aliases (zero hardware: attribute refs only)
         self.dbg_cq_head, self.dbg_cq_tail, self.dbg_cq_done = cq_head, cq_tail, cq_done
         self.dbg_head_open_hit = head_open_hit
@@ -1194,8 +1209,9 @@ class RingDMAWriter(LiteXModule):
                    NextValue(pv3_pend, 0), NextValue(cqf_disc, 0), NextValue(hs_cross, 0)]),
                 NextValue(ack_open, 0), NextValue(ack_wb, 0),
                 NextValue(ack_merged, 0),
-            ).Elif(bd_mode & cq_drain,
+            ).Elif(bd_mode & cq_drain & bd_room,
                 # pop-ordered BD visibility: write back every ready head entry first
+                # (bd_room: never lap the driver's rd — stall here, not corrupt there)
                 NextState("WB_AW"),
             ).Elif(bd_mode & exp_any,
                 # RSC: close an idle-expired (or lifetime-capped) slot; its BD becomes
@@ -1757,9 +1773,9 @@ class RingDMAWriter(LiteXModule):
                     NextValue(cq_done[cq_head[:CQB]], 0),   # retire: clear done+hs so
                     NextValue(cq_hs, cq_hs & ~(C(1, CQD) << cq_head[:CQB])),  # reuse=legacy
                     NextValue(cq_head, cq_head + 1),
-                    If(cq_more,                       # drain every ready successor now
-                        NextState("WB_AW"),
-                    ).Else(
+                    If(cq_more & bd_room2,            # drain every ready successor now
+                        NextState("WB_AW"),           # (room for the slot AFTER the wr
+                    ).Else(                           # bump this cycle commits)
                         NextState("IDLE"),
                     )
                 ).Else(
