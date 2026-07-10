@@ -292,3 +292,20 @@ during µs-scale windows (CQ backs up while bursts outrun the poll) — now a
 clean-loss problem, not corruption. Next levers, in handoff order: 2-queue hs
 (mslot keeper's 368-407 is 2-queue; hs is 1-queue), then drop-window shaving
 (pressure-close covering the open-slot-PAGE-at-head case, poll cadence).
+
+**Post-fix perf profile @ -P4 295 (PERF_ON_MILAN method, timer 250 Hz, 12 s,
+symbolized host-side; /proc/stat ground truth over the window):**
+- **cpu1 (app hart): 0 idle ticks — saturated; 66.4% = the recv payload copy**
+  (`fallback_scalar_usercopy_sum_enabled`, cold-DRAM reads). The copy hart is
+  the aggregate ceiling, as in the R1-era analysis.
+- **cpu0 (NAPI hart): ~84% busy / 15.9% idle.** Composition (65% sample
+  coverage; top of the flat tail): locks/irq 12.1% (11.5% =
+  `_raw_spin_unlock_irqrestore` — long irq-off/socket-lock sections), skb/mm
+  8.5%, tcp 4.9%, gro/napi 3.5%, **kl_eth driver code ≈5% — the reap itself is
+  CHEAP**; rest = flat TCP/skb tail.
+- Implications: (1) optimizing the driver reap buys nothing; (2) cpu0 has idle
+  headroom, so residual drops are BURST-latency (irq-off windows + delivery
+  latency) not poll-throughput; (3) with occ_hi=81 ≪ 256 the BD ring no longer
+  fills — the binding buffers are now the **60-page posted pool (~2 ms at line
+  rate) and the internal CQ-32 head-of-line case**, which is where the
+  pressure-close gap (close_prs blind to PAGE-at-head) matters.
