@@ -27,29 +27,25 @@ A/B: P4 231→**295** (+28%), P8 183→**240** (+31%), P1 unregressed, 0 desyncs
 everywhere. **NEVER load hsplit10 on ≤hsq5 gateware** (silent lap by construction).
 Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
 
-**Next work, in order of value:**
-1. **2-queue header-split** — re-add rx1+steer with hs (hsq7t proves the diet makes
-   2-queue FIT+CLOSE; rx1-hs itself still needs strip-probes headroom). mslot's
-   368-407 aggregate is a 2-queue number; hs at 295-312 per-queue is knocking on it.
-   ⚠ hsplit11 REQUIREMENT (silicon Oops, 2026-07-10 late): **hsplit=1 on gateware
-   with a non-hs q1 PARSES q1's LEGACY BDs AS HS** ("hs: stale asm" → wild page
-   pointers → cpu1 kernel Oops). The driver must scope hs parsing per-queue (probe
-   each queue's hs CSRs, or a gateware hs-capability bit). Until then: hsplit=1 is
-   1-queue-gateware-only; on 2-queue run hsplit=0 (legacy both queues).
-2. **Residual drop shaving** — ~58/flow/s constant reap-gap drops remain (194-319/s
-   at P4/P8): opens blocked in µs windows while bursts outrun the poll. Levers:
-   pressure-close covering the open-slot-PAGE-at-head case (close_prs never fires —
-   head_open_hit only matches the META entry), poll cadence, POST >63 (needs HW post
-   FIFO deepening past 64).
-3. **AREA-70 campaign (user directive 2026-07-10)** — after the 2-queue work:
-   slices 96.8% → ~70% (reclaim ≥4250, more once 2-queue lands). Levers: more
-   Array→LUTRAM diets (CQ-swap pattern), strip-probes ship build (tlm block +
-   Phase-0 probes behind a flag), legacy byte-ring path removal (kills driver
-   bd=0 fallback — decide consciously), Vivado area strategies. The point:
-   headroom for the ADP/AVDECC product blocks.
-4. **XDP / AF_PACKET data plane** (user-approved endgame) — copy-free consumer path
+**Next work, in order of value (refreshed 2026-07-11 dawn):**
+1. **RX 381 -> 500 on hsq10** (2q-hs 16K pages; both harts 40% IDLE at 381 =
+   latency-bound, NOT CPU): rx-usecs sweep on the 16K regime; residual 15/s P4
+   drops; P6/P8 drops creep back at >=3 flows/queue (interleave famine tail) —
+   32K pages (hs_pgsz build) and/or PAYCAP widening (RING_RSC_BUFSZ CSR
+   TRUNCATES AT 16 BITS — 0x1C000 silently wrote 0xC000; widen + segcap for
+   >64K aggregates). Steer_q* counters misreport under dual-active = telemetry
+   bug (deltas only trustable single-active).
+2. **TX 2-proc fairness lottery** (one iperf3 starves at ~82; capability 582-646
+   intact): CONFIG_NET_SCH_FQ kernel rebuild (fq pacing), or BQL. NOT a gateware
+   bug — measured across hsq7t..hsq10, ACK steering constant-on-q0.
+3. **AREA-70 campaign (user directive)** — slices to ~70%; banked: CQ LUTRAM diet
+   -4866 LUTs + strip-probes -1135 LUTs/-4267 FFs. Next: legacy byte-ring
+   removal, CBS 4.4K/datapath-CSR 5.9K audits, Vivado area strategies.
+4. **XDP / AF_PACKET data plane** (user-approved endgame) — copy-free consumer
    toward 941; hs page-aligned delivery is the substrate.
-5. Residual single-flow drops (~51/s, lap-independent) — refinement.
+5. Refinements: single-flow residual ~50/s; hs delivery-latency shave (the
+   remaining gap per flow); per-queue hs capability bit CSR (replace the STRICT
+   hsplit pairing convention).
 
 ## 2. Topology — what plugs into what
 
