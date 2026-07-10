@@ -16,20 +16,29 @@ user decision), reaching toward line rate (941). Scoreboard:
 | TX | **✓ 525–536** (done since r2slots era) |
 | RX socket-TCP, mslot keeper | 368–407 steady -P8 (2-queue, hsq3+mslot60d/hsplit9-legacy) |
 | RX single-flow record | **340 steady** (header-split, hsq4/hsq5) — aligned-copy win |
-| RX hs multi-flow | functional (livelock FIXED) but scales negatively: ~190 steady -P8 |
+| RX hs multi-flow | **negative scaling ROOT-CAUSED+FIXED (hsq6)**: P4 295 / P8 240, 0 desyncs |
 | Zero-copy | works (86.5% zc) but slower than aligned copy at 100 MHz — parked |
 
+**2026-07-10 (late): hs multi-flow scaling SOLVED** — the collapse was the un-gated
+BD-ring drain (HW lapped the driver's rd → "RX BD desync" resync-storm blackouts;
+silent seq-aliased corruption at 256 entries = why e251a0c's 256-ring failed). Fix:
+hsq6 gates the drain at wr+16==rd + kl-eth **hsplit10** (BD 256, POST 60). Same-day
+A/B: P4 231→**295** (+28%), P8 183→**240** (+31%), P1 unregressed, 0 desyncs
+everywhere. **NEVER load hsplit10 on ≤hsq5 gateware** (silent lap by construction).
+Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
+
 **Next work, in order of value:**
-1. **hs multi-flow scaling** — the fresh investigation: -P4 drops ~240/s regardless of
-   aggregate size (famine refuted via BUFSZ probe). Suspects: CQ pressure-close
-   dynamics under 4-slot interleave, per-flow TCP loss patterns, sender (blast2)
-   interaction. Start with close-reason counters per cell (psh/cap/tout/park deltas
-   @0xf00040cc-d8) + peer `ss -ti` per flow. hs must beat 368-407 to earn its keep.
-2. **2-queue header-split** — re-add rx1+steer with hs (needs slice diet or CQ-width
-   work; hsq4/5 went 1-queue to fit CQD=32).
+1. **2-queue header-split** — re-add rx1+steer with hs (needs slice diet or CQ-width
+   work; hsq4/5/6 are 1-queue to fit CQD=32). mslot's 368-407 aggregate is a 2-queue
+   number; hs at 295-312 per-queue is knocking on it.
+2. **Residual drop shaving** — ~58/flow/s constant reap-gap drops remain (194-319/s
+   at P4/P8): opens blocked in µs windows while bursts outrun the poll. Levers:
+   pressure-close covering the open-slot-PAGE-at-head case (close_prs never fires —
+   head_open_hit only matches the META entry), poll cadence, POST >63 (needs HW post
+   FIFO deepening past 64).
 3. **XDP / AF_PACKET data plane** (user-approved endgame) — copy-free consumer path
    toward 941; hs page-aligned delivery is the substrate.
-4. Residual single-flow drops (~42/s) — refinement.
+4. Residual single-flow drops (~51/s, lap-independent) — refinement.
 
 ## 2. Topology — what plugs into what
 
@@ -87,14 +96,17 @@ manual flashboot fallback: `scratchpad/manual_flashboot.sh`).
 ```sh
 # on the console (root, no password):
 ip addr add 192.168.127.1/24 dev eth0; ip link set eth0 up
-wget -O /tmp/kl9.ko http://192.168.127.2:8000/kl-eth-hsplit9.ko
-rmmod kl_eth; insmod /tmp/kl9.ko rsc=1 rsc_clk_mhz=100 hwtso=1 hwcs=1 hsplit=1
+wget -O /tmp/kl10.ko http://192.168.127.2:8000/kl-eth-hsplit10.ko
+rmmod kl_eth; insmod /tmp/kl10.ko rsc=1 rsc_clk_mhz=100 hwtso=1 hwcs=1 hsplit=1
 ip addr add 192.168.127.1/24 dev eth0; ip link set eth0 up
 echo 0 > /sys/class/net/eth0/threaded; ethtool -C eth0 rx-usecs 500
+wget -O /tmp/recv_spin http://192.168.127.2:8000/recv_spin; chmod +x /tmp/recv_spin
 ```
-`hsplit=0` = legacy/mslot-equivalent mode (same .ko). On 2-queue gateware (hsq3)
-also `devmem 0xf0003094 32 1` (hash_sel→q0) BEFORE TCP; on 1-queue hs builds
-(hsq4/hsq5) that CSR does not exist — don't poke it.
+`hsplit=0` = legacy/mslot-equivalent mode (same .ko). **Driver↔gateware pairing is
+STRICT**: hsplit10 (BD ring 256) needs the hsq6+ full-gate — on ≤hsq5 it laps the
+ring SILENTLY (8-bit seq aliases at 256). hsplit9 (BD 64) is the ≤hsq5 driver. On
+2-queue gateware (hsq3) also `devmem 0xf0003094 32 1` (hash_sel→q0) BEFORE TCP; on
+1-queue hs builds (hsq4/5/6) that CSR does not exist — don't poke it.
 
 **Peer services (amx-pw0, serve dir /tmp/serve):**
 ```sh
@@ -134,6 +146,7 @@ strings kl-eth.ko | grep version=        # ALWAYS verify before staging
   full method in PERF_ON_MILAN.md.
 - Measure, don't assume — probe first, before AND after (measure-dont-assume rule).
 
-**Current board state:** hsq5 (JTAG-SRAM, WNS+0.132, livelock-fixed) + hsplit9
+**Current board state:** hsq6 (JTAG-SRAM, WNS+0.243, BD-ring full-gate) + hsplit10
 hsplit=1, network up. Gateware ladder: hsq3 = 2-queue keeper (mslot aggregate best),
-hsq4 = CQD=32 1-queue, **hsq5 = hsq4 + livelock fix = the hs bitstream**.
+hsq4 = CQD=32 1-queue, hsq5 = hsq4 + livelock fix, **hsq6 = hsq5 + BD-ring
+full-gate = the hs bitstream** (pairs with hsplit10 ONLY).
