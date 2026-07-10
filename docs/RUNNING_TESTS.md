@@ -53,10 +53,14 @@ t.test_hs_livelock_orphan()"                                    # one test
 Suites and what they own:
 
 - **test_ring_bd.py** — THE regression net for the RX BD/RSC/header-split engine
-  (~38 tests). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
+  (~39 tests). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
   regression, half-BD guards, multi-slot RSC, hs split/crossing/interleave/famine,
-  reload flush, storm models, the livelock probe. `ALL PASS` on success; each test
-  prints a `PASS <name>` line.
+  reload flush, storm models, the livelock probe, the BD-ring full-gate (hsq6: drain
+  stalls at wr+16==rd instead of lapping the driver). `ALL PASS` on success; each test
+  prints a `PASS <name>` line. NOTE the driver contract the models mirror since hsq6:
+  every mid-sim reap ends with a RING_RD write (`BDHarness.rd_sync(m.bd_rd)`), every
+  heal with `rd_sync(0)` — a model that reaps without advancing rd_ptr wedges the
+  gated HW exactly like a dead driver.
 - **test_ring_dma.py** — the base `Harness` (ring mode) + AXI slave memory model.
   Imported by test_ring_bd via `importlib` (module name `trd`), also runnable alone.
 - **test_ring_tx.py / test_tx_bd.py** — TX ring + TX BD engines (HW-TSO era).

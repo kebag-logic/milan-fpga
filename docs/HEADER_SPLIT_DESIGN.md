@@ -223,3 +223,72 @@ BUFSZ 57K→24K (famine refuted) — the residual is a new investigation (CQ
 pressure-close dynamics / sender interaction), not a correctness bug. hs scoreboard:
 **single 340 steady (SoC record), multi-flow functional; mslot keeper still wins
 aggregate (368-407 -P8).**
+
+## build_hsq6 (2026-07-10) — MULTI-FLOW NEGATIVE SCALING ROOT-CAUSED: the un-gated BD ring
+
+**The investigation** (close-reason counters per cell + peer `ss -ti` + live-CSR
+sampler, per the handoff protocol): the P1→P8 ladder showed drops ≈58/flow/s
+CONSTANT while the close mix stayed healthy (psh ~90%, cap=0, park *falls* with N,
+avgsegs 17–29) — CQ pressure-close refuted immediately. Peer `ss -ti` showed all
+flows congestion-limited (cwnd 6–80 sawtooth, retrans ≈ board drop counter, board
+advertising 0.8–1.9 MB windows) = real HW losses driving synchronized TCP loss
+cycles. The live sampler then caught the smoking gun: **frames/irqs/occ_hi CSRs
+resetting mid-cell** (= ring re-enables) + dmesg full of **"RX BD desync —
+self-healed"** — a resync storm, 12+/cell at -P4, 35 at -P8. Each resync is a
+ring-down blackout that kills all in-flight aggregates and synchronizes every
+flow's retransmit.
+
+**Root cause** (RTL read): `cq_drain = (cq_level != 0) & cq_done[head]` — the BD
+drain **never compared against the driver's `rd_ptr`**. Under a reap gap the HW
+laps the 64-entry DRAM BD ring and overwrites unread BDs (seq skew = exactly 64 ⇒
+the driver's seq check trips ⇒ desync ⇒ resync). Production is NOT page-bounded:
+hs **meta BDs consume no posted page** (worst case ≈ 2×KL_BD_POST+4 ≈ 124
+outstanding vs 64 slots). The sim stormhunt had actually FOUND this lap earlier
+("first hunt finding: >entries outstanding silently overwrites unreaped BDs") and
+papered over it with a ≤13-outstanding harness contract — hs metas broke the
+contract on silicon. Corollary: the reverted BD-ring-256 attempt (e251a0c
+"zero-byte transfers, creeping delivery") was the SAME bug — at 256 entries the
+lap shifts the 8-bit seq by 0 mod 256, so the detector goes blind and the
+corruption is silent. At 64 it was at least detected and self-healed.
+
+**Silicon proof before any RTL** (measure-don't-assume): KL_BD_POST=28 probe —
+2×28+4 ≤ 63 makes the lap arithmetically impossible. Desyncs 12+/cell → **0**,
+frames/irqs monotonic, occ_hi ≤ 40 entries. (Steady drops ~200/s persist = the
+separate second-order famine/CQ-block effect; posted pool never emptied at
+post=60, so those are reap-gap open-blocks, not page famine.)
+
+**Fix**: `bd_room`/`bd_room2` gate the drain — WB stalls at wr+16==rd (wr+32 for
+the WB_B drain-chain hop, where wr advances in the same cycle). Overload backs
+into the CQ ⇒ counted ingress drops, never corruption; a dead driver degrades to
+the same drop mode as legacy ring-full. Reload-safe: kl-eth writes RING_RD=0 in
+both init and resync. Pairs with **kl-eth hsplit10**: KL_BD_ENTRIES 64→256 (4×
+reap slack, now safe — laps impossible) + KL_BD_POST back to 60. NEVER run
+hsplit10 (256) on un-gated ≤hsq5 gateware — silent lap by construction.
+
+**Sim**: new `test_bd_ring_full_gate` (jam at wr+16==rd with rd frozen; slots
+not lapped; CQ-full newcomer drops counted; rd advance resumes in order — FAILS
+on pre-gate RTL). All driver-in-loop models (DriverModel/StormModel/livelock/
+famine reap_once) now mirror the other half of the driver contract: RING_RD
+write after reap, RING_RD=0 after heal (`BDHarness.rd_sync`). Suite 38/38 ALL
+PASS + the standalone livelock probe green (39 total).
+
+**Silicon (build_hsq6, WNS +0.243, CSR map identical to hsq5; driver hsplit10)**
+— same-day A/B, 40 s cells, peer tx_bytes 5 s deltas (first+last interval
+excluded), reconstructed peer (absolute numbers ~5-8% below the pre-reboot peer;
+compare within the day only):
+
+| cell | hsq5+hsplit9 (baseline)        | hsq6+hsplit10 (fix)        | Δ steady |
+|------|--------------------------------|----------------------------|----------|
+| -P1  | 308 / 52 drops/s               | 312 / 51, 0 desyncs        | unregr ✓ |
+| -P4  | 231 / 260, resync storms       | **295** / 194, **0 desyncs** | **+28%** |
+| -P8  | 183 / 438, **35 desyncs**      | **240** / 319, **0 desyncs** | **+31%** |
+
+occ_hi high-water hit 81 BD entries at -P4 — beyond the old 64-ring's capacity,
+i.e. the 4× reap slack is actually being used; frames/irqs stayed monotonic
+(zero ring re-enables) in every cell. Negative scaling flattened
+(312→295→240 vs 308→231→183). The residual 194–319 drops/s (≈58/flow/s
+constant, unchanged shape) is the second-order reap-gap effect — opens blocked
+during µs-scale windows (CQ backs up while bursts outrun the poll) — now a
+clean-loss problem, not corruption. Next levers, in handoff order: 2-queue hs
+(mslot keeper's 368-407 is 2-queue; hs is 1-queue), then drop-window shaving
+(pressure-close covering the open-slot-PAGE-at-head case, poll cadence).
