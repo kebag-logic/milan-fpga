@@ -2820,9 +2820,16 @@ class MilanDMA(LiteXModule):
         # single-NAPI ACK-processing ceiling). rx1's IRQ reuses the unused ev.tx line.
         if rx_queues >= 2:
             self.steer = RxSteer()
+            # hsq8 (2026-07-10): rx1 goes hs-capable + CQD=32 — the CQ LUTRAM diet +
+            # --strip-probes bought the area (hsq7t proved 2q FITS at 99.4% slices,
+            # hsq8p reclaimed 274 more + 4.3K FFs). CQD=32 per the hsq4 lesson (hs
+            # spends 1+pages CQ entries/agg; 8 clamps cwnd ~27 => 138 Mbit). rx1's
+            # CSR block already carried the inert rsc/hs registers, so this changes
+            # NO addresses — kl-eth hsplit11 (hsplit=2) enables q1-hs; hsplit<=1
+            # drivers keep q1 legacy (hs_en=0 reset => bit-exact legacy behavior).
             self.rx1 = RingDMAWriter(axi.AXIInterface(data_width=data_width,
                                                       address_width=32, id_width=4),
-                                     hs_capable=False)   # q0-only header-split (area/timing)
+                                     cq_depth=32, hs_capable=True)
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
