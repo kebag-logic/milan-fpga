@@ -1495,11 +1495,16 @@ class RingDMAWriter(LiteXModule):
             # the CURRENT page is complete: emit its v3 (reg->demux, shallow) and swap
             # to a freshly-popped page. Famine here = close the aggregate with what is
             # fully written (s_off excludes the in-flight frame) and discard its rest.
-            NextValue(cq_w0[cur_cq],
+            # v3 target = the SLOT'S registered page entry (cq_of_sel), NOT cur_cq:
+            # cur_cq is a global last-pop register — another slot's open/crossing pops
+            # between this slot's crossings under interleave, so cur_cq points at the
+            # wrong entry and this slot's real page entry stays done=0 forever => the
+            # CQ head jams = the multi-flow hs livelock (task #13, sim c5681 fsm=DISCARD).
+            NextValue(cq_w0[cq_of_sel],
                 Cat(C(0xBD, 8), C(0, 46), slot_tag2, C(1, 1), C(0, 1), C(1, 1), C(0, 5))),
-            NextValue(cq_w1[cur_cq], buf_addr_r),
-            NextValue(cq_done[cur_cq], 1),
-            NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << cur_cq)) | (C(1, 1) << cur_cq)),
+            NextValue(cq_w1[cq_of_sel], buf_addr_r),
+            NextValue(cq_done[cq_of_sel], 1),
+            NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << cq_of_sel)) | (C(1, 1) << cq_of_sel)),
             NextValue(ap_needswap, 0),
             If(post_fifo.source.valid & cq_room,
                 post_pop.eq(1),

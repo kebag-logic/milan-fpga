@@ -1842,9 +1842,9 @@ def test_hs_livelock_orphan():
     import random
     rng = random.Random(13)
     h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=2048,
-                  burst_beats=16, cycles=2000000)
+                  burst_beats=16, cycles=150000)
     HDRB = 0x300000
-    state = {"probe_seen": False, "reaped": 0, "reposted": 0}
+    state = {"probe_seen": False, "reaped": 0, "reposted": 0, "stop": False}
 
     def stim():
         yield from h.init_bd(bd_entries=64)
@@ -1888,12 +1888,16 @@ def test_hs_livelock_orphan():
 
         flows = [(0x1000 + i, 1000 + 7000 * i) for i in range(6)]
         d = h.dut
-        prev = {"tail": 0, "done": [0]*8}
+        prev = {"tail": 0, "done": [0]*8, "pv": (0, 0, 0)}
         def monitor():
             tl = yield d.dbg_cq_tail
             if tl != prev["tail"]:
                 print(f"  [alloc] tail {prev['tail']}->{tl}")
                 prev["tail"] = tl
+            pv = ((yield d.dbg_pv3_pend), (yield d.dbg_pv3_cqi), (yield d.dbg_meta_cqi))
+            if pv != prev["pv"]:
+                print(f"  [stage] pend={pv[0]} pv3_cqi={pv[1]} meta_cqi={pv[2]}")
+                prev["pv"] = pv
             for i in range(8):
                 dn = yield d.dbg_cq_done[i]
                 if dn != prev["done"][i]:
@@ -1910,8 +1914,6 @@ def test_hs_livelock_orphan():
             yield from h.send_frame(w)
             for _ in range(rng.randrange(0, 4)):
                 yield
-                yield from monitor()
-            yield from monitor()
             if (r % 8) == 7:                     # NAPI-ish cadence
                 reap_once()
                 while freed:                     # repost exactly what was consumed
@@ -1919,9 +1921,16 @@ def test_hs_livelock_orphan():
                     yield from h.post_buf(a)
                     state["reposted"] += 1
         # drain: touts + agemax fire; keep reaping like the driver would
+        # (full-rate monitor here: catch every done/head/tail transition)
+        prevh = {"h": 0}
         for _ in range(12):
             for __ in range(5000):
                 yield
+                yield from monitor()
+                hd2 = yield d.dbg_cq_head
+                if hd2 != prevh["h"]:
+                    print(f"  [head] {prevh['h']}->{hd2}")
+                    prevh["h"] = hd2
             reap_once()
             while freed:
                 a = freed.pop(0); posted.append(a)
@@ -1936,6 +1945,7 @@ def test_hs_livelock_orphan():
                 yield
             if tuple(h.mem.get(BD_BASE + 8 * k) for k in range(128)) != snap:
                 state["probe_seen"] = True
+                state["stop"] = True
                 return
         # JAMMED: dump CQ forensics
         d = h.dut
@@ -1949,9 +1959,33 @@ def test_hs_livelock_orphan():
             sc.append((yield d.dbg_s_cq[i]))
             scm.append((yield d.dbg_s_cqm[i]))
         hoh = yield d.dbg_head_open_hit
+        state["stop"] = True
         print(f"JAM: head={hd} tail={tl} done={done} s_open={so} s_cq={sc} s_cqm={scm} hoh={hoh} reaped={state['reaped']} reposted={state['reposted']}")
 
-    h.run(stim)
+    def watcher():
+        d = h.dut
+        pp = 0; pt = 0; pdn = [0]*8; cyc = 0
+        while not state["stop"]:
+            yield
+            cyc += 1
+            p = yield d.dbg_pv3_pend
+            if p and not pp:
+                cqi = yield d.dbg_pv3_cqi
+                mci = yield d.dbg_meta_cqi
+                print(f"  [c{cyc} STAGE] pv3_cqi={cqi} meta_cqi={mci}")
+            pp = p
+            t = yield d.dbg_cq_tail
+            if t != pt:
+                print(f"  [c{cyc} ALLOC] tail {pt}->{t}")
+                pt = t
+            for i in range(8):
+                dn = yield d.dbg_cq_done[i]
+                if dn != pdn[i]:
+                    st = yield d.fsm.state
+                    print(f"  [c{cyc} DONE{'+' if dn else '-'}] e{i} fsm={st}")
+                    pdn[i] = dn
+
+    h.run(stim, extra_gens=[watcher()])
     assert state["probe_seen"], \
-        f"CQ HEAD JAMMED (reaped={state['reaped']}) — orphan repro (forensics above)"
+        f"CQ HEAD JAMMED (reaped={state['reaped']}) — orphaned entry (forensics above)"
     print(f"PASS hs: livelock probe v2 — {state['reaped']} BDs reaped live, head never jammed")
