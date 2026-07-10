@@ -201,3 +201,25 @@ header bursts, PSH interleave) with a close-reason/CQ-occupancy checker.
 - Driver unchanged (CQ invisible to the ABI); detects 1 queue via the rx1 probe-readback.
   hsq4 CSR map = hsq3 minus steer/hash/rx1 (hs_en still 0xf0003080; NO hash_sel poke).
 - Board parked on **hsq3** (2-queue keeper) + hsplit9 legacy; **hsq4 = the hs bitstream**.
+
+## build_hsq5 (2026-07-10 late) — THE MULTI-FLOW LIVELOCK: ROOT-CAUSED, FIXED, SILICON-DEAD
+
+**Root cause** (task #13, cycle-exact sim forensics): `HS_PGSWAP` emitted each
+completed page's v3 into **`cur_cq` — a single global "entry allocated by the last
+pop" register**. Under multi-flow interleave another slot's open/crossing pops in
+between, so the v3 lands in the WRONG CQ entry and the slot's real page entry
+(`s_cq[slot]`) stays done=0 forever — the in-order drain jams behind it. Single-flow
+never interleaves pops = immune (hence hsq4's 340 single vs -P4 death). The hunt:
+false-repro (pool dry-up) → driver-in-loop repro → 1-cycle-pulse aliasing → full-rate
+watcher generator → FSM-state tags → `fsm=DISCARD` on the orphan meta = the
+PGSWAP-famine close → the `cur_cq` read. Fix (f2b80ec): v3 targets `cq_of_sel`.
+Suite 39/39 incl. the new PASS-asserting livelock regression.
+
+**Silicon (build_hsq5, WNS +0.132):** single-flow 308 (=hsq4 ✓), and **-P4 survives
+storm + stays alive**: 4/4 flows complete (217 Mbit aggregate), zero pairing warns —
+previously 2 dead flows + wedged RX. -P8 steady 181–216. **Multi-flow now WORKS but
+scales negatively** (308→277→217→~190): drops ~240/s under interleave, UNCHANGED by
+BUFSZ 57K→24K (famine refuted) — the residual is a new investigation (CQ
+pressure-close dynamics / sender interaction), not a correctness bug. hs scoreboard:
+**single 340 steady (SoC record), multi-flow functional; mslot keeper still wins
+aggregate (368-407 -P8).**
