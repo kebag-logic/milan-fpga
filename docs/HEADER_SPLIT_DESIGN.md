@@ -135,3 +135,47 @@ peer over a degraded bridge. Every throughput number from this night's silicon
 session (zc 1.4 Mbit, mslot 0.2–1.6 Mbit "collapse") is **invalid as a
 performance measurement**; only the BD-stream decodes, the reload-resync
 root-cause, and the zc-alignment fraction analysis survive.
+
+## Silicon session 2 (2026-07-10 morning, REAL peer amx-pw0) — storms were DRIVER bugs; zc model CORRECTED
+
+**The pairing storm reproduced against a healthy peer and was root-caused to TWO driver
+bugs** (forensics: a last-48 BD ledger tagged {slot,seq,comp_i,exit} dumped at mismatch,
+kl-eth hsplit7):
+1. **Label fall-through (hsplit1 regression):** the v1 delivery tail relied on falling
+   through into `consume:`; inserting `consume_nopage:` between them silently rerouted
+   every legacy frame (ARP, handshakes) to the no-advance exit AFTER `page[i]` was NULLed
+   — ledger desync on the first ARP, resync re-broken by the next ARP = the storm.
+2. **Refill over-post:** `kl_poll` reposted one page per *BD processed*; hs metas consume
+   no page, so each meta over-posted by one, wrapping `post_i` over unconsumed slots
+   (leaking their pages — the `page_pool_release_retry` inflight leaks) and desyncing the
+   HW FIFO. Fix: exact `pages_out` accounting (consume + realign credit; famine debt
+   carries across polls).
+Both fixed in **kl-eth hsplit9** (fc4ca00). Validated: hs single-flow **138 Mbit, 0
+pairing-lost**; legacy mode via the same driver 280 Mbit clean. Sim never caught either
+because DriverModel *reimplements* the contract — the bugs lived in the C control flow.
+
+**Zero-copy measured on the working path: 86.5 % zero-copied** (recv_zc, 12 s). This
+REFUTES §silicon-1's drift analysis (kept above as a record): `tcp_zerocopy_receive`
+maps ANY full order-0/offset-0/4096 frag — the *stream* offset needs no page alignment
+(partial tails + headers arrive via `recv_skip_hint` copies). The ghost-era 1.7 % was the
+degenerate 1-seg regime (1448 B never fills a page), not drift. Corrected model:
+**zc% ≈ 1 − (tail partial + header) / aggregate payload** — it rises with aggregate size
+(~86 % at ~20 KB aggregates, →93 %+ at PAYCAP). Consequences: per-flow page continuation
+targets the *tail-partial* term (worth ~10 %, much less than previously claimed); MSS
+games (1024/2048/4096) are ~irrelevant to zc%; jumbo frames help per-packet CPU cost,
+not zc%. **However zc throughput (90 Mbit) < aligned-copy (138) at 100 MHz** — mapbench's
+flip(44.9 µs/page) > copy(25 µs) verdict holds; zerocopy is not the fast path on this core.
+
+**Aligned-copy prediction CONFIRMED on silicon** (PERF_ON_MILAN §6.4): the hs-mode profile
+shows the copy at `fallback_scalar_usercopy+0x3c/+0x40` (the 64 B-unrolled aligned loop)
+at only ~4 % of the hart; the misaligned +0xa8..+0xcc cluster is gone. At 130–138 Mbit
+both harts are ~63 % in `default_idle_call` — **hs single-flow is latency/serialization-
+bound, not CPU-bound** (headroom exists; find the stall).
+
+**OPEN RTL BUG — multi-flow hs livelock:** 4 parallel flows collapse (2–4 Mbit) with NO
+pairing loss, NO famine (55 buffers posted), NO rx errors; CSR forensics: frames counter
+climbs, drops climb (3309), BD `wr` frozen, RING_EN=1 — every frame takes a drop path
+while nothing closes = CQ jam / slots-stuck-open livelock. A driver reload (ring-disable
+toggle) RECOVERS it, so the FSM does reach IDLE — it is a livelock, not a stuck state.
+Next: sim repro at the silicon geometry (4 flows, appends at line rate, CQ pressure,
+header bursts, PSH interleave) with a close-reason/CQ-occupancy checker.
