@@ -179,3 +179,25 @@ while nothing closes = CQ jam / slots-stuck-open livelock. A driver reload (ring
 toggle) RECOVERS it, so the FSM does reach IDLE — it is a livelock, not a stuck state.
 Next: sim repro at the silicon geometry (4 flows, appends at line rate, CQ pressure,
 header bursts, PSH interleave) with a close-reason/CQ-occupancy checker.
+
+## build_hsq4 (2026-07-10 evening) — the CQ-depth fix VALIDATED; hs takes the single-flow record
+
+- **build_hsq4** = hsq3 + q0 `cq_depth` 8→32 (536ba68) + `s_cq` width relic fix
+  (`Signal(4)`→`Signal(max=cq_depth)`, 9e67657 — at CQD=32 the 4-bit index stamped
+  done on entry&0xF: first spin delivered 24 KB then went silent) + `--rx-queues 1`
+  (CQD=32 overflowed slices with rx1+steer aboard; hs is q0-only anyway). WNS **+0.224**
+  (best hs margin), LUTs 81 %, suite 37/37.
+- **Silicon: single-flow hs = 312.8 Mbit cell / 333–348 Mbit STEADY** (peer tx_bytes 5 s
+  series ×5) — vs 138 at CQD=8, 279 at the BUFSZ probe, and ~300 mslot single. The
+  aligned-copy advantage is real: **best single-flow number ever on this SoC** (previous
+  records 259–277). Residual drops ~42/s (was 250/s) — next refinement, not a clamp.
+- **Multi-flow hs still collapses (RTL, OPEN)** — but the fingerprint CHANGED at CQD=32:
+  only 130 drops, zero pairing loss, BDs flowing mid-run, RX dead at the end. With the
+  deeper CQ the pressure-close valve (level ≥ CQD−2) effectively never fires, so an
+  ORPHANED CQ entry — allocated at open, never marked done (aborted-open path?) — blocks
+  the head permanently once it surfaces. This narrows task #13's sim hunt: find the
+  alloc-without-done path (famine/discard between `cq_alloc()` and close staging), then
+  either stamp done on abort or add a head-orphan timeout close.
+- Driver unchanged (CQ invisible to the ABI); detects 1 queue via the rx1 probe-readback.
+  hsq4 CSR map = hsq3 minus steer/hash/rx1 (hs_en still 0xf0003080; NO hash_sel poke).
+- Board parked on **hsq3** (2-queue keeper) + hsplit9 legacy; **hsq4 = the hs bitstream**.
