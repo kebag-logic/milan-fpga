@@ -1832,3 +1832,77 @@ if __name__ == "__main__":
     test_hs_tag_interleave()
     test_hs_stress_famine_interleave()
     print("ALL PASS")
+
+
+def test_hs_livelock_orphan():
+    """Task #13 repro: silicon multi-flow livelock = an allocated-but-never-done CQ
+    entry jams the head (hsq4: BDs flow then RX dies; no pairing loss). Regime:
+    6 flows > 4 slots (victim park-close churn) at line rate (0-3 cycle gaps),
+    bounded pool. Jam detector: after the storm + drain, a probe frame on a fresh
+    flow MUST complete to a BD within a bounded window."""
+    import random
+    rng = random.Random(13)
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=2048,
+                  burst_beats=16, cycles=900000)
+    posted = []
+    HDRB = 0x300000
+    state = {"bds": 0, "probe_seen": False}
+
+    def stim():
+        yield from h.init_bd(bd_entries=64)
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(57344)
+        yield h.dut.rsc_tout.storage.eq(250)
+        yield h.dut.rsc_agemax.storage.eq(20000)
+        yield h.dut.hs_en.storage.eq(1)
+        yield h.dut.hs_hdr_base.storage.eq(HDRB)
+        pages = [0x100000 + i * 0x1000 for i in range(120)]
+        pidx = 0
+        for _ in range(60):
+            yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
+        flows = [(0x1000 + i, 1000 + 7000 * i) for i in range(6)]
+        for r in range(200):
+            fi = rng.randrange(len(flows))
+            sp, sq = flows[fi]
+            plen = rng.choice([1448, 1448, 1448, 200])
+            psh = 0x18 if rng.random() < 0.05 else 0x10
+            w, logical, _ = tcp_tagged(plen, psh, sq, sp, (0xA0 + r) & 0xFF)
+            flows[fi] = (sp, sq + plen)
+            yield from h.send_frame(w)
+            for _ in range(rng.randrange(0, 4)):
+                yield
+            if pidx < len(pages) and rng.random() < 0.6:
+                yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
+        for _ in range(30000):     # long drain: touts + agemax fire
+            yield
+        # jam probe: a fresh flow's frame must produce BDs
+        w, _, _ = tcp_tagged(300, 0x18, 500, 0x9999, 0xEE)
+        if pidx < len(pages):
+            yield from h.post_buf(pages[pidx]); posted.append(pages[pidx]); pidx += 1
+        snap = tuple(h.mem.get(BD_BASE + 8 * k) for k in range(128))
+        yield from h.send_frame(w)
+        for _ in range(200):
+            for __ in range(100):
+                yield
+            if tuple(h.mem.get(BD_BASE + 8 * k) for k in range(128)) != snap:
+                state["probe_seen"] = True
+                return
+
+        # JAMMED: dump CQ forensics
+        d = h.dut
+        hd = yield d.dbg_cq_head; tl = yield d.dbg_cq_tail
+        done = []
+        for i in range(len(d.dbg_cq_done)):
+            done.append((yield d.dbg_cq_done[i]))
+        so = []; sc = []; scm = []
+        for i in range(len(d.dbg_s_open)):
+            so.append((yield d.dbg_s_open[i]))
+            sc.append((yield d.dbg_s_cq[i]))
+            scm.append((yield d.dbg_s_cqm[i]))
+        hoh = yield d.dbg_head_open_hit
+        print(f"JAM: head={hd} tail={tl} done={done} s_open={so} s_cq={sc} s_cqm={scm} head_open_hit={hoh}")
+
+    h.run(stim)
+    assert state["probe_seen"], \
+        "CQ HEAD JAMMED: probe frame produced no BD writeback — orphan repro (forensics above)"
+    print("PASS hs: livelock probe — head never jammed")

@@ -797,6 +797,10 @@ class RingDMAWriter(LiteXModule):
         self.comb += _hs
         cq_pressure = Signal()
         self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
+        # sim-introspection aliases (zero hardware: attribute refs only)
+        self.dbg_cq_head, self.dbg_cq_tail, self.dbg_cq_done = cq_head, cq_tail, cq_done
+        self.dbg_head_open_hit = head_open_hit
+        self.dbg_s_open, self.dbg_s_cq = s_open, s_cq
         cq_tail1 = Signal(CQB)          # (tail+1) as a plain Signal: Migen array WRITES
         self.comb += cq_tail1.eq((cq_tail + 1)[:CQB])   # need non-computed indices
         cur_cq = Signal(CQB)            # CQ entry allocated by the in-flight pop
@@ -953,6 +957,7 @@ class RingDMAWriter(LiteXModule):
         slot_tag2 = Signal(2)
         self.comb += slot_tag2.eq(slot_sel)
         cur_cqm  = Signal(CQB)          # opener-staged: meta entry + header slot
+        self.dbg_s_cqm = s_cqm
         cur_hidx = Signal(5)
         hs_cross = Signal()             # this frame swapped pages (update s_cq/s_buf)
         ap_needswap = Signal()          # append starts exactly on a page boundary
