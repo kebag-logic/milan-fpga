@@ -184,11 +184,12 @@ class Harness:
             rd = (rd + 8 + length) & (self.ring - 1)
         return frames, seqs, rd
 
-    def run(self, stim):
+    def run(self, stim, extra_gens=None):
         def wrapped():
             yield from stim()
             self.done = True
-        run_simulation(self.dut, [wrapped(), self.axi_slave(), self.ready_monitor()])
+        run_simulation(self.dut, [wrapped(), self.axi_slave(), self.ready_monitor()] +
+                       (extra_gens or []))
         assert not self.errors, self.errors
 
 
