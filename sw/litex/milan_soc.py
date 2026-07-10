@@ -807,13 +807,13 @@ class RingDMAWriter(LiteXModule):
             cq_more.eq((cq_tail != cq_nhead) & cq_done[cq_nhead[:CQB]]),
             cq_rp.adr.eq(cq_head[:CQB]),   # drain only ever reads the head
         ]
-        _hs = [head_open_hit.eq(0), head_slot.eq(0)]
-        for i in reversed(range(NS)):
-            _hs = If(s_open[i] & (s_cq[i] == cq_head[:CQB]) & (cq_level != 0),
-                     head_open_hit.eq(1), head_slot.eq(i)).Else(_hs)
-        self.comb += _hs
+        # head_open_hit/cq_pressure comb moved below the hs slot-state block: the
+        # hsq9 fix matches the slot's v2-META entry too (s_cqm, declared later) —
+        # an hs open allocates meta FIRST so the head-blocking entry of an open hs
+        # aggregate is its META entry, which the s_cq-only match never saw =>
+        # close_prs never fired in hs mode (silicon: prs=0 in every hs cell) and
+        # CQ-full open-blocks tail-dropped for up to rsc_tout instead.
         cq_pressure = Signal()
-        self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
         # DRAM BD-ring flow control (2026-07-10): the drain used to write BDs whenever
         # the CQ head was done, so under a reap gap the HW LAPPED the driver's rd and
         # overwrote unread BDs (seq skew of exactly `entries` — detected+resynced at 64
@@ -992,6 +992,18 @@ class RingDMAWriter(LiteXModule):
         cur_cqm  = Signal(CQB)          # opener-staged: meta entry + header slot
         self.dbg_s_cqm = s_cqm
         self.dbg_pv3_pend, self.dbg_pv3_cqi, self.dbg_meta_cqi = pv3_pend, pv3_cqi, meta_cqi
+        # CQ head-of-line detector (hsq9): an open slot blocks the head via its PAGE
+        # entry (s_cq, legacy+hs) OR — hs only — its earlier-allocated META entry
+        # (s_cqm; meta drains first so it reaches the head first). s_cqm is stale on
+        # legacy aggregates, so the meta match is gated on `hs`. stage_close() is
+        # already dual-entry-aware (pv3+meta), so the pressure ACTION needs nothing.
+        _hs = [head_open_hit.eq(0), head_slot.eq(0)]
+        for i in reversed(range(NS)):
+            _hs = If(s_open[i] & ((s_cq[i] == cq_head[:CQB]) |
+                                  (hs & (s_cqm[i] == cq_head[:CQB]))) & (cq_level != 0),
+                     head_open_hit.eq(1), head_slot.eq(i)).Else(_hs)
+        self.comb += _hs
+        self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
         cur_hidx = Signal(5)
         hs_cross = Signal()             # this frame swapped pages (update s_cq/s_buf)
         ap_needswap = Signal()          # append starts exactly on a page boundary

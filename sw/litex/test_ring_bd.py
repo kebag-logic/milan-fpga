@@ -1746,6 +1746,43 @@ def test_hs_tag_interleave():
 
 
 
+def test_hs_cq_pressure_close():
+    """hsq9: an OPEN hs aggregate blocks the CQ head via its v2-META entry (metas
+    are allocated first so the meta reaches the head first) while v1 singles fill
+    the queue behind it. Pre-fix head_open_hit only matched the PAGE entry (s_cq)
+    => close_prs never fired in hs mode (silicon: prs=0 in every hs cell) and the
+    open-block tail-dropped until rsc_tout. Now: pressure force-closes the head
+    slot via the dual-entry stage_close; delivery keeps flowing."""
+    h = BDHarness(ring_size=4096, max_frame_beats=256, fifo_beats=1024,
+                  burst_beats=16, cycles=80000)
+
+    def stim():
+        yield from _hs_init(h, pages=10)
+        yield h.dut.rsc_tout.storage.eq(20000)     # idle close must NOT beat pressure
+        yield h.dut.rsc_agemax.storage.eq(60000)
+        wa, la, _ = tcp_tagged(600, 0x10, 3000, 40000, 0xE1)
+        yield from h.send_frame(wa)                # hs open: meta@head, page behind
+        for _ in range(60):
+            yield
+        for i in range(5):                         # depth 8: pressure at level >= 6
+            yield from h.send_frame(frame(0xA0 + i, 10))
+            for _ in range(40):
+                yield
+        for _ in range(400):
+            yield
+        assert (yield h.dut.dbg_close_prs) == 1, \
+            f"expected 1 hs pressure close, got {(yield h.dut.dbg_close_prs)}"
+        assert (yield h.dut.dbg_close_tout) == 0, "idle timeout must not have fired"
+        assert (yield h.dut.frames.status) >= 7, \
+            f"meta+page+5 singles must drain, got {(yield h.dut.frames.status)}"
+        assert (yield h.dut.dropped.status) == 0, "no drops with pressure relief"
+    h.run(stim)
+    # reassemble: meta BD (tag) + page v3 carry the aggregate; payload byte-exact
+    w0m, _ = h.read_bd(0)
+    assert (w0m & 0xFF) == 0xBD and ((w0m >> 56) & 1) == 1, "BD0 must be the v2 meta"
+    print("PASS hs: CQ pressure close fires on a META-at-head open slot (prs=1, 0 drops)")
+
+
 def test_hs_stress_famine_interleave():
     """The silicon-wedge probe: many interleaved hs flows with buffer FAMINE mid-run,
     reaped by a checker that MIRRORS kl-eth hsplit (meta pops no page; v3 pops the
@@ -1883,6 +1920,7 @@ if __name__ == "__main__":
     test_hs_basic_split()
     test_hs_page_crossing()
     test_hs_tag_interleave()
+    test_hs_cq_pressure_close()
     test_hs_stress_famine_interleave()
     print("ALL PASS")
 
