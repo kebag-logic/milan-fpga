@@ -16,7 +16,7 @@ user decision), reaching toward line rate (941). Scoreboard:
 | TX | **✓ 525–536** (done since r2slots era) |
 | RX socket-TCP, mslot keeper | 368–407 steady -P8 (2-queue, hsq3+mslot60d/hsplit9-legacy) |
 | RX single-flow record | **340 steady** (header-split, hsq4/hsq5) — aligned-copy win |
-| RX hs multi-flow | **negative scaling ROOT-CAUSED+FIXED (hsq6)**: P4 295 / P8 240, 0 desyncs |
+| RX hs multi-flow | **2-QUEUE HS + 16K pages (hsq10): P4 381 / 374@120s soak** — famine broken, both harts 40% idle |
 | Zero-copy | works (86.5% zc) but slower than aligned copy at 100 MHz — parked |
 
 **2026-07-10 (late): hs multi-flow scaling SOLVED** — the collapse was the un-gated
@@ -157,8 +157,10 @@ strings kl-eth.ko | grep version=        # ALWAYS verify before staging
   full method in PERF_ON_MILAN.md.
 - Measure, don't assume — probe first, before AND after (measure-dont-assume rule).
 
-**Current board state:** hsq7 (JTAG-SRAM, WNS+0.028, BD-ring gate + CQ LUTRAM
-diet, LUTs 74.2%) + hsplit10 hsplit=1, network up. Gateware ladder: hsq3 =
+**Current board state:** hsq10_epo (JTAG-SRAM, WNS+0.114, 2q-hs + strip-probes +
+16K hs pages) + **hsplit12 hsplit=2 hs_pgsz=16384**, network up. RX record P4 381
+(374 soak); TX gate 582-637. Overnight ladder + forensics: HEADER_SPLIT_DESIGN
+§hsq8/9/10; cells in scratchpad results_hs2q.csv. Gateware ladder: hsq3 =
 2-queue keeper (mslot aggregate best), hsq4 = CQD=32 1-queue, hsq5 = + livelock
 fix, hsq6 = + BD-ring full-gate (WNS+0.243), **hsq7 = + CQ diet = the 1-queue
 hs keeper** (P1 312 / P4 ~283±6, silicon-unregressed, pairs with hsplit10

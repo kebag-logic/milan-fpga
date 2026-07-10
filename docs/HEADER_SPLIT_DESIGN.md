@@ -272,6 +272,39 @@ famine reap_once) now mirror the other half of the driver contract: RING_RD
 write after reap, RING_RD=0 after heal (`BDHarness.rd_sync`). Suite 38/38 ALL
 PASS + the standalone livelock probe green (39 total).
 
+## build_hsq8/9/10 (2026-07-10 overnight) — 2-QUEUE HS ON SILICON; 16K PAGES BREAK THE FAMINE
+
+**hsq8** (2q + strip-probes + rx1-hs CQD=32, spr WNS+0.139) + **hsplit11 hsplit=2**:
+dual-queue hs LIVE (both queues 60 posted/256 BDs), 0 desyncs all night. Ladder:
+P1 285 / P2-1:1 306 / P4-2:2 ~265 / P8 244 — inverse scaling, drops 28-213/s.
+The steering itself verified per-cport (parity hash maps exactly; the steer_q*
+counters misreport under dual-active load = telemetry bug, deltas only trustable
+single-active). **hsq9** (+ the META-at-head pressure fix, spr +0.141): ladder
+IDENTICAL — pressure-close correct in sim but INERT at real loads (internal CQ
+never nears depth-2). The drop law that unified every cell: **per-flow loss every
+~60 ms pins cubic at ~35-50 segs ⇒ aggregate ≈ nflows × 60-65 Mbit regardless of
+queues**; queues only multiply the ceiling once drops ≈ 0 (legacy 16K-buffer runs:
+0 drops @375 single-queue = the existence proof).
+
+**hsq10 = hs_page_bytes 16384** (1ba2b91; 60 pages: 240KB→960KB/queue absorbency)
++ **hsplit12 hs_pgsz=16384** (f7695f4): **THE FAMINE BREAKS** — P2-1:1 drops 28→5/s,
+**P4-2:2 = 381 steady / 374 over a 120 s soak** (flows even, 15 drops/s), P6 353,
+P8 330-352 (drops creep back ≥3 flows/queue). Positive scaling at last (P4 > P2).
+**Both harts ~40% IDLE at 381 ⇒ latency/protocol-bound, NOT CPU-bound — 500 is
+CPU-feasible.** TX gate on every gateware: hsq8 646, hsq10 582-637 (✓ no
+degradation; the 400-500 "regressions" mid-night were a 2-proc scheduler/qdisc
+fairness lottery on the single netif queue — one process starves at ~82 Mbit;
+ACK steering measured constant-on-q0 across cport geometries; threaded NAPI
+equalizes; fq qdisc absent from the kernel = follow-up).
+
+Scoreboard after the night: **RX 381/374-soak (was 295), TX 582-646 ✓, goal
+RX>500 at 76%.** Ranked next levers: rx-usecs sweep on the 16K regime; PAYCAP
+RTL widening (RING_RSC_BUFSZ truncates at 16 bits — 0x1C000 wrote as 0xC000);
+per-flow residual drops (15/s at the P4 soak); hs delivery-latency shaving;
+CONFIG_NET_SCH_FQ for TX fairness; 32K pages. Driver fix shipped on the way:
+hsplit12 also kicks EVERY queue's fast poll (was rxq[0]-only — q1 flows starved
+via poll-latency before threaded NAPI masked it).
+
 **Silicon (build_hsq6, WNS +0.243, CSR map identical to hsq5; driver hsplit10)**
 — same-day A/B, 40 s cells, peer tx_bytes 5 s deltas (first+last interval
 excluded), reconstructed peer (absolute numbers ~5-8% below the pre-reboot peer;
