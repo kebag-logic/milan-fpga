@@ -26,7 +26,7 @@ import sys
 import json
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState
+from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
@@ -771,8 +771,24 @@ class RingDMAWriter(LiteXModule):
         CQD = cq_depth
         CQB = CQD.bit_length() - 1      # index bits (depth must be a power of two)
         assert (1 << CQB) == CQD
-        cq_w0   = Array(Signal(64, name=f"cq_w0_{i}") for i in range(CQD))
-        cq_w1   = Array(Signal(64, name=f"cq_w1_{i}") for i in range(CQD))
+        # CQ word storage in distributed LUTRAM (2026-07-10 slice diet, for 2-queue hs):
+        # as Array(Signal(64))×CQD these were 4 Kb of FFs plus a CQD-way write demux at
+        # EVERY fill site and a CQD-way read mux at the drain — the writer's single
+        # biggest slice consumer (hsq6 placed at 96.8% slices). One 128-bit Memory with
+        # a sync-write + async-read port (RAM32M) is cycle-exact equivalent: the write
+        # lands on the clock edge (= NextValue), the async read feeds the drain comb.
+        # Every fill site writes w0|w1 to ONE index per cycle (FSM states are exclusive,
+        # CQ_FILL's pv3/meta passes sequential), so a single write port suffices. An
+        # entry being filled has done=0 so the drain never reads the address being
+        # written in the same cycle. done/hs flags and head/tail stay FFs.
+        cq_mem = Memory(128, CQD)
+        cq_wp  = cq_mem.get_port(write_capable=True)
+        cq_rp  = cq_mem.get_port(async_read=True)
+        self.specials += cq_mem, cq_wp, cq_rp
+
+        def cq_write(idx, w0, w1):
+            """comb strobe inside an fsm.act branch: sync write, visible next cycle"""
+            return [cq_wp.we.eq(1), cq_wp.adr.eq(idx), cq_wp.dat_w.eq(Cat(w0, w1))]
         cq_done = Array(Signal(name=f"cq_done{i}")    for i in range(CQD))
         cq_head = Signal(CQB + 1)       # extra bit: full/empty disambiguation
         cq_tail = Signal(CQB + 1)
@@ -789,6 +805,7 @@ class RingDMAWriter(LiteXModule):
             cq_drain.eq((cq_level != 0) & cq_done[cq_head[:CQB]]),
             cq_nhead.eq(cq_head + 1),
             cq_more.eq((cq_tail != cq_nhead) & cq_done[cq_nhead[:CQB]]),
+            cq_rp.adr.eq(cq_head[:CQB]),   # drain only ever reads the head
         ]
         _hs = [head_open_hit.eq(0), head_slot.eq(0)]
         for i in reversed(range(NS)):
@@ -1409,15 +1426,14 @@ class RingDMAWriter(LiteXModule):
         )
         fsm.act("CQ_FILL",         # commit staged BDs (reg -> demux only). hs closes
             If(pv3_pend,               # take two passes: last-page v3, then the meta.
-                NextValue(cq_w0[pv3_cqi],
-                    Cat(C(0xBD, 8), C(0, 46), pv3_tag, C(1, 1), C(0, 1), C(1, 1), C(0, 5))),
-                NextValue(cq_w1[pv3_cqi], pv3_addr),
+                *cq_write(pv3_cqi,
+                    Cat(C(0xBD, 8), C(0, 46), pv3_tag, C(1, 1), C(0, 1), C(1, 1), C(0, 5)),
+                    pv3_addr),
                 NextValue(cq_done[pv3_cqi], 1),
                 NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << pv3_cqi)) | (C(1, 1) << pv3_cqi)),
                 NextValue(pv3_pend, 0),
             ).Else(
-                NextValue(cq_w0[meta_cqi], meta_w0),
-                NextValue(cq_w1[meta_cqi], meta_w1),
+                *cq_write(meta_cqi, meta_w0, meta_w1),
                 NextValue(cq_done[meta_cqi], 1),
                 NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << meta_cqi)) | (hs << meta_cqi)),
                 If(cqf_disc & (disc != 0),
@@ -1516,9 +1532,9 @@ class RingDMAWriter(LiteXModule):
             # between this slot's crossings under interleave, so cur_cq points at the
             # wrong entry and this slot's real page entry stays done=0 forever => the
             # CQ head jams = the multi-flow hs livelock (task #13, sim c5681 fsm=DISCARD).
-            NextValue(cq_w0[cq_of_sel],
-                Cat(C(0xBD, 8), C(0, 46), slot_tag2, C(1, 1), C(0, 1), C(1, 1), C(0, 5))),
-            NextValue(cq_w1[cq_of_sel], buf_addr_r),
+            *cq_write(cq_of_sel,
+                Cat(C(0xBD, 8), C(0, 46), slot_tag2, C(1, 1), C(0, 1), C(1, 1), C(0, 5)),
+                buf_addr_r),
             NextValue(cq_done[cq_of_sel], 1),
             NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << cq_of_sel)) | (C(1, 1) << cq_of_sel)),
             NextValue(ap_needswap, 0),
@@ -1701,9 +1717,9 @@ class RingDMAWriter(LiteXModule):
                     # plain single (incl. arm+PSH: eligible-but-pushed -> v1 BD):
                     # fill this pop's CQ entry; seq/drops patched at drain
                     NextValue(ap_arm, 0),
-                    NextValue(cq_w0[cur_cq],
-                        Cat(C(0xBD, 8), C(0, 8), len_bytes, frame_csum, C(0, 16))),
-                    NextValue(cq_w1[cur_cq], buf_addr_r),
+                    *cq_write(cur_cq,
+                        Cat(C(0xBD, 8), C(0, 8), len_bytes, frame_csum, C(0, 16)),
+                        buf_addr_r),
                     NextValue(cq_done[cur_cq], 1),
                     If(ack_wb,
                         # pending-ACK flush payload done; restore a parked newcomer
@@ -1751,8 +1767,8 @@ class RingDMAWriter(LiteXModule):
             # reflect WRITE order and drops stay 8-bit at [55:48] ([63:56] belongs to
             # the v2 marker/flags — the drops/bit-56 alias, 2026-07-08, stays fixed).
             self.bus.w.data.eq(Mux(bd_mode,
-                Mux(wb_beat, cq_w1[cq_head[:CQB]],
-                             cq_w0[cq_head[:CQB]] | (seq[:8] << 8) |
+                Mux(wb_beat, cq_rp.dat_r[64:],
+                             cq_rp.dat_r[:64] | (seq[:8] << 8) |
                              Mux((cq_hs >> cq_head[:CQB])[0],
                                  (drops6 << 48),          # hs BDs: 6-bit at [53:48]
                                  (drops[:8] << 48))),     # legacy: 8-bit at [55:48]
