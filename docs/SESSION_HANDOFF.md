@@ -152,7 +152,10 @@ strings kl-eth.ko | grep version=        # ALWAYS verify before staging
   full method in PERF_ON_MILAN.md.
 - Measure, don't assume — probe first, before AND after (measure-dont-assume rule).
 
-**Current board state:** hsq6 (JTAG-SRAM, WNS+0.243, BD-ring full-gate) + hsplit10
-hsplit=1, network up. Gateware ladder: hsq3 = 2-queue keeper (mslot aggregate best),
-hsq4 = CQD=32 1-queue, hsq5 = hsq4 + livelock fix, **hsq6 = hsq5 + BD-ring
-full-gate = the hs bitstream** (pairs with hsplit10 ONLY).
+**Current board state:** hsq7 (JTAG-SRAM, WNS+0.028, BD-ring gate + CQ LUTRAM
+diet, LUTs 74.2%) + hsplit10 hsplit=1, network up. Gateware ladder: hsq3 =
+2-queue keeper (mslot aggregate best), hsq4 = CQD=32 1-queue, hsq5 = + livelock
+fix, hsq6 = + BD-ring full-gate (WNS+0.243), **hsq7 = + CQ diet = the 1-queue
+hs keeper** (P1 312 / P4 ~283±6, silicon-unregressed, pairs with hsplit10
+ONLY); hsq7t = 2-queue diet canary (q0-hs+q1-legacy, 99.4% slices, +0.028) —
+FITS+CLOSES but no room for rx1-hs until strip-probes lands.

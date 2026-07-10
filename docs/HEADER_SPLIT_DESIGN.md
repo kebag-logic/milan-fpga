@@ -309,3 +309,30 @@ symbolized host-side; /proc/stat ground truth over the window):**
   fills — the binding buffers are now the **60-page posted pool (~2 ms at line
   rate) and the internal CQ-32 head-of-line case**, which is where the
   pressure-close gap (close_prs blind to PAGE-at-head) matters.
+
+## build_hsq7 / hsq7t (2026-07-10) — CQ LUTRAM diet; the 2-queue slice wall FALLS
+
+The 2-queue-hs prerequisite was area: hsq6 placed at **96.8% slices**, and the
+2-queue+CQD32 config had died at placement in the hsq5 era. The diet (222e9f1):
+`cq_w0/w1` Array(Signal(64))×CQD → one **128-bit Memory, sync-write +
+async-read port (RAM32M distributed LUTRAM)**. Cycle-exact equivalent (writes
+land on the edge like NextValue; a filling entry has done=0 so the drain never
+reads a same-cycle-written address; the four fill sites are FSM-exclusive so a
+single write port suffices). Kills the CQD-way write demux at every fill site
+plus the drain read mux. Suite 38/38 + livelock probe green.
+
+| build | queues | LUTs          | slices     | WNS    | verdict |
+|-------|--------|---------------|------------|--------|---------|
+| hsq6  | 1      | 51908 (81.9%) | 96.83%     | +0.243 | prior keeper |
+| hsq7  | 1      | 47042 (74.2%) | 94.97%     | +0.028 | **new keeper, silicon-clean** |
+| hsq7t | 2      | 54057 (85.3%) | **99.40%** | +0.028 | **FITS + CLOSES** (q0-hs CQD32 + q1-legacy CQD8) |
+
+−4866 LUTs from one Array→Memory swap. Both diet builds land at WNS +0.028
+(same critical path family; the async LUTRAM read is the suspected new
+violator — if a future build misses, the fallback is a sync-read port
+prefetched during WB_AW). **hsq7 silicon unregression: P1 312 = exact match,
+P4 277/289 vs 293–295 (TCP variance band, repeat confirmed), 0 desyncs.**
+hsq7t proves the 2-queue shape fits, but at 99.4% there is NO room for
+rx1 hs_capable — the strip-probes diet (area-70 catalog) gates the full
+2-queue-hs build. Next: strip-probes flag → rebuild 2-queue with rx1-hs →
+kl-eth hsplit11 (per-queue hs) → the 368-407 mslot aggregate assault.
