@@ -108,3 +108,22 @@ The datapath could carry ~8× more. TX is purely a CPU-feed problem:
 - Famine: KL_BD_POST 48→60 zeroed 60 s drops (earlier +137/60 s at 48).
 - Full histogram at −P2: psh 55 %, rollover-park 45 %, tout 0.2 %, cap/age/prs 0,
   ratio 22.8.
+
+## App profile (2026-07-10, keeper @ steady −P8 334 Mbit, per-hart, symbolized)
+
+- **cpu1 (app hart): 83.2 % of cycles in ONE kernel loop** —
+  `fallback_scalar_usercopy_sum_enabled+0xa8..0xcc`. Disassembly: the **misaligned
+  shift-and-merge path** (`ld; srl; ld; sll; or; sd` = 5 ops per 8 B), NOT the fast
+  64-B-unrolled aligned path 0x6c bytes earlier (≈1.06 ld+sd per 8 B).
+- **cpu0 (softirq hart)**: ~19 % is the same usercopy (second app's share), 4.6 %
+  `_raw_spin_unlock_irqrestore`, 1.4 % softirq dispatch, rest fragmented GRO/TCP/driver.
+- **Root cause of the misalignment**: the 54/66-B frame header inside the copybreak
+  linear part shifts the payload boundary to dst%8=2/6; every subsequent frag byte
+  copies through the slow path. Per-aggregate payloads are 8-multiples (n×1448), so
+  once misaligned, always misaligned.
+- **Consequence: header-split fixes the copy tax twice** — (a) zerocopy for full 4 K
+  frags, and (b) even the *copied* fallback becomes aligned (payload at page offset 0)
+  ⇒ ~2–3× faster copies before any mmap. The 0.64 cy/B "raw copy" figure in §2 is a
+  *misaligned* figure; the aligned budget is ~0.25–0.3 cy/B.
+- Keeper-side partial trick (rx offset +2 to align doff=5 payloads) helps only
+  timestamp-less flows (doff=8 → 68%8=4) — not pursued; hsplit is the clean fix.
