@@ -3242,8 +3242,11 @@ class MilanSoC(SoCCore):
             # 1x drops 3 of the 4 DQ timing paths (only MISO), the most timing-robust MMAP
             # read; at 25 MHz SCK the sampling window is huge vs a 112.5 MHz sys. Flashboot
             # reads a few MB → still <1 s. Correct at ANY sys clock; 100 MHz builds unaffected.
+            # 12.5 MHz requested => ~25 MHz effective SPI read clk (was 50 MHz at the
+            # 25e6 request): doubles the sampling margin. build_hsq0's placement made
+            # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
             self.add_spi_flash(mode="1x", module=N25Q128A13(SpiCodes.READ_1_1_1_FAST),
-                               clk_freq=int(25e6), with_master=True)
+                               clk_freq=int(12.5e6), with_master=True)
             self._add_flashboot_constants(flashboot)
 
         if with_milan:
