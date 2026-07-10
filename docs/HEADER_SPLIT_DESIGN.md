@@ -77,3 +77,61 @@ time, then steady −P8 time-series.
 - Sim: test_hs_basic_split / test_hs_page_crossing / test_hs_tag_interleave PASS
   (header slot content, payload@0 byte-exact, cross-page reassembly, tag routing);
   legacy suite green at hs_en=0.
+
+## Silicon status (2026-07-10 night — partial, measurement peer lost mid-campaign)
+
+**What is proven on silicon:**
+- The BD stream is well-formed under live traffic: raw dump (hsplit5 first-800
+  logger) shows strict `[v3 page]* [v2 meta]` per aggregate, sequential pool
+  page addresses, tags routing, seq increments — decoded byte-exact against the
+  bit layout above.
+- `tcp_zerocopy_receive` page-flips DO occur (`len=4096` grants): the v3 pages
+  are order-0, offset-0, 4096-length — the mmap contract the kernel demands.
+  The R-3 enabler is real end-to-end at least once per alignment window.
+- The module-reload pairing mismatch ("want X have 0 ci=0" right after insmod)
+  is **benign**: stale pre-reload BDs parsed by the fresh instance; the hsplit5
+  resync self-heals it (60 buffers reposted, traffic then flows). Root-caused,
+  no RTL implication.
+
+**What is structurally capped — zerocopy fraction (analysis, believed solid):**
+pages are per-aggregate (a close flushes the partial tail page; the next
+aggregate opens a fresh page at offset 0), but aggregate payloads are n×1448,
+so the TCP *stream* offset drifts off 4096-alignment after the first aggregate
+and only re-aligns by luck (~a few % of aggregates). Measured zero-copied
+fraction: 1.7 % — matches the drift model, not a bug. Fixes, in order of value:
+1. **Per-flow page continuation** (RTL): keep a slot's partial tail page open
+   across same-flow closes (seq-contiguity already checked); emit its v3 when
+   the page fills or the flow is evicted. Page boundaries then track the
+   stream → ~100 % mappable. Nontrivial: a page's v3 spans closes, so emission
+   ordering vs the CQ needs a design pass.
+2. MSS 1024 (sender-side `TCP_MAXSEG`): 4 segs/page exactly → 25 % of
+   aggregates align. Cheap but partial.
+3. Accept the copy path: header-split still delivers the **aligned** copy
+   (payload at page offset 0 ⇒ dst/src co-aligned ⇒ the fast 64 B-unrolled
+   loop, 2–3× the misaligned baseline). This is the near-term win; the
+   PERF_ON_MILAN.md §6.4 falsifiable prediction (hs-mode profile shows the
+   fast loop) is still PENDING a valid-peer re-run.
+
+**Open on silicon — multi-page pairing storm (UNDER SUSPICION, DATA TAINTED):**
+at TCP ramp (first multi-seg/multi-page aggregates), pairing-lost warns fired
+in bursts and re-fired within 4–5 pages of every resync; after the storms even
+legacy mslot mode crawled until a full FPGA reload (a `page_pool_release_retry`
+275-page leak pinned the old pool). Two suspicions: (a) a pop-vs-BD-emission
+leak in the JIT-crossing or famine-disc path; (b) ring-disable only clears
+slot/CQ state from the FSM IDLE state — a non-IDLE wedge (e.g. PGSWAP waiting
+on a famine-drained posted FIFO) survives `RING_EN=0` and poisons the next
+session, which would ALSO defeat the driver's resync (storm). **However**: the
+entire storm dataset was captured while the measurement peer was silently a
+ghost (see below) — the traffic was a 1.4 Mbit trickle with >tout gaps, i.e.
+the pathological regime. Re-test against a real peer before touching RTL;
+if it reproduces, sim the exact regime (tout-degenerate → ramp transition,
+60-page famine, PSH-legacy interleave) with the strict pairing checker.
+
+**Measurement-validity note:** overnight the dev VM lost the Intel NIC
+passthrough (enp6s0 → gone; the new enp7s0 is an isolated segment). The board's
+ARP for 192.168.127.2 resolved to the OUTER machine (68:05:ca:…), where a
+previous session's http server and tcp_blast listeners still answered — a ghost
+peer over a degraded bridge. Every throughput number from this night's silicon
+session (zc 1.4 Mbit, mslot 0.2–1.6 Mbit "collapse") is **invalid as a
+performance measurement**; only the BD-stream decodes, the reload-resync
+root-cause, and the zc-alignment fraction analysis survive.

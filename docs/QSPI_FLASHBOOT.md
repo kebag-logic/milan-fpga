@@ -225,3 +225,33 @@ fit the 3.83 MB bitstream for a fully standalone power-on box, but per the 2026-
 decision the **bitstream stays JTAG-loaded** for the iteration loop; only the
 kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x40000000) +
 `deploy.sh` compressing at flash time + a layout shrink — one reflash to adopt.
+
+## Field notes (2026-07-10 silicon session)
+
+1. **Never `-f` a bitstream to this flash.** The kernel lives at offset 0 (the
+   table above); `openFPGALoader -f <bit>` overwrites its FBI. Symptom on the
+   next flashboot: `Error: invalid image length 0xffffffff` at the kernel step
+   (the bit-file's leading dummy words read as the length). Recovery: re-flash
+   `kernel.fbi` raw at `-o 0` (crcfbigen `-f -l`), load bitstreams via **JTAG
+   SRAM only**. Corollary: a power-cycle leaves the FPGA unconfigured (flash
+   holds no bitstream) — the board needs one JTAG load per power-on by design.
+2. **The BIOS boot-time SPI auto-calibration defeats the gateware clock cap.**
+   liblitespi `spiflash_freq_init()` re-tunes the divisor UP from the gateware
+   default while a short CRC block reads stably — silicon locked div=2 (50 MHz),
+   where MB-scale reads are marginal (per-read-different CRCs; the hsq0-era
+   failures). One lucky boot in ~6 was the tell. Fix (build_hsq3+):
+   `add_constant("SPIFLASH_SKIP_FREQ_INIT")` next to `add_spi_flash(...,
+   clk_freq=12.5e6)` — the BIOS then keeps the built-for divisor.
+3. **Manual flashboot from `litex>`** (roulette recovery, no serial upload):
+   `mem_write 0xf0005000 8` and `0xf0005008 8` (phy+mmap divisors → ~12.5 MHz),
+   then per image `mem_read <hdr> 8` (FBI = LE [len][crc32]), `mem_copy <dst>
+   <hdr+8> <ceil(len/4)>`, `crc <dst> <len>` == header crc (host-computed ⇒
+   end-to-end, catches stale cache lines too), finally `boot 0x40f00000`.
+   Scripted: scratchpad `manual_flashboot.sh`. Validated on silicon (all four
+   images CRC-OK first try at div 8).
+4. **`Initramfs unpacking failed: invalid magic at start of compressed archive`
+   ~35 s into boot is benign**: the initrd reservation is 16 MB, the CPIO-XZ is
+   5.3 MB — the kernel probes the trailing garbage for a concatenated archive
+   and reports the miss AFTER the real archive already unpacked. Login works.
+5. `rtk` humanizes/dedups tool output on this host — when forensics matter
+   (byte counts, repeated log lines), read raw files or use `rtk proxy`.
