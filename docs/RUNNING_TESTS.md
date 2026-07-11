@@ -15,6 +15,13 @@ The layers, cheapest-first (run them in this order when iterating):
 | 5 | P&R + timing | Vivado | ~50 min | timing, congestion, utilization |
 | 6 | Silicon §V | board | ~15 min | everything the models missed |
 
+Layer 5 launcher: `sw/litex/build.sh <config> [<config>...] [--sweep]` - named
+board configurations (ax7101 ship shape, arty bring-up shape) defined ONCE in
+the script; pass several to build them in parallel (90 s stagger, 32 threads
+each, setsid, max 3 = the saturated box). `--sweep` expands each config into
+the 3-place-directive sweep. `--dry-run` prints the exact commands.
+`TAG=name` suffixes the output dirs; `-- <args>` appends milan_soc.py overrides.
+
 ---
 
 ## 1. Elaboration smoke test (ALWAYS before committing RTL to P&R)
