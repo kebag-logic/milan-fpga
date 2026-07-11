@@ -105,17 +105,29 @@ class _CRG(LiteXModule):
     the Artix-7 DDR3 PHY (A7DDRPHY) and the RGMII PHY (LiteEth s7rgmii) need for their
     IODELAY calibration."""
     def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False,
-                 milan_clk_freq=None):
+                 milan_clk_freq=None, board="ax7101"):
         self.cd_sys = ClockDomain()
 
-        clk200 = platform.request("clk200")
-        rst_n  = platform.request("cpu_reset_n")
-
-        self.pll = pll = S7PLL(speedgrade=-2)
+        # Board clocking: AX7101 = 200 MHz differential + active-low reset button,
+        # speedgrade -2. Arty A7-100 = 100 MHz single-ended + cpu_reset button,
+        # speedgrade -1, and the DP83848 MII PHY needs a 25 MHz reference OUT
+        # (eth_ref_clk pin -> PHY X1), produced below when with_eth.
+        if board == "arty":
+            clkin, clkin_freq = platform.request("clk100"), 100e6
+            self.pll = pll = S7PLL(speedgrade=-1)
+        else:
+            clkin, clkin_freq = platform.request("clk200"), 200e6
+            self.pll = pll = S7PLL(speedgrade=-2)
+        rst_n = platform.request("cpu_reset_n")
         self.comb += pll.reset.eq(~rst_n)
-        pll.register_clkin(clk200, 200e6)
+        pll.register_clkin(clkin, clkin_freq)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
+
+        if board == "arty" and with_eth:
+            self.cd_eth_ref = ClockDomain(reset_less=True)
+            pll.create_clkout(self.cd_eth_ref, 25e6)
+            self.comb += platform.request("eth_ref_clk").eq(ClockSignal("eth_ref"))
 
         if milan_clk_freq:
             # Separate, slower clock for the Milan TSN datapath (rx_filter/CAM/CBS/
@@ -328,7 +340,7 @@ class MilanMAC(LiteXModule):
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
-                 gtx_tx_invert=False, **_rgmii):
+                 gtx_tx_invert=False, phy_model="gmii", **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
         from liteeth.common import eth_phy_description
@@ -336,24 +348,32 @@ class MilanMAC(LiteXModule):
 
         clk_pads = platform.request("eth_clocks", phy_index)
         pads     = platform.request("eth",        phy_index)
-        # The AX7101 RTL8211E is strapped for **GMII** (8-bit SDR), per the Alinx
-        # example top (`input [7:0] e_rxd`, separate rxdv/rxer, gtx=rxc). An RGMII
-        # (4-bit DDR) read of this bus corrupts every byte  -  hardware-confirmed as 100%
-        # MAC preamble errors (evidence/hw_ma3_*). LiteEthPHYGMII is the right PHY.
-        # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
-        self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
-                                   tx_clk_invert=gtx_tx_invert)
-        # GMII TX output timing is otherwise UNCONSTRAINED, so the placer may put the
-        # tx_data/tx_en launch FFs anywhere: measured on silicon, FFs at SLICE_X1 (next to
-        # the IO column, data-vs-gtx skew ~1-2 ns) TX 10/10 frames; FFs at SLICE_X14
-        # (~4-6 ns skew) TX 0/10  -  outside the RTL8211E sampling window (~(0,6) ns @ 8 ns).
-        # Pack the launch FFs into the IOB so clock-to-out is pad-locked on every build.
-        # Plain set_property lines only  -  XDC does not execute TCL `if` guards (verified:
-        # a guarded version was silently skipped and the FFs stayed in fabric).
-        platform.add_platform_command(
-            "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
-        platform.add_platform_command(
-            "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
+        # phy_model="mii": Arty A7 DP83848 (10/100, MII 4-bit). The MAC core
+        # handles the PHY-width conversion, so everything downstream of
+        # self.phy (store-and-forward FIFO, last_be conversion, CDC, loopback)
+        # is identical; the GMII IOB constraints and gtx invert do not apply.
+        if phy_model == "mii":
+            from liteeth.phy.mii import LiteEthPHYMII
+            self.phy = LiteEthPHYMII(clk_pads, pads, with_hw_init_reset=True)
+        else:
+            # The AX7101 RTL8211E is strapped for **GMII** (8-bit SDR), per the Alinx
+            # example top (`input [7:0] e_rxd`, separate rxdv/rxer, gtx=rxc). An RGMII
+            # (4-bit DDR) read of this bus corrupts every byte  -  hardware-confirmed as 100%
+            # MAC preamble errors (evidence/hw_ma3_*). LiteEthPHYGMII is the right PHY.
+            # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
+            self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
+                                       tx_clk_invert=gtx_tx_invert)
+            # GMII TX output timing is otherwise UNCONSTRAINED, so the placer may put the
+            # tx_data/tx_en launch FFs anywhere: measured on silicon, FFs at SLICE_X1 (next to
+            # the IO column, data-vs-gtx skew ~1-2 ns) TX 10/10 frames; FFs at SLICE_X14
+            # (~4-6 ns skew) TX 0/10  -  outside the RTL8211E sampling window (~(0,6) ns @ 8 ns).
+            # Pack the launch FFs into the IOB so clock-to-out is pad-locked on every build.
+            # Plain set_property lines only  -  XDC does not execute TCL `if` guards (verified:
+            # a guarded version was silently skipped and the FFs stayed in fabric).
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
         self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
                                    with_preamble_crc=True, with_padding=True)
         # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
@@ -445,10 +465,12 @@ class MilanMAC(LiteXModule):
             i_s_axis_mac_rx_tdata  = rx_dp.dp.data,  i_s_axis_mac_rx_tkeep = rx_dp.dp.keep,
             i_s_axis_mac_rx_tvalid = rx_dp.dp.valid, i_s_axis_mac_rx_tlast = rx_dp.dp.last,
             o_s_axis_mac_rx_tready = rx_dp.dp.ready,
-            # MAC status: 1G/up/full-duplex until MDIO link tracking lands (§A.7 refine);
+            # MAC status: up/full-duplex until MDIO link tracking lands (§A.7 refine);
+            # speed = 0b10 (1G, GMII boards) or 0b01 (100M, the Arty MII DP83848).
             # RMON event pulses (i_mac_events) are 0  -  the LiteEth core doesn't expose the
             # same event set as the Forencich MAC, so those RMON lanes stay 0 here.
-            i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+            i_i_mac_speed = (0b01 if phy_model == "mii" else 0b10),
+            i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
         )
 
 
@@ -3264,7 +3286,7 @@ class MilanSoC(SoCCore):
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
-                 rx_fifo_beats=2048, **kwargs):
+                 rx_fifo_beats=2048, board="ax7101", **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3342,20 +3364,22 @@ class MilanSoC(SoCCore):
                          **kwargs)
 
         self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
-                        milan_clk_freq=milan_clk_freq)
+                        milan_clk_freq=milan_clk_freq, board=board)
 
-        # ---- 512 MB DDR3 (LiteDRAM, A7DDRPHY + MT41J256M16)  -  migration §A.3 ----
+        # ---- DDR3 (LiteDRAM, A7DDRPHY)  -  migration §A.3. AX7101 = MT41J256M16
+        # (512 MB, 2x16); Arty A7-100 = MT41K128M16 (256 MB, 1x16). ----
         if with_dram:
             from litedram.phy import s7ddrphy
-            from litedram.modules import MT41J256M16
+            from litedram.modules import MT41J256M16, MT41K128M16
             self.ddrphy = s7ddrphy.A7DDRPHY(platform.request("ddram"),
                 memtype        = "DDR3",
                 nphases        = 4,
                 sys_clk_freq   = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
+            dram_module = (MT41K128M16 if board == "arty" else MT41J256M16)
             self.add_sdram("sdram",
                 phy    = self.ddrphy,
-                module = MT41J256M16(sys_clk_freq, "1:4"),
+                module = dram_module(sys_clk_freq, "1:4"),
                 l2_cache_size = 8192)
 
         # ---- QSPI config flash (memory-mapped) + Linux flash-boot manifest ----
@@ -3365,6 +3389,10 @@ class MilanSoC(SoCCore):
         # (see FLASHBOOT_MANIFESTS); the emitted MILAN_FLASHBOOT_* constants drive the
         # `linux_flashboot` BIOS method (sw/litex/patches/0001-milan-linux-flashboot.patch).
         if with_spiflash:
+            # Arty v1 bring-up is serial-boot only: its flash is an S25FL128S
+            # (different chip + no flashboot images staged); wire it up as a
+            # follow-up increment, not by accident.
+            assert board != "arty", "--with-spiflash/--flashboot not ported to arty yet (serial boot)"
             from litespi.modules import N25Q128A13
             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
@@ -3411,6 +3439,7 @@ class MilanSoC(SoCCore):
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
                                           gtx_tx_invert=gtx_tx_invert,
+                                          phy_model=("mii" if board == "arty" else "gmii"),
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 dp_ports.update(self.milan_mac.dp_ports)
@@ -3528,6 +3557,10 @@ def main():
                     help="drop the MilanDebug telemetry block (tlm CSRs @0xf0004000+ incl. "
                          "Phase-0/M1 probes)  -  the area-70 ship-build diet; kl-eth handles "
                          "the absence. Keep probes on dev/forensics builds.")
+    ap.add_argument("--board", default="ax7101", choices=["ax7101", "arty"],
+                    help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
+                         "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
+                         "second Milan node for AVDECC interop).")
     ap.add_argument("--rx-fifo-beats", default=2048, type=float,
                     help="store-and-forward ingress FIFO depth per RX queue, beats "
                          "(2048 = 16KB = 4 RAMB36/queue). AREA-70 staged diet: 1024; "
@@ -3616,13 +3649,21 @@ def main():
     builder_args(ap)
     args = ap.parse_args()
 
-    platform = alinx_ax7101.Platform()
+    if args.board == "arty":
+        # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,
+        # MT41K128M16 DDR3, DP83848 MII 10/100 PHY, FT2232 = JTAG+UART on one
+        # cable. Second Milan node for AVDECC/Milan interop (100M CBS point).
+        from litex_boards.platforms import digilent_arty
+        platform = digilent_arty.Platform(variant="a7-100", toolchain="vivado")
+    else:
+        platform = alinx_ax7101.Platform()
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
+                   board=args.board,
                    with_mac=args.with_mac or args.all_blocks,
                    with_dma=args.with_dma or args.all_blocks,
                    with_dram=args.with_dram or args.all_blocks,
-                   with_spiflash=args.with_spiflash or args.all_blocks,
+                   with_spiflash=(args.with_spiflash or args.all_blocks) and args.board != "arty",
                    flashboot=args.flashboot,
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
