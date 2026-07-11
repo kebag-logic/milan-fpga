@@ -34,6 +34,11 @@ HERE="$(cd "$(dirname "$(realpath "$0")")" && pwd)"
 STEP="${1:-all}"
 BAUD="${BAUD:-115200}"
 CABLE="${CABLE:-ft232}"       # FT232H JTAG on the AX7101
+# TWO FTDI cables live on this bus since the Arty arrived (2026-07-11): always
+# pin the cable by serial or a flash op can hit the WRONG BOARD. Default = the
+# AX7101's FT232H; build.sh overrides per board (docs/BUILDING.md section 4).
+SERIAL="${SERIAL:-210512180081}"
+OFL="openFPGALoader --ftdi-serial $SERIAL"
 CONSOLE="$(ls /dev/serial/by-id/*CP2102* 2>/dev/null | head -1 || echo /dev/ttyUSB0)"
 # newest built bitstream (override with BIT=...); `|| true` so an empty glob doesn't trip set -e
 BIT="${BIT:-$(ls -t "$HERE"/*/gateware/alinx_ax7101.bit 2>/dev/null | head -1 || true)}"
@@ -59,8 +64,15 @@ do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" 
 do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
 do_flash()  {
     [ -n "$BIT" ] && [ -f "$BIT" ] || { echo "[deploy] flash: no bitstream (set BIT=<path/to/alinx_ax7101.bit>)"; exit 2; }
+    # Flash-boot era interlock: the AX7101 QSPI holds the LINUX IMAGES with the
+    # kernel at offset 0 (QSPI_FLASHBOOT.md). A bitstream write at 0 clobbers it
+    # (the historical `openFPGALoader -f` trap). Bitstreams are JTAG-SRAM loaded.
+    [ "${FORCE_BITSTREAM_FLASH:-0}" = 1 ] || {
+        echo "[deploy] flash REFUSED: QSPI holds the flash-boot images (kernel at offset 0)."
+        echo "[deploy] Use 'load' (JTAG->SRAM). If you REALLY mean to sacrifice the images:"
+        echo "[deploy]   FORCE_BITSTREAM_FLASH=1 deploy.sh flash   (then re-run flash-images)"; exit 2; }
     echo "[deploy] flash  (JTAG -> QSPI flash, PERSISTENT): $BIT"
-    openFPGALoader -c "$CABLE" -f "$BIT"          # -f/--write-flash; add --reset to reboot from flash
+    $OFL -c "$CABLE" -f "$BIT"          # -f/--write-flash; add --reset to reboot from flash
 }
 do_flash_images() {
     [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
@@ -85,7 +97,7 @@ do_flash_images() {
         printf "[deploy]   %-8s %9d B  -> flash @ 0x%06x  (budget %d B, from %s)\n" "$name" "$sz" "$off" "$budget" "$src"
         [ "$sz" -le "$budget" ] || {
             echo "[deploy]   ERROR: '$name' ($sz B) exceeds its $budget B slot — slim it or move offsets (docs/QSPI_FLASHBOOT.md)"; exit 2; }
-        openFPGALoader -c "$CABLE" --fpga-part "$FPGA_PART" -o "$off" --write-flash --file-type raw --verify "$fbi"
+        $OFL -c "$CABLE" --fpga-part "$FPGA_PART" -o "$off" --write-flash --file-type raw --verify "$fbi"
     done < <("$PYTHON" - "$LAYOUT" "$FLASH_SIZE" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1])); fs = int(sys.argv[2])
