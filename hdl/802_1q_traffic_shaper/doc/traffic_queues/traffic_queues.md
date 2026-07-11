@@ -10,7 +10,7 @@
 | ---------------- | ---- | ----- | ------------------------ |
 | TDATA_WIDTH      | int  | 64    | Widht of tdata bus       |
 | NUMBER_OF_QUEUES | int  | 4     | Number of network queues |
-| FIFO_DEPTH       | int  | 16384 | Buffer depth             |
+| FIFO_DEPTH       | int  | 16384 | Buffer depth (default; `traffic_controller_802_1q` instantiates it with `BUFFER_FIFO_DEPTH = 1024`) |
 
 ## Ports
 
@@ -61,6 +61,8 @@
 
 ## Instantiations
 
-- mux_queues: axis_switch_1in_4out_64b_tdest_2b_tlast
-  -  Instantiate axis_switch: multiple inputs, single output (mux)- demux_queues: axis_switch_4in_1out_64b_tlast
-  -  Instantiate axis_switch: multiple inputs, single output (demux)
+- demux_queues: axis_demux (verilog-axis; replaced the generated axis_switch_1in_4out IP)
+  -  1-to-4 routing by `tdest` into the per-queue FIFOs- queue FIFOs: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
+  -  per-queue buffering; egress is a grant-indexed combinational mux
+     (replaced axis_arb_mux after the CBS cross-lock fix,
+     docs/findings/CBS_DATAPATH_BUG.md)

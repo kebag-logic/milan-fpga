@@ -74,5 +74,5 @@ and is forwarded unmodified.
 ## Instantiations
 
 - m_axis_fifo: axi_stream_if
-  -  Master axis interface from fifo.- eth_packet_buffer: xpm_fifo_axis
+  -  Master axis interface from fifo.- eth_packet_buffer: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
   -  Storing incoming packets in the fifo till headers parsing is completed.

@@ -1,7 +1,7 @@
 # Third-party (vendored) cores
 
 Open-source RTL vendored as git submodules under `third_party/`. See the de-Xilinx
-plan in [`docs/OPEN_SOURCE_MIGRATION.md`](docs/OPEN_SOURCE_MIGRATION.md).
+plan in [`docs/integration/OPEN_SOURCE_MIGRATION.md`](docs/integration/OPEN_SOURCE_MIGRATION.md).
 
 | Submodule | Upstream | License | Pinned commit | Used by |
 |-----------|----------|---------|---------------|---------|

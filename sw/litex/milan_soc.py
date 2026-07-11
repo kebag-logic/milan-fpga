@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
 # Configurable single-core RISC-V SoC that BOOTS Linux with the Milan TSN NIC and
-# its driver  -  the fully-FPGA target from docs/FULLY_FPGA_RISCV_MIGRATION.md. One
+# its driver  -  the fully-FPGA target from docs/integration/FULLY_FPGA_RISCV_MIGRATION.md. One
 # NaxRiscv core (MMU, Linux-capable) + clock/reset + UART + integrated RAM, with the
 # Milan datapath as a memory-mapped peripheral (CSR @ 0x9000_0000 + IRQs), and  - 
 # with --full  -  the AXIS<->memory DMA (§A.6) and the 1G MAC + RGMII PHY (§A.7).
@@ -47,7 +47,7 @@ from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "platforms"))
 import alinx_ax7101
 
-# The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/REGISTER_MAP.md;
+# The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/reference/REGISTER_MAP.md;
 # only the BASE is host-specific: on this NaxRiscv SoC an MMIO peripheral must live in
 # the CPU IO region (>= 0x8000_0000, uncached), so we map it at 0x9000_0000. The Zynq
 # build used 0x43C0_0000. The device-tree `reg` base must match the host (see sw/README).
@@ -63,7 +63,7 @@ MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
 #       from flash into DRAM, then serialboot uploads only OpenSBI+dtb+rootfs (~9 MB).
 #       Cuts the per-boot upload ~60 %. The bitstream is JTAG-loaded (not in flash).
 #   "full"  -  flash every image and boot with ZERO serial upload. Only fits once the
-#       kernel is slimmed below ~6.5 MB (see docs/QSPI_FLASHBOOT.md).
+#       kernel is slimmed below ~6.5 MB (see docs/integration/QSPI_FLASHBOOT.md).
 #
 # Offsets are relative to the SPIFLASH region base (resolved at run time from SPIFLASH_BASE);
 # each image is written as a LiteX FBI (little-endian [length][crc32][data], via crcfbigen).
@@ -75,7 +75,7 @@ FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
 # lives at offset 0. The opensbi/dtb/rootfs offsets only apply to the "full" (zero-upload)
 # manifest and assume a SLIM kernel ≤ 5.5 MB (0x58_0000)  -  the *un*-slimmed 14 MB kernel
 # does not leave room for the 8.7 MB rootfs in 16 MB, which is exactly why "full" requires
-# slimming (docs/QSPI_FLASHBOOT.md). In the default "kernel" manifest only the kernel is
+# slimming (docs/integration/QSPI_FLASHBOOT.md). In the default "kernel" manifest only the kernel is
 # flashed, so its 14 MB span (0..0xE0_0000) is free to use these otherwise-unused offsets.
 FLASHBOOT_LAYOUT = {
     #  name       flash_offset      dram_addr        budget (full layout)
@@ -327,7 +327,7 @@ def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath):
 
 class MilanMAC(LiteXModule):
     """The 1G MAC + RGMII PHY (§A.7), attached at the milan_datapath MAC-facing AXIS
-    boundary. Uses LiteEth's `LiteEthPHYRGMII` (Artix-7 s7rgmii) + `LiteEthMACCore`
+    boundary. Uses LiteEth's `LiteEthPHYGMII` (the AX7101 e1 port is GMII-wired) + `LiteEthMACCore`
     (preamble/CRC/padding, PHY-width conversion) and a thin stream↔AXIS adapter, so
     the Milan datapath owns *all* packet processing (classify/CBS/PTP/filter/ADP) and
     the MAC core just does L1/framing.
@@ -338,7 +338,7 @@ class MilanMAC(LiteXModule):
     NOTE (board-gated): the exact `last_be`↔`tkeep` byte-enable mapping and the
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
     validated on hardware (there is no RGMII PHY to exercise in sim). See
-    docs/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
+    docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
                  gtx_tx_invert=False, phy_model="gmii", **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
@@ -385,7 +385,7 @@ class MilanMAC(LiteXModule):
         # frame downstream only once COMPLETELY buffered, so the drain is always gapless.
         # 512 x 8 B = 4 KB >= 2 max-size frames; 8 frame slots.
         # (Full LiteEthMAC has SRAM buffering for exactly this reason; we drive the bare
-        # core, so we provide it here. docs/kl-eth-tx-debug.md #Second bug.)
+        # core, so we provide it here. docs/findings/kl-eth-tx-debug.md #Second bug.)
         self.tx_sf = PacketFIFO(eth_phy_description(data_width),
                                 payload_depth=1024, param_depth=8)
         self.comb += self.tx_sf.source.connect(self.core.sink)
@@ -478,7 +478,7 @@ class MilanMAC(LiteXModule):
 
 
 class RingDMAWriter(LiteXModule):
-    """Pipeline reference: docs/PIPELINE_STAGES.md (stages R3-R5: slots, pages,
+    """Pipeline reference: docs/fpga/PIPELINE_STAGES.md (stages R3-R5: slots, pages,
     CQ/BD publication, every knob with measured effects) and
     docs/RX_PERF_TUNING_MAP.drawio. STRICT driver pairings live there too.
 
@@ -532,7 +532,7 @@ class RingDMAWriter(LiteXModule):
         # generated. bd_mode remains the runtime ARMING gate: unarmed + enabled
         # = frames back up the drop-FIFO (counted ingress drops), NEVER a DMA
         # write via base.storage/addr 0 (the lethal-pairing lesson applied to
-        # old bd=0 drivers on folded gateware). See docs/PIPELINE_STAGES.md.
+        # old bd=0 drivers on folded gateware). See docs/fpga/PIPELINE_STAGES.md.
         assert hs_page_bytes & (hs_page_bytes - 1) == 0
         assert hs_page_bytes <= 32768   # v3 w0[31:16] carries the page fill length
         PGB = hs_page_bytes.bit_length() - 1
@@ -2841,7 +2841,7 @@ class MilanDMA(LiteXModule):
 
     NOTE (board-gated): this elaborates against integrated RAM here; on the board it
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
-    upgrade  -  see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
+    upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
                  legacy_ring=True, rx_fifo_beats=2048):
         # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
@@ -3598,7 +3598,7 @@ def main():
                          "(default) pre-loads the 14 MB kernel from flash and serial-uploads "
                          "the rest (~60%% faster); 'full' flash-boots everything with zero "
                          "upload (only fits with a slimmed <6.5 MB kernel  -  see "
-                         "docs/QSPI_FLASHBOOT.md); 'none' maps the flash but adds no boot method.")
+                         "docs/integration/QSPI_FLASHBOOT.md); 'none' maps the flash but adds no boot method.")
     ap.add_argument("--all-blocks", "--full", dest="all_blocks", action="store_true",
                     help="enable ALL fabric blocks: NIC + DMA + MAC + DDR3 (= --with-dma "
                          "--with-mac --with-dram). This means 'every block instantiated', NOT "
@@ -3645,7 +3645,7 @@ def main():
                          "(DONT_TOUCH on the synchronizer clock), so the RTL max_fanout attr this "
                          "sets AND the forced phys_opt both leave sys_rst at fo~3969. The real fix "
                          "is a multicycle/false-path on the reset, not this flag; the clock itself "
-                         "is set via --sys-clk-freq. See docs/LATENCY_INVESTIGATION.md §8.")
+                         "is set via --sys-clk-freq. See docs/findings/LATENCY_INVESTIGATION.md §8.")
     builder_args(ap)
     args = ap.parse_args()
 
@@ -3697,7 +3697,7 @@ def main():
         # 20 ns, so the reset stops being a timing constraint DETERMINISTICALLY (not placer
         # luck)  -  the same pattern LiteX already uses for the CBS slope path above. (The sys
         # clock is raised separately via --sys-clk-freq; the 112.5 MHz fp builds are in
-        # docs/LATENCY_INVESTIGATION.md §8.)
+        # docs/findings/LATENCY_INVESTIGATION.md §8.)
         soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))

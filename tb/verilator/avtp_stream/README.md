@@ -2,7 +2,7 @@
 
 Self-checking Verilator harness for `hdl/1722/avtp_stream_parser.sv`, the first RTL
 increment of the **AVTP stream engine** (S1 / hook A in
-`docs/AVB_SWITCH_DIRECTION.md`).
+`docs/overview/AVB_SWITCH_DIRECTION.md`).
 
 The parser is a **non-intrusive monitor** on the RX AXI-Stream: it parses each
 frame's Ethernet + AVTP common-stream header and, for AVTP *stream* subtypes

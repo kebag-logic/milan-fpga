@@ -69,7 +69,7 @@ module traffic_class_map #(
   logic [2:0] regen_prio;
   //! Traffic class selected by the PCP->TC table.
   logic [2:0] traffic_class;
-  //! Queue selected by the TC->queue table. Per the ABI (docs/REGISTER_MAP.md)
+  //! Queue selected by the TC->queue table. Per the ABI (docs/reference/REGISTER_MAP.md)
   //! CLS_TC_QUEUE_MAP packs one TDEST_WIDTH-bit queue index per traffic class
   //! (ceil(log2 N) bits/entry), so the reset value 0xE4 is the identity map
   //! 3,2,1,0 for N=4.

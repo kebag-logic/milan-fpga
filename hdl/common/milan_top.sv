@@ -45,7 +45,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   parameter int TX_FIFO_DEPTH = 2048,
   parameter int RX_FIFO_DEPTH = 2048,
   parameter int NUM_QUEUES = NUMBER_OF_QUEUES,
-  //! MAC synthesis target (portability, docs/OPEN_SOURCE_MIGRATION.md T2.1):
+  //! MAC synthesis target (portability, docs/integration/OPEN_SOURCE_MIGRATION.md T2.1):
   //! "XILINX" for the Artix/Zynq bitstream; "GENERIC" for open flows / other
   //! devices / Verilator (the Forencich MAC then uses generic DDR I/O, no SelectIO).
   parameter MAC_TARGET      = "XILINX",

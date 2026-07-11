@@ -69,8 +69,8 @@
 - ts_counter: timestamp_counter
   -  ts_counter: 64-bit counter for time stamping packets- ptp_ts_tx: ptp_ts_core
   -  TX packets timestamping- ptp_ts_rx: ptp_ts_core
-  -  RX packets timestamping- tx_ts_buffer: xpm_fifo_axis
-- rx_ts_buffer: xpm_fifo_axis
+  -  RX packets timestamping- tx_ts_buffer: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
+- rx_ts_buffer: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
 - axis_tx_rx_ts_switch_rr: axis_mux_rr_2in_1out
-  -  AXIS mux to combine buffered TX and RX streams- ts_buffer_to_ps: xpm_fifo_axis
+  -  AXIS mux to combine buffered TX and RX streams- ts_buffer_to_ps: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
   -  AXIS fifo to store timestamp before DMA engine

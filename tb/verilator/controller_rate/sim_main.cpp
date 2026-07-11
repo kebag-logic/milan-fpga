@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// Reproduces the OPEN CBS datapath bug (docs/CBS_DATAPATH_BUG.md): back-to-back
-// frames that classify to different queues lose ~1 beat each to the wrong queue.
-// Drives an alternating tagged(PCP1)/untagged frame pair through the controller
-// and checks per-frame byte integrity at egress. PRINTS the diagnosis and
-// EXITS 0 — a documented reproduction, not a gating test, until the classifier
-// tdest handoff is reworked.
+// GATING regression for the (fixed) CBS datapath bug
+// (docs/findings/CBS_DATAPATH_BUG.md): back-to-back frames that classify to
+// different queues used to lose ~1 beat each to the wrong queue. Drives an
+// alternating tagged(PCP1)/untagged frame pair through the controller and
+// checks per-frame byte integrity at egress; exits non-zero on any
+// integrity failure (see README.md).
 #include "Vcontroller_rate_wrap.h"
 #include "verilated.h"
 #include <cstdio>
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
            (unsigned long long)integrity_fails);
     if (integrity_fails)
         printf("[controller_rate] REPRODUCED the OPEN classifier tdest bug "
-               "(docs/CBS_DATAPATH_BUG.md) — %llu frames egressed short.\n",
+               "(docs/findings/CBS_DATAPATH_BUG.md) — %llu frames egressed short.\n",
                (unsigned long long)integrity_fails);
     else
         printf("[controller_rate] no integrity failures — bug appears FIXED; "

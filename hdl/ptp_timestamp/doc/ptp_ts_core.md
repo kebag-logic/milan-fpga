@@ -86,10 +86,10 @@
 
 ## Instantiations
 
-- sop_pulse_cdc: xpm_cdc_pulse
+- sop_pulse_cdc: cdc_pulse (hdl/common/cdc_pulse.sv; replaced xpm_cdc_pulse)
   -  AXI-Stream Passthrough Start of packet logic
  SOP Pulse CDC: Triggers timestamp capture from SOP event
-- timestamp_cdc: xpm_cdc_handshake
+- timestamp_cdc: cdc_handshake (hdl/common/cdc_handshake.sv; replaced xpm_cdc_handshake)
 
 ## State machines
 

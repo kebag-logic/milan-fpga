@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
 
     printf("== traffic_class_map classification harness (NQ=%d) ==\n", NQ);
 
-    // milan_csr reset defaults (docs/REGISTER_MAP.md)
+    // milan_csr reset defaults (docs/reference/REGISTER_MAP.md)
     const uint32_t DEF_PCP_TC = 0x00FAC688;
     const uint32_t DEF_REGEN  = 0x00FAC688;   // identity (reset fixed 2026-07-05)
     const uint32_t DEF_TCQ    = 0x000000E4;   // identity 3,2,1,0

@@ -5,7 +5,7 @@
  * Verilator wrapper for traffic_controller_802_1q — the full classify -> queue ->
  * CBS chain. Flattens the AXIS interface ports so sim_main.cpp can drive
  * back-to-back frames and measure per-frame byte integrity at the egress. See
- * README.md / docs/CBS_DATAPATH_BUG.md: this reproduces an OPEN datapath bug.
+ * README.md / docs/findings/CBS_DATAPATH_BUG.md: this reproduces an OPEN datapath bug.
  */
 `include "ethernet_packet_pkg.sv"
 import ethernet_packet_pkg::*;
