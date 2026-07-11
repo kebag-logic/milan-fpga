@@ -3389,12 +3389,19 @@ class MilanSoC(SoCCore):
         # (see FLASHBOOT_MANIFESTS); the emitted MILAN_FLASHBOOT_* constants drive the
         # `linux_flashboot` BIOS method (sw/litex/patches/0001-milan-linux-flashboot.patch).
         if with_spiflash:
-            # Arty v1 bring-up is serial-boot only: its flash is an S25FL128S
-            # (different chip + no flashboot images staged); wire it up as a
-            # follow-up increment, not by accident.
-            assert board != "arty", "--with-spiflash/--flashboot not ported to arty yet (serial boot)"
-            from litespi.modules import N25Q128A13
+            from litespi.modules import N25Q128A13, S25FL128S
             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
+            # Arty A7-100: S25FL128S (16 MB, same geometry class as the N25Q128).
+            # Same Alinx flashboot model: the flash holds the LINUX IMAGES with
+            # the kernel at offset 0 (FLASHBOOT_LAYOUT transfers verbatim: slim
+            # kernel + rootfs.cpio.xz + opensbi + dtb = 14 MB of 16), which is
+            # MUTUALLY EXCLUSIVE with a bitstream in flash - flashing images
+            # sacrifices the QSPI self-config; gateware is JTAG-SRAM loaded,
+            # exactly like the AX7101. Same timing-robust 1x 0x0B fast-read
+            # recipe (see the AX7101 rationale below); at sys 83.333 MHz the
+            # effective SCK is ~20.8 MHz, under the 25 MHz cap.
+            flash_module = (S25FL128S(SpiCodes.READ_1_1_1_FAST) if board == "arty"
+                            else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
             # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
             # SINGLE-LANE fast read (0x0B, 1-1-1) + 25 MHz clock cap. At sys=112.5 MHz the
@@ -3407,7 +3414,7 @@ class MilanSoC(SoCCore):
             # 12.5 MHz requested => ~25 MHz effective SPI read clk (was 50 MHz at the
             # 25e6 request): doubles the sampling margin. build_hsq0's placement made
             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
-            self.add_spi_flash(mode="1x", module=N25Q128A13(SpiCodes.READ_1_1_1_FAST),
+            self.add_spi_flash(mode="1x", module=flash_module,
                                clk_freq=int(12.5e6), with_master=True)
             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
             # divisor UP from this default as long as a short CRC test block reads stably  -  on

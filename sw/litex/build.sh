@@ -34,12 +34,14 @@ STAGGER=90
 # wrong board is destructive). policy = what this board's QSPI holds:
 #   ax7101 images:    Linux boot images at flashboot_layout.json offsets (kernel at
 #                     offset 0) - a bitstream write is the known kernel-clobber trap;
-#   arty   bitstream: gateware at offset 0 (board self-configures from QSPI on
-#                     power-up) - images refused until the S25FL128S litespi port.
+#   arty   images:    the Alinx model since the flashboot port (kernel at offset
+#                     0 = mutually exclusive with a bitstream; JTAG-SRAM gateware).
+#                     Flash a BITSTREAM instead via: flash arty:<dir> after
+#                     flipping this policy - 16 MB cannot hold both.
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
         ax7101) echo "210512180081 ft232    xc7a100tfgg484 images    alinx_ax7101.bit";;
-        arty)   echo "210319AFEED0 digilent xc7a100tcsg324 bitstream digilent_arty.bit";;
+        arty)   echo "210319AFEED0 digilent xc7a100tcsg324 images    digilent_arty.bit";;
         *)      return 1;;
     esac
 }
@@ -99,15 +101,18 @@ cfg_ax7101() {   # ship shape: cbsf lineage (engine + fold), 2q hs 16K, QSPI fla
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --place-directive ExtraPostPlacementOpt"
 }
-cfg_arty() {     # Arty A7-100 bring-up: MII 100M, serial boot, probes KEPT
+cfg_arty() {     # Arty A7-100 bring-up: MII 100M, QSPI flashboot (Alinx model), probes KEPT
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
     # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
     # PLL divisor set (VCO 1000; 90e6 has NO solution with the 25 MHz eth ref).
+    # Flash = LINUX IMAGES at the full-manifest offsets (kernel at 0), so a
+    # bitstream in flash is sacrificed - gateware is JTAG-SRAM, like the AX7101.
     echo "--board arty --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
-          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --timing-opt --l2-bytes 65536 \
+          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
+          --uart-baudrate 1500000 --timing-opt --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
-          --uart-baudrate 115200 --rx-queues 2 --hs-page-bytes 16384"
+          --rx-queues 2 --hs-page-bytes 16384"
 }
 
 SWEEP_DIRECTIVES="ExtraPostPlacementOpt AltSpreadLogic_high ExtraTimingOpt"
