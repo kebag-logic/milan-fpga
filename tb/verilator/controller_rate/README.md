@@ -4,7 +4,7 @@ Self-checking Verilator harness for `traffic_controller_802_1q` (the full
 classify → per-queue FIFO → CBS shaper chain), driving the exact scenario the
 silicon CBS bring-up hit on 2026-07-05.
 
-**What it documents (docs/CBS_DATAPATH_BUG.md):** under **back-to-back frames that
+**What it documents (docs/findings/CBS_DATAPATH_BUG.md):** under **back-to-back frames that
 classify to different queues**, the classifier emits a per-frame-*stable* but
 **value-wrong** `tdest` for the first beats of each frame (its 1-beat data delay
 cannot cover the 3-beat header parse, and its single staged-header slot lags by a

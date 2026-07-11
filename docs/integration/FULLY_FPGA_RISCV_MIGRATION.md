@@ -76,7 +76,7 @@ is almost entirely about **replacing the PS box**, not the Milan logic.
 - `eth_mac_1g_rgmii_fifo`  -  custom 1 G RGMII MAC (Forencich-style), 64-bit AXIS, `gtx_clk`/`gtx90_clk` for RGMII DDR (`milan_top.sv:415-464`).
 - `traffic_controller_802_1q`  -  802.1Q classifier + per-queue 802.1Qav CBS (`milan_top.sv:325-345`).
 - `ptp_ts_top`  -  PTP hardware clock + TX/RX egress timestamp + metadata stream (`milan_top.sv:350-401`).
-- `milan_csr`  -  AXI4-Lite CSR plane @ 64 KB window (`docs/REGISTER_MAP.md`), CDC to `gtx_clk` via `ptp_csr_sync`.
+- `milan_csr`  -  AXI4-Lite CSR plane @ 64 KB window (`docs/reference/REGISTER_MAP.md`), CDC to `gtx_clk` via `ptp_csr_sync`.
 - `ethernet_events`  -  RMON counters.
 
 ### 1.2 What the Zynq PS provides today (must be re-created in fabric)
@@ -205,7 +205,7 @@ decoded  -  `milan_top.sv:251`). Attach it to the CPU:
 - In LiteX, add an **AXI-Lite bridge** from the CPU bus (Wishbone) using
   `litex.soc.interconnect.axi.Wishbone2AXILite` (or map it as a LiteX region with an
   `axi.AXILiteInterface`). Register it at a MMIO base  -  **keep `0x43C0_0000`** so the
-  existing `docs/REGISTER_MAP.md` ABI and driver offsets are unchanged.
+  existing `docs/reference/REGISTER_MAP.md` ABI and driver offsets are unchanged.
 - Expose `milan_csr`'s ports via a LiteX `Instance()` wrapper (the datapath is added
   as external Verilog  -  §A.9).
 

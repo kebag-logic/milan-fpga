@@ -1,6 +1,6 @@
 # Performance CHANGELOG — Milan FPGA TSN NIC
 
-**Goal (`docs/PERFORMANCE_GOAL.md`, set `21bd213`):** best-effort TCP throughput **>500 Mbit/s in
+**Goal (`docs/findings/PERFORMANCE_GOAL.md`, set `21bd213`):** best-effort TCP throughput **>500 Mbit/s in
 both RX and TX**, reaching for 1 Gbit/s. Platform: Alinx AX7101 (xc7a100t), dual VexiiRiscv RV64
 @ 100 MHz, 64-bit datapath, DDR3-800, MTU 1500.
 
@@ -19,7 +19,7 @@ QSPI CRC corruption on-die); R3b (112.5 + rpt-ahead-8) in flight.
 (`build_l2deep`). **RX > 500 is a HARD GOAL — the campaign does not close without it.** The
 measured 481 no-copy ceiling means the path must raise the ceiling *and* close the copy tax:
 **R1** warm copy (`build_ddio` + bounded `tcp_rmem` residency), **R2** RSC multi-slot (kill the
-58–66 % park-closes), **R3** 112.5 MHz final mile — plan in `docs/PERFORMANCE_GOAL.md`.
+58–66 % park-closes), **R3** 112.5 MHz final mile — plan in `docs/findings/PERFORMANCE_GOAL.md`.
 
 ![campaign chart](docs/perf_campaign.svg) — regenerate: `python3 docs/perf_campaign_chart.py docs/perf_campaign.svg`
 

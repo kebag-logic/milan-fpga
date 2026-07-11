@@ -164,10 +164,10 @@ Notes:
 
 ## Related
 
-* `docs/kl-eth-tx-debug.md`  -  the TX-side saga (coherent-dma, cut-through starvation,
+* `docs/findings/kl-eth-tx-debug.md`  -  the TX-side saga (coherent-dma, cut-through starvation,
   skb alignment, IOB/gtx-invert). The RX drain deficit is the same *family* of bug as
   TX starvation (stream vs memory-bus rate mismatch), on the opposite direction.
-* `docs/pipeline-telemetry.md`  -  the stage counters used for the smoking-gun
+* `docs/fpga/pipeline-telemetry.md`  -  the stage counters used for the smoking-gun
   measurement here (`rx_dma` stalls/beats).
 * Remaining known ceiling: the single 100 MHz RV64 CPU (soft checksums + copies).
   The DMA/wire side sustains line rate in both directions; delivered socket

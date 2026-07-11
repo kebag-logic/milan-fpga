@@ -5,9 +5,9 @@ tool-agnostic JSON file, plus the notes to turn it into an implementation.
 
 | File | What it is |
 |------|-----------|
-| [`milan-v12-entity-small-48k.json`](milan-v12-entity-small-48k.json) | **Small baseline** entity: stereo (2-ch) talker+listener, 48 kHz, non-redundant. The scale-from baseline in [`../docs/FR_NFR.md`](../docs/reference/FR_NFR.md). |
+| [`milan-v12-entity-small-48k.json`](milan-v12-entity-small-48k.json) | **Small baseline** entity: stereo (2-ch) talker+listener, 48 kHz, non-redundant. The scale-from baseline in [`../docs/reference/FR_NFR.md`](../docs/reference/FR_NFR.md). |
 | [`milan-v12-entity.json`](milan-v12-entity.json) | **Full/scaled** entity: 8-ch, 48/96/192 kHz. The **single source of truth** for the larger descriptor tree. |
-| [`../docs/FR_NFR.md`](../docs/reference/FR_NFR.md) | Functional & Non-Functional Requirements for the Milan v1.2 endpoint, incl. **scale-up / scale-out (multi-softcore)** and the Milan-compliance procedure. |
+| [`../docs/reference/FR_NFR.md`](../docs/reference/FR_NFR.md) | Functional & Non-Functional Requirements for the Milan v1.2 endpoint, incl. **scale-up / scale-out (multi-softcore)** and the Milan-compliance procedure. |
 | [`../aem-and-aecp.md`](../aem-and-aecp.md) / `../aem-and-aecp.pdf` | Prior design of the **FPGA AEM memory (4-level block)** and the **AECP state machines / MVU**. The JSON is the data that design consumes. |
 
 ## Why a JSON model

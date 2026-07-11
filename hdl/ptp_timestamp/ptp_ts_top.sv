@@ -279,7 +279,7 @@ module ptp_ts_top#(
   // TX Timestamp Buffer FIFO (Pre-Switch)
   // ===========================================================================
   //! Open-core AXIS FIFO (Forencich verilog-axis) — replaces xpm_fifo_axis
-  //! (docs/OPEN_SOURCE_MIGRATION.md Track 1.2). Common-clock, non-packet.
+  //! (docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.2). Common-clock, non-packet.
   axis_fifo #(
     .DEPTH(16),
     .DATA_WIDTH(METADATA_TDATA_WIDTH),

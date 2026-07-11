@@ -131,7 +131,7 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 | # | Work item | Notes at 4-port scope | Risk | Priority |
 |---|---|---|---|---|
 | S1 | **AVTP stream engine** (panel ① hook A) | Endpoint deliverable + switch CPU-port media path; CPU wakes per audio period, not per packet. **STARTED 2026-07-05**: `hdl/1722/avtp_stream_parser.sv` (stream-id + presentation-time extract + programmable match table, 21/21 harness)  -  the classifier tap. Next: datapath+CSR integration, then the per-stream sample-ring DMA. | Med | **in progress** |
-| S1b | **Per-class ingress** (retire the shared single-classifier ingress) | Removes the head-of-line coupling measured 2026-07-05 (CBS reserved class degraded by BE ingress contention  -  docs/CBS_DATAPATH_BUG.md); prerequisite for real reservation protection | Med | with S1 |
+| S1b | **Per-class ingress** (retire the shared single-classifier ingress) | Removes the head-of-line coupling measured 2026-07-05 (CBS reserved class degraded by BE ingress contention  -  docs/findings/CBS_DATAPATH_BUG.md); prerequisite for real reservation protection | Med | with S1 |
 | S2 | **4-port fabric**: shared-BRAM output-queued + TCAM + per-port CBS egress | Aggregate 1 GB/s = one 128-bit @ 125 MHz BRAM path  -  comfortable | Med | 2nd |
 | S3 | gPTP transparent clock (per-port ts → residence-time correction) | Rides S2 | Med | 2nd |
 | S4 | SRP/MSRP + bridge management (software) | Control plane, low rates | Low-Med | 3rd |
