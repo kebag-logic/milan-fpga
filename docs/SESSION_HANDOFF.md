@@ -229,11 +229,31 @@ TCP numbers stay the regression net; TX gate discipline unchanged.
 
 ## 3. How to connect
 
-**Console** (tmux session `milan_qspi_boot`, recreate if dead  -  litex_term needs the
-venv path):
+**⚠ TWO BOARDS SINCE 2026-07-11 (user added a Digilent Arty A7-100)  -  ttyUSB
+NUMBERS SHIFT ON EVERY REPLUG; USE /dev/serial/by-id/ PATHS AND --ftdi-serial
+EVERYWHERE:**
+- AX7101: JTAG = FT232H "Digilent USB Device" serial **210512180081**
+  (`openFPGALoader --ftdi-serial 210512180081 -c ft232 <bit>`); console =
+  CP2102N (**DROPPED OFF the VM 2026-07-11, needs host replug**  -  no by-id
+  path known until it re-enumerates).
+- Arty A7-100 (xc7a100tcsg324-1, MII 100M DP83848, MT41K128M16, -1 speedgrade):
+  ONE FT2232 serial **210319AFEED0** = JTAG (if00) + UART console (if01).
+  JTAG: `openFPGALoader --ftdi-serial 210319AFEED0 -c digilent <bit>`
+  Console: by-id `usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0`.
+  Build: `--board arty` (milan_soc.py; MII PHY + 25 MHz eth_ref_clk out,
+  serial boot only  -  spiflash not ported). First build: build_arty1.
+  Role: second Milan node for AVDECC/Milan interop + the 100M CBS point.
+
+**AX7101 console** (tmux session `milan_qspi_boot`, recreate if dead  -  litex_term
+needs the venv path; use the by-id path of the CP2102N once it re-enumerates):
 ```sh
 tmux new-session -d -s milan_qspi_boot \
-  "/home/alex/litex-milan/venv/bin/litex_term /dev/ttyUSB1 --speed 115200"
+  "/home/alex/litex-milan/venv/bin/litex_term <CP2102N-by-id-path> --speed 115200"
+```
+**Arty console**:
+```sh
+tmux new-session -d -s arty_console \
+  "/home/alex/litex-milan/venv/bin/litex_term /dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0 --speed 115200"
 ```
 Scripted exec on it: `scratchpad/conx.sh '<cmd>' <timeout>` (unique-tag markers;
 survives garbled output). `dmesg -n 1` first on the board. NEVER
