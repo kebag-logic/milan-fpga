@@ -116,7 +116,8 @@ handoffs. The per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 (chart: [perf_campaign.svg](perf_campaign.svg)).
 
 > Current performance numbers: read
-> [findings/SESSION_HANDOFF.md](findings/SESSION_HANDOFF.md) (newest state)
+> [findings/HANDOVER.md](findings/HANDOVER.md) (the operational one-pager:
+> topology rules + live states) then [findings/SESSION_HANDOFF.md](findings/SESSION_HANDOFF.md) (results archive)
 > and [`../CHANGELOG.md`](../CHANGELOG.md) - numbers quoted anywhere else are
 > dated snapshots (why: [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) §6).
 
