@@ -169,15 +169,26 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
    platform.c would read timebase from the FDT. Piggyback on the next
    gateware spins. Also pending: per-board IP in the shared rootfs (bakes
    192.168.127.1 everywhere  -  the Arty must re-address to .3 by hand).
-2. **Two-node ADP discovery DONE / AECP silicon BLOCKED.** First half
-   verified 2026-07-11 (Arty captures the AX7101's ENTITY_AVAILABLE through
-   the bridge; §3). Second half is NOT buildable: **PR #12 (05_aecp_aem) is
-   RTL stubs + T0/T1 testbenches only  -  KL_aecp_* is instantiated NOWHERE
-   outside tb/utests/aecp/**. An ax7101 build from main would add zero
-   silicon function. Prerequisite: integrate the AECP pipeline into
-   milan_top (RX tap after rx_mac_filter, TX via an egress mux arbitrating
-   with adp_tx_arbiter, a CSR group like ADP's 0x600, AEM store wiring) per
-   reference/MILAN_V12_DEPENDENCY_MATRIX.md  -  scope/design is a user call.
+2. **AECP/AEM Milan v1.2 entity IMPLEMENTED + integrated + sim-green;
+   silicon validation pending the build.** (2026-07-11 night, was: stubs
+   only.) The KL_aecp_* stub library is now a WORKING listener: 5-descriptor
+   Milan entity (ENTITY, CONFIGURATION, AVB_INTERFACE, AUDIO_UNIT,
+   STREAM_OUTPUT), READ_DESCRIPTOR + getters/setters, **LOCK_ENTITY
+   implemented (60 s), ACQUIRE_ENTITY = NOT_SUPPORTED**, MVU GET_MILAN_INFO,
+   and ADP ENTITY_DISCOVER -> advertiser discover-response. Integrated into
+   **milan_datapath** (the fabric module; milan_top mirrored) as a
+   non-intrusive RX monitor tap + a low-rate TX merge arbiter feeding the ADP
+   slot; status at CSR 0x648/0x64C. Descriptor ROM generated from
+   avdecc/milan-v12-entity.json by avdecc/gen_aem_store.py. **tb/verilator/aecp
+   = 44/44**, milan_dp 17/17 (no NIC regression), lint clean. Build:
+   `TAG=aecp1 build.sh --sweep ax7101` (running). VALIDATION RUNBOOK:
+   (a) JTAG-load the best-WNS bit to SRAM; (b) after Linux boots, on the
+   board run `avdecc/aecp_csr_setup.sh` (programs the 0x600 identity +
+   enables); (c) from amx-pw0: `sudo python3 avdecc/milan_controller.py
+   enp6s0` (self-contained AVDECC controller = Hive/la_avdecc-equivalent;
+   already verified it discovers the entity through the switch; on adp2 it
+   correctly gets NO AECP response). Deferred: NV persistence of SET_*,
+   unsolicited push, GET_COUNTERS, audio maps.
 3. **Slices <70 pct**: the 1-hart user decision (numbers in the table
    above; retires the 2-hart NAPI pipeline that holds RX 381/374).
 4. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
