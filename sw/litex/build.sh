@@ -20,6 +20,8 @@
 #   * at most 3 concurrent builds (3 x 32 = the 96-core box saturated).
 #
 # Configs are FUNCTIONS below - one place to edit a board's canonical shape.
+# MAINTAINER DOC: docs/BUILDING.md (configs, discipline rationale, per-board
+# load/console facts, gates). Update it when adding a config or a rule here.
 
 set -euo pipefail
 WORK=/home/alex/litex-milan/work
