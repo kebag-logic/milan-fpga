@@ -214,6 +214,15 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ptp_timestamp/ptp_ts_core.sv", "hdl/ptp_timestamp/ptp_ts_top.sv",
     "hdl/common/tcam.sv", "hdl/common/rx_mac_filter.sv",
     "hdl/adp/adp_advertiser.sv", "hdl/adp/adp_tx_arbiter.sv",
+    # AECP/AEM listener (IEEE 1722.1 / Milan v1.2). Order: pkg, then leaf
+    # modules, then KL_aecp_top. The store/accessor read the generated ROM
+    # include hdl/aecp/gen/aecp_aem_rom.svh (avdecc/gen_aem_store.py).
+    "hdl/aecp/aecp_pkg.sv",
+    "hdl/aecp/KL_aecp_packet_validator.sv", "hdl/aecp/KL_aecp_common_parser.sv",
+    "hdl/aecp/KL_aecp_l0_state.sv", "hdl/aecp/KL_aecp_timers.sv",
+    "hdl/aecp/KL_aecp_accessor.sv", "hdl/aecp/KL_aecp_aem_store.sv",
+    "hdl/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/aecp/KL_aecp_response_builder.sv",
+    "hdl/aecp/KL_aecp_ingress.sv", "hdl/aecp/KL_aecp_top.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
     "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
 ]
@@ -289,7 +298,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
     for inc in ("hdl/common", "hdl/802_1q_traffic_shaper", "hdl/ptp_timestamp",
-                "hdl/adp", "hdl/csr", "hdl/eth_event_counter"):
+                "hdl/adp", "hdl/csr", "hdl/eth_event_counter",
+                "hdl/aecp", "hdl/aecp/gen"):
         platform.add_verilog_include_path(os.path.join(base, inc))
     for f in _MILAN_DATAPATH_SOURCES:
         platform.add_source(os.path.join(base, f))

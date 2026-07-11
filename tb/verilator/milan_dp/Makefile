@@ -17,6 +17,7 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/csr +incdir+$(RTL_DIR)/eth_event_counter \
          +incdir+$(RTL_DIR)/adp +incdir+$(RTL_DIR)/802_1q_traffic_shaper \
          +incdir+$(RTL_DIR)/ptp_timestamp +incdir+$(AXIS_DIR) \
+         +incdir+$(RTL_DIR)/aecp +incdir+$(RTL_DIR)/aecp/gen \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
@@ -37,6 +38,12 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/adp/adp_pkg.
        $(P)/ptp_ts_core.sv $(P)/ptp_ts_top.sv \
        $(C)/tcam.sv $(C)/rx_mac_filter.sv \
        $(RTL_DIR)/adp/adp_advertiser.sv $(RTL_DIR)/adp/adp_tx_arbiter.sv \
+       $(RTL_DIR)/aecp/aecp_pkg.sv \
+       $(RTL_DIR)/aecp/KL_aecp_packet_validator.sv $(RTL_DIR)/aecp/KL_aecp_common_parser.sv \
+       $(RTL_DIR)/aecp/KL_aecp_l0_state.sv $(RTL_DIR)/aecp/KL_aecp_timers.sv \
+       $(RTL_DIR)/aecp/KL_aecp_accessor.sv $(RTL_DIR)/aecp/KL_aecp_aem_store.sv \
+       $(RTL_DIR)/aecp/KL_aecp_aem_dyn_mux.sv $(RTL_DIR)/aecp/KL_aecp_response_builder.sv \
+       $(RTL_DIR)/aecp/KL_aecp_ingress.sv $(RTL_DIR)/aecp/KL_aecp_top.sv \
        $(RTL_DIR)/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/csr/milan_csr.sv \
        $(C)/milan_datapath.sv

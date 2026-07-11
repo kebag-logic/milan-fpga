@@ -17,7 +17,7 @@
 
                 DROP conditions:
                   • message_type ∉ {MSG_AEM_COMMAND, MSG_VENDOR_UNIQUE_COMMAND}
-                    → status_o = STATUS_INVALID_COMMAND (10)
+                    → status_o = STATUS_NOT_SUPPORTED (11)
                   • control_data_length < 20 (minimum AEM header without payload)
                     → status_o = STATUS_BAD_ARGUMENTS (7)
 
@@ -91,7 +91,9 @@ module KL_aecp_packet_validator (
   // ------------------------------------------------------------------ //
   wire w_type_ok = (w_msg_type == MSG_AEM_COMMAND) ||
                    (w_msg_type == MSG_VENDOR_UNIQUE_COMMAND);
-  wire w_cdl_ok  = (w_cdl >= 11'd20);
+  //! Minimum AECPDU: controller_entity_id(8) + sequence_id(2) + u/command(2)
+  //! = 12 (e.g. GET_CONFIGURATION has no payload at all).
+  wire w_cdl_ok  = (w_cdl >= 11'd12);
   wire w_ok      = w_type_ok & w_cdl_ok;
 
   wire w_hs_s    = s_axis.tvalid & s_axis.tready;   //! slave handshake
@@ -187,8 +189,8 @@ module KL_aecp_packet_validator (
             end else begin
               // Determine which error
               if (!w_type_ok) begin
-                status_r  <= STATUS_INVALID_COMMAND;
-                status_o  <= STATUS_INVALID_COMMAND;
+                status_r  <= STATUS_NOT_SUPPORTED;
+                status_o  <= STATUS_NOT_SUPPORTED;
               end else begin
                 status_r  <= STATUS_BAD_ARGUMENTS;
                 status_o  <= STATUS_BAD_ARGUMENTS;

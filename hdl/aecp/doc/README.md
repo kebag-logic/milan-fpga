@@ -1,164 +1,124 @@
-# AECP / AEM Listener — Developer Reference
+# AECP / AEM listener — Developer Reference
 
-**Spec:** IEEE 1722.1-2021 §9 · Milan v1.2 §5.4  
-**Target:** Artix-7 XC7A100T (`xc7a100tcsg324-1`) · 125 MHz  
+**Spec:** IEEE 1722.1-2021 §9 · Milan v1.2 §5.4
+**Target:** Artix-7 (AX7101 `xc7a100tfgg484` @ 100 MHz datapath; Arty @ 50 MHz)
 **Package:** `hdl/aecp/aecp_pkg.sv`
+**Entity model:** `avdecc/milan-v12-entity.json` → `avdecc/gen_aem_store.py`
 
 ---
 
-## Pipeline overview
+## Scope (Milan v1.2 hardware entity)
+
+One entity, **one configuration**, exactly **five descriptors**:
+ENTITY → CONFIGURATION → { AVB_INTERFACE×1, AUDIO_UNIT×1, STREAM_OUTPUT×1 }.
+
+Answered on-wire, in hardware, with no CPU involvement:
+
+| Command | Behaviour |
+|---------|-----------|
+| `READ_DESCRIPTOR` | all five descriptors, live fields overlaid (entity_id, MAC, caps, available_index, current_config, clock_identity) |
+| `LOCK_ENTITY` | **implemented** — grant / owner-unlock / 60 s auto-expiry; other controllers get `ENTITY_LOCKED` (owner id in payload) |
+| `ACQUIRE_ENTITY` | **NOT_SUPPORTED** (Milan) — never mutates state |
+| `GET/SET_CONFIGURATION` | single config; out-of-range → `BAD_ARGUMENTS` |
+| `GET/SET_NAME` | writes back to the AEM store (volatile mirror) |
+| `GET/SET_SAMPLING_RATE` | validated against 48/96/192 kHz |
+| `GET/SET_STREAM_FORMAT` | validated against the STREAM_OUTPUT format set |
+| `GET_STREAM_INFO`, `GET_AVB_INFO` | read-only status |
+| `ENTITY_AVAILABLE`, `REGISTER/DEREGISTER_UNSOLICITED` | acknowledged |
+| MVU `GET_MILAN_INFO` | protocol_id 00-1B-C5-0A-C1-00, version 1, cert 1.2.0.0 |
+| anything else | `NOT_IMPLEMENTED` with the command echoed |
+
+ADP `ENTITY_DISCOVER` for this entity pulses the advertiser's `rcv_discover_i`
+(discovery response). Deferred: NV persistence / factory-reset of SET_* writes,
+unsolicited-notification push, GET_COUNTERS, audio maps.
+
+---
+
+## Pipeline
 
 ```
-Ethernet RX (64-bit AXI-Stream, big-endian)
+MAC RX (post-filter, monitor tap — reads only, never backpressures the NIC)
         │
         ▼
-KL_aecp_packet_validator   — drop on bad message_type / CDL < 20
-        │ valid frames only
+KL_aecp_ingress        — filter AECP-for-us / ADP-discover; store-and-forward;
+        │                strip Eth header; replay big-lane; capture src MAC
         ▼
-KL_aecp_common_parser      — extract aecp_hdr_t, check entity_id
-        │ hdr_o.hdr_valid pulse + AXI passthrough
-        ├──────────────────────────────────────────┐
-        ▼                                          ▼
-KL_aecp_cmd_specific_extract              KL_aecp_l0_state
-  (acquire/lock/read-desc fields)   ◄──── (lock/acquire SM, config index)
-        │                                          │ status_o / reject_o
-        ▼                                          │
-KL_aecp_accessor ──► KL_aecp_aem_store             │
-        │ (BRAM descriptor lookup)                 │
-        ▼                                          │
-KL_aecp_aem_dyn_mux  (live field overlay)          │
-        │                                          │
-        └────────────► KL_aecp_response_builder ◄──┘
-                              │
-                    KL_aecp_egress_mux
-                    KL_aecp_unsolicited_table ──► unsolicited TX
-                    KL_aecp_vu_milan          ──► vendor-unique TX
+KL_aecp_packet_validator — drop bad message_type / CDL < 12
+        ▼
+KL_aecp_common_parser    — aecp_hdr_t, entity_id match (beat 0 IS the first
+        │                  accepted beat — no dead IDLE cycle)
+        ├───────────────► KL_aecp_l0_state  (LOCK / ACQUIRE-unsupported / config)
+        ▼
+KL_aecp_response_builder — capture payload, classify, SET_* write-back,
+        │  ▲               serialise the response frame (little lane / MAC order)
+        ▼  │ st_byte (overlaid)
+KL_aecp_aem_store ──► KL_aecp_aem_dyn_mux   (ROM image + live-field overlay)
+        (KL_aecp_accessor resolves descriptor -> {base,len})
+        │
+        ▼
+response AXIS ──► low-rate arbiter (ADP + AECP) ──► datapath TX arbiter ──► MAC
 ```
 
-`KL_aecp_timers` feeds `tick_1khz_o` to `KL_aecp_l0_state` and `KL_aecp_unsolicited_table`.  
-`KL_aecp_nv_overlay` sits between `KL_aecp_aem_store` and the external NV device.
+`KL_aecp_top` wires it all; the store read address is delayed one cycle into the
+overlay mux to align with the store's 1-cycle data latency.
+
+The generated descriptor ROM + directory + overlay map is
+`hdl/aecp/gen/aecp_aem_rom.svh` (produced by `avdecc/gen_aem_store.py` from the
+entity JSON — never hand-edit it). The command decode and response-frame
+assembly (the planned `cmd_specific_extract` / `accessor` / `egress_mux` /
+`vu_milan` stages) are folded into `KL_aecp_response_builder` +
+`KL_aecp_top` for a tight, single-FSM implementation.
 
 ---
 
-## AXI-Stream beat layout (64-bit, big-endian)
+## AXI-Stream beat layout (64-bit, big-endian inside the AECP pipeline)
 
-All modules expect `TDATA_WIDTH_P = 64`. The `axi_stream_if` defaults to 32;
-instantiate with `#(.TDATA_WIDTH_P(64))`. In-module `tdata` accesses above
-bit 31 are guarded with `/* verilator lint_off SELRANGE */`.
-
-| Beat | Bytes | Fields |
-|------|-------|--------|
-| 0 | 0–7 | `[63:48]` EtherType 0x22F0 · `[47:40]` subtype 0xFB · `[39:36]` h/ver · `[35:32]` message_type · `[31:27]` status · `[26:16]` CDL · `[15:0]` target_eid[63:48] |
-| 1 | 8–15 | `[63:16]` target_eid[47:0] · `[15:0]` ctlr_eid[63:48] |
-| 2 | 16–23 | `[63:16]` ctlr_eid[47:0] · `[15:0]` sequence_id |
-| 3 | 24–31 | `[63]` u_flag · `[62:48]` command_type · `[47:0]` cmd-specific start |
-| 4+ | 32+ | Command payload (ACQUIRE/LOCK flags, descriptor fields…) |
+The ingress replays the frame from the EtherType onward, in big lane order
+(`tdata[63:56]` = first byte) — the order the parser chain expects. The response
+builder emits little lane order (`tdata[7:0]` = first wire byte) — the MAC/
+Forencich convention. VU frames have **no** u/command_type after `sequence_id`:
+`protocol_id(6)` follows immediately (AEM frames put u+command_type there).
 
 ---
 
-## Key package constants
+## CSR (milan_csr, read-only status)
 
-| Constant | Value | Meaning |
-|----------|-------|---------|
-| `AVTP_ETYPE_C` | `0x22F0` | AVTP EtherType |
-| `AECP_SUBTYPE_C` | `0xFB` | AECP subtype |
-| `MILAN_PROTOCOL_ID_C` | `48'h001BC50AC100` | Milan VU OUI |
-| `LOCK_TIMER_TICKS_C` | `17'd60_000` | Lock auto-expiry (60 s @ 1 kHz) |
-| `STALE_TIMER_TICKS_C` | `16'd30_000` | Stale controller threshold |
-| `COUNTER_THROTTLE_TICKS_C` | `10'd1_000` | GET_COUNTERS gate (1 s) |
-| `MAX_UNSOLICITED_CTLR_C` | `16` | Unsolicited registry depth |
-| `NUM_CONFIGURATIONS_C` | `3` | Milan configs (48/96/192 kHz) |
+| Offset | Field |
+|--------|-------|
+| `0x648` | `[16]` locked · `[15:0]` command count |
+| `0x64C` | `[31:16]` response count · `[15:0]` current_configuration |
 
----
-
-## Message types
-
-| Mnemonic | Value |
-|----------|-------|
-| `MSG_AEM_COMMAND` | 0 |
-| `MSG_AEM_RESPONSE` | 1 |
-| `MSG_VENDOR_UNIQUE_COMMAND` | 6 |
-| `MSG_VENDOR_UNIQUE_RESPONSE` | 7 |
-
-## Status codes
-
-| Mnemonic | Value |
-|----------|-------|
-| `STATUS_SUCCESS` | 0 |
-| `STATUS_NOT_IMPLEMENTED` | 1 |
-| `STATUS_NO_SUCH_DESCRIPTOR` | 2 |
-| `STATUS_ENTITY_LOCKED` | 3 |
-| `STATUS_ENTITY_ACQUIRED` | 4 |
-| `STATUS_BAD_ARGUMENTS` | 7 |
-| `STATUS_NO_RESOURCES` | 8 |
-| `STATUS_IN_PROGRESS` | 9 |
-| `STATUS_INVALID_COMMAND` | 10 |
-| `STATUS_PROTOCOL_ERROR` | 11 |
-
-## Command types (subset)
-
-| Mnemonic | Value |
-|----------|-------|
-| `CMD_ACQUIRE_ENTITY` | 0 |
-| `CMD_LOCK_ENTITY` | 1 |
-| `CMD_READ_DESCRIPTOR` | 4 |
-| `CMD_SET_CONFIGURATION` | 6 |
-| `CMD_GET_CONFIGURATION` | 7 |
-| `CMD_SET_NAME` | 16 |
-| `CMD_REGISTER_UNSOLICITED_NOTIFICATION` | 36 |
-| `CMD_DEREGISTER_UNSOLICITED_NOTIFICATION` | 37 |
+Enable/identity come from the ADP `0x600` group (`cfg_adp_enable`, entity_id,
+caps, MAC, gPTP GM/domain, available_index) — ADP and AEM can never disagree.
 
 ---
 
 ## Implementation status
 
-| Module | Status | Notes |
-|--------|--------|-------|
-| `KL_aecp_packet_validator` | ✅ complete | |
-| `KL_aecp_l0_state` | ✅ complete | |
-| `KL_aecp_timers` | ✅ complete | |
-| `KL_aecp_common_parser` | 🔧 stub | Beats 4+ extracted as TODO |
-| `KL_aecp_cmd_specific_extract` | 🔧 stub | |
-| `KL_aecp_accessor` | 🔧 stub | |
-| `KL_aecp_aem_store` | 🔧 stub | BRAM inference pending |
-| `KL_aecp_nv_overlay` | 🔧 stub | |
-| `KL_aecp_aem_dyn_mux` | 🔧 stub | |
-| `KL_aecp_unsolicited_table` | 🔧 stub | |
-| `KL_aecp_vu_milan` | 🔧 stub | |
-| `KL_aecp_response_builder` | 🔧 stub | |
-| `KL_aecp_egress_mux` | 🔧 stub | |
+| Module | Status |
+|--------|--------|
+| `KL_aecp_ingress` | ✅ RX filter + big-lane replay + src-MAC capture + ADP-discover |
+| `KL_aecp_packet_validator` | ✅ |
+| `KL_aecp_common_parser` | ✅ (beat-0 fix + beat-3 field extraction) |
+| `KL_aecp_l0_state` | ✅ Milan LOCK / ACQUIRE-not-supported |
+| `KL_aecp_timers` | ✅ (parameterised clock) |
+| `KL_aecp_accessor` | ✅ directory lookup |
+| `KL_aecp_aem_store` | ✅ generated ROM + SET_* write-back (volatile) |
+| `KL_aecp_aem_dyn_mux` | ✅ live-field overlay |
+| `KL_aecp_response_builder` | ✅ full command set + segmented frame builder |
+| `KL_aecp_top` | ✅ subsystem wiring |
 
 ---
 
-## Lint
+## Verification
 
-```bash
-./scripts/run-verilator-lint.sh           # all 13 modules
-./scripts/run-verilator-lint.sh --strict  # + -Wall
-```
-
-All modules pass Verilator 5.048 `--lint-only --sv`.
-
----
-
-## Testbench quick-start
-
-**T0 — Vivado XSIM** (run from repo root):
-```bash
-cd tb/utests/aecp/kl-aecp-packet-validator
-vivado -mode tcl -source tb_top.tcl
-```
-
-**T1 — behave offline** (no DUT binary needed):
-```bash
-pip install behave
-behave tests/features --tags ~@T2
-```
-
-**T1 — with Verilator DUT** (once C++ harness is implemented):
-```bash
-./scripts/run-dut-sim.sh KL_aecp_packet_validator &
-behave tests/features --tags ~@T2
-```
-
-See `tests/README.md` for the full three-tier strategy.
+- **Unit / subsystem:** `tb/verilator/aecp` — 44 self-checks across READ_DESCRIPTOR
+  (all 5), ACQUIRE→NOT_SUPPORTED, LOCK grant/deny/unlock, GET/SET_CONFIGURATION,
+  SET_NAME+readback, SET_SAMPLING_RATE valid/invalid, MVU GET_MILAN_INFO,
+  entity-id filtering, ADP-discover pulse. Run: `cd tb/verilator/aecp && make run`.
+- **Datapath integration:** `tb/verilator/milan_dp` (17 checks) exercises the
+  full `milan_datapath` with the listener in place — no NIC regression.
+- **Lint:** `scripts/run-verilator-lint.sh` (per-module + full `KL_aecp_top`).
+- **Silicon:** `avdecc/milan_controller.py <iface>` on the AVB-segment peer drives
+  the real AECP exchange (protocol-equivalent to Hive / la_avdecc, which can also
+  be pointed at the entity). Reads status back over CSR `0x648/0x64C`.

@@ -58,8 +58,11 @@ module KL_aecp_common_parser (
   // ------------------------------------------------------------------ //
   // FSM                                                                  //
   // ------------------------------------------------------------------ //
+  //! No separate IDLE: the first accepted beat IS beat 0 (an IDLE->BEAT0 hop
+  //! would consume beat 0 without capturing it — the fields would land one
+  //! beat late). Frames are delimited by tlast; after the last beat the FSM
+  //! returns to BEAT0_S for the next frame.
   typedef enum logic [2:0] {
-    IDLE_S,
     BEAT0_S,
     BEAT1_S,
     BEAT2_S,
@@ -94,7 +97,7 @@ module KL_aecp_common_parser (
   // ------------------------------------------------------------------ //
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      state_r          <= IDLE_S;
+      state_r          <= BEAT0_S;
       hdr_r            <= '0;
       hdr_o            <= '0;
       mismatch_o       <= 1'b0;
@@ -103,14 +106,6 @@ module KL_aecp_common_parser (
       hdr_o.hdr_valid  <= 1'b0;
 
       case (state_r)
-        // ------------------------------------------------------------ //
-        IDLE_S: begin
-          mismatch_o <= 1'b0;   // clear on every IDLE cycle
-          if (s_axis.tvalid) begin
-            state_r <= BEAT0_S;
-          end
-        end
-
         // ------------------------------------------------------------ //
         // Beat 0 [bytes 0–7]:
         //   [63:48] EtherType
@@ -123,6 +118,7 @@ module KL_aecp_common_parser (
         // ------------------------------------------------------------ //
         // verilator lint_off SELRANGE  // tdata is 64b at runtime; default if param is 32
         BEAT0_S: begin
+          mismatch_o <= 1'b0;   // clear at the start of every frame
           if (w_hs) begin
             hdr_r.message_type        <= s_axis.tdata[35:32];
             hdr_r.status              <= s_axis.tdata[31:27];
@@ -184,14 +180,19 @@ module KL_aecp_common_parser (
               mismatch_o <= 1'b1;
             end
 
-            // TODO: extract configuration_index / descriptor_type / descriptor_index
-            //       from beats 4+ for descriptor commands.  For now zeroed.
-            hdr_o.configuration_index <= 16'd0;
-            hdr_o.descriptor_type     <= 16'd0;
+            // Beat 3 payload bytes 26-31, per-command layouts:
+            //  ACQUIRE/LOCK  : flags[31:0] = bytes 26-29 -> bit0 = tdata[16]
+            //  SET_CONFIG    : configuration_index = bytes 28-29 = tdata[31:16]
+            //  READ_DESCRIPTOR: descriptor_type = bytes 30-31 = tdata[15:0]
+            // (descriptor_index arrives in beat 4; full per-command decode is
+            //  done from the response builder's payload buffer.)
+            hdr_o.flags_lsb           <= s_axis.tdata[16];
+            hdr_o.configuration_index <= s_axis.tdata[31:16];
+            hdr_o.descriptor_type     <= s_axis.tdata[15:0];
             hdr_o.descriptor_index    <= 16'd0;
 
             if (s_axis.tlast) begin
-              state_r <= IDLE_S;
+              state_r <= BEAT0_S;
             end else begin
               // Remaining payload beats (e.g. ACQUIRE/LOCK/READ_DESCRIPTOR have
               // bytes 32+) are forwarded transparently via the combinational
@@ -207,12 +208,12 @@ module KL_aecp_common_parser (
         // verilator lint_on  SELRANGE
         PAYLOAD_S: begin
           if (w_hs && s_axis.tlast) begin
-            state_r <= IDLE_S;
+            state_r <= BEAT0_S;
           end
         end
 
         default: begin
-          state_r <= IDLE_S;
+          state_r <= BEAT0_S;
           $error("[KL_aecp_common_parser] undefined FSM state — resetting to IDLE");
         end
       endcase
