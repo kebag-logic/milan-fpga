@@ -186,8 +186,9 @@ self.irq.add("mycore", use_loc_if_exists=True)   # -> allocates a PLIC source
 ```
 
 The allocated PLIC source numbers are what the driver's device-tree `interrupts`
-property references (`interrupt-parent = <&plic>`), exactly as in
-[`sw/dts/milan.dtsi`](../../sw/dts/milan.dtsi).
+property references (`interrupt-parent = <&plic>`), exactly as in the generated
+overlay [`sw/dts/milan-nic.litex.dtsi`](../../sw/dts/milan-nic.litex.dtsi)
+(`milan.dtsi` is a deprecated pointer).
 
 ---
 
@@ -219,10 +220,10 @@ platform.add_source_dir("../../third_party/verilog-axis/rtl")
 platform.add_source("mycore.v")
 ```
 
-`milan_soc.py` keeps `milan_datapath` a **black box** until the PS-less wrapper
-lands; LiteX still exports a synthesizable top with the instance in place (you can
-see `[BB:milan_datapath]` in the generated gateware tree). Provide the real RTL
-before place-&-route.
+**Historical note:** early bring-up kept `milan_datapath` a black box. Since the
+PS-less wrapper landed, `milan_soc.py` instantiates the **real RTL** from the
+curated `_MILAN_DATAPATH_SOURCES` list (see `add_milan_datapath()`) — nothing is
+left as a black box in the current build.
 
 ---
 
@@ -247,8 +248,8 @@ The Milan NIC exercises all three planes at once, and `MilanNIC` in
 | Plane | Milan realisation |
 |-------|-------------------|
 | ① control | `milan_csr` AXI-Lite slave @ `0x9000_0000` (register map: `docs/REGISTER_MAP.md`) |
-| ② data | `milan_datapath` AXIS TX/RX ↔ `axi_dma` ↔ `dma_bus` (TX/RX/timestamp rings) |
-| ③ events | `o_irq_tx/rx/ts/csr` → `EventManager` → `self.irq.add("milan")` → PLIC → DT `interrupts = <1..4>` |
+| ② data | `milan_datapath` AXIS TX/RX ↔ the ring-DMA engines (`RingDMAReader`/`RingDMAWriter`/`WishboneDMAWriter`) ↔ `dma_bus` (TX/RX/timestamp rings) |
+| ③ events | `o_irq_tx/rx/ts/csr` → `EventManager` → `self.irq.add("milan")` → PLIC → one aggregate DT interrupt (see the generated `milan-nic.litex.dtsi`) |
 
 The internal AXIS pipeline (classifier → per-queue FIFOs → CBS shaper → MAC, plus
 the RX MAC filter) is all AXI-Stream and is verified stand-alone in

@@ -75,7 +75,7 @@ gateware** (exit 0):
 - `A7DDRPHY` + `sdram (LiteDRAMCore)` instantiated; `main_ram` = DDR3 @ `0x4000_0000`;
   the LiteDRAM software (`sdram.c`, DDR3 training) compiled into the BIOS.
 - **284 `ddram` constraint lines** in the generated `.xdc` (the real DDR3 pinout).
-- `milan_datapath` (the NIC) + `LiteEthPHYRGMII` (e1/e2 MAC/PHY) present.
+- `milan_datapath` (the NIC) + the LiteEth MAC/PHY present (e1 is **GMII** — `LiteEthPHYGMII`, per the §3 correction).
 - The device tree regenerates from this build's `csr.json` (see `sw/dts`,
   `fpga-ps-tools`).
 
@@ -85,12 +85,14 @@ gateware** (exit 0):
   (J17/AB21) but the `mdio` pin must come from `SCH/AX7101_EX_SCH.pdf`. MDIO is left
   unwired for now (the RGMII data path works on the PHY power-on straps); PHY
   management is migration §A.7.
-- **Artix-7 bitstream**  -  `--full --build` still needs Vivado with Artix-7 device
-  support (this host has only Spartan-7 installed). The gateware/pins are ready; only
-  the vendor P&R is blocked.
+- **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
+  support (the original dev host had only Spartan-7 installed). This gate has since
+  been cleared: bitstreams were built and run on the board — see the `hw_*` logs in
+  `sw/litex/evidence/`.
 - **On-board bring-up**  -  the board is attached and **verified reachable**:
   **JTAG** = Digilent FT232H (`0403:6014`), `openFPGALoader -c ft232` reads IDCODE
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
   (the `ttyUSBn` numbers flip on re-plug). Program with `sw/litex/deploy.sh`, then
-  M-A1…M-A5 (see `FULL_FPGA_SOLUTION.md` §9). Still gated on the Artix-7 bitstream.
+  M-A1…M-A5 (see `FULL_FPGA_SOLUTION.md` §9). Since completed on silicon — the boot
+  banners and memtest logs are in `sw/litex/evidence/`.

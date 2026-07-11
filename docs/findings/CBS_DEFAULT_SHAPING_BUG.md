@@ -56,7 +56,7 @@ Read back live (`build_dp100_p0`): `q0 idle=0x11E1A300` (= 300,000,000) `en=1`,
 `q1 en=1`, q2/q3 `en=0`  -  exactly the RTL defaults. Then, mid-session:
 
 ```
-devmem 0x9000040C 32 0     # q0 CBS_CTRL.en = 0   (0x0900_0400 + q*0x20, +0xC = en)
+devmem 0x9000040C 32 0     # q0 CBS_CTRL.en = 0   (0x9000_0400 + q*0x20, +0xC = en)
 devmem 0x9000042C 32 0     # q1
 ```
 

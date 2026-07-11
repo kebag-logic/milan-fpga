@@ -66,8 +66,8 @@ hard-coding into your bring-up:
 * Offset `0x0` reads the ID `"MILN"` (`0x4d494c4e`) - the canonical
   first-silicon smoke test (milestone M-A2).
 * The map is decoded in `hdl/csr/milan_csr.sv` in 0x100-sized groups
-  (0x000 ID/ctrl, 0x100 MAC, 0x200 classifier, 0x300 CBS, 0x400 PTP,
-  0x500 RMON, 0x600 ADP, 0x700 RX filter/TCAM).
+  (0x000 ID/IRQ, 0x100 MAC, 0x200 RMON stats, 0x300 classifier,
+  0x400 CBS per-queue, 0x500 PTP, 0x600 ADP, 0x700 RX filter/TCAM).
 
 ### 1.3 DMA streams (to/from your memory engine)
 
@@ -96,7 +96,7 @@ design history is in [../findings/RX_RING_DMA.md](../findings/RX_RING_DMA.md)).
 | `o_phy_reset_n` | out | PHY reset, CSR-controlled |
 | `i_mac_speed[1:0]` | in | 00=10M, 01=100M, 10=1G convention; synchronized internally, feeds CSR readback + link-change IRQ |
 | `i_link_up`, `i_full_duplex` | in | PHY/MAC status readback |
-| `i_mac_events[N-1:0]` | in | one-cycle RMON event pulses; lane index = `ethernet_events_t` enum (`hdl/eth_event_counter/ethernet_events.svh`), counted by the 9 RMON counters in CSR group 0x500 |
+| `i_mac_events[N-1:0]` | in | one-cycle RMON event pulses; lane index = `ethernet_events_t` enum (`hdl/eth_event_counter/ethernet_events.svh`), counted by the 9 RMON counters in CSR group 0x200 |
 | `o_irq_csr` | out | level interrupt: `tx_ts_ready \| link_change \| rmon_rollover` (see 1.5) |
 
 Any MAC works if you can adapt it to 64-bit AXIS with `tkeep`/`tlast` and

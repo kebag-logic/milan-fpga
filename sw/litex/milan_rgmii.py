@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
-"""RGMII PHY for the Alinx AX7101 (RTL8211E) — RX-clock-inverted variant of s7rgmii.
+"""LEGACY / UNUSED: RGMII PHY experiment for the Alinx AX7101 (RTL8211E).
+
+Kept for reference only — the board's e1 port turned out to be GMII-wired
+(docs/integration/BOARD_PORTING_AX7101.md §3) and the SoC uses LiteEthPHYGMII
+(MilanMAC in milan_soc.py). Nothing imports this module.
+
+Original description: RX-clock-inverted variant of s7rgmii.
 
 LiteEth's stock `LiteEthPHYRGMII` (s7rgmii) samples the RGMII RX data with a
 *non-inverted* RX clock plus an IDELAY on the data. On the AX7101 that never aligns:

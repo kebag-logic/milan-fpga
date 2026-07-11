@@ -12,9 +12,18 @@ and cross-references the current RTL. For *what/why* see
 [`ARCHITECTURE.md`](../overview/ARCHITECTURE.md); for the CSR ABI see
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
-> **Scope note.** This is a *plan*, not yet implemented RTL/gateware. It is split
-> into **Part A** (fully-FPGA RISC-V Linux platform  -  replaces the PS) and
-> **Part B** (ADP/AVDECC  -  the protocol stack on top). Part B builds on Part A.
+> **Status note (2026-07).** Written as a forward *plan*; large parts have since
+> been **built and verified on silicon** — §A.6 (DMA), §A.7 (MAC), §A.9 (wrapper),
+> the boot chain and the driver bring-up are done (see `sw/litex/evidence/` and
+> [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) for the as-built reality; where
+> this plan and the code disagree, the code wins). It is split into **Part A**
+> (fully-FPGA RISC-V Linux platform  -  replaces the PS) and **Part B**
+> (ADP/AVDECC  -  the protocol stack on top). Part B builds on Part A.
+> As-built deltas worth knowing: the CSR base moved to `0x9000_0000` on the
+> softcore (this plan's `0x43C0_0000` retention applied to the Zynq era), the
+> board DDR3 is 2× MT41J256M16 = **512 MB** (not 256 MB), the AX7101 Ethernet
+> port is **GMII** (not RGMII/s7rgmii), and there is no `--with-rvc` flag in
+> `milan_soc.py` (compressed instructions come with the CPU variant).
 
 ---
 
@@ -48,7 +57,7 @@ and cross-references the current RTL. For *what/why* see
 them if your board differs):
 
 - FPGA: `xc7a100t-2fgg484` (Artix-7, 63 400 LUT6, 126 800 FF, 135 × 36 kb BRAM, 240 DSP).
-- DDR3: typically one **Micron MT41J128M16** (256 MB, x16)  -  LiteDRAM needs the exact part.
+- DDR3: the AX7101 has 2× **Micron MT41J256M16** (512 MB total)  -  LiteDRAM needs the exact part (`milan_soc.py` sets it).
 - Ethernet: typically **2 × Realtek RTL8211E** Gigabit PHYs on **RGMII** (we use PHY0).
 - 200 MHz (or 50 MHz) system oscillator, a user reset button, and a USB-UART (for the Linux console).
 

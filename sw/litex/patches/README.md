@@ -36,6 +36,15 @@ It is driven entirely by the `MILAN_FLASHBOOT_*` constants that `milan_soc.py --
 emits into `generated/soc.h`. With no such constants the added code compiles to nothing, so
 the patch is inert on non-Milan builds.
 
+## `0002-vexiiriscv-l2-depth-args.patch` — VexiiRiscv L2 geometry args
+
+Exposes VexiiRiscv L2 depth/geometry arguments used by the performance
+campaign's L2 experiments (see `CHANGELOG.md` / `docs/findings/`). **Not
+applied by `apply.sh`** — apply it manually (`patch -p1 -d <pythia/litex
+tree>`) only when building VexiiRiscv with a non-default L2. (Yes, the file
+shares the `0002-` prefix with the LiteEth patch — they target different
+trees.)
+
 ## Usage
 
 ```sh
