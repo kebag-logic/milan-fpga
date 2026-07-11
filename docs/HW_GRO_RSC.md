@@ -1,5 +1,8 @@
 # HW-GRO/RSC — receive-side coalescing in the RX BD engine (design, 2026-07-07)
 
+> **STATUS: PARTIALLY SUPERSEDED (single-slot RSC era).** Concepts hold; the implementation is now 4-slot mslot + pop-ordered CQ + header-split (v2/v3 BDs) + the hsq6 BD-ring gate + (hsq12) close-allocated metas. Living map: **RX_PERF_TUNING_MAP.drawio**; silicon history: HEADER_SPLIT_DESIGN.md.
+
+
 **Goal**: ≥200 Mbit/s TCP at MTU 1500. Profile-proven wall at 46 Mbit/s: per-WIRE-frame
 stack traversal + locks (~20-25% CPU) + per-frame driver work; TCP logic itself ~1%/fn.
 RSC merges K in-order same-flow TCP data segments in gateware → the stack pays per
