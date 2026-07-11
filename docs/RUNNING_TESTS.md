@@ -53,7 +53,11 @@ t.test_hs_livelock_orphan()"                                    # one test
 Suites and what they own:
 
 - **test_ring_bd.py**  -  THE regression net for the RX BD/RSC/header-split engine
-  (~40 tests: +full-gate, +hs CQ pressure, cut-through ordering since hsq12). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
+  (~42 tests: +full-gate, +hs CQ pressure, cut-through ordering since hsq12; +the
+  byte-ring-fold pair since cbsf: folded-BD equivalence and the unarmed quiesce.
+  For a fold-shape sweep, flip the class defaults to legacy_ring=False and rerun
+  the BD suites  -  the byte-ring suites test_ring_dma/test_ring_tx/
+  test_ring_writeback need the legacy default). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
   regression, half-BD guards, multi-slot RSC, hs split/crossing/interleave/famine,
   reload flush, storm models, the livelock probe, the BD-ring full-gate (hsq6: drain
   stalls at wr+16==rd instead of lapping the driver). `ALL PASS` on success; each test

@@ -1892,6 +1892,58 @@ def test_hs_stress_famine_interleave():
     h.run(stim)
     print("PASS hs: stress famine+interleave — pop-order + address pairing hold")
 
+def test_bd_folded_equivalence():
+    """AREA-70 byte-ring fold: the legacy_ring=False shape must be bit-identical
+    in BD mode - the fold removes only the byte-ring arms. Mirrors
+    test_bd_zero_copy on the folded writer (payload placement + BD fields)."""
+    h = BDHarness(ring_size=4096, legacy_ring=False)
+    F = [frame(0xE0 + i, 3 + i) for i in range(3)]
+
+    def stim():
+        yield from h.init_bd()
+        for b in BUFS[:3]:
+            yield from h.post_buf(b)
+        for f in F:
+            yield from h.send_frame(f)
+        yield from h.wait_idle()
+        assert (yield h.dut.dropped.status) == 0
+        assert (yield h.dut.wr_ptr.status) == 3 * 16
+        assert (yield h.dut.frames.status) == 3
+    h.run(stim)
+    for i, f in enumerate(F):
+        assert h.read_buf(BUFS[i], len(f)) == f, f"folded payload {i} mismatch"
+        w0, w1 = h.read_bd(i)
+        assert w0 is not None and (w0 & 0xFF) == 0xBD and ((w0 >> 8) & 0xFF) == i
+        assert ((w0 >> 16) & 0xFFFF) == len(f) * 8
+        assert ((w0 >> 32) & 0xFFFF) == csum_ref(f)
+        assert (w1 & 0xFFFFFFFF) == BUFS[i]
+    print("PASS folded (legacy_ring=False) BD path bit-identical (payloads + BD fields)")
+
+
+def test_bd_folded_unarmed_quiesce():
+    """Folded + UNARMED (enable=1 but bd_base=0, i.e. an old bd=0 driver on
+    folded gateware): the engine must PARK - zero DMA writes of any kind (the
+    byte-ring fallback would have written via base/addr 0 = the lethal pairing),
+    frames back up the FIFOs and overflow to counted ingress drops."""
+    h = BDHarness(ring_size=4096, legacy_ring=False, cycles=9000)
+
+    def stim():
+        dut = h.dut
+        yield dut.enable.storage.eq(1)          # enabled, bd_base stays 0
+        yield dut.mask.storage.eq(4096 - 1)
+        yield
+        for i in range(80):                     # overflow the 64-beat data FIFO
+            yield from h.send_frame(frame(0xD0 + (i % 16), 2))
+        yield from h.wait_idle(settle=200)
+        assert (yield dut.dropped.status) > 0, "unarmed overflow must count drops"
+        assert (yield dut.wr_ptr.status) == 0, "wr must not move while unarmed"
+        assert (yield dut.frames.status) == 0, "no frame may commit while unarmed"
+    h.run(stim)
+    assert h.mem == {}, f"UNARMED ENGINE WROTE MEMORY: {[(hex(a), hex(d)) for a, d in list(h.mem.items())[:4]]}"
+    assert not hasattr(h, "bdlog") or not h.bdlog, "unarmed engine emitted BDs"
+    print("PASS folded unarmed quiesce (bd_base=0: zero DMA writes, drops counted)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -1932,6 +1984,8 @@ if __name__ == "__main__":
     test_hs_tag_interleave()
     test_hs_cq_pressure_close()
     test_hs_stress_famine_interleave()
+    test_bd_folded_equivalence()
+    test_bd_folded_unarmed_quiesce()
     print("ALL PASS")
 
 

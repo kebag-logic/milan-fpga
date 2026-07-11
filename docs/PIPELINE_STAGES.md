@@ -204,16 +204,31 @@ Removed in the 2026-07-11 cleanup:
 - Driver `rxzc` module param (`kl_rxzc_param`): declared and exported but
   never branched on; the build_skb path it once selected was deleted eras ago.
 
-Staged for removal, requires its own validation cycle (do not do casually):
-- The legacy byte-ring RX path: `kl_rx_one()` and `kl_rx_ring_init()` in the
-  driver plus the ring-mode branches in `RingDMAWriter` (the non-bd_mode arms
-  of the FSM, the {dropped, wr} writeback shadow, `copybreak` handling). It
-  is the `bd=0` fallback and the base `test_ring_dma.py` suite exercises it.
-  Removing it is AREA-70 lever 3 (slice reclaim for the AVDECC blocks).
-  Procedure: delete the driver fallback first and run on silicon for a few
-  sessions; then strip the RTL arms, update `test_ring_dma.py` to construct
-  BD-mode harnesses only, rerun the full 40-test suite, and rebuild with the
-  usual directive sweep.
+EXECUTED 2026-07-11 as an ELABORATION FOLD (better than deletion: the legacy
+path stays in the source for forensics builds, ships folded out):
+- Gateware: `RingDMAWriter`/`RingDMAReader` gained `legacy_ring` (SoC/CLI
+  default FOLDED; `--legacy-ring` opts the fallback back in). Mechanics:
+  `bd_shape` (a constant 1 when folded) hardwires every datapath SHAPE mux to
+  the BD arm so the ring cones die at synthesis; `bd_mode` (bd_base != 0)
+  remains the runtime ARMING gate at every dispatch site, so an old `bd=0`
+  driver on folded gateware PARKS (frames overflow the drop-FIFO, counted
+  ingress drops) instead of DMA-writing through `base`/address 0 - the
+  hs_pgsz lethal-pairing lesson applied. Python-conditional arms (not
+  generated when folded): the IDLE byte-ring dispatch + CHECK state and the
+  WAIT_B ring commit (writer); the reader is read-only, its ring arms
+  constant-fold and a bd_base==0 doorbell lands in the existing bad-BD
+  resync.
+- Verification: the ENTIRE BD test set was run against BOTH shapes (defaults
+  temporarily flipped): test_ring_bd.py 40+2 and test_tx_bd.py all green
+  folded; plus two permanent regressions - test_bd_folded_equivalence
+  (bit-identical BD delivery) and test_bd_folded_unarmed_quiesce (bd_base=0:
+  zero DMA writes, drops counted). test_ring_dma.py / test_ring_tx.py /
+  test_ring_writeback.py exercise the byte-ring path and run on the legacy
+  class default (True) - they cover `--legacy-ring` builds.
+- Driver: `kl_rx_one()`/`kl_rx_ring_init()` (the bd=0 A/B lever) still exist
+  and now require a `--legacy-ring` gateware; on folded gateware bd=0 simply
+  never brings the interface up (probe path returns -ENODEV as before, and
+  the HW parks even if forced).
 
 ## Build and driver lineage (what "hsqN" and "hsplitN" mean)
 
@@ -230,6 +245,8 @@ Staged for removal, requires its own validation cycle (do not do casually):
 | hsq12 | Cut-through CQ ordering | hsplit14 (per-page delivery) |
 | hsq13 | Cut-through at 4K pages (zc qualifier) | hsplit14 |
 | hsq14 | hs_pgsz capability CSR (pairing hardening) | hsplit16 (probe-check; hsplit15 = the kthread-binding negative) |
+| cbse | CBS sequential slope engine (AREA-70: -6.7K LUTs, multicycle XDC gone) | hsplit16 (TX-side change only) |
+| cbsf | + byte-ring fold (legacy_ring, FOLDED default; --legacy-ring restores) | hsplit16 bd=1; the bd=0 A/B lever needs a --legacy-ring build |
 
 Records as of 2026-07-11: TCP RX P4 381 steady / 374 over 120 s (hsq10 +
 hsplit12), single-flow 329 (hsq12 + hsplit14), MSG_TRUNC ceiling 585-594,

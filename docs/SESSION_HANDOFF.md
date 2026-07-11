@@ -138,10 +138,28 @@ TCP numbers stay the regression net; TX gate discipline unchanged.
    from milan_soc.py/RTL (no wide cone left). Verified: cbs harness rebuilt
    around a state-for-state SlopeEngineRef mirror (87233 checks, 0 mismatch,
    convergence asserts), shaper_core PASS untouched (warm-up-safe: credit
-   parks at 0), all 17 Verilator harnesses green, yosys 18/18. Builds:
-   build_cbse_{spr,epo,etm} 3-directive sweep. SILICON GATES PENDING: flash,
-   §V checklist, TX gate 582-646, RX cells vs hsq14 numbers (CBS engine
-   should be perf-invisible: all queues unshaped at reset).
+   parks at 0), all 17 Verilator harnesses green, yosys 18/18, RX suite ALL
+   PASS. SWEEP LANDED (commit 4bdb273): cbse_spr WNS +0.122 / 45156 LUTs
+   (71.22 pct) / slices 15033 (94.85); cbse_epo WNS +0.089 / SLICES 14425
+   (91.01, the density winner  -  directive alone is worth 3.8 points); etm
+   +0.004 (too tight). All three bitstreams written. SILICON GATES PENDING.
+   ⚠ USER GATE REFINED 2026-07-11: slices must be BELOW 70 pct (<=11095).
+   The binder is now PACKING (75 pct LUT fill), and 57 pct of remaining LUTs
+   are the 2-core VexiiRiscv subsystem (25.8K; each core 6.6K) vs top-self
+   15.3K (DMA engines+LiteDRAM+fabric) and milan_datapath 4.1K. Flow+fold
+   land ~78-84 pct realistically; BELOW 70 needs a CPU-side decision (single
+   hart retires the 2-hart NAPI pipeline = the RX records)  -  numbers go to
+   the user first. In flight: build_cbse4a (--area-flow: AreaOptimized_high
+   synth + ExploreArea opt + pre-place control_set_merge + place Default;
+   new milan_soc.py flags --area-flow/--synth-directive/--opt-directive).
+   (b2) **byte-ring fold EXECUTED as elaboration fold** (PIPELINE_STAGES
+   ledger has the full mechanics): legacy_ring param on both engines, SoC/CLI
+   default FOLDED, --legacy-ring restores; bd_shape=C(1) folds the shape
+   muxes, bd_mode stays the arming quiesce (old bd=0 driver on folded gw
+   parks with counted drops, never DMA to addr 0). Verified: whole BD test
+   set green on BOTH shapes (defaults temporarily flipped), 2 permanent
+   regressions added (folded equivalence + unarmed quiesce), elab smoke both
+   shapes. Suite 42 tests. Fold build (cbsf) queued behind cbse4a.
    (c) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
    param, estimated 1-2K LUTs; staged procedure in PIPELINE_STAGES.md.
    (d) Vivado area strategies (cheap 2-4 percent).
