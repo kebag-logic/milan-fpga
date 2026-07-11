@@ -159,7 +159,35 @@ TCP numbers stay the regression net; TX gate discipline unchanged.
    parks with counted drops, never DMA to addr 0). Verified: whole BD test
    set green on BOTH shapes (defaults temporarily flipped), 2 permanent
    regressions added (folded equivalence + unarmed quiesce), elab smoke both
-   shapes. Suite 42 tests. Fold build (cbsf) queued behind cbse4a.
+   shapes. Suite 42 tests. Fold yield measured: -781 LUTs (cbsf_epo).
+   ⚠⚠ **OPEN CRITICAL 2026-07-11 evening: TX regression + recurring stall on
+   cbsf_epo SILICON** (first new-gateware silicon since the engine+fold):
+   single-flow TCP TX = **~220 Mbit steady (peer rx_bytes 5s deltas
+   221/220/219.5/219.5/218.8) vs the 525-536 gate**, plus a RECURRING
+   MID-FLOW STALL: a -t 30 run stretched to 52.6 s (~22 s dead air,
+   "server test duration expired" on an earlier -t 12), interface counters
+   keep counting when it moves, 0 netdev errors, ping always fine, link
+   stays up. Driver bd-stage forensics: xmit b2 = 65-73 us/frame (n 2678
+   and 3871) == exactly ~200 Mbit at 1500B => the HW TX READER retires
+   frames at ~65 us each. Suspects (UNBISECTED): the fold's reader shape
+   muxes vs the CBS engine build shape vs an invalid same-cell baseline.
+   BISECT PLAN (interrupted): (1) hsq14_spr flashed BACK (board sits there
+   now, stock driver, IP up) - run the IDENTICAL cell (iperf3 -c .2 -p 5203
+   -t 30 + peer rx_bytes 5s deltas + kl16.ko rsc=1 rsc_clk_mhz=100 hwtso=1
+   hwcs=1 hsplit=2 hs_pgsz=16384 napi_w=48, threaded=0, hash_sel=1,
+   dmesg -n 1) to confirm ~525; (2) cbse_epo (engine only) => engine vs
+   fold; (3) cbsf_epo known ~220. NOTE the fresh kl-eth.ko must be REBUILT
+   (make KDIR=~/br-milan-output/build/linux-7.0.11 ARCH=riscv
+   CROSS_COMPILE=~/br-milan-output/host/bin/riscv64-buildroot-linux-gnu-)
+   and staged at amx-pw0:/tmp/serve/ (the stale repo .ko was hsplit10-era).
+   RX cells NOT run yet. Until the bisect clears, hsq14_spr REMAINS the
+   silicon keeper and cbse/cbsf are NOT ship-cleared.
+   ⚠ **BLOCKER: the CP2102N console USB device dropped OFF the dev-VM USB
+   bus mid-session** (only the FT232H JTAG remains; tmux milan_qspi_boot
+   died with it - litex_term exits when the tty vanishes). Needs a
+   host-side replug/re-passthrough, then:
+   tmux new-session -d -s milan_qspi_boot
+     "/home/alex/litex-milan/venv/bin/litex_term /dev/ttyUSB1 --speed 115200"
    (c) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
    param, estimated 1-2K LUTs; staged procedure in PIPELINE_STAGES.md.
    (d) Vivado area strategies (cheap 2-4 percent).
