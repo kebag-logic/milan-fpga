@@ -38,7 +38,19 @@ threaded=0 stays the recipe. Cut-through (hsq12+hsplit14/15): single-flow
 RECORD 329, multi-flow loses to the keeper => parked as the P1 lane until the
 staircase (8K pages) or chunk batching is explored.
 
-**Next work, in order of value (refreshed 2026-07-11 dawn):**
+**NEXT CAMPAIGN (decided 2026-07-11 pm, builds on the full map): the AF_PACKET
+data plane on hs pages — the measured RX>500 lane.** Socket-TCP RX has consumed
+its knob space (381/374 keeper; ACK-hold plateau physics + pipeline topology +
+famine + every latency knob all measured); the no-copy consumer lane measured
+481 at -P2 in the MSG_TRUNC ceiling test BEFORE this campaign's improvements,
+and it is both the user-approved endgame and the actual AVTP product path.
+Step 1: `tools_recv_ring.c` (AF_PACKET TPACKET_V3 mmap RX, block timeout ~1ms,
+unpinned then cpu1-pinned A/B) on the KEEPER config -> P2/P4 cells vs 481.
+Step 2: fanout (PACKET_FANOUT_HASH) across 2 sockets/harts. Step 3: if the
+stack tax (netif_receive->packet_rcv) binds, THEN driver XDP (bigger lift).
+TCP numbers stay the regression net; TX gate discipline unchanged.
+
+**Older next-work list (dawn), still valid below the campaign:**
 1. **RX 381 -> 500 on hsq10** — the knob space is EXHAUSTED (2026-07-11 am):
    rx-usecs FLAT 359-381 across 100-1000us; segcap=10 HARMFUL (256, chaotic);
    PAYCAP poke blocked (RING_RSC_BUFSZ CSR truncates at 16 bits). TCP state at
