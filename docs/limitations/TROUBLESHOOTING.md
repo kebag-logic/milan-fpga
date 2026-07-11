@@ -185,7 +185,7 @@ pkill -x Vsim           # exact binary name  -  cannot match the shell
 
 ## Section 10: Yosys / sv2v cannot find axis_mux_rr_2in_1out
 
-**Symptom.** The Yosys device-portability check passes 17 tops then fails
+**Symptom.** The Yosys device-portability check passes the other tops then fails
 `milan_datapath` with
 `ERROR: Module '\axis_mux_rr_2in_1out' referenced in module '\ptp_ts_top' … is not
 part of the design`. The Verilator build of the same module had *not* complained.

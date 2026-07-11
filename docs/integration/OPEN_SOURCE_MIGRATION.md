@@ -171,7 +171,7 @@ listing each submodule, its commit, and which of our modules use it.
 Being XPM-free is only useful if the RTL actually maps to *other* devices. The
 [`syn/yosys/`](../../syn/yosys) flow proves it: **sv2v** converts the SystemVerilog to
 Verilog-2005 and **Yosys** runs generic `synth` + `hierarchy -check` (which fails on
-any leftover vendor/undefined primitive). **17/17 tops PASS** device-independent
+any leftover vendor/undefined primitive). **18/18 tops PASS** device-independent
 synthesis, and `make ecp5` maps them to a real non-Xilinx FPGA (Lattice ECP5,
 e.g. `tcam`→~1.7 k `TRELLIS_FF`). Run: `cd syn/yosys && make` (needs `yosys` + `sv2v`).
 
@@ -181,6 +181,6 @@ e.g. `tcam`→~1.7 k `TRELLIS_FF`). Run: `cd syn/yosys && make` (needs `yosys` +
 - The 802.1Q datapath (`traffic_controller_802_1q`) and `ptp_ts_top` **elaborate in
   Verilator**; `milan_top`'s TSN half follows once the MAC has a `TARGET("GENERIC")`
   sim build (T2.1).
-- All Verilator harnesses green (**13**) + Yosys generic synthesis green (**17 tops**).
+- All Verilator harnesses green (**17** — see `tb/verilator/`) + Yosys generic synthesis green (**18 tops**).
 - The only remaining vendor primitives are the free Xilinx SelectIO RGMII cells,
   gated behind the MAC `TARGET` param (absent in `GENERIC`/`SIM` builds).

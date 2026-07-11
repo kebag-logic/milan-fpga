@@ -106,7 +106,7 @@ tc qdisc add dev eth0 ... cbs offload 1            # shape q0/q1 (kl,shaped-queu
 | BIOS build | `riscv64-elf-gcc` | ✅ builds |
 | **Sim boot of the core** | Verilator | ✅ boots to `litex>` (evidence saved) |
 | Milan RTL blocks | Verilator (`tb/verilator/`) | ✅ 14 harnesses green |
-| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ 17 tops (incl. ECP5) |
+| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ 18 tops (incl. ECP5) |
 | **Artix-7 bitstream** (`--build`) | Vivado | ⛔ blocked — Vivado 2026.1 here has **only Spartan-7** installed; xc7a100t needs the ~100 GB AMD device reinstall (same wall as xc7z020). Gateware export is unaffected. |
 | `milan_datapath` wrapper | — | ⏳ still a black box (`[BB:milan_datapath]`); milan_top minus the Zynq PS (migration §A.9). Needed for P&R, not for export. |
 

@@ -10,7 +10,7 @@ Proven BEFORE a bitstream:
   3. Bad BD (len 0/oversize): resync rd:=wr, second BD word drained, nothing streamed.
   4. BD ring wrap + enable-off rd reset (reload hygiene).
 
-Run: cd sw/litex && /home/alex/litex-milan/venv/bin/python3 test_tx_bd.py
+Run: cd sw/litex && python3 test_tx_bd.py   (from your LiteX venv)
 """
 import sys, importlib.util
 from migen import *

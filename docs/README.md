@@ -83,7 +83,7 @@ system is debugged.
 | Document | Purpose |
 |----------|---------|
 | [../hdl/csr/doc/milan_csr.md](../hdl/csr/doc/milan_csr.md) | `milan_csr` module reference (TerosHDL format: generics/ports/signals/processes). |
-| [../tb/verilator/README.md](../tb/verilator/README.md) | Runnable self-checking harnesses  -  how to run and what they prove (16 suites). |
+| [../tb/verilator/README.md](../tb/verilator/README.md) | Runnable self-checking harnesses  -  how to run and what they prove (17 suites). |
 | [../tb/verilator/cbs/README.md](../tb/verilator/cbs/README.md) | 802.1Qav CBS credit-math verification detail. |
 | [../tb/verilator/controller_rate/README.md](../tb/verilator/controller_rate/README.md) | End-to-end classify→queue→shape integrity harness (gating; born from the CBS bug). |
 | `../tb/verilator/avtp_stream/` | AVTP stream-parser harness  -  stream-id / presentation-time extraction + programmable stream match (the S1 AVTP-engine foundation). |

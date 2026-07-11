@@ -10,7 +10,7 @@
 # (not just a Verilator RTL harness): boot to the BIOS prompt and `mem_read` the ID.
 #
 #   ./milan_sim.py                       # build + boot the sim (interactive BIOS)
-#   printf 'mem_read 0x90000000 16\n' | ./milan_sim.py --non-interactive-cmds
+#   ./milan_sim.py --non-interactive     # scripted boot-check (reads the ID)
 #
 # It reuses litex_sim's proven sim plumbing (SimSoC + sim Platform + serial2console)
 # and milan_soc.add_milan_datapath() (the same wrapper wiring as the board SoC).
