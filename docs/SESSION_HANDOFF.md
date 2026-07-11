@@ -1,229 +1,160 @@
-# Session handoff  -  goals, topology, harness (read this first)
+# Session handoff  -  results, topology, harness (read this first)
 
-*2026-07-10 end-of-campaign snapshot. Companion docs: RUNNING_TESTS.md (test layers),
-HEADER_SPLIT_DESIGN.md (hs design + silicon history), QSPI_FLASHBOOT.md (boot),
-GIGABIT_HEADROOM_ANALYSIS.md + PERFORMANCE_GOAL.md (the why), PERF_ON_MILAN.md
-(profiling method).*
+*Updated 2026-07-11 night. This page states RESULTS and live state; the deep
+narratives live in the dedicated docs: PIPELINE_STAGES.md (RX/TX stage map +
+obsolete-code ledger), HEADER_SPLIT_DESIGN.md (hs silicon history),
+RX_PERF_TUNING_MAP.md (maintainer knob map), BUILDING.md (two-board build/flash
+flow), RUNNING_TESTS.md (test layers), QSPI_FLASHBOOT.md (boot),
+TROUBLESHOOTING.md (bug forensics incl. section 15 CBS/attribution),
+GIGABIT_HEADROOM_ANALYSIS.md + PERFORMANCE_GOAL.md (the why).*
 
-## 1. Goals  -  where the campaign stands
+## 1. Results  -  where everything stands
 
-**Standing goal: >500 Mbit/s best-effort TCP BOTH directions at MTU 1500** on the
-fully-FPGA Milan NIC (AX7101, 2× VexiiRiscv RV64 @100 MHz  -  clock LOCKED at 100 by
-user decision), reaching toward line rate (941). Scoreboard:
+**Standing goal: >500 Mbit/s best-effort TCP both directions at MTU 1500** on
+the fully-FPGA Milan NIC (AX7101, 2x VexiiRiscv RV64 @100 MHz, clock locked at
+100 by user decision), plus the Milan v1.2 product plane (ADP/AECP/streams).
 
-| Metric | State |
+### Performance (socket TCP, MTU 1500, measured on silicon)
+
+| Metric | Result |
 |---|---|
-| TX | **✓ 525–536** (done since r2slots era) |
-| RX socket-TCP, mslot keeper | 368–407 steady -P8 (2-queue, hsq3+mslot60d/hsplit9-legacy) |
-| RX single-flow record | **340 steady** (header-split, hsq4/hsq5)  -  aligned-copy win |
-| RX hs multi-flow | best: **hsq10-16K P4 381/374soak** (~375 plateau, ACK-hold). hsq12+hsplit14 CUT-THROUGH first silicon: **P1 329 = new single-flow record** (mechanism engages) but P2 324 / P4 281 REGRESS  -  q1-heavy drops (190/s), per-unit cost, partial-page HOL under interleave = the next investigation |
-| Zero-copy | works (86.5% zc) but slower than aligned copy at 100 MHz  -  parked |
+| TX | 525-536 (r2slots-era cell; see the cell-recipe caveat below) |
+| RX multi-flow keeper | 381 steady / 374 soak, P4, hsq10-16K + hsplit12 |
+| RX single-flow record | 340 steady (hs); cut-through P1 329 (hsq12+hsplit14, parked: multi-flow regresses) |
+| RX no-copy ceiling | 585-594 (MSG_TRUNC, P2/P4)  -  proves the >500 lane exists |
+| Consumer-ladder verdict | plain copy 363-381 beats every no-copy API on this core+kernel (AF_PACKET ring 124; TCP zc-flip 110 at 87 pct flipped; both REFUTED); remaining >500 lane = AF_XDP ZC driver (campaign-scale) |
+| UDP | TX 24 / RX 65 goodput (no TSO/coalesce; not a campaign target) |
 
-**2026-07-10 (late): hs multi-flow scaling SOLVED**  -  the collapse was the un-gated
-BD-ring drain (HW lapped the driver's rd → "RX BD desync" resync-storm blackouts;
-silent seq-aliased corruption at 256 entries = why e251a0c's 256-ring failed). Fix:
-hsq6 gates the drain at wr+16==rd + kl-eth **hsplit10** (BD 256, POST 60). Same-day
-A/B: P4 231→**295** (+28%), P8 183→**240** (+31%), P1 unregressed, 0 desyncs
-everywhere. **NEVER load hsplit10 on ≤hsq5 gateware** (silent lap by construction).
-Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
+⚠ CELL-RECIPE CAVEAT (2026-07-11): a gate number is only valid with its FULL
+cell recipe. The 525-536 TX does NOT reproduce in the current default cell
+(iperf3 single TCP, hsplit=2/16K/napi_w=48/rsc/hwtso/hwcs, threaded=0,
+hash_sel=1, via the AVB switch): BOTH hsq14_spr and cbsf_epo measure ~221
+there, with an identical recurring mid-flow stall (env/driver-config class,
+open). Never declare a silicon regression without re-measuring the keeper
+in-session; A/B in-session is the only valid comparison.
 
-**NAPI topology verdict (2026-07-11 pm, closes the q1-asymmetry thread):** the
-2-hart winner is the PIPELINE (all NAPI softirq on cpu0, receivers on cpu1)  - 
-measured P4: softirq 281-381 vs threaded-unpinned 220 vs threaded-PINNED 206
-(hsplit15 binds each queue's kthread to its hart; STILL loses: symmetric
-queue-fanout fights the copy stage for both harts). cpu1 softirq ==~0 in every
-cell = the "2-queue fanout" never fanned RX compute; q1's drops are the
-pipeline's tail latency (q1 NAPI runs after q0 per round), not a placement bug.
-threaded=0 stays the recipe. Cut-through (hsq12+hsplit14/15): single-flow
-RECORD 329, multi-flow loses to the keeper => parked as the P1 lane until the
-staircase (8K pages) or chunk batching is explored.
+### AREA-70 campaign: CLOSED (silicon keeper = build_cbsf_epo)
 
-**NEXT CAMPAIGN (decided 2026-07-11 pm, builds on the full map): the AF_PACKET
-data plane on hs pages  -  the measured RX>500 lane.** Socket-TCP RX has consumed
-its knob space (381/374 keeper; ACK-hold plateau physics + pipeline topology +
-famine + every latency knob all measured); the no-copy consumer lane measured
-481 at -P2 in the MSG_TRUNC ceiling test BEFORE this campaign's improvements,
-and it is both the user-approved endgame and the actual AVTP product path.
-**CEILING RE-BASELINED (2026-07-11 pm, the campaign's first datum): MSG_TRUNC
-on today's keeper = P2 585 / P4 594 peer-sustained (was 481 pre-hs-era)**  -  the
-no-copy lane is ABOVE the 500 goal NOW; the socket copy costs exactly
-585->374. Step 1 (next): `tools_recv_ring.c` (AF_PACKET TPACKET_V3 mmap RX,
-~1ms block timeout, cpu1-pinned A/B) on the keeper -> P2/P4 vs the 585-594
-ceiling; the ring taps POST-GRO so TCP traffic arrives as 57KB units (amortized).
-**AF_PACKET RING REFUTED (measured 124/139 vs trunc 585): TPACKET rings are
-copy-INTO-ring on RX** (kernel memcpys every unit into the ring on cpu0)  - 
-consumer-side zero-copy only. **ZC-FLIP MEASURED (hsq13 @4K + hsplit14, WNS+0.147, pairing correct, 0 panics):
-110-113 Mbit at 87% zero-copied  -  REFUTED as a throughput lane.** The flip
-MECHANISM works (hs 4K pages qualify exactly as designed) but the LIVE kernel
-zc path costs ~290us/page on this 100MHz sv39 core (cpu1 100% sys-saturated;
-no-zap + 64MB-window variants identical => not the DONTNEED zap, not syscall
-batching  -  the per-page vm-insert path itself). The 1.22us/page pricing was
-the RAW mapbench, not the live path. CONSUMER LADDER FINAL: copy 363-381 |
-MSG_TRUNC ceiling 585-594 | AF_PACKET ring 124 | zc-flip 110@87%  -  every
-no-copy consumer API on kernel 7.0.11 LOSES to the plain copy at 100 MHz.
-KERNEL ARCHAEOLOGY DONE (2026-07-11 pm): 7.0.11's zc path IS batched
-(vm_insert_pages, TCP_ZEROCOPY_PAGE_BATCH_SIZE=32)  -  the cost is the
-equilibrium economics, not missing batching: at low rate the queue never
-deepens (1-2 pages/call, per-call overhead lands per-page); pacing to force
-depth hits the rcv-window wall instead (paced variants: 2.7 @default-rcvbuf,
-19.5 @4MB-rcvbuf+10ms  -  worse, not better). FOUR variants measured: 110 / 113
-no-zap / 2.7 / 19.5. **zc lane CLOSED on this core+kernel.** Remaining >500
-lane: AF_XDP ZC driver (true zero-copy, campaign-scale). The AVTP PRODUCT
-plane is unblocked regardless (media streams are Mbit-class). HARDENING
-SHIPPED: hsq14 capability CSR @0xf000311c + hsplit16 probe-check (refuses
-lethal pairings); hsq14 sweep building = the next keeper.
-**⚠⚠ PAGE-SIZE PAIRING IS LETHAL: hs_pgsz (driver) MUST equal hs_page_bytes
-(gateware). Mismatch = the writer DMAs gateware-page strides into smaller
-driver pages = KERNEL MEMORY OVERWRITE => Bad page map + panic (2026-07-11:
-hsq12@16K + hs_pgsz=4096 panicked on first wget). There is NO capability CSR
-yet  -  a gateware hs_page_bytes readback CSR + driver probe-check is the
-required hardening (add to hsq13 follow-up).**
-Step 2: fanout (PACKET_FANOUT_HASH) across 2 sockets/harts. Step 3: if the
-stack tax (netif_receive->packet_rcv) binds, THEN driver XDP (bigger lift).
-TCP numbers stay the regression net; TX gate discipline unchanged.
+| | start (hsq6) | keeper (cbsf_epo) |
+|---|---|---|
+| LUTs | 51908 (81.9 pct) | **44439 (70.1 pct)** |
+| Slices | 96.8 pct | 91.8 pct (packing-bound: 75 pct fill) |
+| BRAM | ~79 pct | 112.5 tiles (83.3 pct)  -  the tightest resource |
+| WNS | +0.243 | +0.099 |
 
-**Older next-work list (dawn), still valid below the campaign:**
-1. **RX 381 -> 500 on hsq10**  -  the knob space is EXHAUSTED (2026-07-11 am):
-   rx-usecs FLAT 359-381 across 100-1000us; segcap=10 HARMFUL (256, chaotic);
-   PAYCAP poke blocked (RING_RSC_BUFSZ CSR truncates at 16 bits). TCP state at
-   P4-16K: cwnd HEALTHY 88-212 segs, **rtt inflated 7-55 ms = the binder**
-   (RSC fill-time ~4.6ms/aggregate is only part; cutting aggregates costs more
-   than it buys). NEXT INSTRUMENT, not next knob: the R1-era latency
-   decomposition (wake/delivery legs) on the 16K regime  -  find where the
-   ~10ms base delivery rtt lives (NAPI batch? GRO hold? recv wake? ACK-tx
-   batching?). Then: 32K pages for the P6/P8 interleave tail; PAYCAP CSR
-   widening (RTL) only after the rtt story is decomposed. Steer_q* counters
-   misreport under dual-active = telemetry bug (single-active deltas only).
-   Beware cport TIME_WAIT: back-to-back cells MUST use fresh cport bases.
-   **PLATEAU CLOSED-FORM (2026-07-11 am): per-flow ~95 Mbit = PAYCAP/fill-cycle**
-    -  RSC holds a flow's aggregate during fill (~5ms at 57KB), ACKs wait for
-   close, the peer paces at cwnd/(rtt incl. fill): self-limiting equilibrium.
-   Knob ledger v2 (all refuted at P4-16K): fastpoll-decouple 377 (poll cadence
-   =/= binder), quickack 294 HARMFUL (streaming-kills rule holds; q1 drops 94/s),
-   napi_w=16 355 (batch depth =/= binder). EXITS: (a) flow-count path = 32K
-   pages (hsq11, building) => P8 drops->0 => 8x~60-90 CPU-capped ~500; (b)
-   **hsplit14 per-page delivery** (LRO-style): deliver each 16K v3 as a
-   synthesized TCP segment as it LANDS instead of waiting for the meta =>
-   effective rtt /4 at unchanged aggregate efficiency. Blocker: v3s carry
-   tag+addr but hdr_idx arrives only in the META (close)  -  under interleave the
-   first-v3 order can differ from open order, so the driver cannot safely bind
-   headers early. RTL assist: put hdr_idx (5b) into v3 w0 spare bits => hsq12 +
-   hsplit14 STRICT pair. Design sketch committed here; execute next session.
-2. **TX 2-proc fairness lottery** (one iperf3 starves at ~82; capability 582-646
-   intact): CONFIG_NET_SCH_FQ kernel rebuild (fq pacing), or BQL. NOT a gateware
-   bug  -  measured across hsq7t..hsq10, ACK steering constant-on-q0.
-3. **AREA-70 campaign (user directives: "reclaim slice space"; shaper rule
-   refined 2026-07-11: "keep the traffic shaper!" = never REMOVE it from a
-   build; internal optimization keeping shaping bit-identical was explicitly
-   user-approved)**. Banked: CQ LUTRAM diet -4866 LUTs + strip-probes -1135
-   LUTs / -4267 FFs + **CBS sequential slope engine (builds in flight,
-   expected ~-7.7K LUTs)**. hsq14_spr is the hardened keeper (WNS +0.092;
-   capability CSR silicon-verified both ways).
-   (a) **"Optimiae the CSR" RESOLVED by measurement, decode brief REFUTED**:
-   milan_csr standalone OOC-synths to 927 LUTs (822 = the inherent 55-arm
-   32-bit read mux; synth already folds the 16-bit comparators). The 5179
-   in-context LUTs were ~4.2K of CBS slope-divide cones hoisted across the
-   hierarchy boundary (cbs_idle source regs live in csr): checkpoint
-   attribution showed idle_slope_per_cycle_r 928 + send_slope_per_byte_r 404
-   + credit0 128 + ~2.6K anon merged cones inside milan_datapath/csr/.
-   LESSON (now also in TROUBLESHOOTING §15): hierarchical utilization
-   attributes cross-boundary-optimized logic to the hierarchy holding its
-   source registers; OOC-synth the module standalone before believing its
-   report line. Decode restructuring would have bought ~0.
-   (b) **CBS sequential slope engine SHIPPED 2026-07-11** (the real ~9.3K):
-   credit_based_shaper.sv slope_engine = one 31-bit serial restoring divider
-   per queue, fixed 100-cycle cadence, atomic commit; steady-state bit-exact
-   vs '/', config latency <= 200 cycles (2 us, not in the Qav contract).
-   Per-queue OOC: 1265+leak -> 362 LUTs. Multicycle XDC + dont_touch REMOVED
-   from milan_soc.py/RTL (no wide cone left). Verified: cbs harness rebuilt
-   around a state-for-state SlopeEngineRef mirror (87233 checks, 0 mismatch,
-   convergence asserts), shaper_core PASS untouched (warm-up-safe: credit
-   parks at 0), all 17 Verilator harnesses green, yosys 18/18, RX suite ALL
-   PASS. SWEEP LANDED (commit 4bdb273): cbse_spr WNS +0.122 / 45156 LUTs
-   (71.22 pct) / slices 15033 (94.85); cbse_epo WNS +0.089 / SLICES 14425
-   (91.01, the density winner  -  directive alone is worth 3.8 points); etm
-   +0.004 (too tight). All three bitstreams written. SILICON GATES PENDING.
-   ⚠ USER GATE REFINED 2026-07-11: slices must be BELOW 70 pct (<=11095).
-   The binder is now PACKING (75 pct LUT fill), and 57 pct of remaining LUTs
-   are the 2-core VexiiRiscv subsystem (25.8K; each core 6.6K) vs top-self
-   15.3K (DMA engines+LiteDRAM+fabric) and milan_datapath 4.1K. Flow+fold
-   land ~78-84 pct realistically; BELOW 70 needs a CPU-side decision (single
-   hart retires the 2-hart NAPI pipeline = the RX records)  -  numbers go to
-   the user first. In flight: build_cbse4a (--area-flow: AreaOptimized_high
-   synth + ExploreArea opt + pre-place control_set_merge + place Default;
-   new milan_soc.py flags --area-flow/--synth-directive/--opt-directive).
-   (b2) **byte-ring fold EXECUTED as elaboration fold** (PIPELINE_STAGES
-   ledger has the full mechanics): legacy_ring param on both engines, SoC/CLI
-   default FOLDED, --legacy-ring restores; bd_shape=C(1) folds the shape
-   muxes, bd_mode stays the arming quiesce (old bd=0 driver on folded gw
-   parks with counted drops, never DMA to addr 0). Verified: whole BD test
-   set green on BOTH shapes (defaults temporarily flipped), 2 permanent
-   regressions added (folded equivalence + unarmed quiesce), elab smoke both
-   shapes. Suite 42 tests. Fold yield measured: -781 LUTs (cbsf_epo).
-   ✓ **TX 'regression' RESOLVED 2026-07-11 evening - PHANTOM BASELINE.**
-   The bisect completed after the console came back: hsq14_spr re-measured
-   in the IDENTICAL cell = ~221 Mbit (peer rx_bytes deltas 222.8/221.5/
-   221.3/221.1/221.4), the SAME recurring mid-flow stall (-t 30 ran 60.08 s
-   on hsq14 vs 52.6 s on cbsf) and the SAME bd-stage signature (xmit b2 =
-   63-73 us/frame on both). **cbsf_epo == hsq14_spr => engine + fold are
-   TX-CLEAN; the non-degradation gate PASSES.** LESSON (now in the
-   measure-dont-assume memory): a gate number is only valid with its full
-   cell recipe - the 525-536 scoreboard TX does NOT reproduce in this cell
-   (iperf3 single TCP, hsplit=2/16K/napi_w=48/rsc/hwtso/hwcs, threaded=0,
-   hash_sel=1) on ANY gateware; never declare a silicon regression without
-   re-measuring the keeper in-session. OPEN FOLLOW-UPS (both gatewares,
-   env/driver-config class): why this cell reads ~220 (suspects: napi_w,
-   hsplit=2 ACK-path latency, peer/iperf state  -  sweep driver params on
-   the keeper) and the recurring mid-flow stall.
-   ✓✓ **cbsf_epo SHIP-CLEARED 2026-07-11 night (section V complete)**:
-   boot + ID=MILN + hsplit16@16K pairing probe + ghost-peer ARP + TX gate
-   (identical to keeper) + RX cells IN-SESSION A/B  -  P1 335 vs keeper 330,
-   P4 ~325 (SUM 306) vs keeper ~280: equal-or-better on every axis.
-   **THE AREA-70 SILICON KEEPER = build_cbsf_epo** (WNS +0.099, 44439 LUTs
-   70.09 pct, BRAM 112.5 83.3 pct, slices 91.77 pct; engine -6.7K + fold
-   -0.8K banked). Board runs it now (hsplit16@16K, tuned, iperf3 -s up).
-   1-hart datapoint for the user decision: 36793 LUTs 58 pct / BRAM 68.5
-   pct / slices 80.9 pct at the cost of the 2-hart NAPI pipeline.
-   (Console recovered: CP2102N re-attached, by-id path in section 3; the
-   FT232H JTAG also dropped+recovered  -  use vendor:product passthrough.)
-   (c) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
-   param, estimated 1-2K LUTs; staged procedure in PIPELINE_STAGES.md.
-   (d) Vivado area strategies (cheap 2-4 percent).
-4. **XDP / AF_PACKET data plane** (user-approved endgame)  -  copy-free consumer
-   toward 941; hs page-aligned delivery is the substrate.
-5. Refinements: single-flow residual ~50/s; hs delivery-latency shave (the
-   remaining gap per flow); per-queue hs capability bit CSR (replace the STRICT
-   hsplit pairing convention).
+Banked levers: CQ LUTRAM diet -4866, strip-probes -1135, **CBS sequential
+slope engine -6.7K** (serial divider replaces per-cycle divide cones;
+bit-exact, multicycle XDC deleted; TROUBLESHOOTING section 15), **byte-ring
+fold -781** (legacy_ring elaboration param, ship default folded, unarmed
+engines quiesce; PIPELINE_STAGES ledger). Refuted by measurement: the
+milan_csr decode brief (927 LUTs standalone; the 5179 was cross-boundary CBS
+cones  -  OOC-synth before believing hierarchical reports), the area-synth flow
+(trades +6.5 BRAM for -3-5K LUTs while BRAM binds), the is_hdr constant pin
+(made the writer BIGGER). Section V complete on cbsf_epo: boot, ID=MILN,
+pairing probe, ghost-peer ARP, TX gate == keeper, RX in-session A/B P1 335 vs
+330 / P4 ~325 vs ~280 (equal-or-better). **Open user decision for slices <70
+pct: the 2nd hart costs 7646 LUTs + 20 BRAM + 16 DSP + 11 slice-points
+(1-hart measured: 58 pct LUTs / 68.5 pct BRAM / 80.9 pct slices) but retires
+the 2-hart NAPI pipeline that holds the RX records.** Remaining polish:
+--rx-fifo-beats 1024 BRAM diet (flag staged, needs a silicon drop-gate).
+
+### Milan product plane (the AVB-switch era, started 2026-07-11)
+
+The lab is now TWO Milan nodes through an AVB bridge (section 2). First
+product smoke found and fixed TWO silicon bugs in the ADP advertiser path,
+both invisible before the switch existed:
+1. **Enable-after-boot never advertised** (const-link SoC swallowed its only
+   link-up pulse while ADP was disabled at reset): the wrapper now synthesizes
+   the link-up event on the ADP-enable rising edge; proven on silicon
+   (available_index advances) + milan_dp regression.
+2. **Source MAC byte-swapped = MULTICAST source address**, which 802.1D
+   bridges MUST drop (index advanced, wire silent through the switch): the
+   platform mac_addr CSR is LSB-first, the advertiser port is numeric EUI-48;
+   byte-reverse added at BOTH instantiation sites (fully-FPGA wrapper + Zynq
+   top, same latent bug) + egress-src regression. milan_dp now 17 checks.
+Builds in flight: ax7101_adp2 (ship shape + both fixes  -  flash, then the peer
+capture through the switch should show ENTITY_AVAILABLE), arty_v2.
+
+### Arty A7-100 (second Milan node)  -  port done, bring-up in progress
+
+`--board arty` in milan_soc.py: MII 100M DP83848 + 25 MHz eth_ref_clk out,
+MT41K128M16 DDR3, clk100/-1-speedgrade CRG, serial boot (spiflash not ported).
+The -1 die does NOT close the AX7101 clocking: measured WNS -0.527 (100 MHz
+sys) and -1.026 (83 MHz sys with the datapath still at 100)  -  the datapath
+domain is the wall. Canonical arty clocking (in build.sh cfg_arty): **sys
+83.333 MHz (the clean VCO-1000 divisor set; 90 MHz has NO PLL solution with
+the 25 MHz ref) + datapath 50 MHz** (3.2 Gb/s internal for a 100 Mbit wire).
+Milestone 1 pending arty_v2: JTAG load, BIOS, DDR3 memtest, ID=MILN over the
+FT2232 console; then Linux/DT, IP .3, and two-node ADP discovery.
+
+### Hardening shipped
+
+hs page-size pairing is LETHAL (driver hs_pgsz != gateware hs_page_bytes =
+DMA overrun = kernel panic, 2026-07-11). SHIPPED: hsq14 capability CSR
+@0xf000311c + hsplit16 probe-check  -  the driver refuses lethal pairings with
+-EINVAL (silicon-verified both ways). Byte-ring fold quiesce: old bd=0
+drivers on folded gateware park with counted drops, never DMA to address 0.
+
+### Open threads (ranked)
+
+1. arty_v2 + ax7101_adp2 builds -> Arty milestone 1 + the ADP wire proof.
+2. Two-node ADP discovery (Arty RX of the AX7101's ENTITY_AVAILABLE), then
+   AECP/entity model per MILAN_V12_DEPENDENCY_MATRIX.md.
+3. The ~220 cell-recipe gap + recurring TX mid-flow stall (both gatewares,
+   env/driver-config class: sweep napi_w/hsplit/rsc on the keeper).
+4. Slices <70 pct: the 1-hart user decision (numbers above).
+5. AF_XDP ZC driver = the remaining RX>500 lane (campaign-scale).
+6. TX 2-proc fairness (CONFIG_NET_SCH_FQ kernel rebuild or BQL).
 
 ## 2. Topology  -  what plugs into what
 
 ```
-┌─────────────── dev VM (this machine) ───────────────┐
-│ /home/alex/prjs-avb-on-fpga/milan-fpga   (RTL repo)  │
-│ /home/alex/the-private-test-repo               (driver)    │
-│ /home/alex/litex-milan/work/build_*      (builds)    │
-│ /home/alex/br-milan-output               (buildroot) │
-│                                                      │
-│  USB: ttyUSB0 = FT232H JTAG ──────────┐              │
-│       ttyUSB1 = CP2102N console ────┐ │              │
-└─────────────────────────────────────┼─┼──────────────┘
-                                      │ │
-                       ┌──────────────▼─▼───┐   1 GbE copper   ┌──────────────┐
-                       │  AX7101 board      │◄────────────────►│  amx-pw0     │
-                       │  192.168.127.1     │                  │ i210 enp6s0  │
-                       │  MAC 02:00:..:01   │                  │ 192.168.127.2│
-                       └────────────────────┘                  │ (ssh, sudo -n)│
-                                                               └──────────────┘
+┌─────────────── dev VM (this machine) ────────────────────────────┐
+│ /home/alex/prjs-avb-on-fpga/milan-fpga   (RTL repo)               │
+│ /home/alex/the-private-test-repo               (driver)                 │
+│ /home/alex/litex-milan/work/build_*      (builds)                 │
+│                                                                   │
+│  USB (by-id ONLY, numbers shift): FT232H = AX7101 JTAG,           │
+│  CP2102N = AX7101 console, FT2232 210319AFEED0 = Arty JTAG+UART   │
+└───────────────┬─────────────────┬─────────────────┬──────────────┘
+                │ JTAG+serial     │ JTAG+serial     │ (no data plane
+                ▼                 ▼                 │  on the VM)
+     ┌────────────────────┐  ┌────────────────────┐ │
+     │  AX7101 (Milan #1) │  │ Arty A7-100 (#2)   │ │
+     │  192.168.127.1     │  │ 192.168.127.3 plan │ │
+     │  1 GbE GMII        │  │ 100M MII           │ │
+     └─────────┬──────────┘  └─────────┬──────────┘ │
+               │ 1G                    │ 100M       │
+            ┌──▼────────────────────────▼──┐        │
+            │        AVB SWITCH            │        │
+            │  (gPTP/SRP-capable bridge,   │        │
+            │   added 2026-07-11)          │        │
+            └──────────────┬───────────────┘        │
+                           │ 1G                     │
+                    ┌──────▼───────┐                │
+                    │  amx-pw0     │◄───────────────┘ ssh (mgmt net)
+                    │ i210 enp6s0  │
+                    │ 192.168.127.2│
+                    └──────────────┘
 ```
 
+- **Since 2026-07-11 the data plane is SWITCHED**: both Milan boards and the
+  peer's i210 hang off an AVB (802.1BA-class) bridge  -  the product interop
+  topology (ADP discovery board<->board, gPTP domain through the bridge, SRP
+  reservations, CBS-shaped streams). Perf cells now traverse the switch; the
+  in-session A/B discipline (keeper re-measured in the same session) absorbs
+  any switch-induced shift, but never compare switched numbers against the
+  direct-cable era without an in-session baseline.
 - **Data-plane peer = `ssh amx-pw0`** (passwordless, passwordless sudo). Its i210
-  (`enp6s0`, MAC `68:05:ca:95:b2:d1`) is the wire peer at **192.168.127.2**.
+  (`enp6s0`, MAC `68:05:ca:95:b2:d1`) is at **192.168.127.2**.
   **`amx-pw1` is RESERVED  -  never touch it.**
-- The VM has NO data-plane path to the board (its NICs are virtio/isolated). JTAG +
+- IP plan: AX7101 = .1, peer = .2, **Arty = .3** (once its Linux is up).
+- The VM has NO data-plane path to the boards (virtio/isolated NICs). JTAG +
   serial only. Do NOT add 192.168.127.x addresses on the VM.
 - **Ghost-peer check before trusting ANY number**: on the board,
   `ip neigh | grep 127.2` must show `68:05:ca:95:b2:d1`. Stale services answering
-  .2 from elsewhere invalidated a whole night once.
+  .2 from elsewhere invalidated a whole night once (now MORE relevant: a switch
+  means more places for a ghost to answer from).
 
 ## 3. How to connect
 
@@ -296,7 +227,8 @@ Stage new driver builds: `scp kl-eth.ko amx-pw0:/tmp/serve/kl-eth-<ver>.ko`.
 ## 4. How to harness
 
 **Sim/test layers:** see **RUNNING_TESTS.md** (elab smoke + Migen-codegen grep →
-`test_ring_bd.py` suite (39 tests incl. the livelock regression; plain python, no
+`test_ring_bd.py` suite (42 tests incl. the livelock regression and the
+byte-ring-fold equivalence/quiesce pair; plain python, no
 pytest) → 18 Verilator harnesses (`tb/verilator/*/make`) → Yosys (`syn/yosys/run.sh`)
 → Vivado build scripts (`~/litex-milan/work/build_*.sh`, ≤32 threads, read the LAST
 timing summary) → silicon §V checklist). Cycle-exact debugging: `dbg_*` aliases on
@@ -322,12 +254,10 @@ strings kl-eth.ko | grep version=        # ALWAYS verify before staging
   full method in PERF_ON_MILAN.md.
 - Measure, don't assume  -  probe first, before AND after (measure-dont-assume rule).
 
-**Current board state:** hsq10_epo (JTAG-SRAM, WNS+0.114, 2q-hs + strip-probes +
-16K hs pages) + **hsplit12 hsplit=2 hs_pgsz=16384**, network up. RX record P4 381
-(374 soak); TX gate 582-637. Overnight ladder + forensics: HEADER_SPLIT_DESIGN
-§hsq8/9/10; cells in scratchpad results_hs2q.csv. Gateware ladder: hsq3 =
-2-queue keeper (mslot aggregate best), hsq4 = CQD=32 1-queue, hsq5 = + livelock
-fix, hsq6 = + BD-ring full-gate (WNS+0.243), **hsq7 = + CQ diet = the 1-queue
-hs keeper** (P1 312 / P4 ~283±6, silicon-unregressed, pairs with hsplit10
-ONLY); hsq7t = 2-queue diet canary (q0-hs+q1-legacy, 99.4% slices, +0.028)  - 
-FITS+CLOSES but no room for rx1-hs until strip-probes lands.
+**Current board state (2026-07-11 night):** AX7101 = build_ax7101_adp1
+(JTAG-SRAM: the cbsf_epo AREA-70 keeper shape + the ADP enable fix; WNS
++0.067) + hsplit16 hsplit=2 hs_pgsz=16384, network up, iperf3 -s running;
+ax7101_adp2 (+ the src-MAC fix) builds and replaces it next. Arty = blank
+(JTAG only), arty_v2 (83.333/50) building toward milestone 1. Gateware
+lineage table: PIPELINE_STAGES.md; the hsq3..hsq14 ladder history:
+HEADER_SPLIT_DESIGN.md.

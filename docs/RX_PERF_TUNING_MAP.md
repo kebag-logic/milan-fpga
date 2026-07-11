@@ -35,8 +35,8 @@ silicon history; SESSION_HANDOFF.md is the live state.*
 2. PAYCAP CSR widening (16-bit truncation): bigger aggregates for the copy lane.
 3. Cut-through multi-flow: 8K pages or driver chunk-batching (hsplit14 v3 path).
 4. `CONFIG_NET_SCH_FQ`: TX 2-proc fairness.
-5. AREA-70: headroom for the AVDECC product blocks (byte-ring removal staged in
-   PIPELINE_STAGES.md).
+5. AREA-70: CLOSED 2026-07-11 (keeper build_cbsf_epo, LUTs 70.1 percent; slope
+   engine + byte-ring fold banked; remaining lever = the 1-hart user decision).
 6. Hardening: SHIPPED (hsq14 capability CSR at 0xf000311c + hsplit16 probe-check).
 
 ## Regression net
