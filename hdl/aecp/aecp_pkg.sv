@@ -56,23 +56,25 @@ package aecp_pkg;
   localparam [14:0] CMD_GET_CONFIGURATION                  = 15'd7;
   localparam [14:0] CMD_SET_STREAM_FORMAT                  = 15'd8;
   localparam [14:0] CMD_GET_STREAM_FORMAT                  = 15'd9;
+  localparam [14:0] CMD_SET_STREAM_INFO                    = 15'd14;
+  localparam [14:0] CMD_GET_STREAM_INFO                    = 15'd15;
   localparam [14:0] CMD_SET_NAME                           = 15'd16;
   localparam [14:0] CMD_GET_NAME                           = 15'd17;
-  localparam [14:0] CMD_SET_SAMPLING_RATE                  = 15'd18;
-  localparam [14:0] CMD_GET_SAMPLING_RATE                  = 15'd19;
-  localparam [14:0] CMD_SET_CLOCK_SOURCE                   = 15'd20;
-  localparam [14:0] CMD_GET_CLOCK_SOURCE                   = 15'd21;
-  localparam [14:0] CMD_SET_CONTROL                        = 15'd22;
-  localparam [14:0] CMD_GET_CONTROL                        = 15'd23;
-  localparam [14:0] CMD_START_STREAMING                    = 15'd32;
-  localparam [14:0] CMD_STOP_STREAMING                     = 15'd33;
+  localparam [14:0] CMD_SET_SAMPLING_RATE                  = 15'd20;
+  localparam [14:0] CMD_GET_SAMPLING_RATE                  = 15'd21;
+  localparam [14:0] CMD_SET_CLOCK_SOURCE                   = 15'd22;
+  localparam [14:0] CMD_GET_CLOCK_SOURCE                   = 15'd23;
+  localparam [14:0] CMD_SET_CONTROL                        = 15'd24;
+  localparam [14:0] CMD_GET_CONTROL                        = 15'd25;
+  localparam [14:0] CMD_START_STREAMING                    = 15'd34;
+  localparam [14:0] CMD_STOP_STREAMING                     = 15'd35;
   localparam [14:0] CMD_REGISTER_UNSOLICITED_NOTIFICATION  = 15'd36;
   localparam [14:0] CMD_DEREGISTER_UNSOLICITED_NOTIFICATION= 15'd37;
-  localparam [14:0] CMD_GET_AVB_INFO                       = 15'd37; // alias in some impls — check spec
-  localparam [14:0] CMD_GET_COUNTERS                       = 15'd39;
-  localparam [14:0] CMD_GET_AUDIO_MAP                      = 15'd41;
-  localparam [14:0] CMD_ADD_AUDIO_MAPPINGS                 = 15'd42;
-  localparam [14:0] CMD_REMOVE_AUDIO_MAPPINGS              = 15'd43;
+  localparam [14:0] CMD_GET_AVB_INFO                       = 15'd39;
+  localparam [14:0] CMD_GET_COUNTERS                       = 15'd41;
+  localparam [14:0] CMD_GET_AUDIO_MAP                      = 15'd43;
+  localparam [14:0] CMD_ADD_AUDIO_MAPPINGS                 = 15'd44;
+  localparam [14:0] CMD_REMOVE_AUDIO_MAPPINGS              = 15'd45;
 
   // ------------------------------------------------------------------ //
   // AECP status codes (5 bits, IEEE 1722.1-2021 Table 7.126)             //
@@ -87,9 +89,9 @@ package aecp_pkg;
   localparam [4:0] STATUS_BAD_ARGUMENTS      = 5'd7;
   localparam [4:0] STATUS_NO_RESOURCES       = 5'd8;
   localparam [4:0] STATUS_IN_PROGRESS        = 5'd9;
-  localparam [4:0] STATUS_INVALID_COMMAND    = 5'd10;
-  localparam [4:0] STATUS_PROTOCOL_ERROR     = 5'd11;
-  localparam [4:0] STATUS_ENTITY_MISBEHAVING = 5'd12;
+  localparam [4:0] STATUS_ENTITY_MISBEHAVING = 5'd10;
+  localparam [4:0] STATUS_NOT_SUPPORTED      = 5'd11;
+  localparam [4:0] STATUS_STREAM_IS_RUNNING  = 5'd12;
 
   // ------------------------------------------------------------------ //
   // AEM descriptor_type constants (IEEE 1722.1-2021 Table 7.1)           //
@@ -135,21 +137,19 @@ package aecp_pkg;
   localparam [15:0] DESC_INVALID           = 16'hFFFF;
 
   // ------------------------------------------------------------------ //
-  // Milan Vendor-Unique command sub-types                                //
+  // Milan Vendor-Unique command codes (Milan v1.2 Table 5.18; the         //
+  // reference header aecp-vendor-unique-milan-v12.h confirms 0x0000)      //
   // ------------------------------------------------------------------ //
-  localparam [7:0] VU_GET_MILAN_INFO                   = 8'h01;
-  localparam [7:0] VU_GET_SYSTEM_UNIQUE_ID             = 8'h10;
-  localparam [7:0] VU_SET_SYSTEM_UNIQUE_ID             = 8'h11;
-  localparam [7:0] VU_GET_MEDIA_CLOCK_REFERENCE_INFO   = 8'h20;
-  localparam [7:0] VU_SET_MEDIA_CLOCK_REFERENCE_INFO   = 8'h21;
+  localparam [14:0] VU_GET_MILAN_INFO                   = 15'h0000;
 
   // ------------------------------------------------------------------ //
   // Sizing constants                                                     //
   // ------------------------------------------------------------------ //
   //! Max bounded controllers for unsolicited table
   localparam int unsigned MAX_UNSOLICITED_CTLR_C = 16;
-  //! Milan AEM configurations (Raki 48 kHz / 96 kHz / 192 kHz)
-  localparam int unsigned NUM_CONFIGURATIONS_C   = 3;
+  //! Single configuration (48/96/192 kHz handled via SET_SAMPLING_RATE
+  //! within it — matches milan-v12-entity.json configurations_count=1)
+  localparam int unsigned NUM_CONFIGURATIONS_C   = 1;
   //! Lock timer: 60 s × 1 kHz = 60 000 ticks
   localparam [16:0] LOCK_TIMER_TICKS_C = 17'd60_000;
   //! Controller staleness: 30 s × 1 kHz = 30 000 ticks
@@ -171,9 +171,12 @@ package aecp_pkg;
     logic [15:0] sequence_id;
     logic        u_flag;               //!< unsolicited notification requested
     logic [14:0] command_type;
+    //! bit0 of the ACQUIRE/LOCK 32-bit flags field (payload bytes 26-29):
+    //! RELEASE / UNLOCK. Valid with hdr_valid for those two commands.
+    logic        flags_lsb;
     //! following fields valid only for descriptor commands
-    logic [15:0] configuration_index;
-    logic [15:0] descriptor_type;
+    logic [15:0] configuration_index;  //!< SET_CONFIGURATION layout (bytes 28-29)
+    logic [15:0] descriptor_type;      //!< READ_DESCRIPTOR layout (bytes 30-31)
     logic [15:0] descriptor_index;
     logic        hdr_valid;            //!< strobe: header fully parsed
   } aecp_hdr_t;
