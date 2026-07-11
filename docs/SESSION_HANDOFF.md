@@ -28,13 +28,18 @@ everywhere. **NEVER load hsplit10 on ≤hsq5 gateware** (silent lap by construct
 Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
 
 **Next work, in order of value (refreshed 2026-07-11 dawn):**
-1. **RX 381 -> 500 on hsq10** (2q-hs 16K pages; both harts 40% IDLE at 381 =
-   latency-bound, NOT CPU): rx-usecs sweep on the 16K regime; residual 15/s P4
-   drops; P6/P8 drops creep back at >=3 flows/queue (interleave famine tail) —
-   32K pages (hs_pgsz build) and/or PAYCAP widening (RING_RSC_BUFSZ CSR
-   TRUNCATES AT 16 BITS — 0x1C000 silently wrote 0xC000; widen + segcap for
-   >64K aggregates). Steer_q* counters misreport under dual-active = telemetry
-   bug (deltas only trustable single-active).
+1. **RX 381 -> 500 on hsq10** — the knob space is EXHAUSTED (2026-07-11 am):
+   rx-usecs FLAT 359-381 across 100-1000us; segcap=10 HARMFUL (256, chaotic);
+   PAYCAP poke blocked (RING_RSC_BUFSZ CSR truncates at 16 bits). TCP state at
+   P4-16K: cwnd HEALTHY 88-212 segs, **rtt inflated 7-55 ms = the binder**
+   (RSC fill-time ~4.6ms/aggregate is only part; cutting aggregates costs more
+   than it buys). NEXT INSTRUMENT, not next knob: the R1-era latency
+   decomposition (wake/delivery legs) on the 16K regime — find where the
+   ~10ms base delivery rtt lives (NAPI batch? GRO hold? recv wake? ACK-tx
+   batching?). Then: 32K pages for the P6/P8 interleave tail; PAYCAP CSR
+   widening (RTL) only after the rtt story is decomposed. Steer_q* counters
+   misreport under dual-active = telemetry bug (single-active deltas only).
+   Beware cport TIME_WAIT: back-to-back cells MUST use fresh cport bases.
 2. **TX 2-proc fairness lottery** (one iperf3 starves at ~82; capability 582-646
    intact): CONFIG_NET_SCH_FQ kernel rebuild (fq pacing), or BQL. NOT a gateware
    bug — measured across hsq7t..hsq10, ACK steering constant-on-q0.
