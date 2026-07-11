@@ -112,9 +112,24 @@ TCP numbers stay the regression net; TX gate discipline unchanged.
 2. **TX 2-proc fairness lottery** (one iperf3 starves at ~82; capability 582-646
    intact): CONFIG_NET_SCH_FQ kernel rebuild (fq pacing), or BQL. NOT a gateware
    bug  -  measured across hsq7t..hsq10, ACK steering constant-on-q0.
-3. **AREA-70 campaign (user directive)**  -  slices to ~70%; banked: CQ LUTRAM diet
-   -4866 LUTs + strip-probes -1135 LUTs/-4267 FFs. Next: legacy byte-ring
-   removal, CBS 4.4K/datapath-CSR 5.9K audits, Vivado area strategies.
+3. **AREA-70 campaign (user directives: "reclaim slice space"; CBS/traffic
+   shaper is OFF-LIMITS, "keep the traffic shaper!" 2026-07-11)**. Banked:
+   CQ LUTRAM diet -4866 LUTs + strip-probes -1135 LUTs / -4267 FFs. hsq14_spr
+   is the hardened keeper (WNS +0.092; capability CSR silicon-verified both
+   ways: refuses hs_pgsz=4096 on 16K gateware with -EINVAL, loads on match).
+   Next levers, scoped:
+   (a) milan_csr decode optimization ("Optimiae the CSR"): 5190 LUTs vs 1956
+   FFs (ratio 2.65, about 2x a lean CSR file), zero arithmetic in the logic,
+   so the fat is structural: full-16-bit address comparators over ~65 case
+   arms plus two windowed range subtracts while the map spans only 11 bits.
+   Opening moves: truncate decode to addr[10:0]; split the flat unique-case
+   into gated sub-decoders (base block / STATS window / CBS window / TCAM);
+   iterate with SYNTH-ONLY runs (about 10 min each), not full P&R. File:
+   hdl/csr/milan_csr.sv. Requirements say the map must not move: decode
+   changes only, csr.csv-equivalent ABI.
+   (b) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
+   param, estimated 1-2K LUTs; staged procedure in PIPELINE_STAGES.md.
+   (c) Vivado area strategies (cheap 2-4 percent).
 4. **XDP / AF_PACKET data plane** (user-approved endgame)  -  copy-free consumer
    toward 941; hs page-aligned delivery is the substrate.
 5. Refinements: single-flow residual ~50/s; hs delivery-latency shave (the
