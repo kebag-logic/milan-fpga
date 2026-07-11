@@ -1,4 +1,4 @@
-# controller_rate — CBS end-to-end shaping/interference reproduction (OPEN BUG)
+# controller_rate — CBS end-to-end shaping/interference regression (bug FIXED; gating)
 
 Self-checking Verilator harness for `traffic_controller_802_1q` (the full
 classify → per-queue FIFO → CBS shaper chain), driving the exact scenario the

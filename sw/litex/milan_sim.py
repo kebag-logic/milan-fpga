@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
 # Verilator simulation of the Milan SoC. NOTE: this sim still uses the historical
-# NaxRiscv core, whereas the board build now runs VexiiRiscv (RV64IMA) — the CSR/mem-map
+# NaxRiscv core, whereas the published board Linux results use VexiiRiscv (RV64IMA;
+# note deploy.sh still builds the naxriscv CLI default) — the CSR/mem-map
 # and `milan_datapath` wiring are identical across the two, so M-A2 proven here holds.
 # `milan_datapath` is attached as an AXI4-Lite CSR slave at 0x9000_0000, running
 # the real LiteX BIOS. This is the board-independent proof of migration milestone
