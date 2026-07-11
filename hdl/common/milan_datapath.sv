@@ -474,14 +474,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   end
 
-  //! Link edge → advertise (up) / depart (down).
-  reg link_up_q; reg adp_link_up_p, adp_link_down_p;
+  //! Link edge -> advertise (up) / depart (down). ALSO synthesize the link-up
+  //! event on an ADP-ENABLE rising edge while the link is already up: on the
+  //! fully-FPGA SoC i_link_up is constant 1 (no MDIO tracking yet), so its only
+  //! real edge fires one cycle after reset while ADP is still disabled (CSR
+  //! reset default) - without this, enabling ADP later could NEVER reach the
+  //! advertiser's available state (available_r needs link_up_i && enable_i;
+  //! silicon-diagnosed 2026-07-11: strobes swallowed, available_index stuck 0).
+  //! Per 1722.1 semantics an entity being enabled on a live link advertises.
+  reg link_up_q; reg adp_en_q; reg adp_link_up_p, adp_link_down_p;
   always_ff @(posedge axis_clk) begin : adp_link_edge
     if (!axis_resetn) begin
-      link_up_q <= 1'b0; adp_link_up_p <= 1'b0; adp_link_down_p <= 1'b0;
+      link_up_q <= 1'b0; adp_en_q <= 1'b0;
+      adp_link_up_p <= 1'b0; adp_link_down_p <= 1'b0;
     end else begin
       link_up_q       <= i_link_up;
-      adp_link_up_p   <=  i_link_up & ~link_up_q;
+      adp_en_q        <= cfg_adp_enable;
+      adp_link_up_p   <= (i_link_up & ~link_up_q) |
+                         (cfg_adp_enable & ~adp_en_q & i_link_up);
       adp_link_down_p <= ~i_link_up &  link_up_q;
     end
   end
