@@ -1,6 +1,6 @@
 # Throughput goal  -  >500 Mbit/s RX *and* TX, reach for 1 Gbit/s
 
-> 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
+> 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
 
 ## ⚡ FORCED-MARCH RESULTS (2026-07-09 evening  -  R1 refuted, R2 LANDED, R3 in flight)
 

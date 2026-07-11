@@ -6,7 +6,7 @@ option — + TSN datapath on an Alinx AX7101 / Artix-7), now evolving toward a *
 AVB switch**. Verified on silicon: ring-DMA networking at line-rate ingest, hardware
 802.1Qav CBS, PTP timestamping, ADP advertisement, QSPI flash-boot, and TCP
 **RX 46.5 / TX ~59 Mbit/s** @ MTU 1500 on the 100 MHz 2-core SoC (2026-07-07 campaign;
-[HW-GRO/RSC](docs/HW_GRO_RSC.md) toward ≥200 Mbit/s in flight — phases A+B sim-verified).
+[HW-GRO/RSC](docs/fpga/HW_GRO_RSC.md) toward ≥200 Mbit/s in flight — phases A+B sim-verified).
 
 **📚 Start with the [documentation index](docs/README.md)** — it has curated reading
 paths (understand the system / project direction / board bring-up / datapath
@@ -16,10 +16,10 @@ Quick jumps:
 
 | I want to… | Go to |
 |---|---|
-| Understand the whole system | [docs/FULL_FPGA_SOLUTION.md](docs/FULL_FPGA_SOLUTION.md) |
-| See the direction + measured scoreboard | [docs/AVB_SWITCH_DIRECTION.md](docs/AVB_SWITCH_DIRECTION.md) |
-| Build & boot the board | [docs/QSPI_FLASHBOOT.md](docs/QSPI_FLASHBOOT.md) |
-| Program against the registers | [docs/REGISTER_MAP.md](docs/REGISTER_MAP.md) |
+| Understand the whole system | [docs/FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) |
+| See the direction + measured scoreboard | [docs/AVB_SWITCH_DIRECTION.md](docs/overview/AVB_SWITCH_DIRECTION.md) |
+| Build & boot the board | [docs/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) |
+| Program against the registers | [docs/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) |
 | Run the verification suites | [tb/verilator/README.md](tb/verilator/README.md) |
 
 ## Running the testbenches

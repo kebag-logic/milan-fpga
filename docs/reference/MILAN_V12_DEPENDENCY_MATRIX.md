@@ -170,5 +170,5 @@ Milan only **CONSTRAINS** these; it does not require them.
   (SMP, AMP)  -  passing there proves scale-up/out without re-proving Milan logic.
 
 See [`FR_NFR.md`](FR_NFR.md) §6 (forward traceability to milestones) and §7
-(verification approach), and [`avdecc/README.md`](../avdecc/README.md) for the entity
+(verification approach), and [`avdecc/README.md`](../../avdecc/README.md) for the entity
 model the descriptors trace to.

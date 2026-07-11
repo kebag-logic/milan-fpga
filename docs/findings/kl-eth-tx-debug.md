@@ -129,7 +129,7 @@ killed, because knowing *why they were wrong* is as valuable as the result.
 
 ### The instrument set
 
-* `milan_tlm` pipeline telemetry ([pipeline-telemetry.md](pipeline-telemetry.md))  -  frame
+* `milan_tlm` pipeline telemetry ([pipeline-telemetry.md](../fpga/pipeline-telemetry.md))  -  frame
   counts at every fabric stage, readable from Linux sysfs **and from the BIOS**
   (`mem_write 0xf0004004 1` = capture, `mem_read 0xf0004058` = tx_wire).
 * Controlled BIOS-level TX (no kernel needed): boot to `litex>` (no uploader), then
@@ -198,9 +198,9 @@ data (`tx_dma=tx_dp=tx_core=tx_wire`, byte counts matching)  -  yet nothing reac
 
 ### ROOT CAUSE FOUND (2026-07-04 evening)  -  cut-through core + bubbly source
 
-![root cause & fix](TX_STARVATION_FIX.svg)
+![root cause & fix](../TX_STARVATION_FIX.svg)
 
-*(One-picture version: [TX_STARVATION_FIX.svg](TX_STARVATION_FIX.svg), editable [.drawio](TX_STARVATION_FIX.drawio); regenerate via [TX_STARVATION_FIX.gen.py](TX_STARVATION_FIX.gen.py).)*
+*(One-picture version: [TX_STARVATION_FIX.svg](../TX_STARVATION_FIX.svg), editable [.drawio](../TX_STARVATION_FIX.drawio); regenerate via [TX_STARVATION_FIX.gen.py](../TX_STARVATION_FIX.gen.py).)*
 
 Bisection results: B1 (Jul-4 code, gmii_final flags) **silent**; R0 (bc5783b source, today's
 toolchain) **talks**; B2 (HEAD, gate reverted) **talks**; B3 (HEAD, gate kept, telemetry

@@ -7,10 +7,10 @@ crucially  -  **the test(s) that validate it**. It is the checklist to drive the
 FPGA-only solution to done.
 
 Read with:
-- [`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md)  -  the architecture these protocols live in.
-- [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md)  -  *why* Milan v1.2
+- [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md)  -  the architecture these protocols live in.
+- [`MILAN_V12_DEPENDENCY_MATRIX.md`](../reference/MILAN_V12_DEPENDENCY_MATRIX.md)  -  *why* Milan v1.2
   requires each, mapped to FR/NFR.
-- [`FR_NFR.md`](FR_NFR.md)  -  the normative requirement text (`REQ-*`, `FR-*`).
+- [`FR_NFR.md`](../reference/FR_NFR.md)  -  the normative requirement text (`REQ-*`, `FR-*`).
 
 ## Legend
 
@@ -118,10 +118,10 @@ Read with:
 | SoC elaboration | `./sw/litex/milan_soc.py --full` | the full FPGA design assembles + exports gateware (`ELAB`) |
 
 `BOARD` and `SW` rows are the on-hardware / controller tests that light up once the
-Artix-7 bitstream exists (roadmap step 1 in [`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) §9).
+Artix-7 bitstream exists (roadmap step 1 in [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) §9).
 The controller-side scripts and their tokens (`avdecc_l2`, `tap_acmp`, `maap`,
 `mrpd`, `thdn`, `soak`, `ptp`, `ethtool`, …) are catalogued in
-[`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md).
+[`MILAN_V12_DEPENDENCY_MATRIX.md`](../reference/MILAN_V12_DEPENDENCY_MATRIX.md).
 
 ## 9. Coverage summary
 

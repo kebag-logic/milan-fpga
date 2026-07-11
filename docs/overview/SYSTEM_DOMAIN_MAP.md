@@ -4,11 +4,11 @@ Which module lives in which domain / language  -  the whole Milan TSN NIC stack,
 PipeWire AVB endpoint down to the Artix-7 silicon, plus the host tooling that generates and
 deploys it. Software at the top, hardware at the bottom.
 
-![Milan system domain map](SYSTEM_DOMAIN_MAP.svg)
+![Milan system domain map](../SYSTEM_DOMAIN_MAP.svg)
 
-*(Editable source: [`SYSTEM_DOMAIN_MAP.drawio`](SYSTEM_DOMAIN_MAP.drawio)  -  open in
+*(Editable source: [`SYSTEM_DOMAIN_MAP.drawio`](../SYSTEM_DOMAIN_MAP.drawio)  -  open in
 [diagrams.net](https://app.diagrams.net). Regenerate the `.drawio`/`.svg`/`.png` from one
-layout model with [`SYSTEM_DOMAIN_MAP.gen.py`](SYSTEM_DOMAIN_MAP.gen.py)
+layout model with [`SYSTEM_DOMAIN_MAP.gen.py`](../SYSTEM_DOMAIN_MAP.gen.py)
 (`python3 docs/SYSTEM_DOMAIN_MAP.gen.py docs/SYSTEM_DOMAIN_MAP` → `.svg`+`.drawio`, then
 `rsvg-convert -o …png …svg`). If you add modules, edit the generator, not the outputs.)*
 
@@ -27,6 +27,6 @@ layout model with [`SYSTEM_DOMAIN_MAP.gen.py`](SYSTEM_DOMAIN_MAP.gen.py)
 
 The register map (`milan_csr`) is the contract that stitches three domains together: the RTL
 defines it, `milan_dt.py` publishes it into the device tree, and `kl-eth` consumes it  -  see
-[REGISTER_MAP.md](REGISTER_MAP.md). For the runtime data/control flow (rather than this
+[REGISTER_MAP.md](../reference/REGISTER_MAP.md). For the runtime data/control flow (rather than this
 by-domain view) see [ARCHITECTURE.md](ARCHITECTURE.md); for the boot path,
-[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md) and milan-tests-avb `fpga/memory/linux-boot-flow`.
+[QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md) and milan-tests-avb `fpga/memory/linux-boot-flow`.

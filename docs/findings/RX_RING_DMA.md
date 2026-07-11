@@ -7,7 +7,7 @@
 datapath, GMII 1 Gbps, peer = i210). Companion picture: `RX_RING_DMA.svg` (source:
 `RX_RING_DMA.gen.py`).*
 
-![RX ring DMA root cause + fix](RX_RING_DMA.svg)
+![RX ring DMA root cause + fix](../RX_RING_DMA.svg)
 
 ## TL;DR
 
@@ -45,7 +45,7 @@ measurement chain:
 
 ## How it works (v2 mechanism, end to end)
 
-![RX ring DMA v2 operation](RX_RING_OPERATION.svg)
+![RX ring DMA v2 operation](../RX_RING_OPERATION.svg)
 
 *(source: `RX_RING_OPERATION.gen.py`, editable `RX_RING_OPERATION.drawio`)*  -  gateware
 ingress/drain, the drain FSM, the ring memory format with both pointers, and the kl-eth

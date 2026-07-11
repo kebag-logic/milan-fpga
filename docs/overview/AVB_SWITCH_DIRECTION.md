@@ -1,10 +1,10 @@
 # Direction: from the 1-NIC endpoint to a 4-port AVB switch (MTU fixed at 1500)
 
 *Design note, 2026-07-05. One-picture summary below (source `AVB_SWITCH_DIRECTION.gen.py`,
-editable `.drawio`). Companion to [`RX_RING_DMA.md`](RX_RING_DMA.md) (the endpoint ring
+editable `.drawio`). Companion to [`RX_RING_DMA.md`](../findings/RX_RING_DMA.md) (the endpoint ring
 DMA work this builds on).*
 
-![endpoint -> switch direction](AVB_SWITCH_DIRECTION.svg)
+![endpoint -> switch direction](../AVB_SWITCH_DIRECTION.svg)
 
 ## The constraint set
 

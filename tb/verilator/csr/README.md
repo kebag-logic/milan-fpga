@@ -18,7 +18,7 @@ No Xilinx tools required — `milan_csr.sv` is a standalone AXI4-Lite slave.
 ## What it checks
 
 An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
-([`docs/REGISTER_MAP.md`](../../../docs/REGISTER_MAP.md)):
+([`docs/REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md)):
 
 * **Identification / capabilities** — `ID = "MILN"`, `VERSION`, and `CAP`
   (num_queues, CBS/PTP/STATS feature bits, timestamp width) so the driver can

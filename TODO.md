@@ -35,8 +35,8 @@ and end-to-end bring-up (Phase 9).
 
 The design was ported off the Zynq PS to a **NaxRiscv RV64GC + LiteX** SoC and the
 full-FPGA solution is **assembled and elaborating** end-to-end. See
-[`docs/FULL_FPGA_SOLUTION.md`](docs/FULL_FPGA_SOLUTION.md) (master guide) and
-[`docs/PROTOCOL_VALIDATION_MATRIX.md`](docs/PROTOCOL_VALIDATION_MATRIX.md) (protocol×test).
+[`docs/FULL_FPGA_SOLUTION.md`](docs/overview/FULL_FPGA_SOLUTION.md) (master guide) and
+[`docs/PROTOCOL_VALIDATION_MATRIX.md`](docs/testing/PROTOCOL_VALIDATION_MATRIX.md) (protocol×test).
 
 * **De-Xilinx complete** — all XPM/vendor IP replaced by Forencich `verilog-axis`
   + open CDC/TCAM; 15 Verilator harnesses + 18 Yosys tops (incl. Lattice ECP5).

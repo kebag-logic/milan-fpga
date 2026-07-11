@@ -16,9 +16,9 @@ These three layers map to the sections below:
 [Section 2](#section-2-softcore-boot-with-litex_sim), and
 [Section 3](#section-3-softcore-plus-nic-milestone-m-a2).
 
-Read alongside [`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) (architecture) and
+Read alongside [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (architecture) and
 [`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md) (which test covers
-which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
+which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
 ---
 
@@ -28,16 +28,16 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](TROUBLESHOO
   No LiteX, no RISC-V toolchain, no Xilinx. This is the fast inner loop.
 - **Layers 2–3 (softcore)** additionally need the LiteX venv + RISC-V toolchain +
   JDK/sbt (NaxRiscv is generated from SpinalHDL). One-time setup is in
-  [`../sw/README.md`](../sw/README.md); the essentials:
+  [`../sw/README.md`](../../sw/README.md); the essentials:
   ```sh
   . ~/litex-milan/venv/bin/activate
   export JAVA_HOME=/usr/lib/jvm/java-17-openjdk      # sbt/SpinalHDL generates NaxRiscv
   cd ~/litex-milan/work                              # NOT the litex-repos parent
   ```
   The last two lines are load-bearing  -  see
-  [Section 1](TROUBLESHOOTING.md#section-1-import-litex-resolves-to-a-namespace-package)
-  and [Section 2](TROUBLESHOOTING.md#section-2-naxriscv-generation-needs-java_home)
-  of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
+  [Section 1](../limitations/TROUBLESHOOTING.md#section-1-import-litex-resolves-to-a-namespace-package)
+  and [Section 2](../limitations/TROUBLESHOOTING.md#section-2-naxriscv-generation-needs-java_home)
+  of [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
 ---
 
@@ -46,7 +46,7 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](TROUBLESHOO
 Each `hdl/` block has a self-checking Verilator harness. They are the primary
 verification: a harness exits `0` on pass / non-zero on failure, so they drop
 straight into CI. The full list and what each proves is in
-[`../tb/verilator/README.md`](../tb/verilator/README.md).
+[`../tb/verilator/README.md`](../../tb/verilator/README.md).
 
 ### Section 1.1: Anatomy of a harness
 
@@ -82,8 +82,8 @@ its ports are already flat.
    and an **AXIS frame BFM** (`run_tx`/`run_rx` push/collect a frame, `vlan_frame`
    builds a byte-exact 802.1Q frame packed big-endian into 64-bit beats). The exact
    AXI-Lite handshake timing matters  -  see
-   [Section 11](TROUBLESHOOTING.md#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)
-   of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
+   [Section 11](../limitations/TROUBLESHOOTING.md#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)
+   of [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 3. **Self-check**  -  compare the DUT's response against the expected value:
    ```cpp
    static void ck(const char* what, unsigned long got, unsigned long exp);  // PASS/FAIL + counts
@@ -108,8 +108,8 @@ run:
 Source order matters: packages (`ethernet_packet_pkg.sv`, `adp_pkg.sv`) and the
 `axi_stream_if.sv` interface come first, then leaf modules, then the DUT. The
 `+incdir` paths are required  -  see
-[Section 7](TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
-[`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
+[Section 7](../limitations/TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
+[`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
 ### Section 1.2: What milan_dp proves  -  the integration harness
 
@@ -138,8 +138,8 @@ cd tb/verilator && for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx \
 ### Section 1.4: Warning suppressions and why they are safe
 
 Two Verilator warnings are suppressed project-wide and are **not** bugs (details in
-[Section 12](TROUBLESHOOTING.md#section-12-benign-verilator-warnings-pinmissing-and-selrange)
-of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)):
+[Section 12](../limitations/TROUBLESHOOTING.md#section-12-benign-verilator-warnings-pinmissing-and-selrange)
+of [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md)):
 - `PINMISSING` on `axi_stream_if`  -  optional `clk`/`rst_n` interface pins the
   datapath instances don't connect.
 - `SELRANGE` inside Forencich `axis_fifo.v`  -  dead ternary branches selecting
@@ -161,8 +161,8 @@ What happens, in order:
 1. **NaxRiscv netlist generation**  -  LiteX shells out to `sbt` which clones
    `SpinalHDL/NaxRiscv` and runs `NaxGen`, emitting a Verilog netlist
    (`NaxRiscvLitex_<hash>.v`). Needs `JAVA_HOME` (JDK17). First run downloads Scala
-   (see [Section 2](TROUBLESHOOTING.md#section-2-naxriscv-generation-needs-java_home)
-   of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)).
+   (see [Section 2](../limitations/TROUBLESHOOTING.md#section-2-naxriscv-generation-needs-java_home)
+   of [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md)).
 2. **SoC elaboration**  -  LiteX (Migen) builds the SoC (CPU + wishbone bus + CSR +
    ROM/RAM + UART) and writes the top Verilog + a memory map.
 3. **Verilator build**  -  the SoC Verilog + the sim modules (`serial2console`, a
@@ -172,7 +172,7 @@ What happens, in order:
 5. **Run**  -  `Vsim` executes: BIOS banner → `Memtest OK` → "Booting from serial…
    Timeout / No boot medium" → the **`litex>`** prompt.
 
-Captured output: [`../sw/litex/evidence/naxriscv_sim_boot.log`](../sw/litex/evidence/naxriscv_sim_boot.log).
+Captured output: [`../sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log).
 
 ---
 
@@ -207,13 +207,13 @@ class MilanSimSoC(SimSoC):
   it instantiates `milan_datapath`, ties the DMA/MAC AXIS ports idle (only the CSR
   path matters here), and adds the RTL sources **and the `+incdir` include paths**
   (Verilator needs those explicitly  -  see
-  [Section 7](TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
-  [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)).
+  [Section 7](../limitations/TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
+  [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md)).
 - `MILAN_CSR_BASE = 0x9000_0000`  -  on NaxRiscv an MMIO peripheral must live in the
   CPU IO region (≥ `0x8000_0000`); the register offsets are unchanged from the Zynq
-  build (see [`REGISTER_MAP.md`](REGISTER_MAP.md) and
-  [Section 6](TROUBLESHOOTING.md#section-6-region-not-in-io-region-it-must-be-cached)
-  of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)).
+  build (see [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) and
+  [Section 6](../limitations/TROUBLESHOOTING.md#section-6-region-not-in-io-region-it-must-be-cached)
+  of [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md)).
 - LiteX auto-bridges the CPU Wishbone bus → AXI-Lite (`Bus adapted from AXI-Lite
   32-bit to Wishbone 32-bit` in the build log).
 
@@ -230,8 +230,8 @@ litex> mem_read 0x90000000 16              # read the milan_csr ID + VERSION
 For automation there is no TTY, and LiteX couples "build" and "run". The robust
 recipe is **build once, then pipe commands into the cached `Vsim` binary directly**
 (running via `milan_sim.py` a second time blocks  -  see
-[Section 8](TROUBLESHOOTING.md#section-8-the-interactive-and-non-interactive-sim-both-block)
-of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)):
+[Section 8](../limitations/TROUBLESHOOTING.md#section-8-the-interactive-and-non-interactive-sim-both-block)
+of [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md)):
 
 ```sh
 # 1. build (this also runs the sim; once "litex>" appears, Ctrl-C  -  Vsim is now built)
@@ -255,7 +255,7 @@ Memory dump:
   the characters "MILN"). This is the NIC identifying itself  -  **M-A2 reached**.
 - The next word `03 00 01 00` = `0x00010003` = the `VERSION` register.
 
-Captured output: [`../sw/litex/evidence/naxriscv_reads_MILN.log`](../sw/litex/evidence/naxriscv_reads_MILN.log).
+Captured output: [`../sw/litex/evidence/naxriscv_reads_MILN.log`](../../sw/litex/evidence/naxriscv_reads_MILN.log).
 
 `BIOS_NO_MEMTEST`/`BIOS_NO_DELAYS` (set in `MilanSimSoC`) are what let the sim reach
 the prompt in seconds instead of grinding the memtest/memspeed at the simulated

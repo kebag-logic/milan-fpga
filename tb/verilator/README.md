@@ -37,12 +37,12 @@ for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam 
 * Reference models (`cbs/cbs_ref_model.h`) and BFMs (`csr/sim_main.cpp`) are
   independent re-implementations of the spec — a DUT/model mismatch fails the run.
 * When you extend a DUT, extend its harness in the same commit. The CSR harness
-  is the executable form of [`docs/REGISTER_MAP.md`](../../docs/REGISTER_MAP.md).
+  is the executable form of [`docs/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md).
 
 ## Notes
 
 * The XPM/vendor IP is **gone** (Forencich open cores, see
-  [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/OPEN_SOURCE_MIGRATION.md)): `hdl/` is
+  [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/integration/OPEN_SOURCE_MIGRATION.md)): `hdl/` is
   XPM-free (T1.2 FIFOs, T1.3 switch/mux, T1.4 CDC). `traffic_classifier`,
   `traffic_queues`, `traffic_controller_802_1q` and `ptp_ts_top` all Verilate.
 * Device portability is proven separately by the open Yosys synthesis check in

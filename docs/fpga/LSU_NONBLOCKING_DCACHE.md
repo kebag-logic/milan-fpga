@@ -1,8 +1,8 @@
 # VexiiRiscv LSU & the non-blocking D-cache: how the 8 refill slots work
 
 *Written 2026-07-08 as the mechanism reference behind the `build_mlp1` lever
-(`--lsu-l1-refill-count=8`). Sub-doc of [`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md)
-and [`CAMPAIGN_500_PLAN.md`](CAMPAIGN_500_PLAN.md). Everything here is read from the VexiiRiscv
+(`--lsu-l1-refill-count=8`). Sub-doc of [`RX_MEMORY_HIERARCHY_PLAN.md`](../findings/RX_MEMORY_HIERARCHY_PLAN.md)
+and [`CAMPAIGN_500_PLAN.md`](../findings/CAMPAIGN_500_PLAN.md). Everything here is read from the VexiiRiscv
 source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/main/scala/vexiiriscv/`
  -  and cross-checked against the generated netlist, not from a textbook. Source citations are
 `File.scala:line` against commit `235753e2` (pinned in `core.py:287`).*
@@ -271,7 +271,7 @@ of the DMA'd payload. The `recv(MSG_TRUNC)` ceiling test (drains without the cop
 = 96 % of the 500 goal. So the RPT prefetcher here is *exactly* the right kind of lever (it hides
 that same cold read for single-flow); the −P2 case just needs the read to be a **hit**, which is
 what **DDIO / allocate-on-DMA-write** does (task #15). The earlier "depth-2 interconnect / more
-parallelism / fewer touches" framing is superseded  -  see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
+parallelism / fewer touches" framing is superseded  -  see [`RX_TX_PERFORMANCE.md`](../findings/RX_TX_PERFORMANCE.md).
 
 **Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
 not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+34 % single); the

@@ -3,8 +3,8 @@
 **Module:** [`hdl/adp/adp_advertiser.sv`](../adp_advertiser.sv)
 **Verification:** [`tb/verilator/adp/`](../../../tb/verilator/adp) — 121 self-checks, PASS
 **Standards:** IEEE 1722.1-2021 §6 (ADP), AVnu **Milan v1.2** Discovery
-**Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../docs/FR_NFR.md),
-[`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../docs/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
+**Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../docs/reference/FR_NFR.md),
+[`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
 
 ## 1. Purpose
 

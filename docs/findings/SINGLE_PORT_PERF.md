@@ -1,6 +1,6 @@
 # Single-port throughput on VexiiRiscv  -  what a second core would (not) buy
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
 
 > **This doc is the first slice of a larger investigation.** The "second core won't help /
 > latency-bound not CPU-bound" conclusion below is correct, but the root cause was chased
