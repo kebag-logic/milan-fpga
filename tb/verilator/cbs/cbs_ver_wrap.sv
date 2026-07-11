@@ -62,9 +62,12 @@ module cbs_ver_wrap #(
   );
 
   // Downward cross-module references to internal DUT state (read-only).
+  // The slope taps observe the ENGINE-COMMITTED registers (the values the
+  // credit datapath actually consumes), not a combinational cone: since the
+  // sequential slope engine, per-cycle comb slope wires no longer exist.
   assign dbg_credit               = u_cbs.credit;
-  assign dbg_idle_slope_per_cycle = u_cbs.idle_slope_per_cycle;
-  assign dbg_send_slope_per_byte  = u_cbs.send_slope_per_byte;
+  assign dbg_idle_slope_per_cycle = u_cbs.idle_slope_per_cycle_r;
+  assign dbg_send_slope_per_byte  = u_cbs.send_slope_per_byte_r;
   assign dbg_send_delta           = u_cbs.send_delta;
   assign dbg_credit_add_idle      = u_cbs.credit_add_idle;
 

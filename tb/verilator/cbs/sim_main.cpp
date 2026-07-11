@@ -84,10 +84,13 @@ struct Harness {
         int64_t dut_isc    = sx48(dut->dbg_idle_slope_per_cycle);
         int64_t dut_ssb    = sx48(dut->dbg_send_slope_per_byte);
 
-        // (C) slope terms (only meaningful once out of reset)
+        // (C) slope registers must track the SlopeEngineRef mirror EVERY cycle,
+        // including engine warm-up and reconfiguration transitions (this pins
+        // the RTL engine cadence bit-for-bit, a stronger check than the old
+        // instant-combinational compare).
         if (in.resetn) {
-            expect_eq(dut_isc, fref.idle_slope_per_cycle(in.is_1g, in.idle_slope), tag, "idle_slope_per_cycle");
-            expect_eq(dut_ssb, fref.send_slope_per_byte(in.is_1g, in.idle_slope),  tag, "send_slope_per_byte");
+            expect_eq(dut_isc, fref.isc_reg(), tag, "idle_slope_per_cycle_r");
+            expect_eq(dut_ssb, fref.ssb_reg(), tag, "send_slope_per_byte_r");
         }
         // (A) credit bit-exact
         expect_eq(dut_credit, fref.credit_q16(), tag, "credit");
@@ -137,6 +140,10 @@ int main(int argc, char** argv) {
         printf("  [%s] idle saturates at HI: credit=%.3f (HI=761) allow=%d\n",
                ok ? "PASS" : "FAIL", c, dut->allow_transmit_o);
         if (!ok) h.fails++;
+        // engine convergence: after a stable config the committed slope regs
+        // must equal the SystemVerilog '/' results exactly
+        h.expect_eq(h.fref.isc_reg(), h.fref.idle_slope_per_cycle(true, 500000000), "s1", "isc_converged");
+        h.expect_eq(h.fref.ssb_reg(), h.fref.send_slope_per_byte(true, 500000000),  "s1", "ssb_converged");
     }
 
     // ---- Scenario 2: transmit drain to loCredit ----
@@ -194,6 +201,8 @@ int main(int argc, char** argv) {
     {
         h.do_reset(4);
         for (int i = 0; i < 20000; i++) h.cycle(mk(true,true,false,false,false,0,true,50000000), "idle_100m");
+        h.expect_eq(h.fref.isc_reg(), h.fref.idle_slope_per_cycle(false, 50000000), "s6", "isc_converged_100m");
+        h.expect_eq(h.fref.ssb_reg(), h.fref.send_slope_per_byte(false, 50000000),  "s6", "ssb_converged_100m");
         printf("  [INFO] 100M idle_slope_per_cycle=%lld send_slope_per_byte=%lld\n",
                (long long)h.fref.idle_slope_per_cycle(false, 50000000),
                (long long)h.fref.send_slope_per_byte(false, 50000000));
@@ -245,6 +254,8 @@ int main(int argc, char** argv) {
         printf("  [%s] live reconfig 500M/HI761 -> 200M/HI304: credit=%.3f (expect ~304)\n",
                ok ? "PASS" : "FAIL", c);
         if (!ok) h.fails++;
+        h.expect_eq(h.fref.isc_reg(), h.fref.idle_slope_per_cycle(true, 200000000), "s9", "isc_converged_reconf");
+        h.expect_eq(h.fref.ssb_reg(), h.fref.send_slope_per_byte(true, 200000000),  "s9", "ssb_converged_reconf");
     }
 
     printf("--------------------------------------------------------------\n");

@@ -306,6 +306,26 @@ cycles), so the divide never needs a single-cycle result.
    fix is Section 16 (run the datapath in its own clock). `--timing-opt` (aggressive
    place/route/phys-opt directives) is the no-RTL lever for the last ns of setup slack.
 
+**Superseded (2026-07-11, AREA-70 campaign).** Fix part 1 is history: the divide
+cones are GONE, not multicycle-hidden. The slope terms are now produced by a
+**sequential slope engine** in `credit_based_shaper.sv` (`slope_engine`): one
+31-bit serial restoring divider per queue on a fixed 100-cycle cadence, results
+committed atomically into `idle_slope_per_cycle_r`/`send_slope_per_byte_r`.
+Steady-state values are bit-identical to the old `/` operator; a config write
+takes effect at most 200 cycles later (2 us at 100 MHz, irrelevant vs `tc cbs`
+reprogramming rates). This deleted ~9.3K LUTs of combinational divide cones
+(~2.3K per queue, measured: the per-queue OOC synth went 1265+leaked to 362
+LUTs) and with them BOTH gotchas: the `dont_touch` attributes and the
+`set_multicycle_path` XDC in `milan_soc.py` are removed  -  there is no wide
+config->slope cone left to constrain. The Verilator `cbs` harness now mirrors
+the engine cadence state-for-state (`SlopeEngineRef` in `cbs_ref_model.h`) and
+compares the slope registers every cycle including warm-up and reconfiguration
+(87233 checks, 0 mismatches). Do not change the engine timing without updating
+that model. Background: the cross-boundary attribution trap this exposed (the
+cones showed up as `milan_csr` LUTs in hierarchical utilization because the
+`cbs_idle` source registers live there) is written up in SESSION_HANDOFF.md;
+OOC-synth a module standalone before believing its hierarchical LUT count.
+
 ## Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain
 
 **Symptom.** Even after the CBS fix (Section 15), the full DDR3 SoC would not close a

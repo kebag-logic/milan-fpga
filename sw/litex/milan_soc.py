@@ -264,25 +264,12 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     if extra_ports:
         ports.update(extra_ports)
     host.specials += Instance("milan_datapath", **ports)
-    # CBS timing: the credit-based shaper's slope terms (idle_slope_per_cycle_r /
-    # send_slope_per_byte_r in credit_based_shaper.sv) are wide constant-divides of
-    # quasi-static config (idleSlope / link-rate  -  reprogrammed only by `tc cbs`,
-    # then held for millions of cycles). The RTL registers the divide output
-    # (stage-0 slope_pipe), and this declares the config->slope_r capture a
-    # multicycle path so P&R never squeezes the divide into a single sys period  - 
-    # the true bottleneck at 100 MHz (DDR3 needs 100 MHz, so we cannot just slow
-    # sys down). Bit-exactly modelled by the Verilator CBS ref (one extra stage).
-    # Real Xilinx parts only ("xc…"); the sim backend ignores/needs no XDC.
-    if str(getattr(platform, "device", "")).startswith("xc"):
-        # Match by *leaf* register name, not hierarchy: synthesis pulls the CBS
-        # slope-compute cone toward the csr module (where its config sources live),
-        # so a *u_cbs* path filter misses it. The `dont_touch` in
-        # credit_based_shaper.sv keeps these regs named per queue.
-        _cbs_slope = ("[get_cells -hierarchical -filter "
-                      "{{NAME =~ *send_slope_per_byte_r_reg* || "
-                      "NAME =~ *idle_slope_per_cycle_r_reg*}}]")
-        platform.add_platform_command("set_multicycle_path 4 -setup -to " + _cbs_slope)
-        platform.add_platform_command("set_multicycle_path 3 -hold -to " + _cbs_slope)
+    # CBS slope timing: no XDC exception needed since the sequential slope
+    # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
+    # cycle combinational constant-divide cones (~9.3K LUTs over 4 queues,
+    # partly attributed to milan_csr by cross-boundary optimization) needed
+    # set_multicycle_path 4 on the config->slope_r capture; the engine's
+    # 1-bit-per-cycle divider paths close timing natively.
     # RTL sources for elaboration / P&R. Curated list (NOT add_source_dir) so the
     # Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded from the fabric build
     #  -  same file set the tb/verilator/milan_dp + syn/yosys checks use.

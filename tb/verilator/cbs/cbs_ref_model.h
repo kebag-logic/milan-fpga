@@ -21,11 +21,19 @@
  * the RTL, where they are all input ports). The models therefore support live
  * reconfiguration mid-simulation.
  *
- * Both models replicate the RTL's two register stages exactly:
+ * Both models replicate the RTL's register stages exactly:
+ *   slope_engine       : the sequential slope engine (SlopeEngineRef below), a
+ *                        serial restoring divider on a fixed 100-cycle cadence
+ *                        that samples the config at cnt 0 and atomically
+ *                        commits idle_slope_per_cycle_r/send_slope_per_byte_r
+ *                        at cnt 99. Mirrored STATE-FOR-STATE: the harness
+ *                        compares the DUT slope registers against SlopeEngineRef
+ *                        every cycle, including warm-up and reconfiguration
+ *                        transitions. Do not change one without the other.
  *   stage1_pipe        : registers send_delta/credit_add_idle and the control
  *                        signals (is_transmitting/queue_has_data/is_granted/
  *                        shaped). send_delta/credit_add_idle are computed from
- *                        the *current* cycle's config, then registered.
+ *                        the engine-committed slope registers, then registered.
  *   credit_update_logic: updates credit from the *registered* control signals
  *                        and send_delta/credit_add_idle, but clamps to the
  *                        *current* cycle's hiCredit/loCredit (the RTL clamp
@@ -61,6 +69,67 @@ struct CbsInputs {
 };
 
 // ---------------------------------------------------------------------------
+// State-for-state mirror of the RTL sequential slope engine (slope_engine in
+// credit_based_shaper.sv). Fixed 100-cycle cadence:
+//   cnt 0      sample idle_slope_i / is_1g_i
+//   cnt 1      load |idle_slope <<< 16| (48-bit wrap), divisor clk_freq_hz*8
+//   cnt 2..49  48 restoring-divider iterations (idle_slope_per_cycle)
+//   cnt 50     stash signed quotient 1; load |send_slope <<< 16|, divisor link
+//   cnt 51..98 48 iterations (send_slope_per_byte)
+//   cnt 99     commit BOTH results atomically; wrap to 0
+// All updates below read pre-step state first, mirroring nonblocking <=.
+// ---------------------------------------------------------------------------
+struct SlopeEngineRef {
+    static const uint64_t M48 = ((uint64_t)1 << 48) - 1;
+    int      cnt = 0;
+    int64_t  idle_s = 0;            // sampled idle slope (sign-extended)
+    bool     is1g_s = false;        // sampled link select
+    bool     sign = false;          // dividend sign of the divide in flight
+    uint64_t num = 0;               // dividend magnitude shift register
+    uint64_t rem = 0;               // partial remainder (< divisor)
+    uint64_t quo = 0;               // quotient shift register
+    int64_t  q1 = 0;                // stashed signed quotient of divide 1
+    uint64_t den = 1;               // active divisor
+    int64_t  isc = 0, ssb = 0;      // committed slope registers (_r in RTL)
+
+    void reset() { *this = SlopeEngineRef(); }
+
+    static int64_t wrap48(int64_t v) {
+        uint64_t u = (uint64_t)v & M48;
+        return (u & ((uint64_t)1 << 47)) ? (int64_t)(u | ~M48) : (int64_t)u;
+    }
+
+    void step(int32_t idle_slope_i, bool is_1g_i, int64_t clk_freq_hz) {
+        // combinational helpers from PRE-step state
+        int64_t  link   = is1g_s ? 1000000000LL : 100000000LL;
+        int64_t  ldval  = (cnt == 1) ? wrap48(idle_s << CbsConfig::FP)
+                                     : wrap48((idle_s - link) << CbsConfig::FP);
+        bool     ldsign = ldval < 0;
+        uint64_t ldmag  = (uint64_t)(ldsign ? -ldval : ldval) & M48;
+        uint64_t trial  = (rem << 1) | ((num >> 47) & 1);
+        bool     ge     = (trial >= den);
+        int64_t  quo_s  = sign ? -(int64_t)quo : (int64_t)quo;
+
+        if (cnt == 0) {
+            idle_s = (int64_t)idle_slope_i;
+            is1g_s = is_1g_i;
+        } else if (cnt == 1 || cnt == 50) {
+            if (cnt == 50) q1 = quo_s;
+            sign = ldsign; num = ldmag; rem = 0; quo = 0;
+            den = (cnt == 1) ? (uint64_t)(clk_freq_hz * CbsConfig::BYTE_TO_BIT)
+                             : (uint64_t)link;
+        } else if (cnt == 99) {
+            isc = q1; ssb = quo_s;
+        } else {
+            rem = ge ? (trial - den) : trial;
+            quo = (quo << 1) | (ge ? 1 : 0);
+            num = (num << 1) & M48;
+        }
+        cnt = (cnt == 99) ? 0 : cnt + 1;
+    }
+};
+
+// ---------------------------------------------------------------------------
 // Bit-exact replica of the RTL integer arithmetic + pipeline.
 // ---------------------------------------------------------------------------
 class FixedPointRef {
@@ -70,13 +139,14 @@ public:
     void reset() {
         credit = 0;
         send_delta = 0; credit_add_idle = 0;
-        isc_r = 0; ssb_r = 0;
+        eng.reset();
         istx = false; qhd = false; isg = false; shaped = false;
         allow = false;
     }
 
-    // Combinational slope terms, replicating the RTL divides. All divisors are
-    // compile-time constants (clk*8, and 1e9/1e8 selected by is_1g).
+    // PURE steady-state slope values (the SystemVerilog '/' results). The
+    // engine converges to exactly these once the config has been stable for
+    // two passes; the harness asserts that convergence after long runs.
     int64_t idle_slope_per_cycle(bool is_1g, int32_t idle_slope) const {
         (void)is_1g;
         int64_t idle = (int64_t)idle_slope;
@@ -88,6 +158,10 @@ public:
         return (send << CbsConfig::FP) / link;        // constant divisor per branch
     }
 
+    // Engine-committed slope registers (what the credit datapath consumes).
+    int64_t isc_reg() const { return eng.isc; }
+    int64_t ssb_reg() const { return eng.ssb; }
+
     // Advance one posedge. `in` are the input values stable before the edge.
     void step(const CbsInputs& in) {
         const int64_t HIc = (int64_t)in.hi_credit << CbsConfig::FP;
@@ -95,15 +169,10 @@ public:
 
         // ---- next-state values (nonblocking: all computed from current) ----
 
-        // stage0 slope_pipe: register the combinational constant-divide slope
-        // terms (computed from THIS cycle's config). The credit datapath below
-        // consumes the *registered* copies (isc_r/ssb_r), one cycle later.
-        int64_t n_ssb_r = send_slope_per_byte(in.is_1g, in.idle_slope);
-        int64_t n_isc_r = idle_slope_per_cycle(in.is_1g, in.idle_slope);
-
-        // stage1_pipe (uses the REGISTERED slope terms from the previous cycle)
-        int64_t n_send_delta      = ssb_r * (int64_t)(int16_t)in.bytes_sent;
-        int64_t n_credit_add_idle = isc_r;
+        // stage1_pipe (uses the engine-committed slope registers, PRE-step:
+        // on a commit edge the RTL stage1 still reads the old values)
+        int64_t n_send_delta      = eng.ssb * (int64_t)(int16_t)in.bytes_sent;
+        int64_t n_credit_add_idle = eng.isc;
         bool    n_istx = in.is_transmitting;
         bool    n_qhd  = in.queue_has_data;
         bool    n_isg  = in.is_granted;
@@ -136,11 +205,11 @@ public:
         // ---- commit, honouring synchronous reset ----
         if (!in.resetn) {
             credit = 0; send_delta = 0; credit_add_idle = 0;
-            isc_r = 0; ssb_r = 0;
+            eng.reset();
             istx = false; qhd = false; isg = false; shaped = false; allow = false;
         } else {
             credit = n_credit;
-            isc_r = n_isc_r; ssb_r = n_ssb_r;
+            eng.step(in.idle_slope, in.is_1g, cfg.clk_freq_hz);
             send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
             allow = n_allow;
@@ -155,7 +224,7 @@ public:
     const CbsConfig cfg;
     int64_t credit;
     int64_t send_delta, credit_add_idle;
-    int64_t isc_r, ssb_r;   // stage-0 registered slope terms (mirrors slope_pipe)
+    SlopeEngineRef eng;     // mirrors the RTL slope_engine state-for-state
     bool istx, qhd, isg, shaped, allow;
 };
 
@@ -169,6 +238,7 @@ public:
     void reset() {
         credit = 0.0; send_delta = 0.0; credit_add_idle = 0.0;
         isc_r = 0.0; ssb_r = 0.0;
+        cnt = 0; pend_isc = 0.0; pend_ssb = 0.0;
         istx = false; qhd = false; isg = false; shaped = false; allow = false;
     }
 
@@ -185,9 +255,18 @@ public:
         const double HIc = (double)in.hi_credit;
         const double LOc = (double)in.lo_credit;
 
-        // stage0 slope_pipe (registered), then stage1 uses the registered copies
-        double n_ssb_r = send_rate_per_byte(in.is_1g, in.idle_slope);
-        double n_isc_r = idle_rate_per_cycle(in.is_1g, in.idle_slope);
+        // slope-engine cadence mirror (float): sample the exact rates at cnt 0,
+        // commit at cnt 99, exactly aligned with SlopeEngineRef so the DUT-vs-
+        // ideal gap stays pure quantization error through warm-up/reconfig.
+        double n_isc_r = isc_r, n_ssb_r = ssb_r;
+        double n_pend_isc = pend_isc, n_pend_ssb = pend_ssb;
+        if (cnt == 0) {
+            n_pend_isc = idle_rate_per_cycle(in.is_1g, in.idle_slope);
+            n_pend_ssb = send_rate_per_byte(in.is_1g, in.idle_slope);
+        } else if (cnt == 99) {
+            n_isc_r = pend_isc; n_ssb_r = pend_ssb;
+        }
+        int n_cnt = (cnt == 99) ? 0 : cnt + 1;
         double n_send_delta      = ssb_r * (double)in.bytes_sent;
         double n_credit_add_idle = isc_r;
         bool   n_istx = in.is_transmitting, n_qhd = in.queue_has_data, n_isg = in.is_granted;
@@ -214,10 +293,12 @@ public:
         if (!in.resetn) {
             credit = 0.0; send_delta = 0.0; credit_add_idle = 0.0;
             isc_r = 0.0; ssb_r = 0.0;
+            cnt = 0; pend_isc = 0.0; pend_ssb = 0.0;
             istx = qhd = isg = shaped = allow = false;
         } else {
             credit = n_credit; send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             isc_r = n_isc_r; ssb_r = n_ssb_r;
+            cnt = n_cnt; pend_isc = n_pend_isc; pend_ssb = n_pend_ssb;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped; allow = n_allow;
         }
     }
@@ -227,7 +308,9 @@ public:
 
     const CbsConfig cfg;
     double credit, send_delta, credit_add_idle;
-    double isc_r, ssb_r;   // stage-0 registered slope terms (mirrors slope_pipe)
+    double isc_r, ssb_r;   // committed slope terms (cadence-aligned with the engine)
+    int    cnt;            // slope-engine cadence mirror
+    double pend_isc, pend_ssb;
     bool istx, qhd, isg, shaped, allow;
 };
 

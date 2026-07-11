@@ -112,24 +112,39 @@ TCP numbers stay the regression net; TX gate discipline unchanged.
 2. **TX 2-proc fairness lottery** (one iperf3 starves at ~82; capability 582-646
    intact): CONFIG_NET_SCH_FQ kernel rebuild (fq pacing), or BQL. NOT a gateware
    bug  -  measured across hsq7t..hsq10, ACK steering constant-on-q0.
-3. **AREA-70 campaign (user directives: "reclaim slice space"; CBS/traffic
-   shaper is OFF-LIMITS, "keep the traffic shaper!" 2026-07-11)**. Banked:
-   CQ LUTRAM diet -4866 LUTs + strip-probes -1135 LUTs / -4267 FFs. hsq14_spr
-   is the hardened keeper (WNS +0.092; capability CSR silicon-verified both
-   ways: refuses hs_pgsz=4096 on 16K gateware with -EINVAL, loads on match).
-   Next levers, scoped:
-   (a) milan_csr decode optimization ("Optimiae the CSR"): 5190 LUTs vs 1956
-   FFs (ratio 2.65, about 2x a lean CSR file), zero arithmetic in the logic,
-   so the fat is structural: full-16-bit address comparators over ~65 case
-   arms plus two windowed range subtracts while the map spans only 11 bits.
-   Opening moves: truncate decode to addr[10:0]; split the flat unique-case
-   into gated sub-decoders (base block / STATS window / CBS window / TCAM);
-   iterate with SYNTH-ONLY runs (about 10 min each), not full P&R. File:
-   hdl/csr/milan_csr.sv. Requirements say the map must not move: decode
-   changes only, csr.csv-equivalent ABI.
-   (b) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
+3. **AREA-70 campaign (user directives: "reclaim slice space"; shaper rule
+   refined 2026-07-11: "keep the traffic shaper!" = never REMOVE it from a
+   build; internal optimization keeping shaping bit-identical was explicitly
+   user-approved)**. Banked: CQ LUTRAM diet -4866 LUTs + strip-probes -1135
+   LUTs / -4267 FFs + **CBS sequential slope engine (builds in flight,
+   expected ~-7.7K LUTs)**. hsq14_spr is the hardened keeper (WNS +0.092;
+   capability CSR silicon-verified both ways).
+   (a) **"Optimiae the CSR" RESOLVED by measurement, decode brief REFUTED**:
+   milan_csr standalone OOC-synths to 927 LUTs (822 = the inherent 55-arm
+   32-bit read mux; synth already folds the 16-bit comparators). The 5179
+   in-context LUTs were ~4.2K of CBS slope-divide cones hoisted across the
+   hierarchy boundary (cbs_idle source regs live in csr): checkpoint
+   attribution showed idle_slope_per_cycle_r 928 + send_slope_per_byte_r 404
+   + credit0 128 + ~2.6K anon merged cones inside milan_datapath/csr/.
+   LESSON (now also in TROUBLESHOOTING §15): hierarchical utilization
+   attributes cross-boundary-optimized logic to the hierarchy holding its
+   source registers; OOC-synth the module standalone before believing its
+   report line. Decode restructuring would have bought ~0.
+   (b) **CBS sequential slope engine SHIPPED 2026-07-11** (the real ~9.3K):
+   credit_based_shaper.sv slope_engine = one 31-bit serial restoring divider
+   per queue, fixed 100-cycle cadence, atomic commit; steady-state bit-exact
+   vs '/', config latency <= 200 cycles (2 us, not in the Qav contract).
+   Per-queue OOC: 1265+leak -> 362 LUTs. Multicycle XDC + dont_touch REMOVED
+   from milan_soc.py/RTL (no wide cone left). Verified: cbs harness rebuilt
+   around a state-for-state SlopeEngineRef mirror (87233 checks, 0 mismatch,
+   convergence asserts), shaper_core PASS untouched (warm-up-safe: credit
+   parks at 0), all 17 Verilator harnesses green, yosys 18/18. Builds:
+   build_cbse_{spr,epo,etm} 3-directive sweep. SILICON GATES PENDING: flash,
+   §V checklist, TX gate 582-646, RX cells vs hsq14 numbers (CBS engine
+   should be perf-invisible: all queues unshaped at reset).
+   (c) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
    param, estimated 1-2K LUTs; staged procedure in PIPELINE_STAGES.md.
-   (c) Vivado area strategies (cheap 2-4 percent).
+   (d) Vivado area strategies (cheap 2-4 percent).
 4. **XDP / AF_PACKET data plane** (user-approved endgame)  -  copy-free consumer
    toward 941; hs page-aligned delivery is the substrate.
 5. Refinements: single-flow residual ~50/s; hs delivery-latency shave (the

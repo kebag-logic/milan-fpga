@@ -109,25 +109,32 @@ Reset defaults (`milan_csr` `CBS_*_RST`, mirroring `ethernet_packet_pkg.sv`):
 
 | q | idleSlope | hiCredit | loCredit | shaped |
 |---|-----------|----------|----------|--------|
-| 0 | 300 Mb/s | 456 | −1065 | 1 |
-| 1 | 200 Mb/s | 304 | −1217 | 1 |
+| 0 | 300 Mb/s | 456 | −1065 | 0 |
+| 1 | 200 Mb/s | 304 | −1217 | 0 |
 | 2 | 150 Mb/s | 228 | −1293 | 0 |
 | 3 | 100 Mb/s | 152 | −1369 | 0 |
 
 Σ idleSlope = 750 Mb/s = 75 % of the 1 Gb/s port rate (`REQ-CBS-03`); hi/lo are
-`calc_hi/lo_credit(idleSlope, 1e9)` for MAX_FRAME_SIZE = 1522. BE/control power
-up **unshaped** (`REQ-CBS-02`). The HW clamps credit down immediately if a write
-lowers hiCredit below the current credit, so shrinking a slope takes effect at
-once. The driver must keep Σ idleSlope of the *shaped* queues ≤ 75 % of the port
-rate.
+`calc_hi/lo_credit(idleSlope, 1e9)` for MAX_FRAME_SIZE = 1522. **ALL queues
+power up unshaped** (`CBS_EN_RST = 0b0000`): the default class map routes
+untagged/BE traffic to q0, and shaping q0 at reset silently paced all
+best-effort TX to ~250 Mbit/s (measured on silicon 2026-07-07, see
+CBS_DEFAULT_SHAPING_BUG.md). Software opts a queue in via `CBS_CTRL[0]`
+(REQ-CBS-02: SR classes only, never BE). The HW clamps credit down immediately
+if a write lowers hiCredit below the current credit, so shrinking a burst
+allowance takes effect at once. An `CBS_IDLE_SLOPE` write takes effect within
+two slope-engine passes, at most 200 datapath cycles = 2 us at 100 MHz
+(`credit_based_shaper.sv slope_engine`, sequential divider since 2026-07-11);
+hiCredit/loCredit/shaped-enable act on the next cycle. The driver must keep
+Σ idleSlope of the *shaped* queues ≤ 75 % of the port rate.
 
 **Shaping applies per queue, not globally.** A frame is credit-based-shaped **only
 when both** hold: (1) its PCP maps  -  through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` →
 `CLS_TC_QUEUE_MAP`  -  to a queue, **and** (2) that queue's `CBS_CTRL[0]` shaped-enable
 is **1**. A queue with `CBS_CTRL[0]=0` (or a PCP that maps to it) is **strict
 priority / unshaped** (`allow_transmit` forced 1 in `credit_based_shaper.sv`). At
-reset **only q0 and q1 are shaped** (`CBS_EN_RST = 0b0011`); q2/q3 (best-effort,
-control) run unshaped. Software chooses which queues are SR/shaped (subject to the
+reset **no queue is shaped** (`CBS_EN_RST = 0b0000`, see the reset-defaults note
+above). Software chooses which queues are SR/shaped (subject to the
 75 % Σ idleSlope budget) by programming the PCP→queue map and the per-queue enables
 together  -  e.g. `tc mqprio` + `tc cbs offload`.
 
