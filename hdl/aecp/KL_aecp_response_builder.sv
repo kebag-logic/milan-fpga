@@ -289,6 +289,18 @@ module KL_aecp_response_builder (
     return b;
   endfunction
 
+  //! Emit byte-select PIPELINE registers. EMIT_ADDR_S resolves the byte
+  //! source for fi_r (header byte, or segment kind/addr/offset) and REGISTERS
+  //! it; EMIT_DATA_S then only muxes registered values plus the store byte
+  //! (whose 1-cycle read latency lands on EMIT_DATA). This keeps the deep
+  //! fi -> {cumulative-offset arithmetic, positional header mux} cone OFF the
+  //! path into pack_r, which is the 100 MHz critical path.
+  logic        is_hdr_r;
+  logic [7:0]  hdrbyte_r;
+  seg_kind_t   emseg_kind_r;
+  logic [15:0] emseg_addr_r;
+  logic [15:0] emsoff_r;
+
   //! meta-FIFO pop bookkeeping: pops can be requested by a concluded
   //! response AND an asynchronously dropped frame in the same cycle
   logic [1:0] pop_pend_r;
@@ -311,6 +323,11 @@ module KL_aecp_response_builder (
       dst_mac_q    <= 48'd0;
       fi_r         <= 16'd0;
       emit_byte_r  <= 8'd0;
+      is_hdr_r     <= 1'b0;
+      hdrbyte_r    <= 8'd0;
+      emseg_kind_r <= SEG_NONE;
+      emseg_addr_r <= 16'd0;
+      emsoff_r     <= 16'd0;
       pack_r       <= 64'd0;
       pack_n_r     <= 3'd0;
       beat_pend_r  <= 1'b0;
@@ -667,19 +684,27 @@ module KL_aecp_response_builder (
         //   EMIT_DATA: capture the byte, feed the beat packer          //
         // ---------------------------------------------------------- //
         EMIT_ADDR_S: begin
-          // store read addr/enable are driven combinationally (see w_emit_store)
-          state_r <= EMIT_DATA_S;
+          // Resolve + REGISTER the byte source for fi_r (the store read addr/
+          // enable are driven combinationally via w_emit_store, so store data
+          // lands next cycle). This moves the deep fi->{offset arithmetic,
+          // header positional mux} cone off the path into pack_r.
+          is_hdr_r     <= (fi_r < w_hdr_len);
+          hdrbyte_r    <= hdr_byte(fi_r);
+          emseg_kind_r <= seg_kind_q[w_seg];
+          emseg_addr_r <= seg_addr_q[w_seg];
+          emsoff_r     <= w_soff;
+          state_r      <= EMIT_DATA_S;
         end
 
         EMIT_DATA_S: begin
           logic [7:0] b;
-          if (fi_r < w_hdr_len) begin
-            b = hdr_byte(fi_r);
+          if (is_hdr_r) begin
+            b = hdrbyte_r;                    // registered header byte
           end else begin
-            unique case (seg_kind_q[w_seg])
-              SEG_ECHO:  b = buf_r[seg_addr_q[w_seg][6:0] + w_soff[6:0]];
-              SEG_STORE: b = st_byte_i;
-              SEG_CONST: b = const_q[seg_addr_q[w_seg][4:0] + w_soff[4:0]];
+            unique case (emseg_kind_r)        // registered segment select
+              SEG_ECHO:  b = buf_r[emseg_addr_r[6:0] + emsoff_r[6:0]];
+              SEG_STORE: b = st_byte_i;       // store byte (1-cycle read latency)
+              SEG_CONST: b = const_q[emseg_addr_r[4:0] + emsoff_r[4:0]];
               default:   b = 8'h00;
             endcase
           end

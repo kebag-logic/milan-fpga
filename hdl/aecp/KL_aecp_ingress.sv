@@ -46,7 +46,11 @@ import aecp_pkg::*;
 import adp_pkg::*;
 
 module KL_aecp_ingress #(
-  parameter int unsigned MAX_FRAME_BYTES = 256
+  //! Largest AECP command frame we buffer. In-scope commands top out at a
+  //! SET_NAME (~98 wire bytes); 128 covers it and keeps the frame buffer (and
+  //! its cross-module write route from the RX FIFO) small enough to close
+  //! timing at 100 MHz. Larger frames overflow-drop (controllers retry).
+  parameter int unsigned MAX_FRAME_BYTES = 128
 ) (
   input  wire          clk_i,
   input  wire          rst_n,
@@ -75,6 +79,22 @@ module KL_aecp_ingress #(
 );
 
   localparam int unsigned AW = $clog2(MAX_FRAME_BYTES);
+
+  // ------------------------------------------------------------------ //
+  // Input pipeline register on the tapped RX bus. The tap is a monitor  //
+  // (never drives tready), so a 1-cycle delay is transparent; it breaks //
+  // the long route from the RX FIFO storage to the frame buffer so the  //
+  // placer can localize the buffer writes (the 100 MHz critical path).  //
+  // ------------------------------------------------------------------ //
+  logic        rxv_r, rxl_r;
+  logic [63:0] rxd_r;
+  logic [7:0]  rxk_r;
+  always_ff @(posedge clk_i) begin
+    rxv_r <= rx_tvalid_i;
+    rxd_r <= rx_tdata_i;
+    rxk_r <= rx_tkeep_i;
+    rxl_r <= rx_tlast_i;
+  end
 
   // frame byte buffer (wire order: buf[k] = k-th byte of the frame)
   logic [7:0] fbuf [0:MAX_FRAME_BYTES-1];
@@ -160,17 +180,17 @@ module KL_aecp_ingress #(
       case (state_r)
         // ---------------------------------------------------------- //
         COLLECT_S: begin
-          if (rx_tvalid_i) begin
+          if (rxv_r) begin
             for (int l = 0; l < 8; l++) begin
-              if (rx_tkeep_i[l] && !overflow_r &&
+              if (rxk_r[l] && !overflow_r &&
                   (wr_cnt_r + (AW+1)'(l) < (AW+1)'(MAX_FRAME_BYTES)))
-                fbuf[wr_cnt_r + (AW+1)'(l)] <= rx_tdata_i[8*l +: 8];
+                fbuf[wr_cnt_r + (AW+1)'(l)] <= rxd_r[8*l +: 8];
             end
-            if (wr_cnt_r + count_keep(rx_tkeep_i) > (AW+1)'(MAX_FRAME_BYTES))
+            if (wr_cnt_r + count_keep(rxk_r) > (AW+1)'(MAX_FRAME_BYTES))
               overflow_r <= 1'b1;
-            wr_cnt_r <= wr_cnt_r + count_keep(rx_tkeep_i);
-            if (rx_tlast_i) begin
-              n_bytes_r <= wr_cnt_r + count_keep(rx_tkeep_i);
+            wr_cnt_r <= wr_cnt_r + count_keep(rxk_r);
+            if (rxl_r) begin
+              n_bytes_r <= wr_cnt_r + count_keep(rxk_r);
               state_r   <= CLASSIFY_S;
             end
           end
