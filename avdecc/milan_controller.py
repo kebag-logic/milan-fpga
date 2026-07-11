@@ -62,6 +62,13 @@ class Entity:
                                socket.htons(ETH_P_AVTP))
         self.s.bind((iface, ETH_P_AVTP))
         self.s.settimeout(2.0)
+        # Receive the AVDECC ADP multicast (91:E0:F0:01:00:00): a raw AF_PACKET
+        # socket only gets frames the NIC accepts, so join promiscuous mode.
+        ifindex = socket.if_nametoindex(iface)
+        SOL_PACKET = getattr(socket, "SOL_PACKET", 263)
+        PACKET_ADD_MEMBERSHIP, PACKET_MR_PROMISC = 1, 1
+        mreq = struct.pack("iHH8s", ifindex, PACKET_MR_PROMISC, 0, b"")
+        self.s.setsockopt(SOL_PACKET, PACKET_ADD_MEMBERSHIP, mreq)
         self.src = self.s.getsockname()[4][:6]
         self.ctlr_id = struct.unpack(">Q", self.src + b"\x00\x00")[0]
         self.seq = 0x1000
@@ -69,7 +76,7 @@ class Entity:
         self.eid = None
 
     # -- ADP discovery ------------------------------------------------------
-    def discover(self, timeout=8.0):
+    def discover(self, timeout=20.0):
         # send a global ENTITY_DISCOVER, then listen for ENTITY_AVAILABLE
         adpdu = bytes([SUBTYPE_ADP, 0x00, (2 << 0), 0x00]) + b"\x00" * 64
         self._send(ADP_MCAST, adpdu)
