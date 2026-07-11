@@ -40,6 +40,20 @@ Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
    widening (RTL) only after the rtt story is decomposed. Steer_q* counters
    misreport under dual-active = telemetry bug (single-active deltas only).
    Beware cport TIME_WAIT: back-to-back cells MUST use fresh cport bases.
+   **PLATEAU CLOSED-FORM (2026-07-11 am): per-flow ~95 Mbit = PAYCAP/fill-cycle**
+   — RSC holds a flow's aggregate during fill (~5ms at 57KB), ACKs wait for
+   close, the peer paces at cwnd/(rtt incl. fill): self-limiting equilibrium.
+   Knob ledger v2 (all refuted at P4-16K): fastpoll-decouple 377 (poll cadence
+   =/= binder), quickack 294 HARMFUL (streaming-kills rule holds; q1 drops 94/s),
+   napi_w=16 355 (batch depth =/= binder). EXITS: (a) flow-count path = 32K
+   pages (hsq11, building) => P8 drops->0 => 8x~60-90 CPU-capped ~500; (b)
+   **hsplit14 per-page delivery** (LRO-style): deliver each 16K v3 as a
+   synthesized TCP segment as it LANDS instead of waiting for the meta =>
+   effective rtt /4 at unchanged aggregate efficiency. Blocker: v3s carry
+   tag+addr but hdr_idx arrives only in the META (close) — under interleave the
+   first-v3 order can differ from open order, so the driver cannot safely bind
+   headers early. RTL assist: put hdr_idx (5b) into v3 w0 spare bits => hsq12 +
+   hsplit14 STRICT pair. Design sketch committed here; execute next session.
 2. **TX 2-proc fairness lottery** (one iperf3 starves at ~82; capability 582-646
    intact): CONFIG_NET_SCH_FQ kernel rebuild (fq pacing), or BQL. NOT a gateware
    bug — measured across hsq7t..hsq10, ACK steering constant-on-q0.
