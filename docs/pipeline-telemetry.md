@@ -1,6 +1,6 @@
-# Pipeline telemetry (`milan_tlm_*`) — in-fabric observability for the TX/RX path
+# Pipeline telemetry (`milan_tlm_*`)  -  in-fabric observability for the TX/RX path
 
-A memory-mapped block of free-running counters at every stage of the packet pipeline —
+A memory-mapped block of free-running counters at every stage of the packet pipeline  - 
 the numbers a HW developer wants to answer "where did the frame go?" and "where does it
 queue up?". Implemented in `sw/litex/milan_soc.py` as `MilanDebug` (the LiteX binding) and
 read from Linux via the `kl-eth` driver's `telemetry` sysfs group.
@@ -22,20 +22,20 @@ TX:  tx_dma  →  tx_dp  →  tx_core  → [LiteEth core] →  tx_wire (GMII pin
 RX:  rx_wire → [LiteEth core] → rx_core →  rx_dp   →  rx_dma
 ```
 
-- `tx_dma`/`rx_dma` — the Wishbone DMA read/write (memory edge).
-- `tx_dp`/`rx_dp` — the `milan_datapath` AXIS boundary (classifier/shaper live between here
+- `tx_dma`/`rx_dma`  -  the Wishbone DMA read/write (memory edge).
+- `tx_dp`/`rx_dp`  -  the `milan_datapath` AXIS boundary (classifier/shaper live between here
   and the DMA side).
-- `tx_core`/`rx_core` — the LiteEth MAC core in/out.
-- `tx_wire`/`rx_wire` — **frames actually on the GMII pins** (eth_tx/eth_rx clock domains,
+- `tx_core`/`rx_core`  -  the LiteEth MAC core in/out.
+- `tx_wire`/`rx_wire`  -  **frames actually on the GMII pins** (eth_tx/eth_rx clock domains,
   brought to sys with a `BusSynchronizer`). This is the answer to "did it reach the wire?".
 
 Plus:
-- `cycles` (64-bit) — free-running sys cycles; the normaliser for rates/averages.
-- `tx_datapath_inflight_acc` / `rx_datapath_inflight_acc` (64-bit) — Σ(frames_in − frames_out)
+- `cycles` (64-bit)  -  free-running sys cycles; the normaliser for rates/averages.
+- `tx_datapath_inflight_acc` / `rx_datapath_inflight_acc` (64-bit)  -  Σ(frames_in − frames_out)
   per cycle across the datapath. By **Little's law**: `avg occupancy = acc/cycles`, `avg
   latency (wait) = acc/frames`. The average FIFO depth and the average time a frame spends
   crossing the datapath.
-- `tx_gptp` / `rx_gptp` — example filtered counter: frames with EtherType `0x88F7` (802.1AS).
+- `tx_gptp` / `rx_gptp`  -  example filtered counter: frames with EtherType `0x88F7` (802.1AS).
 
 ## Coherent capture
 
@@ -55,7 +55,7 @@ echo 1 > /sys/class/net/eth0/telemetry/capture# just latch (then read milan_tlm_
 ```
 
 `snapshot` reads are one coherent set. Typical TX-debug flow: `echo 1 > reset`, send N frames,
-`cat snapshot` — and read down the TX column: if `tx_dma_frames == tx_dp_frames ==
+`cat snapshot`  -  and read down the TX column: if `tx_dma_frames == tx_dp_frames ==
 tx_core_frames` but `tx_wire_frames` is 0, the frames die in the LiteEth core / PHY, not the
 datapath. Rising `*_stalls` upstream of a stage points at that stage as the bottleneck.
 
@@ -65,7 +65,7 @@ The raw CSRs are also `devmem`-pokeable at the `tlm` window base (see `csr.json`
 
 ## Extending it
 
-The probe primitives are public methods on `MilanDebug` — add an observable in one line,
+The probe primitives are public methods on `MilanDebug`  -  add an observable in one line,
 inline or via the `extra(dbg)` hook:
 
 ```python
@@ -81,10 +81,10 @@ to print it. gPTP (`ethertype_probe`) is the worked example.
 
 ## Cross-platform (LiteX vs Zynq)
 
-`MilanDebug` is the **LiteX** binding — it uses LiteX for the LiteX-specific things (LiteX
+`MilanDebug` is the **LiteX** binding  -  it uses LiteX for the LiteX-specific things (LiteX
 `CSRStatus`, `BusSynchronizer`, and taps on the `WishboneDMA` and `LiteEthPHYGMII` edges).
-The **shared** observables — everything at the `milan_datapath` AXIS boundary (`tx_dp`/`rx_dp`)
-and inside it — are identical on Zynq; their cross-platform home is counters in the shared
+The **shared** observables  -  everything at the `milan_datapath` AXIS boundary (`tx_dp`/`rx_dp`)
+and inside it  -  are identical on Zynq; their cross-platform home is counters in the shared
 `milan_datapath.sv` exposed through the shared `milan_csr` block (`0x9000_0000` on LiteX,
 `0x43c0_0000` on Zynq), so the Zynq wrapper gets them for free and only re-binds its own edges
 (`axi_dma`, its MAC). Rule of thumb: **datapath-internal** probes belong in the SV/`milan_csr`
@@ -94,5 +94,5 @@ per-platform wrapper like `MilanDebug`.
 ## Addressing note
 
 The block is named `milan_tlm` so its CSRs sort **after** `milan_dma`/`milan_mac`, keeping
-their addresses stable — the telemetry window is purely **additive** (nothing else moves
+their addresses stable  -  the telemetry window is purely **additive** (nothing else moves
 whether or not it is built).

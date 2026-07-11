@@ -1,4 +1,4 @@
-# Board porting — Alinx AX7101 (XC7A100T-2FGG484I)
+# Board porting  -  Alinx AX7101 (XC7A100T-2FGG484I)
 
 How the Milan fully-FPGA SoC was ported to the real **Alinx AX7101** board: where the
 pin data came from, how it was extracted, what changed, and what is verified vs.
@@ -20,12 +20,12 @@ Vivado projects with real constraints).
 | Ethernet | **4× RTL8211E** GbE PHYs (`e1`..`e4`), RGMII/GMII | `SRC/15_ethernet_test/…/top.xdc` |
 | DDR3 | **512 MB, 2× MT41J256M16** (32-bit) | `SRC/07_ddr3_test/…/ddr3.ucf` |
 
-The Milan NIC's two ports map to **`e1` and `e2`** — i.e. the "two first interfaces"
+The Milan NIC's two ports map to **`e1` and `e2`**  -  i.e. the "two first interfaces"
 the `amx-pw0` / `amx-pw1` test endpoints exercise. `e3`/`e4` are spare.
 
 ## 2. Porting method (reproducible)
 
-Pins were **ported from the official constraints, not hand-guessed** — so they can be
+Pins were **ported from the official constraints, not hand-guessed**  -  so they can be
 re-derived if the board revision changes:
 
 1. **List the repo** via the GitHub API (`git/trees/master?recursive=1`) and locate the
@@ -40,11 +40,11 @@ re-derived if the board revision changes:
    the A7DDRPHY subsignal names `a/ba/ras_n/cas_n/we_n/cs_n/dm/dq/dqs_p/dqs_n/clk_p/
    clk_n/cke/odt/reset_n`). This avoids transcription errors on the largest group.
 
-### PHY mapping (per port) — GMII, not RGMII
+### PHY mapping (per port)  -  GMII, not RGMII
 > **CORRECTION (hardware bring-up):** the AX7101 RTL8211E is strapped for **GMII
 > (8-bit SDR)**, *not* RGMII (4-bit DDR). This was initially ported as RGMII (matching
 > LiteEth's default for a 1G Artix + RTL8211), and it produced **100 % MAC preamble
-> errors** on silicon — reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
+> errors** on silicon  -  reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
 > byte. The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) is explicit:
 > `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`. Full story in
 > `docs/TROUBLESHOOTING.md` §17 + `sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`.
@@ -57,15 +57,15 @@ this board).
 
 ## 3. What changed
 
-- **`sw/litex/platforms/alinx_ax7101.py`** — replaced the placeholder pins (borrowed
+- **`sw/litex/platforms/alinx_ax7101.py`**  -  replaced the placeholder pins (borrowed
   from the AX7203) with the real AX7101 pinout: exact part `xc7a100t-fgg484-2`, clock
   R4/T4, reset T6, UART AB15/AA15, LEDs, `eth`/`eth_clocks` 0+1 (e1/e2 RGMII), the
   full `ddram` group, and the SPIx4/CONFIGRATE bitstream settings from the Alinx XDC.
-- **`sw/litex/milan_soc.py`** — added **512 MB DDR3 (LiteDRAM)**: `_CRG` now generates
+- **`sw/litex/milan_soc.py`**  -  added **512 MB DDR3 (LiteDRAM)**: `_CRG` now generates
   the DDR3 PHY clocks (`sys4x`, `sys4x_dqs`, `idelay` + IDELAYCTRL); `MilanSoC` adds
   `s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new
   `--with-dram` flag (included in `--full`). With DRAM, main RAM is the DDR3 at
-  `0x4000_0000` (not integrated SRAM) — this is what makes the SoC **Linux-capable**
+  `0x4000_0000` (not integrated SRAM)  -  this is what makes the SoC **Linux-capable**
   (migration §A.3). This closes the last big platform gap.
 
 ## 4. Verification (open toolchain, no Vivado)
@@ -81,14 +81,14 @@ gateware** (exit 0):
 
 ## 5. Board-gated (needs the schematic / Vivado / the board)
 
-- **MDIO data pin** — the Alinx GMII example doesn't route it; `e_mdc` is known
+- **MDIO data pin**  -  the Alinx GMII example doesn't route it; `e_mdc` is known
   (J17/AB21) but the `mdio` pin must come from `SCH/AX7101_EX_SCH.pdf`. MDIO is left
   unwired for now (the RGMII data path works on the PHY power-on straps); PHY
   management is migration §A.7.
-- **Artix-7 bitstream** — `--full --build` still needs Vivado with Artix-7 device
+- **Artix-7 bitstream**  -  `--full --build` still needs Vivado with Artix-7 device
   support (this host has only Spartan-7 installed). The gateware/pins are ready; only
   the vendor P&R is blocked.
-- **On-board bring-up** — the board is attached and **verified reachable**:
+- **On-board bring-up**  -  the board is attached and **verified reachable**:
   **JTAG** = Digilent FT232H (`0403:6014`), `openFPGALoader -c ft232` reads IDCODE
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`

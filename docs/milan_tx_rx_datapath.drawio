@@ -4,19 +4,19 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="b_sys1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eaf2fb;strokeColor=#6c8ebf;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#6c8ebf;" value="sys  100 MHz   —   CPU · coherent DMA · DDR3 (behind LiteX L2)" vertex="1">
+        <mxCell id="b_sys1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eaf2fb;strokeColor=#6c8ebf;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#6c8ebf;" value="sys  100 MHz    -    CPU · coherent DMA · DDR3 (behind LiteX L2)" vertex="1">
           <mxGeometry height="375" width="900" x="40" y="225" as="geometry" />
         </mxCell>
-        <mxCell id="b_milan" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fbf0e6;strokeColor=#d79b00;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#d79b00;" value="milan  50 MHz   —   milan_datapath (classify / CBS / PTP / filter / ADP)" vertex="1">
+        <mxCell id="b_milan" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fbf0e6;strokeColor=#d79b00;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#d79b00;" value="milan  50 MHz    -    milan_datapath (classify / CBS / PTP / filter / ADP)" vertex="1">
           <mxGeometry height="290" width="900" x="40" y="600" as="geometry" />
         </mxCell>
-        <mxCell id="b_sys2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eaf2fb;strokeColor=#6c8ebf;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#6c8ebf;" value="sys  100 MHz   —   LiteEth MAC core" vertex="1">
+        <mxCell id="b_sys2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eaf2fb;strokeColor=#6c8ebf;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#6c8ebf;" value="sys  100 MHz    -    LiteEth MAC core" vertex="1">
           <mxGeometry height="225" width="900" x="40" y="890" as="geometry" />
         </mxCell>
-        <mxCell id="b_eth" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eef6ed;strokeColor=#82b366;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#82b366;" value="eth_tx / eth_rx  125 MHz   —   GMII" vertex="1">
+        <mxCell id="b_eth" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eef6ed;strokeColor=#82b366;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#82b366;" value="eth_tx / eth_rx  125 MHz    -    GMII" vertex="1">
           <mxGeometry height="85" width="900" x="40" y="1115" as="geometry" />
         </mxCell>
-        <mxCell id="b_ext" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#666666;" value="external   —   RTL8211E PHY · copper" vertex="1">
+        <mxCell id="b_ext" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;align=left;fontStyle=2;fontSize=13;fontColor=#666666;" value="external    -    RTL8211E PHY · copper" vertex="1">
           <mxGeometry height="140" width="900" x="40" y="1200" as="geometry" />
         </mxCell>
         <mxCell id="dmactl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="DMA control CSRs @ 0xf000_3000&lt;br&gt;base · length · enable · done · loopback" vertex="1">
@@ -25,25 +25,25 @@
         <mxCell id="rxdma" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="RX-DMA + TS-DMA · WishboneDMAWriter&lt;br&gt;endianness=big" vertex="1">
           <mxGeometry height="60" width="230" x="660" y="432" as="geometry" />
         </mxCell>
-        <mxCell id="dmarxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="dma_rx_cdc / dma_ts_cdc — async FIFO&lt;br&gt;milan → sys" vertex="1">
+        <mxCell id="dmarxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="dma_rx_cdc / dma_ts_cdc  -  async FIFO&lt;br&gt;milan → sys" vertex="1">
           <mxGeometry height="54" width="230" x="660" y="526" as="geometry" />
         </mxCell>
         <mxCell id="dp_cls" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="traffic_controller_802_1q&lt;br&gt;classifier · traffic_queues · CBS shaper" vertex="1">
           <mxGeometry height="54" width="230" x="110" y="630" as="geometry" />
         </mxCell>
-        <mxCell id="dp_txptp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="ptp_ts_top — TX egress timestamp" vertex="1">
+        <mxCell id="dp_txptp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="ptp_ts_top  -  TX egress timestamp" vertex="1">
           <mxGeometry height="44" width="230" x="110" y="698" as="geometry" />
         </mxCell>
         <mxCell id="dp_adp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="adp_tx_arbiter (+ adp_advertiser)&lt;br&gt;merge data + ADP (IEEE 1722.1)" vertex="1">
           <mxGeometry height="46" width="230" x="110" y="758" as="geometry" />
         </mxCell>
-        <mxCell id="mactxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="mac_tx_cdc — async FIFO&lt;br&gt;milan → sys" vertex="1">
+        <mxCell id="mactxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="mac_tx_cdc  -  async FIFO&lt;br&gt;milan → sys" vertex="1">
           <mxGeometry height="54" width="230" x="110" y="826" as="geometry" />
         </mxCell>
-        <mxCell id="macrxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="mac_rx_cdc — async FIFO&lt;br&gt;sys → milan" vertex="1">
+        <mxCell id="macrxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="mac_rx_cdc  -  async FIFO&lt;br&gt;sys → milan" vertex="1">
           <mxGeometry height="54" width="230" x="660" y="812" as="geometry" />
         </mxCell>
-        <mxCell id="loopback" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;dashed=1;fontStyle=2;" value="MAC loopback mux — milan_mac_loopback&lt;br&gt;0xf0003810  (1 = TX→RX, bypass PHY)" vertex="1">
+        <mxCell id="loopback" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;dashed=1;fontStyle=2;" value="MAC loopback mux  -  milan_mac_loopback&lt;br&gt;0xf0003810  (1 = TX→RX, bypass PHY)" vertex="1">
           <mxGeometry height="52" width="220" x="380" y="905" as="geometry" />
         </mxCell>
         <mxCell id="mac_tx1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="LiteEth MAC TX&lt;br&gt;padding · CRC32 insert · preamble" vertex="1">
@@ -184,19 +184,19 @@
         <mxCell id="ddr3" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;boundedLbl=1;" value="DDR3 / LiteDRAM&lt;br&gt;main_ram @ 0x4000_0000" vertex="1">
           <mxGeometry height="60" width="220" x="380" y="247" as="geometry" />
         </mxCell>
-        <mxCell id="dmabus" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9fc0ef;strokeColor=#2f5597;fontSize=11;fontStyle=1;" value="coherent dma_bus (AXI) — snoops CPU L1/L2&lt;br&gt;no manual cache flush" vertex="1">
+        <mxCell id="dmabus" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9fc0ef;strokeColor=#2f5597;fontSize=11;fontStyle=1;" value="coherent dma_bus (AXI)  -  snoops CPU L1/L2&lt;br&gt;no manual cache flush" vertex="1">
           <mxGeometry height="42" width="380" x="300" y="345" as="geometry" />
         </mxCell>
         <mxCell id="txdma" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="TX-DMA · WishboneDMAReader&lt;br&gt;simple-mode · endianness=big" vertex="1">
           <mxGeometry height="60" width="230" x="110" y="432" as="geometry" />
         </mxCell>
-        <mxCell id="dmatxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="dma_tx_cdc — async FIFO&lt;br&gt;sys → milan" vertex="1">
+        <mxCell id="dmatxcdc" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="dma_tx_cdc  -  async FIFO&lt;br&gt;sys → milan" vertex="1">
           <mxGeometry height="54" width="230" x="110" y="526" as="geometry" />
         </mxCell>
         <mxCell id="dp_rxfilt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="rx_mac_filter (TCAM)&lt;br&gt;dest-MAC steering / accept" vertex="1">
           <mxGeometry height="54" width="230" x="660" y="616" as="geometry" />
         </mxCell>
-        <mxCell id="dp_rxptp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="ptp_ts_top — RX ingress timestamp" vertex="1">
+        <mxCell id="dp_rxptp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="ptp_ts_top  -  RX ingress timestamp" vertex="1">
           <mxGeometry height="44" width="230" x="660" y="684" as="geometry" />
         </mxCell>
         <mxCell id="dp_tsmeta" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="ts_metadata AXIS → TS-DMA" vertex="1">
@@ -205,7 +205,7 @@
         <mxCell id="mac_rx2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="8→64 StrideConverter&lt;br&gt;keep = mask(last_be)  [fix]" vertex="1">
           <mxGeometry height="52" width="230" x="660" y="1003" as="geometry" />
         </mxCell>
-        <mxCell id="cpu" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="NaxRiscv RV64GC — CPU&lt;br&gt;L1 / L2 cache" vertex="1">
+        <mxCell id="cpu" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="NaxRiscv RV64GC  -  CPU&lt;br&gt;L1 / L2 cache" vertex="1">
           <mxGeometry height="56" width="230" x="110" y="40" as="geometry" />
         </mxCell>
       </root>

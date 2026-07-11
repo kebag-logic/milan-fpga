@@ -1,4 +1,4 @@
-# Milan TSN CSR — register map (ABI)
+# Milan TSN CSR  -  register map (ABI)
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL (`hdl/csr/milan_csr.sv`), the Linux driver
@@ -6,7 +6,7 @@ Memory-mapped control/status registers for the Milan TSN NIC. This is the
 Satisfies `REQ-CSR-05`; implements the control surface for `REQ-CSR/PTP/CBS/CLS/
 MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 
-* **Bus:** AXI4-Lite, 32-bit data, little-endian. **Base is host-specific** — the
+* **Bus:** AXI4-Lite, 32-bit data, little-endian. **Base is host-specific**  -  the
   register *offsets* below are fixed, only the window base differs per SoC:
   `0x43C0_0000` on the Zynq PS build, **`0x9000_0000`** on the fully-FPGA VexiiRiscv
   (formerly NaxRiscv) SoC (an MMIO peripheral must live in the CPU IO region ≥
@@ -29,7 +29,7 @@ MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 | `0x400` | 802.1Qav CBS (per-queue, stride `0x20`) |
 | `0x500` | PTP hardware clock |
 
-### 0x000 — Identification / IRQ
+### 0x000  -  Identification / IRQ
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -43,7 +43,7 @@ MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
 
 The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 
-### 0x100 — MAC control / status  `(REQ-MAC-01..03)`
+### 0x100  -  MAC control / status  `(REQ-MAC-01..03)`
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -58,7 +58,7 @@ The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
 
-### 0x200 — Statistics (RMON)  `(REQ-MAC-04)`
+### 0x200  -  Statistics (RMON)  `(REQ-MAC-04)`
 
 Counters mirror `ethernet_events`. Software writes `STATS_CTRL[0]=1` to latch a
 **coherent snapshot** of all counters into the read window, then reads them.
@@ -80,21 +80,21 @@ Order follows the `ethernet_events_t` enum in
 | `0x22C` | `STAT_RX_FIFO_BAD_FRAME` | RO | `0` | RX FIFO bad frame |
 | `0x230` | `STAT_RX_FIFO_GOOD_FRAME` | RO | `0` | frames received OK |
 
-### 0x300 — 802.1Q classifier  `(REQ-CLS-01..04)`
+### 0x300  -  802.1Q classifier  `(REQ-CLS-01..04)`
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x300` | `CLS_CTRL` | RW | `0x1` | `[0]` use_pcp (1 = classify by PCP table, 0 = legacy EtherType), `[1]` dmac_check |
 | `0x304` | `CLS_DEFAULT_PCP` | RW | `0` | `[2:0]` default port priority for untagged frames |
 | `0x308` | `CLS_PCP_TC_MAP` | RW | `0xFAC688`* | PCP→traffic-class, 8×3 bits: TC of PCP `p` = `[3p+2:3p]` |
-| `0x30C` | `CLS_PRIO_REGEN` | RW | `0xFAC688` (identity) | priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05 — a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity. |
+| `0x30C` | `CLS_PRIO_REGEN` | RW | `0xFAC688` (identity) | priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05  -  a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity. |
 | `0x310` | `CLS_TC_QUEUE_MAP` | RW | `0xE4` | TC→queue, `N`×`ceil(log2 N)` bits (default identity `3,2,1,0`) |
 
 \* Reset packs the Table 8-5 default PCP→TC for 4 classes; driver overwrites via
 `tc mqprio`. The identity map keeps parity with the current enum ordering until
 the driver programs Table 8-5 (see `REQ-CLS-04`).
 
-### 0x400 — 802.1Qav CBS (per queue)  `(REQ-CBS-01..03)`
+### 0x400  -  802.1Qav CBS (per queue)  `(REQ-CBS-01..03)`
 
 Per queue `q ∈ [0,N)` at `0x400 + q*0x20`:
 
@@ -122,16 +122,16 @@ once. The driver must keep Σ idleSlope of the *shaped* queues ≤ 75 % of the p
 rate.
 
 **Shaping applies per queue, not globally.** A frame is credit-based-shaped **only
-when both** hold: (1) its PCP maps — through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` →
-`CLS_TC_QUEUE_MAP` — to a queue, **and** (2) that queue's `CBS_CTRL[0]` shaped-enable
+when both** hold: (1) its PCP maps  -  through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` →
+`CLS_TC_QUEUE_MAP`  -  to a queue, **and** (2) that queue's `CBS_CTRL[0]` shaped-enable
 is **1**. A queue with `CBS_CTRL[0]=0` (or a PCP that maps to it) is **strict
 priority / unshaped** (`allow_transmit` forced 1 in `credit_based_shaper.sv`). At
 reset **only q0 and q1 are shaped** (`CBS_EN_RST = 0b0011`); q2/q3 (best-effort,
 control) run unshaped. Software chooses which queues are SR/shaped (subject to the
 75 % Σ idleSlope budget) by programming the PCP→queue map and the per-queue enables
-together — e.g. `tc mqprio` + `tc cbs offload`.
+together  -  e.g. `tc mqprio` + `tc cbs offload`.
 
-### 0x500 — PTP hardware clock  `(REQ-PTP-01..04, 06)`
+### 0x500  -  PTP hardware clock  `(REQ-PTP-01..04, 06)`
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -142,29 +142,29 @@ together — e.g. `tc mqprio` + `tc cbs offload`.
 | `0x514` | `PTP_TOD_WR_HI` | RW | `0` | settime target `[63:32]` |
 | `0x518` | `PTP_OFFSET_LO` | RW | `0` | adjtime signed delta `[31:0]` |
 | `0x51C` | `PTP_OFFSET_HI` | RW | `0` | adjtime signed delta `[63:32]` |
-| `0x520` | `PTP_CMD` | W1S | `0` | `[0]` load (apply settime), `[1]` adjust (apply adjtime), `[2]` snapshot (latch TOD for gettime) — self-clearing pulses |
+| `0x520` | `PTP_CMD` | W1S | `0` | `[0]` load (apply settime), `[1]` adjust (apply adjtime), `[2]` snapshot (latch TOD for gettime)  -  self-clearing pulses |
 | `0x530` | `PTP_TOD_RD_LO` | RO | `0` | latched TOD `[31:0]` (updated when the PHC snapshot returns) |
 | `0x534` | `PTP_TOD_RD_HI` | RO | `0` | latched TOD `[63:32]` |
 | `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction (ns) |
 | `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction (ns) |
 
-### 0x700 — RX destination-MAC TCAM filter  `(REQ-MAC-02)`
+### 0x700  -  RX destination-MAC TCAM filter  `(REQ-MAC-02)`
 
 A ternary CAM (`tcam.sv`) in the RX path (`rx_mac_filter`) that accepts/drops
-frames by destination MAC — exact **or** wildcard/range (per-bit `mask`). Precise
+frames by destination MAC  -  exact **or** wildcard/range (per-bit `mask`). Precise
 alternative to the approximate `MC_HASH` hash filter. Software programs one indexed
 entry per commit: write the KEY/MASK/ACTION shadows, then `TCAM_CMD`. Reset:
-`default_pass=1` (accept-all until entries are installed — safe bring-up).
+`default_pass=1` (accept-all until entries are installed  -  safe bring-up).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x700` | `TCAM_CTRL` | RW | `0x1` | `[0]` default_pass (1 = accept frames that miss the table) |
-| `0x704` | `TCAM_KEY_LO` | RW | `0` | match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no — see note) |
+| `0x704` | `TCAM_KEY_LO` | RW | `0` | match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no  -  see note) |
 | `0x708` | `TCAM_KEY_HI` | RW | `0` | match key `[47:32]` in `[15:0]` |
 | `0x70C` | `TCAM_MASK_LO` | RW | `0` | care mask `[31:0]` (1 = compare, 0 = wildcard) |
 | `0x710` | `TCAM_MASK_HI` | RW | `0` | care mask `[47:32]` in `[15:0]` |
 | `0x714` | `TCAM_ACTION` | RW | `0` | `[0]` drop-on-match (else accept), `[7:1]` steer tag |
-| `0x718` | `TCAM_CMD` | W1S | `0` | `[4:0]` entry index, `[8]` valid (1 = add/update, 0 = remove), `[16]` commit (self-clearing) — latches KEY/MASK/ACTION shadows into the entry |
+| `0x718` | `TCAM_CMD` | W1S | `0` | `[4:0]` entry index, `[8]` valid (1 = add/update, 0 = remove), `[16]` commit (self-clearing)  -  latches KEY/MASK/ACTION shadows into the entry |
 
 The 48-bit `key`/`mask` = `{HI[15:0], LO}` and are compared MSB-first against the
 destination MAC in standard notation (`01-80-C2-00-00-0E` → `0x0180C200000E`).
@@ -180,7 +180,7 @@ sampled TOD returns across the CDC and lands in `PTP_TOD_RD_{LO,HI}` a few cycle
 later (the driver reads it after the round trip). `PTP_INCR`/`PTP_ADJ` are the
 Q8.24-ns rate controls consumed by `timestamp_counter`.
 
-### 0x600 — ADP advertiser  `(IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)`
+### 0x600  -  ADP advertiser  `(IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)`
 
 Identity and control for the hardware ADP transmit engine (`adp_advertiser`). The
 software AVDECC stack programs the entity identity here (typically mirroring the
@@ -206,7 +206,7 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 | `0x634` | `ADP_IDX1` | RW | `0` | `[15:0]` interface_index |
 | `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | association_id `[31:0]` |
 | `0x63C` | `ADP_ASSOC_ID_HI` | RW | `0` | association_id `[63:32]` |
-| `0x640` | `ADP_CMD` | W1S | `0` | `[0]` advertise-now (+ bump available_index), `[1]` depart — self-clearing |
+| `0x640` | `ADP_CMD` | W1S | `0` | `[0]` advertise-now (+ bump available_index), `[1]` depart  -  self-clearing |
 | `0x644` | `ADP_STATUS` | RO | `0` | `[31:0]` available_index (owned by the advertiser; equals the value on the wire) |
 
 The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F0`,
@@ -214,15 +214,15 @@ subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames
 `available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
 on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md).
 
-## DMA registers (fully-FPGA build only — separate CSR space)
+## DMA registers (fully-FPGA build only  -  separate CSR space)
 
 On the fully-FPGA VexiiRiscv (formerly NaxRiscv) SoC the AXIS↔memory DMA (§A.6,
-`MilanDMA`) is **not** part of the `milan_csr` window above — its engines' registers are auto-mapped in the
+`MilanDMA`) is **not** part of the `milan_csr` window above  -  its engines' registers are auto-mapped in the
 **LiteX CSR space** (absolute addresses in the generated `build/csr.csv`; the device
 tree exposes them via the `dma-tx`, `dma-rx`, `dma-ts` `reg` entries).
 
 **`dma-tx` and `dma-rx` are ring engines** (2026-07-04: `RingDMAReader`/`RingDMAWriter`,
-native AXI-burst masters on the coherent dma_bus — see
+native AXI-burst masters on the coherent dma_bus  -  see
 [`RX_RING_DMA.md`](RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
 throughput-broken). Both share one 7-word layout over a circular coherent buffer of
 frame slots `[8 B header][payload padded to 8 B]`, wrapping via `mask`:
@@ -231,17 +231,17 @@ frame slots `[8 B header][payload padded to 8 B]`, wrapping via `mask`:
 |--------|----------|-----------------|-----------------|
 | `+0x00/+0x04` | `base` hi/lo | ring base **byte** address (64-bit, MS word first) | same |
 | `+0x08` | `mask`   | ring size−1 (power of two) | same |
-| `+0x0c` | `wr_ptr` | **RO** — HW commits a whole frame at a time | **RW** — SW advances after queueing a frame |
-| `+0x10` | `rd_ptr` | **RW** — SW releases consumed bytes | **RO** — HW consumption pointer |
+| `+0x0c` | `wr_ptr` | **RO**  -  HW commits a whole frame at a time | **RW**  -  SW advances after queueing a frame |
+| `+0x10` | `rd_ptr` | **RW**  -  SW releases consumed bytes | **RO**  -  HW consumption pointer |
 | `+0x14` | `enable` | ring enable | same |
 | `+0x18` | `dropped` / `sent` | RO: whole frames dropped (ingress/ring full) | RO: frames streamed to the datapath |
 
 Header word: RX = `{rsvd[31:0], seq[15:0], len[15:0]}` (len = padded payload bytes);
-TX = `{rsvd[47:0], len[15:0]}` (len = **exact** bytes — HW derives the last-beat byte
+TX = `{rsvd[47:0], len[15:0]}` (len = **exact** bytes  -  HW derives the last-beat byte
 mask, so TX wire frames are not 8-padded). RX `wr_ptr` only moves after the frame's
 last AXI B response (software never sees a partial frame); TX HW resyncs `rd := wr`
 on a nonsense header (len 0 or > 4096) instead of streaming garbage. Frame slots may
-wrap the ring end — software splits its memcpy, hardware splits its bursts (also at
+wrap the ring end  -  software splits its memcpy, hardware splits its bursts (also at
 4 KB AXI boundaries). Max frame 4096 B incl. header.
 
 **`dma-ts` remains a LiteX simple-mode engine** (mirrors Zynq `axi_dma` simple mode):
@@ -258,26 +258,26 @@ wrap the ring end — software splits its memcpy, hardware splits its bursts (al
 > **⚠ `base`/`length` are BYTE quantities, not words** (simple-mode: hardware-confirmed
 > `length=8` transmits ONE 8-byte word; `offset` counts words). The ring pointers/masks
 > are byte quantities too, always 8-aligned. (Descriptor rings / multi-queue remain the
-> later Option 6b upgrade — see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
+> later Option 6b upgrade  -  see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
 > the DMA masters attach to VexiiRiscv's (formerly NaxRiscv's) cache-snooping `dma_bus`, so
 > a CPU-written TX frame is DMA-read correctly and a DMA-written RX frame is CPU-read correctly
 > **without any cache maintenance**. Without it, the CPU reaches DRAM by a direct memory bus while the DMA uses
-> the wishbone/L2 — a different path, so the DMA sees stale DRAM (hardware-confirmed). The
+> the wishbone/L2  -  a different path, so the DMA sees stale DRAM (hardware-confirmed). The
 > DMA engines use `endianness="big"` (no byte-swap) so the Wishbone/AXIS/on-wire byte order
 > all match; the LiteX default `"little"` byte-swaps each word and reverses every frame.
 >
-> **MAC loopback** — `milan_mac_loopback` (`0xf0003810`, bit 0): `1` feeds the datapath's
+> **MAC loopback**  -  `milan_mac_loopback` (`0xf0003810`, bit 0): `1` feeds the datapath's
 > MAC-TX stream straight back into MAC-RX (bypassing LiteEth core + PHY), for a
 > memory→TX-DMA→datapath→RX-DMA→memory self-test with no wire. `0` = normal (to the PHY).
 
-> **⚠ Caveat — this DMA window uses a *different* register layout than `milan_csr`.**
+> **⚠ Caveat  -  this DMA window uses a *different* register layout than `milan_csr`.**
 > The `milan_csr` control plane (`0x9000_0000`) is a plain 32-bit AXI-Lite slave
 > (offset = register; my 64-bit regs are explicit hi/lo pairs). The DMA registers live
 > in the **LiteX CSR bus** (a *separate* window, `0xf000_0000` family), with
 > `config_csr_data_width = 32`: each CSR is a **native-endian** 32-bit word at a 4-byte
-> stride — plain `readl`/`writel` (verified: LiteX's `CSR_MMPTR` is
+> stride  -  plain `readl`/`writel` (verified: LiteX's `CSR_MMPTR` is
 > `*(volatile uint32_t *)`, no byte-swap). So `length`/`enable`/`done`/`offset` are just
 > `readl`/`writel`.
 >
@@ -291,11 +291,11 @@ wrap the ring end — software splits its memcpy, hardware splits its bursts (al
 > LiteX `csr.h` accessors.
 >
 > **On "endian":** (a) the DTB encodes all `reg`/`interrupts` cells big-endian by spec,
-> but that is the blob format — `of_*`/`be32_to_cpu` convert it transparently and it does
+> but that is the blob format  -  `of_*`/`be32_to_cpu` convert it transparently and it does
 > **not** change register access. (b) These CSRs are **native-endian**, so do **NOT** put
-> a `big-endian` property on the node or use `ioread32be`/a BE regmap — that would
+> a `big-endian` property on the node or use `ioread32be`/a BE regmap  -  that would
 > byte-swap and corrupt every read. The only "big" here is the multi-word *word* order
-> above. This whole caveat is LiteX-specific — on Zynq the DMA was a plain-MMIO `axi_dma`
+> above. This whole caveat is LiteX-specific  -  on Zynq the DMA was a plain-MMIO `axi_dma`
 > block. See also `sw/dts/README.md` and `sw/driver/README.md`.
 
 ## Notes

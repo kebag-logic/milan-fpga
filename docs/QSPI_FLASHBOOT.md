@@ -1,6 +1,6 @@
-# QSPI flash-boot — skip the multi-minute serial upload
+# QSPI flash-boot  -  skip the multi-minute serial upload
 
-Every boot of the fully-FPGA Linux SoC uploads four images over the 1.5 Mbaud LiteX UART —
+Every boot of the fully-FPGA Linux SoC uploads four images over the 1.5 Mbaud LiteX UART  - 
 the 14 MB kernel `Image`, the 8.7 MB `rootfs.cpio.gz`, OpenSBI and the DTB, ~23 MB total,
 which takes **~4 minutes**. This is the "gain time" feature: stage the large, static images
 in the board's QSPI flash so the BIOS copies them straight into DRAM (quad SPI, ~10 MB/s)
@@ -32,17 +32,17 @@ The AX7101 flash is a **Micron N25Q128 = 128 Mbit = 16 MB** (confirmed from the 
 
 So **not everything fits at once**. Two manifests (`--flashboot`):
 
-* **`kernel` (default) — partial, works today.** Flash only the big, static 14 MB kernel.
+* **`kernel` (default)  -  partial, works today.** Flash only the big, static 14 MB kernel.
   `linux_flashboot` pre-loads it to DRAM; serialboot then uploads only OpenSBI+dtb+rootfs
   (~9 MB). **~60 % faster** per boot, no image rebuild. The kernel + OpenSBI are the images
   that change *least*, so most iterations upload just the ~9 MB rest.
-* **`full` — zero upload.** Flash every image; `linux_flashboot` boots OpenSBI directly with
+* **`full`  -  zero upload.** Flash every image; `linux_flashboot` boots OpenSBI directly with
   **no serial upload at all**. Only fits once the kernel is slimmed to **≤ 5.5 MB** (see
   [Getting to zero-upload](#getting-to-zero-upload)); the deploy step refuses an oversized
   kernel rather than silently corrupt the layout.
 
 Because the default kernel occupies flash offset 0, **the bitstream is *not* stored in flash**
-in this layout — flash-boot builds are JTAG-`load`ed (`deploy.sh load`), which is the normal
+in this layout  -  flash-boot builds are JTAG-`load`ed (`deploy.sh load`), which is the normal
 iteration path anyway. (A bitstream + a 14 MB kernel cannot coexist in 16 MB.)
 
 ### Flash layout (`FLASHBOOT_LAYOUT` in `milan_soc.py`)
@@ -50,9 +50,9 @@ iteration path anyway. (A bitstream + a 14 MB kernel cannot coexist in 16 MB.)
 ```
  offset      kernel manifest (default)        full manifest (slim kernel ≤ 5.5 MB)
  0x00_0000   kernel  (≤ 16 MB)                kernel   (≤ 5.5 MB)
- 0x58_0000   —                               opensbi  (256 KB)
- 0x5C_0000   —                               dtb      (256 KB)
- 0x60_0000   —                               rootfs   (≤ 10 MB → ends ≤ 16 MB)
+ 0x58_0000    -                                opensbi  (256 KB)
+ 0x5C_0000    -                                dtb      (256 KB)
+ 0x60_0000    -                                rootfs   (≤ 10 MB → ends ≤ 16 MB)
 ```
 
 The build writes `<build>/flashboot_layout.json` (the single source of truth); `deploy.sh
@@ -75,7 +75,7 @@ which stays as the fallback. The BIOS boot sequence tries methods in ascending p
 ```
 
 * **Full manifest:** `linux_flashboot` copies opensbi+dtb+kernel+rootfs, then
-  `boot(0,0,0, 0x40f0_0000)` — the NaxRiscv `boot_helper` leaves `a0=hartid`, `a1=0`, exactly
+  `boot(0,0,0, 0x40f0_0000)`  -  the NaxRiscv `boot_helper` leaves `a0=hartid`, `a1=0`, exactly
   what the OpenSBI fw_jump expects (DTB is embedded via `FW_FDT_PATH`).
 * **Partial manifest:** `linux_flashboot` copies only the kernel to `0x4000_0000`, prints a
   note and returns; serialboot then uploads OpenSBI+dtb+rootfs from `boot_flashkernel.json`
@@ -83,7 +83,7 @@ which stays as the fallback. The BIOS boot sequence tries methods in ascending p
 
 Each copy uses the BIOS's existing `copy_image_from_flash_to_ram`, which **CRC-checks** every
 image (LiteX FBI = `[length][crc32][data]`, little-endian header). A CRC/length failure aborts
-the copy and falls through to serialboot — an empty or mid-update flash **cannot brick the
+the copy and falls through to serialboot  -  an empty or mid-update flash **cannot brick the
 boot**.
 
 ---
@@ -135,7 +135,7 @@ The kernel is already in flash; the BIOS pre-loads it and serialboot handles the
 
 ## Getting to zero-upload
 
-The 14 MB kernel is the blocker. Slim it below ~5.5 MB and the **full** manifest fits — then a
+The 14 MB kernel is the blocker. Slim it below ~5.5 MB and the **full** manifest fits  -  then a
 boot uploads *nothing*:
 
 1. Trim the kernel `.config` (drop unused drivers/filesystems/debug; the Milan NIC needs only
@@ -158,14 +158,14 @@ kernel fails loudly instead of half-writing.
 
 * **`--coherent-dma` is mandatory and NOT implied by `--all-blocks`.** Without it the NIC's
   DMA masters bypass the NaxRiscv snooping `dma_bus`: RX data never becomes CPU-visible (the
-  stack drops every frame — all-zero skbs) and TX reads stale skb data (garbage dst MAC that
+  stack drops every frame  -  all-zero skbs) and TX reads stale skb data (garbage dst MAC that
   the peer NIC silently filters). Hardware-confirmed 2026-07-04; `deploy.sh` includes it.
 * **No bitstream in flash (kernel layout).** The kernel sits at offset 0, so a power-cycle
-  will not auto-configure the FPGA from flash — always JTAG-`load`. This is the normal dev
+  will not auto-configure the FPGA from flash  -  always JTAG-`load`. This is the normal dev
   flow. (`deploy.sh flash` writes a *bitstream* to offset 0 and is mutually exclusive with
   `flash-images` on 16 MB.)
 * **Re-apply the patch after LiteX updates** (`apply.sh` is idempotent and errors clearly if
-  LiteX has moved the patched lines — then refresh the `.patch`).
+  LiteX has moved the patched lines  -  then refresh the `.patch`).
 * **Endianness:** the FBI header is little-endian (`crcfbigen -l`), matching the BIOS's
   `MMPTR` reads on this RV64 core. `deploy.sh` uses `-l`; don't drop it.
 * **Flash addressing:** the N25Q128 is 16 MB = 3-byte addressable, so the whole chip is
@@ -192,23 +192,23 @@ and `sw/litex/patches/README.md`.
 
 ---
 
-## 2026-07-06: zero-upload ACHIEVED — the sizes that made "full" fit
+## 2026-07-06: zero-upload ACHIEVED  -  the sizes that made "full" fit
 
 The blockers fell in two rounds (fragment: `br2-external/board/milan_naxriscv/linux.fragment`):
 
 | Item | Before | After | How |
 |---|---|---|---|
-| kernel `Image` | 11.9 MB | **8.14 MB** | `-Os` (CC_OPTIMIZE_FOR_SIZE, −25 % alone); SELinux/kexec off; `CONFIG_EXPERT=y` (without it the VT/INPUT disables **silently fail** — they need EXPERT); kallsyms off (~1 MB; oops decode moves offline via vmlinux); LOG_BUF 15. +THP added for the 300 Mbit/s plan. |
-| rootfs | 9.13 MB (cpio.gz) | **5.59 MB** (cpio.xz) | `BR2_TARGET_ROOTFS_CPIO_XZ` + kernel `RD_XZ` — the BIOS only memcpys flash→DRAM; the *kernel* unpacks the initramfs, so xz costs nothing at the BIOS level. |
+| kernel `Image` | 11.9 MB | **8.14 MB** | `-Os` (CC_OPTIMIZE_FOR_SIZE, −25 % alone); SELinux/kexec off; `CONFIG_EXPERT=y` (without it the VT/INPUT disables **silently fail**  -  they need EXPERT); kallsyms off (~1 MB; oops decode moves offline via vmlinux); LOG_BUF 15. +THP added for the 300 Mbit/s plan. |
+| rootfs | 9.13 MB (cpio.gz) | **5.59 MB** (cpio.xz) | `BR2_TARGET_ROOTFS_CPIO_XZ` + kernel `RD_XZ`  -  the BIOS only memcpys flash→DRAM; the *kernel* unpacks the initramfs, so xz costs nothing at the BIOS level. |
 
 Final measured layout (total 14.3 of 16 MiB): kernel ≤8.5 MiB @0 · **opensbi 512 KB @0x88_0000**
-(fw_jump is 261 KB + 8 B FBI wrapper — the original 256 KB slot was 4.7 KB short; `flash-images`'s
+(fw_jump is 261 KB + 8 B FBI wrapper  -  the original 256 KB slot was 4.7 KB short; `flash-images`'s
 slot check caught it) · dtb 256 KB @0x90_0000 · rootfs ≤6.75 MiB @0x94_0000.
 
 Flash: `LAYOUT=<build>/flashboot_layout.json KERNEL=… OPENSBI=… DTB=… ROOTFS=…
 sw/litex/deploy.sh flash-images` (needs the litex venv on PATH for `crcfbigen`).
 
-## Planned: boot-chain compression (BIOS-LZ4 kernel) — bitstream stays JTAG
+## Planned: boot-chain compression (BIOS-LZ4 kernel)  -  bitstream stays JTAG
 
 Stock OpenSBI cannot decompress (`fw_jump` only jumps), and a RISC-V `Image` has no
 self-extracting stub (unlike x86 bzImage). The right layer is the **LiteX BIOS**: our
@@ -224,7 +224,7 @@ Rootfs is already maxed (cpio.**xz**, the kernel unpacks it). The freed space wo
 fit the 3.83 MB bitstream for a fully standalone power-on box, but per the 2026-07-06
 decision the **bitstream stays JTAG-loaded** for the iteration loop; only the
 kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x40000000) +
-`deploy.sh` compressing at flash time + a layout shrink — one reflash to adopt.
+`deploy.sh` compressing at flash time + a layout shrink  -  one reflash to adopt.
 
 ## Field notes (2026-07-10 silicon session)
 
@@ -234,14 +234,14 @@ kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x4000
    (the bit-file's leading dummy words read as the length). Recovery: re-flash
    `kernel.fbi` raw at `-o 0` (crcfbigen `-f -l`), load bitstreams via **JTAG
    SRAM only**. Corollary: a power-cycle leaves the FPGA unconfigured (flash
-   holds no bitstream) — the board needs one JTAG load per power-on by design.
+   holds no bitstream)  -  the board needs one JTAG load per power-on by design.
 2. **The BIOS boot-time SPI auto-calibration defeats the gateware clock cap.**
    liblitespi `spiflash_freq_init()` re-tunes the divisor UP from the gateware
-   default while a short CRC block reads stably — silicon locked div=2 (50 MHz),
+   default while a short CRC block reads stably  -  silicon locked div=2 (50 MHz),
    where MB-scale reads are marginal (per-read-different CRCs; the hsq0-era
    failures). One lucky boot in ~6 was the tell. Fix (build_hsq3+):
    `add_constant("SPIFLASH_SKIP_FREQ_INIT")` next to `add_spi_flash(...,
-   clk_freq=12.5e6)` — the BIOS then keeps the built-for divisor.
+   clk_freq=12.5e6)`  -  the BIOS then keeps the built-for divisor.
 3. **Manual flashboot from `litex>`** (roulette recovery, no serial upload):
    `mem_write 0xf0005000 8` and `0xf0005008 8` (phy+mmap divisors → ~12.5 MHz),
    then per image `mem_read <hdr> 8` (FBI = LE [len][crc32]), `mem_copy <dst>
@@ -251,7 +251,7 @@ kernel slot gets compressed. Implementation = BIOS patch (lz4 decode into 0x4000
    images CRC-OK first try at div 8).
 4. **`Initramfs unpacking failed: invalid magic at start of compressed archive`
    ~35 s into boot is benign**: the initrd reservation is 16 MB, the CPIO-XZ is
-   5.3 MB — the kernel probes the trailing garbage for a concatenated archive
+   5.3 MB  -  the kernel probes the trailing garbage for a concatenated archive
    and reports the miss AFTER the real archive already unpacked. Login works.
-5. `rtk` humanizes/dedups tool output on this host — when forensics matter
+5. `rtk` humanizes/dedups tool output on this host  -  when forensics matter
    (byte counts, repeated log lines), read raw files or use `rtk proxy`.

@@ -1,4 +1,4 @@
-# Troubleshooting — every problem hit bringing up the full-FPGA solution, and its fix
+# Troubleshooting  -  every problem hit bringing up the full-FPGA solution, and its fix
 
 This is the field log of every real problem encountered building and simulating the
 fully-FPGA Milan softcore solution, with the **symptom**, the **cause**, and the
@@ -28,12 +28,12 @@ Companion: [`SIMULATION.md`](SIMULATION.md) (how the sim works) and
 **Cause.** The LiteX repos are installed *editable* into the venv, but they live under
 `~/litex-milan/`, and that directory *also* contains a subdir literally named
 `litex/`. When Python is started with `~/litex-milan` as the working directory (or on
-`sys.path`), `import litex` resolves to that **repo-root directory** — a namespace
-package with no `__init__.py` — instead of the editable-installed inner package that
+`sys.path`), `import litex` resolves to that **repo-root directory**  -  a namespace
+package with no `__init__.py`  -  instead of the editable-installed inner package that
 defines `get_data_mod`. Hence `__file__ is None` and the symbol is missing.
 
 **Fix.** Run every build/sim command from a directory that is **not** the litex-repos
-parent — e.g. `~/litex-milan/work/`:
+parent  -  e.g. `~/litex-milan/work/`:
 ```sh
 cd ~/litex-milan/work         # anywhere except ~/litex-milan itself
 python .../milan_soc.py ...
@@ -76,7 +76,7 @@ ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core"
 
 **Symptom.** The build reaches `builder.build(...)` then raises a bare
 `litex.soc.integration.soc.SoCError` from `_finalize_cpu_reset_address`. The bus
-slave list shows only `sram`, `main_ram`, `csr` — no `rom`.
+slave list shows only `sram`, `main_ram`, `csr`  -  no `rom`.
 
 **Cause.** The CPU's reset vector points at the integrated ROM, but no integrated ROM
 was added, so LiteX cannot place the reset address.
@@ -97,7 +97,7 @@ populated by its own argparse flow (`args_fill()` + `args_read(args)`). The firs
 draft hand-set only `xlen`/`data_width`, so other required attributes
 (`no_netlist_cache`, `update_repo`, `with_fpu`, `l2_bytes`, …) were never set.
 
-**Fix.** Drive the CPU's own arg pipeline — fill a parser with its args, take the
+**Fix.** Drive the CPU's own arg pipeline  -  fill a parser with its args, take the
 defaults, override just xlen/cpu-count, then `args_read`:
 ```python
 _p = argparse.ArgumentParser(); NaxRiscv.args_fill(_p)
@@ -115,7 +115,7 @@ NaxRiscv.args_read(_na)
 **IO region**; any uncached MMIO slave must live there. The Zynq build put `milan_csr`
 at `0x43C0_0000`, which is below the IO region, so it is rejected as uncached.
 
-**Fix.** Map the CSR window inside the IO region — the design uses **`0x9000_0000`**.
+**Fix.** Map the CSR window inside the IO region  -  the design uses **`0x9000_0000`**.
 The register *offsets* are unchanged; only the base is host-specific (documented in
 [`REGISTER_MAP.md`](REGISTER_MAP.md)). The device-tree `reg` base must match the host.
 
@@ -127,7 +127,7 @@ even though those files are added as sources.
 
 **Cause.** ``include "ethernet_packet_pkg.sv"`` is a bare include with no path.
 **Vivado auto-searches the directories of all added source files; Verilator does
-not** — it only searches `-I`/`+incdir` paths. The RTL sources were added, but their
+not**  -  it only searches `-I`/`+incdir` paths. The RTL sources were added, but their
 directories were never added as include paths, so the sim (Verilator backend)
 couldn't resolve the includes. (The board Vivado build worked, masking the problem.)
 
@@ -147,12 +147,12 @@ command *during* the multi-minute Verilator compile; and `milan_sim.py
 --non-interactive` never returned so a chained piped run never started.
 
 **Cause (three-part).**
-1. LiteX **couples build and run** — `builder.build(sim_config, interactive=…)` builds
+1. LiteX **couples build and run**  -  `builder.build(sim_config, interactive=…)` builds
    the `Vsim` binary *and* runs it in the same call.
 2. `--non-interactive` still **runs** the sim; with no stdin it just sits at the
    `litex>` prompt forever, so any command chained after it never executes.
 3. The `OSError` from `_run_sim` was simply the sim exiting non-zero because the
-   driver **SIGKILL'd** it — expected, not the real failure. The real failure was the
+   driver **SIGKILL'd** it  -  expected, not the real failure. The real failure was the
    command being consumed before the prompt existed (compile still running).
 
 **Fix.** Separate build from run: build once, then run the **cached `Vsim` binary
@@ -174,13 +174,13 @@ of [`SIMULATION.md`](SIMULATION.md).
 **Symptom.** Commands that tried to clean up the sim exited with `144`/`143` and no
 output; the shell appeared to be killed mid-command.
 
-**Cause.** `pkill -f "milan_sim.py …"` matches against **full command lines** — and the
+**Cause.** `pkill -f "milan_sim.py …"` matches against **full command lines**  -  and the
 very shell running the `pkill` has that pattern in *its own* argv, so `pkill` kills its
 own parent shell.
 
 **Fix.** Kill by the exact process name, never the pattern:
 ```sh
-pkill -x Vsim           # exact binary name — cannot match the shell
+pkill -x Vsim           # exact binary name  -  cannot match the shell
 ```
 
 ## Section 10: Yosys / sv2v cannot find axis_mux_rr_2in_1out
@@ -193,14 +193,14 @@ part of the design`. The Verilator build of the same module had *not* complained
 **Cause.** `ptp_ts_top` instantiates `axis_mux_rr_2in_1out` (in `hdl/common/`), which
 was missing from the explicit source list. **Verilator auto-resolves undefined modules
 from the directories of the input files** (so it silently found it), but **sv2v/Yosys
-only compile the files you list** — so the module was undefined there.
+only compile the files you list**  -  so the module was undefined there.
 
 **Fix.** Add the file explicitly to both flows (`syn/yosys/run.sh` top entry and the
 `tb/verilator/milan_dp` Makefile source list):
 ```
 hdl/common/axis_mux_rr_2in_1out.sv
 ```
-General rule: never rely on Verilator's directory auto-resolution — list every source
+General rule: never rely on Verilator's directory auto-resolution  -  list every source
 explicitly so sv2v/Yosys and Verilator agree.
 
 ## Section 11: milan_dp AXI-write BFM did not commit writes
@@ -220,8 +220,8 @@ and W valid together until both readys assert:
 ```cpp
 for (int g = 0; g < 64; g++) { lo(); bool acc = awready && wready; hi(); if (acc) break; }
 ```
-All 11 `milan_dp` checks pass after this. (This same class of bug — sampling on the
-wrong clock phase — is worth checking first whenever a write "silently does nothing".)
+All 11 `milan_dp` checks pass after this. (This same class of bug  -  sampling on the
+wrong clock phase  -  is worth checking first whenever a write "silently does nothing".)
 
 ## Section 12: Benign Verilator warnings (PINMISSING and SELRANGE)
 
@@ -242,7 +242,7 @@ harness builds.
 
 ## Section 13: traffic_queues silently dropped a frame
 
-**Symptom.** (Earlier, `queues` harness.) A frame routed into a queue was lost — the
+**Symptom.** (Earlier, `queues` harness.) A frame routed into a queue was lost  -  the
 `queue_has_data`/output collapsed as if the frame were discarded.
 
 **Cause.** Only the arbiter's `tvalid` was gated by the per-queue grant, while the FIFO
@@ -250,14 +250,14 @@ read (`m_axis_tready`) was left ungated. The `axis_arb_mux` prefetches
 (`s_axis_tready = ~s_axis_tvalid_reg | …`), so it *drained and dropped* the frame from
 the FIFO even when it had no grant to forward it.
 
-**Fix.** Gate **both** sides by the grant — the arbiter `tvalid` **and** the FIFO
-`m_axis_tready` — so a queue without a grant neither presents nor drains data. Caught
+**Fix.** Gate **both** sides by the grant  -  the arbiter `tvalid` **and** the FIFO
+`m_axis_tready`  -  so a queue without a grant neither presents nor drains data. Caught
 directly by the `queues` harness (`has_data` collapsing to one queue).
 
 ## Section 14: datapath harness "≥2 queues" assertion failed
 
 **Symptom.** (Earlier, `datapath` harness.) A check expecting frames to land in ≥2
-distinct queues failed — everything clustered into one queue.
+distinct queues failed  -  everything clustered into one queue.
 
 **Cause.** The classifier's *reset* PCP→TC→queue map clusters PCP 0–3 into the same
 class, so distinct PCPs did not fan out to distinct queues.
@@ -270,17 +270,17 @@ class, so distinct PCPs did not fan out to distinct queues.
 ## Section 15: `--full` fails 100 MHz timing in the CBS credit-shaper
 
 **Symptom.** The first `--full` Artix-7 bitstream (100 MHz `sys`) synthesised and
-routed but missed timing badly — `WNS = -19.25 ns`, `TNS = -78626 ns` on the
+routed but missed timing badly  -  `WNS = -19.25 ns`, `TNS = -78626 ns` on the
 `main_clkout0` (sys) group. Every worst path was in the 802.1Qav credit-based shaper:
 `…/gen_cbs[N].u_cbs/send_delta…`, `send_slope_per_byte`, `credit…`. Lowering `sys` was
-not an option — DDR3 needs `sys4x ≈ 400 MHz`, i.e. `sys = 100 MHz`.
+not an option  -  DDR3 needs `sys4x ≈ 400 MHz`, i.e. `sys = 100 MHz`.
 
 **Cause.** `credit_based_shaper.sv` computed the Q16 per-byte slope with a wide
 **constant-divide** (`(send_slope << 16) / port_rate`) and then multiplied it by
-`bytes_sent` **in the same clock period** — `report_timing` showed a single 21 ns cone
+`bytes_sent` **in the same clock period**  -  `report_timing` showed a single 21 ns cone
 of **36 logic levels / 22 CARRY4** from `is_1g` (`mac_ctrl_reg[4]`) to the `send_delta`
 DSP. The divide is the killer, but the slope terms are **quasi-static** (they change
-only when `tc cbs` reprograms idleSlope or the link rate flips — held for millions of
+only when `tc cbs` reprograms idleSlope or the link rate flips  -  held for millions of
 cycles), so the divide never needs a single-cycle result.
 
 **Fix (two parts).**
@@ -289,7 +289,7 @@ cycles), so the divide never needs a single-cycle result.
    multiply no longer shares the period, and declare `config → slope_r` a **multicycle
    path** in the SoC XDC (`milan_soc.py add_milan_datapath`, `set_multicycle_path 4
    -setup / 3 -hold`). Two gotchas: (a) synthesis **absorbs** the slope register into
-   the credit/`send_delta` DSP unless it is marked `(* dont_touch = "true" *)` — without
+   the credit/`send_delta` DSP unless it is marked `(* dont_touch = "true" *)`  -  without
    it the multicycle target cell does not exist (`[Vivado 12-180] No cells matched`);
    (b) synthesis pulls the CBS slope cone toward the `csr` module (where its config
    sources live), so the constraint must match by **leaf** register name
@@ -306,19 +306,19 @@ cycles), so the divide never needs a single-cycle result.
    fix is Section 16 (run the datapath in its own clock). `--timing-opt` (aggressive
    place/route/phys-opt directives) is the no-RTL lever for the last ns of setup slack.
 
-## Section 16: clean 100 MHz — run the dense datapath in its own clock domain
+## Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain
 
 **Symptom.** Even after the CBS fix (Section 15), the full DDR3 SoC would not close a
 clean **100 MHz** `sys`: the worst path kept landing in the dense TSN datapath
 (`rx_filter/mac_cam` TCAM readback, CSR read mux), `WNS ≈ -1 to -2 ns`.
 
 **Cause.** `report_timing` showed the offenders were **routing-dominated** (~72% route,
-high-fanout nets from a BRAM in `rx_filter`), not logic depth — a *congestion* problem
+high-fanout nets from a BRAM in `rx_filter`), not logic depth  -  a *congestion* problem
 in a datapath that is simply too dense to route at 100 MHz on this Artix-7 (-2). A
 `milan_csr` read-mux pipeline made it **worse** (added 256 registers of congestion,
-`WNS -1.06 → -1.92`) — the wrong lever, reverted.
+`WNS -1.06 → -1.92`)  -  the wrong lever, reverted.
 
-**Fix.** The datapath does not need 100 MHz — it only has to service 1 GbE (a 64-bit
+**Fix.** The datapath does not need 100 MHz  -  it only has to service 1 GbE (a 64-bit
 datapath at 50 MHz is 3.2 Gb/s). And `milan_datapath` was built with a **separate
 `axis_clk`/`gtx_clk`** for exactly this. So run the whole datapath in its own slower
 clock domain and cross the CPU boundary with a FIFO:
@@ -326,7 +326,7 @@ clock domain and cross the CPU boundary with a FIFO:
   datapath's `i_axis_clk`/`i_gtx_clk` from it (`add_milan_datapath(..., milan_cd)`), and
   crosses the CPU's AXI-Lite CSR bus with **`axi.AXILiteClockDomainCrossing`** (async
   FIFOs per channel) + a **`MultiReg`** for the level IRQ into the sys EventManager.
-- `sys` (100 MHz) now carries only CPU + DDR3 + bus + the CSR async-FIFO — the dense
+- `sys` (100 MHz) now carries only CPU + DDR3 + bus + the CSR async-FIFO  -  the dense
   logic is off its budget. Result: **"All user specified timing constraints are met"** at
   100 MHz; on the AX7101, NaxRiscv @100 MHz + **DDR3-800** (up from 640 @80 MHz), memtest
   OK, `MILN` reads correctly across the CDC (`evidence/hw_ddr3_800_cdc_100mhz.log`).
@@ -336,19 +336,19 @@ clock domain and cross the CPU boundary with a FIFO:
 
 **DDR3 ceiling.** DDR3 rate = `8×sys`, and the CPU shares `sys`; the **NaxRiscv** core
 capped `sys` at **~102 MHz** (register-file path), so DDR3-800 was the max with a shared
-clock — the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not the DRAM.
-(**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific — a VexiiRiscv
+clock  -  the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not the DRAM.
+(**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific  -  a VexiiRiscv
 build closed and ran **112.5 MHz / DDR3-900** on silicon, memtest OK. It was nonetheless
 reverted to 100 MHz / DDR3-800 because the higher clock *worsened* memory latency and the
-UDP-flood pps ceiling — see `LATENCY_INVESTIGATION.md` §8.) The S7PLL also
+UDP-flood pps ceiling  -  see `LATENCY_INVESTIGATION.md` §8.) The S7PLL also
 rejects intermediate frequencies (115 MHz → `No PLL config found`, since `sys4x=4·sys`
 plus the 50/200 MHz clocks force no valid VCO between 100 and 125). Faster DDR3
 (DDR3-1000 @ a 125 MHz `dram` domain) would need the controller+PHY decoupled onto their
 own clock with a memory-bus FIFO (LiteDRAM `crossbar.get_port(clock_domain=…)`), a
-bigger change for a mostly-latency gain — not pursued (3.2 GB/s already exceeds a 100 MHz
+bigger change for a mostly-latency gain  -  not pursued (3.2 GB/s already exceeds a 100 MHz
 core's bandwidth demand).
 
-## Section 17: on-hardware NIC bring-up — DMA works, but no packet on the wire (it's GMII, not RGMII)
+## Section 17: on-hardware NIC bring-up  -  DMA works, but no packet on the wire (it's GMII, not RGMII)
 
 **Symptom.** With the live rig (ProfiTap ProfiShark 1G+ taps between the FPGA eth ports and
 Intel i210 traffic generators), the copper link comes up at **1000/Full**, and the FPGA's
@@ -359,17 +359,17 @@ DMA-TX, and an FPGA RX-DMA captures nothing from i210 broadcasts.
 **Diagnosis (the useful part).** The LiteEth MAC exposes RX error counters (`milan_mac` @
 `0xf0003800`: `rx_datapath_preamble_errors` @ `0xf0003808`, `rx_datapath_crc_errors` @
 `0xf000380c`). Blasting a known count of frames from the i210 and reading these gives a
-precise signal (the milan RMON at `0x90000200` is useless here — `MilanMAC` ties
+precise signal (the milan RMON at `0x90000200` is useless here  -  `MilanMAC` ties
 `i_mac_events=0`). The result: a **20000-frame blast → `preamble_errors` +20000, `crc` +0,
 0 captured**. *Exactly one preamble error per frame* ⇒ every frame reaches the MAC (RX_DV
-sampled fine) but the **data is structurally corrupted** — not a timing margin (that would
+sampled fine) but the **data is structurally corrupted**  -  not a timing margin (that would
 give a *fraction* of errors), and not the datapath (frames never get past the preamble).
 
 **False trails (all the wrong interface).** Assuming RGMII, we chased: the s7rgmii IDELAY
 value (0 vs 2 ns), inverting the RX clock (the Alinx `util_gmii_to_rgmii` does
 `BUFG(~rgmii_rxc)`), removing the IDELAY entirely, swapping the IDDR nibbles. Each was a
 ~25-min rebuild; none moved the 100% error rate. Lesson: a **100%-deterministic** data
-error is structural — stop tuning timing and question the interface/pinout.
+error is structural  -  stop tuning timing and question the interface/pinout.
 
 **Root cause.** The AX7101's RTL8211E is strapped for **GMII (8-bit SDR)**, *not* RGMII
 (4-bit DDR). The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) makes it
@@ -378,17 +378,17 @@ A 4-bit-DDR RGMII read of an 8-bit-SDR bus corrupts every byte (and RX_DV, a lev
 reads fine → the tell-tale one-preamble-error-per-frame).
 
 **Fix.** Platform `eth0` → 8-bit GMII pinout (`rx_data[0:7]`, separate `rx_dv`/`rx_er`,
-`gtx`/`rx`/`tx` clocks — all from the Alinx `top.xdc`), and `MilanMAC` → **`LiteEthPHYGMII`**
+`gtx`/`rx`/`tx` clocks  -  all from the Alinx `top.xdc`), and `MilanMAC` → **`LiteEthPHYGMII`**
 (the RGMII `milan_rgmii.py` path is retired for this board). See
 `evidence/hw_ma3_dma_datapath_100mhz.md` for the full sequence and the exact `mem_write`/
 `mem_read` console recipe used to drive DMA-TX/RX and read the MAC counters over the BIOS
 console (no toolchain needed).
 
 **Meta-lesson.** Confirm the PHY interface (GMII vs RGMII) from the board vendor's *working*
-example before writing the PHY — the LiteEth default for a "1G Artix + RTL8211" is RGMII,
+example before writing the PHY  -  the LiteEth default for a "1G Artix + RTL8211" is RGMII,
 which was simply wrong for this board.
 
-## Section 18: TX frames egress truncated / not at all — AXIS `tkeep` vs LiteEth `last_be`
+## Section 18: TX frames egress truncated / not at all  -  AXIS `tkeep` vs LiteEth `last_be`
 
 **Symptom.** With the GMII bitstream, GMII RX proven, and the TX-DMA reading memory
 correctly (`milan_dma_tx_done=1`, `_offset`=word-count for both ROM and DRAM), driving
@@ -399,7 +399,7 @@ as `ff:00:00:00:00:00` (only byte 0 survived, rest zero), and a full 64-byte fra
 **Not the cause (each eliminated).** DMA read (proven via `done`/`offset` on ROM+DRAM and an
 isolated Migen sim of the 64→32 converter); the datapath TX (byte-exact in
 `tb/verilator/datapath`, tkeep-preserving `traffic_queues.sv`); CBS (`CBS_CTRL[0]=0` is
-*unshaped*, not starved); DMA `length` units (a separate bug — it's **bytes**, see
+*unshaped*, not starved); DMA `length` units (a separate bug  -  it's **bytes**, see
 `REGISTER_MAP.md`, so `length=8` sent one word).
 
 **Root cause.** `MilanMAC` mapped AXIS `tkeep` straight onto LiteEth `core.sink.last_be`.
@@ -414,35 +414,35 @@ datapath expects a mask).
 `keep = last ? (last_be<<1)-1 : 0xFF` (one-hot→mask). `keep=0xFF ↔ last_be=0x80`.
 
 **Meta-lesson.** AXIS `tkeep` (contiguous mask) and LiteEth `last_be` (one-hot last-byte
-pointer) are different encodings — never wire one onto the other. And the Verilator datapath
+pointer) are different encodings  -  never wire one onto the other. And the Verilator datapath
 harness checks egress `m_tdata` but **not `m_tkeep`**; a keep/last_be bug in the LiteX glue
 (`milan_soc.py`) is covered by no RTL harness. See `evidence/hw_ma3_dma_datapath_100mhz.md`.
 
-## Section 19: kernel hangs after OpenSBI (no `Linux version`) — a STALE `litex_term` served the wrong boot manifest
+## Section 19: kernel hangs after OpenSBI (no `Linux version`)  -  a STALE `litex_term` served the wrong boot manifest
 
 **Symptom (2026-07-05, FPU bring-up).** After loading a bitstream, the console showed the
-LiteX BIOS, then OpenSBI's full banner ending at `Boot HART MEDELEG …`, and then **nothing** —
+LiteX BIOS, then OpenSBI's full banner ending at `Boot HART MEDELEG …`, and then **nothing**  - 
 no `Linux version`, no panic, a silent hang at the OpenSBI→kernel handoff. It reproduced
 across *every* combination tried: FPU kernel and no-FPU kernel, FPU gateware and the known-good
 `ring10` gateware, corrected `riscv,isa` strings, both `--with-fpu` netlists. Hours were spent
 suspecting the FPU (timing at +0.004 ns), then the kernel `CONFIG_FPU`, then a rebuild config
-regression — **all red herrings.**
+regression  -  **all red herrings.**
 
-**Root cause — the kernel was never loaded to `0x40000000`.** The boot console showed
-serialboot uploading only `milan.dtb`, `rootfs.cpio.gz`, `opensbi.bin` — **the `Image` was
+**Root cause  -  the kernel was never loaded to `0x40000000`.** The boot console showed
+serialboot uploading only `milan.dtb`, `rootfs.cpio.gz`, `opensbi.bin`  -  **the `Image` was
 never uploaded.** That file set is exactly `boot_flashkernel.json` (kernel-from-QSPI), *not*
 `boot.json` (kernel-over-serial). A **stale `litex_term` process from earlier QSPI-boot work
 was still holding the serial port and serving `boot_flashkernel.json`**; `tmux send-keys C-c`
 plus a fresh `litex_term …–images boot.json` command did **not** replace it (the C-c reached
 the tmux pane but the old process kept the port, and the new command couldn't open the busy
-device). Every board reset — triggered by each `openFPGALoader` reload — was answered by the
+device). Every board reset  -  triggered by each `openFPGALoader` reload  -  was answered by the
 old process. And because the QSPI had been `--bulk-erase`d for the FPU work, linux_flashboot
 printed `Error: invalid image length 0xffffffff` and fell through, so **no kernel came from
 QSPI either.** OpenSBI dutifully jumped to `0x40000000`, which held only memtest patterns →
 silent hang.
 
 **Diagnosis method that finally worked.** Read the *upload lines* in the boot log, not just
-the hang point: `Uploading …/milan.dtb`, `…/rootfs.cpio.gz`, `…/opensbi.bin` — and the
+the hang point: `Uploading …/milan.dtb`, `…/rootfs.cpio.gz`, `…/opensbi.bin`  -  and the
 conspicuous **absence of `Uploading …/Image to 0x40000000`**. Then `pgrep -af litex_term`
 revealed the live process still pointed at `boot_flashkernel.json`.
 
@@ -456,12 +456,12 @@ bytes)…` and the kernel boots.
   (look for the `Image` upload line, or `Copying …to 0x40000000` for the QSPI path) *before*
   suspecting the CPU/kernel. OpenSBI running proves the CPU executes; a jump into an unloaded
   address hangs identically to a broken CPU.
-- `tmux send-keys C-c` is **not** a reliable way to replace a serial-holding process — verify
+- `tmux send-keys C-c` is **not** a reliable way to replace a serial-holding process  -  verify
   with `pgrep -af litex_term` that the *intended* manifest is being served. Prefer killing the
   old PID and starting fresh.
-- Don't `--bulk-erase` the QSPI and then boot expecting the resident kernel — pair an erase with
+- Don't `--bulk-erase` the QSPI and then boot expecting the resident kernel  -  pair an erase with
   either a re-flash *or* a full-serial `boot.json` (kernel included), and make sure the term
   actually serves that manifest. (See also the QSPI pre-erase rule in the milan-fpga-nic skill.)
 - This masqueraded perfectly as an FPU/timing bug. The FPU hardware was fine the whole time
-  (misa `rv64imafd`, fits at 58 % BRAM / 77 % LUT, timing met) — see the FPU notes in
+  (misa `rv64imafd`, fits at 58 % BRAM / 77 % LUT, timing met)  -  see the FPU notes in
   `board-session-state`.

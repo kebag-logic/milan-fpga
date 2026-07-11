@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net"><diagram name="RX_RING_DMA"><mxGraphModel dx="1400" dy="900" grid="0" page="1" pageWidth="1500" pageHeight="620"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="n2" value="RX ring DMA — drain-rate deficit root cause + AXI-burst fix (silicon 2026-07-04)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;verticalAlign=top;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="1000" height="30" as="geometry"/></mxCell><mxCell id="n3" value="wire
+<mxfile host="app.diagrams.net"><diagram name="RX_RING_DMA"><mxGraphModel dx="1400" dy="900" grid="0" page="1" pageWidth="1500" pageHeight="620"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="n2" value="RX ring DMA  -  drain-rate deficit root cause + AXI-burst fix (silicon 2026-07-04)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;verticalAlign=top;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="20" y="10" width="1000" height="30" as="geometry"/></mxCell><mxCell id="n3" value="wire
 1 Gbps
 8 B / 64 ns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="24" y="108" width="130" height="88" as="geometry"/></mxCell><mxCell id="n4" value="LiteEth MAC RX
 eth_rx 125 MHz
@@ -10,7 +10,7 @@ SILENTLY (incl. last)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2
 adapter waits B each time
 ~38 sys-cycles / 8 B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#EF6C00;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="614" y="108" width="190" height="88" as="geometry"/></mxCell><mxCell id="n7" value="NaxRiscv dma_bus
 coherent (snoops L1/L2)
-the port is FULL AXI4 —
+the port is FULL AXI4  - 
 wishbone was the adapter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="844" y="108" width="200" height="88" as="geometry"/></mxCell><mxCell id="n8" value="measured drain: ~21 MB/s  (need 125)
 telemetry rx_dma: 9,805,345 stalls / 542,240 beats
 = 18 stall-cycles per beat @ 50 MHz -&gt; 380 ns/beat
@@ -21,7 +21,7 @@ small frames fit the FIFOs; large frames overflow mid-frame" style="rounded=1;wh
 lost `last` merges two wire frames into one ring frame:
 hdr len=2608 B == wr-rd-8 exactly (writer honest, input corrupt)
 iperf3 TCP: control OK, bulk 0 B  |  UDP 10M: 0 delivered" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="510" y="234" width="450" height="96" as="geometry"/></mxCell><mxCell id="n11" value="v1 also had a latent stale-data bug
-the wishbone cycle wasn&#x27;t gated on sink.valid — a mid-frame
+the wishbone cycle wasn&#x27;t gated on sink.valid  -  a mid-frame
 bubble wrote stale sink.data as an extra beat. Never hit in
 sim (source never bubbled) -&gt; now a regression test." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="980" y="234" width="496" height="96" as="geometry"/></mxCell><mxCell id="n12" value="wire
 1 Gbps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="24" y="370" width="130" height="96" as="geometry"/></mxCell><mxCell id="n13" value="MAC + CDC + dp
@@ -43,11 +43,11 @@ wr_ptr moves only after the
 LAST B response -&gt; software
 never sees a partial frame
 seq/len header format identical" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1224" y="370" width="252" height="96" as="geometry"/></mxCell><mxCell id="n18" value="what did NOT change (zero driver/DT churn)
-CSR block: base[64] | mask | wr_ptr | rd_ptr | enable | dropped — same 7 words @0xf000301c
+CSR block: base[64] | mask | wr_ptr | rd_ptr | enable | dropped  -  same 7 words @0xf000301c
 ring format: [8 B header {rsvd,seq,len}] + payload padded to 8 B, frames wrap, sw splits the copy
 kl-eth walks the ring exactly as before; overload now = clean whole-frame drops in
 rx_missed_errors (RING_DROPPED), never corruption" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="490" width="700" height="104" as="geometry"/></mxCell><mxCell id="n19" value="verification
 sim (test_ring_dma.py): content/seq, mid-frame bubbles, slow-drain whole-frame drops,
-ring-full discard, wrap + rd-release, 4 KB burst split — ALL PASS, sink.ready monitored ==1
+ring-full discard, wrap + rd-release, 4 KB burst split  -  ALL PASS, sink.ready monitored ==1
 silicon acceptance: large-ping sweep clean, iperf3 -R + UDP envelope, telemetry rx_dma
 stalls ~= 0 under load, rx_missed_errors counts drops (not desyncs) at overload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;fontSize=11;verticalAlign=top;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="780" y="490" width="696" height="104" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

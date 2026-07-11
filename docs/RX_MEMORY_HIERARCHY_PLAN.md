@@ -1,13 +1,13 @@
-# RX memory-hierarchy plan — cold vs capacity, and the dedicated-network-cache decision
+# RX memory-hierarchy plan  -  cold vs capacity, and the dedicated-network-cache decision
 
-> 📌 **The top sections (PERF VERDICT, Phase L2 RESULT) are current; the plan below is the 2026-07-08 cold-vs-capacity exploration.** Outcome: the wall is the recv copy's cold reads, and **DDIO (Branch B) is the chosen next lever — not deferred**. Current state: [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
+> 📌 **The top sections (PERF VERDICT, Phase L2 RESULT) are current; the plan below is the 2026-07-08 cold-vs-capacity exploration.** Outcome: the wall is the recv copy's cold reads, and **DDIO (Branch B) is the chosen next lever  -  not deferred**. Current state: [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
 
 *Sub-plan of [`CAMPAIGN_500_PLAN.md`](CAMPAIGN_500_PLAN.md), opened 2026-07-08. RX at the
 2-hart fan-out ceiling is memory-bound; this plan disambiguates **which** memory problem and
 picks the lever by measurement, because the candidate fixes range from a 1-hour L2 rebuild to
 a weeks-long coherency-path RTL change. Same rule as the parent: no big build on a hunch.*
 
-## PERF VERDICT (2026-07-09) — the RX wall is the recv payload copy, measured
+## PERF VERDICT (2026-07-09)  -  the RX wall is the recv payload copy, measured
 
 Cross-compiled `perf` (from `linux-7.0.11/tools/perf`, wget to board, symbols via host
 `System.map` since `CONFIG_KALLSYMS` is off for flash-fit) and profiled RX −P2. **The 2-hart
@@ -23,17 +23,17 @@ recv() → tcp_recvmsg → skb_copy_datagram_iter →
 ```
 
 RISC-V here has **no vector extension** (`CONFIG_RISCV_ISA_V` off, VexiiRiscv "linux"), so the
-copy takes the scalar path — but the arithmetic (≈18 cyc / 8-byte word) shows it is **stalling
+copy takes the scalar path  -  but the arithmetic (≈18 cyc / 8-byte word) shows it is **stalling
 on cold DRAM reads of the DMA'd payload** (first CPU touch = miss), *not* compute-bound. This is
 the SAME cold miss the RPT prefetcher hides (why `mlp2` single jumped +34 %) and that THP already
 halved on the TLB side (`linux.fragment` THP note). **So the interconnect hypothesis is refuted**
-(the RX *writer* `outhi` caps at 2 with ~30× headroom — not the bottleneck); the wall is the
+(the RX *writer* `outhi` caps at 2 with ~30× headroom  -  not the bottleneck); the wall is the
 copy's cold reads, and the aggregate is capped ~300 by two harts contending the shared memory
-path. **The only lever that removes it is zero-copy recv** — the prefetcher/L2/THP
+path. **The only lever that removes it is zero-copy recv**  -  the prefetcher/L2/THP
 only *speed* the copy, they cannot delete it. `perf` is now in the defconfig + wget-able for
 future measurement.
 
-### Ceiling test (`recv(MSG_TRUNC)` drains without `copy_to_user` — `tcp.c:2866`)
+### Ceiling test (`recv(MSG_TRUNC)` drains without `copy_to_user`  -  `tcp.c:2866`)
 
 `tools_recv_trunc.c` (a receiver that drains via `MSG_TRUNC`) + `tools_tcp_blast.c` (fork-per-conn
 sender) measure "what RX would be if the copy were free":
@@ -43,16 +43,16 @@ sender) measure "what RX would be if the copy were free":
 | single | 277 | **427** | +54 % |
 | **−P2 (2-hart)** | **298** | **481** | **+61 %** |
 
-**−P2 481 is 96 % of the 500 goal** — the copy is decisively the #1 RX wall, and removing it
+**−P2 481 is 96 % of the 500 goal**  -  the copy is decisively the #1 RX wall, and removing it
 nearly reaches >500. Two removal paths: **app zero-copy recv** (MSG_ZEROCOPY/mmap → 481, but the
 app must opt in; iperf3 doesn't) or **DDIO / allocate-on-DMA-write** (warm the copy's payload
-reads *and* GRO's header reads at the DMA source — this is the "dedicated network cache" from the
+reads *and* GRO's header reads at the DMA source  -  this is the "dedicated network cache" from the
 top of this plan, now measured-justified; VexiiRiscv's L2 lacks allocate-on-DMA-write so it's a
-coherency-path RTL / dedicated-stash project, sim-first — task #15).
+coherency-path RTL / dedicated-stash project, sim-first  -  task #15).
 
-The **residual** (post-copy) wall is the GRO/NAPI stack's cold header reads — but GRO itself is
+The **residual** (post-copy) wall is the GRO/NAPI stack's cold header reads  -  but GRO itself is
 *beneficial* (`ethtool -K gro off` regressed 481→460). No-copy −P2 scales only 1.13× over single
-(427→481), so the deep wall is the shared memory path for RX metadata, not per-hart CPU — to
+(427→481), so the deep wall is the shared memory path for RX metadata, not per-hart CPU  -  to
 *exceed* 500, copy-removal must be paired with fewer header touches (bigger RSC) or DDIO warming
 all RX reads.
 
@@ -67,7 +67,7 @@ all RX reads.
 | **RX −P2 (2 harts, both 99–100 %)** | **238 = only +24 %, not 2×** | R1 |
 | per-miss cost (scattered) | 1424 ns (≈50 % TLB + 50 % DRAM) | `LATENCY_INVESTIGATION.md` |
 
-There is a **sharp 32 KB L2 cliff** and RX saturates 2 harts at +24 %, not 2× — the shared
+There is a **sharp 32 KB L2 cliff** and RX saturates 2 harts at +24 %, not 2×  -  the shared
 memory subsystem (32 KB L2 + DDR3-800 + depth-2 DMA interconnect) is the ceiling, not cores
 (see `CAMPAIGN_500_PLAN.md` "more cores rejected": TX not hart-bound, RX BRAM won't fit + this
 sub-linear scaling).
@@ -76,30 +76,30 @@ sub-linear scaling).
 
 RX cache misses are **two kinds**, and the fixes are *disjoint*:
 
-- **Cold / producer→consumer misses** — HW DMA-writes each frame to DRAM; the CPU's first
+- **Cold / producer→consumer misses**  -  HW DMA-writes each frame to DRAM; the CPU's first
   touch is *always* a miss (this **is** the 1424 ns/miss cold read). **A bigger shared L2
-  cannot fix these** — the data was never cached.
-- **Capacity misses** — BD rings, code, socket/skb state, aggregate buffers re-referenced
+  cannot fix these**  -  the data was never cached.
+- **Capacity misses**  -  BD rings, code, socket/skb state, aggregate buffers re-referenced
   across frames and **evicted when two harts' hot-sets exceed 32 KB**. **A bigger L2 fixes
   these.**
 
 The +24%-not-2× is consistent with **either** (capacity thrash) **or** DRAM-bandwidth
-saturation (both harts' cold reads saturating DDR3-800) — and **we cannot measure which
+saturation (both harts' cold reads saturating DDR3-800)  -  and **we cannot measure which
 directly**: `perf` is absent, and `perf_event_open` returns ENOENT (the SBI PMU exposes no HW
-cache events; `taskset` is also absent — see the M1 driver notes). So the plan **infers**
+cache events; `taskset` is also absent  -  see the M1 driver notes). So the plan **infers**
 cold-vs-capacity from controlled experiments, cheapest first.
 
 ## Tooling (perf-free, on-silicon)
 
-- **`sw/litex/tools_lat_mem_rd.c`** — pointer-chase latency vs working-set; maps the cache
+- **`sw/litex/tools_lat_mem_rd.c`**  -  pointer-chase latency vs working-set; maps the cache
   hierarchy (already used: found the 32 KB cliff). Cross-compile static with
   `riscv64-buildroot-linux-gnu-gcc -O2 -static`, stage to the peer, wget to the board.
-- **`pmu.c`** (scratchpad) — `perf_event_open` reader; **currently returns ENOENT** on this
+- **`pmu.c`** (scratchpad)  -  `perf_event_open` reader; **currently returns ENOENT** on this
   kernel. Kept for when/if opensbi is rebuilt with a PMU event table (see Phase C.0).
 
-## Phase L2 RESULT (2026-07-08) — CAPACITY-bound CONFIRMED; L2 is the lever
+## Phase L2 RESULT (2026-07-08)  -  CAPACITY-bound CONFIRMED; L2 is the lever
 
-`build_l2x2` (64 KB L2, WNS **+0.140** — best margin of the campaign, the L2 *helped* timing;
+`build_l2x2` (64 KB L2, WNS **+0.140**  -  best margin of the campaign, the L2 *helped* timing;
 BRAM 81.85 %). §V clean (4/4 storm stages delivered, canary 0). Measured:
 
 | | m1 (32 KB L2) | **l2x2 (64 KB L2)** | Δ |
@@ -110,12 +110,12 @@ BRAM 81.85 %). §V clean (4/4 storm stages delivered, canary 0). Measured:
 | **RX −P2 (split rounds)** | **238** | **278–280** | **+17 %** |
 
 **Verdict: the RX 2-hart contention was CAPACITY misses, not cold.** Doubling the L2 lifted
-−P2 +17 % (single unchanged — one flow's hot-set already fit 32 KB; only *two* harts spilled
+−P2 +17 % (single unchanged  -  one flow's hot-set already fit 32 KB; only *two* harts spilled
 it). A bigger *shared* L2 helping is the definitional signature of a capacity, not cold,
-bottleneck. **So the dedicated network cache (Branch B) is DEFERRED** — the cheap L2 doubling
+bottleneck. **So the dedicated network cache (Branch B) is DEFERRED**  -  the cheap L2 doubling
 is the confirmed RX lever, and it did not require a coherency-path RTL project. → **Branch A.**
 
-## (superseded plan) Phase L2 (IN FLIGHT) — the disambiguator: 32 → 64 KB shared L2
+## (superseded plan) Phase L2 (IN FLIGHT)  -  the disambiguator: 32 → 64 KB shared L2
 
 `build_l2x2` (100 MHz, `--l2-bytes 65536`, from HEAD incl. the reader-Buffer + 1x-SPI
 keepers). **Fits: BRAM 81.85 % (110.5/135)**, +8 tiles over m1's 76 %.
@@ -127,19 +127,19 @@ keepers). **Fits: BRAM 81.85 % (110.5/135)**, +8 tiles over m1's 76 %.
   - **RX −P2 ~unchanged** ⇒ **COLD / bandwidth-bound** → Branch B (dedicated network cache).
 - Duration: ~1 build + a matrix. **This must land before any Branch-B commitment.**
 
-## Branch A — capacity-bound: grow / partition the L2
+## Branch A  -  capacity-bound: grow / partition the L2
 
 Only if Phase L2 helped.
 
-- **A.1 push L2 further** — 64 → 96 KB if BRAM allows (128 KB won't: 82 % + another 32 KB
+- **A.1 push L2 further**  -  64 → 96 KB if BRAM allows (128 KB won't: 82 % + another 32 KB
   overflows 135 tiles; would need to free BRAM elsewhere first). Measure diminishing returns:
   each step's RX −P2 gain vs BRAM spent; stop when the curve flattens.
-- **A.2 way-partition / stream-reserve** (if the L2 supports it) — reserve ways so the two
+- **A.2 way-partition / stream-reserve** (if the L2 supports it)  -  reserve ways so the two
   harts' hot-sets don't evict each other, cheaper than raw capacity. Needs VexiiRiscv L2
   partition support (audit first; likely absent → skip).
 - **Gate:** RX −P2 ≥ 300 with the L2 growth curve flat (no cheap capacity left).
 
-## Architecture finding (2026-07-08) — why a network *scratchpad* is the wrong lever HERE
+## Architecture finding (2026-07-08)  -  why a network *scratchpad* is the wrong lever HERE
 
 Investigated in response to "use on-chip BRAM, bypass DRAM for the network path." The instinct
 is right in principle (DRAM cold-miss latency **is** the RX wall) but the naive scratchpad form
@@ -147,47 +147,47 @@ is blocked by two verified facts:
 
 1. **The RX buffers are already in DRAM and cost ZERO FPGA BRAM.** They are `page_pool` +
    `dma_alloc_coherent` kernel pages (kl-eth.c:351–367, `DMA_FROM_DEVICE`). So a scratchpad
-   would *move* 768 KB of buffers *into* the ~100 KB of free BRAM — it **adds** BRAM demand and
+   would *move* 768 KB of buffers *into* the ~100 KB of free BRAM  -  it **adds** BRAM demand and
    doesn't fit. It is the opposite of "keep BRAM for logic." The network path does **not**
    compete with the AVDECC logic for BRAM today; only the **L2** and the **TX shaper FIFOs**
    (`traffic_queues.sv FIFO_DEPTH=16384`) do.
 2. **The +17 % the L2 gave is kernel-owned state a driver scratchpad cannot relocate.** The
    reused hot-set that thrashed at 2 harts is socket/TCP/skb/GRO state + code + page-pool
-   metadata — kernel slab/text, not driver buffers. A NIC driver can only place its *own*
-   structures (BD rings, 2 KB — already L2-resident) in a scratchpad. So a scratchpad
+   metadata  -  kernel slab/text, not driver buffers. A NIC driver can only place its *own*
+   structures (BD rings, 2 KB  -  already L2-resident) in a scratchpad. So a scratchpad
    physically cannot hold the thing that bottlenecks. A **transparent cache (the L2) is the
    correct tool** precisely because the hot data is kernel-owned and scattered.
 
-**Corollary — prefetch (B.0) viability is unverified on this core.** The CPU is VexiiRiscv
+**Corollary  -  prefetch (B.0) viability is unverified on this core.** The CPU is VexiiRiscv
 "linux" = **in-order** (milan_soc.py:2718). Software prefetch only hides latency if the D$ is
 **non-blocking** (hit-under-miss / multiple outstanding refills). If it is blocking, a prefetch
-load just moves the stall earlier — a no-op. **Verify the lsuL1 refill/outstanding config
+load just moves the stall earlier  -  a no-op. **Verify the lsuL1 refill/outstanding config
 before trusting B.0.** On an in-order blocking D$ the only lever is "make the read a hit"
 (cache / stash), not "overlap the miss."
 
 **A cheaper first move than DDIO exists on the *core* side: make the D$ non-blocking.** The
-LSU's refill engine is depth-1 by default (blocking — misses serialize); widening it to 8
+LSU's refill engine is depth-1 by default (blocking  -  misses serialize); widening it to 8
 refill slots lets cold misses overlap (MLP) and costs **0 BRAM** (FF/LUT state). Full mechanism
 + the `build_mlp1` result in [`LSU_NONBLOCKING_DCACHE.md`](LSU_NONBLOCKING_DCACHE.md). This is
 the lever now in flight.
 
 **Therefore the form of the idea that actually works is DDIO / allocate-on-DMA-write (B.3
-below)** — land the DMA data warm in the L2/a stash so the CPU read is a *hit*, DRAM stays the
+below)**  -  land the DMA data warm in the L2/a stash so the CPU read is a *hit*, DRAM stays the
 backing store. It does not save BRAM (it uses the L2/stash) and it is coherency-path RTL, but
 it is the *architecturally* correct "on-chip for network" and the only one that addresses the
-cold payload. The frugal, zero-BRAM RX lever meanwhile is **B.4 (fewer touches per frame** —
+cold payload. The frugal, zero-BRAM RX lever meanwhile is **B.4 (fewer touches per frame**  - 
 bigger RSC coalescing cuts the cold-miss *count*), which honors "keep BRAM for logic."
 
-## Branch B — cold / bandwidth-bound: the dedicated network cache
+## Branch B  -  cold / bandwidth-bound: the dedicated network cache
 
 Only if Phase L2 did **not** help. This is the user's "dedicated cache only for network"
-idea — architecturally correct for cold misses (cf. Intel **DDIO** / ARM **cache stashing**:
+idea  -  architecturally correct for cold misses (cf. Intel **DDIO** / ARM **cache stashing**:
 land NIC DMA data where the CPU reads it warm). Ordered cheapest-first:
 
-- **B.0 (software, no bitstream) — driver RX prefetch.** In `kl_rx_one_bd`, software-prefetch
+- **B.0 (software, no bitstream)  -  driver RX prefetch.** In `kl_rx_one_bd`, software-prefetch
   the next frame's header/first line (and the next BD) before processing the current one, so
   the cold-miss latency is *hidden* behind useful work. RISC-V `prefetch.r`/a dummy load, or
-  restructure the reap loop to touch N+1 while N is in the stack. **The poor-man's stashing** —
+  restructure the reap loop to touch N+1 while N is in the stack. **The poor-man's stashing**  - 
   try this FIRST; a driver change, measured by RX −P2 delta + the reap-stage ns/frame timer
   already in the driver. If it recovers a big fraction, Branch B may not need RTL at all.
 - **B.1 DRAM-bandwidth check (measurement, gates B.2/B.3).** Distinguish cold-latency from
@@ -202,11 +202,11 @@ land NIC DMA data where the CPU reads it warm). Ordered cheapest-first:
   BRAM free; the current RSC set is 48 × 16 KB = 768 KB → *won't fit*. Feasible variants:
   (a) revert the L2 and spend that BRAM here; (b) shrink RSC buffers (smaller aggregates);
   (c) **hybrid**: frame *headers* (the part the CPU touches for classification/GRO) in SRAM,
-  payload stays in DRAM as a frag — headers are the hot, cold-miss-heavy part. Gate: RX −P2
+  payload stays in DRAM as a frag  -  headers are the hot, cold-miss-heavy part. Gate: RX −P2
   up with the pointer-chase showing header touches at SRAM latency.
-- **B.3 DMA-stashing / write-allocate (RTL, coherency path — the "real" DDIO).** Make the RX
+- **B.3 DMA-stashing / write-allocate (RTL, coherency path  -  the "real" DDIO).** Make the RX
   writer's DMA writes *allocate* into the L2 (or a small dedicated stash cache) so the CPU
-  reads warm, keeping DRAM as backing. **Requires L2-controller allocate-on-DMA-write** —
+  reads warm, keeping DRAM as backing. **Requires L2-controller allocate-on-DMA-write**  - 
   VexiiRiscv's L2 almost certainly lacks it and today's `--coherent-dma` likely
   write-*invalidates* without allocating. This is weeks of coherency-path RTL, highest risk,
   highest ceiling. Only pursue if B.0/B.2 are insufficient and B.1 says latency (not
@@ -216,22 +216,22 @@ land NIC DMA data where the CPU reads it warm). Ordered cheapest-first:
   both cold-miss count and bandwidth; complements B.0. Gated by the close-reason counters
   (`rsc_close_*`) already built in M1 (park 58 % today → per-queue slots cut the park tax).
 
-## BRAM budget (the shared constraint — L2 and network-SRAM compete)
+## BRAM budget (the shared constraint  -  L2 and network-SRAM compete)
 
 | config | BRAM tiles | % of 135 |
 |---|---|---|
 | m1 (32 KB L2) | 102.5 | 76 % |
 | + 64 KB L2 (Phase L2) | 110.5 | **82 %** |
-| headroom left @64 KB L2 | ~24.5 tiles ≈ **~110 KB** | — |
+| headroom left @64 KB L2 | ~24.5 tiles ≈ **~110 KB** |  -  |
 
 **Implication:** a full network-SRAM scratchpad (B.2) and a grown L2 (Branch A) cannot both be
 large. The Phase-L2 A/B is therefore also a *resource-allocation* decision: spend the scarce
-BRAM on L2 (capacity) **or** on a network cache (cold), not both — measurement picks.
+BRAM on L2 (capacity) **or** on a network cache (cold), not both  -  measurement picks.
 
 ## Decision tree (one glance)
 
 ```
-Phase L2 (64 KB) — RX −P2 vs 238 ?
+Phase L2 (64 KB)  -  RX −P2 vs 238 ?
 ├─ >238  → CAPACITY-bound → Branch A: grow L2 (A.1) → gate RX −P2 ≥ 300
 └─ ≈238  → COLD/BW-bound → B.0 driver prefetch (cheap, first)
                           → B.1 bandwidth-vs-latency check
@@ -244,6 +244,6 @@ Phase L2 (64 KB) — RX −P2 vs 238 ?
 
 Every step keeps the campaign contract: a numeric gateware/software gate read from HW counters
 + `/proc/stat`, §V on every bitstream, one lever per build. The expensive Branch-B RTL
-(B.2/B.3) is **explicitly gated** on Phase-L2 showing cold-bound *and* B.0/B.1 — the dedicated
+(B.2/B.3) is **explicitly gated** on Phase-L2 showing cold-bound *and* B.0/B.1  -  the dedicated
 network cache is the right idea for cold misses, but it is a large investment that only the
 measurement authorizes.

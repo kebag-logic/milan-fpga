@@ -1,4 +1,4 @@
-# Simulation — how the Milan design is simulated and verified
+# Simulation  -  how the Milan design is simulated and verified
 
 Everything in this design is verified **without vendor tools and without hardware**,
 using three layers of simulation (plus a synthesis-portability check). This document
@@ -9,7 +9,7 @@ explains each layer: what it is, how it is wired, how to run it, and what it pro
 | **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | `tb/verilator/` (15 harnesses) |
 | **2. Softcore boot** | Verilator (via LiteX) | the whole SoC | the NaxRiscv core boots the LiteX BIOS | `litex_sim` / `sw/litex/evidence/naxriscv_sim_boot.log` |
 | **3. Softcore + NIC (M-A2)** | Verilator (via LiteX) | SoC + `milan_datapath` | the **CPU reads the NIC over the real bus** | `sw/litex/milan_sim.py` / `…/naxriscv_reads_MILN.log` |
-| (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | `syn/yosys/` (18 tops) — not simulation, see its README |
+| (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | `syn/yosys/` (18 tops)  -  not simulation, see its README |
 
 These three layers map to the sections below:
 [Section 1](#section-1-verilator-rtl-harnesses),
@@ -34,7 +34,7 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](TROUBLESHOO
   export JAVA_HOME=/usr/lib/jvm/java-17-openjdk      # sbt/SpinalHDL generates NaxRiscv
   cd ~/litex-milan/work                              # NOT the litex-repos parent
   ```
-  The last two lines are load-bearing — see
+  The last two lines are load-bearing  -  see
   [Section 1](TROUBLESHOOTING.md#section-1-import-litex-resolves-to-a-namespace-package)
   and [Section 2](TROUBLESHOOTING.md#section-2-naxriscv-generation-needs-java_home)
   of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
@@ -57,7 +57,7 @@ the worked example):
 tb/verilator/milan_dp/
   Makefile        # the verilator invocation + source list
   sim_main.cpp    # the C++ testbench (BFMs + self-checks)
-  (milan_datapath is the DUT directly — no wrapper needed here)
+  (milan_datapath is the DUT directly  -  no wrapper needed here)
 ```
 
 **The DUT top.** Verilator elaborates one SystemVerilog module as the top and
@@ -70,30 +70,30 @@ its ports are already flat.
 
 **The C++ testbench** (`sim_main.cpp`) does four things:
 
-1. **Clock the model** — Verilator has no notion of time; the harness toggles the
+1. **Clock the model**  -  Verilator has no notion of time; the harness toggles the
    clock and calls `eval()`:
    ```cpp
    static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval(); }
    static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval(); }
    static void step() { lo(); hi(); }          // one full cycle
    ```
-2. **Drive the DUT with bus-functional models (BFMs)** — small routines that speak
+2. **Drive the DUT with bus-functional models (BFMs)**  -  small routines that speak
    the DUT's protocols. `milan_dp` has an **AXI4-Lite BFM** (`axi_read`/`axi_write`)
    and an **AXIS frame BFM** (`run_tx`/`run_rx` push/collect a frame, `vlan_frame`
    builds a byte-exact 802.1Q frame packed big-endian into 64-bit beats). The exact
-   AXI-Lite handshake timing matters — see
+   AXI-Lite handshake timing matters  -  see
    [Section 11](TROUBLESHOOTING.md#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)
    of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
-3. **Self-check** — compare the DUT's response against the expected value:
+3. **Self-check**  -  compare the DUT's response against the expected value:
    ```cpp
    static void ck(const char* what, unsigned long got, unsigned long exp);  // PASS/FAIL + counts
    ...
    ck("ID == 'MILN'", axi_read(0x000), 0x4D494C4E);   // milan_csr ID register
    ```
-   A reference model or an independently-computed expectation is the oracle — a
+   A reference model or an independently-computed expectation is the oracle  -  a
    DUT/model mismatch fails the run. (Some harnesses, e.g. `cbs`, run a
    cycle-accurate reference model in C++ over 10⁴–10⁵ randomized cycles.)
-4. **Return the verdict** — `return fails ? 1 : 0;`.
+4. **Return the verdict**  -  `return fails ? 1 : 0;`.
 
 **The Makefile** turns the SV + C++ into a runnable binary:
 ```make
@@ -107,13 +107,13 @@ run:
 ```
 Source order matters: packages (`ethernet_packet_pkg.sv`, `adp_pkg.sv`) and the
 `axi_stream_if.sv` interface come first, then leaf modules, then the DUT. The
-`+incdir` paths are required — see
+`+incdir` paths are required  -  see
 [Section 7](TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
 
-### Section 1.2: What milan_dp proves — the integration harness
+### Section 1.2: What milan_dp proves  -  the integration harness
 
-`milan_dp` is the most complete harness — it drives the entire `milan_datapath`
+`milan_dp` is the most complete harness  -  it drives the entire `milan_datapath`
 (the PS-less wrapper) exactly as the SoC will:
 
 ```
@@ -140,9 +140,9 @@ cd tb/verilator && for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx \
 Two Verilator warnings are suppressed project-wide and are **not** bugs (details in
 [Section 12](TROUBLESHOOTING.md#section-12-benign-verilator-warnings-pinmissing-and-selrange)
 of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)):
-- `PINMISSING` on `axi_stream_if` — optional `clk`/`rst_n` interface pins the
+- `PINMISSING` on `axi_stream_if`  -  optional `clk`/`rst_n` interface pins the
   datapath instances don't connect.
-- `SELRANGE` inside Forencich `axis_fifo.v` — dead ternary branches selecting
+- `SELRANGE` inside Forencich `axis_fifo.v`  -  dead ternary branches selecting
   disabled ID/DEST/USER fields.
 
 ---
@@ -158,18 +158,18 @@ litex_sim --cpu-type=naxriscv --non-interactive
 ```
 
 What happens, in order:
-1. **NaxRiscv netlist generation** — LiteX shells out to `sbt` which clones
+1. **NaxRiscv netlist generation**  -  LiteX shells out to `sbt` which clones
    `SpinalHDL/NaxRiscv` and runs `NaxGen`, emitting a Verilog netlist
    (`NaxRiscvLitex_<hash>.v`). Needs `JAVA_HOME` (JDK17). First run downloads Scala
    (see [Section 2](TROUBLESHOOTING.md#section-2-naxriscv-generation-needs-java_home)
    of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)).
-2. **SoC elaboration** — LiteX (Migen) builds the SoC (CPU + wishbone bus + CSR +
+2. **SoC elaboration**  -  LiteX (Migen) builds the SoC (CPU + wishbone bus + CSR +
    ROM/RAM + UART) and writes the top Verilog + a memory map.
-3. **Verilator build** — the SoC Verilog + the sim modules (`serial2console`, a
+3. **Verilator build**  -  the SoC Verilog + the sim modules (`serial2console`, a
    clocker, …) are compiled into `build/sim/gateware/obj_dir/Vsim`.
-4. **BIOS build** — `riscv64-elf-gcc` compiles the LiteX BIOS to `bios.bin`, loaded
+4. **BIOS build**  -  `riscv64-elf-gcc` compiles the LiteX BIOS to `bios.bin`, loaded
    into the integrated ROM.
-5. **Run** — `Vsim` executes: BIOS banner → `Memtest OK` → "Booting from serial…
+5. **Run**  -  `Vsim` executes: BIOS banner → `Memtest OK` → "Booting from serial…
    Timeout / No boot medium" → the **`litex>`** prompt.
 
 Captured output: [`../sw/litex/evidence/naxriscv_sim_boot.log`](../sw/litex/evidence/naxriscv_sim_boot.log).
@@ -181,12 +181,12 @@ Captured output: [`../sw/litex/evidence/naxriscv_sim_boot.log`](../sw/litex/evid
 This is the same softcore sim as [Section 2](#section-2-softcore-boot-with-litex_sim)
 **plus the real `milan_datapath`** attached as an AXI4-Lite CSR slave, so the CPU
 (running the BIOS) can read the NIC's registers over the actual SoC bus. It proves
-migration milestone **M-A2** — "CPU reaches `milan_csr`" — on the softcore, not just
+migration milestone **M-A2**  -  "CPU reaches `milan_csr`"  -  on the softcore, not just
 at the RTL level (the [Section 1](#section-1-verilator-rtl-harnesses) `milan_dp` harness).
 
 ### Section 3.1: How it is wired
 
-`milan_sim.py` is deliberately thin — it reuses the proven pieces:
+`milan_sim.py` is deliberately thin  -  it reuses the proven pieces:
 
 ```python
 from litex.tools.litex_sim import SimSoC              # the Section-2 sim SoC
@@ -203,13 +203,13 @@ class MilanSimSoC(SimSoC):
         self.add_config("BIOS_NO_MEMTEST")
 ```
 
-- `add_milan_datapath()` is the **same helper the board SoC uses** (`milan_soc.py`) —
+- `add_milan_datapath()` is the **same helper the board SoC uses** (`milan_soc.py`)  - 
   it instantiates `milan_datapath`, ties the DMA/MAC AXIS ports idle (only the CSR
   path matters here), and adds the RTL sources **and the `+incdir` include paths**
-  (Verilator needs those explicitly — see
+  (Verilator needs those explicitly  -  see
   [Section 7](TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
   [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)).
-- `MILAN_CSR_BASE = 0x9000_0000` — on NaxRiscv an MMIO peripheral must live in the
+- `MILAN_CSR_BASE = 0x9000_0000`  -  on NaxRiscv an MMIO peripheral must live in the
   CPU IO region (≥ `0x8000_0000`); the register offsets are unchanged from the Zynq
   build (see [`REGISTER_MAP.md`](REGISTER_MAP.md) and
   [Section 6](TROUBLESHOOTING.md#section-6-region-not-in-io-region-it-must-be-cached)
@@ -217,7 +217,7 @@ class MilanSimSoC(SimSoC):
 - LiteX auto-bridges the CPU Wishbone bus → AXI-Lite (`Bus adapted from AXI-Lite
   32-bit to Wishbone 32-bit` in the build log).
 
-### Section 3.2: Reading the ID register interactively — the simple path
+### Section 3.2: Reading the ID register interactively  -  the simple path
 
 At a real terminal:
 ```sh
@@ -229,12 +229,12 @@ litex> mem_read 0x90000000 16              # read the milan_csr ID + VERSION
 
 For automation there is no TTY, and LiteX couples "build" and "run". The robust
 recipe is **build once, then pipe commands into the cached `Vsim` binary directly**
-(running via `milan_sim.py` a second time blocks — see
+(running via `milan_sim.py` a second time blocks  -  see
 [Section 8](TROUBLESHOOTING.md#section-8-the-interactive-and-non-interactive-sim-both-block)
 of [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)):
 
 ```sh
-# 1. build (this also runs the sim; once "litex>" appears, Ctrl-C — Vsim is now built)
+# 1. build (this also runs the sim; once "litex>" appears, Ctrl-C  -  Vsim is now built)
 ./sw/litex/milan_sim.py --xlen 32 --non-interactive --output-dir build_milan_sim
 
 # 2. run the cached binary with the command on stdin (serial2console = the sim UART)
@@ -252,14 +252,14 @@ Memory dump:
 - `mem_read` dumps **memory bytes** in address order, little-endian. The `ID`
   register holds the 32-bit word `0x4D494C4E`, which in memory is the byte sequence
   `4e 4c 49 4d` → the ASCII column reads **`NLIM`** (the little-endian byte order of
-  the characters "MILN"). This is the NIC identifying itself — **M-A2 reached**.
+  the characters "MILN"). This is the NIC identifying itself  -  **M-A2 reached**.
 - The next word `03 00 01 00` = `0x00010003` = the `VERSION` register.
 
 Captured output: [`../sw/litex/evidence/naxriscv_reads_MILN.log`](../sw/litex/evidence/naxriscv_reads_MILN.log).
 
 `BIOS_NO_MEMTEST`/`BIOS_NO_DELAYS` (set in `MilanSimSoC`) are what let the sim reach
 the prompt in seconds instead of grinding the memtest/memspeed at the simulated
-1 MHz — important because the piped command must arrive **after** the prompt.
+1 MHz  -  important because the piped command must arrive **after** the prompt.
 
 ---
 
@@ -278,7 +278,7 @@ the prompt in seconds instead of grinding the memtest/memspeed at the simulated
 - [Section 2](#section-2-softcore-boot-with-litex_sim) and
   [Section 3](#section-3-softcore-plus-nic-milestone-m-a2) are dominated by the
   **Verilator compile of the NaxRiscv core** (a few minutes cold). Verilator caches,
-  so re-running the *same* binary is fast — hence the "build once, then run `Vsim`
+  so re-running the *same* binary is fast  -  hence the "build once, then run `Vsim`
   directly" pattern in [Section 3.3](#section-33-the-scripted-path-used-to-capture-the-evidence).
   The sim itself runs at ~0.03× realtime (a 1 MHz simulated clock), so keep
   interactions short.

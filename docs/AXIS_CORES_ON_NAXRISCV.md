@@ -13,7 +13,7 @@ planes.
 
 ## 1. The mental model: AXI-Stream is not memory-mapped
 
-A CPU talks to peripherals through **addresses**. AXI-Stream has **no address** —
+A CPU talks to peripherals through **addresses**. AXI-Stream has **no address**  - 
 it is a one-way, back-pressured data-flow bus (`tdata`/`tkeep`/`tvalid`/`tready`/
 `tlast`). You therefore never "attach AXIS to the CPU bus" directly. You attach it
 on **three separate planes**:
@@ -33,11 +33,11 @@ on **three separate planes**:
                     └──────────────────────────────────────────────────────┘
 ```
 
-- **① Control** — the core's config/status registers, exposed as an **AXI-Lite
+- **① Control**  -  the core's config/status registers, exposed as an **AXI-Lite
   (or CSR) slave** in the CPU's MMIO map. This is how the driver programs it.
-- **② Data** — the AXIS `tdata` flow is bridged to/from **memory by a DMA
+- **② Data**  -  the AXIS `tdata` flow is bridged to/from **memory by a DMA
   engine**. The CPU touches *buffers in DRAM*, never the stream itself.
-- **③ Events** — a completion/error line raised into the **PLIC** so the driver
+- **③ Events**  -  a completion/error line raised into the **PLIC** so the driver
   can use interrupts (NAPI, PTP, …) instead of polling.
 
 The rest of this document is one section per plane, plus clock-domain crossing and
@@ -52,8 +52,8 @@ a checklist.
 | Bus | Type | Purpose |
 |-----|------|---------|
 | `ibus` / `dbus` | AXI-Lite → wishbone/axi | instruction fetch + load/store to memory |
-| `pbus` | `AXILiteInterface` | **peripheral bus** — where MMIO slaves (your control plane) land |
-| `dma_bus` | `AXIInterface(data_width=64, addr=32, id=4)` | **coherent DMA** into L2/DRAM — only when built with `--with-coherent-dma` |
+| `pbus` | `AXILiteInterface` | **peripheral bus**  -  where MMIO slaves (your control plane) land |
+| `dma_bus` | `AXIInterface(data_width=64, addr=32, id=4)` | **coherent DMA** into L2/DRAM  -  only when built with `--with-coherent-dma` |
 | `interrupt` | `Signal(32)` | external interrupt lines, driven by the **PLIC** (`0xf0c0_0000`) + CLINT (`0xf001_0000`) |
 
 Two consequences you must respect:
@@ -68,7 +68,7 @@ Two consequences you must respect:
 
 ---
 
-## 3. Plane ① — control (AXI-Lite / CSR slave)
+## 3. Plane ①  -  control (AXI-Lite / CSR slave)
 
 Give the core an AXI-Lite slave and drop it into the peripheral bus. This is a
 verbatim reduction of `MilanNIC` in `milan_soc.py`:
@@ -102,16 +102,16 @@ self.specials += Instance("mycore",
 
 The driver then `ioremap`s `0x9000_0000` (the DT `reg` base) and reads/writes the
 core's registers. If your core has no AXI-Lite port, expose registers with a LiteX
-`CSRStorage`/`CSRStatus` bank instead — same idea, LiteX generates the decode.
+`CSRStorage`/`CSRStatus` bank instead  -  same idea, LiteX generates the decode.
 
 ---
 
-## 4. Plane ② — data (AXI-Stream ↔ memory via DMA)
+## 4. Plane ②  -  data (AXI-Stream ↔ memory via DMA)
 
 The CPU cannot read `tdata` directly; a **DMA engine** copies between the stream
 and DRAM descriptors. Pick one of these bridges:
 
-### 4a. Coherent DMA (recommended) — no cache flushes in the driver
+### 4a. Coherent DMA (recommended)  -  no cache flushes in the driver
 Build the CPU with coherent DMA and give your AXIS→AXI bridge a master on the
 coherent `dma_bus`:
 
@@ -123,15 +123,15 @@ _nax_args.with_coherent_dma = True     # -> NaxRiscv.with_dma, exposes self.cpu.
 rx_axis = axi.AXIStreamInterface(data_width=64, clock_domain="sys")
 tx_axis = axi.AXIStreamInterface(data_width=64, clock_domain="sys")
 
-# A stream<->memory DMA (Forencich axi_dma, or LiteX's own DMA — see 4b).
+# A stream<->memory DMA (Forencich axi_dma, or LiteX's own DMA  -  see 4b).
 # Its AXI master goes onto the CPU's coherent DMA bus:
 self.dma_bus.add_master("mycore_dma", master=dma.axi_mm)   # coherent -> L2/DRAM
 ```
 
-Because accesses are coherent, the CPU's caches stay in sync with DMA'd buffers —
+Because accesses are coherent, the CPU's caches stay in sync with DMA'd buffers  - 
 the Linux driver uses plain `dma_map_*` without manual invalidation.
 
-### 4b. Non-coherent DMA — simpler fabric, driver must flush
+### 4b. Non-coherent DMA  -  simpler fabric, driver must flush
 Attach the DMA master to the ordinary system bus instead:
 
 ```python
@@ -162,7 +162,7 @@ DMA uses `tlast` as the packet/descriptor boundary.
 
 ---
 
-## 5. Plane ③ — events (IRQ → PLIC)
+## 5. Plane ③  -  events (IRQ → PLIC)
 
 Surface each interrupt line through a LiteX `EventManager`; `self.irq.add` routes
 it to the PLIC that NaxRiscv already instantiates. Straight from `MilanNIC`:
@@ -193,11 +193,11 @@ property references (`interrupt-parent = <&plic>`), exactly as in
 
 ## 6. Clock-domain crossing
 
-AXIS cores frequently run in a **different clock domain** than the SoC — e.g. the
+AXIS cores frequently run in a **different clock domain** than the SoC  -  e.g. the
 Milan datapath's RGMII side is 125 MHz while `sys` is 100 MHz. Cross the stream
 *before* it reaches the DMA/bus:
 
-- Use an async stream FIFO in the fabric — `third_party/verilog-axis`'s
+- Use an async stream FIFO in the fabric  -  `third_party/verilog-axis`'s
   `axis_async_fifo` (already vendored) is the drop-in for this, or LiteX's
   `stream.ClockDomainCrossing`.
 - Declare the interface's domain with `AXIStreamInterface(..., clock_domain="eth_rx")`
@@ -206,7 +206,7 @@ Milan datapath's RGMII side is 125 MHz while `sys` is 100 MHz. Cross the stream
   `platform.add_period_constraint(cd.clk, 1e9/125e6)` and
   `platform.add_false_path_constraints(sys_clk, eth_clk)` for the CDC.
 
-Never let a raw AXIS bus cross clock domains without a CDC FIFO — `tvalid`/`tready`
+Never let a raw AXIS bus cross clock domains without a CDC FIFO  -  `tvalid`/`tready`
 handshakes will corrupt.
 
 ---
@@ -239,7 +239,7 @@ before place-&-route.
 
 ---
 
-## 9. Worked example — the Milan NIC
+## 9. Worked example  -  the Milan NIC
 
 The Milan NIC exercises all three planes at once, and `MilanNIC` in
 `sw/litex/milan_soc.py` is the literal implementation:
@@ -252,4 +252,4 @@ The Milan NIC exercises all three planes at once, and `MilanNIC` in
 
 The internal AXIS pipeline (classifier → per-queue FIFOs → CBS shaper → MAC, plus
 the RX MAC filter) is all AXI-Stream and is verified stand-alone in
-`tb/verilator/` — attaching it to NaxRiscv is purely the three-plane wiring above.
+`tb/verilator/`  -  attaching it to NaxRiscv is purely the three-plane wiring above.
