@@ -1184,8 +1184,12 @@ class RingDMAWriter(LiteXModule):
             blen.eq(Mux(blen_b > to_4k, to_4k, blen_b)),
         ]
 
-        # W beat 0 of the whole frame is the header (length known up front); commit  - 
+        # W beat 0 of the whole frame is the header (length known up front); commit  -
         # wr_ptr/seq  -  still waits for the last B, so software never sees a partial frame.
+        # NOTE (measured 2026-07-11): pinning is_hdr low in folded builds was
+        # tried and made the OOC writer BIGGER (5739 -> 6653 LUTs; the constant
+        # broke the W-mux sharing pattern and Vivado restructured worse). Leave
+        # the runtime term; synthesis already shares it.
         is_hdr    = Signal()
         len_bytes = Signal(16)
         self.comb += [
