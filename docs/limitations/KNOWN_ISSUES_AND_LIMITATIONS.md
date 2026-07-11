@@ -58,7 +58,7 @@ These pairings are **known-fatal**:
 
 | Pairing | Consequence | Guard |
 |---|---|---|
-| driver `--hs-page-bytes` ≠ gateware `hs_page_bytes` | **kernel panic** (Bad page map class) | `milan_dma_hs_pgsz_cap` @ `0xf000311c` reads back the elaborated size; the hsplit16 driver **refuses to load** on mismatch. Reads 0 on older gateware = warn-and-trust |
+| driver `--hs-page-bytes` ≠ gateware `hs_page_bytes` | **kernel panic** (Bad page map class) | `milan_dma_hs_pgsz_cap` reads back the elaborated size (`0xf000311c` in the reference build — LiteX assigns CSR offsets at build time, so confirm against your build's `csr.csv`); the hsplit16 driver **refuses to load** on mismatch. Reads 0 on older gateware = warn-and-trust |
 | hsplit10+ driver on ≤hsq5 gateware | **silent ring lap** (by construction, no error) | never load it there - see [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) |
 | BD-256 ring depth without the hsq6 drain gate | RX wedge under overload | use hsq6+ gateware ([../findings/RX_OVERLOAD_WEDGE.md](../findings/RX_OVERLOAD_WEDGE.md) history) |
 

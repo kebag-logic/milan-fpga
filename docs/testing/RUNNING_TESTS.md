@@ -168,7 +168,7 @@ dependences); historically 17-18/18 green (ECP5 target as the neutral device).
 ## 5. P&R (Vivado)  -  see the build scripts
 
 `~/litex-milan/work/build_*.sh` are the reproducible build recipes (each one = a
-documented experiment). Conventions: `source /home/alex/Xilinx2/2026.1/Vivado/settings64.sh`,
+documented experiment). Conventions: `source <your Vivado install>/settings64.sh`,
 venv on PATH, `--vivado-max-threads 32` (hard cap  -  more aborts P&R), launch via
 `nohup <script> > <log> &`, watch for the bitstream file. ~50 min. Read the LAST
 "Design Timing Summary" (post-physopt)  -  mid-router WNS lines are pessimistic.
