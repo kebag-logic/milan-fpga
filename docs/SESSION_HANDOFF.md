@@ -50,6 +50,18 @@ no-copy lane is ABOVE the 500 goal NOW; the socket copy costs exactly
 585->374. Step 1 (next): `tools_recv_ring.c` (AF_PACKET TPACKET_V3 mmap RX,
 ~1ms block timeout, cpu1-pinned A/B) on the keeper -> P2/P4 vs the 585-594
 ceiling; the ring taps POST-GRO so TCP traffic arrives as 57KB units (amortized).
+**AF_PACKET RING REFUTED (measured 124/139 vs trunc 585): TPACKET rings are
+copy-INTO-ring on RX** (kernel memcpys every unit into the ring on cpu0) —
+consumer-side zero-copy only. The REAL lane = TCP_ZEROCOPY_RECEIVE page-flip on
+hs 4K pages (the ORIGINAL hs design goal; batched PTE move priced 1.22us/page =
+21.5x under copy => 700-870 door): needs **hsq13 = cut-through @ --hs-page-bytes
+4096** (building) + hsplit14 hs_pgsz=4096 + recv_zc (staged).
+**⚠⚠ PAGE-SIZE PAIRING IS LETHAL: hs_pgsz (driver) MUST equal hs_page_bytes
+(gateware). Mismatch = the writer DMAs gateware-page strides into smaller
+driver pages = KERNEL MEMORY OVERWRITE => Bad page map + panic (2026-07-11:
+hsq12@16K + hs_pgsz=4096 panicked on first wget). There is NO capability CSR
+yet — a gateware hs_page_bytes readback CSR + driver probe-check is the
+required hardening (add to hsq13 follow-up).**
 Step 2: fanout (PACKET_FANOUT_HASH) across 2 sockets/harts. Step 3: if the
 stack tax (netif_receive->packet_rcv) binds, THEN driver XDP (bigger lift).
 TCP numbers stay the regression net; TX gate discipline unchanged.
