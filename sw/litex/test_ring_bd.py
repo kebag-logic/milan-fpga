@@ -1856,11 +1856,18 @@ def test_hs_stress_famine_interleave():
                 delivered.setdefault(("v1", rd), True)
                 seq += 1; rd = (rd + 16) & (64 * 16 - 1)
                 continue
-            if not page:                       # META: no page pop
+            if not page:                       # META (hsplit14: LAST): finalize
                 ln = (w0 >> 16) & 0xFFFF
-                asm[tag] = {"pay": ln - 54, "bytes": bytearray(), "hidx": (w0 >> 59) & 0x1F}
-            else:                              # PAGE: pop FIFO head, address-match
+                a = asm.pop(tag, None)
+                assert a is not None, f"meta tag {tag} with no delivered pages @{rd:#x}"
+                assert len(a["bytes"]) == ln - 54, \
+                    f"meta len {ln-54} != delivered {len(a['bytes'])} (tag {tag})"
+                assert a["hidx"] == (w0 >> 59) & 0x1F, "meta hidx != v3 hidx"
+                delivered.setdefault(tag, bytearray()).extend(a["bytes"])
+            else:                              # PAGE (arrives FIRST): pop + deliver
                 want = w1 & 0xFFFFFFFF
+                fill = (w0 >> 16) & 0xFFFF
+                hidx = (w0 >> 59) & 0x1F
                 # realign like the driver: skip famine-popped pages
                 n = 0
                 while comp < len(posted) and posted[comp] != want and n < 16:
@@ -1869,15 +1876,13 @@ def test_hs_stress_famine_interleave():
                     f"v3 page @{rd:#x} addr {want:#x} not in FIFO (pop-order broken)"
                 pg = posted[comp]; comp += 1
                 a = asm.get(tag)
-                assert a is not None, f"v3 tag {tag} with no open meta @{rd:#x}"
-                take = min(a["pay"] - len(a["bytes"]), 4096)
+                if a is None or a["hidx"] != hidx:   # first v3 / hidx change = bind
+                    a = asm[tag] = {"bytes": bytearray(), "hidx": hidx}
+                assert 0 < fill <= 4096, f"v3 fill {fill} @{rd:#x}"
                 buf = bytearray()
-                for k in range((take + 7) // 8):
+                for k in range((fill + 7) // 8):
                     buf += h.mem.get(pg + 8 * k, 0).to_bytes(8, "little")
-                a["bytes"] += buf[:take]
-                if len(a["bytes"]) >= a["pay"]:
-                    delivered.setdefault(tag, bytearray()).extend(a["bytes"])
-                    del asm[tag]
+                a["bytes"] += buf[:fill]
             seq += 1; rd = (rd + 16) & (64 * 16 - 1)
         # every delivered flow's payload must be a byte-exact prefix of what we sent
         # (some tail frames may still be open/dropped under famine — prefix check)
@@ -1969,11 +1974,13 @@ def test_hs_livelock_orphan():
                 w1 = h.mem.get(BD_BASE + rd["o"] + 8, 0)
                 if (not v2) or page:             # page-consuming BD
                     want = w1 & 0xFFFFFFFF
-                    n = 0
-                    while rd["ci"] < len(posted) and posted[rd["ci"]] != want and n < 32:
-                        freed.append(posted[rd["ci"]]); rd["ci"] += 1; n += 1
-                    assert rd["ci"] < len(posted) and posted[rd["ci"]] == want, \
-                        f"pairing broken @{rd['o']:#x} want={want:#x}"
+                    # hsplit14 (cut-through): v3s are visible BEFORE their aggregate
+                    # closes, so a head mismatch usually means the matching pop's BD
+                    # just hasn't drained yet — DEFER (stop the walk, retry next
+                    # reap) instead of skip-recycling (the old model's skips drifted
+                    # and freed pages open aggregates still owned).
+                    if not (rd["ci"] < len(posted) and posted[rd["ci"]] == want):
+                        break
                     freed.append(posted[rd["ci"]]); rd["ci"] += 1
                     got += 1
                 h.mem[BD_BASE + rd["o"]] = 0    # consume (driver zeroes w0)
