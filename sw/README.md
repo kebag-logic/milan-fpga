@@ -3,7 +3,7 @@
 A **configurable** software/SoC bring-up (single- or multi-hart): a RISC-V softcore running
 Linux, with the Milan TSN NIC memory-mapped and its `kl-eth` driver bound via the
 device tree. This is the smallest bootable slice of
-[`docs/FULLY_FPGA_RISCV_MIGRATION.md`](../docs/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+[`docs/integration/FULLY_FPGA_RISCV_MIGRATION.md`](../docs/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 ```
    milan_soc.py  ──build──▶  bitstream + LiteX BIOS      (1 core + DDR + UART + Milan NIC)
@@ -16,8 +16,8 @@ device tree. This is the smallest bootable slice of
 ```
 
 > **The full architecture, protocol coverage, and roadmap live in
-> [`../docs/FULL_FPGA_SOLUTION.md`](../docs/overview/FULL_FPGA_SOLUTION.md) and
-> [`../docs/PROTOCOL_VALIDATION_MATRIX.md`](../docs/testing/PROTOCOL_VALIDATION_MATRIX.md).**
+> [`../docs/overview/FULL_FPGA_SOLUTION.md`](../docs/overview/FULL_FPGA_SOLUTION.md) and
+> [`../docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](../docs/testing/PROTOCOL_VALIDATION_MATRIX.md).**
 > This file is the quick build/boot reference.
 
 | File | What |
@@ -27,7 +27,7 @@ device tree. This is the smallest bootable slice of
 | [`litex/platforms/alinx_ax7101.py`](litex/platforms/alinx_ax7101.py) | Local LiteX platform for the Alinx AX7101 (xc7a100t) — not in upstream litex_boards. |
 | [`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log) | Captured `litex_sim` boot: the NaxRiscv core running the LiteX BIOS to the `litex>` prompt. |
 | [`litex/evidence/naxriscv_reads_MILN.log`](litex/evidence/naxriscv_reads_MILN.log) | Captured `mem_read 0x90000000` = `MILN` + VERSION — **M-A2** on the softcore. |
-| [`../docs/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
+| [`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
 | [`dts/`](dts) | The `kl,dma-ether` device tree — **generated per-platform** from an intermediate JSON so it converges for any SoC (`dts/milan_dt.py`, `dts/README.md`). |
 | [`dts/bindings/kl,dma-ether.yaml`](dts/bindings/kl,dma-ether.yaml) | Normative DT binding (the DT requirements, `FR-DT-*`). |
 | [`driver/README.md`](driver/README.md) | The `kl-eth` platform driver (NAPI/XDP/PTP/ethtool, `FR-DRV-*`) and its DT match. |
@@ -111,4 +111,4 @@ tc qdisc add dev eth0 ... cbs offload 1            # shape q0/q1 (kl,shaped-queu
 | `milan_datapath` wrapper | — | ⏳ still a black box (`[BB:milan_datapath]`); milan_top minus the Zynq PS (migration §A.9). Needed for P&R, not for export. |
 
 To attach the Milan (or any) AXI-Stream core to the CPU, see
-[`../docs/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md).
+[`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md).

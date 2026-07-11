@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
            (unsigned long long)integrity_fails);
     if (integrity_fails)
         printf("[controller_rate] REPRODUCED the OPEN classifier tdest bug "
-               "(docs/CBS_DATAPATH_BUG.md) — %llu frames egressed short.\n",
+               "(docs/findings/CBS_DATAPATH_BUG.md) — %llu frames egressed short.\n",
                (unsigned long long)integrity_fails);
     else
         printf("[controller_rate] no integrity failures — bug appears FIXED; "

@@ -4,7 +4,7 @@
  *
  * Self-checking Verilator harness for traffic_queues.sv after the Xilinx
  * axis_switch IP + xpm_fifo_axis -> Forencich axis_demux / axis_fifo /
- * axis_arb_mux swap (Track 1.3 of docs/OPEN_SOURCE_MIGRATION.md). Building+running
+ * axis_arb_mux swap (Track 1.3 of docs/integration/OPEN_SOURCE_MIGRATION.md). Building+running
  * proves the module is now Verilator-simulatable (it could not be with the IP).
  *
  * Checks:

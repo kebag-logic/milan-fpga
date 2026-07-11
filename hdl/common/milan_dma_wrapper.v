@@ -13,7 +13,7 @@
 // input (irq_csr, into ilconcat In3) were added to expose the milan_csr control
 // plane to milan_top. This mirrors the edits in bd/milan-dma.tcl; regenerate
 // this wrapper from that .tcl in Vivado (`generate_target`) to keep it in sync.
-// The M_AXI_CSR window is 64 KB at 0x43C0_0000 (see docs/REGISTER_MAP.md).
+// The M_AXI_CSR window is 64 KB at 0x43C0_0000 (see docs/reference/REGISTER_MAP.md).
 //--------------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
@@ -196,7 +196,7 @@ module milan_dma_wrapper
 
   // Inferred tristate MDIO pad (T2.1): portable — Vivado infers an IOBUF from this
   // on the top-level inout, other toolchains model the tristate directly. Replaces
-  // the Xilinx IOBUF primitive (docs/OPEN_SOURCE_MIGRATION.md).
+  // the Xilinx IOBUF primitive (docs/integration/OPEN_SOURCE_MIGRATION.md).
   assign MDIO_link_1_mdio_io = MDIO_link_1_mdio_t ? 1'bz : MDIO_link_1_mdio_o;
   assign MDIO_link_1_mdio_i  = MDIO_link_1_mdio_io;
   milan_dma milan_dma_i

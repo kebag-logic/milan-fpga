@@ -74,7 +74,7 @@ two runs, rsc250 hwtso+rsc_clk_mhz=100, hash_sel=1): TX **238/247 Mbit/s, 0 retr
 **3.8% busy**; `L_pay = 45 cyc` (450 ns, NOT the ~140 assumed); prefetchable read-latency stall is
 only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefetch was refuted**  - 
 the walls were datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
-`docs/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
+`docs/findings/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
 ³ **CBS root cause, MEASURED + FIXED 2026-07-08.** The 39–42% datapath-input `stall` was the
 **802.1Qav CBS shaper actively pacing best-effort traffic**: `milan_csr` reset `CBS_EN_RST=0011`
 shaped **q0 at idleSlope 300 Mb/s** while the default class map (`cls_dpcp=0`, `cls_tcq=0xE4`)
@@ -111,7 +111,7 @@ BD's 16-bit `drops` field aliased bit 56 (the v2 marker) at drops ≥ 256, makin
 completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Both fixes are
 silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
 runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
-`docs/RX_OVERLOAD_WEDGE.md`.
+`docs/findings/RX_OVERLOAD_WEDGE.md`.
 ⁵ **RX memory levers, MEASURED 2026-07-08** (`RX_MEMORY_HIERARCHY_PLAN.md` + `LSU_NONBLOCKING_DCACHE.md`). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
 **Status vs goal (>500):** **TX ✅ done (−P2 525–536). RX = 316  -  and RX > 500 is a HARD GOAL:
@@ -293,7 +293,7 @@ in the order they surface as load rises:
 ## Roadmap toward >500 Mbit/s, then 1 Gbit/s (ordered, each independently measurable)
 
 **Immediate bar: >500 both directions** (≥200 met; TX at 354). The phased, gateware-gated
-execution plan is **`docs/CAMPAIGN_500_PLAN.md`** (M1 instrumentation → R0 re-baseline →
+execution plan is **`docs/findings/CAMPAIGN_500_PLAN.md`** (M1 instrumentation → R0 re-baseline →
 R1 2-queue fan-out → R2 RSC geometry → T1/T2 TX levers + completion-IRQ → conditional
 T3/X)  -  every phase has a numeric gate read from HW counters. The levers below are the
 same ones that carry on to 1 Gbit.
@@ -326,11 +326,11 @@ same ones that carry on to 1 Gbit.
 
 | topic | doc |
 |-------|-----|
-| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | `docs/RX_OVERLOAD_WEDGE.md` |
-| **CBS default-shaping bug**: reset config paced BE TX at 300 Mb/s (2026-07-08) | `docs/CBS_DEFAULT_SHAPING_BUG.md` |
-| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | `docs/TX_READER_PREFETCH_PLAN.md` |
-| HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | `docs/RX_FANOUT_AND_TX_CEILING.md` |
-| Memory-latency root cause (1424 ns/miss), floorplan/clock experiments | `docs/LATENCY_INVESTIGATION.md`, `docs/SINGLE_PORT_PERF.md` |
+| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | `docs/findings/RX_OVERLOAD_WEDGE.md` |
+| **CBS default-shaping bug**: reset config paced BE TX at 300 Mb/s (2026-07-08) | `docs/findings/CBS_DEFAULT_SHAPING_BUG.md` |
+| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | `docs/findings/TX_READER_PREFETCH_PLAN.md` |
+| HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | `docs/findings/RX_FANOUT_AND_TX_CEILING.md` |
+| Memory-latency root cause (1424 ns/miss), floorplan/clock experiments | `docs/findings/LATENCY_INVESTIGATION.md`, `docs/findings/SINGLE_PORT_PERF.md` |
 | RX RSC coalescing + `ethtool -C rx-usecs` (default 250 µs) | `../the-private-test-repo/fpga/kl-eth/README.md` |
 
 ## Ground rules for this campaign

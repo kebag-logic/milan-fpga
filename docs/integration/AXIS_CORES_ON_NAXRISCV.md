@@ -247,7 +247,7 @@ The Milan NIC exercises all three planes at once, and `MilanNIC` in
 
 | Plane | Milan realisation |
 |-------|-------------------|
-| ① control | `milan_csr` AXI-Lite slave @ `0x9000_0000` (register map: `docs/REGISTER_MAP.md`) |
+| ① control | `milan_csr` AXI-Lite slave @ `0x9000_0000` (register map: `docs/reference/REGISTER_MAP.md`) |
 | ② data | `milan_datapath` AXIS TX/RX ↔ the ring-DMA engines (`RingDMAReader`/`RingDMAWriter`/`WishboneDMAWriter`) ↔ `dma_bus` (TX/RX/timestamp rings) |
 | ③ events | `o_irq_tx/rx/ts/csr` → `EventManager` → `self.irq.add("milan")` → PLIC → one aggregate DT interrupt (see the generated `milan-nic.litex.dtsi`) |
 

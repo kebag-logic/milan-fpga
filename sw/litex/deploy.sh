@@ -24,7 +24,7 @@
 #          and written at the offset the gateware was compiled with (flashboot_layout.json).
 #          The default "kernel" manifest flashes the 14 MB kernel at offset 0, so it and the
 #          `flash` bitstream are mutually exclusive on the 16 MB flash — flash-boot builds are
-#          JTAG-`load`ed, not flash-booted. See docs/QSPI_FLASHBOOT.md.
+#          JTAG-`load`ed, not flash-booted. See docs/integration/QSPI_FLASHBOOT.md.
 #
 # NOTE: `build` needs Vivado with Artix-7 device support. `load`/`flash`/`flash-images`/
 # `console` work against any built artifacts.
@@ -51,7 +51,7 @@ FLASH_SIZE=$((16*1024*1024))  # N25Q128 = 16 MB
 FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
 # All fabric blocks (NIC+DMA+MAC+DDR3), datapath in its own 50 MHz domain so sys+DDR3
-# close a clean 100 MHz (see docs/TROUBLESHOOTING.md §16); --timing-opt for margin.
+# close a clean 100 MHz (see docs/limitations/TROUBLESHOOTING.md §16); --timing-opt for margin.
 # --gtx-tx-invert is REQUIRED on this board: the GMII TX FFs are IOB-packed (deterministic
 # skew ~0 vs the forwarded gtx_clk), so edge-aligned sampling is hold-marginal at the
 # RTL8211E — measured 25-40 % corrupt frames edge-aligned vs 0 % with mid-bit sampling.
@@ -96,7 +96,7 @@ do_flash_images() {
         local sz budget; sz=$(stat -c%s "$fbi"); budget=$((ceil - off))
         printf "[deploy]   %-8s %9d B  -> flash @ 0x%06x  (budget %d B, from %s)\n" "$name" "$sz" "$off" "$budget" "$src"
         [ "$sz" -le "$budget" ] || {
-            echo "[deploy]   ERROR: '$name' ($sz B) exceeds its $budget B slot — slim it or move offsets (docs/QSPI_FLASHBOOT.md)"; exit 2; }
+            echo "[deploy]   ERROR: '$name' ($sz B) exceeds its $budget B slot — slim it or move offsets (docs/integration/QSPI_FLASHBOOT.md)"; exit 2; }
         $OFL -c "$CABLE" --fpga-part "$FPGA_PART" -o "$off" --write-flash --file-type raw --verify "$fbi"
     done < <("$PYTHON" - "$LAYOUT" "$FLASH_SIZE" <<'PY'
 import json, sys

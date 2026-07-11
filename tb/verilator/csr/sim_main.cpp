@@ -4,7 +4,7 @@
  *
  * Self-checking Verilator harness for milan_csr.sv (AXI4-Lite TSN CSR block).
  * Drives an AXI4-Lite master BFM and checks the register map in
- * docs/REGISTER_MAP.md: reset values, RW behaviour, W1C IRQ, command strobes,
+ * docs/reference/REGISTER_MAP.md: reset values, RW behaviour, W1C IRQ, command strobes,
  * stats snapshot, and the config output wiring. Exit 0 = pass.
  */
 
@@ -13,7 +13,7 @@
 #include <cstdio>
 #include <cstdint>
 
-// Register offsets (mirror docs/REGISTER_MAP.md)
+// Register offsets (mirror docs/reference/REGISTER_MAP.md)
 enum {
   A_ID=0x000, A_VERSION=0x004, A_CAP=0x008, A_SCRATCH=0x00C,
   A_IRQ_STATUS=0x010, A_IRQ_MASK=0x014, A_IRQ_RAW=0x018,

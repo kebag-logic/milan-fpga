@@ -35,8 +35,8 @@ and end-to-end bring-up (Phase 9).
 
 The design was ported off the Zynq PS to a **NaxRiscv RV64GC + LiteX** SoC and the
 full-FPGA solution is **assembled and elaborating** end-to-end. See
-[`docs/FULL_FPGA_SOLUTION.md`](docs/overview/FULL_FPGA_SOLUTION.md) (master guide) and
-[`docs/PROTOCOL_VALIDATION_MATRIX.md`](docs/testing/PROTOCOL_VALIDATION_MATRIX.md) (protocol×test).
+[`docs/overview/FULL_FPGA_SOLUTION.md`](docs/overview/FULL_FPGA_SOLUTION.md) (master guide) and
+[`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](docs/testing/PROTOCOL_VALIDATION_MATRIX.md) (protocol×test).
 
 * **De-Xilinx complete** — all XPM/vendor IP replaced by Forencich `verilog-axis`
   + open CDC/TCAM; 17 Verilator harnesses + 18 Yosys tops (incl. Lattice ECP5).
@@ -63,9 +63,9 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   `tb/utests/802_1q_traffic_shaper/tb_credit_based_shaper.sv`.
 - [x] **B — Requirements & gap analysis** `(REQUIREMENTS.md §3–§4)` — done.
 - [x] **B — This task list** — done.
-- [x] **B — Register-map ABI doc** `docs/REGISTER_MAP.md` `(REQ-CSR-05)` — the
+- [x] **B — Register-map ABI doc** `docs/reference/REGISTER_MAP.md` `(REQ-CSR-05)` — the
   contract shared by HDL + driver + DT. Done.
-- [x] **B — Developer documentation** — `docs/ARCHITECTURE.md` (system map +
+- [x] **B — Developer documentation** — `docs/overview/ARCHITECTURE.md` (system map +
   maintainability guide), `docs/README.md` (doc index), `hdl/csr/doc/milan_csr.md`
   (TerosHDL module page), `tb/verilator/README.md`; all RTL annotated in TerosHDL
   `//!` syntax with named processes.

@@ -47,7 +47,7 @@ re-derived if the board revision changes:
 > errors** on silicon  -  reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
 > byte. The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) is explicit:
 > `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`. Full story in
-> `docs/TROUBLESHOOTING.md` §17 + `sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`.
+> `docs/limitations/TROUBLESHOOTING.md` §17 + `sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`.
 
 The **GMII (8-bit)** wiring per port is therefore: `rx_data[0:7]`, `tx_data[0:7]`,
 `rx_dv = e_rxdv`, `rx_er = e_rxer`, `tx_en = e_txen`, clocks `rx = e_rxc` /

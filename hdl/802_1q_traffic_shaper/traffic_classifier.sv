@@ -65,7 +65,7 @@ module traffic_classifier #(
 axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) m_axis_fifo();
 //! Storing incoming packets in the fifo till headers parsing is completed.
 //! Open-core AXIS FIFO (Forencich verilog-axis), replacing xpm_fifo_axis — makes
-//! this module Verilator-simulatable and vendor-neutral (see docs/OPEN_SOURCE_MIGRATION.md).
+//! this module Verilator-simulatable and vendor-neutral (see docs/integration/OPEN_SOURCE_MIGRATION.md).
 //! Common-clock, non-packet (FRAME_FIFO=0), tkeep+tlast, no tid/tdest/tuser.
 axis_fifo #(
    .DEPTH(FIFO_DEPTH),
@@ -118,7 +118,7 @@ logic [$clog2(ETH_HEADER_WIDTH):0] byte_counter;
 //! ethernet type register when VLAN tag exists it is 8100.
 logic [ETH_TYPE_BIT_WIDTH-1:0] eth_type_raw;
 
-//! ---- per-frame tdest sideband (REDESIGN 2026-07-05, docs/CBS_DATAPATH_BUG.md) ----
+//! ---- per-frame tdest sideband (REDESIGN 2026-07-05, docs/findings/CBS_DATAPATH_BUG.md) ----
 //! The old scheme delayed the DATA by a fixed 1 beat and drove tdest
 //! combinationally from a single staged header. Broken two ways on silicon:
 //! (a) 1 beat of delay cannot cover the 3-beat header parse, so under

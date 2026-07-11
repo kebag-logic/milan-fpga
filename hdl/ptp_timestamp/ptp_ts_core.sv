@@ -131,7 +131,7 @@ assign is_ptp = (eth_type == ETH_TYPE);
 // -----------------------------------------------------------------------------
 
 //! Open-core pulse CDC (replaces xpm_cdc_pulse) — SOP event AXIS domain -> PTP
-//! counter domain. See docs/OPEN_SOURCE_MIGRATION.md Track 1.4.
+//! counter domain. See docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.4.
 cdc_pulse #(
     .DEST_SYNC_FF(2)
 ) sop_pulse_cdc (

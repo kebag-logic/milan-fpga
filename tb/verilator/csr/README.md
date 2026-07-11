@@ -18,7 +18,7 @@ No Xilinx tools required — `milan_csr.sv` is a standalone AXI4-Lite slave.
 ## What it checks
 
 An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
-([`docs/REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md)):
+([`docs/reference/REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md)):
 
 * **Identification / capabilities** — `ID = "MILN"`, `VERSION`, and `CAP`
   (num_queues, CBS/PTP/STATS feature bits, timestamp width) so the driver can
@@ -43,6 +43,6 @@ compliant master that drops `*VALID` on handshake still commits every transfer.
 ## Extending
 
 When new register groups are added (classifier PCP table, more PTP fields),
-extend the offsets in both `hdl/csr/milan_csr.sv` and `docs/REGISTER_MAP.md`, then
+extend the offsets in both `hdl/csr/milan_csr.sv` and `docs/reference/REGISTER_MAP.md`, then
 add the corresponding `ck(...)` assertions here. This harness is the executable
 contract for the CSR ABI (`REQ-VER-04`).

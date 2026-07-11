@@ -7,7 +7,7 @@
 # (github.com/alinxalinx/AX7101): the LED/clock/reset + UART example XDCs, the
 # rgmii_ethernet example XDC (4× RTL8211E PHYs — the Milan NIC uses ports e1/e2),
 # and the DDR3 MIG UCF (512 MB MT41J256M16, parsed into the `ddram` group). See
-# docs/BOARD_PORTING_AX7101.md for the porting method + sources.
+# docs/integration/BOARD_PORTING_AX7101.md for the porting method + sources.
 #
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 
