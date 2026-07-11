@@ -58,7 +58,11 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 8. Cells: peer byte-counter 5 s deltas, first+last interval excluded, fresh
    client ports per cell, `dmesg -n 1` on the board, TX gate after every RX
    change. Numbers now traverse the AVB switch: re-baseline, do not compare
-   raw against direct-cable-era results.
+   raw against direct-cable-era results. ADP-class sniffs: the advertise
+   cadence is ~15-30 s (valid_time 62), so capture windows must be >=40 s  -
+   an 8 s window "proved" the advertiser dead (2026-07-11 phantom). And the
+   arty busybox rootfs has NO `timeout`: `timeout N tcpdump ... 2>/dev/null`
+   dies instantly with the error swallowed, faking an empty capture.
 
 **Pairing (LETHAL class)**
 9. Driver `hs_pgsz` MUST equal gateware `--hs-page-bytes`: mismatch = DMA
@@ -80,8 +84,12 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
     verb: `KERNEL=.. ROOTFS=.. DTB=.. OPENSBI=.. PYTHON=<venv> build.sh
     flash arty` (FBI wrap + budget checks + verify, offsets from the build's
     flashboot_layout.json).
-14. OpenSBI is PLATFORM-SPECIFIC and EMBEDS a DTB (FW_FDT_PATH overrides the
-    flashed dtb slot!)  -  see open thread 1 before touching boot images.
+14. OpenSBI is BOARD-SPECIFIC and EMBEDS a DTB (FW_FDT_PATH bypasses the
+    flashed dtb slot!). Build per board via build_opensbi.sh env
+    (OUT/TIMER_HZ/BOARD_TAG/NAX_HARTS/DTB; the banner names the board):
+    AX7101 = opensbi.bin (100 MHz), Arty = opensbi_arty.bin (83333000,
+    2 harts). The durable one-opensbi form (BIOS passes a1=dtb) is still
+    open  -  thread 1.
 
 **Builds (sw/litex/build.sh; docs/integration/BUILDING.md)**
 15. 32 Vivado threads per build (hard cap), max 3 parallel (96-core box),
@@ -110,20 +118,36 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
   verified at the peer through the switch. QSPI holds the AX7101 image set.
 - Arty A7-100: build_arty_v7 in SRAM (flashboot gateware, WNS +0.018,
   sys 83.333/datapath 50, S25FL128S 1x 0x03 reads). QSPI holds
-  opensbi+dtb+kernel+rootfs (flashboot copies all four, CRC-clean).
-  **Linux PANICS at 0.000000  -  root-caused, see open thread 1.** BIOS +
-  DDR3 memtest + ID=MILN all pass (milestone 1 done).
+  opensbi_arty+dtb+kernel+rootfs (flashboot copies all four, CRC-clean).
+  **Linux BOOTS from flash to login** (2026-07-11: opensbi_arty.bin = arty
+  dtb embedded + 83333000 timer + 2 harts; the-private-test-repo 1bc7530). kl-eth
+  auto-loads (hsplit16; defaults correct on this board: rsc_clk_mhz=50,
+  hsplit off). IP re-addressed to .3 live  -  the shared rootfs still BAKES
+  .1 (the AX7101's!) on every board; fix pending. **Two-node ADP discovery
+  VERIFIED**: this board captures the AX7101's ENTITY_AVAILABLE
+  (EID 02:00:00:ff:fe:00:00:01) through the AVB switch. Switch-path baseline
+  (driver defaults): TX 83.3 / RX 93.9 Mbit. Cosmetic: "Initramfs unpacking
+  failed: invalid magic" AFTER the real unpack succeeds (trailing junk in
+  the fixed 16 MiB initrd window)  -  ignore it.
 
 **Branches (all pushed)**
 - main = f51a27b: the docs-overhaul merge + AREA-70 + ADP fixes + **PR #12
   (05_aecp_aem) merged by the user**  -  AECP/AEM is now in main.
-- milan-arty-bringup = 9a05de2: the Arty port chain (flashboot, S25FL128S
-  opcode, baud, flash tooling fixes), REBASED onto f51a27b, force-pushed.
+- milan-arty-bringup = 1dfb7c2: the Arty port chain (flashboot, S25FL128S
+  opcode, baud, flash tooling fixes), REBASED onto f51a27b, force-pushed;
+  + arty DT board values/IR (sw/dts/boards/arty.json) + this doc update.
 - milan-adp-fixes: the two isolated ADP RTL fixes (enable-after-boot,
   src-MAC byte order) on the ship-cleared base.
 - milan-avdecc-fpga: the main working line (pre-rebase state; main carries
   everything that matters from it).
-- the-private-test-repo repo: Arty DT/boot artifacts (7938c83), doc-path fix.
+- the-private-test-repo repo: milan-avb-stabilizing-milan = 1bc7530 (per-board
+  opensbi: OUT/TIMER_HZ/BOARD_TAG + opensbi_arty.bin + boot_arty.json).
+- fpga-ps-tools repo: main is AHEAD-5 UNPUSHED (user's call)  -  includes
+  395238c: bsp/boards/digilent-arty package + vexii/fw_jump platform
+  refresh; the BSP dt target now takes BOARD=digilent-arty (verified
+  against build_arty_v7 csr.json; its extract also showed the hand dts
+  carries a stale dma-ts window 0x3064 vs the gateware's 0x3100  -
+  regenerate when PTP-on-arty matters).
 
 **Builds worth keeping**
 | Build | What | Numbers |
@@ -134,25 +158,26 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 
 ## 4. Open threads (ranked, with the evidence)
 
-1. **Arty Linux panic  -  ROOT-CAUSED, fix recipe ready.** The kernel dies at
-   0.000000 (store access fault, badaddr 0xffffffc4febfe000) because
-   **opensbi.bin embeds the AX7101 DTB** (custom litex_nax platform,
-   FW_FDT_PATH in fpga/boot/build_opensbi.sh; OpenSBI banner says
-   "Milan LiteX NaxRiscv @ 100000000Hz", kernel says "Hardware name:
-   alinx_ax7101")  -  the 512 MB memory node makes early init write page
-   structs beyond the Arty's 256 MB. The flashed dtb slot is bypassed.
-   FIX: build an Arty OpenSBI  -  `OPENSBI_SRC=<tree> CROSS=<prefix>
-   NAX_HARTS=2 DTB=fpga/dts/milan_arty_vexii.dtb build_opensbi.sh` AND
-   parameterize the timer freq in fpga/opensbi/litex_nax/platform.c
-   (100 MHz baked; Arty needs 83333000). Flash the new opensbi slot
-   (offset 0x880000) + keep the arty dtb slot. Consider the durable form:
-   drop FW_FDT_PATH and honor a1 so ONE opensbi serves both boards with
-   per-board flashed dtbs (the BIOS jumps a1=0 today  -  needs the BIOS
-   flashboot patch to pass the dtb address instead).
-2. **Two-node ADP discovery** (after 1): Arty Linux -> kl-eth
-   (rsc_clk_mhz=50) -> IP .3 -> tcpdump 91:e0:f0:01:00:00 on the Arty =
-   the AX7101's advertisements through the bridge. Then AECP (now in main
-   via PR #12) per reference/MILAN_V12_DEPENDENCY_MATRIX.md.
+1. **RESOLVED 2026-07-11 (was: Arty Linux panic).** Executed: build_opensbi.sh
+   now takes OUT/TIMER_HZ/BOARD_TAG (+ the existing NAX_HARTS/DTB) and the
+   banner names the board; opensbi_arty.bin (2 harts, 83333000, arty dtb)
+   built + flashed via the flash verb; boot_arty.json points at it
+   (the-private-test-repo 1bc7530). Arty boots to login; §3 has the live state.
+   STILL OPEN (durable form): drop FW_FDT_PATH and honor a1 so ONE opensbi
+   serves both boards with per-board flashed dtbs  -  the BIOS jumps a1=0
+   today (patch linux_flashboot to pass MILAN_FLASHBOOT_DTB_ADDR) and
+   platform.c would read timebase from the FDT. Piggyback on the next
+   gateware spins. Also pending: per-board IP in the shared rootfs (bakes
+   192.168.127.1 everywhere  -  the Arty must re-address to .3 by hand).
+2. **Two-node ADP discovery DONE / AECP silicon BLOCKED.** First half
+   verified 2026-07-11 (Arty captures the AX7101's ENTITY_AVAILABLE through
+   the bridge; §3). Second half is NOT buildable: **PR #12 (05_aecp_aem) is
+   RTL stubs + T0/T1 testbenches only  -  KL_aecp_* is instantiated NOWHERE
+   outside tb/utests/aecp/**. An ax7101 build from main would add zero
+   silicon function. Prerequisite: integrate the AECP pipeline into
+   milan_top (RX tap after rx_mac_filter, TX via an egress mux arbitrating
+   with adp_tx_arbiter, a CSR group like ADP's 0x600, AEM store wiring) per
+   reference/MILAN_V12_DEPENDENCY_MATRIX.md  -  scope/design is a user call.
 3. **Slices <70 pct**: the 1-hart user decision (numbers in the table
    above; retires the 2-hart NAPI pipeline that holds RX 381/374).
 4. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
