@@ -90,7 +90,9 @@ class Entity:
                 continue
             if f[14] == SUBTYPE_ADP and (f[15] & 0x0F) == 0:  # ENTITY_AVAILABLE
                 self.mac = f[6:12]
-                self.eid = struct.unpack(">Q", f[16:24])[0]
+                # ADPDU: subtype@14, sv/ver/msgtype@15, valid_time/cdl@16-17,
+                # entity_id@18-25 (ADPDU bytes 4-11).
+                self.eid = struct.unpack(">Q", f[18:26])[0]
                 return True
         return False
 
