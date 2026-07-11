@@ -2856,6 +2856,15 @@ class MilanDMA(LiteXModule):
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
+        # hs page-size capability readback (hsq14 hardening): the driver's hs_pgsz
+        # MUST equal the elaborated hs_page_bytes — a mismatch makes the writer DMA
+        # gateware-page strides into smaller driver pages = kernel memory overwrite
+        # (panicked 2026-07-11). Registered LAST in this bank so no existing CSR
+        # address moves (csv-diff-verified additions-only). 0 on older gateware
+        # (unmapped reads) => the driver treats absence as "no capability, trust
+        # the operator" for backward compatibility.
+        self.hs_pgsz_cap = CSRStatus(17, description="elaborated hs_page_bytes (driver pairing check)")
+        self.comb += self.hs_pgsz_cap.status.eq(hs_page_bytes)
 
         # datapath-facing endpoints in `milan_cd`, async-FIFO CDC'd to the sys-domain
         # DMA engines when the domains differ (see _axis_dp_cdc). TX is mem->datapath;
