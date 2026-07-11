@@ -35,11 +35,15 @@ BASE = 0x10000
 class Harness:
     """One DUT + AXI-slave memory model + always-ready monitor, driven per scenario."""
     def __init__(self, ring_size, fifo_beats=64, max_frame_beats=16, burst_beats=4,
-                 aw_stall=0, w_stall=0, b_delay=2, cycles=6000):
+                 aw_stall=0, w_stall=0, b_delay=2, cycles=6000, **dut_kwargs):
+        # dut_kwargs passes RingDMAWriter elaboration params straight through
+        # (cq_depth, hs_page_bytes, legacy_ring, ...) so scenarios can pin the
+        # exact gateware shape they regress (e.g. the AREA-70 folded shape).
         self.ring = ring_size
         self.dut = msoc.RingDMAWriter(
             axi.AXIInterface(data_width=64, address_width=32, id_width=4),
-            max_frame_beats=max_frame_beats, fifo_beats=fifo_beats, burst_beats=burst_beats)
+            max_frame_beats=max_frame_beats, fifo_beats=fifo_beats, burst_beats=burst_beats,
+            **dut_kwargs)
         self.mem = {}            # byte addr (8-aligned) -> 64-bit word
         self.aw_stall, self.w_stall, self.b_delay = aw_stall, w_stall, b_delay
         self.cycles = cycles

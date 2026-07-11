@@ -496,13 +496,21 @@ class RingDMAWriter(LiteXModule):
       base[64] | mask[32] | wr_ptr[32] RO | rd_ptr[32] RW | enable[1] | dropped[32] RO
     """
     def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16,
-                 n_slots=4, cq_depth=8, hs_capable=True, hs_page_bytes=4096):
+                 n_slots=4, cq_depth=8, hs_capable=True, hs_page_bytes=4096,
+                 legacy_ring=True):
         # hs_page_bytes (hsq10): posted-page size the hs page-crossing arithmetic
         # assumes  -  MUST match the driver's page-pool order (STRICT pairing, kl-eth
         # hsplit12 `hs_pgsz`). 16384 quadruples the posted-pool burst absorbency
         # (60 pages: 240KB->960KB/queue = the legacy 0-drop regime) at the cost of
         # coarser page granularity. Power of two; only three sites use it (the
         # crossing compare + the two mod-page slices).
+        # legacy_ring (AREA-70 byte-ring fold, 2026-07-11): False elaborates OUT
+        # the byte-ring datapath (the bd_base==0 fallback ABI)  -  every shape mux
+        # hardwires to the BD arm and the ring dispatch/commit arms are not
+        # generated. bd_mode remains the runtime ARMING gate: unarmed + enabled
+        # = frames back up the drop-FIFO (counted ingress drops), NEVER a DMA
+        # write via base.storage/addr 0 (the lethal-pairing lesson applied to
+        # old bd=0 drivers on folded gateware). See docs/PIPELINE_STAGES.md.
         assert hs_page_bytes & (hs_page_bytes - 1) == 0
         assert hs_page_bytes <= 32768   # v3 w0[31:16] carries the page fill length
         PGB = hs_page_bytes.bit_length() - 1
@@ -1021,6 +1029,13 @@ class RingDMAWriter(LiteXModule):
         self.comb += [
             bd_mode.eq(self.bd_base.storage != 0),
             post_fifo.sink.valid.eq(self.post.re),    # one push per CSR write
+        ]
+        # SHAPE-vs-GATE split for the fold: bd_shape selects datapath shape (a
+        # constant 1 when the byte-ring is folded out => the ring arms of every
+        # mux die at synthesis); bd_mode stays the runtime arming gate at every
+        # dispatch site in both modes.
+        bd_shape = bd_mode if legacy_ring else C(1)
+        self.comb += [
             post_fifo.sink.addr.eq(self.post.storage),
             self.posted.status.eq(post_fifo.level),
             # DRAIN the posted-buffer FIFO while the ring is disabled: buffers posted by a
@@ -1159,10 +1174,10 @@ class RingDMAWriter(LiteXModule):
         self.comb += [
             # BD mode: the write target is the posted buffer (linear, never wraps  -  cap the
             # wrap term above the max frame). Ring mode: base+offset with ring-wrap splits.
-            cur_addr.eq(Mux(bd_mode, buf_addr_r + off_r,
-                                     self.base.storage[:32] + off_r)),
-            to_wrap.eq(Mux(bd_mode, max_frame_beats + 1,
-                                    (self.mask.storage + 1 - off_r) >> 3)),
+            cur_addr.eq(Mux(bd_shape, buf_addr_r + off_r,
+                                      self.base.storage[:32] + off_r)),
+            to_wrap.eq(Mux(bd_shape, max_frame_beats + 1,
+                                     (self.mask.storage + 1 - off_r) >> 3)),
             to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
             blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
             blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
@@ -1217,7 +1232,9 @@ class RingDMAWriter(LiteXModule):
             ]
 
         self.fsm = fsm = FSM(reset_state="IDLE")
-        fsm.act("IDLE",
+        # IDLE dispatch, built incrementally so the byte-ring arm is generated
+        # only when legacy_ring elaborates the fallback path (AREA-70 fold).
+        idle_disp = (
             # While the ring is disabled, hold wr/seq/frames at 0 so a driver re-init (which
             # toggles enable) starts a truly-empty ring  -  no stale mid-ring `wr` for the fresh
             # rd=0 to read as ~full (the occ_hi reload artifact), and per-session `frames`.
@@ -1279,7 +1296,14 @@ class RingDMAWriter(LiteXModule):
                 # flush may pop while aggregates are open  -  its BD simply waits its
                 # turn behind theirs (bounded by rsc_tout/rsc_agemax).
                 *ack_flush(ret=0)
-            ).Elif(len_fifo.source.valid,
+            )
+        )
+        if legacy_ring:
+            # byte-ring dispatch (the bd_base==0 fallback ABI): frame -> ring
+            # header slot + wrapped payload. Folded builds do NOT generate this
+            # arm  -  unarmed-but-enabled backs up the drop-FIFO (counted ingress
+            # drops), never a write through base.storage.
+            idle_disp = idle_disp.Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
                 NextValue(total_beats, len_fifo.source.beats + 1),
@@ -1289,7 +1313,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(hdr_sent, 0),
                 NextState("CHECK"),
             )
-        )
+        fsm.act("IDLE", idle_disp)
         fsm.act("HDR_CAP",              # RSC: consume the head beats into the regfile
             data_fifo.source.ready.eq(1),
             If(data_fifo.source.valid,
@@ -1487,14 +1511,17 @@ class RingDMAWriter(LiteXModule):
                 NextState("PREP"),
             )
         )
-        fsm.act("CHECK",
-            If(~self.enable.storage | no_fit,
-                NextValue(disc, frame_beats),
-                NextState("DISCARD"),
-            ).Else(
-                NextState("PREP"),
+        if legacy_ring:
+            # ring-only admission state (reached solely from the byte-ring
+            # dispatch arm above; not generated in folded builds)
+            fsm.act("CHECK",
+                If(~self.enable.storage | no_fit,
+                    NextValue(disc, frame_beats),
+                    NextState("DISCARD"),
+                ).Else(
+                    NextState("PREP"),
+                )
             )
-        )
         fsm.act("PREP",                             # register this burst's geometry
             If(hs & ap_append & ((off_r == hs_page_bytes) | ap_needswap),
                 NextState("HS_PGSWAP"),             # page full: v3 + JIT next-page pop
@@ -1588,7 +1615,7 @@ class RingDMAWriter(LiteXModule):
                 # BD mode: off_r is a LINEAR offset into the posted buffer  -  masking it with
                 # the (BD-ring!) mask wrapped it at ring-size bytes and overwrote the frame
                 # head (silicon bug 2026-07-05: >1 KB frames corrupt, ping fine, TCP dead).
-                NextValue(off_r, Mux(bd_mode, off_r + (blen_r << 3),
+                NextValue(off_r, Mux(bd_shape, off_r + (blen_r << 3),
                                      (off_r + (blen_r << 3)) & self.mask.storage)),
                 NextValue(rem_r, rem_r - blen_r),
                 NextState("W"),
@@ -1747,14 +1774,18 @@ class RingDMAWriter(LiteXModule):
                         NextState("IDLE"),
                     )
                 ).Else(
-                    NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
-                    NextValue(seq, seq + 1),
-                    NextValue(frames, frames + 1),    # telemetry: HW-committed frame count
-                    If(self.status.storage != 0,
-                        NextState("WB_AW"),
-                    ).Else(
-                        NextState("IDLE"),
-                    )
+                    # legacy: byte-ring frame commit (wr advance + optional shadow
+                    # writeback). Folded: quiesce  -  reachable only if bd_base is
+                    # cleared mid-frame (drivers never do; enable-toggle re-inits);
+                    # drop the in-flight frame's commit rather than write anywhere.
+                    *([NextValue(wr, (wr + (total_beats << 3)) & self.mask.storage),
+                       NextValue(seq, seq + 1),
+                       NextValue(frames, frames + 1),   # telemetry: HW-committed frames
+                       If(self.status.storage != 0,
+                           NextState("WB_AW"),
+                       ).Else(
+                           NextState("IDLE"),
+                       )] if legacy_ring else [NextState("IDLE")])
                 )
             )
         )
@@ -1764,9 +1795,9 @@ class RingDMAWriter(LiteXModule):
         # so software never observes a frame before its data is globally visible.
         fsm.act("WB_AW",
             self.bus.aw.valid.eq(1),
-            self.bus.aw.addr.eq(Mux(bd_mode, self.bd_base.storage[:32] + wr,
-                                             self.status.storage[:32])),
-            self.bus.aw.len.eq(Mux(bd_mode, 1, 0)),   # BD = 2 beats, shadow = 1
+            self.bus.aw.addr.eq(Mux(bd_shape, self.bd_base.storage[:32] + wr,
+                                              self.status.storage[:32])),
+            self.bus.aw.len.eq(Mux(bd_shape, 1, 0)),  # BD = 2 beats, shadow = 1
             self.bus.aw.size.eq(3),                   # 8 bytes/beat
             self.bus.aw.burst.eq(1),
             If(self.bus.aw.ready, NextValue(wb_beat, 0), NextState("WB_W")),
@@ -1778,7 +1809,7 @@ class RingDMAWriter(LiteXModule):
             # live `seq`/`drops` fields are OR-patched here so BD sequence numbers
             # reflect WRITE order and drops stay 8-bit at [55:48] ([63:56] belongs to
             # the v2 marker/flags  -  the drops/bit-56 alias, 2026-07-08, stays fixed).
-            self.bus.w.data.eq(Mux(bd_mode,
+            self.bus.w.data.eq(Mux(bd_shape,
                 Mux(wb_beat, cq_rp.dat_r[64:],
                              cq_rp.dat_r[:64] | (seq[:8] << 8) |
                              Mux((cq_hs >> cq_head[:CQB])[0],
@@ -1786,15 +1817,15 @@ class RingDMAWriter(LiteXModule):
                                  (drops[:8] << 48))),     # legacy: 8-bit at [55:48]
                 Cat(wr, drops))),                     # ring-mode shadow {drops, wr}
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
-            self.bus.w.last.eq(~bd_mode | wb_beat),
+            self.bus.w.last.eq(~bd_shape | wb_beat),
             If(self.bus.w.valid & self.bus.w.ready,
                 NextValue(wb_beat, 1),
-                If(~bd_mode | wb_beat, NextState("WB_B")),
+                If(~bd_shape | wb_beat, NextState("WB_B")),
             )
         )
         fsm.act("WB_B",
             If(self.bus.b.valid,
-                If(bd_mode,                           # commit: BD slot consumed, frame live
+                If(bd_shape,                          # commit: BD slot consumed, frame live
                     NextValue(wr, (wr + 16) & self.mask.storage),
                     NextValue(seq, seq + 1),
                     NextValue(frames, frames + 1),
@@ -1868,7 +1899,12 @@ class RingDMAReader(LiteXModule):
     `dma-tx` window and every downstream CSR address stay put; roles mirror RX):
       base[64] | mask[32] | wr_ptr[32] RW | rd_ptr[32] RO | enable[1] | sent[32] RO
     """
-    def __init__(self, bus, max_frame_bytes=4096, burst_beats=64):
+    def __init__(self, bus, max_frame_bytes=4096, burst_beats=64,
+                 legacy_ring=True):
+        # legacy_ring: as in RingDMAWriter (AREA-70 byte-ring fold). The reader
+        # side is read-only, so folded builds simply hardwire the BD shape; a
+        # doorbell with bd_base==0 parses low DRAM as BDs and lands in the
+        # existing bad-BD resync (len 0/oversized -> BD_FLUSH), never a write.
         # burst_beats 16->64 (2026-07-07): the reader is SERIAL (PAY_AR issues one AR,
         # PAY_R streams it, then the next AR) so every burst pays the full coherent-DMA
         # read latency (~140 cyc) unhidden. With HW-TSO's csum pre-pass reading each
@@ -1922,6 +1958,9 @@ class RingDMAReader(LiteXModule):
             self.sent.status.eq(nsent),
             bd_mode.eq(self.bd_base.storage != 0),
         ]
+        # SHAPE constant for the byte-ring fold (see RingDMAWriter): every ring
+        # arm below dies at synthesis when the fallback is elaborated out.
+        bd_shape = bd_mode if legacy_ring else C(1)
         # v2b HW checksum-insert (2026-07-07): BD w1 = {en[63], csum_off[31:16],
         # csum_start[15:0]} (frame-relative bytes). The engine burst-reads the region
         # [start, seg_len) FIRST, accumulates the 16-bit ones-complement sum (the stack
@@ -2016,10 +2055,10 @@ class RingDMAReader(LiteXModule):
         self.comb += [
             # BD mode: segment reads are LINEAR from skb memory (no ring wrap  -  cap the
             # wrap term above any segment). Ring mode: base+offset with wrap splits.
-            cur_addr.eq(Mux(bd_mode, Cat(C(0, 3), seg_addr[3:]) + off_r,
-                                     self.base.storage[:32] + off_r)),
-            to_wrap.eq(Mux(bd_mode, 1024,
-                                    (self.mask.storage + 1 - off_r) >> 3)),
+            cur_addr.eq(Mux(bd_shape, Cat(C(0, 3), seg_addr[3:]) + off_r,
+                                      self.base.storage[:32] + off_r)),
+            to_wrap.eq(Mux(bd_shape, 1024,
+                                     (self.mask.storage + 1 - off_r) >> 3)),
             to_4k.eq((4096 - (cur_addr & 0xFFF)) >> 3),
             blen_a.eq(Mux(rem_r > burst_beats, burst_beats, rem_r)),
             blen_b.eq(Mux(blen_a > to_wrap, to_wrap, blen_a)),
@@ -2027,8 +2066,8 @@ class RingDMAReader(LiteXModule):
         ]
 
         hdr_addr = Signal(32)
-        self.comb += hdr_addr.eq(Mux(bd_mode, self.bd_base.storage[:32] + rd,
-                                              self.base.storage[:32] + rd))
+        self.comb += hdr_addr.eq(Mux(bd_shape, self.bd_base.storage[:32] + rd,
+                                               self.base.storage[:32] + rd))
 
         self.comb += [
             self.bus.ar.size.eq(3),     # 8 bytes/beat
@@ -2204,7 +2243,7 @@ class RingDMAReader(LiteXModule):
         fsm.act("HDR_AR",
             self.bus.ar.valid.eq(1),
             self.bus.ar.addr.eq(hdr_addr),
-            self.bus.ar.len.eq(Mux(bd_mode, 1, 0)),   # BD = 2 beats, ring header = 1
+            self.bus.ar.len.eq(Mux(bd_shape, 1, 0)),  # BD = 2 beats, ring header = 1
             If(self.bus.ar.ready,
                 NextState("HDR_R"),
             )
@@ -2212,7 +2251,7 @@ class RingDMAReader(LiteXModule):
         fsm.act("HDR_R",
             self.bus.r.ready.eq(1),
             If(self.bus.r.valid,
-                If(bd_mode & bd_beat2,
+                If(bd_shape & bd_beat2,
                     If(tso_pend,
                         # TSO descriptor e0.w1: {flast[47:40], fmid[39:32],
                         # pay_total[31:16], mss[13:0]}
@@ -2249,7 +2288,7 @@ class RingDMAReader(LiteXModule):
                         NextValue(chain_first, 0),
                         NextState("PREP"),
                     )
-                ).Elif(bd_mode & self.bus.r.data[49],
+                ).Elif(bd_shape & self.bus.r.data[49],
                     # TSO descriptor e0.w0: {TSO=1<<49, hlen[39:32], tmpl_addr[31:0]}
                     NextValue(tso_tmpl, self.bus.r.data[:32]),
                     NextValue(tso_hlen, self.bus.r.data[32:40]),
@@ -2263,10 +2302,10 @@ class RingDMAReader(LiteXModule):
                         NextState("BD_FLUSH"),
                     )
                 ).Else(
-                    NextValue(frame_bytes, Mux(bd_mode, self.bus.r.data[32:48],
-                                                        self.bus.r.data[:16])),
+                    NextValue(frame_bytes, Mux(bd_shape, self.bus.r.data[32:48],
+                                                         self.bus.r.data[:16])),
                     # input beats = ceil((off + len)/8); output beats = ceil(len/8)
-                    NextValue(rem_r, Mux(bd_mode,
+                    NextValue(rem_r, Mux(bd_shape,
                         (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new)),
                     NextValue(seg_addr, self.bus.r.data[:32]),
                     NextValue(seg_off, self.bus.r.data[:3]),
@@ -2289,10 +2328,10 @@ class RingDMAReader(LiteXModule):
                     NextValue(m_tail, ((C(1, 9) << (((self.bus.r.data[:3] +
                         self.bus.r.data[32:48] - 1) & 0x7) + 1)) - 1)[:8]),
                     NextValue(seg_eof, self.bus.r.data[48]),
-                    NextValue(off_r, Mux(bd_mode, 0, (rd + 8) & self.mask.storage)),
+                    NextValue(off_r, Mux(bd_shape, 0, (rd + 8) & self.mask.storage)),
                     NextValue(bd_beat2, 1),
                     # len==0 / oversized can only be a software bug: resync, don't stream garbage
-                    If(bd_mode,
+                    If(bd_shape,
                         If((self.bus.r.data[32:48] == 0) |
                            (self.bus.r.data[32:48] > max_frame_bytes),
                             NextValue(rd, self.wr_ptr.storage & self.mask.storage),
@@ -2328,7 +2367,7 @@ class RingDMAReader(LiteXModule):
                 # BD mode: LINEAR segment offset  -  masking with the (BD-ring!) mask would
                 # wrap the read at ring-size bytes (the same class of bug the RX BD mode
                 # shipped with; its 1520 B content test is the template for test_tx_bd).
-                NextValue(off_r, Mux(bd_mode, off_r + (blen_r << 3),
+                NextValue(off_r, Mux(bd_shape, off_r + (blen_r << 3),
                                      (off_r + (blen_r << 3)) & self.mask.storage)),
                 NextValue(rem_r, rem_r - blen_r),
                 NextState("PAY_R"),
@@ -2337,7 +2376,7 @@ class RingDMAReader(LiteXModule):
         # segment-finish micro-sequence, shared by aligned / realigned / drain exits
         def seg_finish():
             return [
-                If(bd_mode,
+                If(bd_shape,
                     NextValue(rd, (rd + 16) & self.mask.storage),  # consume the BD
                     # rbeat is FRAME-relative across the chain (patch_here indexes
                     # the assembled output); IDLE re-zeroes it per frame.
@@ -2401,12 +2440,13 @@ class RingDMAReader(LiteXModule):
         ]
 
         fsm.act("PAY_R",
-            If(~bd_mode,
+            If(~bd_shape,
                 # aligned path: input beats == output beats (bit-identical to pre-v2)
+                # (byte-ring only  -  dead-folds out of legacy_ring=False builds)
                 source.valid.eq(self.bus.r.valid & ~cs_pass),
                 source.data.eq(Mux(patch_here, cs_patched(self.bus.r.data),
                                    self.bus.r.data)),
-                source.last.eq(pay_last & (~bd_mode | seg_eof)),
+                source.last.eq(pay_last & (~bd_shape | seg_eof)),
                 source.keep.eq(Mux(pay_last, rlast_keep, 0xFF)),
                 self.bus.r.ready.eq(source.ready | cs_pass),
                 cs_beat.eq(self.bus.r.data),
@@ -2776,7 +2816,8 @@ class MilanDMA(LiteXModule):
     NOTE (board-gated): this elaborates against integrated RAM here; on the board it
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade  -  see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
-    def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096):
+    def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
+                 legacy_ring=True):
         from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
         from litex.soc.interconnect import wishbone
         import math
@@ -2807,7 +2848,7 @@ class MilanDMA(LiteXModule):
         # the ~21 MB/s per-beat wishbone ceiling) are gone. Same 7-word CSR footprint,
         # so the DT `dma-tx` window and all later CSR addresses stay put.
         self.tx = RingDMAReader(axi.AXIInterface(data_width=data_width, address_width=32,
-                                                 id_width=4))
+                                                 id_width=4), legacy_ring=legacy_ring)
         dma_bus.add_master("milan_dma_tx", master=self.tx.bus)
         # RX: datapath -> circular DRAM ring (RingDMAWriter  -  see its docstring; replaces
         # the single-shot writer whose re-arm-per-frame protocol corrupted RX under load).
@@ -2825,7 +2866,7 @@ class MilanDMA(LiteXModule):
         # 32 fits PAYCAP (meta+14 pages) plus a second aggregate with slack.
         self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
                                                  id_width=4), cq_depth=32,
-                                hs_page_bytes=hs_page_bytes)
+                                hs_page_bytes=hs_page_bytes, legacy_ring=legacy_ring)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
         # RX fan-out (rx_queues=2): a flow-steering front-end splits the single RX
         # stream into 2 flow-consistent queues, each its own RingDMAWriter + IRQ +
@@ -2843,7 +2884,8 @@ class MilanDMA(LiteXModule):
             self.rx1 = RingDMAWriter(axi.AXIInterface(data_width=data_width,
                                                       address_width=32, id_width=4),
                                      cq_depth=32, hs_capable=True,
-                                     hs_page_bytes=hs_page_bytes)
+                                     hs_page_bytes=hs_page_bytes,
+                                     legacy_ring=legacy_ring)
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
@@ -3210,7 +3252,8 @@ class MilanSoC(SoCCore):
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
-                 strip_probes=False, hs_page_bytes=4096, **kwargs):
+                 strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
+                 **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3350,7 +3393,8 @@ class MilanSoC(SoCCore):
             if with_dma:
                 self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
                                           rx_queues=rx_queues,
-                                          hs_page_bytes=hs_page_bytes)
+                                          hs_page_bytes=hs_page_bytes,
+                                          legacy_ring=legacy_ring)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
@@ -3472,6 +3516,12 @@ def main():
                     help="drop the MilanDebug telemetry block (tlm CSRs @0xf0004000+ incl. "
                          "Phase-0/M1 probes)  -  the area-70 ship-build diet; kl-eth handles "
                          "the absence. Keep probes on dev/forensics builds.")
+    ap.add_argument("--legacy-ring", action="store_true",
+                    help="elaborate the legacy byte-ring DMA fallback (bd_base==0 ABI) back "
+                         "in. DEFAULT IS FOLDED OUT (AREA-70): shape muxes hardwire to the "
+                         "BD arm and the ring dispatch/commit arms are not generated; an "
+                         "unarmed engine parks (counted drops), never DMA via base/addr 0. "
+                         "Only the kl-eth bd=0 A/B forensics lever needs this flag.")
     ap.add_argument("--l2-bytes", default=None, type=float,
                     help="NaxRiscv shared-L2 size in bytes (default 128 KiB; IPC knob I1).")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
@@ -3524,6 +3574,17 @@ def main():
     ap.add_argument("--place-directive", default=None,
                     help="override the Vivado place directive (e.g. AltSpreadLogic_high "
                          "to relieve congestion on a route-dominated critical path).")
+    ap.add_argument("--synth-directive", default=None,
+                    help="override the Vivado synth_design directive (e.g. "
+                         "AreaOptimized_high for the AREA-70 density flow).")
+    ap.add_argument("--opt-directive", default=None,
+                    help="override the Vivado opt_design directive (e.g. ExploreArea).")
+    ap.add_argument("--area-flow", action="store_true",
+                    help="AREA-70 density flow: synth AreaOptimized_high + opt "
+                         "ExploreArea + a second opt_design -control_set_merge "
+                         "-merge_equivalent_drivers pass before placement. The slice "
+                         "binder is packing density, not LUT count (cbse_spr: 71.2 "
+                         "percent LUTs but 94.85 percent slices at 75 percent fill).")
     ap.add_argument("--timing-opt", action="store_true",
                     help="aggressive Vivado place/route/phys-opt directives to squeeze out "
                          "the last ns of setup slack (slower P&R; use when WNS is marginally "
@@ -3551,6 +3612,7 @@ def main():
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
+                   legacy_ring=args.legacy_ring,
                    hs_page_bytes=args.hs_page_bytes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,
@@ -3593,6 +3655,18 @@ def main():
     ) if args.timing_opt else {}
     if args.place_directive:
         build_kwargs["vivado_place_directive"] = args.place_directive
+    if args.synth_directive:
+        build_kwargs["vivado_synth_directive"] = args.synth_directive
+    if args.opt_directive:
+        build_kwargs["vivado_opt_directive"] = args.opt_directive
+    if args.area_flow:
+        build_kwargs.setdefault("vivado_synth_directive", "AreaOptimized_high")
+        build_kwargs.setdefault("vivado_opt_directive", "ExploreArea")
+        # second, merge-focused opt pass right before placement (the flow's own
+        # opt_design already ran): folds equivalent CE/reset drivers so FFs pack
+        # denser into slices (control_sets.rpt suggestion)
+        soc.platform.toolchain.pre_placement_commands.append(
+            "opt_design -control_set_merge -merge_equivalent_drivers")
     # Use as many CPU cores as Vivado allows for synth/place/route (`set_param
     # general.maxThreads N`). Vivado caps this at 32 regardless of host cores, so
     # request min(cores, 32)  -  the rest of the box is idle during a single P&R run.

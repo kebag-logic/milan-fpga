@@ -41,7 +41,8 @@ silicon history; SESSION_HANDOFF.md is the live state.*
 
 ## Regression net
 
-`test_ring_bd.py` (40 tests incl. the full-gate, hs pressure, cut-through
+`test_ring_bd.py` (42 tests incl. the full-gate, hs pressure, cut-through,
+byte-ring-fold equivalence/quiesce
 ordering + livelock probe)  -  plain python, ~25 min; every model mirrors the
 real driver contract (RING_RD after reap, =0 after heal; defer-not-skip
 pairing). Sim green before P&R, always.
