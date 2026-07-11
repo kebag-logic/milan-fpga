@@ -112,7 +112,7 @@ Read with:
 
 | Suite | Command | Proves |
 |-------|---------|--------|
-| RTL harnesses (15) | `cd tb/verilator && for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx classifier queues tcam rx_filter cdc datapath milan_dp; do (cd $d && make); done` | every HW block above (rows tagged `RTL`) |
+| RTL harnesses (17) | `cd tb/verilator && for d in */ ; do (cd $d && make) || break; done` | every HW block above (rows tagged `RTL`) |
 | Yosys portability (18) | `cd syn/yosys && ./run.sh` | every block synthesizes device-independently (`SYN`) |
 | Softcore sim (M-A1/M-A2) | `./sw/litex/milan_sim.py --xlen 32` then `mem_read 0x90000000` | CPU boots + reaches the NIC CSR (`SIM`) |
 | SoC elaboration | `./sw/litex/milan_soc.py --full` | the full FPGA design assembles + exports gateware (`ELAB`) |

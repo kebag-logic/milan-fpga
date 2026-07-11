@@ -85,7 +85,7 @@ the entity model under `avdecc/`.
 
 | Layer | State | Evidence |
 |-------|-------|----------|
-| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | 15 Verilator harnesses green; 18 Yosys tops |
+| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | 17 Verilator harnesses green; 18 Yosys tops |
 | `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | `tb/verilator/milan_dp` (11 checks); Yosys |
 | VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; `sw/litex/evidence/naxriscv_sim_boot.log` |
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
@@ -124,7 +124,7 @@ sw/
     evidence/                captured sim boot + MILN-read logs
   dts/                       device tree (kl,dma-ether) + binding
   driver/                    kl-eth driver ABI contract
-tb/verilator/                15 self-checking RTL harnesses (see its README)
+tb/verilator/                17 self-checking RTL harnesses (see its README)
 syn/yosys/                   sv2v + Yosys device-portability check (18 tops, incl. ECP5)
 docs/                        this file + the companions listed at the top
 ```
@@ -181,8 +181,7 @@ that is **not** the litex-repos parent.
 
 ```sh
 # --- RTL verification (no Vivado, no LiteX) ---
-cd tb/verilator && for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx \
-  classifier queues tcam rx_filter cdc datapath milan_dp; do (cd $d && make) || break; done
+cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # all 17
 cd syn/yosys && ./run.sh                       # 18 device-portability tops
 
 # --- softcore in simulation (Verilator; proves the CPU + NIC CSR path) ---

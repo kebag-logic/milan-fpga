@@ -298,7 +298,7 @@ Stage new driver builds: `scp kl-eth.ko amx-pw0:/tmp/serve/kl-eth-<ver>.ko`.
 
 **Sim/test layers:** see **RUNNING_TESTS.md** (elab smoke + Migen-codegen grep →
 `test_ring_bd.py` suite (39 tests incl. the livelock regression; plain python, no
-pytest) → 18 Verilator harnesses (`tb/verilator/*/make`) → Yosys (`syn/yosys/run.sh`)
+pytest) → 17 Verilator harnesses (`tb/verilator/*/make`) → Yosys (`syn/yosys/run.sh`)
 → Vivado build scripts (`~/litex-milan/work/build_*.sh`, ≤32 threads, read the LAST
 timing summary) → silicon §V checklist). Cycle-exact debugging: `dbg_*` aliases on
 RingDMAWriter + the stoppable full-rate watcher via `h.run(stim, extra_gens=[...])`.

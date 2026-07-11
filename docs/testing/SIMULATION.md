@@ -6,7 +6,7 @@ explains each layer: what it is, how it is wired, how to run it, and what it pro
 
 | Layer | Tool | Top | Proves | Where |
 |-------|------|-----|--------|-------|
-| **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | `tb/verilator/` (15 harnesses) |
+| **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | `tb/verilator/` (17 harnesses — the directory listing is authoritative) |
 | **2. Softcore boot** | Verilator (via LiteX) | the whole SoC | the NaxRiscv core boots the LiteX BIOS | `litex_sim` / `sw/litex/evidence/naxriscv_sim_boot.log` |
 | **3. Softcore + NIC (M-A2)** | Verilator (via LiteX) | SoC + `milan_datapath` | the **CPU reads the NIC over the real bus** | `sw/litex/milan_sim.py` / `…/naxriscv_reads_MILN.log` |
 | (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | `syn/yosys/` (18 tops)  -  not simulation, see its README |
@@ -130,9 +130,8 @@ Source order matters: packages (`ethernet_packet_pkg.sv`, `adp_pkg.sv`) and the
 ```sh
 cd tb/verilator/milan_dp && make          # one harness
 # the whole suite:
-cd tb/verilator && for d in cbs shaper_core cls ptp ptp_sync csr adp adp_tx \
-  classifier queues tcam rx_filter cdc datapath milan_dp; do (cd $d && make) || break; done
-# expected: each ends "<name>: N checks, 0 failures"; suite total 15/15 green
+cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # glob = all 17
+# expected: each ends "<name>: N checks, 0 failures"; suite total 17/17 green
 ```
 
 ### Section 1.4: Warning suppressions and why they are safe

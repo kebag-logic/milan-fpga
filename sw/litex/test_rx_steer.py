@@ -10,7 +10,7 @@ Proven BEFORE a bitstream:
   5. hash_sel=1 forces everything to q0 (bypass).
   6. Back-to-back frames with alternating tuples split across both queues.
 
-Run: cd sw/litex && /home/alex/litex-milan/venv/bin/python3 test_rx_steer.py
+Run: cd sw/litex && python3 test_rx_steer.py   (from your LiteX venv)
 """
 import sys, importlib.util
 from migen import *

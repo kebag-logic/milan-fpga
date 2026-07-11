@@ -28,7 +28,7 @@ the 3-place-directive sweep. `--dry-run` prints the exact commands.
 
 ```sh
 cd sw/litex
-/home/alex/litex-milan/venv/bin/python -c "import milan_soc"       # ~2 s: syntax/widths
+python3 -c "import milan_soc"       # ~2 s: syntax/widths (use your LiteX venv)
 ```
 
 Full elaboration without Vivado (generates verilog + csr.csv, no bitstream, ~2 min):
@@ -51,8 +51,8 @@ These are plain scripts  -  **no pytest** (not installed in the venv). Two ways 
 
 ```sh
 cd sw/litex
-/home/alex/litex-milan/venv/bin/python test_ring_bd.py          # full suite (~10-20 min)
-/home/alex/litex-milan/venv/bin/python -c "
+python3 test_ring_bd.py          # full suite (~10-20 min)
+python3 -c "
 import test_ring_bd as t
 t.test_hs_livelock_orphan()"                                    # one test
 ```
@@ -143,7 +143,7 @@ into 4+ hours). Always share a stop flag that stim sets on every exit path.
 **Trap:** printed event ORDER from sparse samplers is meaningless  -  batch prints
 lag. Only the full-rate watcher's cycle numbers are ordering-trustworthy.
 
-## 3. Verilator harnesses (tb/verilator/*, 18 of them)
+## 3. Verilator harnesses (tb/verilator/*, 17 of them — `ls tb/verilator/` is authoritative)
 
 Standalone self-checking C++ harnesses for the pure-SV modules (adp, adp_tx, cbs,
 cdc, classifier, csr, datapath, ptp, …). Each dir:
@@ -153,7 +153,7 @@ cd tb/verilator/adp && make        # builds + runs; self-checking, prints PASS/c
 ```
 
 No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
-touching its SV; run all 18 before a release-ish commit (`for d in tb/verilator/*/;
+touching its SV; run all 17 before a release-ish commit (`for d in tb/verilator/*/;
 do make -C "$d" || break; done`).
 
 ## 4. Yosys device-portability check (syn/yosys)
