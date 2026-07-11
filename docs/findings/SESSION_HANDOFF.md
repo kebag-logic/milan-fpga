@@ -72,8 +72,11 @@ both invisible before the switch existed:
    platform mac_addr CSR is LSB-first, the advertiser port is numeric EUI-48;
    byte-reverse added at BOTH instantiation sites (fully-FPGA wrapper + Zynq
    top, same latent bug) + egress-src regression. milan_dp now 17 checks.
-Builds in flight: ax7101_adp2 (ship shape + both fixes  -  flash, then the peer
-capture through the switch should show ENTITY_AVAILABLE), arty_v2.
+**WIRE PROOF LANDED (ax7101_adp2, WNS +0.102, flashed)**: the peer captured
+ENTITY_AVAILABLE through the AVB switch  -  src 02:00:00:00:00:01 (fix 2
+proven), dst 91:e0:f0:01:00:00, ethertype 0x22F0, subtype 0xFA, valid_time
+31, the programmed entity_id, available_index advancing per strobe. The
+first Milan ADP advertisement this NIC has ever transmitted.
 
 ### Arty A7-100 (second Milan node)  -  port done, bring-up in progress
 
@@ -84,8 +87,11 @@ sys) and -1.026 (83 MHz sys with the datapath still at 100)  -  the datapath
 domain is the wall. Canonical arty clocking (in build.sh cfg_arty): **sys
 83.333 MHz (the clean VCO-1000 divisor set; 90 MHz has NO PLL solution with
 the 25 MHz ref) + datapath 50 MHz** (3.2 Gb/s internal for a 100 Mbit wire).
-Milestone 1 pending arty_v2: JTAG load, BIOS, DDR3 memtest, ID=MILN over the
-FT2232 console; then Linux/DT, IP .3, and two-node ADP discovery.
+**Milestone 1 COMPLETE (build_arty_v2, WNS +0.091)**: BIOS up, VexiiRiscv x2
+@83 MHz, DDR3 256 MiB @666 MT/s Memtest OK (105.8/269.4 MiB/s), and
+mem_read 0x90000000 = MILN  -  the datapath lives on board 2. Next
+increments: Linux/DT (83 MHz timebase, 256 MB, MII), kl-eth at 100M, IP
+.3, two-node ADP discovery through the switch; later S25FL128S flashboot.
 
 ### Hardening shipped
 
@@ -254,10 +260,10 @@ strings kl-eth.ko | grep version=        # ALWAYS verify before staging
   full method in PERF_ON_MILAN.md.
 - Measure, don't assume  -  probe first, before AND after (measure-dont-assume rule).
 
-**Current board state (2026-07-11 night):** AX7101 = build_ax7101_adp1
-(JTAG-SRAM: the cbsf_epo AREA-70 keeper shape + the ADP enable fix; WNS
-+0.067) + hsplit16 hsplit=2 hs_pgsz=16384, network up, iperf3 -s running;
-ax7101_adp2 (+ the src-MAC fix) builds and replaces it next. Arty = blank
-(JTAG only), arty_v2 (83.333/50) building toward milestone 1. Gateware
+**Current board state (2026-07-11 night):** AX7101 = build_ax7101_adp2
+(JTAG-SRAM: cbsf_epo keeper shape + BOTH ADP fixes, WNS +0.102) + hsplit16
+hsplit=2 hs_pgsz=16384, network up, ADP enabled and advertising (EID
+02:00:00:ff:fe:00:00:01). Arty = build_arty_v2 (JTAG-SRAM, WNS +0.091),
+sitting at the LiteX BIOS console (milestone 1 passed; no Linux yet). Gateware
 lineage table: PIPELINE_STAGES.md; the hsq3..hsq14 ladder history:
 HEADER_SPLIT_DESIGN.md.
