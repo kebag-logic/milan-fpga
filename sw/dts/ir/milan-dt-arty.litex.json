@@ -1,0 +1,45 @@
+{
+  "platform": "litex-naxriscv",
+  "address_cells": 1,
+  "interrupt_parent": "intc0",
+  "reg": {
+    "csr": {
+      "base": 2415919104,
+      "size": 65536
+    },
+    "dma-tx": {
+      "base": 4026544128,
+      "size": 36
+    },
+    "dma-rx": {
+      "base": 4026544164,
+      "size": 104
+    },
+    "dma-ts": {
+      "base": 4026544384,
+      "size": 28
+    }
+  },
+  "interrupts": [
+    {
+      "name": "csr",
+      "num": 3
+    }
+  ],
+  "phy": {
+    "mode": "mii"
+  },
+  "mac_address": "02:00:00:00:00:02",
+  "ptp": {
+    "present": true,
+    "clock_hz": 50000000
+  },
+  "queues": {
+    "txq": 4,
+    "rxq": 4,
+    "shaped": [
+      0,
+      1
+    ]
+  }
+}
