@@ -77,7 +77,11 @@ if [ "${1:-}" = "flash" ]; then
                 [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
                 echo "== flash [$c] BITSTREAM -> QSPI offset 0 (self-configures on power-up) =="
                 echo "   $bit"
-                openFPGALoader --ftdi-serial "$serial" -c "$cable" -f --verify "$bit"
+                # --fpga-part: the SPI proxy needs the device-package (openFPGALoader
+                # cannot infer it for every cable profile, and exits 0 on the miss)
+                out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) || { echo "$out"; exit 1; }
+                echo "$out" | tail -3
+                echo "$out" | grep -qiE "error|can't program" && { echo "[$c] FLASH FAILED"; exit 1; }
                 echo "   done. Power-cycle (or --reset) to boot the flashed gateware."
                 ;;
         esac
