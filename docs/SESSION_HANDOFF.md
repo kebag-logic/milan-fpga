@@ -174,9 +174,18 @@ TCP numbers stay the regression net; TX gate discipline unchanged.
    re-measuring the keeper in-session. OPEN FOLLOW-UPS (both gatewares,
    env/driver-config class): why this cell reads ~220 (suspects: napi_w,
    hsplit=2 ACK-path latency, peer/iperf state  -  sweep driver params on
-   the keeper) and the recurring mid-flow stall. RX cells on cbsf_epo =
-   the remaining section V item; runs now that cbsf_epo is reflashed.
-   (Console recovered: CP2102N re-attached, by-id path in section 3.)
+   the keeper) and the recurring mid-flow stall.
+   ✓✓ **cbsf_epo SHIP-CLEARED 2026-07-11 night (section V complete)**:
+   boot + ID=MILN + hsplit16@16K pairing probe + ghost-peer ARP + TX gate
+   (identical to keeper) + RX cells IN-SESSION A/B  -  P1 335 vs keeper 330,
+   P4 ~325 (SUM 306) vs keeper ~280: equal-or-better on every axis.
+   **THE AREA-70 SILICON KEEPER = build_cbsf_epo** (WNS +0.099, 44439 LUTs
+   70.09 pct, BRAM 112.5 83.3 pct, slices 91.77 pct; engine -6.7K + fold
+   -0.8K banked). Board runs it now (hsplit16@16K, tuned, iperf3 -s up).
+   1-hart datapoint for the user decision: 36793 LUTs 58 pct / BRAM 68.5
+   pct / slices 80.9 pct at the cost of the 2-hart NAPI pipeline.
+   (Console recovered: CP2102N re-attached, by-id path in section 3; the
+   FT232H JTAG also dropped+recovered  -  use vendor:product passthrough.)
    (c) legacy byte-ring fold: 37 bd_mode sites in RingDMAWriter, elaboration
    param, estimated 1-2K LUTs; staged procedure in PIPELINE_STAGES.md.
    (d) Vivado area strategies (cheap 2-4 percent).
