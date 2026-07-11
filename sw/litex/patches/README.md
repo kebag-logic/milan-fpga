@@ -22,7 +22,7 @@ sampling is hold-marginal: measured 25–40 % corrupt frames (`rx_crc_errors` at
 
 Adds a `linux_flashboot` BIOS boot method that copies the Linux boot images out of the
 memory-mapped QSPI flash into DRAM, so a boot needs **no** (or, for the partial manifest,
-much smaller) serial upload — the "gain time" path. See [`../../docs/QSPI_FLASHBOOT.md`](../../docs/QSPI_FLASHBOOT.md).
+much smaller) serial upload — the "gain time" path. See [`docs/integration/QSPI_FLASHBOOT.md`](../../../docs/integration/QSPI_FLASHBOOT.md).
 
 Touches three BIOS files (all in `litex/soc/software/bios/`):
 

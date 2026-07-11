@@ -5,7 +5,7 @@ the Milan TSN datapath …) to the NaxRiscv/LiteX SoC so that software running o
 the core can configure it, move data to/from it, and get interrupts from it.
 
 The concrete, working reference for everything below is
-[`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) (class `MilanNIC`): the Milan
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (class `MilanNIC`): the Milan
 NIC *is* an AXI-Stream core cluster, and it is attached with exactly these three
 planes.
 
@@ -187,7 +187,7 @@ self.irq.add("mycore", use_loc_if_exists=True)   # -> allocates a PLIC source
 
 The allocated PLIC source numbers are what the driver's device-tree `interrupts`
 property references (`interrupt-parent = <&plic>`), exactly as in
-[`sw/dts/milan.dtsi`](../sw/dts/milan.dtsi).
+[`sw/dts/milan.dtsi`](../../sw/dts/milan.dtsi).
 
 ---
 

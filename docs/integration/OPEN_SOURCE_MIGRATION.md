@@ -109,10 +109,10 @@ All **MIT-licensed**. Vendor as git submodules under `third_party/`.
 Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
 
 1. **T1.1  -  vendor the cores.** ✅ `verilog-axis` added as a submodule at
-   `third_party/verilog-axis` (pinned `48ff7a7`); see [`../THIRD_PARTY.md`](../THIRD_PARTY.md).
+   `third_party/verilog-axis` (pinned `48ff7a7`); see [`../THIRD_PARTY.md`](../../THIRD_PARTY.md).
    *(verilog-axi / verilog-ethernet to add in T2.)*
 2. **T1.2  -  AXIS FIFOs (X1).** 🟡 IN PROGRESS. All 5 are `common_clock` → `axis_fifo`.
-   - ✅ `traffic_classifier`  -  swapped + **fully verified**: [`tb/verilator/classifier/`](classifier)
+   - ✅ `traffic_classifier`  -  swapped + **fully verified**: [`tb/verilator/classifier/`](../../tb/verilator/classifier)
      (6 checks, PASS) proves it now Verilates and the swap is lossless/byte-exact.
    - ✅ `ptp_ts_top` ×3 (tx/rx/ps ts buffers)  -  swapped; `ptp_ts_top` now parses with
      **only `xpm_cdc_*` missing** (its full harness lands with T1.4).
@@ -125,20 +125,20 @@ Highest value: unblocks end-to-end Verilator simulation of the TSN datapath.
    `axis_fifo` (`prog_empty` → `status_depth ≤ thresh`). CBS grant suppression is
    reproduced by gating **both** the arbiter input `tvalid` **and** the FIFO `tready`
    with `queue_grant_i` (gating `tvalid` alone lets the arbiter's prefetch drain and
-   discard the frame  -  caught by the harness). **Verify:** [`tb/verilator/queues/`](queues)
+   discard the frame  -  caught by the harness). **Verify:** [`tb/verilator/queues/`](../../tb/verilator/queues)
    (11 checks, PASS) + `traffic_controller_802_1q` now **elaborates end-to-end** in
    Verilator (classifier + queues + CBS, no XPM left in the 802.1Q subtree).
 4. **T1.4  -  PTP CDC (X4,X5).** ✅ DONE. Replaced `xpm_cdc_pulse`/`xpm_cdc_handshake`
    in `ptp_ts_core` with two open, FPGA-independent primitives:
-   [`cdc_pulse.sv`](../hdl/common/cdc_pulse.sv) (toggle synchroniser) and
-   [`cdc_handshake.sv`](../hdl/common/cdc_handshake.sv) (4-phase req/ack value
+   [`cdc_pulse.sv`](../../hdl/common/cdc_pulse.sv) (toggle synchroniser) and
+   [`cdc_handshake.sv`](../../hdl/common/cdc_handshake.sv) (4-phase req/ack value
    transfer). **`hdl/` is now completely XPM-free**, and `ptp_ts_top` elaborates
-   end-to-end in Verilator. **Verify:** [`tb/verilator/cdc/`](../tb/verilator/cdc)
+   end-to-end in Verilator. **Verify:** [`tb/verilator/cdc/`](../../tb/verilator/cdc)
    (16 checks, PASS) drives two *independent* clocks (2:3) and checks pulse-count
    preservation + byte-exact value crossing with req/ack.
 5. **T1.5  -  the big win.** ✅ DONE. `traffic_controller_802_1q` (classifier +
    Forencich queues + CBS shaper) is fully Verilatable → the **end-to-end datapath
-   harness** [`tb/verilator/datapath/`](../tb/verilator/datapath) (15 checks, PASS)
+   harness** [`tb/verilator/datapath/`](../../tb/verilator/datapath) (15 checks, PASS)
    injects VLAN frames and proves, through the whole pipeline: byte-exact egress,
    PCP→queue classification (identity map, exact `tdest`), all 4 queues, both
    strict-priority and CBS-shaped modes, and burst delivery. (PTP-timestamp / ADP
@@ -169,7 +169,7 @@ listing each submodule, its commit, and which of our modules use it.
 ## 6. Open-toolchain synthesis check (device portability)
 
 Being XPM-free is only useful if the RTL actually maps to *other* devices. The
-[`syn/yosys/`](../syn/yosys) flow proves it: **sv2v** converts the SystemVerilog to
+[`syn/yosys/`](../../syn/yosys) flow proves it: **sv2v** converts the SystemVerilog to
 Verilog-2005 and **Yosys** runs generic `synth` + `hierarchy -check` (which fails on
 any leftover vendor/undefined primitive). **17/17 tops PASS** device-independent
 synthesis, and `make ecp5` maps them to a real non-Xilinx FPGA (Lattice ECP5,

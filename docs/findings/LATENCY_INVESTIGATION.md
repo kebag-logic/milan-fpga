@@ -1,6 +1,6 @@
 # Latency & memory investigation  -  why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
@@ -17,8 +17,8 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 > every byte**  -  driver ring→skb memcpy, TCP receive-queue coalesce memmove, and the
 > kernel→user usercopy  -  while the TCP protocol logic itself costs ~1 % per function.
 > See the **2026-07-07 campaign** addendum in
-> [CPPI_DMA_REDESIGN.md](CPPI_DMA_REDESIGN.md) for the profile and the copybreak/page-frag
-> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md](HW_GRO_RSC.md) for the ÷K plan toward
+> [CPPI_DMA_REDESIGN.md](../fpga/CPPI_DMA_REDESIGN.md) for the profile and the copybreak/page-frag
+> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md](../fpga/HW_GRO_RSC.md) for the ÷K plan toward
 > ≥200. This document's history below is unchanged.
 
 ---

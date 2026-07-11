@@ -14,14 +14,14 @@ It is written for two audiences:
   build/run commands, how each boundary is attached, and how to add the next piece.
 
 Companion documents:
-- [`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md)  -  **every protocol
+- [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md)  -  **every protocol
   × where it's implemented × the test that validates it** (the validation contract).
-- [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md)  -  the deep, step-
+- [`FULLY_FPGA_RISCV_MIGRATION.md`](../integration/FULLY_FPGA_RISCV_MIGRATION.md)  -  the deep, step-
   numbered migration plan (§A.x parts are referenced throughout here).
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)  -  the datapath/control-plane internals.
-- [`AXIS_CORES_ON_NAXRISCV.md`](AXIS_CORES_ON_NAXRISCV.md)  -  how AXI-Stream cores
+- [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md)  -  how AXI-Stream cores
   attach to the CPU (the pattern the Milan NIC follows).
-- [`REGISTER_MAP.md`](REGISTER_MAP.md)  -  the CSR ABI.
+- [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)  -  the CSR ABI.
 
 ---
 
@@ -76,9 +76,9 @@ Companion documents:
 | **L2 / L1** | 802.3 1G MAC, RGMII PHY, dest-MAC filtering, RMON | HW MAC + fabric datapath |
 
 The per-protocol **status and the test that validates each** is the subject of
-[`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md). Scope decisions
+[`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md). Scope decisions
 (redundancy out; only 48/96/192 kHz; stereo talker + format-adaptive listener) are
-recorded in [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md) and
+recorded in [`MILAN_V12_DEPENDENCY_MATRIX.md`](../reference/MILAN_V12_DEPENDENCY_MATRIX.md) and
 the entity model under `avdecc/`.
 
 ## 3. Status at a glance
@@ -135,12 +135,12 @@ docs/                        this file + the companions listed at the top
 external boundaries; each is attached by a small LiteX submodule in `milan_soc.py`
 via the shared `add_milan_datapath()` helper (`extra_ports`). This is the same
 control/data/event pattern documented generically in
-[`AXIS_CORES_ON_NAXRISCV.md`](AXIS_CORES_ON_NAXRISCV.md).
+[`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md).
 
 ### 5.1 Control  -  `milan_csr` (AXI4-Lite)
 - A 64 KB AXI4-Lite slave mapped in the CPU IO region at **`0x9000_0000`** (the
   register *offsets* `0x000..0x700` are unchanged from the Zynq build at
-  `0x43C0_0000`; only the base is host-specific  -  see [`REGISTER_MAP.md`](REGISTER_MAP.md)).
+  `0x43C0_0000`; only the base is host-specific  -  see [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
 - LiteX bridges the CPU Wishbone bus → AXI-Lite automatically (`Bus adapted`).
 - **Proven on the softcore:** the BIOS `mem_read 0x90000000` returns `4d 49 4c 4e`
   ("MILN") + `0x00010003` (VERSION)  -  migration milestone **M-A2**.
@@ -171,11 +171,11 @@ control/data/event pattern documented generically in
   **PLIC** line (`milan_interrupt`); the driver demuxes via `milan_csr` `IRQ_STATUS` +
   the EventManager `pending` register. The device tree therefore lists a single
   interrupt on the LiteX build (four discrete GIC lines on Zynq)  -  generated per
-  platform, see [`../sw/dts/README.md`](../sw/dts/README.md).
+  platform, see [`../sw/dts/README.md`](../../sw/dts/README.md).
 
 ## 6. Build & run (medium level)
 
-All commands assume the LiteX venv + toolchain from [`../sw/README.md`](../sw/README.md)
+All commands assume the LiteX venv + toolchain from [`../sw/README.md`](../../sw/README.md)
 (`~/litex-milan/venv`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk`), run from a work dir
 that is **not** the litex-repos parent.
 
@@ -210,7 +210,7 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 |---------|---------|
 | a new CSR register | add it in `hdl/csr/milan_csr.sv` (write-case + read-mux + reset), extend `tb/verilator/csr`, document in `REGISTER_MAP.md` (the harness asserts they agree) |
 | a new datapath stage | insert into `milan_datapath.sv` between the existing AXIS hops; add a `tb/verilator/*` harness; add it to `syn/yosys/run.sh` |
-| a new AXIS core on the CPU | follow the 3-plane pattern in [`AXIS_CORES_ON_NAXRISCV.md`](AXIS_CORES_ON_NAXRISCV.md) |
+| a new AXIS core on the CPU | follow the 3-plane pattern in [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md) |
 | the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |
 | link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (§A.7 refine) |
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
@@ -219,7 +219,7 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
 - **milan_csr** window `0x9000_0000` + offsets `0x000..0x700`  -  full table in
-  [`REGISTER_MAP.md`](REGISTER_MAP.md). Groups: `0x000` ID/VERSION/CAP, `0x100` MAC,
+  [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md). Groups: `0x000` ID/VERSION/CAP, `0x100` MAC,
   `0x200` RMON stats, `0x300` classifier, `0x400` CBS (per-queue), `0x500` PTP,
   `0x600` ADP, `0x700` TCAM.
 - **DMA** simple-mode CSRs (LiteX CSR space, auto-mapped; names in `build/csr.csv`):
@@ -253,7 +253,7 @@ Kept here as the historical order, each item marked with its result.
    (`RX_RING_DMA.md`, `AVB_SWITCH_DIRECTION.md`). **M-A5 = "Milan on FPGA" closed.**
 7. **AVDECC protocols** *(remaining)*  -  AECP/AEM enumeration, ACMP connect, MAAP, MVU,
    then SRP/MSRP/MVRP, then (optional) the AVTP media datapath. Each row in the
-   [`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md) names its test.
+   [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md) names its test.
 
 The full `--full` SoC builds, boots Linux, and passes traffic on silicon today; the
 remaining work is the AVDECC/SRP control stack and the optional media datapath (step 7).

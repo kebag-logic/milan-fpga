@@ -168,7 +168,7 @@ before trusting B.0.** On an in-order blocking D$ the only lever is "make the re
 **A cheaper first move than DDIO exists on the *core* side: make the D$ non-blocking.** The
 LSU's refill engine is depth-1 by default (blocking  -  misses serialize); widening it to 8
 refill slots lets cold misses overlap (MLP) and costs **0 BRAM** (FF/LUT state). Full mechanism
-+ the `build_mlp1` result in [`LSU_NONBLOCKING_DCACHE.md`](LSU_NONBLOCKING_DCACHE.md). This is
++ the `build_mlp1` result in [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md). This is
 the lever now in flight.
 
 **Therefore the form of the idea that actually works is DDIO / allocate-on-DMA-write (B.3

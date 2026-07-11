@@ -8,9 +8,9 @@ into the **complete AVB/TSN solution including ADP / AVDECC**.
 It is written to be read top-to-bottom by someone who will actually build it.
 Every step names the concrete module, tool, file, signal, and address involved,
 and cross-references the current RTL. For *what/why* see
-[`REQUIREMENTS.md`](../REQUIREMENTS.md); for the datapath see
-[`ARCHITECTURE.md`](ARCHITECTURE.md); for the CSR ABI see
-[`REGISTER_MAP.md`](REGISTER_MAP.md).
+[`REQUIREMENTS.md`](../../REQUIREMENTS.md); for the datapath see
+[`ARCHITECTURE.md`](../overview/ARCHITECTURE.md); for the CSR ABI see
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 > **Scope note.** This is a *plan*, not yet implemented RTL/gateware. It is split
 > into **Part A** (fully-FPGA RISC-V Linux platform  -  replaces the PS) and
@@ -209,7 +209,7 @@ LiteX simple-mode DMA engines to the `milan_datapath` DMA AXIS ports  -  TX
 `WishboneDMAReader` (memory→`s_axis_tx`), RX + TS `WishboneDMAWriter`
 (`m_axis_rx`/`m_axis_ts`→memory). Each is `with_csr=True`, giving the
 `base`/`length`/`enable`/`done`/`loop`/`offset` simple-mode register block the driver
-expects (documented in [`REGISTER_MAP.md`](REGISTER_MAP.md) → DMA registers). Each is
+expects (documented in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) → DMA registers). Each is
 its own Wishbone master, width-adapted 64→32 into the SoC interconnect. Verified:
 `ELAB` gateware export (masters + CSRs present in `csr.csv`). Board-gated: on hardware
 these target LiteDRAM (§A.3) instead of integrated RAM; a loopback + DMA-done IRQ test
@@ -354,7 +354,7 @@ original plan:
 - **CBS/mqprio offload, HW timestamping, ethtool_ops**  -  unchanged CSR ABI, so the
   bulk of `REQ-DRV-05..08` is portable verbatim.
 
-**Required driver feature surface** (`FR-DRV-*` in [`FR_NFR.md`](FR_NFR.md) §2.10):
+**Required driver feature surface** (`FR-DRV-*` in [`FR_NFR.md`](../reference/FR_NFR.md) §2.10):
 - **NAPI** RX/TX poll with per-queue contexts over the fabric DMA rings; the N HW
   queues exposed as real netdev queues (so `tc mqprio`/CBS map to hardware).
 - **XDP**: `ndo_bpf`/`ndo_xdp_xmit`, all `XDP_*` actions, page-pool RX + headroom;
@@ -451,15 +451,15 @@ Target specs: **IEEE 1722.1-2021** (AVDECC) with the **AVnu Milan v1.2** profile
 Substantial AVDECC design already exists in this repo/tree  -  the plan below
 *continues* it:
 
-- **HW AEM/AECP design:** [`aem-and-aecp.md`](../aem-and-aecp.md) + `aem-and-aecp.pdf`
+- **HW AEM/AECP design:** [`aem-and-aecp.md`](../../aem-and-aecp.md) + `aem-and-aecp.pdf`
   specify the FPGA **4-level AEM memory** (L0 ENTITY → L1 config table → L2
   per-type tables → L3 payload, static/semi-static/dynamic split), the generic
   getter/setter keyed by `command_type / configuration_index / descriptor_type /
   descriptor_index`, the AECP validation/parse/response pipeline, timers, and the
   **Milan MVU** (`protocol_id 00-1B-C5-0A-C1-00`; `GET_MILAN_INFO`,
   `GET/SET_SYSTEM_UNIQUE_ID`, `GET/SET_MEDIA_CLOCK_REFERENCE_INFO`).
-- **The entity model (data):** [`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json)
-  (+ [`avdecc/README.md`](../avdecc/README.md))  -  one Milan v1.2 entity, byte-accurate
+- **The entity model (data):** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json)
+  (+ [`avdecc/README.md`](../../avdecc/README.md))  -  one Milan v1.2 entity, byte-accurate
   to the reference software entity, with every field tagged `static/semi_static/
   nonvolatile/dynamic` so it feeds **both** the FPGA AEM memory and software. **This
   JSON is the single source of truth for the descriptor tree** (see B.3).
@@ -488,8 +488,8 @@ This mirrors how real Milan endpoints are built and keeps HW small.
 
 > **Optional HW AEM.** If you want the AEM served from the FPGA instead of Linux
 > (lower latency, CPU-independent enumeration), implement the **4-level AEM memory +
-> AECP pipeline** from [`aem-and-aecp.md`](../aem-and-aecp.md), generating its L0–L3
-> image from [`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json). The
+> AECP pipeline** from [`aem-and-aecp.md`](../../aem-and-aecp.md), generating its L0–L3
+> image from [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json). The
 > JSON's `static/semi_static/nonvolatile/dynamic` field classes map directly onto
 > that design's factory-NVM / modifiable-overlay / volatile-mirror memories. Start
 > with SW (faster) and migrate hot paths to HW later.
@@ -511,15 +511,15 @@ them to a control handler. Add a **control tap**:
 
 ### B.2  -  HW ADP advertiser + discovery FSM (the missing TX side)  ✅ DONE + INTEGRATED
 > **Status (implemented, integrated, verified):**
-> - [`hdl/adp/adp_advertiser.sv`](../hdl/adp/adp_advertiser.sv)  -  [`tb/verilator/adp/`](../tb/verilator/adp) **121 checks PASS**.
+> - [`hdl/adp/adp_advertiser.sv`](../../hdl/adp/adp_advertiser.sv)  -  [`tb/verilator/adp/`](../../tb/verilator/adp) **121 checks PASS**.
 > - **CSR wiring:** `milan_csr` **0x600 ADP group** (identity/control + `available_index` RO);
->   [`tb/verilator/csr/`](../tb/verilator/csr) extended to **62 checks PASS**; ABI in
->   [`REGISTER_MAP.md`](REGISTER_MAP.md) §0x600.
-> - **MAC TX integration:** [`hdl/adp/adp_tx_arbiter.sv`](../hdl/adp/adp_tx_arbiter.sv) merges
->   ADP into the MAC TX between frames  -  [`tb/verilator/adp_tx/`](../tb/verilator/adp_tx) **26 checks PASS**.
+>   [`tb/verilator/csr/`](../../tb/verilator/csr) extended to **62 checks PASS**; ABI in
+>   [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) §0x600.
+> - **MAC TX integration:** [`hdl/adp/adp_tx_arbiter.sv`](../../hdl/adp/adp_tx_arbiter.sv) merges
+>   ADP into the MAC TX between frames  -  [`tb/verilator/adp_tx/`](../../tb/verilator/adp_tx) **26 checks PASS**.
 > - **Wired in `milan_top.sv`** (advertiser + arbiter + 1 s tick + link-edge pulses); all ports
 >   connectivity-checked; `milan_top` elaborates the ADP modules cleanly. Design docs:
->   [`hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md).
+>   [`hdl/adp/doc/adp_advertiser.md`](../../hdl/adp/doc/adp_advertiser.md).
 >
 > Remaining for M-B2 to be *observable*: tie in `rcv_discover_i` (from `KL_adp_parser`, §B.1)
 > and `gm_change_i` (gPTP), and real `link_up` (REQ-MAC-03). Full regression: **8 harnesses green**.
@@ -545,7 +545,7 @@ and depart; a Verilator harness checks the ADPDU byte layout + advertise timing 
 
 ### B.3  -  AECP (AEM)  -  enumeration & control (from the JSON entity model)
 The **descriptor tree is defined once** in
-[`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json) and served by the
+[`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) and served by the
 AEM handler (SW stack, or the HW 4-level AEM per B.0):
 - Descriptors covered by the model: `ENTITY`, 1× `CONFIGURATION` (48/96/192 kHz,
   non-redundant), `AUDIO_UNIT`,

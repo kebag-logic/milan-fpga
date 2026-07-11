@@ -2,8 +2,8 @@
 
 *Authoritative current-state reference (2026-07-09, updated after the R2 multi-slot RSC
 campaign). Plain-language story of the >500 Mbit/s campaign, with the measurements and
-diagrams. For the per-commit log see [`../CHANGELOG.md`](../CHANGELOG.md);
-for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](LSU_NONBLOCKING_DCACHE.md) and
+diagrams. For the per-commit log see [`../CHANGELOG.md`](../../CHANGELOG.md);
+for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md) and
 [`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
 snapshots  -  trust the numbers here.*
 
@@ -30,7 +30,7 @@ over the transient drain rate (≥520 proven).
 
 The whole campaign on one chart:
 
-![campaign chart](perf_campaign.svg)
+![campaign chart](../perf_campaign.svg)
 
 ---
 
@@ -40,7 +40,7 @@ Think of RX as a bucket brigade: the NIC drops each frame into DRAM, then the CP
 up and hand it to the application. We made the *pickup* faster in three ways, then found the real
 wall.
 
-![RX path and the wall](diagrams/rx_path_wall.svg)
+![RX path and the wall](../diagrams/rx_path_wall.svg)
 
 1. **Bigger shared L2 (64 KB).** With two harts both doing RX, their working sets were evicting
    each other out of the 32 KB cache. Doubling it stopped the thrash → **RX −P2 238 → 280**.
@@ -52,7 +52,7 @@ wall.
    the stride, and *fills* those 8 slots ahead of the CPU, so the data is already on its way before
    the CPU asks. **RX single-flow 207 → 277 (+34%).**
 
-![memory hierarchy and the three levers](diagrams/memory_hierarchy_levers.svg)
+![memory hierarchy and the three levers](../diagrams/memory_hierarchy_levers.svg)
 
 Combined (config **mlp3** = 64 KB L2 + refill=8 + RPT), **RX −P2 = 298**  -  the best so far, and
 the refill slots cost **zero BRAM** (they're flip-flops), so the AVDECC logic budget is untouched.
@@ -91,7 +91,7 @@ code and wouldn't help the `copy_to_user` anyway). Two ways to beat it:
 - **DDIO / allocate-on-DMA-write** → make the copy's read a cache **hit** by landing the DMA'd
   payload *warm* in the L2 (or a small dedicated stash) instead of cold in DRAM. Works for any app.
 
-![DDIO before and after](diagrams/ddio_before_after.svg)
+![DDIO before and after](../diagrams/ddio_before_after.svg)
 
 This is the **"dedicated cache for the network"** idea from the very start of the campaign  -  first
 dismissed, then vindicated once `perf` showed the dominant cost is the copy's cold reads of the
@@ -142,4 +142,4 @@ R3 112.5 MHz final mile) lives in [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md).
 
 **Refuted along the way** (so we don't retry them): the depth-2 DMA interconnect (RX writer has
 30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),
-and 112.5 MHz (only +4–8%). See [`../CHANGELOG.md`](../CHANGELOG.md).
+and 112.5 MHz (only +4–8%). See [`../CHANGELOG.md`](../../CHANGELOG.md).

@@ -4,7 +4,7 @@ Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL (`hdl/csr/milan_csr.sv`), the Linux driver
 (`../kl-linux-drivers`), and the device tree (`reg` of the `kl,dma-ether` node).
 Satisfies `REQ-CSR-05`; implements the control surface for `REQ-CSR/PTP/CBS/CLS/
-MAC/*` in [`REQUIREMENTS.md`](../REQUIREMENTS.md).
+MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 
 * **Bus:** AXI4-Lite, 32-bit data, little-endian. **Base is host-specific**  -  the
   register *offsets* below are fixed, only the window base differs per SoC:
@@ -178,7 +178,7 @@ destination MAC in standard notation (`01-80-C2-00-00-0E` → `0x0180C200000E`).
 Whitelist: `default_pass=0` + accept entries (`ACTION[0]=0`). Blacklist:
 `default_pass=1` + drop entries (`ACTION[0]=1`). Example ternary entry: reserved
 multicast block `01-80-C2-00-00-0x` = key `0x0180C2000000`, mask `0xFFFFFFFFFFF0`.
-See [`../hdl/common/doc/tcam.md`](../hdl/common/doc/tcam.md).
+See [`../hdl/common/doc/tcam.md`](../../hdl/common/doc/tcam.md).
 
 `PTP_CMD` strobes cross into the `gtx_clk` PTP domain via `ptp_csr_sync`
 (value + toggle-synchronised apply strobe, `REQ-CSR-03`). `gettime` is
@@ -219,7 +219,7 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F0`,
 subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
 `available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
-on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../hdl/adp/doc/adp_advertiser.md).
+on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../../hdl/adp/doc/adp_advertiser.md).
 
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 
@@ -230,7 +230,7 @@ tree exposes them via the `dma-tx`, `dma-rx`, `dma-ts` `reg` entries).
 
 **`dma-tx` and `dma-rx` are ring engines** (2026-07-04: `RingDMAReader`/`RingDMAWriter`,
 native AXI-burst masters on the coherent dma_bus  -  see
-[`RX_RING_DMA.md`](RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
+[`RX_RING_DMA.md`](../findings/RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
 throughput-broken). Both share one 7-word layout over a circular coherent buffer of
 frame slots `[8 B header][payload padded to 8 B]`, wrapping via `mask`:
 
@@ -265,7 +265,7 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > **⚠ `base`/`length` are BYTE quantities, not words** (simple-mode: hardware-confirmed
 > `length=8` transmits ONE 8-byte word; `offset` counts words). The ring pointers/masks
 > are byte quantities too, always 8-aligned. (Descriptor rings / multi-queue remain the
-> later Option 6b upgrade  -  see [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
+> later Option 6b upgrade  -  see [`FULLY_FPGA_RISCV_MIGRATION.md`](../integration/FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
 > the DMA masters attach to VexiiRiscv's (formerly NaxRiscv's) cache-snooping `dma_bus`, so

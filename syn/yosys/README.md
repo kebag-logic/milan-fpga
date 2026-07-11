@@ -1,7 +1,7 @@
 # Open-toolchain synthesis check (Yosys) — device portability
 
 This proves the Milan RTL is **vendor-neutral**: now that the Xilinx XPM primitives
-are gone (see [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/OPEN_SOURCE_MIGRATION.md)),
+are gone (see [`docs/OPEN_SOURCE_MIGRATION.md`](../../docs/integration/OPEN_SOURCE_MIGRATION.md)),
 every block maps to a **generic, device-independent** cell library with the
 open-source [Yosys](https://yosyshq.net/yosys/) synthesizer — so it will build on
 non-Xilinx FPGAs (Lattice ECP5/iCE40, Gowin, Efinix, ASIC flows, …), not just Vivado.

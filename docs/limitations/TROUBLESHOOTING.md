@@ -14,8 +14,8 @@ CBS pipelining + running the dense datapath in its own CDC clock domain for a cl
 and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up--dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
 the AX7101 PHY is GMII, not RGMII).
 
-Companion: [`SIMULATION.md`](SIMULATION.md) (how the sim works) and
-[`FULL_FPGA_SOLUTION.md`](FULL_FPGA_SOLUTION.md) (the architecture).
+Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
+[`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (the architecture).
 
 ---
 
@@ -117,7 +117,7 @@ at `0x43C0_0000`, which is below the IO region, so it is rejected as uncached.
 
 **Fix.** Map the CSR window inside the IO region  -  the design uses **`0x9000_0000`**.
 The register *offsets* are unchanged; only the base is host-specific (documented in
-[`REGISTER_MAP.md`](REGISTER_MAP.md)). The device-tree `reg` base must match the host.
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)). The device-tree `reg` base must match the host.
 
 ## Section 7: Verilator cannot find include file
 
@@ -166,8 +166,8 @@ cd build_milan_sim/gateware
 Also set `BIOS_NO_DELAYS` + `BIOS_NO_MEMTEST` so the prompt appears in seconds (the
 memtest/memspeed are very slow at the simulated 1 MHz), guaranteeing the piped command
 lands *after* the prompt. See
-[Section 3.3](SIMULATION.md#section-33-the-scripted-path-used-to-capture-the-evidence)
-of [`SIMULATION.md`](SIMULATION.md).
+[Section 3.3](../testing/SIMULATION.md#section-33-the-scripted-path-used-to-capture-the-evidence)
+of [`SIMULATION.md`](../testing/SIMULATION.md).
 
 ## Section 9: pkill -f self-matches the running shell
 

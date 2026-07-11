@@ -7,10 +7,10 @@ the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv his
 one softcore).
 
 - **Milan v1.2 → FR/NFR dependency matrix (why each is necessary):** [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md)
-- **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../avdecc/milan-v12-entity-small-48k.json)
-- **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
-- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md)
-- **HW AEM/AECP design:** [`../aem-and-aecp.md`](../aem-and-aecp.md)
+- **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
+- **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
+- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md`](../integration/FULLY_FPGA_RISCV_MIGRATION.md)
+- **HW AEM/AECP design:** [`../aem-and-aecp.md`](../../aem-and-aecp.md)
 
 Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement has a
 **priority** (M=MUST, S=SHOULD, C=MAY), a **source**, and a **verification method**
@@ -161,8 +161,8 @@ The `kl,dma-ether` platform net driver (`../kl-linux-drivers`). Extends the exis
 ### 2.11 Device tree  *(Phase 8 / `REQ-DT-*`; the DT contract the driver binds to)*
 
 The `kl,dma-ether` node describes the HW to the driver. Binding schema:
-[`sw/dts/bindings/kl,dma-ether.yaml`](../sw/dts/bindings/kl,dma-ether.yaml); node:
-[`sw/dts/milan.dtsi`](../sw/dts/milan.dtsi).
+[`sw/dts/bindings/kl,dma-ether.yaml`](../../sw/dts/bindings/kl,dma-ether.yaml); node:
+[`sw/dts/milan.dtsi`](../../sw/dts/milan.dtsi).
 
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
@@ -281,7 +281,7 @@ benchmarks during bring-up; publish alongside the resource report.
 
 The ordered path from the baseline endpoint to a Milan-conformant device. Each step
 cites the FRs it satisfies and the milestone in
-[`FULLY_FPGA_RISCV_MIGRATION.md`](FULLY_FPGA_RISCV_MIGRATION.md).
+[`FULLY_FPGA_RISCV_MIGRATION.md`](../integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 1. **Platform up**  -  RISC-V Linux on the AX7101 with the HW datapath (MAC/CBS/
    classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*

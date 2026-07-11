@@ -84,7 +84,7 @@ The generator, schema, and binding are unchanged — that is the point.
      LiteX `dma-*` window the 64-bit `base` is two 32-bit words with the **MS word at the
      lower address** (`config_csr_ordering_big` = word order, not byte order), so a native
      64-bit access to `base` swaps its halves → wrong DMA address. Full detail in
-     [`../../docs/REGISTER_MAP.md`](../../docs/REGISTER_MAP.md) → DMA registers.
+     [`../../docs/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) → DMA registers.
   2. **The `dma-*` ranges are sub-page (28 B) inside the shared LiteX CSR bus** that
      other LiteX peripherals (uart/timer/soc-controller) also occupy. Map them with
      `devm_ioremap` (non-exclusive), not `devm_ioremap_resource` (which does an exclusive

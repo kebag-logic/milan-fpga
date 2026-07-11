@@ -2,7 +2,7 @@
 
 The platform net driver that binds to the [`kl,dma-ether`](../dts/milan.dtsi) device
 tree node and drives the Milan NIC over its CSR/DMA ABI
-([`docs/REGISTER_MAP.md`](../../docs/REGISTER_MAP.md)). It lives in the sibling repo
+([`docs/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md)). It lives in the sibling repo
 **`../../kl-linux-drivers`** (`kl-eth.c`); this note is the contract it implements.
 
 ## DT match & resources

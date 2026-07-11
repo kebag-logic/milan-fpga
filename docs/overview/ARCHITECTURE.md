@@ -3,9 +3,9 @@
 This document is the map a new developer should read first. It explains the
 datapath, the control plane, the clock domains, how the HDL maps to the Linux
 driver and device tree, and **where to change things**. For the *what/why*, see
-[`REQUIREMENTS.md`](../REQUIREMENTS.md); for the *ordered work*, see
-[`TODO.md`](../TODO.md); for the register ABI, see
-[`REGISTER_MAP.md`](REGISTER_MAP.md).
+[`REQUIREMENTS.md`](../../REQUIREMENTS.md); for the *ordered work*, see
+[`TODO.md`](../../TODO.md); for the register ABI, see
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
 ---
 
@@ -92,9 +92,9 @@ to correlate with skbs.
 Everything the driver configures flows through one AXI4-Lite slave on
 `M_AXI_GP0` at (suggested) `0x43C0_0000` / 64 KB. It replaces the previous state
 where every knob was a compile-time parameter or a tied constant. Register
-groups and fields are the ABI in [`REGISTER_MAP.md`](REGISTER_MAP.md); the RTL is
-[`../hdl/csr/milan_csr.sv`](../hdl/csr/milan_csr.sv) (documented, TerosHDL
-syntax) with a module page at [`../hdl/csr/doc/milan_csr.md`](../hdl/csr/doc/milan_csr.md).
+groups and fields are the ABI in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md); the RTL is
+[`../hdl/csr/milan_csr.sv`](../../hdl/csr/milan_csr.sv) (documented, TerosHDL
+syntax) with a module page at [`../hdl/csr/doc/milan_csr.md`](../../hdl/csr/doc/milan_csr.md).
 
 * **Outputs (`o_*`)** carry configuration to the datapath (MAC enables/IFG/
   station-address, classifier PCP→TC map, per-queue CBS idle/hi/lo/enable, PTP
@@ -143,7 +143,7 @@ Xilinx `device-tree-xlnx` dtg) overlaid with the `kl,dma-ether` node
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses under
 `tb/verilator/` (no Xilinx tools needed)  -  see
-[`../tb/verilator/README.md`](../tb/verilator/README.md):
+[`../tb/verilator/README.md`](../../tb/verilator/README.md):
 
 * **`cbs/`**  -  802.1Qav credit-based shaper (runtime config) vs a cycle-accurate
   fixed-point replica **and** an ideal continuous model (87 k checks).
@@ -167,7 +167,7 @@ unit tests there are superseded by the Verilator harnesses  -  see
 
 | To change… | Edit… | Then… |
 |------------|-------|-------|
-| A register offset / new field | [`hdl/csr/milan_csr.sv`](../hdl/csr/milan_csr.sv) offset block + read/write decode | update [`REGISTER_MAP.md`](REGISTER_MAP.md) + add a `ck()` in `tb/verilator/csr/sim_main.cpp` |
+| A register offset / new field | [`hdl/csr/milan_csr.sv`](../../hdl/csr/milan_csr.sv) offset block + read/write decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a `ck()` in `tb/verilator/csr/sim_main.cpp` |
 | Number of HW queues | `NUM_QUEUES` (milan_csr) + `NUMBER_OF_QUEUES` (`ethernet_packet_pkg.sv`) | re-run both harnesses; check `axi_mcdma` channel count |
 | CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs` |
 | PCP→TC classification | `traffic_class_map.sv` decode (fed by `o_cls_*`) | re-run `tb/verilator/cls` |

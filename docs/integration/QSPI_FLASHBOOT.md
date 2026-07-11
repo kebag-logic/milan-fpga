@@ -187,7 +187,7 @@ kernel fails loudly instead of half-writing.
   slot check for the kernel manifest, and issues the correct `openFPGALoader` write; it
   correctly **rejects** the 14 MB kernel against the 5.5 MB `full` slot.
 
-See also [pipeline-telemetry.md](pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
+See also [pipeline-telemetry.md](../fpga/pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
 and `sw/litex/patches/README.md`.
 
 ---
