@@ -1,4 +1,4 @@
-# Milan TSN FPGA — architecture & developer guide
+# Milan TSN FPGA  -  architecture & developer guide
 
 This document is the map a new developer should read first. It explains the
 datapath, the control plane, the clock domains, how the HDL maps to the Linux
@@ -118,7 +118,7 @@ syntax) with a module page at [`../hdl/csr/doc/milan_csr.md`](../hdl/csr/doc/mil
 `ptp_csr_sync` performs the crossing (2-FF vector sync for the quasi-static rate
 config, toggle-synchronised apply strobes with payload capture for settime/
 adjtime, and a toggle-synchronised return path for the gettime snapshot),
-satisfying `REQ-CSR-03`. Pure-`axis_clk` fields (MAC/classifier/CBS) stay local —
+satisfying `REQ-CSR-03`. Pure-`axis_clk` fields (MAC/classifier/CBS) stay local  - 
 no CDC needed. The PHC (`timestamp_counter`) should be clocked from a fixed
 125 MHz source rather than the speed-switched `gtx_clk` (`REQ-PTP-07`).
 
@@ -128,12 +128,12 @@ no CDC needed. The PHC (`timestamp_counter`) should be clocked from a fixed
 |---------|-----|-------------------------------|-------------|
 | Bind / probe | `milan_csr` ID/CAP | `of_match` `kl,dma-ether-0.9`, read CAP | `compatible`, `reg` = CSR + DMA |
 | Datapath | 2× `axi_dma` | dmaengine/ring + NAPI, N queues | `dmas`/`interrupts` |
-| PHC | PTP regs (0x500) | `ptp_clock_info` adjfine/adjtime/gettime | — |
+| PHC | PTP regs (0x500) | `ptp_clock_info` adjfine/adjtime/gettime |  -  |
 | HW timestamp | ts-metadata AXIS + IRQ | `SIOCSHWTSTAMP`, `skb_hwtstamps` | ts interrupt |
 | CBS | CBS regs (0x400) | `ndo_setup_tc(CBS/mqprio)` | tc mapping |
-| Classifier | classifier regs (0x300) | mqprio TC map | — |
+| Classifier | classifier regs (0x300) | mqprio TC map |  -  |
 | MAC/PHY | MAC regs (0x100) + MDIO | phylib `adjust_link`, `ndo_set_rx_mode` | `phy-handle`, `mdio` subnode |
-| Stats | RMON regs (0x200) | `ethtool -S` | — |
+| Stats | RMON regs (0x200) | `ethtool -S` |  -  |
 
 The device tree is produced by the generator in `../fpga-ps-tools` (reusing the
 Xilinx `device-tree-xlnx` dtg) overlaid with the `kl,dma-ether` node
@@ -142,25 +142,25 @@ Xilinx `device-tree-xlnx` dtg) overlaid with the `kl,dma-ether` node
 ## 7. Verification
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses under
-`tb/verilator/` (no Xilinx tools needed) — see
+`tb/verilator/` (no Xilinx tools needed)  -  see
 [`../tb/verilator/README.md`](../tb/verilator/README.md):
 
-* **`cbs/`** — 802.1Qav credit-based shaper (runtime config) vs a cycle-accurate
+* **`cbs/`**  -  802.1Qav credit-based shaper (runtime config) vs a cycle-accurate
   fixed-point replica **and** an ideal continuous model (87 k checks).
-* **`shaper_core/`** — multi-queue CBS arbiter vs an independent grant model
+* **`shaper_core/`**  -  multi-queue CBS arbiter vs an independent grant model
   (`REQ-VER-02`, 61 k checks).
-* **`cls/`** — `traffic_class_map` PCP→queue classification vs a reference
+* **`cls/`**  -  `traffic_class_map` PCP→queue classification vs a reference
   (`REQ-VER-03`, 200 k random configs).
-* **`ptp/`** — `timestamp_counter` PHC (adjfine/adjtime/settime/gettime) vs a
+* **`ptp/`**  -  `timestamp_counter` PHC (adjfine/adjtime/settime/gettime) vs a
   128-bit accumulator model (201 k checks).
-* **`csr/`** — `milan_csr` AXI4-Lite: reset values, RW, W1C IRQ, strobes,
+* **`csr/`**  -  `milan_csr` AXI4-Lite: reset values, RW, W1C IRQ, strobes,
   snapshots, output wiring (44 checks).
 
 The integrating modules (`milan_top`, `traffic_classifier`, `ptp_ts_top`)
 instantiate Xilinx XPM/MAC primitives and are validated by Vivado elaboration;
 their standards logic is factored into the units above. Legacy Vivado/xsim
 testbenches live in `tb/utests` and `tb/itests` (the old CBS/shaper/classifier
-unit tests there are superseded by the Verilator harnesses — see
+unit tests there are superseded by the Verilator harnesses  -  see
 `tb/utests/802_1q_traffic_shaper/README.md`).
 
 ## 8. Where to change things (maintainability)
@@ -172,7 +172,7 @@ unit tests there are superseded by the Verilator harnesses — see
 | CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs` |
 | PCP→TC classification | `traffic_class_map.sv` decode (fed by `o_cls_*`) | re-run `tb/verilator/cls` |
 | PTP rate/offset | `timestamp_counter.sv` (accumulator) + `ptp_csr_sync.sv` CDC | re-run `tb/verilator/ptp`; driver `ptp_clock_info` |
-| Add an IRQ source | `milan_csr` IRQ_STATUS/MASK + `bd/milan-dma.tcl` `IRQ_F2P`/`ilconcat` | — |
+| Add an IRQ source | `milan_csr` IRQ_STATUS/MASK + `bd/milan-dma.tcl` `IRQ_F2P`/`ilconcat` |  -  |
 
 **Conventions:** SystemVerilog with `` `default_nettype none ``, Doxygen/TerosHDL
 `//!` comments on every generic/port/signal, named `always_*` processes with a

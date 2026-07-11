@@ -3,8 +3,8 @@
 *Written 2026-07-08 as the mechanism reference behind the `build_mlp1` lever
 (`--lsu-l1-refill-count=8`). Sub-doc of [`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md)
 and [`CAMPAIGN_500_PLAN.md`](CAMPAIGN_500_PLAN.md). Everything here is read from the VexiiRiscv
-source we actually build — `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/main/scala/vexiiriscv/`
-— and cross-checked against the generated netlist, not from a textbook. Source citations are
+source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/main/scala/vexiiriscv/`
+ -  and cross-checked against the generated netlist, not from a textbook. Source citations are
 `File.scala:line` against commit `235753e2` (pinned in `core.py:287`).*
 
 ---
@@ -15,14 +15,14 @@ The RX −P2 wall is **serial cold-miss latency**: HW DMAs each frame to DRAM, t
 touch always misses, and each miss pays ~1424 ns (≈50 % TLB + 50 % DRAM,
 `LATENCY_INVESTIGATION.md`). The question was whether we can *overlap* those misses instead of
 paying them one-at-a-time. The answer lives in the load/store unit's **refill engine**, whose
-depth is the config knob `lsuL1RefillCount` — **1 by default in LiteX's "linux" variant, which
+depth is the config knob `lsuL1RefillCount`  -  **1 by default in LiteX's "linux" variant, which
 makes the D-cache blocking.** This doc explains the machinery that knob controls.
 
 ---
 
 ## 1. The LSU and its L1 D-cache at a glance
 
-The core is **VexiiRiscv "linux" — a single-issue, in-order RV64GC-minus core**
+The core is **VexiiRiscv "linux"  -  a single-issue, in-order RV64GC-minus core**
 (`core.py:257`, no C/F/D). Its data L1 is described by its own author as
 (`LsuL1Plugin.scala:64`):
 
@@ -42,7 +42,7 @@ Geometry we build (`core.py:262` + `Param.scala` defaults, line size `LsuL1Plugi
 | store-to-load | bypass | `--with-lsu-bypass` |
 | coherency | on | SMP + `--with-dma` |
 
-The refill and writeback slots are **flip-flop/LUT state machines, not RAM** — this is why
+The refill and writeback slots are **flip-flop/LUT state machines, not RAM**  -  this is why
 growing refill 1→8 costs **0 BRAM** (§7). That is the entire point: it buys memory-level
 parallelism out of the FF/LUT budget (32 %/77 % used) while leaving BRAM for the AVDECC logic.
 
@@ -58,7 +58,7 @@ A load flows through fixed pipeline stages (`LsuL1Plugin.scala:87-93`, `ctrlAt=2
  (Agu.scala)     (onPma / pmpPort)      (bankReadAt/wayReadAt)     (hitsAt=1,hitAt=2)  MISS: see below
 ```
 
-On a **hit**, data is forwarded and the instruction retires — one access, no stall.
+On a **hit**, data is forwarded and the instruction retires  -  one access, no stall.
 
 On a **miss**, the LSU does **not** stall the whole machine waiting for DRAM. Instead
 (`LsuPlugin.scala:775-779`):
@@ -72,14 +72,14 @@ when(... l1Failed ...) {
 ```
 
 The miss (a) **allocates a refill slot** to fetch the 64 B line in the background, and (b)
-raises a lightweight **REDO** — the load is re-executed from its own PC a few cycles later.
+raises a lightweight **REDO**  -  the load is re-executed from its own PC a few cycles later.
 It keeps REDO-ing (cheaply) until the line has landed, then hits. **In-order order is
-preserved** — a later instruction never commits ahead of the missing load. Hold this fact; it
+preserved**  -  a later instruction never commits ahead of the missing load. Hold this fact; it
 governs §5.
 
 ---
 
-## 3. The refill engine — the "8 refills"
+## 3. The refill engine  -  the "8 refills"
 
 The heart is an array of `refillCount` **refill slots** (`LsuL1Plugin.scala:315-354`). Each
 slot is an independent little state machine tracking one in-flight 64 B line fetch:
@@ -110,12 +110,12 @@ refill.slots[0..7]  each = {
   │ PriorityArea picks a slot that is valid && !cmdSent && victim==0 (:402)│
   │ drive L2 read:  bus.read.cmd.id = slotIndex, .address = line   (:410)  │
   │ on cmd.ready -> cmdSent=1.  Up to 8 reads outstanding on the bus       │
-  │ (readIdCount = refillCount, :113) — the slot index IS the bus tag      │
+  │ (readIdCount = refillCount, :113)  -  the slot index IS the bus tag      │
   └───────────────────────────────────────────────────────────────────────┘
            │
   ┌ 3. RECEIVE RESPONSE (may come back out of order, keyed by rsp.id) ─────┐
   │ each beat -> write one word into the data bank, wordIndex++  (:430-465)│
-  │ responses for DIFFERENT slots may interleave — that is the parallelism │
+  │ responses for DIFFERENT slots may interleave  -  that is the parallelism │
   └───────────────────────────────────────────────────────────────────────┘
            │
   ┌ 4. COMPLETE (last word) ──────────────────────────────────────────────┐
@@ -139,7 +139,7 @@ The cache can only refuse to start a **new** miss when **every** slot is busy.
 
 - **`refillCount = 1` (the default we had):** there is exactly one slot. The *second* miss to a
   different line cannot even be *issued* until the first fully completes. Misses are **fully
-  serialized** — N cold misses cost N × ~1424 ns back-to-back. This is the blocking D$ we
+  serialized**  -  N cold misses cost N × ~1424 ns back-to-back. This is the blocking D$ we
   verified in every stock netlist (`refill_slot_idxs=[0]`).
 - **`refillCount = 8` (build_mlp1):** up to **8 distinct lines** can be refilling at once, their
   L2 reads pipelined on the bus and their responses returning out of order. The wall becomes
@@ -148,15 +148,15 @@ The cache can only refuse to start a **new** miss when **every** slot is busy.
 ### Hazards the engine must handle (`LsuL1Plugin.scala:66-77`)
 
 - **In-flight-line hit** (`REFILL_HITS`, :197-198): an access whose line matches a slot still
-  refilling must **REDO** — it may not read a half-filled line. Resolves when that slot completes.
+  refilling must **REDO**  -  it may not read a half-filled line. Resolves when that slot completes.
 - **victim / writeback ordering** (:353): if the line to fetch evicts a dirty line, the slot
   waits (`victim`) until the writeback has progressed, so we never read stale-then-overwrite.
 - **loadedCounter** (:340-347): a load that started before a refill finished but lands after it
-  must notice the refill happened and retry — a small counter keeps that window correct.
+  must notice the refill happened and retry  -  a small counter keeps that window correct.
 - **Coherency** (:324-338, :490-502): with SMP + coherent DMA a refill also *acquires
   permissions* (shared/unique) and sends an **ack** to the L2; an `ackTimer` guarantees the
   hart makes "a minimal amount of forward progress after acquiring a cache line" before it can
-  be probed away — prevents two harts live-locking on the same line. This path is active in our
+  be probed away  -  prevents two harts live-locking on the same line. This path is active in our
   build (`--cpu-count 2 --coherent-dma`).
 
 ---
@@ -175,7 +175,7 @@ the mechanism by which multiple 1424 ns latencies overlap.**
 ## 5. The honest part: how MLP actually arises on an *in-order* core
 
 Because a demand miss **REDO-replays in program order** (§2), a *single* stream of dependent
-demand loads keeps only **~1 miss in flight per hart** — the missing load spins on REDO until
+demand loads keeps only **~1 miss in flight per hart**  -  the missing load spins on REDO until
 its line lands; later loads cannot overtake it. So `refillCount=8` does **not**, by itself,
 magically parallelize a dependent load chain. The 8 slots are *capacity for parallelism*; three
 things actually **fill** them:
@@ -184,7 +184,7 @@ things actually **fill** them:
    It watches the committed access stream, learns strides, and issues **prefetch pushes ahead of
    demand** into free refill slots. While the demand load on line A is resolving, lines A+1,
    A+2… are already fetching in slots 1-7; when demand reaches them they **hit**. This is the
-   primary MLP engine, and it is *useless with only one slot* — which is exactly why VexiiRiscv's
+   primary MLP engine, and it is *useless with only one slot*  -  which is exactly why VexiiRiscv's
    own performance preset bundles `lsuL1RefillCount=8` **with** `lsuHardwarePrefetch="rpt"`
    (`Param.scala:303-312`).
 2. **The store buffer** (`LsuPlugin.scala:281-282`): a store that misses is retired into the
@@ -195,10 +195,10 @@ things actually **fill** them:
    streams under −P2.
 
 **Consequence for the campaign.** `build_mlp1` enables `refillCount=8` **alone** (no prefetcher)
-— a clean isolation of "slots without a filler." Expect a *modest* RX gain from it (store-buffer
+ -  a clean isolation of "slots without a filler." Expect a *modest* RX gain from it (store-buffer
 decoupling + hit-under-miss). The **large** win is expected from `refill=8 + rpt` together (a
 follow-on `mlp2` build); this doc's §3-4 machinery is the prerequisite that makes the prefetcher
-effective. Either way we **measure**, not assume — the point of building mlp1 first is to know
+effective. Either way we **measure**, not assume  -  the point of building mlp1 first is to know
 how much each half contributes.
 
 ---
@@ -206,7 +206,7 @@ how much each half contributes.
 ## 6. Timeline picture
 
 ```
- lsuL1RefillCount = 1  (blocking — what we had)
+ lsuL1RefillCount = 1  (blocking  -  what we had)
  demand : [miss A]======wait ~1424ns======[A][miss B]======wait======[B][miss C]===...
  L2 bus : [--- read A ---]                 [--- read B ---]           [--- read C ---]
           one outstanding; cost = N × 1424 ns   (serialized)
@@ -238,44 +238,44 @@ pointer-chase L2 cliff. Splits verified by steer counters.
 
 **Read the levers by the clean single-variable comparisons:**
 
-- **refill=8 *alone* does nothing** (mlp1 vs m1, same 32 KB L2): single 206→198, −P2 238→229 — no
+- **refill=8 *alone* does nothing** (mlp1 vs m1, same 32 KB L2): single 206→198, −P2 238→229  -  no
   gain, within noise. **Exactly as §5 predicted:** on an in-order core the demand miss REDO-replays
   one-at-a-time, so 8 empty slots with no filler = the blocking case. The slots cost **0 BRAM**
-  (mlp1 == m1 at 102.5 tiles) and close timing (+0.118) — but capacity for MLP isn't MLP.
+  (mlp1 == m1 at 102.5 tiles) and close timing (+0.118)  -  but capacity for MLP isn't MLP.
 - **Adding the RPT prefetcher is a large single-flow win** (mlp2 vs mlp1, same 32 KB L2): **single
-  198→276 (+39 % here; mlp1's 198 was an anomalous dip — vs the 207 baseline the canonical RPT gain
-  is +34 %)**, −P2 229→246 (+7 %). The prefetcher *fills* the slots — it learns the stride of
+  198→276 (+39 % here; mlp1's 198 was an anomalous dip  -  vs the 207 baseline the canonical RPT gain
+  is +34 %)**, −P2 229→246 (+7 %). The prefetcher *fills* the slots  -  it learns the stride of
   the sequential payload copy (the dominant RX DRAM traffic) and prefetches ahead, hiding the cold
   miss. It helps single hugely (bandwidth spare) and −P2 modestly (2-hart is more shared-resource
   bound). Cost: **+2 BRAM tiles** for the RPT table (104.5), still **6 below l2x2**. Timing closes
-  but tight (+0.031 — the predictor ate ~0.087 ns).
+  but tight (+0.031  -  the predictor ate ~0.087 ns).
 - **The L2 size is the *aggregate* lever** (l2x2 vs m1): −P2 238→280 (+18 %), single ~flat. A bigger
   shared L2 cuts the 2-hart capacity misses (fewer DRAM round-trips), which is what the −P2 case is
   bound by.
 
-**So RPT and L2 are complementary — RPT = single-flow/latency, L2 = aggregate/capacity.** (The
+**So RPT and L2 are complementary  -  RPT = single-flow/latency, L2 = aggregate/capacity.** (The
 naïve mlp2-vs-l2x2 −P2 compare, 246 < 280, is *confounded*: it changes L2 size **and** adds rpt.
 Isolated, rpt helps −P2 too.) **`build_mlp3` (refill+rpt+64 KB L2) MEASURED the combination and it
 is the best config**: −P2 **298** (mean of 281–310, split-verified `steer0=71523 steer1=79149`,
-**§V canary=0**) — the **first break above the ~280 ceiling**, +6 % over l2x2, +21 % over mlp2 at
+**§V canary=0**)  -  the **first break above the ~280 ceiling**, +6 % over l2x2, +21 % over mlp2 at
 32 KB. Also best-yet **TX−P4 431**. So the two levers *do* compound: the 64 KB L2 gives both harts
 the capacity to prefetch without evicting each other. Cost: 112.5 tiles (83 %, +8 vs mlp2). Single
 dipped to 259 (the 64 KB L2's slightly higher hit latency); −P2 still shows **drops (3.6k/6.4k)**
-under 2-hart load — the prefetcher's speculative traffic still stresses the rings, so a gentler
+under 2-hart load  -  the prefetcher's speculative traffic still stresses the rings, so a gentler
 `--lsu-rpt-block-ahead-max` is the next tuning knob to cut drops and push −P2 higher.
 
 **What actually caps RX (measured after this study, `perf` 2026-07-09).** mlp3's 298 is not an
-interconnect or "shared-resource" ceiling — `perf` shows RX −P2 is **CPU-bound** (harts 98 % busy)
+interconnect or "shared-resource" ceiling  -  `perf` shows RX −P2 is **CPU-bound** (harts 98 % busy)
 and **51 % of that is the recv payload copy** (`copy_to_user`), which stalls on **cold DRAM reads**
 of the DMA'd payload. The `recv(MSG_TRUNC)` ceiling test (drains without the copy) reaches −P2 **481**
 = 96 % of the 500 goal. So the RPT prefetcher here is *exactly* the right kind of lever (it hides
 that same cold read for single-flow); the −P2 case just needs the read to be a **hit**, which is
 what **DDIO / allocate-on-DMA-write** does (task #15). The earlier "depth-2 interconnect / more
-parallelism / fewer touches" framing is superseded — see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
+parallelism / fewer touches" framing is superseded  -  see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
 
 **Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
 not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+34 % single); the
-capacity lever (64 KB L2, +8 tiles) buys the −P2 headroom. The next RX gain is not more cache — it
+capacity lever (64 KB L2, +8 tiles) buys the −P2 headroom. The next RX gain is not more cache  -  it
 is landing the DMA payload warm (DDIO) so the copy stops reading DRAM cold.
 
 ---
@@ -296,5 +296,5 @@ grep -oE "refill_slots_[0-9]+_" pythondata-cpu-vexiiriscv/.../verilog/$NN.v \
   | grep -oE "[0-9]+" | sort -nu    # expect 0..7
 ```
 
-The `--scala-args=--flag=value` single-token form is required — argparse rejects a value that
+The `--scala-args=--flag=value` single-token form is required  -  argparse rejects a value that
 starts with `--` in the space-separated form.

@@ -1,7 +1,7 @@
-# Profiling on the Milan board — method, and the misaligned-usercopy case study
+# Profiling on the Milan board  -  method, and the misaligned-usercopy case study
 
 *2026-07-10. How `perf` runs on this SoC, how kernel addresses get symbolized without
-kallsyms, and — as a worked example — the exact chain of evidence that led from "RX is
+kallsyms, and  -  as a worked example  -  the exact chain of evidence that led from "RX is
 CPU-bound" to "83 % of the app hart is one misaligned copy loop", including how each
 conclusion was checked.*
 
@@ -16,10 +16,10 @@ conclusion was checked.*
   interrupted PC. Practical rates: 250–300 Hz (higher adds overhead on a 100 MHz
   core; 250 Hz × 2 harts × 12 s ≈ 3 000 samples/hart, plenty for a >5 % signal).
 - **No kallsyms** (`CONFIG_KALLSYMS` is off to fit the kernel in the QSPI slot), so
-  every kernel sample prints as `[k] 0xffffffff8....` — a raw address. Symbolization
+  every kernel sample prints as `[k] 0xffffffff8....`  -  a raw address. Symbolization
   happens **offline on the host** (§3).
 - **No call graphs worth trusting**: `-g` needs frame pointers (userland is built
-  `-O2` without them; kernel likewise) — use flat profiles and read *loops* out of
+  `-O2` without them; kernel likewise)  -  use flat profiles and read *loops* out of
   address clusters instead (§4).
 - Console discipline: `dmesg -n 1` first (printk floods the 115200 UART otherwise);
   perf writes its data file to `/tmp`, reports are generated on the board
@@ -28,7 +28,7 @@ conclusion was checked.*
 ## 2. Measurement protocol (what was actually run)
 
 ```sh
-# workload: steady-state receive, 8 flows (past slow-start — short cells lie;
+# workload: steady-state receive, 8 flows (past slow-start  -  short cells lie;
 # the peer-side tx_bytes time-series is the sustain metric, see the analysis doc)
 for i in 1..8: recv_spin 192.168.127.2 5202 4400$i 25 0 &
 sleep 3                                    # skip the slow-start transient
@@ -47,7 +47,7 @@ all NAPI/GRO/TCP-rcv softirq work to cpu0, while the `recv()` syscall work (the
 copy) runs on whichever hart the app occupies. Comparing the two columns separates
 "stack cost" from "delivery-to-app cost" with no extra tooling. A `/proc/stat`
 snapshot pair (1 s apart) cross-checks the split: cpu0 was ~100 % softirq,
-cpu1 ~100 % `sys` — consistent with the sample distribution.
+cpu1 ~100 % `sys`  -  consistent with the sample distribution.
 
 One more attribution detail: a sample line like
 
@@ -55,8 +55,8 @@ One more attribution detail: a sample line like
 17.48%  recv_spin  [unknown]  [k] 0xffffffff805d9eb8
 ```
 
-reads as *kernel* code (`[k]`) executed **in `recv_spin`'s context** — i.e. inside
-its `recv()` syscall — not softirq work. That distinction (process-attributed kernel
+reads as *kernel* code (`[k]`) executed **in `recv_spin`'s context**  -  i.e. inside
+its `recv()` syscall  -  not softirq work. That distinction (process-attributed kernel
 samples vs `swapper`/softirq-attributed ones) is what proves the hot loop belongs to
 the app's copy path rather than to NAPI.
 
@@ -68,7 +68,7 @@ the app's copy path rather than to NAPI.
 1. parse `System.map`, keep `t/T/w/W` symbols, sort by address;
 2. for each perf line `PCT ... [k] 0xADDR`, `bisect` the sorted list to find the
    greatest symbol ≤ ADDR, emit `name+offset`;
-3. **sum percentages per symbol** (a hot loop shows up as many distinct PCs — the
+3. **sum percentages per symbol** (a hot loop shows up as many distinct PCs  -  the
    aggregation is what turns "eight 5–17 % lines" into "one 83 % function").
 
 Caveat that makes this valid: the kernel is not relocatable here (no KASLR on this
@@ -88,10 +88,10 @@ The unsymbolized cpu1 report already told most of the story:
 
 Eight PCs, **consecutive, 4 bytes apart** (RV64 uncompressed instructions), jointly
 ~83 %. That shape is the signature of a *single tight loop of ~8 instructions*
-absorbing the hart — before knowing its name. Timer-sampling skid smears a sample by
+absorbing the hart  -  before knowing its name. Timer-sampling skid smears a sample by
 an instruction or two, but a 32-byte-wide cluster is far bigger than the skid, so
 the identification is robust. (This shape-reading matters on this board because
-call graphs are unavailable — the "why is this hot" step has to come from the
+call graphs are unavailable  -  the "why is this hot" step has to come from the
 disassembly instead of a stack.)
 
 ## 5. From symbol to *which loop*: disassemble the exact PCs
@@ -124,12 +124,12 @@ PCs, not inferred.
 2. **"The copies are misaligned."** Direct: the samples sit in the shift-merge loop,
    which the routine only enters when source and destination are not co-aligned
    modulo 8. Cross-check by arithmetic: mapbench measured 26.3 µs/4 KB (~0.64 cy/B);
-   the shift-merge op count predicts ~2–3× the aligned loop's cost — consistent.
+   the shift-merge op count predicts ~2–3× the aligned loop's cost  -  consistent.
    (The earlier campaign number "copy = 0.64 cy/B" was therefore a *misaligned*
    figure, and the budget table in GIGABIT_HEADROOM_ANALYSIS was corrected.)
 3. **"Why misaligned": reasoned from the data layout, then checked for
    self-consistency.** The RX buffer is page-aligned and the frame lands at +0, so
-   the payload begins at +54 (doff=5) or +66 (doff=8) — neither ≡ 0 (mod 8). The
+   the payload begins at +54 (doff=5) or +66 (doff=8)  -  neither ≡ 0 (mod 8). The
    driver's copybreak linear chunk contains the header, so after the linear copy the
    destination pointer is offset by a non-8-multiple relative to the frag source.
    From then on it *never recovers*: per-aggregate payloads are n×1448 and
@@ -143,12 +143,12 @@ PCs, not inferred.
 
 ## 7. Pitfalls log (things that bit, so they're written down)
 
-- Piping a long profiler/flasher through `head` sends SIGPIPE and kills it mid-run —
+- Piping a long profiler/flasher through `head` sends SIGPIPE and kills it mid-run  - 
   redirect to a file, `head` the file.
 - `perf record` while probe counters are in reset: the MilanDebug `reset` CSR at
-  `0xf0004000` is **level-held** — write it back to 0 or every probe reads zero.
+  `0xf0004000` is **level-held**  -  write it back to 0 or every probe reads zero.
 - Short-cell throughput numbers lie (slow-start credit); pair every profile with the
   peer-side `tx_bytes` time-series at steady state.
 - The first profile attempt showed "60 % in recv_spin [k] 0x…" and was nearly
-  misread as "the app is slow" — the `[k]` marks kernel-in-syscall-context; the
+  misread as "the app is slow"  -  the `[k]` marks kernel-in-syscall-context; the
   app's own userspace code was negligible.

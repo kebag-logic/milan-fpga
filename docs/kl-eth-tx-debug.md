@@ -1,4 +1,4 @@
-# kl-eth TX debug — "link up, RX works, but the peer never sees our frames"
+# kl-eth TX debug  -  "link up, RX works, but the peer never sees our frames"
 
 **Symptom.** After the FPGA boots Linux and `kl-eth` binds the Milan NIC, `eth0` comes up at
 1 Gbps full-duplex and **RX works** (the FPGA receives frames from a peer), but nothing the
@@ -11,18 +11,18 @@ beat** inside the LiteEth MAC core, then zero-padded to the 60-byte Ethernet min
 first 8 bytes (the destination MAC + 2 bytes) survived, so the peer dropped every frame. The
 `kl-eth` driver and the DMA were correct all along. **One-line fix in the gateware** (see the
 bottom). This bug had been latent since M-A3 because that bring-up only ever checked the peer's
-`rx_broadcast`/`rx_unicast` *counters*, which key off the destination MAC — and the destination
+`rx_broadcast`/`rx_unicast` *counters*, which key off the destination MAC  -  and the destination
 MAC lives in the surviving first beat, so a truncated frame still incremented them.
 
 This document records the full diagnostic chain so the technique is reusable.
 
 ## Test rig (generic)
 
-- The FPGA `eth0` is connected — directly or through an inline gigabit tap — to a **peer host
+- The FPGA `eth0` is connected  -  directly or through an inline gigabit tap  -  to a **peer host
   with a known-good gigabit NIC** (an Intel i210 was used here; anything whose `ethtool -S`
   exposes per-frame RX counters works). Call the peer NIC `<peer-nic>`.
 - Put both ends in one subnet, e.g. FPGA `eth0 = 192.0.2.10/24`, peer `<peer-nic> = 192.0.2.2/24`.
-- The **peer's HW counters are the reliable signal** — on-FPGA there is no `tcpdump`, and a
+- The **peer's HW counters are the reliable signal**  -  on-FPGA there is no `tcpdump`, and a
   monitor capture on the peer (`tcpdump -e -xx -n -i <peer-nic>`) shows the *raw bytes* on the
   wire, which is what finally cracked this.
 
@@ -37,7 +37,7 @@ fully-FPGA NaxRiscv/LiteX SoC):
 | RX-DMA base/len/enable/done/offset | `0xf000301c`/`24`/`28`/`2c`/`34` | |
 | MAC internal loopback | `0xf0003810` | `1` = loop datapath TX→datapath RX, bypassing the LiteEth core+PHY |
 
-> The RMON good/error counters (`0x90000210…0x90000230`) read **0 in this build** — the LiteEth
+> The RMON good/error counters (`0x90000210…0x90000230`) read **0 in this build**  -  the LiteEth
 > core does not drive `i_mac_events`, so they are hardwired 0. Do **not** use them as a signal.
 
 ## The diagnostic chain (each step ruled something in or out)
@@ -52,16 +52,16 @@ fully-FPGA NaxRiscv/LiteX SoC):
    failure is TX-specific, not a broken cable.
 
 3. **Does anything reach the peer at all?** A promiscuous `tcpdump` on the peer **did** capture
-   the FPGA's frames — so they *are* on the wire, just malformed (the peer's MAC drops them, so
+   the FPGA's frames  -  so they *are* on the wire, just malformed (the peer's MAC drops them, so
    the counters stay flat). Not physical.
 
 4. **What exactly is on the wire?** `tcpdump -xx` of a normal ARP showed
-   `00 00 ff ff ff ff ff ff` then **all zeros** — i.e. ~8 bytes then nothing. Two hypotheses:
+   `00 00 ff ff ff ff ff ff` then **all zeros**  -  i.e. ~8 bytes then nothing. Two hypotheses:
    truncation, or the DMA reading stale/zero DRAM (a coherency signature).
 
 5. **Controlled frame (removes all skb/stack ambiguity).** Wrote a known frame to a scratch
-   DRAM address with `devmem` — `ff ff ff ff ff ff 06 07 08 09 0a 0b … 3f` (broadcast dst +
-   incrementing payload) — pointed the TX-DMA at it, fired it, and captured the wire:
+   DRAM address with `devmem`  -  `ff ff ff ff ff ff 06 07 08 09 0a 0b … 3f` (broadcast dst +
+   incrementing payload)  -  pointed the TX-DMA at it, fired it, and captured the wire:
 
    ```
    wire:  ff ff ff ff ff ff 06 07   00 00 … 00      (60 bytes total)
@@ -78,7 +78,7 @@ fully-FPGA NaxRiscv/LiteX SoC):
    DMA read all 8 words; it does not truncate. Then the internal **loopback** (which taps the
    datapath's `m_axis_mac_tx` output, *before* the LiteEth core) was armed with a manual RX-DMA:
    the looped frame came back **8 words, byte-exact** (`ff ff ff ff` … and byte 8 = `08 09 0a 0b`).
-   So **the datapath emits the full, correct frame** — the truncation is strictly inside the
+   So **the datapath emits the full, correct frame**  -  the truncation is strictly inside the
    **LiteEth MAC core TX path** (`core.sink` → 64→8 conversion → GMII), which loopback bypasses.
 
 7. **The exact line.** The MAC's AXIS→LiteEth glue drove `core.sink.last_be` **on every beat**
@@ -92,12 +92,12 @@ fully-FPGA NaxRiscv/LiteX SoC):
    ```
 
    So the first beat's byte 7 was tagged "last", the FSM went to WAIT-LAST, and **bytes 8..N were
-   discarded**. `last_be` is only valid on the *last* beat — driving it on every beat is a
-   protocol violation. (M-A3's earlier fix corrected the *byte count* — `0x80` instead of the low
-   bit, so 8 bytes survived instead of 1 — but left `last_be` asserted on every beat, so the
+   discarded**. `last_be` is only valid on the *last* beat  -  driving it on every beat is a
+   protocol violation. (M-A3's earlier fix corrected the *byte count*  -  `0x80` instead of the low
+   bit, so 8 bytes survived instead of 1  -  but left `last_be` asserted on every beat, so the
    frame was still cut to one beat. The counter-only check couldn't see it.)
 
-## The fix (gateware — `milan-fpga`, `sw/litex/milan_soc.py`, `MilanMAC`)
+## The fix (gateware  -  `milan-fpga`, `sw/litex/milan_soc.py`, `MilanMAC`)
 
 Gate `last_be` by `last` so it is non-zero only on the final beat:
 
@@ -111,25 +111,25 @@ memory, full length) and then an end-to-end ping to the peer + the peer's `rx_*`
 
 ## Reusable takeaways
 
-- **Never trust dst-MAC-keyed counters (`rx_broadcast`/`rx_unicast`) as proof of TX** — a frame
+- **Never trust dst-MAC-keyed counters (`rx_broadcast`/`rx_unicast`) as proof of TX**  -  a frame
   truncated to its first beat still increments them. Capture *raw bytes* or use a full-length
   echo/ping round-trip.
-- The **internal loopback CSR** cleanly splits "datapath output" from "LiteEth core + PHY" — arm
+- The **internal loopback CSR** cleanly splits "datapath output" from "LiteEth core + PHY"  -  arm
   a manual RX-DMA and read its `offset` to measure the datapath's output frame length.
 - A **controlled `devmem` frame** (known bytes to scratch DRAM → TX-DMA → wire capture) removes
   the skb/stack/coherency variables and gives an exact memory→wire transform.
 - `dma_tx_offset == length/8` proves the DMA moved the whole frame; truncation after that is
   downstream (datapath or MAC core), which loopback then localizes.
 
-## Second bug — TX-to-wire: the 2026-07-04 investigation log (OPEN, bisection running)
+## Second bug  -  TX-to-wire: the 2026-07-04 investigation log (OPEN, bisection running)
 
 After the `last_be` fix, TX to the peer kept failing. This section is the **complete,
-chronological experiment log** — including two wrong theories that measurements later
+chronological experiment log**  -  including two wrong theories that measurements later
 killed, because knowing *why they were wrong* is as valuable as the result.
 
 ### The instrument set
 
-* `milan_tlm` pipeline telemetry ([pipeline-telemetry.md](pipeline-telemetry.md)) — frame
+* `milan_tlm` pipeline telemetry ([pipeline-telemetry.md](pipeline-telemetry.md))  -  frame
   counts at every fabric stage, readable from Linux sysfs **and from the BIOS**
   (`mem_write 0xf0004004 1` = capture, `mem_read 0xf0004058` = tx_wire).
 * Controlled BIOS-level TX (no kernel needed): boot to `litex>` (no uploader), then
@@ -138,7 +138,7 @@ killed, because knowing *why they were wrong* is as valuable as the result.
   `mem_read 0xf0003010` = done, `0xf0003018` = offset in 8-byte words.
 * Peer i210: `ethtool -S` **full-diff** (not selected counters) + promiscuous
   `tcpdump -e -xx`.
-* Vivado `open_checkpoint` on the routed `.dcp` — physical placement of the TX launch FFs.
+* Vivado `open_checkpoint` on the routed `.dcp`  -  physical placement of the TX launch FFs.
 
 ### The result matrix (identical 10-frame broadcast burst everywhere)
 
@@ -154,49 +154,49 @@ killed, because knowing *why they were wrong* is as valuable as the result.
 Plus, under Linux on `build_qspi_gtx_coh`/`build_final` (coherent): **RX is fully healthy**
 (peer ARPs → `rx_wire=rx_core=rx_dp=rx_dma` → netdev 0-dropped → neighbor learned,
 `devmem` of the RX buffer shows correct wire bytes), and TX is fabric-perfect with real
-data (`tx_dma=tx_dp=tx_core=tx_wire`, byte counts matching) — yet nothing reaches the peer.
+data (`tx_dma=tx_dp=tx_core=tx_wire`, byte counts matching)  -  yet nothing reaches the peer.
 
 ### What is PROVEN
 
 1. **`--coherent-dma` is mandatory** (not implied by `--all-blocks`; deploy.sh now carries
    it). Without it: RX skbs are all zeros (stack drops 100 %), TX reads stale DRAM (frames
-   egress with garbage dst-MAC that the peer silently address-filters — Δ0 *without* CRC
+   egress with garbage dst-MAC that the peer silently address-filters  -  Δ0 *without* CRC
    errors, a perfect PHY-problem impostor). Boot-to-boot "intermittency" = cache-eviction
    luck.
 2. **The FPGA fabric TX path is correct in every build** (counters + real data verified).
-3. **The wire + PHY TX are capable** — gmii_final transmits 10/10 *today*.
+3. **The wire + PHY TX are capable**  -  gmii_final transmits 10/10 *today*.
 4. **On every Jul-4 build the PHY emits NOTHING onto copper**: full peer counter diff shows
    no movement (not even undersize/CRC/error counters); promiscuous tcpdump captures zero
-   frames — while `tx_wire` counts frames *into* the PHY and the eth_tx clock demonstrably
+   frames  -  while `tx_wire` counts frames *into* the PHY and the eth_tx clock demonstrably
    runs (the counter lives in that domain). Silence, not corruption ⇒ **not a
    sampling-margin problem**.
 
 ### What is DISPROVEN (and by what)
 
-* **"gtx_clk↔TXD phase (edge-aligned) is the bug"** — OLOGIC-placed data with 180°-shifted
+* **"gtx_clk↔TXD phase (edge-aligned) is the bug"**  -  OLOGIC-placed data with 180°-shifted
   clock (textbook mid-bit sampling) is equally silent. Phase changes nothing measurable.
-* **"TX FF placement/skew is the bug"** — OLOGIC (pad-locked, skew≈0) equally silent.
-  (Placement *does* matter for margin once TX talks again — keep the IOB constraint — but
+* **"TX FF placement/skew is the bug"**  -  OLOGIC (pad-locked, skew≈0) equally silent.
+  (Placement *does* matter for margin once TX talks again  -  keep the IOB constraint  -  but
   it is not what silences the PHY.)
-* **My `--gtx-tx-invert` "fix"** — never validated; keep OFF pending re-test.
+* **My `--gtx-tx-invert` "fix"**  -  never validated; keep OFF pending re-test.
 
 ### Traps documented (each cost real time)
 
-1. **dst-keyed counters lie — twice now.** gmii_final "passing 10/10" was itself the trap
+1. **dst-keyed counters lie  -  twice now.** gmii_final "passing 10/10" was itself the trap
    re-sprung: its pre-gating `last_be` truncates every frame to 8 bytes + MAC padding, and
    the peer's `rx_broadcast` counts truncated frames indistinguishably from full ones. A
    valid TX pass **requires tcpdump content verification** of the full frame.
 2. **XDC does not execute TCL control flow.** A `set_property` wrapped in `if {…}` is
-   silently ignored — verify constraints took effect in the routed `.dcp`
+   silently ignored  -  verify constraints took effect in the routed `.dcp`
    (`get_cells -of …` → expect `OLOGIC`, not `SLICE`), never trust the .xdc text.
 3. **buildroot `linux-reconfigure` does not rebuild out-of-tree modules** (and MODVERSIONS
    is off): a stale `kl-eth.ko` vermagic-matches, loads, and oopses on shifted struct
    layouts (`devm_register_netdev → devres_add`, NULL+0x270). Always
    `make kl-eth-rebuild rootfs-cpio` after kernel .config changes.
-4. **The peer NIC address-filters garbage-MAC frames without counting them anywhere** —
+4. **The peer NIC address-filters garbage-MAC frames without counting them anywhere**  - 
    "nothing at the peer" ≠ "nothing on the wire" unless tcpdump ran in promisc.
 
-### ROOT CAUSE FOUND (2026-07-04 evening) — cut-through core + bubbly source
+### ROOT CAUSE FOUND (2026-07-04 evening)  -  cut-through core + bubbly source
 
 ![root cause & fix](TX_STARVATION_FIX.svg)
 
@@ -206,7 +206,7 @@ Bisection results: B1 (Jul-4 code, gmii_final flags) **silent**; R0 (bc5783b sou
 toolchain) **talks**; B2 (HEAD, gate reverted) **talks**; B3 (HEAD, gate kept, telemetry
 removed) **silent** → the gated `last_be` change correlated 1:1 with silence. But simulation
 of the exact LiteEth `MACCore(dw=64)` + 8-bit PHY showed the gated stream is handled
-**byte-exactly** — the RTL was innocent. The missing variable was **source density**:
+**byte-exactly**  -  the RTL was innocent. The missing variable was **source density**:
 
 * The bare `LiteEthMACCore` is **CUT-THROUGH** (the full `LiteEthMAC` wraps it in SRAM
   store-and-forward buffers precisely for this; we drive the bare core).
@@ -216,26 +216,26 @@ of the exact LiteEth `MACCore(dw=64)` + 8-bit PHY showed the gated stream is han
   mid-frame → `valid` bubbles → **tx_en glitches** → the PHY emits fragments the peer NIC
   discards **without incrementing any counter** (PCS-level noise). Total silence.
 * **Why ungated "worked":** frames were cut to 8 bytes at the LastBE stage, after which
-  padding + CRC are **locally generated** in the eth_tx domain — immune to source bubbles.
+  padding + CRC are **locally generated** in the eth_tx domain  -  immune to source bubbles.
   The truncation bug had been masking the starvation bug all along.
 
 Sim proof (`sim_tx64.py`): dense source → gated frame byte-exact & gapless; starved source
 (≈0.6 Gbps) → **6 mid-frame bubbles** at the PHY with gated framing, zero with ungated.
 
 **The fix (MilanMAC):** a store-and-forward `PacketFIFO(eth_phy_description(64),
-payload_depth=512)` between the datapath glue and `core.sink` — a frame is released
+payload_depth=512)` between the datapath glue and `core.sink`  -  a frame is released
 downstream only once completely buffered, so the drain is gapless by construction.
 Sim-verified (starved source → gapless). Silicon validation: builds `f1` (edge-aligned) /
 `f2` (invert), acceptance = full 64-byte payload in peer tcpdump + Linux ping round-trip.
 
 
-### FINAL LAYERS + VERDICT — IT PINGS (2026-07-04 evening)
+### FINAL LAYERS + VERDICT  -  IT PINGS (2026-07-04 evening)
 
 With the PacketFIFO in, the BIOS-level burst passed the raised bar: **10/10 frames at the
 peer, full 64-byte payload byte-exact in tcpdump**. Linux then exposed two last layers:
 
 1. **skb alignment (driver):** Linux frames arrived at the peer **shifted right by 2 bytes**
-   (`dst = 00:00:ff:ff:ff:ff`) — the driver DMA'd `skb->data` directly, but skbs are
+   (`dst = 00:00:ff:ff:ff:ff`)  -  the driver DMA'd `skb->data` directly, but skbs are
    IP-aligned (`addr % 8 == 2`) while the DMA reads whole aligned 8-byte words → 2 stale
    bytes prepended. Fix (kl-eth): a coherent **8-byte-aligned TX bounce buffer** (one memcpy
    per frame). The BIOS tests never saw this because `devmem` frames are aligned.
@@ -243,7 +243,7 @@ peer, full 64-byte payload byte-exact in tcpdump**. Linux then exposed two last 
    (deterministic skew ≈ 0 vs the forwarded gtx_clk), **edge-aligned sampling is
    hold-marginal**: Linux ping showed 25–40 % loss with `rx_crc_errors +8` at the peer.
    `--gtx-tx-invert` (mid-bit sampling) fixed it completely: **20/20 pings, 0 CRC errors,
-   RTT 1.3–1.8 ms** — the first ICMP round-trips ever on the fully-FPGA NIC. So the phase
+   RTT 1.3–1.8 ms**  -  the first ICMP round-trips ever on the fully-FPGA NIC. So the phase
    knob was never the *silence* bug, but it IS required *for margin* once the launch FFs are
    pad-locked; `deploy.sh` now carries `--gtx-tx-invert` by default for this board.
 
@@ -251,5 +251,5 @@ peer, full 64-byte payload byte-exact in tcpdump**. Linux then exposed two last 
 --milan-clk-freq 50e6 --gtx-tx-invert --timing-opt` + `--with-spiflash --flashboot kernel`,
 MilanMAC store-and-forward PacketFIFO, IOB-packed GMII TX FFs, kl-eth aligned TX bounce
 buffer. Remaining known limitation: the driver's single TX slot + single RX buffer + NAPI
-polling (no DMA IRQ) — descriptor rings are the follow-up; telemetry already quantifies the
+polling (no DMA IRQ)  -  descriptor rings are the follow-up; telemetry already quantifies the
 backpressure (`rx_dma stalls`).
