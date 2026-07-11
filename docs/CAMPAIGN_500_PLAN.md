@@ -1,5 +1,8 @@
 # Campaign plan: >500 Mbit/s TX *and* RX — every step gated by a gateware measurement
 
+> **STATUS: SUPERSEDED by the measured record (2026-07-11).** Outcome: TX 582–646 ✓; TCP-socket RX plateaus at 381/374 (ACK-hold law — see RX_PERF_TUNING_MAP.drawio); the >500 RX lane is the no-copy consumer (MSG_TRUNC ceiling 585–594 measured; recv_zc on hs@4K = the open experiment). Current plan lives in SESSION_HANDOFF.md.
+
+
 > 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
 
 *Successor plan to the 2026-07-07/08 sessions (CBS default bug, both RX wedges — see

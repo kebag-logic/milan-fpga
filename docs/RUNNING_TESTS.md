@@ -53,7 +53,7 @@ t.test_hs_livelock_orphan()"                                    # one test
 Suites and what they own:
 
 - **test_ring_bd.py** — THE regression net for the RX BD/RSC/header-split engine
-  (~39 tests). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
+  (~40 tests: +full-gate, +hs CQ pressure, cut-through ordering since hsq12). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
   regression, half-BD guards, multi-slot RSC, hs split/crossing/interleave/famine,
   reload flush, storm models, the livelock probe, the BD-ring full-gate (hsq6: drain
   stalls at wr+16==rd instead of lapping the driver). `ALL PASS` on success; each test

@@ -1,5 +1,8 @@
 # RX ring DMA — root cause of the large-frame RX loss + the AXI-burst fix
 
+> **STATUS: HISTORICAL (byte-ring era, ≤2026-07-05).** The RX path since moved to BD/CQ mode with the hsq6 full-gate, 2-queue hs, LUTRAM CQ and (hsq12+) cut-through ordering. Living map: **RX_PERF_TUNING_MAP.drawio** + HEADER_SPLIT_DESIGN.md. The byte-ring remains the bd=0 fallback only (AREA-70 removal candidate).
+
+
 *2026-07-04, all numbers measured on silicon (AX7101, NaxRiscv 100 MHz sys / 50 MHz
 datapath, GMII 1 Gbps, peer = i210). Companion picture: `RX_RING_DMA.svg` (source:
 `RX_RING_DMA.gen.py`).*

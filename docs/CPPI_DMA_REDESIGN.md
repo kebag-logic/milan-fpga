@@ -1,5 +1,8 @@
 # CPPI-style DMA redesign — on-chip descriptors, cut-through, zero-copy (plan)
 
+> **STATUS: DESIGN-ERA (pre-gate).** The BD/CPPI mode shipped, then gained: the drain full-gate at wr+16==rd (hsq6 — the missing piece that caused the lap/desync storms this doc could not foresee), 256-entry rings (hsplit10), per-queue instances, hs v2/v3 encodings, cut-through ordering (hsq12). Living map: **RX_PERF_TUNING_MAP.drawio**.
+
+
 **Goal:** attack the two biggest per-frame costs found in [LATENCY_INVESTIGATION.md](LATENCY_INVESTIGATION.md)
 — the DRAM/CSR **descriptor-access latency** (§4/§5) and the **per-frame memcpy** (§6) — by
 moving the RX/TX DMA from the current contiguous **byte-ring in DRAM** to a **descriptor
