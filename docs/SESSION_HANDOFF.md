@@ -61,11 +61,17 @@ batching — the per-page vm-insert path itself). The 1.22us/page pricing was
 the RAW mapbench, not the live path. CONSUMER LADDER FINAL: copy 363-381 |
 MSG_TRUNC ceiling 585-594 | AF_PACKET ring 124 | zc-flip 110@87% — every
 no-copy consumer API on kernel 7.0.11 LOSES to the plain copy at 100 MHz.
-Remaining >500 lanes: (a) kernel archaeology — does 7.0.11's tcp zc use
-vm_insert_pages (batched)? backport/patch if not; (b) AF_XDP ZC driver (true
-zero-copy, the big lift); (c) NOTE: the AVTP PRODUCT plane is unblocked
-regardless — media streams are Mbit-class and even the ring's 124-139
-aggregate covers them; >500 is the benchmark goal.
+KERNEL ARCHAEOLOGY DONE (2026-07-11 pm): 7.0.11's zc path IS batched
+(vm_insert_pages, TCP_ZEROCOPY_PAGE_BATCH_SIZE=32) — the cost is the
+equilibrium economics, not missing batching: at low rate the queue never
+deepens (1-2 pages/call, per-call overhead lands per-page); pacing to force
+depth hits the rcv-window wall instead (paced variants: 2.7 @default-rcvbuf,
+19.5 @4MB-rcvbuf+10ms — worse, not better). FOUR variants measured: 110 / 113
+no-zap / 2.7 / 19.5. **zc lane CLOSED on this core+kernel.** Remaining >500
+lane: AF_XDP ZC driver (true zero-copy, campaign-scale). The AVTP PRODUCT
+plane is unblocked regardless (media streams are Mbit-class). HARDENING
+SHIPPED: hsq14 capability CSR @0xf000311c + hsplit16 probe-check (refuses
+lethal pairings); hsq14 sweep building = the next keeper.
 **⚠⚠ PAGE-SIZE PAIRING IS LETHAL: hs_pgsz (driver) MUST equal hs_page_bytes
 (gateware). Mismatch = the writer DMAs gateware-page strides into smaller
 driver pages = KERNEL MEMORY OVERWRITE => Bad page map + panic (2026-07-11:
