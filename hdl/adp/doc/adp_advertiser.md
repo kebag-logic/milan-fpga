@@ -3,8 +3,8 @@
 **Module:** [`hdl/adp/adp_advertiser.sv`](../adp_advertiser.sv)
 **Verification:** [`tb/verilator/adp/`](../../../tb/verilator/adp) — 121 self-checks, PASS
 **Standards:** IEEE 1722.1-2021 §6 (ADP), AVnu **Milan v1.2** Discovery
-**Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../docs/FR_NFR.md),
-[`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../docs/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
+**Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../docs/reference/FR_NFR.md),
+[`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
 
 ## 1. Purpose
 
@@ -115,7 +115,7 @@ Run: `cd tb/verilator/adp && make` → `RESULT: PASS`.
 ## 6. Integration status & next steps
 - **Done:** RTL + Verilator harness (this block), byte-exact, lint-clean, PASS.
 - **Done — CSR wiring:** the identity/control inputs come from the `milan_csr`
-  **0x600 ADP group** (`docs/REGISTER_MAP.md`); `available_index_o` reads back at
+  **0x600 ADP group** (`docs/reference/REGISTER_MAP.md`); `available_index_o` reads back at
   `ADP_STATUS`. `station_mac_i` = `MAC_ADDR`. Software strobes `ADP_CMD[0]`
   (advertise/field-change) → `info_changed_i`, `ADP_CMD[1]` (depart) → `shutdown_i`.
   CSR harness extended (62 checks, PASS).

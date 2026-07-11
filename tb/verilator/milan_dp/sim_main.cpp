@@ -67,7 +67,7 @@ static uint32_t axi_read(uint16_t a) {
     return d;
 }
 
-// ---- register offsets (docs/REGISTER_MAP.md) ----
+// ---- register offsets (docs/reference/REGISTER_MAP.md) ----
 enum {
     A_ID = 0x000, A_VERSION = 0x004, A_CAP = 0x008,
     A_CLS_CTRL = 0x300, A_CLS_MAP = 0x308, A_CLS_REGEN = 0x30C, A_CLS_TCQ = 0x310,

@@ -130,7 +130,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 
 ## CPU / cache / memory (the >500 RX campaign)
 
-*Full story: [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md); mechanism: [`LSU_NONBLOCKING_DCACHE.md`](LSU_NONBLOCKING_DCACHE.md).*
+*Full story: [`RX_TX_PERFORMANCE.md`](findings/RX_TX_PERFORMANCE.md); mechanism: [`LSU_NONBLOCKING_DCACHE.md`](fpga/LSU_NONBLOCKING_DCACHE.md).*
 
 | Term | Meaning |
 |------|---------|

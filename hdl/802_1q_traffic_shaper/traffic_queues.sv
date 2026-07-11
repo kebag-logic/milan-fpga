@@ -54,7 +54,7 @@ module traffic_queues #(
 
   // ==========================================================================
   //  Open-core datapath (Forencich verilog-axis) replacing the Xilinx
-  //  axis_switch IP + xpm_fifo_axis (docs/OPEN_SOURCE_MIGRATION.md Track 1.3):
+  //  axis_switch IP + xpm_fifo_axis (docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.3):
   //    axis_demux (1->N by tdest) -> N x axis_fifo -> axis_arb_mux (N->1).
   //  The 4->1 grant suppression (s_req_suppress) is reproduced by gating each
   //  arbiter input's tvalid with queue_grant_i; the final m_axis.tdest is the
@@ -124,7 +124,7 @@ module traffic_queues #(
     end
   endgenerate
 
-  //! N -> 1 GRANT-INDEXED MUX (fix 2026-07-05, docs/CBS_DATAPATH_BUG.md).
+  //! N -> 1 GRANT-INDEXED MUX (fix 2026-07-05, docs/findings/CBS_DATAPATH_BUG.md).
   //! This was an axis_arb_mux — its OWN round-robin arbiter + per-frame lock —
   //! fed by grant-gated valids. That stacked a SECOND arbiter on top of the CBS
   //! grant, and the two could lock onto DIFFERENT queues: the arb mux locks its

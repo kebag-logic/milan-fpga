@@ -1,9 +1,9 @@
 # `sw/` — boot one RISC-V core with the Milan NIC + driver
 
-A **configurable, single-core** software/SoC bring-up: one NaxRiscv core running
+A **configurable** software/SoC bring-up (single- or multi-hart): a RISC-V softcore running
 Linux, with the Milan TSN NIC memory-mapped and its `kl-eth` driver bound via the
 device tree. This is the smallest bootable slice of
-[`docs/FULLY_FPGA_RISCV_MIGRATION.md`](../docs/FULLY_FPGA_RISCV_MIGRATION.md).
+[`docs/integration/FULLY_FPGA_RISCV_MIGRATION.md`](../docs/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 ```
    milan_soc.py  ──build──▶  bitstream + LiteX BIOS      (1 core + DDR + UART + Milan NIC)
@@ -16,19 +16,19 @@ device tree. This is the smallest bootable slice of
 ```
 
 > **The full architecture, protocol coverage, and roadmap live in
-> [`../docs/FULL_FPGA_SOLUTION.md`](../docs/FULL_FPGA_SOLUTION.md) and
-> [`../docs/PROTOCOL_VALIDATION_MATRIX.md`](../docs/PROTOCOL_VALIDATION_MATRIX.md).**
+> [`../docs/overview/FULL_FPGA_SOLUTION.md`](../docs/overview/FULL_FPGA_SOLUTION.md) and
+> [`../docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](../docs/testing/PROTOCOL_VALIDATION_MATRIX.md).**
 > This file is the quick build/boot reference.
 
 | File | What |
 |------|------|
-| [`litex/milan_soc.py`](litex/milan_soc.py) | THE board SoC target: **1× NaxRiscv** (RV64GC/sv39, `--xlen 32`/sv32 fallback) + CRG + UART + RAM + Milan datapath (CSR @ `0x9000_0000`, IRQs → PLIC); **`--full`** adds the §A.6 DMA + §A.7 MAC/RGMII PHY. |
+| [`litex/milan_soc.py`](litex/milan_soc.py) | THE board SoC target: `--cpu {naxriscv,vexiiriscv}` (published Linux/perf results use **VexiiRiscv ×2**; NaxRiscv is the CLI default/pure-NIC option — see [docs/litex/LITEX_SOC.md](../docs/litex/LITEX_SOC.md) §2.5) + CRG + UART + RAM + Milan datapath (CSR @ `0x9000_0000`, IRQs → PLIC); **`--full`** adds the §A.6 DMA + §A.7 MAC (GMII). |
 | [`litex/milan_sim.py`](litex/milan_sim.py) | Verilator sim SoC: the same NaxRiscv + the NIC CSR, running the BIOS. Proves **M-A2** — the CPU reads `ID="MILN"`. |
 | [`litex/platforms/alinx_ax7101.py`](litex/platforms/alinx_ax7101.py) | Local LiteX platform for the Alinx AX7101 (xc7a100t) — not in upstream litex_boards. |
 | [`litex/evidence/naxriscv_sim_boot.log`](litex/evidence/naxriscv_sim_boot.log) | Captured `litex_sim` boot: the NaxRiscv core running the LiteX BIOS to the `litex>` prompt. |
 | [`litex/evidence/naxriscv_reads_MILN.log`](litex/evidence/naxriscv_reads_MILN.log) | Captured `mem_read 0x90000000` = `MILN` + VERSION — **M-A2** on the softcore. |
-| [`../docs/AXIS_CORES_ON_NAXRISCV.md`](../docs/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
-| [`dts/`](dts/) | The `kl,dma-ether` device tree — **generated per-platform** from an intermediate JSON so it converges for any SoC (`dts/milan_dt.py`, `dts/README.md`). |
+| [`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md) | **How to attach AXI-Stream cores to NaxRiscv** (control/data/event planes), using `MilanNIC` as the worked example. |
+| [`dts/`](dts) | The `kl,dma-ether` device tree — **generated per-platform** from an intermediate JSON so it converges for any SoC (`dts/milan_dt.py`, `dts/README.md`). |
 | [`dts/bindings/kl,dma-ether.yaml`](dts/bindings/kl,dma-ether.yaml) | Normative DT binding (the DT requirements, `FR-DT-*`). |
 | [`driver/README.md`](driver/README.md) | The `kl-eth` platform driver (NAPI/XDP/PTP/ethtool, `FR-DRV-*`) and its DT match. |
 
@@ -106,9 +106,9 @@ tc qdisc add dev eth0 ... cbs offload 1            # shape q0/q1 (kl,shaped-queu
 | BIOS build | `riscv64-elf-gcc` | ✅ builds |
 | **Sim boot of the core** | Verilator | ✅ boots to `litex>` (evidence saved) |
 | Milan RTL blocks | Verilator (`tb/verilator/`) | ✅ 14 harnesses green |
-| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ 17 tops (incl. ECP5) |
-| **Artix-7 bitstream** (`--build`) | Vivado | ⛔ blocked — Vivado 2026.1 here has **only Spartan-7** installed; xc7a100t needs the ~100 GB AMD device reinstall (same wall as xc7z020). Gateware export is unaffected. |
+| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ 18 tops (incl. ECP5) |
+| **Artix-7 bitstream** (`--build`) | Vivado | ✅ built + run on the board (see `litex/evidence/hw_*`); note: needs Vivado with Artix-7 device support — a Spartan-7-only install cannot P&R it. Gateware export needs no vendor tools. |
 | `milan_datapath` wrapper | — | ⏳ still a black box (`[BB:milan_datapath]`); milan_top minus the Zynq PS (migration §A.9). Needed for P&R, not for export. |
 
 To attach the Milan (or any) AXI-Stream core to the CPU, see
-[`../docs/AXIS_CORES_ON_NAXRISCV.md`](../docs/AXIS_CORES_ON_NAXRISCV.md).
+[`../docs/integration/AXIS_CORES_ON_NAXRISCV.md`](../docs/integration/AXIS_CORES_ON_NAXRISCV.md).

@@ -4,7 +4,7 @@
  *
  * Self-checking Verilator harness for traffic_classifier.sv AFTER the
  * xpm_fifo_axis -> axis_fifo (Forencich verilog-axis) swap (Track 1.2 of
- * docs/OPEN_SOURCE_MIGRATION.md). That this builds+runs at all proves the module
+ * docs/integration/OPEN_SOURCE_MIGRATION.md). That this builds+runs at all proves the module
  * is now Verilator-simulatable (it could not be with XPM).
  *
  * Functional checks (independent of the exact header byte layout — the PCP->queue
@@ -92,7 +92,7 @@ static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, con
 
     // ---- tdest CORRECTNESS per frame (the check the 2026-07-05 bug slipped past:
     // stability alone passes a classifier that consistently reports the PREVIOUS
-    // frame's class — see docs/CBS_DATAPATH_BUG.md) ----
+    // frame's class — see docs/findings/CBS_DATAPATH_BUG.md) ----
     if (exp_dest) {
         bool dest_ok = got.size() == total;
         size_t fidx = 0;
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
     run_frames(frames, /*bp=*/1, "backpressure");
 
     // ---- REAL headers, BACK-TO-BACK, alternating queues (regression for
-    // docs/CBS_DATAPATH_BUG.md: first beats must carry THIS frame's class) ----
+    // docs/findings/CBS_DATAPATH_BUG.md: first beats must carry THIS frame's class) ----
     // expected-queue model == traffic_class_map with the configured tables
     auto expq = [&](bool tagged, int pcp) {
         int eff   = tagged ? pcp : (int)dut->default_pcp_i;

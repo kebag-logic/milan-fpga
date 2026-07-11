@@ -9,7 +9,7 @@
 //                the source until the acknowledge returns, so it is sampled by the
 //                destination only after the request has synchronised — no per-bit
 //                synchroniser needed. Replaces Xilinx `xpm_cdc_handshake`
-//                (docs/OPEN_SOURCE_MIGRATION.md Track 1.4).
+//                (docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.4).
 //
 //  Protocol    : source asserts `src_send` (level) with `src_in` valid; when the
 //                transfer completes `src_rcv` pulses (source may drop `src_send`).

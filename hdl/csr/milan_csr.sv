@@ -18,7 +18,7 @@
                 link status and interrupts back to software.
 
                 The full register map / ABI is documented in
-                docs/REGISTER_MAP.md and mirrored by the self-checking harness
+                docs/reference/REGISTER_MAP.md and mirrored by the self-checking harness
                 in tb/verilator/csr. Register groups:
 
                   0x000  ID / VERSION / CAPABILITIES / IRQ
@@ -170,7 +170,7 @@ module milan_csr #(
   localparam int QW = (NUM_QUEUES <= 1) ? 1 : $clog2(NUM_QUEUES); //! Queue-index width
 
   // --------------------------------------------------------------------------
-  //  Register byte offsets (single HDL source of the map; see docs/REGISTER_MAP.md)
+  //  Register byte offsets (single HDL source of the map; see docs/reference/REGISTER_MAP.md)
   //
   //    0x000 ID          0x100 MAC_CTRL     0x300 CLS_CTRL     0x500 PTP_CTRL
   //    0x004 VERSION     0x104 MAC_IFG      0x304 CLS_DEF_PCP  0x504 PTP_INCR

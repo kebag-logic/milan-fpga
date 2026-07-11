@@ -8,7 +8,7 @@
 //                crossing (toggle synchroniser). A 1-cycle pulse in the source
 //                domain produces exactly one 1-cycle pulse in the destination
 //                domain. Replaces Xilinx `xpm_cdc_pulse`
-//                (docs/OPEN_SOURCE_MIGRATION.md Track 1.4).
+//                (docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.4).
 //
 //                Constraint: source pulses must be spaced further apart than the
 //                round-trip synchroniser latency (true for per-frame SOP events).

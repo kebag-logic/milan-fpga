@@ -15,7 +15,7 @@ The aim is to create random AVTP ethernet packet in sv environment.
 
 ```
 ./vsim 
-cd $REPO_PATH/hw_tests/avtp_packet_gen_sv/examples
+cd $REPO_PATH/tb/avtp_packet_gen_sv/examples
 do run.do
 ```
 

@@ -11,7 +11,7 @@
   Date        : 2026-07-05
   Description : AVTP stream identifier + presentation-time extractor — the first
                 RTL increment of the "AVTP stream engine" (S1 in
-                docs/AVB_SWITCH_DIRECTION.md hook A). It is a NON-INTRUSIVE
+                docs/overview/AVB_SWITCH_DIRECTION.md hook A). It is a NON-INTRUSIVE
                 MONITOR on an RX AXI-Stream carrying full Ethernet frames: it
                 never backpressures or modifies the data path, it just parses
                 each frame's header and, for AVTP stream packets whose

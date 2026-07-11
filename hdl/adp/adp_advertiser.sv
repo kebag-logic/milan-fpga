@@ -15,7 +15,7 @@
 //  Implements  : FR-DISC-01 (periodic ENTITY_AVAILABLE + available_index),
 //                FR-DISC-02 (answer ENTITY_DISCOVER), FR-DISC-03 (ENTITY_DEPARTING),
 //                FR-DISC-04 (advertised fields == the ENTITY descriptor).
-//                See docs/MILAN_V12_DEPENDENCY_MATRIX.md §A and
+//                See docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md §A and
 //                hdl/adp/doc/adp_advertiser.md.
 //
 //  Frame        : 82 bytes = 14 B Ethernet + 68 B ADPDU (control_data_length=0x38).

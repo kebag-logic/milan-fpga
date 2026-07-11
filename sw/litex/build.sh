@@ -12,7 +12,7 @@
 #   TAG=myrun ./build.sh arty          # output dir suffix (default: date +%m%d%H%M)
 #   ./build.sh arty -- --sys-clk-freq 90e6   # append/override milan_soc.py args
 #
-# Discipline encoded here (docs/SESSION_HANDOFF.md):
+# Discipline encoded here (docs/findings/SESSION_HANDOFF.md):
 #   * every build: setsid nohup (harness task-kills must never reap Vivado),
 #     --vivado-max-threads 32 (Vivado hard cap), launch log next to the outdir;
 #   * parallel launches staggered 90 s (shared pythondata git checkout: two
@@ -20,7 +20,7 @@
 #   * at most 3 concurrent builds (3 x 32 = the 96-core box saturated).
 #
 # Configs are FUNCTIONS below - one place to edit a board's canonical shape.
-# MAINTAINER DOC: docs/BUILDING.md (configs, discipline rationale, per-board
+# MAINTAINER DOC: docs/integration/BUILDING.md (configs, discipline rationale, per-board
 # load/console facts, gates). Update it when adding a config or a rule here.
 
 set -euo pipefail
@@ -29,7 +29,7 @@ SOC_DIR="$(cd "$(dirname "$0")" && pwd)"
 TAG=${TAG:-$(date +%m%d%H%M)}
 STAGGER=90
 
-# ---- per-board flash/JTAG facts (docs/BUILDING.md section 4) --------------------
+# ---- per-board flash/JTAG facts (docs/integration/BUILDING.md section 4) --------------------
 # serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
 # wrong board is destructive). policy = what this board's QSPI holds:
 #   ax7101 images:    Linux boot images at flashboot_layout.json offsets (kernel at
