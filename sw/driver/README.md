@@ -7,7 +7,7 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 
 ## DT match & resources
 - `of_match`: `compatible = "kl,dma-ether-0.9"` (FR-DT-01).
-- `reg`/`reg-names`: `csr` (`0x43C0_0000`), `dma-tx`, `dma-rx`, `dma-ts`.
+- `reg`/`reg-names`: `csr`, `dma-tx`, `dma-rx`, `dma-ts` — the `csr` base is per-platform: `0x9000_0000` on the LiteX softcore build, `0x43C0_0000` on Zynq (the generated DT carries the right one; see `sw/dts/`).
 - `interrupts`/`-names`: `tx-dma`, `rx-dma`, `ts-dma`, `csr` → NAPI + link/PTP events.
 - `kl,txq-cnt`/`kl,rxq-cnt`, `kl,shaped-queues` (`<0 1>`), `phy-handle`, `phy-mode`,
   `local-mac-address`, `kl,ptp*`.

@@ -1,11 +1,22 @@
-# Milan TSN FPGA  -  architecture & developer guide
+# Milan TSN FPGA - architecture & developer guide
 
-This document is the map a new developer should read first. It explains the
-datapath, the control plane, the clock domains, how the HDL maps to the Linux
-driver and device tree, and **where to change things**. For the *what/why*, see
-[`REQUIREMENTS.md`](../../REQUIREMENTS.md); for the *ordered work*, see
-[`TODO.md`](../../TODO.md); for the register ABI, see
-[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+The map a new developer should read first: the datapath, the control plane,
+the clock domains, how the HDL maps to the Linux driver and device tree, and
+**where to change things**. For the deep-dive companions:
+[FULL_FPGA_SOLUTION.md](FULL_FPGA_SOLUTION.md) (build/run/roadmap),
+[../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) (every RTL module),
+[../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md) (the ABI),
+[`REQUIREMENTS.md`](../../REQUIREMENTS.md) (normative what/why).
+
+The project has **two host variants around one datapath**:
+
+* **Fully-FPGA softcore (primary):** LiteX RISC-V SoC on the Alinx AX7101
+  (Artix-7) - CPU, DDR3, ring-DMA engines, LiteEth GMII MAC and the
+  `milan_datapath` wrapper, all in fabric. This is where development and the
+  performance campaigns happen. ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md))
+* **Zynq-7020 PS (legacy variant):** `milan_top` + Vivado block design
+  (`bd/milan-dma.tcl`: PS7 + AXI-DMA + interconnect), RGMII MAC in fabric.
+  Kept working, but not the main line. (§9)
 
 ---
 
@@ -13,169 +24,173 @@ driver and device tree, and **where to change things**. For the *what/why*, see
 
 ```
 milan-fpga/
-├─ REQUIREMENTS.md          normative requirements + gap analysis (§3/§4)
-├─ TODO.md                  phased, dependency-ordered task list
-├─ docs/
-│  ├─ ARCHITECTURE.md       this file
-│  └─ REGISTER_MAP.md       AXI4-Lite CSR ABI (HDL/driver/DT contract)
+├─ README.md                 landing page + quick jumps
+├─ REQUIREMENTS.md           normative requirements + 802.1 gap analysis
+├─ TODO.md                   phased task list (partly Zynq-era)
+├─ CHANGELOG.md              the measured per-lever performance ledger
+├─ docs/                     ← the documentation tree (see docs/README.md)
+│  ├─ overview/  integration/  fpga/  litex/  testing/  limitations/
+│  ├─ reference/             REGISTER_MAP, FR/NFR, Milan v1.2 matrix
+│  └─ findings/              dated bug post-mortems + perf campaigns
 ├─ hdl/
-│  ├─ common/               milan_top, DMA wrapper, AXIS iface, eth pkg, params
-│  ├─ csr/                  milan_csr.sv  ← memory-mapped control plane (+ doc/)
-│  ├─ 802_1q_traffic_shaper/ classifier + traffic_class_map + FIFOs + CBS + arbiter
-│  ├─ ptp_timestamp/        PHC counter + ptp_csr_sync (CDC) + TX/RX ts cores
-│  ├─ eth_event_counter/    RMON-style event counters
-│  ├─ 1722/ , adp/          AVTP / ADP parsers (not on the NIC datapath)
-├─ bd/milan-dma.tcl         Vivado block design (PS + AXI-DMA + interconnect)
-├─ constraints/             clocks.xdc, rgmii.xdc, ila.xdc
+│  ├─ common/                milan_datapath + milan_top wrappers, TCAM,
+│  │                         RX filter, CDC primitives, AXIS iface, pkgs
+│  ├─ csr/                   milan_csr.sv ← memory-mapped control plane
+│  ├─ 802_1q_traffic_shaper/ classifier + queues + CBS + arbiter
+│  ├─ ptp_timestamp/         PHC counter + ptp_csr_sync CDC + TX/RX stampers
+│  ├─ eth_event_counter/     RMON event counters
+│  ├─ 1722/  adp/            AVTP parsers · ADP advertiser/parser
+├─ sw/
+│  ├─ litex/                 the LiteX SoC (milan_soc.py), sims, patches, tools
+│  ├─ driver/                kl-eth driver contract (source in sibling repo)
+│  └─ dts/                   device-tree generator (per-host overlays)
+├─ third_party/verilog-axis  vendored AXIS cores (submodule - init required!)
+├─ bd/ constraints/          Zynq-variant block design + XDC
+├─ syn/yosys/                open-toolchain portability check
 └─ tb/
-   ├─ verilator/            runnable, self-checking harnesses (see its README)
-   │  ├─ cbs/               802.1Qav credit-based-shaper verification
-   │  └─ csr/               milan_csr AXI4-Lite verification
-   ├─ utests/ , itests/     legacy Vivado/xsim testbenches
-   └─ avtp_packet_gen_sv/   AVTP stimulus classes
+   ├─ verilator/             17 self-checking harnesses (the live regression)
+   ├─ utests/ itests/        legacy Vivado/xsim testbenches
+   └─ avtp_packet_gen_sv/    AVTP stimulus classes (Questa)
 ```
 
-## 2. System block diagram
+## 2. System block diagram (fully-FPGA softcore)
 
 ```
-              ┌───────────────────────────── Zynq-7020 PS ─────────────────────────────┐
-              │  ARM CoreSight/GIC        DDR ctrl        M_AXI_GP0        S_AXI_HP0     │
-              └────────┬───────────────────┬─────────────────┬───────────────┬─────────┘
-                  IRQ_F2P             (DDR pins)         (AXI-Lite)       (AXI-MM, DMA)
-                       │                                     │                 │
-        ┌──────────────┴─────────────────────────────────────┴─────────────────┴──────────┐
-        │ PL (milan_top)                                     │                              │
-        │                                    ┌───────────────┴────────────────┐            │
-        │                                    │   milan_csr (AXI4-Lite CSR)     │  ← NEW     │
-        │                                    │  ID/CAP/IRQ · MAC · RMON ·      │            │
-        │                                    │  classifier · CBS · PTP clock   │            │
-        │                                    └───┬───────┬────────┬─────────┬──┘            │
-        │           config (o_*) ────────────────┘       │        │         │  status (i_*) │
-        │                                                 │        │         └───────────┐   │
-        │   axi_dma (eth) ─ m_axis_tx ─►┌───────────────┐ │        │ ┌──────────────┐    │   │
-        │                               │ traffic_      │ │        │ │ ptp_ts_top   │    │   │
-        │                               │ controller_   │◄┘  CBS/  └►│ (TX + RX     │    │   │
-        │                               │ 802_1q        │  classifier│  timestamp)  │    │   │
-        │                               │ (classify →   │           │              │    │   │
-        │                               │  N FIFOs →    │─ shaped ─► │  ─► MAC ─► RGMII PHY │
-        │                               │  CBS arbiter) │   AXIS     │              │    │   │
-        │                               └───────────────┘           │  RGMII ─► MAC ┘    │   │
-        │   axi_dma (eth) ◄─ s_axis_rx ─────────────────────────────┤ (RX timestamp)     │   │
-        │   axi_dma (ts)  ◄─ s_axis_ts_metadata ────────────────────┘  metadata AXIS     │   │
-        │                                                                                │   │
-        │   eth_event_counter (RMON) ── counts ── i_stats ─►(milan_csr) ─ stats readback │   │
-        └────────────────────────────────────────────────────────────────────────────────┘
+   ┌─────────────────────────── Artix-7 fabric (LiteX SoC) ───────────────────────────┐
+   │                                                                                   │
+   │  VexiiRiscv ×2 (or NaxRiscv)   L2   DDR3 ctrl (LiteDRAM)   QSPI   UART   PLIC     │
+   │        │ CPU bus                        │ dma_bus (coherent)                      │
+   │        ├────────────────┬───────────────┴───────────────┐                         │
+   │   AXI-Lite CSR      LiteX CSRs                  ring-DMA engines                  │
+   │   @0x9000_0000     (0xf000_xxxx:                 RingDMAReader (TX, AXI bursts)   │
+   │        │            DMA rings, telemetry)        RingDMAWriter (RX, always-ready) │
+   │        ▼                                         WishboneDMAWriter (TS)           │
+   │  ┌─────────────────────── milan_datapath (hdl/, vendor-neutral) ───────────────┐  │
+   │  │ milan_csr ── config/status/IRQ to every block below                         │  │
+   │  │ TX: s_axis_tx ─► classify ─► 4 queues ─► CBS ─► PTP-TX ─► ADP arb ─► mac_tx │  │
+   │  │ RX: mac_rx ─► PTP-RX ─► TCAM dest-MAC filter ─► m_axis_rx                   │  │
+   │  │ TS: {dir, seq_id, timestamp} records ─► m_axis_ts                           │  │
+   │  └──────────────────────────────────────────────────────────────────────────┬─┘  │
+   │                                                     MilanMAC (LiteEth GMII) │     │
+   └──────────────────────────────────────────────────────────────────────────── │ ────┘
+                                                                        RTL8211E PHY (GMII)
 ```
 
-`milan_csr` is **integrated** in `milan_top` (2026-07): its `o_*` config drives
-the MAC, classifier, CBS and PHC, and `i_*` status/events flow back to the PS
-interrupt. The AXI4-Lite CSR master and its interrupt are brought out of the
-block design via `M_AXI_CSR` / `irq_csr` in `bd/milan-dma.tcl` (and mirrored in
-the generated `milan_dma_wrapper.v`); regenerating the BD in Vivado finalises the
-physical connection. The datapath blocks and the two AXI-DMA engines exist today.
+The same `milan_datapath` is what the Zynq variant, the Verilator harnesses
+(`tb/verilator/milan_dp`), the SoC sim (`milan_sim.py`) and the Yosys
+portability check all build - one boundary, five consumers. Its port-level
+contract is [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUIDE.md).
 
-## 3. Datapath (exists today, see `hdl/common/milan_top.sv`)
+## 3. Datapath
 
-**TX:** `axi_dma(eth)` → `traffic_controller_802_1q` (classify → per-queue FIFOs →
-CBS arbiter) → `ptp_ts_top` (TX timestamp capture) → `eth_mac_1g_rgmii_fifo` →
-RGMII PHY.
+**TX:** DMA reader → `traffic_controller_802_1q` (classify → per-queue FIFOs
+→ CBS arbiter) → `ptp_ts_top` (TX timestamp capture) → `adp_tx_arbiter`
+(merges ADP advertisements) → MAC.
 
-**RX:** RGMII PHY → `eth_mac_1g_rgmii_fifo` → `ptp_ts_top` (RX timestamp capture)
-→ `axi_dma(eth)` → DDR.
+**RX:** MAC → `ptp_ts_top` (RX timestamp capture) → `rx_mac_filter`
+(TCAM dest-MAC) → DMA writer.
 
 **Timestamp metadata:** `ptp_ts_top` emits `{direction, seq_id, timestamp}`
-records on a separate AXIS stream → `axi_dma(ts_metadata)` → DDR, for the driver
-to correlate with skbs.
+records on a separate AXIS stream → TS DMA → DRAM, for the driver to
+correlate with skbs.
 
-## 4. Control plane (the new `milan_csr`)
+Stage-by-stage prose with the DMA internals:
+[../fpga/PIPELINE_STAGES.md](../fpga/PIPELINE_STAGES.md); per-stage counters
+to watch it live: [../fpga/pipeline-telemetry.md](../fpga/pipeline-telemetry.md).
 
-Everything the driver configures flows through one AXI4-Lite slave on
-`M_AXI_GP0` at (suggested) `0x43C0_0000` / 64 KB. It replaces the previous state
-where every knob was a compile-time parameter or a tied constant. Register
-groups and fields are the ABI in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md); the RTL is
-[`../hdl/csr/milan_csr.sv`](../../hdl/csr/milan_csr.sv) (documented, TerosHDL
-syntax) with a module page at [`../hdl/csr/doc/milan_csr.md`](../../hdl/csr/doc/milan_csr.md).
+## 4. Control plane (`milan_csr`)
+
+Everything the driver configures flows through one AXI4-Lite slave - a 64 KB
+window at `0x9000_0000` on the softcore (`0x43C0_0000` on Zynq; only the
+base differs, the offsets are the ABI in
+[../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)).
 
 * **Outputs (`o_*`)** carry configuration to the datapath (MAC enables/IFG/
-  station-address, classifier PCP→TC map, per-queue CBS idle/hi/lo/enable, PTP
-  increment/offset/commands).
-* **Inputs (`i_*`)** bring status back (link/speed/duplex, RMON counters, live
-  PTP TOD, event pulses).
-* **Command strobes** (`o_ptp_cmd_*`, `o_stats_*`) are single-cycle pulses used
-  as *apply* signals.
-* **Interrupt** `o_irq = |(IRQ_STATUS & IRQ_MASK)` → widen `IRQ_F2P`.
+  station address, classifier PCP→TC map, per-queue CBS slopes/enables, PTP
+  increment/offset/commands, ADP entity model, TCAM entries).
+* **Inputs (`i_*`)** bring status back (link/speed/duplex, RMON counters,
+  live PTP TOD, event pulses).
+* **Command strobes** (`o_ptp_cmd_*`, `o_stats_*`) are single-cycle *apply*
+  pulses.
+* **Interrupt** `o_irq = |(IRQ_STATUS & IRQ_MASK)` → one PLIC line on the
+  softcore (EventManager), `IRQ_F2P` on Zynq.
+
+The ring-DMA engines have their own LiteX-generated CSR space
+(`0xf000_xxxx`) - documented in the DMA section of the register map.
 
 ## 5. Clock domains & CDC
 
 | Domain | Freq | Covers |
 |--------|------|--------|
-| `axis_clk` | 100 MHz | AXIS datapath, DMA, **CSR block**, classifier, CBS |
-| `gtx_clk`  | 125 MHz | MAC TX serialiser, **PTP timestamp counter** |
-| `rgmii_rx_clk` | 125 MHz (from PHY) | MAC RX |
+| `sys` | 100 MHz | CPU, DDR3, DMA engines, MAC core (softcore build) |
+| `cd_milan` (= `axis_clk`) | 50 MHz in the deployed build (`--milan-clk-freq`); 100 MHz when not split | the whole `milan_datapath`, incl. the CSR block |
+| `gtx_clk` | 125 MHz | PTP timestamp counter + MAC-side capture (tied to `axis_clk` on the softcore build; separate on Zynq) |
+| PHY RX clock | 125 MHz | inside the MAC only |
 
-`milan_csr` is entirely in `axis_clk`. The PTP fields it produces
-(`o_ptp_incr/adj/tod_wr/offset` + `o_ptp_cmd_*`) are consumed in `gtx_clk`;
-`ptp_csr_sync` performs the crossing (2-FF vector sync for the quasi-static rate
-config, toggle-synchronised apply strobes with payload capture for settime/
-adjtime, and a toggle-synchronised return path for the gettime snapshot),
-satisfying `REQ-CSR-03`. Pure-`axis_clk` fields (MAC/classifier/CBS) stay local  - 
-no CDC needed. The PHC (`timestamp_counter`) should be clocked from a fixed
-125 MHz source rather than the speed-switched `gtx_clk` (`REQ-PTP-07`).
+Crossings: `sys ⇄ cd_milan` at the boundary (AXI-Lite async-FIFO CDC, AXIS
+stream CDCs, IRQ 2-FF - all generated by `add_milan_datapath()`);
+`axis_clk ⇄ gtx_clk` inside the datapath (`ptp_csr_sync` for CSR↔PHC,
+`cdc_pulse`/`cdc_handshake` in `ptp_ts_core`). Full inventory:
+[../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) §3; constraint rules when
+porting: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.5.
 
 ## 6. HDL ↔ software mapping
 
-| Concern | HDL | Driver (`../kl-linux-drivers`) | Device tree |
-|---------|-----|-------------------------------|-------------|
-| Bind / probe | `milan_csr` ID/CAP | `of_match` `kl,dma-ether-0.9`, read CAP | `compatible`, `reg` = CSR + DMA |
-| Datapath | 2× `axi_dma` | dmaengine/ring + NAPI, N queues | `dmas`/`interrupts` |
-| PHC | PTP regs (0x500) | `ptp_clock_info` adjfine/adjtime/gettime |  -  |
+| Concern | HDL / gateware | Driver (`../kl-linux-drivers` kl-eth) | Device tree |
+|---------|----------------|----------------------------------------|-------------|
+| Bind / probe | `milan_csr` ID/CAP | `of_match` `kl,dma-ether-0.9`, read CAP | `compatible`, `reg` = csr + dma-tx/rx/ts |
+| Datapath | ring-DMA engines (`milan_soc.py`) | ring + NAPI | `reg` DMA windows, `interrupt-names` tx-dma/rx-dma/ts-dma/csr |
+| PHC | PTP regs (0x500) | `ptp_clock_info` adjfine/adjtime/gettime | - |
 | HW timestamp | ts-metadata AXIS + IRQ | `SIOCSHWTSTAMP`, `skb_hwtstamps` | ts interrupt |
 | CBS | CBS regs (0x400) | `ndo_setup_tc(CBS/mqprio)` | tc mapping |
-| Classifier | classifier regs (0x300) | mqprio TC map |  -  |
-| MAC/PHY | MAC regs (0x100) + MDIO | phylib `adjust_link`, `ndo_set_rx_mode` | `phy-handle`, `mdio` subnode |
-| Stats | RMON regs (0x200) | `ethtool -S` |  -  |
+| Classifier | classifier regs (0x300) | mqprio TC map | - |
+| MAC/PHY | MAC regs (0x100) | phylib `adjust_link`, `ndo_set_rx_mode` | `phy-handle` |
+| Stats | RMON regs (0x200) | `ethtool -S` | - |
+| ADP | ADP regs (0x600) | entity model programming | - |
+| RX filter | TCAM regs (0x700) | dest-MAC filtering | - |
 
-The device tree is produced by the generator in `../fpga-ps-tools` (reusing the
-Xilinx `device-tree-xlnx` dtg) overlaid with the `kl,dma-ether` node
-(`REQ-DT-02`).
+The device tree is **generated** per host by `sw/dts/milan_dt.py` from the
+build's `csr.json` (LiteX) or the IR JSON (Zynq) - see
+[`sw/dts/README.md`](../../sw/dts/README.md). Driver-side contract and
+caveats: [`sw/driver/README.md`](../../sw/driver/README.md).
 
 ## 7. Verification
 
-Runnable, self-checking [Verilator](https://verilator.org) harnesses under
-`tb/verilator/` (no Xilinx tools needed)  -  see
-[`../tb/verilator/README.md`](../../tb/verilator/README.md):
-
-* **`cbs/`**  -  802.1Qav credit-based shaper (runtime config) vs a cycle-accurate
-  fixed-point replica **and** an ideal continuous model (87 k checks).
-* **`shaper_core/`**  -  multi-queue CBS arbiter vs an independent grant model
-  (`REQ-VER-02`, 61 k checks).
-* **`cls/`**  -  `traffic_class_map` PCP→queue classification vs a reference
-  (`REQ-VER-03`, 200 k random configs).
-* **`ptp/`**  -  `timestamp_counter` PHC (adjfine/adjtime/settime/gettime) vs a
-  128-bit accumulator model (201 k checks).
-* **`csr/`**  -  `milan_csr` AXI4-Lite: reset values, RW, W1C IRQ, strobes,
-  snapshots, output wiring (44 checks).
-
-The integrating modules (`milan_top`, `traffic_classifier`, `ptp_ts_top`)
-instantiate Xilinx XPM/MAC primitives and are validated by Vivado elaboration;
-their standards logic is factored into the units above. Legacy Vivado/xsim
-testbenches live in `tb/utests` and `tb/itests` (the old CBS/shaper/classifier
-unit tests there are superseded by the Verilator harnesses  -  see
-`tb/utests/802_1q_traffic_shaper/README.md`).
+Six layers, one map: [../testing/TESTING.md](../testing/TESTING.md).
+Quick version: 17 self-checking Verilator harnesses
+([`tb/verilator/README.md`](../../tb/verilator/README.md)) cover every RTL
+block through the whole `milan_datapath` wrapper; Migen sims cover the DMA
+engines; `milan_sim.py` boots the SoC in Verilator; `syn/yosys` proves
+device portability (18 tops, generic + ECP5); the legacy xsim TBs remain
+for waveform work; silicon procedures close the loop.
 
 ## 8. Where to change things (maintainability)
 
 | To change… | Edit… | Then… |
 |------------|-------|-------|
-| A register offset / new field | [`hdl/csr/milan_csr.sv`](../../hdl/csr/milan_csr.sv) offset block + read/write decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a `ck()` in `tb/verilator/csr/sim_main.cpp` |
-| Number of HW queues | `NUM_QUEUES` (milan_csr) + `NUMBER_OF_QUEUES` (`ethernet_packet_pkg.sv`) | re-run both harnesses; check `axi_mcdma` channel count |
-| CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs` |
-| PCP→TC classification | `traffic_class_map.sv` decode (fed by `o_cls_*`) | re-run `tb/verilator/cls` |
-| PTP rate/offset | `timestamp_counter.sv` (accumulator) + `ptp_csr_sync.sv` CDC | re-run `tb/verilator/ptp`; driver `ptp_clock_info` |
-| Add an IRQ source | `milan_csr` IRQ_STATUS/MASK + `bd/milan-dma.tcl` `IRQ_F2P`/`ilconcat` |  -  |
+| A register offset / new field | [`hdl/csr/milan_csr.sv`](../../hdl/csr/milan_csr.sv) offset block + decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a check in `tb/verilator/csr/sim_main.cpp` (same commit) |
+| Number of HW queues | `NUM_QUEUES` (milan_csr) + `NUMBER_OF_QUEUES` (`ethernet_packet_pkg.sv`) | re-run `csr`, `queues`, `datapath` harnesses; ring/DMA queue count in `milan_soc.py` |
+| CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs`; remember the [reset-defaults shaping bug](../findings/CBS_DEFAULT_SHAPING_BUG.md) |
+| PCP→TC classification | `traffic_class_map.sv` decode | re-run `tb/verilator/cls` |
+| PTP rate/offset | `timestamp_counter.sv` + `ptp_csr_sync.sv` | re-run `ptp`, `ptp_sync`; driver `ptp_clock_info` |
+| DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see the [pairing hazards](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)) |
+| Add an IRQ source | `milan_csr` IRQ_STATUS/MASK (+ EventManager wiring in `milan_soc.py`, or `bd/milan-dma.tcl` `IRQ_F2P` on Zynq) | DT regeneration |
+| Board pins / new board | `sw/litex/platforms/` | [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) |
 
-**Conventions:** SystemVerilog with `` `default_nettype none ``, Doxygen/TerosHDL
-`//!` comments on every generic/port/signal, named `always_*` processes with a
-preceding `//!` description (so TerosHDL generates the module `doc/*.md`).
-Reset defaults are chosen so the block powers up compatible with today's tied
-constants; software reprograms everything at bring-up.
+**Conventions:** SystemVerilog with `` `default_nettype none ``,
+TerosHDL/Doxygen `//!` comments on every generic/port/signal, named
+`always_*` processes. Register offsets and reset values are defined once in
+the RTL, documented in REGISTER_MAP.md, and asserted equal by the CSR
+harness. Every DUT change ships with its harness update in the same commit.
+
+## 9. The Zynq-7020 variant (legacy)
+
+`milan_top.sv` wraps the same datapath plus the verilog-ethernet
+`eth_mac_1g_rgmii_fifo` MAC (source vendored externally) and hangs off the
+PS7 via `milan_dma_wrapper.v` + the `bd/milan-dma.tcl` block design (PS7,
+2× AXI-DMA, `clk_wiz`, `smartconnect`; CSR at `0x43C0_0000`, four GIC IRQ
+lines). Constraints in `constraints/*.xdc`. `REQUIREMENTS.md` and parts of
+`TODO.md` were written in this era - where they talk about `0x43C0_0000`,
+`IRQ_F2P` or `device-tree-xlnx`, they describe this variant only. The
+migration story from PS to softcore is
+[../integration/FULLY_FPGA_RISCV_MIGRATION.md](../integration/FULLY_FPGA_RISCV_MIGRATION.md).

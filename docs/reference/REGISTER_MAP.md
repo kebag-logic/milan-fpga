@@ -28,6 +28,13 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x300` | 802.1Q classifier |
 | `0x400` | 802.1Qav CBS (per-queue, stride `0x20`) |
 | `0x500` | PTP hardware clock |
+| `0x600` | ADP advertiser (IEEE 1722.1 entity model) |
+| `0x700` | RX destination-MAC TCAM filter |
+
+The ring-DMA engines of the fully-FPGA build have their **own** CSR space
+(LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
+"DMA registers" section further down; those are not part of this 64 KB
+window.
 
 ### 0x000  -  Identification / IRQ
 

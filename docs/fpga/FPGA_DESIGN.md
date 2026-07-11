@@ -83,10 +83,10 @@ reference under `hdl/**/doc/`.
 
 ### 2.5 `hdl/csr/` - control plane
 
-`milan_csr` (`hdl/csr/milan_csr.sv`): the AXI4-Lite CSR block - MAC control
-(0x100), classifier (0x200), CBS (0x300), PTP (0x400), RMON (0x500), ADP
-entity model (0x600), RX filter/TCAM programming (0x700), IRQ
-mask/event/W1C. Verified by `csr` (the executable form of
+`milan_csr` (`hdl/csr/milan_csr.sv`): the AXI4-Lite CSR block - ID/IRQ
+(0x000), MAC control (0x100), RMON stats (0x200), classifier (0x300), CBS
+per-queue (0x400 + q*0x20), PTP clock (0x500), ADP entity model (0x600),
+RX filter/TCAM programming (0x700). Verified by `csr` (the executable form of
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md));
 doc: [milan_csr.md](../../hdl/csr/doc/milan_csr.md).
 
@@ -94,7 +94,7 @@ doc: [milan_csr.md](../../hdl/csr/doc/milan_csr.md).
 
 `ethernet_events` instantiates 9× `event_counter` on the MAC's RMON event
 pulse lanes (`ethernet_events.svh` enum), with snapshot/reset from CSR
-group 0x500 and rollover IRQ. Docs:
+group 0x200 and rollover IRQ. Docs:
 [ethernet_events.md](../../hdl/eth_event_counter/doc/ethernet_events.md),
 [event_counter.md](../../hdl/eth_event_counter/doc/event_counter.md).
 

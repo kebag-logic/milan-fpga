@@ -327,7 +327,7 @@ def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath):
 
 class MilanMAC(LiteXModule):
     """The 1G MAC + RGMII PHY (§A.7), attached at the milan_datapath MAC-facing AXIS
-    boundary. Uses LiteEth's `LiteEthPHYRGMII` (Artix-7 s7rgmii) + `LiteEthMACCore`
+    boundary. Uses LiteEth's `LiteEthPHYGMII` (the AX7101 e1 port is GMII-wired) + `LiteEthMACCore`
     (preamble/CRC/padding, PHY-width conversion) and a thin stream↔AXIS adapter, so
     the Milan datapath owns *all* packet processing (classify/CBS/PTP/filter/ADP) and
     the MAC core just does L1/framing.

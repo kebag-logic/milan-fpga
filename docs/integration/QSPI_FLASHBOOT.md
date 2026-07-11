@@ -37,9 +37,10 @@ So **not everything fits at once**. Two manifests (`--flashboot`):
   (~9 MB). **~60 % faster** per boot, no image rebuild. The kernel + OpenSBI are the images
   that change *least*, so most iterations upload just the ~9 MB rest.
 * **`full`  -  zero upload.** Flash every image; `linux_flashboot` boots OpenSBI directly with
-  **no serial upload at all**. Only fits once the kernel is slimmed to **≤ 5.5 MB** (see
+  **no serial upload at all**. Fits once the kernel is slimmed to **≤ 8.5 MiB** with a
+  cpio.xz rootfs ≤ 6.75 MiB — achieved 2026-07-06 with an 8.14 MB `-Os` kernel (see
   [Getting to zero-upload](#getting-to-zero-upload)); the deploy step refuses an oversized
-  kernel rather than silently corrupt the layout.
+  image rather than silently corrupt the layout.
 
 Because the default kernel occupies flash offset 0, **the bitstream is *not* stored in flash**
 in this layout  -  flash-boot builds are JTAG-`load`ed (`deploy.sh load`), which is the normal
@@ -48,11 +49,11 @@ iteration path anyway. (A bitstream + a 14 MB kernel cannot coexist in 16 MB.)
 ### Flash layout (`FLASHBOOT_LAYOUT` in `milan_soc.py`)
 
 ```
- offset      kernel manifest (default)        full manifest (slim kernel ≤ 5.5 MB)
- 0x00_0000   kernel  (≤ 16 MB)                kernel   (≤ 5.5 MB)
- 0x58_0000    -                                opensbi  (256 KB)
- 0x5C_0000    -                                dtb      (256 KB)
- 0x60_0000    -                                rootfs   (≤ 10 MB → ends ≤ 16 MB)
+ offset      kernel manifest (default)        full manifest (slim kernel)
+ 0x00_0000   kernel  (≤ 16 MB)                kernel   (≤ 8.5 MiB)
+ 0x88_0000    -                                opensbi  (512 KB; fw_jump 261 KB + FBI)
+ 0x90_0000    -                                dtb      (256 KB)
+ 0x94_0000    -                                rootfs   (≤ 6.75 MiB → ends = 16 MiB)
 ```
 
 The build writes `<build>/flashboot_layout.json` (the single source of truth); `deploy.sh
@@ -135,12 +136,13 @@ The kernel is already in flash; the BIOS pre-loads it and serialboot handles the
 
 ## Getting to zero-upload
 
-The 14 MB kernel is the blocker. Slim it below ~5.5 MB and the **full** manifest fits  -  then a
-boot uploads *nothing*:
+The 14 MB kernel was the blocker. Slim it below the 8.5 MiB slot (achieved: 8.14 MB,
+see the 2026-07-06 section below) and switch the rootfs to cpio.xz, and the **full**
+manifest fits  -  then a boot uploads *nothing*:
 
 1. Trim the kernel `.config` (drop unused drivers/filesystems/debug; the Milan NIC needs only
    `kl-eth` + the litex UART/CLINT/PLIC). A lean RV64 buildroot kernel is ~4–6 MB.
-2. Rebuild; confirm `Image` ≤ 5.5 MB.
+2. Rebuild; confirm `Image` ≤ 8.5 MiB (the slot size) and the cpio.xz rootfs ≤ 6.75 MiB.
 3. Build `--flashboot full`, flash all four images, boot with no serial step:
    ```sh
    sw/litex/milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot full --build
@@ -185,7 +187,7 @@ kernel fails loudly instead of half-writing.
   boot-method section.
 * `deploy.sh flash-images` wraps the real 14 MB `Image` into a 14 MB+8 B FBI, passes the
   slot check for the kernel manifest, and issues the correct `openFPGALoader` write; it
-  correctly **rejects** the 14 MB kernel against the 5.5 MB `full` slot.
+  correctly **rejects** the 14 MB kernel against the 8.5 MiB `full` slot.
 
 See also [pipeline-telemetry.md](../fpga/pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
 and `sw/litex/patches/README.md`.
