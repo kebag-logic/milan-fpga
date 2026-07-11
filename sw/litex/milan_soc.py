@@ -3670,7 +3670,7 @@ def main():
                    with_mac=args.with_mac or args.all_blocks,
                    with_dma=args.with_dma or args.all_blocks,
                    with_dram=args.with_dram or args.all_blocks,
-                   with_spiflash=(args.with_spiflash or args.all_blocks) and args.board != "arty",
+                   with_spiflash=args.with_spiflash or args.all_blocks,
                    flashboot=args.flashboot,
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
