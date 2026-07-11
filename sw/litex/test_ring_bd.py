@@ -1632,9 +1632,9 @@ def test_hs_basic_split():
         yield from h.send_frame(w2_)
         for _ in range(600):
             yield
-        assert (yield h.dut.frames.status) == 2, "v2 meta + v3 page expected"
-        w0m, w1m = h.read_bd(0)
-        w0p, w1p = h.read_bd(1)
+        assert (yield h.dut.frames.status) == 2, "v3 page + v2 meta expected"
+        w0p, w1p = h.read_bd(0)          # hsplit14: pages drain FIRST, meta LAST
+        w0m, w1m = h.read_bd(1)
         # v2 meta: bit56=1, bit58=0(meta), len = payload+hdrlen = 500+54
         assert (w0m >> 56) & 1 == 1 and (w0m >> 58) & 1 == 0, "meta flags"
         assert ((w0m >> 16) & 0xFFFF) == 554, f"meta len {(w0m>>16)&0xFFFF} != 554"
@@ -1647,6 +1647,9 @@ def test_hs_basic_split():
         assert (w0p >> 56) & 1 == 1 and (w0p >> 58) & 1 == 1, "page flags"
         assert ((w0p >> 54) & 3) == tag, "tag mismatch"
         assert (w1p & 0xFFFFFFFF) == 0x100000, f"page addr {w1p:#x}"
+        # hsplit14 v3 fields: hdr_idx mirrors the meta's, fill = the partial 500
+        assert ((w0p >> 59) & 0x1F) == hidx, "v3 hdr_idx"
+        assert ((w0p >> 16) & 0xFFFF) == 500, f"v3 fill {(w0p>>16)&0xFFFF} != 500"
         # payload at page offset 0: seg1 payload ++ seg2 payload, byte-exact
         exp = l1[54:54+300] + l2[54:54+200]
         got = bytearray()
@@ -1681,11 +1684,13 @@ def test_hs_page_crossing():
         for _ in range(1200):
             yield
         assert (yield h.dut.frames.status) == 3,             f"v2 + 2 v3s expected, got {(yield h.dut.frames.status)}"
-        w0m, w1m = h.read_bd(0)      # meta drains first (pop order)
-        w0a, w1a = h.read_bd(1)      # page 0 (v3'd at crossing)
-        w0b, w1b = h.read_bd(2)      # page 1 (v3'd at close)
+        w0a, w1a = h.read_bd(0)      # hsplit14: page 0 drains AT the crossing
+        w0b, w1b = h.read_bd(1)      # page 1 (v3'd at close)
+        w0m, w1m = h.read_bd(2)      # meta allocates+drains LAST
         assert (w0m >> 58) & 1 == 0 and (w0a >> 58) & 1 == 1 and (w0b >> 58) & 1 == 1
         assert ((w0m >> 16) & 0xFFFF) == 5200 + 54, "meta len"
+        assert ((w0a >> 16) & 0xFFFF) == 4096, "page0 fill = full page"
+        assert ((w0b >> 16) & 0xFFFF) == 5200 - 4096, "page1 fill = the partial"
         assert (w1a & 0xFFFFFFFF) == 0x100000 and (w1b & 0xFFFFFFFF) == 0x101000,             f"pages {w1a:#x} {w1b:#x}"
         exp = b"".join(payloads)
         got = bytearray()
