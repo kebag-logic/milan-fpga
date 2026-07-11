@@ -109,7 +109,7 @@ cfg_arty() {     # Arty A7-100 bring-up: MII 100M, QSPI flashboot (Alinx model),
     # bitstream in flash is sacrificed - gateware is JTAG-SRAM, like the AX7101.
     echo "--board arty --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
-          --uart-baudrate 1500000 --timing-opt --l2-bytes 65536 \
+          --uart-baudrate 115200 --timing-opt --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
           --rx-queues 2 --hs-page-bytes 16384"
