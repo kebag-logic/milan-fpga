@@ -29,6 +29,62 @@ SOC_DIR="$(cd "$(dirname "$0")" && pwd)"
 TAG=${TAG:-$(date +%m%d%H%M)}
 STAGGER=90
 
+# ---- per-board flash/JTAG facts (docs/BUILDING.md section 4) --------------------
+# serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
+# wrong board is destructive). policy = what this board's QSPI holds:
+#   ax7101 images:    Linux boot images at flashboot_layout.json offsets (kernel at
+#                     offset 0) - a bitstream write is the known kernel-clobber trap;
+#   arty   bitstream: gateware at offset 0 (board self-configures from QSPI on
+#                     power-up) - images refused until the S25FL128S litespi port.
+board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
+    case "$1" in
+        ax7101) echo "210512180081 ft232    xc7a100tfgg484 images    alinx_ax7101.bit";;
+        arty)   echo "210319AFEED0 digilent xc7a100tcsg324 bitstream digilent_arty.bit";;
+        *)      return 1;;
+    esac
+}
+
+# ---- flash subcommand: ./build.sh flash <config>[:<builddir>] ... ---------------
+# ax7101 -> deploy.sh flash-images (FBI wrap + per-image budget checks + --verify);
+#           needs KERNEL/OPENSBI/DTB/ROOTFS=<path> in the environment per the
+#           layout's manifest. arty -> bitstream to QSPI offset 0 with --verify.
+if [ "${1:-}" = "flash" ]; then
+    shift
+    [ $# -gt 0 ] || { echo "usage: $0 flash <config>[:<builddir>] ..." >&2; exit 2; }
+    for spec in "$@"; do
+        c=${spec%%:*}; dir=${spec#*:}; [ "$dir" = "$spec" ] && dir=""
+        facts=$(board_facts "$c") || { echo "unknown board config '$c'" >&2; exit 2; }
+        read -r serial cable part policy bitname <<<"$facts"
+        if [ -z "$dir" ]; then
+            # newest build dir containing the artifact this policy flashes
+            # (|| true: an empty glob must reach the friendly error, not set -e)
+            want="flashboot_layout.json"; [ "$policy" = bitstream ] && want="gateware/$bitname"
+            dir=$( { ls -td "$WORK"/build_${c}*/ 2>/dev/null || true; } | while read -r d; do
+                      [ -f "$d/$want" ] && { echo "$d"; break; }; done || true)
+            [ -n "$dir" ] || { echo "[$c] no build containing $want under $WORK/build_${c}* (pass ${c}:<builddir>)" >&2; exit 2; }
+        else
+            case "$dir" in /*) ;; *) dir="$WORK/$dir";; esac
+        fi
+        dir=${dir%/}
+        case "$policy" in
+            images)
+                echo "== flash [$c] IMAGES -> QSPI (layout offsets; bitstream stays JTAG-SRAM) =="
+                SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
+                    LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
+                ;;
+            bitstream)
+                bit="$dir/gateware/$bitname"
+                [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
+                echo "== flash [$c] BITSTREAM -> QSPI offset 0 (self-configures on power-up) =="
+                echo "   $bit"
+                openFPGALoader --ftdi-serial "$serial" -c "$cable" -f --verify "$bit"
+                echo "   done. Power-cycle (or --reset) to boot the flashed gateware."
+                ;;
+        esac
+    done
+    exit 0
+fi
+
 # ---- named configurations -----------------------------------------------------
 cfg_ax7101() {   # ship shape: cbsf lineage (engine + fold), 2q hs 16K, QSPI flashboot
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
