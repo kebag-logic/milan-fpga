@@ -10,29 +10,30 @@
   File        : KL_aecp_l0_state.sv
   Author      : TBD
   Date        : 2025-05-25
-  Description : AECP L0 (entity-level) state machine.
+  Description : AECP L0 (entity-level) state machine — Milan v1.2 profile.
 
-                Tracks the ACQUIRE_ENTITY and LOCK_ENTITY state per
-                IEEE 1722.1-2021 §7.5.1 and §7.5.2:
-
-                ACQUIRE_ENTITY
-                  • flag[0]=0  → set acquired, record acquiring_controller_id
-                  • flag[0]=1  → RELEASE: clear acquired
-                  • Other controllers' mutating commands return
-                    STATUS_ENTITY_ACQUIRED while acquired=1
-
-                LOCK_ENTITY
-                  • flag[0]=0  → set locked, reload 60 000-tick countdown
-                  • flag[0]=1  → UNLOCK: clear locked
+                LOCK_ENTITY (IEEE 1722.1-2021 §7.4.2, Milan v1.2 §5.4.2)
+                  • flags[0]=0 → set locked, reload 60 000-tick countdown;
+                    re-lock from the owner reloads the timer
+                  • flags[0]=1 → UNLOCK by the owner: clear locked
                   • Timer auto-expires after LOCK_TIMER_TICKS_C × tick_1khz_i
+                  • LOCK/UNLOCK while locked by ANOTHER controller →
+                    STATUS_ENTITY_LOCKED (response carries the owner's id)
                   • Other controllers' mutating commands return
                     STATUS_ENTITY_LOCKED while locked=1
+
+                ACQUIRE_ENTITY — NOT SUPPORTED per Milan v1.2: always answered
+                STATUS_NOT_SUPPORTED, never mutates state. The acquired fields
+                of aecp_l0_state_t are wired to zero.
+
+                Only MSG_AEM_COMMAND frames touch the state (Vendor-Unique
+                frames carry the protocol_id where the command_type would be).
 
                 status_o is driven combinationally so the response builder
                 can latch it on the same cycle as hdr_i.hdr_valid.
 
-                reject_o is asserted for one cycle when hdr_i.hdr_valid is
-                high and the command is rejected due to locked/acquired state.
+                reject_o is asserted when the command must not take effect
+                (lock denial, unsupported acquire, bad configuration index).
 
   Target      : Artix-7 XC7A100T (125 MHz AVTP clock)
   Spec refs   : IEEE Std 1722.1-2021 §7.5.1, §7.5.2; Milan v1.2 §5.4
@@ -51,6 +52,7 @@ module KL_aecp_l0_state (
   input  wire          rst_n,
   input  wire [63:0]   entity_id_i,            //! EUI-64, driven from top-level MAC
   input  aecp_hdr_t    hdr_i,                  //! from common_parser
+  input  wire [3:0]    message_type_i,         //! from packet_validator (AEM gate)
   input  wire          tick_1khz_i,            //! 1 kHz strobe from KL_aecp_timers
   input  wire          cmd_done_i,             //! response_builder signalled TX done
   output aecp_l0_state_t l0_state_o,
@@ -59,16 +61,16 @@ module KL_aecp_l0_state (
 );
 
   // ------------------------------------------------------------------ //
-  // State registers                                                      //
+  // State registers (Milan: no ACQUIRE state)                            //
   // ------------------------------------------------------------------ //
-  logic        acquired_r;
-  logic [63:0] acquiring_controller_id_r;
-
   logic        locked_r;
   logic [63:0] locking_controller_id_r;
   logic [16:0] lock_timer_r;               //! 17-bit downcounter (ticks)
 
   logic [15:0] current_config_r;
+
+  //! AEM commands only: VU frames carry the protocol_id in these bytes
+  wire w_aem = (message_type_i == MSG_AEM_COMMAND);
 
   // ------------------------------------------------------------------ //
   // Wire-out the L0 state struct                                         //
@@ -76,8 +78,8 @@ module KL_aecp_l0_state (
   assign l0_state_o.entity_id                = entity_id_i;
   assign l0_state_o.current_configuration_index = current_config_r;
   assign l0_state_o.locked                   = locked_r;
-  assign l0_state_o.acquired                 = acquired_r;
-  assign l0_state_o.acquiring_controller_id  = acquiring_controller_id_r;
+  assign l0_state_o.acquired                 = 1'b0;
+  assign l0_state_o.acquiring_controller_id  = 64'd0;
   assign l0_state_o.locking_controller_id    = locking_controller_id_r;
 
   // ------------------------------------------------------------------ //
@@ -100,6 +102,7 @@ module KL_aecp_l0_state (
                   (hdr_i.command_type == CMD_READ_DESCRIPTOR)  ||
                   (hdr_i.command_type == CMD_GET_CONFIGURATION)||
                   (hdr_i.command_type == CMD_GET_STREAM_FORMAT)||
+                  (hdr_i.command_type == CMD_GET_STREAM_INFO)  ||
                   (hdr_i.command_type == CMD_GET_NAME)         ||
                   (hdr_i.command_type == CMD_GET_SAMPLING_RATE)||
                   (hdr_i.command_type == CMD_GET_CLOCK_SOURCE) ||
@@ -110,28 +113,35 @@ module KL_aecp_l0_state (
                   (hdr_i.command_type == CMD_REGISTER_UNSOLICITED_NOTIFICATION)   ||
                   (hdr_i.command_type == CMD_DEREGISTER_UNSOLICITED_NOTIFICATION);
 
-  wire w_from_acquiring = acquired_r &&
-       (hdr_i.controller_entity_id == acquiring_controller_id_r);
-
   wire w_from_locking = locked_r &&
        (hdr_i.controller_entity_id == locking_controller_id_r);
 
-  // Block if acquired and requestor is not the acquiring controller
-  wire w_block_acquired = acquired_r && !w_from_acquiring && !w_exempt;
+  //! Milan: ACQUIRE_ENTITY is not supported — never mutates, never blocks.
+  wire w_acquire = (hdr_i.command_type == CMD_ACQUIRE_ENTITY);
 
   // Block if locked and requestor is not the locking controller
   wire w_block_locked   = locked_r   && !w_from_locking   && !w_exempt;
+
+  //! LOCK/UNLOCK attempt while locked by ANOTHER controller: answered
+  //! ENTITY_LOCKED (with the owner's id in the response payload) and the
+  //! state must not change. LOCK_ENTITY is in w_exempt, so this is its own
+  //! deny term rather than w_block_locked.
+  wire w_lock_denied = (hdr_i.command_type == CMD_LOCK_ENTITY) &&
+                       locked_r && !w_from_locking;
 
   // SET_CONFIGURATION with out-of-range config_index → BAD_ARGUMENTS
   wire w_bad_config = (hdr_i.command_type == CMD_SET_CONFIGURATION) &&
                       (hdr_i.configuration_index >= 16'(NUM_CONFIGURATIONS_C));
 
   always_comb begin
-    if (!hdr_i.hdr_valid) begin
+    if (!hdr_i.hdr_valid || !w_aem) begin
       status_o = STATUS_SUCCESS;
       reject_o = 1'b0;
-    end else if (w_block_acquired) begin
-      status_o = STATUS_ENTITY_ACQUIRED;
+    end else if (w_acquire) begin
+      status_o = STATUS_NOT_SUPPORTED;
+      reject_o = 1'b1;
+    end else if (w_lock_denied) begin
+      status_o = STATUS_ENTITY_LOCKED;
       reject_o = 1'b1;
     end else if (w_block_locked) begin
       status_o = STATUS_ENTITY_LOCKED;
@@ -150,8 +160,6 @@ module KL_aecp_l0_state (
   // ------------------------------------------------------------------ //
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      acquired_r                 <= 1'b0;
-      acquiring_controller_id_r  <= 64'd0;
       locked_r                   <= 1'b0;
       locking_controller_id_r    <= 64'd0;
       lock_timer_r               <= 17'd0;
@@ -172,52 +180,35 @@ module KL_aecp_l0_state (
       end
 
       // ---------------------------------------------------------------- //
-      // Process incoming commands on hdr_valid strobe                    //
+      // Process incoming commands on hdr_valid strobe (AEM frames only)  //
       // ---------------------------------------------------------------- //
-      if (hdr_i.hdr_valid && !w_block_acquired && !w_block_locked) begin
+      if (hdr_i.hdr_valid && w_aem && !w_block_locked && !w_lock_denied) begin
 
         case (hdr_i.command_type)
           // ------------------------------------------------------------ //
-          CMD_ACQUIRE_ENTITY: begin
-            // Bit 0 of payload (flag) determines RELEASE.
-            // hdr_i does not carry the acquire flags directly; the flag is
-            // in the AEM payload (bytes 24+).  For this implementation the
-            // u_flag field is repurposed as the RELEASE flag stub.
-            // TODO: route acquire_flags[0] from cmd_specific_extract.
-            if (hdr_i.u_flag) begin
-              // RELEASE
-              if (hdr_i.controller_entity_id == acquiring_controller_id_r) begin
-                acquired_r                <= 1'b0;
-                acquiring_controller_id_r <= 64'd0;
-              end
-              // else: ignore RELEASE from a non-owner
-            end else begin
-              if (!acquired_r) begin
-                acquired_r                <= 1'b1;
-                acquiring_controller_id_r <= hdr_i.controller_entity_id;
-              end
-              // else: already acquired by this or another controller
-              //       (status was handled combinationally above)
-            end
-          end
+          // ACQUIRE_ENTITY: Milan — NOT_SUPPORTED, state untouched.       //
+          // (status/reject handled combinationally above)                 //
+          // ------------------------------------------------------------ //
 
           // ------------------------------------------------------------ //
           CMD_LOCK_ENTITY: begin
-            // u_flag used as UNLOCK stub — TODO: route lock_flags[0]
-            if (hdr_i.u_flag) begin
-              // UNLOCK
-              if (hdr_i.controller_entity_id == locking_controller_id_r) begin
+            // flags_lsb = bit 0 of the LOCK flags field (UNLOCK)
+            if (hdr_i.flags_lsb) begin
+              // UNLOCK by the owner (non-owners denied by w_lock_denied)
+              if (locked_r &&
+                  hdr_i.controller_entity_id == locking_controller_id_r) begin
                 locked_r              <= 1'b0;
                 locking_controller_id_r <= 64'd0;
                 lock_timer_r          <= 17'd0;
               end
+              // UNLOCK while not locked: no-op, SUCCESS
             end else begin
               if (!locked_r) begin
                 locked_r              <= 1'b1;
                 locking_controller_id_r <= hdr_i.controller_entity_id;
                 lock_timer_r          <= LOCK_TIMER_TICKS_C;
               end
-              // else: re-lock from same controller reloads timer
+              // re-lock from same controller reloads timer
               else if (hdr_i.controller_entity_id == locking_controller_id_r) begin
                 lock_timer_r <= LOCK_TIMER_TICKS_C;
               end

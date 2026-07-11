@@ -1,0 +1,222 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
+ *
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ */
+
+//---------------------------------------------------------------------------//
+/*
+------------------------------------------------------------------------------
+  File        : KL_aecp_top.sv
+  Description : AECP / AEM listener subsystem — top-level wiring.
+
+                Milan v1.2 hardware entity: answers AECP (IEEE 1722.1-2021 §9)
+                commands against a fixed 5-descriptor model (ENTITY,
+                CONFIGURATION, one AVB_INTERFACE, one AUDIO_UNIT, one
+                STREAM_OUTPUT) and drives the ADP advertiser's discover
+                response.
+
+                Pipeline:
+                  RX tap (monitor) -> KL_aecp_ingress (filter + big-lane
+                    replay + src-MAC capture)
+                  -> KL_aecp_packet_validator (message_type / CDL gate)
+                  -> KL_aecp_common_parser (aecp_hdr_t, entity_id match)
+                  -> KL_aecp_l0_state (LOCK yes / ACQUIRE not-supported)
+                   + KL_aecp_response_builder (READ_DESCRIPTOR, getters/
+                     setters, MVU GET_MILAN_INFO) <-> KL_aecp_aem_store
+                     through KL_aecp_aem_dyn_mux (live-field overlay)
+                  -> response AXIS master (merged into MAC TX upstream).
+
+                Store read latency is 1 cycle; the dynamic overlay mux is fed
+                the read ADDRESS delayed one cycle so it aligns with the store
+                DATA it overlays.
+
+  Company     : Kebag Logic
+  Project     : Milan ADP / AECP
+------------------------------------------------------------------------------
+*/
+//---------------------------------------------------------------------------//
+
+`default_nettype none
+
+import aecp_pkg::*;
+
+module KL_aecp_top #(
+  parameter int unsigned CLK_FREQ_HZ_P = 100_000_000
+) (
+  input  wire          clk_i,
+  input  wire          rst_n,
+  input  wire          enable_i,          //! AECP + discover-response enable
+
+  // ---- identity / live fields (CSR 0x600 group + ADP state) ----------
+  input  wire [47:0]   station_mac_i,     //! [47:40] = first wire byte
+  input  wire [63:0]   entity_id_i,
+  input  wire [63:0]   entity_model_id_i,
+  input  wire [31:0]   entity_caps_i,
+  input  wire [15:0]   talker_sources_i,
+  input  wire [15:0]   talker_caps_i,
+  input  wire [15:0]   listener_sinks_i,
+  input  wire [15:0]   listener_caps_i,
+  input  wire [31:0]   controller_caps_i,
+  input  wire [31:0]   available_index_i,
+  input  wire [63:0]   association_id_i,
+  input  wire [63:0]   gptp_gm_id_i,
+  input  wire [7:0]    gptp_domain_i,
+
+  // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
+  input  wire          rx_tvalid_i,
+  input  wire [63:0]   rx_tdata_i,
+  input  wire [7:0]    rx_tkeep_i,
+  input  wire          rx_tlast_i,
+
+  // ---- ADP discover-response trigger (-> adp_advertiser.rcv_discover_i)
+  output wire          adp_discover_o,
+
+  // ---- response AXIS master (little lane; -> TX arbiter) -------------
+  output wire [63:0]   m_axis_tdata,
+  output wire [7:0]    m_axis_tkeep,
+  output wire          m_axis_tvalid,
+  output wire          m_axis_tlast,
+  input  wire          m_axis_tready,
+
+  // ---- status / counters ---------------------------------------------
+  output wire          locked_o,
+  output wire [15:0]   current_config_o,
+  output wire [15:0]   cmd_count_o,       //! commands accepted
+  output wire [15:0]   resp_count_o       //! responses sent
+);
+
+  // ---- internal AXIS links ------------------------------------------
+  axi_stream_if #(.TDATA_WIDTH_P(64)) ig_to_val ();
+  axi_stream_if #(.TDATA_WIDTH_P(64)) val_to_par ();
+  axi_stream_if #(.TDATA_WIDTH_P(64)) par_to_bld ();
+
+  // ---- parser / l0 buses --------------------------------------------
+  aecp_hdr_t     hdr_w;
+  logic          mismatch_w;
+  aecp_l0_state_t l0_state_w;
+  logic [4:0]    l0_status_w;
+  logic          l0_reject_w;
+
+  // ---- validator sideband -------------------------------------------
+  logic          val_valid_w, val_drop_w;
+  logic [4:0]    val_status_w;
+  logic [3:0]    val_msgtype_w;
+
+  // ---- timers --------------------------------------------------------
+  logic tick_1khz_w;
+  KL_aecp_timers #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) u_timers (
+    .clk_i(clk_i), .rst_n(rst_n), .ptp_ts_i(64'd0),
+    .tick_1khz_o(tick_1khz_w),
+    .lock_start_i(1'b0), .lock_clear_i(1'b0), .lock_expired_o(),
+    .counter_gate_o(), .stale_tick_o()
+  );
+
+  // ---- ingress: RX monitor -> big-lane replay -----------------------
+  logic [47:0] req_src_mac_w;
+  logic        req_valid_w, req_pop_w;
+  KL_aecp_ingress u_ingress (
+    .clk_i(clk_i), .rst_n(rst_n), .enable_i(enable_i),
+    .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
+    .rx_tvalid_i(rx_tvalid_i), .rx_tdata_i(rx_tdata_i),
+    .rx_tkeep_i(rx_tkeep_i), .rx_tlast_i(rx_tlast_i),
+    .m_axis(ig_to_val),
+    .req_src_mac_o(req_src_mac_w), .req_valid_o(req_valid_w), .req_pop_i(req_pop_w),
+    .adp_discover_o(adp_discover_o)
+  );
+
+  // ---- validator -----------------------------------------------------
+  KL_aecp_packet_validator u_val (
+    .clk_i(clk_i), .rst_n(rst_n),
+    .s_axis(ig_to_val), .m_axis(val_to_par),
+    .valid_o(val_valid_w), .drop_o(val_drop_w),
+    .status_o(val_status_w), .message_type_o(val_msgtype_w)
+  );
+
+  // ---- common parser -------------------------------------------------
+  KL_aecp_common_parser u_parser (
+    .clk_i(clk_i), .rst_n(rst_n),
+    .l0_state_i(l0_state_w),
+    .s_axis(val_to_par), .m_axis(par_to_bld),
+    .hdr_o(hdr_w), .mismatch_o(mismatch_w)
+  );
+
+  // ---- L0 entity state (LOCK / ACQUIRE-unsupported / config) ---------
+  KL_aecp_l0_state u_l0 (
+    .clk_i(clk_i), .rst_n(rst_n),
+    .entity_id_i(entity_id_i),
+    .hdr_i(hdr_w), .message_type_i(val_msgtype_w),
+    .tick_1khz_i(tick_1khz_w), .cmd_done_i(1'b0),
+    .l0_state_o(l0_state_w), .status_o(l0_status_w), .reject_o(l0_reject_w)
+  );
+
+  // ---- AEM store <-> dynamic overlay mux -----------------------------
+  logic [15:0] st_raddr_w, st_waddr_w;
+  logic        st_rd_w, st_wr_w;
+  logic [7:0]  st_wdata_w, st_rom_byte_w, st_ovl_byte_w;
+  logic [15:0] st_raddr_d1;               //! read addr delayed to match data
+
+  always_ff @(posedge clk_i) st_raddr_d1 <= st_raddr_w;
+
+  KL_aecp_aem_store u_store (
+    .clk_i(clk_i), .rst_n(rst_n),
+    .addr_i(st_raddr_w), .rd_i(st_rd_w), .data_o(st_rom_byte_w),
+    .wr_addr_i(st_waddr_w), .wr_i(st_wr_w), .wr_data_i(st_wdata_w),
+    .factory_reset_i(1'b0), .flush_in_progress_o()
+  );
+
+  KL_aecp_aem_dyn_mux u_dyn (
+    .addr_i(st_raddr_d1), .rom_byte_i(st_rom_byte_w),
+    .entity_id_i(entity_id_i), .entity_model_id_i(entity_model_id_i),
+    .entity_caps_i(entity_caps_i), .talker_sources_i(talker_sources_i),
+    .talker_caps_i(talker_caps_i), .listener_sinks_i(listener_sinks_i),
+    .listener_caps_i(listener_caps_i), .controller_caps_i(controller_caps_i),
+    .available_index_i(available_index_i), .association_id_i(association_id_i),
+    .current_config_i(l0_state_w.current_configuration_index),
+    .station_mac_i(station_mac_i), .byte_o(st_ovl_byte_w)
+  );
+
+  // ---- response builder ---------------------------------------------
+  logic evt_cmd_w, evt_resp_w, evt_drop_w;
+  KL_aecp_response_builder u_bld (
+    .clk_i(clk_i), .rst_n(rst_n), .enable_i(enable_i),
+    .hdr_i(hdr_w), .mismatch_i(mismatch_w),
+    .frame_ok_i(val_valid_w), .frame_bad_i(val_drop_w),
+    .message_type_i(val_msgtype_w),
+    .s_axis(par_to_bld),
+    .req_src_mac_i(req_src_mac_w), .req_meta_valid_i(req_valid_w),
+    .req_meta_pop_o(req_pop_w),
+    .l0_state_i(l0_state_w), .l0_status_i(l0_status_w), .l0_reject_i(l0_reject_w),
+    .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
+    .gptp_gm_id_i(gptp_gm_id_i), .gptp_domain_i(gptp_domain_i),
+    .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
+    .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),
+    .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),
+    .m_axis_tvalid(m_axis_tvalid), .m_axis_tlast(m_axis_tlast),
+    .m_axis_tready(m_axis_tready),
+    .evt_cmd_o(evt_cmd_w), .evt_resp_o(evt_resp_w), .evt_drop_o(evt_drop_w)
+  );
+
+  // ---- status counters ----------------------------------------------
+  logic [15:0] cmd_cnt_r, resp_cnt_r;
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n) begin
+      cmd_cnt_r <= 16'd0; resp_cnt_r <= 16'd0;
+    end else begin
+      if (evt_cmd_w)  cmd_cnt_r  <= cmd_cnt_r  + 16'd1;
+      if (evt_resp_w) resp_cnt_r <= resp_cnt_r + 16'd1;
+    end
+  end
+
+  assign locked_o         = l0_state_w.locked;
+  assign current_config_o = l0_state_w.current_configuration_index;
+  assign cmd_count_o      = cmd_cnt_r;
+  assign resp_count_o     = resp_cnt_r;
+
+  // verilator lint_off UNUSED
+  wire unused = &{1'b0, val_status_w, evt_drop_w, l0_state_w.entity_id};
+  // verilator lint_on  UNUSED
+
+endmodule
+
+`default_nettype wire

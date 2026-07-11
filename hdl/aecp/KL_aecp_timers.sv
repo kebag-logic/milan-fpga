@@ -47,7 +47,10 @@
 
 import aecp_pkg::*;
 
-module KL_aecp_timers (
+module KL_aecp_timers #(
+  //! Datapath clock (AX7101 100 MHz, Arty 50 MHz; legacy default 125 MHz)
+  parameter int unsigned CLK_FREQ_HZ_P = 125_000_000
+) (
   input  wire          clk_i,
   input  wire          rst_n,
   input  wire [63:0]   ptp_ts_i,          //! 64-bit gPTP timestamp (ns) — reserved
@@ -66,9 +69,8 @@ module KL_aecp_timers (
   // 1 kHz generator                                                      //
   // 125 MHz / 125 000 = 1 kHz exactly.                                   //
   // ------------------------------------------------------------------ //
-  localparam int unsigned CLK_FREQ_HZ_C  = 125_000_000;
-  localparam int unsigned TICK_DIV_C     = CLK_FREQ_HZ_C / 1_000;  // 125 000
-  localparam int unsigned TICK_CNT_W_C   = $clog2(TICK_DIV_C);      // 17 bits
+  localparam int unsigned TICK_DIV_C     = CLK_FREQ_HZ_P / 1_000;
+  localparam int unsigned TICK_CNT_W_C   = $clog2(TICK_DIV_C);
 
   logic [TICK_CNT_W_C-1:0] ms_ctr_r;
 

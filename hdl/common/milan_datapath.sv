@@ -33,7 +33,9 @@
 
 module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
-  parameter int NUM_QUEUES  = NUMBER_OF_QUEUES
+  parameter int NUM_QUEUES  = NUMBER_OF_QUEUES,
+  //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
+  parameter int MILAN_CLK_FREQ_HZ = 100_000_000
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -206,6 +208,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] adp_tx_tkeep;
   wire                     adp_tx_tvalid, adp_tx_tlast, adp_tx_tready;
 
+  //! AECP/AEM listener (KL_aecp_top) — response AXIS + status + ADP-discover.
+  wire [TDATA_WIDTH-1:0]   aecp_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] aecp_tx_tkeep;
+  wire                     aecp_tx_tvalid, aecp_tx_tlast, aecp_tx_tready;
+  wire                     aecp_discover_p;
+  wire                     aecp_locked;
+  wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
+  //! merged low-rate control stream (ADP advertise + AECP response)
+  wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
+  wire                     ctl_tx_tvalid, ctl_tx_tlast, ctl_tx_tready;
+
   wire        cfg_tcam_default_pass, cfg_tcam_wr_en, cfg_tcam_wr_valid;
   wire [4:0]  cfg_tcam_wr_index;
   wire [47:0] cfg_tcam_wr_key, cfg_tcam_wr_mask;
@@ -336,6 +350,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_adp_advertise_p    (cfg_adp_advertise_p),
     .o_adp_depart_p       (cfg_adp_depart_p),
     .i_adp_available_index(adp_available_index),
+    .i_aecp_locked        (aecp_locked),
+    .i_aecp_current_config(aecp_current_config),
+    .i_aecp_cmd_count     (aecp_cmd_count),
+    .i_aecp_resp_count    (aecp_resp_count),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -506,7 +524,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .shutdown_i    (cfg_adp_depart_p),
     .gm_change_i   (1'b0),
     .info_changed_i(cfg_adp_advertise_p),
-    .rcv_discover_i(1'b0),
+    .rcv_discover_i(aecp_discover_p),   // ENTITY_DISCOVER decoded by KL_aecp_ingress
     // cfg_mac_addr is the PLATFORM (CSR) convention: [7:0] = FIRST wire byte
     // (the driver packs MAC_ADDR_LO/HI that way and the RX filter consumes it
     // that way). The advertiser's port is a numeric EUI-48 ([47:40] = first
@@ -543,7 +561,58 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .frame_sent_o ()
   );
 
-  //! Merge datapath (ptp_ts_top output) + ADP into the single MAC TX stream.
+  // ==========================================================================
+  //  AECP / AEM listener (IEEE 1722.1 / Milan v1.2). Non-intrusive MONITOR of
+  //  the post-filter RX stream (rx_axis_to_dma — reads only, never drives its
+  //  tready) answers AECP commands against the 5-descriptor Milan entity and
+  //  decodes ENTITY_DISCOVER -> aecp_discover_p. Response frames merge with the
+  //  advertiser in a low-rate arbiter that takes the ADP slot below. Identity =
+  //  the milan_csr 0x600 group, so ADP and AEM cannot disagree.
+  // ==========================================================================
+  KL_aecp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) aecp_listener (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_adp_enable),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .entity_id_i       (cfg_adp_entity_id),
+    .entity_model_id_i (cfg_adp_entity_model_id),
+    .entity_caps_i     (cfg_adp_entity_caps),
+    .talker_sources_i  (cfg_adp_talker_sources),
+    .talker_caps_i     (cfg_adp_talker_caps),
+    .listener_sinks_i  (cfg_adp_listener_sinks),
+    .listener_caps_i   (cfg_adp_listener_caps),
+    .controller_caps_i (cfg_adp_controller_caps),
+    .available_index_i (adp_available_index),
+    .association_id_i  (cfg_adp_association_id),
+    .gptp_gm_id_i      (cfg_adp_gptp_gm),
+    .gptp_domain_i     (cfg_adp_gptp_domain),
+    .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tdata_i  (rx_axis_to_dma.tdata),
+    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
+    .rx_tlast_i  (rx_axis_to_dma.tlast),
+    .adp_discover_o (aecp_discover_p),
+    .m_axis_tdata (aecp_tx_tdata), .m_axis_tkeep (aecp_tx_tkeep),
+    .m_axis_tvalid(aecp_tx_tvalid), .m_axis_tlast (aecp_tx_tlast),
+    .m_axis_tready(aecp_tx_tready),
+    .locked_o(aecp_locked), .current_config_o(aecp_current_config),
+    .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count)
+  );
+
+  //! Low-rate control merge: ADP advertise (s_data) + AECP response (s_adp).
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) ctl_tx_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (adp_tx_tdata),  .s_data_tkeep (adp_tx_tkeep),
+    .s_data_tvalid(adp_tx_tvalid), .s_data_tlast (adp_tx_tlast),
+    .s_data_tready(adp_tx_tready),
+    .s_adp_tdata (aecp_tx_tdata),  .s_adp_tkeep (aecp_tx_tkeep),
+    .s_adp_tvalid(aecp_tx_tvalid), .s_adp_tlast (aecp_tx_tlast),
+    .s_adp_tready(aecp_tx_tready),
+    .m_tdata (ctl_tx_tdata), .m_tkeep (ctl_tx_tkeep),
+    .m_tvalid(ctl_tx_tvalid), .m_tlast (ctl_tx_tlast), .m_tready(ctl_tx_tready)
+  );
+
+  //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
     .clk_i (axis_clk),
     .rst_n (axis_resetn),
@@ -552,11 +621,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_data_tvalid(tx_axis_dp_to_arb.tvalid),
     .s_data_tlast (tx_axis_dp_to_arb.tlast),
     .s_data_tready(tx_axis_dp_to_arb.tready),
-    .s_adp_tdata (adp_tx_tdata),
-    .s_adp_tkeep (adp_tx_tkeep),
-    .s_adp_tvalid(adp_tx_tvalid),
-    .s_adp_tlast (adp_tx_tlast),
-    .s_adp_tready(adp_tx_tready),
+    .s_adp_tdata (ctl_tx_tdata),
+    .s_adp_tkeep (ctl_tx_tkeep),
+    .s_adp_tvalid(ctl_tx_tvalid),
+    .s_adp_tlast (ctl_tx_tlast),
+    .s_adp_tready(ctl_tx_tready),
     .m_tdata (tx_axis_to_mac.tdata),
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),
