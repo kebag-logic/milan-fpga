@@ -203,7 +203,44 @@ int main(int argc, char** argv) {
     ck("RX frame emerged on DMA port", rx.got ? 1 : 0, 1);
     ck("RX byte-exact (8 beats)", frames_equal(rx.data, rxf) ? 1 : 0, 1);
 
-    // --- 5. IRQ line is a defined level (no X) ---
+    // --- 5. ADP enable-after-boot advertises (silicon bug 2026-07-11) ---
+    // On the fully-FPGA SoC i_link_up is CONSTANT 1: its only edge pulses one
+    // cycle after reset, while ADP is still disabled (CSR reset default). The
+    // advertiser's available state needs link_up&&enable, so enabling ADP later
+    // NEVER advertised (available_index stuck at 0, nothing on the wire  -
+    // diagnosed live through the AVB switch). The wrapper now synthesizes the
+    // link-up event on the ADP-enable rising edge while the link is up; this
+    // replicates the exact silicon sequence: reset (enable=0, link=1), THEN
+    // program identity + enable, and expects a spontaneous ENTITY_AVAILABLE on
+    // the MAC port plus an available_index bump.
+    printf("[ADP] enable-after-boot advertises (const-link integration fix)\n");
+    enum { A_ADP_CTRL = 0x600, A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
+           A_ADP_STATUS = 0x644 };
+    axi_write(A_ADP_EIDHI, 0x020000FF);
+    axi_write(A_ADP_EIDLO, 0xFE000001);
+    uint32_t ai0 = axi_read(A_ADP_STATUS);
+    axi_write(A_ADP_CTRL, 0x00001F01);           // enable=1, valid_time=31
+    Res adp; dut->m_axis_mac_tx_tready = 1;
+    for (int c = 0; c < 600; c++) {
+        step();
+        if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+            adp.data.push_back(dut->m_axis_mac_tx_tdata); adp.got = true;
+        }
+        if (adp.got && dut->m_axis_mac_tx_tlast) { step(); break; }
+    }
+    ck("ADP frame emerged on MAC port", adp.got ? 1 : 0, 1);
+    // MAC-facing AXIS is little-endian in the byte lane (tdata[7:0] = first
+    // wire byte): dst 91:e0:f0:01:00:00 = low 48 bits 0x000001f0e091. Beat 1
+    // low half carries ethertype 22 f0 + AVTP subtype 0xFA in bytes 4..6.
+    ck("ADP dst multicast 91:e0:f0:01:00:00",
+       adp.data.empty() ? 0 : (unsigned long)(adp.data[0] & 0xFFFFFFFFFFFFUL),
+       0x000001F0E091UL);
+    ck("ADP ethertype 0x22F0 + subtype 0xFA",
+       adp.data.size() < 2 ? 0 : (unsigned long)((adp.data[1] >> 32) & 0xFFFFFF),
+       0xFAF022UL);
+    ck("available_index bumped", axi_read(A_ADP_STATUS) > ai0 ? 1 : 0, 1);
+
+    // --- 6. IRQ line is a defined level (no X) ---
     printf("[IRQ] o_irq_csr is driven\n");
     ck("o_irq_csr defined (0/1)", (dut->o_irq_csr <= 1) ? 1 : 0, 1);
 
