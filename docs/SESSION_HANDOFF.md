@@ -27,6 +27,17 @@ A/B: P4 231→**295** (+28%), P8 183→**240** (+31%), P1 unregressed, 0 desyncs
 everywhere. **NEVER load hsplit10 on ≤hsq5 gateware** (silent lap by construction).
 Full story: HEADER_SPLIT_DESIGN.md §build_hsq6; memory bd-ring-lap-rootcause.
 
+**NAPI topology verdict (2026-07-11 pm, closes the q1-asymmetry thread):** the
+2-hart winner is the PIPELINE (all NAPI softirq on cpu0, receivers on cpu1) —
+measured P4: softirq 281-381 vs threaded-unpinned 220 vs threaded-PINNED 206
+(hsplit15 binds each queue's kthread to its hart; STILL loses: symmetric
+queue-fanout fights the copy stage for both harts). cpu1 softirq ==~0 in every
+cell = the "2-queue fanout" never fanned RX compute; q1's drops are the
+pipeline's tail latency (q1 NAPI runs after q0 per round), not a placement bug.
+threaded=0 stays the recipe. Cut-through (hsq12+hsplit14/15): single-flow
+RECORD 329, multi-flow loses to the keeper => parked as the P1 lane until the
+staircase (8K pages) or chunk batching is explored.
+
 **Next work, in order of value (refreshed 2026-07-11 dawn):**
 1. **RX 381 -> 500 on hsq10** — the knob space is EXHAUSTED (2026-07-11 am):
    rx-usecs FLAT 359-381 across 100-1000us; segcap=10 HARMFUL (256, chaotic);
