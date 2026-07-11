@@ -44,8 +44,12 @@ its knob space (381/374 keeper; ACK-hold plateau physics + pipeline topology +
 famine + every latency knob all measured); the no-copy consumer lane measured
 481 at -P2 in the MSG_TRUNC ceiling test BEFORE this campaign's improvements,
 and it is both the user-approved endgame and the actual AVTP product path.
-Step 1: `tools_recv_ring.c` (AF_PACKET TPACKET_V3 mmap RX, block timeout ~1ms,
-unpinned then cpu1-pinned A/B) on the KEEPER config -> P2/P4 cells vs 481.
+**CEILING RE-BASELINED (2026-07-11 pm, the campaign's first datum): MSG_TRUNC
+on today's keeper = P2 585 / P4 594 peer-sustained (was 481 pre-hs-era)** — the
+no-copy lane is ABOVE the 500 goal NOW; the socket copy costs exactly
+585->374. Step 1 (next): `tools_recv_ring.c` (AF_PACKET TPACKET_V3 mmap RX,
+~1ms block timeout, cpu1-pinned A/B) on the keeper -> P2/P4 vs the 585-594
+ceiling; the ring taps POST-GRO so TCP traffic arrives as 57KB units (amortized).
 Step 2: fanout (PACKET_FANOUT_HASH) across 2 sockets/harts. Step 3: if the
 stack tax (netif_receive->packet_rcv) binds, THEN driver XDP (bigger lift).
 TCP numbers stay the regression net; TX gate discipline unchanged.
