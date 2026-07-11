@@ -3397,10 +3397,11 @@ class MilanSoC(SoCCore):
             # kernel + rootfs.cpio.xz + opensbi + dtb = 14 MB of 16), which is
             # MUTUALLY EXCLUSIVE with a bitstream in flash - flashing images
             # sacrifices the QSPI self-config; gateware is JTAG-SRAM loaded,
-            # exactly like the AX7101. Same timing-robust 1x 0x0B fast-read
-            # recipe (see the AX7101 rationale below); at sys 83.333 MHz the
-            # effective SCK is ~20.8 MHz, under the 25 MHz cap.
-            flash_module = (S25FL128S(SpiCodes.READ_1_1_1_FAST) if board == "arty"
+            # exactly like the AX7101. Same timing-robust single-lane recipe
+            # (see the AX7101 rationale below); litespi's S25FL128S table only
+            # lists plain READ_1_1_1 (0x03) on one lane - valid to 50 MHz on
+            # this chip, and our effective SCK at sys 83.333 MHz is ~20.8 MHz.
+            flash_module = (S25FL128S(SpiCodes.READ_1_1_1) if board == "arty"
                             else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
             # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
