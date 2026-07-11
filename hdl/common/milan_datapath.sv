@@ -507,7 +507,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .gm_change_i   (1'b0),
     .info_changed_i(cfg_adp_advertise_p),
     .rcv_discover_i(1'b0),
-    .station_mac_i (cfg_mac_addr),
+    // cfg_mac_addr is the PLATFORM (CSR) convention: [7:0] = FIRST wire byte
+    // (the driver packs MAC_ADDR_LO/HI that way and the RX filter consumes it
+    // that way). The advertiser's port is a numeric EUI-48 ([47:40] = first
+    // byte, matching its harness + the 1722.1 field constants), so byte-reverse
+    // at the boundary. Without this the ADP source MAC egressed byte-swapped =
+    // a MULTICAST source address (01:..), which 802.1D bridges MUST discard -
+    // silicon-diagnosed 2026-07-11 through the AVB switch (index bumped, wire
+    // silent).
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .valid_time_i  (cfg_adp_valid_time),
     .entity_id_i             (cfg_adp_entity_id),
     .entity_model_id_i       (cfg_adp_entity_model_id),

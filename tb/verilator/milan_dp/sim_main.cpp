@@ -215,7 +215,11 @@ int main(int argc, char** argv) {
     // the MAC port plus an available_index bump.
     printf("[ADP] enable-after-boot advertises (const-link integration fix)\n");
     enum { A_ADP_CTRL = 0x600, A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
-           A_ADP_STATUS = 0x644 };
+           A_ADP_STATUS = 0x644, A_MAC_ALO = 0x108, A_MAC_AHI = 0x10C };
+    // station MAC exactly as kl-eth programs it (platform LSB-first packing:
+    // ALO/AHI hold 02:00:00:00:00:01 with [7:0] = first wire byte)
+    axi_write(A_MAC_ALO, 0x00000002);
+    axi_write(A_MAC_AHI, 0x00000100);
     axi_write(A_ADP_EIDHI, 0x020000FF);
     axi_write(A_ADP_EIDLO, 0xFE000001);
     uint32_t ai0 = axi_read(A_ADP_STATUS);
@@ -238,6 +242,15 @@ int main(int argc, char** argv) {
     ck("ADP ethertype 0x22F0 + subtype 0xFA",
        adp.data.size() < 2 ? 0 : (unsigned long)((adp.data[1] >> 32) & 0xFFFFFF),
        0xFAF022UL);
+    // src MAC must egress 02:00:00:00:00:01 (byte-reverse at the instantiation:
+    // a swapped src is 01:.. = MULTICAST SOURCE, which bridges MUST drop -
+    // silicon-diagnosed through the AVB switch 2026-07-11). Bytes 6-7 sit in
+    // beat0[63:48] (02 00), bytes 8-11 in beat1[31:0] (00 00 00 01).
+    ck("ADP src bytes 6-7 = 02 00",
+       adp.data.empty() ? 0 : (unsigned long)(adp.data[0] >> 48), 0x0002UL);
+    ck("ADP src bytes 8-11 = 00 00 00 01",
+       adp.data.size() < 2 ? 0 : (unsigned long)(adp.data[1] & 0xFFFFFFFFUL),
+       0x01000000UL);
     ck("available_index bumped", axi_read(A_ADP_STATUS) > ai0 ? 1 : 0, 1);
 
     // --- 6. IRQ line is a defined level (no X) ---
