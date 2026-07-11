@@ -52,10 +52,20 @@ no-copy lane is ABOVE the 500 goal NOW; the socket copy costs exactly
 ceiling; the ring taps POST-GRO so TCP traffic arrives as 57KB units (amortized).
 **AF_PACKET RING REFUTED (measured 124/139 vs trunc 585): TPACKET rings are
 copy-INTO-ring on RX** (kernel memcpys every unit into the ring on cpu0) —
-consumer-side zero-copy only. The REAL lane = TCP_ZEROCOPY_RECEIVE page-flip on
-hs 4K pages (the ORIGINAL hs design goal; batched PTE move priced 1.22us/page =
-21.5x under copy => 700-870 door): needs **hsq13 = cut-through @ --hs-page-bytes
-4096** (building) + hsplit14 hs_pgsz=4096 + recv_zc (staged).
+consumer-side zero-copy only. **ZC-FLIP MEASURED (hsq13 @4K + hsplit14, WNS+0.147, pairing correct, 0 panics):
+110-113 Mbit at 87% zero-copied — REFUTED as a throughput lane.** The flip
+MECHANISM works (hs 4K pages qualify exactly as designed) but the LIVE kernel
+zc path costs ~290us/page on this 100MHz sv39 core (cpu1 100% sys-saturated;
+no-zap + 64MB-window variants identical => not the DONTNEED zap, not syscall
+batching — the per-page vm-insert path itself). The 1.22us/page pricing was
+the RAW mapbench, not the live path. CONSUMER LADDER FINAL: copy 363-381 |
+MSG_TRUNC ceiling 585-594 | AF_PACKET ring 124 | zc-flip 110@87% — every
+no-copy consumer API on kernel 7.0.11 LOSES to the plain copy at 100 MHz.
+Remaining >500 lanes: (a) kernel archaeology — does 7.0.11's tcp zc use
+vm_insert_pages (batched)? backport/patch if not; (b) AF_XDP ZC driver (true
+zero-copy, the big lift); (c) NOTE: the AVTP PRODUCT plane is unblocked
+regardless — media streams are Mbit-class and even the ring's 124-139
+aggregate covers them; >500 is the benchmark goal.
 **⚠⚠ PAGE-SIZE PAIRING IS LETHAL: hs_pgsz (driver) MUST equal hs_page_bytes
 (gateware). Mismatch = the writer DMAs gateware-page strides into smaller
 driver pages = KERNEL MEMORY OVERWRITE => Bad page map + panic (2026-07-11:
