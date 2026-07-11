@@ -2817,7 +2817,12 @@ class MilanDMA(LiteXModule):
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade  -  see docs/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
-                 legacy_ring=True):
+                 legacy_ring=True, rx_fifo_beats=2048):
+        # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
+        # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
+        # mode burst absorbency lives in the 60x16K posted-page pool, so 1024 is
+        # the staged AREA-70 diet  -  gate any change on silicon drop counters
+        # (q0 0xf000303c / q1 0xf00030b0) under the P4/P8 cells, never assume.
         from litex.soc.cores.dma import WishboneDMAReader, WishboneDMAWriter
         from litex.soc.interconnect import wishbone
         import math
@@ -2866,7 +2871,8 @@ class MilanDMA(LiteXModule):
         # 32 fits PAYCAP (meta+14 pages) plus a second aggregate with slack.
         self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
                                                  id_width=4), cq_depth=32,
-                                hs_page_bytes=hs_page_bytes, legacy_ring=legacy_ring)
+                                hs_page_bytes=hs_page_bytes, legacy_ring=legacy_ring,
+                                fifo_beats=rx_fifo_beats)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
         # RX fan-out (rx_queues=2): a flow-steering front-end splits the single RX
         # stream into 2 flow-consistent queues, each its own RingDMAWriter + IRQ +
@@ -2885,7 +2891,8 @@ class MilanDMA(LiteXModule):
                                                       address_width=32, id_width=4),
                                      cq_depth=32, hs_capable=True,
                                      hs_page_bytes=hs_page_bytes,
-                                     legacy_ring=legacy_ring)
+                                     legacy_ring=legacy_ring,
+                                     fifo_beats=rx_fifo_beats)
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
@@ -3253,7 +3260,7 @@ class MilanSoC(SoCCore):
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
-                 **kwargs):
+                 rx_fifo_beats=2048, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3394,7 +3401,8 @@ class MilanSoC(SoCCore):
                 self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
                                           rx_queues=rx_queues,
                                           hs_page_bytes=hs_page_bytes,
-                                          legacy_ring=legacy_ring)
+                                          legacy_ring=legacy_ring,
+                                          rx_fifo_beats=rx_fifo_beats)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
@@ -3516,6 +3524,10 @@ def main():
                     help="drop the MilanDebug telemetry block (tlm CSRs @0xf0004000+ incl. "
                          "Phase-0/M1 probes)  -  the area-70 ship-build diet; kl-eth handles "
                          "the absence. Keep probes on dev/forensics builds.")
+    ap.add_argument("--rx-fifo-beats", default=2048, type=float,
+                    help="store-and-forward ingress FIFO depth per RX queue, beats "
+                         "(2048 = 16KB = 4 RAMB36/queue). AREA-70 staged diet: 1024; "
+                         "gate on silicon drop counters under the P4/P8 cells.")
     ap.add_argument("--legacy-ring", action="store_true",
                     help="elaborate the legacy byte-ring DMA fallback (bd_base==0 ABI) back "
                          "in. DEFAULT IS FOLDED OUT (AREA-70): shape muxes hardwire to the "
@@ -3613,6 +3625,7 @@ def main():
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
+                   rx_fifo_beats=int(args.rx_fifo_beats),
                    hs_page_bytes=args.hs_page_bytes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,
