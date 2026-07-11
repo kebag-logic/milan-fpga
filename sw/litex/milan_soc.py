@@ -513,6 +513,7 @@ class RingDMAWriter(LiteXModule):
         # coarser page granularity. Power of two; only three sites use it (the
         # crossing compare + the two mod-page slices).
         assert hs_page_bytes & (hs_page_bytes - 1) == 0
+        assert hs_page_bytes <= 32768   # v3 w0[31:16] carries the page fill length
         PGB = hs_page_bytes.bit_length() - 1
         self.bus  = bus                 # axi.AXIInterface(data_width=64), byte-addressed
         self.sink = sink = stream.Endpoint([("data", 64), ("keep", 8)])
@@ -815,12 +816,10 @@ class RingDMAWriter(LiteXModule):
             cq_more.eq((cq_tail != cq_nhead) & cq_done[cq_nhead[:CQB]]),
             cq_rp.adr.eq(cq_head[:CQB]),   # drain only ever reads the head
         ]
-        # head_open_hit/cq_pressure comb moved below the hs slot-state block: the
-        # hsq9 fix matches the slot's v2-META entry too (s_cqm, declared later) —
-        # an hs open allocates meta FIRST so the head-blocking entry of an open hs
-        # aggregate is its META entry, which the s_cq-only match never saw =>
-        # close_prs never fired in hs mode (silicon: prs=0 in every hs cell) and
-        # CQ-full open-blocks tail-dropped for up to rsc_tout instead.
+        # (hsplit14: metas allocate at CLOSE and pages are done-at-completion, so
+        # the only undone head an open slot can own is its PAGE entry — s_cq-only
+        # matching is complete again; the hsq9 meta-term came and went with the
+        # meta-first ordering.)
         cq_pressure = Signal()
         # DRAM BD-ring flow control (2026-07-10): the drain used to write BDs whenever
         # the CQ head was done, so under a reap gap the HW LAPPED the driver's rd and
@@ -874,7 +873,7 @@ class RingDMAWriter(LiteXModule):
         meta_w1  = Signal(64)
         meta_cqi = Signal(CQB)
         cqf_ret_match = Signal()        # CQ_FILL exit: 1 = re-dispatch (MATCH), 0 = IDLE
-        def stage_close(k, cqi, mcqi, ret_match, extra_segs=0):
+        def stage_close(k, cqi, mcqi, ret_match, extra_segs=0):  # mcqi: dead since hsplit14
             """stage slot k's close: legacy = one v2 BD into `cqi` (the open-pop entry);
             header-split = last-page v3 into `cqi` (w1 = current page) + v2 meta into
             `mcqi` (hs layout: len = payload+hdrlen, tag = k, hdr_idx). CQ_FILL commits
@@ -889,14 +888,24 @@ class RingDMAWriter(LiteXModule):
                         NextValue(pv3_cqi, cqi),
                         NextValue(pv3_addr, s_buf[k]),
                         NextValue(pv3_tag, k2),
+                        NextValue(pv3_hidx, s_hidx[k]),
+                        NextValue(pv3_fill, Mux(s_off[k][:PGB] == 0,
+                                                hs_page_bytes, s_off[k][:PGB])),
                         NextValue(pv3_pend, 1),
-                        NextValue(meta_cqi, mcqi),
                     ).Else(
                         NextValue(meta_w0,
                             Cat(C(0xBD, 8), C(0, 8), s_off[k], s_mss[k], C(0, 8),
                                 Cat(C(1, 1), s_psh[k], C(0, 6)))),
                         NextValue(pv3_pend, 0),
                         NextValue(meta_cqi, cqi),
+                    ),
+                    # hsplit14 (hs only): the meta allocates AT CLOSE (drains LAST,
+                    # after every page v3 — pages become visible as they complete).
+                    # Callers gate on cq_room. Legacy v2s keep their popped entry.
+                    If(hs,
+                        NextValue(meta_cqi, cq_tail[:CQB]),
+                    NextValue(cq_done[cq_tail[:CQB]], 0),
+                    NextValue(cq_tail, cq_tail + 1)
                     ),
                     NextValue(meta_w1,
                         Cat(s_ack[k], s_win[k], s_segs[k], Cat(C(0, 2), s_doff[k]), C(0, 2))),
@@ -979,7 +988,6 @@ class RingDMAWriter(LiteXModule):
         hdr_ctr = Signal(5)             # free-running header-slot allocator (32 slots:
                                         # outstanding v2s are BD-ring/pool bounded < 32)
         hw_cnt  = Signal(4)             # header-write beat counter (fbeat stays for payload)
-        s_cqm   = Array(Signal(CQB, name=f"s_cqm{i}") for i in range(NS))   # v2 meta CQ entry
         s_hidx  = Array(Signal(5,  name=f"s_hidx{i}") for i in range(NS))   # header slot
         cq_hs   = Signal(CQD)           # per-entry hs-drop6-layout flag (bit-vector: the
                                         # packed 1-bit Array miscompiled under FSM NextValue)
@@ -987,28 +995,19 @@ class RingDMAWriter(LiteXModule):
         pv3_addr = Signal(32)
         pv3_pend = Signal()
         pv3_tag  = Signal(2)
+        pv3_hidx = Signal(5)            # hsplit14: v3 carries hdr_idx (early header bind)
+        pv3_fill = Signal(16)           # hsplit14: bytes in THIS page (last page: partial)
         drops6   = Signal(6)            # saturating drops for hs BDs ([53:48])
         self.comb += drops6.eq(Mux(drops > 63, 63, drops[:6]))
-        # close-site hops for the v2-meta entry (nested-proxy rule: resolve s_cqm[k])
-        mcl_of_exp  = Signal(CQB)
-        mcl_of_head = Signal(CQB)
-        mcl_of_vic  = Signal(CQB)
-        mcl_of_flow = Signal(CQB)
-        mcl_of_sel  = Signal(CQB)
         slot_tag2 = Signal(2)
         self.comb += slot_tag2.eq(slot_sel)
-        cur_cqm  = Signal(CQB)          # opener-staged: meta entry + header slot
-        self.dbg_s_cqm = s_cqm
         self.dbg_pv3_pend, self.dbg_pv3_cqi, self.dbg_meta_cqi = pv3_pend, pv3_cqi, meta_cqi
-        # CQ head-of-line detector (hsq9): an open slot blocks the head via its PAGE
-        # entry (s_cq, legacy+hs) OR — hs only — its earlier-allocated META entry
-        # (s_cqm; meta drains first so it reaches the head first). s_cqm is stale on
-        # legacy aggregates, so the meta match is gated on `hs`. stage_close() is
-        # already dual-entry-aware (pv3+meta), so the pressure ACTION needs nothing.
+        # CQ head-of-line detector: an open slot blocks the head via its current
+        # PAGE entry (s_cq). Pressure force-closes it; the close allocates its meta
+        # at the tail (hsplit14 ordering: pages drain as they complete, meta last).
         _hs = [head_open_hit.eq(0), head_slot.eq(0)]
         for i in reversed(range(NS)):
-            _hs = If(s_open[i] & ((s_cq[i] == cq_head[:CQB]) |
-                                  (hs & (s_cqm[i] == cq_head[:CQB]))) & (cq_level != 0),
+            _hs = If(s_open[i] & (s_cq[i] == cq_head[:CQB]) & (cq_level != 0),
                      head_open_hit.eq(1), head_slot.eq(i)).Else(_hs)
         self.comb += _hs
         self.comb += cq_pressure.eq((cq_level >= (CQD - 2)) & head_open_hit)
@@ -1016,13 +1015,7 @@ class RingDMAWriter(LiteXModule):
         hs_cross = Signal()             # this frame swapped pages (update s_cq/s_buf)
         ap_needswap = Signal()          # append starts exactly on a page boundary
         cqf_disc    = Signal()          # CQ_FILL exits to DISCARD (famine mid-frame)
-        self.comb += [
-            mcl_of_exp.eq(s_cqm[exp_idx]),
-            mcl_of_head.eq(s_cqm[head_slot]),
-            mcl_of_vic.eq(s_cqm[victim]),
-            mcl_of_flow.eq(s_cqm[m_flow_idx]),
-            mcl_of_sel.eq(s_cqm[slot_sel]),
-        ]
+        self.comb += [        ]
         self.sync += [
             If(~ack_open | ack_touch,
                 ack_timer.eq(0),
@@ -1250,7 +1243,7 @@ class RingDMAWriter(LiteXModule):
                 # pop-ordered BD visibility: write back every ready head entry first
                 # (bd_room: never lap the driver's rd — stall here, not corrupt there)
                 NextState("WB_AW"),
-            ).Elif(bd_mode & exp_any,
+            ).Elif(bd_mode & exp_any & cq_room,
                 # RSC: close an idle-expired (or lifetime-capped) slot; its BD becomes
                 # drainable and the (possibly blocked) CQ head advances. 1-cycle action.
                 If(exp_age,
@@ -1258,12 +1251,12 @@ class RingDMAWriter(LiteXModule):
                 ).Else(
                     NextValue(close_tout, close_tout + 1),
                 ),
-                *stage_close(exp_idx, cq_of_exp, mcl_of_exp, 0),
-            ).Elif(bd_mode & cq_pressure,
+                *stage_close(exp_idx, cq_of_exp, 0, 0),
+            ).Elif(bd_mode & cq_pressure & cq_room,
                 # CQ backpressure: the head entry's slot is still open while the queue
                 # fills behind it — force-close it so completions keep flowing.
                 NextValue(close_prs, close_prs + 1),
-                *stage_close(head_slot, cq_of_head, mcl_of_head, 0),
+                *stage_close(head_slot, cq_of_head, 0, 0),
             ).Elif(len_fifo.source.valid & bd_mode,
                 # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
                 len_fifo.source.ready.eq(1),
@@ -1379,29 +1372,27 @@ class RingDMAWriter(LiteXModule):
                 NextValue(hs_cross, 0),
                 NextValue(buf_addr_r, m_sel_buf),
                 NextState("APRIME"),
-            ).Elif(m_flow_any,
+            ).Elif(m_flow_any & cq_room,
                 # same-flow seq-gap / buffer-full: close that slot now (frame stays
                 # parked in hdr_reg and re-dispatches into a fresh aggregate)
                 NextValue(close_park, close_park + 1),          # M1 telemetry
-                *stage_close(m_flow_idx, cq_of_mflow, mcl_of_flow, 1),
-            ).Elif(p_eligible & self.rsc_en.storage & ~m_free_any,
+                *stage_close(m_flow_idx, cq_of_mflow, 0, 1),
+            ).Elif(p_eligible & self.rsc_en.storage & ~m_free_any & cq_room,
                 # all slots busy: park-close the round-robin victim (1-cycle CQ fill),
                 # then this frame re-dispatches into the freed slot. This is the only
                 # interleave park left — expect it rare (slots >= concurrent flows).
                 NextValue(close_park, close_park + 1),          # M1 telemetry
                 NextValue(victim, victim + 1),
-                *stage_close(victim, cq_of_vic, mcl_of_vic, 1),
+                *stage_close(victim, cq_of_vic, 0, 1),
             ).Elif(hs & p_eligible & ~p_flags[3] & post_fifo.source.valid &
                    (cq_level < (CQD - 2)),
                 # header-split opener: TWO CQ entries (meta first = drains first,
                 # then this page), header slot, payload written at page offset 0
                 # through the append rotator (s_lane = soff&7 -> r_lane = 0).
                 post_pop.eq(1),
-                NextValue(cur_cqm, cq_tail[:CQB]),
-                NextValue(cur_cq, cq_tail1),
+                NextValue(cur_cq, cq_tail[:CQB]),
                 NextValue(cq_done[cq_tail[:CQB]], 0),
-                NextValue(cq_done[cq_tail1], 0),
-                NextValue(cq_tail, cq_tail + 2),
+                NextValue(cq_tail, cq_tail + 1),
                 NextValue(cur_hidx, hdr_ctr),
                 NextValue(hdr_ctr, hdr_ctr + 1),
                 NextValue(buf_addr_r, post_fifo.source.addr),
@@ -1447,7 +1438,8 @@ class RingDMAWriter(LiteXModule):
         fsm.act("CQ_FILL",         # commit staged BDs (reg -> demux only). hs closes
             If(pv3_pend,               # take two passes: last-page v3, then the meta.
                 *cq_write(pv3_cqi,
-                    Cat(C(0xBD, 8), C(0, 46), pv3_tag, C(1, 1), C(0, 1), C(1, 1), C(0, 5)),
+                    Cat(C(0xBD, 8), C(0, 8), pv3_fill, C(0, 16), C(0, 6),
+                        pv3_tag, C(1, 1), C(0, 1), C(1, 1), pv3_hidx),
                     pv3_addr),
                 NextValue(cq_done[pv3_cqi], 1),
                 NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << pv3_cqi)) | (C(1, 1) << pv3_cqi)),
@@ -1553,7 +1545,8 @@ class RingDMAWriter(LiteXModule):
             # wrong entry and this slot's real page entry stays done=0 forever => the
             # CQ head jams = the multi-flow hs livelock (task #13, sim c5681 fsm=DISCARD).
             *cq_write(cq_of_sel,
-                Cat(C(0xBD, 8), C(0, 46), slot_tag2, C(1, 1), C(0, 1), C(1, 1), C(0, 5)),
+                Cat(C(0xBD, 8), C(0, 8), C(hs_page_bytes, 16), C(0, 16), C(0, 6),
+                    slot_tag2, C(1, 1), C(0, 1), C(1, 1), s_hidx[slot_sel]),
                 buf_addr_r),
             NextValue(cq_done[cq_of_sel], 1),
             NextValue(cq_hs, (cq_hs & ~(C(1, CQD) << cq_of_sel)) | (C(1, 1) << cq_of_sel)),
@@ -1578,7 +1571,9 @@ class RingDMAWriter(LiteXModule):
                 NextValue(meta_w1,
                     Cat(s_ack[slot_sel], s_win[slot_sel], s_segs[slot_sel],
                         Cat(C(0, 2), s_doff[slot_sel]), C(0, 2))),
-                NextValue(meta_cqi, mcl_of_sel),
+                NextValue(meta_cqi, cq_tail[:CQB]),
+                NextValue(cq_done[cq_tail[:CQB]], 0),
+                NextValue(cq_tail, cq_tail + 1),
                 NextValue(pv3_pend, 0),
                 NextValue(cqf_ret_match, 0),
                 NextValue(cqf_disc, 1),
@@ -1674,7 +1669,6 @@ class RingDMAWriter(LiteXModule):
                     NextValue(s_ack[slot_sel], p_ack), NextValue(s_win[slot_sel], p_win),
                     NextValue(s_psh[slot_sel], 0),
                     NextValue(s_cq[slot_sel], cur_cq),   # page entry (hs) / only entry
-                    NextValue(s_cqm[slot_sel], cur_cqm),
                     NextValue(s_hidx[slot_sel], cur_hidx),
                     NextValue(ap_arm, 0),
                     NextValue(ap_append, 0),
@@ -1698,7 +1692,14 @@ class RingDMAWriter(LiteXModule):
                             NextValue(pv3_addr, buf_addr_r),
                             NextValue(pv3_tag, slot_tag2),
                             NextValue(pv3_pend, 1),
-                            NextValue(meta_cqi, mcl_of_sel),
+                            NextValue(pv3_hidx, s_hidx[slot_sel]),
+                            NextValue(pv3_fill,
+                                Mux((s_off[slot_sel] + p_plen)[:PGB] == 0,
+                                    hs_page_bytes,
+                                    (s_off[slot_sel] + p_plen)[:PGB])),
+                            NextValue(meta_cqi, cq_tail[:CQB]),
+                            NextValue(cq_done[cq_tail[:CQB]], 0),
+                            NextValue(cq_tail, cq_tail + 1),
                         ).Else(
                             NextValue(meta_w0,
                                 Cat(C(0xBD, 8), C(0, 8), (s_off[slot_sel] + p_plen)[:16],
