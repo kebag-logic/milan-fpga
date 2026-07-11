@@ -16,7 +16,7 @@ user decision), reaching toward line rate (941). Scoreboard:
 | TX | **✓ 525–536** (done since r2slots era) |
 | RX socket-TCP, mslot keeper | 368–407 steady -P8 (2-queue, hsq3+mslot60d/hsplit9-legacy) |
 | RX single-flow record | **340 steady** (header-split, hsq4/hsq5) — aligned-copy win |
-| RX hs multi-flow | **2-QUEUE HS + 16K pages (hsq10): P4 381 / 374@120s soak** — famine broken, both harts 40% idle |
+| RX hs multi-flow | **~375 PLATEAU at every flow count** (hsq10 16K: P4 381/374soak; hsq11 32K: P8 376 drops 15/s, P4 374) — famine dead, ACK-hold feedback = the cap, hsplit14 = the door |
 | Zero-copy | works (86.5% zc) but slower than aligned copy at 100 MHz — parked |
 
 **2026-07-10 (late): hs multi-flow scaling SOLVED** — the collapse was the un-gated
