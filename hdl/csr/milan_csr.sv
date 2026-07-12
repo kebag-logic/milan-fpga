@@ -156,6 +156,8 @@ module milan_csr #(
   output wire                    o_aaf_enable,          //! AAF talker enable (AAF_CTRL[0])
   output wire [47:0]             o_aaf_dest_mac,        //! AAF stream DMAC {DMHI[15:0],DMLO}
   output wire [11:0]             o_aaf_vid,             //! AAF SR VID (AAF_CTRL[27:16])
+  input  wire [31:0]             i_aaf_frames,          //! AAF frames sent (RO, 0x660)
+  input  wire [31:0]             i_aaf_pairs,           //! AAF I2S pairs captured (RO, 0x664)
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
@@ -216,6 +218,7 @@ module milan_csr #(
     A_AECP_STAT0  = 'h648, A_AECP_STAT1='h64C,   //! AECP listener status (RO)
     A_ACMP_STAT   = 'h650,                        //! ACMP responder status (RO)
     A_AAF_CTRL    = 'h654, A_AAF_DMLO = 'h658, A_AAF_DMHI = 'h65C, //! AAF talker
+    A_AAF_FRAMES  = 'h660, A_AAF_PAIRS = 'h664,   //! AAF talker status (RO)
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -569,6 +572,8 @@ module milan_csr #(
       A_AAF_CTRL:   rd_mux = aaf_ctrl;
       A_AAF_DMLO:   rd_mux = aaf_dmlo;
       A_AAF_DMHI:   rd_mux = aaf_dmhi;
+      A_AAF_FRAMES: rd_mux = i_aaf_frames;
+      A_AAF_PAIRS:  rd_mux = i_aaf_pairs;
       A_TCAM_CTRL:  rd_mux = tcam_ctrl;
       A_TCAM_KLO:   rd_mux = tcam_klo;
       A_TCAM_KHI:   rd_mux = tcam_khi;
