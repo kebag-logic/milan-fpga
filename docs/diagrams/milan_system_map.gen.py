@@ -30,10 +30,15 @@ def cont(i, x, y, w, h, label, stroke="#666666", fill="#fbfbfb", font=13, parent
              f"spacingTop=2;container=1;collapsible=0;")
     cells.append(f'<mxCell id="{i}" value="{esc(label)}" style="{style}" vertex="1" parent="{parent}">'
                  f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
-def edge(i, s, t, label="", dashed=0, color="#333333", width=1.6):
+def edge(i, s, t, label="", dashed=0, color="#333333", width=1.6, kind="data"):
+    """kind='data' -> BIG arrow (frame/bus payload); kind='cfg' -> thin dashed
+    (configuration / status / events). 'copy' -> big but dashed (monitor taps)."""
+    if kind == "data":   width, dashed = 4.5, 0
+    elif kind == "copy": width, dashed = 4.5, 1
+    elif kind == "cfg":  width, dashed = 1.1, 1
     st = (f"edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;"
           f"strokeColor={color};strokeWidth={width};fontSize=11;labelBackgroundColor=#ffffff;")
-    if dashed: st += "dashed=1;endArrow=open;"
+    if dashed: st += "dashed=1;" + ("" if kind == "copy" else "endArrow=open;")
     cells.append(f'<mxCell id="{i}" value="{esc(label)}" style="{st}" edge="1" parent="1" '
                  f'source="{s}" target="{t}"><mxGeometry relative="1" as="geometry"/></mxCell>')
 def table(i, x, y, w, rows, font=10, title=None, fill="#f5f5f5", stroke="#666666", rh=16):
@@ -66,7 +71,7 @@ W, H = 5240, 2640
 
 box("title", 40, 16, W-80, 44,
     "MILAN AVB NIC on VexiiRiscv SoC — FULL SYSTEM MAP (hierarchical)  ·  AX7101 xc7a100t (Arty deltas noted)  ·  "
-    "block-in-block: memories live INSIDE their owner  ·  every wire: bus width  ·  colours = clock domains  ·  2026-07-12",
+    "data flows LEFT->RIGHT (wire -> fabric -> SoC -> DRAM; TX lane returns) · BIG arrows = frame/bus data, thin dashed = configuration/status · 2026-07-12",
     fill="#e8e8e8", stroke="#333", font=20, rounded=0, bold=1)
 
 # ---- legend + clock tree --------------------------------------------------- #
@@ -77,7 +82,7 @@ box("lg4", 700, 80, 100, 26, "off-chip", fill=EXT[0], stroke=EXT[1], font=11)
 box("lg5", 812, 80, 200, 26, "register file / BRAM / DRAM", fill="#d5e8d4", stroke="#82b366", font=11)
 box("lg6", 1024, 80, 90, 26, "arbiter", fill=CTL[0], stroke=CTL[1], font=11)
 box("lg7", 60, 114, 1054, 26,
-    "lanes: LE = little (tdata[7:0] = first wire byte) · BE = big (tdata[63:56] first — AECP parser chain only)",
+    "lanes: LE = little (tdata[7:0] = first byte) · BE = big (AECP parser only)  ·  BIG arrow = data/frames · thin dashed = config/status · big dashed = monitor copy",
     fill=NOTE[0], stroke=NOTE[1], font=10, align="left")
 table("t_clk", 1160, 80, 1240, [
  "clocks: osc 200 -> PLL: cd_sys 100 · cd_sys4x 400+dqs90 (DDR3-800) · cd_idelay 200 · cd_milan 100 (Arty 50) · eth_rx/eth_tx 125",
@@ -87,7 +92,7 @@ table("t_clk", 1160, 80, 1240, [
 # =========================================================================== #
 #  SoC container (everything cd_sys)
 # =========================================================================== #
-cont("c_soc", 40, 180, 1700, 1000, "SoC / softcore — LiteX, cd_sys 100 MHz", stroke=SYS[1], fill=SYSC[0])
+cont("c_soc", 3100, 180, 1520, 1000, "SoC / softcore — LiteX, cd_sys 100 MHz", stroke=SYS[1], fill=SYSC[0])
 
 cont("c_cpu", 20, 40, 520, 260, "VexiiRiscv cluster (RV64IMA)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
 box("hart0", 20, 40, 230, 80, "hart 0\n(lsu refill 8,\nprefetch rpt)", fill=SYS[0], stroke=SYS[1], parent="c_cpu")
@@ -95,36 +100,36 @@ box("hart1", 270, 40, 230, 80, "hart 1\n(1-hart decision pending:\n58% LUTs data
 mem("l2", 20, 135, 480, 70, "L2 cache — 64 KB shared (l2-bytes 65536)\ndown-pending 8 · general-slots 16 · coherent DMA lands here", parent="c_cpu")
 box("plic", 20, 210, 480, 40, "PLIC + CLINT — IRQs: kl-eth per-queue · milan_csr o_irq_csr · UART · timer", fill=SYS[0], stroke=SYS[1], font=10, parent="c_cpu")
 
-box("bus", 580, 40, 210, 260, "LiteX interconnect\n\nWishbone/AXI\nCSR bus 32b +\ncoherent DMA port\ninto the L2\n(--coherent-dma)", fill=SYS[0], stroke=SYS[1], parent="c_soc")
-box("dramc", 830, 40, 280, 120, "LiteDRAM controller\nA7DDRPHY (sys4x 400 + DQS 90°,\n200 MHz IDELAYCTRL)", fill=SYS[0], stroke=SYS[1], font=10, parent="c_soc")
+box("bus", 560, 40, 180, 260, "LiteX interconnect\n\nWishbone/AXI\nCSR bus 32b +\ncoherent DMA port\ninto the L2\n(--coherent-dma)", fill=SYS[0], stroke=SYS[1], parent="c_soc")
+box("dramc", 760, 40, 250, 120, "LiteDRAM controller\nA7DDRPHY (sys4x 400 + DQS 90°,\n200 MHz IDELAYCTRL)", fill=SYS[0], stroke=SYS[1], font=10, parent="c_soc")
 
-cont("c_per", 1130, 40, 550, 260, "peripherals", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
+cont("c_per", 1030, 40, 470, 260, "peripherals", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
 box("uart", 20, 35, 240, 55, "UART 115200 (litex_term)", fill=SYS[0], stroke=SYS[1], font=10, parent="c_per")
-box("jtag", 280, 35, 250, 55, "JTAG — openFPGALoader\nft232 210512180081", fill=SYS[0], stroke=SYS[1], font=10, parent="c_per")
-mem("qspi", 20, 105, 510, 140,
+box("jtag", 250, 35, 200, 55, "JTAG — openFPGALoader\nft232 210512180081", fill=SYS[0], stroke=SYS[1], font=10, parent="c_per")
+mem("qspi", 20, 105, 430, 140,
     "QSPI flash N25Q128 16 MB (off-chip, flashboot)\n"
     "kernel   @ 0x00_0000  (8.5 MiB budget)\n"
     "opensbi  @ 0x88_0000  (512 KiB, fw_jump)\n"
     "dtb      @ 0x90_0000\n"
     "rootfs   @ 0x94_0000  (6.75 MiB)", parent="c_per")
 
-cont("c_dma", 20, 340, 780, 620, "kl-eth DMA engines (fabric, cd_sys, coherent port into L2)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
+cont("c_dma", 20, 340, 720, 620, "kl-eth DMA engines (fabric, cd_sys, coherent port into L2)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
 box("txrd", 20, 40, 360, 280,
     "TX descriptor reader + HW-TSO\n\nfetches the 512x8B ring —\nbase/length in BYTES (trap!) ·\nAXI bursts 16-64 beats x 64b\n(128-512 B) · TSO header-gen (MSS\nsegmentation, chain-csum; TX\n143->186 zc) · reader-bound wall\n(starve 70% -> prefetch next)",
     fill=SYS[0], stroke=SYS[1], font=10, align="left", parent="c_dma")
 mem("stag", 30, 330, 340, 60, "TX staging FIFO — BRAM\n2048 beats x 64b = 16 KB", parent="c_dma")
-box("rxwr", 400, 40, 360, 280,
+box("rxwr", 390, 40, 310, 280,
     "RX writer\n\nRSC TCP coalescer (RING_RSC_TOUT,\n100 MHz ticks, default 250 us) ·\nheader-split v3 (fill len in\nw0[31:16], page <= 32 KB) · 4-slot\nwriter + pop-ordered CQ",
     fill=SYS[0], stroke=SYS[1], font=10, align="left", parent="c_dma")
-box("steer", 410, 330, 340, 90,
+box("steer", 390, 330, 310, 90,
     "RX flow steer (2 queues)\n4-tuple hash -> q0/q1 · hash_sel=1\nforces q0 (set BEFORE TCP runs)",
     fill=SYS[0], stroke=SYS[1], font=10, align="left", parent="c_dma")
 mem("csrjson", 30, 410, 340, 100,
     "LiteX CSR block @ 0xf000_0000\nring ctl · RSC tout · steer/hash · IRQ status\noffsets BUILD-DEPENDENT: read csr.json!", parent="c_dma")
-box("irqn", 410, 440, 340, 70, "IRQ fan-in -> PLIC\nper-queue RX complete + TX done\n(rx-usecs-low moderation: +32%)", fill=SYS[0], stroke=SYS[1], font=10, parent="c_dma")
+box("irqn", 390, 440, 310, 70, "IRQ fan-in -> PLIC\nper-queue RX complete + TX done\n(rx-usecs-low moderation: +32%)", fill=SYS[0], stroke=SYS[1], font=10, parent="c_dma")
 
-cont("c_drv", 820, 340, 860, 620, "software (Linux on the softcore)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
-box("kleth", 20, 40, 820, 280,
+cont("c_drv", 760, 340, 740, 620, "software (Linux on the softcore)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
+box("kleth", 20, 40, 700, 280,
     "kl-eth driver (kl,dma-ether · silicon; MODULE_VERSION gates identity)\n\n"
     "• 2 RX queues x threaded NAPI · RSC ON @250 us (ethtool -C rx-usecs live)\n"
     "• hs_pgsz=16384 <-> gateware --hs-page-bytes 16384 (STRICT pairing)\n"
@@ -133,40 +138,40 @@ box("kleth", 20, 40, 820, 280,
     "• identity provisioning once/boot: devmem 0x9000_0600 (aecp_csr_setup.sh)\n"
     "• NEXT: PHC /dev/ptpN + SO_TIMESTAMPING (gPTP gate — HW_SW_SPLIT.md)",
     fill=SYS[0], stroke=SYS[1], font=10, align="left", parent="c_drv")
-box("ptpd", 20, 340, 820, 90,
+box("ptpd", 20, 340, 700, 90,
     "linuxptp: ptp4l (802.1AS BMCA, servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;\nthen a small bridge writes GM id/domain -> CSR 0x624/0x628 on change (fabric re-advertises + AS_PATH truth)",
     fill=SYS[0], stroke=SYS[1], font=10, align="left", parent="c_drv")
-box("pw", 20, 445, 820, 80,
+box("pw", 20, 445, 700, 80,
     "PipeWire module-avb (future media plane): crafts AAF frames -> kl-eth -> fabric CBS class-A queue ·\nSRP/MSRP state machines · ACMP connection POLICY via mailbox (HW answers / SW decides)",
     fill=SYS[0], stroke=SYS[1], font=10, align="left", parent="c_drv")
-box("peers", 20, 540, 820, 60,
+box("peers", 20, 540, 700, 60,
     "validation peers (via the AVB switch): milan_controller.py · la_avdecc enum-probe (Hive's library) · tsn-gen",
     fill=EXT[0], stroke=EXT[1], font=10, align="left", parent="c_drv")
 
 # =========================================================================== #
 #  DRAM chip container (off-chip)
 # =========================================================================== #
-cont("c_dram", 1780, 180, 620, 660,
+cont("c_dram", 4660, 180, 540, 660,
      "DDR3 SDRAM — MT41K256M16 x16 · 512 MB @ 0x4000_0000 (off-chip, DDR3-800)",
      stroke="#82b366", fill="#f0f7ee")
-mem("bootimg", 20, 50, 580, 110,
+mem("bootimg", 20, 50, 500, 110,
     "boot images (from QSPI flashboot)\nkernel @ 0x4000_0000 · dtb @ 0x40EF_0000 ·\nopensbi fw_jump @ 0x40F0_0000 · initrd @ 0x4100_0000", parent="c_dram")
-mem("txring", 20, 180, 580, 90,
+mem("txring", 20, 180, 500, 90,
     "TX descriptor ring — 512 x 8 B = 4 KB\n(>= 2 max-size frames; 8 frame slots) · driver-allocated\ndescriptor: {addr, len, flags, TX ts window @ +0x3100}", parent="c_dram")
-mem("rxrings", 20, 290, 580, 130,
+mem("rxrings", 20, 290, 500, 130,
     "RX rings (per queue x2) — 4 slots x 60 pages x 16 KB = 960 KB\n+ completion queue 8 entries, POP-ORDERED (mslot60 <->\nbuild_r2slots STRICT pairing) · header-split pages: header in\nslot, payload in 16 KB pages · RX ts in descriptor window", parent="c_dram")
-box("dramnote", 20, 440, 580, 60,
+box("dramnote", 20, 440, 500, 70,
     "any DRAM row miss costs 1424 ns (50% TLB + 50% DRAM) —\nthe measured single-port latency ceiling", fill=NOTE[0], stroke=NOTE[1], font=10, align="left", parent="c_dram")
 
 # off-chip PHY
-box("phy", 1780, 880, 620, 160,
-    "RTL8211E PHY (off-chip) — GMII-strapped, 8-bit SDR (an RGMII read corrupts every byte: hardware-confirmed)\n1000BASE-T to the AVB switch  ·  Arty: DP83848 MII 10/100",
+box("phy", 40, 640, 220, 420,
+    "RTL8211E PHY\n(off-chip)\n\nGMII-strapped,\n8-bit SDR — an RGMII\nread corrupts every\nbyte (hardware-\nconfirmed)\n\n1000BASE-T to the\nAVB switch\n\nArty: DP83848\nMII 10/100",
     fill=EXT[0], stroke=EXT[1], font=10, align="left")
 
 # =========================================================================== #
 #  Fabric container (everything cd_milan) — block-in-block
 # =========================================================================== #
-cont("c_fab", 2460, 180, 2740, 2160,
+cont("c_fab", 300, 180, 2740, 2160,
      "milan_datapath — fabric, cd_milan 100 MHz (Arty: 50 MHz)  ·  ALL AXIS links: 64b tdata + 8b tkeep + tvalid/tready/tlast, LE unless marked BE",
      stroke=MIL[1], fill=MILC[0])
 
@@ -234,64 +239,65 @@ mem("csr", 1400, 480, 600, 400,
 
 # --- TX pipeline container --- #
 cont("c_tx", 20, 1520, 2700, 560, "TX pipeline (DMA -> shaped wire; control merged in gaps)", stroke=MIL[1], fill="#f5f9ff", parent="c_fab")
-box("cls", 20, 50, 480, 220,
+box("cls", 1980, 50, 480, 220,
     "traffic_classifier (802.1Q)\n\nVLAN TPID 0x8100 parse · PCP[3b] ->\nregen -> traffic class -> queue select ·\nAVTP ethertype 0x22F0 -> class A/B",
     fill=MIL[0], stroke=MIL[1], font=10, align="left", parent="c_tx")
-mem("clsregs", 30, 170, 460, 90, "classifier map registers (FF)\nPCP regen 8x3b · prio->TC 8x2b · TC->queue 4x2b\n@ 0x300 CTRL · 0x308 MAP · 0x30C REGEN · 0x310 TCQ", parent="c_tx")
-mem("queues", 540, 50, 480, 220,
+mem("clsregs", 1990, 170, 460, 90, "classifier map registers (FF)\nPCP regen 8x3b · prio->TC 8x2b · TC->queue 4x2b\n@ 0x300 CTRL · 0x308 MAP · 0x30C REGEN · 0x310 TCQ", parent="c_tx")
+mem("queues", 1460, 50, 460, 220,
     "traffic_queues — BRAM\n\n4 x axis_fifo, 16 KB each\n(DEPTH 16384 bytes @ 64b) = 64 KB total\nper-queue depth/empty -> shaper gating\n(fabric-internal, no bus address)", parent="c_tx")
-box("cbs", 1060, 50, 480, 220,
+box("cbs", 940, 50, 460, 220,
     "traffic_shaping_core + CBS\n\ncredit gate + strict-priority across 4\nqueues (802.1Q Table 8-5) · sequential\nslope engine (-8K LUTs, bit-exact, config\nlatency 2 us) · NEVER removed (user rule)",
     fill=MIL[0], stroke=MIL[1], font=10, align="left", parent="c_tx")
-mem("cbsregs", 1070, 170, 460, 90, "CBS register file (per queue x4)\nidleSlope 32b + credit/limit regs · @ 0x400 stride 0x20\nreset idleSlopes {300,200,150,100} Mb/s", parent="c_tx")
-box("ptptx", 1580, 50, 420, 220,
+mem("cbsregs", 950, 170, 440, 90, "CBS register file (per queue x4)\nidleSlope 32b + credit/limit regs · @ 0x400 stride 0x20\nreset idleSlopes {300,200,150,100} Mb/s", parent="c_tx")
+box("ptptx", 480, 50, 400, 220,
     "ptp_ts_top — TX timestamping\n\nsame 64b counter · per-frame TX\ntimestamp -> ts window -> driver\n(SO_TIMESTAMPING once the PHC lands)",
     fill=MIL[0], stroke=MIL[1], font=10, align="left", parent="c_tx")
-box("dparb", 2040, 50, 400, 220,
+box("dparb", 20, 50, 400, 220,
     "adp_tx_mux — datapath merge\n\nshaped data has priority; control\n(ADP/AECP/ACMP) inserted in inter-\nframe gaps only: zero mid-frame jitter ·\nframe-atomic",
     fill=CTL[0], stroke=CTL[1], font=10, align="left", parent="c_tx")
 box("txnote", 20, 300, 2420, 60,
-    "order on the wire: TX reader (SoC, cd_sys) -> async FIFO -> classifier -> queues -> CBS -> PTP TX stamp -> datapath merge -> MAC -> PHY  ·  all hops 64b AXIS LE k8",
+    "TX lane flows RIGHT -> LEFT (back to the wire): TX reader (SoC) -> classifier -> queues -> CBS -> PTP TX stamp -> datapath merge -> MAC -> PHY · all hops 64b AXIS LE k8",
     fill=NOTE[0], stroke=NOTE[1], font=10, align="left", parent="c_tx")
 
 # =========================================================================== #
 #  edges (absolute routing between nested blocks)
 # =========================================================================== #
-edge("es1", "c_cpu", "bus", "ibus/dbus 64b")
-edge("es2", "bus", "dramc", "membus 64b")
-edge("es2b", "dramc", "c_dram", "DDR3 x16 @ 400 MHz (DQ 16b DDR)", color=SYS[1])
-edge("es3", "bus", "c_dma", "CSR 32b · coherent DMA 64b (via L2)")
-edge("es4", "txrd", "txring", "AXI reads 64b, bursts 16-64 beats", color=SYS[1])
-edge("es4b", "rxwr", "rxrings", "AXI writes 64b", color=SYS[1])
-edge("es5", "kleth", "csrjson", "ring ctl / doorbells 32b", dashed=1)
-edge("es7", "irqn", "plic", "irq lines")
-edge("es8", "txrd", "stag", "64b", dashed=1)
-edge("ec1", "bus", "csr", "AXI-Lite 32b @ sys (CDC)", color=SYS[1])
+edge("es1", "c_cpu", "bus", "ibus/dbus 64b", kind="data")
+edge("es2", "bus", "dramc", "membus 64b", kind="data")
+edge("es2b", "dramc", "c_dram", "DDR3 x16 @ 400 MHz (DQ 16b DDR)", color=SYS[1], kind="data")
+edge("es3", "c_dma", "bus", "coherent DMA 64b (via L2)", kind="data")
+edge("es3b", "bus", "c_dma", "CSR 32b", kind="cfg")
+edge("es4", "txring", "txrd", "AXI reads 64b, bursts 16-64 beats", color=SYS[1], kind="data")
+edge("es4b", "rxwr", "rxrings", "AXI writes 64b", color=SYS[1], kind="data")
+edge("es5", "kleth", "csrjson", "ring ctl / doorbells 32b", kind="cfg")
+edge("es7", "irqn", "plic", "irq lines", kind="cfg")
 
-edge("er0", "phy", "c_mac", "GMII 8b @ 125", color=ETH[1])
-edge("er1", "c_mac", "ptprx", "64b AXIS LE k8", color=MIL[1])
-edge("er2", "ptprx", "tcam", "64b AXIS LE k8", color=MIL[1])
-edge("er3", "tcam", "tap", "64b AXIS LE k8", color=MIL[1])
-edge("er4", "tap", "rxwr", "64b AXIS LE k8 (async FIFO -> cd_sys)", color=MIL[1])
-edge("ev1", "c_mac", "rmon", "event pulses 1b each", dashed=1)
+edge("ec1", "bus", "csr", "AXI-Lite 32b @ sys (CDC)", color=SYS[1], kind="cfg")
 
-edge("et1", "tap", "c_aecp", "tap (copy) 64b LE", dashed=1)
-edge("et2", "tap", "c_acmp", "tap (copy) 64b LE", dashed=1)
-edge("et3", "c_aecp", "c_adp", "ENTITY_DISCOVER pulse 1b", dashed=1)
-edge("em1", "c_aecp", "mux1", "resp 64b AXIS LE")
-edge("em2", "c_acmp", "mux1", "resp 64b AXIS LE")
-edge("em3", "mux1", "mux2", "64b AXIS LE")
-edge("em4", "c_adp", "mux2", "advertise 64b AXIS LE")
-edge("em5", "mux2", "dparb", "control 64b AXIS LE (IFG insert)")
-edge("ec2", "csr", "adpid", "identity fields (CDC)", dashed=1)
+edge("er0", "phy", "c_mac", "GMII 8b @ 125 (rx_clk)", color=ETH[1], kind="data")
+edge("er1", "c_mac", "ptprx", "64b AXIS LE k8", color=MIL[1], kind="data")
+edge("er2", "ptprx", "tcam", "64b AXIS LE k8", color=MIL[1], kind="data")
+edge("er3", "tcam", "tap", "64b AXIS LE k8", color=MIL[1], kind="data")
+edge("er4", "tap", "rxwr", "64b AXIS LE k8 (async FIFO -> cd_sys)", color=MIL[1], kind="data")
+edge("ev1", "c_mac", "rmon", "event pulses 1b each", kind="cfg")
 
-edge("ex0", "txrd", "cls", "64b AXIS LE k8 (async FIFO -> cd_milan)", color=SYS[1])
-edge("ex1", "cls", "queues", "64b AXIS LE k8 + queue 2b", color=MIL[1])
-edge("ex2", "queues", "cbs", "4 x 64b AXIS LE", color=MIL[1])
-edge("ex3", "cbs", "ptptx", "64b AXIS LE k8", color=MIL[1])
-edge("ex4", "ptptx", "dparb", "64b AXIS LE k8", color=MIL[1])
-edge("ex6", "dparb", "c_mac", "64b AXIS LE k8", color=MIL[1])
-edge("ex7", "c_mac", "phy", "GMII 8b @ 125 (gtx, IOB FFs)", color=ETH[1])
+edge("et1", "tap", "c_aecp", "tap (copy) 64b LE", kind="copy")
+edge("et2", "tap", "c_acmp", "tap (copy) 64b LE", kind="copy")
+edge("et3", "c_aecp", "c_adp", "ENTITY_DISCOVER pulse 1b", kind="cfg")
+edge("em1", "c_aecp", "mux1", "resp 64b AXIS LE", kind="data")
+edge("em2", "c_acmp", "mux1", "resp 64b AXIS LE", kind="data")
+edge("em3", "mux1", "mux2", "64b AXIS LE", kind="data")
+edge("em4", "c_adp", "mux2", "advertise 64b AXIS LE", kind="data")
+edge("em5", "mux2", "dparb", "control 64b AXIS LE (IFG insert)", kind="data")
+edge("ec2", "csr", "adpid", "identity fields (CDC)", kind="cfg")
+
+edge("ex0", "txrd", "cls", "64b AXIS LE k8 (async FIFO -> cd_milan)", color=SYS[1], kind="data")
+edge("ex1", "cls", "queues", "64b AXIS LE k8 + queue 2b", color=MIL[1], kind="data")
+edge("ex2", "queues", "cbs", "4 x 64b AXIS LE", color=MIL[1], kind="data")
+edge("ex3", "cbs", "ptptx", "64b AXIS LE k8", color=MIL[1], kind="data")
+edge("ex4", "ptptx", "dparb", "64b AXIS LE k8", color=MIL[1], kind="data")
+edge("ex6", "dparb", "c_mac", "64b AXIS LE k8", color=MIL[1], kind="data")
+edge("ex7", "c_mac", "phy", "GMII 8b @ 125 (gtx, IOB FFs)", color=ETH[1], kind="data")
 
 # =========================================================================== #
 #  frame formats + state (flat bands below)
