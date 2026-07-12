@@ -52,3 +52,26 @@ switch (or the real GM behind it) sends Sync/Announce → kl-eth PHC disciplines
 Endpoint is otherwise READY (RX passthrough verified, promisc on, TCAM
 accept-all, PHC adjfine/adjtime validated). This ALSO explains any other strict
 L2 protocol parser that would choke on the pad (future lwSRP MSRP/MVRP RX).
+
+
+## SILICON RESULT (2026-07-12 night) — FIX VALIDATED
+Driver trim applied (milan-tests-avb kl-eth 24438f3), .ko hot-swapped on the Arty:
+- **"bad message": thousands/min -> 0.** ptp4l accepts every switch pdelay_req.
+- Full pdelay handshake with the d&b switch BOTH ways (tcpdump): Arty sends
+  pdelay_req + pdelay_resp; switch (3c:c0:c6:fe:02:18) sends pdelay_req +
+  pdelay_resp + pdelay_resp_followup. 7 each per 8 s.
+- `port 1 (eth0): peer port id set to 3cc0c6.fffe.fe0210-8` (switch recognized).
+- `port 1 (eth0): setting asCapable` — **eth0 IS asCapable.** Our stack is
+  fully proven end to end (RX delivery, timestamping, pdelay, PHC).
+- Then `announce timeout` -> self-elects GM: the switch sends NO Announce/Sync
+  on the board port (verified with pw0 forced GM priority1=100 — still no relay).
+
+## Remaining (switch-side, NOT our stack)
+The switch does per-port pdelay but does not relay a grandmaster's Sync/Announce
+to the board ports (isolated/limited-port config; board<->board and board Announce
+relay both absent). To get a SLAVE/offset-converged validation:
+- **direct board<->board cable** — now unblocked (the RX-pad fix applies there
+  too): the two boards peer directly, BMCA elects one GM, the other slaves, no
+  switch relay needed. `sw/litex/gptp_direct_cable.sh` (both boards need the
+  fixed .ko + /etc/gptp.cfg, now baked into the rootfs).
+- OR switch management: enable 802.1AS GM relay on the board-facing ports.
