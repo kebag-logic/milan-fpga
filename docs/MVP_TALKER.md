@@ -20,12 +20,26 @@ INT32 (24-bit left-justified). One AVTPDU per 6/48k = 125 us nominal.
 
 - **Media clock**: fs = clk/1024 = 48.828 kHz at 50 MHz, DECLARED 48 kHz
   (+1.7 %). A listener that recovers clock from presentation time tolerates
-  it for a demo; a proper 12.288 MHz media source or CRF stream is the fix.
+  it for a demo. The real fix is a gPTP-recovered media clock or a CRF stream (see
+  the media-clock note below) — NOT just a cleaner oscillator.
 - **Backpressure**: if a frame is still serialising, incoming sample pairs
   are dropped (no elastic buffer). At 90 B / 125 us on a 100 M wire this
   never triggers, but it is not a jitter-proof design.
-- **avtp_timestamp**: low 32 bits of the PHC + 2 ms transit. gPTP need not
-  be locked for the stream to emit; a synced listener uses it for playout.
+- **avtp_timestamp**: low 32 bits of the PHC + 2 ms transit. The talker
+  stamps from the SAME counter ptp4l disciplines to the grandmaster (kl-eth
+  adjfine/adjtime), so timestamps ARE in gPTP time ONCE gPTP IS LOCKED. Two
+  levels of "working":
+    - frames-on-the-wire (validates the RTL: subtype 0x02, format, seq,
+      PCP3): needs NO gPTP — emission never blocks;
+    - a listener PLAYING IN SYNC: REQUIRES gPTP locked, else the
+      presentation times are in an undisciplined private time base and
+      playout drifts. Do NOT read "MVP" as "gPTP optional for audio".
+- **media clock NOT locked to the network clock**: even with gPTP up, the
+  I2S sample clock is free-running (clk/1024 = 48.828 kHz) while the frame
+  declares 48 kHz. Samples are produced at one rate, timestamped as another
+  -> a real Milan talker recovers the media clock FROM gPTP (media clock
+  recovery) or ships CRF; the listener otherwise needs async SRC. This is
+  the biggest gap between the MVP and a glitch-free Milan stream.
 
 ## CSR (milan_csr 0x654 group)
 
