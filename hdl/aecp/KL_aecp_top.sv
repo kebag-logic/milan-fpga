@@ -86,10 +86,19 @@ module KL_aecp_top #(
   output wire [15:0]   resp_count_o       //! responses sent
 );
 
-  // ---- internal AXIS links ------------------------------------------
-  axi_stream_if #(.TDATA_WIDTH_P(64)) ig_to_val ();
-  axi_stream_if #(.TDATA_WIDTH_P(64)) val_to_par ();
-  axi_stream_if #(.TDATA_WIDTH_P(64)) par_to_bld ();
+  // ---- internal AXIS links (flat: sv2v v0.0.13 renders interface
+  //      members of non-top modules as top-absolute hierarchical paths,
+  //      which breaks the Yosys portability gate when this module is
+  //      instantiated inside milan_datapath) -----------------------------
+  logic        ig_to_val_tvalid,  ig_to_val_tready,  ig_to_val_tlast;
+  logic [63:0] ig_to_val_tdata;
+  logic [7:0]  ig_to_val_tkeep;
+  logic        val_to_par_tvalid, val_to_par_tready, val_to_par_tlast;
+  logic [63:0] val_to_par_tdata;
+  logic [7:0]  val_to_par_tkeep;
+  logic        par_to_bld_tvalid, par_to_bld_tready, par_to_bld_tlast;
+  logic [63:0] par_to_bld_tdata;
+  logic [7:0]  par_to_bld_tkeep;
 
   // ---- parser / l0 buses --------------------------------------------
   aecp_hdr_t     hdr_w;
@@ -120,7 +129,7 @@ module KL_aecp_top #(
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
     .rx_tvalid_i(rx_tvalid_i), .rx_tdata_i(rx_tdata_i),
     .rx_tkeep_i(rx_tkeep_i), .rx_tlast_i(rx_tlast_i),
-    .m_axis(ig_to_val),
+    .m_axis_tvalid(ig_to_val_tvalid), .m_axis_tready(ig_to_val_tready), .m_axis_tdata(ig_to_val_tdata), .m_axis_tkeep(ig_to_val_tkeep), .m_axis_tlast(ig_to_val_tlast),
     .req_src_mac_o(req_src_mac_w), .req_valid_o(req_valid_w), .req_pop_i(req_pop_w),
     .adp_discover_o(adp_discover_o)
   );
@@ -128,7 +137,8 @@ module KL_aecp_top #(
   // ---- validator -----------------------------------------------------
   KL_aecp_packet_validator u_val (
     .clk_i(clk_i), .rst_n(rst_n),
-    .s_axis(ig_to_val), .m_axis(val_to_par),
+    .s_axis_tvalid(ig_to_val_tvalid), .s_axis_tready(ig_to_val_tready), .s_axis_tdata(ig_to_val_tdata), .s_axis_tkeep(ig_to_val_tkeep), .s_axis_tlast(ig_to_val_tlast),
+    .m_axis_tvalid(val_to_par_tvalid), .m_axis_tready(val_to_par_tready), .m_axis_tdata(val_to_par_tdata), .m_axis_tkeep(val_to_par_tkeep), .m_axis_tlast(val_to_par_tlast),
     .valid_o(val_valid_w), .drop_o(val_drop_w),
     .status_o(val_status_w), .message_type_o(val_msgtype_w)
   );
@@ -137,7 +147,8 @@ module KL_aecp_top #(
   KL_aecp_common_parser u_parser (
     .clk_i(clk_i), .rst_n(rst_n),
     .l0_state_i(l0_state_w),
-    .s_axis(val_to_par), .m_axis(par_to_bld),
+    .s_axis_tvalid(val_to_par_tvalid), .s_axis_tready(val_to_par_tready), .s_axis_tdata(val_to_par_tdata), .s_axis_tkeep(val_to_par_tkeep), .s_axis_tlast(val_to_par_tlast),
+    .m_axis_tvalid(par_to_bld_tvalid), .m_axis_tready(par_to_bld_tready), .m_axis_tdata(par_to_bld_tdata), .m_axis_tkeep(par_to_bld_tkeep), .m_axis_tlast(par_to_bld_tlast),
     .hdr_o(hdr_w), .mismatch_o(mismatch_w)
   );
 
@@ -183,7 +194,7 @@ module KL_aecp_top #(
     .hdr_i(hdr_w), .mismatch_i(mismatch_w),
     .frame_ok_i(val_valid_w), .frame_bad_i(val_drop_w),
     .message_type_i(val_msgtype_w),
-    .s_axis(par_to_bld),
+    .s_axis_tvalid(par_to_bld_tvalid), .s_axis_tready(par_to_bld_tready), .s_axis_tdata(par_to_bld_tdata), .s_axis_tkeep(par_to_bld_tkeep), .s_axis_tlast(par_to_bld_tlast),
     .req_src_mac_i(req_src_mac_w), .req_meta_valid_i(req_valid_w),
     .req_meta_pop_o(req_pop_w),
     .l0_state_i(l0_state_w), .l0_status_i(l0_status_w), .l0_reject_i(l0_reject_w),

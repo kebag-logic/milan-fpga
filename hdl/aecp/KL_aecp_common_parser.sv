@@ -49,8 +49,16 @@ module KL_aecp_common_parser (
   input  wire          clk_i,
   input  wire          rst_n,
   input  aecp_l0_state_t l0_state_i,   //! from KL_aecp_l0_state for entity_id check
-  axi_stream_if.slave  s_axis,          //! from KL_aecp_packet_validator m_axis
-  axi_stream_if.master m_axis,          //! to KL_aecp_cmd_specific_extract
+  input  wire          s_axis_tvalid,
+  output logic         s_axis_tready,
+  input  wire [63:0]   s_axis_tdata,
+  input  wire [7:0]    s_axis_tkeep,
+  input  wire          s_axis_tlast,
+  output logic         m_axis_tvalid,
+  input  wire          m_axis_tready,
+  output logic [63:0]  m_axis_tdata,
+  output logic [7:0]   m_axis_tkeep,
+  output logic         m_axis_tlast,
   output aecp_hdr_t    hdr_o,           //! parsed header (valid when hdr_o.hdr_valid)
   output logic         mismatch_o       //! entity_id mismatch (dropped silently)
 );
@@ -80,17 +88,13 @@ module KL_aecp_common_parser (
   // ------------------------------------------------------------------ //
   // Transparent AXI-Stream passthrough                                   //
   // ------------------------------------------------------------------ //
-  assign m_axis.tvalid = s_axis.tvalid;
-  assign m_axis.tdata  = s_axis.tdata;
-  assign m_axis.tlast  = s_axis.tlast;
-  assign m_axis.tkeep  = s_axis.tkeep;
-  assign m_axis.tstrb  = s_axis.tstrb;
-  assign m_axis.tid    = s_axis.tid;
-  assign m_axis.tdest  = s_axis.tdest;
-  assign m_axis.tuser  = s_axis.tuser;
-  assign s_axis.tready = m_axis.tready;
+  assign m_axis_tvalid = s_axis_tvalid;
+  assign m_axis_tdata  = s_axis_tdata;
+  assign m_axis_tlast  = s_axis_tlast;
+  assign m_axis_tkeep  = s_axis_tkeep;
+  assign s_axis_tready = m_axis_tready;
 
-  wire w_hs = s_axis.tvalid & s_axis.tready;
+  wire w_hs = s_axis_tvalid & s_axis_tready;
 
   // ------------------------------------------------------------------ //
   // Sequential FSM + extraction                                          //
@@ -120,10 +124,10 @@ module KL_aecp_common_parser (
         BEAT0_S: begin
           mismatch_o <= 1'b0;   // clear at the start of every frame
           if (w_hs) begin
-            hdr_r.message_type        <= s_axis.tdata[35:32];
-            hdr_r.status              <= s_axis.tdata[31:27];
-            hdr_r.control_data_length <= s_axis.tdata[26:16];
-            hdr_r.target_entity_id[63:48] <= s_axis.tdata[15:0];
+            hdr_r.message_type        <= s_axis_tdata[35:32];
+            hdr_r.status              <= s_axis_tdata[31:27];
+            hdr_r.control_data_length <= s_axis_tdata[26:16];
+            hdr_r.target_entity_id[63:48] <= s_axis_tdata[15:0];
             state_r <= BEAT1_S;
           end
         end
@@ -135,8 +139,8 @@ module KL_aecp_common_parser (
         // ------------------------------------------------------------ //
         BEAT1_S: begin
           if (w_hs) begin
-            hdr_r.target_entity_id[47:0]       <= s_axis.tdata[63:16];
-            hdr_r.controller_entity_id[63:48]  <= s_axis.tdata[15:0];
+            hdr_r.target_entity_id[47:0]       <= s_axis_tdata[63:16];
+            hdr_r.controller_entity_id[63:48]  <= s_axis_tdata[15:0];
             state_r <= BEAT2_S;
           end
         end
@@ -148,8 +152,8 @@ module KL_aecp_common_parser (
         // ------------------------------------------------------------ //
         BEAT2_S: begin
           if (w_hs) begin
-            hdr_r.controller_entity_id[47:0] <= s_axis.tdata[63:16];
-            hdr_r.sequence_id                <= s_axis.tdata[15:0];
+            hdr_r.controller_entity_id[47:0] <= s_axis_tdata[63:16];
+            hdr_r.sequence_id                <= s_axis_tdata[15:0];
             state_r <= BEAT3_S;
           end
         end
@@ -165,14 +169,14 @@ module KL_aecp_common_parser (
         // ------------------------------------------------------------ //
         BEAT3_S: begin
           if (w_hs) begin
-            hdr_r.u_flag       <= s_axis.tdata[63];
-            hdr_r.command_type <= {s_axis.tdata[62:56], s_axis.tdata[55:48]};
+            hdr_r.u_flag       <= s_axis_tdata[63];
+            hdr_r.command_type <= {s_axis_tdata[62:56], s_axis_tdata[55:48]};
             hdr_r.hdr_valid    <= 1'b1;
 
             // Publish the complete header
             hdr_o              <= hdr_r;
-            hdr_o.u_flag       <= s_axis.tdata[63];
-            hdr_o.command_type <= {s_axis.tdata[62:56], s_axis.tdata[55:48]};
+            hdr_o.u_flag       <= s_axis_tdata[63];
+            hdr_o.command_type <= {s_axis_tdata[62:56], s_axis_tdata[55:48]};
             hdr_o.hdr_valid    <= 1'b1;
 
             // Entity-ID mismatch check
@@ -186,12 +190,12 @@ module KL_aecp_common_parser (
             //  READ_DESCRIPTOR: descriptor_type = bytes 30-31 = tdata[15:0]
             // (descriptor_index arrives in beat 4; full per-command decode is
             //  done from the response builder's payload buffer.)
-            hdr_o.flags_lsb           <= s_axis.tdata[16];
-            hdr_o.configuration_index <= s_axis.tdata[31:16];
-            hdr_o.descriptor_type     <= s_axis.tdata[15:0];
+            hdr_o.flags_lsb           <= s_axis_tdata[16];
+            hdr_o.configuration_index <= s_axis_tdata[31:16];
+            hdr_o.descriptor_type     <= s_axis_tdata[15:0];
             hdr_o.descriptor_index    <= 16'd0;
 
-            if (s_axis.tlast) begin
+            if (s_axis_tlast) begin
               state_r <= BEAT0_S;
             end else begin
               // Remaining payload beats (e.g. ACQUIRE/LOCK/READ_DESCRIPTOR have
@@ -207,14 +211,16 @@ module KL_aecp_common_parser (
         // ------------------------------------------------------------ //
         // verilator lint_on  SELRANGE
         PAYLOAD_S: begin
-          if (w_hs && s_axis.tlast) begin
+          if (w_hs && s_axis_tlast) begin
             state_r <= BEAT0_S;
           end
         end
 
         default: begin
           state_r <= BEAT0_S;
+`ifndef SYNTHESIS
           $error("[KL_aecp_common_parser] undefined FSM state — resetting to IDLE");
+`endif
         end
       endcase
     end
