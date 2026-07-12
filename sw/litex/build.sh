@@ -41,7 +41,7 @@ STAGGER=90
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
         ax7101) echo "210512180081 ft232    xc7a100tfgg484 images    alinx_ax7101.bit";;
-        arty)   echo "210319AFEED0 digilent xc7a100tcsg324 images    digilent_arty.bit";;
+        arty)   echo "210319AFEED0 digilent xc7a100tcsg324 boot      digilent_arty.bit";;
         *)      return 1;;
     esac
 }
@@ -69,6 +69,19 @@ if [ "${1:-}" = "flash" ]; then
         fi
         dir=${dir%/}
         case "$policy" in
+            boot)
+                # v3 QSPI-boot: gateware @0 THEN the image set (shifted offsets).
+                bit="$dir/gateware/$bitname"
+                [ -f "$bit" ] || { echo "[$c] missing $bit" >&2; exit 2; }
+                echo "== flash [$c] BITSTREAM @0 =="
+                out=$(openFPGALoader --ftdi-serial "$serial" -c "$cable" --fpga-part "$part" -f --verify "$bit" 2>&1) \
+                    || { echo "$out"; exit 1; }
+                echo "$out" | grep -qiE "error|can.t program" && { echo "[$c] BIT FLASH FAILED"; exit 1; }
+                echo "== flash [$c] IMAGES (v3 layout offsets) =="
+                SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
+                    LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
+                echo "   done. Power-cycle to boot gateware + Linux from QSPI."
+                ;;
             images)
                 echo "== flash [$c] IMAGES -> QSPI (layout offsets; bitstream stays JTAG-SRAM) =="
                 SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
