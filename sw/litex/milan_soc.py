@@ -223,6 +223,8 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/aecp/KL_aecp_accessor.sv", "hdl/aecp/KL_aecp_aem_store.sv",
     "hdl/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/aecp/KL_aecp_response_builder.sv",
     "hdl/aecp/KL_aecp_ingress.sv", "hdl/aecp/KL_aecp_top.sv",
+    # ACMP stateless talker responder (Milan v1.2 §5.5)
+    "hdl/acmp/acmp_pkg.sv", "hdl/acmp/KL_acmp_responder.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
     "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
 ]
