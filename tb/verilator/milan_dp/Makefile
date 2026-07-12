@@ -44,6 +44,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/adp/adp_pkg.
        $(RTL_DIR)/aecp/KL_aecp_accessor.sv $(RTL_DIR)/aecp/KL_aecp_aem_store.sv \
        $(RTL_DIR)/aecp/KL_aecp_aem_dyn_mux.sv $(RTL_DIR)/aecp/KL_aecp_response_builder.sv \
        $(RTL_DIR)/aecp/KL_aecp_ingress.sv $(RTL_DIR)/aecp/KL_aecp_top.sv \
+       $(RTL_DIR)/acmp/acmp_pkg.sv $(RTL_DIR)/acmp/KL_acmp_responder.sv \
        $(RTL_DIR)/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/csr/milan_csr.sv \
        $(C)/milan_datapath.sv

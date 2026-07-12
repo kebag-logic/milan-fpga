@@ -253,6 +253,68 @@ int main(int argc, char** argv) {
        0x01000000UL);
     ck("available_index bumped", axi_read(A_ADP_STATUS) > ai0 ? 1 : 0, 1);
 
+    // --- 6b. ACMP GET_TX_STATE through the full datapath ---
+    // The responder taps rx_axis_to_dma (little lane, like silicon); inject a
+    // 70-byte GET_TX_STATE_COMMAND for our entity on the MAC RX port and
+    // expect the GET_TX_STATE_RESPONSE (SUCCESS, count=0) on the MAC TX port.
+    printf("[ACMP] GET_TX_STATE -> RESPONSE through datapath\n");
+    {
+        uint8_t f[72]; memset(f, 0, sizeof f);
+        const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+        memcpy(f, mc, 6);
+        const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+        memcpy(f+6, csrc, 6);
+        f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x04;      // GET_TX_STATE_COMMAND
+        f[16]=0x00; f[17]=44;                                // cdl
+        // stream_id junk (18-25); controller (26-33)
+        for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+        // talker = 02:00:00:ff:fe:00:00:01 (the EID programmed in section 5)
+        const uint8_t tk[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+        memcpy(f+34, tk, 8);
+        f[62]=0x1A; f[63]=0x2B;                              // sequence_id
+        std::vector<uint64_t> beats;
+        for (int bt = 0; bt < 9; bt++) {
+            uint64_t v = 0;
+            for (int j = 0; j < 8; j++) v |= (uint64_t)f[bt*8+j] << (8*j);
+            beats.push_back(v);
+        }
+        // inject and capture in ONE loop: the response can egress within a
+        // few cycles of tlast, before a separate capture loop would start
+        Res ac; size_t idx = 0;
+        dut->m_axis_rx_tready = 1; dut->m_axis_mac_tx_tready = 1;
+        for (int c = 0; c < 800; c++) {
+            if (idx < beats.size()) {
+                dut->s_axis_mac_rx_tdata  = beats[idx];
+                dut->s_axis_mac_rx_tkeep  = 0xFF;
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+            } else {
+                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+            }
+            step();
+            if (dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready) idx++;
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                ac.data.push_back(dut->m_axis_mac_tx_tdata); ac.got = true;
+                if (dut->m_axis_mac_tx_tlast) { step(); break; }
+            }
+        }
+        dut->s_axis_mac_rx_tvalid = 0;
+        ck("ACMP response emerged on MAC port", ac.got ? 1 : 0, 1);
+        ck("ACMP response is 9 beats", ac.data.size(), 9);
+        if (ac.data.size() == 9) {
+            ck("ACMP dst multicast", (unsigned long)(ac.data[0] & 0xFFFFFFFFFFFFUL),
+               0x000001F0E091UL);
+            ck("ACMP subtype 0xFC", (ac.data[1] >> 48) & 0xFF, 0xFC);
+            ck("ACMP msg GET_TX_STATE_RESPONSE(5)", (ac.data[1] >> 56) & 0x0F, 5);
+            ck("ACMP status SUCCESS + cdl 44",
+               (unsigned)(ac.data[2] & 0xFFFF), (unsigned)((44 & 0xFF) << 8));
+            ck("ACMP connection_count 0", (ac.data[7] >> 32) & 0xFFFF, 0);
+            ck("ACMP sequence echoed", (ac.data[7] >> 48) & 0xFFFF, 0x2B1AUL);
+        }
+        enum { A_ACMP_STAT = 0x650 };
+        ck("CSR 0x650 = {resp=1, cmd=1}", axi_read(A_ACMP_STAT), 0x00010001);
+    }
+
     // --- 6. IRQ line is a defined level (no X) ---
     printf("[IRQ] o_irq_csr is driven\n");
     ck("o_irq_csr defined (0/1)", (dut->o_irq_csr <= 1) ? 1 : 0, 1);
