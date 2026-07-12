@@ -405,6 +405,29 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 9c. GET_AS_PATH — Milan-mandatory; count=1, path[0]=clock_identity //
+    // ---------------------------------------------------------------- //
+    printf("\n[9c] GET_AS_PATH\n");
+    {
+        std::vector<uint8_t> ap; put_be16(ap, 0); put_be16(ap, 0);   // desc_index, reserved
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9200, ap));
+        auto r = collect_resp();
+        ck("AS_PATH SUCCESS", r_status(r), 0);
+        ck("AS_PATH CDL == 24", r_cdl(r), 24);
+        ck_cdl("AS_PATH CDL (len-26)", r);
+        ckbytes("AS_PATH count == 1", r, 40, {0x00,0x01});
+        // clock_identity = MAC-derived EUI64, same as the AVB_INTERFACE overlay
+        ckbytes("AS_PATH path[0] == EUI64(station MAC)", r, 42,
+                {0x02,0x00,0x00,0xFF,0xFE,0xFF,0xFE,0x01});
+
+        std::vector<uint8_t> bad; put_be16(bad, 3); put_be16(bad, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9201, bad));
+        auto r2 = collect_resp();
+        ck("AS_PATH bad index NO_SUCH_DESCRIPTOR", r_status(r2), 2);
+        ck("AS_PATH error keeps full payload (CDL 24)", r_cdl(r2), 24);
+    }
+
+    // ---------------------------------------------------------------- //
     // 10. Frame for a DIFFERENT entity_id -> ignored (no response)      //
     // ---------------------------------------------------------------- //
     printf("\n[10] wrong target entity_id -> silent\n");
