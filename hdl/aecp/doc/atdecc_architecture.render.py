@@ -69,28 +69,6 @@ def render_page(model, out):
             y = a["y"]+a["h"] if by > ay else a["y"]
             return (ax, y)
 
-    # edges first (under boxes)
-    for e in edges:
-        a, b = cells.get(e["s"]), cells.get(e["t"])
-        if not a or not b: continue
-        x1, y1 = anchor(a, b); x2, y2 = anchor(b, a)
-        mx = (x1+x2)/2
-        if abs(x1-x2) > 8 and abs(y1-y2) > 8:
-            pts = f"M{x1},{y1} L{mx},{y1} L{mx},{y2} L{x2},{y2}"
-        else:
-            pts = f"M{x1},{y1} L{x2},{y2}"
-        col = "#999" if e["dashed"] else "#333"
-        dash = ' stroke-dasharray="4,3"' if e["dashed"] else ""
-        mk = "arro" if e["dashed"] else "arr"
-        svg.append(f'<path d="{pts}" fill="none" stroke="{col}" stroke-width="1.3"{dash} marker-end="url(#{mk})"/>')
-        if e["label"]:
-            lw = len(e["label"]) * 6.2 + 8
-            ly = (y1+y2)/2
-            svg.append(f'<rect x="{mx-lw/2}" y="{ly-12}" width="{lw}" height="15" '
-                       f'fill="#ffffff" fill-opacity="0.92" stroke="none"/>')
-            svg.append(f'<text x="{mx}" y="{ly}" font-size="10" fill="#444" '
-                       f'text-anchor="middle">{html.escape(e["label"])}</text>')
-
     def wrap(text, w, fs, mono):
         # \n are hard breaks (authored as &#10; in the file, preserved by the
         # XML parser). Mono boxes are pre-formatted tables: never re-wrap.
@@ -135,6 +113,28 @@ def render_page(model, out):
             fw = ' font-weight="bold"' if bold and i == 0 else ""
             svg.append(f'<text x="{tx}" y="{ty+i*lh}" font-size="{fs}" fill="#222" '
                        f'text-anchor="{anch}"{fw}{fam}>{html.escape(ln)}</text>')
+
+    # edges LAST (containers would paint over them)
+    for e in edges:
+        a, b = cells.get(e["s"]), cells.get(e["t"])
+        if not a or not b: continue
+        x1, y1 = anchor(a, b); x2, y2 = anchor(b, a)
+        mx = (x1+x2)/2
+        if abs(x1-x2) > 8 and abs(y1-y2) > 8:
+            pts = f"M{x1},{y1} L{mx},{y1} L{mx},{y2} L{x2},{y2}"
+        else:
+            pts = f"M{x1},{y1} L{x2},{y2}"
+        col = "#999" if e["dashed"] else "#333"
+        dash = ' stroke-dasharray="4,3"' if e["dashed"] else ""
+        mk = "arro" if e["dashed"] else "arr"
+        svg.append(f'<path d="{pts}" fill="none" stroke="{col}" stroke-width="1.3"{dash} marker-end="url(#{mk})"/>')
+        if e["label"]:
+            lw = len(e["label"]) * 6.2 + 8
+            ly = (y1+y2)/2
+            svg.append(f'<rect x="{mx-lw/2}" y="{ly-12}" width="{lw}" height="15" '
+                       f'fill="#ffffff" fill-opacity="0.92" stroke="none"/>')
+            svg.append(f'<text x="{mx}" y="{ly}" font-size="10" fill="#444" '
+                       f'text-anchor="middle">{html.escape(e["label"])}</text>')
 
     svg.append("</svg>")
     open(out, "w").write("\n".join(svg))
