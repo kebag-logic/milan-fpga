@@ -39,7 +39,7 @@ CMD = dict(ACQUIRE=0, LOCK=1, ENTITY_AVAILABLE=2, READ_DESCRIPTOR=4,
            SET_CONFIGURATION=6, GET_CONFIGURATION=7,
            SET_STREAM_FORMAT=8, GET_STREAM_FORMAT=9,
            SET_NAME=16, GET_NAME=17, SET_SAMPLING_RATE=20, GET_SAMPLING_RATE=21,
-           GET_AVB_INFO=39, GET_STREAM_INFO=15)
+           GET_AVB_INFO=39, GET_STREAM_INFO=15, GET_AS_PATH=40, GET_COUNTERS=41)
 # descriptor_type
 DESC = dict(ENTITY=0x0000, CONFIGURATION=0x0001, AUDIO_UNIT=0x0002,
             STREAM_OUTPUT=0x0006, AVB_INTERFACE=0x0009)
@@ -221,7 +221,18 @@ def validate(e):
         check("stream_info flags == 0xF6000000 (talker)",
               r[42:46] == bytes.fromhex("f6000000"), r[42:46].hex())
 
-    print("\n[8] MVU GET_MILAN_INFO")
+    print("\n[8] GET_AS_PATH (Milan-mandatory)")
+    r = e.aem("GET_AS_PATH", struct.pack(">HH", 0, 0))
+    check("GET_AS_PATH -> SUCCESS", rstatus(r) == 0, f"status={STATUS.get(rstatus(r))}")
+    if r and len(r) > 49:
+        cnt = int.from_bytes(r[40:42], "big")
+        eui = r[42:50]
+        mac = bytes(e.mac)
+        exp = mac[:3] + b"\xff\xfe" + mac[3:]
+        check("AS_PATH count==1, path[0]==EUI64(entity MAC)",
+              cnt == 1 and eui == exp, f"count={cnt} path0={eui.hex()}")
+
+    print("\n[9] MVU GET_MILAN_INFO")
     r = e._aecp(VU_COMMAND, 0x0000, b"", is_vu=True)
     ok = r is not None and (r[15] & 0x0F) == VU_RESPONSE and r[36:42] == MILAN_PROTOCOL_ID
     check("MVU GET_MILAN_INFO answered", ok,

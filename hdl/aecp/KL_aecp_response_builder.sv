@@ -149,6 +149,7 @@ module KL_aecp_response_builder (
   wire [15:0] w_gs_type  = {buf_r[2], buf_r[3]};   //! GET/SET_* desc type
   wire [15:0] w_gs_index = {buf_r[4], buf_r[5]};
   wire [15:0] w_name_idx = {buf_r[6], buf_r[7]};   //! SET/GET_NAME name_index
+  wire [15:0] w_as_path_idx = {buf_r[2], buf_r[3]};  //! GET_AS_PATH descriptor_index (no type field)
   wire [15:0] w_name_cfg = {buf_r[8], buf_r[9]};
   wire [31:0] w_set_rate = {buf_r[6], buf_r[7], buf_r[8], buf_r[9]};
   wire [63:0] w_set_fmt  = {buf_r[6], buf_r[7], buf_r[8],  buf_r[9],
@@ -699,6 +700,39 @@ module KL_aecp_response_builder (
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
                   status_q <= STATUS_NO_SUCH_DESCRIPTOR;
+                end
+              end
+
+              // -------------------------------------------------- //
+              // GET_AS_PATH: Milan-mandatory dynamic info (la_avdecc
+              // "Milan 1.3 - 5.4.4"; queried once per AVB_INTERFACE).
+              // Response = descriptor_index(2) + count(2) + path_sequence
+              // (count x EUI64). With no gPTP stack in HW yet the entity
+              // acts as its own clock (the pipewire reference's is-GM
+              // branch): count=1, path[0] = clock_identity = the same
+              // MAC-derived EUI64 the AVB_INTERFACE descriptor overlay
+              // reports ({MAC[47:24], FFFE, MAC[23:0]}). Payload stays
+              // 12 B on errors too (full-size-on-error, as GET_COUNTERS).
+              CMD_GET_AS_PATH: begin
+                seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd2;
+                seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd10;
+                cdl_q <= 11'd24;   // 12 + 12
+                const_q[0] <= 8'h00;
+                for (int k = 2; k < 10; k++) const_q[k] <= 8'h00;
+                if (w_as_path_idx == 16'd0) begin
+                  status_q   <= STATUS_SUCCESS;
+                  const_q[1] <= 8'h01;                        // count = 1
+                  const_q[2] <= station_mac_i[47:40];         // clock_identity
+                  const_q[3] <= station_mac_i[39:32];
+                  const_q[4] <= station_mac_i[31:24];
+                  const_q[5] <= 8'hFF;
+                  const_q[6] <= 8'hFE;
+                  const_q[7] <= station_mac_i[23:16];
+                  const_q[8] <= station_mac_i[15:8];
+                  const_q[9] <= station_mac_i[7:0];
+                end else begin
+                  status_q   <= STATUS_NO_SUCH_DESCRIPTOR;
+                  const_q[1] <= 8'h00;                        // count = 0
                 end
               end
 

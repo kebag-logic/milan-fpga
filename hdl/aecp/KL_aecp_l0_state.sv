@@ -108,6 +108,7 @@ module KL_aecp_l0_state (
                   (hdr_i.command_type == CMD_GET_CLOCK_SOURCE) ||
                   (hdr_i.command_type == CMD_GET_CONTROL)      ||
                   (hdr_i.command_type == CMD_GET_AVB_INFO)     ||
+                  (hdr_i.command_type == CMD_GET_AS_PATH)      ||
                   (hdr_i.command_type == CMD_GET_COUNTERS)     ||
                   (hdr_i.command_type == CMD_GET_AUDIO_MAP)    ||
                   (hdr_i.command_type == CMD_REGISTER_UNSOLICITED_NOTIFICATION)   ||
