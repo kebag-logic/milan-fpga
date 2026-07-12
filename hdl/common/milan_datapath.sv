@@ -466,6 +466,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_ptp_tod_rd      (ptp_tod_rd),
     .o_ptp_tod_rd_valid(ptp_tod_rd_valid),
     .o_tx_ts_ready     (evt_tx_ts_ready),
+    .o_ptp_now         (ptp_now_w),
 
     .s_axis_tx_tdata(tx_axis_shaper_to_ts.tdata),
     .s_axis_tx_tvalid(tx_axis_shaper_to_ts.tvalid),
