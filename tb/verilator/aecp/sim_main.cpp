@@ -145,12 +145,15 @@ static int r_cmd  (const std::vector<uint8_t>& b){ return b.size()>37 ? ((b[36]&
 static uint64_t r_ctlr(const std::vector<uint8_t>& b){ if(b.size()<34) return 0; uint64_t v=0; for(int i=0;i<8;i++) v=(v<<8)|b[26+i]; return v; }
 static int r_seq  (const std::vector<uint8_t>& b){ return b.size()>35 ? (b[34]<<8)|b[35] : -1; }
 static int r_cdl  (const std::vector<uint8_t>& b){ return b.size()>17 ? ((b[16]&0x07)<<8)|b[17] : -1; }
-// IEEE 1722.1 §9.2.1.1.4: control_data_length = octets after the CDL field =
-// every byte from target_entity_id (wire offset 18) to the end of the AECPDU.
-// The builder emits no padding, so it must equal len - 18. (Hive/la_avdecc and
-// tsn-gen enforce this for every status; a lenient controller does not.)
+// IEEE 1722-2016 §5.4: control_data_length counts the octets FOLLOWING the
+// stream_id (target_entity_id) field — i.e. from wire offset 26 (after
+// eth 14 + subtype/sv/status/cdl 4 + target_entity_id 8). The pipewire AVB
+// reference (Hive-validated) confirms it: CDL = payload + AVB_PACKET_
+// CONTROL_DATA_OFFSET(12) = frame - 26. The builder emits no padding so
+// CDL must equal len - 26. (NB: tsn-gen's CDL model wrongly counts
+// target_entity_id — do not use it as the oracle here.)
 static void ck_cdl(const char* nm, const std::vector<uint8_t>& b){
-    ck(nm, (b.size()>18) && (r_cdl(b) == (int)b.size()-18), 1);
+    ck(nm, (b.size()>26) && (r_cdl(b) == (int)b.size()-26), 1);
 }
 
 int main(int argc, char** argv) {
@@ -188,7 +191,7 @@ int main(int argc, char** argv) {
         for(size_t i=0;i<r.size()&&i<80;i++) fprintf(stderr," %02x", r[i]);
         fprintf(stderr,"\n");
         ck("got response", r.size() > 0, 1);
-        ck_cdl("[1] READ_DESC(ENTITY) CDL == len-18", r);
+        ck_cdl("[1] READ_DESC(ENTITY) CDL correct (len-26)", r);
         ck("msg_type=AEM_RESPONSE", r_msgt(r), 1);
         ck("status=SUCCESS", r_status(r), 0);
         ck("command=READ_DESCRIPTOR", r_cmd(r), 4);
@@ -215,7 +218,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1002, pl));
         auto r = collect_resp();
         ck("status=SUCCESS", r_status(r), 0);
-        ck_cdl("[2] READ_DESC(AVB_IF) CDL == len-18", r);
+        ck_cdl("[2] READ_DESC(AVB_IF) CDL correct (len-26)", r);
         ckbytes("descriptor_type=AVB_INTERFACE", r, 42, {0x00,0x09});
         // mac_address at descriptor offset 72 -> wire 42+72 = 114
         ckbytes("mac_address overlaid", r, 114, {0x02,0x00,0x00,0xff,0xfe,0x01});
@@ -234,7 +237,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1003, pl));
         auto r = collect_resp();
         ck("status=SUCCESS", r_status(r), 0);
-        ck_cdl("[3] READ_DESC(STREAM_OUT) CDL == len-18", r);
+        ck_cdl("[3] READ_DESC(STREAM_OUT) CDL correct (len-26)", r);
         ckbytes("descriptor_type=STREAM_OUTPUT", r, 42, {0x00,0x06});
         // current_format at descriptor offset 74 -> wire 116
         ckbytes("current_format 48k", r, 116, {0x02,0x05,0x02,0x20,0x02,0x00,0x60,0x00});
@@ -267,7 +270,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3000, pl));
         auto r = collect_resp();
         ck("LOCK status=SUCCESS", r_status(r), 0);
-        ck_cdl("[5] LOCK CDL == len-18", r);
+        ck_cdl("[5] LOCK CDL correct (len-26)", r);
         ck("command=LOCK_ENTITY", r_cmd(r), 1);
 
         feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 1, 0x3001, pl));
@@ -298,7 +301,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, 0x4000, {}));
         auto r = collect_resp();
         ck("GET_CONFIG status=SUCCESS", r_status(r), 0);
-        ck_cdl("[6] GET_CONFIG CDL == len-18", r);
+        ck_cdl("[6] GET_CONFIG CDL correct (len-26)", r);
         ckbytes("current_configuration=0", r, 40, {0x00,0x00});
 
         std::vector<uint8_t> bad; put_be16(bad,0); put_be16(bad,5);  // config 5 invalid
@@ -319,7 +322,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x5000, pl));
         auto r = collect_resp();
         ck("SET_NAME status=SUCCESS", r_status(r), 0);
-        ck_cdl("[7] SET_NAME CDL == len-18", r);
+        ck_cdl("[7] SET_NAME CDL correct (len-26)", r);
 
         std::vector<uint8_t> rd; put_be16(rd,0); put_be16(rd,0);
         put_be16(rd,0x0000); put_be16(rd,0x0000);
@@ -360,7 +363,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x7000, pl));
         auto r = collect_resp();
         ck("got MVU response", r.size() > 0, 1);
-        ck_cdl("[9] MVU CDL == len-18", r);
+        ck_cdl("[9] MVU CDL correct (len-26)", r);
         ck("msg_type=VU_RESPONSE", r_msgt(r), 7);
         // response: protocol_id(6) echo at wire 38, command_type(2) at 44,
         // reserved(2) at 46, then milan_info(12) at 48
