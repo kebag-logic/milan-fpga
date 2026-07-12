@@ -15,6 +15,14 @@
 #include <stdio.h>
 #include "xz.h"
 
+/* the BIOS libc omits memcmp — the xz decoder needs it (magic + check) */
+int memcmp(const void *a, const void *b, size_t n)
+{
+	const unsigned char *pa = a, *pb = b;
+	while (n--) { if (*pa != *pb) return (int)*pa - (int)*pb; pa++; pb++; }
+	return 0;
+}
+
 static uint8_t *arena_base;
 static size_t   arena_size, arena_used;
 
