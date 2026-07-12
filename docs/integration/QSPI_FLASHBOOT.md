@@ -1,5 +1,24 @@
 # QSPI flash-boot  -  skip the multi-minute serial upload
 
+## Layout v2 — QSPI-BOOTED BITSTREAM (2026-07-12, user directive)
+
+The gateware now lives in flash and the FPGA config-boots it (mode pins:
+Arty JP1 -> QSPI, AX7101 boot switch -> QSPI). Bitstreams are COMPRESSED
+(pinned in milan_soc.py: COMPRESS + SPI x1 + 33 MHz configrate).
+
+| slot      | offset     | budget   | notes |
+|-----------|------------|----------|-------|
+| bitstream | 0x00_0000  | 2.25 MiB | raw config stream via `deploy.sh flash` (openFPGALoader -f); NOT fbi-wrapped |
+| kernel    | 0x24_0000  | 8.25 MiB | fbi-wrapped, BIOS memcpy -> 0x4000_0000 |
+| opensbi   | 0xA8_0000  | 384 KiB  | fw_jump -> 0x40F0_0000 |
+| dtb       | 0xAE_0000  | 128 KiB  | -> 0x40EF_0000 |
+| rootfs    | 0xB0_0000  | 5.0 MiB  | CPIO-XZ -> 0x4100_0000; **current 5.6 MB must slim ~0.6 MB (drop PipeWire, rev-2 delimitation) before the first v2 reflash** |
+
+Rollout is atomic per board: flash the v2-layout bitstream AND the image set
+in one session (a v2 BIOS with old-layout flash finds no kernel at 0x24_0000
+and vice versa). The pre-v2 sections below describe the kernel-at-0 layout.
+
+
 Every boot of the fully-FPGA Linux SoC uploads four images over the 1.5 Mbaud LiteX UART  - 
 the 14 MB kernel `Image`, the 8.7 MB `rootfs.cpio.gz`, OpenSBI and the DTB, ~23 MB total,
 which takes **~4 minutes**. This is the "gain time" feature: stage the large, static images
