@@ -112,15 +112,15 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 ## 3. Live states
 
 **Boards**
-- AX7101: **build_ax7101_asl_aecp7 in SRAM (2026-07-12)** = the full
-  la_avdecc-clean AECP entity (STREAM_INFO 56 B, caps 0x8588, every-send
-  available_index, GET_COUNTERS, GET_AS_PATH) + flattened-interface RTL,
-  WNS +0.048 (sweep still routing eto/eppo at handover - promote the best
-  WNS when they land; protocol behavior identical). IP .1 up, identity
-  programmed + ADP enabled (EID 02:00:00:ff:fe:00:00:01), controller 26/26,
-  la_avdecc IEEE17221=1 zero-AEM-complaints. QSPI still holds the adp2-era
-  image set (gateware-independent). Fallbacks: eppo_aecp6 (+0.176, no
-  AS_PATH), eto_aecp2 (+0.186, r1-era), adp2 (+0.102, AECP-less).
+- AX7101: **build_ax7101_eto_aecp7 in SRAM (NEW KEEPER, 2026-07-12)** = the
+  full la_avdecc-clean AECP entity (STREAM_INFO 56 B, caps 0x8588, every-send
+  available_index, GET_COUNTERS, GET_AS_PATH) + flattened-interface RTL.
+  Sweep: eto +0.091 (keeper) / asl +0.048 / eppo -0.098 (FAILS, discard).
+  IP .1 up, identity programmed + ADP enabled (EID 02:00:00:ff:fe:00:00:01),
+  **controller 26/26 + la_avdecc IEEE17221=1 zero-AEM-complaints verified on
+  BOTH asl and eto bits**. QSPI still holds the adp2-era image set
+  (gateware-independent). Fallbacks: eppo_aecp6 (+0.176, no AS_PATH),
+  eto_aecp2 (+0.186, r1-era), adp2 (+0.102, AECP-less).
   hsplit16 hsplit=2 hs_pgsz=16384 as before.
 - Arty A7-100: build_arty_v7 in SRAM (flashboot gateware, WNS +0.018,
   sys 83.333/datapath 50, S25FL128S 1x 0x03 reads). QSPI holds
@@ -158,7 +158,7 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 **Builds worth keeping**
 | Build | What | Numbers |
 |---|---|---|
-| build_ax7101_*_aecp7 | THE AX7101 keeper (la_avdecc-clean AECP) | asl +0.048 (eto/eppo pending at handover) |
+| build_ax7101_eto_aecp7 | THE AX7101 keeper (la_avdecc-clean AECP) | WNS +0.091 (asl +0.048 backup; eppo -0.098 FAILS) |
 | build_ax7101_adp2 | AECP-less fallback (area+ADP) | WNS +0.102, 70.1 pct LUTs, BRAM 83.3 pct |
 | build_arty_v7 | THE Arty keeper (flashboot) | WNS +0.018 |
 | build_1hart_epo | 1-hart decision datapoint | 58 pct LUTs / 68.5 pct BRAM / 80.9 pct slices |
@@ -202,7 +202,7 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
    links — sv2v v0.0.13 renders interface members of non-top modules as
    top-absolute hierarchical paths; also ifndef-SYNTHESIS the parser $error).
    Silicon verdicts: aecp6 (eppo +0.176) cleared the r2 items (controller
-   24/24). **aecp7 (asl +0.048 validated on silicon): controller 26/26 incl.
+   24/24). **aecp7 (eto +0.091 keeper; asl +0.048 also validated): 26/26 incl.
    AS_PATH on the wire; la_avdecc = entity ONLINE, fully enumerated,
    IEEE17221=1, MISBEHAVING=0, ZERO AECP/AEM complaints — every Milan 5.4.4
    mandatory item answered.** The one residual Milan complaint moved to a
