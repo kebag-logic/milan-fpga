@@ -45,8 +45,16 @@ import aecp_pkg::*;
 module KL_aecp_packet_validator (
   input  wire          clk_i,
   input  wire          rst_n,
-  axi_stream_if.slave  s_axis,
-  axi_stream_if.master m_axis,
+  input  wire          s_axis_tvalid,
+  output logic         s_axis_tready,
+  input  wire [63:0]   s_axis_tdata,
+  input  wire [7:0]    s_axis_tkeep,
+  input  wire          s_axis_tlast,
+  output logic         m_axis_tvalid,
+  input  wire          m_axis_tready,
+  output logic [63:0]  m_axis_tdata,
+  output logic [7:0]   m_axis_tkeep,
+  output logic         m_axis_tlast,
   output logic         valid_o,
   output logic         drop_o,
   output logic [4:0]   status_o,
@@ -82,8 +90,8 @@ module KL_aecp_packet_validator (
   //  [26:16] control_data_length[10:0]                                  //
   // ------------------------------------------------------------------ //
   // verilator lint_off SELRANGE  // tdata is 64b at runtime; default if param is 32
-  wire [3:0]  w_msg_type = s_axis.tdata[35:32];
-  wire [10:0] w_cdl      = s_axis.tdata[26:16];
+  wire [3:0]  w_msg_type = s_axis_tdata[35:32];
+  wire [10:0] w_cdl      = s_axis_tdata[26:16];
   // verilator lint_on  SELRANGE
 
   // ------------------------------------------------------------------ //
@@ -96,8 +104,16 @@ module KL_aecp_packet_validator (
   wire w_cdl_ok  = (w_cdl >= 11'd12);
   wire w_ok      = w_type_ok & w_cdl_ok;
 
-  wire w_hs_s    = s_axis.tvalid & s_axis.tready;   //! slave handshake
-  wire w_hs_m    = m_axis.tvalid & m_axis.tready;   //! master handshake
+  // own outputs mirrored in local nets: reading them back through the
+  // modport (s_axis_tready / m_axis_tvalid) makes sv2v emit an absolute
+  // hierarchical path that only resolves when KL_aecp_top is the top —
+  // breaking the Yosys portability gate under milan_datapath.
+  logic s_tready_l, m_tvalid_l;
+  assign s_axis_tready = s_tready_l;
+  assign m_axis_tvalid = m_tvalid_l;
+
+  wire w_hs_s    = s_axis_tvalid & s_tready_l;      //! slave handshake
+  wire w_hs_m    = m_tvalid_l & m_axis_tready;      //! master handshake
 
   // ------------------------------------------------------------------ //
   // AXI-Stream forwarding                                                //
@@ -107,42 +123,38 @@ module KL_aecp_packet_validator (
   // Slave tready follows master tready when forwarding.                 //
   // ------------------------------------------------------------------ //
   always_comb begin
-    m_axis.tvalid = 1'b0;
-    m_axis.tdata  = s_axis.tdata;
-    m_axis.tlast  = s_axis.tlast;
-    m_axis.tkeep  = s_axis.tkeep;
-    m_axis.tstrb  = s_axis.tstrb;
-    m_axis.tid    = s_axis.tid;
-    m_axis.tdest  = s_axis.tdest;
-    m_axis.tuser  = s_axis.tuser;
-    s_axis.tready = 1'b0;
+    m_tvalid_l    = 1'b0;
+    m_axis_tdata  = s_axis_tdata;
+    m_axis_tlast  = s_axis_tlast;
+    m_axis_tkeep  = s_axis_tkeep;
+    s_tready_l    = 1'b0;
 
     case (state_r)
       FIRST_BEAT_S: begin
         if (w_ok) begin
           // Forward this beat immediately — tready from master governs
-          m_axis.tvalid = s_axis.tvalid;
-          s_axis.tready = m_axis.tready;
+          m_tvalid_l    = s_axis_tvalid;
+          s_tready_l    = m_axis_tready;
         end else begin
           // Drop: accept from slave, do not forward
-          s_axis.tready = 1'b1;
-          m_axis.tvalid = 1'b0;
+          s_tready_l    = 1'b1;
+          m_tvalid_l    = 1'b0;
         end
       end
 
       PASS_S: begin
-        m_axis.tvalid = s_axis.tvalid;
-        s_axis.tready = m_axis.tready;
+        m_tvalid_l    = s_axis_tvalid;
+        s_tready_l    = m_axis_tready;
       end
 
       DROP_S: begin
-        s_axis.tready = 1'b1;
-        m_axis.tvalid = 1'b0;
+        s_tready_l    = 1'b1;
+        m_tvalid_l    = 1'b0;
       end
 
       default: begin
-        s_axis.tready = 1'b0;
-        m_axis.tvalid = 1'b0;
+        s_tready_l    = 1'b0;
+        m_tvalid_l    = 1'b0;
       end
     endcase
   end
@@ -168,7 +180,7 @@ module KL_aecp_packet_validator (
       case (state_r)
         // ------------------------------------------------------------ //
         FIRST_BEAT_S: begin
-          if (s_axis.tvalid) begin
+          if (s_axis_tvalid) begin
             msg_type_r    <= w_msg_type;
             message_type_o <= w_msg_type;
 
@@ -176,8 +188,8 @@ module KL_aecp_packet_validator (
               status_r      <= STATUS_SUCCESS;
               frame_valid_r <= 1'b1;
               // Handshake completes when master accepts
-              if (m_axis.tready) begin
-                if (s_axis.tlast) begin
+              if (m_axis_tready) begin
+                if (s_axis_tlast) begin
                   // Single-beat frame — done immediately
                   valid_o  <= 1'b1;
                   status_o <= STATUS_SUCCESS;
@@ -198,7 +210,7 @@ module KL_aecp_packet_validator (
               frame_valid_r <= 1'b0;
 
               // Consume this beat (tready=1 in comb for DROP case)
-              if (s_axis.tlast) begin
+              if (s_axis_tlast) begin
                 // Single-beat bad frame
                 drop_o  <= 1'b1;
                 state_r <= FIRST_BEAT_S;
@@ -212,7 +224,7 @@ module KL_aecp_packet_validator (
         // ------------------------------------------------------------ //
         PASS_S: begin
           if (w_hs_s) begin
-            if (s_axis.tlast) begin
+            if (s_axis_tlast) begin
               valid_o  <= 1'b1;
               status_o <= STATUS_SUCCESS;
               state_r  <= FIRST_BEAT_S;
@@ -222,8 +234,8 @@ module KL_aecp_packet_validator (
 
         // ------------------------------------------------------------ //
         DROP_S: begin
-          if (s_axis.tvalid) begin   // tready always 1 in comb
-            if (s_axis.tlast) begin
+          if (s_axis_tvalid) begin   // tready always 1 in comb
+            if (s_axis_tlast) begin
               drop_o  <= 1'b1;
               state_r <= FIRST_BEAT_S;
             end

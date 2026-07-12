@@ -63,7 +63,11 @@ module KL_aecp_response_builder (
   input  wire          frame_ok_i,         //! validator: good frame complete
   input  wire          frame_bad_i,        //! validator: frame dropped
   input  wire [3:0]    message_type_i,     //! validator: latched message_type
-  axi_stream_if.slave  s_axis,             //! parser passthrough (capture)
+  input  wire          s_axis_tvalid,
+  output logic         s_axis_tready,
+  input  wire [63:0]   s_axis_tdata,
+  input  wire [7:0]    s_axis_tkeep,
+  input  wire          s_axis_tlast,
 
   // ---- per-frame requester MAC (tap meta FIFO, [47:40]=first wire byte)
   input  wire [47:0]   req_src_mac_i,
@@ -113,7 +117,7 @@ module KL_aecp_response_builder (
   logic [7:0]  buf_r [0:BUF_BYTES_C-1];
   logic [4:0]  beat_r;                     //! frame beat counter (sat at 31)
 
-  wire w_cap_hs = s_axis.tvalid & s_axis.tready;
+  wire w_cap_hs = s_axis_tvalid & s_axis_tready;
 
   // ------------------------------------------------------------------ //
   // FSM                                                                  //
@@ -126,7 +130,7 @@ module KL_aecp_response_builder (
 
   //! accept command beats only while idle/capturing (backpressures the
   //! pipeline — and therefore the tap FIFO — while a response is in flight)
-  assign s_axis.tready = (state_r == IDLE_S) || (state_r == CAPTURE_S);
+  assign s_axis_tready = (state_r == IDLE_S) || (state_r == CAPTURE_S);
 
   // latched command context
   aecp_hdr_t   hdr_q;
@@ -191,6 +195,11 @@ module KL_aecp_response_builder (
       default: name_addr = 17'd0;
     endcase
   endfunction
+
+  // function result captured in a net: indexing a call expression directly
+  // (name_addr(...)[16]) is SV-only — sv2v keeps it and Yosys' V2005 reader
+  // rejects it, breaking the open-toolchain portability gate.
+  wire [16:0] w_name_ptr = name_addr(w_gs_type, w_name_idx);   //! {valid, wb addr}
 
   wire w_rate_ok = (w_set_rate == AEM_RATES_C[0]) ||
                    (w_set_rate == AEM_RATES_C[1]) ||
@@ -387,9 +396,9 @@ module KL_aecp_response_builder (
       if (w_cap_hs) begin
         if (beat_r >= 5'd3 && beat_r < 5'd19) begin
           for (int k = 0; k < 8; k++)
-            buf_r[((32)'(beat_r) - 3) * 8 + k] <= s_axis.tdata[8*(7-k) +: 8];
+            buf_r[((32)'(beat_r) - 3) * 8 + k] <= s_axis_tdata[8*(7-k) +: 8];
         end
-        beat_r <= s_axis.tlast ? 5'd0 : (beat_r == 5'd31 ? 5'd31 : beat_r + 5'd1);
+        beat_r <= s_axis_tlast ? 5'd0 : (beat_r == 5'd31 ? 5'd31 : beat_r + 5'd1);
       end
 
       if (hdr_i.hdr_valid && (state_r == IDLE_S || state_r == CAPTURE_S)) begin
@@ -537,7 +546,7 @@ module KL_aecp_response_builder (
                   seg_len_q[0] <= (hdr_q.command_type == CMD_SET_NAME)
                                   ? 16'd72 : 16'd8;
                 end else if (!acc_found || w_name_cfg != 16'd0 ||
-                             !name_addr(w_gs_type, w_name_idx)[16]) begin
+                             !w_name_ptr[16]) begin
                   status_q     <= acc_found ? STATUS_BAD_ARGUMENTS
                                             : STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= (hdr_q.command_type == CMD_SET_NAME)
@@ -547,10 +556,10 @@ module KL_aecp_response_builder (
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd8;
                   seg_kind_q[1] <= SEG_STORE;
-                  seg_addr_q[1] <= name_addr(w_gs_type, w_name_idx)[15:0];
+                  seg_addr_q[1] <= w_name_ptr[15:0];
                   seg_len_q[1]  <= 16'd64;
                   if (hdr_q.command_type == CMD_SET_NAME) begin
-                    wb_addr_q <= name_addr(w_gs_type, w_name_idx)[15:0];
+                    wb_addr_q <= w_name_ptr[15:0];
                     wb_len_q  <= 7'd64;
                     wb_src_q  <= 7'd10;
                   end
@@ -795,8 +804,7 @@ module KL_aecp_response_builder (
   end
 
   // verilator lint_off UNUSED
-  wire unused_ok = &{1'b0, s_axis.tkeep, s_axis.tstrb, s_axis.tid, s_axis.tdest,
-                     s_axis.tuser, emit_byte_r, l0_state_i.acquired,
+  wire unused_ok = &{1'b0, s_axis_tkeep, emit_byte_r, l0_state_i.acquired,
                      l0_state_i.acquiring_controller_id, l0_state_i.entity_id,
                      l0_state_i.locked, req_src_mac_i};
   // verilator lint_on  UNUSED
