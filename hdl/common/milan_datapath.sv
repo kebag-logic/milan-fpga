@@ -215,6 +215,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire                     aecp_discover_p;
   wire                     aecp_locked;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
+  //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
+  wire [TDATA_WIDTH-1:0]   acmp_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] acmp_tx_tkeep;
+  wire                     acmp_tx_tvalid, acmp_tx_tlast, acmp_tx_tready;
+  wire [TDATA_WIDTH-1:0]   ctl2_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctl2_tx_tkeep;
+  wire                     ctl2_tx_tvalid, ctl2_tx_tlast, ctl2_tx_tready;
+  wire [15:0]              acmp_cmd_count, acmp_resp_count;
   //! merged low-rate control stream (ADP advertise + AECP response)
   wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
@@ -354,6 +362,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_aecp_current_config(aecp_current_config),
     .i_aecp_cmd_count     (aecp_cmd_count),
     .i_aecp_resp_count    (aecp_resp_count),
+    .i_acmp_cmd_count     (acmp_cmd_count),
+    .i_acmp_resp_count    (acmp_resp_count),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -599,15 +609,51 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count)
   );
 
+  // ==========================================================================
+  //  ACMP stateless responder (Milan v1.2 §5.5) — same monitor-tap pattern.
+  //  GET_TX_STATE -> SUCCESS/count=0; GET_TX_CONNECTION + CONNECT/DISCONNECT_TX
+  //  -> NOT_SUPPORTED (connection POLICY is the softcore's, via a future
+  //  mailbox — docs/ARCHITECTURE_HW_SW_SPLIT.md).
+  // ==========================================================================
+  KL_acmp_responder acmp_responder (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_adp_enable),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .entity_id_i (cfg_adp_entity_id),
+    .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tdata_i  (rx_axis_to_dma.tdata),
+    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
+    .rx_tlast_i  (rx_axis_to_dma.tlast),
+    .m_axis_tdata (acmp_tx_tdata), .m_axis_tkeep (acmp_tx_tkeep),
+    .m_axis_tvalid(acmp_tx_tvalid), .m_axis_tlast (acmp_tx_tlast),
+    .m_axis_tready(acmp_tx_tready),
+    .cmd_count_o (acmp_cmd_count), .resp_count_o (acmp_resp_count)
+  );
+
+  //! AECP response (s_data) + ACMP response (s_adp) -> one control stream.
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) aecp_acmp_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (aecp_tx_tdata),  .s_data_tkeep (aecp_tx_tkeep),
+    .s_data_tvalid(aecp_tx_tvalid), .s_data_tlast (aecp_tx_tlast),
+    .s_data_tready(aecp_tx_tready),
+    .s_adp_tdata (acmp_tx_tdata),  .s_adp_tkeep (acmp_tx_tkeep),
+    .s_adp_tvalid(acmp_tx_tvalid), .s_adp_tlast (acmp_tx_tlast),
+    .s_adp_tready(acmp_tx_tready),
+    .m_tdata (ctl2_tx_tdata), .m_tkeep (ctl2_tx_tkeep),
+    .m_tvalid(ctl2_tx_tvalid), .m_tlast (ctl2_tx_tlast), .m_tready(ctl2_tx_tready)
+  );
+
   //! Low-rate control merge: ADP advertise (s_data) + AECP response (s_adp).
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) ctl_tx_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (adp_tx_tdata),  .s_data_tkeep (adp_tx_tkeep),
     .s_data_tvalid(adp_tx_tvalid), .s_data_tlast (adp_tx_tlast),
     .s_data_tready(adp_tx_tready),
-    .s_adp_tdata (aecp_tx_tdata),  .s_adp_tkeep (aecp_tx_tkeep),
-    .s_adp_tvalid(aecp_tx_tvalid), .s_adp_tlast (aecp_tx_tlast),
-    .s_adp_tready(aecp_tx_tready),
+    .s_adp_tdata (ctl2_tx_tdata),  .s_adp_tkeep (ctl2_tx_tkeep),
+    .s_adp_tvalid(ctl2_tx_tvalid), .s_adp_tlast (ctl2_tx_tlast),
+    .s_adp_tready(ctl2_tx_tready),
     .m_tdata (ctl_tx_tdata), .m_tkeep (ctl_tx_tkeep),
     .m_tvalid(ctl_tx_tvalid), .m_tlast (ctl_tx_tlast), .m_tready(ctl_tx_tready)
   );

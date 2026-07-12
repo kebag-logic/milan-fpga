@@ -151,6 +151,8 @@ module milan_csr #(
   input  wire [15:0]             i_aecp_current_config, //! live current_configuration_index
   input  wire [15:0]             i_aecp_cmd_count,      //! AECP commands accepted
   input  wire [15:0]             i_aecp_resp_count,     //! AECP responses sent
+  input  wire [15:0]             i_acmp_cmd_count,      //! ACMP commands accepted (0x650)
+  input  wire [15:0]             i_acmp_resp_count,     //! ACMP responses sent (0x650)
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
@@ -209,6 +211,7 @@ module milan_csr #(
     A_ADP_IDX0    = 'h630, A_ADP_IDX1 = 'h634, A_ADP_ASLO = 'h638, A_ADP_ASHI  = 'h63C,
     A_ADP_CMD     = 'h640, A_ADP_STATUS='h644,
     A_AECP_STAT0  = 'h648, A_AECP_STAT1='h64C,   //! AECP listener status (RO)
+    A_ACMP_STAT   = 'h650,                        //! ACMP responder status (RO)
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -551,6 +554,7 @@ module milan_csr #(
       // AECP: [16]=locked, [15:0]=cmd_count | resp_count[31:16], current_config[15:0]
       A_AECP_STAT0: rd_mux = {15'd0, i_aecp_locked, i_aecp_cmd_count};
       A_AECP_STAT1: rd_mux = {i_aecp_resp_count, i_aecp_current_config};
+      A_ACMP_STAT:  rd_mux = {i_acmp_resp_count, i_acmp_cmd_count};
       A_TCAM_CTRL:  rd_mux = tcam_ctrl;
       A_TCAM_KLO:   rd_mux = tcam_klo;
       A_TCAM_KHI:   rd_mux = tcam_khi;
