@@ -64,6 +64,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire        s_axi_rready,
 
   // ---- TX DMA: DRAM → datapath (feeds the 802.1Q shaper) ----
+  // ---- Pmod I2S2 (AAF talker audio in; fabric is I2S clock master) ----
+  output wire                     i2s_mclk_o,
+  output wire                     i2s_sclk_o,
+  output wire                     i2s_lrck_o,
+  input  wire                     i2s_sdout_i,
+
   input  wire [TDATA_WIDTH-1:0]   s_axis_tx_tdata,
   input  wire [TDATA_WIDTH/8-1:0] s_axis_tx_tkeep,
   input  wire                     s_axis_tx_tvalid,
@@ -134,11 +140,37 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   // ---- boundary flat ports <-> internal interfaces ----
   // TX DMA in -> shaper
-  assign tx_axis_to_shaper.tdata  = s_axis_tx_tdata;
-  assign tx_axis_to_shaper.tkeep  = s_axis_tx_tkeep;
-  assign tx_axis_to_shaper.tvalid = s_axis_tx_tvalid;
-  assign tx_axis_to_shaper.tlast  = s_axis_tx_tlast;
-  assign s_axis_tx_tready         = tx_axis_to_shaper.tready;
+  //! host TX + the fabric AAF talker merge BEFORE the classifier: the AAF
+  //! frames carry their own 802.1Q PCP-3 tag -> class-A queue -> CBS.
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) aaf_tx_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (s_axis_tx_tdata),  .s_data_tkeep (s_axis_tx_tkeep),
+    .s_data_tvalid(s_axis_tx_tvalid), .s_data_tlast (s_axis_tx_tlast),
+    .s_data_tready(s_axis_tx_tready),
+    .s_adp_tdata (aaf_tx_tdata),  .s_adp_tkeep (aaf_tx_tkeep),
+    .s_adp_tvalid(aaf_tx_tvalid), .s_adp_tlast (aaf_tx_tlast),
+    .s_adp_tready(aaf_tx_tready),
+    .m_tdata (tx_axis_to_shaper.tdata), .m_tkeep (tx_axis_to_shaper.tkeep),
+    .m_tvalid(tx_axis_to_shaper.tvalid), .m_tlast (tx_axis_to_shaper.tlast),
+    .m_tready(tx_axis_to_shaper.tready)
+  );
+
+  aaf_talker_i2s aaf_talker (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_aaf_enable),
+    .dest_mac_i (cfg_aaf_dmac),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .vlan_vid_i (cfg_aaf_vid),
+    .ptp_ns_i (ptp_now_w),
+    .i2s_mclk_o (i2s_mclk_o), .i2s_sclk_o (i2s_sclk_o),
+    .i2s_lrck_o (i2s_lrck_o), .i2s_sdout_i (i2s_sdout_i),
+    .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
+    .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
+    .m_axis_tready(aaf_tx_tready),
+    .frames_sent_o (aaf_frames_w)
+  );
   // arbiter out -> MAC-facing TX
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
   assign m_axis_mac_tx_tkeep  = tx_axis_to_mac.tkeep;
@@ -223,6 +255,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] ctl2_tx_tkeep;
   wire                     ctl2_tx_tvalid, ctl2_tx_tlast, ctl2_tx_tready;
   wire [15:0]              acmp_cmd_count, acmp_resp_count;
+  //! AAF talker (aaf_talker_i2s): CSR control + frame stream + PHC time
+  wire                     cfg_aaf_enable;
+  wire [47:0]              cfg_aaf_dmac;
+  wire [11:0]              cfg_aaf_vid;
+  wire [63:0]              ptp_now_w;
+  wire [31:0]              aaf_frames_w;
+  wire [TDATA_WIDTH-1:0]   aaf_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] aaf_tx_tkeep;
+  wire                     aaf_tx_tvalid, aaf_tx_tlast, aaf_tx_tready;
   //! merged low-rate control stream (ADP advertise + AECP response)
   wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
@@ -364,6 +405,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_aecp_resp_count    (aecp_resp_count),
     .i_acmp_cmd_count     (acmp_cmd_count),
     .i_acmp_resp_count    (acmp_resp_count),
+    .o_aaf_enable         (cfg_aaf_enable),
+    .o_aaf_dest_mac       (cfg_aaf_dmac),
+    .o_aaf_vid            (cfg_aaf_vid),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),

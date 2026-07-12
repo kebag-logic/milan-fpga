@@ -191,6 +191,9 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] ctl2_tx_tkeep;
   wire                     ctl2_tx_tvalid, ctl2_tx_tlast, ctl2_tx_tready;
   wire [15:0]              acmp_cmd_count, acmp_resp_count;
+  wire                     cfg_aaf_enable;
+  wire [47:0]              cfg_aaf_dmac;
+  wire [11:0]              cfg_aaf_vid;
   //! merged low-rate control stream (ADP advertise + AECP response)
   wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
@@ -392,6 +395,9 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_aecp_resp_count    (aecp_resp_count),
     .i_acmp_cmd_count     (acmp_cmd_count),
     .i_acmp_resp_count    (acmp_resp_count),
+    .o_aaf_enable         (cfg_aaf_enable),
+    .o_aaf_dest_mac       (cfg_aaf_dmac),
+    .o_aaf_vid            (cfg_aaf_vid),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),

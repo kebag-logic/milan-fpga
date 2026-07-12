@@ -1,0 +1,226 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ */
+//---------------------------------------------------------------------------//
+//  File        : aaf_talker_i2s.sv
+//  Project     : Milan AVTP talker (IEEE 1722-2016 AAF-PCM, Milan v1.2)
+//
+//  Description : MVP Milan TALKER, fabric-only (rev-2 delimitation): captures
+//                stereo audio from a Digilent Pmod I2S2 ADC (CS5343, slave
+//                mode — this module is the I2S clock MASTER) and emits IEEE
+//                1722 AAF-PCM class-A frames, VLAN-tagged, on a 64-bit AXIS
+//                master that merges into the TX datapath BEFORE the
+//                classifier (PCP 3 -> class-A queue -> CBS).
+//
+//  Audio       : MCLK = clk/4 (12.5 MHz @ the Arty's 50 MHz datapath),
+//                SCLK = MCLK/4 (64 fs), LRCK = SCLK/64 -> fs = clk/1024
+//                (48.828 kHz @ 50 MHz — DECLARED 48 kHz; the +1.7 % media
+//                clock offset is the accepted MVP tradeoff, a proper
+//                12.288 MHz source or CRF follows). 24-bit I2S (MSB 1 SCLK
+//                after the LRCK edge), samples left-justified into 32-bit
+//                AAF INT32 slots (low byte 0).
+//
+//  Frame       : 6 samples/ch per AVTPDU (Milan class A, one frame per
+//                6/48k = 125 us nominal): dst MAC (CSR, MAAP-range default)
+//                + src station MAC + 802.1Q {PCP 3, VID (CSR)} + 0x22F0 +
+//                AAF header (subtype 0x02, sv=1, tv=1, seq++, stream_id =
+//                {station MAC, uid 0}, avtp_timestamp = PHC ns + 2 ms) +
+//                2 ch x 6 x 4 B payload = 90 B on the wire, ~5.8 Mbit/s.
+//
+//  No CPU in the path. Enable + dest MAC come from milan_csr (0x654 group);
+//  everything runs in cd_milan (single clock domain, no CDC).
+//---------------------------------------------------------------------------//
+
+`default_nettype none
+
+module aaf_talker_i2s #(
+    parameter int MCLK_DIV_LOG2 = 2   //! clk -> MCLK divide (log2): 50 MHz/4
+) (
+    input  wire         clk_i,
+    input  wire         rst_n,
+
+    // ---- control (CSR 0x654 group) -------------------------------------
+    input  wire         enable_i,
+    input  wire [47:0]  dest_mac_i,        //! stream DMAC ([47:40] first on wire)
+    input  wire [47:0]  station_mac_i,     //! src MAC; stream_id = {mac, 16'd0}
+    input  wire [11:0]  vlan_vid_i,        //! SR class VID (default 2)
+    input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
+
+    // ---- Pmod I2S2 ADC (line-in row; we are the clock master) -----------
+    output wire         i2s_mclk_o,
+    output wire         i2s_sclk_o,
+    output wire         i2s_lrck_o,
+    input  wire         i2s_sdout_i,       //! ADC serial data
+
+    // ---- AAF frames out (64b AXIS little lane, into the TX classifier) --
+    output logic [63:0] m_axis_tdata,
+    output logic [7:0]  m_axis_tkeep,
+    output logic        m_axis_tvalid,
+    output logic        m_axis_tlast,
+    input  wire         m_axis_tready,
+
+    // ---- status ----------------------------------------------------------
+    output reg  [31:0]  frames_sent_o
+);
+
+  localparam int SAMPLES_PER_FRAME = 6;       //! per channel (Milan 48k class A)
+  localparam int FRAME_BYTES = 14 + 4 + 24 + 48;  //! eth+vlan+aaf hdr+payload = 90
+  localparam int NUM_BEATS   = (FRAME_BYTES + 7) / 8;              //! 12
+  localparam int LAST_KEEP   = FRAME_BYTES - (NUM_BEATS-1)*8;      //! 2
+  localparam [31:0] TRANSIT_NS = 32'd2_000_000;  //! Milan max transit 2 ms
+
+  // -----------------------------------------------------------------------
+  // I2S master clocking: one free counter in cd_milan.
+  //   cnt[MCLK_DIV_LOG2-1]        -> MCLK (clk/4)
+  //   cnt[MCLK_DIV_LOG2+1]        -> SCLK (clk/16, 64 fs)
+  //   cnt[MCLK_DIV_LOG2+7]        -> LRCK (clk/1024; 0 = LEFT half)
+  // -----------------------------------------------------------------------
+  reg [MCLK_DIV_LOG2+8-1:0] cnt_r;
+  always_ff @(posedge clk_i or negedge rst_n)
+    if (!rst_n) cnt_r <= '0; else cnt_r <= cnt_r + 1'b1;
+
+  assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-1];
+  assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2+1];
+  assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+7];
+
+  //! SCLK rising edge strobe (sample SDOUT here), and LRCK edges
+  wire sclk_rise = (cnt_r[MCLK_DIV_LOG2+1:0] == {2'b01, {MCLK_DIV_LOG2{1'b1}}});
+  reg  lrck_q;
+  always_ff @(posedge clk_i or negedge rst_n)
+    if (!rst_n) lrck_q <= 1'b0; else if (sclk_rise) lrck_q <= i2s_lrck_o;
+  wire lrck_edge = sclk_rise && (i2s_lrck_o != lrck_q);
+
+  // -----------------------------------------------------------------------
+  // I2S capture: 32 SCLKs per half-frame; MSB is 1 SCLK after the LRCK edge
+  // (standard I2S). Shift on every SCLK rise; at the next LRCK edge the
+  // 24-bit sample sits in shift[30:7].
+  // -----------------------------------------------------------------------
+  reg [31:0] shift_r;
+  reg [23:0] sample_l_r, sample_r_r;
+  reg        pair_valid_r;              //! one L+R pair completed
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n) begin
+      shift_r <= '0; sample_l_r <= '0; sample_r_r <= '0; pair_valid_r <= 1'b0;
+    end else begin
+      pair_valid_r <= 1'b0;
+      if (sclk_rise) begin
+        if (lrck_edge) begin
+          // the half that just ENDED: lrck_q==0 -> LEFT ended
+          if (!lrck_q) sample_l_r <= shift_r[30:7];
+          else begin
+            sample_r_r   <= shift_r[30:7];
+            pair_valid_r <= 1'b1;
+          end
+          shift_r <= {31'd0, i2s_sdout_i};
+        end else begin
+          shift_r <= {shift_r[30:0], i2s_sdout_i};
+        end
+      end
+    end
+  end
+
+  // -----------------------------------------------------------------------
+  // Sample accumulator: 6 L/R pairs per AAF frame. Timestamp latched at the
+  // FIRST pair of the frame (+ max transit time).
+  // -----------------------------------------------------------------------
+  reg [23:0] buf_l [0:SAMPLES_PER_FRAME-1];
+  reg [23:0] buf_r [0:SAMPLES_PER_FRAME-1];
+  reg [2:0]  nsamp_r;
+  reg [31:0] ts_r;
+  reg [7:0]  seq_r;
+  reg        frame_pend_r;              //! a full frame waits for the serialiser
+
+  // -----------------------------------------------------------------------
+  // Frame byte assembly (combinational over registered fields)
+  // -----------------------------------------------------------------------
+  logic [7:0] fb [0:NUM_BEATS*8-1];
+  wire [63:0] stream_id = {station_mac_i, 16'd0};
+  always_comb begin
+    for (int k = 0; k < NUM_BEATS*8; k++) fb[k] = 8'h00;
+    // Ethernet + 802.1Q (PCP 3, DEI 0, VID)
+    {fb[0],fb[1],fb[2],fb[3],fb[4],fb[5]} = dest_mac_i;
+    {fb[6],fb[7],fb[8],fb[9],fb[10],fb[11]} = station_mac_i;
+    fb[12]=8'h81; fb[13]=8'h00;
+    fb[14]={3'd3, 1'b0, vlan_vid_i[11:8]}; fb[15]=vlan_vid_i[7:0];
+    fb[16]=8'h22; fb[17]=8'hF0;
+    // AAF-PCM AVTPDU (IEEE 1722-2016 clause 7)
+    fb[18]=8'h02;                       // subtype AAF
+    fb[19]=8'h81;                       // sv=1, ver=0, mr=0, tv=1
+    fb[20]=seq_r;                       // sequence_num
+    fb[21]=8'h00;                       // reserved, tu=0
+    {fb[22],fb[23],fb[24],fb[25],fb[26],fb[27],fb[28],fb[29]} = stream_id;
+    {fb[30],fb[31],fb[32],fb[33]} = ts_r;                  // avtp_timestamp
+    fb[34]=8'h02;                       // format = INT_32BIT
+    fb[35]={4'h5, 4'h0};                // nsr = 48 kHz, rsvd
+    fb[36]=8'h02;                       // channels_per_frame = 2 (10 bits w/ [35] low)
+    fb[37]=8'h20;                       // bit_depth = 32
+    fb[38]=8'h00; fb[39]=8'h30;         // stream_data_length = 48
+    fb[40]=8'h00;                       // sp=0 (normal), evt=0
+    fb[41]=8'h00;                       // reserved
+    // payload: 6 x {L, R}, INT32 left-justified (sample << 8), big-endian
+    for (int i = 0; i < SAMPLES_PER_FRAME; i++) begin
+      fb[42+i*8+0]=buf_l[i][23:16]; fb[42+i*8+1]=buf_l[i][15:8];
+      fb[42+i*8+2]=buf_l[i][7:0];   fb[42+i*8+3]=8'h00;
+      fb[42+i*8+4]=buf_r[i][23:16]; fb[42+i*8+5]=buf_r[i][15:8];
+      fb[42+i*8+6]=buf_r[i][7:0];   fb[42+i*8+7]=8'h00;
+    end
+  end
+
+  // -----------------------------------------------------------------------
+  // Serialiser (little lane): 12 beats, last keep = 2
+  // -----------------------------------------------------------------------
+  typedef enum logic [0:0] { IDLE_S, SEND_S } st_t;
+  st_t st_r;
+  reg [3:0] beat_r;
+  logic [63:0] w_beat;
+  always_comb
+    for (int l = 0; l < 8; l++) w_beat[8*l +: 8] = fb[{28'd0, beat_r}*8 + l];
+
+  assign m_axis_tdata  = w_beat;
+  assign m_axis_tvalid = (st_r == SEND_S);
+  assign m_axis_tlast  = (st_r == SEND_S) && (beat_r == NUM_BEATS-1);
+  assign m_axis_tkeep  = (beat_r == NUM_BEATS-1) ? 8'((1 << LAST_KEEP) - 1) : 8'hFF;
+
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n) begin
+      st_r <= IDLE_S; beat_r <= '0; nsamp_r <= '0; seq_r <= '0;
+      ts_r <= '0; frame_pend_r <= 1'b0; frames_sent_o <= '0;
+      for (int i = 0; i < SAMPLES_PER_FRAME; i++) begin
+        buf_l[i] <= '0; buf_r[i] <= '0;
+      end
+    end else begin
+      // accumulate pairs (drop if a frame is still pending — MVP backpressure)
+      if (enable_i && pair_valid_r && !frame_pend_r) begin
+        buf_l[nsamp_r] <= sample_l_r;
+        buf_r[nsamp_r] <= sample_r_r;
+        if (nsamp_r == 0)
+          ts_r <= ptp_ns_i[31:0] + TRANSIT_NS;
+        if (nsamp_r == SAMPLES_PER_FRAME-1) begin
+          nsamp_r      <= '0;
+          frame_pend_r <= 1'b1;
+        end else
+          nsamp_r <= nsamp_r + 1'b1;
+      end
+      if (!enable_i) begin
+        nsamp_r <= '0; frame_pend_r <= 1'b0;
+      end
+
+      case (st_r)
+        IDLE_S: if (frame_pend_r) begin beat_r <= '0; st_r <= SEND_S; end
+        SEND_S: if (m_axis_tready) begin
+          if (beat_r == NUM_BEATS-1) begin
+            st_r <= IDLE_S; frame_pend_r <= 1'b0;
+            seq_r <= seq_r + 1'b1;
+            frames_sent_o <= frames_sent_o + 1'b1;
+          end else
+            beat_r <= beat_r + 1'b1;
+        end
+        default: st_r <= IDLE_S;
+      endcase
+    end
+  end
+
+endmodule
+
+`default_nettype wire

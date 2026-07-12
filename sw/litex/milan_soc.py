@@ -231,6 +231,8 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/aecp/KL_aecp_ingress.sv", "hdl/aecp/KL_aecp_top.sv",
     # ACMP stateless talker responder (Milan v1.2 §5.5)
     "hdl/acmp/acmp_pkg.sv", "hdl/acmp/KL_acmp_responder.sv",
+    # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
+    "hdl/avtp/aaf_talker_i2s.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
     "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
 ]
@@ -476,6 +478,18 @@ class MilanMAC(LiteXModule):
             ),
         ]
 
+        # Pmod I2S2 on pmoda (AAF talker audio-in). Plumbing only: request the
+        # pins where the board has them; absent (AX7101) -> talker input ties 0.
+        self.i2s_pads = None
+        try:
+            from litex_boards.platforms.digilent_arty import i2s_pmod_io
+            plat = soc.platform
+            plat.add_extension(i2s_pmod_io("pmoda"))
+            _rx  = plat.request("i2s_rx")
+            _mck = plat.request("i2s_rx_mclk")
+            self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
+        except Exception:
+            self.i2s_pads = None
         self.dp_ports = dict(
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
@@ -2999,6 +3013,18 @@ class MilanDMA(LiteXModule):
                 self.rx.sink.last.eq(rx_dp.sys.last),    rx_dp.sys.ready.eq(self.rx.sink.ready),
             ]
 
+        # Pmod I2S2 on pmoda (AAF talker audio-in). Plumbing only: request the
+        # pins where the board has them; absent (AX7101) -> talker input ties 0.
+        self.i2s_pads = None
+        try:
+            from litex_boards.platforms.digilent_arty import i2s_pmod_io
+            plat = soc.platform
+            plat.add_extension(i2s_pmod_io("pmoda"))
+            _rx  = plat.request("i2s_rx")
+            _mck = plat.request("i2s_rx_mclk")
+            self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
+        except Exception:
+            self.i2s_pads = None
         self.dp_ports = dict(
             # TX: reader.source (mem data) -> datapath s_axis_tx
             i_s_axis_tx_tdata  = tx_dp.dp.data,  i_s_axis_tx_tkeep = tx_dp.dp.keep,
@@ -3008,6 +3034,10 @@ class MilanDMA(LiteXModule):
             o_m_axis_rx_tdata  = rx_dp.dp.data,  o_m_axis_rx_tvalid = rx_dp.dp.valid,
             o_m_axis_rx_tlast  = rx_dp.dp.last,  i_m_axis_rx_tready = rx_dp.dp.ready,
             # TS: datapath m_axis_ts -> writer.sink
+            o_i2s_mclk_o = self.i2s_pads[0] if self.i2s_pads else Signal(),
+            o_i2s_sclk_o = self.i2s_pads[1] if self.i2s_pads else Signal(),
+            o_i2s_lrck_o = self.i2s_pads[2] if self.i2s_pads else Signal(),
+            i_i2s_sdout_i = self.i2s_pads[3] if self.i2s_pads else 0,
             o_m_axis_ts_tdata  = ts_dp.dp.data,  o_m_axis_ts_tvalid = ts_dp.dp.valid,
             o_m_axis_ts_tlast  = ts_dp.dp.last,  i_m_axis_ts_tready = ts_dp.dp.ready,
         )
