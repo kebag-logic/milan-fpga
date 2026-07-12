@@ -254,7 +254,24 @@ bridge.
    artifacts, NOT peer frames. The kl-eth/board side is CLEAN. NEXT:
    (a) enable gPTP on the switch's board-facing ports (bench/management
    action) OR direct-cable the two boards for the pair validation;
-   (b) phase B = HW frame timestamps from the dma-ts gPTP records. Plan:** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
+   (b) phase B = HW frame timestamps from the dma-ts gPTP records. Plan:**
+
+   **SWITCH RULED OUT (2026-07-12, verified 4 ways):** the bench switch is a
+   d&b audiotechnik AVB appliance (OUI 3c:c0:c6, clock id 3cc0c6fffefe0210).
+   It runs the FULL bridge control plane (STP 2/s, gPTP 1/s, MSRP, MVRP) ONLY
+   on its gigabit uplink (pw0) — a 25 s promiscuous capture on BOTH board
+   ports shows ZERO of any of the four. It forwards ONLY registered AVB
+   multicast (ADP 91:e0:f0:xx) between board ports: board<->board ICMP,
+   board<->pw0 ICMP, PTP multicast (01:1b:19) and reserved link-local
+   (01:80:c2:00:00:0e, un-forwardable by 802.1D anyway) ALL fail. So NO
+   software path (P2P gPTP, E2E multicast, UDP unicast, pw0-as-GM) can reach
+   the boards through this switch. Endpoint IS ready: gateware timestamps
+   0x88F7 (ETH_TYPE F788), kl-eth PHC discipline validated, ptp4l runs.
+   **The ONLY unblock is a DIRECT board<->board cable** — turnkey script
+   sw/litex/gptp_direct_cable.sh (unplug both from switch, one cable eth0<->
+   eth0, run it; AX7101=GM, gate on Arty offset convergence). OR switch
+   management access (no mgmt IP/mDNS on this segment — d&b R1 software or a
+   console port). Plan after link exists:** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
    counter — the 0x500 CSR group ALREADY has INCR/ADJ discipline hooks, and
    RX/TX timestamps already land in the descriptor ts windows (@ +0x3100);
    wire SO_TIMESTAMPING to them. (b) two-node ptp4l through the AVB switch
