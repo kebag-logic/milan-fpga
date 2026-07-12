@@ -75,3 +75,20 @@ relay both absent). To get a SLAVE/offset-converged validation:
   switch relay needed. `sw/litex/gptp_direct_cable.sh` (both boards need the
   fixed .ko + /etc/gptp.cfg, now baked into the rootfs).
 - OR switch management: enable 802.1AS GM relay on the board-facing ports.
+
+
+## Bench note (end of session)
+After ~a dozen FPGA reconfigs/reboots tonight the switch stopped sending pdelay
+to the Arty port (0 inbound 88F7), while the DATA plane still works (pw0 pings
+the Arty fine). This is switch-side flap-suppression / RSTP state on that port,
+NOT the fix or our stack (both proven: bad=0, asCapable=1, full handshake
+earlier the same session). To re-validate: power-cycle the switch (or re-enable
+the board port in its management), then `ptp4l -i eth0 -f /etc/gptp.cfg -S -m`
+should show asCapable within seconds. Cleaner path unaffected by switch state =
+the direct board<->board cable (gptp_direct_cable.sh) — both boards now carry
+the fixed .ko + /etc/gptp.cfg in flash.
+
+## What's in flash now (arty, morning-ready)
+arty_v10 bitstream (MVP talker) + fixed kl-eth (PTP-trim) + /etc/gptp.cfg +
+S50milan. Verified from a flash boot: talker streaming (counters advance),
+driver has the trim, gptp.cfg present, bad-message=0.
