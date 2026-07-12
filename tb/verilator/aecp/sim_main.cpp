@@ -373,6 +373,38 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 9b. GET_COUNTERS — Milan-mandatory, ALWAYS full 136-byte payload   //
+    // ---------------------------------------------------------------- //
+    printf("\n[9b] GET_COUNTERS (full-size responses, all statuses)\n");
+    {
+        std::vector<uint8_t> so; put_be16(so, 0x0006); put_be16(so, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9100, so));
+        auto r = collect_resp();
+        ck("STREAM_OUTPUT counters SUCCESS", r_status(r), 0);
+        ck_cdl("STREAM_OUTPUT counters CDL (len-26)", r);
+        ck("counters CDL == 148", r_cdl(r), 148);
+        ckbytes("counters_valid 0x1F", r, 42, {0x00,0x00,0x00,0x1F});
+
+        std::vector<uint8_t> av; put_be16(av, 0x0009); put_be16(av, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9101, av));
+        auto r2 = collect_resp();
+        ck("AVB_INTERFACE counters SUCCESS", r_status(r2), 0);
+        ckbytes("counters_valid 0x23", r2, 42, {0x00,0x00,0x00,0x23});
+
+        std::vector<uint8_t> en; put_be16(en, 0x0000); put_be16(en, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9102, en));
+        auto r3 = collect_resp();
+        ck("ENTITY counters BAD_ARGUMENTS", r_status(r3), 7);
+        ck("error response STILL full-size (CDL 148)", r_cdl(r3), 148);   // the Hive field-report class
+
+        std::vector<uint8_t> nx; put_be16(nx, 0x0005); put_be16(nx, 9);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9103, nx));
+        auto r4 = collect_resp();
+        ck("unknown desc NO_SUCH_DESCRIPTOR", r_status(r4), 2);
+        ck("error response full-size (CDL 148)", r_cdl(r4), 148);
+    }
+
+    // ---------------------------------------------------------------- //
     // 10. Frame for a DIFFERENT entity_id -> ignored (no response)      //
     // ---------------------------------------------------------------- //
     printf("\n[10] wrong target entity_id -> silent\n");

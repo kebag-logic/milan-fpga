@@ -664,6 +664,36 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
+              // GET_COUNTERS: Milan-mandatory (v1.2 §5.4.2.25; la_avdecc
+              // "mandatory dynamic info"). The response payload is ALWAYS the
+              // full 136 B — type(2)+id(2)+counters_valid(4)+128 B block —
+              // for EVERY status: la_avdecc/Hive reject undersized non-success
+              // responses (the 2026-07-11 pipewire field-report class).
+              // Valid masks mirror the pipewire reference (all counter values
+              // zero until HW counters are wired): STREAM_OUTPUT = 0x1F
+              // (STREAM_START|STOP|MEDIA_RESET|TS_UNCERTAIN|FRAMES_TX),
+              // AVB_INTERFACE = 0x23 (LINK_UP|LINK_DOWN|GPTP_GM_CHANGED).
+              // The zeroed block rides a SEG_NONE segment (emit default 0x00).
+              CMD_GET_COUNTERS: begin
+                seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
+                seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd4;
+                seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd128;
+                for (int k = 0; k < 4; k++) const_q[k] <= 8'h00;
+                cdl_q <= 11'd148;   // 12 + 136
+                if (w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) begin
+                  status_q   <= STATUS_SUCCESS;
+                  const_q[3] <= 8'h1F;
+                end else if (w_gs_type == DESC_AVB_INTERFACE && w_gs_index == 16'd0) begin
+                  status_q   <= STATUS_SUCCESS;
+                  const_q[3] <= 8'h23;
+                end else if (acc_found) begin
+                  status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
+                end else begin
+                  status_q <= STATUS_NO_SUCH_DESCRIPTOR;
+                end
+              end
+
+              // -------------------------------------------------- //
               CMD_REGISTER_UNSOLICITED_NOTIFICATION,
               CMD_DEREGISTER_UNSOLICITED_NOTIFICATION: begin
                 status_q      <= STATUS_SUCCESS;

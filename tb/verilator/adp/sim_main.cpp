@@ -11,8 +11,8 @@
  *   - Ethernet header: dst = 91:E0:F0:01:00:00, src = station MAC, type 0x22F0
  *   - ADPDU: subtype 0xFA, control_data_length 0x38, all entity fields byte-exact
  *   - message_type per scenario: AVAILABLE(0) / DEPARTING(1)
- *   - available_index: +1 on link-up / info-change; UNCHANGED on periodic
- *     re-advertise and on a discover response; monotonic; not bumped by depart
+ *   - available_index: +1 on EVERY transmitted ADPDU: link-up, periodic
+ *     re-advertise, discover response and depart (every ADPDU send bumps)
  *   - the periodic advertise timer fires after valid_time ticks
  *   - byte-for-byte integrity of the frame under AXIS back-pressure
  *
@@ -154,35 +154,40 @@ int main(int argc, char** argv) {
 
     printf("== adp_advertiser harness ==\n");
 
-    // 1) link-up -> ENTITY_AVAILABLE, available_index bumped 0 -> 1
+    // available_index increments on EVERY transmitted ADPDU (IEEE 1722.1
+    // §6.2.1.16 as enforced by la_avdecc/Hive — a repeated index makes the
+    // controller treat the entity as offline/online-cycling; the pipewire
+    // module-avb reference also bumps on every send).
+
+    // 1) link-up -> ENTITY_AVAILABLE, available_index 0 -> 1
     pulse(dut->link_up_i);
     auto f1 = capture_frame();
     check_common("link-up AVAILABLE", f1, /*AVAILABLE*/0, /*index*/1);
 
-    // 2) periodic re-advertise after VALID_TIME ticks -> AVAILABLE, index UNCHANGED (1)
+    // 2) periodic re-advertise after VALID_TIME ticks -> AVAILABLE, 1 -> 2
     for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
     auto f2 = capture_frame();
-    check_common("periodic AVAILABLE", f2, 0, 1);   // <-- no spurious index bump
+    check_common("periodic AVAILABLE", f2, 0, 2);   // every send bumps
 
-    // 3) discover response -> AVAILABLE, index UNCHANGED (1)
+    // 3) discover response -> AVAILABLE, 2 -> 3
     pulse(dut->rcv_discover_i);
     auto f3 = capture_frame();
-    check_common("discover-response AVAILABLE", f3, 0, 1);
+    check_common("discover-response AVAILABLE", f3, 0, 3);
 
-    // 4) info/gm change -> AVAILABLE, index bumped 1 -> 2
+    // 4) info/gm change -> AVAILABLE, 3 -> 4
     pulse(dut->gm_change_i);
     auto f4 = capture_frame();
-    check_common("gm-change AVAILABLE", f4, 0, 2);
+    check_common("gm-change AVAILABLE", f4, 0, 4);
 
-    // 5) link-down -> ENTITY_DEPARTING, index UNCHANGED (2, depart never bumps)
+    // 5) link-down -> ENTITY_DEPARTING, 4 -> 5 (reference bumps on depart too)
     pulse(dut->link_down_i);
     auto f5 = capture_frame();
-    check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 2);
+    check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 5);
 
-    // 6) re-up under AXIS back-pressure -> AVAILABLE, index 2 -> 3, bytes intact
+    // 6) re-up under AXIS back-pressure -> AVAILABLE, 5 -> 6, bytes intact
     pulse(dut->link_up_i);
     auto f6 = capture_frame(/*bp=*/1);
-    check_common("backpressure AVAILABLE", f6, 0, 3);
+    check_common("backpressure AVAILABLE", f6, 0, 6);
 
     // 7) once departed (link down), a periodic tick must NOT emit a frame
     pulse(dut->link_down_i);
