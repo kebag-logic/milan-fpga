@@ -39,7 +39,7 @@ def grp(i, x, y, w, h, label, stroke="#999999", fill="none", font=13):
                  f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
 def edge(i, s, t, label="", style="", dashed=0):
     st = ("edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;"
-          "strokeColor=#333333;fontSize=11;" + style)
+          "strokeColor=#333333;fontSize=11;labelBackgroundColor=#ffffff;" + style)
     if dashed: st += "dashed=1;strokeColor=#999999;endArrow=open;"
     cells.append(f'<mxCell id="{i}" value="{esc(label)}" style="{st}" edge="1" parent="1" '
                  f'source="{s}" target="{t}"><mxGeometry relative="1" as="geometry"/></mxCell>')
@@ -58,58 +58,58 @@ def table(i, x, y, w, rows, font=10, title=None, fill="#f5f5f5", stroke="#666666
 # ======================================================================= #
 # PAGE 1 — OVERVIEW
 # ======================================================================= #
-page("1-overview")
-box("title", 40, 12, 1180, 30,
+page("1-overview", w=1520, h=1150)
+box("title", 40, 12, 1440, 30,
     "Milan v1.2 ATDECC entity (IEEE 1722.1-2021) — hardware datapath  ·  hdl/aecp   (pages 2-8: every block down to bit level)",
     fill="#f5f5f5", stroke="#666666", font=14, rounded=0)
 
-grp("g_net", 40, 60, 1180, 70, "MAC / wire  (AVTP ethertype 0x22F0, in milan_datapath)")
-grp("g_rx",  40, 150, 300, 620, "RX path   [page 2]")
-grp("g_core",360, 150, 470, 620, "AECP / AEM core pipeline  (hdl/aecp/KL_aecp_*)   [pages 3-5]")
-grp("g_tx", 850, 150, 370, 620, "TX path  (low-rate control merged into MAC TX)   [pages 7-8]")
-grp("g_model", 40, 800, 590, 190, "Entity model — single source of truth   [page 6]")
-grp("g_ctrl", 650, 800, 230, 190, "milan_csr (CPU AXI-Lite)   [page 8]")
-grp("g_ver", 900, 800, 320, 190, "Verification")
+grp("g_net", 40, 60, 1440, 70, "MAC / wire  (AVTP ethertype 0x22F0, in milan_datapath)")
+grp("g_rx",  40, 150, 340, 700, "RX path   [page 2]")
+grp("g_core",420, 150, 530, 700, "AECP / AEM core pipeline  (hdl/aecp/KL_aecp_*)   [pages 3-5]")
+grp("g_tx", 1010, 150, 440, 700, "TX path  (low-rate control merged into MAC TX)   [pages 7-8]")
+grp("g_model", 40, 880, 590, 190, "Entity model — single source of truth   [page 6]")
+grp("g_ctrl", 650, 880, 240, 190, "milan_csr (CPU AXI-Lite)   [page 8]")
+grp("g_ver", 910, 880, 470, 190, "Verification")
 
 box("mac_rx", 70, 80, 240, 40, "MAC RX  →  rx_mac_filter (TCAM)\npost-filter stream rx_axis_to_dma", fill="#d5e8d4", stroke="#82b366", font=11)
-box("mac_tx", 950, 80, 240, 40, "MAC TX  (eth_mac_1g_rgmii)\ntx_axis_to_mac", fill="#d5e8d4", stroke="#82b366", font=11)
-box("dma", 660, 85, 250, 30, "→ RX DMA / CPU (kl-eth)  — the tap is a copy", fill="#f8cecc", stroke="#b85450", font=10)
+box("mac_tx", 1180, 80, 240, 40, "MAC TX  (eth_mac_1g_rgmii)\ntx_axis_to_mac", fill="#d5e8d4", stroke="#82b366", font=11)
+box("dma", 680, 85, 260, 30, "→ RX DMA / CPU (kl-eth)  — the tap is a copy", fill="#f8cecc", stroke="#b85450", font=10)
 
-box("ingress", 60, 200, 260, 130,
-    "KL_aecp_ingress   [p2]\n\n• MONITOR tap on rx_axis_to_dma (reads only,\n  never backpressures the NIC)\n• filter: AECP-for-us (dst=our MAC, 0xFB)\n  and ADP ENTITY_DISCOVER\n• store-and-forward, strip Eth hdr,\n  replay BIG-lane\n• capture controller src MAC", fill="#dae8fc", stroke="#6c8ebf", font=10, align="left")
-box("adp_disc", 60, 360, 260, 40, "adp_discover_o  →  advertiser (discovery response)", fill="#ffe6cc", stroke="#d79b00", font=10)
+box("ingress", 60, 200, 280, 140,
+    "KL_aecp_ingress   [p2]\n\n• MONITOR tap on rx_axis_to_dma (reads only,\n  never backpressures the NIC)\n• filter: AECP-for-us (dst=our MAC, 0xFB)\n  and ADP ENTITY_DISCOVER\n• store-and-forward (fbuf 128 B LUTRAM),\n  strip Eth hdr,\n  replay BIG-lane\n• capture controller src MAC", fill="#dae8fc", stroke="#6c8ebf", font=10, align="left")
+box("adp_disc", 60, 400, 280, 44, "adp_discover_o  →  advertiser (discovery response)", fill="#ffe6cc", stroke="#d79b00", font=10)
 
-box("val", 380, 200, 430, 46, "KL_aecp_packet_validator   [p3] — drop bad message_type / CDL < 12", fill="#dae8fc", stroke="#6c8ebf", font=11, align="left")
-box("par", 380, 270, 430, 56, "KL_aecp_common_parser   [p3] — extract aecp_hdr_t\n(target/controller EID, seq, command_type); entity_id match", fill="#dae8fc", stroke="#6c8ebf", font=11, align="left")
-box("l0",  380, 350, 200, 90, "KL_aecp_l0_state   [p4]\n\n• LOCK_ENTITY (60 s timeout)\n• ACQUIRE → NOT_SUPPORTED\n• current_configuration", fill="#e1d5e7", stroke="#9673a6", font=10, align="left")
-box("tim", 600, 350, 210, 44, "KL_aecp_timers   [p4]\n1 kHz tick → lock timer", fill="#e1d5e7", stroke="#9673a6", font=10, align="left")
-box("bld", 380, 470, 430, 130,
+box("val", 440, 200, 490, 46, "KL_aecp_packet_validator   [p3] — drop bad message_type / CDL < 12", fill="#dae8fc", stroke="#6c8ebf", font=11, align="left")
+box("par", 440, 290, 490, 56, "KL_aecp_common_parser   [p3] — extract aecp_hdr_t\n(target/controller EID, seq, command_type); entity_id match", fill="#dae8fc", stroke="#6c8ebf", font=11, align="left")
+box("l0",  440, 400, 220, 100, "KL_aecp_l0_state   [p4]\n\n• LOCK_ENTITY (60 s timeout)\n• ACQUIRE → NOT_SUPPORTED\n• current_configuration", fill="#e1d5e7", stroke="#9673a6", font=10, align="left")
+box("tim", 740, 400, 190, 56, "KL_aecp_timers   [p4]\n1 kHz tick → lock timer", fill="#e1d5e7", stroke="#9673a6", font=10, align="left")
+box("bld", 440, 550, 280, 220,
     "KL_aecp_response_builder   [p5]  — the command brain\n\n• capture payload, classify command\n• READ_DESCRIPTOR · GET/SET name·config·\n  sampling-rate·stream-format · GET_STREAM_INFO·\n  AVB_INFO · GET_COUNTERS · GET_AS_PATH · MVU\n  GET_MILAN_INFO · SET_* write-back\n• build response frame (little-lane, CDL = frame − 26)", fill="#dae8fc", stroke="#6c8ebf", font=10, align="left")
 
-box("acc", 620, 620, 190, 40, "KL_aecp_accessor   [p6]\n(type,index) → base,len", fill="#d5e8d4", stroke="#82b366", font=10)
-box("store", 620, 668, 190, 40, "KL_aecp_aem_store   [p6]\ndescriptor ROM + SET write-back", fill="#d5e8d4", stroke="#82b366", font=10)
-box("dyn", 620, 716, 190, 46, "KL_aecp_aem_dyn_mux   [p6]\nlive-field overlay (entity_id,\nMAC, caps, avail_index)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("acc", 760, 550, 170, 56, "KL_aecp_accessor   [p6]\ndirectory 5 × 64b FF\n(type,index) → base,len", fill="#d5e8d4", stroke="#82b366", font=10)
+box("store", 760, 626, 170, 56, "KL_aecp_aem_store   [p6]\nROM 808 B BRAM (byte port 8b)\n+ volatile SET write-back", fill="#d5e8d4", stroke="#82b366", font=10)
+box("dyn", 760, 702, 170, 68, "KL_aecp_aem_dyn_mux   [p6]\nlive-field overlay mux\n(entity_id, MAC, caps, avail_index)", fill="#d5e8d4", stroke="#82b366", font=10)
 
-box("adv", 880, 200, 310, 130,
+box("adv", 1040, 200, 380, 150,
     "adp_advertiser   [p7]\n\n• periodic ENTITY_AVAILABLE (valid_time)\n• answers ENTITY_DISCOVER (rcv_discover)\n• ENTITY_DEPARTING on link-down\n• available_index +1 on EVERY ADPDU sent\n  (la_avdecc/Hive strict-increment rule)", fill="#ffe6cc", stroke="#d79b00", font=10, align="left")
-box("mux_lo", 880, 380, 310, 56, "adp_tx_arbiter (low-rate merge)   [p8]\nADP advertise  +  AECP response", fill="#fff2cc", stroke="#d6b656", font=11, align="left")
-box("mux_dp", 880, 470, 310, 56, "adp_tx_arbiter (datapath merge)   [p8]\ncontrol stream inserted in inter-frame gaps", fill="#fff2cc", stroke="#d6b656", font=11, align="left")
-box("txout", 880, 560, 310, 40, "→ tx_axis_to_mac", fill="#d5e8d4", stroke="#82b366", font=11)
+box("mux_lo", 1040, 430, 380, 56, "adp_tx_arbiter (low-rate merge)   [p8]\nADP advertise  +  AECP response", fill="#fff2cc", stroke="#d6b656", font=11, align="left")
+box("mux_dp", 1040, 560, 380, 56, "adp_tx_arbiter (datapath merge)   [p8]\ncontrol stream inserted in inter-frame gaps", fill="#fff2cc", stroke="#d6b656", font=11, align="left")
+box("txout", 1040, 680, 380, 40, "→ tx_axis_to_mac", fill="#d5e8d4", stroke="#82b366", font=11)
 
-box("json", 60, 840, 180, 44, "avdecc/\nmilan-v12-entity.json\n(byte-accurate model)", fill="#f5f5f5", stroke="#666", font=10)
-box("gen", 270, 840, 150, 44, "gen_aem_store.py\n(trim → 5 descriptors)", fill="#f5f5f5", stroke="#666", font=10)
-box("svh", 450, 840, 160, 44, "hdl/aecp/gen/\naecp_aem_rom.svh\n(ROM+dir+overlay map)", fill="#f5f5f5", stroke="#666", font=10)
-box("desc", 60, 905, 550, 70,
+box("json", 60, 920, 180, 44, "avdecc/\nmilan-v12-entity.json\n(byte-accurate model)", fill="#f5f5f5", stroke="#666", font=10)
+box("gen", 270, 920, 150, 44, "gen_aem_store.py\n(trim → 5 descriptors)", fill="#f5f5f5", stroke="#666", font=10)
+box("svh", 450, 920, 160, 44, "hdl/aecp/gen/\naecp_aem_rom.svh\n(ROM+dir+overlay map)", fill="#f5f5f5", stroke="#666", font=10)
+box("desc", 60, 985, 550, 70,
     "5 descriptors:  ENTITY → CONFIGURATION → { AVB_INTERFACE ×1 · AUDIO_UNIT ×1 · STREAM_OUTPUT ×1 }\n"
     "one configuration · 48/96/192 kHz · AAF talker.  Static fields in ROM; live fields overlaid at read.",
     fill="#f5f5f5", stroke="#666", font=10, align="left")
 
-box("csr_id", 660, 840, 210, 60, "0x600 ADP/identity group\nentity_id · caps · station MAC ·\ngPTP GM/domain · valid_time\n(shared by ADP + AEM → can't disagree)", fill="#e1d5e7", stroke="#9673a6", font=9, align="left")
-box("csr_st", 660, 910, 210, 60, "0x648 / 0x64C  AECP status (RO)\nlocked · cmd_count · resp_count ·\ncurrent_configuration", fill="#e1d5e7", stroke="#9673a6", font=9, align="left")
+box("csr_id", 665, 920, 210, 64, "0x600 ADP/identity group\nentity_id · caps · station MAC ·\ngPTP GM/domain · valid_time\n(shared by ADP + AEM → can't disagree)", fill="#e1d5e7", stroke="#9673a6", font=9, align="left")
+box("csr_st", 665, 995, 210, 60, "0x648 / 0x64C  AECP status (RO)\nlocked · cmd_count · resp_count ·\ncurrent_configuration", fill="#e1d5e7", stroke="#9673a6", font=9, align="left")
 
-box("v_cosim", 910, 840, 300, 40, "tsn-gen ↔ Verilator co-sim (Vaecp_cosim)\nreal RTL over AxiStreamBeat socket — 42/42", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
-box("v_la", 910, 888, 300, 40, "la_avdecc probe (Hive's library) on pw0\nfull enumeration; strict payload-size checks", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
-box("v_ctl", 910, 936, 300, 34, "avdecc/milan_controller.py (peer, on silicon)\n+ tb/verilator/aecp 68/68 · Yosys 19/19", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
+box("v_cosim", 925, 920, 440, 42, "tsn-gen ↔ Verilator co-sim (Vaecp_cosim)\nreal RTL over AxiStreamBeat socket — 42/42", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
+box("v_la", 925, 972, 440, 42, "la_avdecc probe (Hive's library) on pw0\nfull enumeration; strict payload-size checks", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
+box("v_ctl", 925, 1024, 440, 36, "avdecc/milan_controller.py (peer, on silicon)\n+ tb/verilator/aecp 68/68 · Yosys 19/19", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
 
 edge("e1", "mac_rx", "ingress", "tap (copy)")
 edge("e1b", "mac_rx", "dma", "", dashed=1)
@@ -120,12 +120,12 @@ edge("e5", "par", "bld", "hdr + payload")
 edge("e6", "l0", "bld", "status / reject")
 edge("e7", "tim", "l0", "1 kHz", dashed=1)
 edge("e8", "ingress", "adp_disc", "ENTITY_DISCOVER")
-edge("e9", "adp_disc", "adv", "rcv_discover")
-edge("e10", "bld", "acc", "desc lookup")
+edge("e9", "adp_disc", "adv")
+edge("e10", "bld", "acc", "lookup")
 edge("e11", "acc", "store", "base")
 edge("e12", "store", "dyn", "ROM byte")
 edge("e13", "dyn", "bld", "overlaid byte")
-edge("e13b","bld", "store", "SET write-back", style="exitX=1;exitY=0.2;")
+edge("e13b","bld", "store", "SET wb", style="exitX=1;exitY=0.2;")
 edge("e14", "bld", "mux_lo", "response AXIS")
 edge("e15", "adv", "mux_lo", "advertise")
 edge("e16", "mux_lo", "mux_dp")
