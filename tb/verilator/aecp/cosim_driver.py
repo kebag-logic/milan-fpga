@@ -109,6 +109,7 @@ def main():
         ("LOCK_ENTITY",                   0, 1, b"\x00"*12, False, 0),
         ("ACQUIRE_ENTITY",                0, 0, b"\x00"*16, False, 11),
         ("GET_CONFIGURATION",             0, 7, b"", False, 0),
+        ("GET_STREAM_INFO(STREAM_OUTPUT)", 0, 15, struct.pack(">HH", 0x0006, 0), False, 0),
         ("MVU GET_MILAN_INFO",            6, 0, b"", True, 0),
     ]
     seq = 0x100
