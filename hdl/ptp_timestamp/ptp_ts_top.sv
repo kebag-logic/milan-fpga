@@ -59,6 +59,9 @@ module ptp_ts_top#(
   output wire [TS_WIDTH-1:0]  o_ptp_tod_rd,       //! gettime result, ns (axis_clk)
   output wire                 o_ptp_tod_rd_valid, //! gettime result valid (1 axis_clk pulse)
   output wire                 o_tx_ts_ready,      //! TX egress timestamp available (IRQ pulse, axis_clk)
+  output wire [TS_WIDTH-1:0]  o_ptp_now,          //! live counter value (gtx_clk domain; on the
+                                                  //! Arty gtx==cd_milan so the AAF talker reads it
+                                                  //! directly — revisit for a 125 MHz gtx part)
 
   //! TX AXI-Stream inputs
   input  wire [TDATA_WIDTH-1:0] s_axis_tx_tdata,
@@ -406,6 +409,8 @@ module ptp_ts_top#(
   // ---------------------------------------------------------------------------
   //! DMA engine to sent timestamp metadata info to PS
   // ---------------------------------------------------------------------------
+
+  assign o_ptp_now = timestamp;
 
 endmodule
 
