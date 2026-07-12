@@ -140,20 +140,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   // ---- boundary flat ports <-> internal interfaces ----
   // TX DMA in -> shaper
-  //! host TX + the fabric AAF talker merge BEFORE the classifier: the AAF
-  //! frames carry their own 802.1Q PCP-3 tag -> class-A queue -> CBS.
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) aaf_tx_mux (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (s_axis_tx_tdata),  .s_data_tkeep (s_axis_tx_tkeep),
-    .s_data_tvalid(s_axis_tx_tvalid), .s_data_tlast (s_axis_tx_tlast),
-    .s_data_tready(s_axis_tx_tready),
-    .s_adp_tdata (aaf_tx_tdata),  .s_adp_tkeep (aaf_tx_tkeep),
-    .s_adp_tvalid(aaf_tx_tvalid), .s_adp_tlast (aaf_tx_tlast),
-    .s_adp_tready(aaf_tx_tready),
-    .m_tdata (tx_axis_to_shaper.tdata), .m_tkeep (tx_axis_to_shaper.tkeep),
-    .m_tvalid(tx_axis_to_shaper.tvalid), .m_tlast (tx_axis_to_shaper.tlast),
-    .m_tready(tx_axis_to_shaper.tready)
-  );
+  //! host TX -> shaper (unchanged path)
+  assign tx_axis_to_shaper.tdata  = s_axis_tx_tdata;
+  assign tx_axis_to_shaper.tkeep  = s_axis_tx_tkeep;
+  assign tx_axis_to_shaper.tvalid = s_axis_tx_tvalid;
+  assign tx_axis_to_shaper.tlast  = s_axis_tx_tlast;
+  assign s_axis_tx_tready         = tx_axis_to_shaper.tready;
 
   aaf_talker_i2s aaf_talker (
     .clk_i (axis_clk), .rst_n (axis_resetn),
@@ -703,14 +695,31 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   );
 
   //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
+  //! AAF injected AFTER the shaper (MVP: bypasses CBS for continuous emission,
+  //! like ADP; class-A shaping = the is_1g follow-up). Merge shaped-data + AAF.
+  wire [TDATA_WIDTH-1:0]   dpaaf_tdata;
+  wire [TDATA_WIDTH/8-1:0] dpaaf_tkeep;
+  wire                     dpaaf_tvalid, dpaaf_tlast, dpaaf_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) aaf_final_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (tx_axis_dp_to_arb.tdata),  .s_data_tkeep (tx_axis_dp_to_arb.tkeep),
+    .s_data_tvalid(tx_axis_dp_to_arb.tvalid), .s_data_tlast (tx_axis_dp_to_arb.tlast),
+    .s_data_tready(tx_axis_dp_to_arb.tready),
+    .s_adp_tdata (aaf_tx_tdata),  .s_adp_tkeep (aaf_tx_tkeep),
+    .s_adp_tvalid(aaf_tx_tvalid), .s_adp_tlast (aaf_tx_tlast),
+    .s_adp_tready(aaf_tx_tready),
+    .m_tdata (dpaaf_tdata), .m_tkeep (dpaaf_tkeep),
+    .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready)
+  );
+
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
     .clk_i (axis_clk),
     .rst_n (axis_resetn),
-    .s_data_tdata (tx_axis_dp_to_arb.tdata),
-    .s_data_tkeep (tx_axis_dp_to_arb.tkeep),
-    .s_data_tvalid(tx_axis_dp_to_arb.tvalid),
-    .s_data_tlast (tx_axis_dp_to_arb.tlast),
-    .s_data_tready(tx_axis_dp_to_arb.tready),
+    .s_data_tdata (dpaaf_tdata),
+    .s_data_tkeep (dpaaf_tkeep),
+    .s_data_tvalid(dpaaf_tvalid),
+    .s_data_tlast (dpaaf_tlast),
+    .s_data_tready(dpaaf_tready),
     .s_adp_tdata (ctl_tx_tdata),
     .s_adp_tkeep (ctl_tx_tkeep),
     .s_adp_tvalid(ctl_tx_tvalid),
