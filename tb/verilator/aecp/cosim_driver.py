@@ -112,6 +112,8 @@ def main():
         ("GET_STREAM_INFO(STREAM_OUTPUT)", 0, 15, struct.pack(">HH", 0x0006, 0), False, 0),
         ("GET_COUNTERS(STREAM_OUTPUT)",   0, 41, struct.pack(">HH", 0x0006, 0), False, 0),
         ("GET_COUNTERS(ENTITY->BAD_ARG)", 0, 41, struct.pack(">HH", 0x0000, 0), False, 7),
+        ("GET_AS_PATH(if 0)",             0, 40, struct.pack(">HH", 0, 0), False, 0),
+        ("GET_AS_PATH(if 9->NO_SUCH)",    0, 40, struct.pack(">HH", 9, 0), False, 2),
         ("MVU GET_MILAN_INFO",            6, 0, b"", True, 0),
     ]
     seq = 0x100

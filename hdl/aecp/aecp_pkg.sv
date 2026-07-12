@@ -71,6 +71,7 @@ package aecp_pkg;
   localparam [14:0] CMD_REGISTER_UNSOLICITED_NOTIFICATION  = 15'd36;
   localparam [14:0] CMD_DEREGISTER_UNSOLICITED_NOTIFICATION= 15'd37;
   localparam [14:0] CMD_GET_AVB_INFO                       = 15'd39;
+  localparam [14:0] CMD_GET_AS_PATH                        = 15'd40;
   localparam [14:0] CMD_GET_COUNTERS                       = 15'd41;
   localparam [14:0] CMD_GET_AUDIO_MAP                      = 15'd43;
   localparam [14:0] CMD_ADD_AUDIO_MAPPINGS                 = 15'd44;
