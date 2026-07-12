@@ -1,0 +1,82 @@
+diff --git a/litex/soc/software/bios/Makefile b/litex/soc/software/bios/Makefile
+index 9ac2da9..5535a22 100755
+--- a/litex/soc/software/bios/Makefile
++++ b/litex/soc/software/bios/Makefile
+@@ -4,6 +4,7 @@ include $(SOC_DIRECTORY)/software/common.mak
+ # Permit TFTP_SERVER_PORT override from shell environment / command line
+ ifdef TFTP_SERVER_PORT
+ CFLAGS += -DTFTP_SERVER_PORT=$(TFTP_SERVER_PORT)
++CFLAGS += -I$(BIOS_DIRECTORY)/xz
+ endif
+ 
+ OBJECTS = boot-helper.o	\
+@@ -19,6 +20,10 @@ OBJECTS = boot-helper.o	\
+ 	  cmd_litesdcard.o  \
+ 	  cmd_litesata.o    \
+ 	  sim_debug.o		\
++	  xz_crc32.o        \
++	  xz_dec_lzma2.o    \
++	  xz_dec_stream.o   \
++	  milan_xz.o        \
+ 	  main.o            \
+ 	  crt0.o
+ 
+@@ -104,7 +109,7 @@ endif
+ # pull in dependency info for *existing* .o files
+ -include $(OBJECTS:.o=.d)
+ 
+-VPATH = $(BIOS_DIRECTORY):$(BIOS_DIRECTORY)/cmds:$(CPU_DIRECTORY)
++VPATH = $(BIOS_DIRECTORY):$(BIOS_DIRECTORY)/cmds:$(BIOS_DIRECTORY)/xz:$(CPU_DIRECTORY)
+ 
+ %.o: %.c
+ 	$(compile)
+diff --git a/litex/soc/software/bios/boot.c b/litex/soc/software/bios/boot.c
+index 6d917aa..114e6b3 100644
+--- a/litex/soc/software/bios/boot.c
++++ b/litex/soc/software/bios/boot.c
+@@ -886,6 +886,20 @@ void flashboot(void)
+  * remaining, smaller images (a boot.json that omits the flashed ones). A CRC/length failure
+  * on any image aborts the copy and falls through to serialboot, so an empty or mid-update
+  * flash can never brick the boot. Registered at priority -10 in main.c (before serialboot). */
++/* Layout v3: the kernel slot holds the kernel build's own Image.xz
++ * (bootloader-decompressed artifact; plain LZMA2, --check=crc32). The FBI
++ * payload is staged in DRAM, magic-sniffed, and either xz-decoded (vendored
++ * xz_embedded, single-call: the destination buffer IS the dictionary) or
++ * plain-copied — both artifact styles keep booting during the transition. */
++#include <stddef.h>
++int milan_is_xz(const unsigned char *buf);
++unsigned long milan_unxz(const unsigned char *src, unsigned long src_len,
++                         unsigned char *dst, unsigned long dst_max);
++void milan_xz_set_arena(void *base, size_t size);
++#define MILAN_XZ_STAGING (MILAN_FLASHBOOT_KERNEL_ADDR + 0x01800000UL) /* +24 MB */
++#define MILAN_XZ_ARENA   (MILAN_FLASHBOOT_KERNEL_ADDR + 0x01C00000UL) /* +28 MB, 64 KB */
++#define MILAN_XZ_DSTMAX  0x01000000UL                                 /* 16 MB cap */
++
+ #if defined(MILAN_FLASHBOOT_ENTRY) && defined(MAIN_RAM_BASE_VA)
+ void linux_flashboot(void)
+ {
+@@ -899,8 +913,23 @@ void linux_flashboot(void)
+ 		return;
+ #endif
+ #ifdef MILAN_FLASHBOOT_KERNEL_OFFSET
+-	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET, MILAN_FLASHBOOT_KERNEL_ADDR))
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET, MILAN_XZ_STAGING))
+ 		return;
++	{
++		unsigned int klen = *(volatile unsigned int *)(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET);
++		unsigned char *stage = (unsigned char *)MILAN_XZ_STAGING;
++		if(milan_is_xz(stage)) {
++			unsigned long out;
++			printf("Milan: kernel is xz (%u bytes), decompressing...\n", klen);
++			milan_xz_set_arena((void *)MILAN_XZ_ARENA, 0x10000);
++			out = milan_unxz(stage, klen, (unsigned char *)MILAN_FLASHBOOT_KERNEL_ADDR, MILAN_XZ_DSTMAX);
++			if(!out)
++				return;
++			printf("Milan: kernel decompressed: %lu bytes.\n", out);
++		} else {
++			memcpy((void *)MILAN_FLASHBOOT_KERNEL_ADDR, stage, klen);
++		}
++	}
+ #endif
+ #ifdef MILAN_FLASHBOOT_ROOTFS_OFFSET
+ 	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_ROOTFS_OFFSET, MILAN_FLASHBOOT_ROOTFS_ADDR))
