@@ -1,5 +1,13 @@
 # AECP / AEM listener — Developer Reference
 
+**Architecture diagram:** [`atdecc_architecture.drawio`](atdecc_architecture.drawio)
+([PNG](atdecc_architecture.png)) — the ATDECC (ADP + AECP/AEM) block diagram:
+RX monitor tap → validator → parser → l0_state + response_builder ↔
+store/accessor/dyn_mux, the ADP advertiser, the TX merge arbiters, the entity
+model/generation flow, the CSR groups, and the verification setup. Regenerate
+with `python3 atdecc_architecture.gen.py atdecc_architecture.drawio` (then
+`atdecc_architecture.render.py` for the SVG/PNG).
+
 **Spec:** IEEE 1722.1-2021 §9 · Milan v1.2 §5.4
 **Target:** Artix-7 (AX7101 `xc7a100tfgg484` @ 100 MHz datapath; Arty @ 50 MHz)
 **Package:** `hdl/aecp/aecp_pkg.sv`
