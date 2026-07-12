@@ -244,11 +244,17 @@ bridge.
    /dev/ptp0; (d) dropbear needs /var/run/dropbear (dangling symlink) +
    chmod 700 /root — then pw0-keyed scp gives a fast .ko loop. ptp4l -S
    (gPTP: L2, P2P, transportSpecific 1, /tmp/gptp.cfg) runs on both.
-   REMAINING: through the AVB switch each endpoint hears only the SWITCH's
-   own 802.1AS engine ('bad message' x236) and announces are NOT bridged ->
-   both elect themselves master. Next: decode one rejected 0x88F7 frame,
-   check linuxptp 2.1-version parsing / switch per-port gPTP mode; then
-   phase B = HW frame timestamps from the dma-ts gPTP records. Plan:** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
+   ROOT-CAUSED (tcpdump decode + injection test): the switch's 0x88F7
+   frames are VALID plain gPTP Pdelay_Req (v2.0, sdoId 1, len 54) — but
+   they only run on pw0's port; the BOARD-facing ports carry ZERO 88F7
+   (minutes of tcpdump), and an injected 88F7 from pw0 does NOT reach the
+   Arty (link-local correctly unforwarded). So: the switch does not run
+   gPTP on the board ports and relays no Sync/Announce -> both endpoints
+   elect themselves master. ptp4l's 'bad message' spam = its own errqueue
+   artifacts, NOT peer frames. The kl-eth/board side is CLEAN. NEXT:
+   (a) enable gPTP on the switch's board-facing ports (bench/management
+   action) OR direct-cable the two boards for the pair validation;
+   (b) phase B = HW frame timestamps from the dma-ts gPTP records. Plan:** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
    counter — the 0x500 CSR group ALREADY has INCR/ADJ discipline hooks, and
    RX/TX timestamps already land in the descriptor ts windows (@ +0x3100);
    wire SO_TIMESTAMPING to them. (b) two-node ptp4l through the AVB switch
