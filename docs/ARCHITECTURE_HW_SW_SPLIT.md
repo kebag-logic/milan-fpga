@@ -37,7 +37,7 @@ A function goes to the softcore when it is:
 | HW-TSO header generation | fabric | silicon | TX 143/186 zc validated |
 | **ADP advertiser** (available/depart/discover, available_index) | fabric | silicon | la_avdecc-clean; index +1 every ADPDU |
 | **AECP/AEM entity** (5 descriptors, Milan §5.4.4 command set, LOCK) | fabric | silicon | zero-CPU responder; ROM+overlay store |
-| **ACMP stateless responder** (GET_TX_STATE / GET_TX_CONNECTION, count=0) | fabric | **next** | the Milan=1 gate; same ingress/merge pattern as AECP |
+| **ACMP stateless responder** (GET_TX_STATE / GET_TX_CONNECTION, count=0) | fabric | silicon | la_avdecc Milan=1 CLEAN (2026-07-12, eto_acmp2); CSR 0x650 |
 | ACMP connection handling (CONNECT/DISCONNECT_TX policy) | softcore | future | CSR mailbox + IRQ: SW accepts/refuses, writes the connection table back; fabric keeps answering state queries from that table |
 | kl-eth driver (rings, NAPI, ethtool, CSR) | softcore | silicon | Linux 6.x, kl,dma-ether |
 | kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | **next** | exposes the fabric counter/timestamps to linuxptp |
