@@ -212,7 +212,16 @@ def validate(e):
     check("SET_SAMPLING_RATE(44.1k) -> BAD_ARGUMENTS", rstatus(r) == 7,
           f"status={STATUS.get(rstatus(r))}")
 
-    print("\n[7] MVU GET_MILAN_INFO")
+    print("\n[7] GET_STREAM_INFO (Milan fixed 56-byte payload)")
+    r = e.aem("GET_STREAM_INFO", struct.pack(">HH", DESC["STREAM_OUTPUT"], 0))
+    check("GET_STREAM_INFO -> SUCCESS", rstatus(r) == 0, f"status={STATUS.get(rstatus(r))}")
+    check("GET_STREAM_INFO CDL == 68 (56+12, la_avdecc-strict)",
+          rcdl(r) == 68 and cdl_ok(r), f"cdl={rcdl(r)} len={len(r) if r else 0}")
+    if r and len(r) > 45:
+        check("stream_info flags == 0xF6000000 (talker)",
+              r[42:46] == bytes.fromhex("f6000000"), r[42:46].hex())
+
+    print("\n[8] MVU GET_MILAN_INFO")
     r = e._aecp(VU_COMMAND, 0x0000, b"", is_vu=True)
     ok = r is not None and (r[15] & 0x0F) == VU_RESPONSE and r[36:42] == MILAN_PROTOCOL_ID
     check("MVU GET_MILAN_INFO answered", ok,
