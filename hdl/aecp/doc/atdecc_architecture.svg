@@ -96,14 +96,15 @@
 <text x="653.0" y="392.0" font-size="10" fill="#222" text-anchor="start">KL_aecp_timers 1 kHz tick →</text>
 <text x="653.0" y="405.0" font-size="10" fill="#222" text-anchor="start">lock timer → counter gate</text>
 <rect x="380.0" y="470.0" width="245.0" height="290.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="388.0" y="573.0" font-size="10" fill="#222" text-anchor="start">KL_aecp_response_builder — the command</text>
-<text x="388.0" y="586.0" font-size="10" fill="#222" text-anchor="start">brain • capture payload, classify command</text>
-<text x="388.0" y="599.0" font-size="10" fill="#222" text-anchor="start">• READ_DESCRIPTOR • GET/SET name · config</text>
-<text x="388.0" y="612.0" font-size="10" fill="#222" text-anchor="start">· sampling-rate · stream-format •</text>
-<text x="388.0" y="625.0" font-size="10" fill="#222" text-anchor="start">GET_STREAM_INFO · AVB_INFO • MVU</text>
-<text x="388.0" y="638.0" font-size="10" fill="#222" text-anchor="start">GET_MILAN_INFO • SET_* write-back • build</text>
-<text x="388.0" y="651.0" font-size="10" fill="#222" text-anchor="start">response frame (little-lane, CDL = frame</text>
-<text x="388.0" y="664.0" font-size="10" fill="#222" text-anchor="start">− 26)</text>
+<text x="388.0" y="566.5" font-size="10" fill="#222" text-anchor="start">KL_aecp_response_builder — the command</text>
+<text x="388.0" y="579.5" font-size="10" fill="#222" text-anchor="start">brain • capture payload, classify command</text>
+<text x="388.0" y="592.5" font-size="10" fill="#222" text-anchor="start">• READ_DESCRIPTOR • GET/SET name · config</text>
+<text x="388.0" y="605.5" font-size="10" fill="#222" text-anchor="start">· sampling-rate · stream-format •</text>
+<text x="388.0" y="618.5" font-size="10" fill="#222" text-anchor="start">GET_STREAM_INFO · AVB_INFO · GET_COUNTERS</text>
+<text x="388.0" y="631.5" font-size="10" fill="#222" text-anchor="start">(full-size, all statuses) · MVU</text>
+<text x="388.0" y="644.5" font-size="10" fill="#222" text-anchor="start">GET_MILAN_INFO • SET_* write-back • build</text>
+<text x="388.0" y="657.5" font-size="10" fill="#222" text-anchor="start">response frame (little-lane, CDL = frame</text>
+<text x="388.0" y="670.5" font-size="10" fill="#222" text-anchor="start">− 26)</text>
 <rect x="645.0" y="470.0" width="165.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
 <text x="653.0" y="502.0" font-size="10" fill="#222" text-anchor="start">KL_aecp_accessor (type,</text>
 <text x="653.0" y="515.0" font-size="10" fill="#222" text-anchor="start">index) → base, len</text>
@@ -118,10 +119,11 @@
 <text x="653.0" y="726.5" font-size="10" fill="#222" text-anchor="start">available_index,</text>
 <text x="653.0" y="739.5" font-size="10" fill="#222" text-anchor="start">current_config</text>
 <rect x="880.0" y="200.0" width="310.0" height="120.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="888.0" y="244.0" font-size="10" fill="#222" text-anchor="start">adp_advertiser • periodic ENTITY_AVAILABLE</text>
-<text x="888.0" y="257.0" font-size="10" fill="#222" text-anchor="start">(valid_time) • answers ENTITY_DISCOVER (rcv_discover)</text>
-<text x="888.0" y="270.0" font-size="10" fill="#222" text-anchor="start">• ENTITY_DEPARTING on link-down • available_index</text>
-<text x="888.0" y="283.0" font-size="10" fill="#222" text-anchor="start">(bumped on change only)</text>
+<text x="888.0" y="237.5" font-size="10" fill="#222" text-anchor="start">adp_advertiser • periodic ENTITY_AVAILABLE</text>
+<text x="888.0" y="250.5" font-size="10" fill="#222" text-anchor="start">(valid_time) • answers ENTITY_DISCOVER (rcv_discover)</text>
+<text x="888.0" y="263.5" font-size="10" fill="#222" text-anchor="start">• ENTITY_DEPARTING on link-down • available_index +1</text>
+<text x="888.0" y="276.5" font-size="10" fill="#222" text-anchor="start">on EVERY ADPDU sent (la_avdecc/Hive strict-increment</text>
+<text x="888.0" y="289.5" font-size="10" fill="#222" text-anchor="start">rule)</text>
 <rect x="880.0" y="380.0" width="310.0" height="56.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
 <text x="888.0" y="404.85" font-size="11" fill="#222" text-anchor="start">adp_tx_arbiter (low-rate merge) ADP advertise +</text>
 <text x="888.0" y="418.85" font-size="11" fill="#222" text-anchor="start">AECP response</text>
@@ -155,11 +157,11 @@
 <text x="668.0" y="955.15" font-size="9" fill="#222" text-anchor="start">current_configuration</text>
 <rect x="910.0" y="840.0" width="300.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
 <text x="918.0" y="857.15" font-size="9" fill="#222" text-anchor="start">tsn-gen ↔ Verilator co-sim (Vaecp_cosim) real RTL over</text>
-<text x="918.0" y="869.15" font-size="9" fill="#222" text-anchor="start">AxiStreamBeat socket — 30/30</text>
+<text x="918.0" y="869.15" font-size="9" fill="#222" text-anchor="start">AxiStreamBeat socket — 36/36</text>
 <rect x="910.0" y="888.0" width="300.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
 <text x="918.0" y="905.15" font-size="9" fill="#222" text-anchor="start">la_avdecc probe (Hive&#x27;s library) on pw0 full enumeration;</text>
 <text x="918.0" y="917.15" font-size="9" fill="#222" text-anchor="start">strict payload-size checks</text>
 <rect x="910.0" y="936.0" width="300.0" height="34.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
 <text x="918.0" y="950.15" font-size="9" fill="#222" text-anchor="start">avdecc/milan_controller.py (peer, on silicon) +</text>
-<text x="918.0" y="962.15" font-size="9" fill="#222" text-anchor="start">tb/verilator/aecp 51/51</text>
+<text x="918.0" y="962.15" font-size="9" fill="#222" text-anchor="start">tb/verilator/aecp 61/61</text>
 </svg>
