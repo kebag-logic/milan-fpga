@@ -1,0 +1,51 @@
+# MVP Milan Talker (Arty, flash-standalone)
+
+Status: 2026-07-12. Goal: a discoverable, la_avdecc-clean Milan endstation that
+STREAMS AAF-PCM audio from the Pmod I2S2 (JA) with zero CPU in the media path —
+running entirely from QSPI flash on power-up.
+
+## Signal chain (all fabric, cd_milan 50 MHz on the Arty)
+
+Pmod I2S2 ADC (CS5343, JA/pmoda) -> aaf_talker_i2s (I2S master; MCLK=clk/4,
+SCLK=64fs, LRCK=clk/1024) -> IEEE 1722 AAF-PCM frames -> merge before the
+classifier -> 802.1Q PCP3 -> class-A CBS queue -> MAC -> wire.
+
+## Frame (90 B, ~5.8 Mbit/s at 48k class A)
+
+Eth + 802.1Q{PCP3,VID2} + 0x22F0 + AAF hdr (subtype 0x02, sv|tv, seq++,
+stream_id={MAC,uid0}, avtp_timestamp = PHC ns + 2 ms) + 2ch x 6 samples x
+INT32 (24-bit left-justified). One AVTPDU per 6/48k = 125 us nominal.
+
+## MVP tradeoffs (documented, not hidden)
+
+- **Media clock**: fs = clk/1024 = 48.828 kHz at 50 MHz, DECLARED 48 kHz
+  (+1.7 %). A listener that recovers clock from presentation time tolerates
+  it for a demo; a proper 12.288 MHz media source or CRF stream is the fix.
+- **Backpressure**: if a frame is still serialising, incoming sample pairs
+  are dropped (no elastic buffer). At 90 B / 125 us on a 100 M wire this
+  never triggers, but it is not a jitter-proof design.
+- **avtp_timestamp**: low 32 bits of the PHC + 2 ms transit. gPTP need not
+  be locked for the stream to emit; a synced listener uses it for playout.
+
+## CSR (milan_csr 0x654 group)
+
+| off | field |
+|-----|-------|
+| 0x654 | AAF_CTRL: [0] enable, [27:16] VID (reset VID2, disabled) |
+| 0x658/0x65C | AAF_DMAC lo/hi (reset MAAP-range 91:E0:F0:00:FE:01) |
+
+Brought up by `/etc/init.d/S50milan` (rootfs overlay): identity :02, ADP
+enable, AAF_CTRL enable. Fully autonomous after boot.
+
+## Verification
+
+- tb/verilator/aaf: 19/19 byte-exact frame (header, payload, seq, timestamp).
+- milan_dp: 26/26 (talker integrated, no datapath regression).
+- Silicon (pending arty_v9 flash): AAF frames captured at a peer — subtype
+  0x02, 8 kHz frame cadence, monotonic seq, PCP3 tag; entity still Milan=1.
+
+## Flash (v3 QSPI-boot, one verb)
+
+`build.sh flash arty:build_arty_<seed>_arty_v9` -> bitstream@0 + Image.xz +
+opensbi + dtb + rootfs. Set Arty JP1 -> QSPI at the bench; power-cycle boots
+gateware + Linux + S50milan -> streaming.
