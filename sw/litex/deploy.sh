@@ -64,14 +64,16 @@ do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" 
 do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
 do_flash()  {
     [ -n "$BIT" ] && [ -f "$BIT" ] || { echo "[deploy] flash: no bitstream (set BIT=<path/to/alinx_ax7101.bit>)"; exit 2; }
-    # Flash-boot era interlock: the AX7101 QSPI holds the LINUX IMAGES with the
-    # kernel at offset 0 (QSPI_FLASHBOOT.md). A bitstream write at 0 clobbers it
-    # (the historical `openFPGALoader -f` trap). Bitstreams are JTAG-SRAM loaded.
-    [ "${FORCE_BITSTREAM_FLASH:-0}" = 1 ] || {
-        echo "[deploy] flash REFUSED: QSPI holds the flash-boot images (kernel at offset 0)."
-        echo "[deploy] Use 'load' (JTAG->SRAM). If you REALLY mean to sacrifice the images:"
-        echo "[deploy]   FORCE_BITSTREAM_FLASH=1 deploy.sh flash   (then re-run flash-images)"; exit 2; }
-    echo "[deploy] flash  (JTAG -> QSPI flash, PERSISTENT): $BIT"
+    # Layout v2 (2026-07-12): offset 0 IS the gateware slot (2.25 MiB budget) —
+    # the FPGA config-boots it; images live above 0x24_0000. The bitstream must
+    # be COMPRESSED (COMPRESS pinned in milan_soc.py); enforce the budget here.
+    # Old-layout flash (kernel at 0)? A bit write clobbers the kernel: reflash
+    # the full image set (flash-images) right after — same cable session.
+    local sz; sz=$(stat -c%s "$BIT")
+    [ "$sz" -le $((0x240000)) ] || {
+        echo "[deploy] flash REFUSED: bitstream $sz B exceeds the 2359296 B gateware slot."
+        echo "[deploy] Build with compression (milan_soc.py pins COMPRESS since 2026-07-12)."; exit 2; }
+    echo "[deploy] flash  (JTAG -> QSPI flash @0x0, PERSISTENT, $sz B): $BIT"
     $OFL -c "$CABLE" -f "$BIT"          # -f/--write-flash; add --reset to reboot from flash
 }
 do_flash_images() {
@@ -83,6 +85,10 @@ do_flash_images() {
     while IFS=$'\t' read -r name off ceil; do
         local src
         case "$name" in
+            bitstream)
+                # gateware slot: flashed via `deploy.sh flash` (native -f, raw
+                # config stream, NOT fbi-wrapped) — skip it here
+                echo "[deploy]   bitstream slot @ 0x$(printf %06x "$off") (flash via 'deploy.sh flash')"; continue ;;
             kernel)  src="${KERNEL:-}" ;;
             opensbi) src="${OPENSBI:-}" ;;
             dtb)     src="${DTB:-}" ;;

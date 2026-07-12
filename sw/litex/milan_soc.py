@@ -78,15 +78,21 @@ FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
 # slimming (docs/integration/QSPI_FLASHBOOT.md). In the default "kernel" manifest only the kernel is
 # flashed, so its 14 MB span (0..0xE0_0000) is free to use these otherwise-unused offsets.
 FLASHBOOT_LAYOUT = {
-    #  name       flash_offset      dram_addr        budget (full layout)
-    # (2026-07-06 zero-upload layout, MEASURED sizes: slimmed kernel 8.14 MB (-Os,
-    #  no SELinux/kexec/kallsyms/VT/INPUT, +THP) in an 8.5 MiB slot; rootfs moved to
-    #  CPIO-XZ = 5.6 MB (kernel RD_XZ unpacks it  -  the BIOS only memcpys) in a 7 MiB
-    #  slot. Total 14.0 MB of 16 MiB N25Q128.)
-    "kernel":  {"offset": 0x00_0000, "addr": 0x4000_0000},  # ≤ 8.5 MiB when "full"
-    "opensbi": {"offset": 0x88_0000, "addr": 0x40F0_0000},  # 512 KB (fw_jump = 261 KB + FBI)
-    "dtb":     {"offset": 0x90_0000, "addr": 0x40EF_0000},  # 256 KB
-    "rootfs":  {"offset": 0x94_0000, "addr": 0x4100_0000},  # up to 6.75 MiB → ends = 16 MiB
+    #  name       flash_offset      dram_addr        budget (v2 QSPI-boot layout)
+    # v2 (2026-07-12, user directive): the BITSTREAM boots from QSPI — gateware
+    # slot at 0x0 (7-series config scans to the sync word; flashed via
+    # `deploy.sh flash`, native openFPGALoader -f, NOT fbi-wrapped), images
+    # shifted up. Budgets vs MEASURED sizes: compressed 100t bit ~2.0-2.3 MiB
+    # (COMPRESS pinned in main()) in 2.25 MiB; kernel 8.14 MB in 8.25 MiB;
+    # fw_jump 261 KB in 384 KiB; dtb in 128 KiB; rootfs slot 5.0 MiB — the
+    # current 5.6 MB CPIO-XZ MUST SLIM ~0.6 MB first (drop PipeWire per the
+    # rev-2 delimitation; deploy.sh enforces the budget loudly).
+    # BIOS copies only the manifest images; the bitstream is config-read.
+    "bitstream": {"offset": 0x00_0000, "addr": 0x0},        # 2.25 MiB gateware slot
+    "kernel":  {"offset": 0x24_0000, "addr": 0x4000_0000},  # 8.25 MiB
+    "opensbi": {"offset": 0xA8_0000, "addr": 0x40F0_0000},  # 384 KiB (fw_jump + FBI)
+    "dtb":     {"offset": 0xAE_0000, "addr": 0x40EF_0000},  # 128 KiB
+    "rootfs":  {"offset": 0xB0_0000, "addr": 0x4100_0000},  # 5.0 MiB → ends 16 MiB
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
@@ -3545,6 +3551,11 @@ class MilanSoC(SoCCore):
                                   "images": []}
         if not images:
             return
+        # the gateware slot is not a BIOS-copied image, but deploy.sh needs it
+        # in the json for slot ceilings + `flash` targeting
+        eb = FLASHBOOT_LAYOUT["bitstream"]
+        self._flashboot_layout["images"].append(
+            {"name": "bitstream", "offset": eb["offset"], "addr": eb["addr"]})
         for name in images:
             e = FLASHBOOT_LAYOUT[name]
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_OFFSET", e["offset"])
