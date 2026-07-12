@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/adp +incdir+$(RTL_DIR)/802_1q_traffic_shaper \
          +incdir+$(RTL_DIR)/ptp_timestamp +incdir+$(AXIS_DIR) \
          +incdir+$(RTL_DIR)/aecp +incdir+$(RTL_DIR)/aecp/gen \
-         -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
