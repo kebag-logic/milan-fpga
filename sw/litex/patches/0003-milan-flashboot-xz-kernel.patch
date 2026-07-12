@@ -31,13 +31,60 @@ index 9ac2da9..5535a22 100755
  %.o: %.c
  	$(compile)
 diff --git a/litex/soc/software/bios/boot.c b/litex/soc/software/bios/boot.c
-index 6d917aa..114e6b3 100644
+index a65d7cf..114e6b3 100644
 --- a/litex/soc/software/bios/boot.c
 +++ b/litex/soc/software/bios/boot.c
-@@ -886,6 +886,20 @@ void flashboot(void)
-  * remaining, smaller images (a boot.json that omits the flashed ones). A CRC/length failure
-  * on any image aborts the copy and falls through to serialboot, so an empty or mid-update
-  * flash can never brick the boot. Registered at priority -10 in main.c (before serialboot). */
+@@ -773,7 +773,10 @@ void netboot(int nb_params, char **params)
+ /* Flash Boot                                                            */
+ /*-----------------------------------------------------------------------*/
+ 
+-#ifdef FLASH_BOOT_ADDRESS
++/* MILAN_FLASHBOOT_ENTRY (from generated/soc.h, emitted by milan_soc.py --with-spiflash)
++   also needs the flash-image helpers below even though it does not set FLASH_BOOT_ADDRESS
++   (the BIOS is not booted from flash; only the Linux images are). See linux_flashboot(). */
++#if defined(FLASH_BOOT_ADDRESS) || defined(MILAN_FLASHBOOT_ENTRY)
+ 
+ /* Sanity limit on the flash image length field (catches erased/garbage
+    flash). Defaults to the Main RAM size when available since the image has to
+@@ -808,7 +811,7 @@ static unsigned int check_image_in_flash(unsigned int base_address)
+ 	return length;
+ }
+ 
+-#if defined(MAIN_RAM_BASE_VA) && defined(FLASH_BOOT_ADDRESS)
++#if defined(MAIN_RAM_BASE_VA) && (defined(FLASH_BOOT_ADDRESS) || defined(MILAN_FLASHBOOT_ENTRY))
+ static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned long ram_address)
+ {
+ 	uint32_t length;
+@@ -845,6 +848,7 @@ static int copy_image_from_flash_to_ram(unsigned int flash_address, unsigned lon
+ }
+ #endif
+ 
++#ifdef FLASH_BOOT_ADDRESS
+ void flashboot(void)
+ {
+ 	printf("Booting from flash...\n");
+@@ -864,8 +868,81 @@ void flashboot(void)
+ 	boot(0, 0, 0, (FLASH_BOOT_ADDRESS + 2 * sizeof(uint32_t)));
+ #endif
+ }
++#endif /* FLASH_BOOT_ADDRESS (flashboot) */
++#endif /* FLASH_BOOT_ADDRESS || MILAN_FLASHBOOT_ENTRY (flash image helpers) */
+ 
++/*-----------------------------------------------------------------------*/
++/* Milan Linux flash-boot                                                */
++/*-----------------------------------------------------------------------*/
++/* Copy the Linux boot images that live in the on-board QSPI flash (memory-mapped at
++ * SPIFLASH_BASE, written as LiteX FBIs -- [length][crc32][data] -- by `deploy.sh
++ * flash-images`) straight into DRAM, skipping the multi-minute 1.5 Mbaud serial upload.
++ * The image set and its flash offsets/DRAM targets come from generated/soc.h
++ * (MILAN_FLASHBOOT_*), emitted by milan_soc.py (FLASHBOOT_LAYOUT). See docs/QSPI_FLASHBOOT.md.
++ *
++ * If the flash holds the COMPLETE boot set (MILAN_FLASHBOOT_COMPLETE) we jump to OpenSBI
++ * directly -- zero serial upload. Otherwise we pre-load whatever IS in flash (by default the
++ * big, static 14 MB kernel) and RETURN, so the normal serialboot then uploads only the
++ * remaining, smaller images (a boot.json that omits the flashed ones). A CRC/length failure
++ * on any image aborts the copy and falls through to serialboot, so an empty or mid-update
++ * flash can never brick the boot. Registered at priority -10 in main.c (before serialboot). */
 +/* Layout v3: the kernel slot holds the kernel build's own Image.xz
 + * (bootloader-decompressed artifact; plain LZMA2, --check=crc32). The FBI
 + * payload is staged in DRAM, magic-sniffed, and either xz-decoded (vendored
@@ -52,16 +99,21 @@ index 6d917aa..114e6b3 100644
 +#define MILAN_XZ_ARENA   (MILAN_FLASHBOOT_KERNEL_ADDR + 0x01C00000UL) /* +28 MB, 64 KB */
 +#define MILAN_XZ_DSTMAX  0x01000000UL                                 /* 16 MB cap */
 +
- #if defined(MILAN_FLASHBOOT_ENTRY) && defined(MAIN_RAM_BASE_VA)
- void linux_flashboot(void)
- {
-@@ -899,8 +913,23 @@ void linux_flashboot(void)
- 		return;
++#if defined(MILAN_FLASHBOOT_ENTRY) && defined(MAIN_RAM_BASE_VA)
++void linux_flashboot(void)
++{
++	printf("Milan: pre-loading boot images from QSPI flash...\n");
++#ifdef MILAN_FLASHBOOT_OPENSBI_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_OPENSBI_OFFSET, MILAN_FLASHBOOT_OPENSBI_ADDR))
++		return;
++#endif
++#ifdef MILAN_FLASHBOOT_DTB_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_DTB_OFFSET, MILAN_FLASHBOOT_DTB_ADDR))
++		return;
  #endif
- #ifdef MILAN_FLASHBOOT_KERNEL_OFFSET
--	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET, MILAN_FLASHBOOT_KERNEL_ADDR))
++#ifdef MILAN_FLASHBOOT_KERNEL_OFFSET
 +	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET, MILAN_XZ_STAGING))
- 		return;
++		return;
 +	{
 +		unsigned int klen = *(volatile unsigned int *)(SPIFLASH_BASE + MILAN_FLASHBOOT_KERNEL_OFFSET);
 +		unsigned char *stage = (unsigned char *)MILAN_XZ_STAGING;
@@ -77,6 +129,19 @@ index 6d917aa..114e6b3 100644
 +			memcpy((void *)MILAN_FLASHBOOT_KERNEL_ADDR, stage, klen);
 +		}
 +	}
- #endif
- #ifdef MILAN_FLASHBOOT_ROOTFS_OFFSET
- 	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_ROOTFS_OFFSET, MILAN_FLASHBOOT_ROOTFS_ADDR))
++#endif
++#ifdef MILAN_FLASHBOOT_ROOTFS_OFFSET
++	if(!copy_image_from_flash_to_ram(SPIFLASH_BASE + MILAN_FLASHBOOT_ROOTFS_OFFSET, MILAN_FLASHBOOT_ROOTFS_ADDR))
++		return;
++#endif
++#ifdef MILAN_FLASHBOOT_COMPLETE
++	/* Whole boot set is in DRAM -> OpenSBI (boot_helper leaves a0=hartid, a1=0). */
++	boot(0, 0, 0, MILAN_FLASHBOOT_ENTRY);
++#else
++	printf("Milan: flashed images pre-loaded to DRAM; serialboot will upload the rest.\n");
++#endif
++}
++#endif /* MILAN_FLASHBOOT_ENTRY && MAIN_RAM_BASE_VA */
+ 
+ /*-----------------------------------------------------------------------*/
+ /* SDCard Boot                                                           */
