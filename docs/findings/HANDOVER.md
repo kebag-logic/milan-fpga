@@ -1,4 +1,4 @@
-# HANDOVER  -  topology rules + live states (2026-07-11 night)
+# HANDOVER  -  topology rules + live states (2026-07-12)
 
 *The operational one-pager for the two-board Milan lab: every standing rule
 with its reason, and the exact state of boards, branches, builds and open
@@ -112,13 +112,16 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 ## 3. Live states
 
 **Boards**
-- AX7101: **build_ax7101_eto_aecp2 in SRAM (NEW KEEPER, 2026-07-12)** =
-  adp2 lineage + the AECP/AEM listener, ExtraTimingOpt directive, WNS +0.186.
-  IP .1 up, 0x600 identity programmed + ADP enabled (EID
-  02:00:00:ff:fe:00:00:01), **AECP entity live and validated 19/19 from the
-  peer** (CSR 0x648/0x64C = 16 cmd/16 resp). QSPI still holds the adp2-era
-  image set (gateware-independent). Predecessor build_ax7101_adp2 (WNS +0.102)
-  is the AECP-less fallback. hsplit16 hsplit=2 hs_pgsz=16384 as before.
+- AX7101: **build_ax7101_asl_aecp7 in SRAM (2026-07-12)** = the full
+  la_avdecc-clean AECP entity (STREAM_INFO 56 B, caps 0x8588, every-send
+  available_index, GET_COUNTERS, GET_AS_PATH) + flattened-interface RTL,
+  WNS +0.048 (sweep still routing eto/eppo at handover - promote the best
+  WNS when they land; protocol behavior identical). IP .1 up, identity
+  programmed + ADP enabled (EID 02:00:00:ff:fe:00:00:01), controller 26/26,
+  la_avdecc IEEE17221=1 zero-AEM-complaints. QSPI still holds the adp2-era
+  image set (gateware-independent). Fallbacks: eppo_aecp6 (+0.176, no
+  AS_PATH), eto_aecp2 (+0.186, r1-era), adp2 (+0.102, AECP-less).
+  hsplit16 hsplit=2 hs_pgsz=16384 as before.
 - Arty A7-100: build_arty_v7 in SRAM (flashboot gateware, WNS +0.018,
   sys 83.333/datapath 50, S25FL128S 1x 0x03 reads). QSPI holds
   opensbi_arty+dtb+kernel+rootfs (flashboot copies all four, CRC-clean).
@@ -155,7 +158,8 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 **Builds worth keeping**
 | Build | What | Numbers |
 |---|---|---|
-| build_ax7101_adp2 | THE AX7101 keeper (area+ADP) | WNS +0.102, 70.1 pct LUTs, BRAM 83.3 pct |
+| build_ax7101_*_aecp7 | THE AX7101 keeper (la_avdecc-clean AECP) | asl +0.048 (eto/eppo pending at handover) |
+| build_ax7101_adp2 | AECP-less fallback (area+ADP) | WNS +0.102, 70.1 pct LUTs, BRAM 83.3 pct |
 | build_arty_v7 | THE Arty keeper (flashboot) | WNS +0.018 |
 | build_1hart_epo | 1-hart decision datapoint | 58 pct LUTs / 68.5 pct BRAM / 80.9 pct slices |
 
@@ -172,30 +176,47 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
    platform.c would read timebase from the FDT. Piggyback on the next
    gateware spins. Also pending: per-board IP in the shared rootfs (bakes
    192.168.127.1 everywhere  -  the Arty must re-address to .3 by hand).
-2. **AECP/AEM Milan v1.2 entity DONE + SILICON-VALIDATED 19/19.**
-   (2026-07-12, was: stubs only.) The KL_aecp_* library is a WORKING listener:
-   5-descriptor Milan entity (ENTITY, CONFIGURATION, AVB_INTERFACE,
-   AUDIO_UNIT, STREAM_OUTPUT), READ_DESCRIPTOR + getters/setters, **LOCK_ENTITY
-   implemented (60 s), ACQUIRE_ENTITY = NOT_SUPPORTED**, MVU GET_MILAN_INFO,
-   ADP ENTITY_DISCOVER -> advertiser discover-response. Integrated into
-   **milan_datapath** (fabric; milan_top mirrored) as a non-intrusive RX
-   monitor tap + a low-rate TX merge arbiter into the ADP slot; status at CSR
-   0x648/0x64C. ROM generated from avdecc/milan-v12-entity.json by
-   avdecc/gen_aem_store.py. tb/verilator/aecp 44/44, milan_dp 17/17, lint
-   clean. **Timing: the aecp1 sweep FAILED (WNS -0.19, all violations in the
-   AECP block); fixed by (i) registering the ingress RX tap + shrinking the
-   frame buf 256->128 B, (ii) pipelining the response-builder byte select off
-   the pack_r path. aecp2 sweep = eto +0.186 / asl +0.180 / eppo +0.090** (eto
-   = the NEW keeper, > adp2's +0.102 and a strict superset). SILICON (eto_aecp2
-   JTAG-SRAM, 2026-07-12): controller from amx-pw0 = **19/19** (all 5 read,
-   ACQUIRE->NOT_SUPPORTED, LOCK/UNLOCK, config get/set, SET_NAME+readback,
-   sampling-rate valid/invalid, MVU); on-board counters 16 cmd / 16 resp.
-   RUNBOOK: JTAG-load eto_aecp2 -> board `ip link set eth0 up` + the 0x600
-   devmem writes in `avdecc/aecp_csr_setup.sh` -> peer `sudo python3
-   avdecc/milan_controller.py enp6s0`. TRAP: the ADP entity_id is at ADPDU
-   byte 4 = WIRE byte 18 (not 16); a 2-byte offset error garbles the EID ->
-   AECP targets the wrong entity -> silent drops. Deferred: NV persistence of
-   SET_*, unsolicited push, GET_COUNTERS, audio maps.
+2. **AECP/AEM Milan v1.2 entity DONE — la_avdecc (Hive) validated on silicon.**
+   (2026-07-12.) The KL_aecp_* library is a WORKING listener: 5-descriptor
+   Milan entity, READ_DESCRIPTOR + getters/setters, **LOCK 60 s /
+   ACQUIRE=NOT_SUPPORTED**, GET_STREAM_INFO (Milan fixed 56 B), GET_COUNTERS
+   (full 136 B on EVERY status), GET_AS_PATH (count=1, MAC-EUI64 clock id),
+   MVU GET_MILAN_INFO (version 1, cert 0). Architecture documented in
+   hdl/aecp/doc/atdecc_architecture.drawio — MULTI-PAGE, overview + one
+   bit-level page per block (byte maps, FSMs, segment programs, address maps).
+   **The la_avdecc campaign (the real validator; found what nothing else did):**
+   - r1: GET_STREAM_INFO 44 B -> Milan fixed 56 B; caps 0x8588 (dropped
+     IDENTIFY_CONTROL_INDEX_VALID: advertised with no CONTROL descriptor).
+   - r2: available_index must +1 on EVERY ADPDU (bump-on-change-only reads as
+     'incoherently changed' -> offline/online cycling; pipewire ref bumps every
+     send); GET_COUNTERS is Milan-mandatory AND must be full-size on errors.
+   - r3: GET_AS_PATH is Milan-mandatory (the last 5.4.4 item for this model).
+   - PROBE TRAP: link enum-probe with la_avdecc's OWN feature defines
+     (CBR/JSON/REDUNDANCY/STRICT_2018 + nlohmann include) or the vtable
+     mismatches and it segfaults on the first virtual call.
+   - CDL truth: CDL = frame_len - 26 (12 + payload). tsn-gen's CDL model
+     counts target_eid (frame-18) and is WRONG — never use it as the oracle.
+   Verification ladder: tb aecp 68/68, adp 121/121, milan_dp 17/17, cosim
+   (tsn-gen<->RTL) 42/42, lint 10/10, **Yosys 19/19 incl. KL_aecp_top (33.6K
+   cells) + full milan_datapath** (needed: flatten internal AXIS interface
+   links — sv2v v0.0.13 renders interface members of non-top modules as
+   top-absolute hierarchical paths; also ifndef-SYNTHESIS the parser $error).
+   Silicon verdicts: aecp6 (eppo +0.176) cleared the r2 items (controller
+   24/24). **aecp7 (asl +0.048 validated on silicon): controller 26/26 incl.
+   AS_PATH on the wire; la_avdecc = entity ONLINE, fully enumerated,
+   IEEE17221=1, MISBEHAVING=0, ZERO AECP/AEM complaints — every Milan 5.4.4
+   mandatory item answered.** The one residual Milan complaint moved to a
+   DIFFERENT protocol: 'Milan 1.3 - 5.5 ACMP GET_TX_STATE' — we have no ACMP
+   engine; that is the next increment (a stateless talker responder:
+   subtype 0xFC, GET_TX_STATE/GET_TX_CONNECTION RESPONSE with
+   connection_count=0 would satisfy it while connections stay out of scope).
+   RUNBOOK: JTAG-load the aecp7 best-WNS bit -> board: dmesg -n 1; eth0 up
+   .1; avdecc/aecp_csr_setup.sh devmem sequence (caps 0x8588) -> peer:
+   `sudo python3 /tmp/milan_controller.py enp6s0` (expect 26/26) and
+   `sudo ~/la_avdecc_work/enum-probe enp6s0 40` (expect IEEE17221=1 and
+   exactly one complaint: ACMP GET_TX_STATE timeouts; Milan=1 once the ACMP
+   responder ships). Deferred: ACMP responder (the Milan=1 gate), NV
+   persistence of SET_*, unsolicited push, HW counter values, audio maps.
 3. **Slices <70 pct**: the 1-hart user decision (numbers in the table
    above; retires the 2-hart NAPI pipeline that holds RX 381/374).
 4. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
