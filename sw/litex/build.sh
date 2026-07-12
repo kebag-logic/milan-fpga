@@ -101,7 +101,7 @@ cfg_ax7101() {   # ship shape: cbsf lineage (engine + fold), 2q hs 16K, QSPI fla
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --place-directive ExtraPostPlacementOpt"
 }
-cfg_arty() {     # Arty A7-100 bring-up: MII 100M, QSPI flashboot (Alinx model), probes KEPT
+cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probes stripped since v8 - AVDECC stack needs the slices: v7-style probes overflowed by 181)
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
     # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
     # PLL divisor set (VCO 1000; 90e6 has NO solution with the 25 MHz eth ref).
@@ -109,7 +109,7 @@ cfg_arty() {     # Arty A7-100 bring-up: MII 100M, QSPI flashboot (Alinx model),
     # bitstream in flash is sacrificed - gateware is JTAG-SRAM, like the AX7101.
     echo "--board arty --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
-          --uart-baudrate 115200 --timing-opt --l2-bytes 65536 \
+          --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
           --rx-queues 2 --hs-page-bytes 16384"
