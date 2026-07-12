@@ -67,7 +67,11 @@ def render_page(model, out):
         mk = "arro" if e["dashed"] else "arr"
         svg.append(f'<path d="{pts}" fill="none" stroke="{col}" stroke-width="1.3"{dash} marker-end="url(#{mk})"/>')
         if e["label"]:
-            svg.append(f'<text x="{mx}" y="{(y1+y2)/2-3}" font-size="10" fill="#555" '
+            lw = len(e["label"]) * 6.2 + 8
+            ly = (y1+y2)/2
+            svg.append(f'<rect x="{mx-lw/2}" y="{ly-12}" width="{lw}" height="15" '
+                       f'fill="#ffffff" fill-opacity="0.92" stroke="none"/>')
+            svg.append(f'<text x="{mx}" y="{ly}" font-size="10" fill="#444" '
                        f'text-anchor="middle">{html.escape(e["label"])}</text>')
 
     def wrap(text, w, fs, mono):
