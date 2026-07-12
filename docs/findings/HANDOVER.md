@@ -232,8 +232,23 @@ bridge.
    Deferred: ACMP connections (now FABRIC table+acceptance per the rev-2
    delimitation), unsolicited push, NV persistence of SET_*, HW counter
    values, audio maps, the listener half (STREAM_INPUT/CRF).
-3. **NEXT (user directive 2026-07-12): gPTP — linuxptp on the Arty+Milan
-   pair.** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
+3. **gPTP IN PROGRESS (2026-07-12): phase A DONE — both boards have working
+   PHCs** (kl-eth eb50520 in the-private-test-repo): /dev/ptp0 on the fabric Q8.24
+   counter; gettimex64/settime64/adjtime/adjfine exercised via phc_ctl on
+   silicon. TRAPS PAID: (a) the counter ticks in cd_milan (50/100 MHz), NOT
+   the 125 MHz the gateware INCR default assumes — measured 0.4x rate; INCR
+   derives from rsc_clk_mhz (Q8.24 = 1000/MHz); (b) SW TX timestamps must be
+   stamped at the TOP of kl_start_xmit (the BD-path-only stamp missed
+   ptp4l's small frames -> 'timed out polling tx timestamp' FAULTY); (c)
+   busybox: killall not pkill; rmmod fails silently while ptp4l holds
+   /dev/ptp0; (d) dropbear needs /var/run/dropbear (dangling symlink) +
+   chmod 700 /root — then pw0-keyed scp gives a fast .ko loop. ptp4l -S
+   (gPTP: L2, P2P, transportSpecific 1, /tmp/gptp.cfg) runs on both.
+   REMAINING: through the AVB switch each endpoint hears only the SWITCH's
+   own 802.1AS engine ('bad message' x236) and announces are NOT bridged ->
+   both elect themselves master. Next: decode one rejected 0x88F7 frame,
+   check linuxptp 2.1-version parsing / switch per-port gPTP mode; then
+   phase B = HW frame timestamps from the dma-ts gPTP records. Plan:** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
    counter — the 0x500 CSR group ALREADY has INCR/ADJ discipline hooks, and
    RX/TX timestamps already land in the descriptor ts windows (@ +0x3100);
    wire SO_TIMESTAMPING to them. (b) two-node ptp4l through the AVB switch
