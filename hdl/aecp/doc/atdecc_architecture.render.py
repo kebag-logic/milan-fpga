@@ -26,10 +26,27 @@ def render_page(model, out):
             cells[c.get("id")] = dict(
                 x=float(g.get("x", 0)), y=float(g.get("y", 0)),
                 w=float(g.get("width", 0)), h=float(g.get("height", 0)),
-                label=val, style=style)
+                label=val, style=style, parent=c.get("parent", "1"))
         elif c.get("edge") == "1":
             edges.append(dict(s=c.get("source"), t=c.get("target"), label=val,
                               dashed="dashed=1" in style and "endArrow=open" in style))
+
+    # resolve nested coordinates (child x/y are relative to the parent).
+    # Resolve from a SNAPSHOT of the original relative coords — resolving
+    # in place makes grandchildren add their grandparent twice.
+    orig = {cid: (c["x"], c["y"], c.get("parent", "1")) for cid, c in cells.items()}
+    memo = {}
+    def absxy(cid, seen=()):
+        if cid in memo: return memo[cid]
+        x, y, p = orig[cid]
+        if p in orig and p not in seen and p != cid:
+            px, py = absxy(p, seen + (cid,))
+            memo[cid] = (x + px, y + py)
+        else:
+            memo[cid] = (x, y)
+        return memo[cid]
+    for cid in list(cells):
+        cells[cid]["x"], cells[cid]["y"] = absxy(cid)
 
     W = max(c["x"]+c["w"] for c in cells.values()) + 40
     H = max(c["y"]+c["h"] for c in cells.values()) + 40
