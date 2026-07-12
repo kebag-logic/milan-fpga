@@ -298,8 +298,8 @@
 <text x="3703.0" y="1047.0" font-size="10" fill="#222" text-anchor="start">linuxptp: ptp4l (802.1AS BMCA + servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;</text>
 <text x="3703.0" y="1060.0" font-size="10" fill="#222" text-anchor="start">then a small bridge writes GM id/domain -&gt; CSR 0x624/0x628 on change (fabric re-advertises, AS_PATH stays true)</text>
 <rect x="3695.0" y="1125.0" width="1490.0" height="110.0" rx="0" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="3703.0" y="1177.0" font-size="10" fill="#222" text-anchor="start">PipeWire module-avb (future media plane): AAF frames -&gt; kl-eth -&gt; fabric CBS class-A queue ·</text>
-<text x="3703.0" y="1190.0" font-size="10" fill="#222" text-anchor="start">SRP/MSRP state machines · ACMP connection POLICY via mailbox (HW answers / SW decides)</text>
+<text x="3703.0" y="1177.0" font-size="10" fill="#222" text-anchor="start">media rev 2 (2026-07-12, user directive: EVERYTHING FPGA + lwSRP): softcore only fills a DMA PCM ring (ms cadence);</text>
+<text x="3703.0" y="1190.0" font-size="10" fill="#222" text-anchor="start">fabric does lwSRP (MSRP/MVRP + bandwidth gate) · AAF framer (PTP presentation time) · ACMP connection table</text>
 <rect x="3695.0" y="1255.0" width="1490.0" height="24.0" rx="0" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
 <text x="3703.0" y="1270.15" font-size="9" fill="#222" text-anchor="start">QSPI flash N25Q128 16 MB (off-chip, flashboot slots):</text>
 <rect x="3695.0" y="1279.0" width="1490.0" height="26.0" rx="0" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
