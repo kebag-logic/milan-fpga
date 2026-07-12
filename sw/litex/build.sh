@@ -60,7 +60,8 @@ if [ "${1:-}" = "flash" ]; then
         if [ -z "$dir" ]; then
             # newest build dir containing the artifact this policy flashes
             # (|| true: an empty glob must reach the friendly error, not set -e)
-            want="flashboot_layout.json"; [ "$policy" = bitstream ] && want="gateware/$bitname"
+            # boot/bitstream discover by the bit (json is reconstructed below if absent)
+            want="flashboot_layout.json"; case "$policy" in bitstream|boot) want="gateware/$bitname";; esac
             dir=$( { ls -td "$WORK"/build_${c}*/ 2>/dev/null || true; } | while read -r d; do
                       [ -f "$d/$want" ] && { echo "$d"; break; }; done || true)
             [ -n "$dir" ] || { echo "[$c] no build containing $want under $WORK/build_${c}* (pass ${c}:<builddir>)" >&2; exit 2; }
@@ -68,6 +69,11 @@ if [ "${1:-}" = "flash" ]; then
             case "$dir" in /*) ;; *) dir="$WORK/$dir";; esac
         fi
         dir=${dir%/}
+        # sweep builds skip main()'s json export; reconstruct from the compiled
+        # BIOS constants (soc.h is the single source of truth either way)
+        if [ ! -f "$dir/flashboot_layout.json" ] && [ -f "$dir/software/include/generated/soc.h" ]; then
+            "${PYTHON:-python3}" "$SOC_DIR/layout_from_soch.py" "$dir"
+        fi
         case "$policy" in
             boot)
                 # v3 QSPI-boot: gateware @0 THEN the image set (shifted offsets).
