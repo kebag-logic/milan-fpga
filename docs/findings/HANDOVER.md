@@ -264,6 +264,39 @@ bridge.
    AS_PATH/AVB_INFO report live gPTP truth. Delimitation:
    docs/ARCHITECTURE_HW_SW_SPLIT.md (protocol=softcore, timestamps+clock=
    fabric).
+3b. **MVP TALKER ON SILICON (2026-07-12 night, task: flash-standalone by
+   morning): the Arty STREAMS AAF from the Pmod I2S2 on JA.** State at
+   handover: build arty_v10 (o_ptp_now tap fix) pending; everything else
+   VERIFIED on silicon with arty_v9/eppo (+0.233):
+   - Chain: Pmod I2S2 ADC (fabric I2S master, fs=48.828k declared 48k) ->
+     aaf_talker_i2s -> post-shaper inject -> wire. CSR 0x654 ctrl /
+     0x658-65C DMAC / 0x660 frames / 0x664 pairs (Linux devmem observability
+     — S50milan prints them at boot).
+   - MEASURED: frames 8.1k/s, pairs 48.9k/s (exact design cadence), seq +1
+     per frame @ ~122 us, payload = live ADC noise (real capture). Boots
+     from QSPI flash end-to-end (v3.1 layout: bit@0 4MiB slot, xz kernel —
+     BIOS decode VERIFIED). One verb: build.sh flash arty:<dir>.
+   - TRAP (cost ~1 h): AAF designed for classifier->CBS class A, but CBS
+     credit math is 1G-scaled on the 100M Arty (is_1g open item) ->
+     credit-gated to ~1 frame/30 s. MVP = post-shaper injection (ADP
+     pattern), UNSHAPED; true class-A shaping returns with is_1g.
+   - TRAP (cost ~1 h): the AVB switch INGRESS-FILTERS VLAN 2 (ports not
+     members; ADP passed because untagged). MVP policy: S50milan brings the
+     talker up VID 0 = priority-tagged (PCP3 kept, VLAN-transparent).
+     VID 2 returns when the switch VLAN is provisioned or lwSRP's MVRP
+     registers it — THIS is the concrete motivation for lwSRP's MVRP leg.
+   - TRAP (cost ~45 min): avtp_timestamp stuck at exactly +2 ms on silicon
+     = the o_ptp_now instance hookup NEVER LANDED (a python replace()
+     pattern-missed the aligned formatting and silently no-op'd; Vivado
+     said 'ptp_now_w has no driver' but only as a warning). Fixed +
+     milan_dp verilator now runs -Werror-UNDRIVEN (undriven nets FAIL).
+     LESSON: after scripted SV edits, grep the result AND read the synth
+     warnings; an undriven net on a data input is silicon-silent.
+   - Morning action: JP1 -> QSPI, power-cycle => self-hosting streaming
+     endstation (gateware+Linux from flash, talker up via S50milan).
+   - Next (in order): arty_v10 flash + timestamp-advancing check; listener
+     validation (pw0 pipewire module-avb or Hive) once gPTP locks; media
+     clock recovery (NCO from gPTP) per docs/MVP_TALKER.md.
 4. **Slices <70 pct**: the 1-hart user decision (numbers in the table
    above; retires the 2-hart NAPI pipeline that holds RX 381/374).
 5. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
