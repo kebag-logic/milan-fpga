@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="700" viewBox="0 0 1260 700" font-family="Helvetica,Arial,sans-serif">
+<rect width="1260" height="700" fill="#ffffff"/>
+<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#333"/></marker><marker id="arro" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#999"/></marker></defs>
+<rect x="40.0" y="12.0" width="1180.0" height="30.0" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.3"/>
+<text x="630.0" y="31.9" font-size="14" fill="#222" text-anchor="middle">KL_aecp_accessor + KL_aecp_aem_store + KL_aecp_aem_dyn_mux — the entity model in BRAM   (gen/aecp_aem_rom.svh, generated)</text>
+<rect x="40.0" y="60.0" width="560.0" height="280.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_aecp_accessor — descriptor directory (AEM_DIR_C)</text>
+<rect x="60.0" y="92.0" width="520.0" height="201.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="68.0" y="131.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">entry[63:0] = {type[63:48], index[47:32], base[31:16], len[15:0]}</text>
+<text x="68.0" y="144.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="157.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">type    index  base    len   descriptor</text>
+<text x="68.0" y="170.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">0x0000  0      0x000   312   ENTITY</text>
+<text x="68.0" y="183.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">0x0001  0      0x138    86   CONFIGURATION</text>
+<text x="68.0" y="196.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">0x0002  0      0x18E   156   AUDIO_UNIT</text>
+<text x="68.0" y="209.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">0x0006  0      0x22A   156   STREAM_OUTPUT</text>
+<text x="68.0" y="222.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">0x0009  0      0x2C6    98   AVB_INTERFACE</text>
+<text x="68.0" y="235.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="248.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">miss -&gt; acc_found=0 -&gt; NO_SUCH_DESCRIPTOR(2)</text>
+<text x="68.0" y="261.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">ROM image: 808 bytes, network byte order, addr 0 = ENTITY[0]</text>
+<rect x="620.0" y="60.0" width="600.0" height="280.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="628.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_aecp_aem_store — ROM + volatile SET write-back</text>
+<rect x="640.0" y="92.0" width="560.0" height="218.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="648.0" y="133.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">single byte port: st_addr -&gt; st_byte, 1-cycle latency (the</text>
+<text x="648.0" y="146.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">builder presents the address one state early: EMIT_ADDR_S)</text>
+<text x="648.0" y="159.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="648.0" y="172.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">write-back region (SET_* land here, volatile until reset):</text>
+<text x="648.0" y="185.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  object_name ENTITY        @  48 (64 B)   group_name @ 180</text>
+<text x="648.0" y="198.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  object_name CONFIGURATION @ 316</text>
+<text x="648.0" y="211.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  object_name AUDIO_UNIT    @ 402   sampling_rate @ 534 (4 B)</text>
+<text x="648.0" y="224.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  object_name STREAM_OUTPUT @ 558   stream_format @ 628 (8 B)</text>
+<text x="648.0" y="237.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  object_name AVB_INTERFACE @ 714</text>
+<text x="648.0" y="250.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="648.0" y="263.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">validation sets: rates {0xBB80,0x17700,0x2EE00} = 48/96/192 kHz</text>
+<text x="648.0" y="276.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                 formats: 3 x AAF 64-bit entries (AEM_FMTS_C)</text>
+<rect x="40.0" y="360.0" width="1180.0" height="300.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="377.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_aecp_aem_dyn_mux — live-field overlay (CSR truth wins over ROM)</text>
+<rect x="60.0" y="392.0" width="1140.0" height="218.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="68.0" y="433.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">read addr in an overlay range -&gt; byte substituted from the live CSR value; otherwise the ROM byte passes</text>
+<text x="68.0" y="446.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="459.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">ENTITY desc        offset 4-11 entity_id    12-19 entity_model_id    20-23 entity_capabilities</text>
+<text x="68.0" y="472.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                   24-25 talker_stream_sources    26-27 talker_capabilities</text>
+<text x="68.0" y="485.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                   28-29 listener_stream_sinks    30-31 listener_capabilities</text>
+<text x="68.0" y="498.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                   32-35 controller_capabilities  36-39 available_index (ADP-coherent!)</text>
+<text x="68.0" y="511.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                   40-47 association_id           310-311 current_configuration</text>
+<text x="68.0" y="524.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">AVB_INTERFACE desc 782-787 mac_address            790-797 clock_identity</text>
+<text x="68.0" y="537.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="550.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">clock_identity = {MAC[47:24], 0xFFFE, MAC[23:0]} (EUI-64 from MAC, IEEE 1588 rule) — the SAME value</text>
+<text x="68.0" y="563.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">GET_AS_PATH reports as path[0], so descriptor and dynamic info can never disagree.</text>
+<text x="68.0" y="576.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">available_index overlays the advertiser&#x27;s live counter: READ_DESCRIPTOR(ENTITY) matches the last ADPDU.</text>
+</svg>
