@@ -369,7 +369,7 @@ int main(int argc, char** argv) {
         // reserved(2) at 46, then milan_info(12) at 48
         ckbytes("protocol_id echoed", r, 36, {0x00,0x1B,0xC5,0x0A,0xC1,0x00});
         ckbytes("protocol_version=1", r, 46, {0x00,0x00,0x00,0x01});
-        ckbytes("certification 1.2.0.0", r, 54, {0x01,0x02,0x00,0x00});
+        ckbytes("certification_version=0 (not AVnu-certified)", r, 54, {0x00,0x00,0x00,0x00});
     }
 
     // ---------------------------------------------------------------- //
