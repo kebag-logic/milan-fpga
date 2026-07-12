@@ -324,7 +324,7 @@ edge("er1", "c_mac", "ptprx", "64b AXIS LE", color=MIL[1], kind="data", ex=1.0, 
 edge("er2", "ptprx", "tcam", "64b AXIS LE", color=MIL[1], kind="data", ex=1.0, ey=0.5, nx=0.0, ny=0.5)
 edge("er3", "tcam", "tap", "64b AXIS LE", color=MIL[1], kind="data", ex=1.0, ey=0.5, nx=0.0, ny=0.5)
 edge("er4", "tap", "rxwr", "64b AXIS LE (async FIFO -> cd_sys)", color=MIL[1], kind="data", ex=1.0, ey=0.5, nx=0.0, ny=0.5)
-edge("er5", "c_rxdma", "rxrhdr", "coherent AXI writes 64b (via L2)", color=SYS[1], kind="data", ex=1.0, ey=0.35, nx=0.0, ny=0.5)
+edge("er5", "c_rxdma", "rxrhdr", "coherent AXI writes 64b (via L2)", color=SYS[1], kind="data", ex=0.7, ey=0.0, nx=0.5, ny=0.0, vy=185)
 # TX lane: straight right->left at abs y ~1880
 edge("ex9", "txrhdr", "c_txdma", "AXI reads 64b (bursts 16-64 beats)", color=SYS[1], kind="data", ex=0.0, ey=0.5, nx=1.0, ny=0.45)
 edge("ex0", "c_txdma", "cls", "64b AXIS LE (async FIFO -> cd_milan)", color=SYS[1], kind="data", ex=0.0, ey=0.45, nx=1.0, ny=0.55)
@@ -343,7 +343,7 @@ edge("em2", "c_acmp", "mux1", "resp 64b LE", color=MIL[1], kind="data", ex=1.0, 
 edge("em3", "mux1", "mux2", "64b LE", color=MIL[1], kind="data", ex=0.5, ey=1.0, nx=0.5, ny=0.0)
 edge("em4", "c_adp", "mux2", "advertise 64b LE", color=ETH[1], kind="data", ex=1.0, ey=0.3, nx=0.0, ny=0.5)
 # control out: mux2 -> dparb via the shelf under the ATDECC container
-edge("em5", "mux2", "dparb", "control 64b LE (IFG insert)", color=MIL[1], kind="data", ex=0.5, ey=1.0, nx=0.5, ny=0.0, vy=1520)
+edge("em5", "mux2", "dparb", "control 64b LE (IFG insert)", color=MIL[1], kind="data", ex=0.5, ey=1.0, nx=0.5, ny=0.0, vy=1650)
 # thin config
 edge("et3", "c_aecp", "c_adp", "ENTITY_DISCOVER 1b", kind="cfg", ex=1.0, ey=0.75, nx=0.0, ny=0.5)
 edge("ev1", "c_mac", "rmon", "event pulses 1b", kind="cfg", ex=0.7, ey=0.0, nx=0.5, ny=0.0, vy=185)
@@ -351,8 +351,7 @@ edge("ec1", "bus", "c_csr", "AXI-Lite 32b (CDC sys->milan)", kind="cfg", ex=0.5,
 edge("ec2", "c_csr", "c_atdecc", "identity 0x600 + status (CDC)", kind="cfg", ex=0.0, ey=0.5, nx=1.0, ny=0.5)
 edge("ec3", "c_csr", "cls", "0x300 maps", kind="cfg", ex=0.3, ey=1.0, nx=0.7, ny=0.0)
 edge("ec4", "c_csr", "tcam", "0x700 · 0x500 · 0x210", kind="cfg", ex=0.3, ey=0.0, nx=0.7, ny=1.0, vy=480)
-edge("es5", "kleth", "c_rxdma", "ring ctl 32b", kind="cfg", ex=0.15, ey=0.0, nx=0.5, ny=1.0)
-edge("es6", "kleth", "c_txdma", "ring ctl 32b", kind="cfg", ex=0.15, ey=1.0, nx=0.5, ny=0.0)
+edge("es5", "kleth", "c_rxdma", "", kind="cfg", ex=0.15, ey=0.0, nx=0.5, ny=1.0)
 edge("es7", "c_rxdma", "plic", "IRQ", kind="cfg", ex=1.0, ey=0.85, nx=0.0, ny=0.5)
 
 xml = ('<mxfile host="app.diagrams.net"><diagram name="milan-system-map">'
