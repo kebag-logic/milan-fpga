@@ -26,9 +26,10 @@
 //  Timing model : one `tick_i` = 1 s (a 1PPS/1 s strobe). The entity re-advertises
 //                 every `valid_time_i` seconds (ADP validity = 2*valid_time s, so
 //                 re-advertising each valid_time s keeps the entry fresh).
-//                 available_index is bumped ONLY on a real change (link-up /
-//                 info-change / GM-change) — NOT on periodic re-advertise or on a
-//                 discover response — so controllers do not see spurious changes.
+//                 available_index increments on EVERY transmitted ADPDU
+//                 (IEEE 1722.1 §6.2.1.16 as enforced by la_avdecc/Hive and done
+//                 by the pipewire module-avb reference) — periodic re-advertise,
+//                 discover response and departing all bump it.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -96,7 +97,6 @@ module adp_advertiser (
   reg        available_r;      //! entity currently considered available (advertising)
   reg        send_pending_r;   //! a frame is queued to send
   reg [3:0]  pend_msg_r;       //! queued message type (adp_message_type_t width)
-  reg        pend_bump_r;      //! queued: bump available_index before sending
 
   // 1-second advertise timer
   reg [4:0]  adv_tick_cnt_r;   //! counts ticks up to valid_time
@@ -190,7 +190,7 @@ module adp_advertiser (
 
   // -----------------------------------------------------------------------
   // Trigger capture — build the pending request. A depart wins over an
-  // advertise; a real change also bumps available_index.
+  // advertise; every send bumps available_index (see serialiser).
   // -----------------------------------------------------------------------
   wire depart_evt_w    = link_down_i | shutdown_i;
   wire bump_advert_evt = link_up_i | gm_change_i | info_changed_i; // advertise + bump index
@@ -201,7 +201,6 @@ module adp_advertiser (
       available_r    <= 1'b0;
       send_pending_r <= 1'b0;
       pend_msg_r     <= ENTITY_AVAILABLE;
-      pend_bump_r    <= 1'b0;
       adv_tick_cnt_r <= 5'd0;
     end else begin
       // advertise timer
@@ -218,11 +217,11 @@ module adp_advertiser (
       // pending request (priority-encoded); keep an existing pending until sent
       if (!send_pending_r) begin
         if (depart_evt_w && available_r) begin
-          send_pending_r <= 1'b1; pend_msg_r <= ENTITY_DEPARTING; pend_bump_r <= 1'b0;
+          send_pending_r <= 1'b1; pend_msg_r <= ENTITY_DEPARTING;
         end else if (bump_advert_evt && (available_r || link_up_i) && enable_i) begin
-          send_pending_r <= 1'b1; pend_msg_r <= ENTITY_AVAILABLE; pend_bump_r <= 1'b1;
+          send_pending_r <= 1'b1; pend_msg_r <= ENTITY_AVAILABLE;
         end else if (plain_advert_w && available_r && enable_i) begin
-          send_pending_r <= 1'b1; pend_msg_r <= ENTITY_AVAILABLE; pend_bump_r <= 1'b0;
+          send_pending_r <= 1'b1; pend_msg_r <= ENTITY_AVAILABLE;
         end
       end
 
@@ -247,14 +246,17 @@ module adp_advertiser (
       case (state_r)
         S_IDLE : begin
           if (send_pending_r) begin
-            // latch the frame parameters at start-of-frame
-            tx_msg_r <= pend_msg_r;
-            if (pend_bump_r) begin
-              available_index_o <= available_index_o + 32'd1;
-              tx_index_r        <= available_index_o + 32'd1;
-            end else begin
-              tx_index_r        <= available_index_o;
-            end
+            // latch the frame parameters at start-of-frame.
+            // available_index increments on EVERY transmitted ADPDU
+            // (periodic re-advertise, discover response, departing alike):
+            // la_avdecc/Hive treat a repeated index as an incoherent entity
+            // ("available_index should always increment", discoveryStateMachine
+            // .cpp) and the pipewire module-avb reference does
+            // `available_index++` on every send. Bump-on-change-only was
+            // silicon-diagnosed as the trigger (2026-07-12).
+            tx_msg_r          <= pend_msg_r;
+            available_index_o <= available_index_o + 32'd1;
+            tx_index_r        <= available_index_o + 32'd1;
             beat_r  <= 4'd0;
             state_r <= S_SEND;
           end
