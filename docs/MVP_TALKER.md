@@ -7,8 +7,17 @@ running entirely from QSPI flash on power-up.
 ## Signal chain (all fabric, cd_milan 50 MHz on the Arty)
 
 Pmod I2S2 ADC (CS5343, JA/pmoda) -> aaf_talker_i2s (I2S master; MCLK=clk/4,
-SCLK=64fs, LRCK=clk/1024) -> IEEE 1722 AAF-PCM frames -> merge before the
-classifier -> 802.1Q PCP3 -> class-A CBS queue -> MAC -> wire.
+SCLK=64fs, LRCK=clk/1024) -> IEEE 1722 AAF-PCM frames -> injected at the final
+datapath merge (post-shaper) -> MAC -> wire.
+
+**Injection point (MVP decision, 2026-07-12):** the AAF stream carries its own
+802.1Q PCP-3 tag and was designed to flow classifier -> class-A CBS queue. On
+silicon the CBS credit math is scaled for 1 Gb/s while the Arty wire is 100 M
+(the known `is_1g=0` pending item), so the CBS credit-gated the stream to ~1
+frame per 30 s. For the MVP the talker is injected AFTER the shaper (the same
+post-shaper path ADP/AECP/ACMP use) -> continuous emission, UNSHAPED. Proper
+class-A shaping (classifier + CBS at 100 M) is the `is_1g` follow-up; the
+frame FORMAT and content are identical either way.
 
 ## Frame (90 B, ~5.8 Mbit/s at 48k class A)
 
