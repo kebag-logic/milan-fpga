@@ -6,7 +6,9 @@ pages 2–8 give every displayed block its own description, drilling from the
 block's role down to bit level (frame byte maps, FSM states, segment programs
 with CDLs, ROM/overlay/CSR address maps):
 2-ingress · 3-validator-parser · 4-l0-timers · 5-response-builder ·
-6-aem-store · 7-adp-advertiser · 8-tx-csr (per-page PNG/SVG alongside).
+6-aem-store · 7-adp-advertiser · 8-tx-csr · 9-hw-sw-split (the softcore
+delimitation; normative text in docs/ARCHITECTURE_HW_SW_SPLIT.md).
+Per-page PNG/SVG alongside.
 Regenerate with `python3 atdecc_architecture.gen.py atdecc_architecture.drawio`
 (then `atdecc_architecture.render.py` renders every page to SVG/PNG).
 
