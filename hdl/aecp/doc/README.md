@@ -1,12 +1,14 @@
 # AECP / AEM listener — Developer Reference
 
 **Architecture diagram:** [`atdecc_architecture.drawio`](atdecc_architecture.drawio)
-([PNG](atdecc_architecture.png)) — the ATDECC (ADP + AECP/AEM) block diagram:
-RX monitor tap → validator → parser → l0_state + response_builder ↔
-store/accessor/dyn_mux, the ADP advertiser, the TX merge arbiters, the entity
-model/generation flow, the CSR groups, and the verification setup. Regenerate
-with `python3 atdecc_architecture.gen.py atdecc_architecture.drawio` (then
-`atdecc_architecture.render.py` for the SVG/PNG).
+— MULTI-PAGE: page 1 is the block overview ([PNG](atdecc_architecture.png));
+pages 2–8 give every displayed block its own description, drilling from the
+block's role down to bit level (frame byte maps, FSM states, segment programs
+with CDLs, ROM/overlay/CSR address maps):
+2-ingress · 3-validator-parser · 4-l0-timers · 5-response-builder ·
+6-aem-store · 7-adp-advertiser · 8-tx-csr (per-page PNG/SVG alongside).
+Regenerate with `python3 atdecc_architecture.gen.py atdecc_architecture.drawio`
+(then `atdecc_architecture.render.py` renders every page to SVG/PNG).
 
 **Spec:** IEEE 1722.1-2021 §9 · Milan v1.2 §5.4
 **Target:** Artix-7 (AX7101 `xc7a100tfgg484` @ 100 MHz datapath; Arty @ 50 MHz)
@@ -33,6 +35,7 @@ Answered on-wire, in hardware, with no CPU involvement:
 | `GET/SET_STREAM_FORMAT` | validated against the STREAM_OUTPUT format set |
 | `GET_STREAM_INFO` | Milan fixed 56-byte payload (flags 0xF6000000) |
 | `GET_AVB_INFO` | read-only status |
+| `GET_AS_PATH` | Milan-mandatory; count=1, path[0] = MAC-derived EUI64 clock_identity (matches the AVB_INTERFACE descriptor overlay) |
 | `GET_COUNTERS` | Milan-mandatory; ALWAYS full 136-B payload (success AND error — the Hive field-report class). STREAM_OUTPUT valid=0x1F, AVB_INTERFACE valid=0x23, values 0 until HW counters are wired |
 | `ENTITY_AVAILABLE`, `REGISTER/DEREGISTER_UNSOLICITED` | acknowledged |
 | MVU `GET_MILAN_INFO` | protocol_id 00-1B-C5-0A-C1-00, version 1, cert 0 (not certified) |
