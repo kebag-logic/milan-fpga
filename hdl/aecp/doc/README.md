@@ -31,14 +31,16 @@ Answered on-wire, in hardware, with no CPU involvement:
 | `GET/SET_NAME` | writes back to the AEM store (volatile mirror) |
 | `GET/SET_SAMPLING_RATE` | validated against 48/96/192 kHz |
 | `GET/SET_STREAM_FORMAT` | validated against the STREAM_OUTPUT format set |
-| `GET_STREAM_INFO`, `GET_AVB_INFO` | read-only status |
+| `GET_STREAM_INFO` | Milan fixed 56-byte payload (flags 0xF6000000) |
+| `GET_AVB_INFO` | read-only status |
+| `GET_COUNTERS` | Milan-mandatory; ALWAYS full 136-B payload (success AND error — the Hive field-report class). STREAM_OUTPUT valid=0x1F, AVB_INTERFACE valid=0x23, values 0 until HW counters are wired |
 | `ENTITY_AVAILABLE`, `REGISTER/DEREGISTER_UNSOLICITED` | acknowledged |
-| MVU `GET_MILAN_INFO` | protocol_id 00-1B-C5-0A-C1-00, version 1, cert 1.2.0.0 |
+| MVU `GET_MILAN_INFO` | protocol_id 00-1B-C5-0A-C1-00, version 1, cert 0 (not certified) |
 | anything else | `NOT_IMPLEMENTED` with the command echoed |
 
 ADP `ENTITY_DISCOVER` for this entity pulses the advertiser's `rcv_discover_i`
 (discovery response). Deferred: NV persistence / factory-reset of SET_* writes,
-unsolicited-notification push, GET_COUNTERS, audio maps.
+unsolicited-notification push, HW-backed counter values, audio maps.
 
 ---
 
@@ -120,13 +122,20 @@ caps, MAC, gPTP GM/domain, available_index) — ADP and AEM can never disagree.
 
 ## Verification
 
-- **Unit / subsystem:** `tb/verilator/aecp` — 44 self-checks across READ_DESCRIPTOR
+- **Unit / subsystem:** `tb/verilator/aecp` — 61 self-checks across READ_DESCRIPTOR
   (all 5), ACQUIRE→NOT_SUPPORTED, LOCK grant/deny/unlock, GET/SET_CONFIGURATION,
-  SET_NAME+readback, SET_SAMPLING_RATE valid/invalid, MVU GET_MILAN_INFO,
-  entity-id filtering, ADP-discover pulse. Run: `cd tb/verilator/aecp && make run`.
+  SET_NAME+readback, SET_SAMPLING_RATE valid/invalid, GET_COUNTERS (full-size
+  on every status), MVU GET_MILAN_INFO, entity-id filtering, ADP-discover pulse. Run: `cd tb/verilator/aecp && make run`.
 - **Datapath integration:** `tb/verilator/milan_dp` (17 checks) exercises the
   full `milan_datapath` with the listener in place — no NIC regression.
 - **Lint:** `scripts/run-verilator-lint.sh` (per-module + full `KL_aecp_top`).
+- **Co-sim:** `tb/verilator/aecp/cosim_driver.py` — tsn-gen builds/parses the
+  frames, the real `KL_aecp_top` RTL answers over an AxiStreamBeat socket (36/36).
+- **la_avdecc (Hive's library):** `enum_probe.cpp` on the AVB peer — full
+  controller enumeration with strict payload-size validation. Verdict on silicon:
+  entity ONLINE, IEEE17221=1. NOTE: compile the probe with la_avdecc's OWN feature
+  defines (`-DENABLE_AVDECC_FEATURE_CBR/JSON/REDUNDANCY
+  -DENABLE_AVDECC_STRICT_2018_REDUNDANCY` + nlohmann include) — a bare g++ build
+  ABI-mismatches the lib and crashes on the first virtual call.
 - **Silicon:** `avdecc/milan_controller.py <iface>` on the AVB-segment peer drives
-  the real AECP exchange (protocol-equivalent to Hive / la_avdecc, which can also
-  be pointed at the entity). Reads status back over CSR `0x648/0x64C`.
+  the real AECP exchange (24 checks). Reads status back over CSR `0x648/0x64C`.

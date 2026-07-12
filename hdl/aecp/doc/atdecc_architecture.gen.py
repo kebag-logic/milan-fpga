@@ -53,7 +53,7 @@ box("par", 380, 270, 430, 56, "KL_aecp_common_parser — extract aecp_hdr_t\n(ta
 box("l0",  380, 350, 245, 90, "KL_aecp_l0_state\n\n• LOCK_ENTITY (60 s timeout)\n• ACQUIRE → NOT_SUPPORTED\n• current_configuration", fill="#e1d5e7", stroke="#9673a6", font=10, align="left")
 box("tim", 645, 350, 165, 90, "KL_aecp_timers\n\n1 kHz tick\n→ lock timer\n→ counter gate", fill="#e1d5e7", stroke="#9673a6", font=10, align="left")
 box("bld", 380, 470, 245, 290,
-    "KL_aecp_response_builder\n— the command brain\n\n• capture payload,\n  classify command\n• READ_DESCRIPTOR\n• GET/SET name · config ·\n  sampling-rate · stream-format\n• GET_STREAM_INFO · AVB_INFO\n• MVU GET_MILAN_INFO\n• SET_* write-back\n• build response frame\n  (little-lane,\n   CDL = frame − 26)", fill="#dae8fc", stroke="#6c8ebf", font=10, align="left")
+    "KL_aecp_response_builder\n— the command brain\n\n• capture payload,\n  classify command\n• READ_DESCRIPTOR\n• GET/SET name · config ·\n  sampling-rate · stream-format\n• GET_STREAM_INFO · AVB_INFO ·\n  GET_COUNTERS (full-size, all\n  statuses) · MVU GET_MILAN_INFO\n• SET_* write-back\n• build response frame\n  (little-lane,\n   CDL = frame − 26)", fill="#dae8fc", stroke="#6c8ebf", font=10, align="left")
 
 # ---- store / overlay / accessor (right column, no overlap with builder) ----
 box("acc", 645, 470, 165, 70, "KL_aecp_accessor\n\n(type, index)\n→ base, len", fill="#d5e8d4", stroke="#82b366", font=10, align="left")
@@ -62,7 +62,7 @@ box("dyn", 645, 660, 165, 100, "KL_aecp_aem_dyn_mux\n\nlive-field overlay:\nenti
 
 # ---- TX path ----
 box("adv", 880, 200, 310, 120,
-    "adp_advertiser\n\n• periodic ENTITY_AVAILABLE (valid_time)\n• answers ENTITY_DISCOVER (rcv_discover)\n• ENTITY_DEPARTING on link-down\n• available_index (bumped on change only)", fill="#ffe6cc", stroke="#d79b00", font=10, align="left")
+    "adp_advertiser\n\n• periodic ENTITY_AVAILABLE (valid_time)\n• answers ENTITY_DISCOVER (rcv_discover)\n• ENTITY_DEPARTING on link-down\n• available_index +1 on EVERY ADPDU sent\n  (la_avdecc/Hive strict-increment rule)", fill="#ffe6cc", stroke="#d79b00", font=10, align="left")
 box("mux_lo", 880, 380, 310, 56, "adp_tx_arbiter (low-rate merge)\nADP advertise  +  AECP response", fill="#fff2cc", stroke="#d6b656", font=11, align="left")
 box("mux_dp", 880, 470, 310, 56, "adp_tx_arbiter (datapath merge)\ncontrol stream inserted in inter-frame gaps", fill="#fff2cc", stroke="#d6b656", font=11, align="left")
 box("txout", 880, 560, 310, 40, "→ tx_axis_to_mac", fill="#d5e8d4", stroke="#82b366", font=11)
@@ -81,9 +81,9 @@ box("csr_id", 660, 840, 210, 60, "0x600 ADP/identity group\nentity_id · caps ·
 box("csr_st", 660, 910, 210, 60, "0x648 / 0x64C  AECP status (RO)\nlocked · cmd_count · resp_count ·\ncurrent_configuration", fill="#e1d5e7", stroke="#9673a6", font=9, align="left")
 
 # ---- verification ----
-box("v_cosim", 910, 840, 300, 40, "tsn-gen ↔ Verilator co-sim (Vaecp_cosim)\nreal RTL over AxiStreamBeat socket — 30/30", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
+box("v_cosim", 910, 840, 300, 40, "tsn-gen ↔ Verilator co-sim (Vaecp_cosim)\nreal RTL over AxiStreamBeat socket — 36/36", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
 box("v_la", 910, 888, 300, 40, "la_avdecc probe (Hive's library) on pw0\nfull enumeration; strict payload-size checks", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
-box("v_ctl", 910, 936, 300, 34, "avdecc/milan_controller.py (peer, on silicon)\n+ tb/verilator/aecp 51/51", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
+box("v_ctl", 910, 936, 300, 34, "avdecc/milan_controller.py (peer, on silicon)\n+ tb/verilator/aecp 61/61", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
 
 # ---- edges: RX/command flow ----
 edge("e1", "mac_rx", "ingress", "tap (copy)")
