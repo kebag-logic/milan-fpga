@@ -28,8 +28,24 @@ def render_page(model, out):
                 w=float(g.get("width", 0)), h=float(g.get("height", 0)),
                 label=val, style=style, parent=c.get("parent", "1"))
         elif c.get("edge") == "1":
+            def frac(k):
+                m = re.search(rf"{k}=([0-9.]+)", style)
+                return float(m.group(1)) if m else None
+            vx = vy = None
+            arr = c.find("mxGeometry/Array")
+            if arr is not None:
+                pt = arr.find("mxPoint")
+                if pt is not None:
+                    vx = float(pt.get("x")) if pt.get("x") else None
+                    vy = float(pt.get("y")) if pt.get("y") else None
             edges.append(dict(s=c.get("source"), t=c.get("target"), label=val,
-                              dashed="dashed=1" in style and "endArrow=open" in style))
+                              dashed="dashed=1" in style,
+                              open="endArrow=open" in style,
+                              w=float(sattr(style, "strokeWidth", "1.6")),
+                              color=sattr(style, "strokeColor", "#333333"),
+                              ex=frac("exitX"), ey=frac("exitY"),
+                              nx=frac("entryX"), ny=frac("entryY"),
+                              vx=vx, vy=vy))
 
     # resolve nested coordinates (child x/y are relative to the parent).
     # Resolve from a SNAPSHOT of the original relative coords — resolving
@@ -118,19 +134,43 @@ def render_page(model, out):
     for e in edges:
         a, b = cells.get(e["s"]), cells.get(e["t"])
         if not a or not b: continue
-        x1, y1 = anchor(a, b); x2, y2 = anchor(b, a)
-        mx = (x1+x2)/2
-        if abs(x1-x2) > 8 and abs(y1-y2) > 8:
-            pts = f"M{x1},{y1} L{mx},{y1} L{mx},{y2} L{x2},{y2}"
+        # pinned anchors (drawio exitX/entryX fractions) win over auto sides
+        if e["ex"] is not None:
+            x1 = a["x"] + a["w"] * e["ex"]; y1 = a["y"] + a["h"] * (e["ey"] or 0.5)
+            v1 = e["ey"] in (0.0, 1.0)
         else:
+            x1, y1 = anchor(a, b); v1 = False
+        if e["nx"] is not None:
+            x2 = b["x"] + b["w"] * e["nx"]; y2 = b["y"] + b["h"] * (e["ny"] or 0.5)
+            v2 = e["ny"] in (0.0, 1.0)
+        else:
+            x2, y2 = anchor(b, a); v2 = False
+        if e.get("vy") is not None:      # explicit horizontal shelf
+            vy = e["vy"]
+            pts = f"M{x1},{y1} L{x1},{vy} L{x2},{vy} L{x2},{y2}"
+        elif e.get("vx") is not None:    # explicit vertical shelf
+            vx = e["vx"]
+            pts = f"M{x1},{y1} L{vx},{y1} L{vx},{y2} L{x2},{y2}"
+        elif abs(x1-x2) <= 8 or abs(y1-y2) <= 8:
             pts = f"M{x1},{y1} L{x2},{y2}"
-        col = "#999" if e["dashed"] else "#333"
-        dash = ' stroke-dasharray="4,3"' if e["dashed"] else ""
-        mk = "arro" if e["dashed"] else "arr"
-        svg.append(f'<path d="{pts}" fill="none" stroke="{col}" stroke-width="1.3"{dash} marker-end="url(#{mk})"/>')
+        elif v1 and v2:      # vertical out, vertical in: V-H-V through mid-y
+            my = (y1+y2)/2
+            pts = f"M{x1},{y1} L{x1},{my} L{x2},{my} L{x2},{y2}"
+        elif v1:             # vertical out, horizontal in
+            pts = f"M{x1},{y1} L{x1},{y2} L{x2},{y2}"
+        elif v2:             # horizontal out, vertical in
+            pts = f"M{x1},{y1} L{x2},{y1} L{x2},{y2}"
+        else:                # H-V-H through mid-x
+            mx0 = (x1+x2)/2
+            pts = f"M{x1},{y1} L{mx0},{y1} L{mx0},{y2} L{x2},{y2}"
+        mx, myl = (x1+x2)/2, (y1+y2)/2
+        col = e["color"] if not e["open"] else "#999"
+        dash = ' stroke-dasharray="6,4"' if e["dashed"] else ""
+        mk = "arro" if e["open"] else "arr"
+        svg.append(f'<path d="{pts}" fill="none" stroke="{col}" stroke-width="{e["w"]}"{dash} marker-end="url(#{mk})"/>')
         if e["label"]:
             lw = len(e["label"]) * 6.2 + 8
-            ly = (y1+y2)/2
+            ly = myl
             svg.append(f'<rect x="{mx-lw/2}" y="{ly-12}" width="{lw}" height="15" '
                        f'fill="#ffffff" fill-opacity="0.92" stroke="none"/>')
             svg.append(f'<text x="{mx}" y="{ly}" font-size="10" fill="#444" '
