@@ -160,7 +160,7 @@ rows("r_aest", 15, 594, 650, [
 
 cont("c_acmp", 740, 40, 640, 400, "KL_acmp_responder — ACMP stateless talker (§5.5)", stroke=MIL[1], fill="#f4f8fd", parent="c_atdecc")
 box("acmppipe", 15, 35, 610, 230,
-    "registered tap · 70 B ACMPDU (CDL 44)\n\nGET_TX_STATE -> SUCCESS, count=0, stream fields zeroed,\nprobe flags cleared (uid!=0 -> TALKER_UNKNOWN_ID)\nGET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)\nCONNECT/DISCONNECT_TX -> NOT_SUPPORTED until the\nsoftcore policy mailbox (HW answers / SW decides)",
+    "registered tap · 70 B ACMPDU (CDL 44)\n\nGET_TX_STATE -> SUCCESS, count=0, stream fields zeroed,\nprobe flags cleared (uid!=0 -> TALKER_UNKNOWN_ID)\nGET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)\nCONNECT/DISCONNECT_TX -> NOT_SUPPORTED until the\nsoftcore policy mailbox (HW answers / SW decides)\nSILICON: la_avdecc Milan=1 CLEAN (eto_acmp2, 31/31)",
     fill=MIL[0], stroke=MIL[1], align="left", parent="c_acmp")
 rows("r_ac", 15, 280, 610, [
  "frame buf: 72 B LUTRAM (9 beats x 8 B)",
