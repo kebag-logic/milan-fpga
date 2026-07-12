@@ -57,6 +57,18 @@ for MOD in "${MODULES[@]}"; do
   fi
 done
 
+# ACMP responder (stateless talker, hdl/acmp)
+ACMP_DIR="${REPO_ROOT}/hdl/acmp"
+echo -n "Linting KL_acmp_responder... "
+if verilator ${FLAGS} "${ACMP_DIR}/acmp_pkg.sv" "${ACMP_DIR}/KL_acmp_responder.sv" \
+    2>&1 | grep -q "^%Error"; then
+  echo "FAIL"; FAIL=$((FAIL+1))
+  verilator ${FLAGS} "${ACMP_DIR}/acmp_pkg.sv" "${ACMP_DIR}/KL_acmp_responder.sv" \
+    2>&1 | grep "^%Error" || true
+else
+  echo "OK"; PASS=$((PASS+1))
+fi
+
 # full-hierarchy elaboration of KL_aecp_top (the integration check)
 echo -n "Elaborating KL_aecp_top (full subsystem)... "
 if verilator ${FLAGS} ${INC} --top-module KL_aecp_top \

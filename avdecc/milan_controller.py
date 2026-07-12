@@ -96,6 +96,34 @@ class Entity:
                 return True
         return False
 
+    # -- ACMP transport (IEEE 1722.1 Clause 8; subtype 0xFC, all multicast) --
+    def acmp(self, msg_type, tuid=0, seq_salt=0):
+        self.seq = (self.seq + 1) & 0xFFFF
+        seq = (self.seq + seq_salt) & 0xFFFF
+        pkt = struct.pack(">BBH", 0xFC, msg_type & 0x0F, 44)
+        pkt += b"\x00" * 8                                 # stream_id
+        pkt += struct.pack(">Q", self.ctlr_id)             # controller
+        pkt += struct.pack(">Q", self.eid)                 # talker
+        pkt += b"\x00" * 8                                 # listener
+        pkt += struct.pack(">HH", tuid, 0)                 # talker/listener uid
+        pkt += b"\x00" * 6                                 # stream_dest_mac
+        pkt += struct.pack(">HHHHH", 0, seq, 0, 0, 0)      # count/seq/flags/vlan/rsvd
+        self._send(ADP_MCAST, pkt)
+        end = time.time() + 1.5
+        while time.time() < end:
+            try:
+                f = self.s.recv(2048)
+            except socket.timeout:
+                return None
+            if len(f) < 70 or f[12:14] != struct.pack(">H", ETH_P_AVTP):
+                continue
+            if f[14] != 0xFC or (f[15] & 0x0F) != ((msg_type & 0x0F) | 1):
+                continue
+            if struct.unpack(">H", f[62:64])[0] != seq:
+                continue
+            return f
+        return None
+
     # -- AECP transport -----------------------------------------------------
     def _send(self, dst, payload):
         self.s.send(dst + self.src + struct.pack(">H", ETH_P_AVTP) + payload)
@@ -232,7 +260,26 @@ def validate(e):
         check("AS_PATH count==1, path[0]==EUI64(entity MAC)",
               cnt == 1 and eui == exp, f"count={cnt} path0={eui.hex()}")
 
-    print("\n[9] MVU GET_MILAN_INFO")
+    print("\n[9] ACMP (Milan v1.2 5.5 - stateless talker)")
+    r = e.acmp(4)                        # GET_TX_STATE_COMMAND
+    ok = r is not None
+    check("GET_TX_STATE answered", ok, "timeout")
+    if ok:
+        check("GET_TX_STATE SUCCESS + count 0",
+              (r[16] >> 3) == 0 and r[60:62] == b"\x00\x00",
+              f"status={r[16]>>3} count={r[60:62].hex()}")
+        check("GET_TX_STATE stream fields zeroed",
+              r[18:26] == b"\x00"*8 and r[54:60] == b"\x00"*6, "nonzero")
+    r = e.acmp(12)                       # GET_TX_CONNECTION_COMMAND
+    check("GET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)",
+          r is not None and (r[16] >> 3) == 31,
+          "timeout" if r is None else f"status={r[16]>>3}")
+    r = e.acmp(0)                        # CONNECT_TX_COMMAND
+    check("CONNECT_TX -> NOT_SUPPORTED (policy = softcore, later)",
+          r is not None and (r[16] >> 3) == 31,
+          "timeout" if r is None else f"status={r[16]>>3}")
+
+    print("\n[10] MVU GET_MILAN_INFO")
     r = e._aecp(VU_COMMAND, 0x0000, b"", is_vu=True)
     ok = r is not None and (r[15] & 0x0F) == VU_RESPONSE and r[36:42] == MILAN_PROTOCOL_ID
     check("MVU GET_MILAN_INFO answered", ok,
