@@ -79,20 +79,20 @@ FLASHBOOT_ENTRY = 0x40F0_0000  # OpenSBI fw_jump entry
 # flashed, so its 14 MB span (0..0xE0_0000) is free to use these otherwise-unused offsets.
 FLASHBOOT_LAYOUT = {
     #  name       flash_offset      dram_addr        budget (v2 QSPI-boot layout)
-    # v2 (2026-07-12, user directive): the BITSTREAM boots from QSPI — gateware
-    # slot at 0x0 (7-series config scans to the sync word; flashed via
-    # `deploy.sh flash`, native openFPGALoader -f, NOT fbi-wrapped), images
-    # shifted up. Budgets vs MEASURED sizes: compressed 100t bit ~2.0-2.3 MiB
-    # (COMPRESS pinned in main()) in 2.25 MiB; kernel 8.14 MB in 8.25 MiB;
-    # fw_jump 261 KB in 384 KiB; dtb in 128 KiB; rootfs slot 5.0 MiB — the
-    # current 5.6 MB CPIO-XZ MUST SLIM ~0.6 MB first (drop PipeWire per the
-    # rev-2 delimitation; deploy.sh enforces the budget loudly).
+    # v3 (2026-07-12): QSPI-booted BITSTREAM at 0x0 (compressed, config-read;
+    # flashed via `deploy.sh flash`, never fbi-wrapped) + XZ KERNEL: the slot
+    # holds the kernel build's own Image.xz (MEASURED 2.52 MB, xz -9
+    # --check=crc32) and the BIOS decompresses it with the vendored
+    # xz_embedded (patch 0003; staged at kernel_addr+24 MB, 64 KB arena at
+    # +28 MB, byte-identical decode host-proven). Budgets: bit ~2.0-2.3 MiB
+    # in 2.25; Image.xz 2.52 MB in 3.5; fw_jump 261 KB in 384 KiB; rootfs
+    # gets 9.75 MiB (5.6 actual — 4 MiB slack, no slimming pressure).
     # BIOS copies only the manifest images; the bitstream is config-read.
     "bitstream": {"offset": 0x00_0000, "addr": 0x0},        # 2.25 MiB gateware slot
-    "kernel":  {"offset": 0x24_0000, "addr": 0x4000_0000},  # 8.25 MiB
-    "opensbi": {"offset": 0xA8_0000, "addr": 0x40F0_0000},  # 384 KiB (fw_jump + FBI)
-    "dtb":     {"offset": 0xAE_0000, "addr": 0x40EF_0000},  # 128 KiB
-    "rootfs":  {"offset": 0xB0_0000, "addr": 0x4100_0000},  # 5.0 MiB → ends 16 MiB
+    "kernel":  {"offset": 0x24_0000, "addr": 0x4000_0000},  # 3.5 MiB (Image.xz)
+    "opensbi": {"offset": 0x5C_0000, "addr": 0x40F0_0000},  # 384 KiB (fw_jump + FBI)
+    "dtb":     {"offset": 0x62_0000, "addr": 0x40EF_0000},  # 128 KiB
+    "rootfs":  {"offset": 0x64_0000, "addr": 0x4100_0000},  # 9.75 MiB → ends 16 MiB
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],

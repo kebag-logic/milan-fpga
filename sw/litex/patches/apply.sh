@@ -40,3 +40,16 @@ apply_one() {  # $1 = python package name, $2 = patch file
 
 apply_one litex   0001-milan-linux-flashboot.patch
 apply_one liteeth 0002-liteeth-gmii-tx-clk-invert.patch
+
+# 0003 needs the vendored xz_embedded decoder (0BSD, from linux lib/xz)
+# copied into the BIOS tree first — the patch only touches boot.c/Makefile.
+litex_root="$("$PY" -c "import litex, os; print(os.path.dirname(os.path.dirname(litex.__file__)))")"
+if [ -z "$REV" ]; then
+    mkdir -p "$litex_root/litex/soc/software/bios/xz"
+    cp -f "$HERE"/files/xz/* "$litex_root/litex/soc/software/bios/xz/"
+    echo "[patches] files/xz -> bios/xz (vendored xz_embedded)"
+else
+    rm -rf "$litex_root/litex/soc/software/bios/xz"
+    echo "[patches] bios/xz removed"
+fi
+apply_one litex   0003-milan-flashboot-xz-kernel.patch

@@ -1,22 +1,35 @@
 # QSPI flash-boot  -  skip the multi-minute serial upload
 
-## Layout v2 — QSPI-BOOTED BITSTREAM (2026-07-12, user directive)
+## Layout v3 — QSPI-BOOTED BITSTREAM + XZ KERNEL (2026-07-12)
 
-The gateware now lives in flash and the FPGA config-boots it (mode pins:
-Arty JP1 -> QSPI, AX7101 boot switch -> QSPI). Bitstreams are COMPRESSED
-(pinned in milan_soc.py: COMPRESS + SPI x1 + 33 MHz configrate).
+The gateware lives in flash and the FPGA config-boots it (mode pins: Arty
+JP1 -> QSPI, AX7101 boot switch -> QSPI); bitstreams are COMPRESSED (pinned:
+COMPRESS + SPI x1 + 33 MHz configrate). The kernel is flashed as the kernel
+build's own **Image.xz** (there is no non-EFI self-extracting kernel on
+riscv — the config's self-extractor is EFI zboot, which our BIOS->OpenSBI
+chain has no loader for; Image.xz is the artifact the kernel proposes for
+bootloader decompression). The BIOS decompresses it with the vendored
+xz_embedded decoder (patch 0003 + files/xz, 0BSD from linux lib/xz; 10.6 KB
+of rv64 code; single-call mode — the destination buffer is the dictionary,
+64 KB state arena; byte-identical decode host-proven on the real Image).
 
-| slot      | offset     | budget   | notes |
-|-----------|------------|----------|-------|
-| bitstream | 0x00_0000  | 2.25 MiB | raw config stream via `deploy.sh flash` (openFPGALoader -f); NOT fbi-wrapped |
-| kernel    | 0x24_0000  | 8.25 MiB | fbi-wrapped, BIOS memcpy -> 0x4000_0000 |
-| opensbi   | 0xA8_0000  | 384 KiB  | fw_jump -> 0x40F0_0000 |
-| dtb       | 0xAE_0000  | 128 KiB  | -> 0x40EF_0000 |
-| rootfs    | 0xB0_0000  | 5.0 MiB  | CPIO-XZ -> 0x4100_0000; **current 5.6 MB must slim ~0.6 MB (drop PipeWire, rev-2 delimitation) before the first v2 reflash** |
+| slot      | offset     | budget   | measured | notes |
+|-----------|------------|----------|----------|-------|
+| bitstream | 0x00_0000  | 2.25 MiB | ~2.0-2.3 | raw config stream via `deploy.sh flash`; NOT fbi-wrapped |
+| kernel    | 0x24_0000  | 3.5 MiB  | 2.52 MB  | Image.xz (xz -9 --check=crc32; deploy.sh auto-compresses a raw Image); BIOS stages @ +24 MB, decodes -> 0x4000_0000 |
+| opensbi   | 0x5C_0000  | 384 KiB  | 261 KB   | fw_jump -> 0x40F0_0000 |
+| dtb       | 0x62_0000  | 128 KiB  | ~10 KB   | -> 0x40EF_0000 |
+| rootfs    | 0x64_0000  | 9.75 MiB | 5.6 MB   | CPIO-XZ -> 0x4100_0000 (4 MiB slack — no slimming pressure) |
 
-Rollout is atomic per board: flash the v2-layout bitstream AND the image set
-in one session (a v2 BIOS with old-layout flash finds no kernel at 0x24_0000
-and vice versa). The pre-v2 sections below describe the kernel-at-0 layout.
+xz stream rule: plain LZMA2, `--check=crc32` (or none) — the decoder builds
+without CRC64/BCJ. The BIOS magic-sniffs the staged payload, so an
+uncompressed Image keeps booting (transition-safe).
+
+Rollout is atomic per board: flash the v3 bitstream AND the image set in one
+session (a v3 BIOS with old-layout flash finds no kernel at 0x24_0000 and
+vice versa). DRAM scratch during boot: staging at +24 MB, arena at +28 MB —
+clear of kernel (8.1 MB @ +0), initrd (@ +16 MB), dtb/opensbi (@ ~+15 MB).
+The pre-v3 sections below describe the kernel-at-0 layout.
 
 
 Every boot of the fully-FPGA Linux SoC uploads four images over the 1.5 Mbaud LiteX UART  - 
