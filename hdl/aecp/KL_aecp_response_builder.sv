@@ -470,12 +470,12 @@ module KL_aecp_response_builder (
               const_q[6] <= 8'h00; const_q[7] <= 8'h00;
               const_q[8] <= 8'h01; const_q[9] <= 8'h02;   // certification 1.2.0.0
               const_q[10] <= 8'h00; const_q[11] <= 8'h00;
-              cdl_q <= 11'd40;    // tgt(8)+ctlr(8)+seq(2)+proto/cmd/rsvd(10)+info(12)
+              cdl_q <= 11'd32;    // ctlr(8)+seq(2)+proto/cmd/rsvd(10)+info(12)
             end else begin
               // NOT_IMPLEMENTED: echo protocol_id + command_type + reserved
               seg_addr_q[0] <= 16'd0;
               seg_len_q[0]  <= 16'd10;
-              cdl_q         <= 11'd28;
+              cdl_q         <= 11'd20;
             end
           end else begin
             case (hdr_q.command_type)
@@ -488,14 +488,14 @@ module KL_aecp_response_builder (
                 for (int k = 0; k < 8; k++)
                   const_q[k] <= (hdr_q.command_type == CMD_LOCK_ENTITY)
                     ? l0_state_i.locking_controller_id[8*(7-k) +: 8] : 8'h00;
-                cdl_q <= 11'd36;
+                cdl_q <= 11'd28;
               end
 
               // -------------------------------------------------- //
               CMD_ENTITY_AVAILABLE: begin
                 status_q      <= STATUS_SUCCESS;
                 seg_kind_q[0] <= SEG_NONE; seg_len_q[0] <= 16'd0;
-                cdl_q         <= 11'd20;
+                cdl_q         <= 11'd12;
               end
 
               // -------------------------------------------------- //
@@ -506,11 +506,11 @@ module KL_aecp_response_builder (
                   const_q[16] <= buf_r[2]; const_q[17] <= buf_r[3];   // cfg echo
                   const_q[18] <= 8'h00;    const_q[19] <= 8'h00;      // reserved
                   seg_kind_q[1] <= SEG_STORE; seg_addr_q[1] <= acc_base; seg_len_q[1] <= acc_len;
-                  cdl_q <= 11'(24 + (32)'(acc_len));
+                  cdl_q <= 11'(16 + (32)'(acc_len));
                 end else begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd8;
-                  cdl_q        <= 11'd28;
+                  cdl_q        <= 11'd20;
                 end
               end
 
@@ -522,12 +522,12 @@ module KL_aecp_response_builder (
                 const_q[0] <= 8'h00; const_q[1] <= 8'h00;
                 const_q[2] <= l0_state_i.current_configuration_index[15:8];
                 const_q[3] <= l0_state_i.current_configuration_index[7:0];
-                cdl_q <= 11'd24;
+                cdl_q <= 11'd16;
               end
 
               // -------------------------------------------------- //
               CMD_GET_NAME, CMD_SET_NAME: begin
-                cdl_q <= 11'd92;   // 20 + 8 + 64
+                cdl_q <= 11'd84;   // 12 + 8 + 64
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= (hdr_q.command_type == CMD_SET_NAME)
@@ -555,7 +555,7 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               CMD_GET_SAMPLING_RATE, CMD_SET_SAMPLING_RATE: begin
-                cdl_q <= 11'd28;   // 20 + 4 + 4
+                cdl_q <= 11'd20;   // 12 + 4 + 4
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= 16'd8;
@@ -581,7 +581,7 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               CMD_GET_STREAM_FORMAT, CMD_SET_STREAM_FORMAT: begin
-                cdl_q <= 11'd32;   // 20 + 4 + 8
+                cdl_q <= 11'd24;   // 12 + 4 + 8
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= 16'd12;
@@ -610,7 +610,7 @@ module KL_aecp_response_builder (
                 if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd24;
+                  cdl_q        <= 11'd16;
                 end else begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
@@ -622,7 +622,7 @@ module KL_aecp_response_builder (
                   for (int k = 0; k < 6;  k++)                        // stream_id
                     const_q[4+k] <= entity_id_i[8*(7-k) +: 8];
                   for (int k = 10; k < 32; k++) const_q[k] <= 8'h00;
-                  cdl_q <= 11'd64;   // 20 + 4+4+8 + 28
+                  cdl_q <= 11'd56;   // 12 + 4+4+8 + 28
                 end
               end
 
@@ -631,7 +631,7 @@ module KL_aecp_response_builder (
                 if (w_gs_type != DESC_AVB_INTERFACE || w_gs_index != 16'd0) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd24;
+                  cdl_q        <= 11'd16;
                 end else begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
@@ -643,7 +643,7 @@ module KL_aecp_response_builder (
                   const_q[12] <= gptp_domain_i;
                   const_q[13] <= 8'h00;                          // flags
                   const_q[14] <= 8'h00; const_q[15] <= 8'h00;    // msrp count = 0
-                  cdl_q <= 11'd40;   // 20 + 4 + 16
+                  cdl_q <= 11'd32;   // 12 + 4 + 16
                 end
               end
 
@@ -652,7 +652,7 @@ module KL_aecp_response_builder (
               CMD_DEREGISTER_UNSOLICITED_NOTIFICATION: begin
                 status_q      <= STATUS_SUCCESS;
                 seg_kind_q[0] <= SEG_NONE; seg_len_q[0] <= 16'd0;
-                cdl_q         <= 11'd20;
+                cdl_q         <= 11'd12;
               end
 
               default: ;   // NOT_IMPLEMENTED echo (defaults above)
