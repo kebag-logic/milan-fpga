@@ -64,8 +64,13 @@ enable, AAF_CTRL enable. Fully autonomous after boot.
 
 - tb/verilator/aaf: 19/19 byte-exact frame (header, payload, seq, timestamp).
 - milan_dp: 26/26 (talker integrated, no datapath regression).
-- Silicon (pending arty_v9 flash): AAF frames captured at a peer — subtype
-  0x02, 8 kHz frame cadence, monotonic seq, PCP3 tag; entity still Milan=1.
+- **Silicon (arty_v10/eppo, WNS +0.258, flashed 2026-07-12): ALL GATES PASS.**
+  Counters: 8.1k frames/s + 48.9k pairs/s (exact design cadence). At the peer:
+  seq +1 per frame @ ~122 us, payload = live ADC noise, avtp_timestamp
+  advances EXACTLY 122,880 ns per seq (= 6 x 1024 x 20 ns, zero jitter) on
+  live PHC time. Boots standalone from QSPI (BIOS xz decode verified).
+  Note: the switch strips the VID-0 priority tag on its untagged egress
+  ports, so captures show untagged 86-B frames — expected .1Q behavior.
 
 ## Flash (v3 QSPI-boot, one verb)
 
