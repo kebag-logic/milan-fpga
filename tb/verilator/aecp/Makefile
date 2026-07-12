@@ -45,5 +45,14 @@ run: $(GEN)
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
 
+# tsn-gen <-> Verilator co-sim harness: a UNIX-socket AECP responder DUT.
+COSIM_FLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
+              -I$(RTL)/aecp -I$(RTL)/common \
+              -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+              -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
+              -CFLAGS "-std=c++17 -O2"
+cosim: $(GEN)
+	$(VERILATOR) $(COSIM_FLAGS) $(SRCS) cosim_main.cpp -o Vaecp_cosim
+
 clean:
 	rm -rf obj_dir

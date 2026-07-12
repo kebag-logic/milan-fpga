@@ -468,7 +468,10 @@ module KL_aecp_response_builder (
               const_q[2] <= 8'h00; const_q[3] <= 8'h01;
               const_q[4] <= 8'h00; const_q[5] <= 8'h00;   // features_flags = 0
               const_q[6] <= 8'h00; const_q[7] <= 8'h00;
-              const_q[8] <= 8'h01; const_q[9] <= 8'h02;   // certification 1.2.0.0
+              // certification_version MUST stay 0 until AVnu-certified (the
+              // pipewire module-avb reference forces 0 with a CRITICAL comment;
+              // a non-zero value falsely claims certification).
+              const_q[8] <= 8'h00; const_q[9] <= 8'h00;
               const_q[10] <= 8'h00; const_q[11] <= 8'h00;
               cdl_q <= 11'd32;    // ctlr(8)+seq(2)+proto/cmd/rsvd(10)+info(12)
             end else begin
@@ -606,24 +609,19 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
+              // GET_STREAM_INFO: Milan mandates a fixed 56-byte payload with
+              // populated flags/pbsta/acmpsta (pipewire cmd-get-set-stream-
+              // info.c). Rather than emit a shorter, non-conformant payload
+              // that Hive/la_avdecc would reject as "incorrect payload size",
+              // answer NOT_IMPLEMENTED (a valid echoed response) until the full
+              // 56-byte STREAM_OUTPUT format is built. Out of the current scope
+              // (READ_DESCRIPTOR + the descriptor getters/setters + LOCK).
               CMD_GET_STREAM_INFO: begin
-                if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd16;
-                end else begin
-                  status_q      <= STATUS_SUCCESS;
-                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
-                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
-                  seg_kind_q[2] <= SEG_STORE;
-                  seg_addr_q[2] <= WB_STREAM_FORMAT_C; seg_len_q[2] <= 16'd8;
-                  seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd4;  seg_len_q[3] <= 16'd28;
-                  for (int k = 0; k < 4;  k++) const_q[k] <= 8'h00;   // flags
-                  for (int k = 0; k < 6;  k++)                        // stream_id
-                    const_q[4+k] <= entity_id_i[8*(7-k) +: 8];
-                  for (int k = 10; k < 32; k++) const_q[k] <= 8'h00;
-                  cdl_q <= 11'd56;   // 12 + 4+4+8 + 28
-                end
+                status_q      <= STATUS_NOT_IMPLEMENTED;
+                seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd2;
+                seg_len_q[0]  <= (hdr_q.control_data_length > 11'd12)
+                                 ? 16'(hdr_q.control_data_length) - 16'd12 : 16'd0;
+                cdl_q         <= hdr_q.control_data_length;
               end
 
               // -------------------------------------------------- //
@@ -641,7 +639,9 @@ module KL_aecp_response_builder (
                   const_q[8]  <= 8'h00; const_q[9]  <= 8'h00;   // propagation delay
                   const_q[10] <= 8'h00; const_q[11] <= 8'h00;
                   const_q[12] <= gptp_domain_i;
-                  const_q[13] <= 8'h00;                          // flags
+                  const_q[13] <= 8'h04;   // flags: SRP_ENABLED (bit2); the
+                                          // pipewire ref sets 0x04, |0x02 when a
+                                          // gPTP grandmaster is present
                   const_q[14] <= 8'h00; const_q[15] <= 8'h00;    // msrp count = 0
                   cdl_q <= 11'd32;   // 12 + 4 + 16
                 end
