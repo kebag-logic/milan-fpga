@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="520" viewBox="0 0 1260 520" font-family="Helvetica,Arial,sans-serif">
+<rect width="1260" height="520" fill="#ffffff"/>
+<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#333"/></marker><marker id="arro" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#999"/></marker></defs>
+<rect x="40.0" y="12.0" width="1180.0" height="30.0" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.3"/>
+<text x="630.0" y="31.9" font-size="14" fill="#222" text-anchor="middle">adp_advertiser — ENTITY_AVAILABLE / DEPARTING / discover response, byte-exact ADPDU   (hdl/adp/adp_advertiser.sv)</text>
+<rect x="40.0" y="60.0" width="620.0" height="420.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">82-byte frame — wire byte map (CDL 0x38 = 56, ADPDU = 68 B)</text>
+<rect x="60.0" y="92.0" width="580.0" height="337.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="68.0" y="147.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 0-5    dst = 91:E0:F0:01:00:00 (ADP multicast)</text>
+<text x="68.0" y="160.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 6-11   src = station_mac</text>
+<text x="68.0" y="173.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 12-13  0x22F0        byte 14  subtype 0xFA</text>
+<text x="68.0" y="186.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 15     {sv=0, ver=0, message_type}</text>
+<text x="68.0" y="199.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            0 AVAILABLE / 1 DEPARTING / 2 DISCOVER</text>
+<text x="68.0" y="212.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 16     {valid_time[4:0], cdl[10:8]}  vt in 2 s units (0x1F=62 s)</text>
+<text x="68.0" y="225.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 17     cdl[7:0] = 0x38</text>
+<text x="68.0" y="238.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 18-25  entity_id                byte 26-33  entity_model_id</text>
+<text x="68.0" y="251.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 34-37  entity_capabilities (0x00008588 = AEM|CLASS_A|gPTP)</text>
+<text x="68.0" y="264.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 38-39  talker_stream_sources    byte 40-41  talker_capabilities</text>
+<text x="68.0" y="277.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 42-43  listener_stream_sinks    byte 44-45  listener_capabilities</text>
+<text x="68.0" y="290.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 46-49  controller_capabilities</text>
+<text x="68.0" y="303.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 50-53  available_index   &lt;-  +1 on EVERY transmitted ADPDU</text>
+<text x="68.0" y="316.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 54-61  gptp_grandmaster_id      byte 62  gptp_domain_number</text>
+<text x="68.0" y="329.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 63     reserved                 byte 64-65  current_config_index</text>
+<text x="68.0" y="342.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 66-67  identify_control_index   byte 68-69  interface_index</text>
+<text x="68.0" y="355.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 70-77  association_id           byte 78-81  reserved</text>
+<text x="68.0" y="368.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="381.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">serialiser: 11 AXIS beats x 8 B, last beat tkeep=0x03 (2 B), little lane</text>
+<rect x="700.0" y="60.0" width="520.0" height="420.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="708.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">trigger arbitration + the available_index rule</text>
+<rect x="720.0" y="92.0" width="480.0" height="201.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="728.0" y="131.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">one pending send; highest priority wins:</text>
+<text x="728.0" y="144.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  1. depart  (link_down / shutdown)  -&gt; DEPARTING</text>
+<text x="728.0" y="157.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  2. link_up                         -&gt; AVAILABLE</text>
+<text x="728.0" y="170.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  3. info_changed / gm_change (CSR)  -&gt; AVAILABLE</text>
+<text x="728.0" y="183.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  4. rcv_discover (ingress pulse)    -&gt; AVAILABLE</text>
+<text x="728.0" y="196.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  5. periodic timer                  -&gt; AVAILABLE</text>
+<text x="728.0" y="209.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="728.0" y="222.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">timer: re-advertise every valid_time s (validity 2x)</text>
+<text x="728.0" y="235.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">tick_i = 1 s strobe from the datapath</text>
+<text x="728.0" y="248.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">datapath glue: an enable-edge with link already up</text>
+<text x="728.0" y="261.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">counts as link_up (boot-order independence)</text>
+<rect x="720.0" y="320.0" width="480.0" height="150.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="728.0" y="359.5" font-size="10" fill="#222" text-anchor="start">available_index increments on EVERY transmitted ADPDU —</text>
+<text x="728.0" y="372.5" font-size="10" fill="#222" text-anchor="start">periodic, discover response and departing alike (tx_index_r</text>
+<text x="728.0" y="385.5" font-size="10" fill="#222" text-anchor="start">latched per frame). la_avdecc/Hive treat old &gt;= new as</text>
+<text x="728.0" y="398.5" font-size="10" fill="#222" text-anchor="start">&#x27;incoherently changed&#x27; and cycle the entity offline/online;</text>
+<text x="728.0" y="411.5" font-size="10" fill="#222" text-anchor="start">the pipewire module-avb reference does available_index++ on</text>
+<text x="728.0" y="424.5" font-size="10" fill="#222" text-anchor="start">every send. Bump-on-change-only was silicon-diagnosed as the</text>
+<text x="728.0" y="437.5" font-size="10" fill="#222" text-anchor="start">trigger and fixed 2026-07-12 (la_avdecc round 2).</text>
+</svg>

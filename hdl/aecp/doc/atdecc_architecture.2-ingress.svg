@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="720" viewBox="0 0 1260 720" font-family="Helvetica,Arial,sans-serif">
+<rect width="1260" height="720" fill="#ffffff"/>
+<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#333"/></marker><marker id="arro" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#999"/></marker></defs>
+<rect x="40.0" y="12.0" width="1180.0" height="30.0" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.3"/>
+<text x="630.0" y="31.9" font-size="14" fill="#222" text-anchor="middle">KL_aecp_ingress — RX monitor tap, frame filter, store-and-forward, big-lane replay   (hdl/aecp/KL_aecp_ingress.sv)</text>
+<rect x="40.0" y="60.0" width="560.0" height="340.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">role + timing isolation</text>
+<rect x="60.0" y="92.0" width="520.0" height="110.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="68.0" y="124.5" font-size="10" fill="#222" text-anchor="start">A pure MONITOR on the post-TCAM RX stream (rx_axis_to_dma): it observes</text>
+<text x="68.0" y="137.5" font-size="10" fill="#222" text-anchor="start">tvalid/tdata/tkeep/tlast and NEVER drives tready — the NIC/DMA path cannot be</text>
+<text x="68.0" y="150.5" font-size="10" fill="#222" text-anchor="start">stalled by the listener. All four tap inputs are REGISTERED once on entry</text>
+<text x="68.0" y="163.5" font-size="10" fill="#222" text-anchor="start">(rxv_r/rxd_r/rxk_r/rxl_r) so the AECP block adds zero combinational load on</text>
+<text x="68.0" y="176.5" font-size="10" fill="#222" text-anchor="start">datapath nets (this closed the aecp1 timing failure, WNS −0.19 → +0.19).</text>
+<rect x="60.0" y="215.0" width="520.0" height="167.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="68.0" y="250.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">FSM (st_t, 2 bits)</text>
+<text x="68.0" y="263.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">COLLECT_S   accepted RX bytes -&gt; fbuf[wr_cnt]; frames &gt; 128 B set</text>
+<text x="68.0" y="276.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            overflow_r, get ignored (MAX_FRAME_BYTES=128: every AECP</text>
+<text x="68.0" y="289.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            command fits; keeps the buffer in LUTRAM, the mux shallow)</text>
+<text x="68.0" y="302.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">CLASSIFY_S  1 cycle after tlast: run the filter tree (right);</text>
+<text x="68.0" y="315.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            losers -&gt; COLLECT_S</text>
+<text x="68.0" y="328.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">REPLAY_S    stream fbuf[14..n-1] (Eth header stripped) to validator</text>
+<text x="68.0" y="341.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">HOLD_S      park until the builder pops req (req_pop_i) —</text>
+<text x="68.0" y="354.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            exactly one command in flight</text>
+<rect x="620.0" y="60.0" width="600.0" height="340.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="628.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">accept filter — wire bytes tested (frame offsets)</text>
+<rect x="640.0" y="92.0" width="560.0" height="235.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="648.0" y="135.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 0-5    dst MAC     == station_mac                     [AECP arm]</text>
+<text x="648.0" y="148.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 12-13  ethertype   == 0x22F0 (AVTP)</text>
+<text x="648.0" y="161.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 14     subtype     == 0xFB (AECP)      or 0xFA (ADP)</text>
+<text x="648.0" y="174.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">byte 15     {sv[7]=0, version[6:4]=0, message_type[3:0]}</text>
+<text x="648.0" y="187.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="648.0" y="200.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">AECP arm:   message_type in {0 AEM_COMMAND, 6 VU_COMMAND}</text>
+<text x="648.0" y="213.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            byte 18-25 target_entity_id == entity_id (CSR)</text>
+<text x="648.0" y="226.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            -&gt; capture; req_src_mac_o = bytes 6-11; replay</text>
+<text x="648.0" y="239.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="648.0" y="252.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">ADP arm:    dst = 91:E0:F0:01:00:00, subtype 0xFA,</text>
+<text x="648.0" y="265.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            message_type == 2 (ENTITY_DISCOVER),</text>
+<text x="648.0" y="278.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            byte 18-25 == 0 (discover-all) or == our entity_id</text>
+<text x="648.0" y="291.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">            -&gt; 1-cycle adp_discover_o pulse (no replay)</text>
+<rect x="40.0" y="420.0" width="1180.0" height="260.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="437.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">byte-lane discipline — the ONE trap in this block</text>
+<rect x="60.0" y="452.0" width="560.0" height="210.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="68.0" y="495.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">RX tap (Forencich MAC convention, LITTLE lane):</text>
+<text x="68.0" y="508.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  tdata[7:0]   = FIRST byte on the wire</text>
+<text x="68.0" y="521.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  fbuf[wr_cnt+l] &lt;= rxd_r[8*l +: 8] per set tkeep bit l</text>
+<text x="68.0" y="534.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="547.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">Replay to the parser chain (BIG lane — fields MSB-first):</text>
+<text x="68.0" y="560.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  tdata[63:56] = first replayed byte (frame byte 14 = subtype)</text>
+<text x="68.0" y="573.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  w_beat[8*(7-l) +: 8] = fbuf[rp + l]</text>
+<text x="68.0" y="586.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  tkeep MSB-first: w_keep[7-l] = 1 while bytes remain</text>
+<text x="68.0" y="599.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="612.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">The response builder emits little-lane again —</text>
+<text x="68.0" y="625.5" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">only the parser chain is big-lane.</text>
+<rect x="650.0" y="452.0" width="550.0" height="22.0" rx="0" fill="#e8e8e8" stroke="#666666" stroke-width="1.3"/>
+<text x="925.0" y="466.85" font-size="11" fill="#222" text-anchor="middle">ports</text>
+<rect x="650.0" y="474.0" width="550.0" height="133.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="658.0" y="505.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">in   rx_tvalid/tdata[63:0]/tkeep[7:0]/tlast   (tap, registered)</text>
+<text x="658.0" y="518.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">     station_mac_i[47:0], entity_id_i[63:0]   (identity, CSR)</text>
+<text x="658.0" y="531.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">     enable_i                                 (gate)</text>
+<text x="658.0" y="544.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">out  m_axis_* flat AXIS (big lane, to validator)</text>
+<text x="658.0" y="557.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">     req_src_mac_o[47:0]   requester MAC (response dst MAC)</text>
+<text x="658.0" y="570.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">     req_valid_o / req_pop_i   one-command-in-flight handshake</text>
+<text x="658.0" y="583.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">     adp_discover_o        1-cycle pulse -&gt; adp_advertiser</text>
+</svg>
