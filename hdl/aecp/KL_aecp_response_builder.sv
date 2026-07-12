@@ -207,7 +207,8 @@ module KL_aecp_response_builder (
   seg_kind_t   seg_kind_q [0:3];
   logic [15:0] seg_addr_q [0:3];   //! ECHO: buf offset · STORE: store addr · CONST: const offset
   logic [15:0] seg_len_q  [0:3];
-  logic [7:0]  const_q [0:31];
+  logic [7:0]  const_q [0:63];   //! scratch for CONST segments (GET_STREAM_INFO
+                                 //! needs 40: stream_id + msrp/mac/vlan/flags_ex/sta)
   logic [10:0] cdl_q;
   logic [4:0]  status_q;
   logic [3:0]  msg_resp_q;
@@ -348,7 +349,7 @@ module KL_aecp_response_builder (
       pay_len_q    <= 16'd0;
       cum_done_q   <= 1'b0;
       for (int k = 0; k < BUF_BYTES_C; k++) buf_r[k] <= 8'h00;
-      for (int k = 0; k < 32; k++) const_q[k] <= 8'h00;
+      for (int k = 0; k < 64; k++) const_q[k] <= 8'h00;
       for (int s = 0; s < 4; s++) begin
         seg_kind_q[s] <= SEG_NONE;
         seg_addr_q[s] <= 16'd0;
@@ -609,19 +610,34 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
-              // GET_STREAM_INFO: Milan mandates a fixed 56-byte payload with
-              // populated flags/pbsta/acmpsta (pipewire cmd-get-set-stream-
-              // info.c). Rather than emit a shorter, non-conformant payload
-              // that Hive/la_avdecc would reject as "incorrect payload size",
-              // answer NOT_IMPLEMENTED (a valid echoed response) until the full
-              // 56-byte STREAM_OUTPUT format is built. Out of the current scope
-              // (READ_DESCRIPTOR + the descriptor getters/setters + LOCK).
+              // GET_STREAM_INFO: Milan mandates the FIXED 56-byte payload
+              // (pipewire cmd-get-set-stream-info.c; la_avdecc rejects any
+              // other size as "Incorrect payload size"). STREAM_OUTPUT flags =
+              // STREAM_FORMAT_VALID|STREAM_ID_VALID|MSRP_ACC_LAT_VALID|
+              // STREAM_DEST_MAC_VALID|CONNECTED|STREAM_VLAN_ID_VALID =
+              // 0xF6000000; pbsta=acmpsta=0 for a talker. Layout: type(2)+
+              // index(2)+flags(4)+format(8)+stream_id(8)+msrp_lat(4)+dest_mac(6)
+              // +msrp_fail(1)+rsvd(1)+bridge(8)+vlan(2)+rsvd(2)+flags_ex(4)+
+              // pbsta_acmpsta(4) = 56.  CDL = 56 + 12 = 68.
               CMD_GET_STREAM_INFO: begin
-                status_q      <= STATUS_NOT_IMPLEMENTED;
-                seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd2;
-                seg_len_q[0]  <= (hdr_q.control_data_length > 11'd12)
-                                 ? 16'(hdr_q.control_data_length) - 16'd12 : 16'd0;
-                cdl_q         <= hdr_q.control_data_length;
+                if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd4;
+                  cdl_q        <= 11'd16;
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
+                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
+                  seg_kind_q[2] <= SEG_STORE;
+                  seg_addr_q[2] <= WB_STREAM_FORMAT_C; seg_len_q[2] <= 16'd8;
+                  seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
+                  const_q[0] <= 8'hF6; const_q[1] <= 8'h00;   // flags 0xF6000000
+                  const_q[2] <= 8'h00; const_q[3] <= 8'h00;
+                  for (int k = 0; k < 8; k++)                 // stream_id = entity_id
+                    const_q[8+k] <= entity_id_i[8*(7-k) +: 8];
+                  for (int k = 16; k < 48; k++) const_q[k] <= 8'h00;  // rest = 0
+                  cdl_q <= 11'd68;   // 12 + 4+4+8+40
+                end
               end
 
               // -------------------------------------------------- //
@@ -704,7 +720,7 @@ module KL_aecp_response_builder (
             unique case (emseg_kind_r)        // registered segment select
               SEG_ECHO:  b = buf_r[emseg_addr_r[6:0] + emsoff_r[6:0]];
               SEG_STORE: b = st_byte_i;       // store byte (1-cycle read latency)
-              SEG_CONST: b = const_q[emseg_addr_r[4:0] + emsoff_r[4:0]];
+              SEG_CONST: b = const_q[emseg_addr_r[5:0] + emsoff_r[5:0]];
               default:   b = 8'h00;
             endcase
           end
