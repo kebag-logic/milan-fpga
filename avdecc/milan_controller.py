@@ -160,7 +160,7 @@ def validate(e):
     r = e.read_descriptor(DESC["ENTITY"])
     check("ENTITY readable", rstatus(r) == 0, f"status={STATUS.get(rstatus(r))}")
     check("ENTITY control_data_length correct (spec §5.4, len-26)", cdl_ok(r),
-          f"cdl={rcdl(r)} len-18={len(r)-18 if r else '-'}")
+          f"cdl={rcdl(r)} len-26={len(r)-26 if r else 0}")
     if r:
         d = desc_payload(r)
         eid = struct.unpack(">Q", d[4:12])[0]
@@ -218,7 +218,7 @@ def validate(e):
     check("MVU GET_MILAN_INFO answered", ok,
           f"proto={r[36:42].hex() if r else '-'}")
     check("MVU control_data_length correct (spec §5.4, len-26)", cdl_ok(r),
-          f"cdl={rcdl(r)} len-18={len(r)-18 if r else '-'}")
+          f"cdl={rcdl(r)} len-26={len(r)-26 if r else 0}")
     if r:
         ver = struct.unpack(">I", r[46:50])[0]
         check("MILAN protocol_version == 1", ver == 1, f"{ver}")
