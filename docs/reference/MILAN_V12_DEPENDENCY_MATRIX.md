@@ -33,7 +33,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `vtb:<n>` | Verilator self-checking harness | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`; **`adp` = to add**, migration plan §B.2) |
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |
 | `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp + Linux net tooling | on-target |
-| `mrpd` / `maap` | OpenAvnu MSRP/MVRP + MAAP daemons | on-target |
+| `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP go to fabric (**lwSRP** engine + fabric MAAP; see ARCHITECTURE_HW_SW_SPLIT.md) | peer-side only |
 | `AVnu` | AVnu **Milan test plan** (conformance) | external |
 
 > Clause numbers for AEM (§5.3.3.x) and MVU (§5.4.3.2) are evidence-backed; other

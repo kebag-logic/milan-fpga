@@ -270,7 +270,7 @@ box("ptpd", 15, 335, 1490, 110,
     "linuxptp: ptp4l (802.1AS BMCA + servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;\nthen a small bridge writes GM id/domain -> CSR 0x624/0x628 on change (fabric re-advertises, AS_PATH stays true)",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("pw", 15, 465, 1490, 110,
-    "PipeWire module-avb (future media plane): AAF frames -> kl-eth -> fabric CBS class-A queue ·\nSRP/MSRP state machines · ACMP connection POLICY via mailbox (HW answers / SW decides)",
+    "media rev 2 (2026-07-12, user directive: EVERYTHING FPGA + lwSRP): softcore only fills a DMA PCM ring (ms cadence);\nfabric does lwSRP (MSRP/MVRP + bandwidth gate) · AAF framer (PTP presentation time) · ACMP connection table",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("qspihdr", 15, 595, 1490, 24, "QSPI flash N25Q128 16 MB (off-chip, flashboot slots):",
     fill="#faf6fc", stroke=SYS[1], font=9, align="left", parent="c_drv")
