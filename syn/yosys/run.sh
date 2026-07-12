@@ -18,10 +18,12 @@ export PATH="$HOME/.local/bin:$PATH"
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 A="$R/third_party/verilog-axis/rtl"
 C="$R/hdl/common"; Q="$R/hdl/802_1q_traffic_shaper"; P="$R/hdl/ptp_timestamp"
-E="$R/hdl/eth_event_counter"; D="$R/hdl/adp"
-INC="-I $R/hdl/common -I $Q -I $E -I $D -I $P"
+E="$R/hdl/eth_event_counter"; D="$R/hdl/adp"; K="$R/hdl/aecp"
+INC="-DSYNTHESIS -I $R/hdl/common -I $Q -I $E -I $D -I $P -I $K -I $K/gen"
 SYNTH="${YOSYS_SYNTH:-synth}"           # generic 'synth' = device-independent
 TMP="$(mktemp -d)"
+
+AECP_SRCS="$K/aecp_pkg.sv $K/KL_aecp_ingress.sv $K/KL_aecp_packet_validator.sv $K/KL_aecp_common_parser.sv $K/KL_aecp_l0_state.sv $K/KL_aecp_timers.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv $K/KL_aecp_top.sv"
 
 for t in sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (see syn/yosys/README.md)"; exit 2; }; done
 
@@ -34,6 +36,7 @@ tops=(
   "adp_advertiser|$D/adp_pkg.sv $D/adp_advertiser.sv"
   "rx_mac_filter|$C/tcam.sv $C/rx_mac_filter.sv"
   "milan_csr|$R/hdl/csr/milan_csr.sv"
+  "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $AECP_SRCS"
   "credit_based_shaper|$C/ethernet_packet_pkg.sv $Q/credit_based_shaper.sv"
   "timestamp_counter|$P/timestamp_counter.sv"
   "ptp_csr_sync|$P/ptp_csr_sync.sv"
@@ -44,7 +47,7 @@ tops=(
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
-  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $C/tcam.sv $C/rx_mac_filter.sv $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/csr/milan_csr.sv $C/milan_datapath.sv"
+  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $C/tcam.sv $C/rx_mac_filter.sv $AECP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/csr/milan_csr.sv $C/milan_datapath.sv"
 )
 
 echo "== Yosys open-synthesis check ($SYNTH, via sv2v) =="

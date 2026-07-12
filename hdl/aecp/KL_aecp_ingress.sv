@@ -67,7 +67,11 @@ module KL_aecp_ingress #(
   input  wire          rx_tlast_i,
 
   // ---- replayed command stream to KL_aecp_packet_validator -----------
-  axi_stream_if.master m_axis,
+  output logic         m_axis_tvalid,
+  input  wire          m_axis_tready,
+  output logic [63:0]  m_axis_tdata,
+  output logic [7:0]   m_axis_tkeep,
+  output logic         m_axis_tlast,
 
   // ---- captured requester MAC (for the response builder) -------------
   output logic [47:0]  req_src_mac_o,
@@ -150,15 +154,10 @@ module KL_aecp_ingress #(
       if ((AW+1)'(l) < w_rem) w_keep[7-l] = 1'b1;   // MSB lane = first byte
   end
 
-  assign m_axis.tvalid = (state_r == REPLAY_S);
-  assign m_axis.tdata  = w_beat;
-  assign m_axis.tkeep  = w_keep;
-  assign m_axis.tlast  = (state_r == REPLAY_S) && (w_rem <= (AW+1)'(8));
-  assign m_axis.tstrb  = w_keep;
-  assign m_axis.tid    = '0;
-  assign m_axis.tdest  = '0;
-  assign m_axis.tuser  = '0;
-
+  assign m_axis_tvalid = (state_r == REPLAY_S);
+  assign m_axis_tdata  = w_beat;
+  assign m_axis_tkeep  = w_keep;
+  assign m_axis_tlast  = (state_r == REPLAY_S) && (w_rem <= (AW+1)'(8));
   // ------------------------------------------------------------------ //
   // FSM                                                                  //
   // ------------------------------------------------------------------ //
@@ -216,7 +215,7 @@ module KL_aecp_ingress #(
 
         // ---------------------------------------------------------- //
         REPLAY_S: begin
-          if (m_axis.tready) begin
+          if (m_axis_tready) begin
             if (w_rem <= (AW+1)'(8)) begin
               req_valid_o <= 1'b1;    // requester MAC now valid for the builder
               state_r     <= HOLD_S;
