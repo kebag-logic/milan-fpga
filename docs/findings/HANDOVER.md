@@ -4,6 +4,16 @@
 with its reason, and the exact state of boards, branches, builds and open
 threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 
+## 0. Roles (USER DIRECTIVE 2026-07-12)
+
+**Endstation focus.** AX7101 = THE full Milan endstation (talker first:
+gPTP -> lwSRP -> fabric AAF framer -> ACMP connections). **Arty = a SMALL
+endstation** — same fabric control plane at 50 MHz / MII 100M, reduced
+resources; it is NOT just a test peer. Its keeper build_arty_v7 predates
+the AVDECC stack -> **arty_v8 sweep launched** (current fabric: ADP + AECP
++ ACMP at CLK_FREQ_HZ_P=50e6) to make it a real entity (EID :02). Nothing
+bridge-side is in scope; the AVB switch stays an off-the-shelf bridge.
+
 ## 1. Topology
 
 ```
