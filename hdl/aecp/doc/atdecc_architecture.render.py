@@ -136,12 +136,12 @@ def render_page(model, out):
         if not a or not b: continue
         # pinned anchors (drawio exitX/entryX fractions) win over auto sides
         if e["ex"] is not None:
-            x1 = a["x"] + a["w"] * e["ex"]; y1 = a["y"] + a["h"] * (e["ey"] or 0.5)
+            x1 = a["x"] + a["w"] * e["ex"]; y1 = a["y"] + a["h"] * (e["ey"] if e["ey"] is not None else 0.5)
             v1 = e["ey"] in (0.0, 1.0)
         else:
             x1, y1 = anchor(a, b); v1 = False
         if e["nx"] is not None:
-            x2 = b["x"] + b["w"] * e["nx"]; y2 = b["y"] + b["h"] * (e["ny"] or 0.5)
+            x2 = b["x"] + b["w"] * e["nx"]; y2 = b["y"] + b["h"] * (e["ny"] if e["ny"] is not None else 0.5)
             v2 = e["ny"] in (0.0, 1.0)
         else:
             x2, y2 = anchor(b, a); v2 = False
@@ -163,7 +163,18 @@ def render_page(model, out):
         else:                # H-V-H through mid-x
             mx0 = (x1+x2)/2
             pts = f"M{x1},{y1} L{mx0},{y1} L{mx0},{y2} L{x2},{y2}"
-        mx, myl = (x1+x2)/2, (y1+y2)/2
+        if e.get("vy") is not None:
+            mx, myl = (x1+x2)/2, e["vy"]
+        elif e.get("vx") is not None:
+            mx, myl = e["vx"], (y1+y2)/2
+        elif v1 and v2:
+            mx, myl = (x1+x2)/2, (y1+y2)/2
+        elif v1:
+            mx, myl = (x1+x2)/2, y2
+        elif v2:
+            mx, myl = (x1+x2)/2, y1
+        else:
+            mx, myl = (x1+x2)/2, (y1+y2)/2
         col = e["color"] if not e["open"] else "#999"
         dash = ' stroke-dasharray="6,4"' if e["dashed"] else ""
         mk = "arro" if e["open"] else "arr"

@@ -362,9 +362,9 @@
 <path d="M2160.0,340.0 L2927.5,340.0 L2927.5,330.0 L3695.0,330.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
 <rect x="2818.1" y="323.0" width="218.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="2927.5" y="335.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE (async FIFO -&gt; cd_sys)</text>
-<path d="M4420.0,340.0 L4857.5,340.0 L4857.5,272.0 L5295.0,272.0" fill="none" stroke="#9673a6" stroke-width="4.5" marker-end="url(#arr)"/>
-<rect x="4754.3" y="294.0" width="206.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4857.5" y="306.0" font-size="10" fill="#444" text-anchor="middle">coherent AXI writes 64b (via L2)</text>
+<path d="M4198.0,200.0 L4198.0,185.0 L5460.0,185.0 L5460.0,260.0" fill="none" stroke="#9673a6" stroke-width="4.5" marker-end="url(#arr)"/>
+<rect x="4725.8" y="173.0" width="206.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="4829.0" y="185.0" font-size="10" fill="#444" text-anchor="middle">coherent AXI writes 64b (via L2)</text>
 <path d="M5295.0,1832.0 L4857.5,1832.0 L4857.5,1849.0 L4420.0,1849.0" fill="none" stroke="#9673a6" stroke-width="4.5" marker-end="url(#arr)"/>
 <rect x="4748.1" y="1828.5" width="218.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="4857.5" y="1840.5" font-size="10" fill="#444" text-anchor="middle">AXI reads 64b (bursts 16-64 beats)</text>
@@ -389,51 +389,46 @@
 <path d="M320.0,1986.0 L260.0,1981.4" fill="none" stroke="#d79b00" stroke-width="4.5" marker-end="url(#arr)"/>
 <rect x="230.2" y="1971.7" width="119.60000000000001" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="290.0" y="1983.7" font-size="10" fill="#444" text-anchor="middle">GMII 8b @125 (gtx)</text>
-<path d="M1935.0,390.0 L1935.0,640.0 L1280.0,640.0 L1280.0,1130.0" fill="none" stroke="#333333" stroke-width="4.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
-<rect x="1557.0" y="748.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1607.5" y="760.0" font-size="10" fill="#444" text-anchor="middle">tap copy 64b LE</text>
-<path d="M2085.0,390.0 L2085.0,672.0 L1980.0,672.0 L1980.0,900.0" fill="none" stroke="#333333" stroke-width="4.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
-<rect x="1982.0" y="633.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2032.5" y="645.0" font-size="10" fill="#444" text-anchor="middle">tap copy 64b LE</text>
-<path d="M1552.0,1130.0 L1552.0,690.0 L2520.0,690.0 L2520.0,825.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
-<rect x="1997.9" y="965.5" width="76.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2036.0" y="977.5" font-size="10" fill="#444" text-anchor="middle">resp 64b LE</text>
+<path d="M1935.0,390.0 L1935.0,640.0 L1280.0,640.0 L1280.0,700.0" fill="none" stroke="#333333" stroke-width="4.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
+<rect x="1557.0" y="628.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1607.5" y="640.0" font-size="10" fill="#444" text-anchor="middle">tap copy 64b LE</text>
+<path d="M2085.0,390.0 L2085.0,672.0 L1980.0,672.0 L1980.0,700.0" fill="none" stroke="#333333" stroke-width="4.5" stroke-dasharray="6,4" marker-end="url(#arr)"/>
+<rect x="1982.0" y="660.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2032.5" y="672.0" font-size="10" fill="#444" text-anchor="middle">tap copy 64b LE</text>
+<path d="M1552.0,700.0 L1552.0,690.0 L2520.0,690.0 L2520.0,780.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
+<rect x="1997.9" y="678.0" width="76.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2036.0" y="690.0" font-size="10" fill="#444" text-anchor="middle">resp 64b LE</text>
 <path d="M2300.0,860.0 L2350.0,860.0 L2350.0,825.0 L2400.0,825.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
 <rect x="2311.9" y="830.5" width="76.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="2350.0" y="842.5" font-size="10" fill="#444" text-anchor="middle">resp 64b LE</text>
-<path d="M2520.0,870.0 L2520.0,1025.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
-<rect x="2497.4" y="935.5" width="45.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2520.0" y="947.5" font-size="10" fill="#444" text-anchor="middle">64b LE</text>
+<path d="M2520.0,870.0 L2520.0,980.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
+<rect x="2497.4" y="913.0" width="45.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2520.0" y="925.0" font-size="10" fill="#444" text-anchor="middle">64b LE</text>
 <path d="M2300.0,1266.0 L2350.0,1266.0 L2350.0,1025.0 L2400.0,1025.0" fill="none" stroke="#d79b00" stroke-width="4.5" marker-end="url(#arr)"/>
 <rect x="2296.4" y="1133.5" width="107.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="2350.0" y="1145.5" font-size="10" fill="#444" text-anchor="middle">advertise 64b LE</text>
-<path d="M2520.0,1070.0 L2520.0,1520.0 L1110.0,1520.0 L1110.0,1860.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
-<rect x="1727.3" y="1453.0" width="175.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1815.0" y="1465.0" font-size="10" fill="#444" text-anchor="middle">control 64b LE (IFG insert)</text>
+<path d="M2520.0,1070.0 L2520.0,1650.0 L1110.0,1650.0 L1110.0,1700.0" fill="none" stroke="#6c8ebf" stroke-width="4.5" marker-end="url(#arr)"/>
+<rect x="1727.3" y="1638.0" width="175.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1815.0" y="1650.0" font-size="10" fill="#444" text-anchor="middle">control 64b LE (IFG insert)</text>
 <path d="M1620.0,1345.0 L1660.0,1350.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
 <rect x="1580.2" y="1335.5" width="119.60000000000001" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="1640.0" y="1347.5" font-size="10" fill="#444" text-anchor="middle">ENTITY_DISCOVER 1b</text>
-<path d="M698.0,1140.0 L698.0,185.0 L2620.0,185.0 L2620.0,633.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
-<rect x="1608.5" y="874.5" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1659.0" y="886.5" font-size="10" fill="#444" text-anchor="middle">event pulses 1b</text>
-<path d="M4830.0,498.0 L4830.0,640.0 L3474.0,640.0 L3474.0,1130.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
-<rect x="4058.1" y="802.0" width="187.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4152.0" y="814.0" font-size="10" fill="#444" text-anchor="middle">AXI-Lite 32b (CDC sys-&gt;milan)</text>
+<path d="M698.0,200.0 L698.0,185.0 L2620.0,185.0 L2620.0,580.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
+<rect x="1608.5" y="173.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1659.0" y="185.0" font-size="10" fill="#444" text-anchor="middle">event pulses 1b</text>
+<path d="M4830.0,498.0 L4830.0,640.0 L3474.0,640.0 L3474.0,660.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
+<rect x="4058.1" y="628.0" width="187.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="4152.0" y="640.0" font-size="10" fill="#444" text-anchor="middle">AXI-Lite 32b (CDC sys-&gt;milan)</text>
 <path d="M3060.0,1130.0 L2980.0,1130.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
 <rect x="2926.1" y="1118.0" width="187.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="3020.0" y="1130.0" font-size="10" fill="#444" text-anchor="middle">identity 0x600 + status (CDC)</text>
-<path d="M3198.0,1600.0 L3198.0,1730.0 L3142.0,1730.0 L3142.0,1860.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
-<rect x="3135.0" y="1718.0" width="70.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3170.0" y="1730.0" font-size="10" fill="#444" text-anchor="middle">0x300 maps</text>
-<path d="M3198.0,1130.0 L3198.0,480.0 L1674.0,480.0 L1674.0,440.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
-<rect x="2366.9" y="773.0" width="138.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2436.0" y="785.0" font-size="10" fill="#444" text-anchor="middle">0x700 · 0x500 · 0x210</text>
-<path d="M3918.5,835.0 L3918.5,717.5 L4050.0,717.5 L4050.0,600.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
-<rect x="3943.05" y="705.5" width="82.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3984.25" y="717.5" font-size="10" fill="#444" text-anchor="middle">ring ctl 32b</text>
-<path d="M3918.5,975.0 L3918.5,1422.5 L4050.0,1422.5 L4050.0,1870.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
-<rect x="3943.05" y="1410.5" width="82.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3984.25" y="1422.5" font-size="10" fill="#444" text-anchor="middle">ring ctl 32b</text>
+<path d="M3198.0,1600.0 L3198.0,1650.0 L3142.0,1650.0 L3142.0,1700.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
+<rect x="3135.0" y="1638.0" width="70.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3170.0" y="1650.0" font-size="10" fill="#444" text-anchor="middle">0x300 maps</text>
+<path d="M3198.0,660.0 L3198.0,480.0 L1674.0,480.0 L1674.0,440.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
+<rect x="2366.9" y="468.0" width="138.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2436.0" y="480.0" font-size="10" fill="#444" text-anchor="middle">0x700 · 0x500 · 0x210</text>
+<path d="M3918.5,695.0 L3918.5,647.5 L4050.0,647.5 L4050.0,600.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
 <path d="M4420.0,540.0 L4447.5,540.0 L4447.5,397.0 L4475.0,397.0" fill="none" stroke="#999" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arro)"/>
 <rect x="4434.2" y="456.5" width="26.6" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
 <text x="4447.5" y="468.5" font-size="10" fill="#444" text-anchor="middle">IRQ</text>
