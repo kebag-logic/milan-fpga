@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="1010" viewBox="0 0 1260 1010" font-family="Helvetica,Arial,sans-serif">
+<rect width="1260" height="1010" fill="#ffffff"/>
+<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#333"/></marker><marker id="arro" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#999"/></marker></defs>
+<rect x="40.0" y="12.0" width="1180.0" height="30.0" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.3"/>
+<text x="630.0" y="31.9" font-size="14" fill="#222" text-anchor="middle">What runs on the softcore and what does not — the delimitation   (normative text: docs/ARCHITECTURE_HW_SW_SPLIT.md)</text>
+<rect x="40.0" y="50.0" width="1180.0" height="46.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="48.0" y="69.85" font-size="11" fill="#222" text-anchor="start">The fabric ANSWERS, the softcore DECIDES.  Fabric = per-frame / line-rate / liveness-with-deadlines / wire-format truth.  Softcore = negotiation, policy, long-lived state, media production,</text>
+<text x="48.0" y="83.85" font-size="11" fill="#222" text-anchor="start">once-per-boot provisioning.</text>
+<rect x="40.0" y="110.0" width="560.0" height="620.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="127.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">FPGA fabric — always on, zero-CPU  (green=silicon, orange=next)</text>
+<rect x="60.0" y="142.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="165.5" font-size="10" fill="#222" text-anchor="middle">MAC 1G RGMII/GMII + TCAM dest-MAC filter</text>
+<rect x="60.0" y="190.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="213.5" font-size="10" fill="#222" text-anchor="middle">802.1Q classifier + CBS shaper + queues  (never removed - user rule)</text>
+<rect x="60.0" y="238.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="261.5" font-size="10" fill="#222" text-anchor="middle">PTP timestamp counter + RX/TX capture -&gt; DMA ts window</text>
+<rect x="60.0" y="286.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="309.5" font-size="10" fill="#222" text-anchor="middle">RX DMA: RSC coalescing / header-split / multi-slot  +  HW-TSO</text>
+<rect x="60.0" y="334.0" width="520.0" height="52.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="357.0" font-size="10" fill="#222" text-anchor="middle">ADP advertiser — periodic/depart/discover, available_index +1 every</text>
+<text x="320.0" y="370.0" font-size="10" fill="#222" text-anchor="middle">ADPDU  (la_avdecc-clean, silicon)</text>
+<rect x="60.0" y="394.0" width="520.0" height="52.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="417.0" font-size="10" fill="#222" text-anchor="middle">AECP/AEM entity — 5 descriptors, full Milan 5.4.4 command set,</text>
+<text x="320.0" y="430.0" font-size="10" fill="#222" text-anchor="middle">LOCK 60 s, ROM+overlay store  (la_avdecc-clean, silicon)</text>
+<rect x="60.0" y="454.0" width="520.0" height="52.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="320.0" y="477.0" font-size="10" fill="#222" text-anchor="middle">ACMP stateless responder — GET_TX_STATE / GET_TX_CONNECTION,</text>
+<text x="320.0" y="490.0" font-size="10" fill="#222" text-anchor="middle">connection_count=0   &lt;&lt; NEXT: the Milan=1 gate &gt;&gt;</text>
+<rect x="60.0" y="514.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="320.0" y="537.5" font-size="10" fill="#222" text-anchor="middle">low-rate TX merge arbiters (control into inter-frame gaps)</text>
+<rect x="60.0" y="562.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="320.0" y="585.0" font-size="10" fill="#222" text-anchor="middle">future: fabric ACMP connection TABLE (SW-written via mailbox; fabric</text>
+<text x="320.0" y="598.0" font-size="10" fill="#222" text-anchor="middle">answers all state queries zero-CPU)</text>
+<rect x="60.0" y="622.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="320.0" y="645.0" font-size="10" fill="#222" text-anchor="middle">optional later offload: fabric AAF framer — only if PipeWire-crafted</text>
+<text x="320.0" y="658.0" font-size="10" fill="#222" text-anchor="middle">frames cannot hold class-A cadence (NOT plan of record)</text>
+<rect x="660.0" y="110.0" width="560.0" height="620.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="668.0" y="127.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">VexiiRiscv softcore (Linux) — decides, provisions, produces</text>
+<rect x="680.0" y="142.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="940.0" y="165.5" font-size="10" fill="#222" text-anchor="middle">kl-eth driver — rings, NAPI, ethtool, CSR  (silicon)</text>
+<rect x="680.0" y="190.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="940.0" y="213.5" font-size="10" fill="#222" text-anchor="middle">identity provisioning ONCE per boot (0x600 group, caps 0x8588)</text>
+<rect x="680.0" y="238.0" width="520.0" height="52.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="940.0" y="261.0" font-size="10" fill="#222" text-anchor="middle">kl-eth PHC /dev/ptpN + SO_TIMESTAMPING — expose the fabric clock</text>
+<text x="940.0" y="274.0" font-size="10" fill="#222" text-anchor="middle">to linuxptp   &lt;&lt; NEXT (gPTP gate) &gt;&gt;</text>
+<rect x="680.0" y="298.0" width="520.0" height="52.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
+<text x="940.0" y="321.0" font-size="10" fill="#222" text-anchor="middle">gPTP protocol: linuxptp ptp4l (BMCA, servo, pdelay) + phc2sys —</text>
+<text x="940.0" y="334.0" font-size="10" fill="#222" text-anchor="middle">in the rootfs today, unvalidated until the PHC lands</text>
+<rect x="680.0" y="358.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="940.0" y="381.0" font-size="10" fill="#222" text-anchor="middle">gPTP-&gt;entity bridge: GM id/domain -&gt; CSR 0x624/0x628 on change</text>
+<text x="940.0" y="394.0" font-size="10" fill="#222" text-anchor="middle">(fabric reacts: gm_change -&gt; re-advertise + index bump + AS_PATH truth)</text>
+<rect x="680.0" y="418.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="940.0" y="441.0" font-size="10" fill="#222" text-anchor="middle">ACMP connection POLICY — accept/refuse CONNECT_TX via mailbox+IRQ,</text>
+<text x="940.0" y="454.0" font-size="10" fill="#222" text-anchor="middle">write the fabric connection table  (future)</text>
+<rect x="680.0" y="478.0" width="520.0" height="40.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="940.0" y="501.5" font-size="10" fill="#222" text-anchor="middle">SRP/MSRP state machines (pipewire module-avb)  (future)</text>
+<rect x="680.0" y="526.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="940.0" y="549.0" font-size="10" fill="#222" text-anchor="middle">AVTP media: PipeWire module-avb crafts AAF frames -&gt; kl-eth -&gt;</text>
+<text x="940.0" y="562.0" font-size="10" fill="#222" text-anchor="middle">fabric CBS class-A queue  (future; plan of record)</text>
+<rect x="680.0" y="586.0" width="520.0" height="40.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
+<text x="940.0" y="609.5" font-size="10" fill="#222" text-anchor="middle">perf lanes: AF_XDP ZC, NAPI tuning (existing campaigns)</text>
+<rect x="40.0" y="750.0" width="1180.0" height="220.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="767.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">boundary contracts — the ONLY crossings</text>
+<rect x="60.0" y="782.0" width="1140.0" height="116.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="68.0" y="811.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">1. CSR 0x600 group -- identity+control, SW writes once (then only on real changes: GM change, config).</text>
+<text x="68.0" y="824.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">   ADP and AEM read the SAME wires -&gt; wire truth cannot diverge. RO: 0x644 avail_idx, 0x648/0x64C.</text>
+<text x="68.0" y="837.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">2. DMA rings + ts  -- the data plane; every frame + per-frame HW timestamps in descriptors.</text>
+<text x="68.0" y="850.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">3. PHC clock ops   -- (next) fabric counter as /dev/ptpN; ptp4l disciplines it, phc2sys mirrors REALTIME.</text>
+<text x="68.0" y="863.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">4. mailbox + IRQ   -- (future, ACMP connections) fabric posts what it cannot answer alone; SW replies</text>
+<text x="68.0" y="876.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">   via the connection table; fabric answers every later state query without SW.</text>
+</svg>

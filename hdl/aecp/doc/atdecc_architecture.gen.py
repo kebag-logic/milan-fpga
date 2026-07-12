@@ -552,6 +552,52 @@ table("t8c", 60, 322, 1140, [
  "advertised ADPDU and READ_DESCRIPTOR(ENTITY) can never disagree.  Setup: avdecc/aecp_csr_setup.sh.",
 ], font=10)
 
+
+# ======================================================================= #
+# PAGE 9 — HW / SW split (the softcore delimitation)
+# ======================================================================= #
+page("9-hw-sw-split", h=1120)
+box("t9", 40, 12, 1180, 30,
+    "What runs on the softcore and what does not — the delimitation   (normative text: docs/ARCHITECTURE_HW_SW_SPLIT.md)",
+    fill="#f5f5f5", stroke="#666", font=14, rounded=0)
+box("t9p", 40, 50, 1180, 46,
+    "The fabric ANSWERS, the softcore DECIDES.  Fabric = per-frame / line-rate / liveness-with-deadlines / wire-format truth."
+    "  Softcore = negotiation, policy, long-lived state, media production, once-per-boot provisioning.",
+    fill="#fff9d6", stroke="#b3a100", font=11, align="left")
+
+grp("g9h", 40, 110, 560, 620, "FPGA fabric — always on, zero-CPU  (green=silicon, orange=next)")
+box("h1", 60, 142, 520, 40, "MAC 1G RGMII/GMII + TCAM dest-MAC filter", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h2", 60, 190, 520, 40, "802.1Q classifier + CBS shaper + queues  (never removed - user rule)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h3", 60, 238, 520, 40, "PTP timestamp counter + RX/TX capture -> DMA ts window", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h4", 60, 286, 520, 40, "RX DMA: RSC coalescing / header-split / multi-slot  +  HW-TSO", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h5", 60, 334, 520, 52, "ADP advertiser — periodic/depart/discover, available_index +1 every" + "\n" + "ADPDU  (la_avdecc-clean, silicon)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h6", 60, 394, 520, 52, "AECP/AEM entity — 5 descriptors, full Milan 5.4.4 command set," + "\n" + "LOCK 60 s, ROM+overlay store  (la_avdecc-clean, silicon)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h7", 60, 454, 520, 52, "ACMP stateless responder — GET_TX_STATE / GET_TX_CONNECTION," + "\n" + "connection_count=0   << NEXT: the Milan=1 gate >>", fill="#ffe6cc", stroke="#d79b00", font=10)
+box("h8", 60, 514, 520, 40, "low-rate TX merge arbiters (control into inter-frame gaps)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("h9", 60, 562, 520, 52, "future: fabric ACMP connection TABLE (SW-written via mailbox; fabric" + "\n" + "answers all state queries zero-CPU)", fill="#f5f5f5", stroke="#999", font=10)
+box("h10", 60, 622, 520, 52, "optional later offload: fabric AAF framer — only if PipeWire-crafted" + "\n" + "frames cannot hold class-A cadence (NOT plan of record)", fill="#f5f5f5", stroke="#999", font=10)
+
+grp("g9s", 660, 110, 560, 620, "VexiiRiscv softcore (Linux) — decides, provisions, produces")
+box("s1", 680, 142, 520, 40, "kl-eth driver — rings, NAPI, ethtool, CSR  (silicon)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("s2", 680, 190, 520, 40, "identity provisioning ONCE per boot (0x600 group, caps 0x8588)", fill="#d5e8d4", stroke="#82b366", font=10)
+box("s3", 680, 238, 520, 52, "kl-eth PHC /dev/ptpN + SO_TIMESTAMPING — expose the fabric clock" + "\n" + "to linuxptp   << NEXT (gPTP gate) >>", fill="#ffe6cc", stroke="#d79b00", font=10)
+box("s4", 680, 298, 520, 52, "gPTP protocol: linuxptp ptp4l (BMCA, servo, pdelay) + phc2sys —" + "\n" + "in the rootfs today, unvalidated until the PHC lands", fill="#fff2cc", stroke="#d6b656", font=10)
+box("s5", 680, 358, 520, 52, "gPTP->entity bridge: GM id/domain -> CSR 0x624/0x628 on change" + "\n" + "(fabric reacts: gm_change -> re-advertise + index bump + AS_PATH truth)", fill="#f5f5f5", stroke="#999", font=10)
+box("s6", 680, 418, 520, 52, "ACMP connection POLICY — accept/refuse CONNECT_TX via mailbox+IRQ," + "\n" + "write the fabric connection table  (future)", fill="#f5f5f5", stroke="#999", font=10)
+box("s7", 680, 478, 520, 40, "SRP/MSRP state machines (pipewire module-avb)  (future)", fill="#f5f5f5", stroke="#999", font=10)
+box("s8", 680, 526, 520, 52, "AVTP media: PipeWire module-avb crafts AAF frames -> kl-eth ->" + "\n" + "fabric CBS class-A queue  (future; plan of record)", fill="#f5f5f5", stroke="#999", font=10)
+box("s9", 680, 586, 520, 40, "perf lanes: AF_XDP ZC, NAPI tuning (existing campaigns)", fill="#f5f5f5", stroke="#999", font=10)
+
+grp("g9b", 40, 750, 1180, 220, "boundary contracts — the ONLY crossings")
+table("t9b", 60, 782, 1140, [
+ "1. CSR 0x600 group -- identity+control, SW writes once (then only on real changes: GM change, config).",
+ "   ADP and AEM read the SAME wires -> wire truth cannot diverge. RO: 0x644 avail_idx, 0x648/0x64C.",
+ "2. DMA rings + ts  -- the data plane; every frame + per-frame HW timestamps in descriptors.",
+ "3. PHC clock ops   -- (next) fabric counter as /dev/ptpN; ptp4l disciplines it, phc2sys mirrors REALTIME.",
+ "4. mailbox + IRQ   -- (future, ACMP connections) fabric posts what it cannot answer alone; SW replies",
+ "   via the connection table; fabric answers every later state query without SW.",
+], font=10)
+
 # ----------------------------------------------------------------------- #
 # emit the mxfile
 # ----------------------------------------------------------------------- #
