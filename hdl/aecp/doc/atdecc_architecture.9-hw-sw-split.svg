@@ -4,8 +4,8 @@
 <rect x="40.0" y="12.0" width="1180.0" height="30.0" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.3"/>
 <text x="630.0" y="31.9" font-size="14" fill="#222" text-anchor="middle">What runs on the softcore and what does not — the delimitation   (normative text: docs/ARCHITECTURE_HW_SW_SPLIT.md)</text>
 <rect x="40.0" y="50.0" width="1180.0" height="46.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
-<text x="48.0" y="69.85" font-size="11" fill="#222" text-anchor="start">The fabric ANSWERS, the softcore DECIDES.  Fabric = per-frame / line-rate / liveness-with-deadlines / wire-format truth.  Softcore = negotiation, policy, long-lived state, media production,</text>
-<text x="48.0" y="83.85" font-size="11" fill="#222" text-anchor="start">once-per-boot provisioning.</text>
+<text x="48.0" y="69.85" font-size="11" fill="#222" text-anchor="start">The fabric ANSWERS, the softcore DECIDES — rev 2 (2026-07-12): EVERYTHING protocol-real-time goes FPGA (media, lwSRP, connections).  Softcore = gPTP protocol (linuxptp) · PCM producer (ms</text>
+<text x="48.0" y="83.85" font-size="11" fill="#222" text-anchor="start">cadence) · provisioning · ops.  Anchor: class-A 125 us vs 340-560 us wakeup.</text>
 <rect x="40.0" y="110.0" width="560.0" height="620.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
 <text x="48.0" y="127.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">FPGA fabric — always on, zero-CPU  (green=silicon, orange=next)</text>
 <rect x="60.0" y="142.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
@@ -27,12 +27,12 @@
 <text x="320.0" y="490.0" font-size="10" fill="#222" text-anchor="middle">connection_count=0   &lt;&lt; NEXT: the Milan=1 gate &gt;&gt;</text>
 <rect x="60.0" y="514.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
 <text x="320.0" y="537.5" font-size="10" fill="#222" text-anchor="middle">low-rate TX merge arbiters (control into inter-frame gaps)</text>
-<rect x="60.0" y="562.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
-<text x="320.0" y="585.0" font-size="10" fill="#222" text-anchor="middle">future: fabric ACMP connection TABLE (SW-written via mailbox; fabric</text>
-<text x="320.0" y="598.0" font-size="10" fill="#222" text-anchor="middle">answers all state queries zero-CPU)</text>
-<rect x="60.0" y="622.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
-<text x="320.0" y="645.0" font-size="10" fill="#222" text-anchor="middle">optional later offload: fabric AAF framer — only if PipeWire-crafted</text>
-<text x="320.0" y="658.0" font-size="10" fill="#222" text-anchor="middle">frames cannot hold class-A cadence (NOT plan of record)</text>
+<rect x="60.0" y="562.0" width="520.0" height="52.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="320.0" y="585.0" font-size="10" fill="#222" text-anchor="middle">NEXT: lwSRP — fabric MSRP talker-adv/listener-ready + MVRP;</text>
+<text x="320.0" y="598.0" font-size="10" fill="#222" text-anchor="middle">bandwidth gate (&lt;=75%) drives CBS idleSlope and GATES tx</text>
+<rect x="60.0" y="622.0" width="520.0" height="52.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="320.0" y="645.0" font-size="10" fill="#222" text-anchor="middle">NEXT (PLAN OF RECORD): fabric AAF framer — DMA PCM ring -&gt;</text>
+<text x="320.0" y="658.0" font-size="10" fill="#222" text-anchor="middle">packetizer + PTP presentation time -&gt; class-A queue (zero per-frame CPU)</text>
 <rect x="660.0" y="110.0" width="560.0" height="620.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
 <text x="668.0" y="127.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">VexiiRiscv softcore (Linux) — decides, provisions, produces</text>
 <rect x="680.0" y="142.0" width="520.0" height="40.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
@@ -49,13 +49,13 @@
 <text x="940.0" y="381.0" font-size="10" fill="#222" text-anchor="middle">gPTP-&gt;entity bridge: GM id/domain -&gt; CSR 0x624/0x628 on change</text>
 <text x="940.0" y="394.0" font-size="10" fill="#222" text-anchor="middle">(fabric reacts: gm_change -&gt; re-advertise + index bump + AS_PATH truth)</text>
 <rect x="680.0" y="418.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
-<text x="940.0" y="441.0" font-size="10" fill="#222" text-anchor="middle">ACMP connection POLICY — accept/refuse CONNECT_TX via mailbox+IRQ,</text>
-<text x="940.0" y="454.0" font-size="10" fill="#222" text-anchor="middle">write the fabric connection table  (future)</text>
+<text x="940.0" y="441.0" font-size="10" fill="#222" text-anchor="middle">ACMP connections -&gt; FABRIC (rev 2): in-fabric table + acceptance vs</text>
+<text x="940.0" y="454.0" font-size="10" fill="#222" text-anchor="middle">lwSRP grant; softcore mailbox = telemetry/override only</text>
 <rect x="680.0" y="478.0" width="520.0" height="40.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
-<text x="940.0" y="501.5" font-size="10" fill="#222" text-anchor="middle">SRP/MSRP state machines (pipewire module-avb)  (future)</text>
+<text x="940.0" y="501.5" font-size="10" fill="#222" text-anchor="middle">SRP -&gt; FABRIC as lwSRP (rev 2); softcore = none</text>
 <rect x="680.0" y="526.0" width="520.0" height="52.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
-<text x="940.0" y="549.0" font-size="10" fill="#222" text-anchor="middle">AVTP media: PipeWire module-avb crafts AAF frames -&gt; kl-eth -&gt;</text>
-<text x="940.0" y="562.0" font-size="10" fill="#222" text-anchor="middle">fabric CBS class-A queue  (future; plan of record)</text>
+<text x="940.0" y="549.0" font-size="10" fill="#222" text-anchor="middle">media (rev 2): softcore only FILLS the DMA PCM ring (ms cadence,</text>
+<text x="940.0" y="562.0" font-size="10" fill="#222" text-anchor="middle">any source; PipeWire optional) — framing/timing = fabric</text>
 <rect x="680.0" y="586.0" width="520.0" height="40.0" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.3"/>
 <text x="940.0" y="609.5" font-size="10" fill="#222" text-anchor="middle">perf lanes: AF_XDP ZC, NAPI tuning (existing campaigns)</text>
 <rect x="40.0" y="750.0" width="1180.0" height="220.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>

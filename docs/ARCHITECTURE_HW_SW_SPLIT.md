@@ -1,6 +1,9 @@
 # Architecture — what runs on the softcore, what does not
 
-Status: 2026-07-12. Diagram: `hdl/aecp/doc/atdecc_architecture.drawio` page
+Status: 2026-07-12 (rev 2 — USER DIRECTIVE: **everything goes FPGA; use
+lwSRP**. The media plane, SRP and ACMP connections move to fabric; PipeWire
+is out of the plan of record. The softcore keeps provisioning, gPTP protocol
+(linuxptp), the PCM producer and ops.) Diagram: `hdl/aecp/doc/atdecc_architecture.drawio` page
 `9-hw-sw-split` (rendered PNG alongside). This document is the normative
 delimitation; the diagram mirrors it.
 
@@ -20,10 +23,16 @@ Concretely, a function goes to the FPGA fabric when it needs any of:
   (the 0x600 CSR group feeds ADP and AEM from the same wires).
 
 A function goes to the softcore when it is:
-- a state machine with policy or configuration input (gPTP BMCA, SRP
-  registration/bandwidth math, ACMP connection acceptance);
-- media production (PipeWire graph, AAF payload assembly);
-- provisioning that runs once per boot (identity programming).
+- a state machine with policy or configuration input where deadlines are
+  soft (gPTP BMCA/servo — OS timers, config files);
+- sample *production* (filling a PCM ring at millisecond cadence — the
+  per-frame 125 us work is NOT this);
+- provisioning that runs once per boot (identity programming) and ops.
+
+The cadence anchor that forced rev 2: class-A AAF = one frame every 125 us;
+the measured softcore wakeup is 340-560 us per leg (R1 campaign). Userspace
+cannot hold the media cadence on this silicon — by our own first principle
+the framer, the reservation gate and connection liveness are fabric work.
 
 ## Per-function delimitation
 
@@ -38,13 +47,15 @@ A function goes to the softcore when it is:
 | **ADP advertiser** (available/depart/discover, available_index) | fabric | silicon | la_avdecc-clean; index +1 every ADPDU |
 | **AECP/AEM entity** (5 descriptors, Milan §5.4.4 command set, LOCK) | fabric | silicon | zero-CPU responder; ROM+overlay store |
 | **ACMP stateless responder** (GET_TX_STATE / GET_TX_CONNECTION, count=0) | fabric | silicon | la_avdecc Milan=1 CLEAN (2026-07-12, eto_acmp2); CSR 0x650 |
-| ACMP connection handling (CONNECT/DISCONNECT_TX policy) | softcore | future | CSR mailbox + IRQ: SW accepts/refuses, writes the connection table back; fabric keeps answering state queries from that table |
+| ACMP connection handling (CONNECT/DISCONNECT_TX, PROBE_TX fast-connect) | **fabric** | next | in-fabric connection table + acceptance (resource check against lwSRP grant); CSR mailbox demoted to telemetry/override |
 | kl-eth driver (rings, NAPI, ethtool, CSR) | softcore | silicon | Linux 6.x, kl,dma-ether |
 | kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | **next** | exposes the fabric counter/timestamps to linuxptp |
 | gPTP protocol (BMCA, servo, pdelay) | softcore | present, unvalidated | linuxptp ptp4l + phc2sys in the rootfs; needs the PHC to be real |
 | gPTP → entity bridge (GM id/domain into CSR 0x624/0x628 on change) | softcore | future | tiny daemon or ptp4l hook; fabric already has gm_change → re-advertise + index bump + AS_PATH/AVB_INFO truth |
-| SRP/MSRP (talker advertise, bandwidth) | softcore | future | pipewire module-avb carries the MRP state machines; fabric provides class-A shaping already |
-| AVTP media (AAF talker payloads) | softcore | future | PipeWire module-avb crafts frames → kl-eth → CBS class-A queue; a fabric AAF framer is an optional later offload, not the plan of record |
+| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | next | Milan v1.2 §5.6 constrains SRP enough for a small engine (ADP/AECP responder pattern); the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
+| MAAP (multicast MAC allocation) | **fabric** | future | probe/defend state machine, same low-rate responder pattern |
+| **AAF framer** (AVTP talker payloads) | **fabric** | next (PLAN OF RECORD) | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU |
+| PCM producer (fills the audio ring, ms-cadence) | softcore | future | any Linux source (ALSA app, test tone); timing-uncritical by design; PipeWire optional as a source, NOT in the datapath |
 | Identity provisioning (0x600 group, caps 0x8588) | softcore | silicon | once per boot (avdecc/aecp_csr_setup.sh); after that the fabric is autonomous |
 
 ## Boundary contracts (the only crossings)
@@ -57,9 +68,12 @@ A function goes to the softcore when it is:
    host traffic, with per-frame HW timestamps landing in descriptors.
 3. **PHC clock ops** (next) — the fabric counter exposed as `/dev/ptpN`;
    ptp4l disciplines it, phc2sys mirrors it to CLOCK_REALTIME.
-4. **Event mailbox + IRQ** (future, with ACMP connections) — fabric posts
-   CONNECT_TX_COMMANDs it cannot answer alone; SW replies via the connection
-   table; fabric answers all subsequent state queries without SW.
+4. **DMA audio ring** (next, with the AAF framer) — the PCM crossing: SW
+   fills samples at millisecond cadence; the fabric framer consumes, stamps
+   presentation time (PTP counter + offset), packetizes, and feeds class A.
+5. **Telemetry mailbox** (demoted from policy mailbox) — fabric-owned
+   connection/reservation tables report events; SW may override, never
+   gates liveness.
 
 ## Rationale anchors (paid-for evidence)
 
@@ -74,8 +88,11 @@ A function goes to the softcore when it is:
 
 ## Open decisions (flagged, not blocking)
 
-- **ACMP connection table location** once real connections land: proposed
-  fabric-owned table written via mailbox (keeps state queries zero-CPU).
-  Alternative (all-SW responder via tap+inject) rejected for liveness.
-- **Fabric AAF framer** (media offload): revisit only if PipeWire-crafted
-  frames cannot hold class-A cadence at target channel counts.
+- **lwSRP scope**: MSRP talker-side + MVRP first (talker endpoint); the
+  listener half (Listener Ready TX) lands with STREAM_INPUT. Domain/SR-class
+  discovery stays minimal per Milan (fixed class A defaults).
+- **gPTP in fabric**: explicitly NOT now — linuxptp on the softcore is the
+  plan (task: Arty+Milan pair), with fabric timestamps + INCR/ADJ discipline
+  hooks. Revisit only if servo jitter proves blocking.
+- **Audio source**: DMA PCM ring from Linux first; a native I2S/TDM codec
+  input to the fabric is the later fully-FPGA option.

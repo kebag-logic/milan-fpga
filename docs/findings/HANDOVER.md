@@ -215,9 +215,9 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
    avdecc/aecp_csr_setup.sh devmem sequence (caps 0x8588) -> peer:
    `sudo python3 /tmp/milan_controller.py enp6s0` (31/31) and
    `sudo ~/la_avdecc_work/enum-probe enp6s0 40` (Milan=1 CLEAN).
-   Deferred: ACMP connection POLICY (softcore mailbox + fabric table =
-   Milan PROBE_TX/fast-connect), unsolicited push, NV persistence of SET_*,
-   HW counter values, audio maps, the listener half (STREAM_INPUT/CRF).
+   Deferred: ACMP connections (now FABRIC table+acceptance per the rev-2
+   delimitation), unsolicited push, NV persistence of SET_*, HW counter
+   values, audio maps, the listener half (STREAM_INPUT/CRF).
 3. **NEXT (user directive 2026-07-12): gPTP — linuxptp on the Arty+Milan
    pair.** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
    counter — the 0x500 CSR group ALREADY has INCR/ADJ discipline hooks, and

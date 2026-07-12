@@ -561,8 +561,8 @@ box("t9", 40, 12, 1180, 30,
     "What runs on the softcore and what does not — the delimitation   (normative text: docs/ARCHITECTURE_HW_SW_SPLIT.md)",
     fill="#f5f5f5", stroke="#666", font=14, rounded=0)
 box("t9p", 40, 50, 1180, 46,
-    "The fabric ANSWERS, the softcore DECIDES.  Fabric = per-frame / line-rate / liveness-with-deadlines / wire-format truth."
-    "  Softcore = negotiation, policy, long-lived state, media production, once-per-boot provisioning.",
+    "The fabric ANSWERS, the softcore DECIDES — rev 2 (2026-07-12): EVERYTHING protocol-real-time goes FPGA (media, lwSRP, connections)."
+    "  Softcore = gPTP protocol (linuxptp) · PCM producer (ms cadence) · provisioning · ops.  Anchor: class-A 125 us vs 340-560 us wakeup.",
     fill="#fff9d6", stroke="#b3a100", font=11, align="left")
 
 grp("g9h", 40, 110, 560, 620, "FPGA fabric — always on, zero-CPU  (green=silicon, orange=next)")
@@ -574,8 +574,8 @@ box("h5", 60, 334, 520, 52, "ADP advertiser — periodic/depart/discover, availa
 box("h6", 60, 394, 520, 52, "AECP/AEM entity — 5 descriptors, full Milan 5.4.4 command set," + "\n" + "LOCK 60 s, ROM+overlay store  (la_avdecc-clean, silicon)", fill="#d5e8d4", stroke="#82b366", font=10)
 box("h7", 60, 454, 520, 52, "ACMP stateless responder — GET_TX_STATE / GET_TX_CONNECTION," + "\n" + "connection_count=0   << NEXT: the Milan=1 gate >>", fill="#ffe6cc", stroke="#d79b00", font=10)
 box("h8", 60, 514, 520, 40, "low-rate TX merge arbiters (control into inter-frame gaps)", fill="#d5e8d4", stroke="#82b366", font=10)
-box("h9", 60, 562, 520, 52, "future: fabric ACMP connection TABLE (SW-written via mailbox; fabric" + "\n" + "answers all state queries zero-CPU)", fill="#f5f5f5", stroke="#999", font=10)
-box("h10", 60, 622, 520, 52, "optional later offload: fabric AAF framer — only if PipeWire-crafted" + "\n" + "frames cannot hold class-A cadence (NOT plan of record)", fill="#f5f5f5", stroke="#999", font=10)
+box("h9", 60, 562, 520, 52, "NEXT: lwSRP — fabric MSRP talker-adv/listener-ready + MVRP;" + "\n" + "bandwidth gate (<=75%) drives CBS idleSlope and GATES tx", fill="#ffe6cc", stroke="#d79b00", font=10)
+box("h10", 60, 622, 520, 52, "NEXT (PLAN OF RECORD): fabric AAF framer — DMA PCM ring ->" + "\n" + "packetizer + PTP presentation time -> class-A queue (zero per-frame CPU)" , fill="#ffe6cc", stroke="#d79b00", font=10)
 
 grp("g9s", 660, 110, 560, 620, "VexiiRiscv softcore (Linux) — decides, provisions, produces")
 box("s1", 680, 142, 520, 40, "kl-eth driver — rings, NAPI, ethtool, CSR  (silicon)", fill="#d5e8d4", stroke="#82b366", font=10)
@@ -583,9 +583,9 @@ box("s2", 680, 190, 520, 40, "identity provisioning ONCE per boot (0x600 group, 
 box("s3", 680, 238, 520, 52, "kl-eth PHC /dev/ptpN + SO_TIMESTAMPING — expose the fabric clock" + "\n" + "to linuxptp   << NEXT (gPTP gate) >>", fill="#ffe6cc", stroke="#d79b00", font=10)
 box("s4", 680, 298, 520, 52, "gPTP protocol: linuxptp ptp4l (BMCA, servo, pdelay) + phc2sys —" + "\n" + "in the rootfs today, unvalidated until the PHC lands", fill="#fff2cc", stroke="#d6b656", font=10)
 box("s5", 680, 358, 520, 52, "gPTP->entity bridge: GM id/domain -> CSR 0x624/0x628 on change" + "\n" + "(fabric reacts: gm_change -> re-advertise + index bump + AS_PATH truth)", fill="#f5f5f5", stroke="#999", font=10)
-box("s6", 680, 418, 520, 52, "ACMP connection POLICY — accept/refuse CONNECT_TX via mailbox+IRQ," + "\n" + "write the fabric connection table  (future)", fill="#f5f5f5", stroke="#999", font=10)
-box("s7", 680, 478, 520, 40, "SRP/MSRP state machines (pipewire module-avb)  (future)", fill="#f5f5f5", stroke="#999", font=10)
-box("s8", 680, 526, 520, 52, "AVTP media: PipeWire module-avb crafts AAF frames -> kl-eth ->" + "\n" + "fabric CBS class-A queue  (future; plan of record)", fill="#f5f5f5", stroke="#999", font=10)
+box("s6", 680, 418, 520, 52, "ACMP connections -> FABRIC (rev 2): in-fabric table + acceptance vs" + "\n" + "lwSRP grant; softcore mailbox = telemetry/override only", fill="#f5f5f5", stroke="#999", font=10)
+box("s7", 680, 478, 520, 40, "SRP -> FABRIC as lwSRP (rev 2); softcore = none", fill="#f5f5f5", stroke="#999", font=10)
+box("s8", 680, 526, 520, 52, "media (rev 2): softcore only FILLS the DMA PCM ring (ms cadence," + "\n" + "any source; PipeWire optional) — framing/timing = fabric", fill="#f5f5f5", stroke="#999", font=10)
 box("s9", 680, 586, 520, 40, "perf lanes: AF_XDP ZC, NAPI tuning (existing campaigns)", fill="#f5f5f5", stroke="#999", font=10)
 
 grp("g9b", 40, 750, 1180, 220, "boundary contracts — the ONLY crossings")
