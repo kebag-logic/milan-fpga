@@ -2,7 +2,7 @@
 <rect width="5240" height="2588" fill="#ffffff"/>
 <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#333"/></marker><marker id="arro" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#999"/></marker></defs>
 <rect x="40.0" y="16.0" width="5160.0" height="44.0" rx="0" fill="#e8e8e8" stroke="#333" stroke-width="1.3"/>
-<text x="2620.0" y="45.0" font-size="20" fill="#222" text-anchor="middle" font-weight="bold">MILAN AVB NIC on VexiiRiscv SoC — FULL SYSTEM MAP (hierarchical)  ·  AX7101 xc7a100t (Arty deltas noted)  ·  block-in-block: memories live INSIDE their owner  ·  every wire: bus width  ·  colours = clock domains  ·  2026-07-12</text>
+<text x="2620.0" y="45.0" font-size="20" fill="#222" text-anchor="middle" font-weight="bold">MILAN AVB NIC on VexiiRiscv SoC — FULL SYSTEM MAP (hierarchical)  ·  AX7101 xc7a100t (Arty deltas noted)  ·  data flows LEFT-&gt;RIGHT (wire -&gt; fabric -&gt; SoC -&gt; DRAM; TX lane returns) · BIG arrows = frame/bus data, thin dashed = configuration/status · 2026-07-12</text>
 <rect x="60.0" y="80.0" width="190.0" height="26.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
 <text x="155.0" y="96.85" font-size="11" fill="#222" text-anchor="middle">sys @ 100 MHz (cd_sys)</text>
 <rect x="262.0" y="80.0" width="214.0" height="26.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
@@ -17,310 +17,322 @@
 <rect x="1024.0" y="80.0" width="90.0" height="26.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
 <text x="1069.0" y="96.85" font-size="11" fill="#222" text-anchor="middle">arbiter</text>
 <rect x="60.0" y="114.0" width="1054.0" height="26.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
-<text x="68.0" y="130.5" font-size="10" fill="#222" text-anchor="start">lanes: LE = little (tdata[7:0] = first wire byte) · BE = big (tdata[63:56] first — AECP parser chain only)</text>
+<text x="68.0" y="130.5" font-size="10" fill="#222" text-anchor="start">lanes: LE = little (tdata[7:0] = first byte) · BE = big (AECP parser only)  ·  BIG arrow = data/frames · thin dashed = config/status · big dashed = monitor copy</text>
 <rect x="1160.0" y="80.0" width="1240.0" height="44.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
 <text x="1168.0" y="99.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">clocks: osc 200 -&gt; PLL: cd_sys 100 · cd_sys4x 400+dqs90 (DDR3-800) · cd_idelay 200 · cd_milan 100 (Arty 50) · eth_rx/eth_tx 125</text>
 <text x="1168.0" y="112.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">crossings: AXI-Lite CSR sys&lt;-&gt;milan · MAC dual-clock FIFOs eth&lt;-&gt;milan · DMA engines in sys, AXIS FIFOs to milan</text>
-<rect x="40.0" y="180.0" width="1700.0" height="1000.0" rx="8" fill="#f4eef8" stroke="#9673a6" stroke-width="1.3"/>
-<text x="48.0" y="197.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">SoC / softcore — LiteX, cd_sys 100 MHz</text>
-<rect x="60.0" y="220.0" width="520.0" height="260.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
-<text x="68.0" y="237.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">VexiiRiscv cluster (RV64IMA)</text>
-<rect x="80.0" y="260.0" width="230.0" height="80.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="195.0" y="289.85" font-size="11" fill="#222" text-anchor="middle">hart 0</text>
-<text x="195.0" y="303.85" font-size="11" fill="#222" text-anchor="middle">(lsu refill 8,</text>
-<text x="195.0" y="317.85" font-size="11" fill="#222" text-anchor="middle">prefetch rpt)</text>
-<rect x="330.0" y="260.0" width="230.0" height="80.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="445.0" y="290.5" font-size="10" fill="#222" text-anchor="middle">hart 1</text>
-<text x="445.0" y="303.5" font-size="10" fill="#222" text-anchor="middle">(1-hart decision pending:</text>
-<text x="445.0" y="316.5" font-size="10" fill="#222" text-anchor="middle">58% LUTs datapoint)</text>
-<rect x="80.0" y="355.0" width="480.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="88.0" y="387.0" font-size="10" fill="#222" text-anchor="start">L2 cache — 64 KB shared (l2-bytes 65536)</text>
-<text x="88.0" y="400.0" font-size="10" fill="#222" text-anchor="start">down-pending 8 · general-slots 16 · coherent DMA lands here</text>
-<rect x="80.0" y="430.0" width="480.0" height="40.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="320.0" y="453.5" font-size="10" fill="#222" text-anchor="middle">PLIC + CLINT — IRQs: kl-eth per-queue · milan_csr o_irq_csr · UART · timer</text>
-<rect x="620.0" y="220.0" width="210.0" height="260.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="725.0" y="311.85" font-size="11" fill="#222" text-anchor="middle">LiteX interconnect</text>
-<text x="725.0" y="325.85" font-size="11" fill="#222" text-anchor="middle"></text>
-<text x="725.0" y="339.85" font-size="11" fill="#222" text-anchor="middle">Wishbone/AXI</text>
-<text x="725.0" y="353.85" font-size="11" fill="#222" text-anchor="middle">CSR bus 32b +</text>
-<text x="725.0" y="367.85" font-size="11" fill="#222" text-anchor="middle">coherent DMA port</text>
-<text x="725.0" y="381.85" font-size="11" fill="#222" text-anchor="middle">into the L2</text>
-<text x="725.0" y="395.85" font-size="11" fill="#222" text-anchor="middle">(--coherent-dma)</text>
-<rect x="870.0" y="220.0" width="280.0" height="120.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="1010.0" y="270.5" font-size="10" fill="#222" text-anchor="middle">LiteDRAM controller</text>
-<text x="1010.0" y="283.5" font-size="10" fill="#222" text-anchor="middle">A7DDRPHY (sys4x 400 + DQS 90°,</text>
-<text x="1010.0" y="296.5" font-size="10" fill="#222" text-anchor="middle">200 MHz IDELAYCTRL)</text>
-<rect x="1170.0" y="220.0" width="550.0" height="260.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
-<text x="1178.0" y="237.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">peripherals</text>
-<rect x="1190.0" y="255.0" width="240.0" height="55.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="1310.0" y="286.0" font-size="10" fill="#222" text-anchor="middle">UART 115200 (litex_term)</text>
-<rect x="1450.0" y="255.0" width="250.0" height="55.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="1575.0" y="279.5" font-size="10" fill="#222" text-anchor="middle">JTAG — openFPGALoader</text>
-<text x="1575.0" y="292.5" font-size="10" fill="#222" text-anchor="middle">ft232 210512180081</text>
-<rect x="1190.0" y="325.0" width="510.0" height="140.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="1198.0" y="372.5" font-size="10" fill="#222" text-anchor="start">QSPI flash N25Q128 16 MB (off-chip, flashboot)</text>
-<text x="1198.0" y="385.5" font-size="10" fill="#222" text-anchor="start">kernel   @ 0x00_0000  (8.5 MiB budget)</text>
-<text x="1198.0" y="398.5" font-size="10" fill="#222" text-anchor="start">opensbi  @ 0x88_0000  (512 KiB, fw_jump)</text>
-<text x="1198.0" y="411.5" font-size="10" fill="#222" text-anchor="start">dtb      @ 0x90_0000</text>
-<text x="1198.0" y="424.5" font-size="10" fill="#222" text-anchor="start">rootfs   @ 0x94_0000  (6.75 MiB)</text>
-<rect x="60.0" y="520.0" width="780.0" height="620.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
-<text x="68.0" y="537.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">kl-eth DMA engines (fabric, cd_sys, coherent port into L2)</text>
-<rect x="80.0" y="560.0" width="360.0" height="280.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="88.0" y="651.5" font-size="10" fill="#222" text-anchor="start">TX descriptor reader + HW-TSO</text>
-<text x="88.0" y="664.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="88.0" y="677.5" font-size="10" fill="#222" text-anchor="start">fetches the 512x8B ring —</text>
-<text x="88.0" y="690.5" font-size="10" fill="#222" text-anchor="start">base/length in BYTES (trap!) ·</text>
-<text x="88.0" y="703.5" font-size="10" fill="#222" text-anchor="start">AXI bursts 16-64 beats x 64b</text>
-<text x="88.0" y="716.5" font-size="10" fill="#222" text-anchor="start">(128-512 B) · TSO header-gen (MSS</text>
-<text x="88.0" y="729.5" font-size="10" fill="#222" text-anchor="start">segmentation, chain-csum; TX</text>
-<text x="88.0" y="742.5" font-size="10" fill="#222" text-anchor="start">143-&gt;186 zc) · reader-bound wall</text>
-<text x="88.0" y="755.5" font-size="10" fill="#222" text-anchor="start">(starve 70% -&gt; prefetch next)</text>
-<rect x="90.0" y="850.0" width="340.0" height="60.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="98.0" y="877.0" font-size="10" fill="#222" text-anchor="start">TX staging FIFO — BRAM</text>
-<text x="98.0" y="890.0" font-size="10" fill="#222" text-anchor="start">2048 beats x 64b = 16 KB</text>
-<rect x="460.0" y="560.0" width="360.0" height="280.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="468.0" y="664.5" font-size="10" fill="#222" text-anchor="start">RX writer</text>
-<text x="468.0" y="677.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="468.0" y="690.5" font-size="10" fill="#222" text-anchor="start">RSC TCP coalescer (RING_RSC_TOUT,</text>
-<text x="468.0" y="703.5" font-size="10" fill="#222" text-anchor="start">100 MHz ticks, default 250 us) ·</text>
-<text x="468.0" y="716.5" font-size="10" fill="#222" text-anchor="start">header-split v3 (fill len in</text>
-<text x="468.0" y="729.5" font-size="10" fill="#222" text-anchor="start">w0[31:16], page &lt;= 32 KB) · 4-slot</text>
-<text x="468.0" y="742.5" font-size="10" fill="#222" text-anchor="start">writer + pop-ordered CQ</text>
-<rect x="470.0" y="850.0" width="340.0" height="90.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="478.0" y="885.5" font-size="10" fill="#222" text-anchor="start">RX flow steer (2 queues)</text>
-<text x="478.0" y="898.5" font-size="10" fill="#222" text-anchor="start">4-tuple hash -&gt; q0/q1 · hash_sel=1</text>
-<text x="478.0" y="911.5" font-size="10" fill="#222" text-anchor="start">forces q0 (set BEFORE TCP runs)</text>
-<rect x="90.0" y="930.0" width="340.0" height="100.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="98.0" y="970.5" font-size="10" fill="#222" text-anchor="start">LiteX CSR block @ 0xf000_0000</text>
-<text x="98.0" y="983.5" font-size="10" fill="#222" text-anchor="start">ring ctl · RSC tout · steer/hash · IRQ status</text>
-<text x="98.0" y="996.5" font-size="10" fill="#222" text-anchor="start">offsets BUILD-DEPENDENT: read csr.json!</text>
-<rect x="470.0" y="960.0" width="340.0" height="70.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="640.0" y="985.5" font-size="10" fill="#222" text-anchor="middle">IRQ fan-in -&gt; PLIC</text>
-<text x="640.0" y="998.5" font-size="10" fill="#222" text-anchor="middle">per-queue RX complete + TX done</text>
-<text x="640.0" y="1011.5" font-size="10" fill="#222" text-anchor="middle">(rx-usecs-low moderation: +32%)</text>
-<rect x="860.0" y="520.0" width="860.0" height="620.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
-<text x="868.0" y="537.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">software (Linux on the softcore)</text>
-<rect x="880.0" y="560.0" width="820.0" height="280.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="888.0" y="658.0" font-size="10" fill="#222" text-anchor="start">kl-eth driver (kl,dma-ether · silicon; MODULE_VERSION gates identity)</text>
-<text x="888.0" y="671.0" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="888.0" y="684.0" font-size="10" fill="#222" text-anchor="start">• 2 RX queues x threaded NAPI · RSC ON @250 us (ethtool -C rx-usecs live)</text>
-<text x="888.0" y="697.0" font-size="10" fill="#222" text-anchor="start">• hs_pgsz=16384 &lt;-&gt; gateware --hs-page-bytes 16384 (STRICT pairing)</text>
-<text x="888.0" y="710.0" font-size="10" fill="#222" text-anchor="start">• 4-slot RX + pop-ordered CQ · 60 KB order-4 buffers (mslot60)</text>
-<text x="888.0" y="723.0" font-size="10" fill="#222" text-anchor="start">• HW-TSO · chain-csum · ack-merge tout 512 us</text>
-<text x="888.0" y="736.0" font-size="10" fill="#222" text-anchor="start">• identity provisioning once/boot: devmem 0x9000_0600 (aecp_csr_setup.sh)</text>
-<text x="888.0" y="749.0" font-size="10" fill="#222" text-anchor="start">• NEXT: PHC /dev/ptpN + SO_TIMESTAMPING (gPTP gate — HW_SW_SPLIT.md)</text>
-<rect x="880.0" y="860.0" width="820.0" height="90.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="888.0" y="902.0" font-size="10" fill="#222" text-anchor="start">linuxptp: ptp4l (802.1AS BMCA, servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;</text>
-<text x="888.0" y="915.0" font-size="10" fill="#222" text-anchor="start">then a small bridge writes GM id/domain -&gt; CSR 0x624/0x628 on change (fabric re-advertises + AS_PATH truth)</text>
-<rect x="880.0" y="965.0" width="820.0" height="80.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
-<text x="888.0" y="1002.0" font-size="10" fill="#222" text-anchor="start">PipeWire module-avb (future media plane): crafts AAF frames -&gt; kl-eth -&gt; fabric CBS class-A queue ·</text>
-<text x="888.0" y="1015.0" font-size="10" fill="#222" text-anchor="start">SRP/MSRP state machines · ACMP connection POLICY via mailbox (HW answers / SW decides)</text>
-<rect x="880.0" y="1060.0" width="820.0" height="60.0" rx="8" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
-<text x="888.0" y="1093.5" font-size="10" fill="#222" text-anchor="start">validation peers (via the AVB switch): milan_controller.py · la_avdecc enum-probe (Hive&#x27;s library) · tsn-gen</text>
-<rect x="1780.0" y="180.0" width="620.0" height="660.0" rx="8" fill="#f0f7ee" stroke="#82b366" stroke-width="1.3"/>
-<text x="1788.0" y="197.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">DDR3 SDRAM — MT41K256M16 x16 · 512 MB @ 0x4000_0000 (off-chip, DDR3-800)</text>
-<rect x="1800.0" y="230.0" width="580.0" height="110.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="1808.0" y="275.5" font-size="10" fill="#222" text-anchor="start">boot images (from QSPI flashboot)</text>
-<text x="1808.0" y="288.5" font-size="10" fill="#222" text-anchor="start">kernel @ 0x4000_0000 · dtb @ 0x40EF_0000 ·</text>
-<text x="1808.0" y="301.5" font-size="10" fill="#222" text-anchor="start">opensbi fw_jump @ 0x40F0_0000 · initrd @ 0x4100_0000</text>
-<rect x="1800.0" y="360.0" width="580.0" height="90.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="1808.0" y="395.5" font-size="10" fill="#222" text-anchor="start">TX descriptor ring — 512 x 8 B = 4 KB</text>
-<text x="1808.0" y="408.5" font-size="10" fill="#222" text-anchor="start">(&gt;= 2 max-size frames; 8 frame slots) · driver-allocated</text>
-<text x="1808.0" y="421.5" font-size="10" fill="#222" text-anchor="start">descriptor: {addr, len, flags, TX ts window @ +0x3100}</text>
-<rect x="1800.0" y="470.0" width="580.0" height="130.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="1808.0" y="519.0" font-size="10" fill="#222" text-anchor="start">RX rings (per queue x2) — 4 slots x 60 pages x 16 KB = 960 KB</text>
-<text x="1808.0" y="532.0" font-size="10" fill="#222" text-anchor="start">+ completion queue 8 entries, POP-ORDERED (mslot60 &lt;-&gt;</text>
-<text x="1808.0" y="545.0" font-size="10" fill="#222" text-anchor="start">build_r2slots STRICT pairing) · header-split pages: header in</text>
-<text x="1808.0" y="558.0" font-size="10" fill="#222" text-anchor="start">slot, payload in 16 KB pages · RX ts in descriptor window</text>
-<rect x="1800.0" y="620.0" width="580.0" height="60.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
-<text x="1808.0" y="647.0" font-size="10" fill="#222" text-anchor="start">any DRAM row miss costs 1424 ns (50% TLB + 50% DRAM) —</text>
-<text x="1808.0" y="660.0" font-size="10" fill="#222" text-anchor="start">the measured single-port latency ceiling</text>
-<rect x="1780.0" y="880.0" width="620.0" height="160.0" rx="8" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
-<text x="1788.0" y="957.0" font-size="10" fill="#222" text-anchor="start">RTL8211E PHY (off-chip) — GMII-strapped, 8-bit SDR (an RGMII read corrupts every byte: hardware-confirmed)</text>
-<text x="1788.0" y="970.0" font-size="10" fill="#222" text-anchor="start">1000BASE-T to the AVB switch  ·  Arty: DP83848 MII 10/100</text>
-<rect x="2460.0" y="180.0" width="2740.0" height="2160.0" rx="8" fill="#eef4fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="2468.0" y="197.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">milan_datapath — fabric, cd_milan 100 MHz (Arty: 50 MHz)  ·  ALL AXIS links: 64b tdata + 8b tkeep + tvalid/tready/tlast, LE unless marked BE</text>
-<rect x="2480.0" y="230.0" width="620.0" height="500.0" rx="8" fill="#fdf3e7" stroke="#d79b00" stroke-width="1.3"/>
-<text x="2488.0" y="247.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">MilanMAC (LiteEth) — eth 125 MHz island</text>
-<rect x="2500.0" y="270.0" width="580.0" height="80.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="2790.0" y="307.0" font-size="10" fill="#222" text-anchor="middle">LiteEthPHYGMII — gtx 125 MHz, tx_clk_invert,</text>
-<text x="2790.0" y="320.0" font-size="10" fill="#222" text-anchor="middle">launch FFs IOB-packed (silicon placement rule)</text>
-<rect x="2500.0" y="365.0" width="580.0" height="80.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="2790.0" y="402.0" font-size="10" fill="#222" text-anchor="middle">LiteEthMACCore — preamble/SFD · CRC32 · padding ·</text>
-<text x="2790.0" y="415.0" font-size="10" fill="#222" text-anchor="middle">PHY-width conversion 8b &lt;-&gt; 64b</text>
-<rect x="2500.0" y="460.0" width="580.0" height="70.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="2790.0" y="498.5" font-size="10" fill="#222" text-anchor="middle">dual-clock stream FIFOs — eth_rx/eth_tx 125 &lt;-&gt; cd_milan 100</text>
-<rect x="2500.0" y="545.0" width="580.0" height="90.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="2790.0" y="580.5" font-size="10" fill="#222" text-anchor="middle">stream &lt;-&gt; AXIS adapter</text>
-<text x="2790.0" y="593.5" font-size="10" fill="#222" text-anchor="middle">last_be (one-hot) &lt;-&gt; tkeep (mask)</text>
-<text x="2790.0" y="606.5" font-size="10" fill="#222" text-anchor="middle">— the M-A3 &#x27;no frame on the wire&#x27; root cause</text>
-<rect x="2500.0" y="650.0" width="580.0" height="60.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
-<text x="2508.0" y="683.5" font-size="10" fill="#222" text-anchor="start">Arty: LiteEthPHYMII (100M) · is_1g=0 -&gt; CBS slope wiring pending</text>
-<rect x="3140.0" y="230.0" width="2040.0" height="500.0" rx="8" fill="#f5f9ff" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3148.0" y="247.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">RX pipeline (post-MAC -&gt; DMA)</text>
-<rect x="3160.0" y="270.0" width="440.0" height="200.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3168.0" y="347.5" font-size="10" fill="#222" text-anchor="start">ptp_ts_top — RX timestamping</text>
-<text x="3168.0" y="360.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="3168.0" y="373.5" font-size="10" fill="#222" text-anchor="start">per-frame RX timestamp captured into</text>
-<text x="3168.0" y="386.5" font-size="10" fill="#222" text-anchor="start">the DMA descriptor ts window</text>
-<text x="3168.0" y="399.5" font-size="10" fill="#222" text-anchor="start">(dts kl,dma-ts @ +0x3100)</text>
-<rect x="3170.0" y="380.0" width="420.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3178.0" y="410.5" font-size="10" fill="#222" text-anchor="start">PTP counter + CSR regs — 64b counter FF</text>
-<text x="3178.0" y="423.5" font-size="10" fill="#222" text-anchor="start">CSR 0x500-0x544: CTRL/INCR/ADJ/TWlo·hi/</text>
-<text x="3178.0" y="436.5" font-size="10" fill="#222" text-anchor="start">OFlo·hi/CMD/TRlo·hi/ILAT/ELAT</text>
-<rect x="3660.0" y="270.0" width="460.0" height="200.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3668.0" y="347.5" font-size="10" fill="#222" text-anchor="start">rx_mac_filter — TCAM dest-MAC filter</text>
-<text x="3668.0" y="360.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="3668.0" y="373.5" font-size="10" fill="#222" text-anchor="start">ternary match · default-pass CSR bit ·</text>
-<text x="3668.0" y="386.5" font-size="10" fill="#222" text-anchor="start">miss + no-default -&gt; drop</text>
-<text x="3668.0" y="399.5" font-size="10" fill="#222" text-anchor="start">(never backpressures)</text>
-<rect x="3670.0" y="380.0" width="440.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3678.0" y="410.5" font-size="10" fill="#222" text-anchor="start">TCAM entry array — 16 x {key 48b + mask 48b</text>
-<text x="3678.0" y="423.5" font-size="10" fill="#222" text-anchor="start">+ action 8b} = 1664 b FF · programmed</text>
-<text x="3678.0" y="436.5" font-size="10" fill="#222" text-anchor="start">@ 0x700-0x718 (CTRL/K/M/ACT/CMD)</text>
-<rect x="4180.0" y="320.0" width="320.0" height="90.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="4340.0" y="354.85" font-size="11" fill="#222" text-anchor="middle" font-weight="bold">rx_axis_to_dma</text>
-<text x="4340.0" y="368.85" font-size="11" fill="#222" text-anchor="middle">THE TAP POINT (post-filter)</text>
-<text x="4340.0" y="382.85" font-size="11" fill="#222" text-anchor="middle">taps are copies — never stall</text>
-<rect x="4560.0" y="270.0" width="560.0" height="200.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="4568.0" y="354.0" font-size="10" fill="#222" text-anchor="start">ethernet_events — RMON counters</text>
-<text x="4568.0" y="367.0" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="4568.0" y="380.0" font-size="10" fill="#222" text-anchor="start">event capture fed by MAC pulses</text>
-<text x="4568.0" y="393.0" font-size="10" fill="#222" text-anchor="start">(rx/tx frames, CRC err, ...)</text>
-<rect x="4570.0" y="380.0" width="540.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="4578.0" y="412.0" font-size="10" fill="#222" text-anchor="start">event counters — 9 x 32b FF · RO @ 0x210-0x230</text>
-<text x="4578.0" y="425.0" font-size="10" fill="#222" text-anchor="start">(STAT0..8, stride 4)</text>
-<rect x="3140.0" y="770.0" width="2040.0" height="900.0" rx="8" fill="#f5f9ff" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3148.0" y="787.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">ATDECC control plane — zero-CPU responders (ADP · AECP · ACMP)</text>
-<rect x="3160.0" y="810.0" width="660.0" height="840.0" rx="8" fill="#eef4fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3168.0" y="827.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_aecp_top — AECP/AEM entity (§5.4, la_avdecc-clean)</text>
-<rect x="3175.0" y="845.0" width="630.0" height="260.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3183.0" y="926.5" font-size="10" fill="#222" text-anchor="start">ingress MONITOR tap (registered) -&gt; packet_validator -&gt;</text>
-<text x="3183.0" y="939.5" font-size="10" fill="#222" text-anchor="start">common_parser [internal links 64b AXIS BE] -&gt; l0_state</text>
-<text x="3183.0" y="952.5" font-size="10" fill="#222" text-anchor="start">(LOCK 60 s / ACQUIRE=NOT_SUPPORTED) -&gt; response_builder</text>
-<text x="3183.0" y="965.5" font-size="10" fill="#222" text-anchor="start">(segment engine NONE/ECHO/STORE/CONST x4 · CDL = frame-26)</text>
-<text x="3183.0" y="978.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="3183.0" y="991.5" font-size="10" fill="#222" text-anchor="start">commands: READ_DESCRIPTOR · GET/SET names · config ·</text>
-<text x="3183.0" y="1004.5" font-size="10" fill="#222" text-anchor="start">sampling-rate · stream-format · GET_STREAM_INFO (56 B) ·</text>
-<text x="3183.0" y="1017.5" font-size="10" fill="#222" text-anchor="start">GET_AVB_INFO · GET_COUNTERS (136 B, full-size on errors) ·</text>
-<text x="3183.0" y="1030.5" font-size="10" fill="#222" text-anchor="start">GET_AS_PATH · MVU GET_MILAN_INFO</text>
-<rect x="3175.0" y="1120.0" width="300.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3183.0" y="1157.0" font-size="10" fill="#222" text-anchor="start">ingress frame buf</text>
-<text x="3183.0" y="1170.0" font-size="10" fill="#222" text-anchor="start">128 B LUTRAM (MAX_FRAME_BYTES)</text>
-<rect x="3500.0" y="1120.0" width="305.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3508.0" y="1150.5" font-size="10" fill="#222" text-anchor="start">builder working set</text>
-<text x="3508.0" y="1163.5" font-size="10" fill="#222" text-anchor="start">buf_r 64 B FF (capture) ·</text>
-<text x="3508.0" y="1176.5" font-size="10" fill="#222" text-anchor="start">const_q 64 B FF (payloads)</text>
-<rect x="3175.0" y="1215.0" width="630.0" height="190.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3183.0" y="1274.5" font-size="10" fill="#222" text-anchor="start">AEM store — BRAM 808 B (byte port 8b, addr 16b, 1-cycle latency)</text>
-<text x="3183.0" y="1287.5" font-size="10" fill="#222" text-anchor="start">directory 5 x 64b FF {type, idx, base, len}:</text>
-<text x="3183.0" y="1300.5" font-size="10" fill="#222" text-anchor="start">  ENTITY@0x000/312 · CONFIG@0x138/86 · AUDIO_UNIT@0x18E/156 ·</text>
-<text x="3183.0" y="1313.5" font-size="10" fill="#222" text-anchor="start">  STREAM_OUTPUT@0x22A/156 · AVB_INTERFACE@0x2C6/98</text>
-<text x="3183.0" y="1326.5" font-size="10" fill="#222" text-anchor="start">write-back (volatile): names @48/180/316/402/558/714 (64 B each) ·</text>
-<text x="3183.0" y="1339.5" font-size="10" fill="#222" text-anchor="start">  sampling_rate @534 (4 B) · stream_format @628 (8 B)</text>
-<text x="3183.0" y="1352.5" font-size="10" fill="#222" text-anchor="start">overlay: live CSR wins (eid, MAC, caps, avail_idx, cfg, clock_id)</text>
-<rect x="3175.0" y="1420.0" width="630.0" height="60.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3490.0" y="1453.5" font-size="10" fill="#222" text-anchor="middle">status -&gt; CSR: 0x648 {locked, cmd_count} · 0x64C {resp_count, cfg}</text>
-<rect x="3850.0" y="810.0" width="620.0" height="420.0" rx="8" fill="#eef4fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3858.0" y="827.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_acmp_responder — ACMP stateless talker (§5.5)</text>
-<rect x="3865.0" y="845.0" width="590.0" height="230.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3873.0" y="924.5" font-size="10" fill="#222" text-anchor="start">same registered-tap pattern · 70 B ACMPDU (CDL 44)</text>
-<text x="3873.0" y="937.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="3873.0" y="950.5" font-size="10" fill="#222" text-anchor="start">GET_TX_STATE -&gt; SUCCESS, count=0, stream fields zeroed,</text>
-<text x="3873.0" y="963.5" font-size="10" fill="#222" text-anchor="start">probe flags cleared (uid != 0 -&gt; TALKER_UNKNOWN_ID)</text>
-<text x="3873.0" y="976.5" font-size="10" fill="#222" text-anchor="start">GET_TX_CONNECTION -&gt; NOT_SUPPORTED (Milan 5.5.4.4)</text>
-<text x="3873.0" y="989.5" font-size="10" fill="#222" text-anchor="start">CONNECT/DISCONNECT_TX -&gt; NOT_SUPPORTED until the</text>
-<text x="3873.0" y="1002.5" font-size="10" fill="#222" text-anchor="start">softcore policy mailbox (HW answers / SW decides)</text>
-<rect x="3865.0" y="1090.0" width="280.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3873.0" y="1122.0" font-size="10" fill="#222" text-anchor="start">frame buf — 72 B LUTRAM</text>
-<text x="3873.0" y="1135.0" font-size="10" fill="#222" text-anchor="start">(9 beats x 8 B)</text>
-<rect x="4165.0" y="1090.0" width="290.0" height="70.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="4310.0" y="1122.0" font-size="10" fill="#222" text-anchor="middle">status -&gt; CSR 0x650</text>
-<text x="4310.0" y="1135.0" font-size="10" fill="#222" text-anchor="middle">{resp_count[31:16], cmd_count[15:0]}</text>
-<rect x="3850.0" y="1250.0" width="620.0" height="400.0" rx="8" fill="#fdf3e7" stroke="#d79b00" stroke-width="1.3"/>
-<text x="3858.0" y="1267.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">adp_advertiser — ADP (§6.2)</text>
-<rect x="3865.0" y="1285.0" width="590.0" height="230.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="3873.0" y="1371.0" font-size="10" fill="#222" text-anchor="start">82 B ADPDU (CDL 0x38) · periodic every valid_time s</text>
-<text x="3873.0" y="1384.0" font-size="10" fill="#222" text-anchor="start">(vt=31 -&gt; validity 62 s) · AVAILABLE / DEPARTING /</text>
-<text x="3873.0" y="1397.0" font-size="10" fill="#222" text-anchor="start">discover response · available_index +1 on EVERY ADPDU</text>
-<text x="3873.0" y="1410.0" font-size="10" fill="#222" text-anchor="start">(la_avdecc strict rule) · trigger priority: depart &gt;</text>
-<text x="3873.0" y="1423.0" font-size="10" fill="#222" text-anchor="start">link_up &gt; info/gm change &gt; discover &gt; timer ·</text>
-<text x="3873.0" y="1436.0" font-size="10" fill="#222" text-anchor="start">enable-edge with link already up == link_up (boot-order fix)</text>
-<rect x="3865.0" y="1530.0" width="290.0" height="60.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3873.0" y="1557.0" font-size="10" fill="#222" text-anchor="start">available_index — 32b FF</text>
-<text x="3873.0" y="1570.0" font-size="10" fill="#222" text-anchor="start">RO @ 0x644 (live counter)</text>
-<rect x="4175.0" y="1530.0" width="280.0" height="90.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
-<text x="4315.0" y="1565.5" font-size="10" fill="#222" text-anchor="middle">identity inputs = the CSR 0x600</text>
-<text x="4315.0" y="1578.5" font-size="10" fill="#222" text-anchor="middle">group (shared with the AEM</text>
-<text x="4315.0" y="1591.5" font-size="10" fill="#222" text-anchor="middle">overlay -&gt; cannot diverge)</text>
-<rect x="4540.0" y="890.0" width="280.0" height="90.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
-<text x="4680.0" y="932.0" font-size="10" fill="#222" text-anchor="middle">aecp_acmp_mux (adp_tx_arbiter)</text>
-<text x="4680.0" y="945.0" font-size="10" fill="#222" text-anchor="middle">frame-atomic round-robin</text>
-<rect x="4540.0" y="1070.0" width="280.0" height="90.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
-<text x="4680.0" y="1105.5" font-size="10" fill="#222" text-anchor="middle">ctl_tx_mux</text>
-<text x="4680.0" y="1118.5" font-size="10" fill="#222" text-anchor="middle">ADP + (AECP|ACMP)</text>
-<text x="4680.0" y="1131.5" font-size="10" fill="#222" text-anchor="middle">frame-atomic round-robin</text>
-<rect x="4540.0" y="1250.0" width="600.0" height="400.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="4548.0" y="1362.5" font-size="10" fill="#222" text-anchor="start">milan_csr — REGISTER FILE (~46 x 32b FF)</text>
-<text x="4548.0" y="1375.5" font-size="10" fill="#222" text-anchor="start">AXI-Lite slave @ 0x9000_0000 (64 KB window, data 32b,</text>
-<text x="4548.0" y="1388.5" font-size="10" fill="#222" text-anchor="start">addr 16b) · cd_sys side, CDC into cd_milan</text>
-<text x="4548.0" y="1401.5" font-size="10" fill="#222" text-anchor="start">(cdc_pulse / cdc_handshake for strobes)</text>
-<text x="4548.0" y="1414.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="4548.0" y="1427.5" font-size="10" fill="#222" text-anchor="start">groups:</text>
-<text x="4548.0" y="1440.5" font-size="10" fill="#222" text-anchor="start">  0x000 ID/VERSION/CAP        0x108 station MAC</text>
-<text x="4548.0" y="1453.5" font-size="10" fill="#222" text-anchor="start">  0x210 RMON STAT0..8         0x300 classifier maps</text>
-<text x="4548.0" y="1466.5" font-size="10" fill="#222" text-anchor="start">  0x400 CBS slopes (x4 q)     0x500 PTP group</text>
-<text x="4548.0" y="1479.5" font-size="10" fill="#222" text-anchor="start">  0x600 ADP identity          0x640 ADP cmd/status</text>
-<text x="4548.0" y="1492.5" font-size="10" fill="#222" text-anchor="start">  0x648/0x64C AECP status     0x650 ACMP status</text>
-<text x="4548.0" y="1505.5" font-size="10" fill="#222" text-anchor="start">  0x700 TCAM programming</text>
-<text x="4548.0" y="1518.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="4548.0" y="1531.5" font-size="10" fill="#222" text-anchor="start">o_irq_csr -&gt; PLIC · identity fans out to ADP + AEM +</text>
-<text x="4548.0" y="1544.5" font-size="10" fill="#222" text-anchor="start">ACMP: ONE source of wire truth</text>
-<rect x="2480.0" y="1700.0" width="2700.0" height="560.0" rx="8" fill="#f5f9ff" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="2488.0" y="1717.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">TX pipeline (DMA -&gt; shaped wire; control merged in gaps)</text>
-<rect x="2500.0" y="1750.0" width="480.0" height="220.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="2508.0" y="1837.5" font-size="10" fill="#222" text-anchor="start">traffic_classifier (802.1Q)</text>
-<text x="2508.0" y="1850.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="2508.0" y="1863.5" font-size="10" fill="#222" text-anchor="start">VLAN TPID 0x8100 parse · PCP[3b] -&gt;</text>
-<text x="2508.0" y="1876.5" font-size="10" fill="#222" text-anchor="start">regen -&gt; traffic class -&gt; queue select ·</text>
-<text x="2508.0" y="1889.5" font-size="10" fill="#222" text-anchor="start">AVTP ethertype 0x22F0 -&gt; class A/B</text>
-<rect x="2510.0" y="1870.0" width="460.0" height="90.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="2518.0" y="1905.5" font-size="10" fill="#222" text-anchor="start">classifier map registers (FF)</text>
-<text x="2518.0" y="1918.5" font-size="10" fill="#222" text-anchor="start">PCP regen 8x3b · prio-&gt;TC 8x2b · TC-&gt;queue 4x2b</text>
-<text x="2518.0" y="1931.5" font-size="10" fill="#222" text-anchor="start">@ 0x300 CTRL · 0x308 MAP · 0x30C REGEN · 0x310 TCQ</text>
-<rect x="3020.0" y="1750.0" width="480.0" height="220.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3028.0" y="1831.0" font-size="10" fill="#222" text-anchor="start">traffic_queues — BRAM</text>
-<text x="3028.0" y="1844.0" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="3028.0" y="1857.0" font-size="10" fill="#222" text-anchor="start">4 x axis_fifo, 16 KB each</text>
-<text x="3028.0" y="1870.0" font-size="10" fill="#222" text-anchor="start">(DEPTH 16384 bytes @ 64b) = 64 KB total</text>
-<text x="3028.0" y="1883.0" font-size="10" fill="#222" text-anchor="start">per-queue depth/empty -&gt; shaper gating</text>
-<text x="3028.0" y="1896.0" font-size="10" fill="#222" text-anchor="start">(fabric-internal, no bus address)</text>
-<rect x="3540.0" y="1750.0" width="480.0" height="220.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="3548.0" y="1831.0" font-size="10" fill="#222" text-anchor="start">traffic_shaping_core + CBS</text>
-<text x="3548.0" y="1844.0" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="3548.0" y="1857.0" font-size="10" fill="#222" text-anchor="start">credit gate + strict-priority across 4</text>
-<text x="3548.0" y="1870.0" font-size="10" fill="#222" text-anchor="start">queues (802.1Q Table 8-5) · sequential</text>
-<text x="3548.0" y="1883.0" font-size="10" fill="#222" text-anchor="start">slope engine (-8K LUTs, bit-exact, config</text>
-<text x="3548.0" y="1896.0" font-size="10" fill="#222" text-anchor="start">latency 2 us) · NEVER removed (user rule)</text>
-<rect x="3550.0" y="1870.0" width="460.0" height="90.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
-<text x="3558.0" y="1905.5" font-size="10" fill="#222" text-anchor="start">CBS register file (per queue x4)</text>
-<text x="3558.0" y="1918.5" font-size="10" fill="#222" text-anchor="start">idleSlope 32b + credit/limit regs · @ 0x400 stride 0x20</text>
-<text x="3558.0" y="1931.5" font-size="10" fill="#222" text-anchor="start">reset idleSlopes {300,200,150,100} Mb/s</text>
-<rect x="4060.0" y="1750.0" width="420.0" height="220.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
-<text x="4068.0" y="1837.5" font-size="10" fill="#222" text-anchor="start">ptp_ts_top — TX timestamping</text>
-<text x="4068.0" y="1850.5" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="4068.0" y="1863.5" font-size="10" fill="#222" text-anchor="start">same 64b counter · per-frame TX</text>
-<text x="4068.0" y="1876.5" font-size="10" fill="#222" text-anchor="start">timestamp -&gt; ts window -&gt; driver</text>
-<text x="4068.0" y="1889.5" font-size="10" fill="#222" text-anchor="start">(SO_TIMESTAMPING once the PHC lands)</text>
-<rect x="4520.0" y="1750.0" width="400.0" height="220.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
-<text x="4528.0" y="1831.0" font-size="10" fill="#222" text-anchor="start">adp_tx_mux — datapath merge</text>
-<text x="4528.0" y="1844.0" font-size="10" fill="#222" text-anchor="start"></text>
-<text x="4528.0" y="1857.0" font-size="10" fill="#222" text-anchor="start">shaped data has priority; control</text>
-<text x="4528.0" y="1870.0" font-size="10" fill="#222" text-anchor="start">(ADP/AECP/ACMP) inserted in inter-</text>
-<text x="4528.0" y="1883.0" font-size="10" fill="#222" text-anchor="start">frame gaps only: zero mid-frame jitter ·</text>
-<text x="4528.0" y="1896.0" font-size="10" fill="#222" text-anchor="start">frame-atomic</text>
-<rect x="2500.0" y="2000.0" width="2420.0" height="60.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
-<text x="2508.0" y="2033.5" font-size="10" fill="#222" text-anchor="start">order on the wire: TX reader (SoC, cd_sys) -&gt; async FIFO -&gt; classifier -&gt; queues -&gt; CBS -&gt; PTP TX stamp -&gt; datapath merge -&gt; MAC -&gt; PHY  ·  all hops 64b AXIS LE k8</text>
+<rect x="3100.0" y="180.0" width="1520.0" height="1000.0" rx="8" fill="#f4eef8" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3108.0" y="197.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">SoC / softcore — LiteX, cd_sys 100 MHz</text>
+<rect x="3120.0" y="220.0" width="520.0" height="260.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3128.0" y="237.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">VexiiRiscv cluster (RV64IMA)</text>
+<rect x="3140.0" y="260.0" width="230.0" height="80.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3255.0" y="289.85" font-size="11" fill="#222" text-anchor="middle">hart 0</text>
+<text x="3255.0" y="303.85" font-size="11" fill="#222" text-anchor="middle">(lsu refill 8,</text>
+<text x="3255.0" y="317.85" font-size="11" fill="#222" text-anchor="middle">prefetch rpt)</text>
+<rect x="3390.0" y="260.0" width="230.0" height="80.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3505.0" y="290.5" font-size="10" fill="#222" text-anchor="middle">hart 1</text>
+<text x="3505.0" y="303.5" font-size="10" fill="#222" text-anchor="middle">(1-hart decision pending:</text>
+<text x="3505.0" y="316.5" font-size="10" fill="#222" text-anchor="middle">58% LUTs datapoint)</text>
+<rect x="3140.0" y="355.0" width="480.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="3148.0" y="387.0" font-size="10" fill="#222" text-anchor="start">L2 cache — 64 KB shared (l2-bytes 65536)</text>
+<text x="3148.0" y="400.0" font-size="10" fill="#222" text-anchor="start">down-pending 8 · general-slots 16 · coherent DMA lands here</text>
+<rect x="3140.0" y="430.0" width="480.0" height="40.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3380.0" y="453.5" font-size="10" fill="#222" text-anchor="middle">PLIC + CLINT — IRQs: kl-eth per-queue · milan_csr o_irq_csr · UART · timer</text>
+<rect x="3660.0" y="220.0" width="180.0" height="260.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3750.0" y="311.85" font-size="11" fill="#222" text-anchor="middle">LiteX interconnect</text>
+<text x="3750.0" y="325.85" font-size="11" fill="#222" text-anchor="middle"></text>
+<text x="3750.0" y="339.85" font-size="11" fill="#222" text-anchor="middle">Wishbone/AXI</text>
+<text x="3750.0" y="353.85" font-size="11" fill="#222" text-anchor="middle">CSR bus 32b +</text>
+<text x="3750.0" y="367.85" font-size="11" fill="#222" text-anchor="middle">coherent DMA port</text>
+<text x="3750.0" y="381.85" font-size="11" fill="#222" text-anchor="middle">into the L2</text>
+<text x="3750.0" y="395.85" font-size="11" fill="#222" text-anchor="middle">(--coherent-dma)</text>
+<rect x="3860.0" y="220.0" width="250.0" height="120.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3985.0" y="270.5" font-size="10" fill="#222" text-anchor="middle">LiteDRAM controller</text>
+<text x="3985.0" y="283.5" font-size="10" fill="#222" text-anchor="middle">A7DDRPHY (sys4x 400 + DQS 90°,</text>
+<text x="3985.0" y="296.5" font-size="10" fill="#222" text-anchor="middle">200 MHz IDELAYCTRL)</text>
+<rect x="4130.0" y="220.0" width="470.0" height="260.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
+<text x="4138.0" y="237.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">peripherals</text>
+<rect x="4150.0" y="255.0" width="240.0" height="55.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="4270.0" y="286.0" font-size="10" fill="#222" text-anchor="middle">UART 115200 (litex_term)</text>
+<rect x="4380.0" y="255.0" width="200.0" height="55.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="4480.0" y="279.5" font-size="10" fill="#222" text-anchor="middle">JTAG — openFPGALoader</text>
+<text x="4480.0" y="292.5" font-size="10" fill="#222" text-anchor="middle">ft232 210512180081</text>
+<rect x="4150.0" y="325.0" width="430.0" height="140.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="4158.0" y="372.5" font-size="10" fill="#222" text-anchor="start">QSPI flash N25Q128 16 MB (off-chip, flashboot)</text>
+<text x="4158.0" y="385.5" font-size="10" fill="#222" text-anchor="start">kernel   @ 0x00_0000  (8.5 MiB budget)</text>
+<text x="4158.0" y="398.5" font-size="10" fill="#222" text-anchor="start">opensbi  @ 0x88_0000  (512 KiB, fw_jump)</text>
+<text x="4158.0" y="411.5" font-size="10" fill="#222" text-anchor="start">dtb      @ 0x90_0000</text>
+<text x="4158.0" y="424.5" font-size="10" fill="#222" text-anchor="start">rootfs   @ 0x94_0000  (6.75 MiB)</text>
+<rect x="3120.0" y="520.0" width="720.0" height="620.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3128.0" y="537.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">kl-eth DMA engines (fabric, cd_sys, coherent port into L2)</text>
+<rect x="3140.0" y="560.0" width="360.0" height="280.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3148.0" y="651.5" font-size="10" fill="#222" text-anchor="start">TX descriptor reader + HW-TSO</text>
+<text x="3148.0" y="664.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="3148.0" y="677.5" font-size="10" fill="#222" text-anchor="start">fetches the 512x8B ring —</text>
+<text x="3148.0" y="690.5" font-size="10" fill="#222" text-anchor="start">base/length in BYTES (trap!) ·</text>
+<text x="3148.0" y="703.5" font-size="10" fill="#222" text-anchor="start">AXI bursts 16-64 beats x 64b</text>
+<text x="3148.0" y="716.5" font-size="10" fill="#222" text-anchor="start">(128-512 B) · TSO header-gen (MSS</text>
+<text x="3148.0" y="729.5" font-size="10" fill="#222" text-anchor="start">segmentation, chain-csum; TX</text>
+<text x="3148.0" y="742.5" font-size="10" fill="#222" text-anchor="start">143-&gt;186 zc) · reader-bound wall</text>
+<text x="3148.0" y="755.5" font-size="10" fill="#222" text-anchor="start">(starve 70% -&gt; prefetch next)</text>
+<rect x="3150.0" y="850.0" width="340.0" height="60.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="3158.0" y="877.0" font-size="10" fill="#222" text-anchor="start">TX staging FIFO — BRAM</text>
+<text x="3158.0" y="890.0" font-size="10" fill="#222" text-anchor="start">2048 beats x 64b = 16 KB</text>
+<rect x="3510.0" y="560.0" width="310.0" height="280.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3518.0" y="664.5" font-size="10" fill="#222" text-anchor="start">RX writer</text>
+<text x="3518.0" y="677.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="3518.0" y="690.5" font-size="10" fill="#222" text-anchor="start">RSC TCP coalescer (RING_RSC_TOUT,</text>
+<text x="3518.0" y="703.5" font-size="10" fill="#222" text-anchor="start">100 MHz ticks, default 250 us) ·</text>
+<text x="3518.0" y="716.5" font-size="10" fill="#222" text-anchor="start">header-split v3 (fill len in</text>
+<text x="3518.0" y="729.5" font-size="10" fill="#222" text-anchor="start">w0[31:16], page &lt;= 32 KB) · 4-slot</text>
+<text x="3518.0" y="742.5" font-size="10" fill="#222" text-anchor="start">writer + pop-ordered CQ</text>
+<rect x="3510.0" y="850.0" width="310.0" height="90.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3518.0" y="885.5" font-size="10" fill="#222" text-anchor="start">RX flow steer (2 queues)</text>
+<text x="3518.0" y="898.5" font-size="10" fill="#222" text-anchor="start">4-tuple hash -&gt; q0/q1 · hash_sel=1</text>
+<text x="3518.0" y="911.5" font-size="10" fill="#222" text-anchor="start">forces q0 (set BEFORE TCP runs)</text>
+<rect x="3150.0" y="930.0" width="340.0" height="100.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="3158.0" y="970.5" font-size="10" fill="#222" text-anchor="start">LiteX CSR block @ 0xf000_0000</text>
+<text x="3158.0" y="983.5" font-size="10" fill="#222" text-anchor="start">ring ctl · RSC tout · steer/hash · IRQ status</text>
+<text x="3158.0" y="996.5" font-size="10" fill="#222" text-anchor="start">offsets BUILD-DEPENDENT: read csr.json!</text>
+<rect x="3510.0" y="960.0" width="310.0" height="70.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3665.0" y="985.5" font-size="10" fill="#222" text-anchor="middle">IRQ fan-in -&gt; PLIC</text>
+<text x="3665.0" y="998.5" font-size="10" fill="#222" text-anchor="middle">per-queue RX complete + TX done</text>
+<text x="3665.0" y="1011.5" font-size="10" fill="#222" text-anchor="middle">(rx-usecs-low moderation: +32%)</text>
+<rect x="3860.0" y="520.0" width="740.0" height="620.0" rx="8" fill="#faf6fc" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3868.0" y="537.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">software (Linux on the softcore)</text>
+<rect x="3880.0" y="560.0" width="700.0" height="280.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3888.0" y="658.0" font-size="10" fill="#222" text-anchor="start">kl-eth driver (kl,dma-ether · silicon; MODULE_VERSION gates identity)</text>
+<text x="3888.0" y="671.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="3888.0" y="684.0" font-size="10" fill="#222" text-anchor="start">• 2 RX queues x threaded NAPI · RSC ON @250 us (ethtool -C rx-usecs live)</text>
+<text x="3888.0" y="697.0" font-size="10" fill="#222" text-anchor="start">• hs_pgsz=16384 &lt;-&gt; gateware --hs-page-bytes 16384 (STRICT pairing)</text>
+<text x="3888.0" y="710.0" font-size="10" fill="#222" text-anchor="start">• 4-slot RX + pop-ordered CQ · 60 KB order-4 buffers (mslot60)</text>
+<text x="3888.0" y="723.0" font-size="10" fill="#222" text-anchor="start">• HW-TSO · chain-csum · ack-merge tout 512 us</text>
+<text x="3888.0" y="736.0" font-size="10" fill="#222" text-anchor="start">• identity provisioning once/boot: devmem 0x9000_0600 (aecp_csr_setup.sh)</text>
+<text x="3888.0" y="749.0" font-size="10" fill="#222" text-anchor="start">• NEXT: PHC /dev/ptpN + SO_TIMESTAMPING (gPTP gate — HW_SW_SPLIT.md)</text>
+<rect x="3880.0" y="860.0" width="700.0" height="90.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3888.0" y="902.0" font-size="10" fill="#222" text-anchor="start">linuxptp: ptp4l (802.1AS BMCA, servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;</text>
+<text x="3888.0" y="915.0" font-size="10" fill="#222" text-anchor="start">then a small bridge writes GM id/domain -&gt; CSR 0x624/0x628 on change (fabric re-advertises + AS_PATH truth)</text>
+<rect x="3880.0" y="965.0" width="700.0" height="80.0" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="1.3"/>
+<text x="3888.0" y="1002.0" font-size="10" fill="#222" text-anchor="start">PipeWire module-avb (future media plane): crafts AAF frames -&gt; kl-eth -&gt; fabric CBS class-A queue ·</text>
+<text x="3888.0" y="1015.0" font-size="10" fill="#222" text-anchor="start">SRP/MSRP state machines · ACMP connection POLICY via mailbox (HW answers / SW decides)</text>
+<rect x="3880.0" y="1060.0" width="700.0" height="60.0" rx="8" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="3888.0" y="1093.5" font-size="10" fill="#222" text-anchor="start">validation peers (via the AVB switch): milan_controller.py · la_avdecc enum-probe (Hive&#x27;s library) · tsn-gen</text>
+<rect x="4660.0" y="180.0" width="540.0" height="660.0" rx="8" fill="#f0f7ee" stroke="#82b366" stroke-width="1.3"/>
+<text x="4668.0" y="197.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">DDR3 SDRAM — MT41K256M16 x16 · 512 MB @ 0x4000_0000 (off-chip, DDR3-800)</text>
+<rect x="4680.0" y="230.0" width="500.0" height="110.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="4688.0" y="275.5" font-size="10" fill="#222" text-anchor="start">boot images (from QSPI flashboot)</text>
+<text x="4688.0" y="288.5" font-size="10" fill="#222" text-anchor="start">kernel @ 0x4000_0000 · dtb @ 0x40EF_0000 ·</text>
+<text x="4688.0" y="301.5" font-size="10" fill="#222" text-anchor="start">opensbi fw_jump @ 0x40F0_0000 · initrd @ 0x4100_0000</text>
+<rect x="4680.0" y="360.0" width="500.0" height="90.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="4688.0" y="395.5" font-size="10" fill="#222" text-anchor="start">TX descriptor ring — 512 x 8 B = 4 KB</text>
+<text x="4688.0" y="408.5" font-size="10" fill="#222" text-anchor="start">(&gt;= 2 max-size frames; 8 frame slots) · driver-allocated</text>
+<text x="4688.0" y="421.5" font-size="10" fill="#222" text-anchor="start">descriptor: {addr, len, flags, TX ts window @ +0x3100}</text>
+<rect x="4680.0" y="470.0" width="500.0" height="130.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="4688.0" y="519.0" font-size="10" fill="#222" text-anchor="start">RX rings (per queue x2) — 4 slots x 60 pages x 16 KB = 960 KB</text>
+<text x="4688.0" y="532.0" font-size="10" fill="#222" text-anchor="start">+ completion queue 8 entries, POP-ORDERED (mslot60 &lt;-&gt;</text>
+<text x="4688.0" y="545.0" font-size="10" fill="#222" text-anchor="start">build_r2slots STRICT pairing) · header-split pages: header in</text>
+<text x="4688.0" y="558.0" font-size="10" fill="#222" text-anchor="start">slot, payload in 16 KB pages · RX ts in descriptor window</text>
+<rect x="4680.0" y="620.0" width="500.0" height="70.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="4688.0" y="652.0" font-size="10" fill="#222" text-anchor="start">any DRAM row miss costs 1424 ns (50% TLB + 50% DRAM) —</text>
+<text x="4688.0" y="665.0" font-size="10" fill="#222" text-anchor="start">the measured single-port latency ceiling</text>
+<rect x="40.0" y="640.0" width="220.0" height="420.0" rx="8" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="48.0" y="769.0" font-size="10" fill="#222" text-anchor="start">RTL8211E PHY</text>
+<text x="48.0" y="782.0" font-size="10" fill="#222" text-anchor="start">(off-chip)</text>
+<text x="48.0" y="795.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="48.0" y="808.0" font-size="10" fill="#222" text-anchor="start">GMII-strapped,</text>
+<text x="48.0" y="821.0" font-size="10" fill="#222" text-anchor="start">8-bit SDR — an RGMII</text>
+<text x="48.0" y="834.0" font-size="10" fill="#222" text-anchor="start">read corrupts every</text>
+<text x="48.0" y="847.0" font-size="10" fill="#222" text-anchor="start">byte (hardware-</text>
+<text x="48.0" y="860.0" font-size="10" fill="#222" text-anchor="start">confirmed)</text>
+<text x="48.0" y="873.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="48.0" y="886.0" font-size="10" fill="#222" text-anchor="start">1000BASE-T to the</text>
+<text x="48.0" y="899.0" font-size="10" fill="#222" text-anchor="start">AVB switch</text>
+<text x="48.0" y="912.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="48.0" y="925.0" font-size="10" fill="#222" text-anchor="start">Arty: DP83848</text>
+<text x="48.0" y="938.0" font-size="10" fill="#222" text-anchor="start">MII 10/100</text>
+<rect x="300.0" y="180.0" width="2740.0" height="2160.0" rx="8" fill="#eef4fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="308.0" y="197.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">milan_datapath — fabric, cd_milan 100 MHz (Arty: 50 MHz)  ·  ALL AXIS links: 64b tdata + 8b tkeep + tvalid/tready/tlast, LE unless marked BE</text>
+<rect x="320.0" y="230.0" width="620.0" height="500.0" rx="8" fill="#fdf3e7" stroke="#d79b00" stroke-width="1.3"/>
+<text x="328.0" y="247.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">MilanMAC (LiteEth) — eth 125 MHz island</text>
+<rect x="340.0" y="270.0" width="580.0" height="80.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="630.0" y="307.0" font-size="10" fill="#222" text-anchor="middle">LiteEthPHYGMII — gtx 125 MHz, tx_clk_invert,</text>
+<text x="630.0" y="320.0" font-size="10" fill="#222" text-anchor="middle">launch FFs IOB-packed (silicon placement rule)</text>
+<rect x="340.0" y="365.0" width="580.0" height="80.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="630.0" y="402.0" font-size="10" fill="#222" text-anchor="middle">LiteEthMACCore — preamble/SFD · CRC32 · padding ·</text>
+<text x="630.0" y="415.0" font-size="10" fill="#222" text-anchor="middle">PHY-width conversion 8b &lt;-&gt; 64b</text>
+<rect x="340.0" y="460.0" width="580.0" height="70.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="630.0" y="498.5" font-size="10" fill="#222" text-anchor="middle">dual-clock stream FIFOs — eth_rx/eth_tx 125 &lt;-&gt; cd_milan 100</text>
+<rect x="340.0" y="545.0" width="580.0" height="90.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="630.0" y="580.5" font-size="10" fill="#222" text-anchor="middle">stream &lt;-&gt; AXIS adapter</text>
+<text x="630.0" y="593.5" font-size="10" fill="#222" text-anchor="middle">last_be (one-hot) &lt;-&gt; tkeep (mask)</text>
+<text x="630.0" y="606.5" font-size="10" fill="#222" text-anchor="middle">— the M-A3 &#x27;no frame on the wire&#x27; root cause</text>
+<rect x="340.0" y="650.0" width="580.0" height="60.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="348.0" y="683.5" font-size="10" fill="#222" text-anchor="start">Arty: LiteEthPHYMII (100M) · is_1g=0 -&gt; CBS slope wiring pending</text>
+<rect x="980.0" y="230.0" width="2040.0" height="500.0" rx="8" fill="#f5f9ff" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="988.0" y="247.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">RX pipeline (post-MAC -&gt; DMA)</text>
+<rect x="1000.0" y="270.0" width="440.0" height="200.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1008.0" y="347.5" font-size="10" fill="#222" text-anchor="start">ptp_ts_top — RX timestamping</text>
+<text x="1008.0" y="360.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="1008.0" y="373.5" font-size="10" fill="#222" text-anchor="start">per-frame RX timestamp captured into</text>
+<text x="1008.0" y="386.5" font-size="10" fill="#222" text-anchor="start">the DMA descriptor ts window</text>
+<text x="1008.0" y="399.5" font-size="10" fill="#222" text-anchor="start">(dts kl,dma-ts @ +0x3100)</text>
+<rect x="1010.0" y="380.0" width="420.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1018.0" y="410.5" font-size="10" fill="#222" text-anchor="start">PTP counter + CSR regs — 64b counter FF</text>
+<text x="1018.0" y="423.5" font-size="10" fill="#222" text-anchor="start">CSR 0x500-0x544: CTRL/INCR/ADJ/TWlo·hi/</text>
+<text x="1018.0" y="436.5" font-size="10" fill="#222" text-anchor="start">OFlo·hi/CMD/TRlo·hi/ILAT/ELAT</text>
+<rect x="1500.0" y="270.0" width="460.0" height="200.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1508.0" y="347.5" font-size="10" fill="#222" text-anchor="start">rx_mac_filter — TCAM dest-MAC filter</text>
+<text x="1508.0" y="360.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="1508.0" y="373.5" font-size="10" fill="#222" text-anchor="start">ternary match · default-pass CSR bit ·</text>
+<text x="1508.0" y="386.5" font-size="10" fill="#222" text-anchor="start">miss + no-default -&gt; drop</text>
+<text x="1508.0" y="399.5" font-size="10" fill="#222" text-anchor="start">(never backpressures)</text>
+<rect x="1510.0" y="380.0" width="440.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1518.0" y="410.5" font-size="10" fill="#222" text-anchor="start">TCAM entry array — 16 x {key 48b + mask 48b</text>
+<text x="1518.0" y="423.5" font-size="10" fill="#222" text-anchor="start">+ action 8b} = 1664 b FF · programmed</text>
+<text x="1518.0" y="436.5" font-size="10" fill="#222" text-anchor="start">@ 0x700-0x718 (CTRL/K/M/ACT/CMD)</text>
+<rect x="2020.0" y="320.0" width="320.0" height="90.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="2180.0" y="354.85" font-size="11" fill="#222" text-anchor="middle" font-weight="bold">rx_axis_to_dma</text>
+<text x="2180.0" y="368.85" font-size="11" fill="#222" text-anchor="middle">THE TAP POINT (post-filter)</text>
+<text x="2180.0" y="382.85" font-size="11" fill="#222" text-anchor="middle">taps are copies — never stall</text>
+<rect x="2400.0" y="270.0" width="560.0" height="200.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="2408.0" y="354.0" font-size="10" fill="#222" text-anchor="start">ethernet_events — RMON counters</text>
+<text x="2408.0" y="367.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="2408.0" y="380.0" font-size="10" fill="#222" text-anchor="start">event capture fed by MAC pulses</text>
+<text x="2408.0" y="393.0" font-size="10" fill="#222" text-anchor="start">(rx/tx frames, CRC err, ...)</text>
+<rect x="2410.0" y="380.0" width="540.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="2418.0" y="412.0" font-size="10" fill="#222" text-anchor="start">event counters — 9 x 32b FF · RO @ 0x210-0x230</text>
+<text x="2418.0" y="425.0" font-size="10" fill="#222" text-anchor="start">(STAT0..8, stride 4)</text>
+<rect x="980.0" y="770.0" width="2040.0" height="900.0" rx="8" fill="#f5f9ff" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="988.0" y="787.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">ATDECC control plane — zero-CPU responders (ADP · AECP · ACMP)</text>
+<rect x="1000.0" y="810.0" width="660.0" height="840.0" rx="8" fill="#eef4fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1008.0" y="827.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_aecp_top — AECP/AEM entity (§5.4, la_avdecc-clean)</text>
+<rect x="1015.0" y="845.0" width="630.0" height="260.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1023.0" y="926.5" font-size="10" fill="#222" text-anchor="start">ingress MONITOR tap (registered) -&gt; packet_validator -&gt;</text>
+<text x="1023.0" y="939.5" font-size="10" fill="#222" text-anchor="start">common_parser [internal links 64b AXIS BE] -&gt; l0_state</text>
+<text x="1023.0" y="952.5" font-size="10" fill="#222" text-anchor="start">(LOCK 60 s / ACQUIRE=NOT_SUPPORTED) -&gt; response_builder</text>
+<text x="1023.0" y="965.5" font-size="10" fill="#222" text-anchor="start">(segment engine NONE/ECHO/STORE/CONST x4 · CDL = frame-26)</text>
+<text x="1023.0" y="978.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="1023.0" y="991.5" font-size="10" fill="#222" text-anchor="start">commands: READ_DESCRIPTOR · GET/SET names · config ·</text>
+<text x="1023.0" y="1004.5" font-size="10" fill="#222" text-anchor="start">sampling-rate · stream-format · GET_STREAM_INFO (56 B) ·</text>
+<text x="1023.0" y="1017.5" font-size="10" fill="#222" text-anchor="start">GET_AVB_INFO · GET_COUNTERS (136 B, full-size on errors) ·</text>
+<text x="1023.0" y="1030.5" font-size="10" fill="#222" text-anchor="start">GET_AS_PATH · MVU GET_MILAN_INFO</text>
+<rect x="1015.0" y="1120.0" width="300.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1023.0" y="1157.0" font-size="10" fill="#222" text-anchor="start">ingress frame buf</text>
+<text x="1023.0" y="1170.0" font-size="10" fill="#222" text-anchor="start">128 B LUTRAM (MAX_FRAME_BYTES)</text>
+<rect x="1340.0" y="1120.0" width="305.0" height="80.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1348.0" y="1150.5" font-size="10" fill="#222" text-anchor="start">builder working set</text>
+<text x="1348.0" y="1163.5" font-size="10" fill="#222" text-anchor="start">buf_r 64 B FF (capture) ·</text>
+<text x="1348.0" y="1176.5" font-size="10" fill="#222" text-anchor="start">const_q 64 B FF (payloads)</text>
+<rect x="1015.0" y="1215.0" width="630.0" height="190.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1023.0" y="1274.5" font-size="10" fill="#222" text-anchor="start">AEM store — BRAM 808 B (byte port 8b, addr 16b, 1-cycle latency)</text>
+<text x="1023.0" y="1287.5" font-size="10" fill="#222" text-anchor="start">directory 5 x 64b FF {type, idx, base, len}:</text>
+<text x="1023.0" y="1300.5" font-size="10" fill="#222" text-anchor="start">  ENTITY@0x000/312 · CONFIG@0x138/86 · AUDIO_UNIT@0x18E/156 ·</text>
+<text x="1023.0" y="1313.5" font-size="10" fill="#222" text-anchor="start">  STREAM_OUTPUT@0x22A/156 · AVB_INTERFACE@0x2C6/98</text>
+<text x="1023.0" y="1326.5" font-size="10" fill="#222" text-anchor="start">write-back (volatile): names @48/180/316/402/558/714 (64 B each) ·</text>
+<text x="1023.0" y="1339.5" font-size="10" fill="#222" text-anchor="start">  sampling_rate @534 (4 B) · stream_format @628 (8 B)</text>
+<text x="1023.0" y="1352.5" font-size="10" fill="#222" text-anchor="start">overlay: live CSR wins (eid, MAC, caps, avail_idx, cfg, clock_id)</text>
+<rect x="1015.0" y="1420.0" width="630.0" height="60.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1330.0" y="1453.5" font-size="10" fill="#222" text-anchor="middle">status -&gt; CSR: 0x648 {locked, cmd_count} · 0x64C {resp_count, cfg}</text>
+<rect x="1690.0" y="810.0" width="620.0" height="420.0" rx="8" fill="#eef4fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1698.0" y="827.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_acmp_responder — ACMP stateless talker (§5.5)</text>
+<rect x="1705.0" y="845.0" width="590.0" height="230.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1713.0" y="924.5" font-size="10" fill="#222" text-anchor="start">same registered-tap pattern · 70 B ACMPDU (CDL 44)</text>
+<text x="1713.0" y="937.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="1713.0" y="950.5" font-size="10" fill="#222" text-anchor="start">GET_TX_STATE -&gt; SUCCESS, count=0, stream fields zeroed,</text>
+<text x="1713.0" y="963.5" font-size="10" fill="#222" text-anchor="start">probe flags cleared (uid != 0 -&gt; TALKER_UNKNOWN_ID)</text>
+<text x="1713.0" y="976.5" font-size="10" fill="#222" text-anchor="start">GET_TX_CONNECTION -&gt; NOT_SUPPORTED (Milan 5.5.4.4)</text>
+<text x="1713.0" y="989.5" font-size="10" fill="#222" text-anchor="start">CONNECT/DISCONNECT_TX -&gt; NOT_SUPPORTED until the</text>
+<text x="1713.0" y="1002.5" font-size="10" fill="#222" text-anchor="start">softcore policy mailbox (HW answers / SW decides)</text>
+<rect x="1705.0" y="1090.0" width="280.0" height="70.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1713.0" y="1122.0" font-size="10" fill="#222" text-anchor="start">frame buf — 72 B LUTRAM</text>
+<text x="1713.0" y="1135.0" font-size="10" fill="#222" text-anchor="start">(9 beats x 8 B)</text>
+<rect x="2005.0" y="1090.0" width="290.0" height="70.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="2150.0" y="1122.0" font-size="10" fill="#222" text-anchor="middle">status -&gt; CSR 0x650</text>
+<text x="2150.0" y="1135.0" font-size="10" fill="#222" text-anchor="middle">{resp_count[31:16], cmd_count[15:0]}</text>
+<rect x="1690.0" y="1250.0" width="620.0" height="400.0" rx="8" fill="#fdf3e7" stroke="#d79b00" stroke-width="1.3"/>
+<text x="1698.0" y="1267.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">adp_advertiser — ADP (§6.2)</text>
+<rect x="1705.0" y="1285.0" width="590.0" height="230.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="1713.0" y="1371.0" font-size="10" fill="#222" text-anchor="start">82 B ADPDU (CDL 0x38) · periodic every valid_time s</text>
+<text x="1713.0" y="1384.0" font-size="10" fill="#222" text-anchor="start">(vt=31 -&gt; validity 62 s) · AVAILABLE / DEPARTING /</text>
+<text x="1713.0" y="1397.0" font-size="10" fill="#222" text-anchor="start">discover response · available_index +1 on EVERY ADPDU</text>
+<text x="1713.0" y="1410.0" font-size="10" fill="#222" text-anchor="start">(la_avdecc strict rule) · trigger priority: depart &gt;</text>
+<text x="1713.0" y="1423.0" font-size="10" fill="#222" text-anchor="start">link_up &gt; info/gm change &gt; discover &gt; timer ·</text>
+<text x="1713.0" y="1436.0" font-size="10" fill="#222" text-anchor="start">enable-edge with link already up == link_up (boot-order fix)</text>
+<rect x="1705.0" y="1530.0" width="290.0" height="60.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1713.0" y="1557.0" font-size="10" fill="#222" text-anchor="start">available_index — 32b FF</text>
+<text x="1713.0" y="1570.0" font-size="10" fill="#222" text-anchor="start">RO @ 0x644 (live counter)</text>
+<rect x="2015.0" y="1530.0" width="280.0" height="90.0" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="1.3"/>
+<text x="2155.0" y="1565.5" font-size="10" fill="#222" text-anchor="middle">identity inputs = the CSR 0x600</text>
+<text x="2155.0" y="1578.5" font-size="10" fill="#222" text-anchor="middle">group (shared with the AEM</text>
+<text x="2155.0" y="1591.5" font-size="10" fill="#222" text-anchor="middle">overlay -&gt; cannot diverge)</text>
+<rect x="2380.0" y="890.0" width="280.0" height="90.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
+<text x="2520.0" y="932.0" font-size="10" fill="#222" text-anchor="middle">aecp_acmp_mux (adp_tx_arbiter)</text>
+<text x="2520.0" y="945.0" font-size="10" fill="#222" text-anchor="middle">frame-atomic round-robin</text>
+<rect x="2380.0" y="1070.0" width="280.0" height="90.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
+<text x="2520.0" y="1105.5" font-size="10" fill="#222" text-anchor="middle">ctl_tx_mux</text>
+<text x="2520.0" y="1118.5" font-size="10" fill="#222" text-anchor="middle">ADP + (AECP|ACMP)</text>
+<text x="2520.0" y="1131.5" font-size="10" fill="#222" text-anchor="middle">frame-atomic round-robin</text>
+<rect x="2380.0" y="1250.0" width="600.0" height="400.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="2388.0" y="1362.5" font-size="10" fill="#222" text-anchor="start">milan_csr — REGISTER FILE (~46 x 32b FF)</text>
+<text x="2388.0" y="1375.5" font-size="10" fill="#222" text-anchor="start">AXI-Lite slave @ 0x9000_0000 (64 KB window, data 32b,</text>
+<text x="2388.0" y="1388.5" font-size="10" fill="#222" text-anchor="start">addr 16b) · cd_sys side, CDC into cd_milan</text>
+<text x="2388.0" y="1401.5" font-size="10" fill="#222" text-anchor="start">(cdc_pulse / cdc_handshake for strobes)</text>
+<text x="2388.0" y="1414.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="2388.0" y="1427.5" font-size="10" fill="#222" text-anchor="start">groups:</text>
+<text x="2388.0" y="1440.5" font-size="10" fill="#222" text-anchor="start">  0x000 ID/VERSION/CAP        0x108 station MAC</text>
+<text x="2388.0" y="1453.5" font-size="10" fill="#222" text-anchor="start">  0x210 RMON STAT0..8         0x300 classifier maps</text>
+<text x="2388.0" y="1466.5" font-size="10" fill="#222" text-anchor="start">  0x400 CBS slopes (x4 q)     0x500 PTP group</text>
+<text x="2388.0" y="1479.5" font-size="10" fill="#222" text-anchor="start">  0x600 ADP identity          0x640 ADP cmd/status</text>
+<text x="2388.0" y="1492.5" font-size="10" fill="#222" text-anchor="start">  0x648/0x64C AECP status     0x650 ACMP status</text>
+<text x="2388.0" y="1505.5" font-size="10" fill="#222" text-anchor="start">  0x700 TCAM programming</text>
+<text x="2388.0" y="1518.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="2388.0" y="1531.5" font-size="10" fill="#222" text-anchor="start">o_irq_csr -&gt; PLIC · identity fans out to ADP + AEM +</text>
+<text x="2388.0" y="1544.5" font-size="10" fill="#222" text-anchor="start">ACMP: ONE source of wire truth</text>
+<rect x="320.0" y="1700.0" width="2700.0" height="560.0" rx="8" fill="#f5f9ff" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="328.0" y="1717.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">TX pipeline (DMA -&gt; shaped wire; control merged in gaps)</text>
+<rect x="2300.0" y="1750.0" width="480.0" height="220.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="2308.0" y="1837.5" font-size="10" fill="#222" text-anchor="start">traffic_classifier (802.1Q)</text>
+<text x="2308.0" y="1850.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="2308.0" y="1863.5" font-size="10" fill="#222" text-anchor="start">VLAN TPID 0x8100 parse · PCP[3b] -&gt;</text>
+<text x="2308.0" y="1876.5" font-size="10" fill="#222" text-anchor="start">regen -&gt; traffic class -&gt; queue select ·</text>
+<text x="2308.0" y="1889.5" font-size="10" fill="#222" text-anchor="start">AVTP ethertype 0x22F0 -&gt; class A/B</text>
+<rect x="2310.0" y="1870.0" width="460.0" height="90.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="2318.0" y="1905.5" font-size="10" fill="#222" text-anchor="start">classifier map registers (FF)</text>
+<text x="2318.0" y="1918.5" font-size="10" fill="#222" text-anchor="start">PCP regen 8x3b · prio-&gt;TC 8x2b · TC-&gt;queue 4x2b</text>
+<text x="2318.0" y="1931.5" font-size="10" fill="#222" text-anchor="start">@ 0x300 CTRL · 0x308 MAP · 0x30C REGEN · 0x310 TCQ</text>
+<rect x="1780.0" y="1750.0" width="460.0" height="220.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1788.0" y="1831.0" font-size="10" fill="#222" text-anchor="start">traffic_queues — BRAM</text>
+<text x="1788.0" y="1844.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="1788.0" y="1857.0" font-size="10" fill="#222" text-anchor="start">4 x axis_fifo, 16 KB each</text>
+<text x="1788.0" y="1870.0" font-size="10" fill="#222" text-anchor="start">(DEPTH 16384 bytes @ 64b) = 64 KB total</text>
+<text x="1788.0" y="1883.0" font-size="10" fill="#222" text-anchor="start">per-queue depth/empty -&gt; shaper gating</text>
+<text x="1788.0" y="1896.0" font-size="10" fill="#222" text-anchor="start">(fabric-internal, no bus address)</text>
+<rect x="1260.0" y="1750.0" width="460.0" height="220.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="1268.0" y="1831.0" font-size="10" fill="#222" text-anchor="start">traffic_shaping_core + CBS</text>
+<text x="1268.0" y="1844.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="1268.0" y="1857.0" font-size="10" fill="#222" text-anchor="start">credit gate + strict-priority across 4</text>
+<text x="1268.0" y="1870.0" font-size="10" fill="#222" text-anchor="start">queues (802.1Q Table 8-5) · sequential</text>
+<text x="1268.0" y="1883.0" font-size="10" fill="#222" text-anchor="start">slope engine (-8K LUTs, bit-exact, config</text>
+<text x="1268.0" y="1896.0" font-size="10" fill="#222" text-anchor="start">latency 2 us) · NEVER removed (user rule)</text>
+<rect x="1270.0" y="1870.0" width="440.0" height="90.0" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="1.3"/>
+<text x="1278.0" y="1905.5" font-size="10" fill="#222" text-anchor="start">CBS register file (per queue x4)</text>
+<text x="1278.0" y="1918.5" font-size="10" fill="#222" text-anchor="start">idleSlope 32b + credit/limit regs · @ 0x400 stride 0x20</text>
+<text x="1278.0" y="1931.5" font-size="10" fill="#222" text-anchor="start">reset idleSlopes {300,200,150,100} Mb/s</text>
+<rect x="800.0" y="1750.0" width="400.0" height="220.0" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.3"/>
+<text x="808.0" y="1837.5" font-size="10" fill="#222" text-anchor="start">ptp_ts_top — TX timestamping</text>
+<text x="808.0" y="1850.5" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="808.0" y="1863.5" font-size="10" fill="#222" text-anchor="start">same 64b counter · per-frame TX</text>
+<text x="808.0" y="1876.5" font-size="10" fill="#222" text-anchor="start">timestamp -&gt; ts window -&gt; driver</text>
+<text x="808.0" y="1889.5" font-size="10" fill="#222" text-anchor="start">(SO_TIMESTAMPING once the PHC lands)</text>
+<rect x="340.0" y="1750.0" width="400.0" height="220.0" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="1.3"/>
+<text x="348.0" y="1831.0" font-size="10" fill="#222" text-anchor="start">adp_tx_mux — datapath merge</text>
+<text x="348.0" y="1844.0" font-size="10" fill="#222" text-anchor="start"></text>
+<text x="348.0" y="1857.0" font-size="10" fill="#222" text-anchor="start">shaped data has priority; control</text>
+<text x="348.0" y="1870.0" font-size="10" fill="#222" text-anchor="start">(ADP/AECP/ACMP) inserted in inter-</text>
+<text x="348.0" y="1883.0" font-size="10" fill="#222" text-anchor="start">frame gaps only: zero mid-frame jitter ·</text>
+<text x="348.0" y="1896.0" font-size="10" fill="#222" text-anchor="start">frame-atomic</text>
+<rect x="340.0" y="2000.0" width="2420.0" height="60.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="348.0" y="2033.5" font-size="10" fill="#222" text-anchor="start">TX lane flows RIGHT -&gt; LEFT (back to the wire): TX reader (SoC) -&gt; classifier -&gt; queues -&gt; CBS -&gt; PTP TX stamp -&gt; datapath merge -&gt; MAC -&gt; PHY · all hops 64b AXIS LE k8</text>
 <rect x="40.0" y="2400.0" width="1700.0" height="24.0" rx="0" fill="#e8e8e8" stroke="#666666" stroke-width="1.3"/>
 <text x="890.0" y="2416.2" font-size="12" fill="#222" text-anchor="middle" font-weight="bold">control-plane frame formats (wire offsets)</text>
 <rect x="40.0" y="2424.0" width="1700.0" height="124.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
@@ -346,100 +358,100 @@
 <text x="3528.0" y="2459.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">CBS slope wiring pending · keeper build_arty_v7 (WNS +0.018) · QSPI S25FL128S (1-1-1 0x03 reads)</text>
 <text x="3528.0" y="2472.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">boot: flashboot full set (opensbi_arty: 2 harts, timer 83333000, arty dtb embedded)</text>
 <text x="3528.0" y="2485.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">driver pairing: insmod kl-eth hs_pgsz=16384 rsc_clk_mhz=50 · two-node ADP discovery VERIFIED</text>
-<path d="M580.0,350.0 L620.0,350.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="555.7" y="338.0" width="88.60000000000001" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="600.0" y="350.0" font-size="10" fill="#444" text-anchor="middle">ibus/dbus 64b</text>
-<path d="M830.0,350.0 L850.0,350.0 L850.0,280.0 L870.0,280.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="815.0" y="303.0" width="70.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="850.0" y="315.0" font-size="10" fill="#444" text-anchor="middle">membus 64b</text>
-<path d="M1150.0,280.0 L1465.0,280.0 L1465.0,510.0 L1780.0,510.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="1364.9" y="383.0" width="200.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1465.0" y="395.0" font-size="10" fill="#444" text-anchor="middle">DDR3 x16 @ 400 MHz (DQ 16b DDR)</text>
-<path d="M725.0,480.0 L587.5,480.0 L587.5,520.0 L450.0,520.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="475.0" y="488.0" width="225.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="587.5" y="500.0" font-size="10" fill="#444" text-anchor="middle">CSR 32b · coherent DMA 64b (via L2)</text>
-<path d="M440.0,700.0 L1120.0,700.0 L1120.0,405.0 L1800.0,405.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="1013.7" y="540.5" width="212.6" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1120.0" y="552.5" font-size="10" fill="#444" text-anchor="middle">AXI reads 64b, bursts 16-64 beats</text>
-<path d="M820.0,700.0 L1310.0,700.0 L1310.0,535.0 L1800.0,535.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="1262.6" y="605.5" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1310.0" y="617.5" font-size="10" fill="#444" text-anchor="middle">AXI writes 64b</text>
-<path d="M880.0,700.0 L655.0,700.0 L655.0,980.0 L430.0,980.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="576.6" y="828.0" width="156.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="655.0" y="840.0" font-size="10" fill="#444" text-anchor="middle">ring ctl / doorbells 32b</text>
-<path d="M640.0,960.0 L480.0,960.0 L480.0,470.0 L320.0,470.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="448.1" y="703.0" width="63.800000000000004" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="480.0" y="715.0" font-size="10" fill="#444" text-anchor="middle">irq lines</text>
-<path d="M260.0,840.0 L260.0,850.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="246.7" y="833.0" width="26.6" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="260.0" y="845.0" font-size="10" fill="#444" text-anchor="middle">64b</text>
-<path d="M830.0,350.0 L2685.0,350.0 L2685.0,1450.0 L4540.0,1450.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="2606.6" y="888.0" width="156.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2685.0" y="900.0" font-size="10" fill="#444" text-anchor="middle">AXI-Lite 32b @ sys (CDC)</text>
-<path d="M2400.0,960.0 L2440.0,960.0 L2440.0,480.0 L2480.0,480.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="2395.7" y="708.0" width="88.60000000000001" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2440.0" y="720.0" font-size="10" fill="#444" text-anchor="middle">GMII 8b @ 125</text>
-<path d="M3100.0,480.0 L3130.0,480.0 L3130.0,370.0 L3160.0,370.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="3082.6" y="413.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3130.0" y="425.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
-<path d="M3600.0,370.0 L3660.0,370.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="3582.6" y="358.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3630.0" y="370.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
-<path d="M4120.0,370.0 L4180.0,365.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4102.6" y="355.5" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4150.0" y="367.5" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
-<path d="M4180.0,365.0 L2500.0,365.0 L2500.0,700.0 L820.0,700.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="2381.3" y="520.5" width="237.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2500.0" y="532.5" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8 (async FIFO -&gt; cd_sys)</text>
-<path d="M3100.0,480.0 L3830.0,480.0 L3830.0,370.0 L4560.0,370.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="3764.0" y="413.0" width="132.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3830.0" y="425.0" font-size="10" fill="#444" text-anchor="middle">event pulses 1b each</text>
-<path d="M4340.0,410.0 L3915.0,410.0 L3915.0,810.0 L3490.0,810.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="3858.3" y="598.0" width="113.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3915.0" y="610.0" font-size="10" fill="#444" text-anchor="middle">tap (copy) 64b LE</text>
-<path d="M4340.0,410.0 L4250.0,410.0 L4250.0,810.0 L4160.0,810.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="4193.3" y="598.0" width="113.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4250.0" y="610.0" font-size="10" fill="#444" text-anchor="middle">tap (copy) 64b LE</text>
-<path d="M3820.0,1230.0 L3835.0,1230.0 L3835.0,1450.0 L3850.0,1450.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="3756.6" y="1328.0" width="156.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3835.0" y="1340.0" font-size="10" fill="#444" text-anchor="middle">ENTITY_DISCOVER pulse 1b</text>
-<path d="M3820.0,1230.0 L4180.0,1230.0 L4180.0,935.0 L4540.0,935.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4126.4" y="1070.5" width="107.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4180.0" y="1082.5" font-size="10" fill="#444" text-anchor="middle">resp 64b AXIS LE</text>
-<path d="M4470.0,1020.0 L4505.0,1020.0 L4505.0,935.0 L4540.0,935.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4451.4" y="965.5" width="107.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4505.0" y="977.5" font-size="10" fill="#444" text-anchor="middle">resp 64b AXIS LE</text>
-<path d="M4680.0,980.0 L4680.0,1070.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4641.9" y="1013.0" width="76.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4680.0" y="1025.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE</text>
-<path d="M4470.0,1450.0 L4505.0,1450.0 L4505.0,1115.0 L4540.0,1115.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4435.9" y="1270.5" width="138.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4505.0" y="1282.5" font-size="10" fill="#444" text-anchor="middle">advertise 64b AXIS LE</text>
-<path d="M4680.0,1160.0 L4700.0,1160.0 L4700.0,1750.0 L4720.0,1750.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4596.8" y="1443.0" width="206.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4700.0" y="1455.0" font-size="10" fill="#444" text-anchor="middle">control 64b AXIS LE (IFG insert)</text>
-<path d="M4540.0,1450.0 L4497.5,1450.0 L4497.5,1575.0 L4455.0,1575.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
-<rect x="4428.4" y="1500.5" width="138.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4497.5" y="1512.5" font-size="10" fill="#444" text-anchor="middle">identity fields (CDC)</text>
-<path d="M440.0,700.0 L1470.0,700.0 L1470.0,1860.0 L2500.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="1345.1" y="1268.0" width="249.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="1470.0" y="1280.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8 (async FIFO -&gt; cd_milan)</text>
-<path d="M2980.0,1860.0 L3020.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="2918.5" y="1848.0" width="163.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3000.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8 + queue 2b</text>
-<path d="M3500.0,1860.0 L3540.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="3469.5" y="1848.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3520.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">4 x 64b AXIS LE</text>
-<path d="M4020.0,1860.0 L4060.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="3992.6" y="1848.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4040.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
-<path d="M4480.0,1860.0 L4520.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="4452.6" y="1848.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="4500.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
-<path d="M4520.0,1860.0 L3810.0,1860.0 L3810.0,480.0 L3100.0,480.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="3762.6" y="1158.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="3810.0" y="1170.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
-<path d="M2480.0,480.0 L2440.0,480.0 L2440.0,960.0 L2400.0,960.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
-<rect x="2349.2" y="708.0" width="181.6" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
-<text x="2440.0" y="720.0" font-size="10" fill="#444" text-anchor="middle">GMII 8b @ 125 (gtx, IOB FFs)</text>
+<path d="M3640.0,350.0 L3660.0,350.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="3605.7" y="338.0" width="88.60000000000001" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3650.0" y="350.0" font-size="10" fill="#444" text-anchor="middle">ibus/dbus 64b</text>
+<path d="M3840.0,350.0 L3850.0,350.0 L3850.0,280.0 L3860.0,280.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="3815.0" y="303.0" width="70.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3850.0" y="315.0" font-size="10" fill="#444" text-anchor="middle">membus 64b</text>
+<path d="M4110.0,280.0 L4385.0,280.0 L4385.0,510.0 L4660.0,510.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="4284.9" y="383.0" width="200.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="4385.0" y="395.0" font-size="10" fill="#444" text-anchor="middle">DDR3 x16 @ 400 MHz (DQ 16b DDR)</text>
+<path d="M3480.0,520.0 L3615.0,520.0 L3615.0,480.0 L3750.0,480.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="3533.5" y="488.0" width="163.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3615.0" y="500.0" font-size="10" fill="#444" text-anchor="middle">coherent DMA 64b (via L2)</text>
+<path d="M3750.0,480.0 L3615.0,480.0 L3615.0,520.0 L3480.0,520.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="3589.3" y="488.0" width="51.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3615.0" y="500.0" font-size="10" fill="#444" text-anchor="middle">CSR 32b</text>
+<path d="M4680.0,405.0 L4090.0,405.0 L4090.0,700.0 L3500.0,700.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="3983.7" y="540.5" width="212.6" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="4090.0" y="552.5" font-size="10" fill="#444" text-anchor="middle">AXI reads 64b, bursts 16-64 beats</text>
+<path d="M3820.0,700.0 L4250.0,700.0 L4250.0,535.0 L4680.0,535.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="4202.6" y="605.5" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="4250.0" y="617.5" font-size="10" fill="#444" text-anchor="middle">AXI writes 64b</text>
+<path d="M3880.0,700.0 L3685.0,700.0 L3685.0,980.0 L3490.0,980.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="3606.6" y="828.0" width="156.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3685.0" y="840.0" font-size="10" fill="#444" text-anchor="middle">ring ctl / doorbells 32b</text>
+<path d="M3665.0,960.0 L3522.5,960.0 L3522.5,470.0 L3380.0,470.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="3490.6" y="703.0" width="63.800000000000004" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3522.5" y="715.0" font-size="10" fill="#444" text-anchor="middle">irq lines</text>
+<path d="M3750.0,480.0 L3215.0,480.0 L3215.0,1250.0 L2680.0,1250.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="3136.6" y="853.0" width="156.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="3215.0" y="865.0" font-size="10" fill="#444" text-anchor="middle">AXI-Lite 32b @ sys (CDC)</text>
+<path d="M260.0,850.0 L290.0,850.0 L290.0,480.0 L320.0,480.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="217.8" y="653.0" width="144.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="290.0" y="665.0" font-size="10" fill="#444" text-anchor="middle">GMII 8b @ 125 (rx_clk)</text>
+<path d="M940.0,480.0 L970.0,480.0 L970.0,370.0 L1000.0,370.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="922.6" y="413.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="970.0" y="425.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
+<path d="M1440.0,370.0 L1500.0,370.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1422.6" y="358.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1470.0" y="370.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
+<path d="M1960.0,370.0 L2020.0,365.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1942.6" y="355.5" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1990.0" y="367.5" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
+<path d="M2340.0,365.0 L2925.0,365.0 L2925.0,700.0 L3510.0,700.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2806.3" y="520.5" width="237.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2925.0" y="532.5" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8 (async FIFO -&gt; cd_sys)</text>
+<path d="M940.0,480.0 L1670.0,480.0 L1670.0,370.0 L2400.0,370.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="1604.0" y="413.0" width="132.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1670.0" y="425.0" font-size="10" fill="#444" text-anchor="middle">event pulses 1b each</text>
+<path d="M2180.0,410.0 L1755.0,410.0 L1755.0,810.0 L1330.0,810.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1698.3" y="598.0" width="113.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1755.0" y="610.0" font-size="10" fill="#444" text-anchor="middle">tap (copy) 64b LE</text>
+<path d="M2180.0,410.0 L2090.0,410.0 L2090.0,810.0 L2000.0,810.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2033.3" y="598.0" width="113.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2090.0" y="610.0" font-size="10" fill="#444" text-anchor="middle">tap (copy) 64b LE</text>
+<path d="M1660.0,1230.0 L1675.0,1230.0 L1675.0,1450.0 L1690.0,1450.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="1596.6" y="1328.0" width="156.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1675.0" y="1340.0" font-size="10" fill="#444" text-anchor="middle">ENTITY_DISCOVER pulse 1b</text>
+<path d="M1660.0,1230.0 L2020.0,1230.0 L2020.0,935.0 L2380.0,935.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1966.4" y="1070.5" width="107.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2020.0" y="1082.5" font-size="10" fill="#444" text-anchor="middle">resp 64b AXIS LE</text>
+<path d="M2310.0,1020.0 L2345.0,1020.0 L2345.0,935.0 L2380.0,935.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2291.4" y="965.5" width="107.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2345.0" y="977.5" font-size="10" fill="#444" text-anchor="middle">resp 64b AXIS LE</text>
+<path d="M2520.0,980.0 L2520.0,1070.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2481.9" y="1013.0" width="76.2" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2520.0" y="1025.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE</text>
+<path d="M2310.0,1450.0 L2345.0,1450.0 L2345.0,1115.0 L2380.0,1115.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2275.9" y="1270.5" width="138.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2345.0" y="1282.5" font-size="10" fill="#444" text-anchor="middle">advertise 64b AXIS LE</text>
+<path d="M2380.0,1115.0 L1560.0,1115.0 L1560.0,1860.0 L740.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1456.8" y="1475.5" width="206.4" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1560.0" y="1487.5" font-size="10" fill="#444" text-anchor="middle">control 64b AXIS LE (IFG insert)</text>
+<path d="M2380.0,1450.0 L2337.5,1450.0 L2337.5,1575.0 L2295.0,1575.0" fill="none" stroke="#999" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arro)"/>
+<rect x="2268.4" y="1500.5" width="138.20000000000002" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2337.5" y="1512.5" font-size="10" fill="#444" text-anchor="middle">identity fields (CDC)</text>
+<path d="M3320.0,840.0 L2930.0,840.0 L2930.0,1750.0 L2540.0,1750.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2805.1" y="1283.0" width="249.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2930.0" y="1295.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8 (async FIFO -&gt; cd_milan)</text>
+<path d="M2300.0,1860.0 L2240.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="2188.5" y="1848.0" width="163.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="2270.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8 + queue 2b</text>
+<path d="M1780.0,1860.0 L1720.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1699.5" y="1848.0" width="101.0" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1750.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">4 x 64b AXIS LE</text>
+<path d="M1260.0,1860.0 L1200.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="1182.6" y="1848.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="1230.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
+<path d="M800.0,1860.0 L740.0,1860.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="722.6" y="1848.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="770.0" y="1860.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
+<path d="M540.0,1750.0 L585.0,1750.0 L585.0,730.0 L630.0,730.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="537.6" y="1228.0" width="94.8" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="585.0" y="1240.0" font-size="10" fill="#444" text-anchor="middle">64b AXIS LE k8</text>
+<path d="M320.0,480.0 L290.0,480.0 L290.0,850.0 L260.0,850.0" fill="none" stroke="#333" stroke-width="1.3" marker-end="url(#arr)"/>
+<rect x="199.2" y="653.0" width="181.6" height="15" fill="#ffffff" fill-opacity="0.92" stroke="none"/>
+<text x="290.0" y="665.0" font-size="10" fill="#444" text-anchor="middle">GMII 8b @ 125 (gtx, IOB FFs)</text>
 </svg>
