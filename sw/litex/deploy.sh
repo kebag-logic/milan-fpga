@@ -89,7 +89,16 @@ do_flash_images() {
                 # gateware slot: flashed via `deploy.sh flash` (native -f, raw
                 # config stream, NOT fbi-wrapped) — skip it here
                 echo "[deploy]   bitstream slot @ 0x$(printf %06x "$off") (flash via 'deploy.sh flash')"; continue ;;
-            kernel)  src="${KERNEL:-}" ;;
+            kernel)
+                src="${KERNEL:-}"
+                # layout v3: the kernel slot expects the kernel build's
+                # Image.xz (plain LZMA2; xz_embedded needs --check=crc32).
+                # Given a raw Image, compress it here.
+                if [ -n "$src" ] && [ -f "$src" ] &&                    [ "$(head -c6 "$src" | od -An -tx1 | tr -d ' \n')" != "fd377a585a00" ]; then
+                    echo "[deploy]   kernel: raw Image -> xz -9 --check=crc32 (slot expects Image.xz)"
+                    xz -9 --check=crc32 -T0 -c "$src" > "$tmp/Image.xz"
+                    src="$tmp/Image.xz"
+                fi ;;
             opensbi) src="${OPENSBI:-}" ;;
             dtb)     src="${DTB:-}" ;;
             rootfs)  src="${ROOTFS:-}" ;;
