@@ -85,14 +85,14 @@ FLASHBOOT_LAYOUT = {
     # --check=crc32) and the BIOS decompresses it with the vendored
     # xz_embedded (patch 0003; staged at kernel_addr+24 MB, 64 KB arena at
     # +28 MB, byte-identical decode host-proven). Budgets: bit ~2.0-2.3 MiB
-    # in 2.25; Image.xz 2.52 MB in 3.5; fw_jump 261 KB in 384 KiB; rootfs
-    # gets 9.75 MiB (5.6 actual — 4 MiB slack, no slimming pressure).
+    # Image.xz 2.52 MB in 3; fw_jump 261 KB in 384 KiB; rootfs
+    # gets 8.5 MiB (5.6 actual — 2.9 MiB slack).
     # BIOS copies only the manifest images; the bitstream is config-read.
-    "bitstream": {"offset": 0x00_0000, "addr": 0x0},        # 2.25 MiB gateware slot
-    "kernel":  {"offset": 0x24_0000, "addr": 0x4000_0000},  # 3.5 MiB (Image.xz)
-    "opensbi": {"offset": 0x5C_0000, "addr": 0x40F0_0000},  # 384 KiB (fw_jump + FBI)
-    "dtb":     {"offset": 0x62_0000, "addr": 0x40EF_0000},  # 128 KiB
-    "rootfs":  {"offset": 0x64_0000, "addr": 0x4100_0000},  # 9.75 MiB → ends 16 MiB
+    "bitstream": {"offset": 0x00_0000, "addr": 0x0},        # 4 MiB gateware slot
+    "kernel":  {"offset": 0x40_0000, "addr": 0x4000_0000},  # 3 MiB (Image.xz)
+    "opensbi": {"offset": 0x70_0000, "addr": 0x40F0_0000},  # 384 KiB (fw_jump + FBI)
+    "dtb":     {"offset": 0x76_0000, "addr": 0x40EF_0000},  # 128 KiB
+    "rootfs":  {"offset": 0x78_0000, "addr": 0x4100_0000},  # 8.5 MiB → ends 16 MiB
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
