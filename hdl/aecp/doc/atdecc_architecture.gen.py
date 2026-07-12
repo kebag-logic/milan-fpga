@@ -109,7 +109,7 @@ box("csr_st", 665, 995, 210, 60, "0x648 / 0x64C  AECP status (RO)\nlocked · cmd
 
 box("v_cosim", 925, 920, 440, 42, "tsn-gen ↔ Verilator co-sim (Vaecp_cosim)\nreal RTL over AxiStreamBeat socket — 42/42", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
 box("v_la", 925, 972, 440, 42, "la_avdecc probe (Hive's library) on pw0\nfull enumeration; strict payload-size checks", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
-box("v_ctl", 925, 1024, 440, 36, "avdecc/milan_controller.py (peer, on silicon)\n+ tb/verilator/aecp 68/68 · Yosys 19/19", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
+box("v_ctl", 925, 1024, 440, 36, "avdecc/milan_controller.py 31/31 on silicon · la_avdecc\nMilan=1 CLEAN · tb aecp 68/68 + acmp 41/41 · Yosys 20/20", fill="#d5e8d4", stroke="#82b366", font=9, align="left")
 
 edge("e1", "mac_rx", "ingress", "tap (copy)")
 edge("e1b", "mac_rx", "dma", "", dashed=1)

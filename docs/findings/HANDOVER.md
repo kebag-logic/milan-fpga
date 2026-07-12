@@ -112,15 +112,14 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 ## 3. Live states
 
 **Boards**
-- AX7101: **build_ax7101_eto_aecp7 in SRAM (NEW KEEPER, 2026-07-12)** = the
-  full la_avdecc-clean AECP entity (STREAM_INFO 56 B, caps 0x8588, every-send
-  available_index, GET_COUNTERS, GET_AS_PATH) + flattened-interface RTL.
-  Sweep: eto +0.091 (keeper) / asl +0.048 / eppo -0.098 (FAILS, discard).
-  IP .1 up, identity programmed + ADP enabled (EID 02:00:00:ff:fe:00:00:01),
-  **controller 26/26 + la_avdecc IEEE17221=1 zero-AEM-complaints verified on
-  BOTH asl and eto bits**. QSPI still holds the adp2-era image set
-  (gateware-independent). Fallbacks: eppo_aecp6 (+0.176, no AS_PATH),
-  eto_aecp2 (+0.186, r1-era), adp2 (+0.102, AECP-less).
+- AX7101: **build_ax7101_eto_acmp2 in SRAM (THE KEEPER, 2026-07-12)** = the
+  COMPLETE Milan v1.2 control plane: la_avdecc-clean AECP + the ACMP
+  stateless responder (CSR 0x650). Sweep: eto +0.096 (keeper) / eppo +0.055
+  / asl +0.041 — all meet timing. IP .1 up, identity programmed + enabled
+  (EID 02:00:00:ff:fe:00:00:01), **controller 31/31 + la_avdecc Milan=1
+  verdict CLEAN on silicon**. QSPI still holds the adp2-era image set
+  (gateware-independent). Fallbacks: eto_aecp7 (+0.091, AECP-clean/no ACMP),
+  eppo_aecp6 (+0.176), adp2 (+0.102, AECP-less).
   hsplit16 hsplit=2 hs_pgsz=16384 as before.
 - Arty A7-100: build_arty_v7 in SRAM (flashboot gateware, WNS +0.018,
   sys 83.333/datapath 50, S25FL128S 1x 0x03 reads). QSPI holds
@@ -158,7 +157,8 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 **Builds worth keeping**
 | Build | What | Numbers |
 |---|---|---|
-| build_ax7101_eto_aecp7 | THE AX7101 keeper (la_avdecc-clean AECP) | WNS +0.091 (asl +0.048 backup; eppo -0.098 FAILS) |
+| build_ax7101_eto_acmp2 | THE AX7101 keeper (Milan=1 CLEAN control plane) | WNS +0.096 (eppo +0.055 / asl +0.041 backups) |
+| build_ax7101_eto_aecp7 | AECP-clean fallback (no ACMP) | WNS +0.091 |
 | build_ax7101_adp2 | AECP-less fallback (area+ADP) | WNS +0.102, 70.1 pct LUTs, BRAM 83.3 pct |
 | build_arty_v7 | THE Arty keeper (flashboot) | WNS +0.018 |
 | build_1hart_epo | 1-hart decision datapoint | 58 pct LUTs / 68.5 pct BRAM / 80.9 pct slices |
@@ -201,29 +201,41 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
    cells) + full milan_datapath** (needed: flatten internal AXIS interface
    links — sv2v v0.0.13 renders interface members of non-top modules as
    top-absolute hierarchical paths; also ifndef-SYNTHESIS the parser $error).
-   Silicon verdicts: aecp6 (eppo +0.176) cleared the r2 items (controller
-   24/24). **aecp7 (eto +0.091 keeper; asl +0.048 also validated): 26/26 incl.
-   AS_PATH on the wire; la_avdecc = entity ONLINE, fully enumerated,
-   IEEE17221=1, MISBEHAVING=0, ZERO AECP/AEM complaints — every Milan 5.4.4
-   mandatory item answered.** The one residual Milan complaint moved to a
-   DIFFERENT protocol: 'Milan 1.3 - 5.5 ACMP GET_TX_STATE' — we have no ACMP
-   engine; that is the next increment (a stateless talker responder:
-   subtype 0xFC, GET_TX_STATE/GET_TX_CONNECTION RESPONSE with
-   connection_count=0 would satisfy it while connections stay out of scope).
-   RUNBOOK: JTAG-load the aecp7 best-WNS bit -> board: dmesg -n 1; eth0 up
-   .1; avdecc/aecp_csr_setup.sh devmem sequence (caps 0x8588) -> peer:
-   `sudo python3 /tmp/milan_controller.py enp6s0` (expect 26/26) and
-   `sudo ~/la_avdecc_work/enum-probe enp6s0 40` (expect IEEE17221=1 and
-   exactly one complaint: ACMP GET_TX_STATE timeouts; Milan=1 once the ACMP
-   responder ships). Deferred: ACMP responder (the Milan=1 gate), NV
-   persistence of SET_*, unsolicited push, HW counter values, audio maps.
-3. **Slices <70 pct**: the 1-hart user decision (numbers in the table
+   Silicon verdicts: aecp6 cleared r2 (24/24); aecp7 cleared AECP entirely
+   (26/26, zero AEM complaints, ACMP the sole gap). **acmp2 (2026-07-12,
+   eto +0.096 = THE KEEPER): the KL_acmp_responder (stateless talker, §5.5:
+   GET_TX_STATE->SUCCESS/count=0; GET_TX_CONNECTION + CONNECT/DISCONNECT_TX
+   -> NOT_SUPPORTED until the SW policy mailbox) closed the campaign —
+   controller 31/31 and la_avdecc: entity ONLINE, IEEE17221=1, **Milan=1,
+   verdict CLEAN, zero complaints, zero warnings**. Counters after the run:
+   ACMP 4 cmd/4 resp (0x650), AECP 33/33 (0x648/64C), avail_idx 5 —
+   fully coherent.** The 5-descriptor Milan v1.2 entity is DONE and
+   Hive-clean end to end (ADP + AECP/AEM + ACMP, all zero-CPU in fabric).
+   RUNBOOK: JTAG-load eto_acmp2 -> board: dmesg -n 1; eth0 up .1;
+   avdecc/aecp_csr_setup.sh devmem sequence (caps 0x8588) -> peer:
+   `sudo python3 /tmp/milan_controller.py enp6s0` (31/31) and
+   `sudo ~/la_avdecc_work/enum-probe enp6s0 40` (Milan=1 CLEAN).
+   Deferred: ACMP connection POLICY (softcore mailbox + fabric table =
+   Milan PROBE_TX/fast-connect), unsolicited push, NV persistence of SET_*,
+   HW counter values, audio maps, the listener half (STREAM_INPUT/CRF).
+3. **NEXT (user directive 2026-07-12): gPTP — linuxptp on the Arty+Milan
+   pair.** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
+   counter — the 0x500 CSR group ALREADY has INCR/ADJ discipline hooks, and
+   RX/TX timestamps already land in the descriptor ts windows (@ +0x3100);
+   wire SO_TIMESTAMPING to them. (b) two-node ptp4l through the AVB switch
+   (AX7101 <-> Arty; Arty datapath 50 MHz — tick arithmetic differs, rrsc
+   pattern applies), gate on offset/pathDelay convergence. (c) the small
+   GM->CSR bridge (0x624/0x628 on GM change) so ADP re-advertises and
+   AS_PATH/AVB_INFO report live gPTP truth. Delimitation:
+   docs/ARCHITECTURE_HW_SW_SPLIT.md (protocol=softcore, timestamps+clock=
+   fabric).
+4. **Slices <70 pct**: the 1-hart user decision (numbers in the table
    above; retires the 2-hart NAPI pipeline that holds RX 381/374).
-4. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
+5. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
    cell-recipe gap vs the 525-era scoreboard + the recurring TX mid-flow
    stall (~20-30 s dead air; sweep napi_w/hsplit/rsc on the keeper).
-5. AF_XDP ZC driver = the remaining RX>500 lane (campaign-scale).
-6. Arty polish: is_1g=0 driver wiring (CBS 100M slopes), WNS margin
+6. AF_XDP ZC driver = the remaining RX>500 lane (campaign-scale).
+7. Arty polish: is_1g=0 driver wiring (CBS 100M slopes), WNS margin
    (+0.018 is thin  -  sweep directives when it matters), S25FL128S image
    staging is JTAG-slow (~4 min full set  -  fine at this cadence).
 
