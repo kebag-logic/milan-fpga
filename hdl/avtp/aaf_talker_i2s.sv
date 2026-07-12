@@ -60,8 +60,9 @@ module aaf_talker_i2s #(
     output logic        m_axis_tlast,
     input  wire         m_axis_tready,
 
-    // ---- status ----------------------------------------------------------
-    output reg  [31:0]  frames_sent_o
+    // ---- status (Linux-observable via CSR) --------------------------------
+    output reg  [31:0]  frames_sent_o,     //! AAF frames completed on the AXIS master
+    output reg  [31:0]  pairs_captured_o   //! I2S L+R sample pairs captured (liveness)
 );
 
   localparam int SAMPLES_PER_FRAME = 6;       //! per channel (Milan 48k class A)
@@ -185,11 +186,12 @@ module aaf_talker_i2s #(
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
       st_r <= IDLE_S; beat_r <= '0; nsamp_r <= '0; seq_r <= '0;
-      ts_r <= '0; frame_pend_r <= 1'b0; frames_sent_o <= '0;
+      ts_r <= '0; frame_pend_r <= 1'b0; frames_sent_o <= '0; pairs_captured_o <= '0;
       for (int i = 0; i < SAMPLES_PER_FRAME; i++) begin
         buf_l[i] <= '0; buf_r[i] <= '0;
       end
     end else begin
+      if (pair_valid_r) pairs_captured_o <= pairs_captured_o + 1'b1; //! counts even while pending (I2S is alive?)
       // accumulate pairs (drop if a frame is still pending — MVP backpressure)
       if (enable_i && pair_valid_r && !frame_pend_r) begin
         buf_l[nsamp_r] <= sample_l_r;

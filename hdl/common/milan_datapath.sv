@@ -161,7 +161,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
     .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
     .m_axis_tready(aaf_tx_tready),
-    .frames_sent_o (aaf_frames_w)
+    .frames_sent_o (aaf_frames_w), .pairs_captured_o (aaf_pairs_w)
   );
   // arbiter out -> MAC-facing TX
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
@@ -252,7 +252,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [47:0]              cfg_aaf_dmac;
   wire [11:0]              cfg_aaf_vid;
   wire [63:0]              ptp_now_w;
-  wire [31:0]              aaf_frames_w;
+  wire [31:0]              aaf_frames_w, aaf_pairs_w;
   wire [TDATA_WIDTH-1:0]   aaf_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] aaf_tx_tkeep;
   wire                     aaf_tx_tvalid, aaf_tx_tlast, aaf_tx_tready;
@@ -400,6 +400,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_aaf_enable         (cfg_aaf_enable),
     .o_aaf_dest_mac       (cfg_aaf_dmac),
     .o_aaf_vid            (cfg_aaf_vid),
+    .i_aaf_frames         (aaf_frames_w),
+    .i_aaf_pairs          (aaf_pairs_w),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),

@@ -398,6 +398,8 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_aaf_enable         (cfg_aaf_enable),
     .o_aaf_dest_mac       (cfg_aaf_dmac),
     .o_aaf_vid            (cfg_aaf_vid),
+    .i_aaf_frames         (32'h0),
+    .i_aaf_pairs          (32'h0),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
