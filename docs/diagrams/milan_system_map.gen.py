@@ -275,7 +275,7 @@ box("pw", 15, 465, 1490, 110,
 box("qspihdr", 15, 595, 1490, 24, "QSPI flash N25Q128 16 MB (off-chip, flashboot slots):",
     fill="#faf6fc", stroke=SYS[1], font=9, align="left", parent="c_drv")
 rows("r_qspi", 15, 619, 1490, [
- "kernel @ 0x00_0000 (8.5 MiB) · opensbi @ 0x88_0000 (512 KiB) · dtb @ 0x90_0000 · rootfs @ 0x94_0000 (6.75 MiB)",
+ "FLASHED v1: kernel@0 · opensbi@0x88_0000 · dtb@0x90_0000 · rootfs@0x94_0000 — STAGED v2: BITSTREAM@0 (2.25MiB) + shifted images (QSPI_FLASHBOOT.md)",
  "validation peers via the AVB switch: milan_controller.py · la_avdecc enum-probe (Hive) · tsn-gen",
 ], parent="c_drv", h=26)
 
