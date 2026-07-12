@@ -142,13 +142,13 @@ class Entity:
 def rstatus(f): return (f[16] >> 3) & 0x1F if f else -1
 def rcdl(f):    return ((f[16] & 0x07) << 8) | f[17] if f and len(f) > 17 else -1
 def cdl_ok(f):
-    # IEEE 1722.1 §9.2.1.1.4: control_data_length = octets after the CDL field
-    # (from target_entity_id, wire offset 18). The on-wire frame is the AECPDU
-    # padded up to the 60-byte Ethernet minimum, so len == max(60, 18 + cdl).
-    # (Frames > 60 B are unpadded and pin cdl exactly; <= 60 B ones can't be
-    # length-verified because padding hides the true cdl — Hive parses the
-    # payload to catch those.) Strict controllers reject a mismatch.
-    return bool(f) and len(f) > 18 and len(f) == max(60, 18 + rcdl(f))
+    # IEEE 1722-2016 §5.4: control_data_length counts octets AFTER the stream_id
+    # (target_entity_id) field, i.e. from wire offset 26. The pipewire AVB
+    # reference (Hive-validated) matches: CDL = frame - 26. The on-wire frame is
+    # the AECPDU padded up to the 60-byte Ethernet minimum, so
+    # len == max(60, 26 + cdl). (Frames > 60 B pin cdl exactly; <= 60 B ones
+    # can't be length-verified as padding hides the true cdl.)
+    return bool(f) and len(f) > 26 and len(f) == max(60, 26 + rcdl(f))
 def rcmd(f):    return ((f[36] & 0x7F) << 8) | f[37] if f else -1
 def desc_payload(f): return f[42:] if f and len(f) > 42 else b""   # after cfg+reserved
 
@@ -159,7 +159,7 @@ def validate(e):
     print("\n[1] READ_DESCRIPTOR — the 5 Milan descriptors")
     r = e.read_descriptor(DESC["ENTITY"])
     check("ENTITY readable", rstatus(r) == 0, f"status={STATUS.get(rstatus(r))}")
-    check("ENTITY control_data_length == len-18 (spec)", cdl_ok(r),
+    check("ENTITY control_data_length correct (spec §5.4, len-26)", cdl_ok(r),
           f"cdl={rcdl(r)} len-18={len(r)-18 if r else '-'}")
     if r:
         d = desc_payload(r)
@@ -217,7 +217,7 @@ def validate(e):
     ok = r is not None and (r[15] & 0x0F) == VU_RESPONSE and r[36:42] == MILAN_PROTOCOL_ID
     check("MVU GET_MILAN_INFO answered", ok,
           f"proto={r[36:42].hex() if r else '-'}")
-    check("MVU control_data_length == len-18 (spec)", cdl_ok(r),
+    check("MVU control_data_length correct (spec §5.4, len-26)", cdl_ok(r),
           f"cdl={rcdl(r)} len-18={len(r)-18 if r else '-'}")
     if r:
         ver = struct.unpack(">I", r[46:50])[0]
