@@ -8,11 +8,15 @@ threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
 
 **Endstation focus.** AX7101 = THE full Milan endstation (talker first:
 gPTP -> lwSRP -> fabric AAF framer -> ACMP connections). **Arty = a SMALL
-endstation** — same fabric control plane at 50 MHz / MII 100M, reduced
-resources; it is NOT just a test peer. Its keeper build_arty_v7 predates
-the AVDECC stack -> **arty_v8 sweep launched** (current fabric: ADP + AECP
-+ ACMP at CLK_FREQ_HZ_P=50e6) to make it a real entity (EID :02). Nothing
-bridge-side is in scope; the AVB switch stays an off-the-shelf bridge.
+endstation — DELIVERED 2026-07-12**: build_arty_asl_arty_v8 (WNS +0.312;
+eppo +0.214 / eto +0.173; v7 was +0.018 — stripping the bring-up probes
+paid twice: the first attempt with probes OVERFLOWED the 100t by 181
+slices). The Arty entity (EID 02:00:00:ff:fe:00:00:02) is **la_avdecc
+Milan=1 verdict CLEAN** (controller 31/31 incl. ACMP) at 50 MHz / MII 100M,
+and **BOTH entities advertise simultaneously** through the switch
+(:01 + :02 captured in one sniff) — a real two-endstation Milan segment.
+Nothing bridge-side is in scope; the AVB switch stays an off-the-shelf
+bridge.
 
 ## 1. Topology
 
@@ -131,19 +135,18 @@ bridge-side is in scope; the AVB switch stays an off-the-shelf bridge.
   (gateware-independent). Fallbacks: eto_aecp7 (+0.091, AECP-clean/no ACMP),
   eppo_aecp6 (+0.176), adp2 (+0.102, AECP-less).
   hsplit16 hsplit=2 hs_pgsz=16384 as before.
-- Arty A7-100: build_arty_v7 in SRAM (flashboot gateware, WNS +0.018,
-  sys 83.333/datapath 50, S25FL128S 1x 0x03 reads). QSPI holds
-  opensbi_arty+dtb+kernel+rootfs (flashboot copies all four, CRC-clean).
-  **Linux BOOTS from flash to login** (2026-07-11: opensbi_arty.bin = arty
-  dtb embedded + 83333000 timer + 2 harts; the-private-test-repo 1bc7530). kl-eth
-  auto-loads (hsplit16; defaults correct on this board: rsc_clk_mhz=50,
-  hsplit off). IP re-addressed to .3 live  -  the shared rootfs still BAKES
-  .1 (the AX7101's!) on every board; fix pending. **Two-node ADP discovery
-  VERIFIED**: this board captures the AX7101's ENTITY_AVAILABLE
-  (EID 02:00:00:ff:fe:00:00:01) through the AVB switch. Switch-path baseline
-  (driver defaults): TX 83.3 / RX 93.9 Mbit. Cosmetic: "Initramfs unpacking
-  failed: invalid magic" AFTER the real unpack succeeds (trailing junk in
-  the fixed 16 MiB initrd window)  -  ignore it.
+- Arty A7-100: **build_arty_asl_arty_v8 in SRAM (THE KEEPER, 2026-07-12,
+  WNS +0.312)** = the SMALL ENDSTATION: full AVDECC stack (ADP+AECP+ACMP at
+  50 MHz) + probes stripped (cfg change; with probes the 100t overflowed by
+  181 slices). Entity EID 02:00:00:ff:fe:00:00:02 programmed (same
+  aecp_csr_setup recipe, EIDLO 0xFE000002), **la_avdecc Milan=1 CLEAN +
+  controller 31/31 on silicon; :01 + :02 advertise simultaneously through
+  the switch**. Boots the v1-layout QSPI image set (opensbi_arty 2-hart,
+  83333000). kl-eth auto-loads (defaults right here: rsc_clk_mhz=50).
+  IP .3 re-addressed live (shared rootfs still bakes .1 — fix pending).
+  Fallback: build_arty_v7 (+0.018, probes, no AVDECC). Baseline through the
+  switch: TX 83.3 / RX 93.9 Mbit. Cosmetic initramfs "invalid magic" after
+  the real unpack: ignore.
 
 **Branches (all pushed)**
 - main = f51a27b: the docs-overhaul merge + AREA-70 + ADP fixes + **PR #12
@@ -170,7 +173,8 @@ bridge-side is in scope; the AVB switch stays an off-the-shelf bridge.
 | build_ax7101_eto_acmp2 | THE AX7101 keeper (Milan=1 CLEAN control plane) | WNS +0.096 (eppo +0.055 / asl +0.041 backups) |
 | build_ax7101_eto_aecp7 | AECP-clean fallback (no ACMP) | WNS +0.091 |
 | build_ax7101_adp2 | AECP-less fallback (area+ADP) | WNS +0.102, 70.1 pct LUTs, BRAM 83.3 pct |
-| build_arty_v7 | THE Arty keeper (flashboot) | WNS +0.018 |
+| build_arty_asl_arty_v8 | THE Arty keeper (small endstation, AVDECC stack) | WNS +0.312 (eppo +0.214 / eto +0.173) |
+| build_arty_v7 | probes fallback (no AVDECC) | WNS +0.018 |
 | build_1hart_epo | 1-hart decision datapoint | 58 pct LUTs / 68.5 pct BRAM / 80.9 pct slices |
 
 ## 4. Open threads (ranked, with the evidence)
