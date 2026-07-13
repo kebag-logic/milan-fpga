@@ -88,6 +88,15 @@ was mid-certification when the dormancy was caught (its +2 index during the
 probes = discover responses that died against the dormant state — see chain
 above).
 
+## Open observation (benign, witnessed for next time)
+The recovery toggle bumped available_index by **+8 within ~2 s**, where the
+RTL predicts +1 (one link_up-edge advertise; the enable pulse is 1 cycle by
+construction, pending is a single bit, and the periodic counter is held at 0
+while dormant). Monotonic so la_avdecc-safe, but unexplained — same
+anomaly-shaped smell as the depart itself. The A_ADP_DIAG counters plus an
+index-rate check (`devmem 0x90000644` twice, 40 s apart: expect +1/31 s
+post-fix) are the tools if it recurs.
+
 ## Bench state / recovery one-liner
 Until a board runs post-fix gateware, the manual recovery for a dormant
 advertiser is the enable toggle (Arty console):
