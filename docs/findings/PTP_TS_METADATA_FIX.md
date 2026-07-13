@@ -137,12 +137,17 @@ Records arrive in wire order per direction (RR mux across directions).
   **rms 2-5 ns THROUGH a 45 s RX flood (TCP 93.0 Mbit, baseline 93.9), a TX
   flood + AAF talker streaming (85.7 Mbit, baseline 83.3, 0 retr), and a
   simultaneous bidirectional flood (rms 2 ns — best of the session)**.
-- TX-flood corner: 3 tx-ts timeouts = the gPTP frame queueing behind bulk
-  TCP in the best-effort egress queue (10s of ms to REACH the wire at
-  100 Mbit) — the stamp itself remains exact-egress-time so sync accuracy
-  was UNAFFECTED (rms 2-4 during). `tx_timestamp_timeout 50` (flash cfg)
-  rides it out; the proper future fix is classifying 0x88F7 into the
-  strict-priority TX queue in the fabric classifier.
+- TX-flood corner: 3 tx-ts timeouts = egress delay. CORRECTED ATTRIBUTION
+  (the queue-starvation theory died on inspection: silicon runs LEGACY
+  classification where gPTP already rides q1 above best-effort q3, and the
+  grant's priority encoder is ascending — q0 highest): the delay is the
+  DRIVER'S single TX descriptor ring — 256 slots of bulk TCP ≈ 30 ms of
+  in-DRAM backlog at 100 Mbit that no fabric classifier can reorder. The
+  stamp remains exact-egress-time so sync accuracy was UNAFFECTED (rms 2-4
+  during). `tx_timestamp_timeout 50` rides it out; the real future fix for
+  the delay itself is a priority TX ring/doorbell in kl-eth. A gPTP
+  fast-path was still added to traffic_class_map (PCP mode now matches
+  legacy's GPTP_CLASS routing instead of depending on table programming).
 - RX-pad true-length gates passed in the same battery (TCP at baseline both
   directions, odd-size ping 12/12 exact) — the kl-eth PTP-trim is now a
   no-op and stays only for old bitstreams.

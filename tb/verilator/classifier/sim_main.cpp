@@ -168,6 +168,38 @@ int main(int argc, char** argv) {
     run_frames(real, /*bp=*/0, "real-hdr b2b",       &expd);
     run_frames(real, /*bp=*/1, "real-hdr b2b bp",    &expd);
 
+    // ---- gPTP FAST-PATH (2026-07-13): untagged 0x88F7 must classify to
+    // GPTP_CLASS (q1) even in PCP mode (untagged default_pcp would otherwise
+    // send it wherever the tables point), sandwiched between bulk frames ----
+    {
+        auto mkgptp = [](int nbeats) {
+            std::vector<uint8_t> f(nbeats * 8, 0x00);
+            const uint8_t hdr[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
+            for (int i = 0; i < 14; i++) f[i] = hdr[i];
+            f[14] = 0x12; f[15] = 0x02;
+            std::vector<Beat> fr;
+            for (int b = 0; b < nbeats; b++) {
+                uint64_t d = 0;
+                for (int k = 0; k < 8; k++) d |= (uint64_t)f[b * 8 + k] << (8 * k);
+                fr.push_back({ d, (uint8_t)(b == nbeats - 1 ? 0x0F : 0xFF), b == nbeats - 1 });
+            }
+            return fr;
+        };
+        std::vector<std::vector<Beat>> gm;
+        std::vector<int> gexp;
+        gm.push_back(mkhdr(false, 0, 5)); gexp.push_back(expq(false, 0));   // bulk before
+        gm.push_back(mkgptp(9));          gexp.push_back(1);                // GPTP_CLASS
+        gm.push_back(mkhdr(true, 3, 4));  gexp.push_back(expq(true, 3));    // tagged after
+        gm.push_back(mkgptp(9));          gexp.push_back(1);                // again
+        run_frames(gm, /*bp=*/0, "gptp fast-path (pcp mode)", &gexp);
+        // and legacy mode lands on the same class
+        dut->use_pcp_i = 0;
+        std::vector<std::vector<Beat>> gl = { mkgptp(9) };
+        std::vector<int> glexp = { 1 };
+        run_frames(gl, /*bp=*/0, "gptp fast-path (legacy mode)", &glexp);
+        dut->use_pcp_i = 1;
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
