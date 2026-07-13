@@ -108,13 +108,16 @@ module axis_mux_rr_2in_1out #(
 
     case (state)
       STREAM_0: begin
-        m_tvalid = s0_tvalid && s0_tready;
+        // tvalid must NOT depend on tready (AXI-Stream rule; the old
+        // `s0_tvalid && s0_tready` term folded m_tready into m_tvalid and
+        // deadlocks against a sink that waits for valid before ready)
+        m_tvalid = s0_tvalid;
         m_tdata  = s0_tdata;
         m_tkeep  = s0_tkeep;
         m_tlast  = s0_tlast;
       end
       STREAM_1: begin
-        m_tvalid = s1_tvalid && s1_tready;
+        m_tvalid = s1_tvalid;
         m_tdata  = s1_tdata;
         m_tkeep  = s1_tkeep;
         m_tlast  = s1_tlast;
