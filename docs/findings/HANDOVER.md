@@ -1,4 +1,18 @@
-# HANDOVER  -  topology rules + live states (2026-07-12)
+# HANDOVER  -  topology rules + live states (2026-07-13)
+
+> 2026-07-13 session delta (details: GPTP_RXPAD_ROOTCAUSE.md matrix section +
+> PTP_TS_METADATA_FIX.md): switch gPTP behavior matrix DEFINITIVE (never
+> masters into board ports -> board-slave = direct cable only; single strong
+> claimant on port 8 = the relay recipe; multi-claimant makes it go
+> announce-silent). ptp_ts metadata pipeline was broken-by-design and is FIXED
+> + gated (new tb/verilator/ptp_ts; milan_dp 26/26; yosys 20/20). RX-pad
+> true-length gateware fix landed (BD w0 = true bytes; ring ABI frozen).
+> kl-eth `hwts1` = phase B consumer + allmulti + adjfine-59x fixes; dts
+> dma-ts -> 0xf0003100, tlm dropped (rot). **hwts1 arty sweep in flight**
+> (eppo/asl/eto). LIVE-BENCH DIVERGENCE: Arty runs hwts1 .ko + SW-ts GM
+> (100/cc6) hot-swapped in RAM; AX runs trim .ko rsc_clk_mhz=100 + weak cfg;
+> pw0 SLAVE rms 3-4 ns. A reboot/flash-boot reverts both boards' drivers
+> (QSPI rootfs older) — re-push .kos or reflash after hwts1 validates.
 
 *The operational one-pager for the two-board Milan lab: every standing rule
 with its reason, and the exact state of boards, branches, builds and open
