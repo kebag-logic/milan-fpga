@@ -19,6 +19,18 @@
 > launched for both boards; gptp_direct_cable.sh REWRITTEN for HW-ts
 > (self-contained tmux sentinel exec, AX=GM cc6/prio100, Arty=slave, gates:
 > SLAVE+rms / peer delay ~1-3 us HW-grade / txto=0 both ends).
+> **ADPFIX ON ARTY SILICON**: asl keeper WNS +0.243 (sweep: eppo +0.050,
+> eto +0.006), QSPI reflashed v3 (bitstream+images, remote --reset), flash
+> boot turnkey (DT 50 MHz, :02, talker up). DRILL EXACT: cadence +1/35 s
+> (31 s fix, was 62); depart cmd -> DIAG 0x00020001 (cnt=1 src=shutdown);
+> **self-heal ≤5 s with NO poke -> DIAG 0x00020101 (rearm_cnt=1)**; index
+> accounting exact. Note: AVTP and ADP share ethertype 0x22F0 — an ADP
+> tcpdump census MUST exclude the AAF talker (8.1k fr/s from :02) or it
+> reads as an ADP flood / drowns :01. Bench end-state: reflash bounces
+> re-triggered the switch's port flap-suppression -> the Arty's cc6
+> announces are not relayed uplink; pw0 SLAVE 5 ns to the SWITCH holdover
+> (3cc0c6, cc248); Arty GM runs clean (txto=0) — remedy stays physical
+> (switch power-cycle or direct cable), data plane unaffected.
 
 > 2026-07-13 session delta (normative: GPTP_RXPAD_ROOTCAUSE.md matrix +
 > PTP_TS_METADATA_FIX.md): switch gPTP matrix DEFINITIVE (edge ports =
