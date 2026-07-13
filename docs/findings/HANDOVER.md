@@ -22,6 +22,15 @@
 > valid_time byte — discovery survived on periodic-advertise luck; all
 > the flaky first-runs explained); fixed + --eid filter. VID0 policy:
 > stream_vlan_id legitimately reads 0 in ACMP/AECP responses.
+> **MILTICK CLOSE-OUT (param-fixed arty build)**: eppo +0.381 keeper
+> flashed (QSPI v3); measured on silicon: probe WINDOW = 15 s exact
+> (was ~26-28), ADP cadence +5/130 s = 31 s x2 periods + the drill's
+> discover-response (was 62 s), drill 41/41, la_avdecc Milan=1 CLEAN.
+> FINAL BENCH: arty = eppo_miltick self-hosting TRUE-Milan-mode talker
+> (:02, silent-until-probed), AX = eto_miltalk SRAM (:01, talker off,
+> window 14-15 s native); both Milan=1 CLEAN; controller + --eid drill
+> turnkey from pw0. Next talker step = lwSRP (A_ACMP_LOBS is its
+> socket), then a pw0 PipeWire listener BIND_RX for audible e2e.
 
 
 > 2026-07-13 LATE-NIGHT delta (normative: ADP_DORMANCY.md): during control-
