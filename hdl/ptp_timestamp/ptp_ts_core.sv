@@ -93,13 +93,14 @@ logic src_rcv;
 logic src_send;
 //! Assertion of signal inform that the data is ready to be used in dest domain
 logic dest_req;
-//! Assertion of signal informs the State Machine fresh TS captured
-logic ts_fresh;
-//! Assertion of signal that the PTP message is pending for the State Machine
-logic ptp_pending;
+//! Captured-timestamp holding register (dest domain): every SOP fills it via
+//! the CDC handshake; the frame's TLAST decision consumes it (emit or drop)
+logic [TS_WIDTH-1:0] ts_hold;
+logic ts_hold_v;
+//! Frame qualified at TLAST (valid ethertype extract matched) + its seq
+logic qual_pend;
+logic [PTP_SEQ_ID_BIT_WIDTH-1:0] seq_snap;
 
-//! Metadata packet captured
-ts_metadata ts;
 //! Metadata packet to send to PS
 ts_metadata ts_reg;
 
@@ -152,7 +153,11 @@ always_ff @(posedge ts_src_clk) begin : on_demand_timestamp_capture
       src_send <= '0;
   end
   else begin
-      if (cdc_trigger) begin
+      //! Capture only when the previous handshake finished: overwriting src_in
+      //! mid-handshake would corrupt the in-flight value. A skipped capture
+      //! (frames < ~8 cycles apart - never at real PTP rates) self-heals via
+      //! the stale-qual clear on the next SOP.
+      if (cdc_trigger && !src_send) begin
         //! Capture timestamp only when needed (at start of packet)
         ts_captured_src <= ts_in;
         src_send <= 'd1;
@@ -285,37 +290,49 @@ always_ff @(posedge ts_dst_clk) begin : field_extraction
   end
 end
 
-always_ff @(posedge ts_dst_clk)begin
+// -----------------------------------------------------------------------------
+//! Decoupled capture / qualify / emit (2026-07-13 rewrite). The original made
+//! the record decision at handshake-return time (`dest_req && is_ptp`), which
+//! races BOTH ways against the ingress rate:
+//!   * slow beats (MII 100M into the 50 MHz datapath): the ethertype beat has
+//!     not arrived when dest_req fires -> the FIRST record never emits and
+//!     every later one pairs the CURRENT timestamp with the PREVIOUS frame's
+//!     metadata (one-frame-stale; the silicon "zero records" of phase B);
+//!   * back-to-back minimal frames: dest_req can land after tlast instead.
+//! Now dest_req only fills ts_hold (one per SOP); the frame QUALIFIES at TLAST
+//! when ethertype+seq extracts are definitively valid; the emitter fires on
+//! qual_pend && ts_hold_v in either arrival order. A non-PTP tlast CONSUMES
+//! its capture so it cannot poison the next frame; a new SOP clears a stale
+//! unpaired qual (missed capture - self-heals). Gated: tb/verilator/ptp_ts.
+// -----------------------------------------------------------------------------
+always_ff @(posedge ts_dst_clk) begin : capture_qualify
   if(!ts_dst_resetn)begin
-    ts.timestamp <= 'd0;
-    ts.seq_id <= 'd0;
-    ts_fresh <= 'd0;
+    ts_hold   <= 'd0;
+    ts_hold_v <= 'd0;
+    qual_pend <= 'd0;
+    seq_snap  <= 'd0;
   end
   else begin
-    if(dest_req && is_ptp)begin
-      ts.timestamp <= ts_cdc_out;
-      ts_fresh <= 'd1;
+    if(ts_state == IDLE_S && qual_pend && ts_hold_v)begin
+      qual_pend <= 'd0;               // consumed by the emitter (ts_reg latch)
+      ts_hold_v <= 'd0;
     end
-    else if (ts_state == SEND_LOW_S && ts_m_axis.tready)begin
-      ts_fresh <= 'd0;
+    if(sop_detected && qual_pend && !ts_hold_v)begin
+      qual_pend <= 'd0;               // stale qual without a capture: abandon
     end
-    if(ptp_seq_id_valid)begin
-      ts.seq_id <= (BIG_ENDIAN) ? ptp_seq_id : {ptp_seq_id[7:0],ptp_seq_id[15:8]};
+    if(s_axis.tvalid && s_axis.tready && s_axis.tlast)begin
+      if(eth_type_valid && is_ptp && ptp_seq_id_valid)begin
+        qual_pend <= 'd1;
+        seq_snap  <= (BIG_ENDIAN) ? ptp_seq_id
+                                  : {ptp_seq_id[7:0], ptp_seq_id[15:8]};
+      end
+      else begin
+        ts_hold_v <= 'd0;             // non-PTP frame consumes its capture
+      end
     end
-    ts.direction <= IS_TX;
-  end
-end
-
-always_ff @(posedge ts_dst_clk) begin : mark_ptp_messages_for_SM
-  if(!ts_dst_resetn)begin
-    ptp_pending <= 'd0;
-  end
-  else begin
-    if(s_axis.tvalid && s_axis.tready && s_axis.tlast && is_ptp) begin
-      ptp_pending <= 'd1;
-    end
-    else if(ts_state == SEND_HIGH_S && ts_m_axis.tready)begin
-      ptp_pending <= 'd0;
+    if(dest_req)begin                 // LAST: a new capture beats same-cycle clears
+      ts_hold   <= ts_cdc_out;
+      ts_hold_v <= 'd1;
     end
   end
 end
@@ -333,9 +350,11 @@ always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
   else begin
     case(ts_state)
       IDLE_S: begin
-        if(ptp_pending && ts_fresh)begin
+        if(qual_pend && ts_hold_v)begin
           ts_state <= SEND_HIGH_S;
-          ts_reg <= ts;
+          ts_reg.direction <= IS_TX[0];
+          ts_reg.seq_id    <= seq_snap;
+          ts_reg.timestamp <= ts_hold;
         end
         else begin
           ts_m_axis.tvalid <= 'd0;
