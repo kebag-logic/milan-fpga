@@ -261,8 +261,11 @@ assign rec_pop = pop_r;
 assign ts_m_axis.tvalid = (ts_state != IDLE_S);
 assign ts_m_axis.tlast  = (ts_state == SEND_LOW_S);
 assign ts_m_axis.tkeep  = (ts_state == SEND_LOW_S) ? 8'h07 : 8'hFF;
+// word1 bit[1] is an ALWAYS-1 marker: the DMA lands word0 then word1 a few
+// bus-cycles later, so the DRIVER's slot sentinel is word1 (marker set =>
+// word0 is complete). A ns-based sentinel would race that window.
 assign ts_m_axis.tdata  = (ts_state == SEND_LOW_S)
-                          ? {40'd0, cur_seq, cur_mt, 3'd0, IS_TX[0]}
+                          ? {40'd0, cur_seq, cur_mt, 2'd0, 1'b1, IS_TX[0]}
                           : cur_ts;
 
 always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic

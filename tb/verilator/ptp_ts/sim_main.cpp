@@ -12,7 +12,7 @@
 // frame time and fails loudly.
 //
 // Record contract (2 beats): beat0 = ns[63:0] (disciplined PHC);
-// beat1 = {40'0, seq[15:0], msgType[3:0], 3'0, dir}. seq is the frame's
+// beat1 = {40'0, seq[15:0], msgType[3:0], 2'0, marker=1, dir}. seq is the frame's
 // big-endian sequenceId verbatim; only EVENT messages (msgType[3]==0) record.
 // LE-lane convention (the real MAC-side order): first wire byte in tdata[7:0];
 // partial tail keep is low-aligned (rem=4 -> 0x0F).
@@ -127,9 +127,9 @@ static void check_rec(const char *name, size_t i, int dir, int mtype, uint16_t s
 {
     if (i >= recs.size()) { printf("FAIL %s: record %zu missing\n", name, i); fails++; return; }
     uint64_t m = recs[i].meta;
-    int rdir = m & 1, rmt = (m >> 4) & 0xF;
+    int rdir = m & 1, rmk = (m >> 1) & 1, rmt = (m >> 4) & 0xF;
     uint16_t rseq = (m >> 8) & 0xFFFF;
-    bool ok = rdir == dir && rmt == mtype && rseq == seq && recs[i].ns != 0;
+    bool ok = rdir == dir && rmk == 1 && rmt == mtype && rseq == seq && recs[i].ns != 0;
     printf("%s %s rec%zu: dir=%d mt=%d seq=0x%04x ns=%llu\n", ok ? "PASS" : "FAIL",
            name, i, rdir, rmt, rseq, (unsigned long long)recs[i].ns);
     if (!ok) fails++;
