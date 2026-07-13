@@ -445,10 +445,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  PTP hardware clock + TX/RX timestamping (CSR-configured)
   // ==========================================================================
+  // BIG_ENDIAN(1)/0x88F7, NOT (0)/0xF788: the MAC-side streams carry the FIRST
+  // wire byte in tdata[63:56] (the convention the classifier parses - silicon-
+  // proven by VLAN classification). The old (0)/F788 pair extracted src-MAC
+  // bytes under this convention and never matched -> ZERO ts records ever
+  // (phase B silicon). The old unit expectations agreed with the wrong pair by
+  // driving little-endian lanes - two wrongs matching. tb/verilator/ptp_ts now
+  // drives the real BE-lane convention; milan_dp checks a record end-to-end
+  // through the real ingress.
   ptp_ts_top #(
     .TDATA_WIDTH(TDATA_WIDTH),
-    .BIG_ENDIAN(0),
-    .ETH_TYPE(16'hF788)
+    .BIG_ENDIAN(1),
+    .ETH_TYPE(16'h88F7)
   ) ptp_timestamp (
     .gtx_clk(gtx_clk),
     .gtx_resetn(gtx_resetn),

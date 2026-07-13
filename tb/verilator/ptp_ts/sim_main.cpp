@@ -76,16 +76,19 @@ static void frame_ipv4(uint8_t *b)                 // 60 bytes, must NOT record
     memcpy(b, hdr, 14);
 }
 
-// drive one frame into the tx or rx tap; gap = idle cycles between beats
+// drive one frame into the tx or rx tap; gap = idle cycles between beats.
+// BE-lane convention (the real MAC-side datapath byte order, per the milan_dp
+// harness and the silicon-proven classifier): FIRST wire byte in tdata[63:56];
+// a partial tail therefore occupies the HIGH keep bits (rem=4 -> 0xF0).
 static void send(const uint8_t *b, int len, bool tx, int gap)
 {
     int nbeats = (len + 7) / 8;
     for (int i = 0; i < nbeats; i++) {
         uint64_t d = 0;
         for (int k = 0; k < 8 && 8 * i + k < len; k++)
-            d |= (uint64_t)b[8 * i + k] << (8 * k);
+            d |= (uint64_t)b[8 * i + k] << (8 * (7 - k));
         int rem = len - 8 * i;
-        uint8_t keep = rem >= 8 ? 0xFF : (uint8_t)((1u << rem) - 1);
+        uint8_t keep = rem >= 8 ? 0xFF : (uint8_t)(0xFF << (8 - rem));
         bool last = i == nbeats - 1;
         if (tx) {
             top->s_axis_tx_tdata = d; top->s_axis_tx_tkeep = keep;

@@ -34,8 +34,10 @@ module ptp_ts_top#(
   parameter int INCR_WIDTH = 32,           //! PHC increment/addend width
   parameter int FRAC_WIDTH = 24,           //! PHC fractional-ns bits: PTP_INCR is Q8.24
   parameter int METADATA_TDATA_WIDTH = 64, //! Metadata output width
-  parameter bit BIG_ENDIAN = 0,            //! Endianness for field extraction
-  parameter bit [15:0] ETH_TYPE = 'hF788  //! EtherType for PTP
+  parameter bit BIG_ENDIAN = 1,            //! 1 = first wire byte in tdata[63:56] (the
+                                           //! MAC-side datapath convention; see the
+                                           //! milan_datapath instantiation comment)
+  parameter bit [15:0] ETH_TYPE = 'h88F7  //! EtherType for PTP (wire value under BE)
 )(
 
   //! Timestamp clock domain (PHC clock — fixed 125 MHz recommended, REQ-PTP-07)
