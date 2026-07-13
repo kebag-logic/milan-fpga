@@ -23,9 +23,24 @@
 >    dotted-escaped interface port names - xsim-on-SOURCE + Verilator +
 >    yosys are the trustworthy sim gates; silicon (with the TX_TS_READY IRQ
 >    probe isolating core-emission from DMA plumbing) is the final oracle.
-> Record contract v2: beat0 = ns (disciplined PHC); beat1 = {40'0,
-> seq[15:0], msgType[3:0], 3'0, dir}; seq = frame be16 verbatim; driver
-> `hwts2` matches {mtype, seq}, event-only both paths.
+> 5. THE TAIL (silicon, hwts4): records reached coherent DRAM PERFECTLY
+>    (decoded live: ns=379.3s PHC, dir/mtype/seq all correct) - but ALL AT
+>    SLOT 0: LiteX's WishboneDMAWriter ctrl treats sink.last as
+>    end-of-transfer and (loop=1) restarts offset per 2-beat record, so the
+>    offset CSR read 0 forever and every record overwrote the last (lossy
+>    mailbox - the switch's RX-resp record clobbered our TX-req record
+>    within ~300 us, verbose-drain-proven). Fix: tlast NOT forwarded to the
+>    writer (true linear ring). Also observed: TX_TS_READY fires at CORE
+>    emission while the record lands ~us later, so IRQ-triggered drains can
+>    read an empty slot - absorbed by the NAPI-poll drain + linuxptp's
+>    tx_timestamp_timeout 10 (now in the flash gptp.cfg).
+> Record contract v2.1: beat0 = ns (disciplined PHC); beat1 = {40'0,
+> seq[15:0], msgType[3:0], 2'0, marker=1, dir}; the ALWAYS-1 marker (bit 1,
+> written after word0 by DMA order) is the driver's race-free slot
+> sentinel; seq = frame be16 verbatim; driver `hwts3` matches {mtype, seq},
+> event-only both paths. Mailbox-mode forensics validated the WHOLE driver
+> chain on hwts4 silicon (a pdelay_resp TX stamp matched and completed
+> end-to-end); hwts5 = the ring-mode ship build.
 
 ## Symptom
 Phase B (HW frame timestamps → SO_TIMESTAMPING) brought up the kl-eth record
