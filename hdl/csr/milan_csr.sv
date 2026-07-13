@@ -157,8 +157,13 @@ module milan_csr #(
   input  wire [15:0]             i_acmp_cmd_count,      //! ACMP commands accepted (0x650)
   input  wire [15:0]             i_acmp_resp_count,     //! ACMP responses sent (0x650)
   output wire                    o_aaf_enable,          //! AAF talker enable (AAF_CTRL[0])
+  output wire                    o_aaf_bypass,          //! AAF gate bypass (AAF_CTRL[1]) — 1 = stream whenever enabled (legacy); 0 = Milan probe-gated
   output wire [47:0]             o_aaf_dest_mac,        //! AAF stream DMAC {DMHI[15:0],DMLO}
   output wire [11:0]             o_aaf_vid,             //! AAF SR VID (AAF_CTRL[27:16])
+  output wire                    o_acmp_lobs,           //! listener_observed override (A_ACMP_LOBS[0], the lwSRP socket)
+  input  wire                    i_acmp_probe_armed,    //! ACMP probe SM state (A_ACMP_TALKER RO)
+  input  wire                    i_acmp_talker_active,
+  input  wire                    i_aaf_gate,            //! resolved AAF gate
   input  wire [31:0]             i_aaf_frames,          //! AAF frames sent (RO, 0x660)
   input  wire [31:0]             i_aaf_pairs,           //! AAF I2S pairs captured (RO, 0x664)
 
@@ -223,6 +228,8 @@ module milan_csr #(
     A_AAF_CTRL    = 'h654, A_AAF_DMLO = 'h658, A_AAF_DMHI = 'h65C, //! AAF talker
     A_AAF_FRAMES  = 'h660, A_AAF_PAIRS = 'h664,   //! AAF talker status (RO)
     A_ADP_DIAG    = 'h668,                        //! ADP dormancy diagnostics (RO)
+    A_ACMP_TALKER = 'h66C,                        //! Milan talker SM state (RO)
+    A_ACMP_LOBS   = 'h670,                        //! listener_observed override (RW, lwSRP socket)
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -307,7 +314,8 @@ module milan_csr #(
 
   // ADP advertiser identity/control registers (0x600 group)
   logic [31:0] adp_ctrl;                 //! ADP_CTRL: [0]=enable, [12:8]=valid_time
-  logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi; //! AAF talker: ctrl {vid[27:16], en[0]}, DMAC
+  logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi; //! AAF talker: ctrl {vid[27:16], bypass[1], en[0]}, DMAC
+  logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] adp_eidlo, adp_eidhi;     //! ADP_EID: entity_id (EUI-64)
   logic [31:0] adp_midlo, adp_midhi;     //! ADP_MID: entity_model_id (EUI-64)
   logic [31:0] adp_ecaps;                //! ADP_ECAPS: entity_capabilities
@@ -374,7 +382,10 @@ module milan_csr #(
       end
       cbs_en <= CBS_EN_RST[NUM_QUEUES-1:0];
       adp_ctrl <= 32'h0000_1F00;   // enable=0, valid_time=31 (validity 62 s)
-      aaf_ctrl <= 32'h0002_0000;   // enable=0, VID=2
+      // enable=0, bypass=1 (bit1: legacy stream-whenever-enabled — the
+      // Milan probe-gated mode is opt-in until silicon-proven), VID=2
+      aaf_ctrl <= 32'h0002_0002;
+      acmp_lobs <= 32'h0;
       aaf_dmlo <= 32'hF000_FE01;   // MAAP-range default 91:E0:F0:00:FE:01
       aaf_dmhi <= 32'h0000_91E0;
       adp_eidlo <= 32'h0; adp_eidhi <= 32'h0; adp_midlo <= 32'h0; adp_midhi <= 32'h0;
@@ -439,6 +450,7 @@ module milan_csr #(
             if (s_axi_wdata[2]) ptp_snap_p <= 1'b1; // gettime; PTP_TOD_RD latched on i_ptp_tod_valid
           end
           A_AAF_CTRL:   aaf_ctrl  <= s_axi_wdata;
+          A_ACMP_LOBS:  acmp_lobs <= s_axi_wdata;
           A_AAF_DMLO:   aaf_dmlo  <= s_axi_wdata;
           A_AAF_DMHI:   aaf_dmhi  <= s_axi_wdata;
           A_ADP_CTRL:   adp_ctrl  <= s_axi_wdata;
@@ -575,6 +587,8 @@ module milan_csr #(
       A_AECP_STAT1: rd_mux = {i_aecp_resp_count, i_aecp_current_config};
       A_ACMP_STAT:  rd_mux = {i_acmp_resp_count, i_acmp_cmd_count};
       A_AAF_CTRL:   rd_mux = aaf_ctrl;
+      A_ACMP_TALKER: rd_mux = {28'd0, i_aaf_gate, o_acmp_lobs, i_acmp_talker_active, i_acmp_probe_armed};
+      A_ACMP_LOBS:  rd_mux = acmp_lobs;
       A_AAF_DMLO:   rd_mux = aaf_dmlo;
       A_AAF_DMHI:   rd_mux = aaf_dmhi;
       A_AAF_FRAMES: rd_mux = i_aaf_frames;
@@ -653,6 +667,8 @@ module milan_csr #(
   assign o_ptp_egress_lat   = ptp_elat;
 
   assign o_aaf_enable          = aaf_ctrl[0];
+  assign o_aaf_bypass          = aaf_ctrl[1];
+  assign o_acmp_lobs           = acmp_lobs[0];
   assign o_aaf_vid             = aaf_ctrl[27:16];
   assign o_aaf_dest_mac        = {aaf_dmhi[15:0], aaf_dmlo};
   assign o_adp_enable          = adp_ctrl[0];

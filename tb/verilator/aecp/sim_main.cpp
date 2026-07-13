@@ -468,6 +468,256 @@ int main(int argc, char** argv) {
         ck("adp_discover pulse asserted", seen>=1, 1);
     }
 
+    // ---------------------------------------------------------------- //
+    // 12. Milan talker streaming state (docs/design/MILAN_TALKER_SM.md)  //
+    //     GET_STREAM_INFO live values, SET_STREAM_INFO matrix,           //
+    //     START/STOP_STREAMING = NOT_SUPPORTED on outputs                //
+    // ---------------------------------------------------------------- //
+    printf("\n[12] Milan talker stream info\n");
+    {
+        // live inputs: the framer's CSR values
+        dut->aaf_dmac_i = 0x91E0F000FE01ULL;
+        dut->aaf_vid_i  = 2;
+        dut->talker_active_i = 0;
+        dut->listener_observed_i = 0;
+
+        auto gsi_pl = []() {                    // GET payload: type+index
+            std::vector<uint8_t> pl; put_be16(pl, 0x0006); put_be16(pl, 0);
+            return pl;
+        };
+        auto ssi_pl = [](uint32_t flags, uint32_t lat, uint16_t dtype = 0x0006,
+                         uint16_t didx = 0) {   // SET payload: full 56-B block
+            std::vector<uint8_t> pl; put_be16(pl, dtype); put_be16(pl, didx);
+            for (int i = 3; i >= 0; i--) pl.push_back((flags >> (8*i)) & 0xFF);
+            for (int i = 0; i < 16; i++) pl.push_back(0);   // format + stream_id
+            for (int i = 3; i >= 0; i--) pl.push_back((lat >> (8*i)) & 0xFF);
+            while (pl.size() < 56) pl.push_back(0);
+            return pl;
+        };
+        auto be_at = [](const std::vector<uint8_t>& b, int off, int n) {
+            uint64_t v = 0;
+            for (int i = 0; i < n; i++) v = (v << 8) | b[off + i];
+            return v;
+        };
+
+        // (a) GET: live values — stream_id MUST be {station_mac, 0} (the
+        //     AVTP/ACMP formula; the old entity_id here was the bug)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1201, gsi_pl()));
+        auto r = collect_resp();
+        ck("[12a] GET_STREAM_INFO SUCCESS", r_status(r), 0);
+        ck_cdl("[12a] CDL correct (len-26)", r);
+        ck("[12a] flags 0xF6000000", be_at(r, 42, 4), 0xF6000000ULL);
+        ck("[12a] stream_id {mac,0}", be_at(r, 54, 8), 0x020000FFFE010000ULL);
+        ck("[12a] msrp_lat default 2ms", be_at(r, 62, 4), 2000000);
+        ck("[12a] dest_mac live", be_at(r, 66, 6), 0x91E0F000FE01ULL);
+        ck("[12a] vlan live", be_at(r, 82, 2), 2);
+        ck("[12a] flags_ex 0 (no listener)", be_at(r, 86, 4), 0);
+
+        // (b) SET msrp_acc_lat -> SUCCESS; GET reflects the new value
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1202,
+                         ssi_pl(0x20000000u, 1000000)));
+        r = collect_resp();
+        ck("[12b] SET(ACC_LAT) SUCCESS", r_status(r), 0);
+        ck("[12b] SET echoes flags", be_at(r, 42, 4), 0x20000000ULL);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1203, gsi_pl()));
+        r = collect_resp();
+        ck("[12b] GET reflects 1ms", be_at(r, 62, 4), 1000000);
+
+        // (c) any other spec sub-command -> NOT_SUPPORTED, value untouched
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1204,
+                         ssi_pl(0x60000000u, 555)));   // STREAM_ID_VALID too
+        r = collect_resp();
+        ck("[12c] SET(unsupported) NOT_SUPPORTED", r_status(r), 11);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1205, gsi_pl()));
+        r = collect_resp();
+        ck("[12c] value untouched", be_at(r, 62, 4), 1000000);
+
+        // (d) out-of-range latency -> BAD_ARGUMENTS
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1206,
+                         ssi_pl(0x20000000u, 0x80000000u)));
+        r = collect_resp();
+        ck("[12d] SET(>0x7FFFFFFF) BAD_ARGUMENTS", r_status(r), 7);
+
+        // (e) no sub-command requested -> SUCCESS no-op
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1207,
+                         ssi_pl(0, 42)));
+        r = collect_resp();
+        ck("[12e] SET(none) SUCCESS", r_status(r), 0);
+
+        // (f) STREAM_IS_RUNNING while a listener is registered; REGISTERING
+        //     flags_ex when also declaring
+        dut->listener_observed_i = 1;
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1208,
+                         ssi_pl(0x20000000u, 777)));
+        r = collect_resp();
+        ck("[12f] SET while running -> STREAM_IS_RUNNING", r_status(r), 12);
+        dut->talker_active_i = 1;
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1209, gsi_pl()));
+        r = collect_resp();
+        ck("[12f] flags_ex REGISTERING", be_at(r, 86, 4), 1);
+        dut->talker_active_i = 0;
+        dut->listener_observed_i = 0;
+
+        // (g) SET on a STREAM_INPUT -> NOT_SUPPORTED; on a non-stream
+        //     descriptor -> BAD_ARGUMENTS
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x120A,
+                         ssi_pl(0x20000000u, 1, /*dtype*/0x0005)));
+        r = collect_resp();
+        ck("[12g] SET(STREAM_INPUT) NOT_SUPPORTED", r_status(r), 11);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x120B,
+                         ssi_pl(0x20000000u, 1, /*dtype*/0x0000)));
+        r = collect_resp();
+        ck("[12g] SET(ENTITY) BAD_ARGUMENTS", r_status(r), 7);
+
+        // (h) START/STOP_STREAMING: Stream-INPUT-only commands ->
+        //     NOT_SUPPORTED on this talker (was NOT_IMPLEMENTED default)
+        std::vector<uint8_t> ss_pl; put_be16(ss_pl, 0x0006); put_be16(ss_pl, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x120C, ss_pl));
+        r = collect_resp();
+        ck("[12h] START_STREAMING NOT_SUPPORTED", r_status(r), 11);
+        ck("[12h] START echoes cmd", r_cmd(r), 34);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35, 0x120D, ss_pl));
+        r = collect_resp();
+        ck("[12h] STOP_STREAMING NOT_SUPPORTED", r_status(r), 11);
+    }
+
+    // ---------------------------------------------------------------- //
+    // 13. Unsolicited notifications (Milan §5.4.2.21 / 1722.1 §7.5.2)    //
+    // ---------------------------------------------------------------- //
+    printf("\n[13] unsolicited notifications\n");
+    {
+        auto reg_pl = std::vector<uint8_t>{};      // REGISTER: empty payload
+        auto u_bit  = [](const std::vector<uint8_t>& b) {
+            return b.size() > 36 ? (b[36] >> 7) & 1 : -1;
+        };
+        auto be_at = [](const std::vector<uint8_t>& b, int off, int n) {
+            uint64_t v = 0;
+            for (int i = 0; i < n; i++) v = (v << 8) | b[off + i];
+            return v;
+        };
+        // distinct controllers B..E
+        const uint8_t MAC_B[6] = {0x68,0x05,0xCA,0x00,0x00,0xB0};
+        const uint8_t MAC_C[6] = {0x68,0x05,0xCA,0x00,0x00,0xC0};
+        const uint8_t MAC_D[6] = {0x68,0x05,0xCA,0x00,0x00,0xD0};
+        const uint8_t MAC_E[6] = {0x68,0x05,0xCA,0x00,0x00,0xE0};
+        const uint64_t CID_B = 0x680500FFFE0000B0ULL, CID_C = 0x680500FFFE0000C0ULL;
+        const uint64_t CID_D = 0x680500FFFE0000D0ULL, CID_E = 0x680500FFFE0000E0ULL;
+
+        // (a) register A; dedup register -> SUCCESS both times
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x1301, reg_pl));
+        auto r = collect_resp();
+        ck("[13a] REGISTER SUCCESS", r_status(r), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x1302, reg_pl));
+        r = collect_resp();
+        ck("[13a] re-REGISTER dedup SUCCESS", r_status(r), 0);
+
+        // (b) listener edge -> ONE push: u=1, to A's MAC/eid, seq 0,
+        //     GET_STREAM_INFO body with live values
+        dut->listener_observed_i = 1;
+        r = collect_resp();
+        ck("[13b] push arrived", r.size() > 0, 1);
+        ck("[13b] push dst = A's MAC", memcmp(r.data(), CTL_MAC, 6) == 0, 1);
+        ck("[13b] push u-bit set", u_bit(r), 1);
+        ck("[13b] push controller = A", r_ctlr(r) == CTLR_ID, 1);
+        ck("[13b] push seq 0", r_seq(r), 0);
+        ck("[13b] push cmd GET_STREAM_INFO", r_cmd(r), 15);
+        ck("[13b] push status SUCCESS", r_status(r), 0);
+        ck("[13b] push stream_id {mac,0}", be_at(r, 54, 8), 0x020000FFFE010000ULL);
+        ck("[13b] push desc STREAM_OUTPUT", be_at(r, 38, 2), 6);
+
+        // (c) second edge -> second push, per-controller sequence advanced
+        dut->listener_observed_i = 0;
+        r = collect_resp();
+        ck("[13c] second push seq 1", r_seq(r), 1);
+
+        // (d) SET_STREAM_INFO by A skips A (the change-causing controller)
+        {
+            std::vector<uint8_t> pl; put_be16(pl, 0x0006); put_be16(pl, 0);
+            uint32_t fl = 0x20000000u, lat = 1500000;
+            for (int i = 3; i >= 0; i--) pl.push_back((fl >> (8*i)) & 0xFF);
+            for (int i = 0; i < 16; i++) pl.push_back(0);
+            for (int i = 3; i >= 0; i--) pl.push_back((lat >> (8*i)) & 0xFF);
+            while (pl.size() < 56) pl.push_back(0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1303, pl));
+        }
+        r = collect_resp();
+        ck("[13d] SET SUCCESS", r_status(r), 0);
+        r = collect_resp(800);
+        ck("[13d] no self-push after own SET", r.size(), 0);
+
+        // (e) fill the table: B, C, D register; E -> NO_RESOURCES
+        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 36, 0x1304, reg_pl));
+        ck("[13e] REGISTER B", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, MAC_C, ENTITY_ID, CID_C, 0, 36, 0x1305, reg_pl));
+        ck("[13e] REGISTER C", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, MAC_D, ENTITY_ID, CID_D, 0, 36, 0x1306, reg_pl));
+        ck("[13e] REGISTER D", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, MAC_E, ENTITY_ID, CID_E, 0, 36, 0x1307, reg_pl));
+        ck("[13e] REGISTER E -> NO_RESOURCES", r_status(collect_resp()), 8);
+
+        // (f) edge -> four pushes (A..D), each unicast to its own MAC with
+        //     its own sequence counter
+        dut->listener_observed_i = 1;
+        int got = 0; bool got_a=false, got_b=false, got_c=false, got_d=false;
+        for (int i = 0; i < 4; i++) {
+            r = collect_resp();
+            if (r.empty()) break;
+            got++;
+            uint64_t cid = r_ctlr(r);
+            if (cid == CTLR_ID) { got_a = true; ck("[13f] A seq 2", r_seq(r), 2); }
+            if (cid == CID_B)   { got_b = true; ck("[13f] B seq 0", r_seq(r), 0); }
+            if (cid == CID_C)   { got_c = true; }
+            if (cid == CID_D)   { got_d = true; ck("[13f] D u-bit", u_bit(r), 1); }
+        }
+        ck("[13f] four pushes", got, 4);
+        ck("[13f] all four controllers", got_a && got_b && got_c && got_d, 1);
+
+        // (g) SET by A -> pushes to B, C, D only
+        {
+            std::vector<uint8_t> pl; put_be16(pl, 0x0006); put_be16(pl, 0);
+            uint32_t fl = 0x20000000u, lat = 1600000;
+            for (int i = 3; i >= 0; i--) pl.push_back((fl >> (8*i)) & 0xFF);
+            for (int i = 0; i < 16; i++) pl.push_back(0);
+            for (int i = 3; i >= 0; i--) pl.push_back((lat >> (8*i)) & 0xFF);
+            while (pl.size() < 56) pl.push_back(0);
+            dut->listener_observed_i = 0;   // allow the SET
+            (void)collect_resp();           // drain the edge pushes (4)
+            (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1308, pl));
+        }
+        r = collect_resp();
+        ck("[13g] SET SUCCESS", r_status(r), 0);
+        got = 0; got_a = false;
+        for (int i = 0; i < 3; i++) {
+            r = collect_resp();
+            if (r.empty()) break;
+            got++;
+            if (r_ctlr(r) == CTLR_ID) got_a = true;
+        }
+        ck("[13g] three pushes (A skipped)", got, 3);
+        ck("[13g] none to A", got_a ? 1 : 0, 0);
+        r = collect_resp(800);
+        ck("[13g] no extra push", r.size(), 0);
+
+        // (h) deregister A: idempotent SUCCESS; A gets no further pushes
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x1309, reg_pl));
+        ck("[13h] DEREGISTER SUCCESS", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x130A, reg_pl));
+        ck("[13h] re-DEREGISTER idempotent", r_status(collect_resp()), 0);
+        dut->listener_observed_i = 1;
+        got = 0; got_a = false;
+        for (int i = 0; i < 3; i++) {
+            r = collect_resp();
+            if (r.empty()) break;
+            got++;
+            if (r_ctlr(r) == CTLR_ID) got_a = true;
+        }
+        ck("[13h] three pushes after dereg", got, 3);
+        ck("[13h] none to deregistered A", got_a ? 1 : 0, 0);
+        dut->listener_observed_i = 0;
+        (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+    }
+
     // counters
     printf("\n[counters] cmd=%u resp=%u\n", dut->cmd_count_o, dut->resp_count_o);
     ck("cmd_count >= 14", dut->cmd_count_o >= 14, 1);

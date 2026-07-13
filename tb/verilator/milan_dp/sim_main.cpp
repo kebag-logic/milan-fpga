@@ -481,6 +481,118 @@ int main(int argc, char** argv) {
         ck("recovery adds no depart count", axi_read(A_ADP_DIAG), (2u << 16) | 1u);
     }
 
+    // --- 9. Milan talker: PROBE_TX-gated AAF streaming end-to-end ---
+    // docs/design/MILAN_TALKER_SM.md: with AAF_CTRL bypass=0 (Milan mode)
+    // the framer is gated by the ACMP probe SM. Before any probe: enable=1
+    // yields NO AAF frames. A PROBE_TX (wire CONNECT_TX) returns SUCCESS
+    // with the LIVE stream params AND opens the gate; the AAF frames on the
+    // MAC then carry the exact stream_id the probe handed out. CSR
+    // A_ACMP_TALKER witnesses {armed, active, gate}.
+    {
+        printf("[MILAN-TALKER] probe-gated AAF streaming\n");
+        enum { A_AAF_CTRL = 0x654, A_ACMP_TALKER = 0x66C };
+        // Milan mode: enable=1, bypass=0, VID=2 (reset is bypass=1)
+        axi_write(A_AAF_CTRL, 0x00020001);
+        ck("gate closed pre-probe (CSR)", axi_read(A_ACMP_TALKER) & 0xB, 0);
+        // no AAF frames while gated: watch the MAC for > one full frame
+        // accumulation period (6 pairs x 1024 cycles + slack)
+        {
+            bool aaf_seen = false;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 9000; c++) {
+                step();
+                if (dut->m_axis_mac_tx_tvalid) aaf_seen = true;
+            }
+            ck("MAC silent while gated", aaf_seen ? 1 : 0, 0);
+        }
+        // PROBE_TX for talker :01 uid 0 (70-byte ACMP, little-lane inject)
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x00;      // CONNECT_TX_COMMAND
+            f[16]=0x00; f[17]=44;                                // cdl
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;     // controller
+            const uint8_t tk[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+34, tk, 8);                                 // talker = us
+            f[62]=0x3C; f[63]=0x4D;                              // sequence_id
+            std::vector<uint64_t> beats;
+            for (int bt = 0; bt < 9; bt++) {
+                uint64_t v = 0;
+                for (int j = 0; j < 8; j++) v |= (uint64_t)f[bt*8+j] << (8*j);
+                beats.push_back(v);
+            }
+            Res pr; size_t idx = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 800; c++) {
+                if (idx < beats.size()) {
+                    dut->s_axis_mac_rx_tdata  = beats[idx];
+                    dut->s_axis_mac_rx_tkeep  = 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+                }
+                step();
+                if (dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready) idx++;
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    pr.data.push_back(dut->m_axis_mac_tx_tdata); pr.got = true;
+                    if (dut->m_axis_mac_tx_tlast) { step(); break; }
+                }
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+            ck("PROBE response emerged", pr.got ? 1 : 0, 1);
+            ck("PROBE response 9 beats", pr.data.size(), 9);
+            if (pr.data.size() == 9) {
+                // msg CONNECT_TX_RESPONSE(1) + status SUCCESS: frame byte 15
+                // = beat1 lane 7; byte 16 = beat2 lane 0
+                ck("PROBE msg RESPONSE(1)", (pr.data[1] >> 56) & 0x0F, 1);
+                ck("PROBE status SUCCESS", (pr.data[2] >> 3) & 0x1F, 0);
+                // stream_id (bytes 18-25 = beat2 lanes 2-7 + beat3 lanes 0-1):
+                // {station_mac 02:00:00:00:00:01, uid 0}
+                uint64_t sid = 0;
+                for (int k = 18; k < 26; k++)
+                    sid = (sid << 8) | ((pr.data[k/8] >> (8*(k%8))) & 0xFF);
+                ck("PROBE stream_id {mac,0}", (unsigned long long)sid,
+                   0x0200000000010000ULL);
+            }
+        }
+        ck("gate open post-probe (CSR armed|active|gate)",
+           axi_read(A_ACMP_TALKER) & 0xB, 0xB);
+        // AAF frames now flow and carry the SAME stream_id (VLAN-tagged
+        // frame: stream_id at bytes 22-29)
+        {
+            std::vector<uint8_t> fr; bool in_aaf = false; int aaf_frames = 0;
+            uint64_t aaf_sid = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 20000 && aaf_frames == 0; c++) {
+                step();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        if (fr.size() >= 30 && fr[12] == 0x81 && fr[13] == 0x00 &&
+                            fr[16] == 0x22 && fr[17] == 0xF0 && fr[18] == 0x02) {
+                            in_aaf = true; aaf_frames++;
+                            aaf_sid = 0;
+                            for (int k = 22; k < 30; k++)
+                                aaf_sid = (aaf_sid << 8) | fr[k];
+                        }
+                        fr.clear();
+                    }
+                }
+            }
+            ck("AAF frame flows post-probe", aaf_frames >= 1, 1);
+            ck("AAF stream_id == probed id", in_aaf ? (unsigned long long)aaf_sid : 0,
+               0x0200000000010000ULL);
+        }
+        // restore the reset default (bypass=1) so later sections see legacy
+        axi_write(A_AAF_CTRL, 0x00020002);
+    }
+
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;

@@ -44,6 +44,7 @@ module aaf_talker_i2s #(
     input  wire         enable_i,
     input  wire [47:0]  dest_mac_i,        //! stream DMAC ([47:40] first on wire)
     input  wire [47:0]  station_mac_i,     //! src MAC; stream_id = {mac, 16'd0}
+    input  wire [31:0]  transit_ns_i,      //! presentation offset added to the PHC timestamp (SET_STREAM_INFO msrp_acc_lat; reset default 2 ms)
     input  wire [11:0]  vlan_vid_i,        //! SR class VID (default 2)
     input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
 
@@ -69,7 +70,6 @@ module aaf_talker_i2s #(
   localparam int FRAME_BYTES = 14 + 4 + 24 + 48;  //! eth+vlan+aaf hdr+payload = 90
   localparam int NUM_BEATS   = (FRAME_BYTES + 7) / 8;              //! 12
   localparam int LAST_KEEP   = FRAME_BYTES - (NUM_BEATS-1)*8;      //! 2
-  localparam [31:0] TRANSIT_NS = 32'd2_000_000;  //! Milan max transit 2 ms
 
   // -----------------------------------------------------------------------
   // I2S master clocking: one free counter in cd_milan.
@@ -197,7 +197,7 @@ module aaf_talker_i2s #(
         buf_l[nsamp_r] <= sample_l_r;
         buf_r[nsamp_r] <= sample_r_r;
         if (nsamp_r == 0)
-          ts_r <= ptp_ns_i[31:0] + TRANSIT_NS;
+          ts_r <= ptp_ns_i[31:0] + transit_ns_i;
         if (nsamp_r == SAMPLES_PER_FRAME-1) begin
           nsamp_r      <= '0;
           frame_pend_r <= 1'b1;
