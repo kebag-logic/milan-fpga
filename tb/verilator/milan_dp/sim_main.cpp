@@ -430,6 +430,57 @@ int main(int argc, char** argv) {
         }
     }
 
+    // --- 8. ADP depart witness + enable-toggle recovery (silicon 2026-07-13) ---
+    // The Arty's advertiser went dormant mid-session (available_r cleared with
+    // NO software writer of ADP_CMD; link_down structurally impossible) and
+    // only an enable-edge poke revived it. This validates the CSR view of that
+    // flow: A_ADP_DIAG zero at boot -> ADP_CMD[1] departs (DEPARTING frame on
+    // the MAC + depart_cnt/src witness) -> dormant (silent) -> the exact bench
+    // recovery (enable 0->1) re-arms and advertises, without a new depart
+    // count. The tick-driven dormancy SELF-re-arm is unit-tested in
+    // tb/verilator/adp (the 1 s tick is unreachable at datapath scale).
+    {
+        printf("[ADP-DIAG] depart witness + enable-toggle recovery\n");
+        enum { A_ADP_CMD = 0x640, A_ADP_DIAG = 0x668 };
+        ck("DIAG zero at boot", axi_read(A_ADP_DIAG), 0);
+        uint32_t ai_pre = axi_read(A_ADP_STATUS);
+        axi_write(A_ADP_CMD, 0x2);                 // software depart
+        Res dep; dut->m_axis_mac_tx_tready = 1;
+        for (int c = 0; c < 600; c++) {
+            step();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                dep.data.push_back(dut->m_axis_mac_tx_tdata); dep.got = true;
+            }
+            if (dep.got && dut->m_axis_mac_tx_tlast) { step(); break; }
+        }
+        ck("DEPARTING frame emerged", dep.got ? 1 : 0, 1);
+        // ADPDU byte 15 = {4'b0, message_type} sits in beat1 lane 7
+        ck("message_type DEPARTING(1)",
+           dep.data.size() < 2 ? 0xFF : (unsigned long)((dep.data[1] >> 56) & 0x0F), 1);
+        ck("DIAG: depart_cnt=1, src=shutdown", axi_read(A_ADP_DIAG), (2u << 16) | 1u);
+        ck("index bumped on depart", axi_read(A_ADP_STATUS), ai_pre + 1);
+        // dormant: nothing else may emerge
+        bool stray = false;
+        for (int c = 0; c < 400; c++) { step(); if (dut->m_axis_mac_tx_tvalid) stray = true; }
+        ck("dormant after depart (MAC silent)", stray ? 1 : 0, 0);
+        // recovery = the bench poke: enable 0 -> 1 (wrapper synthesizes the
+        // link-up event on the rising edge; same path as enable-after-boot)
+        axi_write(A_ADP_CTRL, 0x00001F00);
+        axi_write(A_ADP_CTRL, 0x00001F01);
+        Res rec;
+        for (int c = 0; c < 600; c++) {
+            step();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                rec.data.push_back(dut->m_axis_mac_tx_tdata); rec.got = true;
+            }
+            if (rec.got && dut->m_axis_mac_tx_tlast) { step(); break; }
+        }
+        ck("AVAILABLE after enable-toggle", rec.got ? 1 : 0, 1);
+        ck("message_type AVAILABLE(0)",
+           rec.data.size() < 2 ? 0xFF : (unsigned long)((rec.data[1] >> 56) & 0x0F), 0);
+        ck("recovery adds no depart count", axi_read(A_ADP_DIAG), (2u << 16) | 1u);
+    }
+
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;
