@@ -1,5 +1,14 @@
 # gPTP "bad message" — ROOT CAUSE (2026-07-12 night): RX DMA delivers 8-byte-padded frames
 
+> **GATEWARE FIX IMPLEMENTED 2026-07-13 (commit 5638c95, in the hwts1 sweep):**
+> the last-beat keep now threads through len_fifo as a 3-bit `pad`; single-frame
+> BD w0 reports the TRUE length (beats*8 - pad, ACK-flush included), the
+> byte-ring header stays PADDED (frozen ABI, zero driver change), RSC aggregates
+> were already parse-derived. Gates: ring 7/7 + BD 45-PASS (new 68B-gPTP /
+> 91B-replay / 66B-ACK true-length tests) + elab/codegen clean. The kl-eth
+> PTP-trim becomes a no-op on fixed gateware and stays for old bitstreams.
+> Silicon gate pending: RX perf regression (TCP ≥ switch baseline, 0-drop).
+
 ## The overturn
 Earlier conclusion ("the switch doesn't run gPTP on the board ports") was WRONG.
 Verified with an inbound-only capture while ptp4l runs: the switch **does** send
