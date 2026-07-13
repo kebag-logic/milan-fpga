@@ -64,6 +64,17 @@ left a witness — which is exactly what the fix changes.
    zero margin (an unlucky capture window read as "not advertising"; controllers
    sat at the expiry edge). Both assemblies (milan_datapath + legacy milan_top)
    fixed.
+   **CORRECTION (2026-07-14, measure-don't-assume violation owned):** the RTL
+   fix was right but `milan_soc.py` NEVER PASSED the parameter
+   (`Instance("milan_datapath", **ports)` with no `p_MILAN_CLK_FREQ_HZ`), so
+   silicon kept the 100 MHz default and the Arty tick stayed 2.0 s. The
+   adpfix drill's "cadence 62->31 s measured" was a SINGLE-PERIOD window
+   (+1 in 35 s = a 56 % coin flip on a 62 s cadence) — and a later
+   +30-in-~31-min observation that supported 62 s got explained away. The
+   Milan probe window exposed it (measured ~26-28 s instead of 15 s); a
+   130 s two-period measurement then confirmed 62 s. Fixed by plumbing
+   `milan_clk_hz` through MilanNIC into the Instance. Cadence claims need
+   >= 2 periods.
 
 ## Gates
 - `tb/verilator/adp`: 246 checks PASS — new cases: cmd-depart, dormancy
