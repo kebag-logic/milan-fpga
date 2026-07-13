@@ -119,6 +119,62 @@ Phase B hardware timestamps (tighter than the -S software path; the fabric
 already timestamps 0x88F7) for sub-ns and to satisfy tight switch thresholds.
 
 
+## SWITCH BEHAVIOR MATRIX — definitive (2026-07-13 morning, post power-cycle)
+The switch was power-cycled (~03:46, its PTP clock read 7 s in pdelay resps;
+flap-suppression cleared). Systematic experiments, one variable at a time:
+
+| Port | pdelay | accepts strong GM announce (slaves) | sends announce/sync (masters) |
+|---|---|---|---|
+| uplink (pw0) | always | NO — ignored pw0 100/cc6 for 25+ min | YES (self-GM at boot; relay when slaved on port 8) |
+| port 8 (Arty) | always | YES — Arty 100/cc6 engaged the relay | NEVER observed (any switch state) |
+| port 7 (AX) | always | not proven either way (see caveat) | NEVER observed (any switch state) |
+
+- **The appliance never sources announce/sync INTO a board port** — verified
+  on BOTH board ports across every switch state (self-GM, slaved-to-Arty,
+  multi-claimant), with port-8 RX continuously alive. Board-as-slave through
+  this switch is architecturally unavailable → the direct board<->board cable
+  (gptp_direct_cable.sh) stays the only slave-validation path. The parallel
+  session's exhaustive slave-direction run (commit 8bbe361: fresh boot,
+  talker off, allmulti, power-cycle against stable link, pw0 HW-ts GM)
+  reached the same verdict independently.
+- Port-7 caveat: the "switch ignored AX-GM 90/cc6 for 12 min" observation is
+  CONTAMINATED by the kl-eth multicast-RX gap (8bbe361): the AX's allmulti
+  was OFF, so its pdelay RX (hence asCapable, hence announcing) likely only
+  worked inside tcpdump promisc windows — the switch may never have seen 4
+  consecutive announces to qualify. Re-run single-claimant AX-GM with
+  allmulti pinned if port-7 accept behavior ever matters (it does not change
+  the board-slave verdict).
+- **Multi-claimant confusion**: with 3 strong GMs at once (pw0 100 + Arty 100
+  + AX 90, all cc6) the switch went announce-SILENT on every port (even its
+  own self-GM stopped). Reverting to a SINGLE strong claimant (Arty 100/cc6,
+  everyone else 248-254/cc248) re-engaged the relay within ~1 min. Keep the
+  segment single-claimant.
+- Re-proven end to end after the power-cycle: Arty GM -> switch (presents its
+  own clock id 3cc0c6.fffe.fe0210, boundary-style) -> **pw0 SLAVE rms 3 ns,
+  freq -26.5k** (same freq as last night = same Arty time source).
+- The AX had been running the OLD un-trimmed kl-eth (adp2-era QSPI rootfs,
+  up 14 h) -> "bad message" spam, asCapable never, its announces invisible.
+  Hot-swapped the trim .ko (VM -> pw0 -> AX via `ssh cat`; the built artifact
+  at br-milan-output/build/kl-eth-1.0/kl-eth.ko has the trim) -> badmsg=0,
+  peer delay 450 us, full GM output on the wire. **RAM-only fix: the AX QSPI
+  rootfs still ships the old driver — reflash for persistence.**
+- ptp4l 4.4 sends PTPv2.1 headers (minorVersion 1) on gPTP; the switch
+  handles them fine for pdelay AND (from the Arty, same 4.4) announce accept
+  — version is NOT a factor (theory tested and dropped).
+- Ops traps paid: both boards bake 192.168.127.1 (shared rootfs) — the Arty
+  shadowed the AX until `ip addr del`; deleting the primary .1 also dropped
+  the secondary .3 (busybox promote_secondaries off) — re-add .3 after.
+  TWO sessions drove the bench concurrently this morning (this one + the
+  8bbe361 session with amx-pi switch power control) — ptp4l restarts/kills
+  from the other session look like silent crashes; check `ps` + attribute
+  before debugging.
+- LIVE-STATE DEPENDENCY: the current lock chain requires **allmulti pinned on
+  both boards** (`ip link set eth0 allmulticast on`, MAC_CTRL 0x1B) until the
+  kl_set_rx_mode fix (program allmulti/mc-hash when netdev_mc_count>0) ships
+  with the Phase B kl-eth work. A reboot silently reverts to 0x13 = standalone
+  ptp4l goes deaf.
+
+
 ## Arty-as-slave: exhaustively tested, blocked by switch role (2026-07-13)
 Tried hard to get the Arty to SLAVE (discipline its own PHC from pw0-as-GM),
 using the amx-pi switch power control:
