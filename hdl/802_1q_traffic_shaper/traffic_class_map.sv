@@ -78,6 +78,8 @@ module traffic_class_map #(
   //! Legacy EtherType classification, matching the historical enum ordering.
   network_priority_t legacy_priority;
 
+
+
   //! DEI is decoded for drop-eligibility sideband use (REQ-CLS-05); it does not
   //! change the queue selection in this revision. Tie-off to keep lint quiet.
   wire _unused_dei = dei_i;
@@ -102,7 +104,21 @@ module traffic_class_map #(
     endcase
 
     // ---- select mode ----
-    if (use_pcp_i)
+    // gPTP FAST-PATH (2026-07-13): 0x88F7 frames are untagged (no PCP) yet
+    // latency-critical. The legacy arm always classed them GPTP_CLASS (q1,
+    // second-highest; q0 = SRA and queue index 0 = HIGHEST at the grant's
+    // priority encoder); in PCP mode they fell through default_pcp to
+    // whatever the tables say. Make PCP mode match legacy: gPTP always rides
+    // its own class, above best-effort and OUT of the CBS-shaped SRA queue
+    // (audio credit windows must not gate sync). NOTE: the TX-flood tx-ts
+    // timeouts of 2026-07-13 were NOT queue starvation - silicon ran legacy
+    // mode (gPTP already q1 > TCP q3); the delay lives in the DRIVER's single
+    // TX descriptor ring (256 slots ~ 30 ms of bulk backlog at 100 Mbit,
+    // upstream of this classifier). tx_timestamp_timeout 50 covers it; the
+    // real fix for that class is a priority TX ring/doorbell (future).
+    if (eth_type_i == ETH_TYPE_PTP)
+      tdest_o = TDEST_WIDTH'(GPTP_CLASS);
+    else if (use_pcp_i)
       tdest_o = queue_sel;
     else
       tdest_o = legacy_priority[TDEST_WIDTH-1:0];
