@@ -74,6 +74,8 @@ static void clear_events() {
     dut->link_up_i = dut->link_down_i = dut->shutdown_i = 0;
     dut->gm_change_i = dut->info_changed_i = dut->rcv_discover_i = dut->tick_i = 0;
 }
+// link_level_i is a LEVEL (gates the dormancy self-re-arm); the pulses above
+// stay the event interface. The TB keeps the level consistent with the pulses.
 
 // two-phase clock; sample the sink during the low phase (stable, pre-edge)
 static void lo() { dut->clk_i = 0; dut->eval(); }
@@ -148,6 +150,7 @@ int main(int argc, char** argv) {
 
     dut->rst_n = 0; dut->enable_i = 0; dut->m_axis_tready = 1;
     apply_static_fields(); clear_events();
+    dut->link_level_i = 1;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; dut->enable_i = 1;
     for (int i = 0; i < 2; i++) step();
@@ -180,16 +183,20 @@ int main(int argc, char** argv) {
     check_common("gm-change AVAILABLE", f4, 0, 4);
 
     // 5) link-down -> ENTITY_DEPARTING, 4 -> 5 (reference bumps on depart too)
+    dut->link_level_i = 0;
     pulse(dut->link_down_i);
     auto f5 = capture_frame();
     check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 5);
 
     // 6) re-up under AXIS back-pressure -> AVAILABLE, 5 -> 6, bytes intact
+    dut->link_level_i = 1;
     pulse(dut->link_up_i);
     auto f6 = capture_frame(/*bp=*/1);
     check_common("backpressure AVAILABLE", f6, 0, 6);
 
-    // 7) once departed (link down), a periodic tick must NOT emit a frame
+    // 7) once departed with the link DOWN, a periodic tick must NOT emit a
+    //    frame (and the dormancy self-re-arm must stay gated by link level)
+    dut->link_level_i = 0;
     pulse(dut->link_down_i);
     (void)capture_frame();                      // drain the departing frame
     bool spurious = false;
@@ -198,6 +205,57 @@ int main(int argc, char** argv) {
         for (int k = 0; k < 4; k++) { lo(); if (dut->m_axis_tvalid) spurious = true; hi(); }
     }
     ck("no advertise while departed", spurious ? 1 : 0, 0);
+
+    // 8) link restored -> AVAILABLE, 7 -> 8 (case 7's depart was index 7)
+    dut->link_level_i = 1;
+    pulse(dut->link_up_i);
+    auto f8 = capture_frame();
+    check_common("link-restore AVAILABLE", f8, 0, 8);
+
+    // 9) software depart (ADP_CMD[1]) with the link still UP -> DEPARTING, 9
+    pulse(dut->shutdown_i);
+    auto f9 = capture_frame();
+    check_common("cmd DEPARTING", f9, 1, 9);
+
+    // 10) DORMANCY SELF-RE-ARM (silicon 2026-07-13): enabled + link up but
+    //     not available (whatever cleared available_r) -> after 2 ticks the
+    //     advertiser re-arms itself and sends ENTITY_AVAILABLE. This is the
+    //     bench failure mode: the Arty went dark mid-session and only an
+    //     enable-edge poke revived it.
+    pulse(dut->tick_i);                         // dormant tick 1: arm watchdog
+    pulse(dut->tick_i);                         // dormant tick 2: re-arm fires
+    auto f10 = capture_frame();
+    check_common("dormancy self-re-arm AVAILABLE", f10, 0, 10);
+    ck("rearm_cnt after self-heal", dut->rearm_cnt_o, 1);
+
+    // 11) periodic advertising must be fully restored after a self-re-arm
+    for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
+    auto f11 = capture_frame();
+    check_common("periodic after re-arm", f11, 0, 11);
+
+    // 12) DIAG counters: departs taken = case 5 + case 7 + case 9; last
+    //     source = shutdown (bit1), not link_down (bit0)
+    ck("depart_cnt", dut->depart_cnt_o, 3);
+    ck("depart_src == shutdown", dut->depart_src_o, 2);
+
+    // 13) the re-arm is honestly gated by enable_i: depart, disable, ticks ->
+    //     silent; re-enable -> self-re-arm resumes advertising
+    pulse(dut->shutdown_i);
+    auto f13 = capture_frame();
+    check_common("cmd DEPARTING pre-disable", f13, 1, 12);
+    dut->enable_i = 0;
+    bool spurious13 = false;
+    for (int t = 0; t < 4; t++) {
+        pulse(dut->tick_i);
+        for (int k = 0; k < 4; k++) { lo(); if (dut->m_axis_tvalid) spurious13 = true; hi(); }
+    }
+    ck("no re-arm while disabled", spurious13 ? 1 : 0, 0);
+    dut->enable_i = 1;
+    pulse(dut->tick_i);
+    pulse(dut->tick_i);
+    auto f13b = capture_frame();
+    check_common("re-arm after re-enable", f13b, 0, 13);
+    ck("rearm_cnt after 2nd heal", dut->rearm_cnt_o, 2);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

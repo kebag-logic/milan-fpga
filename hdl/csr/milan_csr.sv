@@ -145,6 +145,9 @@ module milan_csr #(
   output wire [63:0]             o_adp_association_id,//! association_id {ADP_ASSOC_HI, ADP_ASSOC_LO}
   output wire                    o_adp_advertise_p,   //! 1-cycle: advertise now + bump available_index (ADP_CMD[0])
   output wire                    o_adp_depart_p,      //! 1-cycle: send ENTITY_DEPARTING (ADP_CMD[1])
+  input  wire [7:0]              i_adp_depart_cnt,    //! DIAG: depart events taken (A_ADP_DIAG[7:0])
+  input  wire [7:0]              i_adp_rearm_cnt,     //! DIAG: dormancy self-re-arms (A_ADP_DIAG[15:8])
+  input  wire [1:0]              i_adp_depart_src,    //! DIAG: last depart cause {shutdown, link_down} (A_ADP_DIAG[17:16])
   input  wire [31:0]             i_adp_available_index, //! current available_index from the advertiser (ADP_STATUS)
   //! AECP/AEM listener status (KL_aecp_top) — read-only, 0x648/0x64C
   input  wire                    i_aecp_locked,         //! entity is LOCK_ENTITY-locked
@@ -219,6 +222,7 @@ module milan_csr #(
     A_ACMP_STAT   = 'h650,                        //! ACMP responder status (RO)
     A_AAF_CTRL    = 'h654, A_AAF_DMLO = 'h658, A_AAF_DMHI = 'h65C, //! AAF talker
     A_AAF_FRAMES  = 'h660, A_AAF_PAIRS = 'h664,   //! AAF talker status (RO)
+    A_ADP_DIAG    = 'h668,                        //! ADP dormancy diagnostics (RO)
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -565,6 +569,7 @@ module milan_csr #(
       A_ADP_ASHI:   rd_mux = adp_ashi;
       A_ADP_CMD:    rd_mux = 32'h0;                         // strobes read 0
       A_ADP_STATUS: rd_mux = i_adp_available_index;         // RO available_index readback
+      A_ADP_DIAG:   rd_mux = {14'd0, i_adp_depart_src, i_adp_rearm_cnt, i_adp_depart_cnt};
       // AECP: [16]=locked, [15:0]=cmd_count | resp_count[31:16], current_config[15:0]
       A_AECP_STAT0: rd_mux = {15'd0, i_aecp_locked, i_aecp_cmd_count};
       A_AECP_STAT1: rd_mux = {i_aecp_resp_count, i_aecp_current_config};

@@ -43,6 +43,7 @@ module adp_advertiser (
     // ---- control / events ------------------------------------------------
     input  wire        enable_i,                  //! ADP enable (CSR)
     input  wire        tick_i,                    //! 1-second strobe (1 cycle high)
+    input  wire        link_level_i,              //! LEVEL: link currently up (gates the dormancy self-re-arm)
     input  wire        link_up_i,                 //! pulse: link came up  -> advertise + bump index
     input  wire        link_down_i,               //! pulse: link went down -> depart
     input  wire        shutdown_i,                //! pulse: graceful shutdown -> depart
@@ -78,7 +79,10 @@ module adp_advertiser (
     // ---- status ----------------------------------------------------------
     output reg  [31:0] available_index_o,         //! current available_index (CSR readback)
     output wire        busy_o,                    //! a frame is being serialised
-    output reg         frame_sent_o               //! 1-cycle pulse when a frame completes
+    output reg         frame_sent_o,              //! 1-cycle pulse when a frame completes
+    output reg  [7:0]  depart_cnt_o,              //! DIAG: depart events taken (available 1->0)
+    output reg  [7:0]  rearm_cnt_o,               //! DIAG: dormancy self-re-arms (each = one anomaly healed)
+    output reg  [1:0]  depart_src_o               //! DIAG: last depart cause {shutdown_i, link_down_i}
 );
 
   // -----------------------------------------------------------------------
@@ -191,7 +195,26 @@ module adp_advertiser (
   // -----------------------------------------------------------------------
   // Trigger capture — build the pending request. A depart wins over an
   // advertise; every send bumps available_index (see serialiser).
+  //
+  // DORMANCY SELF-RE-ARM (silicon 2026-07-13): the Arty's advertiser fell
+  // available_r=0 mid-session and stayed silent until an enable-edge poke —
+  // with NO software writer of ADP_CMD and link_down structurally impossible
+  // (the fully-FPGA SoC ties i_link_up to 1). Whatever flipped it (flop upset
+  // or a one-shot bus anomaly), an ENABLED entity on a LIVE link must never
+  // stay dormant: after REARM_TICKS_C dormant ticks it re-arms and sends
+  // ENTITY_AVAILABLE (available_index keeps incrementing monotonically, which
+  // la_avdecc/Hive accept across a depart/return). The DIAG counters below
+  // (CSR A_ADP_DIAG) make the next occurrence identify itself: rearm_cnt
+  // bumping while depart_cnt stays put = a state upset, not a depart command.
+  // An operator who wants silence has the honest levers: enable_i=0 or link
+  // down — both gate the re-arm.
   // -----------------------------------------------------------------------
+  localparam int REARM_TICKS_C = 2;   //! dormant ticks before self-re-arm
+
+  reg  [1:0] rearm_tick_r;            //! dormancy watchdog (saturating is unnecessary: fires at threshold)
+  wire       rearm_fire_w = !available_r && enable_i && link_level_i &&
+                            tick_i && (rearm_tick_r >= 2'(REARM_TICKS_C-1));
+
   wire depart_evt_w    = link_down_i | shutdown_i;
   wire bump_advert_evt = link_up_i | gm_change_i | info_changed_i; // advertise + bump index
   wire plain_advert_w  = rcv_discover_i | tmr_advertise_w;         // advertise, no bump
@@ -202,6 +225,10 @@ module adp_advertiser (
       send_pending_r <= 1'b0;
       pend_msg_r     <= ENTITY_AVAILABLE;
       adv_tick_cnt_r <= 5'd0;
+      rearm_tick_r   <= 2'd0;
+      depart_cnt_o   <= 8'd0;
+      rearm_cnt_o    <= 8'd0;
+      depart_src_o   <= 2'd0;
     end else begin
       // advertise timer
       if (!available_r) begin
@@ -210,15 +237,30 @@ module adp_advertiser (
         adv_tick_cnt_r <= tmr_advertise_w ? 5'd0 : (adv_tick_cnt_r + 5'd1);
       end
 
+      // dormancy watchdog: count ticks spent !available while enabled + linked
+      if (available_r || !enable_i || !link_level_i)
+        rearm_tick_r <= 2'd0;
+      else if (tick_i)
+        rearm_tick_r <= rearm_fire_w ? 2'd0 : (rearm_tick_r + 2'd1);
+
       // availability state
       if (depart_evt_w)      available_r <= 1'b0;
-      else if (link_up_i && enable_i) available_r <= 1'b1;
+      else if ((link_up_i && enable_i) || rearm_fire_w) available_r <= 1'b1;
+
+      // DIAG witnesses (an upset that clears available_r WITHOUT a depart
+      // event shows up as rearm_cnt advancing while depart_cnt stands still)
+      if (depart_evt_w && available_r) begin
+        depart_cnt_o <= depart_cnt_o + 8'd1;
+        depart_src_o <= {shutdown_i, link_down_i};
+      end
+      if (rearm_fire_w) rearm_cnt_o <= rearm_cnt_o + 8'd1;
 
       // pending request (priority-encoded); keep an existing pending until sent
       if (!send_pending_r) begin
         if (depart_evt_w && available_r) begin
           send_pending_r <= 1'b1; pend_msg_r <= ENTITY_DEPARTING;
-        end else if (bump_advert_evt && (available_r || link_up_i) && enable_i) begin
+        end else if ((bump_advert_evt || rearm_fire_w) &&
+                     (available_r || link_up_i || rearm_fire_w) && enable_i) begin
           send_pending_r <= 1'b1; pend_msg_r <= ENTITY_AVAILABLE;
         end else if (plain_advert_w && available_r && enable_i) begin
           send_pending_r <= 1'b1; pend_msg_r <= ENTITY_AVAILABLE;
