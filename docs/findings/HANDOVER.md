@@ -1,5 +1,25 @@
 # HANDOVER  -  topology rules + live states (2026-07-13)
 
+> 2026-07-13 LATE-NIGHT delta (normative: ADP_DORMANCY.md): during control-
+> plane re-certification of the same-day gatewares, the Arty's :02 went
+> SILENT on ADP while gPTP kept serving (pw0 SLAVE, 6 ns) — forensics proved
+> the advertiser had silently DEPARTED (available_r=0) with no software
+> depart writer and link_down structurally impossible; balanced AECP/ACMP
+> counters ruled out the arbiter-wedge theory; the ADP-enable toggle revived
+> it live (recovery one-liner: devmem 0x90000600 32 0x1F00 then 0x1F01).
+> Trigger not retroactively provable (flop upset vs one-shot bus anomaly) —
+> so the fix is self-healing + witnesses: **dormancy self-re-arm** (enabled +
+> link-level up + 2 ticks -> re-advertise; commit ba76908) + **A_ADP_DIAG
+> 0x668** {depart_cnt, rearm_cnt, last-src} discriminates the next
+> occurrence, + ADP tick div now tracks MILAN_CLK_FREQ_HZ (the 50 MHz Arty
+> was re-advertising every 62 s = the validity horizon, zero margin). Gates:
+> adp 246, milan_dp 43, cls 200k (its reference had MISSED the gPTP
+> fast-path — taught), yosys 20/20. AX re-certified on eto_hwts_ax2:
+> controller 31/31 + la_avdecc Milan=1 CLEAN 0 complaints. adpfix sweeps
+> launched for both boards; gptp_direct_cable.sh REWRITTEN for HW-ts
+> (self-contained tmux sentinel exec, AX=GM cc6/prio100, Arty=slave, gates:
+> SLAVE+rms / peer delay ~1-3 us HW-grade / txto=0 both ends).
+
 > 2026-07-13 session delta (normative: GPTP_RXPAD_ROOTCAUSE.md matrix +
 > PTP_TS_METADATA_FIX.md): switch gPTP matrix DEFINITIVE (edge ports =
 > GM-source/pdelay by DESIGN, never send sync into boards -> board-slave =
