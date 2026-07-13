@@ -319,6 +319,58 @@ int main(int argc, char** argv) {
     printf("[IRQ] o_irq_csr is driven\n");
     ck("o_irq_csr defined (0/1)", (dut->o_irq_csr <= 1) ? 1 : 0, 1);
 
+    // --- 7. PTP ts record end-to-end through the REAL ingress (phase B) ---
+    // A 0x88F7 frame at s_axis_mac_rx must yield one 2-beat metadata record on
+    // m_axis_ts: {ns; {seq<<8 | dir}}. This is the check that would have caught
+    // the BIG_ENDIAN(0)/F788 instantiation (extracted src-MAC bytes under the
+    // BE-lane convention -> zero records on silicon while the unit TB agreed
+    // with the wrong pair by driving LE lanes).
+    {
+        printf("[PTP-TS] gPTP RX -> metadata record\n");
+        enum { A_PTP_CTRL = 0x500, A_PTP_INCR = 0x504 };
+        axi_write(A_PTP_INCR, 20u << 24);       // 20 ns/tick Q8.24
+        axi_write(A_PTP_CTRL, 1);
+        uint8_t g[68]; memset(g, 0, sizeof g);
+        const uint8_t gh[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
+        memcpy(g, gh, 14);
+        g[14] = 0x12; g[15] = 0x02; g[17] = 54;  // pdelay_req, v2, len 54
+        g[44] = 0xBE; g[45] = 0xEF;              // sequenceId
+        std::vector<uint64_t> gb;
+        for (int bt = 0; bt < 9; bt++) {
+            uint64_t v = 0;
+            for (int j = 0; j < 8 && bt*8+j < 68; j++)
+                v |= (uint64_t)g[bt*8+j] << (8*(7-j));
+            gb.push_back(v);
+        }
+        std::vector<uint64_t> ts;
+        size_t idx = 0;
+        dut->m_axis_ts_tready = 1;
+        for (int c = 0; c < 600; c++) {
+            if (idx < gb.size()) {
+                dut->s_axis_mac_rx_tdata = gb[idx];
+                dut->s_axis_mac_rx_tkeep = (idx == gb.size()-1) ? 0xF0 : 0xFF;
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast = (idx == gb.size()-1);
+            } else {
+                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+            }
+            lo();
+            bool adv = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+            bool tsx = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
+            uint64_t td = dut->m_axis_ts_tdata;
+            hi();
+            if (adv) idx++;
+            if (tsx) ts.push_back(td);
+        }
+        dut->s_axis_mac_rx_tvalid = 0;
+        ck("ts record emitted (2 beats)", ts.size(), 2);
+        if (ts.size() == 2) {
+            ck("ts word0 (ns) nonzero", ts[0] != 0 ? 1 : 0, 1);
+            ck("ts word1 dir=RX",       (unsigned long)(ts[1] & 1), 0);
+            ck("ts word1 seq=0xBEEF",   (unsigned long)((ts[1] >> 8) & 0xFFFF), 0xBEEFUL);
+        }
+    }
+
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;
