@@ -127,11 +127,20 @@
     `openFPGALoader -f` a bitstream at it (clobbers the kernel  -  the
     historical trap; deploy.sh refuses without FORCE_BITSTREAM_FLASH=1).
     Gateware is JTAG-SRAM; power-cycle blanks the FPGA.
-13. Arty: SAME images model since the flashboot port (kernel at 0 displaced
-    the bitstream  -  16 MB cannot hold both). Gateware JTAG-SRAM. The flash
-    verb: `KERNEL=.. ROOTFS=.. DTB=.. OPENSBI=.. PYTHON=<venv> build.sh
-    flash arty` (FBI wrap + budget checks + verify, offsets from the build's
-    flashboot_layout.json).
+13. Arty: **v3 QSPI-boot since 07-12/13 (SUPERSEDES the images-at-0 model
+    this rule used to describe)**: bitstream @0 (4 MiB) + xz kernel
+    @0x400000 + opensbi @0x700000 + dtb @0x760000 + rootfs @0x780000 —
+    fully self-hosting with JP1=QSPI. build.sh board_facts policy `boot`
+    does both stages. The flash verb: `KERNEL=.. ROOTFS=.. DTB=..
+    OPENSBI=.. PYTHON=<venv> build.sh flash arty[:<builddir>]` (FBI wrap +
+    budget checks + verify; sweep dirs get their layout reconstructed from
+    soc.h). Canonical images: KERNEL=br-milan-output/images/Image
+    (auto-xz), ROOTFS=br-milan-output/images/rootfs.cpio.xz (the Jul-13
+    turnkey one — boot/rootfs.cpio.gz is a STALE Jul-5 copy without
+    S50milan), OPENSBI=fpga/boot/opensbi_arty.bin,
+    DTB=fpga/dts/milan_arty_vexii.dtb. After flashing:
+    `openFPGALoader --ftdi-serial 210319AFEED0 -c digilent --reset` to
+    reconfigure from QSPI without touching the power.
 14. OpenSBI is BOARD-SPECIFIC and EMBEDS a DTB (FW_FDT_PATH bypasses the
     flashed dtb slot!). Build per board via build_opensbi.sh env
     (OUT/TIMER_HZ/BOARD_TAG/NAX_HARTS/DTB; the banner names the board):
