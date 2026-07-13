@@ -182,7 +182,7 @@ class MilanNIC(LiteXModule):
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
-                 rx1_irq=None):
+                 rx1_irq=None, milan_clk_hz=100_000_000):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -201,7 +201,8 @@ class MilanNIC(LiteXModule):
                       ev.rx.trigger.eq(rx_irq if rx_irq is not None else 0),
                       ev.ts.trigger.eq(0)]
         add_milan_datapath(self, platform, axil, ev.csr.trigger,
-                           extra_ports=dma_mac_ports, milan_cd=milan_cd)
+                           extra_ports=dma_mac_ports, milan_cd=milan_cd,
+                           milan_clk_hz=milan_clk_hz)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -238,7 +239,8 @@ _MILAN_DATAPATH_SOURCES = [
 ]
 
 
-def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys"):
+def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
+                       milan_clk_hz=100_000_000):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -294,7 +296,14 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     )
     if extra_ports:
         ports.update(extra_ports)
-    host.specials += Instance("milan_datapath", **ports)
+    # MILAN_CLK_FREQ_HZ drives the ADP/ACMP 1 s tick divider and the AECP
+    # 1 kHz lock timer. NEVER omitted again: silicon 2026-07-14 - the RTL
+    # default (100 MHz) on the Arty's 50 MHz datapath made the tick 2 s,
+    # stretching the ADP re-advertise to 62 s (the validity horizon) and the
+    # Milan probe window to ~30 s. The adpfix RTL fix was correct but this
+    # parameter never reached it.
+    host.specials += Instance("milan_datapath",
+                              p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz), **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
     # cycle combinational constant-divide cones (~9.3K LUTs over 4 queues,
@@ -3608,7 +3617,8 @@ class MilanSoC(SoCCore):
                                   milan_cd=milan_cd,
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
                                   rx1_irq=(self.milan_dma.rx1.non_empty
-                                           if (with_dma and rx_queues >= 2) else None))
+                                           if (with_dma and rx_queues >= 2) else None),
+                                  milan_clk_hz=int(milan_clk_freq or sys_clk_freq))
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
 
     def _add_flashboot_constants(self, manifest_name):
