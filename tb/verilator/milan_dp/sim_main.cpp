@@ -367,7 +367,66 @@ int main(int argc, char** argv) {
         if (ts.size() == 2) {
             ck("ts word0 (ns) nonzero", ts[0] != 0 ? 1 : 0, 1);
             ck("ts word1 dir=RX",       (unsigned long)(ts[1] & 1), 0);
+            ck("ts word1 mtype=2 (pdelay_req)", (unsigned long)((ts[1] >> 4) & 0xF), 2);
             ck("ts word1 seq=0xBEEF",   (unsigned long)((ts[1] >> 8) & 0xFFFF), 0xBEEFUL);
+        }
+        // interference variant: same event frame at LINE RATE between two
+        // full-rate IPv4 floods + one general gPTP (Follow_Up, must NOT
+        // record). Exactly one more record, correct meta.
+        uint64_t ts1 = ts.size() == 2 ? ts[0] : 0;
+        ts.clear();
+        {
+            auto flood = vlan_frame(/*pcp=*/1, /*marker=*/0x77);
+            std::vector<uint64_t> mix;
+            for (int r = 0; r < 3; r++) mix.insert(mix.end(), flood.begin(), flood.end());
+            g[14] = 0x18;                          // majorSdoId 1 | Follow_Up(8): general
+            g[44] = 0xDE; g[45] = 0xAD;
+            for (int bt = 0; bt < 9; bt++) {
+                uint64_t v = 0;
+                for (int j = 0; j < 8 && bt*8+j < 68; j++)
+                    v |= (uint64_t)g[bt*8+j] << (8*(7-j));
+                mix.push_back(v);
+            }
+            g[14] = 0x12;                          // pdelay_req again: event
+            g[44] = 0xCA; g[45] = 0xFE;
+            for (int bt = 0; bt < 9; bt++) {
+                uint64_t v = 0;
+                for (int j = 0; j < 8 && bt*8+j < 68; j++)
+                    v |= (uint64_t)g[bt*8+j] << (8*(7-j));
+                mix.push_back(v);
+            }
+            for (int r = 0; r < 3; r++) mix.insert(mix.end(), flood.begin(), flood.end());
+            // beat boundaries: flood frames are 8 beats, gptp 9 beats
+            std::vector<int> lens = {8,8,8, 9, 9, 8,8,8};
+            size_t idx = 0; int fi = 0, fb = 0;
+            for (int c = 0; c < 1200 && idx < mix.size(); c++) {
+                dut->s_axis_mac_rx_tdata = mix[idx];
+                dut->s_axis_mac_rx_tkeep = (fi >= 3 && fi <= 4 && fb == 8) ? 0xF0 : 0xFF;
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast = (fb == lens[fi] - 1);
+                lo();
+                bool adv = dut->s_axis_mac_rx_tready;
+                bool tsx = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
+                uint64_t td = dut->m_axis_ts_tdata;
+                hi();
+                if (adv) { idx++; if (++fb == lens[fi]) { fb = 0; fi++; } }
+                if (tsx) ts.push_back(td);
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+            for (int c = 0; c < 300; c++) {
+                lo();
+                bool tsx = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
+                uint64_t td = dut->m_axis_ts_tdata;
+                hi();
+                if (tsx) ts.push_back(td);
+            }
+            ck("interference: exactly one record", ts.size(), 2);
+            if (ts.size() == 2) {
+                ck("interference: ns advanced", ts[0] > ts1 ? 1 : 0, 1);
+                ck("interference: mtype=2 seq=0xCAFE",
+                   (unsigned long)(((ts[1] >> 4) & 0xF) | (((ts[1] >> 8) & 0xFFFF) << 4)),
+                   (unsigned long)(2 | (0xCAFEUL << 4)));
+            }
         }
     }
 
