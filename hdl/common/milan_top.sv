@@ -172,6 +172,8 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire [15:0] cfg_adp_current_config, cfg_adp_identify_index, cfg_adp_interface_index;
   wire        cfg_adp_advertise_p, cfg_adp_depart_p;
   wire [31:0] adp_available_index;
+  wire [7:0]  adp_depart_cnt, adp_rearm_cnt;
+  wire [1:0]  adp_depart_src;
   //! ADP advertiser TX AXIS (flat) → low-rate control merge
   wire [TDATA_WIDTH-1:0]   adp_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] adp_tx_tkeep;
@@ -389,6 +391,9 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_adp_advertise_p    (cfg_adp_advertise_p),
     .o_adp_depart_p       (cfg_adp_depart_p),
     .i_adp_available_index(adp_available_index),
+    .i_adp_depart_cnt     (adp_depart_cnt),
+    .i_adp_rearm_cnt      (adp_rearm_cnt),
+    .i_adp_depart_src     (adp_depart_src),
     .i_aecp_locked        (aecp_locked),
     .i_aecp_current_config(aecp_current_config),
     .i_aecp_cmd_count     (aecp_cmd_count),
@@ -530,7 +535,9 @@ module milan_top import ethernet_packet_pkg::*; #(
   //  registers; adp_tx_arbiter merges them into the MAC TX stream between frames.
   // ==========================================================================
   //! 1-second tick for the ADP re-advertise timer (axis_clk = 100 MHz).
-  localparam int ADP_TICK_DIV = 100_000_000;
+  //! MUST track the datapath clock (see milan_datapath.sv: hardcoded 100 MHz
+  //! stretched a 50 MHz build's re-advertise period to the validity horizon).
+  localparam int ADP_TICK_DIV = MILAN_CLK_FREQ_HZ;
   reg [26:0] adp_tick_cnt;
   reg        adp_tick_1s;
   always_ff @(posedge axis_clk) begin : adp_tick_gen
@@ -562,6 +569,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
     .tick_i   (adp_tick_1s),
+    .link_level_i  (link_up),
     .link_up_i     (adp_link_up_p),
     .link_down_i   (adp_link_down_p),
     .shutdown_i    (cfg_adp_depart_p),   // software depart (ADP_CMD[1])
@@ -601,7 +609,10 @@ module milan_top import ethernet_packet_pkg::*; #(
     .m_axis_tready(adp_tx_tready),
     .available_index_o(adp_available_index),
     .busy_o (),
-    .frame_sent_o ()
+    .frame_sent_o (),
+    .depart_cnt_o (adp_depart_cnt),
+    .rearm_cnt_o  (adp_rearm_cnt),
+    .depart_src_o (adp_depart_src)
   );
 
   // ==========================================================================

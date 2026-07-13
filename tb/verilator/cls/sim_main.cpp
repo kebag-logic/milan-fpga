@@ -47,6 +47,9 @@ struct Frame {
 // Reference classification (independent of the RTL).
 static uint32_t ref_tdest(const Frame& f) {
     if (f.use_pcp) {
+        // gPTP fast-path (2026-07-13): 0x88F7 short-circuits to GPTP_CLASS in
+        // BOTH modes — PCP-mode tables no longer decide event-message routing
+        if (f.eth_type == ETH_TYPE_PTP) return GPTP_CLASS & TDEST_MASK;
         uint8_t eff_pcp = f.vlan_valid ? f.pcp : f.default_pcp;
         uint8_t regen   = (f.prio_regen   >> (eff_pcp * 3)) & 0x7;
         uint8_t tc      = (f.pcp_tc_map   >> (regen   * 3)) & 0x7;
