@@ -134,25 +134,35 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
 
 | Port | pdelay | accepts strong GM announce (slaves) | sends announce/sync (masters) |
 |---|---|---|---|
-| uplink (pw0) | always | NO — ignored pw0 100/cc6 for 25+ min | YES (self-GM at boot; relay when slaved on port 8) |
-| port 8 (Arty) | always | YES — Arty 100/cc6 engaged the relay | NEVER observed (any switch state) |
-| port 7 (AX) | always | not proven either way (see caveat) | NEVER observed (any switch state) |
+| uplink (pw0) | always | NO — ignored pw0 100/cc6 for 25+ min (clean obs) | YES (self-GM at boot; relay when slaved on port 8) |
+| port 8 (Arty) | always | YES — Arty 100/cc6 engaged the relay | no VALID observation (see revision) |
+| port 7 (AX) | always | not proven either way (contaminated) | no VALID observation (see revision) |
 
-- **The appliance never sources announce/sync INTO a board port** — verified
-  on BOTH board ports across every switch state (self-GM, slaved-to-Arty,
-  multi-claimant), with port-8 RX continuously alive. Board-as-slave through
-  this switch is architecturally unavailable → the direct board<->board cable
-  (gptp_direct_cable.sh) stays the only slave-validation path. The parallel
-  session's exhaustive slave-direction run (commit 8bbe361: fresh boot,
-  talker off, allmulti, power-cycle against stable link, pw0 HW-ts GM)
-  reached the same verdict independently.
-- Port-7 caveat: the "switch ignored AX-GM 90/cc6 for 12 min" observation is
-  CONTAMINATED by the kl-eth multicast-RX gap (8bbe361): the AX's allmulti
-  was OFF, so its pdelay RX (hence asCapable, hence announcing) likely only
-  worked inside tcpdump promisc windows — the switch may never have seen 4
-  consecutive announces to qualify. Re-run single-claimant AX-GM with
-  allmulti pinned if port-7 accept behavior ever matters (it does not change
-  the board-slave verdict).
+- **REVISED 2026-07-13 (user pushback — correct): "the switch never masters
+  into a board port" was OVERSTATED.** What the evidence actually supports is
+  only "board-as-slave was never OBSERVED", because every master-role-into-
+  board-port observation was structurally blind:
+  * port 8 was the switch's SLAVE-side port whenever the relay was engaged —
+    a slave port sending no Sync is CORRECT 802.1AS, not a finding;
+  * port-7 observations ran through the AX's DEAF MAC (allmulti off — the
+    kl-eth mc-filter gap): relayed Sync/Follow_Up INTO that port would be
+    invisible to pmc/ptp4l; the only promisc (tcpdump) windows on port 7 ran
+    during the multi-claimant chaos or before the relay engaged;
+  * the parallel session's run (8bbe361) reported "zero gPTP incl. pdelay"
+    on a port where pdelay demonstrably flows — its capture path is suspect
+    (busybox `timeout tcpdump` fakes empty captures — rule 8).
+  The plausible design reading: the appliance's board/edge ports are
+  GM-source + pdelay ports and a board is simply not expected to receive
+  Sync/Follow_Up from the switch in this role assignment.
+- **SETTLED (2026-07-13, clean observation)**: with the Arty-GM relay
+  demonstrably engaged (pw0 SLAVE rms 2 ns on the uplink at the same
+  moment), a 60 s PROMISCUOUS capture on the AX port (MAC filter bypassed)
+  shows **exactly 60 pdelay_req + 60 pdelay_resp + 60 resp_fup — zero
+  Announce, zero Sync/Follow_Up**. The edge ports do not source sync BY
+  DESIGN (they are GM-source/pdelay ports); this is the appliance's role
+  assignment, not a malfunction, and matches the operator's expectation.
+  Board-as-slave therefore validates over the direct board<->board cable
+  (gptp_direct_cable.sh), full stop.
 - **Multi-claimant confusion**: with 3 strong GMs at once (pw0 100 + Arty 100
   + AX 90, all cc6) the switch went announce-SILENT on every port (even its
   own self-GM stopped). Reverting to a SINGLE strong claimant (Arty 100/cc6,
