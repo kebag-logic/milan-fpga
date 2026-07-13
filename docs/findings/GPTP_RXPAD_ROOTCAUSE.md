@@ -117,3 +117,29 @@ Direction notes:
 Net: gPTP is functionally PROVEN on the Milan endpoint. Remaining polish =
 Phase B hardware timestamps (tighter than the -S software path; the fabric
 already timestamps 0x88F7) for sub-ns and to satisfy tight switch thresholds.
+
+
+## Arty-as-slave: exhaustively tested, blocked by switch role (2026-07-13)
+Tried hard to get the Arty to SLAVE (discipline its own PHC from pw0-as-GM),
+using the amx-pi switch power control:
+- Fresh Arty boot (clean driver), AAF talker OFF (rule out multicast storm),
+  `ip link set eth0 allmulticast on` (MAC_CTRL 0x13->0x1B; see driver-gap below),
+  link held stable, switch power-cycled AGAINST the stable link + full STP/AS
+  convergence (~2.5 min), pw0 = HW-timestamped GM.
+- Result: the Arty's board port receives ZERO gPTP (asCapable=0, peer=0, bad=0)
+  in this direction. Data plane is fine (pw0 pings the Arty). So the switch
+  ACCEPTS a board port's time as a GM source (board->uplink relay to pw0 works,
+  2-4 ns) but does NOT distribute a grandmaster's Sync to the board ports
+  (uplink->board). That is a switch per-port ROLE/config (board ports are
+  GM-source / slave-only from the switch's view), changeable only via the
+  switch's management interface (d&b R1 / console) - power-cycling doesn't
+  alter it. Clean board<->board direct cable remains the switch-free path.
+
+## Driver gap found: kl-eth multicast RX needs allmulti
+kl_set_rx_mode only reflects IFF_PROMISC/IFF_ALLMULTI into MAC_CTRL; it does NOT
+program the per-address multicast filter for joined groups. So a standalone
+ptp4l (which joins 01:80:C2:00:00:0E) does NOT receive gPTP multicast unless the
+iface is in promisc or allmulti - earlier "working" runs had tcpdump up (promisc)
+masking this. Workaround: `ip link set eth0 allmulticast on`. Proper fix: in
+kl_set_rx_mode, set the allmulti MAC bit when netdev_mc_count>0 (or program the
+gateware mc hash). Worth baking into the driver + S50milan for standalone gPTP.
