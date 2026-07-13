@@ -3769,12 +3769,17 @@ def main():
         platform = alinx_ax7101.Platform()
     # QSPI-bootable bitstreams (user directive 2026-07-12): compress (a 100t
     # frame is 3.65 MiB raw — the 16 MiB flash only fits it compressed) and
-    # pin the SPI config settings both boards' flash parts support.
-    platform.toolchain.bitstream_commands += [
-        "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]",
-        "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
-        "set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]",
-    ]
+    # pin the SPI config settings the ARTY's flash part supports. ARTY ONLY:
+    # the AX7101 platform pins CONFIG_MODE SPIx4, and a later SPI_BUSWIDTH 1
+    # contradicts it - bitgen hard-errors (Designutils 20-1856; killed the
+    # whole 2026-07-13 AX sweep). The AX bitstream is JTAG-SRAM per policy,
+    # so it keeps its platform's proven settings untouched.
+    if args.board == "arty":
+        platform.toolchain.bitstream_commands += [
+            "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]",
+            "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
+            "set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]",
+        ]
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
                    board=args.board,
