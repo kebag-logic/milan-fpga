@@ -3035,7 +3035,13 @@ class MilanDMA(LiteXModule):
             tx_buf.source.ready.eq(tx_dp.sys.ready),
             # TS: datapath TS endpoint (sys side) -> writer.sink
             self.ts.sink.valid.eq(ts_dp.sys.valid), self.ts.sink.data.eq(ts_dp.sys.data),
-            self.ts.sink.last.eq(ts_dp.sys.last),    ts_dp.sys.ready.eq(self.ts.sink.ready),
+            # tlast is NOT forwarded: the LiteX ctrl FSM treats sink.last as
+            # end-of-transfer and (loop=1) restarts offset at 0 - with the
+            # 2-beat records that made EVERY record overwrite slot 0 (the
+            # phase B "offset stuck at 0" silicon finding; one record was in
+            # DRAM, perfect, always at base+0). Untied, the writer runs
+            # offset 0..length-1 and wraps = a true linear record ring.
+            ts_dp.sys.ready.eq(self.ts.sink.ready),
         ]
         if rx_queues >= 2:
             # RX: datapath -> steer -> {rx.sink (q0), rx1.sink (q1)}
