@@ -31,6 +31,16 @@
 > announces are not relayed uplink; pw0 SLAVE 5 ns to the SWITCH holdover
 > (3cc0c6, cc248); Arty GM runs clean (txto=0) — remedy stays physical
 > (switch power-cycle or direct cable), data plane unaffected.
+> **ADPFIX ON AX SILICON**: asl keeper WNS +0.158 (eppo -0.147/eto -0.086
+> failed — sweep variance is why we sweep) JTAG-SRAM loaded, flash
+> untouched (policy 12); turnkey boot (1G link, :01, DIAG live). DRILL
+> EXACT on AX too (0x00020001 -> 0x00020101 self-heal ≤5 s, index exact).
+> **Post-fix quality bar RE-PASSED: controller 31/31 + la_avdecc Milan=1
+> verdict CLEAN 0 complaints on the adpfix AX build**; filtered ADP census
+> (`ether[14] = 0xfa`) shows :01 + :02 at sane cadences. Console footnote:
+> with the arty talker default-ON, the AX console needs `dmesg -n 1`
+> (bd-stage debug prints under 8.1k fr/s RX; boot lines rotate out of the
+> dmesg ring). BOTH BOARDS now run dormancy-immune gateware end-to-end.
 
 > 2026-07-13 session delta (normative: GPTP_RXPAD_ROOTCAUSE.md matrix +
 > PTP_TS_METADATA_FIX.md): switch gPTP matrix DEFINITIVE (edge ports =
