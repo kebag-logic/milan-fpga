@@ -92,3 +92,28 @@ the fixed .ko + /etc/gptp.cfg in flash.
 arty_v10 bitstream (MVP talker) + fixed kl-eth (PTP-trim) + /etc/gptp.cfg +
 S50milan. Verified from a flash boot: talker streaming (counters advance),
 driver has the trim, gptp.cfg present, bad-message=0.
+
+
+## FULL SYNC ACHIEVED (2026-07-13 early) — Sync/Follow_Up work through the switch
+The user was right: sync/follow_up DO work. Demonstrated end to end:
+- **Arty = grandmaster** (priority1 100, clockClass 6, software timestamps).
+  It sends Sync (56/cap) + Follow_Up (56) + Announce — a complete two-step GM.
+- The **switch relays** the Arty's time as a boundary clock (its own clock id
+  3c:c0:c6:ff:fe:fe:02:10) to the gigabit uplink port.
+- **pw0 (hardware timestamps) SLAVED to it and CONVERGED: rms 2-4 ns, max 4-8 ns,
+  freq ~-26500 stable, delay -8.** A locked gPTP domain, Arty as time source.
+So the whole chain works: our Sync/Follow_Up (post RX-pad fix) discipline a real
+slave to single-digit nanoseconds through the AVB switch.
+
+Direction notes:
+- board -> uplink relay (Arty GM -> pw0 slave): WORKS, 2-4 ns lock.
+- uplink -> board relay (pw0 GM -> Arty slave): flaky this session — the Arty
+  board port kept getting flap-suppressed by the switch after ~a dozen FPGA
+  reconfigs. When the port is live the pdelay + asCapable establish; a switch
+  power-cycle (or the direct cable) gives the Arty a clean slave lock too.
+- BMCA gotcha: 802.1AS forbids clientOnly/slaveOnly with !gmCapable; make a node
+  "prefer slave" via gmCapable 1 + weak priority1/clockClass, not slaveOnly.
+
+Net: gPTP is functionally PROVEN on the Milan endpoint. Remaining polish =
+Phase B hardware timestamps (tighter than the -S software path; the fabric
+already timestamps 0x88F7) for sub-ns and to satisfy tight switch thresholds.
