@@ -127,12 +127,27 @@ Records arrive in wire order per direction (RR mux across directions).
   has no per-group filter) — standalone ptp4l (joins 01:80:C2:00:00:0E) was
   deaf without a tcpdump holding promisc (commit 8bbe361's finding).
 
-## Validation status
-Fixed gateware is in the `hwts1` arty sweep (eppo/asl/eto, launched
-2026-07-13). Remaining on silicon once a seed meets timing: JTAG-load →
-`ptp4l -f gptp_gm.cfg` (no -S) as GM → follow_up flows with HW t1 (TX
-records), pdelay t2/t3 via RX records, pw0 lock quality vs the rms 3-4 ns
-SW-ts baseline; then the RX-pad true-length gate (PTP-trim becomes a no-op,
-TCP RX ≥ the 94 Mbit switch baseline, 0-drop). Arty-as-slave with HW ts =
-direct-cable session (switch never masters into board ports —
-GPTP_RXPAD_ROOTCAUSE.md matrix).
+## Validation status — SILICON GREEN (hwts5, asl WNS +0.201, 2026-07-13)
+- HW-mode ptp4l GM: **0 tx-timestamp timeouts steady-state, 0 port faults**,
+  ring offset advancing (208 records in the first minute), full GM TX set on
+  the wire (8 Hz sync + follow_up each carrying a HW t1).
+- **peerMeanPathDelay: 600 us (SW stamps) -> 1.3 us (460x)** against the
+  switch; the residue is the switch's own turnaround stamps + MII PHY.
+- INTERFERENCE BATTERY (the silicon mirror of tb/verilator/ptp_ts): pw0 held
+  **rms 2-5 ns THROUGH a 45 s RX flood (TCP 93.0 Mbit, baseline 93.9), a TX
+  flood + AAF talker streaming (85.7 Mbit, baseline 83.3, 0 retr), and a
+  simultaneous bidirectional flood (rms 2 ns — best of the session)**.
+- TX-flood corner: 3 tx-ts timeouts = the gPTP frame queueing behind bulk
+  TCP in the best-effort egress queue (10s of ms to REACH the wire at
+  100 Mbit) — the stamp itself remains exact-egress-time so sync accuracy
+  was UNAFFECTED (rms 2-4 during). `tx_timestamp_timeout 50` (flash cfg)
+  rides it out; the proper future fix is classifying 0x88F7 into the
+  strict-priority TX queue in the fabric classifier.
+- RX-pad true-length gates passed in the same battery (TCP at baseline both
+  directions, odd-size ping 12/12 exact) — the kl-eth PTP-trim is now a
+  no-op and stays only for old bitstreams.
+- QSPI reflashed: hwts5 bitstream @0 + xz kernel + hwts3 rootfs + FIXED
+  opensbi_arty (embedded dtb with dma-ts 0x3100) = fully self-hosting; a
+  clean flash boot needs NO dma_ts_addr override and no manual config.
+- Arty-as-slave with HW ts = the direct-cable session (the switch never
+  masters into board ports by design — GPTP_RXPAD_ROOTCAUSE.md matrix).
