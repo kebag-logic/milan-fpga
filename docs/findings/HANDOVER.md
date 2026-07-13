@@ -1,36 +1,24 @@
 # HANDOVER  -  topology rules + live states (2026-07-13)
 
-> 2026-07-13 session delta (details: GPTP_RXPAD_ROOTCAUSE.md matrix section +
-> PTP_TS_METADATA_FIX.md): switch gPTP behavior matrix DEFINITIVE (never
-> masters into board ports -> board-slave = direct cable only; single strong
-> claimant on port 8 = the relay recipe; multi-claimant makes it go
-> announce-silent). ptp_ts metadata pipeline was broken-by-design and is FIXED
-> + gated (new tb/verilator/ptp_ts; milan_dp 26/26; yosys 20/20). RX-pad
-> true-length gateware fix landed (BD w0 = true bytes; ring ABI frozen).
-> kl-eth `hwts1` = phase B consumer + allmulti + adjfine-59x fixes; dts
-> dma-ts -> 0xf0003100, tlm dropped (rot). **hwts1 arty sweep in flight**
-> (eppo/asl/eto). LIVE-BENCH DIVERGENCE: Arty runs hwts1 .ko + SW-ts GM
-> (100/cc6) hot-swapped in RAM; AX runs trim .ko rsc_clk_mhz=100 + weak cfg;
-> pw0 SLAVE rms 3-4 ns. A reboot/flash-boot reverts both boards' drivers
-> (QSPI rootfs older) — re-push .kos or reflash after hwts1 validates.
-
-*The operational one-pager for the two-board Milan lab: every standing rule
-with its reason, and the exact state of boards, branches, builds and open
-threads. Results archive: SESSION_HANDOFF.md. Deep docs: ../README.md.*
-
-## 0. Roles (USER DIRECTIVE 2026-07-12)
-
-**Endstation focus.** AX7101 = THE full Milan endstation (talker first:
-gPTP -> lwSRP -> fabric AAF framer -> ACMP connections). **Arty = a SMALL
-endstation — DELIVERED 2026-07-12**: build_arty_asl_arty_v8 (WNS +0.312;
-eppo +0.214 / eto +0.173; v7 was +0.018 — stripping the bring-up probes
-paid twice: the first attempt with probes OVERFLOWED the 100t by 181
-slices). The Arty entity (EID 02:00:00:ff:fe:00:00:02) is **la_avdecc
-Milan=1 verdict CLEAN** (controller 31/31 incl. ACMP) at 50 MHz / MII 100M,
-and **BOTH entities advertise simultaneously** through the switch
-(:01 + :02 captured in one sniff) — a real two-endstation Milan segment.
-Nothing bridge-side is in scope; the AVB switch stays an off-the-shelf
-bridge.
+> 2026-07-13 session delta (normative: GPTP_RXPAD_ROOTCAUSE.md matrix +
+> PTP_TS_METADATA_FIX.md): switch gPTP matrix DEFINITIVE (edge ports =
+> GM-source/pdelay by DESIGN, never send sync into boards -> board-slave =
+> direct cable; single-strong-claimant on port 8 = the relay recipe;
+> multi-claimant makes it announce-silent). **PHASE B HW TIMESTAMPS: SILICON
+> GREEN** - five stacked findings (capture race; an endianness misdiagnosis
+> by the investigation itself, owned+reverted; interference redesign
+> [EVENT-only, contract v2.1 {seq,mtype,marker,dir}, flop queue,
+> compare-at-capture]; Vivado-proofing; LiteX WishboneDMAWriter tlast-loop =
+> the mailbox tail). Numbers: pdelay 600us->1.3us (460x), pw0 rms 2-5 ns
+> THROUGH RX/TX/bidirectional floods + AAF talker, TCP 93.0/85.7 at
+> baselines (rxpad true-length gates passed), odd-ping exact. **Arty QSPI
+> reflashed: hwts5 bitstream + hwts3 rootfs + fixed opensbi/dtb =
+> self-hosting; flash boots need NO dma_ts_addr override.** Init default
+> stays `ptp4l -S` (robust); HW mode = drop the -S (gptp.cfg carries
+> tx_timestamp_timeout 50 for the egress-queue corner; classifier 0x88F7
+> fast-path = the future fix). AX7101: trim .ko RAM-only + OLD ptp_ts
+> gateware (its HW-ts needs an AX sweep + its QSPI refresh - both pending);
+> its bare-insmod PHC-rate trap: always rsc_clk_mhz=100 on the AX.
 
 ## 1. Topology
 
