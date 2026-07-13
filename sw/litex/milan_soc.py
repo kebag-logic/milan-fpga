@@ -478,18 +478,10 @@ class MilanMAC(LiteXModule):
             ),
         ]
 
-        # Pmod I2S2 on pmoda (AAF talker audio-in). Plumbing only: request the
-        # pins where the board has them; absent (AX7101) -> talker input ties 0.
+        # (i2s pads are requested at the DMA/datapath layer - the block that
+        # lived here could never run: `soc` is not in this scope and the old
+        # try/except only ever swallowed its own NameError)
         self.i2s_pads = None
-        try:
-            from litex_boards.platforms.digilent_arty import i2s_pmod_io
-            plat = soc.platform
-            plat.add_extension(i2s_pmod_io("pmoda"))
-            _rx  = plat.request("i2s_rx")
-            _mck = plat.request("i2s_rx_mclk")
-            self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
-        except Exception:
-            self.i2s_pads = None
         self.dp_ports = dict(
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
@@ -3063,16 +3055,25 @@ class MilanDMA(LiteXModule):
 
         # Pmod I2S2 on pmoda (AAF talker audio-in). Plumbing only: request the
         # pins where the board has them; absent (AX7101) -> talker input ties 0.
+        # GATE ON THE CONNECTOR TABLE, not try/except: add_extension/request
+        # succeed regardless - the missing-connector assertion only fires at
+        # constraint RESOLUTION (finalization), far outside any except here
+        # (the AX7101 elaboration broke on 'pmoda' 2026-07-13 because of it).
         self.i2s_pads = None
+        plat = soc.platform
         try:
-            from litex_boards.platforms.digilent_arty import i2s_pmod_io
-            plat = soc.platform
-            plat.add_extension(i2s_pmod_io("pmoda"))
-            _rx  = plat.request("i2s_rx")
-            _mck = plat.request("i2s_rx_mclk")
-            self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
-        except Exception:
-            self.i2s_pads = None
+            _has_pmoda = "pmoda" in plat.constraint_manager.connector_manager.connector_table
+        except AttributeError:
+            _has_pmoda = False
+        if _has_pmoda:
+            try:
+                from litex_boards.platforms.digilent_arty import i2s_pmod_io
+                plat.add_extension(i2s_pmod_io("pmoda"))
+                _rx  = plat.request("i2s_rx")
+                _mck = plat.request("i2s_rx_mclk")
+                self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
+            except Exception:
+                self.i2s_pads = None
         self.dp_ports = dict(
             # TX: reader.source (mem data) -> datapath s_axis_tx
             i_s_axis_tx_tdata  = tx_dp.dp.data,  i_s_axis_tx_tkeep = tx_dp.dp.keep,
