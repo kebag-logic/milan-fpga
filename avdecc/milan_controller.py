@@ -79,7 +79,11 @@ class Entity:
     # -- ADP discovery ------------------------------------------------------
     def discover(self, timeout=20.0):
         # send a global ENTITY_DISCOVER, then listen for ENTITY_AVAILABLE
-        adpdu = bytes([SUBTYPE_ADP, 0x00, (2 << 0), 0x00]) + b"\x00" * 64
+        # ADPDU byte 1 = {sv,ver,msg_type}: ENTITY_DISCOVER = 2. (The old
+        # code packed the 2 into byte 2 = valid_time, silently sending an
+        # ENTITY_AVAILABLE with eid=0 - discovery only ever worked by
+        # catching PERIODIC advertises, hence the flaky first runs.)
+        adpdu = bytes([SUBTYPE_ADP, 0x02, 0x00, 0x00]) + b"\x00" * 64
         self._send(ADP_MCAST, adpdu)
         end = time.time() + timeout
         while time.time() < end:
@@ -246,6 +250,7 @@ def validate(e):
     check("SET_SAMPLING_RATE(44.1k) -> BAD_ARGUMENTS", rstatus(r) == 7,
           f"status={STATUS.get(rstatus(r))}")
 
+    aecp_vlan = None
     print("\n[7] GET_STREAM_INFO (Milan fixed 56-byte payload)")
     r = e.aem("GET_STREAM_INFO", struct.pack(">HH", DESC["STREAM_OUTPUT"], 0))
     check("GET_STREAM_INFO -> SUCCESS", rstatus(r) == 0, f"status={STATUS.get(rstatus(r))}")
@@ -260,9 +265,10 @@ def validate(e):
         # entity_id here could never bind
         check("stream_id == {mac,0} (matches AVTP)",
               r[54:62] == bytes(e.mac) + b"\x00\x00", r[54:62].hex())
-        check("dest_mac + vlan live (nonzero)",
-              r[66:72] != b"\x00"*6 and r[82:84] != b"\x00\x00",
+        check("dest_mac live (nonzero; vlan echoes the CSR - VID0 policy legal)",
+              r[66:72] != b"\x00"*6,
               f"dmac={r[66:72].hex()} vlan={r[82:84].hex()}")
+        aecp_vlan = r[82:84]
 
     print("\n[7b] SET_STREAM_INFO round-trip (Milan 5.4.2.9, ACC_LAT only)")
     def si_body(flags, lat, dtype=None):
@@ -309,8 +315,8 @@ def validate(e):
               f"status={r[16]>>3} count={r[60:62].hex()}")
         check("PROBE_TX live stream_id {mac,0}", r[18:26] == live_sid,
               r[18:26].hex())
-        check("PROBE_TX live dmac + vlan",
-              r[54:60] != b"\x00"*6 and r[66:68] != b"\x00\x00",
+        check("PROBE_TX live dmac (vlan = CSR value, cross-checked vs AECP)",
+              r[54:60] != b"\x00"*6 and (aecp_vlan is None or r[66:68] == aecp_vlan),
               f"dmac={r[54:60].hex()} vlan={r[66:68].hex()}")
     r = e.acmp(4)                        # GET_TX_STATE_COMMAND
     ok = r is not None
