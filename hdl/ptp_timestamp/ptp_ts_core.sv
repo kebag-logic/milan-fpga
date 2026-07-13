@@ -1,5 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2025 Oguz Kahraman <oguz.kahraman@kebag-logic.com>
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
  *
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
@@ -7,23 +8,40 @@
 /*
 ------------------------------------------------------------------------------
   File        : ptp_ts_core.sv
-  Author      : Oguz Kahraman
+  Description : gPTP frame timestamping core (TX or RX tap).
 
-                oguz.kahraman@kebag-logic.com
+                - AXI-Stream pass-through for Ethernet frames (combinational,
+                  never stalls the tap).
+                - Latches the PHC value at each frame's FIRST beat (SOP).
+                - Parses ethertype / PTP messageType / sequenceId at their
+                  fixed untagged-gPTP offsets (802.1AS frames are untagged;
+                  a VLAN-tagged frame simply never matches ETH_TYPE).
+                - Qualifies at TLAST: ethertype match AND an EVENT message
+                  (msgType[3]==0 - Sync/Delay_Req/Pdelay_Req/Pdelay_Resp).
+                  General messages (Announce, Follow_Up, Pdelay_Resp_FUp,
+                  Signaling) carry no wire timestamp semantics and would only
+                  waste record slots and invite seq collisions downstream.
+                - Queues {timestamp, seqId, msgType} in a 4-deep record fifo
+                  (the emitter needs ~4 cycles/record vs >=9 beat-cycles/frame,
+                  so the fifo absorbs bursts incl. RR-mux backpressure), then
+                  emits 2-beat metadata records:
+                    beat0 = timestamp[63:0] (integer ns, disciplined PHC)
+                    beat1 = {40'0, seq[15:0], msgType[3:0], 3'0, IS_TX}
 
-  Date        : 2025-07-13
-  Description : PTP timestamping core to extract gPTP sequence_id and timestamp
-                from Ethernet frames. Supports TX and RX modes.
-
-                - AXI-Stream pass-through for Ethernet frames.
-                - Detects start of packet on AXI-Stream.
-                - Captures timestamp from global 64-bit counter.
-                - Parses PTP Ethernet frame to extract sequence ID.
-                - Outputs metadata (timestamp + sequence ID) on a separate AXI-Stream.
-
-  Company     : Kebag Logic
-  Project     : PTP Timestamping for Custom RGMII MAC
-
+  2026-07-13 REDESIGN (docs/findings/PTP_TS_METADATA_FIX.md): the original
+  captured the timestamp through a per-event pulse+handshake CDC and decided
+  the record at handshake-return time. That raced the ingress rate (slow-beat
+  MII: first record never emitted, later ones one-frame-stale; fast frames:
+  return after tlast) and could MIS-PAIR timestamps with frames under
+  back-to-back interfering traffic (capture-skip and hold-overwrite windows).
+  Both real instantiations tie gtx_clk == axis_clk, so `ts_in` is sampled
+  SYNCHRONOUSLY at SOP - exact per-frame pairing by construction, no
+  handshake, no skip windows. REQUIREMENT: ts_in must be synchronous to
+  ts_dst_clk (ptp_ts_top drives the counter from gtx_clk == axis_clk; a
+  future truly-async MAC clock needs a gray-coded counter image instead).
+  ts_src_clk/ts_src_resetn remain as ports for interface stability but are
+  UNUSED. Gated by tb/verilator/ptp_ts (interference suite) and the
+  milan_dp end-to-end record check.
 ------------------------------------------------------------------------------
 */
 
@@ -37,18 +55,19 @@ module ptp_ts_core #(
   parameter int TDATA_WIDTH = 64,          //! AXI-Stream data width
   parameter int TS_WIDTH = 64,             //! Timestamp width
   parameter int METADATA_TDATA_WIDTH = 64, //! Metadata output width
-  parameter bit BIG_ENDIAN = 1,            //! Endianness for field extraction
-  parameter bit [15:0] ETH_TYPE = 'h88F7  //! EtherType for PTP
+  parameter bit BIG_ENDIAN = 1,            //! 1 = first wire byte in tdata[63:56]
+                                           //! (the MAC-side datapath convention)
+  parameter bit [15:0] ETH_TYPE = 'h88F7  //! EtherType for PTP (wire value)
 )(
-  //! ts_src_clk Source clock domain for timestamp input
+  //! ts_src_clk / ts_src_resetn: RETAINED FOR PORT COMPATIBILITY, UNUSED
+  //! (see the 2026-07-13 redesign note - ts_in is dst-domain synchronous)
   input wire ts_src_clk,
-  //! ts_src_resetn Active-low reset for source clock domain
   input wire ts_src_resetn,
-  //! ts_dst_clk Destination clock domain for AXI-Stream processing
+  //! ts_dst_clk Clock domain for AXI-Stream processing AND ts_in
   input wire ts_dst_clk,
-  //! ts_dst_resetn Active-low reset for destination clock domain
+  //! ts_dst_resetn Active-low reset
   input wire ts_dst_resetn,
-  //! ts_in Global timestamp input (source clock domain)
+  //! ts_in Global timestamp input - MUST be synchronous to ts_dst_clk
   input wire [TS_WIDTH-1:0] ts_in,
 
   //! s_axis Input AXI-Stream interface for Ethernet frames
@@ -61,336 +80,195 @@ module ptp_ts_core #(
 
 localparam int BEAT_BYTES = TDATA_WIDTH / BYTE_TO_BIT;
 
-//! Timestamp after CDC
-logic [TS_WIDTH-1:0] ts_cdc_out;
-//! Timestamp latched in source domain
-logic [TS_WIDTH-1:0] ts_captured_src;
-//! Flag to indicate start-of-packet
-logic start_packet = '0;
-//! Byte count from SOP
-logic [$clog2(PTP_SEQ_ID_OFFSET + BEAT_BYTES):0] byte_counter;
-//! Indicates start of valid frame
-logic sop_detected;
-//! Pulse for timestamp capture
-wire cdc_trigger;
+// Fixed untagged-gPTP byte offsets and the beats that carry them (64-bit beats):
+// ethertype @12-13 and messageType @14 live in beat 1 (bytes 8-15);
+// sequenceId @44-45 lives in beat 5 (bytes 40-47).
+localparam int ETHTYPE_BEAT_OFF = 8;
+localparam int SEQID_BEAT_OFF   = 40;
 
-//! Extracted sequence ID from PTP header
-logic [PTP_SEQ_ID_BIT_WIDTH-1:0] ptp_seq_id;
- //! Latch to mark sequence ID of PTP has been extracted
-logic ptp_seq_id_valid = 0;
-//! Flag to indicate seq_id is captured
-logic seq_id_received;
-//! Indicates frame is PTP (ETH_TYPE matched)
-logic is_ptp;
-//! Extracted ethertype
-logic [ETH_TYPE_BIT_WIDTH-1:0] eth_type;
-//! Latch to mark eth_type has been extracted
-logic eth_type_valid = 0;
+//! Byte lane select by WIRE order within a beat
+function automatic logic [7:0] beat_byte(input logic [TDATA_WIDTH-1:0] d,
+                                         input int unsigned i);
+  return BIG_ENDIAN ? d[8*(BEAT_BYTES-1-i) +: 8] : d[8*i +: 8];
+endfunction
 
-//! Acknowledment from destination logic that data recived
-logic src_rcv;
-//! Assertion of signal allows the data will be synchronised
-logic src_send;
-//! Assertion of signal inform that the data is ready to be used in dest domain
-logic dest_req;
-//! Captured-timestamp holding register (dest domain): every SOP fills it via
-//! the CDC handshake; the frame's TLAST decision consumes it (emit or drop)
-logic [TS_WIDTH-1:0] ts_hold;
-logic ts_hold_v;
-//! Frame qualified at TLAST (valid ethertype extract matched) + its seq
-logic qual_pend;
-logic [PTP_SEQ_ID_BIT_WIDTH-1:0] seq_snap;
+//! Flag indicating the next accepted beat is a frame's first (SOP)
+logic start_packet = 1'b1;
+//! Byte offset of the current beat from frame start (stops past the extracts)
+logic [$clog2(SEQID_BEAT_OFF + 2*BEAT_BYTES):0] byte_counter;
+//! PHC value latched at the current frame's SOP
+logic [TS_WIDTH-1:0] ts_sop;
 
-//! Metadata packet to send to PS
-ts_metadata ts_reg;
+//! Field extracts + their per-frame valid latches
+logic [15:0] eth_type;
+logic        eth_type_valid = 1'b0;
+logic [3:0]  msg_type;
+logic [15:0] ptp_seq_id;             // held in WIRE byte order {b44, b45}
+logic        ptp_seq_id_valid = 1'b0;
 
-typedef enum logic[1:0]{
-  IDLE_S,      //! Waiting for end of PTP packet
-  SEND_HIGH_S, //! Send upper 64 bits of metadata (timestamp)
-  SEND_LOW_S   //! Send lower 64 bits (seq_id + flags)
-}ts_state_t;
-
-ts_state_t ts_state; //! FSM state register
+wire beat_acc = s_axis.tvalid && s_axis.tready;
+wire is_ptp_event = eth_type_valid && (eth_type == ETH_TYPE) &&
+                    ptp_seq_id_valid && !msg_type[3];
 
 // -----------------------------------------------------------------------------
 //! AXI-Stream Passthrough
 // -----------------------------------------------------------------------------
-
-assign m_axis.tdata = s_axis.tdata;
+assign m_axis.tdata  = s_axis.tdata;
 assign m_axis.tvalid = s_axis.tvalid;
-assign m_axis.tkeep = s_axis.tkeep;
-assign m_axis.tlast = s_axis.tlast;
+assign m_axis.tkeep  = s_axis.tkeep;
+assign m_axis.tlast  = s_axis.tlast;
 assign s_axis.tready = m_axis.tready;
 
-//! Start of packet logic
-assign sop_detected = (s_axis.tvalid && s_axis.tready && start_packet);
-assign seq_id_received = (byte_counter >= PTP_SEQ_ID_OFFSET);
-assign is_ptp = (eth_type == ETH_TYPE);
-
 // -----------------------------------------------------------------------------
-//! SOP Pulse CDC: Triggers timestamp capture from SOP event
+//! SOP / byte counter / synchronous SOP timestamp
 // -----------------------------------------------------------------------------
-
-//! Open-core pulse CDC (replaces xpm_cdc_pulse) — SOP event AXIS domain -> PTP
-//! counter domain. See docs/integration/OPEN_SOURCE_MIGRATION.md Track 1.4.
-cdc_pulse #(
-    .DEST_SYNC_FF(2)
-) sop_pulse_cdc (
-    .src_clk(ts_dst_clk),
-    .src_rst_n(ts_dst_resetn),
-    .src_pulse(sop_detected),
-    .dest_clk(ts_src_clk),
-    .dest_rst_n(ts_src_resetn),
-    .dest_pulse(cdc_trigger)
-);
-
-// -----------------------------------------------------------------------------
-//! Timestamp Capture in Source Domain
-// -----------------------------------------------------------------------------
-always_ff @(posedge ts_src_clk) begin : on_demand_timestamp_capture
-  if (!ts_src_resetn) begin
-      ts_captured_src <= '0;
-      src_send <= '0;
+always_ff @(posedge ts_dst_clk) begin : sop_and_counter
+  if (!ts_dst_resetn) begin
+    start_packet <= 1'b1;
+    byte_counter <= '0;
   end
-  else begin
-      //! Capture only when the previous handshake finished: overwriting src_in
-      //! mid-handshake would corrupt the in-flight value. A skipped capture
-      //! (frames < ~8 cycles apart - never at real PTP rates) self-heals via
-      //! the stale-qual clear on the next SOP.
-      if (cdc_trigger && !src_send) begin
-        //! Capture timestamp only when needed (at start of packet)
-        ts_captured_src <= ts_in;
-        src_send <= 'd1;
-      end
-      else if (src_rcv)begin
-        src_send <= 'd0;
-      end
+  else if (beat_acc) begin
+    if (s_axis.tlast) begin
+      start_packet <= 1'b1;
+      byte_counter <= '0;
+    end
+    else begin
+      start_packet <= 1'b0;
+      // stop counting once every extract offset has passed (overflow-safe
+      // for any frame length; comparisons below only need exact low values)
+      if (byte_counter <= SEQID_BEAT_OFF)
+        byte_counter <= byte_counter + BEAT_BYTES;
+    end
+    if (start_packet)
+      ts_sop <= ts_in;      // exact per-frame pairing: SOP(N+1) is always
+                            // after TLAST(N), so ts_sop is stable frame-long
   end
 end
 
 // -----------------------------------------------------------------------------
-// Timestamp CDC to AXI Domain
+//! Field extraction at fixed beats (byte picks hoisted to wires: slicing a
+//! function-call result is legal SV but sv2v passes it through verbatim and
+//! Verilog-2005 parsers reject it)
 // -----------------------------------------------------------------------------
-//! Open-core value CDC (replaces xpm_cdc_handshake) — captured timestamp PTP
-//! domain -> AXIS domain via a 4-phase handshake. Track 1.4.
-cdc_handshake #(
-   .WIDTH(TS_WIDTH),
-   .DEST_SYNC_FF(2),
-   .SRC_SYNC_FF(2)
-) timestamp_cdc (
-   .src_clk(ts_src_clk),
-   .src_rst_n(ts_src_resetn),
-   .src_in(ts_captured_src),
-   .src_send(src_send),
-   .src_rcv(src_rcv),
-   .dest_clk(ts_dst_clk),
-   .dest_rst_n(ts_dst_resetn),
-   .dest_out(ts_cdc_out),
-   .dest_req(dest_req)
-);
+wire [7:0] et_hi = beat_byte(s_axis.tdata, 12 - ETHTYPE_BEAT_OFF);
+wire [7:0] et_lo = beat_byte(s_axis.tdata, 13 - ETHTYPE_BEAT_OFF);
+wire [7:0] mt_b  = beat_byte(s_axis.tdata, 14 - ETHTYPE_BEAT_OFF);
+wire [7:0] sq_hi = beat_byte(s_axis.tdata, 44 - SEQID_BEAT_OFF);
+wire [7:0] sq_lo = beat_byte(s_axis.tdata, 45 - SEQID_BEAT_OFF);
 
-// -----------------------------------------------------------------------------
-//! Start of Packet Detection
-// -----------------------------------------------------------------------------
-always_ff @(posedge ts_dst_clk) begin : sop_detect_and_timestamp
-  if(!ts_dst_resetn)begin
-    start_packet <= 'd1;
-  end
-  else begin
-    if(s_axis.tvalid && s_axis.tready && start_packet)begin
-      start_packet <= 'd0;
-    end
-    else if(s_axis.tvalid && s_axis.tready && s_axis.tlast)begin
-      start_packet <= 'd1;
-    end
-  end
-end
-
-// -----------------------------------------------------------------------------
-//! Byte Counter Logic
-// -----------------------------------------------------------------------------
-always_ff @(posedge ts_dst_clk) begin : byte_counter_logic
-  if(!ts_dst_resetn)begin
-    byte_counter <= 0;
-  end
-  else begin
-    if(s_axis.tvalid && s_axis.tready && !seq_id_received)begin
-      byte_counter <= byte_counter + BEAT_BYTES;
-    end
-    else if(s_axis.tvalid && s_axis.tready && s_axis.tlast)begin
-      byte_counter <= 0;
-    end
-  end
-end
-
-// -----------------------------------------------------------------------------
-//! Field Extraction (ETH_TYPE and PTP Sequence ID)
-// -----------------------------------------------------------------------------
 always_ff @(posedge ts_dst_clk) begin : field_extraction
   if (!ts_dst_resetn) begin
-      eth_type <= 16'h0000;
-      ptp_seq_id <= 16'h0000;
-      eth_type_valid <= 1'b0;
-      ptp_seq_id_valid <= 1'b0;
+    eth_type         <= '0;
+    msg_type         <= '0;
+    ptp_seq_id       <= '0;
+    eth_type_valid   <= 1'b0;
+    ptp_seq_id_valid <= 1'b0;
   end
-  else begin
-    if (s_axis.tvalid && s_axis.tready) begin
-      //! Extract Ethernet type (at byte offset 12-13)
-      if (!eth_type_valid && byte_counter <= ETH_HEADER_NO_VLAN_OFFSET &&
-          ETH_HEADER_NO_VLAN_OFFSET < byte_counter + BEAT_BYTES) begin
-        case (ETH_HEADER_NO_VLAN_OFFSET - byte_counter)
-          3'd0: eth_type <= BIG_ENDIAN ? {s_axis.tdata[63:56], s_axis.tdata[55:48]} :
-                                          {s_axis.tdata[15:8], s_axis.tdata[7:0]};
-          3'd1: eth_type <= BIG_ENDIAN ? {s_axis.tdata[55:48], s_axis.tdata[47:40]} :
-                                          {s_axis.tdata[23:16], s_axis.tdata[15:8]};
-          3'd2: eth_type <= BIG_ENDIAN ? {s_axis.tdata[47:40], s_axis.tdata[39:32]} :
-                                          {s_axis.tdata[31:24], s_axis.tdata[23:16]};
-          3'd3: eth_type <= BIG_ENDIAN ? {s_axis.tdata[39:32], s_axis.tdata[31:24]} :
-                                          {s_axis.tdata[39:32], s_axis.tdata[31:24]};
-          3'd4: eth_type <= BIG_ENDIAN ? {s_axis.tdata[31:24], s_axis.tdata[23:16]} :
-                                          {s_axis.tdata[47:40], s_axis.tdata[39:32]};
-          3'd5: eth_type <= BIG_ENDIAN ? {s_axis.tdata[23:16], s_axis.tdata[15:8]} :
-                                          {s_axis.tdata[55:48], s_axis.tdata[47:40]};
-          3'd6: eth_type <= BIG_ENDIAN ? {s_axis.tdata[15:8], s_axis.tdata[7:0]} :
-                                          {s_axis.tdata[63:56], s_axis.tdata[55:48]};
-          default: eth_type <= BIG_ENDIAN ? {s_axis.tdata[15:8], s_axis.tdata[7:0]} :
-                                          {s_axis.tdata[15:8], s_axis.tdata[7:0]};
-        endcase
-        eth_type_valid <= 1'b1;
-      end
-      //! Extract PTP sequence ID (at PTP_SEQ_ID_OFFSET)
-      if (!ptp_seq_id_valid && byte_counter <= PTP_SEQ_ID_OFFSET &&
-          PTP_SEQ_ID_OFFSET < byte_counter + BEAT_BYTES) begin
-        case (PTP_SEQ_ID_OFFSET - byte_counter)
-          3'd0: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[63:56], s_axis.tdata[55:48]} :
-                                            {s_axis.tdata[15:8], s_axis.tdata[7:0]};
-          3'd1: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[55:48], s_axis.tdata[47:40]} :
-                                            {s_axis.tdata[23:16], s_axis.tdata[15:8]};
-          3'd2: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[47:40], s_axis.tdata[39:32]} :
-                                            {s_axis.tdata[31:24], s_axis.tdata[23:16]};
-          3'd3: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[39:32], s_axis.tdata[31:24]} :
-                                            {s_axis.tdata[39:32], s_axis.tdata[31:24]};
-          3'd4: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[31:24], s_axis.tdata[23:16]} :
-                                            {s_axis.tdata[47:40], s_axis.tdata[39:32]};
-          3'd5: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[23:16], s_axis.tdata[15:8]} :
-                                            {s_axis.tdata[55:48], s_axis.tdata[47:40]};
-          3'd6: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[15:8], s_axis.tdata[7:0]} :
-                                            {s_axis.tdata[63:56], s_axis.tdata[55:48]};
-          default: ptp_seq_id <= BIG_ENDIAN ? {s_axis.tdata[63:56], s_axis.tdata[55:48]} :
-                                            {s_axis.tdata[15:8], s_axis.tdata[7:0]};
-        endcase
-        ptp_seq_id_valid <= 1'b1;
-      end
+  else if (beat_acc) begin
+    if (!start_packet && byte_counter == ETHTYPE_BEAT_OFF) begin
+      eth_type <= {et_hi, et_lo};
+      msg_type <= mt_b[3:0];
+      eth_type_valid <= 1'b1;
     end
-
-    if (s_axis.tvalid && s_axis.tready && s_axis.tlast) begin
-      eth_type_valid <= 1'b0;
+    if (!start_packet && byte_counter == SEQID_BEAT_OFF) begin
+      ptp_seq_id <= {sq_hi, sq_lo};
+      ptp_seq_id_valid <= 1'b1;
+    end
+    if (s_axis.tlast) begin
+      eth_type_valid   <= 1'b0;
       ptp_seq_id_valid <= 1'b0;
     end
   end
 end
 
 // -----------------------------------------------------------------------------
-//! Decoupled capture / qualify / emit (2026-07-13 rewrite). The original made
-//! the record decision at handshake-return time (`dest_req && is_ptp`), which
-//! races BOTH ways against the ingress rate:
-//!   * slow beats (MII 100M into the 50 MHz datapath): the ethertype beat has
-//!     not arrived when dest_req fires -> the FIRST record never emits and
-//!     every later one pairs the CURRENT timestamp with the PREVIOUS frame's
-//!     metadata (one-frame-stale; the silicon "zero records" of phase B);
-//!   * back-to-back minimal frames: dest_req can land after tlast instead.
-//! Now dest_req only fills ts_hold (one per SOP); the frame QUALIFIES at TLAST
-//! when ethertype+seq extracts are definitively valid; the emitter fires on
-//! qual_pend && ts_hold_v in either arrival order. A non-PTP tlast CONSUMES
-//! its capture so it cannot poison the next frame; a new SOP clears a stale
-//! unpaired qual (missed capture - self-heals). Gated: tb/verilator/ptp_ts.
+//! Record fifo: qualified at TLAST, drained by the send FSM. Depth 4 absorbs
+//! emitter latency + RR-mux arbitration; a full fifo drops the record whole
+//! (cannot happen at legal frame rates: >=9 beat-cycles/frame vs ~4/record).
 // -----------------------------------------------------------------------------
-always_ff @(posedge ts_dst_clk) begin : capture_qualify
-  if(!ts_dst_resetn)begin
-    ts_hold   <= 'd0;
-    ts_hold_v <= 'd0;
-    qual_pend <= 'd0;
-    seq_snap  <= 'd0;
+typedef struct packed {
+  logic [TS_WIDTH-1:0] ts;
+  logic [15:0]         seq;
+  logic [3:0]          mtype;
+} rec_t;
+
+localparam int RECQ = 4;
+rec_t rec_q [RECQ];
+logic [$clog2(RECQ):0] rec_wr, rec_rd;
+wire rec_empty = rec_wr == rec_rd;
+wire rec_full  = (rec_wr - rec_rd) == RECQ[$clog2(RECQ):0];
+wire rec_push  = beat_acc && s_axis.tlast && is_ptp_event && !rec_full;
+
+always_ff @(posedge ts_dst_clk) begin : record_queue
+  if (!ts_dst_resetn) begin
+    rec_wr <= '0;
   end
-  else begin
-    if(ts_state == IDLE_S && qual_pend && ts_hold_v)begin
-      qual_pend <= 'd0;               // consumed by the emitter (ts_reg latch)
-      ts_hold_v <= 'd0;
-    end
-    if(sop_detected && qual_pend && !ts_hold_v)begin
-      qual_pend <= 'd0;               // stale qual without a capture: abandon
-    end
-    if(s_axis.tvalid && s_axis.tready && s_axis.tlast)begin
-      if(eth_type_valid && is_ptp && ptp_seq_id_valid)begin
-        qual_pend <= 'd1;
-        seq_snap  <= (BIG_ENDIAN) ? ptp_seq_id
-                                  : {ptp_seq_id[7:0], ptp_seq_id[15:8]};
-      end
-      else begin
-        ts_hold_v <= 'd0;             // non-PTP frame consumes its capture
-      end
-    end
-    if(dest_req)begin                 // LAST: a new capture beats same-cycle clears
-      ts_hold   <= ts_cdc_out;
-      ts_hold_v <= 'd1;
-    end
+  else if (rec_push) begin
+    rec_q[rec_wr[$clog2(RECQ)-1:0]] <= '{ts: ts_sop,
+                                         seq: BIG_ENDIAN ? ptp_seq_id
+                                              : {ptp_seq_id[7:0], ptp_seq_id[15:8]},
+                                         mtype: msg_type};
+    rec_wr <= rec_wr + 1'b1;
   end
 end
+
 // -----------------------------------------------------------------------------
-//! Timestamp Metadata Output FSM
+//! Metadata output FSM: 2 beats per record. Outputs derive COMBINATIONALLY
+//! from the state (valid never depends on ready - AXI-Stream compliant), so
+//! backpressure holds a beat exactly and back-to-back records stream with
+//! neither duplicated nor dropped beats (the registered-output staging of the
+//! first rewrite double-sent the HIGH beat - caught by the interference TB).
 // -----------------------------------------------------------------------------
+typedef enum logic [1:0] {
+  IDLE_S,      //! Wait for a queued record
+  SEND_HIGH_S, //! Beat 0: timestamp
+  SEND_LOW_S   //! Beat 1: {seq, msgType, dir}, tlast
+} ts_state_t;
+
+ts_state_t ts_state;
+rec_t      rec_cur;
+
+assign ts_m_axis.tvalid = (ts_state != IDLE_S);
+assign ts_m_axis.tlast  = (ts_state == SEND_LOW_S);
+assign ts_m_axis.tkeep  = (ts_state == SEND_LOW_S) ? 8'h07 : 8'hFF;
+assign ts_m_axis.tdata  = (ts_state == SEND_LOW_S)
+                          ? {40'd0, rec_cur.seq, rec_cur.mtype, 3'd0, IS_TX[0]}
+                          : rec_cur.ts;
+
 always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
-  if(!ts_dst_resetn)begin
-    ts_m_axis.tvalid <= 'd0;
-    ts_m_axis.tdata <= 'd0;
-    ts_m_axis.tkeep <= 8'h00;
-    ts_m_axis.tlast <= 'd0;
+  if (!ts_dst_resetn) begin
     ts_state <= IDLE_S;
+    rec_rd   <= '0;
   end
   else begin
-    case(ts_state)
+    case (ts_state)
       IDLE_S: begin
-        if(qual_pend && ts_hold_v)begin
-          ts_state <= SEND_HIGH_S;
-          ts_reg.direction <= IS_TX[0];
-          ts_reg.seq_id    <= seq_snap;
-          ts_reg.timestamp <= ts_hold;
-        end
-        else begin
-          ts_m_axis.tvalid <= 'd0;
-          ts_m_axis.tdata <= 'd0;
-          ts_m_axis.tkeep <= 8'h00;
-          ts_m_axis.tlast <= 'd0;
-          ts_state <= IDLE_S;
-        end
-      end
-
-      SEND_HIGH_S : begin
-        ts_m_axis.tvalid <= 'd1;
-        ts_m_axis.tlast <= 'd0;
-        ts_m_axis.tkeep <= 8'hff;
-        ts_m_axis.tdata <= ts_reg.timestamp;
-        if(ts_m_axis.tready)begin
-          ts_state <= SEND_LOW_S;
-        end
-        else begin
+        if (!rec_empty) begin
+          rec_cur  <= rec_q[rec_rd[$clog2(RECQ)-1:0]];
+          rec_rd   <= rec_rd + 1'b1;
           ts_state <= SEND_HIGH_S;
         end
       end
 
-      SEND_LOW_S : begin
-        ts_m_axis.tvalid <= 'd1;
-        ts_m_axis.tlast <= 'd1;
-        ts_m_axis.tkeep <= 8'h07;
-        ts_m_axis.tdata <= {40'd0, ts_reg.seq_id, 7'd0, ts_reg.direction};
-        if(ts_m_axis.tready)begin
-          ts_state <= IDLE_S;
-        end
-        else begin
+      SEND_HIGH_S: begin
+        if (ts_m_axis.tready)
           ts_state <= SEND_LOW_S;
+      end
+
+      SEND_LOW_S: begin
+        if (ts_m_axis.tready) begin
+          if (!rec_empty) begin           // stream the next record seamlessly
+            rec_cur  <= rec_q[rec_rd[$clog2(RECQ)-1:0]];
+            rec_rd   <= rec_rd + 1'b1;
+            ts_state <= SEND_HIGH_S;
+          end
+          else begin
+            ts_state <= IDLE_S;
+          end
         end
       end
-      default : ts_state <= IDLE_S;
+
+      default: ts_state <= IDLE_S;
     endcase
   end
 end
