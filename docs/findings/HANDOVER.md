@@ -16,9 +16,21 @@
 > self-hosting; flash boots need NO dma_ts_addr override.** Init default
 > stays `ptp4l -S` (robust); HW mode = drop the -S (gptp.cfg carries
 > tx_timestamp_timeout 50 for the egress-queue corner; classifier 0x88F7
-> fast-path = the future fix). AX7101: trim .ko RAM-only + OLD ptp_ts
-> gateware (its HW-ts needs an AX sweep + its QSPI refresh - both pending);
-> its bare-insmod PHC-rate trap: always rsc_clk_mhz=100 on the AX.
+> fast-path LANDED - PCP mode routes 0x88F7 to GPTP_CLASS; the TX-flood
+> delay is the driver's single 256-slot TX ring, future fix = priority TX
+> ring/doorbell). **AX7101 CAUGHT UP (late 07-13): eto_hwts_ax2 keeper (WNS
+> +0.118) in SRAM, QSPI reflashed to the v3-full layout with the per-board
+> rootfs (hwts4) + fixed opensbi/dtb — TURNKEY: DT clock 100 MHz, EID :01,
+> IP .1, HW-mode ptp4l 0-timeouts/ring-advancing with ZERO overrides; both
+> entities (:01+:02) advertise through the switch again.** Traps buried on
+> the way: build_opensbi warm-tree rebuilds embedded the PREVIOUS board's
+> dtb (panic@0.000000; script now force-cleans); the arty QSPI bitstream
+> settings (SPI_BUSWIDTH 1) bitgen-killed every AX build since 07-12 (now
+> board-gated); the Pmod I2S request needed connector-table gating (its
+> try/except only ever caught its own NameError). Per-board turnkey class
+> CLOSED: DT carries kl,rsc-clk-mhz; S50milan keys identity/IP on the DT
+> model; interfaces no longer bakes .1; dropbear symlink-target fixed;
+> auto-ptp4l reads /etc/gptp.cfg (-S default; drop -S for HW mode).
 
 ## 1. Topology
 
