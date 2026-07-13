@@ -12,7 +12,7 @@ static std::vector<unsigned char> collect(int maxc){std::vector<unsigned char> b
 static unsigned long be(std::vector<unsigned char>&b,int o,int n){unsigned long v=0;for(int i=0;i<n;i++)v=(v<<8)|b[o+i];return v;}
 int main(int argc,char**argv){Verilated::commandArgs(argc,argv);dut=new Vaaf_talker_i2s;
  dut->rst_n=0;dut->enable_i=0;dut->i2s_sdout_i=1;dut->m_axis_tready=1;
- dut->dest_mac_i=0x91E0F000FE01ULL;dut->station_mac_i=0x020000000002ULL;dut->vlan_vid_i=2;dut->ptp_ns_i=0x11223344;
+ dut->dest_mac_i=0x91E0F000FE01ULL;dut->station_mac_i=0x020000000002ULL;dut->vlan_vid_i=2;dut->ptp_ns_i=0x11223344;dut->transit_ns_i=2000000;  // was a localparam; now the AECP presentation-offset register drives it
  for(int i=0;i<8;i++)step(); dut->rst_n=1; dut->enable_i=1;
  printf("== aaf_talker_i2s ==\n");
  auto f=collect(200000);

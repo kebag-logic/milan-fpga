@@ -85,6 +85,15 @@ module KL_aecp_response_builder (
   input  wire [63:0]   gptp_gm_id_i,
   input  wire [7:0]    gptp_domain_i,
 
+  // ---- live talker stream state (docs/design/MILAN_TALKER_SM.md) ------
+  input  wire [47:0]   aaf_dmac_i,         //! stream dest MAC (the framer's)
+  input  wire [11:0]   aaf_vid_i,          //! stream VLAN id
+  input  wire          talker_active_i,    //! ACMP probe SM: declaring
+  input  wire          listener_observed_i,//! lwSRP registrar hook
+  input  wire [31:0]   pres_offset_i,      //! msrp_accumulated_latency (ns)
+  output logic         pres_wr_p_o,        //! 1-cycle: SET_STREAM_INFO update
+  output logic [31:0]  pres_wr_val_o,
+
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
   output logic         st_rd_o,
@@ -148,6 +157,14 @@ module KL_aecp_response_builder (
   wire [15:0] w_rd_index = {buf_r[8], buf_r[9]};
   wire [15:0] w_gs_type  = {buf_r[2], buf_r[3]};   //! GET/SET_* desc type
   wire [15:0] w_gs_index = {buf_r[4], buf_r[5]};
+  //! SET_STREAM_INFO (Milan §5.4.2.9): payload byte n = buf_r[n+2] — flags at
+  //! payload 4-7, msrp_accumulated_latency at payload 24-27.
+  wire [31:0] w_si_flags = {buf_r[6],  buf_r[7],  buf_r[8],  buf_r[9]};
+  wire [31:0] w_si_lat   = {buf_r[26], buf_r[27], buf_r[28], buf_r[29]};
+  //! Spec-defined sub-command bits (reference valid_mask: aecp-aem.h bits 0-9
+  //! + 25-31) minus the ONE supported (MSRP_ACC_LAT_VALID, bit 29): any of
+  //! these requested -> NOT_SUPPORTED for the whole command (§5.4.2.9).
+  localparam [31:0] SI_UNSUPPORTED_MASK_C = 32'hDE00_03FF;
   wire [15:0] w_name_idx = {buf_r[6], buf_r[7]};   //! SET/GET_NAME name_index
   wire [15:0] w_as_path_idx = {buf_r[2], buf_r[3]};  //! GET_AS_PATH descriptor_index (no type field)
   wire [15:0] w_name_cfg = {buf_r[8], buf_r[9]};
@@ -295,7 +312,7 @@ module KL_aecp_response_builder (
     else if (fi < 34) b = hdr_q.controller_entity_id[8*(33-(32)'(fi)) +: 8];
     else if (fi == 34) b = hdr_q.sequence_id[15:8];
     else if (fi == 35) b = hdr_q.sequence_id[7:0];
-    else if (fi == 36) b = {1'b0, hdr_q.command_type[14:8]};   // u=0
+    else if (fi == 36) b = {unsol_frame_r, hdr_q.command_type[14:8]};  // u=1 on pushes
     else               b = hdr_q.command_type[7:0];
     return b;
   endfunction
@@ -315,6 +332,80 @@ module KL_aecp_response_builder (
   //! meta-FIFO pop bookkeeping: pops can be requested by a concluded
   //! response AND an asynchronously dropped frame in the same cycle
   logic [1:0] pop_pend_r;
+
+  // ------------------------------------------------------------------ //
+  // Unsolicited notifications (Milan §5.4.2.21 / IEEE 1722.1-2021 §7.5.2)
+  // 4-slot registration table (reference uses 16; 4 bounds the fabric and
+  // covers the bench). A push is a synthesized GET_STREAM_INFO response
+  // (u=1) emitted through the NORMAL segment engine from the IDLE hook —
+  // per registered controller, UNICAST to its stored MAC, with its own
+  // per-controller sequence counter (reference reply-unsol-helpers.c).
+  // ------------------------------------------------------------------ //
+  localparam int unsigned UNSOL_SLOTS_C = 4;
+  logic                  unsol_valid_r [0:UNSOL_SLOTS_C-1];
+  logic [63:0]           unsol_eid_r   [0:UNSOL_SLOTS_C-1];
+  logic [47:0]           unsol_mac_r   [0:UNSOL_SLOTS_C-1];
+  logic [15:0]           unsol_seq_r   [0:UNSOL_SLOTS_C-1];
+  logic [UNSOL_SLOTS_C-1:0] unsol_pend_r;   //! slots owed a push
+  logic                  unsol_frame_r;     //! current emit is a push (u=1, no meta pop)
+  logic                  ta_prev_r, lo_prev_r;  //! edge detectors
+
+  //! REGISTER helper wires: dedup match + lowest free slot + lowest pend
+  logic [UNSOL_SLOTS_C-1:0] w_unsol_match;
+  logic [UNSOL_SLOTS_C-1:0] w_unsol_free;
+  logic [1:0]               w_unsol_fill_idx;   //! lowest free slot
+  logic [1:0]               w_unsol_push_idx;   //! lowest pending slot
+  always_comb begin
+    for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
+      w_unsol_match[s] = unsol_valid_r[s] &&
+                         (unsol_eid_r[s] == hdr_q.controller_entity_id);
+      w_unsol_free[s]  = !unsol_valid_r[s];
+    end
+    w_unsol_fill_idx = 2'd0;
+    w_unsol_push_idx = 2'd0;
+    for (int s = UNSOL_SLOTS_C-1; s >= 0; s--) begin
+      if (w_unsol_free[s]) w_unsol_fill_idx = 2'(s);   // lowest wins
+      if (unsol_pend_r[s]) w_unsol_push_idx = 2'(s);
+    end
+  end
+
+  // ------------------------------------------------------------------ //
+  // Stream-info payload constants (shared by the GET_STREAM_INFO command
+  // path and the unsolicited push): flags + the live 40-byte tail. The
+  // caller still owns segments/cdl/status.                               //
+  // ------------------------------------------------------------------ //
+  task automatic load_stream_info_consts;
+    begin
+      const_q[0] <= 8'hF6; const_q[1] <= 8'h00;   // flags 0xF6000000
+      const_q[2] <= 8'h00; const_q[3] <= 8'h00;
+      // stream_id = {station_mac, unique_id=0} — the stream.c formula,
+      // byte-identical to the AVTP header and the ACMP PROBE_TX response
+      const_q[8]  <= station_mac_i[47:40];
+      const_q[9]  <= station_mac_i[39:32];
+      const_q[10] <= station_mac_i[31:24];
+      const_q[11] <= station_mac_i[23:16];
+      const_q[12] <= station_mac_i[15:8];
+      const_q[13] <= station_mac_i[7:0];
+      const_q[14] <= 8'h00; const_q[15] <= 8'h00;
+      const_q[16] <= pres_offset_i[31:24];        // msrp_accumulated_latency
+      const_q[17] <= pres_offset_i[23:16];
+      const_q[18] <= pres_offset_i[15:8];
+      const_q[19] <= pres_offset_i[7:0];
+      const_q[20] <= aaf_dmac_i[47:40];           // stream_dest_mac
+      const_q[21] <= aaf_dmac_i[39:32];
+      const_q[22] <= aaf_dmac_i[31:24];
+      const_q[23] <= aaf_dmac_i[23:16];
+      const_q[24] <= aaf_dmac_i[15:8];
+      const_q[25] <= aaf_dmac_i[7:0];
+      for (int k = 26; k < 36; k++) const_q[k] <= 8'h00;  // fail code + bridge
+      const_q[36] <= {4'h0, aaf_vid_i[11:8]};     // stream_vlan_id
+      const_q[37] <= aaf_vid_i[7:0];
+      const_q[38] <= 8'h00; const_q[39] <= 8'h00;
+      const_q[40] <= 8'h00; const_q[41] <= 8'h00; const_q[42] <= 8'h00;
+      const_q[43] <= {7'b0, talker_active_i & listener_observed_i};
+      for (int k = 44; k < 48; k++) const_q[k] <= 8'h00;  // pbsta/acmpsta
+    end
+  endtask
 
   // ------------------------------------------------------------------ //
   // Main FSM                                                             //
@@ -356,6 +447,18 @@ module KL_aecp_response_builder (
       evt_cmd_o    <= 1'b0;
       evt_resp_o   <= 1'b0;
       evt_drop_o   <= 1'b0;
+      pres_wr_p_o  <= 1'b0;
+      pres_wr_val_o <= 32'd0;
+      unsol_pend_r  <= '0;
+      unsol_frame_r <= 1'b0;
+      ta_prev_r     <= 1'b0;
+      lo_prev_r     <= 1'b0;
+      for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
+        unsol_valid_r[s] <= 1'b0;
+        unsol_eid_r[s]   <= 64'd0;
+        unsol_mac_r[s]   <= 48'd0;
+        unsol_seq_r[s]   <= 16'd0;
+      end
       pay_len_q    <= 16'd0;
       cum_done_q   <= 1'b0;
       for (int k = 0; k < BUF_BYTES_C; k++) buf_r[k] <= 8'h00;
@@ -372,6 +475,7 @@ module KL_aecp_response_builder (
       evt_resp_o <= 1'b0;
       evt_drop_o <= 1'b0;
       st_wr_o    <= 1'b0;
+      pres_wr_p_o <= 1'b0;
 
       // ---- output beat handshake (runs EVERY cycle, independent of the
       //      ADDR/DATA assembly sub-state, so a beat transfers exactly once) --
@@ -391,6 +495,23 @@ module KL_aecp_response_builder (
       if (frame_bad_i) begin
         evt_drop_o <= 1'b1;
         pop_pend_r <= pop_pend_r + 2'd1;
+      end
+
+      // ---- unsolicited push triggers (stream-output state changes) ---
+      // Edge of the ACMP probe/listener state -> notify every registered
+      // controller; a SET_STREAM_INFO write -> notify all EXCEPT the
+      // controller that issued it (reference reply-unsol-helpers.c rule).
+      ta_prev_r <= talker_active_i;
+      lo_prev_r <= listener_observed_i;
+      if ((talker_active_i ^ ta_prev_r) | (listener_observed_i ^ lo_prev_r)) begin
+        for (int s = 0; s < UNSOL_SLOTS_C; s++)
+          if (unsol_valid_r[s]) unsol_pend_r[s] <= 1'b1;
+      end
+      if (pres_wr_p_o) begin   // hdr_q still holds the causing SET command
+        for (int s = 0; s < UNSOL_SLOTS_C; s++)
+          if (unsol_valid_r[s] &&
+              unsol_eid_r[s] != hdr_q.controller_entity_id)
+            unsol_pend_r[s] <= 1'b1;
       end
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
@@ -425,7 +546,38 @@ module KL_aecp_response_builder (
         // ---------------------------------------------------------- //
         IDLE_S: begin
           discard_q <= !enable_i;
-          if (w_cap_hs) state_r <= CAPTURE_S;
+          unsol_frame_r <= 1'b0;
+          if (w_cap_hs) begin
+            state_r <= CAPTURE_S;
+          end else if (enable_i && unsol_pend_r != '0) begin
+            // Synthesize an unsolicited GET_STREAM_INFO response (u=1) to
+            // the lowest pending slot, through the NORMAL segment engine:
+            // send with the slot's current sequence, then bump (reference
+            // sends next_seq_id and post-increments).
+            unsol_pend_r[w_unsol_push_idx] <= 1'b0;
+            unsol_seq_r[w_unsol_push_idx]  <= unsol_seq_r[w_unsol_push_idx] + 16'd1;
+            unsol_frame_r <= 1'b1;
+            dst_mac_q     <= unsol_mac_r[w_unsol_push_idx];
+            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push_idx];
+            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push_idx];
+            hdr_q.command_type         <= CMD_GET_STREAM_INFO;
+            vu_q       <= 1'b0;
+            msg_resp_q <= MSG_AEM_RESPONSE;
+            status_q   <= STATUS_SUCCESS;
+            seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd48; seg_len_q[0] <= 16'd4;
+            seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
+            seg_kind_q[2] <= SEG_STORE;
+            seg_addr_q[2] <= WB_STREAM_FORMAT_C; seg_len_q[2] <= 16'd8;
+            seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
+            const_q[48] <= 8'h00; const_q[49] <= 8'h06;   // STREAM_OUTPUT
+            const_q[50] <= 8'h00; const_q[51] <= 8'h00;   // index 0
+            load_stream_info_consts();
+            cdl_q      <= 11'd68;
+            wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
+            cum_done_q <= 1'b0;
+            fi_r       <= 16'd0;
+            state_r    <= WRITE_S;
+          end
         end
 
         // ---------------------------------------------------------- //
@@ -641,13 +793,51 @@ module KL_aecp_response_builder (
                   seg_kind_q[2] <= SEG_STORE;
                   seg_addr_q[2] <= WB_STREAM_FORMAT_C; seg_len_q[2] <= 16'd8;
                   seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
-                  const_q[0] <= 8'hF6; const_q[1] <= 8'h00;   // flags 0xF6000000
-                  const_q[2] <= 8'h00; const_q[3] <= 8'h00;
-                  for (int k = 0; k < 8; k++)                 // stream_id = entity_id
-                    const_q[8+k] <= entity_id_i[8*(7-k) +: 8];
-                  for (int k = 16; k < 48; k++) const_q[k] <= 8'h00;  // rest = 0
+                  // flags + live 40-byte tail (stream_id = {mac,0} — the
+                  // previous entity_id here could never match the stream)
+                  load_stream_info_consts();
                   cdl_q <= 11'd68;   // 12 + 4+4+8+40
                 end
+              end
+
+              // -------------------------------------------------- //
+              // SET_STREAM_INFO (Milan §5.4.2.9): STREAM_OUTPUT only; the
+              // sole supported sub-command is MSRP_ACC_LAT_VALID (updates the
+              // presentation-time offset the framer stamps); any other
+              // spec-defined sub-command -> NOT_SUPPORTED; gated while a
+              // listener is registered (STREAM_IS_RUNNING); response echoes
+              // the command payload with the same flags (default echo seg).
+              CMD_SET_STREAM_INFO: begin
+                if (l0_reject_q) begin
+                  status_q <= l0_status_q;
+                end else if (w_gs_type == DESC_STREAM_INPUT) begin
+                  status_q <= STATUS_NOT_SUPPORTED;   // not implemented for inputs
+                end else if (w_gs_type != DESC_STREAM_OUTPUT) begin
+                  status_q <= STATUS_BAD_ARGUMENTS;
+                end else if (w_gs_index != 16'd0) begin
+                  status_q <= STATUS_NO_SUCH_DESCRIPTOR;
+                end else if ((w_si_flags & SI_UNSUPPORTED_MASK_C) != 32'd0) begin
+                  status_q <= STATUS_NOT_SUPPORTED;
+                end else if (listener_observed_i) begin
+                  status_q <= STATUS_STREAM_IS_RUNNING;
+                end else if (!w_si_flags[29]) begin
+                  status_q <= STATUS_SUCCESS;         // nothing requested: no-op
+                end else if (w_si_lat[31]) begin
+                  status_q <= STATUS_BAD_ARGUMENTS;   // > 0x7FFFFFFF ns
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  pres_wr_p_o   <= 1'b1;
+                  pres_wr_val_o <= w_si_lat;
+                end
+              end
+
+              // -------------------------------------------------- //
+              // START/STOP_STREAMING (Milan §5.4.2.19/20): Stream-INPUT-only
+              // commands — NOT_SUPPORTED on this talker-only entity (the
+              // reference replies not-supported for Stream Outputs; the old
+              // NOT_IMPLEMENTED default was the wrong status).
+              CMD_START_STREAMING, CMD_STOP_STREAMING: begin
+                status_q <= STATUS_NOT_SUPPORTED;
               end
 
               // -------------------------------------------------- //
@@ -737,11 +927,36 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
-              CMD_REGISTER_UNSOLICITED_NOTIFICATION,
-              CMD_DEREGISTER_UNSOLICITED_NOTIFICATION: begin
-                status_q      <= STATUS_SUCCESS;
+              // REGISTER (Milan §5.4.2.21): dedup -> SUCCESS (sequence
+              // preserved); free slot -> fill {controller_id, src MAC,
+              // seq=0}; table full -> NO_RESOURCES. DEREGISTER clears the
+              // matching slot; idempotent SUCCESS either way (reference).
+              CMD_REGISTER_UNSOLICITED_NOTIFICATION: begin
                 seg_kind_q[0] <= SEG_NONE; seg_len_q[0] <= 16'd0;
                 cdl_q         <= 11'd12;
+                if (w_unsol_match != '0) begin
+                  status_q <= STATUS_SUCCESS;              // already registered
+                end else if (w_unsol_free != '0) begin
+                  status_q <= STATUS_SUCCESS;
+                  unsol_valid_r[w_unsol_fill_idx] <= 1'b1;
+                  unsol_eid_r[w_unsol_fill_idx]   <= hdr_q.controller_entity_id;
+                  unsol_mac_r[w_unsol_fill_idx]   <= req_src_mac_i;
+                  unsol_seq_r[w_unsol_fill_idx]   <= 16'd0;
+                end else begin
+                  status_q <= STATUS_NO_RESOURCES;
+                end
+              end
+
+              CMD_DEREGISTER_UNSOLICITED_NOTIFICATION: begin
+                status_q      <= STATUS_SUCCESS;           // idempotent
+                seg_kind_q[0] <= SEG_NONE; seg_len_q[0] <= 16'd0;
+                cdl_q         <= 11'd12;
+                for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
+                  if (w_unsol_match[s]) begin
+                    unsol_valid_r[s] <= 1'b0;
+                    unsol_pend_r[s]  <= 1'b0;
+                  end
+                end
               end
 
               default: ;   // NOT_IMPLEMENTED echo (defaults above)
@@ -826,7 +1041,9 @@ module KL_aecp_response_builder (
         CONCLUDE_S: begin   // wait for the final beat to drain, then clean up
           if (!beat_pend_r) begin   // top-level handshake sent the last beat
             evt_resp_o  <= 1'b1;
-            pop_pend_r  <= pop_pend_r + 2'd1;
+            // pushes are self-generated: there is no ingress meta to pop
+            if (!unsol_frame_r) pop_pend_r <= pop_pend_r + 2'd1;
+            unsol_frame_r <= 1'b0;
             fi_r        <= 16'd0;
             state_r     <= IDLE_S;
           end
