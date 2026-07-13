@@ -118,14 +118,19 @@ class Harness:
             yield
 
     # ---- frame feeder: optional mid-frame bubbles -------------------------------------
-    def send_frame(self, words, bubbles=0.0, rng=None):
+    def send_frame(self, words, bubbles=0.0, rng=None, tail=8):
+        """tail = valid bytes of the LAST beat (1-8). Drives sink.keep exactly like
+        the real ingress (0xFF mid-frame, contiguous mask on the last beat); callers
+        sending tail<8 must zero the last word's pad lanes (the converter does)."""
         dut = self.dut
         for i, w in enumerate(words):
             while rng and bubbles and rng.random() < bubbles:
                 yield dut.sink.valid.eq(0)
                 yield
+            last = i == len(words) - 1
             yield dut.sink.data.eq(w)
-            yield dut.sink.last.eq(1 if i == len(words) - 1 else 0)
+            yield dut.sink.last.eq(1 if last else 0)
+            yield dut.sink.keep.eq(((1 << tail) - 1) if last else 0xFF)
             yield dut.sink.valid.eq(1)
             yield
         yield dut.sink.valid.eq(0)
@@ -340,6 +345,28 @@ def test_4k_split():
     print("PASS 4 KB burst split")   # slave asserts the no-crossing rule itself
 
 
+def test_tail_keep_ring_padded():
+    """gPTP RX-pad fix regression: the byte-ring header length must stay PADDED
+    (beats*8) even when the last beat carries a partial keep — the ring ABI
+    (rd advance = 8+len, len&7==0 check) is frozen; only BD mode reports the
+    true length. The csum still covers the stored (zero-padded) words."""
+    h = Harness(ring_size=4096)
+    F = frame(0xC3, 3)
+    F[-1] &= (1 << (8 * 4)) - 1          # zero the pad lanes (converter model)
+
+    def stim():
+        yield from h.init_csr()
+        yield from h.send_frame(F, tail=4)
+        yield from h.wait_idle()
+    h.run(stim)
+    hdr = h.ring_word(0)
+    assert hdr & 0xFFFF == 24, f"ring header len must stay padded 24, got {hdr & 0xFFFF}"
+    assert (hdr >> 32) & 0xFFFF == Harness.csum_ref(F), "header csum over stored words"
+    frames, _, _ = h.read_frames(0, 1)
+    assert frames == [F], "stored beats must be byte-exact incl. zeroed pad lanes"
+    print("PASS ring header length stays padded with partial keep")
+
+
 if __name__ == "__main__":
     test_basic()
     test_bubbles()
@@ -347,4 +374,5 @@ if __name__ == "__main__":
     test_ring_full()
     test_wrap()
     test_4k_split()
+    test_tail_keep_ring_padded()
     print("ALL PASS")
