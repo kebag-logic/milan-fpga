@@ -154,6 +154,19 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
   The plausible design reading: the appliance's board/edge ports are
   GM-source + pdelay ports and a board is simply not expected to receive
   Sync/Follow_Up from the switch in this role assignment.
+- **GM CHANGEOVER TESTED MID-CONNECTION (2026-07-13, all clean obs)**:
+  * a BETTER GM on port 7 (AX 90/cc6, allmulti fixed, announces verified on
+    the wire 1/s for minutes) is NEVER adopted - **port 8 is the appliance's
+    only GM-election port, now settled uncontaminated** (the port-7 caveat
+    closes);
+  * GM DEATH mid-lock: the switch enters HOLDOVER so cleanly the slave never
+    leaves lock - pw0 stayed SLAVE rms 2-4 ns at the learned rate for 4+ min
+    with the source dead (no UNCALIBRATED, no announce loss);
+  * GM RETURN mid-holdover: seamless re-acquisition, ~18 ppb freq re-pull,
+    no step;
+  * a 120 s TCP stream spanning kill(T+30)+return(T+75): flat 93.6 Mbit/s,
+    0 retransmits, every 10 s interval within 92.7-94.1 - the data plane is
+    fully decoupled from GM state.
 - **SETTLED (2026-07-13, clean observation)**: with the Arty-GM relay
   demonstrably engaged (pw0 SLAVE rms 2 ns on the uplink at the same
   moment), a 60 s PROMISCUOUS capture on the AX port (MAC filter bypassed)
