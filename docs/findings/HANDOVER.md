@@ -1,5 +1,29 @@
 # HANDOVER  -  topology rules + live states (2026-07-13)
 
+> 2026-07-14 delta — **MILAN TALKER SM ON SILICON** (normative:
+> docs/design/MILAN_TALKER_SM.md + memory milan-talker-sm): ACMP PROBE_TX
+> activation SM (Milan talkers are NEAR-STATELESS: CONNECT_TX==PROBE_TX,
+> count always 0, 15 s window, DISCONNECT no-op) + AECP streaming
+> (stream_id BUG fixed — was entity_id, could never match the AVTP
+> frames; SET_STREAM_INFO ACC_LAT -> framer transit; START/STOP =
+> NOT_SUPPORTED on outputs) + REAL unsolicited notifications (4 slots,
+> per-controller unicast+seq, u=1) + probe-gated AAF (bypass CSR;
+> **the arty now BOOTS IN TRUE MILAN MODE** — S50milan's 0x654=0x1 means
+> bypass=0: silent until probed; legacy = devmem 0x654 0x3). Keepers:
+> arty eppo_miltalk +0.082 (QSPI v3), AX eto_miltalk +0.072 (SRAM, only
+> passer). Drill 41/41 vs BOTH entities; wire: silent -> PROBE ->
+> 8138 fr/s same-second -> hard stop at expiry; AX window 14 s x3;
+> la_avdecc Milan=1 CLEAN x2. TWO deep catches: (1) **milan_soc.py NEVER
+> passed MILAN_CLK_FREQ_HZ** (Instance had no p_ param) — every arty
+> build ran 2 s ticks (ADP 62 s, window ~28 s); the adpfix "31 s
+> measured" was a single-period coin flip (CADENCE CLAIMS NEED >=2
+> PERIODS); fixed c3b0e82, arty rebuilt (miltick). (2) the controller's
+> discover() was MALFORMED since day one (msg_type packed into the
+> valid_time byte — discovery survived on periodic-advertise luck; all
+> the flaky first-runs explained); fixed + --eid filter. VID0 policy:
+> stream_vlan_id legitimately reads 0 in ACMP/AECP responses.
+
+
 > 2026-07-13 LATE-NIGHT delta (normative: ADP_DORMANCY.md): during control-
 > plane re-certification of the same-day gatewares, the Arty's :02 went
 > SILENT on ADP while gPTP kept serving (pw0 SLAVE, 6 ns) — forensics proved
