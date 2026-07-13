@@ -63,6 +63,13 @@ module KL_aecp_top #(
   input  wire [63:0]   gptp_gm_id_i,
   input  wire [7:0]    gptp_domain_i,
 
+  // ---- live talker stream state (docs/design/MILAN_TALKER_SM.md) ------
+  input  wire [47:0]   aaf_dmac_i,         //! stream dest MAC (framer CSR)
+  input  wire [11:0]   aaf_vid_i,          //! stream VLAN id (framer CSR)
+  input  wire          talker_active_i,    //! ACMP probe SM state
+  input  wire          listener_observed_i,//! lwSRP registrar hook
+  output wire [31:0]   pres_offset_o,      //! live presentation offset (ns) -> framer
+
   // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
   input  wire          rx_tvalid_i,
   input  wire [63:0]   rx_tdata_i,
@@ -187,6 +194,19 @@ module KL_aecp_top #(
     .station_mac_i(station_mac_i), .byte_o(st_ovl_byte_w)
   );
 
+  // ---- presentation-time offset (SET_STREAM_INFO MSRP_ACC_LAT target) --
+  //      Reset = 2 000 000 ns: the Milan class-A max transit time the framer
+  //      has always stamped (aaf_talker_i2s TRANSIT) and the reference's
+  //      stream->mtt default. GET_STREAM_INFO reports it live.
+  logic        pres_wr_p_w;
+  logic [31:0] pres_wr_val_w;
+  logic [31:0] pres_offset_r;
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n)           pres_offset_r <= 32'd2_000_000;
+    else if (pres_wr_p_w) pres_offset_r <= pres_wr_val_w;
+  end
+  assign pres_offset_o = pres_offset_r;
+
   // ---- response builder ---------------------------------------------
   logic evt_cmd_w, evt_resp_w, evt_drop_w;
   KL_aecp_response_builder u_bld (
@@ -200,6 +220,11 @@ module KL_aecp_top #(
     .l0_state_i(l0_state_w), .l0_status_i(l0_status_w), .l0_reject_i(l0_reject_w),
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
     .gptp_gm_id_i(gptp_gm_id_i), .gptp_domain_i(gptp_domain_i),
+    .aaf_dmac_i(aaf_dmac_i), .aaf_vid_i(aaf_vid_i),
+    .talker_active_i(talker_active_i),
+    .listener_observed_i(listener_observed_i),
+    .pres_offset_i(pres_offset_r),
+    .pres_wr_p_o(pres_wr_p_w), .pres_wr_val_o(pres_wr_val_w),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
     .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),

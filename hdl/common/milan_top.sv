@@ -194,8 +194,15 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire                     ctl2_tx_tvalid, ctl2_tx_tlast, ctl2_tx_tready;
   wire [15:0]              acmp_cmd_count, acmp_resp_count;
   wire                     cfg_aaf_enable;
+  wire                     cfg_aaf_bypass;
   wire [47:0]              cfg_aaf_dmac;
   wire [11:0]              cfg_aaf_vid;
+  //! Milan talker SM state (no AAF framer on the Zynq assembly; the gate is
+  //! still computed for CSR visibility and the AECP/ACMP live state)
+  wire                     cfg_acmp_lobs;
+  wire                     acmp_talker_active, acmp_probe_armed;
+  wire [31:0]              aecp_pres_offset;
+  wire aaf_gate = cfg_aaf_enable & (cfg_aaf_bypass | acmp_talker_active);
   //! merged low-rate control stream (ADP advertise + AECP response)
   wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
@@ -401,6 +408,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_acmp_cmd_count     (acmp_cmd_count),
     .i_acmp_resp_count    (acmp_resp_count),
     .o_aaf_enable         (cfg_aaf_enable),
+    .o_aaf_bypass         (cfg_aaf_bypass),
+    .o_acmp_lobs          (cfg_acmp_lobs),
+    .i_acmp_probe_armed   (acmp_probe_armed),
+    .i_acmp_talker_active (acmp_talker_active),
+    .i_aaf_gate           (aaf_gate),
     .o_aaf_dest_mac       (cfg_aaf_dmac),
     .o_aaf_vid            (cfg_aaf_vid),
     .i_aaf_frames         (32'h0),
@@ -645,6 +657,10 @@ module milan_top import ethernet_packet_pkg::*; #(
     .association_id_i  (cfg_adp_association_id),
     .gptp_gm_id_i      (cfg_adp_gptp_gm),
     .gptp_domain_i     (cfg_adp_gptp_domain),
+    .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
+    .talker_active_i (acmp_talker_active),
+    .listener_observed_i (cfg_acmp_lobs),
+    .pres_offset_o (aecp_pres_offset),
     // RX monitor tap (inputs only)
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
@@ -661,6 +677,11 @@ module milan_top import ethernet_packet_pkg::*; #(
   KL_acmp_responder acmp_responder (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
+    .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
+    .tick_1s_i (adp_tick_1s),
+    .listener_observed_i (cfg_acmp_lobs),
+    .talker_active_o (acmp_talker_active),
+    .probe_armed_o (acmp_probe_armed),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
