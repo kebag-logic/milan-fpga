@@ -1,29 +1,31 @@
 # PTP timestamp metadata pipeline — root cause & fix (2026-07-13, Phase B)
 
-> **SUPERSEDED IN PART — see the sections below for history. Final state
-> (commits 773dc32 + the robustness redesign):** THREE stacked problems hid
-> behind each other: (1) the capture race described below; (2) the
-> instantiation endianness — `BIG_ENDIAN(0)/ETH_TYPE(F788)` extracted src-MAC
-> bytes under the real BE-lane MAC-side convention (first wire byte in
-> tdata[63:56]), so the ethertype NEVER matched on silicon, while the first
-> unit TB agreed with the wrong pair by driving LE lanes (two wrongs
-> matching); (3) under interfering traffic the handshake design could
-> MIS-PAIR timestamps with frames (capture-skip and hold-overwrite windows)
-> and the emitter could double-send beats. The final core is a REDESIGN:
-> synchronous SOP capture (gtx_clk == axis_clk in every instantiation —
-> requirement documented), qualify-at-TLAST, EVENT messages only
-> (msgType[3]==0; general Announce/Follow_Up wasted record slots and invited
-> TX seq collisions), msgType carried in meta bits [7:4] (driver matches
-> {mtype, seq}), a 4-deep record fifo and a combinational-output send FSM.
-> Record contract v2: beat0 = ns; beat1 = {40'0, seq[15:0], msgType[3:0],
-> 3'0, dir}. Gates: tb/verilator/ptp_ts INTERFERENCE SUITE (line-rate flood
-> sandwich, b2b event+general and event+event, announce storm, backpressured
-> burst, simultaneous TX+RX storms, runts, VLAN lookalike — with EXACT golden
-> timestamp deltas) ALL PASS; milan_dp 34/34 incl. a real-ingress
-> interference case; yosys 20/20. Driver `hwts2` matches the v2 contract and
-> is event-only on both paths. sv2v trap: slicing a function call
-> (`f(x)[3:0]`) passes through to Verilog-2005 and fails yosys — hoist to a
-> wire.
+> **FINAL STATE (read this first; sections below are the investigation
+> history).** FOUR findings stack:
+> 1. the capture race (below) - real, fixed by the synchronous redesign;
+> 2. an ENDIANNESS MISDIAGNOSIS BY THE INVESTIGATION ITSELF: a
+>    wrong-convention harness comment led to flipping the instantiation to
+>    BIG_ENDIAN(1)/88F7 - that flip WAS the hwts3 silicon failure (parsed
+>    src-MAC bytes as the ethertype). The MAC-side truth: LITTLE-endian
+>    lanes, first wire byte in tdata[7:0] (stated + silicon-proven in
+>    adp_advertiser.sv). Reverted: BIG_ENDIAN(0) + natural 0x88F7 with
+>    explicit byte picks (seq stored unconditionally = wire-be16);
+> 3. robustness redesign for interfering traffic: synchronous SOP capture,
+>    qualify-at-TLAST, EVENT-messages-only (msgType[3]==0), msgType in meta
+>    bits [7:4], explicit 2-deep flop record queue, combinational-output
+>    emitter (valid never depends on ready);
+> 4. synthesis-proofing: netlist forensics (OOC + funcsim xsim, bisected
+>    term-by-term) could not prove the registered-16-bit-compare and the
+>    array-based queues sound through Vivado's cross-hierarchy optimizer
+>    (LUTRAM inference + interface-flattened dotted-escaped names), so both
+>    were restructured to flag-compare-at-capture + explicit flops. NOTE:
+>    the funcsim-xsim oracle itself proved UNSOUND for this design's
+>    dotted-escaped interface port names - xsim-on-SOURCE + Verilator +
+>    yosys are the trustworthy sim gates; silicon (with the TX_TS_READY IRQ
+>    probe isolating core-emission from DMA plumbing) is the final oracle.
+> Record contract v2: beat0 = ns (disciplined PHC); beat1 = {40'0,
+> seq[15:0], msgType[3:0], 3'0, dir}; seq = frame be16 verbatim; driver
+> `hwts2` matches {mtype, seq}, event-only both paths.
 
 ## Symptom
 Phase B (HW frame timestamps → SO_TIMESTAMPING) brought up the kl-eth record
