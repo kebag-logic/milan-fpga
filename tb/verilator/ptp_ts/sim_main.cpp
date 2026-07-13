@@ -14,8 +14,8 @@
 // Record contract (2 beats): beat0 = ns[63:0] (disciplined PHC);
 // beat1 = {40'0, seq[15:0], msgType[3:0], 3'0, dir}. seq is the frame's
 // big-endian sequenceId verbatim; only EVENT messages (msgType[3]==0) record.
-// BE-lane convention: first wire byte in tdata[63:56]; partial tail keep is
-// high-aligned (rem=4 -> 0xF0).
+// LE-lane convention (the real MAC-side order): first wire byte in tdata[7:0];
+// partial tail keep is low-aligned (rem=4 -> 0x0F).
 
 #include <verilated.h>
 #include "Vptp_ts_top.h"
@@ -94,9 +94,9 @@ static uint64_t send(const uint8_t *b, int len, bool tx, int gap)
     for (int i = 0; i < nbeats; i++) {
         uint64_t d = 0;
         for (int k = 0; k < 8 && 8 * i + k < len; k++)
-            d |= (uint64_t)b[8 * i + k] << (8 * (7 - k));
+            d |= (uint64_t)b[8 * i + k] << (8 * k);
         int rem = len - 8 * i;
-        uint8_t keep = rem >= 8 ? 0xFF : (uint8_t)(0xFF << (8 - rem));
+        uint8_t keep = rem >= 8 ? 0xFF : (uint8_t)((1u << rem) - 1);
         bool last = i == nbeats - 1;
         if (tx) {
             top->s_axis_tx_tdata = d; top->s_axis_tx_tkeep = keep;
@@ -260,10 +260,10 @@ int main(int argc, char **argv)
             int nb = (len + 7) / 8;
             for (int i = 0; i < nb; i++) {
                 uint64_t d = 0;
-                for (int j = 0; j < 8 && 8*i+j < len; j++) d |= (uint64_t)src[8*i+j] << (8*(7-j));
+                for (int j = 0; j < 8 && 8*i+j < len; j++) d |= (uint64_t)src[8*i+j] << (8*j);
                 int rem = len - 8*i;
                 v.push_back(d);
-                k.push_back(rem >= 8 ? 0xFF : (uint8_t)(0xFF << (8 - rem)));
+                k.push_back(rem >= 8 ? 0xFF : (uint8_t)((1u << rem) - 1));
                 l.push_back(i == nb-1);
             }
         };

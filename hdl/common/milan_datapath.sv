@@ -445,17 +445,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  PTP hardware clock + TX/RX timestamping (CSR-configured)
   // ==========================================================================
-  // BIG_ENDIAN(1)/0x88F7, NOT (0)/0xF788: the MAC-side streams carry the FIRST
-  // wire byte in tdata[63:56] (the convention the classifier parses - silicon-
-  // proven by VLAN classification). The old (0)/F788 pair extracted src-MAC
-  // bytes under this convention and never matched -> ZERO ts records ever
-  // (phase B silicon). The old unit expectations agreed with the wrong pair by
-  // driving little-endian lanes - two wrongs matching. tb/verilator/ptp_ts now
-  // drives the real BE-lane convention; milan_dp checks a record end-to-end
-  // through the real ingress.
+  // BIG_ENDIAN(0) + natural 0x88F7: the MAC-side streams carry the FIRST wire
+  // byte in tdata[7:0] (Forencich AXIS convention - stated and SILICON-PROVEN
+  // by adp_advertiser.sv, whose frames egress correctly through this very
+  // path). A 2026-07-13 misdiagnosis flipped this to BIG_ENDIAN(1) after
+  // trusting a wrong-convention harness comment - that build (hwts3) parsed
+  // src-MAC bytes as the ethertype and emitted nothing; the OOC A/B + the
+  // advertiser's comment settled the truth. The redesigned core picks header
+  // bytes explicitly, so ETH_TYPE is the natural wire value (no pre-swapped
+  // F788 constant).
   ptp_ts_top #(
     .TDATA_WIDTH(TDATA_WIDTH),
-    .BIG_ENDIAN(1),
+    .BIG_ENDIAN(0),
     .ETH_TYPE(16'h88F7)
   ) ptp_timestamp (
     .gtx_clk(gtx_clk),
