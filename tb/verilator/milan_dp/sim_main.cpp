@@ -339,7 +339,7 @@ int main(int argc, char** argv) {
         for (int bt = 0; bt < 9; bt++) {
             uint64_t v = 0;
             for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                v |= (uint64_t)g[bt*8+j] << (8*(7-j));
+                v |= (uint64_t)g[bt*8+j] << (8*j);   // LE lanes = the real ingress
             gb.push_back(v);
         }
         std::vector<uint64_t> ts;
@@ -348,7 +348,7 @@ int main(int argc, char** argv) {
         for (int c = 0; c < 600; c++) {
             if (idx < gb.size()) {
                 dut->s_axis_mac_rx_tdata = gb[idx];
-                dut->s_axis_mac_rx_tkeep = (idx == gb.size()-1) ? 0xF0 : 0xFF;
+                dut->s_axis_mac_rx_tkeep = (idx == gb.size()-1) ? 0x0F : 0xFF;
                 dut->s_axis_mac_rx_tvalid = 1;
                 dut->s_axis_mac_rx_tlast = (idx == gb.size()-1);
             } else {
@@ -384,7 +384,7 @@ int main(int argc, char** argv) {
             for (int bt = 0; bt < 9; bt++) {
                 uint64_t v = 0;
                 for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                    v |= (uint64_t)g[bt*8+j] << (8*(7-j));
+                    v |= (uint64_t)g[bt*8+j] << (8*j);
                 mix.push_back(v);
             }
             g[14] = 0x12;                          // pdelay_req again: event
@@ -392,7 +392,7 @@ int main(int argc, char** argv) {
             for (int bt = 0; bt < 9; bt++) {
                 uint64_t v = 0;
                 for (int j = 0; j < 8 && bt*8+j < 68; j++)
-                    v |= (uint64_t)g[bt*8+j] << (8*(7-j));
+                    v |= (uint64_t)g[bt*8+j] << (8*j);
                 mix.push_back(v);
             }
             for (int r = 0; r < 3; r++) mix.insert(mix.end(), flood.begin(), flood.end());
@@ -401,7 +401,7 @@ int main(int argc, char** argv) {
             size_t idx = 0; int fi = 0, fb = 0;
             for (int c = 0; c < 1200 && idx < mix.size(); c++) {
                 dut->s_axis_mac_rx_tdata = mix[idx];
-                dut->s_axis_mac_rx_tkeep = (fi >= 3 && fi <= 4 && fb == 8) ? 0xF0 : 0xFF;
+                dut->s_axis_mac_rx_tkeep = (fi >= 3 && fi <= 4 && fb == 8) ? 0x0F : 0xFF;
                 dut->s_axis_mac_rx_tvalid = 1;
                 dut->s_axis_mac_rx_tlast = (fb == lens[fi] - 1);
                 lo();

@@ -55,9 +55,13 @@ module ptp_ts_core #(
   parameter int TDATA_WIDTH = 64,          //! AXI-Stream data width
   parameter int TS_WIDTH = 64,             //! Timestamp width
   parameter int METADATA_TDATA_WIDTH = 64, //! Metadata output width
-  parameter bit BIG_ENDIAN = 1,            //! 1 = first wire byte in tdata[63:56]
-                                           //! (the MAC-side datapath convention)
-  parameter bit [15:0] ETH_TYPE = 'h88F7  //! EtherType for PTP (wire value)
+  parameter bit BIG_ENDIAN = 0,            //! 0 = first wire byte in tdata[7:0] - the
+                                           //! MAC-side convention (Forencich AXIS; see
+                                           //! adp_advertiser.sv, silicon-proven). 1 =
+                                           //! first byte in tdata[63:56].
+  parameter bit [15:0] ETH_TYPE = 'h88F7  //! EtherType, natural wire value (the
+                                           //! extraction picks bytes explicitly, so no
+                                           //! pre-swapped constant regardless of lanes)
 )(
   //! ts_src_clk / ts_src_resetn: RETAINED FOR PORT COMPATIBILITY, UNUSED
   //! (see the 2026-07-13 redesign note - ts_in is dst-domain synchronous)
@@ -86,11 +90,15 @@ localparam int BEAT_BYTES = TDATA_WIDTH / BYTE_TO_BIT;
 localparam int ETHTYPE_BEAT_OFF = 8;
 localparam int SEQID_BEAT_OFF   = 40;
 
-//! Byte lane select by WIRE order within a beat
-function automatic logic [7:0] beat_byte(input logic [TDATA_WIDTH-1:0] d,
-                                         input int unsigned i);
-  return BIG_ENDIAN ? d[8*(BEAT_BYTES-1-i) +: 8] : d[8*i +: 8];
-endfunction
+//! Byte-lane LSB index by WIRE order within a beat, as ELABORATION constants
+//! (a function capturing the BIG_ENDIAN parameter is legal SV but is exactly
+//! the construct class Vivado silently mis-folds - the 2026-07-13 dead-cores
+//! netlist; localparam arithmetic is the silicon-proven idiom here)
+localparam int LANE12 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-4) : 8*4;  // frame byte 12
+localparam int LANE13 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-5) : 8*5;  // frame byte 13
+localparam int LANE14 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-6) : 8*6;  // frame byte 14
+localparam int LANE44 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-4) : 8*4;  // frame byte 44
+localparam int LANE45 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-5) : 8*5;  // frame byte 45
 
 //! Flag indicating the next accepted beat is a frame's first (SOP)
 logic start_packet = 1'b1;
@@ -99,15 +107,20 @@ logic [$clog2(SEQID_BEAT_OFF + 2*BEAT_BYTES):0] byte_counter;
 //! PHC value latched at the current frame's SOP
 logic [TS_WIDTH-1:0] ts_sop;
 
-//! Field extracts + their per-frame valid latches
-logic [15:0] eth_type;
+//! Field extracts + their per-frame valid latches. The ethertype COMPARISON is
+//! done at capture time and stored as a 1-bit flag (same set-at-beat shape as
+//! the valid latches) instead of registering the 16-bit value and comparing at
+//! TLAST - functionally identical, a shorter qualify cone, and it sidesteps
+//! the registered-value-vs-constant compare structure that the 2026-07-13
+//! netlist forensics could not prove sound through synthesis.
+logic        eth_match;              // {b12,b13} == ETH_TYPE, captured at beat 1
 logic        eth_type_valid = 1'b0;
 logic [3:0]  msg_type;
 logic [15:0] ptp_seq_id;             // held in WIRE byte order {b44, b45}
 logic        ptp_seq_id_valid = 1'b0;
 
 wire beat_acc = s_axis.tvalid && s_axis.tready;
-wire is_ptp_event = eth_type_valid && (eth_type == ETH_TYPE) &&
+wire is_ptp_event = eth_type_valid && eth_match &&
                     ptp_seq_id_valid && !msg_type[3];
 
 // -----------------------------------------------------------------------------
@@ -146,19 +159,17 @@ always_ff @(posedge ts_dst_clk) begin : sop_and_counter
 end
 
 // -----------------------------------------------------------------------------
-//! Field extraction at fixed beats (byte picks hoisted to wires: slicing a
-//! function-call result is legal SV but sv2v passes it through verbatim and
-//! Verilog-2005 parsers reject it)
+//! Field extraction at fixed beats, explicit lane slices
 // -----------------------------------------------------------------------------
-wire [7:0] et_hi = beat_byte(s_axis.tdata, 12 - ETHTYPE_BEAT_OFF);
-wire [7:0] et_lo = beat_byte(s_axis.tdata, 13 - ETHTYPE_BEAT_OFF);
-wire [7:0] mt_b  = beat_byte(s_axis.tdata, 14 - ETHTYPE_BEAT_OFF);
-wire [7:0] sq_hi = beat_byte(s_axis.tdata, 44 - SEQID_BEAT_OFF);
-wire [7:0] sq_lo = beat_byte(s_axis.tdata, 45 - SEQID_BEAT_OFF);
+wire [7:0] et_hi = s_axis.tdata[LANE12 +: 8];
+wire [7:0] et_lo = s_axis.tdata[LANE13 +: 8];
+wire [7:0] mt_b  = s_axis.tdata[LANE14 +: 8];
+wire [7:0] sq_hi = s_axis.tdata[LANE44 +: 8];
+wire [7:0] sq_lo = s_axis.tdata[LANE45 +: 8];
 
 always_ff @(posedge ts_dst_clk) begin : field_extraction
   if (!ts_dst_resetn) begin
-    eth_type         <= '0;
+    eth_match        <= 1'b0;
     msg_type         <= '0;
     ptp_seq_id       <= '0;
     eth_type_valid   <= 1'b0;
@@ -166,7 +177,7 @@ always_ff @(posedge ts_dst_clk) begin : field_extraction
   end
   else if (beat_acc) begin
     if (!start_packet && byte_counter == ETHTYPE_BEAT_OFF) begin
-      eth_type <= {et_hi, et_lo};
+      eth_match <= ({et_hi, et_lo} == ETH_TYPE);
       msg_type <= mt_b[3:0];
       eth_type_valid <= 1'b1;
     end
@@ -176,6 +187,7 @@ always_ff @(posedge ts_dst_clk) begin : field_extraction
     end
     if (s_axis.tlast) begin
       eth_type_valid   <= 1'b0;
+      eth_match        <= 1'b0;
       ptp_seq_id_valid <= 1'b0;
     end
   end
@@ -186,29 +198,43 @@ end
 //! emitter latency + RR-mux arbitration; a full fifo drops the record whole
 //! (cannot happen at legal frame rates: >=9 beat-cycles/frame vs ~4/record).
 // -----------------------------------------------------------------------------
-typedef struct packed {
-  logic [TS_WIDTH-1:0] ts;
-  logic [15:0]         seq;
-  logic [3:0]          mtype;
-} rec_t;
-
-localparam int RECQ = 4;
-rec_t rec_q [RECQ];
-logic [$clog2(RECQ):0] rec_wr, rec_rd;
-wire rec_empty = rec_wr == rec_rd;
-wire rec_full  = (rec_wr - rec_rd) == RECQ[$clog2(RECQ):0];
+// EXPLICIT flop queue - no arrays at all. The 4-deep array version (both as a
+// packed-struct array and as parallel plain arrays) got LUTRAM-inferred and
+// the cross-hierarchy optimizer mis-wired the 16-bit RAM data inputs in the
+// full build (silicon + funcsim-netlist dead while source-sim passed; the
+// 64-bit ts entries survived, seq/mtype arrived zero - see
+// PTP_TS_METADATA_FIX.md). Registers + explicit muxes are immune, and depth 2
+// is rigorously enough: pushes arrive >= 9 beat-cycles apart (minimum frame)
+// while the emitter needs <= 6 cycles/record, and the 16-deep downstream
+// axis_fifo absorbs backpressure bursts.
+logic [TS_WIDTH-1:0] q0_ts, q1_ts;
+logic [15:0]         q0_seq, q1_seq;
+logic [3:0]          q0_mt, q1_mt;
+logic [1:0]          rec_lvl;                  // 0..2 entries (q0 = head)
+wire rec_empty = rec_lvl == 2'd0;
+wire rec_full  = rec_lvl == 2'd2;
 wire rec_push  = beat_acc && s_axis.tlast && is_ptp_event && !rec_full;
+wire rec_pop;                                  // from the emitter FSM
 
 always_ff @(posedge ts_dst_clk) begin : record_queue
   if (!ts_dst_resetn) begin
-    rec_wr <= '0;
+    rec_lvl <= 2'd0;
   end
-  else if (rec_push) begin
-    rec_q[rec_wr[$clog2(RECQ)-1:0]] <= '{ts: ts_sop,
-                                         seq: BIG_ENDIAN ? ptp_seq_id
-                                              : {ptp_seq_id[7:0], ptp_seq_id[15:8]},
-                                         mtype: msg_type};
-    rec_wr <= rec_wr + 1'b1;
+  else begin
+    case ({rec_push, rec_pop})
+      2'b10: rec_lvl <= rec_lvl + 2'd1;
+      2'b01: rec_lvl <= rec_lvl - 2'd1;
+      default: ;                               // both or neither: level holds
+    endcase
+    if (rec_push && (rec_lvl == 2'd0 || (rec_lvl == 2'd1 && rec_pop))) begin
+      q0_ts <= ts_sop; q0_seq <= ptp_seq_id; q0_mt <= msg_type;
+    end
+    else if (rec_push) begin                   // level 1 (no pop) -> tail slot
+      q1_ts <= ts_sop; q1_seq <= ptp_seq_id; q1_mt <= msg_type;
+    end
+    else if (rec_pop && rec_lvl == 2'd2) begin // shift tail to head
+      q0_ts <= q1_ts; q0_seq <= q1_seq; q0_mt <= q1_mt;
+    end
   end
 end
 
@@ -226,26 +252,33 @@ typedef enum logic [1:0] {
 } ts_state_t;
 
 ts_state_t ts_state;
-rec_t      rec_cur;
+logic [TS_WIDTH-1:0] cur_ts;
+logic [15:0]         cur_seq;
+logic [3:0]          cur_mt;
+logic pop_r;
+assign rec_pop = pop_r;
 
 assign ts_m_axis.tvalid = (ts_state != IDLE_S);
 assign ts_m_axis.tlast  = (ts_state == SEND_LOW_S);
 assign ts_m_axis.tkeep  = (ts_state == SEND_LOW_S) ? 8'h07 : 8'hFF;
 assign ts_m_axis.tdata  = (ts_state == SEND_LOW_S)
-                          ? {40'd0, rec_cur.seq, rec_cur.mtype, 3'd0, IS_TX[0]}
-                          : rec_cur.ts;
+                          ? {40'd0, cur_seq, cur_mt, 3'd0, IS_TX[0]}
+                          : cur_ts;
 
 always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
   if (!ts_dst_resetn) begin
     ts_state <= IDLE_S;
-    rec_rd   <= '0;
+    pop_r    <= 1'b0;
   end
   else begin
+    pop_r <= 1'b0;
     case (ts_state)
       IDLE_S: begin
         if (!rec_empty) begin
-          rec_cur  <= rec_q[rec_rd[$clog2(RECQ)-1:0]];
-          rec_rd   <= rec_rd + 1'b1;
+          cur_ts   <= q0_ts;
+          cur_seq  <= q0_seq;
+          cur_mt   <= q0_mt;
+          pop_r    <= 1'b1;
           ts_state <= SEND_HIGH_S;
         end
       end
@@ -258,8 +291,10 @@ always_ff @(posedge ts_dst_clk) begin : to_ps_fifo_logic
       SEND_LOW_S: begin
         if (ts_m_axis.tready) begin
           if (!rec_empty) begin           // stream the next record seamlessly
-            rec_cur  <= rec_q[rec_rd[$clog2(RECQ)-1:0]];
-            rec_rd   <= rec_rd + 1'b1;
+            cur_ts   <= q0_ts;
+            cur_seq  <= q0_seq;
+            cur_mt   <= q0_mt;
+            pop_r    <= 1'b1;
             ts_state <= SEND_HIGH_S;
           end
           else begin
