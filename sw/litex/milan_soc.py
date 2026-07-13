@@ -607,6 +607,11 @@ class RingDMAWriter(LiteXModule):
         # unchanged; `base` is unused. BD (16 B, 2 beats, little-endian):
         #   word0 = {drops[15:0], csum[15:0], len_bytes[15:0], seq[7:0], magic 0xBD}
         #   word1 = posted buffer phys addr (debug/robustness; consumption order == post order)
+        #   len_bytes = the TRUE frame byte length (gPTP RX-pad fix: single-frame BDs
+        #   subtract the last beat's invalid bytes; RSC aggregates were always parse-
+        #   derived). The DMA itself still moves whole 8-byte beats - only the report
+        #   changed, so old drivers (which size the skb from len) need no change and
+        #   the kl-eth PTP-trim becomes a no-op on this gateware.
         self.post    = CSRStorage(32, description="Write a posted RX buffer phys addr (8-aligned, >= max frame). FIFO of 64.")
         self.bd_base = CSRStorage(64, description="Completion-BD ring base (coherent, 16 B/entry, 16-aligned). 0 = BD mode off.")
         self.posted  = CSRStatus(8,   description="Posted buffers currently queued (telemetry).")
@@ -653,7 +658,10 @@ class RingDMAWriter(LiteXModule):
 
         # ---- ingress: always-ready store-and-forward, whole-frame drop ----------------
         self.data_fifo = data_fifo = stream.SyncFIFO([("data", 64)], depth=fifo_beats, buffered=True)
-        self.len_fifo  = len_fifo  = stream.SyncFIFO([("beats", 11), ("csum", 16)], depth=64)
+        # `pad` (gPTP RX-pad fix, GPTP_RXPAD_ROOTCAUSE.md): invalid bytes of the frame's
+        # LAST beat (0-7, from the ingress `keep`), so BD completions can report the TRUE
+        # byte length. 0 when the upstream drives no keep (sim harnesses) = old behavior.
+        self.len_fifo  = len_fifo  = stream.SyncFIFO([("beats", 11), ("csum", 16), ("pad", 3)], depth=64)
 
         # ---- BD mode: posted-buffer FIFO + completion-BD state -------------------------
         bd_mode = Signal()
@@ -1002,10 +1010,12 @@ class RingDMAWriter(LiteXModule):
         ack_dstip = Signal(32)
         ack_ports = Signal(32)
         ack_hdr   = Array([Signal(64) for _ in range(9)])
-        ack_beats = Signal(11)          # captured frame beats (len_bytes = beats*8)
+        ack_beats = Signal(11)          # captured frame beats (BD len = beats*8 - pad)
+        ack_pad   = Signal(3)           # captured frame's last-beat pad
         ack_csum  = Signal(16)
         ack_wb    = Signal()            # W stage streams from ack_hdr (flush in flight)
         ack_ret   = Signal()            # after the flush WB: 1 = re-DISPATCH newcomer
+        nc_pad    = Signal(3)           # parked newcomer's last-beat pad
         nc_beats  = Signal(11)          # parked newcomer's geometry (the flush reuses
         nc_csum   = Signal(16)          # frame_beats/frame_csum; restore at WB_B)
         ack_match = Signal()
@@ -1111,10 +1121,12 @@ class RingDMAWriter(LiteXModule):
         s_valid = Signal()
         s_data  = Signal(64)
         s_last  = Signal()
+        s_keep  = Signal(8)
         self.sync += [
             s_valid.eq(sink.valid),
             s_data.eq(sink.data),
             s_last.eq(sink.last),
+            s_keep.eq(sink.keep),
         ]
         self.comb += sink.ready.eq(1)   # THE invariant: upstream is never backpressured
 
@@ -1125,6 +1137,11 @@ class RingDMAWriter(LiteXModule):
         # per-byte checksum pass. Invalid last-beat lanes ARE summed on purpose: the
         # padded bytes land in the skb too, so the sum matches the skb contents
         # (pskb_trim_rcsum subtracts trimmed bytes itself).
+        # INVARIANT (gPTP RX-pad fix): pad lanes are ZERO on this pipeline (LiteEth
+        # converter zero-fills; observed on silicon both PHY paths), so a BD skb built
+        # to the TRUE length still matches this sum. If a future ingress can deliver
+        # nonzero pad lanes, mask `lanes` by s_keep here (costs one LUT layer in the
+        # timing-critical csum cone - that is why it is not done unconditionally).
         lanes    = Signal(18)           # this beat's four 16-bit lanes, summed
         acc      = Signal(30)           # frame accumulator (512 beats max fits easily)
         acc_fin  = Signal(30)           # final acc, registered at end-of-frame
@@ -1133,6 +1150,9 @@ class RingDMAWriter(LiteXModule):
 
         pend       = Signal()           # a length+csum push is due (1 cycle after last)
         pend_beats = Signal(11)
+        pend_pad   = Signal(3)          # last-beat invalid bytes (from registered keep)
+        keep_pop   = Signal(4)          # popcount of the (registered) last-beat keep
+        last_pad   = Signal(3)
 
         fifo_free  = Signal(max=fifo_beats + 1)
         start_drop = Signal()           # drop decision, valid on the FIRST beat only
@@ -1151,9 +1171,15 @@ class RingDMAWriter(LiteXModule):
             # end-of-frame double fold, one full cycle after the final accumulate
             fold_a.eq(acc_fin[:16] + acc_fin[16:]),
             csum16.eq(fold_a[:16] + fold_a[16]),
+            # keep==0 = upstream drives no byte mask (unit sims): report pad 0, i.e.
+            # the padded length - exactly the pre-fix behavior. Real ingress always
+            # drives keep (0xFF mid-frame, last_be-derived mask on last).
+            keep_pop.eq(sum([s_keep[i] for i in range(8)])),
+            last_pad.eq(Mux(keep_pop == 0, 0, 8 - keep_pop)),
             len_fifo.sink.valid.eq(pend),
             len_fifo.sink.beats.eq(pend_beats),
             len_fifo.sink.csum.eq(csum16),
+            len_fifo.sink.pad.eq(pend_pad),
         ]
         self.sync += [
             # a pending push completes in one cycle (the len FIFO can never be full
@@ -1172,6 +1198,9 @@ class RingDMAWriter(LiteXModule):
                         pend.eq(1),
                         pend_beats.eq(Mux(in_beats != max_frame_beats, in_beats + 1,
                                           max_frame_beats)),
+                        # truncated frame: the stored tail is not the wire tail - report
+                        # the full padded length (safety path, cannot happen from the MAC)
+                        pend_pad.eq(Mux(in_beats != max_frame_beats, last_pad, 0)),
                         acc_fin.eq(acc + Mux(take, lanes, 0)),
                     ),
                 ).Else(
@@ -1193,6 +1222,7 @@ class RingDMAWriter(LiteXModule):
         # update incrementally per burst, and a PREP state registers each burst's
         # address/length before AW. Costs 1-2 cycles per <=16-beat burst  -  noise.
         frame_beats = Signal(11)        # payload beats of the frame being written
+        pad_r       = Signal(3)         # its last-beat pad (BD len reports beats*8 - pad)
         total_beats = Signal(12)        # + header (registered in IDLE)
         wcnt        = Signal(9)         # W beats sent in the current burst
         disc        = Signal(11)        # beats left to discard (ring full)
@@ -1245,10 +1275,15 @@ class RingDMAWriter(LiteXModule):
         # broke the W-mux sharing pattern and Vivado restructured worse). Leave
         # the runtime term; synthesis already shares it.
         is_hdr    = Signal()
-        len_bytes = Signal(16)
+        len_bytes = Signal(16)          # PADDED length: byte-ring header ABI (rd advance
+                                        # = 8+len, len&7==0 check) - never changes
+        bd_len    = Signal(16)          # TRUE length: single-frame BD w0 (gPTP fix; the
+                                        # driver sizes the skb from it, ring/geometry
+                                        # never touch it - aggregates are parse-derived)
         self.comb += [
             is_hdr.eq(~hdr_sent),
             len_bytes.eq(frame_beats << 3),
+            bd_len.eq((frame_beats << 3) - pad_r),
         ]
 
         aw_fire = Signal()
@@ -1262,6 +1297,7 @@ class RingDMAWriter(LiteXModule):
             """latch the just-parsed pure ACK (fully in hdr_reg) into the pending slot"""
             return ([NextValue(ack_hdr[i], hdr_reg[i]) for i in range(9)] +
                     [NextValue(ack_beats, frame_beats),
+                     NextValue(ack_pad, pad_r),
                      NextValue(ack_csum, frame_csum),
                      NextValue(ack_srcip, p_srcip), NextValue(ack_dstip, p_dstip),
                      NextValue(ack_ports, p_ports),
@@ -1273,8 +1309,10 @@ class RingDMAWriter(LiteXModule):
             ret=1 re-DISPATCHes the frame parked in hdr_reg afterwards"""
             return [
                 NextValue(nc_beats, frame_beats),
+                NextValue(nc_pad, pad_r),
                 NextValue(nc_csum, frame_csum),
                 NextValue(frame_beats, ack_beats),
+                NextValue(pad_r, ack_pad),
                 NextValue(total_beats, ack_beats),
                 NextValue(frame_csum, ack_csum),
                 NextValue(rem_r, ack_beats),
@@ -1327,6 +1365,7 @@ class RingDMAWriter(LiteXModule):
                 # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
                 len_fifo.source.ready.eq(1),
                 NextValue(frame_beats, len_fifo.source.beats),
+                NextValue(pad_r, len_fifo.source.pad),
                 NextValue(total_beats, len_fifo.source.beats),   # no header beat
                 NextValue(frame_csum, len_fifo.source.csum),
                 NextValue(rem_r, len_fifo.source.beats),
@@ -1364,6 +1403,7 @@ class RingDMAWriter(LiteXModule):
             idle_disp = idle_disp.Elif(len_fifo.source.valid,
                 len_fifo.source.ready.eq(1),        # frame is fully buffered by now
                 NextValue(frame_beats, len_fifo.source.beats),
+                NextValue(pad_r, 0),                # ring header stays PADDED (ABI)
                 NextValue(total_beats, len_fifo.source.beats + 1),
                 NextValue(frame_csum, len_fifo.source.csum),
                 NextValue(rem_r, len_fifo.source.beats + 1),
@@ -1544,6 +1584,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ack_wb, 0),
                 If(ack_ret,
                     NextValue(frame_beats, nc_beats),   # restore parked newcomer
+                    NextValue(pad_r, nc_pad),
                     NextValue(frame_csum, nc_csum),
                     NextState("MATCH"),
                 ).Else(
@@ -1815,7 +1856,7 @@ class RingDMAWriter(LiteXModule):
                     # fill this pop's CQ entry; seq/drops patched at drain
                     NextValue(ap_arm, 0),
                     *cq_write(cur_cq,
-                        Cat(C(0xBD, 8), C(0, 8), len_bytes, frame_csum, C(0, 16)),
+                        Cat(C(0xBD, 8), C(0, 8), bd_len, frame_csum, C(0, 16)),
                         buf_addr_r),
                     NextValue(cq_done[cur_cq], 1),
                     If(ack_wb,
@@ -1823,6 +1864,7 @@ class RingDMAWriter(LiteXModule):
                         NextValue(ack_wb, 0),
                         If(ack_ret,
                             NextValue(frame_beats, nc_beats),
+                            NextValue(pad_r, nc_pad),
                             NextValue(frame_csum, nc_csum),
                             NextState("MATCH"),
                         ).Else(

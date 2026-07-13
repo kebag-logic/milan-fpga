@@ -1944,6 +1944,85 @@ def test_bd_folded_unarmed_quiesce():
     print("PASS folded unarmed quiesce (bd_base=0: zero DMA writes, drops counted)")
 
 
+def test_bd_true_length():
+    """gPTP RX-pad fix: a single-frame BD's w0 length must be the TRUE byte length
+    ((beats-1)*8 + tail) while the DMA still moves whole 8-byte beats. (9,4) is the
+    exact 68-byte pdelay shape that ptp4l rejected as 72. tail=8 keeps beats*8."""
+    for nbeats, tail in ((9, 4), (3, 8), (7, 1)):
+        true_len = (nbeats - 1) * 8 + tail
+        F = frame(0xD0 + tail, nbeats)
+        if tail < 8:
+            F[-1] &= (1 << (8 * tail)) - 1       # converter zero-fills pad lanes
+        h = BDHarness(ring_size=4096, cycles=30000)
+
+        def stim(h=h, F=F, tail=tail):
+            yield from h.init_bd()
+            yield from h.post_buf(BUFS[0])
+            yield from h.send_frame(F, tail=tail)
+            yield from h.wait_idle()
+            assert (yield h.dut.frames.status) == 1
+        h.run(stim)
+        w0, w1 = h.read_bd(0)
+        got_len = (w0 >> 16) & 0xFFFF
+        assert got_len == true_len, f"BD len {got_len} != true {true_len} (tail {tail})"
+        assert (w1 & 0xFFFFFFFF) == BUFS[0]
+        assert h.read_buf(BUFS[0], len(F)) == F, "beats byte-exact incl. zeroed pad lanes"
+        assert ((w0 >> 32) & 0xFFFF) == csum_ref(F), "csum covers the stored words"
+    print("PASS BD true length (68B gPTP shape + tail 8/1)")
+
+
+def test_bd_true_length_rsc_gptp():
+    """The silicon gPTP path: rsc_en=1, a non-IP 0x88F7 frame is rsc-INELIGIBLE and
+    detours through hdr_reg (68 B = 9 beats = the full regfile) yet must report the
+    TRUE 68. Also a >hdr_take ineligible frame (regfile replay + FIFO tail)."""
+    gptp = (bytes([0x01, 0x80, 0xC2, 0, 0, 0x0E, 0x02, 0, 0, 0, 0, 2, 0x88, 0xF7])
+            + bytes([0x12]) + bytes(53))          # 14 eth + 54 PTP = 68 true bytes
+    blob = gptp + bytes((-len(gptp)) % 8)         # 72 stored
+    F68 = [int.from_bytes(blob[i:i+8], 'little') for i in range(0, len(blob), 8)]
+    big = frame(0xEE, 12)
+    big[-1] &= (1 << (8 * 3)) - 1                 # 91 true bytes
+    for F, tail, true_len in ((F68, 4, 68), (big, 3, 91)):
+        h = BDHarness(ring_size=4096, cycles=40000)
+
+        def stim(h=h, F=F, tail=tail):
+            yield from h.init_bd()
+            yield h.dut.rsc_en.storage.eq(1)
+            yield
+            yield from h.post_buf(BUFS[2])
+            yield from h.send_frame(F, tail=tail)
+            yield from h.wait_idle()
+            assert (yield h.dut.frames.status) == 1
+        h.run(stim)
+        w0, _ = h.read_bd(0)
+        got_len = (w0 >> 16) & 0xFFFF
+        assert got_len == true_len, f"rsc-ineligible BD len {got_len} != {true_len}"
+        assert h.read_buf(BUFS[2], len(F)) == F
+    print("PASS BD true length via rsc-ineligible path (gPTP 68B + 91B replay)")
+
+
+def test_bd_ack_flush_true_length():
+    """A pending ts-ACK (66 B = 9 beats, pad 2) flushed by idle-timeout must carry
+    the TRUE 66 in its v1 BD (was 72 padded)."""
+    a, _ = tcp_ack(seq=42, opts=TS_OPTS)          # 66 true bytes -> 9 stored beats
+    h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512, cycles=300000)
+
+    def stim():
+        yield from h.init_bd()
+        yield h.dut.rsc_en.storage.eq(1)
+        yield h.dut.rsc_bufsz.storage.eq(4096)
+        yield h.dut.rsc_tout.storage.eq(400)
+        yield
+        yield from h.post_buf(BUFS[0])
+        yield from h.send_frame(a, tail=2)
+        yield from h.wait_idle(settle=2000)       # pending ACK flushes on timeout
+        assert (yield h.dut.frames.status) == 1
+    h.run(stim)
+    w0, _ = h.read_bd(0)
+    got_len = (w0 >> 16) & 0xFFFF
+    assert got_len == 66, f"ACK-flush BD len {got_len} != 66"
+    print("PASS ACK-flush BD reports true length (66 not 72)")
+
+
 if __name__ == "__main__":
     test_bd_zero_copy()
     test_bd_no_buffer_drop()
@@ -1951,6 +2030,9 @@ if __name__ == "__main__":
     test_bd_ring_full_gate()
     test_bd_large_frame_content()
     test_bd_reload_flush()
+    test_bd_true_length()
+    test_bd_true_length_rsc_gptp()
+    test_bd_ack_flush_true_length()
     test_bd_throughput()
     test_rsc_parse_and_replay()
     test_rsc_ineligible()
