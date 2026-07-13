@@ -39,7 +39,8 @@ CMD = dict(ACQUIRE=0, LOCK=1, ENTITY_AVAILABLE=2, READ_DESCRIPTOR=4,
            SET_CONFIGURATION=6, GET_CONFIGURATION=7,
            SET_STREAM_FORMAT=8, GET_STREAM_FORMAT=9,
            SET_NAME=16, GET_NAME=17, SET_SAMPLING_RATE=20, GET_SAMPLING_RATE=21,
-           GET_AVB_INFO=39, GET_STREAM_INFO=15, GET_AS_PATH=40, GET_COUNTERS=41)
+           GET_AVB_INFO=39, GET_STREAM_INFO=15, GET_AS_PATH=40, GET_COUNTERS=41,
+           SET_STREAM_INFO=14, START_STREAMING=34, STOP_STREAMING=35)
 # descriptor_type
 DESC = dict(ENTITY=0x0000, CONFIGURATION=0x0001, AUDIO_UNIT=0x0002,
             STREAM_OUTPUT=0x0006, AVB_INTERFACE=0x0009)
@@ -248,6 +249,38 @@ def validate(e):
     if r and len(r) > 45:
         check("stream_info flags == 0xF6000000 (talker)",
               r[42:46] == bytes.fromhex("f6000000"), r[42:46].hex())
+    if r and len(r) > 85:
+        # live values (2026-07-14 talker SM): the advertised stream_id MUST
+        # byte-match the AVTP frames = {station_mac, uid 0} - the old
+        # entity_id here could never bind
+        check("stream_id == {mac,0} (matches AVTP)",
+              r[54:62] == bytes(e.mac) + b"\x00\x00", r[54:62].hex())
+        check("dest_mac + vlan live (nonzero)",
+              r[66:72] != b"\x00"*6 and r[82:84] != b"\x00\x00",
+              f"dmac={r[66:72].hex()} vlan={r[82:84].hex()}")
+
+    print("\n[7b] SET_STREAM_INFO round-trip (Milan 5.4.2.9, ACC_LAT only)")
+    def si_body(flags, lat, dtype=None):
+        dt = DESC["STREAM_OUTPUT"] if dtype is None else dtype
+        return (struct.pack(">HHI", dt, 0, flags) + b"\x00"*16 +
+                struct.pack(">I", lat) + b"\x00"*28)
+    r = e.aem("SET_STREAM_INFO", si_body(0x20000000, 1500000))
+    check("SET(ACC_LAT=1.5ms) SUCCESS", rstatus(r) == 0,
+          f"status={STATUS.get(rstatus(r))}")
+    r = e.aem("GET_STREAM_INFO", struct.pack(">HH", DESC["STREAM_OUTPUT"], 0))
+    check("GET reflects 1.5ms", r is not None and len(r) > 65 and
+          r[62:66] == (1500000).to_bytes(4, "big"),
+          r[62:66].hex() if r and len(r) > 65 else "-")
+    r = e.aem("SET_STREAM_INFO", si_body(0x40000000, 7))   # STREAM_ID_VALID
+    check("SET(other subcmd) -> NOT_SUPPORTED", rstatus(r) == 11,
+          f"status={STATUS.get(rstatus(r))}")
+    e.aem("SET_STREAM_INFO", si_body(0x20000000, 2000000))  # restore default
+    r = e.aem("START_STREAMING", struct.pack(">HH", DESC["STREAM_OUTPUT"], 0))
+    check("START_STREAMING -> NOT_SUPPORTED (input-only cmd)", rstatus(r) == 11,
+          f"status={STATUS.get(rstatus(r))}")
+    r = e.aem("STOP_STREAMING", struct.pack(">HH", DESC["STREAM_OUTPUT"], 0))
+    check("STOP_STREAMING -> NOT_SUPPORTED (input-only cmd)", rstatus(r) == 11,
+          f"status={STATUS.get(rstatus(r))}")
 
     print("\n[8] GET_AS_PATH (Milan-mandatory)")
     r = e.aem("GET_AS_PATH", struct.pack(">HH", 0, 0))
@@ -260,22 +293,34 @@ def validate(e):
         check("AS_PATH count==1, path[0]==EUI64(entity MAC)",
               cnt == 1 and eui == exp, f"count={cnt} path0={eui.hex()}")
 
-    print("\n[9] ACMP (Milan v1.2 5.5 - stateless talker)")
+    print("\n[9] ACMP (Milan v1.2 5.5 - PROBE_TX activation talker)")
+    live_sid = bytes(e.mac) + b"\x00\x00"
+    r = e.acmp(0)                        # CONNECT_TX == Milan PROBE_TX
+    ok = r is not None
+    check("PROBE_TX answered", ok, "timeout")
+    if ok:
+        check("PROBE_TX SUCCESS + count 0",
+              (r[16] >> 3) == 0 and r[60:62] == b"\x00\x00",
+              f"status={r[16]>>3} count={r[60:62].hex()}")
+        check("PROBE_TX live stream_id {mac,0}", r[18:26] == live_sid,
+              r[18:26].hex())
+        check("PROBE_TX live dmac + vlan",
+              r[54:60] != b"\x00"*6 and r[66:68] != b"\x00\x00",
+              f"dmac={r[54:60].hex()} vlan={r[66:68].hex()}")
     r = e.acmp(4)                        # GET_TX_STATE_COMMAND
     ok = r is not None
     check("GET_TX_STATE answered", ok, "timeout")
     if ok:
-        check("GET_TX_STATE SUCCESS + count 0",
-              (r[16] >> 3) == 0 and r[60:62] == b"\x00\x00",
-              f"status={r[16]>>3} count={r[60:62].hex()}")
-        check("GET_TX_STATE stream fields zeroed",
-              r[18:26] == b"\x00"*8 and r[54:60] == b"\x00"*6, "nonzero")
+        check("GET_TX_STATE SUCCESS + live fields + count 0",
+              (r[16] >> 3) == 0 and r[18:26] == live_sid and
+              r[60:62] == b"\x00\x00",
+              f"status={r[16]>>3} sid={r[18:26].hex()}")
+    r = e.acmp(2)                        # DISCONNECT_TX_COMMAND
+    check("DISCONNECT_TX SUCCESS + zeroed fields (Milan 5.5.4.2)",
+          r is not None and (r[16] >> 3) == 0 and r[18:26] == b"\x00"*8,
+          "timeout" if r is None else f"status={r[16]>>3}")
     r = e.acmp(12)                       # GET_TX_CONNECTION_COMMAND
     check("GET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)",
-          r is not None and (r[16] >> 3) == 31,
-          "timeout" if r is None else f"status={r[16]>>3}")
-    r = e.acmp(0)                        # CONNECT_TX_COMMAND
-    check("CONNECT_TX -> NOT_SUPPORTED (policy = softcore, later)",
           r is not None and (r[16] >> 3) == 31,
           "timeout" if r is None else f"status={r[16]>>3}")
 
