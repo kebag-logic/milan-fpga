@@ -90,10 +90,15 @@ class Entity:
             if len(f) < 16 or f[12:14] != struct.pack(">H", ETH_P_AVTP):
                 continue
             if f[14] == SUBTYPE_ADP and (f[15] & 0x0F) == 0:  # ENTITY_AVAILABLE
+                eid = struct.unpack(">Q", f[18:26])[0]
+                # optional target filter (two-entity bench: pick the board)
+                if getattr(self, "want_suffix", None) and \
+                   not f"{eid:016x}".endswith(self.want_suffix):
+                    continue
                 self.mac = f[6:12]
                 # ADPDU: subtype@14, sv/ver/msgtype@15, valid_time/cdl@16-17,
                 # entity_id@18-25 (ADPDU bytes 4-11).
-                self.eid = struct.unpack(">Q", f[18:26])[0]
+                self.eid = eid
                 return True
         return False
 
@@ -351,8 +356,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("iface")
     ap.add_argument("--read-all", action="store_true")
+    ap.add_argument("--eid", help="hex suffix of the target entity_id (two-entity bench)")
     a = ap.parse_args()
     e = Entity(a.iface)
+    if a.eid:
+        e.want_suffix = a.eid.lower()
     print(f"controller MAC {e.src.hex(':')} on {a.iface}; discovering entity...")
     if not e.discover():
         print("no ENTITY_AVAILABLE seen — is the AX7101 up + ADP enabled?")
