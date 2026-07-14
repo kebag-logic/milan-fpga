@@ -1,118 +1,26 @@
-# HANDOVER  -  topology rules + live states (2026-07-13)
+# HANDOVER — machine, topology, live state, tasks
 
-> 2026-07-14 delta — **MILAN TALKER SM ON SILICON** (normative:
-> docs/design/MILAN_TALKER_SM.md + memory milan-talker-sm): ACMP PROBE_TX
-> activation SM (Milan talkers are NEAR-STATELESS: CONNECT_TX==PROBE_TX,
-> count always 0, 15 s window, DISCONNECT no-op) + AECP streaming
-> (stream_id BUG fixed — was entity_id, could never match the AVTP
-> frames; SET_STREAM_INFO ACC_LAT -> framer transit; START/STOP =
-> NOT_SUPPORTED on outputs) + REAL unsolicited notifications (4 slots,
-> per-controller unicast+seq, u=1) + probe-gated AAF (bypass CSR;
-> **the arty now BOOTS IN TRUE MILAN MODE** — S50milan's 0x654=0x1 means
-> bypass=0: silent until probed; legacy = devmem 0x654 0x3). Keepers:
-> arty eppo_miltalk +0.082 (QSPI v3), AX eto_miltalk +0.072 (SRAM, only
-> passer). Drill 41/41 vs BOTH entities; wire: silent -> PROBE ->
-> 8138 fr/s same-second -> hard stop at expiry; AX window 14 s x3;
-> la_avdecc Milan=1 CLEAN x2. TWO deep catches: (1) **milan_soc.py NEVER
-> passed MILAN_CLK_FREQ_HZ** (Instance had no p_ param) — every arty
-> build ran 2 s ticks (ADP 62 s, window ~28 s); the adpfix "31 s
-> measured" was a single-period coin flip (CADENCE CLAIMS NEED >=2
-> PERIODS); fixed c3b0e82, arty rebuilt (miltick). (2) the controller's
-> discover() was MALFORMED since day one (msg_type packed into the
-> valid_time byte — discovery survived on periodic-advertise luck; all
-> the flaky first-runs explained); fixed + --eid filter. VID0 policy:
-> stream_vlan_id legitimately reads 0 in ACMP/AECP responses.
-> **MILTICK CLOSE-OUT (param-fixed arty build)**: eppo +0.381 keeper
-> flashed (QSPI v3); measured on silicon: probe WINDOW = 15 s exact
-> (was ~26-28), ADP cadence +5/130 s = 31 s x2 periods + the drill's
-> discover-response (was 62 s), drill 41/41, la_avdecc Milan=1 CLEAN.
-> FINAL BENCH: arty = eppo_miltick self-hosting TRUE-Milan-mode talker
-> (:02, silent-until-probed), AX = eto_miltalk SRAM (:01, talker off,
-> window 14-15 s native); both Milan=1 CLEAN; controller + --eid drill
-> turnkey from pw0. Next talker step = lwSRP (A_ACMP_LOBS is its
-> socket), then a pw0 PipeWire listener BIND_RX for audible e2e.
+Updated 2026-07-14 (post Milan-talker-SM close-out, milan-fpga @ `3fce652`).
+This is THE entry point for a fresh session or person: everything needed to
+operate the bench, trust the current state, and pick the next task. Detail
+lives in the named normative docs; this file states what is true NOW.
 
+**Project in one paragraph:** a fully-FPGA Milan v1.2 AVB endstation — the
+whole TSN datapath AND the AVDECC control plane (ADP + AECP/AEM + ACMP talker
+SM) run in fabric, zero-CPU; a VexiiRiscv 2-hart Linux softcore does only
+provisioning, linuxptp and ops (USER DIRECTIVE rev 2: "everything goes FPGA,
+use lwSRP" — normative split: `docs/design/ARCHITECTURE_HW_SW_SPLIT.md`).
+Roles: AX7101 = the full endstation (:01), Arty A7-100 = a small endstation
+(:02), nothing bridge-side in scope. Both boards are silicon-validated
+**Milan=1 CLEAN** (la_avdecc) as of 2026-07-14.
 
-> 2026-07-13 LATE-NIGHT delta (normative: ADP_DORMANCY.md): during control-
-> plane re-certification of the same-day gatewares, the Arty's :02 went
-> SILENT on ADP while gPTP kept serving (pw0 SLAVE, 6 ns) — forensics proved
-> the advertiser had silently DEPARTED (available_r=0) with no software
-> depart writer and link_down structurally impossible; balanced AECP/ACMP
-> counters ruled out the arbiter-wedge theory; the ADP-enable toggle revived
-> it live (recovery one-liner: devmem 0x90000600 32 0x1F00 then 0x1F01).
-> Trigger not retroactively provable (flop upset vs one-shot bus anomaly) —
-> so the fix is self-healing + witnesses: **dormancy self-re-arm** (enabled +
-> link-level up + 2 ticks -> re-advertise; commit ba76908) + **A_ADP_DIAG
-> 0x668** {depart_cnt, rearm_cnt, last-src} discriminates the next
-> occurrence, + ADP tick div now tracks MILAN_CLK_FREQ_HZ (the 50 MHz Arty
-> was re-advertising every 62 s = the validity horizon, zero margin). Gates:
-> adp 246, milan_dp 43, cls 200k (its reference had MISSED the gPTP
-> fast-path — taught), yosys 20/20. AX re-certified on eto_hwts_ax2:
-> controller 31/31 + la_avdecc Milan=1 CLEAN 0 complaints. adpfix sweeps
-> launched for both boards; gptp_direct_cable.sh REWRITTEN for HW-ts
-> (self-contained tmux sentinel exec, AX=GM cc6/prio100, Arty=slave, gates:
-> SLAVE+rms / peer delay ~1-3 us HW-grade / txto=0 both ends).
-> **ADPFIX ON ARTY SILICON**: asl keeper WNS +0.243 (sweep: eppo +0.050,
-> eto +0.006), QSPI reflashed v3 (bitstream+images, remote --reset), flash
-> boot turnkey (DT 50 MHz, :02, talker up). DRILL EXACT: cadence +1/35 s
-> (31 s fix, was 62); depart cmd -> DIAG 0x00020001 (cnt=1 src=shutdown);
-> **self-heal ≤5 s with NO poke -> DIAG 0x00020101 (rearm_cnt=1)**; index
-> accounting exact. Note: AVTP and ADP share ethertype 0x22F0 — an ADP
-> tcpdump census MUST exclude the AAF talker (8.1k fr/s from :02) or it
-> reads as an ADP flood / drowns :01. Bench end-state: reflash bounces
-> re-triggered the switch's port flap-suppression -> the Arty's cc6
-> announces are not relayed uplink; pw0 SLAVE 5 ns to the SWITCH holdover
-> (3cc0c6, cc248); Arty GM runs clean (txto=0) — remedy stays physical
-> (switch power-cycle or direct cable), data plane unaffected.
-> **ADPFIX ON AX SILICON**: asl keeper WNS +0.158 (eppo -0.147/eto -0.086
-> failed — sweep variance is why we sweep) JTAG-SRAM loaded, flash
-> untouched (policy 12); turnkey boot (1G link, :01, DIAG live). DRILL
-> EXACT on AX too (0x00020001 -> 0x00020101 self-heal ≤5 s, index exact).
-> **Post-fix quality bar RE-PASSED: controller 31/31 + la_avdecc Milan=1
-> verdict CLEAN 0 complaints on the adpfix AX build**; filtered ADP census
-> (`ether[14] = 0xfa`) shows :01 + :02 at sane cadences. Console footnote:
-> with the arty talker default-ON, the AX console needs `dmesg -n 1`
-> (bd-stage debug prints under 8.1k fr/s RX; boot lines rotate out of the
-> dmesg ring). BOTH BOARDS now run dormancy-immune gateware end-to-end.
-
-> 2026-07-13 session delta (normative: GPTP_RXPAD_ROOTCAUSE.md matrix +
-> PTP_TS_METADATA_FIX.md): switch gPTP matrix DEFINITIVE (edge ports =
-> GM-source/pdelay by DESIGN, never send sync into boards -> board-slave =
-> direct cable; single-strong-claimant on port 8 = the relay recipe;
-> multi-claimant makes it announce-silent). **PHASE B HW TIMESTAMPS: SILICON
-> GREEN** - five stacked findings (capture race; an endianness misdiagnosis
-> by the investigation itself, owned+reverted; interference redesign
-> [EVENT-only, contract v2.1 {seq,mtype,marker,dir}, flop queue,
-> compare-at-capture]; Vivado-proofing; LiteX WishboneDMAWriter tlast-loop =
-> the mailbox tail). Numbers: pdelay 600us->1.3us (460x), pw0 rms 2-5 ns
-> THROUGH RX/TX/bidirectional floods + AAF talker, TCP 93.0/85.7 at
-> baselines (rxpad true-length gates passed), odd-ping exact. **Arty QSPI
-> reflashed: hwts5 bitstream + hwts3 rootfs + fixed opensbi/dtb =
-> self-hosting; flash boots need NO dma_ts_addr override.** Init default
-> stays `ptp4l -S` (robust); HW mode = drop the -S (gptp.cfg carries
-> tx_timestamp_timeout 50 for the egress-queue corner; classifier 0x88F7
-> fast-path LANDED - PCP mode routes 0x88F7 to GPTP_CLASS; the TX-flood
-> delay is the driver's single 256-slot TX ring, future fix = priority TX
-> ring/doorbell). **AX7101 CAUGHT UP (late 07-13): eto_hwts_ax2 keeper (WNS
-> +0.118) in SRAM, QSPI reflashed to the v3-full layout with the per-board
-> rootfs (hwts4) + fixed opensbi/dtb — TURNKEY: DT clock 100 MHz, EID :01,
-> IP .1, HW-mode ptp4l 0-timeouts/ring-advancing with ZERO overrides; both
-> entities (:01+:02) advertise through the switch again.** Traps buried on
-> the way: build_opensbi warm-tree rebuilds embedded the PREVIOUS board's
-> dtb (panic@0.000000; script now force-cleans); the arty QSPI bitstream
-> settings (SPI_BUSWIDTH 1) bitgen-killed every AX build since 07-12 (now
-> board-gated); the Pmod I2S request needed connector-table gating (its
-> try/except only ever caught its own NameError). Per-board turnkey class
-> CLOSED: DT carries kl,rsc-clk-mhz; S50milan keys identity/IP on the DT
-> model; interfaces no longer bakes .1; dropbear symlink-target fixed;
-> auto-ptp4l reads /etc/gptp.cfg (-S default; drop -S for HW mode).
+---
 
 ## 1. Topology
 
 ```
-┌──────────────── dev VM ─────────────────────────────────────────┐
-│ milan-fpga (RTL) · the-private-test-repo (driver/DT/boot) ·           │
-│ litex-milan/work (builds) · br-milan-output (buildroot)         │
+┌──────────────── dev VM (this machine) ──────────────────────────┐
+│ repos + Vivado + buildroot + build tree (see §2)                │
 │                                                                 │
 │ USB passthrough (BY-ID ONLY, numbers shuffle on every replug):  │
 │  FT232H  210512180081 = AX7101 JTAG                             │
@@ -123,317 +31,353 @@
        ▼                  ▼                       plane; mgmt ssh
 ┌──────────────┐   ┌──────────────┐               to amx-pw0 only)
 │ AX7101       │   │ Arty A7-100  │
-│ Milan node 1 │   │ Milan node 2 │
-│ 192.168.127.1│   │ .3 (planned) │
+│ full endstn  │   │ small endstn │
+│ EID ...:01   │   │ EID ...:02   │
+│ 192.168.127.1│   │ .3           │
 │ 1G GMII      │   │ 100M MII     │
 └──────┬───────┘   └──────┬───────┘
        │ 1G               │ 100M
-     ┌─▼──────────────────▼─┐
-     │      AVB SWITCH      │  gPTP/SRP-capable bridge
-     └──────────┬───────────┘
-                │ 1G
+     ┌─▼──────────────────▼─┐   d&b audiotechnik AVB switch
+     │      AVB SWITCH      │   (OUI 3c:c0:c6, clock 3cc0c6.fffe.fe0210)
+     └──────────┬───────────┘   remote power-cycle via amx-pi
+                │ 1G (uplink = the only full-control-plane port)
         ┌───────▼──────┐
-        │ amx-pw0 i210 │  192.168.127.2  (ssh, passwordless sudo)
-        │ 68:05:ca:95: │
-        │       b2:d1  │
+        │ amx-pw0 i210 │  192.168.127.2  enp6s0  68:05:ca:95:b2:d1
+        │ (ssh, sudo)  │  controller drills + la_avdecc live here
         └──────────────┘
 ```
 
-## 2. The rules (each one was paid for)
+- **amx-pw1 is RESERVED — never touch it.** The VM never gets a
+  192.168.127.x address.
+- Entities: AX EID `02:00:00:ff:fe:00:00:01` (MAC 02:00:00:00:00:01),
+  Arty EID `...:02` (MAC ...:02). stream_id = {station_mac, uid16} —
+  byte-identical across ACMP/AECP/AVTP by construction (bug fixed 07-14).
+- Switch behavior is DEFINITIVE (docs/findings/GPTP_RXPAD_ROOTCAUSE.md):
+  edge ports are GM-source+pdelay BY DESIGN — boards never receive
+  Sync/Announce through it; board-as-slave = direct cable only. Relay recipe
+  = exactly ONE strong GM claimant (port 8, prio1 100, cc6). It forwards only
+  registered AVB multicast between edge ports and INGRESS-FILTERS VLAN 2
+  (hence the VID0 priority-tag policy until lwSRP/MVRP registers VLANs).
+- A second session may drive the bench concurrently (attribute ptp4l deaths
+  via ps before debugging "crashes").
 
-**USB / cables**
-1. Select serial consoles by `/dev/serial/by-id/`, never ttyUSBn (numbers
-   renumber on every replug; three adapters share the bus).
-2. Every openFPGALoader call carries `--ftdi-serial <serial>` (two FTDI
-   cables: a flash op on the wrong board is destructive).
-3. VM USB passthrough rules are address-pinned on the host: a replug breaks
-   the rule silently (three separate drop incidents 2026-07-11). Re-add by
-   vendor:product (0403:6014, 0403:6010, 10c4:ea60) to end the class.
+## 2. Machine (dev VM)
 
-**Network / measurement**
-4. `amx-pw1` is RESERVED. Never touch it.
-5. The VM never gets a 192.168.127.x address (data plane is boards+peer only).
-6. Ghost-peer check before trusting any number: on the board,
-   `ip neigh | grep 127.2` must show `68:05:ca:95:b2:d1`.
-7. A gate number is only valid with its FULL cell recipe. Compare A/B
-   IN-SESSION on the same cell; never against a scoreboard number from a
-   different era (the cbsf_epo "TX regression" was a phantom baseline).
-8. Cells: peer byte-counter 5 s deltas, first+last interval excluded, fresh
-   client ports per cell, `dmesg -n 1` on the board, TX gate after every RX
-   change. Numbers now traverse the AVB switch: re-baseline, do not compare
-   raw against direct-cable-era results. ADP-class sniffs: the advertise
-   cadence is ~15-30 s (valid_time 62), so capture windows must be >=40 s  -
-   an 8 s window "proved" the advertiser dead (2026-07-11 phantom). And the
-   arty busybox rootfs has NO `timeout`: `timeout N tcpdump ... 2>/dev/null`
-   dies instantly with the error swallowed, faking an empty capture.
+Arch Linux VM, **96 vCPU / 31 GB RAM**. No data-plane NIC (rule above);
+bench reach = ssh amx-pw0 (passwordless sudo) + USB serial/JTAG.
 
-**Pairing (LETHAL class)**
-9. Driver `hs_pgsz` MUST equal gateware `--hs-page-bytes`: mismatch = DMA
-   overrun = kernel panic. Hardened: capability CSR @0xf000311c + hsplit16
-   probe-check refuses with -EINVAL, but the rule stands for older pairs.
-10. Ship gateware folds the legacy byte-ring (`legacy_ring=False` default):
-    `bd=0` drivers park with counted drops (never DMA to address 0);
-    `--legacy-ring` builds restore the A/B path.
-11. Arty driver line uses `rsc_clk_mhz=50` (datapath domain is 50 MHz there;
-    the AX7101 is 100).
+| Path | What |
+|---|---|
+| `~/prjs-avb-on-fpga/milan-fpga` | THIS repo: RTL (`hdl/`), testbenches (`tb/`), LiteX SoC + build system (`sw/litex/`), controller (`avdecc/`), docs |
+| `~/the-private-test-repo` | kl-eth Linux driver, DTs, boot images, buildroot glue (`fpga/`) |
+| `~/prjs-avb-on-fpga/fpga-ps-tools` | BSP/DT extraction tools (main AHEAD-5 UNPUSHED — user's call) |
+| `~/litex-milan` | LiteX env: **venv** `~/litex-milan/venv` + **work/** = all build dirs (~525) |
+| `~/br-milan-output` | buildroot output: `images/` (Image, rootfs.cpio.xz), host toolchain, linux-7.0.11 tree; rootfs overlay incl. `.../board/milan_naxriscv/rootfs_overlay/etc/init.d/S50milan` (dir name is historical — CPU is VexiiRiscv) |
+| `~/refs/AX7101` | Alinx board repo clone — reference ONLY, push disabled |
+| `~/Xilinx`, `~/Xilinx2` | Vivado 2026.1 ×2; **build.sh sources `~/Xilinx2/2026.1/Vivado/settings64.sh`** (has Artix-7 + Zynq-7000) |
 
-**Flash policies (16 MB QSPI each, board_facts in sw/litex/build.sh)**
-12. AX7101: flash = LINUX IMAGES, kernel at offset 0. NEVER
-    `openFPGALoader -f` a bitstream at it (clobbers the kernel  -  the
-    historical trap; deploy.sh refuses without FORCE_BITSTREAM_FLASH=1).
-    Gateware is JTAG-SRAM; power-cycle blanks the FPGA.
-13. Arty: **v3 QSPI-boot since 07-12/13 (SUPERSEDES the images-at-0 model
-    this rule used to describe)**: bitstream @0 (4 MiB) + xz kernel
-    @0x400000 + opensbi @0x700000 + dtb @0x760000 + rootfs @0x780000 —
-    fully self-hosting with JP1=QSPI. build.sh board_facts policy `boot`
-    does both stages. The flash verb: `KERNEL=.. ROOTFS=.. DTB=..
-    OPENSBI=.. PYTHON=<venv> build.sh flash arty[:<builddir>]` (FBI wrap +
-    budget checks + verify; sweep dirs get their layout reconstructed from
-    soc.h). Canonical images: KERNEL=br-milan-output/images/Image
-    (auto-xz), ROOTFS=br-milan-output/images/rootfs.cpio.xz (the Jul-13
-    turnkey one — boot/rootfs.cpio.gz is a STALE Jul-5 copy without
-    S50milan), OPENSBI=fpga/boot/opensbi_arty.bin,
-    DTB=fpga/dts/milan_arty_vexii.dtb. After flashing:
-    `openFPGALoader --ftdi-serial 210319AFEED0 -c digilent --reset` to
-    reconfigure from QSPI without touching the power.
-14. OpenSBI is BOARD-SPECIFIC and EMBEDS a DTB (FW_FDT_PATH bypasses the
-    flashed dtb slot!). Build per board via build_opensbi.sh env
-    (OUT/TIMER_HZ/BOARD_TAG/NAX_HARTS/DTB; the banner names the board):
-    AX7101 = opensbi.bin (100 MHz), Arty = opensbi_arty.bin (83333000,
-    2 harts). The durable one-opensbi form (BIOS passes a1=dtb) is still
-    open  -  thread 1.
+- Build env: `source ~/Xilinx2/2026.1/Vivado/settings64.sh` +
+  `export PATH=~/litex-milan/venv/bin:$PATH`; long jobs via `setsid nohup`
+  with a log under `~/litex-milan/work/` (plain bg jobs die with the session).
+- `rtk` proxies/dedups CLI output (token filter); for forensics read raw
+  files or `rtk proxy <cmd>`.
+- git identities: milan-fpga = default (hackerman-kl); the-private-test-repo
+  commits use `-c user.name="Alexandre Malki" -c user.email="alexandremalki89@gmail.com"`.
+- pw0 tools: `/tmp/milan_controller.py` (deployed copy of
+  `avdecc/milan_controller.py` — REDEPLOY after edits),
+  `~/la_avdecc_work/enum-probe` (built with la_avdecc's OWN feature defines —
+  ABI trap, see §8), tcpdump, iperf3.
 
-**Builds (sw/litex/build.sh; docs/integration/BUILDING.md)**
-15. 32 Vivado threads per build (hard cap), max 3 parallel (96-core box),
-    launches staggered 90 s (pythondata index.lock race), always setsid
-    (a harness task-kill once reaped 4 live builds).
-16. Important configs build as the 3-directive place sweep; keep best WNS.
-    Gate: WNS >= 0 (AX7101 keeps margin; QSPI corrupted below +0.03 at
-    112.5 MHz). Arty die is -1: sys 83.333 + datapath 50 is the closing
-    clocking (100/100 = -1.0 WNS, measured).
-17. Elaborate WITHOUT --build before burning P&R (RUNNING_TESTS layer 1);
-    OOC-synth a module before believing its hierarchical utilization line.
+## 3. Boards — facts + live state (2026-07-14)
 
-**Repo**
-18. Commits: ONE short line, no attribution trailers, both repos.
-19. Workstreams stay on separate branches; main receives merges. Never track
-    graphify-out/.gitprep (hook artifacts, gitignored).
-20. The CBS traffic shaper is never REMOVED from a build (user rule);
-    bit-identical internal optimization is allowed (the slope engine).
-
-## 3. Live states
-
-**Boards**
-- AX7101: **build_ax7101_eto_acmp2 in SRAM (THE KEEPER, 2026-07-12)** = the
-  COMPLETE Milan v1.2 control plane: la_avdecc-clean AECP + the ACMP
-  stateless responder (CSR 0x650). Sweep: eto +0.096 (keeper) / eppo +0.055
-  / asl +0.041 — all meet timing. IP .1 up, identity programmed + enabled
-  (EID 02:00:00:ff:fe:00:00:01), **controller 31/31 + la_avdecc Milan=1
-  verdict CLEAN on silicon**. QSPI still holds the adp2-era image set
-  (gateware-independent). Fallbacks: eto_aecp7 (+0.091, AECP-clean/no ACMP),
-  eppo_aecp6 (+0.176), adp2 (+0.102, AECP-less).
-  hsplit16 hsplit=2 hs_pgsz=16384 as before.
-- Arty A7-100: **build_arty_asl_arty_v8 in SRAM (THE KEEPER, 2026-07-12,
-  WNS +0.312)** = the SMALL ENDSTATION: full AVDECC stack (ADP+AECP+ACMP at
-  50 MHz) + probes stripped (cfg change; with probes the 100t overflowed by
-  181 slices). Entity EID 02:00:00:ff:fe:00:00:02 programmed (same
-  aecp_csr_setup recipe, EIDLO 0xFE000002), **la_avdecc Milan=1 CLEAN +
-  controller 31/31 on silicon; :01 + :02 advertise simultaneously through
-  the switch**. Boots the v1-layout QSPI image set (opensbi_arty 2-hart,
-  83333000). kl-eth auto-loads (defaults right here: rsc_clk_mhz=50).
-  IP .3 re-addressed live (shared rootfs still bakes .1 — fix pending).
-  Fallback: build_arty_v7 (+0.018, probes, no AVDECC). Baseline through the
-  switch: TX 83.3 / RX 93.9 Mbit. Cosmetic initramfs "invalid magic" after
-  the real unpack: ignore.
-
-**Branches (all pushed)**
-- main = f51a27b: the docs-overhaul merge + AREA-70 + ADP fixes + **PR #12
-  (05_aecp_aem) merged by the user**  -  AECP/AEM is now in main.
-- milan-arty-bringup = 1dfb7c2: the Arty port chain (flashboot, S25FL128S
-  opcode, baud, flash tooling fixes), REBASED onto f51a27b, force-pushed;
-  + arty DT board values/IR (sw/dts/boards/arty.json) + this doc update.
-- milan-adp-fixes: the two isolated ADP RTL fixes (enable-after-boot,
-  src-MAC byte order) on the ship-cleared base.
-- milan-avdecc-fpga: the main working line (pre-rebase state; main carries
-  everything that matters from it).
-- the-private-test-repo repo: milan-avb-stabilizing-milan = 1bc7530 (per-board
-  opensbi: OUT/TIMER_HZ/BOARD_TAG + opensbi_arty.bin + boot_arty.json).
-- fpga-ps-tools repo: main is AHEAD-5 UNPUSHED (user's call)  -  includes
-  395238c: bsp/boards/digilent-arty package + vexii/fw_jump platform
-  refresh; the BSP dt target now takes BOARD=digilent-arty (verified
-  against build_arty_v7 csr.json; its extract also showed the hand dts
-  carries a stale dma-ts window 0x3064 vs the gateware's 0x3100  -
-  regenerate when PTP-on-arty matters).
-
-**Builds worth keeping**
-| Build | What | Numbers |
+| | AX7101 | Arty A7-100T |
 |---|---|---|
-| build_ax7101_eto_acmp2 | THE AX7101 keeper (Milan=1 CLEAN control plane) | WNS +0.096 (eppo +0.055 / asl +0.041 backups) |
-| build_ax7101_eto_aecp7 | AECP-clean fallback (no ACMP) | WNS +0.091 |
-| build_ax7101_adp2 | AECP-less fallback (area+ADP) | WNS +0.102, 70.1 pct LUTs, BRAM 83.3 pct |
-| build_arty_asl_arty_v8 | THE Arty keeper (small endstation, AVDECC stack) | WNS +0.312 (eppo +0.214 / eto +0.173) |
-| build_arty_v7 | probes fallback (no AVDECC) | WNS +0.018 |
-| build_1hart_epo | 1-hart decision datapoint | 58 pct LUTs / 68.5 pct BRAM / 80.9 pct slices |
+| FPGA | xc7a100t-2fgg484 | xc7a100t-1csg324 (slower die) |
+| CPU | VexiiRiscv 2-hart @100 MHz | VexiiRiscv 2-hart @83.333 MHz |
+| Milan datapath clk | 100 MHz (`--milan-clk-freq 100e6`) | 50 MHz |
+| PHY | RTL8211E GMII 1G | MII 100M |
+| EID / IP | ...:01 / 192.168.127.1 | ...:02 / .3 |
+| Gateware NOW | `build_ax7101_eto_miltalk` WNS +0.072, **JTAG-SRAM** | `build_arty_eppo_miltick` WNS +0.381, **in QSPI** |
+| QSPI (16 MB) | policy `images`: Linux images only, kernel @0 — **NEVER flash a bitstream** (kernel-clobber trap; deploy.sh refuses without FORCE_BITSTREAM_FLASH=1). Image set = hwts4-era per-board rootfs + fixed opensbi/dtb | policy `boot` (v3): bitstream @0 (4 MiB) + xz kernel @0x400000 + opensbi @0x700000 + dtb @0x760000 + rootfs @0x780000; **JP1=QSPI, fully self-hosting** |
+| Power-cycle | FPGA goes BLANK → JTAG reload needed | reboots to full Milan endstation hands-free |
+| Driver | kl-eth auto-loads; `kl,rsc-clk-mhz` from DT (AX 100 / Arty 50); RSC on @250 µs | same |
+| Talker | AAF present but **off** (talker half idle) | **TRUE Milan mode**: S50milan writes `0x654=0x1` → silent until PROBE_TX, then 8138 fr/s AAF from the Pmod I2S2, hard stop 15 s after last probe |
 
-## 4. Open threads (ranked, with the evidence)
+Both boards: probe window 14–15 s measured, ADP cadence 31 s (×2 periods),
+dormancy self-heal ≤5 s proven, controller drill 41/41, la_avdecc Milan=1
+CLEAN. Bench cosmetics: AX console needs `dmesg -n 1` under talker RX;
+initramfs "invalid magic" after the real unpack is benign.
 
-1. **RESOLVED 2026-07-11 (was: Arty Linux panic).** Executed: build_opensbi.sh
-   now takes OUT/TIMER_HZ/BOARD_TAG (+ the existing NAX_HARTS/DTB) and the
-   banner names the board; opensbi_arty.bin (2 harts, 83333000, arty dtb)
-   built + flashed via the flash verb; boot_arty.json points at it
-   (the-private-test-repo 1bc7530). Arty boots to login; §3 has the live state.
-   STILL OPEN (durable form): drop FW_FDT_PATH and honor a1 so ONE opensbi
-   serves both boards with per-board flashed dtbs  -  the BIOS jumps a1=0
-   today (patch linux_flashboot to pass MILAN_FLASHBOOT_DTB_ADDR) and
-   platform.c would read timebase from the FDT. Piggyback on the next
-   gateware spins. Also pending: per-board IP in the shared rootfs (bakes
-   192.168.127.1 everywhere  -  the Arty must re-address to .3 by hand).
-2. **AECP/AEM Milan v1.2 entity DONE — la_avdecc (Hive) validated on silicon.**
-   (2026-07-12.) The KL_aecp_* library is a WORKING listener: 5-descriptor
-   Milan entity, READ_DESCRIPTOR + getters/setters, **LOCK 60 s /
-   ACQUIRE=NOT_SUPPORTED**, GET_STREAM_INFO (Milan fixed 56 B), GET_COUNTERS
-   (full 136 B on EVERY status), GET_AS_PATH (count=1, MAC-EUI64 clock id),
-   MVU GET_MILAN_INFO (version 1, cert 0). Architecture documented in
-   hdl/aecp/doc/atdecc_architecture.drawio — MULTI-PAGE, overview + one
-   bit-level page per block (byte maps, FSMs, segment programs, address maps).
-   **The la_avdecc campaign (the real validator; found what nothing else did):**
-   - r1: GET_STREAM_INFO 44 B -> Milan fixed 56 B; caps 0x8588 (dropped
-     IDENTIFY_CONTROL_INDEX_VALID: advertised with no CONTROL descriptor).
-   - r2: available_index must +1 on EVERY ADPDU (bump-on-change-only reads as
-     'incoherently changed' -> offline/online cycling; pipewire ref bumps every
-     send); GET_COUNTERS is Milan-mandatory AND must be full-size on errors.
-   - r3: GET_AS_PATH is Milan-mandatory (the last 5.4.4 item for this model).
-   - PROBE TRAP: link enum-probe with la_avdecc's OWN feature defines
-     (CBR/JSON/REDUNDANCY/STRICT_2018 + nlohmann include) or the vtable
-     mismatches and it segfaults on the first virtual call.
-   - CDL truth: CDL = frame_len - 26 (12 + payload). tsn-gen's CDL model
-     counts target_eid (frame-18) and is WRONG — never use it as the oracle.
-   Verification ladder: tb aecp 68/68, adp 121/121, milan_dp 17/17, cosim
-   (tsn-gen<->RTL) 42/42, lint 10/10, **Yosys 19/19 incl. KL_aecp_top (33.6K
-   cells) + full milan_datapath** (needed: flatten internal AXIS interface
-   links — sv2v v0.0.13 renders interface members of non-top modules as
-   top-absolute hierarchical paths; also ifndef-SYNTHESIS the parser $error).
-   Silicon verdicts: aecp6 cleared r2 (24/24); aecp7 cleared AECP entirely
-   (26/26, zero AEM complaints, ACMP the sole gap). **acmp2 (2026-07-12,
-   eto +0.096 = THE KEEPER): the KL_acmp_responder (stateless talker, §5.5:
-   GET_TX_STATE->SUCCESS/count=0; GET_TX_CONNECTION + CONNECT/DISCONNECT_TX
-   -> NOT_SUPPORTED until the SW policy mailbox) closed the campaign —
-   controller 31/31 and la_avdecc: entity ONLINE, IEEE17221=1, **Milan=1,
-   verdict CLEAN, zero complaints, zero warnings**. Counters after the run:
-   ACMP 4 cmd/4 resp (0x650), AECP 33/33 (0x648/64C), avail_idx 5 —
-   fully coherent.** The 5-descriptor Milan v1.2 entity is DONE and
-   Hive-clean end to end (ADP + AECP/AEM + ACMP, all zero-CPU in fabric).
-   RUNBOOK: JTAG-load eto_acmp2 -> board: dmesg -n 1; eth0 up .1;
-   avdecc/aecp_csr_setup.sh devmem sequence (caps 0x8588) -> peer:
-   `sudo python3 /tmp/milan_controller.py enp6s0` (31/31) and
-   `sudo ~/la_avdecc_work/enum-probe enp6s0 40` (Milan=1 CLEAN).
-   Deferred: ACMP connections (now FABRIC table+acceptance per the rev-2
-   delimitation), unsolicited push, NV persistence of SET_*, HW counter
-   values, audio maps, the listener half (STREAM_INPUT/CRF).
-3. **gPTP IN PROGRESS (2026-07-12): phase A DONE — both boards have working
-   PHCs** (kl-eth eb50520 in the-private-test-repo): /dev/ptp0 on the fabric Q8.24
-   counter; gettimex64/settime64/adjtime/adjfine exercised via phc_ctl on
-   silicon. TRAPS PAID: (a) the counter ticks in cd_milan (50/100 MHz), NOT
-   the 125 MHz the gateware INCR default assumes — measured 0.4x rate; INCR
-   derives from rsc_clk_mhz (Q8.24 = 1000/MHz); (b) SW TX timestamps must be
-   stamped at the TOP of kl_start_xmit (the BD-path-only stamp missed
-   ptp4l's small frames -> 'timed out polling tx timestamp' FAULTY); (c)
-   busybox: killall not pkill; rmmod fails silently while ptp4l holds
-   /dev/ptp0; (d) dropbear needs /var/run/dropbear (dangling symlink) +
-   chmod 700 /root — then pw0-keyed scp gives a fast .ko loop. ptp4l -S
-   (gPTP: L2, P2P, transportSpecific 1, /tmp/gptp.cfg) runs on both.
-   ROOT-CAUSED (tcpdump decode + injection test): the switch's 0x88F7
-   frames are VALID plain gPTP Pdelay_Req (v2.0, sdoId 1, len 54) — but
-   they only run on pw0's port; the BOARD-facing ports carry ZERO 88F7
-   (minutes of tcpdump), and an injected 88F7 from pw0 does NOT reach the
-   Arty (link-local correctly unforwarded). So: the switch does not run
-   gPTP on the board ports and relays no Sync/Announce -> both endpoints
-   elect themselves master. ptp4l's 'bad message' spam = its own errqueue
-   artifacts, NOT peer frames. The kl-eth/board side is CLEAN. NEXT:
-   (a) enable gPTP on the switch's board-facing ports (bench/management
-   action) OR direct-cable the two boards for the pair validation;
-   (b) phase B = HW frame timestamps from the dma-ts gPTP records. Plan:**
+**gPTP bench end-state:** reflash bounces re-triggered the switch's port
+flap-suppression → the Arty's cc6 announces are not relayed uplink; pw0 is
+SLAVE ~5 ns to the SWITCH HOLDOVER (3cc0c6, cc248). Arty GM itself runs
+clean (txto=0). Remedy is physical: switch power-cycle (amx-pi) or direct
+cable. Data plane unaffected.
 
-   **SWITCH RULED OUT (2026-07-12, verified 4 ways):** the bench switch is a
-   d&b audiotechnik AVB appliance (OUI 3c:c0:c6, clock id 3cc0c6fffefe0210).
-   It runs the FULL bridge control plane (STP 2/s, gPTP 1/s, MSRP, MVRP) ONLY
-   on its gigabit uplink (pw0) — a 25 s promiscuous capture on BOTH board
-   ports shows ZERO of any of the four. It forwards ONLY registered AVB
-   multicast (ADP 91:e0:f0:xx) between board ports: board<->board ICMP,
-   board<->pw0 ICMP, PTP multicast (01:1b:19) and reserved link-local
-   (01:80:c2:00:00:0e, un-forwardable by 802.1D anyway) ALL fail. So NO
-   software path (P2P gPTP, E2E multicast, UDP unicast, pw0-as-GM) can reach
-   the boards through this switch. Endpoint IS ready: gateware timestamps
-   0x88F7 (ETH_TYPE F788), kl-eth PHC discipline validated, ptp4l runs.
-   **The ONLY unblock is a DIRECT board<->board cable** — turnkey script
-   sw/litex/gptp_direct_cable.sh (unplug both from switch, one cable eth0<->
-   eth0, run it; AX7101=GM, gate on Arty offset convergence). OR switch
-   management access (no mgmt IP/mDNS on this segment — d&b R1 software or a
-   console port). Plan after link exists:** Order: (a) kl-eth PHC ops (/dev/ptpN) backed by the fabric PTP
-   counter — the 0x500 CSR group ALREADY has INCR/ADJ discipline hooks, and
-   RX/TX timestamps already land in the descriptor ts windows (@ +0x3100);
-   wire SO_TIMESTAMPING to them. (b) two-node ptp4l through the AVB switch
-   (AX7101 <-> Arty; Arty datapath 50 MHz — tick arithmetic differs, rrsc
-   pattern applies), gate on offset/pathDelay convergence. (c) the small
-   GM->CSR bridge (0x624/0x628 on GM change) so ADP re-advertises and
-   AS_PATH/AVB_INFO report live gPTP truth. Delimitation:
-   docs/ARCHITECTURE_HW_SW_SPLIT.md (protocol=softcore, timestamps+clock=
-   fabric).
-3b. **MVP TALKER ON SILICON (2026-07-12 night, task: flash-standalone by
-   morning): the Arty STREAMS AAF from the Pmod I2S2 on JA.** State at
-   handover: build arty_v10 (o_ptp_now tap fix) pending; everything else
-   VERIFIED on silicon with arty_v9/eppo (+0.233):
-   - Chain: Pmod I2S2 ADC (fabric I2S master, fs=48.828k declared 48k) ->
-     aaf_talker_i2s -> post-shaper inject -> wire. CSR 0x654 ctrl /
-     0x658-65C DMAC / 0x660 frames / 0x664 pairs (Linux devmem observability
-     — S50milan prints them at boot).
-   - MEASURED: frames 8.1k/s, pairs 48.9k/s (exact design cadence), seq +1
-     per frame @ ~122 us, payload = live ADC noise (real capture). Boots
-     from QSPI flash end-to-end (v3.1 layout: bit@0 4MiB slot, xz kernel —
-     BIOS decode VERIFIED). One verb: build.sh flash arty:<dir>.
-   - TRAP (cost ~1 h): AAF designed for classifier->CBS class A, but CBS
-     credit math is 1G-scaled on the 100M Arty (is_1g open item) ->
-     credit-gated to ~1 frame/30 s. MVP = post-shaper injection (ADP
-     pattern), UNSHAPED; true class-A shaping returns with is_1g.
-   - TRAP (cost ~1 h): the AVB switch INGRESS-FILTERS VLAN 2 (ports not
-     members; ADP passed because untagged). MVP policy: S50milan brings the
-     talker up VID 0 = priority-tagged (PCP3 kept, VLAN-transparent).
-     VID 2 returns when the switch VLAN is provisioned or lwSRP's MVRP
-     registers it — THIS is the concrete motivation for lwSRP's MVRP leg.
-   - TRAP (cost ~45 min): avtp_timestamp stuck at exactly +2 ms on silicon
-     = the o_ptp_now instance hookup NEVER LANDED (a python replace()
-     pattern-missed the aligned formatting and silently no-op'd; Vivado
-     said 'ptp_now_w has no driver' but only as a warning). Fixed +
-     milan_dp verilator now runs -Werror-UNDRIVEN (undriven nets FAIL).
-     LESSON: after scripted SV edits, grep the result AND read the synth
-     warnings; an undriven net on a data input is silicon-silent.
-   - Morning action: JP1 -> QSPI, power-cycle => self-hosting streaming
-     endstation (gateware+Linux from flash, talker up via S50milan).
-   - Next (in order): arty_v10 flash + timestamp-advancing check; listener
-     validation (pw0 pipewire module-avb or Hive) once gPTP locks; media
-     clock recovery (NCO from gPTP) per docs/MVP_TALKER.md.
-4. **Slices <70 pct**: the 1-hart user decision (numbers in the table
-   above; retires the 2-hart NAPI pipeline that holds RX 381/374).
-5. **Perf follow-ups** (both gatewares, env/driver-config class): the ~220
-   cell-recipe gap vs the 525-era scoreboard + the recurring TX mid-flow
-   stall (~20-30 s dead air; sweep napi_w/hsplit/rsc on the keeper).
-6. AF_XDP ZC driver = the remaining RX>500 lane (campaign-scale).
-7. Arty polish: is_1g=0 driver wiring (CBS 100M slopes), WNS margin
-   (+0.018 is thin  -  sweep directives when it matters), S25FL128S image
-   staging is JTAG-slow (~4 min full set  -  fine at this cadence).
+**Fallback builds** (all in `~/litex-milan/work/`):
 
-## 5. Connect quickrefs
+| Build | What | WNS |
+|---|---|---|
+| build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
+| build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
+| build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
+| build_ax7101_asl_adpfix | AX pre-talker fallback | +0.158 |
+| build_ax7101_eto_hwts_ax2 / arty asl_hwts5 | HW-timestamp keepers | +0.118 / — |
+| build_ax7101_eto_acmp2 | first Milan=1 CLEAN control plane | +0.096 |
+| build_arty_asl_arty_v8 | first Arty AVDECC stack (probes stripped) | +0.312 |
+| build_ax7101_adp2 / build_arty_v7 | AECP-less / probes-only floors | +0.102 / +0.018 |
+
+**Branches (all pushed unless noted):** milan-fpga `milan-arty-bringup` =
+3fce652 (the working line, this doc); `main` = f51a27b (PR #12 AECP/AEM
+merged). the-private-test-repo `milan-avb-stabilizing-milan` = c03c139.
+fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
+
+## 4. What works on silicon today (and how it was proven)
+
+| Feature | State | Proof / normative doc |
+|---|---|---|
+| ADP advertise + depart + **dormancy self-re-arm** | DONE both boards | drill 0x00020001→0x00020101 ≤5 s; `docs/findings/ADP_DORMANCY.md` |
+| AECP/AEM Milan entity (5 descriptors, getters/setters, LOCK, MVU, COUNTERS, AS_PATH) | DONE | la_avdecc Milan=1 CLEAN; `hdl/aecp/doc/atdecc_architecture.drawio` |
+| AECP streaming cmds (GET/SET_STREAM_INFO Milan semantics, START/STOP=NOT_SUPPORTED, **real unsolicited** 4-slot engine) | DONE | 121-check TB + drill §7/7b; `docs/design/MILAN_TALKER_SM.md` |
+| ACMP Milan talker SM (CONNECT_TX==PROBE_TX, 15 s window, near-stateless) | DONE | 71-check TB + wire probe→stream→expiry; same doc |
+| AAF talker (48 kHz I2S2 → class-A frames, probe-gated, VID0) | DONE | 8138 fr/s, seq+1/122 µs; `docs/design/MVP_TALKER.md` |
+| gPTP PHC + **HW timestamps** | DONE both boards | pdelay 1.3 µs, pw0 rms 2–5 ns through floods; `docs/findings/PTP_TS_METADATA_FIX.md`, `GPTP_RXPAD_ROOTCAUSE.md` |
+| QSPI v3 self-hosted boot (Arty) | DONE | flash→login hands-free; `docs/integration/QSPI_FLASHBOOT.md` |
+| TCP perf (separate perf-lineage gateware) | TX >500, RX 316 practical ceiling | `docs/findings/PERFORMANCE_GOAL.md` |
+| Portability | XPM-free HDL; Yosys/sv2v 20/20 tops (ECP5 check) | `syn/yosys/run.sh` |
+
+Regression: 21 Verilator harnesses under `tb/verilator/<name>/` (latest
+counts: acmp 71, aecp 121, milan_dp 53, adp 246, cls 200024) + Yosys 20/20.
+`docs/testing/RUNNING_TESTS.md` / `PROTOCOL_VALIDATION_MATRIX.md`.
+
+**The reference that decides Milan semantics:** pipewire module-avb
+(`acmp-milan-v12.c` etc.) — ALWAYS extract the contract from it before
+writing RTL; it overturned every assumption (probe model, count=0,
+DISCONNECT no-op, stream_id formula).
+
+## 5. CSR quickref (milan_csr AXI-Lite @ **0x90000000**, both boards)
+
+Full map: `docs/reference/REGISTER_MAP.md`. The ones you touch on the bench:
+
+| Offset | Reg | Notes |
+|---|---|---|
+| 0x100 | MAC_CTRL | bit3 allmulti (`ip link set eth0 allmulticast on` — reboot reverts) |
+| 0x400+q*0x20 | CBS q0-3 | +0 idle +4 hi +8 lo +C en; reset en=0. Shaper is NEVER removed (user rule) |
+| 0x520 | A_PTP_CMD | PHC discipline strobes (0x500 group = INCR/ADJ hooks) |
+| 0x600 | ADP_CTRL | 0x1F01 = enabled, valid_time 31; 0x1F00 = silence (single-entity drills) |
+| 0x604.. | identity | programmed by `avdecc/aecp_csr_setup.sh` (caps 0x8588) |
+| 0x640 | ADP_CMD | bit1 = depart strobe (nothing in SW writes it — see dormancy forensics) |
+| 0x644 | ADP_STATUS | available_index; healthy = +1 per 31 s (measure ≥2 periods) |
+| 0x648/0x64C | AECP cmd/resp counters | balanced ⇒ no responder mid-frame |
+| 0x650 | ACMP counters | |
+| 0x654 | AAF_CTRL | {vid[27:16], bypass[1], enable[0]}; reset 0x0002_0002 (VID 2, bypass on). S50milan → 0x1 = TRUE Milan mode (probe-gated, VID0); legacy always-on = `devmem 0x90000654 32 0x3` |
+| 0x658/0x65C | AAF DMAC | 0x660 frames / 0x664 pairs counters |
+| 0x668 | A_ADP_DIAG RO | {[17:16] last depart src, [15:8] rearm_cnt, [7:0] depart_cnt} |
+| 0x66C | A_ACMP_TALKER RO | {bit3 aaf_gate, bit2 lobs, bit1 talker_active, bit0 probe_armed} |
+| 0x670 | A_ACMP_LOBS RW | bit0 = listener_observed — **the lwSRP socket** (manual until lwSRP) |
+
+NIC ring/perf/debug CSRs live in the LiteX region (0xf0003xxx ring/steer,
+0xf0004xxx probes) — perf-era docs in `docs/findings/`. devmem trap: 64-bit
+CSRs read high-word-first.
+
+## 6. Operating recipes
 
 ```sh
-# AX7101 console            (tmux milan_qspi_boot)
+# Consoles (tmux; litex_term needs the venv path)
 tmux new-session -d -s milan_qspi_boot \
-  "/home/alex/litex-milan/venv/bin/litex_term /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_66e0ce968c16f011808241adb887153e-if00-port0 --speed 115200"
-# Arty console               (tmux arty_console)
+  "~/litex-milan/venv/bin/litex_term /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_66e0ce968c16f011808241adb887153e-if00-port0 --speed 115200"
 tmux new-session -d -s arty_console \
-  "/home/alex/litex-milan/venv/bin/litex_term /dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0 --speed 115200"
+  "~/litex-milan/venv/bin/litex_term /dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0 --speed 115200"
+# scripted console exec: send-keys + sentinel; grep '^MARKER' (line-anchored,
+# else it matches the echoed command). Board busybox has NO timeout/pgrep.
+
 # JTAG loads (SRAM)
-openFPGALoader --ftdi-serial 210512180081 -c ft232    <ax7101 bit>
-openFPGALoader --ftdi-serial 210319AFEED0 -c digilent <arty bit>
-# scripted console exec: scratchpad conx.sh '<cmd>' <timeout>  (AX7101 session)
-# builds: sw/litex/build.sh {ax7101|arty} [--sweep] ; flash: build.sh flash <cfg>
+openFPGALoader --ftdi-serial 210512180081 -c ft232    <ax7101.bit>
+openFPGALoader --ftdi-serial 210319AFEED0 -c digilent <arty.bit>
+# Arty: reconfigure from QSPI without power touch:
+openFPGALoader --ftdi-serial 210319AFEED0 -c digilent --reset
+
+# Builds (sw/litex/build.sh; docs/integration/BUILDING.md)
+./sw/litex/build.sh ax7101 --sweep      # 3-directive place sweep, keep best WNS
+./sw/litex/build.sh arty   --sweep
+# Flash (policy-aware; board_facts in build.sh):
+KERNEL=~/br-milan-output/images/Image ROOTFS=~/br-milan-output/images/rootfs.cpio.xz \
+DTB=~/the-private-test-repo/fpga/dts/milan_arty_vexii.dtb OPENSBI=~/the-private-test-repo/fpga/boot/opensbi_arty.bin \
+PYTHON=~/litex-milan/venv/bin/python3 ./sw/litex/build.sh flash arty:<builddir>
+
+# Milan validation drill (from pw0: ssh amx-pw0)
+sudo python3 /tmp/milan_controller.py enp6s0 --eid 01   # AX   -> 41 pass, 0 fail
+sudo python3 /tmp/milan_controller.py enp6s0 --eid 02   # Arty -> 41 pass, 0 fail
+sudo ~/la_avdecc_work/enum-probe enp6s0 40              # Milan=1, verdict CLEAN
+# enum-probe exits at its FIRST clean enumeration -> for a single-entity
+# verdict, silence the other board first: devmem 0x90000600 32 0x1F00 (restore 0x1F01)
+
+# ADP census — MUST filter, AVTP shares ethertype 0x22F0 (the arty's 8.1k fr/s
+# AAF stream otherwise reads as an ADP flood / drowns :01):
+sudo timeout 45 tcpdump -i enp6s0 'ether proto 0x22f0 and ether[14] = 0xfa'
+
+# Probe the talker from pw0 (what activates the arty's stream):
+#   milan_controller.py section 9 does it; window = 15 s after the last probe.
+
+# Recovery one-liners (board console)
+devmem 0x90000600 32 0x1F00; devmem 0x90000600 32 0x1F01   # ADP re-arm (pre-fix gw only)
+dmesg -n 1                                                  # unbury console under RX
+ip link set eth0 allmulticast on                            # gPTP RX (reverts on reboot)
+
+# gPTP direct-cable session (Arty-as-slave validation, physical cable move):
+sw/litex/gptp_direct_cable.sh   # AX=GM cc6/prio100; gates: SLAVE+rms, pdelay ~1-3us, txto=0
 ```
+
+## 7. The rules (each one was paid for)
+
+**USB / cables**
+1. Serial consoles by `/dev/serial/by-id/` only, never ttyUSBn.
+2. Every openFPGALoader call carries `--ftdi-serial` (two FTDI cables; a
+   flash op on the wrong board is destructive).
+3. VM USB passthrough is pinned by vendor:product (0403:6014, 0403:6010,
+   10c4:ea60); a replug without the rule silently drops the device.
+
+**Network / measurement**
+4. amx-pw1 RESERVED; VM never gets a .127.x address.
+5. Ghost-peer check before trusting any number: board `ip neigh | grep 127.2`
+   must show `68:05:ca:95:b2:d1`.
+6. A gate number is only valid with its FULL cell recipe; A/B in-session on
+   the same cell (the cbsf_epo "TX regression" was a phantom baseline).
+7. **Cadence claims need ≥2 periods** (the adpfix "31 s measured" was a
+   single-period coin flip that hid the CLK-param gap for a day). ADP capture
+   windows ≥70 s.
+8. Measure, don't assume: no lever before its HW counter exists; decompose
+   the symptom; measure before AND after (`docs/findings/` is full of
+   refuted-plausible stories). OOC-synth a module before believing a
+   hierarchical utilization line; read the LAST (physopt) timing summary.
+9. Busybox `timeout` doesn't exist on the boards — a piped
+   `timeout N tcpdump` dies instantly and fakes an empty capture.
+
+**Pairing (LETHAL class)**
+10. Driver `hs_pgsz` MUST equal gateware `--hs-page-bytes` (DMA overrun =
+    panic). Capability CSR @0xf000311c + probe-check guard new pairs.
+11. Ship gateware folds the legacy byte-ring; `bd=0` drivers park with
+    counted drops. Arty driver domain = 50 MHz (DT `kl,rsc-clk-mhz` now
+    carries it — zero-override boots).
+
+**Flash policies (16 MB QSPI each; `board_facts` in sw/litex/build.sh)**
+12. AX7101 = `images`: kernel at offset 0, NEVER flash a bitstream
+    (deploy.sh refuses without FORCE_BITSTREAM_FLASH=1). Gateware JTAG-SRAM;
+    power-cycle blanks the FPGA.
+13. Arty = `boot` (v3): bitstream @0 + image set at shifted offsets; JP1=QSPI
+    self-hosting. `build.sh flash arty:<dir>` does both stages + verify;
+    sweep dirs get their layout reconstructed from soc.h.
+14. OpenSBI is BOARD-SPECIFIC and EMBEDS a DTB (FW_FDT_PATH bypasses the
+    flashed dtb slot). Build per board via build_opensbi.sh env; ALWAYS from
+    a clean build dir (warm-tree rebuilds embedded the previous board's dtb —
+    panic@0.000000; script force-cleans now).
+
+**Builds**
+15. 32 Vivado threads per build (hard cap), max 3 parallel on the 96-core
+    box (USER RULE: saturate it — important configs = 3-seed sweeps, keep
+    best WNS), launches staggered 90 s, always setsid.
+16. Gate: WNS ≥ 0 (QSPI corrupted below +0.03 at 112.5 MHz once). Arty die
+    is -1: sys 83.333 + datapath 50 is the closing clocking.
+17. Elaborate WITHOUT --build first (~2 min) before burning 40 min of P&R.
+    After scripted SV edits: grep the result AND read synth warnings —
+    an undriven data input is silicon-silent (o_ptp_now trap; milan_dp TB
+    now runs -Werror-UNDRIVEN).
+
+**Repo / HDL**
+18. Commits: ONE short line, no attribution trailers, both repos.
+19. New HDL is ALWAYS SystemVerilog; Python only for soft-CPU SoC plumbing
+    (USER RULE).
+20. The CBS traffic shaper is never REMOVED from a build (USER RULE);
+    bit-exact internal optimization is allowed.
+21. Workstreams on separate branches; main receives merges. Push only on
+    request.
+
+## 8. Traps index (verified, still-live)
+
+- **la_avdecc enum-probe ABI**: build against the lib's own feature defines
+  (CBR/JSON/REDUNDANCY/STRICT_2018 + nlohmann) or the vtable mismatches and
+  it SIGSEGVs on the first virtual call.
+- available_index must +1 on EVERY ADPDU (bump-on-change reads as
+  offline/online cycling to la_avdecc).
+- ADP entity_id sits at wire byte 18 (not 16); ADP census filter
+  `ether[14] = 0xfa`; CDL = frame_len − 26 (tsn-gen's model is WRONG).
+- VID0 policy: stream_vlan_id legitimately reads 0 in ACMP/AECP responses —
+  never assert vlan≠0 in drills; assert dmac≠0 + ACMP/AECP vlan consistency.
+- Milan windows: poll at 0.2 s when measuring the 15 s probe window (1 s
+  polls race the expiry and read short).
+- kl-eth multicast RX: kl_set_rx_mode ignores mc groups — standalone ptp4l
+  is DEAF without allmulti; reboot reverts it (proper fix = open task).
+- Switch: multi-GM-claimant makes it announce-SILENT everywhere; one strong
+  claimant only. Port flap-suppression from reflash bounces needs a physical
+  remedy (power-cycle via amx-pi).
+- LiteX `Instance(...)`: parameters are only passed if you pass them —
+  `p_MILAN_CLK_FREQ_HZ` was silently defaulted for a week (2 s ticks).
+  Grep the generated verilog for every new p_/i_/o_ hookup.
+- iperf3/console orchestration: one-off servers (`-s -1`), fresh ports per
+  cell, unique grep tags, `ssh -n` inside while-read loops.
+- QSPI images from sweep dirs: `layout_from_soch.py` reconstructs the
+  manifest (soc.h is the source of truth).
+- Canonical Arty images: `br-milan-output/images/rootfs.cpio.xz` (Jul-13
+  turnkey). `boot/rootfs.cpio.gz` is a STALE Jul-5 copy without S50milan.
+
+## 9. Tasks
+
+### Closed arcs (chronological; proof in §4)
+M-A1..A5 bring-up → perf campaign (TX>500/RX 316, every remaining lever
+measured-refuted) → area-70 phase 1 (CBS slope engine −8K LUTs) → de-Xilinx
+track 1 (XPM-free + Yosys) → QSPI v3 flashboot → ADP advertiser → AECP/AEM
+entity (Milan=1) → ACMP stateless responder → gPTP Phase A (PHC) + Phase B
+(HW timestamps, rms 2–5 ns) → MVP AAF talker → ADP dormancy fix → **Milan
+talker SM (ACMP PROBE_TX + AECP streaming + unsolicited) — closed 2026-07-14,
+both boards Milan=1 CLEAN.**
+
+### Open, ranked (next work; 1–3 are the USER-directed rev-2 order)
+1. **lwSRP in fabric** — MSRP talker-advertise/listener-ready + MVRP;
+   drives CBS idleSlope (≤75 % gate) and gates TX; `listener_observed` then
+   comes from SRP instead of the manual A_ACMP_LOBS CSR; MVRP registers
+   VLAN 2 (retires the VID0 workaround). Normative:
+   `docs/design/LWSRP_FPGA_ARCHITECTURE.md` — **its CSR sketch 0x660–0x674
+   is STALE (those addresses are now AAF/DIAG/ACMP): re-home to 0x680+.**
+2. **pw0 PipeWire listener (BIND_RX)** — module-avb listener against the
+   arty talker = the audible end-to-end; then media clock recovery (NCO from
+   gPTP) per `docs/design/MVP_TALKER.md`.
+3. **Fabric ACMP connection table** — acceptance = resource check vs the
+   lwSRP grant (rev-2 delimitation).
+4. **gPTP direct-cable session** — Arty-as-slave validation; script ready
+   (`sw/litex/gptp_direct_cable.sh`), needs the physical cable move.
+5. **Switch power-cycle via amx-pi** — clear flap suppression, restore the
+   Arty-GM→pw0 relay.
+6. **kl-eth set_rx_mode** — honor mc groups (allmulti workaround reverts
+   every reboot).
+7. **is_1g CBS slopes on the Arty** — true class-A shaping at 100M (today
+   the talker injects post-shaper, unshaped).
+8. **One-opensbi durable form** — BIOS passes a1=dtb, platform reads
+   timebase from FDT (removes the per-board opensbi class).
+9. **Priority TX ring / doorbell in kl-eth** — the gPTP TX-flood delay is
+   the single 256-slot TX ring.
+10. **Area-70 continuation** (USER directive: slices → ~70 %) — next lever:
+    byte-ring fold.
+11. **Perf follow-ups** (perf lineage): ~220-vs-525 cell-recipe gap, TX
+    mid-flow stall, AF_XDP ZC (the RX>500 lane).
+12. **Arty listener half** (STREAM_INPUT/CRF) — the small endstation's
+    natural next role.
+13. **AECP deferred**: NV persistence of SET_*, real HW counter wiring,
+    audio maps, MAAP, GET_DYNAMIC_INFO.
+14. fpga-ps-tools: push main (ahead-5) — user's call.
+
+### Doc index (normative first)
+`docs/design/ARCHITECTURE_HW_SW_SPLIT.md` (rev 2 split) ·
+`docs/design/MILAN_TALKER_SM.md` (talker contract + SM) ·
+`docs/design/LWSRP_FPGA_ARCHITECTURE.md` (next arc; CSR sketch stale) ·
+`docs/design/MVP_TALKER.md` · `docs/overview/FULL_FPGA_SOLUTION.md` ·
+`docs/reference/REGISTER_MAP.md` · `docs/integration/BUILDING.md` ·
+`docs/integration/QSPI_FLASHBOOT.md` · `docs/testing/RUNNING_TESTS.md` ·
+`docs/testing/PROTOCOL_VALIDATION_MATRIX.md` · findings:
+`ADP_DORMANCY.md`, `GPTP_RXPAD_ROOTCAUSE.md`, `PTP_TS_METADATA_FIX.md`,
+`PERFORMANCE_GOAL.md` (perf lineage), `SESSION_HANDOFF.md` (historical).
+
+### History anchors (git, newest first)
+`3fce652` miltick close-out (window 15 s exact, cadence 31 s ×2, 41/41,
+Milan=1) · `c3b0e82` MILAN_CLK_FREQ_HZ never passed — plumbed ·
+`165d57c` talker SM RTL · `ba76908` ADP dormancy self-re-arm + DIAG ·
+PR #12 AECP/AEM merge (`f51a27b`).
