@@ -29,6 +29,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x400` | 802.1Qav CBS (per-queue, stride `0x20`) |
 | `0x500` | PTP hardware clock |
 | `0x600` | ADP advertiser (IEEE 1722.1 entity model) |
+| `0x680` | lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) |
 | `0x700` | RX destination-MAC TCAM filter |
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
@@ -42,7 +43,7 @@ window.
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
 | `0x004` | `VERSION` | RO | `0x0001_0003` | `[31:16]` major, `[15:0]` minor (0x0002 ADP group, 0x0003 TCAM group) |
-| `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[23:16]` ts_width |
+| `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
 | `0x014` | `IRQ_MASK` | RW | `0` | 1 = interrupt enabled; masked bits still visible in `IRQ_RAW` |
@@ -227,6 +228,37 @@ The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F
 subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
 `available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
 on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../../hdl/adp/doc/adp_advertiser.md).
+
+### 0x680  -  lwSRP engine  `(802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-*)`
+
+The fabric SRP talker endpoint (`hdl/lwsrp/KL_lwsrp_top.sv`,
+[`LWSRP_FPGA_ARCHITECTURE.md`](../LWSRP_FPGA_ARCHITECTURE.md)). Re-homed here
+from that doc's original 0x660 sketch (0x654-0x670 are AAF/DIAG/ACMP now).
+While enabled it declares MSRP Domain (+ TalkerAdvertise when `[1]` is set)
+and the MVRP VID every JoinTime, registers the bridge's Listener attribute
+for our StreamID `{station MAC, 0}`, and resolves the reservation into the
+AAF admission gate + the class-A CBS idleSlope (hardware mux over the 0x400
+value of the queue selected in `LWSRP_CTRL[3:2]` — no CSR write-back). While
+enabled it also (a) sources ACMP `listener_observed` (OR-ed with the manual
+`A_ACMP_LOBS` override at 0x670) and (b) makes a reservation a PRECONDITION
+for AAF transmit (`FR-SRP-03`; `AAF_CTRL[1]` bypass remains the escape hatch).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x680` | `LWSRP_CTRL` | RW | `0xC` | `[0]` engine enable, `[1]` talker declare, `[3:2]` class-A queue for the slope mux (reset 3 = the reset PCP3→TC3→q3 map) |
+| `0x684` | `LWSRP_VID` | RW | `2` | `[11:0]` SR VID (Domain + DataFrameParameters + MVRP) |
+| `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | stream dest MAC `[31:0]` (same packing as `AAF_DM*`) |
+| `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | stream dest MAC `[47:32]` |
+| `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames (per class-A 125 µs interval) |
+| `0x694` | `LWSRP_STATUS` | RO | `0` | `[1:0]` listener declaration (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed), `[2]` listener registered, `[3]` listener ready, `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE, `[7]` TSpec over the 75 % gate, `[8]` stream gate open, `[9]` slope mux engaged, `[10]` TalkerFailed seen (sticky), `[23:16]` MSRP failure code, `[31:24]` ingress FIFO frame drops |
+| `0x698` | `LWSRP_SLOPE` | RO | `0` | granted idleSlope, bits/s = `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000` |
+| `0x69C` | `LWSRP_CNT` | RO | `0` | `[31:16]` MRPDUs received (post dst/EtherType filter), `[15:0]` MRPDUs sent |
+| `0x6A0` | `LWSRP_LATENCY` | RW | `0` | TalkerAdvertise AccumulatedLatency, ns (constant until measured) |
+
+MSRP frames go to `01:80:C2:00:00:0E`/`0x22EA`, MVRP to
+`01:80:C2:00:00:21`/`0x88F5` (link-local, never forwarded by bridges) through
+the low-rate control TX merge. `CAP[14]` advertises the group. Timers: Join
+200 ms, Leave 600 ms, LeaveAll 10 s from `MILAN_CLK_FREQ_HZ`.
 
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 

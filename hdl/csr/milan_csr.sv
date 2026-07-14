@@ -167,6 +167,19 @@ module milan_csr #(
   input  wire [31:0]             i_aaf_frames,          //! AAF frames sent (RO, 0x660)
   input  wire [31:0]             i_aaf_pairs,           //! AAF I2S pairs captured (RO, 0x664)
 
+  // ---- lwSRP engine (0x680 group, docs/LWSRP_FPGA_ARCHITECTURE.md) ----
+  output wire                    o_lwsrp_enable,        //! LWSRP_CTRL[0] engine enable
+  output wire                    o_lwsrp_talker_en,     //! LWSRP_CTRL[1] TalkerAdvertise declare
+  output wire [1:0]              o_lwsrp_qidx,          //! LWSRP_CTRL[3:2] class-A queue (slope MUX target)
+  output wire [11:0]             o_lwsrp_vid,           //! LWSRP_VID[11:0] SR VID
+  output wire [47:0]             o_lwsrp_dest_mac,      //! stream DMAC {DMHI[15:0], DMLO}
+  output wire [15:0]             o_lwsrp_max_frame,     //! LWSRP_TSPEC[15:0] MaxFrameSize
+  output wire [15:0]             o_lwsrp_interval,      //! LWSRP_TSPEC[31:16] MaxIntervalFrames
+  output wire [31:0]             o_lwsrp_latency,       //! LWSRP_LATENCY AccumulatedLatency (ns)
+  input  wire [31:0]             i_lwsrp_status,        //! packed engine status (RO 0x694)
+  input  wire [31:0]             i_lwsrp_slope,         //! granted idleSlope bps (RO 0x698)
+  input  wire [31:0]             i_lwsrp_cnt,           //! {rx_pdus[31:16], tx_pdus[15:0]} (RO 0x69C)
+
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -230,6 +243,11 @@ module milan_csr #(
     A_ADP_DIAG    = 'h668,                        //! ADP dormancy diagnostics (RO)
     A_ACMP_TALKER = 'h66C,                        //! Milan talker SM state (RO)
     A_ACMP_LOBS   = 'h670,                        //! listener_observed override (RW, lwSRP socket)
+    // ---- 0x680 lwSRP engine (re-homed from the stale 0x660 sketch) ----
+    A_LWSRP_CTRL  = 'h680, A_LWSRP_VID = 'h684, A_LWSRP_DMLO = 'h688,
+    A_LWSRP_DMHI  = 'h68C, A_LWSRP_TSPEC = 'h690,
+    A_LWSRP_STATUS= 'h694, A_LWSRP_SLOPE = 'h698, A_LWSRP_CNT = 'h69C,
+    A_LWSRP_LAT   = 'h6A0,
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -316,6 +334,11 @@ module milan_csr #(
   logic [31:0] adp_ctrl;                 //! ADP_CTRL: [0]=enable, [12:8]=valid_time
   logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi; //! AAF talker: ctrl {vid[27:16], bypass[1], en[0]}, DMAC
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
+  logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [3:2]=classA queue
+  logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
+  logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
+  logic [31:0] lwsrp_tspec;              //! LWSRP_TSPEC: {interval[31:16], max_frame[15:0]}
+  logic [31:0] lwsrp_lat;                //! LWSRP_LATENCY: AccumulatedLatency (ns)
   logic [31:0] adp_eidlo, adp_eidhi;     //! ADP_EID: entity_id (EUI-64)
   logic [31:0] adp_midlo, adp_midhi;     //! ADP_MID: entity_model_id (EUI-64)
   logic [31:0] adp_ecaps;                //! ADP_ECAPS: entity_capabilities
@@ -388,6 +411,14 @@ module milan_csr #(
       acmp_lobs <= 32'h0;
       aaf_dmlo <= 32'hF000_FE01;   // MAAP-range default 91:E0:F0:00:FE:01
       aaf_dmhi <= 32'h0000_91E0;
+      // lwSRP: disabled; class-A queue 3 (the reset PCP3->TC3->q3 map);
+      // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}
+      lwsrp_ctrl <= 32'h0000_000C;
+      lwsrp_vid  <= 32'h0000_0002;
+      lwsrp_dmlo <= 32'hF000_FE01;
+      lwsrp_dmhi <= 32'h0000_91E0;
+      lwsrp_tspec<= 32'h0001_00E0;
+      lwsrp_lat  <= 32'h0;
       adp_eidlo <= 32'h0; adp_eidhi <= 32'h0; adp_midlo <= 32'h0; adp_midhi <= 32'h0;
       adp_ecaps <= 32'h0; adp_talk <= 32'h0; adp_list <= 32'h0; adp_ccaps <= 32'h0;
       adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_domain <= 32'h0;
@@ -451,6 +482,12 @@ module milan_csr #(
           end
           A_AAF_CTRL:   aaf_ctrl  <= s_axi_wdata;
           A_ACMP_LOBS:  acmp_lobs <= s_axi_wdata;
+          A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
+          A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
+          A_LWSRP_DMLO: lwsrp_dmlo <= s_axi_wdata;
+          A_LWSRP_DMHI: lwsrp_dmhi <= s_axi_wdata;
+          A_LWSRP_TSPEC: lwsrp_tspec <= s_axi_wdata;
+          A_LWSRP_LAT:  lwsrp_lat  <= s_axi_wdata;
           A_AAF_DMLO:   aaf_dmlo  <= s_axi_wdata;
           A_AAF_DMHI:   aaf_dmhi  <= s_axi_wdata;
           A_ADP_CTRL:   adp_ctrl  <= s_axi_wdata;
@@ -529,7 +566,7 @@ module milan_csr #(
       A_VERSION:    rd_mux = VERSION;
       A_CAP:        rd_mux = { 8'h00,                       // [31:24] reserved
                                8'd64,                       // [23:16] ts_width
-                               2'h0, 1'b1, 1'b1,            // [15:14] reserved [13]TCAM [12]ADP
+                               1'b0, 1'b1, 1'b1, 1'b1,      // [15]rsvd [14]LWSRP [13]TCAM [12]ADP
                                1'b1, 1'b1, 1'b1, 1'b1,      // [11]RXF [10]STATS [9]PTP [8]CBS
                                4'h0,                        // [7:4] reserved
                                4'(NUM_QUEUES) };            // [3:0] num_queues
@@ -593,6 +630,15 @@ module milan_csr #(
       A_AAF_DMHI:   rd_mux = aaf_dmhi;
       A_AAF_FRAMES: rd_mux = i_aaf_frames;
       A_AAF_PAIRS:  rd_mux = i_aaf_pairs;
+      A_LWSRP_CTRL: rd_mux = lwsrp_ctrl;
+      A_LWSRP_VID:  rd_mux = lwsrp_vid;
+      A_LWSRP_DMLO: rd_mux = lwsrp_dmlo;
+      A_LWSRP_DMHI: rd_mux = lwsrp_dmhi;
+      A_LWSRP_TSPEC: rd_mux = lwsrp_tspec;
+      A_LWSRP_STATUS: rd_mux = i_lwsrp_status;
+      A_LWSRP_SLOPE: rd_mux = i_lwsrp_slope;
+      A_LWSRP_CNT:  rd_mux = i_lwsrp_cnt;
+      A_LWSRP_LAT:  rd_mux = lwsrp_lat;
       A_TCAM_CTRL:  rd_mux = tcam_ctrl;
       A_TCAM_KLO:   rd_mux = tcam_klo;
       A_TCAM_KHI:   rd_mux = tcam_khi;
@@ -669,6 +715,14 @@ module milan_csr #(
   assign o_aaf_enable          = aaf_ctrl[0];
   assign o_aaf_bypass          = aaf_ctrl[1];
   assign o_acmp_lobs           = acmp_lobs[0];
+  assign o_lwsrp_enable        = lwsrp_ctrl[0];
+  assign o_lwsrp_talker_en     = lwsrp_ctrl[1];
+  assign o_lwsrp_qidx          = lwsrp_ctrl[3:2];
+  assign o_lwsrp_vid           = lwsrp_vid[11:0];
+  assign o_lwsrp_dest_mac      = {lwsrp_dmhi[15:0], lwsrp_dmlo};
+  assign o_lwsrp_max_frame     = lwsrp_tspec[15:0];
+  assign o_lwsrp_interval      = lwsrp_tspec[31:16];
+  assign o_lwsrp_latency       = lwsrp_lat;
   assign o_aaf_vid             = aaf_ctrl[27:16];
   assign o_aaf_dest_mac        = {aaf_dmhi[15:0], aaf_dmlo};
   assign o_adp_enable          = adp_ctrl[0];
