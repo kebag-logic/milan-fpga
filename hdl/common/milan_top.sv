@@ -417,6 +417,19 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_aaf_vid            (cfg_aaf_vid),
     .i_aaf_frames         (32'h0),
     .i_aaf_pairs          (32'h0),
+    // lwSRP engine (0x680 group) — not instantiated in the Zynq variant;
+    // registers exist, the engine lives in milan_datapath (fully-FPGA line)
+    .o_lwsrp_enable       (),
+    .o_lwsrp_talker_en    (),
+    .o_lwsrp_qidx         (),
+    .o_lwsrp_vid          (),
+    .o_lwsrp_dest_mac     (),
+    .o_lwsrp_max_frame    (),
+    .o_lwsrp_interval     (),
+    .o_lwsrp_latency      (),
+    .i_lwsrp_status       (32'h0),
+    .i_lwsrp_slope        (32'h0),
+    .i_lwsrp_cnt          (32'h0),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),

@@ -272,6 +272,36 @@ int main(int argc, char** argv) {
   ck("o_adp_depart_p pulsed", seen_adp_dep, 1);
   ck("ADP_CMD reads 0 (strobe)", axi_read(A_ADP_CMD), 0);
 
+  printf("-- lwSRP engine (0x680 group, FR-SRP-*) --\n");
+  ck("LWSRP_CTRL(reset q=3)", axi_read(0x680), 0x0000000C);
+  ck("LWSRP_VID(reset 2)", axi_read(0x684), 2);
+  ck("LWSRP_DMAC_LO(reset)", axi_read(0x688), 0xF000FE01u);
+  ck("LWSRP_DMAC_HI(reset)", axi_read(0x68C), 0x91E0);
+  ck("LWSRP_TSPEC(reset {1,224})", axi_read(0x690), 0x000100E0);
+  axi_write(0x680, 0x7);                 // enable + talker, queue 1
+  dut->eval();
+  ck("o_lwsrp_enable",    dut->o_lwsrp_enable, 1);
+  ck("o_lwsrp_talker_en", dut->o_lwsrp_talker_en, 1);
+  ck("o_lwsrp_qidx",      dut->o_lwsrp_qidx, 1);
+  axi_write(0x684, 42);
+  axi_write(0x690, 0x000200F0);
+  dut->eval();
+  ck("o_lwsrp_vid",       dut->o_lwsrp_vid, 42);
+  ck("o_lwsrp_max_frame", dut->o_lwsrp_max_frame, 0xF0);
+  ck("o_lwsrp_interval",  dut->o_lwsrp_interval, 2);
+  axi_write(0x688, 0x00FE0002); axi_write(0x68C, 0x91E0);
+  dut->eval();
+  ck("o_lwsrp_dest_mac", dut->o_lwsrp_dest_mac, 0x91E000FE0002ULL);
+  dut->i_lwsrp_status = 0x0000006C; dut->i_lwsrp_slope = 17024000;
+  dut->i_lwsrp_cnt = 0x00050009; dut->eval();
+  ck("LWSRP_STATUS RO", axi_read(0x694), 0x0000006C);
+  ck("LWSRP_SLOPE RO",  axi_read(0x698), 17024000);
+  ck("LWSRP_CNT RO",    axi_read(0x69C), 0x00050009);
+  axi_write(0x6A0, 500000);
+  dut->eval();
+  ck("o_lwsrp_latency", dut->o_lwsrp_latency, 500000);
+  ck("CAP.LWSRP bit", (axi_read(0x008) >> 14) & 1, 1);
+
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
   dut->eval();

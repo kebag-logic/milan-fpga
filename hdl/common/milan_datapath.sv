@@ -256,12 +256,38 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [47:0]              cfg_aaf_dmac;
   wire [11:0]              cfg_aaf_vid;
   //! Milan talker SM (docs/design/MILAN_TALKER_SM.md): ACMP probe state,
-  //! the lwSRP listener socket (CSR override until lwSRP lands), the AECP
-  //! presentation offset, and the resolved AAF gate.
+  //! the lwSRP listener socket (CSR override retained as the manual lever),
+  //! the AECP presentation offset, and the resolved AAF gate.
   wire                     cfg_acmp_lobs;
   wire                     acmp_talker_active, acmp_probe_armed;
   wire [31:0]              aecp_pres_offset;
-  wire aaf_gate = cfg_aaf_enable & (cfg_aaf_bypass | acmp_talker_active);
+  //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
+  wire        cfg_lwsrp_enable, cfg_lwsrp_talker_en;
+  wire [1:0]  cfg_lwsrp_qidx;
+  wire [11:0] cfg_lwsrp_vid;
+  wire [47:0] cfg_lwsrp_dmac;
+  wire [15:0] cfg_lwsrp_max_frame, cfg_lwsrp_interval;
+  wire [31:0] cfg_lwsrp_latency;
+  wire        lwsrp_stream_gate, lwsrp_slope_en, lwsrp_res_active;
+  wire [31:0] lwsrp_idle_slope;
+  wire        lwsrp_listener_ready, lwsrp_listener_reg;
+  wire [1:0]  lwsrp_listener_decl;
+  wire        lwsrp_domain_ok, lwsrp_over_limit, lwsrp_talker_declared;
+  wire        lwsrp_tfail_valid;
+  wire [7:0]  lwsrp_tfail_code, lwsrp_rx_drops;
+  wire [15:0] lwsrp_tx_count, lwsrp_rx_pdus;
+  wire [TDATA_WIDTH-1:0]   lwsrp_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] lwsrp_tx_tkeep;
+  wire                     lwsrp_tx_tvalid, lwsrp_tx_tlast, lwsrp_tx_tready;
+  //! listener_observed: the lwSRP Listener registrar is the real source once
+  //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
+  wire listener_observed_w = cfg_acmp_lobs |
+                             (cfg_lwsrp_enable & lwsrp_listener_ready);
+  //! AAF admission: probe-gated as before; with lwSRP enabled a reservation
+  //! is additionally required (FR-SRP-03: no reservation -> no stream tx).
+  //! The bypass bit stays the legacy stream-whenever-enabled escape hatch.
+  wire aaf_gate = cfg_aaf_enable & (cfg_aaf_bypass |
+                  (acmp_talker_active & (~cfg_lwsrp_enable | lwsrp_stream_gate)));
   wire [63:0]              ptp_now_w;
   wire [31:0]              aaf_frames_w, aaf_pairs_w;
   wire [TDATA_WIDTH-1:0]   aaf_tx_tdata;
@@ -421,6 +447,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_aaf_vid            (cfg_aaf_vid),
     .i_aaf_frames         (aaf_frames_w),
     .i_aaf_pairs          (aaf_pairs_w),
+    // lwSRP engine (0x680 group)
+    .o_lwsrp_enable       (cfg_lwsrp_enable),
+    .o_lwsrp_talker_en    (cfg_lwsrp_talker_en),
+    .o_lwsrp_qidx         (cfg_lwsrp_qidx),
+    .o_lwsrp_vid          (cfg_lwsrp_vid),
+    .o_lwsrp_dest_mac     (cfg_lwsrp_dmac),
+    .o_lwsrp_max_frame    (cfg_lwsrp_max_frame),
+    .o_lwsrp_interval     (cfg_lwsrp_interval),
+    .o_lwsrp_latency      (cfg_lwsrp_latency),
+    .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 5'd0,
+                            lwsrp_tfail_valid, lwsrp_slope_en,
+                            lwsrp_stream_gate, lwsrp_over_limit,
+                            lwsrp_res_active, lwsrp_domain_ok,
+                            lwsrp_talker_declared, lwsrp_listener_ready,
+                            lwsrp_listener_reg, lwsrp_listener_decl}),
+    .i_lwsrp_slope        (lwsrp_idle_slope),
+    .i_lwsrp_cnt          ({lwsrp_rx_pdus, lwsrp_tx_count}),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -439,6 +482,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  802.1Q classify + 802.1Qav CBS shaper (CSR-configured)
   // ==========================================================================
+  //! lwSRP slope MUX (LWSRP_FPGA_ARCHITECTURE.md §5): an ACTIVE reservation
+  //! drives the class-A queue's idleSlope from the granted TSpec and shapes
+  //! the queue; the 0x400 CSR values stay intact and win back the moment the
+  //! grant releases. No CSR write-back.
+  logic [32*NUM_QUEUES-1:0] cbs_idle_slope_mux;
+  logic [NUM_QUEUES-1:0]    cbs_enable_mux;
+  always_comb begin
+    cbs_idle_slope_mux = cfg_cbs_idle_slope;
+    cbs_enable_mux     = cfg_cbs_enable;
+    if (lwsrp_slope_en) begin
+      cbs_idle_slope_mux[32*cfg_lwsrp_qidx +: 32] = lwsrp_idle_slope;
+      cbs_enable_mux[cfg_lwsrp_qidx]              = 1'b1;
+    end
+  end
+
   traffic_controller_802_1q #(
     .TDATA_WIDTH(TDATA_WIDTH),
     .BIG_ENDIAN(0),
@@ -453,10 +511,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cls_pcp_tc_map_i  (cfg_cls_pcp_tc_map),
     .cls_prio_regen_i  (cfg_cls_prio_regen),
     .cls_tc_queue_map_i(cfg_cls_tc_queue_map),
-    .cbs_idle_slope_i  (cfg_cbs_idle_slope),
+    .cbs_idle_slope_i  (cbs_idle_slope_mux),
     .cbs_hi_credit_i   (cfg_cbs_hi_credit),
     .cbs_lo_credit_i   (cfg_cbs_lo_credit),
-    .cbs_shaped_i      (cfg_cbs_enable),
+    .cbs_shaped_i      (cbs_enable_mux),
     .s_axis(tx_axis_to_shaper),
     .m_axis(tx_axis_shaper_to_ts)
   );
@@ -674,7 +732,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .gptp_domain_i     (cfg_adp_gptp_domain),
     .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
     .talker_active_i (acmp_talker_active),
-    .listener_observed_i (cfg_acmp_lobs),
+    .listener_observed_i (listener_observed_w),
     .pres_offset_o (aecp_pres_offset),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
@@ -699,7 +757,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .enable_i (cfg_adp_enable),
     .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
     .tick_1s_i (adp_tick_1s),
-    .listener_observed_i (cfg_acmp_lobs),
+    .listener_observed_i (listener_observed_w),
     .talker_active_o (acmp_talker_active),
     .probe_armed_o (acmp_probe_armed),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
@@ -714,6 +772,45 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_axis_tvalid(acmp_tx_tvalid), .m_axis_tlast (acmp_tx_tlast),
     .m_axis_tready(acmp_tx_tready),
     .cmd_count_o (acmp_cmd_count), .resp_count_o (acmp_resp_count)
+  );
+
+  // ==========================================================================
+  //  lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) — same monitor-tap +
+  //  low-rate-TX recipe. Declares Domain/TalkerAdvertise/VID, registers the
+  //  Listener attribute for our stream, and resolves the reservation into
+  //  the AAF admission gate + the CBS class-A slope (mux above).
+  // ==========================================================================
+  KL_lwsrp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) lwsrp (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_lwsrp_enable),
+    .talker_en_i (cfg_lwsrp_talker_en),
+    .is_1g_i (cfg_mac_is_1g),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .unique_id_i (16'd0),          // stream_id = {station_mac, 0} everywhere
+    .dest_mac_i (cfg_lwsrp_dmac),
+    .vid_i (cfg_lwsrp_vid),
+    .max_frame_i (cfg_lwsrp_max_frame),
+    .interval_frames_i (cfg_lwsrp_interval),
+    .latency_i (cfg_lwsrp_latency),
+    .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tdata_i  (rx_axis_to_dma.tdata),
+    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
+    .rx_tlast_i  (rx_axis_to_dma.tlast),
+    .m_axis_tdata (lwsrp_tx_tdata), .m_axis_tkeep (lwsrp_tx_tkeep),
+    .m_axis_tvalid(lwsrp_tx_tvalid), .m_axis_tlast (lwsrp_tx_tlast),
+    .m_axis_tready(lwsrp_tx_tready),
+    .stream_gate_o (lwsrp_stream_gate),
+    .slope_en_o (lwsrp_slope_en), .idle_slope_o (lwsrp_idle_slope),
+    .res_active_o (lwsrp_res_active),
+    .listener_ready_o (lwsrp_listener_ready),
+    .talker_declared_o (lwsrp_talker_declared),
+    .listener_reg_o (lwsrp_listener_reg), .listener_decl_o (lwsrp_listener_decl),
+    .domain_ok_o (lwsrp_domain_ok), .over_limit_o (lwsrp_over_limit),
+    .tfail_valid_o (lwsrp_tfail_valid), .tfail_code_o (lwsrp_tfail_code),
+    .tx_count_o (lwsrp_tx_count),
+    .rx_pdus_o (lwsrp_rx_pdus), .rx_drops_o (lwsrp_rx_drops)
   );
 
   //! AECP response (s_data) + ACMP response (s_adp) -> one control stream.
@@ -742,6 +839,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_tvalid(ctl_tx_tvalid), .m_tlast (ctl_tx_tlast), .m_tready(ctl_tx_tready)
   );
 
+  //! ...then merge the lwSRP MRPDUs (4th low-rate source, established pattern).
+  wire [TDATA_WIDTH-1:0]   ctlf_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlf_tx_tkeep;
+  wire                     ctlf_tx_tvalid, ctlf_tx_tlast, ctlf_tx_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) srp_ctl_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (ctl_tx_tdata),  .s_data_tkeep (ctl_tx_tkeep),
+    .s_data_tvalid(ctl_tx_tvalid), .s_data_tlast (ctl_tx_tlast),
+    .s_data_tready(ctl_tx_tready),
+    .s_adp_tdata (lwsrp_tx_tdata),  .s_adp_tkeep (lwsrp_tx_tkeep),
+    .s_adp_tvalid(lwsrp_tx_tvalid), .s_adp_tlast (lwsrp_tx_tlast),
+    .s_adp_tready(lwsrp_tx_tready),
+    .m_tdata (ctlf_tx_tdata), .m_tkeep (ctlf_tx_tkeep),
+    .m_tvalid(ctlf_tx_tvalid), .m_tlast (ctlf_tx_tlast), .m_tready(ctlf_tx_tready)
+  );
+
   //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
   //! AAF injected AFTER the shaper (MVP: bypasses CBS for continuous emission,
   //! like ADP; class-A shaping = the is_1g follow-up). Merge shaped-data + AAF.
@@ -768,11 +881,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_data_tvalid(dpaaf_tvalid),
     .s_data_tlast (dpaaf_tlast),
     .s_data_tready(dpaaf_tready),
-    .s_adp_tdata (ctl_tx_tdata),
-    .s_adp_tkeep (ctl_tx_tkeep),
-    .s_adp_tvalid(ctl_tx_tvalid),
-    .s_adp_tlast (ctl_tx_tlast),
-    .s_adp_tready(ctl_tx_tready),
+    .s_adp_tdata (ctlf_tx_tdata),
+    .s_adp_tkeep (ctlf_tx_tkeep),
+    .s_adp_tvalid(ctlf_tx_tvalid),
+    .s_adp_tlast (ctlf_tx_tlast),
+    .s_adp_tready(ctlf_tx_tready),
     .m_tdata (tx_axis_to_mac.tdata),
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),
