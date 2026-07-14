@@ -76,6 +76,11 @@ package aecp_pkg;
   localparam [14:0] CMD_GET_AUDIO_MAP                      = 15'd43;
   localparam [14:0] CMD_ADD_AUDIO_MAPPINGS                 = 15'd44;
   localparam [14:0] CMD_REMOVE_AUDIO_MAPPINGS              = 15'd45;
+  //! 1722.1-2021 late additions (codes verified vs la_avdecc protocolDefines:
+  //! GET_DYNAMIC_INFO took 0x004B, so MAX_TRANSIT_TIME sits at 0x4C/0x4D)
+  localparam [14:0] CMD_GET_DYNAMIC_INFO                   = 15'h004B;
+  localparam [14:0] CMD_SET_MAX_TRANSIT_TIME               = 15'h004C;
+  localparam [14:0] CMD_GET_MAX_TRANSIT_TIME               = 15'h004D;
 
   // ------------------------------------------------------------------ //
   // AECP status codes (5 bits, IEEE 1722.1-2021 Table 7.126)             //
@@ -142,6 +147,14 @@ package aecp_pkg;
   // reference header aecp-vendor-unique-milan-v12.h confirms 0x0000)      //
   // ------------------------------------------------------------------ //
   localparam [14:0] VU_GET_MILAN_INFO                   = 15'h0000;
+  localparam [14:0] VU_SET_SYSTEM_UNIQUE_ID             = 15'h0001;
+  localparam [14:0] VU_GET_SYSTEM_UNIQUE_ID             = 15'h0002;
+  localparam [14:0] VU_SET_MEDIA_CLOCK_REF_INFO         = 15'h0003;
+  localparam [14:0] VU_GET_MEDIA_CLOCK_REF_INFO         = 15'h0004;
+
+  //! Milan default media clock reference priority (Milan 1.3 §7.6.1.1
+  //! category table): 192 = "Stageboxes, audio interfaces"
+  localparam [7:0] MCR_DEFAULT_PRIO_C = 8'd192;
 
   // ------------------------------------------------------------------ //
   // Sizing constants                                                     //

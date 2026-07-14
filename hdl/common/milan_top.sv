@@ -674,6 +674,9 @@ module milan_top import ethernet_packet_pkg::*; #(
     .talker_active_i (acmp_talker_active),
     .listener_observed_i (cfg_acmp_lobs),
     .pres_offset_o (aecp_pres_offset),
+    .identify_o (),   // LED hook unused on the Zynq variant
+    .link_up_i (link_up),
+    .frames_tx_i (32'h0),   // no fabric AAF framer on the Zynq variant
     // RX monitor tap (inputs only)
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),

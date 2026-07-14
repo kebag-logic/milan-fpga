@@ -4,11 +4,16 @@
 """
 gen_aem_store.py - generate the HW AEM descriptor store from the entity model.
 
-Single source of truth for the Milan v1.2 HW entity (the "one config, one AVB
-interface, one audio unit, one stream output" scope). It is a TRIMMED derivative
-of avdecc/milan-v12-entity.json (the full software model): descriptors NOT in
-scope are dropped and the ENTITY counts/caps are adjusted to keep the tree
-closed (no dangling STREAM_PORT/CLUSTER/CONTROL references).
+Single source of truth for the Milan v1.2 HW entity. Since the FR-ENUM-02
+close-out this is the FULL mandatory descriptor set of
+avdecc/milan-v12-entity.json: ENTITY, CONFIGURATION, AUDIO_UNIT,
+STREAM_INPUT x2 (AAF + CRF), STREAM_OUTPUT, AVB_INTERFACE, CLOCK_SOURCE x3,
+CLOCK_DOMAIN, CONTROL (IDENTIFY), LOCALE, STRINGS, STREAM_PORT_IN/OUT,
+AUDIO_CLUSTER x16, AUDIO_MAP x2.
+
+Documented deviation from the JSON: AUDIO_UNIT external in/out ports stay 0
+(the JSON says 8 but defines no EXTERNAL_PORT descriptors — advertising them
+would dangle and fail controller enumeration; the tree stays closed).
 
 Byte layouts mirror IEEE 1722.1-2021 clause 7.2 exactly as encoded by the
 reference implementation (pipewire module-avb aecp-aem-descriptors.h).
@@ -29,8 +34,11 @@ ROOT = os.path.dirname(HERE)
 
 # ---------------------------------------------------------------- model ----
 # Descriptor type codes (IEEE 1722.1-2021 Table 7.1)
-ENTITY, CONFIGURATION, AUDIO_UNIT, STREAM_OUTPUT, AVB_INTERFACE = (
-    0x0000, 0x0001, 0x0002, 0x0006, 0x0009)
+ENTITY, CONFIGURATION, AUDIO_UNIT, STREAM_INPUT, STREAM_OUTPUT = (
+    0x0000, 0x0001, 0x0002, 0x0005, 0x0006)
+AVB_INTERFACE, CLOCK_SOURCE, LOCALE, STRINGS = 0x0009, 0x000A, 0x000C, 0x000D
+STREAM_PORT_INPUT, STREAM_PORT_OUTPUT = 0x000E, 0x000F
+AUDIO_CLUSTER, AUDIO_MAP, CONTROL, CLOCK_DOMAIN = 0x0014, 0x0017, 0x001A, 0x0024
 
 NO_STRING = 0xFFFF
 
@@ -38,6 +46,11 @@ NO_STRING = 0xFFFF
 RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 # AAF PCM 32-bit 8ch stream formats (from milan-v12-entity.json, byte-exact)
 FORMATS = [0x0205022002006000, 0x020702200200C000, 0x0209022002018000]
+# CRF AUDIO_SAMPLE media-clock formats (milan-v12-entity.json STREAM_INPUT[1])
+CRF_FORMATS = [0x041060010000BB80, 0x0410600100017700, 0x041060010002EE00]
+# IDENTIFY control (pipewire aecp-aem-controls.h, byte-exact)
+CTRL_TYPE_IDENTIFY = 0x90E0F00000000001
+CTRL_LINEAR_UINT8 = 0x0001
 
 def cstr(s, n=64):
     b = s.encode()[: n]
@@ -63,7 +76,7 @@ def d_entity():
     b += be32(0)                        # available_index    (overlay, live)
     b += be64(0)                        # association_id     (overlay)
     b += cstr("Milan FPGA Talker")      # entity_name        (SET_NAME idx 0)
-    b += be16(NO_STRING) + be16(NO_STRING)  # vendor/model name string refs
+    b += be16(2) + be16(0)              # vendor->STRINGS[2], model->STRINGS[0]
     b += cstr("0.1.0")                  # firmware_version
     b += cstr("")                       # group_name         (SET_NAME idx 1)
     b += cstr("AX7101-0001")            # serial_number
@@ -72,10 +85,14 @@ def d_entity():
     return b
 
 def d_configuration():
-    counts = [(AUDIO_UNIT, 1), (STREAM_OUTPUT, 1), (AVB_INTERFACE, 1)]
+    # top-level counts per milan-v12-entity.json (sub-tree types — STREAM_PORT,
+    # AUDIO_CLUSTER, AUDIO_MAP, STRINGS — are reached via their parents)
+    counts = [(AUDIO_UNIT, 1), (STREAM_INPUT, 2), (STREAM_OUTPUT, 1),
+              (AVB_INTERFACE, 1), (CLOCK_DOMAIN, 1), (CLOCK_SOURCE, 3),
+              (CONTROL, 1), (LOCALE, 1)]
     b = be16(CONFIGURATION) + be16(0)
     b += cstr("Default")                # object_name (SET_NAME)
-    b += be16(NO_STRING)
+    b += be16(1)                        # localized_description -> STRINGS[1]
     b += be16(len(counts))              # descriptor_counts_count
     b += be16(74)                       # descriptor_counts_offset (fixed)
     assert len(b) == 74
@@ -88,7 +105,11 @@ def d_audio_unit():
     b += cstr("Audio Unit")             # object_name (SET_NAME)
     b += be16(NO_STRING)
     b += be16(0)                        # clock_domain_index
-    b += be16(0) * 32                   # all 16 number_of/base pairs = 0
+    b += be16(1) + be16(0)              # stream input ports: 1 @ base 0
+    b += be16(1) + be16(0)              # stream output ports: 1 @ base 0
+    b += be16(0) * 28                   # ext/int ports, controls, DSP: none
+                                        # (JSON says 8 ext in/out — deviation,
+                                        # see header: no EXTERNAL_PORT descs)
     b += be32(RATES[0])                 # current_sampling_rate (SET_SAMPLING_RATE)
     b += be16(144)                      # sampling_rates_offset (fixed)
     b += be16(len(RATES))
@@ -97,20 +118,20 @@ def d_audio_unit():
         b += be32(r)
     return b
 
-def d_stream_output():
-    b = be16(STREAM_OUTPUT) + be16(0)
-    b += cstr("Stream Output 0")        # object_name (SET_NAME)
+def d_stream(dtype, index, name, flags, formats, buffer_len=0):
+    b = be16(dtype) + be16(index)
+    b += cstr(name)                     # object_name (SET_NAME)
     b += be16(NO_STRING)
     b += be16(0)                        # clock_domain_index
-    b += be16(0x0002)                   # stream_flags: CLASS_A
-    b += be64(FORMATS[0])               # current_format (SET_STREAM_FORMAT)
+    b += be16(flags)                    # stream_flags
+    b += be64(formats[0])               # current_format (SET_STREAM_FORMAT)
     b += be16(132)                      # formats_offset (fixed)
-    b += be16(len(FORMATS))
+    b += be16(len(formats))
     b += (be64(0) + be16(0)) * 4        # backup talkers 0..2 + backedup
     b += be16(0)                        # avb_interface_index
-    b += be32(0)                        # buffer_length
+    b += be32(buffer_len)               # buffer_length
     assert len(b) == 132
-    for f in FORMATS:
+    for f in formats:
         b += be64(f)
     return b
 
@@ -129,13 +150,129 @@ def d_avb_interface():
     assert len(b) == 98
     return b
 
+def d_clock_source(index, name, cs_type, loc_type, loc_index):
+    b = be16(CLOCK_SOURCE) + be16(index)
+    b += cstr(name)                     # object_name
+    b += be16(NO_STRING)
+    b += be16(0x0002)                   # clock_source_flags (STREAM_ID)
+    b += be16(cs_type)                  # INTERNAL=0 / INPUT_STREAM=2
+    b += be64(0)                        # clock_source_identifier
+    b += be16(loc_type)                 # location: descriptor holding the source
+    b += be16(loc_index)
+    assert len(b) == 86
+    return b
+
+def d_clock_domain():
+    sources = [0, 1, 2]
+    b = be16(CLOCK_DOMAIN) + be16(0)
+    b += cstr("Clock Reference Format") # object_name
+    b += be16(NO_STRING)
+    b += be16(0)                        # clock_source_index (SET_CLOCK_SOURCE)
+    b += be16(76)                       # clock_sources_offset (fixed)
+    b += be16(len(sources))
+    assert len(b) == 76
+    for s in sources:
+        b += be16(s)
+    return b
+
+def d_control_identify():
+    b = be16(CONTROL) + be16(0)
+    b += cstr("Identify")               # object_name
+    b += be16(NO_STRING)
+    b += be32(500)                      # block_latency
+    b += be32(500)                      # control_latency
+    b += be16(0)                        # control_domain
+    b += be16(CTRL_LINEAR_UINT8)        # control_value_type
+    b += be64(CTRL_TYPE_IDENTIFY)       # control_type EUI-64
+    b += be32(3)                        # reset_time (advisory; Milan: stays
+                                        # in identify while current != 0)
+    b += be16(104)                      # values_offset (fixed)
+    b += be16(1)                        # number_of_values
+    b += be16(NO_STRING) + be16(0) + be16(0)   # signal type/index/output
+    assert len(b) == 104
+    b += bytes([0, 255, 255, 0, 0])     # min/max/step/default/current (SET_CONTROL)
+    b += be16(0)                        # unit (unitless)
+    b += be16(NO_STRING)                # value string ref
+    return b
+
+def d_locale():
+    b = be16(LOCALE) + be16(0)
+    b += cstr("en-EN")                  # locale_identifier
+    b += be16(1)                        # number_of_strings (STRINGS descriptors)
+    b += be16(0)                        # base_strings
+    assert len(b) == 72
+    return b
+
+def d_strings():
+    strs = ["Milan FPGA Talker", "48/96/192 kHz", "Kebag Logic",
+            "", "", "", ""]
+    b = be16(STRINGS) + be16(0)
+    for s in strs:
+        b += cstr(s)
+    assert len(b) == 452
+    return b
+
+def d_stream_port(dtype, flags, n_clusters, base_cluster, n_maps, base_map):
+    b = be16(dtype) + be16(0)
+    b += be16(0)                        # clock_domain_index
+    b += be16(flags)                    # port_flags
+    b += be16(0) + be16(0)              # controls
+    b += be16(n_clusters) + be16(base_cluster)
+    b += be16(n_maps) + be16(base_map)
+    assert len(b) == 20
+    return b
+
+def d_audio_cluster(index, name, signal_type):
+    b = be16(AUDIO_CLUSTER) + be16(index)
+    b += cstr(name)                     # object_name
+    b += be16(NO_STRING)
+    b += be16(signal_type)              # 0xFFFF (input) / AUDIO_UNIT (output)
+    b += be16(0) + be16(0)              # signal_index, signal_output
+    b += be32(500) + be32(500)          # path/block latency
+    b += be16(1)                        # channel_count
+    b += bytes([0x40, 0x00])            # format MBLA, aes3_data_type_ref
+    b += be16(0)                        # aes3_data_type
+    assert len(b) == 90
+    return b
+
+def d_audio_map(index):
+    n = 8
+    b = be16(AUDIO_MAP) + be16(index)
+    b += be16(8)                        # mappings_offset (fixed, from desc start)
+    b += be16(n)
+    assert len(b) == 8
+    for ch in range(n):                 # stream 0 ch -> cluster ch, channel 0
+        b += be16(0) + be16(ch) + be16(ch) + be16(0)
+    return b
+
 # ------------------------------------------------------------- assembly ----
 DESCS = [
     (ENTITY,        0, d_entity()),
     (CONFIGURATION, 0, d_configuration()),
     (AUDIO_UNIT,    0, d_audio_unit()),
-    (STREAM_OUTPUT, 0, d_stream_output()),
+    (STREAM_INPUT,  0, d_stream(STREAM_INPUT, 0, "Stream 1", 0x0003,
+                                FORMATS, 2126000)),
+    (STREAM_INPUT,  1, d_stream(STREAM_INPUT, 1, "CRF", 0x0003,
+                                CRF_FORMATS, 2126000)),
+    (STREAM_OUTPUT, 0, d_stream(STREAM_OUTPUT, 0, "Stream Output 0", 0x0002,
+                                FORMATS)),
     (AVB_INTERFACE, 0, d_avb_interface()),
+    (CLOCK_SOURCE,  0, d_clock_source(0, "Internal", 0x0000, CLOCK_SOURCE, 0)),
+    (CLOCK_SOURCE,  1, d_clock_source(1, "Stream Clock", 0x0002, STREAM_INPUT, 0)),
+    (CLOCK_SOURCE,  2, d_clock_source(2, "CRF Clock", 0x0002, STREAM_INPUT, 1)),
+    (CLOCK_DOMAIN,  0, d_clock_domain()),
+    (CONTROL,       0, d_control_identify()),
+    (LOCALE,        0, d_locale()),
+    (STRINGS,       0, d_strings()),
+    (STREAM_PORT_INPUT,  0, d_stream_port(STREAM_PORT_INPUT,  0x0001, 8, 0, 1, 0)),
+    (STREAM_PORT_OUTPUT, 0, d_stream_port(STREAM_PORT_OUTPUT, 0x0000, 8, 8, 1, 1)),
+] + [
+    (AUDIO_CLUSTER, k, d_audio_cluster(k, "Input", NO_STRING)) for k in range(8)
+] + [
+    (AUDIO_CLUSTER, k, d_audio_cluster(k, "Output", AUDIO_UNIT)) for k in range(8, 16)
+] + [
+    (AUDIO_MAP, 0, d_audio_map(0)),
+    (AUDIO_MAP, 1, d_audio_map(1)),
 ]
 
 rom = b""
@@ -145,8 +282,8 @@ for t, i, img in DESCS:
     rom += img
 ROM_SIZE = len(rom)
 
-def base_of(t):
-    return next(b for (tt, _, b, _) in directory if tt == t)
+def base_of(t, i=0):
+    return next(b for (tt, ii, b, _) in directory if tt == t and ii == i)
 
 # Dynamic read overlays: (rom_addr, nbytes, source). Sources are resolved by
 # KL_aecp_aem_dyn_mux from the live CSR/state wires.
@@ -173,26 +310,40 @@ SRC_IDS = {name: n for n, name in enumerate(
 
 # SET_* write-back targets (rom_addr of the field inside its descriptor)
 WB = {
-    "NAME_ENTITY_0":  E + 48,                       # entity_name
-    "NAME_ENTITY_1":  E + 180,                      # group_name
-    "NAME_CONFIG":    base_of(CONFIGURATION) + 4,
-    "NAME_AUDIO":     base_of(AUDIO_UNIT) + 4,
-    "NAME_STREAM":    base_of(STREAM_OUTPUT) + 4,
-    "NAME_AVBIF":     base_of(AVB_INTERFACE) + 4,
-    "SAMPLING_RATE":  base_of(AUDIO_UNIT) + 136,
-    "STREAM_FORMAT":  base_of(STREAM_OUTPUT) + 74,
+    "SAMPLING_RATE":   base_of(AUDIO_UNIT) + 136,
+    "STREAM_FORMAT":   base_of(STREAM_OUTPUT) + 74,   # STREAM_OUTPUT[0] current
+    "STREAM_IN0_FMT":  base_of(STREAM_INPUT, 0) + 74,
+    "STREAM_IN1_FMT":  base_of(STREAM_INPUT, 1) + 74,
+    "CLOCK_SRC_IDX":   base_of(CLOCK_DOMAIN) + 70,    # clock_source_index
+    "CONTROL_CUR":     base_of(CONTROL) + 108,        # IDENTIFY current_value
+    "AUDIO_MAP_0":     base_of(AUDIO_MAP, 0),         # GET_AUDIO_MAP source
+    "AUDIO_MAP_1":     base_of(AUDIO_MAP, 1),
 }
+
+# SET/GET_NAME directory: (type, index, name_index) -> object_name rom addr.
+# ENTITY carries two names (entity_name / group_name); every other named
+# descriptor has object_name at base+4, name_index 0.
+NAMED = [(ENTITY, 0, 0, E + 48), (ENTITY, 0, 1, E + 180)] + [
+    (t, i, 0, b + 4)
+    for (t, i, b, _) in directory
+    if t in (CONFIGURATION, AUDIO_UNIT, STREAM_INPUT, STREAM_OUTPUT,
+             AVB_INTERFACE, CLOCK_SOURCE, CLOCK_DOMAIN, CONTROL, AUDIO_CLUSTER)
+]
 
 # ------------------------------------------------------------- emitters ----
 def emit_svh(path):
     lines = []
     a = lines.append
     a("// GENERATED by avdecc/gen_aem_store.py - DO NOT EDIT.")
-    a("// Trimmed Milan v1.2 HW entity: ENTITY, CONFIGURATION, AVB_INTERFACE,")
-    a("// AUDIO_UNIT, STREAM_OUTPUT (one each). See avdecc/milan-v12-entity.json.")
+    a("// Milan v1.2 HW entity, FULL mandatory descriptor set (FR-ENUM-02).")
+    a("// See avdecc/milan-v12-entity.json.")
     a("")
     a(f"localparam int unsigned AEM_ROM_BYTES_C = {ROM_SIZE};")
     a(f"localparam int unsigned AEM_DESC_N_C    = {len(directory)};")
+    a("// Scratch tail (zero-init RAM past the descriptor image): Milan MVU")
+    a("// media_clock_domain_name (64 B, Milan 1.3 §5.4.4.4)")
+    a("localparam int unsigned AEM_STORE_BYTES_C = AEM_ROM_BYTES_C + 64;")
+    a(f"localparam [15:0] WB_MCR_DOMNAME_C = 16'd{ROM_SIZE};")
     a("")
     a("// Descriptor directory: {type[15:0], index[15:0], base[15:0], len[15:0]}")
     a(f"localparam [63:0] AEM_DIR_C [0:{len(directory)-1}] = '{{")
@@ -233,11 +384,25 @@ def emit_svh(path):
     for k, v in WB.items():
         a(f"localparam [15:0] WB_{k}_C = 16'd{v};")
     a("")
+    a("// SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}")
+    a("function automatic [16:0] aem_name_lookup(input [15:0] t,")
+    a("                                          input [15:0] idx,")
+    a("                                          input [15:0] nidx);")
+    a("  begin")
+    a("    aem_name_lookup = 17'd0;")
+    for t, i, nidx, addr in NAMED:
+        a(f"    if (t == 16'h{t:04X} && idx == 16'd{i} && nidx == 16'd{nidx})")
+        a(f"      aem_name_lookup = {{1'b1, 16'd{addr}}};")
+    a("  end")
+    a("endfunction")
+    a("")
     a("// Value validation tables")
     a(f"localparam [31:0] AEM_RATES_C [0:{len(RATES)-1}] = "
       "'{" + ", ".join(f"32'h{r:08X}" for r in RATES) + "};")
     a(f"localparam [63:0] AEM_FMTS_C  [0:{len(FORMATS)-1}] = "
       "'{" + ", ".join(f"64'h{f:016X}" for f in FORMATS) + "};")
+    a(f"localparam [63:0] AEM_CRF_FMTS_C [0:{len(CRF_FORMATS)-1}] = "
+      "'{" + ", ".join(f"64'h{f:016X}" for f in CRF_FORMATS) + "};")
     a("")
     with open(path, "w") as f:
         f.write("\n".join(lines))
@@ -267,8 +432,12 @@ def emit_json(path):
             "overlays": [
                 {"addr": a_, "bytes": n, "source": s} for (a_, n, s) in OVERLAYS],
             "writeback": WB,
+            "named": [
+                {"type": t, "index": i, "name_index": n, "addr": a_}
+                for (t, i, n, a_) in NAMED],
             "rates": RATES,
             "formats": FORMATS,
+            "crf_formats": CRF_FORMATS,
         }, f, indent=1)
 
 if __name__ == "__main__":
