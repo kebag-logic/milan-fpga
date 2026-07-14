@@ -180,6 +180,13 @@ module milan_csr #(
   input  wire [31:0]             i_lwsrp_slope,         //! granted idleSlope bps (RO 0x698)
   input  wire [31:0]             i_lwsrp_cnt,           //! {rx_pdus[31:16], tx_pdus[15:0]} (RO 0x69C)
 
+  // ---- ACMP listener SM (0x6A4 group, Milan v1.2 §5.5 listener) ----
+  input  wire [31:0]             i_acmpl_state,         //! packed SM status (RO 0x6A4)
+  input  wire [31:0]             i_acmpl_talker_lo,     //! bound talker EID (RO 0x6A8)
+  input  wire [31:0]             i_acmpl_talker_hi,     //! (RO 0x6AC)
+  input  wire [31:0]             i_acmpl_cnt,           //! {probes[31:16], cmds[15:0]} (RO 0x6B0)
+  input  wire [31:0]             i_acmpl_tuid,          //! {fail_code[23:16], tuid[15:0]} (RO 0x6B4)
+
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -248,6 +255,9 @@ module milan_csr #(
     A_LWSRP_DMHI  = 'h68C, A_LWSRP_TSPEC = 'h690,
     A_LWSRP_STATUS= 'h694, A_LWSRP_SLOPE = 'h698, A_LWSRP_CNT = 'h69C,
     A_LWSRP_LAT   = 'h6A0,
+    // ---- 0x6A4 ACMP listener SM (RO) ----
+    A_ACMPL_STATE = 'h6A4, A_ACMPL_TKLO = 'h6A8, A_ACMPL_TKHI = 'h6AC,
+    A_ACMPL_CNT   = 'h6B0, A_ACMPL_TUID = 'h6B4,
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -639,6 +649,11 @@ module milan_csr #(
       A_LWSRP_SLOPE: rd_mux = i_lwsrp_slope;
       A_LWSRP_CNT:  rd_mux = i_lwsrp_cnt;
       A_LWSRP_LAT:  rd_mux = lwsrp_lat;
+      A_ACMPL_STATE: rd_mux = i_acmpl_state;
+      A_ACMPL_TKLO: rd_mux = i_acmpl_talker_lo;
+      A_ACMPL_TKHI: rd_mux = i_acmpl_talker_hi;
+      A_ACMPL_CNT:  rd_mux = i_acmpl_cnt;
+      A_ACMPL_TUID: rd_mux = i_acmpl_tuid;
       A_TCAM_CTRL:  rd_mux = tcam_ctrl;
       A_TCAM_KLO:   rd_mux = tcam_klo;
       A_TCAM_KHI:   rd_mux = tcam_khi;

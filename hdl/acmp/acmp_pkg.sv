@@ -34,18 +34,50 @@ package acmp_pkg;
   localparam [3:0] ACMP_DISCONNECT_TX_RESPONSE_C    = 4'd3;
   localparam [3:0] ACMP_GET_TX_STATE_COMMAND_C      = 4'd4;
   localparam [3:0] ACMP_GET_TX_STATE_RESPONSE_C     = 4'd5;
+  localparam [3:0] ACMP_CONNECT_RX_COMMAND_C        = 4'd6;   //! Milan BIND_RX
+  localparam [3:0] ACMP_CONNECT_RX_RESPONSE_C       = 4'd7;
+  localparam [3:0] ACMP_DISCONNECT_RX_COMMAND_C     = 4'd8;   //! Milan UNBIND_RX
+  localparam [3:0] ACMP_DISCONNECT_RX_RESPONSE_C    = 4'd9;
+  localparam [3:0] ACMP_GET_RX_STATE_COMMAND_C      = 4'd10;
+  localparam [3:0] ACMP_GET_RX_STATE_RESPONSE_C     = 4'd11;
   localparam [3:0] ACMP_GET_TX_CONNECTION_COMMAND_C = 4'd12;
   localparam [3:0] ACMP_GET_TX_CONNECTION_RESPONSE_C= 4'd13;
 
   // status (IEEE 1722.1-2021 Table 8-2)
   localparam [4:0] ACMP_STATUS_SUCCESS_C            = 5'd0;
+  localparam [4:0] ACMP_STATUS_LISTENER_UNKNOWN_ID_C= 5'd1;
   localparam [4:0] ACMP_STATUS_TALKER_UNKNOWN_ID_C  = 5'd2;
+  localparam [4:0] ACMP_STATUS_LSTN_TALKER_TIMEOUT_C= 5'd7;
+  localparam [4:0] ACMP_STATUS_CTLR_NOT_AUTHORIZED_C= 5'd16;
   localparam [4:0] ACMP_STATUS_NOT_SUPPORTED_C      = 5'd31;
 
   // flags cleared in a talker state response (pipewire reference behaviour)
   localparam [15:0] ACMP_FLAG_FAST_CONNECT_C        = 16'h0002;
   localparam [15:0] ACMP_FLAG_STREAMING_WAIT_C      = 16'h0008;
   localparam [15:0] ACMP_FLAG_SRP_REG_FAILED_C      = 16'h0040;
+
+  // ------------------------------------------------------------------ //
+  // Milan v1.2 listener SM (pipewire acmp-milan-v12.h/.c contract)       //
+  // ------------------------------------------------------------------ //
+  typedef enum logic [2:0] {
+    LSM_UNBOUND_S        = 3'd0,
+    LSM_PRB_W_AVAIL_S    = 3'd1,   //! bound, talker not ADP-visible
+    LSM_PRB_W_DELAY_S    = 3'd2,   //! random 0..~1 s backoff before probing
+    LSM_PRB_W_RESP_S     = 3'd3,   //! probe #1 outstanding (200 ms)
+    LSM_PRB_W_RESP2_S    = 3'd4,   //! probe #2 outstanding (200 ms)
+    LSM_PRB_W_RETRY_S    = 3'd5,   //! probing failed, 4 s back-off
+    LSM_SETTLED_NO_RSV_S = 3'd6,   //! probed OK, SRP reservation not up
+    LSM_SETTLED_RSV_OK_S = 3'd7    //! connected + reservation active
+  } acmp_lsm_t;
+
+  //! listener timer durations in ms (reference acmp-milan-v12.c:22-25;
+  //! DELAY is randomized — RTL draws 0..1023 ms from an LFSR, the point
+  //! is desynchronization, both conform)
+  localparam [13:0] LSM_TMR_NO_RESP_MS_C = 14'd200;
+  localparam [13:0] LSM_TMR_RETRY_MS_C   = 14'd4000;
+  localparam [13:0] LSM_TMR_NO_TK_MS_C   = 14'd10000;
+  //! ADP availability aging: valid_time horizon (Milan valid_time 62 s)
+  localparam [6:0]  LSM_ADP_AGE_S_C      = 7'd63;
 
 endpackage
 

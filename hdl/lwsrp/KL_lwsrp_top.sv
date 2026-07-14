@@ -39,6 +39,15 @@ module KL_lwsrp_top #(
     input  wire         talker_en_i,       //! LWSRP_CTRL[1]
     input  wire         is_1g_i,           //! port rate (MAC_CTRL is_1g)
 
+    // ---- ACMP listener SM hooks (listener endpoint role) ------------------
+    input  wire         lstn_bound_i,      //! binding valid (track the TA)
+    input  wire         lstn_declare_i,    //! declare the Listener attribute
+    input  wire [63:0]  lstn_sid_i,        //! bound stream_id
+    output wire         ta_registered_o,   //! TalkerAdvertise registered (lsid)
+    output wire         ta_failed_o,       //! TalkerFailed registered (lsid)
+    output wire [7:0]   ta_fail_code_o,
+    output wire         lstn_declared_o,   //! Listener attr on the wire
+
     // ---- identity + stream table row 0 (CSR) ------------------------------
     input  wire [47:0]  station_mac_i,     //! [47:40] = first wire byte
     input  wire [15:0]  unique_id_i,
@@ -95,6 +104,9 @@ module KL_lwsrp_top #(
     .enable_i (enable_i), .talker_en_i (talker_en_i),
     .join_tick_i (join_tick_w), .leaveall_tick_i (leaveall_tick_w),
     .rx_leaveall_i (rx_leaveall_w),
+    .lstn_declare_i (lstn_declare_i),
+    .lstn_ready_i (ta_registered_o),   // Ready while the TA is registered
+    .lstn_sid_i (lstn_sid_i),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
     .dest_mac_i (dest_mac_i), .vid_i (vid_i),
     .max_frame_i (max_frame_i), .interval_frames_i (interval_frames_i),
@@ -103,6 +115,7 @@ module KL_lwsrp_top #(
     .m_axis_tvalid(m_axis_tvalid), .m_axis_tlast (m_axis_tlast),
     .m_axis_tready(m_axis_tready),
     .talker_declared_o (talker_declared_o),
+    .lstn_declared_o (lstn_declared_o),
     .tx_count_o (tx_count_o)
   );
 
@@ -113,6 +126,9 @@ module KL_lwsrp_top #(
     .rx_tkeep_i (rx_tkeep_i),   .rx_tlast_i (rx_tlast_i),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
     .vid_i (vid_i),
+    .lsid_i (lstn_sid_i), .lsid_en_i (lstn_bound_i),
+    .ta_registered_o (ta_registered_o),
+    .ta_failed_o (ta_failed_o), .ta_fail_code_o (ta_fail_code_o),
     .listener_ready_o (listener_ready_o),
     .listener_reg_o (listener_reg_o), .listener_decl_o (listener_decl_o),
     .domain_ok_o (domain_ok_o),

@@ -1,7 +1,7 @@
 # Verilator verification harnesses
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
-Milan TSN NIC — **24 suites** (one per subdirectory; the directory listing is
+Milan TSN NIC — **25 suites** (one per subdirectory; the directory listing is
 the authoritative count). They need **only** `verilator >= 5.0`, a C++17
 compiler and the `third_party/verilog-axis` submodule
 (`git submodule update --init third_party/verilog-axis`) — no Xilinx tools —
@@ -32,6 +32,7 @@ CI-ready (note: no CI is wired up in this repo yet — see
 | [`lwsrp_tx/`](lwsrp_tx) | `KL_lwsrp_tx.sv` | lwSRP applicant TX (802.1Q MSRP/MVRP, Milan v1.2 §5.6): byte-exact MSRP Domain/TalkerAdvertise + MVRP VID MRPDUs decoded like a bridge (endmark walk), NEW/JOININ/LV lifecycle, LeaveAll turn, back-pressure (363 checks). | `cd lwsrp_tx && make` |
 | [`lwsrp_rx/`](lwsrp_rx) | `KL_lwsrp_rx.sv` | lwSRP receive chain (tap → packet FIFO → streaming walker → registrar) vs hand-built bridge MRPDUs: the **+k multi-value vector trap**, four-packed Ready/AskingFailed gating, leave-timer expiry, LeaveAll storms, domain boundary, TalkerFailed capture, truncation/garbage recovery (75 checks). Needs `third_party/verilog-axis`. | `cd lwsrp_rx && make` |
 | [`lwsrp/`](lwsrp) | `KL_lwsrp_top.sv` | Whole lwSRP engine end-to-end at a 10 kHz scaled clock: declare cadence over ≥2 JoinTimes, reservation activation with **slope-before-gate** ordering, **gate-before-slope** teardown, 75 % TSpec refusal, LeaveAll turn + prompt re-declare (36 checks). | `cd lwsrp && make` |
+| [`acmp_lstn/`](acmp_lstn) | `KL_acmp_listener.sv` | Milan v1.2 ACMP **listener** SM at a 10 kHz scaled clock (pipewire acmp-milan-v12.c contract): BIND_RX → response + PROBE_TX ladder (200 ms ×2 → 4 s retry), probe-response settle, SRP registered/failed transitions, ADP availability watch + age-out, rebind-same vs rebind-different, UNBIND teardown, GET_RX_STATE per-state payloads (89 checks). | `cd acmp_lstn && make` |
 
 ```sh
 # run everything (glob — never hand-list suites, lists go stale)

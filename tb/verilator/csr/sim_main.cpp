@@ -302,6 +302,16 @@ int main(int argc, char** argv) {
   ck("o_lwsrp_latency", dut->o_lwsrp_latency, 500000);
   ck("CAP.LWSRP bit", (axi_read(0x008) >> 14) & 1, 1);
 
+  printf("-- ACMP listener SM RO group (0x6A4) --\n");
+  dut->i_acmpl_state = 0x002F0177; dut->i_acmpl_talker_lo = 0xFE000001;
+  dut->i_acmpl_talker_hi = 0x02000000; dut->i_acmpl_cnt = 0x00030002;
+  dut->i_acmpl_tuid = 0x00080000; dut->eval();
+  ck("ACMPL_STATE RO", axi_read(0x6A4), 0x002F0177);
+  ck("ACMPL_TKLO RO",  axi_read(0x6A8), 0xFE000001);
+  ck("ACMPL_TKHI RO",  axi_read(0x6AC), 0x02000000);
+  ck("ACMPL_CNT RO",   axi_read(0x6B0), 0x00030002);
+  ck("ACMPL_TUID RO",  axi_read(0x6B4), 0x00080000);
+
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
   dut->eval();

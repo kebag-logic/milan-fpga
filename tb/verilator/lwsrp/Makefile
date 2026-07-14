@@ -26,7 +26,7 @@ SRCS = $(RTL_DIR)/lwsrp/lwsrp_pkg.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_tx.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_ingress.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_walker.sv \
-       $(RTL_DIR)/lwsrp/KL_lwsrp_registrar.sv \
+       $(RTL_DIR)/lwsrp/KL_lwsrp_registrar.sv $(RTL_DIR)/lwsrp/KL_lwsrp_ta_registrar.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_rx.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_bw_gate.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_top.sv \

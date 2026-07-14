@@ -30,6 +30,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x500` | PTP hardware clock |
 | `0x600` | ADP advertiser (IEEE 1722.1 entity model) |
 | `0x680` | lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) |
+| `0x6A4` | ACMP listener SM (Milan v1.2 §5.5, RO) |
 | `0x700` | RX destination-MAC TCAM filter |
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
@@ -259,6 +260,24 @@ MSRP frames go to `01:80:C2:00:00:0E`/`0x22EA`, MVRP to
 `01:80:C2:00:00:21`/`0x88F5` (link-local, never forwarded by bridges) through
 the low-rate control TX merge. `CAP[14]` advertises the group. Timers: Join
 200 ms, Leave 600 ms, LeaveAll 10 s from `MILAN_CLK_FREQ_HZ`.
+
+### 0x6A4  -  ACMP listener SM  `(Milan v1.2 §5.5 listener, FR-CONN-01)` — RO
+
+The `KL_acmp_listener` state machine for the STREAM_INPUT[0] sink
+(BIND_RX/UNBIND_RX/GET_RX_STATE + the talker-probe ladder; pipewire
+acmp-milan-v12.c contract). All registers read-only; the binding is
+controller-driven over ACMP.
+
+| Offset | Register | Access | Fields |
+|--------|----------|--------|--------|
+| `0x6A4` | `ACMPL_STATE` | RO | `[2:0]` SM state (0 UNBOUND, 1 PRB_W_AVAIL, 2 PRB_W_DELAY, 3 PRB_W_RESP, 4 PRB_W_RESP2, 5 PRB_W_RETRY, 6 SETTLED_NO_RSV, 7 SETTLED_RSV_OK), `[3]` bound, `[4]` stream active, `[5]` Listener attr declared, `[6]` TalkerAdvertise registered, `[7]` TalkerFailed registered, `[12:8]` last ACMP status (7 = listener-talker timeout), `[14:13]` probing status (0 disabled / 1 passive / 2 active / 3 completed), `[15]` bound talker ADP-visible, `[27:16]` stream VLAN from the probe response |
+| `0x6A8` | `ACMPL_TALKER_LO` | RO | bound talker entity id `[31:0]` |
+| `0x6AC` | `ACMPL_TALKER_HI` | RO | bound talker entity id `[63:32]` |
+| `0x6B0` | `ACMPL_CNT` | RO | `[31:16]` PROBE_TX commands sent, `[15:0]` listener commands accepted |
+| `0x6B4` | `ACMPL_TUID` | RO | `[23:16]` MSRP TalkerFailed code (bound stream), `[15:0]` bound talker unique id |
+
+Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
+10 s, random pre-probe delay 0..1023 ms (LFSR).
 
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 
