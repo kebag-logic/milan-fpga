@@ -22,30 +22,39 @@ Regenerate with `python3 atdecc_architecture.gen.py atdecc_architecture.drawio`
 ## Scope (Milan v1.2 hardware entity)
 
 One entity, **one configuration**, exactly **five descriptors**:
-ENTITY → CONFIGURATION → { AVB_INTERFACE×1, AUDIO_UNIT×1, STREAM_OUTPUT×1 }.
+ENTITY → CONFIGURATION → the FULL Milan mandatory set (FR-ENUM-02, 34
+descriptors): AUDIO_UNIT, STREAM_INPUT×2 (AAF + CRF), STREAM_OUTPUT,
+AVB_INTERFACE, CLOCK_SOURCE×3, CLOCK_DOMAIN, CONTROL (IDENTIFY), LOCALE,
+STRINGS, STREAM_PORT_IN/OUT, AUDIO_CLUSTER×16, AUDIO_MAP×2.
 
 Answered on-wire, in hardware, with no CPU involvement:
 
 | Command | Behaviour |
 |---------|-----------|
-| `READ_DESCRIPTOR` | all five descriptors, live fields overlaid (entity_id, MAC, caps, available_index, current_config, clock_identity) |
+| `READ_DESCRIPTOR` | all 34 descriptors, live fields overlaid (entity_id, MAC, caps, available_index, current_config, clock_identity) |
 | `LOCK_ENTITY` | **implemented** — grant / owner-unlock / 60 s auto-expiry; other controllers get `ENTITY_LOCKED` (owner id in payload) |
 | `ACQUIRE_ENTITY` | **NOT_SUPPORTED** (Milan) — never mutates state |
 | `GET/SET_CONFIGURATION` | single config; out-of-range → `BAD_ARGUMENTS` |
-| `GET/SET_NAME` | writes back to the AEM store (volatile mirror) |
+| `GET/SET_NAME` | generated name directory (all named descriptors); writes back to the AEM store (volatile mirror) |
 | `GET/SET_SAMPLING_RATE` | validated against 48/96/192 kHz |
 | `GET/SET_STREAM_FORMAT` | validated against the STREAM_OUTPUT format set |
+| `GET/SET_CLOCK_SOURCE` | CLOCK_DOMAIN[0], sources 0..2 (Internal / AAF / CRF), store write-back |
+| `GET/SET_CONTROL` | CONTROL[0] IDENTIFY (LINEAR_UINT8 step 255 → 0/255 only); level exported on `identify_o` → board LED |
+| `GET_AUDIO_MAP` | static default maps (AUDIO_MAP[0]/[1]) via STREAM_PORT_IN/OUT; `ADD/REMOVE_AUDIO_MAPPINGS` → `NOT_SUPPORTED` |
 | `GET_STREAM_INFO` | Milan fixed 56-byte payload (flags 0xF6000000) |
 | `GET_AVB_INFO` | read-only status |
 | `GET_AS_PATH` | Milan-mandatory; count=1, path[0] = MAC-derived EUI64 clock_identity (matches the AVB_INTERFACE descriptor overlay) |
-| `GET_COUNTERS` | Milan-mandatory; ALWAYS full 136-B payload (success AND error — the Hive field-report class). STREAM_OUTPUT valid=0x1F, AVB_INTERFACE valid=0x23, values 0 until HW counters are wired |
-| `ENTITY_AVAILABLE`, `REGISTER/DEREGISTER_UNSOLICITED` | acknowledged |
+| `GET_COUNTERS` | Milan-mandatory; ALWAYS full 136-B payload (success AND error — the Hive field-report class). STREAM_OUTPUT valid=0x1F (**live** STREAM_START/STOP from the talker SM, FRAMES_TX from the AAF framer), AVB_INTERFACE valid=0x23 (**live** LINK_UP/DOWN, GPTP_GM_CHANGED) |
+| `SET/GET_MAX_TRANSIT_TIME` | 0x4C/0x4D (la_avdecc-verified codes; 0x4B = GET_DYNAMIC_INFO); u64 ns onto the same presentation offset as SET_STREAM_INFO(ACC_LAT) |
+| `ENTITY_AVAILABLE`, `REGISTER/DEREGISTER_UNSOLICITED` | acknowledged; 4-slot unsolicited push engine |
 | MVU `GET_MILAN_INFO` | protocol_id 00-1B-C5-0A-C1-00, version 1, cert 0 (not certified) |
-| anything else | `NOT_IMPLEMENTED` with the command echoed |
+| MVU `SET/GET_SYSTEM_UNIQUE_ID` | Milan-1.2 wire form (reserved16 + 32-bit id), volatile |
+| MVU `SET/GET_MEDIA_CLOCK_REFERENCE_INFO` | 74-B info block; flags bit0 = user priority (default 192, audio-interface class), bit1 = domain name (64 B store scratch) |
+| anything else | `NOT_IMPLEMENTED` with the command echoed (incl. `GET_DYNAMIC_INFO` 0x4B — deferred SHOULD) |
 
 ADP `ENTITY_DISCOVER` for this entity pulses the advertiser's `rcv_discover_i`
 (discovery response). Deferred: NV persistence / factory-reset of SET_* writes,
-unsolicited-notification push, HW-backed counter values, audio maps.
+GET_DYNAMIC_INFO, dynamic audio-map edits.
 
 ---
 

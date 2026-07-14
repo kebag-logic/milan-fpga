@@ -200,8 +200,12 @@ class MilanNIC(LiteXModule):
         self.comb += [ev.tx.trigger.eq(rx1_irq if rx1_irq is not None else 0),
                       ev.rx.trigger.eq(rx_irq if rx_irq is not None else 0),
                       ev.ts.trigger.eq(0)]
+        # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
+        # by the SoC so a controller's "identify" visibly blinks the device.
+        self.identify = Signal()
         add_milan_datapath(self, platform, axil, ev.csr.trigger,
-                           extra_ports=dma_mac_ports, milan_cd=milan_cd,
+                           extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
+                           milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz)
 
 
@@ -3626,6 +3630,12 @@ class MilanSoC(SoCCore):
                                            if (with_dma and rx_queues >= 2) else None),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq))
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
+            # Milan IDENTIFY -> board LED (controllers blink it to locate the
+            # device). Skipped quietly on platforms without user_led pads.
+            try:
+                self.comb += platform.request("user_led", 0).eq(self.milan.identify)
+            except Exception:
+                print("[milan] no user_led pad - IDENTIFY LED not wired")
 
     def _add_flashboot_constants(self, manifest_name):
         """Emit the MILAN_FLASHBOOT_* BIOS constants for the chosen flash manifest.

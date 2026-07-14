@@ -170,6 +170,7 @@ int main(int argc, char** argv) {
     dut->listener_sinks_i = 8; dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0x0011223344556677ULL; dut->gptp_domain_i = 0;
+    dut->link_up_i = 1; dut->frames_tx_i = 0;
     // station MAC [47:40]=first wire byte
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
@@ -716,6 +717,457 @@ int main(int argc, char** argv) {
         ck("[13h] none to deregistered A", got_a ? 1 : 0, 0);
         dut->listener_observed_i = 0;
         (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+    }
+
+    // ---------------------------------------------------------------- //
+    // 14. Full-directory sweep (FR-ENUM-02): READ_DESCRIPTOR every entry //
+    //     and compare byte-exact vs the generated golden image. ENTITY   //
+    //     and AVB_INTERFACE carry live overlays — their static prefix    //
+    //     checks live in [1]/[2]; here they only get the type/index gate.//
+    // ---------------------------------------------------------------- //
+    printf("\n[14] READ_DESCRIPTOR sweep over all %zu directory entries\n",
+           sizeof(AEM_DIR)/sizeof(AEM_DIR[0]));
+    {
+        // restore the volatile mirror fields earlier SET_* tests touched so
+        // the golden compare sees the power-on image
+        std::vector<uint8_t> rs; put_be16(rs, 0x0002); put_be16(rs, 0);
+        rs.insert(rs.end(), {0x00,0x00,0xBB,0x80});    // 48 kHz
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x13FF, rs));
+        (void)collect_resp();
+
+        uint16_t seq = 0x1400;
+        for (const auto& e : AEM_DIR) {
+            std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
+            put_be16(pl, e.type); put_be16(pl, e.index);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, seq++, pl));
+            auto r = collect_resp();
+            char nm[64];
+            snprintf(nm, sizeof nm, "[14] desc 0x%04X[%u] SUCCESS", e.type, e.index);
+            ck(nm, r_status(r), 0);
+            snprintf(nm, sizeof nm, "[14] desc 0x%04X[%u] CDL", e.type, e.index);
+            ck(nm, r_cdl(r), 16 + e.len);
+            bool overlaid = (e.type == 0x0000) || (e.type == 0x0009);
+            if (!overlaid) {
+                std::vector<uint8_t> exp(AEM_ROM + e.base, AEM_ROM + e.base + e.len);
+                snprintf(nm, sizeof nm, "[14] desc 0x%04X[%u] byte-exact", e.type, e.index);
+                ckbytes(nm, r, 42, exp);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- //
+    // 15. New-descriptor semantics spot checks                          //
+    // ---------------------------------------------------------------- //
+    printf("\n[15] new descriptor spot checks\n");
+    {
+        // (a) GET_NAME on STREAM_INPUT[1] reads "CRF"
+        std::vector<uint8_t> pl; put_be16(pl, 0x0005); put_be16(pl, 1);
+        put_be16(pl, 0); put_be16(pl, 0);              // name_index, cfg
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, 0x1501, pl));
+        auto r = collect_resp();
+        ck("[15a] GET_NAME(STREAM_INPUT,1) SUCCESS", r_status(r), 0);
+        ckbytes("[15a] name = 'CRF'", r, 46, {'C','R','F',0});
+
+        // (b) SET_NAME on STREAM_INPUT[0] + READ_DESCRIPTOR readback
+        std::vector<uint8_t> sn; put_be16(sn, 0x0005); put_be16(sn, 0);
+        put_be16(sn, 0); put_be16(sn, 0);
+        const char* nn = "Renamed In0";
+        for (int i = 0; i < 64; i++) sn.push_back(i < (int)strlen(nn) ? nn[i] : 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x1502, sn));
+        r = collect_resp();
+        ck("[15b] SET_NAME(STREAM_INPUT,0) SUCCESS", r_status(r), 0);
+        std::vector<uint8_t> rd; put_be16(rd,0); put_be16(rd,0);
+        put_be16(rd, 0x0005); put_be16(rd, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1503, rd));
+        r = collect_resp();
+        ckbytes("[15b] readback name", r, 46, {'R','e','n','a','m','e','d',' ','I','n','0'});
+
+        // (c) GET_NAME bad name_index -> BAD_ARGUMENTS (descriptor exists)
+        std::vector<uint8_t> bn; put_be16(bn, 0x0005); put_be16(bn, 1);
+        put_be16(bn, 1); put_be16(bn, 0);              // name_index 1 invalid
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, 0x1504, bn));
+        r = collect_resp();
+        ck("[15c] bad name_index BAD_ARGUMENTS", r_status(r), 7);
+
+        // (d) CLOCK_DOMAIN[0] static fields: clock_source_index=0, 3 sources
+        std::vector<uint8_t> cd; put_be16(cd,0); put_be16(cd,0);
+        put_be16(cd, 0x0024); put_be16(cd, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1505, cd));
+        r = collect_resp();
+        // descriptor offset 70 = clock_source_index -> wire 42+70
+        ckbytes("[15d] clock_source_index=0", r, 112, {0x00,0x00});
+        ckbytes("[15d] sources_offset/count/list", r, 114,
+                {0x00,0x4C, 0x00,0x03, 0x00,0x00, 0x00,0x01, 0x00,0x02});
+
+        // (e) CONTROL[0] IDENTIFY: type EUI-64 + LINEAR_UINT8 + value format
+        std::vector<uint8_t> ct; put_be16(ct,0); put_be16(ct,0);
+        put_be16(ct, 0x001A); put_be16(ct, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1506, ct));
+        r = collect_resp();
+        // control_value_type at desc offset 80, control_type at 82
+        ckbytes("[15e] LINEAR_UINT8 + IDENTIFY type", r, 122,
+                {0x00,0x01, 0x90,0xE0,0xF0,0x00,0x00,0x00,0x00,0x01});
+        // value_format at desc offset 104: min/max/step/default/current
+        ckbytes("[15e] value format 0/255/255/0/0", r, 146,
+                {0x00,0xFF,0xFF,0x00,0x00});
+    }
+
+    // ---------------------------------------------------------------- //
+    // 16. SET/GET_CLOCK_SOURCE (FR-CLK-03)                              //
+    // ---------------------------------------------------------------- //
+    printf("\n[16] SET/GET_CLOCK_SOURCE\n");
+    {
+        auto cs_pl = [](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
+        };
+        // (a) GET on CLOCK_DOMAIN[0]: power-on source 0
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1601,
+                         cs_pl(0x0024, 0)));
+        auto r = collect_resp();
+        ck("[16a] GET SUCCESS", r_status(r), 0);
+        ck("[16a] CDL 20", r_cdl(r), 20);
+        ckbytes("[16a] echo type/index", r, 38, {0x00,0x24,0x00,0x00});
+        ckbytes("[16a] source 0 + reserved", r, 42, {0x00,0x00,0x00,0x00});
+
+        // (b) SET to source 1 (AAF stream clock) + GET readback + descriptor
+        auto set_pl = cs_pl(0x0024, 0); put_be16(set_pl, 1); put_be16(set_pl, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1602, set_pl));
+        r = collect_resp();
+        ck("[16b] SET SUCCESS", r_status(r), 0);
+        ckbytes("[16b] response reads back 1", r, 42, {0x00,0x01});
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1603,
+                         cs_pl(0x0024, 0)));
+        r = collect_resp();
+        ckbytes("[16b] GET readback 1", r, 42, {0x00,0x01});
+        std::vector<uint8_t> rd; put_be16(rd,0); put_be16(rd,0);
+        put_be16(rd, 0x0024); put_be16(rd, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1604, rd));
+        r = collect_resp();
+        ckbytes("[16b] descriptor clock_source_index 1", r, 112, {0x00,0x01});
+
+        // (c) SET out of range -> BAD_ARGUMENTS (value stays 1)
+        auto bad_pl = cs_pl(0x0024, 0); put_be16(bad_pl, 3); put_be16(bad_pl, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1605, bad_pl));
+        r = collect_resp();
+        ck("[16c] SET(3) BAD_ARGUMENTS", r_status(r), 7);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1606,
+                         cs_pl(0x0024, 0)));
+        r = collect_resp();
+        ckbytes("[16c] value unchanged", r, 42, {0x00,0x01});
+
+        // (d) wrong descriptor -> NO_SUCH_DESCRIPTOR; restore source 0
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1607,
+                         cs_pl(0x0002, 0)));
+        r = collect_resp();
+        ck("[16d] GET(AUDIO_UNIT) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        auto rs_pl = cs_pl(0x0024, 0); put_be16(rs_pl, 0); put_be16(rs_pl, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1608, rs_pl));
+        (void)collect_resp();
+    }
+
+    // ---------------------------------------------------------------- //
+    // 17. SET/GET_CONTROL — IDENTIFY (FR-MGT-01)                        //
+    // ---------------------------------------------------------------- //
+    printf("\n[17] SET/GET_CONTROL identify\n");
+    {
+        auto ctl_pl = [](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
+        };
+        // (a) GET: power-on value 0, identify_o low
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1701,
+                         ctl_pl(0x001A, 0)));
+        auto r = collect_resp();
+        ck("[17a] GET SUCCESS", r_status(r), 0);
+        ck("[17a] CDL 17", r_cdl(r), 17);
+        ckbytes("[17a] value 0", r, 42, {0x00});
+        ck("[17a] identify_o low", dut->identify_o, 0);
+
+        // (b) SET 255 -> identify on; readback via GET
+        auto on_pl = ctl_pl(0x001A, 0); on_pl.push_back(0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1702, on_pl));
+        r = collect_resp();
+        ck("[17b] SET(255) SUCCESS", r_status(r), 0);
+        ckbytes("[17b] response value 255", r, 42, {0xFF});
+        ck("[17b] identify_o high", dut->identify_o, 1);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1703,
+                         ctl_pl(0x001A, 0)));
+        r = collect_resp();
+        ckbytes("[17b] GET readback 255", r, 42, {0xFF});
+
+        // (c) SET 7 violates step 255 -> BAD_ARGUMENTS, state unchanged
+        auto odd_pl = ctl_pl(0x001A, 0); odd_pl.push_back(0x07);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1704, odd_pl));
+        r = collect_resp();
+        ck("[17c] SET(7) BAD_ARGUMENTS", r_status(r), 7);
+        ck("[17c] identify_o still high", dut->identify_o, 1);
+
+        // (d) SET 0 -> identify off; bad index -> NO_SUCH_DESCRIPTOR
+        auto off_pl = ctl_pl(0x001A, 0); off_pl.push_back(0x00);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1705, off_pl));
+        r = collect_resp();
+        ck("[17d] SET(0) SUCCESS", r_status(r), 0);
+        ck("[17d] identify_o low", dut->identify_o, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1706,
+                         ctl_pl(0x001A, 1)));
+        r = collect_resp();
+        ck("[17d] GET(idx 1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+    }
+
+    // ---------------------------------------------------------------- //
+    // 18. GET_AUDIO_MAP + ADD/REMOVE (static maps)                      //
+    // ---------------------------------------------------------------- //
+    printf("\n[18] GET_AUDIO_MAP\n");
+    {
+        auto map_pl = [](uint16_t t, uint16_t i, uint16_t m) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i);
+            put_be16(p, m); put_be16(p, 0); return p;
+        };
+        // (a) STREAM_PORT_INPUT[0] map 0: 8 identity mappings
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1801,
+                         map_pl(0x000E, 0, 0)));
+        auto r = collect_resp();
+        ck("[18a] GET SUCCESS", r_status(r), 0);
+        ck("[18a] CDL 88", r_cdl(r), 88);
+        ckbytes("[18a] echo type/index/map", r, 38, {0x00,0x0E,0x00,0x00,0x00,0x00});
+        ckbytes("[18a] n_maps=1 n_mappings=8", r, 44, {0x00,0x01,0x00,0x08,0x00,0x00});
+        ckbytes("[18a] mapping[0]", r, 50, {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00});
+        ckbytes("[18a] mapping[5]", r, 90, {0x00,0x00,0x00,0x05,0x00,0x05,0x00,0x00});
+
+        // (b) STREAM_PORT_OUTPUT[0] serves AUDIO_MAP[1]
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1802,
+                         map_pl(0x000F, 0, 0)));
+        r = collect_resp();
+        ck("[18b] output port SUCCESS", r_status(r), 0);
+        ckbytes("[18b] mapping[7]", r, 106, {0x00,0x00,0x00,0x07,0x00,0x07,0x00,0x00});
+
+        // (c) map_index 1 doesn't exist; wrong descriptor type
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1803,
+                         map_pl(0x000E, 0, 1)));
+        r = collect_resp();
+        ck("[18c] map 1 NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1804,
+                         map_pl(0x0006, 0, 0)));
+        r = collect_resp();
+        ck("[18c] STREAM_OUTPUT NO_SUCH_DESCRIPTOR", r_status(r), 2);
+
+        // (d) ADD/REMOVE_AUDIO_MAPPINGS -> NOT_SUPPORTED (static maps)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 44, 0x1805,
+                         map_pl(0x000E, 0, 0)));
+        r = collect_resp();
+        ck("[18d] ADD NOT_SUPPORTED", r_status(r), 11);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 45, 0x1806,
+                         map_pl(0x000E, 0, 0)));
+        r = collect_resp();
+        ck("[18d] REMOVE NOT_SUPPORTED", r_status(r), 11);
+    }
+
+    // ---------------------------------------------------------------- //
+    // 19. lock gating of the new SETs (SET_CLOCK_SOURCE not exempt)     //
+    // ---------------------------------------------------------------- //
+    printf("\n[19] lock vs new SETs\n");
+    {
+        std::vector<uint8_t> lk = {0,0,0,0};   // flags=0 -> LOCK
+        put_be64(lk, 0);                        // locked_id field
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1901, lk));
+        ck("[19] LOCK by ctlr1", r_status(collect_resp()), 0);
+
+        std::vector<uint8_t> sp; put_be16(sp, 0x0024); put_be16(sp, 0);
+        put_be16(sp, 2); put_be16(sp, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 22, 0x1902, sp));
+        ck("[19] SET_CLOCK_SOURCE by ctlr2 ENTITY_LOCKED",
+           r_status(collect_resp()), 3);
+        std::vector<uint8_t> cp; put_be16(cp, 0x001A); put_be16(cp, 0);
+        cp.push_back(0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 24, 0x1903, cp));
+        ck("[19] SET_CONTROL by ctlr2 ENTITY_LOCKED", r_status(collect_resp()), 3);
+        ck("[19] identify_o unaffected", dut->identify_o, 0);
+
+        std::vector<uint8_t> ul = {0,0,0,1};   // flags UNLOCK
+        put_be64(ul, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1904, ul));
+        ck("[19] UNLOCK", r_status(collect_resp()), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    // 20. Milan MVU: SET/GET_SYSTEM_UNIQUE_ID + MEDIA_CLOCK_REF_INFO    //
+    //     (FR-MVU-02; la_avdecc Milan-1.2 payload sizes 6/2/6 + 74/2/74)//
+    // ---------------------------------------------------------------- //
+    printf("\n[20] MVU system-unique-id / media-clock-reference-info\n");
+    {
+        const uint8_t PROTO[6] = {0x00,0x1B,0xC5,0x0A,0xC1,0x00};
+        auto vu = [&](uint16_t cmd, const std::vector<uint8_t>& body) {
+            std::vector<uint8_t> p(PROTO, PROTO+6);
+            put_be16(p, cmd);
+            for (auto b : body) p.push_back(b);
+            return p;
+        };
+        // (a) GET_SYSTEM_UNIQUE_ID: power-on 0
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2001,
+                         vu(0x0002, {0,0})));
+        auto r = collect_resp();
+        ck("[20a] GET_SYS_UID SUCCESS", r_status(r), 0);
+        ck("[20a] msg_type VU_RESPONSE", r_msgt(r), 7);
+        ck("[20a] CDL 24", r_cdl(r), 24);
+        ckbytes("[20a] protocol_id echoed", r, 36,
+                {0x00,0x1B,0xC5,0x0A,0xC1,0x00,0x00,0x02});
+        ckbytes("[20a] uid 0", r, 46, {0x00,0x00,0x00,0x00});
+
+        // (b) SET_SYSTEM_UNIQUE_ID 0xCAFE0042 + readback
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2002,
+                         vu(0x0001, {0,0, 0xCA,0xFE,0x00,0x42})));
+        r = collect_resp();
+        ck("[20b] SET_SYS_UID SUCCESS", r_status(r), 0);
+        ck("[20b] CDL 24", r_cdl(r), 24);
+        ckbytes("[20b] response mirrors id", r, 46, {0xCA,0xFE,0x00,0x42});
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2003,
+                         vu(0x0002, {0,0})));
+        r = collect_resp();
+        ckbytes("[20b] GET readback", r, 46, {0xCA,0xFE,0x00,0x42});
+
+        // (c) GET_MEDIA_CLOCK_REFERENCE_INFO: defaults (prio 192, empty name)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2004,
+                         vu(0x0004, {0,0})));
+        r = collect_resp();
+        ck("[20c] GET_MCR SUCCESS", r_status(r), 0);
+        ck("[20c] CDL 92", r_cdl(r), 92);
+        // payload: cdi(2)@44 flags(1)@46 rsvd@47 def@48 user@49 rsvd32@50 name@54
+        ckbytes("[20c] flags both valid", r, 46, {0x03,0x00});
+        ckbytes("[20c] default/user prio 192/192", r, 48, {192,192});
+        ckbytes("[20c] name empty", r, 54, {0,0,0,0});
+
+        // (d) SET user prio only (flags bit0), name untouched
+        std::vector<uint8_t> mcr = {0,0, 0x01, 0, 0, 100, 0,0,0,0};
+        for (int i = 0; i < 64; i++) mcr.push_back('X');   // ignored (bit1 clear)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2005,
+                         vu(0x0003, mcr)));
+        r = collect_resp();
+        ck("[20d] SET_MCR(prio) SUCCESS", r_status(r), 0);
+        ckbytes("[20d] flags echoed", r, 46, {0x01});
+        ckbytes("[20d] user prio 100", r, 49, {100});
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2006,
+                         vu(0x0004, {0,0})));
+        r = collect_resp();
+        ckbytes("[20d] GET user prio 100, name still empty", r, 49, {100});
+        ckbytes("[20d] name not clobbered", r, 54, {0,0,0,0});
+
+        // (e) SET domain name only (flags bit1), prio untouched
+        std::vector<uint8_t> mcr2 = {0,0, 0x02, 0, 0, 7, 0,0,0,0};
+        const char* dn = "Studio A";
+        for (int i = 0; i < 64; i++) mcr2.push_back(i < (int)strlen(dn) ? dn[i] : 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2007,
+                         vu(0x0003, mcr2)));
+        r = collect_resp();
+        ck("[20e] SET_MCR(name) SUCCESS", r_status(r), 0);
+        ckbytes("[20e] name in response", r, 54, {'S','t','u','d','i','o',' ','A',0});
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2008,
+                         vu(0x0004, {0,0})));
+        r = collect_resp();
+        ckbytes("[20e] GET name persisted", r, 54, {'S','t','u','d','i','o',' ','A',0});
+        ckbytes("[20e] prio still 100", r, 49, {100});
+
+        // (f) bad clock_domain_index -> BAD_ARGUMENTS; unknown MVU cmd ->
+        //     NOT_IMPLEMENTED echo (1.3 BIND_STREAM code)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2009,
+                         vu(0x0004, {0,1})));
+        r = collect_resp();
+        ck("[20f] MCR cdi=1 BAD_ARGUMENTS", r_status(r), 7);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x200A,
+                         vu(0x0005, {0,0})));
+        r = collect_resp();
+        ck("[20f] unknown MVU NOT_IMPLEMENTED", r_status(r), 1);
+    }
+
+    // ---------------------------------------------------------------- //
+    // 21. real GET_COUNTERS values + SET/GET_MAX_TRANSIT_TIME           //
+    //     (controllers B/C/D are still unsol-registered: drain pushes)  //
+    // ---------------------------------------------------------------- //
+    printf("\n[21] live counters + max transit time\n");
+    {
+        auto gc_pl = [](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
+        };
+        auto be32_at = [](const std::vector<uint8_t>& b, int off) {
+            uint32_t v = 0;
+            for (int i = 0; i < 4; i++) v = (v << 8) | b[off + i];
+            return (long)v;
+        };
+        // (a) AVB_INTERFACE: link came up once at reset; GM id provisioning
+        //     counted one change
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2101,
+                         gc_pl(0x0009, 0)));
+        auto r = collect_resp();
+        ck("[21a] GET_COUNTERS(AVB_IF) SUCCESS", r_status(r), 0);
+        ck("[21a] CDL 148", r_cdl(r), 148);
+        ckbytes("[21a] valid 0x23", r, 42, {0,0,0,0x23});
+        ck("[21a] LINK_UP 1", be32_at(r, 46), 1);
+        ck("[21a] LINK_DOWN 0", be32_at(r, 50), 0);
+        ck("[21a] GM_CHANGED 1", be32_at(r, 66), 1);
+
+        // (b) link bounce + GM change reflect in the counters
+        dut->link_up_i = 0; for (int i = 0; i < 4; i++) tick();
+        dut->link_up_i = 1; for (int i = 0; i < 4; i++) tick();
+        dut->gptp_gm_id_i = 0x3CC0C6FFFE0002CBULL; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2102,
+                         gc_pl(0x0009, 0)));
+        r = collect_resp();
+        ck("[21b] LINK_UP 2", be32_at(r, 46), 2);
+        ck("[21b] LINK_DOWN 1", be32_at(r, 50), 1);
+        ck("[21b] GM_CHANGED 2", be32_at(r, 66), 2);
+
+        // (c) STREAM_OUTPUT: talker activation cycle + live FRAMES_TX
+        dut->frames_tx_i = 0x00012345;
+        dut->talker_active_i = 1;
+        (void)collect_resp(); (void)collect_resp(); (void)collect_resp(); // B/C/D pushes
+        dut->talker_active_i = 0;
+        (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2103,
+                         gc_pl(0x0006, 0)));
+        r = collect_resp();
+        ck("[21c] GET_COUNTERS(STREAM_OUT) SUCCESS", r_status(r), 0);
+        ckbytes("[21c] valid 0x1F", r, 42, {0,0,0,0x1F});
+        // test 12 already cycled talker_active once -> this is the 2nd cycle
+        ck("[21c] STREAM_START 2", be32_at(r, 46), 2);
+        ck("[21c] STREAM_STOP 2", be32_at(r, 50), 2);
+        ck("[21c] FRAMES_TX live", be32_at(r, 62), 0x00012345);
+
+        // (d) GET_MAX_TRANSIT_TIME reflects the SET_STREAM_INFO latency
+        //     (test 13g left pres_offset at 1600000 ns)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2104,
+                         gc_pl(0x0006, 0)));
+        r = collect_resp();
+        ck("[21d] GET_MTT SUCCESS", r_status(r), 0);
+        ck("[21d] CDL 24", r_cdl(r), 24);
+        ck("[21d] mtt hi 0", be32_at(r, 42), 0);
+        ck("[21d] mtt = 1600000", be32_at(r, 46), 1600000);
+
+        // (e) SET_MAX_TRANSIT_TIME 2 ms -> pres offset updated (+3 pushes)
+        auto mtt_pl = gc_pl(0x0006, 0);
+        for (int i = 7; i >= 0; i--) mtt_pl.push_back((2000000ULL >> (8*i)) & 0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2105, mtt_pl));
+        r = collect_resp();
+        ck("[21e] SET_MTT SUCCESS", r_status(r), 0);
+        ck("[21e] response mirrors 2000000", be32_at(r, 46), 2000000);
+        (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2106,
+                         gc_pl(0x0006, 0)));
+        r = collect_resp();
+        ck("[21e] GET readback 2000000", be32_at(r, 46), 2000000);
+
+        // (f) SET > 0x7FFFFFFF ns -> BAD_ARGUMENTS; wrong desc; GET_DYNAMIC_INFO
+        //     stays NOT_IMPLEMENTED (deferred SHOULD)
+        auto big_pl = gc_pl(0x0006, 0);
+        for (int i = 7; i >= 0; i--) big_pl.push_back((0x0000000100000000ULL >> (8*i)) & 0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2107, big_pl));
+        r = collect_resp();
+        ck("[21f] SET_MTT(2^32) BAD_ARGUMENTS", r_status(r), 7);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2108,
+                         gc_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[21f] GET_MTT(STREAM_INPUT) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2109,
+                         gc_pl(0x0000, 0)));
+        r = collect_resp();
+        ck("[21f] GET_DYNAMIC_INFO NOT_IMPLEMENTED", r_status(r), 1);
     }
 
     // counters
