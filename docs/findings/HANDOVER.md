@@ -1,6 +1,6 @@
 # HANDOVER — machine, topology, live state, tasks
 
-Updated 2026-07-14 (post Milan-talker-SM close-out, milan-fpga @ `3fce652`).
+Updated 2026-07-14 late (post lwSRP fabric engine, milan-fpga @ `b19287e`).
 This is THE entry point for a fresh session or person: everything needed to
 operate the bench, trust the current state, and pick the next task. Detail
 lives in the named normative docs; this file states what is true NOW.
@@ -118,6 +118,8 @@ cable. Data plane unaffected.
 
 | Build | What | WNS |
 |---|---|---|
+| build_arty_eto_lwsrp | Arty lwSRP keeper CANDIDATE (not yet loaded; asl −0.287 fail, eppo died in route — sweep variance) | +0.121 |
+| build_ax7101_*_lwsrp | **ALL 3 SEEDS FAIL PLACEMENT** (Place 30-487: LUTs 62408/63400 = 98.4 %, needs 12465 slices vs 12328 usable, 1255 control sets). AX was ~97 % before lwSRP — **AX lwSRP gateware is BLOCKED on area** (area-70 byte-ring fold or equivalent shave). Arty fits (50 MHz/MII config is smaller) | — |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
@@ -128,7 +130,7 @@ cable. Data plane unaffected.
 | build_ax7101_adp2 / build_arty_v7 | AECP-less / probes-only floors | +0.102 / +0.018 |
 
 **Branches (all pushed unless noted):** milan-fpga `milan-arty-bringup` =
-3fce652 (the working line, this doc); `main` = f51a27b (PR #12 AECP/AEM
+b19287e local (the working line, this doc; push on request); `main` = f51a27b (PR #12 AECP/AEM
 merged). milan-tests-avb `milan-avb-stabilizing-milan` = c03c139.
 fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
 
@@ -144,10 +146,12 @@ fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
 | gPTP PHC + **HW timestamps** | DONE both boards | pdelay 1.3 µs, pw0 rms 2–5 ns through floods; `docs/findings/PTP_TS_METADATA_FIX.md`, `GPTP_RXPAD_ROOTCAUSE.md` |
 | QSPI v3 self-hosted boot (Arty) | DONE | flash→login hands-free; `docs/integration/QSPI_FLASHBOOT.md` |
 | TCP perf (separate perf-lineage gateware) | TX >500, RX 316 practical ceiling | `docs/findings/PERFORMANCE_GOAL.md` |
-| Portability | XPM-free HDL; Yosys/sv2v 20/20 tops (ECP5 check) | `syn/yosys/run.sh` |
+| Portability | XPM-free HDL; Yosys/sv2v 21/21 tops (ECP5 check) | `syn/yosys/run.sh` |
+| **lwSRP fabric engine** (MSRP talker-adv + domain, MVRP, listener registrar, 75 % bw gate → CBS slope + TX gate + listener_observed) | **RTL+TB DONE `b19287e`; silicon vs switch/pw0 PENDING** | 363+75+36-check TBs; `docs/LWSRP_FPGA_ARCHITECTURE.md` |
 
-Regression: 21 Verilator harnesses under `tb/verilator/<name>/` (latest
-counts: acmp 71, aecp 121, milan_dp 53, adp 246, cls 200024) + Yosys 20/20.
+Regression: 24 Verilator harnesses under `tb/verilator/<name>/` (latest
+counts: acmp 71, aecp 121, milan_dp 53, csr 93, lwsrp_tx 363, lwsrp_rx 75,
+lwsrp 36, cls 200024) + Yosys 21/21.
 `docs/testing/RUNNING_TESTS.md` / `PROTOCOL_VALIDATION_MATRIX.md`.
 
 **The reference that decides Milan semantics:** pipewire module-avb
@@ -174,7 +178,11 @@ Full map: `docs/reference/REGISTER_MAP.md`. The ones you touch on the bench:
 | 0x658/0x65C | AAF DMAC | 0x660 frames / 0x664 pairs counters |
 | 0x668 | A_ADP_DIAG RO | {[17:16] last depart src, [15:8] rearm_cnt, [7:0] depart_cnt} |
 | 0x66C | A_ACMP_TALKER RO | {bit3 aaf_gate, bit2 lobs, bit1 talker_active, bit0 probe_armed} |
-| 0x670 | A_ACMP_LOBS RW | bit0 = listener_observed — **the lwSRP socket** (manual until lwSRP) |
+| 0x670 | A_ACMP_LOBS RW | bit0 = listener_observed (manual); with lwSRP on, effective lobs = this OR SRP listener-ready |
+| 0x680 | LWSRP_CTRL | {qidx[3:2] (reset q3), talker[1], enable[0]}; reset 0xC = **disabled** (zero behavior change) |
+| 0x684–0x690 | LWSRP VID/DMAC/TSPEC | VID (reset 2), stream DMAC, {interval[31:16], max_frame[15:0]} |
+| 0x694 | LWSRP_STATUS RO | drops/tfail+code/slope_en/gate/over_limit/active/domain_ok/declared/ready/reg/decl — see REGISTER_MAP |
+| 0x698/0x69C/0x6A0 | LWSRP slope/cnt/latency | granted idleSlope bps RO; {rx_pdus[31:16], tx_count[15:0]}; accum latency |
 
 NIC ring/perf/debug CSRs live in the LiteX region (0xf0003xxx ring/steer,
 0xf0004xxx probes) — perf-era docs in `docs/findings/`. devmem trap: 64-bit
@@ -327,22 +335,27 @@ M-A1..A5 bring-up → perf campaign (TX>500/RX 316, every remaining lever
 measured-refuted) → area-70 phase 1 (CBS slope engine −8K LUTs) → de-Xilinx
 track 1 (XPM-free + Yosys) → QSPI v3 flashboot → ADP advertiser → AECP/AEM
 entity (Milan=1) → ACMP stateless responder → gPTP Phase A (PHC) + Phase B
-(HW timestamps, rms 2–5 ns) → MVP AAF talker → ADP dormancy fix → **Milan
-talker SM (ACMP PROBE_TX + AECP streaming + unsolicited) — closed 2026-07-14,
-both boards Milan=1 CLEAN.**
+(HW timestamps, rms 2–5 ns) → MVP AAF talker → ADP dormancy fix → Milan
+talker SM (ACMP PROBE_TX + AECP streaming + unsolicited), both boards
+Milan=1 CLEAN → **lwSRP fabric engine (RTL/TB/integration) — closed
+2026-07-14 `b19287e`** (silicon validation = open task #1).
 
 ### Open, ranked (next work; 1–3 are the USER-directed rev-2 order)
-1. **lwSRP in fabric** — MSRP talker-advertise/listener-ready + MVRP;
-   drives CBS idleSlope (≤75 % gate) and gates TX; `listener_observed` then
-   comes from SRP instead of the manual A_ACMP_LOBS CSR; MVRP registers
-   VLAN 2 (retires the VID0 workaround). Normative:
-   `docs/design/LWSRP_FPGA_ARCHITECTURE.md` — **its CSR sketch 0x660–0x674
-   is STALE (those addresses are now AAF/DIAG/ACMP): re-home to 0x680+.**
+1. **lwSRP silicon validation** — load a lwsrp-tag build (keepers below),
+   validate vs the AVB switch registration DB + a real SRP listener (pw0
+   module-avb Ready or OpenAvnu mrpd oracle). Gates: STATUS 0x694 shows
+   declared→ready→active on the board, granted slope @0x698 matches TSpec,
+   Ready withdraw closes the gate within LeaveTime (600 ms), MVRP gets
+   VLAN 2 registered by the SWITCH (retires the VID0 workaround — verify
+   ingress-filter behavior before flipping AAF off VID0). TCAM explicit
+   entries for 01:80:C2:00:00:0E/21 (default-pass covers today). Mind: with
+   LWSRP_CTRL[0]=1 and no listener Ready, the talker stays silent BY DESIGN.
 2. **pw0 PipeWire listener (BIND_RX)** — module-avb listener against the
    arty talker = the audible end-to-end; then media clock recovery (NCO from
-   gPTP) per `docs/design/MVP_TALKER.md`.
+   gPTP) per `docs/design/MVP_TALKER.md`. Natural pairing with #1 (the same
+   pw0 session is the SRP listener).
 3. **Fabric ACMP connection table** — acceptance = resource check vs the
-   lwSRP grant (rev-2 delimitation).
+   lwSRP grant (`reservation_active`, STATUS bit — rev-2 delimitation).
 4. **gPTP direct-cable session** — Arty-as-slave validation; script ready
    (`sw/litex/gptp_direct_cable.sh`), needs the physical cable move.
 5. **Switch power-cycle via amx-pi** — clear flap suppression, restore the
@@ -368,7 +381,7 @@ both boards Milan=1 CLEAN.**
 ### Doc index (normative first)
 `docs/design/ARCHITECTURE_HW_SW_SPLIT.md` (rev 2 split) ·
 `docs/design/MILAN_TALKER_SM.md` (talker contract + SM) ·
-`docs/design/LWSRP_FPGA_ARCHITECTURE.md` (next arc; CSR sketch stale) ·
+`docs/LWSRP_FPGA_ARCHITECTURE.md` (lwSRP as-built; CSR 0x680 map) ·
 `docs/design/MVP_TALKER.md` · `docs/overview/FULL_FPGA_SOLUTION.md` ·
 `docs/reference/REGISTER_MAP.md` · `docs/integration/BUILDING.md` ·
 `docs/integration/QSPI_FLASHBOOT.md` · `docs/testing/RUNNING_TESTS.md` ·
@@ -377,6 +390,7 @@ both boards Milan=1 CLEAN.**
 `PERFORMANCE_GOAL.md` (perf lineage), `SESSION_HANDOFF.md` (historical).
 
 ### History anchors (git, newest first)
+`b19287e` lwSRP fabric engine (hdl/lwsrp ×9, CSR 0x680, 3 TB suites) ·
 `3fce652` miltick close-out (window 15 s exact, cadence 31 s ×2, 41/41,
 Milan=1) · `c3b0e82` MILAN_CLK_FREQ_HZ never passed — plumbed ·
 `165d57c` talker SM RTL · `ba76908` ADP dormancy self-re-arm + DIAG ·
