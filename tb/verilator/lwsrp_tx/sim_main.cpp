@@ -195,6 +195,30 @@ static void check_mvrp(const char* tag, const std::vector<uint8_t>& f,
     ck(w, be(f, 26, 8) | be(f, 52, 8), 0);
 }
 
+// ---- Listener-message checks (position depends on TalkerAdvertise) -----
+static const uint64_t LSID = 0x0200000000010000ULL;   // bound talker stream
+static void check_lstn_msg(const char* tag, const std::vector<uint8_t>& f,
+                           size_t lb, int lstn_ev, int decl, int lva) {
+    char w[96];
+    const uint16_t vech = (lva ? 0x2000 : 0x0000) | 1;
+    snprintf(w, sizeof w, "%s: lstn attr type/len", tag);
+    ck(w, be(f, lb, 2), 0x0308);
+    snprintf(w, sizeof w, "%s: lstn AttributeListLength", tag);
+    ck(w, be(f, lb+2, 2), 14);
+    snprintf(w, sizeof w, "%s: lstn vector header", tag);
+    ck(w, be(f, lb+4, 2), vech);
+    snprintf(w, sizeof w, "%s: lstn StreamID (bound)", tag);
+    ck(w, be(f, lb+6, 8), LSID);
+    snprintf(w, sizeof w, "%s: lstn event octet", tag);
+    ck(w, f[lb+14], (uint8_t)lstn_ev);
+    snprintf(w, sizeof w, "%s: lstn 4-packed declaration", tag);
+    ck(w, f[lb+15], (uint8_t)(decl << 6));
+    snprintf(w, sizeof w, "%s: lstn vector EndMark", tag);
+    ck(w, be(f, lb+16, 2), 0);
+    snprintf(w, sizeof w, "%s: message-list EndMark", tag);
+    ck(w, be(f, lb+18, 2), 0);
+}
+
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     dut = new VKL_lwsrp_tx;
@@ -279,6 +303,63 @@ int main(int argc, char** argv) {
     dut->enable_i = 1; step(); step();
     check_msrp("re-declare", collect(), EV_NEW, -1, 0);
     check_mvrp("re-declare", collect(), EV_NEW, 0);
+
+    // 10) listener declare (Ready): prompt MSRP with the Listener message
+    //     after Domain (talker off -> 60-byte padded frame, lstn at 28)
+    dut->lstn_sid_i = LSID; dut->lstn_ready_i = 1;
+    dut->lstn_declare_i = 1; step(); step();
+    {
+        auto f = collect();
+        ck("lstn-new: frame length", f.size(), 60);
+        check_lstn_msg("lstn-new", f, 28, EV_NEW, 2 /*READY*/, 0);
+        ck("lstn-new: declared", dut->lstn_declared_o, 1);
+    }
+    pulse(dut->join_tick_i);
+    check_lstn_msg("lstn-refresh", collect(), 28, EV_JOININ, 2, 0);
+    (void)collect();   // the MVRP half of the refresh pair
+
+    // 11) Ready -> AskingFailed re-declares promptly with the new 4-pack
+    dut->lstn_ready_i = 0; step(); step();
+    check_lstn_msg("lstn-askfail", collect(), 28, EV_JOININ, 1, 0);
+    dut->lstn_ready_i = 1; step(); step();
+    (void)collect();   // back-to-Ready re-declare
+
+    // 12) talker on too: the 82-byte 3-message MSRP (Domain+TA+Listener)
+    dut->talker_en_i = 1; step(); step();
+    {
+        auto f = collect();
+        ck("triple: frame length", f.size(), 82);
+        check_lstn_msg("triple", f, 62, EV_JOININ, 2, 0);
+        ck("triple: talker StreamID", be(f, 34, 8), (STATION << 16) | UID);
+        ck("triple: talker event NEW", f[59], EV_NEW);
+    }
+
+    // 13) listener withdraw: LV frame (domain JOININ, no talker msg), then
+    //     the next refresh has no Listener message (64-byte talker frame)
+    dut->lstn_declare_i = 0; step(); step();
+    {
+        auto f = collect();
+        ck("lstn-lv: frame length", f.size(), 60);
+        check_lstn_msg("lstn-lv", f, 28, EV_LV, 2, 0);
+        ck("lstn-lv: not declared", dut->lstn_declared_o, 0);
+    }
+    pulse(dut->join_tick_i);
+    check_msrp("post-lstn-lv", collect(), EV_JOININ, EV_JOININ, 0);
+    (void)collect();   // MVRP half
+
+    // 14) engine disable with talker+listener declared: 82-byte all-LV
+    dut->lstn_declare_i = 1; step(); step();
+    (void)collect();   // listener re-declare
+    dut->enable_i = 0; dut->talker_en_i = 0; dut->lstn_declare_i = 0;
+    step(); step();
+    {
+        auto f = collect();
+        ck("engine-lv3: frame length", f.size(), 82);
+        ck("engine-lv3: domain LV", f[25], EV_LV);
+        ck("engine-lv3: talker LV", f[59], EV_LV);
+        check_lstn_msg("engine-lv3", f, 62, EV_LV, 2, 0);
+    }
+    (void)collect();   // MVRP LV
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;

@@ -1170,6 +1170,115 @@ int main(int argc, char** argv) {
         ck("[21f] GET_DYNAMIC_INFO NOT_IMPLEMENTED", r_status(r), 1);
     }
 
+    // ---------------------------------------------------------------- //
+    // 22. STREAM_INPUT sinks: stream info / format / start-stop         //
+    // ---------------------------------------------------------------- //
+    printf("\n[22] STREAM_INPUT listener sink commands\n");
+    {
+        auto si_pl = [](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
+        };
+        auto be32_at = [](const std::vector<uint8_t>& b, int off) {
+            uint32_t v = 0;
+            for (int i = 0; i < 4; i++) v = (v << 8) | b[off + i];
+            return (long)v;
+        };
+        // (a) unbound sink 0: identity flags only, zero fields
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2201,
+                         si_pl(0x0005, 0)));
+        auto r = collect_resp();
+        ck("[22a] GET_STREAM_INFO(in0) SUCCESS", r_status(r), 0);
+        ck("[22a] CDL 68", r_cdl(r), 68);
+        ck("[22a] flags 0xF2000000", be32_at(r, 42), 0xF2000000);
+        ck("[22a] stream_id 0", (long)(r[54]|r[55]|r[56]|r[57]), 0);
+
+        // (b) bound + registered sink: CONNECTED flags + live fields + trailer
+        dut->lstn_bound_i = 1;
+        dut->lstn_sid_i   = 0x0200000000010000ULL;
+        dut->lstn_dmac_i  = 0x91E0F000FE01ULL;
+        dut->lstn_vlan_i  = 2;
+        dut->lstn_pbsta_i = 3;                 // COMPLETED
+        dut->lstn_acmpsta_i = 0;
+        dut->lstn_ta_reg_i = 1;
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2202,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        // F2000000 | CONNECTED(0x04000000) | FAST_CONNECT|SAVED_STATE(0x6)
+        ck("[22b] flags connected", be32_at(r, 42), 0xF6000006);
+        ckbytes("[22b] stream_id live", r, 54,
+                {0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x00});
+        ckbytes("[22b] dmac live", r, 66, {0x91,0xE0,0xF0,0x00,0xFE,0x01});
+        ckbytes("[22b] vlan 2", r, 82, {0x00,0x02});
+        ckbytes("[22b] flags_ex REGISTERING", r, 86, {0,0,0,1});
+        ckbytes("[22b] pbsta/acmpsta trailer", r, 90, {0x60,0,0,0});
+
+        // (c) TalkerFailed adds the failure flags
+        dut->lstn_ta_fail_i = 1;
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2203,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[22c] +MSRP_FAILURE|SRP_REG_FAILED", be32_at(r, 42), 0xFE000046);
+        dut->lstn_ta_fail_i = 0;
+
+        // (d) sink 1 (CRF): unbound shape; CRF format from store
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2204,
+                         si_pl(0x0005, 1)));
+        r = collect_resp();
+        ck("[22d] GET_STREAM_INFO(in1) SUCCESS", r_status(r), 0);
+        ck("[22d] flags identity-only", be32_at(r, 42), 0xF2000000);
+        ckbytes("[22d] CRF format", r, 46,
+                {0x04,0x10,0x60,0x01,0x00,0x00,0xBB,0x80});
+
+        // (e) SET_STREAM_FORMAT: sink1 accepts CRF 96k, rejects AAF; sink0
+        //     accepts AAF 96k
+        std::vector<uint8_t> f1 = si_pl(0x0005, 1);
+        for (int i = 7; i >= 0; i--) f1.push_back((0x0410600100017700ULL >> (8*i)) & 0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2205, f1));
+        r = collect_resp();
+        ck("[22e] SET_FMT(in1, CRF96k) SUCCESS", r_status(r), 0);
+        ckbytes("[22e] readback", r, 42, {0x04,0x10,0x60,0x01,0x00,0x01,0x77,0x00});
+        std::vector<uint8_t> f2 = si_pl(0x0005, 1);
+        for (int i = 7; i >= 0; i--) f2.push_back((0x0205022002006000ULL >> (8*i)) & 0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2206, f2));
+        r = collect_resp();
+        ck("[22e] SET_FMT(in1, AAF) BAD_ARGUMENTS", r_status(r), 7);
+        std::vector<uint8_t> f3 = si_pl(0x0005, 0);
+        for (int i = 7; i >= 0; i--) f3.push_back((0x020702200200C000ULL >> (8*i)) & 0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2207, f3));
+        r = collect_resp();
+        ck("[22e] SET_FMT(in0, AAF96k) SUCCESS", r_status(r), 0);
+
+        // (f) STOP/START_STREAMING on sink0 drives STREAMING_WAIT; outputs
+        //     stay NOT_SUPPORTED
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35, 0x2208,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[22f] STOP(in0) SUCCESS", r_status(r), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2209,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[22f] STREAMING_WAIT set", be32_at(r, 42), 0xF600000E);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220A,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[22f] START(in0) SUCCESS", r_status(r), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220B,
+                         si_pl(0x0006, 0)));
+        r = collect_resp();
+        ck("[22f] START(output) NOT_SUPPORTED", r_status(r), 11);
+
+        // (g) GET_COUNTERS on a sink: SUCCESS, empty valid mask
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220C,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[22g] GET_COUNTERS(in0) SUCCESS", r_status(r), 0);
+        ck("[22g] CDL 148", r_cdl(r), 148);
+        ck("[22g] valid mask 0", be32_at(r, 42), 0);
+        dut->lstn_bound_i = 0; dut->lstn_ta_reg_i = 0;
+    }
+
     // counters
     printf("\n[counters] cmd=%u resp=%u\n", dut->cmd_count_o, dut->resp_count_o);
     ck("cmd_count >= 14", dut->cmd_count_o >= 14, 1);

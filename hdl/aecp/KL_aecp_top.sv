@@ -73,6 +73,16 @@ module KL_aecp_top #(
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT counters)
 
+  // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
+  input  wire          lstn_bound_i,
+  input  wire [63:0]   lstn_sid_i,
+  input  wire [47:0]   lstn_dmac_i,
+  input  wire [11:0]   lstn_vlan_i,
+  input  wire [1:0]    lstn_pbsta_i,
+  input  wire [4:0]    lstn_acmpsta_i,
+  input  wire          lstn_ta_reg_i,
+  input  wire          lstn_ta_fail_i,
+
   // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
   input  wire          rx_tvalid_i,
   input  wire [63:0]   rx_tdata_i,
@@ -230,6 +240,10 @@ module KL_aecp_top #(
     .pres_wr_p_o(pres_wr_p_w), .pres_wr_val_o(pres_wr_val_w),
     .identify_o(identify_o),
     .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
+    .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
+    .lstn_dmac_i(lstn_dmac_i), .lstn_vlan_i(lstn_vlan_i),
+    .lstn_pbsta_i(lstn_pbsta_i), .lstn_acmpsta_i(lstn_acmpsta_i),
+    .lstn_ta_reg_i(lstn_ta_reg_i), .lstn_ta_fail_i(lstn_ta_fail_i),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
     .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),

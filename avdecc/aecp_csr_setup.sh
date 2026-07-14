@@ -20,11 +20,12 @@ w 0x604 0xFE000001     # ENTITY_ID low
 w 0x608 0x020000FF     # ENTITY_ID high  -> 0x020000FF_FE000001
 w 0x60C 0x00000000     # entity_model_id low
 w 0x610 0x00000000     # entity_model_id high
-# entity_capabilities: AEM|CLASS_A|GPTP|VU|AEM_INTERFACE_INDEX_VALID(0x8000).
-# NOT AEM_IDENTIFY_CONTROL_INDEX_VALID(0x4000): la_avdecc flags "ControlIndex
-# invalid: No valid CONTROL at index 0" if set without a CONTROL descriptor
-# (this 5-descriptor model has none). Was 0x0000C588.
-w 0x614 0x00008588
+# entity_capabilities: AEM|CLASS_A|GPTP|VU|AEM_IDENTIFY_CONTROL_INDEX_VALID
+# (0x4000)|AEM_INTERFACE_INDEX_VALID(0x8000). The identify bit is back since
+# the full-descriptor ROM (2026-07-15): CONTROL[0] = the Milan IDENTIFY
+# control, so identify_control_index 0 is valid again (it was dropped while
+# the 5-descriptor model had no CONTROL — la_avdecc flagged it).
+w 0x614 0x0000C588
 w 0x618 0x48010008     # ADP_TALK  {talker_caps=0x4801, talker_sources=8}
 w 0x61C 0x48010008     # ADP_LIST  {listener_caps=0x4801, listener_sinks=8}
 w 0x620 0x00000000     # controller_capabilities

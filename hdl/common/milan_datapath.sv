@@ -282,6 +282,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH-1:0]   lwsrp_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] lwsrp_tx_tkeep;
   wire                     lwsrp_tx_tvalid, lwsrp_tx_tlast, lwsrp_tx_tready;
+  //! ACMP listener SM (KL_acmp_listener, STREAM_INPUT[0] sink)
+  acmp_pkg::acmp_lsm_t acmpl_state;
+  wire        acmpl_bound = (acmpl_state != acmp_pkg::LSM_UNBOUND_S);
+  wire [63:0] acmpl_talker, acmpl_sid;
+  wire [15:0] acmpl_tuid;
+  wire [4:0]  acmpl_status;
+  wire [1:0]  acmpl_probing;
+  wire        acmpl_tk_avail, acmpl_lstn_declare, acmpl_active;
+  wire [11:0] acmpl_vlan;
+  wire [47:0] acmpl_dmac;
+  wire [15:0] acmpl_cmd_count, acmpl_probe_count;
+  wire        lwsrp_ta_registered, lwsrp_ta_failed;
+  wire [7:0]  lwsrp_ta_fail_code;
+  wire        lwsrp_lstn_declared;
+  wire [TDATA_WIDTH-1:0]   acmpl_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] acmpl_tx_tkeep;
+  wire                     acmpl_tx_tvalid, acmpl_tx_tlast, acmpl_tx_tready;
   //! listener_observed: the lwSRP Listener registrar is the real source once
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
@@ -467,6 +484,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                             lwsrp_listener_reg, lwsrp_listener_decl}),
     .i_lwsrp_slope        (lwsrp_idle_slope),
     .i_lwsrp_cnt          ({lwsrp_rx_pdus, lwsrp_tx_count}),
+    // ACMP listener SM (0x6A4 group, RO)
+    .i_acmpl_state        ({4'd0, acmpl_vlan, acmpl_tk_avail,
+                            acmpl_probing, acmpl_status,
+                            lwsrp_ta_failed, lwsrp_ta_registered,
+                            acmpl_lstn_declare, acmpl_active,
+                            acmpl_bound, acmpl_state}),
+    .i_acmpl_talker_lo    (acmpl_talker[31:0]),
+    .i_acmpl_talker_hi    (acmpl_talker[63:32]),
+    .i_acmpl_cnt          ({acmpl_probe_count, acmpl_cmd_count}),
+    .i_acmpl_tuid         ({8'd0, lwsrp_ta_fail_code, acmpl_tuid}),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -740,6 +767,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .identify_o    (o_identify),
     .link_up_i     (i_link_up),
     .frames_tx_i   (aaf_frames_w),
+    .lstn_bound_i   (acmpl_bound),
+    .lstn_sid_i     (acmpl_sid),
+    .lstn_dmac_i    (acmpl_dmac),
+    .lstn_vlan_i    (acmpl_vlan),
+    .lstn_pbsta_i   (acmpl_probing),
+    .lstn_acmpsta_i (acmpl_status),
+    .lstn_ta_reg_i  (lwsrp_ta_registered),
+    .lstn_ta_fail_i (lwsrp_ta_failed),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
@@ -781,6 +816,44 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   );
 
   // ==========================================================================
+  //  ACMP listener SM (Milan v1.2 §5.5, FR-CONN-01) — the STREAM_INPUT[0]
+  //  sink: BIND_RX/UNBIND_RX/GET_RX_STATE + the talker-probe ladder; SRP
+  //  coupling through the lwSRP TalkerAdvertise registrar + the Listener
+  //  attribute applicant below.
+  // ==========================================================================
+  KL_acmp_listener #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) acmp_listener_sm (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_adp_enable),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .entity_id_i (cfg_adp_entity_id),
+    .tick_1s_i (adp_tick_1s),
+    .ta_registered_i (lwsrp_ta_registered),
+    .ta_failed_i     (lwsrp_ta_failed),
+    .lstn_declare_o  (acmpl_lstn_declare),
+    .bound_sid_o     (acmpl_sid),
+    .stream_vlan_o   (acmpl_vlan),
+    .stream_dmac_o   (acmpl_dmac),
+    .stream_active_o (acmpl_active),
+    .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tdata_i  (rx_axis_to_dma.tdata),
+    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
+    .rx_tlast_i  (rx_axis_to_dma.tlast),
+    .m_axis_tdata (acmpl_tx_tdata), .m_axis_tkeep (acmpl_tx_tkeep),
+    .m_axis_tvalid(acmpl_tx_tvalid), .m_axis_tlast (acmpl_tx_tlast),
+    .m_axis_tready(acmpl_tx_tready),
+    .state_o (acmpl_state),
+    .bound_talker_o (acmpl_talker),
+    .bound_tuid_o   (acmpl_tuid),
+    .acmp_status_o  (acmpl_status),
+    .probing_o      (acmpl_probing),
+    .tk_avail_o     (acmpl_tk_avail),
+    .cmd_count_o    (acmpl_cmd_count),
+    .probe_count_o  (acmpl_probe_count)
+  );
+
+  // ==========================================================================
   //  lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) — same monitor-tap +
   //  low-rate-TX recipe. Declares Domain/TalkerAdvertise/VID, registers the
   //  Listener attribute for our stream, and resolves the reservation into
@@ -791,6 +864,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .enable_i (cfg_lwsrp_enable),
     .talker_en_i (cfg_lwsrp_talker_en),
     .is_1g_i (cfg_mac_is_1g),
+    .lstn_bound_i   (acmpl_bound),
+    .lstn_declare_i (acmpl_lstn_declare),
+    .lstn_sid_i     (acmpl_sid),
+    .ta_registered_o (lwsrp_ta_registered),
+    .ta_failed_o     (lwsrp_ta_failed),
+    .ta_fail_code_o  (lwsrp_ta_fail_code),
+    .lstn_declared_o (lwsrp_lstn_declared),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
@@ -861,6 +941,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_tvalid(ctlf_tx_tvalid), .m_tlast (ctlf_tx_tlast), .m_tready(ctlf_tx_tready)
   );
 
+  //! ...and the ACMP listener's responses/probes (5th low-rate source).
+  wire [TDATA_WIDTH-1:0]   ctlg_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlg_tx_tkeep;
+  wire                     ctlg_tx_tvalid, ctlg_tx_tlast, ctlg_tx_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) lstn_ctl_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (ctlf_tx_tdata),  .s_data_tkeep (ctlf_tx_tkeep),
+    .s_data_tvalid(ctlf_tx_tvalid), .s_data_tlast (ctlf_tx_tlast),
+    .s_data_tready(ctlf_tx_tready),
+    .s_adp_tdata (acmpl_tx_tdata),  .s_adp_tkeep (acmpl_tx_tkeep),
+    .s_adp_tvalid(acmpl_tx_tvalid), .s_adp_tlast (acmpl_tx_tlast),
+    .s_adp_tready(acmpl_tx_tready),
+    .m_tdata (ctlg_tx_tdata), .m_tkeep (ctlg_tx_tkeep),
+    .m_tvalid(ctlg_tx_tvalid), .m_tlast (ctlg_tx_tlast), .m_tready(ctlg_tx_tready)
+  );
+
   //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
   //! AAF injected AFTER the shaper (MVP: bypasses CBS for continuous emission,
   //! like ADP; class-A shaping = the is_1g follow-up). Merge shaped-data + AAF.
@@ -887,11 +983,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_data_tvalid(dpaaf_tvalid),
     .s_data_tlast (dpaaf_tlast),
     .s_data_tready(dpaaf_tready),
-    .s_adp_tdata (ctlf_tx_tdata),
-    .s_adp_tkeep (ctlf_tx_tkeep),
-    .s_adp_tvalid(ctlf_tx_tvalid),
-    .s_adp_tlast (ctlf_tx_tlast),
-    .s_adp_tready(ctlf_tx_tready),
+    .s_adp_tdata (ctlg_tx_tdata),
+    .s_adp_tkeep (ctlg_tx_tkeep),
+    .s_adp_tvalid(ctlg_tx_tvalid),
+    .s_adp_tlast (ctlg_tx_tlast),
+    .s_adp_tready(ctlg_tx_tready),
     .m_tdata (tx_axis_to_mac.tdata),
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),

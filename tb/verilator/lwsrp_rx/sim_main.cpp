@@ -411,6 +411,66 @@ int main(int argc, char** argv) {
         dut->enable_i = 1; step(); step();
     }
 
+    // ================================================================== //
+    // TA registrar (listener side): TalkerAdvertise/Failed on the BOUND
+    // stream id (the walker's second match context)
+    // ================================================================== //
+    printf("-- listener-side TA registrar --\n");
+    {
+        const uint64_t BOUND = 0x0200000000010000ULL;   // another talker
+        dut->lsid_i = BOUND; dut->lsid_en_i = 1;
+        step(); step();
+        ck("ta: idle unregistered", dut->ta_registered_o, 0);
+
+        // TalkerAdvertise JoinIn covering the bound sid registers it
+        Vec v; v.fv = fv_talker(BOUND); v.evts = {EV_JOININ};
+        feed_parse(frame(true, {msg_tadv(v)}), "ta: adv parse");
+        ck("ta: registered", dut->ta_registered_o, 1);
+        ck("ta: no failure", dut->ta_failed_o, 0);
+
+        // +k range: bound sid at index 2 of a 5-value vector
+        dut->lsid_en_i = 0; step(); step();
+        dut->lsid_en_i = 1;   // (drop/re-arm to reset nothing — enable keeps)
+        Vec k; k.nv = 5; k.fv = fv_talker(BOUND - 2);
+        k.evts = {EV_MT, EV_MT, EV_JOININ, EV_MT, EV_MT};
+        feed_parse(frame(true, {msg_tadv(k)}), "ta: +k parse");
+        ck("ta: +k registered", dut->ta_registered_o, 1);
+
+        // Lv arms the 600 ms leave window; expiry deregisters
+        Vec l; l.fv = fv_talker(BOUND); l.evts = {EV_LV};
+        feed_parse(frame(true, {msg_tadv(l)}), "ta: lv parse");
+        ck("ta: still registered in leave window", dut->ta_registered_o, 1);
+        ticks(599);
+        ck("ta: window not lapsed at 599", dut->ta_registered_o, 1);
+        ticks(2);
+        ck("ta: deregistered after leave", dut->ta_registered_o, 0);
+
+        // re-register, then LeaveAll ages it out the same way
+        Vec r2; r2.fv = fv_talker(BOUND); r2.evts = {EV_JOININ};
+        feed_parse(frame(true, {msg_tadv(r2)}), "ta: re-adv parse");
+        ck("ta: re-registered", dut->ta_registered_o, 1);
+        Vec la; la.lva = 1; la.fv = fv_talker(BOUND); la.evts = {EV_MT};
+        feed_parse(frame(true, {msg_tadv(la)}), "ta: leaveall parse");
+        ticks(601);
+        ck("ta: aged out after LeaveAll", dut->ta_registered_o, 0);
+
+        // TalkerFailed registers the failure with its code
+        Vec tf; tf.fv = fv_tfail(BOUND, 0x08); tf.evts = {EV_JOININ};
+        feed_parse(frame(true, {msg_tfail(tf)}), "ta: tfail parse");
+        ck("ta: failed registered", dut->ta_failed_o, 1);
+        ck("ta: failure code", dut->ta_fail_code_o, 0x08);
+        ck("ta: adv not registered", dut->ta_registered_o, 0);
+
+        // a foreign talker's advertise must not register
+        Vec fo; fo.fv = fv_talker(BOUND + 0x100); fo.evts = {EV_JOININ};
+        feed_parse(frame(true, {msg_tadv(fo)}), "ta: foreign parse");
+        ck("ta: foreign ignored", dut->ta_registered_o, 0);
+
+        // binding dropped -> everything forgotten
+        dut->lsid_en_i = 0; step(); step();
+        ck("ta: unbind clears failure", dut->ta_failed_o, 0);
+    }
+
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;
     return fails ? 1 : 0;

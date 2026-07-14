@@ -52,6 +52,7 @@ package lwsrp_pkg;
   //! (= 2 vector hdr + FirstValue + 1 event byte + 2 vector EndMark)
   localparam [15:0] MSRP_ALL_DOMAIN_C     = 16'd9;    //! 2+4+1+2
   localparam [15:0] MSRP_ALL_TALKER_ADV_C = 16'd30;   //! 2+25+1+2
+  localparam [15:0] MSRP_ALL_LISTENER_C   = 16'd14;   //! 2+8+1+1+2
 
   // ---- MRP AttributeEvent (three-packed, radix 6, e0 most significant) ----
   localparam [2:0] MRP_EVT_NEW_C    = 3'd0;

@@ -102,6 +102,16 @@ module KL_aecp_response_builder (
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT)
 
+  // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
+  input  wire          lstn_bound_i,       //! listener SM not UNBOUND
+  input  wire [63:0]   lstn_sid_i,         //! bound stream_id
+  input  wire [47:0]   lstn_dmac_i,
+  input  wire [11:0]   lstn_vlan_i,
+  input  wire [1:0]    lstn_pbsta_i,       //! probing status
+  input  wire [4:0]    lstn_acmpsta_i,     //! last ACMP status
+  input  wire          lstn_ta_reg_i,      //! TalkerAdvertise registered
+  input  wire          lstn_ta_fail_i,     //! TalkerFailed registered
+
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
   output logic         st_rd_o,
@@ -221,6 +231,9 @@ module KL_aecp_response_builder (
   wire w_fmt_ok  = (w_set_fmt == AEM_FMTS_C[0]) ||
                    (w_set_fmt == AEM_FMTS_C[1]) ||
                    (w_set_fmt == AEM_FMTS_C[2]);
+  wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]) ||
+                      (w_set_fmt == AEM_CRF_FMTS_C[1]) ||
+                      (w_set_fmt == AEM_CRF_FMTS_C[2]);
 
   // ------------------------------------------------------------------ //
   // Response plan (filled in DECIDE_S)                                   //
@@ -422,6 +435,51 @@ module KL_aecp_response_builder (
   endtask
 
   // ------------------------------------------------------------------ //
+  // STREAM_INPUT stream-info payload (reference populate_input_response:
+  // identity fields always valid, bound adds FAST_CONNECT|SAVED_STATE|
+  // CONNECTED|STREAMING_WAIT, TalkerFailed adds SRP_REGISTERING_FAILED|
+  // MSRP_FAILURE_VALID; trailer flags_ex REGISTERING + {pbsta,acmpsta}).
+  // sink0 = the ACMP listener SM; sink1 (CRF) reads as unbound.          //
+  // ------------------------------------------------------------------ //
+  task automatic load_input_stream_info_consts(input logic sink0);
+    logic        bnd, ta_r, ta_f;
+    logic [31:0] fl;
+    begin
+      bnd  = sink0 & lstn_bound_i;
+      ta_r = sink0 & lstn_ta_reg_i;
+      ta_f = sink0 & lstn_ta_fail_i;
+      // FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN always valid
+      fl = 32'hF200_0000;
+      if (bnd) begin
+        fl = fl | 32'h0400_0000              // CONNECTED
+                | 32'h0000_0002              // FAST_CONNECT
+                | 32'h0000_0004;             // SAVED_STATE
+        if (!started_in_r) fl = fl | 32'h0000_0008;   // STREAMING_WAIT
+      end
+      if (ta_f) fl = fl | 32'h0800_0000      // MSRP_FAILURE_VALID
+                       | 32'h0000_0040;      // SRP_REGISTERING_FAILED
+      const_q[0] <= fl[31:24]; const_q[1] <= fl[23:16];
+      const_q[2] <= fl[15:8];  const_q[3] <= fl[7:0];
+      for (int k = 0; k < 8; k++)
+        const_q[8+k] <= sink0 ? lstn_sid_i[8*(7-k) +: 8] : 8'h00;
+      for (int k = 16; k < 20; k++) const_q[k] <= 8'h00;  // acc_lat (0 valid)
+      for (int k = 0; k < 6; k++)
+        const_q[20+k] <= sink0 ? lstn_dmac_i[8*(5-k) +: 8] : 8'h00;
+      for (int k = 26; k < 36; k++) const_q[k] <= 8'h00;  // fail code + bridge
+      const_q[36] <= sink0 ? {4'h0, lstn_vlan_i[11:8]} : 8'h00;
+      const_q[37] <= sink0 ? lstn_vlan_i[7:0] : 8'h00;
+      const_q[38] <= 8'h00; const_q[39] <= 8'h00;
+      const_q[40] <= 8'h00; const_q[41] <= 8'h00; const_q[42] <= 8'h00;
+      const_q[43] <= {7'b0, ta_r | ta_f};                 // flags_ex REGISTERING
+      const_q[44] <= sink0 ? {1'b0, lstn_pbsta_i, lstn_acmpsta_i} : 8'h00;
+      const_q[45] <= 8'h00; const_q[46] <= 8'h00; const_q[47] <= 8'h00;
+    end
+  endtask
+
+  //! per-input "started" (START/STOP_STREAMING, Milan input-only commands)
+  logic started_in_r;
+
+  // ------------------------------------------------------------------ //
   // Main FSM                                                             //
   // ------------------------------------------------------------------ //
   always_ff @(posedge clk_i or negedge rst_n) begin
@@ -464,6 +522,7 @@ module KL_aecp_response_builder (
       pres_wr_p_o  <= 1'b0;
       pres_wr_val_o <= 32'd0;
       identify_r   <= 1'b0;
+      started_in_r <= 1'b1;
       sysuid_r     <= 32'd0;
       mcr_user_prio_r <= MCR_DEFAULT_PRIO_C;
       cnt_start_r  <= 32'd0;
@@ -931,25 +990,35 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
+              // GET/SET_STREAM_FORMAT: STREAM_OUTPUT[0] + the two listener
+              // sinks (Milan adaptive listener, FR-STR-03) — sink0 validates
+              // against the AAF set, sink1 against the CRF set.
               CMD_GET_STREAM_FORMAT, CMD_SET_STREAM_FORMAT: begin
                 cdl_q <= 11'd24;   // 12 + 4 + 8
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= 16'd12;
-                end else if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
+                end else if (!((w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) ||
+                               (w_gs_type == DESC_STREAM_INPUT  && w_gs_index < 16'd2))) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
-                             !w_fmt_ok) begin
+                             !((w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd1)
+                               ? w_crf_fmt_ok : w_fmt_ok)) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;
                   seg_len_q[0] <= 16'd12;
                 end else begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
                   seg_kind_q[1] <= SEG_STORE;
-                  seg_addr_q[1] <= WB_STREAM_FORMAT_C; seg_len_q[1] <= 16'd8;
+                  seg_addr_q[1] <= (w_gs_type == DESC_STREAM_OUTPUT) ? WB_STREAM_FORMAT_C
+                                   : (w_gs_index == 16'd0) ? WB_STREAM_IN0_FMT_C
+                                                           : WB_STREAM_IN1_FMT_C;
+                  seg_len_q[1]  <= 16'd8;
                   if (hdr_q.command_type == CMD_SET_STREAM_FORMAT) begin
-                    wb_addr_q <= WB_STREAM_FORMAT_C;
+                    wb_addr_q <= (w_gs_type == DESC_STREAM_OUTPUT) ? WB_STREAM_FORMAT_C
+                                 : (w_gs_index == 16'd0) ? WB_STREAM_IN0_FMT_C
+                                                         : WB_STREAM_IN1_FMT_C;
                     wb_len_q  <= 7'd8;
                     wb_src_q  <= 7'd6;
                   end
@@ -967,11 +1036,7 @@ module KL_aecp_response_builder (
               // +msrp_fail(1)+rsvd(1)+bridge(8)+vlan(2)+rsvd(2)+flags_ex(4)+
               // pbsta_acmpsta(4) = 56.  CDL = 56 + 12 = 68.
               CMD_GET_STREAM_INFO: begin
-                if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd16;
-                end else begin
+                if (w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
                   seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
@@ -982,6 +1047,28 @@ module KL_aecp_response_builder (
                   // previous entity_id here could never match the stream)
                   load_stream_info_consts();
                   cdl_q <= 11'd68;   // 12 + 4+4+8+40
+                end else if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
+                  // Listener sinks (reference populate_input_response):
+                  // identity fields exposed unconditionally (*_VALID means
+                  // "meaningful", zero is a valid value); CONNECTED/
+                  // FAST_CONNECT/SAVED_STATE/STREAMING_WAIT when bound;
+                  // SRP failure flags from the TalkerFailed registrar;
+                  // trailer = flags_ex REGISTERING + {pbsta, acmpsta}.
+                  // Sink 1 (CRF) has no listener SM yet: unbound shape.
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
+                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
+                  seg_kind_q[2] <= SEG_STORE;
+                  seg_addr_q[2] <= (w_gs_index == 16'd0) ? WB_STREAM_IN0_FMT_C
+                                                         : WB_STREAM_IN1_FMT_C;
+                  seg_len_q[2]  <= 16'd8;
+                  seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
+                  load_input_stream_info_consts(w_gs_index == 16'd0);
+                  cdl_q <= 11'd68;
+                end else begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd4;
+                  cdl_q        <= 11'd16;
                 end
               end
 
@@ -1018,11 +1105,20 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               // START/STOP_STREAMING (Milan §5.4.2.19/20): Stream-INPUT-only
-              // commands — NOT_SUPPORTED on this talker-only entity (the
-              // reference replies not-supported for Stream Outputs; the old
-              // NOT_IMPLEMENTED default was the wrong status).
+              // commands (the reference replies not-supported for outputs).
+              // The input "started" level feeds the STREAMING_WAIT flag in
+              // GET_STREAM_INFO; power-on started (no STREAMING_WAIT bind
+              // plumbing yet — documented simplification).
               CMD_START_STREAMING, CMD_STOP_STREAMING: begin
-                status_q <= STATUS_NOT_SUPPORTED;
+                if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
+                  status_q     <= l0_reject_q ? l0_status_q : STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
+                  cdl_q        <= 11'd16;
+                  if (!l0_reject_q && w_gs_index == 16'd0)
+                    started_in_r <= (hdr_q.command_type == CMD_START_STREAMING);
+                end else begin
+                  status_q <= STATUS_NOT_SUPPORTED;
+                end
               end
 
               // -------------------------------------------------- //
@@ -1084,6 +1180,10 @@ module KL_aecp_response_builder (
                     const_q[8+k]  <= cnt_linkdn_r[8*(3-k) +: 8];  // bit1
                     const_q[24+k] <= cnt_gmchg_r [8*(3-k) +: 8];  // bit5
                   end
+                end else if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
+                  // sinks: no AVTP-RX monitor counters wired yet — full
+                  // block, valid mask 0 (deferred with the media path)
+                  status_q   <= STATUS_SUCCESS;
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
