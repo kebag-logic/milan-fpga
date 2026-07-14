@@ -235,11 +235,11 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/aecp/KL_aecp_response_builder.sv",
     "hdl/aecp/KL_aecp_ingress.sv", "hdl/aecp/KL_aecp_top.sv",
     # ACMP stateless talker responder (Milan v1.2 §5.5)
-    "hdl/acmp/acmp_pkg.sv", "hdl/acmp/KL_acmp_responder.sv",
+    "hdl/acmp/acmp_pkg.sv", "hdl/acmp/KL_acmp_responder.sv", "hdl/acmp/KL_acmp_listener.sv",
     # lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6). Order: pkg first.
     "hdl/lwsrp/lwsrp_pkg.sv", "hdl/lwsrp/KL_lwsrp_timers.sv",
     "hdl/lwsrp/KL_lwsrp_tx.sv", "hdl/lwsrp/KL_lwsrp_ingress.sv",
-    "hdl/lwsrp/KL_lwsrp_walker.sv", "hdl/lwsrp/KL_lwsrp_registrar.sv",
+    "hdl/lwsrp/KL_lwsrp_walker.sv", "hdl/lwsrp/KL_lwsrp_registrar.sv", "hdl/lwsrp/KL_lwsrp_ta_registrar.sv",
     "hdl/lwsrp/KL_lwsrp_rx.sv", "hdl/lwsrp/KL_lwsrp_bw_gate.sv",
     "hdl/lwsrp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)

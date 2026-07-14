@@ -1,6 +1,7 @@
 # HANDOVER — machine, topology, live state, tasks
 
-Updated 2026-07-14 late (post lwSRP fabric engine, milan-fpga @ `b19287e`).
+Updated 2026-07-15 (post Milan v1.2 AEM/AECP mandatory-set + ACMP listener
+SM close-out; lwSRP fabric engine landed 07-14 @ `b19287e`).
 This is THE entry point for a fresh session or person: everything needed to
 operate the bench, trust the current state, and pick the next task. Detail
 lives in the named normative docs; this file states what is true NOW.
@@ -146,12 +147,14 @@ fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
 | gPTP PHC + **HW timestamps** | DONE both boards | pdelay 1.3 µs, pw0 rms 2–5 ns through floods; `docs/findings/PTP_TS_METADATA_FIX.md`, `GPTP_RXPAD_ROOTCAUSE.md` |
 | QSPI v3 self-hosted boot (Arty) | DONE | flash→login hands-free; `docs/integration/QSPI_FLASHBOOT.md` |
 | TCP perf (separate perf-lineage gateware) | TX >500, RX 316 practical ceiling | `docs/findings/PERFORMANCE_GOAL.md` |
-| Portability | XPM-free HDL; Yosys/sv2v 21/21 tops (ECP5 check) | `syn/yosys/run.sh` |
-| **lwSRP fabric engine** (MSRP talker-adv + domain, MVRP, listener registrar, 75 % bw gate → CBS slope + TX gate + listener_observed) | **RTL+TB DONE `b19287e`; silicon vs switch/pw0 PENDING** | 363+75+36-check TBs; `docs/LWSRP_FPGA_ARCHITECTURE.md` |
+| Portability | XPM-free HDL; Yosys/sv2v 22/22 tops (ECP5 check) | `syn/yosys/run.sh` |
+| **lwSRP fabric engine** (MSRP talker-adv + domain + **Listener attr declare**, MVRP, both-side registrars, 75 % bw gate → CBS slope + TX gate + listener_observed) | **RTL+TB DONE `b19287e`+07-15; silicon vs switch/pw0 PENDING** | 445+96+36-check TBs; `docs/LWSRP_FPGA_ARCHITECTURE.md` |
+| **AEM/AECP Milan v1.2 mandatory set** (full 34-descriptor ROM FR-ENUM-02, SET/GET_CLOCK_SOURCE, CONTROL IDENTIFY → LED, GET_AUDIO_MAP, MVU SYSTEM_UNIQUE_ID + MEDIA_CLOCK_REF_INFO, live GET_COUNTERS, MAX_TRANSIT_TIME 0x4C/4D, STREAM_INPUT stream-info/format/start-stop) | **RTL+TB DONE 07-15; silicon re-cert PENDING** | aecp TB 345; `hdl/aecp/doc/README.md` |
+| **ACMP listener SM** (BIND_RX/UNBIND_RX/GET_RX_STATE + probe ladder + SRP binding via lwSRP TA registrar; CSR 0x6A4 RO group) | **RTL+TB DONE 07-15; silicon vs a real talker PENDING** | acmp_lstn TB 89; pipewire acmp-milan-v12.c contract |
 
-Regression: 24 Verilator harnesses under `tb/verilator/<name>/` (latest
-counts: acmp 71, aecp 121, milan_dp 53, csr 93, lwsrp_tx 363, lwsrp_rx 75,
-lwsrp 36, cls 200024) + Yosys 21/21.
+Regression: 25 Verilator harnesses under `tb/verilator/<name>/` (latest
+counts: acmp 71, acmp_lstn 89, aecp 345, milan_dp 53, csr 98, lwsrp_tx 445,
+lwsrp_rx 96, lwsrp 36, cls 200024) + Yosys 22/22.
 `docs/testing/RUNNING_TESTS.md` / `PROTOCOL_VALIDATION_MATRIX.md`.
 
 **The reference that decides Milan semantics:** pipewire module-avb
@@ -183,6 +186,7 @@ Full map: `docs/reference/REGISTER_MAP.md`. The ones you touch on the bench:
 | 0x684–0x690 | LWSRP VID/DMAC/TSPEC | VID (reset 2), stream DMAC, {interval[31:16], max_frame[15:0]} |
 | 0x694 | LWSRP_STATUS RO | drops/tfail+code/slope_en/gate/over_limit/active/domain_ok/declared/ready/reg/decl — see REGISTER_MAP |
 | 0x698/0x69C/0x6A0 | LWSRP slope/cnt/latency | granted idleSlope bps RO; {rx_pdus[31:16], tx_count[15:0]}; accum latency |
+| 0x6A4–0x6B4 | ACMPL_* RO | listener SM: state[2:0]/bound/active/declared/ta_reg/ta_fail/status/probing/tk_avail/vlan · talker EID lo/hi · {probes,cmds} · {fail_code, tuid} |
 
 NIC ring/perf/debug CSRs live in the LiteX region (0xf0003xxx ring/steer,
 0xf0004xxx probes) — perf-era docs in `docs/findings/`. devmem trap: 64-bit
@@ -337,25 +341,32 @@ track 1 (XPM-free + Yosys) → QSPI v3 flashboot → ADP advertiser → AECP/AEM
 entity (Milan=1) → ACMP stateless responder → gPTP Phase A (PHC) + Phase B
 (HW timestamps, rms 2–5 ns) → MVP AAF talker → ADP dormancy fix → Milan
 talker SM (ACMP PROBE_TX + AECP streaming + unsolicited), both boards
-Milan=1 CLEAN → **lwSRP fabric engine (RTL/TB/integration) — closed
-2026-07-14 `b19287e`** (silicon validation = open task #1).
+Milan=1 CLEAN → lwSRP fabric engine `b19287e` → **Milan v1.2 mandatory-set
+close-out 2026-07-15: full 34-descriptor AEM ROM + every mandatory AEM/MVU
+command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
+(silicon validation = open task #1).
 
 ### Open, ranked (next work; 1–3 are the USER-directed rev-2 order)
-1. **lwSRP silicon validation** — load a lwsrp-tag build (keepers below),
-   validate vs the AVB switch registration DB + a real SRP listener (pw0
-   module-avb Ready or OpenAvnu mrpd oracle). Gates: STATUS 0x694 shows
-   declared→ready→active on the board, granted slope @0x698 matches TSpec,
-   Ready withdraw closes the gate within LeaveTime (600 ms), MVRP gets
-   VLAN 2 registered by the SWITCH (retires the VID0 workaround — verify
-   ingress-filter behavior before flipping AAF off VID0). TCAM explicit
-   entries for 01:80:C2:00:00:0E/21 (default-pass covers today). Mind: with
-   LWSRP_CTRL[0]=1 and no listener Ready, the talker stays silent BY DESIGN.
+1. **Silicon validation of the 07-14/07-15 arcs** (one bench session):
+   (a) lwSRP vs the AVB switch registration DB + a real SRP peer (pw0
+   module-avb or OpenAvnu mrpd): STATUS 0x694 declared→ready→active,
+   granted slope @0x698, Ready withdraw closes the gate ≤600 ms, MVRP gets
+   VLAN 2 registered (retires VID0 — verify switch ingress filter first).
+   (b) AECP re-cert: milan_controller drill + la_avdecc enum (rebuild
+   enum-probe — ~/la_avdecc_work is GONE from the VM) against the full
+   descriptor ROM; aecp_csr_setup.sh now writes caps 0xC588 (identify bit
+   is BACK — CONTROL[0] exists); Hive identify → user_led0.
+   (c) ACMP listener: BIND_RX from pw0 controller → board probes the AX
+   talker → SETTLED_RSV_OK with real SRP; CSR 0x6A4 state walk.
+   Mind: with LWSRP_CTRL[0]=1 and no listener Ready, the talker stays
+   silent BY DESIGN. TCAM explicit entries for 01:80:C2:00:00:0E/21
+   (default-pass covers today).
 2. **pw0 PipeWire listener (BIND_RX)** — module-avb listener against the
    arty talker = the audible end-to-end; then media clock recovery (NCO from
-   gPTP) per `docs/design/MVP_TALKER.md`. Natural pairing with #1 (the same
-   pw0 session is the SRP listener).
-3. **Fabric ACMP connection table** — acceptance = resource check vs the
-   lwSRP grant (`reservation_active`, STATUS bit — rev-2 delimitation).
+   gPTP) per `docs/design/MVP_TALKER.md`. Natural pairing with #1.
+3. **Listener media path** — the ACMP listener SM opens the control plane;
+   the AAF RX sink (I2S out / CRF clock recovery, STREAM_INPUT counters,
+   dynamic audio maps) is the media half (HANDOVER task 12 lineage).
 4. **gPTP direct-cable session** — Arty-as-slave validation; script ready
    (`sw/litex/gptp_direct_cable.sh`), needs the physical cable move.
 5. **Switch power-cycle via amx-pi** — clear flap suppression, restore the
@@ -372,10 +383,14 @@ Milan=1 CLEAN → **lwSRP fabric engine (RTL/TB/integration) — closed
     byte-ring fold.
 11. **Perf follow-ups** (perf lineage): ~220-vs-525 cell-recipe gap, TX
     mid-flow stall, AF_XDP ZC (the RX>500 lane).
-12. **Arty listener half** (STREAM_INPUT/CRF) — the small endstation's
-    natural next role.
-13. **AECP deferred**: NV persistence of SET_*, real HW counter wiring,
-    audio maps, MAAP, GET_DYNAMIC_INFO.
+12. **Arty listener half — media** (AAF RX sink/I2S out/CRF): the control
+    plane (descriptors, ACMP listener SM, SRP binding) landed 07-15; the
+    audio path is what remains.
+13. **AECP deferred (small tail)**: NV persistence of SET_* (volatile
+    mirror today), GET_DYNAMIC_INFO 0x4B (SHOULD), dynamic audio-map edits
+    (ADD/REMOVE — static maps shipped), MAAP dynamic allocation,
+    STREAM_INPUT counters (need the AVTP-RX monitor), unsolicited pushes
+    for input/clock/control changes (only STREAM_OUTPUT pushes today).
 14. fpga-ps-tools: push main (ahead-5) — user's call.
 
 ### Doc index (normative first)
@@ -390,6 +405,8 @@ Milan=1 CLEAN → **lwSRP fabric engine (RTL/TB/integration) — closed
 `PERFORMANCE_GOAL.md` (perf lineage), `SESSION_HANDOFF.md` (historical).
 
 ### History anchors (git, newest first)
+`2d700ec` AECP Milan v1.2 mandatory-set close-out (34-descriptor ROM + all
+mandatory commands) ·
 `b19287e` lwSRP fabric engine (hdl/lwsrp ×9, CSR 0x680, 3 TB suites) ·
 `3fce652` miltick close-out (window 15 s exact, cadence 31 s ×2, 41/41,
 Milan=1) · `c3b0e82` MILAN_CLK_FREQ_HZ never passed — plumbed ·

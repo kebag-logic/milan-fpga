@@ -430,6 +430,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_lwsrp_status       (32'h0),
     .i_lwsrp_slope        (32'h0),
     .i_lwsrp_cnt          (32'h0),
+    .i_acmpl_state        (32'h0),
+    .i_acmpl_talker_lo    (32'h0),
+    .i_acmpl_talker_hi    (32'h0),
+    .i_acmpl_cnt          (32'h0),
+    .i_acmpl_tuid         (32'h0),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -677,6 +682,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .identify_o (),   // LED hook unused on the Zynq variant
     .link_up_i (link_up),
     .frames_tx_i (32'h0),   // no fabric AAF framer on the Zynq variant
+    // no ACMP listener SM on the Zynq variant: sinks read as unbound
+    .lstn_bound_i (1'b0), .lstn_sid_i (64'h0),
+    .lstn_dmac_i (48'h0), .lstn_vlan_i (12'h0),
+    .lstn_pbsta_i (2'b0), .lstn_acmpsta_i (5'h0),
+    .lstn_ta_reg_i (1'b0), .lstn_ta_fail_i (1'b0),
     // RX monitor tap (inputs only)
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),

@@ -36,6 +36,13 @@ module KL_lwsrp_rx #(
     input  wire [15:0]  unique_id_i,
     input  wire [11:0]  vid_i,
 
+    // ---- listener-side bound stream (ACMP listener SM) --------------------
+    input  wire [63:0]  lsid_i,
+    input  wire         lsid_en_i,
+    output wire         ta_registered_o,   //! TalkerAdvertise registered
+    output wire         ta_failed_o,       //! TalkerFailed registered
+    output wire [7:0]   ta_fail_code_o,
+
     // ---- registration state (to bw_gate / CSR) ---------------------------
     output wire         listener_ready_o,
     output wire         listener_reg_o,
@@ -75,6 +82,9 @@ module KL_lwsrp_rx #(
   wire [1:0]  w_listener_decl;
   wire        w_tadv_p, w_tfail_p;
   wire [7:0]  w_tfail_code;
+  wire        w_l_tadv_p, w_l_tfail_p;
+  wire [2:0]  w_l_evt;
+  wire [7:0]  w_l_tfail_code;
 
   assign rx_leaveall_p_o = w_leaveall_p;
 
@@ -83,6 +93,7 @@ module KL_lwsrp_rx #(
     .s_tdata (f_tdata), .s_tkeep (f_tkeep), .s_tvalid (f_tvalid),
     .s_tlast (f_tlast), .s_tuser (f_tuser), .s_tready (f_tready),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
+    .lsid_i (lsid_i), .lsid_en_i (lsid_en_i),
     .leaveall_p_o (w_leaveall_p),
     .domain_p_o (w_domain_p),
     .domain_class_o (w_domain_class), .domain_prio_o (w_domain_prio),
@@ -91,7 +102,19 @@ module KL_lwsrp_rx #(
     .listener_evt_o (w_listener_evt), .listener_decl_o (w_listener_decl),
     .tadv_p_o (w_tadv_p),
     .tfail_p_o (w_tfail_p), .tfail_code_o (w_tfail_code),
+    .l_tadv_p_o (w_l_tadv_p), .l_tfail_p_o (w_l_tfail_p),
+    .l_evt_o (w_l_evt), .l_tfail_code_o (w_l_tfail_code),
     .pdu_cnt_o (pdu_cnt_o)
+  );
+
+  KL_lwsrp_ta_registrar ta_registrar (
+    .clk_i (clk_i), .rst_n (rst_n),
+    .enable_i (enable_i & lsid_en_i), .tick_1khz_i (tick_1khz_i),
+    .leaveall_p_i (w_leaveall_p),
+    .l_tadv_p_i (w_l_tadv_p), .l_tfail_p_i (w_l_tfail_p),
+    .l_evt_i (w_l_evt), .l_tfail_code_i (w_l_tfail_code),
+    .ta_registered_o (ta_registered_o),
+    .ta_failed_o (ta_failed_o), .ta_fail_code_o (ta_fail_code_o)
   );
 
   KL_lwsrp_registrar registrar (

@@ -65,6 +65,10 @@ module KL_lwsrp_walker (
     input  wire [47:0]  station_mac_i,    //! [47:40] = first wire byte
     input  wire [15:0]  unique_id_i,
 
+    // ---- listener-side bound stream (second match context) --------------
+    input  wire [63:0]  lsid_i,           //! bound stream_id (ACMP listener)
+    input  wire         lsid_en_i,        //! binding valid
+
     // ---- event pulses (data valid with the pulse) -----------------------
     output reg          leaveall_p_o,
     output reg          domain_p_o,
@@ -78,6 +82,12 @@ module KL_lwsrp_walker (
     output reg          tadv_p_o,
     output reg          tfail_p_o,
     output reg  [7:0]   tfail_code_o,
+
+    //! listener-side events: TalkerAdvertise/Failed vectors covering lsid
+    output reg          l_tadv_p_o,
+    output reg          l_tfail_p_o,
+    output reg  [2:0]   l_evt_o,          //! MRP event of the matched value
+    output reg  [7:0]   l_tfail_code_o,
 
     output reg  [15:0]  pdu_cnt_o         //! cleanly parsed PDUs
 );
@@ -124,6 +134,10 @@ module KL_lwsrp_walker (
   //! value-index match (resolved when FirstValue completes)
   reg        val_match_r;
   reg [12:0] k_r;             //! matched value index
+  //! listener-side (lsid) match context
+  reg        lval_match_r;
+  reg [12:0] lk_r;
+  reg [2:0]  lcap_evt_r;
   //! incremental packed-byte windows
   reg [13:0] vbase_r;         //! first value index of the current packed byte
   reg [2:0]  cap_evt_r;       //! captured three-packed event for k
@@ -167,6 +181,12 @@ module KL_lwsrp_walker (
                            (sid_diff_w[63:13] == '0) &&
                            (sid_diff_w[12:0] < nv_r);
 
+  //! second context: the ACMP listener's bound stream_id
+  wire [63:0] lsid_diff_w = lsid_i - fv_eff_w;
+  wire        lsid_hit_w  = lsid_en_i && (lsid_i >= fv_eff_w) &&
+                            (lsid_diff_w[63:13] == '0) &&
+                            (lsid_diff_w[12:0] < nv_r);
+
   //! event bytes = ceil(nv/3), param bytes = ceil(nv/4)
   wire [12:0] n_evt_bytes_w = 13'((nv_r + 13'd2) / 13'd3);
   wire [12:0] n_par_bytes_w = 13'((nv_r + 13'd3) / 13'd4);
@@ -177,7 +197,7 @@ module KL_lwsrp_walker (
   // there would be one cycle stale when the matched byte is also the last.
   // -----------------------------------------------------------------------
   task automatic vector_done(input [2:0] evt, input [1:0] par,
-                             output wst_t nxt);
+                             input [2:0] levt, output wst_t nxt);
     begin
       if (is_domain_w) begin
         domain_p_o     <= 1'b1;
@@ -195,6 +215,15 @@ module KL_lwsrp_walker (
         tfail_p_o    <= 1'b1;
         tfail_code_o <= tfail_code_r;
       end
+      // listener-side context is independent (both can hit one vector)
+      if (lval_match_r && is_tadv_w) begin
+        l_tadv_p_o <= 1'b1;
+        l_evt_o    <= levt;
+      end else if (lval_match_r && is_tfail_w) begin
+        l_tfail_p_o     <= 1'b1;
+        l_evt_o         <= levt;
+        l_tfail_code_o  <= tfail_code_r;
+      end
       nxt = W_VECH_S;
     end
   endtask
@@ -203,6 +232,7 @@ module KL_lwsrp_walker (
     wst_t nxt;
     logic [2:0] evt_v;
     logic [1:0] par_v;
+    logic [2:0] levt_v;
     if (!rst_n) begin
       cur_v_r <= 1'b0; cur_l_r <= 1'b0; cur_u_r <= 1'b0;
       cur_d_r <= '0; cur_k_r <= '0; lane_r <= '0;
@@ -211,17 +241,21 @@ module KL_lwsrp_walker (
       fv_idx_r <= '0; fv_r <= '0; tfail_code_r <= '0;
       d_class_r <= '0; d_prio_r <= '0; d_vid_r <= '0;
       val_match_r <= 1'b0; k_r <= '0; vbase_r <= '0;
+      lval_match_r <= 1'b0; lk_r <= '0; lcap_evt_r <= '0;
       cap_evt_r <= '0; cap_par_r <= '0; pack_idx_r <= '0; pack_n_r <= '0;
       leaveall_p_o <= 1'b0;
       domain_p_o <= 1'b0; domain_class_o <= '0; domain_prio_o <= '0;
       domain_vid_o <= '0; domain_evt_o <= '0;
       listener_p_o <= 1'b0; listener_evt_o <= '0; listener_decl_o <= '0;
       tadv_p_o <= 1'b0; tfail_p_o <= 1'b0; tfail_code_o <= '0;
+      l_tadv_p_o <= 1'b0; l_tfail_p_o <= 1'b0;
+      l_evt_o <= '0; l_tfail_code_o <= '0;
       pdu_cnt_o <= '0;
     end else begin
       // pulses are one-cycle
       leaveall_p_o <= 1'b0; domain_p_o <= 1'b0; listener_p_o <= 1'b0;
       tadv_p_o <= 1'b0; tfail_p_o <= 1'b0;
+      l_tadv_p_o <= 1'b0; l_tfail_p_o <= 1'b0;
 
       // beat intake
       if (!cur_v_r && s_tvalid) begin
@@ -284,7 +318,9 @@ module KL_lwsrp_walker (
               fv_idx_r    <= 8'd0;
               fv_r        <= '0;
               val_match_r <= 1'b0;
+              lval_match_r<= 1'b0;
               cap_evt_r   <= MRP_EVT_MT_C;   // default: no news
+              lcap_evt_r  <= MRP_EVT_MT_C;
               cap_par_r   <= LSTN_DECL_IGNORE_C;
               nxt = W_FV_S;
             end
@@ -307,10 +343,14 @@ module KL_lwsrp_walker (
             if (is_tfail_w && fv_idx_r == 8'd33) tfail_code_r <= byte_w;
 
             if (fv_idx_r == attr_len_r - 8'd1) begin
-              // FirstValue complete: resolve the value-index match
+              // FirstValue complete: resolve the value-index matches
               if (is_stream_w && attr_len_r >= 8'd8 && sid_hit_w) begin
                 val_match_r <= 1'b1;
                 k_r         <= sid_diff_w[12:0];
+              end
+              if ((is_tadv_w || is_tfail_w) && attr_len_r >= 8'd8 && lsid_hit_w) begin
+                lval_match_r <= 1'b1;
+                lk_r         <= lsid_diff_w[12:0];
               end
               pack_n_r   <= n_evt_bytes_w;
               pack_idx_r <= '0;
@@ -319,7 +359,7 @@ module KL_lwsrp_walker (
                 // nv==0 (pure-LeaveAll vector): no packed bytes follow.
                 // A stream/listener match cannot exist with nv==0, so only
                 // a Domain pulse (with the MT default event) can emit here.
-                vector_done(MRP_EVT_MT_C, LSTN_DECL_IGNORE_C, nxt);
+                vector_done(MRP_EVT_MT_C, LSTN_DECL_IGNORE_C, MRP_EVT_MT_C, nxt);
               end else begin
                 nxt = W_EVT_S;
               end
@@ -329,13 +369,18 @@ module KL_lwsrp_walker (
 
           // ---- ThreePackedEvents -----------------------------------------
           W_EVT_S: begin
-            evt_v = cap_evt_r;
+            evt_v  = cap_evt_r;
+            levt_v = lcap_evt_r;
             if (val_match_r &&
                 ({1'b0, k_r} >= vbase_r) && ({1'b0, k_r} < vbase_r + 14'd3))
               evt_v = unpack3(byte_w, 2'(14'({1'b0, k_r}) - vbase_r));
+            if (lval_match_r &&
+                ({1'b0, lk_r} >= vbase_r) && ({1'b0, lk_r} < vbase_r + 14'd3))
+              levt_v = unpack3(byte_w, 2'(14'({1'b0, lk_r}) - vbase_r));
             if (is_domain_w && pack_idx_r == '0)
               evt_v = unpack3(byte_w, 2'd0);   // domain: value 0 only
             cap_evt_r  <= evt_v;
+            lcap_evt_r <= levt_v;
             vbase_r    <= vbase_r + 14'd3;
             pack_idx_r <= pack_idx_r + 13'd1;
             if (pack_idx_r == pack_n_r - 13'd1) begin
@@ -345,7 +390,7 @@ module KL_lwsrp_walker (
                 vbase_r    <= '0;
                 nxt = W_PAR_S;
               end else begin
-                vector_done(evt_v, cap_par_r, nxt);
+                vector_done(evt_v, cap_par_r, levt_v, nxt);
               end
             end
           end
@@ -360,7 +405,7 @@ module KL_lwsrp_walker (
             vbase_r    <= vbase_r + 14'd4;
             pack_idx_r <= pack_idx_r + 13'd1;
             if (pack_idx_r == pack_n_r - 13'd1) begin
-              vector_done(cap_evt_r, par_v, nxt);
+              vector_done(cap_evt_r, par_v, lcap_evt_r, nxt);
             end
           end
 

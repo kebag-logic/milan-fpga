@@ -54,6 +54,11 @@ module KL_lwsrp_tx (
     input  wire         leaveall_tick_i,   //! our LeaveAll turn
     input  wire         rx_leaveall_i,     //! LeaveAll registered (walker)
 
+    // ---- listener declaration (ACMP listener SM hooks) -------------------
+    input  wire         lstn_declare_i,    //! declare the Listener attribute
+    input  wire         lstn_ready_i,      //! 1 = Ready, 0 = AskingFailed
+    input  wire [63:0]  lstn_sid_i,        //! bound stream_id
+
     // ---- identity / stream table row 0 (CSR group) ----------------------
     input  wire [47:0]  station_mac_i,     //! [47:40] = first wire byte
     input  wire [15:0]  unique_id_i,       //! stream_id = {station_mac, uid}
@@ -72,15 +77,23 @@ module KL_lwsrp_tx (
 
     // ---- status ----------------------------------------------------------
     output reg          talker_declared_o, //! TalkerAdvertise currently on the wire
+    output reg          lstn_declared_o,   //! Listener attribute on the wire
     output reg  [15:0]  tx_count_o         //! MRPDUs sent
 );
 
   // -----------------------------------------------------------------------
-  // Frame geometry: every template fits 8 beats (64 B). The full MSRP PDU
-  // (Domain + TalkerAdvertise) is exactly 64 B; the Domain-only MSRP (30 B)
-  // and the MVRP PDU (26 B) are zero-padded to the 60-byte Ethernet minimum.
+  // Frame geometry. MSRP message sizes: Domain 13 B, TalkerAdvertise 34 B,
+  // Listener 18 B (+ 15 B header/version + 2 B message-list EndMark):
+  //   Domain only            30 B -> pad 60, 8 beats
+  //   Domain+TalkerAdv       64 B -> 8 beats
+  //   Domain+Listener        48 B -> pad 60, 8 beats
+  //   Domain+TalkerAdv+Lstn  82 B -> 11 beats (last keep 2)
+  // MVRP is 26 B -> pad 60. Short frames are zero-padded in fabric (the
+  // MRPDU EndMark makes trailing zeros inert; MAC min-frame padding is not
+  // a property we have silicon-proven).
   // -----------------------------------------------------------------------
-  localparam int NUM_BEATS_C     = 8;
+  localparam int NUM_BEATS_C     = 8;    //! all frames except the 3-message MSRP
+  localparam int MAX_BEATS_C     = 11;
   localparam int PAD_FRAME_LEN_C = 60;   //! padded short-frame length
   localparam int FULL_FRAME_LEN_C= 64;   //! MSRP Domain+TalkerAdvertise
 
@@ -98,23 +111,29 @@ module KL_lwsrp_tx (
 
   reg msrp_pend_r, mvrp_pend_r;      //! normal declare pair queued
   reg talker_lv_pend_r;              //! withdraw TalkerAdvertise only
+  reg lstn_lv_pend_r;                //! withdraw the Listener attribute only
   reg engine_lv_pend_r;              //! withdraw everything (engine disable)
   reg lva_pend_r;                    //! set LeaveAllEvent in the next pair
-  reg fresh_domain_r, fresh_vid_r, fresh_talker_r;   //! NEW on next TX
+  reg fresh_domain_r, fresh_vid_r, fresh_talker_r, fresh_lstn_r; //! NEW next TX
+  reg lstn_q, lstn_ready_q;
 
   // -----------------------------------------------------------------------
   // Serialiser state — frame parameters latched at start-of-frame
   // -----------------------------------------------------------------------
   typedef enum logic [0:0] { S_IDLE, S_SEND } state_t;
   state_t      state_r;
-  reg [2:0]    beat_r;
+  reg [3:0]    beat_r;
   frame_kind_t kind_r;
   reg          talker_incl_r;        //! MSRP frame carries TalkerAdvertise
+  reg          lstn_incl_r;          //! MSRP frame carries the Listener attr
   reg          lva_r;                //! LeaveAllEvent in this frame's vectors
-  reg [2:0]    domain_evt_r, talker_evt_r, vid_evt_r;
+  reg [2:0]    domain_evt_r, talker_evt_r, vid_evt_r, lstn_evt_r;
 
-  wire is_full_w = (kind_r == FK_MSRP_E) && talker_incl_r;
-  wire [3:0] last_keep_w = is_full_w ? 4'd8
+  wire is_full_w  = (kind_r == FK_MSRP_E) && talker_incl_r;
+  wire is_full3_w = is_full_w && lstn_incl_r;   //! 82-byte 3-message MSRP
+  wire [3:0] frame_beats_w = is_full3_w ? 4'(MAX_BEATS_C) : 4'(NUM_BEATS_C);
+  wire [3:0] last_keep_w = is_full3_w ? 4'd2
+                         : is_full_w  ? 4'd8
                          : 4'(PAD_FRAME_LEN_C - (NUM_BEATS_C-1)*8);  // = 4
 
   // -----------------------------------------------------------------------
@@ -131,11 +150,18 @@ module KL_lwsrp_tx (
     vech = {lva ? 3'b001 : 3'b000, 13'd1};
   endfunction
 
-  logic [7:0] fb [0:NUM_BEATS_C*8-1];
+  //! single-value FourPackedEvents octet: p0*64
+  function automatic [7:0] pack4(input [1:0] p);
+    pack4 = {p, 6'b000000};
+  endfunction
+
+  logic [7:0] fb [0:MAX_BEATS_C*8-1];
   always_comb begin
     logic [15:0] vh;
-    for (int k = 0; k < NUM_BEATS_C*8; k++) fb[k] = 8'h00;   //! default pad
+    int lb;   //! Listener message base (after Domain [+TalkerAdvertise])
+    for (int k = 0; k < MAX_BEATS_C*8; k++) fb[k] = 8'h00;   //! default pad
     vh = vech(lva_r);
+    lb = talker_incl_r ? 62 : 28;
 
     // ---- Ethernet header (14 B) ----
     if (kind_r == FK_MSRP_E) begin
@@ -188,9 +214,23 @@ module KL_lwsrp_tx (
         fb[55]=latency_i[31:24]; fb[56]=latency_i[23:16];
         fb[57]=latency_i[15:8];  fb[58]=latency_i[7:0];
         fb[59]=pack3(talker_evt_r);
-        // fb[60..61] vector EndMark, fb[62..63] message-list EndMark = 0
+        // fb[60..61] vector EndMark; message list continues at fb[62]
       end
-      // (no talker: fb[28..29] message-list EndMark = 0, rest pad)
+      if (lstn_incl_r) begin
+        // ---- Listener message (type 3, len 8, listlen 14) at lb ----
+        fb[lb+0]=MSRP_ATTR_LISTENER_C;
+        fb[lb+1]=MSRP_LEN_LISTENER_C;
+        fb[lb+2]=MSRP_ALL_LISTENER_C[15:8]; fb[lb+3]=MSRP_ALL_LISTENER_C[7:0];
+        fb[lb+4]=vh[15:8]; fb[lb+5]=vh[7:0];
+        for (int k = 0; k < 8; k++) fb[lb+6+k]=lstn_sid_i[8*(7-k) +: 8];
+        fb[lb+14]=pack3(lstn_evt_r);
+        //! FourPacked declaration: Ready while the TalkerAdvertise is
+        //! registered, AskingFailed otherwise (pipewire acmp_periodic rule)
+        fb[lb+15]=pack4(lstn_ready_i ? LSTN_DECL_READY_C
+                                     : LSTN_DECL_ASKING_FAIL_C);
+        // fb[lb+16..17] vector EndMark; message-list EndMark after = 0
+      end
+      // (remaining bytes stay 0 = message-list EndMark + pad)
     end else begin
       // ---- MVRP: VID (type 1, len 2 — NO AttributeListLength) ----
       fb[12]=MVRP_ETHERTYPE_C[15:8]; fb[13]=MVRP_ETHERTYPE_C[7:0];
@@ -208,14 +248,14 @@ module KL_lwsrp_tx (
   logic [63:0] beat_data_w;
   always_comb begin
     for (int l = 0; l < 8; l++)
-      beat_data_w[8*l +: 8] = fb[{beat_r, 3'b000} + 6'(l)];
+      beat_data_w[8*l +: 8] = fb[{beat_r, 3'b000} + 7'(l)];
   end
 
   always_comb begin
     m_axis_tvalid = (state_r == S_SEND);
     m_axis_tdata  = beat_data_w;
-    m_axis_tlast  = (state_r == S_SEND) && (beat_r == 3'(NUM_BEATS_C-1));
-    if ((state_r == S_SEND) && (beat_r == 3'(NUM_BEATS_C-1)))
+    m_axis_tlast  = (state_r == S_SEND) && (beat_r == frame_beats_w - 4'd1);
+    if ((state_r == S_SEND) && (beat_r == frame_beats_w - 4'd1))
       m_axis_tkeep = 8'((16'd1 << last_keep_w) - 16'd1);
     else if (state_r == S_SEND)
       m_axis_tkeep = 8'hFF;
@@ -228,29 +268,43 @@ module KL_lwsrp_tx (
   // -----------------------------------------------------------------------
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      enable_q <= 1'b0; talker_q <= 1'b0;
+      enable_q <= 1'b0; talker_q <= 1'b0; lstn_q <= 1'b0; lstn_ready_q <= 1'b0;
       msrp_pend_r <= 1'b0; mvrp_pend_r <= 1'b0;
-      talker_lv_pend_r <= 1'b0; engine_lv_pend_r <= 1'b0; lva_pend_r <= 1'b0;
+      talker_lv_pend_r <= 1'b0; lstn_lv_pend_r <= 1'b0;
+      engine_lv_pend_r <= 1'b0; lva_pend_r <= 1'b0;
       fresh_domain_r <= 1'b0; fresh_vid_r <= 1'b0; fresh_talker_r <= 1'b0;
+      fresh_lstn_r <= 1'b0;
       state_r <= S_IDLE; beat_r <= '0;
-      kind_r <= FK_MSRP_E; talker_incl_r <= 1'b0; lva_r <= 1'b0;
+      kind_r <= FK_MSRP_E; talker_incl_r <= 1'b0; lstn_incl_r <= 1'b0;
+      lva_r <= 1'b0;
       domain_evt_r <= MRP_EVT_JOININ_C; talker_evt_r <= MRP_EVT_JOININ_C;
-      vid_evt_r <= MRP_EVT_JOININ_C;
-      talker_declared_o <= 1'b0; tx_count_o <= 16'd0;
+      vid_evt_r <= MRP_EVT_JOININ_C; lstn_evt_r <= MRP_EVT_JOININ_C;
+      talker_declared_o <= 1'b0; lstn_declared_o <= 1'b0; tx_count_o <= 16'd0;
     end else begin
       enable_q <= enable_i;
       talker_q <= enable_i & talker_en_i;
+      lstn_q   <= enable_i & lstn_declare_i;
+      lstn_ready_q <= lstn_ready_i;
 
       // ---- triggers -> pending flags ----
       if (enable_rise_w) begin
         fresh_domain_r <= 1'b1; fresh_vid_r <= 1'b1;
         if (talker_en_i) fresh_talker_r <= 1'b1;
+        if (lstn_declare_i) fresh_lstn_r <= 1'b1;
         msrp_pend_r <= 1'b1; mvrp_pend_r <= 1'b1;   // declare promptly
       end
       if (talker_rise_w) begin
         fresh_talker_r <= 1'b1;
         msrp_pend_r <= 1'b1;
       end
+      if (enable_i && lstn_declare_i && !lstn_q) begin
+        fresh_lstn_r <= 1'b1;
+        msrp_pend_r  <= 1'b1;
+      end
+      // Ready <-> AskingFailed change re-declares promptly (the reference
+      // re-joins the Listener attribute from acmp_periodic on param change)
+      if (enable_i && lstn_declared_o && (lstn_ready_i ^ lstn_ready_q))
+        msrp_pend_r <= 1'b1;
       if (enable_i && (join_tick_i || rx_leaveall_i)) begin
         msrp_pend_r <= 1'b1; mvrp_pend_r <= 1'b1;
       end
@@ -259,47 +313,71 @@ module KL_lwsrp_tx (
         msrp_pend_r <= 1'b1; mvrp_pend_r <= 1'b1;   // our LeaveAll turn
       end
       if (talker_fall_w && talker_declared_o) talker_lv_pend_r <= 1'b1;
+      if (enable_i && !lstn_declare_i && lstn_q && lstn_declared_o)
+        lstn_lv_pend_r <= 1'b1;
       if (enable_fall_w) begin
         engine_lv_pend_r <= 1'b1;
         // a stale declare pair must not fire after the withdraw
         msrp_pend_r <= 1'b0; mvrp_pend_r <= 1'b0; lva_pend_r <= 1'b0;
         fresh_domain_r <= 1'b0; fresh_vid_r <= 1'b0; fresh_talker_r <= 1'b0;
+        fresh_lstn_r <= 1'b0;
       end
 
       // ---- serialiser ----
       case (state_r)
         S_IDLE: begin
           if (engine_lv_pend_r) begin
-            // withdraw everything: MSRP LV (+talker LV if declared) then MVRP LV
+            // withdraw everything: MSRP LV (+talker/listener LV if declared)
+            // then MVRP LV
             kind_r        <= FK_MSRP_E;
             talker_incl_r <= talker_declared_o;
+            lstn_incl_r   <= lstn_declared_o;
             lva_r         <= 1'b0;
             domain_evt_r  <= MRP_EVT_LV_C;
             talker_evt_r  <= MRP_EVT_LV_C;
+            lstn_evt_r    <= MRP_EVT_LV_C;
             engine_lv_pend_r <= 1'b0;
             mvrp_pend_r   <= 1'b1;             // follow with the MVRP LV
             vid_evt_r     <= MRP_EVT_LV_C;
             talker_declared_o <= 1'b0;
+            lstn_declared_o   <= 1'b0;
             beat_r <= '0; state_r <= S_SEND;
           end else if (talker_lv_pend_r) begin
             kind_r        <= FK_MSRP_E;
             talker_incl_r <= 1'b1;
+            lstn_incl_r   <= 1'b0;
             lva_r         <= 1'b0;
             domain_evt_r  <= MRP_EVT_JOININ_C; // domain stays declared
             talker_evt_r  <= MRP_EVT_LV_C;
             talker_lv_pend_r  <= 1'b0;
             talker_declared_o <= 1'b0;
             beat_r <= '0; state_r <= S_SEND;
+          end else if (lstn_lv_pend_r) begin
+            kind_r        <= FK_MSRP_E;
+            talker_incl_r <= 1'b0;
+            lstn_incl_r   <= 1'b1;
+            lva_r         <= 1'b0;
+            domain_evt_r  <= MRP_EVT_JOININ_C;
+            lstn_evt_r    <= MRP_EVT_LV_C;
+            lstn_lv_pend_r  <= 1'b0;
+            lstn_declared_o <= 1'b0;
+            beat_r <= '0; state_r <= S_SEND;
           end else if (msrp_pend_r) begin
             kind_r        <= FK_MSRP_E;
             talker_incl_r <= enable_i & talker_en_i;
+            lstn_incl_r   <= enable_i & lstn_declare_i;
             lva_r         <= lva_pend_r;
             domain_evt_r  <= fresh_domain_r ? MRP_EVT_NEW_C : MRP_EVT_JOININ_C;
             talker_evt_r  <= fresh_talker_r ? MRP_EVT_NEW_C : MRP_EVT_JOININ_C;
+            lstn_evt_r    <= fresh_lstn_r   ? MRP_EVT_NEW_C : MRP_EVT_JOININ_C;
             fresh_domain_r <= 1'b0;
             if (enable_i & talker_en_i) begin
               fresh_talker_r    <= 1'b0;
               talker_declared_o <= 1'b1;
+            end
+            if (enable_i & lstn_declare_i) begin
+              fresh_lstn_r    <= 1'b0;
+              lstn_declared_o <= 1'b1;
             end
             msrp_pend_r   <= 1'b0;
             beat_r <= '0; state_r <= S_SEND;
@@ -318,12 +396,12 @@ module KL_lwsrp_tx (
 
         S_SEND: begin
           if (m_axis_tready) begin
-            if (beat_r == 3'(NUM_BEATS_C-1)) begin
+            if (beat_r == frame_beats_w - 4'd1) begin
               tx_count_o <= tx_count_o + 16'd1;
               if (kind_r == FK_MVRP_E) vid_evt_r <= MRP_EVT_JOININ_C;
               state_r    <= S_IDLE;
             end else begin
-              beat_r <= beat_r + 3'd1;
+              beat_r <= beat_r + 4'd1;
             end
           end
         end

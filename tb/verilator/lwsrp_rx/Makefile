@@ -22,7 +22,7 @@ VFLAGS = --cc --exe --build -j 0 \
 SRCS = $(RTL_DIR)/lwsrp/lwsrp_pkg.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_ingress.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_walker.sv \
-       $(RTL_DIR)/lwsrp/KL_lwsrp_registrar.sv \
+       $(RTL_DIR)/lwsrp/KL_lwsrp_registrar.sv $(RTL_DIR)/lwsrp/KL_lwsrp_ta_registrar.sv \
        $(RTL_DIR)/lwsrp/KL_lwsrp_rx.sv \
        $(AXIS_DIR)/axis_fifo.v
 CPP  = sim_main.cpp

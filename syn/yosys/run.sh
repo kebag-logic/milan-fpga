@@ -25,7 +25,7 @@ SYNTH="${YOSYS_SYNTH:-synth}"           # generic 'synth' = device-independent
 TMP="$(mktemp -d)"
 
 AECP_SRCS="$K/aecp_pkg.sv $K/KL_aecp_ingress.sv $K/KL_aecp_packet_validator.sv $K/KL_aecp_common_parser.sv $K/KL_aecp_l0_state.sv $K/KL_aecp_timers.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv $K/KL_aecp_top.sv"
-LWSRP_SRCS="$S/lwsrp_pkg.sv $S/KL_lwsrp_timers.sv $S/KL_lwsrp_tx.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_rx.sv $S/KL_lwsrp_bw_gate.sv $S/KL_lwsrp_top.sv"
+LWSRP_SRCS="$S/lwsrp_pkg.sv $S/KL_lwsrp_timers.sv $S/KL_lwsrp_tx.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv $S/KL_lwsrp_bw_gate.sv $S/KL_lwsrp_top.sv"
 
 for t in sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (see syn/yosys/README.md)"; exit 2; }; done
 
@@ -39,6 +39,7 @@ tops=(
   "rx_mac_filter|$C/tcam.sv $C/rx_mac_filter.sv"
   "milan_csr|$R/hdl/csr/milan_csr.sv"
   "KL_acmp_responder|$M/acmp_pkg.sv $M/KL_acmp_responder.sv"
+  "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_listener.sv"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
   "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $AECP_SRCS"
   "credit_based_shaper|$C/ethernet_packet_pkg.sv $Q/credit_based_shaper.sv"
@@ -51,7 +52,7 @@ tops=(
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
-  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $C/tcam.sv $C/rx_mac_filter.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_responder.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/csr/milan_csr.sv $R/hdl/avtp/aaf_talker_i2s.sv $C/milan_datapath.sv"
+  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $C/tcam.sv $C/rx_mac_filter.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_responder.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/csr/milan_csr.sv $R/hdl/avtp/aaf_talker_i2s.sv $C/milan_datapath.sv"
 )
 
 echo "== Yosys open-synthesis check ($SYNTH, via sv2v) =="
