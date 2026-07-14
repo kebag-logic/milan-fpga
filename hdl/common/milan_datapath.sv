@@ -123,7 +123,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire [_ETH_EVENT_COUNTER-1:0] i_mac_events,
 
   // ---- interrupt (milan_csr aggregate: tx_ts_ready | link_change | rmon_rollover) ----
-  output wire        o_irq_csr
+  output wire        o_irq_csr,
+
+  // ---- AECP IDENTIFY control (Milan FR-MGT-01): board LED blink hook ----
+  output wire        o_identify
 );
 
   // ==========================================================================
@@ -734,6 +737,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .talker_active_i (acmp_talker_active),
     .listener_observed_i (listener_observed_w),
     .pres_offset_o (aecp_pres_offset),
+    .identify_o    (o_identify),
+    .link_up_i     (i_link_up),
+    .frames_tx_i   (aaf_frames_w),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),

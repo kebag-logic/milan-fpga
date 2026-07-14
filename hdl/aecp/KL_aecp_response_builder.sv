@@ -18,16 +18,21 @@
                 serialises the full response Ethernet frame (little lane
                 order, tdata[7:0] = first wire byte — the MAC convention).
 
-                Implemented command set (Milan v1.2 baseline):
-                  READ_DESCRIPTOR                      (5-descriptor model)
+                Implemented command set (Milan v1.2):
+                  READ_DESCRIPTOR                      (full 34-descriptor model)
                   LOCK_ENTITY (+UNLOCK, 60 s timeout)  ACQUIRE -> NOT_SUPPORTED
                   ENTITY_AVAILABLE
                   GET/SET_CONFIGURATION                (single configuration)
-                  GET/SET_NAME                         (write-back to store)
+                  GET/SET_NAME                         (generated name directory)
                   GET/SET_SAMPLING_RATE                (validated, write-back)
                   GET/SET_STREAM_FORMAT                (validated, write-back)
-                  GET_STREAM_INFO                      GET_AVB_INFO
-                  REGISTER/DEREGISTER_UNSOLICITED      (accepted; no push yet)
+                  GET/SET_CLOCK_SOURCE                 (CLOCK_DOMAIN[0], 0..2)
+                  GET/SET_CONTROL                      (IDENTIFY, identify_o)
+                  GET_AUDIO_MAP                        (static maps; ADD/REMOVE
+                                                        -> NOT_SUPPORTED)
+                  GET/SET_STREAM_INFO                  GET_AVB_INFO
+                  GET_COUNTERS  GET_AS_PATH  START/STOP_STREAMING (NOT_SUPPORTED)
+                  REGISTER/DEREGISTER_UNSOLICITED      (4-slot push engine)
                   MVU GET_MILAN_INFO                   (protocol_id checked)
                 Everything else answers NOT_IMPLEMENTED with the command
                 payload echoed (clamped to the capture buffer).
@@ -93,6 +98,9 @@ module KL_aecp_response_builder (
   input  wire [31:0]   pres_offset_i,      //! msrp_accumulated_latency (ns)
   output logic         pres_wr_p_o,        //! 1-cycle: SET_STREAM_INFO update
   output logic [31:0]  pres_wr_val_o,
+  output logic         identify_o,         //! IDENTIFY control active (LED hook)
+  input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
+  input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT)
 
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
@@ -199,25 +207,13 @@ module KL_aecp_response_builder (
     .len_o        (acc_len)
   );
 
-  //! SET/GET_NAME write-back address for (desc_type, name_index)
-  function automatic [16:0] name_addr(input [15:0] t, input [15:0] nidx);
-    name_addr = 17'd0;   // {valid, addr}
-    case (t)
-      DESC_ENTITY:
-        if (nidx == 16'd0)      name_addr = {1'b1, WB_NAME_ENTITY_0_C};
-        else if (nidx == 16'd1) name_addr = {1'b1, WB_NAME_ENTITY_1_C};
-      DESC_CONFIGURATION: if (nidx == 16'd0) name_addr = {1'b1, WB_NAME_CONFIG_C};
-      DESC_AUDIO_UNIT:    if (nidx == 16'd0) name_addr = {1'b1, WB_NAME_AUDIO_C};
-      DESC_STREAM_OUTPUT: if (nidx == 16'd0) name_addr = {1'b1, WB_NAME_STREAM_C};
-      DESC_AVB_INTERFACE: if (nidx == 16'd0) name_addr = {1'b1, WB_NAME_AVBIF_C};
-      default: name_addr = 17'd0;
-    endcase
-  endfunction
-
   // function result captured in a net: indexing a call expression directly
-  // (name_addr(...)[16]) is SV-only — sv2v keeps it and Yosys' V2005 reader
-  // rejects it, breaking the open-toolchain portability gate.
-  wire [16:0] w_name_ptr = name_addr(w_gs_type, w_name_idx);   //! {valid, wb addr}
+  // (aem_name_lookup(...)[16]) is SV-only — sv2v keeps it and Yosys' V2005
+  // reader rejects it, breaking the open-toolchain portability gate. The
+  // lookup itself is generated (gen/aecp_aem_rom.svh) so the name directory
+  // always matches the descriptor image.
+  wire [16:0] w_name_ptr =
+      aem_name_lookup(w_gs_type, w_gs_index, w_name_idx);   //! {valid, wb addr}
 
   wire w_rate_ok = (w_set_rate == AEM_RATES_C[0]) ||
                    (w_set_rate == AEM_RATES_C[1]) ||
@@ -332,6 +328,24 @@ module KL_aecp_response_builder (
   //! meta-FIFO pop bookkeeping: pops can be requested by a concluded
   //! response AND an asynchronously dropped frame in the same cycle
   logic [1:0] pop_pend_r;
+
+  //! IDENTIFY control level (SET_CONTROL 255 -> on, 0 -> off)
+  logic identify_r;
+  assign identify_o = identify_r;
+
+  //! Milan MVU state: system unique id (32-bit on the 1.2 wire) + the user
+  //! media-clock-reference priority (domain name lives in the store scratch)
+  logic [31:0] sysuid_r;
+  logic [7:0]  mcr_user_prio_r;
+
+  //! GET_COUNTERS live counters (FR-CTRL-04). STREAM_OUTPUT start/stop come
+  //! from the talker-SM activation edges; AVB_INTERFACE link/GM from the
+  //! link level and the CSR-provisioned gPTP GM id (first provisioning
+  //! write counts as one GM change — documented).
+  logic [31:0] cnt_start_r, cnt_stop_r;
+  logic [31:0] cnt_linkup_r, cnt_linkdn_r, cnt_gmchg_r;
+  logic        link_prev_r;
+  logic [63:0] gm_prev_r;
 
   // ------------------------------------------------------------------ //
   // Unsolicited notifications (Milan §5.4.2.21 / IEEE 1722.1-2021 §7.5.2)
@@ -449,6 +463,16 @@ module KL_aecp_response_builder (
       evt_drop_o   <= 1'b0;
       pres_wr_p_o  <= 1'b0;
       pres_wr_val_o <= 32'd0;
+      identify_r   <= 1'b0;
+      sysuid_r     <= 32'd0;
+      mcr_user_prio_r <= MCR_DEFAULT_PRIO_C;
+      cnt_start_r  <= 32'd0;
+      cnt_stop_r   <= 32'd0;
+      cnt_linkup_r <= 32'd0;
+      cnt_linkdn_r <= 32'd0;
+      cnt_gmchg_r  <= 32'd0;
+      link_prev_r  <= 1'b0;
+      gm_prev_r    <= 64'd0;
       unsol_pend_r  <= '0;
       unsol_frame_r <= 1'b0;
       ta_prev_r     <= 1'b0;
@@ -507,6 +531,15 @@ module KL_aecp_response_builder (
         for (int s = 0; s < UNSOL_SLOTS_C; s++)
           if (unsol_valid_r[s]) unsol_pend_r[s] <= 1'b1;
       end
+
+      // ---- GET_COUNTERS event counting (edges) ------------------------
+      if (talker_active_i & ~ta_prev_r) cnt_start_r <= cnt_start_r + 32'd1;
+      if (~talker_active_i & ta_prev_r) cnt_stop_r  <= cnt_stop_r  + 32'd1;
+      link_prev_r <= link_up_i;
+      if (link_up_i & ~link_prev_r) cnt_linkup_r <= cnt_linkup_r + 32'd1;
+      if (~link_up_i & link_prev_r) cnt_linkdn_r <= cnt_linkdn_r + 32'd1;
+      gm_prev_r <= gptp_gm_id_i;
+      if (gptp_gm_id_i != gm_prev_r) cnt_gmchg_r <= cnt_gmchg_r + 32'd1;
       if (pres_wr_p_o) begin   // hdr_q still holds the causing SET command
         for (int s = 0; s < UNSOL_SLOTS_C; s++)
           if (unsol_valid_r[s] &&
@@ -637,6 +670,58 @@ module KL_aecp_response_builder (
               const_q[8] <= 8'h00; const_q[9] <= 8'h00;
               const_q[10] <= 8'h00; const_q[11] <= 8'h00;
               cdl_q <= 11'd32;    // ctlr(8)+seq(2)+proto/cmd/rsvd(10)+info(12)
+
+            // SET/GET_SYSTEM_UNIQUE_ID (FR-MVU-02; Milan 1.2 payload =
+            // reserved16 + 32-bit id, la_avdecc protocolMvuPayloadSizes 6/2/6).
+            // Volatile mirror — NV persistence is the standing store follow-up.
+            end else if (w_vu_cmd == VU_SET_SYSTEM_UNIQUE_ID) begin
+              status_q      <= STATUS_SUCCESS;
+              seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd0; seg_len_q[0] <= 16'd14;
+              sysuid_r      <= {buf_r[10], buf_r[11], buf_r[12], buf_r[13]};
+              cdl_q         <= 11'd24;
+            end else if (w_vu_cmd == VU_GET_SYSTEM_UNIQUE_ID) begin
+              status_q      <= STATUS_SUCCESS;
+              seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd0; seg_len_q[0] <= 16'd10;
+              seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd4;
+              const_q[0] <= sysuid_r[31:24]; const_q[1] <= sysuid_r[23:16];
+              const_q[2] <= sysuid_r[15:8];  const_q[3] <= sysuid_r[7:0];
+              cdl_q         <= 11'd24;
+
+            // SET/GET_MEDIA_CLOCK_REFERENCE_INFO (FR-MVU-02; Milan 1.3
+            // §5.4.4.4 layout, 74-byte info block): clock_domain_index(2) +
+            // flags(1: bit0 user-prio-valid, bit1 domain-name-valid) +
+            // reserved(1) + default_prio(1) + user_prio(1) + reserved(4) +
+            // domain_name(64). default_prio = 192 (audio-interface class).
+            // The domain name lives in the store's scratch tail.
+            end else if (w_vu_cmd == VU_GET_MEDIA_CLOCK_REF_INFO ||
+                         w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO) begin
+              seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd0; seg_len_q[0] <= 16'd10;
+              if ({buf_r[8], buf_r[9]} != 16'd0) begin
+                status_q <= STATUS_BAD_ARGUMENTS;   // only CLOCK_DOMAIN[0]
+                cdl_q    <= 11'd20;
+              end else begin
+                status_q      <= STATUS_SUCCESS;
+                seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd8;
+                seg_kind_q[2] <= SEG_STORE;
+                seg_addr_q[2] <= WB_MCR_DOMNAME_C; seg_len_q[2] <= 16'd64;
+                const_q[0] <= (w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO)
+                              ? buf_r[10] : 8'h03;   // SET echoes its flags
+                const_q[1] <= 8'h00;                 // reserved
+                const_q[2] <= MCR_DEFAULT_PRIO_C;
+                const_q[3] <= (w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO &&
+                               buf_r[10][0]) ? buf_r[13] : mcr_user_prio_r;
+                const_q[4] <= 8'h00; const_q[5] <= 8'h00;
+                const_q[6] <= 8'h00; const_q[7] <= 8'h00;
+                cdl_q <= 11'd92;   // 18 + 74
+                if (w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO) begin
+                  if (buf_r[10][0]) mcr_user_prio_r <= buf_r[13];
+                  if (buf_r[10][1]) begin
+                    wb_addr_q <= WB_MCR_DOMNAME_C;
+                    wb_len_q  <= 7'd64;
+                    wb_src_q  <= 7'd18;
+                  end
+                end
+              end
             end else begin
               // NOT_IMPLEMENTED: echo protocol_id + command_type + reserved
               seg_addr_q[0] <= 16'd0;
@@ -743,6 +828,106 @@ module KL_aecp_response_builder (
                     wb_src_q  <= 7'd6;
                   end
                 end
+              end
+
+              // -------------------------------------------------- //
+              // SET/GET_CLOCK_SOURCE (§7.4.23/24, FR-CLK-03): addresses
+              // CLOCK_DOMAIN[0]; the selected index is dynamic state in the
+              // store (write-back, reads back through the STORE segment) —
+              // sources 0..2 = Internal / AAF stream / CRF stream.
+              CMD_GET_CLOCK_SOURCE, CMD_SET_CLOCK_SOURCE: begin
+                cdl_q <= 11'd20;   // 12 + 4 + 4
+                if (l0_reject_q) begin
+                  status_q     <= l0_status_q;
+                  seg_len_q[0] <= 16'd8;
+                end else if (w_gs_type != DESC_CLOCK_DOMAIN || w_gs_index != 16'd0) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd8;
+                end else if (hdr_q.command_type == CMD_SET_CLOCK_SOURCE &&
+                             {buf_r[6], buf_r[7]} >= 16'd3) begin
+                  status_q     <= STATUS_BAD_ARGUMENTS;   // only sources 0..2
+                  seg_len_q[0] <= 16'd8;
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
+                  seg_kind_q[1] <= SEG_STORE;
+                  seg_addr_q[1] <= WB_CLOCK_SRC_IDX_C; seg_len_q[1] <= 16'd2;
+                  seg_kind_q[2] <= SEG_CONST; seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd2;
+                  const_q[0] <= 8'h00; const_q[1] <= 8'h00;   // reserved
+                  if (hdr_q.command_type == CMD_SET_CLOCK_SOURCE) begin
+                    wb_addr_q <= WB_CLOCK_SRC_IDX_C;
+                    wb_len_q  <= 7'd2;
+                    wb_src_q  <= 7'd6;
+                  end
+                end
+              end
+
+              // -------------------------------------------------- //
+              // SET/GET_CONTROL (§7.4.25/26, FR-MGT-01): CONTROL[0] is the
+              // Milan IDENTIFY control (LINEAR_UINT8, step 255 -> legal
+              // values 0/255). The entity stays in identify mode while the
+              // value is non-zero (reset_time advisory — the JSON model
+              // note); identify_o is the board LED / blink hook.
+              CMD_GET_CONTROL, CMD_SET_CONTROL: begin
+                cdl_q <= 11'd17;   // 12 + 4 + 1 value
+                if (l0_reject_q) begin
+                  status_q     <= l0_status_q;
+                  seg_len_q[0] <= (hdr_q.command_type == CMD_SET_CONTROL)
+                                  ? 16'd5 : 16'd4;
+                  cdl_q        <= hdr_q.control_data_length;
+                end else if (w_gs_type != DESC_CONTROL || w_gs_index != 16'd0) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= (hdr_q.command_type == CMD_SET_CONTROL)
+                                  ? 16'd5 : 16'd4;
+                  cdl_q        <= hdr_q.control_data_length;
+                end else if (hdr_q.command_type == CMD_SET_CONTROL &&
+                             buf_r[6] != 8'h00 && buf_r[6] != 8'hFF) begin
+                  status_q     <= STATUS_BAD_ARGUMENTS;    // step 255: 0 or 255
+                  seg_len_q[0] <= 16'd5;
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
+                  seg_kind_q[1] <= SEG_STORE;
+                  seg_addr_q[1] <= WB_CONTROL_CUR_C; seg_len_q[1] <= 16'd1;
+                  if (hdr_q.command_type == CMD_SET_CONTROL) begin
+                    wb_addr_q  <= WB_CONTROL_CUR_C;
+                    wb_len_q   <= 7'd1;
+                    wb_src_q   <= 7'd6;
+                    identify_r <= (buf_r[6] != 8'h00);
+                  end
+                end
+              end
+
+              // -------------------------------------------------- //
+              // GET_AUDIO_MAP (§7.4.44): addresses STREAM_PORT_IN/OUT[0];
+              // this entity's maps are the static power-on defaults
+              // (AUDIO_MAP[0]/[1] in the store) — number_of_maps=1,
+              // map_index 0 only. ADD/REMOVE (dynamic mapping edit) is
+              // NOT_SUPPORTED on the fixed 8-channel mapping.
+              CMD_GET_AUDIO_MAP: begin
+                if ((w_gs_type != DESC_STREAM_PORT_INPUT &&
+                     w_gs_type != DESC_STREAM_PORT_OUTPUT) ||
+                    w_gs_index != 16'd0 || {buf_r[6], buf_r[7]} != 16'd0) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd8;
+                  cdl_q        <= 11'd20;
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd6;
+                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  const_q[0] <= 8'h00; const_q[1] <= 8'h01;   // number_of_maps
+                  const_q[2] <= 8'h00; const_q[3] <= 8'h08;   // number_of_mappings
+                  const_q[4] <= 8'h00; const_q[5] <= 8'h00;   // reserved
+                  seg_kind_q[2] <= SEG_STORE;
+                  seg_addr_q[2] <= ((w_gs_type == DESC_STREAM_PORT_INPUT)
+                                    ? WB_AUDIO_MAP_0_C : WB_AUDIO_MAP_1_C) + 16'd8;
+                  seg_len_q[2]  <= 16'd64;                    // 8 mappings x 8 B
+                  cdl_q <= 11'd88;   // 12 + 6 + 6 + 64
+                end
+              end
+
+              CMD_ADD_AUDIO_MAPPINGS, CMD_REMOVE_AUDIO_MAPPINGS: begin
+                status_q <= STATUS_NOT_SUPPORTED;   // static default maps
               end
 
               // -------------------------------------------------- //
@@ -875,21 +1060,73 @@ module KL_aecp_response_builder (
               // AVB_INTERFACE = 0x23 (LINK_UP|LINK_DOWN|GPTP_GM_CHANGED).
               // The zeroed block rides a SEG_NONE segment (emit default 0x00).
               CMD_GET_COUNTERS: begin
+                // valid mask + counters 0..5 ride one 28-byte CONST segment
+                // (block byte 4n = counter for valid-mask bit n); the rest of
+                // the 128-byte block is zeros via SEG_NONE.
                 seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
-                seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd4;
-                seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd128;
-                for (int k = 0; k < 4; k++) const_q[k] <= 8'h00;
+                seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd28;
+                seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd104;
+                for (int k = 0; k < 28; k++) const_q[k] <= 8'h00;
                 cdl_q <= 11'd148;   // 12 + 136
                 if (w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) begin
                   status_q   <= STATUS_SUCCESS;
-                  const_q[3] <= 8'h1F;
+                  const_q[3] <= 8'h1F;   // START|STOP|MEDIA_RESET|TS_UNC|FRAMES_TX
+                  for (int k = 0; k < 4; k++) begin
+                    const_q[4+k]  <= cnt_start_r [8*(3-k) +: 8];  // bit0
+                    const_q[8+k]  <= cnt_stop_r  [8*(3-k) +: 8];  // bit1
+                    const_q[20+k] <= frames_tx_i [8*(3-k) +: 8];  // bit4
+                  end
                 end else if (w_gs_type == DESC_AVB_INTERFACE && w_gs_index == 16'd0) begin
                   status_q   <= STATUS_SUCCESS;
-                  const_q[3] <= 8'h23;
+                  const_q[3] <= 8'h23;   // LINK_UP|LINK_DOWN|GPTP_GM_CHANGED
+                  for (int k = 0; k < 4; k++) begin
+                    const_q[4+k]  <= cnt_linkup_r[8*(3-k) +: 8];  // bit0
+                    const_q[8+k]  <= cnt_linkdn_r[8*(3-k) +: 8];  // bit1
+                    const_q[24+k] <= cnt_gmchg_r [8*(3-k) +: 8];  // bit5
+                  end
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
                   status_q <= STATUS_NO_SUCH_DESCRIPTOR;
+                end
+              end
+
+              // -------------------------------------------------- //
+              // SET/GET_MAX_TRANSIT_TIME (1722.1-2021 §7.4.39 at the
+              // la_avdecc-verified codes 0x4C/0x4D; payload = type(2)+
+              // index(2)+max_transit_time u64 ns): reflects/updates the same
+              // presentation offset SET_STREAM_INFO(ACC_LAT) drives — one
+              // source of truth for the framer's timestamp offset.
+              CMD_SET_MAX_TRANSIT_TIME, CMD_GET_MAX_TRANSIT_TIME: begin
+                cdl_q <= 11'd24;   // 12 + 12
+                if (l0_reject_q) begin
+                  status_q     <= l0_status_q;
+                  seg_len_q[0] <= 16'd12;
+                end else if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd12;
+                end else if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME &&
+                             ({buf_r[6], buf_r[7], buf_r[8], buf_r[9]} != 32'd0 ||
+                              buf_r[10][7])) begin
+                  status_q     <= STATUS_BAD_ARGUMENTS;   // > 0x7FFFFFFF ns
+                  seg_len_q[0] <= 16'd12;
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
+                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd8;
+                  const_q[0] <= 8'h00; const_q[1] <= 8'h00;
+                  const_q[2] <= 8'h00; const_q[3] <= 8'h00;
+                  if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME) begin
+                    const_q[4] <= buf_r[10]; const_q[5] <= buf_r[11];
+                    const_q[6] <= buf_r[12]; const_q[7] <= buf_r[13];
+                    pres_wr_p_o   <= 1'b1;
+                    pres_wr_val_o <= {buf_r[10], buf_r[11], buf_r[12], buf_r[13]};
+                  end else begin
+                    const_q[4] <= pres_offset_i[31:24];
+                    const_q[5] <= pres_offset_i[23:16];
+                    const_q[6] <= pres_offset_i[15:8];
+                    const_q[7] <= pres_offset_i[7:0];
+                  end
                 end
               end
 

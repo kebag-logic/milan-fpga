@@ -69,6 +69,9 @@ module KL_aecp_top #(
   input  wire          talker_active_i,    //! ACMP probe SM state
   input  wire          listener_observed_i,//! lwSRP registrar hook
   output wire [31:0]   pres_offset_o,      //! live presentation offset (ns) -> framer
+  output wire          identify_o,         //! IDENTIFY control active (LED hook)
+  input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
+  input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT counters)
 
   // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
   input  wire          rx_tvalid_i,
@@ -225,6 +228,8 @@ module KL_aecp_top #(
     .listener_observed_i(listener_observed_i),
     .pres_offset_i(pres_offset_r),
     .pres_wr_p_o(pres_wr_p_w), .pres_wr_val_o(pres_wr_val_w),
+    .identify_o(identify_o),
+    .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
     .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),

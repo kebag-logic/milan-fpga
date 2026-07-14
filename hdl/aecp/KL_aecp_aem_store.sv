@@ -48,11 +48,12 @@ module KL_aecp_aem_store (
 
   `include "gen/aecp_aem_rom.svh"
 
-  //! Descriptor image RAM (BRAM-inferred, initialised from the generator)
-  logic [7:0] mem_r [0:AEM_ROM_BYTES_C-1];
+  //! Descriptor image RAM + MVU scratch tail (BRAM-inferred, generator init)
+  logic [7:0] mem_r [0:AEM_STORE_BYTES_C-1];
 
   initial begin
     for (int k = 0; k < AEM_ROM_BYTES_C; k++) mem_r[k] = AEM_ROM_INIT_C[k];
+    for (int k = AEM_ROM_BYTES_C; k < AEM_STORE_BYTES_C; k++) mem_r[k] = 8'h00;
   end
 
   always_ff @(posedge clk_i) begin
