@@ -41,7 +41,7 @@ tops=(
   "KL_acmp_responder|$M/acmp_pkg.sv $M/KL_acmp_responder.sv"
   "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_listener.sv"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
-  "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $AECP_SRCS"
+  "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $AECP_SRCS"
   "credit_based_shaper|$C/ethernet_packet_pkg.sv $Q/credit_based_shaper.sv"
   "timestamp_counter|$P/timestamp_counter.sv"
   "ptp_csr_sync|$P/ptp_csr_sync.sv"
