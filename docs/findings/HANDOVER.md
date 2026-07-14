@@ -120,7 +120,9 @@ cable. Data plane unaffected.
 | Build | What | WNS |
 |---|---|---|
 | build_arty_eto_lwsrp | Arty lwSRP keeper CANDIDATE (not yet loaded; asl −0.287 fail, eppo died in route — sweep variance) | +0.121 |
-| build_ax7101_*_lwsrp | **ALL 3 SEEDS FAIL PLACEMENT** (Place 30-487: LUTs 62408/63400 = 98.4 %, needs 12465 slices vs 12328 usable, 1255 control sets). AX was ~97 % before lwSRP — **AX lwSRP gateware is BLOCKED on area** (area-70 byte-ring fold or equivalent shave). Arty fits (50 MHz/MII config is smaller) | — |
+| build_ax7101_*_lwsrp | ALL 3 SEEDS FAIL PLACEMENT (Place 30-487: LUTs 62408/63400 = 98.4 %). AX was ~97 % before lwSRP | — |
+| build_arty_*_milanv12 | ALL 3 SEEDS FAIL PLACEMENT (66599/63400 LUTs = 105 % — the v1.2 close-out logic tipped ARTY too). **Root cause found by hierarchical synth report: aecp u_ingress = 8197 LUTs** (128-byte register fbuf with unaligned byte write decoders + replay muxes) — vs the lwSRP BRAM-FIFO ingress at 106 LUTs | — |
+| build_arty_*_milanv12b | Rebuild after the **ingress BRAM rewrite** (`42fdc6f`, ~−8 K LUTs — should unblock BOTH boards; AX resweep after Arty proves it) | in flight 07-15 |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
