@@ -1,7 +1,7 @@
 # Verilator verification harnesses
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
-Milan TSN NIC — **17 suites** (one per subdirectory; the directory listing is
+Milan TSN NIC — **24 suites** (one per subdirectory; the directory listing is
 the authoritative count). They need **only** `verilator >= 5.0`, a C++17
 compiler and the `third_party/verilog-axis` submodule
 (`git submodule update --init third_party/verilog-axis`) — no Xilinx tools —
@@ -29,6 +29,9 @@ CI-ready (note: no CI is wired up in this repo yet — see
 | [`milan_dp/`](milan_dp) | `milan_datapath.sv` | **Whole-wrapper integration** (§A.9 PS-less datapath the LiteX SoC instantiates): drive the AXI4-Lite CSR slave to read `ID="MILN"` (**M-A2**), VERSION, CAP bits; program the classifier over the CSR (readback); push a frame TX-DMA-port → MAC-port and MAC-port → RX-DMA-port, both byte-exact through classify→CBS→PTP→ADP-arbiter and PTP-RX→dest-MAC-filter (11 checks). | `cd milan_dp && make` |
 | [`avtp_stream/`](avtp_stream) | `avtp_stream_parser.sv` | IEEE 1722 AVTP stream-header monitor (the S1 AVTP-engine foundation): stream-id / presentation-time / subtype / `tv` extraction against a programmable stream-match table, accept + reject cases, untagged and VLAN-tagged frames (21 checks). | `cd avtp_stream && make` |
 | [`controller_rate/`](controller_rate) | `traffic_controller_802_1q.sv` | **Gating regression** for the CBS interference TX-wedge ([`docs/findings/CBS_DATAPATH_BUG.md`](../../docs/findings/CBS_DATAPATH_BUG.md)): back-to-back frames landing in *different* queues must each come out byte-exact — catches classifier `tdest` mis-timing / parse-FSM desync. | `cd controller_rate && make` |
+| [`lwsrp_tx/`](lwsrp_tx) | `KL_lwsrp_tx.sv` | lwSRP applicant TX (802.1Q MSRP/MVRP, Milan v1.2 §5.6): byte-exact MSRP Domain/TalkerAdvertise + MVRP VID MRPDUs decoded like a bridge (endmark walk), NEW/JOININ/LV lifecycle, LeaveAll turn, back-pressure (363 checks). | `cd lwsrp_tx && make` |
+| [`lwsrp_rx/`](lwsrp_rx) | `KL_lwsrp_rx.sv` | lwSRP receive chain (tap → packet FIFO → streaming walker → registrar) vs hand-built bridge MRPDUs: the **+k multi-value vector trap**, four-packed Ready/AskingFailed gating, leave-timer expiry, LeaveAll storms, domain boundary, TalkerFailed capture, truncation/garbage recovery (75 checks). Needs `third_party/verilog-axis`. | `cd lwsrp_rx && make` |
+| [`lwsrp/`](lwsrp) | `KL_lwsrp_top.sv` | Whole lwSRP engine end-to-end at a 10 kHz scaled clock: declare cadence over ≥2 JoinTimes, reservation activation with **slope-before-gate** ordering, **gate-before-slope** teardown, 75 % TSpec refusal, LeaveAll turn + prompt re-declare (36 checks). | `cd lwsrp && make` |
 
 ```sh
 # run everything (glob — never hand-list suites, lists go stale)

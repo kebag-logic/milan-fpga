@@ -1,7 +1,14 @@
-# lwSRP-fpga — lightweight SRP engine in fabric (proposal)
+# lwSRP-fpga — lightweight SRP engine in fabric
 
-Status: PROPOSED 2026-07-12 (rev-2 delimitation: "everything goes FPGA, use
-lwSRP"). Scope: talker endpoint first; listener half lands with STREAM_INPUT.
+Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in `hdl/lwsrp/`,
+integrated into `milan_datapath`; CSR group re-homed to **0x680-0x6A0** —
+REGISTER_MAP.md is normative for the map, §4 below matches it). Verified:
+Verilator `lwsrp_tx` 363 / `lwsrp_rx` 75 / `lwsrp` 36 checks + `milan_dp`
+53 + `csr` 76 regressions green; Yosys 21/21. Wire contract extracted from
+pipewire module-avb mrp.c/msrp.c/mvrp.c (byte-exact; one deliberate
+deviation: we gate the talker on the four-packed Ready/ReadyFailed
+declaration, the reference ignores it — see §1). Silicon vs the AVB switch +
+pw0 = the remaining §6.3 gate. Listener half lands with STREAM_INPUT.
 Pattern of record: the ADP/AECP/ACMP responder recipe (registered monitor tap,
 template TX, low-rate merge, CSR status) — proven Milan=1-clean four times.
 
@@ -142,17 +149,22 @@ Key structural choices:
   latency } — AECP GET_STREAM_INFO and the future ACMP connection table read
   the same row: one source of stream truth, like the 0x600 identity group.
 
-## 4. CSR group (proposed 0x660-0x69C, RO unless noted)
+## 4. CSR group (0x680-0x6A0 as built — re-homed from the original 0x660
+sketch, whose addresses had been claimed by AAF/DIAG/ACMP; full field
+detail in `docs/reference/REGISTER_MAP.md`)
 
 | Offset | Field |
 |---|---|
-| 0x660 | LWSRP_CTRL (RW): [0] enable · [1] talker0 enable · [7:4] class (RO=A) |
-| 0x664 | LWSRP_VID (RW): [11:0] SR VID (reset 2) |
-| 0x668/0x66C | LWSRP_DMAC lo/hi (RW): stream dest MAC (until fabric MAAP) |
-| 0x670 | LWSRP_TSPEC (RW): {MaxIntervalFrames[31:16], MaxFrameSize[15:0]} |
-| 0x674 | LWSRP_STATUS: [3:0] listener_state{none/askfail/ready/readyfail} · [4] declared · [5] domain_ok · [6] reservation_active · [8+] failure code (from TalkerFailed) |
-| 0x678 | LWSRP_SLOPE: granted idleSlope, bps (RO) |
-| 0x67C | LWSRP_CNT: {rx_pdus[31:16], tx_pdus[15:0]} (RO) |
+| 0x680 | LWSRP_CTRL (RW): [0] enable · [1] talker0 enable · [3:2] class-A queue for the slope mux (reset 3) |
+| 0x684 | LWSRP_VID (RW): [11:0] SR VID (reset 2) |
+| 0x688/0x68C | LWSRP_DMAC lo/hi (RW): stream dest MAC (until fabric MAAP) |
+| 0x690 | LWSRP_TSPEC (RW): {MaxIntervalFrames[31:16], MaxFrameSize[15:0]} |
+| 0x694 | LWSRP_STATUS (RO): [1:0] listener decl · [2] registered · [3] listener ready · [4] declared · [5] domain_ok · [6] reservation_active · [7] over_limit · [8] stream gate · [9] slope mux · [10] TalkerFailed sticky · [23:16] failure code · [31:24] ingress drops |
+| 0x698 | LWSRP_SLOPE (RO): granted idleSlope, bps |
+| 0x69C | LWSRP_CNT (RO): {rx_pdus[31:16], tx_pdus[15:0]} |
+| 0x6A0 | LWSRP_LATENCY (RW): AccumulatedLatency, ns |
+
+CAP[14] advertises the group.
 
 TCAM note: two entries must admit the link-local dst MACs
 (01:80:C2:00:00:0E, :21) to rx_axis_to_dma — add to the default entry set
