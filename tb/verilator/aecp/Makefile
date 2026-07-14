@@ -22,6 +22,7 @@ VFLAGS = --cc --exe --build -j 0 \
 SRCS = $(RTL)/aecp/aecp_pkg.sv \
        $(RTL)/adp/adp_pkg.sv \
        $(RTL)/common/axi_stream_if.sv \
+       ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        $(RTL)/aecp/KL_aecp_ingress.sv \
        $(RTL)/aecp/KL_aecp_packet_validator.sv \
        $(RTL)/aecp/KL_aecp_common_parser.sv \
