@@ -389,8 +389,17 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
    timebase from FDT (removes the per-board opensbi class).
 9. **Priority TX ring / doorbell in kl-eth** — the gPTP TX-flood delay is
    the single 256-slot TX ring.
-10. **Area-70 continuation** (USER directive: slices → ~70 %) — next lever:
-    byte-ring fold.
+10. **Area-70 continuation** (USER directive 07-15: back below ~70 %,
+    re-ranked after the milanv12 placement wall). Concrete plan:
+    (1) utilization AUDIT first — OOC-synth ranked table (rule 8; the
+    csr-misattribution lesson); (2) ACMP fbuf disease: responder 3.5K +
+    listener 3.9K get the ingress recipe (`42fdc6f` took 8.2K→0.1K),
+    est −6K; (3) AECP builder buf_r/const_q cones (u_bld 3.1K),
+    est −2K; (4) byte-ring fold (the campaign's named DMA lever, rule-11
+    pairing checklist applies); (5) tail sweep: csr read mux, walker
+    shared subtractor, accessor dir → BRAM, control-set count (1326).
+    CBS shaper NEVER removed. Success = arty rebuild WNS ≥ +0.1 and AX
+    closing 100 MHz with margin.
 11. **Perf follow-ups** (perf lineage): ~220-vs-525 cell-recipe gap, TX
     mid-flow stall, AF_XDP ZC (the RX>500 lane).
 12. **Arty listener half — media** (AAF RX sink/I2S out/CRF): the control
