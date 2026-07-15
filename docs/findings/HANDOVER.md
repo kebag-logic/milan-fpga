@@ -396,8 +396,13 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
     listener 3.9K get the ingress recipe (`42fdc6f` took 8.2K→0.1K),
     est −6K; (3) AECP builder buf_r/const_q cones (u_bld 3.1K),
     est −2K; (4) byte-ring fold (the campaign's named DMA lever, rule-11
-    pairing checklist applies); (5) tail sweep: csr read mux, walker
-    shared subtractor, accessor dir → BRAM, control-set count (1326).
+    pairing checklist applies); (5) configuration → RAM (USER directive
+    07-15: "use the RAM to have configuration located there instead"):
+    CSR read path = write-through shadow RAM — config LEVELS fanning
+    into logic stay registers, the RAM serves AXI reads; lookup/
+    directory/const tables → LUTRAM/BRAM (arty milanv12b BRAM =
+    112.5/135 tiles, 22.5 free; prefer LUTRAM for sub-kilobit tables);
+    plus walker shared subtractor + control-set count (1326).
     CBS shaper NEVER removed. Success = arty rebuild WNS ≥ +0.1 and AX
     closing 100 MHz with margin.
 11. **Perf follow-ups** (perf lineage): ~220-vs-525 cell-recipe gap, TX
