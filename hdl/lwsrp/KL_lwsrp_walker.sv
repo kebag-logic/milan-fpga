@@ -355,7 +355,11 @@ module KL_lwsrp_walker (
               pack_n_r   <= n_evt_bytes_w;
               pack_idx_r <= '0;
               vbase_r    <= '0;
-              if (n_evt_bytes_w == '0) begin
+              // nv==0 <=> n_evt_bytes==0, and nv_r is a plain register:
+              // branching on nv_r keeps the ceil(nv/3) carry chain OFF the
+              // FSM next-state arc (the AX 100 MHz critical path, WNS -0.285
+              // on the milanv12b sweep — 11 CARRY4 levels into st_r).
+              if (nv_r == '0) begin
                 // nv==0 (pure-LeaveAll vector): no packed bytes follow.
                 // A stream/listener match cannot exist with nv==0, so only
                 // a Domain pulse (with the MT default event) can emit here.
