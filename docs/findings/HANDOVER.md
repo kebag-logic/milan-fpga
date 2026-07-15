@@ -390,21 +390,20 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
 9. **Priority TX ring / doorbell in kl-eth** — the gPTP TX-flood delay is
    the single 256-slot TX ring.
 10. **Area-70 continuation** (USER directive 07-15: back below ~70 %,
-    re-ranked after the milanv12 placement wall). Concrete plan:
-    (1) utilization AUDIT first — OOC-synth ranked table (rule 8; the
-    csr-misattribution lesson); (2) ACMP fbuf disease: responder 3.5K +
-    listener 3.9K get the ingress recipe (`42fdc6f` took 8.2K→0.1K),
-    est −6K; (3) AECP builder buf_r/const_q cones (u_bld 3.1K),
-    est −2K; (4) byte-ring fold (the campaign's named DMA lever, rule-11
-    pairing checklist applies); (5) configuration → RAM (USER directive
-    07-15: "use the RAM to have configuration located there instead"):
-    CSR read path = write-through shadow RAM — config LEVELS fanning
-    into logic stay registers, the RAM serves AXI reads; lookup/
-    directory/const tables → LUTRAM/BRAM (arty milanv12b BRAM =
-    112.5/135 tiles, 22.5 free; prefer LUTRAM for sub-kilobit tables);
-    plus walker shared subtractor + control-set count (1326).
-    CBS shaper NEVER removed. Success = arty rebuild WNS ≥ +0.1 and AX
-    closing 100 MHz with margin.
+    config-in-RAM approach). **ROUND 1 EXECUTED 07-15 late** (yosys LC
+    before/after): aecp ingress 8.2K→0.1K (`42fdc6f`) · acmp responder
+    4647→498 + listener 4860→1127 (`f018fd0`) · aecp builder buf_r
+    3865→3018 (`a6976dc`) ≈ **−17K banked**, all byte-exact-gated.
+    Recipe: beat-aligned word writes → distributed RAM, fixed-lane
+    register captures for decode fields, per-beat lane overrides at
+    emit (async LUTRAM reads = zero FSM change). REMAINING:
+    (a) milan_csr 2348 LCs — read-shadow RAM (CAREFUL: shadow must
+    store the READBACK value, masked fields/W1C differ from wdata);
+    (b) byte-ring fold (rule-11 pairing checklist); (c) walker shared
+    subtractor + control sets + accessor dir → RAM. Quantifying
+    arty/AX resweep pends on build slots (AX round-2 occupying).
+    CBS shaper NEVER removed. Success = arty WNS ≥ +0.1 and AX closing
+    100 MHz with margin.
 11. **Perf follow-ups** (perf lineage): ~220-vs-525 cell-recipe gap, TX
     mid-flow stall, AF_XDP ZC (the RX>500 lane).
 12. **Arty listener half — media** (AAF RX sink/I2S out/CRF): the control
