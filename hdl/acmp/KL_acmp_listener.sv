@@ -213,33 +213,44 @@ module KL_acmp_listener #(
   typedef enum logic [1:0] { COLLECT_S, CLASSIFY_S, RESPOND_S, PROBE_S } st_t;
   st_t st_r;
 
-  reg [7:0] fbuf [0:NUM_BEATS_C*8-1];
-  reg [6:0] wr_r;
-  reg       ovfl_r;
+  // ---- frame word buffer: beat-aligned distributed RAM (the area-70
+  //      config-in-RAM recipe — the old 72-byte register fbuf with
+  //      adder-indexed ports was the 3.9K-LUT cone). Echoed response
+  //      regions read back from the RAM; classification fields are
+  //      captured into registers at FIXED beat/lane positions below.
+  logic [63:0] fword_r [0:NUM_BEATS_C-1];
+  reg [3:0]    wbeat_r;      //! ingest beat, saturating at 10
+  reg          ovfl_r;       //! ACMP frame longer than 72 B
+  reg          len_ok_r;     //! tlast beat carried >= 70 bytes
+  reg          adp_len_ok_r; //! frame reached the ADP entity_id (>= 26 B)
 
   // -----------------------------------------------------------------------
-  // Classification
+  // Classification captures (fixed beat/lane picks; the w_* names keep the
+  // SM code below unchanged)
   // -----------------------------------------------------------------------
-  wire [47:0] w_dst   = {fbuf[0], fbuf[1], fbuf[2], fbuf[3], fbuf[4], fbuf[5]};
-  wire [15:0] w_etype = {fbuf[12], fbuf[13]};
-  wire [3:0]  w_msg   = fbuf[15][3:0];
-  wire        w_sv0   = (fbuf[15][7:4] == 4'h0);
-  wire [4:0]  w_status= fbuf[16][7:3];
-  wire [63:0] w_sid   = {fbuf[18], fbuf[19], fbuf[20], fbuf[21],
-                         fbuf[22], fbuf[23], fbuf[24], fbuf[25]};
-  wire [63:0] w_ctlr  = {fbuf[26], fbuf[27], fbuf[28], fbuf[29],
-                         fbuf[30], fbuf[31], fbuf[32], fbuf[33]};
-  wire [63:0] w_talker= {fbuf[34], fbuf[35], fbuf[36], fbuf[37],
-                         fbuf[38], fbuf[39], fbuf[40], fbuf[41]};
-  wire [63:0] w_lstnr = {fbuf[42], fbuf[43], fbuf[44], fbuf[45],
-                         fbuf[46], fbuf[47], fbuf[48], fbuf[49]};
-  wire [15:0] w_tuid  = {fbuf[50], fbuf[51]};
-  wire [15:0] w_luid  = {fbuf[52], fbuf[53]};
-  wire [15:0] w_flags = {fbuf[64], fbuf[65]};
+  reg        cap_dst_ok_r, cap_etype_ok_r, cap_sv0_r;
+  reg [7:0]  cap_subtype_r;
+  reg [3:0]  cap_msg_r;
+  reg [4:0]  cap_status_r;
+  reg [63:0] cap_sid_r, cap_ctlr_r, cap_talker_r;
+  reg        cap_lstnr_hi_ok_r, cap_lstnr_lo_ok_r;
+  reg [15:0] cap_tuid_r, cap_luid_r, cap_flags_r;
+  reg [47:0] cap_dmac_r;
+  reg [11:0] cap_vlan_r;
 
-  wire w_acmp_base = enable_i && !ovfl_r &&
-                     (w_dst == 48'h91E0_F001_0000) && (w_etype == 16'h22F0) &&
-                     (fbuf[14] == ACMP_SUBTYPE_C) && w_sv0 && (wr_r >= 7'd70);
+  wire [3:0]  w_msg    = cap_msg_r;
+  wire [4:0]  w_status = cap_status_r;
+  wire [63:0] w_sid    = cap_sid_r;
+  wire [63:0] w_ctlr   = cap_ctlr_r;
+  wire [63:0] w_talker = cap_talker_r;
+  wire [15:0] w_tuid   = cap_tuid_r;
+  wire [15:0] w_luid   = cap_luid_r;
+  wire [15:0] w_flags  = cap_flags_r;
+  wire        w_lstnr_us = cap_lstnr_hi_ok_r && cap_lstnr_lo_ok_r;
+
+  wire w_acmp_base = enable_i && !ovfl_r && len_ok_r &&
+                     cap_dst_ok_r && cap_etype_ok_r &&
+                     (cap_subtype_r == ACMP_SUBTYPE_C) && cap_sv0_r;
 
   wire w_is_lstn_cmd = (w_msg == ACMP_CONNECT_RX_COMMAND_C)    ||
                        (w_msg == ACMP_DISCONNECT_RX_COMMAND_C) ||
@@ -251,22 +262,21 @@ module KL_acmp_listener #(
   //! handlers answers CONTROLLER_NOT_AUTHORIZED when it mismatches. In
   //! fabric we answer NOT_AUTHORIZED only if the frame's listener EID is
   //! ours-with-wrong-uid; frames for other entities are dropped.)
-  wire w_lstn_hit = w_acmp_base && w_is_lstn_cmd && (w_lstnr == entity_id_i);
+  wire w_lstn_hit = w_acmp_base && w_is_lstn_cmd && w_lstnr_us;
   wire w_uid_ok   = (w_luid == 16'd0);
 
   //! probe answer: CONNECT_TX_RESPONSE addressed to us as listener
   wire w_probe_resp = w_acmp_base && (w_msg == ACMP_CONNECT_TX_RESPONSE_C) &&
-                      (w_lstnr == entity_id_i) && (w_luid == 16'd0) &&
+                      w_lstnr_us && (w_luid == 16'd0) &&
                       (st_lsm_r == LSM_PRB_W_RESP_S || st_lsm_r == LSM_PRB_W_RESP2_S);
 
-  //! ADP watch: available/departing from the bound talker (byte 18 trap)
-  wire [63:0] w_adp_eid = {fbuf[18], fbuf[19], fbuf[20], fbuf[21],
-                           fbuf[22], fbuf[23], fbuf[24], fbuf[25]};
-  wire w_adp_frame = enable_i && (w_etype == 16'h22F0) && (fbuf[14] == 8'hFA) &&
-                     (wr_r >= 7'd26) && (st_lsm_r != LSM_UNBOUND_S) &&
-                     (w_adp_eid == bnd_talker_r);
-  wire w_adp_avail  = w_adp_frame && (fbuf[15][3:0] == 4'd0);
-  wire w_adp_depart = w_adp_frame && (fbuf[15][3:0] == 4'd1);
+  //! ADP watch: available/departing from the bound talker (entity_id sits
+  //! at wire byte 18 — same capture as the ACMP stream_id)
+  wire w_adp_frame = enable_i && cap_etype_ok_r && (cap_subtype_r == 8'hFA) &&
+                     adp_len_ok_r && (st_lsm_r != LSM_UNBOUND_S) &&
+                     (cap_sid_r == bnd_talker_r);
+  wire w_adp_avail  = w_adp_frame && (cap_msg_r == 4'd0);
+  wire w_adp_depart = w_adp_frame && (cap_msg_r == 4'd1);
 
   //! rebind-to-same fast path: same talker + STREAMING_WAIT agreement
   wire w_same_talker = (w_talker == bnd_talker_r) && (w_tuid == bnd_tuid_r);
@@ -282,96 +292,148 @@ module KL_acmp_listener #(
   lresp_t     resp_kind_r;
   reg         probe_pend_r;     //! send a PROBE_TX after the current response
 
-  logic [7:0] rb [0:NUM_BEATS_C*8-1];
+  reg [3:0] beat_r;
+  wire [63:0] rword_w = fword_r[beat_r];   //! async distributed-RAM read
+
+  //! response field muxes (evaluated live at emit time — the same register
+  //! sampling the old echo array had, so wire behaviour is unchanged)
+  wire        w_bound   = (st_lsm_r != LSM_UNBOUND_S);
+  wire        w_str_echo = (resp_kind_r == L_RESP_STATE_E);   // stream_id/vlan
+  //! talker bytes 34-41: BIND echo / UNBIND zero / STATE bound?bnd:0
+  function automatic [7:0] tkb(input int idx, input [7:0] echo);
+    unique case (resp_kind_r)
+      L_RESP_BIND_E:   tkb = echo;
+      L_RESP_UNBIND_E: tkb = 8'h00;
+      default:         tkb = w_bound ? bnd_talker_r[8*(7-idx) +: 8] : 8'h00;
+    endcase
+  endfunction
+  //! response flags bytes 64-65
+  logic [15:0] w_resp_flags;
   always_comb begin
-    for (int k = 0; k < NUM_BEATS_C*8; k++) rb[k] = 8'h00;
-    if (st_r == PROBE_S) begin
-      // ---- PROBE_TX command (reference prepare_probe_tx_command_success):
-      // stream fields zero, controller/talker from the binding, us as
-      // listener, fresh sequence id, STREAMING_WAIT|SRP_REG_FAILED cleared.
-      rb[0]=8'h91; rb[1]=8'hE0; rb[2]=8'hF0; rb[3]=8'h01; rb[4]=8'h00; rb[5]=8'h00;
-      rb[6]  = station_mac_i[47:40]; rb[7]  = station_mac_i[39:32];
-      rb[8]  = station_mac_i[31:24]; rb[9]  = station_mac_i[23:16];
-      rb[10] = station_mac_i[15:8];  rb[11] = station_mac_i[7:0];
-      rb[12] = 8'h22; rb[13] = 8'hF0;
-      rb[14] = ACMP_SUBTYPE_C;
-      rb[15] = {4'h0, ACMP_CONNECT_TX_COMMAND_C};
-      rb[16] = {ACMP_STATUS_SUCCESS_C, ACMP_CDL_C[10:8]};
-      rb[17] = ACMP_CDL_C[7:0];
-      for (int k = 0; k < 8; k++) begin
-        rb[26+k] = bnd_ctlr_r[8*(7-k) +: 8];
-        rb[34+k] = bnd_talker_r[8*(7-k) +: 8];
-        rb[42+k] = entity_id_i[8*(7-k) +: 8];
+    unique case (resp_kind_r)
+      L_RESP_BIND_E:   w_resp_flags = w_flags &
+          ~(ACMP_FLAG_FAST_CONNECT_C | ACMP_FLAG_SRP_REG_FAILED_C);
+      L_RESP_UNBIND_E: w_resp_flags = w_flags &
+          ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_FAST_CONNECT_C |
+            ACMP_FLAG_SRP_REG_FAILED_C);
+      default: begin
+        if (!w_bound)
+          w_resp_flags = 16'h0000;
+        else if (st_lsm_r == LSM_SETTLED_NO_RSV_S ||
+                 st_lsm_r == LSM_SETTLED_RSV_OK_S)
+          w_resp_flags = bnd_flags_r & ACMP_FLAG_STREAMING_WAIT_C;
+        else
+          w_resp_flags = ACMP_FLAG_STREAMING_WAIT_C |
+                         (ta_failed_i ? ACMP_FLAG_SRP_REG_FAILED_C : 16'h0);
       end
-      rb[50] = bnd_tuid_r[15:8]; rb[51] = bnd_tuid_r[7:0];
-      rb[52] = 8'h00; rb[53] = 8'h00;                    // listener_unique_id 0
-      rb[62] = probe_seq_r[15:8]; rb[63] = probe_seq_r[7:0];
-      {rb[64], rb[65]} = bnd_flags_r &
-                         ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_SRP_REG_FAILED_C);
-    end else begin
-      // ---- responses: echo the command then overwrite per kind ----------
-      for (int k = 0; k < ACMP_FRAME_BYTES_C; k++) rb[k] = fbuf[k];
-      rb[6]  = station_mac_i[47:40]; rb[7]  = station_mac_i[39:32];
-      rb[8]  = station_mac_i[31:24]; rb[9]  = station_mac_i[23:16];
-      rb[10] = station_mac_i[15:8];  rb[11] = station_mac_i[7:0];
-      rb[15] = {4'h0, resp_msg_r};
-      rb[16] = {resp_status_r, ACMP_CDL_C[10:8]};
-      rb[17] = ACMP_CDL_C[7:0];
-      unique case (resp_kind_r)
-        // Table 5.32: count=1, FC+SRF cleared, stream fields zero
-        L_RESP_BIND_E: begin
-          for (int k = 18; k < 26; k++) rb[k] = 8'h00;
-          for (int k = 54; k < 60; k++) rb[k] = 8'h00;
-          rb[60] = 8'h00; rb[61] = 8'h01;
-          {rb[64], rb[65]} = w_flags &
-              ~(ACMP_FLAG_FAST_CONNECT_C | ACMP_FLAG_SRP_REG_FAILED_C);
-          rb[66] = 8'h00; rb[67] = 8'h00;
+    endcase
+  end
+
+  //! probe flags: STREAMING_WAIT | SRP_REG_FAILED cleared from the binding
+  wire [15:0] w_probe_flags = bnd_flags_r &
+      ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_SRP_REG_FAILED_C);
+
+  //! probe frame byte (positions per the ACMPDU layout; the synthesizer
+  //! folds the per-lane calls into constant-position muxes)
+  function automatic [7:0] probe_byte(input int b);
+    probe_byte = 8'h00;
+    unique case (b)
+      0: probe_byte = 8'h91;  1: probe_byte = 8'hE0;  2: probe_byte = 8'hF0;
+      3: probe_byte = 8'h01;
+      6:  probe_byte = station_mac_i[47:40];
+      7:  probe_byte = station_mac_i[39:32];
+      8:  probe_byte = station_mac_i[31:24];
+      9:  probe_byte = station_mac_i[23:16];
+      10: probe_byte = station_mac_i[15:8];
+      11: probe_byte = station_mac_i[7:0];
+      12: probe_byte = 8'h22; 13: probe_byte = 8'hF0;
+      14: probe_byte = ACMP_SUBTYPE_C;
+      15: probe_byte = {4'h0, ACMP_CONNECT_TX_COMMAND_C};
+      16: probe_byte = {ACMP_STATUS_SUCCESS_C, ACMP_CDL_C[10:8]};
+      17: probe_byte = ACMP_CDL_C[7:0];
+      26,27,28,29,30,31,32,33: probe_byte = bnd_ctlr_r[8*(33-b) +: 8];
+      34,35,36,37,38,39,40,41: probe_byte = bnd_talker_r[8*(41-b) +: 8];
+      42,43,44,45,46,47,48,49: probe_byte = entity_id_i[8*(49-b) +: 8];
+      50: probe_byte = bnd_tuid_r[15:8];
+      51: probe_byte = bnd_tuid_r[7:0];
+      62: probe_byte = probe_seq_r[15:8];
+      63: probe_byte = probe_seq_r[7:0];
+      64: probe_byte = w_probe_flags[15:8];
+      65: probe_byte = w_probe_flags[7:0];
+      default: probe_byte = 8'h00;
+    endcase
+  endfunction
+
+  //! response beat: RAM word + fixed per-beat lane overrides
+  logic [63:0] w_resp;
+  always_comb begin
+    w_resp = rword_w;                                    // default: echo
+    unique case (beat_r)
+      4'd0: begin                                        // bytes 0-7
+        w_resp[8*6 +: 8] = station_mac_i[47:40];
+        w_resp[8*7 +: 8] = station_mac_i[39:32];
+      end
+      4'd1: begin                                        // bytes 8-15
+        w_resp[8*0 +: 8] = station_mac_i[31:24];
+        w_resp[8*1 +: 8] = station_mac_i[23:16];
+        w_resp[8*2 +: 8] = station_mac_i[15:8];
+        w_resp[8*3 +: 8] = station_mac_i[7:0];
+        w_resp[8*7 +: 8] = {4'h0, resp_msg_r};
+      end
+      4'd2: begin                                        // bytes 16-23
+        w_resp[8*0 +: 8] = {resp_status_r, ACMP_CDL_C[10:8]};
+        w_resp[8*1 +: 8] = ACMP_CDL_C[7:0];
+        if (!w_str_echo)                                 // stream_id 18-23
+          w_resp[63:16] = 48'd0;
+      end
+      4'd3: begin                                        // bytes 24-31
+        if (!w_str_echo) w_resp[15:0] = 16'd0;           // stream_id tail
+      end
+      4'd4: begin                                        // bytes 32-39
+        for (int k = 0; k < 6; k++)                      // talker 34-39
+          w_resp[8*(2+k) +: 8] = tkb(k, rword_w[8*(2+k) +: 8]);
+      end
+      4'd5: begin                                        // bytes 40-47
+        w_resp[8*0 +: 8] = tkb(6, rword_w[8*0 +: 8]);    // talker 40-41
+        w_resp[8*1 +: 8] = tkb(7, rword_w[8*1 +: 8]);
+      end
+      4'd6: begin                                        // bytes 48-55
+        if (resp_kind_r != L_RESP_BIND_E) begin          // tuid 50-51
+          w_resp[8*2 +: 8] = bnd_tuid_r[15:8];
+          w_resp[8*3 +: 8] = bnd_tuid_r[7:0];
         end
-        // Table 5.36: talker=0, tuid=bound, count=0, SW+FC+SRF cleared,
-        // stream fields zero
-        L_RESP_UNBIND_E: begin
-          for (int k = 18; k < 26; k++) rb[k] = 8'h00;
-          for (int k = 34; k < 42; k++) rb[k] = 8'h00;
-          rb[50] = bnd_tuid_r[15:8]; rb[51] = bnd_tuid_r[7:0];
-          for (int k = 54; k < 60; k++) rb[k] = 8'h00;
-          rb[60] = 8'h00; rb[61] = 8'h00;
-          {rb[64], rb[65]} = w_flags &
-              ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_FAST_CONNECT_C |
-                ACMP_FLAG_SRP_REG_FAILED_C);
-          rb[66] = 8'h00; rb[67] = 8'h00;
+        w_resp[8*6 +: 8] = 8'h00;                        // dest_mac 54-55
+        w_resp[8*7 +: 8] = 8'h00;
+      end
+      4'd7: begin                                        // bytes 56-63
+        w_resp[31:0] = 32'd0;                            // dest_mac 56-59
+        w_resp[8*4 +: 8] = 8'h00;                        // count 60-61
+        w_resp[8*5 +: 8] = (resp_kind_r == L_RESP_BIND_E) ? 8'h01
+                          : (resp_kind_r == L_RESP_STATE_E && w_bound) ? 8'h01
+                          : 8'h00;
+      end
+      4'd8: begin                                        // bytes 64-69
+        w_resp[8*0 +: 8] = w_resp_flags[15:8];
+        w_resp[8*1 +: 8] = w_resp_flags[7:0];
+        if (!w_str_echo) begin                           // vlan 66-67
+          w_resp[8*2 +: 8] = 8'h00;
+          w_resp[8*3 +: 8] = 8'h00;
         end
-        // Table 5.37: talker/tuid from the binding, count=bound, dest_mac
-        // ZEROED, stream_id/vlan echoed, per-state flags
-        default: begin
-          for (int k = 0; k < 8; k++)
-            rb[34+k] = (st_lsm_r == LSM_UNBOUND_S) ? 8'h00
-                                                   : bnd_talker_r[8*(7-k) +: 8];
-          rb[50] = bnd_tuid_r[15:8]; rb[51] = bnd_tuid_r[7:0];
-          for (int k = 54; k < 60; k++) rb[k] = 8'h00;
-          rb[60] = 8'h00;
-          rb[61] = (st_lsm_r == LSM_UNBOUND_S) ? 8'h00 : 8'h01;
-          if (st_lsm_r == LSM_UNBOUND_S) begin
-            {rb[64], rb[65]} = 16'h0000;
-          end else if (st_lsm_r == LSM_SETTLED_NO_RSV_S ||
-                       st_lsm_r == LSM_SETTLED_RSV_OK_S) begin
-            {rb[64], rb[65]} = bnd_flags_r & ACMP_FLAG_STREAMING_WAIT_C;
-          end else begin
-            {rb[64], rb[65]} = ACMP_FLAG_STREAMING_WAIT_C |
-                               (ta_failed_i ? ACMP_FLAG_SRP_REG_FAILED_C : 16'h0);
-          end
-        end
-      endcase
-    end
+      end
+      default: ;
+    endcase
   end
 
   // -----------------------------------------------------------------------
   // Serialiser
   // -----------------------------------------------------------------------
-  reg [3:0] beat_r;
   logic [63:0] w_beat;
   always_comb begin
-    for (int l = 0; l < 8; l++)
-      w_beat[8*l +: 8] = rb[{beat_r, 3'b000} + l[3:0]];
+    if (st_r == PROBE_S)
+      for (int l = 0; l < 8; l++)
+        w_beat[8*l +: 8] = probe_byte(32'(beat_r) * 8 + l);
+    else
+      w_beat = w_resp;
   end
   assign m_axis_tdata  = w_beat;
   assign m_axis_tvalid = (st_r == RESPOND_S) || (st_r == PROBE_S);
@@ -442,7 +504,14 @@ module KL_acmp_listener #(
   // -----------------------------------------------------------------------
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      st_r <= COLLECT_S; wr_r <= '0; ovfl_r <= 1'b0; beat_r <= '0;
+      st_r <= COLLECT_S; wbeat_r <= '0; ovfl_r <= 1'b0; beat_r <= '0;
+      len_ok_r <= 1'b0; adp_len_ok_r <= 1'b0;
+      cap_dst_ok_r <= 1'b0; cap_etype_ok_r <= 1'b0; cap_sv0_r <= 1'b0;
+      cap_subtype_r <= '0; cap_msg_r <= '0; cap_status_r <= '0;
+      cap_sid_r <= '0; cap_ctlr_r <= '0; cap_talker_r <= '0;
+      cap_lstnr_hi_ok_r <= 1'b0; cap_lstnr_lo_ok_r <= 1'b0;
+      cap_tuid_r <= '0; cap_luid_r <= '0; cap_flags_r <= '0;
+      cap_dmac_r <= '0; cap_vlan_r <= '0;
       st_lsm_r <= LSM_UNBOUND_S;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0; resp_kind_r <= L_RESP_STATE_E;
       probe_pend_r <= 1'b0;
@@ -454,7 +523,6 @@ module KL_acmp_listener #(
       ta_reg_prev_r <= 1'b0; ta_fail_prev_r <= 1'b0;
       acmp_status_o <= 5'd0; probing_o <= 2'd0;
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
-      for (int k = 0; k < NUM_BEATS_C*8; k++) fbuf[k] <= 8'h00;
     end else begin
       // ---- timer countdown -------------------------------------------
       if (tick_1ms_r && tmr_r != 14'd0) tmr_r <= tmr_r - 14'd1;
@@ -567,15 +635,74 @@ module KL_acmp_listener #(
       case (st_r)
         COLLECT_S: begin
           if (rxv_r) begin
-            for (int l = 0; l < 8; l++) begin
-              if (rxk_r[l] && ({1'b0, wr_r} + 8'(l) < 8'(NUM_BEATS_C*8)))
-                fbuf[wr_r + 7'(l)] <= rxd_r[8*l +: 8];
-            end
-            if ({1'b0, wr_r} + 8'(kcount(rxk_r)) > 8'(NUM_BEATS_C*8))
+            // beat-aligned word write (full-word: unkept tail lanes are
+            // never echoed — responses are exactly 70 bytes)
+            if (wbeat_r < 4'(NUM_BEATS_C))
+              fword_r[wbeat_r[3:0]] <= rxd_r;
+            else
               ovfl_r <= 1'b1;
-            wr_r <= ({1'b0, wr_r} + 8'(kcount(rxk_r)) > 8'(NUM_BEATS_C*8))
-                    ? 7'(NUM_BEATS_C*8) : wr_r + 7'(kcount(rxk_r));
-            if (rxl_r) st_r <= CLASSIFY_S;
+
+            // fixed-position field captures
+            unique case (wbeat_r)
+              4'd0: begin
+                cap_dst_ok_r <= ({rxd_r[7:0],   rxd_r[15:8],  rxd_r[23:16],
+                                  rxd_r[31:24], rxd_r[39:32], rxd_r[47:40]}
+                                 == 48'h91E0_F001_0000);
+              end
+              4'd1: begin   // bytes 12-15
+                cap_etype_ok_r <= ({rxd_r[39:32], rxd_r[47:40]} == 16'h22F0);
+                cap_subtype_r  <= rxd_r[55:48];
+                cap_sv0_r      <= (rxd_r[63:60] == 4'h0);
+                cap_msg_r      <= rxd_r[59:56];
+              end
+              4'd2: begin   // bytes 16-23: status + stream_id[63:16]
+                cap_status_r <= rxd_r[7:3];
+                cap_sid_r[63:16] <= {rxd_r[23:16], rxd_r[31:24], rxd_r[39:32],
+                                     rxd_r[47:40], rxd_r[55:48], rxd_r[63:56]};
+              end
+              4'd3: begin   // bytes 24-31: stream_id tail + ctlr[63:16]
+                cap_sid_r[15:0]   <= {rxd_r[7:0], rxd_r[15:8]};
+                cap_ctlr_r[63:16] <= {rxd_r[23:16], rxd_r[31:24], rxd_r[39:32],
+                                      rxd_r[47:40], rxd_r[55:48], rxd_r[63:56]};
+              end
+              4'd4: begin   // bytes 32-39: ctlr tail + talker[63:16]
+                cap_ctlr_r[15:0]    <= {rxd_r[7:0], rxd_r[15:8]};
+                cap_talker_r[63:16] <= {rxd_r[23:16], rxd_r[31:24], rxd_r[39:32],
+                                        rxd_r[47:40], rxd_r[55:48], rxd_r[63:56]};
+              end
+              4'd5: begin   // bytes 40-47: talker tail + listener[63:16]
+                cap_talker_r[15:0] <= {rxd_r[7:0], rxd_r[15:8]};
+                cap_lstnr_hi_ok_r  <= ({rxd_r[23:16], rxd_r[31:24], rxd_r[39:32],
+                                        rxd_r[47:40], rxd_r[55:48], rxd_r[63:56]}
+                                       == entity_id_i[63:16]);
+              end
+              4'd6: begin   // bytes 48-55: listener tail, tuid, luid, dmac hi
+                cap_lstnr_lo_ok_r <= ({rxd_r[7:0], rxd_r[15:8]}
+                                      == entity_id_i[15:0]);
+                cap_tuid_r <= {rxd_r[23:16], rxd_r[31:24]};
+                cap_luid_r <= {rxd_r[39:32], rxd_r[47:40]};
+                cap_dmac_r[47:32] <= {rxd_r[55:48], rxd_r[63:56]};
+              end
+              4'd7: begin   // bytes 56-63: dmac tail
+                cap_dmac_r[31:0] <= {rxd_r[7:0], rxd_r[15:8],
+                                     rxd_r[23:16], rxd_r[31:24]};
+              end
+              4'd8: begin   // bytes 64-69: flags + vlan
+                cap_flags_r <= {rxd_r[7:0], rxd_r[15:8]};
+                cap_vlan_r  <= {rxd_r[19:16], rxd_r[31:24]};
+              end
+              default: ;
+            endcase
+
+            wbeat_r <= (wbeat_r == 4'd10) ? 4'd10 : wbeat_r + 4'd1;
+            if (rxl_r) begin
+              // ACMP >= 70 bytes: 8 full beats + at least 6 tail lanes
+              len_ok_r     <= (wbeat_r == 4'd8) && rxk_r[5];
+              // ADP >= 26 bytes: entity_id fully captured
+              adp_len_ok_r <= (wbeat_r >= 4'd4) ||
+                              (wbeat_r == 4'd3 && rxk_r[1]);
+              st_r <= CLASSIFY_S;
+            end
           end else if (probe_pend_r) begin
             probe_pend_r  <= 1'b0;
             probe_count_o <= probe_count_o + 16'd1;
@@ -640,9 +767,8 @@ module KL_acmp_listener #(
             tmr_r <= 14'd0;   // remove NO_RESP
             if (w_status == ACMP_STATUS_SUCCESS_C) begin
               sid_r    <= w_sid;
-              dmac_r   <= {fbuf[54], fbuf[55], fbuf[56],
-                           fbuf[57], fbuf[58], fbuf[59]};
-              vlan_r   <= {fbuf[66][3:0], fbuf[67]};
+              dmac_r   <= cap_dmac_r;
+              vlan_r   <= cap_vlan_r;
               active_r <= 1'b1;
               probing_o <= 2'd3;          // COMPLETED
               acmp_status_o <= 5'd0;
@@ -653,10 +779,10 @@ module KL_acmp_listener #(
               arm(LSM_TMR_RETRY_MS_C);
               st_lsm_r <= LSM_PRB_W_RETRY_S;
             end
-            wr_r <= '0; ovfl_r <= 1'b0;
+            wbeat_r <= '0; ovfl_r <= 1'b0;
             st_r <= COLLECT_S;
           end else begin
-            wr_r <= '0; ovfl_r <= 1'b0;
+            wbeat_r <= '0; ovfl_r <= 1'b0;
             st_r <= COLLECT_S;
           end
         end
@@ -667,7 +793,7 @@ module KL_acmp_listener #(
               // post-increment the probe sequence per emission (reference
               // prepare_probe_tx_command_success: send seq, then ++)
               if (st_r == PROBE_S) probe_seq_r <= probe_seq_r + 16'd1;
-              wr_r <= '0; ovfl_r <= 1'b0;
+              wbeat_r <= '0; ovfl_r <= 1'b0;
               beat_r <= '0;
               st_r <= COLLECT_S;
             end else begin
@@ -691,12 +817,6 @@ module KL_acmp_listener #(
       adp_departed_p   <= (st_r == CLASSIFY_S) && w_adp_depart && tk_avail_o;
     end
   end
-
-  //! number of set tkeep bits (contiguous low-aligned keeps assumed)
-  function automatic [3:0] kcount(input [7:0] k);
-    kcount = 4'(k[0]) + 4'(k[1]) + 4'(k[2]) + 4'(k[3]) +
-             4'(k[4]) + 4'(k[5]) + 4'(k[6]) + 4'(k[7]);
-  endfunction
 
 endmodule
 
