@@ -122,8 +122,8 @@ cable. Data plane unaffected.
 | build_arty_eto_lwsrp | Arty lwSRP keeper CANDIDATE (not yet loaded; asl −0.287 fail, eppo died in route — sweep variance) | +0.121 |
 | build_ax7101_*_lwsrp | ALL 3 SEEDS FAIL PLACEMENT (Place 30-487: LUTs 62408/63400 = 98.4 %). AX was ~97 % before lwSRP | — |
 | build_arty_*_milanv12 | ALL 3 SEEDS FAIL PLACEMENT (66599/63400 LUTs = 105 % — the v1.2 close-out logic tipped ARTY too). **Root cause found by hierarchical synth report: aecp u_ingress = 8197 LUTs** (128-byte register fbuf with unaligned byte write decoders + replay muxes) — vs the lwSRP BRAM-FIFO ingress at 106 LUTs | — |
-| build_arty_eppo_milanv12b | **Arty Milan-v1.2 KEEPER CANDIDATE** (full mandatory set + listener SM; ingress BRAM rewrite `42fdc6f` recovered the area — eto 0.000 / asl −0.027; margins thin, next shave = the acmp fbufs). NOT loaded on the board yet | +0.001 |
-| build_ax7101_*_milanv12b/c | AX PLACES again post area fix; walker-divide timing fix (`853762c`) moved it to −0.058 (eppo); directive hunt: AltSpreadLogic_medium **−0.003**, Explore −0.042 — residual path = RX-BRAM→ptp_ts_rx SOP-CE (pre-existing). Round 2 (asl_low/extranetdelay_low/wldriven) in flight | best −0.003 |
+| build_ax7101_asl_milanv12d | **AX7101 Milan-v1.2 KEEPER** — closes at 100 MHz after area-70 round 1 (`42fdc6f`+`f018fd0`+`a6976dc`, −15.3K placed LUTs → 51284/63400 = 80.9 %, slices 97.6 %); all 3 seeds ≥ +0.023 (eto +0.082, eppo +0.023). NOT loaded | +0.123 |
+| build_arty_*_milanv12d | Arty resweep on the area-fixed netlist (supersedes eppo_milanv12b +0.001) | in flight |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
