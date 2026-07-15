@@ -136,15 +136,54 @@ module KL_aecp_response_builder (
   `include "gen/aecp_aem_rom.svh"
 
   // ------------------------------------------------------------------ //
-  // Payload capture: stripped-frame bytes 24..151 -> buf_r[0..127]       //
-  // (byte 24 = AEM u/command_type hi; AEM payload starts at buf[2])      //
+  // Payload capture: stripped-frame bytes 24..151 -> capture word RAM    //
+  // (byte 24 = AEM u/command_type hi; AEM payload starts at buf byte 2). //
+  // Area-70 config-in-RAM recipe: the old 128-byte register buf_r was    //
+  // ~1K FFs + wide echo muxes. The words now live in a 16x64 distributed //
+  // RAM written beat-aligned; the DECODE fields (buf bytes 0..15, 24..31)//
+  // are additionally captured into three plain registers so the decode   //
+  // cones read registers, and only the echo-emit and store-write-back    //
+  // paths read the RAM (two async ports).                                //
   // ------------------------------------------------------------------ //
   localparam int unsigned BUF_BYTES_C = 128;
 
-  logic [7:0]  buf_r [0:BUF_BYTES_C-1];
+  logic [63:0] cbuf_r [0:15];              //! big-lane capture words (RAM)
+  logic [63:0] cw0_r, cw1_r, cw3_r;        //! decode captures: bytes 0-15, 24-31
   logic [4:0]  beat_r;                     //! frame beat counter (sat at 31)
 
+  //! buf byte accessor (big lane order: byte j of word w = tdata[8*(7-j)])
+  function automatic [7:0] bufb(input [63:0] w, input [2:0] j);
+    bufb = w[8*(3'd7 - j) +: 8];
+  endfunction
+
   wire w_cap_hs = s_axis_tvalid & s_axis_tready;
+
+  wire [6:0] w_eaddr  = emseg_addr_r[6:0] + emsoff_r[6:0];  //! echo RAM addr
+  wire [6:0] w_wbaddr = 7'(wb_src_q + wb_cnt_r);           //! wb RAM addr
+  wire [7:0] w_b0  = bufb(cw0_r, 3'd0);
+  wire [7:0] w_b1  = bufb(cw0_r, 3'd1);
+  wire [7:0] w_b2  = bufb(cw0_r, 3'd2);
+  wire [7:0] w_b3  = bufb(cw0_r, 3'd3);
+  wire [7:0] w_b4  = bufb(cw0_r, 3'd4);
+  wire [7:0] w_b5  = bufb(cw0_r, 3'd5);
+  wire [7:0] w_b6  = bufb(cw0_r, 3'd6);
+  wire [7:0] w_b7  = bufb(cw0_r, 3'd7);
+  wire [7:0] w_b8  = bufb(cw1_r, 3'd0);
+  wire [7:0] w_b9  = bufb(cw1_r, 3'd1);
+  wire [7:0] w_b10  = bufb(cw1_r, 3'd2);
+  wire [7:0] w_b11  = bufb(cw1_r, 3'd3);
+  wire [7:0] w_b12  = bufb(cw1_r, 3'd4);
+  wire [7:0] w_b13  = bufb(cw1_r, 3'd5);
+  wire [7:0] w_b14  = bufb(cw1_r, 3'd6);
+  wire [7:0] w_b15  = bufb(cw1_r, 3'd7);
+  wire [7:0] w_b24 = bufb(cw3_r, 3'd0);
+  wire [7:0] w_b25 = bufb(cw3_r, 3'd1);
+  wire [7:0] w_b26 = bufb(cw3_r, 3'd2);
+  wire [7:0] w_b27 = bufb(cw3_r, 3'd3);
+  wire [7:0] w_b28 = bufb(cw3_r, 3'd4);
+  wire [7:0] w_b29 = bufb(cw3_r, 3'd5);
+  wire [7:0] w_b30 = bufb(cw3_r, 3'd6);
+  wire [7:0] w_b31 = bufb(cw3_r, 3'd7);
 
   // ------------------------------------------------------------------ //
   // FSM                                                                  //
@@ -170,37 +209,37 @@ module KL_aecp_response_builder (
   // Command decode (combinational over the capture buffer; DECIDE_S runs //
   // one cycle after the final beat was written, so buf_r is complete)    //
   // ------------------------------------------------------------------ //
-  wire [15:0] w_rd_cfg   = {buf_r[2], buf_r[3]};   //! READ_DESCRIPTOR config
-  wire [15:0] w_rd_type  = {buf_r[6], buf_r[7]};
-  wire [15:0] w_rd_index = {buf_r[8], buf_r[9]};
-  wire [15:0] w_gs_type  = {buf_r[2], buf_r[3]};   //! GET/SET_* desc type
-  wire [15:0] w_gs_index = {buf_r[4], buf_r[5]};
+  wire [15:0] w_rd_cfg   = {w_b2, w_b3};   //! READ_DESCRIPTOR config
+  wire [15:0] w_rd_type  = {w_b6, w_b7};
+  wire [15:0] w_rd_index = {w_b8, w_b9};
+  wire [15:0] w_gs_type  = {w_b2, w_b3};   //! GET/SET_* desc type
+  wire [15:0] w_gs_index = {w_b4, w_b5};
   //! SET_STREAM_INFO (Milan §5.4.2.9): payload byte n = buf_r[n+2] — flags at
   //! payload 4-7, msrp_accumulated_latency at payload 24-27.
-  wire [31:0] w_si_flags = {buf_r[6],  buf_r[7],  buf_r[8],  buf_r[9]};
-  wire [31:0] w_si_lat   = {buf_r[26], buf_r[27], buf_r[28], buf_r[29]};
+  wire [31:0] w_si_flags = {w_b6,  w_b7,  w_b8,  w_b9};
+  wire [31:0] w_si_lat   = {w_b26, w_b27, w_b28, w_b29};
   //! Spec-defined sub-command bits (reference valid_mask: aecp-aem.h bits 0-9
   //! + 25-31) minus the ONE supported (MSRP_ACC_LAT_VALID, bit 29): any of
   //! these requested -> NOT_SUPPORTED for the whole command (§5.4.2.9).
   localparam [31:0] SI_UNSUPPORTED_MASK_C = 32'hDE00_03FF;
-  wire [15:0] w_name_idx = {buf_r[6], buf_r[7]};   //! SET/GET_NAME name_index
-  wire [15:0] w_as_path_idx = {buf_r[2], buf_r[3]};  //! GET_AS_PATH descriptor_index (no type field)
-  wire [15:0] w_name_cfg = {buf_r[8], buf_r[9]};
-  wire [31:0] w_set_rate = {buf_r[6], buf_r[7], buf_r[8], buf_r[9]};
-  wire [63:0] w_set_fmt  = {buf_r[6], buf_r[7], buf_r[8],  buf_r[9],
-                            buf_r[10], buf_r[11], buf_r[12], buf_r[13]};
+  wire [15:0] w_name_idx = {w_b6, w_b7};   //! SET/GET_NAME name_index
+  wire [15:0] w_as_path_idx = {w_b2, w_b3};  //! GET_AS_PATH descriptor_index (no type field)
+  wire [15:0] w_name_cfg = {w_b8, w_b9};
+  wire [31:0] w_set_rate = {w_b6, w_b7, w_b8, w_b9};
+  wire [63:0] w_set_fmt  = {w_b6, w_b7, w_b8,  w_b9,
+                            w_b10, w_b11, w_b12, w_b13};
   //! VU frames have NO u/command_type after sequence_id: buf_r[0..5] =
   //! protocol_id, buf_r[6:7] = command_type, buf_r[8:9] = reserved,
   //! buf_r[10..] = command payload (AEM frames instead put command_type in
   //! buf_r[0:1] and the payload in buf_r[2..]).
   wire        w_vu_proto_ok =
-      (buf_r[0] == MILAN_PROTOCOL_ID_C[47:40]) &&
-      (buf_r[1] == MILAN_PROTOCOL_ID_C[39:32]) &&
-      (buf_r[2] == MILAN_PROTOCOL_ID_C[31:24]) &&
-      (buf_r[3] == MILAN_PROTOCOL_ID_C[23:16]) &&
-      (buf_r[4] == MILAN_PROTOCOL_ID_C[15:8])  &&
-      (buf_r[5] == MILAN_PROTOCOL_ID_C[7:0]);
-  wire [14:0] w_vu_cmd = {buf_r[6][6:0], buf_r[7]};
+      (w_b0 == MILAN_PROTOCOL_ID_C[47:40]) &&
+      (w_b1 == MILAN_PROTOCOL_ID_C[39:32]) &&
+      (w_b2 == MILAN_PROTOCOL_ID_C[31:24]) &&
+      (w_b3 == MILAN_PROTOCOL_ID_C[23:16]) &&
+      (w_b4 == MILAN_PROTOCOL_ID_C[15:8])  &&
+      (w_b5 == MILAN_PROTOCOL_ID_C[7:0]);
+  wire [14:0] w_vu_cmd = {w_b6[6:0], w_b7};
 
   //! descriptor lookup — inputs muxed combinationally by command layout
   wire w_is_read_desc = !vu_q && (hdr_q.command_type == CMD_READ_DESCRIPTOR);
@@ -544,7 +583,7 @@ module KL_aecp_response_builder (
       end
       pay_len_q    <= 16'd0;
       cum_done_q   <= 1'b0;
-      for (int k = 0; k < BUF_BYTES_C; k++) buf_r[k] <= 8'h00;
+      cw0_r <= 64'd0; cw1_r <= 64'd0; cw3_r <= 64'd0;
       for (int k = 0; k < 64; k++) const_q[k] <= 8'h00;
       for (int s = 0; s < 4; s++) begin
         seg_kind_q[s] <= SEG_NONE;
@@ -608,10 +647,11 @@ module KL_aecp_response_builder (
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
       if (w_cap_hs) begin
-        if (beat_r >= 5'd3 && beat_r < 5'd19) begin
-          for (int k = 0; k < 8; k++)
-            buf_r[((32)'(beat_r) - 3) * 8 + k] <= s_axis_tdata[8*(7-k) +: 8];
-        end
+        if (beat_r >= 5'd3 && beat_r < 5'd19)
+          cbuf_r[4'(beat_r - 5'd3)] <= s_axis_tdata;
+        if (beat_r == 5'd3) cw0_r <= s_axis_tdata;   // buf bytes 0-7
+        if (beat_r == 5'd4) cw1_r <= s_axis_tdata;   // buf bytes 8-15
+        if (beat_r == 5'd6) cw3_r <= s_axis_tdata;   // buf bytes 24-31
         beat_r <= s_axis_tlast ? 5'd0 : (beat_r == 5'd31 ? 5'd31 : beat_r + 5'd1);
       end
 
@@ -736,7 +776,7 @@ module KL_aecp_response_builder (
             end else if (w_vu_cmd == VU_SET_SYSTEM_UNIQUE_ID) begin
               status_q      <= STATUS_SUCCESS;
               seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd0; seg_len_q[0] <= 16'd14;
-              sysuid_r      <= {buf_r[10], buf_r[11], buf_r[12], buf_r[13]};
+              sysuid_r      <= {w_b10, w_b11, w_b12, w_b13};
               cdl_q         <= 11'd24;
             end else if (w_vu_cmd == VU_GET_SYSTEM_UNIQUE_ID) begin
               status_q      <= STATUS_SUCCESS;
@@ -755,7 +795,7 @@ module KL_aecp_response_builder (
             end else if (w_vu_cmd == VU_GET_MEDIA_CLOCK_REF_INFO ||
                          w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO) begin
               seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd0; seg_len_q[0] <= 16'd10;
-              if ({buf_r[8], buf_r[9]} != 16'd0) begin
+              if ({w_b8, w_b9} != 16'd0) begin
                 status_q <= STATUS_BAD_ARGUMENTS;   // only CLOCK_DOMAIN[0]
                 cdl_q    <= 11'd20;
               end else begin
@@ -764,17 +804,17 @@ module KL_aecp_response_builder (
                 seg_kind_q[2] <= SEG_STORE;
                 seg_addr_q[2] <= WB_MCR_DOMNAME_C; seg_len_q[2] <= 16'd64;
                 const_q[0] <= (w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO)
-                              ? buf_r[10] : 8'h03;   // SET echoes its flags
+                              ? w_b10 : 8'h03;   // SET echoes its flags
                 const_q[1] <= 8'h00;                 // reserved
                 const_q[2] <= MCR_DEFAULT_PRIO_C;
                 const_q[3] <= (w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO &&
-                               buf_r[10][0]) ? buf_r[13] : mcr_user_prio_r;
+                               w_b10[0]) ? w_b13 : mcr_user_prio_r;
                 const_q[4] <= 8'h00; const_q[5] <= 8'h00;
                 const_q[6] <= 8'h00; const_q[7] <= 8'h00;
                 cdl_q <= 11'd92;   // 18 + 74
                 if (w_vu_cmd == VU_SET_MEDIA_CLOCK_REF_INFO) begin
-                  if (buf_r[10][0]) mcr_user_prio_r <= buf_r[13];
-                  if (buf_r[10][1]) begin
+                  if (w_b10[0]) mcr_user_prio_r <= w_b13;
+                  if (w_b10[1]) begin
                     wb_addr_q <= WB_MCR_DOMNAME_C;
                     wb_len_q  <= 7'd64;
                     wb_src_q  <= 7'd18;
@@ -813,7 +853,7 @@ module KL_aecp_response_builder (
                 if (acc_found && w_rd_cfg == 16'd0) begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd16; seg_len_q[0] <= 16'd4;
-                  const_q[16] <= buf_r[2]; const_q[17] <= buf_r[3];   // cfg echo
+                  const_q[16] <= w_b2; const_q[17] <= w_b3;   // cfg echo
                   const_q[18] <= 8'h00;    const_q[19] <= 8'h00;      // reserved
                   seg_kind_q[1] <= SEG_STORE; seg_addr_q[1] <= acc_base; seg_len_q[1] <= acc_len;
                   cdl_q <= 11'(16 + (32)'(acc_len));
@@ -903,7 +943,7 @@ module KL_aecp_response_builder (
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd8;
                 end else if (hdr_q.command_type == CMD_SET_CLOCK_SOURCE &&
-                             {buf_r[6], buf_r[7]} >= 16'd3) begin
+                             {w_b6, w_b7} >= 16'd3) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;   // only sources 0..2
                   seg_len_q[0] <= 16'd8;
                 end else begin
@@ -940,7 +980,7 @@ module KL_aecp_response_builder (
                                   ? 16'd5 : 16'd4;
                   cdl_q        <= hdr_q.control_data_length;
                 end else if (hdr_q.command_type == CMD_SET_CONTROL &&
-                             buf_r[6] != 8'h00 && buf_r[6] != 8'hFF) begin
+                             w_b6 != 8'h00 && w_b6 != 8'hFF) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;    // step 255: 0 or 255
                   seg_len_q[0] <= 16'd5;
                 end else begin
@@ -952,7 +992,7 @@ module KL_aecp_response_builder (
                     wb_addr_q  <= WB_CONTROL_CUR_C;
                     wb_len_q   <= 7'd1;
                     wb_src_q   <= 7'd6;
-                    identify_r <= (buf_r[6] != 8'h00);
+                    identify_r <= (w_b6 != 8'h00);
                   end
                 end
               end
@@ -966,7 +1006,7 @@ module KL_aecp_response_builder (
               CMD_GET_AUDIO_MAP: begin
                 if ((w_gs_type != DESC_STREAM_PORT_INPUT &&
                      w_gs_type != DESC_STREAM_PORT_OUTPUT) ||
-                    w_gs_index != 16'd0 || {buf_r[6], buf_r[7]} != 16'd0) begin
+                    w_gs_index != 16'd0 || {w_b6, w_b7} != 16'd0) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd8;
                   cdl_q        <= 11'd20;
@@ -1206,8 +1246,8 @@ module KL_aecp_response_builder (
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME &&
-                             ({buf_r[6], buf_r[7], buf_r[8], buf_r[9]} != 32'd0 ||
-                              buf_r[10][7])) begin
+                             ({w_b6, w_b7, w_b8, w_b9} != 32'd0 ||
+                              w_b10[7])) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;   // > 0x7FFFFFFF ns
                   seg_len_q[0] <= 16'd12;
                 end else begin
@@ -1217,10 +1257,10 @@ module KL_aecp_response_builder (
                   const_q[0] <= 8'h00; const_q[1] <= 8'h00;
                   const_q[2] <= 8'h00; const_q[3] <= 8'h00;
                   if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME) begin
-                    const_q[4] <= buf_r[10]; const_q[5] <= buf_r[11];
-                    const_q[6] <= buf_r[12]; const_q[7] <= buf_r[13];
+                    const_q[4] <= w_b10; const_q[5] <= w_b11;
+                    const_q[6] <= w_b12; const_q[7] <= w_b13;
                     pres_wr_p_o   <= 1'b1;
-                    pres_wr_val_o <= {buf_r[10], buf_r[11], buf_r[12], buf_r[13]};
+                    pres_wr_val_o <= {w_b10, w_b11, w_b12, w_b13};
                   end else begin
                     const_q[4] <= pres_offset_i[31:24];
                     const_q[5] <= pres_offset_i[23:16];
@@ -1309,7 +1349,7 @@ module KL_aecp_response_builder (
           end else begin
             st_wr_o    <= 1'b1;
             st_waddr_o <= wb_addr_q + 16'(wb_cnt_r);
-            st_wdata_o <= buf_r[wb_src_q + wb_cnt_r];
+            st_wdata_o <= bufb(cbuf_r[w_wbaddr[6:3]], w_wbaddr[2:0]);
             if (wb_cnt_r == wb_len_q - 7'd1) begin
               wb_cnt_r <= 7'd0;
               wb_len_q <= 7'd0;
@@ -1343,7 +1383,7 @@ module KL_aecp_response_builder (
             b = hdrbyte_r;                    // registered header byte
           end else begin
             unique case (emseg_kind_r)        // registered segment select
-              SEG_ECHO:  b = buf_r[emseg_addr_r[6:0] + emsoff_r[6:0]];
+              SEG_ECHO:  b = bufb(cbuf_r[w_eaddr[6:3]], w_eaddr[2:0]);
               SEG_STORE: b = st_byte_i;       // store byte (1-cycle read latency)
               SEG_CONST: b = const_q[emseg_addr_r[5:0] + emsoff_r[5:0]];
               default:   b = 8'h00;
