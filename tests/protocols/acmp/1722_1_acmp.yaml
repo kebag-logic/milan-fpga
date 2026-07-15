@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# IEEE 1722.1-2021 §8.2  ACMPDU (all message types share one layout)
+#
+# Kept in milan-fpga (tsn-gen carries no ACMP protocol yet) and consumed by
+# the tsn-gen packet_gen binary for the Milan LISTENER behave tests
+# (tests/features/acmp_listener_tsn_gen.feature). Same PDU convention as the
+# tsn-gen AECP YAMLs: bit-packed MSB-first starting at message_type (the
+# subtype / sv / version bits live in the AVTP control layer).
+#
+# PDU layout (MSB-first):
+#
+#   Bits   Field
+#   ────   ─────────────────────────────
+#    4     message_type                 0..13 (Table 8-1)
+#    5     status                       0..17, 31 (Table 8-2)
+#   11     control_data_length          = 44 (octets after stream_id)
+#   64     stream_id
+#   64     controller_entity_id
+#   64     talker_entity_id
+#   64     listener_entity_id
+#   16     talker_unique_id
+#   16     listener_unique_id
+#   48     stream_dest_mac
+#   16     connection_count
+#   16     sequence_id
+#   16     flags
+#   16     stream_vlan_id
+#   16     reserved
+#          ─────────────────────────────
+#        = 436 bits = 55 bytes (4 pad bits)
+
+service: milan_acmp
+
+vars:
+  - var: message_type
+    size: 4
+    expected:
+      values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+  - var: status
+    size: 5
+    expected:
+      values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+  - var: control_data_length
+    size: 11
+    expected:
+      value: 44
+
+  - var: stream_id
+    size: 64
+
+  - var: controller_entity_id
+    size: 64
+
+  - var: talker_entity_id
+    size: 64
+
+  - var: listener_entity_id
+    size: 64
+
+  - var: talker_unique_id
+    size: 16
+
+  - var: listener_unique_id
+    size: 16
+
+  - var: stream_dest_mac
+    size: 48
+
+  - var: connection_count
+    size: 16
+
+  - var: sequence_id
+    size: 16
+
+  - var: flags
+    size: 16
+
+  - var: stream_vlan_id
+    size: 16
+
+  - var: reserved
+    size: 16
+
+entities:
+  - entity: MILAN_ACMP
+    interfaces:
+      - interface: MILAN_ACMP_IF
+        dir: in
+        vars:
+          - var_ref: message_type
+          - var_ref: status
+          - var_ref: control_data_length
+          - var_ref: stream_id
+          - var_ref: controller_entity_id
+          - var_ref: talker_entity_id
+          - var_ref: listener_entity_id
+          - var_ref: talker_unique_id
+          - var_ref: listener_unique_id
+          - var_ref: stream_dest_mac
+          - var_ref: connection_count
+          - var_ref: sequence_id
+          - var_ref: flags
+          - var_ref: stream_vlan_id
+          - var_ref: reserved

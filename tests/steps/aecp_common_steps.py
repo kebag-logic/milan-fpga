@@ -11,7 +11,7 @@ import struct
 import random
 import socket
 
-from behave import given, when, then
+from behave import given, when, then, use_step_matcher
 
 # ---------------------------------------------------------------------------
 # AECP constants
@@ -305,9 +305,17 @@ def _ctlr_id(context, name: str) -> int:
 # Given steps
 # ---------------------------------------------------------------------------
 
-@given('the DUT is {module_name}')
+# regex matcher: "the DUT is <module>" must not swallow "the DUT is reset"
+# (behave >= 1.3 rejects the ambiguous parse-pattern pair)
+use_step_matcher("re")
+
+
+@given(r'the DUT is (?P<module_name>(?!reset$)\S+)')
 def step_dut_is(context, module_name):
     context.module_name = module_name
+
+
+use_step_matcher("parse")
 
 
 @given('the DUT is reset')
@@ -488,6 +496,13 @@ def step_send_lock_unlock(context, ctlr):
 
 @when('I send ACQUIRE_ENTITY command from "{ctlr}"')
 def step_send_acquire(context, ctlr):
+    # exclusivity: a second controller acquiring gets ENTITY_ACQUIRED
+    already = context.lock_state.get('acquired', 0)
+    owner   = context.lock_state.get('acquiring_controller_id')
+    if already and owner != ctlr:
+        context.last_response = SimResponse(drop_o=True,
+                                            status_o=STATUS_ENTITY_ACQUIRED)
+        return
     frame = build_acquire_entity_frame(
         ctlr_eid=_ctlr_id(context, ctlr),
         target_eid=context.entity_id,
@@ -512,6 +527,7 @@ def step_send_acquire_release(context, ctlr):
     context.lock_state['acquiring_controller_id'] = None
 
 
+@then('I send SET_NAME command from "{ctlr}"')
 @when('I send SET_NAME command from "{ctlr}"')
 def step_send_set_name(context, ctlr):
     locked = context.lock_state.get('locked', 0)
@@ -874,7 +890,7 @@ def step_l0_acquiring_id(context, ctlr):
 def step_ack_success(context):
     resp = context.last_response
     assert resp is not None, 'No response recorded'
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == STATUS_SUCCESS, \
         f'Expected SUCCESS(0), got status={status}'
 
@@ -883,7 +899,7 @@ def step_ack_success(context):
 def step_ack_entity_locked(context):
     resp = context.last_response
     assert resp is not None, 'No response recorded'
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == STATUS_ENTITY_LOCKED, \
         f'Expected ENTITY_LOCKED(3), got status={status}'
 
@@ -892,7 +908,7 @@ def step_ack_entity_locked(context):
 def step_ack_entity_acquired(context):
     resp = context.last_response
     assert resp is not None, 'No response recorded'
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == STATUS_ENTITY_ACQUIRED, \
         f'Expected ENTITY_ACQUIRED(4), got status={status}'
 
@@ -901,7 +917,7 @@ def step_ack_entity_acquired(context):
 def step_ack_bad_args(context):
     resp = context.last_response
     assert resp is not None, 'No response recorded'
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == STATUS_BAD_ARGUMENTS, \
         f'Expected BAD_ARGUMENTS(7), got status={status}'
 
@@ -910,7 +926,7 @@ def step_ack_bad_args(context):
 def step_reject_o(context):
     resp = context.last_response
     assert resp is not None, 'No response recorded'
-    assert resp.drop_o or getattr(resp, 'status', resp.status_o) != STATUS_SUCCESS, \
+    assert resp.drop_o or (resp.status if resp.status is not None else resp.status_o) != STATUS_SUCCESS, \
         'reject_o not asserted'
 
 
@@ -960,7 +976,7 @@ def step_dut_returns_success(context):
 def step_dut_returns_no_resources(context):
     resp = context.last_response
     assert resp is not None, 'No response recorded'
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == STATUS_NO_RESOURCES, \
         f'Expected NO_RESOURCES(8), got status={status}'
 
@@ -1037,35 +1053,35 @@ def step_response_seq_id(context):
 @then('the response status is {expected:d} (SUCCESS)')
 def step_response_status_success(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
 @then('the response status is {expected:d} (ENTITY_LOCKED)')
 def step_response_status_locked(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
 @then('the response status is {expected:d} (ENTITY_ACQUIRED)')
 def step_response_status_acquired(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
 @then('the response status is {expected:d} (NO_SUCH_DESCRIPTOR)')
 def step_response_status_no_descriptor(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
 @then('the response status is {expected:d}')
 def step_response_status(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
@@ -1079,14 +1095,14 @@ def step_response_target_eid(context):
 @then('the DUT emits an AEM_RESPONSE with status {expected:d} (ENTITY_LOCKED)')
 def step_dut_emits_locked(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
 @then('the DUT emits an AEM_RESPONSE with status {expected:d} (SUCCESS)')
 def step_dut_emits_success(context, expected):
     resp = context.last_response
-    status = getattr(resp, 'status', resp.status_o)
+    status = (resp.status if resp.status is not None else resp.status_o)
     assert status == expected, f'status={status}, expected {expected}'
 
 
