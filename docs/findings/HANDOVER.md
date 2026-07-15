@@ -123,7 +123,7 @@ cable. Data plane unaffected.
 | build_ax7101_*_lwsrp | ALL 3 SEEDS FAIL PLACEMENT (Place 30-487: LUTs 62408/63400 = 98.4 %). AX was ~97 % before lwSRP | — |
 | build_arty_*_milanv12 | ALL 3 SEEDS FAIL PLACEMENT (66599/63400 LUTs = 105 % — the v1.2 close-out logic tipped ARTY too). **Root cause found by hierarchical synth report: aecp u_ingress = 8197 LUTs** (128-byte register fbuf with unaligned byte write decoders + replay muxes) — vs the lwSRP BRAM-FIFO ingress at 106 LUTs | — |
 | build_arty_eppo_milanv12b | **Arty Milan-v1.2 KEEPER CANDIDATE** (full mandatory set + listener SM; ingress BRAM rewrite `42fdc6f` recovered the area — eto 0.000 / asl −0.027; margins thin, next shave = the acmp fbufs). NOT loaded on the board yet | +0.001 |
-| build_ax7101_*_milanv12b | AX resweep after the area fix | in flight 07-15 |
+| build_ax7101_*_milanv12b/c | AX PLACES again post area fix; walker-divide timing fix (`853762c`) moved it to −0.058 (eppo); directive hunt: AltSpreadLogic_medium **−0.003**, Explore −0.042 — residual path = RX-BRAM→ptp_ts_rx SOP-CE (pre-existing). Round 2 (asl_low/extranetdelay_low/wldriven) in flight | best −0.003 |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
@@ -157,7 +157,14 @@ fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
 
 Regression: 25 Verilator harnesses under `tb/verilator/<name>/` (latest
 counts: acmp 71, acmp_lstn 89, aecp 345, milan_dp 53, csr 98, lwsrp_tx 445,
-lwsrp_rx 96, lwsrp 36, cls 200024) + Yosys 22/22.
+lwsrp_rx 96, lwsrp 36, cls 200024) + Yosys 22/22. PLUS the behave BDD tier
+(`tests/`, 8 features / 57 scenarios green — run
+`~/litex-milan/venv/bin/behave tests`): two 2026-07-15 `@tsn_gen` features
+drive the tsn-gen packet_gen binary (the AM65x-validation recipe) — seeded
+frame generation, bit-exact field patches cross-checked via `--decode`,
+Milan semantic models for SET_CLOCK_SOURCE/IDENTIFY + the ACMP listener SM,
+the tsn-gen CDL+8 deviation pinned, and a repo-carried ACMPDU YAML
+(`tests/protocols/acmp/`).
 `docs/testing/RUNNING_TESTS.md` / `PROTOCOL_VALIDATION_MATRIX.md`.
 
 **The reference that decides Milan semantics:** pipewire module-avb
