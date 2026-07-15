@@ -33,6 +33,18 @@
 //                Everything else (responses, RX-side commands, other talkers'
 //                commands) is ignored.
 //
+//                AREA NOTE (2026-07-15, the area-70 config-in-RAM recipe):
+//                the original 72-byte REGISTER fbuf with adder-indexed
+//                write decode and a full combinational echo array cost
+//                ~3.5K LUTs (the aecp-ingress disease). The frame now lives
+//                in a 9x64 distributed-RAM word buffer written beat-aligned
+//                (one 64-bit write per beat, zero byte decode) and read
+//                asynchronously at emit; classification fields are captured
+//                into registers at FIXED beat/lane positions on ingest, and
+//                the response is the RAM word with fixed per-beat lane
+//                overrides. Wire behaviour is byte-identical (pinned by
+//                tb/verilator/acmp, 71 checks).
+//
 //                LIVE stream parameters — single source of truth, MUST match
 //                the AVTP frames aaf_talker_i2s emits:
 //                  stream_id = {station_mac, talker_unique_id} (stream.c
@@ -113,35 +125,34 @@ module KL_acmp_responder (
   end
 
   // -----------------------------------------------------------------------
-  // Frame capture (little lane: tdata[7:0] = first wire byte)
+  // Frame word buffer — beat-aligned distributed RAM (byte b lives at word
+  // b>>3 lane b&7; full-word writes are safe: unkept tail lanes are never
+  // emitted, the response is always exactly 70 bytes)
   // -----------------------------------------------------------------------
   typedef enum logic [1:0] { COLLECT_S, CLASSIFY_S, RESPOND_S } st_t;
   st_t st_r;
 
-  reg [7:0] fbuf [0:NUM_BEATS_C*8-1];   //! 72 B; ACMP frames are exactly 70
-  reg [6:0] wr_r;                       //! byte write pointer
-  reg       ovfl_r;                     //! frame longer than the buffer
+  logic [63:0] fword_r [0:NUM_BEATS_C-1];
+  reg [3:0]    wbeat_r;                 //! ingest beat, saturating at 9
+  reg          ovfl_r;                  //! frame longer than the buffer
+  reg          len_ok_r;                //! tlast beat carried >= 70 bytes
 
   // -----------------------------------------------------------------------
-  // Classification (on the captured frame)
+  // Classification captures — fixed beat/lane picks on the registered tap
   // -----------------------------------------------------------------------
-  wire [47:0] w_dst  = {fbuf[0], fbuf[1], fbuf[2], fbuf[3], fbuf[4], fbuf[5]};
-  wire [15:0] w_etype= {fbuf[12], fbuf[13]};
-  wire [3:0]  w_msg  = fbuf[15][3:0];
-  wire        w_sv0  = (fbuf[15][7:4] == 4'h0);
-  wire [63:0] w_talker = {fbuf[34], fbuf[35], fbuf[36], fbuf[37],
-                          fbuf[38], fbuf[39], fbuf[40], fbuf[41]};
-  wire [15:0] w_tuid = {fbuf[50], fbuf[51]};
+  reg        dst_ok_r;                  //! ACMP multicast dst
+  reg        hdr_ok_r;                  //! ethertype + subtype + sv
+  reg [3:0]  msg_r;
+  reg        tk_hi_ok_r, tk_lo_ok_r;    //! talker EID == us (split compare)
+  reg [15:0] tuid_r;
 
-  wire w_is_cmd = (w_msg == ACMP_CONNECT_TX_COMMAND_C)    ||
-                  (w_msg == ACMP_DISCONNECT_TX_COMMAND_C) ||
-                  (w_msg == ACMP_GET_TX_STATE_COMMAND_C)  ||
-                  (w_msg == ACMP_GET_TX_CONNECTION_COMMAND_C);
+  wire w_is_cmd = (msg_r == ACMP_CONNECT_TX_COMMAND_C)    ||
+                  (msg_r == ACMP_DISCONNECT_TX_COMMAND_C) ||
+                  (msg_r == ACMP_GET_TX_STATE_COMMAND_C)  ||
+                  (msg_r == ACMP_GET_TX_CONNECTION_COMMAND_C);
 
-  wire w_hit = enable_i && !ovfl_r &&
-               (w_dst == 48'h91E0_F001_0000) && (w_etype == 16'h22F0) &&
-               (fbuf[14] == ACMP_SUBTYPE_C) && w_sv0 && w_is_cmd &&
-               (w_talker == entity_id_i) && (wr_r >= 7'd70);
+  wire w_hit = enable_i && !ovfl_r && len_ok_r && dst_ok_r && hdr_ok_r &&
+               w_is_cmd && tk_hi_ok_r && tk_lo_ok_r;
 
   // decision latched in CLASSIFY_S
   typedef enum logic [1:0] { RESP_ECHO_E, RESP_ZERO_E, RESP_LIVE_E } resp_mode_t;
@@ -160,97 +171,100 @@ module KL_acmp_responder (
   assign talker_active_o = probe_armed_o | listener_observed_i;
 
   // -----------------------------------------------------------------------
-  // Response byte assembly (combinational over fbuf + latched decision).
-  // resp_mode selects the stream-field source; flag_clr_r masks flag bits
-  // (the reference clears different sets per message type).
-  // -----------------------------------------------------------------------
-  logic [7:0] rb [0:NUM_BEATS_C*8-1];
-  always_comb begin
-    for (int k = 0; k < NUM_BEATS_C*8; k++) rb[k] = 8'h00;
-    // dst = echoed ACMP multicast; src = us
-    for (int k = 0; k < 6; k++) rb[k] = fbuf[k];
-    rb[6]  = station_mac_i[47:40]; rb[7]  = station_mac_i[39:32];
-    rb[8]  = station_mac_i[31:24]; rb[9]  = station_mac_i[23:16];
-    rb[10] = station_mac_i[15:8];  rb[11] = station_mac_i[7:0];
-    rb[12] = 8'h22; rb[13] = 8'hF0;
-    rb[14] = ACMP_SUBTYPE_C;
-    rb[15] = {4'h0, resp_msg_r};
-    rb[16] = {resp_status_r, ACMP_CDL_C[10:8]};
-    rb[17] = ACMP_CDL_C[7:0];
-    // stream_id (18-25): LIVE -> {station_mac, talker_unique_id} — the
-    // stream.c formula (mac<<16|index), byte-identical to the AVTP header
-    // aaf_talker_i2s emits; ZERO -> 0; else echo
-    unique case (resp_mode_r)
-      RESP_LIVE_E: begin
-        rb[18] = station_mac_i[47:40]; rb[19] = station_mac_i[39:32];
-        rb[20] = station_mac_i[31:24]; rb[21] = station_mac_i[23:16];
-        rb[22] = station_mac_i[15:8];  rb[23] = station_mac_i[7:0];
-        rb[24] = fbuf[50];             rb[25] = fbuf[51];   // unique_id (be16)
-      end
-      RESP_ZERO_E: for (int k = 18; k < 26; k++) rb[k] = 8'h00;
-      default:     for (int k = 18; k < 26; k++) rb[k] = fbuf[k];
-    endcase
-    // controller/talker/listener EIDs + unique ids (26-53): echo
-    for (int k = 26; k < 54; k++) rb[k] = fbuf[k];
-    // stream_dest_mac (54-59): LIVE -> the CSR AAF DMAC (the framer's)
-    unique case (resp_mode_r)
-      RESP_LIVE_E: begin
-        rb[54] = aaf_dmac_i[47:40]; rb[55] = aaf_dmac_i[39:32];
-        rb[56] = aaf_dmac_i[31:24]; rb[57] = aaf_dmac_i[23:16];
-        rb[58] = aaf_dmac_i[15:8];  rb[59] = aaf_dmac_i[7:0];
-      end
-      RESP_ZERO_E: begin rb[54]=8'h00; rb[55]=8'h00; rb[56]=8'h00;
-                         rb[57]=8'h00; rb[58]=8'h00; rb[59]=8'h00; end
-      default:     begin rb[54]=fbuf[54]; rb[55]=fbuf[55]; rb[56]=fbuf[56];
-                         rb[57]=fbuf[57]; rb[58]=fbuf[58]; rb[59]=fbuf[59]; end
-    endcase
-    // connection_count (60-61): ALWAYS 0 from a Milan talker on the
-    // SUCCESS paths (reference hard-codes htons(0)); echo on errors
-    if (resp_mode_r == RESP_ECHO_E) begin
-      rb[60] = fbuf[60]; rb[61] = fbuf[61];
-    end else begin
-      rb[60] = 8'h00; rb[61] = 8'h00;
-    end
-    // sequence_id (62-63): echo
-    rb[62] = fbuf[62]; rb[63] = fbuf[63];
-    // flags (64-65): echo with the per-message clear mask applied
-    {rb[64], rb[65]} = {fbuf[64], fbuf[65]} & ~flag_clr_r;
-    // stream_vlan_id (66-67): LIVE -> the CSR AAF VID; ZERO -> 0; else echo
-    unique case (resp_mode_r)
-      RESP_LIVE_E: begin rb[66] = {4'h0, aaf_vid_i[11:8]}; rb[67] = aaf_vid_i[7:0]; end
-      RESP_ZERO_E: begin rb[66] = 8'h00; rb[67] = 8'h00; end
-      default:     begin rb[66] = fbuf[66]; rb[67] = fbuf[67]; end
-    endcase
-    rb[68] = fbuf[68]; rb[69] = fbuf[69];
-  end
-
-  // -----------------------------------------------------------------------
-  // Serialiser (little lane out)
+  // Response beat: the request word (async RAM read) with fixed per-beat
+  // lane overrides. Echoed regions pass straight from the RAM.
   // -----------------------------------------------------------------------
   reg [3:0] beat_r;
+  wire [63:0] rword_w = fword_r[beat_r];
+
+  //! stream-field byte per mode: LIVE value / zero / request echo
+  function automatic [7:0] sf(input [7:0] live, input [7:0] echo);
+    unique case (resp_mode_r)
+      RESP_LIVE_E: sf = live;
+      RESP_ZERO_E: sf = 8'h00;
+      default:     sf = echo;
+    endcase
+  endfunction
+
   logic [63:0] w_beat;
   always_comb begin
-    for (int l = 0; l < 8; l++)
-      w_beat[8*l +: 8] = rb[{beat_r, 3'b000} + l[3:0]];
+    w_beat = rword_w;                                   // default: echo
+    unique case (beat_r)
+      4'd0: begin                                       // bytes 0-7
+        w_beat[8*6 +: 8] = station_mac_i[47:40];        // src MAC hi
+        w_beat[8*7 +: 8] = station_mac_i[39:32];
+      end
+      4'd1: begin                                       // bytes 8-15
+        w_beat[8*0 +: 8] = station_mac_i[31:24];
+        w_beat[8*1 +: 8] = station_mac_i[23:16];
+        w_beat[8*2 +: 8] = station_mac_i[15:8];
+        w_beat[8*3 +: 8] = station_mac_i[7:0];
+        w_beat[8*7 +: 8] = {4'h0, resp_msg_r};
+      end
+      4'd2: begin                                       // bytes 16-23
+        w_beat[8*0 +: 8] = {resp_status_r, ACMP_CDL_C[10:8]};
+        w_beat[8*1 +: 8] = ACMP_CDL_C[7:0];
+        // stream_id bytes 18-23: LIVE = station MAC ({mac,uid} formula)
+        w_beat[8*2 +: 8] = sf(station_mac_i[47:40], rword_w[8*2 +: 8]);
+        w_beat[8*3 +: 8] = sf(station_mac_i[39:32], rword_w[8*3 +: 8]);
+        w_beat[8*4 +: 8] = sf(station_mac_i[31:24], rword_w[8*4 +: 8]);
+        w_beat[8*5 +: 8] = sf(station_mac_i[23:16], rword_w[8*5 +: 8]);
+        w_beat[8*6 +: 8] = sf(station_mac_i[15:8],  rword_w[8*6 +: 8]);
+        w_beat[8*7 +: 8] = sf(station_mac_i[7:0],   rword_w[8*7 +: 8]);
+      end
+      4'd3: begin                                       // bytes 24-31
+        // stream_id tail = echoed unique_id (LIVE) / zero / echo
+        w_beat[8*0 +: 8] = sf(tuid_r[15:8], rword_w[8*0 +: 8]);
+        w_beat[8*1 +: 8] = sf(tuid_r[7:0],  rword_w[8*1 +: 8]);
+      end
+      4'd6: begin                                       // bytes 48-55
+        w_beat[8*6 +: 8] = sf(aaf_dmac_i[47:40], rword_w[8*6 +: 8]);
+        w_beat[8*7 +: 8] = sf(aaf_dmac_i[39:32], rword_w[8*7 +: 8]);
+      end
+      4'd7: begin                                       // bytes 56-63
+        w_beat[8*0 +: 8] = sf(aaf_dmac_i[31:24], rword_w[8*0 +: 8]);
+        w_beat[8*1 +: 8] = sf(aaf_dmac_i[23:16], rword_w[8*1 +: 8]);
+        w_beat[8*2 +: 8] = sf(aaf_dmac_i[15:8],  rword_w[8*2 +: 8]);
+        w_beat[8*3 +: 8] = sf(aaf_dmac_i[7:0],   rword_w[8*3 +: 8]);
+        // connection_count: ALWAYS 0 on the SUCCESS paths (Milan talker);
+        // echo on errors
+        if (resp_mode_r != RESP_ECHO_E) begin
+          w_beat[8*4 +: 8] = 8'h00;
+          w_beat[8*5 +: 8] = 8'h00;
+        end
+        // bytes 62-63 sequence_id: echo
+      end
+      4'd8: begin                                       // bytes 64-69
+        // flags: echo with the per-message clear mask applied
+        w_beat[8*0 +: 8] = rword_w[8*0 +: 8] & ~flag_clr_r[15:8];
+        w_beat[8*1 +: 8] = rword_w[8*1 +: 8] & ~flag_clr_r[7:0];
+        w_beat[8*2 +: 8] = sf({4'h0, aaf_vid_i[11:8]}, rword_w[8*2 +: 8]);
+        w_beat[8*3 +: 8] = sf(aaf_vid_i[7:0],          rword_w[8*3 +: 8]);
+        // bytes 68-69 reserved: echo
+      end
+      default: ;                                        // beats 4-5: pure echo
+    endcase
   end
 
   assign m_axis_tdata  = w_beat;
   assign m_axis_tvalid = (st_r == RESPOND_S);
-  assign m_axis_tlast  = (st_r == RESPOND_S) && (beat_r == NUM_BEATS_C-1);
-  assign m_axis_tkeep  = (beat_r == NUM_BEATS_C-1) ? 8'((1 << LAST_KEEP_C) - 1)
-                                                   : 8'hFF;
+  assign m_axis_tlast  = (st_r == RESPOND_S) && (beat_r == 4'(NUM_BEATS_C-1));
+  assign m_axis_tkeep  = (beat_r == 4'(NUM_BEATS_C-1)) ? 8'((1 << LAST_KEEP_C) - 1)
+                                                       : 8'hFF;
 
   // -----------------------------------------------------------------------
   // FSM
   // -----------------------------------------------------------------------
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      st_r <= COLLECT_S; wr_r <= '0; ovfl_r <= 1'b0; beat_r <= '0;
+      st_r <= COLLECT_S; wbeat_r <= '0; ovfl_r <= 1'b0; len_ok_r <= 1'b0;
+      beat_r <= '0;
+      dst_ok_r <= 1'b0; hdr_ok_r <= 1'b0; msg_r <= '0;
+      tk_hi_ok_r <= 1'b0; tk_lo_ok_r <= 1'b0; tuid_r <= '0;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0;
       resp_mode_r <= RESP_ECHO_E; flag_clr_r <= 16'h0;
       probe_armed_o <= 1'b0; probe_tmr_r <= 5'd0;
       cmd_count_o <= 16'd0; resp_count_o <= 16'd0;
-      for (int k = 0; k < NUM_BEATS_C*8; k++) fbuf[k] <= 8'h00;
     end else begin
       // ---- probe freshness window (independent of the frame FSM) ----
       if (tick_1s_i && probe_armed_o) begin
@@ -266,28 +280,59 @@ module KL_acmp_responder (
       case (st_r)
         COLLECT_S: begin
           if (rxv_r) begin
-            for (int l = 0; l < 8; l++) begin
-              if (rxk_r[l] && ({1'b0, wr_r} + 8'(l) < 8'(NUM_BEATS_C*8)))
-                fbuf[wr_r + 7'(l)] <= rxd_r[8*l +: 8];
-            end
-            if ({1'b0, wr_r} + 8'(kcount(rxk_r)) > 8'(NUM_BEATS_C*8))
+            if (wbeat_r < 4'(NUM_BEATS_C))
+              fword_r[wbeat_r[3:0]] <= rxd_r;
+            else
               ovfl_r <= 1'b1;
-            wr_r <= ({1'b0, wr_r} + 8'(kcount(rxk_r)) > 8'(NUM_BEATS_C*8))
-                    ? 7'(NUM_BEATS_C*8) : wr_r + 7'(kcount(rxk_r));
-            if (rxl_r) st_r <= CLASSIFY_S;
+
+            // fixed-position classification captures
+            unique case (wbeat_r)
+              4'd0: begin
+                dst_ok_r <= ({rxd_r[7:0],   rxd_r[15:8],  rxd_r[23:16],
+                              rxd_r[31:24], rxd_r[39:32], rxd_r[47:40]}
+                             == 48'h91E0_F001_0000);
+              end
+              4'd1: begin
+                // bytes 12-15: ethertype, subtype, sv/msg_type
+                hdr_ok_r <= ({rxd_r[39:32], rxd_r[47:40]} == 16'h22F0) &&
+                            (rxd_r[55:48] == ACMP_SUBTYPE_C) &&
+                            (rxd_r[63:60] == 4'h0);
+                msg_r <= rxd_r[59:56];
+              end
+              4'd4: begin   // talker EID bytes 34-39
+                tk_hi_ok_r <= ({rxd_r[23:16], rxd_r[31:24], rxd_r[39:32],
+                                rxd_r[47:40], rxd_r[55:48], rxd_r[63:56]}
+                               == entity_id_i[63:16]);
+              end
+              4'd5: begin   // talker EID bytes 40-41
+                tk_lo_ok_r <= ({rxd_r[7:0], rxd_r[15:8]}
+                               == entity_id_i[15:0]);
+              end
+              4'd6: begin   // talker_unique_id bytes 50-51
+                tuid_r <= {rxd_r[23:16], rxd_r[31:24]};
+              end
+              default: ;
+            endcase
+
+            wbeat_r <= (wbeat_r == 4'd9) ? 4'd9 : wbeat_r + 4'd1;
+            if (rxl_r) begin
+              // >= 70 bytes: 8 full beats + at least 6 tail lanes
+              len_ok_r <= (wbeat_r == 4'd8) && rxk_r[5];
+              st_r     <= CLASSIFY_S;
+            end
           end
         end
 
         CLASSIFY_S: begin
           if (w_hit) begin
             cmd_count_o   <= cmd_count_o + 16'd1;
-            resp_msg_r    <= {w_msg[3:1], 1'b1};          // command+1
+            resp_msg_r    <= {msg_r[3:1], 1'b1};          // command+1
             resp_mode_r   <= RESP_ECHO_E;
             flag_clr_r    <= 16'h0;
-            unique case (w_msg)
+            unique case (msg_r)
               // Milan PROBE_TX (§4.3.3.1/§5.5.4.1): live params + activate
               ACMP_CONNECT_TX_COMMAND_C: begin
-                if (w_tuid == 16'd0) begin
+                if (tuid_r == 16'd0) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_LIVE_E;
                   flag_clr_r    <= ACMP_FLAG_FAST_CONNECT_C |
@@ -300,7 +345,7 @@ module KL_acmp_responder (
               end
               // §5.5.4.2: always SUCCESS, zeroed fields, NO state change
               ACMP_DISCONNECT_TX_COMMAND_C: begin
-                if (w_tuid == 16'd0) begin
+                if (tuid_r == 16'd0) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_ZERO_E;
                 end else begin
@@ -309,7 +354,7 @@ module KL_acmp_responder (
               end
               // §5.5.4.3: live params, count=0, three flags cleared
               ACMP_GET_TX_STATE_COMMAND_C: begin
-                if (w_tuid == 16'd0) begin
+                if (tuid_r == 16'd0) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_LIVE_E;
                   flag_clr_r    <= ACMP_FLAG_FAST_CONNECT_C |
@@ -325,16 +370,16 @@ module KL_acmp_responder (
             beat_r <= '0;
             st_r   <= RESPOND_S;
           end else begin
-            wr_r <= '0; ovfl_r <= 1'b0;
+            wbeat_r <= '0; ovfl_r <= 1'b0; len_ok_r <= 1'b0;
             st_r <= COLLECT_S;
           end
         end
 
         RESPOND_S: begin
           if (m_axis_tready) begin
-            if (beat_r == NUM_BEATS_C-1) begin
+            if (beat_r == 4'(NUM_BEATS_C-1)) begin
               resp_count_o <= resp_count_o + 16'd1;
-              wr_r <= '0; ovfl_r <= 1'b0;
+              wbeat_r <= '0; ovfl_r <= 1'b0; len_ok_r <= 1'b0;
               st_r <= COLLECT_S;
             end else begin
               beat_r <= beat_r + 4'd1;
@@ -346,12 +391,6 @@ module KL_acmp_responder (
       endcase
     end
   end
-
-  //! number of set tkeep bits (contiguous low-aligned keeps assumed)
-  function automatic [3:0] kcount(input [7:0] k);
-    kcount = 4'(k[0]) + 4'(k[1]) + 4'(k[2]) + 4'(k[3]) +
-             4'(k[4]) + 4'(k[5]) + 4'(k[6]) + 4'(k[7]);
-  endfunction
 
 endmodule
 
