@@ -126,6 +126,7 @@ cable. Data plane unaffected.
 | build_arty_eppo_milanv12d | **Arty Milan-v1.2 KEEPER** — area-fixed netlist, all 3 seeds close (asl +0.117, eto +0.022), LUTs 51306 = 80.9 % (supersedes eppo_milanv12b +0.001). NOT loaded | +0.154 |
 | build_arty_*_milanv12e | **DO NOT USE** — csr shadow-RAM regressed it: 2 if-arm writes inferred 2 write ports → Synth 8-6849 BRAM-infeasible → +704 LUTRAM, LUTs 51542-69 = 81.3 %, best eppo +0.077. Fix `95a82f7` (single muxed write port → RAMB18 SDP). **Rule: grep new builds for 8-6849** | +0.077 |
 | build_arty_asl_milanv12f | **Arty Milan-v1.2 KEEPER (supersedes eppo_milanv12d)** — csr shadow in BRAM (`16fe234`+`95a82f7`): LUTs 50720 = 80.0 % (−586 vs v12d), slices 96.9 %, 8-6849 clean; all 3 seeds close (eto +0.126, eppo +0.094 @ slices 96.3 %). NOT loaded | +0.174 |
+| build_ax7101_asl_milanv12f | **AX7101 Milan-v1.2 KEEPER (RTL-current, supersedes asl_milanv12d)** — same shadow-BRAM netlist: LUTs 50723 = 80.0 % (−561 vs v12d), slices 97.7 %, 8-6849 clean; all 3 seeds close (eto +0.011, eppo +0.001 — thin, sweep variance; v12d asl +0.123 remains the higher-margin fallback on the pre-shadow RTL). NOT loaded | +0.076 |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
