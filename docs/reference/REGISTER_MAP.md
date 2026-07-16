@@ -16,6 +16,11 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
 * Unused bits read 0; writes to `RO` fields are ignored; unmapped offsets read 0
   and `SLVERR` is **not** raised (OKAY) to keep the driver simple.
+* **Timing (2026-07-16 config-in-RAM read path):** plain-RW readback is served
+  from a write-through shadow BRAM — reads complete one clock later than the
+  original mux (AXI4-Lite handshake absorbs it; no driver change). After reset
+  the block holds `*READY` low for ~513 clocks while the defaults ROM is swept
+  into the shadow, so soft-reset readback values are identical to before.
 * `N` = `NUMBER_OF_QUEUES` (from `CAP.num_queues`, default 4).
 
 ## Register groups
