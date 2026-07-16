@@ -663,12 +663,16 @@ module milan_csr #(
   //! sweep pipeline: ROM word for sweep_cnt lands one cycle later
   wire         sweep_wr = sweep_busy && (sweep_cnt >= 10'd1) && (sweep_cnt <= 10'd512);
 
+  //! single muxed write port: two `if` arms with distinct address expressions
+  //! infer TWO write ports and push the RAM to LUTRAM (Synth 8-6849 infeasible)
+  wire         sh_we    = sweep_wr || shadow_axi_we;
+  wire [8:0]   sh_waddr = sweep_wr ? 9'(sweep_cnt - 10'd1) : wr_addr[10:2];
+  wire [31:0]  sh_wdata = sweep_wr ? dflt_q : shadow_wval;
+
   always_ff @(posedge aclk) begin : shadow_mem
     dflt_q <= dflt_rom[sweep_cnt[8:0]];
-    if (sweep_wr)
-      shadow_ram[9'(sweep_cnt - 10'd1)] <= dflt_q;
-    else if (shadow_axi_we)
-      shadow_ram[wr_addr[10:2]] <= shadow_wval;
+    if (sh_we)
+      shadow_ram[sh_waddr] <= sh_wdata;
     shadow_q <= shadow_ram[rd_addr[10:2]];
   end
 
