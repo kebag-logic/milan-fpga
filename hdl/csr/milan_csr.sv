@@ -267,14 +267,27 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_CBS_END    = A_CBS_BASE   + ADDR_WIDTH'(NUM_QUEUES*32); //! One past last CBS reg
 
   // ==========================================================================
-  //  AXI4-Lite slave handshake (combinational-ready, single outstanding)
+  //  AXI4-Lite slave handshake (combinational-ready, single outstanding).
+  //
+  //  Area-70 config-in-RAM (USER directive 2026-07-15): reads of plain-RW
+  //  configuration registers are served from a write-through SHADOW BRAM
+  //  instead of the old ~90-entry combinational mux; only live/W1C/status
+  //  registers keep a (much smaller) mux. Because BRAM cannot reset, a
+  //  DEFAULTS ROM (config-time init) is swept into the shadow after every
+  //  reset (513 cycles; AXI *READY is held low meanwhile), so soft-reset
+  //  readback semantics are IDENTICAL to the register file. Reads take one
+  //  extra cycle (BRAM latency) — AXI4-Lite handshake absorbs it.
   // ==========================================================================
   logic         b_valid;                 //! Write-response valid, held until BREADY
   logic         r_valid;                 //! Read-data valid, held until RREADY
+  logic         rd_pend;                 //! BRAM read latency stage
   logic [31:0]  r_data;                  //! Registered read data
+  logic [ADDR_WIDTH-1:0] rd_addr_q;      //! Latched read address (decode stage)
+  logic         sweep_busy;              //! defaults -> shadow copy after reset
+  logic [9:0]   sweep_cnt;
 
-  wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid; //! Write commits this cycle
-  wire rd_fire = s_axi_arvalid && !r_valid;                 //! Read commits this cycle
+  wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid && !sweep_busy;
+  wire rd_fire = s_axi_arvalid && !r_valid && !rd_pend && !sweep_busy;
   wire [ADDR_WIDTH-1:0] wr_addr = s_axi_awaddr;             //! Decoded write address
   wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;             //! Decoded read address
 
@@ -290,11 +303,13 @@ module milan_csr #(
   //! AXI response-channel valids: raise on a transfer, clear when accepted
   always_ff @(posedge aclk) begin : axi_resp_fsm
     if (!aresetn) begin
-      b_valid <= 1'b0; r_valid <= 1'b0;
+      b_valid <= 1'b0; r_valid <= 1'b0; rd_pend <= 1'b0; rd_addr_q <= '0;
     end else begin
       if (wr_fire)           b_valid <= 1'b1;
       else if (s_axi_bready) b_valid <= 1'b0;
-      if (rd_fire)           r_valid <= 1'b1;
+      rd_pend <= rd_fire;
+      if (rd_fire)           rd_addr_q <= rd_addr;
+      if (rd_pend)           r_valid <= 1'b1;
       else if (s_axi_rready) r_valid <= 1'b0;
     end
   end
@@ -560,127 +575,166 @@ module milan_csr #(
   end
 
   // ==========================================================================
-  //  Read decode
+  //  Config-in-RAM read path (area-70): shadow BRAM + defaults ROM + sweep
   // ==========================================================================
-  logic [31:0] rd_mux;                   //! Combinational read-data selection
 
-  //! Combinational read address decode. The result is registered into r_data on
-  //! the AR handshake (read_data_reg) so RDATA is stable while RVALID is held.
-  always_comb begin : read_mux
-    logic [ADDR_WIDTH-1:0] soff, coff;   //! STAT / CBS window offsets
-    rd_mux = 32'h0;
-    soff = rd_addr - A_STATS_BASE;
-    coff = rd_addr - A_CBS_BASE;
-    unique case (rd_addr)
-      A_ID:         rd_mux = 32'h4D49_4C4E;                 // "MILN"
-      A_VERSION:    rd_mux = VERSION;
-      A_CAP:        rd_mux = { 8'h00,                       // [31:24] reserved
-                               8'd64,                       // [23:16] ts_width
-                               1'b0, 1'b1, 1'b1, 1'b1,      // [15]rsvd [14]LWSRP [13]TCAM [12]ADP
-                               1'b1, 1'b1, 1'b1, 1'b1,      // [11]RXF [10]STATS [9]PTP [8]CBS
-                               4'h0,                        // [7:4] reserved
-                               4'(NUM_QUEUES) };            // [3:0] num_queues
-      A_SCRATCH:    rd_mux = scratch;
-      A_IRQ_STATUS: rd_mux = irq_status;
-      A_IRQ_MASK:   rd_mux = irq_mask;
-      A_IRQ_RAW:    rd_mux = irq_status;
-      A_MAC_CTRL:   rd_mux = mac_ctrl;
-      A_MAC_IFG:    rd_mux = mac_ifg;
-      A_MAC_ALO:    rd_mux = mac_alo;
-      A_MAC_AHI:    rd_mux = mac_ahi;
-      A_MAC_STATUS: rd_mux = { 28'h0, i_full_duplex, i_speed, i_link_up };
-      A_MC_LO:      rd_mux = mc_lo;
-      A_MC_HI:      rd_mux = mc_hi;
-      A_PHY_RST:    rd_mux = phy_rst;
-      A_STATS_CTRL: rd_mux = 32'h0;                         // strobes read 0
-      A_CLS_CTRL:   rd_mux = cls_ctrl;
-      A_CLS_DPCP:   rd_mux = cls_dpcp;
-      A_CLS_MAP:    rd_mux = cls_map;
-      A_CLS_REGEN:  rd_mux = cls_regen;
-      A_CLS_TCQ:    rd_mux = cls_tcq;
-      A_PTP_CTRL:   rd_mux = ptp_ctrl;
-      A_PTP_INCR:   rd_mux = ptp_incr;
-      A_PTP_ADJ:    rd_mux = ptp_adj;
-      A_PTP_TWLO:   rd_mux = ptp_twlo;
-      A_PTP_TWHI:   rd_mux = ptp_twhi;
-      A_PTP_OFLO:   rd_mux = ptp_oflo;
-      A_PTP_OFHI:   rd_mux = ptp_ofhi;
-      A_PTP_CMD:    rd_mux = 32'h0;                         // strobes read 0
-      A_PTP_TRLO:   rd_mux = ptp_tod_rd[31:0];
-      A_PTP_TRHI:   rd_mux = ptp_tod_rd[63:32];
-      A_PTP_ILAT:   rd_mux = ptp_ilat;
-      A_PTP_ELAT:   rd_mux = ptp_elat;
-      A_ADP_CTRL:   rd_mux = adp_ctrl;
-      A_ADP_EIDLO:  rd_mux = adp_eidlo;
-      A_ADP_EIDHI:  rd_mux = adp_eidhi;
-      A_ADP_MIDLO:  rd_mux = adp_midlo;
-      A_ADP_MIDHI:  rd_mux = adp_midhi;
-      A_ADP_ECAPS:  rd_mux = adp_ecaps;
-      A_ADP_TALK:   rd_mux = adp_talk;
-      A_ADP_LIST:   rd_mux = adp_list;
-      A_ADP_CCAPS:  rd_mux = adp_ccaps;
-      A_ADP_GMLO:   rd_mux = adp_gmlo;
-      A_ADP_GMHI:   rd_mux = adp_gmhi;
-      A_ADP_DOMAIN: rd_mux = adp_domain;
-      A_ADP_IDX0:   rd_mux = adp_idx0;
-      A_ADP_IDX1:   rd_mux = adp_idx1;
-      A_ADP_ASLO:   rd_mux = adp_aslo;
-      A_ADP_ASHI:   rd_mux = adp_ashi;
-      A_ADP_CMD:    rd_mux = 32'h0;                         // strobes read 0
-      A_ADP_STATUS: rd_mux = i_adp_available_index;         // RO available_index readback
-      A_ADP_DIAG:   rd_mux = {14'd0, i_adp_depart_src, i_adp_rearm_cnt, i_adp_depart_cnt};
-      // AECP: [16]=locked, [15:0]=cmd_count | resp_count[31:16], current_config[15:0]
-      A_AECP_STAT0: rd_mux = {15'd0, i_aecp_locked, i_aecp_cmd_count};
-      A_AECP_STAT1: rd_mux = {i_aecp_resp_count, i_aecp_current_config};
-      A_ACMP_STAT:  rd_mux = {i_acmp_resp_count, i_acmp_cmd_count};
-      A_AAF_CTRL:   rd_mux = aaf_ctrl;
-      A_ACMP_TALKER: rd_mux = {28'd0, i_aaf_gate, o_acmp_lobs, i_acmp_talker_active, i_acmp_probe_armed};
-      A_ACMP_LOBS:  rd_mux = acmp_lobs;
-      A_AAF_DMLO:   rd_mux = aaf_dmlo;
-      A_AAF_DMHI:   rd_mux = aaf_dmhi;
-      A_AAF_FRAMES: rd_mux = i_aaf_frames;
-      A_AAF_PAIRS:  rd_mux = i_aaf_pairs;
-      A_LWSRP_CTRL: rd_mux = lwsrp_ctrl;
-      A_LWSRP_VID:  rd_mux = lwsrp_vid;
-      A_LWSRP_DMLO: rd_mux = lwsrp_dmlo;
-      A_LWSRP_DMHI: rd_mux = lwsrp_dmhi;
-      A_LWSRP_TSPEC: rd_mux = lwsrp_tspec;
-      A_LWSRP_STATUS: rd_mux = i_lwsrp_status;
-      A_LWSRP_SLOPE: rd_mux = i_lwsrp_slope;
-      A_LWSRP_CNT:  rd_mux = i_lwsrp_cnt;
-      A_LWSRP_LAT:  rd_mux = lwsrp_lat;
-      A_ACMPL_STATE: rd_mux = i_acmpl_state;
-      A_ACMPL_TKLO: rd_mux = i_acmpl_talker_lo;
-      A_ACMPL_TKHI: rd_mux = i_acmpl_talker_hi;
-      A_ACMPL_CNT:  rd_mux = i_acmpl_cnt;
-      A_ACMPL_TUID: rd_mux = i_acmpl_tuid;
-      A_TCAM_CTRL:  rd_mux = tcam_ctrl;
-      A_TCAM_KLO:   rd_mux = tcam_klo;
-      A_TCAM_KHI:   rd_mux = tcam_khi;
-      A_TCAM_MLO:   rd_mux = tcam_mlo;
-      A_TCAM_MHI:   rd_mux = tcam_mhi;
-      A_TCAM_ACT:   rd_mux = tcam_act;
-      A_TCAM_CMD:   rd_mux = 32'h0;                         // commit strobe reads 0
+  //! reset/readback value per byte address — the single source shared by the
+  //! defaults ROM init (must mirror the register_write reset block above)
+  function automatic [31:0] csr_default(input [10:0] a);
+    csr_default = 32'h0;
+    unique case (a)
+      A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      // "MILN"
+      A_VERSION[10:0]:    csr_default = VERSION;
+      A_CAP[10:0]:        csr_default = { 8'h00, 8'd64,
+                                          1'b0, 1'b1, 1'b1, 1'b1,
+                                          1'b1, 1'b1, 1'b1, 1'b1,
+                                          4'h0, 4'(NUM_QUEUES) };
+      A_MAC_CTRL[10:0]:   csr_default = 32'h13;
+      A_MAC_IFG[10:0]:    csr_default = 32'h0C;
+      A_PHY_RST[10:0]:    csr_default = 32'h1;
+      A_CLS_CTRL[10:0]:   csr_default = 32'h1;
+      A_CLS_MAP[10:0]:    csr_default = 32'h00FAC688;
+      A_CLS_REGEN[10:0]:  csr_default = 32'h00FAC688;
+      A_CLS_TCQ[10:0]:    csr_default = 32'h000000E4;
+      A_PTP_CTRL[10:0]:   csr_default = 32'h1;
+      A_PTP_INCR[10:0]:   csr_default = 32'h0800_0000;
+      A_ADP_CTRL[10:0]:   csr_default = 32'h0000_1F00;
+      A_AAF_CTRL[10:0]:   csr_default = 32'h0002_0002;
+      A_AAF_DMLO[10:0]:   csr_default = 32'hF000_FE01;
+      A_AAF_DMHI[10:0]:   csr_default = 32'h0000_91E0;
+      A_LWSRP_CTRL[10:0]: csr_default = 32'h0000_000C;
+      A_LWSRP_VID[10:0]:  csr_default = 32'h0000_0002;
+      A_LWSRP_DMLO[10:0]: csr_default = 32'hF000_FE01;
+      A_LWSRP_DMHI[10:0]: csr_default = 32'h0000_91E0;
+      A_LWSRP_TSPEC[10:0]: csr_default = 32'h0001_00E0;
+      A_TCAM_CTRL[10:0]:  csr_default = 32'h1;
       default: begin
-        if (rd_addr >= A_STATS_BASE && rd_addr < A_STATS_END)
-          rd_mux = stat_snap[soff[2 +: 4]];
-        else if (rd_addr >= A_CBS_BASE && rd_addr < A_CBS_END) begin
-          case (coff[4:0])
-            5'h00:   rd_mux = cbs_idle[coff[5 +: QW]];
-            5'h04:   rd_mux = cbs_hi  [coff[5 +: QW]];
-            5'h08:   rd_mux = cbs_lo  [coff[5 +: QW]];
-            5'h0C:   rd_mux = {31'h0, cbs_en[coff[5 +: QW]]};
-            default: rd_mux = 32'h0;
+        if (a >= A_CBS_BASE[10:0] && a < A_CBS_END[10:0]) begin
+          case (a[4:0])
+            5'h00:   csr_default = CBS_IDLE_RST[a[5 +: QW]][31:0];
+            5'h04:   csr_default = CBS_HI_RST[a[5 +: QW]][31:0];
+            5'h08:   csr_default = CBS_LO_RST[a[5 +: QW]][31:0];
+            default: csr_default = 32'h0;   // CTRL: en resets 0
           endcase
         end
       end
     endcase
+  endfunction
+
+  //! plain-RW register (readback == stored word): served by the shadow.
+  //! Strobe/W1C/live registers and unmapped addresses are NOT shadow-written.
+  function automatic logic is_plain_rw(input [ADDR_WIDTH-1:0] a);
+    is_plain_rw = 1'b0;
+    unique case (a)
+      A_SCRATCH, A_IRQ_MASK,
+      A_MAC_CTRL, A_MAC_IFG, A_MAC_ALO, A_MAC_AHI, A_MC_LO, A_MC_HI, A_PHY_RST,
+      A_CLS_CTRL, A_CLS_DPCP, A_CLS_MAP, A_CLS_REGEN, A_CLS_TCQ,
+      A_PTP_CTRL, A_PTP_INCR, A_PTP_ADJ, A_PTP_TWLO, A_PTP_TWHI,
+      A_PTP_OFLO, A_PTP_OFHI, A_PTP_ILAT, A_PTP_ELAT,
+      A_ADP_CTRL, A_ADP_EIDLO, A_ADP_EIDHI, A_ADP_MIDLO, A_ADP_MIDHI,
+      A_ADP_ECAPS, A_ADP_TALK, A_ADP_LIST, A_ADP_CCAPS, A_ADP_GMLO,
+      A_ADP_GMHI, A_ADP_DOMAIN, A_ADP_IDX0, A_ADP_IDX1, A_ADP_ASLO, A_ADP_ASHI,
+      A_AAF_CTRL, A_AAF_DMLO, A_AAF_DMHI, A_ACMP_LOBS,
+      A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
+      A_LWSRP_TSPEC, A_LWSRP_LAT,
+      A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT:
+        is_plain_rw = 1'b1;
+      default:
+        if (a >= A_CBS_BASE && a < A_CBS_END)
+          is_plain_rw = (a[4:0] == 5'h00) || (a[4:0] == 5'h04) ||
+                        (a[4:0] == 5'h08) || (a[4:0] == 5'h0C);
+    endcase
+  endfunction
+
+  //! CBS_CTRL readback is masked to bit 0: shadow stores the READBACK value
+  wire is_cbs_en_wr = (wr_addr >= A_CBS_BASE) && (wr_addr < A_CBS_END) &&
+                      (wr_addr[4:0] == 5'h0C);
+  wire [31:0] shadow_wval = is_cbs_en_wr ? {31'h0, s_axi_wdata[0]} : s_axi_wdata;
+
+  (* ram_style = "block" *) logic [31:0] shadow_ram [0:511];
+  (* ram_style = "block" *) logic [31:0] dflt_rom   [0:511];
+  initial begin
+    for (int k = 0; k < 512; k++) dflt_rom[k] = csr_default(11'(k * 4));
   end
 
-  //! Register read data on the AR handshake so RDATA is held stable with RVALID
+  logic [31:0] shadow_q, dflt_q;
+  wire         shadow_axi_we = wr_fire && !(|wr_addr[ADDR_WIDTH-1:11]) &&
+                               is_plain_rw(wr_addr);
+  //! sweep pipeline: ROM word for sweep_cnt lands one cycle later
+  wire         sweep_wr = sweep_busy && (sweep_cnt >= 10'd1) && (sweep_cnt <= 10'd512);
+
+  always_ff @(posedge aclk) begin : shadow_mem
+    dflt_q <= dflt_rom[sweep_cnt[8:0]];
+    if (sweep_wr)
+      shadow_ram[9'(sweep_cnt - 10'd1)] <= dflt_q;
+    else if (shadow_axi_we)
+      shadow_ram[wr_addr[10:2]] <= shadow_wval;
+    shadow_q <= shadow_ram[rd_addr[10:2]];
+  end
+
+  always_ff @(posedge aclk) begin : shadow_sweep
+    if (!aresetn) begin
+      sweep_busy <= 1'b1;
+      sweep_cnt  <= 10'd0;
+    end else if (sweep_busy) begin
+      sweep_cnt <= sweep_cnt + 10'd1;
+      if (sweep_cnt == 10'd513) sweep_busy <= 1'b0;
+    end
+  end
+
+  // ==========================================================================
+  //  Read decode — LIVE registers only (status/W1C/counters/windows); every
+  //  plain-RW config register reads from the shadow BRAM.
+  // ==========================================================================
+  logic [31:0] live_mux;
+  logic        live_hit;
+
+  always_comb begin : read_mux
+    logic [ADDR_WIDTH-1:0] soff;         //! STAT window offset
+    live_mux = 32'h0;
+    live_hit = 1'b1;
+    soff = rd_addr_q - A_STATS_BASE;
+    unique case (rd_addr_q)
+      A_IRQ_STATUS: live_mux = irq_status;
+      A_IRQ_RAW:    live_mux = irq_status;
+      A_MAC_STATUS: live_mux = { 28'h0, i_full_duplex, i_speed, i_link_up };
+      A_PTP_TRLO:   live_mux = ptp_tod_rd[31:0];
+      A_PTP_TRHI:   live_mux = ptp_tod_rd[63:32];
+      A_ADP_STATUS: live_mux = i_adp_available_index;       // RO available_index
+      A_ADP_DIAG:   live_mux = {14'd0, i_adp_depart_src, i_adp_rearm_cnt, i_adp_depart_cnt};
+      // AECP: [16]=locked, [15:0]=cmd_count | resp_count[31:16], current_config[15:0]
+      A_AECP_STAT0: live_mux = {15'd0, i_aecp_locked, i_aecp_cmd_count};
+      A_AECP_STAT1: live_mux = {i_aecp_resp_count, i_aecp_current_config};
+      A_ACMP_STAT:  live_mux = {i_acmp_resp_count, i_acmp_cmd_count};
+      A_ACMP_TALKER: live_mux = {28'd0, i_aaf_gate, o_acmp_lobs, i_acmp_talker_active, i_acmp_probe_armed};
+      A_AAF_FRAMES: live_mux = i_aaf_frames;
+      A_AAF_PAIRS:  live_mux = i_aaf_pairs;
+      A_LWSRP_STATUS: live_mux = i_lwsrp_status;
+      A_LWSRP_SLOPE: live_mux = i_lwsrp_slope;
+      A_LWSRP_CNT:  live_mux = i_lwsrp_cnt;
+      A_ACMPL_STATE: live_mux = i_acmpl_state;
+      A_ACMPL_TKLO: live_mux = i_acmpl_talker_lo;
+      A_ACMPL_TKHI: live_mux = i_acmpl_talker_hi;
+      A_ACMPL_CNT:  live_mux = i_acmpl_cnt;
+      A_ACMPL_TUID: live_mux = i_acmpl_tuid;
+      default: begin
+        if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
+          live_mux = stat_snap[soff[2 +: 4]];
+        else
+          live_hit = 1'b0;                //! -> shadow (or 0 above the window)
+      end
+    endcase
+  end
+
+  //! Register read data one cycle after the AR handshake (BRAM latency);
+  //! RDATA is held stable while RVALID is asserted.
+  wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11];
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) r_data <= 32'h0;
-    else if (rd_fire) r_data <= rd_mux;
+    else if (rd_pend)
+      r_data <= !rd_in_window ? 32'h0
+              : live_hit      ? live_mux
+              : shadow_q;
   end
 
   // ==========================================================================

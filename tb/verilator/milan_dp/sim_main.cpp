@@ -45,21 +45,21 @@ static void axi_write(uint16_t a, uint32_t d) {
     dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
     dut->s_axi_wdata = d;  dut->s_axi_wstrb = 0xF; dut->s_axi_wvalid = 1;
     dut->s_axi_bready = 1;
-    for (int g = 0; g < 64; g++) {
+    for (int g = 0; g < 2048; g++) {
         lo(); bool acc = dut->s_axi_awready && dut->s_axi_wready; hi();
         if (acc) break;
     }
     dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
-    for (int g = 0; g < 64; g++) { lo(); bool bv = dut->s_axi_bvalid; hi(); if (bv) break; }
+    for (int g = 0; g < 2048; g++) { lo(); bool bv = dut->s_axi_bvalid; hi(); if (bv) break; }
     dut->s_axi_bready = 0;
 }
 
 static uint32_t axi_read(uint16_t a) {
     dut->s_axi_araddr = a; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
-    for (int g = 0; g < 64; g++) { lo(); bool acc = dut->s_axi_arready; hi(); if (acc) break; }
+    for (int g = 0; g < 2048; g++) { lo(); bool acc = dut->s_axi_arready; hi(); if (acc) break; }
     dut->s_axi_arvalid = 0;
     uint32_t d = 0;
-    for (int g = 0; g < 64; g++) {
+    for (int g = 0; g < 2048; g++) {
         lo(); bool rv = dut->s_axi_rvalid; if (rv) d = dut->s_axi_rdata; hi();
         if (rv) break;
     }

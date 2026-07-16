@@ -66,21 +66,21 @@ static void axi_write(uint32_t a, uint32_t d) {
   dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
   dut->s_axi_wdata  = d; dut->s_axi_wvalid  = 1; dut->s_axi_wstrb = 0xF;
   dut->s_axi_bready = 1;
-  for (int g = 0; g < 64; ++g) {
+  for (int g = 0; g < 2048; ++g) {
     dut->eval();
     bool acc = dut->s_axi_awready && dut->s_axi_wready;
     posedge();
     if (acc) break;
   }
   dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
-  for (int g = 0; g < 64; ++g) { dut->eval(); if (dut->s_axi_bvalid) break; posedge(); }
+  for (int g = 0; g < 2048; ++g) { dut->eval(); if (dut->s_axi_bvalid) break; posedge(); }
   posedge();                       // consume bvalid (bready=1)
   dut->s_axi_bready = 0;
 }
 
 static uint32_t axi_read(uint32_t a) {
   dut->s_axi_araddr = a; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
-  for (int g = 0; g < 64; ++g) {
+  for (int g = 0; g < 2048; ++g) {
     dut->eval();
     bool acc = dut->s_axi_arready;
     posedge();
@@ -88,7 +88,7 @@ static uint32_t axi_read(uint32_t a) {
   }
   dut->s_axi_arvalid = 0;
   uint32_t v = 0;
-  for (int g = 0; g < 64; ++g) { dut->eval(); if (dut->s_axi_rvalid) { v = dut->s_axi_rdata; break; } posedge(); }
+  for (int g = 0; g < 2048; ++g) { dut->eval(); if (dut->s_axi_rvalid) { v = dut->s_axi_rdata; break; } posedge(); }
   posedge();                       // consume rvalid (rready=1)
   dut->s_axi_rready = 0;
   return v;
