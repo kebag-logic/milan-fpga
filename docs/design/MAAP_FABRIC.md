@@ -82,4 +82,10 @@ Our fixed entity ⇒ FIXED response: 4 + 8 + 8 + 28×3 + 8 = 112 B payload
 field logic + clock_src_idx/sampling-rate registers). Implement as one
 DECIDE branch: SEG_ECHO(4: config_index+rsvd from cmd) + CONST/STORE
 segments per record; NO_SUCH_DESCRIPTOR for config_index != 0.
+IMPLEMENTATION NOTE: records interleave const-sourced (hdrs, stream_id,
+flags) and store-sourced (formats, sampling rate) fields => needs ~9
+segments; the builder's segment arrays (seg_kind/addr/len/cum_q[0:3]) and
+the WRITE_S cum computation must grow to [0:11] first — mechanical but
+touches the emit core; do it as an isolated commit with the full aecp TB
+before adding the 0x4B branch.
 Status: NOT yet implemented (next increment).
