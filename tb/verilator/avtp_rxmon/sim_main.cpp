@@ -59,7 +59,7 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
     f[o+2]=c.seq;
     f[o+3]=c.tu?0x01:0x00;
     for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(c.sid>>(8*(7-i)));
-    // avtp_timestamp arbitrary (0)
+    f[o+12]=0xA5; f[o+13]=0x5A; f[o+14]=0xC3; f[o+15]=0x3C;  // avtp_ts
     f[o+16]=c.format;
     f[o+17]=(uint8_t)(c.nsr<<4);
     f[o+18]=c.chans;
@@ -122,6 +122,7 @@ int main(int argc,char**argv){
     ck("MEDIA_LOCKED 1", dut->cnt_media_locked_o, 1);
     ck("locked level", dut->media_locked_o, 1);
     ck("FRAMES_RX 1", dut->cnt_frames_rx_o, 1);
+    ck("last_ts captured", dut->last_ts_o == 0xA55AC33CUL, 1);
 
     printf("\n[4] settle window: a sequence step is absorbed, not counted\n");
     { AafCfg c; c.seq=11; feed(mkaaf(c)); }
@@ -235,13 +236,18 @@ int main(int argc,char**argv){
 
     printf("\n[21] truncated committed frame resyncs; next PDU clean\n");
     pcm.clear(); pcm_last=false;
-    { auto f=mkaaf({}); f.resize(56); feed(f); }      // fires @48, dies @56
+    { auto f=mkaaf({}); f.resize(80); feed(f); }      // committed, payload cut
     pcm.clear(); pcm_last=false;
     { AafCfg c; c.seq=201; feed(mkaaf(c)); }
     ck("post-truncation PDU intact", (long)pcm.size(), 64);
     { bool ok=pcm.size()>=64;
       for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
       ck("post-truncation byte-exact", ok?1:0, 1); }
+    printf("\n[21b] pulse-after-tlast runt must NOT pre-approve the next PDU\n");
+    { auto f=mkaaf({}); f.resize(56); feed(f); }      // pulse lands after tlast
+    pcm.clear();
+    { AafCfg c; c.seq=203; c.nsr=0x07; feed(mkaaf(c)); }   // rejected PDU
+    ck("stray pulse did not commit reject", (long)pcm.size(), 0);
 
     printf("\n[22] exact-fit frame (payload ends at frame end)\n");
     pcm.clear(); pcm_last=false;
