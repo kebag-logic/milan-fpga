@@ -1349,6 +1349,16 @@ int main(int argc, char** argv) {
         ck("[22g] FRAMES_RX", be32_at(r, 90), 0x00ABCDEF);
         ck("[22g] block tail zero", be32_at(r, 94), 0);
 
+        // (g2) CLOCK_DOMAIN counters (Milan 5.4.4, la_avdecc field report):
+        //      LOCKED/UNLOCKED mirror the input media-lock events
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22D0,
+                         si_pl(0x0024, 0)));
+        r = collect_resp();
+        ck("[22g2] GET_COUNTERS(CLOCK_DOMAIN) SUCCESS", r_status(r), 0);
+        ck("[22g2] valid mask LOCKED|UNLOCKED", be32_at(r, 42), 0x3);
+        ck("[22g2] LOCKED = in0 media_locked", be32_at(r, 46), 3);
+        ck("[22g2] UNLOCKED = in0 media_unlocked", be32_at(r, 50), 2);
+
         // (h) sink 1 (CRF): same mask, all-zero counters
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
                          si_pl(0x0005, 1)));
