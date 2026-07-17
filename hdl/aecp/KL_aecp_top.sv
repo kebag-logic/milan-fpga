@@ -83,6 +83,17 @@ module KL_aecp_top #(
   input  wire          lstn_ta_reg_i,
   input  wire          lstn_ta_fail_i,
 
+  // ---- STREAM_INPUT[0] diagnostics (KL_avtp_rx_monitor) --------------
+  input  wire [31:0]   in0_cnt_locked_i,
+  input  wire [31:0]   in0_cnt_unlocked_i,
+  input  wire [31:0]   in0_cnt_interrupted_i,
+  input  wire [31:0]   in0_cnt_seqmm_i,
+  input  wire [31:0]   in0_cnt_tu_i,
+  input  wire [31:0]   in0_cnt_unsupp_i,
+  input  wire [31:0]   in0_cnt_frx_i,
+  input  wire          in0_cnt_dirty_p_i,
+  output wire [63:0]   in0_fmt_o,          //! live STREAM_INPUT[0] format
+
   // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
   input  wire          rx_tvalid_i,
   input  wire [63:0]   rx_tdata_i,
@@ -244,6 +255,16 @@ module KL_aecp_top #(
     .lstn_dmac_i(lstn_dmac_i), .lstn_vlan_i(lstn_vlan_i),
     .lstn_pbsta_i(lstn_pbsta_i), .lstn_acmpsta_i(lstn_acmpsta_i),
     .lstn_ta_reg_i(lstn_ta_reg_i), .lstn_ta_fail_i(lstn_ta_fail_i),
+    .tick_1khz_i(tick_1khz_w),
+    .in0_cnt_locked_i(in0_cnt_locked_i),
+    .in0_cnt_unlocked_i(in0_cnt_unlocked_i),
+    .in0_cnt_interrupted_i(in0_cnt_interrupted_i),
+    .in0_cnt_seqmm_i(in0_cnt_seqmm_i),
+    .in0_cnt_tu_i(in0_cnt_tu_i),
+    .in0_cnt_unsupp_i(in0_cnt_unsupp_i),
+    .in0_cnt_frx_i(in0_cnt_frx_i),
+    .in0_cnt_dirty_p_i(in0_cnt_dirty_p_i),
+    .in0_fmt_o(in0_fmt_o),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
     .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),

@@ -593,6 +593,94 @@ int main(int argc, char** argv) {
         axi_write(A_AAF_CTRL, 0x00020002);
     }
 
+    {
+        printf("[AVTP-RXMON] BIND_RX -> AAF frame -> STREAM_INPUT counters (0x6B8)\n");
+        enum { A_ACMPL_STATE = 0x6A4, A_AVTPRX_STAT = 0x6B8,
+               A_AVTPRX_FRX = 0x6BC, A_AVTPRX_ERR = 0x6C0 };
+        ck("RXMON stat idle", axi_read(A_AVTPRX_STAT), 0);
+        ck("RXMON frames_rx idle", axi_read(A_AVTPRX_FRX), 0);
+
+        // helper: inject one little-lane frame on the MAC RX port, draining
+        // any TX response the datapath produces
+        auto inject = [&](const uint8_t* f, size_t len) {
+            std::vector<uint64_t> beats;
+            for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
+                uint64_t v = 0;
+                for (int j = 0; j < 8; j++)
+                    if (bt*8 + j < len) v |= (uint64_t)f[bt*8+j] << (8*j);
+                beats.push_back(v);
+            }
+            size_t idx = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 1500; c++) {
+                if (idx < beats.size()) {
+                    dut->s_axis_mac_rx_tdata  = beats[idx];
+                    dut->s_axis_mac_rx_tkeep  = 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+                }
+                step();
+                if (dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready) idx++;
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+        };
+
+        // BIND_RX (CONNECT_RX_COMMAND, msg 6): listener = us, talker = :02
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;      // BIND_RX
+            f[16]=0x00; f[17]=44;                                // cdl
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;     // controller
+            const uint8_t tk[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x02};
+            memcpy(f+34, tk, 8);                                 // talker :02
+            const uint8_t ls[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, ls, 8);                                 // listener = us
+            f[62]=0x11; f[63]=0x22;                              // sequence_id
+            inject(f, 70);
+        }
+        ck("listener bound (0x6A4 state != 0)",
+           (axi_read(A_ACMPL_STATE) & 0x7) != 0, 1);
+
+        // AAF PDU on the bound stream_id {02:00:00:00:00:02, uid 0} with the
+        // default format's fields (48 kHz / INT32 / depth 32 / 8 ch)
+        auto mkaaf = [&](uint8_t seq, uint8_t nsr) {
+            static uint8_t f[120];
+            memset(f, 0, sizeof f);
+            const uint8_t dmac[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x02};
+            memcpy(f, dmac, 6);
+            const uint8_t src[6] = {0x02,0x00,0x00,0x00,0x00,0x02};
+            memcpy(f+6, src, 6);
+            f[12]=0x22; f[13]=0xF0;
+            f[14]=0x02;                                          // AAF
+            f[15]=0x81;                                          // sv, tv
+            f[16]=seq;
+            const uint8_t sid[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
+            memcpy(f+18, sid, 8);
+            f[30]=0x02;                                          // format INT32
+            f[31]=(uint8_t)(nsr << 4);                           // nsr
+            f[32]=8;                                             // channels
+            f[33]=32;                                            // bit depth
+            f[34]=0x00; f[35]=0x40;                              // data_len
+            return f;
+        };
+        inject(mkaaf(5, 0x05), 120);
+        ck("FRAMES_RX 1 (0x6BC)", axi_read(A_AVTPRX_FRX), 1);
+        ck("locked + MEDIA_LOCKED=1 (0x6B8)",
+           axi_read(A_AVTPRX_STAT) & 0xFF01, 0x0101);
+        ck("no errors (0x6C0)", axi_read(A_AVTPRX_ERR), 0);
+
+        // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not
+        inject(mkaaf(6, 0x07), 120);
+        ck("UNSUPPORTED_FORMAT=1 (0x6C0)", axi_read(A_AVTPRX_ERR), 0x0100);
+        ck("FRAMES_RX still 1", axi_read(A_AVTPRX_FRX), 1);
+    }
+
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;

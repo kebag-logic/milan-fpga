@@ -299,6 +299,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH-1:0]   acmpl_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] acmpl_tx_tkeep;
   wire                     acmpl_tx_tvalid, acmpl_tx_tlast, acmpl_tx_tready;
+  //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
+  wire        avtprx_match, avtprx_tu_bit;
+  wire [7:0]  avtprx_subtype, avtprx_seq;
+  wire [63:0] avtprx_fsh;
+  wire [63:0] aecp_in0_fmt;
+  wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
+  wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
+  wire        avtprx_locked, avtprx_dirty_p;
   //! listener_observed: the lwSRP Listener registrar is the real source once
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
@@ -494,6 +502,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_acmpl_talker_hi    (acmpl_talker[63:32]),
     .i_acmpl_cnt          ({acmpl_probe_count, acmpl_cmd_count}),
     .i_acmpl_tuid         ({8'd0, lwsrp_ta_fail_code, acmpl_tuid}),
+    .i_avtprx_stat        ({avtprx_intr_c[7:0], avtprx_unlocked_c[7:0],
+                            avtprx_locked_c[7:0], 7'd0, avtprx_locked}),
+    .i_avtprx_frx         (avtprx_frx_c),
+    .i_avtprx_err         ({avtprx_seqmm_c[15:0], avtprx_unsupp_c[7:0],
+                            avtprx_tu_c[7:0]}),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -775,6 +788,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .lstn_acmpsta_i (acmpl_status),
     .lstn_ta_reg_i  (lwsrp_ta_registered),
     .lstn_ta_fail_i (lwsrp_ta_failed),
+    .in0_cnt_locked_i      (avtprx_locked_c),
+    .in0_cnt_unlocked_i    (avtprx_unlocked_c),
+    .in0_cnt_interrupted_i (avtprx_intr_c),
+    .in0_cnt_seqmm_i       (avtprx_seqmm_c),
+    .in0_cnt_tu_i          (avtprx_tu_c),
+    .in0_cnt_unsupp_i      (avtprx_unsupp_c),
+    .in0_cnt_frx_i         (avtprx_frx_c),
+    .in0_cnt_dirty_p_i     (avtprx_dirty_p),
+    .in0_fmt_o             (aecp_in0_fmt),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
@@ -851,6 +873,56 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .tk_avail_o     (acmpl_tk_avail),
     .cmd_count_o    (acmpl_cmd_count),
     .probe_count_o  (acmpl_probe_count)
+  );
+
+  // ==========================================================================
+  //  AVTP RX monitor (Milan v1.2 §5.4.5.3, Table 7-156) — non-intrusive
+  //  parser on the same RX tap, matched to the BOUND stream_id from the ACMP
+  //  listener SM; the counter engine feeds AECP GET_COUNTERS(STREAM_INPUT 0),
+  //  its 1 Hz unsolicited push, and the 0x6B8 CSR observability group.
+  // ==========================================================================
+  avtp_stream_parser #(
+    .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (1)
+  ) avtp_rx_parser (
+    .clk (axis_clk), .resetn (axis_resetn),
+    .cfg_stream_id_i (acmpl_sid),
+    .cfg_stream_en_i (acmpl_bound),
+    .s_tdata_i  (rx_axis_to_dma.tdata),
+    .s_tkeep_i  (rx_axis_to_dma.tkeep),
+    .s_tvalid_i (rx_axis_to_dma.tvalid),
+    .s_tready_i (rx_axis_to_dma.tready),
+    .s_tlast_i  (rx_axis_to_dma.tlast),
+    .match_valid_o (avtprx_match),
+    .match_index_o (),
+    .stream_id_o   (),
+    .avtp_ts_o     (),
+    .subtype_o     (avtprx_subtype),
+    .ts_valid_o    (),
+    .seq_num_o     (avtprx_seq),
+    .ts_uncertain_o(avtprx_tu_bit),
+    .fsh_o         (avtprx_fsh),
+    .avtp_frames_o (),
+    .matched_frames_o ()
+  );
+
+  KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) avtp_rx_monitor (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .match_valid_i  (avtprx_match),
+    .subtype_i      (avtprx_subtype),
+    .seq_num_i      (avtprx_seq),
+    .ts_uncertain_i (avtprx_tu_bit),
+    .fsh_i          (avtprx_fsh),
+    .bound_i        (acmpl_bound),
+    .fmt_i          (aecp_in0_fmt),
+    .cnt_media_locked_o       (avtprx_locked_c),
+    .cnt_media_unlocked_o     (avtprx_unlocked_c),
+    .cnt_stream_interrupted_o (avtprx_intr_c),
+    .cnt_seq_mismatch_o       (avtprx_seqmm_c),
+    .cnt_ts_uncertain_o       (avtprx_tu_c),
+    .cnt_unsupported_fmt_o    (avtprx_unsupp_c),
+    .cnt_frames_rx_o          (avtprx_frx_c),
+    .media_locked_o (avtprx_locked),
+    .dirty_p_o      (avtprx_dirty_p)
   );
 
   // ==========================================================================
