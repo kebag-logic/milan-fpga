@@ -378,11 +378,17 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
 2. **pw0 PipeWire listener (BIND_RX)** — module-avb listener against the
    arty talker = the audible end-to-end; then media clock recovery (NCO from
    gPTP) per `docs/design/MVP_TALKER.md`. Natural pairing with #1.
-3. **Listener media path** — the ACMP listener SM opens the control plane
-   and the AVTP-RX monitor (07-17) now covers the diagnostic half
-   (STREAM_INPUT counters live); what remains is the actual audio path:
-   AAF RX depacketizer -> PCM ring the softcore/PipeWire consumes, then
-   CRF clock recovery + dynamic audio maps (HANDOVER task 12 lineage).
+3. **Listener media path** — control plane (ACMP listener SM) + diagnostics
+   (AVTP-RX monitor 07-17) + **fabric/SoC media plumbing DONE 07-17
+   (`e8efecc`)**: KL_aaf_rx_depacketizer (hdl/avtp) strips 38/42-byte
+   headers off monitor-accepted PDUs and streams full-word S32BE payload
+   out m_axis_pcm into a WishboneDMAWriter loop-mode DRAM ring
+   (milan_dma_pcm_* CSRs @0xf0003120, additions-only; offset = wr pointer;
+   tlast NOT forwarded — the TS-ring phase-B trap). CSR 0x6C4 pdus/drops +
+   0x6C8 last avtp_ts (media-clock hook). milan_dp proves BIND->AAF->
+   byte-exact 64B payload (untagged rotate-2 AND tagged rotate-6) + reject
+   isolation. REMAINS: the Linux/PipeWire consumer (mmap the ring, chase
+   offset — bench), CRF clock recovery + dynamic audio maps.
 4. **gPTP direct-cable session** — Arty-as-slave validation; script ready
    (`sw/litex/gptp_direct_cable.sh`), needs the physical cable move.
 5. **Switch power-cycle via amx-pi** — clear flap suppression, restore the
