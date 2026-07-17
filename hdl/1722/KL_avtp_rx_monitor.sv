@@ -67,13 +67,13 @@
 module KL_avtp_rx_monitor #(
   parameter int unsigned CLK_FREQ_HZ_P = 50_000_000  //! for the 100 ms unlock timeout
 )(
-  input  wire         clk_i,
-  input  wire         rst_n,
+  input  wire         clk_i,             //! Global clock
+  input  wire         rst_n,             //! Active-low synchronous reset
 
   //! --- per-frame pulse bundle from avtp_stream_parser (bound-sid matched) --
   input  wire         match_valid_i,     //! one-cycle pulse per matched frame
-  input  wire [7:0]   subtype_i,
-  input  wire [7:0]   seq_num_i,
+  input  wire [7:0]   subtype_i,         //! AVTP subtype of the matched PDU
+  input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
   input  wire [63:0]  fsh_i,             //! bytes O+16..O+23 of the PDU
 
@@ -82,13 +82,13 @@ module KL_avtp_rx_monitor #(
   input  wire [63:0]  fmt_i,             //! current STREAM_INPUT[0] format u64
 
   //! --- Milan STREAM_INPUT counters (Table 7-156 names) --------------------
-  output logic [31:0] cnt_media_locked_o,
-  output logic [31:0] cnt_media_unlocked_o,
-  output logic [31:0] cnt_stream_interrupted_o,
-  output logic [31:0] cnt_seq_mismatch_o,
-  output logic [31:0] cnt_ts_uncertain_o,
-  output logic [31:0] cnt_unsupported_fmt_o,
-  output logic [31:0] cnt_frames_rx_o,
+  output logic [31:0] cnt_media_locked_o,       //! MEDIA_LOCKED (bit 0)
+  output logic [31:0] cnt_media_unlocked_o,     //! MEDIA_UNLOCKED (bit 1)
+  output logic [31:0] cnt_stream_interrupted_o, //! STREAM_INTERRUPTED (bit 2)
+  output logic [31:0] cnt_seq_mismatch_o,       //! SEQ_NUM_MISMATCH (bit 3)
+  output logic [31:0] cnt_ts_uncertain_o,       //! TIMESTAMP_UNCERTAIN (bit 5)
+  output logic [31:0] cnt_unsupported_fmt_o,    //! UNSUPPORTED_FORMAT (bit 8)
+  output logic [31:0] cnt_frames_rx_o,          //! FRAMES_RX (bit 11)
 
   output logic        media_locked_o,    //! current lock state (level)
   output logic        dirty_p_o          //! one-cycle pulse on any change
@@ -138,7 +138,7 @@ module KL_avtp_rx_monitor #(
   wire [7:0] lost_w     = seq_num_i - expected_w;   // mod-256, as the reference
   wire       silence_hit = media_locked_o && (silence_r >= UNLOCK_CYCLES_C);
 
-  always_ff @(posedge clk_i) begin
+  always_ff @(posedge clk_i) begin : monitor_logic
     if (!rst_n) begin
       bound_q                  <= 1'b0;
       prev_seq_r               <= '0;
@@ -153,7 +153,8 @@ module KL_avtp_rx_monitor #(
       cnt_frames_rx_o          <= '0;
       media_locked_o           <= 1'b0;
       dirty_p_o                <= 1'b0;
-    end else begin
+    end
+    else begin
       bound_q   <= bound_i;
       dirty_p_o <= 1'b0;
 
@@ -172,7 +173,8 @@ module KL_avtp_rx_monitor #(
           //! counts nothing else (reference early-returns)
           cnt_unsupported_fmt_o <= cnt_unsupported_fmt_o + 32'd1;
           dirty_p_o             <= 1'b1;
-        end else begin
+        end
+        else begin
           cnt_frames_rx_o <= cnt_frames_rx_o + 32'd1;
           silence_r       <= '0;
           dirty_p_o       <= 1'b1;
@@ -184,10 +186,12 @@ module KL_avtp_rx_monitor #(
             media_locked_o     <= 1'b1;
             prev_seq_r         <= seq_num_i;     // (re)lock: seed, no gap
             settle_r           <= 4'(SETTLE_C);  // grace the bind/path-open step
-          end else if (settle_r != '0) begin
+          end
+          else if (settle_r != '0) begin
             settle_r   <= settle_r - 4'd1;       // settling: re-seed, no count
             prev_seq_r <= seq_num_i;
-          end else begin
+          end
+          else begin
             if (seq_num_i != expected_w) begin
               cnt_seq_mismatch_o <= cnt_seq_mismatch_o + 32'd1;
               if (lost_w >= 8'(INTERRUPT_MIN_LOST_C))
@@ -213,7 +217,7 @@ module KL_avtp_rx_monitor #(
         dirty_p_o                <= 1'b1;
       end
     end
-  end
+  end : monitor_logic
 
 endmodule
 
