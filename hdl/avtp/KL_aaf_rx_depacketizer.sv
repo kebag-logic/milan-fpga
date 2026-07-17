@@ -97,14 +97,21 @@ module KL_aaf_rx_depacketizer #(
   wire in_acc = s_tvalid_i && s_tready_i;
 
   logic good_r;                           //! monitor accepted this frame
+  logic in_frame_r;                       //! a frame is in flight on the tap
 
+  //! the verdict pulse is honored only while ITS frame is in flight: a PDU
+  //! truncated right at parse-complete pulses one cycle AFTER its tlast, and
+  //! an unguarded pulse would pre-approve the NEXT frame regardless of its
+  //! own verdict (found by the coverage drive)
   always_ff @(posedge clk_i) begin : write_verdict
     if (!rst_n) begin
-      good_r <= 1'b0;
+      good_r     <= 1'b0;
+      in_frame_r <= 1'b0;
     end
     else begin
-      if (pdu_accept_p_i) good_r <= 1'b1;
+      if (in_acc) in_frame_r <= !s_tlast_i;
       if (in_acc && s_tlast_i) good_r <= 1'b0;
+      else if (pdu_accept_p_i && (in_frame_r || in_acc)) good_r <= 1'b1;
     end
   end : write_verdict
 
@@ -253,11 +260,15 @@ module KL_aaf_rx_depacketizer #(
                            fbyte(ff_data, 3'd3), fbyte(ff_data, 3'd2)};
               rstate_r <= R_PAY_S;
             end
-            //! runt safety: a committed frame shorter than its header
+            //! runt safety: a committed frame cannot end inside its header
+            //! (commit needs the parse-complete pulse at frame byte 48),
+            //! so this arm is defensive-only
+            // verilator coverage_off
             if (ff_last) begin
               rstate_r <= R_HDR_S;
               rbeat_r  <= '0;
             end
+            // verilator coverage_on
           end
         end
 
@@ -278,7 +289,9 @@ module KL_aaf_rx_depacketizer #(
               //! frame; otherwise swallow padding/FCS-strip tail beats
               if (hold_only_w || !pop_w || !ff_last) begin
                 if (hold_only_w || !ff_last) rstate_r <= R_FLUSH_S;
+                // verilator coverage_off
                 else                         rstate_r <= R_HDR_S;
+                // verilator coverage_on
               end
               else rstate_r <= R_HDR_S;
             end
@@ -301,9 +314,11 @@ module KL_aaf_rx_depacketizer #(
           end
         end
 
+        // verilator coverage_off
         default : begin
           rstate_r <= R_HDR_S;
         end
+        // verilator coverage_on
       endcase
     end
   end : read_fsm
