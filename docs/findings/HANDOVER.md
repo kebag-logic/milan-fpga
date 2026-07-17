@@ -57,6 +57,16 @@ next session. Bench traps: the AX POWER outlet = powerstrip OUT0 (cut it
 once — JTAG-SRAM lost, reload needed); switch = OUT4; AX serial login
 resets provisioning after each reboot (0x654/0x6DC re-poke needed).
 
+**SILICON FINDS 4+5 (audio-rate arc):** `d05546a` the AX framer's I2S
+divider was fixed for 50 MHz — at 100 MHz it sampled 97.7 kHz while
+advertising 48 k (measured 16.9k fr/s; servo pegged at BOTH clamps
+chasing a 2× stream); dividers now scale with MILAN_CLK_FREQ_HZ.
+`9d213a1` the playback NCO's 0x10000 nominal step carried EVERY cycle —
+the divider could slow but never exceed nominal, so positive trim was a
+no-op and a high FIFO could never drain; now 0x8000 half-rate nominal,
+trim ±1.56 % both directions. AX keeper = asl_milanfinal7 +0.040
+(rate fix); arty milanfinal8 (NCO fix) = the final acceptance build.
+
 **FIELD FIXES from the user's Hive/la_avdecc session (post-drill):**
 `a387e6b` AUDIO_CLUSTER 90→87 B (stray aes3_* tail; la_avdecc "Remaining
 bytes: 3" — invisible to our TBs since the generator is their oracle) ·
