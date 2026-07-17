@@ -715,6 +715,37 @@ int main(int argc, char** argv) {
         ck("tagged: payload byte-exact", tag_ok ? 1 : 0, 1);
         ck("tagged: PCMRX pdus=2", axi_read(A_PCMRX_CNT), 2);
 
+        // I2S playback: the injected pair (payload bytes 0..2 = ch0 S32BE)
+        // emerges serialized on the DAC pins - decode the first non-zero
+        // LEFT sample (Philips I2S: 1 delay bit after the LRCK fall)
+        {
+            uint32_t sample = 0; bool got_nz = false;
+            int sclk_q = dut->i2s_dac_sclk_o, lrck_q = dut->i2s_dac_lrck_o;
+            int bitcnt = -1; uint32_t acc = 0;
+            for (int c = 0; c < 20000 && !got_nz; c++) {
+                step();
+                int sclk = dut->i2s_dac_sclk_o, lrck = dut->i2s_dac_lrck_o;
+                if (sclk && !sclk_q) {                    // SCLK rising: sample
+                    if (bitcnt >= 0 && bitcnt < 25) {     // skip 1 delay bit
+                        if (bitcnt > 0) acc = (acc << 1) | (dut->i2s_dac_sdin_o & 1);
+                        bitcnt++;
+                        if (bitcnt == 25) {
+                            if (acc != 0) { sample = acc; got_nz = true; }
+                            bitcnt = -1;
+                        }
+                    }
+                    if (lrck_q && !lrck) { bitcnt = 0; acc = 0; }  // LEFT begins
+                    lrck_q = lrck;
+                }
+                sclk_q = sclk;
+            }
+            // the FIFO drains continuously, so the decoder catches pair 0
+            // (payload bytes 0..2 = 0x303132) or pair 1 (bytes 32..34 =
+            // 0x505152) - both prove byte-exact serialization
+            ck("I2S left sample from payload",
+               sample == 0x303132 || sample == 0x505152, 1);
+        }
+
         // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not,
         // and NOTHING more enters the PCM ring
         pcm.clear(); pcm_last = false;
