@@ -91,6 +91,9 @@ module KL_aecp_top #(
   input  wire [31:0]   in0_cnt_tu_i,
   input  wire [31:0]   in0_cnt_unsupp_i,
   input  wire [31:0]   in0_cnt_frx_i,
+  input  wire [31:0]   in0_cnt_mreset_i,
+  input  wire [31:0]   in0_cnt_late_i,
+  input  wire [31:0]   in0_cnt_early_i,
   input  wire          in0_cnt_dirty_p_i,
   output wire [63:0]   in0_fmt_o,          //! live STREAM_INPUT[0] format
 
@@ -263,6 +266,9 @@ module KL_aecp_top #(
     .in0_cnt_tu_i(in0_cnt_tu_i),
     .in0_cnt_unsupp_i(in0_cnt_unsupp_i),
     .in0_cnt_frx_i(in0_cnt_frx_i),
+    .in0_cnt_mreset_i(in0_cnt_mreset_i),
+    .in0_cnt_late_i(in0_cnt_late_i),
+    .in0_cnt_early_i(in0_cnt_early_i),
     .in0_cnt_dirty_p_i(in0_cnt_dirty_p_i),
     .in0_fmt_o(in0_fmt_o),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),

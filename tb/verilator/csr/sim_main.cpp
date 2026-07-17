@@ -340,6 +340,8 @@ int main(int argc, char** argv) {
   ck("o_tone_enable", dut->o_tone_enable, 1);
   ck("TONE_CTRL readback", axi_read(0x6DC), 1);
   axi_write(0x6DC, 0);
+  dut->i_i2spb_trim = 0xFFF00100; dut->eval();
+  ck("I2SPB_TRIM RO", axi_read(0x6E0), 0xFFF00100);
 
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
