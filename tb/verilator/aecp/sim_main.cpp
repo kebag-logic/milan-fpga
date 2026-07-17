@@ -1299,6 +1299,30 @@ int main(int argc, char** argv) {
         r = collect_resp();
         ck("[22f] START(output) NOT_SUPPORTED", r_status(r), 11);
 
+        // (f2) adaptive listener: a 2-ch 48k variant is ACCEPTED (USER:
+        //      the listener adapts to the talker); 9 ch is rejected
+        {
+            std::vector<uint8_t> pl; put_be16(pl, 0x0005); put_be16(pl, 0);
+            uint64_t f2 = 0x0205022000806000ULL;   // 48k INT32, channels=2
+            for (int i = 7; i >= 0; i--) pl.push_back((f2 >> (8*i)) & 0xFF);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F0, pl));
+            r = collect_resp();
+            ck("[22f2] SET 2ch format SUCCESS", r_status(r), 0);
+            ck("[22f2] echo carries 2ch fmt", be32_at(r, 42) == 0x02050220 &&
+               be32_at(r, 46) == 0x00806000, 1);
+            std::vector<uint8_t> p9; put_be16(p9, 0x0005); put_be16(p9, 0);
+            uint64_t f9 = (0x0205022000006000ULL) | (9ULL << 22);
+            for (int i = 7; i >= 0; i--) p9.push_back((f9 >> (8*i)) & 0xFF);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F1, p9));
+            ck("[22f2] 9ch rejected", r_status(collect_resp()) != 0, 1);
+            // restore the 8ch default
+            std::vector<uint8_t> p8; put_be16(p8, 0x0005); put_be16(p8, 0);
+            uint64_t f8 = 0x0205022002006000ULL;
+            for (int i = 7; i >= 0; i--) p8.push_back((f8 >> (8*i)) & 0xFF);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, p8));
+            (void)collect_resp();
+        }
+
         // (g) GET_COUNTERS on sink 0: live KL_avtp_rx_monitor values behind
         //     the Milan valid mask 0xF3F (Table 7-156; block byte 4n = bit n)
         dut->in0_cnt_locked_i      = 3;
