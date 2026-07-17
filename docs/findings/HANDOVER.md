@@ -17,6 +17,38 @@ Roles: AX7101 = the full endstation (:01), Arty A7-100 = a small endstation
 
 ---
 
+## 0. BENCH SESSION 2026-07-17 (milanfinal2 silicon) — results + open items
+
+Both boards run `*_eppo_milanfinal2` (arty: QSPI bitstream@0 REFLASHED —
+survives the serial-DTR reset; AX: JTAG-SRAM, volatile). Old 2-hart QSPI
+images boot fine on the 1-hart gateware (cpu1 timeout, degraded-OK).
+
+**PASSED on silicon:** CSR identity + all 11 new registers exact ·
+**MAAP live**: probe→ANNOUNCE, claim 91:E0:F0:00:9F:60, byte-perfect
+announces at pw0 through the switch (fe 03 / 08 1c / cadence 3.7-4.1 s) ·
+la_avdecc-style controller drill **41/41** on the new AECP · **full ACMP
+listener ladder**: BIND_RX → ADP discovery → PROBE_TX → SETTLED, bound
+talker = AX EID, VLAN learned · MSRP dialogue live (both engines ~109 TX /
+~730 RX MRPDUs with the switch).
+
+**FINDING 1 (product bug, caught by the new counters on first exposure):**
+`aaf_talker_i2s` emits 2-ch AAF while STREAM_OUTPUT advertises the 8-ch
+format ⇒ the arty monitor rejects every PDU (UNSUPPORTED_FORMAT 0x6C0
+counting, FRAMES_RX 0). Fix = task #23 (framer 8-ch zero-fill), then the
+tone/ring/servo acceptance completes.
+
+**FINDING 2 (lwSRP↔switch, needs a dedicated session):** with lwSRP enabled
+both sides: domain OK both; AX TalkerAdvertise declared; **TA never
+registers at the arty** (0x6A4[6]=0) ⇒ bound listener declares AskingFailed
+⇒ switch propagates it back to AX (0x694=0x35: lstn-reg=1, decl=asking-
+failed) ⇒ no reservation, gate closed. MRP is link-local — debug needs the
+switch's own MSRP view (d&b tooling) or a direct-cable peer (pw0 mrpd).
+Workaround in force for streaming drills: AAF bypass=1 + VID0 (0x654=0x3).
+
+**Bench traps:** arty serial-open DTR = board reset (QSPI reconfigures —
+JTAG-SRAM images do not survive; hence the bitstream reflash); use the
+persistent console daemons (scratchpad con.sh) + `dmesg -n 1`.
+
 ## 1. Topology
 
 ```
