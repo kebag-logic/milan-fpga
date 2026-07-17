@@ -133,7 +133,8 @@ cable. Data plane unaffected.
 | build_ax7101_eto_pcm1h | **AX KEEPER (RTL-current, 1-HART — USER 07-17 "keep 1 hart for now")** — same PCM-ring netlist, `--cpu-count 1`: LUTs 45545 = 71.8 % (−6.2K vs 2-hart), slices 95.8 %; ALL 3 close (eppo +0.069, asl +0.041) where 2-hart was 2/3 FAIL. L2 kept 64 KB (32 KB authorization unused). ⚠ 1-hart dtb pairs with this bitstream; 2-hart NAPI perf records don't apply. NOT loaded | +0.127 |
 | build_arty_asl_pcm1h | Arty 1-hart fallback (pre-MAAP) — LUTs 45206 = 71.3 %; all 3 close (eppo +0.313, eto +0.088). NOT loaded | +0.386 |
 | build_arty_asl_milanfull2 | **Arty KEEPER (RTL-current, 1-hart, FULL feature set)** — + MAAP, I2S playback, SET-replays, pilot tone (`668c179`): LUTs 46489 = 73.3 %; all 3 close (eppo +0.072, eto +0.048). E2E audio acceptance ready: TONE_CTRL 0x6DC + pcm_ring_dump + tone_thdn.py (digital −149.9 dB vs −120 limit). NOT loaded | +0.240 |
-| build_ax7101_asl_milanfull2 | **AX KEEPER (RTL-current, 1-hart, FULL feature set)** — same netlist @100 MHz: LUTs 46805 = 73.8 %; ALL 3 close (eppo +0.149 = best AX margin of the campaign, eto +0.029). Both boards now carry the complete Milan end-station with margin. NOT loaded | +0.172 |
+| build_ax7101_asl_milanfull2 | AX full-feature fallback (pre-0x4B/servo) — LUTs 46805 = 73.8 %; all 3 close (eppo +0.149, eto +0.029). NOT loaded | +0.172 |
+| build_arty_eto_milanfinal | **Arty KEEPER (COMPLETE end-station: +0x4B, SET-replays, tone, media-clock servo)** — LUTs 47010 = 74.2 %; all 3 close (asl +0.267, eppo +0.183). THE bench bitstream for the re-cert + audio acceptance. NOT loaded | +0.334 |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
