@@ -45,6 +45,18 @@ failed) ⇒ no reservation, gate closed. MRP is link-local — debug needs the
 switch's own MSRP view (d&b tooling) or a direct-cable peer (pw0 mrpd).
 Workaround in force for streaming drills: AAF bypass=1 + VID0 (0x654=0x3).
 
+**🔊 AUDIO E2E ON SILICON (07-17, after the OUT4 switch power-cycle):**
+AX tone talker → switch → arty listener: **FRAMES_RX 376k PDUs / 46 s,
+locked once and stayed locked, ZERO seq/format errors, PCM ring
+committing, I2S serializing on the jack.** Adaptive 2-ch SET verified on
+hardware. **Servo finding:** trim PEGGED at +80 (≈+1200 ppm clamp) with
+fill riding the top rail (509/512) — the talker's media clock outruns the
+arty's local 48 kHz by MORE than the clamp; widen the trim range
+(KL_i2s_playback ±80 localparam) and/or quantify via 0x6D8 overrun rate
+next session. Bench traps: the AX POWER outlet = powerstrip OUT0 (cut it
+once — JTAG-SRAM lost, reload needed); switch = OUT4; AX serial login
+resets provisioning after each reboot (0x654/0x6DC re-poke needed).
+
 **FIELD FIXES from the user's Hive/la_avdecc session (post-drill):**
 `a387e6b` AUDIO_CLUSTER 90→87 B (stray aes3_* tail; la_avdecc "Remaining
 bytes: 3" — invisible to our TBs since the generator is their oracle) ·
