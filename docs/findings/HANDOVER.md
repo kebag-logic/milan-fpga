@@ -131,6 +131,7 @@ cable. Data plane unaffected.
 | build_ax7101_eto_rxmon | AX rxmon fallback — same netlist: eto closes thin (eppo −0.050 / asl −0.088 FAIL; slices 97.6 % = space-bound; USER 07-17 authorized --l2-bytes 32768 when space-bound). NOT loaded | +0.027 |
 | build_arty_eppo_pcmring2 | Arty 2-hart fallback — + AAF RX depacketizer + PCM ring (`e8efecc`+`53042cc`+hold_r-64b fix): LUTs 51860 = 81.8 %, slices 98.4 %; all 3 close (eto +0.087, asl +0.069). Traps: pcmring(1) sweep died on Vivado 8-524 out-of-range part-select in the unrolled hold_r byte mux — Verilator/yosys tolerated it; only Vivado is the Vivado oracle. NOT loaded | +0.162 |
 | build_ax7101_eto_pcm1h | **AX KEEPER (RTL-current, 1-HART — USER 07-17 "keep 1 hart for now")** — same PCM-ring netlist, `--cpu-count 1`: LUTs 45545 = 71.8 % (−6.2K vs 2-hart), slices 95.8 %; ALL 3 close (eppo +0.069, asl +0.041) where 2-hart was 2/3 FAIL. L2 kept 64 KB (32 KB authorization unused). ⚠ 1-hart dtb pairs with this bitstream; 2-hart NAPI perf records don't apply. NOT loaded | +0.127 |
+| build_arty_asl_pcm1h | **Arty KEEPER (RTL-current, 1-HART)** — LUTs 45206 = 71.3 %, slices 95.5 %; all 3 close (eppo +0.313, eto +0.088). Both boards now 1-hart with the full Milan RX stack (monitor + depacketizer + PCM ring). NOT loaded | +0.386 |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
