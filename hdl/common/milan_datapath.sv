@@ -163,12 +163,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign tx_axis_to_shaper.tlast  = s_axis_tx_tlast;
   assign s_axis_tx_tready         = tx_axis_to_shaper.tready;
 
-  KL_tone_gen tone_gen (
+  //! I2S divider scale: mclk = clk/2^N ~= 12.5 MHz -> 48.8 kHz sample rate
+  //! on EITHER datapath clock. Un-parameterized, the 100 MHz AX sampled at
+  //! 97.7 kHz while advertising 48 k (silicon: 16.9k fr/s, servo pegged).
+  localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
+
+  KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_tone_enable), .smp_o (tone_smp)
   );
 
-  aaf_talker_i2s aaf_talker (
+  aaf_talker_i2s #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) aaf_talker (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (aaf_gate),
     .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
@@ -1024,7 +1029,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  the FIFO rails and MEASURED via I2SPB_STAT until CRF media-clock
   //  discipline lands.
   // ==========================================================================
-  KL_i2s_playback i2s_player (
+  KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pcm_tdata_i  (m_axis_pcm_tdata),
     .pcm_tvalid_i (m_axis_pcm_tvalid),
