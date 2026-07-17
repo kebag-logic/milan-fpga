@@ -244,6 +244,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/lwsrp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/avtp/aaf_talker_i2s.sv", "hdl/avtp/KL_aaf_rx_depacketizer.sv",
+    "hdl/avtp/KL_i2s_playback.sv",
     "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
     "hdl/1722/KL_avtp_rx_monitor.sv", "hdl/maap/KL_maap.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
@@ -503,6 +504,7 @@ class MilanMAC(LiteXModule):
         # lived here could never run: `soc` is not in this scope and the old
         # try/except only ever swallowed its own NameError)
         self.i2s_pads = None
+        self.i2s_dac_pads = None
         self.dp_ports = dict(
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
@@ -3097,6 +3099,7 @@ class MilanDMA(LiteXModule):
         # constraint RESOLUTION (finalization), far outside any except here
         # (the AX7101 elaboration broke on 'pmoda' 2026-07-13 because of it).
         self.i2s_pads = None
+        self.i2s_dac_pads = None
         plat = soc.platform
         try:
             _has_pmoda = "pmoda" in plat.constraint_manager.connector_manager.connector_table
@@ -3109,6 +3112,10 @@ class MilanDMA(LiteXModule):
                 _rx  = plat.request("i2s_rx")
                 _mck = plat.request("i2s_rx_mclk")
                 self.i2s_pads = (_mck, _rx.clk, _rx.sync, _rx.rx)
+                # DAC (line-out) jack: zero-CPU playback of the bound stream
+                _tx  = plat.request("i2s_tx")
+                _tmk = plat.request("i2s_tx_mclk")
+                self.i2s_dac_pads = (_tmk, _tx.clk, _tx.sync, _tx.tx)
             except Exception:
                 self.i2s_pads = None
         self.dp_ports = dict(
@@ -3120,6 +3127,10 @@ class MilanDMA(LiteXModule):
             o_m_axis_rx_tdata  = rx_dp.dp.data,  o_m_axis_rx_tvalid = rx_dp.dp.valid,
             o_m_axis_rx_tlast  = rx_dp.dp.last,  i_m_axis_rx_tready = rx_dp.dp.ready,
             # TS: datapath m_axis_ts -> writer.sink
+            o_i2s_dac_mclk_o = self.i2s_dac_pads[0] if self.i2s_dac_pads else Signal(),
+            o_i2s_dac_sclk_o = self.i2s_dac_pads[1] if self.i2s_dac_pads else Signal(),
+            o_i2s_dac_lrck_o = self.i2s_dac_pads[2] if self.i2s_dac_pads else Signal(),
+            o_i2s_dac_sdin_o = self.i2s_dac_pads[3] if self.i2s_dac_pads else Signal(),
             o_i2s_mclk_o = self.i2s_pads[0] if self.i2s_pads else Signal(),
             o_i2s_sclk_o = self.i2s_pads[1] if self.i2s_pads else Signal(),
             o_i2s_lrck_o = self.i2s_pads[2] if self.i2s_pads else Signal(),

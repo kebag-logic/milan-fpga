@@ -69,6 +69,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire                     i2s_sclk_o,
   output wire                     i2s_lrck_o,
   input  wire                     i2s_sdout_i,
+  // ---- Pmod I2S2 DAC (line-out): zero-CPU playback of the bound stream ----
+  output wire                     i2s_dac_mclk_o,
+  output wire                     i2s_dac_sclk_o,
+  output wire                     i2s_dac_lrck_o,
+  output wire                     i2s_dac_sdin_o,
 
   input  wire [TDATA_WIDTH-1:0]   s_axis_tx_tdata,
   input  wire [TDATA_WIDTH/8-1:0] s_axis_tx_tkeep,
@@ -318,6 +323,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        avtprx_accept_p;
   wire [31:0] avtprx_ts, avtprx_last_ts;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
+  wire [15:0] i2spb_underruns, i2spb_overruns;
   //! MAAP engine (KL_maap, IEEE 1722 Annex B; docs/design/MAAP_FABRIC.md)
   wire        cfg_maap_enable, cfg_maap_seed_valid;
   wire [7:0]  cfg_maap_count;
@@ -537,6 +543,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                             avtprx_tu_c[7:0]}),
     .i_pcmrx_cnt          ({pcmrx_drops, pcmrx_pdus}),
     .i_pcmrx_ts           (avtprx_last_ts),
+    .i_i2spb_stat         ({i2spb_underruns, i2spb_overruns}),
     .i_maap_stat0         ({maap_conflicts, maap_defends, maap_offset}),
     .i_maap_stat1         ({29'd0, maap_addr_valid, maap_state}),
     .o_maap_enable        (cfg_maap_enable),
@@ -985,6 +992,25 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_axis_tready(m_axis_pcm_tready),
     .pdus_o  (pcmrx_pdus),
     .drops_o (pcmrx_drops)
+  );
+
+  // ==========================================================================
+  //  I2S playback (Pmod I2S2 DAC) — zero-CPU audible listener: taps the
+  //  depacketizer PCM transfers and serializes ch0/ch1 on the line-out.
+  //  Free-running local 48 kHz (MVP): drift vs the talker is absorbed by
+  //  the FIFO rails and MEASURED via I2SPB_STAT until CRF media-clock
+  //  discipline lands.
+  // ==========================================================================
+  KL_i2s_playback i2s_player (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .pcm_tdata_i  (m_axis_pcm_tdata),
+    .pcm_tvalid_i (m_axis_pcm_tvalid),
+    .pcm_tready_i (m_axis_pcm_tready),
+    .pcm_tlast_i  (m_axis_pcm_tlast),
+    .chans_i      (aecp_in0_fmt[31:22]),
+    .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
+    .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
+    .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns)
   );
 
   // ==========================================================================
