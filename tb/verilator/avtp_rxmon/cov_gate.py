@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 ann_dir, threshold = Path(sys.argv[1]), float(sys.argv[2])
-gated = ("KL_avtp_rx_monitor.sv", "KL_aaf_rx_depacketizer.sv")
+gated = tuple(sys.argv[3:]) or ("KL_avtp_rx_monitor.sv", "KL_aaf_rx_depacketizer.sv")
 fail = False
 seen = set()
 for f in sorted(ann_dir.glob("*.sv")) + sorted(ann_dir.glob("*.v")):

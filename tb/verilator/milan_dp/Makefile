@@ -55,6 +55,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/adp/adp_pkg.
        $(RTL_DIR)/1722/avtp_subtype_pkg.sv \
        $(RTL_DIR)/1722/avtp_stream_parser.sv \
        $(RTL_DIR)/1722/KL_avtp_rx_monitor.sv \
+       $(RTL_DIR)/maap/KL_maap.sv \
        $(RTL_DIR)/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/csr/milan_csr.sv \
        $(C)/milan_datapath.sv
