@@ -90,6 +90,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire                     m_axis_ts_tlast,
   input  wire                     m_axis_ts_tready,
 
+  // ---- PCM payload: AAF RX depacketizer → DRAM PCM ring (full 8-B beats,
+  //      wire byte order = S32BE interleaved; one AXIS frame per PDU) ----
+  output wire [TDATA_WIDTH-1:0]   m_axis_pcm_tdata,
+  output wire [TDATA_WIDTH/8-1:0] m_axis_pcm_tkeep,
+  output wire                     m_axis_pcm_tvalid,
+  output wire                     m_axis_pcm_tlast,
+  input  wire                     m_axis_pcm_tready,
+
   // ---- MAC-facing TX: datapath (shaper→PTP→ADP arbiter) → external MAC ----
   output wire [TDATA_WIDTH-1:0]   m_axis_mac_tx_tdata,
   output wire [TDATA_WIDTH/8-1:0] m_axis_mac_tx_tkeep,
@@ -307,6 +315,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked, avtprx_dirty_p;
+  wire        avtprx_accept_p;
+  wire [31:0] avtprx_ts, avtprx_last_ts;
+  wire [15:0] pcmrx_pdus, pcmrx_drops;
   //! listener_observed: the lwSRP Listener registrar is the real source once
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
@@ -507,6 +518,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_avtprx_frx         (avtprx_frx_c),
     .i_avtprx_err         ({avtprx_seqmm_c[15:0], avtprx_unsupp_c[7:0],
                             avtprx_tu_c[7:0]}),
+    .i_pcmrx_cnt          ({pcmrx_drops, pcmrx_pdus}),
+    .i_pcmrx_ts           (avtprx_last_ts),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -895,7 +908,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .match_valid_o (avtprx_match),
     .match_index_o (),
     .stream_id_o   (),
-    .avtp_ts_o     (),
+    .avtp_ts_o     (avtprx_ts),
     .subtype_o     (avtprx_subtype),
     .ts_valid_o    (),
     .seq_num_o     (avtprx_seq),
@@ -911,6 +924,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .subtype_i      (avtprx_subtype),
     .seq_num_i      (avtprx_seq),
     .ts_uncertain_i (avtprx_tu_bit),
+    .avtp_ts_i      (avtprx_ts),
     .fsh_i          (avtprx_fsh),
     .bound_i        (acmpl_bound),
     .fmt_i          (aecp_in0_fmt),
@@ -922,7 +936,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cnt_unsupported_fmt_o    (avtprx_unsupp_c),
     .cnt_frames_rx_o          (avtprx_frx_c),
     .media_locked_o (avtprx_locked),
-    .dirty_p_o      (avtprx_dirty_p)
+    .dirty_p_o      (avtprx_dirty_p),
+    .pdu_accept_p_o (avtprx_accept_p),
+    .last_ts_o      (avtprx_last_ts)
+  );
+
+  // ==========================================================================
+  //  AAF RX depacketizer (listener media path) — same RX tap; the monitor's
+  //  accept pulse is the commit verdict, so the PCM ring receives exactly
+  //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
+  //  order (S32BE interleaved) toward the SoC DRAM PCM ring writer.
+  // ==========================================================================
+  KL_aaf_rx_depacketizer aaf_rx_depkt (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_tdata_i  (rx_axis_to_dma.tdata),
+    .s_tkeep_i  (rx_axis_to_dma.tkeep),
+    .s_tvalid_i (rx_axis_to_dma.tvalid),
+    .s_tready_i (rx_axis_to_dma.tready),
+    .s_tlast_i  (rx_axis_to_dma.tlast),
+    .pdu_accept_p_i (avtprx_accept_p),
+    .m_axis_tdata (m_axis_pcm_tdata),
+    .m_axis_tkeep (m_axis_pcm_tkeep),
+    .m_axis_tvalid(m_axis_pcm_tvalid),
+    .m_axis_tlast (m_axis_pcm_tlast),
+    .m_axis_tready(m_axis_pcm_tready),
+    .pdus_o  (pcmrx_pdus),
+    .drops_o (pcmrx_drops)
   );
 
   // ==========================================================================

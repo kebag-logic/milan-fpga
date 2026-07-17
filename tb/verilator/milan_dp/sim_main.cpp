@@ -601,7 +601,9 @@ int main(int argc, char** argv) {
         ck("RXMON frames_rx idle", axi_read(A_AVTPRX_FRX), 0);
 
         // helper: inject one little-lane frame on the MAC RX port, draining
-        // any TX response the datapath produces
+        // any TX response and collecting PCM-ring beats the datapath produces
+        std::vector<uint8_t> pcm;
+        bool pcm_last = false;
         auto inject = [&](const uint8_t* f, size_t len) {
             std::vector<uint64_t> beats;
             for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
@@ -612,6 +614,7 @@ int main(int argc, char** argv) {
             }
             size_t idx = 0;
             dut->m_axis_mac_tx_tready = 1;
+            dut->m_axis_pcm_tready = 1;
             for (int c = 0; c < 1500; c++) {
                 if (idx < beats.size()) {
                     dut->s_axis_mac_rx_tdata  = beats[idx];
@@ -623,6 +626,11 @@ int main(int argc, char** argv) {
                 }
                 step();
                 if (dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready) idx++;
+                if (dut->m_axis_pcm_tvalid) {
+                    for (int l = 0; l < 8; l++)
+                        pcm.push_back((dut->m_axis_pcm_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_pcm_tlast) pcm_last = true;
+                }
             }
             dut->s_axis_mac_rx_tvalid = 0;
         };
@@ -662,11 +670,13 @@ int main(int argc, char** argv) {
             f[16]=seq;
             const uint8_t sid[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
             memcpy(f+18, sid, 8);
+            f[26]=0xAA; f[27]=0xBB; f[28]=0xCC; f[29]=0xDD;   // avtp_ts
             f[30]=0x02;                                          // format INT32
             f[31]=(uint8_t)(nsr << 4);                           // nsr
             f[32]=8;                                             // channels
             f[33]=32;                                            // bit depth
-            f[34]=0x00; f[35]=0x40;                              // data_len
+            f[34]=0x00; f[35]=0x40;                              // data_len 64
+            for (int i = 0; i < 64; i++) f[38+i] = (uint8_t)(0x30+i); // payload
             return f;
         };
         inject(mkaaf(5, 0x05), 120);
@@ -675,10 +685,44 @@ int main(int argc, char** argv) {
            axi_read(A_AVTPRX_STAT) & 0xFF01, 0x0101);
         ck("no errors (0x6C0)", axi_read(A_AVTPRX_ERR), 0);
 
-        // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not
-        inject(mkaaf(6, 0x07), 120);
+        // PCM ring path: the accepted PDU's 64 payload bytes emerged as
+        // 8 full beats, wire byte order, one AXIS frame
+        ck("PCM payload 64 bytes", (long)pcm.size(), 64);
+        ck("PCM tlast seen", pcm_last ? 1 : 0, 1);
+        bool pay_ok = pcm.size() >= 64;
+        for (int i = 0; i < 64 && pay_ok; i++)
+            if (pcm[i] != (uint8_t)(0x30+i)) pay_ok = false;
+        ck("PCM payload byte-exact", pay_ok ? 1 : 0, 1);
+        enum { A_PCMRX_CNT = 0x6C4, A_PCMRX_TS = 0x6C8 };
+        ck("PCMRX pdus=1 drops=0 (0x6C4)", axi_read(A_PCMRX_CNT), 1);
+        ck("PCMRX last avtp_ts (0x6C8)", axi_read(A_PCMRX_TS), 0xAABBCCDD);
+
+        // VLAN-tagged PDU (rotate-6 realignment): same 64 payload bytes
+        {
+            uint8_t tf[124]; memset(tf, 0, sizeof tf);
+            const uint8_t* uf = mkaaf(6, 0x05);
+            memcpy(tf, uf, 12);
+            tf[12]=0x81; tf[13]=0x00; tf[14]=0x00; tf[15]=0x02;   // C-VLAN, VID 2
+            memcpy(tf+16, uf+12, 108);                            // shifted rest
+            pcm.clear(); pcm_last = false;
+            inject(tf, 124);
+        }
+        ck("tagged: FRAMES_RX 2", axi_read(A_AVTPRX_FRX), 2);
+        ck("tagged: PCM 64 bytes", (long)pcm.size(), 64);
+        bool tag_ok = pcm.size() >= 64;
+        for (int i = 0; i < 64 && tag_ok; i++)
+            if (pcm[i] != (uint8_t)(0x30+i)) tag_ok = false;
+        ck("tagged: payload byte-exact", tag_ok ? 1 : 0, 1);
+        ck("tagged: PCMRX pdus=2", axi_read(A_PCMRX_CNT), 2);
+
+        // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not,
+        // and NOTHING more enters the PCM ring
+        pcm.clear(); pcm_last = false;
+        inject(mkaaf(7, 0x07), 120);
         ck("UNSUPPORTED_FORMAT=1 (0x6C0)", axi_read(A_AVTPRX_ERR), 0x0100);
-        ck("FRAMES_RX still 1", axi_read(A_AVTPRX_FRX), 1);
+        ck("FRAMES_RX still 2", axi_read(A_AVTPRX_FRX), 2);
+        ck("no PCM for rejected PDU", (long)pcm.size(), 0);
+        ck("PCMRX pdus still 2", axi_read(A_PCMRX_CNT), 2);
     }
 
     printf("======================================================================\n");
