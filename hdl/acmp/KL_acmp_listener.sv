@@ -290,6 +290,10 @@ module KL_acmp_listener #(
   reg [3:0]   resp_msg_r;
   reg [4:0]   resp_status_r;
   lresp_t     resp_kind_r;
+  reg         resp_unb_r;      //! GET_RX_STATE for sink 1 (CRF): valid but
+                               //! ALWAYS unbound - the AEM advertises 2 sinks,
+                               //! so UNKNOWN_ID here is an enumeration-fatal
+                               //! inconsistency (la_avdecc field report)
   reg         probe_pend_r;     //! send a PROBE_TX after the current response
 
   reg [3:0] beat_r;
@@ -298,13 +302,15 @@ module KL_acmp_listener #(
   //! response field muxes (evaluated live at emit time — the same register
   //! sampling the old echo array had, so wire behaviour is unchanged)
   wire        w_bound   = (st_lsm_r != LSM_UNBOUND_S);
+  wire        w_b_eff   = w_bound && !resp_unb_r;   //! sink-0 state masked
+                                                    //! out of sink-1 replies
   wire        w_str_echo = (resp_kind_r == L_RESP_STATE_E);   // stream_id/vlan
   //! talker bytes 34-41: BIND echo / UNBIND zero / STATE bound?bnd:0
   function automatic [7:0] tkb(input int idx, input [7:0] echo);
     unique case (resp_kind_r)
       L_RESP_BIND_E:   tkb = echo;
       L_RESP_UNBIND_E: tkb = 8'h00;
-      default:         tkb = w_bound ? bnd_talker_r[8*(7-idx) +: 8] : 8'h00;
+      default:         tkb = w_b_eff ? bnd_talker_r[8*(7-idx) +: 8] : 8'h00;
     endcase
   endfunction
   //! response flags bytes 64-65
@@ -317,7 +323,7 @@ module KL_acmp_listener #(
           ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_FAST_CONNECT_C |
             ACMP_FLAG_SRP_REG_FAILED_C);
       default: begin
-        if (!w_bound)
+        if (!w_b_eff)
           w_resp_flags = 16'h0000;
         else if (st_lsm_r == LSM_SETTLED_NO_RSV_S ||
                  st_lsm_r == LSM_SETTLED_RSV_OK_S)
@@ -399,8 +405,8 @@ module KL_acmp_listener #(
       end
       4'd6: begin                                        // bytes 48-55
         if (resp_kind_r != L_RESP_BIND_E) begin          // tuid 50-51
-          w_resp[8*2 +: 8] = bnd_tuid_r[15:8];
-          w_resp[8*3 +: 8] = bnd_tuid_r[7:0];
+          w_resp[8*2 +: 8] = resp_unb_r ? 8'h00 : bnd_tuid_r[15:8];
+          w_resp[8*3 +: 8] = resp_unb_r ? 8'h00 : bnd_tuid_r[7:0];
         end
         w_resp[8*6 +: 8] = 8'h00;                        // dest_mac 54-55
         w_resp[8*7 +: 8] = 8'h00;
@@ -409,7 +415,7 @@ module KL_acmp_listener #(
         w_resp[31:0] = 32'd0;                            // dest_mac 56-59
         w_resp[8*4 +: 8] = 8'h00;                        // count 60-61
         w_resp[8*5 +: 8] = (resp_kind_r == L_RESP_BIND_E) ? 8'h01
-                          : (resp_kind_r == L_RESP_STATE_E && w_bound) ? 8'h01
+                          : (resp_kind_r == L_RESP_STATE_E && w_b_eff) ? 8'h01
                           : 8'h00;
       end
       4'd8: begin                                        // bytes 64-69
@@ -729,6 +735,7 @@ module KL_acmp_listener #(
               // ---------------- BIND_RX --------------------------------
               ACMP_CONNECT_RX_COMMAND_C: begin
                 resp_kind_r <= L_RESP_BIND_E;
+      resp_unb_r  <= 1'b0;
                 if (!w_uid_ok) begin
                   resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
                 end else if (st_lsm_r != LSM_UNBOUND_S &&
@@ -748,6 +755,7 @@ module KL_acmp_listener #(
               // ---------------- UNBIND_RX ------------------------------
               ACMP_DISCONNECT_RX_COMMAND_C: begin
                 resp_kind_r <= L_RESP_UNBIND_E;
+                resp_unb_r  <= 1'b0;
                 if (!w_uid_ok) begin
                   resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
                 end else begin
@@ -757,7 +765,9 @@ module KL_acmp_listener #(
               // ---------------- GET_RX_STATE ---------------------------
               default: begin
                 resp_kind_r <= L_RESP_STATE_E;
-                if (!w_uid_ok) resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
+                resp_unb_r  <= (w_luid == 16'd1);
+                if (!w_uid_ok && w_luid != 16'd1)
+                  resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
               end
             endcase
             beat_r <= '0;
