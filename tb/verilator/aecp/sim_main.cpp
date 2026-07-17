@@ -717,6 +717,15 @@ int main(int argc, char** argv) {
         ck("[13h] none to deregistered A", got_a ? 1 : 0, 0);
         dut->listener_observed_i = 0;
         (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+
+        // (i) clean the table: B, C, D deregister so later tests run with
+        // no registered controllers (SET replays are tested in [23])
+        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x130B, reg_pl));
+        ck("[13i] DEREGISTER B", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, MAC_C, ENTITY_ID, CID_C, 0, 37, 0x130C, reg_pl));
+        ck("[13i] DEREGISTER C", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, MAC_D, ENTITY_ID, CID_D, 0, 37, 0x130D, reg_pl));
+        ck("[13i] DEREGISTER D", r_status(collect_resp()), 0);
     }
 
     // ---------------------------------------------------------------- //
@@ -1321,21 +1330,74 @@ int main(int argc, char** argv) {
         ck("[22i] push CDL 148", r_cdl(r), 148);
         ck("[22i] push valid mask 0xF3F", be32_at(r, 42), 0xF3F);
         ck("[22i] push FRAMES_RX live", be32_at(r, 90), 0x00ABCDEF);
-        // controllers B/C/D are still registered from [13]: one push each
-        int extra = 0;
-        for (int i = 0; i < 3; i++) {
-            r = collect_resp();
-            if (r.empty()) break;
-            extra++;
-            ck("[22i] fanout push is GET_COUNTERS", r_cmd(r), 0x29);
-        }
-        ck("[22i] pushes to B/C/D too", extra, 3);
+        // only A is registered ([13] cleans its table): no extra fan-out
+        r = collect_resp(800);
+        ck("[22i] no extra fan-out push", r.size(), 0);
         dut->in0_cnt_dirty_p_i = 1; tick(); dut->in0_cnt_dirty_p_i = 0;
         r = collect_resp(800);
         ck("[22i] second dirty rate-limited (no push)", r.size(), 0);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));
         ck("[22i] DEREGISTER A", r_status(collect_resp()), 0);
         dut->lstn_bound_i = 0; dut->lstn_ta_reg_i = 0;
+    }
+
+    // ---------------------------------------------------------------- //
+    // 23. SET-response replay (u=1) to other registered controllers      //
+    //     (IEEE 1722.1-2021 unsolicited rule; reference                  //
+    //     reply-unsol-helpers.c: skip the originator)                    //
+    // ---------------------------------------------------------------- //
+    printf("\n[23] state-changing SET replays\n");
+    {
+        auto u_bit = [](const std::vector<uint8_t>& b) {
+            return b.size() > 36 ? (b[36] >> 7) & 1 : -1;
+        };
+        const uint8_t MAC_B[6] = {0x68,0x05,0xCA,0x00,0x00,0xB0};
+        const uint64_t CID_B = 0x680500FFFE0000B0ULL;
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x2301, {}));
+        ck("[23] REGISTER A", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 36, 0x2302, {}));
+        ck("[23] REGISTER B", r_status(collect_resp()), 0);
+
+        // (a) SET_CLOCK_SOURCE by A -> solicited to A, replay (u=1) to B only
+        std::vector<uint8_t> pl; put_be16(pl, 0x0024); put_be16(pl, 0);  // CLOCK_DOMAIN 0
+        put_be16(pl, 0x0001); put_be16(pl, 0);                            // source 1
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2303, pl));
+        auto r = collect_resp();
+        ck("[23a] solicited SUCCESS to A", r_status(r), 0);
+        ck("[23a] solicited u=0", u_bit(r), 0);
+        r = collect_resp();
+        ck("[23a] replay arrived", r.size() > 0, 1);
+        ck("[23a] replay to B's MAC", memcmp(r.data(), MAC_B, 6) == 0, 1);
+        ck("[23a] replay u=1", u_bit(r), 1);
+        ck("[23a] replay cmd SET_CLOCK_SOURCE", r_cmd(r), 22);
+        ck("[23a] replay controller = B", r_ctlr(r) == CID_B, 1);
+        r = collect_resp(800);
+        ck("[23a] no replay to originator A", r.size(), 0);
+
+        // (b) failed SET replays nothing (bad clock source index)
+        std::vector<uint8_t> bad; put_be16(bad, 0x0024); put_be16(bad, 0);
+        put_be16(bad, 0x0009); put_be16(bad, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2304, bad));
+        ck("[23b] SET rejected", r_status(collect_resp()) != 0, 1);
+        r = collect_resp(800);
+        ck("[23b] no replay on failure", r.size(), 0);
+
+        // (c) GET commands replay nothing
+        std::vector<uint8_t> g; put_be16(g, 0x0024); put_be16(g, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x2305, g));
+        ck("[23c] GET SUCCESS", r_status(collect_resp()), 0);
+        r = collect_resp(800);
+        ck("[23c] no replay for GET", r.size(), 0);
+
+        // restore: clock source back to 0 (drains B's replay), deregister
+        std::vector<uint8_t> rs; put_be16(rs, 0x0024); put_be16(rs, 0);
+        put_be16(rs, 0x0000); put_be16(rs, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2306, rs));
+        (void)collect_resp(); (void)collect_resp();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x2307, {}));
+        (void)collect_resp();
+        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x2308, {}));
+        (void)collect_resp();
     }
 
     // counters

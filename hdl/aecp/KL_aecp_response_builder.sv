@@ -168,6 +168,16 @@ module KL_aecp_response_builder (
     bufb = w[8*(3'd7 - j) +: 8];
   endfunction
 
+  //! state-changing SETs whose SUCCESS response is replayed u=1 to the other
+  //! registered controllers (IEEE 1722.1-2021 unsolicited rule; reference
+  //! reply-unsol-helpers.c). SET_STREAM_INFO keeps its dedicated pend path.
+  function automatic logic is_replay_cmd(input [14:0] c);
+    is_replay_cmd = (c == CMD_SET_STREAM_FORMAT) || (c == CMD_SET_NAME) ||
+                    (c == CMD_SET_SAMPLING_RATE) || (c == CMD_SET_CLOCK_SOURCE) ||
+                    (c == CMD_SET_CONTROL) || (c == CMD_START_STREAMING) ||
+                    (c == CMD_STOP_STREAMING) || (c == CMD_SET_MAX_TRANSIT_TIME);
+  endfunction
+
   wire w_cap_hs = s_axis_tvalid & s_axis_tready;
 
   wire [6:0] w_eaddr  = emseg_addr_r[6:0] + emsoff_r[6:0];  //! echo RAM addr
@@ -208,7 +218,10 @@ module KL_aecp_response_builder (
 
   //! accept command beats only while idle/capturing (backpressures the
   //! pipeline — and therefore the tap FIFO — while a response is in flight)
-  assign s_axis_tready = (state_r == IDLE_S) || (state_r == CAPTURE_S);
+  //! replays must drain before a new command may overwrite the capture
+  //! buffer the replayed response is rebuilt from
+  assign s_axis_tready = (state_r == IDLE_S && unsol_pend4_r == '0) ||
+                         (state_r == CAPTURE_S);
 
   // latched command context
   aecp_hdr_t   hdr_q;
@@ -440,6 +453,10 @@ module KL_aecp_response_builder (
   logic [15:0]           unsol_seq_r   [0:UNSOL_SLOTS_C-1];
   logic [UNSOL_SLOTS_C-1:0] unsol_pend_r;   //! slots owed a stream-info push
   logic [UNSOL_SLOTS_C-1:0] unsol_pend2_r;  //! slots owed a GET_COUNTERS push
+  logic [UNSOL_SLOTS_C-1:0] unsol_pend4_r;  //! slots owed a SET-response replay
+                                            //! (u=1 copy of the causing SET's
+                                            //! response - reference
+                                            //! reply-unsol-helpers rule)
   logic                  unsol_frame_r;     //! current emit is a push (u=1, no meta pop)
   logic                  ta_prev_r, lo_prev_r;  //! edge detectors
 
@@ -449,6 +466,7 @@ module KL_aecp_response_builder (
   logic [1:0]               w_unsol_fill_idx;   //! lowest free slot
   logic [1:0]               w_unsol_push_idx;   //! lowest pending slot
   logic [1:0]               w_unsol_push2_idx;  //! lowest counters-pending slot
+  logic [1:0]               w_unsol_push4_idx;  //! lowest replay-pending slot
   always_comb begin
     for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
       w_unsol_match[s] = unsol_valid_r[s] &&
@@ -458,10 +476,12 @@ module KL_aecp_response_builder (
     w_unsol_fill_idx = 2'd0;
     w_unsol_push_idx = 2'd0;
     w_unsol_push2_idx = 2'd0;
+    w_unsol_push4_idx = 2'd0;
     for (int s = UNSOL_SLOTS_C-1; s >= 0; s--) begin
       if (w_unsol_free[s]) w_unsol_fill_idx = 2'(s);   // lowest wins
       if (unsol_pend_r[s])  w_unsol_push_idx  = 2'(s);
       if (unsol_pend2_r[s]) w_unsol_push2_idx = 2'(s);
+      if (unsol_pend4_r[s]) w_unsol_push4_idx = 2'(s);
     end
   end
 
@@ -629,6 +649,7 @@ module KL_aecp_response_builder (
       gm_prev_r    <= 64'd0;
       unsol_pend_r  <= '0;
       unsol_pend2_r <= '0;
+      unsol_pend4_r <= '0;
       unsol_frame_r <= 1'b0;
       ta_prev_r     <= 1'b0;
       lo_prev_r     <= 1'b0;
@@ -749,7 +770,21 @@ module KL_aecp_response_builder (
         IDLE_S: begin
           discard_q <= !enable_i;
           unsol_frame_r <= 1'b0;
-          if (w_cap_hs) begin
+          if (enable_i && unsol_pend4_r != '0) begin
+            // SET-response replay: hdr_q/capture RAM still hold the causing
+            // command (tready is gated while pend4 != 0); re-run DECIDE with
+            // the registered controller's identity and u=1. Store/level
+            // side effects re-run idempotently (same written values).
+            unsol_pend4_r[w_unsol_push4_idx] <= 1'b0;
+            unsol_seq_r[w_unsol_push4_idx]   <= unsol_seq_r[w_unsol_push4_idx] + 16'd1;
+            unsol_frame_r <= 1'b1;
+            dst_mac_q     <= unsol_mac_r[w_unsol_push4_idx];
+            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push4_idx];
+            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push4_idx];
+            cum_done_q <= 1'b0;
+            fi_r       <= 16'd0;
+            state_r    <= DECIDE_S;
+          end else if (w_cap_hs) begin
             state_r <= CAPTURE_S;
           end else if (enable_i && unsol_pend_r != '0) begin
             // Synthesize an unsolicited GET_STREAM_INFO response (u=1) to
@@ -1523,6 +1558,14 @@ module KL_aecp_response_builder (
         CONCLUDE_S: begin   // wait for the final beat to drain, then clean up
           if (!beat_pend_r) begin   // top-level handshake sent the last beat
             evt_resp_o  <= 1'b1;
+            // a SUCCESS state-changing SET: replay its response (u=1) to
+            // every registered controller except the originator
+            if (!unsol_frame_r && !vu_q && status_q == STATUS_SUCCESS &&
+                is_replay_cmd(hdr_q.command_type))
+              for (int sl = 0; sl < UNSOL_SLOTS_C; sl++)
+                if (unsol_valid_r[sl] &&
+                    unsol_eid_r[sl] != hdr_q.controller_entity_id)
+                  unsol_pend4_r[sl] <= 1'b1;
             // pushes are self-generated: there is no ingress meta to pop
             if (!unsol_frame_r) pop_pend_r <= pop_pend_r + 2'd1;
             unsol_frame_r <= 1'b0;
