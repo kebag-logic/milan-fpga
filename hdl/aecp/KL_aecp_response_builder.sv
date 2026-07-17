@@ -319,6 +319,8 @@ module KL_aecp_response_builder (
 
   //! cumulative payload offsets (registered one cycle after DECIDE_S)
   logic [15:0] cum_q [0:SEGN_C-1]; //! start offset of each segment
+  logic [1:0]  cum_ph_r;           //! pipelined cum compute: 4 segs/cycle
+  logic [15:0] cum_acc_r;
   logic [15:0] pay_len_q;
   logic        cum_done_q;
 
@@ -672,6 +674,8 @@ module KL_aecp_response_builder (
       end
       pay_len_q    <= 16'd0;
       cum_done_q   <= 1'b0;
+      cum_ph_r     <= 2'd0;
+      cum_acc_r    <= 16'd0;
       cw0_r <= 64'd0; cw1_r <= 64'd0; cw3_r <= 64'd0;
       for (int k = 0; k < 96; k++) const_q[k] <= 8'h00;
       for (int s = 0; s < SEGN_C; s++) begin
@@ -765,15 +769,23 @@ module KL_aecp_response_builder (
       // ---- cumulative segment offsets, one cycle after DECIDE --------
       if (!cum_done_q && state_r == WRITE_S) begin
         // WRITE_S lasts >= 4 cycles, plenty; compute once
+        //! 4 segments per cycle over 4 cycles: a single-cycle 15-term chain
+        //! was the AX 100 MHz WNS -5.6 violator (milanfinal sweep); payload
+        //! emission first consults cum_q >= 10 cycles after WRITE_S entry,
+        //! so the pipelined compute is always done in time
         begin
-          automatic logic [15:0] acc = 16'd0;
-          for (int k = 0; k < SEGN_C; k++) begin
-            cum_q[k] <= acc;
-            acc = acc + seg_len_q[k];
+          automatic logic [15:0] a = cum_acc_r;
+          for (int k = 0; k < 4; k++) begin
+            cum_q[{cum_ph_r, 2'(k)}] <= a;
+            a = a + seg_len_q[{cum_ph_r, 2'(k)}];
           end
-          pay_len_q <= acc;
+          cum_acc_r <= a;
+          cum_ph_r  <= cum_ph_r + 2'd1;
+          if (cum_ph_r == 2'd3) begin
+            pay_len_q  <= a;
+            cum_done_q <= 1'b1;
+          end
         end
-        cum_done_q <= 1'b1;
       end
 
       case (state_r)
@@ -792,7 +804,7 @@ module KL_aecp_response_builder (
             dst_mac_q     <= unsol_mac_r[w_unsol_push4_idx];
             hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push4_idx];
             hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push4_idx];
-            cum_done_q <= 1'b0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
             fi_r       <= 16'd0;
             state_r    <= DECIDE_S;
           end else if (w_cap_hs) begin
@@ -825,7 +837,7 @@ module KL_aecp_response_builder (
             load_stream_info_consts();
             cdl_q      <= 11'd68;
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
-            cum_done_q <= 1'b0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
             fi_r       <= 16'd0;
             state_r    <= WRITE_S;
           end else if (enable_i && unsol_pend2_r != '0) begin
@@ -855,7 +867,7 @@ module KL_aecp_response_builder (
             load_input_counters_consts(1'b1);
             cdl_q      <= 11'd148;   // 12 + 136
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
-            cum_done_q <= 1'b0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
             fi_r       <= 16'd0;
             state_r    <= WRITE_S;
           end
@@ -893,7 +905,7 @@ module KL_aecp_response_builder (
                               : 16'(hdr_q.control_data_length) - 16'd12)
                            : 16'd0;
           cdl_q      <= hdr_q.control_data_length;
-          cum_done_q <= 1'b0;
+          cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
           wb_len_q   <= 7'd0;
           wb_cnt_r   <= 7'd0;
           state_r    <= WRITE_S;   // WRITE_S is a no-op when wb_len_q == 0
