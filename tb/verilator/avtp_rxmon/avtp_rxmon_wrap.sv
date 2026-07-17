@@ -17,6 +17,9 @@ module avtp_rxmon_wrap #(
   input  wire [63:0] cfg_sid_i,        //! bound stream_id (match table entry)
   input  wire        bound_i,          //! listener bound (enables the match)
   input  wire [63:0] fmt_i,            //! current STREAM_INPUT[0] format u64
+  input  wire [31:0] ptp_now_i,        //! PHC ns (LATE/EARLY compare)
+  input  wire [31:0] pres_ofs_i,       //! presentation offset ns
+  input  wire        media_reset_p_i,  //! playback rail pulse
 
   input  wire [63:0] s_tdata_i,
   input  wire [7:0]  s_tkeep_i,
@@ -30,6 +33,9 @@ module avtp_rxmon_wrap #(
   output wire [31:0] cnt_ts_uncertain_o,
   output wire [31:0] cnt_unsupported_fmt_o,
   output wire [31:0] cnt_frames_rx_o,
+  output wire [31:0] cnt_media_reset_o,
+  output wire [31:0] cnt_late_ts_o,
+  output wire [31:0] cnt_early_ts_o,
   output wire        media_locked_o,
   output wire        dirty_p_o,
   output wire        pdu_accept_p_o,
@@ -70,6 +76,8 @@ module avtp_rxmon_wrap #(
     .match_valid_i (match_w), .subtype_i (subtype_w), .seq_num_i (seq_w),
     .ts_uncertain_i (tu_w), .avtp_ts_i (ts_w), .fsh_i (fsh_w),
     .bound_i (bound_i), .fmt_i (fmt_i),
+    .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
+    .media_reset_p_i (media_reset_p_i),
     .cnt_media_locked_o (cnt_media_locked_o),
     .cnt_media_unlocked_o (cnt_media_unlocked_o),
     .cnt_stream_interrupted_o (cnt_stream_interrupted_o),
@@ -77,6 +85,9 @@ module avtp_rxmon_wrap #(
     .cnt_ts_uncertain_o (cnt_ts_uncertain_o),
     .cnt_unsupported_fmt_o (cnt_unsupported_fmt_o),
     .cnt_frames_rx_o (cnt_frames_rx_o),
+    .cnt_media_reset_o (cnt_media_reset_o),
+    .cnt_late_ts_o (cnt_late_ts_o),
+    .cnt_early_ts_o (cnt_early_ts_o),
     .media_locked_o (media_locked_o),
     .dirty_p_o (dirty_p_o),
     .pdu_accept_p_o (pdu_accept_p_o),

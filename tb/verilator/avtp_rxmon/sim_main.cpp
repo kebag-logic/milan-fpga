@@ -102,6 +102,9 @@ int main(int argc,char**argv){
 
     dut->cfg_sid_i=SID; dut->bound_i=0; dut->fmt_i=FMT;
     dut->pcm_tready_i=1;
+    // frames carry avtp_ts 0xA55AC33C; now = 1ms before it -> on time
+    dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
+    dut->media_reset_p_i=0;
     dut->resetn=0; dut->s_tvalid_i=0;
     cyc(6);
     dut->resetn=1; cyc(2);
@@ -217,6 +220,24 @@ int main(int argc,char**argv){
     printf("\n[15] wrong stream_id never reaches the monitor\n");
     { AafCfg c; c.seq=0; c.sid=0x1111222233334444ULL; feed(mkaaf(c)); }
     ck("foreign sid: frames_rx unchanged", dut->cnt_frames_rx_o, 2);
+
+    printf("\n[23] LATE/EARLY/MEDIA_RESET (task #20: real media-clock counters)\n");
+    ck("no late/early so far", dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
+    dut->ptp_now_i = 0xA55AC33CUL + 1000;      // presentation in the past
+    { AafCfg c; c.seq=210; feed(mkaaf(c)); }
+    ck("LATE counted", dut->cnt_late_ts_o, 1);
+    dut->ptp_now_i = 0xA55AC33CUL - 50000000;  // 50 ms ahead > ofs+margin
+    { AafCfg c; c.seq=211; feed(mkaaf(c)); }
+    ck("EARLY counted", dut->cnt_early_ts_o, 1);
+    dut->ptp_now_i = 0xA55AC33CUL - 1000000;   // back to on-time
+    { AafCfg c; c.seq=212; feed(mkaaf(c)); }
+    ck("on-time counts neither", dut->cnt_late_ts_o + dut->cnt_early_ts_o, 2);
+    dut->media_reset_p_i = 1; cyc(); dut->media_reset_p_i = 0; cyc(2);
+    ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
+    dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);
+    ck("bind clears media counters",
+       dut->cnt_media_reset_o | dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
+    { AafCfg c; c.seq=0; feed(mkaaf(c)); }     // relock for later tests
 
     printf("\n[19] ring backpressure: FIFO drops whole frames, tap never stalls\n");
     dut->pcm_tready_i=0;

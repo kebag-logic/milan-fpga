@@ -93,6 +93,9 @@ module KL_avtp_rx_monitor #(
   //! --- binding / expected format (AECP + ACMP listener SM) ---------------
   input  wire         bound_i,           //! listener sink 0 is bound
   input  wire [63:0]  fmt_i,             //! current STREAM_INPUT[0] format u64
+  input  wire [31:0]  ptp_now_i,         //! PHC nanoseconds [31:0] (gPTP)
+  input  wire [31:0]  pres_ofs_i,        //! presentation offset ns (MTT/acc-lat)
+  input  wire         media_reset_p_i,   //! playback servo rail event (pulse)
 
   //! --- Milan STREAM_INPUT counters (Table 7-156 names) --------------------
   output logic [31:0] cnt_media_locked_o,       //! MEDIA_LOCKED (bit 0)
@@ -102,6 +105,9 @@ module KL_avtp_rx_monitor #(
   output logic [31:0] cnt_ts_uncertain_o,       //! TIMESTAMP_UNCERTAIN (bit 5)
   output logic [31:0] cnt_unsupported_fmt_o,    //! UNSUPPORTED_FORMAT (bit 8)
   output logic [31:0] cnt_frames_rx_o,          //! FRAMES_RX (bit 11)
+  output logic [31:0] cnt_media_reset_o,        //! MEDIA_RESET (bit 4)
+  output logic [31:0] cnt_late_ts_o,            //! LATE_TIMESTAMP (bit 9)
+  output logic [31:0] cnt_early_ts_o,           //! EARLY_TIMESTAMP (bit 10)
 
   output logic        media_locked_o,    //! current lock state (level)
   output logic        dirty_p_o,         //! one-cycle pulse on any change
@@ -118,6 +124,9 @@ module KL_avtp_rx_monitor #(
   localparam int unsigned SETTLE_C = 8;
   //! reference AVB_STREAM_INTERRUPT_MIN_LOST
   localparam int unsigned INTERRUPT_MIN_LOST_C = 2;
+  //! EARLY bound margin beyond the presentation offset (fabric-defined:
+  //! the reference never ticks LATE/EARLY; 1722.1 only names the meaning)
+  localparam logic [31:0] EARLY_MARGIN_NS_C = 32'd10_000_000;
 
   // ---- expected AAF fields from the format u64 (H.1 quadlet layout;
   //      pipewire avb_aem_stream_format_decode) ------------------------------
@@ -152,6 +161,13 @@ module KL_avtp_rx_monitor #(
   logic [31:0] silence_r;
 
   wire bound_rise = bound_i && !bound_q;
+  //! presentation-time check (mod-2^32 signed delta, valid PDUs only):
+  //! LATE  = presentation already in the past at arrival;
+  //! EARLY = further ahead than the presentation offset + margin
+  wire signed [31:0] ts_delta_w = avtp_ts_i - ptp_now_i;
+  wire late_w  = ts_delta_w < 0;
+  wire early_w = !late_w &&
+                 (unsigned'(ts_delta_w) > (pres_ofs_i + EARLY_MARGIN_NS_C));
   wire [7:0] expected_w = prev_seq_r + 8'd1;
   wire [7:0] lost_w     = seq_num_i - expected_w;   // mod-256, as the reference
   wire       silence_hit = media_locked_o && (silence_r >= UNLOCK_CYCLES_C);
@@ -169,6 +185,9 @@ module KL_avtp_rx_monitor #(
       cnt_ts_uncertain_o       <= '0;
       cnt_unsupported_fmt_o    <= '0;
       cnt_frames_rx_o          <= '0;
+      cnt_media_reset_o        <= '0;
+      cnt_late_ts_o            <= '0;
+      cnt_early_ts_o           <= '0;
       media_locked_o           <= 1'b0;
       dirty_p_o                <= 1'b0;
       pdu_accept_p_o           <= 1'b0;
@@ -201,6 +220,8 @@ module KL_avtp_rx_monitor #(
           dirty_p_o       <= 1'b1;
           pdu_accept_p_o  <= 1'b1;
           last_ts_o       <= avtp_ts_i;
+          if (late_w)  cnt_late_ts_o  <= cnt_late_ts_o  + 32'd1;
+          if (early_w) cnt_early_ts_o <= cnt_early_ts_o + 32'd1;
           if (ts_uncertain_i)
             cnt_ts_uncertain_o <= cnt_ts_uncertain_o + 32'd1;
 
@@ -225,6 +246,12 @@ module KL_avtp_rx_monitor #(
         end
       end
 
+      //! playback servo rail = a media-clock reset event
+      if (media_reset_p_i && bound_i) begin
+        cnt_media_reset_o <= cnt_media_reset_o + 32'd1;
+        dirty_p_o         <= 1'b1;
+      end
+
       //! Milan Table 5.6: reset on not-bound -> bound (wins over everything)
       if (bound_rise) begin
         cnt_media_locked_o       <= '0;
@@ -234,6 +261,9 @@ module KL_avtp_rx_monitor #(
         cnt_ts_uncertain_o       <= '0;
         cnt_unsupported_fmt_o    <= '0;
         cnt_frames_rx_o          <= '0;
+        cnt_media_reset_o        <= '0;
+        cnt_late_ts_o            <= '0;
+        cnt_early_ts_o           <= '0;
         media_locked_o           <= 1'b0;
         settle_r                 <= '0;
         silence_r                <= '0;

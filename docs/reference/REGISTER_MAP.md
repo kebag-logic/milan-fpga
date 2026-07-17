@@ -290,6 +290,7 @@ controller-driven over ACMP.
 | `0x6D4` | `MAAP_STAT1` | RO | `[2]` addr_valid (= ANNOUNCE state; DMAC = 91:E0:F0:00 + offset), `[1:0]` state (0 idle / 1 probe / 2 announce) |
 | `0x6D8` | `I2SPB_STAT` | RO | I2S playback drift rails: `[31:16]` underruns (silence frames), `[15:0]` overruns (pairs dropped) — measures free-running-48k drift until CRF media-clock discipline |
 | `0x6DC` | `TONE_CTRL` | RW | `[0]` pilot tone: 1 kHz 0 dBFS exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS via `tone_thdn.py` on the listener ring dump) |
+| `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
