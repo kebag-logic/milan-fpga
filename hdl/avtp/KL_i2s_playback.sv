@@ -75,21 +75,26 @@ module KL_i2s_playback #(
   // media-clock recovery (reference parity: pipewire recovers from the  //
   // bound stream, its CRF handler is consume-and-ignore).               //
   // ------------------------------------------------------------------ //
-  logic [MCLK_DIV_LOG2+8-1:0] cnt_r;
+  //! HALF-RATE NCO (silicon find: a 0x10000 nominal step carries every
+  //! cycle, so the divider could slow but NEVER exceed nominal - positive
+  //! trim was a no-op and a high FIFO could never drain). Nominal step
+  //! 0x8000 advances the (one-bit-narrower) counter every 2nd cycle;
+  //! trim ±512/0x8000 = ±1.56 % in BOTH directions.
+  logic [MCLK_DIV_LOG2+7-1:0] cnt_r;
   logic [15:0]        frac_r;
-  logic signed [15:0] trim_r;            //! servo trim, clamped ±512 (~±7800 ppm;
-                                         //! silicon pegged the old ±80 clamp -
-                                         //! the talker outran it, USER: widen)
-  wire  [16:0] step_w = 17'h10000 + 17'(trim_r);
+  logic signed [15:0] trim_r;
+  wire  [16:0] step_w = 17'h08000 + 17'(trim_r);
   wire  [16:0] acc_w  = {1'b0, frac_r} + step_w;
   wire         adv_w  = acc_w[16];
   assign trim_o = trim_r;
-  assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-1];
-  assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2+1];
-  assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+7];
+  assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-2];
+  assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2];
+  assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+6];
 
-  //! SCLK falling edge (data change point) and LRCK edge detection
-  wire sclk_fall = (cnt_r[MCLK_DIV_LOG2+1:0] == {2'b11, {MCLK_DIV_LOG2{1'b1}}});
+  //! SCLK falling edge (data change point): the advance that wraps the
+  //! low bits so sclk goes 1 -> 0
+  wire sclk_fall = adv_w &&
+                   (cnt_r[MCLK_DIV_LOG2:0] == {1'b1, {MCLK_DIV_LOG2{1'b1}}});
   logic lrck_q;
   wire  lrck_edge = sclk_fall && (i2s_lrck_o != lrck_q);
 
