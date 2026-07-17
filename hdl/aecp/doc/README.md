@@ -44,7 +44,7 @@ Answered on-wire, in hardware, with no CPU involvement:
 | `GET_STREAM_INFO` | Milan fixed 56-byte payload (flags 0xF6000000) |
 | `GET_AVB_INFO` | read-only status |
 | `GET_AS_PATH` | Milan-mandatory; count=1, path[0] = MAC-derived EUI64 clock_identity (matches the AVB_INTERFACE descriptor overlay) |
-| `GET_COUNTERS` | Milan-mandatory; ALWAYS full 136-B payload (success AND error — the Hive field-report class). STREAM_OUTPUT valid=0x1F (**live** STREAM_START/STOP from the talker SM, FRAMES_TX from the AAF framer), AVB_INTERFACE valid=0x23 (**live** LINK_UP/DOWN, GPTP_GM_CHANGED) |
+| `GET_COUNTERS` | Milan-mandatory; ALWAYS full 136-B payload (success AND error — the Hive field-report class). STREAM_OUTPUT valid=0x1F (**live** STREAM_START/STOP from the talker SM, FRAMES_TX from the AAF framer), AVB_INTERFACE valid=0x23 (**live** LINK_UP/DOWN, GPTP_GM_CHANGED), STREAM_INPUT valid=0xF3F (**live** KL_avtp_rx_monitor: MEDIA_LOCKED/UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, FRAMES_RX; MEDIA_RESET/LATE/EARLY advertised-zero like the pipewire reference). Counter changes push unsolicited GET_COUNTERS(STREAM_INPUT 0), rate-limited 1/s per Milan §5.4.5 |
 | `SET/GET_MAX_TRANSIT_TIME` | 0x4C/0x4D (la_avdecc-verified codes; 0x4B = GET_DYNAMIC_INFO); u64 ns onto the same presentation offset as SET_STREAM_INFO(ACC_LAT) |
 | `ENTITY_AVAILABLE`, `REGISTER/DEREGISTER_UNSOLICITED` | acknowledged; 4-slot unsolicited push engine |
 | MVU `GET_MILAN_INFO` | protocol_id 00-1B-C5-0A-C1-00, version 1, cert 0 (not certified) |

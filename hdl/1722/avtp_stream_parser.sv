@@ -79,13 +79,20 @@ module avtp_stream_parser #(
   output logic [31:0]               avtp_ts_o,       //! presentation time
   output logic [7:0]                subtype_o,       //! AVTP subtype
   output logic                      ts_valid_o,      //! tv bit (ts is meaningful)
+  output logic [7:0]                seq_num_o,       //! sequence_num (O+2)
+  output logic                      ts_uncertain_o,  //! tu bit (O+3 bit 0)
+  output logic [63:0]               fsh_o,           //! format-specific header
+                                                     //! bytes O+16..O+23 (AAF:
+                                                     //! format/nsr/ch/depth/
+                                                     //! data_len/sp+evt)
   //! free-running counters (RMON-style, cleared by reset)
   output logic [31:0]               avtp_frames_o,   //! AVTP stream frames seen
   output logic [31:0]               matched_frames_o //! of those, matched a stream
 );
 
-  // Enough header bytes: worst case VLAN -> O=18, last needed byte O+15 = 33.
-  localparam int HDR_BYTES  = 40;                 // 5 beats @ 64b, covers 34
+  // Enough header bytes: worst case VLAN -> O=18, last needed byte is the
+  // format-specific header's O+23 = 41 (AAF sp/event live at O+22).
+  localparam int HDR_BYTES  = 48;                 // 6 beats @ 64b, covers 42
   localparam int HDRW       = HDR_BYTES * 8;
   localparam int BPW        = TDATA_WIDTH / 8;     // bytes per beat
   localparam int IDXW       = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
@@ -122,6 +129,10 @@ module avtp_stream_parser #(
   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
                           hbyte(o+8), hbyte(o+9), hbyte(o+10), hbyte(o+11)};
   wire [31:0] ats      = {hbyte(o+12), hbyte(o+13), hbyte(o+14), hbyte(o+15)};
+  wire [7:0]  seq      = hbyte(o+2);
+  wire        tu       = hbyte(o+3) & 8'h01 ? 1'b1 : 1'b0;
+  wire [63:0] fsh      = {hbyte(o+16), hbyte(o+17), hbyte(o+18), hbyte(o+19),
+                          hbyte(o+20), hbyte(o+21), hbyte(o+22), hbyte(o+23)};
 
   //! stream subtypes (IEEE 1722-2016 Table 6): 0x00..0x07 are the stream data
   //! subtypes (IIDC, MMA, AAF, CVF, CRF, TSCF, SVF, RVF).
@@ -157,6 +168,9 @@ module avtp_stream_parser #(
       avtp_ts_o      <= '0;
       subtype_o      <= '0;
       ts_valid_o     <= 1'b0;
+      seq_num_o      <= '0;
+      ts_uncertain_o <= 1'b0;
+      fsh_o          <= '0;
       avtp_frames_o  <= '0;
       matched_frames_o <= '0;
     end else begin
@@ -178,6 +192,9 @@ module avtp_stream_parser #(
           avtp_ts_o        <= ats;
           subtype_o        <= subtype;
           ts_valid_o       <= tv;
+          seq_num_o        <= seq;
+          ts_uncertain_o   <= tu;
+          fsh_o            <= fsh;
           match_valid_o    <= match_hit;
           avtp_frames_o    <= avtp_frames_o + 1'b1;
           if (match_hit) matched_frames_o <= matched_frames_o + 1'b1;

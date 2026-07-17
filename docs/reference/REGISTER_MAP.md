@@ -280,6 +280,9 @@ controller-driven over ACMP.
 | `0x6AC` | `ACMPL_TALKER_HI` | RO | bound talker entity id `[63:32]` |
 | `0x6B0` | `ACMPL_CNT` | RO | `[31:16]` PROBE_TX commands sent, `[15:0]` listener commands accepted |
 | `0x6B4` | `ACMPL_TUID` | RO | `[23:16]` MSRP TalkerFailed code (bound stream), `[15:0]` bound talker unique id |
+| `0x6B8` | `AVTPRX_STAT` | RO | AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156): `[31:24]` STREAM_INTERRUPTED, `[23:16]` MEDIA_UNLOCKED, `[15:8]` MEDIA_LOCKED (low bytes), `[0]` media-locked level |
+| `0x6BC` | `AVTPRX_FRX` | RO | STREAM_INPUT[0] FRAMES_RX (full 32-bit counter) |
+| `0x6C0` | `AVTPRX_ERR` | RO | `[31:16]` SEQ_NUM_MISMATCH, `[15:8]` UNSUPPORTED_FORMAT, `[7:0]` TIMESTAMP_UNCERTAIN (low bytes/half-words) |
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).

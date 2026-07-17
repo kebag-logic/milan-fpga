@@ -312,6 +312,15 @@ int main(int argc, char** argv) {
   ck("ACMPL_CNT RO",   axi_read(0x6B0), 0x00030002);
   ck("ACMPL_TUID RO",  axi_read(0x6B4), 0x00080000);
 
+  printf("-- AVTP RX monitor RO group (0x6B8) --\n");
+  dut->i_avtprx_stat = 0x01020301; dut->i_avtprx_frx = 0xDEADBEEF;
+  dut->i_avtprx_err = 0x00050702; dut->eval();
+  ck("AVTPRX_STAT RO", axi_read(0x6B8), 0x01020301);
+  ck("AVTPRX_FRX RO",  axi_read(0x6BC), 0xDEADBEEF);
+  ck("AVTPRX_ERR RO",  axi_read(0x6C0), 0x00050702);
+  axi_write(0x6BC, 0x12345678);   // RO: write ignored
+  ck("AVTPRX_FRX write ignored", axi_read(0x6BC), 0xDEADBEEF);
+
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
   dut->eval();
