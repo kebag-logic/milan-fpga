@@ -189,6 +189,8 @@ module milan_csr #(
   input  wire [31:0]             i_avtprx_stat,         //! AVTP RX monitor status (RO 0x6B8)
   input  wire [31:0]             i_avtprx_frx,          //! STREAM_INPUT FRAMES_RX (RO 0x6BC)
   input  wire [31:0]             i_avtprx_err,          //! packed error counters (RO 0x6C0)
+  input  wire [31:0]             i_pcmrx_cnt,           //! {drops[31:16], pdus[15:0]} (RO 0x6C4)
+  input  wire [31:0]             i_pcmrx_ts,            //! last accepted avtp_ts (RO 0x6C8)
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
@@ -262,6 +264,7 @@ module milan_csr #(
     A_ACMPL_STATE = 'h6A4, A_ACMPL_TKLO = 'h6A8, A_ACMPL_TKHI = 'h6AC,
     A_ACMPL_CNT   = 'h6B0, A_ACMPL_TUID = 'h6B4,
     A_AVTPRX_STAT = 'h6B8, A_AVTPRX_FRX = 'h6BC, A_AVTPRX_ERR = 'h6C0,
+    A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -728,6 +731,8 @@ module milan_csr #(
       A_AVTPRX_STAT: live_mux = i_avtprx_stat;
       A_AVTPRX_FRX:  live_mux = i_avtprx_frx;
       A_AVTPRX_ERR:  live_mux = i_avtprx_err;
+      A_PCMRX_CNT:   live_mux = i_pcmrx_cnt;
+      A_PCMRX_TS:    live_mux = i_pcmrx_ts;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];

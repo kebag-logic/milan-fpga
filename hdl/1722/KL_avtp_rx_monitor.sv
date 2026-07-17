@@ -62,6 +62,18 @@
 ------------------------------------------------------------------------------
 */
 
+//! Milan v1.2 STREAM_INPUT diagnostic-counter engine (IEEE 1722.1-2021
+//! Table 7-156 / Milan §5.4.5.3) for the bound listener sink. Consumes the
+//! per-frame pulse bundle from `avtp_stream_parser` and maintains the
+//! counters served by AECP `GET_COUNTERS` and its unsolicited push:
+//! MEDIA_LOCKED/UNLOCKED (first-valid-PDU lock / 100 ms silence unlock),
+//! STREAM_INTERRUPTED (>= 2 PDUs lost), SEQ_NUM_MISMATCH (8-PDU settle
+//! window after every (re)lock), TIMESTAMP_UNCERTAIN (tu bit),
+//! UNSUPPORTED_FORMAT (per-PDU compare vs the current STREAM_INPUT format)
+//! and FRAMES_RX. Counters reset on the not-bound -> bound edge (Milan
+//! Table 5.6). `pdu_accept_p_o` pulses for every FRAMES_RX-counted PDU —
+//! the AAF RX depacketizer's commit verdict.
+
 `default_nettype none
 
 module KL_avtp_rx_monitor #(
@@ -75,6 +87,7 @@ module KL_avtp_rx_monitor #(
   input  wire [7:0]   subtype_i,         //! AVTP subtype of the matched PDU
   input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
+  input  wire [31:0]  avtp_ts_i,         //! presentation time of the PDU
   input  wire [63:0]  fsh_i,             //! bytes O+16..O+23 of the PDU
 
   //! --- binding / expected format (AECP + ACMP listener SM) ---------------
@@ -91,7 +104,12 @@ module KL_avtp_rx_monitor #(
   output logic [31:0] cnt_frames_rx_o,          //! FRAMES_RX (bit 11)
 
   output logic        media_locked_o,    //! current lock state (level)
-  output logic        dirty_p_o          //! one-cycle pulse on any change
+  output logic        dirty_p_o,         //! one-cycle pulse on any change
+  output logic        pdu_accept_p_o,    //! one-cycle pulse: PDU counted in
+                                         //! FRAMES_RX (bound + format-valid) —
+                                         //! the depacketizer's commit verdict
+  output logic [31:0] last_ts_o          //! avtp_timestamp of the last
+                                         //! accepted PDU (media-clock hook)
 );
 
   //! Milan §5.4.5.3 / reference MEDIA_UNLOCK_TIMEOUT_NS = 100 ms
@@ -153,10 +171,13 @@ module KL_avtp_rx_monitor #(
       cnt_frames_rx_o          <= '0;
       media_locked_o           <= 1'b0;
       dirty_p_o                <= 1'b0;
+      pdu_accept_p_o           <= 1'b0;
+      last_ts_o                <= '0;
     end
     else begin
-      bound_q   <= bound_i;
-      dirty_p_o <= 1'b0;
+      bound_q        <= bound_i;
+      dirty_p_o      <= 1'b0;
+      pdu_accept_p_o <= 1'b0;
 
       //! silence watchdog (saturating; reset by every valid frame below)
       if (media_locked_o && !(&silence_r))
@@ -178,6 +199,8 @@ module KL_avtp_rx_monitor #(
           cnt_frames_rx_o <= cnt_frames_rx_o + 32'd1;
           silence_r       <= '0;
           dirty_p_o       <= 1'b1;
+          pdu_accept_p_o  <= 1'b1;
+          last_ts_o       <= avtp_ts_i;
           if (ts_uncertain_i)
             cnt_ts_uncertain_o <= cnt_ts_uncertain_o + 32'd1;
 

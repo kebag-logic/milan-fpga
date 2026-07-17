@@ -283,6 +283,8 @@ controller-driven over ACMP.
 | `0x6B8` | `AVTPRX_STAT` | RO | AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156): `[31:24]` STREAM_INTERRUPTED, `[23:16]` MEDIA_UNLOCKED, `[15:8]` MEDIA_LOCKED (low bytes), `[0]` media-locked level |
 | `0x6BC` | `AVTPRX_FRX` | RO | STREAM_INPUT[0] FRAMES_RX (full 32-bit counter) |
 | `0x6C0` | `AVTPRX_ERR` | RO | `[31:16]` SEQ_NUM_MISMATCH, `[15:8]` UNSUPPORTED_FORMAT, `[7:0]` TIMESTAMP_UNCERTAIN (low bytes/half-words) |
+| `0x6C4` | `PCMRX_CNT` | RO | AAF RX depacketizer: `[31:16]` whole frames dropped (FIFO overflow), `[15:0]` PDU payloads emitted to the PCM ring |
+| `0x6C8` | `PCMRX_TS` | RO | avtp_timestamp of the last ring-accepted PDU (media-clock recovery hook) |
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
@@ -378,3 +380,13 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
   use the snapshot latch, for others read hi/lo with the field stable.
 * The map is versioned by `VERSION`; additive changes bump minor, breaking
   changes bump major and the driver's `of` compatible string.
+
+### PCM ring (LiteX CSR bank, `0xf0003120`)
+
+The AAF RX payload lands in a wrapping DRAM ring driven by a
+`WishboneDMAWriter` in loop mode (same recipe as the TS record ring):
+`milan_dma_pcm_base/length/enable/loop` configure it, `milan_dma_pcm_offset`
+is the ring write pointer (in 64-bit words) the consumer chases. Payload is
+full 64-bit words in wire byte order = S32BE interleaved PCM. Registered
+after `hs_pgsz_cap` — additions-only, no existing CSR address moved
+(csv-diff-verified).
