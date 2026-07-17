@@ -32,11 +32,14 @@ module avtp_rxmon_wrap #(
   output wire [31:0] cnt_frames_rx_o,
   output wire        media_locked_o,
   output wire        dirty_p_o,
+  output wire        pdu_accept_p_o,
+  output wire [31:0] last_ts_o,
   output wire        match_o
 );
 
   wire        match_w, tu_w;
   wire [7:0]  subtype_w, seq_w;
+  wire [31:0] ts_w;
   wire [63:0] fsh_w;
 
   avtp_stream_parser #(
@@ -48,7 +51,7 @@ module avtp_rxmon_wrap #(
     .s_tdata_i (s_tdata_i), .s_tkeep_i (s_tkeep_i),
     .s_tvalid_i (s_tvalid_i), .s_tready_i (1'b1), .s_tlast_i (s_tlast_i),
     .match_valid_o (match_w),
-    .match_index_o (), .stream_id_o (), .avtp_ts_o (),
+    .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
     .subtype_o (subtype_w), .ts_valid_o (),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
     .avtp_frames_o (), .matched_frames_o ()
@@ -57,7 +60,7 @@ module avtp_rxmon_wrap #(
   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) u_mon (
     .clk_i (clk), .rst_n (resetn),
     .match_valid_i (match_w), .subtype_i (subtype_w), .seq_num_i (seq_w),
-    .ts_uncertain_i (tu_w), .fsh_i (fsh_w),
+    .ts_uncertain_i (tu_w), .avtp_ts_i (ts_w), .fsh_i (fsh_w),
     .bound_i (bound_i), .fmt_i (fmt_i),
     .cnt_media_locked_o (cnt_media_locked_o),
     .cnt_media_unlocked_o (cnt_media_unlocked_o),
@@ -67,7 +70,9 @@ module avtp_rxmon_wrap #(
     .cnt_unsupported_fmt_o (cnt_unsupported_fmt_o),
     .cnt_frames_rx_o (cnt_frames_rx_o),
     .media_locked_o (media_locked_o),
-    .dirty_p_o (dirty_p_o)
+    .dirty_p_o (dirty_p_o),
+    .pdu_accept_p_o (pdu_accept_p_o),
+    .last_ts_o (last_ts_o)
   );
 
   assign match_o = match_w;

@@ -435,6 +435,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_acmpl_talker_hi    (32'h0),
     .i_acmpl_cnt          (32'h0),
     .i_acmpl_tuid         (32'h0),
+    .i_avtprx_stat        (32'h0),
+    .i_avtprx_frx         (32'h0),
+    .i_avtprx_err         (32'h0),
+    .i_pcmrx_cnt          (32'h0),
+    .i_pcmrx_ts           (32'h0),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -687,6 +692,12 @@ module milan_top import ethernet_packet_pkg::*; #(
     .lstn_dmac_i (48'h0), .lstn_vlan_i (12'h0),
     .lstn_pbsta_i (2'b0), .lstn_acmpsta_i (5'h0),
     .lstn_ta_reg_i (1'b0), .lstn_ta_fail_i (1'b0),
+    // no AVTP-RX monitor on the Zynq variant: input counters read 0
+    .in0_cnt_locked_i (32'h0), .in0_cnt_unlocked_i (32'h0),
+    .in0_cnt_interrupted_i (32'h0), .in0_cnt_seqmm_i (32'h0),
+    .in0_cnt_tu_i (32'h0), .in0_cnt_unsupp_i (32'h0),
+    .in0_cnt_frx_i (32'h0), .in0_cnt_dirty_p_i (1'b0),
+    .in0_fmt_o (),
     // RX monitor tap (inputs only)
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),

@@ -243,7 +243,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/lwsrp/KL_lwsrp_rx.sv", "hdl/lwsrp/KL_lwsrp_bw_gate.sv",
     "hdl/lwsrp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
-    "hdl/avtp/aaf_talker_i2s.sv",
+    "hdl/avtp/aaf_talker_i2s.sv", "hdl/avtp/KL_aaf_rx_depacketizer.sv",
     "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
     "hdl/1722/KL_avtp_rx_monitor.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
@@ -3018,6 +3018,15 @@ class MilanDMA(LiteXModule):
         # the operator" for backward compatibility.
         self.hs_pgsz_cap = CSRStatus(17, description="elaborated hs_page_bytes (driver pairing check)")
         self.comb += self.hs_pgsz_cap.status.eq(hs_page_bytes)
+        # PCM: AAF RX depacketizer payload -> DRAM PCM ring (Milan listener media
+        # path, ARCHITECTURE_HW_SW_SPLIT "DMA PCM ring from Linux first"). Same
+        # recipe as the TS record ring: WishboneDMAWriter with loop=1 wraps
+        # base..base+length and the `offset` CSR is the ring write pointer the
+        # consumer (PipeWire) chases. Payload is full 64-bit words in wire byte
+        # order (S32BE interleaved) - the depacketizer zero-pads any non-multiple
+        # tail. Registered AFTER hs_pgsz_cap so no existing CSR address moves.
+        self.pcm = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
+        dma_bus.add_master("milan_dma_pcm", master=self.pcm.bus)
 
         # datapath-facing endpoints in `milan_cd`, async-FIFO CDC'd to the sys-domain
         # DMA engines when the domains differ (see _axis_dp_cdc). TX is mem->datapath;
@@ -3026,6 +3035,7 @@ class MilanDMA(LiteXModule):
         tx_dp = _axis_dp_cdc(self, "dma_tx_cdc", L, milan_cd, to_datapath=True)
         rx_dp = _axis_dp_cdc(self, "dma_rx_cdc", L, milan_cd, to_datapath=False)
         ts_dp = _axis_dp_cdc(self, "dma_ts_cdc", L, milan_cd, to_datapath=False)
+        pcm_dp = _axis_dp_cdc(self, "dma_pcm_cdc", L, milan_cd, to_datapath=False)
         # exposed for MilanDebug's TX datapath-input probe: tx_dp.dp is the milan-domain
         # endpoint feeding the datapath (traffic_controller s_axis). tx_dp.dp.ready IS
         # the traffic_controller's backpressure  -  the direct "is the datapath the TX
@@ -3055,6 +3065,12 @@ class MilanDMA(LiteXModule):
             # DRAM, perfect, always at base+0). Untied, the writer runs
             # offset 0..length-1 and wraps = a true linear record ring.
             ts_dp.sys.ready.eq(self.ts.sink.ready),
+            # PCM: datapath PCM endpoint (sys side) -> ring writer.sink.
+            # tlast is NOT forwarded - same reason as the TS ring above: the
+            # LiteX ctrl FSM restarts offset on sink.last, and PCM leaves the
+            # datapath as one AXIS frame per AAF PDU.
+            self.pcm.sink.valid.eq(pcm_dp.sys.valid), self.pcm.sink.data.eq(pcm_dp.sys.data),
+            pcm_dp.sys.ready.eq(self.pcm.sink.ready),
         ]
         if rx_queues >= 2:
             # RX: datapath -> steer -> {rx.sink (q0), rx1.sink (q1)}
@@ -3110,6 +3126,10 @@ class MilanDMA(LiteXModule):
             i_i2s_sdout_i = self.i2s_pads[3] if self.i2s_pads else 0,
             o_m_axis_ts_tdata  = ts_dp.dp.data,  o_m_axis_ts_tvalid = ts_dp.dp.valid,
             o_m_axis_ts_tlast  = ts_dp.dp.last,  i_m_axis_ts_tready = ts_dp.dp.ready,
+            # PCM: datapath m_axis_pcm -> PCM ring writer.sink
+            o_m_axis_pcm_tdata  = pcm_dp.dp.data,  o_m_axis_pcm_tkeep = pcm_dp.dp.keep,
+            o_m_axis_pcm_tvalid = pcm_dp.dp.valid,
+            o_m_axis_pcm_tlast  = pcm_dp.dp.last,  i_m_axis_pcm_tready = pcm_dp.dp.ready,
         )
 
 
