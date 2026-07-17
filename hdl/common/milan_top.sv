@@ -440,6 +440,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_avtprx_err         (32'h0),
     .i_pcmrx_cnt          (32'h0),
     .i_pcmrx_ts           (32'h0),
+    .i_i2spb_stat         (32'h0),
     .i_maap_stat0         (32'h0),
     .i_maap_stat1         (32'h0),
     .o_maap_enable        (),

@@ -191,6 +191,7 @@ module milan_csr #(
   input  wire [31:0]             i_avtprx_err,          //! packed error counters (RO 0x6C0)
   input  wire [31:0]             i_pcmrx_cnt,           //! {drops[31:16], pdus[15:0]} (RO 0x6C4)
   input  wire [31:0]             i_pcmrx_ts,            //! last accepted avtp_ts (RO 0x6C8)
+  input  wire [31:0]             i_i2spb_stat,          //! {underruns, overruns} (RO 0x6D8)
   input  wire [31:0]             i_maap_stat0,          //! {conflicts, defends, offset} (RO 0x6D0)
   input  wire [31:0]             i_maap_stat1,          //! {addr_valid, state} (RO 0x6D4)
   output wire                    o_maap_enable,         //! MAAP engine enable
@@ -272,6 +273,7 @@ module milan_csr #(
     A_AVTPRX_STAT = 'h6B8, A_AVTPRX_FRX = 'h6BC, A_AVTPRX_ERR = 'h6C0,
     A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
     A_MAAP_CTRL   = 'h6CC, A_MAAP_STAT0 = 'h6D0, A_MAAP_STAT1 = 'h6D4,
+    A_I2SPB_STAT  = 'h6D8,
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -747,6 +749,7 @@ module milan_csr #(
       A_PCMRX_TS:    live_mux = i_pcmrx_ts;
       A_MAAP_STAT0:  live_mux = i_maap_stat0;
       A_MAAP_STAT1:  live_mux = i_maap_stat1;
+      A_I2SPB_STAT:  live_mux = i_i2spb_stat;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
