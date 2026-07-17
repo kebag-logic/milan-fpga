@@ -45,6 +45,16 @@ failed) ⇒ no reservation, gate closed. MRP is link-local — debug needs the
 switch's own MSRP view (d&b tooling) or a direct-cable peer (pw0 mrpd).
 Workaround in force for streaming drills: AAF bypass=1 + VID0 (0x654=0x3).
 
+**✅ FINAL STATE 07-17 LATE: MILAN=1 CLEAN + AUDIO LOCKED.** la_avdecc
+verdict CLEAN rc=0 complaints=0 (both entities; clock-domain counters in).
+Acceptance drill on milanfinal8/milanfinal7: rate nominal, servo CONVERGED
+(trim +248 ≈ +0.76 % steady-state inter-board rate residual, fill
+mid-range), ZERO overruns/underruns since lock, ZERO stream errors.
+KEEPERS: arty asl_milanfinal8 +0.189 (QSPI-flashed), AX asl_milanfinal7
++0.040 (JTAG-SRAM). Remaining niceties: ring-dump THD+N measurement
+(needs the 1-hart image/reserved-mem rebuild), lwSRP TA-propagation
+session, arty/AX keeper re-unification on one tag.
+
 **🔊 AUDIO E2E ON SILICON (07-17, after the OUT4 switch power-cycle):**
 AX tone talker → switch → arty listener: **FRAMES_RX 376k PDUs / 46 s,
 locked once and stayed locked, ZERO seq/format errors, PCM ring
