@@ -183,7 +183,9 @@ module KL_aaf_rx_depacketizer #(
   logic [2:0]  rbeat_r;       //! header beat index (saturates at 7)
   logic        vlan_r;        //! frame carries a C-VLAN tag
   logic [15:0] remain_r;      //! payload bytes still to emit
-  logic [47:0] hold_r;        //! carried tail bytes (2 untagged / 6 tagged)
+  logic [63:0] hold_r;        //! carried tail bytes (2 untagged / 6 tagged;
+                              //! 64-bit so the unrolled byte mux never
+                              //! part-selects out of range — Vivado 8-524)
 
   //! rotation k: hold contributes bytes 0..k-1 of every output beat
   wire [2:0] k_w = vlan_r ? 3'd6 : 3'd2;
@@ -245,7 +247,7 @@ module KL_aaf_rx_depacketizer #(
               if (!vlan_r) begin
                 //! untagged: data_len at bytes 34..35, payload from byte 38
                 remain_r <= {fbyte(ff_data, 3'd2), fbyte(ff_data, 3'd3)};
-                hold_r   <= {32'h0, fbyte(ff_data, 3'd7),
+                hold_r   <= {48'h0, fbyte(ff_data, 3'd7),
                                     fbyte(ff_data, 3'd6)};
                 rstate_r <= R_PAY_S;
               end
@@ -255,7 +257,8 @@ module KL_aaf_rx_depacketizer #(
               end
             end
             if (rbeat_r == 3'd5 && vlan_r) begin
-              hold_r   <= {fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6),
+              hold_r   <= {16'h0,
+                           fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6),
                            fbyte(ff_data, 3'd5), fbyte(ff_data, 3'd4),
                            fbyte(ff_data, 3'd3), fbyte(ff_data, 3'd2)};
               rstate_r <= R_PAY_S;
@@ -277,10 +280,11 @@ module KL_aaf_rx_depacketizer #(
             //! carry the beat's tail lanes: hold byte j = lane j + (8-k)
             if (!hold_only_w)
               hold_r <= vlan_r
-                ? {fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6),
+                ? {16'h0,
+                   fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6),
                    fbyte(ff_data, 3'd5), fbyte(ff_data, 3'd4),
                    fbyte(ff_data, 3'd3), fbyte(ff_data, 3'd2)}
-                : {32'h0, fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6)};
+                : {48'h0, fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6)};
             if (last_beat_w) begin
               pdus_o   <= pdus_o + 16'd1;
               remain_r <= '0;
