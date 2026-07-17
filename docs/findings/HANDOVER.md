@@ -137,6 +137,7 @@ cable. Data plane unaffected.
 | build_arty_eto_milanfinal | Arty complete-end-station fallback (pre cum-pipeline) — LUTs 47010 = 74.2 %; all 3 close (asl +0.267, eppo +0.183). ⚠ its netlist carries the 15-term cum chain: fine at 50 MHz, NEVER port to 100 MHz | +0.334 |
 | build_ax7101_*_milanfinal | **DO NOT USE** — the segment-growth 15-term single-cycle cum chain = WNS −5.64/−5.88 at 100 MHz (hidden by arty's 20 ns period; found via report_timing on the failed seed). Fix `b99d56c` = 4-segs/cycle ×4 pipeline | −5.64 |
 | build_ax7101_eppo_milanfinal2 | **AX KEEPER (COMPLETE end-station, cum-pipelined)** — LUTs 47239 = 74.5 %; ALL 3 close (eto +0.066, asl +0.042). THE AX bench bitstream. NOT loaded | +0.076 |
+| build_arty_eppo_milanfinal2 | **Arty KEEPER (COMPLETE end-station, RTL-identical to the AX keeper)** — LUTs 46924 = 74.0 %; ALL 3 close (asl +0.077, eto +0.068). THE Arty bench bitstream (QSPI-flashable, v3.1 flow). NOT loaded | +0.143 |
 | build_arty_eppo_miltick | Arty KEEPER (param-fixed tick, flashed) | +0.381 |
 | build_ax7101_eto_miltalk | AX KEEPER (talker SM; eppo/asl failed — sweep variance) | +0.072 |
 | build_arty_asl_adpfix | Arty pre-talker fallback (dormancy fix) | +0.243 |
