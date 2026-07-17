@@ -77,7 +77,9 @@ module KL_i2s_playback #(
   // ------------------------------------------------------------------ //
   logic [MCLK_DIV_LOG2+8-1:0] cnt_r;
   logic [15:0]        frac_r;
-  logic signed [15:0] trim_r;            //! servo trim, clamped ±80 (~±1200 ppm)
+  logic signed [15:0] trim_r;            //! servo trim, clamped ±512 (~±7800 ppm;
+                                         //! silicon pegged the old ±80 clamp -
+                                         //! the talker outran it, USER: widen)
   wire  [16:0] step_w = 17'h10000 + 17'(trim_r);
   wire  [16:0] acc_w  = {1'b0, frac_r} + step_w;
   wire         adv_w  = acc_w[16];
@@ -156,8 +158,8 @@ module KL_i2s_playback #(
         if (servo_ms_r == 6'd47) begin         // 48 frames = 1 ms @48 kHz
           servo_ms_r <= '0;
           if (fill_w != '0) begin        //! stream present: steer to midpoint
-            if (fill_w > MID_C + 1 && trim_r <  16'sd80) trim_r <= trim_r + 16'sd1;
-            if (fill_w < MID_C - 1 && trim_r > -16'sd80) trim_r <= trim_r - 16'sd1;
+            if (fill_w > MID_C + 1 && trim_r <  16'sd512) trim_r <= trim_r + 16'sd1;
+            if (fill_w < MID_C - 1 && trim_r > -16'sd512) trim_r <= trim_r - 16'sd1;
           end
         end
       end
