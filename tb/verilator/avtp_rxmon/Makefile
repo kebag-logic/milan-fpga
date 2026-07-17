@@ -27,7 +27,7 @@ run:
 	./obj_dir/Vavtp_rxmon_wrap_sim
 
 # Line+toggle coverage over the RX stack (parser + monitor + depacketizer).
-# Gate: LINE coverage of the two KL_ modules must be >= 90 %.
+# Gate: LINE coverage of the two KL_ modules must be >= 95 % (defensive-only arms carry coverage_off pragmas).
 coverage:
 	rm -rf obj_cov coverage.dat cov_annotated
 	$(VERILATOR) $(VFLAGS) --coverage --Mdir obj_cov $(SRCS) sim_main.cpp \
@@ -35,6 +35,6 @@ coverage:
 	./obj_cov/Vavtp_rxmon_wrap_cov +verilator+coverage+file+coverage.dat
 	verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat \
 	    | tail -2
-	@python3 cov_gate.py cov_annotated 90
+	@python3 cov_gate.py cov_annotated 95
 clean:
 	rm -rf obj_dir obj_cov coverage.dat cov_annotated
