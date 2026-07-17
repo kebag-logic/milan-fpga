@@ -230,9 +230,11 @@ def d_audio_cluster(index, name, signal_type):
     b += be16(0) + be16(0)              # signal_index, signal_output
     b += be32(500) + be32(500)          # path/block latency
     b += be16(1)                        # channel_count
-    b += bytes([0x40, 0x00])            # format MBLA, aes3_data_type_ref
-    b += be16(0)                        # aes3_data_type
-    assert len(b) == 90
+    b += bytes([0x40])                  # format MBLA (1722.1-2021 §7.2.16:
+                                        # the descriptor ENDS at format u8 -
+                                        # la_avdecc flagged the 3 stray bytes
+                                        # of the former aes3_* tail)
+    assert len(b) == 87
     return b
 
 def d_audio_map(index):
