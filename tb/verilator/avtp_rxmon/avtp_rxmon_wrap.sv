@@ -34,7 +34,15 @@ module avtp_rxmon_wrap #(
   output wire        dirty_p_o,
   output wire        pdu_accept_p_o,
   output wire [31:0] last_ts_o,
-  output wire        match_o
+  output wire        match_o,
+
+  //! PCM payload out (KL_aaf_rx_depacketizer, the datapath pairing)
+  output wire [63:0] pcm_tdata_o,
+  output wire        pcm_tvalid_o,
+  output wire        pcm_tlast_o,
+  input  wire        pcm_tready_i,
+  output wire [15:0] pcm_pdus_o,
+  output wire [15:0] pcm_drops_o
 );
 
   wire        match_w, tu_w;
@@ -73,6 +81,17 @@ module avtp_rxmon_wrap #(
     .dirty_p_o (dirty_p_o),
     .pdu_accept_p_o (pdu_accept_p_o),
     .last_ts_o (last_ts_o)
+  );
+
+  KL_aaf_rx_depacketizer u_depkt (
+    .clk_i (clk), .rst_n (resetn),
+    .s_tdata_i (s_tdata_i), .s_tkeep_i (s_tkeep_i),
+    .s_tvalid_i (s_tvalid_i), .s_tready_i (1'b1), .s_tlast_i (s_tlast_i),
+    .pdu_accept_p_i (pdu_accept_p_o),
+    .m_axis_tdata (pcm_tdata_o), .m_axis_tkeep (),
+    .m_axis_tvalid (pcm_tvalid_o), .m_axis_tlast (pcm_tlast_o),
+    .m_axis_tready (pcm_tready_i),
+    .pdus_o (pcm_pdus_o), .drops_o (pcm_drops_o)
   );
 
   assign match_o = match_w;

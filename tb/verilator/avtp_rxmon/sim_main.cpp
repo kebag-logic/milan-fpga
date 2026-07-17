@@ -11,6 +11,9 @@
 // Clock is scaled: CLK_FREQ_HZ_P=10000 -> the 100 ms unlock = 1000 cycles.
 #include "Vavtp_rxmon_wrap.h"
 #include "verilated.h"
+#if VM_COVERAGE
+#include "verilated_cov.h"
+#endif
 #include <cstdio>
 #include <cstdint>
 #include <vector>
@@ -61,11 +64,14 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
     f[o+17]=(uint8_t)(c.nsr<<4);
     f[o+18]=c.chans;
     f[o+19]=c.depth;
-    f[o+20]=0x00; f[o+21]=0x40;                         // data_len (unchecked)
+    f[o+20]=0x00; f[o+21]=0x40;                         // data_len = 64
     f[o+22]=(uint8_t)(c.sp<<4);
+    for(int i=0;i<64;i++) f[o+24+i]=(uint8_t)(0x30+i);  // payload pattern
     return f;
 }
 
+static std::vector<uint8_t> pcm;
+static bool pcm_last=false;
 static void feed(const std::vector<uint8_t>& f){
     int nbeats=(int)(f.size()+7)/8;
     for(int b=0;b<nbeats;b++){
@@ -75,8 +81,19 @@ static void feed(const std::vector<uint8_t>& f){
         dut->s_tdata_i=d; dut->s_tkeep_i=(vb==8)?0xFF:((1u<<vb)-1);
         dut->s_tvalid_i=1; dut->s_tlast_i=(b==nbeats-1);
         cyc();
+        if(dut->pcm_tvalid_o){
+            for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
+            if(dut->pcm_tlast_o) pcm_last=true;
+        }
     }
-    dut->s_tvalid_i=0; dut->s_tlast_i=0; cyc(2);
+    dut->s_tvalid_i=0; dut->s_tlast_i=0;
+    for(int w=0; w<20; w++){
+        cyc();
+        if(dut->pcm_tvalid_o){
+            for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
+            if(dut->pcm_tlast_o) pcm_last=true;
+        }
+    }
 }
 
 int main(int argc,char**argv){
@@ -84,6 +101,7 @@ int main(int argc,char**argv){
     dut=new Vavtp_rxmon_wrap;
 
     dut->cfg_sid_i=SID; dut->bound_i=0; dut->fmt_i=FMT;
+    dut->pcm_tready_i=1;
     dut->resetn=0; dut->s_tvalid_i=0;
     cyc(6);
     dut->resetn=1; cyc(2);
@@ -172,12 +190,70 @@ int main(int argc,char**argv){
     ck("rebind resets mismatch", dut->cnt_seq_mismatch_o, 0);
     ck("rebind drops lock", dut->media_locked_o, 0);
 
+    printf("\n[16] depacketizer: untagged payload byte-exact to the PCM port\n");
+    pcm.clear(); pcm_last=false;
+    { AafCfg c; c.seq=91; feed(mkaaf(c)); }
+    ck("PCM 64 bytes", (long)pcm.size(), 64);
+    ck("PCM tlast", pcm_last?1:0, 1);
+    { bool ok=pcm.size()>=64;
+      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
+      ck("PCM payload byte-exact (rot-2)", ok?1:0, 1); }
+    ck("depkt pdus counted", dut->pcm_pdus_o >= 1, 1);
+
+    printf("\n[17] depacketizer: tagged payload byte-exact (rot-6)\n");
+    pcm.clear(); pcm_last=false;
+    { AafCfg c; c.seq=92; c.tagged=true; feed(mkaaf(c)); }
+    ck("PCM 64 bytes (tagged)", (long)pcm.size(), 64);
+    { bool ok=pcm.size()>=64;
+      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
+      ck("PCM payload byte-exact (rot-6)", ok?1:0, 1); }
+
+    printf("\n[18] depacketizer: rejected PDU emits nothing\n");
+    pcm.clear();
+    { AafCfg c; c.seq=93; c.nsr=0x07; feed(mkaaf(c)); }
+    ck("no PCM for rejected PDU", (long)pcm.size(), 0);
+
     printf("\n[15] wrong stream_id never reaches the monitor\n");
     { AafCfg c; c.seq=0; c.sid=0x1111222233334444ULL; feed(mkaaf(c)); }
-    ck("foreign sid: frames_rx 0", dut->cnt_frames_rx_o, 0);
+    ck("foreign sid: frames_rx unchanged", dut->cnt_frames_rx_o, 2);
+
+    printf("\n[19] ring backpressure: FIFO drops whole frames, tap never stalls\n");
+    dut->pcm_tready_i=0;
+    for(int n=0;n<40;n++){ AafCfg c; c.seq=(uint8_t)(100+n); feed(mkaaf(c)); }
+    ck("drops counted", dut->pcm_drops_o > 0, 1);
+    dut->pcm_tready_i=1;
+    cyc(3000);                     // drain the FIFO backlog completely
+    pcm.clear(); pcm_last=false;
+
+    printf("\n[20] tiny data_len=2: hold-only beat, zero-padded tail\n");
+    { auto f=mkaaf({}); f[14+21]=2; /*data_len=2*/ AafCfg c; (void)c; feed(f); }
+    ck("one padded beat (8 B)", (long)pcm.size(), 8);
+    ck("payload bytes", pcm.size()>=2 && pcm[0]==0x30 && pcm[1]==0x31, 1);
+    ck("zero pad", pcm.size()>=8 &&
+       (pcm[2]|pcm[3]|pcm[4]|pcm[5]|pcm[6]|pcm[7])==0, 1);
+    ck("tlast on padded beat", pcm_last?1:0, 1);
+
+    printf("\n[21] truncated committed frame resyncs; next PDU clean\n");
+    pcm.clear(); pcm_last=false;
+    { auto f=mkaaf({}); f.resize(56); feed(f); }      // fires @48, dies @56
+    pcm.clear(); pcm_last=false;
+    { AafCfg c; c.seq=201; feed(mkaaf(c)); }
+    ck("post-truncation PDU intact", (long)pcm.size(), 64);
+    { bool ok=pcm.size()>=64;
+      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
+      ck("post-truncation byte-exact", ok?1:0, 1); }
+
+    printf("\n[22] exact-fit frame (payload ends at frame end)\n");
+    pcm.clear(); pcm_last=false;
+    { AafCfg c; c.seq=202; feed(mkaaf(c, 102)); }     // 38 + 64 = 102
+    ck("exact-fit PCM 64 bytes", (long)pcm.size(), 64);
+    ck("exact-fit tlast", pcm_last?1:0, 1);
 
     printf("\n======================================================================\n");
     printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
+#if VM_COVERAGE
+    Verilated::threadContextp()->coveragep()->write("coverage.dat");
+#endif
     delete dut;
     return fails ? 1 : 0;
 }
