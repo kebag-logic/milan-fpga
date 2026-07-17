@@ -47,6 +47,10 @@ module aaf_talker_i2s #(
     input  wire [31:0]  transit_ns_i,      //! presentation offset added to the PHC timestamp (SET_STREAM_INFO msrp_acc_lat; reset default 2 ms)
     input  wire [11:0]  vlan_vid_i,        //! SR class VID (default 2)
     input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
+    //! pilot tone override (CSR TONE_CTRL: 1 kHz 0 dBFS test source; when
+    //! set, the ADC samples are replaced by tone_smp_i on both channels)
+    input  wire         tone_en_i,
+    input  wire [23:0]  tone_smp_i,
 
     // ---- Pmod I2S2 ADC (line-in row; we are the clock master) -----------
     output wire         i2s_mclk_o,
@@ -108,9 +112,11 @@ module aaf_talker_i2s #(
       if (sclk_rise) begin
         if (lrck_edge) begin
           // the half that just ENDED: lrck_q==0 -> LEFT ended
-          if (!lrck_q) sample_l_r <= shift_r[30:7];
+          if (!lrck_q) sample_l_r <= tone_en_i ? tone_smp_i : shift_r[30:7];
           else begin
-            sample_r_r   <= shift_r[30:7];
+            //! tone: reuse the LEFT capture so both channels carry the same
+            //! sample (the table steps between the two half-frame edges)
+            sample_r_r   <= tone_en_i ? sample_l_r : shift_r[30:7];
             pair_valid_r <= 1'b1;
           end
           shift_r <= {31'd0, i2s_sdout_i};

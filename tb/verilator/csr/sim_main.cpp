@@ -335,6 +335,11 @@ int main(int argc, char** argv) {
   axi_write(0x6CC, 0x00000800);   // restore reset default
   dut->i_i2spb_stat = 0x00050002; dut->eval();
   ck("I2SPB_STAT RO", axi_read(0x6D8), 0x00050002);
+  ck("TONE_CTRL reset 0", axi_read(0x6DC), 0);
+  axi_write(0x6DC, 1); dut->eval();
+  ck("o_tone_enable", dut->o_tone_enable, 1);
+  ck("TONE_CTRL readback", axi_read(0x6DC), 1);
+  axi_write(0x6DC, 0);
 
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
