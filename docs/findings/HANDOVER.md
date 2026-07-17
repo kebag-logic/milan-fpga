@@ -384,7 +384,11 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
 2. **pw0 PipeWire listener (BIND_RX)** — module-avb listener against the
    arty talker = the audible end-to-end; then media clock recovery (NCO from
    gPTP) per `docs/design/MVP_TALKER.md`. Natural pairing with #1.
-3. **Listener media path** — control plane (ACMP listener SM) + diagnostics
+3. **Listener media path — IMPLEMENTATION COMPLETE 07-17** (this entry kept
+   for lineage; see the keeper table + audio-e2e-tone memory): monitor with
+   ALL Table 7-156 counters real (incl. LATE/EARLY/MEDIA_RESET via the
+   playback NCO servo, trim @0x6E0), depacketizer -> PCM ring + I2S DAC
+   playback, pilot tone acceptance path. Control plane (ACMP listener SM) + diagnostics
    (AVTP-RX monitor 07-17) + **fabric/SoC media plumbing DONE 07-17
    (`e8efecc`)**: KL_aaf_rx_depacketizer (hdl/avtp) strips 38/42-byte
    headers off monitor-accepted PDUs and streams full-word S32BE payload
