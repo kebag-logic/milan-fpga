@@ -59,3 +59,27 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
   Proposal: AAF admission gate ANDs maap_valid when MAAP_CTRL.en.
 - range/count: 1 stream today → count=8 like the reference (keeps the
   contract; uses index 0).
+
+---
+
+# Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)
+
+Reference `cmd-get-dynamic-info.c`: response = echo hdr + payload
+`config_index(2)+reserved(2)` then ONE record per descriptor that carries
+mutable state, in descriptor-list order. Records (BE):
+
+| Descriptor | Record after `type(2)+index(2)` | Size |
+|---|---|---|
+| ENTITY | current_configuration(2)+rsvd(2) | 8 |
+| AUDIO_UNIT | current_sampling_rate(4) | 8 |
+| STREAM_INPUT ×2 | stream_id(8)+stream_format(8)+stream_info_flags(4)+acmp_connection_count(2)+flags_ex(1)+pbsta(1) | 28 |
+| STREAM_OUTPUT | same 28-B stream record | 28 |
+| CLOCK_DOMAIN | clock_source_index(2)+rsvd(2) | 8 |
+
+Our fixed entity ⇒ FIXED response: 4 + 8 + 8 + 28×3 + 8 = 112 B payload
+(+12 AECP hdr = CDL 124). All source fields already exist in the builder
+(store scratch + the load_stream_info_consts / load_input_stream_info_consts
+field logic + clock_src_idx/sampling-rate registers). Implement as one
+DECIDE branch: SEG_ECHO(4: config_index+rsvd from cmd) + CONST/STORE
+segments per record; NO_SUCH_DESCRIPTOR for config_index != 0.
+Status: NOT yet implemented (next increment).
