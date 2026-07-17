@@ -161,7 +161,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   aaf_talker_i2s aaf_talker (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (aaf_gate),
-    .dest_mac_i (cfg_aaf_dmac),
+    .dest_mac_i (eff_aaf_dmac),
     .transit_ns_i (aecp_pres_offset),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
@@ -318,6 +318,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        avtprx_accept_p;
   wire [31:0] avtprx_ts, avtprx_last_ts;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
+  //! MAAP engine (KL_maap, IEEE 1722 Annex B; docs/design/MAAP_FABRIC.md)
+  wire        cfg_maap_enable, cfg_maap_seed_valid;
+  wire [7:0]  cfg_maap_count;
+  wire [15:0] cfg_maap_seed_offset;
+  wire [47:0] maap_addr;
+  wire        maap_addr_valid;
+  wire [1:0]  maap_state;
+  wire [15:0] maap_offset;
+  wire [7:0]  maap_conflicts, maap_defends;
+  wire [TDATA_WIDTH-1:0]   maap_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] maap_tx_tkeep;
+  wire                     maap_tx_tvalid, maap_tx_tlast, maap_tx_tready;
+  //! effective stream DMAC: MAAP claim when enabled+valid, CSR value else
+  //! (en=0 keeps the static-provisioning behavior bit-exact)
+  wire [47:0] eff_aaf_dmac = (cfg_maap_enable && maap_addr_valid)
+                             ? maap_addr : cfg_aaf_dmac;
   //! listener_observed: the lwSRP Listener registrar is the real source once
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
@@ -325,7 +341,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! AAF admission: probe-gated as before; with lwSRP enabled a reservation
   //! is additionally required (FR-SRP-03: no reservation -> no stream tx).
   //! The bypass bit stays the legacy stream-whenever-enabled escape hatch.
-  wire aaf_gate = cfg_aaf_enable & (cfg_aaf_bypass |
+  wire aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
+                  (cfg_aaf_bypass |
                   (acmp_talker_active & (~cfg_lwsrp_enable | lwsrp_stream_gate)));
   wire [63:0]              ptp_now_w;
   wire [31:0]              aaf_frames_w, aaf_pairs_w;
@@ -520,6 +537,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                             avtprx_tu_c[7:0]}),
     .i_pcmrx_cnt          ({pcmrx_drops, pcmrx_pdus}),
     .i_pcmrx_ts           (avtprx_last_ts),
+    .i_maap_stat0         ({maap_conflicts, maap_defends, maap_offset}),
+    .i_maap_stat1         ({29'd0, maap_addr_valid, maap_state}),
+    .o_maap_enable        (cfg_maap_enable),
+    .o_maap_seed_valid    (cfg_maap_seed_valid),
+    .o_maap_count         (cfg_maap_count),
+    .o_maap_seed_offset   (cfg_maap_seed_offset),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -786,7 +809,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .association_id_i  (cfg_adp_association_id),
     .gptp_gm_id_i      (cfg_adp_gptp_gm),
     .gptp_domain_i     (cfg_adp_gptp_domain),
-    .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
+    .aaf_dmac_i (eff_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
     .talker_active_i (acmp_talker_active),
     .listener_observed_i (listener_observed_w),
     .pres_offset_o (aecp_pres_offset),
@@ -831,7 +854,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_acmp_responder acmp_responder (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
-    .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
+    .aaf_dmac_i (eff_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
     .tick_1s_i (adp_tick_1s),
     .listener_observed_i (listener_observed_w),
     .talker_active_o (acmp_talker_active),
@@ -965,6 +988,33 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   );
 
   // ==========================================================================
+  //  MAAP engine (IEEE 1722 Annex B) — dynamic stream-DMAC allocation.
+  //  Same monitor-tap + low-rate-TX recipe; addr_valid gates AAF admission
+  //  and muxes the effective stream DMAC when MAAP_CTRL.en=1.
+  // ==========================================================================
+  KL_maap #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) maap_engine (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_maap_enable),
+    .count_i  (cfg_maap_count),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .seed_offset_i (cfg_maap_seed_offset),
+    .seed_valid_i  (cfg_maap_seed_valid),
+    .rx_tdata_i  (rx_axis_to_dma.tdata),
+    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
+    .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
+    .rx_tlast_i  (rx_axis_to_dma.tlast),
+    .m_axis_tdata (maap_tx_tdata), .m_axis_tkeep (maap_tx_tkeep),
+    .m_axis_tvalid(maap_tx_tvalid), .m_axis_tlast (maap_tx_tlast),
+    .m_axis_tready(maap_tx_tready),
+    .addr_o (maap_addr), .addr_valid_o (maap_addr_valid),
+    .state_o (maap_state), .offset_o (maap_offset),
+    .conflicts_o (maap_conflicts), .defends_o (maap_defends)
+  );
+
+  // ==========================================================================
   //  lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) — same monitor-tap +
   //  low-rate-TX recipe. Declares Domain/TalkerAdvertise/VID, registers the
   //  Listener attribute for our stream, and resolves the reservation into
@@ -1068,6 +1118,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_tvalid(ctlg_tx_tvalid), .m_tlast (ctlg_tx_tlast), .m_tready(ctlg_tx_tready)
   );
 
+  wire [TDATA_WIDTH-1:0]   ctlh_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlh_tx_tkeep;
+  wire                     ctlh_tx_tvalid, ctlh_tx_tlast, ctlh_tx_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) maap_ctl_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (ctlg_tx_tdata),  .s_data_tkeep (ctlg_tx_tkeep),
+    .s_data_tvalid(ctlg_tx_tvalid), .s_data_tlast (ctlg_tx_tlast),
+    .s_data_tready(ctlg_tx_tready),
+    .s_adp_tdata (maap_tx_tdata),  .s_adp_tkeep (maap_tx_tkeep),
+    .s_adp_tvalid(maap_tx_tvalid), .s_adp_tlast (maap_tx_tlast),
+    .s_adp_tready(maap_tx_tready),
+    .m_tdata (ctlh_tx_tdata), .m_tkeep (ctlh_tx_tkeep),
+    .m_tvalid(ctlh_tx_tvalid), .m_tlast (ctlh_tx_tlast), .m_tready(ctlh_tx_tready)
+  );
+
   //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
   //! AAF injected AFTER the shaper (MVP: bypasses CBS for continuous emission,
   //! like ADP; class-A shaping = the is_1g follow-up). Merge shaped-data + AAF.
@@ -1094,11 +1159,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_data_tvalid(dpaaf_tvalid),
     .s_data_tlast (dpaaf_tlast),
     .s_data_tready(dpaaf_tready),
-    .s_adp_tdata (ctlg_tx_tdata),
-    .s_adp_tkeep (ctlg_tx_tkeep),
-    .s_adp_tvalid(ctlg_tx_tvalid),
-    .s_adp_tlast (ctlg_tx_tlast),
-    .s_adp_tready(ctlg_tx_tready),
+    .s_adp_tdata (ctlh_tx_tdata),
+    .s_adp_tkeep (ctlh_tx_tkeep),
+    .s_adp_tvalid(ctlh_tx_tvalid),
+    .s_adp_tlast (ctlh_tx_tlast),
+    .s_adp_tready(ctlh_tx_tready),
     .m_tdata (tx_axis_to_mac.tdata),
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),

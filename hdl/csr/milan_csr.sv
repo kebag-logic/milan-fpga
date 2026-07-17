@@ -191,6 +191,12 @@ module milan_csr #(
   input  wire [31:0]             i_avtprx_err,          //! packed error counters (RO 0x6C0)
   input  wire [31:0]             i_pcmrx_cnt,           //! {drops[31:16], pdus[15:0]} (RO 0x6C4)
   input  wire [31:0]             i_pcmrx_ts,            //! last accepted avtp_ts (RO 0x6C8)
+  input  wire [31:0]             i_maap_stat0,          //! {conflicts, defends, offset} (RO 0x6D0)
+  input  wire [31:0]             i_maap_stat1,          //! {addr_valid, state} (RO 0x6D4)
+  output wire                    o_maap_enable,         //! MAAP engine enable
+  output wire                    o_maap_seed_valid,     //! first probe uses seed
+  output wire [7:0]              o_maap_count,          //! block size (reset 8)
+  output wire [15:0]             o_maap_seed_offset,    //! provisioning seed
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
@@ -265,6 +271,7 @@ module milan_csr #(
     A_ACMPL_CNT   = 'h6B0, A_ACMPL_TUID = 'h6B4,
     A_AVTPRX_STAT = 'h6B8, A_AVTPRX_FRX = 'h6BC, A_AVTPRX_ERR = 'h6C0,
     A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
+    A_MAAP_CTRL   = 'h6CC, A_MAAP_STAT0 = 'h6D0, A_MAAP_STAT1 = 'h6D4,
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -367,6 +374,7 @@ module milan_csr #(
   logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi; //! AAF talker: ctrl {vid[27:16], bypass[1], en[0]}, DMAC
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [3:2]=classA queue
+  logic [31:0] maap_ctrl;                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
   logic [31:0] lwsrp_tspec;              //! LWSRP_TSPEC: {interval[31:16], max_frame[15:0]}
@@ -446,6 +454,7 @@ module milan_csr #(
       // lwSRP: disabled; class-A queue 3 (the reset PCP3->TC3->q3 map);
       // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}
       lwsrp_ctrl <= 32'h0000_000C;
+      maap_ctrl  <= 32'h0000_0800;
       lwsrp_vid  <= 32'h0000_0002;
       lwsrp_dmlo <= 32'hF000_FE01;
       lwsrp_dmhi <= 32'h0000_91E0;
@@ -515,6 +524,7 @@ module milan_csr #(
           A_AAF_CTRL:   aaf_ctrl  <= s_axi_wdata;
           A_ACMP_LOBS:  acmp_lobs <= s_axi_wdata;
           A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
+          A_MAAP_CTRL:  maap_ctrl  <= s_axi_wdata;
           A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
           A_LWSRP_DMLO: lwsrp_dmlo <= s_axi_wdata;
           A_LWSRP_DMHI: lwsrp_dmhi <= s_axi_wdata;
@@ -615,6 +625,7 @@ module milan_csr #(
       A_LWSRP_DMHI[10:0]: csr_default = 32'h0000_91E0;
       A_LWSRP_TSPEC[10:0]: csr_default = 32'h0001_00E0;
       A_TCAM_CTRL[10:0]:  csr_default = 32'h1;
+      A_MAAP_CTRL[10:0]:  csr_default = 32'h0000_0800;   // count=8, en=0
       default: begin
         if (a >= A_CBS_BASE[10:0] && a < A_CBS_END[10:0]) begin
           case (a[4:0])
@@ -644,7 +655,8 @@ module milan_csr #(
       A_AAF_CTRL, A_AAF_DMLO, A_AAF_DMHI, A_ACMP_LOBS,
       A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
       A_LWSRP_TSPEC, A_LWSRP_LAT,
-      A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT:
+      A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
+      A_MAAP_CTRL:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -733,6 +745,8 @@ module milan_csr #(
       A_AVTPRX_ERR:  live_mux = i_avtprx_err;
       A_PCMRX_CNT:   live_mux = i_pcmrx_cnt;
       A_PCMRX_TS:    live_mux = i_pcmrx_ts;
+      A_MAAP_STAT0:  live_mux = i_maap_stat0;
+      A_MAAP_STAT1:  live_mux = i_maap_stat1;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
@@ -800,6 +814,11 @@ module milan_csr #(
   assign o_aaf_enable          = aaf_ctrl[0];
   assign o_aaf_bypass          = aaf_ctrl[1];
   assign o_acmp_lobs           = acmp_lobs[0];
+  assign o_maap_enable      = maap_ctrl[0];
+  assign o_maap_seed_valid  = maap_ctrl[1];
+  assign o_maap_count       = maap_ctrl[15:8];
+  assign o_maap_seed_offset = maap_ctrl[31:16];
+
   assign o_lwsrp_enable        = lwsrp_ctrl[0];
   assign o_lwsrp_talker_en     = lwsrp_ctrl[1];
   assign o_lwsrp_qidx          = lwsrp_ctrl[3:2];
