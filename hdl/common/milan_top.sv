@@ -441,6 +441,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_pcmrx_cnt          (32'h0),
     .i_pcmrx_ts           (32'h0),
     .i_i2spb_stat         (32'h0),
+    .i_i2spb_trim         (32'h0),
     .i_maap_stat0         (32'h0),
     .i_maap_stat1         (32'h0),
     .o_maap_enable        (),
@@ -705,6 +706,8 @@ module milan_top import ethernet_packet_pkg::*; #(
     .in0_cnt_interrupted_i (32'h0), .in0_cnt_seqmm_i (32'h0),
     .in0_cnt_tu_i (32'h0), .in0_cnt_unsupp_i (32'h0),
     .in0_cnt_frx_i (32'h0), .in0_cnt_dirty_p_i (1'b0),
+    .in0_cnt_mreset_i (32'h0), .in0_cnt_late_i (32'h0),
+    .in0_cnt_early_i (32'h0),
     .in0_fmt_o (),
     // RX monitor tap (inputs only)
     .rx_tvalid_i (rx_axis_to_dma.tvalid),

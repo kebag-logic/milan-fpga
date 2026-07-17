@@ -59,17 +59,29 @@ module KL_i2s_playback #(
   output wire         i2s_lrck_o,
   output logic        i2s_sdin_o,        //! serial data to the CS4344
 
-  //! --- observability (CSR I2SPB_STAT) -------------------------------------
+  //! --- observability (CSR I2SPB_STAT / I2SPB_TRIM) ------------------------
   output logic [15:0] underruns_o,       //! LRCK frames started with FIFO empty
-  output logic [15:0] overruns_o         //! sample pairs dropped (FIFO full)
+  output logic [15:0] overruns_o,        //! sample pairs dropped (FIFO full)
+  output logic signed [15:0] trim_o,     //! NCO servo trim (LSB = 15.3 ppm)
+  output logic [15:0] fill_o,            //! FIFO fill (sample pairs)
+  output logic        media_reset_p_o    //! rail event = media-clock reset
 );
 
   // ------------------------------------------------------------------ //
-  // Free-running I2S divider — identical scheme to aaf_talker_i2s so    //
-  // both converters see the same waveforms (phase-locked by common      //
-  // reset and clock).                                                    //
+  // NCO-disciplined I2S divider: same waveform scheme as aaf_talker_i2s //
+  // but the counter advances through a fractional accumulator whose     //
+  // step is trimmed by a FIFO-fill servo — the fill integrates the      //
+  // talker-vs-local rate difference, so steering it to midpoint IS      //
+  // media-clock recovery (reference parity: pipewire recovers from the  //
+  // bound stream, its CRF handler is consume-and-ignore).               //
   // ------------------------------------------------------------------ //
   logic [MCLK_DIV_LOG2+8-1:0] cnt_r;
+  logic [15:0]        frac_r;
+  logic signed [15:0] trim_r;            //! servo trim, clamped ±80 (~±1200 ppm)
+  wire  [16:0] step_w = 17'h10000 + 17'(trim_r);
+  wire  [16:0] acc_w  = {1'b0, frac_r} + step_w;
+  wire         adv_w  = acc_w[16];
+  assign trim_o = trim_r;
   assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-1];
   assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2+1];
   assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+7];
@@ -101,6 +113,10 @@ module KL_i2s_playback #(
   wire  [FIFO_LOG2:0] fill_w  = wptr_r - rptr_r;
   wire                full_w  = fill_w[FIFO_LOG2];
   wire                empty_w = (fill_w == '0);
+  localparam logic [FIFO_LOG2:0] MID_C = 1 << (FIFO_LOG2 - 1);
+  logic [5:0]  servo_ms_r;
+  logic        was_playing_r;   //! a pair has popped since the last empty
+  assign fill_o = 16'(fill_w);
   logic [47:0] rd_pair_r;
 
   // ------------------------------------------------------------------ //
@@ -113,6 +129,11 @@ module KL_i2s_playback #(
   always_ff @(posedge clk_i) begin : playback
     if (!rst_n) begin
       cnt_r        <= '0;
+      frac_r       <= '0;
+      trim_r       <= '0;
+      servo_ms_r   <= '0;
+      was_playing_r <= 1'b0;
+      media_reset_p_o <= 1'b0;
       lrck_q       <= 1'b0;
       beat_r       <= '0;
       wptr_r       <= '0;
@@ -125,7 +146,21 @@ module KL_i2s_playback #(
       overruns_o   <= '0;
     end
     else begin
-      cnt_r <= cnt_r + 1'b1;
+      media_reset_p_o <= 1'b0;
+      frac_r <= acc_w[15:0];
+      if (adv_w) cnt_r <= cnt_r + 1'b1;
+
+      // ---- fill servo: at ~1 ms cadence steer the fill to midpoint ----
+      if (adv_w && cnt_r == '1) begin          // one LRCK frame elapsed
+        servo_ms_r <= servo_ms_r + 6'd1;
+        if (servo_ms_r == 6'd47) begin         // 48 frames = 1 ms @48 kHz
+          servo_ms_r <= '0;
+          if (fill_w != '0) begin        //! stream present: steer to midpoint
+            if (fill_w > MID_C + 1 && trim_r <  16'sd80) trim_r <= trim_r + 16'sd1;
+            if (fill_w < MID_C - 1 && trim_r > -16'sd80) trim_r <= trim_r - 16'sd1;
+          end
+        end
+      end
 
       // ---- PCM tap write side -------------------------------------
       if (pcm_acc_w) begin
@@ -139,6 +174,7 @@ module KL_i2s_playback #(
           end
           else begin
             overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
+            media_reset_p_o <= 1'b1;
           end
         end
       end
@@ -156,12 +192,16 @@ module KL_i2s_playback #(
               shift_r   <= {fifo_r[rptr_r[FIFO_LOG2-1:0]][47:24], 8'b0};
               pend_right_r <= fifo_r[rptr_r[FIFO_LOG2-1:0]][23:0];
               rptr_r    <= rptr_r + 1'b1;
+              was_playing_r <= 1'b1;
             end
             else begin
               shift_r      <= '0;
               pend_right_r <= '0;
               underruns_o  <= (&underruns_o) ? underruns_o
                                              : underruns_o + 16'd1;
+              //! reset event only on the playing -> starved transition
+              media_reset_p_o <= was_playing_r;
+              was_playing_r   <= 1'b0;
             end
           end
           else begin

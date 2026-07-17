@@ -121,6 +121,9 @@ module KL_aecp_response_builder (
   input  wire [31:0]   in0_cnt_tu_i,
   input  wire [31:0]   in0_cnt_unsupp_i,
   input  wire [31:0]   in0_cnt_frx_i,
+  input  wire [31:0]   in0_cnt_mreset_i,   //! MEDIA_RESET (bit 4)
+  input  wire [31:0]   in0_cnt_late_i,     //! LATE_TIMESTAMP (bit 9)
+  input  wire [31:0]   in0_cnt_early_i,    //! EARLY_TIMESTAMP (bit 10)
   input  wire          in0_cnt_dirty_p_i,  //! monitor: a counter changed
   output logic [63:0]  in0_fmt_o,          //! live STREAM_INPUT[0] format u64
 
@@ -585,8 +588,11 @@ module KL_aecp_response_builder (
           const_q[8+k]  <= in0_cnt_unlocked_i   [8*(3-k) +: 8];  // bit1
           const_q[12+k] <= in0_cnt_interrupted_i[8*(3-k) +: 8];  // bit2
           const_q[16+k] <= in0_cnt_seqmm_i      [8*(3-k) +: 8];  // bit3
+          const_q[20+k] <= in0_cnt_mreset_i    [8*(3-k) +: 8];  // bit4
           const_q[24+k] <= in0_cnt_tu_i         [8*(3-k) +: 8];  // bit5
           const_q[36+k] <= in0_cnt_unsupp_i     [8*(3-k) +: 8];  // bit8
+          const_q[40+k] <= in0_cnt_late_i       [8*(3-k) +: 8];  // bit9
+          const_q[44+k] <= in0_cnt_early_i      [8*(3-k) +: 8];  // bit10
           const_q[48+k] <= in0_cnt_frx_i        [8*(3-k) +: 8];  // bit11
         end
       end

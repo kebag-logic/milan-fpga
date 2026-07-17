@@ -330,6 +330,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] avtprx_ts, avtprx_last_ts;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
   wire [15:0] i2spb_underruns, i2spb_overruns;
+  wire signed [15:0] i2spb_trim;
+  wire [15:0] i2spb_fill;
+  wire        i2spb_reset_p;
+  wire [31:0] avtprx_mreset_c, avtprx_late_c, avtprx_early_c;
   wire        cfg_tone_enable;
   wire [23:0] tone_smp;
   //! MAAP engine (KL_maap, IEEE 1722 Annex B; docs/design/MAAP_FABRIC.md)
@@ -552,6 +556,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_pcmrx_cnt          ({pcmrx_drops, pcmrx_pdus}),
     .i_pcmrx_ts           (avtprx_last_ts),
     .i_i2spb_stat         ({i2spb_underruns, i2spb_overruns}),
+    .i_i2spb_trim         ({i2spb_trim, i2spb_fill}),
     .i_maap_stat0         ({maap_conflicts, maap_defends, maap_offset}),
     .i_maap_stat1         ({29'd0, maap_addr_valid, maap_state}),
     .o_maap_enable        (cfg_maap_enable),
@@ -847,6 +852,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .in0_cnt_tu_i          (avtprx_tu_c),
     .in0_cnt_unsupp_i      (avtprx_unsupp_c),
     .in0_cnt_frx_i         (avtprx_frx_c),
+    .in0_cnt_mreset_i      (avtprx_mreset_c),
+    .in0_cnt_late_i        (avtprx_late_c),
+    .in0_cnt_early_i       (avtprx_early_c),
     .in0_cnt_dirty_p_i     (avtprx_dirty_p),
     .in0_fmt_o             (aecp_in0_fmt),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
@@ -967,6 +975,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .fsh_i          (avtprx_fsh),
     .bound_i        (acmpl_bound),
     .fmt_i          (aecp_in0_fmt),
+    .ptp_now_i      (ptp_now_w[31:0]),
+    .pres_ofs_i     (aecp_pres_offset),
+    .media_reset_p_i(i2spb_reset_p),
     .cnt_media_locked_o       (avtprx_locked_c),
     .cnt_media_unlocked_o     (avtprx_unlocked_c),
     .cnt_stream_interrupted_o (avtprx_intr_c),
@@ -974,6 +985,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cnt_ts_uncertain_o       (avtprx_tu_c),
     .cnt_unsupported_fmt_o    (avtprx_unsupp_c),
     .cnt_frames_rx_o          (avtprx_frx_c),
+    .cnt_media_reset_o (avtprx_mreset_c),
+    .cnt_late_ts_o     (avtprx_late_c),
+    .cnt_early_ts_o    (avtprx_early_c),
     .media_locked_o (avtprx_locked),
     .dirty_p_o      (avtprx_dirty_p),
     .pdu_accept_p_o (avtprx_accept_p),
@@ -1019,7 +1033,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .chans_i      (aecp_in0_fmt[31:22]),
     .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
     .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
-    .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns)
+    .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns),
+    .trim_o (i2spb_trim), .fill_o (i2spb_fill),
+    .media_reset_p_o (i2spb_reset_p)
   );
 
   // ==========================================================================
