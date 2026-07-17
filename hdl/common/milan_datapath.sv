@@ -163,9 +163,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign tx_axis_to_shaper.tlast  = s_axis_tx_tlast;
   assign s_axis_tx_tready         = tx_axis_to_shaper.tready;
 
+  KL_tone_gen tone_gen (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_tone_enable), .smp_o (tone_smp)
+  );
+
   aaf_talker_i2s aaf_talker (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (aaf_gate),
+    .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
     .dest_mac_i (eff_aaf_dmac),
     .transit_ns_i (aecp_pres_offset),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
@@ -324,6 +330,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] avtprx_ts, avtprx_last_ts;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
   wire [15:0] i2spb_underruns, i2spb_overruns;
+  wire        cfg_tone_enable;
+  wire [23:0] tone_smp;
   //! MAAP engine (KL_maap, IEEE 1722 Annex B; docs/design/MAAP_FABRIC.md)
   wire        cfg_maap_enable, cfg_maap_seed_valid;
   wire [7:0]  cfg_maap_count;
@@ -550,6 +558,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_maap_seed_valid    (cfg_maap_seed_valid),
     .o_maap_count         (cfg_maap_count),
     .o_maap_seed_offset   (cfg_maap_seed_offset),
+    .o_tone_enable        (cfg_tone_enable),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
