@@ -198,6 +198,7 @@ module milan_csr #(
   output wire                    o_maap_seed_valid,     //! first probe uses seed
   output wire [7:0]              o_maap_count,          //! block size (reset 8)
   output wire [15:0]             o_maap_seed_offset,    //! provisioning seed
+  output wire                    o_tone_enable,         //! 1 kHz 0 dBFS pilot tone
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
@@ -273,7 +274,7 @@ module milan_csr #(
     A_AVTPRX_STAT = 'h6B8, A_AVTPRX_FRX = 'h6BC, A_AVTPRX_ERR = 'h6C0,
     A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
     A_MAAP_CTRL   = 'h6CC, A_MAAP_STAT0 = 'h6D0, A_MAAP_STAT1 = 'h6D4,
-    A_I2SPB_STAT  = 'h6D8,
+    A_I2SPB_STAT  = 'h6D8, A_TONE_CTRL = 'h6DC,
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -377,6 +378,7 @@ module milan_csr #(
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [3:2]=classA queue
   logic [31:0] maap_ctrl;                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
+  logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
   logic [31:0] lwsrp_tspec;              //! LWSRP_TSPEC: {interval[31:16], max_frame[15:0]}
@@ -457,6 +459,7 @@ module milan_csr #(
       // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}
       lwsrp_ctrl <= 32'h0000_000C;
       maap_ctrl  <= 32'h0000_0800;
+      tone_ctrl  <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
       lwsrp_dmlo <= 32'hF000_FE01;
       lwsrp_dmhi <= 32'h0000_91E0;
@@ -527,6 +530,7 @@ module milan_csr #(
           A_ACMP_LOBS:  acmp_lobs <= s_axi_wdata;
           A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
           A_MAAP_CTRL:  maap_ctrl  <= s_axi_wdata;
+          A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
           A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
           A_LWSRP_DMLO: lwsrp_dmlo <= s_axi_wdata;
           A_LWSRP_DMHI: lwsrp_dmhi <= s_axi_wdata;
@@ -658,7 +662,7 @@ module milan_csr #(
       A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
       A_LWSRP_TSPEC, A_LWSRP_LAT,
       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
-      A_MAAP_CTRL:
+      A_MAAP_CTRL, A_TONE_CTRL:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -817,6 +821,7 @@ module milan_csr #(
   assign o_aaf_enable          = aaf_ctrl[0];
   assign o_aaf_bypass          = aaf_ctrl[1];
   assign o_acmp_lobs           = acmp_lobs[0];
+  assign o_tone_enable      = tone_ctrl[0];
   assign o_maap_enable      = maap_ctrl[0];
   assign o_maap_seed_valid  = maap_ctrl[1];
   assign o_maap_count       = maap_ctrl[15:8];

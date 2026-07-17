@@ -589,6 +589,53 @@ int main(int argc, char** argv) {
             ck("AAF stream_id == probed id", in_aaf ? (unsigned long long)aaf_sid : 0,
                0x0200000000010000ULL);
         }
+        // pilot tone (CSR 0x6DC): AAF payload switches to the exact-period
+        // 1 kHz 0 dBFS table - both channels equal, samples advancing
+        {
+            static const uint32_t TAB[48] = {
+                0x000000,0x10B515,0x2120FB,0x30FBC5,0x3FFFFF,0x4DEBE4,
+                0x5A8279,0x658C99,0x6ED9EB,0x7641AE,0x7BA374,0x7EE7A9,
+                0x7FFFFF,0x7EE7A9,0x7BA374,0x7641AE,0x6ED9EB,0x658C99,
+                0x5A8279,0x4DEBE4,0x3FFFFF,0x30FBC5,0x2120FB,0x10B515,
+                0x000000,0xEF4AEB,0xDEDF05,0xCF043B,0xC00001,0xB2141C,
+                0xA57D87,0x9A7367,0x912615,0x89BE52,0x845C8C,0x811857,
+                0x800001,0x811857,0x845C8C,0x89BE52,0x912615,0x9A7367,
+                0xA57D87,0xB2141C,0xC00000,0xCF043B,0xDEDF05,0xEF4AEB };
+            axi_write(0x6DC, 0x1);          // TONE_CTRL.en
+            ck("TONE_CTRL readback", axi_read(0x6DC), 1);
+            // skip a few frames so tone samples propagate, then capture one
+            std::vector<uint8_t> fr; int skip = 3; bool checked = false;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 60000 && !checked; c++) {
+                step();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        bool aaf = fr.size() > 60 && fr[12]==0x81 && fr[16]==0x22
+                                   && fr[17]==0xF0 && fr[18]==0x02;
+                        if (aaf && skip > 0) skip--;
+                        else if (aaf) {
+                            auto smp = [&](int off){ return (uint32_t)
+                                ((fr[off]<<16)|(fr[off+1]<<8)|fr[off+2]); };
+                            uint32_t l0=smp(42), r0=smp(46), l1=smp(50);
+                            bool in_tab=false; int idx=-1;
+                            for (int k=0;k<48;k++) if (TAB[k]==l0){in_tab=true;idx=k;}
+                            ck("tone L0 in table", in_tab?1:0, 1);
+                            ck("tone L0 == R0 (both channels)", l0==r0, 1);
+                            ck("tone advances (L1 = next entry)",
+                               idx>=0 && l1==TAB[(idx+1)%48], 1);
+                            checked = true;
+                        }
+                        fr.clear();
+                    }
+                }
+            }
+            ck("tone frame captured", checked?1:0, 1);
+            axi_write(0x6DC, 0x0);          // tone off
+        }
+
         // restore the reset default (bypass=1) so later sections see legacy
         axi_write(A_AAF_CTRL, 0x00020002);
     }

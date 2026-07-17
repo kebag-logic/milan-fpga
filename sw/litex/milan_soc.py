@@ -244,7 +244,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/lwsrp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/avtp/aaf_talker_i2s.sv", "hdl/avtp/KL_aaf_rx_depacketizer.sv",
-    "hdl/avtp/KL_i2s_playback.sv",
+    "hdl/avtp/KL_i2s_playback.sv", "hdl/avtp/KL_tone_gen.sv",
     "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
     "hdl/1722/KL_avtp_rx_monitor.sv", "hdl/maap/KL_maap.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",

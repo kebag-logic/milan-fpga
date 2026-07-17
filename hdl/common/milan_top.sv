@@ -447,6 +447,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_maap_seed_valid    (),
     .o_maap_count         (),
     .o_maap_seed_offset   (),
+    .o_tone_enable        (),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
