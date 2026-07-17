@@ -1392,6 +1392,17 @@ module KL_aecp_response_builder (
                     const_q[8+k]  <= cnt_linkdn_r[8*(3-k) +: 8];  // bit1
                     const_q[24+k] <= cnt_gmchg_r [8*(3-k) +: 8];  // bit5
                   end
+                end else if (w_gs_type == DESC_CLOCK_DOMAIN && w_gs_index == 16'd0) begin
+                  // Milan 5.4.4 mandatory (la_avdecc field report): the
+                  // domain's media clock locks with the bound input stream,
+                  // so LOCKED/UNLOCKED mirror the RX monitor's media-lock
+                  // events (talker-only operation reads 0 - never locked)
+                  status_q   <= STATUS_SUCCESS;
+                  const_q[3] <= 8'h03;   // LOCKED|UNLOCKED
+                  for (int k = 0; k < 4; k++) begin
+                    const_q[4+k] <= in0_cnt_locked_i  [8*(3-k) +: 8];  // bit0
+                    const_q[8+k] <= in0_cnt_unlocked_i[8*(3-k) +: 8];  // bit1
+                  end
                 end else if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
                   // sinks: live KL_avtp_rx_monitor counters (Table 7-156);
                   // the mask+counters need block bytes 0..47 (FRAMES_RX =
