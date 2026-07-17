@@ -112,6 +112,18 @@ module KL_aecp_response_builder (
   input  wire          lstn_ta_reg_i,      //! TalkerAdvertise registered
   input  wire          lstn_ta_fail_i,     //! TalkerFailed registered
 
+  // ---- STREAM_INPUT[0] diagnostics (KL_avtp_rx_monitor; Table 7-156) --
+  input  wire          tick_1khz_i,        //! ms tick (counter-push rate limit)
+  input  wire [31:0]   in0_cnt_locked_i,
+  input  wire [31:0]   in0_cnt_unlocked_i,
+  input  wire [31:0]   in0_cnt_interrupted_i,
+  input  wire [31:0]   in0_cnt_seqmm_i,
+  input  wire [31:0]   in0_cnt_tu_i,
+  input  wire [31:0]   in0_cnt_unsupp_i,
+  input  wire [31:0]   in0_cnt_frx_i,
+  input  wire          in0_cnt_dirty_p_i,  //! monitor: a counter changed
+  output logic [63:0]  in0_fmt_o,          //! live STREAM_INPUT[0] format u64
+
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
   output logic         st_rd_o,
@@ -399,6 +411,20 @@ module KL_aecp_response_builder (
   logic        link_prev_r;
   logic [63:0] gm_prev_r;
 
+  //! live STREAM_INPUT[0] current format: resets to the ROM's current_format
+  //! (AEM_FMTS_C[0]) and follows SET_STREAM_FORMAT — the RX monitor's
+  //! format-compare reference (the store scratch keeps the readback copy)
+  logic [63:0] fmt_in0_r;
+  assign in0_fmt_o = fmt_in0_r;
+
+  //! STREAM_INPUT counter push state (Milan §5.4.5: unsolicited GET_COUNTERS
+  //! only when a counter changed, at most once per second per descriptor).
+  //! in0_rl_ms_r resets SATURATED so the first change pushes immediately
+  //! (reference: last_emit == 0 -> elapsed).
+  logic        in0_dirty_r;
+  logic [9:0]  in0_rl_ms_r;
+  wire         in0_rl_ok = (in0_rl_ms_r >= 10'd1000);
+
   // ------------------------------------------------------------------ //
   // Unsolicited notifications (Milan §5.4.2.21 / IEEE 1722.1-2021 §7.5.2)
   // 4-slot registration table (reference uses 16; 4 bounds the fabric and
@@ -412,7 +438,8 @@ module KL_aecp_response_builder (
   logic [63:0]           unsol_eid_r   [0:UNSOL_SLOTS_C-1];
   logic [47:0]           unsol_mac_r   [0:UNSOL_SLOTS_C-1];
   logic [15:0]           unsol_seq_r   [0:UNSOL_SLOTS_C-1];
-  logic [UNSOL_SLOTS_C-1:0] unsol_pend_r;   //! slots owed a push
+  logic [UNSOL_SLOTS_C-1:0] unsol_pend_r;   //! slots owed a stream-info push
+  logic [UNSOL_SLOTS_C-1:0] unsol_pend2_r;  //! slots owed a GET_COUNTERS push
   logic                  unsol_frame_r;     //! current emit is a push (u=1, no meta pop)
   logic                  ta_prev_r, lo_prev_r;  //! edge detectors
 
@@ -421,6 +448,7 @@ module KL_aecp_response_builder (
   logic [UNSOL_SLOTS_C-1:0] w_unsol_free;
   logic [1:0]               w_unsol_fill_idx;   //! lowest free slot
   logic [1:0]               w_unsol_push_idx;   //! lowest pending slot
+  logic [1:0]               w_unsol_push2_idx;  //! lowest counters-pending slot
   always_comb begin
     for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
       w_unsol_match[s] = unsol_valid_r[s] &&
@@ -429,9 +457,11 @@ module KL_aecp_response_builder (
     end
     w_unsol_fill_idx = 2'd0;
     w_unsol_push_idx = 2'd0;
+    w_unsol_push2_idx = 2'd0;
     for (int s = UNSOL_SLOTS_C-1; s >= 0; s--) begin
       if (w_unsol_free[s]) w_unsol_fill_idx = 2'(s);   // lowest wins
-      if (unsol_pend_r[s]) w_unsol_push_idx = 2'(s);
+      if (unsol_pend_r[s])  w_unsol_push_idx  = 2'(s);
+      if (unsol_pend2_r[s]) w_unsol_push2_idx = 2'(s);
     end
   end
 
@@ -515,6 +545,32 @@ module KL_aecp_response_builder (
     end
   endtask
 
+  // ------------------------------------------------------------------ //
+  // STREAM_INPUT GET_COUNTERS payload (Table 7-156; shared by the         //
+  // solicited command and the unsolicited push): valid mask 0xF3F at      //
+  // const 0..3, counter for valid bit n at const 4+4n (block byte 4n).   //
+  // sink0 = live monitor counters; sink 1 (CRF, no listener SM) = zeros.  //
+  // MEDIA_RESET / LATE / EARLY are advertised valid but always 0, exactly //
+  // the pipewire reference (no media clock recovery in fabric yet).       //
+  // ------------------------------------------------------------------ //
+  task automatic load_input_counters_consts(input logic sink0);
+    begin
+      for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
+      const_q[2] <= 8'h0F; const_q[3] <= 8'h3F;   // valid mask 0x00000F3F
+      if (sink0) begin
+        for (int k = 0; k < 4; k++) begin
+          const_q[4+k]  <= in0_cnt_locked_i     [8*(3-k) +: 8];  // bit0
+          const_q[8+k]  <= in0_cnt_unlocked_i   [8*(3-k) +: 8];  // bit1
+          const_q[12+k] <= in0_cnt_interrupted_i[8*(3-k) +: 8];  // bit2
+          const_q[16+k] <= in0_cnt_seqmm_i      [8*(3-k) +: 8];  // bit3
+          const_q[24+k] <= in0_cnt_tu_i         [8*(3-k) +: 8];  // bit5
+          const_q[36+k] <= in0_cnt_unsupp_i     [8*(3-k) +: 8];  // bit8
+          const_q[48+k] <= in0_cnt_frx_i        [8*(3-k) +: 8];  // bit11
+        end
+      end
+    end
+  endtask
+
   //! per-input "started" (START/STOP_STREAMING, Milan input-only commands)
   logic started_in_r;
 
@@ -572,9 +628,13 @@ module KL_aecp_response_builder (
       link_prev_r  <= 1'b0;
       gm_prev_r    <= 64'd0;
       unsol_pend_r  <= '0;
+      unsol_pend2_r <= '0;
       unsol_frame_r <= 1'b0;
       ta_prev_r     <= 1'b0;
       lo_prev_r     <= 1'b0;
+      fmt_in0_r     <= AEM_FMTS_C[0];
+      in0_dirty_r   <= 1'b0;
+      in0_rl_ms_r   <= 10'd1000;   // saturated: first change pushes at once
       for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
         unsol_valid_r[s] <= 1'b0;
         unsol_eid_r[s]   <= 64'd0;
@@ -628,6 +688,16 @@ module KL_aecp_response_builder (
       if ((talker_active_i ^ ta_prev_r) | (listener_observed_i ^ lo_prev_r)) begin
         for (int s = 0; s < UNSOL_SLOTS_C; s++)
           if (unsol_valid_r[s]) unsol_pend_r[s] <= 1'b1;
+      end
+
+      // ---- STREAM_INPUT counter push (Milan §5.4.5): dirty + 1 s window --
+      if (tick_1khz_i && !in0_rl_ok) in0_rl_ms_r <= in0_rl_ms_r + 10'd1;
+      if (in0_cnt_dirty_p_i)         in0_dirty_r <= 1'b1;
+      if (in0_dirty_r && in0_rl_ok) begin
+        for (int s = 0; s < UNSOL_SLOTS_C; s++)
+          if (unsol_valid_r[s]) unsol_pend2_r[s] <= 1'b1;
+        in0_dirty_r <= 1'b0;
+        in0_rl_ms_r <= 10'd0;
       end
 
       // ---- GET_COUNTERS event counting (edges) ------------------------
@@ -705,6 +775,33 @@ module KL_aecp_response_builder (
             const_q[50] <= 8'h00; const_q[51] <= 8'h00;   // index 0
             load_stream_info_consts();
             cdl_q      <= 11'd68;
+            wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
+            cum_done_q <= 1'b0;
+            fi_r       <= 16'd0;
+            state_r    <= WRITE_S;
+          end else if (enable_i && unsol_pend2_r != '0) begin
+            // Synthesized unsolicited GET_COUNTERS response for
+            // STREAM_INPUT[0] (u=1), same full-136B shape as the solicited
+            // path. type/index ride const bytes 56..59 (the counter task
+            // owns 0..51).
+            unsol_pend2_r[w_unsol_push2_idx] <= 1'b0;
+            unsol_seq_r[w_unsol_push2_idx]   <= unsol_seq_r[w_unsol_push2_idx] + 16'd1;
+            unsol_frame_r <= 1'b1;
+            dst_mac_q     <= unsol_mac_r[w_unsol_push2_idx];
+            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push2_idx];
+            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push2_idx];
+            hdr_q.command_type         <= CMD_GET_COUNTERS;
+            vu_q       <= 1'b0;
+            msg_resp_q <= MSG_AEM_RESPONSE;
+            status_q   <= STATUS_SUCCESS;
+            seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd56; seg_len_q[0] <= 16'd4;
+            seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd52;
+            seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0;  seg_len_q[2] <= 16'd80;
+            seg_kind_q[3] <= SEG_NONE;  seg_addr_q[3] <= 16'd0;  seg_len_q[3] <= 16'd0;
+            const_q[56] <= 8'h00; const_q[57] <= 8'h05;   // STREAM_INPUT
+            const_q[58] <= 8'h00; const_q[59] <= 8'h00;   // index 0
+            load_input_counters_consts(1'b1);
+            cdl_q      <= 11'd148;   // 12 + 136
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
             cum_done_q <= 1'b0;
             fi_r       <= 16'd0;
@@ -1061,6 +1158,10 @@ module KL_aecp_response_builder (
                                                          : WB_STREAM_IN1_FMT_C;
                     wb_len_q  <= 7'd8;
                     wb_src_q  <= 7'd6;
+                    // live copy for the RX monitor's format compare
+                    if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
+                      fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
+                                    w_b10, w_b11, w_b12, w_b13};
                   end
                 end
               end
@@ -1221,9 +1322,13 @@ module KL_aecp_response_builder (
                     const_q[24+k] <= cnt_gmchg_r [8*(3-k) +: 8];  // bit5
                   end
                 end else if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
-                  // sinks: no AVTP-RX monitor counters wired yet — full
-                  // block, valid mask 0 (deferred with the media path)
-                  status_q   <= STATUS_SUCCESS;
+                  // sinks: live KL_avtp_rx_monitor counters (Table 7-156);
+                  // the mask+counters need block bytes 0..47 (FRAMES_RX =
+                  // bit 11 at 44), so the CONST segment grows to 52
+                  status_q     <= STATUS_SUCCESS;
+                  seg_len_q[1] <= 16'd52;
+                  seg_len_q[2] <= 16'd80;
+                  load_input_counters_consts(w_gs_index == 16'd0);
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin

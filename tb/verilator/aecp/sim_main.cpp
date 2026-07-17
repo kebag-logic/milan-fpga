@@ -1269,13 +1269,72 @@ int main(int argc, char** argv) {
         r = collect_resp();
         ck("[22f] START(output) NOT_SUPPORTED", r_status(r), 11);
 
-        // (g) GET_COUNTERS on a sink: SUCCESS, empty valid mask
+        // (g) GET_COUNTERS on sink 0: live KL_avtp_rx_monitor values behind
+        //     the Milan valid mask 0xF3F (Table 7-156; block byte 4n = bit n)
+        dut->in0_cnt_locked_i      = 3;
+        dut->in0_cnt_unlocked_i    = 2;
+        dut->in0_cnt_interrupted_i = 1;
+        dut->in0_cnt_seqmm_i       = 0x0102;
+        dut->in0_cnt_tu_i          = 5;
+        dut->in0_cnt_unsupp_i      = 7;
+        dut->in0_cnt_frx_i         = 0x00ABCDEF;
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220C,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22g] GET_COUNTERS(in0) SUCCESS", r_status(r), 0);
         ck("[22g] CDL 148", r_cdl(r), 148);
-        ck("[22g] valid mask 0", be32_at(r, 42), 0);
+        ck("[22g] valid mask 0xF3F", be32_at(r, 42), 0xF3F);
+        ck("[22g] MEDIA_LOCKED", be32_at(r, 46), 3);
+        ck("[22g] MEDIA_UNLOCKED", be32_at(r, 50), 2);
+        ck("[22g] STREAM_INTERRUPTED", be32_at(r, 54), 1);
+        ck("[22g] SEQ_NUM_MISMATCH", be32_at(r, 58), 0x0102);
+        ck("[22g] MEDIA_RESET 0", be32_at(r, 62), 0);
+        ck("[22g] TIMESTAMP_UNCERTAIN", be32_at(r, 66), 5);
+        ck("[22g] UNSUPPORTED_FORMAT", be32_at(r, 78), 7);
+        ck("[22g] LATE/EARLY 0", be32_at(r, 82) | be32_at(r, 86), 0);
+        ck("[22g] FRAMES_RX", be32_at(r, 90), 0x00ABCDEF);
+        ck("[22g] block tail zero", be32_at(r, 94), 0);
+
+        // (h) sink 1 (CRF): same mask, all-zero counters
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
+                         si_pl(0x0005, 1)));
+        r = collect_resp();
+        ck("[22h] GET_COUNTERS(in1) SUCCESS", r_status(r), 0);
+        ck("[22h] valid mask 0xF3F", be32_at(r, 42), 0xF3F);
+        ck("[22h] counters zero", be32_at(r, 46) | be32_at(r, 90), 0);
+
+        // (i) unsolicited GET_COUNTERS push (Milan §5.4.5): register A,
+        //     dirty pulse -> ONE immediate push (rate window starts
+        //     saturated); a second dirty within the window stays queued
+        auto u_bit = [](const std::vector<uint8_t>& b) {
+            return b.size() > 36 ? (b[36] >> 7) & 1 : -1;
+        };
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x220E, {}));
+        ck("[22i] REGISTER A", r_status(collect_resp()), 0);
+        dut->in0_cnt_dirty_p_i = 1; tick(); dut->in0_cnt_dirty_p_i = 0;
+        r = collect_resp();
+        ck("[22i] counters push arrived", r.size() > 0, 1);
+        ck("[22i] push u-bit set", u_bit(r), 1);
+        ck("[22i] push cmd GET_COUNTERS", r_cmd(r), 0x29);
+        ck("[22i] push status SUCCESS", r_status(r), 0);
+        ck("[22i] push desc STREAM_INPUT", be32_at(r, 38) >> 16, 5);
+        ck("[22i] push CDL 148", r_cdl(r), 148);
+        ck("[22i] push valid mask 0xF3F", be32_at(r, 42), 0xF3F);
+        ck("[22i] push FRAMES_RX live", be32_at(r, 90), 0x00ABCDEF);
+        // controllers B/C/D are still registered from [13]: one push each
+        int extra = 0;
+        for (int i = 0; i < 3; i++) {
+            r = collect_resp();
+            if (r.empty()) break;
+            extra++;
+            ck("[22i] fanout push is GET_COUNTERS", r_cmd(r), 0x29);
+        }
+        ck("[22i] pushes to B/C/D too", extra, 3);
+        dut->in0_cnt_dirty_p_i = 1; tick(); dut->in0_cnt_dirty_p_i = 0;
+        r = collect_resp(800);
+        ck("[22i] second dirty rate-limited (no push)", r.size(), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));
+        ck("[22i] DEREGISTER A", r_status(collect_resp()), 0);
         dut->lstn_bound_i = 0; dut->lstn_ta_reg_i = 0;
     }
 

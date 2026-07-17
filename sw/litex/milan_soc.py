@@ -244,6 +244,8 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/lwsrp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/avtp/aaf_talker_i2s.sv",
+    "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
+    "hdl/1722/KL_avtp_rx_monitor.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
     "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
 ]
@@ -328,7 +330,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
     for inc in ("hdl/common", "hdl/802_1q_traffic_shaper", "hdl/ptp_timestamp",
                 "hdl/adp", "hdl/csr", "hdl/eth_event_counter",
-                "hdl/aecp", "hdl/aecp/gen"):
+                "hdl/aecp", "hdl/aecp/gen", "hdl/1722"):
         platform.add_verilog_include_path(os.path.join(base, inc))
     for f in _MILAN_DATAPATH_SOURCES:
         platform.add_source(os.path.join(base, f))

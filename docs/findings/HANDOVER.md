@@ -377,9 +377,11 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
 2. **pw0 PipeWire listener (BIND_RX)** — module-avb listener against the
    arty talker = the audible end-to-end; then media clock recovery (NCO from
    gPTP) per `docs/design/MVP_TALKER.md`. Natural pairing with #1.
-3. **Listener media path** — the ACMP listener SM opens the control plane;
-   the AAF RX sink (I2S out / CRF clock recovery, STREAM_INPUT counters,
-   dynamic audio maps) is the media half (HANDOVER task 12 lineage).
+3. **Listener media path** — the ACMP listener SM opens the control plane
+   and the AVTP-RX monitor (07-17) now covers the diagnostic half
+   (STREAM_INPUT counters live); what remains is the actual audio path:
+   AAF RX depacketizer -> PCM ring the softcore/PipeWire consumes, then
+   CRF clock recovery + dynamic audio maps (HANDOVER task 12 lineage).
 4. **gPTP direct-cable session** — Arty-as-slave validation; script ready
    (`sw/litex/gptp_direct_cable.sh`), needs the physical cable move.
 5. **Switch power-cycle via amx-pi** — clear flap suppression, restore the
@@ -415,8 +417,14 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
 13. **AECP deferred (small tail)**: NV persistence of SET_* (volatile
     mirror today), GET_DYNAMIC_INFO 0x4B (SHOULD), dynamic audio-map edits
     (ADD/REMOVE — static maps shipped), MAAP dynamic allocation,
-    STREAM_INPUT counters (need the AVTP-RX monitor), unsolicited pushes
-    for input/clock/control changes (only STREAM_OUTPUT pushes today).
+    unsolicited pushes for clock/control changes. **DONE 07-17:
+    STREAM_INPUT counters** — KL_avtp_rx_monitor (hdl/1722) on the RX tap
+    matched to the ACMP-listener bound sid: valid=0xF3F live (lock/settle/
+    mismatch/interrupt/100ms-unlock/format-compare per the pipewire
+    stream.c contract), GET_COUNTERS(in0/in1) full-size, unsolicited
+    counters push 1/s, CSR 0x6B8-0x6C0, 26 suites + yosys 23/23.
+    MEDIA_RESET/LATE/EARLY advertised-zero (= reference; land with the
+    media path / media clock).
 14. fpga-ps-tools: push main (ahead-5) — user's call.
 
 ### Doc index (normative first)
