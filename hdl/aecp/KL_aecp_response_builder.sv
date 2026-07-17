@@ -295,9 +295,16 @@ module KL_aecp_response_builder (
   wire w_rate_ok = (w_set_rate == AEM_RATES_C[0]) ||
                    (w_set_rate == AEM_RATES_C[1]) ||
                    (w_set_rate == AEM_RATES_C[2]);
-  wire w_fmt_ok  = (w_set_fmt == AEM_FMTS_C[0]) ||
-                   (w_set_fmt == AEM_FMTS_C[1]) ||
-                   (w_set_fmt == AEM_FMTS_C[2]);
+  //! Milan adaptive listener (FR-STR-03; USER 07-17): the listener adapts
+  //! to the TALKER's stream format — accept any channel count 1..8 on the
+  //! three base rates (the audio maps route the mapped channels; the RX
+  //! monitor / I2S player re-stride from the live format's channel field)
+  wire [9:0]  w_fmt_ch    = w_set_fmt[31:22];
+  wire [63:0] w_fmt_chm   = w_set_fmt & ~(64'h3FF << 22);
+  wire w_fmt_ok  = (w_fmt_ch >= 10'd1) && (w_fmt_ch <= 10'd8) &&
+                   ((w_fmt_chm == (AEM_FMTS_C[0] & ~(64'h3FF << 22))) ||
+                    (w_fmt_chm == (AEM_FMTS_C[1] & ~(64'h3FF << 22))) ||
+                    (w_fmt_chm == (AEM_FMTS_C[2] & ~(64'h3FF << 22))));
   wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]) ||
                       (w_set_fmt == AEM_CRF_FMTS_C[1]) ||
                       (w_set_fmt == AEM_CRF_FMTS_C[2]);
