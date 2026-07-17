@@ -1176,7 +1176,28 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2109,
                          gc_pl(0x0000, 0)));
         r = collect_resp();
-        ck("[21f] GET_DYNAMIC_INFO NOT_IMPLEMENTED", r_status(r), 1);
+        ck("[21g] GET_DYNAMIC_INFO SUCCESS", r_status(r), 0);
+        ck("[21g] CDL 124", r_cdl(r), 124);
+        ck("[21g] config_index echo 0", be32_at(r, 38), 0);
+        ck("[21g] ENTITY record hdr", be32_at(r, 42), 0);
+        ck("[21g] AUDIO_UNIT hdr", be32_at(r, 50), 0x00020000);
+        ck("[21g] sampling rate 48k", be32_at(r, 54), 48000);
+        ck("[21g] IN0 hdr", be32_at(r, 58), 0x00050000);
+        ck("[21g] IN0 stream_id 0", be32_at(r, 62) | be32_at(r, 66), 0);
+        ck("[21g] IN0 format hi", be32_at(r, 70), 0x02050220);
+        ck("[21g] IN0 format lo", be32_at(r, 74), 0x02006000);
+        ck("[21g] IN0 flags FORMAT_VALID", be32_at(r, 78), 0x80000000);
+        ck("[21g] IN0 tail zero", be32_at(r, 82), 0);
+        ck("[21g] IN1 hdr (idx 1)", be32_at(r, 86), 0x00050001);
+        ck("[21g] OUT hdr", be32_at(r, 114), 0x00060000);
+        ck("[21g] OUT format hi", be32_at(r, 126), 0x02050220);
+        ck("[21g] frame length 150", (long)r.size(), 150);
+        ck("[21g] CLOCK_DOMAIN hdr", be32_at(r, 142), 0x00240000);
+        // bad configuration index rejected
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210A,
+                         gc_pl(0x0001, 0)));
+        r = collect_resp();
+        ck("[21g] cfg 1 NO_SUCH_DESCRIPTOR", r_status(r), 2);
     }
 
     // ---------------------------------------------------------------- //

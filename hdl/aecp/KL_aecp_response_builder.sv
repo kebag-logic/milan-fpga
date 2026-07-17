@@ -304,18 +304,18 @@ module KL_aecp_response_builder (
   // ------------------------------------------------------------------ //
   typedef enum logic [1:0] { SEG_NONE, SEG_ECHO, SEG_STORE, SEG_CONST } seg_kind_t;
 
-  seg_kind_t   seg_kind_q [0:3];
-  logic [15:0] seg_addr_q [0:3];   //! ECHO: buf offset · STORE: store addr · CONST: const offset
-  logic [15:0] seg_len_q  [0:3];
-  logic [7:0]  const_q [0:63];   //! scratch for CONST segments (GET_STREAM_INFO
-                                 //! needs 40: stream_id + msrp/mac/vlan/flags_ex/sta)
+  localparam int unsigned SEGN_C = 16;   //! response segments (0x4B needs 15)
+  seg_kind_t   seg_kind_q [0:SEGN_C-1];
+  logic [15:0] seg_addr_q [0:SEGN_C-1]; //! ECHO: buf offset · STORE: store addr · CONST: const offset
+  logic [15:0] seg_len_q  [0:SEGN_C-1];
+  logic [7:0]  const_q [0:95];   //! scratch for CONST segments (0x4B uses 78)
   logic [10:0] cdl_q;
   logic [4:0]  status_q;
   logic [3:0]  msg_resp_q;
   logic [47:0] dst_mac_q;
 
   //! cumulative payload offsets (registered one cycle after DECIDE_S)
-  logic [15:0] cum_q [0:3];        //! start offset of each segment
+  logic [15:0] cum_q [0:SEGN_C-1]; //! start offset of each segment
   logic [15:0] pay_len_q;
   logic        cum_done_q;
 
@@ -338,14 +338,16 @@ module KL_aecp_response_builder (
 
   //! payload byte index -> (segment, offset within segment)
   wire [15:0] w_pi = fi_r - w_hdr_len;
-  logic [1:0]  w_seg;
+  logic [3:0]  w_seg;
   logic [15:0] w_soff;
   always_comb begin
-    w_seg  = 2'd0;
+    w_seg  = 4'd0;
     w_soff = w_pi;
-    if      (w_pi >= cum_q[3]) begin w_seg = 2'd3; w_soff = w_pi - cum_q[3]; end
-    else if (w_pi >= cum_q[2]) begin w_seg = 2'd2; w_soff = w_pi - cum_q[2]; end
-    else if (w_pi >= cum_q[1]) begin w_seg = 2'd1; w_soff = w_pi - cum_q[1]; end
+    for (int k = 1; k < SEGN_C; k++)
+      if (w_pi >= cum_q[k] && seg_len_q[k] != 16'd0) begin
+        w_seg  = 4'(k);
+        w_soff = w_pi - cum_q[k];
+      end
   end
 
   //! Store READ port is COMBINATIONAL: presenting the address in EMIT_ADDR_S
@@ -665,8 +667,8 @@ module KL_aecp_response_builder (
       pay_len_q    <= 16'd0;
       cum_done_q   <= 1'b0;
       cw0_r <= 64'd0; cw1_r <= 64'd0; cw3_r <= 64'd0;
-      for (int k = 0; k < 64; k++) const_q[k] <= 8'h00;
-      for (int s = 0; s < 4; s++) begin
+      for (int k = 0; k < 96; k++) const_q[k] <= 8'h00;
+      for (int s = 0; s < SEGN_C; s++) begin
         seg_kind_q[s] <= SEG_NONE;
         seg_addr_q[s] <= 16'd0;
         seg_len_q[s]  <= 16'd0;
@@ -757,11 +759,14 @@ module KL_aecp_response_builder (
       // ---- cumulative segment offsets, one cycle after DECIDE --------
       if (!cum_done_q && state_r == WRITE_S) begin
         // WRITE_S lasts >= 4 cycles, plenty; compute once
-        cum_q[0]   <= 16'd0;
-        cum_q[1]   <= seg_len_q[0];
-        cum_q[2]   <= seg_len_q[0] + seg_len_q[1];
-        cum_q[3]   <= seg_len_q[0] + seg_len_q[1] + seg_len_q[2];
-        pay_len_q  <= seg_len_q[0] + seg_len_q[1] + seg_len_q[2] + seg_len_q[3];
+        begin
+          automatic logic [15:0] acc = 16'd0;
+          for (int k = 0; k < SEGN_C; k++) begin
+            cum_q[k] <= acc;
+            acc = acc + seg_len_q[k];
+          end
+          pay_len_q <= acc;
+        end
         cum_done_q <= 1'b1;
       end
 
@@ -801,6 +806,9 @@ module KL_aecp_response_builder (
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
             status_q   <= STATUS_SUCCESS;
+            for (int s = 4; s < SEGN_C; s++) begin
+              seg_kind_q[s] <= SEG_NONE; seg_len_q[s] <= 16'd0;
+            end
             seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd48; seg_len_q[0] <= 16'd4;
             seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
             seg_kind_q[2] <= SEG_STORE;
@@ -829,6 +837,9 @@ module KL_aecp_response_builder (
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
             status_q   <= STATUS_SUCCESS;
+            for (int s = 4; s < SEGN_C; s++) begin
+              seg_kind_q[s] <= SEG_NONE; seg_len_q[s] <= 16'd0;
+            end
             seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd56; seg_len_q[0] <= 16'd4;
             seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd52;
             seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0;  seg_len_q[2] <= 16'd80;
@@ -863,7 +874,7 @@ module KL_aecp_response_builder (
         // ---------------------------------------------------------- //
         DECIDE_S: begin
           // defaults: NOT_IMPLEMENTED echo of the command payload
-          for (int s = 0; s < 4; s++) begin
+          for (int s = 0; s < SEGN_C; s++) begin
             seg_kind_q[s] <= SEG_NONE; seg_addr_q[s] <= 16'd0; seg_len_q[s] <= 16'd0;
           end
           msg_resp_q <= vu_q ? MSG_VENDOR_UNIQUE_RESPONSE : MSG_AEM_RESPONSE;
@@ -1372,6 +1383,51 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
+              // GET_DYNAMIC_INFO (Milan v1.2 0x4B; reference
+              // cmd-get-dynamic-info.c): aggregate of every mutable
+              // descriptor field. Our fixed entity => FIXED 116-B payload:
+              // cfg_idx(2)+rsvd(2), then ENTITY(8) AUDIO_UNIT(8)
+              // STREAM_IN0/IN1/OUT(28 each: sid=0, format from store,
+              // flags=FORMAT_VALID only, tail 0 - reference behavior)
+              // CLOCK_DOMAIN(8). CDL 128.
+              CMD_GET_DYNAMIC_INFO: begin
+                if ({w_b2, w_b3} != 16'd0) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd4;
+                  cdl_q        <= 11'd16;
+                end
+                else begin
+                  status_q <= STATUS_SUCCESS;
+                  cdl_q    <= 11'd124;   // 12 + 4 + 108 record bytes
+                  // seg0 = default ECHO(2,4) = config_index + reserved
+                  seg_kind_q[1]  <= SEG_CONST; seg_addr_q[1]  <= 16'd0;  seg_len_q[1]  <= 16'd12;
+                  seg_kind_q[2]  <= SEG_STORE; seg_addr_q[2]  <= WB_SAMPLING_RATE_C; seg_len_q[2] <= 16'd4;
+                  seg_kind_q[3]  <= SEG_CONST; seg_addr_q[3]  <= 16'd12; seg_len_q[3]  <= 16'd12;
+                  seg_kind_q[4]  <= SEG_STORE; seg_addr_q[4]  <= WB_STREAM_IN0_FMT_C; seg_len_q[4] <= 16'd8;
+                  seg_kind_q[5]  <= SEG_CONST; seg_addr_q[5]  <= 16'd24; seg_len_q[5]  <= 16'd8;
+                  seg_kind_q[6]  <= SEG_CONST; seg_addr_q[6]  <= 16'd32; seg_len_q[6]  <= 16'd12;
+                  seg_kind_q[7]  <= SEG_STORE; seg_addr_q[7]  <= WB_STREAM_IN1_FMT_C; seg_len_q[7] <= 16'd8;
+                  seg_kind_q[8]  <= SEG_CONST; seg_addr_q[8]  <= 16'd44; seg_len_q[8]  <= 16'd8;
+                  seg_kind_q[9]  <= SEG_CONST; seg_addr_q[9]  <= 16'd52; seg_len_q[9]  <= 16'd12;
+                  seg_kind_q[10] <= SEG_STORE; seg_addr_q[10] <= WB_STREAM_FORMAT_C;  seg_len_q[10] <= 16'd8;
+                  seg_kind_q[11] <= SEG_CONST; seg_addr_q[11] <= 16'd64; seg_len_q[11] <= 16'd8;
+                  seg_kind_q[12] <= SEG_CONST; seg_addr_q[12] <= 16'd72; seg_len_q[12] <= 16'd4;
+                  seg_kind_q[13] <= SEG_STORE; seg_addr_q[13] <= WB_CLOCK_SRC_IDX_C;  seg_len_q[13] <= 16'd2;
+                  seg_kind_q[14] <= SEG_CONST; seg_addr_q[14] <= 16'd76; seg_len_q[14] <= 16'd2;
+                  // const image (zeros elsewhere): record headers + flags
+                  for (int k = 0; k < 78; k++) const_q[k] <= 8'h00;
+                  const_q[9]  <= 8'h02;                     // AUDIO_UNIT type
+                  const_q[13] <= 8'h05;                     // STREAM_INPUT
+                  const_q[33] <= 8'h05; const_q[35] <= 8'h01; // IN idx 1
+                  const_q[53] <= 8'h06;                     // STREAM_OUTPUT
+                  const_q[24] <= 8'h80;                     // IN0 FORMAT_VALID
+                  const_q[44] <= 8'h80;                     // IN1 FORMAT_VALID
+                  const_q[64] <= 8'h80;                     // OUT FORMAT_VALID
+                  const_q[72] <= 8'h00; const_q[73] <= 8'h24; // CLOCK_DOMAIN
+                end
+              end
+
+              // -------------------------------------------------- //
               // SET/GET_MAX_TRANSIT_TIME (1722.1-2021 §7.4.39 at the
               // la_avdecc-verified codes 0x4C/0x4D; payload = type(2)+
               // index(2)+max_transit_time u64 ns): reflects/updates the same
@@ -1525,7 +1581,7 @@ module KL_aecp_response_builder (
             unique case (emseg_kind_r)        // registered segment select
               SEG_ECHO:  b = bufb(cbuf_r[w_eaddr[6:3]], w_eaddr[2:0]);
               SEG_STORE: b = st_byte_i;       // store byte (1-cycle read latency)
-              SEG_CONST: b = const_q[emseg_addr_r[5:0] + emsoff_r[5:0]];
+              SEG_CONST: b = const_q[7'(emseg_addr_r[6:0] + emsoff_r[6:0])];
               default:   b = 8'h00;
             endcase
           end
