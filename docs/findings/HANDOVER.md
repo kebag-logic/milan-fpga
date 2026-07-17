@@ -45,6 +45,17 @@ failed) ⇒ no reservation, gate closed. MRP is link-local — debug needs the
 switch's own MSRP view (d&b tooling) or a direct-cable peer (pw0 mrpd).
 Workaround in force for streaming drills: AAF bypass=1 + VID0 (0x654=0x3).
 
+**FIELD FIXES from the user's Hive/la_avdecc session (post-drill):**
+`a387e6b` AUDIO_CLUSTER 90→87 B (stray aes3_* tail; la_avdecc "Remaining
+bytes: 3" — invisible to our TBs since the generator is their oracle) ·
+`651fd4b` ACMP sink 1 (CRF) now valid-always-unbound on GET_RX_STATE
+(UNKNOWN_ID for an ADVERTISED sink = la_avdecc Fatal Enumeration Error;
+sink-0 state masked out of sink-1 replies) · `c6fc7c8` adaptive listener
+formats (1..8ch on the base rates — the 2ch-talker rejection was correct
+counting, the GAP was no way to adapt). ALL THREE ride milanfinal4
+(arty sweep in flight; AX needs the same build after — its 41/41 drill
+doesn't exercise these paths, Hive does).
+
 **Bench traps:** arty serial-open DTR = board reset (QSPI reconfigures —
 JTAG-SRAM images do not survive; hence the bitstream reflash); use the
 persistent console daemons (scratchpad con.sh) + `dmesg -n 1`.
