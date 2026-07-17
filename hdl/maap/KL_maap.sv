@@ -338,6 +338,7 @@ module KL_maap #(
       // ---- state walk -------------------------------------------------------
       case (state_r)
         IDLE_S : begin
+          if (!enable_i) seed_used_r <= 1'b0;   //! re-arm the seed on disable
           if (enable_i) begin
             offset_r     <= new_off_w;
             seed_used_r  <= 1'b1;
@@ -372,9 +373,11 @@ module KL_maap #(
           end
         end
 
+        // verilator coverage_off
         default : begin
           state_r <= IDLE_S;
         end
+        // verilator coverage_on
       endcase
     end
   end : maap_sm

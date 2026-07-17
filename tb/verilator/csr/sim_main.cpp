@@ -321,6 +321,19 @@ int main(int argc, char** argv) {
   axi_write(0x6BC, 0x12345678);   // RO: write ignored
   ck("AVTPRX_FRX write ignored", axi_read(0x6BC), 0xDEADBEEF);
 
+  printf("-- MAAP group (0x6CC) --\n");
+  ck("MAAP_CTRL reset (count=8, en=0)", axi_read(0x6CC), 0x00000800);
+  axi_write(0x6CC, 0x12340901);   // seed 0x1234, count 9, en
+  dut->eval();
+  ck("MAAP_CTRL readback", axi_read(0x6CC), 0x12340901);
+  ck("o_maap_enable", dut->o_maap_enable, 1);
+  ck("o_maap_count", dut->o_maap_count, 9);
+  ck("o_maap_seed_offset", dut->o_maap_seed_offset, 0x1234);
+  dut->i_maap_stat0 = 0x01020055; dut->i_maap_stat1 = 0x00000006; dut->eval();
+  ck("MAAP_STAT0 RO", axi_read(0x6D0), 0x01020055);
+  ck("MAAP_STAT1 RO", axi_read(0x6D4), 0x00000006);
+  axi_write(0x6CC, 0x00000800);   // restore reset default
+
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
   dut->eval();
