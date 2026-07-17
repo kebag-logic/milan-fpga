@@ -179,6 +179,17 @@ int main(int argc, char** argv) {
     ckh("[1] talker 0", r_be(r, 34, 8), 0);
     ck("[1] flags 0", (long)r_be(r, 64, 2), 0);
 
+    // sink 1 (CRF): valid but ALWAYS unbound (la_avdecc fatal-enumeration
+    // field report: UNKNOWN_ID for an advertised sink is inconsistent)
+    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x100, 0, 0));
+    r = wait_frame();
+    ck("[1b] sink1 GET_RX_STATE SUCCESS", r_sta(r), 0);
+    ck("[1b] sink1 count 0", (long)r_be(r, 60, 2), 0);
+    ckh("[1b] sink1 talker 0", r_be(r, 34, 8), 0);
+    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 2, nullptr, 0x100, 0, 0));
+    r = wait_frame();
+    ck("[1b] sink2 UNKNOWN_ID", r_sta(r), 1);
+
     // ---------------------------------------------------------------- //
     printf("\n[2] BIND_RX -> response + probe, PRB_W_RESP\n");
     feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x101,
@@ -205,6 +216,14 @@ int main(int argc, char** argv) {
     ck("[2] probe_count 1", dut->probe_count_o, 1);
 
     // ---------------------------------------------------------------- //
+    printf("\n[2b] sink1 stays unbound-shaped while sink0 is mid-ladder\n");
+    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x100, 0, 0));
+    r = wait_frame();
+    ck("[2b] sink1 SUCCESS", r_sta(r), 0);
+    ck("[2b] sink1 count 0", (long)r_be(r, 60, 2), 0);
+    ckh("[2b] sink1 talker 0 (sink0 state masked)", r_be(r, 34, 8), 0);
+    ck("[2b] sink1 flags 0", (long)r_be(r, 64, 2), 0);
+
     printf("\n[3] GET_RX_STATE while probing: STREAMING_WAIT\n");
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x102, 0, 0));
     r = wait_frame();
