@@ -256,6 +256,8 @@ int main(int argc, char** argv) {
     r = wait_frame();
     ck("[5] settled flags = stored SW (0)", (long)r_be(r, 64, 2), 0);
     ck("[5] count 1", (long)r_be(r, 60, 2), 1);
+    ckh("[5] dest_mac echoes the learned MAAP addr", r_be(r, 54, 6),
+        0x91E0F000FE01ull);
 
     // ---------------------------------------------------------------- //
     printf("\n[6] TalkerFailed while settled -> SETTLED_NO_RSV and back\n");

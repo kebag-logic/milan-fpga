@@ -321,6 +321,11 @@ module KL_acmp_listener #(
   //! sampling the old echo array had, so wire behaviour is unchanged)
   wire        w_bound   = (st_lsm_r != LSM_UNBOUND_S);
   wire        w_b_eff   = w_bound && !resp_unb_r;   //! sink-0 state masked
+  //! dest-MAC echoed in responses: the fresh capture on BIND (dmac_r loads
+  //! the same edge the response fires), the stored binding on GET_RX_STATE
+  wire [47:0] w_dmac_echo = (resp_kind_r == L_RESP_BIND_E)  ? cap_dmac_r
+                          : (resp_kind_r == L_RESP_STATE_E && w_b_eff) ? dmac_r
+                          : 48'd0;
                                                     //! out of sink-1 replies
   wire        w_str_echo = (resp_kind_r == L_RESP_STATE_E);   // stream_id/vlan
   //! talker bytes 34-41: BIND echo / UNBIND zero / STATE bound?bnd:0
@@ -426,11 +431,17 @@ module KL_acmp_listener #(
           w_resp[8*2 +: 8] = resp_unb_r ? 8'h00 : bnd_tuid_r[15:8];
           w_resp[8*3 +: 8] = resp_unb_r ? 8'h00 : bnd_tuid_r[7:0];
         end
-        w_resp[8*6 +: 8] = 8'h00;                        // dest_mac 54-55
-        w_resp[8*7 +: 8] = 8'h00;
+        //! stream_dest_mac 54-59: echo the bound MAAP address (spec Table
+        //! 8.2; the reference zeroed it, but Hive/la_avdecc display it and
+        //! nothing interops against the zeros)
+        w_resp[8*6 +: 8] = w_dmac_echo[47:40];           // dest_mac 54-55
+        w_resp[8*7 +: 8] = w_dmac_echo[39:32];
       end
       4'd7: begin                                        // bytes 56-63
-        w_resp[31:0] = 32'd0;                            // dest_mac 56-59
+        w_resp[8*0 +: 8] = w_dmac_echo[31:24];           // dest_mac 56-59
+        w_resp[8*1 +: 8] = w_dmac_echo[23:16];
+        w_resp[8*2 +: 8] = w_dmac_echo[15:8];
+        w_resp[8*3 +: 8] = w_dmac_echo[7:0];
         w_resp[8*4 +: 8] = 8'h00;                        // count 60-61
         w_resp[8*5 +: 8] = (resp_kind_r == L_RESP_BIND_E) ? 8'h01
                           : (resp_kind_r == L_RESP_STATE_E && w_b_eff) ? 8'h01
