@@ -154,7 +154,16 @@ class _CRG(LiteXModule):
             # slips (USER internal-clock rule).
             self.cd_audio = ClockDomain()
             self.mmcm_audio = mmcm_audio = S7MMCM(speedgrade=-1 if board == "arty" else -2)
-            mmcm_audio.register_clkin(clkin, clkin_freq)
+            if board == "arty":
+                # single-ended clk100 pad: a second buffer on the pad is fine
+                # (silicon-proven mf14-17)
+                mmcm_audio.register_clkin(clkin, clkin_freq)
+            else:
+                # differential clk200: register_clkin here would instantiate a
+                # SECOND IBUFDS on the same pads = Place 30-475 unplaceable
+                # (AX13 asl 2026-07-18). Cascade from the buffered sys clock;
+                # the MMCM's own filtering keeps MCLK jitter in the ps range.
+                mmcm_audio.register_clkin(ClockSignal("sys"), sys_clk_freq)
             mmcm_audio.create_clkout(self.cd_audio, 24.576e6, margin=1e-3)
             platform.add_false_path_constraints(self.cd_sys.clk,   self.cd_audio.clk)
             platform.add_false_path_constraints(self.cd_milan.clk, self.cd_audio.clk)
