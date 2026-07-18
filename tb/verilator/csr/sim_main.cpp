@@ -342,6 +342,11 @@ int main(int argc, char** argv) {
   axi_write(0x6DC, 0);
   dut->i_i2spb_trim = 0xFFF00100; dut->eval();
   ck("I2SPB_TRIM RO", axi_read(0x6E0), 0xFFF00100);
+  // gPTP measured propagation delay (user bug 3): daemon-written RW ns
+  ck("GPTP_PDELAY reset 0", axi_read(0x6E4), 0);
+  axi_write(0x6E4, 0x00021F6A); dut->eval();
+  ck("o_gptp_pdelay_ns", dut->o_gptp_pdelay_ns, 0x00021F6A);
+  ck("GPTP_PDELAY readback", axi_read(0x6E4), 0x00021F6A);
 
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);

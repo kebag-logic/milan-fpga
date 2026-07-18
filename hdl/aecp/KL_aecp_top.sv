@@ -61,6 +61,7 @@ module KL_aecp_top #(
   input  wire [31:0]   available_index_i,
   input  wire [63:0]   association_id_i,
   input  wire [63:0]   gptp_gm_id_i,
+  input  wire [31:0]   pdelay_ns_i,        //! measured gPTP neighbor propagation delay (ns)
   input  wire [7:0]    gptp_domain_i,
 
   // ---- live talker stream state (docs/design/MILAN_TALKER_SM.md) ------
@@ -247,7 +248,7 @@ module KL_aecp_top #(
     .req_meta_pop_o(req_pop_w),
     .l0_state_i(l0_state_w), .l0_status_i(l0_status_w), .l0_reject_i(l0_reject_w),
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
-    .gptp_gm_id_i(gptp_gm_id_i), .gptp_domain_i(gptp_domain_i),
+    .gptp_gm_id_i(gptp_gm_id_i), .pdelay_ns_i(pdelay_ns_i), .gptp_domain_i(gptp_domain_i),
     .aaf_dmac_i(aaf_dmac_i), .aaf_vid_i(aaf_vid_i),
     .talker_active_i(talker_active_i),
     .listener_observed_i(listener_observed_i),
