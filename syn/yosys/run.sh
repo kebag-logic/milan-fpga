@@ -42,7 +42,7 @@ tops=(
   "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_listener.sv"
   "KL_avtp_rx_monitor|$R/hdl/1722/KL_avtp_rx_monitor.sv"
   "KL_maap|$R/hdl/maap/KL_maap.sv"
-  "KL_i2s_playback|$R/hdl/avtp/KL_i2s_playback.sv"
+  "KL_i2s_playback|$C/cdc_pair_fifo.sv $R/hdl/avtp/KL_i2s_playback.sv"
   "KL_tone_gen|$R/hdl/avtp/KL_tone_gen.sv"
   "KL_aaf_rx_depacketizer|$A/axis_fifo.v $R/hdl/avtp/KL_aaf_rx_depacketizer.sv"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
