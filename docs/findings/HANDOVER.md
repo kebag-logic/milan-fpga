@@ -327,6 +327,19 @@ green against the live pair from pw0, incl. the spoofed-second-controller
 unsolicited replay. GET_COUNTERS mask offset trap: counters_valid at
 resp[42:46] (38/40 are desc type/index).
 
+**lwSRP end-to-end diagnosis COMPLETE (07-18 late):** with VID 638 the
+switch ACCEPTS both boards' TalkerAdvertise (re-declares both streams at
+pw0's port as TalkerFailed code 8 - correct there, pw0 runs no MSRP) and
+relays Listener declarations both ways. The arty's walker silicon-registers
+the TF code 8 for its bound stream (visible at 0x6A4 bit7; the exact
+switch PDU replayed through KL_lwsrp_rx in tb/verilator/lwsrp_switchpdu
+parses bit-perfectly, TA variant too). Code 8 = "egress not AVB capable":
+the switch never relays Sync/Announce INTO board ports (the known
+management gap), so the boards can't be time-synced and the switch is
+CORRECT to fail the reservation. => Our SRP fabric is done and proven;
+res_active/SETTLED_RSV_OK unlocks with the SAME switch-management visit
+that unblocks 802.1AS relay (per-port gPTP/SR-domain enable in the d&b UI).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
