@@ -32,10 +32,12 @@
 module KL_tone_gen #(
   parameter int MCLK_DIV_LOG2 = 2   //! clk -> MCLK divide (log2), = talker
 )(
-  input  wire         clk_i,        //! Global clock (I2S master domain)
-  input  wire         rst_n,        //! Active-low synchronous reset
-  input  wire         adv_i,        //! fractional-N advance (shared with the
-                                    //! talker: keeps both counters phase-locked)
+  input  wire         clk_i,        //! CLEAN audio clock (24.576 MHz MMCM;
+                                    //! clean-clock rework 07-18 - the table
+                                    //! steps once per /512 = 48 kHz frame)
+  input  wire         rst_n,        //! Active-low reset (async-safe: 2FF'd
+                                    //! by the instantiator's domain sync)
+  input  wire         adv_i,        //! RETIRED - tie 1
   input  wire         enable_i,     //! CSR TONE_CTRL[0]
   input  wire [2:0]   att_i,        //! CSR TONE_CTRL[3:1]: -6dB steps
                                     //! (0=0dBFS .. 7=-42dB) - keeps an analog
@@ -58,10 +60,10 @@ module KL_tone_gen #(
     24'shC00000, 24'shCF043B, 24'shDEDF05, 24'shEF4AEB
   };
 
-  //! one step per LRCK period (the talker samples at each full frame)
-  logic [MCLK_DIV_LOG2+8-1:0] cnt_r;
-  logic [5:0]                 idx_r;
-  wire frame_tick = adv_i && (cnt_r == '1);
+  //! one step per LRCK period: clean /512 of the 24.576 MHz audio clock
+  logic [8:0] cnt_r;
+  logic [5:0] idx_r;
+  wire frame_tick = (cnt_r == '1);
 
   always_ff @(posedge clk_i) begin : tone_step
     if (!rst_n) begin
@@ -70,7 +72,7 @@ module KL_tone_gen #(
       smp_o <= '0;
     end
     else begin
-      if (adv_i) cnt_r <= cnt_r + 1'b1;
+      cnt_r <= cnt_r + 1'b1;
       if (!enable_i) begin
         idx_r <= '0;
         smp_o <= '0;

@@ -39,9 +39,9 @@ module aaf_talker_i2s #(
 ) (
     input  wire         clk_i,
     input  wire         rst_n,
-    input  wire         adv_i,             //! fractional-N advance (KL_media_adv):
-                                           //! qualifies the divider chain to true
-                                           //! 48 kHz; tie 1 = legacy clk/2^N rate
+    input  wire         adv_i,             //! RETIRED (clean-clock rework): the
+                                           //! I2S front-end runs in clk_audio_i
+    input  wire         clk_audio_i,       //! clean MMCM audio clock (24.576 MHz)
 
     // ---- control (CSR 0x654 group) -------------------------------------
     input  wire         enable_i,
@@ -84,50 +84,91 @@ module aaf_talker_i2s #(
   //   cnt[MCLK_DIV_LOG2+1]        -> SCLK (clk/16, 64 fs)
   //   cnt[MCLK_DIV_LOG2+7]        -> LRCK (clk/1024; 0 = LEFT half)
   // -----------------------------------------------------------------------
-  reg [MCLK_DIV_LOG2+8-1:0] cnt_r;
-  always_ff @(posedge clk_i or negedge rst_n)
-    if (!rst_n) cnt_r <= '0; else if (adv_i) cnt_r <= cnt_r + 1'b1;
+  //! CLEAN-CLOCK front-end (07-18): the ADC-facing I2S master clocks are
+  //! plain registered dividers of clk_audio_i (24.576 MHz MMCM): MCLK /2,
+  //! SCLK /8 (64 fs), LRCK /512 (48.000 kHz +-ppm). The fractional-N
+  //! +-1-cycle edge jitter distorted the CS5343 exactly as it did the DAC
+  //! (measured THD+N -4.5 dB from the ADC leg alone). Captured pairs cross
+  //! into clk_i via a gray-pointer CDC FIFO.
+  logic [1:0] tarst_n_r;                //! audio-domain reset sync
+  always_ff @(posedge clk_audio_i) begin : t_audio_rst
+    tarst_n_r <= {tarst_n_r[0], rst_n};
+  end : t_audio_rst
 
-  assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-1];
-  assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2+1];
-  assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+7];
+  logic [8:0] tdiv_r;
+  always_ff @(posedge clk_audio_i) begin : t_audio_div
+    if (!tarst_n_r[1]) tdiv_r <= '0;
+    else               tdiv_r <= tdiv_r + 1'b1;
+  end : t_audio_div
+  assign i2s_mclk_o = tdiv_r[0];
+  assign i2s_sclk_o = tdiv_r[2];
+  assign i2s_lrck_o = tdiv_r[8];
 
-  //! SCLK rising edge strobe (sample SDOUT here), and LRCK edges
-  //! adv_i-qualified: a paused cnt_r holds the equality >1 cycle
-  wire sclk_rise = adv_i && (cnt_r[MCLK_DIV_LOG2+1:0] == {2'b01, {MCLK_DIV_LOG2{1'b1}}});
-  reg  lrck_q;
-  always_ff @(posedge clk_i or negedge rst_n)
-    if (!rst_n) lrck_q <= 1'b0; else if (sclk_rise) lrck_q <= i2s_lrck_o;
-  wire lrck_edge = sclk_rise && (i2s_lrck_o != lrck_q);
+  //! SCLK rising edge (sample SDOUT): tdiv[2:0] wraps 011 -> 100
+  wire tsclk_rise_w = (tdiv_r[2:0] == 3'b011);
+  logic        tlrck_q_r;
+  logic [31:0] tshift_r;
+  logic [23:0] tsample_l_r;
+  logic [23:0] cap_l_r, cap_r_r;
+  logic        cap_wen_r;
+  wire         cap_full_w;
 
-  // -----------------------------------------------------------------------
-  // I2S capture: 32 SCLKs per half-frame; MSB is 1 SCLK after the LRCK edge
-  // (standard I2S). Shift on every SCLK rise; at the next LRCK edge the
-  // 24-bit sample sits in shift[30:7].
-  // -----------------------------------------------------------------------
-  reg [31:0] shift_r;
+  always_ff @(posedge clk_audio_i) begin : t_audio_cap
+    if (!tarst_n_r[1]) begin
+      tlrck_q_r <= 1'b0; tshift_r <= '0; tsample_l_r <= '0;
+      cap_l_r <= '0; cap_r_r <= '0; cap_wen_r <= 1'b0;
+    end else begin
+      cap_wen_r <= 1'b0;
+      if (tsclk_rise_w) begin
+        if (i2s_lrck_o != tlrck_q_r) begin
+          // the half that just ENDED: tlrck_q==0 -> LEFT ended
+          if (!tlrck_q_r) tsample_l_r <= tone_en_i ? tone_smp_i : tshift_r[30:7];
+          else begin
+            //! tone: both channels carry the same sample
+            cap_l_r   <= tsample_l_r;
+            cap_r_r   <= tone_en_i ? tsample_l_r : tshift_r[30:7];
+            cap_wen_r <= !cap_full_w;
+          end
+          tshift_r <= {31'd0, i2s_sdout_i};
+        end else begin
+          tshift_r <= {tshift_r[30:0], i2s_sdout_i};
+        end
+        tlrck_q_r <= i2s_lrck_o;
+      end
+    end
+  end : t_audio_cap
+
+  //! pairs into the datapath clock domain
+  wire        cap_rempty_w;
+  wire [47:0] cap_pair_w;
+  logic       cap_ren_r;
+  cdc_pair_fifo #(.WIDTH(48), .LOG2D(3)) u_tcdc (
+    .wclk_i  (clk_audio_i),
+    .wrst_n  (tarst_n_r[1]),
+    .wen_i   (cap_wen_r),
+    .wdata_i ({cap_l_r, cap_r_r}),
+    .wfull_o (cap_full_w),
+    .rclk_i  (clk_i),
+    .rrst_n  (rst_n),
+    .ren_i   (cap_ren_r),
+    .rdata_o (cap_pair_w),
+    .rempty_o(cap_rempty_w)
+  );
+
+  //! clk_i side: pop one pair at a time; pair_valid_r pulses per pop
   reg [23:0] sample_l_r, sample_r_r;
-  reg        pair_valid_r;              //! one L+R pair completed
+  reg        pair_valid_r;
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      shift_r <= '0; sample_l_r <= '0; sample_r_r <= '0; pair_valid_r <= 1'b0;
+      sample_l_r <= '0; sample_r_r <= '0;
+      pair_valid_r <= 1'b0; cap_ren_r <= 1'b0;
     end else begin
-      pair_valid_r <= 1'b0;
-      if (sclk_rise) begin
-        if (lrck_edge) begin
-          // the half that just ENDED: lrck_q==0 -> LEFT ended
-          if (!lrck_q) sample_l_r <= tone_en_i ? tone_smp_i : shift_r[30:7];
-          else begin
-            //! tone: reuse the LEFT capture so both channels carry the same
-            //! sample (the table steps between the two half-frame edges)
-            sample_r_r   <= tone_en_i ? sample_l_r : shift_r[30:7];
-            pair_valid_r <= 1'b1;
-          end
-          shift_r <= {31'd0, i2s_sdout_i};
-        end else begin
-          shift_r <= {shift_r[30:0], i2s_sdout_i};
-        end
+      pair_valid_r <= cap_ren_r;        //! rdata registered: valid follows ren
+      if (cap_ren_r) begin
+        sample_l_r <= cap_pair_w[47:24];
+        sample_r_r <= cap_pair_w[23:0];
       end
+      cap_ren_r <= !cap_rempty_w && !cap_ren_r && !pair_valid_r;
     end
   end
 
