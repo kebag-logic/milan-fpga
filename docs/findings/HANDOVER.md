@@ -103,7 +103,27 @@ daemons / numpy venv), AX JTAG reload = fresh boot → console needs
 `root` login + `dmesg -n 1` (kl-eth bd-stage spam buries it), and
 board-side ramfs deployments are lost on the reloaded board.
 
-**ROOT CAUSE FOUND + FIXED (eve 07-18): ACMP listener deafness = the
+**CLOSED (eve 07-18): AUDIO CLEAN END-TO-END ON MILANFINAL12.** Final
+loopback verdict: played tone **1000.297 Hz, 0.3 mHz pp (0 ppm wobble)**,
+level −17.5 dBFS, 1 seq gap / 70k frames — vs ±15 Hz @ 2 s at session
+start. Arty keeper = **eppo_milanfinal12 (+0.126) QSPI-flashed**; AX =
+eto_milanfinal9 JTAG-SRAM (48k-verified), AX milanfinal11 (walker fix)
+in flight. Free-run internal clock per USER rule: trim frozen 0, fill
+drift ~12 ppm (slip every ~minutes, accepted); SET_CLOCK_SOURCE(1)
+engages the servo when exact tracking is wanted.
+**THE REAL AFTERNOON VILLAIN was the CONTROLLER, not (only) the fabric:**
+(1) my `bind()` sent 68-byte ACMPDUs — 2 bytes short (missing the
+reserved tail) — and the listener len check RIGHTLY rejected every one;
+Hive's spec-correct 70-byte frames were the only accepts all day (fixed
+`9cf1842`). (2) bind()'s GET_STREAM_FORMAT readback was offset +2
+(r[44:52] vs r[42:50]) so the listener kept its 8ch default → the whole
+stream rejected UNSUPPORTED post-bind (same fix). The forensics CSR
+0x6E8 pinpointed both in ONE read each (flags 0xE7 = len fail; then
+UNSUPPORTED counting + fmt readback). The always-armed capture fix
+(440f6fb) is silicon-validated too (dst captures clean under full
+flood) and the zero-gap loss it fixes was REAL (unit [Z]).
+
+**(root-cause narrative of the fabric-side fix, for the record):** ACMP listener deafness = the
 walker's 1-cycle CLASSIFY blind window × gap-compressed RX.** The
 capture logic ran only in COLLECT_S; a frame arriving ZERO-GAP behind
 the previous one loses its beat-0 (dst) capture during CLASSIFY_S.
