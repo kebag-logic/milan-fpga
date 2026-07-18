@@ -348,7 +348,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked, avtprx_dirty_p;
   wire        avtprx_accept_p;
-  wire [31:0] avtprx_ts, avtprx_last_ts;
+  wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
   wire [15:0] i2spb_underruns, i2spb_overruns;
   wire signed [15:0] i2spb_trim;
@@ -572,6 +572,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_acmpl_cnt          ({acmpl_probe_count, acmpl_cmd_count}),
     .i_acmpl_tuid         ({acmpl_tx_wedge, lwsrp_ta_fail_code, acmpl_tuid}),
     .i_acmpl_dbg          (acmpl_dbg),
+    .i_avtprx_tsd         (avtprx_last_tsd),
     .i_avtprx_stat        ({avtprx_intr_c[7:0], avtprx_unlocked_c[7:0],
                             avtprx_locked_c[7:0], 7'd0, avtprx_locked}),
     .i_avtprx_frx         (avtprx_frx_c),
@@ -1022,7 +1023,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .media_locked_o (avtprx_locked),
     .dirty_p_o      (avtprx_dirty_p),
     .pdu_accept_p_o (avtprx_accept_p),
-    .last_ts_o      (avtprx_last_ts)
+    .last_ts_o      (avtprx_last_ts),
+    .last_tsd_o     (avtprx_last_tsd)
   );
 
   // ==========================================================================
