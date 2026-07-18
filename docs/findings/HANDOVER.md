@@ -106,9 +106,10 @@ board-side ramfs deployments are lost on the reloaded board.
 **CLOSED (eve 07-18): AUDIO CLEAN END-TO-END ON MILANFINAL12.** Final
 loopback verdict: played tone **1000.297 Hz, 0.3 mHz pp (0 ppm wobble)**,
 level −17.5 dBFS, 1 seq gap / 70k frames — vs ±15 Hz @ 2 s at session
-start. Arty keeper = **eppo_milanfinal12 (+0.126) QSPI-flashed**; AX =
-eto_milanfinal9 JTAG-SRAM (48k-verified), AX milanfinal11 (walker fix)
-in flight. Free-run internal clock per USER rule: trim frozen 0, fill
+start. Arty keeper = **eppo_milanfinal12 (+0.126) QSPI-flashed**; AX keeper =
+**eppo_milanfinal11 (+0.073) JTAG-SRAM** (walker fix + watchdog +
+forensics + attenuator; cadence re-verified 125,000 ns PASS; rebind
+SUCCESS post-reload; arty SETTLED/locked/RATE 8.6k/trim 0). Free-run internal clock per USER rule: trim frozen 0, fill
 drift ~12 ppm (slip every ~minutes, accepted); SET_CLOCK_SOURCE(1)
 engages the servo when exact tracking is wanted.
 **THE REAL AFTERNOON VILLAIN was the CONTROLLER, not (only) the fabric:**
