@@ -17,7 +17,75 @@ Roles: AX7101 = the full endstation (:01), Arty A7-100 = a small endstation
 
 ---
 
-## 0. BENCH SESSION 2026-07-17 (milanfinal2 silicon) — results + open items
+## 0. BENCH SESSION 2026-07-18 (audio quality root-caused) — results + open items
+
+**User-audible bug ("pumping") root-caused end to end.** The morning silence
+("nothing on the Arty PMOD") and the afternoon pitch-pumping were TWO
+distinct defects, both now fixed in RTL (milanfinal9, build pending):
+
+1. **Silence** = format mismatch, NOT the switch: the AX transmits 2ch
+   frames (framer hardwired stereo) while its AEM STREAM_OUTPUT *declared*
+   8ch; Hive format-matched the arty listener to the declared 8ch → RX
+   monitor rejected every frame UNSUPPORTED (0x6C0 mid-byte counting).
+   Diagnosis path: `ip -s link` showed ~7 kpkt/s arriving while FRAMES_RX
+   sat at 0 → wire capture → chans=2 on the wire. Fix = **talker truth**
+   (`fd11b4d`): STREAM_OUTPUT declares + accepts ONLY the wire format
+   (2ch 48k); listener stays adaptive (1..8ch). Controller gained
+   `--bind TALKER_SFX LISTENER_SFX` (talker fmt → listener fmt →
+   CONNECT_RX) — user bug 5.
+2. **Pumping** = media-clock rate: wire cadence measured EXACTLY 122,880 ns
+   /frame = clk/2^N = **48,828.125 Hz** (+1.725%), outside the playback
+   servo's ±1.56% range → servo limit-cycled (trim swept −412→+510, fill
+   68→351, ~4 s period). Fix = `KL_media_adv` fractional-N advance
+   (`c9f0e8b`), sim-measured 48,000.000 Hz. Digital wire quality itself is
+   PRISTINE: **THD+N −149.7 dB** (pw0 capture, 20k frames, 0 gaps).
+3. **Second stream discovered**: the ARTY was also transmitting (Hive
+   cross-connect probe-activated its talker) −132 dBFS noise into the SAME
+   DMAC. Cleared via DISCONNECT_RX on the AX listener; MAAP enable is the
+   structural guard (still en=0).
+4. **gPTP dynamic info now live** (user bugs 1-4, `eca5510`): GM regs
+   0x624/0x628 already existed (daemon-writable); NEW `GPTP_PDELAY` 0x6E4
+   (RW ns) feeds GET_AVB_INFO propagation_delay; flags |0x02 when GM
+   present; GET_AS_PATH is GM-aware ([GM,us] on foreign GM). Board daemon:
+   the-private-test-repo `fpga/tools/gptp2csr.sh` (pmc → devmem, 5 s poll).
+5. **Media-lock semantics per clock source** (USER rule, `f4eaf52`):
+   internal = lock on first valid PDU (buffer position); external
+   (stream/CRF) = lock gated on servo convergence (fill mid±64/100 ms,
+   exit ±128; unlock on divergence). rxmon TB 69.
+6. Format-change lock loss (user bug 6) DISPROVEN in fabric (TB [27]:
+   relock on next matching PDU after silence-unlock) — the silicon symptom
+   was controller-left mismatched formats = bug 5.
+
+**Traps burned this session:**
+- **Build launcher MUST have the venv on PATH** (`export PATH=
+  "$HOME/litex-milan/venv/bin:$PATH"`): the BIOS Makefile invokes bare
+  `python3 -m litex...crcfbigen`; venv-binary-only launches die at
+  bios.bin (3 wasted launches). Scratchpad `launch_ax9.sh` is the good
+  template.
+- pw0 can NEVER see the boards' ACMP responses (fabric TX doesn't cross
+  Linux tcpdump on-board; the switch doesn't relay board ACMP multicast
+  uplink) — verify ACMP effects via CSRs (0x6A4/0x6B0), not pcap.
+- ADP GM/AS_PATH/AVB_INFO were all correct RTL-side but nothing ever
+  WROTE the GM CSRs — "displays wrong GM" class bugs are provisioning.
+- STREAM_OUTPUT format ≠ wire format is a silent trap: TBs used the
+  generator as oracle so declared-vs-wire divergence was invisible to
+  every suite; only a format-matching controller (Hive) exposed it.
+
+**Current bench state (post-session):** audio RESTORED on the pre-fix
+gateware (listener manually set to the wire-true 2ch, stream locked,
+servo tracking but still hunting vs the 48,828 Hz source until
+milanfinal9 lands). AX milanfinal9 3-seed sweep IN FLIGHT (48k NCO +
+talker truth + gPTP dyn + media-lock + ENTITY counters). Arty sweep
+queued behind it (same content, keeper still QSPI milanfinal8).
+
+**Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
+125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
+(b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
+LATE_TIMESTAMP too); (c) lwSRP TA-propagation vs switch (listener stuck
+SETTLED_NO_RSV, ~3.6k re-probes logged); (d) PCM-ring formal THD+N
+(reserved-memory rebuild); (e) MAAP enable + bind-follow flow.
+
+## 0b. BENCH SESSION 2026-07-17 (milanfinal2 silicon) — results + open items
 
 Both boards run `*_eppo_milanfinal2` (arty: QSPI bitstream@0 REFLASHED —
 survives the serial-DTR reset; AX: JTAG-SRAM, volatile). Old 2-hart QSPI
