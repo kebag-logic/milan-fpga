@@ -33,8 +33,8 @@ static void ck(const char* what, unsigned long got, unsigned long exp) {
 
 // ---- clocking: axis_clk and gtx_clk driven together (single domain) ----
 static void eval() { dut->eval(); }
-static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; eval(); }
-static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; eval(); }
+static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; eval(); }
+static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; eval(); }
 static void step() { lo(); hi(); }
 
 // ---- AXI4-Lite BFM (same protocol/timing as the milan_csr harness): sample the
