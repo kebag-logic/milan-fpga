@@ -37,6 +37,9 @@ module KL_tone_gen #(
   input  wire         adv_i,        //! fractional-N advance (shared with the
                                     //! talker: keeps both counters phase-locked)
   input  wire         enable_i,     //! CSR TONE_CTRL[0]
+  input  wire [2:0]   att_i,        //! CSR TONE_CTRL[3:1]: -6dB steps
+                                    //! (0=0dBFS .. 7=-42dB) - keeps an analog
+                                    //! loopback out of ADC clipping
   output logic [23:0] smp_o         //! current 24-bit sample (0 when off)
 );
 
@@ -74,7 +77,7 @@ module KL_tone_gen #(
       end
       else if (frame_tick) begin
         idx_r <= (idx_r == 6'd47) ? 6'd0 : idx_r + 6'd1;
-        smp_o <= TONE_TAB_C[idx_r];
+        smp_o <= 24'(TONE_TAB_C[idx_r] >>> att_i);   // arithmetic: sign-safe
       end
     end
   end : tone_step
