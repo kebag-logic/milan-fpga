@@ -64,7 +64,11 @@ module KL_i2s_playback #(
   output logic [15:0] overruns_o,        //! sample pairs dropped (FIFO full)
   output logic signed [15:0] trim_o,     //! NCO servo trim (LSB = 15.3 ppm)
   output logic [15:0] fill_o,            //! FIFO fill (sample pairs)
-  output logic        media_reset_p_o    //! rail event = media-clock reset
+  output logic        media_reset_p_o,   //! rail event = media-clock reset
+  output logic        converged_o        //! recovered clock near nominal:
+                                         //! fill in MID±64 sustained 100 ms
+                                         //! (exit at MID±128) - the EXTERNAL
+                                         //! media-lock condition (USER rule)
 );
 
   // ------------------------------------------------------------------ //
@@ -122,6 +126,7 @@ module KL_i2s_playback #(
   wire                empty_w = (fill_w == '0);
   localparam logic [FIFO_LOG2:0] MID_C = 1 << (FIFO_LOG2 - 1);
   logic [5:0]  servo_ms_r;
+  logic [6:0]  conv_ms_r;      //! consecutive ms inside the entry window
   logic        was_playing_r;   //! a pair has popped since the last empty
   assign fill_o = 16'(fill_w);
   logic [47:0] rd_pair_r;
@@ -141,6 +146,8 @@ module KL_i2s_playback #(
       servo_ms_r   <= '0;
       was_playing_r <= 1'b0;
       media_reset_p_o <= 1'b0;
+      conv_ms_r    <= '0;
+      converged_o  <= 1'b0;
       lrck_q       <= 1'b0;
       beat_r       <= '0;
       wptr_r       <= '0;
@@ -165,6 +172,15 @@ module KL_i2s_playback #(
           if (fill_w != '0) begin        //! stream present: steer to midpoint
             if (fill_w > MID_C + 1 && trim_r <  16'sd512) trim_r <= trim_r + 16'sd1;
             if (fill_w < MID_C - 1 && trim_r > -16'sd512) trim_r <= trim_r - 16'sd1;
+          end
+          //! convergence hysteresis (per-ms): enter ±64/100 ms, exit ±128
+          if (fill_w > MID_C - 64 && fill_w < MID_C + 64) begin
+            if (conv_ms_r != 7'd100) conv_ms_r <= conv_ms_r + 7'd1;
+            else                     converged_o <= 1'b1;
+          end
+          else if (fill_w < MID_C - 128 || fill_w > MID_C + 128) begin
+            conv_ms_r   <= '0;
+            converged_o <= 1'b0;
           end
         end
       end

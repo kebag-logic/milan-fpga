@@ -328,6 +328,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [7:0]  avtprx_subtype, avtprx_seq;
   wire [63:0] avtprx_fsh;
   wire [63:0] aecp_in0_fmt;
+  wire [15:0] aecp_clk_src;
+  wire        i2spb_converged;
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked, avtprx_dirty_p;
@@ -862,6 +864,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .in0_cnt_early_i       (avtprx_early_c),
     .in0_cnt_dirty_p_i     (avtprx_dirty_p),
     .in0_fmt_o             (aecp_in0_fmt),
+    .clk_src_o             (aecp_clk_src),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
@@ -983,6 +986,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .ptp_now_i      (ptp_now_w[31:0]),
     .pres_ofs_i     (aecp_pres_offset),
     .media_reset_p_i(i2spb_reset_p),
+    .clk_src_i      (aecp_clk_src),
+    .servo_conv_i   (i2spb_converged),
     .cnt_media_locked_o       (avtprx_locked_c),
     .cnt_media_unlocked_o     (avtprx_unlocked_c),
     .cnt_stream_interrupted_o (avtprx_intr_c),
@@ -1040,7 +1045,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
     .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns),
     .trim_o (i2spb_trim), .fill_o (i2spb_fill),
-    .media_reset_p_o (i2spb_reset_p)
+    .media_reset_p_o (i2spb_reset_p),
+    .converged_o     (i2spb_converged)
   );
 
   // ==========================================================================

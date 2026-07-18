@@ -20,6 +20,8 @@ module avtp_rxmon_wrap #(
   input  wire [31:0] ptp_now_i,        //! PHC ns (LATE/EARLY compare)
   input  wire [31:0] pres_ofs_i,       //! presentation offset ns
   input  wire        media_reset_p_i,  //! playback rail pulse
+  input  wire [15:0] clk_src_i,        //! live clock_source_index
+  input  wire        servo_conv_i,     //! playback clock converged
 
   input  wire [63:0] s_tdata_i,
   input  wire [7:0]  s_tkeep_i,
@@ -78,6 +80,8 @@ module avtp_rxmon_wrap #(
     .bound_i (bound_i), .fmt_i (fmt_i),
     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
     .media_reset_p_i (media_reset_p_i),
+    .clk_src_i       (clk_src_i),
+    .servo_conv_i    (servo_conv_i),
     .cnt_media_locked_o (cnt_media_locked_o),
     .cnt_media_unlocked_o (cnt_media_unlocked_o),
     .cnt_stream_interrupted_o (cnt_stream_interrupted_o),

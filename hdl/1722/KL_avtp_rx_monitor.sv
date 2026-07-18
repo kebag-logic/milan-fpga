@@ -96,6 +96,9 @@ module KL_avtp_rx_monitor #(
   input  wire [31:0]  ptp_now_i,         //! PHC nanoseconds [31:0] (gPTP)
   input  wire [31:0]  pres_ofs_i,        //! presentation offset ns (MTT/acc-lat)
   input  wire         media_reset_p_i,   //! playback servo rail event (pulse)
+  input  wire [15:0]  clk_src_i,         //! live clock_source_index (0=internal)
+  input  wire         servo_conv_i,      //! playback clock converged (external
+                                         //! media-lock condition - USER rule)
 
   //! --- Milan STREAM_INPUT counters (Table 7-156 names) --------------------
   output logic [31:0] cnt_media_locked_o,       //! MEDIA_LOCKED (bit 0)
@@ -226,8 +229,13 @@ module KL_avtp_rx_monitor #(
             cnt_ts_uncertain_o <= cnt_ts_uncertain_o + 32'd1;
 
           if (!media_locked_o) begin
-            cnt_media_locked_o <= cnt_media_locked_o + 32'd1;
-            media_locked_o     <= 1'b1;
+            //! USER rule: internal clock source locks on buffer position
+            //! (first valid PDU); an EXTERNAL source locks only once the
+            //! recovered clock has converged near nominal
+            if (clk_src_i == 16'd0 || servo_conv_i) begin
+              cnt_media_locked_o <= cnt_media_locked_o + 32'd1;
+              media_locked_o     <= 1'b1;
+            end
             prev_seq_r         <= seq_num_i;     // (re)lock: seed, no gap
             settle_r           <= 4'(SETTLE_C);  // grace the bind/path-open step
           end
@@ -244,6 +252,13 @@ module KL_avtp_rx_monitor #(
             prev_seq_r <= seq_num_i;
           end
         end
+      end
+
+      //! external source: convergence lost while locked = unlock event
+      if (media_locked_o && clk_src_i != 16'd0 && !servo_conv_i) begin
+        cnt_media_unlocked_o <= cnt_media_unlocked_o + 32'd1;
+        media_locked_o       <= 1'b0;
+        dirty_p_o            <= 1'b1;
       end
 
       //! playback servo rail = a media-clock reset event

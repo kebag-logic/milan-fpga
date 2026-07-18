@@ -104,7 +104,7 @@ int main(int argc,char**argv){
     dut->pcm_tready_i=1;
     // frames carry avtp_ts 0xA55AC33C; now = 1ms before it -> on time
     dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
-    dut->media_reset_p_i=0;
+    dut->media_reset_p_i=0; dut->clk_src_i=0; dut->servo_conv_i=0;
     dut->resetn=0; dut->s_tvalid_i=0;
     cyc(6);
     dut->resetn=1; cyc(2);
@@ -275,6 +275,34 @@ int main(int argc,char**argv){
     { AafCfg c; c.seq=202; feed(mkaaf(c, 102)); }     // 38 + 64 = 102
     ck("exact-fit PCM 64 bytes", (long)pcm.size(), 64);
     ck("exact-fit tlast", pcm_last?1:0, 1);
+
+    printf("\n[26] external media clock: lock gated on servo convergence\n");
+    // USER rule: internal locks on buffer position (first valid PDU);
+    // external only once the recovered clock is near nominal
+    dut->bound_i=0; cyc(3);
+    dut->clk_src_i=1; dut->servo_conv_i=0;   // external (input stream)
+    dut->bound_i=1; cyc(3);
+    { AafCfg c; c.seq=0; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=1; feed(mkaaf(c)); }
+    ck("[26a] external+unconverged: not locked", dut->media_locked_o, 0);
+    ck("[26b] lock counter idle", dut->cnt_media_locked_o, 0);
+    dut->servo_conv_i=1; cyc(2);
+    { AafCfg c; c.seq=2; feed(mkaaf(c)); }
+    ck("[26c] converged: MEDIA_LOCKED asserts", dut->media_locked_o, 1);
+    ck("[26d] lock counted once", dut->cnt_media_locked_o, 1);
+    { long ul=dut->cnt_media_unlocked_o;
+      dut->servo_conv_i=0; cyc(2);
+      ck("[26e] convergence lost: unlocks", dut->media_locked_o, 0);
+      ck("[26e2] MEDIA_UNLOCKED counted", dut->cnt_media_unlocked_o, ul+1); }
+    dut->servo_conv_i=1; cyc(2);
+    { AafCfg c; c.seq=3; feed(mkaaf(c)); }
+    ck("[26f] re-converge + PDU: relocks", dut->media_locked_o, 1);
+    // internal source ignores the servo entirely
+    dut->bound_i=0; cyc(3);
+    dut->clk_src_i=0; dut->servo_conv_i=0;
+    dut->bound_i=1; cyc(3);
+    { AafCfg c; c.seq=4; feed(mkaaf(c)); }
+    ck("[26g] internal: locks on first PDU w/o servo", dut->media_locked_o, 1);
 
     printf("\n======================================================================\n");
     printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
