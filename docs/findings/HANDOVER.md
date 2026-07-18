@@ -103,6 +103,28 @@ daemons / numpy venv), AX JTAG reload = fresh boot → console needs
 `root` login + `dmesg -n 1` (kl-eth bd-stage spam buries it), and
 board-side ramfs deployments are lost on the reloaded board.
 
+**OPEN INVESTIGATION (late 07-18): ACMP LISTENER DEAF ON SILICON.**
+Both boards, milanfinal8 AND 9/10, accept ~0-2 listener commands then
+nothing (CC frozen; responders/AECP/ADP/streaming all fine on the same
+multicast stream). Eliminated WITH EVIDENCE: switch aging (responders
+answer multicast live), allmulti (MAC_CTRL=0x1B has bit3), bypass mode,
+lwSRP off, entity provisioning (responder matches the same eid net),
+frame length/padding (byte-exact + flood-interleave sim replays PASS),
+seed dependence, synthesis pruning (1091 LUTs), RESPOND_S wedge
+(milanfinal10 watchdog: WEDGE=0 while deaf). Sim CANNOT reproduce
+except zero-gap back-to-back frames ([STORM] loss - real but the
+quiet-network silicon test also failed, so not the whole story).
+Morning CC=84 on arty-8 is best explained as Hive retry persistence
+over hours, i.e. the loss has likely been chronic; the walkers sample
+bare tvalid (no tready qualify - OK only if rx_axis_to_dma never
+stalls; aecp shares the pattern and works). NEXT: milanfinal11 (in
+flight) adds ACMPL_DBG 0x6E8 RO-live {classify_cnt, fc_cnt,
+fc_flags{dst,etype,sv0,len,ovfl,lstnr_hi,lstnr_lo,is_cmd}, base_hits}
+- one read after a poke says whether the walker classifies frames at
+all and which accept term fails. Watchdog (b8e4613) + forensics
+(c0360bb) both ride it. Audio is DOWN until a bind lands (AX streams
+true 48k regardless; arty QSPI currently milanfinal10-asl).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
