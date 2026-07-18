@@ -141,6 +141,7 @@ module milan_csr #(
   output wire [31:0]             o_gptp_pdelay_ns,    //! measured propagation delay ns (GPTP_PDELAY)
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
+  input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
   output wire [7:0]              o_adp_gptp_domain,   //! gptp_domain_number (ADP_DOMAIN[7:0])
   output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
   output wire [15:0]             o_adp_identify_index,//! identify_control_index (ADP_IDX0[31:16])
@@ -283,6 +284,7 @@ module milan_csr #(
     A_GPTP_PDELAY = 'h6E4,   //! RW: measured gPTP neighbor propagation delay (ns), written by the softcore gptp daemon
     A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
     A_AVTPRX_TSD  = 'h6EC,   //! RO live: signed ts_delta at last accepted PDU (stream-sync error signal)
+    A_I2SPB_DBG   = 'h6F0,   //! RO live: exact 32 serial bits of the last LEFT half-frame at the DAC pin
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -768,6 +770,7 @@ module milan_csr #(
       A_I2SPB_TRIM:  live_mux = i_i2spb_trim;
       A_ACMPL_DBG:  live_mux = i_acmpl_dbg;
       A_AVTPRX_TSD: live_mux = i_avtprx_tsd;
+      A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
