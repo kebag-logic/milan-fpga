@@ -385,6 +385,37 @@ int main(int argc, char** argv) {
     ck("[15] aged out", dut->tk_avail_o, 0);
 
     printf("\n======================================================================\n");
+
+    // ---------------------------------------------------------------- //
+    printf("\n[W] TX-grant watchdog: wedged arbiter must not deafen the SM\n");
+    {
+        uint16_t cc0 = dut->cmd_count_o;
+        // raw feed with tready HELD LOW (feed()/tick_collect force it high)
+        auto f = acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x900, 0, 0);
+        dut->m_axis_tready = 0;
+        for (size_t off = 0; off < f.size(); off += 8) {
+            uint64_t d = 0; uint8_t keep = 0;
+            for (int l = 0; l < 8; l++)
+                if (off + l < f.size()) { d |= (uint64_t)f[off+l] << (8*l); keep |= (1<<l); }
+            dut->rx_tvalid_i = 1; dut->rx_tdata_i = d;
+            dut->rx_tkeep_i = keep; dut->rx_tlast_i = (off + 8 >= f.size());
+            tick();
+        }
+        dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+        tick(); tick(); tick();
+        ck("[W] command accepted", dut->cmd_count_o, (long)(cc0 + 1));
+        // walker now sits in RESPOND_S; run past the 2^20-cycle watchdog
+        for (int i = 0; i < (1 << 20) + 200; i++) tick();
+        ck("[W] wedge counted", dut->tx_wedge_cnt_o, 1);
+        dut->m_axis_tready = 1;
+        for (int i = 0; i < 10; i++) tick();
+        // the listener must be alive again: next command accepted + answered
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x901, 0, 0));
+        auto rw = wait_frame();
+        ck("[W] next GET_RX_STATE answered", rw.size(), 70);
+        ck("[W] cmd_count advanced", dut->cmd_count_o, (long)(cc0 + 2));
+    }
+
     printf("KL_acmp_listener: %ld checks, %ld failures\n", checks, fails);
     delete dut;
     return fails ? 1 : 0;
