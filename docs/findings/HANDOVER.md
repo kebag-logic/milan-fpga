@@ -351,7 +351,15 @@ AX-listener bind; bench unbound after). TRAP: the AX's QSPI rootfs carries
 a STALE S50milan (writes 0x654=0x00020002 = VID-2 + probe-gate -> the
 talker is silent after every reboot; manual `devmem 0x90000654 32 0x3`
 revives; durable fix = reflash the AX kernel/rootfs partitions with the
-current overlay - allowed, only BITSTREAM is banned from AX QSPI). Arty
+current overlay - allowed, only BITSTREAM is banned from AX QSPI).
+REFLASH CAVEAT (07-19 00:30): the AX's LIVE fdt md5 (609972b7...) matches
+NO dtb on disk (milan_ax7101_linux/milan_100mhz/milan.dtb all differ) -
+the staged opensbi embeds an unidentified DTB variant. flash-images
+rewrites ALL manifest slots, so a naive reflash risks a wrong dtb/opensbi
+pairing. Kernel identity IS confirmed (#15 Jul 6 = br-milan-output Image).
+Before reflashing: either dump the staged dtb slot for comparison or
+rebuild opensbi+dtb for the AX from source with known params. New rootfs
+(lwSRP writes, 8.58 MiB, fits) is ready at /tmp/scratch/rootfs.cpio.xz. Arty
 next round should pick up 3136b7e for its own dmac echo.
 
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
