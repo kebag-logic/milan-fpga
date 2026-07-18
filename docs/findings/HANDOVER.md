@@ -195,6 +195,19 @@ LIMIT-CYCLED (+-480 trim, lock flap 2/s) - no damping once the big offset
 was gone; P-control trim=4*(fill-mid) is self-damping. Internal/free-run
 unaffected (still the default).
 
+**MILANFINAL13 CLOSE-OUT (07-18 night):** arty keeper = **eto_milanfinal13
+(+0.187, session-best) QSPI**. Silicon-verified in one pass: bind SUCCESS
+(controller+walker fixes), **ts_delta CSR 0x6EC live** -> stream_phc_sync
+v2 rides it: **LATE +0 / EARLY +0 / FRAMES 8000/s exact / UNCERTAIN +0**
+(the whole timestamp story closed; real 802.1AS stays switch-blocked).
+**P-servo converged flat: trim -8 LSB (~-12 ppm = crystal delta), fill
+pinned 254-257, zero limit cycle** - the arty now runs CLOCK SOURCE =
+STREAM (exact media-clock recovery, SET_CLOCK_SOURCE(1)); the external
+media-lock convergence rule verified live. Daemons persisted in the
+milan-tests-avb rootfs overlay (ramfs deploys still needed until the
+next image flash). AX milanfinal12 parity sweep in flight (P-servo +
+ts_delta + responder hardening; AX bench roles unaffected meanwhile).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
