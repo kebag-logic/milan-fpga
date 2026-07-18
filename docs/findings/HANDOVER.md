@@ -297,6 +297,36 @@ re-claims per boot). ONE cosmetic gap found: GET_RX_STATE returns a
 ZEROED stream_dest_mac (should echo the bound MAAP address) - minor,
 listed for the next RTL batch.
 
+**AUDIO DEFECT CLOSED (07-18 night, milanfinal17):** the analog-loop
+level-independent sign-square was a DOUBLE Philips delay in the rewritten
+serializer (explicit pad slot + the output-register pipeline both delaying
+one slot -> the chip's MSB slot always read 0 and our sign bit sat at
+magnitude weight 2^22). Fix 78bbabe. Silicon: loop THD+N **-4.5 dB ->
+-69.9 dB** (harmonics all <= -90 dBc, remainder = converter noise at
+-20 dBFS = physics), level now tracks linearly (0.25->0.14, 0.0625->0.035).
+Forensic chain in memory (i2s-sign-square-rootcause). TB gap fixed: both
+chip-model decoders were double-delayed too + the async TB now strict-ramp.
+**Arty QSPI keeper = build_arty_eto_milanfinal17 (+0.132).** asl/eppo seeds
+died only at write_cfgmem (SPI_BUSWIDTH quirk, bitfiles routed fine).
+EAR CHECK still owed from the user (loop measures clean; a listen is the
+final human acceptance).
+
+**lwSRP UNBLOCKED (07-18 night):** the switch's MSRP Domain declares SR
+class A **VID 638** (0x27E); our VID CSR held 2 -> nothing ever matched.
+With 0x684=0x27E + 0x680=0xF on BOTH boards: talker_declared+domain_ok on
+both, and the AX registrar saw a **Listener Ready arrive through the
+switch** (first cross-switch MSRP attribute propagation ever on this bench).
+res_active still 0 (reservation completion = next session's thread).
+S50milan now writes both CSRs at boot (milan-tests-avb 9a21ff6).
+
+**GET_RX_STATE dest_mac now echoed** (3136b7e, lstn 103 checks): rides the
+AX13 parity sweep; the arty picks it up next round.
+
+**silicon_battery.py is executable** (milan-tests-avb 3dd10db): 25 checks
+green against the live pair from pw0, incl. the spoofed-second-controller
+unsolicited replay. GET_COUNTERS mask offset trap: counters_valid at
+resp[42:46] (38/40 are desc type/index).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
