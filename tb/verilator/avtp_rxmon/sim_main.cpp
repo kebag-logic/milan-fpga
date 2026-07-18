@@ -304,6 +304,29 @@ int main(int argc,char**argv){
     { AafCfg c; c.seq=4; feed(mkaaf(c)); }
     ck("[26g] internal: locks on first PDU w/o servo", dut->media_locked_o, 1);
 
+
+    printf("\n[27] format change while locked: unsupported counts, relock on match\n");
+    // USER bug 6 repro: bound+locked stream, STREAM_INPUT fmt changes to a
+    // NON-matching variant (sound gone), then back to matching -> must relock
+    dut->bound_i=0; cyc(3);
+    dut->clk_src_i=0; dut->servo_conv_i=0;
+    dut->bound_i=1; cyc(3);
+    { AafCfg c; c.seq=0; feed(mkaaf(c)); }
+    ck("[27a] locked on 8ch stream", dut->media_locked_o, 1);
+    dut->fmt_i = 0x0205022000806000ULL;      // listener reconfigured to 2ch
+    { AafCfg c; c.seq=1; feed(mkaaf(c)); }   // wire still 8ch -> mismatch
+    { AafCfg c; c.seq=2; feed(mkaaf(c)); }
+    ck("[27b] mismatch counts UNSUPPORTED", dut->cnt_unsupported_fmt_o >= 2, 1);
+    long frx27 = dut->cnt_frames_rx_o;
+    { AafCfg c; c.seq=3; feed(mkaaf(c)); }
+    ck("[27c] mismatched frames not counted as RX", dut->cnt_frames_rx_o, frx27);
+    cyc(11000);                              // silence window expires -> unlock
+    ck("[27d] silence unlocks", dut->media_locked_o, 0);
+    { AafCfg c; c.seq=4; c.chans=2; feed(mkaaf(c)); }  // talker now matches
+    ck("[27e] matching PDU relocks", dut->media_locked_o, 1);
+    ck("[27f] RX counts again", dut->cnt_frames_rx_o, frx27+1);
+    dut->fmt_i = FMT;                        // restore for any later scenario
+
     printf("\n======================================================================\n");
     printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
 #if VM_COVERAGE
