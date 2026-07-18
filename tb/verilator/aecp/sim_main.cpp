@@ -241,7 +241,8 @@ int main(int argc, char** argv) {
         ck_cdl("[3] READ_DESC(STREAM_OUT) CDL correct (len-26)", r);
         ckbytes("descriptor_type=STREAM_OUTPUT", r, 42, {0x00,0x06});
         // current_format at descriptor offset 74 -> wire 116
-        ckbytes("current_format 48k", r, 116, {0x02,0x05,0x02,0x20,0x02,0x00,0x60,0x00});
+        // talker truth (07-18): STREAM_OUTPUT declares the wire format = 2ch
+        ckbytes("current_format 48k 2ch (wire truth)", r, 116, {0x02,0x05,0x02,0x20,0x00,0x80,0x60,0x00});
 
         std::vector<uint8_t> pl2; put_be16(pl2,0); put_be16(pl2,0);
         put_be16(pl2, 0x0006); put_be16(pl2, 0x0005);   // index 5 doesn't exist
@@ -1315,6 +1316,19 @@ int main(int argc, char** argv) {
             for (int i = 7; i >= 0; i--) p9.push_back((f9 >> (8*i)) & 0xFF);
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F1, p9));
             ck("[22f2] 9ch rejected", r_status(collect_resp()) != 0, 1);
+            // (f3) talker truth: STREAM_OUTPUT accepts ONLY the wire format
+            {
+                std::vector<uint8_t> po; put_be16(po, 0x0006); put_be16(po, 0);
+                uint64_t f8o = 0x0205022002006000ULL;   // 8ch = NOT the wire
+                for (int i = 7; i >= 0; i--) po.push_back((f8o >> (8*i)) & 0xFF);
+                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, po));
+                ck("[22f3] out0 8ch rejected (wire is 2ch)", r_status(collect_resp()), 7);
+                std::vector<uint8_t> p2; put_be16(p2, 0x0006); put_be16(p2, 0);
+                uint64_t f2o = 0x0205022000806000ULL;   // the wire format
+                for (int i = 7; i >= 0; i--) p2.push_back((f2o >> (8*i)) & 0xFF);
+                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F3, p2));
+                ck("[22f3] out0 wire-true 2ch accepted", r_status(collect_resp()), 0);
+            }
             // restore the 8ch default
             std::vector<uint8_t> p8; put_be16(p8, 0x0005); put_be16(p8, 0);
             uint64_t f8 = 0x0205022002006000ULL;

@@ -306,6 +306,11 @@ module KL_aecp_response_builder (
                    ((w_fmt_chm == (AEM_FMTS_C[0] & ~(64'h3FF << 22))) ||
                     (w_fmt_chm == (AEM_FMTS_C[1] & ~(64'h3FF << 22))) ||
                     (w_fmt_chm == (AEM_FMTS_C[2] & ~(64'h3FF << 22))));
+  //! talker truth: the framer is hardwired stereo 48k - STREAM_OUTPUT
+  //! accepts ONLY the wire-true format (declared == transmitted, user bug 5)
+  localparam [63:0] AAF_OUT_FMT_C =
+      (AEM_FMTS_C[0] & ~(64'h3FF << 22)) | (64'd2 << 22);
+  wire w_out_fmt_ok = (w_set_fmt == AAF_OUT_FMT_C);
   wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]) ||
                       (w_set_fmt == AEM_CRF_FMTS_C[1]) ||
                       (w_set_fmt == AEM_CRF_FMTS_C[2]);
@@ -1217,8 +1222,10 @@ module KL_aecp_response_builder (
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
-                             !((w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd1)
-                               ? w_crf_fmt_ok : w_fmt_ok)) begin
+                             !((w_gs_type == DESC_STREAM_OUTPUT)
+                               ? w_out_fmt_ok
+                               : (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd1)
+                                 ? w_crf_fmt_ok : w_fmt_ok)) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;
                   seg_len_q[0] <= 16'd12;
                 end else begin
