@@ -658,9 +658,16 @@ module KL_acmp_listener #(
       end
 
       // ================= frame engine ===================================
-      case (st_r)
-        COLLECT_S: begin
-          if (rxv_r) begin
+
+      //! ALWAYS-ARMED capture (07-18 silicon deafness): field captures run
+      //! in CLASSIFY_S too, so a frame arriving ZERO-GAP behind the one
+      //! being classified is not lost (RX FIFOs compress inter-frame gaps
+      //! whenever the DMA consumer stalls, so on silicon EVERY queued
+      //! command drains gaplessly behind an AAF-flood frame). During
+      //! RESPOND_S/PROBE_S capture stays off to protect the fword echo
+      //! source - only back-to-back ACMP commands lose a response there
+      //! (controller retransmit covers it).
+      if (rxv_r && (st_r == COLLECT_S || st_r == CLASSIFY_S)) begin
             // beat-aligned word write (full-word: unkept tail lanes are
             // never echoed — responses are exactly 70 bytes)
             if (wbeat_r < 4'(NUM_BEATS_C))
@@ -720,6 +727,9 @@ module KL_acmp_listener #(
               default: ;
             endcase
 
+            //! fresh-frame hygiene: beat 0 clears the previous frame's ovfl
+            if (wbeat_r == 4'd0) ovfl_r <= 1'b0;
+
             wbeat_r <= (wbeat_r == 4'd10) ? 4'd10 : wbeat_r + 4'd1;
             if (rxl_r) begin
               // ACMP >= 70 bytes: 8 full beats + at least 6 tail lanes
@@ -727,9 +737,16 @@ module KL_acmp_listener #(
               // ADP >= 26 bytes: entity_id fully captured
               adp_len_ok_r <= (wbeat_r >= 4'd4) ||
                               (wbeat_r == 4'd3 && rxk_r[1]);
-              st_r <= CLASSIFY_S;
+              wbeat_r <= '0;               //! capture owns the beat counter
+              //! COLLECT -> classify this frame; a frame ENDING during
+              //! CLASSIFY (runt) is dropped by the case's own st_r write
+              if (st_r == COLLECT_S) st_r <= CLASSIFY_S;
             end
-          end else if (probe_pend_r) begin
+      end
+
+      case (st_r)
+        COLLECT_S: begin
+          if (!rxv_r && probe_pend_r) begin
             probe_pend_r  <= 1'b0;
             probe_count_o <= probe_count_o + 16'd1;
             arm(LSM_TMR_NO_RESP_MS_C);
@@ -819,10 +836,8 @@ module KL_acmp_listener #(
               arm(LSM_TMR_RETRY_MS_C);
               st_lsm_r <= LSM_PRB_W_RETRY_S;
             end
-            wbeat_r <= '0; ovfl_r <= 1'b0;
             st_r <= COLLECT_S;
           end else begin
-            wbeat_r <= '0; ovfl_r <= 1'b0;
             st_r <= COLLECT_S;
           end
         end
