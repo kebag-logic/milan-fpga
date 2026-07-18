@@ -277,13 +277,18 @@ module KL_acmp_responder (
         end
       end
 
-      case (st_r)
-        COLLECT_S: begin
-          if (rxv_r) begin
+      //! ALWAYS-ARMED capture (07-18, same fix as KL_acmp_listener): field
+      //! captures run through CLASSIFY_S so zero-gap back-to-back frames
+      //! are not lost (RX FIFOs drain gapless under DMA stalls). Capture
+      //! stays off in RESPOND_S to protect the fword echo source.
+      if (rxv_r && (st_r == COLLECT_S || st_r == CLASSIFY_S)) begin
             if (wbeat_r < 4'(NUM_BEATS_C))
               fword_r[wbeat_r[3:0]] <= rxd_r;
             else
               ovfl_r <= 1'b1;
+
+            //! fresh-frame hygiene: beat 0 clears the previous frame's ovfl
+            if (wbeat_r == 4'd0) ovfl_r <= 1'b0;
 
             // fixed-position classification captures
             unique case (wbeat_r)
@@ -318,10 +323,13 @@ module KL_acmp_responder (
             if (rxl_r) begin
               // >= 70 bytes: 8 full beats + at least 6 tail lanes
               len_ok_r <= (wbeat_r == 4'd8) && rxk_r[5];
-              st_r     <= CLASSIFY_S;
+              wbeat_r  <= '0;              //! capture owns the beat counter
+              if (st_r == COLLECT_S) st_r <= CLASSIFY_S;   // runt-in-classify dropped
             end
-          end
-        end
+      end
+
+      case (st_r)
+        COLLECT_S: ;    //! transitions come from the capture block above
 
         CLASSIFY_S: begin
           if (w_hit) begin
@@ -370,8 +378,7 @@ module KL_acmp_responder (
             beat_r <= '0;
             st_r   <= RESPOND_S;
           end else begin
-            wbeat_r <= '0; ovfl_r <= 1'b0; len_ok_r <= 1'b0;
-            st_r <= COLLECT_S;
+            st_r <= COLLECT_S;   //! capture owns wbeat/ovfl/len now
           end
         end
 
