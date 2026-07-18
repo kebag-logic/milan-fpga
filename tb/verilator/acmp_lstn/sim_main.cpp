@@ -416,6 +416,39 @@ int main(int argc, char** argv) {
         ck("[W] cmd_count advanced", dut->cmd_count_o, (long)(cc0 + 2));
     }
 
+
+    // ---------------------------------------------------------------- //
+    printf("\n[Z] zero-gap frames: command right behind another frame\n");
+    // Silicon RX FIFOs compress inter-frame gaps under DMA stalls; a
+    // command draining gaplessly behind an AAF frame must still be
+    // accepted (task #29). EXPECTED TO FAIL until the always-armed
+    // capture lands - kept as the repro.
+    {
+        uint16_t cc0 = dut->cmd_count_o;
+        // 88-byte AAF-ish frame (foreign dst/subtype: walker must ignore)
+        std::vector<uint8_t> aaf(88, 0);
+        const uint8_t ad[6]={0x91,0xE0,0xF0,0x00,0xFE,0x01};
+        for (int i=0;i<6;i++) aaf[i]=ad[i];
+        aaf[12]=0x22; aaf[13]=0xF0; aaf[14]=0x02; aaf[15]=0x81;
+        auto cmd = acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0xA01, 0, 0);
+        // drive both frames back-to-back with ZERO idle beats
+        auto drive = [&](const std::vector<uint8_t>& f, bool hold_after) {
+            for (size_t off = 0; off < f.size(); off += 8) {
+                uint64_t d = 0; uint8_t keep = 0;
+                for (int l = 0; l < 8; l++)
+                    if (off + l < f.size()) { d |= (uint64_t)f[off+l] << (8*l); keep |= (1<<l); }
+                dut->rx_tvalid_i = 1; dut->rx_tdata_i = d;
+                dut->rx_tkeep_i = keep; dut->rx_tlast_i = (off + 8 >= f.size());
+                tick();
+            }
+            if (!hold_after) { dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; }
+        };
+        drive(aaf, true);          // tlast beat, then IMMEDIATELY...
+        drive(cmd, false);         // ...the command, no idle cycle
+        for (int i = 0; i < 30; i++) tick_collect(nullptr);
+        ck("[Z] zero-gap command accepted", dut->cmd_count_o, (long)(cc0 + 1));
+    }
+
     printf("KL_acmp_listener: %ld checks, %ld failures\n", checks, fails);
     delete dut;
     return fails ? 1 : 0;
