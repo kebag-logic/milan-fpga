@@ -1411,6 +1411,11 @@ module KL_aecp_response_builder (
                   seg_len_q[1] <= 16'd52;
                   seg_len_q[2] <= 16'd80;
                   load_input_counters_consts(w_gs_index == 16'd0);
+                end else if (w_gs_type == DESC_ENTITY && w_gs_index == 16'd0) begin
+                  // Hive/la_avdecc queries ENTITY counters: no entity-level
+                  // counters defined -> SUCCESS with an EMPTY valid mask
+                  // (BAD_ARGUMENTS logged as a bad-values error, field report)
+                  status_q <= STATUS_SUCCESS;
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
