@@ -362,6 +362,15 @@ rebuild opensbi+dtb for the AX from source with known params. New rootfs
 (lwSRP writes, 8.58 MiB, fits) is ready at /tmp/scratch/rootfs.cpio.xz. Arty
 next round should pick up 3136b7e for its own dmac echo.
 
+**FINAL PAIR (07-19 ~01:00): Arty QSPI = eppo_milanfinal18 (+0.322) +
+NEW rootfs / AX SRAM = eppo_milanfinal14 (+0.101).** mf18 verified on
+silicon: battery 25/25, **BOTH boards now echo stream_dest_mac**
+(arty: 91e0f000fe01), loop THD+N -69.7 dB, audio stack self-starts, and
+**lwSRP boots enabled on VID 638 from S50milan with zero manual steps**
+(0x684=0x27E, 0x680=0xF at power-on). The arty side is fully durable;
+only the AX's stale rootfs (see reflash caveat below) still needs its
+0x654 revive after reboots.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
