@@ -267,6 +267,21 @@ phc-sync all self-start). LESSON (measure-don't-assume corollary):
 when a fix measures identical, ask whether the INSTRUMENT shares the
 defect - here both legs of the loop had the same clock pathology.
 
+**ANALOG LOOP INVESTIGATION (07-18 late night, still open):** with both
+converters clean-clocked (mf15, eto +0.484 project-best) and JP1
+confirmed SLV, the loop STILL measures the same square: plateaus at
+~0.3 FS, H3 -7.7 dBc, identical to 0.1 dB across three clock
+architectures, a cable swap, AND source level (-12 vs -24 dB source =
+SAME amplitude -> LEVEL-INDEPENDENT). Facts: ring/PCM data -134 dB
+clean; capture->framer digital path -132.8 dB clean (tone inject);
+L/R identical (corr 1.0000); ADC noise floor healthy when unplugged;
+both serializer generations sim bit-exact yet show the same silicon
+signature. Standing model: the CS4344 receives ~only the sign bit
+(sign(sine) x const = level-independent square). Discriminators in
+flight: I2SPB_DBG CSR 0x6F0 (mf16) captures the exact 32 serial bits
+at the DAC pin per LEFT half-frame; user ear/phone-spectrum check
+(buzzy square vs pure sine) at the line-out.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
