@@ -39,6 +39,9 @@ module aaf_talker_i2s #(
 ) (
     input  wire         clk_i,
     input  wire         rst_n,
+    input  wire         adv_i,             //! fractional-N advance (KL_media_adv):
+                                           //! qualifies the divider chain to true
+                                           //! 48 kHz; tie 1 = legacy clk/2^N rate
 
     // ---- control (CSR 0x654 group) -------------------------------------
     input  wire         enable_i,
@@ -83,14 +86,15 @@ module aaf_talker_i2s #(
   // -----------------------------------------------------------------------
   reg [MCLK_DIV_LOG2+8-1:0] cnt_r;
   always_ff @(posedge clk_i or negedge rst_n)
-    if (!rst_n) cnt_r <= '0; else cnt_r <= cnt_r + 1'b1;
+    if (!rst_n) cnt_r <= '0; else if (adv_i) cnt_r <= cnt_r + 1'b1;
 
   assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-1];
   assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2+1];
   assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+7];
 
   //! SCLK rising edge strobe (sample SDOUT here), and LRCK edges
-  wire sclk_rise = (cnt_r[MCLK_DIV_LOG2+1:0] == {2'b01, {MCLK_DIV_LOG2{1'b1}}});
+  //! adv_i-qualified: a paused cnt_r holds the equality >1 cycle
+  wire sclk_rise = adv_i && (cnt_r[MCLK_DIV_LOG2+1:0] == {2'b01, {MCLK_DIV_LOG2{1'b1}}});
   reg  lrck_q;
   always_ff @(posedge clk_i or negedge rst_n)
     if (!rst_n) lrck_q <= 1'b0; else if (sclk_rise) lrck_q <= i2s_lrck_o;
