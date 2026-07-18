@@ -34,7 +34,7 @@ from litex.soc.interconnect import stream
 
 from litex.build.io import DDROutput
 
-from litex.soc.cores.clock import S7PLL
+from litex.soc.cores.clock import S7PLL, S7MMCM
 from litex.soc.interconnect import axi
 from litex.soc.interconnect.csr import CSRStorage, CSRStatus
 from litex.gen.genlib.cdc import BusSynchronizer
@@ -146,6 +146,19 @@ class _CRG(LiteXModule):
             pll.create_clkout(self.cd_milan, milan_clk_freq)
             platform.add_false_path_constraints(self.cd_sys.clk, self.cd_milan.clk)
 
+            # CLEAN audio clock (07-18): the CS4344 needs a ~ps-jitter MCLK -
+            # the fractional-N divider's +-1-cycle edge jitter measured
+            # THD+N -4.5 dB analog. A fractional MMCM makes 24.576 MHz
+            # (+-ppm); the I2S serializer divides it /2 /8 /512 in clean
+            # registers. Rate mismatch vs the talker's 48 kHz = counted
+            # slips (USER internal-clock rule).
+            self.cd_audio = ClockDomain()
+            self.mmcm_audio = mmcm_audio = S7MMCM(speedgrade=-1 if board == "arty" else -2)
+            mmcm_audio.register_clkin(clkin, clkin_freq)
+            mmcm_audio.create_clkout(self.cd_audio, 24.576e6, margin=1e-3)
+            platform.add_false_path_constraints(self.cd_sys.clk,   self.cd_audio.clk)
+            platform.add_false_path_constraints(self.cd_milan.clk, self.cd_audio.clk)
+
         if with_dram:
             # A7DDRPHY needs 4x (and 4x @90° for DQS) system clocks.
             self.cd_sys4x     = ClockDomain()
@@ -245,7 +258,7 @@ _MILAN_DATAPATH_SOURCES = [
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/avtp/aaf_talker_i2s.sv", "hdl/avtp/KL_aaf_rx_depacketizer.sv",
     "hdl/avtp/KL_i2s_playback.sv", "hdl/avtp/KL_tone_gen.sv",
-    "hdl/avtp/KL_media_adv.sv",
+    "hdl/avtp/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
     "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
     "hdl/1722/KL_avtp_rx_monitor.sv", "hdl/maap/KL_maap.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
@@ -283,6 +296,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     ports = dict(
         # clocks / reset  -  the whole datapath runs in `milan_cd`
         i_axis_clk    = ClockSignal(milan_cd),  i_axis_resetn = ~ResetSignal(milan_cd),
+        i_clk_audio_i = ClockSignal("audio"),
         i_gtx_clk     = ClockSignal(milan_cd),  i_gtx_resetn  = ~ResetSignal(milan_cd),
         # AXI4-Lite CSR slave (from the CPU bus bridge, CDC'd into milan_cd above)
         i_s_axi_awaddr  = csr_axil.aw.addr[:16], i_s_axi_awvalid = csr_axil.aw.valid,

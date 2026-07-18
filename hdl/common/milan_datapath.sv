@@ -39,6 +39,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
+  input  wire        clk_audio_i,      //! clean MMCM audio clock (24.576 MHz nominal) for the I2S DAC serializer
   input  wire axis_resetn,
   //! gtx_clk domain (125 MHz) used by the MAC-RX timestamping in ptp_ts_top
   input  wire gtx_clk,
@@ -1060,6 +1061,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
+    .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
     .pcm_tdata_i  (m_axis_pcm_tdata),
     .pcm_tvalid_i (m_axis_pcm_tvalid),
