@@ -185,9 +185,18 @@ module KL_i2s_playback #(
           servo_ms_r <= '0;
           if (!servo_en_i)               //! internal clock: free-run nominal
             trim_r <= 16'sd0;
-          else if (fill_w != '0) begin   //! bound stream: steer to midpoint
-            if (fill_w > MID_C + 1 && trim_r <  16'sd512) trim_r <= trim_r + 16'sd1;
-            if (fill_w < MID_C - 1 && trim_r > -16'sd512) trim_r <= trim_r - 16'sd1;
+          else if (fill_w != '0) begin
+            //! PROPORTIONAL servo (07-18): trim = 4*(fill - mid), clamped.
+            //! The old integrator (+-1 LSB/ms toward midpoint) limit-cycled
+            //! once the structural 48,828 Hz offset was fixed - a slew-
+            //! limited double integrator has no damping. P-control is
+            //! self-damping: equilibrium fill offset = clk_error/4 LSB
+            //! (ppm-class offsets sit within fill mid+-8).
+            automatic logic signed [15:0] p_w;
+            p_w = (16'sd0 + $signed({1'b0, fill_w}) - $signed({1'b0, MID_C})) <<< 2;
+            trim_r <= (p_w >  16'sd511) ? 16'sd511
+                    : (p_w < -16'sd512) ? -16'sd512
+                    :                     p_w;
           end
           //! convergence hysteresis (per-ms): enter ±64/100 ms, exit ±128
           if (fill_w > MID_C - 64 && fill_w < MID_C + 64) begin
