@@ -118,6 +118,9 @@ module KL_acmp_listener #(
     output reg  [1:0]   probing_o,         //! 0 dis / 1 passive / 2 active / 3 done
     output reg          tk_avail_o,        //! bound talker ADP-visible
     output reg  [15:0]  cmd_count_o,       //! listener commands accepted
+    output wire [31:0]  dbg_o,             //! live walker forensics (07-18
+                                           //! silicon deafness): {classify_cnt,
+                                           //! fc_cnt, fc_flags, base_hits}
     output reg  [7:0]   tx_wedge_cnt_o,    //! responses abandoned: TX grant
                                            //! never came (silicon 07-18: the
                                            //! listener wedged in RESPOND_S
@@ -216,6 +219,12 @@ module KL_acmp_listener #(
   end
 
   typedef enum logic [1:0] { COLLECT_S, CLASSIFY_S, RESPOND_S, PROBE_S } st_t;
+  //! walker forensics: where do ACMP frames die on silicon?
+  logic [7:0] dbg_classify_r;   //! CLASSIFY entries (any frame)
+  logic [7:0] dbg_fc_r;         //! CLASSIFY of subtype-0xFC frames
+  logic [7:0] dbg_flags_r;      //! at last FC classify: {dst,etype,sv0,len,
+                                //! ovfl,lstnr_hi,lstnr_lo,is_lstn_cmd}
+  logic [7:0] dbg_basehit_r;    //! w_acmp_base && is_lstn_cmd hits
   //! TX-grant watchdog: ~10 ms @100 MHz (21 ms @50 MHz) - a healthy grant
   //! arrives in microseconds; expiry = arbiter wedge, abandon the frame
   localparam logic [19:0] TXWD_MAX_C = 20'hFFFFF;
@@ -539,6 +548,7 @@ module KL_acmp_listener #(
       acmp_status_o <= 5'd0; probing_o <= 2'd0;
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
       tx_wedge_cnt_o <= 8'd0; txwd_r <= '0;
+      dbg_classify_r <= '0; dbg_fc_r <= '0; dbg_flags_r <= '0; dbg_basehit_r <= '0;
     end else begin
       // ---- timer countdown -------------------------------------------
       if (tick_1ms_r && tmr_r != 14'd0) tmr_r <= tmr_r - 14'd1;
@@ -729,6 +739,16 @@ module KL_acmp_listener #(
         end
 
         CLASSIFY_S: begin
+          dbg_classify_r <= dbg_classify_r + 8'd1;
+          if (cap_subtype_r == ACMP_SUBTYPE_C) begin
+            dbg_fc_r    <= dbg_fc_r + 8'd1;
+            dbg_flags_r <= {cap_dst_ok_r, cap_etype_ok_r, cap_sv0_r, len_ok_r,
+                            ovfl_r, cap_lstnr_hi_ok_r, cap_lstnr_lo_ok_r,
+                            w_is_lstn_cmd};
+            if (w_acmp_base && w_is_lstn_cmd)
+              dbg_basehit_r <= dbg_basehit_r + 8'd1;
+          end
+
           // ---- ADP watch (no response, just availability tracking) -----
           if (w_adp_avail) begin
             tk_avail_o <= 1'b1;
@@ -851,6 +871,8 @@ module KL_acmp_listener #(
       adp_departed_p   <= (st_r == CLASSIFY_S) && w_adp_depart && tk_avail_o;
     end
   end
+
+  assign dbg_o = {dbg_classify_r, dbg_fc_r, dbg_flags_r, dbg_basehit_r};
 
 endmodule
 

@@ -330,6 +330,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [47:0] acmpl_dmac;
   wire [15:0] acmpl_cmd_count, acmpl_probe_count;
   wire [7:0]  acmpl_tx_wedge;
+  wire [31:0] acmpl_dbg;
   wire        lwsrp_ta_registered, lwsrp_ta_failed;
   wire [7:0]  lwsrp_ta_fail_code;
   wire        lwsrp_lstn_declared;
@@ -570,6 +571,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_acmpl_talker_hi    (acmpl_talker[63:32]),
     .i_acmpl_cnt          ({acmpl_probe_count, acmpl_cmd_count}),
     .i_acmpl_tuid         ({acmpl_tx_wedge, lwsrp_ta_fail_code, acmpl_tuid}),
+    .i_acmpl_dbg          (acmpl_dbg),
     .i_avtprx_stat        ({avtprx_intr_c[7:0], avtprx_unlocked_c[7:0],
                             avtprx_locked_c[7:0], 7'd0, avtprx_locked}),
     .i_avtprx_frx         (avtprx_frx_c),
@@ -958,7 +960,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .tk_avail_o     (acmpl_tk_avail),
     .cmd_count_o    (acmpl_cmd_count),
     .probe_count_o  (acmpl_probe_count),
-    .tx_wedge_cnt_o (acmpl_tx_wedge)
+    .tx_wedge_cnt_o (acmpl_tx_wedge),
+    .dbg_o          (acmpl_dbg)
   );
 
   // ==========================================================================
