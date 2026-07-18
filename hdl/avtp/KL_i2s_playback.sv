@@ -80,9 +80,14 @@ module KL_i2s_playback #(
   output logic signed [15:0] trim_o,     //! retired NCO trim - always 0
   output logic [15:0] fill_o,            //! producer FIFO fill (sample pairs)
   output logic        media_reset_p_o,   //! rail event = media-clock reset
-  output logic        converged_o        //! fill in MID±64 sustained 100 ms
+  output logic        converged_o,       //! fill in MID±64 sustained 100 ms
                                          //! (exit ±128) - the EXTERNAL
                                          //! media-lock condition (USER rule)
+  output logic [31:0] dbg_frame_o        //! DAC-serial forensics: the exact
+                                         //! 32 bits shifted out in the last
+                                         //! LEFT half-frame (loops i2s_sdin_o
+                                         //! back digitally - shows what the
+                                         //! CS4344 receives, no scope needed)
 );
 
   assign trim_o = 16'sd0;                //! NCO retired (clean-clock rework)
@@ -213,6 +218,7 @@ module KL_i2s_playback #(
   wire         frame_start_w = (adiv_r == 9'h1FF);   //! next cycle starts LEFT
 
   logic [31:0] shift_r;
+  logic [31:0] dbg_sh_r, dbg_frame_a_r;  //! DAC-serial forensics (audio domain)
   logic [23:0] pend_right_r;
   logic [15:0] underrun_a_r;             //! audio-domain underrun count
   logic [5:0]  bit_r;
@@ -220,6 +226,7 @@ module KL_i2s_playback #(
   always_ff @(posedge clk_audio_i) begin : audio_engine
     if (!arst_n_r[1]) begin
       adiv_r <= '0; shift_r <= '0; pend_right_r <= '0;
+      dbg_sh_r <= '0; dbg_frame_a_r <= '0;
       rd_en_r <= 1'b0;
       underrun_a_r <= '0; bit_r <= '0;
       i2s_mclk_o <= 1'b0; i2s_sclk_o <= 1'b0; i2s_lrck_o <= 1'b0;
@@ -249,6 +256,9 @@ module KL_i2s_playback #(
       end
       else if (sclk_fall_w) begin
         bit_r <= bit_r + 6'd1;
+        //! forensics: record the serial bits of the LEFT half as sent
+        if (bit_r < 6'd32) dbg_sh_r <= {dbg_sh_r[30:0], i2s_sdin_o};
+        if (bit_r == 6'd32) dbg_frame_a_r <= dbg_sh_r;
         //! Philips 1-bit delay: half-frame bit 0 is a pad slot; the word's
         //! MSB goes out on the SECOND fall after each LRCK edge
         if (bit_r[4:0] == 5'd0) begin
@@ -267,10 +277,13 @@ module KL_i2s_playback #(
   //! underrun count into the clk_i CSR view (quasi-static, 2-FF sync per bit
   //! is unnecessary - the count is monotonic and read for trends only)
   logic [15:0] under_meta_r, under_sync_r;
+  logic [31:0] dbgf_meta_r, dbgf_sync_r;
   always_ff @(posedge clk_i) begin : under_cdc
     {under_sync_r, under_meta_r} <= {under_meta_r, underrun_a_r};
+    {dbgf_sync_r, dbgf_meta_r}   <= {dbgf_meta_r, dbg_frame_a_r};
   end : under_cdc
   assign underruns_o = under_sync_r;
+  assign dbg_frame_o = dbgf_sync_r;
 
   //! keep the interface quiet about the unused legacy hooks
   wire _unused_ok = &{1'b0, servo_en_i, MCLK_DIV_LOG2[0], pcm_tlast_i, 1'b0};
