@@ -250,6 +250,23 @@ after an incremental rebuild - regenerate manually (`xz -9
 size-check vs the 8.5 MiB rootfs slot budget; (4) `pw-cli load-module`
 modules die with the pw-cli process - use pw-loopback / conf drop-ins.
 
+**CLEAN AUDIO CLOCK (07-18 night, milanfinal14/15):** the fractional-N
+divider chain put +-1-sys-cycle (~10 ns) edge jitter on MCLK - the
+CS4344/CS5343 delta-sigma cores tolerate ~ps: measured analog THD+N
+-4.5 dB (H3 -7.7 dBc) at ANY level. Fix rev A (mf14, asl **+0.399** -
+session-best timing since the serializer left the 50 MHz domain): MMCM
+cd_audio 24.576 MHz (S7MMCM fractional, margin 1e-3) + player serializer
+in-domain with registered dividers /2 /8 /512 + cdc_pair_fifo (gray
+CDC). Re-measure came back IDENTICAL -4.6 dB -> **the loopback's ADC leg
+(aaf_talker_i2s I2S masters, still NCO-jittered) was the measuring
+instrument AND the distorter** - the post-fix DAC may already be clean.
+Fix rev B (mf15, in flight): talker/tone front-ends also in cd_audio,
+pairs cross via cdc_pair_fifo, KL_media_adv retired. S99milan-audio
+boots the whole stack (verified: pipewire+wireplumber+ring-source+
+phc-sync all self-start). LESSON (measure-don't-assume corollary):
+when a fix measures identical, ask whether the INSTRUMENT shares the
+defect - here both legs of the loop had the same clock pathology.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
