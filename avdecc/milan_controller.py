@@ -370,7 +370,7 @@ def bind(iface, talker_sfx, listener_sfx):
     r = tk.aem("GET_STREAM_FORMAT", struct.pack(">HH", 0x0006, 0))
     if rstatus(r) != 0:
         print(f"talker GET_STREAM_FORMAT: {STATUS.get(rstatus(r))}"); return False
-    fmt = struct.unpack(">Q", r[44:52])[0]
+    fmt = struct.unpack(">Q", r[42:50])[0]
     print(f"talker STREAM_OUTPUT[0] format {fmt:#018x} "
           f"({(fmt >> 22) & 0x3FF} ch)")
 
@@ -388,6 +388,7 @@ def bind(iface, talker_sfx, listener_sfx):
     pkt += struct.pack(">HH", 0, 0)
     pkt += b"\x00" * 6
     pkt += struct.pack(">HHHH", 0, 0x0B00, 0, 0)
+    pkt += struct.pack(">H", 0)                        # reserved tail (1722.1: frame = 70 B; 68 B frames FAIL the listener len check)
     ls._send(ADP_MCAST, pkt)
     end = time.time() + 3.0
     while time.time() < end:
