@@ -208,6 +208,27 @@ milan-tests-avb rootfs overlay (ramfs deploys still needed until the
 next image flash). AX milanfinal12 parity sweep in flight (P-servo +
 ts_delta + responder hardening; AX bench roles unaffected meanwhile).
 
+**gPTP FINAL EVIDENCE (07-18 night, certified-switch session):** the
+boards are CORRECT 802.1AS participants - the AX answers the switch's
+pdelay_req with HW-timestamped responses (frame-verified), masters/
+announces/syncs properly when claiming, and runs clean clientOnly
+slaves. THE SWITCH withholds announce relay in its current state: the
+ONLY relay ever observed was a ~1-minute window right after the pw0
+i210 started claiming (4 announces reached the arty, capture-proven);
+never again - not after a clean switch power-cycle with a single stable
+claimant, not with SW vs HW timestamps, not from board ports vs pw0's
+port. The switch also never announces its own GM into any observed port
+(pdelay_req only, forever). A certified bridge doing this = its own
+gPTP/management configuration (per-port 802.1AS enable, GM policy -
+possibly reset by today's power cycles). NEXT ACTION = the switch's
+management UI (user). Meanwhile the timestamp deliverable is COMPLETE
+via stream-sync (ts_delta 0x6EC): LATE/EARLY exactly 0 sustained, GM
+published, media clocks servo-locked.
+**AX keeper = eppo_milanfinal12 (+0.031) JTAG-SRAM** (P-servo + ts_delta
++ responder hardening parity); pair re-verified: bind SUCCESS, 8.7k fr/s,
+fill mid-pinned. MAAP re-enabled on the fresh boot (re-claims an offset
+each boot until NV persistence lands in S50milan).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
