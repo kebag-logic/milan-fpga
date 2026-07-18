@@ -264,6 +264,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
   wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
   wire [7:0]  cfg_adp_gptp_domain;
+  wire [31:0] cfg_gptp_pdelay_ns;
   wire [15:0] cfg_adp_current_config, cfg_adp_identify_index, cfg_adp_interface_index;
   wire        cfg_adp_advertise_p, cfg_adp_depart_p;
   wire [31:0] adp_available_index;
@@ -512,6 +513,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_adp_listener_caps  (cfg_adp_listener_caps),
     .o_adp_controller_caps(cfg_adp_controller_caps),
     .o_adp_gptp_gm        (cfg_adp_gptp_gm),
+    .o_gptp_pdelay_ns     (cfg_gptp_pdelay_ns),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -847,6 +849,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .available_index_i (adp_available_index),
     .association_id_i  (cfg_adp_association_id),
     .gptp_gm_id_i      (cfg_adp_gptp_gm),
+    .pdelay_ns_i       (cfg_gptp_pdelay_ns),
     .gptp_domain_i     (cfg_adp_gptp_domain),
     .aaf_dmac_i (eff_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
     .talker_active_i (acmp_talker_active),
