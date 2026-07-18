@@ -78,12 +78,30 @@ distinct defects, both now fixed in RTL (milanfinal9, build pending):
   generator as oracle so declared-vs-wire divergence was invisible to
   every suite; only a format-matching controller (Hive) exposed it.
 
-**Current bench state (post-session):** audio RESTORED on the pre-fix
-gateware (listener manually set to the wire-true 2ch, stream locked,
-servo tracking but still hunting vs the 48,828 Hz source until
-milanfinal9 lands). AX milanfinal9 3-seed sweep IN FLIGHT (48k NCO +
-talker truth + gPTP dyn + media-lock + ENTITY counters). Arty sweep
-queued behind it (same content, keeper still QSPI milanfinal8).
+**MILANFINAL9 AX ON SILICON (later 07-18):** all 3 seeds timing-met
+(eto **+0.057** = keeper, JTAG-SRAM loaded; asl +0.043, eppo +0.004);
+wire cadence measured **median 125,000 ns/frame = 48,000.000 Hz PASS**
+(was 122,880 / 48,828.125). Talker-truth live: GET_STREAM_FORMAT(out0)
+returns the 2ch wire format; `--bind 0001 0002` matched the listener and
+locked (RATE ~8.1k). **Mirror bug found by that very test**: the arty
+PLAYER's nominal NCO step (0x8000) is the same clk/2^N = 48,828 Hz
+architecture — vs the now-true 48k source its trim pegged **−512 with
+fill 5** (floor 48,065 Hz, still +65 Hz fast → periodic underrun dumps).
+Fix `10f3616`: NOM_STEP from CLK_FREQ_HZ (32212, −8 ppm, same value on
+both boards). Arty milanfinal9 sweep carries it + TONE_CTRL[3:1] tone
+attenuation (`fbf19eb`; the analog loopback clips the Pmod ADC at
+0 dBFS — H3 within 1 dB of H1 measured). NOTE: the AX build is 2 commits
+behind arty (no attenuation/player-step — AX player unused; analog
+THD+N acceptance needs an AX round with attenuation or a passive pad).
+**Loopback instrument**: PMOD line-out→line-in loop; arty talker in
+bypass (0x654=0x3, tone OFF) streams the played audio back as sid :02 →
+pw0 capture = frequency-vs-time of what the DAC actually plays (this
+measured the wobble: ±1.5 % @ ~2 s period = exactly the servo clamp).
+**Post-power-cycle rebuild traps:** pw0 /tmp wiped (redeploy
+milan_controller.py + gptp2csr.sh), scratchpad tooling wiped (con.sh /
+daemons / numpy venv), AX JTAG reload = fresh boot → console needs
+`root` login + `dmesg -n 1` (kl-eth bd-stage spam buries it), and
+board-side ramfs deployments are lost on the reloaded board.
 
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
