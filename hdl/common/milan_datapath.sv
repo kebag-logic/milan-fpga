@@ -181,7 +181,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
     .clk_i (axis_clk), .rst_n (axis_resetn), .adv_i (w_media_adv),
-    .enable_i (cfg_tone_enable), .smp_o (tone_smp)
+    .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
   );
 
   aaf_talker_i2s #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) aaf_talker (
@@ -354,6 +354,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        i2spb_reset_p;
   wire [31:0] avtprx_mreset_c, avtprx_late_c, avtprx_early_c;
   wire        cfg_tone_enable;
+  wire [2:0]  cfg_tone_att;
   wire [23:0] tone_smp;
   //! MAAP engine (KL_maap, IEEE 1722 Annex B; docs/design/MAAP_FABRIC.md)
   wire        cfg_maap_enable, cfg_maap_seed_valid;
@@ -584,6 +585,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_maap_count         (cfg_maap_count),
     .o_maap_seed_offset   (cfg_maap_seed_offset),
     .o_tone_enable        (cfg_tone_enable),
+    .o_tone_att           (cfg_tone_att),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
