@@ -168,13 +168,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! 97.7 kHz while advertising 48 k (silicon: 16.9k fr/s, servo pegged).
   localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
 
+  //! true-48kHz fractional advance shared by talker + tone (48,828 Hz fix)
+  wire w_media_adv;
+  KL_media_adv #(
+    .CLK_FREQ_HZ (MILAN_CLK_FREQ_HZ),
+    .TICK_HZ     (48_000 << (MCLK_DIV_LOG2_C + 8))
+  ) u_media_adv (
+    .clk_i (axis_clk),
+    .rst_n (axis_resetn),
+    .adv_o (w_media_adv)
+  );
+
   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .clk_i (axis_clk), .rst_n (axis_resetn), .adv_i (w_media_adv),
     .enable_i (cfg_tone_enable), .smp_o (tone_smp)
   );
 
   aaf_talker_i2s #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) aaf_talker (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .clk_i (axis_clk), .rst_n (axis_resetn), .adv_i (w_media_adv),
     .enable_i (aaf_gate),
     .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
     .dest_mac_i (eff_aaf_dmac),

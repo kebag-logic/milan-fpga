@@ -58,6 +58,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/adp/adp_pkg.
        $(RTL_DIR)/maap/KL_maap.sv \
        $(RTL_DIR)/avtp/KL_i2s_playback.sv \
        $(RTL_DIR)/avtp/KL_tone_gen.sv \
+       $(RTL_DIR)/avtp/KL_media_adv.sv \
        $(RTL_DIR)/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/csr/milan_csr.sv \
        $(C)/milan_datapath.sv

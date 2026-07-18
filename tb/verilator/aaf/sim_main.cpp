@@ -11,7 +11,8 @@ static void step(){dut->clk_i=0;dut->eval();dut->clk_i=1;dut->eval();}
 static std::vector<unsigned char> collect(int maxc){std::vector<unsigned char> b;for(int c=0;c<maxc;c++){dut->m_axis_tready=1;dut->clk_i=0;dut->eval();bool v=dut->m_axis_tvalid;bool l=dut->m_axis_tlast;unsigned long long d=dut->m_axis_tdata;unsigned k=dut->m_axis_tkeep;dut->clk_i=1;dut->eval();if(v){for(int i=0;i<8;i++)if((k>>i)&1)b.push_back((d>>(8*i))&0xFF);if(l)return b;}}return b;}
 static unsigned long be(std::vector<unsigned char>&b,int o,int n){unsigned long v=0;for(int i=0;i<n;i++)v=(v<<8)|b[o+i];return v;}
 int main(int argc,char**argv){Verilated::commandArgs(argc,argv);dut=new Vaaf_talker_i2s;
- dut->rst_n=0;dut->enable_i=0;dut->i2s_sdout_i=1;dut->m_axis_tready=1;
+ dut->rst_n=0;dut->enable_i=0;dut->adv_i=1;  // tie 1 = legacy clk/2^N rate (golden checks)
+ dut->i2s_sdout_i=1;dut->m_axis_tready=1;
  dut->dest_mac_i=0x91E0F000FE01ULL;dut->station_mac_i=0x020000000002ULL;dut->vlan_vid_i=2;dut->ptp_ns_i=0x11223344;dut->transit_ns_i=2000000;  // was a localparam; now the AECP presentation-offset register drives it
  for(int i=0;i<8;i++)step(); dut->rst_n=1; dut->enable_i=1;
  printf("== aaf_talker_i2s ==\n");
