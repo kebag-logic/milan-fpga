@@ -2,12 +2,12 @@
 // Milan v1.2 HW entity, FULL mandatory descriptor set (FR-ENUM-02).
 // See avdecc/milan-v12-entity.json.
 
-localparam int unsigned AEM_ROM_BYTES_C = 3693;
+localparam int unsigned AEM_ROM_BYTES_C = 3677;
 localparam int unsigned AEM_DESC_N_C    = 34;
 // Scratch tail (zero-init RAM past the descriptor image): Milan MVU
 // media_clock_domain_name (64 B, Milan 1.3 §5.4.4.4)
 localparam int unsigned AEM_STORE_BYTES_C = AEM_ROM_BYTES_C + 64;
-localparam [15:0] WB_MCR_DOMNAME_C = 16'd3693;
+localparam [15:0] WB_MCR_DOMNAME_C = 16'd3677;
 
 // Descriptor directory: {type[15:0], index[15:0], base[15:0], len[15:0]}
 localparam [63:0] AEM_DIR_C [0:33] = '{
@@ -16,39 +16,39 @@ localparam [63:0] AEM_DIR_C [0:33] = '{
   64'h0002_0000_01A2_009C,
   64'h0005_0000_023E_009C,
   64'h0005_0001_02DA_009C,
-  64'h0006_0000_0376_009C,
-  64'h0009_0000_0412_0062,
-  64'h000A_0000_0474_0056,
-  64'h000A_0001_04CA_0056,
-  64'h000A_0002_0520_0056,
-  64'h0024_0000_0576_0052,
-  64'h001A_0000_05C8_0071,
-  64'h000C_0000_0639_0048,
-  64'h000D_0000_0681_01C4,
-  64'h000E_0000_0845_0014,
-  64'h000F_0000_0859_0014,
-  64'h0014_0000_086D_0057,
-  64'h0014_0001_08C4_0057,
-  64'h0014_0002_091B_0057,
-  64'h0014_0003_0972_0057,
-  64'h0014_0004_09C9_0057,
-  64'h0014_0005_0A20_0057,
-  64'h0014_0006_0A77_0057,
-  64'h0014_0007_0ACE_0057,
-  64'h0014_0008_0B25_0057,
-  64'h0014_0009_0B7C_0057,
-  64'h0014_000A_0BD3_0057,
-  64'h0014_000B_0C2A_0057,
-  64'h0014_000C_0C81_0057,
-  64'h0014_000D_0CD8_0057,
-  64'h0014_000E_0D2F_0057,
-  64'h0014_000F_0D86_0057,
-  64'h0017_0000_0DDD_0048,
-  64'h0017_0001_0E25_0048
+  64'h0006_0000_0376_008C,
+  64'h0009_0000_0402_0062,
+  64'h000A_0000_0464_0056,
+  64'h000A_0001_04BA_0056,
+  64'h000A_0002_0510_0056,
+  64'h0024_0000_0566_0052,
+  64'h001A_0000_05B8_0071,
+  64'h000C_0000_0629_0048,
+  64'h000D_0000_0671_01C4,
+  64'h000E_0000_0835_0014,
+  64'h000F_0000_0849_0014,
+  64'h0014_0000_085D_0057,
+  64'h0014_0001_08B4_0057,
+  64'h0014_0002_090B_0057,
+  64'h0014_0003_0962_0057,
+  64'h0014_0004_09B9_0057,
+  64'h0014_0005_0A10_0057,
+  64'h0014_0006_0A67_0057,
+  64'h0014_0007_0ABE_0057,
+  64'h0014_0008_0B15_0057,
+  64'h0014_0009_0B6C_0057,
+  64'h0014_000A_0BC3_0057,
+  64'h0014_000B_0C1A_0057,
+  64'h0014_000C_0C71_0057,
+  64'h0014_000D_0CC8_0057,
+  64'h0014_000E_0D1F_0057,
+  64'h0014_000F_0D76_0057,
+  64'h0017_0000_0DCD_0048,
+  64'h0017_0001_0E15_0048
 };
 
 // ROM image (network byte order, addr 0 = first byte of ENTITY)
-localparam [7:0] AEM_ROM_INIT_C [0:3692] = '{
+localparam [7:0] AEM_ROM_INIT_C [0:3676] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -109,12 +109,11 @@ localparam [7:0] AEM_ROM_INIT_C [0:3692] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'hFF,8'hFF,8'h00,8'h00,8'h00,8'h02,
-  8'h02,8'h05,8'h02,8'h20,8'h02,8'h00,8'h60,8'h00,8'h00,8'h84,8'h00,8'h03,8'h00,8'h00,8'h00,8'h00,
+  8'h02,8'h05,8'h02,8'h20,8'h00,8'h80,8'h60,8'h00,8'h00,8'h84,8'h00,8'h01,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h02,8'h05,8'h02,8'h20,8'h02,8'h00,
-  8'h60,8'h00,8'h02,8'h07,8'h02,8'h20,8'h02,8'h00,8'hC0,8'h00,8'h02,8'h09,8'h02,8'h20,8'h02,8'h01,
-  8'h80,8'h00,8'h00,8'h09,8'h00,8'h00,8'h41,8'h56,8'h42,8'h20,8'h49,8'h6E,8'h74,8'h65,8'h72,8'h66,
+  8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h02,8'h05,8'h02,8'h20,8'h00,8'h80,
+  8'h60,8'h00,8'h00,8'h09,8'h00,8'h00,8'h41,8'h56,8'h42,8'h20,8'h49,8'h6E,8'h74,8'h65,8'h72,8'h66,
   8'h61,8'h63,8'h65,8'h20,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -324,10 +323,10 @@ function automatic [7:0] aem_ovl_lookup(input [15:0] addr);
       aem_ovl_lookup = {1'b1, OVL_ASSOC_ID_C, 3'(addr - 16'd40)};
     if (addr >= 16'd310 && addr < 16'd312)
       aem_ovl_lookup = {1'b1, OVL_CURRENT_CFG_C, 3'(addr - 16'd310)};
-    if (addr >= 16'd1114 && addr < 16'd1120)
-      aem_ovl_lookup = {1'b1, OVL_MAC_C, 3'(addr - 16'd1114)};
-    if (addr >= 16'd1122 && addr < 16'd1130)
-      aem_ovl_lookup = {1'b1, OVL_CLOCK_ID_C, 3'(addr - 16'd1122)};
+    if (addr >= 16'd1098 && addr < 16'd1104)
+      aem_ovl_lookup = {1'b1, OVL_MAC_C, 3'(addr - 16'd1098)};
+    if (addr >= 16'd1106 && addr < 16'd1114)
+      aem_ovl_lookup = {1'b1, OVL_CLOCK_ID_C, 3'(addr - 16'd1106)};
   end
 endfunction
 
@@ -336,10 +335,10 @@ localparam [15:0] WB_SAMPLING_RATE_C = 16'd554;
 localparam [15:0] WB_STREAM_FORMAT_C = 16'd960;
 localparam [15:0] WB_STREAM_IN0_FMT_C = 16'd648;
 localparam [15:0] WB_STREAM_IN1_FMT_C = 16'd804;
-localparam [15:0] WB_CLOCK_SRC_IDX_C = 16'd1468;
-localparam [15:0] WB_CONTROL_CUR_C = 16'd1588;
-localparam [15:0] WB_AUDIO_MAP_0_C = 16'd3549;
-localparam [15:0] WB_AUDIO_MAP_1_C = 16'd3621;
+localparam [15:0] WB_CLOCK_SRC_IDX_C = 16'd1452;
+localparam [15:0] WB_CONTROL_CUR_C = 16'd1572;
+localparam [15:0] WB_AUDIO_MAP_0_C = 16'd3533;
+localparam [15:0] WB_AUDIO_MAP_1_C = 16'd3605;
 
 // SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}
 function automatic [16:0] aem_name_lookup(input [15:0] t,
@@ -362,49 +361,49 @@ function automatic [16:0] aem_name_lookup(input [15:0] t,
     if (t == 16'h0006 && idx == 16'd0 && nidx == 16'd0)
       aem_name_lookup = {1'b1, 16'd890};
     if (t == 16'h0009 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1046};
+      aem_name_lookup = {1'b1, 16'd1030};
     if (t == 16'h000A && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1144};
+      aem_name_lookup = {1'b1, 16'd1128};
     if (t == 16'h000A && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1230};
+      aem_name_lookup = {1'b1, 16'd1214};
     if (t == 16'h000A && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1316};
+      aem_name_lookup = {1'b1, 16'd1300};
     if (t == 16'h0024 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1402};
+      aem_name_lookup = {1'b1, 16'd1386};
     if (t == 16'h001A && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1484};
+      aem_name_lookup = {1'b1, 16'd1468};
     if (t == 16'h0014 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2161};
+      aem_name_lookup = {1'b1, 16'd2145};
     if (t == 16'h0014 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2248};
+      aem_name_lookup = {1'b1, 16'd2232};
     if (t == 16'h0014 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2335};
+      aem_name_lookup = {1'b1, 16'd2319};
     if (t == 16'h0014 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2422};
+      aem_name_lookup = {1'b1, 16'd2406};
     if (t == 16'h0014 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2509};
+      aem_name_lookup = {1'b1, 16'd2493};
     if (t == 16'h0014 && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2596};
+      aem_name_lookup = {1'b1, 16'd2580};
     if (t == 16'h0014 && idx == 16'd6 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2683};
+      aem_name_lookup = {1'b1, 16'd2667};
     if (t == 16'h0014 && idx == 16'd7 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2770};
+      aem_name_lookup = {1'b1, 16'd2754};
     if (t == 16'h0014 && idx == 16'd8 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2857};
+      aem_name_lookup = {1'b1, 16'd2841};
     if (t == 16'h0014 && idx == 16'd9 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2944};
+      aem_name_lookup = {1'b1, 16'd2928};
     if (t == 16'h0014 && idx == 16'd10 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3031};
+      aem_name_lookup = {1'b1, 16'd3015};
     if (t == 16'h0014 && idx == 16'd11 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3118};
+      aem_name_lookup = {1'b1, 16'd3102};
     if (t == 16'h0014 && idx == 16'd12 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3205};
+      aem_name_lookup = {1'b1, 16'd3189};
     if (t == 16'h0014 && idx == 16'd13 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3292};
+      aem_name_lookup = {1'b1, 16'd3276};
     if (t == 16'h0014 && idx == 16'd14 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3379};
+      aem_name_lookup = {1'b1, 16'd3363};
     if (t == 16'h0014 && idx == 16'd15 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3466};
+      aem_name_lookup = {1'b1, 16'd3450};
   end
 endfunction
 
