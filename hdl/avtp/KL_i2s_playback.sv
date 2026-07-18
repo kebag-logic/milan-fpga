@@ -259,12 +259,16 @@ module KL_i2s_playback #(
         //! forensics: record the serial bits of the LEFT half as sent
         if (bit_r < 6'd32) dbg_sh_r <= {dbg_sh_r[30:0], i2s_sdin_o};
         if (bit_r == 6'd32) dbg_frame_a_r <= dbg_sh_r;
-        //! Philips 1-bit delay: half-frame bit 0 is a pad slot; the word's
-        //! MSB goes out on the SECOND fall after each LRCK edge
-        if (bit_r[4:0] == 5'd0) begin
-          i2s_sdin_o <= 1'b0;            //! delay slot
-          if (bit_r == 6'd32)            //! RIGHT half begins
-            shift_r <= {pend_right_r, 8'h00};
+        //! Philips 1-bit delay comes from the OUTPUT REGISTER pipeline: sdin
+        //! set at fall N reaches the chip's rise N, and the fall at each LRCK
+        //! boundary is consumed by frame-start/reload - so the chip's delay
+        //! slot already carries the previous half's zero tail. Bit slot 0
+        //! must therefore send the MSB itself; an explicit pad here doubles
+        //! the delay and puts the sign bit at magnitude weight 2^22 (the
+        //! silicon level-independent sign-square, 2026-07-18).
+        if (bit_r == 6'd32) begin        //! RIGHT half: MSB + reload
+          i2s_sdin_o <= pend_right_r[23];
+          shift_r    <= {pend_right_r[22:0], 9'h000};
         end
         else begin
           i2s_sdin_o <= shift_r[31];

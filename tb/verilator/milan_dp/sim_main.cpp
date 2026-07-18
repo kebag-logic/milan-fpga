@@ -773,10 +773,13 @@ int main(int argc, char** argv) {
                 step();
                 int sclk = dut->i2s_dac_sclk_o, lrck = dut->i2s_dac_lrck_o;
                 if (sclk && !sclk_q) {                    // SCLK rising: sample
-                    if (bitcnt >= 0 && bitcnt < 25) {     // skip 1 delay bit
-                        if (bitcnt > 0) acc = (acc << 1) | (dut->i2s_dac_sdin_o & 1);
+                    // textbook I2S chip (CS4344): the rise coincident with the
+                    // LRCK transition is the delay slot; the MSB arrives on
+                    // the NEXT rise (slots 1..24 here, bitcnt set at slot 0)
+                    if (bitcnt >= 0 && bitcnt < 24) {
+                        acc = (acc << 1) | (dut->i2s_dac_sdin_o & 1);
                         bitcnt++;
-                        if (bitcnt == 25) {
+                        if (bitcnt == 24) {
                             if (acc != 0) { sample = acc; got_nz = true; }
                             bitcnt = -1;
                         }
