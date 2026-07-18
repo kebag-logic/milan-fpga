@@ -57,11 +57,18 @@ distinct defects, both now fixed in RTL (milanfinal9, build pending):
    was controller-left mismatched formats = bug 5.
 
 **Traps burned this session:**
-- **Build launcher MUST have the venv on PATH** (`export PATH=
-  "$HOME/litex-milan/venv/bin:$PATH"`): the BIOS Makefile invokes bare
-  `python3 -m litex...crcfbigen`; venv-binary-only launches die at
-  bios.bin (3 wasted launches). Scratchpad `launch_ax9.sh` is the good
-  template.
+- **Build launcher env — TWO requirements** (cost 4 wasted launches):
+  (1) venv on PATH (`export PATH="$HOME/litex-milan/venv/bin:$PATH"`) —
+  the BIOS Makefile invokes bare `python3 -m litex...crcfbigen`, so
+  calling the venv python explicitly is NOT enough; (2) `source
+  /home/alex/Xilinx/2026.1/Vivado/settings64.sh` — nohup/scripted envs
+  have no Vivado (LiteX dies post-BIOS with "Unable to find or source
+  Vivado toolchain"). Interactive shells get both from the profile,
+  which is why manual runs always worked. Scratchpad `launch_ax9.sh` /
+  `launch_arty9.sh` are the canonical templates. Also: `pkill -f` with a
+  plain build-tag pattern kills YOUR OWN shell and any monitor whose
+  command text contains the tag (exit 144) — use a bracket pattern like
+  `pkill -f "output-dir.*milanfinal[9]"`.
 - pw0 can NEVER see the boards' ACMP responses (fabric TX doesn't cross
   Linux tcpdump on-board; the switch doesn't relay board ACMP multicast
   uplink) — verify ACMP effects via CSRs (0x6A4/0x6B0), not pcap.
