@@ -8,52 +8,58 @@
   File        : KL_i2s_playback.sv
   Author      : Kebag Logic
 
-  Date        : 2026-07-17
-  Description : Zero-CPU I2S playback of the received AAF stream — the
-                listener's audible output on the Pmod I2S2 DAC (CS4344).
-                Taps the depacketizer PCM stream (observed transfers, never
-                backpressures), takes channels 0..1 of each interleaved
-                sample frame (S32BE, top 24 bits), buffers in a sample FIFO
-                and serializes Philips-I2S (64 fs, 1-bit delay, data changes
-                on SCLK falling) on the SAME free-running divider scheme the
-                AAF talker uses as I2S clock master, so ADC and DAC share
-                MCLK/SCLK/LRCK waveforms.
+  Date        : 2026-07-18 (clean-clock rework; original 2026-07-17)
+  Description : Zero-CPU I2S playback of the received AAF stream on the Pmod
+                I2S2 DAC (CS4344), CLEAN-CLOCK edition.
 
-                MVP clocking: the local 48 kHz free-runs vs the talker's
-                media clock, so the FIFO drifts by the ppm difference. The
-                rails handle it audibly-benignly (underrun -> emit silence;
-                overrun -> drop the incoming pair) and each event is
-                counted (CSR I2SPB_STAT) so silicon can MEASURE the drift.
-                The CRF media-clock task disciplines this divider later
-                (NCO) and retires the rails.
+                History: the first NCO design derived MCLK from a fractional
+                accumulator - true 48 kHz average but +-1 sys-cycle edge
+                jitter (~10 ns at 12.2 MHz, alternating 4/5-cycle periods).
+                The CS4344's delta-sigma core tolerates ~ps of MCLK jitter:
+                measured analog THD+N collapsed to -4.5 dB (H3 -7.7 dBc)
+                at ANY level. Fix: the serializer now lives in a dedicated
+                MMCM audio clock domain (clk_audio_i = 24.576 MHz nominal,
+                +-ppm): MCLK/SCLK/LRCK are plain registered dividers
+                (/2 /8 /512) = jitter-free; samples cross via a gray-pointer
+                dual-clock FIFO (cdc_pair_fifo).
+
+                Rate matching: the audio domain free-runs at the MMCM's ppm
+                offset vs the talker's 48 kHz (USER rule: internal media
+                clock = free-run, slips accepted). Underrun repeats the
+                last pair, overrun drops - both counted. The NCO trim servo
+                is retired (trim_o reads 0); exact stream-clock recovery
+                for CLOCK_SOURCE=stream returns as MMCM-DRP discipline
+                later. converged_o keeps its fill-window semantics on the
+                producer-side FIFO.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
 ------------------------------------------------------------------------------
 */
 
-//! I2S DAC serializer for the AAF listener: PCM tap (wire-order S32BE
-//! interleaved) -> stereo 24-bit sample FIFO -> Philips I2S at 64 fs on the
-//! shared free-running divider (same scheme as `aaf_talker_i2s`). Underrun
-//! plays silence, overrun drops a pair; both counted for drift measurement.
+//! I2S DAC serializer, clean-clocked: PCM tap (wire-order S32BE interleave,
+//! re-strided from the live channel count) -> pair FIFO (clk_i) ->
+//! cdc_pair_fifo -> audio-domain Philips I2S at 64 fs from plain dividers.
 
 `default_nettype none
 
 module KL_i2s_playback #(
-  parameter int MCLK_DIV_LOG2 = 2,      //! clk -> MCLK divide (log2), = talker
-  parameter int CLK_FREQ_HZ   = 50_000_000, //! datapath clock: sets the TRUE
-                                        //! 48 kHz nominal NCO step (07-18: the
-                                        //! 0x8000 half-rate nominal was clk/2^N
-                                        //! = 48,828 Hz - the talker bug mirrored)
+  parameter int MCLK_DIV_LOG2 = 2,      //! legacy param (kept for the
+                                        //! instantiation interface; the
+                                        //! clean-clock path does not use it)
+  parameter int CLK_FREQ_HZ   = 50_000_000, //! clk_i frequency (kept: the
+                                        //! per-ms servo tick derives from it)
   parameter int FIFO_LOG2     = 9       //! sample-pair FIFO depth (2^N)
 )(
-  input  wire         clk_i,            //! Global clock (I2S master domain)
-  input  wire         rst_n,            //! Active-low synchronous reset
-  input  wire         servo_en_i,       //! USER rule 07-18: exact clock recovery
-                                        //! ONLY when the media clock is a bound
-                                        //! stream {AAF, CRF}; internal source =
-                                        //! free-run at nominal (trim forced 0,
-                                        //! periodic slips accepted)
+  input  wire         clk_i,            //! datapath clock (PCM tap domain)
+  input  wire         rst_n,            //! active-low sync reset (clk_i)
+  input  wire         clk_audio_i,      //! CLEAN audio clock (MMCM, 24.576 MHz
+                                        //! nominal; MCLK = /2, fs = /512)
+  input  wire         servo_en_i,       //! USER rule hook: exact recovery only
+                                        //! for bound-stream clock sources.
+                                        //! No NCO actuator remains - kept for
+                                        //! the future MMCM-DRP servo; the
+                                        //! convergence observer still runs.
 
   //! --- PCM tap (depacketizer m_axis, observed transfers) -----------------
   input  wire [63:0]  pcm_tdata_i,
@@ -62,59 +68,24 @@ module KL_i2s_playback #(
   input  wire         pcm_tlast_i,
   input  wire [9:0]   chans_i,           //! channels/frame (fmt[31:22]; >=2)
 
-  //! --- I2S DAC (Pmod I2S2 line-out; clocks shared with the ADC side) -----
-  output wire         i2s_mclk_o,
-  output wire         i2s_sclk_o,
-  output wire         i2s_lrck_o,
+  //! --- I2S DAC (Pmod I2S2 line-out) --------------------------------------
+  output logic        i2s_mclk_o,
+  output logic        i2s_sclk_o,
+  output logic        i2s_lrck_o,
   output logic        i2s_sdin_o,        //! serial data to the CS4344
 
   //! --- observability (CSR I2SPB_STAT / I2SPB_TRIM) ------------------------
-  output logic [15:0] underruns_o,       //! LRCK frames started with FIFO empty
+  output logic [15:0] underruns_o,       //! audio frames padded (CDC empty)
   output logic [15:0] overruns_o,        //! sample pairs dropped (FIFO full)
-  output logic signed [15:0] trim_o,     //! NCO servo trim (LSB = 15.3 ppm)
-  output logic [15:0] fill_o,            //! FIFO fill (sample pairs)
+  output logic signed [15:0] trim_o,     //! retired NCO trim - always 0
+  output logic [15:0] fill_o,            //! producer FIFO fill (sample pairs)
   output logic        media_reset_p_o,   //! rail event = media-clock reset
-  output logic        converged_o        //! recovered clock near nominal:
-                                         //! fill in MID±64 sustained 100 ms
-                                         //! (exit at MID±128) - the EXTERNAL
+  output logic        converged_o        //! fill in MID±64 sustained 100 ms
+                                         //! (exit ±128) - the EXTERNAL
                                          //! media-lock condition (USER rule)
 );
 
-  // ------------------------------------------------------------------ //
-  // NCO-disciplined I2S divider: same waveform scheme as aaf_talker_i2s //
-  // but the counter advances through a fractional accumulator whose     //
-  // step is trimmed by a FIFO-fill servo — the fill integrates the      //
-  // talker-vs-local rate difference, so steering it to midpoint IS      //
-  // media-clock recovery (reference parity: pipewire recovers from the  //
-  // bound stream, its CRF handler is consume-and-ignore).               //
-  // ------------------------------------------------------------------ //
-  //! HALF-RATE NCO (silicon find: a 0x10000 nominal step carries every
-  //! cycle, so the divider could slow but NEVER exceed nominal - positive
-  //! trim was a no-op and a high FIFO could never drain). Nominal step
-  //! 0x8000 advances the (one-bit-narrower) counter every 2nd cycle;
-  //! trim ±512/0x8000 = ±1.56 % in BOTH directions.
-  logic [MCLK_DIV_LOG2+7-1:0] cnt_r;
-  logic [15:0]        frac_r;
-  logic signed [15:0] trim_r;
-  //! nominal step for EXACTLY 48 kHz from CLK_FREQ_HZ (integer-truncated:
-  //! -8 ppm, absorbed by the servo); 50 MHz/LOG2 2 and 100 MHz/LOG2 3 both
-  //! give 32212 (vs the old 32768 = +1.7 % fast)
-  localparam int NOM_STEP_C =
-      int'((64'd48_000 * (64'd1 << (MCLK_DIV_LOG2+7)) * 64'd65536) / CLK_FREQ_HZ);
-  wire  [16:0] step_w = 17'(NOM_STEP_C) + 17'(trim_r);
-  wire  [16:0] acc_w  = {1'b0, frac_r} + step_w;
-  wire         adv_w  = acc_w[16];
-  assign trim_o = trim_r;
-  assign i2s_mclk_o = cnt_r[MCLK_DIV_LOG2-2];
-  assign i2s_sclk_o = cnt_r[MCLK_DIV_LOG2];
-  assign i2s_lrck_o = cnt_r[MCLK_DIV_LOG2+6];
-
-  //! SCLK falling edge (data change point): the advance that wraps the
-  //! low bits so sclk goes 1 -> 0
-  wire sclk_fall = adv_w &&
-                   (cnt_r[MCLK_DIV_LOG2:0] == {1'b1, {MCLK_DIV_LOG2{1'b1}}});
-  logic lrck_q;
-  wire  lrck_edge = sclk_fall && (i2s_lrck_o != lrck_q);
+  assign trim_o = 16'sd0;                //! NCO retired (clean-clock rework)
 
   // ------------------------------------------------------------------ //
   // PCM tap: first beat of each channel-frame carries ch0 (lanes 0..3,   //
@@ -128,10 +99,9 @@ module KL_i2s_playback #(
                          pcm_tdata_i[23:16]};                  // bytes 0..2
   wire [23:0] smp_r_w = {pcm_tdata_i[39:32], pcm_tdata_i[47:40],
                          pcm_tdata_i[55:48]};                  // bytes 4..6
-  wire take_pair_w = pcm_acc_w && (beat_r == 9'd0);
 
   // ------------------------------------------------------------------ //
-  // Sample-pair FIFO (BRAM/LUTRAM; 48-bit {L,R})                         //
+  // Producer-side sample-pair FIFO (clk_i)                               //
   // ------------------------------------------------------------------ //
   logic [47:0] fifo_r [0:(1<<FIFO_LOG2)-1];
   logic [FIFO_LOG2:0] wptr_r, rptr_r;
@@ -139,80 +109,32 @@ module KL_i2s_playback #(
   wire                full_w  = fill_w[FIFO_LOG2];
   wire                empty_w = (fill_w == '0);
   localparam logic [FIFO_LOG2:0] MID_C = 1 << (FIFO_LOG2 - 1);
-  logic [5:0]  servo_ms_r;
-  logic [6:0]  conv_ms_r;      //! consecutive ms inside the entry window
-  logic        was_playing_r;   //! a pair has popped since the last empty
   assign fill_o = 16'(fill_w);
-  logic [47:0] rd_pair_r;
 
-  // ------------------------------------------------------------------ //
-  // I2S shift engine: load at each LRCK edge, shift on SCLK falling.     //
-  // Philips I2S: 1-bit delay, MSB first, LEFT while LRCK=0.              //
-  // ------------------------------------------------------------------ //
-  logic [31:0] shift_r;
-  logic [23:0] pend_right_r;
+  //! feeder: keep the small CDC FIFO topped up from the main FIFO
+  logic        cdc_wen_r;
+  logic [47:0] cdc_wdata_r;
+  wire         cdc_wfull_w;
 
-  always_ff @(posedge clk_i) begin : playback
+  //! per-ms tick for the convergence observer
+  localparam int MS_DIV_C = CLK_FREQ_HZ / 1000;
+  logic [$clog2(MS_DIV_C)-1:0] ms_div_r;
+  logic [6:0]  conv_ms_r;
+  logic        was_filled_r;   //! fill has been nonzero since last reset
+
+  always_ff @(posedge clk_i) begin : producer_side
     if (!rst_n) begin
-      cnt_r        <= '0;
-      frac_r       <= '0;
-      trim_r       <= '0;
-      servo_ms_r   <= '0;
-      was_playing_r <= 1'b0;
-      media_reset_p_o <= 1'b0;
-      conv_ms_r    <= '0;
-      converged_o  <= 1'b0;
-      lrck_q       <= 1'b0;
-      beat_r       <= '0;
-      wptr_r       <= '0;
-      rptr_r       <= '0;
-      rd_pair_r    <= '0;
-      shift_r      <= '0;
-      pend_right_r <= '0;
-      i2s_sdin_o   <= 1'b0;
-      underruns_o  <= '0;
-      overruns_o   <= '0;
+      beat_r <= '0; wptr_r <= '0; rptr_r <= '0;
+      overruns_o <= '0; cdc_wen_r <= 1'b0; cdc_wdata_r <= '0;
+      ms_div_r <= '0; conv_ms_r <= '0; converged_o <= 1'b0;
+      media_reset_p_o <= 1'b0; was_filled_r <= 1'b0;
     end
     else begin
       media_reset_p_o <= 1'b0;
-      frac_r <= acc_w[15:0];
-      if (adv_w) cnt_r <= cnt_r + 1'b1;
 
-      // ---- fill servo: at ~1 ms cadence steer the fill to midpoint ----
-      if (adv_w && cnt_r == '1) begin          // one LRCK frame elapsed
-        servo_ms_r <= servo_ms_r + 6'd1;
-        if (servo_ms_r == 6'd47) begin         // 48 frames = 1 ms @48 kHz
-          servo_ms_r <= '0;
-          if (!servo_en_i)               //! internal clock: free-run nominal
-            trim_r <= 16'sd0;
-          else if (fill_w != '0) begin
-            //! PROPORTIONAL servo (07-18): trim = 4*(fill - mid), clamped.
-            //! The old integrator (+-1 LSB/ms toward midpoint) limit-cycled
-            //! once the structural 48,828 Hz offset was fixed - a slew-
-            //! limited double integrator has no damping. P-control is
-            //! self-damping: equilibrium fill offset = clk_error/4 LSB
-            //! (ppm-class offsets sit within fill mid+-8).
-            automatic logic signed [15:0] p_w;
-            p_w = (16'sd0 + $signed({1'b0, fill_w}) - $signed({1'b0, MID_C})) <<< 2;
-            trim_r <= (p_w >  16'sd511) ? 16'sd511
-                    : (p_w < -16'sd512) ? -16'sd512
-                    :                     p_w;
-          end
-          //! convergence hysteresis (per-ms): enter ±64/100 ms, exit ±128
-          if (fill_w > MID_C - 64 && fill_w < MID_C + 64) begin
-            if (conv_ms_r != 7'd100) conv_ms_r <= conv_ms_r + 7'd1;
-            else                     converged_o <= 1'b1;
-          end
-          else if (fill_w < MID_C - 128 || fill_w > MID_C + 128) begin
-            conv_ms_r   <= '0;
-            converged_o <= 1'b0;
-          end
-        end
-      end
-
-      // ---- PCM tap write side -------------------------------------
+      // ---- PCM tap write side -----------------------------------------
       if (pcm_acc_w) begin
-        beat_r <= pcm_tlast_i          ? 9'd0
+        beat_r <= pcm_tlast_i               ? 9'd0
                 : (beat_r == stride_w - 9'd1) ? 9'd0
                 : beat_r + 9'd1;
         if (beat_r == 9'd0) begin
@@ -222,48 +144,136 @@ module KL_i2s_playback #(
           end
           else begin
             overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
-            media_reset_p_o <= 1'b1;
+            media_reset_p_o <= was_filled_r;   //! rail = media reset event
+            was_filled_r    <= 1'b0;
           end
         end
+      end
+      if (!empty_w) was_filled_r <= 1'b1;
+
+      // ---- feeder into the CDC FIFO -----------------------------------
+      cdc_wen_r <= 1'b0;
+      if (!empty_w && !cdc_wfull_w && !cdc_wen_r) begin
+        cdc_wdata_r <= fifo_r[rptr_r[FIFO_LOG2-1:0]];
+        rptr_r      <= rptr_r + 1'b1;
+        cdc_wen_r   <= 1'b1;
       end
 
-      // ---- I2S serializer -------------------------------------------
-      if (sclk_fall) begin
-        lrck_q <= i2s_lrck_o;
-        if (lrck_edge) begin
-          if (i2s_lrck_o == 1'b0) begin
-            //! LEFT half begins: pop a pair (or play silence)
-            if (!empty_w) begin
-              rd_pair_r <= fifo_r[rptr_r[FIFO_LOG2-1:0]];
-              //! out bit at the NEXT fall = shift[31]; the lrck-edge fall
-              //! itself drives the single I2S delay bit (0)
-              shift_r   <= {fifo_r[rptr_r[FIFO_LOG2-1:0]][47:24], 8'b0};
-              pend_right_r <= fifo_r[rptr_r[FIFO_LOG2-1:0]][23:0];
-              rptr_r    <= rptr_r + 1'b1;
-              was_playing_r <= 1'b1;
-            end
-            else begin
-              shift_r      <= '0;
-              pend_right_r <= '0;
-              underruns_o  <= (&underruns_o) ? underruns_o
-                                             : underruns_o + 16'd1;
-              //! reset event only on the playing -> starved transition
-              media_reset_p_o <= was_playing_r;
-              was_playing_r   <= 1'b0;
-            end
-          end
-          else begin
-            //! RIGHT half begins
-            shift_r <= {pend_right_r, 8'b0};
-          end
+      // ---- convergence observer (per ms) ------------------------------
+      ms_div_r <= (ms_div_r == MS_DIV_C - 1) ? '0 : ms_div_r + 1'b1;
+      if (ms_div_r == MS_DIV_C - 1) begin
+        if (fill_w > MID_C - 64 && fill_w < MID_C + 64) begin
+          if (conv_ms_r != 7'd100) conv_ms_r <= conv_ms_r + 7'd1;
+          else                     converged_o <= 1'b1;
         end
-        else begin
-          shift_r <= {shift_r[30:0], 1'b0};
+        else if (fill_w < MID_C - 128 || fill_w > MID_C + 128) begin
+          conv_ms_r   <= '0;
+          converged_o <= 1'b0;
         end
-        i2s_sdin_o <= lrck_edge ? 1'b0 : shift_r[31];
       end
     end
-  end : playback
+  end : producer_side
+
+  // ------------------------------------------------------------------ //
+  // Clock-domain crossing                                                //
+  // ------------------------------------------------------------------ //
+  logic [1:0] arst_n_r;                  //! audio-domain reset sync
+  wire        rd_empty_w;
+  wire [47:0] rd_pair_w;
+  logic       rd_en_r;
+
+  cdc_pair_fifo #(.WIDTH(48), .LOG2D(4)) u_cdc (
+    .wclk_i  (clk_i),
+    .wrst_n  (rst_n),
+    .wen_i   (cdc_wen_r),
+    .wdata_i (cdc_wdata_r),
+    .wfull_o (cdc_wfull_w),
+    .rclk_i  (clk_audio_i),
+    .rrst_n  (arst_n_r[1]),
+    .ren_i   (rd_en_r),
+    .rdata_o (rd_pair_w),
+    .rempty_o(rd_empty_w)
+  );
+
+  // ------------------------------------------------------------------ //
+  // Audio domain: reset sync + clean dividers + Philips I2S serializer   //
+  //   clk_audio = 24.576 MHz: MCLK = /2 (12.288), SCLK = /8 (3.072,      //
+  //   64 fs), LRCK = /512 (48.000 kHz)                                   //
+  // ------------------------------------------------------------------ //
+  always_ff @(posedge clk_audio_i) begin : audio_rst_sync
+    arst_n_r <= {arst_n_r[0], rst_n};
+  end : audio_rst_sync
+
+  logic [8:0]  adiv_r;                   //! /512 master divider
+  wire         mclk_w = adiv_r[0];
+  wire         sclk_w = adiv_r[2];
+  wire         lrck_w = adiv_r[8];
+  //! SCLK falling edge = data change point (Philips: MSB 1 SCLK after LRCK)
+  wire         sclk_fall_w = (adiv_r[2:0] == 3'b111);
+  wire         frame_start_w = (adiv_r == 9'h1FF);   //! next cycle starts LEFT
+
+  logic [31:0] shift_r;
+  logic [23:0] pend_right_r;
+  logic [15:0] underrun_a_r;             //! audio-domain underrun count
+  logic [5:0]  bit_r;
+
+  always_ff @(posedge clk_audio_i) begin : audio_engine
+    if (!arst_n_r[1]) begin
+      adiv_r <= '0; shift_r <= '0; pend_right_r <= '0;
+      rd_en_r <= 1'b0;
+      underrun_a_r <= '0; bit_r <= '0;
+      i2s_mclk_o <= 1'b0; i2s_sclk_o <= 1'b0; i2s_lrck_o <= 1'b0;
+      i2s_sdin_o <= 1'b0;
+    end
+    else begin
+      adiv_r <= adiv_r + 1'b1;
+      i2s_mclk_o <= mclk_w;
+      i2s_sclk_o <= sclk_w;
+      i2s_lrck_o <= lrck_w;
+      rd_en_r <= 1'b0;
+
+      //! pop one pair per audio frame; on empty repeat the last pair
+      //! (slip-dup) and count the underrun
+      if (frame_start_w) begin
+        if (!rd_empty_w) begin
+          rd_en_r <= 1'b1;               //! rdata registered -> use next frame
+        end
+        else begin
+          underrun_a_r <= (&underrun_a_r) ? underrun_a_r
+                                          : underrun_a_r + 16'd1;
+        end
+        //! load the serializer from the last popped data
+        shift_r  <= {rd_pair_w[47:24], 8'h00};   //! left, 24-in-32 justified
+        pend_right_r <= rd_pair_w[23:0];
+        bit_r <= 6'd0;
+      end
+      else if (sclk_fall_w) begin
+        bit_r <= bit_r + 6'd1;
+        //! Philips 1-bit delay: half-frame bit 0 is a pad slot; the word's
+        //! MSB goes out on the SECOND fall after each LRCK edge
+        if (bit_r[4:0] == 5'd0) begin
+          i2s_sdin_o <= 1'b0;            //! delay slot
+          if (bit_r == 6'd32)            //! RIGHT half begins
+            shift_r <= {pend_right_r, 8'h00};
+        end
+        else begin
+          i2s_sdin_o <= shift_r[31];
+          shift_r    <= {shift_r[30:0], 1'b0};
+        end
+      end
+    end
+  end : audio_engine
+
+  //! underrun count into the clk_i CSR view (quasi-static, 2-FF sync per bit
+  //! is unnecessary - the count is monotonic and read for trends only)
+  logic [15:0] under_meta_r, under_sync_r;
+  always_ff @(posedge clk_i) begin : under_cdc
+    {under_sync_r, under_meta_r} <= {under_meta_r, underrun_a_r};
+  end : under_cdc
+  assign underruns_o = under_sync_r;
+
+  //! keep the interface quiet about the unused legacy hooks
+  wire _unused_ok = &{1'b0, servo_en_i, MCLK_DIV_LOG2[0], pcm_tlast_i, 1'b0};
 
 endmodule
 
