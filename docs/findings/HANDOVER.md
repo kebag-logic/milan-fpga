@@ -282,6 +282,21 @@ flight: I2SPB_DBG CSR 0x6F0 (mf16) captures the exact 32 serial bits
 at the DAC pin per LEFT half-frame; user ear/phone-spectrum check
 (buzzy square vs pure sine) at the line-out.
 
+**DEEP SILICON BATTERY (07-18 late, both entities on final keepers):**
+first-ever silicon verification of: **GET_DYNAMIC_INFO 0x4B** (SUCCESS
+cdl 124 both), CLOCK_DOMAIN counters (mask 0x3, locked counting),
+full **DISCONNECT -> count 0 -> CONNECT -> count 1** ladder, **MAAP
+DEFEND** (probed the live claim: defends counter 0->1, address HELD -
+the announce-state defend per the reference), **unsolicited replay**
+(controller A registered, controller B's SET_NAME arrived at A with
+u=1 - the 4-slot engine live), GET_AUDIO_MAP (cdl 88 both;
+ADD/REMOVE = NOT_SUPPORTED by design). Command-code traps recorded in
+the-private-test-repo fpga/tests/silicon_battery.py (audio maps are
+0x2B/0x2C/0x2D desc 0x000E; rx-state count at resp[60:62]; MAAP
+re-claims per boot). ONE cosmetic gap found: GET_RX_STATE returns a
+ZEROED stream_dest_mac (should echo the bound MAAP address) - minor,
+listed for the next RTL batch.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
