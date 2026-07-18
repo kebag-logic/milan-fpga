@@ -118,6 +118,11 @@ module KL_acmp_listener #(
     output reg  [1:0]   probing_o,         //! 0 dis / 1 passive / 2 active / 3 done
     output reg          tk_avail_o,        //! bound talker ADP-visible
     output reg  [15:0]  cmd_count_o,       //! listener commands accepted
+    output reg  [7:0]   tx_wedge_cnt_o,    //! responses abandoned: TX grant
+                                           //! never came (silicon 07-18: the
+                                           //! listener wedged in RESPOND_S
+                                           //! after ~2 cmds; watchdog frees
+                                           //! it - ACMP is retransmit-safe)
     output reg  [15:0]  probe_count_o      //! PROBE_TX commands sent
 );
 
@@ -211,6 +216,10 @@ module KL_acmp_listener #(
   end
 
   typedef enum logic [1:0] { COLLECT_S, CLASSIFY_S, RESPOND_S, PROBE_S } st_t;
+  //! TX-grant watchdog: ~10 ms @100 MHz (21 ms @50 MHz) - a healthy grant
+  //! arrives in microseconds; expiry = arbiter wedge, abandon the frame
+  localparam logic [19:0] TXWD_MAX_C = 20'hFFFFF;
+  logic [19:0] txwd_r;
   st_t st_r;
 
   // ---- frame word buffer: beat-aligned distributed RAM (the area-70
@@ -529,6 +538,7 @@ module KL_acmp_listener #(
       ta_reg_prev_r <= 1'b0; ta_fail_prev_r <= 1'b0;
       acmp_status_o <= 5'd0; probing_o <= 2'd0;
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
+      tx_wedge_cnt_o <= 8'd0; txwd_r <= '0;
     end else begin
       // ---- timer countdown -------------------------------------------
       if (tick_1ms_r && tmr_r != 14'd0) tmr_r <= tmr_r - 14'd1;
@@ -799,6 +809,7 @@ module KL_acmp_listener #(
 
         RESPOND_S, PROBE_S: begin
           if (m_axis_tready) begin
+            txwd_r <= '0;
             if (beat_r == NUM_BEATS_C-1) begin
               // post-increment the probe sequence per emission (reference
               // prepare_probe_tx_command_success: send seq, then ++)
@@ -809,6 +820,19 @@ module KL_acmp_listener #(
             end else begin
               beat_r <= beat_r + 4'd1;
             end
+          end
+          else if (txwd_r == TXWD_MAX_C) begin
+            //! grant never came: drop the response, stay alive (the walker
+            //! being stuck here is what deafened the listener on silicon)
+            txwd_r <= '0;
+            tx_wedge_cnt_o <= (&tx_wedge_cnt_o) ? tx_wedge_cnt_o
+                                                : tx_wedge_cnt_o + 8'd1;
+            wbeat_r <= '0; ovfl_r <= 1'b0;
+            beat_r <= '0;
+            st_r <= COLLECT_S;
+          end
+          else begin
+            txwd_r <= txwd_r + 20'd1;
           end
         end
 
