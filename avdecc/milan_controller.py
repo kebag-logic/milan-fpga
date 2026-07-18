@@ -350,6 +350,61 @@ def validate(e):
     return nfail == 0
 
 
+def bind(iface, talker_sfx, listener_sfx):
+    """USER bug 5 (2026-07-18): the controller MUST force the listener's
+    channel count to the talker's before binding. Flow:
+      1. discover both entities (ADP);
+      2. GET_STREAM_FORMAT on the talker's STREAM_OUTPUT[0];
+      3. SET_STREAM_FORMAT that exact u64 on the listener's STREAM_INPUT[0]
+         (the fabric accepts any 1..8ch variant - adaptive listener);
+      4. CONNECT_RX_COMMAND to the listener naming the talker.
+    Without step 3 a talker format change strands the listener rejecting
+    every frame as UNSUPPORTED (sound gone, lock impossible - user bug 6)."""
+    tk = Entity(iface); tk.want_suffix = talker_sfx.lower()
+    if not tk.discover():
+        print("talker not discovered"); return False
+    ls = Entity(iface); ls.want_suffix = listener_sfx.lower()
+    if not ls.discover():
+        print("listener not discovered"); return False
+
+    r = tk.aem("GET_STREAM_FORMAT", struct.pack(">HH", 0x0006, 0))
+    if rstatus(r) != 0:
+        print(f"talker GET_STREAM_FORMAT: {STATUS.get(rstatus(r))}"); return False
+    fmt = struct.unpack(">Q", r[44:52])[0]
+    print(f"talker STREAM_OUTPUT[0] format {fmt:#018x} "
+          f"({(fmt >> 22) & 0x3FF} ch)")
+
+    r = ls.aem("SET_STREAM_FORMAT", struct.pack(">HHQ", 0x0005, 0, fmt))
+    if rstatus(r) != 0:
+        print(f"listener SET_STREAM_FORMAT: {STATUS.get(rstatus(r))}"); return False
+    print("listener STREAM_INPUT[0] format matched")
+
+    # CONNECT_RX_COMMAND: dst = ACMP multicast, listener + talker named
+    pkt = struct.pack(">BBH", 0xFC, 6, 44)
+    pkt += b"\x00" * 8
+    pkt += struct.pack(">Q", ls.ctlr_id)
+    pkt += struct.pack(">Q", tk.eid)
+    pkt += struct.pack(">Q", ls.eid)
+    pkt += struct.pack(">HH", 0, 0)
+    pkt += b"\x00" * 6
+    pkt += struct.pack(">HHHH", 0, 0x0B00, 0, 0)
+    ls._send(ADP_MCAST, pkt)
+    end = time.time() + 3.0
+    while time.time() < end:
+        try:
+            f = ls.s.recv(2048)
+        except socket.timeout:
+            break
+        if f[14] == 0xFC and (f[15] & 0x0F) == 7 \
+           and struct.unpack(">Q", f[42:50])[0] == ls.eid:
+            st = (f[16] >> 3) & 0x1F
+            print(f"CONNECT_RX_RESPONSE status={st} "
+                  f"({'SUCCESS' if st == 0 else STATUS.get(st, st)})")
+            return st == 0
+    print("CONNECT_RX: no response (listener SM may still bind+probe)")
+    return True
+
+
 def read_all(e):
     for name, dt in DESC.items():
         r = e.read_descriptor(dt)
@@ -363,7 +418,11 @@ def main():
     ap.add_argument("iface")
     ap.add_argument("--read-all", action="store_true")
     ap.add_argument("--eid", help="hex suffix of the target entity_id (two-entity bench)")
+    ap.add_argument("--bind", nargs=2, metavar=("TALKER_SFX", "LISTENER_SFX"),
+                    help="format-matched bind: talker fmt -> listener fmt -> CONNECT_RX")
     a = ap.parse_args()
+    if a.bind:
+        sys.exit(0 if bind(a.iface, a.bind[0], a.bind[1]) else 1)
     e = Entity(a.iface)
     if a.eid:
         e.want_suffix = a.eid.lower()

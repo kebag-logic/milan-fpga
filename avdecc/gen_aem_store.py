@@ -46,6 +46,11 @@ NO_STRING = 0xFFFF
 RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 # AAF PCM 32-bit 8ch stream formats (from milan-v12-entity.json, byte-exact)
 FORMATS = [0x0205022002006000, 0x020702200200C000, 0x0209022002018000]
+#! talker truth (2026-07-18): the framer is a STEREO 48k device (Pmod I2S2 /
+#! tone path both 2ch, fs fixed by the divider chain) - STREAM_OUTPUT must
+#! DECLARE exactly what the wire carries or format-matching controllers
+#! strand every listener (user bugs 5/6)
+OUT_FORMATS = [0x0205022000806000]
 # CRF AUDIO_SAMPLE media-clock formats (milan-v12-entity.json STREAM_INPUT[1])
 CRF_FORMATS = [0x041060010000BB80, 0x0410600100017700, 0x041060010002EE00]
 # IDENTIFY control (pipewire aecp-aem-controls.h, byte-exact)
@@ -257,7 +262,7 @@ DESCS = [
     (STREAM_INPUT,  1, d_stream(STREAM_INPUT, 1, "CRF", 0x0003,
                                 CRF_FORMATS, 2126000)),
     (STREAM_OUTPUT, 0, d_stream(STREAM_OUTPUT, 0, "Stream Output 0", 0x0002,
-                                FORMATS)),
+                                OUT_FORMATS)),
     (AVB_INTERFACE, 0, d_avb_interface()),
     (CLOCK_SOURCE,  0, d_clock_source(0, "Internal", 0x0000, CLOCK_SOURCE, 0)),
     (CLOCK_SOURCE,  1, d_clock_source(1, "Stream Clock", 0x0002, STREAM_INPUT, 0)),
