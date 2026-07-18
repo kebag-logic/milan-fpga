@@ -117,8 +117,12 @@ module KL_avtp_rx_monitor #(
   output logic        pdu_accept_p_o,    //! one-cycle pulse: PDU counted in
                                          //! FRAMES_RX (bound + format-valid) —
                                          //! the depacketizer's commit verdict
-  output logic [31:0] last_ts_o          //! avtp_timestamp of the last
+  output logic [31:0] last_ts_o,         //! avtp_timestamp of the last
                                          //! accepted PDU (media-clock hook)
+  output logic [31:0] last_tsd_o         //! signed ts_delta (avtp_ts - now)
+                                         //! HW-latched at each accepted PDU:
+                                         //! zero-noise error signal for
+                                         //! userspace PHC discipline (07-18)
 );
 
   //! Milan §5.4.5.3 / reference MEDIA_UNLOCK_TIMEOUT_NS = 100 ms
@@ -195,6 +199,7 @@ module KL_avtp_rx_monitor #(
       dirty_p_o                <= 1'b0;
       pdu_accept_p_o           <= 1'b0;
       last_ts_o                <= '0;
+      last_tsd_o               <= '0;
     end
     else begin
       bound_q        <= bound_i;
@@ -223,6 +228,7 @@ module KL_avtp_rx_monitor #(
           dirty_p_o       <= 1'b1;
           pdu_accept_p_o  <= 1'b1;
           last_ts_o       <= avtp_ts_i;
+          last_tsd_o      <= unsigned'(ts_delta_w);
           if (late_w)  cnt_late_ts_o  <= cnt_late_ts_o  + 32'd1;
           if (early_w) cnt_early_ts_o <= cnt_early_ts_o + 32'd1;
           if (ts_uncertain_i)

@@ -42,6 +42,7 @@ module avtp_rxmon_wrap #(
   output wire        dirty_p_o,
   output wire        pdu_accept_p_o,
   output wire [31:0] last_ts_o,
+  output wire [31:0] last_tsd_o,
   output wire        match_o,
 
   //! PCM payload out (KL_aaf_rx_depacketizer, the datapath pairing)
@@ -95,7 +96,7 @@ module avtp_rxmon_wrap #(
     .media_locked_o (media_locked_o),
     .dirty_p_o (dirty_p_o),
     .pdu_accept_p_o (pdu_accept_p_o),
-    .last_ts_o (last_ts_o)
+    .last_ts_o (last_ts_o), .last_tsd_o (last_tsd_o)
   );
 
   KL_aaf_rx_depacketizer u_depkt (

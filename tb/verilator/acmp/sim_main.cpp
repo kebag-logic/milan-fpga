@@ -299,6 +299,33 @@ int main(int argc, char** argv) {
     ck("resp_count", dut->resp_count_o, 9);
 
     printf("--------------------------------------------------------------\n");
+
+    // [Z] zero-gap: a command right behind another frame must be accepted
+    // (always-armed capture, 07-18 - same defect class as the listener)
+    {
+        uint16_t cc0 = dut->cmd_count_o;
+        std::vector<uint8_t> junk(88, 0);          // AAF-ish foreign frame
+        junk[0]=0x91; junk[1]=0xE0; junk[2]=0xF0; junk[3]=0x00; junk[4]=0xFE; junk[5]=0x01;
+        junk[12]=0x22; junk[13]=0xF0; junk[14]=0x02; junk[15]=0x81;
+        auto cmd = acmp_cmd(4, ENTITY_ID, 0, 0x0999, 0);
+        // back-to-back, zero idle beats between the frames
+        auto drive = [&](const std::vector<uint8_t>& f) {
+            for (size_t off = 0; off < f.size(); off += 8) {
+                uint64_t d = 0; uint8_t k = 0;
+                for (int l = 0; l < 8 && off + l < f.size(); l++) {
+                    d |= (uint64_t)f[off + l] << (8 * l); k |= 1 << l;
+                }
+                dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+                dut->rx_tlast_i = (off + 8 >= f.size());
+                step();
+            }
+        };
+        drive(junk); drive(cmd);
+        dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+        for (int c = 0; c < 40; c++) step();
+        ck("[Z] zero-gap command accepted", dut->cmd_count_o, (long)(cc0 + 1));
+    }
+
     printf("ACMP Milan talker SM: %ld checks, %ld failures\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final(); delete dut;
