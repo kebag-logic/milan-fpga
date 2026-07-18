@@ -103,7 +103,28 @@ daemons / numpy venv), AX JTAG reload = fresh boot → console needs
 `root` login + `dmesg -n 1` (kl-eth bd-stage spam buries it), and
 board-side ramfs deployments are lost on the reloaded board.
 
-**OPEN INVESTIGATION (late 07-18): ACMP LISTENER DEAF ON SILICON.**
+**ROOT CAUSE FOUND + FIXED (eve 07-18): ACMP listener deafness = the
+walker's 1-cycle CLASSIFY blind window × gap-compressed RX.** The
+capture logic ran only in COLLECT_S; a frame arriving ZERO-GAP behind
+the previous one loses its beat-0 (dst) capture during CLASSIFY_S.
+On silicon the RX FIFOs drain gaplessly whenever the DMA consumer
+stalls (kl-eth gro ~56 µs/frame vs 125 µs spacing = chronic backlog),
+so EVERY queued command followed an AAF-flood frame into the blind
+window → ~100 % loss; the rare accepts were frames that arrived into
+an idle FIFO. Morning "cmd_count 84" = Hive retransmit persistence.
+Unit repro [Z] (acmp_lstn TB): AAF frame + command back-to-back with
+zero idle beats → command lost; FIX `440f6fb` = ALWAYS-ARMED capture
+(captures run through CLASSIFY_S, capture owns wbeat/ovfl, beat-0
+clears ovfl, runts dropped, fword stays RESPOND-protected — b2b
+double-command response loss is retransmit-covered). [Z] green, lstn
+102, dp 78, yosys 27. Extra hardening from the hunt (all shipped):
+TX-grant watchdog + wedge counter (`b8e4613`, proven NOT the cause:
+WEDGE=0 on mf10), walker forensics CSR 0x6E8 (`c0360bb`).
+**milanfinal12** (arty, in flight) = fix + forensics + servo rule +
+everything since mf9. AX needs the same fix (milanfinal11+ AX round
+queued behind).
+
+**(the original elimination table, kept for the record):**
 Both boards, milanfinal8 AND 9/10, accept ~0-2 listener commands then
 nothing (CC frozen; responders/AECP/ADP/streaming all fine on the same
 multicast stream). Eliminated WITH EVIDENCE: switch aging (responders
