@@ -200,7 +200,8 @@ module milan_csr #(
   output wire                    o_maap_seed_valid,     //! first probe uses seed
   output wire [7:0]              o_maap_count,          //! block size (reset 8)
   output wire [15:0]             o_maap_seed_offset,    //! provisioning seed
-  output wire                    o_tone_enable,         //! 1 kHz 0 dBFS pilot tone
+  output wire                    o_tone_enable,
+  output wire [2:0]              o_tone_att,          //! pilot-tone -6dB steps (TONE_CTRL[3:1])         //! 1 kHz 0 dBFS pilot tone
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
@@ -829,6 +830,7 @@ module milan_csr #(
   assign o_aaf_bypass          = aaf_ctrl[1];
   assign o_acmp_lobs           = acmp_lobs[0];
   assign o_tone_enable      = tone_ctrl[0];
+  assign o_tone_att         = tone_ctrl[3:1];
   assign o_maap_enable      = maap_ctrl[0];
   assign o_maap_seed_valid  = maap_ctrl[1];
   assign o_maap_count       = maap_ctrl[15:8];

@@ -339,6 +339,8 @@ int main(int argc, char** argv) {
   axi_write(0x6DC, 1); dut->eval();
   ck("o_tone_enable", dut->o_tone_enable, 1);
   ck("TONE_CTRL readback", axi_read(0x6DC), 1);
+  axi_write(0x6DC, 0x5); dut->eval();            // en + att=2 (-12 dB)
+  ck("o_tone_att", dut->o_tone_att, 2);
   axi_write(0x6DC, 0);
   dut->i_i2spb_trim = 0xFFF00100; dut->eval();
   ck("I2SPB_TRIM RO", axi_read(0x6E0), 0xFFF00100);
