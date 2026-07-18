@@ -167,6 +167,34 @@ all and which accept term fails. Watchdog (b8e4613) + forensics
 (c0360bb) both ride it. Audio is DOWN until a bind lands (AX streams
 true 48k regardless; arty QSPI currently milanfinal10-asl).
 
+**EVENING TASK RUN (07-18 late):** MAAP ENABLED ON SILICON: AX probe->
+announce->claim in 8 s, address 91:E0:F0:00:D7:97 (offset 0xD797, 0
+conflicts), GET_STREAM_INFO reports it, STREAM MIGRATED MID-FLIGHT with
+zero listener interruption (sid-filtered) - left ON. Enumeration drill
+41/41 BOTH entities. Counters healthy (FRAMES 8000/s exact, 0 mismatch).
+LATE_TIMESTAMP fully explained: counts because no clock sync exists; the
+switch WILL NOT relay 802.1AS announces (single-claimant recipe retried:
+AX 100/cc6 claims, arty clientOnly, pw0 test slave - NOBODY receives
+announces; switch sends only pdelay_req). Stream-PHC-sync stopgap (shell
+loop vs avtp_ts) got LATE=+0 but oscillates vs the 12 ms accept window
+(process-spawn noise ~30 ms) -> proper fix = ts_delta CSR 0x6EC
+(HW-latched signed avtp_ts-now at each accepted PDU) riding milanfinal13.
+**SRP BREAKTHROUGH FINDING: the switch's MSRP Domain declares SR class A
+prio 3 on VID 0x27E = 638 (NOT VLAN 2!)** - the VLAN-2 assumption dates
+to the MVP and explains BOTH the historical tagged-VID2 ingress filtering
+AND every TalkerFailed degradation. Tagged-638 streaming attempt: AX
+streams 8.8k fr/s tagged, switch still does NOT forward to the arty
+(MVRP join for 638 not registering - switch registrar shows bare
+LeaveAll; lwSRP re-arm cycle didn't help). lwSRP-vs-switch session now
+has a concrete agenda: (1) MVRP join encoding vs this switch, (2) then
+MSRP TA in-domain on 638, (3) then reservation -> SETTLED_RSV_OK.
+Audio restored on untagged bypass after the experiment.
+**Playback P-servo (508bbca, in milanfinal13):** SET_CLOCK_SOURCE(stream)
+on mf12 silicon engaged the servo (rule works!) but the integrator
+LIMIT-CYCLED (+-480 trim, lock flap 2/s) - no damping once the big offset
+was gone; P-control trim=4*(fill-mid) is self-damping. Internal/free-run
+unaffected (still the default).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
