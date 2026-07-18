@@ -708,7 +708,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .in0_cnt_frx_i (32'h0), .in0_cnt_dirty_p_i (1'b0),
     .in0_cnt_mreset_i (32'h0), .in0_cnt_late_i (32'h0),
     .in0_cnt_early_i (32'h0),
-    .in0_fmt_o (),
+    .in0_fmt_o (), .clk_src_o (),
     // RX monitor tap (inputs only)
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),

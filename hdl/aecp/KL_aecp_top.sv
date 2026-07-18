@@ -96,6 +96,7 @@ module KL_aecp_top #(
   input  wire [31:0]   in0_cnt_early_i,
   input  wire          in0_cnt_dirty_p_i,
   output wire [63:0]   in0_fmt_o,          //! live STREAM_INPUT[0] format
+  output wire [15:0]   clk_src_o,          //! live clock_source_index
 
   // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
   input  wire          rx_tvalid_i,
@@ -270,7 +271,7 @@ module KL_aecp_top #(
     .in0_cnt_late_i(in0_cnt_late_i),
     .in0_cnt_early_i(in0_cnt_early_i),
     .in0_cnt_dirty_p_i(in0_cnt_dirty_p_i),
-    .in0_fmt_o(in0_fmt_o),
+    .in0_fmt_o(in0_fmt_o), .clk_src_o(clk_src_o),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
     .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),
