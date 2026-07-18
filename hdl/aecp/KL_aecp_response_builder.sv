@@ -126,6 +126,7 @@ module KL_aecp_response_builder (
   input  wire [31:0]   in0_cnt_early_i,    //! EARLY_TIMESTAMP (bit 10)
   input  wire          in0_cnt_dirty_p_i,  //! monitor: a counter changed
   output logic [63:0]  in0_fmt_o,          //! live STREAM_INPUT[0] format u64
+  output logic [15:0]  clk_src_o,          //! live CLOCK_DOMAIN clock_source_index
 
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
@@ -443,6 +444,8 @@ module KL_aecp_response_builder (
   //! format-compare reference (the store scratch keeps the readback copy)
   logic [63:0] fmt_in0_r;
   assign in0_fmt_o = fmt_in0_r;
+  logic [15:0] clk_src_r;                 //! follows SET_CLOCK_SOURCE (reset 0 = internal)
+  assign clk_src_o = clk_src_r;
 
   //! STREAM_INPUT counter push state (Milan §5.4.5: unsolicited GET_COUNTERS
   //! only when a counter changed, at most once per second per descriptor).
@@ -671,6 +674,7 @@ module KL_aecp_response_builder (
       ta_prev_r     <= 1'b0;
       lo_prev_r     <= 1'b0;
       fmt_in0_r     <= AEM_FMTS_C[0];
+      clk_src_r     <= 16'd0;
       in0_dirty_r   <= 1'b0;
       in0_rl_ms_r   <= 10'd1000;   // saturated: first change pushes at once
       for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
@@ -1119,6 +1123,8 @@ module KL_aecp_response_builder (
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
                   seg_kind_q[1] <= SEG_STORE;
                   seg_addr_q[1] <= WB_CLOCK_SRC_IDX_C; seg_len_q[1] <= 16'd2;
+                  if (hdr_q.command_type == CMD_SET_CLOCK_SOURCE)
+                    clk_src_r <= {w_b6, w_b7};
                   seg_kind_q[2] <= SEG_CONST; seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd2;
                   const_q[0] <= 8'h00; const_q[1] <= 8'h00;   // reserved
                   if (hdr_q.command_type == CMD_SET_CLOCK_SOURCE) begin
