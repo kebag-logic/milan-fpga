@@ -138,6 +138,7 @@ module milan_csr #(
   output wire [15:0]             o_adp_listener_caps, //! listener_capabilities (ADP_LIST[31:16])
   output wire [31:0]             o_adp_controller_caps, //! controller_capabilities (ADP_CCAPS)
   output wire [63:0]             o_adp_gptp_gm,       //! gptp_grandmaster_id {ADP_GM_HI, ADP_GM_LO}
+  output wire [31:0]             o_gptp_pdelay_ns,    //! measured propagation delay ns (GPTP_PDELAY)
   output wire [7:0]              o_adp_gptp_domain,   //! gptp_domain_number (ADP_DOMAIN[7:0])
   output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
   output wire [15:0]             o_adp_identify_index,//! identify_control_index (ADP_IDX0[31:16])
@@ -276,6 +277,7 @@ module milan_csr #(
     A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
     A_MAAP_CTRL   = 'h6CC, A_MAAP_STAT0 = 'h6D0, A_MAAP_STAT1 = 'h6D4,
     A_I2SPB_STAT  = 'h6D8, A_TONE_CTRL = 'h6DC, A_I2SPB_TRIM = 'h6E0,
+    A_GPTP_PDELAY = 'h6E4,   //! RW: measured gPTP neighbor propagation delay (ns), written by the softcore gptp daemon
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
@@ -380,6 +382,7 @@ module milan_csr #(
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [3:2]=classA queue
   logic [31:0] maap_ctrl;                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
+  logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
   logic [31:0] lwsrp_tspec;              //! LWSRP_TSPEC: {interval[31:16], max_frame[15:0]}
@@ -461,6 +464,7 @@ module milan_csr #(
       lwsrp_ctrl <= 32'h0000_000C;
       maap_ctrl  <= 32'h0000_0800;
       tone_ctrl  <= 32'h0;
+      gptp_pdelay <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
       lwsrp_dmlo <= 32'hF000_FE01;
       lwsrp_dmhi <= 32'h0000_91E0;
@@ -532,6 +536,7 @@ module milan_csr #(
           A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
           A_MAAP_CTRL:  maap_ctrl  <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
+          A_GPTP_PDELAY: gptp_pdelay <= s_axi_wdata;
           A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
           A_LWSRP_DMLO: lwsrp_dmlo <= s_axi_wdata;
           A_LWSRP_DMHI: lwsrp_dmhi <= s_axi_wdata;
@@ -663,7 +668,7 @@ module milan_csr #(
       A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
       A_LWSRP_TSPEC, A_LWSRP_LAT,
       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
-      A_MAAP_CTRL, A_TONE_CTRL:
+      A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -850,6 +855,7 @@ module milan_csr #(
   assign o_adp_listener_caps   = adp_list[31:16];
   assign o_adp_controller_caps = adp_ccaps;
   assign o_adp_gptp_gm         = {adp_gmhi, adp_gmlo};
+  assign o_gptp_pdelay_ns      = gptp_pdelay;
   assign o_adp_gptp_domain     = adp_domain[7:0];
   assign o_adp_current_config  = adp_idx0[15:0];
   assign o_adp_identify_index  = adp_idx0[31:16];

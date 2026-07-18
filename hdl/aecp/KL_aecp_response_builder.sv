@@ -88,6 +88,7 @@ module KL_aecp_response_builder (
   input  wire [47:0]   station_mac_i,
   input  wire [63:0]   entity_id_i,
   input  wire [63:0]   gptp_gm_id_i,
+  input  wire [31:0]   pdelay_ns_i,        //! measured neighbor propagation delay ns (CSR 0x6E4, gptp daemon)
   input  wire [7:0]    gptp_domain_i,
 
   // ---- live talker stream state (docs/design/MILAN_TALKER_SM.md) ------
@@ -253,6 +254,11 @@ module KL_aecp_response_builder (
   localparam [31:0] SI_UNSUPPORTED_MASK_C = 32'hDE00_03FF;
   wire [15:0] w_name_idx = {w_b6, w_b7};   //! SET/GET_NAME name_index
   wire [15:0] w_as_path_idx = {w_b2, w_b3};  //! GET_AS_PATH descriptor_index (no type field)
+  //! live gPTP state (USER bugs 1-4, 07-18): GM + pdelay are daemon-written
+  //! CSRs; a nonzero foreign GM turns the AS path into [GM, us]
+  wire        w_gm_present = (gptp_gm_id_i != 64'd0);
+  wire [63:0] w_self_ckid  = {station_mac_i[47:24], 16'hFFFE, station_mac_i[23:0]};
+  wire        w_gm_foreign = w_gm_present && (gptp_gm_id_i != w_self_ckid);
   wire [15:0] w_name_cfg = {w_b8, w_b9};
   wire [31:0] w_set_rate = {w_b6, w_b7, w_b8, w_b9};
   wire [63:0] w_set_fmt  = {w_b6, w_b7, w_b8,  w_b9,
@@ -1358,12 +1364,13 @@ module KL_aecp_response_builder (
                   seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd16;
                   for (int k = 0; k < 8; k++)
                     const_q[k] <= gptp_gm_id_i[8*(7-k) +: 8];
-                  const_q[8]  <= 8'h00; const_q[9]  <= 8'h00;   // propagation delay
-                  const_q[10] <= 8'h00; const_q[11] <= 8'h00;
+                  //! propagation delay = live measured value (CSR, USER bug 3)
+                  const_q[8]  <= pdelay_ns_i[31:24]; const_q[9]  <= pdelay_ns_i[23:16];
+                  const_q[10] <= pdelay_ns_i[15:8];  const_q[11] <= pdelay_ns_i[7:0];
                   const_q[12] <= gptp_domain_i;
-                  const_q[13] <= 8'h04;   // flags: SRP_ENABLED (bit2); the
-                                          // pipewire ref sets 0x04, |0x02 when a
-                                          // gPTP grandmaster is present
+                  //! flags: SRP_ENABLED (0x04) | GPTP_GM_SUPPORTED-present
+                  //! (0x02) once the daemon publishes a grandmaster
+                  const_q[13] <= w_gm_present ? 8'h06 : 8'h04;
                   const_q[14] <= 8'h00; const_q[15] <= 8'h00;    // msrp count = 0
                   cdl_q <= 11'd32;   // 12 + 4 + 16
                 end
@@ -1530,23 +1537,30 @@ module KL_aecp_response_builder (
               // MAC-derived EUI64 the AVB_INTERFACE descriptor overlay
               // reports ({MAC[47:24], FFFE, MAC[23:0]}). Payload stays
               // 12 B on errors too (full-size-on-error, as GET_COUNTERS).
+              //! USER bug 4 (07-18): with a foreign GM published (CSR) the
+              //! path is [GM, our clock] (count=2); GM-is-us / no GM keeps
+              //! the self-only path. Errors keep the legacy 12 B payload.
               CMD_GET_AS_PATH: begin
                 seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd2;
                 seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd10;
                 cdl_q <= 11'd24;   // 12 + 12
                 const_q[0] <= 8'h00;
-                for (int k = 2; k < 10; k++) const_q[k] <= 8'h00;
+                for (int k = 2; k < 18; k++) const_q[k] <= 8'h00;
                 if (w_as_path_idx == 16'd0) begin
                   status_q   <= STATUS_SUCCESS;
-                  const_q[1] <= 8'h01;                        // count = 1
-                  const_q[2] <= station_mac_i[47:40];         // clock_identity
-                  const_q[3] <= station_mac_i[39:32];
-                  const_q[4] <= station_mac_i[31:24];
-                  const_q[5] <= 8'hFF;
-                  const_q[6] <= 8'hFE;
-                  const_q[7] <= station_mac_i[23:16];
-                  const_q[8] <= station_mac_i[15:8];
-                  const_q[9] <= station_mac_i[7:0];
+                  if (w_gm_foreign) begin
+                    seg_len_q[1] <= 16'd18;
+                    cdl_q        <= 11'd32;   // 12 + 4 + 16
+                    const_q[1]   <= 8'h02;                    // count = 2
+                    for (int k = 0; k < 8; k++)
+                      const_q[2+k] <= gptp_gm_id_i[8*(7-k) +: 8];
+                    for (int k = 0; k < 8; k++)
+                      const_q[10+k] <= w_self_ckid[8*(7-k) +: 8];
+                  end else begin
+                    const_q[1] <= 8'h01;                      // count = 1
+                    for (int k = 0; k < 8; k++)
+                      const_q[2+k] <= w_self_ckid[8*(7-k) +: 8];
+                  end
                 end else begin
                   status_q   <= STATUS_NO_SUCH_DESCRIPTOR;
                   const_q[1] <= 8'h00;                        // count = 0

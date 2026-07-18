@@ -170,6 +170,7 @@ int main(int argc, char** argv) {
     dut->listener_sinks_i = 8; dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0x0011223344556677ULL; dut->gptp_domain_i = 0;
+    dut->pdelay_ns_i  = 0x00021F6A;   // 139,114 ns - a >125us measured pdelay (user bug 3)
     dut->link_up_i = 1; dut->frames_tx_i = 0;
     // station MAC [47:40]=first wire byte
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
@@ -407,26 +408,65 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
-    // 9c. GET_AS_PATH — Milan-mandatory; count=1, path[0]=clock_identity //
+    // 9c. GET_AS_PATH — Milan-mandatory; GM-aware (user bug 4): foreign //
+    // GM published via CSR -> [GM, us]; no/own GM -> self-only          //
     // ---------------------------------------------------------------- //
     printf("\n[9c] GET_AS_PATH\n");
     {
+        // init gm = 0x0011223344556677 (foreign) -> count=2 path [GM, us]
         std::vector<uint8_t> ap; put_be16(ap, 0); put_be16(ap, 0);   // desc_index, reserved
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9200, ap));
         auto r = collect_resp();
         ck("AS_PATH SUCCESS", r_status(r), 0);
-        ck("AS_PATH CDL == 24", r_cdl(r), 24);
+        ck("AS_PATH CDL == 32 (2 hops)", r_cdl(r), 32);
         ck_cdl("AS_PATH CDL (len-26)", r);
-        ckbytes("AS_PATH count == 1", r, 40, {0x00,0x01});
-        // clock_identity = MAC-derived EUI64, same as the AVB_INTERFACE overlay
-        ckbytes("AS_PATH path[0] == EUI64(station MAC)", r, 42,
+        ckbytes("AS_PATH count == 2", r, 40, {0x00,0x02});
+        ckbytes("AS_PATH path[0] == grandmaster", r, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+        ckbytes("AS_PATH path[1] == EUI64(station MAC)", r, 50,
                 {0x02,0x00,0x00,0xFF,0xFE,0xFF,0xFE,0x01});
+
+        // no GM published -> self-only path (we are our own clock)
+        dut->gptp_gm_id_i = 0; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9202, ap));
+        auto r3 = collect_resp();
+        ck("AS_PATH no-GM SUCCESS", r_status(r3), 0);
+        ck("AS_PATH no-GM CDL == 24", r_cdl(r3), 24);
+        ckbytes("AS_PATH no-GM count == 1", r3, 40, {0x00,0x01});
+        ckbytes("AS_PATH no-GM path[0] == self", r3, 42,
+                {0x02,0x00,0x00,0xFF,0xFE,0xFF,0xFE,0x01});
+        dut->gptp_gm_id_i = 0x0011223344556677ULL; for (int i = 0; i < 4; i++) tick();
 
         std::vector<uint8_t> bad; put_be16(bad, 3); put_be16(bad, 0);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9201, bad));
         auto r2 = collect_resp();
         ck("AS_PATH bad index NO_SUCH_DESCRIPTOR", r_status(r2), 2);
-        ck("AS_PATH error keeps full payload (CDL 24)", r_cdl(r2), 24);
+        ck("AS_PATH error keeps legacy payload (CDL 24)", r_cdl(r2), 24);
+    }
+
+    // ---------------------------------------------------------------- //
+    // 9d. GET_AVB_INFO — live GM + measured pdelay + GM-present flag   //
+    // (user bugs 1-3: all fields daemon-written CSRs, no constants)    //
+    // ---------------------------------------------------------------- //
+    printf("\n[9d] GET_AVB_INFO\n");
+    {
+        std::vector<uint8_t> av; put_be16(av, 0x0009); put_be16(av, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9300, av));
+        auto r = collect_resp();
+        ck("AVB_INFO SUCCESS", r_status(r), 0);
+        ck("AVB_INFO CDL == 32", r_cdl(r), 32);
+        ck_cdl("AVB_INFO CDL (len-26)", r);
+        ckbytes("AVB_INFO gm == CSR grandmaster", r, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+        ckbytes("AVB_INFO propagation_delay == CSR (139114 ns)", r, 50,
+                {0x00,0x02,0x1F,0x6A});
+        ckbytes("AVB_INFO flags GM_PRESENT|SRP", r, 55, {0x06});
+
+        dut->gptp_gm_id_i = 0; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9301, av));
+        auto r2 = collect_resp();
+        ckbytes("AVB_INFO no-GM flags SRP only", r2, 55, {0x04});
+        dut->gptp_gm_id_i = 0x0011223344556677ULL; for (int i = 0; i < 4; i++) tick();
     }
 
     // ---------------------------------------------------------------- //
@@ -1111,7 +1151,9 @@ int main(int argc, char** argv) {
         ckbytes("[21a] valid 0x23", r, 42, {0,0,0,0x23});
         ck("[21a] LINK_UP 1", be32_at(r, 46), 1);
         ck("[21a] LINK_DOWN 0", be32_at(r, 50), 0);
-        ck("[21a] GM_CHANGED 1", be32_at(r, 66), 1);
+        // baseline (the [9c]/[9d] gm toggles above also count)
+        long gmc0 = be32_at(r, 66);
+        ck("[21a] GM_CHANGED >= 1", gmc0 >= 1, 1);
 
         // (b) link bounce + GM change reflect in the counters
         dut->link_up_i = 0; for (int i = 0; i < 4; i++) tick();
@@ -1122,7 +1164,7 @@ int main(int argc, char** argv) {
         r = collect_resp();
         ck("[21b] LINK_UP 2", be32_at(r, 46), 2);
         ck("[21b] LINK_DOWN 1", be32_at(r, 50), 1);
-        ck("[21b] GM_CHANGED 2", be32_at(r, 66), 2);
+        ck("[21b] GM_CHANGED +1", be32_at(r, 66), gmc0 + 1);
 
         // (c) STREAM_OUTPUT: talker activation cycle + live FRAMES_TX
         dut->frames_tx_i = 0x00012345;
