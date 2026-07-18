@@ -395,7 +395,7 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> en; put_be16(en, 0x0000); put_be16(en, 0);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9102, en));
         auto r3 = collect_resp();
-        ck("ENTITY counters BAD_ARGUMENTS", r_status(r3), 7);
+        ck("ENTITY counters SUCCESS empty-mask", r_status(r3), 0);
         ck("error response STILL full-size (CDL 148)", r_cdl(r3), 148);   // the Hive field-report class
 
         std::vector<uint8_t> nx; put_be16(nx, 0x0005); put_be16(nx, 9);
@@ -1348,6 +1348,15 @@ int main(int argc, char** argv) {
         ck("[22g] LATE/EARLY 0", be32_at(r, 82) | be32_at(r, 86), 0);
         ck("[22g] FRAMES_RX", be32_at(r, 90), 0x00ABCDEF);
         ck("[22g] block tail zero", be32_at(r, 94), 0);
+
+        // (g1b) ENTITY counters: SUCCESS with an empty mask (Hive queries
+        //       it; BAD_ARGUMENTS surfaced as a bad-values field report)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22CF,
+                         si_pl(0x0000, 0)));
+        r = collect_resp();
+        ck("[22g1b] GET_COUNTERS(ENTITY) SUCCESS", r_status(r), 0);
+        ck("[22g1b] empty valid mask", be32_at(r, 42), 0);
+        ck("[22g1b] CDL 148", r_cdl(r), 148);
 
         // (g2) CLOCK_DOMAIN counters (Milan 5.4.4, la_avdecc field report):
         //      LOCKED/UNLOCKED mirror the input media-lock events
