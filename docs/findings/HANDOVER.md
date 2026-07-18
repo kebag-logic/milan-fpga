@@ -229,6 +229,27 @@ published, media clocks servo-locked.
 fill mid-pinned. MAAP re-enabled on the fresh boot (re-claims an offset
 each boot until NV persistence lands in S50milan).
 
+**TASK LIST COMPLETE (07-18 night): PIPEWIRE CONSUMER LIVE.** Formal
+ring acceptance: pcm_ring_dump on the pcmring DT reservation
+(0x4FF00000/1 MiB, no-map) -> **THD+N -134.4 dB PASS** (limit -120;
+level -15.1 dBFS with the -12 dB attenuator). `pw-milan-ring-source`
+(fpga/pipewire/, overlay /usr/bin) = PipeWire Audio/Source mapping the
+ring + chasing the DMA offset CSR: with wireplumber (now in the image)
+the graph auto-links and samples flow at EXACTLY 48,000 words/s,
+under=0. Bring-up (manual until S-scripts land): XDG_RUNTIME_DIR=/tmp/pw
+pipewire & wireplumber & pw-milan-ring-source & pw-loopback
+--capture-props='node.target=milan-aaf-capture' &.
+**Image-cycle traps burned:** (1) generic fw_jump.bin WEDGES the boot -
+the custom litex_nax opensbi EMBEDS the dtb (rebuild build_opensbi.sh
+with DTB=<new> for any dts change; the dtb flash slot is decorative);
+(2) `make defconfig` CLOBBERS the accumulated .config (pipewire was
+interactively enabled and never saved - now durable in the defconfig
+with wireplumber+lua5.4); (3) buildroot may leave rootfs.cpio.xz STALE
+after an incremental rebuild - regenerate manually (`xz -9
+--check=crc32`, crc32 REQUIRED by the BIOS xz_embedded decoder) and
+size-check vs the 8.5 MiB rootfs slot budget; (4) `pw-cli load-module`
+modules die with the pw-cli process - use pw-loopback / conf drop-ins.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
