@@ -41,6 +41,10 @@
 
 module KL_i2s_playback #(
   parameter int MCLK_DIV_LOG2 = 2,      //! clk -> MCLK divide (log2), = talker
+  parameter int CLK_FREQ_HZ   = 50_000_000, //! datapath clock: sets the TRUE
+                                        //! 48 kHz nominal NCO step (07-18: the
+                                        //! 0x8000 half-rate nominal was clk/2^N
+                                        //! = 48,828 Hz - the talker bug mirrored)
   parameter int FIFO_LOG2     = 9       //! sample-pair FIFO depth (2^N)
 )(
   input  wire         clk_i,            //! Global clock (I2S master domain)
@@ -87,7 +91,12 @@ module KL_i2s_playback #(
   logic [MCLK_DIV_LOG2+7-1:0] cnt_r;
   logic [15:0]        frac_r;
   logic signed [15:0] trim_r;
-  wire  [16:0] step_w = 17'h08000 + 17'(trim_r);
+  //! nominal step for EXACTLY 48 kHz from CLK_FREQ_HZ (integer-truncated:
+  //! -8 ppm, absorbed by the servo); 50 MHz/LOG2 2 and 100 MHz/LOG2 3 both
+  //! give 32212 (vs the old 32768 = +1.7 % fast)
+  localparam int NOM_STEP_C =
+      int'((64'd48_000 * (64'd1 << (MCLK_DIV_LOG2+7)) * 64'd65536) / CLK_FREQ_HZ);
+  wire  [16:0] step_w = 17'(NOM_STEP_C) + 17'(trim_r);
   wire  [16:0] acc_w  = {1'b0, frac_r} + step_w;
   wire         adv_w  = acc_w[16];
   assign trim_o = trim_r;

@@ -1050,7 +1050,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  the FIFO rails and MEASURED via I2SPB_STAT until CRF media-clock
   //  discipline lands.
   // ==========================================================================
-  KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) i2s_player (
+  KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
+                    .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pcm_tdata_i  (m_axis_pcm_tdata),
     .pcm_tvalid_i (m_axis_pcm_tvalid),
