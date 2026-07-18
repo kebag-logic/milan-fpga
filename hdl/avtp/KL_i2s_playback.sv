@@ -49,6 +49,11 @@ module KL_i2s_playback #(
 )(
   input  wire         clk_i,            //! Global clock (I2S master domain)
   input  wire         rst_n,            //! Active-low synchronous reset
+  input  wire         servo_en_i,       //! USER rule 07-18: exact clock recovery
+                                        //! ONLY when the media clock is a bound
+                                        //! stream {AAF, CRF}; internal source =
+                                        //! free-run at nominal (trim forced 0,
+                                        //! periodic slips accepted)
 
   //! --- PCM tap (depacketizer m_axis, observed transfers) -----------------
   input  wire [63:0]  pcm_tdata_i,
@@ -178,7 +183,9 @@ module KL_i2s_playback #(
         servo_ms_r <= servo_ms_r + 6'd1;
         if (servo_ms_r == 6'd47) begin         // 48 frames = 1 ms @48 kHz
           servo_ms_r <= '0;
-          if (fill_w != '0) begin        //! stream present: steer to midpoint
+          if (!servo_en_i)               //! internal clock: free-run nominal
+            trim_r <= 16'sd0;
+          else if (fill_w != '0) begin   //! bound stream: steer to midpoint
             if (fill_w > MID_C + 1 && trim_r <  16'sd512) trim_r <= trim_r + 16'sd1;
             if (fill_w < MID_C - 1 && trim_r > -16'sd512) trim_r <= trim_r - 16'sd1;
           end

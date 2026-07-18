@@ -1053,6 +1053,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
+    .servo_en_i   (aecp_clk_src != 16'd0),
     .pcm_tdata_i  (m_axis_pcm_tdata),
     .pcm_tvalid_i (m_axis_pcm_tvalid),
     .pcm_tready_i (m_axis_pcm_tready),
