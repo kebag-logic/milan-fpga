@@ -340,6 +340,20 @@ CORRECT to fail the reservation. => Our SRP fabric is done and proven;
 res_active/SETTLED_RSV_OK unlocks with the SAME switch-management visit
 that unblocks 802.1AS relay (per-port gPTP/SR-domain enable in the d&b UI).
 
+**AX PARITY DONE (07-18 night): keeper = eppo_milanfinal14 (+0.101, SRAM
+via JTAG - volatile as always).** Carries everything mf13-17 + dmac echo +
+the audio MMCM. Port trap fixed on the way: register_clkin of the audio
+MMCM on the AX's differential clk200 = a second IBUFDS = Place 30-475; AX
+now cascades from the buffered sys clock (5eed747). Silicon: battery 25/25
+vs the pair, source tone -127.1 dB digital, arty loop -69.0 dB, and
+**GET_RX_STATE dest_mac echo verified on silicon** (91e0f000fe01 on an
+AX-listener bind; bench unbound after). TRAP: the AX's QSPI rootfs carries
+a STALE S50milan (writes 0x654=0x00020002 = VID-2 + probe-gate -> the
+talker is silent after every reboot; manual `devmem 0x90000654 32 0x3`
+revives; durable fix = reflash the AX kernel/rootfs partitions with the
+current overlay - allowed, only BITSTREAM is banned from AX QSPI). Arty
+next round should pick up 3136b7e for its own dmac echo.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
