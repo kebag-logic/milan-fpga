@@ -733,6 +733,21 @@ a real Hive field report drove our SUCCESS+empty-mask (KEPT - not changed;
 the CERT expectation is a stricter reading). link-flap errors = harness
 needs a controllable DUT link (can't flap the arty's from the runner).
 
+**CERT CAMPAIGN FINAL TALLY (mf28, arty DUT :02):**
+  FULLY PASS (7): es-3.1 (model_id), es-4.7 (SET_NAME), es-4.8
+  (SAMPLING_RATE), es-4.9 (CLOCK_SOURCE), es-4.10 (CONTROL/Identify),
+  es-4.12 (dereg-under-lock), es-4.13 (GET_AVB_INFO). Of these, 5 were
+  FAIL/INCONCLUSIVE before this session.
+  es-2.1 (ADP DELAY): 2/3 - DELAY state works (random delays 0.095-0.319s,
+  coalesces 12->6); recalibrated to [200ms,870ms] for spread>0.3s +
+  coalesce<=4 (mf29 building).
+  es-4.3 (SET_CONFIGURATION): 3/5 - the misses are our single-config
+  entity (SET config 1 -> BAD_ARGUMENTS is correct; reference has 2).
+  es-4.4 (STREAM_FORMAT): 2/3 - default 2ch vs the test's expected 8ch
+  (deliberate for pure-ACMP connect).
+  Net: the DUT passes the Milan endstation AECP/ADP test plan bar the
+  documented model choices (1 config, 2ch default) + the es-2.1 tuning.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
