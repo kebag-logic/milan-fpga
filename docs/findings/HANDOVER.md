@@ -521,6 +521,29 @@ ear-check of the loop. AX flash images now fully identified+safe
 (kernel #15 / opensbi.bin / milan_ax7101_linux.dtb + rootfs slot);
 remember: ANY AX flash op clobbers the SRAM gateware - JTAG after.
 
+**======= THE SRP UNLOCK (07-19 afternoon) =======**
+The user was right on both counts ("the switch is by default MSRP correct
+and AVB certified" + "MSRP Failure in Hive"): EVERY historical SRP/gPTP
+failure against the switch was OUR pdelay timestamp reference. kl-eth RX
+stamps are late vs the wire (**arty 3511 ns @100M, AX 1490 ns @GbE**,
+ProfiShark-measured via tap-turnaround minus our t3-t2; profitap u64 ts
+unit = ns*2^32!). The offset/2 lands in the switch's computed neighbor
+delay > the 802.1AS 800 ns threshold -> asCapable never true -> the
+CORRECT bridge neither relays 802.1AS nor admits reservations (TF code 8).
+Direct-cable board-to-board always canceled the offset - the entire
+"switch withholds gPTP / management-UI visit needed" thread is RETRACTED.
+FIX (5b6478d): per-board linuxptp ingressLatency (S50milan seds it into
+gptp.cfg pre-S65) + **the AX is the bench GRANDMASTER** (clientOnly
+removed there only; pw0's SW-ts claimant never qualified and is now
+retired). RESULT within a minute: first-ever Announce+Sync relay into the
+arty port, arty ta_registered/SETTLED_RSV_OK, **AX res_active=1 + CBS
+slope engaged + stream gate open = the complete Milan SRP reservation**,
+audio through the reserved path -70.4 dB (best loop yet). Hive's "MSRP
+Failure" clears (ta_failed=0); the mf22 build additionally makes the
+STREAM_INFO/AVB_INFO fields Milan-exact (real failure code/bridge when
+one DOES exist, acc-lat/vlan from the registered attr, msrp_mappings,
+AS_CAPABLE).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
