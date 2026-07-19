@@ -83,6 +83,14 @@ module KL_aecp_top #(
   input  wire [4:0]    lstn_acmpsta_i,
   input  wire          lstn_ta_reg_i,
   input  wire          lstn_ta_fail_i,
+  input  wire [7:0]    lstn_fail_code_i,   //! listener-side MSRP failure code
+  input  wire [63:0]   lstn_fail_bridge_i, //! ...and failing bridge_id
+  input  wire [11:0]   lstn_ta_vlan_i,     //! registered Talker-attr vlan
+  input  wire [31:0]   lstn_ta_acclat_i,   //! ...AccumulatedLatency
+  input  wire          tk_fail_valid_i,    //! our-talker TF registered
+  input  wire [7:0]    tk_fail_code_i,     //! ...code
+  input  wire [63:0]   tk_fail_bridge_i,   //! ...bridge_id
+  input  wire [11:0]   srp_domain_vid_i,   //! SRP domain VID (AVB_INFO map)
 
   // ---- STREAM_INPUT[0] diagnostics (KL_avtp_rx_monitor) --------------
   input  wire [31:0]   in0_cnt_locked_i,
@@ -257,6 +265,10 @@ module KL_aecp_top #(
     .identify_o(identify_o),
     .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
+    .lstn_fail_code_i(lstn_fail_code_i), .lstn_fail_bridge_i(lstn_fail_bridge_i),
+    .lstn_ta_vlan_i(lstn_ta_vlan_i), .lstn_ta_acclat_i(lstn_ta_acclat_i),
+    .tk_fail_valid_i(tk_fail_valid_i), .tk_fail_code_i(tk_fail_code_i),
+    .tk_fail_bridge_i(tk_fail_bridge_i), .srp_domain_vid_i(srp_domain_vid_i),
     .lstn_dmac_i(lstn_dmac_i), .lstn_vlan_i(lstn_vlan_i),
     .lstn_pbsta_i(lstn_pbsta_i), .lstn_acmpsta_i(lstn_acmpsta_i),
     .lstn_ta_reg_i(lstn_ta_reg_i), .lstn_ta_fail_i(lstn_ta_fail_i),

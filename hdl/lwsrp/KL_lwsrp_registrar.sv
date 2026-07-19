@@ -66,6 +66,7 @@ module KL_lwsrp_registrar #(
     input  wire        tadv_p_i,
     input  wire        tfail_p_i,
     input  wire [7:0]  tfail_code_i,
+    input  wire [63:0] tk_bridge_i,          //! walker TF bridge capture
 
     // ---- registration state ----------------------------------------------
     output wire        listener_ready_o,     //! the AAF/bw gate condition
@@ -73,7 +74,9 @@ module KL_lwsrp_registrar #(
     output reg  [1:0]  listener_decl_o,      //! last four-packed declaration
     output wire        domain_ok_o,          //! !srp domain boundary
     output reg         tfail_valid_o,        //! sticky failure seen
-    output reg  [7:0]  tfail_code_o          //! last MSRP failure code
+    output reg  [7:0]  tfail_code_o,         //! last MSRP failure code
+    output reg  [63:0] tfail_bridge_o        //! failing bridge_id (Milan
+                                             //! GET_STREAM_INFO output side)
 );
 
   // -----------------------------------------------------------------------
@@ -164,11 +167,12 @@ module KL_lwsrp_registrar #(
   // -----------------------------------------------------------------------
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      tfail_valid_o <= 1'b0; tfail_code_o <= 8'h00;
+      tfail_valid_o <= 1'b0; tfail_code_o <= 8'h00; tfail_bridge_o <= 64'h0;
     end else if (!enable_i) begin
-      tfail_valid_o <= 1'b0; tfail_code_o <= 8'h00;
+      tfail_valid_o <= 1'b0; tfail_code_o <= 8'h00; tfail_bridge_o <= 64'h0;
     end else if (tfail_p_i) begin
       tfail_valid_o <= 1'b1; tfail_code_o <= tfail_code_i;
+      tfail_bridge_o <= tk_bridge_i;
     end else if (tadv_p_i) begin
       tfail_valid_o <= 1'b0;                 // bridge says we are clean again
     end

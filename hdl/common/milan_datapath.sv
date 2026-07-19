@@ -325,6 +325,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] acmpl_dbg;
   wire        lwsrp_ta_registered, lwsrp_ta_failed;
   wire [7:0]  lwsrp_ta_fail_code;
+  wire [11:0] lwsrp_ta_vlan;
+  wire [31:0] lwsrp_ta_acclat;
+  wire [63:0] lwsrp_ta_fail_bridge, lwsrp_tfail_bridge;
   wire        lwsrp_lstn_declared;
   wire [TDATA_WIDTH-1:0]   acmpl_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] acmpl_tx_tkeep;
@@ -866,6 +869,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .lstn_acmpsta_i (acmpl_status),
     .lstn_ta_reg_i  (lwsrp_ta_registered),
     .lstn_ta_fail_i (lwsrp_ta_failed),
+    .lstn_fail_code_i   (lwsrp_ta_fail_code),
+    .lstn_fail_bridge_i (lwsrp_ta_fail_bridge),
+    .lstn_ta_vlan_i     (lwsrp_ta_vlan),
+    .lstn_ta_acclat_i   (lwsrp_ta_acclat),
+    .tk_fail_valid_i    (lwsrp_tfail_valid),
+    .tk_fail_code_i     (lwsrp_tfail_code),
+    .tk_fail_bridge_i   (lwsrp_tfail_bridge),
+    .srp_domain_vid_i   (cfg_lwsrp_vid),
     .in0_cnt_locked_i      (avtprx_locked_c),
     .in0_cnt_unlocked_i    (avtprx_unlocked_c),
     .in0_cnt_interrupted_i (avtprx_intr_c),
@@ -1120,6 +1131,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .ta_registered_o (lwsrp_ta_registered),
     .ta_failed_o     (lwsrp_ta_failed),
     .ta_fail_code_o  (lwsrp_ta_fail_code),
+    .ta_vlan_o       (lwsrp_ta_vlan),
+    .ta_acclat_o     (lwsrp_ta_acclat),
+    .ta_fail_bridge_o(lwsrp_ta_fail_bridge),
+    .tfail_bridge_o  (lwsrp_tfail_bridge),
     .lstn_declared_o (lwsrp_lstn_declared),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
