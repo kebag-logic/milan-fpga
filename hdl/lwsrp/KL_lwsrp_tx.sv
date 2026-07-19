@@ -129,8 +129,10 @@ module KL_lwsrp_tx (
   //! ~6 us/frame; the GbE AX never hit it; the full-datapath sim passes the
   //! pair - the eater is MAC-side, dp TB lwsrp-egress 2026-07-19). 1024
   //! cycles (20 us @50 MHz) clears a worst-case 100 Mbit frame; protocol-
-  //! irrelevant. Real fix owed: MilanMAC back-to-back TB.
-  localparam int GAP_CYCLES_C = 1024;
+  //! irrelevant. The MAC-side eater is now fixed generally by the
+  //! control-lane tx_ifg_gasket in milan_datapath (2026-07-19); this
+  //! small local gap just keeps the applicant's own pair well-formed.
+  localparam int GAP_CYCLES_C = 8;
   reg [10:0]   gap_r;
   reg [3:0]    beat_r;
   frame_kind_t kind_r;
