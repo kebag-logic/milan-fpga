@@ -74,7 +74,7 @@
     "_ref": "IEEE 1722.1-2021 Sec 7.2.1 / Table 7-2; Milan v1.2 Sec 5.3.3.1",
     "fields": {
       "entity_id":       { "value": "0xDEAD00BEEF00FEED", "class": "semi_static", "access": "READ_ONLY", "note": "EUI-64. Milan: derive from the AVB_INTERFACE MAC (MAC-48 -> insert FF-FE). Placeholder here matches the reference SW." },
-      "entity_model_id": { "value": "0x0000000000000000", "class": "static", "note": "EUI-64 identifying THIS static model. 0 in reference SW; assign a vendor EUI-64 (OUI 00-1B-C5) per released model." },
+      "entity_model_id": { "value": "0x001bc50ac1000001", "class": "static", "note": "EUI-64 identifying THIS static model. 0 in reference SW; assign a vendor EUI-64 (OUI 00-1B-C5) per released model." },
       "entity_capabilities": {
         "flags": ["AEM_SUPPORTED","CLASS_A_SUPPORTED","GPTP_SUPPORTED","VENDOR_UNIQUE_SUPPORTED","AEM_IDENTIFY_CONTROL_INDEX_VALID","AEM_INTERFACE_INDEX_VALID"],
         "raw_hex": "0x0000C588",
