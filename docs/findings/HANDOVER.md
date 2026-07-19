@@ -672,6 +672,28 @@ controller retry. FIX: latch a response-emit PHC-timestamp counter to
 measure emit latency; consider emitting the response before arming the
 probe.
 
+**ISSUE-BY-ISSUE FIX ROUND (07-19 late night):**
+ 1. MilanMAC back-to-back frame EATER (root cause of BOTH the MVRP-pair
+    loss AND the intermittent ACMP CONNECT_RX_RESPONSE timeout) - FIXED
+    at the root: datapath-proved the eater is MAC-side (the merge emits
+    both frames even at a 2-cycle gap), so added a control-lane min-IFG
+    gasket (hdl/common/tx_ifg_gasket.sv, 512 cyc) that spaces every
+    LOW-RATE control frame before the MilanMAC while leaving data/AAF
+    throughput untouched. lwSRP's local gap 1024->8 (gasket generalizes).
+    ifg TB + full regression green (mf26 building). Silicon verify owed:
+    MVRP still on wire + ACMP reliability improved.
+ 2. Two-servo audio degradation (gm_locked daemon) - FIXED + flashed +
+    verified (loop -69.3 under iperf flood).
+ 3. Arty GmChanged=0 on a GM bounce - gptp2csr poll 5s->2s (daemon
+    already publishes gm=0 on gmPresent-false; it just polled too slowly
+    to observe the ~8s transient). rootfs rebuilt.
+ 4. Full Verilator regression GREEN across all ~30 suites after the
+    session's changes (aaf/acmp/acmp_lstn/aecp 432/lwsrp/maap/dp 89/
+    ifg/shaper_core/cbs/ptp_ts/... all pass) + yosys 27/27.
+ REMAINING (by design / user / future): per-queue CBS disabled (AAF uses
+ the reservation bw-gate - correct for a single stream); ear-check;
+ ACMP response race is masked by controller retry (real controllers).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
