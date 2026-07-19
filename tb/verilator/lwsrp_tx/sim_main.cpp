@@ -66,7 +66,7 @@ static void pulse(uint8_t& sig) { sig = 1; step(); sig = 0; step(); }
 static void prime4() { for (int i = 0; i < 4; i++) pulse(dut->join_tick_i); }
 
 // capture one TX frame (little lane), optional toggling back-pressure
-static std::vector<uint8_t> collect(int bp = 0, int maxc = 400) {
+static std::vector<uint8_t> collect(int bp = 0, int maxc = 6000) {
     std::vector<uint8_t> b;
     int phase = 0;
     for (int c = 0; c < maxc; c++) {

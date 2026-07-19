@@ -1228,7 +1228,7 @@ int main(int argc, char** argv) {
         ck("[21g] IN0 hdr", be32_at(r, 58), 0x00050000);
         ck("[21g] IN0 stream_id 0", be32_at(r, 62) | be32_at(r, 66), 0);
         ck("[21g] IN0 format hi", be32_at(r, 70), 0x02050220);
-        ck("[21g] IN0 format lo", be32_at(r, 74), 0x02006000);
+        ck("[21g] IN0 format lo (2ch default)", be32_at(r, 74), 0x00806000);
         ck("[21g] IN0 flags FORMAT_VALID", be32_at(r, 78), 0x80000000);
         ck("[21g] IN0 tail zero", be32_at(r, 82), 0);
         ck("[21g] IN1 hdr (idx 1)", be32_at(r, 86), 0x00050001);

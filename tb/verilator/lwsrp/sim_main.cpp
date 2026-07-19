@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
     // 1) enable + talker: prompt declare pair, then a pair per JoinTime.
     //    Cadence measured over TWO join periods (bench rule 7).
     dut->enable_i = 1; dut->talker_en_i = 1;
-    run(300);
+    run(3000);   // pair spans the 1024-cycle inter-frame gap (2026-07-19)
     ck("declare: prompt pair", tx_frames.size(), 2);
     ck("declare: MSRP first", tx_frames.size() && is_msrp(tx_frames[0]), 1);
     ck("declare: talker declared", dut->talker_declared_o, 1);
@@ -244,7 +244,7 @@ int main(int argc, char** argv) {
     //    refreshed by the listener or it ages out
     drain_tx();
     feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
-    run(600);
+    run(3000);
     ck("rx-leaveall: prompt re-declare pair", tx_frames.size() >= 2 ? 1 : 0, 1);
     run(6200);             // no listener refresh -> ages out
     ck("rx-leaveall: aged out", dut->listener_reg_o, 0);
