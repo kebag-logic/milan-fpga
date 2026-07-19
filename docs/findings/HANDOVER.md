@@ -544,6 +544,46 @@ STREAM_INFO/AVB_INFO fields Milan-exact (real failure code/bridge when
 one DOES exist, acc-lat/vlan from the registered attr, msrp_mappings,
 AS_CAPABLE).
 
+**STRESS ROUND (07-19 evening, user-directed: bind/unbind cycles + REAL
+switch power-kill recoveries + per-phase Milan counter analysis).**
+Sequence: baseline / bind+settle / 5x rapid rebind / clean unbind /
+bind + 2x switch power cycles (powerstrip OUT4), counters snapshotted
+per phase via GET_COUNTERS (fpga tools counters_dump.py on pw0, stress
+driver in the session scratchpad).
+
+CLEAN RESULTS: frame accounting EXACT (FramesTx == FramesRx 269,777 over
+a bind window - zero loss); MediaLocked/Unlocked, CD Locked/Unlocked,
+StreamStart/Stop all track events correctly; ZERO SeqNumMismatch /
+UnsupportedFormat / EarlyTs through 5 rapid rebinds; the ARTY rode out
+both switch outages (stream, servo, stack all resumed unaided);
+post-outage the parked listener SM re-settles AUTOMATICALLY once the
+talker's ADP returns (it waits on tk_avail - correct behavior).
+Rebind->switch-registration ~100 ms on the tap; settle ~4 s.
+
+DEFECTS FOUND (ranked):
+ 1. [CRITICAL] **AX MAC TX wedges PERMANENTLY on a link bounce** (RGMII
+    path): every fabric+kernel TX frame silently eaten (engines count
+    accepted frames, tap shows nothing; RX keeps working). ip-link
+    bounce does NOT recover; only a JTAG gateware reload does. THIS also
+    resets the datapath (counters/ACMP/ADP state to defaults) while the
+    **area-70 CSR shadow BRAM keeps serving stale pre-reset values on
+    reads - the CSR plane LIES after any fabric reset** (the MAAP claim
+    even 'survives' because the LFSR reseeds identically). Next-session
+    deep fix: LiteEth RGMII re-init / reset decoupling + a shadow-vs-live
+    canary. Mitigation until then: JTAG reload after any link event on
+    the AX.
+ 2. [MILAN] Listener rx counter group resets on rebind (FramesRx went
+    negative across the phase) - Milan requires power-up-only clearing;
+    make the exposed counters monotonic (the monitor's internal settle
+    reset must not clear them).
+ 3. [GAP] The ARTY has no link tracking (fabric i_link_up=1, driver
+    carrier static): LinkUp/LinkDown counters are decorative and no
+    link-loss reactions occur (also why the arty is IMMUNE to defect 1).
+ 4. [RESIDUAL] fast-join LeaveAll-at-bind: sim-proven, but the mf23
+    silicon rebind capture shows the prompt pair WITHOUT the LA bit
+    (periodic LA at ~10 s did appear) - re-verify with an isolated
+    capture; the settle is fast regardless.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
