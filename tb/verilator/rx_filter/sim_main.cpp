@@ -118,6 +118,12 @@ int main(int argc, char** argv) {
     ck("blacklist: gPTP passes",    (long)send_frame(MAC_GPTP, 4).size(),  4);
 
     printf("--------------------------------------------------------------\n");
+    // runt guard (2026-07-19): a 1-beat frame (tlast at SOF, <=8 bytes) is
+    // never a legal Ethernet frame - swallowed even in default-pass mode
+    dut->default_pass_i = 1;
+    ck("runt 1-beat frame swallowed", (long)send_frame(MAC_UNI, 1).size(), 0);
+    ck("normal frame after runt passes", send_frame(MAC_UNI, 8).size() == 8 ? 1 : 0, 1);
+
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final(); delete dut;
