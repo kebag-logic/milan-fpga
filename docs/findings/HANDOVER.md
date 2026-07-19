@@ -371,6 +371,49 @@ silicon: battery 25/25, **BOTH boards now echo stream_dest_mac**
 only the AX's stale rootfs (see reflash caveat below) still needs its
 0x654 revive after reboots.
 
+**PROFISHARK GROUND TRUTH (07-19 early, user-directed) - MAJOR
+CORRECTIONS + 3 real bugs fixed.** Tap host amx-ubuntu-server
+(ubuntu-profitaps): tap1 inline on the AX<->switch link (tap2 powered
+but NOT inline - candidate for the arty link). Strict per-link dissection
+(fpga/tools/srp_qna.py in milan-tests-avb + tshark) OVERTURNS 07-18:
+
+1. **The SR VID is 2** (switch Domain = classes B{5,2,2}+A NoV=2 vector;
+   Milan default - the user called it). "638" was the switch's MVRP VLAN
+   declaration misparsed as the Domain. Our Domain now {A,3,2} and the
+   switch's class-A value flips to JoinIn = registered match. The 07-18
+   "VID-638 breakthrough" was a confounder (the same command also flipped
+   lwSRP CTRL from its disabled boot default).
+2. **TalkerFailed root cause #1 was OURS: code 5** (dest address in use)
+   - both talkers declared+streamed the same static DMAC
+   91:E0:F0:00:FE:01. Fixed: MAAP enabled both boards; S50milan
+   milan_maap_adopt polls the claim (0x6D4==6) and copies
+   91:E0:F0:00:<0x6D0[15:0]> into the lwSRP dest-MAC CSRs 0x688/68C.
+   Code 5 VANISHED on the wire immediately after.
+3. **Bug #2 was OURS: rogue gPTP GM** - stale gptp.cfg (gmCapable 1, no
+   clientOnly) had the AX mastering Announce+Sync INTO the switch (and
+   polluting every earlier "relay alive" observation - pw0's morning
+   Syncs were its own TX). Both boards now clientOnly (RAM + overlay).
+4. Remaining failure both directions: **code 8** (egress not AVB
+   capable), now proven clean-room: pdelay healthy 1/s both ways, no
+   rogue master, Domain matched - and the switch sends ZERO
+   Sync/Announce into board ports. The 802.1AS-per-port management
+   setting is the single remaining unlock for SETTLED_RSV_OK.
+5. Our MRPDU encodings validate byte-clean (strict 802.1Q walk incl.
+   Listener 3+4-pack); Listener attach propagates (re-declared
+   AskingFailed pending TF-8). **OUR lwSRP fixes for the next RTL
+   round:** (a) domain_ok is too lenient - it reported OK against
+   {B,2,2} vs our {A,3,638}; needs strict {class,prio,vid} compare;
+   (b) the applicant re-declares every join tick (5.4 Hz spam - should
+   quiesce per MRP and re-declare on LeaveAll/state change only).
+6. Switch behavior notes: echoes the registered TA back to its talker
+   (event In), strips VID-0 priority tags on egress (arty stream arrives
+   untagged at the AX - NOT a talker bug).
+
+Arty reflashed with all of it (same eppo-mf18 gateware): boots VID 2,
+MAAP claim auto-adopted (fresh random claim each boot), clientOnly,
+battery 25/25, loop clean. AX carries the same fixes in RAM only (stale
+rootfs; reflash still gated on the dtb-identity caveat below).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
