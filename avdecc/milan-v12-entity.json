@@ -146,8 +146,9 @@
             "stream_flags": ["SYNC_SOURCE","CLASS_A"],
             "avb_interface_index": 0,
             "buffer_length_ns": 2126000,
-            "current_format": { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000, "channels": 8, "sample_bits": 32, "samples_per_frame": 6 }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
+            "current_format": { "raw_hex": "0x0205022000806000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000, "channels": 2, "sample_bits": 32, "samples_per_frame": 6 }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
             "formats": [
+              { "raw_hex": "0x0205022000806000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000,  "channels": 2, "sample_bits": 32, "samples_per_frame": 6 } },
               { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 6 } },
               { "raw_hex": "0x020702200200C000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 96000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 12 } },
               { "raw_hex": "0x0209022002018000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 192000, "channels": 8, "sample_bits": 32, "samples_per_frame": 24 } }
@@ -178,8 +179,9 @@
             "stream_flags": ["CLASS_A"],
             "avb_interface_index": 0,
             "buffer_length_ns": 8,
-            "current_format": { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000, "channels": 8, "sample_bits": 32, "samples_per_frame": 6 }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
+            "current_format": { "raw_hex": "0x0205022000806000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000, "channels": 2, "sample_bits": 32, "samples_per_frame": 6 }, "class": "dynamic", "access": "SET_STREAM_FORMAT" },
             "formats": [
+              { "raw_hex": "0x0205022000806000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000,  "channels": 2, "sample_bits": 32, "samples_per_frame": 6 } },
               { "raw_hex": "0x0205022002006000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 48000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 6 } },
               { "raw_hex": "0x020702200200C000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 96000,  "channels": 8, "sample_bits": 32, "samples_per_frame": 12 } },
               { "raw_hex": "0x0209022002018000", "decoded": { "type": "AAF_PCM", "sample_rate_hz": 192000, "channels": 8, "sample_bits": 32, "samples_per_frame": 24 } }
