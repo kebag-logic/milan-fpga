@@ -172,27 +172,45 @@ int main(int argc, char** argv) {
     auto f2 = capture_frame();
     check_common("periodic AVAILABLE", f2, 0, 2);   // every send bumps
 
-    // 3) discover response -> AVAILABLE, 2 -> 3
-    pulse(dut->rcv_discover_i);
+    // 3) discover response -> AVAILABLE, 2 -> 3, but DELAYED (es-2.1): the
+    //    entity must NOT answer instantly. Verify no frame for a few cycles,
+    //    then the delayed response arrives.
+    dut->rcv_discover_i = 1; step(); dut->rcv_discover_i = 0;
+    {
+        bool early = false;
+        for (int c = 0; c < 3; c++) { step(); if (dut->m_axis_tvalid) early = true; }
+        ck("discover: no INSTANT response (DELAY state)", early ? 1 : 0, 0);
+    }
     auto f3 = capture_frame();
-    check_common("discover-response AVAILABLE", f3, 0, 3);
+    check_common("discover-response AVAILABLE (delayed)", f3, 0, 3);
+
+    // 3b) COALESCING: a burst of discovers during the delay window yields
+    //     ONE response, not one-per-discover.
+    for (int i = 0; i < 6; i++) { dut->rcv_discover_i = 1; step(); dut->rcv_discover_i = 0; }
+    auto fb = capture_frame();
+    check_common("discover burst -> one coalesced response", fb, 0, 4);
+    {
+        bool extra = false;
+        for (int c = 0; c < 60; c++) { step(); if (dut->m_axis_tvalid) extra = true; }
+        ck("discover burst: no extra responses after the one", extra ? 1 : 0, 0);
+    }
 
     // 4) info/gm change -> AVAILABLE, 3 -> 4
     pulse(dut->gm_change_i);
     auto f4 = capture_frame();
-    check_common("gm-change AVAILABLE", f4, 0, 4);
+    check_common("gm-change AVAILABLE", f4, 0, 5);
 
     // 5) link-down -> ENTITY_DEPARTING, 4 -> 5 (reference bumps on depart too)
     dut->link_level_i = 0;
     pulse(dut->link_down_i);
     auto f5 = capture_frame();
-    check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 5);
+    check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 6);
 
     // 6) re-up under AXIS back-pressure -> AVAILABLE, 5 -> 6, bytes intact
     dut->link_level_i = 1;
     pulse(dut->link_up_i);
     auto f6 = capture_frame(/*bp=*/1);
-    check_common("backpressure AVAILABLE", f6, 0, 6);
+    check_common("backpressure AVAILABLE", f6, 0, 7);
 
     // 7) once departed with the link DOWN, a periodic tick must NOT emit a
     //    frame (and the dormancy self-re-arm must stay gated by link level)
@@ -210,12 +228,12 @@ int main(int argc, char** argv) {
     dut->link_level_i = 1;
     pulse(dut->link_up_i);
     auto f8 = capture_frame();
-    check_common("link-restore AVAILABLE", f8, 0, 8);
+    check_common("link-restore AVAILABLE", f8, 0, 9);
 
     // 9) software depart (ADP_CMD[1]) with the link still UP -> DEPARTING, 9
     pulse(dut->shutdown_i);
     auto f9 = capture_frame();
-    check_common("cmd DEPARTING", f9, 1, 9);
+    check_common("cmd DEPARTING", f9, 1, 10);
 
     // 10) DORMANCY SELF-RE-ARM (silicon 2026-07-13): enabled + link up but
     //     not available (whatever cleared available_r) -> after 2 ticks the
@@ -225,13 +243,13 @@ int main(int argc, char** argv) {
     pulse(dut->tick_i);                         // dormant tick 1: arm watchdog
     pulse(dut->tick_i);                         // dormant tick 2: re-arm fires
     auto f10 = capture_frame();
-    check_common("dormancy self-re-arm AVAILABLE", f10, 0, 10);
+    check_common("dormancy self-re-arm AVAILABLE", f10, 0, 11);
     ck("rearm_cnt after self-heal", dut->rearm_cnt_o, 1);
 
     // 11) periodic advertising must be fully restored after a self-re-arm
     for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
     auto f11 = capture_frame();
-    check_common("periodic after re-arm", f11, 0, 11);
+    check_common("periodic after re-arm", f11, 0, 12);
 
     // 12) DIAG counters: departs taken = case 5 + case 7 + case 9; last
     //     source = shutdown (bit1), not link_down (bit0)
@@ -242,7 +260,7 @@ int main(int argc, char** argv) {
     //     silent; re-enable -> self-re-arm resumes advertising
     pulse(dut->shutdown_i);
     auto f13 = capture_frame();
-    check_common("cmd DEPARTING pre-disable", f13, 1, 12);
+    check_common("cmd DEPARTING pre-disable", f13, 1, 13);
     dut->enable_i = 0;
     bool spurious13 = false;
     for (int t = 0; t < 4; t++) {
@@ -254,7 +272,7 @@ int main(int argc, char** argv) {
     pulse(dut->tick_i);
     pulse(dut->tick_i);
     auto f13b = capture_frame();
-    check_common("re-arm after re-enable", f13b, 0, 13);
+    check_common("re-arm after re-enable", f13b, 0, 14);
     ck("rearm_cnt after 2nd heal", dut->rearm_cnt_o, 2);
 
     printf("--------------------------------------------------------------\n");

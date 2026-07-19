@@ -15,6 +15,7 @@ VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
+         -GDISC_DLY_BASE=4 -GDISC_DLY_MASK=3 \
          -CFLAGS "-std=c++17 -O2"
 
 SRCS = $(RTL_DIR)/adp/adp_pkg.sv $(RTL_DIR)/adp/adp_advertiser.sv

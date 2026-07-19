@@ -36,7 +36,13 @@
 
 import adp_pkg::*;
 
-module adp_advertiser (
+module adp_advertiser #(
+    //! discover-response random-delay range (clk_i cycles): delay =
+    //! DISC_DLY_BASE + (lfsr & DISC_DLY_MASK). Default ~[100 ms, 435 ms]
+    //! @ 50 MHz; TBs override to a few cycles.
+    parameter int unsigned DISC_DLY_BASE = 24'd5_000_000,
+    parameter int unsigned DISC_DLY_MASK = 24'hFF_FFFF
+)(
     input  wire        clk_i,                     //! datapath clock
     input  wire        rst_n,                     //! active-low sync reset
 
@@ -104,6 +110,20 @@ module adp_advertiser (
 
   // 1-second advertise timer
   reg [4:0]  adv_tick_cnt_r;   //! counts ticks up to valid_time
+
+  // ADP discover-response DELAY state (IEEE 1722.1 clause 6.2.6; CERT es-2.1):
+  // a received ENTITY_DISCOVER must NOT be answered instantly - the entity
+  // waits a bounded RANDOM delay before advertising, and coalesces further
+  // discovers arriving during that window into the one pending response (so a
+  // burst does not trigger a response storm). Zero-delay instant answers were
+  // the silicon gap (2026-07-19). Random source: a free-running Galois LFSR.
+  reg [23:0] disc_lfsr_r;      //! randomness for the delay
+  reg        disc_pend_r;      //! a delayed discover-response is scheduled
+  reg [23:0] disc_dly_r;       //! delay countdown (clk_i cycles)
+  wire       disc_fire_w = disc_pend_r && (disc_dly_r == 24'd0);
+  //! delay range ~[100 ms, 435 ms] @ 50 MHz: base 5,000,000 + lfsr[23:0].
+  //! A ~1 s discover burst coalesces to 1..4 responses; delays vary.
+  wire [23:0] disc_dly_next_w = 24'(DISC_DLY_BASE) + (disc_lfsr_r & 24'(DISC_DLY_MASK));
   wire       tmr_advertise_w = tick_i && available_r &&
                                (adv_tick_cnt_r + 5'd1 >= (valid_time_i == 0 ? 5'd1 : valid_time_i));
 
@@ -217,7 +237,8 @@ module adp_advertiser (
 
   wire depart_evt_w    = link_down_i | shutdown_i;
   wire bump_advert_evt = link_up_i | gm_change_i | info_changed_i; // advertise + bump index
-  wire plain_advert_w  = rcv_discover_i | tmr_advertise_w;         // advertise, no bump
+  //! discover-response is the DELAYED fire, not the raw rx pulse
+  wire plain_advert_w  = disc_fire_w | tmr_advertise_w;           // advertise, no bump
 
   always @(posedge clk_i) begin : trigger_capture
     if (!rst_n) begin
@@ -229,7 +250,22 @@ module adp_advertiser (
       depart_cnt_o   <= 8'd0;
       rearm_cnt_o    <= 8'd0;
       depart_src_o   <= 2'd0;
+      disc_lfsr_r    <= 24'h1;   //! nonzero LFSR seed
+      disc_pend_r    <= 1'b0;
+      disc_dly_r     <= 24'd0;
     end else begin
+      // free-running Fibonacci LFSR (taps 24,23,22,17) for the random delay
+      disc_lfsr_r <= {disc_lfsr_r[22:0],
+                      disc_lfsr_r[23]^disc_lfsr_r[22]^disc_lfsr_r[21]^disc_lfsr_r[16]};
+      // ADP discover DELAY state: arm a random delay on the FIRST discover,
+      // coalesce further discovers during the window, fire when it expires
+      if (disc_pend_r) begin
+        if (disc_dly_r != 24'd0) disc_dly_r <= disc_dly_r - 24'd1;
+        else                     disc_pend_r <= 1'b0;   // fired this cycle
+      end else if (rcv_discover_i && available_r && enable_i) begin
+        disc_pend_r <= 1'b1;
+        disc_dly_r  <= disc_dly_next_w;
+      end
       // advertise timer
       if (!available_r) begin
         adv_tick_cnt_r <= 5'd0;
