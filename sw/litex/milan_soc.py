@@ -26,7 +26,7 @@ import sys
 import json
 import argparse
 
-from migen import ClockDomain, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
+from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
 
 from litex.gen import LiteXModule
@@ -440,8 +440,22 @@ class MilanMAC(LiteXModule):
                 "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
             platform.add_platform_command(
                 "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
-        self.core = LiteEthMACCore(phy=self.phy, dw=data_width,
-                                   with_preamble_crc=True, with_padding=True)
+        # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
+        # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
+        # halves kept their pointers = permanent desync after a link bounce
+        # (silicon: TX or RX wedges until a gateware reload). `reinit` holds
+        # the whole sys side (core + tx FIFO) in reset; the recovery daemon
+        # strobes phy_crg_reset + reinit together for a clean eth re-init
+        # WITHOUT touching the Milan datapath.
+        self.reinit = Signal()   # driven from the datapath's LINK_CTRL[1]
+        self.cd_macsys = ClockDomain()
+        self.comb += [
+            self.cd_macsys.clk.eq(ClockSignal("sys")),
+            self.cd_macsys.rst.eq(ResetSignal("sys") | self.reinit),
+        ]
+        self.core = ClockDomainsRenamer({"sys": "macsys"})(
+                        LiteEthMACCore(phy=self.phy, dw=data_width,
+                                       with_preamble_crc=True, with_padding=True))
         # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
         # CUT-THROUGH and GMII has no mid-frame flow control (`tx_en = sink.valid` cycle by
         # cycle), while our DMA/datapath source can drop below 1 Gbps mid-frame (Wishbone
@@ -452,8 +466,9 @@ class MilanMAC(LiteXModule):
         # 512 x 8 B = 4 KB >= 2 max-size frames; 8 frame slots.
         # (Full LiteEthMAC has SRAM buffering for exactly this reason; we drive the bare
         # core, so we provide it here. docs/findings/kl-eth-tx-debug.md #Second bug.)
-        self.tx_sf = PacketFIFO(eth_phy_description(data_width),
-                                payload_depth=1024, param_depth=8)
+        self.tx_sf = ClockDomainsRenamer({"sys": "macsys"})(
+                         PacketFIFO(eth_phy_description(data_width),
+                                    payload_depth=1024, param_depth=8))
         self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
@@ -530,6 +545,7 @@ class MilanMAC(LiteXModule):
         self.i2s_pads = None
         self.i2s_dac_pads = None
         self.dp_ports = dict(
+            o_o_mac_reinit      = self.reinit,
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,

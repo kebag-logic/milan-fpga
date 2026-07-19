@@ -132,6 +132,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ---- MAC status (from the external MAC) ----
   input  wire [1:0]  i_mac_speed,
   input  wire        i_link_up,
+  output wire        o_mac_reinit,     //! LINK_CTRL[1] -> SoC MAC sys-side reset
   input  wire        i_full_duplex,
   //! RMON event pulses from the external MAC (lane index == ethernet_events_t enum)
   input  wire [_ETH_EVENT_COUNTER-1:0] i_mac_events,
@@ -390,6 +391,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
   wire                     ctl_tx_tvalid, ctl_tx_tlast, ctl_tx_tready;
 
+  wire        cfg_sw_link, cfg_mac_reinit;
+  //! effective PHY link: the SoC's i_link_up (constant 1 on boards without
+  //! HW tracking) gated by the daemon-maintained LINK_CTRL[0] - drives the
+  //! AVB_INTERFACE LinkUp/LinkDown counters and the ADP link behavior
+  wire        eff_link_w;
   wire        cfg_tcam_default_pass, cfg_tcam_wr_en, cfg_tcam_wr_valid;
   wire [4:0]  cfg_tcam_wr_index;
   wire [47:0] cfg_tcam_wr_key, cfg_tcam_wr_mask;
@@ -588,6 +594,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_tone_enable        (cfg_tone_enable),
     .o_tone_att           (cfg_tone_att),
     // RX dest-MAC TCAM filter programming (0x700 group)
+    .o_sw_link          (cfg_sw_link),
+    .o_mac_reinit       (cfg_mac_reinit),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
     .o_tcam_wr_index    (cfg_tcam_wr_index),
@@ -711,6 +719,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  RX destination-MAC filter (TCAM, REQ-MAC-02)
   // ==========================================================================
+  assign eff_link_w = i_link_up & cfg_sw_link;
+  assign o_mac_reinit = cfg_mac_reinit;
+
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
     .clk_i(axis_clk), .rst_n(axis_resetn),
     .default_pass_i (cfg_tcam_default_pass),
@@ -781,7 +792,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
     .tick_i   (adp_tick_1s),
-    .link_level_i  (i_link_up),
+    .link_level_i  (eff_link_w),
     .link_up_i     (adp_link_up_p),
     .link_down_i   (adp_link_down_p),
     .shutdown_i    (cfg_adp_depart_p),
@@ -859,7 +870,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .listener_observed_i (listener_observed_w),
     .pres_offset_o (aecp_pres_offset),
     .identify_o    (o_identify),
-    .link_up_i     (i_link_up),
+    .link_up_i     (eff_link_w),
     .frames_tx_i   (aaf_frames_w),
     .lstn_bound_i   (acmpl_bound),
     .lstn_sid_i     (acmpl_sid),
