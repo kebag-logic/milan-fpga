@@ -473,6 +473,38 @@ keeper = eto_milanfinal20 (+0.366) + shield rootfs.** Full checklist:
     without timeout) wedges the shell EATING all subsequent commands as
     its stdin - recover with ctrl-C via the console daemon's _in pipe.
 
+**FINISH-EVERYTHING ROUND (07-19 midday):**
+  - AEM default STREAM_INPUT format = talker-truth 2ch now (2f09bda:
+    FORMATS[0] in gen_aem_store.py + regen; a pure-ACMP la_avdecc connect
+    works against a fresh boot without SET_STREAM_FORMAT).
+  - **MVRP eater LOCALIZED + WORKED AROUND**: the dp TB's lwsrp-egress
+    test proves the MSRP+MVRP pair reaches the MAC port intact => the
+    eater is the arty's MAC path when frame 2 enters within one
+    100 Mbit serialization (~6 us) of frame 1 (GbE AX unaffected; MAAP
+    singles never bitten). lwSRP gap 64 -> 1024 cycles (20 us) clears
+    it; REAL FIX OWED: MilanMAC back-to-back TB. MSRP cadence note
+    corrected: ~1.3/s = the intended 1 s refresh + LeaveAll traffic,
+    working as designed.
+  - **AX stale-rootfs era ENDED**: staged flash images identified by
+    read-back (dtb slot = milan_ax7101_linux.dtb, opensbi slot =
+    opensbi.bin, kernel = #15) => provably-safe images reflash with the
+    new rootfs. S50milan sed-debris cleaned: the AX section was MISSING
+    0x654/maap_adopt/kernel_shield entirely (+ arty duplicate call);
+    now: AX boots turnkey (entity, talker 0x654=3, tone -12 dB, VID 2,
+    MAAP claim adopted, shield, clientOnly ptp4l-rt). TRAP: flash-images
+    loads the JTAG SPI-proxy = the running SRAM gateware is CLOBBERED -
+    always JTAG-reload after an AX flash op.
+  - Both boards on VERSION 0x0004 gateware: arty QSPI eto_milanfinal20
+    (+0.366); AX SRAM eto_milanfinal15 (+0.099, asl +0.108 banked, eppo
+    pending). Validated: la_avdecc SET_FORMAT+CONNECT SUCCESS, both
+    Milan=1, connection state=2, pdelay 100% cold-boot, audio
+    -126.2 dig / -69.3 loop on fresh MAAP DMACs both sides.
+  - PENDING AT HANDOVER-TIME: arty milanfinal21 sweep (2ch default +
+    gap-1024; launches when the AX sweep frees Vivado) -> flash with the
+    124961b rootfs; AX images-reflash once more for the tone line +
+    JTAG the best seed; then the MVRP-on-wire check (gap fix's silicon
+    proof) via the tap.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
