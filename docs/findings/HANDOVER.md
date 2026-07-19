@@ -748,6 +748,17 @@ needs a controllable DUT link (can't flap the arty's from the runner).
   Net: the DUT passes the Milan endstation AECP/ADP test plan bar the
   documented model choices (1 config, 2ch default) + the es-2.1 tuning.
 
+**es-4.5 SET_STREAM_INFO unsolicited gap [OPEN, characterized]**: the
+unsolicited trigger (KL_aecp_response_builder ~line 775) fires only on
+ACMP state changes (talker_active/listener_observed XOR), NOT on the
+SET_STREAM_INFO(ACC_LAT) write itself (pres_wr_p_o). So a SET_STREAM_INFO
+does not notify other registered controllers. FIX DIRECTION: trigger
+unsol_pend on pres_wr_p_o (excluding the issuing controller, like the
+reference), or add SET_STREAM_INFO to is_replay_cmd (risk: the response-
+rebuild path for the larger stream-info payload - needs a careful TB).
+Deferred (not a functional bug - the SET works; unsolicited is a
+polling-avoidance convenience).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
