@@ -725,6 +725,14 @@ RESULTS:
   MAC wedge stalls RX permanently with no up-transition to trigger
   recovery).
 
+**CERT interpretation differences (NOT DUT bugs, documented decisions):**
+es-4.12 dereg-under-lock PASSES; hive-get-counters 4/5 - the one miss is
+GET_COUNTERS on ENTITY: CERT wants BAD_ARGUMENTS, but IEEE 1722.1-2021
+7.4.42 allows SUCCESS + empty valid-mask for ENTITY with no counters, and
+a real Hive field report drove our SUCCESS+empty-mask (KEPT - not changed;
+the CERT expectation is a stricter reading). link-flap errors = harness
+needs a controllable DUT link (can't flap the arty's from the runner).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
