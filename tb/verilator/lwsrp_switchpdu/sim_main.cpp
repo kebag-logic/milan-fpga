@@ -75,6 +75,12 @@ int main(int argc, char** argv){
     // captured switch PDU vs vid 638: TF registered, domain TRUTHFULLY not ok
     // (the switch's NoV=2 Domain expands to class A {6,3,VID 2})
     ck("TF registered from the real switch PDU", dut->ta_failed_o, 1);
+    // the NEW Milan STREAM_INFO fields, captured from the REAL bytes:
+    // FailureInformation bridge 80:00:3c:c0:c6:fe:02:10, AccLat 0x00021752,
+    // DataFrameParameters vlan 0x27E (that era's declaration)
+    ck("TF bridge_id captured", (long long)dut->ta_fail_bridge_o == 0x80003CC0C6FE0210ll, 1);
+    ck("TF acc_latency captured", dut->ta_acclat_o, 0x00021752);
+    ck("TF talker-attr vlan captured", dut->ta_vlan_o, 0x27E);
     ck("TA registered from the TA variant", dut->ta_registered_o, 1);
     ck("domain_ok=0 vs vid 638 (strict compare)", dut->domain_ok_o, 0);
 

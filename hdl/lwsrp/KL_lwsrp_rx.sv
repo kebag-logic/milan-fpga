@@ -42,6 +42,9 @@ module KL_lwsrp_rx #(
     output wire         ta_registered_o,   //! TalkerAdvertise registered
     output wire         ta_failed_o,       //! TalkerFailed registered
     output wire [7:0]   ta_fail_code_o,
+    output wire [11:0]  ta_vlan_o,         //! registered Talker-attr vlan
+    output wire [31:0]  ta_acclat_o,       //! ...AccumulatedLatency
+    output wire [63:0]  ta_fail_bridge_o,  //! ...TF bridge_id (listener side)
 
     // ---- registration state (to bw_gate / CSR) ---------------------------
     output wire         listener_ready_o,
@@ -50,6 +53,7 @@ module KL_lwsrp_rx #(
     output wire         domain_ok_o,
     output wire         tfail_valid_o,
     output wire [7:0]   tfail_code_o,
+    output wire [63:0]  tfail_bridge_o,    //! our-talker TF bridge_id
     output wire         rx_leaveall_p_o,   //! to the applicant (re-declare)
 
     // ---- diagnostics -------------------------------------------------------
@@ -82,6 +86,9 @@ module KL_lwsrp_rx #(
   wire [1:0]  w_listener_decl;
   wire        w_tadv_p, w_tfail_p;
   wire [7:0]  w_tfail_code;
+  wire [11:0] w_tk_vlan;
+  wire [31:0] w_tk_acclat;
+  wire [63:0] w_tk_bridge;
   wire        w_l_tadv_p, w_l_tfail_p;
   wire [2:0]  w_l_evt;
   wire [7:0]  w_l_tfail_code;
@@ -102,6 +109,7 @@ module KL_lwsrp_rx #(
     .listener_evt_o (w_listener_evt), .listener_decl_o (w_listener_decl),
     .tadv_p_o (w_tadv_p),
     .tfail_p_o (w_tfail_p), .tfail_code_o (w_tfail_code),
+    .tk_vlan_o (w_tk_vlan), .tk_acclat_o (w_tk_acclat), .tk_bridge_o (w_tk_bridge),
     .l_tadv_p_o (w_l_tadv_p), .l_tfail_p_o (w_l_tfail_p),
     .l_evt_o (w_l_evt), .l_tfail_code_o (w_l_tfail_code),
     .pdu_cnt_o (pdu_cnt_o)
@@ -113,8 +121,11 @@ module KL_lwsrp_rx #(
     .leaveall_p_i (w_leaveall_p),
     .l_tadv_p_i (w_l_tadv_p), .l_tfail_p_i (w_l_tfail_p),
     .l_evt_i (w_l_evt), .l_tfail_code_i (w_l_tfail_code),
+    .tk_vlan_i (w_tk_vlan), .tk_acclat_i (w_tk_acclat), .tk_bridge_i (w_tk_bridge),
     .ta_registered_o (ta_registered_o),
-    .ta_failed_o (ta_failed_o), .ta_fail_code_o (ta_fail_code_o)
+    .ta_failed_o (ta_failed_o), .ta_fail_code_o (ta_fail_code_o),
+    .ta_vlan_o (ta_vlan_o), .ta_acclat_o (ta_acclat_o),
+    .ta_fail_bridge_o (ta_fail_bridge_o)
   );
 
   KL_lwsrp_registrar registrar (
@@ -129,10 +140,12 @@ module KL_lwsrp_rx #(
     .listener_evt_i (w_listener_evt), .listener_decl_i (w_listener_decl),
     .tadv_p_i (w_tadv_p),
     .tfail_p_i (w_tfail_p), .tfail_code_i (w_tfail_code),
+    .tk_bridge_i (w_tk_bridge),
     .listener_ready_o (listener_ready_o),
     .listener_reg_o (listener_reg_o), .listener_decl_o (listener_decl_o),
     .domain_ok_o (domain_ok_o),
-    .tfail_valid_o (tfail_valid_o), .tfail_code_o (tfail_code_o)
+    .tfail_valid_o (tfail_valid_o), .tfail_code_o (tfail_code_o),
+    .tfail_bridge_o (tfail_bridge_o)
   );
 
 endmodule

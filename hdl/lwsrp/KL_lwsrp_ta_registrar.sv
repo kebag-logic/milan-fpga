@@ -40,11 +40,18 @@ module KL_lwsrp_ta_registrar (
     input  wire        l_tfail_p_i,
     input  wire [2:0]  l_evt_i,
     input  wire [7:0]  l_tfail_code_i,
+    input  wire [11:0] tk_vlan_i,         //! walker Talker-attr captures
+    input  wire [31:0] tk_acclat_i,
+    input  wire [63:0] tk_bridge_i,
 
     // ---- registration state ----------------------------------------------
     output reg         ta_registered_o,
     output reg         ta_failed_o,
-    output reg  [7:0]  ta_fail_code_o
+    output reg  [7:0]  ta_fail_code_o,
+    //! Milan GET_STREAM_INFO fields from the registered Talker attribute
+    output reg  [11:0] ta_vlan_o,
+    output reg  [31:0] ta_acclat_o,
+    output reg  [63:0] ta_fail_bridge_o
 );
 
   //! leave downcounters (ms); 0 = disarmed
@@ -59,6 +66,9 @@ module KL_lwsrp_ta_registrar (
       ta_registered_o <= 1'b0;
       ta_failed_o     <= 1'b0;
       ta_fail_code_o  <= 8'h00;
+      ta_vlan_o       <= 12'h0;
+      ta_acclat_o     <= 32'h0;
+      ta_fail_bridge_o<= 64'h0;
       ta_leave_r      <= 10'd0;
       tf_leave_r      <= 10'd0;
     end else if (!enable_i) begin
@@ -89,6 +99,8 @@ module KL_lwsrp_ta_registrar (
       if (l_tadv_p_i) begin
         if (w_join_evt) begin
           ta_registered_o <= 1'b1;
+          ta_vlan_o       <= tk_vlan_i;
+          ta_acclat_o     <= tk_acclat_i;
           ta_leave_r      <= 10'd0;      // reload: disarm the leave window
         end else if (w_lv_evt && ta_registered_o) begin
           ta_leave_r <= 10'(LEAVE_TIME_MS_C);
@@ -96,9 +108,12 @@ module KL_lwsrp_ta_registrar (
       end
       if (l_tfail_p_i) begin
         if (w_join_evt) begin
-          ta_failed_o    <= 1'b1;
-          ta_fail_code_o <= l_tfail_code_i;
-          tf_leave_r     <= 10'd0;
+          ta_failed_o      <= 1'b1;
+          ta_fail_code_o   <= l_tfail_code_i;
+          ta_vlan_o        <= tk_vlan_i;
+          ta_acclat_o      <= tk_acclat_i;
+          ta_fail_bridge_o <= tk_bridge_i;
+          tf_leave_r       <= 10'd0;
         end else if (w_lv_evt && ta_failed_o) begin
           tf_leave_r <= 10'(LEAVE_TIME_MS_C);
         end
