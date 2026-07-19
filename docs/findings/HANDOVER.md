@@ -694,6 +694,37 @@ probe.
  the reservation bw-gate - correct for a single stream); ear-check;
  ACMP response race is masked by controller retry (real controllers).
 
+**CERT MILAN ENDSTATION TEST-PLAN CAMPAIGN (07-19/20 night) - full
+behave suite (cert_recreate) + tsn-gen protocol models, DUT = arty
+listener :02.** Setup: harness copied to pw0 (~/cert-run), behave venv +
+numpy/scipy/pyyaml, tsn-gen YAML models wired (AECP_YAML_DIR ->
+~/cert-run/tsn-models/aecp, 20 models), AVB_LISTENER_EID override.
+RESULTS:
+  PASS: es-3.1 (entity_model_id - FIXED, was all-zeros), es-4.7
+  (SET_NAME - was FAIL), es-4.8 (SAMPLING_RATE - was FAIL), es-4.9
+  (CLOCK_SOURCE - was INCONCLUSIVE), es-4.10 (CONTROL/Identify - was
+  INCONCLUSIVE). The four previously-FAIL/INCONCLUSIVE tests now PASS
+  from the session's AECP work.
+  FIXED, pending mf28 flash: es-2.1 (ADP DELAY state - random delay +
+  coalescing), es-4.13 (GET_AVB_INFO NOT_IMPLEMENTED vs
+  NO_SUCH_DESCRIPTOR).
+  MODEL CHOICES (not DUT bugs): es-4.3 SET_CONFIGURATION to index 1 ->
+  BAD_ARGUMENTS is CORRECT for our single-config entity (the reference
+  Milan-EndStation-1 has 2 configs; adding a 2nd config is a design
+  decision, not a conformance requirement); es-4.4 scenario 1 expects an
+  8ch default STREAM_INPUT format but we default to 2ch (deliberate, so
+  a pure-ACMP la_avdecc connect works - the 2ch talker match); 2/3 pass.
+  es-4.5 SET_STREAM_INFO(talker) unsolicited: gated by STREAM_IS_RUNNING
+  when a listener is bound (correct Milan behavior).
+  ** THE BIG FIX - discovery reliability **: the session-long flaky
+  discovery was linkmon using the lwSRP rx_pdu counter for RX-liveness,
+  which STALLS when MRP goes quiet (unbind) -> false link-down ->
+  needless eth_reinit -> DUT flickered offline. Switched to the kernel
+  eth0 rx_packets counter (gPTP alone keeps it ticking): **5/5 discovery**.
+  Plus the linkmon DEADLOCK fix (reinit on down, not just down->up - the
+  MAC wedge stalls RX permanently with no up-transition to trigger
+  recovery).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
