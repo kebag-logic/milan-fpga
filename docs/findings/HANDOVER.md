@@ -661,6 +661,17 @@ the AAF stream at the final mux, while measuring AAF integrity on the arty:
     900M UDP -> apparent audio degradation in-capture; measure after the
     flood or on a clean tap.
 
+**ACMP-TIMEOUT ROOT-CAUSED (07-19 night).** Forensics 0x6E8/0x6B0 across
+an avdecc_l2 timeout: the listener STILL processes the CONNECT_RX every
+time - cmd_count +1, basehit +1, SM 0x8000 -> 0xE07F (SETTLED_RSV_OK),
+probe emitted. The response IS generated; avdecc_l2 just doesn't receive/
+match it in the timeout cases. RULED OUT: command rejection, tx-grant
+watchdog (tx_wedge stable), format (5.5.1.2 passes). => response-delivery
+timing/race (RESPOND-then-PROBE + low-rate TX arbiter latency), masked by
+controller retry. FIX: latch a response-emit PHC-timestamp counter to
+measure emit latency; consider emitting the response before arming the
+probe.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
