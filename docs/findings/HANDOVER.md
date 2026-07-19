@@ -759,6 +759,18 @@ rebuild path for the larger stream-info payload - needs a careful TB).
 Deferred (not a functional bug - the SET works; unsolicited is a
 polling-avoidance convenience).
 
+**==== CERT CAMPAIGN COMPLETE (mf29, arty keeper) ==== **
+Final: **23/24 CERT scenarios PASS** on mf29 (arty DUT :02). es-2.1 (ADP
+DELAY) now FULLY PASSES after the [200ms,870ms] recalibration - bounded
+random delays, spread>0.3s, burst coalesces to <=4. The single remaining
+failure is es-4.4 scenario 1 (default STREAM_INPUT format 2ch vs the
+test's expected 8ch = the deliberate pure-ACMP-connect choice, not a bug).
+es-4.3 excluded from the tally (single-config entity, reference has 2).
+ARTY KEEPER = build_arty_asl_milanfinal29 (+0.276) in QSPI + the full-fix
+rootfs (rx_packets linkmon, gm_locked servo, entity_model_id, IFG gasket
+gateware, ADP DELAY, es-4.13, MAAP adopt, kernel shield, clientOnly RT
+ptp4l). All self-configuring from cold boot; discovery 5/5 stable.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
