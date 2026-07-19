@@ -505,6 +505,22 @@ keeper = eto_milanfinal20 (+0.366) + shield rootfs.** Full checklist:
     JTAG the best seed; then the MVRP-on-wire check (gap fix's silicon
     proof) via the tap.
 
+**EVERYTHING FINISHED (07-19 afternoon). FINAL PAIR: Arty QSPI =
+eppo_milanfinal21 (+0.233) / AX SRAM = asl_milanfinal15 (+0.108), both
+VERSION 0x0004 with the 0f54f67 rootfs.** Cold-boot to full bench with
+ZERO manual steps on both boards (entity, talker 0x654=3, AX tone -12,
+VID 2, MAAP claim adopted into SRP dmac, kernel shield /32, clientOnly
+RT ptp4l, audio stack). Cold-boot validation: la_avdecc SET_FORMAT(no-op
+now, 2ch default)+CONNECT SUCCESS state=2, pdelay 69/69=100%, **MVRP
+SILICON-PROVEN on the wire (84/60s paired with MSRP 82 - the gap-1024
+fix works)**, audio -126.2 digital / -66.9 loop. Remaining truly-open:
+(1) the switch management UI visit (announce/sync into board ports ->
+reservations complete; restart proven ineffective = config); (2)
+MilanMAC back-to-back TB (the gap workaround stands); (3) user
+ear-check of the loop. AX flash images now fully identified+safe
+(kernel #15 / opensbi.bin / milan_ax7101_linux.dtb + rootfs slot);
+remember: ANY AX flash op clobbers the SRAM gateware - JTAG after.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
