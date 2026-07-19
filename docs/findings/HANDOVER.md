@@ -638,6 +638,29 @@ override (committed; was hardcoded to pw0). RESULTS:
  Toolchain: SSH_PW0 wrapper + behave venv (numpy/scipy) + NTP-off guard
  (AVB_TESTS_SKIP_CLOCK_CHECK=1); recipe in the session notes.
 
+**TRAFFIC-SHAPER / QoS VERIFIED under interference (07-19 night) +
+Issue #1 (two-servo audio) CLOSED.** iperf3 best-effort flood (TCP 4-stream
++ UDP 900M) from the AX kernel through the MilanMAC egress, competing with
+the AAF stream at the final mux, while measuring AAF integrity on the arty:
+  - **AVB stream integrity PERFECT under max interference**: LateTs +0,
+    EarlyTs +0, StreamInterrupted +0, SeqNumMismatch +0, ts_delta rock-
+    steady at 1.9 ms. The reservation bw-gate + switch class-A priority
+    protect the stream; best-effort never disturbs it.
+  - Interference surfaced the two-servo audio degradation (arty loop
+    -31.7 dB under old daemon): stream_phc_sync fighting linuxptp for the
+    PHC jittered the DAC PLAYBACK clock (not the stream - :01 stayed
+    -126 dB; only the arty's :02 loop degraded). ROOT CAUSE = the already-
+    diagnosed two-servo fight; FIX (gm_locked gPTP-aware daemon) now
+    FLASHED on mf25. Verified: portState SLAVE -> servo stands down,
+    arty loop back to **-69.3 dB even under iperf flood**, AX source
+    -125.3 dB. Note: CBS per-queue shaper (0x400+) is DISABLED (en=0) -
+    the AAF uses the lwSRP reservation bw-gate, not the classifier CBS;
+    per-queue CBS verification (multi-PCP kernel traffic) is a separate
+    future item.
+  - Measurement trap: pw0 tcpdump drops AAF packets while its NIC eats
+    900M UDP -> apparent audio degradation in-capture; measure after the
+    flood or on a clean tap.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
