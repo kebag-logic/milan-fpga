@@ -414,6 +414,30 @@ MAAP claim auto-adopted (fresh random claim each boot), clientOnly,
 battery 25/25, loop clean. AX carries the same fixes in RAM only (stale
 rootfs; reflash still gated on the dtb-identity caveat below).
 
+**KERNEL-SHIELD ROUND (07-19 morning): the pdelay starvation root cause
+and the architectural fix.** The 35% pdelay response rate was NOT
+scheduling (SCHED_FIFO changed nothing) - the arty's allmulti (the kl-eth
+mc-filter workaround) feeds the FULL 16 kfps AVTP flood into the 1-hart
+kernel (55k RX drops); the lightly-loaded AX (stale rootfs, no allmulti)
+answers 97%. Fix chain in 670a888:
+  1. The AVTP monitor + AAF depacketizer taps moved PRE-filter (the media
+     path must not depend on the kernel's dest-MAC filter config).
+  2. rx_mac_filter grew a RUNT GUARD (a 1-beat frame is never legal;
+     upstream re-present warts at drop tails minted ghosts in the dp TB).
+  3. CSR VERSION bumped to 0x0004 = "pre-filter taps present"; S50milan
+     (the-private-test-repo 234d32f) arms a TCAM drop entry for 91:E0:F0::/24
+     on the CPU DMA path ONLY when VERSION >= 4 (on older gateware the
+     drop would starve playback - the gate matters).
+TB debugging traps burned this round (all in dp sim_main): post-edge
+sampling counts upstream re-presents and MISSES single-cycle final beats
+(sample PRE-edge: lo(); read; hi()); Verilator interface-instance
+pointers (__PVT__*_axi_stream_if) are ALIASED-DEAD storage - reads are
+garbage (flattened rx_filter__DOT__* internals are real); printf'ing a
+VlUnpacked array misaligns ALL later varargs; --strip-probes builds have
+no MilanDebug counters. mkaaf's 2nd arg = NSR nibble (0x05 = 48k!).
+Wrong-rate section checks are now DELTA-based. milanfinal20 sweep carries
+the round (fallback keeper: mf19 eto +0.448 = lwSRP fixes only).
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
