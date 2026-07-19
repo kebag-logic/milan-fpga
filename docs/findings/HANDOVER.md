@@ -611,6 +611,33 @@ DEFECTS FOUND (ranked):
  - Milan "defect 2" (counter reset on rebind) RETRACTED: Table 5.6
    mandates the not-bound->bound reset; the code cites it; correct.
 
+**ATDECC VERIFICATION via avdecc_l2 (tsn-stack Milan controller) + behave
+(07-19 night).** Ran the the-private-test-repo behave BDD suite against OUR
+bench (AX talker :01, arty listener :02) - added AVB_LISTENER_EID env
+override (committed; was hardcoded to pw0). RESULTS:
+ - **avdecc_l2 reads BOTH entities' stream_format cleanly and confirms
+   Milan v1.2 Section 5.5.1.2 compatibility** (format_check: compatible,
+   0205022000806000) - the 2ch-default fix validated through a THIRD
+   independent controller. Against the switch it correctly REFUSES
+   (format_unreadable) - proper Milan behavior.
+ - avdecc_l2 ACMP CONNECT_RX -> SUCCESS + SETTLED_RSV_OK (clean runs).
+ - **INTERMITTENT ACMP-response reliability [OPEN, real]**: avdecc_l2
+   sometimes gets clean 4/4 SUCCESS, sometimes 12/12 timeout - state/
+   timing dependent (observed after behave's SET_STREAM_FORMAT + while
+   our milan_controller also had the listener bound; multi-controller
+   or post-AECP-op state). Our own milan_controller.py is reliable.
+   Suspect: CONNECT_RX_RESPONSE delayed past avdecc_l2's 5s under load
+   (the response rides 5 low-rate arbiters + a probe round-trip to the
+   busy AX talker), or a controller-exclusivity interaction. NEXT: latch
+   an ACMP-response-emitted timestamp/counter to distinguish "listener
+   never responded" from "responded too late"; the tx-grant watchdog
+   (2^20 cyc) may be firing. NOT a framing bug (avdecc_l2 frames parse +
+   sometimes succeed).
+ - behave setup/audio scenarios assume pw0-as-listener+pipewire (not our
+   arty-listener topology) - those failures are harness-topology, not DUT.
+ Toolchain: SSH_PW0 wrapper + behave venv (numpy/scipy) + NTP-off guard
+ (AVB_TESTS_SKIP_CLOCK_CHECK=1); recipe in the session notes.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
