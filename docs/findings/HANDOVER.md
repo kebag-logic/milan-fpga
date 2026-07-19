@@ -438,6 +438,41 @@ no MilanDebug counters. mkaaf's 2nd arg = NSR nibble (0x05 = 48k!).
 Wrong-rate section checks are now DELTA-based. milanfinal20 sweep carries
 the round (fallback keeper: mf19 eto +0.448 = lwSRP fixes only).
 
+**MF20 VALIDATED END-TO-END (07-19 morning, la_avdecc + taps): Arty QSPI
+keeper = eto_milanfinal20 (+0.366) + shield rootfs.** Full checklist:
+  - pdelay: **100% (62/62)** after the kernel shield (mask corrected to
+    /32: /24 also covered the AVDECC multicast 91:E0:F0:01 and the fabric
+    ACMP taps sit post-filter - connect timed out 997 until narrowed) +
+    the ptp4l S65 trap (the initscript prepends /usr/sbin to $DAEMON -
+    an absolute DAEMON path = silent dead daemon; bare name now).
+  - ATDECC via la_avdecc 4.3.1 (pw0 ~/la_avdecc_work/stream-probe):
+    both entities Milan=1/Misbehaving=0, library connectStream SUCCESS,
+    listener model state=Connected. THE PROBE NOW SETS THE FORMAT FIRST
+    (Hive flow): the AEM default STREAM_INPUT format is EIGHT-channel -
+    a pure-ACMP connect on a fresh boot rejects the 2ch wire as
+    UNSUPPORTED_FORMAT (4.2M rejects observed). My old controller's
+    --bind always set 2ch first, masking this since forever. RTL
+    FOLLOW-UP: default the AEM current format to talker-truth 2ch
+    (0x0205022000806000).
+  - Counters (la_avdecc, cached from our 1 Hz unsolicited push):
+    listener MediaLocked=1, ClockDomain Locked=1, FRAMES_RX 1M+ @8k/s,
+    LATE_TIMESTAMP froze at 51,006 (format-set convergence window only;
+    servo at +6.35 ms on target), UNSUPPORTED frozen historical,
+    GmChanged=2 (the clientOnly restarts). Talker FramesTx 287M+.
+  - Audio loop -66.6 dB THD+N through the pre-filter/shielded
+    architecture (media path proven independent of the kernel filter).
+  - **Switch restarted per user (powerstrip OUT4): behavior UNCHANGED** -
+    still zero Announce/Sync into board ports and TF code 8 on the peer
+    stream, deterministic across a fresh boot => config, not a wedge.
+    The per-port 802.1AS/AVB management setting remains the unlock.
+  - OPEN: the arty's MVRP frames STILL never reach the wire (the
+    back-to-back gap fix did NOT cure it - eater unfound, engine
+    tx_count counts them); MSRP cadence 80/60 s (above the ~18 quiesce
+    target: rx_leaveall + lstn_ready-flap re-arms suspected).
+  - Console trap: a foreground pipe on the serial console (ptp4l | head
+    without timeout) wedges the shell EATING all subsequent commands as
+    its stdin - recover with ctrl-C via the console daemon's _in pipe.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
