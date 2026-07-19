@@ -68,9 +68,28 @@ int main(int argc, char** argv){
            dut->ta_registered_o, dut->ta_failed_o, dut->ta_fail_code_o);
 
     printf("rx_pdus=%u pdu_cnt=%u drops=%u\n", dut->rx_pdus_o, dut->pdu_cnt_o, dut->rx_drops_o);
-    printf("ta_registered=%d ta_failed=%d ta_fail_code=0x%02x\n",
-           dut->ta_registered_o, dut->ta_failed_o, dut->ta_fail_code_o);
-    printf("domain_ok=%d listener_ready=%d leaveall_seen(n/a)\n",
-           dut->domain_ok_o, dut->listener_ready_o);
-    return 0;
+    int fails = 0;
+    auto ck=[&](const char*n,int got,int exp){
+        if(got!=exp){fails++;printf("  [FAIL] %s got=%d exp=%d\n",n,got,exp);}
+        else printf("  [ ok ] %s\n",n); };
+    // captured switch PDU vs vid 638: TF registered, domain TRUTHFULLY not ok
+    // (the switch's NoV=2 Domain expands to class A {6,3,VID 2})
+    ck("TF registered from the real switch PDU", dut->ta_failed_o, 1);
+    ck("TA registered from the TA variant", dut->ta_registered_o, 1);
+    ck("domain_ok=0 vs vid 638 (strict compare)", dut->domain_ok_o, 0);
+
+    // same PDU with OUR vid = 2: the expanded class-A value matches
+    dut->vid_i = 0x002;
+    for (size_t off = 0; off < n; off += 8) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int b = 0; b < 8 && off+b < n; b++) { d |= (uint64_t)FRAME[off+b] << (8*b); k |= 1 << b; }
+        dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tvalid_i = 1; dut->rx_tlast_i = (off + 8 >= n);
+        step();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+    step(4000);
+    ck("domain_ok=1 vs vid 2 (class-A +k value matches)", dut->domain_ok_o, 1);
+    printf("lwsrp_switchpdu: %s\n", fails ? "FAIL" : "PASS");
+    return fails ? 1 : 0;
 }

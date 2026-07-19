@@ -110,6 +110,7 @@ module KL_lwsrp_tx (
   wire talker_fall_w = enable_i & ~talker_en_i & talker_q;
 
   reg msrp_pend_r, mvrp_pend_r;      //! normal declare pair queued
+  reg [2:0] jdiv_r;                  //! join-tick /5 divider (1 s refresh)
   reg talker_lv_pend_r;              //! withdraw TalkerAdvertise only
   reg lstn_lv_pend_r;                //! withdraw the Listener attribute only
   reg engine_lv_pend_r;              //! withdraw everything (engine disable)
@@ -120,8 +121,15 @@ module KL_lwsrp_tx (
   // -----------------------------------------------------------------------
   // Serialiser state — frame parameters latched at start-of-frame
   // -----------------------------------------------------------------------
-  typedef enum logic [0:0] { S_IDLE, S_SEND } state_t;
+  typedef enum logic [1:0] { S_IDLE, S_SEND, S_GAP } state_t;
   state_t      state_r;
+  //! inter-frame gap after every frame we emit: the MSRP+MVRP pair used to
+  //! go out back-to-back and the second frame died in the arty's 50 MHz /
+  //! 100 Mbit egress (ProfiShark 2026-07-19: engine tx_count included the
+  //! MVRP, the tap never saw it; the AX at 100 MHz/GbE passed it). 64 idle
+  //! cycles is protocol-irrelevant and dodges the downstream hazard.
+  localparam int GAP_CYCLES_C = 64;
+  reg [6:0]    gap_r;
   reg [3:0]    beat_r;
   frame_kind_t kind_r;
   reg          talker_incl_r;        //! MSRP frame carries TalkerAdvertise
@@ -269,12 +277,12 @@ module KL_lwsrp_tx (
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
       enable_q <= 1'b0; talker_q <= 1'b0; lstn_q <= 1'b0; lstn_ready_q <= 1'b0;
-      msrp_pend_r <= 1'b0; mvrp_pend_r <= 1'b0;
+      msrp_pend_r <= 1'b0; mvrp_pend_r <= 1'b0; jdiv_r <= '0;
       talker_lv_pend_r <= 1'b0; lstn_lv_pend_r <= 1'b0;
       engine_lv_pend_r <= 1'b0; lva_pend_r <= 1'b0;
       fresh_domain_r <= 1'b0; fresh_vid_r <= 1'b0; fresh_talker_r <= 1'b0;
       fresh_lstn_r <= 1'b0;
-      state_r <= S_IDLE; beat_r <= '0;
+      state_r <= S_IDLE; beat_r <= '0; gap_r <= '0;
       kind_r <= FK_MSRP_E; talker_incl_r <= 1'b0; lstn_incl_r <= 1'b0;
       lva_r <= 1'b0;
       domain_evt_r <= MRP_EVT_JOININ_C; talker_evt_r <= MRP_EVT_JOININ_C;
@@ -287,7 +295,14 @@ module KL_lwsrp_tx (
       lstn_ready_q <= lstn_ready_i;
 
       // ---- triggers -> pending flags ----
+      //! MRP quiescence: a healthy applicant re-declares on LeaveAll turns
+      //! and state changes, not every JoinTime tick (the wire showed a
+      //! constant 5.4 Hz re-declare spam). Keep a slow 1 s refresh (every
+      //! 5th join tick) for lossy-link robustness.
+      if (enable_i && join_tick_i)
+        jdiv_r <= (jdiv_r == 3'd4) ? 3'd0 : jdiv_r + 3'd1;
       if (enable_rise_w) begin
+        jdiv_r <= 3'd1;      //! prompt pair covers this period; refresh in 1 s
         fresh_domain_r <= 1'b1; fresh_vid_r <= 1'b1;
         if (talker_en_i) fresh_talker_r <= 1'b1;
         if (lstn_declare_i) fresh_lstn_r <= 1'b1;
@@ -305,7 +320,7 @@ module KL_lwsrp_tx (
       // re-joins the Listener attribute from acmp_periodic on param change)
       if (enable_i && lstn_declared_o && (lstn_ready_i ^ lstn_ready_q))
         msrp_pend_r <= 1'b1;
-      if (enable_i && (join_tick_i || rx_leaveall_i)) begin
+      if (enable_i && ((join_tick_i && jdiv_r == 3'd0) || rx_leaveall_i)) begin
         msrp_pend_r <= 1'b1; mvrp_pend_r <= 1'b1;
       end
       if (enable_i && leaveall_tick_i) begin
@@ -399,11 +414,17 @@ module KL_lwsrp_tx (
             if (beat_r == frame_beats_w - 4'd1) begin
               tx_count_o <= tx_count_o + 16'd1;
               if (kind_r == FK_MVRP_E) vid_evt_r <= MRP_EVT_JOININ_C;
-              state_r    <= S_IDLE;
+              gap_r      <= 7'(GAP_CYCLES_C - 1);
+              state_r    <= S_GAP;
             end else begin
               beat_r <= beat_r + 4'd1;
             end
           end
+        end
+
+        S_GAP: begin
+          gap_r <= gap_r - 7'd1;
+          if (gap_r == '0) state_r <= S_IDLE;
         end
 
         default: state_r <= S_IDLE;

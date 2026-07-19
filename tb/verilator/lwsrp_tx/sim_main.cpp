@@ -60,6 +60,10 @@ static void lo() { dut->clk_i = 0; dut->eval(); }
 static void hi() { dut->clk_i = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 static void pulse(uint8_t& sig) { sig = 1; step(); sig = 0; step(); }
+// MRP quiescence (2026-07-19): the applicant refreshes every 5th JoinTime.
+// After enable (or a previous fire) jdiv sits at 1: four ticks are silent,
+// the fifth fires. prime4() spends the silent ones.
+static void prime4() { for (int i = 0; i < 4; i++) pulse(dut->join_tick_i); }
 
 // capture one TX frame (little lane), optional toggling back-pressure
 static std::vector<uint8_t> collect(int bp = 0, int maxc = 400) {
@@ -92,6 +96,7 @@ static void expect_silence(const char* what, int cyc = 80) {
 
 static uint64_t be(const std::vector<uint8_t>& b, size_t off, int n) {
     uint64_t v = 0;
+    if (off + n > b.size()) return ~0ULL;   // clean mismatch, never UB
     for (int i = 0; i < n; i++) v = (v << 8) | b[off + i];
     return v;
 }
@@ -251,7 +256,7 @@ int main(int argc, char** argv) {
     ck("declare: tx_count", dut->tx_count_o, 2);
 
     // 2) join tick -> JOININ refresh pair
-    pulse(dut->join_tick_i);
+    prime4(); pulse(dut->join_tick_i);
     check_msrp("refresh", collect(), EV_JOININ, -1, 0);
     check_mvrp("refresh", collect(), EV_JOININ, 0);
 
@@ -262,7 +267,7 @@ int main(int argc, char** argv) {
     expect_silence("talker-new: single frame");
 
     //    ...then JOININ on the next tick, with back-pressure
-    pulse(dut->join_tick_i);
+    prime4(); pulse(dut->join_tick_i);
     check_msrp("talker-refresh (bp)", collect(1), EV_JOININ, EV_JOININ, 0);
     check_mvrp("talker-refresh (bp)", collect(1), EV_JOININ, 0);
 
@@ -270,7 +275,7 @@ int main(int argc, char** argv) {
     pulse(dut->leaveall_tick_i);
     check_msrp("leaveall-turn", collect(), EV_JOININ, EV_JOININ, 1);
     check_mvrp("leaveall-turn", collect(), EV_JOININ, 1);
-    pulse(dut->join_tick_i);
+    prime4(); pulse(dut->join_tick_i);
     check_msrp("post-leaveall", collect(), EV_JOININ, EV_JOININ, 0);
     check_mvrp("post-leaveall", collect(), EV_JOININ, 0);
 
@@ -283,7 +288,7 @@ int main(int argc, char** argv) {
     dut->talker_en_i = 0; step(); step();
     check_msrp("talker-lv", collect(), EV_JOININ, EV_LV, 0);
     ck("talker-lv: not declared", dut->talker_declared_o, 0);
-    pulse(dut->join_tick_i);
+    prime4(); pulse(dut->join_tick_i);
     check_msrp("post-talker-lv", collect(), EV_JOININ, -1, 0);
     check_mvrp("post-talker-lv", collect(), EV_JOININ, 0);
 
@@ -314,7 +319,7 @@ int main(int argc, char** argv) {
         check_lstn_msg("lstn-new", f, 28, EV_NEW, 2 /*READY*/, 0);
         ck("lstn-new: declared", dut->lstn_declared_o, 1);
     }
-    pulse(dut->join_tick_i);
+    prime4(); pulse(dut->join_tick_i);
     check_lstn_msg("lstn-refresh", collect(), 28, EV_JOININ, 2, 0);
     (void)collect();   // the MVRP half of the refresh pair
 
@@ -343,7 +348,7 @@ int main(int argc, char** argv) {
         check_lstn_msg("lstn-lv", f, 28, EV_LV, 2, 0);
         ck("lstn-lv: not declared", dut->lstn_declared_o, 0);
     }
-    pulse(dut->join_tick_i);
+    prime4(); pulse(dut->join_tick_i);
     check_msrp("post-lstn-lv", collect(), EV_JOININ, EV_JOININ, 0);
     (void)collect();   // MVRP half
 
