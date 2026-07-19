@@ -971,11 +971,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .clk (axis_clk), .resetn (axis_resetn),
     .cfg_stream_id_i (acmpl_sid),
     .cfg_stream_en_i (acmpl_bound),
-    .s_tdata_i  (rx_axis_to_dma.tdata),
-    .s_tkeep_i  (rx_axis_to_dma.tkeep),
-    .s_tvalid_i (rx_axis_to_dma.tvalid),
-    .s_tready_i (rx_axis_to_dma.tready),
-    .s_tlast_i  (rx_axis_to_dma.tlast),
+    //! PRE-FILTER tap (2026-07-19): the media path must not depend on the
+    //! kernel's dest-MAC filter config - the TCAM now shields the CPU from
+    //! the AVTP multicast flood (16 kfps ate the 1-hart kernel: 55k RX
+    //! drops, pdelay responses down to 35% = asCapable flaps at the switch)
+    //! while the fabric keeps consuming the stream here.
+    .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
+    .s_tkeep_i  (rx_axis_ptp_to_filt.tkeep),
+    .s_tvalid_i (rx_axis_ptp_to_filt.tvalid),
+    .s_tready_i (rx_axis_ptp_to_filt.tready),
+    .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
     .match_valid_o (avtprx_match),
     .match_index_o (),
     .stream_id_o   (),
@@ -1029,11 +1034,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   KL_aaf_rx_depacketizer aaf_rx_depkt (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_tdata_i  (rx_axis_to_dma.tdata),
-    .s_tkeep_i  (rx_axis_to_dma.tkeep),
-    .s_tvalid_i (rx_axis_to_dma.tvalid),
-    .s_tready_i (rx_axis_to_dma.tready),
-    .s_tlast_i  (rx_axis_to_dma.tlast),
+    //! pre-filter tap - see avtp_rx_parser note
+    .s_tdata_i  (rx_axis_ptp_to_filt.tdata),
+    .s_tkeep_i  (rx_axis_ptp_to_filt.tkeep),
+    .s_tvalid_i (rx_axis_ptp_to_filt.tvalid),
+    .s_tready_i (rx_axis_ptp_to_filt.tready),
+    .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
     .pdu_accept_p_i (avtprx_accept_p),
     .m_axis_tdata (m_axis_pcm_tdata),
     .m_axis_tkeep (m_axis_pcm_tkeep),

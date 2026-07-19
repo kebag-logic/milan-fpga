@@ -94,7 +94,13 @@ module rx_mac_filter #(
   reg                    match_r;    //! latched match flag for the frame
 
   wire sof       = s_tvalid && !in_frame;                          //! first beat of a frame
-  wire pass_sof  = match ? ~action[0] : default_pass_i;            //! SOF decision
+  //! runt guard: a frame whose FIRST beat carries tlast is at most 8 bytes -
+  //! no legal Ethernet frame. Upstream pipeline warts can mint such ghosts
+  //! at drop-frame tails (dp TB 2026-07-19); swallow them here so the kernel
+  //! DMA never sees them, whatever their origin.
+  wire runt_sof  = sof && s_tlast;
+  wire pass_sof  = runt_sof ? 1'b0
+                 : match    ? ~action[0] : default_pass_i;         //! SOF decision
   wire pass_now  = sof ? pass_sof : pass_r;                        //! decision applied this beat
 
   // Cut-through: forward when passing, silently consume when dropping.
