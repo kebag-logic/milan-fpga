@@ -179,8 +179,13 @@ int main(int argc, char** argv) {
         ck("declare: MVRP second", is_msrp(tx_frames[1]), 0);
     }
     drain_tx();
-    run(2 * 2000 + 400);   // two JoinTime periods (+ margin)
-    ck("cadence: 2 pairs over 2 periods", tx_frames.size(), 4);
+    // MRP quiescence (2026-07-19): the applicant refreshes every 5th
+    // JoinTime (1 s), not every tick - two periods must stay SILENT...
+    run(2 * 2000 + 400);
+    ck("quiesce: no re-declare within 2 periods", tx_frames.size(), 0);
+    // ...and the 5th tick carries the slow refresh pair
+    run(3 * 2000 + 400);
+    ck("quiesce: 1-s refresh pair", tx_frames.size(), 2);
     drain_tx();
 
     // 2) Listener Ready -> reservation ACTIVE, slope-then-gate ordering

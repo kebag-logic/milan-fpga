@@ -130,6 +130,7 @@ module KL_lwsrp_walker (
   reg [7:0]  tfail_code_r;    //! TalkerFailed byte 33
   reg [7:0]  d_class_r, d_prio_r;
   reg [15:0] d_vid_r;
+  reg [2:0]  dom_a_evt_r;    //! event of the vector's CLASS-A value (+k)
 
   //! value-index match (resolved when FirstValue completes)
   reg        val_match_r;
@@ -201,10 +202,23 @@ module KL_lwsrp_walker (
     begin
       if (is_domain_w) begin
         domain_p_o     <= 1'b1;
-        domain_class_o <= d_class_r;
-        domain_prio_o  <= d_prio_r;
+        //! Domain vectors pack consecutive classes: value k carries
+        //! {SRclassID+k, SRclassPriority+k, SRclassVID} (the 802.1Q default
+        //! classes B{5,2}/A{6,3} are +1 pairs; the certified bench switch
+        //! declares NoV=2 from FirstValue {B,2,VID} and JoinIn-registers our
+        //! {A,3,VID} under value 1 - ProfiShark 2026-07-19). Surface the
+        //! CLASS-A value when the vector covers it, else FirstValue.
+        if ((SR_CLASS_A_ID_C > d_class_r) &&
+            (13'(SR_CLASS_A_ID_C - d_class_r) < nv_r)) begin
+          domain_class_o <= SR_CLASS_A_ID_C;
+          domain_prio_o  <= d_prio_r + (SR_CLASS_A_ID_C - d_class_r);
+          domain_evt_o   <= dom_a_evt_r;
+        end else begin
+          domain_class_o <= d_class_r;
+          domain_prio_o  <= d_prio_r;
+          domain_evt_o   <= evt;
+        end
         domain_vid_o   <= d_vid_r;
-        domain_evt_o   <= evt;
       end else if (val_match_r && is_listener_w) begin
         listener_p_o    <= 1'b1;
         listener_evt_o  <= evt;
@@ -239,7 +253,7 @@ module KL_lwsrp_walker (
       st_r <= W_HDR_S; hdr_idx_r <= '0; kind_r <= 1'b0; lva_seen_r <= 1'b0;
       attr_type_r <= '0; attr_len_r <= '0; vech_hi_r <= '0; nv_r <= '0;
       fv_idx_r <= '0; fv_r <= '0; tfail_code_r <= '0;
-      d_class_r <= '0; d_prio_r <= '0; d_vid_r <= '0;
+      d_class_r <= '0; d_prio_r <= '0; d_vid_r <= '0; dom_a_evt_r <= '0;
       val_match_r <= 1'b0; k_r <= '0; vbase_r <= '0;
       lval_match_r <= 1'b0; lk_r <= '0; lcap_evt_r <= '0;
       cap_evt_r <= '0; cap_par_r <= '0; pack_idx_r <= '0; pack_n_r <= '0;
@@ -381,8 +395,17 @@ module KL_lwsrp_walker (
             if (lval_match_r &&
                 ({1'b0, lk_r} >= vbase_r) && ({1'b0, lk_r} < vbase_r + 14'd3))
               levt_v = unpack3(byte_w, 2'(14'({1'b0, lk_r}) - vbase_r));
-            if (is_domain_w && pack_idx_r == '0)
-              evt_v = unpack3(byte_w, 2'd0);   // domain: value 0 only
+            if (is_domain_w && pack_idx_r == '0) begin
+              evt_v = unpack3(byte_w, 2'd0);   // FirstValue event
+              //! class-A value event: index (A - FirstValue.class) inside
+              //! packed byte 0 (Domain NoV in practice <= 3)
+              if ((SR_CLASS_A_ID_C > d_class_r) &&
+                  (8'(SR_CLASS_A_ID_C - d_class_r) < 8'd3))
+                dom_a_evt_r <= unpack3(byte_w,
+                                       2'(SR_CLASS_A_ID_C - d_class_r));
+              else
+                dom_a_evt_r <= evt_v;
+            end
             cap_evt_r  <= evt_v;
             lcap_evt_r <= levt_v;
             vbase_r    <= vbase_r + 14'd3;
