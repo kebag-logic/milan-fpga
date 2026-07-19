@@ -249,8 +249,10 @@ int main(int argc, char** argv) {
 
     // 1) enable (talker off) -> prompt NEW declare pair, padded to 60 B
     dut->enable_i = 1; step(); step();
-    check_msrp("declare", collect(), EV_NEW, -1, 0);
-    check_mvrp("declare", collect(), EV_NEW, 0);
+    // fast state acquisition (2026-07-19): the enable pair carries LeaveAll
+    // so the bridge re-declares its registrations to us within a join-time
+    check_msrp("declare", collect(), EV_NEW, -1, 1);
+    check_mvrp("declare", collect(), EV_NEW, 1);
     ck("declare: talker not declared", dut->talker_declared_o, 0);
     expect_silence("declare: one pair only");
     ck("declare: tx_count", dut->tx_count_o, 2);
@@ -306,8 +308,8 @@ int main(int argc, char** argv) {
 
     // 9) re-enable: fresh NEW pair again (state fully re-armed)
     dut->enable_i = 1; step(); step();
-    check_msrp("re-declare", collect(), EV_NEW, -1, 0);
-    check_mvrp("re-declare", collect(), EV_NEW, 0);
+    check_msrp("re-declare", collect(), EV_NEW, -1, 1);
+    check_mvrp("re-declare", collect(), EV_NEW, 1);
 
     // 10) listener declare (Ready): prompt MSRP with the Listener message
     //     after Domain (talker off -> 60-byte padded frame, lstn at 28)
@@ -316,8 +318,10 @@ int main(int argc, char** argv) {
     {
         auto f = collect();
         ck("lstn-new: frame length", f.size(), 60);
-        check_lstn_msg("lstn-new", f, 28, EV_NEW, 2 /*READY*/, 0);
+        // a NEW binding fires the fast-join LeaveAll pair
+        check_lstn_msg("lstn-new", f, 28, EV_NEW, 2 /*READY*/, 1);
         ck("lstn-new: declared", dut->lstn_declared_o, 1);
+        (void)collect();   // the MVRP half of the fast-join pair
     }
     prime4(); pulse(dut->join_tick_i);
     check_lstn_msg("lstn-refresh", collect(), 28, EV_JOININ, 2, 0);

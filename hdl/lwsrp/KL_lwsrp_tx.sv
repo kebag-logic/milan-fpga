@@ -305,6 +305,7 @@ module KL_lwsrp_tx (
         jdiv_r <= (jdiv_r == 3'd4) ? 3'd0 : jdiv_r + 3'd1;
       if (enable_rise_w) begin
         jdiv_r <= 3'd1;      //! prompt pair covers this period; refresh in 1 s
+        lva_pend_r <= 1'b1;  //! fast state acquisition from the bridge
         fresh_domain_r <= 1'b1; fresh_vid_r <= 1'b1;
         if (talker_en_i) fresh_talker_r <= 1'b1;
         if (lstn_declare_i) fresh_lstn_r <= 1'b1;
@@ -317,6 +318,13 @@ module KL_lwsrp_tx (
       if (enable_i && lstn_declare_i && !lstn_q) begin
         fresh_lstn_r <= 1'b1;
         msrp_pend_r  <= 1'b1;
+        //! fast join (2026-07-19): a NEW binding must learn the bridge's
+        //! steady-state registrations (its TalkerAdvertise) NOW - only a
+        //! LeaveAll forces an MRP applicant to re-declare, and waiting for
+        //! the ~10 s timers made connect->reservation take 10-20 s. This
+        //! turns it into ~one join-time.
+        lva_pend_r   <= 1'b1;
+        mvrp_pend_r  <= 1'b1;
       end
       // Ready <-> AskingFailed change re-declares promptly (the reference
       // re-joins the Listener attribute from acmp_periodic on param change)
