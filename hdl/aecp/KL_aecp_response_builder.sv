@@ -188,7 +188,8 @@ module KL_aecp_response_builder (
     is_replay_cmd = (c == CMD_SET_STREAM_FORMAT) || (c == CMD_SET_NAME) ||
                     (c == CMD_SET_SAMPLING_RATE) || (c == CMD_SET_CLOCK_SOURCE) ||
                     (c == CMD_SET_CONTROL) || (c == CMD_START_STREAMING) ||
-                    (c == CMD_STOP_STREAMING) || (c == CMD_SET_MAX_TRANSIT_TIME);
+                    (c == CMD_STOP_STREAMING) || (c == CMD_SET_MAX_TRANSIT_TIME) ||
+                    (c == CMD_SET_CONFIGURATION);   // CERT es-4.3
   endfunction
 
   wire w_cap_hs = s_axis_tvalid & s_axis_tready;
@@ -1385,7 +1386,16 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               CMD_GET_AVB_INFO: begin
-                if (w_gs_type != DESC_AVB_INTERFACE || w_gs_index != 16'd0) begin
+                //! CERT es-4.13: GET_AVB_INFO applies ONLY to AVB_INTERFACE.
+                //! A wrong descriptor TYPE (e.g. CLOCK_DOMAIN, which exists)
+                //! is NOT_IMPLEMENTED (the command is not implemented for
+                //! that type); only a bad AVB_INTERFACE INDEX is
+                //! NO_SUCH_DESCRIPTOR.
+                if (w_gs_type != DESC_AVB_INTERFACE) begin
+                  status_q     <= STATUS_NOT_IMPLEMENTED;
+                  seg_len_q[0] <= 16'd4;
+                  cdl_q        <= 11'd16;
+                end else if (w_gs_index != 16'd0) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd4;
                   cdl_q        <= 11'd16;
