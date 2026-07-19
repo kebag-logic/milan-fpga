@@ -16,6 +16,8 @@
 // gtx_clk is tied to axis_clk (single clock) — the PTP CDC works identically.
 
 #include "Vmilan_datapath.h"
+#include "Vmilan_datapath___024root.h"
+#include "Vmilan_datapath_axi_stream_if__T40.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstring>
@@ -35,7 +37,8 @@ static void ck(const char* what, unsigned long got, unsigned long exp) {
 static void eval() { dut->eval(); }
 static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; eval(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; eval(); }
-static void step() { lo(); hi(); }
+static long g_step = 0;
+static void step() { lo(); hi(); g_step++; }
 
 // ---- AXI4-Lite BFM (same protocol/timing as the milan_csr harness): sample the
 //      *ready when the clock is low (combinational), then pulse the rising edge to
@@ -135,11 +138,15 @@ static Res run_rx(const std::vector<uint64_t>& beats, int cycles) {
         } else {
             dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
         }
-        step();
-        if (dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready) idx++;
-        if (dut->m_axis_rx_tvalid && dut->m_axis_rx_tready) {
-            r.data.push_back(dut->m_axis_rx_tdata); r.got = true;
-        }
+        // pre-edge sampling: read what this edge commits (post-edge reads
+        // miss single-cycle final beats and catch upstream re-presents)
+        lo();
+        bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+        bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
+        uint64_t out_d = dut->m_axis_rx_tdata;
+        hi();
+        if (in_acc) idx++;
+        if (out_acc) { r.data.push_back(out_d); r.got = true; }
     }
     dut->s_axis_mac_rx_tvalid = 0;
     return r;
@@ -173,7 +180,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010003);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010004);
     uint32_t cap = axi_read(A_CAP);
     ck("CAP.ADP bit12",  (cap >> 12) & 1, 1);
     ck("CAP.TCAM bit13", (cap >> 13) & 1, 1);
@@ -762,6 +769,90 @@ int main(int argc, char** argv) {
         ck("tagged: payload byte-exact", tag_ok ? 1 : 0, 1);
         ck("tagged: PCMRX pdus=2", axi_read(A_PCMRX_CNT), 2);
 
+        // PRE-FILTER TAP (2026-07-19): program a TCAM drop entry for the
+        // AVTP multicast range (91:E0:F0::/24) - the KERNEL path must go
+        // quiet while the fabric depacketizer keeps consuming the stream.
+        {
+            enum { A_TCAM_KLO = 0x704, A_TCAM_KHI = 0x708, A_TCAM_MLO = 0x70C,
+                   A_TCAM_MHI = 0x710, A_TCAM_ACT = 0x714, A_TCAM_CMD = 0x718 };
+            // the shared inject() never drives the DMA-port tready, so passed
+            // frames' tails stall at the filter boundary and flush into LATER
+            // windows as ghost beats - drain them before arming the drop
+            dut->m_axis_rx_tready = 1;
+            for (int c = 0; c < 200; c++) step();
+            axi_write(A_TCAM_KHI, 0x000091E0);
+            axi_write(A_TCAM_KLO, 0xF0000000);
+            axi_write(A_TCAM_MHI, 0x0000FFFF);          // care: top 3 bytes
+            axi_write(A_TCAM_MLO, 0xFF000000);
+            axi_write(A_TCAM_ACT, 0x00000001);          // action[0]=drop
+            axi_write(A_TCAM_CMD, 0x00010100);          // commit|valid, entry 0
+            long pcm0 = axi_read(A_PCMRX_CNT);
+            long kern = 0; long kern_beats = 0; uint64_t kern_dmac = 0;
+            auto inject_cnt = [&](const uint8_t* f, size_t len) {
+                std::vector<uint64_t> beats;
+                for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
+                    uint64_t v = 0;
+                    for (int j = 0; j < 8; j++)
+                        if (bt*8 + j < len) v |= (uint64_t)f[bt*8+j] << (8*j);
+                    beats.push_back(v);
+                }
+                size_t idx = 0;
+                dut->m_axis_mac_tx_tready = 1;
+                dut->m_axis_pcm_tready = 1;
+                dut->m_axis_rx_tready = 1;
+                for (int c = 0; c < 1500; c++) {
+                    if (idx < beats.size()) {
+                        dut->s_axis_mac_rx_tdata  = beats[idx];
+                        dut->s_axis_mac_rx_tkeep  = 0xFF;
+                        dut->s_axis_mac_rx_tvalid = 1;
+                        dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+                    } else {
+                        dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+                    }
+                    // PRE-edge sampling (correct AXIS observer): settle low,
+                    // read what this edge will commit, then clock high.
+                    lo();
+                    bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+                    bool pcm_acc = dut->m_axis_pcm_tvalid;
+                    uint64_t pcm_d = dut->m_axis_pcm_tdata;
+                    bool k_acc   = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
+                    bool k_last  = dut->m_axis_rx_tlast;
+                    uint64_t k_d = dut->m_axis_rx_tdata;
+                    hi(); g_step++;
+                    if (in_acc) idx++;
+                    if (pcm_acc)
+                        for (int l = 0; l < 8; l++)
+                            pcm.push_back((pcm_d >> (8*l)) & 0xFF);
+                    if (k_acc) {
+                        if (kern_dmac == 0 && kern_beats == 0) kern_dmac = k_d;
+                        kern_beats++;
+                        if (k_last) kern++;
+                    }
+                }
+                dut->s_axis_mac_rx_tvalid = 0;
+            };
+            // isolate: plain (non-AVTP) frame on the filtered dmac range
+            {
+                uint8_t pf[64]; memset(pf, 0, sizeof pf);
+                const uint8_t pdst[6] = {0x91,0xE0,0xF0,0x00,0x77,0x77};
+                memcpy(pf, pdst, 6); pf[12]=0x08; pf[13]=0x00;
+                kern = 0; kern_beats = 0; kern_dmac = 0;
+                inject_cnt(pf, 64);
+                ck("prefilter: plain 91E0F0 frame dropped from DMA", kern, 0);
+                const uint8_t odst[6] = {0x00,0x11,0x22,0x33,0x44,0x55};
+                memcpy(pf, odst, 6);
+                kern = 0; inject_cnt(pf, 64);
+                ck("prefilter: other dmac still passes", kern, 1);
+            }
+            kern = 0;
+            inject_cnt(mkaaf(8, 0x05), 124);
+            inject_cnt(mkaaf(9, 0x05), 124);
+            ck("prefilter: PCM ring advanced past TCAM drop",
+               axi_read(A_PCMRX_CNT), pcm0 + 2);
+            ck("prefilter: kernel DMA saw NOTHING", kern, 0);
+            axi_write(A_TCAM_CMD, 0x00010000);          // commit|remove entry 0
+        }
+
         // I2S playback: the injected pair (payload bytes 0..2 = ch0 S32BE)
         // emerges serialized on the DAC pins - decode the first non-zero
         // LEFT sample (Philips I2S: 1 delay bit after the LRCK fall)
@@ -799,11 +890,13 @@ int main(int argc, char** argv) {
         // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not,
         // and NOTHING more enters the PCM ring
         pcm.clear(); pcm_last = false;
+        long frx_before = axi_read(A_AVTPRX_FRX);
+        long pcm_before = axi_read(A_PCMRX_CNT);
         inject(mkaaf(7, 0x07), 120);
         ck("UNSUPPORTED_FORMAT=1 (0x6C0)", axi_read(A_AVTPRX_ERR), 0x0100);
-        ck("FRAMES_RX still 2", axi_read(A_AVTPRX_FRX), 2);
+        ck("FRAMES_RX unchanged by wrong-rate", axi_read(A_AVTPRX_FRX), frx_before);
         ck("no PCM for rejected PDU", (long)pcm.size(), 0);
-        ck("PCMRX pdus still 2", axi_read(A_PCMRX_CNT), 2);
+        ck("PCMRX unchanged by wrong-rate", axi_read(A_PCMRX_CNT), pcm_before);
     }
 
     printf("======================================================================\n");
