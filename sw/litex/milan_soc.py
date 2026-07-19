@@ -245,7 +245,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ptp_timestamp/timestamp_counter.sv", "hdl/ptp_timestamp/ptp_csr_sync.sv",
     "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv", "hdl/common/axis_mux_rr_2in_1out.sv",
     "hdl/ptp_timestamp/ptp_ts_core.sv", "hdl/ptp_timestamp/ptp_ts_top.sv",
-    "hdl/common/tcam.sv", "hdl/common/rx_mac_filter.sv",
+    "hdl/common/tcam.sv", "hdl/common/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv",
     "hdl/adp/adp_advertiser.sv", "hdl/adp/adp_tx_arbiter.sv",
     # AECP/AEM listener (IEEE 1722.1 / Milan v1.2). Order: pkg, then leaf
     # modules, then KL_aecp_top. The store/accessor read the generated ROM

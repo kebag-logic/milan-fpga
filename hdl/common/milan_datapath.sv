@@ -1266,6 +1266,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready)
   );
 
+  //! min-IFG gasket on the CONTROL lane ONLY (2026-07-19): the MilanMAC
+  //! (cut-through core + milan_cd->sys CDC) silently eats a frame that
+  //! enters back-to-back behind another (silicon: the MVRP half of the
+  //! MSRP+MVRP pair, and the intermittent ACMP CONNECT_RX_RESPONSE that
+  //! follows another control frame). Spacing every control frame here fixes
+  //! ALL of them WITHOUT touching data/AAF throughput (the data lane
+  //! bypasses this gasket). Replaces lwSRP's local gap workaround.
+  wire [TDATA_WIDTH-1:0]   ctlg2_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlg2_tkeep;
+  wire                     ctlg2_tvalid, ctlg2_tlast, ctlg2_tready;
+  tx_ifg_gasket #(.DATA_WIDTH(TDATA_WIDTH), .GAP_CYCLES(512)) ctl_ifg (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_tdata (ctlh_tx_tdata),  .s_tkeep (ctlh_tx_tkeep),
+    .s_tvalid(ctlh_tx_tvalid), .s_tlast (ctlh_tx_tlast), .s_tready(ctlh_tx_tready),
+    .m_tdata (ctlg2_tdata),  .m_tkeep (ctlg2_tkeep),
+    .m_tvalid(ctlg2_tvalid), .m_tlast (ctlg2_tlast), .m_tready(ctlg2_tready)
+  );
+
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
     .clk_i (axis_clk),
     .rst_n (axis_resetn),
@@ -1274,11 +1292,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_data_tvalid(dpaaf_tvalid),
     .s_data_tlast (dpaaf_tlast),
     .s_data_tready(dpaaf_tready),
-    .s_adp_tdata (ctlh_tx_tdata),
-    .s_adp_tkeep (ctlh_tx_tkeep),
-    .s_adp_tvalid(ctlh_tx_tvalid),
-    .s_adp_tlast (ctlh_tx_tlast),
-    .s_adp_tready(ctlh_tx_tready),
+    .s_adp_tdata (ctlg2_tdata),
+    .s_adp_tkeep (ctlg2_tkeep),
+    .s_adp_tvalid(ctlg2_tvalid),
+    .s_adp_tlast (ctlg2_tlast),
+    .s_adp_tready(ctlg2_tready),
     .m_tdata (tx_axis_to_mac.tdata),
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),
