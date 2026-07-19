@@ -584,6 +584,33 @@ DEFECTS FOUND (ranked):
     (periodic LA at ~10 s did appear) - re-verify with an isolated
     capture; the settle is fast regardless.
 
+**LINK/RECOVERY ROUND FIXED + SILICON-PROVEN (07-19 night).** Answering
+"fix all issues... link up/down + early/late/gm":
+ - **The AX MAC-TX wedge is FIXED (software-only recovery, NO JTAG).**
+   Drill on AX-mf17: real switch power-cycle -> TX WEDGED (confirmed on
+   the tap) -> wrote LINK_CTRL[1] MAC-sys-reset + phy_crg_reset + release
+   -> **full traffic resumed** (40k stream + MSRP/MVRP/gPTP/AVTP), AX
+   re-advertised, rebind OK, **reservation re-formed** (res_active +
+   arty SETTLED_RSV_OK). The reset-epoch canary (0x720) stayed at 1 =
+   PROOF the reinit recovered the MAC ONLY, not the datapath. Root cause
+   was the LiteEthMACCore sys-side CDC halves keeping pointers across an
+   eth-domain reset; MilanMAC now runs its sys side in cd_macsys
+   (reinit-resettable). linkmon.sh automates the whole sequence on RX
+   liveness loss.
+ - **Link up/down**: LINK_CTRL[0] mirrors real link (RX-liveness; arty
+   MII-PMOD MDIO reads float, measured - RX-liveness is wiring-free and
+   measures reachability) -> AVB_INTERFACE LinkUp/LinkDown + ADP behavior.
+ - **Shadow-lie canary**: RST_EPOCH 0x720 counts reset-releases in
+   reset-immune flops (bitstream-init, no reset clause); linkmon
+   re-runs S50 config if the fabric ever resets behind the config shadow.
+ - BUG caught by this very work: LINK_CTRL 0x71C was NOT in the milan_csr
+   plain-RW shadow set -> writes read back 0 -> linkmon's assertions were
+   silent (321f0d7; mf25 carries it). The mac_reinit STROBE still worked
+   (real register drives the fabric output; only READBACK was stale) -
+   which is exactly why the manual drill above succeeded on mf17.
+ - Milan "defect 2" (counter reset on rebind) RETRACTED: Table 5.6
+   mandates the not-bound->bound reset; the code cites it; correct.
+
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
 (b) deploy gptp2csr.sh + ptp4l pair → GM/pdelay live (clears
