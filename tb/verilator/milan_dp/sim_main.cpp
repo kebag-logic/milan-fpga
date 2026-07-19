@@ -962,6 +962,23 @@ int main(int argc, char** argv) {
             for (int c = 0; c < 5000; c++) step();
         }
 
+        // ---- link up/down via LINK_CTRL + reset-epoch canary ----
+        {
+            enum { A_LINK_CTRL = 0x71C, A_RST_EPOCH = 0x720 };
+            long ep = axi_read(A_RST_EPOCH);
+            ck("epoch = 1 (one reset release since bitstream)", ep, 1);
+            // AVB_IF counters live in the AECP push block; read via GET_COUNTERS
+            // is heavy here - instead verify the ADP reacts (depart on down,
+            // re-advertise on up) via its diag pulses + the counters through
+            // the aecp TB. Here: toggle and confirm no datapath disturbance.
+            axi_write(A_LINK_CTRL, 0x0);          // daemon says link DOWN
+            for (int c = 0; c < 200; c++) step();
+            axi_write(A_LINK_CTRL, 0x1);          // link UP again
+            for (int c = 0; c < 200; c++) step();
+            ck("epoch unchanged by link toggles", axi_read(A_RST_EPOCH), ep);
+            ck("datapath alive after link toggle (ID)", axi_read(A_ID), 0x4D494C4E);
+        }
+
         pcm.clear(); pcm_last = false;
         long frx_before = axi_read(A_AVTPRX_FRX);
         long uns_before = (long)(axi_read(A_AVTPRX_ERR) >> 8);

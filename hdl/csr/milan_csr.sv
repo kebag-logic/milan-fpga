@@ -207,6 +207,8 @@ module milan_csr #(
   output wire [2:0]              o_tone_att,          //! pilot-tone -6dB steps (TONE_CTRL[3:1])         //! 1 kHz 0 dBFS pilot tone
 
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
+  output wire                    o_sw_link,           //! LINK_CTRL[0]: daemon-tracked PHY link
+  output wire                    o_mac_reinit,        //! LINK_CTRL[1]: MAC sys-side reset (recovery daemon)
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
   output wire [4:0]              o_tcam_wr_index,     //! entry index (TCAM_CMD[4:0])
@@ -288,6 +290,8 @@ module milan_csr #(
     // ---- 0x700 RX dest-MAC TCAM filter ----
     A_TCAM_CTRL   = 'h700, A_TCAM_KLO = 'h704, A_TCAM_KHI = 'h708, A_TCAM_MLO  = 'h70C,
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
+  localparam [ADDR_WIDTH-1:0] A_LINK_CTRL = 'h71C;   //! [0] sw_link (daemon), [1] mac_reinit (hold MAC sys-side in reset)
+  localparam [ADDR_WIDTH-1:0] A_RST_EPOCH = 'h720;   //! RO live: datapath reset-release count (shadow-lie canary)
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -387,7 +391,8 @@ module milan_csr #(
   logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi; //! AAF talker: ctrl {vid[27:16], bypass[1], en[0]}, DMAC
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [3:2]=classA queue
-  logic [31:0] maap_ctrl;                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
+  logic [31:0] maap_ctrl;
+  logic [31:0] link_ctrl;               //! LINK_CTRL: [0] sw_link                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
@@ -470,6 +475,7 @@ module milan_csr #(
       // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}
       lwsrp_ctrl <= 32'h0000_000C;
       maap_ctrl  <= 32'h0000_0800;
+      link_ctrl  <= 32'h0000_0001;      //! link assumed UP until a daemon says otherwise
       tone_ctrl  <= 32'h0;
       gptp_pdelay <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
@@ -542,6 +548,7 @@ module milan_csr #(
           A_ACMP_LOBS:  acmp_lobs <= s_axi_wdata;
           A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
           A_MAAP_CTRL:  maap_ctrl  <= s_axi_wdata;
+          A_LINK_CTRL:  link_ctrl  <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
           A_GPTP_PDELAY: gptp_pdelay <= s_axi_wdata;
           A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
@@ -770,6 +777,7 @@ module milan_csr #(
       A_I2SPB_TRIM:  live_mux = i_i2spb_trim;
       A_ACMPL_DBG:  live_mux = i_acmpl_dbg;
       A_AVTPRX_TSD: live_mux = i_avtprx_tsd;
+      A_RST_EPOCH:  live_mux = {24'd0, rst_epoch_r};
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
@@ -840,6 +848,19 @@ module milan_csr #(
   assign o_acmp_lobs           = acmp_lobs[0];
   assign o_tone_enable      = tone_ctrl[0];
   assign o_tone_att         = tone_ctrl[3:1];
+  //! Reset-epoch canary: counts datapath reset RELEASES in flops WITHOUT a
+  //! reset clause (bitstream-init 0, survive axis resets). Software compares
+  //! epochs to detect hidden fabric resets that the config shadow masks
+  //! (the 2026-07-19 link-bounce forensics: CSR reads lied after a reset).
+  reg [7:0] rst_epoch_r = 8'd0;
+  reg       rstn_seen_r = 1'b0;
+  always @(posedge aclk) begin : epoch_cnt
+    rstn_seen_r <= aresetn;
+    if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+  end : epoch_cnt
+
+  assign o_sw_link          = link_ctrl[0];
+  assign o_mac_reinit       = link_ctrl[1];
   assign o_maap_enable      = maap_ctrl[0];
   assign o_maap_seed_valid  = maap_ctrl[1];
   assign o_maap_count       = maap_ctrl[15:8];
