@@ -727,10 +727,10 @@ int main(int argc, char** argv) {
             f[26]=0xAA; f[27]=0xBB; f[28]=0xCC; f[29]=0xDD;   // avtp_ts
             f[30]=0x02;                                          // format INT32
             f[31]=(uint8_t)(nsr << 4);                           // nsr
-            f[32]=8;                                             // channels
+            f[32]=2;                                             // channels (talker truth)
             f[33]=32;                                            // bit depth
-            f[34]=0x00; f[35]=0x40;                              // data_len 64
-            for (int i = 0; i < 64; i++) f[38+i] = (uint8_t)(0x30+i); // payload
+            f[34]=0x00; f[35]=0x30;                              // data_len 48
+            for (int i = 0; i < 48; i++) f[38+i] = (uint8_t)(0x30+i); // payload
             return f;
         };
         inject(mkaaf(5, 0x05), 120);
@@ -741,10 +741,10 @@ int main(int argc, char** argv) {
 
         // PCM ring path: the accepted PDU's 64 payload bytes emerged as
         // 8 full beats, wire byte order, one AXIS frame
-        ck("PCM payload 64 bytes", (long)pcm.size(), 64);
+        ck("PCM payload 48 bytes", (long)pcm.size(), 48);
         ck("PCM tlast seen", pcm_last ? 1 : 0, 1);
-        bool pay_ok = pcm.size() >= 64;
-        for (int i = 0; i < 64 && pay_ok; i++)
+        bool pay_ok = pcm.size() >= 48;
+        for (int i = 0; i < 48 && pay_ok; i++)
             if (pcm[i] != (uint8_t)(0x30+i)) pay_ok = false;
         ck("PCM payload byte-exact", pay_ok ? 1 : 0, 1);
         enum { A_PCMRX_CNT = 0x6C4, A_PCMRX_TS = 0x6C8 };
@@ -762,9 +762,9 @@ int main(int argc, char** argv) {
             inject(tf, 124);
         }
         ck("tagged: FRAMES_RX 2", axi_read(A_AVTPRX_FRX), 2);
-        ck("tagged: PCM 64 bytes", (long)pcm.size(), 64);
-        bool tag_ok = pcm.size() >= 64;
-        for (int i = 0; i < 64 && tag_ok; i++)
+        ck("tagged: PCM 48 bytes", (long)pcm.size(), 48);
+        bool tag_ok = pcm.size() >= 48;
+        for (int i = 0; i < 48 && tag_ok; i++)
             if (pcm[i] != (uint8_t)(0x30+i)) tag_ok = false;
         ck("tagged: payload byte-exact", tag_ok ? 1 : 0, 1);
         ck("tagged: PCMRX pdus=2", axi_read(A_PCMRX_CNT), 2);
@@ -844,7 +844,42 @@ int main(int argc, char** argv) {
                 kern = 0; inject_cnt(pf, 64);
                 ck("prefilter: other dmac still passes", kern, 1);
             }
+            // EXACT silicon wire frame (tap capture 2026-07-19): 86 bytes,
+            // partial last beat keep=0x3F - the shape mkaaf never covered
+            {
+                static const uint8_t WF[] = {
+                  0x91,0xE0,0xF0,0x00,0xE1,0xE3, 0x02,0x00,0x00,0x00,0x00,0x01,
+                  0x22,0xF0,
+                  0x02,0x81,0x86,0x00, 0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x00,
+                  0x74,0x6A,0xE3,0x96, 0x02,0x50,0x02,0x20, 0x00,0x30,0x00,0x00,
+                  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+                  0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+                };
+                // stream_id in WF = 02:00:00:00:00:01 (the AX talker) but the
+                // TB's bound sid = {02:00:00:ff:fe:00:00:02-derived}: rewrite
+                // to the TB's bound stream {02:00:00:00:00:02, uid 0}
+                uint8_t wf[86]; memcpy(wf, WF, 86);
+                wf[11]=0x02; wf[23]=0x02;         // src mac + stream_id tail
+                long f0 = axi_read(A_AVTPRX_FRX);
+                long u0 = axi_read(0x6C0);
+                inject_cnt(wf, 86);
+                inject_cnt(wf, 86);
+                printf("  [wire86] FRX delta=%ld UNSUP 0x%lx->0x%lx\n",
+                       axi_read(A_AVTPRX_FRX)-f0, u0, (long)axi_read(0x6C0));
+                // bisect: same 86-byte content PADDED to 124 (full last beat)
+                uint8_t wfp[124]; memset(wfp, 0, sizeof wfp); memcpy(wfp, wf, 86);
+                wfp[35]=0x30;  // keep stream_data_len 48 (content identical)
+                f0 = axi_read(A_AVTPRX_FRX);
+                inject_cnt(wfp, 124);
+                printf("  [wire124pad] FRX delta=%ld\n", axi_read(A_AVTPRX_FRX)-f0);
+                // bisect: mkaaf content TRUNCATED to 86 (partial last beat)
+                f0 = axi_read(A_AVTPRX_FRX);
+                inject_cnt(mkaaf(12, 0x05), 86);
+                printf("  [mkaaf86] FRX delta=%ld\n", axi_read(A_AVTPRX_FRX)-f0);
+            }
             kern = 0;
+            pcm0 = axi_read(A_PCMRX_CNT);   // rebase: the 2ch default now
+                                            // ACCEPTS the bisect probes above
             inject_cnt(mkaaf(8, 0x05), 124);
             inject_cnt(mkaaf(9, 0x05), 124);
             ck("prefilter: PCM ring advanced past TCAM drop",
@@ -889,11 +924,50 @@ int main(int argc, char** argv) {
 
         // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not,
         // and NOTHING more enters the PCM ring
+        // ---- lwSRP TX pair through the FULL egress (MVRP-eater hunt) ----
+        // enable the engine (prompt declare pair fires on the rising edge)
+        // and count what actually reaches the MAC port per ethertype.
+        {
+            axi_write(0x684, 0x002);            // SR VID 2
+            axi_write(0x688, 0xF0001234); axi_write(0x68C, 0x91E0);
+            axi_write(0x680, 0x00F);            // en | talker | queue
+            int n22ea = 0, n88f5 = 0, nother = 0;
+            std::vector<uint64_t> cur;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 120000; c++) {
+                lo();
+                bool acc = dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready;
+                uint64_t d = dut->m_axis_mac_tx_tdata;
+                bool l = dut->m_axis_mac_tx_tlast;
+                hi();
+                if (acc) {
+                    cur.push_back(d);
+                    if (l) {
+                        if (cur.size() >= 2) {
+                            int et = (int)((cur[1] >> 32) & 0xFF) << 8
+                                   | (int)((cur[1] >> 40) & 0xFF);
+                            if (et == 0x22EA) n22ea++;
+                            else if (et == 0x88F5) n88f5++;
+                            else nother++;
+                        }
+                        cur.clear();
+                    }
+                }
+            }
+            printf("  [lwsrp-egress] other-ethertype frames=%d\n", nother);
+            printf("  [lwsrp-egress] MSRP=%d MVRP=%d at the MAC port\n", n22ea, n88f5);
+            ck("lwsrp: MSRP pair half reaches MAC", n22ea >= 1, 1);
+            ck("lwsrp: MVRP pair half reaches MAC", n88f5 >= 1, 1);
+            axi_write(0x680, 0x00C);            // disable again (LV pair drains)
+            for (int c = 0; c < 5000; c++) step();
+        }
+
         pcm.clear(); pcm_last = false;
         long frx_before = axi_read(A_AVTPRX_FRX);
+        long uns_before = (long)(axi_read(A_AVTPRX_ERR) >> 8);
         long pcm_before = axi_read(A_PCMRX_CNT);
         inject(mkaaf(7, 0x07), 120);
-        ck("UNSUPPORTED_FORMAT=1 (0x6C0)", axi_read(A_AVTPRX_ERR), 0x0100);
+        ck("UNSUPPORTED_FORMAT +1 (0x6C0)", (long)(axi_read(A_AVTPRX_ERR) >> 8) - uns_before, 1);
         ck("FRAMES_RX unchanged by wrong-rate", axi_read(A_AVTPRX_FRX), frx_before);
         ck("no PCM for rejected PDU", (long)pcm.size(), 0);
         ck("PCMRX unchanged by wrong-rate", axi_read(A_PCMRX_CNT), pcm_before);

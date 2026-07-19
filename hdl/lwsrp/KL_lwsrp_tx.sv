@@ -123,13 +123,15 @@ module KL_lwsrp_tx (
   // -----------------------------------------------------------------------
   typedef enum logic [1:0] { S_IDLE, S_SEND, S_GAP } state_t;
   state_t      state_r;
-  //! inter-frame gap after every frame we emit: the MSRP+MVRP pair used to
-  //! go out back-to-back and the second frame died in the arty's 50 MHz /
-  //! 100 Mbit egress (ProfiShark 2026-07-19: engine tx_count included the
-  //! MVRP, the tap never saw it; the AX at 100 MHz/GbE passed it). 64 idle
-  //! cycles is protocol-irrelevant and dodges the downstream hazard.
-  localparam int GAP_CYCLES_C = 64;
-  reg [6:0]    gap_r;
+  //! inter-frame gap after every frame we emit: the MVRP (second of the
+  //! MSRP+MVRP pair) died in the arty's MAC egress whenever it entered
+  //! within one frame-serialization time of the MSRP (100 Mbit MII drains
+  //! ~6 us/frame; the GbE AX never hit it; the full-datapath sim passes the
+  //! pair - the eater is MAC-side, dp TB lwsrp-egress 2026-07-19). 1024
+  //! cycles (20 us @50 MHz) clears a worst-case 100 Mbit frame; protocol-
+  //! irrelevant. Real fix owed: MilanMAC back-to-back TB.
+  localparam int GAP_CYCLES_C = 1024;
+  reg [10:0]   gap_r;
   reg [3:0]    beat_r;
   frame_kind_t kind_r;
   reg          talker_incl_r;        //! MSRP frame carries TalkerAdvertise
@@ -414,7 +416,7 @@ module KL_lwsrp_tx (
             if (beat_r == frame_beats_w - 4'd1) begin
               tx_count_o <= tx_count_o + 16'd1;
               if (kind_r == FK_MVRP_E) vid_evt_r <= MRP_EVT_JOININ_C;
-              gap_r      <= 7'(GAP_CYCLES_C - 1);
+              gap_r      <= 11'(GAP_CYCLES_C - 1);
               state_r    <= S_GAP;
             end else begin
               beat_r <= beat_r + 4'd1;
@@ -423,7 +425,7 @@ module KL_lwsrp_tx (
         end
 
         S_GAP: begin
-          gap_r <= gap_r - 7'd1;
+          gap_r <= gap_r - 11'd1;
           if (gap_r == '0) state_r <= S_IDLE;
         end
 
