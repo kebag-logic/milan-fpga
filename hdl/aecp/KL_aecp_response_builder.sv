@@ -110,6 +110,14 @@ module KL_aecp_response_builder (
   input  wire [11:0]   lstn_vlan_i,
   input  wire [1:0]    lstn_pbsta_i,       //! probing status
   input  wire [4:0]    lstn_acmpsta_i,     //! last ACMP status
+  input  wire [7:0]    lstn_fail_code_i,
+  input  wire [63:0]   lstn_fail_bridge_i,
+  input  wire [11:0]   lstn_ta_vlan_i,
+  input  wire [31:0]   lstn_ta_acclat_i,
+  input  wire          tk_fail_valid_i,
+  input  wire [7:0]    tk_fail_code_i,
+  input  wire [63:0]   tk_fail_bridge_i,
+  input  wire [11:0]   srp_domain_vid_i,
   input  wire          lstn_ta_reg_i,      //! TalkerAdvertise registered
   input  wire          lstn_ta_fail_i,     //! TalkerFailed registered
 
@@ -520,7 +528,11 @@ module KL_aecp_response_builder (
   // ------------------------------------------------------------------ //
   task automatic load_stream_info_consts;
     begin
-      const_q[0] <= 8'hF6; const_q[1] <= 8'h00;   // flags 0xF6000000
+      //! flags: FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN|CONNECTED
+      //! + MSRP_FAILURE_VALID when the bridge re-declared OUR stream as
+      //! TalkerFailed (Milan: the talker reports the FailureInformation)
+      const_q[0] <= tk_fail_valid_i ? 8'hFE : 8'hF6;
+      const_q[1] <= 8'h00;
       const_q[2] <= 8'h00; const_q[3] <= 8'h00;
       // stream_id = {station_mac, unique_id=0} — the stream.c formula,
       // byte-identical to the AVTP header and the ACMP PROBE_TX response
@@ -541,7 +553,10 @@ module KL_aecp_response_builder (
       const_q[23] <= aaf_dmac_i[23:16];
       const_q[24] <= aaf_dmac_i[15:8];
       const_q[25] <= aaf_dmac_i[7:0];
-      for (int k = 26; k < 36; k++) const_q[k] <= 8'h00;  // fail code + bridge
+      const_q[26] <= tk_fail_valid_i ? tk_fail_code_i : 8'h00;
+      const_q[27] <= 8'h00;
+      for (int k = 0; k < 8; k++)
+        const_q[28+k] <= tk_fail_valid_i ? tk_fail_bridge_i[8*(7-k) +: 8] : 8'h00;
       const_q[36] <= {4'h0, aaf_vid_i[11:8]};     // stream_vlan_id
       const_q[37] <= aaf_vid_i[7:0];
       const_q[38] <= 8'h00; const_q[39] <= 8'h00;
@@ -565,26 +580,42 @@ module KL_aecp_response_builder (
       bnd  = sink0 & lstn_bound_i;
       ta_r = sink0 & lstn_ta_reg_i;
       ta_f = sink0 & lstn_ta_fail_i;
-      // FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN always valid
+      // FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN always valid. Milan v1.2:
+      // NO FastConnect (forbidden) and NO SavedState - CONNECTED (+
+      // STREAMING_WAIT while stopped) are the only connection flags.
       fl = 32'hF200_0000;
       if (bnd) begin
-        fl = fl | 32'h0400_0000              // CONNECTED
-                | 32'h0000_0002              // FAST_CONNECT
-                | 32'h0000_0004;             // SAVED_STATE
+        fl = fl | 32'h0400_0000;             // CONNECTED
         if (!started_in_r) fl = fl | 32'h0000_0008;   // STREAMING_WAIT
       end
-      if (ta_f) fl = fl | 32'h0800_0000      // MSRP_FAILURE_VALID
-                       | 32'h0000_0040;      // SRP_REGISTERING_FAILED
+      //! MSRP_FAILURE_VALID **with the real FailureInformation** (the
+      //! Hive-visible "MSRP Failure" line: code + bridge_id from the
+      //! registered TalkerFailed - zeroed fields with the flag set were
+      //! the 2026-07-19 Hive complaint). Flag bit 6 (SrpRegistrationFailed)
+      //! is an ACMP get-state flag, NOT a stream_info flag - removed.
+      if (ta_f) fl = fl | 32'h0800_0000;     // MSRP_FAILURE_VALID
       const_q[0] <= fl[31:24]; const_q[1] <= fl[23:16];
       const_q[2] <= fl[15:8];  const_q[3] <= fl[7:0];
       for (int k = 0; k < 8; k++)
         const_q[8+k] <= sink0 ? lstn_sid_i[8*(7-k) +: 8] : 8'h00;
-      for (int k = 16; k < 20; k++) const_q[k] <= 8'h00;  // acc_lat (0 valid)
+      //! msrp_accumulated_latency = from the registered Talker attribute
+      //! (Milan 5.4.2.7); zero until one is registered
+      const_q[16] <= (ta_r|ta_f) ? lstn_ta_acclat_i[31:24] : 8'h00;
+      const_q[17] <= (ta_r|ta_f) ? lstn_ta_acclat_i[23:16] : 8'h00;
+      const_q[18] <= (ta_r|ta_f) ? lstn_ta_acclat_i[15:8]  : 8'h00;
+      const_q[19] <= (ta_r|ta_f) ? lstn_ta_acclat_i[7:0]   : 8'h00;
       for (int k = 0; k < 6; k++)
         const_q[20+k] <= sink0 ? lstn_dmac_i[8*(5-k) +: 8] : 8'h00;
-      for (int k = 26; k < 36; k++) const_q[k] <= 8'h00;  // fail code + bridge
-      const_q[36] <= sink0 ? {4'h0, lstn_vlan_i[11:8]} : 8'h00;
-      const_q[37] <= sink0 ? lstn_vlan_i[7:0] : 8'h00;
+      const_q[26] <= ta_f ? lstn_fail_code_i : 8'h00;     // msrp_failure_code
+      const_q[27] <= 8'h00;                               // reserved
+      for (int k = 0; k < 8; k++)                          // failing bridge_id
+        const_q[28+k] <= ta_f ? lstn_fail_bridge_i[8*(7-k) +: 8] : 8'h00;
+      //! stream_vlan_id: the registered Talker attribute's vlan when one
+      //! exists, else the ACMP-bound vlan
+      const_q[36] <= (ta_r|ta_f) ? {4'h0, lstn_ta_vlan_i[11:8]}
+                   : sink0      ? {4'h0, lstn_vlan_i[11:8]} : 8'h00;
+      const_q[37] <= (ta_r|ta_f) ? lstn_ta_vlan_i[7:0]
+                   : sink0      ? lstn_vlan_i[7:0] : 8'h00;
       const_q[38] <= 8'h00; const_q[39] <= 8'h00;
       const_q[40] <= 8'h00; const_q[41] <= 8'h00; const_q[42] <= 8'h00;
       const_q[43] <= {7'b0, ta_r | ta_f};                 // flags_ex REGISTERING
@@ -1368,11 +1399,20 @@ module KL_aecp_response_builder (
                   const_q[8]  <= pdelay_ns_i[31:24]; const_q[9]  <= pdelay_ns_i[23:16];
                   const_q[10] <= pdelay_ns_i[15:8];  const_q[11] <= pdelay_ns_i[7:0];
                   const_q[12] <= gptp_domain_i;
-                  //! flags: SRP_ENABLED (0x04) | GPTP_GM_SUPPORTED-present
-                  //! (0x02) once the daemon publishes a grandmaster
-                  const_q[13] <= w_gm_present ? 8'h06 : 8'h04;
-                  const_q[14] <= 8'h00; const_q[15] <= 8'h00;    // msrp count = 0
-                  cdl_q <= 11'd32;   // 12 + 4 + 16
+                  //! flags (1722.1-2021 7.4.40.2): AS_CAPABLE (0x01, proxied
+                  //! by a nonzero measured pdelay = the exchange works) |
+                  //! GPTP_ENABLED (0x02) | SRP_ENABLED (0x04)
+                  const_q[13] <= {5'b0, 1'b1, 1'b1, |pdelay_ns_i};
+                  //! msrp_mappings: ONE entry mirroring our MSRP Domain
+                  //! declaration {SRclassID 6 = class A, priority 3, VID}
+                  //! (Hive's SRP domain panel; count 0 was the gap)
+                  const_q[14] <= 8'h00; const_q[15] <= 8'h01;
+                  const_q[16] <= 8'h06;                // traffic_class = A
+                  const_q[17] <= 8'h03;                // priority
+                  const_q[18] <= {4'h0, srp_domain_vid_i[11:8]};
+                  const_q[19] <= srp_domain_vid_i[7:0];
+                  seg_len_q[1] <= 16'd20;
+                  cdl_q <= 11'd36;   // 12 + 4 + 16 + 4 (one mapping)
                 end
               end
 

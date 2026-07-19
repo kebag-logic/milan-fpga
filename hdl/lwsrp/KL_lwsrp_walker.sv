@@ -82,6 +82,9 @@ module KL_lwsrp_walker (
     output reg          tadv_p_o,
     output reg          tfail_p_o,
     output reg  [7:0]   tfail_code_o,
+    output wire [11:0]  tk_vlan_o,        //! Talker-attr vlan (valid w/ pulses)
+    output wire [31:0]  tk_acclat_o,      //! Talker-attr AccumulatedLatency
+    output wire [63:0]  tk_bridge_o,      //! TF FailureInformation bridge_id
 
     //! listener-side events: TalkerAdvertise/Failed vectors covering lsid
     output reg          l_tadv_p_o,
@@ -93,6 +96,9 @@ module KL_lwsrp_walker (
 );
 
   wire [63:0] our_sid_w = {station_mac_i, unique_id_i};
+  assign tk_vlan_o   = tk_vlan_r;
+  assign tk_acclat_o = tk_acclat_r;
+  assign tk_bridge_o = tk_bridge_r;
 
   // -----------------------------------------------------------------------
   // Byte-serial front end: one beat register, one byte per cycle
@@ -128,6 +134,9 @@ module KL_lwsrp_walker (
   reg [7:0]  fv_idx_r;        //! FirstValue byte index
   reg [63:0] fv_r;            //! first 8 FirstValue bytes (shift-in)
   reg [7:0]  tfail_code_r;    //! TalkerFailed byte 33
+  reg [11:0] tk_vlan_r;       //! Talker FV bytes 19-20: vlan_identifier
+  reg [31:0] tk_acclat_r;     //! Talker FV bytes 21-24: AccumulatedLatency
+  reg [63:0] tk_bridge_r;     //! TalkerFailed FV bytes 25-32: bridge_id
   reg [7:0]  d_class_r, d_prio_r;
   reg [15:0] d_vid_r;
   reg [2:0]  dom_a_evt_r;    //! event of the vector's CLASS-A value (+k)
@@ -254,6 +263,7 @@ module KL_lwsrp_walker (
       attr_type_r <= '0; attr_len_r <= '0; vech_hi_r <= '0; nv_r <= '0;
       fv_idx_r <= '0; fv_r <= '0; tfail_code_r <= '0;
       d_class_r <= '0; d_prio_r <= '0; d_vid_r <= '0; dom_a_evt_r <= '0;
+      tk_vlan_r <= '0; tk_acclat_r <= '0; tk_bridge_r <= '0;
       val_match_r <= 1'b0; k_r <= '0; vbase_r <= '0;
       lval_match_r <= 1'b0; lk_r <= '0; lcap_evt_r <= '0;
       cap_evt_r <= '0; cap_par_r <= '0; pack_idx_r <= '0; pack_n_r <= '0;
@@ -353,6 +363,23 @@ module KL_lwsrp_walker (
                 default: ;
               endcase
             end
+            // Talker attribute fields for GET_STREAM_INFO (Milan 5.4.2.7:
+            //! the input's msrp_accumulated_latency / stream_vlan_id come
+            //! from the registered Talker attribute; the failure fields from
+            //! the TalkerFailed FailureInformation)
+            if (is_tadv_w || is_tfail_w) begin
+              unique case (fv_idx_r)
+                8'd14: tk_vlan_r[11:8]     <= byte_w[3:0];
+                8'd15: tk_vlan_r[7:0]      <= byte_w;
+                8'd21: tk_acclat_r[31:24]  <= byte_w;
+                8'd22: tk_acclat_r[23:16]  <= byte_w;
+                8'd23: tk_acclat_r[15:8]   <= byte_w;
+                8'd24: tk_acclat_r[7:0]    <= byte_w;
+                default: ;
+              endcase
+            end
+            if (is_tfail_w && fv_idx_r >= 8'd25 && fv_idx_r <= 8'd32)
+              tk_bridge_r <= {tk_bridge_r[55:0], byte_w};
             // TalkerFailed failure code (FirstValue byte 33)
             if (is_tfail_w && fv_idx_r == 8'd33) tfail_code_r <= byte_w;
 

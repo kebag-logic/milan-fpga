@@ -46,6 +46,9 @@ module KL_lwsrp_top #(
     output wire         ta_registered_o,   //! TalkerAdvertise registered (lsid)
     output wire         ta_failed_o,       //! TalkerFailed registered (lsid)
     output wire [7:0]   ta_fail_code_o,
+    output wire [11:0]  ta_vlan_o,         //! registered Talker-attr vlan
+    output wire [31:0]  ta_acclat_o,       //! ...AccumulatedLatency
+    output wire [63:0]  ta_fail_bridge_o,  //! ...TF bridge_id (listener)
     output wire         lstn_declared_o,   //! Listener attr on the wire
 
     // ---- identity + stream table row 0 (CSR) ------------------------------
@@ -85,6 +88,7 @@ module KL_lwsrp_top #(
     output wire         over_limit_o,
     output wire         tfail_valid_o,
     output wire [7:0]   tfail_code_o,
+    output wire [63:0]  tfail_bridge_o,    //! our-talker TF bridge_id
     output wire [15:0]  tx_count_o,
     output wire [15:0]  rx_pdus_o,
     output wire [7:0]   rx_drops_o
@@ -129,10 +133,13 @@ module KL_lwsrp_top #(
     .lsid_i (lstn_sid_i), .lsid_en_i (lstn_bound_i),
     .ta_registered_o (ta_registered_o),
     .ta_failed_o (ta_failed_o), .ta_fail_code_o (ta_fail_code_o),
+    .ta_vlan_o (ta_vlan_o), .ta_acclat_o (ta_acclat_o),
+    .ta_fail_bridge_o (ta_fail_bridge_o),
     .listener_ready_o (listener_ready_o),
     .listener_reg_o (listener_reg_o), .listener_decl_o (listener_decl_o),
     .domain_ok_o (domain_ok_o),
     .tfail_valid_o (tfail_valid_o), .tfail_code_o (tfail_code_o),
+    .tfail_bridge_o (tfail_bridge_o),
     .rx_leaveall_p_o (rx_leaveall_w),
     .rx_pdus_o (rx_pdus_o), .rx_drops_o (rx_drops_o),
     .pdu_cnt_o ()

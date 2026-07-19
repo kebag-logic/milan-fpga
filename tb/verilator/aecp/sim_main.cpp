@@ -163,6 +163,7 @@ int main(int argc, char** argv) {
 
     // reset
     dut->rst_n = 0; dut->enable_i = 1;
+    dut->srp_domain_vid_i = 0x002;
     dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
     dut->station_mac_i = 0; dut->entity_id_i = ENTITY_ID;
     dut->entity_model_id_i = 0;
@@ -454,18 +455,21 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9300, av));
         auto r = collect_resp();
         ck("AVB_INFO SUCCESS", r_status(r), 0);
-        ck("AVB_INFO CDL == 32", r_cdl(r), 32);
+        ck("AVB_INFO CDL == 36 (one msrp mapping)", r_cdl(r), 36);
         ck_cdl("AVB_INFO CDL (len-26)", r);
         ckbytes("AVB_INFO gm == CSR grandmaster", r, 42,
                 {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
         ckbytes("AVB_INFO propagation_delay == CSR (139114 ns)", r, 50,
                 {0x00,0x02,0x1F,0x6A});
-        ckbytes("AVB_INFO flags GM_PRESENT|SRP", r, 55, {0x06});
+        // flags = GPTP_ENABLED|SRP_ENABLED (+AS_CAPABLE when pdelay!=0);
+        // then the msrp_mappings: count 1, {SRclassID 6, prio 3, VID}
+        ckbytes("AVB_INFO flags GPTP|SRP|AS_CAP", r, 55, {0x07});
+        ckbytes("AVB_INFO msrp mapping {A,3,vid}", r, 56, {0x00,0x01,0x06,0x03,0x00,0x02});
 
         dut->gptp_gm_id_i = 0; for (int i = 0; i < 4; i++) tick();
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9301, av));
         auto r2 = collect_resp();
-        ckbytes("AVB_INFO no-GM flags SRP only", r2, 55, {0x04});
+        ckbytes("AVB_INFO no-GM flags GPTP|SRP|AS_CAP", r2, 55, {0x07});
         dut->gptp_gm_id_i = 0x0011223344556677ULL; for (int i = 0; i < 4; i++) tick();
     }
 
@@ -1273,12 +1277,16 @@ int main(int argc, char** argv) {
         dut->lstn_pbsta_i = 3;                 // COMPLETED
         dut->lstn_acmpsta_i = 0;
         dut->lstn_ta_reg_i = 1;
+        dut->lstn_ta_vlan_i = 0x002;          // registered Talker-attr fields
+        dut->lstn_ta_acclat_i = 137042;       // the real switch TF value
         for (int i = 0; i < 4; i++) tick();
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2202,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         // F2000000 | CONNECTED(0x04000000) | FAST_CONNECT|SAVED_STATE(0x6)
-        ck("[22b] flags connected", be32_at(r, 42), 0xF6000006);
+        ck("[22b] flags connected (Milan: no FastConnect/SavedState)",
+           be32_at(r, 42), 0xF6000000);
+        ckbytes("[22b] acc_lat from registered attr", r, 62, {0x00,0x02,0x17,0x52});
         ckbytes("[22b] stream_id live", r, 54,
                 {0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x00});
         ckbytes("[22b] dmac live", r, 66, {0x91,0xE0,0xF0,0x00,0xFE,0x01});
@@ -1288,11 +1296,17 @@ int main(int argc, char** argv) {
 
         // (c) TalkerFailed adds the failure flags
         dut->lstn_ta_fail_i = 1;
+        dut->lstn_fail_code_i = 8;            // egress not AVB capable
+        dut->lstn_fail_bridge_i = 0x80003CC0C6FE0210ull;
         for (int i = 0; i < 4; i++) tick();
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2203,
                          si_pl(0x0005, 0)));
         r = collect_resp();
-        ck("[22c] +MSRP_FAILURE|SRP_REG_FAILED", be32_at(r, 42), 0xFE000046);
+        ck("[22c] +MSRP_FAILURE_VALID (bit6 removed: get-state-only)",
+           be32_at(r, 42), 0xFE000000);
+        ckbytes("[22c] msrp_failure_code 8", r, 72, {0x08});
+        ckbytes("[22c] failing bridge_id", r, 74,
+                {0x80,0x00,0x3C,0xC0,0xC6,0xFE,0x02,0x10});
         dut->lstn_ta_fail_i = 0;
 
         // (d) sink 1 (CRF): unbound shape; CRF format from store
@@ -1332,7 +1346,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2209,
                          si_pl(0x0005, 0)));
         r = collect_resp();
-        ck("[22f] STREAMING_WAIT set", be32_at(r, 42), 0xF600000E);
+        ck("[22f] STREAMING_WAIT set", be32_at(r, 42), 0xF6000008);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220A,
                          si_pl(0x0005, 0)));
         r = collect_resp();
@@ -1459,6 +1473,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));
         ck("[22i] DEREGISTER A", r_status(collect_resp()), 0);
         dut->lstn_bound_i = 0; dut->lstn_ta_reg_i = 0;
+    dut->srp_domain_vid_i = 0x002;
     }
 
     // ---------------------------------------------------------------- //
