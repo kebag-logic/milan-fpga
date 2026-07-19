@@ -973,8 +973,10 @@ int main(int argc, char** argv) {
             // the aecp TB. Here: toggle and confirm no datapath disturbance.
             axi_write(A_LINK_CTRL, 0x0);          // daemon says link DOWN
             for (int c = 0; c < 200; c++) step();
+            ck("LINK_CTRL reads back 0 (shadowed)", axi_read(A_LINK_CTRL), 0);
             axi_write(A_LINK_CTRL, 0x1);          // link UP again
             for (int c = 0; c < 200; c++) step();
+            ck("LINK_CTRL reads back 1 (shadowed)", axi_read(A_LINK_CTRL), 1);
             ck("epoch unchanged by link toggles", axi_read(A_RST_EPOCH), ep);
             ck("datapath alive after link toggle (ID)", axi_read(A_ID), 0x4D494C4E);
         }

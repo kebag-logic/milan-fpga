@@ -651,6 +651,7 @@ module milan_csr #(
       A_LWSRP_DMHI[10:0]: csr_default = 32'h0000_91E0;
       A_LWSRP_TSPEC[10:0]: csr_default = 32'h0001_00E0;
       A_TCAM_CTRL[10:0]:  csr_default = 32'h1;
+      A_LINK_CTRL[10:0]:  csr_default = 32'h1;   // link assumed up at boot
       A_MAAP_CTRL[10:0]:  csr_default = 32'h0000_0800;   // count=8, en=0
       default: begin
         if (a >= A_CBS_BASE[10:0] && a < A_CBS_END[10:0]) begin
@@ -682,7 +683,7 @@ module milan_csr #(
       A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
       A_LWSRP_TSPEC, A_LWSRP_LAT,
       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
-      A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY:
+      A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
