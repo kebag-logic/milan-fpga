@@ -789,7 +789,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   end
 
-  adp_advertiser adp_adv (
+  //! discover-DELAY range scaled by the datapath clock (the params are in
+  //! clk cycles; unscaled, the 100 MHz AX halved the wall-time range and
+  //! failed the CERT es-2.1 randomness spread). BASE = 200 ms; the mask
+  //! passes the full 26-bit LFSR = up to ~0.67 s @100 MHz / ~1.34 s @50 MHz
+  //! (both << the 4.5 s TMR_DELAY bound).
+  adp_advertiser #(
+    .DISC_DLY_BASE (MILAN_CLK_FREQ_HZ / 5),
+    .DISC_DLY_MASK (26'h3FF_FFFF)
+  ) adp_adv (
     .clk_i (axis_clk),
     .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
