@@ -51,11 +51,15 @@ tx_timestamp_timeout 50→500 ms. STREAM_INPUT counters LOCKED/UNLOCKED
 are the detector (SEQ/INTERRUPTED stay 0 — wire was never at fault).
 Driver-side stamp-latency fix remains owed (workarounds section).
 
-**Builds:** ARTY QSPI = `eto_milanfinal34` (+0.193; v1 LPF, working) —
-mf35 (v2 parity) sweeping now, flash when done. **ALINX SRAM =
-`eppo_milanfinal21` (+0.057, v2 LPF)** + QSPI images with rootfs #4
-(VID-2 S50, gptp2csr parent publish, servo fix, 500 ms tx-ts timeout).
-CERT rerun on the final pair is the remaining gate. Tool fixes:
+**★★ FINAL DUAL-BOARD CERT CERT (07-20 late): ARTY 43/43 + ALINX
+43/43, 0 failures ★★** (suite grew to 15 features / 43 scenarios with
+the new AS_PATH + counters coverage). Keepers: **ARTY QSPI =
+`asl_milanfinal35` (+0.310, serial-MAC LPF v2)**, **ALINX SRAM =
+`eppo_milanfinal21` (+0.057, v2)**, both + rootfs #4 (VID-2 S50,
+gptp2csr parent publish, stream_phc_sync role fix, 500 ms tx-ts
+timeout). Harness fix folded in: the la_avdecc counters-probe expected
+the pre-revert ENTITY GET_COUNTERS non-success — now expects
+SUCCESS+empty (built on pw0; the old binary only ever lived on pw1). Tool fixes:
 milan_controller.py ENTITY_DISCOVER cdl 0→56 (a Hive cdl=0 report on
 07-20 13:50 was OUR tool from pw0, not the DUT). Board file transfer:
 boards run dropbear (root@22) — scp via pw0; ProfiShark BPF offsets +28.
