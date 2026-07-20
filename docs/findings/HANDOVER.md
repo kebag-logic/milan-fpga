@@ -1,10 +1,64 @@
 # HANDOVER — machine, topology, live state, tasks
 
-Updated 2026-07-15 (post Milan v1.2 AEM/AECP mandatory-set + ACMP listener
-SM close-out; lwSRP fabric engine landed 07-14 @ `b19287e`).
+Updated 2026-07-20 (all-night CERT conformance campaign + two-entity re-verify
+after the AX manual power-cycle; ACMP-timeout mystery SOLVED = test-tool NIC
+filter, never a DUT bug).
 This is THE entry point for a fresh session or person: everything needed to
 operate the bench, trust the current state, and pick the next task. Detail
 lives in the named normative docs; this file states what is true NOW.
+
+---
+
+## ★ CURRENT STATE 2026-07-20 (read this first) ★
+
+**Keepers.** Arty QSPI = `build_arty_asl_milanfinal31` (WNS +0.139) + the
+full-fix rootfs; boots fully self-configuring, entity **"ARTY"**. AX7101
+SRAM = `asl_milanfinal17` for now; `milanfinal18` (full parity at HEAD)
+building — flash + JTAG when it lands, entity **"ALINX"**. Both entities
+alive, discoverable, Milan-clean on the wire.
+
+**★ THE ACMP-TIMEOUT MYSTERY IS SOLVED — it was NEVER our DUT. ★** The
+session-long "intermittent ACMP CONNECT_RX timeout" against avdecc_l2 was the
+CONTROLLER's raw AF_PACKET socket not joining the AVDECC multicast
+(91:E0:F0:01:00:00): the pw0 NIC's multicast filter dropped the DUT's
+CONNECT_RX_RESPONSE, so avdecc_l2 "timed out" even though the listener had
+responded + settled to 0xE07F EVERY time (the forensics always said so — that
+was the tell). Reliability appeared to "flip" only because whatever other tool
+ran last sometimes left enp6s0 promiscuous. FIX = `PACKET_MR_PROMISC`
+membership in `~/milan-tests-avb-controller/avdecc_l2.py` on pw0 →
+**15/15 connect success**, deterministic. The earlier "response-delivery
+timing/race, masked by controller retry" conclusion (§ lower down) is
+**RETRACTED**. Lesson for the next tool bring-up: a raw-socket AVDECC
+controller MUST add the 91:E0:F0:01:00:00 membership or go promiscuous.
+
+**★ USER-CAUGHT Hive ADPDU crash (protocolAdpdu.cpp:77) FIXED. ★** Hive/
+la_avdecc logged `ControlDataLength minimum 56, only 0 advertised` for
+[68:05:CA:95:B2:D1] — that MAC is **pw0 itself** (the silicon_battery probe),
+not a board. Our ENTITY_DISCOVER built the ADPDU with cdl=0; our fabric was
+lenient so it "worked", but strict receivers (Hive) reject/could-crash. FIXED
+`silicon_battery.py` ENTITY_DISCOVER to cdl=56 + valid_time. Wire re-swept:
+**every ADPDU from every source is now cdl=56 = Hive-safe.** (Board ADP
+advertisements were always cdl=56/correct.)
+
+**CERT Milan endstation conformance (behave cert_recreate + tsn-gen models,
+pw0 ~/cert-run):** essentially the whole plan now passes. es-2.1 (ADP DELAY),
+es-3.1 (model_id), es-4.3 (SET_CONFIG, model-adapted), es-4.4 (STREAM_FORMAT,
+channel-adaptive), es-4.5 (SET_STREAM_INFO unsol), es-4.7/4.8/4.9/4.10/4.12/
+4.13, hive-get-counters, **link-flap** — all green or fixed at HEAD. See the
+per-fix list in the campaign section below.
+
+**Board entity names (USER):** first 8 chars of `entity_name` overlaid from
+CSRs 0x724/0x728 (nonzero = override ROM; SET_NAME still wins). S50milan writes
+**"ARTY"** / **"ALINX"** per `/proc/device-tree/model`.
+
+**Bench-op reminders unchanged:** AX power = powerstrip **OUT0** (the user
+power-cycled it this session to clear a JTAG "TDO stuck at 0" hang — a manual
+reset is the only recovery; do NOT script OUT0 cuts). Switch = OUT4. Every
+openFPGALoader carries `--ftdi-serial` (AX `210512180081 -c ft232`, Arty
+`210319AFEED0 -c digilent`). AX flash = images-only (bitstream slot NEVER);
+`flash-images` loads a JTAG SPI-proxy so JTAG-reload the gateware after.
+
+---
 
 **Project in one paragraph:** a fully-FPGA Milan v1.2 AVB endstation — the
 whole TSN datapath AND the AVDECC control plane (ADP + AECP/AEM + ACMP talker
@@ -661,9 +715,14 @@ the AAF stream at the final mux, while measuring AAF integrity on the arty:
     900M UDP -> apparent audio degradation in-capture; measure after the
     flood or on a clean tap.
 
-**ACMP-TIMEOUT ROOT-CAUSED (07-19 night).** Forensics 0x6E8/0x6B0 across
-an avdecc_l2 timeout: the listener STILL processes the CONNECT_RX every
-time - cmd_count +1, basehit +1, SM 0x8000 -> 0xE07F (SETTLED_RSV_OK),
+**ACMP-TIMEOUT — RETRACTED CONCLUSION (see ★ CURRENT STATE at top).** The
+07-20 solve: avdecc_l2's socket wasn't joined to the AVDECC multicast, so
+pw0's NIC filter dropped the response the DUT DID send (that is exactly why
+the forensics below always showed a clean 0xE07F settle). Fixed in the
+controller (PACKET_MR_PROMISC) → 15/15. The "response-delivery timing/race"
+text that follows is WRONG and kept only for history. --- Forensics 0x6E8/
+0x6B0 across an avdecc_l2 timeout: the listener STILL processes the CONNECT_RX
+every time - cmd_count +1, basehit +1, SM 0x8000 -> 0xE07F (SETTLED_RSV_OK),
 probe emitted. The response IS generated; avdecc_l2 just doesn't receive/
 match it in the timeout cases. RULED OUT: command rejection, tx-grant
 watchdog (tx_wedge stable), format (5.5.1.2 passes). => response-delivery
@@ -770,6 +829,29 @@ ARTY KEEPER = build_arty_asl_milanfinal29 (+0.276) in QSPI + the full-fix
 rootfs (rx_packets linkmon, gm_locked servo, entity_model_id, IFG gasket
 gateware, ADP DELAY, es-4.13, MAAP adopt, kernel shield, clientOnly RT
 ptp4l). All self-configuring from cold boot; discovery 5/5 stable.
+
+**CERT MUST-PASS FIX ROUND (07-20) — per-fix ledger:**
+ - es-4.4 STREAM_FORMAT: 8ch default RESTORED (matches the test) + the RX
+   monitor now CHANNEL-ADAPTS (accepts wire 1..fmt channels; depacketizer was
+   already data_len-driven) so a pure-ACMP 2ch connect still works under the
+   8ch default. rxmon TB +[28] adaptation suite.
+ - es-4.5 SET_STREAM_INFO: added to is_replay_cmd so the SET response replays
+   u=1 to the OTHER controllers (removed the old GET-shaped pres_wr push that
+   double-notified).
+ - hive-get-counters: GET_COUNTERS(ENTITY) -> BAD_ARGUMENTS full-size (Milan
+   defines no ENTITY counters; the 07-11 Hive report was about SIZE, kept).
+ - es-4.3 SET_CONFIGURATION: out-of-range -> NO_SUCH_DESCRIPTOR (1722.1
+   7.4.7.1, was BAD_ARGUMENTS); feature adapted to our single-config model
+   (Milan mandates one current config; 2 configs was the reference DUT option).
+ - link-flap: AVB_INTERFACE GET_COUNTERS UNSOLICITED push on link/GM edges
+   (new pend3 path, Milan 5.4.5) + pend2/pend3 now cleared on DEREGISTER
+   (pend2 dereg-clear was latently missing); behave flap step made pluggable
+   (CERT_FLAP_CMD) + a real PHY-level flap helper (phy_crg_reset via the
+   console) since the arty has no ssh; behave setup stops pipewire via
+   systemctl --user (systemd was auto-restarting it).
+ - Board names: entity_name overlay CSRs 0x724/0x728 -> "ARTY"/"ALINX".
+ - Regression at HEAD: aecp 440, milan_dp 90, rxmon 75, adp 268, lwsrp
+   37/445/96, ifg 4, yosys 27 - all green.
 
 **Open (ranked):** (a) flash milanfinal9 both boards + re-drill (cadence
 125,000 ns, servo converged, la_avdecc 41/41, Milan=1 CLEAN ×2);
