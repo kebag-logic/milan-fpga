@@ -396,6 +396,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        cfg_lpf_enable;
   wire [63:0] cfg_as_parent_ckid;
   wire [63:0] pcm_lpf_tdata;
+  wire        pcm_lpf_tvalid;
+  wire        pcm_lpf_active;
   //! effective PHY link: the SoC's i_link_up (constant 1 on boards without
   //! HW tracking) gated by the daemon-maintained LINK_CTRL[0] - drives the
   //! AVB_INTERFACE LinkUp/LinkDown counters and the ADP link behavior
@@ -1106,7 +1108,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_tdata  (m_axis_pcm_tdata),
     .s_tvalid (m_axis_pcm_tvalid),
     .s_tready (m_axis_pcm_tready),
-    .m_tdata  (pcm_lpf_tdata)
+    .m_tdata  (pcm_lpf_tdata),
+    .m_tvalid (pcm_lpf_tvalid),
+    .active_o (pcm_lpf_active)
   );
 
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
@@ -1114,7 +1118,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
-    .pcm_tdata_i  (pcm_lpf_tdata),
+    .pcm_tdata_i  (m_axis_pcm_tdata),
+    .lpf_tdata_i  (pcm_lpf_tdata),
+    .lpf_tvalid_i (pcm_lpf_tvalid),
+    .lpf_active_i (pcm_lpf_active),
     .pcm_tvalid_i (m_axis_pcm_tvalid),
     .pcm_tready_i (m_axis_pcm_tready),
     .pcm_tlast_i  (m_axis_pcm_tlast),

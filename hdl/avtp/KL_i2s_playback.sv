@@ -66,6 +66,11 @@ module KL_i2s_playback #(
   input  wire         pcm_tvalid_i,
   input  wire         pcm_tready_i,
   input  wire         pcm_tlast_i,
+  //! serial-MAC LPF render source (KL_pcm_lpf): filtered pairs on their
+  //! own valid; active selects them over the raw AXIS tap
+  input  wire [63:0]  lpf_tdata_i,
+  input  wire         lpf_tvalid_i,
+  input  wire         lpf_active_i,
   input  wire [9:0]   chans_i,           //! channels/frame (fmt[31:22]; >=2)
 
   //! --- I2S DAC (Pmod I2S2 line-out) --------------------------------------
@@ -100,10 +105,14 @@ module KL_i2s_playback #(
   wire [8:0]  stride_w   = (chans_i[9:1] == 9'd0) ? 9'd1 : chans_i[9:1];
   logic [8:0] beat_r;
 
-  wire [23:0] smp_l_w = {pcm_tdata_i[7:0],  pcm_tdata_i[15:8],
-                         pcm_tdata_i[23:16]};                  // bytes 0..2
-  wire [23:0] smp_r_w = {pcm_tdata_i[39:32], pcm_tdata_i[47:40],
-                         pcm_tdata_i[55:48]};                  // bytes 4..6
+  //! render source: the serial-MAC LPF publishes filtered pairs on its own
+  //! valid (a few cycles after the AXIS beat); when it is inactive
+  //! (disabled / chans != 2) the raw first-beat-of-frame path is used
+  wire [63:0] eff_tdata_w = lpf_active_i ? lpf_tdata_i : pcm_tdata_i;
+  wire [23:0] smp_l_w = {eff_tdata_w[7:0],  eff_tdata_w[15:8],
+                         eff_tdata_w[23:16]};                  // bytes 0..2
+  wire [23:0] smp_r_w = {eff_tdata_w[39:32], eff_tdata_w[47:40],
+                         eff_tdata_w[55:48]};                  // bytes 4..6
 
   // ------------------------------------------------------------------ //
   // Producer-side sample-pair FIFO (clk_i)                               //
@@ -142,16 +151,16 @@ module KL_i2s_playback #(
         beat_r <= pcm_tlast_i               ? 9'd0
                 : (beat_r == stride_w - 9'd1) ? 9'd0
                 : beat_r + 9'd1;
-        if (beat_r == 9'd0) begin
-          if (!full_w) begin
-            fifo_r[wptr_r[FIFO_LOG2-1:0]] <= {smp_l_w, smp_r_w};
-            wptr_r <= wptr_r + 1'b1;
-          end
-          else begin
-            overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
-            media_reset_p_o <= was_filled_r;   //! rail = media reset event
-            was_filled_r    <= 1'b0;
-          end
+      end
+      if (lpf_active_i ? lpf_tvalid_i : (pcm_acc_w && beat_r == 9'd0)) begin
+        if (!full_w) begin
+          fifo_r[wptr_r[FIFO_LOG2-1:0]] <= {smp_l_w, smp_r_w};
+          wptr_r <= wptr_r + 1'b1;
+        end
+        else begin
+          overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
+          media_reset_p_o <= was_filled_r;   //! rail = media reset event
+          was_filled_r    <= 1'b0;
         end
       end
       if (!empty_w) was_filled_r <= 1'b1;
