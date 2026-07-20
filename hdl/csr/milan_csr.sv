@@ -210,7 +210,13 @@ module milan_csr #(
   output wire                    o_sw_link,           //! LINK_CTRL[0]: daemon-tracked PHY link
   output wire                    o_mac_reinit,        //! LINK_CTRL[1]: MAC sys-side reset (recovery daemon)
   output wire [63:0]             o_entity_name8,      //! ENT_NAME chars 0-7 (board name overlay)
-  output wire                    o_lpf_enable,        //! LPF_CTRL[0]: playback biquad
+  output wire                    o_lpf_enable,
+  output wire                    o_crf_en,            //! CRF sink enable (0x738)
+  output wire [63:0]             o_crf_sid,           //! CRF stream_id (0x73C/0x740)
+  input  wire [31:0]             i_crf_delta,         //! RO 0x744
+  input  wire [31:0]             i_crf_rate,          //! RO 0x748
+  input  wire [31:0]             i_crf_status,        //! RO 0x74C {pdu16,fmt8,seq8}
+  input  wire                    i_crf_locked,        //! RO in 0x738 bit 31,        //! LPF_CTRL[0]: playback biquad
   output wire [63:0]             o_as_parent_ckid,    //! AS2: 802.1AS parent bridge ckid
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -300,6 +306,12 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_LPF_CTRL   = 'h72C;  //! [0] playback biquad LPF enable (default 1)
   localparam [ADDR_WIDTH-1:0] A_AS2_LO     = 'h730;  //! 802.1AS parent bridge ckid [31:0]
   localparam [ADDR_WIDTH-1:0] A_AS2_HI     = 'h734;  //! ...[63:32] (0 = none/unknown)
+  localparam [ADDR_WIDTH-1:0] A_CRF_CTRL   = 'h738;  //! [0] CRF sink en; RO [31] locked
+  localparam [ADDR_WIDTH-1:0] A_CRF_SIDLO  = 'h73C;  //! CRF stream_id [31:0]
+  localparam [ADDR_WIDTH-1:0] A_CRF_SIDHI  = 'h740;  //! CRF stream_id [63:32]
+  localparam [ADDR_WIDTH-1:0] A_CRF_DELTA  = 'h744;  //! RO signed crf_ts - ptp_now
+  localparam [ADDR_WIDTH-1:0] A_CRF_RATE   = 'h748;  //! RO signed ns err / 512 ms
+  localparam [ADDR_WIDTH-1:0] A_CRF_STATUS = 'h74C;  //! RO {pdu16, fmt_err8, seq_err8}
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -403,6 +415,7 @@ module milan_csr #(
   logic [31:0] link_ctrl;               //! LINK_CTRL: [0] sw_link
   logic [31:0] ent_name_lo, ent_name_hi; //! board-name overlay chars
   logic [31:0] lpf_ctrl;                 //! LPF_CTRL
+  logic [31:0] crf_ctrl, crf_sidlo, crf_sidhi;   //! CRF sink CSRs
   logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
@@ -489,6 +502,9 @@ module milan_csr #(
       link_ctrl  <= 32'h0000_0001;      //! link assumed UP until a daemon says otherwise
       ent_name_lo <= 32'h0; ent_name_hi <= 32'h0;
       lpf_ctrl    <= 32'h1;             //! LPF on by default
+      crf_ctrl    <= 32'h0;
+      crf_sidlo   <= 32'h0;
+      crf_sidhi   <= 32'h0;
       as2_lo <= 32'h0; as2_hi <= 32'h0;
       tone_ctrl  <= 32'h0;
       gptp_pdelay <= 32'h0;
@@ -566,6 +582,9 @@ module milan_csr #(
           A_ENT_NAME_LO: ent_name_lo <= s_axi_wdata;
           A_ENT_NAME_HI: ent_name_hi <= s_axi_wdata;
           A_LPF_CTRL:   lpf_ctrl <= s_axi_wdata;
+          A_CRF_CTRL:   crf_ctrl  <= s_axi_wdata;
+          A_CRF_SIDLO:  crf_sidlo <= s_axi_wdata;
+          A_CRF_SIDHI:  crf_sidhi <= s_axi_wdata;
           A_AS2_LO:     as2_lo   <= s_axi_wdata;
           A_AS2_HI:     as2_hi   <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
@@ -704,7 +723,8 @@ module milan_csr #(
       A_LWSRP_TSPEC, A_LWSRP_LAT,
       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
       A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL,
-      A_ENT_NAME_LO, A_ENT_NAME_HI, A_LPF_CTRL, A_AS2_LO, A_AS2_HI:
+      A_ENT_NAME_LO, A_ENT_NAME_HI, A_LPF_CTRL, A_AS2_LO, A_AS2_HI,
+      A_CRF_SIDLO, A_CRF_SIDHI:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -800,6 +820,10 @@ module milan_csr #(
       A_ACMPL_DBG:  live_mux = i_acmpl_dbg;
       A_AVTPRX_TSD: live_mux = i_avtprx_tsd;
       A_RST_EPOCH:  live_mux = {24'd0, rst_epoch_r};
+      A_CRF_CTRL:   live_mux = {i_crf_locked, 30'd0, crf_ctrl[0]};
+      A_CRF_DELTA:  live_mux = i_crf_delta;
+      A_CRF_RATE:   live_mux = i_crf_rate;
+      A_CRF_STATUS: live_mux = i_crf_status;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
@@ -888,6 +912,8 @@ module milan_csr #(
                                ent_name_hi[7:0],  ent_name_hi[15:8],
                                ent_name_hi[23:16], ent_name_hi[31:24]};
   assign o_lpf_enable       = lpf_ctrl[0];
+  assign o_crf_en           = crf_ctrl[0];
+  assign o_crf_sid          = {crf_sidhi, crf_sidlo};
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
   assign o_sw_link          = link_ctrl[0];
   assign o_mac_reinit       = link_ctrl[1];

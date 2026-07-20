@@ -336,6 +336,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
   wire        avtprx_match, avtprx_tu_bit;
   wire [7:0]  avtprx_subtype, avtprx_seq;
+  wire        avtprx_parse_p;
+  wire [7:0]  avtprx_b3;
+  wire [63:0] avtprx_sid_frame, avtprx_fsh2;
+  wire signed [31:0] crf_delta_w, crf_rate_w;
+  wire [15:0] crf_pducnt_w;
+  wire [7:0]  crf_fmterr_w, crf_seqerr_w;
+  wire        crf_locked_w;
+  wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w;
   wire [63:0] avtprx_fsh;
   wire [63:0] aecp_in0_fmt;
   wire [15:0] aecp_clk_src;
@@ -394,6 +402,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        cfg_sw_link, cfg_mac_reinit;
   wire [63:0] cfg_entity_name8;
   wire        cfg_lpf_enable;
+  wire        cfg_crf_en;
+  wire [63:0] cfg_crf_sid;
   wire [63:0] cfg_as_parent_ckid;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
@@ -604,6 +614,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_mac_reinit       (cfg_mac_reinit),
     .o_entity_name8     (cfg_entity_name8),
     .o_lpf_enable       (cfg_lpf_enable),
+    .o_crf_en           (cfg_crf_en),
+    .o_crf_sid          (cfg_crf_sid),
+    .i_crf_delta        (crf_delta_w),
+    .i_crf_rate         (crf_rate_w),
+    .i_crf_status       ({crf_pducnt_w, crf_fmterr_w, crf_seqerr_w}),
+    .i_crf_locked       (crf_locked_w),
     .o_as_parent_ckid   (cfg_as_parent_ckid),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -907,8 +923,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .tk_fail_code_i     (lwsrp_tfail_code),
     .tk_fail_bridge_i   (lwsrp_tfail_bridge),
     .srp_domain_vid_i   (cfg_lwsrp_vid),
-    .in0_cnt_locked_i      (avtprx_locked_c),
-    .in0_cnt_unlocked_i    (avtprx_unlocked_c),
+    //! CLOCK_DOMAIN lock events follow the ACTIVE clock source: index 2 =
+    //! the CRF input engine, else the AAF media-lock monitor (Milan 5.4.4)
+    .in0_cnt_locked_i      ((aecp_clk_src == 16'd2) ? crf_cnt_locked_w
+                                                    : avtprx_locked_c),
+    .in0_cnt_unlocked_i    ((aecp_clk_src == 16'd2) ? crf_cnt_unlocked_w
+                                                    : avtprx_unlocked_c),
     .in0_cnt_interrupted_i (avtprx_intr_c),
     .in0_cnt_seqmm_i       (avtprx_seqmm_c),
     .in0_cnt_tu_i          (avtprx_tu_c),
@@ -1024,15 +1044,48 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
     .match_valid_o (avtprx_match),
     .match_index_o (),
-    .stream_id_o   (),
+    .stream_id_o   (avtprx_sid_frame),
     .avtp_ts_o     (avtprx_ts),
     .subtype_o     (avtprx_subtype),
     .ts_valid_o    (),
     .seq_num_o     (avtprx_seq),
     .ts_uncertain_o(avtprx_tu_bit),
     .fsh_o         (avtprx_fsh),
+    .fsh2_o        (avtprx_fsh2),
+    .parse_valid_o (avtprx_parse_p),
+    .b3_o          (avtprx_b3),
     .avtp_frames_o (),
     .matched_frames_o ()
+  );
+
+  // ==========================================================================
+  //  CRF Media Clock Input engine (Milan 7.3.2) - measurement half: parses
+  //  and validates the Avnu Pro Audio CRF stream selected by the CRF CSRs,
+  //  produces the phase/frequency error the media-clock servo consumes and
+  //  the CLOCK_DOMAIN lock events for clock_source = CRF. The ACMP sink-1
+  //  bind chain is the remaining CRF work (MILAN_COMPLIANCE_GAPS.md).
+  // ==========================================================================
+  KL_crf_rx #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) crf_rx (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .frame_p_i   (avtprx_parse_p),
+    .subtype_i   (avtprx_subtype),
+    .seq_i       (avtprx_seq),
+    .sid_frame_i (avtprx_sid_frame),
+    .pullbase_i  (avtprx_ts),
+    .fsh_i       (avtprx_fsh),
+    .fsh2_i      (avtprx_fsh2),
+    .type_i      (avtprx_b3),
+    .ptp_now_i   (ptp_now_w),
+    .en_i        (cfg_crf_en),
+    .sid_i       (cfg_crf_sid),
+    .delta_o     (crf_delta_w),
+    .rate_o      (crf_rate_w),
+    .pdu_count_o (crf_pducnt_w),
+    .fmt_err_o   (crf_fmterr_w),
+    .seq_err_o   (crf_seqerr_w),
+    .locked_o    (crf_locked_w),
+    .cnt_locked_o   (crf_cnt_locked_w),
+    .cnt_unlocked_o (crf_cnt_unlocked_w)
   );
 
   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) avtp_rx_monitor (
