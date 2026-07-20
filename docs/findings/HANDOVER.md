@@ -1,5 +1,9 @@
 # HANDOVER — machine, topology, live state, tasks
 
+> **Fresh session? Read `BENCH_TOPOLOGY.md` (same directory) FIRST** —
+> it is the where-is-what: machines, consoles, build/flash pipeline,
+> pw0 tooling, CERT-suite privacy rules, and the at-handover state.
+
 Updated 2026-07-20 (all-night CERT conformance campaign + two-entity re-verify
 after the AX manual power-cycle; ACMP-timeout mystery SOLVED = test-tool NIC
 filter, never a DUT bug).
