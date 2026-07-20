@@ -1,35 +1,43 @@
 /*
  * SPDX-FileCopyrightText: 2026 Kebag Logic
+ *
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
+
 //---------------------------------------------------------------------------//
-//  File        : KL_pcm_lpf.sv
-//  Project     : Milan AVTP
-//
-//  Description : 2nd-order IIR (biquad) Butterworth low-pass on the PCM
-//                playback tap - the last digital stage before the DAC, i.e.
-//                the signal the loop ADC receives. Band-limits the render
-//                (out-of-band hash, zero-order-hold images) to raise the
-//                analog output quality; the DMA-ring/AVB copies of the
-//                stream stay bit-true (only the DAC tap is filtered).
-//
-//                fc = 20 kHz @ fs = 48 kHz, Q = 1/sqrt(2) (Butterworth),
-//                bilinear transform; Q2.14 coefficients chosen so the DC
-//                gain is EXACTLY 1.0 after rounding:
-//                  b = {11294, 22587, 11294}, a = {20966, 7825}
-//                  sum(b) = 45175 = 16384 + sum(a)  ->  unity DC.
-//
-//                Direct Form I per channel, s24 audio, 44-bit accumulator,
-//                round-half-up at >>14, saturate to s24. The filtered beat
-//                is produced COMBINATIONALLY from the current input beat +
-//                registered history (zero added latency); state advances on
-//                each accepted beat.
-//
-//                Beats are the depacketizer's 64-bit words: two S32BE
-//                samples (L then R in wire byte order, audio in the top 24
-//                bits). The filter engages only for 2-channel formats
-//                (chans_i == 2) AND enable_i (LPF_CTRL[0]); anything else
-//                passes through untouched.
+/*
+------------------------------------------------------------------------------
+  File        : KL_pcm_lpf.sv
+  Description : 2nd-order IIR low-pass (Butterworth fc 20 kHz @ fs 48 kHz)
+                on the DAC render tap - band-limits the analog output that
+                the signal the loop ADC receives. Serial-MAC engine: ONE
+                shared signed 17x24 multiplier sequenced over the 10 biquad
+                terms (5 per channel), so the logic cone fits the 100 MHz
+                AX datapath clock (the v1 fully-combinational cone was
+                WNS -4.7 there; 2022 failing endpoints). Latency ~12 clk
+                cycles per stereo pair - absorbed by the playback FIFO,
+                inaudible (0.12 us @100 MHz vs the 20.8 us sample period).
+
+                Passive AXIS tap: captures the (tdata, tvalid&tready) beats
+                of the 2ch PCM stream into a small burst FIFO (AAF PDUs
+                deliver 6 back-to-back beats every 125 us; drain ~72 cycles),
+                emits filtered pairs on m_tvalid. active_o tells the
+                consumer (KL_i2s_playback) to capture on m_tvalid/m_tdata
+                instead of the raw AXIS handshake; when inactive (disabled
+                or chans != 2) the raw path is used and this engine only
+                keeps its history primed so an enable edge does not thump.
+
+                Coefficients Q2.14, exact unity DC after rounding:
+                b = {11294, 22587, 11294}, a = {16384, 20966, 7825}.
+                Direct Form I, s24 audio, 44-bit accumulator, round half
+                up (>>14), saturate to s24.
+
+  Spec refs   : audio quality item (user 2026-07-20); AAF S32BE lane
+                layout per KL_aaf_rx_depacketizer / KL_i2s_playback
+  Company     : Kebag Logic
+  Project     : Milan AVB endstation
+------------------------------------------------------------------------------
+*/
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -37,20 +45,19 @@
 module KL_pcm_lpf (
     input  wire        clk_i,
     input  wire        rst_n,
-
-    input  wire        enable_i,        //! LPF_CTRL[0] (CSR; default on)
-    input  wire [9:0]  chans_i,         //! channels/frame (filter iff == 2)
-
-    //! PCM tap in (observer side of the m_axis_pcm stream)
+    input  wire        enable_i,        //! LPF_CTRL[0]
+    input  wire [9:0]  chans_i,         //! bound stream channels (2 = engage)
+    //! passive tap on the depacketized PCM AXIS stream
     input  wire [63:0] s_tdata,
     input  wire        s_tvalid,
     input  wire        s_tready,        //! the DMA consumer's ready (observed)
-
-    //! filtered tdata for the playback tap (same-cycle)
-    output wire [63:0] m_tdata
+    //! filtered pair stream (consumer captures on m_tvalid when active_o)
+    output logic [63:0] m_tdata,
+    output logic        m_tvalid,
+    output wire         active_o
 );
 
-  //! Q2.14 Butterworth coefficients (fc 20 kHz / fs 48 kHz)
+  //! Q2.14 Butterworth fc=20k fs=48k; b0+b1+b2 == 16384+a1+a2 (DC unity)
   localparam logic signed [16:0] B0_C = 17'sd11294;
   localparam logic signed [16:0] B1_C = 17'sd22587;
   localparam logic signed [16:0] B2_C = 17'sd11294;
@@ -58,57 +65,126 @@ module KL_pcm_lpf (
   localparam logic signed [16:0] A2_C = 17'sd7825;
 
   wire beat_acc = s_tvalid & s_tready;
-  wire active   = enable_i && (chans_i == 10'd2);
+  assign active_o = enable_i && (chans_i == 10'd2);
 
   //! S32BE unpack: wire byte 0 = lane 0 = sample MSB; audio = top 24 bits
-  wire signed [23:0] xl = {s_tdata[7:0],   s_tdata[15:8],  s_tdata[23:16]};
-  wire signed [23:0] xr = {s_tdata[39:32], s_tdata[47:40], s_tdata[55:48]};
+  wire signed [23:0] xl_in = {s_tdata[7:0],   s_tdata[15:8],  s_tdata[23:16]};
+  wire signed [23:0] xr_in = {s_tdata[39:32], s_tdata[47:40], s_tdata[55:48]};
 
-  //! per-channel Direct Form I state
+  // ---- burst FIFO (8 deep: a 6-beat PDU burst fits with margin) ---------
+  logic [47:0] bfifo_r [0:7];
+  logic [2:0]  bwr_r, brd_r;
+  logic [3:0]  bcnt_r;
+  wire         bpop_w;
+
+  // ---- per-channel Direct Form I state ----------------------------------
   logic signed [23:0] xl1_r, xl2_r, yl1_r, yl2_r;
   logic signed [23:0] xr1_r, xr2_r, yr1_r, yr2_r;
 
-  function automatic logic signed [23:0] biquad(
-      input logic signed [23:0] x,
-      input logic signed [23:0] x1, input logic signed [23:0] x2,
-      input logic signed [23:0] y1, input logic signed [23:0] y2);
-    logic signed [43:0] acc;
-    logic signed [29:0] shifted;
+  // ---- serial MAC -------------------------------------------------------
+  //! step 0..4 = L terms (b0*x, b1*x1, b2*x2, -a1*y1, -a2*y2),
+  //! step 5..9 = R terms; one product added to the accumulator per cycle.
+  logic [3:0]         step_r;
+  logic               busy_r;
+  logic signed [23:0] curl_r, curr_r;      //! popped input pair
+  logic signed [43:0] acc_r;
+  logic signed [23:0] yl_hold_r;
+
+  wire signed [16:0] coef_w = (step_r == 4'd0 || step_r == 4'd5) ? B0_C
+                            : (step_r == 4'd1 || step_r == 4'd6) ? B1_C
+                            : (step_r == 4'd2 || step_r == 4'd7) ? B2_C
+                            : (step_r == 4'd3 || step_r == 4'd8) ? A1_C
+                            :                                      A2_C;
+  wire signed [23:0] oper_w = (step_r == 4'd0) ? curl_r
+                            : (step_r == 4'd1) ? xl1_r
+                            : (step_r == 4'd2) ? xl2_r
+                            : (step_r == 4'd3) ? yl1_r
+                            : (step_r == 4'd4) ? yl2_r
+                            : (step_r == 4'd5) ? curr_r
+                            : (step_r == 4'd6) ? xr1_r
+                            : (step_r == 4'd7) ? xr2_r
+                            : (step_r == 4'd8) ? yr1_r
+                            :                    yr2_r;
+  wire               sub_w  = (step_r == 4'd3) || (step_r == 4'd4)
+                           || (step_r == 4'd8) || (step_r == 4'd9);
+  wire signed [40:0] prod_w = coef_w * oper_w;
+
+  //! round half up then saturate to s24
+  function automatic logic signed [23:0] sat24(input logic signed [43:0] a);
+    logic signed [29:0] sh;
     begin
-      acc = B0_C * x + B1_C * x1 + B2_C * x2
-          - A1_C * y1 - A2_C * y2;
-      shifted = 30'(acc >>> 14) + 30'((acc[13]) ? 1 : 0); // round half up
-      if      (shifted >  30'sd8388607)  biquad = 24'sd8388607;
-      else if (shifted < -30'sd8388608)  biquad = -24'sd8388608;
-      else                               biquad = 24'(shifted);
+      sh = 30'(a >>> 14) + 30'(a[13] ? 1 : 0);
+      if      (sh >  30'sd8388607)  sat24 = 24'sd8388607;
+      else if (sh < -30'sd8388608)  sat24 = -24'sd8388608;
+      else                          sat24 = 24'(sh);
     end
   endfunction
 
-  wire signed [23:0] yl = biquad(xl, xl1_r, xl2_r, yl1_r, yl2_r);
-  wire signed [23:0] yr = biquad(xr, xr1_r, xr2_r, yr1_r, yr2_r);
+  wire signed [23:0] yfin_w = sat24(acc_r);        //! current-channel result
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : state
+  wire ch_l_done_w = busy_r && (step_r == 4'd5);   //! acc holds the L sum
+  wire pair_done_w = busy_r && (step_r == 4'd10);
+
+  assign bpop_w = !busy_r && (bcnt_r != 4'd0);
+
+  always_ff @(posedge clk_i or negedge rst_n) begin : engine
     if (!rst_n) begin
+      bwr_r <= '0; brd_r <= '0; bcnt_r <= '0;
+      step_r <= '0; busy_r <= 1'b0;
+      curl_r <= '0; curr_r <= '0; acc_r <= '0; yl_hold_r <= '0;
       xl1_r <= '0; xl2_r <= '0; yl1_r <= '0; yl2_r <= '0;
       xr1_r <= '0; xr2_r <= '0; yr1_r <= '0; yr2_r <= '0;
-    end else if (!active) begin
-      //! bypass keeps history primed with the live signal so an enable
-      //! transition does not thump
+      m_tdata <= '0; m_tvalid <= 1'b0;
+    end else begin
+      m_tvalid <= 1'b0;
+
+      //! ingest beats (active mode only queues; bypass primes history
+      //! directly so an enable transition does not thump)
       if (beat_acc) begin
-        xl1_r <= xl; xl2_r <= xl1_r; yl1_r <= xl; yl2_r <= yl1_r;
-        xr1_r <= xr; xr2_r <= xr1_r; yr1_r <= xr; yr2_r <= yr1_r;
+        if (active_o) begin
+          if (bcnt_r != 4'd8) begin
+            bfifo_r[bwr_r] <= {xr_in, xl_in};
+            bwr_r  <= bwr_r + 3'd1;
+            bcnt_r <= bcnt_r + 4'd1 - (bpop_w ? 4'd1 : 4'd0);
+          end
+        end else begin
+          xl1_r <= xl_in; xl2_r <= xl1_r; yl1_r <= xl_in; yl2_r <= yl1_r;
+          xr1_r <= xr_in; xr2_r <= xr1_r; yr1_r <= xr_in; yr2_r <= yr1_r;
+        end
+      end else if (bpop_w) begin
+        bcnt_r <= bcnt_r - 4'd1;
       end
-    end else if (beat_acc) begin
-      xl1_r <= xl; xl2_r <= xl1_r; yl1_r <= yl; yl2_r <= yl1_r;
-      xr1_r <= xr; xr2_r <= xr1_r; yr1_r <= yr; yr2_r <= yr1_r;
+
+      //! pop -> MAC sequence
+      if (bpop_w) begin
+        {curr_r, curl_r} <= bfifo_r[brd_r];
+        brd_r  <= brd_r + 3'd1;
+        busy_r <= 1'b1;
+        step_r <= 4'd0;
+        acc_r  <= '0;
+      end else if (busy_r) begin
+        if (ch_l_done_w) begin
+          yl_hold_r <= yfin_w;
+          acc_r     <= 44'(sub_w ? -prod_w : prod_w);
+          step_r    <= step_r + 4'd1;
+        end else if (pair_done_w) begin
+          //! both channels done: publish + advance history
+          m_tdata  <= { 8'h00, yfin_w[7:0], yfin_w[15:8], yfin_w[23:16],
+                        8'h00, yl_hold_r[7:0], yl_hold_r[15:8],
+                        yl_hold_r[23:16] };
+          m_tvalid <= 1'b1;
+          xl1_r <= curl_r; xl2_r <= xl1_r;
+          yl1_r <= yl_hold_r; yl2_r <= yl1_r;
+          xr1_r <= curr_r; xr2_r <= xr1_r;
+          yr1_r <= yfin_w; yr2_r <= yr1_r;
+          busy_r <= 1'b0;
+        end else begin
+          acc_r  <= acc_r + 44'(sub_w ? -prod_w : prod_w);
+          step_r <= step_r + 4'd1;
+        end
+      end
     end
-  end : state
-
-  //! repack (audio in the top 24 bits of each S32BE sample; low byte 0)
-  wire [63:0] filt = { 8'h00, yr[7:0], yr[15:8], yr[23:16],
-                       8'h00, yl[7:0], yl[15:8], yl[23:16] };
-
-  assign m_tdata = active ? filt : s_tdata;
+  end : engine
 
 endmodule
 
