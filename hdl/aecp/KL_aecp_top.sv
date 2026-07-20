@@ -170,7 +170,9 @@ module KL_aecp_top #(
   // ---- ingress: RX monitor -> big-lane replay -----------------------
   logic [47:0] req_src_mac_w;
   logic        req_valid_w, req_pop_w;
-  KL_aecp_ingress u_ingress (
+  //! 1024 B: a full-size 7.4.76 batch AECPDU (up to ~520 B on the wire)
+  //! must fit even while the builder drains a previous response
+  KL_aecp_ingress #(.FIFO_DEPTH_BYTES(1024)) u_ingress (
     .clk_i(clk_i), .rst_n(rst_n), .enable_i(enable_i),
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
     .rx_tvalid_i(rx_tvalid_i), .rx_tdata_i(rx_tdata_i),

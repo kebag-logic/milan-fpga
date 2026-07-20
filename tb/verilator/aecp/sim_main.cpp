@@ -1258,31 +1258,110 @@ int main(int argc, char** argv) {
                          gc_pl(0x0005, 0)));
         r = collect_resp();
         ck("[21f] GET_MTT(STREAM_INPUT) NO_SUCH_DESCRIPTOR", r_status(r), 2);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2109,
-                         gc_pl(0x0000, 0)));
-        r = collect_resp();
-        ck("[21g] GET_DYNAMIC_INFO SUCCESS", r_status(r), 0);
-        ck("[21g] CDL 124", r_cdl(r), 124);
-        ck("[21g] config_index echo 0", be32_at(r, 38), 0);
-        ck("[21g] ENTITY record hdr", be32_at(r, 42), 0);
-        ck("[21g] AUDIO_UNIT hdr", be32_at(r, 50), 0x00020000);
-        ck("[21g] sampling rate 48k", be32_at(r, 54), 48000);
-        ck("[21g] IN0 hdr", be32_at(r, 58), 0x00050000);
-        ck("[21g] IN0 stream_id 0", be32_at(r, 62) | be32_at(r, 66), 0);
-        ck("[21g] IN0 format hi", be32_at(r, 70), 0x02050220);
-        ck("[21g] IN0 format lo (8ch default, adaptive monitor)", be32_at(r, 74), 0x02006000);
-        ck("[21g] IN0 flags FORMAT_VALID", be32_at(r, 78), 0x80000000);
-        ck("[21g] IN0 tail zero", be32_at(r, 82), 0);
-        ck("[21g] IN1 hdr (idx 1)", be32_at(r, 86), 0x00050001);
-        ck("[21g] OUT hdr", be32_at(r, 114), 0x00060000);
-        ck("[21g] OUT format hi", be32_at(r, 126), 0x02050220);
-        ck("[21g] frame length 150", (long)r.size(), 150);
-        ck("[21g] CLOCK_DOMAIN hdr", be32_at(r, 142), 0x00240000);
-        // bad configuration index rejected
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210A,
-                         gc_pl(0x0001, 0)));
-        r = collect_resp();
-        ck("[21g] cfg 1 NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        // ---- [21g] GET_DYNAMIC_INFO: 1722.1-2021 7.4.76 BATCH shape ----
+        // record = {len u16, rsvd u16, status u8, rsvd u8, cmd u16, data};
+        // each is processed as an independent fixed-size GET. Every record's
+        // payload is cross-checked BYTE-EXACT against the classic response.
+        {
+            // classic references first
+            auto classic = [&](uint16_t cmd, std::vector<uint8_t> pl) {
+                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0,
+                                 cmd, 0x2180 + cmd, pl));
+                auto rr = collect_resp();
+                return std::vector<uint8_t>(rr.begin() + 38, rr.begin() + 38 + (r_cdl(rr) - 12));
+            };
+            auto gs4 = [](uint16_t t, uint16_t i) {
+                std::vector<uint8_t> v; put_be16(v, t); put_be16(v, i); return v; };
+            auto ref_cfg  = classic(7,  {});
+            auto ref_sfmt = classic(9,  gs4(0x0006, 0));
+            auto ref_name = classic(17, [&]{ auto v = gs4(0x0000, 0);
+                                             put_be16(v, 0); put_be16(v, 0); return v; }());
+            auto ref_srate= classic(21, gs4(0x0002, 0));
+            auto ref_csrc = classic(23, gs4(0x0024, 0));
+            auto ref_cntr = classic(41, gs4(0x0009, 0));
+
+            // the batch: 6 implemented GETs + 1 legal-unimplemented
+            std::vector<uint8_t> bp;
+            auto rec = [&](uint16_t cmd, const std::vector<uint8_t>& data) {
+                put_be16(bp, (uint16_t)data.size()); put_be16(bp, 0);
+                bp.push_back(0); bp.push_back(0); put_be16(bp, cmd);
+                bp.insert(bp.end(), data.begin(), data.end());
+            };
+            rec(7,  {});
+            rec(9,  gs4(0x0006, 0));
+            rec(17, [&]{ auto v = gs4(0x0000, 0); put_be16(v, 0); put_be16(v, 0); return v; }());
+            rec(21, gs4(0x0002, 0));
+            rec(23, gs4(0x0024, 0));
+            rec(41, gs4(0x0009, 0));
+            rec(19, gs4(0x0000, 0));   // GET_ASSOCIATION_ID: legal, unimplemented
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2109, bp));
+            r = collect_resp();
+            ck("[21g] batch SUCCESS", r_status(r), 0);
+            size_t exp_pay = 8+ref_cfg.size() + 8+ref_sfmt.size() + 8+ref_name.size()
+                           + 8+ref_srate.size() + 8+ref_csrc.size() + 8+ref_cntr.size()
+                           + 8+4;
+            ck("[21g] batch CDL = 12 + sum(records)", r_cdl(r), (long)(12 + exp_pay));
+            // walk the records
+            size_t off = 38;
+            auto check_rec = [&](const char* nm, uint16_t cmd, int status,
+                                 const std::vector<uint8_t>& data) {
+                long len = ((long)r[off] << 8) | r[off+1];
+                ck((std::string("[21g] ") + nm + " len").c_str(), len, (long)data.size());
+                ck((std::string("[21g] ") + nm + " status").c_str(), r[off+4], status);
+                long c2 = (((long)r[off+6] & 0x7F) << 8) | r[off+7];
+                ck((std::string("[21g] ") + nm + " cmd echo").c_str(), c2, cmd);
+                ck((std::string("[21g] ") + nm + " data==classic").c_str(),
+                   memcmp(&r[off+8], data.data(), data.size()) == 0, 1);
+                off += 8 + data.size();
+            };
+            check_rec("GET_CONFIGURATION", 7,  0, ref_cfg);
+            check_rec("GET_STREAM_FORMAT", 9,  0, ref_sfmt);
+            check_rec("GET_NAME",          17, 0, ref_name);
+            check_rec("GET_SAMPLING_RATE", 21, 0, ref_srate);
+            check_rec("GET_CLOCK_SOURCE",  23, 0, ref_csrc);
+            check_rec("GET_COUNTERS",      41, 0, ref_cntr);
+            check_rec("GET_ASSOCIATION_ID(unimpl NOT_SUPPORTED echo)", 19, 11,
+                      gs4(0x0000, 0));
+            ck("[21g] all records consumed exactly", (long)off, (long)(38 + exp_pay));
+
+            // illegal type inside a batch (SET_NAME) -> whole-cmd BAD_ARGUMENTS
+            std::vector<uint8_t> bad;
+            { std::vector<uint8_t> t; put_be16(bad, 0); put_be16(bad, 0);
+              bad.push_back(0); bad.push_back(0); put_be16(bad, 16); }
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210A, bad));
+            r = collect_resp();
+            ck("[21g] non-fixed-size type -> BAD_ARGUMENTS", r_status(r), 7);
+            ck("[21g] BAD_ARGUMENTS echoes the request", 
+               memcmp(&r[38], bad.data(), bad.size()) == 0, 1);
+
+            // empty batch -> SUCCESS, empty record array
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210B, {}));
+            r = collect_resp();
+            ck("[21g] empty batch SUCCESS", r_status(r), 0);
+            ck("[21g] empty batch CDL 12", r_cdl(r), 12);
+
+            // big batch: 24x GET_SAMPLING_RATE (payload 384B > the old 128B
+            // capture) -> every record answered
+            std::vector<uint8_t> big;
+            { std::vector<uint8_t> save; bp.swap(save); bp.swap(big); }
+            big.clear();
+            { std::vector<uint8_t>& bp2 = big;
+              for (int k = 0; k < 24; k++) {
+                put_be16(bp2, 4); put_be16(bp2, 0);
+                bp2.push_back(0); bp2.push_back(0); put_be16(bp2, 21);
+                put_be16(bp2, 0x0002); put_be16(bp2, 0);
+              } }
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210C, big));
+            r = collect_resp(20000);
+            ck("[21g] 24-record batch SUCCESS", r_status(r), 0);
+            ck("[21g] 24-record batch CDL", r_cdl(r), 12 + 24*(8+8));
+            bool all_ok = true;
+            for (int k = 0; k < 24; k++) {
+                size_t o = 38 + (size_t)k*16;
+                if (r[o+4] != 0 || memcmp(&r[o+8], ref_srate.data(), 8) != 0) all_ok = false;
+            }
+            ck("[21g] all 24 records == classic GET_SAMPLING_RATE", all_ok, 1);
+        }
     }
 
     // ---------------------------------------------------------------- //

@@ -8,15 +8,24 @@ and is not repeated here.
 
 ## 1. AECP / AEM
 
-- **GET_DYNAMIC_INFO (0x4B) is partial.** The aggregate responds SUCCESS
-  and carries the core records, but the full Milan v1.2 record set does
-  not fit the current response-builder segment array ("segment-array
-  growth" — known since milanfull2). Milan lists 0x4B as SHOULD, so this
-  is a completeness gap, not a hard fail.
-- **Dynamic audio maps missing.** GET_AUDIO_MAP works (static map);
-  ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS are not implemented, so the
-  audio map is fixed at the ROM default. Needed for a controller to
-  re-route channels (es-4.16 of the full plan).
+- **GET_DYNAMIC_INFO (0x4B) is NON-CONFORMANT (upgraded from
+  "partial" after reading 1722.1-2021 7.4.76, 2026-07-20):** the spec
+  defines 0x4B as a BATCH command - the controller packs an array of
+  fixed-size GET sub-commands (8-byte record header: len u16, rsvd u16,
+  status u8, rsvd u8, command_type u16, then the command's payload) and
+  the entity processes each as an independent command. Our response is
+  a fixed 116-byte aggregate modeled on the pipewire reference that
+  IGNORES the request records - a parsing controller (la_avdecc
+  getDynamicInfo) would read garbage. Milan 5.4.2.29 makes 7.4.76
+  SHALL. Fix in progress: batch engine in the response builder.
+- ~~Dynamic audio maps~~ **RESOLVED AS COMPLIANT (2026-07-20 spec
+  read):** Milan v1.2 5.4.2.27/28 requires ADD/REMOVE_AUDIO_MAPPINGS
+  only for stream ports **that have no Audio Map descriptor**, and
+  REMOVE on a port WITH Audio Maps SHALL return NOT_SUPPORTED. Our
+  ports carry static AUDIO_MAP descriptors, and the entity answers
+  NOT_SUPPORTED - exactly the specified behavior for this topology.
+  Dynamic maps only become mandatory if the static maps are dropped
+  (which the future 8ch/dynamic-routing work would do).
 - **No-change SET suppression covers only SET_STREAM_INFO and
   SET_CONFIGURATION** (`nochg_q`). A same-value SET_NAME /
   SET_SAMPLING_RATE / SET_CLOCK_SOURCE still replays u=1. Same 1722.1

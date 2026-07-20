@@ -171,11 +171,11 @@ module KL_aecp_response_builder (
   // cones read registers, and only the echo-emit and store-write-back    //
   // paths read the RAM (two async ports).                                //
   // ------------------------------------------------------------------ //
-  localparam int unsigned BUF_BYTES_C = 128;
+  localparam int unsigned BUF_BYTES_C = 512;   //! grown for 7.4.76 batches
 
-  logic [63:0] cbuf_r [0:15];              //! big-lane capture words (RAM)
+  logic [63:0] cbuf_r [0:63];              //! big-lane capture words (RAM)
   logic [63:0] cw0_r, cw1_r, cw3_r;        //! decode captures: bytes 0-15, 24-31
-  logic [4:0]  beat_r;                     //! frame beat counter (sat at 31)
+  logic [6:0]  beat_r;                     //! frame beat counter (sat at 127)
 
   //! buf byte accessor (big lane order: byte j of word w = tdata[8*(7-j)])
   function automatic [7:0] bufb(input [63:0] w, input [2:0] j);
@@ -205,8 +205,10 @@ module KL_aecp_response_builder (
 
   wire w_cap_hs = s_axis_tvalid & s_axis_tready;
 
-  wire [6:0] w_eaddr  = emseg_addr_r[6:0] + emsoff_r[6:0];  //! echo RAM addr
-  wire [6:0] w_wbaddr = 7'(wb_src_q + wb_cnt_r);           //! wb RAM addr
+  wire [8:0] w_eaddr  = 9'(emseg_addr_r + emsoff_r
+                           + (batch_q ? brec_abase_q : 16'd0)); //! echo RAM addr
+                           //! (batch: arm echo addrs are record-virtual)
+  wire [8:0] w_wbaddr = 9'(wb_src_q + wb_cnt_r);           //! wb RAM addr
   wire [7:0] w_b0  = bufb(cw0_r, 3'd0);
   wire [7:0] w_b1  = bufb(cw0_r, 3'd1);
   wire [7:0] w_b2  = bufb(cw0_r, 3'd2);
@@ -237,7 +239,10 @@ module KL_aecp_response_builder (
   // ------------------------------------------------------------------ //
   typedef enum logic [3:0] {
     IDLE_S, CAPTURE_S, DECIDE_S, WRITE_S, EMIT_ADDR_S, EMIT_DATA_S,
-    CONCLUDE_S
+    CONCLUDE_S,
+    BSCAN_S,        //! 0x4B pass 1: validate records, size the response
+    BREC_SETUP_S,   //! 0x4B pass 2: parse/classify one record
+    RECHDR_EMIT_S   //! 0x4B pass 2: pack the 8-byte record header
   } state_t;
   state_t state_r;
 
@@ -262,6 +267,11 @@ module KL_aecp_response_builder (
   wire [15:0] w_rd_cfg   = {w_b2, w_b3};   //! READ_DESCRIPTOR config
   wire [15:0] w_rd_type  = {w_b6, w_b7};
   wire [15:0] w_rd_index = {w_b8, w_b9};
+  //! DECIDE_S case selector: a batch sub-command substitutes the record's
+  //! command_type (the arms' internal GET/SET disambiguation still reads
+  //! hdr_q.command_type = 0x4B, which never equals a SET - GET semantics)
+  wire [14:0] w_cmd_eff = bsub_q ? brec_cmd_q : hdr_q.command_type;
+
   wire [15:0] w_gs_type  = {w_b2, w_b3};   //! GET/SET_* desc type
   wire [15:0] w_gs_index = {w_b4, w_b5};
   //! SET_STREAM_INFO (Milan §5.4.2.9): payload byte n = buf_r[n+2] — flags at
@@ -372,6 +382,65 @@ module KL_aecp_response_builder (
   logic        wb_used_q;   //! a store writeback ran for this command
   logic        wb_diff_q;   //! ...and at least one byte actually changed
 
+  // ---- GET_DYNAMIC_INFO batch engine (1722.1-2021 7.4.76) ------------
+  //! the command payload is an array of records {len u16, rsvd u16,
+  //! status u8, rsvd u8, command_type u16, data[len]}; each is processed
+  //! as an independent fixed-size GET and answered in the same shape.
+  logic         batch_q;      //! response under construction is a batch
+  logic         bsub_q;       //! DECIDE_S is running a batch sub-command
+  logic [8:0]   bscan_ptr_q;  //! pass-1 scan pointer (cbuf offset)
+  logic [1:0]   bscan_ph_r;   //! pass-1 phase (len hi/lo, cmd hi/lo)
+  logic [7:0]   bslh_r;       //! latched len hi byte
+  logic [6:0]   bsch_r;       //! latched cmd hi byte (7 bits, r-bit dropped)
+  logic [15:0]  bcdl_acc_q;   //! accumulated response payload bytes
+  logic [63:0]  bfit_map_q;   //! record k fits the response cap
+  logic [5:0]   bidx_q;       //! record index (scan + emit passes)
+  logic [8:0]   bpay_end_q;   //! cbuf offset one past the record array
+  logic [8:0]   brec_ptr_q;   //! pass-2: current record header cbuf offset
+  logic [2:0]   brec_ph_r;    //! pass-2 parse phase
+  logic [14:0]  brec_cmd_q;   //! current record command_type
+  logic [15:0]  brec_dlen_q;  //! current record command data length
+  logic [15:0]  brec_rlen_q;  //! current record RESPONSE data length
+  logic [15:0]  brec_base_q;  //! frame-payload offset of the record DATA
+  logic [15:0]  brec_abase_q; //! echo virtual base = brec_ptr + 6
+  logic [7:0]   rec_hdr_q [0:7]; //! record header image
+  logic [2:0]   bh_i_r;       //! RECHDR_EMIT byte index
+  logic [10:0]  bcdl_q;       //! batch frame cdl (sub-arm cdl_q writes are
+                              //! record-scoped noise once the header is out)
+
+  //! response data length of an implemented fixed-size GET (0 = the
+  //! command is answered by echoing its data with NOT_SUPPORTED status;
+  //! the spec's fixed-size set membership is checked separately)
+  function automatic logic [15:0] batch_rlen(input [14:0] c);
+    unique case (c)
+      CMD_GET_CONFIGURATION:  batch_rlen = 16'd4;
+      CMD_GET_STREAM_FORMAT:  batch_rlen = 16'd12;
+      CMD_GET_STREAM_INFO:    batch_rlen = 16'd56;
+      CMD_GET_NAME:           batch_rlen = 16'd72;
+      CMD_GET_SAMPLING_RATE:  batch_rlen = 16'd8;
+      CMD_GET_CLOCK_SOURCE:   batch_rlen = 16'd8;
+      CMD_GET_COUNTERS:       batch_rlen = 16'd136;
+      default:                batch_rlen = 16'd0;
+    endcase
+  endfunction
+
+  //! 1722.1-2021 7.4.76.2 fixed-size GET set (batch-legal command types)
+  function automatic logic batch_legal(input [14:0] c);
+    batch_legal = (c == CMD_GET_CONFIGURATION) || (c == CMD_GET_STREAM_FORMAT)
+               || (c == 15'd11) || (c == 15'd13)                // VIDEO/SENSOR_FORMAT
+               || (c == CMD_GET_STREAM_INFO) || (c == CMD_GET_NAME)
+               || (c == 15'd19)                                 // GET_ASSOCIATION_ID
+               || (c == CMD_GET_SAMPLING_RATE) || (c == CMD_GET_CLOCK_SOURCE)
+               || (c == 15'd29)                                 // GET_SIGNAL_SELECTOR
+               || (c == CMD_GET_COUNTERS)
+               || (c == 15'd71) || (c == 15'd74);   // MEM_OBJ_LEN / STREAM_BACKUP
+  endfunction
+
+  //! single-byte capture-buffer read (registered pointer, comb mux)
+  function automatic logic [7:0] cbufb(input [8:0] a);
+    cbufb = bufb(cbuf_r[a[8:3]], a[2:0]);
+  endfunction
+
   // ------------------------------------------------------------------ //
   // Emit engine                                                          //
   // ------------------------------------------------------------------ //
@@ -383,8 +452,9 @@ module KL_aecp_response_builder (
   logic [15:0] fi_r;               //! frame byte index
   logic [7:0]  emit_byte_r;        //! byte resolved in EMIT_ADDR/DATA
 
-  //! payload byte index -> (segment, offset within segment)
-  wire [15:0] w_pi = fi_r - w_hdr_len;
+  //! payload byte index -> (segment, offset within segment); in batch
+  //! mode the walk is relative to the current record's data region
+  wire [15:0] w_pi = fi_r - w_hdr_len - (batch_q ? brec_base_q : 16'd0);
   logic [3:0]  w_seg;
   logic [15:0] w_soff;
   always_comb begin
@@ -434,8 +504,8 @@ module KL_aecp_response_builder (
     else if (fi == 13) b = 8'hF0;
     else if (fi == 14) b = AECP_SUBTYPE_C;
     else if (fi == 15) b = {4'b0000, msg_resp_q};
-    else if (fi == 16) b = {status_q, cdl_q[10:8]};
-    else if (fi == 17) b = cdl_q[7:0];
+    else if (fi == 16) b = {status_q, batch_q ? bcdl_q[10:8] : cdl_q[10:8]};
+    else if (fi == 17) b = batch_q ? bcdl_q[7:0] : cdl_q[7:0];
     else if (fi < 26) b = entity_id_i[8*(25-(32)'(fi)) +: 8];
     else if (fi < 34) b = hdr_q.controller_entity_id[8*(33-(32)'(fi)) +: 8];
     else if (fi == 34) b = hdr_q.sequence_id[15:8];
@@ -717,6 +787,18 @@ module KL_aecp_response_builder (
       wbp_r        <= 1'b0;
       wb_used_q    <= 1'b0;
       wb_diff_q    <= 1'b0;
+      batch_q      <= 1'b0;
+      bsub_q       <= 1'b0;
+      bscan_ptr_q  <= 9'd0; bscan_ph_r <= 2'd0;
+      bslh_r       <= 8'd0; bsch_r <= 7'd0;
+      bcdl_acc_q   <= 16'd0; bfit_map_q <= 64'd0; bidx_q <= 6'd0;
+      bpay_end_q   <= 9'd0;
+      brec_ptr_q   <= 9'd0; brec_ph_r <= 3'd0;
+      brec_cmd_q   <= 15'd0; brec_dlen_q <= 16'd0; brec_rlen_q <= 16'd0;
+      brec_base_q  <= 16'd0; brec_abase_q <= 16'd0;
+      bh_i_r       <= 3'd0;
+      bcdl_q       <= 11'd0;
+      for (int k = 0; k < 8; k++) rec_hdr_q[k] <= 8'd0;
       st_wr_o      <= 1'b0;
       st_waddr_o   <= 16'd0;
       st_wdata_o   <= 8'd0;
@@ -837,12 +919,12 @@ module KL_aecp_response_builder (
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
       if (w_cap_hs) begin
-        if (beat_r >= 5'd3 && beat_r < 5'd19)
-          cbuf_r[4'(beat_r - 5'd3)] <= s_axis_tdata;
-        if (beat_r == 5'd3) cw0_r <= s_axis_tdata;   // buf bytes 0-7
-        if (beat_r == 5'd4) cw1_r <= s_axis_tdata;   // buf bytes 8-15
-        if (beat_r == 5'd6) cw3_r <= s_axis_tdata;   // buf bytes 24-31
-        beat_r <= s_axis_tlast ? 5'd0 : (beat_r == 5'd31 ? 5'd31 : beat_r + 5'd1);
+        if (beat_r >= 7'd3 && beat_r < 7'd67)
+          cbuf_r[6'(beat_r - 7'd3)] <= s_axis_tdata;
+        if (beat_r == 7'd3) cw0_r <= s_axis_tdata;   // buf bytes 0-7
+        if (beat_r == 7'd4) cw1_r <= s_axis_tdata;   // buf bytes 8-15
+        if (beat_r == 7'd6) cw3_r <= s_axis_tdata;   // buf bytes 24-31
+        beat_r <= s_axis_tlast ? 7'd0 : (beat_r == 7'd127 ? 7'd127 : beat_r + 7'd1);
       end
 
       if (hdr_i.hdr_valid && (state_r == IDLE_S || state_r == CAPTURE_S)) begin
@@ -869,7 +951,7 @@ module KL_aecp_response_builder (
           cum_acc_r <= a;
           cum_ph_r  <= cum_ph_r + 2'd1;
           if (cum_ph_r == 2'd3) begin
-            pay_len_q  <= a;
+            if (!batch_q) pay_len_q <= a;   // batch: sized in BSCAN_S
             cum_done_q <= 1'b1;
           end
         end
@@ -1026,8 +1108,8 @@ module KL_aecp_response_builder (
           seg_kind_q[0] <= SEG_ECHO;
           seg_addr_q[0] <= 16'd2;
           seg_len_q[0]  <= (hdr_q.control_data_length > 11'd12)
-                           ? ((hdr_q.control_data_length > 11'd138)
-                              ? 16'd126
+                           ? ((hdr_q.control_data_length > 11'd506)
+                              ? 16'd494
                               : 16'(hdr_q.control_data_length) - 16'd12)
                            : 16'd0;
           cdl_q      <= hdr_q.control_data_length;
@@ -1115,7 +1197,7 @@ module KL_aecp_response_builder (
               cdl_q         <= 11'd20;
             end
           end else begin
-            case (hdr_q.command_type)
+            case (w_cmd_eff)
               // -------------------------------------------------- //
               CMD_ACQUIRE_ENTITY, CMD_LOCK_ENTITY: begin
                 status_q      <= l0_status_q;  // NOT_SUPPORTED/LOCKED/SUCCESS
@@ -1574,48 +1656,25 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
-              // GET_DYNAMIC_INFO (Milan v1.2 0x4B; reference
-              // cmd-get-dynamic-info.c): aggregate of every mutable
-              // descriptor field. Our fixed entity => FIXED 116-B payload:
-              // cfg_idx(2)+rsvd(2), then ENTITY(8) AUDIO_UNIT(8)
-              // STREAM_IN0/IN1/OUT(28 each: sid=0, format from store,
-              // flags=FORMAT_VALID only, tail 0 - reference behavior)
-              // CLOCK_DOMAIN(8). CDL 128.
+              // GET_DYNAMIC_INFO (1722.1-2021 7.4.76; Milan 5.4.2.29
+              // SHALL): the payload is an ARRAY of packed fixed-size GET
+              // sub-commands; each is processed independently and answered
+              // in the same record shape. Pass 1 (BSCAN_S) validates the
+              // types (any non-fixed-size type = whole-command
+              // BAD_ARGUMENTS, 7.4.76.2) and sizes the response, skipping
+              // records that would overflow the AECPDU cap; pass 2 emits
+              // record-by-record through the normal DECIDE/segment engine.
               CMD_GET_DYNAMIC_INFO: begin
-                if ({w_b2, w_b3} != 16'd0) begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd16;
-                end
-                else begin
-                  status_q <= STATUS_SUCCESS;
-                  cdl_q    <= 11'd124;   // 12 + 4 + 108 record bytes
-                  // seg0 = default ECHO(2,4) = config_index + reserved
-                  seg_kind_q[1]  <= SEG_CONST; seg_addr_q[1]  <= 16'd0;  seg_len_q[1]  <= 16'd12;
-                  seg_kind_q[2]  <= SEG_STORE; seg_addr_q[2]  <= WB_SAMPLING_RATE_C; seg_len_q[2] <= 16'd4;
-                  seg_kind_q[3]  <= SEG_CONST; seg_addr_q[3]  <= 16'd12; seg_len_q[3]  <= 16'd12;
-                  seg_kind_q[4]  <= SEG_STORE; seg_addr_q[4]  <= WB_STREAM_IN0_FMT_C; seg_len_q[4] <= 16'd8;
-                  seg_kind_q[5]  <= SEG_CONST; seg_addr_q[5]  <= 16'd24; seg_len_q[5]  <= 16'd8;
-                  seg_kind_q[6]  <= SEG_CONST; seg_addr_q[6]  <= 16'd32; seg_len_q[6]  <= 16'd12;
-                  seg_kind_q[7]  <= SEG_STORE; seg_addr_q[7]  <= WB_STREAM_IN1_FMT_C; seg_len_q[7] <= 16'd8;
-                  seg_kind_q[8]  <= SEG_CONST; seg_addr_q[8]  <= 16'd44; seg_len_q[8]  <= 16'd8;
-                  seg_kind_q[9]  <= SEG_CONST; seg_addr_q[9]  <= 16'd52; seg_len_q[9]  <= 16'd12;
-                  seg_kind_q[10] <= SEG_STORE; seg_addr_q[10] <= WB_STREAM_FORMAT_C;  seg_len_q[10] <= 16'd8;
-                  seg_kind_q[11] <= SEG_CONST; seg_addr_q[11] <= 16'd64; seg_len_q[11] <= 16'd8;
-                  seg_kind_q[12] <= SEG_CONST; seg_addr_q[12] <= 16'd72; seg_len_q[12] <= 16'd4;
-                  seg_kind_q[13] <= SEG_STORE; seg_addr_q[13] <= WB_CLOCK_SRC_IDX_C;  seg_len_q[13] <= 16'd2;
-                  seg_kind_q[14] <= SEG_CONST; seg_addr_q[14] <= 16'd76; seg_len_q[14] <= 16'd2;
-                  // const image (zeros elsewhere): record headers + flags
-                  for (int k = 0; k < 78; k++) const_q[k] <= 8'h00;
-                  const_q[9]  <= 8'h02;                     // AUDIO_UNIT type
-                  const_q[13] <= 8'h05;                     // STREAM_INPUT
-                  const_q[33] <= 8'h05; const_q[35] <= 8'h01; // IN idx 1
-                  const_q[53] <= 8'h06;                     // STREAM_OUTPUT
-                  const_q[24] <= 8'h80;                     // IN0 FORMAT_VALID
-                  const_q[44] <= 8'h80;                     // IN1 FORMAT_VALID
-                  const_q[64] <= 8'h80;                     // OUT FORMAT_VALID
-                  const_q[72] <= 8'h00; const_q[73] <= 8'h24; // CLOCK_DOMAIN
-                end
+                batch_q     <= 1'b1;
+                bscan_ptr_q <= 9'd2;
+                bscan_ph_r  <= 2'd0;
+                bcdl_acc_q  <= 16'd0;
+                bfit_map_q  <= 64'd0;
+                bidx_q      <= 6'd0;
+                bpay_end_q  <= 9'(16'd2 + 16'(hdr_q.control_data_length)
+                                        - 16'd12);
+                status_q    <= STATUS_SUCCESS;
+                state_r     <= BSCAN_S;
               end
 
               // -------------------------------------------------- //
@@ -1757,6 +1816,7 @@ module KL_aecp_response_builder (
         // ---------------------------------------------------------- //
         WRITE_S: begin   // SET_* write-back (no-op when wb_len_q == 0);
                          // also the cycle where cum_q/pay_len_q settle
+          if (batch_q) rec_hdr_q[4] <= {3'd0, status_q};
           if (wb_len_q == 7'd0) begin
             if (cum_done_q) state_r <= EMIT_ADDR_S;
           end else if (!wbp_r) begin
@@ -1765,9 +1825,9 @@ module KL_aecp_response_builder (
             wbp_r      <= 1'b0;
             st_wr_o    <= 1'b1;
             st_waddr_o <= wb_addr_q + 16'(wb_cnt_r);
-            st_wdata_o <= bufb(cbuf_r[w_wbaddr[6:3]], w_wbaddr[2:0]);
+            st_wdata_o <= bufb(cbuf_r[w_wbaddr[8:3]], w_wbaddr[2:0]);
             wb_used_q  <= 1'b1;
-            if (st_byte_i != bufb(cbuf_r[w_wbaddr[6:3]], w_wbaddr[2:0]))
+            if (st_byte_i != bufb(cbuf_r[w_wbaddr[8:3]], w_wbaddr[2:0]))
               wb_diff_q <= 1'b1;
             if (wb_cnt_r == wb_len_q - 7'd1) begin
               wb_cnt_r <= 7'd0;
@@ -1784,6 +1844,19 @@ module KL_aecp_response_builder (
         //   EMIT_DATA: capture the byte, feed the beat packer          //
         // ---------------------------------------------------------- //
         EMIT_ADDR_S: begin
+          if (batch_q && fi_r == w_hdr_len + brec_base_q - 16'd8) begin
+            //! next up: this record's 8-byte header
+            bh_i_r  <= 3'd0;
+            state_r <= RECHDR_EMIT_S;
+          end else
+          if (batch_q && fi_r == w_hdr_len + brec_base_q + brec_rlen_q) begin
+            //! record data complete (frame end would have concluded in
+            //! EMIT_DATA_S): advance to the next record
+            brec_base_q <= brec_base_q + 16'd8 + brec_rlen_q;
+            brec_ph_r   <= 3'd7;
+            bsub_q      <= 1'b0;
+            state_r     <= BREC_SETUP_S;
+          end else begin
           // Resolve + REGISTER the byte source for fi_r (the store read addr/
           // enable are driven combinationally via w_emit_store, so store data
           // lands next cycle). This moves the deep fi->{offset arithmetic,
@@ -1794,6 +1867,7 @@ module KL_aecp_response_builder (
           emseg_addr_r <= seg_addr_q[w_seg];
           emsoff_r     <= w_soff;
           state_r      <= EMIT_DATA_S;
+          end
         end
 
         EMIT_DATA_S: begin
@@ -1802,7 +1876,7 @@ module KL_aecp_response_builder (
             b = hdrbyte_r;                    // registered header byte
           end else begin
             unique case (emseg_kind_r)        // registered segment select
-              SEG_ECHO:  b = bufb(cbuf_r[w_eaddr[6:3]], w_eaddr[2:0]);
+              SEG_ECHO:  b = bufb(cbuf_r[w_eaddr[8:3]], w_eaddr[2:0]);
               SEG_STORE: b = st_byte_i;       // store byte (1-cycle read latency)
               SEG_CONST: b = const_q[7'(emseg_addr_r[6:0] + emsoff_r[6:0])];
               default:   b = 8'h00;
@@ -1834,6 +1908,169 @@ module KL_aecp_response_builder (
         end
 
         // ---------------------------------------------------------- //
+        BSCAN_S: begin   // 0x4B pass 1: validate + size (7.4.76.2)
+          if (bscan_ptr_q >= bpay_end_q) begin
+            pay_len_q   <= bcdl_acc_q;
+            bcdl_q      <= 11'(16'd12 + bcdl_acc_q);
+            brec_ptr_q  <= 9'd2;
+            brec_ph_r   <= 3'd0;
+            bidx_q      <= 6'd0;
+            brec_base_q <= 16'd8;   // record 0 data follows its header
+            brec_rlen_q <= 16'd0;
+            state_r     <= BREC_SETUP_S;
+          end else begin
+            unique case (bscan_ph_r)
+              2'd0: begin
+                bslh_r     <= cbufb(bscan_ptr_q);
+                bscan_ph_r <= 2'd1;
+              end
+              2'd1: begin
+                brec_dlen_q <= {bslh_r, cbufb(bscan_ptr_q + 9'd1)};
+                bscan_ph_r  <= 2'd2;
+              end
+              2'd2: begin
+                bsch_r     <= 7'(cbufb(bscan_ptr_q + 9'd6));
+                bscan_ph_r <= 2'd3;
+              end
+              2'd3: begin
+                automatic logic [14:0] c;
+                automatic logic [15:0] rl;
+                c  = {bsch_r, cbufb(bscan_ptr_q + 9'd7)};
+                rl = (batch_rlen(c) != 16'd0) ? batch_rlen(c) : brec_dlen_q;
+                bscan_ph_r <= 2'd0;
+                if (!batch_legal(c) ||
+                    (16'({7'd0, bscan_ptr_q}) + 16'd8 + brec_dlen_q
+                     > 16'({7'd0, bpay_end_q}))) begin
+                  //! non-fixed-size type or truncated record: the WHOLE
+                  //! command fails BAD_ARGUMENTS, request payload echoed
+                  batch_q       <= 1'b0;
+                  status_q      <= STATUS_BAD_ARGUMENTS;
+                  seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd2;
+                  seg_len_q[0]  <= 16'(hdr_q.control_data_length) - 16'd12;
+                  cdl_q         <= hdr_q.control_data_length;
+                  cum_done_q    <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+                  wb_len_q      <= 7'd0;
+                  state_r       <= WRITE_S;
+                end else begin
+                  //! append if it fits the AECPDU cap (else skip, 7.4.76.1)
+                  if (bcdl_acc_q + 16'd8 + rl <= 16'd494) begin
+                    bcdl_acc_q         <= bcdl_acc_q + 16'd8 + rl;
+                    bfit_map_q[bidx_q] <= 1'b1;
+                  end
+                  bidx_q      <= bidx_q + 6'd1;
+                  bscan_ptr_q <= bscan_ptr_q + 9'(16'd8 + brec_dlen_q);
+                end
+              end
+            endcase
+          end
+        end
+
+        // ---------------------------------------------------------- //
+        BREC_SETUP_S: begin   // 0x4B pass 2: parse/classify one record
+          if (brec_ptr_q >= bpay_end_q) begin
+            //! empty batch: bare 38-byte header response (cdl 12)
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+            wb_len_q   <= 7'd0;
+            state_r    <= WRITE_S;
+          end else begin
+            unique case (brec_ph_r)
+              3'd7: begin   //! advance past the completed/skipped record
+                brec_ptr_q <= brec_ptr_q + 9'(16'd8 + brec_dlen_q);
+                bidx_q     <= bidx_q + 6'd1;
+                brec_ph_r  <= 3'd0;
+              end
+              3'd0: begin
+                bslh_r    <= cbufb(brec_ptr_q);
+                brec_ph_r <= 3'd1;
+              end
+              3'd1: begin
+                brec_dlen_q <= {bslh_r, cbufb(brec_ptr_q + 9'd1)};
+                brec_ph_r   <= 3'd2;
+              end
+              3'd2: begin
+                bsch_r    <= 7'(cbufb(brec_ptr_q + 9'd6));
+                brec_ph_r <= 3'd3;
+              end
+              3'd3: begin
+                automatic logic [14:0] c;
+                automatic logic [15:0] rl;
+                c  = {bsch_r, cbufb(brec_ptr_q + 9'd7)};
+                rl = batch_rlen(c);
+                if (!bfit_map_q[bidx_q]) begin
+                  brec_ph_r <= 3'd7;   //! over-cap record: skip
+                end else begin
+                  brec_cmd_q   <= c;
+                  brec_abase_q <= 16'({7'd0, brec_ptr_q}) + 16'd6;
+                  rec_hdr_q[2] <= 8'h00; rec_hdr_q[3] <= 8'h00;
+                  rec_hdr_q[5] <= 8'h00;
+                  rec_hdr_q[6] <= {1'b0, c[14:8]};
+                  rec_hdr_q[7] <= c[7:0];
+                  if (rl != 16'd0) begin
+                    //! implemented GET: dispatch through DECIDE_S
+                    brec_rlen_q  <= rl;
+                    rec_hdr_q[0] <= rl[15:8];
+                    rec_hdr_q[1] <= rl[7:0];
+                    brec_ph_r    <= 3'd4;
+                  end else begin
+                    //! fixed-size but unimplemented: NOT_SUPPORTED with
+                    //! the request data echoed back (7.4.76.1 example)
+                    brec_rlen_q  <= brec_dlen_q;
+                    rec_hdr_q[0] <= brec_dlen_q[15:8];
+                    rec_hdr_q[1] <= brec_dlen_q[7:0];
+                    status_q     <= STATUS_NOT_SUPPORTED;
+                    for (int k = 0; k < SEGN_C; k++) begin
+                      seg_kind_q[k] <= SEG_NONE;
+                      seg_addr_q[k] <= 16'd0; seg_len_q[k] <= 16'd0;
+                    end
+                    seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd2;
+                    seg_len_q[0]  <= brec_dlen_q;
+                    cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+                    wb_len_q   <= 7'd0;
+                    brec_ph_r  <= 3'd0;
+                    state_r    <= WRITE_S;
+                  end
+                end
+              end
+              3'd4: begin
+                //! load the record's virtual arg window: virtual byte 0-1 =
+                //! its command_type (mirroring the classic frame layout),
+                //! byte 2.. = its command data -> w_b2/w_gs_* line up
+                for (int j = 0; j < 8; j++) begin
+                  cw0_r[8*(7-j) +: 8] <= cbufb(9'(brec_abase_q + 16'(j)));
+                  cw1_r[8*(7-j) +: 8] <= cbufb(9'(brec_abase_q + 16'd8 + 16'(j)));
+                end
+                bsub_q    <= 1'b1;
+                brec_ph_r <= 3'd0;
+                state_r   <= DECIDE_S;
+              end
+              default: brec_ph_r <= 3'd0;
+            endcase
+          end
+        end
+
+        // ---------------------------------------------------------- //
+        RECHDR_EMIT_S: begin   // 0x4B pass 2: pack the 8-byte record header
+          if (!beat_pend_r) begin
+            pack_r[8*pack_n_r +: 8] <= rec_hdr_q[bh_i_r];
+            if (pack_n_r == 3'd7 || fi_r == w_frame_len - 16'd1) begin
+              beat_pend_r <= 1'b1;
+              beat_last_r <= (fi_r == w_frame_len - 16'd1);
+              beat_keep_r <= 8'((9'd1 << ((9)'(pack_n_r) + 9'd1)) - 9'd1);
+              pack_n_r    <= 3'd0;
+            end else begin
+              pack_n_r <= pack_n_r + 3'd1;
+            end
+            if (fi_r == w_frame_len - 16'd1) begin
+              state_r <= CONCLUDE_S;
+            end else begin
+              fi_r <= fi_r + 16'd1;
+              if (bh_i_r == 3'd7) state_r <= EMIT_ADDR_S;
+              bh_i_r <= bh_i_r + 3'd1;
+            end
+          end
+        end
+
+        // ---------------------------------------------------------- //
         CONCLUDE_S: begin   // wait for the final beat to drain, then clean up
           if (!beat_pend_r) begin   // top-level handshake sent the last beat
             evt_resp_o  <= 1'b1;
@@ -1849,6 +2086,8 @@ module KL_aecp_response_builder (
             // pushes are self-generated: there is no ingress meta to pop
             if (!unsol_frame_r) pop_pend_r <= pop_pend_r + 2'd1;
             unsol_frame_r <= 1'b0;
+            batch_q     <= 1'b0;
+            bsub_q      <= 1'b0;
             fi_r        <= 16'd0;
             state_r     <= IDLE_S;
           end
