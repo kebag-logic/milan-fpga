@@ -217,6 +217,10 @@ module milan_csr #(
   input  wire [31:0]             i_crf_rate,          //! RO 0x748
   input  wire [31:0]             i_crf_status,        //! RO 0x74C {pdu16,fmt8,seq8}
   input  wire                    i_crf_locked,        //! RO in 0x738 bit 31,        //! LPF_CTRL[0]: playback biquad
+  output wire                    o_crft_en,           //! CRF talker enable (0x750)
+  output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
+  output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
+  input  wire [31:0]             i_crft_count,        //! RO 0x764: CRF PDUs emitted
   output wire [63:0]             o_as_parent_ckid,    //! AS2: 802.1AS parent bridge ckid
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -312,6 +316,12 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_CRF_DELTA  = 'h744;  //! RO signed crf_ts - ptp_now
   localparam [ADDR_WIDTH-1:0] A_CRF_RATE   = 'h748;  //! RO signed ns err / 512 ms
   localparam [ADDR_WIDTH-1:0] A_CRF_STATUS = 'h74C;  //! RO {pdu16, fmt_err8, seq_err8}
+  localparam [ADDR_WIDTH-1:0] A_CRFT_CTRL  = 'h750;  //! [0] CRF talker en
+  localparam [ADDR_WIDTH-1:0] A_CRFT_SIDLO = 'h754;  //! CRF talker stream_id [31:0]
+  localparam [ADDR_WIDTH-1:0] A_CRFT_SIDHI = 'h758;  //! CRF talker stream_id [63:32]
+  localparam [ADDR_WIDTH-1:0] A_CRFT_DMLO  = 'h75C;  //! CRF talker DMAC [31:0]
+  localparam [ADDR_WIDTH-1:0] A_CRFT_DMHI  = 'h760;  //! CRF talker DMAC [47:32]
+  localparam [ADDR_WIDTH-1:0] A_CRFT_COUNT = 'h764;  //! RO live: CRF PDUs emitted
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -416,6 +426,7 @@ module milan_csr #(
   logic [31:0] ent_name_lo, ent_name_hi; //! board-name overlay chars
   logic [31:0] lpf_ctrl;                 //! LPF_CTRL
   logic [31:0] crf_ctrl, crf_sidlo, crf_sidhi;   //! CRF sink CSRs
+  logic [31:0] crft_ctrl, crft_sidlo, crft_sidhi, crft_dmlo, crft_dmhi;  //! CRF talker CSRs
   logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
@@ -505,6 +516,11 @@ module milan_csr #(
       crf_ctrl    <= 32'h0;
       crf_sidlo   <= 32'h0;
       crf_sidhi   <= 32'h0;
+      crft_ctrl   <= 32'h0;
+      crft_sidlo  <= 32'h0;
+      crft_sidhi  <= 32'h0;
+      crft_dmlo   <= 32'h0;
+      crft_dmhi   <= 32'h0;
       as2_lo <= 32'h0; as2_hi <= 32'h0;
       tone_ctrl  <= 32'h0;
       gptp_pdelay <= 32'h0;
@@ -585,6 +601,11 @@ module milan_csr #(
           A_CRF_CTRL:   crf_ctrl  <= s_axi_wdata;
           A_CRF_SIDLO:  crf_sidlo <= s_axi_wdata;
           A_CRF_SIDHI:  crf_sidhi <= s_axi_wdata;
+          A_CRFT_CTRL:  crft_ctrl  <= s_axi_wdata;
+          A_CRFT_SIDLO: crft_sidlo <= s_axi_wdata;
+          A_CRFT_SIDHI: crft_sidhi <= s_axi_wdata;
+          A_CRFT_DMLO:  crft_dmlo  <= s_axi_wdata;
+          A_CRFT_DMHI:  crft_dmhi  <= s_axi_wdata;
           A_AS2_LO:     as2_lo   <= s_axi_wdata;
           A_AS2_HI:     as2_hi   <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
@@ -724,7 +745,8 @@ module milan_csr #(
       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
       A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL,
       A_ENT_NAME_LO, A_ENT_NAME_HI, A_LPF_CTRL, A_AS2_LO, A_AS2_HI,
-      A_CRF_SIDLO, A_CRF_SIDHI:
+      A_CRF_SIDLO, A_CRF_SIDHI,
+      A_CRFT_CTRL, A_CRFT_SIDLO, A_CRFT_SIDHI, A_CRFT_DMLO, A_CRFT_DMHI:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -824,6 +846,7 @@ module milan_csr #(
       A_CRF_DELTA:  live_mux = i_crf_delta;
       A_CRF_RATE:   live_mux = i_crf_rate;
       A_CRF_STATUS: live_mux = i_crf_status;
+      A_CRFT_COUNT: live_mux = i_crft_count;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
@@ -914,6 +937,9 @@ module milan_csr #(
   assign o_lpf_enable       = lpf_ctrl[0];
   assign o_crf_en           = crf_ctrl[0];
   assign o_crf_sid          = {crf_sidhi, crf_sidlo};
+  assign o_crft_en          = crft_ctrl[0];
+  assign o_crft_sid         = {crft_sidhi, crft_sidlo};
+  assign o_crft_dest_mac    = {crft_dmhi[15:0], crft_dmlo};
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
   assign o_sw_link          = link_ctrl[0];
   assign o_mac_reinit       = link_ctrl[1];
