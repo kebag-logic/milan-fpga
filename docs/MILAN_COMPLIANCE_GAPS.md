@@ -70,8 +70,19 @@ and is not repeated here.
 ## 4. gPTP
 
 - **es-1.1 / es-1.2 (gPTP + SRP default parameters and timings) were
-  never recreated** — linuxptp's defaults are believed conformant but
-  are unverified against the official test's tolerances.
+  never recreated** — linuxptp's defaults are believed conformant
+  (checked 2026-07-20 against the official es-1.1 text: announce 0,
+  sync -3, pdelay 0 all match) but the timing tolerances are unverified.
+  **BLOCKED ON THE BENCH SWITCH**: es-1.1 requires the DUT to win the
+  BMCA against a 255-claimant test machine and free-run its Announce/
+  Sync cadence; our switch claims priority1=246 clockClass=248
+  clockAccuracy=0x20 (tap-read) and outranks every Milan-legal
+  end-station value (246|248 tie loses on clockAccuracy). Until the
+  switch's gPTP claim is weakened (mgmt ssh at 192.168.127.1), the
+  recreation cannot run and the bench ships the 100 override to keep
+  the ALINX-GM one-oscillator media architecture. **The shipping
+  priority1 for certification must be 246** (Milan es-1.1; 100 is
+  bench-only).
 - **ingressLatency constants are bench-calibrated** (tap-measured 3511 ns
   Arty / 1490 ns AX; egressLatency 0). A production story needs a
   per-board calibration procedure, and the split between ingress/egress
