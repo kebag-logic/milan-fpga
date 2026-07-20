@@ -8,16 +8,21 @@ and is not repeated here.
 
 ## 1. AECP / AEM
 
-- **GET_DYNAMIC_INFO (0x4B) is NON-CONFORMANT (upgraded from
-  "partial" after reading 1722.1-2021 7.4.76, 2026-07-20):** the spec
-  defines 0x4B as a BATCH command - the controller packs an array of
-  fixed-size GET sub-commands (8-byte record header: len u16, rsvd u16,
-  status u8, rsvd u8, command_type u16, then the command's payload) and
-  the entity processes each as an independent command. Our response is
-  a fixed 116-byte aggregate modeled on the pipewire reference that
-  IGNORES the request records - a parsing controller (la_avdecc
-  getDynamicInfo) would read garbage. Milan 5.4.2.29 makes 7.4.76
-  SHALL. Fix in progress: batch engine in the response builder.
+- **GET_DYNAMIC_INFO (0x4B): batch engine IN, silicon re-verify on
+  ≥mf39/AX24 (2026-07-20 night).** The 7.4.76 batch semantics landed
+  (512 B capture, BSCAN validate/size pass, per-record dispatch through
+  the segment engine, NOT_SUPPORTED+echo for legal-unimplemented,
+  whole-cmd BAD_ARGUMENTS for illegal/truncated records; byte-exact TB
+  vs classic responses). TWO silicon-only defects were then caught by
+  the wire probe and fixed: (a) the BSCAN capture race (a4c0630 -
+  frame_ok leads the builder's beat consumption; cap_done gate) and
+  (b) the cbuf RAM written inside the async-reset engine block - Vivado
+  refuses RAM inference (Synth 8-4767) and falls back to flops with
+  mangled set/reset priority (Synth 8-7137 "may cause simulation
+  mismatches"): silicon read garbage on every record scan while every
+  TB passed (empty batch SUCCESS / 1-record 0-for-50 was the
+  discriminator). Fixed f3f4b15 (own sync-only write process). mf38 and
+  earlier remain non-conformant on 0x4B on silicon.
 - ~~Dynamic audio maps~~ **RESOLVED AS COMPLIANT (2026-07-20 spec
   read):** Milan v1.2 5.4.2.27/28 requires ADD/REMOVE_AUDIO_MAPPINGS
   only for stream ports **that have no Audio Map descriptor**, and
@@ -26,20 +31,18 @@ and is not repeated here.
   NOT_SUPPORTED - exactly the specified behavior for this topology.
   Dynamic maps only become mandatory if the static maps are dropped
   (which the future 8ch/dynamic-routing work would do).
-- **No-change SET suppression covers only SET_STREAM_INFO and
-  SET_CONFIGURATION** (`nochg_q`). A same-value SET_NAME /
-  SET_SAMPLING_RATE / SET_CLOCK_SOURCE still replays u=1. Same 1722.1
-  state-change rule applies; extend `nochg_q` per command (compare old
-  vs new before arming the replay).
+- ~~No-change SET suppression covers only SET_STREAM_INFO and
+  SET_CONFIGURATION~~ **RESOLVED (2026-07-20):** WRITE_S reads the old
+  store byte before writing (2-phase) and `wb_diff` gates the u=1
+  replay for every replayed SET (NAME/SAMPLING_RATE/CLOCK_SOURCE/
+  STREAM_FORMAT beyond the original two).
 - **SET_STREAM_INFO supports only the MSRP_ACC_LAT sub-command**; every
   other spec-defined flag is NOT_SUPPORTED. Milan talker requirements are
   met, but a controller writing e.g. STREAM_VLAN_ID gets refused.
-- **Declared capability counts exceed reality.** ADP/AEM advertise
-  `talker_stream_sources = 8` and `listener_stream_sinks = 8`, but the
-  entity implements ONE talker stream, ONE media listener sink (+ a CRF
-  input descriptor with no engine behind it). Strict conformance wants
-  the declared counts to match the implemented descriptors — either
-  reduce the ADP caps/AEM counts to the real 1–2, or implement the rest.
+- ~~Declared capability counts exceed reality~~ **RESOLVED
+  (2026-07-20):** S50 provisions honest ADP counts (talker sources 1,
+  listener sinks 2 = media + CRF; 0x618/0x61C) and the ENTITY
+  descriptor overlays follow the same values.
 
 ## 2. Streaming / media
 
@@ -49,17 +52,21 @@ and is not repeated here.
   0x738-0x74C, and produces the phase delta (0x744, ts_delta contract),
   the 512-ms frequency error (0x748), lock state + CLOCK_DOMAIN
   LOCKED/UNLOCKED events (muxed in when clock_source = CRF descriptor
-  2). REMAINING for the full chain: the ACMP listener sink-1 bind SM
+  2). **The talker half is IN too (2026-07-20 night, USER-requested):**
+  KL_crf_tx sources the Avnu Pro Audio CRF stream (500 PDU/s, one
+  gPTP-ns timestamp per PDU captured on the REAL audio-MMCM 96-sample
+  event grid — the wire carries the true media-clock rate), CSRs
+  0x750-0x764 {en, sid, dmac, RO count}, 6th low-rate control-merge
+  source; S50 provisions the ALINX with DMAC = MAAP claim+1 on
+  gateware >= 0x0005. Rx silicon-proven against a synthetic pw0 source
+  (lock, 13000/13000 counted, rate-from-field, timeout unlock);
+  board-to-board e2e = the AX24/mf39 wire test.
+  REMAINING for the full chain: the ACMP listener sink-1 bind SM
   (today sink 1 answers GET_RX_STATE as valid-but-unbound), a second
-  lwSRP listener attribute for the CRF reservation, and the servo
-  daemon consuming CRF_DELTA/RATE when clock_source==2.
-  Original note: **CRF media clocking engine was absent.** The AEM carries a CRF STREAM_INPUT
-  descriptor and CRF stream formats in the ROM, but there is no CRF
-  talker/listener engine in fabric — the clock domain cannot be driven
-  by (or export) a CRF stream. This is the biggest functional gap for a
-  "fully compliant Milan end-station" (standing user goal). Today media
-  clocking = internal clock, STREAM input recovery, or the gPTP-locked
-  servo.
+  lwSRP listener attribute for the CRF reservation (until then the CRF
+  stream rides untagged best-effort — an SR-tagged unregistered stream
+  is pruned to zero ports by the bridge), and the servo daemon
+  consuming CRF_DELTA/RATE when clock_source==2.
 - **Channel width is stereo end-to-end.** The talker framer is hardwired
   2ch (declared truthfully); the listener ACCEPTS 1..8 ch via the
   adaptive monitor, but the I2S playback renders the first 2 channels
@@ -111,6 +118,14 @@ and is not repeated here.
 - **CSR config shadow serves stale values across an unnoticed fabric
   reset**; mitigated by the RST_EPOCH canary + daemon reconfig, not
   fixed in hardware (a shadow invalidate-on-reset would be the RTL fix).
+- **Synthesis-style landmines (2026-07-20 cbuf lesson):** `fword_r`
+  (KL_acmp_responder) and `nochg_q` (response builder) draw the same
+  Vivado Synth 8-7137 "set/reset same priority - may cause simulation
+  mismatches" warning that broke cbuf_r on silicon; both happen to be
+  silicon-proven today. Standing gate: any RAM-like array must live in
+  its own sync-only process, and every new build log gets
+  `grep "Synth 8-4767"` - a hit on our modules means Vivado refused RAM
+  inference and the fallback semantics are suspect.
 
 ## 6. Certification scope
 
