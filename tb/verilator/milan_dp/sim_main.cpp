@@ -1215,6 +1215,93 @@ int main(int argc, char** argv) {
         ck("CRFTX disabled = count frozen", axi_read(A_CRFT_COUNT), cnt_off);
     }
 
+    // ---------------------------------------------------------------- //
+    // ACMP sink-1 (CRF) bind chain: CONNECT_RX uid=1 through the whole  //
+    // datapath provisions the CRF engine (sid + enable) with the CSR    //
+    // pair CLEARED - the Milan bind path, no manual pokes.              //
+    // ---------------------------------------------------------------- //
+    printf("\n[S1CRF] ACMP sink-1 bind provisions the CRF engine\n");
+    {
+        enum { A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
+               A_CRF_STATUS = 0x74C, A_ACMPL_STATE = 0x6A4 };
+        axi_write(A_CRF_CTRL,  0x0);          // CSR lever OFF
+        axi_write(A_CRF_SIDLO, 0x0);
+        axi_write(A_CRF_SIDHI, 0x0);
+        // (locked bit may linger up to the 100 ms silence timeout from the
+        // earlier loopback - the en bit is the provisioning truth here)
+        ck("[S1CRF] CSR enable cleared", axi_read(A_CRF_CTRL) & 1, 0);
+
+        const uint64_t S1SID = 0xAABBCCDD00110001ULL;
+        auto mkconn = [&](uint8_t msg, uint16_t seq) {
+            static uint8_t f[70];
+            memset(f, 0, sizeof f);
+            const uint8_t dst[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            const uint8_t src[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f, dst, 6); memcpy(f+6, src, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC;   // ACMP
+            f[15]=msg;                            // CONNECT_RX=6 / DISC=8
+            f[16]=0x00; f[17]=44;                 // status0 | cdl 44
+            for (int j = 0; j < 8; j++) f[18+j] = (uint8_t)(S1SID >> (8*(7-j)));
+            const uint8_t ctl[8] = {0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
+            memcpy(f+26, ctl, 8);
+            const uint8_t tk[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x09};
+            memcpy(f+34, tk, 8);
+            const uint8_t ls[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, ls, 8);                  // listener = this entity
+            f[50]=0x00; f[51]=0x11;               // talker_unique_id
+            f[52]=0x00; f[53]=0x01;               // listener_unique_id = 1
+            const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x09};
+            memcpy(f+54, dm, 6);
+            f[62]=(uint8_t)(seq>>8); f[63]=(uint8_t)seq;
+            return f;
+        };
+        dut->m_axis_mac_tx_tready = 1;
+        inject(mkconn(6, 0x300), 70);
+        for (int c = 0; c < 4000; c++) step();   // response + settle
+        ck("[S1CRF] ACMPL bit31 = sink-1 bound", axi_read(A_ACMPL_STATE) >> 31, 1);
+
+        // CRF PDUs on the ACMP-provisioned sid: engine counts + locks
+        long pdu0 = axi_read(A_CRF_STATUS) >> 16;
+        uint64_t ts = 5000000000ULL; uint8_t sq = 0;
+        for (int k = 0; k < 9; k++) {
+            uint8_t f[64]; memset(f, 0, sizeof f);
+            const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x09};
+            memcpy(f, dm, 6);
+            const uint8_t sr[6] = {0x02,0x00,0x00,0x00,0x00,0x09};
+            memcpy(f+6, sr, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0x04; f[15]=0x80;
+            f[16]=sq++; f[17]=0x01;
+            for (int j = 0; j < 8; j++) f[18+j]=(uint8_t)(S1SID >> (8*(7-j)));
+            f[26]=0x00; f[27]=0x00; f[28]=0xBB; f[29]=0x80;
+            f[30]=0x00; f[31]=0x08; f[32]=0x00; f[33]=0x60;
+            for (int j = 0; j < 8; j++) f[34+j]=(uint8_t)(ts >> (8*(7-j)));
+            inject(f, 64);
+            ts += 2000000ULL;
+        }
+        ck("[S1CRF] engine counted on bound sid",
+           (long)(axi_read(A_CRF_STATUS) >> 16) - pdu0, 9);
+        ck("[S1CRF] locked via ACMP provisioning", axi_read(A_CRF_CTRL) >> 31, 1);
+
+        // unbind: engine loses its enable, further PDUs ignored
+        inject(mkconn(8, 0x301), 70);
+        for (int c = 0; c < 4000; c++) step();
+        ck("[S1CRF] unbind clears bit31", axi_read(A_ACMPL_STATE) >> 31, 0);
+        long pdu1 = axi_read(A_CRF_STATUS) >> 16;
+        {
+            uint8_t f[64]; memset(f, 0, sizeof f);
+            const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x09};
+            memcpy(f, dm, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0x04; f[15]=0x80;
+            f[16]=sq; f[17]=0x01;
+            for (int j = 0; j < 8; j++) f[18+j]=(uint8_t)(S1SID >> (8*(7-j)));
+            f[26]=0x00; f[27]=0x00; f[28]=0xBB; f[29]=0x80;
+            f[30]=0x00; f[31]=0x08; f[32]=0x00; f[33]=0x60;
+            inject(f, 64);
+        }
+        ck("[S1CRF] post-unbind PDU ignored",
+           (long)(axi_read(A_CRF_STATUS) >> 16), pdu1);
+    }
+
     }
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);

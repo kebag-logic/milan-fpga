@@ -451,6 +451,68 @@ int main(int argc, char** argv) {
         ck("[Z] zero-gap command accepted", dut->cmd_count_o, (long)(cc0 + 1));
     }
 
+    // ---------------------------------------------------------------- //
+    printf("\n[S1] CRF sink-1 real bind record (no probe SM, no MSRP)\n");
+    {
+        // sink0 state as [Z] left it: the S1 record must not disturb it
+        long st0 = dut->state_o, act0 = dut->stream_active_o;
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x1FF, 0, 0));
+        auto r = wait_frame();
+        long cnt0 = (long)r_be(r, 60, 2);
+
+        // fast-connect bind: command carries the stream_id + dest_mac
+        const uint8_t cdm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x08};
+        feed(acmp(6, 0, 0x020000000001000BULL, CT_EID, TK_EID, US_EID,
+                  0x000B, 1, cdm, 0x200, 0, 0));
+        r = wait_frame();
+        ck("[S1] BIND_RESP", r_msg(r), 7);
+        ck("[S1] SUCCESS", r_sta(r), 0);
+        ck("[S1] count 1", (long)r_be(r, 60, 2), 1);
+        ck("[S1] s1_bound_o", dut->s1_bound_o, 1);
+        ckh("[S1] s1_sid = command sid", dut->s1_sid_o, 0x020000000001000BULL);
+        ckh("[S1] s1_dmac = command dmac", dut->s1_dmac_o, 0x91E0F0002A08ULL);
+        ck("[S1] sink0 SM untouched", dut->state_o, st0);
+        ck("[S1] sink0 activity untouched", dut->stream_active_o, act0);
+
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x201, 0, 0));
+        r = wait_frame();
+        ck("[S1] state SUCCESS", r_sta(r), 0);
+        ck("[S1] state count 1", (long)r_be(r, 60, 2), 1);
+        ckh("[S1] state talker", r_be(r, 34, 8), TK_EID);
+        ck("[S1] state tuid", (long)r_be(r, 50, 2), 0x000B);
+        ckh("[S1] state dmac", r_be(r, 54, 6), 0x91E0F0002A08ULL);
+
+        // zero-sid bind falls back to {talker EID(FFFE-squeezed), tuid}
+        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x0001, 1, nullptr,
+                  0x202, 0, 0));
+        r = wait_frame();
+        ck("[S1] zero-sid rebind SUCCESS", r_sta(r), 0);
+        ckh("[S1] fallback sid {eid,tuid}", dut->s1_sid_o,
+            0x0200000000010001ULL);
+
+        // sink0 GET_RX_STATE remains independent (whatever [Z] left)
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x203, 0, 0));
+        r = wait_frame();
+        ck("[S1] sink0 state count unchanged", (long)r_be(r, 60, 2), cnt0);
+
+        // unbind clears the record
+        feed(acmp(8, 0, 0, CT_EID, TK_EID, US_EID, 0, 1, nullptr, 0x204, 0, 0));
+        r = wait_frame();
+        ck("[S1] UNBIND_RESP", r_msg(r), 9);
+        ck("[S1] UNBIND SUCCESS", r_sta(r), 0);
+        ck("[S1] s1 cleared", dut->s1_bound_o, 0);
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x205, 0, 0));
+        r = wait_frame();
+        ck("[S1] post-unbind count 0", (long)r_be(r, 60, 2), 0);
+        ckh("[S1] post-unbind talker 0", r_be(r, 34, 8), 0);
+
+        // uid >= 2 still LISTENER_UNKNOWN_ID
+        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 2, nullptr, 0x206, 0, 0));
+        r = wait_frame();
+        ck("[S1] uid2 bind UNKNOWN_ID", r_sta(r), 1);
+        ck("[S1] uid2 left s1 alone", dut->s1_bound_o, 0);
+    }
+
     printf("KL_acmp_listener: %ld checks, %ld failures\n", checks, fails);
     delete dut;
     return fails ? 1 : 0;
