@@ -84,6 +84,7 @@ module KL_aecp_top #(
   input  wire [4:0]    lstn_acmpsta_i,
   input  wire          lstn_ta_reg_i,
   input  wire          lstn_ta_fail_i,
+  input  wire [63:0]   as_parent_ckid_i,   //! 802.1AS parent bridge ckid (CSR)
   input  wire [7:0]    lstn_fail_code_i,   //! listener-side MSRP failure code
   input  wire [63:0]   lstn_fail_bridge_i, //! ...and failing bridge_id
   input  wire [11:0]   lstn_ta_vlan_i,     //! registered Talker-attr vlan
@@ -267,6 +268,7 @@ module KL_aecp_top #(
     .identify_o(identify_o),
     .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
+    .as_parent_ckid_i(as_parent_ckid_i),
     .lstn_fail_code_i(lstn_fail_code_i), .lstn_fail_bridge_i(lstn_fail_bridge_i),
     .lstn_ta_vlan_i(lstn_ta_vlan_i), .lstn_ta_acclat_i(lstn_ta_acclat_i),
     .tk_fail_valid_i(tk_fail_valid_i), .tk_fail_code_i(tk_fail_code_i),

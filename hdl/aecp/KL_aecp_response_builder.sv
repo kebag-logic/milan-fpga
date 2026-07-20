@@ -110,6 +110,7 @@ module KL_aecp_response_builder (
   input  wire [11:0]   lstn_vlan_i,
   input  wire [1:0]    lstn_pbsta_i,       //! probing status
   input  wire [4:0]    lstn_acmpsta_i,     //! last ACMP status
+  input  wire [63:0]   as_parent_ckid_i,   //! 802.1AS parent bridge ckid (0=none)
   input  wire [7:0]    lstn_fail_code_i,
   input  wire [63:0]   lstn_fail_bridge_i,
   input  wire [11:0]   lstn_ta_vlan_i,
@@ -1661,15 +1662,32 @@ module KL_aecp_response_builder (
                 const_q[0] <= 8'h00;
                 for (int k = 2; k < 18; k++) const_q[k] <= 8'h00;
                 if (w_as_path_idx == 16'd0) begin
+                  //! 1722.1-2021 7.4.41.2: path_sequence = the pathSequence
+                  //! of the LATEST Announce's PathTrace TLV = the clock
+                  //! identities the Announce TRAVERSED: the grandmaster,
+                  //! then each bridge. A receiving end-station is NOT in
+                  //! the list (it only appends itself when retransmitting)
+                  //! - the old entry 2 wrongly published OUR OWN identity
+                  //! and omitted the switch (user-caught 2026-07-20).
+                  //! Foreign GM through a bridge: [GM, parent-bridge];
+                  //! foreign GM direct-wired (parent == GM or unknown):
+                  //! [GM]; we are the GM: [self].
                   status_q   <= STATUS_SUCCESS;
                   if (w_gm_foreign) begin
-                    seg_len_q[1] <= 16'd18;
-                    cdl_q        <= 11'd32;   // 12 + 4 + 16
-                    const_q[1]   <= 8'h02;                    // count = 2
-                    for (int k = 0; k < 8; k++)
-                      const_q[2+k] <= gptp_gm_id_i[8*(7-k) +: 8];
-                    for (int k = 0; k < 8; k++)
-                      const_q[10+k] <= w_self_ckid[8*(7-k) +: 8];
+                    if (as_parent_ckid_i != 64'd0 &&
+                        as_parent_ckid_i != gptp_gm_id_i) begin
+                      seg_len_q[1] <= 16'd18;
+                      cdl_q        <= 11'd32;   // 12 + 4 + 16
+                      const_q[1]   <= 8'h02;                  // count = 2
+                      for (int k = 0; k < 8; k++)
+                        const_q[2+k] <= gptp_gm_id_i[8*(7-k) +: 8];
+                      for (int k = 0; k < 8; k++)
+                        const_q[10+k] <= as_parent_ckid_i[8*(7-k) +: 8];
+                    end else begin
+                      const_q[1] <= 8'h01;                    // count = 1
+                      for (int k = 0; k < 8; k++)
+                        const_q[2+k] <= gptp_gm_id_i[8*(7-k) +: 8];
+                    end
                   end else begin
                     const_q[1] <= 8'h01;                      // count = 1
                     for (int k = 0; k < 8; k++)

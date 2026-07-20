@@ -409,12 +409,16 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
-    // 9c. GET_AS_PATH — Milan-mandatory; GM-aware (user bug 4): foreign //
-    // GM published via CSR -> [GM, us]; no/own GM -> self-only          //
+    // 9c. GET_AS_PATH — 1722.1-2021 7.4.41.2: path_sequence = the        //
+    // Announce PathTrace = [GM, each traversed BRIDGE]; the receiving   //
+    // end-station is NOT in the list (it appends itself only when       //
+    // retransmitting). Bridge ckid comes from the AS2 CSR (daemon).     //
     // ---------------------------------------------------------------- //
     printf("\n[9c] GET_AS_PATH\n");
     {
-        // init gm = 0x0011223344556677 (foreign) -> count=2 path [GM, us]
+        // foreign GM through a bridge -> count=2 path [GM, bridge]
+        dut->as_parent_ckid_i = 0x3CC0C6FFFEFE0210ULL;   // the switch
+        for (int i = 0; i < 2; i++) tick();
         std::vector<uint8_t> ap; put_be16(ap, 0); put_be16(ap, 0);   // desc_index, reserved
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9200, ap));
         auto r = collect_resp();
@@ -424,8 +428,16 @@ int main(int argc, char** argv) {
         ckbytes("AS_PATH count == 2", r, 40, {0x00,0x02});
         ckbytes("AS_PATH path[0] == grandmaster", r, 42,
                 {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
-        ckbytes("AS_PATH path[1] == EUI64(station MAC)", r, 50,
-                {0x02,0x00,0x00,0xFF,0xFE,0xFF,0xFE,0x01});
+        ckbytes("AS_PATH path[1] == PARENT BRIDGE (the switch)", r, 50,
+                {0x3C,0xC0,0xC6,0xFF,0xFE,0xFE,0x02,0x10});
+
+        // foreign GM DIRECT-wired (no bridge known) -> count=1 [GM]
+        dut->as_parent_ckid_i = 0; for (int i = 0; i < 2; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9203, ap));
+        auto r4 = collect_resp();
+        ck("AS_PATH direct-GM count == 1", r4.size() > 41 ? (long)r4[41] : -1, 1);
+        ckbytes("AS_PATH direct-GM path[0] == GM", r4, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
 
         // no GM published -> self-only path (we are our own clock)
         dut->gptp_gm_id_i = 0; for (int i = 0; i < 4; i++) tick();

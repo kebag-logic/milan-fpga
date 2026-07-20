@@ -36,7 +36,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/adp/adp_pkg.
        $(P)/timestamp_counter.sv $(P)/ptp_csr_sync.sv \
        $(C)/cdc_pulse.sv $(C)/cdc_handshake.sv $(C)/axis_mux_rr_2in_1out.sv \
        $(P)/ptp_ts_core.sv $(P)/ptp_ts_top.sv \
-       $(C)/tcam.sv $(C)/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv \
+       $(C)/tcam.sv $(C)/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/avtp/KL_pcm_lpf.sv \
        $(RTL_DIR)/adp/adp_advertiser.sv $(RTL_DIR)/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/aecp/aecp_pkg.sv \
        $(RTL_DIR)/aecp/KL_aecp_packet_validator.sv $(RTL_DIR)/aecp/KL_aecp_common_parser.sv \
