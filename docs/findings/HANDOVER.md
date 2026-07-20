@@ -12,6 +12,9 @@ lives in the named normative docs; this file states what is true NOW.
 ## ★ CURRENT STATE 2026-07-20 (read this first) ★
 
 **★★ DUAL-BOARD CERT CERTIFICATION (07-20): ARTY 41/41 + ALINX 41/41 ★★**
+RE-CONFIRMED on the final durable state (cold-booted rootfs both boards,
+ALINX-as-GM from boot, one gPTP domain, reseated loop): ARTY 41/41 +
+ALINX 41/41 in a single back-to-back confirmation run.
 Every scenario of every recreated CERT feature passes on BOTH boards
 (es-2.1 through es-4.13, hive-get-counters, link-flap; ALINX 3x-stable
 on link-flap after one cold-path first-run outlier). Final keepers:
