@@ -197,6 +197,11 @@ module KL_aecp_response_builder (
                                                      // like SET_STREAM_FORMAT)
   endfunction
 
+  //! no-change SET: SUCCESS but nothing changed -> suppress the u=1 replay
+  //! (1722.1 unsolicited rule notifies STATE CHANGES; CERT es-4.5 asserts a
+  //! same-value SET_STREAM_INFO does NOT notify)
+  logic nochg_q;
+
   wire w_cap_hs = s_axis_tvalid & s_axis_tready;
 
   wire [6:0] w_eaddr  = emseg_addr_r[6:0] + emsoff_r[6:0];  //! echo RAM addr
@@ -1001,6 +1006,7 @@ module KL_aecp_response_builder (
           end
           msg_resp_q <= vu_q ? MSG_VENDOR_UNIQUE_RESPONSE : MSG_AEM_RESPONSE;
           status_q   <= STATUS_NOT_IMPLEMENTED;
+          nochg_q    <= 1'b0;
           seg_kind_q[0] <= SEG_ECHO;
           seg_addr_q[0] <= 16'd2;
           seg_len_q[0]  <= (hdr_q.control_data_length > 11'd12)
@@ -1133,6 +1139,9 @@ module KL_aecp_response_builder (
               CMD_GET_CONFIGURATION, CMD_SET_CONFIGURATION: begin
                 status_q <= (hdr_q.command_type == CMD_SET_CONFIGURATION &&
                              l0_reject_q) ? l0_status_q : STATUS_SUCCESS;
+                //! single-config entity: an accepted SET_CONFIGURATION is
+                //! always to the current index = never a state change
+                nochg_q  <= (hdr_q.command_type == CMD_SET_CONFIGURATION);
                 seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd0; seg_len_q[0] <= 16'd4;
                 const_q[0] <= 8'h00; const_q[1] <= 8'h00;
                 const_q[2] <= l0_state_i.current_configuration_index[15:8];
@@ -1411,6 +1420,7 @@ module KL_aecp_response_builder (
                   status_q <= STATUS_BAD_ARGUMENTS;   // > 0x7FFFFFFF ns
                 end else begin
                   status_q      <= STATUS_SUCCESS;
+                  nochg_q       <= (w_si_lat == pres_offset_i);
                   pres_wr_p_o   <= 1'b1;
                   pres_wr_val_o <= w_si_lat;
                 end
@@ -1788,7 +1798,7 @@ module KL_aecp_response_builder (
             // a SUCCESS state-changing SET: replay its response (u=1) to
             // every registered controller except the originator
             if (!unsol_frame_r && !vu_q && status_q == STATUS_SUCCESS &&
-                is_replay_cmd(hdr_q.command_type))
+                is_replay_cmd(hdr_q.command_type) && !nochg_q)
               for (int sl = 0; sl < UNSOL_SLOTS_C; sl++)
                 if (unsol_valid_r[sl] &&
                     unsol_eid_r[sl] != hdr_q.controller_entity_id)
