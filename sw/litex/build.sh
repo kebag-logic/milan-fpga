@@ -32,15 +32,15 @@ STAGGER=90
 # ---- per-board flash/JTAG facts (docs/integration/BUILDING.md section 4) --------------------
 # serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
 # wrong board is destructive). policy = what this board's QSPI holds:
-#   ax7101 images:    Linux boot images at flashboot_layout.json offsets (kernel at
-#                     offset 0) - a bitstream write is the known kernel-clobber trap;
-#   arty   images:    the Alinx model since the flashboot port (kernel at offset
-#                     0 = mutually exclusive with a bitstream; JTAG-SRAM gateware).
-#                     Flash a BITSTREAM instead via: flash arty:<dir> after
-#                     flipping this policy - 16 MB cannot hold both.
+#   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
+#   offset 0 (dedicated 4 MiB slot in the "full" manifest) + Linux images at
+#   the flashboot_layout.json offsets (kernel 4 MiB, opensbi 7, dtb 7.38,
+#   rootfs 7.5; 3.6 MiB bit + 8.2 MiB rootfs fit the 16 MB N25Q128 with room).
+#   The historical "AX bitstream = kernel-clobber trap" note described the OLD
+#   kernel-at-offset-0 layout and died with the manifest-"full" port.
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
-        ax7101) echo "210512180081 ft232    xc7a100tfgg484 images    alinx_ax7101.bit";;
+        ax7101) echo "210512180081 ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
         arty)   echo "210319AFEED0 digilent xc7a100tcsg324 boot      digilent_arty.bit";;
         *)      return 1;;
     esac
