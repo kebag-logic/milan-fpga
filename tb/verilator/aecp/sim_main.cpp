@@ -398,7 +398,7 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> en; put_be16(en, 0x0000); put_be16(en, 0);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9102, en));
         auto r3 = collect_resp();
-        ck("ENTITY counters SUCCESS empty-mask", r_status(r3), 0);
+        ck("ENTITY counters BAD_ARGUMENTS full-size (CERT)", r_status(r3), 7);
         ck("error response STILL full-size (CDL 148)", r_cdl(r3), 148);   // the Hive field-report class
 
         std::vector<uint8_t> nx; put_be16(nx, 0x0005); put_be16(nx, 9);
@@ -1232,7 +1232,7 @@ int main(int argc, char** argv) {
         ck("[21g] IN0 hdr", be32_at(r, 58), 0x00050000);
         ck("[21g] IN0 stream_id 0", be32_at(r, 62) | be32_at(r, 66), 0);
         ck("[21g] IN0 format hi", be32_at(r, 70), 0x02050220);
-        ck("[21g] IN0 format lo (2ch default)", be32_at(r, 74), 0x00806000);
+        ck("[21g] IN0 format lo (8ch default, adaptive monitor)", be32_at(r, 74), 0x02006000);
         ck("[21g] IN0 flags FORMAT_VALID", be32_at(r, 78), 0x80000000);
         ck("[21g] IN0 tail zero", be32_at(r, 82), 0);
         ck("[21g] IN1 hdr (idx 1)", be32_at(r, 86), 0x00050001);
@@ -1424,7 +1424,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22CF,
                          si_pl(0x0000, 0)));
         r = collect_resp();
-        ck("[22g1b] GET_COUNTERS(ENTITY) SUCCESS", r_status(r), 0);
+        ck("[22g1b] GET_COUNTERS(ENTITY) BAD_ARGUMENTS", r_status(r), 7);
         ck("[22g1b] empty valid mask", be32_at(r, 42), 0);
         ck("[22g1b] CDL 148", r_cdl(r), 148);
 

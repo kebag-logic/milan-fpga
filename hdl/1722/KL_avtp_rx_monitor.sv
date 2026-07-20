@@ -151,14 +151,19 @@ module KL_avtp_rx_monitor #(
   wire [7:0] p_depth   = fsh_i[39:32];   // O+19
   wire       p_sp      = fsh_i[12];      // O+22 [4]
 
-  //! reference aaf_pdu_format_matches: subtype, format, nsr, bit_depth,
-  //! channels and sparse all match (format sparse is always NORMAL=0; a
-  //! >255-channel format can never match the 8-bit wire field, as in C)
+  //! reference aaf_pdu_format_matches: subtype, format, nsr and bit_depth
+  //! strict; CHANNELS ADAPTIVE (bench rule 2026-07-20, CERT es-4.4): the
+  //! listener accepts any wire channel count 1..fmt_channels - the AEM
+  //! default can stay the full 8ch format while a 2ch talker connects
+  //! pure-ACMP (no SET_STREAM_FORMAT needed; the depacketizer extracts by
+  //! the PDU's own data_len so the media path is wire-driven anyway).
+  //! sparse always NORMAL=0.
   wire fmt_ok = (subtype_i == f_subtype) &&
                 (p_format  == f_format)  &&
                 (p_nsr     == f_nsr)     &&
                 (p_depth   == f_depth)   &&
-                ({2'b00, p_chans} == f_chans) &&
+                (p_chans   != 8'd0)      &&
+                ({2'b00, p_chans} <= f_chans) &&
                 (p_sp      == 1'b0);
 
   // ---- state ---------------------------------------------------------------

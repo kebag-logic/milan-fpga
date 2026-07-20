@@ -183,13 +183,18 @@ module KL_aecp_response_builder (
 
   //! state-changing SETs whose SUCCESS response is replayed u=1 to the other
   //! registered controllers (IEEE 1722.1-2021 unsolicited rule; reference
-  //! reply-unsol-helpers.c). SET_STREAM_INFO keeps its dedicated pend path.
+  //! reply-unsol-helpers.c). The ta/lo state-edge push path is separate.
   function automatic logic is_replay_cmd(input [14:0] c);
     is_replay_cmd = (c == CMD_SET_STREAM_FORMAT) || (c == CMD_SET_NAME) ||
                     (c == CMD_SET_SAMPLING_RATE) || (c == CMD_SET_CLOCK_SOURCE) ||
                     (c == CMD_SET_CONTROL) || (c == CMD_START_STREAMING) ||
                     (c == CMD_STOP_STREAMING) || (c == CMD_SET_MAX_TRANSIT_TIME) ||
-                    (c == CMD_SET_CONFIGURATION);   // CERT es-4.3
+                    (c == CMD_SET_CONFIGURATION) ||  // CERT es-4.3
+                    (c == CMD_SET_STREAM_INFO);      // CERT es-4.5: replay the
+                                                     // SET response u=1 (the
+                                                     // echo-based rebuild
+                                                     // handles its payload
+                                                     // like SET_STREAM_FORMAT)
   endfunction
 
   wire w_cap_hs = s_axis_tvalid & s_axis_tready;
@@ -795,12 +800,10 @@ module KL_aecp_response_builder (
       if (~link_up_i & link_prev_r) cnt_linkdn_r <= cnt_linkdn_r + 32'd1;
       gm_prev_r <= gptp_gm_id_i;
       if (gptp_gm_id_i != gm_prev_r) cnt_gmchg_r <= cnt_gmchg_r + 32'd1;
-      if (pres_wr_p_o) begin   // hdr_q still holds the causing SET command
-        for (int s = 0; s < UNSOL_SLOTS_C; s++)
-          if (unsol_valid_r[s] &&
-              unsol_eid_r[s] != hdr_q.controller_entity_id)
-            unsol_pend_r[s] <= 1'b1;
-      end
+      //! (SET_STREAM_INFO notification: handled by the is_replay_cmd path -
+      //! the SET response replays u=1 to the other controllers, which is the
+      //! CERT-es-4.5-required shape. The old GET-shaped push on pres_wr_p_o
+      //! double-notified and was removed 2026-07-20.)
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
       if (w_cap_hs) begin
@@ -1482,10 +1485,11 @@ module KL_aecp_response_builder (
                   seg_len_q[2] <= 16'd80;
                   load_input_counters_consts(w_gs_index == 16'd0);
                 end else if (w_gs_type == DESC_ENTITY && w_gs_index == 16'd0) begin
-                  // Hive/la_avdecc queries ENTITY counters: no entity-level
-                  // counters defined -> SUCCESS with an EMPTY valid mask
-                  // (BAD_ARGUMENTS logged as a bad-values error, field report)
-                  status_q <= STATUS_SUCCESS;
+                  //! CERT hive-get-counters: no ENTITY-level counters in
+                  //! Milan v1.2 -> BAD_ARGUMENTS, FULL-SIZE payload (the
+                  //! 2026-07-11 Hive field report was about undersized
+                  //! responses, not the status - full 136 B stays).
+                  status_q <= STATUS_BAD_ARGUMENTS;
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
