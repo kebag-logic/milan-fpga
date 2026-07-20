@@ -368,6 +368,9 @@ module KL_aecp_response_builder (
   logic [6:0]  wb_len_q;
   logic [6:0]  wb_src_q;
   logic [6:0]  wb_cnt_r;
+  logic        wbp_r;       //! WRITE_S phase (0 = read old byte, 1 = write+cmp)
+  logic        wb_used_q;   //! a store writeback ran for this command
+  logic        wb_diff_q;   //! ...and at least one byte actually changed
 
   // ------------------------------------------------------------------ //
   // Emit engine                                                          //
@@ -400,8 +403,14 @@ module KL_aecp_response_builder (
   //! deliver a stale byte. The write port stays registered (WRITE_S).
   wire w_emit_store = (state_r == EMIT_ADDR_S || state_r == EMIT_DATA_S) &&
                       (fi_r >= w_hdr_len) && (seg_kind_q[w_seg] == SEG_STORE);
-  assign st_addr_o = seg_addr_q[w_seg] + w_soff;
-  assign st_rd_o   = w_emit_store;
+  //! WRITE_S phase-0 read of the OLD byte (nochg detection: a SET whose
+  //! writeback changes nothing suppresses the u=1 replay - the 1722.1
+  //! unsolicited rule notifies STATE CHANGES; generalizes the es-4.5
+  //! SET_STREAM_INFO case to every store-writeback SET)
+  wire w_wb_read = (state_r == WRITE_S) && (wb_len_q != 7'd0) && !wbp_r;
+  assign st_addr_o = w_wb_read ? (wb_addr_q + 16'(wb_cnt_r))
+                               : seg_addr_q[w_seg] + w_soff;
+  assign st_rd_o   = w_emit_store || w_wb_read;
 
   // byte -> beat packer
   logic [63:0] pack_r;
@@ -705,6 +714,9 @@ module KL_aecp_response_builder (
       wb_len_q     <= 7'd0;
       wb_src_q     <= 7'd0;
       wb_cnt_r     <= 7'd0;
+      wbp_r        <= 1'b0;
+      wb_used_q    <= 1'b0;
+      wb_diff_q    <= 1'b0;
       st_wr_o      <= 1'b0;
       st_waddr_o   <= 16'd0;
       st_wdata_o   <= 8'd0;
@@ -1008,6 +1020,9 @@ module KL_aecp_response_builder (
           msg_resp_q <= vu_q ? MSG_VENDOR_UNIQUE_RESPONSE : MSG_AEM_RESPONSE;
           status_q   <= STATUS_NOT_IMPLEMENTED;
           nochg_q    <= 1'b0;
+          wbp_r      <= 1'b0;
+          wb_used_q  <= 1'b0;
+          wb_diff_q  <= 1'b0;
           seg_kind_q[0] <= SEG_ECHO;
           seg_addr_q[0] <= 16'd2;
           seg_len_q[0]  <= (hdr_q.control_data_length > 11'd12)
@@ -1744,10 +1759,16 @@ module KL_aecp_response_builder (
                          // also the cycle where cum_q/pay_len_q settle
           if (wb_len_q == 7'd0) begin
             if (cum_done_q) state_r <= EMIT_ADDR_S;
+          end else if (!wbp_r) begin
+            wbp_r <= 1'b1;             // old byte read issued (w_wb_read)
           end else begin
+            wbp_r      <= 1'b0;
             st_wr_o    <= 1'b1;
             st_waddr_o <= wb_addr_q + 16'(wb_cnt_r);
             st_wdata_o <= bufb(cbuf_r[w_wbaddr[6:3]], w_wbaddr[2:0]);
+            wb_used_q  <= 1'b1;
+            if (st_byte_i != bufb(cbuf_r[w_wbaddr[6:3]], w_wbaddr[2:0]))
+              wb_diff_q <= 1'b1;
             if (wb_cnt_r == wb_len_q - 7'd1) begin
               wb_cnt_r <= 7'd0;
               wb_len_q <= 7'd0;
@@ -1819,7 +1840,8 @@ module KL_aecp_response_builder (
             // a SUCCESS state-changing SET: replay its response (u=1) to
             // every registered controller except the originator
             if (!unsol_frame_r && !vu_q && status_q == STATUS_SUCCESS &&
-                is_replay_cmd(hdr_q.command_type) && !nochg_q)
+                is_replay_cmd(hdr_q.command_type) && !nochg_q &&
+                !(wb_used_q && !wb_diff_q))
               for (int sl = 0; sl < UNSOL_SLOTS_C; sl++)
                 if (unsol_valid_r[sl] &&
                     unsol_eid_r[sl] != hdr_q.controller_entity_id)
