@@ -313,8 +313,8 @@ OVERLAYS = [
     (E + 48,  8, "ENT_NAME8"),   # first 8 chars of entity_name: board name
                                  # ("ARTY"/"ALINX") from the CSR, S50-set
     (E + 310, 2, "CURRENT_CFG"),
-    (A + 72,  6, "MAC"),
-    (A + 80,  8, "CLOCK_ID"),
+    (A + 70,  6, "MAC"),
+    (A + 78,  8, "CLOCK_ID"),
 ]
 SRC_IDS = {name: n for n, name in enumerate(
     ["ENTITY_ID", "MODEL_ID", "ECAPS", "TALKER_SRC", "TALKER_CAP",

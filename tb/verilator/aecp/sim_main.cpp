@@ -223,10 +223,16 @@ int main(int argc, char** argv) {
         ck("status=SUCCESS", r_status(r), 0);
         ck_cdl("[2] READ_DESC(AVB_IF) CDL correct (len-26)", r);
         ckbytes("descriptor_type=AVB_INTERFACE", r, 42, {0x00,0x09});
-        // mac_address at descriptor offset 72 -> wire 42+72 = 114
-        ckbytes("mac_address overlaid", r, 114, {0x02,0x00,0x00,0xff,0xfe,0x01});
-        // clock_identity (MAC EUI-64) at descriptor offset 80 -> wire 122
-        ckbytes("clock_identity EUI-64", r, 122,
+        // 1722.1-2021 Table 7-13 layout: type(2)+index(2)+object_name(64)+
+        // localized_description(2) = 70 -> mac_address@70, interface_flags@76,
+        // clock_identity@78. (The overlay map used to sit at +2, so the MAC
+        // tail clobbered interface_flags on the wire - Hive user-caught.)
+        ckbytes("mac_address overlaid @70", r, 42+70,
+                {0x02,0x00,0x00,0xff,0xfe,0x01});
+        // interface_flags: GPTP_GRANDMASTER_SUPPORTED|GPTP_SUPPORTED|SRP_SUPPORTED
+        ckbytes("interface_flags=0x0007 intact @76", r, 42+76, {0x00,0x07});
+        // clock_identity (MAC EUI-64) at descriptor offset 78
+        ckbytes("clock_identity EUI-64 @78", r, 42+78,
                 {0x02,0x00,0x00,0xff,0xfe,0xff,0xfe,0x01});
     }
 
