@@ -11,10 +11,19 @@ lives in the named normative docs; this file states what is true NOW.
 
 ## ★ CURRENT STATE 2026-07-20 (read this first) ★
 
-**Keepers.** Arty QSPI = `build_arty_asl_milanfinal31` (WNS +0.139) + the
-full-fix rootfs; boots fully self-configuring, entity **"ARTY"**. AX7101
-SRAM = `asl_milanfinal17` for now; `milanfinal18` (full parity at HEAD)
-building — flash + JTAG when it lands, entity **"ALINX"**. Both entities
+**Keepers.** Arty QSPI = `build_arty_asl_milanfinal31` (WNS +0.139;
+`milanfinal32` building = +nochg-replay +"ARTY" rootfs — flash when it
+lands). AX7101 SRAM = **`eto_milanfinal18` (+0.105) LOADED** with the
+names rootfs: entity **"ALINX"** confirmed on the wire; full parity
+(gasket, adaptive channels, DELAY state, pend3, model_id) except nochg_q
+(mf32-era; AX19 whenever convenient).
+
+**Two-entity finale (AX18 + mf31, 07-20):** la_avdecc CONNECT SUCCESS,
+both Milan=1, listener Connected; pdelay 96% (capture-edge misses);
+**MVRP 46/45 s on the wire from the arty, paired with MSRP** (the IFG
+gasket holding on final silicon); AX reservation res_active + gate +
+slope (0x37E); audio ALINX −126.2 dB / ARTY loop −68.0 dB. ACMP via the
+FIXED avdecc_l2: **15/15**. Both entities
 alive, discoverable, Milan-clean on the wire.
 
 **★ THE ACMP-TIMEOUT MYSTERY IS SOLVED — it was NEVER our DUT. ★** The
