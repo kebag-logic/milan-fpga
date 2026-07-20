@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstring>
 #include <vector>
+#include <array>
 #include <cstdint>
 
 static Vmilan_datapath* dut;
@@ -1080,6 +1081,135 @@ int main(int argc, char** argv) {
         long cnt = axi_read(A_CRF_STATUS) >> 16;
         send_crf();
         ck("CRF disabled = inert", axi_read(A_CRF_STATUS) >> 16, cnt);
+    }
+
+    // ---------------------------------------------------------------- //
+    // CRF Media Clock Output engine (Milan 7.3.1): KL_crf_tx emits on   //
+    // the audio-MMCM 96-sample grid; wire frames byte-checked, then     //
+    // looped back into KL_crf_rx for the tx->rx closure.                //
+    // ---------------------------------------------------------------- //
+    printf("\n[CRFTX] Milan CRF media clock output engine + rx loopback\n");
+    {
+        enum { A_CRFT_CTRL = 0x750, A_CRFT_SIDLO = 0x754, A_CRFT_SIDHI = 0x758,
+               A_CRFT_DMLO = 0x75C, A_CRFT_DMHI = 0x760, A_CRFT_COUNT = 0x764,
+               A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
+               A_CRF_DELTA = 0x744, A_CRF_STATUS = 0x74C };
+
+        // silence the AAF talker (preserve VID 2) so the TX side carries
+        // control-lane frames only; the subtype filter below guards the rest
+        axi_write(0x654, 0x00020000);
+
+        // provision: sid {02:00:00:00:00:01, uid 1}, DMAC 91:E0:F0:00:2A:07
+        axi_write(A_CRFT_SIDLO, 0x00010001);
+        axi_write(A_CRFT_SIDHI, 0x02000000);
+        axi_write(A_CRFT_DMLO,  0xF0002A07);
+        axi_write(A_CRFT_DMHI,  0x000091E0);
+        ck("CRFT count starts 0", axi_read(A_CRFT_COUNT), 0);
+
+        // station MAC as the wire will carry it (instantiation byte-reverse)
+        uint32_t malo = axi_read(0x108), mahi = axi_read(0x10C);
+        const uint8_t smac[6] = {
+            (uint8_t)malo, (uint8_t)(malo>>8), (uint8_t)(malo>>16),
+            (uint8_t)(malo>>24), (uint8_t)mahi, (uint8_t)(mahi>>8) };
+
+        ck("CRFT sid readback (shadow)", axi_read(A_CRFT_SIDLO), 0x00010001);
+        ck("CRFT dmac readback (shadow)", axi_read(A_CRFT_DMLO), 0xF0002A07);
+
+        // enable LAST, then capture immediately: no cycles may pass in
+        // between or the first PDUs (seq 0..) drain unseen
+        axi_write(A_CRFT_CTRL, 0x1);
+        ck("CRFT_CTRL readback en=1", axi_read(A_CRFT_CTRL), 1);
+
+        // one CRF PDU per 512*96 = 49152 audio(=axis) cycles
+        const int NCAP = 10;
+        std::vector<std::array<uint8_t,64>> crf; std::vector<uint8_t> cur;
+        uint8_t crf_keep = 0;
+        dut->m_axis_mac_tx_tready = 1;
+        for (long c = 0; c < 700000 && (int)crf.size() < NCAP; c++) {
+            step();
+            if (dut->m_axis_mac_tx_tvalid) {
+                uint64_t d = dut->m_axis_mac_tx_tdata;
+                for (int j = 0; j < 8; j++) cur.push_back((uint8_t)(d >> (8*j)));
+                if (dut->m_axis_mac_tx_tlast) {
+                    if (cur.size() >= 42 && cur[12]==0x22 && cur[13]==0xF0
+                        && cur[14]==0x04) {
+                        std::array<uint8_t,64> f{};
+                        for (size_t k = 0; k < cur.size() && k < 64; k++) f[k] = cur[k];
+                        crf.push_back(f);
+                        crf_keep = dut->m_axis_mac_tx_tkeep;
+                    }
+                    cur.clear();
+                }
+            }
+        }
+        ck("CRFTX captured 10 PDUs", (long)crf.size(), NCAP);
+        ck("CRFTX 60-byte frame (last keep 0x0F)", crf_keep, 0x0F);
+        ck("CRFT count == captured", axi_read(A_CRFT_COUNT), NCAP);
+
+        // byte-exact structural golden on every captured frame + seq chain
+        long ok_hdr = 1, ok_seq = 1, ok_pad = 1;
+        const uint8_t dmac[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x07};
+        const uint8_t sid8[8] = {0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x01};
+        for (int k = 0; k < (int)crf.size(); k++) {
+            const uint8_t* f = crf[k].data();
+            if (memcmp(f, dmac, 6) || memcmp(f+6, smac, 6)) ok_hdr = 0;
+            if (f[14]!=0x04 || f[15]!=0x80 || f[17]!=0x01) ok_hdr = 0;
+            if (memcmp(f+18, sid8, 8)) ok_hdr = 0;
+            if (f[26]!=0x00||f[27]!=0x00||f[28]!=0xBB||f[29]!=0x80) ok_hdr = 0;
+            if (f[30]!=0x00||f[31]!=0x08||f[32]!=0x00||f[33]!=0x60) ok_hdr = 0;
+            if (f[16] != (uint8_t)k) ok_seq = 0;
+            for (int p = 42; p < 60; p++) if (f[p]) ok_pad = 0;
+        }
+        ck("CRFTX header/sid/base/dlen/ival byte-exact", ok_hdr, 1);
+        ck("CRFTX sequence_num 0..9 consecutive", ok_seq, 1);
+        ck("CRFTX zero pad to 60B", ok_pad, 1);
+
+        // timestamp grid: strictly monotone, consecutive deltas equal to
+        // the 49152-cycle event spacing within 1 ns (fractional-incr slack)
+        auto get_ts = [&](int k) {
+            uint64_t t = 0;
+            for (int j = 0; j < 8; j++) t = (t << 8) | crf[k][34+j];
+            return t;
+        };
+        long ok_mono = crf.size() >= 2 ? 1 : 0,
+             ok_grid = crf.size() >= 2 ? 1 : 0;
+        uint64_t d0 = crf.size() >= 2 ? get_ts(1) - get_ts(0) : 0;
+        for (int k = 1; k < (int)crf.size(); k++) {
+            uint64_t dk = get_ts(k) - get_ts(k-1);
+            if (get_ts(k) <= get_ts(k-1)) ok_mono = 0;
+            if (dk + 1 < d0 || dk > d0 + 1) ok_grid = 0;
+        }
+        ck("CRFTX ts strictly monotone", ok_mono, 1);
+        ck("CRFTX ts grid uniform (event-locked)", ok_grid, 1);
+        ck("CRFTX ts spacing nonzero", d0 > 0 ? 1 : 0, 1);
+
+        // ---- loopback closure: our wire PDUs into KL_crf_rx ----
+        axi_write(A_CRF_SIDLO, 0x00010001);
+        axi_write(A_CRF_SIDHI, 0x02000000);
+        axi_write(A_CRF_CTRL,  0x1);
+        long pdu0 = axi_read(A_CRF_STATUS) >> 16;
+        long seq0 = axi_read(A_CRF_STATUS) & 0xFF;
+        long fmt0 = (axi_read(A_CRF_STATUS) >> 8) & 0xFF;
+        for (int k = 0; k < (int)crf.size(); k++) inject(crf[k].data(), 64);
+        long st = axi_read(A_CRF_STATUS);
+        ck("CRFRX counted all looped PDUs", (st >> 16) - pdu0, NCAP);
+        ck("CRFRX fmt clean on our wire format", ((st >> 8) & 0xFF) - fmt0, 0);
+        ck("CRFRX at most the sid-switch seq gap", ((st & 0xFF) - seq0) <= 1, 1);
+        ck("CRFRX locked on our stream", axi_read(A_CRF_CTRL) >> 31, 1);
+        int32_t dlt = (int32_t)axi_read(A_CRF_DELTA);
+        ck("CRFRX delta sane (past event, < 100 ms old)",
+           (dlt < 0) && (dlt > -100000000), 1);
+
+        // disable -> the event grid keeps running, the wire goes silent
+        axi_write(A_CRFT_CTRL, 0x0);
+        long cnt_off = axi_read(A_CRFT_COUNT);
+        long stray = 0;
+        for (long c = 0; c < 120000; c++) {
+            step();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tlast) stray++;
+        }
+        ck("CRFTX disabled = silent wire", stray, 0);
+        ck("CRFTX disabled = count frozen", axi_read(A_CRFT_COUNT), cnt_off);
     }
 
     }

@@ -378,6 +378,23 @@ int main(int argc, char** argv) {
   ck("remove commit pulsed", seen_tcam_wr, 1);
   ck("remove valid=0", tcam_wr_valid, 0);
 
+  // ---- CRF talker CSR group (0x750) ----
+  axi_write(0x750, 0x1);
+  axi_write(0x754, 0x00010001);
+  axi_write(0x758, 0x02000000);
+  axi_write(0x75C, 0xF0002A07);
+  axi_write(0x760, 0x000091E0);
+  ck("CRFT_CTRL readback", axi_read(0x750), 1);
+  ck("CRFT_SIDLO readback", axi_read(0x754), 0x00010001);
+  ck("CRFT_SIDHI readback", axi_read(0x758), 0x02000000);
+  ck("CRFT_DMLO readback", axi_read(0x75C), 0xF0002A07);
+  ck("CRFT_DMHI readback", axi_read(0x760), 0x000091E0);
+  ck("o_crft_en", dut->o_crft_en, 1);
+  ck("o_crft_sid", dut->o_crft_sid, 0x0200000000010001ULL);
+  ck("o_crft_dest_mac", dut->o_crft_dest_mac, 0x91E0F0002A07ULL);
+  dut->i_crft_count = 1234;
+  ck("CRFT_COUNT live", axi_read(0x764), 1234);
+
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
   printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
