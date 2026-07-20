@@ -11,12 +11,17 @@ lives in the named normative docs; this file states what is true NOW.
 
 ## ★ CURRENT STATE 2026-07-20 (read this first) ★
 
-**Keepers.** Arty QSPI = `build_arty_asl_milanfinal31` (WNS +0.139;
-`milanfinal32` building = +nochg-replay +"ARTY" rootfs — flash when it
-lands). AX7101 SRAM = **`eto_milanfinal18` (+0.105) LOADED** with the
-names rootfs: entity **"ALINX"** confirmed on the wire; full parity
-(gasket, adaptive channels, DELAY state, pend3, model_id) except nochg_q
-(mf32-era; AX19 whenever convenient).
+**★★ DUAL-BOARD CERT CERTIFICATION (07-20): ARTY 41/41 + ALINX 41/41 ★★**
+Every scenario of every recreated CERT feature passes on BOTH boards
+(es-2.1 through es-4.13, hive-get-counters, link-flap; ALINX 3x-stable
+on link-flap after one cold-path first-run outlier). Final keepers:
+**Arty QSPI = `asl_milanfinal33` (+0.120)**, **AX SRAM =
+`eto_milanfinal19` (+0.094)**, both + the final rootfs (up-after-settle
+linkmon, vt=10, board names, gm_locked, rx_packets liveness). Post-cert
+sanity: la_avdecc CONNECT SUCCESS both Milan=1, ALINX -126.2 dB /
+ARTY-loop -60.6 dB. The mf33/AX19 deltas vs mf31/AX18: ENTITY
+GET_COUNTERS SUCCESS+empty revert (Hive), nochg replay suppression,
+freq-scaled ADP DELAY (the 100 MHz AX).
 
 **Two-entity finale (AX18 + mf31, 07-20):** la_avdecc CONNECT SUCCESS,
 both Milan=1, listener Connected; pdelay 96% (capture-edge misses);
