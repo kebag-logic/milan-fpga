@@ -393,6 +393,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   wire        cfg_sw_link, cfg_mac_reinit;
   wire [63:0] cfg_entity_name8;
+  wire        cfg_lpf_enable;
+  wire [63:0] cfg_as_parent_ckid;
+  wire [63:0] pcm_lpf_tdata;
   //! effective PHY link: the SoC's i_link_up (constant 1 on boards without
   //! HW tracking) gated by the daemon-maintained LINK_CTRL[0] - drives the
   //! AVB_INTERFACE LinkUp/LinkDown counters and the ADP link behavior
@@ -598,6 +601,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_sw_link          (cfg_sw_link),
     .o_mac_reinit       (cfg_mac_reinit),
     .o_entity_name8     (cfg_entity_name8),
+    .o_lpf_enable       (cfg_lpf_enable),
+    .o_as_parent_ckid   (cfg_as_parent_ckid),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
     .o_tcam_wr_index    (cfg_tcam_wr_index),
@@ -891,6 +896,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .lstn_acmpsta_i (acmpl_status),
     .lstn_ta_reg_i  (lwsrp_ta_registered),
     .lstn_ta_fail_i (lwsrp_ta_failed),
+    .as_parent_ckid_i   (cfg_as_parent_ckid),
     .lstn_fail_code_i   (lwsrp_ta_fail_code),
     .lstn_fail_bridge_i (lwsrp_ta_fail_bridge),
     .lstn_ta_vlan_i     (lwsrp_ta_vlan),
@@ -1090,12 +1096,25 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  the FIFO rails and MEASURED via I2SPB_STAT until CRF media-clock
   //  discipline lands.
   // ==========================================================================
+  //! 2nd-order Butterworth LPF on the DAC render tap only (the DMA-ring /
+  //! AVB copies stay bit-true): band-limits the analog output feeding the
+  //! loop ADC. LPF_CTRL 0x72C[0], default on; auto-bypass for !=2ch.
+  KL_pcm_lpf pcm_lpf (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .enable_i (cfg_lpf_enable),
+    .chans_i  (aecp_in0_fmt[31:22]),
+    .s_tdata  (m_axis_pcm_tdata),
+    .s_tvalid (m_axis_pcm_tvalid),
+    .s_tready (m_axis_pcm_tready),
+    .m_tdata  (pcm_lpf_tdata)
+  );
+
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
-    .pcm_tdata_i  (m_axis_pcm_tdata),
+    .pcm_tdata_i  (pcm_lpf_tdata),
     .pcm_tvalid_i (m_axis_pcm_tvalid),
     .pcm_tready_i (m_axis_pcm_tready),
     .pcm_tlast_i  (m_axis_pcm_tlast),
