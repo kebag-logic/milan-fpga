@@ -1170,6 +1170,26 @@ int main(int argc, char** argv) {
         ck("[21b] LINK_DOWN 1", be32_at(r, 50), 1);
         ck("[21b] GM_CHANGED +1", be32_at(r, 66), gmc0 + 1);
 
+        // (b2) link edge -> unsolicited AVB_INTERFACE GET_COUNTERS push to a
+        //      registered controller (Milan 5.4.5; CERT link-flap)
+        {
+            std::vector<uint8_t> rp(8, 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x21B0, rp));
+            ck("[21b2] REGISTER ok", r_status(collect_resp()), 0);
+            dut->link_up_i = 0; for (int i = 0; i < 4; i++) tick();
+            dut->link_up_i = 1; for (int i = 0; i < 4; i++) tick();
+            auto p1 = collect_resp();   // push for the DOWN edge
+            ck("[21b2] link-down push arrives", p1.empty() ? 0 : 1, 1);
+            ck("[21b2] push is GET_COUNTERS", (long)((p1.size()>37)?((p1[36]&0x7F)<<8|p1[37]):0) & 0x7FFF, 41);
+            ckbytes("[21b2] push desc AVB_INTERFACE", p1, 38, {0x00,0x09,0x00,0x00});
+            ck("[21b2] push LINK_DOWN 2", be32_at(p1, 50), 2);
+            auto p2 = collect_resp();   // push for the UP edge
+            ck("[21b2] link-up push arrives", p2.empty() ? 0 : 1, 1);
+            ck("[21b2] push LINK_UP 3", be32_at(p2, 46), 3);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x21B1, rp));
+            ck("[21b2] DEREGISTER ok", r_status(collect_resp()), 0);
+        }
+
         // (c) STREAM_OUTPUT: talker activation cycle + live FRAMES_TX
         dut->frames_tx_i = 0x00012345;
         dut->talker_active_i = 1;

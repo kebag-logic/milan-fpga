@@ -495,6 +495,8 @@ module KL_aecp_response_builder (
   logic [15:0]           unsol_seq_r   [0:UNSOL_SLOTS_C-1];
   logic [UNSOL_SLOTS_C-1:0] unsol_pend_r;   //! slots owed a stream-info push
   logic [UNSOL_SLOTS_C-1:0] unsol_pend2_r;  //! slots owed a GET_COUNTERS push
+  logic [UNSOL_SLOTS_C-1:0] unsol_pend3_r;  //! slots owed an AVB_INTERFACE
+                                            //! GET_COUNTERS push (link/GM edge)
   logic [UNSOL_SLOTS_C-1:0] unsol_pend4_r;  //! slots owed a SET-response replay
                                             //! (u=1 copy of the causing SET's
                                             //! response - reference
@@ -508,6 +510,7 @@ module KL_aecp_response_builder (
   logic [1:0]               w_unsol_fill_idx;   //! lowest free slot
   logic [1:0]               w_unsol_push_idx;   //! lowest pending slot
   logic [1:0]               w_unsol_push2_idx;  //! lowest counters-pending slot
+  logic [1:0]               w_unsol_push3_idx;  //! lowest AVB_IF-pending slot
   logic [1:0]               w_unsol_push4_idx;  //! lowest replay-pending slot
   always_comb begin
     for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
@@ -518,11 +521,13 @@ module KL_aecp_response_builder (
     w_unsol_fill_idx = 2'd0;
     w_unsol_push_idx = 2'd0;
     w_unsol_push2_idx = 2'd0;
+    w_unsol_push3_idx = 2'd0;
     w_unsol_push4_idx = 2'd0;
     for (int s = UNSOL_SLOTS_C-1; s >= 0; s--) begin
       if (w_unsol_free[s]) w_unsol_fill_idx = 2'(s);   // lowest wins
       if (unsol_pend_r[s])  w_unsol_push_idx  = 2'(s);
       if (unsol_pend2_r[s]) w_unsol_push2_idx = 2'(s);
+      if (unsol_pend3_r[s]) w_unsol_push3_idx = 2'(s);
       if (unsol_pend4_r[s]) w_unsol_push4_idx = 2'(s);
     end
   end
@@ -716,6 +721,7 @@ module KL_aecp_response_builder (
       link_prev_r  <= 1'b0;
       gm_prev_r    <= 64'd0;
       unsol_pend_r  <= '0;
+      unsol_pend3_r <= '0;
       unsol_pend2_r <= '0;
       unsol_pend4_r <= '0;
       unsol_frame_r <= 1'b0;
@@ -800,6 +806,12 @@ module KL_aecp_response_builder (
       if (~link_up_i & link_prev_r) cnt_linkdn_r <= cnt_linkdn_r + 32'd1;
       gm_prev_r <= gptp_gm_id_i;
       if (gptp_gm_id_i != gm_prev_r) cnt_gmchg_r <= cnt_gmchg_r + 32'd1;
+      //! AVB_INTERFACE counter change -> unsolicited GET_COUNTERS push to
+      //! the registered controllers (Milan 5.4.5; CERT link-flap test)
+      if ((link_up_i ^ link_prev_r) || (gptp_gm_id_i != gm_prev_r)) begin
+        for (int s = 0; s < UNSOL_SLOTS_C; s++)
+          if (unsol_valid_r[s]) unsol_pend3_r[s] <= 1'b1;
+      end
       //! (SET_STREAM_INFO notification: handled by the is_replay_cmd path -
       //! the SET response replays u=1 to the other controllers, which is the
       //! CERT-es-4.5-required shape. The old GET-shaped push on pres_wr_p_o
@@ -922,6 +934,41 @@ module KL_aecp_response_builder (
             const_q[56] <= 8'h00; const_q[57] <= 8'h05;   // STREAM_INPUT
             const_q[58] <= 8'h00; const_q[59] <= 8'h00;   // index 0
             load_input_counters_consts(1'b1);
+            cdl_q      <= 11'd148;   // 12 + 136
+            wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+            fi_r       <= 16'd0;
+            state_r    <= WRITE_S;
+          end else if (enable_i && unsol_pend3_r != '0) begin
+            //! Unsolicited GET_COUNTERS for AVB_INTERFACE[0] (u=1) on a
+            //! link/GM edge - Milan 5.4.5 / CERT link-flap. Same full-136B
+            //! shape as the solicited path.
+            unsol_pend3_r[w_unsol_push3_idx] <= 1'b0;
+            unsol_seq_r[w_unsol_push3_idx]   <= unsol_seq_r[w_unsol_push3_idx] + 16'd1;
+            unsol_frame_r <= 1'b1;
+            dst_mac_q     <= unsol_mac_r[w_unsol_push3_idx];
+            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push3_idx];
+            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push3_idx];
+            hdr_q.command_type         <= CMD_GET_COUNTERS;
+            vu_q       <= 1'b0;
+            msg_resp_q <= MSG_AEM_RESPONSE;
+            status_q   <= STATUS_SUCCESS;
+            for (int s = 4; s < SEGN_C; s++) begin
+              seg_kind_q[s] <= SEG_NONE; seg_len_q[s] <= 16'd0;
+            end
+            seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd56; seg_len_q[0] <= 16'd4;
+            seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd52;
+            seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0;  seg_len_q[2] <= 16'd80;
+            seg_kind_q[3] <= SEG_NONE;  seg_addr_q[3] <= 16'd0;  seg_len_q[3] <= 16'd0;
+            const_q[56] <= 8'h00; const_q[57] <= 8'h09;   // AVB_INTERFACE
+            const_q[58] <= 8'h00; const_q[59] <= 8'h00;   // index 0
+            for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
+            const_q[3] <= 8'h23;   // LINK_UP|LINK_DOWN|GPTP_GM_CHANGED
+            for (int k = 0; k < 4; k++) begin
+              const_q[4+k]  <= cnt_linkup_r[8*(3-k) +: 8];  // bit0
+              const_q[8+k]  <= cnt_linkdn_r[8*(3-k) +: 8];  // bit1
+              const_q[24+k] <= cnt_gmchg_r [8*(3-k) +: 8];  // bit5
+            end
             cdl_q      <= 11'd148;   // 12 + 136
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
@@ -1650,6 +1697,8 @@ module KL_aecp_response_builder (
                   if (w_unsol_match[s]) begin
                     unsol_valid_r[s] <= 1'b0;
                     unsol_pend_r[s]  <= 1'b0;
+                    unsol_pend2_r[s] <= 1'b0;
+                    unsol_pend3_r[s] <= 1'b0;
                   end
                 end
               end
