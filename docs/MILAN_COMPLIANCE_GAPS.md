@@ -23,6 +23,13 @@ and is not repeated here.
   TB passed (empty batch SUCCESS / 1-record 0-for-50 was the
   discriminator). Fixed f3f4b15 (own sync-only write process). mf38 and
   earlier remain non-conformant on 0x4B on silicon.
+  **2026-07-21 update: mf39 (cbuf fix in, 8-4767 gone) STILL fails the
+  same way** — defect (c): the live suspect is the block-local
+  `automatic` temporaries in the scan/parse clocked phases (Vivado
+  materializes such locals as sequential elements); hoisted to comb
+  wires + BDBG forensics CSRs 0x768-0x770 (latch the scanned header/
+  cmd/dlen/ptr at every verdict) ride mf40/AX25 — a still-failing probe
+  plus one BDBG read names the mechanism definitively.
 - ~~Dynamic audio maps~~ **RESOLVED AS COMPLIANT (2026-07-20 spec
   read):** Milan v1.2 5.4.2.27/28 requires ADD/REMOVE_AUDIO_MAPPINGS
   only for stream ports **that have no Audio Map descriptor**, and
@@ -61,12 +68,21 @@ and is not repeated here.
   gateware >= 0x0005. Rx silicon-proven against a synthetic pw0 source
   (lock, 13000/13000 counted, rate-from-field, timeout unlock);
   board-to-board e2e = the AX24/mf39 wire test.
-  REMAINING for the full chain: the ACMP listener sink-1 bind SM
-  (today sink 1 answers GET_RX_STATE as valid-but-unbound), a second
-  lwSRP listener attribute for the CRF reservation (until then the CRF
-  stream rides untagged best-effort — an SR-tagged unregistered stream
-  is pruned to zero ports by the bridge), and the servo daemon
-  consuming CRF_DELTA/RATE when clock_source==2.
+  **The sink-1 bind SM is IN (2026-07-21, b692395):** listener uid=1 is
+  a real bind record (fast-connect sid/dmac, {eid,tuid} fallback), the
+  datapath drives the CRF engine's en/sid from the bind, GET_RX_STATE/
+  GET_STREAM_INFO(input 1) reflect it (dp-TB closure: CONNECT_RX →
+  lock on the bound sid → DISCONNECT cuts); silicon verify rides
+  mf40/AX25.
+  REMAINING for the full chain: a second lwSRP listener attribute for
+  the CRF reservation (until then the CRF stream rides untagged
+  best-effort — an SR-tagged unregistered stream is pruned to zero
+  ports by the bridge), and the **clock-recovery ACTUATOR: the
+  clean-clock rework retired the playback NCO (trim_o = 0) in favour of
+  a future MMCM-DRP servo — that DRP engine (audio-MMCM fractional
+  reprogramming steered by CRF_DELTA/RATE at clock_source==2) is the
+  remaining hardware; measurement, bind and CLOCK_DOMAIN counter muxing
+  are all in place.**
 - **Channel width is stereo end-to-end.** The talker framer is hardwired
   2ch (declared truthfully); the listener ACCEPTS 1..8 ch via the
   adaptive monitor, but the I2S playback renders the first 2 channels
@@ -129,11 +145,15 @@ and is not repeated here.
 
 ## 6. Certification scope
 
-- **Our CERT suite is a recreation, not the official ATL run.** The 13
-  behave features cover the commands the official 1299 run exercised
-  plus Hive-derived checks; the OFFICIAL plan also includes es-1.1/1.2,
-  es-4.1/4.2/4.6/4.11/4.14/4.15/4.16/4.17/4.18 which we implement (all
-  but 4.16 dynamic maps) but have not recreated as features. A formal
+- **Our CERT suite is a recreation, not the official ATL run.**
+  **2026-07-21: the recreation gap is closed to this bench's limits** —
+  es-4.1/4.2/4.6/4.11/4.14/4.15/4.17/4.18 are now features (suite 43 →
+  63 scenarios; ARTY mf39 = 61/61 + the 2 tap features green), es-1.1's
+  ALINX-GM half (tap-measured cadences + announce fields) and es-1.2's
+  SRP wire half (Domain {A,3,2}) are features too. Still not recreated:
+  the es-1.1/1.2 DUT-wins-BMCA/marker variants (gated on weakening the
+  bench switch's gPTP claim — user credentials) and es-4.16 (dynamic
+  maps — NOT_SUPPORTED by design with static maps, see §1). A formal
   Avnu certification (and one clean interactive Hive diagnostics pass)
   is the final word.
 - **PipeWire consumer topology** (pw0 as the Milan listener rendering to
