@@ -221,6 +221,9 @@ module milan_csr #(
   output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
   output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
   input  wire [31:0]             i_crft_count,        //! RO 0x764: CRF PDUs emitted
+  input  wire [31:0]             i_bdbg0,             //! RO 0x768-0x770: 0x4B scan forensics
+  input  wire [31:0]             i_bdbg1,
+  input  wire [31:0]             i_bdbg2,
   output wire [63:0]             o_as_parent_ckid,    //! AS2: 802.1AS parent bridge ckid
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -322,6 +325,9 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_CRFT_DMLO  = 'h75C;  //! CRF talker DMAC [31:0]
   localparam [ADDR_WIDTH-1:0] A_CRFT_DMHI  = 'h760;  //! CRF talker DMAC [47:32]
   localparam [ADDR_WIDTH-1:0] A_CRFT_COUNT = 'h764;  //! RO live: CRF PDUs emitted
+  localparam [ADDR_WIDTH-1:0] A_BDBG0 = 'h768;  //! RO live: 0x4B scan forensics (hdr bytes as scanned)
+  localparam [ADDR_WIDTH-1:0] A_BDBG1 = 'h76C;  //! RO live: {0, cmd15, dlen16}
+  localparam [ADDR_WIDTH-1:0] A_BDBG2 = 'h770;  //! RO live: {ptr, end}
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -847,6 +853,9 @@ module milan_csr #(
       A_CRF_RATE:   live_mux = i_crf_rate;
       A_CRF_STATUS: live_mux = i_crf_status;
       A_CRFT_COUNT: live_mux = i_crft_count;
+      A_BDBG0:      live_mux = i_bdbg0;
+      A_BDBG1:      live_mux = i_bdbg1;
+      A_BDBG2:      live_mux = i_bdbg2;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)

@@ -311,6 +311,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH-1:0]   lwsrp_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] lwsrp_tx_tkeep;
   wire                     lwsrp_tx_tvalid, lwsrp_tx_tlast, lwsrp_tx_tready;
+  //! CRF sink-1 bind record (same listener SM) + 0x4B BSCAN forensics
+  wire        acmpl1_bound;
+  wire [63:0] acmpl1_sid;
+  wire [47:0] acmpl1_dmac;
+  wire [31:0] aecp_bdbg0_w, aecp_bdbg1_w, aecp_bdbg2_w;
   //! ACMP listener SM (KL_acmp_listener, STREAM_INPUT[0] sink)
   acmp_pkg::acmp_lsm_t acmpl_state;
   wire        acmpl_bound = (acmpl_state != acmp_pkg::LSM_UNBOUND_S);
@@ -587,8 +592,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                             lwsrp_listener_reg, lwsrp_listener_decl}),
     .i_lwsrp_slope        (lwsrp_idle_slope),
     .i_lwsrp_cnt          ({lwsrp_rx_pdus, lwsrp_tx_count}),
-    // ACMP listener SM (0x6A4 group, RO)
-    .i_acmpl_state        ({4'd0, acmpl_vlan, acmpl_tk_avail,
+    // ACMP listener SM (0x6A4 group, RO); bit 31 = CRF sink-1 bound
+    .i_acmpl_state        ({acmpl1_bound, 3'd0, acmpl_vlan, acmpl_tk_avail,
                             acmpl_probing, acmpl_status,
                             lwsrp_ta_failed, lwsrp_ta_registered,
                             acmpl_lstn_declare, acmpl_active,
@@ -632,6 +637,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
     .i_crft_count       (crft_count_w),
+    .i_bdbg0            (aecp_bdbg0_w),
+    .i_bdbg1            (aecp_bdbg1_w),
+    .i_bdbg2            (aecp_bdbg2_w),
     .o_as_parent_ckid   (cfg_as_parent_ckid),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -921,6 +929,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .lstn_bound_i   (acmpl_bound),
     .lstn_sid_i     (acmpl_sid),
     .lstn_dmac_i    (acmpl_dmac),
+    .lstn1_bound_i  (acmpl1_bound),
+    .lstn1_sid_i    (acmpl1_sid),
+    .lstn1_dmac_i   (acmpl1_dmac),
+    .bdbg0_o        (aecp_bdbg0_w),
+    .bdbg1_o        (aecp_bdbg1_w),
+    .bdbg2_o        (aecp_bdbg2_w),
     .lstn_vlan_i    (acmpl_vlan),
     .lstn_pbsta_i   (acmpl_probing),
     .lstn_acmpsta_i (acmpl_status),
@@ -1029,7 +1043,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cmd_count_o    (acmpl_cmd_count),
     .probe_count_o  (acmpl_probe_count),
     .tx_wedge_cnt_o (acmpl_tx_wedge),
-    .dbg_o          (acmpl_dbg)
+    .dbg_o          (acmpl_dbg),
+    .s1_bound_o     (acmpl1_bound),
+    .s1_sid_o       (acmpl1_sid),
+    .s1_dmac_o      (acmpl1_dmac)
   );
 
   // ==========================================================================
@@ -1088,8 +1105,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .fsh2_i      (avtprx_fsh2),
     .type_i      (avtprx_b3),
     .ptp_now_i   (ptp_now_w),
-    .en_i        (cfg_crf_en),
-    .sid_i       (cfg_crf_sid),
+    //! ACMP sink-1 bind wins; the CSR pair stays the manual bench lever
+    .en_i        (cfg_crf_en | acmpl1_bound),
+    .sid_i       (acmpl1_bound ? acmpl1_sid : cfg_crf_sid),
     .delta_o     (crf_delta_w),
     .rate_o      (crf_rate_w),
     .pdu_count_o (crf_pducnt_w),
