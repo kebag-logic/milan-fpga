@@ -932,11 +932,16 @@ module KL_aecp_response_builder (
       //! double-notified and was removed 2026-07-20.)
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
+      //! the cbuf RAM write itself lives in its OWN sync-only process
+      //! below: written inside this async-reset block, Vivado refuses RAM
+      //! inference (Synth 8-4767 "RAM is sensitive to asynchronous reset")
+      //! and falls back to 4 K flops with mangled set/reset priority
+      //! (Synth 8-7137 "may cause simulation mismatches") = the mf37/mf38
+      //! silicon 0x4B garbage-scan that no TB could reproduce (empty batch
+      //! passed, any record read garbage, classic/cw* paths untouched)
       if (w_cap_hs) begin
         if (s_axis_tlast) cap_done_q <= 1'b1;
         else if (beat_r == 7'd0) cap_done_q <= 1'b0;
-        if (beat_r >= 7'd3 && beat_r < 7'd67)
-          cbuf_r[6'(beat_r - 7'd3)] <= s_axis_tdata;
         if (beat_r == 7'd3) cw0_r <= s_axis_tdata;   // buf bytes 0-7
         if (beat_r == 7'd4) cw1_r <= s_axis_tdata;   // buf bytes 8-15
         if (beat_r == 7'd6) cw3_r <= s_axis_tdata;   // buf bytes 24-31
@@ -2115,6 +2120,14 @@ module KL_aecp_response_builder (
       endcase
     end
   end
+
+  //! capture RAM write: OWN sync-only process (no async-reset term) so
+  //! Vivado infers a true distributed RAM. See the note at the capture
+  //! block in `engine` for the silicon mismatch this style prevents.
+  always_ff @(posedge clk_i) begin : cbuf_write
+    if (w_cap_hs && beat_r >= 7'd3 && beat_r < 7'd67)
+      cbuf_r[6'(beat_r - 7'd3)] <= s_axis_tdata;
+  end : cbuf_write
 
   // verilator lint_off UNUSED
   wire unused_ok = &{1'b0, s_axis_tkeep, emit_byte_r, l0_state_i.acquired,
