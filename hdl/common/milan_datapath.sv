@@ -344,6 +344,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
   wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w;
+  //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
+  wire        cfg_crft_en;
+  wire [63:0] cfg_crft_sid;
+  wire [47:0] cfg_crft_dmac;
+  wire [31:0] crft_count_w;
+  wire [TDATA_WIDTH-1:0]   crft_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] crft_tx_tkeep;
+  wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
   wire [63:0] avtprx_fsh;
   wire [63:0] aecp_in0_fmt;
   wire [15:0] aecp_clk_src;
@@ -620,6 +628,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_crf_rate         (crf_rate_w),
     .i_crf_status       ({crf_pducnt_w, crf_fmterr_w, crf_seqerr_w}),
     .i_crf_locked       (crf_locked_w),
+    .o_crft_en          (cfg_crft_en),
+    .o_crft_sid         (cfg_crft_sid),
+    .o_crft_dest_mac    (cfg_crft_dmac),
+    .i_crft_count       (crft_count_w),
     .o_as_parent_ckid   (cfg_as_parent_ckid),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -1088,6 +1100,28 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cnt_unlocked_o (crf_cnt_unlocked_w)
   );
 
+  // ==========================================================================
+  //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the
+  //  Avnu Pro Audio CRF stream (500 PDU/s) with gPTP timestamps captured on
+  //  the REAL audio-MMCM 96-sample event grid. Joins the low-rate control
+  //  merge untagged (no MSRP TA yet - see the module header).
+  // ==========================================================================
+  KL_crf_tx crf_tx (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .clk_audio_i (clk_audio_i),
+    .enable_i      (cfg_crft_en),
+    .sid_i         (cfg_crft_sid),
+    .dest_mac_i    (cfg_crft_dmac),
+    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .ptp_ns_i      (ptp_now_w),
+    .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
+    .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
+    .m_axis_tready(crft_tx_tready),
+    .tx_count_o (crft_count_w)
+  );
+
   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) avtp_rx_monitor (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .match_valid_i  (avtprx_match),
@@ -1356,6 +1390,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready)
   );
 
+  //! ...and the CRF talker's PDUs (6th low-rate source, 500/s untagged).
+  wire [TDATA_WIDTH-1:0]   ctli_tx_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctli_tx_tkeep;
+  wire                     ctli_tx_tvalid, ctli_tx_tlast, ctli_tx_tready;
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) crf_ctl_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_data_tdata (ctlh_tx_tdata),  .s_data_tkeep (ctlh_tx_tkeep),
+    .s_data_tvalid(ctlh_tx_tvalid), .s_data_tlast (ctlh_tx_tlast),
+    .s_data_tready(ctlh_tx_tready),
+    .s_adp_tdata (crft_tx_tdata),  .s_adp_tkeep (crft_tx_tkeep),
+    .s_adp_tvalid(crft_tx_tvalid), .s_adp_tlast (crft_tx_tlast),
+    .s_adp_tready(crft_tx_tready),
+    .m_tdata (ctli_tx_tdata), .m_tkeep (ctli_tx_tkeep),
+    .m_tvalid(ctli_tx_tvalid), .m_tlast (ctli_tx_tlast), .m_tready(ctli_tx_tready)
+  );
+
   //! min-IFG gasket on the CONTROL lane ONLY (2026-07-19): the MilanMAC
   //! (cut-through core + milan_cd->sys CDC) silently eats a frame that
   //! enters back-to-back behind another (silicon: the MVRP half of the
@@ -1368,8 +1418,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire                     ctlg2_tvalid, ctlg2_tlast, ctlg2_tready;
   tx_ifg_gasket #(.DATA_WIDTH(TDATA_WIDTH), .GAP_CYCLES(512)) ctl_ifg (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_tdata (ctlh_tx_tdata),  .s_tkeep (ctlh_tx_tkeep),
-    .s_tvalid(ctlh_tx_tvalid), .s_tlast (ctlh_tx_tlast), .s_tready(ctlh_tx_tready),
+    .s_tdata (ctli_tx_tdata),  .s_tkeep (ctli_tx_tkeep),
+    .s_tvalid(ctli_tx_tvalid), .s_tlast (ctli_tx_tlast), .s_tready(ctli_tx_tready),
     .m_tdata (ctlg2_tdata),  .m_tkeep (ctlg2_tkeep),
     .m_tvalid(ctlg2_tvalid), .m_tlast (ctlg2_tlast), .m_tready(ctlg2_tready)
   );
