@@ -27,6 +27,15 @@
                 measures the true media-clock/gPTP ratio, not a synthetic
                 2 ms accumulator.
 
+                Milan applies the stream PRESENTATION TIME OFFSET to CRF
+                timestamps exactly as it does to media streams (USER
+                2026-07-20; Milan 7.3.2 profiles [AVTP Clause 10]): each
+                emitted timestamp = event gPTP time + transit_ns_i, so the
+                listener steers its 48 kHz recovery clock against
+                future-dated targets in the same ts_delta regime as AAF.
+                transit_ns_i is the SAME offset source as the AAF framer
+                (SET_STREAM_INFO MSRP_ACC_LAT / MTT 0x4C-0x4D; reset 2 ms).
+
                 An event that lands while the previous frame still waits on
                 the AXIS master is skipped whole: the NEXT emitted PDU still
                 carries a real event time, so the receiver's rate window
@@ -59,6 +68,7 @@ module KL_crf_tx (
   input  wire [63:0]  sid_i,             //! stream_id {MAC, uid} (CSR)
   input  wire [47:0]  dest_mac_i,        //! MAAP-range multicast DMAC (CSR)
   input  wire [47:0]  station_mac_i,     //! src MAC ([47:40] first on wire)
+  input  wire [31:0]  transit_ns_i,      //! presentation time offset added to every timestamp (Milan: PTO applies to CRF like any stream)
 
   input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
 
@@ -173,7 +183,7 @@ module KL_crf_tx (
     end
     else begin
       if (evt_milan_w && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
-        ts_r         <= ptp_ns_i;
+        ts_r         <= ptp_ns_i + 64'(transit_ns_i);
         frame_pend_r <= 1'b1;
       end
       if (!enable_i) begin
