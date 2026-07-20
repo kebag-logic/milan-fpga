@@ -250,8 +250,15 @@ module KL_aecp_response_builder (
   //! pipeline — and therefore the tap FIFO — while a response is in flight)
   //! replays must drain before a new command may overwrite the capture
   //! buffer the replayed response is rebuilt from
+  //! BSCAN_S hold: a padded frame's cdl is satisfied (frame_ok -> DECIDE)
+  //! BEFORE its tlast, so the pad tail is still in flight when the batch
+  //! scan starts - keep draining it (the capture block runs in any state)
+  //! or cap_done never sets and the scan would read unwritten cbuf words
+  //! (silicon-caught: every record parsed as garbage -> BAD_ARGUMENTS
+  //! while the TB's back-to-back feed won the race).
   assign s_axis_tready = (state_r == IDLE_S && unsol_pend4_r == '0) ||
-                         (state_r == CAPTURE_S);
+                         (state_r == CAPTURE_S) ||
+                         (state_r == BSCAN_S && !cap_done_q);
 
   // latched command context
   aecp_hdr_t   hdr_q;
@@ -407,6 +414,12 @@ module KL_aecp_response_builder (
   logic [2:0]   bh_i_r;       //! RECHDR_EMIT byte index
   logic [10:0]  bcdl_q;       //! batch frame cdl (sub-arm cdl_q writes are
                               //! record-scoped noise once the header is out)
+  logic         cap_done_q;   //! the command frame's tlast has been captured
+                              //! (hdr_valid fires at beat 3 MID-FRAME - the
+                              //! batch scan must not outrun the capture;
+                              //! silicon-caught: paced ingress drain made
+                              //! BSCAN read unwritten cbuf words = every
+                              //! record parsed as garbage -> BAD_ARGUMENTS)
 
   //! response data length of an implemented fixed-size GET (0 = the
   //! command is answered by echoing its data with NOT_SUPPORTED status;
@@ -798,6 +811,7 @@ module KL_aecp_response_builder (
       brec_base_q  <= 16'd0; brec_abase_q <= 16'd0;
       bh_i_r       <= 3'd0;
       bcdl_q       <= 11'd0;
+      cap_done_q   <= 1'b0;
       for (int k = 0; k < 8; k++) rec_hdr_q[k] <= 8'd0;
       st_wr_o      <= 1'b0;
       st_waddr_o   <= 16'd0;
@@ -919,6 +933,8 @@ module KL_aecp_response_builder (
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
       if (w_cap_hs) begin
+        if (s_axis_tlast) cap_done_q <= 1'b1;
+        else if (beat_r == 7'd0) cap_done_q <= 1'b0;
         if (beat_r >= 7'd3 && beat_r < 7'd67)
           cbuf_r[6'(beat_r - 7'd3)] <= s_axis_tdata;
         if (beat_r == 7'd3) cw0_r <= s_axis_tdata;   // buf bytes 0-7
@@ -1909,7 +1925,9 @@ module KL_aecp_response_builder (
 
         // ---------------------------------------------------------- //
         BSCAN_S: begin   // 0x4B pass 1: validate + size (7.4.76.2)
-          if (bscan_ptr_q >= bpay_end_q) begin
+          if (!cap_done_q) begin
+            // hold: the command frame is still streaming into cbuf
+          end else if (bscan_ptr_q >= bpay_end_q) begin
             pay_len_q   <= bcdl_acc_q;
             bcdl_q      <= 11'(16'd12 + bcdl_acc_q);
             brec_ptr_q  <= 9'd2;
