@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010004);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010005);
     uint32_t cap = axi_read(A_CAP);
     ck("CAP.ADP bit12",  (cap >> 12) & 1, 1);
     ck("CAP.TCAM bit13", (cap >> 13) & 1, 1);
