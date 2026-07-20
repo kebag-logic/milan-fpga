@@ -161,7 +161,7 @@ int main(int argc,char**argv){
     long frx = dut->cnt_frames_rx_o;
     { AafCfg c; c.seq=63; c.nsr=0x07; feed(mkaaf(c)); }       // 96 kHz PDU
     { AafCfg c; c.seq=63; c.depth=24; feed(mkaaf(c)); }       // wrong depth
-    { AafCfg c; c.seq=63; c.chans=2;  feed(mkaaf(c)); }       // wrong channels
+    { AafCfg c; c.seq=63; c.chans=9;  feed(mkaaf(c)); }       // chans > fmt cap
     { AafCfg c; c.seq=63; c.sp=1;     feed(mkaaf(c)); }       // sparse
     { AafCfg c; c.seq=63; c.subtype=0x04; feed(mkaaf(c)); }   // CRF on our sid
     ck("UNSUPPORTED_FORMAT 5", dut->cnt_unsupported_fmt_o, 5);
@@ -326,6 +326,19 @@ int main(int argc,char**argv){
     ck("[27e] matching PDU relocks", dut->media_locked_o, 1);
     ck("[27f] RX counts again", dut->cnt_frames_rx_o, frx27+1);
     dut->fmt_i = FMT;                        // restore for any later scenario
+
+    printf("\n[28] channel ADAPTATION (bench rule: listener accepts 1..fmt chans)\n");
+    dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era (counters reset)
+    { AafCfg c; c.seq=0; c.chans=2; feed(mkaaf(c)); } // 2ch wire vs 8ch fmt
+    ck("[28a] 2ch-wire ACCEPTED under 8ch fmt", dut->cnt_frames_rx_o, 1);
+    ck("[28b] no UNSUPPORTED for adapted PDU", dut->cnt_unsupported_fmt_o, 0);
+    { AafCfg c; c.seq=1; c.chans=8; feed(mkaaf(c)); } // exact match still fine
+    ck("[28c] 8ch-wire accepted", dut->cnt_frames_rx_o, 2);
+    { AafCfg c; c.seq=2; c.chans=0; feed(mkaaf(c)); } // zero channels = junk
+    ck("[28d] 0ch rejected", dut->cnt_unsupported_fmt_o, 1);
+    { AafCfg c; c.seq=2; c.chans=9; feed(mkaaf(c)); } // above the declared cap
+    ck("[28e] 9ch rejected vs 8ch fmt", dut->cnt_unsupported_fmt_o, 2);
+    ck("[28f] frames_rx unchanged by rejects", dut->cnt_frames_rx_o, 2);
 
     printf("\n======================================================================\n");
     printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
