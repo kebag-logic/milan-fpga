@@ -43,7 +43,17 @@ and is not repeated here.
 
 ## 2. Streaming / media
 
-- **CRF media clocking is absent.** The AEM carries a CRF STREAM_INPUT
+- **CRF media clocking: the measurement half is IN (2026-07-20).**
+  KL_crf_rx validates the Avnu Pro Audio CRF stream (Milan 7.3.2:
+  subtype 4/type 1/pull 0/48k/interval 96/1 ts) selected by CSRs
+  0x738-0x74C, and produces the phase delta (0x744, ts_delta contract),
+  the 512-ms frequency error (0x748), lock state + CLOCK_DOMAIN
+  LOCKED/UNLOCKED events (muxed in when clock_source = CRF descriptor
+  2). REMAINING for the full chain: the ACMP listener sink-1 bind SM
+  (today sink 1 answers GET_RX_STATE as valid-but-unbound), a second
+  lwSRP listener attribute for the CRF reservation, and the servo
+  daemon consuming CRF_DELTA/RATE when clock_source==2.
+  Original note: **CRF media clocking engine was absent.** The AEM carries a CRF STREAM_INPUT
   descriptor and CRF stream formats in the ROM, but there is no CRF
   talker/listener engine in fabric — the clock domain cannot be driven
   by (or export) a CRF stream. This is the biggest functional gap for a
