@@ -269,7 +269,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/avtp/KL_i2s_playback.sv", "hdl/avtp/KL_tone_gen.sv",
     "hdl/avtp/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
     "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
-    "hdl/1722/KL_avtp_rx_monitor.sv", "hdl/1722/KL_crf_rx.sv", "hdl/maap/KL_maap.sv",
+    "hdl/1722/KL_avtp_rx_monitor.sv", "hdl/1722/KL_crf_rx.sv", "hdl/1722/KL_crf_tx.sv", "hdl/maap/KL_maap.sv",
     "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
     "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
 ]
