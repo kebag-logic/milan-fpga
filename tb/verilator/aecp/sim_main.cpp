@@ -1562,6 +1562,29 @@ int main(int argc, char** argv) {
         r = collect_resp(800);
         ck("[23c] no replay for GET", r.size(), 0);
 
+        // (d) SAME-VALUE SET_CLOCK_SOURCE (source is already 1): 1722.1
+        //     notifies STATE CHANGES - no store byte changed, no replay
+        //     (generic writeback old-vs-new compare, generalizing es-4.5)
+        std::vector<uint8_t> sv; put_be16(sv, 0x0024); put_be16(sv, 0);
+        put_be16(sv, 0x0001); put_be16(sv, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2309, sv));
+        ck("[23d] same-value SET SUCCESS", r_status(collect_resp()), 0);
+        r = collect_resp(800);
+        ck("[23d] same-value SET replays NOTHING", r.size(), 0);
+
+        // (e) SET_NAME: changed name replays, identical name does not
+        std::vector<uint8_t> nm; put_be16(nm, 0x0024); put_be16(nm, 0);  // CLOCK_DOMAIN 0
+        put_be16(nm, 0); put_be16(nm, 0);                                 // name_index, cfg
+        for (int i = 0; i < 64; i++) nm.push_back(i < 5 ? "Klang"[i] : 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x230A, nm));
+        ck("[23e] SET_NAME(new) SUCCESS", r_status(collect_resp()), 0);
+        r = collect_resp();
+        ck("[23e] changed name replays u=1 to B", u_bit(r), 1);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x230B, nm));
+        ck("[23e] SET_NAME(same) SUCCESS", r_status(collect_resp()), 0);
+        r = collect_resp(800);
+        ck("[23e] identical name replays NOTHING", r.size(), 0);
+
         // restore: clock source back to 0 (drains B's replay), deregister
         std::vector<uint8_t> rs; put_be16(rs, 0x0024); put_be16(rs, 0);
         put_be16(rs, 0x0000); put_be16(rs, 0);
