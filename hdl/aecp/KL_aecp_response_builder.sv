@@ -1542,11 +1542,14 @@ module KL_aecp_response_builder (
                   seg_len_q[2] <= 16'd80;
                   load_input_counters_consts(w_gs_index == 16'd0);
                 end else if (w_gs_type == DESC_ENTITY && w_gs_index == 16'd0) begin
-                  //! CERT hive-get-counters: no ENTITY-level counters in
-                  //! Milan v1.2 -> BAD_ARGUMENTS, FULL-SIZE payload (the
-                  //! 2026-07-11 Hive field report was about undersized
-                  //! responses, not the status - full 136 B stays).
-                  status_q <= STATUS_BAD_ARGUMENTS;
+                  //! ENTITY GET_COUNTERS -> SUCCESS + EMPTY valid mask:
+                  //! 1722.1-2021 DEFINES entity-level counters (la_avdecc
+                  //! models EntityCounters first-class and Hive queries it
+                  //! during enumeration - BAD_ARGUMENTS makes it log
+                  //! 'values deemed bad', user-caught 2026-07-20). We
+                  //! implement none -> empty mask, full-size payload (the
+                  //! 07-11 field report: size matters on every status).
+                  status_q <= STATUS_SUCCESS;
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
