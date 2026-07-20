@@ -132,7 +132,9 @@ module KL_aecp_l0_state (
   wire w_lock_denied = (hdr_i.command_type == CMD_LOCK_ENTITY) &&
                        locked_r && !w_from_locking;
 
-  // SET_CONFIGURATION with out-of-range config_index → BAD_ARGUMENTS
+  // SET_CONFIGURATION with out-of-range config_index → NO_SUCH_DESCRIPTOR
+  // (IEEE 1722.1-2021 7.4.7.1: configuration_index names a CONFIGURATION
+  // descriptor; CERT es-4.3 asserts NO_SUCH_DESCRIPTOR, was BAD_ARGUMENTS)
   wire w_bad_config = (hdr_i.command_type == CMD_SET_CONFIGURATION) &&
                       (hdr_i.configuration_index >= 16'(NUM_CONFIGURATIONS_C));
 
@@ -150,7 +152,7 @@ module KL_aecp_l0_state (
       status_o = STATUS_ENTITY_LOCKED;
       reject_o = 1'b1;
     end else if (w_bad_config) begin
-      status_o = STATUS_BAD_ARGUMENTS;
+      status_o = STATUS_NO_SUCH_DESCRIPTOR;
       reject_o = 1'b1;
     end else begin
       status_o = STATUS_SUCCESS;

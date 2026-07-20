@@ -311,7 +311,7 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> bad; put_be16(bad,0); put_be16(bad,5);  // config 5 invalid
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x4001, bad));
         auto r2 = collect_resp();
-        ck("SET_CONFIG(5)=BAD_ARGUMENTS", r_status(r2), 7);
+        ck("SET_CONFIG(5)=NO_SUCH_DESCRIPTOR (7.4.7.1)", r_status(r2), 2);
     }
 
     // ---------------------------------------------------------------- //
