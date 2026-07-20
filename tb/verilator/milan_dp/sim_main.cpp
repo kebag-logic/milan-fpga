@@ -1196,9 +1196,12 @@ int main(int argc, char** argv) {
         ck("CRFRX fmt clean on our wire format", ((st >> 8) & 0xFF) - fmt0, 0);
         ck("CRFRX at most the sid-switch seq gap", ((st & 0xFF) - seq0) <= 1, 1);
         ck("CRFRX locked on our stream", axi_read(A_CRF_CTRL) >> 31, 1);
+        // Milan PTO: talker future-dates ts by the presentation offset
+        // (reset 2 ms); the LAST looped PDU was captured just before the
+        // injects, so its delta ~= +PTO minus the short capture->inject lag
         int32_t dlt = (int32_t)axi_read(A_CRF_DELTA);
-        ck("CRFRX delta sane (past event, < 100 ms old)",
-           (dlt < 0) && (dlt > -100000000), 1);
+        ck("CRFRX delta ~= +PTO (Milan future-dating)",
+           (dlt > 1500000) && (dlt <= 2000000), 1);
 
         // disable -> the event grid keeps running, the wire goes silent
         axi_write(A_CRFT_CTRL, 0x0);
