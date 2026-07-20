@@ -1115,6 +1115,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    //! Milan: the presentation time offset applies to CRF like any stream -
+    //! same source of truth as the AAF framer (SET_STREAM_INFO ACC_LAT/MTT)
+    .transit_ns_i  (aecp_pres_offset),
     .ptp_ns_i      (ptp_now_w),
     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
     .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),

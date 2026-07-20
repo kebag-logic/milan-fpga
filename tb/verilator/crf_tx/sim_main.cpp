@@ -38,6 +38,7 @@ int main(int argc, char** argv) {
     dut->sid_i = 0x0200000000010001ULL;
     dut->dest_mac_i = 0x91E0F0002A07ULL;
     dut->station_mac_i = 0x020000000001ULL;
+    dut->transit_ns_i = 2000000;        // Milan PTO on CRF ts (like any stream)
     for (int i = 0; i < 8; i++) step();
     dut->rst_n = 1;
     for (int i = 0; i < 8; i++) step();
@@ -55,6 +56,7 @@ int main(int argc, char** argv) {
     // capture 3 frames; events every 49152 cycles
     std::vector<std::vector<uint8_t>> frames;
     std::vector<uint8_t> cur;
+    std::vector<uint64_t> ptp_at_last;   // ptp when each frame's tlast left
     long first_gap = -1, gap = 0, prev_end = -1;
     long c;
     for (c = 0; c < 200000 && frames.size() < 3; c++) {
@@ -66,6 +68,7 @@ int main(int argc, char** argv) {
                 if (prev_end >= 0 && first_gap < 0) first_gap = c - prev_end;
                 prev_end = c;
                 frames.push_back(cur); cur.clear();
+                ptp_at_last.push_back(ptp_ns);
             }
         }
     }
@@ -101,6 +104,10 @@ int main(int argc, char** argv) {
         ck("ts delta = event grid (491520 ns)", (long)(ts_of(1)-ts_of(0)), 49152*10);
         ck("ts delta stable", (long)(ts_of(2)-ts_of(1)), 49152*10);
         ck("inter-frame gap ~= 49152 cycles", (first_gap > 49000 && first_gap < 49300) ? 1 : 0, 1);
+        // Milan PTO: ts is future-dated by transit_ns at the event; by the
+        // time tlast leaves (CDC + 8 beats) the margin is PTO minus ~100 ns
+        long lead0 = (long)(ts_of(0) - ptp_at_last[0]);
+        ck("ts future-dated by ~PTO (Milan)", (lead0 > 1990000 && lead0 <= 2000000) ? 1 : 0, 1);
     }
 
     // skip-on-busy: hold tready low across >1 event period, then release.
