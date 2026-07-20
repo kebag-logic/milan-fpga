@@ -45,11 +45,11 @@ NO_STRING = 0xFFFF
 # Sampling rates: pull=0 | base freq (Table 7.5 encoding)
 RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 # AAF PCM 32-bit 8ch stream formats (from milan-v12-entity.json, byte-exact)
-#! listener truth (2026-07-19): the DEFAULT current format must match the
-#! bench talker (STEREO 48k) - a pure-ACMP controller (la_avdecc
-#! connectStream) never sets formats, and an 8ch default rejects the 2ch
-#! wire as UNSUPPORTED_FORMAT. 2ch FIRST = the reset default.
-FORMATS = [0x0205022000806000, 0x0205022002006000, 0x020702200200C000, 0x0209022002018000]
+#! 8ch default restored (2026-07-20, CERT es-4.4 expects the classic
+#! 0205022002006000 default): the monitor now ADAPTS to any wire channel
+#! count 1..8 under the declared format, so a pure-ACMP 2ch connect works
+#! against the 8ch default. 2ch stays in the supported list.
+FORMATS = [0x0205022002006000, 0x0205022000806000, 0x020702200200C000, 0x0209022002018000]
 #! talker truth (2026-07-18): the framer is a STEREO 48k device (Pmod I2S2 /
 #! tone path both 2ch, fs fixed by the divider chain) - STREAM_OUTPUT must
 #! DECLARE exactly what the wire carries or format-matching controllers
