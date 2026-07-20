@@ -392,6 +392,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire                     ctl_tx_tvalid, ctl_tx_tlast, ctl_tx_tready;
 
   wire        cfg_sw_link, cfg_mac_reinit;
+  wire [63:0] cfg_entity_name8;
   //! effective PHY link: the SoC's i_link_up (constant 1 on boards without
   //! HW tracking) gated by the daemon-maintained LINK_CTRL[0] - drives the
   //! AVB_INTERFACE LinkUp/LinkDown counters and the ADP link behavior
@@ -596,6 +597,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_sw_link          (cfg_sw_link),
     .o_mac_reinit       (cfg_mac_reinit),
+    .o_entity_name8     (cfg_entity_name8),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
     .o_tcam_wr_index    (cfg_tcam_wr_index),
@@ -854,6 +856,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .entity_id_i       (cfg_adp_entity_id),
     .entity_model_id_i (cfg_adp_entity_model_id),
+    .entity_name8_i    (cfg_entity_name8),
     .entity_caps_i     (cfg_adp_entity_caps),
     .talker_sources_i  (cfg_adp_talker_sources),
     .talker_caps_i     (cfg_adp_talker_caps),

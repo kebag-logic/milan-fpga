@@ -209,6 +209,7 @@ module milan_csr #(
   // ---- RX dest-MAC TCAM filter programming (REQ-MAC-02) ----
   output wire                    o_sw_link,           //! LINK_CTRL[0]: daemon-tracked PHY link
   output wire                    o_mac_reinit,        //! LINK_CTRL[1]: MAC sys-side reset (recovery daemon)
+  output wire [63:0]             o_entity_name8,      //! ENT_NAME chars 0-7 (board name overlay)
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
   output wire [4:0]              o_tcam_wr_index,     //! entry index (TCAM_CMD[4:0])
@@ -292,6 +293,8 @@ module milan_csr #(
     A_TCAM_MHI    = 'h710, A_TCAM_ACT = 'h714, A_TCAM_CMD = 'h718;
   localparam [ADDR_WIDTH-1:0] A_LINK_CTRL = 'h71C;   //! [0] sw_link (daemon), [1] mac_reinit (hold MAC sys-side in reset)
   localparam [ADDR_WIDTH-1:0] A_RST_EPOCH = 'h720;   //! RO live: datapath reset-release count (shadow-lie canary)
+  localparam [ADDR_WIDTH-1:0] A_ENT_NAME_LO = 'h724; //! entity_name chars 0-3 (board name; 0 = ROM name)
+  localparam [ADDR_WIDTH-1:0] A_ENT_NAME_HI = 'h728; //! entity_name chars 4-7
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -392,7 +395,8 @@ module milan_csr #(
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [3:2]=classA queue
   logic [31:0] maap_ctrl;
-  logic [31:0] link_ctrl;               //! LINK_CTRL: [0] sw_link                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
+  logic [31:0] link_ctrl;               //! LINK_CTRL: [0] sw_link
+  logic [31:0] ent_name_lo, ent_name_hi; //! board-name overlay chars                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
@@ -476,6 +480,7 @@ module milan_csr #(
       lwsrp_ctrl <= 32'h0000_000C;
       maap_ctrl  <= 32'h0000_0800;
       link_ctrl  <= 32'h0000_0001;      //! link assumed UP until a daemon says otherwise
+      ent_name_lo <= 32'h0; ent_name_hi <= 32'h0;
       tone_ctrl  <= 32'h0;
       gptp_pdelay <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
@@ -549,6 +554,8 @@ module milan_csr #(
           A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
           A_MAAP_CTRL:  maap_ctrl  <= s_axi_wdata;
           A_LINK_CTRL:  link_ctrl  <= s_axi_wdata;
+          A_ENT_NAME_LO: ent_name_lo <= s_axi_wdata;
+          A_ENT_NAME_HI: ent_name_hi <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
           A_GPTP_PDELAY: gptp_pdelay <= s_axi_wdata;
           A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
@@ -683,7 +690,8 @@ module milan_csr #(
       A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
       A_LWSRP_TSPEC, A_LWSRP_LAT,
       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
-      A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL:
+      A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL,
+      A_ENT_NAME_LO, A_ENT_NAME_HI:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -860,6 +868,12 @@ module milan_csr #(
     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
   end : epoch_cnt
 
+  //! entity_name8: byte k of the name = the k-th ASCII char; the AEM store
+  //! picks big-endian (byte 0 first), so map LO[7:0]=char0 .. HI[31:24]=char7
+  assign o_entity_name8     = {ent_name_lo[7:0],  ent_name_lo[15:8],
+                               ent_name_lo[23:16], ent_name_lo[31:24],
+                               ent_name_hi[7:0],  ent_name_hi[15:8],
+                               ent_name_hi[23:16], ent_name_hi[31:24]};
   assign o_sw_link          = link_ctrl[0];
   assign o_mac_reinit       = link_ctrl[1];
   assign o_maap_enable      = maap_ctrl[0];

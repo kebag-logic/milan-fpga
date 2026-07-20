@@ -296,6 +296,7 @@ localparam [3:0] OVL_ASSOC_ID_C = 4'd9;
 localparam [3:0] OVL_CURRENT_CFG_C = 4'd10;
 localparam [3:0] OVL_MAC_C = 4'd11;
 localparam [3:0] OVL_CLOCK_ID_C = 4'd12;
+localparam [3:0] OVL_ENT_NAME8_C = 4'd13;
 
 // overlay lookup: rom addr -> {hit, source[3:0], byte_of_source[2:0]}
 // byte_of_source 0 = MOST significant byte of the source value.
@@ -322,6 +323,8 @@ function automatic [7:0] aem_ovl_lookup(input [15:0] addr);
       aem_ovl_lookup = {1'b1, OVL_AVAIL_IDX_C, 3'(addr - 16'd36)};
     if (addr >= 16'd40 && addr < 16'd48)
       aem_ovl_lookup = {1'b1, OVL_ASSOC_ID_C, 3'(addr - 16'd40)};
+    if (addr >= 16'd48 && addr < 16'd56)
+      aem_ovl_lookup = {1'b1, OVL_ENT_NAME8_C, 3'(addr - 16'd48)};
     if (addr >= 16'd310 && addr < 16'd312)
       aem_ovl_lookup = {1'b1, OVL_CURRENT_CFG_C, 3'(addr - 16'd310)};
     if (addr >= 16'd1106 && addr < 16'd1112)

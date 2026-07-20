@@ -52,6 +52,7 @@ module KL_aecp_top #(
   input  wire [47:0]   station_mac_i,     //! [47:40] = first wire byte
   input  wire [63:0]   entity_id_i,
   input  wire [63:0]   entity_model_id_i,
+  input  wire [63:0]   entity_name8_i,     //! board-name overlay (CSR)
   input  wire [31:0]   entity_caps_i,
   input  wire [15:0]   talker_sources_i,
   input  wire [15:0]   talker_caps_i,
@@ -223,6 +224,7 @@ module KL_aecp_top #(
   KL_aecp_aem_dyn_mux u_dyn (
     .addr_i(st_raddr_d1), .rom_byte_i(st_rom_byte_w),
     .entity_id_i(entity_id_i), .entity_model_id_i(entity_model_id_i),
+    .entity_name8_i(entity_name8_i),
     .entity_caps_i(entity_caps_i), .talker_sources_i(talker_sources_i),
     .talker_caps_i(talker_caps_i), .listener_sinks_i(listener_sinks_i),
     .listener_caps_i(listener_caps_i), .controller_caps_i(controller_caps_i),

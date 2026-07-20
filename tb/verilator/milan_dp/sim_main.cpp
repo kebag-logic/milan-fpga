@@ -979,6 +979,10 @@ int main(int argc, char** argv) {
             ck("LINK_CTRL reads back 1 (shadowed)", axi_read(A_LINK_CTRL), 1);
             ck("epoch unchanged by link toggles", axi_read(A_RST_EPOCH), ep);
             ck("datapath alive after link toggle (ID)", axi_read(A_ID), 0x4D494C4E);
+            // board-name overlay CSRs (shadowed RW)
+            axi_write(0x724, 0x59545241);   // "ARTY"
+            axi_write(0x728, 0x00000000);
+            ck("ENT_NAME_LO reads back", axi_read(0x724), 0x59545241);
         }
 
         pcm.clear(); pcm_last = false;
