@@ -327,10 +327,10 @@ function automatic [7:0] aem_ovl_lookup(input [15:0] addr);
       aem_ovl_lookup = {1'b1, OVL_ENT_NAME8_C, 3'(addr - 16'd48)};
     if (addr >= 16'd310 && addr < 16'd312)
       aem_ovl_lookup = {1'b1, OVL_CURRENT_CFG_C, 3'(addr - 16'd310)};
-    if (addr >= 16'd1106 && addr < 16'd1112)
-      aem_ovl_lookup = {1'b1, OVL_MAC_C, 3'(addr - 16'd1106)};
-    if (addr >= 16'd1114 && addr < 16'd1122)
-      aem_ovl_lookup = {1'b1, OVL_CLOCK_ID_C, 3'(addr - 16'd1114)};
+    if (addr >= 16'd1104 && addr < 16'd1110)
+      aem_ovl_lookup = {1'b1, OVL_MAC_C, 3'(addr - 16'd1104)};
+    if (addr >= 16'd1112 && addr < 16'd1120)
+      aem_ovl_lookup = {1'b1, OVL_CLOCK_ID_C, 3'(addr - 16'd1112)};
   end
 endfunction
 

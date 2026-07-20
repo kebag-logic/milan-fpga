@@ -83,7 +83,7 @@ class Entity:
         # code packed the 2 into byte 2 = valid_time, silently sending an
         # ENTITY_AVAILABLE with eid=0 - discovery only ever worked by
         # catching PERIODIC advertises, hence the flaky first runs.)
-        adpdu = bytes([SUBTYPE_ADP, 0x02, 0x00, 0x00]) + b"\x00" * 64
+        adpdu = bytes([SUBTYPE_ADP, 0x02, 0x00, 56]) + b"\x00" * 64  # cdl=56: ADPDU minimum (Hive rejects 0)
         self._send(ADP_MCAST, adpdu)
         end = time.time() + timeout
         while time.time() < end:
