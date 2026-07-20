@@ -41,6 +41,7 @@ tops=(
   "KL_acmp_responder|$M/acmp_pkg.sv $M/KL_acmp_responder.sv"
   "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_listener.sv"
   "KL_avtp_rx_monitor|$R/hdl/1722/KL_avtp_rx_monitor.sv"
+  "KL_crf_rx|$R/hdl/1722/KL_crf_rx.sv"
   "KL_maap|$R/hdl/maap/KL_maap.sv"
   "KL_i2s_playback|$C/cdc_pair_fifo.sv $R/hdl/avtp/KL_i2s_playback.sv"
   "KL_tone_gen|$R/hdl/avtp/KL_tone_gen.sv"
@@ -57,7 +58,7 @@ tops=(
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
-  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $C/tcam.sv $C/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/avtp/KL_pcm_lpf.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_responder.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/csr/milan_csr.sv $R/hdl/avtp/aaf_talker_i2s.sv $R/hdl/avtp/KL_aaf_rx_depacketizer.sv $R/hdl/1722/avtp_subtype_pkg.sv $R/hdl/1722/avtp_stream_parser.sv $R/hdl/1722/KL_avtp_rx_monitor.sv $R/hdl/maap/KL_maap.sv $R/hdl/avtp/KL_i2s_playback.sv $R/hdl/avtp/KL_tone_gen.sv $R/hdl/avtp/KL_media_adv.sv $C/cdc_pair_fifo.sv $C/milan_datapath.sv"
+  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $C/tcam.sv $C/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/avtp/KL_pcm_lpf.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_responder.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/csr/milan_csr.sv $R/hdl/avtp/aaf_talker_i2s.sv $R/hdl/avtp/KL_aaf_rx_depacketizer.sv $R/hdl/1722/avtp_subtype_pkg.sv $R/hdl/1722/avtp_stream_parser.sv $R/hdl/1722/KL_avtp_rx_monitor.sv $R/hdl/1722/KL_crf_rx.sv $R/hdl/maap/KL_maap.sv $R/hdl/avtp/KL_i2s_playback.sv $R/hdl/avtp/KL_tone_gen.sv $R/hdl/avtp/KL_media_adv.sv $C/cdc_pair_fifo.sv $C/milan_datapath.sv"
 )
 
 echo "== Yosys open-synthesis check ($SYNTH, via sv2v) =="

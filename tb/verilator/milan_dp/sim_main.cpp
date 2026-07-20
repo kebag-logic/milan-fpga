@@ -999,8 +999,90 @@ int main(int argc, char** argv) {
         ck("FRAMES_RX unchanged by wrong-rate", axi_read(A_AVTPRX_FRX), frx_before);
         ck("no PCM for rejected PDU", (long)pcm.size(), 0);
         ck("PCMRX unchanged by wrong-rate", axi_read(A_PCMRX_CNT), pcm_before);
+
+
+    // ---------------------------------------------------------------- //
+    // CRF Media Clock Input engine (Milan 7.3.2): parse/validate/lock    //
+    // ---------------------------------------------------------------- //
+    printf("\n[CRF] Milan CRF media clock input engine\n");
+    {
+        enum { A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
+               A_CRF_DELTA = 0x744, A_CRF_RATE = 0x748, A_CRF_STATUS = 0x74C };
+        // provision the sink: stream_id 02:00:00:00:00:02 uid 1, enable
+        axi_write(A_CRF_SIDLO, 0x00020001);
+        axi_write(A_CRF_SIDHI, 0x02000000);
+        axi_write(A_CRF_CTRL,  0x1);
+
+        uint64_t crf_ts = 1000000000ULL;              // 1 s
+        uint8_t  crf_seq = 0;
+        auto mkcrf = [&](uint64_t ts, uint8_t seq, uint16_t ival,
+                         const uint8_t* sid6ovr) {
+            static uint8_t f[64];
+            memset(f, 0, sizeof f);
+            const uint8_t dmac[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x03};
+            memcpy(f, dmac, 6);
+            const uint8_t src[6] = {0x02,0x00,0x00,0x00,0x00,0x02};
+            memcpy(f+6, src, 6);
+            f[12]=0x22; f[13]=0xF0;
+            f[14]=0x04;                               // CRF subtype
+            f[15]=0x80;                               // sv
+            f[16]=seq;
+            f[17]=0x01;                               // CRF_AUDIO_SAMPLE
+            const uint8_t sid[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x01};
+            memcpy(f+18, sid, 8);
+            if (sid6ovr) memcpy(f+18, sid6ovr, 8);
+            f[26]=0x00; f[27]=0x00; f[28]=0xBB; f[29]=0x80;   // pull0|48000
+            f[30]=0x00; f[31]=0x08;                   // crf_data_length 8
+            f[32]=(uint8_t)(ival>>8); f[33]=(uint8_t)ival;    // interval
+            for (int i = 0; i < 8; i++) f[34+i] = (uint8_t)(ts >> (8*(7-i)));
+            return f;
+        };
+        auto send_crf = [&](uint16_t ival = 96, const uint8_t* sid = nullptr) {
+            inject(mkcrf(crf_ts, crf_seq, ival, sid), 64);
+            crf_seq++;
+            crf_ts += 2000000ULL + 1000ULL;           // 2 ms + 1000 ns skew
+        };
+
+        send_crf();
+        ck("CRF pdu_count 1", axi_read(A_CRF_STATUS) >> 16, 1);
+        ck("CRF no fmt/seq errors", axi_read(A_CRF_STATUS) & 0xFFFF, 0);
+        ck("CRF not locked yet", axi_read(A_CRF_CTRL) >> 31, 0);
+        int32_t d1 = (int32_t)axi_read(A_CRF_DELTA);
+        ck("CRF delta captured (nonzero)", d1 != 0, 1);
+
+        for (int k = 0; k < 7; k++) send_crf();
+        ck("CRF locked after 8 clean PDUs", axi_read(A_CRF_CTRL) >> 31, 1);
+        ck("CRF pdu_count 8", axi_read(A_CRF_STATUS) >> 16, 8);
+
+        // malformed: wrong timestamp_interval -> fmt_err, no count
+        send_crf(160);
+        ck("CRF fmt_err 1 (wrong interval)", (axi_read(A_CRF_STATUS) >> 8) & 0xFF, 1);
+        ck("CRF count unchanged by bad fmt", axi_read(A_CRF_STATUS) >> 16, 8);
+        ck("CRF still locked (no timeout)", axi_read(A_CRF_CTRL) >> 31, 1);
+
+        // foreign stream_id -> completely ignored
+        const uint8_t alien[8] = {0x02,0x00,0x00,0x00,0x00,0x07,0x00,0x00};
+        send_crf(96, alien);
+        ck("CRF foreign sid ignored", axi_read(A_CRF_STATUS) >> 16, 8);
+
+        // sequence gap -> seq_err
+        crf_seq += 3;
+        send_crf();
+        ck("CRF seq_err 1", axi_read(A_CRF_STATUS) & 0xFF, 1);
+
+        // rate window: 260 more exact-cadence PDUs; the +1000 ns/PDU skew
+        // must read back as 256 * 1000 ns per 512 ms window
+        for (int k = 0; k < 260; k++) send_crf();
+        ck("CRF rate = +256000 ns/window", (int32_t)axi_read(A_CRF_RATE), 256000);
+
+        // disable -> ignored
+        axi_write(A_CRF_CTRL, 0x0);
+        long cnt = axi_read(A_CRF_STATUS) >> 16;
+        send_crf();
+        ck("CRF disabled = inert", axi_read(A_CRF_STATUS) >> 16, cnt);
     }
 
+    }
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;
