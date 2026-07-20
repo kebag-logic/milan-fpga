@@ -44,6 +44,8 @@ module KL_aecp_aem_dyn_mux (
   //! live values (CSR group 0x600 + ADP/L0 state)
   input  wire [63:0]  entity_id_i,
   input  wire [63:0]  entity_model_id_i,
+  input  wire [63:0]  entity_name8_i,     //! first 8 chars of entity_name
+                                          //! (board name CSR; 0 = keep ROM)
   input  wire [31:0]  entity_caps_i,
   input  wire [15:0]  talker_sources_i,
   input  wire [15:0]  talker_caps_i,
@@ -86,6 +88,11 @@ module KL_aecp_aem_dyn_mux (
         OVL_CURRENT_CFG_C: byte_o = pick64({48'd0, current_config_i}, w_ovl[2:0] + 3'd6);
         OVL_MAC_C:         byte_o = pick64({16'd0, station_mac_i},    w_ovl[2:0] + 3'd2);
         OVL_CLOCK_ID_C:    byte_o = pick64(w_clock_id,                w_ovl[2:0]);
+        //! board-name overlay: only when the CSR is provisioned (nonzero) -
+        //! an unset CSR keeps the ROM's name bytes
+        OVL_ENT_NAME8_C:   byte_o = (entity_name8_i != 64'd0)
+                                    ? pick64(entity_name8_i, w_ovl[2:0])
+                                    : rom_byte_i;
         default:           byte_o = rom_byte_i;
       endcase
     end
