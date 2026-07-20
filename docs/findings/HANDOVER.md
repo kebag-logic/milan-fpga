@@ -18,8 +18,17 @@ on link-flap after one cold-path first-run outlier). Final keepers:
 **Arty QSPI = `asl_milanfinal33` (+0.120)**, **AX SRAM =
 `eto_milanfinal19` (+0.094)**, both + the final rootfs (up-after-settle
 linkmon, vt=10, board names, gm_locked, rx_packets liveness). Post-cert
-sanity: la_avdecc CONNECT SUCCESS both Milan=1, ALINX -126.2 dB /
-ARTY-loop -60.6 dB. The mf33/AX19 deltas vs mf31/AX18: ENTITY
+sanity: la_avdecc CONNECT SUCCESS both Milan=1, ALINX -126.2 dB;
+ARTY-loop degraded to -57..-60 dB (was -66..-70) - DIAGNOSED as the
+ANALOG leg only: the arty's own digital tone through the same talker =
+-125.5 dB, capture 0 seq-gaps, clocks stable, harmonics clean -87 dBc,
+broadband-only on both channels = physical loop-cable/PMOD connection
+(disturbed during the bench AX intervention?). USER ACTION: reseat the
+loop cable + PMODs, then re-measure. Also fixed during the diagnosis:
+**the ALINX is now grandmaster by priority1=100** (S50-durable) - the
+switch had won the post-reboot election, and with gm_locked correctly
+idle, nothing tracked the stream rate (the drift story); talker-as-GM
+makes media clock and gPTP share one oscillator (until CRF lands). The mf33/AX19 deltas vs mf31/AX18: ENTITY
 GET_COUNTERS SUCCESS+empty revert (Hive), nochg replay suppression,
 freq-scaled ADP DELAY (the 100 MHz AX).
 
