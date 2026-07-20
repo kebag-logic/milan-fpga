@@ -1334,6 +1334,55 @@ int main(int argc, char** argv) {
             ck("[21g] BAD_ARGUMENTS echoes the request", 
                memcmp(&r[38], bad.data(), bad.size()) == 0, 1);
 
+            // PADDED single-record batch (silicon frames are min-64):
+            // pad bytes past cdl must NOT disturb the scan
+            {
+                std::vector<uint8_t> one;
+                put_be16(one, 0); put_be16(one, 0);
+                one.push_back(0); one.push_back(0); put_be16(one, 7);
+                auto fr = aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2110, one);
+                while (fr.size() < 60) fr.push_back(0);
+                feed_rx(fr);
+                r = collect_resp();
+                ck("[21g] padded 1-record batch SUCCESS", r_status(r), 0);
+                ck("[21g] padded batch CDL 24", r_cdl(r), 24);
+            }
+
+            // SLOW-FED padded batch: beats with 3-cycle gaps reproduce the
+            // silicon ingress pacing (cdl satisfied before the pad tail
+            // arrives) - the scan must wait for the full frame
+            {
+                std::vector<uint8_t> one;
+                put_be16(one, 0); put_be16(one, 0);
+                one.push_back(0); one.push_back(0); put_be16(one, 9);   // GET_STREAM_FORMAT
+                one[1] = 4;                                              // len = 4 (desc t+i)
+                put_be16(one, 0x0006); put_be16(one, 0);
+                auto fr = aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2111, one);
+                while (fr.size() < 60) fr.push_back(0);
+                for (size_t off = 0; off < fr.size(); off += 8) {
+                    uint64_t d = 0; uint8_t keep = 0;
+                    for (int l = 0; l < 8; l++)
+                        if (off + l < fr.size()) { d |= (uint64_t)fr[off+l] << (8*l); keep |= (1<<l); }
+                    dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = keep;
+                    dut->rx_tlast_i = (off + 8 >= fr.size());
+                    tick();
+                    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+                    tick(); tick(); tick();             // inter-beat gap
+                }
+                r = collect_resp();
+                ck("[21g] slow-fed padded batch SUCCESS", r_status(r), 0);
+                ck("[21g] slow-fed batch CDL 32", r_cdl(r), 32);
+                // malformed: len field lies (0) but data present -> the scan
+                // walks into the orphan bytes = BAD_ARGUMENTS, echoed
+                std::vector<uint8_t> lie;
+                put_be16(lie, 0); put_be16(lie, 0);
+                lie.push_back(0); lie.push_back(0); put_be16(lie, 9);
+                put_be16(lie, 0x0006); put_be16(lie, 0);
+                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2112, lie));
+                r = collect_resp();
+                ck("[21g] lying len field -> BAD_ARGUMENTS", r_status(r), 7);
+            }
+
             // empty batch -> SUCCESS, empty record array
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210B, {}));
             r = collect_resp();
