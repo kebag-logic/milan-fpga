@@ -119,12 +119,13 @@ module adp_advertiser #(
   // the silicon gap (2026-07-19). Random source: a free-running Galois LFSR.
   reg [25:0] disc_lfsr_r;      //! randomness for the delay
   reg        disc_pend_r;      //! a delayed discover-response is scheduled
-  reg [25:0] disc_dly_r;       //! delay countdown (clk_i cycles)
-  wire       disc_fire_w = disc_pend_r && (disc_dly_r == 26'd0);
+  reg [27:0] disc_dly_r;       //! delay countdown (clk_i cycles; 28-bit for
+                               //! 100 MHz base+mask headroom)
+  wire       disc_fire_w = disc_pend_r && (disc_dly_r == 28'd0);
   //! delay range ~[200 ms, 870 ms] @ 50 MHz: wide enough that a 1 s discover
   //! burst coalesces to 1..4 responses AND the spread across trials > 0.3 s
   //! (CERT es-2.1 randomness check). Milan v1.2 5.6.3.5.4 TMR_DELAY 0..4 s.
-  wire [25:0] disc_dly_next_w = 26'(DISC_DLY_BASE) + (disc_lfsr_r & 26'(DISC_DLY_MASK));
+  wire [27:0] disc_dly_next_w = 28'(DISC_DLY_BASE) + 28'(disc_lfsr_r & 26'(DISC_DLY_MASK));
   wire       tmr_advertise_w = tick_i && available_r &&
                                (adv_tick_cnt_r + 5'd1 >= (valid_time_i == 0 ? 5'd1 : valid_time_i));
 
@@ -253,7 +254,7 @@ module adp_advertiser #(
       depart_src_o   <= 2'd0;
       disc_lfsr_r    <= 26'h1;   //! nonzero LFSR seed
       disc_pend_r    <= 1'b0;
-      disc_dly_r     <= 26'd0;
+      disc_dly_r     <= 28'd0;
     end else begin
       // free-running Fibonacci LFSR (taps 26,25,24,20) for the random delay
       disc_lfsr_r <= {disc_lfsr_r[24:0],
@@ -261,7 +262,7 @@ module adp_advertiser #(
       // ADP discover DELAY state: arm a random delay on the FIRST discover,
       // coalesce further discovers during the window, fire when it expires
       if (disc_pend_r) begin
-        if (disc_dly_r != 26'd0) disc_dly_r <= disc_dly_r - 26'd1;
+        if (disc_dly_r != 28'd0) disc_dly_r <= disc_dly_r - 28'd1;
         else                     disc_pend_r <= 1'b0;   // fired this cycle
       end else if (rcv_discover_i && available_r && enable_i) begin
         disc_pend_r <= 1'b1;
