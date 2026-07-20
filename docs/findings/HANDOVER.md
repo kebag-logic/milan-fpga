@@ -9,7 +9,42 @@ lives in the named normative docs; this file states what is true NOW.
 
 ---
 
-## ★ CURRENT STATE 2026-07-20 late (read this first) ★
+## ★ CURRENT STATE 2026-07-20 night — COMPLIANCE-GAPS ROUND (read first) ★
+
+**"continue to fix all gaps" campaign (post-43/43 cert), all committed:**
+1. **Honest capability counts**: ADP talker sources 8→1, listener sinks
+   8→2 (S50 0x618/0x61C; ENTITY overlays follow).
+2. **No-change SET suppression generalized**: WRITE_S reads the old store
+   byte before writing (2-phase), wb_diff gates the u=1 replay — covers
+   SET_NAME/SAMPLING_RATE/CLOCK_SOURCE/STREAM_FORMAT beyond es-4.5.
+3. **Audio maps: RESOLVED AS COMPLIANT** — Milan 5.4.2.27/28 mandates
+   NOT_SUPPORTED for ports WITH static Audio Maps (we have them).
+4. **GET_DYNAMIC_INFO rewritten to the real 7.4.76 BATCH semantics**
+   (the pipewire-modeled fixed blob ignored request records = garbage to
+   a parsing controller): 512B capture, BSCAN validate/size pass
+   (non-fixed-size type → whole-cmd BAD_ARGUMENTS+echo; over-cap records
+   skipped per spec), per-record dispatch through the normal segment
+   engine (record-virtual arg window/echo base), NOT_SUPPORTED+echo for
+   legal-unimplemented, 8B record headers; ingress FIFO 1024. TB checks
+   every record BYTE-EXACT vs its classic response. aecp 469.
+5. **CRF measurement engine (Milan 7.3.2)**: KL_crf_rx + parser fsh2
+   extension; CSRs 0x738-0x74C (en/sid, delta = ts_delta contract,
+   256-PDU/512ms rate error, status, lock); CLOCK_DOMAIN LOCKED/UNLOCKED
+   muxed to CRF when clock_source=2. Remaining chain: ACMP sink-1 SM,
+   2nd lwSRP listener attr, servo hookup. dp TB 105 (13 CRF checks).
+6. **es-1.1 recreation BLOCKED by the bench switch**: it claims gPTP
+   priority1=246/cc248/acc0x20 (tap-read) — outranks every Milan-legal
+   end-station value. Bench keeps priority1=100 override (ALINX-GM
+   one-oscillator architecture); **cert/shipping value = 246** — needs
+   the switch claim weakened (mgmt ssh 192.168.127.1, user credentials).
+   Official es-1.1 interval checks verified against our gptp.cfg
+   (announce 0, sync −3, pdelay 0 ✓).
+Silicon: mf37 (arty) + AX22 sweeps carry 1-5; verification tools staged
+on pw0 (/tmp/dyninfo_probe.py = batch-vs-classic byte-exact,
+/tmp/crf_inject.py = 500Hz Milan CRF source). Rootfs #6 staged (counts +
+priority1-override comments). CERT rerun follows flash.
+
+## ★ PREVIOUS 2026-07-20 late ★
 
 **LPF + AS_PATH + overlay + VID-2 + servo round (07-20 evening).** Four
 user-caught issues, all root-caused, fixed, committed, silicon-verified:
