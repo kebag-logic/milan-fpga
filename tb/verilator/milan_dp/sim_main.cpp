@@ -983,6 +983,11 @@ int main(int argc, char** argv) {
             axi_write(0x724, 0x59545241);   // "ARTY"
             axi_write(0x728, 0x00000000);
             ck("ENT_NAME_LO reads back", axi_read(0x724), 0x59545241);
+            // playback biquad LPF: on by default; BYPASS for the legacy
+            // byte-exact I2S checks below (the filter alters samples)
+            ck("LPF_CTRL default on", axi_read(0x72C), 1);
+            axi_write(0x72C, 0x0);
+            ck("LPF_CTRL bypass set", axi_read(0x72C), 0);
         }
 
         pcm.clear(); pcm_last = false;
