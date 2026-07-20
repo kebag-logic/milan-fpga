@@ -310,6 +310,8 @@ OVERLAYS = [
     (E + 32,  4, "CTRL_CAP"),
     (E + 36,  4, "AVAIL_IDX"),
     (E + 40,  8, "ASSOC_ID"),
+    (E + 48,  8, "ENT_NAME8"),   # first 8 chars of entity_name: board name
+                                 # ("ARTY"/"ALINX") from the CSR, S50-set
     (E + 310, 2, "CURRENT_CFG"),
     (A + 72,  6, "MAC"),
     (A + 80,  8, "CLOCK_ID"),
@@ -317,7 +319,7 @@ OVERLAYS = [
 SRC_IDS = {name: n for n, name in enumerate(
     ["ENTITY_ID", "MODEL_ID", "ECAPS", "TALKER_SRC", "TALKER_CAP",
      "LISTEN_SINK", "LISTEN_CAP", "CTRL_CAP", "AVAIL_IDX", "ASSOC_ID",
-     "CURRENT_CFG", "MAC", "CLOCK_ID"])}
+     "CURRENT_CFG", "MAC", "CLOCK_ID", "ENT_NAME8"])}
 
 # SET_* write-back targets (rom_addr of the field inside its descriptor)
 WB = {
