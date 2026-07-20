@@ -839,6 +839,33 @@ rootfs (rx_packets linkmon, gm_locked servo, entity_model_id, IFG gasket
 gateware, ADP DELAY, es-4.13, MAAP adopt, kernel shield, clientOnly RT
 ptp4l). All self-configuring from cold boot; discovery 5/5 stable.
 
+**HIVE FIELD SESSION (07-20, user-driven) — three catches, all fixed:**
+ 1. protocolAdpdu.cpp:77 'cdl minimum 56, 0 advertised' = silicon_battery's
+    ENTITY_DISCOVER built with cdl=0 (tool bug since day one; our fabric was
+    lenient so it hid). Fixed to cdl=56.
+ 2. protocolAdpdu.cpp:77 'Not enough data in buffer' = MY cdl fix then
+    shrank the pad 64->56, truncating the ADPDU by 8 bytes (64 was
+    entity_id(8)+body(56)). Fixed back to 64; wire re-swept with a
+    LENGTH-validating check this time: every ADPDU on the segment is the
+    full 82 bytes with cdl 56 = Hive-safe.
+ 3. onGetEntityCountersResult 'values deemed bad' on :02 = my CERT-driven
+    flip of ENTITY GET_COUNTERS to BAD_ARGUMENTS. Hive/la_avdecc treat
+    entity counters as first-class (1722.1-2021 defines them) - REVERTED
+    to SUCCESS + empty valid mask (the original field-proven behavior);
+    the CERT recreation feature was the wrong reading and is fixed
+    instead. Gateware carrying the revert: AX19-final (building) + arty
+    mf33 (queued after) - until the arty flashes mf33, Hive still logs
+    the entity-counters warning against :02.
+
+**ALINX-as-DUT campaign (07-20):** CERT runner cloned for :01
+(/tmp/runcert-alinx.sh + ax-linkflap.sh). AX18 tally: 36/39 - residuals
+all fixed at HEAD: 2x nochg scenarios (AX18 predates nochg_q) + es-2.1
+randomness spread (DELAY params were CYCLE-based: the 100 MHz AX halved
+the wall-time range -> now scaled by MILAN_CLK_FREQ_HZ, d99fb5d). The
+AX-flap quirk: phy_crg reset on the AX does not drop carrier cleanly -
+RX dies AFTER the window (eth-domain desync) and linkmon's wedge path
+recovers it unattended (~20 s, silicon-verified). ARTY remains 41/41.
+
 **CERT MUST-PASS FIX ROUND (07-20) — per-fix ledger:**
  - es-4.4 STREAM_FORMAT: 8ch default RESTORED (matches the test) + the RX
    monitor now CHANNEL-ADAPTS (accepts wire 1..fmt channels; depacketizer was
