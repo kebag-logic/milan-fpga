@@ -107,6 +107,13 @@ module KL_aecp_response_builder (
   input  wire          lstn_bound_i,       //! listener SM not UNBOUND
   input  wire [63:0]   lstn_sid_i,         //! bound stream_id
   input  wire [47:0]   lstn_dmac_i,
+  // ---- CRF sink state (sink 1 record in the same listener SM) ---------
+  input  wire          lstn1_bound_i,
+  input  wire [63:0]   lstn1_sid_i,
+  input  wire [47:0]   lstn1_dmac_i,
+  output wire [31:0]   bdbg0_o,            //! BSCAN forensics (CSR RO)
+  output wire [31:0]   bdbg1_o,
+  output wire [31:0]   bdbg2_o,
   input  wire [11:0]   lstn_vlan_i,
   input  wire [1:0]    lstn_pbsta_i,       //! probing status
   input  wire [4:0]    lstn_acmpsta_i,     //! last ACMP status
@@ -420,6 +427,9 @@ module KL_aecp_response_builder (
                               //! silicon-caught: paced ingress drain made
                               //! BSCAN read unwritten cbuf words = every
                               //! record parsed as garbage -> BAD_ARGUMENTS)
+  logic [31:0]  bdbg0_q;      //! BSCAN forensics: header bytes as scanned
+  logic [31:0]  bdbg1_q;      //! {1'b0, cmd15, dlen16} at the verdict
+  logic [31:0]  bdbg2_q;      //! {ptr9, end9} at the verdict
 
   //! response data length of an implemented fixed-size GET (0 = the
   //! command is answered by echoing its data with NOT_SUPPORTED status;
@@ -453,6 +463,20 @@ module KL_aecp_response_builder (
   function automatic logic [7:0] cbufb(input [8:0] a);
     cbufb = bufb(cbuf_r[a[8:3]], a[2:0]);
   endfunction
+
+  //! batch phase-3 record terms as PLAIN COMB WIRES (0x4B silicon hunt,
+  //! 2026-07-20 night): the previous block-local `automatic` temporaries
+  //! inside the clocked process are a Vivado sim-mismatch construct (the
+  //! synth log materializes such locals as sequential elements - see the
+  //! removed `b_reg` class) - on mf38/mf39 every scanned record evaluated
+  //! as garbage (empty batch SUCCESS, any record BAD_ARGUMENTS, echo
+  //! byte-perfect) while Verilator's correct temporaries passed every TB.
+  //! Nothing block-local remains in the scan/parse decision path.
+  wire [14:0] w_bscan_c  = {bsch_r, cbufb(bscan_ptr_q + 9'd7)};
+  wire [15:0] w_bscan_rl = (batch_rlen(w_bscan_c) != 16'd0)
+                         ? batch_rlen(w_bscan_c) : brec_dlen_q;
+  wire [14:0] w_brec_c   = {bsch_r, cbufb(brec_ptr_q + 9'd7)};
+  wire [15:0] w_brec_rl  = batch_rlen(w_brec_c);
 
   // ------------------------------------------------------------------ //
   // Emit engine                                                          //
@@ -686,7 +710,8 @@ module KL_aecp_response_builder (
     logic        bnd, ta_r, ta_f;
     logic [31:0] fl;
     begin
-      bnd  = sink0 & lstn_bound_i;
+      //! sink 1 = the CRF input's bind record (no MSRP attach: ta flags 0)
+      bnd  = sink0 ? lstn_bound_i : lstn1_bound_i;
       ta_r = sink0 & lstn_ta_reg_i;
       ta_f = sink0 & lstn_ta_fail_i;
       // FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN always valid. Milan v1.2:
@@ -706,7 +731,9 @@ module KL_aecp_response_builder (
       const_q[0] <= fl[31:24]; const_q[1] <= fl[23:16];
       const_q[2] <= fl[15:8];  const_q[3] <= fl[7:0];
       for (int k = 0; k < 8; k++)
-        const_q[8+k] <= sink0 ? lstn_sid_i[8*(7-k) +: 8] : 8'h00;
+        const_q[8+k] <= sink0 ? lstn_sid_i[8*(7-k) +: 8]
+                              : (lstn1_bound_i ? lstn1_sid_i[8*(7-k) +: 8]
+                                               : 8'h00);
       //! msrp_accumulated_latency = from the registered Talker attribute
       //! (Milan 5.4.2.7); zero until one is registered
       const_q[16] <= (ta_r|ta_f) ? lstn_ta_acclat_i[31:24] : 8'h00;
@@ -714,7 +741,9 @@ module KL_aecp_response_builder (
       const_q[18] <= (ta_r|ta_f) ? lstn_ta_acclat_i[15:8]  : 8'h00;
       const_q[19] <= (ta_r|ta_f) ? lstn_ta_acclat_i[7:0]   : 8'h00;
       for (int k = 0; k < 6; k++)
-        const_q[20+k] <= sink0 ? lstn_dmac_i[8*(5-k) +: 8] : 8'h00;
+        const_q[20+k] <= sink0 ? lstn_dmac_i[8*(5-k) +: 8]
+                               : (lstn1_bound_i ? lstn1_dmac_i[8*(5-k) +: 8]
+                                                : 8'h00);
       const_q[26] <= ta_f ? lstn_fail_code_i : 8'h00;     // msrp_failure_code
       const_q[27] <= 8'h00;                               // reserved
       for (int k = 0; k < 8; k++)                          // failing bridge_id
@@ -812,6 +841,9 @@ module KL_aecp_response_builder (
       bh_i_r       <= 3'd0;
       bcdl_q       <= 11'd0;
       cap_done_q   <= 1'b0;
+      bdbg0_q      <= 32'd0;
+      bdbg1_q      <= 32'd0;
+      bdbg2_q      <= 32'd0;
       for (int k = 0; k < 8; k++) rec_hdr_q[k] <= 8'd0;
       st_wr_o      <= 1'b0;
       st_waddr_o   <= 16'd0;
@@ -1956,12 +1988,15 @@ module KL_aecp_response_builder (
                 bscan_ph_r <= 2'd3;
               end
               2'd3: begin
-                automatic logic [14:0] c;
-                automatic logic [15:0] rl;
-                c  = {bsch_r, cbufb(bscan_ptr_q + 9'd7)};
-                rl = (batch_rlen(c) != 16'd0) ? batch_rlen(c) : brec_dlen_q;
+                //! record verdict forensics: whatever this evaluation SAW
+                //! (survives into the BDBG CSRs; on a silicon reject the
+                //! probe reads the failing record exactly as scanned)
+                bdbg0_q <= {cbufb(bscan_ptr_q), cbufb(bscan_ptr_q + 9'd1),
+                            cbufb(bscan_ptr_q + 9'd6), cbufb(bscan_ptr_q + 9'd7)};
+                bdbg1_q <= {1'b0, w_bscan_c, brec_dlen_q};
+                bdbg2_q <= {7'd0, bscan_ptr_q, 7'd0, bpay_end_q};
                 bscan_ph_r <= 2'd0;
-                if (!batch_legal(c) ||
+                if (!batch_legal(w_bscan_c) ||
                     (16'({7'd0, bscan_ptr_q}) + 16'd8 + brec_dlen_q
                      > 16'({7'd0, bpay_end_q}))) begin
                   //! non-fixed-size type or truncated record: the WHOLE
@@ -1976,8 +2011,8 @@ module KL_aecp_response_builder (
                   state_r       <= WRITE_S;
                 end else begin
                   //! append if it fits the AECPDU cap (else skip, 7.4.76.1)
-                  if (bcdl_acc_q + 16'd8 + rl <= 16'd494) begin
-                    bcdl_acc_q         <= bcdl_acc_q + 16'd8 + rl;
+                  if (bcdl_acc_q + 16'd8 + w_bscan_rl <= 16'd494) begin
+                    bcdl_acc_q         <= bcdl_acc_q + 16'd8 + w_bscan_rl;
                     bfit_map_q[bidx_q] <= 1'b1;
                   end
                   bidx_q      <= bidx_q + 6'd1;
@@ -2015,24 +2050,20 @@ module KL_aecp_response_builder (
                 brec_ph_r <= 3'd3;
               end
               3'd3: begin
-                automatic logic [14:0] c;
-                automatic logic [15:0] rl;
-                c  = {bsch_r, cbufb(brec_ptr_q + 9'd7)};
-                rl = batch_rlen(c);
                 if (!bfit_map_q[bidx_q]) begin
                   brec_ph_r <= 3'd7;   //! over-cap record: skip
                 end else begin
-                  brec_cmd_q   <= c;
+                  brec_cmd_q   <= w_brec_c;
                   brec_abase_q <= 16'({7'd0, brec_ptr_q}) + 16'd6;
                   rec_hdr_q[2] <= 8'h00; rec_hdr_q[3] <= 8'h00;
                   rec_hdr_q[5] <= 8'h00;
-                  rec_hdr_q[6] <= {1'b0, c[14:8]};
-                  rec_hdr_q[7] <= c[7:0];
-                  if (rl != 16'd0) begin
+                  rec_hdr_q[6] <= {1'b0, w_brec_c[14:8]};
+                  rec_hdr_q[7] <= w_brec_c[7:0];
+                  if (w_brec_rl != 16'd0) begin
                     //! implemented GET: dispatch through DECIDE_S
-                    brec_rlen_q  <= rl;
-                    rec_hdr_q[0] <= rl[15:8];
-                    rec_hdr_q[1] <= rl[7:0];
+                    brec_rlen_q  <= w_brec_rl;
+                    rec_hdr_q[0] <= w_brec_rl[15:8];
+                    rec_hdr_q[1] <= w_brec_rl[7:0];
                     brec_ph_r    <= 3'd4;
                   end else begin
                     //! fixed-size but unimplemented: NOT_SUPPORTED with
@@ -2128,6 +2159,10 @@ module KL_aecp_response_builder (
     if (w_cap_hs && beat_r >= 7'd3 && beat_r < 7'd67)
       cbuf_r[6'(beat_r - 7'd3)] <= s_axis_tdata;
   end : cbuf_write
+
+  assign bdbg0_o = bdbg0_q;
+  assign bdbg1_o = bdbg1_q;
+  assign bdbg2_o = bdbg2_q;
 
   // verilator lint_off UNUSED
   wire unused_ok = &{1'b0, s_axis_tkeep, emit_byte_r, l0_state_i.acquired,

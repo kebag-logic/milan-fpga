@@ -79,6 +79,12 @@ module KL_aecp_top #(
   input  wire          lstn_bound_i,
   input  wire [63:0]   lstn_sid_i,
   input  wire [47:0]   lstn_dmac_i,
+  input  wire          lstn1_bound_i,     //! CRF sink (listener uid 1) record
+  input  wire [63:0]   lstn1_sid_i,
+  input  wire [47:0]   lstn1_dmac_i,
+  output wire [31:0]   bdbg0_o,           //! 0x4B BSCAN forensics (CSR RO)
+  output wire [31:0]   bdbg1_o,
+  output wire [31:0]   bdbg2_o,
   input  wire [11:0]   lstn_vlan_i,
   input  wire [1:0]    lstn_pbsta_i,
   input  wire [4:0]    lstn_acmpsta_i,
@@ -270,6 +276,9 @@ module KL_aecp_top #(
     .identify_o(identify_o),
     .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
+    .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),
+    .lstn1_dmac_i(lstn1_dmac_i),
+    .bdbg0_o(bdbg0_o), .bdbg1_o(bdbg1_o), .bdbg2_o(bdbg2_o),
     .as_parent_ckid_i(as_parent_ckid_i),
     .lstn_fail_code_i(lstn_fail_code_i), .lstn_fail_bridge_i(lstn_fail_bridge_i),
     .lstn_ta_vlan_i(lstn_ta_vlan_i), .lstn_ta_acclat_i(lstn_ta_acclat_i),

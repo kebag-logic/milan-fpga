@@ -126,7 +126,16 @@ module KL_acmp_listener #(
                                            //! listener wedged in RESPOND_S
                                            //! after ~2 cmds; watchdog frees
                                            //! it - ACMP is retransmit-safe)
-    output reg  [15:0]  probe_count_o      //! PROBE_TX commands sent
+    output reg  [15:0]  probe_count_o,     //! PROBE_TX commands sent
+
+    // ---- sink 1 (CRF Media Clock Input): pure bind record --------------
+    //! No probe SM, no MSRP attach (the 2nd lwSRP listener attribute is
+    //! the documented gap), no ADP depart-watch. CONNECT_RX stores the
+    //! binding + fast-connect stream fields; the datapath feeds the CRF
+    //! engine's sid/en from these (CSR stays the manual override).
+    output reg          s1_bound_o,
+    output reg  [63:0]  s1_sid_o,
+    output reg  [47:0]  s1_dmac_o
 );
 
   localparam int NUM_BEATS_C = (ACMP_FRAME_BYTES_C + 7) / 8;            //! 9
@@ -308,10 +317,13 @@ module KL_acmp_listener #(
   reg [3:0]   resp_msg_r;
   reg [4:0]   resp_status_r;
   lresp_t     resp_kind_r;
-  reg         resp_unb_r;      //! GET_RX_STATE for sink 1 (CRF): valid but
-                               //! ALWAYS unbound - the AEM advertises 2 sinks,
-                               //! so UNKNOWN_ID here is an enumeration-fatal
-                               //! inconsistency (la_avdecc field report)
+  reg         resp_s1_r;       //! response reads the sink-1 record (uid 1);
+                               //! the AEM advertises 2 sinks, so UNKNOWN_ID
+                               //! on uid 1 is an enumeration-fatal
+                               //! inconsistency (la_avdecc field report) -
+                               //! sink 1 now carries a REAL bind record
+  reg [63:0]  s1_ctlr_r, s1_talker_r;
+  reg [15:0]  s1_tuid_r, s1_flags_r;
   reg         probe_pend_r;     //! send a PROBE_TX after the current response
 
   reg [3:0] beat_r;
@@ -320,11 +332,12 @@ module KL_acmp_listener #(
   //! response field muxes (evaluated live at emit time — the same register
   //! sampling the old echo array had, so wire behaviour is unchanged)
   wire        w_bound   = (st_lsm_r != LSM_UNBOUND_S);
-  wire        w_b_eff   = w_bound && !resp_unb_r;   //! sink-0 state masked
+  wire        w_b_eff   = resp_s1_r ? s1_bound_o : w_bound;  //! sink-select
   //! dest-MAC echoed in responses: the fresh capture on BIND (dmac_r loads
   //! the same edge the response fires), the stored binding on GET_RX_STATE
   wire [47:0] w_dmac_echo = (resp_kind_r == L_RESP_BIND_E)  ? cap_dmac_r
-                          : (resp_kind_r == L_RESP_STATE_E && w_b_eff) ? dmac_r
+                          : (resp_kind_r == L_RESP_STATE_E && w_b_eff)
+                            ? (resp_s1_r ? s1_dmac_o : dmac_r)
                           : 48'd0;
                                                     //! out of sink-1 replies
   wire        w_str_echo = (resp_kind_r == L_RESP_STATE_E);   // stream_id/vlan
@@ -333,7 +346,9 @@ module KL_acmp_listener #(
     unique case (resp_kind_r)
       L_RESP_BIND_E:   tkb = echo;
       L_RESP_UNBIND_E: tkb = 8'h00;
-      default:         tkb = w_b_eff ? bnd_talker_r[8*(7-idx) +: 8] : 8'h00;
+      default:         tkb = !w_b_eff ? 8'h00
+                           : resp_s1_r ? s1_talker_r[8*(7-idx) +: 8]
+                                       : bnd_talker_r[8*(7-idx) +: 8];
     endcase
   endfunction
   //! response flags bytes 64-65
@@ -348,6 +363,9 @@ module KL_acmp_listener #(
       default: begin
         if (!w_b_eff)
           w_resp_flags = 16'h0000;
+        else if (resp_s1_r)
+          //! sink 1: no probe SM, no SRP - only the binding's SW flag
+          w_resp_flags = s1_flags_r & ACMP_FLAG_STREAMING_WAIT_C;
         else if (st_lsm_r == LSM_SETTLED_NO_RSV_S ||
                  st_lsm_r == LSM_SETTLED_RSV_OK_S)
           w_resp_flags = bnd_flags_r & ACMP_FLAG_STREAMING_WAIT_C;
@@ -428,8 +446,10 @@ module KL_acmp_listener #(
       end
       4'd6: begin                                        // bytes 48-55
         if (resp_kind_r != L_RESP_BIND_E) begin          // tuid 50-51
-          w_resp[8*2 +: 8] = resp_unb_r ? 8'h00 : bnd_tuid_r[15:8];
-          w_resp[8*3 +: 8] = resp_unb_r ? 8'h00 : bnd_tuid_r[7:0];
+          w_resp[8*2 +: 8] = !w_b_eff ? 8'h00
+                           : resp_s1_r ? s1_tuid_r[15:8] : bnd_tuid_r[15:8];
+          w_resp[8*3 +: 8] = !w_b_eff ? 8'h00
+                           : resp_s1_r ? s1_tuid_r[7:0]  : bnd_tuid_r[7:0];
         end
         //! stream_dest_mac 54-59: echo the bound MAAP address (spec Table
         //! 8.2; the reference zeroed it, but Hive/la_avdecc display it and
@@ -549,6 +569,10 @@ module KL_acmp_listener #(
       cap_dmac_r <= '0; cap_vlan_r <= '0;
       st_lsm_r <= LSM_UNBOUND_S;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0; resp_kind_r <= L_RESP_STATE_E;
+      resp_s1_r <= 1'b0;
+      s1_bound_o <= 1'b0; s1_ctlr_r <= 64'd0; s1_talker_r <= 64'd0;
+      s1_tuid_r <= 16'd0; s1_flags_r <= 16'd0;
+      s1_sid_o <= 64'd0; s1_dmac_o <= 48'd0;
       probe_pend_r <= 1'b0;
       bnd_ctlr_r <= 64'd0; bnd_talker_r <= 64'd0;
       bnd_tuid_r <= 16'd0; bnd_flags_r <= 16'd0;
@@ -793,8 +817,22 @@ module KL_acmp_listener #(
               // ---------------- BIND_RX --------------------------------
               ACMP_CONNECT_RX_COMMAND_C: begin
                 resp_kind_r <= L_RESP_BIND_E;
-      resp_unb_r  <= 1'b0;
-                if (!w_uid_ok) begin
+                resp_s1_r   <= (w_luid == 16'd1);
+                if (w_luid == 16'd1) begin
+                  //! sink 1 (CRF): pure record bind. Fast-connect fields
+                  //! honoured: a nonzero stream_id/dest_mac in the command
+                  //! IS the stream (Milan controllers pass the talker's
+                  //! values); zeros fall back to {talker EID, tuid}.
+                  s1_bound_o  <= 1'b1;
+                  s1_ctlr_r   <= w_ctlr;
+                  s1_talker_r <= w_talker;
+                  s1_tuid_r   <= w_tuid;
+                  s1_flags_r  <= w_flags;
+                  s1_dmac_o   <= cap_dmac_r;
+                  s1_sid_o    <= (cap_sid_r != 64'd0)
+                               ? cap_sid_r
+                               : sid_from_eid(w_talker, w_tuid);
+                end else if (!w_uid_ok) begin
                   resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
                 end else if (st_lsm_r != LSM_UNBOUND_S &&
                              w_same_talker && w_flags_match) begin
@@ -813,8 +851,16 @@ module KL_acmp_listener #(
               // ---------------- UNBIND_RX ------------------------------
               ACMP_DISCONNECT_RX_COMMAND_C: begin
                 resp_kind_r <= L_RESP_UNBIND_E;
-                resp_unb_r  <= 1'b0;
-                if (!w_uid_ok) begin
+                resp_s1_r   <= (w_luid == 16'd1);
+                if (w_luid == 16'd1) begin
+                  s1_bound_o  <= 1'b0;
+                  s1_ctlr_r   <= 64'd0;
+                  s1_talker_r <= 64'd0;
+                  s1_tuid_r   <= 16'd0;
+                  s1_flags_r  <= 16'd0;
+                  s1_dmac_o   <= 48'd0;
+                  s1_sid_o    <= 64'd0;
+                end else if (!w_uid_ok) begin
                   resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
                 end else begin
                   do_unbind();
@@ -823,7 +869,7 @@ module KL_acmp_listener #(
               // ---------------- GET_RX_STATE ---------------------------
               default: begin
                 resp_kind_r <= L_RESP_STATE_E;
-                resp_unb_r  <= (w_luid == 16'd1);
+                resp_s1_r   <= (w_luid == 16'd1);
                 if (!w_uid_ok && w_luid != 16'd1)
                   resp_status_r <= ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
               end
