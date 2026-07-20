@@ -103,16 +103,41 @@ module avtp_stream_parser #(
   localparam int BPW        = TDATA_WIDTH / 8;     // bytes per beat
   localparam int IDXW       = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
 
+  //! input pipeline stage (2026-07-21): the RX-CDC FIFO's BRAM dout fed
+  //! this parser's shift/capture cones directly - BRAM Tco + the widened
+  //! fsh2/type capture fanout broke the AX 100 MHz builds (AX25 -0.478:
+  //! storage_32/CLKARDCLK -> avtp_ts/fsh2 CE). One register stage in
+  //! front (the aecp-ingress input-reg medicine) restores the budget; the
+  //! parser is a pure handshake-qualified tap, so every output pulse and
+  //! capture shifts one cycle together - invisible to consumers (the dp
+  //! TB's byte-exact PCM/accept alignment checks gate this claim).
+  logic [TDATA_WIDTH-1:0] s_tdata_q;
+  logic                   s_tvalid_q, s_tready_q, s_tlast_q;
+  always_ff @(posedge clk) begin : in_reg
+    if (!resetn) begin
+      s_tvalid_q <= 1'b0;
+      s_tready_q <= 1'b0;
+      s_tlast_q  <= 1'b0;
+      s_tdata_q  <= '0;
+    end
+    else begin
+      s_tdata_q  <= s_tdata_i;
+      s_tvalid_q <= s_tvalid_i;
+      s_tready_q <= s_tready_i;
+      s_tlast_q  <= s_tlast_i;
+    end
+  end : in_reg
+
   //! beat in big-endian byte order (byte 0 of the beat in the MS lane)
-  wire [TDATA_WIDTH-1:0] beat_be = BIG_ENDIAN ? s_tdata_i
-                                              : reorder_endian_func(s_tdata_i, TDATA_WIDTH);
+  wire [TDATA_WIDTH-1:0] beat_be = BIG_ENDIAN ? s_tdata_q
+                                              : reorder_endian_func(s_tdata_q, TDATA_WIDTH);
 
   //! rolling header buffer, MS byte = frame byte 0 (same convention as the
   //! classifier). Shift a beat in on every accepted input beat until we hold
   //! HDR_BYTES; `bytes_in` saturates so mid/late beats don't disturb it.
   logic [HDRW-1:0]              hdr;
   logic [$clog2(HDR_BYTES+BPW):0] bytes_in;
-  wire  in_acc  = s_tvalid_i && s_tready_i;
+  wire  in_acc  = s_tvalid_q && s_tready_q;
   wire  hdr_full_next = (bytes_in + BPW) >= HDR_BYTES;
   logic parsed;                                    // one match/count per frame
 
@@ -217,7 +242,7 @@ module avtp_stream_parser #(
           if (match_hit) matched_frames_o <= matched_frames_o + 1'b1;
         end
 
-        if (s_tlast_i) begin               // end of frame: rearm for the next
+        if (s_tlast_q) begin               // end of frame: rearm for the next
           bytes_in <= '0;
           parsed   <= 1'b0;
         end
