@@ -55,7 +55,7 @@
 module milan_csr #(
   parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
-  parameter logic [31:0] VERSION = 32'h0001_0004 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0004 = pre-filter AVTP taps (TCAM kernel-shield safe to arm)
+  parameter logic [31:0] VERSION = 32'h0001_0005 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0005 = CRF talker CSRs 0x750+ present (0x0004 = pre-filter AVTP taps)
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
