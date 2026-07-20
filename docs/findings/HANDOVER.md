@@ -9,7 +9,58 @@ lives in the named normative docs; this file states what is true NOW.
 
 ---
 
-## ★ CURRENT STATE 2026-07-20 (read this first) ★
+## ★ CURRENT STATE 2026-07-20 late (read this first) ★
+
+**LPF + AS_PATH + overlay + VID-2 + servo round (07-20 evening).** Four
+user-caught issues, all root-caused, fixed, committed, silicon-verified:
+
+1. **AAF VID-0 flood** ("the AVTP is sent everywhere"): S50's
+   `w 0x654 0x3` clobbered AAF_CTRL's VID[27:16] → untagged SR frames =
+   best-effort flood on every switch port, no pruning, no shaped path
+   (all earlier audio ran best-effort despite res_active!). Fix
+   `0x00020003`; tap-proven: PCP3/VID2 tags, switch prunes to zero ports
+   when unbound, forwards ONLY to the bound listener, pw0 clean.
+2. **AVB_INTERFACE overlay +2** (Hive showed one arbitrary gPTP flag):
+   gen_aem_store.py put the MAC/CLOCK_ID overlays at A+72/A+80 vs spec
+   70/78 — the MAC tail overwrote interface_flags (wire 0x0001/0x0002 =
+   MAC last bytes) and shifted clock_identity. The aecp TB had the same
+   wrong offsets (it validated the bug). Both fixed; wire now 0x0007 +
+   correct MAC/ckid on BOTH boards.
+3. **GET_AS_PATH** per 1722.1-2021 §7.4.41.2: path_sequence = Announce
+   PathTrace = [GM, traversed bridges]. New AS2 CSRs 0x730/0x734 fed by
+   gptp2csr (pmc PARENT_DATA_SET parentPortIdentity). Wire: ARTY n=2
+   [GM 020000fffe000001, switch 3cc0c6fffefe0210], ALINX-GM n=1 [self].
+4. **KL_pcm_lpf** (fc 20 kHz Butterworth on the DAC render tap only,
+   LPF_CTRL 0x72C default-on, auto-bypass ≠2ch): v1 combinational cone
+   failed AX 100 MHz (WNS −4.7); **v2 = serial-MAC** (one shared 17×24
+   mult, ~12 cyc/pair, burst FIFO, own m_tvalid + capture mux in
+   KL_i2s_playback). Loop A/B servo-locked on the reserved path:
+   **ON −73.4 dB (all-time record), OFF −72.2**. NB: pure-ACMP binds
+   keep the 8ch default format = LPF bypassed; SET_STREAM_FORMAT
+   0x0205022000806000 (2ch) engages it.
+
+**Media unlock cycle root-caused (was hiding for days as "variable loop
+numbers"):** (a) stream_phc_sync steered the PHC whenever portState !=
+SLAVE — on the GM board that's ALWAYS (MASTER), so a listener bind made
+the ALINX slew the domain's timebase every poll; and a single pmc
+timeout triggered multi-ms PHC steps that blew up ptp4l (log: adj −5..
+−9 ms, rms 777 µs). Fixed: SLAVE|MASTER both = healthy + 5-poll miss
+hysteresis. (b) kl-eth TX-timestamp kworker can stall >50 ms under
+CPU/bus load → ptp4l SLAVE→FAULTY (16 s reset) → unlock;
+tx_timestamp_timeout 50→500 ms. STREAM_INPUT counters LOCKED/UNLOCKED
+are the detector (SEQ/INTERRUPTED stay 0 — wire was never at fault).
+Driver-side stamp-latency fix remains owed (workarounds section).
+
+**Builds:** ARTY QSPI = `eto_milanfinal34` (+0.193; v1 LPF, working) —
+mf35 (v2 parity) sweeping now, flash when done. **ALINX SRAM =
+`eppo_milanfinal21` (+0.057, v2 LPF)** + QSPI images with rootfs #4
+(VID-2 S50, gptp2csr parent publish, servo fix, 500 ms tx-ts timeout).
+CERT rerun on the final pair is the remaining gate. Tool fixes:
+milan_controller.py ENTITY_DISCOVER cdl 0→56 (a Hive cdl=0 report on
+07-20 13:50 was OUR tool from pw0, not the DUT). Board file transfer:
+boards run dropbear (root@22) — scp via pw0; ProfiShark BPF offsets +28.
+
+## ★ PREVIOUS STATE 2026-07-20 (dual-board cert) ★
 
 **★★ DUAL-BOARD CERT CERTIFICATION (07-20): ARTY 41/41 + ALINX 41/41 ★★**
 RE-CONFIRMED on the final durable state (cold-booted rootfs both boards,
