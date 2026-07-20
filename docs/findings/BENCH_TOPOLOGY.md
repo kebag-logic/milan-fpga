@@ -162,26 +162,34 @@ ENT_NAME · 0x72C LPF_CTRL (default 1) · 0x730/0x734 AS_PATH parent ·
 New plain-RW CSRs MUST be added to `is_plain_rw()` in milan_csr.sv or
 reads lie (shadow).
 
-## 9. State at handover (2026-07-20 night)
+## 9. State at handover (2026-07-21 all-night campaign; detail = HANDOVER.md top section)
 
-- **Flashed**: ARTY QSPI = `eto_milanfinal37` (+0.058) + rootfs #7
-  (238, honest counts, servo fix, 500 ms tx-ts). AX SRAM =
-  `eppo_milanfinal21` (+0.057) + QSPI images with rootfs #4 — **AX needs
-  the rootfs #7 image set + a ≥AX23 bitstream**.
-- **In flight**: arty `milanfinal38` sweep (carries the 0x4B BSCAN race
-  fix a4c0630 — mf37's batch 0x4B fails on silicon without it); a
-  session monitor chains `sweep.sh ax7101 milanfinal23` when mf38's 3
-  bitstreams appear (if the monitor died with the context reset, launch
-  it manually).
-- **Then**: flash mf38-best → ARTY, AX23-best + images → AX; run
-  `dyninfo_probe.py` both entities (expect PASS), `crf_inject.py` + CRF
-  CSR/lock check, loop THD+N A/B sanity, **full CERT suite on both
-  boards** (target 43/43 + the batch-0x4B coverage), update HANDOVER.
-- **Open** (docs/MILAN_COMPLIANCE_GAPS.md): CRF bind chain (ACMP sink-1
-  SM, 2nd lwSRP listener attr, servo hookup), es-1.1/1.2 recreation
-  (needs the switch's gPTP claim weakened — user credentials), 0x4B on
-  silicon re-verify, kl-eth tx-stamp latency (driver), 8ch render path,
-  GMII CDC reinit RTL, shadow invalidate (accepted workaround).
+- **Flashed**: ARTY QSPI = `eto_milanfinal39` (+0.099) + **rootfs #8**
+  (#7 + the ALINX CRF-talker S50 block) — VERSION 0x0005, cert 61/61.
+  AX SRAM = `eppo_milanfinal21` + rootfs #4 still: **AX24 failed timing
+  ×3** (old lwsrp-walker/batch_q cones), **AX25 in flight** carrying
+  everything (CRF talker + PTO, 0x4B hoist + BDBG, sink-1 bind chain);
+  arty `milanfinal40` auto-chains after AX25 (monitor b83on28vj-class).
+- **AX flash is now policy "boot"** (USER): `build.sh flash ax7101:` =
+  bitstream@0 + images in one verb (the old images-only rule described
+  the dead kernel@0 layout). JTAG-load stays the belt until the
+  mode-pin/self-config question is answered by a --reset test.
+- **Then (morning)**: flash mf40 → ARTY + AX25 (+ rootfs #8 images) →
+  AX; `dyninfo_probe.py` both (0x4B hoist verdict — if STILL failing,
+  `devmem 0x768/0x76C/0x770` right after a failing probe = the BDBG
+  forensics that name the mechanism); **CRF e2e wire test** (AX talks on
+  the MAAP-claim+1 DMAC, sid {02:00:00:00:00:01,1} → ARTY rx: either
+  ACMP-bind sink 1 (CONNECT_RX uid=1, fast-connect sid) or CSR-provision
+  0x73C=0x00010001/0x740=0x02000000/0x738=1 → watch lock + delta ≈ +2 ms
+  − transit + rate = the true MMCM-vs-PHC ppm); expanded CERT (63
+  scenarios) on the AX; loop analog leg = PHYSICAL morning item
+  (digital ends both −135.1 dB, loop −2.8 level-tracking).
+- **Open** (docs/MILAN_COMPLIANCE_GAPS.md): 0x4B silicon verdict (hoist
+  or BDBG-named next), CRF servo ACTUATOR (= the MMCM-DRP engine; NCO
+  retired), 2nd lwSRP listener attr (CRF reservation), es-1.1/1.2
+  DUT-wins-BMCA variants (switch credentials — the tap halves are
+  recreated + green), kl-eth tx-stamp latency, 8ch render, GMII CDC
+  reinit, shadow invalidate, pcm_ring_dump segv (new).
 
 ## 10. Standing rules (violating any of these has burned us)
 

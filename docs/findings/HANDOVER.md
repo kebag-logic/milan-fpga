@@ -13,7 +13,99 @@ lives in the named normative docs; this file states what is true NOW.
 
 ---
 
-## ★ CURRENT STATE 2026-07-20 night — COMPLIANCE-GAPS ROUND (read first) ★
+## ★ CURRENT STATE 2026-07-21 all-night — CLOSE-ALL-GAPS CAMPAIGN (read first) ★
+
+**USER directives this night: CRF talker for the e2e test ("crf is paced @
+2ms... the PTO applies like any streams"), "to flash use qspi" (AX policy
+flipped), "you have a night to close all gaps".**
+
+1. **CRF talker KL_crf_tx IS IN (0e5e8a7 + PTO 0821aeb):** Avnu Pro Audio
+   500 PDU/s sourced from the REAL audio-MMCM 96-sample grid
+   (self-contained /512+/96 divider in cd_audio, cdc_pulse, ptp_now
+   capture), every timestamp future-dated by the presentation time offset
+   from the SAME source as the AAF framer (SET_STREAM_INFO ACC_LAT/MTT,
+   reset 2 ms) per the USER's Milan reading. CSRs 0x750-0x764; 6th
+   control-merge source (untagged best-effort until the 2nd lwSRP TA
+   attr). S50 provisions the ALINX with DMAC = MAAP claim+1 on gateware
+   >= 0x0005 (VERSION bumped f301cde; rootfs #8 = 6068b11). TB: module 31
+   (incl future-dating window + skip-on-busy grid truth), dp loopback
+   closure (tx->rx locked). **Wire e2e pending an AX >= 25 bitstream.**
+2. **CRF rx SILICON-PROVEN vs a synthetic pw0 source (mf37):** locks
+   in-stream, 13000/13000 PDUs counted zero-loss (incl a 4x overspeed
+   burst - injector pacing quirk), fmt/seq 0, rate-from-ts-field = 0,
+   100 ms timeout unlock, delta latch. /tmp/crf_inject.py + provisioning
+   recipe in BENCH_TOPOLOGY.
+3. **CRF sink-1 bind chain IS IN (b692395, silicon pending mf40/AX25):**
+   listener uid=1 = a REAL bind record (fast-connect sid/dmac from the
+   command, zero-sid falls back to {eid,tuid}; no probe SM/MSRP attach/
+   depart-watch - documented), GET_RX_STATE + GET_STREAM_INFO(input 1)
+   reflect it, the datapath drives KL_crf_rx en/sid from the bind (CSR
+   pair stays the manual lever), ACMPL_STATE bit31 = bound. dp TB proves
+   CONNECT_RX(uid1) -> engine locks on the bound sid -> DISCONNECT cuts.
+   **Servo actuator gap named precisely:** the clean-clock rework RETIRED
+   the NCO (trim_o = 0, "future MMCM-DRP servo") - CRF clock recovery
+   needs that DRP engine; measurement + bind + CLOCK_DOMAIN muxing are
+   done, actuation is the remaining engine (gaps doc).
+4. **0x4B silicon saga - THREE defects deep, forensics armed:** (a) the
+   BSCAN capture race (a4c0630, mf38); (b) cbuf RAM written inside the
+   async-reset engine block -> Vivado refuses RAM inference (Synth
+   8-4767) and mangles set/reset priority ("may cause simulation
+   mismatches") -> silicon garbage scans while ALL TBs pass; fixed
+   f3f4b15 (own sync-only process; 8-4767 verified GONE from mf39+
+   builds); (c) mf39 silicon STILL answers BAD_ARGUMENTS deterministically
+   (empty batch SUCCESS / 1-record 0-for-50 / echo byte-perfect = the
+   discriminator) -> live suspect = block-local `automatic` temporaries in
+   the scan/parse clocked phases (the synth log materializes such locals
+   as sequential elements); hoisted to comb wires + **BDBG CSRs
+   0x768/0x76C/0x770 latch {header bytes as scanned, cmd15+dlen16,
+   ptr+end} at every verdict** (b692395, rides mf40/AX25) - if the hoist
+   is not the mechanism, ONE devmem read after a failing probe names it.
+5. **AX QSPI policy images->boot (USER, 17acf0b):** the manifest-"full"
+   layout has always reserved bitstream@0 (kernel at 4 MiB - the
+   kernel-clobber note described the DEAD layout); 3.6 MiB bit + 8.2 MiB
+   rootfs fit the 16 MB flash. `build.sh flash ax7101:` now writes
+   gateware + images in one verb; whether the FPGA self-configures from
+   QSPI depends on the board's mode pins - JTAG stays the belt, a
+   --reset after the first flash is the test.
+6. **CERT suite 43 -> 63 scenarios:** es-4.1/4.2/4.6/4.11/4.14/4.15/4.17/
+   4.18 recreated (new steps es4x_steps.py; la_avdecc-consistent
+   expectations: ACQUIRE rejected, LOCK exclusion + 60 s self-expiry
+   LIVE-verified, START/STOP_STREAMING input-only + unsolicited,
+   GET_MILAN_INFO version 1, counters masks 0x23/0x3/0xF3F @ cdl 148),
+   **es-1.1 ALINX-GM half** (ProfiShark tap cadences: announce 1.0001 s,
+   sync 8/s, pdelay 1/s, priority1 238, clockClass 248; the DUT-wins-BMCA
+   variants stay switch-gated) and **es-1.2 SRP wire half** (every Domain
+   declaration = {class A(6), prio 3, VID 2}). Tap helpers
+   /tmp/gptp_cadence.py + /tmp/srp_domain.py on amx-ubuntu-server; suite
+   snapshot in private/recreate/aets_recreate_20260721 (git-ignored).
+   **★ ARTY mf39: 61/61 scenarios, 305/305 steps, 0 failures ★** (+ the
+   2 tap features green in separate runs).
+7. **Loop analog leg BROKEN tonight (-2.8 dB, level-tracking):** the
+   decomposition exonerates every digital path - AX source at the tap
+   -135.1 dB, ARTY's own digital tone through its talker -135.1 dB, LPF
+   on/off immaterial - the DAC->cable->ADC leg is sick in a saturating,
+   level-tracking way (NOT the sign-square class). Physical/PMOD
+   suspicion (the same leg was reseat-cured 07-20); MORNING BENCH ITEM.
+   New trap: pcm_ring_dump SEGFAULTS on mf39+rootfs#8 (mmap page fault at
+   the ring read) - the pre-DAC ring check is unavailable until fixed.
+8. **Silicon state:** ARTY QSPI = **eto_milanfinal39 (+0.099) + rootfs #8**
+   (boot-verified, VERSION 0x0005, 61/61 cert). mf38 (eto +0.158) was
+   flashed and superseded the same evening (its 0x4B is broken on
+   silicon). AX = **eppo_milanfinal21 SRAM + rootfs #4 still** - AX24
+   FAILED TIMING x3 (asl -0.045 / eto -0.209 / eppo -0.288; violators =
+   the OLD lwsrp-walker + batch_q marginal cones, not the CRF logic);
+   **AX25 sweep in flight** (HEAD b692395, everything above), mf40 arty
+   sweep auto-chains after it; extra AX seeds with fresh place
+   directives if wave 1 misses.
+9. New traps burned: git-worktree + SYMLINKED third_party makes verilator
+   resolve ../.. into the MAIN repo (silently builds stale RTL - copy,
+   never link); `timeout N sudo tcpdump` leaves the root child running
+   (sudo timeout N tcpdump); tap filters for TAGGED streams need
+   ether[44:2]=0x22f0 (the VLAN pushes the ethertype +4 past the +28
+   record header); KL_crf_tx had to be registered in a FOURTH source
+   list (milan_soc.py) beyond verilator/yosys/dp-TB.
+
+## ★ PREVIOUS 2026-07-20 night — COMPLIANCE-GAPS ROUND ★
 
 **"continue to fix all gaps" campaign (post-43/43 cert), all committed:**
 1. **Honest capability counts**: ADP talker sources 8→1, listener sinks
