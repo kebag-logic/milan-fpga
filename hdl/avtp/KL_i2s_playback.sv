@@ -90,7 +90,11 @@ module KL_i2s_playback #(
                                          //! media-lock condition (USER rule)
   output logic [31:0] dbg_frame_o        //! DAC-serial forensics: the exact
                                          //! 32 bits shifted out in the last
-                                         //! LEFT half-frame (loops i2s_sdin_o
+                                         //! LEFT half-frame. NOTE the window
+                                         //! is LRCK-aligned, so CORRECT
+                                         //! Philips data (1-bit delay) reads
+                                         //! sample = (word >> 7) & 0xFFFFFF
+                                         //! (loops i2s_sdin_o
                                          //! back digitally - shows what the
                                          //! CS4344 receives, no scope needed)
 );

@@ -20,16 +20,28 @@ lives in the named normative docs; this file states what is true NOW.
 delta vs 42 is the format ROM/validator — itself cert-exercised on
 AX30) · ALINX QSPI-SELF-BOOT = `eppo_milanfinal30` (+0.026, 1st close
 after 7 AX rounds; L2 32K per USER, sweep was always 1-hart).
-CAMPAIGN COMPLETE except: the render-feed byte-rotation regression
-found at dawn (below) and the documented deferred list.**
+CAMPAIGN COMPLETE including the loop: the "render-feed byte-rotation
+regression" was DISPROVEN by measurement on 07-21 morning — the loop
+sits at the RECORD number on the final pair. Deferred list stands.**
 
-- **RENDER-FEED REGRESSION (dawn find, cable EXONERATED by USER):** the
-  DAC is fed 24-bit samples rotated left one byte (I2SPB_DBG 0x6F0:
-  0x70A71E00 un-rotates to 0x1E70A7 = exactly the -12 dB tone peak;
-  stray pad-byte bits too) = the loop's -2.8 dB level-tracking. A REAL
-  RTL regression in the depacketizer->playback render tap (the DMA-ring
-  branch the TBs byte-check is likely still bit-true), window mf36->39
-  = the CRF parser-extension era; top of the day-shift list.
+- **"RENDER-FEED REGRESSION" DISPROVEN (07-21 morning, measured):**
+  the dawn "byte-rotation" was a MIS-DECODE of I2SPB_DBG 0x6F0 — the
+  window is LRCK-aligned, so CORRECT Philips data (1-bit protocol
+  delay) reads shifted: sample = (word >> 7) & 0xFFFFFF. Every DBG
+  word from both nights decodes to the clean -12 dB sine that way
+  (0x0FFEBC00 -> 0x1FFD78 = +0.25 exact peak; pad 0x80 <=> sample LSB).
+  Ground truth chain on mf42+AX30: AX tone at the tap -134.4 dB; DMA
+  ring = structurally clean S32BE sine (u32 top byte 00 everywhere);
+  **loop THD+N -73.4 dB x3 independent captures, both channels, LPF
+  on/off identical (-73.3/-73.4), level -20.0 dBFS (=-4.9 dB analog
+  insertion)** — the mf35 record number, now on the final certified
+  pair. Last night's -2.8/-7.9 were artifacts: the overnight bind
+  LAPSES and the switch prunes the stream (a capture then sees an
+  unbound/mid-rebind mess — this morning the tone wasn't reaching the
+  ARTY at all until CONNECT_RX was re-issued), and un-buffered tcpdump
+  drops seq-gaps that splash broadband into whole-file THD. Standing
+  capture rules: `tcpdump -B 16384`, analyze the longest gap-free run
+  (pcap2s32.py does this now), re-verify the bind before measuring.
 
 - **CERT: BOTH boards 63/63 scenarios, 319/319 steps, 0 failures** on
   the EXPANDED suite (43→63: es-4.1/2/6/11/14/15/17/18 + es-1.1 GM-half
@@ -132,12 +144,14 @@ Milan 6.4 all-channel-counts (both user-caught compliance reads).**
    snapshot in private/recreate/aets_recreate_20260721 (git-ignored).
    **★ ARTY mf39: 61/61 scenarios, 305/305 steps, 0 failures ★** (+ the
    2 tap features green in separate runs).
-7. **Loop analog leg BROKEN tonight (-2.8 dB, level-tracking):** the
-   decomposition exonerates every digital path - AX source at the tap
-   -135.1 dB, ARTY's own digital tone through its talker -135.1 dB, LPF
-   on/off immaterial - the DAC->cable->ADC leg is sick in a saturating,
-   level-tracking way (NOT the sign-square class). Physical/PMOD
-   suspicion (the same leg was reseat-cured 07-20); MORNING BENCH ITEM.
+7. **Loop analog leg: RESOLVED 07-21 morning — never broken.** The
+   night's -2.8 dB was measured against a lapsed/mid-rebind stream
+   (the switch prunes an unregistered listener; the tone wasn't even
+   forwarded to the ARTY until CONNECT_RX was re-issued at 11:04) plus
+   un-buffered tcpdump seq-gaps. After re-bind: **-73.4 dB x3 captures,
+   both channels, LPF on/off identical** on mf42+AX30 = the record
+   number on the final certified pair. The digital ends re-confirmed
+   (-134.4 tap / ring bit-clean). See the top-of-file disproof note.
    New trap: pcm_ring_dump SEGFAULTS on mf39+rootfs#8 (mmap page fault at
    the ring read) - the pre-DAC ring check is unavailable until fixed.
 8. **Silicon state:** ARTY QSPI = **eto_milanfinal39 (+0.099) + rootfs #8**
