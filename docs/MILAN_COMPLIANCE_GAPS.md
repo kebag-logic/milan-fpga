@@ -1,7 +1,8 @@
 # Milan v1.2 — remaining gaps to FULL compliance
 
-Status date: 2026-07-20, after the dual-board CERT certification
-(ARTY 41/41 on `asl_milanfinal33`, ALINX 41/41 on `eto_milanfinal19`).
+Status date: 2026-07-21 morning, after the close-all-gaps night
+(ARTY 63/63 on `eppo_milanfinal41`, ALINX 63/63 on `eppo_milanfinal30`
+QSPI-self-boot; both 0x4B byte-exact; CRF e2e locked at +6.7 ppm).
 This file lists ONLY what is still missing or approximate. What already
 passes is recorded in `docs/findings/HANDOVER.md` (certification section)
 and is not repeated here.
@@ -22,8 +23,8 @@ and is not repeated here.
   mangled set/reset priority (Synth 8-7137 "may cause simulation
   mismatches"): silicon read garbage on every record scan while every
   TB passed (empty batch SUCCESS / 1-record 0-for-50 was the
-  discriminator). Fixed f3f4b15 (own sync-only write process). mf38 and
-  earlier remain non-conformant on 0x4B on silicon.
+  discriminator). Fixed f3f4b15 (own sync-only write process); builds
+  before mf41/AX30 remain non-conformant on 0x4B on silicon.
   Defect (c) was the block-local `automatic` temporaries hazard
   (hoisted); defect (d) — THE mechanism, BDBG-caught in one read on
   mf40 — was implicit multi-port LUTRAM inference REPLICATING cbuf
@@ -76,8 +77,8 @@ and is not repeated here.
   a real bind record (fast-connect sid/dmac, {eid,tuid} fallback), the
   datapath drives the CRF engine's en/sid from the bind, GET_RX_STATE/
   GET_STREAM_INFO(input 1) reflect it (dp-TB closure: CONNECT_RX →
-  lock on the bound sid → DISCONNECT cuts); silicon verify rides
-  mf40/AX25.
+  lock on the bound sid → DISCONNECT cuts); **SILICON-PROVEN on mf40
+  (bind → lock with CSR en=0 → disconnect cuts).**
   REMAINING for the full chain: a second lwSRP listener attribute for
   the CRF reservation (until then the CRF stream rides untagged
   best-effort — an SR-tagged unregistered stream is pruned to zero
@@ -106,10 +107,11 @@ and is not repeated here.
 
 ## 4. gPTP
 
-- **es-1.1 / es-1.2 (gPTP + SRP default parameters and timings) were
-  never recreated** — linuxptp's defaults are believed conformant
-  (checked 2026-07-20 against the official es-1.1 text: announce 0,
-  sync -3, pdelay 0 all match) but the timing tolerances are unverified.
+- **es-1.1 / es-1.2: the wire-observable halves ARE recreated + green
+  (2026-07-21)** — es-1.1 ALINX-GM half measures announce 1.0001 s /
+  sync 8 per s / pdelay 1 per s + priority1/clockClass at the tap;
+  es-1.2 verifies every MSRP Domain declaration = {class A, prio 3,
+  VID 2}. Remaining = the DUT-wins-BMCA/marker variants only:
   **BLOCKED ON THE BENCH SWITCH**: es-1.1 requires the DUT to win the
   BMCA against a 255-claimant test machine and free-run its Announce/
   Sync cadence; our switch claims priority1=246 clockClass=248
