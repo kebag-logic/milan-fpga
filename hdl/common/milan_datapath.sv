@@ -35,7 +35,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
   parameter int NUM_QUEUES  = NUMBER_OF_QUEUES,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
-  parameter int MILAN_CLK_FREQ_HZ = 100_000_000
+  parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
+parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
+                                   //! TBs shrink it to keep injections short)
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -1174,6 +1176,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .tx_count_o (crft_count_w)
   );
 
+  //! wire-truth channel count (USER 1-to-1 rule): the RENDER path follows
+  //! the last accepted PDU's channels_per_frame, never the AEM store
+  wire [7:0] mon_wire_chans_w;
+
   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) avtp_rx_monitor (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .match_valid_i  (avtprx_match),
@@ -1196,6 +1202,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .cnt_ts_uncertain_o       (avtprx_tu_c),
     .cnt_unsupported_fmt_o    (avtprx_unsupp_c),
     .cnt_frames_rx_o          (avtprx_frx_c),
+    .wire_chans_o             (mon_wire_chans_w),
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),
@@ -1243,7 +1250,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_pcm_lpf pcm_lpf (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_lpf_enable),
-    .chans_i  (aecp_in0_fmt[31:22]),
+    .chans_i  ({2'b0, mon_wire_chans_w}),   //! wire truth (2ch engages)
     .s_tdata  (m_axis_pcm_tdata),
     .s_tvalid (m_axis_pcm_tvalid),
     .s_tready (m_axis_pcm_tready),
@@ -1253,7 +1260,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   );
 
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
-                    .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ)) i2s_player (
+                    .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
+                    .PREFILL_C(PB_PREFILL_C)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
@@ -1264,7 +1272,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .pcm_tvalid_i (m_axis_pcm_tvalid),
     .pcm_tready_i (m_axis_pcm_tready),
     .pcm_tlast_i  (m_axis_pcm_tlast),
-    .chans_i      (aecp_in0_fmt[31:22]),
+    .wire_chans_i (mon_wire_chans_w),
     .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
     .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
     .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns),
