@@ -179,8 +179,12 @@ reads lie (shadow).
 - The CERT suite = 63 scenarios (private/recreate snapshot
   aets_recreate_20260721); tap helpers gptp_cadence.py + srp_domain.py
   on amx-ubuntu-server; es-4.5 self-quiesces (poll, no fixed sleeps).
-- Open for the day shift: analog loop leg (physical; both digital ends
-  -135.1 dB), switch gPTP claim for the es-1.1/1.2 BMCA variants,
+- Loop CLOSED 07-21: -73.4 dB (record) x3 on mf42+AX30, both channels,
+  LPF A/B flat; the night's -2.8 was a lapsed-bind + capture artifact
+  (I2SPB_DBG decode = (word>>7)&0xFFFFFF — LRCK-aligned window shows
+  the Philips 1-bit delay; re-bind + `tcpdump -B 16384` before
+  measuring; THD on the longest seq-gap-free run only).
+- Open for the day shift: switch gPTP claim for the es-1.1/1.2 BMCA variants,
   gaps-doc deferred list (MMCM-DRP servo actuator, 2nd lwSRP attr,
   GMII CDC reinit, 8ch render, class-B, shadow invalidate,
   pcm_ring_dump segv, kl-eth tx-stamp latency).
