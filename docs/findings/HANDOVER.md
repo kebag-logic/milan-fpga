@@ -13,11 +13,52 @@ lives in the named normative docs; this file states what is true NOW.
 
 ---
 
-## ★ CURRENT STATE 2026-07-21 all-night — CLOSE-ALL-GAPS CAMPAIGN (read first) ★
+## ★★★ CAMPAIGN OUTCOME 2026-07-21 morning — ALL PRIMARY GAPS CLOSED ★★★
+
+**Final silicon pair: ARTY QSPI = `eppo_milanfinal41` (+0.078) · ALINX
+QSPI-BOOT = `eppo_milanfinal30` (+0.026, 1st build to close after 7 AX
+rounds; L2 32K per USER, sweep was always 1-hart) — mf42 (ARTY format
+parity, e3391d9) is the one remaining spin.**
+
+- **CERT: BOTH boards 63/63 scenarios, 319/319 steps, 0 failures** on
+  the EXPANDED suite (43→63: es-4.1/2/6/11/14/15/17/18 + es-1.1 GM-half
+  + es-1.2 SRP-half, quiesce-hardened es-4.5, link-flap).
+- **GET_DYNAMIC_INFO 0x4B: CONFORMANT ON SILICON, BOTH ENTITIES**
+  (dyninfo probe byte-exact PASS ×2). FOUR defects hid behind one
+  symptom: BSCAN race (a4c0630) → cbuf async-reset RAM refusal/8-4767
+  (f3f4b15) → block-local automatics hazard (b692395) → **LUTRAM
+  read-port replica divergence** (the scan's replica read stale zeros
+  while the echo's was byte-perfect; BDBG 0x768-0x770 caught it in ONE
+  read) → single async read port + verdict staging (16cacc8+ed39d9e).
+- **CRF END-TO-END ON THE WIRE: LOCKED.** The ALINX fabric talker
+  (KL_crf_tx) sources 500.3 PDU/s (counter-timed) on DMAC = MAAP
+  claim+1, PTO-future-dated per the USER's Milan reading; the ARTY's
+  KL_crf_rx locks over the switch, **RATE = +6.7 ppm** (the first true
+  audio-MMCM-vs-PHC measurement), 14k+ PDUs zero fmt/seq. Absolute
+  delta pends gPTP re-settle after the cert's link flaps (rate is
+  offset-immune; ts_delta contract = the AAF one).
+- **ACMP sink-1 bind chain silicon-proven** (CONNECT_RX uid1 →
+  auto-provision → lock with CSR en=0 → DISCONNECT cuts).
+- **Milan 6.4 format family (USER-caught): input-0 advertises the
+  ut-bit up-to-8 48k string; 96k/192k adverts dropped (honesty);
+  SET validator concrete-only+range (e3391d9). On AX30 silicon; ARTY
+  needs mf42.**
+- **AX QSPI-boot policy live** (bitstream@0 + images one-verb, USER
+  directive); --reset self-config test pending below.
+- **AX timing war ledger** (why 7 rounds): utilization 77→83% ate the
+  placement luck the old +0.057 keepers lived on; cones named+killed:
+  parser capture fanout behind BRAM Tco (input reg b119adf), single-port
+  address-mux chain (verdict staging ed39d9e), walker /3 reciprocal
+  (staged divides e73faef, belt-arm removed b9c700b), L2 64K→32K
+  (b9c700b sweep param). NOTE: sweep.sh has its OWN arg list (always
+  cpu-count 1) - build.sh cfg_ax7101 does NOT feed sweeps.
+
+## ★ CAMPAIGN LOG 2026-07-21 all-night (detail) ★
 
 **USER directives this night: CRF talker for the e2e test ("crf is paced @
 2ms... the PTO applies like any streams"), "to flash use qspi" (AX policy
-flipped), "you have a night to close all gaps".**
+flipped), "you have a night to close all gaps", AX = 1 hart + L2 32768,
+Milan 6.4 all-channel-counts (both user-caught compliance reads).**
 
 1. **CRF talker KL_crf_tx IS IN (0e5e8a7 + PTO 0821aeb):** Avnu Pro Audio
    500 PDU/s sourced from the REAL audio-MMCM 96-sample grid
