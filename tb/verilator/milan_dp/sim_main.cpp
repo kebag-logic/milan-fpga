@@ -894,12 +894,22 @@ int main(int argc, char** argv) {
 
         // I2S playback: the injected pair (payload bytes 0..2 = ch0 S32BE)
         // emerges serialized on the DAC pins - decode the first non-zero
-        // LEFT sample (Philips I2S: 1 delay bit after the LRCK fall)
+        // LEFT sample (Philips I2S: 1 delay bit after the LRCK fall).
+        // LPF off for this check: wire-truth chans (2) would engage it and
+        // the samples would arrive FILTERED, not byte-exact.
         {
+            axi_write(0x72C, 0x0);
+            // the first PDU's pairs can serialize before this decoder starts
+            // (they sit ~1 audio frame in the CDC); inject a fresh PDU so
+            // the decode window provably contains samples
+            inject(mkaaf(6, 0x05), 120);
+            // scan for the injected values (the CDC may hold a few stale
+            // pairs from earlier sections now that the walker runs at the
+            // full wire rate - stop-at-first-nonzero would grab those)
             uint32_t sample = 0; bool got_nz = false;
             int sclk_q = dut->i2s_dac_sclk_o, lrck_q = dut->i2s_dac_lrck_o;
             int bitcnt = -1; uint32_t acc = 0;
-            for (int c = 0; c < 20000 && !got_nz; c++) {
+            for (int c = 0; c < 60000 && !got_nz; c++) {
                 step();
                 int sclk = dut->i2s_dac_sclk_o, lrck = dut->i2s_dac_lrck_o;
                 if (sclk && !sclk_q) {                    // SCLK rising: sample
@@ -910,7 +920,9 @@ int main(int argc, char** argv) {
                         acc = (acc << 1) | (dut->i2s_dac_sdin_o & 1);
                         bitcnt++;
                         if (bitcnt == 24) {
-                            if (acc != 0) { sample = acc; got_nz = true; }
+                            if (acc == 0x303132 || acc == 0x505152) {
+                                sample = acc; got_nz = true;
+                            }
                             bitcnt = -1;
                         }
                     }
@@ -924,6 +936,7 @@ int main(int argc, char** argv) {
             // 0x505152) - both prove byte-exact serialization
             ck("I2S left sample from payload",
                sample == 0x303132 || sample == 0x505152, 1);
+            axi_write(0x72C, 0x1);
         }
 
         // wrong-rate PDU: UNSUPPORTED_FORMAT ticks, FRAMES_RX does not,

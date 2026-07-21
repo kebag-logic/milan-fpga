@@ -139,21 +139,25 @@ module KL_pcm_lpf (
       m_tvalid <= 1'b0;
 
       //! ingest beats (active mode only queues; bypass primes history
-      //! directly so an enable transition does not thump)
-      if (beat_acc) begin
-        if (active_o) begin
-          if (bcnt_r != 4'd8) begin
-            bfifo_r[bwr_r] <= {xr_in, xl_in};
-            bwr_r  <= bwr_r + 3'd1;
-            bcnt_r <= bcnt_r + 4'd1 - (bpop_w ? 4'd1 : 4'd0);
-          end
-        end else begin
-          xl1_r <= xl_in; xl2_r <= xl1_r; yl1_r <= xl_in; yl2_r <= yl1_r;
-          xr1_r <= xr_in; xr2_r <= xr1_r; yr1_r <= xr_in; yr2_r <= yr1_r;
-        end
-      end else if (bpop_w) begin
-        bcnt_r <= bcnt_r - 4'd1;
+      //! directly so an enable transition does not thump). The count is
+      //! kept in ONE expression covering every ingest/pop combination -
+      //! the old per-branch bookkeeping leaked a phantom entry whenever a
+      //! pop coincided with a skipped ingest (full FIFO, or bypass mode),
+      //! walking bcnt up until the engine read permanently-full and
+      //! m_tvalid stopped forever (silicon wedge class, 2026-07-21).
+      //! full+pop now also ACCEPTS the beat into the freed slot.
+      if (beat_acc && active_o && (bcnt_r != 4'd8 || bpop_w)) begin
+        bfifo_r[bwr_r] <= {xr_in, xl_in};
+        bwr_r  <= bwr_r + 3'd1;
       end
+      if (beat_acc && !active_o) begin
+        xl1_r <= xl_in; xl2_r <= xl1_r; yl1_r <= xl_in; yl2_r <= yl1_r;
+        xr1_r <= xr_in; xr2_r <= xr1_r; yr1_r <= xr_in; yr2_r <= yr1_r;
+      end
+      bcnt_r <= bcnt_r
+                + ((beat_acc && active_o && (bcnt_r != 4'd8 || bpop_w))
+                   ? 4'd1 : 4'd0)
+                - (bpop_w ? 4'd1 : 4'd0);
 
       //! pop -> MAC sequence
       if (bpop_w) begin

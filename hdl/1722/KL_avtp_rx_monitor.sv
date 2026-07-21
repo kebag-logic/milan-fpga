@@ -117,6 +117,12 @@ module KL_avtp_rx_monitor #(
   output logic        pdu_accept_p_o,    //! one-cycle pulse: PDU counted in
                                          //! FRAMES_RX (bound + format-valid) —
                                          //! the depacketizer's commit verdict
+  output logic [7:0]  wire_chans_o,      //! channels_per_frame of the LAST
+                                         //! accepted PDU (wire truth; 0 until
+                                         //! first accept) - the RENDER-side
+                                         //! channel count (USER 1-to-1 rule:
+                                         //! physical map follows the wire,
+                                         //! never the AEM store default)
   output logic [31:0] last_ts_o,         //! avtp_timestamp of the last
                                          //! accepted PDU (media-clock hook)
   output logic [31:0] last_tsd_o         //! signed ts_delta (avtp_ts - now)
@@ -203,6 +209,7 @@ module KL_avtp_rx_monitor #(
       media_locked_o           <= 1'b0;
       dirty_p_o                <= 1'b0;
       pdu_accept_p_o           <= 1'b0;
+      wire_chans_o             <= '0;
       last_ts_o                <= '0;
       last_tsd_o               <= '0;
     end
@@ -232,6 +239,7 @@ module KL_avtp_rx_monitor #(
           silence_r       <= '0;
           dirty_p_o       <= 1'b1;
           pdu_accept_p_o  <= 1'b1;
+          wire_chans_o    <= p_chans;
           last_ts_o       <= avtp_ts_i;
           last_tsd_o      <= unsigned'(ts_delta_w);
           if (late_w)  cnt_late_ts_o  <= cnt_late_ts_o  + 32'd1;
