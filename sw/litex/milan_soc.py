@@ -484,7 +484,12 @@ class MilanMAC(LiteXModule):
         # core, so we provide it here. docs/findings/kl-eth-tx-debug.md #Second bug.)
         self.tx_sf = ClockDomainsRenamer({"sys": "macsys"})(
                          PacketFIFO(eth_phy_description(data_width),
-                                    payload_depth=1024, param_depth=8))
+                                    # 512 x 8 B = 4 KB >= 2 max frames (the
+                                    # original sizing); 1024 put the BRAM's
+                                    # ADDR[9] pointer cone on the AX critical
+                                    # path (AX31/32: storage_32 CLKARDCLK->
+                                    # ADDRARDADDR[9] -0.25 ns, 8 seeds missed)
+                                    payload_depth=512, param_depth=8))
         self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
