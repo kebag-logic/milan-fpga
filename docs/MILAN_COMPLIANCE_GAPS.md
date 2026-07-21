@@ -149,6 +149,44 @@ and is not repeated here.
   `grep "Synth 8-4767"` - a hit on our modules means Vivado refused RAM
   inference and the fallback semantics are suspect.
 
+### 5b. Additions found 2026-07-21 afternoon (power-event + music round)
+
+- **ACMP binds do not persist across a board reboot** (fabric state
+  only). Milan's saved-state fast-connect (listener re-connects on its
+  own after power-up) is not implemented; after a reboot/reflash a
+  controller must re-issue CONNECT_RX. This is why the "overnight
+  lapse" happened: the ARTY was reflashed to mf42, the bind died with
+  the old bitstream, and the switch pruned the unregistered stream.
+  (In contrast: a SWITCH reboot self-heals — proven today, one unlock
+  then auto re-lock; the lwSRP applicants re-register.)
+- **Sink-0 ignores the fast-connect stream_id field**: the uid-0 bind
+  always derives `sid = {talker_mac, tuid}` (`sid_from_eid`); only
+  sink 1 honors an explicit sid (cap_sid_r). Software/synthetic talkers
+  must choose their EID so the derivation lands on the sid they stamp
+  (recipe proven: EUI64-from-MAC form, tuid = sid low16).
+- **I2SPB_STAT rail counters saturate at 0xFFFF and stick** (no clear
+  mechanism). After one bad episode the counter is blind forever;
+  today's diagnosis had to ignore it. RTL fix: clear-on-bind or W1C.
+- **Controller tooling must use distinct ACMP sequence_ids** —
+  back-to-back commands with the same {controller, seq} are eaten by
+  the responder's 1722.1 duplicate detection (correct DUT behavior,
+  easy tooling trap; bit us today with seq 0/0).
+- **Bench: ProfiShark driver is kernel-pinned** — an apt kernel update
+  + reboot silently kills both taps (no enx netdevs). Fix applied for
+  7.0.0-28; recurs on every kernel bump: install the matching
+  `profishark-linux-driver-<kver>` from the Profitap repo (exists for
+  each kernel) or hold the kernel package.
+- **Bench: pw0 /tmp tooling is volatile** — the reboot deleted
+  milan_controller.py / bind_sink1.py / dyninfo_probe.py /
+  silicon_battery.py etc. Rebuilt so far in persistent ~/milanmusic/:
+  acmp_bind.py (connect/disconnect incl. synthetic-talker recipe) and
+  aaf_stream.py (software AAF talker, 8000 fr/s pacer). The rest needs
+  re-creation or a move into the bench repo; /tmp is not a home.
+- **Software-talker media clock is the host clock** (aaf_stream.py):
+  tens of ppm off the audio MMCM → playback FIFO recenters with an
+  audible click every few minutes. Fine for listening; a tick-trim or
+  a CRF-disciplined pacer would fix it properly.
+
 ## 6. Certification scope
 
 - **Our CERT suite is a recreation, not the official ATL run.**
