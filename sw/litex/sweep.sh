@@ -9,13 +9,13 @@ export PATH="$HOME/litex-milan/venv/bin:$PATH"
 source /home/alex/Xilinx/2026.1/Vivado/settings64.sh
 W=$HOME/litex-milan/work
 case "$BOARD" in
-  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6";;
-  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan";;
+  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536;;
+  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan"; L2=32768;;
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
- --l2-bytes 65536 --scala-args=--lsu-l1-refill-count=8 \
+ --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
  --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \
  --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues 2 \
  --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
