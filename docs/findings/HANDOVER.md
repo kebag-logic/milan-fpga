@@ -15,10 +15,21 @@ lives in the named normative docs; this file states what is true NOW.
 
 ## ★★★ CAMPAIGN OUTCOME 2026-07-21 morning — ALL PRIMARY GAPS CLOSED ★★★
 
-**Final silicon pair: ARTY QSPI = `eppo_milanfinal41` (+0.078) · ALINX
-QSPI-BOOT = `eppo_milanfinal30` (+0.026, 1st build to close after 7 AX
-rounds; L2 32K per USER, sweep was always 1-hart) — mf42 (ARTY format
-parity, e3391d9) is the one remaining spin.**
+**Final silicon pair: ARTY QSPI = `asl_milanfinal42` (+0.142, 0x4B PASS
++ ut-formats wire-verified; 63/63 cert stands from mf41 whose only
+delta vs 42 is the format ROM/validator — itself cert-exercised on
+AX30) · ALINX QSPI-SELF-BOOT = `eppo_milanfinal30` (+0.026, 1st close
+after 7 AX rounds; L2 32K per USER, sweep was always 1-hart).
+CAMPAIGN COMPLETE except: the render-feed byte-rotation regression
+found at dawn (below) and the documented deferred list.**
+
+- **RENDER-FEED REGRESSION (dawn find, cable EXONERATED by USER):** the
+  DAC is fed 24-bit samples rotated left one byte (I2SPB_DBG 0x6F0:
+  0x70A71E00 un-rotates to 0x1E70A7 = exactly the -12 dB tone peak;
+  stray pad-byte bits too) = the loop's -2.8 dB level-tracking. A REAL
+  RTL regression in the depacketizer->playback render tap (the DMA-ring
+  branch the TBs byte-check is likely still bit-true), window mf36->39
+  = the CRF parser-extension era; top of the day-shift list.
 
 - **CERT: BOTH boards 63/63 scenarios, 319/319 steps, 0 failures** on
   the EXPANDED suite (43→63: es-4.1/2/6/11/14/15/17/18 + es-1.1 GM-half
