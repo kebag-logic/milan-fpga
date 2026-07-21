@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010005);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010006);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -335,6 +335,16 @@ int main(int argc, char** argv) {
   axi_write(0x6CC, 0x00000800);   // restore reset default
   dut->i_i2spb_stat = 0x00050002; dut->eval();
   ck("I2SPB_STAT RO", axi_read(0x6D8), 0x00050002);
+
+  // link guard: RO status mux + LINK_CTRL[3:2] control outputs
+  dut->i_linkg_stat = 0x00070013; dut->eval();
+  ck("LINKG_STAT RO", axi_read(0x774), 0x00070013);
+  axi_write(0x71C, 0xD);                 // sw_link | dis | freeze (no reinit)
+  ck("LINKG dis out",    dut->o_linkg_dis, 1);
+  ck("LINKG freeze out", dut->o_linkg_freeze, 1);
+  ck("mac_reinit clear", dut->o_mac_reinit, 0);
+  axi_write(0x71C, 0x1);                 // restore boot default
+  ck("LINKG dis clear",  dut->o_linkg_dis, 0);
   ck("TONE_CTRL reset 0", axi_read(0x6DC), 0);
   axi_write(0x6DC, 1); dut->eval();
   ck("o_tone_enable", dut->o_tone_enable, 1);

@@ -246,6 +246,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv", "hdl/common/axis_mux_rr_2in_1out.sv",
     "hdl/ptp_timestamp/ptp_ts_core.sv", "hdl/ptp_timestamp/ptp_ts_top.sv",
     "hdl/common/tcam.sv", "hdl/common/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/avtp/KL_pcm_lpf.sv",
+    "hdl/common/KL_link_guard.sv",
     "hdl/adp/adp_advertiser.sv", "hdl/adp/adp_tx_arbiter.sv",
     # AECP/AEM listener (IEEE 1722.1 / Milan v1.2). Order: pkg, then leaf
     # modules, then KL_aecp_top. The store/accessor read the generated ROM
@@ -328,6 +329,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
         # MAC status (from the external MAC; constants until §A.7)
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+        # no PHY in the stub: static toggles keep the link guard unarmed/inert
+        i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
         # interrupt (csr aggregate; DMA-done IRQs come from §A.6). CDC'd to sys above.
         o_o_irq_csr = irq_port,
     )
@@ -447,12 +450,25 @@ class MilanMAC(LiteXModule):
         # the whole sys side (core + tx FIFO) in reset; the recovery daemon
         # strobes phy_crg_reset + reinit together for a clean eth re-init
         # WITHOUT touching the Milan datapath.
-        self.reinit = Signal()   # driven from the datapath's LINK_CTRL[1]
+        self.reinit = Signal()   # driven from the datapath's link guard | LINK_CTRL[1]
         self.cd_macsys = ClockDomain()
         self.comb += [
             self.cd_macsys.clk.eq(ClockSignal("sys")),
             self.cd_macsys.rst.eq(ResetSignal("sys") | self.reinit),
         ]
+        # Link-guard liveness toggles (KL_link_guard, 2026-07-21): plain
+        # divide-by-2 FFs in each PHY-provided clock domain plus one flip per
+        # received frame. The datapath's guard samples them as async data,
+        # declares a clock dead after 41 us without a transition, and then
+        # auto-sequences the reinit strobe (hold through the outage + ~21 ms
+        # clean-clock settle) - the hardware version of the linkmon recovery.
+        self.ethrx_tgl  = Signal()
+        self.ethtx_tgl  = Signal()
+        self.ethact_tgl = Signal()
+        self.sync.eth_rx += self.ethrx_tgl.eq(~self.ethrx_tgl)
+        self.sync.eth_tx += self.ethtx_tgl.eq(~self.ethtx_tgl)
+        self.sync.eth_rx += If(self.phy.source.valid & self.phy.source.last,
+                               self.ethact_tgl.eq(~self.ethact_tgl))
         self.core = ClockDomainsRenamer({"sys": "macsys"})(
                         LiteEthMACCore(phy=self.phy, dw=data_width,
                                        with_preamble_crc=True, with_padding=True))
@@ -558,6 +574,8 @@ class MilanMAC(LiteXModule):
             # same event set as the Forencich MAC, so those RMON lanes stay 0 here.
             i_i_mac_speed = (0b01 if phy_model == "mii" else 0b10),
             i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+            i_i_ethrx_tgl = self.ethrx_tgl, i_i_ethtx_tgl = self.ethtx_tgl,
+            i_i_ethact_tgl = self.ethact_tgl,
         )
 
 
