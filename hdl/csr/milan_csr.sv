@@ -55,7 +55,7 @@
 module milan_csr #(
   parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
-  parameter logic [31:0] VERSION = 32'h0001_0005 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0005 = CRF talker CSRs 0x750+ present (0x0004 = pre-filter AVTP taps)
+  parameter logic [31:0] VERSION = 32'h0001_0006 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -224,6 +224,9 @@ module milan_csr #(
   input  wire [31:0]             i_bdbg0,             //! RO 0x768-0x770: 0x4B scan forensics
   input  wire [31:0]             i_bdbg1,
   input  wire [31:0]             i_bdbg2,
+  input  wire [31:0]             i_linkg_stat,        //! RO 0x774: link-guard status
+  output wire                    o_linkg_dis,         //! LINK_CTRL[2]: 1 = link guard disabled
+  output wire                    o_linkg_freeze,      //! LINK_CTRL[3]: test - fake eth clock death
   output wire [63:0]             o_as_parent_ckid,    //! AS2: 802.1AS parent bridge ckid
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
@@ -328,6 +331,7 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_BDBG0 = 'h768;  //! RO live: 0x4B scan forensics (hdr bytes as scanned)
   localparam [ADDR_WIDTH-1:0] A_BDBG1 = 'h76C;  //! RO live: {0, cmd15, dlen16}
   localparam [ADDR_WIDTH-1:0] A_BDBG2 = 'h770;  //! RO live: {ptr, end}
+  localparam [ADDR_WIDTH-1:0] A_LINKG_STAT = 'h774;  //! RO live: link guard {bounce16, flags, alive}
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -856,6 +860,7 @@ module milan_csr #(
       A_BDBG0:      live_mux = i_bdbg0;
       A_BDBG1:      live_mux = i_bdbg1;
       A_BDBG2:      live_mux = i_bdbg2;
+      A_LINKG_STAT: live_mux = i_linkg_stat;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
@@ -952,6 +957,8 @@ module milan_csr #(
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
   assign o_sw_link          = link_ctrl[0];
   assign o_mac_reinit       = link_ctrl[1];
+  assign o_linkg_dis        = link_ctrl[2];
+  assign o_linkg_freeze     = link_ctrl[3];
   assign o_maap_enable      = maap_ctrl[0];
   assign o_maap_seed_valid  = maap_ctrl[1];
   assign o_maap_count       = maap_ctrl[15:8];
