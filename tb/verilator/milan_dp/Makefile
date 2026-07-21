@@ -22,6 +22,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
+         -GPB_PREFILL_C=2 \
          -CFLAGS "-std=c++17 -O2"
 
 C  = $(RTL_DIR)/common

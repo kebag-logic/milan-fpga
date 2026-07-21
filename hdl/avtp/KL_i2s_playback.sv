@@ -49,7 +49,9 @@ module KL_i2s_playback #(
                                         //! clean-clock path does not use it)
   parameter int CLK_FREQ_HZ   = 50_000_000, //! clk_i frequency (kept: the
                                         //! per-ms servo tick derives from it)
-  parameter int FIFO_LOG2     = 9       //! sample-pair FIFO depth (2^N)
+  parameter int FIFO_LOG2     = 9,      //! sample-pair FIFO depth (2^N)
+  parameter int PREFILL_C     = 0       //! underrun-recenter release level
+                                        //! in pairs (0 = FIFO midpoint)
 )(
   input  wire         clk_i,            //! datapath clock (PCM tap domain)
   input  wire         rst_n,            //! active-low sync reset (clk_i)
@@ -71,7 +73,13 @@ module KL_i2s_playback #(
   input  wire [63:0]  lpf_tdata_i,
   input  wire         lpf_tvalid_i,
   input  wire         lpf_active_i,
-  input  wire [9:0]   chans_i,           //! channels/frame (fmt[31:22]; >=2)
+  input  wire [7:0]   wire_chans_i,      //! WIRE-truth channels/frame from
+                                         //! KL_avtp_rx_monitor (last accepted
+                                         //! PDU; 0 until first accept -> 2).
+                                         //! USER 1-to-1 rule: the physical
+                                         //! 2ch render maps stream ch0/ch1,
+                                         //! extra channels are virtual
+                                         //! (skipped), mono renders L + R=0
 
   //! --- I2S DAC (Pmod I2S2 line-out) --------------------------------------
   output logic        i2s_mclk_o,
@@ -102,21 +110,40 @@ module KL_i2s_playback #(
   assign trim_o = 16'sd0;                //! NCO retired (clean-clock rework)
 
   // ------------------------------------------------------------------ //
-  // PCM tap: first beat of each channel-frame carries ch0 (lanes 0..3,   //
-  // S32BE) + ch1 (lanes 4..7); stride = chans/2 beats per frame          //
+  // PCM tap: half-beat position walker (USER 1-to-1 mapping rule).       //
+  // A frame of C channels is exactly C half-beats (4-byte S32BE groups), //
+  // so one position counter mod C serves every C in 1..8: position 0     //
+  // latches ch0, position 1 completes the {L,R} pair. Even C = the old   //
+  // beat-aligned stride; odd C>=3 straddles ch1 into the next beat via   //
+  // the latch; C==1 pushes {s,0} per half-beat (two per beat) through    //
+  // the staging queue. tlast (PDU = whole frames) re-zeros the walk.     //
   // ------------------------------------------------------------------ //
   wire        pcm_acc_w  = pcm_tvalid_i && pcm_tready_i;
-  wire [8:0]  stride_w   = (chans_i[9:1] == 9'd0) ? 9'd1 : chans_i[9:1];
-  logic [8:0] beat_r;
+  wire [2:0]  c_eff_w    = (wire_chans_i == 8'd0 || wire_chans_i > 8'd8)
+                           ? 3'd2 : 3'(wire_chans_i);
+  logic [2:0] pos_r;                     //! half-beat position in frame
+  logic [23:0] lhold_r;                  //! ch0 awaiting a straddled ch1
 
-  //! render source: the serial-MAC LPF publishes filtered pairs on its own
-  //! valid (a few cycles after the AXIS beat); when it is inactive
-  //! (disabled / chans != 2) the raw first-beat-of-frame path is used
-  wire [63:0] eff_tdata_w = lpf_active_i ? lpf_tdata_i : pcm_tdata_i;
-  wire [23:0] smp_l_w = {eff_tdata_w[7:0],  eff_tdata_w[15:8],
-                         eff_tdata_w[23:16]};                  // bytes 0..2
-  wire [23:0] smp_r_w = {eff_tdata_w[39:32], eff_tdata_w[47:40],
-                         eff_tdata_w[55:48]};                  // bytes 4..6
+  wire [23:0] s0_w = {pcm_tdata_i[7:0],  pcm_tdata_i[15:8],
+                      pcm_tdata_i[23:16]};                    // lanes 0..3
+  wire [23:0] s1_w = {pcm_tdata_i[39:32], pcm_tdata_i[47:40],
+                      pcm_tdata_i[55:48]};                    // lanes 4..7
+
+  wire [2:0] p0_w = pos_r;
+  wire [2:0] p1_w = (pos_r + 3'd1 == c_eff_w) ? 3'd0 : pos_r + 3'd1;
+  wire [2:0] pn_w = (p1_w  + 3'd1 == c_eff_w) ? 3'd0 : p1_w  + 3'd1;
+
+  //! LPF path pairs (wire order): only meaningful when lpf_active_i
+  wire [23:0] lpf_l_w = {lpf_tdata_i[7:0],  lpf_tdata_i[15:8],
+                         lpf_tdata_i[23:16]};
+  wire [23:0] lpf_r_w = {lpf_tdata_i[39:32], lpf_tdata_i[47:40],
+                         lpf_tdata_i[55:48]};
+
+  //! staging queue: up to 2 pair-writes per cycle (C==1), drained 1/cycle
+  //! into the producer FIFO - unifies raw walker + LPF sources
+  logic [47:0] stg_r [0:3];
+  logic [1:0]  stg_wp_r, stg_rp_r;
+  logic [2:0]  stg_cnt_r;
 
   // ------------------------------------------------------------------ //
   // Producer-side sample-pair FIFO (clk_i)                               //
@@ -127,6 +154,8 @@ module KL_i2s_playback #(
   wire                full_w  = fill_w[FIFO_LOG2];
   wire                empty_w = (fill_w == '0);
   localparam logic [FIFO_LOG2:0] MID_C = 1 << (FIFO_LOG2 - 1);
+  localparam logic [FIFO_LOG2:0] PREFILL_LVL_C =
+      (PREFILL_C == 0) ? MID_C : (FIFO_LOG2+1)'(PREFILL_C);
   assign fill_o = 16'(fill_w);
 
   //! feeder: keep the small CDC FIFO topped up from the main FIFO
@@ -140,38 +169,91 @@ module KL_i2s_playback #(
   logic [6:0]  conv_ms_r;
   logic        was_filled_r;   //! fill has been nonzero since last reset
 
+  //! walker push selection (comb; hoisted per the no-block-automatics rule)
+  //  C==1: two pushes {s,0}; C>=2: p0==0 -> {s0,s1} (ch1 same beat),
+  //  p0==1 -> {lhold, s0} (straddled ch1), p1==0 -> latch s1 (frame starts
+  //  in the upper half-beat; odd C only)
+  logic        pushA_w, pushB_w;
+  logic [47:0] pairA_w, pairB_w;
+
+  always_comb begin : walker_sel
+    pushA_w = 1'b0; pushB_w = 1'b0;
+    pairA_w = '0;   pairB_w = '0;
+    if (lpf_active_i) begin
+      pushA_w = lpf_tvalid_i;
+      pairA_w = {lpf_l_w, lpf_r_w};
+    end
+    else if (pcm_acc_w) begin
+      if (c_eff_w == 3'd1) begin
+        pushA_w = 1'b1; pairA_w = {s0_w, 24'h0};
+        pushB_w = 1'b1; pairB_w = {s1_w, 24'h0};
+      end
+      else if (p0_w == 3'd0) begin
+        pushA_w = 1'b1; pairA_w = {s0_w, s1_w};
+      end
+      else if (p0_w == 3'd1) begin
+        pushA_w = 1'b1; pairA_w = {lhold_r, s0_w};
+      end
+    end
+  end : walker_sel
+
+  wire        stg_drain_w = (stg_cnt_r != 3'd0) && !full_w;
+  wire [2:0]  stg_space_w = 3'd4 - stg_cnt_r + (stg_drain_w ? 3'd1 : 3'd0);
+  wire        wA_ok_w     = pushA_w && (stg_space_w >= 3'd1);
+  wire        wB_ok_w     = pushB_w && (stg_space_w >= (pushA_w ? 3'd2 : 3'd1));
+  wire [1:0]  stg_wr_n_w  = {1'b0, wA_ok_w} + {1'b0, wB_ok_w};
+  wire        stg_drop_w  = (pushA_w && !wA_ok_w) || (pushB_w && !wB_ok_w);
+
+  logic prefill_r;   //! consumption held until fill >= MID_C (underrun rail
+                     //! recenter - one bounded gap instead of a per-sample
+                     //! repeat storm; also the clean power-up behavior)
+
   always_ff @(posedge clk_i) begin : producer_side
     if (!rst_n) begin
-      beat_r <= '0; wptr_r <= '0; rptr_r <= '0;
+      pos_r <= '0; lhold_r <= '0; wptr_r <= '0; rptr_r <= '0;
+      stg_wp_r <= '0; stg_rp_r <= '0; stg_cnt_r <= '0;
       overruns_o <= '0; cdc_wen_r <= 1'b0; cdc_wdata_r <= '0;
       ms_div_r <= '0; conv_ms_r <= '0; converged_o <= 1'b0;
       media_reset_p_o <= 1'b0; was_filled_r <= 1'b0;
+      prefill_r <= 1'b1;
     end
     else begin
       media_reset_p_o <= 1'b0;
 
-      // ---- PCM tap write side -----------------------------------------
+      // ---- walker state -----------------------------------------------
       if (pcm_acc_w) begin
-        beat_r <= pcm_tlast_i               ? 9'd0
-                : (beat_r == stride_w - 9'd1) ? 9'd0
-                : beat_r + 9'd1;
+        pos_r <= pcm_tlast_i ? 3'd0 : pn_w;
+        if (p1_w == 3'd0 && c_eff_w != 3'd1) lhold_r <= s1_w;
       end
-      if (lpf_active_i ? lpf_tvalid_i : (pcm_acc_w && beat_r == 9'd0)) begin
-        if (!full_w) begin
-          fifo_r[wptr_r[FIFO_LOG2-1:0]] <= {smp_l_w, smp_r_w};
-          wptr_r <= wptr_r + 1'b1;
-        end
-        else begin
-          overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
-          media_reset_p_o <= was_filled_r;   //! rail = media reset event
-          was_filled_r    <= 1'b0;
-        end
+
+      // ---- staging queue writes + drain into the producer FIFO --------
+      if (wA_ok_w) stg_r[stg_wp_r] <= pairA_w;
+      if (wB_ok_w) stg_r[wA_ok_w ? 2'(stg_wp_r + 2'd1) : stg_wp_r] <= pairB_w;
+      stg_wp_r  <= stg_wp_r + 2'(stg_wr_n_w);
+      stg_cnt_r <= stg_cnt_r + 3'(stg_wr_n_w) - (stg_drain_w ? 3'd1 : 3'd0);
+      if (stg_drain_w) begin
+        fifo_r[wptr_r[FIFO_LOG2-1:0]] <= stg_r[stg_rp_r];
+        stg_rp_r <= stg_rp_r + 2'd1;
+        wptr_r   <= wptr_r + 1'b1;
+      end
+      if (stg_drop_w) begin
+        overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
+        media_reset_p_o <= was_filled_r;   //! overrun rail = media reset
+        was_filled_r    <= 1'b0;
       end
       if (!empty_w) was_filled_r <= 1'b1;
 
-      // ---- feeder into the CDC FIFO -----------------------------------
+      // ---- underrun rail: enter prefill (one gap, then recenter) ------
+      if (!prefill_r && empty_w && was_filled_r) begin
+        prefill_r       <= 1'b1;
+        media_reset_p_o <= 1'b1;
+        was_filled_r    <= 1'b0;
+      end
+      else if (prefill_r && fill_w >= PREFILL_LVL_C) prefill_r <= 1'b0;
+
+      // ---- feeder into the CDC FIFO (held during prefill) -------------
       cdc_wen_r <= 1'b0;
-      if (!empty_w && !cdc_wfull_w && !cdc_wen_r) begin
+      if (!empty_w && !prefill_r && !cdc_wfull_w && !cdc_wen_r) begin
         cdc_wdata_r <= fifo_r[rptr_r[FIFO_LOG2-1:0]];
         rptr_r      <= rptr_r + 1'b1;
         cdc_wen_r   <= 1'b1;

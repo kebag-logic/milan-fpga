@@ -73,6 +73,29 @@ int main(int c,char**v){
     int32_t z[6]={9,9,9,9,9,9}; burst(z,z);
     ck("inactive mode emits nothing", outl.empty());
     dut->chans_i=2; step();
+    // [LK] burst-FIFO count-leak regression (silicon wedge class,
+    // 2026-07-21): sustained back-to-back beats force full+pop and
+    // bypass+pop coincidences; the old per-branch bookkeeping leaked
+    // phantom entries until the engine read permanently-full and
+    // m_tvalid stopped forever. Accounting must stay exact: every
+    // accepted pair eventually emits, and the engine keeps running.
+    outl.clear(); outr.clear();
+    for(int k=0;k<4;k++){
+        for(int i=0;i<24;i++){                 // 24 back-to-back beats
+            dut->s_tdata=pack(500000+i,-500000-i);
+            dut->s_tvalid=1; dut->s_tready=1; step();
+        }
+        dut->s_tvalid=0;
+        // mid-stream active toggle: pop-during-bypass coincidences
+        dut->chans_i=8; for(int i=0;i<7;i++) step();
+        dut->chans_i=2; for(int i=0;i<400;i++) step();
+    }
+    ck("[LK] engine alive after burst storms", !outl.empty());
+    outl.clear();
+    int32_t probe[6]={111111,222222,333333,444444,555555,666666};
+    burst(probe,probe);
+    ck("[LK] steady 1:1 accounting after storms", (long)outl.size()==6);
+
     printf("pcmlpf: %ld checks, %ld failures\n",checks,fails);
     return fails?1:0;
 }

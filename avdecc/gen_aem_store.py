@@ -55,7 +55,11 @@ RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 #! one entry (the spec's own recommendation). 96k/192k entries DROPPED:
 #! the render path is 48k-only and each advertised rate drags its own
 #! full-family obligation (talker-truth honesty, listener edition).
-FORMATS = [0x0205022002006000, 0x0215022002006000]
+#! order matters: FORMATS[0] is the RESET default of the dynamic store.
+#! 2ch-first (kernel-shield lesson 2026-07-19, re-learned 2026-07-21: an
+#! 8ch default + reboot + pure-ACMP bind starved the render at 1/4 rate);
+#! the ut entry keeps the full Milan 6.4 1..8ch family coverage.
+FORMATS = [0x0205022000806000, 0x0215022002006000]
 #! talker truth (2026-07-18): the framer is a STEREO 48k device (Pmod I2S2 /
 #! tone path both 2ch, fs fixed by the divider chain) - STREAM_OUTPUT must
 #! DECLARE exactly what the wire carries or format-matching controllers
