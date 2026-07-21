@@ -162,34 +162,31 @@ ENT_NAME · 0x72C LPF_CTRL (default 1) · 0x730/0x734 AS_PATH parent ·
 New plain-RW CSRs MUST be added to `is_plain_rw()` in milan_csr.sv or
 reads lie (shadow).
 
-## 9. State at handover (2026-07-21 all-night campaign; detail = HANDOVER.md top section)
+## 9. State at handover (2026-07-21 morning - campaign closed; log = HANDOVER.md)
 
-- **Flashed**: ARTY QSPI = `eto_milanfinal39` (+0.099) + **rootfs #8**
-  (#7 + the ALINX CRF-talker S50 block) — VERSION 0x0005, cert 61/61.
-  AX SRAM = `eppo_milanfinal21` + rootfs #4 still: **AX24 failed timing
-  ×3** (old lwsrp-walker/batch_q cones), **AX25 in flight** carrying
-  everything (CRF talker + PTO, 0x4B hoist + BDBG, sink-1 bind chain);
-  arty `milanfinal40` auto-chains after AX25 (monitor b83on28vj-class).
-- **AX flash is now policy "boot"** (USER): `build.sh flash ax7101:` =
-  bitstream@0 + images in one verb (the old images-only rule described
-  the dead kernel@0 layout). JTAG-load stays the belt until the
-  mode-pin/self-config question is answered by a --reset test.
-- **Then (morning)**: flash mf40 → ARTY + AX25 (+ rootfs #8 images) →
-  AX; `dyninfo_probe.py` both (0x4B hoist verdict — if STILL failing,
-  `devmem 0x768/0x76C/0x770` right after a failing probe = the BDBG
-  forensics that name the mechanism); **CRF e2e wire test** (AX talks on
-  the MAAP-claim+1 DMAC, sid {02:00:00:00:00:01,1} → ARTY rx: either
-  ACMP-bind sink 1 (CONNECT_RX uid=1, fast-connect sid) or CSR-provision
-  0x73C=0x00010001/0x740=0x02000000/0x738=1 → watch lock + delta ≈ +2 ms
-  − transit + rate = the true MMCM-vs-PHC ppm); expanded CERT (63
-  scenarios) on the AX; loop analog leg = PHYSICAL morning item
-  (digital ends both −135.1 dB, loop −2.8 level-tracking).
-- **Open** (docs/MILAN_COMPLIANCE_GAPS.md): 0x4B silicon verdict (hoist
-  or BDBG-named next), CRF servo ACTUATOR (= the MMCM-DRP engine; NCO
-  retired), 2nd lwSRP listener attr (CRF reservation), es-1.1/1.2
-  DUT-wins-BMCA variants (switch credentials — the tap halves are
-  recreated + green), kl-eth tx-stamp latency, 8ch render, GMII CDC
-  reinit, shadow invalidate, pcm_ring_dump segv (new).
+- **ARTY QSPI = `eppo_milanfinal41` (+0.078) + rootfs #8**: 0x4B
+  byte-exact PASS, CERT 63/63, sink-1 chain proven, CRF rx proven.
+  `mf42` (format-family parity, e3391d9) is the one pending ARTY spin -
+  flash it when built, re-check dyninfo + READ_DESCRIPTOR formats.
+- **ALINX QSPI-BOOT = `eppo_milanfinal30` (+0.026) + rootfs #8** (first
+  closing AX after 7 rounds; L2 32K, sweep always 1-hart): 0x4B PASS,
+  CERT 63/63, CRF talker LIVE (500.3 PDU/s, DMAC = MAAP claim+1),
+  **CRF e2e locked at the ARTY, RATE +6.7 ppm**. JTAG-loaded + QSPI
+  written; the --reset self-config test tells whether the mode pins
+  boot it standalone.
+- The CERT suite = 63 scenarios (private/recreate snapshot
+  aets_recreate_20260721); tap helpers gptp_cadence.py + srp_domain.py
+  on amx-ubuntu-server; es-4.5 self-quiesces (poll, no fixed sleeps).
+- Open for the day shift: analog loop leg (physical; both digital ends
+  -135.1 dB), switch gPTP claim for the es-1.1/1.2 BMCA variants,
+  gaps-doc deferred list (MMCM-DRP servo actuator, 2nd lwSRP attr,
+  GMII CDC reinit, 8ch render, class-B, shadow invalidate,
+  pcm_ring_dump segv, kl-eth tx-stamp latency).
+- Bench-tooling fragilities learned tonight: arty-linkflap.sh drives
+  the SESSION console (a login race eats the flap - verify SHELL-OK
+  before cert runs); background flashes need ABSOLUTE paths; `timeout
+  N sudo tcpdump` leaves the root child alive; tagged-stream tap
+  filters = ether[44:2].
 
 ## 10. Standing rules (violating any of these has burned us)
 
