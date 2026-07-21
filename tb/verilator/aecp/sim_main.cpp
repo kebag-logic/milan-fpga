@@ -1490,7 +1490,9 @@ int main(int argc, char** argv) {
         for (int i = 7; i >= 0; i--) f1.push_back((0x0410600100017700ULL >> (8*i)) & 0xFF);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2205, f1));
         r = collect_resp();
-        ck("[22e] SET_FMT(in1, CRF96k) SUCCESS", r_status(r), 0);
+        // Milan 6.4 honesty pass 2026-07-21: 96k CRF no longer
+        // advertised (engine locks 48k only) -> SET refused
+        ck("[22e] SET_FMT(in1, CRF96k) refused", r_status(r), 7);
         ckbytes("[22e] readback", r, 42, {0x04,0x10,0x60,0x01,0x00,0x01,0x77,0x00});
         std::vector<uint8_t> f2 = si_pl(0x0005, 1);
         for (int i = 7; i >= 0; i--) f2.push_back((0x0205022002006000ULL >> (8*i)) & 0xFF);
@@ -1501,7 +1503,8 @@ int main(int argc, char** argv) {
         for (int i = 7; i >= 0; i--) f3.push_back((0x020702200200C000ULL >> (8*i)) & 0xFF);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2207, f3));
         r = collect_resp();
-        ck("[22e] SET_FMT(in0, AAF96k) SUCCESS", r_status(r), 0);
+        // 96k AAF dropped with the family/honesty pass -> refused
+        ck("[22e] SET_FMT(in0, AAF96k) refused", r_status(r), 7);
 
         // (f) STOP/START_STREAMING on sink0 drives STREAMING_WAIT; outputs
         //     stay NOT_SUPPORTED
