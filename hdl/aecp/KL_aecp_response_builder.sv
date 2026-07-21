@@ -403,7 +403,8 @@ module KL_aecp_response_builder (
   logic         batch_q;      //! response under construction is a batch
   logic         bsub_q;       //! DECIDE_S is running a batch sub-command
   logic [8:0]   bscan_ptr_q;  //! pass-1 scan pointer (cbuf offset)
-  logic [1:0]   bscan_ph_r;   //! pass-1 phase (len hi/lo, cmd hi/lo)
+  logic [2:0]   bscan_ph_r;   //! pass-1 phase (len hi/lo, cmd hi/lo, verdict)
+  logic [7:0]   bsc_lo_q;     //! phase-3-captured cmd low byte (verdict input)
   logic [7:0]   bslh_r;       //! latched len hi byte
   logic [6:0]   bsch_r;       //! latched cmd hi byte (7 bits, r-bit dropped)
   logic [15:0]  bcdl_acc_q;   //! accumulated response payload bytes
@@ -471,9 +472,9 @@ module KL_aecp_response_builder (
   logic [8:0] cbuf_raddr;
   always_comb begin : cbuf_amux
     unique case (state_r)
-      BSCAN_S:      cbuf_raddr = (bscan_ph_r == 2'd0) ? bscan_ptr_q
-                               : (bscan_ph_r == 2'd1) ? bscan_ptr_q + 9'd1
-                               : (bscan_ph_r == 2'd2) ? bscan_ptr_q + 9'd6
+      BSCAN_S:      cbuf_raddr = (bscan_ph_r == 3'd0) ? bscan_ptr_q
+                               : (bscan_ph_r == 3'd1) ? bscan_ptr_q + 9'd1
+                               : (bscan_ph_r == 3'd2) ? bscan_ptr_q + 9'd6
                                                       : bscan_ptr_q + 9'd7;
       BREC_SETUP_S: cbuf_raddr = (brec_ph_r == 3'd0) ? brec_ptr_q
                                : (brec_ph_r == 3'd1) ? brec_ptr_q + 9'd1
@@ -491,10 +492,13 @@ module KL_aecp_response_builder (
   //! block-local `automatic` temporaries were themselves a synthesis
   //! hazard class - both suspects stay fixed; the wires now read the
   //! single port, valid in phase 3 only where they are consumed)
-  wire [14:0] w_bscan_c  = {bsch_r, cbuf_rbyte_w};
+  //! verdict terms from REGISTERS only (AX27 -1.98: the phase-select ->
+  //! addr mux -> RAM -> rlen table -> fit compare cone; phase 3 now only
+  //! CAPTURES the byte, the added verdict phase computes from bsc_lo_q)
+  wire [14:0] w_bscan_c  = {bsch_r, bsc_lo_q};
   wire [15:0] w_bscan_rl = (batch_rlen(w_bscan_c) != 16'd0)
                          ? batch_rlen(w_bscan_c) : brec_dlen_q;
-  wire [14:0] w_brec_c   = {bsch_r, cbuf_rbyte_w};
+  wire [14:0] w_brec_c   = {bsch_r, bsc_lo_q};
   wire [15:0] w_brec_rl  = batch_rlen(w_brec_c);
 
   // ------------------------------------------------------------------ //
@@ -850,7 +854,8 @@ module KL_aecp_response_builder (
       wb_diff_q    <= 1'b0;
       batch_q      <= 1'b0;
       bsub_q       <= 1'b0;
-      bscan_ptr_q  <= 9'd0; bscan_ph_r <= 2'd0;
+      bscan_ptr_q  <= 9'd0; bscan_ph_r <= 3'd0;
+      bsc_lo_q     <= 8'd0;
       bslh_r       <= 8'd0; bsch_r <= 7'd0;
       bcdl_acc_q   <= 16'd0; bfit_map_q <= 64'd0; bidx_q <= 6'd0;
       bpay_end_q   <= 9'd0;
@@ -1740,7 +1745,7 @@ module KL_aecp_response_builder (
               CMD_GET_DYNAMIC_INFO: begin
                 batch_q     <= 1'b1;
                 bscan_ptr_q <= 9'd2;
-                bscan_ph_r  <= 2'd0;
+                bscan_ph_r  <= 3'd0;
                 bcdl_acc_q  <= 16'd0;
                 bfit_map_q  <= 64'd0;
                 bidx_q      <= 6'd0;
@@ -1995,26 +2000,32 @@ module KL_aecp_response_builder (
             state_r     <= BREC_SETUP_S;
           end else begin
             unique case (bscan_ph_r)
-              2'd0: begin
+              3'd0: begin
                 bslh_r     <= cbuf_rbyte_w;
-                bscan_ph_r <= 2'd1;
+                bscan_ph_r <= 3'd1;
               end
-              2'd1: begin
+              3'd1: begin
                 brec_dlen_q <= {bslh_r, cbuf_rbyte_w};
-                bscan_ph_r  <= 2'd2;
+                bscan_ph_r  <= 3'd2;
               end
-              2'd2: begin
+              3'd2: begin
                 bsch_r     <= 7'(cbuf_rbyte_w);
-                bscan_ph_r <= 2'd3;
+                bscan_ph_r <= 3'd3;
               end
-              2'd3: begin
+              3'd3: begin
+                //! capture ONLY (AX27 -1.98 cone split): the verdict math
+                //! moves to phase 4 and runs from registers
+                bsc_lo_q   <= cbuf_rbyte_w;
+                bscan_ph_r <= 3'd4;
+              end
+              3'd4: begin
                 //! record verdict forensics from the PHASE-CAPTURED bytes
                 //! (single-port rework: no side reads; cmd-hi keeps 7 bits)
                 bdbg0_q <= {bslh_r, brec_dlen_q[7:0],
-                            {1'b0, bsch_r}, cbuf_rbyte_w};
+                            {1'b0, bsch_r}, bsc_lo_q};
                 bdbg1_q <= {1'b0, w_bscan_c, brec_dlen_q};
                 bdbg2_q <= {7'd0, bscan_ptr_q, 7'd0, bpay_end_q};
-                bscan_ph_r <= 2'd0;
+                bscan_ph_r <= 3'd0;
                 if (!batch_legal(w_bscan_c) ||
                     (16'({7'd0, bscan_ptr_q}) + 16'd8 + brec_dlen_q
                      > 16'({7'd0, bpay_end_q}))) begin
@@ -2038,6 +2049,7 @@ module KL_aecp_response_builder (
                   bscan_ptr_q <= bscan_ptr_q + 9'(16'd8 + brec_dlen_q);
                 end
               end
+              default: bscan_ph_r <= 3'd0;
             endcase
           end
         end
@@ -2069,6 +2081,11 @@ module KL_aecp_response_builder (
                 brec_ph_r <= 3'd3;
               end
               3'd3: begin
+                //! capture ONLY (AX27 cone split, as in BSCAN phase 3)
+                bsc_lo_q  <= cbuf_rbyte_w;
+                brec_ph_r <= 3'd5;
+              end
+              3'd5: begin
                 if (!bfit_map_q[bidx_q]) begin
                   brec_ph_r <= 3'd7;   //! over-cap record: skip
                 end else begin
