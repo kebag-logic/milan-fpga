@@ -132,8 +132,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ---- MAC status (from the external MAC) ----
   input  wire [1:0]  i_mac_speed,
   input  wire        i_link_up,
-  output wire        o_mac_reinit,     //! LINK_CTRL[1] -> SoC MAC sys-side reset
+  output wire        o_mac_reinit,     //! link guard | LINK_CTRL[1] -> SoC MAC sys-side reset
   input  wire        i_full_duplex,
+  //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
+  //! liveness sensing; tie high on TBs/tops without a PHY - a static level
+  //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
+  input  wire        i_ethrx_tgl,
+  input  wire        i_ethtx_tgl,
+  input  wire        i_ethact_tgl,
   //! RMON event pulses from the external MAC (lane index == ethernet_events_t enum)
   input  wire [_ETH_EVENT_COUNTER-1:0] i_mac_events,
 
@@ -640,6 +646,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_bdbg0            (aecp_bdbg0_w),
     .i_bdbg1            (aecp_bdbg1_w),
     .i_bdbg2            (aecp_bdbg2_w),
+    .i_linkg_stat       (linkg_stat_w),
+    .o_linkg_dis        (cfg_linkg_dis),
+    .o_linkg_freeze     (cfg_linkg_freeze),
     .o_as_parent_ckid   (cfg_as_parent_ckid),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -764,8 +773,30 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  RX destination-MAC filter (TCAM, REQ-MAC-02)
   // ==========================================================================
-  assign eff_link_w = i_link_up & cfg_sw_link;
-  assign o_mac_reinit = cfg_mac_reinit;
+  //! link guard: hardware eth-clock liveness -> automatic MAC reinit across
+  //! link bounces (the 2026-07-19 TX-wedge class), plus the first hardware
+  //! link estimate. LINK_CTRL[1] stays OR-ed in as the daemon fallback.
+  wire [31:0] linkg_stat_w;
+  wire        cfg_linkg_dis, cfg_linkg_freeze;
+  wire        linkg_reinit_w, linkg_est_w;
+
+  KL_link_guard link_guard (
+    .clk_i        (axis_clk),
+    .rst_n        (axis_resetn),
+    .rx_tgl_i     (i_ethrx_tgl),
+    .tx_tgl_i     (i_ethtx_tgl),
+    .act_tgl_i    (i_ethact_tgl),
+    .dis_i        (cfg_linkg_dis),
+    .freeze_i     (cfg_linkg_freeze),
+    .man_reinit_i (cfg_mac_reinit),
+    .reinit_o     (linkg_reinit_w),
+    .link_est_o   (linkg_est_w),
+    .stat_o       (linkg_stat_w)
+  );
+
+  assign eff_link_w = i_link_up & cfg_sw_link &
+                      (cfg_linkg_dis | linkg_est_w);
+  assign o_mac_reinit = linkg_reinit_w;
 
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
     .clk_i(axis_clk), .rst_n(axis_resetn),
