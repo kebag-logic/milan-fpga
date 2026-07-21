@@ -8,8 +8,9 @@ and is not repeated here.
 
 ## 1. AECP / AEM
 
-- **GET_DYNAMIC_INFO (0x4B): batch engine IN, silicon re-verify on
-  ≥mf39/AX24 (2026-07-20 night).** The 7.4.76 batch semantics landed
+- ~~GET_DYNAMIC_INFO (0x4B)~~ **RESOLVED ON SILICON, BOTH ENTITIES
+  (2026-07-21 morning): dyninfo probe byte-exact PASS on mf41 + AX30.**
+  History of the four stacked silicon defects (kept for the record): The 7.4.76 batch semantics landed
   (512 B capture, BSCAN validate/size pass, per-record dispatch through
   the segment engine, NOT_SUPPORTED+echo for legal-unimplemented,
   whole-cmd BAD_ARGUMENTS for illegal/truncated records; byte-exact TB
@@ -23,13 +24,16 @@ and is not repeated here.
   TB passed (empty batch SUCCESS / 1-record 0-for-50 was the
   discriminator). Fixed f3f4b15 (own sync-only write process). mf38 and
   earlier remain non-conformant on 0x4B on silicon.
-  **2026-07-21 update: mf39 (cbuf fix in, 8-4767 gone) STILL fails the
-  same way** — defect (c): the live suspect is the block-local
-  `automatic` temporaries in the scan/parse clocked phases (Vivado
-  materializes such locals as sequential elements); hoisted to comb
-  wires + BDBG forensics CSRs 0x768-0x770 (latch the scanned header/
-  cmd/dlen/ptr at every verdict) ride mf40/AX25 — a still-failing probe
-  plus one BDBG read names the mechanism definitively.
+  Defect (c) was the block-local `automatic` temporaries hazard
+  (hoisted); defect (d) — THE mechanism, BDBG-caught in one read on
+  mf40 — was implicit multi-port LUTRAM inference REPLICATING cbuf
+  (RAM64M ×66) with the scan's replica reading stale zeros while the
+  echo's replica was byte-perfect. Fix = ONE explicit state-muxed
+  async read port + capture/verdict phase staging (16cacc8 + ed39d9e).
+  House rules distilled: RAMs get a sync-only write process and ONE
+  explicit read port; grep every build log for Synth 8-4767; no
+  block-local automatics in clocked processes; fabric forensics CSRs
+  pay for themselves the first time.
 - ~~Dynamic audio maps~~ **RESOLVED AS COMPLIANT (2026-07-20 spec
   read):** Milan v1.2 5.4.2.27/28 requires ADD/REMOVE_AUDIO_MAPPINGS
   only for stream ports **that have no Audio Map descriptor**, and
