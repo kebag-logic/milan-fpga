@@ -228,14 +228,19 @@ and is not repeated here.
   pipewire cannot be stopped by the harness). Bench goal, not DUT
   compliance.
 
-## Suggested order of attack
+## Suggested order of attack (reordered 2026-07-21 per USER)
 
-1. CRF engine (listener side first: recover the media clock from a CRF
-   stream) — unlocks the "fully compliant" clocking story.
-2. Dynamic audio maps (ADD/REMOVE + es-4.16 feature).
-3. Honest capability counts (ADP caps + AEM vs implemented streams).
-4. GET_DYNAMIC_INFO segment growth to the full record set.
-5. Generalize `nochg_q` to all replayed SETs.
-6. Recreate the missing CERT features (es-1.1/1.2 first — they only
-   need wire observation, no new DUT code).
-7. RTL fixes for the workaround items (CDC reinit, shadow invalidate).
+1. AX timing closure with the link guard (tx_sf 512 lever in; then
+   L2 knobs / area trim if needed) + silicon drills on the AX.
+2. MMCM-DRP media-clock servo (retires the drift-lottery rails for
+   good; shares the clock-outage sequencing with the GMII CDC reinit).
+3. RTL fixes for the workaround items (GMII CDC reinit, shadow
+   invalidate-on-reset, I2SPB counters W1C).
+4. 2nd lwSRP listener attribute (CRF reservation) + multi-stream
+   registrar direction (the 64x64 context-engine path).
+5. Dynamic audio maps (ADD/REMOVE + es-4.16) — mandatory the moment
+   routing becomes dynamic.
+6. Milan saved-state fast-connect (binds surviving reboot).
+7. **es-1.1/1.2 DUT-wins-BMCA variants — BOTTOM of the list (USER
+   2026-07-21): blocked on the bench switch's gPTP claim anyway; the
+   wire-observable halves are already green.**
