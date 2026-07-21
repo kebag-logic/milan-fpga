@@ -1306,6 +1306,58 @@ int main(int argc, char** argv) {
     }
 
     }
+
+    // ================================================================
+    // [LINKG] link-guard integration drill (LAST section: arming is
+    // permanent, so the drill ends with the guard disabled to keep the
+    // eff_link/reinit state inert for any code after it)
+    // ================================================================
+    {
+        printf("\n[LINKG] link guard integration drill\n");
+        // drive the eth toggles alive -> the guard arms (real DEAD=4096)
+        auto steps_tgl = [&](int n) {
+            for (int i = 0; i < n; i++) {
+                if ((g_step & 1) == 0) dut->i_ethrx_tgl ^= 1;
+                if ((g_step % 3) == 0) dut->i_ethtx_tgl ^= 1;
+                step();
+            }
+        };
+        steps_tgl(64);
+        ck("[LINKG] armed alive", (long)(axi_read(0x774) & 0xFF), 0x03);
+        ck("[LINKG] reinit pin idle", (long)dut->o_mac_reinit, 0);
+
+        // freeze drill: CSR-faked clock death -> HOLD + reinit pin
+        axi_write(0x71C, 0x9);                       // sw_link | freeze
+        steps_tgl(4200);                             // > DEAD_CYC_C
+        {
+            uint32_t st = axi_read(0x774);
+            ck("[LINKG] freeze bounce",  (long)(st >> 16), 1);
+            ck("[LINKG] freeze state",   (long)((st >> 4) & 3), 1);   // HOLD
+            ck("[LINKG] freeze grst",    (long)((st >> 6) & 1), 1);
+            ck("[LINKG] freeze alive",   (long)(st & 3), 0);
+        }
+        ck("[LINKG] reinit pin held", (long)dut->o_mac_reinit, 1);
+
+        // unfreeze while DISABLED: reinit drops immediately (settle
+        // short-circuit), clocks re-arm alive under the disable
+        axi_write(0x71C, 0x5);                       // sw_link | dis
+        steps_tgl(8);
+        ck("[LINKG] disable releases pin", (long)dut->o_mac_reinit, 0);
+        steps_tgl(4200);                             // alive restores
+        // re-enable with clocks alive: RUN, no new episode
+        axi_write(0x71C, 0x1);
+        steps_tgl(64);
+        {
+            uint32_t st = axi_read(0x774);
+            ck("[LINKG] re-enable RUN", (long)((st >> 4) & 3), 0);
+            ck("[LINKG] re-enable alive", (long)(st & 3), 3);
+            ck("[LINKG] no extra bounce", (long)(st >> 16), 1);
+        }
+        ck("[LINKG] reinit pin clear", (long)dut->o_mac_reinit, 0);
+        // park disabled so the static toggles stay inert from here on
+        axi_write(0x71C, 0x5);
+    }
+
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;
