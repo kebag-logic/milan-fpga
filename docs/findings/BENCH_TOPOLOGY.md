@@ -26,7 +26,7 @@ name; its material is private (see §7).
 | MAC / entity_id | 02:00:00:00:00:02 / 020000fffe000002 | 02:00:00:00:00:01 / 020000fffe000001 |
 | IP (eth0) | 192.168.127.3 | on the same /24 (read via console `ip -br addr`) |
 | JTAG/flash | `--ftdi-serial 210319AFEED0 -c digilent`, part xc7a100tcsg324 | `--ftdi-serial 210512180081 -c ft232`, part xc7a100tfgg484 |
-| QSPI policy | **boot**: bitstream@0 + image set (16 MB) | **images only** — a bitstream write is the KNOWN KERNEL-CLOBBER TRAP. Gateware is JTAG-SRAM, reload after every flash-images (flashing loads a JTAG SPI proxy). |
+| QSPI policy | **boot**: bitstream@0 + image set (16 MB) | **boot** since 2026-07-21 (USER "to flash use qspi"): bitstream@0 + images — the old kernel-clobber trap described the DEAD kernel@0 layout; the manifest-"full" map has a dedicated 4 MiB bitstream slot. JTAG-load remains the belt until the mode-pin self-config test is confirmed. |
 | Datapath clock | 50 MHz | 100 MHz (timing-critical; the serial-MAC LPF exists because a combinational biquad fails here) |
 | gPTP role | SLAVE (priority1 248 base cfg) | **GM** (S50 sed-REPLACEs priority1 → 238) |
 | Serial console | `/dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0` | `/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_66e0ce96...-if00-port0` |
@@ -87,10 +87,12 @@ DTB=~/milan-tests-avb/fpga/boot/milan_arty_vexii.dtb \
 ./sw/litex/build.sh flash arty:build_arty_<seed>_<tag>
 openFPGALoader --ftdi-serial 210319AFEED0 -c digilent --reset   # then ~100 s boot
 
-# AX (images to QSPI, gateware to SRAM via JTAG — NEVER bitstream to QSPI):
+# AX (QSPI boot since 2026-07-21: bitstream@0 + images, one verb):
 KERNEL=... ROOTFS=... OPENSBI=~/milan-tests-avb/fpga/boot/opensbi.bin \
 DTB=~/milan-tests-avb/fpga/dts/milan_ax7101_linux.dtb \
 ./sw/litex/build.sh flash ax7101:build_ax7101_<seed>_<tag>
+# JTAG-load the same bit for the immediate session (belt until the
+# mode-pin self-config question is settled by an openFPGALoader --reset):
 openFPGALoader --ftdi-serial 210512180081 -c ft232 --fpga-part xc7a100tfgg484 \
   ~/litex-milan/work/build_ax7101_<seed>_<tag>/gateware/alinx_ax7101.bit
 ```
