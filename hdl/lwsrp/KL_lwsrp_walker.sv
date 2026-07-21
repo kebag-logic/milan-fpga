@@ -347,8 +347,12 @@ module KL_lwsrp_walker (
                 lva_seen_r   <= 1'b1;
               end
               nv_r        <= nv_new_w;
-              n_evt_q     <= 13'((nv_new_w + 13'd2) / 13'd3);
-              n_par_q     <= 13'((nv_new_w + 13'd3) / 13'd4);
+              //! divides computed ONLY in W_FV_S from the settled nv_r
+              //! register: the belt-arm that computed them here from
+              //! {vech_hi, byte_w} dragged the walk-byte select into the
+              //! cone (AX29 -0.524 cur_d_r -> n_evt_q). Every MSRP
+              //! attribute is >= 4 FirstValue bytes, so the FV refresh
+              //! always lands >= 3 cycles before the pack_n_r load.
               fv_idx_r    <= 8'd0;
               fv_r        <= '0;
               val_match_r <= 1'b0;
