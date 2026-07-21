@@ -49,14 +49,22 @@ RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 #! 0205022002006000 default): the monitor now ADAPTS to any wire channel
 #! count 1..8 under the declared format, so a pure-ACMP 2ch connect works
 #! against the 8ch default. 2ch stays in the supported list.
-FORMATS = [0x0205022002006000, 0x0205022000806000, 0x020702200200C000, 0x0209022002018000]
+#! Milan 6.4/6.5 (2026-07-21, USER-caught): a Stream Input advertising a
+#! 48k Base format SHALL cover ALL channel counts 1..8 - entry 1 is the
+#! ut-bit (qword bit 52) "up to 8" string that covers the whole family in
+#! one entry (the spec's own recommendation). 96k/192k entries DROPPED:
+#! the render path is 48k-only and each advertised rate drags its own
+#! full-family obligation (talker-truth honesty, listener edition).
+FORMATS = [0x0205022002006000, 0x0215022002006000]
 #! talker truth (2026-07-18): the framer is a STEREO 48k device (Pmod I2S2 /
 #! tone path both 2ch, fs fixed by the divider chain) - STREAM_OUTPUT must
 #! DECLARE exactly what the wire carries or format-matching controllers
 #! strand every listener (user bugs 5/6)
 OUT_FORMATS = [0x0205022000806000]
 # CRF AUDIO_SAMPLE media-clock formats (milan-v12-entity.json STREAM_INPUT[1])
-CRF_FORMATS = [0x041060010000BB80, 0x0410600100017700, 0x041060010002EE00]
+#! 48k only (the CRF engine validates base 48000/pull 0 - advertising
+#! unlockable rates is the same honesty violation)
+CRF_FORMATS = [0x041060010000BB80]
 # IDENTIFY control (pipewire aecp-aem-controls.h, byte-exact)
 CTRL_TYPE_IDENTIFY = 0x90E0F00000000001
 CTRL_LINEAR_UINT8 = 0x0001
