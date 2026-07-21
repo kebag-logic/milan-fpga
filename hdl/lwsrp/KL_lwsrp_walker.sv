@@ -197,9 +197,16 @@ module KL_lwsrp_walker (
                             (lsid_diff_w[63:13] == '0) &&
                             (lsid_diff_w[12:0] < nv_r);
 
-  //! event bytes = ceil(nv/3), param bytes = ceil(nv/4)
+  //! event bytes = ceil(nv/3), param bytes = ceil(nv/4).
+  //! STAGED into registers (AX 100 MHz: the /3 reciprocal cone out of
+  //! nv_r was the recurring -0.17-class violator; both divides now get a
+  //! full private cycle - computed at the vector-header capture from the
+  //! INCOMING count and refreshed through the FirstValue walk, always
+  //! >= 1 cycle before their pack_n_r loads)
   wire [12:0] n_evt_bytes_w = 13'((nv_r + 13'd2) / 13'd3);
   wire [12:0] n_par_bytes_w = 13'((nv_r + 13'd3) / 13'd4);
+  wire [12:0] nv_new_w      = {vech_hi_r[4:0], byte_w};
+  reg  [12:0] n_evt_q, n_par_q;
 
   // -----------------------------------------------------------------------
   // FSM. Captured event/declaration values are passed THROUGH the emit
@@ -267,6 +274,7 @@ module KL_lwsrp_walker (
       val_match_r <= 1'b0; k_r <= '0; vbase_r <= '0;
       lval_match_r <= 1'b0; lk_r <= '0; lcap_evt_r <= '0;
       cap_evt_r <= '0; cap_par_r <= '0; pack_idx_r <= '0; pack_n_r <= '0;
+      n_evt_q <= '0; n_par_q <= '0;
       leaveall_p_o <= 1'b0;
       domain_p_o <= 1'b0; domain_class_o <= '0; domain_prio_o <= '0;
       domain_vid_o <= '0; domain_evt_o <= '0;
@@ -338,7 +346,9 @@ module KL_lwsrp_walker (
                 leaveall_p_o <= 1'b1;    // any nonzero LeaveAllEvent
                 lva_seen_r   <= 1'b1;
               end
-              nv_r        <= {vech_hi_r[4:0], byte_w};
+              nv_r        <= nv_new_w;
+              n_evt_q     <= 13'((nv_new_w + 13'd2) / 13'd3);
+              n_par_q     <= 13'((nv_new_w + 13'd3) / 13'd4);
               fv_idx_r    <= 8'd0;
               fv_r        <= '0;
               val_match_r <= 1'b0;
@@ -352,6 +362,8 @@ module KL_lwsrp_walker (
 
           // ---- FirstValue ------------------------------------------------
           W_FV_S: begin
+            n_evt_q <= n_evt_bytes_w;   //! nv_r stable since W_VECL_S
+            n_par_q <= n_par_bytes_w;
             if (fv_idx_r < 8'd8) fv_r <= {fv_r[55:0], byte_w};
             // domain fields (FirstValue bytes 0-3)
             if (is_domain_w) begin
@@ -393,7 +405,7 @@ module KL_lwsrp_walker (
                 lval_match_r <= 1'b1;
                 lk_r         <= lsid_diff_w[12:0];
               end
-              pack_n_r   <= n_evt_bytes_w;
+              pack_n_r   <= n_evt_q;
               pack_idx_r <= '0;
               vbase_r    <= '0;
               // nv==0 <=> n_evt_bytes==0, and nv_r is a plain register:
@@ -439,7 +451,7 @@ module KL_lwsrp_walker (
             pack_idx_r <= pack_idx_r + 13'd1;
             if (pack_idx_r == pack_n_r - 13'd1) begin
               if (is_listener_w) begin
-                pack_n_r   <= n_par_bytes_w;
+                pack_n_r   <= n_par_q;
                 pack_idx_r <= '0;
                 vbase_r    <= '0;
                 nxt = W_PAR_S;
