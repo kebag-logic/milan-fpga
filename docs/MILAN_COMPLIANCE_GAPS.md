@@ -103,8 +103,10 @@ and is not repeated here.
 - **Playback FIFO rails are now symmetric (c705091):** the underrun
   rail enters a prefill hold (one bounded gap, then recenter to the
   release level) instead of repeating samples every few ms - the
-  drift-lottery glitch storm class is closed. The overrun rail keeps
-  its recenter. A drift-slaved media clock (MMCM-DRP servo) remains
+  drift-lottery glitch storm class is closed. Residual polish: the TOP
+  rail still sheds one pair per drift period when pinned full (as it
+  always did, incl. during every record measurement); a drop-to-mid
+  jump on full would make both rails one-bounded-event-per-cycle. A drift-slaved media clock (MMCM-DRP servo) remains
   the real fix; the LPF burst-FIFO count leak (silent m_tvalid wedge)
   is also fixed in the same commit.
 
