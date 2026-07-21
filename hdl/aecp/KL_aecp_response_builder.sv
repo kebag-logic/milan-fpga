@@ -346,24 +346,25 @@ module KL_aecp_response_builder (
   wire w_rate_ok = (w_set_rate == AEM_RATES_C[0]) ||
                    (w_set_rate == AEM_RATES_C[1]) ||
                    (w_set_rate == AEM_RATES_C[2]);
-  //! Milan adaptive listener (FR-STR-03; USER 07-17): the listener adapts
-  //! to the TALKER's stream format — accept any channel count 1..8 on the
-  //! three base rates (the audio maps route the mapped channels; the RX
-  //! monitor / I2S player re-stride from the live format's channel field)
+  //! Milan adaptive listener (FR-STR-03; USER 07-17) + Milan 6.4 family
+  //! coverage (USER-caught 2026-07-21): the advertised list is the 48k
+  //! ut-string (all counts 1..8 in one entry); a SET must be CONCRETE
+  //! (ut=0) with channels 1..8 on the 48k base. The mask clears both the
+  //! channels field (bits 31:22) and the ut bit (52) so concrete SETs
+  //! compare against either list entry. 96k/192k dropped with the
+  //! honesty pass (the render path is 48k-only).
+  localparam [63:0] FMT_BASE_MASK_C = ~((64'h3FF << 22) | (64'h1 << 52));
   wire [9:0]  w_fmt_ch    = w_set_fmt[31:22];
-  wire [63:0] w_fmt_chm   = w_set_fmt & ~(64'h3FF << 22);
+  wire [63:0] w_fmt_chm   = w_set_fmt & FMT_BASE_MASK_C;
   wire w_fmt_ok  = (w_fmt_ch >= 10'd1) && (w_fmt_ch <= 10'd8) &&
-                   ((w_fmt_chm == (AEM_FMTS_C[0] & ~(64'h3FF << 22))) ||
-                    (w_fmt_chm == (AEM_FMTS_C[1] & ~(64'h3FF << 22))) ||
-                    (w_fmt_chm == (AEM_FMTS_C[2] & ~(64'h3FF << 22))));
+                   !w_set_fmt[52] &&
+                   (w_fmt_chm == (AEM_FMTS_C[0] & FMT_BASE_MASK_C));
   //! talker truth: the framer is hardwired stereo 48k - STREAM_OUTPUT
   //! accepts ONLY the wire-true format (declared == transmitted, user bug 5)
   localparam [63:0] AAF_OUT_FMT_C =
-      (AEM_FMTS_C[0] & ~(64'h3FF << 22)) | (64'd2 << 22);
+      (AEM_FMTS_C[0] & FMT_BASE_MASK_C) | (64'd2 << 22);
   wire w_out_fmt_ok = (w_set_fmt == AAF_OUT_FMT_C);
-  wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]) ||
-                      (w_set_fmt == AEM_CRF_FMTS_C[1]) ||
-                      (w_set_fmt == AEM_CRF_FMTS_C[2]);
+  wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]);
 
   // ------------------------------------------------------------------ //
   // Response plan (filled in DECIDE_S)                                   //
