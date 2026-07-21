@@ -88,13 +88,25 @@ and is not repeated here.
   reprogramming steered by CRF_DELTA/RATE at clock_source==2) is the
   remaining hardware; measurement, bind and CLOCK_DOMAIN counter muxing
   are all in place.**
-- **Channel width is stereo end-to-end.** The talker framer is hardwired
-  2ch (declared truthfully); the listener ACCEPTS 1..8 ch via the
-  adaptive monitor, but the I2S playback renders the first 2 channels
-  only. Declaring the 8ch input formats is fine per Milan, but a bound
-  8ch stream silently plays as its first stereo pair — full support
-  needs a channel-select/mixdown or true 8ch render path plus the
-  dynamic-map work above.
+- **Channel policy: 1-to-1 wire-truth mapping (USER rule, 2026-07-21,
+  c705091).** The render follows the WIRE's channels_per_frame
+  (exported by the RX monitor from the last accepted PDU), never the
+  AEM store: stream ch0/ch1 map onto the physical stereo DAC at full
+  sample rate for ANY C in 1..8 (half-beat position walker: even C
+  beat-aligned, odd C straddled, mono renders L with R=0); extra
+  stream channels are virtual (skipped). The talker stays a truthful
+  2ch device. A true >2ch physical render remains future work, but a
+  bound 8ch stream now plays its first pair CORRECTLY at full rate
+  (the old store-driven stride played 1/4-rate garbage when the store
+  defaulted 8ch after a reboot — root cause of the 07-21 music-glitch
+  episode, along with the underrun rail below).
+- **Playback FIFO rails are now symmetric (c705091):** the underrun
+  rail enters a prefill hold (one bounded gap, then recenter to the
+  release level) instead of repeating samples every few ms - the
+  drift-lottery glitch storm class is closed. The overrun rail keeps
+  its recenter. A drift-slaved media clock (MMCM-DRP servo) remains
+  the real fix; the LPF burst-FIFO count leak (silent m_tvalid wedge)
+  is also fixed in the same commit.
 
 ## 3. SRP (lwSRP)
 
@@ -150,6 +162,16 @@ and is not repeated here.
   inference and the fallback semantics are suspect.
 
 ### 5b. Additions found 2026-07-21 afternoon (power-event + music round)
+
+- **AX 100 MHz timing vs the link guard (OPEN):** the guard's ~433
+  cells pushed the AX past its placement-luck envelope — SIX directive
+  draws on the AX31 netlist all missed (best −0.142; violator =
+  `storage_32` CPU-internal BRAM addr cone, not Milan RTL). ARTY
+  unaffected (mf43 closed 3/3, keeper eppo +0.102, guard
+  silicon-proven there). AX32 (guard + audio round) building; if it
+  misses, the next levers are CPU L2 knob A/Bs (l2-down-pending /
+  general-slots, with perf re-measure per the L2 rule) or an area-70
+  style trim pass.
 
 - **ACMP binds do not persist across a board reboot** (fabric state
   only). Milan's saved-state fast-connect (listener re-connects on its
