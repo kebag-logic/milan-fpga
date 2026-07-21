@@ -459,23 +459,42 @@ module KL_aecp_response_builder (
                || (c == 15'd71) || (c == 15'd74);   // MEM_OBJ_LEN / STREAM_BACKUP
   endfunction
 
-  //! single-byte capture-buffer read (registered pointer, comb mux)
-  function automatic logic [7:0] cbufb(input [8:0] a);
-    cbufb = bufb(cbuf_r[a[8:3]], a[2:0]);
-  endfunction
+  //! ---- SINGLE async cbuf read port (2026-07-21 silicon forensics) ----
+  //! Implicit multi-port LUTRAM inference replicated cbuf into RAM64M x66
+  //! and the SCAN's replica read stale zeros while the ECHO's replica was
+  //! byte-perfect (BDBG 0x768 caught it: header {00 00 / 00 00} scanned
+  //! at the correct {ptr 2, end 10} while the wire carried cmd 0x0007 and
+  //! the later echo agreed - the mf37..mf40 0x4B BAD_ARGUMENTS story).
+  //! Every reader is state-exclusive, so ONE port behind an explicit
+  //! state mux is semantics-identical - and one RAM copy instead of six.
+  logic [3:0] cwld_r;          //! BREC arg-window byte loader (16 cycles)
+  logic [8:0] cbuf_raddr;
+  always_comb begin : cbuf_amux
+    unique case (state_r)
+      BSCAN_S:      cbuf_raddr = (bscan_ph_r == 2'd0) ? bscan_ptr_q
+                               : (bscan_ph_r == 2'd1) ? bscan_ptr_q + 9'd1
+                               : (bscan_ph_r == 2'd2) ? bscan_ptr_q + 9'd6
+                                                      : bscan_ptr_q + 9'd7;
+      BREC_SETUP_S: cbuf_raddr = (brec_ph_r == 3'd0) ? brec_ptr_q
+                               : (brec_ph_r == 3'd1) ? brec_ptr_q + 9'd1
+                               : (brec_ph_r == 3'd2) ? brec_ptr_q + 9'd6
+                               : (brec_ph_r == 3'd3) ? brec_ptr_q + 9'd7
+                               : 9'(brec_abase_q + 16'(cwld_r));
+      WRITE_S:      cbuf_raddr = w_wbaddr;
+      default:      cbuf_raddr = w_eaddr;    //! EMIT_DATA_S SEG_ECHO
+    endcase
+  end
+  wire [63:0] cbuf_rword_w = cbuf_r[cbuf_raddr[8:3]];
+  wire [7:0]  cbuf_rbyte_w = bufb(cbuf_rword_w, cbuf_raddr[2:0]);
 
-  //! batch phase-3 record terms as PLAIN COMB WIRES (0x4B silicon hunt,
-  //! 2026-07-20 night): the previous block-local `automatic` temporaries
-  //! inside the clocked process are a Vivado sim-mismatch construct (the
-  //! synth log materializes such locals as sequential elements - see the
-  //! removed `b_reg` class) - on mf38/mf39 every scanned record evaluated
-  //! as garbage (empty batch SUCCESS, any record BAD_ARGUMENTS, echo
-  //! byte-perfect) while Verilator's correct temporaries passed every TB.
-  //! Nothing block-local remains in the scan/parse decision path.
-  wire [14:0] w_bscan_c  = {bsch_r, cbufb(bscan_ptr_q + 9'd7)};
+  //! batch phase-3 record terms as PLAIN COMB WIRES (the earlier
+  //! block-local `automatic` temporaries were themselves a synthesis
+  //! hazard class - both suspects stay fixed; the wires now read the
+  //! single port, valid in phase 3 only where they are consumed)
+  wire [14:0] w_bscan_c  = {bsch_r, cbuf_rbyte_w};
   wire [15:0] w_bscan_rl = (batch_rlen(w_bscan_c) != 16'd0)
                          ? batch_rlen(w_bscan_c) : brec_dlen_q;
-  wire [14:0] w_brec_c   = {bsch_r, cbufb(brec_ptr_q + 9'd7)};
+  wire [14:0] w_brec_c   = {bsch_r, cbuf_rbyte_w};
   wire [15:0] w_brec_rl  = batch_rlen(w_brec_c);
 
   // ------------------------------------------------------------------ //
@@ -844,6 +863,7 @@ module KL_aecp_response_builder (
       bdbg0_q      <= 32'd0;
       bdbg1_q      <= 32'd0;
       bdbg2_q      <= 32'd0;
+      cwld_r       <= 4'd0;
       for (int k = 0; k < 8; k++) rec_hdr_q[k] <= 8'd0;
       st_wr_o      <= 1'b0;
       st_waddr_o   <= 16'd0;
@@ -1878,9 +1898,9 @@ module KL_aecp_response_builder (
             wbp_r      <= 1'b0;
             st_wr_o    <= 1'b1;
             st_waddr_o <= wb_addr_q + 16'(wb_cnt_r);
-            st_wdata_o <= bufb(cbuf_r[w_wbaddr[8:3]], w_wbaddr[2:0]);
+            st_wdata_o <= cbuf_rbyte_w;
             wb_used_q  <= 1'b1;
-            if (st_byte_i != bufb(cbuf_r[w_wbaddr[8:3]], w_wbaddr[2:0]))
+            if (st_byte_i != cbuf_rbyte_w)
               wb_diff_q <= 1'b1;
             if (wb_cnt_r == wb_len_q - 7'd1) begin
               wb_cnt_r <= 7'd0;
@@ -1929,7 +1949,7 @@ module KL_aecp_response_builder (
             b = hdrbyte_r;                    // registered header byte
           end else begin
             unique case (emseg_kind_r)        // registered segment select
-              SEG_ECHO:  b = bufb(cbuf_r[w_eaddr[8:3]], w_eaddr[2:0]);
+              SEG_ECHO:  b = cbuf_rbyte_w;    // single-port read (w_eaddr)
               SEG_STORE: b = st_byte_i;       // store byte (1-cycle read latency)
               SEG_CONST: b = const_q[7'(emseg_addr_r[6:0] + emsoff_r[6:0])];
               default:   b = 8'h00;
@@ -1976,23 +1996,22 @@ module KL_aecp_response_builder (
           end else begin
             unique case (bscan_ph_r)
               2'd0: begin
-                bslh_r     <= cbufb(bscan_ptr_q);
+                bslh_r     <= cbuf_rbyte_w;
                 bscan_ph_r <= 2'd1;
               end
               2'd1: begin
-                brec_dlen_q <= {bslh_r, cbufb(bscan_ptr_q + 9'd1)};
+                brec_dlen_q <= {bslh_r, cbuf_rbyte_w};
                 bscan_ph_r  <= 2'd2;
               end
               2'd2: begin
-                bsch_r     <= 7'(cbufb(bscan_ptr_q + 9'd6));
+                bsch_r     <= 7'(cbuf_rbyte_w);
                 bscan_ph_r <= 2'd3;
               end
               2'd3: begin
-                //! record verdict forensics: whatever this evaluation SAW
-                //! (survives into the BDBG CSRs; on a silicon reject the
-                //! probe reads the failing record exactly as scanned)
-                bdbg0_q <= {cbufb(bscan_ptr_q), cbufb(bscan_ptr_q + 9'd1),
-                            cbufb(bscan_ptr_q + 9'd6), cbufb(bscan_ptr_q + 9'd7)};
+                //! record verdict forensics from the PHASE-CAPTURED bytes
+                //! (single-port rework: no side reads; cmd-hi keeps 7 bits)
+                bdbg0_q <= {bslh_r, brec_dlen_q[7:0],
+                            {1'b0, bsch_r}, cbuf_rbyte_w};
                 bdbg1_q <= {1'b0, w_bscan_c, brec_dlen_q};
                 bdbg2_q <= {7'd0, bscan_ptr_q, 7'd0, bpay_end_q};
                 bscan_ph_r <= 2'd0;
@@ -2038,15 +2057,15 @@ module KL_aecp_response_builder (
                 brec_ph_r  <= 3'd0;
               end
               3'd0: begin
-                bslh_r    <= cbufb(brec_ptr_q);
+                bslh_r    <= cbuf_rbyte_w;
                 brec_ph_r <= 3'd1;
               end
               3'd1: begin
-                brec_dlen_q <= {bslh_r, cbufb(brec_ptr_q + 9'd1)};
+                brec_dlen_q <= {bslh_r, cbuf_rbyte_w};
                 brec_ph_r   <= 3'd2;
               end
               3'd2: begin
-                bsch_r    <= 7'(cbufb(brec_ptr_q + 9'd6));
+                bsch_r    <= 7'(cbuf_rbyte_w);
                 brec_ph_r <= 3'd3;
               end
               3'd3: begin
@@ -2088,14 +2107,24 @@ module KL_aecp_response_builder (
               3'd4: begin
                 //! load the record's virtual arg window: virtual byte 0-1 =
                 //! its command_type (mirroring the classic frame layout),
-                //! byte 2.. = its command data -> w_b2/w_gs_* line up
-                for (int j = 0; j < 8; j++) begin
-                  cw0_r[8*(7-j) +: 8] <= cbufb(9'(brec_abase_q + 16'(j)));
-                  cw1_r[8*(7-j) +: 8] <= cbufb(9'(brec_abase_q + 16'd8 + 16'(j)));
+                //! byte 2.. = its command data -> w_b2/w_gs_* line up.
+                //! SERIALIZED to one byte/cycle through the single cbuf
+                //! read port (16 cycles; the AECP budget is milliseconds)
+                if (!cwld_r[3]) begin
+                  cw0_r[8*(7-cwld_r[2:0]) +: 8] <= cbuf_rbyte_w;
                 end
-                bsub_q    <= 1'b1;
-                brec_ph_r <= 3'd0;
-                state_r   <= DECIDE_S;
+                else begin
+                  cw1_r[8*(7-cwld_r[2:0]) +: 8] <= cbuf_rbyte_w;
+                end
+                if (cwld_r == 4'd15) begin
+                  cwld_r    <= 4'd0;
+                  bsub_q    <= 1'b1;
+                  brec_ph_r <= 3'd0;
+                  state_r   <= DECIDE_S;
+                end
+                else begin
+                  cwld_r <= cwld_r + 4'd1;
+                end
               end
               default: brec_ph_r <= 3'd0;
             endcase
