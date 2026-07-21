@@ -111,10 +111,14 @@ if [ "${1:-}" = "flash" ]; then
 fi
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # ship shape: cbsf lineage (engine + fold), 2q hs 16K, QSPI flashboot
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
+cfg_ax7101() {   # bench/cert shape (USER 2026-07-21: 1 hart + L2 32K - the
+                 # 83% utilization from the CRF/sink-1/forensics growth broke
+                 # every 100 MHz seed; one VexiiRiscv hart back = ~8k LUTs =
+                 # the AX21-era placement freedom. The 2-hart/L2-64K perf
+                 # variant is the previous revision of this function.)
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --l2-bytes 65536 \
+          --timing-opt --floorplan --l2-bytes 32768 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
