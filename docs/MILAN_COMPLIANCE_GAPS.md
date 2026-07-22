@@ -211,6 +211,12 @@ and is not repeated here.
   sink 1 honors an explicit sid (cap_sid_r). Software/synthetic talkers
   must choose their EID so the derivation lands on the sid they stamp
   (recipe proven: EUI64-from-MAC form, tuid = sid low16).
+  **Update 2026-07-22 (roadmap-5 ACMP half):** the sid-source policy is
+  now PER-CONTEXT config in the N-context engine (`KL_acmp_lstn_ctx`
+  `SID_EXPLICIT_P`, TB-proven on probe-SM contexts too); the DEFAULT
+  2-sink wrapper deliberately keeps sink-0 = derive for wire
+  compatibility, so the synthetic-talker EID recipe still applies to
+  default builds until the NxN config lane flips the bit.
 - **I2SPB_STAT rail counters saturate at 0xFFFF and stick**: RESOLVED
   2026-07-22 - W1C per half (write any bit of a half to restart that
   rail; halves independent, zero write inert, readback stays live).
