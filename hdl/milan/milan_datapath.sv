@@ -103,11 +103,14 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   input  wire                     m_axis_ts_tready,
 
   // ---- PCM payload: AAF RX depacketizer → DRAM PCM ring (full 8-B beats,
-  //      wire byte order = S32BE interleaved; one AXIS frame per PDU) ----
+  //      wire byte order = S32BE interleaved; one AXIS frame per PDU).
+  //      tuser = stream index s (NXN §1.3 P3: the per-stream ring writer
+  //      key, ring base + s*stride at the SoC layer) ----
   output wire [TDATA_WIDTH-1:0]   m_axis_pcm_tdata,
   output wire [TDATA_WIDTH/8-1:0] m_axis_pcm_tkeep,
   output wire                     m_axis_pcm_tvalid,
   output wire                     m_axis_pcm_tlast,
+  output wire [3:0]               m_axis_pcm_tuser,
   input  wire                     m_axis_pcm_tready,
 
   // ---- MAC-facing TX: datapath (shaper→PTP→ADP arbiter) → external MAC ----
@@ -1226,21 +1229,46 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //! the last accepted PDU's channels_per_frame, never the AEM store
   wire [7:0] mon_wire_chans_w;
 
-  KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) avtp_rx_monitor (
+  //! NXN P2: the shared monitor engine (LCTX context RAM, N_STREAMS
+  //! contexts) replaces the flat single-stream KL_avtp_rx_monitor. All
+  //! legacy 0x6B8-group wires alias stream 0 (no-regression axiom); the
+  //! LCTX window port is parked until the P11 indexed CSR window.
+  wire        avtprx_accept_p_w;
+  wire [3:0]  avtprx_accept_idx_w;
+  wire        pcmrx_pdu_p_w, pcmrx_drop_p_w;
+  wire [3:0]  pcmrx_pdu_idx_w, pcmrx_drop_idx_w;
+  assign avtprx_accept_p = avtprx_accept_p_w;
+
+  KL_avtp_rx_monitor_ctx #(
+    .N_LISTENERS_P (N_STREAMS),
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ)
+  ) avtp_rx_monitor (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .match_valid_i  (avtprx_match),
+    .match_index_i  (4'(avtprx_idx)),
     .subtype_i      (avtprx_subtype),
     .seq_num_i      (avtprx_seq),
     .ts_uncertain_i (avtprx_tu_bit),
     .avtp_ts_i      (avtprx_ts),
     .fsh_i          (avtprx_fsh),
-    .bound_i        (acmpl_bound),
-    .fmt_i          (aecp_in0_fmt),
+    .bound_i        (strtbl_en_w),
+    .bind_rise_i    (strtbl_bind_rise_w),
+    .sid0_i         (acmpl_sid),
+    .fmt0_i         (aecp_in0_fmt),
     .ptp_now_i      (ptp_now_w[31:0]),
     .pres_ofs_i     (aecp_pres_offset),
     .media_reset_p_i(i2spb_reset_p),
     .clk_src_i      (aecp_clk_src),
     .servo_conv_i   (i2spb_converged),
+    .render_sel_i   (route_render_sel_w),  //! route policy's RENDER stream
+    .depkt_pdu_p_i    (pcmrx_pdu_p_w),
+    .depkt_pdu_idx_i  (pcmrx_pdu_idx_w),
+    .depkt_drop_p_i   (pcmrx_drop_p_w),
+    .depkt_drop_idx_i (pcmrx_drop_idx_w),
+    .lctx_wr_en_i (1'b0), .lctx_wr_addr_i (8'd0),   //! P11 window hook
+    .lctx_wr_data_i (32'd0), .lctx_wr_rdy_o (),
+    .lctx_rd_en_i (1'b0), .lctx_rd_addr_i (8'd0),
+    .lctx_rd_data_o (), .lctx_rd_valid_o (),
     .cnt_media_locked_o       (avtprx_locked_c),
     .cnt_media_unlocked_o     (avtprx_unlocked_c),
     .cnt_stream_interrupted_o (avtprx_intr_c),
@@ -1254,7 +1282,8 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .cnt_early_ts_o    (avtprx_early_c),
     .media_locked_o (avtprx_locked),
     .dirty_p_o      (avtprx_dirty_p),
-    .pdu_accept_p_o (avtprx_accept_p),
+    .pdu_accept_p_o   (avtprx_accept_p_w),
+    .pdu_accept_idx_o (avtprx_accept_idx_w),
     .last_ts_o      (avtprx_last_ts),
     .last_tsd_o     (avtprx_last_tsd)
   );
@@ -1274,19 +1303,49 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .s_tready_i (rx_axis_ptp_to_filt.tready),
     .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
     .pdu_accept_p_i (avtprx_accept_p),
-    //! NXN §1.1 tuser tag: constant 0 at N=1 (P1); the shared monitor's
-    //! accept-index output takes over in P2
-    .pdu_accept_idx_i (4'd0),
-    .m_axis_tdata (m_axis_pcm_tdata),
+    //! NXN §1.1 tuser tag: the shared monitor's per-stream accept index
+    .pdu_accept_idx_i (avtprx_accept_idx_w),
+    .m_axis_tdata (dpkt_pcm_tdata_w),
     .m_axis_tkeep (m_axis_pcm_tkeep),
-    .m_axis_tvalid(m_axis_pcm_tvalid),
-    .m_axis_tlast (m_axis_pcm_tlast),
-    .m_axis_tuser (),
-    .m_axis_tready(m_axis_pcm_tready),
+    .m_axis_tvalid(dpkt_pcm_tvalid_w),
+    .m_axis_tlast (dpkt_pcm_tlast_w),
+    .m_axis_tuser (dpkt_pcm_tuser_w),
+    .m_axis_tready(dpkt_pcm_tready_w),
     .pdus_o  (pcmrx_pdus),
     .drops_o (pcmrx_drops),
-    .pdu_out_p_o (), .pdu_out_idx_o (),
-    .drop_p_o (), .drop_idx_o ()
+    .pdu_out_p_o (pcmrx_pdu_p_w), .pdu_out_idx_o (pcmrx_pdu_idx_w),
+    .drop_p_o (pcmrx_drop_p_w), .drop_idx_o (pcmrx_drop_idx_w)
+  );
+
+  // ==========================================================================
+  //  PCM routing policy (NXN §1.3, P3) — per-stream route field between the
+  //  shared depacketizer and the sinks: RENDER (lowest-indexed wins) feeds
+  //  the LPF + I2S playback tap, DMA streams ride the ring output tagged
+  //  with tuser = s, NULL discards. Reset default (s0 = RENDER, others
+  //  NULL) is today's shape bit-exactly; the route write port is parked
+  //  until the P11 CSR window.
+  // ==========================================================================
+  wire [TDATA_WIDTH-1:0] dpkt_pcm_tdata_w;
+  wire                   dpkt_pcm_tvalid_w, dpkt_pcm_tlast_w;
+  wire [3:0]             dpkt_pcm_tuser_w;
+  wire                   dpkt_pcm_tready_w;
+  wire [TDATA_WIDTH-1:0] rend_pcm_tdata_w;
+  wire                   rend_pcm_tvalid_w, rend_pcm_tlast_w;
+  wire [3:0]             route_render_sel_w;
+
+  KL_pcm_route #(.N_LISTENERS_P(N_STREAMS)) pcm_route (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .s_tdata_i (dpkt_pcm_tdata_w), .s_tvalid_i (dpkt_pcm_tvalid_w),
+    .s_tlast_i (dpkt_pcm_tlast_w), .s_tuser_i (dpkt_pcm_tuser_w),
+    .s_tready_o (dpkt_pcm_tready_w),
+    .route_wr_en_i (1'b0), .route_wr_idx_i (4'd0),   //! P11 window hook
+    .route_wr_val_i (2'd0),
+    .m_axis_tdata (m_axis_pcm_tdata), .m_axis_tvalid (m_axis_pcm_tvalid),
+    .m_axis_tlast (m_axis_pcm_tlast), .m_axis_tuser (m_axis_pcm_tuser),
+    .m_axis_tready (m_axis_pcm_tready),
+    .render_tvalid_o (rend_pcm_tvalid_w), .render_tdata_o (rend_pcm_tdata_w),
+    .render_tlast_o (rend_pcm_tlast_w),
+    .render_sel_o (route_render_sel_w), .render_active_o ()
   );
 
   // ==========================================================================
@@ -1299,12 +1358,14 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //! 2nd-order Butterworth LPF on the DAC render tap only (the DMA-ring /
   //! AVB copies stay bit-true): band-limits the analog output feeding the
   //! loop ADC. LPF_CTRL 0x72C[0], default on; auto-bypass for !=2ch.
+  //! render tap = the route policy's RENDER stream share of the ring
+  //! handshake (bit-identical to the flat m_axis_pcm tap at N=1)
   KL_pcm_lpf pcm_lpf (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_lpf_enable),
     .chans_i  ({2'b0, mon_wire_chans_w}),   //! wire truth (2ch engages)
-    .s_tdata  (m_axis_pcm_tdata),
-    .s_tvalid (m_axis_pcm_tvalid),
+    .s_tdata  (rend_pcm_tdata_w),
+    .s_tvalid (rend_pcm_tvalid_w),
     .s_tready (m_axis_pcm_tready),
     .m_tdata  (pcm_lpf_tdata),
     .m_tvalid (pcm_lpf_tvalid),
@@ -1317,13 +1378,13 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
-    .pcm_tdata_i  (m_axis_pcm_tdata),
+    .pcm_tdata_i  (rend_pcm_tdata_w),
     .lpf_tdata_i  (pcm_lpf_tdata),
     .lpf_tvalid_i (pcm_lpf_tvalid),
     .lpf_active_i (pcm_lpf_active),
-    .pcm_tvalid_i (m_axis_pcm_tvalid),
+    .pcm_tvalid_i (rend_pcm_tvalid_w),
     .pcm_tready_i (m_axis_pcm_tready),
-    .pcm_tlast_i  (m_axis_pcm_tlast),
+    .pcm_tlast_i  (rend_pcm_tlast_w),
     .wire_chans_i (mon_wire_chans_w),
     .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
     .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
