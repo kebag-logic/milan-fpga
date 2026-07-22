@@ -10,7 +10,7 @@ source /home/alex/Xilinx/2026.1/Vivado/settings64.sh
 W=$HOME/litex-milan/work
 case "$BOARD" in
   arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536;;
-  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan"; L2=32768;;
+  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=32768;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven)
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
