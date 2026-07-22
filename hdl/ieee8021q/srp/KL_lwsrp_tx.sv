@@ -53,6 +53,12 @@ module KL_lwsrp_tx (
     input  wire         join_tick_i,       //! JoinTime strobe (KL_lwsrp_timers)
     input  wire         leaveall_tick_i,   //! our LeaveAll turn
     input  wire         rx_leaveall_i,     //! LeaveAll registered (walker)
+    input  wire         ext_fastjoin_i,    //! context-table fast join: a new
+                                           //! extra listener row needs the
+                                           //! bridge's registrations NOW —
+                                           //! same LeaveAll-pair trick as a
+                                           //! new row-0 binding (tie 0 = the
+                                           //! byte-identical legacy engine)
 
     // ---- listener declaration (ACMP listener SM hooks) -------------------
     input  wire         lstn_declare_i,    //! declare the Listener attribute
@@ -338,6 +344,10 @@ module KL_lwsrp_tx (
       if (enable_i && leaveall_tick_i) begin
         lva_pend_r  <= 1'b1;
         msrp_pend_r <= 1'b1; mvrp_pend_r <= 1'b1;   // our LeaveAll turn
+      end
+      if (enable_i && ext_fastjoin_i) begin
+        lva_pend_r  <= 1'b1;                        // context-table fast join
+        msrp_pend_r <= 1'b1; mvrp_pend_r <= 1'b1;
       end
       if (talker_fall_w && talker_declared_o) talker_lv_pend_r <= 1'b1;
       if (enable_i && !lstn_declare_i && lstn_q && lstn_declared_o)

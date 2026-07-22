@@ -112,9 +112,26 @@ and is not repeated here.
 
 ## 3. SRP (lwSRP)
 
-- **Single-stream engine.** lwSRP declares/handles ONE talker attribute
-  and ONE listener attribute. Multiple simultaneous streams (or the
-  declared-8) would need per-stream registrar/declaration instances.
+- ~~Single-stream engine~~ **RTL RESOLVED (2026-07-22): N-attribute
+  context table.** `KL_lwsrp_top` takes `N_CTX_P` (default 1 = the old
+  single talker+listener pair, byte-identical — TX mux is a generate
+  passthrough at N=1). Rows 1..N-1 are generic contexts (talker OR
+  listener each) in `KL_lwsrp_ctx` (table + ONE shared registrar over
+  flop-vector context bits + a 120-bit record LUTRAM with sync-only
+  write and ONE explicit read port) and `KL_lwsrp_ctx_tx` (ONE shared
+  serializer packing every declared attribute into one MRPDU — never
+  module replication; ~1.9K generic cells/attribute vs ~10.7K for
+  replication, yosys N=1/2/8 OOC). The walker grew per-context +k
+  match lanes (a 64-bit compare each). Provisioning = an indexed
+  request/grant port on `KL_lwsrp_top` (the future NxN CSR lane's
+  shape) + live per-context status vectors. TB `lwsrp_ctx` (N=4):
+  golden N=1 byte-equivalence, CRF-listener row (Ready follows TA,
+  TF code readback), 25-B TalkerAdvertise from the record RAM,
+  multi-attribute single-MRPDU packing, one bridge vector covering
+  several contexts at different +k, add/remove LV, LeaveAll aging.
+  **REMAINING for the CRF reservation e2e:** the datapath/CSR
+  integration lane (wire the CRF bind SM to the ctx port, VLAN-tag the
+  CRF stream once Ready is registered) — the engine-side gap is gone.
 - **Class B untested.** The engine and the bench run SR class A only;
   class-B declarations/domain and the 250 µs observation interval have
   never been exercised.

@@ -18,7 +18,10 @@
 `default_nettype none
 
 module KL_lwsrp_rx #(
-  parameter int FIFO_DEPTH_BYTES_P = 2048
+  parameter int FIFO_DEPTH_BYTES_P = 2048,
+  //! extra context match lanes (see KL_lwsrp_walker); tie ext_en_i = 0
+  //! on unused lanes — the default single lane then synthesizes away
+  parameter int unsigned EXT_LANES_P = 1
 )(
     input  wire         clk_i,
     input  wire         rst_n,
@@ -55,6 +58,16 @@ module KL_lwsrp_rx #(
     output wire [7:0]   tfail_code_o,
     output wire [63:0]  tfail_bridge_o,    //! our-talker TF bridge_id
     output wire         rx_leaveall_p_o,   //! to the applicant (re-declare)
+
+    // ---- extra context lanes (context table; en=0 lanes inert) -----------
+    input  wire [EXT_LANES_P*64-1:0] ext_sid_i,
+    input  wire [EXT_LANES_P-1:0]    ext_en_i,
+    output wire [EXT_LANES_P-1:0]    ext_lstn_p_o,
+    output wire [EXT_LANES_P-1:0]    ext_tadv_p_o,
+    output wire [EXT_LANES_P-1:0]    ext_tfail_p_o,
+    output wire [EXT_LANES_P*3-1:0]  ext_evt_o,
+    output wire [EXT_LANES_P*2-1:0]  ext_par_o,
+    output wire [7:0]                ext_tfail_code_o,
 
     // ---- diagnostics -------------------------------------------------------
     output wire [15:0]  rx_pdus_o,         //! matched MRPDU frames accepted
@@ -95,12 +108,17 @@ module KL_lwsrp_rx #(
 
   assign rx_leaveall_p_o = w_leaveall_p;
 
-  KL_lwsrp_walker walker (
+  KL_lwsrp_walker #(.EXT_LANES_P(EXT_LANES_P)) walker (
     .clk_i (clk_i), .rst_n (rst_n),
     .s_tdata (f_tdata), .s_tkeep (f_tkeep), .s_tvalid (f_tvalid),
     .s_tlast (f_tlast), .s_tuser (f_tuser), .s_tready (f_tready),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
     .lsid_i (lsid_i), .lsid_en_i (lsid_en_i),
+    .ext_sid_i (ext_sid_i), .ext_en_i (ext_en_i),
+    .ext_lstn_p_o (ext_lstn_p_o), .ext_tadv_p_o (ext_tadv_p_o),
+    .ext_tfail_p_o (ext_tfail_p_o),
+    .ext_evt_o (ext_evt_o), .ext_par_o (ext_par_o),
+    .ext_tfail_code_o (ext_tfail_code_o),
     .leaveall_p_o (w_leaveall_p),
     .domain_p_o (w_domain_p),
     .domain_class_o (w_domain_class), .domain_prio_o (w_domain_prio),
