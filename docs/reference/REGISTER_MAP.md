@@ -49,7 +49,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0008` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800) |
+| `0x004` | `VERSION` | RO | `0x0001_0009` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -346,19 +346,32 @@ copy: talker idx 0 `CTRL[0]`/`DMAC_LO`/`DMAC_HI` are the same storage as
 address and vice versa; the `CTRL` alias merges bit 0 only), `SRP` idx 0 is
 the live `0x694` word, and the listener idx-0 SNAP latches the flat
 `AVTPRX_*`/`PCMRX_CNT`/`ACMPL_STATE` sources (`CNT0..3/5/6` mirror today's
-truncated 8/16-bit flat counters; they widen to the full 32-bit LCTX words
-when the shared-engine lane lands — flat addresses keep their packing).
-Every pre-window CSR TB passes unchanged.
+truncated 8/16-bit flat counters — the idx-0 SNAP deliberately keeps the
+flat sources in P12 too, which IS the alias axiom; extra contexts read the
+full 32-bit LCTX words). Every pre-window CSR TB passes unchanged.
+`PCMRX_CNT` (0x6C4) stays the SHARED depacketizer's global `{drops,pdus}`
+across all streams; per-stream pdus live in the window `PDUS` word.
 
 **SNAP atomicity ([M-5.4.2.25] GET_COUNTERS).** A SNAP latches `STATE` +
 `CNT0..9` + `PDUS` as one coherent set. Index 0 latches all flat sources in
 a single cycle. Extra contexts run an engine-arbitrated burst on the context
-RAM's port B: the CSR holds `snap_req`, the engine answers `snap_ok` and
-SHALL NOT modify that stream's words while the grant stands — counters keep
-running before and after, but the latched block is one epoch. `busy` covers
-the whole burst; the latched words serve reads until the next SNAP (they do
-NOT track live counters). Firmware GET_COUNTERS = `SEL`, `SNAP`, poll
-`busy`, read the block.
+RAM's port B; `busy` covers the whole burst; the latched words serve reads
+until the next SNAP (they do NOT track live counters). Firmware
+GET_COUNTERS = `SEL`, `SNAP`, poll `busy`, read the block.
+
+**P12 coherence level (engine-backed, VERSION 0x0009).** The live engines
+serve each burst word only when fully event-drained, so every latched WORD
+is event-atomic and reflects a completely-applied event state; the engines
+do not freeze across the whole burst, so a block whose fetch straddles an
+in-flight event is bounded by the burst's start/end states (counters are
+monotonic, reset only on that stream's bind edge). Engine-backed CFG words
+(`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are "slow"
+reads served live from the context RAM (>= 4 AXI-stalled cycles, longer
+while the engine walks an event). A listener `CTRL` commit at any idx also
+writes the classification stream-table entry `{sid staged via SID_LO/HI,
+en}` and the route field (`[2:1]`: 0 NULL / 1 RENDER / 2 DMA — DMA streams
+land in DRAM at `pcm base + s*stride`, see the `_PCMRingNxN` CSRs at
+N > 1).
 
 **Engine-backed words + read timing.** Window reads of LCTX/TCTX-backed
 words (`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are
