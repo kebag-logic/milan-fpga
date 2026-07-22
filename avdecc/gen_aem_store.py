@@ -313,9 +313,12 @@ def builtin_spec():
 def spec_from_overlay(ovl):
     """Map a builder-emitted AEM overlay (kebag-logic/aem-overlay 2.x, see
     sw/builder/endstation_builder.py emit_aem_overlay) onto a build_model()
-    spec. Structure (N ports/streams) is fully consumed; the svh VALIDATION
-    tables (AEM_FMTS_C) and WB targets keep their single-stream reach —
-    per-stream tables land with item 5 (NxN AAF streams)."""
+    spec. Structure (N ports/streams) is fully consumed, including a CRF
+    Media Clock Output (Milan 7.2.3: stream_outputs entry kind "crf" —
+    appended after the AAF talkers, no STREAM_PORT/cluster/map, mirroring
+    the CRF sink); the svh VALIDATION tables (AEM_FMTS_C) and WB targets
+    keep their single-stream reach — per-stream tables land with item 5
+    (NxN AAF streams)."""
     if ovl.get("_schema") != "kebag-logic/aem-overlay":
         raise ValueError("not a kebag-logic/aem-overlay document")
     if not str(ovl.get("_schema_version", "")).startswith("2."):
@@ -346,7 +349,8 @@ def spec_from_overlay(ovl):
                  buffer=int(s.get("buffer_length_ns", 2126000)))
             for s in ovl["stream_inputs"]],
         stream_outputs=[
-            dict(name=s["name"], formats=[int(f, 16) for f in s["formats"]])
+            dict(name=s["name"], kind=s.get("kind", "aaf"),
+                 formats=[int(f, 16) for f in s["formats"]])
             for s in ovl["stream_outputs"]],
         clock_sources=[
             dict(name=c["name"], cs_type=cs_type[c["type"]],
@@ -383,8 +387,14 @@ def build_model(spec):
                       d_stream(STREAM_INPUT, k, s["name"], 0x0003,
                                s["formats"], s["buffer"])))
     for k, s in enumerate(so):
+        # CRF Media Clock Output (Milan 7.2.3): CLOCK_SYNC_SOURCE|CLASS_A
+        # (1722.1 7.2.6.1 - the stream IS a clock sync source; Milan 7.3.3
+        # mandates Class A). AAF outputs keep the deployed CLASS_A-only word.
+        # Both get clock_domain_index 0 (7.2.6): 7.2.9.2 has no OUTPUT_STREAM
+        # CLOCK_SOURCE type - domain membership is the STREAM field itself.
+        flags = 0x0003 if s.get("kind", "aaf") == "crf" else 0x0002
         descs.append((STREAM_OUTPUT, k,
-                      d_stream(STREAM_OUTPUT, k, s["name"], 0x0002,
+                      d_stream(STREAM_OUTPUT, k, s["name"], flags,
                                s["formats"])))
     descs.append((AVB_INTERFACE, 0, d_avb_interface()))
     for k, cs in enumerate(spec["clock_sources"]):

@@ -50,6 +50,8 @@ Schema summary (see the example configs for the annotated normative form):
   clocking:                    - sampling_rate_hz, audio_unit_rates_hz,
                                  media_clock_sources (internal | input_stream
                                  | crf), default_source, crf_sink (+format),
+                                 crf_output (enabled + format; Milan 7.2.3
+                                 RULE: >=2 AAF listener streams REQUIRE it),
                                  audio_pll_hz (clean MMCM audio clock)
   audio_interface:             - kind: tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
                                  word_length_bits, cluster_mapping.policy
@@ -165,6 +167,10 @@ RTL_TODAY = dict(
 )
 
 CRF_FORMAT_DEFAULT = "0x041060010000BB80"     # CRF AUDIO_SAMPLE 48k, gen_aem_store
+# ^ Milan 7.3.2 Table 7.1 (PDF-verified): v=0, subtype 4 (CRF), type 1
+#   (CRF_AUDIO_SAMPLE), timestamp_interval 96, timestamps_per_pdu 1, pull 0,
+#   base_frequency 48000 -> ATDECC format string 0x041060010000BB80. Used for
+#   BOTH the CRF sink (Milan 7.2.2) and the CRF output (Milan 7.2.3).
 BUFLEN_DEFAULT_NS = 2126000
 
 # ------------------------------------------------------ resource estimator --
@@ -466,6 +472,8 @@ def model_shape(cfg):
         "current_rate_hz": clk["sampling_rate_hz"],
         "crf_sink": clk["crf_sink"],
         "crf_format": clk["crf_format"],
+        "crf_output": clk["crf_output"],
+        "crf_output_format": clk["crf_output_format"],
         "listeners": [{"channels": s["channels"], "formats": s["formats"],
                        "clusters": s["clusters"],
                        "buffer_length_ns": s["buffer_length_ns"]}
@@ -569,6 +577,10 @@ def load_config(path):
     dflt = clk.get("default_source", srcs[0])
     if dflt not in srcs:
         raise ConfigError(f"default_source '{dflt}' not in media_clock_sources")
+    co = clk.get("crf_output") or {}
+    if not isinstance(co, dict):
+        raise ConfigError("clocking.crf_output must be a mapping "
+                          "(enabled + format)")
     clocking = dict(
         sampling_rate_hz=rate,
         audio_unit_rates_hz=[int(r) for r in
@@ -578,6 +590,9 @@ def load_config(path):
         crf_sink=bool(clk.get("crf_sink", True)),
         crf_format=_fmt64(clk.get("crf_format", CRF_FORMAT_DEFAULT),
                           "clocking.crf_format"),
+        crf_output=bool(co.get("enabled", False)),
+        crf_output_format=_fmt64(co.get("format", CRF_FORMAT_DEFAULT),
+                                 "clocking.crf_output.format"),
         audio_pll_hz=int(clk.get("audio_pll_hz", 24_576_000)),
     )
     if rate not in clocking["audio_unit_rates_hz"]:
@@ -615,6 +630,17 @@ def load_config(path):
                          "listener")
     talkers = _streams(_req(st, "talkers", "streams"), "streams.talkers",
                        "talker")
+
+    # Milan 7.2.3 RULE (PDF-verified): "an AAF Media Listener with two or
+    # more AAF Media Inputs shall implement a CRF Media Clock Output" (per
+    # supported clock domain; we model one). The builder ENFORCES it: shapes
+    # with >=2 AAF listener streams must enable clocking.crf_output.
+    if len(listeners) >= 2 and not clocking["crf_output"]:
+        raise ConfigError(
+            f"{len(listeners)} AAF listener streams require a CRF Media "
+            "Clock Output (Milan v1.2 7.2.3) - set clocking.crf_output: "
+            "{enabled: true} (format defaults to the Milan 7.3.2 word "
+            f"{CRF_FORMAT_DEFAULT})")
 
     # soc policy overrides
     soc = dict(SOC_DEFAULTS, **(cfg.get("soc") or {}))
@@ -672,6 +698,14 @@ def rtl_capability_marks(cfg):
         marks.append((f"{n_t} AAF talker stream(s)", "supported", ""))
     if cfg["clocking"]["crf_sink"]:
         marks.append(("CRF media-clock sink", "supported", "KL_crf_rx"))
+    if cfg["clocking"]["crf_output"]:
+        marks.append(("CRF media-clock output (Milan 7.2.3)",
+                      "planned (item 5 - NxN AAF streams)",
+                      "model half DONE (CRF STREAM_OUTPUT advertised); the "
+                      "fabric talker KL_crf_tx exists (CSR 0x750-0x764, "
+                      "silicon-proven 500 PDU/s) - missing = S50 provisioning "
+                      "+ ACMP talker context for the CRF stream (rides with "
+                      "the item-5 NxN integration)"))
     kind = cfg["interface"]["kind"]
     if kind in RTL_TODAY["interfaces"]:
         marks.append((f"audio interface {kind}", "supported",
@@ -778,6 +812,7 @@ def emit_aem_overlay(cfg):
     L, T, clk = cfg["listeners"], cfg["talkers"], cfg["clocking"]
     P_in, P_out = cfg["ports_in"], cfg["ports_out"]
     n_crf = 1 if clk["crf_sink"] else 0
+    n_crf_out = 1 if clk["crf_output"] else 0
     in_clusters = sum(p["clusters"] for p in P_in)
     out_clusters = sum(p["clusters"] for p in P_out)
 
@@ -789,6 +824,21 @@ def emit_aem_overlay(cfg):
         stream_inputs.append(dict(index=len(L), name="CRF", kind="crf",
                                   channels=0, formats=[clk["crf_format"]],
                                   buffer_length_ns=BUFLEN_DEFAULT_NS))
+
+    # CRF Media Clock OUTPUT (Milan 7.2.3): a STREAM_OUTPUT appended after
+    # the AAF talkers, mirroring the CRF sink - no STREAM_PORT / cluster /
+    # AUDIO_MAP (it carries no audio). Its CLOCK_DOMAIN relationship is the
+    # STREAM descriptor's own clock_domain_index=0 (1722.1 7.2.6): 7.2.9.2
+    # defines no OUTPUT_STREAM CLOCK_SOURCE type - an output distributes the
+    # domain clock, it is not a selectable source of it, so the CLOCK_SOURCE
+    # set (7.2.32 clock_sources) is unchanged.
+    stream_outputs = [dict(index=i, name=s["name"], kind="aaf",
+                           channels=s["channels"], formats=s["formats"])
+                      for i, s in enumerate(T)]
+    if n_crf_out:
+        stream_outputs.append(dict(index=len(T), name="CRF", kind="crf",
+                                   channels=0,
+                                   formats=[clk["crf_output_format"]]))
 
     # CLOCK_SOURCE set mirrors media_clock_sources (internal first, then one
     # per AAF listener stream, then CRF - gen_aem_store order)
@@ -836,13 +886,13 @@ def emit_aem_overlay(cfg):
         "sampling_rates_hz": clk["audio_unit_rates_hz"],
         "current_sampling_rate_hz": clk["sampling_rate_hz"],
         "entity_counts": {
-            "talker_stream_sources": len(T),
+            "talker_stream_sources": len(T) + n_crf_out,
             "listener_stream_sinks": len(L) + n_crf,
         },
         "descriptor_counts": {
             "ENTITY": 1, "CONFIGURATION": 1, "AUDIO_UNIT": 1,
             "STREAM_INPUT": len(L) + n_crf,
-            "STREAM_OUTPUT": len(T),
+            "STREAM_OUTPUT": len(T) + n_crf_out,
             "AVB_INTERFACE": 1,
             "CLOCK_SOURCE": len(clock_sources),
             "CLOCK_DOMAIN": 1, "CONTROL": 1, "LOCALE": 1, "STRINGS": 1,
@@ -852,9 +902,7 @@ def emit_aem_overlay(cfg):
             "AUDIO_MAP": len(P_in) + len(P_out),
         },
         "stream_inputs": stream_inputs,
-        "stream_outputs": [dict(index=i, name=s["name"], kind="aaf",
-                                channels=s["channels"], formats=s["formats"])
-                           for i, s in enumerate(T)],
+        "stream_outputs": stream_outputs,
         "clock_sources": clock_sources,
         "stream_ports": {"input": P_in, "output": P_out},
         "audio_maps": audio_maps,
@@ -975,6 +1023,9 @@ def emit_build_plan(cfg, argv, overlay, marks, est):
     for k, s in enumerate(cfg["talkers"]):
         a(f"| talker | {k} | {s['name']} | {s['channels']} | {s['clusters']} "
           f"| {', '.join(s['formats'])} |")
+    if clk["crf_output"]:
+        a(f"| talker | {len(cfg['talkers'])} | CRF (Milan 7.2.3) | - | - "
+          f"| {clk['crf_output_format']} |")
     a("")
     a("## Stream ports (one per stream)")
     a("")

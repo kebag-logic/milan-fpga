@@ -47,6 +47,14 @@ clocking:
   media_clock_sources: [internal, input_stream, crf]
   default_source: internal
   crf_sink: true
+  crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF
+    enabled: true                    # media inputs => CRF Media Clock Output;
+                                     # the builder rejects the config without
+                                     # it). Model half; RTL provisioning of
+                                     # KL_crf_tx rides with item-5 NxN.
+    format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
+                                     # type 1 AUDIO_SAMPLE, 48k, interval 96,
+                                     # 1 ts/PDU)
   audio_pll_hz: 24576000             # TDM16 x 32-bit slots @48k -> BCLK 24.576M
 
 audio_interface:

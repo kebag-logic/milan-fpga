@@ -268,10 +268,12 @@ the field itself.
 | 24 | `len(listeners)` / `len(talkers)` | CONFIGURATION `descriptor_counts`; ADPDU `talker_stream_sources` / `listener_stream_sinks` (honest counts) | 1722.1 7.2.2, 6.2.2.10, 6.2.2.12 | AEM, prov |
 | 25 | stream count (NxN shapes) | per-stream ACMP/MAAP/monitor contexts + per-stream lwSRP attribute instances (capacity is an implementation decision, stated in PICS) | Q 35.2.7 | SoC (planned, item 5) |
 | 26 | whole config (stream/cluster/L2 counts) | build-plan `## Resource estimate`: LUT/FF/BRAM36/DSP vs xc7a100t + OK/TIGHT/OVER verdict (cost table calibrated from the real mf48 place report; NxN rows UPPER BOUND; recipe in sw/builder/README-parameters.md) | - (engineering budget; area-70 directive) | build_plan.md |
+| 27 | `clocking.crf_output` (enabled + format) | CRF STREAM_OUTPUT appended after the AAF talkers (mirrors the CRF sink: no STREAM_PORT/cluster/map — it carries no audio); `stream_flags` = CLOCK_SYNC_SOURCE\|CLASS_A (0x0003); domain wiring = the STREAM descriptor's own `clock_domain_index` 0 — 7.2.9.2 defines no OUTPUT_STREAM CLOCK_SOURCE type, so the CLOCK_SOURCE/CLOCK_DOMAIN sets are unchanged; ADPDU `talker_stream_sources` +1. **RULE ENFORCED**: >=2 AAF listener streams reject without it, citing Milan 7.2.3 | Milan 7.2.3, 7.3.2 (format 0x041060010000BB80), 7.3.3 (Class A); 1722.1 7.2.6, 7.2.6.1, 7.2.9.2, 7.2.32 | AEM; SoC (provisioning planned, item 5) |
 
-26 rows. Rows 14 (AEM half) and 25 generate *planned* artifacts: the config
-validates and the overlay is complete, but the RTL lands with the
-referenced roadmap items — the build plan marks them, never errors.
+27 rows. Rows 14 (AEM half), 25, and the SoC half of 27 generate *planned*
+artifacts: the config validates and the overlay is complete, but the RTL
+lands with the referenced roadmap items — the build plan marks them, never
+errors.
 
 ## 4. What the 8x8 shape adds (`endstation_ax7101_8x8.yaml`)
 
@@ -281,22 +283,29 @@ Descriptor growth under D1–D3, relative to today's 1(+CRF)x1 model
 | Descriptor | today | 8x8 | clause driving the count |
 |------------|-------|-----|--------------------------|
 | STREAM_INPUT | 2 (1 AAF + CRF) | 9 (8 AAF + CRF) | 1722.1 7.2.6; Milan 7.2.2 (CRF input stays mandatory) |
-| STREAM_OUTPUT | 1 | 8 | 1722.1 7.2.6 |
+| STREAM_OUTPUT | 1 | 9 (8 AAF + CRF output) | 1722.1 7.2.6; Milan 7.2.3 (>=2 AAF inputs => CRF Media Clock Output) |
 | STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 8 / 8 (D1: one per AAF stream; CRF gets none) | 1722.1 7.2.13 |
 | AUDIO_CLUSTER | 16 (8 in + 8 out) | 128 (64 + 64, mono MBLA) | 1722.1 7.2.16; Milan 6.4 |
 | AUDIO_MAP | 2 | 16 (one identity map per port) | 1722.1 7.2.19 |
 | CLOCK_SOURCE | 3 | 10 (internal + 8× INPUT_STREAM + CRF) | 1722.1 7.2.9.2 |
-| ADP `talker_stream_sources` / `listener_stream_sinks` | 1 / 2 | 8 / 9 | 1722.1 6.2.2.10 / 6.2.2.12 |
+| ADP `talker_stream_sources` / `listener_stream_sinks` | 1 / 2 | 9 / 9 (CRF output counted) | 1722.1 6.2.2.10 / 6.2.2.12 |
 
 Unchanged: ENTITY, CONFIGURATION, AUDIO_UNIT (still one clock domain,
 1722.1 7.2.3), AVB_INTERFACE, CLOCK_DOMAIN, CONTROL, LOCALE, STRINGS.
 
-**New Milan obligation the shape triggers.** With two or more AAF Media
-Inputs, Milan 7.2.3 makes a **CRF Media Clock Output** mandatory (7.2.2
-already mandates the CRF input, which we have). The measurement half
-exists (`KL_crf_tx`, wire-proven), but the 8x8 model must also *expose* a
-CRF STREAM_OUTPUT descriptor — this rides with the item-5 implementation
-round and is not in the v1.0 overlay's counts above.
+**New Milan obligation the shape triggers — model half DONE.** With two
+or more AAF Media Inputs, Milan 7.2.3 makes a **CRF Media Clock Output**
+mandatory (7.2.2 already mandates the CRF input, which we have). The
+builder now ENFORCES the rule (`clocking.crf_output`, mapping row 27: a
+>=2-AAF-listener config without it is a validation error citing 7.2.3)
+and the overlay/`gen_aem_store.py` advertise the CRF STREAM_OUTPUT
+(Milan 7.3.2 format `0x041060010000BB80`, `clock_domain_index` 0,
+CLOCK_SYNC_SOURCE|CLASS_A, no audio port — mirrors the CRF sink; counts
+above include it). The fabric talker exists (`KL_crf_tx`, CSRs
+0x750–0x764, silicon-proven at 500 PDU/s); what still rides with the
+item-5 round is the *provisioning* half: S50 boot wiring + the ACMP
+talker context for the CRF stream (plus its Class-A reservation, Milan
+7.3.3 — traceability M-CLK-2).
 
 **Stays planned-item-5** (config validates, build plan marks it):
 per-stream ACMP listener/talker contexts, per-stream MAAP allocations and
