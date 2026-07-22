@@ -80,4 +80,9 @@ echo "--------------------------------------------------------------"
 echo "tops: $((pass+fail))   pass: $pass   fail: $fail"
 echo "RESULT: $([ $fail -eq 0 ] && echo PASS || echo FAIL)"
 rm -rf "$TMP"
+# Non-fatal structural report (the RMON tied-bus class): inventory of
+# milan_datapath inputs the SoC instantiation ties to constants, so a green
+# port-level TB can never again silently vouch for a cone silicon never
+# drives. Informational only — never changes this script's RESULT.
+"$R/scripts/check_tied_inputs.sh" || true
 [ $fail -eq 0 ]
