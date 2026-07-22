@@ -659,6 +659,7 @@ def test_gen_aem_store_crf_output_overlay():
              "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
             check=True, capture_output=True)
         j = json.load(open(os.path.join(td, "aem_rom.json")))
+        svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
     rom = bytes.fromhex(j["rom_hex"])
     dirv = j["directory"]
     # directory covers the ROM contiguously (structural validity)
@@ -695,6 +696,27 @@ def test_gen_aem_store_crf_output_overlay():
           f"{len(rom)} B structurally valid; STREAM_OUTPUT[4] = CRF "
           f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "
           "4 output ports")
+    # Per-descriptor format tables (item-4 follow-up): multi-stream shapes
+    # emit the `AEM_PER_STREAM_FMT layout — one reference entry + WB address
+    # per STREAM_INPUT/STREAM_OUTPUT; the deployed shape never does (gate 10
+    # byte-identity is the proof of absence).
+    assert "`define AEM_PER_STREAM_FMT" in svh
+    assert "localparam int unsigned AEM_N_STRIN_C  = 5;" in svh   # 4 AAF + CRF
+    assert "localparam int unsigned AEM_N_STROUT_C = 5;" in svh   # 4 AAF + CRF
+    m = re.search(r"AEM_STRIN_CRF_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ") == ["1'b0"] * 4 + ["1'b1"]
+    ins = [d for d in dirv if d["type"] == 0x0005]
+    m = re.search(r"WB_STRIN_FMT_ADDR_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ") == \
+        [f"16'd{d['base'] + 74}" for d in ins], "input WB addr table"
+    m = re.search(r"WB_STROUT_FMT_ADDR_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ") == \
+        [f"16'd{d['base'] + 74}" for d in outs], "output WB addr table"
+    m = re.search(r"AEM_STROUT_FMT_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ")[-1] == f"64'h{CRF_FMT[2:]}"
+    print("  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + "
+          "5-in/5-out reference + WB-addr arrays match the directory "
+          "(CRF flags/formats in the right rows)")
 
 
 if __name__ == "__main__":

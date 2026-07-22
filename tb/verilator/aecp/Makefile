@@ -4,7 +4,12 @@
 # Verilator verification of the full AECP/AEM listener subsystem (KL_aecp_top):
 # drives real AECP command Ethernet frames into the RX monitor tap and checks
 # the response frames byte-for-byte. Pure RTL, no Xilinx tools.
-#   make        - build and run the self-checking harness
+# Two executables:
+#   sim_main.cpp -> deployed shape (tracked gen/aecp_aem_rom.svh)
+#   sim_fmt2.cpp -> 2-AAF-input shape (gen_fmt2_shape.py -> fmt2_inc/, which
+#     SHADOWS gen/ via include order) exercising the per-stream
+#     `AEM_PER_STREAM_FMT format tables per descriptor.
+#   make        - build and run both self-checking harnesses
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -40,8 +45,12 @@ all: run
 
 run: $(GEN)
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vaecp_sim
+	python3 gen_fmt2_shape.py fmt2_inc
+	$(VERILATOR) -Ifmt2_inc $(VFLAGS) --Mdir obj_fmt2 \
+	  $(SRCS) sim_fmt2.cpp -o Vaecp_fmt2   # -Ifmt2_inc FIRST: shadows gen/
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
+	./obj_fmt2/Vaecp_fmt2
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -56,4 +65,4 @@ cosim: $(GEN)
 	$(VERILATOR) $(COSIM_FLAGS) $(SRCS) cosim_main.cpp -o Vaecp_cosim
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_fmt2 fmt2_inc
