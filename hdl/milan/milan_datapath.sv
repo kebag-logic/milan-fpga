@@ -166,36 +166,13 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   output wire        o_irq_csr,
 
   // ---- AECP IDENTIFY control (Milan FR-MGT-01): board LED blink hook ----
-  output wire        o_identify,
-
-  // ---- P11 indexed CSR window: lane-K context-engine boundary ----
-  //! NXN_ARCHITECTURE.md §1.5 — the 0x800 window's LCTX/TCTX port-B read,
-  //! snap handshake, CFG write bundle and the ACMP context-table port, at
-  //! the datapath boundary until the lane-K shared engines land inside.
-  //! Integrations tie the inputs inert meanwhile: {rd_data=0, snap_ok=1,
-  //! tbl_gnt=0, tbl_ctx=0} (allowlisted in scripts/check_tied_inputs.sh);
-  //! window engine words then read 0 and A_STRM_SNAP completes immediately.
-  output wire         o_lctx_rd_en,
-  output wire [7:0]   o_lctx_rd_addr,
-  input  wire [31:0]  i_lctx_rd_data,
-  output wire         o_lctx_snap_req,
-  input  wire         i_lctx_snap_ok,
-  output wire         o_lctx_wr_p,
-  output wire [7:0]   o_lctx_wr_addr,
-  output wire [31:0]  o_lctx_wr_data,
-  output wire         o_tctx_rd_en,
-  output wire [6:0]   o_tctx_rd_addr,
-  input  wire [31:0]  i_tctx_rd_data,
-  output wire         o_tctx_snap_req,
-  input  wire         i_tctx_snap_ok,
-  output wire         o_tctx_wr_p,
-  output wire [6:0]   o_tctx_wr_addr,
-  output wire [31:0]  o_tctx_wr_data,
-  output wire         o_acmp_tbl_req,
-  output wire [3:0]   o_acmp_tbl_idx,
-  input  wire         i_acmp_tbl_gnt,
-  input  wire [316:0] i_acmp_tbl_ctx
+  output wire        o_identify
 );
+  // P12 (NXN_ARCHITECTURE.md §1.5): the 0x800 window's LCTX/TCTX port-B
+  // read/snap/write bundles and the ACMP context-table port are wired to
+  // the REAL engines inside this module (KL_avtp_rx_monitor_ctx /
+  // KL_aaf_packetizer / KL_acmp_lstn_ctx via its wrapper) — the P11
+  // boundary ports and their SoC inert ties are GONE.
 
   // ==========================================================================
   //  Internal AXIS hops (identical topology to milan_top)
@@ -262,10 +239,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .vlan_vid_i (cfg_aaf_vid),
     .transit_ns_i (aecp_pres_offset),
     .ptp_ns_i (ptp_now_w),
-    .tctx_wr_en_i (1'b0), .tctx_wr_addr_i (7'd0),   //! P11 window hook
-    .tctx_wr_data_i (32'd0), .tctx_wr_rdy_o (),
-    .tctx_rd_en_i (1'b0), .tctx_rd_addr_i (7'd0),
-    .tctx_rd_data_o (), .tctx_rd_valid_o (),
+    //! P12: TCTX window port <- the CSR 0x800 window (talker dir)
+    .tctx_wr_en_i (csr_tctx_wr_p_w), .tctx_wr_addr_i (csr_tctx_wr_addr_w),
+    .tctx_wr_data_i (csr_tctx_wr_data_w), .tctx_wr_rdy_o (tctx_wr_rdy_w),
+    .tctx_rd_en_i (csr_tctx_rd_en_w), .tctx_rd_addr_i (csr_tctx_rd_addr_w),
+    .tctx_rd_data_o (tctx_rd_data_w), .tctx_rd_valid_o (tctx_rd_valid_w),
     .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
     .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
     .m_axis_tready(aaf_tx_tready),
@@ -560,9 +538,43 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [63:0] srp_ctx_rd_sid_w;
   wire [15:0] srp_ctx_rd_stat_w;
 
+  // ---- P12: CSR 0x800 window <-> engine wiring (NXN §1.5) ----
+  //! LCTX = KL_avtp_rx_monitor_ctx window port, TCTX = KL_aaf_packetizer
+  //! window port, ACMP tbl = KL_acmp_lstn_ctx tbl_* through the wrapper.
+  //! SNAP grant is immediate: the engines serve each burst word only when
+  //! fully event-drained (their window arbitration), so every WORD of the
+  //! snap block is event-atomic; burst-level freeze is not implemented by
+  //! the engines — the latched block is bounded by the engine state at
+  //! burst start/end (documented coherence level, [M-5.4.2.25] served by
+  //! per-word atomicity + the monotonic counter rule).
+  wire        csr_lctx_rd_en_w;
+  wire [7:0]  csr_lctx_rd_addr_w;
+  wire [31:0] lctx_rd_data_w;
+  wire        lctx_rd_valid_w;
+  wire        csr_lctx_snap_req_w;
+  wire        csr_lctx_wr_p_w;
+  wire [7:0]  csr_lctx_wr_addr_w;
+  wire [31:0] csr_lctx_wr_data_w;
+  wire        lctx_wr_rdy_w;
+  wire        csr_tctx_rd_en_w;
+  wire [6:0]  csr_tctx_rd_addr_w;
+  wire [31:0] tctx_rd_data_w;
+  wire        tctx_rd_valid_w;
+  wire        csr_tctx_snap_req_w;
+  wire        csr_tctx_wr_p_w;
+  wire [6:0]  csr_tctx_wr_addr_w;
+  wire [31:0] csr_tctx_wr_data_w;
+  wire        tctx_wr_rdy_w;
+  wire        csr_acmp_tbl_req_w;
+  wire [3:0]  csr_acmp_tbl_idx_w;
+  wire        acmp_tbl_gnt_w;
+  wire [316:0] acmp_tbl_ctx_w;
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
-    .ADDR_WIDTH(16)
+    .ADDR_WIDTH(16),
+    .N_LISTENERS_P(N_STREAMS),
+    .N_TALKERS_P(N_STREAMS)
   ) csr (
     .aclk    (axis_clk),
     .aresetn (axis_resetn),
@@ -729,29 +741,34 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
     .i_crft_count       (crft_count_w),
-    // P11 indexed window (0x800): LCTX/TCTX/ACMP-tbl pass straight to the
-    // datapath boundary (lane-K pending); the lwSRP ctx master wires to the
-    // live KL_lwsrp_top provisioning port below
-    .o_lctx_rd_en       (o_lctx_rd_en),
-    .o_lctx_rd_addr     (o_lctx_rd_addr),
-    .i_lctx_rd_data     (i_lctx_rd_data),
-    .o_lctx_snap_req    (o_lctx_snap_req),
-    .i_lctx_snap_ok     (i_lctx_snap_ok),
-    .o_lctx_wr_p        (o_lctx_wr_p),
-    .o_lctx_wr_addr     (o_lctx_wr_addr),
-    .o_lctx_wr_data     (o_lctx_wr_data),
-    .o_tctx_rd_en       (o_tctx_rd_en),
-    .o_tctx_rd_addr     (o_tctx_rd_addr),
-    .i_tctx_rd_data     (i_tctx_rd_data),
-    .o_tctx_snap_req    (o_tctx_snap_req),
-    .i_tctx_snap_ok     (i_tctx_snap_ok),
-    .o_tctx_wr_p        (o_tctx_wr_p),
-    .o_tctx_wr_addr     (o_tctx_wr_addr),
-    .o_tctx_wr_data     (o_tctx_wr_data),
-    .o_acmp_tbl_req     (o_acmp_tbl_req),
-    .o_acmp_tbl_idx     (o_acmp_tbl_idx),
-    .i_acmp_tbl_gnt     (i_acmp_tbl_gnt),
-    .i_acmp_tbl_ctx     (i_acmp_tbl_ctx),
+    // P12 indexed window (0x800): LCTX/TCTX/ACMP-tbl wired to the live
+    // engines (monitor_ctx / packetizer / acmp wrapper); snap grant is
+    // immediate (see the wire-block comment); the lwSRP ctx master wires
+    // to the live KL_lwsrp_top provisioning port below
+    .o_lctx_rd_en       (csr_lctx_rd_en_w),
+    .o_lctx_rd_addr     (csr_lctx_rd_addr_w),
+    .i_lctx_rd_data     (lctx_rd_data_w),
+    .i_lctx_rd_valid    (lctx_rd_valid_w),
+    .o_lctx_snap_req    (csr_lctx_snap_req_w),
+    .i_lctx_snap_ok     (csr_lctx_snap_req_w),
+    .o_lctx_wr_p        (csr_lctx_wr_p_w),
+    .o_lctx_wr_addr     (csr_lctx_wr_addr_w),
+    .o_lctx_wr_data     (csr_lctx_wr_data_w),
+    .i_lctx_wr_rdy      (lctx_wr_rdy_w),
+    .o_tctx_rd_en       (csr_tctx_rd_en_w),
+    .o_tctx_rd_addr     (csr_tctx_rd_addr_w),
+    .i_tctx_rd_data     (tctx_rd_data_w),
+    .i_tctx_rd_valid    (tctx_rd_valid_w),
+    .o_tctx_snap_req    (csr_tctx_snap_req_w),
+    .i_tctx_snap_ok     (csr_tctx_snap_req_w),
+    .o_tctx_wr_p        (csr_tctx_wr_p_w),
+    .o_tctx_wr_addr     (csr_tctx_wr_addr_w),
+    .o_tctx_wr_data     (csr_tctx_wr_data_w),
+    .i_tctx_wr_rdy      (tctx_wr_rdy_w),
+    .o_acmp_tbl_req     (csr_acmp_tbl_req_w),
+    .o_acmp_tbl_idx     (csr_acmp_tbl_idx_w),
+    .i_acmp_tbl_gnt     (acmp_tbl_gnt_w),
+    .i_acmp_tbl_ctx     (acmp_tbl_ctx_w),
     .o_srp_ctx_req      (csr_srp_ctx_req),
     .o_srp_ctx_we       (csr_srp_ctx_we),
     .o_srp_ctx_idx      (csr_srp_ctx_idx),
@@ -1210,7 +1227,17 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .dbg_o          (acmpl_dbg),
     .s1_bound_o     (acmpl1_bound),
     .s1_sid_o       (acmpl1_sid),
-    .s1_dmac_o      (acmpl1_dmac)
+    .s1_dmac_o      (acmpl1_dmac),
+    //! P12: the 0x800 window's ACMP tbl master. The wrapper pins the
+    //! 2-sink shape {ctx0 = STREAM_INPUT[0], ctx1 = CRF sink}; only window
+    //! listener idx 0 maps onto an AAF sink context, so requests for
+    //! idx > 0 are NOT granted (acmp_fresh stays 0 in the CSR -> those
+    //! window SID/DMAC/STATE-acmp fields read 0 honestly) until a full
+    //! N-sink ACMP round widens the wrapper.
+    .tbl_req_i (csr_acmp_tbl_req_w && (csr_acmp_tbl_idx_w == 4'd0)),
+    .tbl_idx_i (1'b0),
+    .tbl_gnt_o (acmp_tbl_gnt_w),
+    .tbl_ctx_o (acmp_tbl_ctx_w)
   );
 
   // ==========================================================================
@@ -1221,19 +1248,62 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
   //! the ACMP bound record combinationally (bit-exact N=1 legacy); entries
-  //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (phase P11 -
-  //! the write port is parked until then).
+  //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
+  //! below).
   localparam int NSIDX_W_C = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
   wire [64*N_STREAMS-1:0] strtbl_sid_w;
   wire [N_STREAMS-1:0]    strtbl_en_w;
   wire [N_STREAMS-1:0]    strtbl_bind_rise_w;
   wire [NSIDX_W_C-1:0]    avtprx_idx;
 
+  //! P12 window commit glue (NXN §1.1/§1.3): the CSR window's listener
+  //! writes land in the LCTX (monitor CFG words); the classification table
+  //! and the route policy shadow the SAME accepted writes here — SID_LO/HI
+  //! (w0/w1) stage, a CTRL (w4) write COMMITS {sid, en} into the stream
+  //! table entry and [2:1] into the route table (mirrors the CSR's own
+  //! SEL-then-words staging ABI; one staging register set, single-writer
+  //! softcore daemon).
+  logic [31:0] wing_sid_lo_r, wing_sid_hi_r;
+  logic        wing_tbl_we_r, wing_route_we_r;
+  logic [3:0]  wing_idx_r;
+  logic [63:0] wing_sid_r;
+  logic        wing_en_r;
+  logic [1:0]  wing_route_r;
+  wire lctx_wr_acc_w = csr_lctx_wr_p_w && lctx_wr_rdy_w;
+
+  always_ff @(posedge axis_clk) begin : win_commit_glue
+    if (!axis_resetn) begin
+      wing_sid_lo_r <= '0; wing_sid_hi_r <= '0;
+      wing_tbl_we_r <= 1'b0; wing_route_we_r <= 1'b0;
+      wing_idx_r <= '0; wing_sid_r <= '0; wing_en_r <= 1'b0;
+      wing_route_r <= '0;
+    end
+    else begin
+      wing_tbl_we_r   <= 1'b0;
+      wing_route_we_r <= 1'b0;
+      if (lctx_wr_acc_w) begin
+        unique case (csr_lctx_wr_addr_w[4:0])
+          5'd0 : wing_sid_lo_r <= csr_lctx_wr_data_w;
+          5'd1 : wing_sid_hi_r <= csr_lctx_wr_data_w;
+          5'd4 : begin              //! CTRL commit: {en[0], route[2:1]}
+            wing_tbl_we_r   <= 1'b1;
+            wing_route_we_r <= 1'b1;
+            wing_idx_r      <= {1'b0, csr_lctx_wr_addr_w[7:5]};
+            wing_sid_r      <= {wing_sid_hi_r, wing_sid_lo_r};
+            wing_en_r       <= csr_lctx_wr_data_w[0];
+            wing_route_r    <= csr_lctx_wr_data_w[2:1];
+          end
+          default : ;
+        endcase
+      end
+    end
+  end : win_commit_glue
+
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
-    .wr_en_i (1'b0), .wr_idx_i (4'd0),          //! P11 CSR-window hook
-    .wr_sid_i (64'd0), .wr_valid_i (1'b0),
+    .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
+    .wr_sid_i (wing_sid_r), .wr_valid_i (wing_en_r),
     .tbl_sid_o (strtbl_sid_w), .tbl_en_o (strtbl_en_w),
     .bind_rise_o (strtbl_bind_rise_w)
   );
@@ -1333,7 +1403,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //! NXN P2: the shared monitor engine (LCTX context RAM, N_STREAMS
   //! contexts) replaces the flat single-stream KL_avtp_rx_monitor. All
   //! legacy 0x6B8-group wires alias stream 0 (no-regression axiom); the
-  //! LCTX window port is parked until the P11 indexed CSR window.
+  //! LCTX window port serves the 0x800 CSR window (P12).
   wire        avtprx_accept_p_w;
   wire [3:0]  avtprx_accept_idx_w;
   wire        pcmrx_pdu_p_w, pcmrx_drop_p_w;
@@ -1366,10 +1436,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .depkt_pdu_idx_i  (pcmrx_pdu_idx_w),
     .depkt_drop_p_i   (pcmrx_drop_p_w),
     .depkt_drop_idx_i (pcmrx_drop_idx_w),
-    .lctx_wr_en_i (1'b0), .lctx_wr_addr_i (8'd0),   //! P11 window hook
-    .lctx_wr_data_i (32'd0), .lctx_wr_rdy_o (),
-    .lctx_rd_en_i (1'b0), .lctx_rd_addr_i (8'd0),
-    .lctx_rd_data_o (), .lctx_rd_valid_o (),
+    //! P12: LCTX window port <- the CSR 0x800 window (listener dir)
+    .lctx_wr_en_i (csr_lctx_wr_p_w), .lctx_wr_addr_i (csr_lctx_wr_addr_w),
+    .lctx_wr_data_i (csr_lctx_wr_data_w), .lctx_wr_rdy_o (lctx_wr_rdy_w),
+    .lctx_rd_en_i (csr_lctx_rd_en_w), .lctx_rd_addr_i (csr_lctx_rd_addr_w),
+    .lctx_rd_data_o (lctx_rd_data_w), .lctx_rd_valid_o (lctx_rd_valid_w),
     .cnt_media_locked_o       (avtprx_locked_c),
     .cnt_media_unlocked_o     (avtprx_unlocked_c),
     .cnt_stream_interrupted_o (avtprx_intr_c),
@@ -1439,8 +1510,9 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .s_tdata_i (dpkt_pcm_tdata_w), .s_tvalid_i (dpkt_pcm_tvalid_w),
     .s_tlast_i (dpkt_pcm_tlast_w), .s_tuser_i (dpkt_pcm_tuser_w),
     .s_tready_o (dpkt_pcm_tready_w),
-    .route_wr_en_i (1'b0), .route_wr_idx_i (4'd0),   //! P11 window hook
-    .route_wr_val_i (2'd0),
+    //! P12: route field <- the window CTRL[2:1] commit (glue above)
+    .route_wr_en_i (wing_route_we_r), .route_wr_idx_i (wing_idx_r),
+    .route_wr_val_i (wing_route_r),
     .m_axis_tdata (m_axis_pcm_tdata), .m_axis_tvalid (m_axis_pcm_tvalid),
     .m_axis_tlast (m_axis_pcm_tlast), .m_axis_tuser (m_axis_pcm_tuser),
     .m_axis_tready (m_axis_pcm_tready),
