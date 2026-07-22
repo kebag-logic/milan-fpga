@@ -3037,6 +3037,70 @@ class RxSteer(LiteXModule):
         )
 
 
+class _PCMRingNxN(LiteXModule):
+    """NxN per-stream PCM DRAM ring writer (NXN_ARCHITECTURE.md §1.3 P3 / P12).
+
+    Generalizes the single `WishboneDMAWriter` PCM ring with the stream index:
+    a beat tagged `user = s` (the datapath's `m_axis_pcm_tuser`) lands at
+    `base + s*stride + offset[s]`, where `offset[s]` is that stream's private
+    write pointer wrapping at `length` (one sub-ring of `length` bytes per
+    stream, sub-rings `stride` bytes apart; the consumer chases the per-stream
+    offsets exactly like the flat ring's `offset` CSR). Stream 0 lands at the
+    base — programming `stride = 0, length = ring bytes` with only stream 0
+    routed reproduces the flat ring layout bit-for-bit.
+
+    CSRs: base[64], length[32] (per-stream sub-ring BYTES, multiple of the bus
+    word), stride[32] (BYTES between stream bases), enable, sel[4] + offset[32]
+    (the selected stream's write pointer readback). Disable clears all offsets
+    and drops beats (the flat writer's disabled behavior)."""
+    def __init__(self, bus, n_streams):
+        from litex.soc.cores.dma import WishboneDMAWriter
+        from litex.soc.interconnect import stream as _stream
+        self.writer = WishboneDMAWriter(bus, endianness="big", with_csr=False)
+        self.sink   = _stream.Endpoint([("data", bus.data_width), ("user", 4)])
+        self._base   = CSRStorage(64, description="PCM NxN ring base address.")
+        self._length = CSRStorage(32, description="per-stream sub-ring length (bytes).")
+        self._stride = CSRStorage(32, description="byte distance between stream sub-ring bases.")
+        self._enable = CSRStorage(description="ring writer enable (0 drops beats + clears offsets).")
+        self._sel    = CSRStorage(4,  description="stream index for the offset readback.")
+        self._offset = CSRStatus(32,  description="selected stream's write pointer (bytes).")
+
+        # # #
+
+        import math
+        nb    = bus.data_width // 8
+        shift = int(math.log2(nb))
+        offsets = Array(Signal(32) for _ in range(n_streams))
+        user    = Signal(4)
+        sel     = Signal(4)
+        addr    = Signal(64)
+        en      = self._enable.storage
+        # clamp both indexes to the elaborated stream count (the datapath only
+        # emits tuser < N_STREAMS; the clamp keeps a stray sel/user in range)
+        self.comb += [
+            user.eq(Mux(self.sink.user >= n_streams, 0, self.sink.user)),
+            sel.eq(Mux(self._sel.storage >= n_streams, 0, self._sel.storage)),
+            addr.eq(self._base.storage + self._stride.storage * user
+                    + offsets[user]),
+            self.writer.sink.valid.eq(self.sink.valid & en),
+            self.writer.sink.data.eq(self.sink.data),
+            self.writer.sink.address.eq(addr[shift:]),
+            self.sink.ready.eq(self.writer.sink.ready | ~en),
+            self._offset.status.eq(offsets[sel]),
+        ]
+        self.sync += [
+            If(~en,
+                *[o.eq(0) for o in offsets]
+            ).Elif(self.sink.valid & self.sink.ready,
+                If(offsets[user] + nb >= self._length.storage,
+                    offsets[user].eq(0)
+                ).Else(
+                    offsets[user].eq(offsets[user] + nb)
+                )
+            ),
+        ]
+
+
 class MilanDMA(LiteXModule):
     """AXIS ↔ system-memory DMA (§A.6), attaching the milan_datapath TX/RX/TS DMA
     AXIS ports to the CPU's memory via three LiteX simple-mode DMA engines:
@@ -3057,7 +3121,7 @@ class MilanDMA(LiteXModule):
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
-                 legacy_ring=True, rx_fifo_beats=2048):
+                 legacy_ring=True, rx_fifo_beats=2048, num_streams=1):
         # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
         # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
         # mode burst absorbency lives in the 60x16K posted-page pool, so 1024 is
@@ -3152,8 +3216,17 @@ class MilanDMA(LiteXModule):
         # consumer (PipeWire) chases. Payload is full 64-bit words in wire byte
         # order (S32BE interleaved) - the depacketizer zero-pads any non-multiple
         # tail. Registered AFTER hs_pgsz_cap so no existing CSR address moves.
-        self.pcm = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
-        dma_bus.add_master("milan_dma_pcm", master=self.pcm.bus)
+        # P12 (NXN §1.3): at num_streams == 1 the flat single-ring writer is
+        # kept EXACTLY (same CSR block, same behavior — the N=1 byte-identity
+        # axiom); num_streams > 1 swaps in the per-stream ring writer keyed by
+        # the datapath's m_axis_pcm_tuser: stream s lands at base + s*stride
+        # (stream 0 at the base; stride only engages for s > 0).
+        if num_streams > 1:
+            self.pcm = _PCMRingNxN(mk_bus(), n_streams=num_streams)
+            dma_bus.add_master("milan_dma_pcm", master=self.pcm.writer.bus)
+        else:
+            self.pcm = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
+            dma_bus.add_master("milan_dma_pcm", master=self.pcm.bus)
 
         # datapath-facing endpoints in `milan_cd`, async-FIFO CDC'd to the sys-domain
         # DMA engines when the domains differ (see _axis_dp_cdc). TX is mem->datapath;
@@ -3162,7 +3235,10 @@ class MilanDMA(LiteXModule):
         tx_dp = _axis_dp_cdc(self, "dma_tx_cdc", L, milan_cd, to_datapath=True)
         rx_dp = _axis_dp_cdc(self, "dma_rx_cdc", L, milan_cd, to_datapath=False)
         ts_dp = _axis_dp_cdc(self, "dma_ts_cdc", L, milan_cd, to_datapath=False)
-        pcm_dp = _axis_dp_cdc(self, "dma_pcm_cdc", L, milan_cd, to_datapath=False)
+        # PCM lane carries the stream-index tuser through the CDC at N > 1
+        # (the per-stream ring writer's key); N = 1 keeps the exact P11 lane.
+        Lp = L + [("user", 4)] if num_streams > 1 else L
+        pcm_dp = _axis_dp_cdc(self, "dma_pcm_cdc", Lp, milan_cd, to_datapath=False)
         # exposed for MilanDebug's TX datapath-input probe: tx_dp.dp is the milan-domain
         # endpoint feeding the datapath (traffic_controller s_axis). tx_dp.dp.ready IS
         # the traffic_controller's backpressure  -  the direct "is the datapath the TX
@@ -3199,6 +3275,9 @@ class MilanDMA(LiteXModule):
             self.pcm.sink.valid.eq(pcm_dp.sys.valid), self.pcm.sink.data.eq(pcm_dp.sys.data),
             pcm_dp.sys.ready.eq(self.pcm.sink.ready),
         ]
+        if num_streams > 1:
+            # per-stream ring key: the tuser stream index rides the CDC lane
+            self.comb += self.pcm.sink.user.eq(pcm_dp.sys.user)
         if rx_queues >= 2:
             # RX: datapath -> steer -> {rx.sink (q0), rx1.sink (q1)}
             self.comb += [
@@ -3262,10 +3341,13 @@ class MilanDMA(LiteXModule):
             i_i2s_sdout_i = self.i2s_pads[3] if self.i2s_pads else 0,
             o_m_axis_ts_tdata  = ts_dp.dp.data,  o_m_axis_ts_tvalid = ts_dp.dp.valid,
             o_m_axis_ts_tlast  = ts_dp.dp.last,  i_m_axis_ts_tready = ts_dp.dp.ready,
-            # PCM: datapath m_axis_pcm -> PCM ring writer.sink
+            # PCM: datapath m_axis_pcm -> PCM ring writer.sink. tuser = stream
+            # index (NXN §1.3 P12: ring base + s*stride key); at N=1 the tag
+            # is constant 0 and lands in an unconnected sink (flat ring).
             o_m_axis_pcm_tdata  = pcm_dp.dp.data,  o_m_axis_pcm_tkeep = pcm_dp.dp.keep,
             o_m_axis_pcm_tvalid = pcm_dp.dp.valid,
             o_m_axis_pcm_tlast  = pcm_dp.dp.last,  i_m_axis_pcm_tready = pcm_dp.dp.ready,
+            o_m_axis_pcm_tuser  = (pcm_dp.dp.user if num_streams > 1 else Signal(4)),
         )
 
 
@@ -3717,7 +3799,8 @@ class MilanSoC(SoCCore):
                                           rx_queues=rx_queues,
                                           hs_page_bytes=hs_page_bytes,
                                           legacy_ring=legacy_ring,
-                                          rx_fifo_beats=rx_fifo_beats)
+                                          rx_fifo_beats=rx_fifo_beats,
+                                          num_streams=int(num_streams))
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
