@@ -12,7 +12,10 @@ verified against the PDFs in `/home/alex/standards/` (pdftotext extraction,
 Companion documents: [`testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_VALIDATION_MATRIX.md)
 (protocol → test inventory, status-focused), [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md)
 (what is still missing, narrative), [`reference/FR_NFR.md`](reference/FR_NFR.md)
-(requirement text). This matrix is the clause-anchored join between them.
+(requirement text), [`ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md)
+(roadmap item 4: clause-anchored builder design decisions + config-schema →
+descriptor mapping, same PDF-verification rule as this matrix). This matrix
+is the clause-anchored join between them.
 
 ## Family files
 
