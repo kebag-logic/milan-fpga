@@ -166,7 +166,35 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   output wire        o_irq_csr,
 
   // ---- AECP IDENTIFY control (Milan FR-MGT-01): board LED blink hook ----
-  output wire        o_identify
+  output wire        o_identify,
+
+  // ---- P11 indexed CSR window: lane-K context-engine boundary ----
+  //! NXN_ARCHITECTURE.md §1.5 — the 0x800 window's LCTX/TCTX port-B read,
+  //! snap handshake, CFG write bundle and the ACMP context-table port, at
+  //! the datapath boundary until the lane-K shared engines land inside.
+  //! Integrations tie the inputs inert meanwhile: {rd_data=0, snap_ok=1,
+  //! tbl_gnt=0, tbl_ctx=0} (allowlisted in scripts/check_tied_inputs.sh);
+  //! window engine words then read 0 and A_STRM_SNAP completes immediately.
+  output wire         o_lctx_rd_en,
+  output wire [7:0]   o_lctx_rd_addr,
+  input  wire [31:0]  i_lctx_rd_data,
+  output wire         o_lctx_snap_req,
+  input  wire         i_lctx_snap_ok,
+  output wire         o_lctx_wr_p,
+  output wire [7:0]   o_lctx_wr_addr,
+  output wire [31:0]  o_lctx_wr_data,
+  output wire         o_tctx_rd_en,
+  output wire [6:0]   o_tctx_rd_addr,
+  input  wire [31:0]  i_tctx_rd_data,
+  output wire         o_tctx_snap_req,
+  input  wire         i_tctx_snap_ok,
+  output wire         o_tctx_wr_p,
+  output wire [6:0]   o_tctx_wr_addr,
+  output wire [31:0]  o_tctx_wr_data,
+  output wire         o_acmp_tbl_req,
+  output wire [3:0]   o_acmp_tbl_idx,
+  input  wire         i_acmp_tbl_gnt,
+  input  wire [316:0] i_acmp_tbl_ctx
 );
 
   // ==========================================================================
@@ -519,6 +547,19 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //  Memory-mapped control plane
   // ==========================================================================
+  //! P11 window -> lwSRP attribute-context provisioning port (the one
+  //! context engine that exists in the datapath today)
+  wire        csr_srp_ctx_req, csr_srp_ctx_we, csr_srp_ctx_valid, csr_srp_ctx_dir;
+  wire [3:0]  csr_srp_ctx_idx;
+  wire [63:0] csr_srp_ctx_sid;
+  wire [47:0] csr_srp_ctx_dmac;
+  wire [7:0]  csr_srp_ctx_prio;
+  wire [15:0] csr_srp_ctx_maxf, csr_srp_ctx_intv;
+  wire [31:0] csr_srp_ctx_lat;
+  wire        srp_ctx_gnt_w;
+  wire [63:0] srp_ctx_rd_sid_w;
+  wire [15:0] srp_ctx_rd_stat_w;
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16)
@@ -688,6 +729,43 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
     .i_crft_count       (crft_count_w),
+    // P11 indexed window (0x800): LCTX/TCTX/ACMP-tbl pass straight to the
+    // datapath boundary (lane-K pending); the lwSRP ctx master wires to the
+    // live KL_lwsrp_top provisioning port below
+    .o_lctx_rd_en       (o_lctx_rd_en),
+    .o_lctx_rd_addr     (o_lctx_rd_addr),
+    .i_lctx_rd_data     (i_lctx_rd_data),
+    .o_lctx_snap_req    (o_lctx_snap_req),
+    .i_lctx_snap_ok     (i_lctx_snap_ok),
+    .o_lctx_wr_p        (o_lctx_wr_p),
+    .o_lctx_wr_addr     (o_lctx_wr_addr),
+    .o_lctx_wr_data     (o_lctx_wr_data),
+    .o_tctx_rd_en       (o_tctx_rd_en),
+    .o_tctx_rd_addr     (o_tctx_rd_addr),
+    .i_tctx_rd_data     (i_tctx_rd_data),
+    .o_tctx_snap_req    (o_tctx_snap_req),
+    .i_tctx_snap_ok     (i_tctx_snap_ok),
+    .o_tctx_wr_p        (o_tctx_wr_p),
+    .o_tctx_wr_addr     (o_tctx_wr_addr),
+    .o_tctx_wr_data     (o_tctx_wr_data),
+    .o_acmp_tbl_req     (o_acmp_tbl_req),
+    .o_acmp_tbl_idx     (o_acmp_tbl_idx),
+    .i_acmp_tbl_gnt     (i_acmp_tbl_gnt),
+    .i_acmp_tbl_ctx     (i_acmp_tbl_ctx),
+    .o_srp_ctx_req      (csr_srp_ctx_req),
+    .o_srp_ctx_we       (csr_srp_ctx_we),
+    .o_srp_ctx_idx      (csr_srp_ctx_idx),
+    .o_srp_ctx_valid    (csr_srp_ctx_valid),
+    .o_srp_ctx_dir      (csr_srp_ctx_dir),
+    .o_srp_ctx_sid      (csr_srp_ctx_sid),
+    .o_srp_ctx_dmac     (csr_srp_ctx_dmac),
+    .o_srp_ctx_prio_rank(csr_srp_ctx_prio),
+    .o_srp_ctx_max_frame(csr_srp_ctx_maxf),
+    .o_srp_ctx_interval (csr_srp_ctx_intv),
+    .o_srp_ctx_latency  (csr_srp_ctx_lat),
+    .i_srp_ctx_gnt      (srp_ctx_gnt_w),
+    .i_srp_ctx_rd_sid   (srp_ctx_rd_sid_w),
+    .i_srp_ctx_rd_stat  (srp_ctx_rd_stat_w),
     .i_bdbg0            (aecp_bdbg0_w),
     .i_bdbg1            (aecp_bdbg1_w),
     .i_bdbg2            (aecp_bdbg2_w),
@@ -1484,6 +1562,17 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .m_axis_tdata (lwsrp_tx_tdata), .m_axis_tkeep (lwsrp_tx_tkeep),
     .m_axis_tvalid(lwsrp_tx_tvalid), .m_axis_tlast (lwsrp_tx_tlast),
     .m_axis_tready(lwsrp_tx_tready),
+    // P11 CSR-window provisioning port (0x800 window CTRL/SID/DMAC commits;
+    // extra attribute rows only exist when N_CTX_P > 1 — inert at N = 1)
+    .ctx_req_i (csr_srp_ctx_req), .ctx_we_i (csr_srp_ctx_we),
+    .ctx_idx_i (csr_srp_ctx_idx), .ctx_valid_i (csr_srp_ctx_valid),
+    .ctx_dir_i (csr_srp_ctx_dir), .ctx_sid_i (csr_srp_ctx_sid),
+    .ctx_dmac_i (csr_srp_ctx_dmac), .ctx_prio_rank_i (csr_srp_ctx_prio),
+    .ctx_max_frame_i (csr_srp_ctx_maxf), .ctx_interval_i (csr_srp_ctx_intv),
+    .ctx_latency_i (csr_srp_ctx_lat),
+    .ctx_gnt_o (srp_ctx_gnt_w), .ctx_rd_sid_o (srp_ctx_rd_sid_w),
+    .ctx_rd_stat_o (srp_ctx_rd_stat_w),
+    .ctx_reg_o (), .ctx_ready_o (), .ctx_failed_o (), .ctx_tx_count_o (),
     .stream_gate_o (lwsrp_stream_gate),
     .slope_en_o (lwsrp_slope_en), .idle_slope_o (lwsrp_idle_slope),
     .res_active_o (lwsrp_res_active),
