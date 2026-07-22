@@ -235,6 +235,60 @@ int main(int argc, char **argv) {
   rx_period = 2; run(SETTLE + DEAD + 16);
   ck("partial-arm recover", dut->reinit_o, 0);
 
+  // ==== eth-side CDC reset sequencing (gaps 5 RTL fix) =================
+  // eth_rst_o must assert with reinit_o on clock death, hold through the
+  // FIRST half of settle (clean clocked reset cycles for the eth halves),
+  // then release strictly BEFORE the sys side: eth-first-then-sys.
+  {
+    auto ethrst = [&]() { return (uint64_t)((dut->stat_o >> 2) & 1); };
+
+    ck("ethrst RUN idle",            ethrst(), 0);
+    ck("ethrst port idle",           dut->eth_rst_o, 0);
+
+    rx_period = 0; run(DEAD + 8);                  // clock death -> HOLD
+    ck("ethrst asserted in HOLD",    ethrst(), 1);
+    ck("ethrst port in HOLD",        dut->eth_rst_o, 1);
+    ck("ethrst with reinit",         dut->reinit_o, 1);
+
+    rx_period = 2; run(SETTLE / 4);                // early settle
+    ck("ethrst early-settle held",   ethrst(), 1);
+    ck("early-settle reinit held",   dut->reinit_o, 1);
+
+    run(SETTLE / 2);                               // past the release point
+    ck("ethrst released mid-settle", ethrst(), 0);
+    ck("SEQ sys held after eth rel", dut->reinit_o, 1);
+
+    run(SETTLE / 2 + DEAD + 16);                   // settle completes
+    ck("ethrst clear in RUN",        ethrst(), 0);
+    ck("sys released last",          dut->reinit_o, 0);
+
+    // re-death AFTER the eth release re-arms the eth reset (same episode)
+    rx_period = 0; run(DEAD + 8);
+    rx_period = 2; run(SETTLE / 2 + SETTLE / 4);
+    ck("re-death pre: eth clear",    ethrst(), 0);
+    ck("re-death pre: sys held",     dut->reinit_o, 1);
+    rx_period = 0; run(DEAD + 8);
+    ck("ethrst re-armed on re-death", ethrst(), 1);
+    rx_period = 2; run(SETTLE + DEAD + 16);
+    ck("re-death episode recovers",  dut->reinit_o, 0);
+
+    // manual reinit stays sys-only (daemon owns phy_crg_reset in that flow)
+    dut->man_reinit_i = 1; run(2);
+    ck("manual reinit sys held",     dut->reinit_o, 1);
+    ck("manual reinit eth idle",     ethrst(), 0);
+    dut->man_reinit_i = 0; run(2);
+
+    // disable drops the eth reset immediately (matches reinit semantics)
+    rx_period = 0; run(DEAD + 8);
+    ck("pre-disable ethrst",         ethrst(), 1);
+    dut->dis_i = 1; run(2);
+    ck("disabled ethrst clear",      ethrst(), 0);
+    ck("stat[2] mirrors eth_rst_o",  ethrst(), (uint64_t)dut->eth_rst_o);
+    dut->dis_i = 0; rx_period = 2;
+    run(SETTLE + 2 * DEAD + 16);
+    ck("post-disable recovered",     dut->reinit_o, 0);
+  }
+
   // -- bounce counter saturates at 0xFFFF (no wrap) ---------------------
   for (int i = 0; i < 65600; i++) {
     rx_period = 0; run(DEAD + 6);

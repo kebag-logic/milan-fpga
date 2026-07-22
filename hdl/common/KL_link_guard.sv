@@ -37,6 +37,22 @@
                 MII-PMOD); it feeds eff_link (ADP/AVB_INTERFACE
                 counters) as a veto on the daemon-maintained sw_link.
 
+                eth_rst_o completes the CDC story in RTL (gaps 5: the
+                sys-side reinit alone was a workaround - the ETH-side
+                CDC halves kept their pointers unless software also
+                strobed phy_crg_reset). It is the sequenced eth-domain
+                CDC reset request: asserted with reinit_o on clock
+                death, held through HOLD and the FIRST half of SETTLE
+                (so both eth clocks apply it for >=SETTLE/2 clean
+                cycles - the SoC turns it into a per-eth-domain
+                synchronized reset), then released mid-settle while the
+                sys side is STILL held. Release order is therefore
+                always eth-first-then-sys: when reinit_o finally drops,
+                both CDC halves have restarted from matched (zero)
+                pointers and no software strobe is needed. The manual
+                LINK_CTRL[1] path stays sys-only (the daemon owns
+                phy_crg_reset in that flow).
+
                 stat_o packs {bounce_cnt, flags, state} for the
                 LINKG_STAT CSR; freeze_i is a CSR test hook that fakes
                 clock death (full FSM drill on silicon without touching
@@ -69,6 +85,8 @@ module KL_link_guard #(
   input  wire        man_reinit_i,   //! LINK_CTRL[1]: manual MAC reinit
 
   output wire        reinit_o,       //! hold the MAC sys side in reset
+  output wire        eth_rst_o,      //! sequenced eth-side CDC reset request
+                                     //! (released mid-settle, before reinit_o)
   output wire        link_est_o,     //! hardware link estimate (rx alive)
   output wire [31:0] stat_o          //! LINKG_STAT readback
 );
@@ -144,11 +162,18 @@ module KL_link_guard #(
   } state_t;
 
   localparam int unsigned SETW_C = $clog2(SETTLE_CYC_C + 1);
+  //! eth-side CDC reset release point: half-way through SETTLE. Both eth
+  //! clocks are alive from SETTLE entry, so the eth halves see at least
+  //! SETTLE_CYC_C/2 clean clocked reset cycles before the release, and the
+  //! sys side stays held for the remaining half -> release order is always
+  //! eth-first-then-sys and both pointer sets restart matched.
+  localparam int unsigned ETH_REL_CYC_C = SETTLE_CYC_C / 2;
 
   state_t             state_r;
   logic [SETW_C-1:0]  settle_r;
   logic [15:0]        bounce_cnt_r;
   logic               guard_rst_r;
+  logic               eth_rst_r;
 
   wire both_alive_w = rx_alive_r && tx_alive_r;
 
@@ -158,18 +183,22 @@ module KL_link_guard #(
       settle_r     <= '0;
       bounce_cnt_r <= '0;
       guard_rst_r  <= 1'b0;
+      eth_rst_r    <= 1'b0;
     end
     else if (dis_i) begin
       state_r     <= RUN_S;
       guard_rst_r <= 1'b0;
+      eth_rst_r   <= 1'b0;
     end
     else begin
       unique case (state_r)
         RUN_S : begin
           guard_rst_r <= 1'b0;
+          eth_rst_r   <= 1'b0;
           if (!both_alive_w) begin
             state_r      <= HOLD_S;
             guard_rst_r  <= 1'b1;
+            eth_rst_r    <= 1'b1;
             bounce_cnt_r <= (&bounce_cnt_r) ? bounce_cnt_r
                                             : bounce_cnt_r + 16'd1;
           end
@@ -177,6 +206,7 @@ module KL_link_guard #(
 
         HOLD_S : begin
           guard_rst_r <= 1'b1;
+          eth_rst_r   <= 1'b1;
           if (both_alive_w) begin
             state_r  <= SETTLE_S;
             settle_r <= '0;
@@ -185,12 +215,19 @@ module KL_link_guard #(
 
         SETTLE_S : begin
           guard_rst_r <= 1'b1;
-          if (!both_alive_w) state_r <= HOLD_S;
+          if (!both_alive_w) begin
+            state_r   <= HOLD_S;
+            eth_rst_r <= 1'b1;               //! re-death: re-arm the eth reset
+          end
           else if (settle_r == SETW_C'(SETTLE_CYC_C)) begin
             state_r     <= RUN_S;
             guard_rst_r <= 1'b0;
           end
-          else settle_r <= settle_r + 1'b1;
+          else begin
+            settle_r <= settle_r + 1'b1;
+            //! sequenced release: eth side first, mid-settle
+            if (settle_r == SETW_C'(ETH_REL_CYC_C)) eth_rst_r <= 1'b0;
+          end
         end
 
         default : state_r <= RUN_S;
@@ -199,6 +236,7 @@ module KL_link_guard #(
   end : guard_fsm
 
   assign reinit_o   = guard_rst_r || man_reinit_i;
+  assign eth_rst_o  = eth_rst_r;
   assign link_est_o = rx_alive_r;
 
   assign stat_o = {bounce_cnt_r,                       // [31:16]
@@ -207,7 +245,7 @@ module KL_link_guard #(
                    act_recent_w,                       // [7]
                    guard_rst_r,                        // [6]
                    2'(state_r),                        // [5:4]
-                   2'b0,                               // [3:2]
+                   1'b0, eth_rst_r,                    // [3:2]
                    tx_alive_r, rx_alive_r};            // [1:0]
 
 endmodule

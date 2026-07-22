@@ -135,6 +135,9 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   input  wire [1:0]  i_mac_speed,
   input  wire        i_link_up,
   output wire        o_mac_reinit,     //! link guard | LINK_CTRL[1] -> SoC MAC sys-side reset
+  output wire        o_eth_rst,        //! link guard sequenced eth-side CDC reset request
+                                       //! (SoC syncs it into eth_tx/eth_rx as the MAC's
+                                       //! eth-domain reset; released BEFORE o_mac_reinit)
   input  wire        i_full_duplex,
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
@@ -780,7 +783,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //! link estimate. LINK_CTRL[1] stays OR-ed in as the daemon fallback.
   wire [31:0] linkg_stat_w;
   wire        cfg_linkg_dis, cfg_linkg_freeze;
-  wire        linkg_reinit_w, linkg_est_w;
+  wire        linkg_reinit_w, linkg_eth_rst_w, linkg_est_w;
 
   KL_link_guard link_guard (
     .clk_i        (axis_clk),
@@ -792,6 +795,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .freeze_i     (cfg_linkg_freeze),
     .man_reinit_i (cfg_mac_reinit),
     .reinit_o     (linkg_reinit_w),
+    .eth_rst_o    (linkg_eth_rst_w),
     .link_est_o   (linkg_est_w),
     .stat_o       (linkg_stat_w)
   );
@@ -806,6 +810,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire cnt_link_w;
   assign cnt_link_w = i_link_up & (cfg_linkg_dis | linkg_est_w);
   assign o_mac_reinit = linkg_reinit_w;
+  assign o_eth_rst    = linkg_eth_rst_w;
 
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
     .clk_i(axis_clk), .rst_n(axis_resetn),
