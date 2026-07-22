@@ -1,11 +1,17 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Verilator verification of KL_lwsrp_top.sv — the whole lwSRP engine
-# (timers + applicant TX + ingress/walker/registrar + bandwidth gate)
-# end-to-end at a 10 kHz scaled clock: declare cadence, reservation
-# activation with slope-before-gate ordering, gate-before-slope teardown,
-# 75% refusal, LeaveAll turn + re-declare. Needs third_party/verilog-axis.
+# Verilator verification of KL_lwsrp_top.sv with N_CTX_P = 4 — the
+# N-attribute context table (docs/MILAN_COMPLIANCE_GAPS.md §3 closure):
+#   - N=1-shape golden equivalence: with zero extra rows provisioned the
+#     declare pair is BYTE-IDENTICAL to the legacy engine's frames
+#   - CRF-listener row: provision -> Listener attr on the wire, Ready
+#     follows the TA registration, TalkerFailed capture + readback
+#   - extra talker row: full 25-byte TalkerAdvertise FirstValue from the
+#     record RAM, bridge Listener Ready via +k vector
+#   - multi-attribute MRPDU packing (TalkerAdv + 2-vector Listener msg)
+#   - one bridge vector covering MULTIPLE contexts at different +k
+#   - add/remove mid-stream (LV withdraw), LeaveAll aging across contexts
 #   make        - build and run the self-checking harness
 #   make clean  - remove build artifacts
 
@@ -16,7 +22,7 @@ TOP        = KL_lwsrp_top
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         -GCLK_FREQ_HZ_P=10000 \
+         -GCLK_FREQ_HZ_P=10000 -GN_CTX_P=4 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -CFLAGS "-std=c++17 -O2"
@@ -39,9 +45,9 @@ CPP  = sim_main.cpp
 all: run
 
 run:
-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vlwsrp_sim
+	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vlwsrp_ctx_sim
 	@echo "======================================================================"
-	./obj_dir/Vlwsrp_sim
+	./obj_dir/Vlwsrp_ctx_sim
 
 clean:
 	rm -rf obj_dir
