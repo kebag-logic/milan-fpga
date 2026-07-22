@@ -1,0 +1,286 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ *
+ * P12 NxN integration harness: milan_datapath at N_STREAMS=4, CSR 0x800
+ * window -> REAL engines end-to-end (NXN_ARCHITECTURE.md P12 gate):
+ *
+ *   1. provision listener streams 1..2 THROUGH the window (SID/FMT staged,
+ *      CTRL commit -> LCTX CFG words + stream-table entry + route field),
+ *      readback of the CFG words through the engine-arbitrated LCTX port B
+ *      (the monitor context RAM, not a CSR shadow);
+ *   2. feed tagged AAF frames of both streams + an unknown sid on the MAC
+ *      RX AXIS: classification tuser rides parser -> monitor -> depkt ->
+ *      route; stream 1 (route=DMA) lands on the PCM ring output with
+ *      tuser=1, stream 2 (route=NULL) is counted but not forwarded;
+ *   3. read ISOLATED per-stream counters back through the window with SNAP
+ *      (Table 7-157 block from the live LCTX; stream 0 legacy aliases and
+ *      idx 3 stay zero); a seq-gap on stream 1 moves ONLY stream 1;
+ *   4. talker side: TCTX CFG words written and read back through the live
+ *      KL_aaf_packetizer window port.
+ */
+
+#include "Vmilan_datapath.h"
+#include "verilated.h"
+#include <cstdio>
+#include <cstdint>
+#include <cstring>
+#include <vector>
+
+static Vmilan_datapath* dut;
+static long checks = 0, fails = 0;
+
+static void ck(const char* what, unsigned long got, unsigned long exp) {
+    checks++;
+    if (got != exp) {
+        fails++;
+        printf("  [FAIL] %-46s got=0x%lx exp=0x%lx\n", what, got, exp);
+    } else {
+        printf("  [ok]   %-46s = 0x%lx\n", what, got);
+    }
+}
+
+static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->eval(); }
+static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
+static void step() { lo(); hi(); }
+
+// ---- AXI4-Lite BFM (same protocol as the milan_dp legacy harness) ----
+static void axi_write(uint16_t a, uint32_t d) {
+    dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
+    dut->s_axi_wdata = d;  dut->s_axi_wvalid = 1; dut->s_axi_wstrb = 0xF;
+    dut->s_axi_bready = 1;
+    for (int g = 0; g < 4096; ++g) {
+        dut->eval();
+        bool acc = dut->s_axi_awready && dut->s_axi_wready;
+        step();
+        if (acc) break;
+    }
+    dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
+    for (int g = 0; g < 4096; ++g) { dut->eval(); if (dut->s_axi_bvalid) break; step(); }
+    step();
+    dut->s_axi_bready = 0;
+}
+
+static uint32_t axi_read(uint16_t a) {
+    dut->s_axi_araddr = a; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
+    for (int g = 0; g < 4096; ++g) {
+        dut->eval();
+        bool acc = dut->s_axi_arready;
+        step();
+        if (acc) break;
+    }
+    dut->s_axi_arvalid = 0;
+    uint32_t v = 0;
+    for (int g = 0; g < 4096; ++g) { dut->eval(); if (dut->s_axi_rvalid) { v = dut->s_axi_rdata; break; } step(); }
+    step();
+    dut->s_axi_rready = 0;
+    return v;
+}
+
+enum {
+    A_ID = 0x000, A_VERSION = 0x004,
+    A_AVTPRX_STAT = 0x6B8, A_AVTPRX_FRX = 0x6BC, A_PCMRX_CNT = 0x6C4,
+    A_STRM_SEL = 0x800, A_STRM_SNAP = 0x804, A_SW_CTRL = 0x810,
+    A_SW_SID_LO = 0x814, A_SW_SID_HI = 0x818, A_SW_DMAC_LO = 0x81C,
+    A_SW_DMAC_HI = 0x820, A_SW_FMT_LO = 0x824, A_SW_FMT_HI = 0x828,
+    A_SW_STATE = 0x82C, A_SW_CNT0 = 0x830, A_SW_PDUS = 0x858,
+};
+
+static void snap_and_wait() {
+    axi_write(A_STRM_SNAP, 1);
+    for (int g = 0; g < 256; ++g)
+        if ((axi_read(A_STRM_SNAP) & 1) == 0) return;
+}
+
+// ---- PCM ring collection: {tuser, payload bytes} per AXIS frame ----
+struct PcmFrame { int user; std::vector<uint8_t> bytes; };
+static std::vector<PcmFrame> pcm_frames;
+static bool pcm_open = false;
+
+static void pcm_sample() {
+    if (dut->m_axis_pcm_tvalid) {
+        if (!pcm_open) { pcm_frames.push_back({(int)dut->m_axis_pcm_tuser, {}}); pcm_open = true; }
+        for (int l = 0; l < 8; l++)
+            pcm_frames.back().bytes.push_back((dut->m_axis_pcm_tdata >> (8*l)) & 0xFF);
+        if (dut->m_axis_pcm_tlast) pcm_open = false;
+    }
+}
+
+// ---- inject one little-lane frame on the MAC RX port ----
+static void inject(const uint8_t* f, size_t len, int drain = 1200) {
+    std::vector<uint64_t> beats;
+    for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
+        uint64_t v = 0;
+        for (int j = 0; j < 8; j++)
+            if (bt*8 + j < len) v |= (uint64_t)f[bt*8+j] << (8*j);
+        beats.push_back(v);
+    }
+    size_t idx = 0;
+    dut->m_axis_mac_tx_tready = 1;
+    dut->m_axis_pcm_tready = 1;
+    for (int c = 0; c < drain; c++) {
+        if (idx < beats.size()) {
+            dut->s_axis_mac_rx_tdata  = beats[idx];
+            dut->s_axis_mac_rx_tkeep  = 0xFF;
+            dut->s_axis_mac_rx_tvalid = 1;
+            dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+        } else {
+            dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+        }
+        lo();
+        bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+        pcm_sample();
+        hi();
+        if (in_acc) idx++;
+    }
+    dut->s_axis_mac_rx_tvalid = 0;
+}
+
+// AAF PDU: sid = 8 wire bytes, chans = wire channels_per_frame
+static const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
+                            uint8_t pay0) {
+    static uint8_t f[120];
+    memset(f, 0, sizeof f);
+    const uint8_t dmac[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x02};
+    memcpy(f, dmac, 6);
+    memcpy(f+6, sid, 6);                       // src MAC = sid MAC half
+    f[12]=0x22; f[13]=0xF0;
+    f[14]=0x02;                                // AAF
+    f[15]=0x81;                                // sv, tv
+    f[16]=seq;
+    memcpy(f+18, sid, 8);
+    f[26]=0x00; f[27]=0x00; f[28]=0x10; f[29]=0x00;  // avtp_ts = 0x1000 (not late/early)
+    f[30]=0x02;                                // format INT32
+    f[31]=(uint8_t)(0x05 << 4);                // nsr = 48 kHz
+    f[32]=chans;
+    f[33]=32;                                  // bit depth
+    f[34]=0x00; f[35]=0x30;                    // data_len 48
+    for (int i = 0; i < 48; i++) f[38+i] = (uint8_t)(pay0 + i);
+    return f;
+}
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    dut = new Vmilan_datapath;
+
+    printf("=== milan_datapath NxN integration (N_STREAMS=4, P12) ===\n");
+    dut->axis_resetn = 0; dut->gtx_resetn = 0;
+    dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
+    dut->s_axi_bready = dut->s_axi_rready = 0;
+    dut->s_axis_tx_tvalid = 0; dut->s_axis_mac_rx_tvalid = 0;
+    dut->m_axis_mac_tx_tready = 1; dut->m_axis_rx_tready = 1;
+    dut->m_axis_ts_tready = 1; dut->m_axis_pcm_tready = 1;
+    dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1;
+    dut->i_mac_events = 0;
+    for (int i = 0; i < 8; i++) step();
+    dut->axis_resetn = 1; dut->gtx_resetn = 1;
+    for (int i = 0; i < 8; i++) step();
+
+    ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
+    ck("VERSION 0x0009 (P12 engine-backed window)", axi_read(A_VERSION), 0x00010009);
+
+    // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
+    const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+    const uint8_t sidC[8] = {0x04,0x00,0x00,0x00,0x00,0x04,0x00,0x02};
+    const uint8_t sidX[8] = {0x05,0x00,0x00,0x00,0x00,0x05,0x00,0x09};
+    // AAF format u64 for {AAF, 48k, INT32, depth 32, up to 2 ch}
+    const uint32_t FMT_HI = 0x02050220, FMT_LO = 2u << 22;
+
+    printf("-- provision listener 1 (route=DMA) + 2 (route=NULL) via 0x800 --\n");
+    axi_write(A_STRM_SEL, 0x001);                    // dir=0 idx=1
+    axi_write(A_SW_SID_LO, 0x00030001);              // sidB[63:0] LSW
+    axi_write(A_SW_SID_HI, 0x03000000);
+    axi_write(A_SW_FMT_LO, FMT_LO);
+    axi_write(A_SW_FMT_HI, FMT_HI);
+    axi_write(A_SW_CTRL, (2u << 1) | 1u);            // en, route=DMA
+    // CFG readback through the ENGINE-ARBITRATED LCTX port B (real RAM)
+    ck("LCTX w4 CTRL readback (port B)",  axi_read(A_SW_CTRL), 0x5);
+    ck("LCTX w2 FMT_LO readback (port B)", axi_read(A_SW_FMT_LO), FMT_LO);
+    ck("LCTX w3 FMT_HI readback (port B)", axi_read(A_SW_FMT_HI), FMT_HI);
+
+    axi_write(A_STRM_SEL, 0x002);                    // dir=0 idx=2
+    axi_write(A_SW_SID_LO, 0x00040002);
+    axi_write(A_SW_SID_HI, 0x04000000);
+    axi_write(A_SW_FMT_LO, FMT_LO);
+    axi_write(A_SW_FMT_HI, FMT_HI);
+    axi_write(A_SW_CTRL, 0x1);                       // en, route=NULL
+    ck("stream 2 CTRL readback (port B)", axi_read(A_SW_CTRL), 0x1);
+
+    printf("-- tagged AAF frames: 3x stream1, 2x stream2, 1x unknown --\n");
+    inject(mkaaf(sidB, 10, 2, 0x30), 120);
+    inject(mkaaf(sidB, 11, 2, 0x40), 120);
+    inject(mkaaf(sidB, 12, 2, 0x50), 120);
+    inject(mkaaf(sidC, 77, 2, 0x60), 120);
+    inject(mkaaf(sidC, 78, 2, 0x70), 120);
+    inject(mkaaf(sidX, 99, 2, 0x00), 120);           // no table entry: ignored
+
+    ck("PCM ring frames = 3 (stream 1 only)", pcm_frames.size(), 3);
+    bool user_ok = true, pay_ok = true;
+    for (auto& fr : pcm_frames) {
+        if (fr.user != 1) user_ok = false;
+        if (fr.bytes.size() != 48) pay_ok = false;
+    }
+    if (!pcm_frames.empty() && pay_ok)
+        for (int i = 0; i < 48; i++)
+            if (pcm_frames[0].bytes[i] != (uint8_t)(0x30+i)) pay_ok = false;
+    ck("ring tuser == 1 on every frame", user_ok, 1);
+    ck("48-byte payload, frame 0 byte-exact", pay_ok, 1);
+
+    printf("-- SNAP isolation: per-stream Table 7-157 blocks --\n");
+    axi_write(A_STRM_SEL, 0x001);
+    snap_and_wait();
+    ck("s1 CNT9 FRAMES_RX = 3", axi_read(A_SW_CNT0 + 9*4), 3);
+    ck("s1 CNT0 MEDIA_LOCKED = 1", axi_read(A_SW_CNT0 + 0*4), 1);
+    ck("s1 CNT3 SEQ_NUM_MISMATCH = 0", axi_read(A_SW_CNT0 + 3*4), 0);
+    ck("s1 CNT6 UNSUPPORTED_FORMAT = 0", axi_read(A_SW_CNT0 + 6*4), 0);
+    ck("s1 PDUS = {drops 0, pdus 3}", axi_read(A_SW_PDUS), 3);
+    uint32_t st1 = axi_read(A_SW_STATE);
+    ck("s1 STATE media_locked", (st1 >> 10) & 1, 1);
+    ck("s1 STATE wire_chans = 2", (st1 >> 11) & 0xFF, 2);
+
+    axi_write(A_STRM_SEL, 0x002);
+    snap_and_wait();
+    ck("s2 CNT9 FRAMES_RX = 2", axi_read(A_SW_CNT0 + 9*4), 2);
+    ck("s2 PDUS = 2 (NULL still counted)", axi_read(A_SW_PDUS), 2);
+    axi_write(A_STRM_SEL, 0x003);
+    snap_and_wait();
+    ck("s3 (unprovisioned) CNT9 = 0", axi_read(A_SW_CNT0 + 9*4), 0);
+    // stream-0 legacy flat FRAMES_RX untouched by streams 1/2 traffic;
+    // 0x6C4 is the SHARED depacketizer's global {drops,pdus} (all streams:
+    // 3 + 2 = 5) - per-stream pdus live in the window PDUS word
+    ck("legacy 0x6BC (s0 FRAMES_RX) = 0", axi_read(A_AVTPRX_FRX), 0);
+    ck("legacy 0x6C4 = shared-depkt total 5", axi_read(A_PCMRX_CNT), 5);
+
+    printf("-- seq gap on stream 1 moves ONLY stream 1 --\n");
+    // drain the 8-PDU settle window first (mismatches are suppressed while
+    // settle > 0, the flat-monitor rule): 6 more in-order PDUs = 9 total
+    for (uint8_t s = 13; s <= 18; s++) inject(mkaaf(sidB, s, 2, 0x30), 120);
+    inject(mkaaf(sidB, 21, 2, 0x30), 120);           // expected 19: lost 2
+    axi_write(A_STRM_SEL, 0x001);
+    snap_and_wait();
+    ck("s1 CNT9 FRAMES_RX = 10", axi_read(A_SW_CNT0 + 9*4), 10);
+    ck("s1 CNT3 SEQ_NUM_MISMATCH = 1", axi_read(A_SW_CNT0 + 3*4), 1);
+    ck("s1 CNT2 STREAM_INTERRUPTED = 1", axi_read(A_SW_CNT0 + 2*4), 1);
+    axi_write(A_STRM_SEL, 0x002);
+    snap_and_wait();
+    ck("s2 CNT3 still 0", axi_read(A_SW_CNT0 + 3*4), 0);
+    ck("s2 CNT9 still 2", axi_read(A_SW_CNT0 + 9*4), 2);
+
+    printf("-- TCTX: talker CFG words through the live packetizer port --\n");
+    axi_write(A_STRM_SEL, 0x101);                    // dir=1 idx=1
+    axi_write(A_SW_DMAC_LO, 0xF000AB01);
+    axi_write(A_SW_DMAC_HI, 0x000591E0);             // uid 5 in [31:16]
+    axi_write(A_SW_CTRL, (2u << 5) | 1u);            // TCTX w0: vid=2, en
+    ck("TCTX w0 CTRL readback (port B)", axi_read(A_SW_CTRL), (2u << 5) | 1u);
+    ck("TCTX w1 DMAC_LO readback", axi_read(A_SW_DMAC_LO), 0xF000AB01);
+    ck("TCTX w2 DMAC_HI readback", axi_read(A_SW_DMAC_HI), 0x000591E0);
+    axi_write(A_STRM_SEL, 0x102);                    // untouched talker ctx
+    ck("talker 2 CTRL reads 0", axi_read(A_SW_CTRL), 0);
+
+    printf("--------------------------------------------------------------\n");
+    printf("checks: %ld   failures: %ld\n", checks, fails);
+    printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
+    dut->final();
+    delete dut;
+    return fails ? 1 : 0;
+}

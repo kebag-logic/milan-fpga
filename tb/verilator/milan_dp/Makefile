@@ -80,8 +80,10 @@ all: run
 
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
+	./obj_nxn/Vmilan_dp_nxn
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_nxn
