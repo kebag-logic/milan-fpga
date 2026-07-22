@@ -31,7 +31,19 @@
 //                one stream's slope through the 3-stage multiply pipeline
 //                per cycle, one stream's admission decision per cycle
 //                (the CBS sequential-slope-engine pattern). No parallel
-//                49-bit adder tree.
+//                wide adder tree.
+//
+//                Slope width (P12 trim, lane-K watch item): slopes are
+//                carried in 30 bits, NOT the raw 49-bit product. Every
+//                slope that can ever be GRANTED is <= the 75% ceiling
+//                (750e6 < 2^30), and any TSpec whose exact slope would
+//                exceed 2^30-1 is refused either way - so the multiply
+//                SATURATES at 30'h3FFF_FFFF (> the ceiling, same refusal
+//                verdict as the exact value) and the granted arithmetic
+//                is bit-exact vs the 49-bit original. Accumulators: acc
+//                (running granted sum) <= ceiling -> 30 bits; cand/sacc
+//                carry one extra bit (grant + one candidate / live grants
+//                + draining holds <= 2x ceiling) -> 31 bits.
 //
 //                Ordering per stream (FR-SRP-03 - a withdrawn reservation
 //                can never leak frames):
@@ -79,8 +91,19 @@ module KL_lwsrp_bw_gate #(
   localparam int unsigned IDXW_C = (N_STREAMS_P <= 1) ? 1
                                                       : $clog2(N_STREAMS_P);
 
+  //! slope carrier width: max ADMISSIBLE slope < 2^30 (75% of 1G = 750e6);
+  //! larger exact slopes saturate to SLOPE_SAT_C which still exceeds the
+  //! ceiling (identical refusal verdict, see header)
+  localparam int unsigned    SLOPE_W_C   = 30;
+  localparam logic [SLOPE_W_C-1:0] SLOPE_SAT_C = {SLOPE_W_C{1'b1}};
+  //! iv_bytes ceiling whose slope still fits 30 bits:
+  //! (2^30-1) / (8000*8) = 16777
+  localparam int unsigned    IV_MAX_C    =
+      ((2**SLOPE_W_C) - 1) / (CLASS_A_INTERVALS_PS_C * 8);
+
   //! 75 % of the port rate, bps
-  wire [48:0] limit_w = is_1g_i ? 49'd750_000_000 : 49'd75_000_000;
+  wire [SLOPE_W_C-1:0] limit_w = is_1g_i ? SLOPE_W_C'(750_000_000)
+                                         : SLOPE_W_C'(75_000_000);
 
   //! per-stream request (live level; instant teardown guard)
   wire [N_STREAMS_P-1:0] req_w =
@@ -94,7 +117,7 @@ module KL_lwsrp_bw_gate #(
   logic [IDXW_C-1:0] cidx_r, cidx_q1_r, cidx_q2_r;
   logic [16:0]       frame_bytes_r;
   logic [32:0]       iv_bytes_r;
-  logic [48:0]       slope_q_r [N_STREAMS_P];
+  logic [SLOPE_W_C-1:0] slope_q_r [N_STREAMS_P];
 
   always_ff @(posedge clk_i or negedge rst_n) begin : slope_walk
     if (!rst_n) begin
@@ -109,7 +132,12 @@ module KL_lwsrp_bw_gate #(
                        + 17'(MSRP_FRAME_OVERHEAD_C);
       iv_bytes_r    <= 33'(interval_frames_i[16*cidx_q1_r +: 16])
                        * 33'(frame_bytes_r);
-      slope_q_r[cidx_q2_r] <= 49'(iv_bytes_r) * 49'(CLASS_A_INTERVALS_PS_C * 8);
+      //! saturating 30-bit slope (see header): iv_bytes <= IV_MAX_C is the
+      //! exact product (15b x 17b -> < 2^30); beyond it the exact slope
+      //! exceeds every ceiling -> saturate (same refusal verdict)
+      slope_q_r[cidx_q2_r] <= (iv_bytes_r > 33'(IV_MAX_C))
+          ? SLOPE_SAT_C
+          : SLOPE_W_C'(32'(iv_bytes_r[14:0]) * 32'(CLASS_A_INTERVALS_PS_C * 8));
     end
   end : slope_walk
 
@@ -118,18 +146,21 @@ module KL_lwsrp_bw_gate #(
   // accumulates the Σ of HELD slopes (the ordering FSM's slope phase)
   // -----------------------------------------------------------------------
   logic [IDXW_C-1:0]     aidx_r;
-  logic [48:0]           acc_r, sacc_r;
+  logic [SLOPE_W_C-1:0]  acc_r;            //! granted running Σ <= ceiling
+  logic [SLOPE_W_C:0]    sacc_r;           //! held Σ <= 2x ceiling (draining)
   logic                  over_acc_r;
   logic [N_STREAMS_P-1:0] wgrant_r, grant_r;
   logic [N_STREAMS_P-1:0] slope_on_r;
-  logic [48:0]           slope_hold_r [N_STREAMS_P];
+  logic [SLOPE_W_C-1:0]  slope_hold_r [N_STREAMS_P];
 
-  wire [48:0] cand_w    = acc_r + slope_q_r[aidx_r];
-  wire        fit_w     = req_w[aidx_r] && (cand_w <= limit_w);
-  wire        refuse_w  = req_w[aidx_r] && !fit_w;
-  wire        round_w   = (32'(aidx_r) == N_STREAMS_P-1);
-  wire [48:0] sacc_nx_w = sacc_r + (slope_on_r[aidx_r]
-                                    ? slope_hold_r[aidx_r] : 49'd0);
+  wire [SLOPE_W_C:0] cand_w    = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+  wire               fit_w     = req_w[aidx_r] &&
+                                 (cand_w <= {1'b0, limit_w});
+  wire               refuse_w  = req_w[aidx_r] && !fit_w;
+  wire               round_w   = (32'(aidx_r) == N_STREAMS_P-1);
+  wire [SLOPE_W_C:0] sacc_nx_w = sacc_r + (slope_on_r[aidx_r]
+                                    ? {1'b0, slope_hold_r[aidx_r]}
+                                    : '0);
 
   logic [N_STREAMS_P-1:0] wgrant_now_w;
   always_comb begin : grant_merge
@@ -151,7 +182,9 @@ module KL_lwsrp_bw_gate #(
         wgrant_r <= '0;
       end else begin
         wgrant_r   <= wgrant_now_w;
-        acc_r      <= fit_w ? cand_w : acc_r;
+        //! a FIT candidate sum is <= the ceiling < 2^30: the 30-bit slice
+        //! is exact
+        acc_r      <= fit_w ? cand_w[SLOPE_W_C-1:0] : acc_r;
         sacc_r     <= sacc_nx_w;
         over_acc_r <= over_acc_r | refuse_w;
         aidx_r     <= aidx_r + 1'b1;
