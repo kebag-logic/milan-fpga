@@ -167,6 +167,188 @@ RTL_TODAY = dict(
 CRF_FORMAT_DEFAULT = "0x041060010000BB80"     # CRF AUDIO_SAMPLE 48k, gen_aem_store
 BUFLEN_DEFAULT_NS = 2126000
 
+# ------------------------------------------------------ resource estimator --
+# Approximate pre-Vivado FPGA resource model (gaps item-4 subtask, USER
+# 2026-07-22): per-module cost table x instance counts from the config, with
+# a budget verdict vs the part. Calibrated 2026-07-22 against the REAL
+# hierarchical place report of the shipping Arty build ("arty mf48" below):
+#   ~/litex-milan/work/build_arty_eto_milanfinal48/gateware/
+#       digilent_arty_utilization_hierarchical_place.rpt
+# cross-checked against the AX7101 build ("ax mf38", totals within 2.4%):
+#   ~/litex-milan/work/build_ax7101_eppo_milanfinal38/gateware/
+#       alinx_ax7101_utilization_hierarchical_place.rpt
+# HOUSE RULE (area-70 campaign): hierarchical figures are trusted for the
+# LARGE blocks only (cpu, milan_datapath children, MAC/DMA/DDR); small-module
+# rows are labeled low-confidence (cross-hierarchy LUT combining skews them).
+# bram36 = RAMB36 + RAMB18/2 equivalents. Where a per-instance marginal cost
+# does not exist yet (NxN engines, item 5), the cost of TODAY's single
+# instance is charged per instance = a labeled UPPER BOUND (full replication,
+# no sharing).
+
+PART_XC7A100T = dict(lut=63400, ff=126800, bram36=135, dsp=240)
+RESOURCE_CATS = ("lut", "ff", "bram36", "dsp")
+
+# Budget verdict thresholds (worst category, % of PART_XC7A100T).
+VERDICT_OK_BELOW = 70.0      # area-70 directive: keep slice headroom
+VERDICT_TIGHT_UPTO = 80.0
+
+CAL_CLUSTERS = 16            # aecp_entity row includes the 16-cluster AEM ROM
+CAL_L2_BYTES = 65536         # cpu_vexii row includes the 64 KB L2 of mf48
+ROM_BYTES_PER_CLUSTER = 128  # ~104 B AUDIO_CLUSTER (1722.1 7.2.16) + map row
+                             # + directory slice; RAMB36 = 4096 B
+
+
+def _cost(lut, ff, bram36, dsp, src, confidence):
+    return dict(lut=lut, ff=ff, bram36=bram36, dsp=dsp,
+                src=src, confidence=confidence)
+
+
+RESOURCE_COSTS = {
+    # -- config-independent base (large blocks: measured, high confidence) --
+    "soc_infra": _cost(13995, 14010, 42.5, 0,
+                       "arty mf48 hier-place row '(digilent_arty)' top leaf "
+                       "(LiteX glue + LiteEth MAC + LiteDRAM DDR + DMA; "
+                       "39 RAMB36 + 7 RAMB18)",
+                       "measured"),
+    "cpu_vexii": _cost(17981, 12132, 41.0, 16,
+                       "arty mf48 row 'VexiiRiscvLitex_*' subtree incl 64 KB "
+                       "L2 (33 RAMB36 + 16 RAMB18)", "measured"),
+    "l2_size_delta_4k": _cost(0, 0, 1.0, 0,
+                              "model: 1 RAMB36 per 4 KB of L2 vs the 64 KB "
+                              "calibration build (ax mf38 32 KB cross-check "
+                              "exact: 41-8=33)", "model"),
+    "traffic_controller": _cost(1903, 1342, 6.0, 24,
+                                "arty mf48 row 'traffic_controller' (4 CBS "
+                                "class engines - class-level, not per-stream)",
+                                "measured"),
+    "aecp_entity": _cost(5644, 3089, 2.5, 0,
+                         "arty mf48 row 'aecp_listener' (KL_aecp_top incl "
+                         "16-cluster AEM ROM store)", "measured"),
+    "aem_rom_extra_cluster": _cost(0, 0, ROM_BYTES_PER_CLUSTER / 4096.0, 0,
+                                   f"model: {ROM_BYTES_PER_CLUSTER} B ROM per "
+                                   "cluster beyond 16 (tracked ROM = 3653 B "
+                                   "for 34 descriptors)", "model"),
+    "crf_rx": _cost(2699, 8457, 0, 0, "arty mf48 row 'crf_rx' (KL_crf_rx)",
+                    "measured"),
+    "csr": _cost(1628, 2024, 1.0, 0,
+                 "arty mf48 row 'csr' (milan_csr, 2 RAMB18)", "measured"),
+    "ptp_timestamp": _cost(814, 1667, 0, 0,
+                           "arty mf48 row 'ptp_timestamp' (ptp_ts_top)",
+                           "measured"),
+    "rx_filter": _cost(539, 1570, 0, 0,
+                       "arty mf48 row 'rx_filter' (tcam MAC database)",
+                       "measured"),
+    "i2s_renderer": _cost(562, 628, 1.0, 0,
+                          "arty mf48 row 'i2s_player' (KL_i2s_playback; per "
+                          "physical audio interface)", "measured"),
+    "lwsrp_base": _cost(1523, 1083, 1.5, 1,
+                        "arty mf48 row 'lwsrp' (KL_lwsrp_top: tx + bw_gate + "
+                        "rx walker/registrars, 1 RAMB36 + 1 RAMB18)",
+                        "measured"),
+    "datapath_misc": _cost(893, 1417, 0, 0,
+                           "arty mf48 rows adp_adv+acmp_responder+crf_tx+"
+                           "link_guard+tone_gen+ctl_tx_mux+ethernet_counters "
+                           "(summed)",
+                           "low (small-module hierarchical rows; area-70 "
+                           "rule: cross-hierarchy LUT combining skews them)"),
+    # -- per-instance marginals (first instance measured; instances beyond
+    #    today's single-instance RTL are UPPER BOUNDS = full replication) --
+    "aaf_listener_engine": _cost(1223, 2094, 1.5, 1,
+                                 "arty mf48 rows aaf_rx_depkt+avtp_rx_parser+"
+                                 "avtp_rx_monitor+pcm_lpf (summed; per AAF "
+                                 "listener stream)",
+                                 "measured x1; UPPER BOUND beyond 1 (item-5 "
+                                 "NxN engines do not exist yet)"),
+    "aaf_talker_engine": _cost(338, 645, 0, 0,
+                               "arty mf48 row 'aaf_talker' (aaf_talker_i2s; "
+                               "per talker stream)",
+                               "measured x1; UPPER BOUND beyond 1"),
+    "maap_claim_ctx": _cost(480, 267, 0, 0,
+                            "arty mf48 row 'maap_engine' (KL_maap; per talker "
+                            "stream claim)", "measured x1; UPPER BOUND beyond 1"),
+    "acmp_listener_ctx": _cost(1569, 1527, 0, 0,
+                               "arty mf48 row 'acmp_listener_sm' "
+                               "(KL_acmp_listener; per listener stream)",
+                               "measured x1; UPPER BOUND beyond 1"),
+    "lwsrp_attr_ctx": _cost(926, 750, 0, 0,
+                            "arty mf48 rows lwsrp rx walker+registrar+"
+                            "ta_registrar (summed; per attribute context "
+                            "beyond today's 1L+1T+CRF)",
+                            "UPPER BOUND (derived from today's single-context "
+                            "modules)"),
+}
+
+
+def resource_instances(cfg, overlay):
+    """Ordered (module, instance-count) pairs for the config. Counts of 0
+    drop out; l2_size_delta_4k may be negative (smaller L2 than the
+    calibration build)."""
+    L, T = len(cfg["listeners"]), len(cfg["talkers"])
+    crf = 1 if cfg["clocking"]["crf_sink"] else 0
+    clusters = overlay["descriptor_counts"]["AUDIO_CLUSTER"]
+    return [
+        ("soc_infra", 1),
+        ("cpu_vexii", 1),
+        ("l2_size_delta_4k",
+         (cfg["constraints"]["l2_bytes"] - CAL_L2_BYTES) // 4096),
+        ("traffic_controller", 1),
+        ("aecp_entity", 1),
+        ("aem_rom_extra_cluster", max(0, clusters - CAL_CLUSTERS)),
+        ("crf_rx", crf),
+        ("csr", 1),
+        ("ptp_timestamp", 1),
+        ("rx_filter", 1),
+        ("i2s_renderer", 1),
+        ("datapath_misc", 1),
+        ("aaf_listener_engine", L),
+        ("aaf_talker_engine", T),
+        ("maap_claim_ctx", T),
+        ("acmp_listener_ctx", L),
+        ("lwsrp_base", 1),
+        ("lwsrp_attr_ctx", (L - 1) + (T - 1)),
+    ]
+
+
+def resource_verdict(worst_pct):
+    """Budget verdict vs the part: OK (<70%), TIGHT (70-80%, area-70
+    directive), OVER (>80%)."""
+    if worst_pct < VERDICT_OK_BELOW:
+        return "OK"
+    if worst_pct <= VERDICT_TIGHT_UPTO:
+        return "TIGHT"
+    return "OVER"
+
+
+def estimate_resources(cfg, overlay):
+    """Approximate LUT/FF/BRAM36/DSP estimate for the config vs xc7a100t.
+    Deterministic; returns dict(items, totals, pct, worst, verdict,
+    upper_bound)."""
+    items, tot = [], {k: 0.0 for k in RESOURCE_CATS}
+    upper = False
+    for name, n in resource_instances(cfg, overlay):
+        if n == 0:
+            continue
+        c = RESOURCE_COSTS[name]
+        sub = {k: n * c[k] for k in RESOURCE_CATS}
+        for k in RESOURCE_CATS:
+            tot[k] += sub[k]
+        ub = "UPPER BOUND" in c["confidence"] and \
+            (n > 1 or name == "lwsrp_attr_ctx")
+        upper = upper or ub
+        items.append(dict(module=name, instances=n,
+                          per_instance={k: c[k] for k in RESOURCE_CATS},
+                          subtotal=sub, confidence=c["confidence"],
+                          provenance=c["src"], upper_bound=ub))
+    totals = {k: (round(tot[k], 2) if k == "bram36" else int(round(tot[k])))
+              for k in RESOURCE_CATS}
+    pct = {k: round(100.0 * tot[k] / PART_XC7A100T[k], 1)
+           for k in RESOURCE_CATS}
+    worst = max(RESOURCE_CATS, key=lambda k: pct[k])
+    return dict(part="xc7a100t", part_budget=dict(PART_XC7A100T),
+                items=items, totals=totals, pct=pct,
+                worst_category=worst, worst_pct=pct[worst],
+                verdict=resource_verdict(pct[worst]), upper_bound=upper)
+
 
 def aaf_pcm32_48k(channels, ut=False):
     """AAF PCM 32-bit 48k-base stream format qword (channels at bits [31:22]
@@ -689,7 +871,61 @@ def emit_aem_overlay(cfg):
 
 
 # ------------------------------------------------------------- build plan ---
-def emit_build_plan(cfg, argv, overlay, marks):
+def emit_resource_section(est):
+    """The '## Resource estimate' block of the build plan."""
+    ln = []
+    a = ln.append
+    a("## Resource estimate (approximate, pre-Vivado)")
+    a("")
+    a("Per-module costs calibrated from the REAL arty mf48 hierarchical "
+      "place report (cross-checked ax mf38); large blocks measured, "
+      "small-module rows low-confidence, NxN scaling rows UPPER BOUND "
+      "(area-70 house rule - see sw/builder/README-parameters.md).")
+    a("")
+    a("| Module | Inst | LUT | FF | BRAM36 | DSP | Confidence |")
+    a("|--------|------|-----|----|--------|-----|------------|")
+    for it in est["items"]:
+        s = it["subtotal"]
+        a(f"| {it['module']} | {it['instances']} | {int(round(s['lut']))} "
+          f"| {int(round(s['ff']))} | {s['bram36']:.2f} | {int(round(s['dsp']))} "
+          f"| {it['confidence']} |")
+    t, p = est["totals"], est["pct"]
+    a(f"| **total** | | **{t['lut']}** | **{t['ff']}** | **{t['bram36']:.2f}** "
+      f"| **{t['dsp']}** | |")
+    a("")
+    b = est["part_budget"]
+    a(f"Budget vs {est['part']} ({b['lut']} LUT / {b['ff']} FF / "
+      f"{b['bram36']} BRAM36 / {b['dsp']} DSP):")
+    a("")
+    for k, label in (("lut", "LUT"), ("ff", "FF"), ("bram36", "BRAM36"),
+                     ("dsp", "DSP")):
+        mark = "  <- worst" if k == est["worst_category"] else ""
+        a(f"- {label}: {t[k]} / {b[k]} ({p[k]}%){mark}")
+    a("")
+    v = est["verdict"]
+    if v == "OK":
+        a(f"**Verdict: OK** (worst category {est['worst_category'].upper()} "
+          f"{est['worst_pct']}% < {VERDICT_OK_BELOW:.0f}%).")
+    elif v == "TIGHT":
+        a(f"**Verdict: TIGHT** (worst category {est['worst_category'].upper()} "
+          f"{est['worst_pct']}% in {VERDICT_OK_BELOW:.0f}-"
+          f"{VERDICT_TIGHT_UPTO:.0f}%; area-70 directive: keep slice "
+          "headroom - docs/findings area-70 campaign).")
+    else:
+        a(f"**Verdict: OVER** (worst category {est['worst_category'].upper()} "
+          f"{est['worst_pct']}% > {VERDICT_TIGHT_UPTO:.0f}% of the part; "
+          "expect placement/timing pain - area-70 directive).")
+    if est["upper_bound"]:
+        a("")
+        a("**UPPER BOUND estimate:** rows marked UPPER BOUND charge today's "
+          "single-instance module cost per instance (full replication, no "
+          "sharing) because the NxN engines do not exist yet (item 5); the "
+          "real cost will be lower where contexts share logic.")
+    a("")
+    return ln
+
+
+def emit_build_plan(cfg, argv, overlay, marks, est):
     c, e, i = cfg["constraints"], cfg["entity"], cfg["interface"]
     ln = []
     a = ln.append
@@ -768,6 +1004,7 @@ def emit_build_plan(cfg, argv, overlay, marks):
       "stay in sw/litex/sweep.sh; sweep.sh sources the generated "
       f"configs/generated/sweep_opts_{cfg['board_target']}.sh for OPTS/L2)")
     a("")
+    ln.extend(emit_resource_section(est))
     a("## RTL capability")
     a("")
     a("| Element | Status | Note |")
@@ -794,7 +1031,8 @@ def build(config_path, outdir=None):
     argv = emit_soc_argv(cfg)
     overlay = emit_aem_overlay(cfg)
     marks = rtl_capability_marks(cfg)
-    plan = emit_build_plan(cfg, argv, overlay, marks)
+    est = estimate_resources(cfg, overlay)
+    plan = emit_build_plan(cfg, argv, overlay, marks, est)
     sweep = emit_sweep_opts(cfg)
 
     outdir = outdir or os.path.join(HERE, "out")
@@ -821,7 +1059,7 @@ def build(config_path, outdir=None):
     with open(p_sweep, "w") as f:
         f.write(sweep)
     return dict(cfg=cfg, argv=argv, overlay=overlay, marks=marks, plan=plan,
-                sweep_opts=sweep,
+                resource_estimate=est, sweep_opts=sweep,
                 paths=dict(soc_params=p_soc, aem_overlay=p_ovl,
                            build_plan=p_plan, sweep_opts=p_sweep))
 
@@ -845,7 +1083,12 @@ def main():
           f"({r['cfg']['interface']['cluster_policy']}), "
           f"model_id {r['cfg']['entity']['entity_model_id']} "
           f"({r['cfg']['model_id']['source']}); "
-          f"{n_planned} planned element(s)")
+          f"{n_planned} planned element(s); resources "
+          f"{r['resource_estimate']['verdict']} "
+          f"(worst {r['resource_estimate']['worst_category'].upper()} "
+          f"{r['resource_estimate']['worst_pct']}%"
+          + (", UPPER BOUND" if r["resource_estimate"]["upper_bound"] else "")
+          + ")")
     for p in r["paths"].values():
         print(f"  wrote {os.path.relpath(p, ROOT)}")
 
