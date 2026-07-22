@@ -1,0 +1,99 @@
+# Traceability — Milan v1.2 (Consolidated, 2023-11-30) — profile deltas
+
+Part of [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Section
+numbers verified against
+`/home/alex/standards/Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf`.
+This file carries only what Milan **adds to or overrides in** the base
+standards; base rows live in the per-standard files. CERT = our bench behave
+recreation of the end-station validation plan (63 scenarios, both boards
+green 2026-07-21; scope caveats in `docs/MILAN_COMPLIANCE_GAPS.md` §6 — it is
+a recreation, not the official ATL run).
+
+## 1. Device-level requirements (Milan §4)
+
+| # | Section | Required behavior | Module / agent | Verification today / tsn_gen | Why it matters |
+|---|---------|-------------------|----------------|------------------------------|----------------|
+| M-DEV-1 | 4.2.6.2.1 | priority1 value legal for a Milan PAAD (ships 246 for certification posture; bench 100 override documented as bench-only) | ptp4l config (S-script sed-REPLACE, not append) | ✅ wire CERT es-1.1 half (priority1 read at tap); config-trap documented (base image ships 248) | 4.2.6.2.1: a wrong priority1 changes who wins BMCA in *every* customer install, not just the bench. |
+| M-DEV-2 | 4.2.6.2.5 | Multiple Pdelay responses to one request ⇒ treat per Milan rule (not asCapable flapping) | ptp4l | 🟡 not explicitly recreated; normal-path pdelay green in CERT | 4.2.6.2.5 exists because miswired networks duplicate pdelay responses; unhandled it flaps asCapable. |
+| M-DEV-3 | 4.2.6.2.6 | Pdelay turnaround time bound honored | ptp4l + HW ts path latency | 🟡 implicit in CERT pdelay cadence; no explicit turnaround measurement feature | 4.2.6.2.6: slow turnaround inflates neighbor's link-delay estimate and can breach its meanLinkDelayThresh. |
+| M-DEV-4 | 4.2.6.2.7 | Negative pdelay values handled (clamp, not asCapable loss) | ptp4l | 🟡 not explicitly recreated | 4.2.6.2.7: tight links + timestamp error produce legal negative results; naive handling drops the port from the domain. |
+| M-DEV-5 | 4.2.7.1.1 | MRP timer tolerances and default values per Milan | KL_lwsrp_timers | ✅ RTL lwsrp cadence (scaled); CERT wire cadence | 4.2.7.1.1 tightens 802.1Q 10.7.11 — a legal-per-Q timer can still fail Milan. |
+| M-DEV-6 | 4.2.7.1.2 | Malformed MRPDUs discarded without state damage | KL_lwsrp_walker | ✅ RTL lwsrp_rx (truncation/garbage recovery) | 4.2.7.1.2 is Milan's robustness clause — the walker wedge class is a remote reservation DoS. |
+| M-DEV-7 | 4.2.7.1.3 | EndMark rules for MRPDUs (accept both 0x0000-terminated and length-terminated) | walker + tx | ✅ RTL lwsrp_tx (endmark walk decode); lwsrp_switchpdu (real switch PDU) | 4.2.7.1.3: the certified switch emits the compact form — parsing only one form loses real-world PDUs. |
+| M-DEV-8 | 4.2.7.2.1 | MSRP Domain declaration = {SR class A, priority 3, VID 2} | KL_lwsrp_tx | ✅ CERT es-1.2 (every Domain decl checked); RTL lwsrp_tx bytes | 4.2.7.2.1 fixes the values 802.1Q leaves configurable — interop depends on all three. |
+| M-DEV-9 | 4.2.7.2.2 | Instantaneous IN→MT transition handling | registrar | 🟡 leave-timer paths tested (RTL lwsrp_rx); the specific IN→MT-without-Lv vector not explicit | 4.2.7.2.2: bridges may drop registrations instantly on link events; the talker must not keep streaming into MT. |
+| M-DEV-10 | 4.3.3.1 / 4.3.3.2 | Talker declares its attribute + reserves bandwidth before streaming | lwsrp tx + bw_gate + datapath gating | ✅ RTL lwsrp (slope-before-gate); SILICON e2e | 4.3.3.2: streaming before reservation is exactly what AVB exists to prevent. |
+| M-DEV-11 | 4.3.4 | Talker FQTSS: SR traffic shaped per class | CBS engine (per-queue; AAF uses reservation bw-gate, per-queue CBS disabled by policy) | ✅ RTL cbs/datapath; SILICON shaper-under-900M-iperf round | 4.3.4: unshaped SR traffic bursts through the bridge's policer — the VID-0-clobber flood incident is the cautionary tale. |
+| M-DEV-12 | 4.3.5.1 | MAAP mandatory for talkers (claimed DMAC used by streams) | KL_maap + eff_aaf_dmac mux | ✅ RTL maap; SILICON claim-adopt at boot | 4.3.5.1 upgrades 1722 Annex B from optional to mandatory for Milan talkers. |
+| M-DEV-13 | 4.3.5.2 / 4.4.2.3 | tu field set by talker on GM events / honored by listener | talker header path; KL_avtp_rx_monitor | ✅ RTL avtp_rxmon (tu counter); 🟡 talker-side tu *setting* on a real GM change never exercised | 4.4.2.3: ignoring tu makes the listener servo chase GM transients. |
+| M-DEV-14 | 4.4.2.2 | Listener filters incoming AVTPDUs (stream_id + DMAC binding) | avtp_stream_parser match + rx_mac_filter | ✅ RTL avtp_stream (reject cases) + rx_filter/tcam_csr | 4.4.2.2: without the filter any multicast AVTP stream on the LAN reaches the render path. |
+| M-DEV-15 | 4.4.2.1 | Listener supports the Milan presentation-time window | i2spb scheduler + presentation-offset register | ✅ RTL i2spb; SILICON loop timing (record −73.4 dB runs) | 4.4.2.1: a listener that can't honor a 2 ms-class offset can't inter-operate with low-latency talkers. |
+| M-DEV-16 | 4.2.5 / §8 | Network redundancy (dual interfaces) | — | ➖ N/A — explicitly out of scope (dependency matrix decision, PROTOCOL_VALIDATION_MATRIX M-4) | Recorded exclusion; ADP/AEM must not advertise a secondary interface. |
+
+## 2. Discovery deltas (Milan §5.6)
+
+| # | Section | Required behavior | Module | Verification today / tsn_gen | Why it matters |
+|---|---------|-------------------|--------|------------------------------|----------------|
+| M-ADP-1 | 5.6.2 | ADPDU field values constrained by Milan (capabilities bits, valid_time floor) | adp_advertiser CSR provisioning | ✅ RTL adp field golden; SILICON Hive/la_avdecc Milan=1 clean | 5.6.2: a 1722.1-legal ADPDU can still be Milan-nonconforming; controllers gate Milan features on these bits. |
+| M-ADP-2 | 5.6.3 (Tables 5.49–5.51) | Advertise SM: ADVERTISING on interface up, DOWN behavior, re-advertise events (GM change, config change) | adp_advertiser + link_guard eff_link | ✅ RTL adp + link_guard; CERT link-flap; 🟡 GM-change re-advertise event not TB-driven (see ADP-9) | 5.6.3.5: missing a re-advertise event leaves controllers with stale capability views until the periodic timer. |
+| M-ADP-3 | 5.6.4 (Tables 5.52–5.54) | Listener's discovery SM: track the bound talker's availability via ADP, age out on valid_time expiry, re-probe on reappearance | KL_acmp_listener (ADP availability watch) ← KL_adp_parser | ✅ RTL acmp_lstn (availability watch + age-out + reappearance re-probe) | 5.6.4: this SM is what makes a Milan listener self-heal when its talker reboots — the core fast-connect experience. |
+
+## 3. Connection management deltas (Milan §5.5)
+
+| # | Section | Required behavior | Module | Verification today / tsn_gen | Why it matters |
+|---|---------|-------------------|--------|------------------------------|----------------|
+| M-ACMP-1 | 5.5.2.2 (Tables 5.24/5.25) | Use only Milan's ACMPDU field subset; unused fields zero | both ACMP modules | ✅ RTL acmp/acmp_lstn (zero-field checks in response tables) | Table 5.25: writing 1722.1-meaningful values into Milan-unused fields confuses mixed-vintage controllers. |
+| M-ACMP-2 | 5.5.2.3 (Table 5.26) | Milan command timeouts (probe ladder timing) | KL_acmp_listener timers | ✅ RTL acmp_lstn (200 ms ×2 → 4 s retry ladder, scaled clock) | Table 5.26 differs from 1722.1 8.2.2 — asserting the wrong table passes one spec and fails the other. |
+| M-ACMP-3 | 5.5.3 (Tables 5.28–5.30) | Listener binding SM: BIND_RX → respond + PROBE_TX; probing/settled states; SRP registered/failed transitions; UNBIND teardown | KL_acmp_listener | ✅ RTL acmp_lstn (89: full transition table incl. rebind-same vs rebind-different) | 5.5.3 replaces 1722.1 8.2.4 wholesale; the binding SM *is* Milan connection management. |
+| M-ACMP-4 | 5.5.3.1 (Table 5.31/5.35) | Wrong controller_entity_id on BIND/UNBIND → exact refusal field set | KL_acmp_listener | ✅ RTL acmp_lstn (wrong-EID case → CONTROLLER_NOT_AUTHORIZED, no state change) | Table 5.31: refusal must not disturb the existing bind — a hostile unbind attempt is a no-op. |
+| M-ACMP-5 | 5.5.3.5 / Table 5.34+5.37 | GET_RX_STATE returns the per-state payload (bound, talker, count, flags) | KL_acmp_listener | ✅ RTL acmp_lstn (per-state payloads); SILICON (CSR-verify recipe — pw0 can't see board ACMP responses) | Table 5.37 is how controllers resynchronize after missing responses; wrong payloads corrupt controller state silently. |
+| M-ACMP-6 | 5.5.4.1 (Tables 5.40–5.43) | Talker PROBE_TX: SUCCESS + live stream params (stream_id = {MAC, uid} matching the AVTP header), count=0, flag rules; invalid uid → TALKER_UNKNOWN_ID | KL_acmp_responder | ✅ RTL acmp (all four response tables) | 5.5.4.1: PROBE_TX is the *only* way a Milan listener learns stream_id/DMAC — any field error propagates into the bind. |
+| M-ACMP-7 | 5.5.4.2 / 5.5.4.3 (Tables 5.44–5.47) | DISCONNECT_TX always SUCCESS + zeroed stream fields, flags echoed, no state change; GET_TX_STATE live params | KL_acmp_responder | ✅ RTL acmp | 5.5.4.2's "no state change" is a deliberate Milan deviation from 1722.1 — the talker is near-stateless. |
+| M-ACMP-8 | 5.5.4.4 (Table 5.48) | GET_TX_CONNECTION → NOT_SUPPORTED | KL_acmp_responder | ✅ RTL acmp | 5.5.4.4: answering it (1722.1-style) advertises state Milan says we don't keep. |
+| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 | Auto Connect / saved-state fast-connect: listener restores its bind after power-up on its own | — | ❌ MISSING — binds are fabric state only, lost on reboot/reflash (gaps §5b; caused the overnight-lapse incident); roadmap item 9 | 5.5.1.4 is the "system comes back after a power cut" behavior installers assume; today a controller must re-issue CONNECT_RX. |
+| M-ACMP-10 | 5.5.1.2 (binding for sink 1 / CRF) | Fast-connect sid/dmac fields honored per sink | KL_acmp_listener (sink 1 cap_sid_r; sink 0 derives sid_from_eid) | 🟡 RTL milan_dp (sink-1 bind → CRF lock closure); **sink 0 ignores an explicit fast-connect stream_id** (gaps §5b — synthetic talkers must craft their EID) | 5.5.1.2: a controller binding sink 0 to a stream whose sid ≠ {talker_mac, tuid} derivation silently binds to the wrong stream. |
+
+## 4. AECP/AEM deltas (Milan §5.3 model, §5.4 commands, MVU)
+
+| # | Section | Required behavior | Module | Verification today / tsn_gen | Why it matters |
+|---|---------|-------------------|--------|------------------------------|----------------|
+| M-AECP-1 | 5.3.2 / 5.3.3.x | Descriptor tree shaped per Milan (mandatory descriptor set + per-descriptor field constraints) | aem_store ROM from `milan-v12-entity.json` | ✅ RTL aecp vs golden; SILICON Hive; CERT enumerate | 5.3.3: Milan constrains fields 1722.1 leaves free — e.g. stream counts, clock tree shape; CERT walks all of it. |
+| M-AECP-2 | 5.3.4–5.3.11 | Dynamic states exposed (lock, sampling rate, gPTP, stream format/bound/started, counters, clock source) | aem_dyn_mux overlays | ✅ RTL aecp (dyn reads after SETs); SILICON | 5.3.x dynamic state is what separates a live device from a ROM dump; stale overlays fail interactive CERT checks. |
+| M-AECP-3 | 5.4.2.x (all 29) | Per-command Milan deltas for the mandatory AEM set (support level, payload constraints, unsolicited rules) | aecp subsystem | ✅ RTL aecp command matrix; CERT; per-command base rows in `ieee1722_1-2021.md` §3c | 5.4.2 is the Milan mandatory-command contract — the row-by-row source for behave features. |
+| M-AECP-4 | 5.4.2.27 / 5.4.2.28 | ADD/REMOVE_AUDIO_MAPPINGS: NOT_SUPPORTED on ports **with** static Audio Maps (our topology); mandatory once maps are dynamic | response_builder | ✅ RTL aecp; spec-read resolution recorded (gaps §1); es-4.16 posture documented | 5.4.2.28's exact sentence is what turned a suspected gap into specified behavior — the clause citation *is* the compliance argument. |
+| M-AECP-5 | 5.4.2.29 | GET_DYNAMIC_INFO per Milan (mandatory subset of 1722.1 7.4.76) | KL_aecp_top 0x4B engine | ✅ RTL aecp byte-exact; SILICON both boards (dyninfo probe) | 5.4.2.29: Milan controllers poll it continuously; the four silicon-only defects show TB-pass ≠ compliant here. |
+| M-AECP-6 | 5.4.3 (MVU format) | Milan Vendor Unique protocol_id 00-1B-C5-0A-C1-00, status codes, timeouts | KL_aecp_top MVU dispatch | ✅ RTL aecp (MVU header + unknown protocol_id) | 5.4.3.2: MVU is how a controller decides "this is a Milan device" — before any feature works. |
+| M-AECP-7 | 5.4.4.1 | GET_MILAN_INFO (version, features_flags, certification) | MVU path (aecp_pkg GET_MILAN_INFO) | ✅ RTL aecp; SILICON Hive Milan tab | Table 5.20 feature flags must match reality — advertising CRF-as-talker etc. wrongly fails CERT cross-checks. |
+| M-AECP-8 | 5.4.4.2 / 5.4.4.3 | SET/GET_SYSTEM_UNIQUE_ID | MVU path (SYSTEM_UNIQUE_ID in aecp_pkg) | ✅ RTL aecp (set/get/persist-in-store) | 5.4.4.2: system grouping id used by controllers to cluster devices of one installation. |
+| M-AECP-9 | 5.4.4.4 / 5.4.4.5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO (Table 5.21 flags) | — | ❌ MISSING — no MEDIA_CLOCK_REFERENCE_INFO tokens in `aecp_pkg.sv`; the media-clock *management* layer (7.6) on top of the CRF engine is unimplemented | 5.4.4.4 is how a Milan system elects/propagates the media clock reference; without it multi-device clock domains need manual setup. |
+| M-AECP-10 | 5.4.5.2 (Table 5.22) | Unsolicited notifications for every listed state change, only on real change | response_builder (`wb_diff` no-change gate, u=1 replay) | ✅ RTL aecp (generalized no-change suppression, all replayed SETs) | Table 5.22: spurious unsolicited (on no-change) and missing unsolicited are both CERT failures — the two-phase read-before-write is the fix. |
+| M-AECP-11 | 5.4.5.3 | Detection of departing controllers (deregister on ADP departure / timeout) | aecp registration table + adp parser | 🟡 registration table + timers exist (RTL aecp register/deregister); the ADP-departure-triggered cleanup path has no TB vector | 5.4.5.3: dead controllers left registered consume the (small) unsolicited table until reboot. |
+| M-AECP-12 | 5.4.5.4 | Identification notification (IDENTIFY control) | identify path | 🟡 see CMD-14 (cadence unasserted) | 5.4.5.4 pairs the LED with the wire notification; CERT checks both. |
+
+## 5. Counters (Milan Tables 5.13–5.17 via GET_COUNTERS)
+
+| # | Section | Required behavior | Module | Verification today / tsn_gen | Why it matters |
+|---|---------|-------------------|--------|------------------------------|----------------|
+| M-CNT-1 | Table 5.13 (AVB_INTERFACE) | LINK_UP/LINK_DOWN increment exactly +1 per physical flap; GPTP_GM_CHANGED etc. | counter taps (`cnt_link = phy+guard view`, decoupled from linkmon sw_link) | ✅ SILICON CERT link-flap re-run (double-count root-caused + fixed, gaps §5c); RTL link_guard (episode = one bounce) | Table 5.13: the +2-per-flap bug was found *by* CERT — counter taps must observe the physical event, not derived software state. |
+| M-CNT-2 | Table 5.16 (STREAM_INPUT) | MEDIA_LOCKED/UNLOCKED, SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, UNSUPPORTED_FORMAT, TIMESTAMP_UNCERTAIN semantics (8-PDU settle, 100 ms unlock, reset on bind edge) | KL_avtp_rx_monitor (CSR 0x6B8) | ✅ RTL avtp_rxmon (75, byte-extracted pipewire contract, coverage-gated) | Table 5.16: these are the counters a Milan controller shows the user when audio dies — wrong semantics mis-diagnose every field issue. |
+| M-CNT-3 | Table 5.15 (CLOCK_DOMAIN) | LOCKED/UNLOCKED counters follow the *selected* clock source (CRF when clock_source = CRF descriptor) | KL_crf_rx lock events muxed by clock source | ✅ RTL milan_dp (mux at clock_source=2); SILICON CRF bind→lock→cut | Table 5.15: counting the wrong source's lock state makes SET_CLOCK_SOURCE appear to have no effect. |
+| M-CNT-4 | Table 5.17 (STREAM_OUTPUT) | STREAM_START/STOP, MEDIA_RESET counters | talker path | 🟡 START/STOP via AECP verified; MEDIA_RESET never asserted in a TB (pairs with AVTP-5 mr gap) | Table 5.17: talker-side counters are the only wire-free way to audit a talker that has no listeners. |
+
+## 6. Stream formats (Milan §6) and media clocking (Milan §7)
+
+| # | Section | Required behavior | Module | Verification today / tsn_gen | Why it matters |
+|---|---------|-------------------|--------|------------------------------|----------------|
+| M-FMT-1 | 6.2 / 6.5 (Table 6.1/6.2) | Base audio format set: AAF PCM 48 k, 32-bit, up-to-8ch family declared and accepted per the base-format table | AEM formats list + rx monitor compare | ✅ RTL aecp formats; CERT format sweeps; SILICON (2ch default; 8ch-first ROM trap fixed) | 6.5: the base-format table is the interop contract — a listener must accept ANY base format a Milan talker sources (ut entry keeps the 6.4 family). |
+| M-FMT-2 | 6.4 | Listener format-adaptation requirements (accept base formats without SET_STREAM_FORMAT round-trip where required) | depacketizer + playback wire-truth walker | ✅ RTL i2spb (C=1..8 walker); SILICON music runs | 6.4 + the USER 1-to-1 wire-truth rule: render follows channels_per_frame from the wire — the store-driven stride bug played 1/4-rate garbage. |
+| M-CLK-1 | 7.3.2 | Avnu Pro Audio CRF stream: subtype 4, type 1, pull 0, 48 k, interval 96, 1 ts/PDU, 500 PDU/s | KL_crf_rx (validate) / KL_crf_tx (source) | ✅ RTL crf_tx; SILICON e2e locked +6.7 ppm | 7.3.2 pins every CRF parameter; off-profile CRF is legal 1722 but not Milan-interoperable. |
+| M-CLK-2 | 7.3.3 | Media clock stream carried under an SRP reservation of the specified class | — (CRF rides untagged best-effort today; needs 2nd lwSRP listener attribute) | ❌ MISSING (gaps §2; folds into NxN roadmap item) — an SR-tagged unregistered stream would be pruned, hence the interim untagged compromise | 7.3.3: without a reservation the media clock is the *least* protected stream in the network — inverted priorities. |
+| M-CLK-3 | 7.2.2 / 7.5.2 | Media clock input: CLOCK_SOURCE descriptor for the CRF input, selectable via SET_CLOCK_SOURCE, servo *disciplines* local media | KL_crf_rx measurement + bind; MMCM-DRP actuator absent | 🟡 measurement/bind/counters ✅ (see M-CNT-3); ❌ actuator MISSING (roadmap item 5) — trim_o retired to 0 | 7.2.2: until the DRP servo exists the device *measures* the reference but does not *follow* it — CRF-1..7 pass while the actual clause intent is half-met. |
+| M-CLK-4 | 7.4 | Media clock source quality (when sourcing CRF): timestamps from the real media clock | KL_crf_tx event-grid capture | ✅ RTL crf_tx; SILICON wire-rate measurement | 7.4: a CRF talker stamping from a free timer poisons every follower's servo (see CRF-6). |
+| M-CLK-5 | 7.6 | Media clock management: reference election, MCRI priorities, domain propagation | — | ❌ MISSING — depends on M-AECP-9 (SET/GET_MEDIA_CLOCK_REFERENCE_INFO) | 7.6 is the system-level media-clock story; single-domain benches hide its absence, multi-device installs won't. |
+
+**tsn_gen status:** Milan rides the base-standard models: AECP yamls cover
+§5.4 sweeps, ADP yaml covers §5.6.2. Gaps inherited from the base families:
+❌ ACMP model (all M-ACMP rows), ❌ MRPDU models (M-DEV-5..9), ❌ CRF model
+(M-CLK-1), ❌ MVU-specific payload models (GET_MILAN_INFO /
+SYSTEM_UNIQUE_ID / MEDIA_CLOCK_REFERENCE_INFO) — `aecp_vendor_unique.yaml`
+is the generic envelope only.
