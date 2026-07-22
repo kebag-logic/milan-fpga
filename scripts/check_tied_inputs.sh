@@ -48,6 +48,26 @@ tied="$(sed -n '/^    ports = dict($/,/^    )$/p' "$SOC" \
 [ -n "$tied" ] || { echo "  no constant-tied i_* entries found (dict parse failed?)"; exit 2; }
 
 SIM="$R/sw/litex/milan_sim.py"
+
+# ---- allowlist: ties that are INTENTIONAL by design, with the reason.
+# An allowlisted never-overridden tie prints [allowed] instead of [WARNING]
+# so the report stays clean of KNOWN-inert boundaries — remove the entry the
+# moment a real engine is supposed to drive the port (then a green TB with
+# the tie still in place becomes the RMON class again).
+# P11 (NxN CSR window, NXN_ARCHITECTURE.md §1.5): the 0x800 window's
+# LCTX/TCTX/ACMP-tbl engine boundary is tied inert until the lane-K shared
+# context engines land; snap_ok=1 completes A_STRM_SNAP immediately and
+# rd_data/tbl_*=0 makes the engine-backed window words read 0 (the CSR-side
+# FSMs are TB-proven against modeled/live engines in tb/verilator/csr).
+allow_reason() {
+  case "$1" in
+    i_i_lctx_rd_data|i_i_lctx_snap_ok|i_i_tctx_rd_data|i_i_tctx_snap_ok|\
+    i_i_acmp_tbl_gnt|i_i_acmp_tbl_ctx)
+      echo "P11 0x800 window: lane-K context engine pending" ;;
+    *) echo "" ;;
+  esac
+}
+
 n_tied=0; n_dead=0
 while IFS='=' read -r kw val; do
   port="${kw#i_}"                      # Instance kw -> RTL port name
@@ -72,10 +92,15 @@ while IFS='=' read -r kw val; do
   if [ "$driven" -eq 1 ]; then
     echo "  [tied]    ${kw}=${val}  (stub default; a real attach site drives it)"
   else
-    n_dead=$((n_dead+1))
-    echo "  [WARNING] ${kw}=${val}  constant at EVERY wiring site — the cone"
-    echo "            behind '$port' is dead in silicon no matter what a TB says"
-    echo "            (the RMON class: tie was why RMON never counted on boards)"
+    reason="$(allow_reason "$kw")"
+    if [ -n "$reason" ]; then
+      echo "  [allowed] ${kw}=${val}  intentional: $reason"
+    else
+      n_dead=$((n_dead+1))
+      echo "  [WARNING] ${kw}=${val}  constant at EVERY wiring site — the cone"
+      echo "            behind '$port' is dead in silicon no matter what a TB says"
+      echo "            (the RMON class: tie was why RMON never counted on boards)"
+    fi
   fi
 done <<< "$tied"
 

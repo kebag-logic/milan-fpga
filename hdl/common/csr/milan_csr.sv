@@ -55,7 +55,9 @@
 module milan_csr #(
   parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
-  parameter logic [31:0] VERSION = 32'h0001_0007 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
+  parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
+  parameter logic [31:0] VERSION = 32'h0001_0008 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -243,6 +245,66 @@ module milan_csr #(
   output wire [47:0]             o_tcam_wr_mask,      //! care mask {TCAM_MASK_HI[15:0], TCAM_MASK_LO}
   output wire [7:0]              o_tcam_wr_action,    //! action/tag (TCAM_ACTION[7:0])
 
+  // ---- P11 indexed per-stream CSR window (0x800, NXN_ARCHITECTURE.md §1.5) ----
+  //! LCTX context-RAM port B (lane-K listener engine boundary; NORMATIVE
+  //! contract): the CSR owns the read side outright. o_lctx_rd_en is held
+  //! with a stable o_lctx_rd_addr = {s[2:0], word[4:0]}; the engine presents
+  //! the addressed 32-bit word on i_lctx_rd_data through its registered BRAM
+  //! pipeline and the CSR samples it 3 clk edges after asserting rd_en (T2
+  //! rule: registered BRAM output, ONE explicit read port, no CSR-side mux
+  //! widening). While o_lctx_snap_req is high AND the engine answers with
+  //! i_lctx_snap_ok (level, held for the burst), the engine SHALL NOT modify
+  //! the selected stream's words — that arbitration IS the [M-5.4.2.25]
+  //! GET_COUNTERS coherence. Tie {rd_data=0, snap_ok=1} while no engine
+  //! exists (window engine words read 0; SNAP completes immediately).
+  output wire                    o_lctx_rd_en,      //! port-B fetch (level)
+  output wire [7:0]              o_lctx_rd_addr,    //! {s[2:0], word[4:0]}
+  input  wire [31:0]             i_lctx_rd_data,    //! word, 3 cycles after rd_en
+  output wire                    o_lctx_snap_req,   //! coherent-burst request
+  input  wire                    i_lctx_snap_ok,    //! engine grant (level)
+  output wire                    o_lctx_wr_p,       //! CFG-word write pulse (w0..w4)
+  output wire [7:0]              o_lctx_wr_addr,    //! {s[2:0], word[4:0]}
+  output wire [31:0]             o_lctx_wr_data,
+  //! TCTX context-RAM port B (lane-K talker engine boundary, same contract)
+  output wire                    o_tctx_rd_en,
+  output wire [6:0]              o_tctx_rd_addr,    //! {t[2:0], word[3:0]}
+  input  wire [31:0]             i_tctx_rd_data,
+  output wire                    o_tctx_snap_req,
+  input  wire                    i_tctx_snap_ok,
+  output wire                    o_tctx_wr_p,       //! CFG-word write pulse (w0..w2)
+  output wire [6:0]              o_tctx_wr_addr,
+  output wire [31:0]             o_tctx_wr_data,
+  //! ACMP context-table request/grant (KL_acmp_lstn_ctx tbl_* shape, RO):
+  //! req held until the 1-cycle gnt; i_acmp_tbl_ctx (acmp_lstn_ctx_t
+  //! flattened, 317 b) is valid WITH gnt and latched here. Tie {gnt=0,
+  //! ctx=0} while the single-sink listener is instantiated (dir=0
+  //! SID/DMAC/STATE-acmp fields read 0 — index-0 STATE keeps its hard
+  //! alias onto the flat 0x6A4/0x6B8 inputs).
+  output wire                    o_acmp_tbl_req,
+  output wire [3:0]              o_acmp_tbl_idx,
+  input  wire                    i_acmp_tbl_gnt,
+  input  wire [316:0]            i_acmp_tbl_ctx,
+  //! lwSRP attribute-context provisioning port (KL_lwsrp_top ctx_* shape):
+  //! window CTRL commits for idx>0 write a row (sid/dmac staged via the
+  //! window SID/DMAC words, TSpec from the legacy 0x690/0x6A0 regs); reads
+  //! poll the row status into the window SRP word. Row map: dir=0 -> row
+  //! idx, dir=1 -> row N_LISTENERS_P-1+idx; idx 0 = legacy row 0 (RO,
+  //! served by the flat 0x694 alias instead).
+  output wire                    o_srp_ctx_req,
+  output wire                    o_srp_ctx_we,
+  output wire [3:0]              o_srp_ctx_idx,
+  output wire                    o_srp_ctx_valid,
+  output wire                    o_srp_ctx_dir,     //! ctx encoding: 0=talker,1=listener
+  output wire [63:0]             o_srp_ctx_sid,
+  output wire [47:0]             o_srp_ctx_dmac,
+  output wire [7:0]              o_srp_ctx_prio_rank,
+  output wire [15:0]             o_srp_ctx_max_frame,
+  output wire [15:0]             o_srp_ctx_interval,
+  output wire [31:0]             o_srp_ctx_latency,
+  input  wire                    i_srp_ctx_gnt,
+  input  wire [63:0]             i_srp_ctx_rd_sid,
+  input  wire [15:0]             i_srp_ctx_rd_stat, //! {valid,dir,declared,reg,ready,failed,decl[1:0],code[7:0]}
+
   // ---- Interrupt (REQ-CSR-04) ----
   input  wire                    i_evt_tx_ts_ready,   //! Event: TX egress timestamp available (sets IRQ_STATUS[0])
   input  wire                    i_evt_link_change,   //! Event: link/speed change (sets IRQ_STATUS[1])
@@ -339,6 +401,25 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_BDBG1 = 'h76C;  //! RO live: {0, cmd15, dlen16}
   localparam [ADDR_WIDTH-1:0] A_BDBG2 = 'h770;  //! RO live: {ptr, end}
   localparam [ADDR_WIDTH-1:0] A_LINKG_STAT = 'h774;  //! RO live: link guard {bounce16, flags, alive}
+  // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
+  //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
+  //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
+  //  axiom); idx >= N_LISTENERS_P/N_TALKERS_P reads 0 and ignores writes.
+  localparam [ADDR_WIDTH-1:0] A_STRM_SEL     = 'h800; //! RW live: [3:0] idx, [8] dir (0=listener, 1=talker)
+  localparam [ADDR_WIDTH-1:0] A_STRM_SNAP    = 'h804; //! W1S [0]: latch STATE+CNT0..9+PDUS coherently; R [0] busy
+  localparam [ADDR_WIDTH-1:0] A_STRMW_CTRL   = 'h810; //! [0] en, [2:1] route (listener) / [0] en (talker, idx0 = AAF_CTRL[0] alias)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_SID_LO = 'h814; //! stream_id (talker RW / listener-bound RO)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_SID_HI = 'h818;
+  localparam [ADDR_WIDTH-1:0] A_STRMW_DMAC_LO= 'h81C; //! stream DMAC (talker idx0 = AAF_DMLO/HI alias)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_DMAC_HI= 'h820;
+  localparam [ADDR_WIDTH-1:0] A_STRMW_FMT_LO = 'h824; //! current stream format (LCTX w2/w3)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_FMT_HI = 'h828;
+  localparam [ADDR_WIDTH-1:0] A_STRMW_STATE  = 'h82C; //! RO (snap-latched): packed per-stream state
+  localparam [ADDR_WIDTH-1:0] A_STRMW_CNT0   = 'h830; //! RO (snap-latched): 10 Table 7-157 counters, word offsets 0..36 preserved
+  localparam [ADDR_WIDTH-1:0] A_STRMW_CNT_END= 'h858; //! one past CNT9 (0x854)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_PDUS   = 'h858; //! RO (snap-latched): {drops,pdus} (listener) / frames_sent (talker)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_SRP    = 'h85C; //! RO live: per-stream lwSRP status (idx0 = 0x694 alias)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_END    = 'h860; //! one past the window
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -365,9 +446,25 @@ module milan_csr #(
   logic [9:0]   sweep_cnt;
 
   wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid && !sweep_busy;
-  wire rd_fire = s_axi_arvalid && !r_valid && !rd_pend && !sweep_busy;
+  wire rd_fire = s_axi_arvalid && !r_valid && !rd_pend && !rds_busy_r &&
+                 !sweep_busy;
   wire [ADDR_WIDTH-1:0] wr_addr = s_axi_awaddr;             //! Decoded write address
   wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;             //! Decoded read address
+
+  //! P11 window words backed by the LCTX/TCTX context-RAM port B are "slow"
+  //! reads: the AXI read stretches 4 cycles through the strm_slow_rd_S fetch
+  //! (T2 rule: the window is served from the RAM's second port, never a
+  //! widened CSR mux). During a SNAP burst they fall back to the fast path
+  //! and read 0 (poll A_STRM_SNAP.busy first — documented ABI).
+  wire rd_win_w = (rd_addr >= A_STRM_SEL) && (rd_addr < A_STRMW_END);
+  wire rd_is_slow_w = rd_win_w && win_in_range_w && !snap_busy_r &&
+      (!strm_dir_r
+        ? (rd_addr == A_STRMW_CTRL || rd_addr == A_STRMW_FMT_LO ||
+           rd_addr == A_STRMW_FMT_HI)
+        : ((strm_idx_r != 4'd0) &&
+           (rd_addr == A_STRMW_CTRL || rd_addr == A_STRMW_DMAC_LO ||
+            rd_addr == A_STRMW_DMAC_HI)));
+  wire rds_done_w = rds_busy_r && (rds_cyc_r == 2'd0);
 
   assign s_axi_awready = wr_fire;
   assign s_axi_wready  = wr_fire;
@@ -385,10 +482,10 @@ module milan_csr #(
     end else begin
       if (wr_fire)           b_valid <= 1'b1;
       else if (s_axi_bready) b_valid <= 1'b0;
-      rd_pend <= rd_fire;
+      rd_pend <= rd_fire && !rd_is_slow_w;
       if (rd_fire)           rd_addr_q <= rd_addr;
-      if (rd_pend)           r_valid <= 1'b1;
-      else if (s_axi_rready) r_valid <= 1'b0;
+      if (rd_pend || rds_done_w) r_valid <= 1'b1;
+      else if (s_axi_rready)     r_valid <= 1'b0;
     end
   end
 
@@ -476,6 +573,64 @@ module milan_csr #(
   logic [4:0]  tcam_wr_index;            //! latched entry index for the commit
   logic        tcam_wr_valid_r;          //! latched add(1)/remove(0) for the commit
 
+  // ---- 0x800 indexed per-stream window state (P11) ----------------------
+  //! acmp_lstn_ctx_t flattened-field LSB offsets (single source: acmp_pkg;
+  //! kept as literals so milan_csr stays package-free for the yosys file
+  //! lists — the layout is locked by the tbl-port TB in tb/verilator/csr)
+  localparam int ACMP_CTX_SID_LO_C     = 128;  //! sid[63:0]
+  localparam int ACMP_CTX_DMAC_LO_C    = 192;  //! dmac[47:0]
+  localparam int ACMP_CTX_STATUS_LO_C  = 305;  //! status[4:0]
+  localparam int ACMP_CTX_PROBING_LO_C = 310;  //! probing[1:0]
+  localparam int ACMP_CTX_STATE_LO_C   = 314;  //! state[2:0]
+  //! PriorityAndRank for CSR-provisioned SRP rows (= lwsrp_pkg::SR_PRIO_RANK_C:
+  //! class-A priority 3, rank 1 — kept literal for the same package-free rule)
+  localparam [7:0] SRP_PRIO_RANK_C = 8'h70;
+  logic        strm_dir_r;               //! A_STRM_SEL[8]: 0=listener, 1=talker
+  logic [3:0]  strm_idx_r;               //! A_STRM_SEL[3:0]: stream index
+  logic [31:0] stg_sid_lo_r, stg_sid_hi_r;   //! window write staging: stream_id
+  logic [31:0] stg_dmac_lo_r, stg_dmac_hi_r; //! window write staging: DMAC
+  logic        lctx_wr_p_r;              //! LCTX CFG-word write pulse
+  logic [7:0]  lctx_wr_addr_r;
+  logic [31:0] lctx_wr_data_r;
+  logic        tctx_wr_p_r;              //! TCTX CFG-word write pulse
+  logic [6:0]  tctx_wr_addr_r;
+  logic [31:0] tctx_wr_data_r;
+  //! SRP ctx master: one pending provisioning write + continuous status poll
+  logic        srp_wr_pend_r;            //! a row write awaits its grant
+  logic        srp_wr_valid_r;           //! record valid (CTRL.en at commit)
+  logic        srp_wr_dir_r;             //! ctx encoding (0=talker,1=listener)
+  logic [3:0]  srp_wr_row_r;
+  logic [63:0] srp_wr_sid_r;
+  logic [47:0] srp_wr_dmac_r;
+  logic        srp_cmd_was_wr_r;         //! we at the engine's service cycle
+  logic        srp_fresh_r;              //! i_srp_ctx_rd_* match the selection
+  //! ACMP tbl master: continuous poll of the selected listener context
+  logic        acmp_fresh_r;
+  logic [63:0] acmp_sid_q_r;
+  logic [47:0] acmp_dmac_q_r;
+  logic [2:0]  acmp_state_q_r;
+  logic [1:0]  acmp_probing_q_r;
+  logic [4:0]  acmp_status_q_r;
+  //! SNAP shadow: the ONE permitted window shadow ([M-5.4.2.25] coherent
+  //! counter block): [0] STATE, [1..10] CNT0..9, [11] PDUS
+  logic [31:0] snap_shadow_r [0:11];
+  logic        snap_busy_r;
+  logic [2:0]  snap_st_r;                //! 0 idle,1 done-pulse,2 wait-free,3 arm,4 fetch
+  logic        snap_dir_r;
+  logic [3:0]  snap_idx_r;
+  logic [3:0]  snap_wi_r;                //! burst word index
+  logic [1:0]  snap_cyc_r;               //! per-word port-B latency count
+  logic [4:0]  snap_word_r;              //! current engine word address
+  logic        snap_req_r;               //! o_*_snap_req (dir-steered)
+  logic        snap_rden_r;              //! o_*_rd_en during the burst
+  logic [31:0] snap_m8_r;                //! LCTX w8 hold (STATE compose)
+  //! slow read: engine port-B backed window words (4-cycle fetch)
+  logic        rds_busy_r;
+  logic        rds_dir_r;
+  logic [1:0]  rds_cyc_r;
+  logic [4:0]  rds_word_r;
+  logic [2:0]  rds_idx_r;               //! stream index latched at the fetch
+
   // CBS power-on defaults: slope/credit values mirror ethernet_packet_pkg SR
   // classes (idleSlopes sum to 750 Mb/s = 75 % of the 1 Gb/s port rate, REQ-CBS-03;
   // hi/lo credit are calc_hi/lo_credit(idleSlope, 1e9) for MAX_FRAME_SIZE = 1522) —
@@ -505,6 +660,11 @@ module milan_csr #(
     else          mac_reinit_q <= i_mac_reinit;
   end : mac_reinit_edge
   wire mac_reinit_rel_w = mac_reinit_q && !i_mac_reinit;
+
+  //! P11 window selection range gate: out-of-range idx reads 0, writes are
+  //! ignored, SNAP latches zeros (the defined out-of-range behaviour)
+  wire win_in_range_w = strm_dir_r ? (32'(strm_idx_r) < N_TALKERS_P)
+                                   : (32'(strm_idx_r) < N_LISTENERS_P);
 
   //! Register file write path: synchronous reset defaults, hardware event
   //! latching (before W1C), AXI-Lite register writes, W1C on IRQ_STATUS, and
@@ -568,6 +728,11 @@ module milan_csr #(
       tcam_ctrl <= 32'h1;   // default_pass = 1 (accept-all until software programs entries)
       tcam_klo <= 32'h0; tcam_khi <= 32'h0; tcam_mlo <= 32'h0; tcam_mhi <= 32'h0;
       tcam_act <= 32'h0; tcam_wr_index <= 5'h0; tcam_wr_valid_r <= 1'b0;
+      strm_dir_r <= 1'b0; strm_idx_r <= 4'd0;
+      stg_sid_lo_r <= 32'h0; stg_sid_hi_r <= 32'h0;
+      stg_dmac_lo_r <= 32'h0; stg_dmac_hi_r <= 32'h0;
+      lctx_wr_p_r <= 1'b0; lctx_wr_addr_r <= 8'h0; lctx_wr_data_r <= 32'h0;
+      tctx_wr_p_r <= 1'b0; tctx_wr_addr_r <= 7'h0; tctx_wr_data_r <= 32'h0;
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
@@ -575,6 +740,7 @@ module milan_csr #(
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
       tcam_wr_p <= 1'b0;
+      lctx_wr_p_r <= 1'b0; tctx_wr_p_r <= 1'b0;
 
       // gettime result: latch the PHC snapshot when it returns (crosses CDC
       // asynchronously to the snapshot command, REQ-PTP-03/CSR-03).
@@ -676,6 +842,76 @@ module milan_csr #(
           A_ADP_CMD: begin // W1S self-clearing strobes
             if (s_axi_wdata[0]) adp_adv_p <= 1'b1; // advertise now + bump available_index
             if (s_axi_wdata[1]) adp_dep_p <= 1'b1; // send ENTITY_DEPARTING
+          end
+          //! P11 indexed window (0x800): SEL picks the stream; word writes at
+          //! idx 0 dir=talker hard-alias the flat AAF registers, engine-backed
+          //! words forward to the LCTX/TCTX CFG write bundles, SID/DMAC writes
+          //! additionally stage the lwSRP provisioning record (committed by
+          //! the CTRL write, see strm_srp_master_S). Out-of-range: ignored.
+          A_STRM_SEL: begin
+            strm_dir_r <= s_axi_wdata[8];
+            strm_idx_r <= s_axi_wdata[3:0];
+          end
+          A_STRMW_CTRL: if (win_in_range_w) begin
+            if (!strm_dir_r) begin           // listener: LCTX w4 {route, en}
+              lctx_wr_p_r    <= 1'b1;
+              lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd4};
+              lctx_wr_data_r <= s_axi_wdata;
+            end else if (strm_idx_r == 4'd0) begin
+              aaf_ctrl <= {aaf_ctrl[31:1], s_axi_wdata[0]};  // = AAF_CTRL[0]
+            end else begin                   // talker ctx: TCTX w0
+              tctx_wr_p_r    <= 1'b1;
+              tctx_wr_addr_r <= {strm_idx_r[2:0], 4'd0};
+              tctx_wr_data_r <= s_axi_wdata;
+            end
+          end
+          A_STRMW_SID_LO: if (win_in_range_w) begin
+            stg_sid_lo_r <= s_axi_wdata;
+            if (!strm_dir_r) begin
+              lctx_wr_p_r    <= 1'b1;
+              lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd0};
+              lctx_wr_data_r <= s_axi_wdata;
+            end
+          end
+          A_STRMW_SID_HI: if (win_in_range_w) begin
+            stg_sid_hi_r <= s_axi_wdata;
+            if (!strm_dir_r) begin
+              lctx_wr_p_r    <= 1'b1;
+              lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd1};
+              lctx_wr_data_r <= s_axi_wdata;
+            end
+          end
+          A_STRMW_DMAC_LO: if (win_in_range_w) begin
+            stg_dmac_lo_r <= s_axi_wdata;
+            if (strm_dir_r) begin
+              if (strm_idx_r == 4'd0) aaf_dmlo <= s_axi_wdata;  // = AAF_DMLO
+              else begin
+                tctx_wr_p_r    <= 1'b1;
+                tctx_wr_addr_r <= {strm_idx_r[2:0], 4'd1};
+                tctx_wr_data_r <= s_axi_wdata;
+              end
+            end
+          end
+          A_STRMW_DMAC_HI: if (win_in_range_w) begin
+            stg_dmac_hi_r <= s_axi_wdata;
+            if (strm_dir_r) begin
+              if (strm_idx_r == 4'd0) aaf_dmhi <= s_axi_wdata;  // = AAF_DMHI
+              else begin
+                tctx_wr_p_r    <= 1'b1;
+                tctx_wr_addr_r <= {strm_idx_r[2:0], 4'd2};
+                tctx_wr_data_r <= s_axi_wdata;
+              end
+            end
+          end
+          A_STRMW_FMT_LO: if (win_in_range_w && !strm_dir_r) begin
+            lctx_wr_p_r    <= 1'b1;      // talker format is AECP-owned: dir=1 ignored
+            lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd2};
+            lctx_wr_data_r <= s_axi_wdata;
+          end
+          A_STRMW_FMT_HI: if (win_in_range_w && !strm_dir_r) begin
+            lctx_wr_p_r    <= 1'b1;
+            lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd3};
+            lctx_wr_data_r <= s_axi_wdata;
           end
           A_TCAM_CTRL: tcam_ctrl <= s_axi_wdata;
           A_TCAM_KLO:  tcam_klo  <= s_axi_wdata;
@@ -806,6 +1042,17 @@ module milan_csr #(
                       (wr_addr[4:0] == 5'h0C);
   wire [31:0] shadow_wval = is_cbs_en_wr ? {31'h0, s_axi_wdata[0]} : s_axi_wdata;
 
+  //! P11 window hard-alias writes (talker index 0): the window word IS the
+  //! flat AAF register, so the flat address's shadow readback must follow —
+  //! redirect the shadow write to the flat address with the merged value
+  wire win_alias_ctrl_w = wr_fire && (wr_addr == A_STRMW_CTRL) &&
+                          strm_dir_r && (strm_idx_r == 4'd0);
+  wire win_alias_dmlo_w = wr_fire && (wr_addr == A_STRMW_DMAC_LO) &&
+                          strm_dir_r && (strm_idx_r == 4'd0);
+  wire win_alias_dmhi_w = wr_fire && (wr_addr == A_STRMW_DMAC_HI) &&
+                          strm_dir_r && (strm_idx_r == 4'd0);
+  wire win_alias_we_w   = win_alias_ctrl_w || win_alias_dmlo_w || win_alias_dmhi_w;
+
   (* ram_style = "block" *) logic [31:0] shadow_ram [0:511];
   (* ram_style = "block" *) logic [31:0] dflt_rom   [0:511];
   initial begin
@@ -820,9 +1067,15 @@ module milan_csr #(
 
   //! single muxed write port: two `if` arms with distinct address expressions
   //! infer TWO write ports and push the RAM to LUTRAM (Synth 8-6849 infeasible)
-  wire         sh_we    = sweep_wr || shadow_axi_we;
-  wire [8:0]   sh_waddr = sweep_wr ? 9'(sweep_cnt - 10'd1) : wr_addr[10:2];
-  wire [31:0]  sh_wdata = sweep_wr ? dflt_q : shadow_wval;
+  wire         sh_we    = sweep_wr || shadow_axi_we || win_alias_we_w;
+  wire [8:0]   sh_waddr = sweep_wr         ? 9'(sweep_cnt - 10'd1)
+                        : win_alias_ctrl_w ? A_AAF_CTRL[10:2]
+                        : win_alias_dmlo_w ? A_AAF_DMLO[10:2]
+                        : win_alias_dmhi_w ? A_AAF_DMHI[10:2]
+                        : wr_addr[10:2];
+  wire [31:0]  sh_wdata = sweep_wr         ? dflt_q
+                        : win_alias_ctrl_w ? {aaf_ctrl[31:1], s_axi_wdata[0]}
+                        : shadow_wval;
 
   always_ff @(posedge aclk) begin : shadow_mem
     dflt_q <= dflt_rom[sweep_cnt[8:0]];
@@ -907,15 +1160,79 @@ module milan_csr #(
     endcase
   end
 
+  // ==========================================================================
+  //  P11 indexed per-stream window read view (fast words). Engine port-B
+  //  backed words (CTRL/FMT listener side; CTRL/DMAC extra talker contexts)
+  //  come through strm_slow_rd_S instead; STATE/CNT0..9/PDUS are served from
+  //  the SNAP shadow (the one permitted shadow block); SID/DMAC (listener)
+  //  from the ACMP tbl snapshot, SRP from the lwSRP ctx snapshot. Index 0
+  //  words with a flat-register twin are HARD ALIASES of those registers.
+  // ==========================================================================
+  //! station MAC in wire order (first wire byte in [47:40]) — the talker
+  //! stream_id derivation {mac, uid = 0} the fabric uses everywhere
+  wire [47:0] mac_wire_w = {mac_alo[7:0], mac_alo[15:8], mac_alo[23:16],
+                            mac_alo[31:24], mac_ahi[7:0], mac_ahi[15:8]};
+  logic [31:0] strm_mux;
+  logic        strm_hit;
+  always_comb begin : strm_read_mux
+    logic [ADDR_WIDTH-1:0] coff;         //! CNT word offset
+    coff     = rd_addr_q - A_STRMW_CNT0;
+    strm_hit = (rd_addr_q >= A_STRM_SEL) && (rd_addr_q < A_STRMW_END);
+    strm_mux = 32'h0;
+    if (rd_addr_q == A_STRM_SEL)
+      strm_mux = {23'd0, strm_dir_r, 4'd0, strm_idx_r};
+    else if (rd_addr_q == A_STRM_SNAP)
+      strm_mux = {31'd0, snap_busy_r};
+    else if (win_in_range_w) begin       //! out-of-range idx: reads 0
+      case (rd_addr_q)
+        A_STRMW_CTRL:
+          if (strm_dir_r && strm_idx_r == 4'd0)
+            strm_mux = {31'd0, aaf_ctrl[0]};              // = AAF_CTRL[0]
+        A_STRMW_SID_LO:
+          strm_mux = !strm_dir_r
+              ? (acmp_fresh_r ? acmp_sid_q_r[31:0] : 32'd0)
+              : (strm_idx_r == 4'd0 ? {mac_wire_w[15:0], 16'd0}
+                 : (srp_fresh_r ? i_srp_ctx_rd_sid[31:0] : 32'd0));
+        A_STRMW_SID_HI:
+          strm_mux = !strm_dir_r
+              ? (acmp_fresh_r ? acmp_sid_q_r[63:32] : 32'd0)
+              : (strm_idx_r == 4'd0 ? mac_wire_w[47:16]
+                 : (srp_fresh_r ? i_srp_ctx_rd_sid[63:32] : 32'd0));
+        A_STRMW_DMAC_LO:
+          if (!strm_dir_r)
+            strm_mux = acmp_fresh_r ? acmp_dmac_q_r[31:0] : 32'd0;
+          else if (strm_idx_r == 4'd0)
+            strm_mux = aaf_dmlo;                          // = AAF_DMLO
+        A_STRMW_DMAC_HI:
+          if (!strm_dir_r)
+            strm_mux = acmp_fresh_r ? {16'd0, acmp_dmac_q_r[47:32]} : 32'd0;
+          else if (strm_idx_r == 4'd0)
+            strm_mux = {16'd0, aaf_dmhi[15:0]};           // = AAF_DMHI[15:0]
+        A_STRMW_STATE: strm_mux = snap_shadow_r[0];
+        A_STRMW_PDUS:  strm_mux = snap_shadow_r[11];
+        A_STRMW_SRP:
+          strm_mux = (strm_idx_r == 4'd0) ? i_lwsrp_status  // = 0x694
+                   : (srp_fresh_r ? {16'd0, i_srp_ctx_rd_stat} : 32'd0);
+        default:
+          if (rd_addr_q >= A_STRMW_CNT0 && rd_addr_q < A_STRMW_CNT_END)
+            strm_mux = snap_shadow_r[1 + 32'(coff[5:2])];
+      endcase
+    end
+  end
+
   //! Register read data one cycle after the AR handshake (BRAM latency);
-  //! RDATA is held stable while RVALID is asserted.
+  //! RDATA is held stable while RVALID is asserted. Slow (engine port-B)
+  //! window reads latch on the fetch-done beat instead.
   wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11];
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) r_data <= 32'h0;
     else if (rd_pend)
-      r_data <= !rd_in_window ? 32'h0
+      r_data <= strm_hit      ? strm_mux
+              : !rd_in_window ? 32'h0
               : live_hit      ? live_mux
               : shadow_q;
+    else if (rds_done_w)
+      r_data <= rds_dir_r ? i_tctx_rd_data : i_lctx_rd_data;
   end
 
   // ==========================================================================
@@ -1039,6 +1356,249 @@ module milan_csr #(
   assign o_tcam_wr_key       = {tcam_khi[15:0], tcam_klo};
   assign o_tcam_wr_mask      = {tcam_mhi[15:0], tcam_mlo};
   assign o_tcam_wr_action    = tcam_act[7:0];
+
+  // ==========================================================================
+  //  P11 indexed per-stream window engines (NXN_ARCHITECTURE.md §1.5)
+  // ==========================================================================
+  localparam logic [2:0] SN_IDLE_C = 3'd0, SN_DONE_C = 3'd1, SN_WAIT_C = 3'd2,
+                         SN_ARM_C  = 3'd3, SN_FETCH_C = 3'd4;
+
+  wire snap_go_w  = wr_fire && (wr_addr == A_STRM_SNAP) && s_axi_wdata[0] &&
+                    !snap_busy_r;
+  wire sel_wr_w   = wr_fire && (wr_addr == A_STRM_SEL);
+  //! low 9 bits of the selected stream's SRP status word = the STATE[27:19]
+  //! SRP summary (single documented rule for both the flat and ctx sources)
+  wire [8:0] snap_srp9_w = (snap_idx_r == 4'd0) ? i_lwsrp_status[8:0]
+                         : (srp_fresh_r ? i_srp_ctx_rd_stat[8:0] : 9'd0);
+
+  //! SNAP: one coherent latch of {STATE, CNT0..9, PDUS} for the selection.
+  //! Index 0 latches the flat-register hard aliases in a single cycle
+  //! (coherent by construction); extra contexts run the engine-arbitrated
+  //! port-B burst — the engine freezes the stream's words while snap_ok
+  //! answers snap_req, which IS the [M-5.4.2.25] GET_COUNTERS atomicity.
+  always_ff @(posedge aclk) begin : strm_snap_S
+    if (!aresetn) begin
+      snap_busy_r <= 1'b0; snap_st_r <= SN_IDLE_C;
+      snap_dir_r  <= 1'b0; snap_idx_r <= 4'd0;
+      snap_wi_r   <= 4'd0; snap_cyc_r <= 2'd0; snap_word_r <= 5'd0;
+      snap_req_r  <= 1'b0; snap_rden_r <= 1'b0; snap_m8_r <= 32'h0;
+      for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
+    end else begin
+      unique case (snap_st_r)
+        SN_IDLE_C: if (snap_go_w) begin
+          snap_busy_r <= 1'b1;
+          snap_dir_r  <= strm_dir_r;
+          snap_idx_r  <= strm_idx_r;
+          if (!win_in_range_w) begin     //! out-of-range: shadow zeros
+            for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
+            snap_st_r <= SN_DONE_C;
+          end else if (strm_idx_r == 4'd0) begin
+            //! index 0 = flat hard alias, Table 7-157 offset order. Counters
+            //! the fabric does not keep yet (MEDIA_RESET, LATE/EARLY_
+            //! TIMESTAMP) latch 0; the flat 8/16-bit counters widen to the
+            //! full 32-bit LCTX words when the lane-K engine lands.
+            if (!strm_dir_r) begin
+              snap_shadow_r[0]  <= {4'd0, i_lwsrp_status[8:0], 8'd0,
+                                    i_avtprx_stat[0],
+                                    i_acmpl_state[12:8], i_acmpl_state[14:13],
+                                    i_acmpl_state[2:0]};
+              snap_shadow_r[1]  <= {24'd0, i_avtprx_stat[15:8]};  // MEDIA_LOCKED
+              snap_shadow_r[2]  <= {24'd0, i_avtprx_stat[23:16]}; // MEDIA_UNLOCKED
+              snap_shadow_r[3]  <= {24'd0, i_avtprx_stat[31:24]}; // STREAM_INTERRUPTED
+              snap_shadow_r[4]  <= {16'd0, i_avtprx_err[31:16]};  // SEQ_NUM_MISMATCH
+              snap_shadow_r[5]  <= 32'd0;                         // MEDIA_RESET
+              snap_shadow_r[6]  <= {24'd0, i_avtprx_err[7:0]};    // TIMESTAMP_UNCERTAIN
+              snap_shadow_r[7]  <= {24'd0, i_avtprx_err[15:8]};   // UNSUPPORTED_FORMAT
+              snap_shadow_r[8]  <= 32'd0;                         // LATE_TIMESTAMP
+              snap_shadow_r[9]  <= 32'd0;                         // EARLY_TIMESTAMP
+              snap_shadow_r[10] <= i_avtprx_frx;                  // FRAMES_RX
+              snap_shadow_r[11] <= i_pcmrx_cnt;                   // = 0x6C4
+            end else begin
+              snap_shadow_r[0] <= {4'd0, i_lwsrp_status[8:0], 15'd0,
+                                   i_aaf_gate, acmp_lobs[0],
+                                   i_acmp_talker_active, i_acmp_probe_armed};
+              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'h0;
+              snap_shadow_r[11] <= i_aaf_frames;                  // = 0x660
+            end
+            snap_st_r <= SN_DONE_C;
+          end else begin
+            //! talker contexts have no Table 7-157 block: pre-zero CNT
+            if (strm_dir_r)
+              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'h0;
+            snap_st_r <= SN_WAIT_C;
+          end
+        end
+        SN_DONE_C: begin
+          snap_busy_r <= 1'b0;
+          snap_st_r   <= SN_IDLE_C;
+        end
+        SN_WAIT_C: if (!rds_busy_r) begin  //! yield the port to a read in flight
+          snap_req_r <= 1'b1;
+          snap_st_r  <= SN_ARM_C;
+        end
+        SN_ARM_C: if (snap_dir_r ? i_tctx_snap_ok : i_lctx_snap_ok) begin
+          snap_rden_r <= 1'b1;
+          snap_wi_r   <= 4'd0;
+          snap_cyc_r  <= 2'd3;
+          snap_word_r <= snap_dir_r ? 5'd5 : 5'd8;  //! TCTX w5 / LCTX w8 first
+          snap_st_r   <= SN_FETCH_C;
+        end
+        SN_FETCH_C: begin
+          if (snap_cyc_r != 2'd0) snap_cyc_r <= snap_cyc_r - 2'd1;
+          else if (snap_dir_r) begin
+            //! talker burst = ONE word: TCTX w5 FRAMES -> PDUS, then compose
+            snap_shadow_r[11] <= i_tctx_rd_data;
+            snap_shadow_r[0]  <= {4'd0, snap_srp9_w, 19'd0};
+            snap_rden_r <= 1'b0; snap_req_r <= 1'b0;
+            snap_st_r   <= SN_DONE_C;
+          end else begin
+            //! listener burst: w8 (state bits) -> w16..w25 (CNT) -> w11 (PDUS)
+            unique case (snap_wi_r)
+              4'd0:  snap_m8_r <= i_lctx_rd_data;
+              4'd11: begin
+                snap_shadow_r[11] <= i_lctx_rd_data;
+                snap_shadow_r[0]  <= {4'd0, snap_srp9_w,
+                                      snap_m8_r[21:14], snap_m8_r[12],
+                                      acmp_fresh_r ? acmp_status_q_r  : 5'd0,
+                                      acmp_fresh_r ? acmp_probing_q_r : 2'd0,
+                                      acmp_fresh_r ? acmp_state_q_r   : 3'd0};
+              end
+              default: snap_shadow_r[snap_wi_r] <= i_lctx_rd_data;
+            endcase
+            if (snap_wi_r == 4'd11) begin
+              snap_rden_r <= 1'b0; snap_req_r <= 1'b0;
+              snap_st_r   <= SN_DONE_C;
+            end else begin
+              snap_wi_r   <= snap_wi_r + 4'd1;
+              snap_word_r <= (snap_wi_r == 4'd0)  ? 5'd16
+                           : (snap_wi_r == 4'd10) ? 5'd11
+                           : snap_word_r + 5'd1;
+              snap_cyc_r  <= 2'd3;
+            end
+          end
+        end
+        default: snap_st_r <= SN_IDLE_C;
+      endcase
+    end
+  end : strm_snap_S
+
+  //! slow window read: 4-cycle port-B fetch of an engine-backed word
+  always_ff @(posedge aclk) begin : strm_slow_rd_S
+    if (!aresetn) begin
+      rds_busy_r <= 1'b0; rds_dir_r <= 1'b0; rds_cyc_r <= 2'd0;
+      rds_word_r <= 5'd0; rds_idx_r <= 3'd0;
+    end else if (!rds_busy_r) begin
+      if (rd_fire && rd_is_slow_w) begin
+        rds_busy_r <= 1'b1;
+        rds_dir_r  <= strm_dir_r;
+        rds_idx_r  <= strm_idx_r[2:0];
+        rds_cyc_r  <= 2'd3;
+        rds_word_r <= !strm_dir_r
+            ? ((rd_addr == A_STRMW_CTRL)   ? 5'd4 :
+               (rd_addr == A_STRMW_FMT_LO) ? 5'd2 : 5'd3)
+            : ((rd_addr == A_STRMW_CTRL)    ? 5'd0 :
+               (rd_addr == A_STRMW_DMAC_LO) ? 5'd1 : 5'd2);
+      end
+    end else begin
+      if (rds_cyc_r != 2'd0) rds_cyc_r <= rds_cyc_r - 2'd1;
+      else                   rds_busy_r <= 1'b0;
+    end
+  end : strm_slow_rd_S
+
+  //! lwSRP ctx master: continuous status poll of the selected extra row +
+  //! one-deep provisioning write queue (committed by a window CTRL write)
+  wire       srp_poll_w    = win_in_range_w && (strm_idx_r != 4'd0);
+  wire [3:0] srp_sel_row_w = strm_dir_r
+      ? 4'((N_LISTENERS_P - 1) + 32'(strm_idx_r))
+      : strm_idx_r;
+  wire       srp_prov_w    = wr_fire && (wr_addr == A_STRMW_CTRL) &&
+                             win_in_range_w && (strm_idx_r != 4'd0);
+
+  always_ff @(posedge aclk) begin : strm_srp_master_S
+    if (!aresetn) begin
+      srp_wr_pend_r <= 1'b0; srp_wr_valid_r <= 1'b0; srp_wr_dir_r <= 1'b0;
+      srp_wr_row_r  <= 4'd0; srp_wr_sid_r <= 64'h0; srp_wr_dmac_r <= 48'h0;
+      srp_cmd_was_wr_r <= 1'b0; srp_fresh_r <= 1'b0;
+    end else begin
+      srp_cmd_was_wr_r <= o_srp_ctx_we;   //! command type at the service beat
+      if (i_srp_ctx_gnt) begin
+        if (srp_cmd_was_wr_r) begin
+          srp_wr_pend_r <= 1'b0;
+          srp_fresh_r   <= 1'b0;          //! snapshot predates the write: re-poll
+        end else
+          srp_fresh_r   <= 1'b1;
+      end
+      if (sel_wr_w) srp_fresh_r <= 1'b0;
+      if (srp_prov_w) begin
+        srp_wr_pend_r  <= 1'b1;
+        srp_wr_valid_r <= s_axi_wdata[0];
+        srp_wr_dir_r   <= ~strm_dir_r;    //! ctx encoding: 0=talker,1=listener
+        srp_wr_row_r   <= srp_sel_row_w;
+        srp_wr_sid_r   <= {stg_sid_hi_r, stg_sid_lo_r};
+        srp_wr_dmac_r  <= {stg_dmac_hi_r[15:0], stg_dmac_lo_r};
+        srp_fresh_r    <= 1'b0;
+      end
+    end
+  end : strm_srp_master_S
+
+  assign o_srp_ctx_req       = srp_wr_pend_r || srp_poll_w;
+  assign o_srp_ctx_we        = srp_wr_pend_r;
+  assign o_srp_ctx_idx       = srp_wr_pend_r ? srp_wr_row_r : srp_sel_row_w;
+  assign o_srp_ctx_valid     = srp_wr_valid_r;
+  assign o_srp_ctx_dir       = srp_wr_pend_r ? srp_wr_dir_r : ~strm_dir_r;
+  assign o_srp_ctx_sid       = srp_wr_sid_r;
+  assign o_srp_ctx_dmac      = srp_wr_dmac_r;
+  assign o_srp_ctx_prio_rank = SRP_PRIO_RANK_C;
+  //! TSpec/latency: shared with the legacy attribute until per-stream TSpec
+  //! window words exist (all streams are 48 kHz class A base formats today)
+  assign o_srp_ctx_max_frame = lwsrp_tspec[15:0];
+  assign o_srp_ctx_interval  = lwsrp_tspec[31:16];
+  assign o_srp_ctx_latency   = lwsrp_lat;
+
+  //! ACMP context-table master: continuous poll of the selected listener
+  //! context (the engine grants when its RAM port is idle)
+  always_ff @(posedge aclk) begin : strm_acmp_master_S
+    if (!aresetn) begin
+      acmp_fresh_r  <= 1'b0;
+      acmp_sid_q_r  <= 64'h0; acmp_dmac_q_r <= 48'h0;
+      acmp_state_q_r <= 3'd0; acmp_probing_q_r <= 2'd0; acmp_status_q_r <= 5'd0;
+    end else begin
+      if (i_acmp_tbl_gnt) begin
+        acmp_sid_q_r     <= i_acmp_tbl_ctx[ACMP_CTX_SID_LO_C     +: 64];
+        acmp_dmac_q_r    <= i_acmp_tbl_ctx[ACMP_CTX_DMAC_LO_C    +: 48];
+        acmp_state_q_r   <= i_acmp_tbl_ctx[ACMP_CTX_STATE_LO_C   +: 3];
+        acmp_probing_q_r <= i_acmp_tbl_ctx[ACMP_CTX_PROBING_LO_C +: 2];
+        acmp_status_q_r  <= i_acmp_tbl_ctx[ACMP_CTX_STATUS_LO_C  +: 5];
+        acmp_fresh_r     <= 1'b1;
+      end
+      if (sel_wr_w) acmp_fresh_r <= 1'b0;
+    end
+  end : strm_acmp_master_S
+
+  assign o_acmp_tbl_req = !strm_dir_r && win_in_range_w;
+  assign o_acmp_tbl_idx = strm_idx_r;
+
+  //! engine port-B buses: the SNAP burst and the slow-read fetch never
+  //! overlap (slow reads fall back to fast-0 during a snap; a snap yields
+  //! in SN_WAIT until a fetch in flight completes)
+  assign o_lctx_rd_en    = (snap_rden_r && !snap_dir_r) ||
+                           (rds_busy_r  && !rds_dir_r);
+  assign o_lctx_rd_addr  = (snap_rden_r && !snap_dir_r)
+                         ? {snap_idx_r[2:0], snap_word_r}
+                         : {rds_idx_r, rds_word_r};
+  assign o_tctx_rd_en    = (snap_rden_r && snap_dir_r) ||
+                           (rds_busy_r  && rds_dir_r);
+  assign o_tctx_rd_addr  = (snap_rden_r && snap_dir_r)
+                         ? {snap_idx_r[2:0], snap_word_r[3:0]}
+                         : {rds_idx_r, rds_word_r[3:0]};
+  assign o_lctx_snap_req = snap_req_r && !snap_dir_r;
+  assign o_tctx_snap_req = snap_req_r &&  snap_dir_r;
+  assign o_lctx_wr_p     = lctx_wr_p_r;
+  assign o_lctx_wr_addr  = lctx_wr_addr_r;
+  assign o_lctx_wr_data  = lctx_wr_data_r;
+  assign o_tctx_wr_p     = tctx_wr_p_r;
+  assign o_tctx_wr_addr  = tctx_wr_addr_r;
+  assign o_tctx_wr_data  = tctx_wr_data_r;
 
   assign o_irq = |(irq_status & irq_mask);
 

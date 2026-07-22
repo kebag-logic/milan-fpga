@@ -37,6 +37,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x680` | lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) |
 | `0x6A4` | ACMP listener SM (Milan v1.2 §5.5, RO) |
 | `0x700` | RX destination-MAC TCAM filter |
+| `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x85C) |
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
@@ -48,7 +49,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0003` | `[31:16]` major, `[15:0]` minor (0x0002 ADP group, 0x0003 TCAM group) |
+| `0x004` | `VERSION` | RO | `0x0001_0008` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -313,6 +314,76 @@ controller-driven over ACMP.
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
+
+### 0x800  -  Indexed per-stream window  `(NxN streams, NXN_ARCHITECTURE.md §1.5)`
+
+One SELECT register plus ONE decoded word block views any of the N listener /
+N talker stream contexts — decode area is O(1) in N instead of the O(N) flat
+replication (~500 words at 8x8). The reader is the single softcore daemon:
+SEL-then-read sequencing costs nothing. `N_LISTENERS_P` / `N_TALKERS_P` are
+elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x800` | `A_STRM_SEL` | RW | `0` | `[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker). Only these bits are stored/read back. Writing SEL invalidates the ACMP/SRP read snapshots (they re-poll for the new selection) |
+| `0x804` | `A_STRM_SNAP` | W1S / RO | `0` | Write `[0]`=1: latch the selected stream's `STATE` + `CNT0..9` + `PDUS` into the window shadow as ONE coherent block. Read: `[0]` busy. Poll busy=0 before reading the latched words |
+| `0x810` | `A_STRMW_CTRL` | RW | — | listener: `[0]` en, `[2:1]` route (LCTX w4, engine-backed); talker idx 0: `[0]` en = **hard alias of `AAF_CTRL[0]`** (merge write — VID/bypass bits untouched); talker idx>0: TCTX w0. A CTRL write at idx>0 also COMMITS the lwSRP provisioning record (see below) |
+| `0x814` | `A_STRMW_SID_LO` | RW/RO | — | stream_id `[31:0]`. listener: RO from the ACMP bind context (tbl port); talker idx 0: RO derived `{station MAC, uid=0}`; talker idx>0: RO from the lwSRP row snapshot. Writes stage the provisioning sid (and forward to LCTX w0 for listeners) |
+| `0x818` | `A_STRMW_SID_HI` | RW/RO | — | stream_id `[63:32]`, same rules (LCTX w1) |
+| `0x81C` | `A_STRMW_DMAC_LO` | RW/RO | — | stream DMAC `[31:0]`. listener: RO ACMP bind context; talker idx 0: **hard alias of `AAF_DMLO`** (RW, exact); talker idx>0: TCTX w1 (engine-backed). Writes stage the provisioning DMAC |
+| `0x820` | `A_STRMW_DMAC_HI` | RW/RO | — | DMAC `[47:32]` in `[15:0]`; talker idx 0 = **hard alias of `AAF_DMHI`**; talker idx>0: TCTX w2 |
+| `0x824` | `A_STRMW_FMT_LO` | RW | — | current stream format `[31:0]` (LCTX w2, engine-backed; talker side is AECP-owned — reads 0, writes ignored) |
+| `0x828` | `A_STRMW_FMT_HI` | RW | — | format `[63:32]` (LCTX w3) |
+| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker: `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` aaf_gate, `[27:19]` SRP bits |
+| `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. Talker contexts read 0 |
+| `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: frames_sent (= `AAF_FRAMES` at idx 0) |
+| `0x85C` | `A_STRMW_SRP` | RO | — | per-stream lwSRP attribute status. idx 0: **live hard alias of `LWSRP_STATUS` (0x694)**. idx>0: `{16'0, ctx_rd_stat}` = `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the live lwSRP context row |
+
+**The alias rule (N=1 bit-compat axiom).** The legacy flat registers remain
+the authority and index 0 of the window is a HARD ALIAS of them — never a
+copy: talker idx 0 `CTRL[0]`/`DMAC_LO`/`DMAC_HI` are the same storage as
+`AAF_CTRL[0]`/`AAF_DMLO`/`AAF_DMHI` (a window write is visible at the flat
+address and vice versa; the `CTRL` alias merges bit 0 only), `SRP` idx 0 is
+the live `0x694` word, and the listener idx-0 SNAP latches the flat
+`AVTPRX_*`/`PCMRX_CNT`/`ACMPL_STATE` sources (`CNT0..3/5/6` mirror today's
+truncated 8/16-bit flat counters; they widen to the full 32-bit LCTX words
+when the shared-engine lane lands — flat addresses keep their packing).
+Every pre-window CSR TB passes unchanged.
+
+**SNAP atomicity ([M-5.4.2.25] GET_COUNTERS).** A SNAP latches `STATE` +
+`CNT0..9` + `PDUS` as one coherent set. Index 0 latches all flat sources in
+a single cycle. Extra contexts run an engine-arbitrated burst on the context
+RAM's port B: the CSR holds `snap_req`, the engine answers `snap_ok` and
+SHALL NOT modify that stream's words while the grant stands — counters keep
+running before and after, but the latched block is one epoch. `busy` covers
+the whole burst; the latched words serve reads until the next SNAP (they do
+NOT track live counters). Firmware GET_COUNTERS = `SEL`, `SNAP`, poll
+`busy`, read the block.
+
+**Engine-backed words + read timing.** Window reads of LCTX/TCTX-backed
+words (`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are
+served from the context RAM's second port — the AXI read simply stretches a
+few clocks (handshake absorbs it, like the config-shadow reads). While the
+lane-K engines are not connected, those inputs are tied inert at the SoC
+(`i_lctx_rd_data=0`, `i_lctx_snap_ok=1`, same for TCTX, `i_acmp_tbl_*=0` —
+allowlisted in `scripts/check_tied_inputs.sh`), so engine-backed words read
+0 and SNAP completes immediately; the index-0 aliases are fully live today.
+During a SNAP burst, engine-backed word reads return 0 (poll busy first).
+
+**lwSRP provisioning through the window.** For idx>0, writing `SID_LO/HI`
+(+ `DMAC_LO/HI` for talkers) stages the record and a `CTRL` write commits it
+to the live lwSRP attribute-context port (`KL_lwsrp_top ctx_*`): `en`=1
+provisions (TalkerAdvertise or Listener declaration per dir), `en`=0
+withdraws. Row map: listener idx k → ctx row k, talker idx t → ctx row
+`N_LISTENERS_P-1+t`; row 0 is the legacy pair (read-only, served by the
+flat aliases). PriorityAndRank is the class-A constant; TSpec/latency come
+from the shared `LWSRP_TSPEC`/`LWSRP_LATENCY` registers until per-stream
+TSpec words exist.
+
+**Out-of-range rule.** idx ≥ `N_LISTENERS_P` (dir 0) / `N_TALKERS_P`
+(dir 1): every window word reads 0, writes are ignored (no alias, no engine
+strobes, no provisioning), SNAP latches zeros and completes. `A_STRM_SEL` /
+`A_STRM_SNAP` themselves always decode.
 
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 
