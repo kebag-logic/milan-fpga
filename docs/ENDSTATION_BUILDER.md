@@ -210,8 +210,18 @@ overlay counts to the shipped ROM for today's shape.
 **Audio-interface family subtask** (gaps item 4 subtask). The config's
 `audio_interface.kind` — `tdm8|tdm16|tdm32|i2s_philips|aes3|spdif` — selects
 the ser/des RTL family and its parameters (slots, word length, frame
-format; today only `i2s_philips` exists in RTL: `KL_i2s_playback` /
-`aaf_talker_i2s`). On the AEM side the physical interface is modeled by,
+format). In RTL today: `i2s_philips` (`KL_i2s_playback` /
+`aaf_talker_i2s`/`KL_aaf_capture_i2s`, the default) and the `tdmN` kinds —
+the builder emits `--audio-interface tdmN`, which `milan_soc.py` maps to
+the `milan_datapath` `AUDIO_IF_SLOTS_P` generate select instantiating the
+`KL_tdm_capture` TDM slave (N slots × 32-bclk words, pulse or 50%-duty
+frame sync, data delay 0/1); its per-slot pair stream feeds the
+`KL_aaf_packetizer` multi-channel payload builder (TCTX `chans` =
+`channels_per_frame`, even 2..8 per stream, partitioning the pair-slot
+space). `aes3`/`spdif` are contract-only for now (the pair-stream contract
+and the biphase-mark plan live in
+`hdl/ieee1722/aaf/doc/audio_frontend_family.md`) and validate with a
+planned mark. On the AEM side the physical interface is modeled by,
 per 1722.1:
 - **JACK_INPUT/JACK_OUTPUT** (7.2.7): the physical connector, with
   `jack_type` from Table 7-12 — `SPDIF` and `AES_EBU` are dedicated types;
@@ -255,7 +265,7 @@ the field itself.
 | 11 | `clocking.crf_sink` | CRF STREAM_INPUT (appended after AAF listeners) + its INPUT_STREAM CLOCK_SOURCE + `KL_crf_rx` instance | Milan 7.2.2; 1722.1 7.2.9.2 | AEM, SoC |
 | 12 | `clocking.crf_format` | CRF STREAM_INPUT `formats` entry (48 kHz base, 1 ts/PDU, interval 96) | Milan 7.3.2 | AEM |
 | 13 | `clocking.audio_pll_hz` | audio MMCM constraint (MCLK derivation) | — | SoC |
-| 14 | `audio_interface.kind` | ser/des RTL family + params; planned: JACK_IN/OUT `jack_type`, EXTERNAL_PORT_IN/OUT, AUDIO_UNIT ext-port counts (D5) | 1722.1 7.2.7 (Table 7-12), 7.2.14, 7.2.3 | SoC, AEM (planned) |
+| 14 | `audio_interface.kind` | ser/des RTL family + params (`i2s_philips` = default front-end; `tdmN` → `--audio-interface` → `AUDIO_IF_SLOTS_P` / `KL_tdm_capture`; `aes3`/`spdif` contract-only); planned: JACK_IN/OUT `jack_type`, EXTERNAL_PORT_IN/OUT, AUDIO_UNIT ext-port counts (D5) | 1722.1 7.2.7 (Table 7-12), 7.2.14, 7.2.3 | SoC, AEM (planned) |
 | 15 | `audio_interface.word_length_bits` | ser/des word length; bounds usable AAF `bit_depth` | 1722 7.3.4 | SoC |
 | 16 | `audio_interface.cluster_mapping.rule` | AUDIO_CLUSTER + AUDIO_MAP generation policy (D2) | 1722.1 7.2.16, 7.2.19; Milan 5.3.9.1/5.3.10.1 | AEM |
 | 17 | `streams.listeners[].channels` | STREAM_INPUT default `current_format` channel count (= wire `channels_per_frame`) | 1722.1 7.2.6; 1722 7.3.3; Milan 6.4 | AEM, SoC |

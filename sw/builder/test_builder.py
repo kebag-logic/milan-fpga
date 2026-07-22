@@ -14,9 +14,10 @@ Gates (gaps item 4, generator round):
    3. endstation_arty_current's AEM overlay descriptor counts equal the
       hardcoded model in avdecc/gen_aem_store.py (imported, not run - the
       ROM assembles at import, file writes only under __main__);
-   4. NxN shapes carry "planned (item 5)" marks (and non-I2S interfaces the
-      item-4 audio subtask mark) instead of failing; the current shape
-      carries none;
+   4. NxN shapes carry "planned (item 5)" marks instead of failing; the tdm
+      interface kinds are SUPPORTED (KL_tdm_capture, --audio-interface) and
+      only aes3/spdif still carry the item-4 planned mark (biphase-mark
+      ser/des later); the current shape carries none;
    5. bad configs raise ConfigError (spot checks incl. policy/eth_port);
    6. per-stream STREAM_PORT layout invariants for every config: one port
       per stream, contiguous non-overlapping cluster blocks, unique map
@@ -229,6 +230,9 @@ def test_current_shape_matches_sweep_flags():
         # tracks today's 1x1 build, so the flag rides on top of its OPTS.
         want = dict(want)
         want["--num-streams"] = [8.0]
+        # item-4 audio-interface family: tdm kinds ride on top of the OPTS
+        # as the front-end generate select (default i2s emits nothing).
+        want["--audio-interface"] = ["tdm16"]
         assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
         assert got["--eth-port"] == ["e2"], "ax7101 must carry --eth-port e2"
         print(f"  [gate 2] {name} argv == sweep.sh ax7101 design flags "
@@ -279,10 +283,24 @@ def test_capability_marks():
         r = eb.build(CONFIGS[name], OUT)
         planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
         assert any("item 5" in p for p in planned), f"{name}: no item-5 mark"
-        assert any("item 4" in p for p in planned), f"{name}: no TDM mark"
+        # item-4 audio-interface family landed: the tdm kinds are SUPPORTED
+        # (KL_tdm_capture front-end select), never a planned mark anymore
+        assert not any("item 4" in p for p in planned), \
+            f"{name}: tdm must be supported now: {planned}"
+        tdm = [m for m in r["marks"]
+               if m[0].startswith("audio interface tdm")]
+        assert tdm and tdm[0][1] == "supported" \
+            and "KL_tdm_capture" in tdm[0][2], f"{name}: bad tdm mark {tdm}"
         assert "planned (item 5" in r["plan"], f"{name}: plan lacks marker"
         print(f"  [gate 4] {name}: {len(planned)} planned mark(s) "
-              f"(items 5 + 4-audio), no failure")
+              f"(item 5 only; tdm supported), no failure")
+    # aes3/spdif stay planned (contract documented, biphase-mark RTL later)
+    v = _variant(CONFIGS["arty_current"],
+                 lambda c: c["audio_interface"].__setitem__("kind", "aes3"))
+    r = eb.build(v, OUT)
+    planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
+    assert any("item 4" in p for p in planned), "aes3 lost its planned mark"
+    print("  [gate 4] aes3 variant: still planned (biphase-mark RTL later)")
     print("  [gate 4] arty_current: zero planned marks")
 
 

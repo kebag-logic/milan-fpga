@@ -27,11 +27,27 @@
                              at first-sample capture)
                   w5 FRAMES  frames_sent counter
 
-                Sample staging: double-banked RAM, 6 pairs per bank per
-                stream; the bank swap IS the epoch boundary (spec §2.2).
-                Scheduling = round-robin over pending banks (spec §2.3's
-                epoch walk; pairs of all streams share the media clock, so
-                pends land on the same 6-sample cadence).
+                MULTI-CHANNEL (item-4): w0.chans = channels_per_frame,
+                CONSUMED for every talker (t0 included; reset default 2 -
+                never write it and the wire is byte-identical to the
+                stereo shape). Supported values: even 2..8 (the pair
+                stream is 2-channel-granular); 0/1 clamp to 2, odd to the
+                next even, > 8 to 8. A flop mirror snoops CTRL writes so
+                admission never waits on a BRAM read. The pair-slot space
+                is partitioned by a prefix sum of chans/2: talker t owns
+                pair slots [sum(chans/2 below t), +chans/2) - exactly the
+                slot k = talker k mapping when every talker is stereo.
+                Changing chans while a stream is enabled/mid-epoch is not
+                supported (reconfigure disabled).
+
+                Sample staging: double-banked RAM, 6 samples x up to 4
+                pairs per bank per stream, addressed {t, bank, sample[2:0],
+                chpair[1:0]} - channel alignment is slot-structural (an
+                overrun drop can never skew channels). The bank swap IS
+                the epoch boundary (spec §2.2). Scheduling = round-robin
+                over pending banks (spec §2.3's epoch walk; pairs of all
+                streams share the media clock, so pends land on the same
+                6-sample cadence).
 
                 Talker 0 aliases the legacy CSR config inputs (dest_mac /
                 vlan_vid / uid 0 / chans 2) - the no-regression axiom: at
@@ -43,11 +59,18 @@
                 ONE explicit sync read port (defect-4 lineage); the window
                 port shares TCTX's ports in idle slots.
 
-                SCOPE (documented): the framer emits the stereo 6-sample
-                90-byte shape (channels_per_frame = 2, wire truth - only
-                two physical capture channels exist until the item-4 TDM
-                front-end lands). TCTX w0.chans is stored for that round;
-                the epoch walk and context plumbing are already N-wide.
+                AAF header math (IEEE 1722-2016, pdftotext-verified):
+                channels_per_frame is the 10-bit field of Figure 26
+                spanning fsd1 bytes {[1:0] high bits, byte 2} = frame
+                bytes 35/36 here (7.3.3: "the number of audio channels
+                represented in the audio sample frame"); payload =
+                6 samples x C channels x 4 octets (format INT_32BIT,
+                7.3.5 chronological interleave, network byte order), so
+                stream_data_length (4.4.4.10) = 24*C and the frame is
+                42 + 24*C bytes == 2 (mod 8): the last AXIS beat always
+                keeps exactly 2 bytes and the beat count is 3*C + 6.
+                C = 2 emits the historical 90-byte shape byte-identically
+                (golden byte-compare gated).
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -69,7 +92,8 @@ module KL_aaf_packetizer #(
 
   //! --- pair stream from the capture front-end (one crossing, all slots) -
   input  wire         pair_valid_i,      //! one-cycle pulse per L/R pair
-  input  wire [3:0]   pair_slot_i,       //! talker stream slot
+  input  wire [3:0]   pair_slot_i,       //! pair slot (talker t owns chans/2
+                                         //! consecutive slots - see header)
   input  wire [23:0]  pair_l_i,
   input  wire [23:0]  pair_r_i,
 
@@ -105,13 +129,19 @@ module KL_aaf_packetizer #(
 );
 
   localparam int unsigned SAMPLES_PER_FRAME_C = 6;
-  localparam int unsigned FRAME_BYTES_C = 14 + 4 + 24 + 48;        //! 90
-  localparam int unsigned NUM_BEATS_C   = (FRAME_BYTES_C + 7) / 8; //! 12
-  localparam int unsigned LAST_KEEP_C   = FRAME_BYTES_C - (NUM_BEATS_C-1)*8;
+  localparam int unsigned MAX_CHANS_C = 8;             //! even 2..8 supported
+  localparam int unsigned MAX_PAIRS_C = MAX_CHANS_C/2;
+  //! frame sizing at the C = MAX ceiling (fb/beat mux); the live frame ends
+  //! at ebeats_w = np_w + 6 beats (42 + 8*np bytes, np = 3*C pairs)
+  localparam int unsigned FRAME_BYTES_C = 14 + 4 + 24 + 24*MAX_CHANS_C; //! 234
+  localparam int unsigned NUM_BEATS_C   = (FRAME_BYTES_C + 7) / 8;     //! 30
+  //! 42 + 24*C == 2 (mod 8) for every C: the last beat always keeps 2 bytes
+  localparam int unsigned LAST_KEEP_C   = 2;
   localparam int unsigned TIDXW_C = (N_TALKERS_P <= 1) ? 1
                                                        : $clog2(N_TALKERS_P);
   localparam int unsigned TAW_C   = TIDXW_C + 4;      //! TCTX {t, word}
-  localparam int unsigned SAW_C   = TIDXW_C + 1 + 3;  //! staging {t, bank, p}
+  //! staging {t, bank, sample[2:0], chpair[1:0]}
+  localparam int unsigned SAW_C   = TIDXW_C + 1 + 3 + 2;
 
   //! TCTX word indices (spec §2.2)
   localparam logic [3:0] TW_CTRL_C = 4'd0, TW_DML_C = 4'd1, TW_DMH_C = 4'd2,
@@ -158,20 +188,59 @@ module KL_aaf_packetizer #(
   // ======================================================================
   //  Per-stream capture state (scheduler flags stay in flops)
   // ======================================================================
-  logic [2:0] nsamp_r  [N_TALKERS_P];   //! pairs accumulated in wr bank
+  logic [2:0] nsamp_r  [N_TALKERS_P];   //! samples accumulated in wr bank
   logic       wbank_r  [N_TALKERS_P];   //! bank being filled
   logic       pend_r   [N_TALKERS_P];   //! !wbank full, awaiting emission
 
-  wire [TIDXW_C-1:0] pslot_w = pair_slot_i[TIDXW_C-1:0];
-  //! accept a pair: stream enabled, slot in range, and not overrunning a
-  //! still-pending frame (the old MVP frame_pend drop, per bank)
-  wire pair_ok_w = pair_valid_i && (32'(pair_slot_i) < N_TALKERS_P) &&
-                   stream_en_i[pslot_w] &&
-                   !(pend_r[pslot_w] &&
-                     (32'(nsamp_r[pslot_w]) == SAMPLES_PER_FRAME_C - 1));
+  //! channels_per_frame flop mirror of TCTX w0.chans (clamped even 2..8;
+  //! reset 2 = the byte-identical stereo default, t0 included). Snoops the
+  //! single TCTX write process so admission never reads the BRAM.
+  function automatic [3:0] chn_clamp(input [3:0] c);
+    chn_clamp = (c < 4'd2) ? 4'd2
+              : (c >= 4'd8) ? 4'd8
+              : (c[0] ? (c + 4'd1) : c);
+  endfunction
+
+  logic [3:0] chans_r [N_TALKERS_P];
+
+  //! pair-slot partition: talker t owns pair slots [pbase_w[t], pbase_w[t+1])
+  //! (prefix sum of chans/2; the identity slot k = talker k when all-stereo)
+  logic [5:0] pbase_w [N_TALKERS_P+1];
+  always_comb begin : pair_base
+    pbase_w[0] = '0;
+    for (int t = 0; t < N_TALKERS_P; t++)
+      pbase_w[t+1] = pbase_w[t] + 6'(chans_r[t][3:1]);
+  end : pair_base
+
+  //! slot ownership decode (bases are disjoint: at most one talker matches)
+  logic               pown_v_w;
+  logic [TIDXW_C-1:0] pown_t_w;
+  logic [1:0]         pown_o_w;         //! channel-pair offset in the frame
+  always_comb begin : slot_own
+    pown_v_w = 1'b0;
+    pown_t_w = '0;
+    pown_o_w = '0;
+    for (int t = 0; t < N_TALKERS_P; t++)
+      if ((6'(pair_slot_i) >= pbase_w[t]) &&
+          (6'(pair_slot_i) <  pbase_w[t+1])) begin
+        pown_v_w = 1'b1;
+        pown_t_w = TIDXW_C'(t);
+        pown_o_w = 2'(6'(pair_slot_i) - pbase_w[t]);
+      end
+  end : slot_own
+
+  wire [1:0] own_pairs_w = 2'(chans_r[pown_t_w][3:1] - 3'd1); //! pairs-1
+  wire       own_last_w  = (pown_o_w == own_pairs_w);   //! last pair of sample
+  //! accept a pair: stream enabled, slot owned, and not overrunning a
+  //! still-pending frame (the old MVP frame_pend drop, per bank; blocking
+  //! only the bank-completing pair keeps channel alignment slot-structural)
+  wire pair_ok_w = pair_valid_i && pown_v_w && stream_en_i[pown_t_w] &&
+                   !(pend_r[pown_t_w] && own_last_w &&
+                     (32'(nsamp_r[pown_t_w]) == SAMPLES_PER_FRAME_C - 1));
 
   assign stg_we_w    = pair_ok_w;
-  assign stg_waddr_w = {pslot_w, wbank_r[pslot_w], nsamp_r[pslot_w]};
+  assign stg_waddr_w = {pown_t_w, wbank_r[pown_t_w],
+                        nsamp_r[pown_t_w], pown_o_w};
   assign stg_wdata_w = {pair_l_i, pair_r_i};
 
   //! first-pair timestamp capture -> TCTX w4 (pending reg absorbs write-
@@ -196,9 +265,16 @@ module KL_aaf_packetizer #(
   estate_t           est_r;
   logic [TIDXW_C-1:0] et_r;             //! stream being emitted
   logic               ebank_r;          //! bank being drained
-  logic [3:0]        fph_r;             //! fetch phase
-  logic [3:0]        beat_r;
+  logic [3:0]        fph_r;             //! fetch phase (saturates at 2)
+  logic [4:0]        beat_r;
   logic [TIDXW_C-1:0] rr_r;             //! round-robin pointer
+
+  //! staging fetch walk (E_DRD_S): issues one pair read per cycle in
+  //! payload order ({sample, chpair}, chpair fastest); captures lag one
+  logic [4:0]        eiss_r;            //! pair reads issued
+  logic [4:0]        ecap_r;            //! pairs captured into buf
+  logic [2:0]        esmp_r;            //! issue sample index
+  logic [1:0]        eo_r;              //! issue channel-pair index
 
   //! fetched context
   logic [7:0]  eseq_r;
@@ -206,8 +282,14 @@ module KL_aaf_packetizer #(
   logic [47:0] edmac_r;
   logic [15:0] euid_r;
   logic [11:0] evid_r;
-  logic [23:0] buf_l_r [SAMPLES_PER_FRAME_C];
-  logic [23:0] buf_r_r [SAMPLES_PER_FRAME_C];
+  logic [23:0] buf_l_r [SAMPLES_PER_FRAME_C*MAX_PAIRS_C];
+  logic [23:0] buf_r_r [SAMPLES_PER_FRAME_C*MAX_PAIRS_C];
+
+  //! per-frame shape from the chans mirror (clamped even 2..8)
+  wire [3:0] echn_w   = chans_r[et_r];
+  wire [2:0] epairs_w = echn_w[3:1];
+  wire [4:0] np_w     = 5'(SAMPLES_PER_FRAME_C * 32'(epairs_w)); //! payload pairs
+  wire [4:0] ebeats_w = np_w + 5'd6;    //! (42 + 8*np + 7) / 8
 
   //! round-robin grant (lowest distance from rr_r)
   logic               grant_v_w;
@@ -250,29 +332,35 @@ module KL_aaf_packetizer #(
     {fb[22],fb[23],fb[24],fb[25],fb[26],fb[27],fb[28],fb[29]} = stream_id_w;
     {fb[30],fb[31],fb[32],fb[33]} = ets_r;                 // avtp_timestamp
     fb[34]=8'h02;                       // format = INT_32BIT
-    fb[35]={4'h5, 4'h0};                // nsr = 48 kHz, rsvd
-    fb[36]=8'h02;                       // channels_per_frame = 2 (wire truth)
-    fb[37]=8'h20;                       // bit_depth = 32
-    fb[38]=8'h00; fb[39]=8'h30;         // stream_data_length = 48
+    // fsd1 (1722-2016 Fig 26): nsr[3:0]=5 (48 kHz, Table 11), rsv[1:0],
+    // channels_per_frame[9:0] (7.3.3) split over bytes 35/36
+    fb[35]={4'h5, 2'b00, 2'b00};        // cpf[9:8] = 0 (C <= 8)
+    fb[36]={4'h0, echn_w};              // cpf[7:0] = C (2 = legacy shape)
+    fb[37]=8'h20;                       // bit_depth = 32 (7.3.4)
+    // stream_data_length (4.4.4.10) = payload octets = 6*C*4 = 8*np
+    fb[38]=8'h00; fb[39]={np_w, 3'b000};
     fb[40]=8'h00;                       // sp=0 (normal), evt=0
     fb[41]=8'h00;                       // reserved
-    // payload: 6 x {L, R}, INT32 left-justified (sample << 8), big-endian
-    for (int i = 0; i < int'(SAMPLES_PER_FRAME_C); i++) begin
-      fb[42+i*8+0]=buf_l_r[i][23:16]; fb[42+i*8+1]=buf_l_r[i][15:8];
-      fb[42+i*8+2]=buf_l_r[i][7:0];   fb[42+i*8+3]=8'h00;
-      fb[42+i*8+4]=buf_r_r[i][23:16]; fb[42+i*8+5]=buf_r_r[i][15:8];
-      fb[42+i*8+6]=buf_r_r[i][7:0];   fb[42+i*8+7]=8'h00;
-    end
+    // payload (7.3.5): 6 samples x C channels chronologically interleaved,
+    // INT32 left-justified (sample << 8), network byte order. buf holds the
+    // np pairs in payload order, so pair j always sits at bytes 42 + 8j.
+    for (int j = 0; j < int'(SAMPLES_PER_FRAME_C*MAX_PAIRS_C); j++)
+      if (32'(j) < 32'(np_w)) begin
+        fb[42+j*8+0]=buf_l_r[j][23:16]; fb[42+j*8+1]=buf_l_r[j][15:8];
+        fb[42+j*8+2]=buf_l_r[j][7:0];   fb[42+j*8+3]=8'h00;
+        fb[42+j*8+4]=buf_r_r[j][23:16]; fb[42+j*8+5]=buf_r_r[j][15:8];
+        fb[42+j*8+6]=buf_r_r[j][7:0];   fb[42+j*8+7]=8'h00;
+      end
   end : frame_bytes
 
   logic [63:0] w_beat_w;
   always_comb
-    for (int l = 0; l < 8; l++) w_beat_w[8*l +: 8] = fb[{28'd0, beat_r}*8 + l];
+    for (int l = 0; l < 8; l++) w_beat_w[8*l +: 8] = fb[{27'd0, beat_r}*8 + l];
 
   assign m_axis_tdata  = w_beat_w;
   assign m_axis_tvalid = (est_r == E_SEND_S);
-  assign m_axis_tlast  = (est_r == E_SEND_S) && (32'(beat_r) == NUM_BEATS_C-1);
-  assign m_axis_tkeep  = (32'(beat_r) == NUM_BEATS_C-1)
+  assign m_axis_tlast  = (est_r == E_SEND_S) && (beat_r == ebeats_w - 5'd1);
+  assign m_axis_tkeep  = (beat_r == ebeats_w - 5'd1)
                          ? 8'((1 << LAST_KEEP_C) - 1) : 8'hFF;
 
   // ----------------------------------------------------------------------
@@ -336,10 +424,10 @@ module KL_aaf_packetizer #(
     endcase
   end : tctx_rmux
 
-  //! staging read address (E_DRD_S phases 1..6 issue pair reads)
+  //! staging read address (E_DRD_S issues pair reads on the {esmp, eo} walk)
   always_comb begin : stg_rmux
-    stg_raddr_w = {et_r, ebank_r, fph_r[2:0] - 3'd1};
-    if (est_r != E_DRD_S) stg_raddr_w = {et_r, ebank_r, 3'd0};
+    stg_raddr_w = {et_r, ebank_r, esmp_r, eo_r};
+    if (est_r != E_DRD_S) stg_raddr_w = {et_r, ebank_r, 3'd0, 2'd0};
   end : stg_rmux
 
   // ----------------------------------------------------------------------
@@ -363,7 +451,11 @@ module KL_aaf_packetizer #(
       tsw_pend_r <= 1'b0;
       tsw_t_r    <= '0;
       tsw_val_r  <= '0;
-      for (int i = 0; i < int'(SAMPLES_PER_FRAME_C); i++) begin
+      eiss_r <= '0;
+      ecap_r <= '0;
+      esmp_r <= '0;
+      eo_r   <= '0;
+      for (int i = 0; i < int'(SAMPLES_PER_FRAME_C*MAX_PAIRS_C); i++) begin
         buf_l_r[i] <= '0;
         buf_r_r[i] <= '0;
       end
@@ -371,6 +463,7 @@ module KL_aaf_packetizer #(
         nsamp_r[t] <= '0;
         wbank_r[t] <= 1'b0;
         pend_r[t]  <= 1'b0;
+        chans_r[t] <= 4'd2;
       end
       frames_sent_o   <= '0;
       tctx_rd_data_o  <= '0;
@@ -384,7 +477,11 @@ module KL_aaf_packetizer #(
       // ---- emission FSM --------------------------------------------------
       unique case (est_r)
         E_IDLE_S : begin
-          fph_r <= '0;
+          fph_r  <= '0;
+          eiss_r <= '0;
+          ecap_r <= '0;
+          esmp_r <= '0;
+          eo_r   <= '0;
           if (grant_v_w) begin
             et_r    <= grant_t_w;
             ebank_r <= !wbank_r[grant_t_w];   //! the just-filled bank
@@ -413,33 +510,44 @@ module KL_aaf_packetizer #(
         end
 
         E_DRD_S : begin
-          //! fph0: issue w3(SEQ) read (w4 addr live), staging pair reads
-          //! ride fph 1..6; capture lands one phase behind each issue:
-          //!   fph1: q=TS?  -- sequence: fph0 raddr=w4? see rmux: fph0->TS,
-          //!   else SEQ. Ordering: IDLE/E_CRD tail issued SEQ; fph0 captures
-          //!   SEQ and issues TS; fph1 captures TS; fph1..6 issue pairs;
-          //!   fph2..7 capture pairs 0..5.
+          //! Ordering: IDLE/E_CRD tail issued the SEQ read; fph0 captures
+          //! SEQ (rmux issues TS this cycle); fph1 captures TS and starts
+          //! the staging walk - one pair read per cycle in payload order
+          //! ({esmp, eo}, eo fastest), captures lagging one cycle
+          //! (eiss > ecap <=> stg_q_r holds pair ecap). C = 2 walks the
+          //! exact fph1..6-issue / fph2..7-capture cadence of the stereo
+          //! shape (golden byte-compare timing preserved).
           if (fph_r == 4'd0)      eseq_r <= tram_q_r[7:0];
           else if (fph_r == 4'd1) ets_r  <= tram_q_r;
-          if (fph_r >= 4'd2 && fph_r <= 4'd7) begin
-            buf_l_r[fph_r - 4'd2] <= stg_q_r[47:24];
-            buf_r_r[fph_r - 4'd2] <= stg_q_r[23:0];
+          if (fph_r != 4'd0) begin
+            if (eiss_r != np_w) begin
+              eiss_r <= eiss_r + 5'd1;
+              if (32'(eo_r) == 32'(epairs_w) - 1) begin
+                eo_r   <= '0;
+                esmp_r <= esmp_r + 3'd1;
+              end
+              else eo_r <= eo_r + 2'd1;
+            end
+            if (ecap_r != eiss_r) begin
+              buf_l_r[ecap_r] <= stg_q_r[47:24];
+              buf_r_r[ecap_r] <= stg_q_r[23:0];
+              ecap_r <= ecap_r + 5'd1;
+              if (ecap_r == np_w - 5'd1) begin
+                beat_r <= '0;
+                est_r  <= E_SEND_S;
+              end
+            end
           end
-          if (fph_r == 4'd7) begin
-            fph_r  <= '0;
-            beat_r <= '0;
-            est_r  <= E_SEND_S;
-          end
-          else fph_r <= fph_r + 4'd1;
+          if (fph_r != 4'd2) fph_r <= fph_r + 4'd1;
         end
 
         E_SEND_S : begin
           if (m_axis_tready) begin
-            if (32'(beat_r) == NUM_BEATS_C-1) begin
+            if (beat_r == ebeats_w - 5'd1) begin
               pend_r[et_r] <= 1'b0;                  //! epoch drained
               est_r <= E_WBR_S;
             end
-            else beat_r <= beat_r + 4'd1;
+            else beat_r <= beat_r + 5'd1;
           end
         end
 
@@ -463,19 +571,27 @@ module KL_aaf_packetizer #(
       // ---- pair capture / bank swap (after the FSM so a same-cycle
       //      new-epoch pend set wins over the drain clear) ----------------
       if (pair_ok_w) begin
-        if (32'(nsamp_r[pslot_w]) == SAMPLES_PER_FRAME_C - 1) begin
-          nsamp_r[pslot_w] <= '0;
-          wbank_r[pslot_w] <= !wbank_r[pslot_w];
-          pend_r[pslot_w]  <= 1'b1;      //! bank swap = the epoch boundary
+        //! the sample row advances on its LAST channel pair; the bank swap
+        //! on the last row's last pair (channel position is slot-addressed,
+        //! so drops can only repeat a row, never skew channels)
+        if (own_last_w) begin
+          if (32'(nsamp_r[pown_t_w]) == SAMPLES_PER_FRAME_C - 1) begin
+            nsamp_r[pown_t_w] <= '0;
+            wbank_r[pown_t_w] <= !wbank_r[pown_t_w];
+            pend_r[pown_t_w]  <= 1'b1;   //! bank swap = the epoch boundary
+          end
+          else nsamp_r[pown_t_w] <= nsamp_r[pown_t_w] + 3'd1;
         end
-        else nsamp_r[pslot_w] <= nsamp_r[pslot_w] + 3'd1;
-        if (nsamp_r[pslot_w] == '0) begin
+        if (nsamp_r[pown_t_w] == '0 && pown_o_w == '0) begin
           //! first pair of the epoch: latch the presentation time
           tsw_pend_r <= 1'b1;
-          tsw_t_r    <= pslot_w;
+          tsw_t_r    <= pown_t_w;
           tsw_val_r  <= ptp_ns_i[31:0] + transit_ns_i;
         end
       end
+      // ---- chans mirror: snoop the single TCTX write process -------------
+      if (tram_we_w && (tram_waddr_w[3:0] == TW_CTRL_C))
+        chans_r[TIDXW_C'(tram_waddr_w >> 4)] <= chn_clamp(tram_wdata_w[4:1]);
       //! disabled stream: clear its accumulation (flat-talker semantics)
       for (int t = 0; t < N_TALKERS_P; t++) begin
         if (!stream_en_i[t]) begin
