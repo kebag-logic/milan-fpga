@@ -235,44 +235,44 @@ class MilanNIC(LiteXModule):
 # Verilator Makefile and the syn/yosys entry  -  the single source of truth for what
 # the §A.9 wrapper is built from.
 _MILAN_DATAPATH_SOURCES = [
-    "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv", "hdl/adp/adp_pkg.sv",
+    "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv", "hdl/ieee17221/adp/adp_pkg.sv",
     "third_party/verilog-axis/rtl/axis_fifo.v", "third_party/verilog-axis/rtl/axis_demux.v",
     "third_party/verilog-axis/rtl/axis_arb_mux.v", "third_party/verilog-axis/rtl/arbiter.v",
     "third_party/verilog-axis/rtl/priority_encoder.v",
-    "hdl/802_1q_traffic_shaper/traffic_class_map.sv", "hdl/802_1q_traffic_shaper/traffic_classifier.sv",
-    "hdl/802_1q_traffic_shaper/credit_based_shaper.sv", "hdl/802_1q_traffic_shaper/traffic_shaping_core.sv",
-    "hdl/802_1q_traffic_shaper/traffic_queues.sv", "hdl/802_1q_traffic_shaper/traffic_controller_802_1q.sv",
-    "hdl/ptp_timestamp/timestamp_counter.sv", "hdl/ptp_timestamp/ptp_csr_sync.sv",
+    "hdl/ieee8021q/ts/traffic_class_map.sv", "hdl/ieee8021q/ts/traffic_classifier.sv",
+    "hdl/ieee8021q/ts/credit_based_shaper.sv", "hdl/ieee8021q/ts/traffic_shaping_core.sv",
+    "hdl/ieee8021q/ts/traffic_queues.sv", "hdl/ieee8021q/ts/traffic_controller_802_1q.sv",
+    "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv", "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
     "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv", "hdl/common/axis_mux_rr_2in_1out.sv",
-    "hdl/ptp_timestamp/ptp_ts_core.sv", "hdl/ptp_timestamp/ptp_ts_top.sv",
-    "hdl/common/tcam.sv", "hdl/common/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/avtp/KL_pcm_lpf.sv",
+    "hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv", "hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv",
+    "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
-    "hdl/adp/adp_advertiser.sv", "hdl/adp/adp_tx_arbiter.sv",
+    "hdl/ieee17221/adp/adp_advertiser.sv", "hdl/ieee17221/adp/adp_tx_arbiter.sv",
     # AECP/AEM listener (IEEE 1722.1 / Milan v1.2). Order: pkg, then leaf
     # modules, then KL_aecp_top. The store/accessor read the generated ROM
-    # include hdl/aecp/gen/aecp_aem_rom.svh (avdecc/gen_aem_store.py).
-    "hdl/aecp/aecp_pkg.sv",
-    "hdl/aecp/KL_aecp_packet_validator.sv", "hdl/aecp/KL_aecp_common_parser.sv",
-    "hdl/aecp/KL_aecp_l0_state.sv", "hdl/aecp/KL_aecp_timers.sv",
-    "hdl/aecp/KL_aecp_accessor.sv", "hdl/aecp/KL_aecp_aem_store.sv",
-    "hdl/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/aecp/KL_aecp_response_builder.sv",
-    "hdl/aecp/KL_aecp_ingress.sv", "hdl/aecp/KL_aecp_top.sv",
+    # include hdl/ieee17221/aecp/gen/aecp_aem_rom.svh (avdecc/gen_aem_store.py).
+    "hdl/ieee17221/aecp/aecp_pkg.sv",
+    "hdl/ieee17221/aecp/KL_aecp_packet_validator.sv", "hdl/ieee17221/aecp/KL_aecp_common_parser.sv",
+    "hdl/ieee17221/aecp/KL_aecp_l0_state.sv", "hdl/ieee17221/aecp/KL_aecp_timers.sv",
+    "hdl/ieee17221/aecp/KL_aecp_accessor.sv", "hdl/ieee17221/aecp/KL_aecp_aem_store.sv",
+    "hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/ieee17221/aecp/KL_aecp_response_builder.sv",
+    "hdl/ieee17221/aecp/KL_aecp_ingress.sv", "hdl/ieee17221/aecp/KL_aecp_top.sv",
     # ACMP stateless talker responder (Milan v1.2 §5.5)
-    "hdl/acmp/acmp_pkg.sv", "hdl/acmp/KL_acmp_responder.sv", "hdl/acmp/KL_acmp_listener.sv",
+    "hdl/ieee17221/acmp/acmp_pkg.sv", "hdl/ieee17221/acmp/KL_acmp_responder.sv", "hdl/ieee17221/acmp/KL_acmp_listener.sv",
     # lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6). Order: pkg first.
-    "hdl/lwsrp/lwsrp_pkg.sv", "hdl/lwsrp/KL_lwsrp_timers.sv",
-    "hdl/lwsrp/KL_lwsrp_tx.sv", "hdl/lwsrp/KL_lwsrp_ingress.sv",
-    "hdl/lwsrp/KL_lwsrp_walker.sv", "hdl/lwsrp/KL_lwsrp_registrar.sv", "hdl/lwsrp/KL_lwsrp_ta_registrar.sv",
-    "hdl/lwsrp/KL_lwsrp_rx.sv", "hdl/lwsrp/KL_lwsrp_bw_gate.sv",
-    "hdl/lwsrp/KL_lwsrp_top.sv",
+    "hdl/ieee8021q/srp/lwsrp_pkg.sv", "hdl/ieee8021q/srp/KL_lwsrp_timers.sv",
+    "hdl/ieee8021q/srp/KL_lwsrp_tx.sv", "hdl/ieee8021q/srp/KL_lwsrp_ingress.sv",
+    "hdl/ieee8021q/srp/KL_lwsrp_walker.sv", "hdl/ieee8021q/srp/KL_lwsrp_registrar.sv", "hdl/ieee8021q/srp/KL_lwsrp_ta_registrar.sv",
+    "hdl/ieee8021q/srp/KL_lwsrp_rx.sv", "hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv",
+    "hdl/ieee8021q/srp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
-    "hdl/avtp/aaf_talker_i2s.sv", "hdl/avtp/KL_aaf_rx_depacketizer.sv",
-    "hdl/avtp/KL_i2s_playback.sv", "hdl/avtp/KL_tone_gen.sv",
-    "hdl/avtp/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
-    "hdl/1722/avtp_subtype_pkg.sv", "hdl/1722/avtp_stream_parser.sv",
-    "hdl/1722/KL_avtp_rx_monitor.sv", "hdl/1722/KL_crf_rx.sv", "hdl/1722/KL_crf_tx.sv", "hdl/maap/KL_maap.sv",
-    "hdl/eth_event_counter/ethernet_events.sv", "hdl/eth_event_counter/event_counter.sv",
-    "hdl/csr/milan_csr.sv", "hdl/common/milan_datapath.sv",
+    "hdl/ieee1722/aaf/aaf_talker_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+    "hdl/ieee1722/aaf/KL_i2s_playback.sv", "hdl/ieee1722/aaf/KL_tone_gen.sv",
+    "hdl/ieee1722/aaf/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
+    "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
+    "hdl/common/csr/milan_csr.sv", "hdl/milan/milan_datapath.sv",
 ]
 
 
@@ -356,9 +356,9 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # milan-fpga/
     # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
-    for inc in ("hdl/common", "hdl/802_1q_traffic_shaper", "hdl/ptp_timestamp",
-                "hdl/adp", "hdl/csr", "hdl/eth_event_counter",
-                "hdl/aecp", "hdl/aecp/gen", "hdl/1722"):
+    for inc in ("hdl/common", "hdl/ieee8021q/ts", "hdl/ieee8021as/ptp_timestamp",
+                "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter",
+                "hdl/ieee17221/aecp", "hdl/ieee17221/aecp/gen", "hdl/ieee1722/avtp"):
         platform.add_verilog_include_path(os.path.join(base, inc))
     for f in _MILAN_DATAPATH_SOURCES:
         platform.add_source(os.path.join(base, f))

@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -GDISC_DLY_BASE=4 -GDISC_DLY_MASK=3 \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/adp/adp_pkg.sv $(RTL_DIR)/adp/adp_advertiser.sv
+SRCS = $(RTL_DIR)/ieee17221/adp/adp_pkg.sv $(RTL_DIR)/ieee17221/adp/adp_advertiser.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

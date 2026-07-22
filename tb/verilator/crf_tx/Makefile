@@ -15,7 +15,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/1722/KL_crf_tx.sv
+SRCS = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

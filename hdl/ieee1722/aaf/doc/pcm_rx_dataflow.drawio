@@ -1,0 +1,125 @@
+<mxfile host="app.diagrams.net" modified="2026-07-17T00:00:00.000Z" agent="milan-fpga" version="24.0.0">
+  <diagram id="pcm-rx-dataflow" name="AAF RX -> PCM ring dataflow">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ================= milan_clk domain ================= -->
+        <mxCell id="domA" value="milan_clk domain (50 MHz, axis_clk / axis_resetn) — hdl/milan/milan_datapath.sv" style="rounded=1;fillColor=#F5F5F5;strokeColor=#666666;verticalAlign=top;fontSize=13;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="40" width="1180" height="880" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rxtap" value="&lt;b&gt;RX AXIS tap&lt;/b&gt;&lt;br&gt;rx_axis_to_dma&lt;br&gt;64-bit, little lane order&lt;br&gt;(lane j = wire byte 8b+j)&lt;br&gt;&lt;i&gt;observed only — the tap&lt;br&gt;NEVER backpressures RX&lt;/i&gt;" style="rounded=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="380" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="parser" value="&lt;b&gt;avtp_stream_parser&lt;/b&gt; (hdl/ieee1722/avtp)&lt;br&gt;48-byte rolling header buffer (6 beats)&lt;br&gt;VLAN detect → O = 14 / 18&lt;br&gt;match table[0] = ACMP-listener bound sid&lt;br&gt;en = acmpl_bound&lt;br&gt;&lt;i&gt;fires at frame byte 48 (header complete)&lt;/i&gt;" style="rounded=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="330" y="70" width="330" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="monitor" value="&lt;b&gt;KL_avtp_rx_monitor&lt;/b&gt; (hdl/ieee1722/avtp)&lt;br&gt;fmt compare: subtype/format/nsr/depth/ch/sp&lt;br&gt;vs AECP live STREAM_INPUT[0] format (in0_fmt)&lt;br&gt;counters: LOCKED/UNLOCKED/INTERRUPTED/&lt;br&gt;SEQ_MM/TU/UNSUPP/FRAMES_RX (mask 0xF3F)&lt;br&gt;&lt;b&gt;pdu_accept_p&lt;/b&gt; = pulse per FRAMES_RX-counted PDU&lt;br&gt;last_ts = avtp_ts of last accepted PDU → CSR 0x6C8" style="rounded=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="740" y="50" width="390" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- ============ depacketizer container ============ -->
+        <mxCell id="depkt" value="KL_aaf_rx_depacketizer (hdl/ieee1722/aaf)" style="rounded=1;fillColor=#FFF2CC;strokeColor=#D6B656;verticalAlign=top;fontSize=12;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="330" y="300" width="820" height="440" as="geometry" />
+        </mxCell>
+
+        <mxCell id="verdict" value="&lt;b&gt;write side&lt;/b&gt;&lt;br&gt;good_r: bad-by-default,&lt;br&gt;cleared by pdu_accept_p&lt;br&gt;(arrives ≤ byte 48 ≪ tlast&lt;br&gt;of any ≥230 B AAF PDU)&lt;br&gt;fw_user = !(good_r | pulse)" style="rounded=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="350" y="360" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fifo" value="&lt;b&gt;axis_fifo&lt;/b&gt; (verilog-axis, BRAM)&lt;br&gt;FRAME_FIFO, DEPTH 2048&lt;br&gt;DROP_BAD_FRAME (tuser=1 @ tlast)&lt;br&gt;DROP_WHEN_FULL → whole frames,&lt;br&gt;counted in drops (CSR 0x6C4[31:16])&lt;br&gt;&lt;i&gt;commit gate: only monitor-accepted&lt;br&gt;PDUs survive = ring gets exactly&lt;br&gt;the PDUs FRAMES_RX counts&lt;/i&gt;" style="rounded=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="610" y="350" width="250" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rfsm" value="&lt;b&gt;read FSM&lt;/b&gt; (re-parses the buffered frame)&lt;br&gt;&lt;br&gt;R_HDR_S: beat1 → vlan_r (bytes 12..13 == 0x8100)&lt;br&gt;beat4 → data_len (untag: bytes 34..35 / tag: 38..39)&lt;br&gt;prime hold: untag beat4 lanes 6..7 (k=2)&lt;br&gt;tag beat5 lanes 2..7 (k=6)&lt;br&gt;&lt;br&gt;R_PAY_S: out byte j = j&amp;lt;k ? hold[j] : beat[j−k]&lt;br&gt;new hold[j] = beat lane j+(8−k)  ⚠ per-rotation!&lt;br&gt;remain −= 8; tlast @ remain ≤ 8; zero-pad tail&lt;br&gt;&lt;br&gt;R_FLUSH_S: swallow pad/tail beats to frame tlast" style="rounded=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="350" y="530" width="510" height="190" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pcmout" value="&lt;b&gt;m_axis_pcm&lt;/b&gt;&lt;br&gt;full 64-bit beats, tkeep=0xFF&lt;br&gt;wire byte order = &lt;b&gt;S32BE&lt;br&gt;interleaved PCM&lt;/b&gt;&lt;br&gt;1 AXIS frame / AAF PDU&lt;br&gt;(payload = O+24 .. +data_len−1:&lt;br&gt;192 B @48k · 384 B @96k)" style="rounded=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="920" y="530" width="210" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="csrobs" value="&lt;b&gt;milan_csr (AXI-Lite 0x9000_0000)&lt;/b&gt;&lt;br&gt;0x6C4 PCMRX_CNT {drops, pdus}&lt;br&gt;0x6C8 PCMRX_TS (last avtp_ts)&lt;br&gt;0x6B8-0x6C0 monitor counters" style="rounded=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="600" width="240" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- ================= CDC ================= -->
+        <mxCell id="cdc" value="&lt;b&gt;_axis_dp_cdc&lt;/b&gt;&lt;br&gt;&quot;dma_pcm_cdc&quot;&lt;br&gt;async FIFO&lt;br&gt;milan_clk → sys_clk" style="rounded=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1230" y="540" width="150" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- ================= sys domain ================= -->
+        <mxCell id="domB" value="sys domain (83.3 MHz arty / 100 MHz AX) — sw/litex/milan_soc.py (MilanDMA)" style="rounded=1;fillColor=#F5F5F5;strokeColor=#666666;verticalAlign=top;fontSize=13;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1410" y="40" width="480" height="880" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dmawr" value="&lt;b&gt;WishboneDMAWriter&lt;/b&gt; (self.pcm)&lt;br&gt;endianness=&quot;big&quot; (no byte-swap:&lt;br&gt;memory == wire order)&lt;br&gt;loop=1: offset wraps base..base+len&lt;br&gt;⚠ sink.last NOT connected — LiteX&lt;br&gt;restarts offset on last (TS-ring&lt;br&gt;phase-B silicon trap)&lt;br&gt;&lt;br&gt;CSRs @ 0xf0003120:&lt;br&gt;base / length / enable / loop&lt;br&gt;&lt;b&gt;offset (RO) = ring wr pointer&lt;/b&gt;&lt;br&gt;(64-bit words)" style="rounded=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="480" width="290" height="250" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dmabus" value="&lt;b&gt;coherent dma_bus&lt;/b&gt;&lt;br&gt;(VexiiRiscv --with-coherent-dma,&lt;br&gt;snoops CPU caches — no manual&lt;br&gt;cache flushes for the consumer)" style="rounded=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="330" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ring" value="&lt;b&gt;DRAM PCM ring&lt;/b&gt;&lt;br&gt;wrapping buffer, software-allocated&lt;br&gt;[base .. base+length), byte stream =&lt;br&gt;S32BE interleaved samples&lt;br&gt;wr = base + offset×8 (HW)&lt;br&gt;rd chased by the consumer" style="rounded=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="170" width="240" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pw" value="&lt;b&gt;consumer (REMAINS: bench)&lt;/b&gt;&lt;br&gt;PipeWire / ALSA source:&lt;br&gt;mmap ring, poll offset CSR at&lt;br&gt;period cadence (1 ms = 1536 B&lt;br&gt;@48k/8ch/S32), handle wrap;&lt;br&gt;media clock: pair 0x6C8 avtp_ts&lt;br&gt;with ring position (NCO later)" style="rounded=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="60" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ================= edges ================= -->
+        <mxCell id="e1" value="tvalid/tdata/tkeep/tlast (+tready observed)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="rxtap" target="parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="same tap" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="rxtap" target="verdict">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="pulse bundle: match, subtype, seq, tu, avtp_ts, fsh[63:0] (O+16..23)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="parser" target="monitor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="pdu_accept_p (commit verdict, 1 cycle)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;fontStyle=1;strokeColor=#B85450;fontColor=#B85450;" edge="1" parent="1" source="monitor" target="verdict">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="frame beats + fw_user (bad marker)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="verdict" target="fifo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="committed good frames only" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="fifo" target="rfsm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="payload beats (backpressure absorbed by FIFO, never the tap)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="rfsm" target="pcmout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="pcmout" target="cdc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="sink.valid/data (last dropped)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="cdc" target="dmawr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="wishbone word writes (milan_dma_pcm master)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="dmawr" target="dmabus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;" edge="1" parent="1" source="dmabus" target="ring">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="mmap + chase offset" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;dashed=1;" edge="1" parent="1" source="ring" target="pw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="pdus/drops, last_ts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;fontSize=10;exitX=0;exitY=0.5;" edge="1" parent="1" source="rfsm" target="csrobs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ================= byte-layout note ================= -->
+        <mxCell id="note1" value="&lt;b&gt;AAF PDU on the wire (frame byte offsets)&lt;/b&gt;&lt;br&gt;untagged O=14 / C-VLAN O=18:&lt;br&gt;O+0 subtype 0x02 · O+1 sv|tv · O+2 seq · O+3 tu&lt;br&gt;O+4..11 stream_id · O+12..15 avtp_ts&lt;br&gt;O+16 format · O+17[7:4] nsr · O+18 chans · O+19 depth&lt;br&gt;O+20..21 data_len · O+22[4] sp&lt;br&gt;&lt;b&gt;payload O+24 = frame byte 38 (rot-2) / 42 (rot-6)&lt;/b&gt;" style="shape=note;fillColor=#FFF9B2;strokeColor=#999900;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="50" y="80" width="250" height="170" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

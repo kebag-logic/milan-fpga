@@ -1,6 +1,6 @@
 # lwSRP-fpga — lightweight SRP engine in fabric
 
-Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in `hdl/lwsrp/`,
+Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in `hdl/ieee8021q/srp/`,
 integrated into `milan_datapath`; CSR group re-homed to **0x680-0x6A0** —
 REGISTER_MAP.md is normative for the map, §4 below matches it). Verified:
 Verilator `lwsrp_tx` 363 / `lwsrp_rx` 75 / `lwsrp` 36 checks + `milan_dp`
@@ -82,7 +82,7 @@ Class-A idleSlope from TSpec (per reservation):
   measurement interval 125 us -> 8000/s). 75 % gate vs port rate
   (1 Gb/s AX7101 · 100 Mb/s Arty via is_1g).
 
-## 3. Block architecture (hdl/lwsrp/, KL_lwsrp_*)
+## 3. Block architecture (hdl/ieee8021q/srp/, KL_lwsrp_*)
 
 ```
 rx_axis_to_dma (the tap point, little lane) ──┐ (copy, never stalls)

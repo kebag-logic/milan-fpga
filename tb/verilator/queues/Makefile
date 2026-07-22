@@ -13,7 +13,7 @@ TOP        = queues_wrap
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/802_1q_traffic_shaper \
+         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE \
@@ -25,7 +25,7 @@ SRCS = $(RTL_DIR)/common/axi_stream_if.sv \
        $(AXIS_DIR)/axis_arb_mux.v \
        $(AXIS_DIR)/arbiter.v \
        $(AXIS_DIR)/priority_encoder.v \
-       $(RTL_DIR)/802_1q_traffic_shaper/traffic_queues.sv \
+       $(RTL_DIR)/ieee8021q/ts/traffic_queues.sv \
        queues_wrap.sv
 CPP  = sim_main.cpp
 

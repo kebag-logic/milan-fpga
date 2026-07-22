@@ -16,7 +16,7 @@ TOP        = ptp_ts_top
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ptp_timestamp \
+         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE \
@@ -28,10 +28,10 @@ SRCS = $(RTL_DIR)/common/ethernet_packet_pkg.sv \
        $(RTL_DIR)/common/cdc_handshake.sv \
        $(RTL_DIR)/common/axis_mux_rr_2in_1out.sv \
        $(AXIS_DIR)/axis_fifo.v \
-       $(RTL_DIR)/ptp_timestamp/timestamp_counter.sv \
-       $(RTL_DIR)/ptp_timestamp/ptp_csr_sync.sv \
-       $(RTL_DIR)/ptp_timestamp/ptp_ts_core.sv \
-       $(RTL_DIR)/ptp_timestamp/ptp_ts_top.sv
+       $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
+       $(RTL_DIR)/ieee8021as/ptp_timestamp/ptp_csr_sync.sv \
+       $(RTL_DIR)/ieee8021as/ptp_timestamp/ptp_ts_core.sv \
+       $(RTL_DIR)/ieee8021as/ptp_timestamp/ptp_ts_top.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

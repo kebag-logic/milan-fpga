@@ -316,7 +316,7 @@ the HW shaper and SR streams meet their reservation while BE uses the remainder;
 > `TODO.md` → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
 > the CBS verification harness (`tb/verilator/cbs`, REQ-VER-01), the CSR register
 > ABI (`docs/reference/REGISTER_MAP.md`, REQ-CSR-05), the AXI4-Lite control-plane RTL
-> (`hdl/csr/milan_csr.sv`, REQ-CSR-01/02/04) — the previously-missing
+> (`hdl/common/csr/milan_csr.sv`, REQ-CSR-01/02/04) — the previously-missing
 > memory-mapped configuration — and its verification harness
 > (`tb/verilator/csr`, REQ-VER-04). Remaining work is tracked in `TODO.md`
 > (block-design integration, then PTP/CBS/classifier/MAC wiring, driver, DT).

@@ -19,7 +19,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/ptp_timestamp/ptp_csr_sync.sv
+SRCS = $(RTL_DIR)/ieee8021as/ptp_timestamp/ptp_csr_sync.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

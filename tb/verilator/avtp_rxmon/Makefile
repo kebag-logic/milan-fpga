@@ -7,7 +7,7 @@
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 C          = $(RTL_DIR)/common
-A          = $(RTL_DIR)/1722
+A          = $(RTL_DIR)/ieee1722/avtp
 TOP        = avtp_rxmon_wrap
 VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          -GCLK_FREQ_HZ_P=10000 \
@@ -17,7 +17,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2"
 SRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        $(A)/avtp_stream_parser.sv $(A)/KL_avtp_rx_monitor.sv \
-       $(RTL_DIR)/avtp/KL_aaf_rx_depacketizer.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        avtp_rxmon_wrap.sv
 .PHONY: all run clean coverage

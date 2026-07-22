@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="580" viewBox="0 0 1260 580" font-family="Helvetica,Arial,sans-serif">
+<rect width="1260" height="580" fill="#ffffff"/>
+<defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#333"/></marker><marker id="arro" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#999"/></marker></defs>
+<rect x="40.0" y="12.0" width="1180.0" height="30.0" rx="0" fill="#f5f5f5" stroke="#666" stroke-width="1.3"/>
+<text x="630.0" y="31.9" font-size="14" fill="#222" text-anchor="middle">KL_aecp_l0_state + KL_aecp_timers — Milan lock semantics, no ACQUIRE   (hdl/ieee17221/aecp/KL_aecp_l0_state.sv)</text>
+<rect x="40.0" y="60.0" width="560.0" height="400.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="48.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">LOCK_ENTITY / ACQUIRE_ENTITY decision (Milan v1.2 §5.4.2)</text>
+<rect x="60.0" y="92.0" width="520.0" height="337.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="68.0" y="147.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">state: locked_r, owner_eid_r[63:0], 60 s lock timer</text>
+<text x="68.0" y="160.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="173.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">LOCK (flags[0]=0, lock):</text>
+<text x="68.0" y="186.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  !locked or owner==controller -&gt; SUCCESS, owner=controller,</text>
+<text x="68.0" y="199.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                                  timer restart (60_000 x 1 kHz)</text>
+<text x="68.0" y="212.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  locked by other              -&gt; ENTITY_LOCKED(3) + owner id</text>
+<text x="68.0" y="225.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">LOCK (flags[0]=1, unlock):</text>
+<text x="68.0" y="238.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  owner==controller            -&gt; SUCCESS, unlocked</text>
+<text x="68.0" y="251.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  locked by other              -&gt; ENTITY_LOCKED(3)</text>
+<text x="68.0" y="264.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">timer expiry                   -&gt; silent unlock (auto-expiry)</text>
+<text x="68.0" y="277.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="290.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">ACQUIRE (any flags)            -&gt; NOT_SUPPORTED(11),</text>
+<text x="68.0" y="303.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">                                  state NEVER changes (Milan)</text>
+<text x="68.0" y="316.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"></text>
+<text x="68.0" y="329.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">writes while locked-by-other   -&gt; ENTITY_LOCKED(3), no side effect</text>
+<text x="68.0" y="342.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">read/exempt commands bypass the lock:</text>
+<text x="68.0" y="355.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  ENTITY_AVAILABLE, READ_DESCRIPTOR, GET_* (config/name/rate/</text>
+<text x="68.0" y="368.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  format/stream-info/avb-info), GET_COUNTERS, GET_AS_PATH,</text>
+<text x="68.0" y="381.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">  REGISTER/DEREGISTER_UNSOL, MVU GET_MILAN_INFO, LOCK itself</text>
+<rect x="620.0" y="60.0" width="600.0" height="170.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="628.0" y="77.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">KL_aecp_timers</text>
+<rect x="640.0" y="92.0" width="560.0" height="82.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="648.0" y="117.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">CLK_FREQ_HZ_P parameter (100e6 AX7101 gateware / 50e6 Arty)</text>
+<text x="648.0" y="130.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">divider -&gt; tick_1khz_o (1-cycle strobe)</text>
+<text x="648.0" y="143.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">lock timer: 60_000 ticks = 60 s, restarted on successful LOCK</text>
+<text x="648.0" y="156.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">counter-gate / stale-tick outputs reserved for HW counters</text>
+<rect x="620.0" y="250.0" width="600.0" height="210.0" rx="8" fill="none" stroke="#999999" stroke-width="1.3" stroke-dasharray="6,4"/>
+<text x="628.0" y="267.0" font-size="13" fill="#222" text-anchor="start" font-weight="bold">AEM status codes used (aecp_pkg.sv)</text>
+<rect x="640.0" y="282.0" width="560.0" height="99.0" rx="0" fill="#f5f5f5" stroke="#666666" stroke-width="1.3"/>
+<text x="648.0" y="309.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"> 0 SUCCESS            1 NOT_IMPLEMENTED (default echo)</text>
+<text x="648.0" y="322.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"> 2 NO_SUCH_DESCRIPTOR (bad type/index; counters/as-path miss)</text>
+<text x="648.0" y="335.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"> 3 ENTITY_LOCKED      (lock denial; write while locked-by-other)</text>
+<text x="648.0" y="348.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace"> 7 BAD_ARGUMENTS      (bad SET value; ENTITY counters)</text>
+<text x="648.0" y="361.0" font-size="10" fill="#222" text-anchor="start" font-family="Courier New,monospace">11 NOT_SUPPORTED      (every ACQUIRE_ENTITY, Milan rule)</text>
+<rect x="40.0" y="480.0" width="1180.0" height="60.0" rx="8" fill="#fff9d6" stroke="#b3a100" stroke-width="1.3"/>
+<text x="48.0" y="507.0" font-size="10" fill="#222" text-anchor="start">A rejected command&#x27;s response keeps the ORIGINAL command&#x27;s echo shape (SET_NAME error echoes 72 B; unknown commands echo their whole payload with NOT_IMPLEMENTED) — l0_reject_q selects the echo segment</text>
+<text x="48.0" y="520.0" font-size="10" fill="#222" text-anchor="start">lengths in the builder&#x27;s DECIDE_S.</text>
+</svg>

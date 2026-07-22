@@ -278,7 +278,7 @@ the `ilconcat_0 → IRQ_F2P` collector (`milan-dma.tcl:918-971`).
 **Deliverable A.8:** Linux `/proc/interrupts` shows all four lines and they increment.
 
 ### A.9  -  Integrating the Milan RTL into the LiteX SoC ✅ WRAPPER DONE + VERIFIED
-**`hdl/common/milan_datapath.sv`** is the PS-less wrapper (created + verified). It
+**`hdl/milan/milan_datapath.sv`** is the PS-less wrapper (created + verified). It
 instantiates `milan_csr` + `traffic_controller_802_1q` (classify + CBS) + `ptp_ts_top`
 + `rx_mac_filter` + `adp_advertiser`/`adp_tx_arbiter` + `ethernet_events`  -  i.e.
 `milan_top.sv` **minus `milan_dma_wrapper` (the PS) and minus the MAC**. `milan_top.sv`
@@ -445,12 +445,12 @@ a fallback if LiteX/AX7101 integration proves troublesome.
 Milan is an **AVnu profile of IEEE 1722/1722.1 (AVDECC) over 802.1 TSN**. The TSN
 plane (802.1Q/Qav/1588) is done; the **AVDECC control plane and reservation plane
 are essentially absent**. Today only two **RX-only, unconnected parser stubs** exist:
-- `hdl/adp/KL_adp_parser.sv`  -  decodes an incoming ADPDU into `entity_info_t`
+- `hdl/ieee17221/adp/KL_adp_parser.sv`  -  decodes an incoming ADPDU into `entity_info_t`
   (all fields modeled in `adp_pkg.sv:47-66`), asserts one-hot
   `rcv_adp_discover/available/departing`, but **does not transmit or run any FSM**;
   the `adp_advertise_event_t` / `adp_discovery_event_t` structs (`adp_pkg.sv:28-44`)
   are **defined but unused**. Instantiated only in its testbench.
-- `hdl/1722/KL_avtp_common_parser.sv`  -  steers AVTP frames by subtype
+- `hdl/ieee1722/avtp/KL_avtp_common_parser.sv`  -  steers AVTP frames by subtype
   (ADP/AECP/ACMP/MAAP→tdest0, AAF/…→tdest1, CRF→tdest2, else drop); also unconnected.
 
 Target specs: **IEEE 1722.1-2021** (AVDECC) with the **AVnu Milan v1.2** profile.
@@ -520,15 +520,15 @@ them to a control handler. Add a **control tap**:
 
 ### B.2  -  HW ADP advertiser + discovery FSM (the missing TX side)  ✅ DONE + INTEGRATED
 > **Status (implemented, integrated, verified):**
-> - [`hdl/adp/adp_advertiser.sv`](../../hdl/adp/adp_advertiser.sv)  -  [`tb/verilator/adp/`](../../tb/verilator/adp) **121 checks PASS**.
+> - [`hdl/ieee17221/adp/adp_advertiser.sv`](../../hdl/ieee17221/adp/adp_advertiser.sv)  -  [`tb/verilator/adp/`](../../tb/verilator/adp) **121 checks PASS**.
 > - **CSR wiring:** `milan_csr` **0x600 ADP group** (identity/control + `available_index` RO);
 >   [`tb/verilator/csr/`](../../tb/verilator/csr) extended to **62 checks PASS**; ABI in
 >   [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) §0x600.
-> - **MAC TX integration:** [`hdl/adp/adp_tx_arbiter.sv`](../../hdl/adp/adp_tx_arbiter.sv) merges
+> - **MAC TX integration:** [`hdl/ieee17221/adp/adp_tx_arbiter.sv`](../../hdl/ieee17221/adp/adp_tx_arbiter.sv) merges
 >   ADP into the MAC TX between frames  -  [`tb/verilator/adp_tx/`](../../tb/verilator/adp_tx) **26 checks PASS**.
 > - **Wired in `milan_top.sv`** (advertiser + arbiter + 1 s tick + link-edge pulses); all ports
 >   connectivity-checked; `milan_top` elaborates the ADP modules cleanly. Design docs:
->   [`hdl/adp/doc/adp_advertiser.md`](../../hdl/adp/doc/adp_advertiser.md).
+>   [`hdl/ieee17221/adp/doc/adp_advertiser.md`](../../hdl/ieee17221/adp/doc/adp_advertiser.md).
 >
 > Remaining for M-B2 to be *observable*: tie in `rcv_discover_i` (from `KL_adp_parser`, §B.1)
 > and `gm_change_i` (gPTP), and real `link_up` (REQ-MAC-03). Full regression: **8 harnesses green**.
@@ -639,10 +639,10 @@ addition and is **out of scope** by default:
 software leveraging OpenAvnu / avdecc-lib.
 
 ## 4. What changes in the repo (file-level)
-- **New:** `hdl/common/milan_datapath.sv` (PS-less wrapper), `hdl/dma/*` (AXIS↔DRAM DMA),
-  `hdl/mdio/mdio_master.sv`, `hdl/adp/adp_advertiser.sv` + `adp_tx_serializer.sv`,
+- **New:** `hdl/milan/milan_datapath.sv` (PS-less wrapper), `hdl/dma/*` (AXIS↔DRAM DMA),
+  `hdl/mdio/mdio_master.sv`, `hdl/ieee17221/adp/adp_advertiser.sv` + `adp_tx_serializer.sv`,
   LiteX `platform/target` Python (NaxRiscv RV64), `sw/` (buildroot + driver DT overlay),
-  Verilator harnesses `tb/verilator/adp/`, and (optional HW AEM) `hdl/aecp/*` +
+  Verilator harnesses `tb/verilator/adp/`, and (optional HW AEM) `hdl/ieee17221/aecp/*` +
   `tools/aem_gen.py` consuming the entity model.
 - **Already added (this work):** `avdecc/milan-v12-entity.json` + `avdecc/README.md`
   (the Milan v1.2 entity model); the AEM/AECP HW design in `aem-and-aecp.{md,pdf}`.

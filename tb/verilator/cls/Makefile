@@ -17,10 +17,10 @@ VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
-         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/802_1q_traffic_shaper \
+         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/802_1q_traffic_shaper/traffic_class_map.sv
+SRCS = $(RTL_DIR)/ieee8021q/ts/traffic_class_map.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

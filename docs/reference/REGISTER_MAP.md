@@ -1,7 +1,7 @@
 # Milan TSN CSR  -  register map (ABI)
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
-**stable ABI** shared by the HDL (`hdl/csr/milan_csr.sv`), the Linux driver
+**stable ABI** shared by the HDL (`hdl/common/csr/milan_csr.sv`), the Linux driver
 (`../kl-linux-drivers`), and the device tree (`reg` of the `kl,dma-ether` node).
 Satisfies `REQ-CSR-05`; implements the control surface for `REQ-CSR/PTP/CBS/CLS/
 MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
@@ -78,7 +78,7 @@ Counters mirror `ethernet_events`. Software writes `STATS_CTRL[0]=1` to latch a
 **coherent snapshot** of all counters into the read window, then reads them.
 
 Order follows the `ethernet_events_t` enum in
-`hdl/eth_event_counter/ethernet_events.svh`; `STAT`*n* is counter lane *n*
+`hdl/common/eth_event_counter/ethernet_events.svh`; `STAT`*n* is counter lane *n*
 (`counts_o[n*32 +: 32]`), so the HW packing and the ABI stay 1:1.
 
 | Offset | Name | Acc | Reset | Description |
@@ -192,7 +192,7 @@ destination MAC in standard notation (`01-80-C2-00-00-0E` → `0x0180C200000E`).
 Whitelist: `default_pass=0` + accept entries (`ACTION[0]=0`). Blacklist:
 `default_pass=1` + drop entries (`ACTION[0]=1`). Example ternary entry: reserved
 multicast block `01-80-C2-00-00-0x` = key `0x0180C2000000`, mask `0xFFFFFFFFFFF0`.
-See [`../hdl/common/doc/tcam.md`](../../hdl/common/doc/tcam.md).
+See [`../hdl/ieee8021q/filtering/doc/tcam.md`](../../hdl/ieee8021q/filtering/doc/tcam.md).
 
 `PTP_CMD` strobes cross into the `gtx_clk` PTP domain via `ptp_csr_sync`
 (value + toggle-synchronised apply strobe, `REQ-CSR-03`). `gettime` is
@@ -233,11 +233,11 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F0`,
 subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
 `available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
-on periodic re-advertise. See [`../hdl/adp/doc/adp_advertiser.md`](../../hdl/adp/doc/adp_advertiser.md).
+on periodic re-advertise. See [`../hdl/ieee17221/adp/doc/adp_advertiser.md`](../../hdl/ieee17221/adp/doc/adp_advertiser.md).
 
 ### 0x680  -  lwSRP engine  `(802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-*)`
 
-The fabric SRP talker endpoint (`hdl/lwsrp/KL_lwsrp_top.sv`,
+The fabric SRP talker endpoint (`hdl/ieee8021q/srp/KL_lwsrp_top.sv`,
 [`LWSRP_FPGA_ARCHITECTURE.md`](../LWSRP_FPGA_ARCHITECTURE.md)). Re-homed here
 from that doc's original 0x660 sketch (0x654-0x670 are AAF/DIAG/ACMP now).
 While enabled it declares MSRP Domain (+ TalkerAdvertise when `[1]` is set)

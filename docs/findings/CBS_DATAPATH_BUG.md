@@ -47,7 +47,7 @@ A third, unrelated issue found in the same pass and **fixed** here: `CLS_PRIO_RE
 reset was `0x688FAC`, a half-swap of priorities (0–3 ↔ 4–7) instead of the 802.1Q
 identity `0xFAC688`, so every tagged SR frame was priority-regenerated into the wrong
 class before it even reached the (buggy) queue routing. Fixed to identity in
-`hdl/csr/milan_csr.sv` + `REGISTER_MAP.md` (verified: `tb/verilator/cls`,
+`hdl/common/csr/milan_csr.sv` + `REGISTER_MAP.md` (verified: `tb/verilator/cls`,
 `tb/verilator/classifier` green with the identity constant).
 
 ## The fix (shipped)

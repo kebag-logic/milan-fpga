@@ -66,8 +66,8 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # No axi_stream_if required: KL_aecp_l0_state drives hdr_i directly
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../../../../hdl/aecp/aecp_pkg.sv"] \
- [file normalize "${origin_dir}/../../../../hdl/aecp/KL_aecp_l0_state.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/ieee17221/aecp/aecp_pkg.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv"] \
 ]
 add_files -norecurse -fileset $obj $files
 
