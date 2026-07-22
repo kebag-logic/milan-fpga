@@ -33,6 +33,11 @@
  *      (KL_aaf_capture_i2s emits slot 0 only until the item-4 TDM
  *      front-end) - frame-level TCTX-identity emission + per-slot gate
  *      drop are proven in tb/verilator/aaf sim_main_nx [I2T]/[I2T4].
+ *      KL_aaf_packetizer window port;
+ *   5. N-sink ACMP round: a CONNECT_RX bind of listener context 2 (a
+ *      window stream's record-only explicit-sid context) reads back
+ *      END-TO-END through the window's ACMP table master (SID/DMAC live,
+ *      STATE via SNAP); unbound idx 3 and ctx 0 stay honest zero.
  */
 
 #include "Vmilan_datapath.h"
@@ -96,6 +101,7 @@ static uint32_t axi_read(uint16_t a) {
 enum {
     A_ID = 0x000, A_VERSION = 0x004,
     A_AAF_CTRL = 0x654, A_AAF_FRAMES = 0x660, A_LWSRP_CTRL = 0x680,
+    A_ADP_CTRL = 0x600, A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
     A_AVTPRX_STAT = 0x6B8, A_AVTPRX_FRX = 0x6BC, A_PCMRX_CNT = 0x6C4,
     A_MAAP_CTRL = 0x6CC,
     A_STRM_SEL = 0x800, A_STRM_SNAP = 0x804, A_SW_CTRL = 0x810,
@@ -394,6 +400,56 @@ int main(int argc, char** argv) {
     ck("window CTRL[0]=0 disarms t1", (tap_stream_en() >> 1) & 1, 0);
     ck("t0 unaffected by the t1 disarm", tap_stream_en() & 1, 1);
     ck("t2/t3 never armed", (tap_stream_en() >> 2) & 3, 0);
+    printf("-- N-sink ACMP: ctx2 window bind end-to-end (0x800 tbl master) --\n");
+    // enable the ACMP listener (ADP enable gates it) with our entity id
+    axi_write(A_ADP_EIDHI, 0x020000FF);
+    axi_write(A_ADP_EIDLO, 0xFE000001);
+    axi_write(A_ADP_CTRL, 0x00001F01);               // enable, valid_time 31
+    {
+        // CONNECT_RX (BIND_RX) for listener_unique_id 2: the record-only
+        // explicit-sid window context (per-context policy, Lane-C/§3.1)
+        uint8_t f[72]; memset(f, 0, sizeof f);
+        const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+        memcpy(f, mc, 6);
+        const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+        memcpy(f+6, csrc, 6);
+        f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;   // CONNECT_RX_COMMAND
+        f[16]=0x00; f[17]=44;                             // cdl
+        // explicit fast-connect stream_id (nonzero -> adopted by policy)
+        const uint8_t sid[8] = {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF,0x00,0x07};
+        memcpy(f+18, sid, 8);
+        for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;  // controller
+        const uint8_t tk[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+        memcpy(f+34, tk, 8);                              // talker eid
+        const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+        memcpy(f+42, us, 8);                              // listener = us
+        f[50]=0x00; f[51]=0x01;                           // talker_unique_id
+        f[52]=0x00; f[53]=0x02;                           // listener_unique_id 2
+        const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x99};
+        memcpy(f+54, dm, 6);                              // stream_dest_mac
+        f[62]=0x77; f[63]=0x21;                           // sequence_id
+        inject(f, 70, 400);                               // (response drains to TX)
+    }
+    axi_write(A_STRM_SEL, 0x002);                    // dir=0 idx=2
+    // the CSR polls the tbl port continuously; a couple of reads give the
+    // grant time to land, then the snapshot is fresh
+    (void)axi_read(A_SW_SID_LO);
+    ck("ctx2 SID_LO = explicit bind sid", axi_read(A_SW_SID_LO), 0xEEFF0007);
+    ck("ctx2 SID_HI", axi_read(A_SW_SID_HI), 0xAABBCCDD);
+    ck("ctx2 DMAC_LO = bind cmd dest_mac", axi_read(A_SW_DMAC_LO), 0xF0002A99);
+    ck("ctx2 DMAC_HI", axi_read(A_SW_DMAC_HI), 0x000091E0);
+    snap_and_wait();
+    uint32_t st2 = axi_read(A_SW_STATE);
+    ck("ctx2 STATE lsm = SETTLED_NO_RSV (6)", st2 & 0x7, 6);
+    ck("ctx2 STATE probing/status = 0 (record-only)", (st2 >> 3) & 0x7F, 0);
+    axi_write(A_STRM_SEL, 0x003);                    // unbound window ctx
+    (void)axi_read(A_SW_SID_LO);
+    ck("ctx3 SID reads 0 (unbound)", axi_read(A_SW_SID_LO) |
+                                     axi_read(A_SW_SID_HI), 0);
+    axi_write(A_STRM_SEL, 0x000);                    // media ctx untouched
+    (void)axi_read(A_SW_SID_LO);
+    ck("ctx0 SID reads 0 (bind left ctx0 alone)", axi_read(A_SW_SID_LO) |
+                                                  axi_read(A_SW_SID_HI), 0);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
