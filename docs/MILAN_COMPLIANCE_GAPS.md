@@ -280,17 +280,26 @@ and is not repeated here.
   until then no RMON-based conclusion is valid. (Lane-A's
   invalidate-on-reinit is TB-proven but silicon-unprovable behind
   this.)
-- **AX7101 e1 GMII-RX HARDWARE FAULT (2026-07-22 ~07:05-07:55):** the
-  e1 RTL8211E stopped delivering RX frames on GMII (RXD/RX_DV) —
-  MDI receives (PHYSR 0xbd02 = 1000/full/link-up, LEDs), TX and MDIO
-  byte-exact, RX clock alive, but zero frames reach the FPGA's
-  PHY-level detector under an RX flood. Survives: bit-identical
-  previously-working bitstream, cold power cycles, switch cycle, tap
-  bypass, direct cable. Software exhausted; suspect PHY RX-output/
-  joint failure. Mitigation lane: migrate the NIC to e2 (RGMII,
-  MilanRGMIIPHY exists, vendor-matched). e1 PHY addr = 0 on this
-  board (silicon-proven; the vendor example's 0b00001 is not this
-  board).
+- ~~AX7101 e1 GMII-RX hardware fault~~ **ROOT CAUSE FOUND AND FIXED
+  (2026-07-22 evening): ROTTED DTB dma-ts WINDOW, not hardware.** The
+  AX images flashed 06:52 carried dma-ts = 0xf0003064 — on current
+  gateware that is `milan_dma_rx_rsc_en`, so the driver's TS-ring
+  writes corrupted the RX RSC block → RX dead from that flash onward,
+  bitstream-independent and cold-boot-persistent (the poison lives in
+  FLASH — a perfect hardware-fault mimic that also invalidated the
+  cold-soak "proof"). Fix: dts → 0xf0003100 (verified against the
+  build csr.csv), dtb + opensbi_ax_vexii rebuilt, images reflashed →
+  RX alive instantly; all drills green on AX38-eppo (+0.063,
+  --eth-port e2, VERSION 0x0007). **TRAP: dma-ts DT windows rot
+  across CSR-map shifts and the failure mimics dead silicon — diff
+  the flashed dtb's windows against the build's csr.csv before every
+  images flash (or set the dma_ts_addr modprobe belt).** The e2
+  migration stays (vendor wires e2 as GMII like e1; e2_mdio = AB22
+  anchor-verified; --eth-port flag; sweep.sh ax7101 defaults to e2);
+  e1 is probably fine — retest with fixed images pending (only the
+  act=0-under-flood-on-e1-direct datum stays unexplained — suspect
+  cable seating). e1/e2 PHY addr = 0 on this board (silicon-proven;
+  the vendor example's 0b00001 is not this board).
 - **linkmon vs guard-era gateware:** linkmon's eth_reinit hardware-
   resets the PHY every ~30 s while RX liveness fails — an
   interference storm for any MDIO user (slow console bitbangs read
