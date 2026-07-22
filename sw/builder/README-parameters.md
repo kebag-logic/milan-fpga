@@ -109,3 +109,36 @@ gate). Known single-stream reach, planned item 5 (NxN AAF streams):
 - the svh consumer RTL (`KL_aecp_*`) itself is single-stream today; NxN
   overlays (4x4/8x8) build structurally valid multi-port ROMs, but nothing
   consumes them in fabric yet.
+
+## Resource estimator (approximate, pre-Vivado)
+
+Every build plan carries a `## Resource estimate` section: per-module
+LUT/FF/BRAM36/DSP costs x instance counts from the config, summed against
+the xc7a100t budget (63400 LUT / 126800 FF / 135 BRAM36 / 240 DSP;
+BRAM36 = RAMB36 + RAMB18/2 equivalents). The cost table
+(`RESOURCE_COSTS` in `endstation_builder.py`) is calibrated 2026-07-22
+from the REAL hierarchical place report of the shipping Arty build
+(`build_arty_eto_milanfinal48`, cross-checked `build_ax7101_eppo_milanfinal38`,
+totals within 2.4%); every entry states its provenance row. Confidence
+labels, per the area-70 house rule (hierarchical figures mislead for small
+modules):
+
+- `measured` - large blocks read straight from the report (cpu subtree,
+  soc_infra top leaf incl MAC/DMA/DDR, milan_datapath major children);
+- `low` - small-module hierarchical rows, aggregated into `datapath_misc`;
+- `UPPER BOUND` - config-scaling rows (per AAF listener/talker engine,
+  MAAP claim, ACMP listener context, lwSRP attribute context) charge
+  TODAY's single-instance module cost per instance because the NxN
+  engines do not exist yet (item 5) - full replication, no sharing;
+- `model` - derived, not measured: L2 BRAM = 1 RAMB36 per 4 KB vs the
+  64 KB calibration build (32 KB cross-check exact), AEM ROM growth =
+  128 B per cluster beyond 16 (tracked ROM = 3653 B / 34 descriptors).
+
+Verdict = worst category vs the part: **OK** (<70%), **TIGHT** (70-80%,
+area-70 directive: keep slice headroom), **OVER** (>80%). Calibration gate
+(test_builder gate 11): the `arty_current` estimate must land within
++/-15% of the real mf48 place totals, parsed from the report at test time
+(SKIPs when the build tree is absent); current deltas are +0.21% LUT /
+-0.13% FF / 0% BRAM36 / 0% DSP. The NxN shapes come out OVER on
+xc7a100t (4x4 ~108% LUT, 8x8 ~142% LUT, upper bounds) - that is the
+point: sizing before burning sweeps.

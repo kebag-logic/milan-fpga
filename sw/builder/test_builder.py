@@ -33,7 +33,15 @@ Gates (gaps item 4, generator round):
       subprocess) and the generated aecp_aem_rom.svh is byte-identical to
       the tracked hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - THE key
       no-regression gate; the default (no-overlay) path stays byte-identical
-      too.
+      too;
+  11. resource-estimator calibration: the arty_current estimate lands within
+      +/-15% of the REAL mf48 place-report totals per category (report
+      parsed at test time; SKIPs with a message when the report is absent);
+  12. resource estimate is deterministic (two builds -> identical estimate
+      dict + identical plan bytes);
+  13. verdict thresholds (OK <70, TIGHT 70-80, OVER >80), UPPER BOUND
+      labeling: absent for arty_current, present (with OVER verdicts) for
+      the 4x4/8x8 shapes.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -69,6 +77,13 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
               "--place-directive": 1, "--output-dir": 1}
 
 DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
+
+# Real utilization report the estimator was calibrated against (flat place
+# report of the same build as the hierarchical calibration source).
+REAL_RPT = os.path.expanduser(
+    "~/litex-milan/work/build_arty_eto_milanfinal48/gateware/"
+    "digilent_arty_utilization_place.rpt")
+CAL_TOL = 0.15                               # +/-15% calibration gate
 
 
 def _canon(tokens):
@@ -442,13 +457,91 @@ def test_gen_aem_store_consumes_overlay():
               "(refactor guard)")
 
 
+def _real_totals(path):
+    """Parse LUT/FF/BRAM36-equivalent/DSP totals from a flat Vivado
+    utilization report. bram36 = RAMB36 + RAMB18/2."""
+    txt = open(path).read()
+
+    def grab(pat):
+        m = re.search(pat, txt)
+        assert m, f"{path}: no match for {pat!r}"
+        return int(m.group(1))
+
+    return dict(
+        lut=grab(r"\|\s*Slice LUTs\s*\|\s*(\d+)"),
+        ff=grab(r"\|\s*Slice Registers\s*\|\s*(\d+)"),
+        bram36=grab(r"\|\s*RAMB36/FIFO\*?\s*\|\s*(\d+)")
+        + grab(r"\|\s*RAMB18\s+\|\s*(\d+)") / 2,
+        dsp=grab(r"\|\s*DSPs\s*\|\s*(\d+)"),
+    )
+
+
+def test_resource_calibration():
+    if not os.path.exists(REAL_RPT):
+        print(f"  [gate 11] SKIP: real report not on disk ({REAL_RPT}) - "
+              "calibration gate needs the mf48 build tree")
+        return
+    real = _real_totals(REAL_RPT)
+    est = eb.build(CONFIGS["arty_current"], OUT)["resource_estimate"]
+    for k in ("lut", "ff", "bram36", "dsp"):
+        got, want = float(est["totals"][k]), float(real[k])
+        delta = abs(got - want) / want
+        assert delta <= CAL_TOL, (
+            f"{k}: estimate {got} vs real {want} = {delta:.1%} off "
+            f"(gate {CAL_TOL:.0%})")
+        print(f"  [gate 11] {k}: estimate {got:g} vs real mf48 {want:g} "
+              f"({(got - want) / want:+.2%}, gate +/-{CAL_TOL:.0%})")
+
+
+def test_resource_determinism():
+    import json
+    a = eb.build(CONFIGS["ax7101_8x8"], OUT)
+    b = eb.build(CONFIGS["ax7101_8x8"], OUT)
+    assert json.dumps(a["resource_estimate"], sort_keys=True) == \
+        json.dumps(b["resource_estimate"], sort_keys=True)
+    assert a["plan"] == b["plan"]
+    print("  [gate 12] resource estimate + plan deterministic across builds")
+
+
+def test_resource_verdicts():
+    # threshold semantics: OK <70, TIGHT 70-80, OVER >80
+    for pct, want in ((0.0, "OK"), (69.9, "OK"), (70.0, "TIGHT"),
+                      (80.0, "TIGHT"), (80.1, "OVER"), (142.0, "OVER")):
+        got = eb.resource_verdict(pct)
+        assert got == want, f"verdict({pct}) = {got}, want {want}"
+    # arty_current: measured shape, no UPPER BOUND rows; verdict mirrors the
+    # real mf48 placement (81.5% LUTs -> OVER by the absolute thresholds)
+    cur = eb.build(CONFIGS["arty_current"], OUT)
+    est = cur["resource_estimate"]
+    assert not est["upper_bound"]
+    assert "UPPER BOUND estimate" not in cur["plan"]
+    assert est["worst_category"] == "lut" and est["verdict"] == "OVER"
+    # NxN shapes: UPPER BOUND labeled, OVER on xc7a100t (feeds sizing before
+    # burning sweeps - that is the point)
+    for name in ("arty_4x4", "ax7101_8x8"):
+        r = eb.build(CONFIGS[name], OUT)
+        e = r["resource_estimate"]
+        assert e["upper_bound"], f"{name}: NxN estimate must be UPPER BOUND"
+        assert e["verdict"] == "OVER", f"{name}: expected OVER, got {e}"
+        assert "UPPER BOUND estimate" in r["plan"]
+        assert "## Resource estimate" in r["plan"]
+        print(f"  [gate 13] {name}: verdict {e['verdict']} "
+              f"(worst {e['worst_category'].upper()} {e['worst_pct']}%, "
+              "UPPER BOUND labeled)")
+    print("  [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current "
+          f"verdict {est['verdict']} (worst LUT {est['worst_pct']}%), "
+          "no upper-bound rows")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,
                test_port_layout_invariants, test_both_policies_valid,
                test_model_id_hashing, test_sweep_opts_fragments,
-               test_gen_aem_store_consumes_overlay):
+               test_gen_aem_store_consumes_overlay,
+               test_resource_calibration, test_resource_determinism,
+               test_resource_verdicts):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
