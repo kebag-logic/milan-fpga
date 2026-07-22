@@ -36,6 +36,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int NUM_QUEUES  = NUMBER_OF_QUEUES,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
+  //! NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): AAF stream contexts
+  //! per shared engine (listener sinks = talker sources = N_STREAMS). The
+  //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
+  parameter int N_STREAMS = 1,
 parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
 )(

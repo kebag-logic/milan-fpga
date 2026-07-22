@@ -48,6 +48,10 @@ module milan_top import ethernet_packet_pkg::*; #(
   //! axis_clk (datapath) frequency: AX7101 100 MHz, Arty 50 MHz. Drives the
   //! AECP 1 kHz lock-timer divider so LOCK_ENTITY expires at a true 60 s.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
+  //! NxN dataplane width (docs/NXN_ARCHITECTURE.md P0) — plumbing only on the
+  //! Zynq variant (its stream engines are the milan_datapath set; N unused
+  //! here until that wrapper's shared engines are ported back).
+  parameter int N_STREAMS = 1,
   //! MAC synthesis target (portability, docs/integration/OPEN_SOURCE_MIGRATION.md T2.1):
   //! "XILINX" for the Artix/Zynq bitstream; "GENERIC" for open flows / other
   //! devices / Verilator (the Forencich MAC then uses generic DDR I/O, no SelectIO).
