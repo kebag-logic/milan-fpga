@@ -107,6 +107,29 @@
                 HOLDOVER (CRF unlock: u frozen, stepping continues at
                 the held rate), FAULT (repair relock timeout).
 
+                PI micro-sequence (mf51 timing fix): the window update is
+                a once-per-512-ms event, so the PI arithmetic runs as a
+                7-cycle micro-sequence instead of one combinational cone
+                (mf51 evidence: ptp_q_r_reg -> u_cmd_r_reg, 21.9 ns data
+                path, 49 logic levels / 39 CARRY4 - the whole span sub +
+                NORM + ECLAMP + PI + slew evaluated in ONE clk cycle and
+                missed timing on ALL seeds). One arithmetic step per
+                stage, ~140 ns added latency = 3e-7 of the window:
+                  T0  boundary tick: 64-bit span sub, crf_rate snapshot
+                  S1  64-bit - NOM_WIN_NS_P, <<< NORM_SHIFT_P
+                  S2  ECLAMP clamp (compares + mux)
+                  S3  e = locerr - rate (32-bit sub) -> ew_r
+                  S4  integ + e>>KI (32-bit add) | lock-threshold cmp
+                  S5  integrator clamp | + e>>KP (32-bit add)
+                  S6  output clamp | - u_cmd (32-bit sub)
+                  S7  slew select + writeback (u_cmd, integ, lock_cnt)
+                The u*GAIN_NUM_P product feeding the PS accumulator is
+                registered in its own stage (u_gain_r; u_cmd_r changes
+                >= 1 tick before the next accumulate). Bit-for-bit the
+                same loop results, k cycles later; the sequence aborts if
+                the servo leaves the active states (IDLE then clears
+                u/integ anyway).
+
                 Clock domains: clk_i (datapath; also the DRP DCLK -
                 DS181 FDCK max 200 MHz), clk_audio_i (tick divider
                 only), ps_clk_i (PS runner; DS181 MMCM_FMAX_PSCLK 450
@@ -305,6 +328,22 @@ module KL_mmcm_drp_servo #(
   logic signed [23:0]       integ_r, u_cmd_r;
   logic [$clog2(LOCK_WIN_P+1)-1:0] lock_cnt_r;
 
+  //! PI micro-sequence registers (see header: mf51 one-cycle-cone fix;
+  //! one add/sub or one clamp per stage, once per window)
+  logic [2:0]               pp_seq_r;     //! 0 = idle, 1..7 = stage
+  logic                     pp_run_r;     //! writeback armed (no skip/holdover)
+  logic signed [63:0]       pp_d_r;       //! T0: raw window span
+  logic signed [63:0]       pp_spann_r;   //! S1: span - nominal, normalized
+  logic signed [31:0]       pp_locerr_r;  //! S2: ECLAMP-bounded local error
+  logic signed [31:0]       pp_rate_r;    //! T0: crf_rate_i boundary snapshot
+  logic signed [31:0]       pp_isum_r;    //! S4: integ + e>>KI (pre-clamp)
+  logic                     pp_thr_r;     //! S4: |e| < LOCK_THR_P
+  logic signed [23:0]       pp_ig_r;      //! S5: clamped next integrator
+  logic signed [31:0]       pp_un_r;      //! S5: ig + e>>KP (pre-clamp)
+  logic signed [23:0]       pp_ut_r;      //! S6: clamped PI output
+  logic signed [31:0]       pp_du_r;      //! S6: ut - u_cmd (pre-slew)
+  logic signed [31:0]       u_gain_r;     //! registered u_cmd * GAIN_NUM_P
+
   //! PS batch accumulator + handshake
   logic signed [31:0]       acc_r;
   logic                     hs_send_r;
@@ -324,22 +363,14 @@ module KL_mmcm_drp_servo #(
   wire [15:0] exp_val_w  = rd_second_r ? CFG_C0R2_P      : CFG_C0R1_P;
   wire [15:0] exp_mask_w = rd_second_r ? CFG_C0R2_MASK_P : CFG_C0R1_MASK_P;
 
-  //! ptp_now_i staged once: the live 64-bit gPTP accumulator fed a
-  //! combinational 64-bit subtract into the PI cone = the mf51 -1.9ns
-  //! violator (all 3 seeds). One cycle of staleness against the 512 ms
-  //! window is 2e-6 % - free timing.
+  //! ptp_now_i staged once: the live 64-bit gPTP accumulator must not
+  //! feed the T0 span subtract combinationally. One cycle of staleness
+  //! against the 512 ms window is 2e-6 % - free timing. (The rest of
+  //! the old one-cycle PI cone is the micro-sequence above.)
   logic [63:0] ptp_q_r;
   always_ff @(posedge clk_i) begin : ptp_stage_S
     ptp_q_r <= ptp_now_i;
   end
-
-  //! window error, clamped (a dead/garbage audio clock must not wrap the PI)
-  wire signed [63:0] span_w    = $signed(ptp_q_r - win_start_r)
-                               - $signed(NOM_WIN_NS_P);
-  wire signed [63:0] span_n_w  = span_w <<< NORM_SHIFT_P;
-  wire signed [31:0] locerr_w  = (span_n_w >  64'(ECLAMP_C)) ?  ECLAMP_C
-                               : (span_n_w < -64'(ECLAMP_C)) ? -ECLAMP_C
-                               : 32'(span_n_w);
 
   function automatic logic signed [23:0] clamp_u(input logic signed [31:0] v);
     if (v > 32'(U_MAX_P))       return 24'(U_MAX_P);
@@ -360,10 +391,18 @@ module KL_mmcm_drp_servo #(
       drp_pass_r <= 1'b0;   rd_second_r <= 1'b0; repairing_r <= 1'b0;
       rd_val_r <= '0;       verified_r <= 1'b0; mismatch_r <= 1'b0;
       drp_fault_r <= 1'b0;  relock_r <= '0;     rst_settle_r <= '0;
+      pp_seq_r <= '0;       pp_run_r <= 1'b0;
+      pp_d_r <= '0;         pp_spann_r <= '0;   pp_locerr_r <= '0;
+      pp_rate_r <= '0;      pp_isum_r <= '0;    pp_thr_r <= 1'b0;
+      pp_ig_r <= '0;        pp_un_r <= '0;      pp_ut_r <= '0;
+      pp_du_r <= '0;        u_gain_r <= '0;
     end else begin
       drp_en_o <= 1'b0;
       drp_we_o <= 1'b0;
       if (hs_send_r && hs_rcv_w) hs_send_r <= 1'b0;
+      //! GAIN stage: registered product keeps the multiplier cone out of
+      //! the acc_r adder (u_cmd_r settles >= 1 tick before the next use)
+      u_gain_r <= 32'(u_cmd_r) * 32'(GAIN_NUM_P);
 
       // ---------------- top-level servo FSM ----------------
       unique case (state_r)
@@ -425,40 +464,80 @@ module KL_mmcm_drp_servo #(
             win_valid_r <= 1'b1;
             tick_cnt_r  <= '0;
           end else if (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1)) begin
+            //! T0: window boundary - snapshot the operands, kick the
+            //! micro-sequence (next boundary is a full window away)
             tick_cnt_r  <= '0;
             win_start_r <= ptp_q_r;
-            ew_r        <= locerr_w - crf_rate_i;
-            if (win_skip_r != '0) begin
+            pp_d_r      <= $signed(ptp_q_r - win_start_r);
+            pp_rate_r   <= crf_rate_i;
+            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S);
+            pp_seq_r    <= 3'd1;
+            if (win_skip_r != '0)
               win_skip_r <= win_skip_r - 2'd1;
-            end else if (state_r != HOLDOVER_S) begin : pi_update
-              automatic logic signed [31:0] e_v, un_v, du_v;
-              automatic logic signed [23:0] ig_v, ut_v;
-              e_v  = locerr_w - crf_rate_i;
-              ig_v = clamp_u(32'(integ_r) + (e_v >>> KI_SHIFT_P));
-              un_v = 32'(ig_v) + (e_v >>> KP_SHIFT_P);
-              ut_v = clamp_u(un_v);
-              //! bounded step (slew limit)
-              du_v = 32'(ut_v) - 32'(u_cmd_r);
-              if (du_v > 32'(SLEW_MAX_P))
-                u_cmd_r <= u_cmd_r + 24'(SLEW_MAX_P);
-              else if (du_v < -32'(SLEW_MAX_P))
-                u_cmd_r <= u_cmd_r - 24'(SLEW_MAX_P);
-              else
-                u_cmd_r <= ut_v;
-              integ_r <= ig_v;
-              //! frequency-lock qualification
-              if ((e_v < LOCK_THR_P) && (e_v > -LOCK_THR_P)) begin
-                if (lock_cnt_r != ($bits(lock_cnt_r))'(LOCK_WIN_P))
-                  lock_cnt_r <= lock_cnt_r + 1'b1;
-              end else begin
-                lock_cnt_r <= '0;
-              end
-            end : pi_update
           end else begin
             tick_cnt_r <= tick_cnt_r + 1'b1;
           end
 
         end
+
+        //! PI micro-sequence: one arithmetic step per cycle (mf51 fix,
+        //! see header). ew_r/writebacks land bit-for-bit as the old
+        //! single-cycle cone, 3..7 cycles after the boundary tick.
+        unique case (pp_seq_r)
+          3'd0: ;
+          3'd1: begin : pi_norm_S
+            pp_spann_r <= (pp_d_r - $signed(NOM_WIN_NS_P)) <<< NORM_SHIFT_P;
+            pp_seq_r   <= 3'd2;
+          end : pi_norm_S
+          3'd2: begin : pi_eclamp_S
+            //! window error, clamped (a dead/garbage audio clock must
+            //! not wrap the PI)
+            pp_locerr_r <= (pp_spann_r >  64'(ECLAMP_C)) ?  ECLAMP_C
+                         : (pp_spann_r < -64'(ECLAMP_C)) ? -ECLAMP_C
+                         : 32'(pp_spann_r);
+            pp_seq_r    <= 3'd3;
+          end : pi_eclamp_S
+          3'd3: begin : pi_err_S
+            ew_r     <= pp_locerr_r - pp_rate_r;
+            pp_seq_r <= 3'd4;
+          end : pi_err_S
+          3'd4: begin : pi_isum_S
+            pp_isum_r <= 32'(integ_r) + (ew_r >>> KI_SHIFT_P);
+            pp_thr_r  <= (ew_r < LOCK_THR_P) && (ew_r > -LOCK_THR_P);
+            pp_seq_r  <= 3'd5;
+          end : pi_isum_S
+          3'd5: begin : pi_pterm_S
+            pp_ig_r  <= clamp_u(pp_isum_r);
+            pp_un_r  <= 32'(clamp_u(pp_isum_r)) + (ew_r >>> KP_SHIFT_P);
+            pp_seq_r <= 3'd6;
+          end : pi_pterm_S
+          3'd6: begin : pi_uclamp_S
+            pp_ut_r  <= clamp_u(pp_un_r);
+            pp_du_r  <= 32'(clamp_u(pp_un_r)) - 32'(u_cmd_r);
+            pp_seq_r <= 3'd7;
+          end : pi_uclamp_S
+          3'd7: begin : pi_wb_S
+            if (pp_run_r) begin
+              //! bounded step (slew limit)
+              if (pp_du_r > 32'(SLEW_MAX_P))
+                u_cmd_r <= u_cmd_r + 24'(SLEW_MAX_P);
+              else if (pp_du_r < -32'(SLEW_MAX_P))
+                u_cmd_r <= u_cmd_r - 24'(SLEW_MAX_P);
+              else
+                u_cmd_r <= pp_ut_r;
+              integ_r <= pp_ig_r;
+              //! frequency-lock qualification
+              if (pp_thr_r) begin
+                if (lock_cnt_r != ($bits(lock_cnt_r))'(LOCK_WIN_P))
+                  lock_cnt_r <= lock_cnt_r + 1'b1;
+              end else begin
+                lock_cnt_r <= '0;
+              end
+            end
+            pp_seq_r <= '0;
+          end : pi_wb_S
+          default: pp_seq_r <= '0;
+        endcase
 
         //! PS batch accumulation + dispatch (single acc_r update: the
         //! tick add and the batch subtract may land on the same cycle)
@@ -466,7 +545,7 @@ module KL_mmcm_drp_servo #(
           automatic logic signed [31:0] a_v, b_v;
           a_v = acc_r;
           if (tick_p_w && !ps_hold_r)
-            a_v = a_v + 32'(u_cmd_r) * 32'(GAIN_NUM_P);
+            a_v = a_v + u_gain_r;
           if (!hs_send_r && !ps_busy_s_w && !ps_hold_r) begin
             b_v = acc_r >>> 9;
             if (b_v > 32'sd16383)  b_v = 32'sd16383;
@@ -481,6 +560,11 @@ module KL_mmcm_drp_servo #(
           end
           acc_r <= a_v;
         end : dispatch
+      end else begin
+        //! micro-sequence abort on leaving the active states (only IDLE
+        //! is reachable mid-flight; IDLE clears u/integ every cycle, so
+        //! dropping the in-flight update matches the one-cycle original)
+        pp_seq_r <= '0;
       end
 
       // ---------------- DRP micro-sequencer ----------------
