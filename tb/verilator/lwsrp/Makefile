@@ -38,10 +38,20 @@ CPP  = sim_main.cpp
 .PHONY: all run clean
 all: run
 
+# NxN Σ-slope bw_gate at N=4 (NXN_ARCHITECTURE §2.4/§3.4, P5)
+BWNXFLAGS = --cc --exe --build -j 0 --top-module KL_lwsrp_bw_gate \
+         -GN_STREAMS_P=4 --Mdir obj_nx \
+         -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
+         -CFLAGS "-std=c++17 -O2"
+
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vlwsrp_sim
 	@echo "======================================================================"
 	./obj_dir/Vlwsrp_sim
+	$(VERILATOR) $(BWNXFLAGS) $(RTL_DIR)/ieee8021q/srp/lwsrp_pkg.sv \
+	  $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_bw_gate.sv sim_bw_nx.cpp -o Vbw_nx_sim
+	./obj_nx/Vbw_nx_sim
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_nx
