@@ -1092,6 +1092,45 @@ int main(int argc, char** argv) {
         for (int k = 0; k < 260; k++) send_crf();
         ck("CRF rate = +256000 ns/window", (int32_t)axi_read(A_CRF_RATE), 256000);
 
+        // CRF header-rule legs (traceability CRF-5, IEEE 1722-2016
+        // 10.4.2-10.4.6 + Milan 7.3.2), through the REAL RX path
+        // (MAC AXIS -> avtp_stream_parser -> KL_crf_rx):
+        //   sv (10.4.2) gates acceptance entirely; mr (10.4.3) / fs
+        //   (10.4.4) / tu (10.4.5) toggles are format-valid and must not
+        //   break acceptance, sequence tracking or lock. The engine is the
+        //   MEASUREMENT half: it deliberately ignores mr/fs (a re-lock
+        //   response is the CRF-8/M-CLK-3 actuator work — matrix stays
+        //   open there, not here).
+        {
+            long cnt5   = axi_read(A_CRF_STATUS) >> 16;
+            long errs5  = axi_read(A_CRF_STATUS) & 0xFFFF;
+            // mr toggle set
+            uint8_t* fr = mkcrf(crf_ts, crf_seq, 96, nullptr);
+            fr[15] = 0x80 | 0x08;                 // sv + mr
+            inject(fr, 64); crf_seq++; crf_ts += 2000000ULL + 1000ULL;
+            // fs + tu set
+            fr = mkcrf(crf_ts, crf_seq, 96, nullptr);
+            fr[15] = 0x80 | 0x02 | 0x01;          // sv + fs + tu
+            inject(fr, 64); crf_seq++; crf_ts += 2000000ULL + 1000ULL;
+            ck("CRF-5: mr/fs/tu PDUs accepted (+2)",
+               axi_read(A_CRF_STATUS) >> 16, cnt5 + 2);
+            ck("CRF-5: no fmt/seq errors from mr/fs/tu",
+               axi_read(A_CRF_STATUS) & 0xFFFF, errs5);
+            ck("CRF-5: lock survives mr/fs/tu", axi_read(A_CRF_CTRL) >> 31, 1);
+            // sv=0 (10.4.2): stream-data invalid -> ignored entirely, and
+            // it must not disturb the sequence walk of the next real PDU
+            fr = mkcrf(crf_ts, crf_seq, 96, nullptr);
+            fr[15] = 0x00;                        // sv=0
+            inject(fr, 64);                       // seq NOT consumed
+            ck("CRF-5: sv=0 PDU ignored",
+               axi_read(A_CRF_STATUS) >> 16, cnt5 + 2);
+            send_crf();
+            ck("CRF-5: clean seq resumes after sv=0",
+               axi_read(A_CRF_STATUS) & 0xFFFF, errs5);
+            ck("CRF-5: resumed PDU counted",
+               axi_read(A_CRF_STATUS) >> 16, cnt5 + 3);
+        }
+
         // disable -> ignored
         axi_write(A_CRF_CTRL, 0x0);
         long cnt = axi_read(A_CRF_STATUS) >> 16;
