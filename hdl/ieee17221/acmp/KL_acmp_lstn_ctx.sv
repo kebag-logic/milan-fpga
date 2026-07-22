@@ -135,7 +135,25 @@ module KL_acmp_lstn_ctx #(
     input  wire                            tbl_req_i,  //! hold until gnt
     input  wire [$clog2(N_SINKS_P)-1:0]    tbl_idx_i,
     output reg                             tbl_gnt_o,  //! 1-cycle strobe
-    output acmp_lstn_ctx_t                 tbl_ctx_o   //! valid with gnt
+    output acmp_lstn_ctx_t                 tbl_ctx_o,  //! valid with gnt
+
+    // ---- bind-restore injection (E1, Milan 5.5.3.5.2) ------------------
+    //! Startup-with-saved-binding load port (SAVED_STATE_FASTCONNECT.md):
+    //! req held HIGH until the 1-cycle ack strobe; status is valid WITH
+    //! ack: 0 = record injected, 1 = target OCCUPIED (not LSM_UNBOUND_S,
+    //! record untouched), 2 = bad index (>= N_SINKS_P, or a record-only
+    //! context without the probe SM — those re-arm via their own CSRs).
+    //! The injected record is the 5.5.3.5.2 entry state: PRB_W_AVAIL,
+    //! probing PASSIVE, status 0, sid/dmac/vlan CLEARED (5.5.2.6 step 1);
+    //! the existing sweep ADP watch + probe ladder take over from there.
+    input  wire         rest_req_i,
+    input  wire [3:0]   rest_idx_i,
+    input  wire [63:0]  rest_talker_i,
+    input  wire [15:0]  rest_tuid_i,
+    input  wire [63:0]  rest_ctlr_i,
+    input  wire [15:0]  rest_flags_i,
+    output reg          rest_ack_o,     //! 1-cycle strobe
+    output reg  [1:0]   rest_status_o   //! valid with ack (see above)
 );
 
   localparam int NUM_BEATS_C = (ACMP_FRAME_BYTES_C + 7) / 8;            //! 9
@@ -535,14 +553,43 @@ module KL_acmp_lstn_ctx #(
   wire w_launch_ok = init_done_r && (st_r == COLLECT_S) && !rxv_r &&
                      (probe_pend_r != '0) && !swp_active_r;
   wire w_swp_run   = swp_active_r && !w_frame_latch && (st_r != CLASSIFY_S);
+
+  //! bind-restore injection (E1): serve the held request in any cycle
+  //! where BOTH RAM ports are free (same exclusions as the table port);
+  //! bad-index requests never touch the RAM and ack immediately below
+  wire [IDX_W_C-1:0] w_rest_idx = IDX_W_C'(rest_idx_i);
+  wire w_rest_sm_ok = (32'(rest_idx_i) < N_SINKS_P) &&
+                      PROBE_SM_EN_P[w_rest_idx];
+  wire w_rest_pend  = rest_req_i && !rest_ack_o;
+  wire w_rest_ok    = init_done_r && w_rest_pend && w_rest_sm_ok &&
+                      !w_frame_latch && !w_launch_ok && !swp_active_r &&
+                      (st_r != CLASSIFY_S);
+
   wire w_tbl_ok    = init_done_r && tbl_req_i && !w_frame_latch &&
-                     !w_launch_ok && !swp_active_r && (st_r != CLASSIFY_S);
+                     !w_launch_ok && !swp_active_r && !w_rest_ok &&
+                     (st_r != CLASSIFY_S);
 
   always_comb begin : rd_port_mux
     if      (w_frame_latch) rd_idx_w = w_luid_idx;
     else if (w_launch_ok)   rd_idx_w = launch_idx_w;
     else if (w_swp_run)     rd_idx_w = swp_idx_r;
+    else if (w_rest_ok)     rd_idx_w = w_rest_idx;
     else                    rd_idx_w = tbl_idx_i;
+  end
+
+  //! occupancy check on the same-cycle async read + the injected record:
+  //! 5.5.3.5.2 entry state — SRP params (sid/dmac/vlan) stay CLEARED per
+  //! 5.5.2.6 step 1 and are re-learned by the probe response
+  wire w_rest_unbound = (rd_ctx_w.state == LSM_UNBOUND_S);
+  acmp_lstn_ctx_t w_rest_rec;
+  always_comb begin : restore_record
+    w_rest_rec         = '0;                  // sid/dmac/vlan/status/tmr = 0
+    w_rest_rec.state   = LSM_PRB_W_AVAIL_S;   // await the talker's ADPDU
+    w_rest_rec.probing = 2'd1;                // probing_status = PASSIVE
+    w_rest_rec.talker  = rest_talker_i;
+    w_rest_rec.tuid    = rest_tuid_i;
+    w_rest_rec.ctlr    = rest_ctlr_i;
+    w_rest_rec.flags   = rest_flags_i;
   end
 
   // -----------------------------------------------------------------------
@@ -785,6 +832,10 @@ module KL_acmp_lstn_ctx #(
       wr_en_w   = 1'b1;
       wr_idx_w  = swp_idx_r;
       wr_data_w = sn_w;
+    end else if (w_rest_ok && w_rest_unbound) begin  // bind-restore inject
+      wr_en_w   = 1'b1;
+      wr_idx_w  = w_rest_idx;
+      wr_data_w = w_rest_rec;
     end
   end
 
@@ -814,6 +865,7 @@ module KL_acmp_lstn_ctx #(
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
       tx_wedge_cnt_o <= 8'd0; txwd_r <= '0;
       tbl_gnt_o <= 1'b0; tbl_ctx_o <= '0;
+      rest_ack_o <= 1'b0; rest_status_o <= 2'd0;
       dbg_classify_r <= '0; dbg_fc_r <= '0; dbg_flags_r <= '0; dbg_basehit_r <= '0;
     end else begin
       // ---- post-reset context-table init walk --------------------------
@@ -832,6 +884,16 @@ module KL_acmp_lstn_ctx #(
       // ---- table request/grant port ------------------------------------
       tbl_gnt_o <= w_tbl_ok;
       if (w_tbl_ok) tbl_ctx_o <= rd_ctx_w;
+
+      // ---- bind-restore handshake (E1): 1-cycle ack + status -----------
+      rest_ack_o <= 1'b0;
+      if (w_rest_pend && !w_rest_sm_ok) begin
+        rest_ack_o    <= 1'b1;              //! refused: no such probe-SM ctx
+        rest_status_o <= 2'd2;
+      end else if (w_rest_ok) begin
+        rest_ack_o    <= 1'b1;              //! injected / occupied-refused
+        rest_status_o <= w_rest_unbound ? 2'd0 : 2'd1;
+      end
 
       // ---- sweep cause accumulation + sequencer ------------------------
       begin : sweep_seq

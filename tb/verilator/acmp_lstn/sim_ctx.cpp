@@ -172,12 +172,15 @@ static uint64_t cbits(int lo, int width) {
     }
     return v;
 }
+static uint64_t c_ctlr()   { return cbits(0, 64); }
 static uint64_t c_talker() { return cbits(64, 64); }
 static uint64_t c_sid()    { return cbits(128, 64); }
 static uint64_t c_dmac()   { return cbits(192, 48); }
+static uint64_t c_vlan()   { return cbits(240, 12); }
 static uint64_t c_flags()  { return cbits(252, 16); }
 static uint64_t c_tuid()   { return cbits(268, 16); }
 static uint64_t c_status() { return cbits(305, 5); }
+static uint64_t c_probing(){ return cbits(310, 2); }
 static uint64_t c_state()  { return cbits(314, 3); }
 
 // request/grant read of one context record
@@ -198,6 +201,27 @@ static bool tbl_read(int idx) {
     return false;
 }
 
+// E1 bind-restore injection: hold req until the 1-cycle ack, return status
+// (0 injected, 1 occupied, 2 bad idx / record-only context, -1 no ack)
+static int rest_inject(int idx, uint64_t talker, uint16_t tuid,
+                       uint64_t ctlr, uint16_t flags) {
+    dut->rest_idx_i    = idx;
+    dut->rest_talker_i = talker;
+    dut->rest_tuid_i   = tuid;
+    dut->rest_ctlr_i   = ctlr;
+    dut->rest_flags_i  = flags;
+    dut->rest_req_i    = 1;
+    int st = -1;
+    for (int c = 0; c < 200; c++) {
+        tick();
+        dut->eval();
+        if (dut->rest_ack_o) { st = dut->rest_status_o; break; }
+    }
+    dut->rest_req_i = 0;
+    tick();
+    return st;
+}
+
 static const int MS = 10;   // scaled clock: 1 ms = 10 cycles
 
 int main(int argc, char** argv) {
@@ -211,6 +235,9 @@ int main(int argc, char** argv) {
     dut->tick_1s_i = 0;
     dut->ta_registered_i = 0; dut->ta_failed_i = 0;
     dut->tbl_req_i = 0; dut->tbl_idx_i = 0;
+    dut->rest_req_i = 0; dut->rest_idx_i = 0;
+    dut->rest_talker_i = 0; dut->rest_tuid_i = 0;
+    dut->rest_ctlr_i = 0; dut->rest_flags_i = 0;
     dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -445,6 +472,64 @@ int main(int argc, char** argv) {
     ck("[N8] ctx0 re-probes after the delay", pd.size(), 70);
     ck("[N8] re-probe luid 0", (long)r_be(pd, 52, 2), 0);
     ckh("[N8] re-probe talker T1", r_be(pd, 34, 8), T1_EID);
+
+    // ---------------------------------------------------------------- //
+    printf("\n[N9] bind-restore injection (E1, Milan 5.5.3.5.2)\n");
+    // free ctx0 first: a controller unbind clears the saved state (5.5.1.3)
+    feed(acmp(8, 0, 0, CT_EID, T1_EID, US_EID, 0, 0, nullptr, 0x600, 0, 0));
+    r = wait_frame();
+    ck("[N9] ctx0 UNBIND SUCCESS", r_sta(r), 0);
+    tbl_read(0);
+    ck("[N9] ctx0 unbound", (long)c_state(), 0);
+    // inject the saved bind: talker T2, tuid 5, ctlr, STREAMING_WAIT flag
+    ck("[N9] inject accepted (status 0)",
+       rest_inject(0, T2_EID, 0x0005, CT_EID, 0x0008), 0);
+    tbl_read(0);
+    ck("[N9] state PRB_W_AVAIL (5.5.3.5.2 step 3)", (long)c_state(), 1);
+    ck("[N9] probing PASSIVE (step 2)", (long)c_probing(), 1);
+    ck("[N9] ACMP status 0 (step 2)", (long)c_status(), 0);
+    ckh("[N9] talker loaded", c_talker(), T2_EID);
+    ck("[N9] tuid loaded", (long)c_tuid(), 5);
+    ckh("[N9] ctlr loaded (5.5.3.5.3)", c_ctlr(), CT_EID);
+    ck("[N9] flags STREAMING_WAIT kept", (long)c_flags(), 0x0008);
+    ckh("[N9] sid CLEARED (5.5.2.6 step 1)", c_sid(), 0);
+    ckh("[N9] dmac CLEARED", c_dmac(), 0);
+    ck("[N9] vlan CLEARED", (long)c_vlan(), 0);
+    ck("[N9] sink not active", dut->stream_active_o & 1, 0);
+    // refusals: occupied context / record-only context / index >= N
+    ck("[N9] restore to OCCUPIED refused (1)",
+       rest_inject(2, T3_EID, 0, CT_EID, 0), 1);
+    tbl_read(2);
+    ck("[N9] occupied ctx undisturbed", (long)c_state(), 7);
+    ck("[N9] record-only ctx refused (2)",
+       rest_inject(1, T3_EID, 0, CT_EID, 0), 2);
+    ck("[N9] idx >= N refused (2)",
+       rest_inject(9, T3_EID, 0, CT_EID, 0), 2);
+    tbl_read(0);
+    ck("[N9] refusals left the injected record", (long)c_state(), 1);
+    // the talker's ENTITY_AVAILABLE arrives (5.5.1.4: wait for the talker's
+    // ADPDU) -> the EXISTING ladder takes over: DELAY -> PROBE_TX
+    feed(adp(0, T2_EID));
+    run(8);
+    tbl_read(0);
+    ck("[N9] EVT_TK_DISCOVERED -> PRB_W_DELAY", (long)c_state(), 2);
+    auto p9 = wait_frame(1100 * MS);
+    ck("[N9] PROBE_TX after the delay", p9.size(), 70);
+    ckh("[N9] probe talker = restored talker", r_be(p9, 34, 8), T2_EID);
+    ck("[N9] probe tuid = restored tuid", (long)r_be(p9, 50, 2), 5);
+    ckh("[N9] probe ctlr = restored ctlr", r_be(p9, 26, 8), CT_EID);
+    // the talker's PROBE_TX_RESPONSE completes the bind (SM behaviour):
+    // sid/dmac/vlan re-learned from the wire, sink settles
+    {
+        const uint8_t dmR[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x99};
+        feed(acmp(1, 0, 0x1234432112344321ULL, CT_EID, T2_EID, US_EID, 5, 0,
+                  dmR, 2, 0, 2));
+    }
+    tbl_read(0);
+    ck("[N9] settled after the probe response", (long)c_state(), 6);
+    ckh("[N9] sid re-learned from the probe", c_sid(), 0x1234432112344321ULL);
+    ckh("[N9] dmac re-learned", c_dmac(), 0x91E0F000FE99ULL);
+    ck("[N9] sink active", dut->stream_active_o & 1, 1);
 
     printf("\nKL_acmp_lstn_ctx N=4: %ld checks, %ld failures\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

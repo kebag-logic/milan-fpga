@@ -108,7 +108,19 @@ module KL_acmp_listener #(
     input  wire         tbl_req_i,
     input  wire [((N_SINKS_P > 1) ? $clog2(N_SINKS_P) : 1)-1:0] tbl_idx_i,
     output wire         tbl_gnt_o,
-    output acmp_lstn_ctx_t tbl_ctx_o
+    output acmp_lstn_ctx_t tbl_ctx_o,
+
+    // ---- bind-restore injection (E1, Milan 5.5.3.5.2) pass-through ------
+    //! see KL_acmp_lstn_ctx: req held until the 1-cycle ack; status with
+    //! ack (0 injected, 1 occupied, 2 bad index / record-only context)
+    input  wire         rest_req_i,
+    input  wire [3:0]   rest_idx_i,
+    input  wire [63:0]  rest_talker_i,
+    input  wire [15:0]  rest_tuid_i,
+    input  wire [63:0]  rest_ctlr_i,
+    input  wire [15:0]  rest_flags_i,
+    output wire         rest_ack_o,
+    output wire [1:0]   rest_status_o
 );
 
   //! per-context policy map (the N-sink round): bit 0 = the full media
@@ -165,7 +177,15 @@ module KL_acmp_listener #(
     .tbl_req_i       (tbl_req_i),  //! P12: the CSR window's ACMP tbl master
     .tbl_idx_i       (tbl_idx_i),
     .tbl_gnt_o       (tbl_gnt_o),
-    .tbl_ctx_o       (tbl_ctx_o)
+    .tbl_ctx_o       (tbl_ctx_o),
+    .rest_req_i      (rest_req_i), //! E1: the 0x7A0 bind-restore master
+    .rest_idx_i      (rest_idx_i),
+    .rest_talker_i   (rest_talker_i),
+    .rest_tuid_i     (rest_tuid_i),
+    .rest_ctlr_i     (rest_ctlr_i),
+    .rest_flags_i    (rest_flags_i),
+    .rest_ack_o      (rest_ack_o),
+    .rest_status_o   (rest_status_o)
   );
 
   assign lstn_declare_o  = w_declare[0];
