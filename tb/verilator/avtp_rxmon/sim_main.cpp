@@ -36,6 +36,9 @@ struct AafCfg {
     bool     tagged   = false;
     uint8_t  subtype  = 0x02;   // AAF
     bool     sv       = true;
+    uint8_t  version  = 0;      // AVTP version (4.4.3.4; only 0 is legal today)
+    bool     mr       = false;  // media clock restart toggle (4.4.4.3)
+    bool     tv       = true;   // timestamp valid
     bool     tu       = false;
     uint8_t  seq      = 0;
     uint64_t sid      = SID;
@@ -55,7 +58,8 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
                   f[16]=0x22; f[17]=0xF0; o=18; }
     else        { f[12]=0x22; f[13]=0xF0; o=14; }
     f[o+0]=c.subtype;
-    f[o+1]=(c.sv?0x80:0x00)|0x01;                       // sv, tv=1
+    f[o+1]=(uint8_t)((c.sv?0x80:0x00)|((c.version&0x07)<<4)   // sv/version/
+                     |(c.mr?0x08:0x00)|(c.tv?0x01:0x00));     // mr/tv (AAF b1)
     f[o+2]=c.seq;
     f[o+3]=c.tu?0x01:0x00;
     for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(c.sid>>(8*(7-i)));
@@ -339,6 +343,61 @@ int main(int argc,char**argv){
     { AafCfg c; c.seq=2; c.chans=9; feed(mkaaf(c)); } // above the declared cap
     ck("[28e] 9ch rejected vs 8ch fmt", dut->cnt_unsupported_fmt_o, 2);
     ck("[28f] frames_rx unchanged by rejects", dut->cnt_frames_rx_o, 2);
+
+    printf("\n[29] SPARSE stream (traceability AAF-2, IEEE 1722-2016 7.2.4 +\n"
+           "     Milan 6.3: base formats are non-sparse). A sustained sp=1\n"
+           "     stream is legal 1722 but off-profile here — the listener's\n"
+           "     DELIBERATE behavior is reject-and-count (UNSUPPORTED_FORMAT\n"
+           "     per PDU, no FRAMES_RX, no lock, no PCM), through the REAL\n"
+           "     parser->monitor->depacketizer wiring.\n");
+    dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era
+    pcm.clear(); pcm_last=false;
+    for(uint8_t s=0; s<10; s++){ AafCfg c; c.seq=s; c.sp=1; feed(mkaaf(c)); }
+    ck("[29a] 10 sparse PDUs all UNSUPPORTED", dut->cnt_unsupported_fmt_o, 10);
+    ck("[29b] no FRAMES_RX from a sparse stream", dut->cnt_frames_rx_o, 0);
+    ck("[29c] sparse stream never locks", dut->media_locked_o, 0);
+    ck("[29d] no PCM from a sparse stream", (long)pcm.size(), 0);
+    { AafCfg c; c.seq=10; feed(mkaaf(c)); }           // talker back to sp=0
+    ck("[29e] non-sparse resumes clean (locks)", dut->media_locked_o, 1);
+    ck("[29f] FRAMES_RX resumes", dut->cnt_frames_rx_o, 1);
+
+    printf("\n[30] mr toggle + MEDIA_RESET gating (traceability AVTP-5 /\n"
+           "     M-CNT-4, IEEE 1722-2016 4.4.4.3 + Milan Table 5.16).\n");
+    // (a) mr-toggled PDUs are format-valid and must keep flowing
+    { AafCfg c; c.seq=11; c.mr=true;  feed(mkaaf(c)); }
+    { AafCfg c; c.seq=12; c.mr=true;  feed(mkaaf(c)); }
+    { AafCfg c; c.seq=13; c.mr=false; feed(mkaaf(c)); }
+    ck("[30a] mr-toggled PDUs accepted", dut->cnt_frames_rx_o, 4);
+    ck("[30b] mr toggle breaks no lock/seq", dut->cnt_seq_mismatch_o, 0);
+    // (b) CHARACTERIZATION — RTL GAP (matrix AVTP-5 stays open): the mr bit
+    //     is not extracted by avtp_stream_parser, so a talker-signalled
+    //     media clock restart can NEVER tick MEDIA_RESET today. Fabric's
+    //     counter ticks only on the playback-servo rail (media_reset_p_i).
+    //     If this check ever fails, the mr->MEDIA_RESET response landed —
+    //     update traceability/ieee1722-2016.md AVTP-5 in the same commit.
+    ck("[30c] GAP: mr toggle does NOT tick MEDIA_RESET", dut->cnt_media_reset_o, 0);
+    // (c) counter gating: the servo-rail pulse counts only while BOUND
+    //     (Milan Table 5.16 counters are per-binding; [23] proved the
+    //     bound tick + bind-edge clear)
+    dut->bound_i=0; cyc(3);
+    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(2);
+    ck("[30d] unbound rail pulse counts nothing", dut->cnt_media_reset_o, 0);
+    dut->bound_i=1; cyc(3);
+    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(2);
+    ck("[30e] bound rail pulse counts MEDIA_RESET", dut->cnt_media_reset_o, 1);
+
+    printf("\n[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016\n"
+           "     4.4.3.4: version!=0 AVTPDUs must be ignored).\n");
+    // CHARACTERIZATION — RTL GAP (matrix AVTP-3 stays open):
+    // avtp_stream_parser never reads b1[6:4]; a version-1 PDU with valid AAF
+    // fields is parsed AS v0 media on the real RX path (half-parse of a
+    // future AVTP version). Pin the current behavior so the eventual
+    // version gate flips this check and forces the matrix row + this case
+    // to be updated in the same commit.
+    { long frx31 = dut->cnt_frames_rx_o;
+      AafCfg c; c.seq=11; c.version=1; feed(mkaaf(c));
+      ck("[31a] GAP: version=1 PDU currently ACCEPTED as v0 media",
+         dut->cnt_frames_rx_o, frx31 + 1); }
 
     printf("\n======================================================================\n");
     printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
