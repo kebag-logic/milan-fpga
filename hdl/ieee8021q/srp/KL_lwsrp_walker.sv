@@ -49,7 +49,15 @@
 
 import lwsrp_pkg::*;
 
-module KL_lwsrp_walker (
+module KL_lwsrp_walker #(
+  //! extra stream-attribute match lanes (context table rows 1..N-1);
+  //! always >= 1 for legal port widths - unused lanes are tied off with
+  //! ext_en_i = 0 and synthesize away. Lane l matches ALL stream attribute
+  //! types (Listener / TalkerAdvertise / TalkerFailed) against ext_sid_i[l]
+  //! with the same +k range rule as the two legacy contexts; the context
+  //! registrar consumes the pulses its row's direction needs.
+  parameter int unsigned EXT_LANES_P = 1
+)(
     input  wire         clk_i,
     input  wire         rst_n,
 
@@ -91,6 +99,16 @@ module KL_lwsrp_walker (
     output reg          l_tfail_p_o,
     output reg  [2:0]   l_evt_o,          //! MRP event of the matched value
     output reg  [7:0]   l_tfail_code_o,
+
+    // ---- extra match lanes (context table; en=0 lanes are inert) ---------
+    input  wire [EXT_LANES_P*64-1:0] ext_sid_i,
+    input  wire [EXT_LANES_P-1:0]    ext_en_i,
+    output reg  [EXT_LANES_P-1:0]    ext_lstn_p_o,   //! Listener attr hit
+    output reg  [EXT_LANES_P-1:0]    ext_tadv_p_o,   //! TalkerAdvertise hit
+    output reg  [EXT_LANES_P-1:0]    ext_tfail_p_o,  //! TalkerFailed hit
+    output reg  [EXT_LANES_P*3-1:0]  ext_evt_o,      //! per-lane matched event
+    output reg  [EXT_LANES_P*2-1:0]  ext_par_o,      //! per-lane 4-packed decl
+    output reg  [7:0]                ext_tfail_code_o, //! valid w/ ext_tfail_p
 
     output reg  [15:0]  pdu_cnt_o         //! cleanly parsed PDUs
 );
@@ -148,6 +166,11 @@ module KL_lwsrp_walker (
   reg        lval_match_r;
   reg [12:0] lk_r;
   reg [2:0]  lcap_evt_r;
+  //! extra-lane match context (per lane: hit flag, value index, captures)
+  reg [EXT_LANES_P-1:0]    ematch_r;
+  reg [EXT_LANES_P*13-1:0] ek_r;
+  reg [EXT_LANES_P*3-1:0]  ecap_evt_r;
+  reg [EXT_LANES_P*2-1:0]  ecap_par_r;
   //! incremental packed-byte windows
   reg [13:0] vbase_r;         //! first value index of the current packed byte
   reg [2:0]  cap_evt_r;       //! captured three-packed event for k
@@ -197,6 +220,21 @@ module KL_lwsrp_walker (
                             (lsid_diff_w[63:13] == '0) &&
                             (lsid_diff_w[12:0] < nv_r);
 
+  //! extra context lanes: same range rule, one 64-bit compare per lane
+  //! (the marginal cost per attribute the context-table design pays)
+  wire [EXT_LANES_P-1:0]    ext_hit_w;
+  wire [EXT_LANES_P*13-1:0] ext_kd_w;
+  generate
+    for (genvar gl = 0; gl < int'(EXT_LANES_P); gl++) begin : g_extmatch
+      wire [63:0] ediff_w = ext_sid_i[64*gl +: 64] - fv_eff_w;
+      assign ext_hit_w[gl] = ext_en_i[gl] &&
+                             (ext_sid_i[64*gl +: 64] >= fv_eff_w) &&
+                             (ediff_w[63:13] == '0) &&
+                             (ediff_w[12:0] < nv_r);
+      assign ext_kd_w[13*gl +: 13] = ediff_w[12:0];
+    end
+  endgenerate
+
   //! event bytes = ceil(nv/3), param bytes = ceil(nv/4).
   //! STAGED into registers (AX 100 MHz: the /3 reciprocal cone out of
   //! nv_r was the recurring -0.17-class violator; both divides now get a
@@ -214,7 +252,10 @@ module KL_lwsrp_walker (
   // there would be one cycle stale when the matched byte is also the last.
   // -----------------------------------------------------------------------
   task automatic vector_done(input [2:0] evt, input [1:0] par,
-                             input [2:0] levt, output wst_t nxt);
+                             input [2:0] levt,
+                             input [EXT_LANES_P*3-1:0] eevt,
+                             input [EXT_LANES_P*2-1:0] epar,
+                             output wst_t nxt);
     begin
       if (is_domain_w) begin
         domain_p_o     <= 1'b1;
@@ -254,6 +295,19 @@ module KL_lwsrp_walker (
         l_evt_o         <= levt;
         l_tfail_code_o  <= tfail_code_r;
       end
+      // extra lanes: independent again (one vector can cover several rows)
+      for (int l = 0; l < int'(EXT_LANES_P); l++) begin
+        if (ematch_r[l]) begin
+          if (is_listener_w)  ext_lstn_p_o[l]  <= 1'b1;
+          else if (is_tadv_w) ext_tadv_p_o[l]  <= 1'b1;
+          else if (is_tfail_w) begin
+            ext_tfail_p_o[l] <= 1'b1;
+            ext_tfail_code_o <= tfail_code_r;
+          end
+          ext_evt_o[3*l +: 3] <= eevt[3*l +: 3];
+          ext_par_o[2*l +: 2] <= epar[2*l +: 2];
+        end
+      end
       nxt = W_VECH_S;
     end
   endtask
@@ -263,6 +317,8 @@ module KL_lwsrp_walker (
     logic [2:0] evt_v;
     logic [1:0] par_v;
     logic [2:0] levt_v;
+    logic [EXT_LANES_P*3-1:0] eevt_v;
+    logic [EXT_LANES_P*2-1:0] epar_v;
     if (!rst_n) begin
       cur_v_r <= 1'b0; cur_l_r <= 1'b0; cur_u_r <= 1'b0;
       cur_d_r <= '0; cur_k_r <= '0; lane_r <= '0;
@@ -273,6 +329,7 @@ module KL_lwsrp_walker (
       tk_vlan_r <= '0; tk_acclat_r <= '0; tk_bridge_r <= '0;
       val_match_r <= 1'b0; k_r <= '0; vbase_r <= '0;
       lval_match_r <= 1'b0; lk_r <= '0; lcap_evt_r <= '0;
+      ematch_r <= '0; ek_r <= '0; ecap_evt_r <= '0; ecap_par_r <= '0;
       cap_evt_r <= '0; cap_par_r <= '0; pack_idx_r <= '0; pack_n_r <= '0;
       n_evt_q <= '0; n_par_q <= '0;
       leaveall_p_o <= 1'b0;
@@ -282,12 +339,15 @@ module KL_lwsrp_walker (
       tadv_p_o <= 1'b0; tfail_p_o <= 1'b0; tfail_code_o <= '0;
       l_tadv_p_o <= 1'b0; l_tfail_p_o <= 1'b0;
       l_evt_o <= '0; l_tfail_code_o <= '0;
+      ext_lstn_p_o <= '0; ext_tadv_p_o <= '0; ext_tfail_p_o <= '0;
+      ext_evt_o <= '0; ext_par_o <= '0; ext_tfail_code_o <= '0;
       pdu_cnt_o <= '0;
     end else begin
       // pulses are one-cycle
       leaveall_p_o <= 1'b0; domain_p_o <= 1'b0; listener_p_o <= 1'b0;
       tadv_p_o <= 1'b0; tfail_p_o <= 1'b0;
       l_tadv_p_o <= 1'b0; l_tfail_p_o <= 1'b0;
+      ext_lstn_p_o <= '0; ext_tadv_p_o <= '0; ext_tfail_p_o <= '0;
 
       // beat intake
       if (!cur_v_r && s_tvalid) begin
@@ -357,9 +417,12 @@ module KL_lwsrp_walker (
               fv_r        <= '0;
               val_match_r <= 1'b0;
               lval_match_r<= 1'b0;
+              ematch_r    <= '0;
               cap_evt_r   <= MRP_EVT_MT_C;   // default: no news
               lcap_evt_r  <= MRP_EVT_MT_C;
+              ecap_evt_r  <= {EXT_LANES_P{MRP_EVT_MT_C}};
               cap_par_r   <= LSTN_DECL_IGNORE_C;
+              ecap_par_r  <= {EXT_LANES_P{LSTN_DECL_IGNORE_C}};
               nxt = W_FV_S;
             end
           end
@@ -409,6 +472,14 @@ module KL_lwsrp_walker (
                 lval_match_r <= 1'b1;
                 lk_r         <= lsid_diff_w[12:0];
               end
+              if (is_stream_w && attr_len_r >= 8'd8) begin
+                for (int l = 0; l < int'(EXT_LANES_P); l++) begin
+                  if (ext_hit_w[l]) begin
+                    ematch_r[l]      <= 1'b1;
+                    ek_r[13*l +: 13] <= ext_kd_w[13*l +: 13];
+                  end
+                end
+              end
               pack_n_r   <= n_evt_q;
               pack_idx_r <= '0;
               vbase_r    <= '0;
@@ -420,7 +491,9 @@ module KL_lwsrp_walker (
                 // nv==0 (pure-LeaveAll vector): no packed bytes follow.
                 // A stream/listener match cannot exist with nv==0, so only
                 // a Domain pulse (with the MT default event) can emit here.
-                vector_done(MRP_EVT_MT_C, LSTN_DECL_IGNORE_C, MRP_EVT_MT_C, nxt);
+                vector_done(MRP_EVT_MT_C, LSTN_DECL_IGNORE_C, MRP_EVT_MT_C,
+                            {EXT_LANES_P{MRP_EVT_MT_C}},
+                            {EXT_LANES_P{LSTN_DECL_IGNORE_C}}, nxt);
               end else begin
                 nxt = W_EVT_S;
               end
@@ -432,12 +505,21 @@ module KL_lwsrp_walker (
           W_EVT_S: begin
             evt_v  = cap_evt_r;
             levt_v = lcap_evt_r;
+            eevt_v = ecap_evt_r;
             if (val_match_r &&
                 ({1'b0, k_r} >= vbase_r) && ({1'b0, k_r} < vbase_r + 14'd3))
               evt_v = unpack3(byte_w, 2'(14'({1'b0, k_r}) - vbase_r));
             if (lval_match_r &&
                 ({1'b0, lk_r} >= vbase_r) && ({1'b0, lk_r} < vbase_r + 14'd3))
               levt_v = unpack3(byte_w, 2'(14'({1'b0, lk_r}) - vbase_r));
+            for (int l = 0; l < int'(EXT_LANES_P); l++) begin
+              if (ematch_r[l] &&
+                  ({1'b0, ek_r[13*l +: 13]} >= vbase_r) &&
+                  ({1'b0, ek_r[13*l +: 13]} < vbase_r + 14'd3))
+                eevt_v[3*l +: 3] =
+                    unpack3(byte_w,
+                            2'(14'({1'b0, ek_r[13*l +: 13]}) - vbase_r));
+            end
             if (is_domain_w && pack_idx_r == '0) begin
               evt_v = unpack3(byte_w, 2'd0);   // FirstValue event
               //! class-A value event: index (A - FirstValue.class) inside
@@ -451,6 +533,7 @@ module KL_lwsrp_walker (
             end
             cap_evt_r  <= evt_v;
             lcap_evt_r <= levt_v;
+            ecap_evt_r <= eevt_v;
             vbase_r    <= vbase_r + 14'd3;
             pack_idx_r <= pack_idx_r + 13'd1;
             if (pack_idx_r == pack_n_r - 13'd1) begin
@@ -460,7 +543,7 @@ module KL_lwsrp_walker (
                 vbase_r    <= '0;
                 nxt = W_PAR_S;
               end else begin
-                vector_done(evt_v, cap_par_r, levt_v, nxt);
+                vector_done(evt_v, cap_par_r, levt_v, eevt_v, ecap_par_r, nxt);
               end
             end
           end
@@ -468,14 +551,24 @@ module KL_lwsrp_walker (
           // ---- FourPackedEvents (Listener only) --------------------------
           W_PAR_S: begin
             par_v = cap_par_r;
+            epar_v = ecap_par_r;
             if (val_match_r &&
                 ({1'b0, k_r} >= vbase_r) && ({1'b0, k_r} < vbase_r + 14'd4))
               par_v = unpack4(byte_w, 2'(14'({1'b0, k_r}) - vbase_r));
+            for (int l = 0; l < int'(EXT_LANES_P); l++) begin
+              if (ematch_r[l] &&
+                  ({1'b0, ek_r[13*l +: 13]} >= vbase_r) &&
+                  ({1'b0, ek_r[13*l +: 13]} < vbase_r + 14'd4))
+                epar_v[2*l +: 2] =
+                    unpack4(byte_w,
+                            2'(14'({1'b0, ek_r[13*l +: 13]}) - vbase_r));
+            end
             cap_par_r  <= par_v;
+            ecap_par_r <= epar_v;
             vbase_r    <= vbase_r + 14'd4;
             pack_idx_r <= pack_idx_r + 13'd1;
             if (pack_idx_r == pack_n_r - 13'd1) begin
-              vector_done(cap_evt_r, par_v, lcap_evt_r, nxt);
+              vector_done(cap_evt_r, par_v, lcap_evt_r, ecap_evt_r, epar_v, nxt);
             end
           end
 
