@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config (gaps attack item 4).
+# Shape: ARTY 4x4 - the item-5 NxN test shape for the small board. 4 AAF
+# listener + 4 AAF talker streams, 4ch each, TDM8 physical audio (8 channels
+# per direction = full physical coverage of one 4ch stream pair + first half
+# of the second). VALIDATES today; stream 2..4 contexts + the TDM ser/des are
+# marked "planned" in the build plan (items 5 / 4-audio subtask).
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.0.0"
+
+entity:
+  name: "Milan FPGA 4x4"
+  entity_model_id: "0x001BC50AC1000003"
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  firmware_version: "0.1.0"
+  serial_number: "ARTY-0001"
+  group_name: ""
+
+board:
+  target: arty
+  constraints:
+    sys_clk_hz: 83333000
+    milan_clk_hz: 50000000
+    l2_bytes: 65536
+    phy: mii-100
+    gtx_tx_invert: false
+    floorplan: false
+    flashboot: full
+    uart_baudrate: 115200
+    rx_queues: 2
+    hs_page_bytes: 16384
+    strip_probes: true
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]       # honest advertisement: 48k render only
+  media_clock_sources: [internal, input_stream, crf]
+  default_source: internal
+  crf_sink: true
+  audio_pll_hz: 24576000             # TDM8 x 32-bit slots @48k -> BCLK 12.288M
+
+audio_interface:
+  kind: tdm8                         # 8 slots per direction
+  word_length_bits: 24               # 24-in-32 slots
+  cluster_mapping:
+    rule: mono-cluster-per-stream-channel
+
+streams:
+  listeners:
+    - { name: "Stream In 0", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    - { name: "Stream In 1", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    - { name: "Stream In 2", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    - { name: "Stream In 3", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    # 0x0205022001006000 = AAF PCM32 48k 4ch; 0x0215... = ut-bit 1..4 family
+  talkers:
+    - { name: "Stream Out 0", channels: 4, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 1", channels: 4, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 2", channels: 4, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 3", channels: 4, formats: ["0x0205022001006000"] }

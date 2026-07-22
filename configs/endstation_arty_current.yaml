@@ -1,0 +1,73 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config (gaps attack item 4).
+# Shape: TODAY'S REAL ARTY BUILD - 1 AAF listener + CRF sink + 1 AAF talker,
+# Philips-stereo I2S render on the Pmod I2S2 (CS4344). The builder gate
+# asserts that this config emits exactly the design flags of
+# sw/litex/sweep.sh (arty OPTS + BASE) and the descriptor counts of
+# avdecc/gen_aem_store.py's hardcoded model.
+#
+# Schema (normative for v1.0): every key below; optional keys carry their
+# defaults in sw/builder/endstation_builder.py.
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.0.0"
+
+entity:
+  name: "Milan FPGA Talker"          # AEM ENTITY object_name (<=63 bytes)
+  entity_model_id: "0x001BC50AC1000001"  # vendor EUI-64 (OUI 00-1B-C5)
+  entity_id: mac-derived             # EUI-64 from station MAC (MAC48->FF-FE)
+  vendor_name: "Kebag Logic"
+  firmware_version: "0.1.0"
+  serial_number: "ARTY-0001"
+  group_name: ""
+
+board:
+  target: arty                       # arty | ax7101
+  constraints:                       # physical facts -> milan_soc.py argv
+    sys_clk_hz: 83333000             # 83.333e6: the DDR3-666 window
+    milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
+    l2_bytes: 65536
+    phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)
+    gtx_tx_invert: false             # GMII-only knob (ax7101)
+    floorplan: false
+    flashboot: full                  # none | kernel | full (N25Q128 QSPI)
+    uart_baudrate: 115200
+    rx_queues: 2                     # flow-steered RX fan-out
+    hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
+    strip_probes: true               # area-70 ship diet
+
+clocking:
+  sampling_rate_hz: 48000            # current media clock (AAF base rate)
+  audio_unit_rates_hz: [48000, 96000, 192000]  # AUDIO_UNIT advertisement
+                                     # (today's ROM: RATES 48/96/192)
+  media_clock_sources: [internal, input_stream, crf]
+  default_source: internal           # CLOCK_DOMAIN reset source
+  crf_sink: true                     # CRF STREAM_INPUT media-clock sink
+  audio_pll_hz: 24576000             # clean MMCM audio clock (MCLK = /2)
+
+audio_interface:
+  kind: i2s_philips                  # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
+  word_length_bits: 24               # CS4344 24-bit Philips
+  cluster_mapping:
+    rule: mono-cluster-per-stream-channel
+    # each AAF stream channel -> one mono MBLA AUDIO_CLUSTER; physical
+    # interface channels bind in order to the first clusters per direction;
+    # extra stream channels are virtual, missing physical render 0
+    # (USER wire-truth 1-to-1 rule).
+
+streams:
+  listeners:
+    - name: "Stream 1"               # AAF STREAM_INPUT 0 (CRF appended after)
+      channels: 8                    # up-to-8 Milan 6.4 family
+      formats: ["0x0205022000806000", "0x0215022002006000"]
+      # 2ch-first reset default + ut-bit 1..8ch family entry (gen_aem_store)
+      buffer_length_ns: 2126000
+      clusters: 8
+  talkers:
+    - name: "Stream Output 0"
+      channels: 2                    # talker truth: stereo framer
+      formats: ["0x0205022000806000"]
+      clusters: 8                    # today's ROM keeps 8 output clusters
+                                     # (pipewire reference layout)
