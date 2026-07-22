@@ -324,8 +324,17 @@ module KL_mmcm_drp_servo #(
   wire [15:0] exp_val_w  = rd_second_r ? CFG_C0R2_P      : CFG_C0R1_P;
   wire [15:0] exp_mask_w = rd_second_r ? CFG_C0R2_MASK_P : CFG_C0R1_MASK_P;
 
+  //! ptp_now_i staged once: the live 64-bit gPTP accumulator fed a
+  //! combinational 64-bit subtract into the PI cone = the mf51 -1.9ns
+  //! violator (all 3 seeds). One cycle of staleness against the 512 ms
+  //! window is 2e-6 % - free timing.
+  logic [63:0] ptp_q_r;
+  always_ff @(posedge clk_i) begin : ptp_stage_S
+    ptp_q_r <= ptp_now_i;
+  end
+
   //! window error, clamped (a dead/garbage audio clock must not wrap the PI)
-  wire signed [63:0] span_w    = $signed(ptp_now_i - win_start_r)
+  wire signed [63:0] span_w    = $signed(ptp_q_r - win_start_r)
                                - $signed(NOM_WIN_NS_P);
   wire signed [63:0] span_n_w  = span_w <<< NORM_SHIFT_P;
   wire signed [31:0] locerr_w  = (span_n_w >  64'(ECLAMP_C)) ?  ECLAMP_C
@@ -412,12 +421,12 @@ module KL_mmcm_drp_servo #(
       if (state_r inside {ACQUIRE_S, LOCKED_S, HOLDOVER_S}) begin
         if (tick_p_w) begin
           if (!win_valid_r) begin
-            win_start_r <= ptp_now_i;
+            win_start_r <= ptp_q_r;
             win_valid_r <= 1'b1;
             tick_cnt_r  <= '0;
           end else if (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1)) begin
             tick_cnt_r  <= '0;
-            win_start_r <= ptp_now_i;
+            win_start_r <= ptp_q_r;
             ew_r        <= locerr_w - crf_rate_i;
             if (win_skip_r != '0) begin
               win_skip_r <= win_skip_r - 2'd1;
