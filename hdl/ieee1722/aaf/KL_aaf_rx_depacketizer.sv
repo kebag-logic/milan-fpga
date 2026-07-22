@@ -78,17 +78,28 @@ module KL_aaf_rx_depacketizer #(
   //! --- accept verdict from KL_avtp_rx_monitor ----------------------------
   input  wire         pdu_accept_p_i,     //! pulse: current in-flight PDU is
                                           //! bound + sid + format valid
+  input  wire [3:0]   pdu_accept_idx_i,   //! matched stream index s riding the
+                                          //! accept pulse (NXN §1.1 tuser tag;
+                                          //! constant 0 in the N=1 shape)
 
   //! --- PCM payload out (full 8-byte beats, wire byte order = S32BE) ------
   output logic [63:0] m_axis_tdata,
   output logic [7:0]  m_axis_tkeep,
   output logic        m_axis_tvalid,
   output logic        m_axis_tlast,       //! one AXIS frame per AAF PDU
+  output logic [3:0]  m_axis_tuser,       //! stream index s of this PDU's
+                                          //! payload (NXN §1.2: {tuser=s}
+                                          //! rides each buffered frame)
   input  wire         m_axis_tready,
 
   //! --- observability ------------------------------------------------------
   output logic [15:0] pdus_o,             //! payloads emitted to the ring
-  output logic [15:0] drops_o             //! whole frames lost to FIFO overflow
+  output logic [15:0] drops_o,            //! whole frames lost to FIFO overflow
+  //! per-stream attribution pulses (LCTX w11 DEPKT_CNT, NXN §1.4)
+  output logic        pdu_out_p_o,        //! pulse per emitted payload PDU
+  output logic [3:0]  pdu_out_idx_o,      //! its stream index
+  output logic        drop_p_o,           //! pulse per overflow-dropped frame
+  output logic [3:0]  drop_idx_o          //! its stream index (last-latched)
 );
 
   // ------------------------------------------------------------------ //
@@ -103,15 +114,26 @@ module KL_aaf_rx_depacketizer #(
   //! truncated right at parse-complete pulses one cycle AFTER its tlast, and
   //! an unguarded pulse would pre-approve the NEXT frame regardless of its
   //! own verdict (found by the coverage drive)
+  logic [3:0] wv_idx_r;                   //! stream index of the accepted frame
+  logic [3:0] tl_idx_r;                   //! index latched at the frame's tlast
+
   always_ff @(posedge clk_i) begin : write_verdict
     if (!rst_n) begin
       good_r     <= 1'b0;
       in_frame_r <= 1'b0;
+      wv_idx_r   <= '0;
+      tl_idx_r   <= '0;
     end
     else begin
       if (in_acc) in_frame_r <= !s_tlast_i;
       if (in_acc && s_tlast_i) good_r <= 1'b0;
       else if (pdu_accept_p_i && (in_frame_r || in_acc)) good_r <= 1'b1;
+      //! NXN §1.1: the accept pulse carries the matched stream index; the
+      //! pulse can land on the tlast-beat cycle, so the tlast latch looks at
+      //! both the held copy and the live pulse (same rule as fw_user)
+      if (pdu_accept_p_i && (in_frame_r || in_acc)) wv_idx_r <= pdu_accept_idx_i;
+      if (in_acc && s_tlast_i)
+        tl_idx_r <= pdu_accept_p_i ? pdu_accept_idx_i : wv_idx_r;
     end
   end : write_verdict
 
@@ -123,6 +145,7 @@ module KL_aaf_rx_depacketizer #(
   logic [63:0] ff_data;
   logic [7:0]  ff_keep;
   logic        ff_overflow;
+  logic        ff_good_frame;
 
   axis_fifo #(
     .DEPTH(FIFO_DEPTH_BYTES),
@@ -161,12 +184,49 @@ module KL_aaf_rx_depacketizer #(
     .m_axis_tuser (),
     .status_overflow(ff_overflow),
     .status_bad_frame(),
-    .status_good_frame(),
+    .status_good_frame(ff_good_frame),
     .status_depth(),
     .status_depth_commit(),
     .pause_req(1'b0),
     .pause_ack()
   );
+
+  // ------------------------------------------------------------------ //
+  // Stream-index side queue (NXN §1.2): the frame FIFO stores {tuser=s}   //
+  // alongside each frame. The index is only KNOWN mid-frame (it rides the //
+  // accept pulse at parse-complete), after the frame's first beats are    //
+  // already committed with per-beat user bits - so the index rides a      //
+  // small in-order side queue instead: pushed per committed-good frame    //
+  // (status_good_frame, one entry per frame the read side will see),      //
+  // popped when the read side drains that frame's tlast. Depth 64 covers  //
+  // the 2 KB FIFO's worst case (>= 56-byte committed frames = 36 max).    //
+  // ------------------------------------------------------------------ //
+  localparam int IDXQ_LOG2_C = 6;
+  logic [3:0]              idxq_r [(1 << IDXQ_LOG2_C)];
+  logic [IDXQ_LOG2_C-1:0]  idxq_wp_r, idxq_rp_r;
+
+  //! read-side frame boundary: the frame's last FIFO word is consumed
+  wire idxq_pop_w = ff_valid && ff_ready && ff_last;
+
+  always_ff @(posedge clk_i) begin : idx_queue
+    if (!rst_n) begin
+      idxq_wp_r <= '0;
+      idxq_rp_r <= '0;
+    end
+    else begin
+      //! good_frame pulses one cycle after the committing tlast write -
+      //! tl_idx_r is stable (the next frame's tlast is >= 7 beats away)
+      if (ff_good_frame) begin
+        idxq_r[idxq_wp_r] <= tl_idx_r;
+        idxq_wp_r         <= idxq_wp_r + 1'b1;
+      end
+      if (idxq_pop_w) idxq_rp_r <= idxq_rp_r + 1'b1;
+    end
+  end : idx_queue
+
+  assign m_axis_tuser  = idxq_r[idxq_rp_r];
+  assign drop_p_o      = ff_overflow;
+  assign drop_idx_o    = tl_idx_r;
 
   // ------------------------------------------------------------------ //
   // Read side: re-parse the buffered header, strip 38/42 bytes via a     //
@@ -232,8 +292,11 @@ module KL_aaf_rx_depacketizer #(
       hold_r   <= '0;
       pdus_o   <= '0;
       drops_o  <= '0;
+      pdu_out_p_o   <= 1'b0;
+      pdu_out_idx_o <= '0;
     end
     else begin
+      pdu_out_p_o <= 1'b0;
       if (ff_overflow) drops_o <= drops_o + 16'd1;
 
       case (rstate_r)
@@ -286,9 +349,11 @@ module KL_aaf_rx_depacketizer #(
                    fbyte(ff_data, 3'd3), fbyte(ff_data, 3'd2)}
                 : {48'h0, fbyte(ff_data, 3'd7), fbyte(ff_data, 3'd6)};
             if (last_beat_w) begin
-              pdus_o   <= pdus_o + 16'd1;
-              remain_r <= '0;
-              rbeat_r  <= '0;
+              pdus_o        <= pdus_o + 16'd1;
+              pdu_out_p_o   <= 1'b1;
+              pdu_out_idx_o <= idxq_r[idxq_rp_r];
+              remain_r      <= '0;
+              rbeat_r       <= '0;
               //! the beat that completed the payload may also close the
               //! frame; otherwise swallow padding/FCS-strip tail beats
               if (hold_only_w || !pop_w || !ff_last) begin
