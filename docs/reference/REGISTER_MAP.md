@@ -88,7 +88,17 @@ defaults ROM already covers full fabric resets).
 
 Order follows the `ethernet_events_t` enum in
 `hdl/common/eth_event_counter/ethernet_events.svh`; `STAT`*n* is counter lane *n*
-(`counts_o[n*32 +: 32]`), so the HW packing and the ABI stay 1:1.
+(`counts_o[n*32 +: 32]`) at offset `0x210 + 4*n`, so the HW packing and the ABI
+stay 1:1.
+
+**Lane sources (2026-07-22 "RMON never worked on silicon" fix):** the good-frame
+lanes (`0x21C`/`0x230`) are derived *inside* `milan_datapath` from its MAC AXIS
+boundary handshake (one accepted `tlast` beat = one frame) — the matching bits
+of the `i_mac_events` port are ignored, so an external MAC can never
+double-count them. The remaining lanes pass through `i_mac_events` from the
+external MAC; the LiteX/LiteEth SoCs tie that port to 0 (LiteEth exposes no
+event pulses), so on both boards those error/overflow lanes legitimately read 0
+while the good-frame lanes count real traffic.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|

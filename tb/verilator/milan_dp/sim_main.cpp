@@ -1371,6 +1371,57 @@ int main(int argc, char** argv) {
         axi_write(0x71C, 0x5);
     }
 
+    // --- RMON: MAC-boundary good-frame lanes -> ethernet_events -> snapshot ---
+    // Silicon "never worked" root cause (2026-07-22): the LiteX glue ties
+    // i_mac_events to 0, so every counter lane was structurally silent. The
+    // datapath now derives TX/RX_FIFO_GOOD_FRAME from its own MAC AXIS
+    // boundary handshake - this case pushes frames through the REAL boundary
+    // ports (the same path the SoC uses) and reads the latched lanes back
+    // over AXI. On the pre-fix RTL the good-frame checks read 0 and FAIL.
+    printf("[RMON] boundary good-frame lanes + STATS_CTRL snapshot\n");
+    {
+        enum { A_STATS_CTRL = 0x200, A_STAT_TX_UNDER = 0x210,
+               A_STAT_TX_GOOD = 0x21C, A_STAT_RX_GOOD = 0x230 };
+        // counter reset, then a clean baseline snapshot: every lane 0
+        axi_write(A_STATS_CTRL, 0x2);
+        for (int i = 0; i < 8; i++) step();
+        axi_write(A_STATS_CTRL, 0x1);
+        ck("[RMON] baseline TX_GOOD 0", axi_read(A_STAT_TX_GOOD), 0);
+        ck("[RMON] baseline RX_GOOD 0", axi_read(A_STAT_RX_GOOD), 0);
+        // traffic through the real MAC boundary: 3 TX out, 2 RX in
+        for (int k = 0; k < 3; k++) {
+            Res t = run_tx(vlan_frame(/*pcp=*/3, (uint8_t)(0x30 + k)), 400);
+            ck("[RMON] TX frame drained to MAC port", t.got ? 1 : 0, 1);
+        }
+        for (int k = 0; k < 2; k++)
+            (void)run_rx(vlan_frame(/*pcp=*/1, (uint8_t)(0x40 + k), 0x0806), 400);
+        // the snapshot is a latch: lanes hold until software re-arms
+        ck("[RMON] lanes latched (pre-re-arm TX_GOOD still 0)",
+           axi_read(A_STAT_TX_GOOD), 0);
+        axi_write(A_STATS_CTRL, 0x1);
+        ck("[RMON] TX_GOOD == 3 (0x21C)", axi_read(A_STAT_TX_GOOD), 3);
+        ck("[RMON] RX_GOOD == 2 (0x230)", axi_read(A_STAT_RX_GOOD), 2);
+        ck("[RMON] UNDERFLOW == 0 (0x210)", axi_read(A_STAT_TX_UNDER), 0);
+        // i_mac_events: MAC-internal lanes pass through; its good-frame bits
+        // are IGNORED (boundary derivation owns them - no double count)
+        dut->i_mac_events = (1u << 0) | (1u << 3) | (1u << 8);
+        step();
+        dut->i_mac_events = 0;
+        for (int i = 0; i < 4; i++) step();
+        axi_write(A_STATS_CTRL, 0x1);
+        ck("[RMON] ext UNDERFLOW pulse == 1", axi_read(A_STAT_TX_UNDER), 1);
+        ck("[RMON] ext TX_GOOD bit ignored", axi_read(A_STAT_TX_GOOD), 3);
+        ck("[RMON] ext RX_GOOD bit ignored", axi_read(A_STAT_RX_GOOD), 2);
+        // MAC-reinit release (LINK_CTRL[1] pulse, guard parked disabled)
+        // invalidates the snapshot: all-zero = "no valid snapshot"
+        axi_write(0x71C, 0x7);                     // sw_link | reinit | dis
+        for (int i = 0; i < 8; i++) step();
+        axi_write(0x71C, 0x5);                     // release -> invalidate edge
+        for (int i = 0; i < 8; i++) step();
+        ck("[RMON] reinit release zeroes TX_GOOD", axi_read(A_STAT_TX_GOOD), 0);
+        ck("[RMON] reinit release zeroes RX_GOOD", axi_read(A_STAT_RX_GOOD), 0);
+    }
+
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
     delete dut;

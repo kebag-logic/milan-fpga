@@ -270,16 +270,31 @@ and is not repeated here.
   XDC); wired in platforms/alinx_ax7101.py, in gateware from AX35 on.
 ### 5d. Additions 2026-07-22 (merge-validation + AX e1 rounds)
 
-- **RMON STATS SNAPSHOT HAS NEVER WORKED ON SILICON (both boards):**
-  `STATS_CTRL[0]` latch then read returns all-zero lanes even with
-  provable traffic (TX=305 kernel frames). Every historical RMON read
-  was an UNLATCHED (= reset-value) read and meaningless. ALSO the
-  lane offsets in this repo disagree: `ethernet_events.svh` enum
-  (9 lanes, TX_GOOD=0x210, RX_GOOD=0x224) vs REGISTER_MAP.md rows
-  (RX_GOOD=0x230). Fix the latch on silicon + reconcile the ABI docs;
-  until then no RMON-based conclusion is valid. (Lane-A's
-  invalidate-on-reinit is TB-proven but silicon-unprovable behind
-  this.)
+- ~~RMON STATS SNAPSHOT HAS NEVER WORKED ON SILICON~~ **ROOT CAUSE
+  FOUND AND FIXED IN RTL (2026-07-22 night, silicon pending):** the
+  event bus was NEVER CONNECTED on the LiteX SoCs — `milan_soc.py`
+  ties `i_i_mac_events = 0` at BOTH datapath instantiations (LiteEth
+  exposes no Forencich-style event pulses), so every counter lane was
+  structurally silent on both boards while module TBs (which drive
+  the port directly) passed. The latch/read CSR chain was always
+  correct. Fix: `milan_datapath` now derives `TX/RX_FIFO_GOOD_FRAME`
+  itself from the MAC AXIS boundary handshake (one accepted `tlast`
+  beat = one frame) and IGNORES those two bits of `i_mac_events`
+  (double-count impossible); the MAC-internal lanes (underflow/
+  overflow/bad-frame/bad-FCS) still pass through `i_mac_events` and
+  legitimately read 0 on LiteEth builds. TB: `tb/verilator/milan_dp`
+  `[RMON]` case pushes real frames through the boundary ports and
+  reads the latched lanes over AXI — 4 FAILs on the pre-fix RTL
+  (TX_GOOD/RX_GOOD = 0 with 3/2 real frames = the exact silicon
+  symptom), 158/158 after. ABI reconciled: the enum WAS already 1:1
+  with REGISTER_MAP.md (lane n at `0x210 + 4*n`: TX_GOOD = lane 3 =
+  `0x21C`, RX_GOOD = lane 8 = `0x230`); the earlier "TX_GOOD=0x210 /
+  RX_GOOD=0x224" reading of the svh was a misread (it forgot the
+  `0x210` base is lane 0) — the svh now carries the per-lane CSR
+  addresses. Silicon verification = normal sweep + flash, then:
+  traffic, `STATS_CTRL[0]`, read `0x21C`/`0x230` vs kernel counters
+  (mind the invalidate: any link-guard episode or `LINK_CTRL[1]`
+  between latch and read re-zeroes the window).
 - ~~AX7101 e1 GMII-RX hardware fault~~ **ROOT CAUSE FOUND AND FIXED
   (2026-07-22 evening): ROTTED DTB dma-ts WINDOW, not hardware.** The
   AX images flashed 06:52 carried dma-ts = 0xf0003064 — on current

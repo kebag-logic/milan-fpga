@@ -327,7 +327,10 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_m_axis_mac_tx_tready = 0,
         i_s_axis_mac_rx_tdata = 0, i_s_axis_mac_rx_tkeep = 0,
         i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
-        # MAC status (from the external MAC; constants until §A.7)
+        # MAC status (from the external MAC; constants until §A.7). i_mac_events
+        # carries only the MAC-internal RMON lanes (underflow/overflow/bad); the
+        # good-frame lanes are derived inside milan_datapath at its MAC AXIS
+        # boundary, so tying this 0 no longer zeroes TX/RX_FIFO_GOOD_FRAME.
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
         # no PHY in the stub: static toggles keep the link guard unarmed/inert
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
@@ -617,8 +620,12 @@ class MilanMAC(LiteXModule):
             o_s_axis_mac_rx_tready = rx_dp.dp.ready,
             # MAC status: up/full-duplex until MDIO link tracking lands (§A.7 refine);
             # speed = 0b10 (1G, GMII boards) or 0b01 (100M, the Arty MII DP83848).
-            # RMON event pulses (i_mac_events) are 0  -  the LiteEth core doesn't expose the
-            # same event set as the Forencich MAC, so those RMON lanes stay 0 here.
+            # RMON: LiteEth exposes no Forencich-style event pulses, so i_mac_events
+            # stays 0 - but STAT_TX/RX_FIFO_GOOD_FRAME (0x21C/0x230) now count anyway:
+            # milan_datapath derives those two lanes from its own MAC AXIS boundary
+            # handshake (2026-07-22 fix; this tie-0 was why RMON never worked on
+            # silicon - every lane was hardwired silent). The MAC-internal error/
+            # overflow lanes legitimately read 0 on LiteEth builds.
             i_i_mac_speed = (0b01 if phy_model == "mii" else 0b10),
             i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
             i_i_ethrx_tgl = self.ethrx_tgl, i_i_ethtx_tgl = self.ethtx_tgl,
