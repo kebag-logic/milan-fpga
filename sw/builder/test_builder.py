@@ -2,29 +2,47 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """
-test_builder.py - end-to-end gate for the end-station builder scaffold.
+test_builder.py - end-to-end gate for the end-station builder.
 
-Gates (gaps item 4, scaffold round):
-  1. all three example configs build end-to-end (soc argv + AEM overlay +
-     plan emitted);
-  2. endstation_arty_current emits EXACTLY today's real design flags -
-     compared against sw/litex/sweep.sh (arty OPTS + BASE, flow flags
-     excluded); the ax7101 configs must match the sweep ax7101 OPTS the
-     same way (board flags are shape-independent);
-  3. endstation_arty_current's AEM overlay descriptor counts equal the
-     hardcoded model in avdecc/gen_aem_store.py (imported, not run - the
-     ROM assembles at import, file writes only under __main__);
-  4. NxN shapes carry "planned (item 5)" marks (and non-I2S interfaces the
-     item-4 audio subtask mark) instead of failing; the current shape
-     carries none;
-  5. bad configs raise ConfigError (spot checks).
+Gates (gaps item 4, generator round):
+   1. all three example configs build end-to-end (soc argv + AEM overlay +
+      plan + sweep fragment emitted);
+   2. endstation_arty_current emits EXACTLY today's real design flags -
+      compared against sw/litex/sweep.sh (arty OPTS + BASE, flow flags
+      excluded); the ax7101 config must match the sweep ax7101 OPTS the
+      same way (board flags are shape-independent, incl. --eth-port e2);
+   3. endstation_arty_current's AEM overlay descriptor counts equal the
+      hardcoded model in avdecc/gen_aem_store.py (imported, not run - the
+      ROM assembles at import, file writes only under __main__);
+   4. NxN shapes carry "planned (item 5)" marks (and non-I2S interfaces the
+      item-4 audio subtask mark) instead of failing; the current shape
+      carries none;
+   5. bad configs raise ConfigError (spot checks incl. policy/eth_port);
+   6. per-stream STREAM_PORT layout invariants for every config: one port
+      per stream, contiguous non-overlapping cluster blocks, unique map
+      bases, map rows port-relative and in range;
+   7. BOTH cluster policies produce valid layouts for the 4x4 + 8x8 shapes,
+      and cap-at-interface actually caps (i2s 2ch variant);
+   8. hash-derived entity_model_id: deterministic (same config -> same id),
+      shape-sensitive (changed shape -> different id), OUI-prefixed;
+      arty_current honors model_id_pin = the CURRENTLY DEPLOYED id;
+   9. generated sweep_opts_<board>.sh == today's sweep.sh inline tables
+      BYTE-FOR-BYTE (OPTS string + L2) for both boards; sh -n passes on
+      sweep.sh and both fragments;
+  10. gen_aem_store.py CONSUMES the arty_current overlay (--overlay,
+      subprocess) and the generated aecp_aem_rom.svh is byte-identical to
+      the tracked hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - THE key
+      no-regression gate; the default (no-overlay) path stays byte-identical
+      too.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
 
+import copy
 import os
 import re
 import shlex
+import subprocess
 import sys
 import tempfile
 
@@ -32,6 +50,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+
+import yaml  # noqa: E402
 
 import endstation_builder as eb  # noqa: E402
 
@@ -41,10 +61,14 @@ CONFIGS = {
     "ax7101_8x8": os.path.join(ROOT, "configs/endstation_ax7101_8x8.yaml"),
 }
 OUT = os.path.join(HERE, "out")
+SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
+TRACKED_SVH = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
 
 # Flow flags: sweep.sh mechanics, never part of the end-station definition.
 FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
               "--place-directive": 1, "--output-dir": 1}
+
+DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
 
 
 def _canon(tokens):
@@ -75,13 +99,20 @@ def _canon(tokens):
     return d
 
 
+def sweep_inline(board):
+    """(OPTS string, L2 string) of sweep.sh's inline FALLBACK table for
+    <board>."""
+    txt = open(SWEEP).read()
+    m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+)', txt)
+    assert m, f"sweep.sh: no OPTS case for {board}"
+    return m.group(1), m.group(2)
+
+
 def sweep_expected(board):
     """Design-flag dict sweep.sh composes for <board> (OPTS + BASE minus
     flow flags)."""
-    txt = open(os.path.join(ROOT, "sw/litex/sweep.sh")).read()
-    m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+)', txt)
-    assert m, f"sweep.sh: no OPTS case for {board}"
-    opts, l2 = m.group(1), m.group(2)
+    txt = open(SWEEP).read()
+    opts, l2 = sweep_inline(board)
     mb = re.search(r'milan_soc\.py \$OPTS (.*?)"', txt, re.S)
     assert mb, "sweep.sh: BASE line not found"
     base = mb.group(1).replace("\\\n", " ")
@@ -97,12 +128,60 @@ def sweep_expected(board):
     return _canon(out)
 
 
+def _variant(base_path, mutate):
+    """Write a mutated copy of a config to a temp file; return its path.
+    mutate(cfg_dict) edits in place."""
+    cfg = yaml.safe_load(open(base_path))
+    mutate(cfg)
+    f = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False)
+    yaml.safe_dump(cfg, f)
+    f.close()
+    return f.name
+
+
+def check_port_layout(ovl, n_listeners, n_talkers):
+    """USER-decision invariants: one STREAM_PORT per stream, contiguous
+    non-overlapping cluster blocks, unique per-port map bases, one map per
+    port with port-relative in-range rows."""
+    P_in = ovl["stream_ports"]["input"]
+    P_out = ovl["stream_ports"]["output"]
+    dc = ovl["descriptor_counts"]
+    assert len(P_in) == n_listeners == dc["STREAM_PORT_INPUT"]
+    assert len(P_out) == n_talkers == dc["STREAM_PORT_OUTPUT"]
+    # contiguous, non-overlapping, input block before output block
+    base = 0
+    for p in P_in + P_out:
+        assert p["base_cluster"] == base, \
+            f"port cluster blocks not contiguous: {p} (expect base {base})"
+        assert p["clusters"] >= 1
+        base += p["clusters"]
+    assert dc["AUDIO_CLUSTER"] == base
+    # map bases: unique, one per port, densely covering 0..n_maps-1
+    bases = [p["base_map"] for p in P_in + P_out]
+    assert sorted(bases) == list(range(len(bases))), f"map bases overlap: {bases}"
+    assert all(p["maps"] == 1 for p in P_in + P_out)
+    assert dc["AUDIO_MAP"] == len(bases) == len(ovl["audio_maps"])
+    # per-map rows: correct stream, port-relative offsets in range
+    by_index = {m["index"]: m for m in ovl["audio_maps"]}
+    for direction, ports in (("input", P_in), ("output", P_out)):
+        for p in ports:
+            m = by_index[p["base_map"]]
+            assert m["direction"] == direction and m["port_index"] == p["index"]
+            assert len(m["mappings"]) == p["clusters"]
+            for (si, ch, off, cch) in m["mappings"]:
+                assert si == p["stream_index"]
+                assert 0 <= off < p["clusters"], \
+                    f"map {m['index']}: offset {off} outside port ({p})"
+                assert cch == 0
+
+
 def test_all_configs_build():
     for name, path in CONFIGS.items():
         r = eb.build(path, OUT)
         for p in r["paths"].values():
             assert os.path.getsize(p) > 0, f"{name}: empty {p}"
         assert r["overlay"]["_schema"] == "kebag-logic/aem-overlay"
+        assert r["overlay"]["_schema_version"].startswith("2.")
         print(f"  [gate 1] {name}: builds end-to-end "
               f"({os.path.relpath(os.path.dirname(r['paths']['soc_params']), ROOT)}/)")
 
@@ -117,8 +196,9 @@ def test_current_shape_matches_sweep_flags():
         r = eb.build(CONFIGS[name], OUT)
         got, want = _canon(r["argv"]), sweep_expected("ax7101")
         assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
+        assert got["--eth-port"] == ["e2"], "ax7101 must carry --eth-port e2"
         print(f"  [gate 2] {name} argv == sweep.sh ax7101 design flags "
-              f"({len(got)} flags)")
+              f"({len(got)} flags, incl --eth-port e2)")
 
 
 def test_current_shape_matches_gen_aem_store():
@@ -144,12 +224,14 @@ def test_current_shape_matches_gen_aem_store():
     assert [int(f, 16) for f in ovl["stream_outputs"][0]["formats"]] == g.OUT_FORMATS
     rate_hz = {0x0000BB80: 48000, 0x00017700: 96000, 0x0002EE00: 192000}
     assert [rate_hz[x] for x in g.RATES] == ovl["sampling_rates_hz"]
-    # port layout identical (8,0,1,0 / 8,8,1,1)
-    sp = ovl["stream_ports"]
-    assert (sp["input"]["clusters"], sp["input"]["base_cluster"],
-            sp["input"]["maps"], sp["input"]["base_map"]) == (8, 0, 1, 0)
-    assert (sp["output"]["clusters"], sp["output"]["base_cluster"],
-            sp["output"]["maps"], sp["output"]["base_map"]) == (8, 8, 1, 1)
+    # port layout identical to the deployed ROM (1 port/stream: 8@0 map 0 /
+    # 8@8 map 1)
+    p_in, p_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
+    assert len(p_in) == 1 and len(p_out) == 1
+    assert (p_in[0]["clusters"], p_in[0]["base_cluster"],
+            p_in[0]["maps"], p_in[0]["base_map"]) == (8, 0, 1, 0)
+    assert (p_out[0]["clusters"], p_out[0]["base_cluster"],
+            p_out[0]["maps"], p_out[0]["base_map"]) == (8, 8, 1, 1)
     print(f"  [gate 3] arty_current overlay == gen_aem_store model "
           f"({len(ovl['descriptor_counts'])} descriptor types, formats, "
           f"rates, port layout)")
@@ -171,16 +253,19 @@ def test_capability_marks():
 
 
 def test_bad_configs_rejected():
-    import yaml
     base = yaml.safe_load(open(CONFIGS["arty_current"]))
     cases = [
         ("phy contradiction", ["board", "constraints", "phy"], "gmii-1g"),
         ("bad interface", ["audio_interface", "kind"], "adat"),
         ("bad rate", ["clocking", "sampling_rate_hz"], 44100),
         ("gmii knob on arty", ["board", "constraints", "gtx_tx_invert"], True),
+        ("eth_port on single-PHY arty", ["board", "constraints", "eth_port"], "e2"),
+        ("unknown cluster policy", ["audio_interface", "cluster_mapping",
+                                    "policy"], "per-channel"),
+        ("legacy cluster rule key", ["audio_interface", "cluster_mapping",
+                                     "rule"], "mono-cluster-per-stream-channel"),
     ]
     for label, path, val in cases:
-        import copy
         c = copy.deepcopy(base)
         d = c
         for k in path[:-1]:
@@ -199,13 +284,171 @@ def test_bad_configs_rejected():
                 raise AssertionError(f"{label}: accepted invalid config")
         finally:
             os.unlink(p)
-    print("  [gate 5] 4/4 invalid configs rejected with ConfigError")
+    print(f"  [gate 5] {len(cases)}/{len(cases)} invalid configs rejected "
+          "with ConfigError")
+
+
+def test_port_layout_invariants():
+    shapes = {"arty_current": (1, 1), "arty_4x4": (4, 4), "ax7101_8x8": (8, 8)}
+    for name, (nl, nt) in shapes.items():
+        r = eb.build(CONFIGS[name], OUT)
+        check_port_layout(r["overlay"], nl, nt)
+        dc = r["overlay"]["descriptor_counts"]
+        print(f"  [gate 6] {name}: {nl}+{nt} stream ports, "
+              f"{dc['AUDIO_CLUSTER']} clusters, {dc['AUDIO_MAP']} maps - "
+              "invariants hold")
+
+
+def test_both_policies_valid():
+    for name, (nl, nt) in (("arty_4x4", (4, 4)), ("ax7101_8x8", (8, 8))):
+        for pol in eb.CLUSTER_POLICIES:
+            p = _variant(CONFIGS[name], lambda c, pol=pol: c[
+                "audio_interface"]["cluster_mapping"].__setitem__("policy", pol))
+            try:
+                r = eb.build(p, os.path.join(OUT, "_policy_variants"))
+                check_port_layout(r["overlay"], nl, nt)
+                assert r["overlay"]["cluster_policy"] == pol
+            finally:
+                os.unlink(p)
+        print(f"  [gate 7] {name}: both cluster policies -> valid layouts")
+    # cap-at-interface must actually CAP: 8ch listeners on a 2ch i2s
+    def to_i2s(c):
+        c["audio_interface"]["kind"] = "i2s_philips"
+        c["audio_interface"]["cluster_mapping"]["policy"] = "cap-at-interface"
+    p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
+    try:
+        r = eb.build(p, os.path.join(OUT, "_policy_variants"))
+        check_port_layout(r["overlay"], 8, 8)
+        for port in r["overlay"]["stream_ports"]["input"]:
+            assert port["clusters"] == 2, f"cap-at-interface did not cap: {port}"
+        assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == 8 * 2 + 8 * 2
+    finally:
+        os.unlink(p)
+    print("  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s "
+          "interface (32 clusters total)")
+    # cluster-per-stream-channel must NOT cap (legacy-8 expressible)
+    def legacy(c):
+        c["audio_interface"]["cluster_mapping"]["policy"] = \
+            "cluster-per-stream-channel"
+        for t in c["streams"]["talkers"]:
+            t["clusters"] = 8
+    p = _variant(CONFIGS["arty_4x4"], legacy)
+    try:
+        r = eb.build(p, os.path.join(OUT, "_policy_variants"))
+        check_port_layout(r["overlay"], 4, 4)
+        for port in r["overlay"]["stream_ports"]["output"]:
+            assert port["clusters"] == 8
+    finally:
+        os.unlink(p)
+    print("  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout "
+          "expressible")
+
+
+def test_model_id_hashing():
+    # determinism: same config -> same id (two independent loads)
+    a = eb.load_config(CONFIGS["arty_4x4"])
+    b = eb.load_config(CONFIGS["arty_4x4"])
+    assert a["model_id"]["value"] == b["model_id"]["value"]
+    assert a["model_id"]["source"] == "hash"
+    # OUI prefix folded in
+    v = int(a["model_id"]["value"], 16)
+    assert v >> 40 == eb.MODEL_ID_OUI, f"id {v:#018x} lacks the OUI prefix"
+    # shape sensitivity: any model-shaping change -> different id
+    ids = {a["model_id"]["value"]}
+    for label, mutate in (
+        ("talker clusters", lambda c: c["streams"]["talkers"][0]
+         .__setitem__("clusters", 4)),
+        ("cluster policy", lambda c: c["audio_interface"]["cluster_mapping"]
+         .__setitem__("policy", "cluster-per-stream-channel")),
+        ("listener channels", lambda c: c["streams"]["listeners"][0]
+         .__setitem__("channels", 2)),
+    ):
+        p = _variant(CONFIGS["arty_4x4"], mutate)
+        try:
+            v2 = eb.load_config(p)["model_id"]["value"]
+        finally:
+            os.unlink(p)
+        assert v2 not in ids, f"{label}: shape change did not change the id"
+        ids.add(v2)
+    # board/name changes must NOT change the id (model != instance)
+    def rename(c):
+        c["entity"]["name"] = "Other Name"
+        c["entity"]["serial_number"] = "OTHER-9999"
+    p = _variant(CONFIGS["arty_4x4"], rename)
+    try:
+        assert eb.load_config(p)["model_id"]["value"] == a["model_id"]["value"]
+    finally:
+        os.unlink(p)
+    # 4x4 and 8x8 shapes differ
+    e88 = eb.load_config(CONFIGS["ax7101_8x8"])
+    assert e88["model_id"]["value"] != a["model_id"]["value"]
+    assert e88["model_id"]["source"] == "hash"
+    # pinned id honored on arty_current (deployed silicon identity)
+    cur = eb.load_config(CONFIGS["arty_current"])
+    assert cur["model_id"]["source"] == "pin"
+    assert cur["entity"]["entity_model_id"] == DEPLOYED_MODEL_ID
+    assert cur["model_id"]["hash"] != DEPLOYED_MODEL_ID  # pin != hash: pin wins
+    print("  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive "
+          "(3 mutations), instance-field-insensitive, 4x4 != 8x8, "
+          f"arty_current pinned to {DEPLOYED_MODEL_ID}")
+
+
+def test_sweep_opts_fragments():
+    frag = {}
+    for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
+        r = eb.build(CONFIGS[cfg_name], OUT)
+        p = r["paths"]["sweep_opts"]
+        assert os.path.basename(p) == f"sweep_opts_{board}.sh"
+        txt = open(p).read()
+        m = re.search(r'^OPTS="([^"]*)"\nL2=(\d+)\n', txt, re.M)
+        assert m, f"{p}: fragment lacks OPTS/L2"
+        frag[board] = (m.group(1), m.group(2), p)
+    for board, (opts, l2, p) in frag.items():
+        want_opts, want_l2 = sweep_inline(board)
+        assert opts == want_opts, (f"{board}: fragment OPTS != sweep.sh inline\n"
+                                   f" frag   {opts!r}\n inline {want_opts!r}")
+        assert l2 == want_l2, f"{board}: fragment L2 {l2} != inline {want_l2}"
+        print(f"  [gate 9] {board}: generated OPTS/L2 byte-match sweep.sh "
+              f"inline table ({len(opts)} chars)")
+    for path in [SWEEP] + [p for (_o, _l, p) in frag.values()]:
+        subprocess.run(["sh", "-n", path], check=True)
+    print("  [gate 9] sh -n clean: sweep.sh + both fragments")
+
+
+def test_gen_aem_store_consumes_overlay():
+    r = eb.build(CONFIGS["arty_current"], OUT)
+    tracked = open(TRACKED_SVH, "rb").read()
+    with tempfile.TemporaryDirectory() as td:
+        # THE key no-regression gate: builder overlay -> gen_aem_store ->
+        # byte-identical ROM svh for the deployed shape
+        subprocess.run(
+            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+             "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+            check=True, capture_output=True)
+        got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
+        assert got == tracked, (
+            "overlay-built aecp_aem_rom.svh differs from the tracked ROM "
+            f"({len(got)} vs {len(tracked)} bytes)")
+        print(f"  [gate 10] arty_current overlay -> gen_aem_store --overlay: "
+              f"svh BYTE-IDENTICAL to tracked ROM ({len(got)} B)")
+    with tempfile.TemporaryDirectory() as td:
+        # refactor guard: the default (builtin) path is unchanged too
+        subprocess.run(
+            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+             "--out-dir", td], check=True, capture_output=True)
+        got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
+        assert got == tracked, "default-path svh regressed"
+        print("  [gate 10] gen_aem_store default path: svh byte-identical "
+              "(refactor guard)")
 
 
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
-               test_capability_marks, test_bad_configs_rejected):
+               test_capability_marks, test_bad_configs_rejected,
+               test_port_layout_invariants, test_both_policies_valid,
+               test_model_id_hashing, test_sweep_opts_fragments,
+               test_gen_aem_store_consumes_overlay):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

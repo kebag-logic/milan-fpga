@@ -9,11 +9,15 @@
 # marked "planned" in the build plan (items 5 / 4-audio subtask).
 
 schema: kebag-logic/milan-endstation-config
-schema_version: "1.0.0"
+schema_version: "1.1.0"
 
 entity:
   name: "Milan FPGA 4x4"
-  entity_model_id: "0x001BC50AC1000003"
+  entity_model_id: hash-derived      # EUI-64 from the model shape (recipe in
+                                     # sw/builder/README-parameters.md); same
+                                     # shape -> same id, shape change -> new
+                                     # id. No pin: nothing flashed with this
+                                     # shape yet.
   entity_id: mac-derived
   vendor_name: "Kebag Logic"
   firmware_version: "0.1.0"
@@ -47,7 +51,8 @@ audio_interface:
   kind: tdm8                         # 8 slots per direction
   word_length_bits: 24               # 24-in-32 slots
   cluster_mapping:
-    rule: mono-cluster-per-stream-channel
+    policy: cap-at-interface         # clusters model real endpoints only:
+                                     # per stream min(clusters, 8 TDM slots)
 
 streams:
   listeners:
@@ -56,8 +61,14 @@ streams:
     - { name: "Stream In 2", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
     - { name: "Stream In 3", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
     # 0x0205022001006000 = AAF PCM32 48k 4ch; 0x0215... = ut-bit 1..4 family
+    # clusters default = channels (4 mono clusters per stream port)
   talkers:
-    - { name: "Stream Out 0", channels: 4, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 1", channels: 4, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 2", channels: 4, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 3", channels: 4, formats: ["0x0205022001006000"] }
+    # clusters = the single authority for the talker's cluster count; ships
+    # WIRE TRUTH 2 (today's framer RTL is stereo - only 2 physical channels
+    # exist behind any talker stream until the item-5 NxN talker lands;
+    # raise together with that RTL). The legacy-8 layout stays expressible
+    # (see endstation_arty_current.yaml).
+    - { name: "Stream Out 0", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 1", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 2", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 3", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
