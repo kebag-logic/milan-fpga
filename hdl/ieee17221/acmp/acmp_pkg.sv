@@ -79,6 +79,31 @@ package acmp_pkg;
   //! ADP availability aging: valid_time horizon (Milan valid_time 62 s)
   localparam [6:0]  LSM_ADP_AGE_S_C      = 7'd63;
 
+  // ------------------------------------------------------------------ //
+  // Listener BIND CONTEXT record (KL_acmp_lstn_ctx table entry).         //
+  // One record per listener sink (listener_unique_id); the whole SM      //
+  // state of a sink lives here so N sinks share one machine + one RAM.   //
+  // An all-zero record is a valid UNBOUND context (post-reset init).     //
+  // ------------------------------------------------------------------ //
+  typedef struct packed {
+    acmp_lsm_t   state;     //! Milan 5.5.3 binding-SM state
+    logic        active;    //! sink open (drives lstn_declare/stream_active)
+    logic        tk_avail;  //! bound talker ADP-visible
+    logic [1:0]  probing;   //! 0 dis / 1 passive / 2 active / 3 done
+    logic [4:0]  status;    //! last probe status / timeout
+    logic [6:0]  adp_age;   //! seconds since the talker's last ADPDU
+    logic [13:0] tmr;       //! shared-wheel countdown, ms; 0 = disarmed
+    logic [15:0] tuid;      //! bound talker_unique_id
+    logic [15:0] flags;     //! stored binding flags (STREAMING_WAIT etc.)
+    logic [11:0] vlan;      //! stream_vlan_id from the probe response
+    logic [47:0] dmac;      //! stream_dest_mac (probe response / bind cmd)
+    logic [63:0] sid;       //! stream_id (policy: derived or explicit)
+    logic [63:0] talker;    //! bound talker_entity_id
+    logic [63:0] ctlr;      //! binding controller_entity_id
+  } acmp_lstn_ctx_t;
+
+  localparam int ACMP_LSTN_CTX_W_C = $bits(acmp_lstn_ctx_t);   //! 317
+
 endpackage
 
 `default_nettype wire
