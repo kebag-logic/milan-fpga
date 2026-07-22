@@ -485,7 +485,32 @@ class MilanMAC(LiteXModule):
         self.sync.eth_tx += self.ethtx_tgl.eq(~self.ethtx_tgl)
         self.sync.eth_rx += If(self.phy.source.valid & self.phy.source.last,
                                self.ethact_tgl.eq(~self.ethact_tgl))
-        self.core = ClockDomainsRenamer({"sys": "macsys"})(
+        # Sequenced eth-side CDC reset (gaps 5 RTL fix, 2026-07-22): the guard's
+        # `eth_rst` re-initializes the MAC core's ETH-side CDC halves in hardware.
+        # The MAC's eth domains are derived copies (maceth_tx/maceth_rx) whose reset
+        # is the PHY domain reset OR the guard request, async-asserted / sync-released
+        # per eth clock (AsyncResetSynchronizer: asserts even while the eth clock is
+        # stopped, releases only on a running clock). The guard drops eth_rst
+        # mid-settle - strictly BEFORE `reinit` - so both CDC halves restart from
+        # matched pointers with zero software involvement (previously only the
+        # daemon's phy_crg_reset strobe covered the eth side).
+        from migen.genlib.resetsync import AsyncResetSynchronizer
+        self.eth_rst = Signal()  # driven from the datapath's link guard (o_eth_rst)
+        self.cd_maceth_tx = ClockDomain()
+        self.cd_maceth_rx = ClockDomain()
+        self.comb += [
+            self.cd_maceth_tx.clk.eq(ClockSignal("eth_tx")),
+            self.cd_maceth_rx.clk.eq(ClockSignal("eth_rx")),
+        ]
+        self.specials += [
+            AsyncResetSynchronizer(self.cd_maceth_tx,
+                                   ResetSignal("eth_tx") | self.eth_rst),
+            AsyncResetSynchronizer(self.cd_maceth_rx,
+                                   ResetSignal("eth_rx") | self.eth_rst),
+        ]
+        self.core = ClockDomainsRenamer({"sys":    "macsys",
+                                         "eth_tx": "maceth_tx",
+                                         "eth_rx": "maceth_rx"})(
                         LiteEthMACCore(phy=self.phy, dw=data_width,
                                        with_preamble_crc=True, with_padding=True))
         # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
@@ -583,6 +608,7 @@ class MilanMAC(LiteXModule):
         self.i2s_dac_pads = None
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
+            o_o_eth_rst         = self.eth_rst,
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,

@@ -143,10 +143,17 @@ and is not repeated here.
 
 ## 5. Robustness items carried as workarounds (not spec gaps)
 
-- **AX GMII link-bounce CDC desync**: recovered by the linkmon software
-  self-heal (LINK_CTRL[1] MAC reinit + phy reset). The RTL-level fix —
-  decoupling/re-initializing the LiteEth CDC on clock-loss — remains
-  owed; until then a link event costs the ~5–20 s recovery path.
+- **AX GMII link-bounce CDC desync**: RESOLVED in RTL 2026-07-22. The
+  link guard now sequences BOTH CDC halves: `eth_rst_o` (KL_link_guard,
+  LINKG_STAT[2]) asserts with `reinit_o` on clock death, holds through
+  the first half of SETTLE (clean clocked reset cycles for the eth-side
+  halves via per-eth-domain AsyncResetSynchronizers on the MAC's derived
+  maceth_tx/maceth_rx domains, milan_soc.py), and releases mid-settle —
+  strictly before the sys side — so both pointer sets restart matched
+  with zero software involvement. The LINK_CTRL[1] manual strobe stays
+  sys-only (the daemon owns phy_crg_reset in that flow). TB:
+  tb/verilator/link_guard (sequencing + re-death re-arm + disable).
+  NOT yet bench-proven: needs a gateware build + link-bounce drill.
 - **Arty link detection is an RX-liveness heuristic** (the MII-PMOD MDIO
   floats). No true carrier state; a totally idle-but-up network segment
   would read as link-down after the quiet threshold (gPTP makes this
