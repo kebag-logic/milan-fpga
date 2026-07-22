@@ -48,15 +48,17 @@ static std::vector<uint8_t> wait_tx(int budget){
     return f;
 }
 
-// inject a MAAP PDU on the RX tap (untagged, 60B padded)
+// inject a MAAP PDU on the RX tap (untagged, 60B padded); maap_version
+// defaults to the reference's 1 (byte 16 = version<<3 | len[10:8])
 static void inject(uint8_t msg, uint16_t req_off, uint16_t req_cnt,
-                   uint16_t conf_off, uint16_t conf_cnt, bool conf_pool=true){
+                   uint16_t conf_off, uint16_t conf_cnt, bool conf_pool=true,
+                   uint8_t maap_ver=1){
     uint8_t f[64]; memset(f,0,sizeof f);
     const uint8_t dst[6]={0x91,0xE0,0xF0,0x00,0xFF,0x00};
     const uint8_t src[6]={0x66,0x77,0x88,0x99,0xAA,0xBB};
     memcpy(f,dst,6); memcpy(f+6,src,6);
     f[12]=0x22; f[13]=0xF0; f[14]=0xFE; f[15]=msg;
-    f[16]=0x08; f[17]=0x1C;
+    f[16]=(uint8_t)((maap_ver&0x1F)<<3); f[17]=0x1C;
     f[26]=0x91; f[27]=0xE0; f[28]=0xF0; f[29]=0x00;
     f[30]=req_off>>8; f[31]=req_off;
     f[32]=req_cnt>>8; f[33]=req_cnt;
@@ -185,6 +187,33 @@ int main(int argc,char**argv){
     cyc(50);
     ck("offset stable", dut->offset_o, off2);
     ck("conflicts still 2", dut->conflicts_o, 2);
+
+    printf("\n[8b] maap_version handling (traceability MAAP-6, IEEE 1722-2016\n"
+           "     B.2.3.2: a future-version PDU must STILL count as a conflict\n"
+           "     for its ranges; lower/equal versions processed normally)\n");
+    {
+        // higher version (7): conflicting ANNOUNCE must still re-address —
+        // the RX parse is deliberately version-agnostic (ethertype/subtype/
+        // msg_type only), so newer talkers keep defending their ranges
+        uint16_t offv = dut->offset_o;
+        inject(3, 0, 0, offv, 8, /*conf_pool=*/true, /*maap_ver=*/7);
+        cyc(50);
+        ck("ver7: conflict honored (re-address)", dut->offset_o != offv, 1);
+        ck("ver7: conflicts = 3", dut->conflicts_o, 3);
+        // version 0 (lower than ours): conflicting DEFEND processed the same
+        uint16_t offw = dut->offset_o;
+        inject(2, 0, 0, offw, 8, /*conf_pool=*/true, /*maap_ver=*/0);
+        cyc(50);
+        ck("ver0: conflict honored (re-address)", dut->offset_o != offw, 1);
+        ck("ver0: conflicts = 4", dut->conflicts_o, 4);
+        // higher version with a DISJOINT range stays ignored (no false
+        // conflict from the version bits landing in the wrong cone)
+        uint16_t offx = dut->offset_o;
+        inject(3, 0, 0, (uint16_t)(offx+2000), 8, true, 7);
+        cyc(50);
+        ck("ver7 disjoint: ignored", dut->offset_o, offx);
+        ck("ver7 disjoint: conflicts still 4", dut->conflicts_o, 4);
+    }
 
     printf("\n[9] disable -> IDLE; seeded re-enable claims the seed\n");
     dut->enable_i=0; cyc(5);
