@@ -204,7 +204,8 @@ class MilanNIC(LiteXModule):
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
-                 rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1):
+                 rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
+                 audio_if_slots=0):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -228,7 +229,8 @@ class MilanNIC(LiteXModule):
         add_milan_datapath(self, platform, axil, ev.csr.trigger,
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
-                           milan_clk_hz=milan_clk_hz, num_streams=num_streams)
+                           milan_clk_hz=milan_clk_hz, num_streams=num_streams,
+                           audio_if_slots=audio_if_slots)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -277,14 +279,14 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
-    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     "hdl/common/csr/milan_csr.sv", "hdl/milan/milan_datapath.sv",
 ]
 
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
-                       milan_clk_hz=100_000_000, num_streams=1):
+                       milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -341,6 +343,10 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
         # no PHY in the stub: static toggles keep the link guard unarmed/inert
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
+        # TDM bus (item-4 front-end family): only sampled when
+        # AUDIO_IF_SLOTS_P > 0; neither board has a TDM header today, so a
+        # platform extension overrides these via extra_ports when it lands.
+        i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0,
         # P12: the 0x800 window's LCTX/TCTX/ACMP-tbl engine boundary moved
         # INSIDE milan_datapath (wired to the live monitor_ctx/packetizer/
         # acmp engines) - the P11 inert ties are gone with the ports.
@@ -358,9 +364,14 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # N_STREAMS: NxN dataplane width (docs/NXN_ARCHITECTURE.md P0). The builder
     # emits --num-streams in soc_params for the 4x4/8x8 shapes; default 1 =
     # today's bit-compatible single-stream build.
+    # AUDIO_IF_SLOTS_P: item-4 audio-interface family front-end generate
+    # select (0 = stereo I2S default, 8/16/32 = KL_tdm_capture TDM slave).
+    # The builder emits --audio-interface for the tdm kinds; default 0 keeps
+    # the shipping I2S build bit-identical.
     host.specials += Instance("milan_datapath",
                               p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
-                              p_N_STREAMS=int(num_streams), **ports)
+                              p_N_STREAMS=int(num_streams),
+                              p_AUDIO_IF_SLOTS_P=int(audio_if_slots), **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
     # cycle combinational constant-divide cones (~9.3K LUTs over 4 queues,
@@ -3644,7 +3655,7 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
-                 num_streams=1, **kwargs):
+                 num_streams=1, audio_if_slots=0, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3873,7 +3884,8 @@ class MilanSoC(SoCCore):
                                   rx1_irq=(self.milan_dma.rx1.non_empty
                                            if (with_dma and rx_queues >= 2) else None),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
-                                  num_streams=int(num_streams))
+                                  num_streams=int(num_streams),
+                                  audio_if_slots=int(audio_if_slots))
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -3964,6 +3976,13 @@ def main():
                          "contexts per shared engine (milan_datapath N_STREAMS). The "
                          "builder emits this from the config's streams section; default "
                          "1 = today's bit-compatible single-stream shape.")
+    ap.add_argument("--audio-interface", default="i2s_philips",
+                    choices=("i2s_philips", "tdm8", "tdm16", "tdm32"),
+                    help="item-4 audio-interface family: capture front-end generate "
+                         "select (milan_datapath AUDIO_IF_SLOTS_P). i2s_philips (default) "
+                         "= the stereo I2S master front-end, bit-identical to the shipping "
+                         "build; tdmN = the KL_tdm_capture N-slot TDM slave (the builder "
+                         "emits this from audio_interface.kind).")
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
@@ -4071,6 +4090,8 @@ def main():
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
+                   audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
+                                   "tdm32": 32}[args.audio_interface],
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
                    rx_fifo_beats=int(args.rx_fifo_beats),

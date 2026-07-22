@@ -40,6 +40,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
   parameter int N_STREAMS = 1,
+  //! item-4 audio-interface family: capture front-end generate select.
+  //! 0 = stereo I2S master (KL_aaf_capture_i2s, the default - byte/pin
+  //! compatible); 8/16/32 = TDM slave with that many slots
+  //! (KL_tdm_capture; tdm_* pins live, i2s sclk/lrck parked, i2s_mclk_o
+  //! carries the codec MCLK, TONE_CTRL pilot override has no effect).
+  parameter int AUDIO_IF_SLOTS_P = 0,
 parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
 )(
@@ -76,6 +82,10 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   output wire                     i2s_sclk_o,
   output wire                     i2s_lrck_o,
   input  wire                     i2s_sdout_i,
+  // ---- TDM bus (AUDIO_IF_SLOTS_P > 0; we are slave - tie 0 when unused) ----
+  input  wire                     tdm_bclk_i,
+  input  wire                     tdm_fsync_i,
+  input  wire                     tdm_data_i,
   // ---- Pmod I2S2 DAC (line-out): zero-CPU playback of the bound stream ----
   output wire                     i2s_dac_mclk_o,
   output wire                     i2s_dac_sclk_o,
@@ -214,16 +224,39 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [3:0]  aafcap_slot_w;
   wire [23:0] aafcap_l_w, aafcap_r_w;
 
-  KL_aaf_capture_i2s aaf_capture (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .clk_audio_i (clk_audio_i),
-    .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
-    .i2s_mclk_o (i2s_mclk_o), .i2s_sclk_o (i2s_sclk_o),
-    .i2s_lrck_o (i2s_lrck_o), .i2s_sdout_i (i2s_sdout_i),
-    .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
-    .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
-    .pairs_captured_o (aaf_pairs_w)
-  );
+  //! item-4 front-end select: the pair-stream contract is identical, so
+  //! only the physical half swaps (I2S master vs TDM slave deserializer).
+  generate if (AUDIO_IF_SLOTS_P == 0) begin : g_aif_i2s
+    KL_aaf_capture_i2s aaf_capture (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .clk_audio_i (clk_audio_i),
+      .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
+      .i2s_mclk_o (i2s_mclk_o), .i2s_sclk_o (i2s_sclk_o),
+      .i2s_lrck_o (i2s_lrck_o), .i2s_sdout_i (i2s_sdout_i),
+      .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
+      .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
+      .pairs_captured_o (aaf_pairs_w)
+    );
+  end else begin : g_aif_tdm
+    //! TDM slave (pulse or 50%-duty fsync, Philips-heritage 1-bit data
+    //! delay, 32-bclk slots). The TONE_CTRL pilot override is an I2S-bench
+    //! feature and does not reach this front-end (tone_smp unused here).
+    KL_tdm_capture #(
+      .SLOTS_P      (AUDIO_IF_SLOTS_P),
+      .WORD_BITS_P  (32),
+      .DATA_DELAY_P (1'b1)
+    ) aaf_capture (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .clk_audio_i (clk_audio_i),
+      .tdm_mclk_o (i2s_mclk_o), .tdm_bclk_i (tdm_bclk_i),
+      .tdm_fsync_i (tdm_fsync_i), .tdm_data_i (tdm_data_i),
+      .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
+      .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
+      .pairs_captured_o (aaf_pairs_w)
+    );
+    assign i2s_sclk_o = 1'b0;
+    assign i2s_lrck_o = 1'b0;
+  end endgenerate
 
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
