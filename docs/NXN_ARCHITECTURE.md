@@ -87,15 +87,21 @@ side emits `{s, pcm beats}`.
 
 ### 1.3 PCM routing policy
 
-Each listener context carries a 2-bit `route` field:
+Each listener context carries a 2-bit `route` field of INDEPENDENT flags
+(reworked from the P3 exclusive enum per the ALSA driver design feedback,
+the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` open question 4):
 
-| route | Meaning |
-|-------|---------|
-| 0 `NULL` | Depacketized PCM discarded (monitor still counts — [M-5.3.8.10] counters run regardless of rendering) |
-| 1 `RENDER` | Feeds the physical render path: LPF (x1, engages per today's `chans==2` rule) → `KL_i2s_playback`/TDM serializer. **Exactly one stream may be RENDER; if the CSR ever holds several, the lowest-indexed enabled RENDER stream wins (deterministic rule, RTL-enforced).** |
-| 2 `DMA` | Depacketized PCM written to the per-stream PCM DMA ring in DRAM (ring base + `s`·ring_stride, the existing LiteX PCM-ring DMA generalized with an index) — the capture-PCM feed for roadmap item 7 (ALSA). |
+| bit | Flag | Meaning |
+|-----|------|---------|
+| 0 | `DMA` | Depacketized PCM written to the per-stream PCM DMA ring in DRAM (ring base + `s`·ring_stride, the existing LiteX PCM-ring DMA generalized with an index) — the capture-PCM feed for roadmap item 7 (ALSA). |
+| 1 | `RENDER` | Feeds the physical render path: LPF (x1, engages per today's `chans==2` rule) → `KL_i2s_playback`/TDM serializer. **Exactly one stream renders; if several carry the flag, the lowest-indexed one wins (deterministic rule, RTL-enforced).** |
 
-Default at reset: stream 0 = RENDER, others NULL — the N=1 shape is
+`0b00` = NULL (discarded — monitor still counts, [M-5.3.8.10] counters run
+regardless of rendering); `0b11` = RENDER|DMA = capture-while-rendering.
+Mapping from the P3 enum: `0 NULL`→`0b00`, `1 RENDER`→`0b11` (P3's RENDER
+de-facto also forwarded the ring copy), `2 DMA`→`0b01`.
+
+Default at reset: stream 0 = RENDER|DMA, others NULL — the N=1 shape is
 bit-identical to today. The render path (LPF, playback walker, wire-truth
 1-to-1 channel rule per AAF-4/M-FMT-2) is instantiated ONCE; `wire_chans`
 delivered to the walker is the RENDER stream's context field.

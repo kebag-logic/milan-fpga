@@ -10,31 +10,42 @@
 
   Date        : 2026-07-22
   Description : NxN PCM routing policy (docs/NXN_ARCHITECTURE.md §1.3,
-                phase P3). Sits between the shared AAF RX depacketizer
-                (payload AXIS + tuser stream index) and the sinks:
+                phase P3; flag rework per the ALSA driver design feedback,
+                the-private-test-repo fpga/docs/ALSA_DRIVER_DESIGN.md open
+                question 4). Sits between the shared AAF RX depacketizer
+                (payload AXIS + tuser stream index) and the sinks.
 
-                  route 0 NULL   - payload discarded (the monitor still
-                                   counts, [M-5.3.8.10])
-                  route 1 RENDER - feeds the physical render path (LPF +
-                                   KL_i2s_playback). Exactly one stream
-                                   renders; if several are configured
-                                   RENDER, the LOWEST-indexed one wins
-                                   (deterministic rule, RTL-enforced).
-                  route 2 DMA    - payload to the per-stream PCM DMA ring
-                                   (ring base + s*stride at the SoC layer;
-                                   the ring output carries tuser = s).
+                The 2-bit route field is a pair of INDEPENDENT flags, not
+                an exclusive enum:
 
-                Reset default: stream 0 = RENDER, others NULL - the N=1
-                shape is bit-identical to today (no-regression axiom).
+                  bit 0 DMA    - payload to the per-stream PCM DMA ring
+                                 (ring base + s*stride at the SoC layer;
+                                 the ring output carries tuser = s).
+                  bit 1 RENDER - feeds the physical render path (LPF +
+                                 KL_i2s_playback). Exactly one stream
+                                 renders; if several carry the RENDER
+                                 flag, the LOWEST-indexed one wins
+                                 (deterministic rule, RTL-enforced).
 
-                N=1 COMPAT NOTE (documented spec deviation): in the shipping
-                single-stream datapath the RENDER stream's payload ALSO
-                flows to the DRAM PCM ring (the PipeWire consumer path).
-                A literally-exclusive route field would break that, so
-                RENDER frames are forwarded on the ring output AND tapped
-                by the render feed - the spec's route semantics are applied
-                to the render/discard decision only. NULL alone suppresses
-                the ring copy.
+                  0b00 NULL       : neither (payload discarded; the
+                                    monitor still counts, [M-5.3.8.10])
+                  0b01 DMA        : ring only
+                  0b10 RENDER     : render only (no ring copy)
+                  0b11 RENDER|DMA : capture-while-rendering - the stream
+                                    renders AND lands in its DMA ring
+
+                MAPPING FROM THE P3 ENUM (0 NULL / 1 RENDER / 2 DMA):
+                  P3 0 NULL   -> 0b00 (same bits, same behavior)
+                  P3 1 RENDER -> 0b11 (P3's RENDER de-facto ALSO forwarded
+                                 the ring copy - the documented N=1 compat
+                                 deviation; the flags now express it
+                                 directly as RENDER|DMA)
+                  P3 2 DMA    -> 0b01 (bit VALUE changes: 2 now means
+                                 RENDER-only)
+                Reset default: stream 0 = 0b11 (RENDER|DMA - exactly the
+                P3 "RENDER" behavior: render tap + ring copy), others
+                0b00 - the N=1 shape is bit-identical to P3
+                (no-regression axiom).
 
                 Zero-latency combinational pass-through: at N=1 the ring
                 output and the render tap are wire-identical to the
@@ -45,9 +56,11 @@
 ------------------------------------------------------------------------------
 */
 
-//! NxN PCM routing policy (NXN_ARCHITECTURE §1.3 / P3): per-stream 2-bit
-//! route field (NULL/RENDER/DMA), RENDER-lowest-wins arbitration, tuser-
-//! tagged ring output, combinational render tap (bit-exact N=1 legacy).
+//! NxN PCM routing policy (NXN_ARCHITECTURE §1.3 / P3 + flag rework): per-
+//! stream 2-bit route FLAGS {bit1 RENDER, bit0 DMA} - independently
+//! combinable (0b11 = capture-while-rendering, 0b00 = NULL), RENDER-lowest-
+//! wins arbitration, tuser-tagged ring output, combinational render tap
+//! (reset s0 = RENDER|DMA: bit-exact P3/N=1 legacy).
 
 `default_nettype none
 
@@ -67,7 +80,7 @@ module KL_pcm_route #(
   //! --- route configuration (P11 CSR window / LCTX w4 CTRL[2:1]) ---------
   input  wire         route_wr_en_i,   //! one-cycle write strobe
   input  wire [3:0]   route_wr_idx_i,  //! stream index s
-  input  wire [1:0]   route_wr_val_i,  //! 0 NULL / 1 RENDER / 2 DMA
+  input  wire [1:0]   route_wr_val_i,  //! flags {bit1 RENDER, bit0 DMA}
 
   //! --- PCM ring output (RENDER + DMA streams; tuser = s) ----------------
   output logic [63:0] m_axis_tdata,
@@ -84,16 +97,20 @@ module KL_pcm_route #(
   output logic        render_active_o  //! a RENDER stream is configured
 );
 
-  localparam logic [1:0] ROUTE_NULL_C   = 2'd0;
-  localparam logic [1:0] ROUTE_RENDER_C = 2'd1;
-  localparam logic [1:0] ROUTE_DMA_C    = 2'd2;
+  //! route field = independent flags (see header for the P3 enum mapping)
+  localparam int unsigned ROUTE_DMA_B_C    = 0;  //! bit 0: ring copy
+  localparam int unsigned ROUTE_RENDER_B_C = 1;  //! bit 1: render candidate
+  localparam logic [1:0] ROUTE_NULL_C    = 2'b00;
+  localparam logic [1:0] ROUTE_LEGACY0_C = 2'b11; //! P3 s0 default (RENDER
+                                                  //! + ring copy) bit-exact
 
-  //! per-stream route registers; reset = today's shape (s0 RENDER, rest NULL)
+  //! per-stream route registers; reset = the P3 shape (s0 render + ring
+  //! copy = today's shipped behavior, rest NULL)
   logic [1:0] route_r [N_LISTENERS_P];
 
   always_ff @(posedge clk_i) begin : route_cfg
     if (!rst_n) begin
-      route_r[0] <= ROUTE_RENDER_C;
+      route_r[0] <= ROUTE_LEGACY0_C;
       for (int s = 1; s < N_LISTENERS_P; s++) route_r[s] <= ROUTE_NULL_C;
     end
     else if (route_wr_en_i && (32'(route_wr_idx_i) < N_LISTENERS_P)) begin
@@ -101,12 +118,13 @@ module KL_pcm_route #(
     end
   end : route_cfg
 
-  //! RENDER-lowest-wins arbitration (spec §1.3, deterministic rule)
+  //! RENDER-lowest-wins arbitration (spec §1.3, deterministic rule) over
+  //! the RENDER flag (the DMA flag does not affect the pick)
   always_comb begin : render_pick
     render_sel_o    = '0;
     render_active_o = 1'b0;
     for (int s = N_LISTENERS_P-1; s >= 0; s--) begin
-      if (route_r[s] == ROUTE_RENDER_C) begin
+      if (route_r[s][ROUTE_RENDER_B_C]) begin
         render_sel_o    = 4'(s);
         render_active_o = 1'b1;
       end
@@ -120,24 +138,28 @@ module KL_pcm_route #(
     for (int s = 0; s < N_LISTENERS_P; s++)
       if (32'(s_tuser_i) == s) cur_route_w = route_r[s];
   end : route_lookup
-  wire       is_null_w   = (cur_route_w == ROUTE_NULL_C);
+  wire       to_ring_w   = cur_route_w[ROUTE_DMA_B_C];
   wire       is_render_w = render_active_o && (s_tuser_i == render_sel_o);
 
-  //! ring output: NULL frames swallowed, everything else passes untouched
+  //! ring output: only DMA-flagged frames pass; everything else is
+  //! swallowed here (a render-only frame still reaches the tap below -
+  //! its beats self-advance since the ring lane does not hold them)
   always_comb begin : ring_out
     m_axis_tdata  = s_tdata_i;
     m_axis_tlast  = s_tlast_i;
     m_axis_tuser  = s_tuser_i;
-    m_axis_tvalid = s_tvalid_i && !is_null_w;
-    s_tready_o    = is_null_w ? 1'b1 : m_axis_tready;
+    m_axis_tvalid = s_tvalid_i && to_ring_w;
+    s_tready_o    = to_ring_w ? m_axis_tready : 1'b1;
   end : ring_out
 
-  //! render tap: the RENDER stream's share of the ring handshake (the
-  //! consumer observes the ring tready exactly as in the flat datapath)
+  //! render tap: the RENDER-selected stream's share of the source
+  //! handshake (with the DMA flag set the consumer observes the ring
+  //! tready exactly as in the flat datapath; render-only frames advance
+  //! one beat per cycle)
   always_comb begin : render_tap
     render_tdata_o  = s_tdata_i;
     render_tlast_o  = s_tlast_i;
-    render_tvalid_o = s_tvalid_i && !is_null_w && is_render_w;
+    render_tvalid_o = s_tvalid_i && is_render_w;
   end : render_tap
 
 endmodule

@@ -11,16 +11,32 @@
  *      (the monitor context RAM, not a CSR shadow);
  *   2. feed tagged AAF frames of both streams + an unknown sid on the MAC
  *      RX AXIS: classification tuser rides parser -> monitor -> depkt ->
- *      route; stream 1 (route=DMA) lands on the PCM ring output with
+ *      route; stream 1 (route=DMA flag) lands on the PCM ring output with
  *      tuser=1, stream 2 (route=NULL) is counted but not forwarded;
  *   3. read ISOLATED per-stream counters back through the window with SNAP
  *      (Table 7-157 block from the live LCTX; stream 0 legacy aliases and
  *      idx 3 stay zero); a seq-gap on stream 1 moves ONLY stream 1;
  *   4. talker side: TCTX CFG words written and read back through the live
  *      KL_aaf_packetizer window port.
+ *
+ * P12 follow-up gates (route flags + talker t>0 arming):
+ *   5. route FLAGS {bit1 RENDER, bit0 DMA}: RENDER|DMA renders AND rings
+ *      (capture-while-rendering), RENDER-only renders without a ring copy,
+ *      NULL suppresses both (render truth = the datapath render-tap valid,
+ *      a verilator-public probe - the flat CSRs expose no per-stream tap);
+ *   6. talker t>0 arming composition (aaf_stream_en_w, verilator-public):
+ *      t1 arms via the window TCTX CTRL[0] commit; enabling lwSRP without
+ *      a t1 reservation drops ONLY t1 (t0 rides its bypass, emission keeps
+ *      running); the engine-wide MAAP term holds t0 AND t1 alike (mirrors
+ *      t0 semantics, one claim engine); window CTRL[0]=0 disarms t1.
+ *      t>0 WIRE emission stays structurally impossible at datapath level
+ *      (KL_aaf_capture_i2s emits slot 0 only until the item-4 TDM
+ *      front-end) - frame-level TCTX-identity emission + per-slot gate
+ *      drop are proven in tb/verilator/aaf sim_main_nx [I2T]/[I2T4].
  */
 
 #include "Vmilan_datapath.h"
+#include "Vmilan_datapath___024root.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstdint>
@@ -79,12 +95,22 @@ static uint32_t axi_read(uint16_t a) {
 
 enum {
     A_ID = 0x000, A_VERSION = 0x004,
+    A_AAF_CTRL = 0x654, A_AAF_FRAMES = 0x660, A_LWSRP_CTRL = 0x680,
     A_AVTPRX_STAT = 0x6B8, A_AVTPRX_FRX = 0x6BC, A_PCMRX_CNT = 0x6C4,
+    A_MAAP_CTRL = 0x6CC,
     A_STRM_SEL = 0x800, A_STRM_SNAP = 0x804, A_SW_CTRL = 0x810,
     A_SW_SID_LO = 0x814, A_SW_SID_HI = 0x818, A_SW_DMAC_LO = 0x81C,
     A_SW_DMAC_HI = 0x820, A_SW_FMT_LO = 0x824, A_SW_FMT_HI = 0x828,
     A_SW_STATE = 0x82C, A_SW_CNT0 = 0x830, A_SW_PDUS = 0x858,
 };
+
+// route flags (KL_pcm_route / window CTRL[2:1]): bit0 = DMA, bit1 = RENDER
+enum { RT_NULL = 0, RT_DMA = 1, RT_RENDER = 2, RT_RENDER_DMA = 3 };
+
+// composed per-stream talker enables (milan_datapath aaf_stream_en_w)
+static unsigned tap_stream_en() {
+    return dut->rootp->milan_datapath__DOT__aaf_stream_en_w;
+}
 
 static void snap_and_wait() {
     axi_write(A_STRM_SNAP, 1);
@@ -96,6 +122,7 @@ static void snap_and_wait() {
 struct PcmFrame { int user; std::vector<uint8_t> bytes; };
 static std::vector<PcmFrame> pcm_frames;
 static bool pcm_open = false;
+static long render_beats = 0;   // datapath render-tap beats (public probe)
 
 static void pcm_sample() {
     if (dut->m_axis_pcm_tvalid) {
@@ -104,6 +131,7 @@ static void pcm_sample() {
             pcm_frames.back().bytes.push_back((dut->m_axis_pcm_tdata >> (8*l)) & 0xFF);
         if (dut->m_axis_pcm_tlast) pcm_open = false;
     }
+    if (dut->rootp->milan_datapath__DOT__rend_pcm_tvalid_w) render_beats++;
 }
 
 // ---- inject one little-lane frame on the MAC RX port ----
@@ -186,15 +214,15 @@ int main(int argc, char** argv) {
     // AAF format u64 for {AAF, 48k, INT32, depth 32, up to 2 ch}
     const uint32_t FMT_HI = 0x02050220, FMT_LO = 2u << 22;
 
-    printf("-- provision listener 1 (route=DMA) + 2 (route=NULL) via 0x800 --\n");
+    printf("-- provision listener 1 (route=DMA flag) + 2 (route=NULL) via 0x800 --\n");
     axi_write(A_STRM_SEL, 0x001);                    // dir=0 idx=1
     axi_write(A_SW_SID_LO, 0x00030001);              // sidB[63:0] LSW
     axi_write(A_SW_SID_HI, 0x03000000);
     axi_write(A_SW_FMT_LO, FMT_LO);
     axi_write(A_SW_FMT_HI, FMT_HI);
-    axi_write(A_SW_CTRL, (2u << 1) | 1u);            // en, route=DMA
+    axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);        // en, DMA flag only
     // CFG readback through the ENGINE-ARBITRATED LCTX port B (real RAM)
-    ck("LCTX w4 CTRL readback (port B)",  axi_read(A_SW_CTRL), 0x5);
+    ck("LCTX w4 CTRL readback (port B)",  axi_read(A_SW_CTRL), 0x3);
     ck("LCTX w2 FMT_LO readback (port B)", axi_read(A_SW_FMT_LO), FMT_LO);
     ck("LCTX w3 FMT_HI readback (port B)", axi_read(A_SW_FMT_HI), FMT_HI);
 
@@ -276,6 +304,96 @@ int main(int argc, char** argv) {
     ck("TCTX w2 DMAC_HI readback", axi_read(A_SW_DMAC_HI), 0x000591E0);
     axi_write(A_STRM_SEL, 0x102);                    // untouched talker ctx
     ck("talker 2 CTRL reads 0", axi_read(A_SW_CTRL), 0);
+
+    printf("-- route flags: RENDER|DMA / RENDER-only / NULL (stream 1) --\n");
+    // so far every injected frame belonged to s1 (DMA-only) or s2 (NULL)
+    // while s0 held the reset RENDER|DMA claim: the render tap must have
+    // stayed silent (RENDER-lowest-wins picks s0, which got no frames)
+    ck("render tap silent while s0 owns RENDER", render_beats, 0);
+    // demote s0 (window idx 0 commit: en=0 evicts the table override,
+    // route=NULL drops its RENDER claim) so s1 wins the render pick
+    axi_write(A_STRM_SEL, 0x000);
+    axi_write(A_SW_CTRL, (RT_NULL << 1) | 0u);
+    // RENDER|DMA = capture-while-rendering: ring copy AND render tap.
+    // A CTRL commit re-writes the stream-table entry from the STAGED sid
+    // registers (the window ABI: SEL, stage SID, commit CTRL) - re-stage
+    // sidB before every s1 CTRL rewrite.
+    axi_write(A_STRM_SEL, 0x001);
+    axi_write(A_SW_SID_LO, 0x00030001);
+    axi_write(A_SW_SID_HI, 0x03000000);
+    axi_write(A_SW_CTRL, (RT_RENDER_DMA << 1) | 1u);
+    ck("s1 CTRL = RENDER|DMA readback", axi_read(A_SW_CTRL), 0x7);
+    size_t rb0 = pcm_frames.size(); long xb0 = render_beats;
+    inject(mkaaf(sidB, 22, 2, 0x30), 120);
+    inject(mkaaf(sidB, 23, 2, 0x40), 120);
+    ck("RENDER|DMA: +2 ring frames", pcm_frames.size() - rb0, 2);
+    ck("RENDER|DMA: ring tuser == 1", pcm_frames.back().user, 1);
+    ck("RENDER|DMA: 12 render beats (2 x 6)", render_beats - xb0, 12);
+    // RENDER-only: renders, NO ring copy
+    axi_write(A_SW_SID_LO, 0x00030001);
+    axi_write(A_SW_SID_HI, 0x03000000);
+    axi_write(A_SW_CTRL, (RT_RENDER << 1) | 1u);
+    rb0 = pcm_frames.size(); xb0 = render_beats;
+    inject(mkaaf(sidB, 24, 2, 0x50), 120);
+    inject(mkaaf(sidB, 25, 2, 0x60), 120);
+    ck("RENDER-only: no ring frames", pcm_frames.size() - rb0, 0);
+    ck("RENDER-only: 12 render beats", render_beats - xb0, 12);
+    // NULL: neither sink; the monitor/depkt still count ([M-5.3.8.10])
+    axi_write(A_SW_SID_LO, 0x00030001);
+    axi_write(A_SW_SID_HI, 0x03000000);
+    axi_write(A_SW_CTRL, (RT_NULL << 1) | 1u);
+    rb0 = pcm_frames.size(); xb0 = render_beats;
+    inject(mkaaf(sidB, 26, 2, 0x70), 120);
+    inject(mkaaf(sidB, 27, 2, 0x80), 120);
+    ck("NULL: no ring frames", pcm_frames.size() - rb0, 0);
+    ck("NULL: no render beats", render_beats - xb0, 0);
+    axi_write(A_STRM_SEL, 0x001);
+    snap_and_wait();
+    ck("NULL still counted: s1 FRAMES_RX = 16", axi_read(A_SW_CNT0 + 9*4), 16);
+
+    printf("-- talker t>0 arming: window CTRL + per-stream gate terms --\n");
+    // the [TCTX] section already committed t1 CTRL en=1 through the window;
+    // MAAP + lwSRP are still at their disabled defaults
+    ck("t1 armed by the window CTRL commit", (tap_stream_en() >> 1) & 1, 1);
+    ck("t0 still down (AAF_CTRL.en = 0)", tap_stream_en() & 1, 0);
+    // t0 up via the legacy flat path (VID 2 + bypass + en - the VID-2 rule)
+    axi_write(A_AAF_CTRL, 0x00020003);
+    ck("t0 up via AAF_CTRL", tap_stream_en() & 1, 1);
+    // t0 EMITS on the wire while t1 is armed (capture slot 0 pairs flow
+    // continuously; t>0 has no sample source at datapath level - see the
+    // header note, aaf nx [I2T] proves t>0 frame identity)
+    uint32_t fr0 = axi_read(A_AAF_FRAMES);
+    for (int g = 0; g < 200 && axi_read(A_AAF_FRAMES) == fr0; g++)
+        for (int c = 0; c < 512; c++) step();
+    ck("t0 emission alive while t1 armed", axi_read(A_AAF_FRAMES) > fr0, 1);
+    // lwSRP on without a t1 reservation: ONLY t1 drops (t0 rides bypass)
+    axi_write(A_LWSRP_CTRL, 0xD);
+    for (int c = 0; c < 64; c++) step();
+    ck("lwSRP on: t1 gate drops", (tap_stream_en() >> 1) & 1, 0);
+    ck("lwSRP on: t0 unaffected (bypass)", tap_stream_en() & 1, 1);
+    fr0 = axi_read(A_AAF_FRAMES);
+    for (int g = 0; g < 200 && axi_read(A_AAF_FRAMES) == fr0; g++)
+        for (int c = 0; c < 512; c++) step();
+    ck("t0 emission alive after t1 drop", axi_read(A_AAF_FRAMES) > fr0, 1);
+    axi_write(A_LWSRP_CTRL, 0xC);
+    for (int c = 0; c < 64; c++) step();
+    ck("lwSRP off: t1 re-arms", (tap_stream_en() >> 1) & 1, 1);
+    // MAAP enabled + unclaimed holds t0 AND t1 alike (the engine-wide
+    // term - ONE claim engine; mirrors t0's composition, see the RTL note)
+    axi_write(A_MAAP_CTRL, 0x0801);
+    for (int c = 0; c < 16; c++) step();
+    ck("MAAP unclaimed: t1 held", (tap_stream_en() >> 1) & 1, 0);
+    ck("MAAP unclaimed: t0 held too", tap_stream_en() & 1, 0);
+    axi_write(A_MAAP_CTRL, 0x0800);
+    for (int c = 0; c < 16; c++) step();
+    ck("MAAP off: both restored", tap_stream_en() & 3, 3);
+    // window CTRL[0] = 0 disarms ONLY t1
+    axi_write(A_STRM_SEL, 0x101);
+    axi_write(A_SW_CTRL, (2u << 5) | 0u);            // TCTX w0: vid=2, en=0
+    for (int c = 0; c < 16; c++) step();
+    ck("window CTRL[0]=0 disarms t1", (tap_stream_en() >> 1) & 1, 0);
+    ck("t0 unaffected by the t1 disarm", tap_stream_en() & 1, 1);
+    ck("t2/t3 never armed", (tap_stream_en() >> 2) & 3, 0);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
