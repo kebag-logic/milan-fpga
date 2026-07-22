@@ -349,11 +349,15 @@ and station identity. The CRF sink side ([M-7.2.2]) is already compliant.
 The overlay path already builds structurally valid multi-port ROMs (one
 STREAM_PORT per stream, per-port cluster blocks, §7.2.19-relative maps —
 builder D1/D2/D3); nothing in fabric consumes them yet. AECP RTL changes:
-the svh validation tables (`AEM_FMTS_C` — first STREAM_INPUT only;
-`WB_STREAM_FORMAT_C` — STREAM_OUTPUT[0] only) become descriptor-indexed
-2-D tables emitted by `gen_aem_store.py` codegen; SET/GET_STREAM_FORMAT,
-GET_STREAM_INFO and GET_COUNTERS handlers key the §1.5 window by descriptor
-index. ADP source/sink counts already come honest from the overlay.
+DONE (item-4 follow-up) — the svh validation tables became per-descriptor
+arrays (`AEM_STRIN_*`/`AEM_STROUT_FMT_C` + `WB_STRIN/STROUT_FMT_ADDR_C`)
+emitted by `gen_aem_store.py` for multi-stream shapes behind
+`` `AEM_PER_STREAM_FMT`` (the deployed 1-AAF-in shape keeps the legacy
+layout byte-identical); SET/GET_STREAM_FORMAT and the RX monitor's
+format-compare reference key the addressed descriptor's own entry
+(tb/verilator/aecp `sim_fmt2`). Remaining: GET_STREAM_INFO and
+GET_COUNTERS handlers keying the §1.5 window by descriptor index. ADP
+source/sink counts already come honest from the overlay.
 
 ## 4. Clock domains, CDC, and the timing-risk register
 

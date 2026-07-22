@@ -356,6 +356,27 @@ module KL_aecp_response_builder (
   localparam [63:0] FMT_BASE_MASK_C = ~((64'h3FF << 22) | (64'h1 << 52));
   wire [9:0]  w_fmt_ch    = w_set_fmt[31:22];
   wire [63:0] w_fmt_chm   = w_set_fmt & FMT_BASE_MASK_C;
+`ifdef AEM_PER_STREAM_FMT
+  //! per-descriptor format references (multi-stream svh layout): the
+  //! addressed descriptor's own table entry drives validation and the WB
+  //! address. Index clamped for the constant-array mux; range validity is
+  //! decided separately in the STREAM_FORMAT arm.
+  wire [3:0] w_in_fidx  = (w_gs_index < 16'(AEM_N_STRIN_C))
+                        ? w_gs_index[3:0] : 4'd0;
+  wire [3:0] w_out_fidx = (w_gs_index < 16'(AEM_N_STROUT_C))
+                        ? w_gs_index[3:0] : 4'd0;
+  wire [63:0] w_in_ref_fmt  = AEM_STRIN_FMT_C[w_in_fidx];
+  wire [63:0] w_out_ref_fmt = AEM_STROUT_FMT_C[w_out_fidx];
+  //! AAF sinks: the Milan 6.4 family rule against THIS descriptor's base;
+  //! CRF sinks: exact match (same rules as the legacy pair, per descriptor)
+  wire w_fmt_ok = AEM_STRIN_CRF_C[w_in_fidx]
+                ? (w_set_fmt == w_in_ref_fmt)
+                : ((w_fmt_ch >= 10'd1) && (w_fmt_ch <= 10'd8) &&
+                   !w_set_fmt[52] &&
+                   (w_fmt_chm == (w_in_ref_fmt & FMT_BASE_MASK_C)));
+  //! talker truth per descriptor: outputs accept ONLY their declared format
+  wire w_out_fmt_ok = (w_set_fmt == w_out_ref_fmt);
+`else
   wire w_fmt_ok  = (w_fmt_ch >= 10'd1) && (w_fmt_ch <= 10'd8) &&
                    !w_set_fmt[52] &&
                    (w_fmt_chm == (AEM_FMTS_C[0] & FMT_BASE_MASK_C));
@@ -365,6 +386,7 @@ module KL_aecp_response_builder (
       (AEM_FMTS_C[0] & FMT_BASE_MASK_C) | (64'd2 << 22);
   wire w_out_fmt_ok = (w_set_fmt == AAF_OUT_FMT_C);
   wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]);
+`endif
 
   // ------------------------------------------------------------------ //
   // Response plan (filled in DECIDE_S)                                   //
@@ -611,9 +633,16 @@ module KL_aecp_response_builder (
   logic [63:0] gm_prev_r;
 
   //! live STREAM_INPUT[0] current format: resets to the ROM's current_format
-  //! (AEM_FMTS_C[0]) and follows SET_STREAM_FORMAT — the RX monitor's
-  //! format-compare reference (the store scratch keeps the readback copy)
+  //! (descriptor 0's own table entry — AEM_STRIN_FMT_C[0] on multi-stream
+  //! layouts, AEM_FMTS_C[0] on the deployed one; same bytes) and follows
+  //! SET_STREAM_FORMAT — the RX monitor's format-compare reference (the
+  //! store scratch keeps the readback copy)
   logic [63:0] fmt_in0_r;
+`ifdef AEM_PER_STREAM_FMT
+  localparam [63:0] FMT_IN0_RST_C = AEM_STRIN_FMT_C[0];
+`else
+  localparam [63:0] FMT_IN0_RST_C = AEM_FMTS_C[0];
+`endif
   assign in0_fmt_o = fmt_in0_r;
   logic [15:0] clk_src_r;                 //! follows SET_CLOCK_SOURCE (reset 0 = internal)
   assign clk_src_o = clk_src_r;
@@ -899,7 +928,7 @@ module KL_aecp_response_builder (
       unsol_frame_r <= 1'b0;
       ta_prev_r     <= 1'b0;
       lo_prev_r     <= 1'b0;
-      fmt_in0_r     <= AEM_FMTS_C[0];
+      fmt_in0_r     <= FMT_IN0_RST_C;
       clk_src_r     <= 16'd0;
       in0_dirty_r   <= 1'b0;
       in0_rl_ms_r   <= 10'd1000;   // saturated: first change pushes at once
@@ -1485,12 +1514,47 @@ module KL_aecp_response_builder (
               // -------------------------------------------------- //
               // GET/SET_STREAM_FORMAT: STREAM_OUTPUT[0] + the two listener
               // sinks (Milan adaptive listener, FR-STR-03) — sink0 validates
-              // against the AAF set, sink1 against the CRF set.
+              // against the AAF set, sink1 against the CRF set. Multi-stream
+              // svh layouts (`AEM_PER_STREAM_FMT) serve EVERY descriptor from
+              // its own table entry + write-back address instead.
               CMD_GET_STREAM_FORMAT, CMD_SET_STREAM_FORMAT: begin
                 cdl_q <= 11'd24;   // 12 + 4 + 8
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= 16'd12;
+`ifdef AEM_PER_STREAM_FMT
+                end else if (!((w_gs_type == DESC_STREAM_OUTPUT &&
+                                w_gs_index < 16'(AEM_N_STROUT_C)) ||
+                               (w_gs_type == DESC_STREAM_INPUT  &&
+                                w_gs_index < 16'(AEM_N_STRIN_C)))) begin
+                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd12;
+                end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
+                             !((w_gs_type == DESC_STREAM_OUTPUT)
+                               ? w_out_fmt_ok : w_fmt_ok)) begin
+                  status_q     <= STATUS_BAD_ARGUMENTS;
+                  seg_len_q[0] <= 16'd12;
+                end else begin
+                  status_q      <= STATUS_SUCCESS;
+                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
+                  seg_kind_q[1] <= SEG_STORE;
+                  seg_addr_q[1] <= (w_gs_type == DESC_STREAM_OUTPUT)
+                                   ? WB_STROUT_FMT_ADDR_C[w_out_fidx]
+                                   : WB_STRIN_FMT_ADDR_C[w_in_fidx];
+                  seg_len_q[1]  <= 16'd8;
+                  if (hdr_q.command_type == CMD_SET_STREAM_FORMAT) begin
+                    wb_addr_q <= (w_gs_type == DESC_STREAM_OUTPUT)
+                                 ? WB_STROUT_FMT_ADDR_C[w_out_fidx]
+                                 : WB_STRIN_FMT_ADDR_C[w_in_fidx];
+                    wb_len_q  <= 7'd8;
+                    wb_src_q  <= 7'd6;
+                    // live copy for the RX monitor's format compare
+                    if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
+                      fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
+                                    w_b10, w_b11, w_b12, w_b13};
+                  end
+                end
+`else
                 end else if (!((w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) ||
                                (w_gs_type == DESC_STREAM_INPUT  && w_gs_index < 16'd2))) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
@@ -1522,6 +1586,7 @@ module KL_aecp_response_builder (
                                     w_b10, w_b11, w_b12, w_b13};
                   end
                 end
+`endif
               end
 
               // -------------------------------------------------- //
