@@ -55,7 +55,7 @@
 module milan_csr #(
   parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
-  parameter logic [31:0] VERSION = 32'h0001_0006 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter logic [31:0] VERSION = 32'h0001_0007 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -195,7 +195,11 @@ module milan_csr #(
   input  wire [31:0]             i_avtprx_err,          //! packed error counters (RO 0x6C0)
   input  wire [31:0]             i_pcmrx_cnt,           //! {drops[31:16], pdus[15:0]} (RO 0x6C4)
   input  wire [31:0]             i_pcmrx_ts,            //! last accepted avtp_ts (RO 0x6C8)
-  input  wire [31:0]             i_i2spb_stat,          //! {underruns, overruns} (RO 0x6D8)
+  input  wire [31:0]             i_i2spb_stat,          //! {underruns, overruns} (RO/W1C 0x6D8)
+  output wire                    o_i2spb_clr_under,     //! 1-cycle: W1C clear of the underrun rail
+                                                        //! (write with any of [31:16] set)
+  output wire                    o_i2spb_clr_over,      //! 1-cycle: W1C clear of the overrun rail
+                                                        //! (write with any of [15:0] set)
   input  wire [31:0]             i_i2spb_trim,          //! {servo trim, fifo fill} (RO 0x6E0)
   input  wire [31:0]             i_maap_stat0,          //! {conflicts, defends, offset} (RO 0x6D0)
   input  wire [31:0]             i_maap_stat1,          //! {addr_valid, state} (RO 0x6D4)
@@ -425,6 +429,8 @@ module milan_csr #(
 
   logic stats_snap_p;                    //! Stats snapshot command strobe (1 cycle)
   logic stats_rst_p;                     //! Stats reset command strobe (1 cycle)
+  logic i2spb_clru_p;                    //! I2SPB underrun-rail W1C strobe (1 cycle)
+  logic i2spb_clro_p;                    //! I2SPB overrun-rail W1C strobe (1 cycle)
   logic ptp_load_p;                      //! PTP settime apply strobe (1 cycle)
   logic ptp_adj_p;                       //! PTP adjtime apply strobe (1 cycle)
   logic ptp_snap_p;                      //! PTP gettime snapshot strobe (1 cycle)
@@ -565,6 +571,7 @@ module milan_csr #(
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
+      i2spb_clru_p <= 1'b0; i2spb_clro_p <= 1'b0;
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
       tcam_wr_p <= 1'b0;
@@ -635,6 +642,13 @@ module milan_csr #(
           A_AS2_LO:     as2_lo   <= s_axi_wdata;
           A_AS2_HI:     as2_hi   <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
+          //! I2SPB rail counters W1C (gaps 5b): each half clears on a write
+          //! with any bit of that half set - the saturated-and-stuck-forever
+          //! rail becomes re-armable without touching the other rail
+          A_I2SPB_STAT: begin
+            if (|s_axi_wdata[31:16]) i2spb_clru_p <= 1'b1;
+            if (|s_axi_wdata[15:0])  i2spb_clro_p <= 1'b1;
+          end
           A_GPTP_PDELAY: gptp_pdelay <= s_axi_wdata;
           A_LWSRP_VID:  lwsrp_vid  <= s_axi_wdata;
           A_LWSRP_DMLO: lwsrp_dmlo <= s_axi_wdata;
@@ -952,6 +966,8 @@ module milan_csr #(
   assign o_aaf_bypass          = aaf_ctrl[1];
   assign o_acmp_lobs           = acmp_lobs[0];
   assign o_tone_enable      = tone_ctrl[0];
+  assign o_i2spb_clr_under  = i2spb_clru_p;
+  assign o_i2spb_clr_over   = i2spb_clro_p;
   assign o_tone_att         = tone_ctrl[3:1];
   //! Reset-epoch canary: counts datapath reset RELEASES in flops WITHOUT a
   //! reset clause (bitstream-init 0, survive axis resets). Software compares

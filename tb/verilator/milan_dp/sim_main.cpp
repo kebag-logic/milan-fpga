@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010006);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010007);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
