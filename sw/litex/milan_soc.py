@@ -204,7 +204,7 @@ class MilanNIC(LiteXModule):
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
-                 rx1_irq=None, milan_clk_hz=100_000_000):
+                 rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -228,7 +228,7 @@ class MilanNIC(LiteXModule):
         add_milan_datapath(self, platform, axil, ev.csr.trigger,
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
-                           milan_clk_hz=milan_clk_hz)
+                           milan_clk_hz=milan_clk_hz, num_streams=num_streams)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -279,7 +279,7 @@ _MILAN_DATAPATH_SOURCES = [
 
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
-                       milan_clk_hz=100_000_000):
+                       milan_clk_hz=100_000_000, num_streams=1):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -347,8 +347,12 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # stretching the ADP re-advertise to 62 s (the validity horizon) and the
     # Milan probe window to ~30 s. The adpfix RTL fix was correct but this
     # parameter never reached it.
+    # N_STREAMS: NxN dataplane width (docs/NXN_ARCHITECTURE.md P0). The builder
+    # emits --num-streams in soc_params for the 4x4/8x8 shapes; default 1 =
+    # today's bit-compatible single-stream build.
     host.specials += Instance("milan_datapath",
-                              p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz), **ports)
+                              p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
+                              p_N_STREAMS=int(num_streams), **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
     # cycle combinational constant-divide cones (~9.3K LUTs over 4 queues,
@@ -3549,7 +3553,8 @@ class MilanSoC(SoCCore):
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
-                 rx_fifo_beats=2048, board="ax7101", eth_phy_index=0, **kwargs):
+                 rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
+                 num_streams=1, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3776,7 +3781,8 @@ class MilanSoC(SoCCore):
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
                                   rx1_irq=(self.milan_dma.rx1.non_empty
                                            if (with_dma and rx_queues >= 2) else None),
-                                  milan_clk_hz=int(milan_clk_freq or sys_clk_freq))
+                                  milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
+                                  num_streams=int(num_streams))
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -3862,6 +3868,11 @@ def main():
                          "50e6), async-FIFO CDC'd to sys on the AXI-Lite CSR bus and the "
                          "DMA/MAC AXIS boundary  -  lifts the dense datapath off the 100 MHz "
                          "sys critical path (it still exceeds 1 GbE). Works with --full.")
+    ap.add_argument("--num-streams", default=1, type=int,
+                    help="NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): AAF stream "
+                         "contexts per shared engine (milan_datapath N_STREAMS). The "
+                         "builder emits this from the config's streams section; default "
+                         "1 = today's bit-compatible single-stream shape.")
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
@@ -3968,6 +3979,7 @@ def main():
                    gtx_tx_invert=args.gtx_tx_invert,
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
+                   num_streams=args.num_streams,
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
                    rx_fifo_beats=int(args.rx_fifo_beats),
