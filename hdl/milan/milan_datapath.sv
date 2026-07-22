@@ -1231,8 +1231,16 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //  sink: BIND_RX/UNBIND_RX/GET_RX_STATE + the talker-probe ladder; SRP
   //  coupling through the lwSRP TalkerAdvertise registrar + the Listener
   //  attribute applicant below.
+  //  N-sink round: N_STREAMS feeds the wrapper's context count (minimum 2 so
+  //  the pinned {ctx0 media, ctx1 CRF} pair always exists); contexts 2..N-1
+  //  are record-only explicit-sid binds for the 0x800-window streams.
   // ==========================================================================
-  KL_acmp_listener #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) acmp_listener_sm (
+  localparam int ACMP_SINKS_C = (N_STREAMS > 2) ? N_STREAMS : 2;
+  localparam int ACMP_SIDXW_C = $clog2(ACMP_SINKS_C);
+  KL_acmp_listener #(
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .N_SINKS_P     (ACMP_SINKS_C)
+  ) acmp_listener_sm (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
@@ -1267,14 +1275,13 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .s1_bound_o     (acmpl1_bound),
     .s1_sid_o       (acmpl1_sid),
     .s1_dmac_o      (acmpl1_dmac),
-    //! P12: the 0x800 window's ACMP tbl master. The wrapper pins the
-    //! 2-sink shape {ctx0 = STREAM_INPUT[0], ctx1 = CRF sink}; only window
-    //! listener idx 0 maps onto an AAF sink context, so requests for
-    //! idx > 0 are NOT granted (acmp_fresh stays 0 in the CSR -> those
-    //! window SID/DMAC/STATE-acmp fields read 0 honestly) until a full
-    //! N-sink ACMP round widens the wrapper.
-    .tbl_req_i (csr_acmp_tbl_req_w && (csr_acmp_tbl_idx_w == 4'd0)),
-    .tbl_idx_i (1'b0),
+    //! P12/N-sink round: the 0x800 window's ACMP tbl master serves EVERY
+    //! context idx < ACMP_SINKS_C 1:1 (ctx0 = STREAM_INPUT[0], ctx1 = CRF
+    //! sink, 2..N-1 = window streams). Requests beyond the context table
+    //! are NOT granted (acmp_fresh stays 0 in the CSR -> those window
+    //! SID/DMAC/STATE-acmp fields read 0 honestly).
+    .tbl_req_i (csr_acmp_tbl_req_w && (32'(csr_acmp_tbl_idx_w) < ACMP_SINKS_C)),
+    .tbl_idx_i (ACMP_SIDXW_C'(csr_acmp_tbl_idx_w)),
     .tbl_gnt_o (acmp_tbl_gnt_w),
     .tbl_ctx_o (acmp_tbl_ctx_w)
   );
