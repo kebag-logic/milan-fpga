@@ -737,6 +737,72 @@ def test_gen_aem_store_crf_output_overlay():
           "(CRF flags/formats in the right rows)")
 
 
+def test_dynamic_audio_map_overlay():
+    # gaps item 8: listeners[0] map_mode dynamic drops the port's AUDIO_MAP
+    # (7.2.13 number_of_maps=0) and the overlay -> gen_aem_store path emits
+    # the `AEM_DYNMAP engine constants; static configs never do (gate 10
+    # byte-identity stays the proof of absence).
+    def dyn(c):
+        c["streams"]["listeners"][0]["map_mode"] = "dynamic"
+        c["streams"]["listeners"][0]["map_page"] = 4
+    p = _variant(CONFIGS["arty_current"], dyn)
+    try:
+        r = eb.build(p, OUT)
+        ovl = r["overlay"]
+        pi = ovl["stream_ports"]["input"][0]
+        assert pi["maps"] == 0 and pi["base_map"] == 0
+        assert pi["map_mode"] == "dynamic" and pi["map_page"] == 4
+        # only the OUTPUT port's static map remains, renumbered to index 0
+        assert [m["direction"] for m in ovl["audio_maps"]] == ["output"]
+        assert ovl["audio_maps"][0]["index"] == 0
+        assert ovl["stream_ports"]["output"][0]["base_map"] == 0
+        assert ovl["descriptor_counts"]["AUDIO_MAP"] == 1
+        # static ports carry NO map_mode key (overlay byte-stability)
+        assert "map_mode" not in ovl["stream_ports"]["output"][0]
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(
+                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                check=True, capture_output=True)
+            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+        assert "`define AEM_DYNMAP" in svh
+        assert "localparam int unsigned AEM_DMAP_KEYS_C  = 8;" in svh
+        assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
+        assert "localparam int unsigned AEM_DMAP_NMAPS_C = 2;" in svh
+        assert "WB_AUDIO_MAP_OUT_C" in svh
+        # the deployed static shape's svh must NOT know the engine
+        assert "AEM_DYNMAP" not in open(TRACKED_SVH).read()
+        # a dynamic listener changes the model hash (capability change) and
+        # the conditional key keeps every static config's hash untouched
+        assert r["overlay"]["entity"] is not None
+        print("  [gate 17] dynamic audio map: listeners[0] map_mode dynamic "
+              "-> port n_maps=0, input AUDIO_MAP dropped (output renumbered "
+              "to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=2; tracked "
+              "deployed svh engine-free")
+    finally:
+        os.unlink(p)
+    # unsupported placements are rejected with clear errors
+    def dyn_talker(c):
+        c["streams"]["talkers"][0]["map_mode"] = "dynamic"
+    def dyn_page_static(c):
+        c["streams"]["listeners"][0]["map_page"] = 4
+    for label, mutate, needle in (
+            ("talker dynamic", dyn_talker, "listeners[0] only"),
+            ("map_page without dynamic", dyn_page_static, "map_mode dynamic")):
+        p = _variant(CONFIGS["arty_current"], mutate)
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert needle in str(e), f"{label}: got {e}"
+            else:
+                raise AssertionError(f"{label}: accepted")
+        finally:
+            os.unlink(p)
+    print("  [gate 17] reject paths: talker map_mode dynamic + stray "
+          "map_page raise ConfigError")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -747,7 +813,8 @@ if __name__ == "__main__":
                test_resource_calibration, test_resource_determinism,
                test_resource_verdicts, test_milan_723_crf_output_rule,
                test_crf_output_overlay_structure,
-               test_gen_aem_store_crf_output_overlay):
+               test_gen_aem_store_crf_output_overlay,
+               test_dynamic_audio_map_overlay):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
