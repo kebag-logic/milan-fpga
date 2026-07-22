@@ -19,7 +19,7 @@ Byte layouts mirror IEEE 1722.1-2021 clause 7.2 exactly as encoded by the
 reference implementation (pipewire module-avb aecp-aem-descriptors.h).
 
 Outputs (all generated, do not edit):
-  hdl/aecp/gen/aecp_aem_rom.svh   - ROM init + directory + dyn-overlay map (SV)
+  hdl/ieee17221/aecp/gen/aecp_aem_rom.svh   - ROM init + directory + dyn-overlay map (SV)
   tb/verilator/aecp/aem_golden.h  - golden descriptor images (C, for the TB)
   avdecc/aem_rom.json             - same content for the python controller
 
@@ -466,9 +466,9 @@ def emit_json(path):
         }, f, indent=1)
 
 if __name__ == "__main__":
-    os.makedirs(os.path.join(ROOT, "hdl/aecp/gen"), exist_ok=True)
+    os.makedirs(os.path.join(ROOT, "hdl/ieee17221/aecp/gen"), exist_ok=True)
     os.makedirs(os.path.join(ROOT, "tb/verilator/aecp"), exist_ok=True)
-    emit_svh(os.path.join(ROOT, "hdl/aecp/gen/aecp_aem_rom.svh"))
+    emit_svh(os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh"))
     emit_c_golden(os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h"))
     emit_json(os.path.join(HERE, "aem_rom.json"))
     print(f"[gen_aem_store] {len(directory)} descriptors, ROM {ROM_SIZE} B")

@@ -1,6 +1,6 @@
 # avtp_stream — AVTP stream parser verification
 
-Self-checking Verilator harness for `hdl/1722/avtp_stream_parser.sv`, the first RTL
+Self-checking Verilator harness for `hdl/ieee1722/avtp/avtp_stream_parser.sv`, the first RTL
 increment of the **AVTP stream engine** (S1 / hook A in
 `docs/overview/AVB_SWITCH_DIRECTION.md`).
 

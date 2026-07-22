@@ -16,7 +16,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/common/tcam.sv $(RTL_DIR)/common/rx_mac_filter.sv
+SRCS = $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

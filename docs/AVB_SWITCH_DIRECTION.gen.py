@@ -91,7 +91,7 @@ for i in range(8):
     box(40, yy, 150, 34, GREY[0], GREY[1], f"port {i}: MAC + PTP ts", [], tfs=11)
     arrow(190, yy+17, 226, yy+17)
 box(230,sy2,190,314,BLUE[0],BLUE[1],"per-port ingress",
- ["PCP classify (802.1Q)","+ TCAM dst-MAC lookup","(hdl/common/tcam.sv ✓)","+ SRP stream police","","learning: CPU writes","TCAM via CSR"])
+ ["PCP classify (802.1Q)","+ TCAM dst-MAC lookup","(hdl/ieee8021q/filtering/tcam.sv ✓)","+ SRP stream police","","learning: CPU writes","TCAM via CSR"])
 arrow(420,sy2+157,456,sy2+157)
 box(460,sy2,250,314,CYAN[0],CYAN[1],"shared-BRAM switch fabric",
  ["output-queued, segmented","shared buffer 256-512 KB BRAM","","aggregate need: 8x1G in +","8x1G out = 2 GB/s sustained","= 128-bit @ 125-200 MHz","internal bus - comfortable in","fabric, IMPOSSIBLE via DDR3","","CBS bounds AVB queue depth,","so BRAM suffices; BE spills","-> drop (counted), never DRAM"])

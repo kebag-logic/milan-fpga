@@ -15,7 +15,7 @@ set -euo pipefail
 MODULE="${1:-KL_aecp_packet_validator}"
 SOCK="${2:-/work/sock/aecp.sock}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-AECP_DIR="${REPO_ROOT}/hdl/aecp"
+AECP_DIR="${REPO_ROOT}/hdl/ieee17221/aecp"
 COMMON_DIR="${REPO_ROOT}/hdl/common"
 BUILD_DIR="/tmp/verilator_${MODULE}"
 

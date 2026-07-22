@@ -1,6 +1,6 @@
 # Integration guide - wiring `milan_datapath` into your SoC
 
-`hdl/common/milan_datapath.sv` is the single clean integration boundary of
+`hdl/milan/milan_datapath.sv` is the single clean integration boundary of
 this project: the whole Milan TSN datapath (classify + 802.1Qav CBS, PTP
 clock + timestamping, TCAM RX filter, ADP advertiser, RMON, CSR) behind flat,
 host-agnostic ports. It is `milan_top.sv` **minus the Zynq PS and minus the
@@ -65,7 +65,7 @@ hard-coding into your bring-up:
 
 * Offset `0x0` reads the ID `"MILN"` (`0x4d494c4e`) - the canonical
   first-silicon smoke test (milestone M-A2).
-* The map is decoded in `hdl/csr/milan_csr.sv` in 0x100-sized groups
+* The map is decoded in `hdl/common/csr/milan_csr.sv` in 0x100-sized groups
   (0x000 ID/IRQ, 0x100 MAC, 0x200 RMON stats, 0x300 classifier,
   0x400 CBS per-queue, 0x500 PTP, 0x600 ADP, 0x700 RX filter/TCAM).
 
@@ -96,7 +96,7 @@ design history is in [../findings/RX_RING_DMA.md](../findings/RX_RING_DMA.md)).
 | `o_phy_reset_n` | out | PHY reset, CSR-controlled |
 | `i_mac_speed[1:0]` | in | 00=10M, 01=100M, 10=1G convention; synchronized internally, feeds CSR readback + link-change IRQ |
 | `i_link_up`, `i_full_duplex` | in | PHY/MAC status readback |
-| `i_mac_events[N-1:0]` | in | one-cycle RMON event pulses; lane index = `ethernet_events_t` enum (`hdl/eth_event_counter/ethernet_events.svh`), counted by the 9 RMON counters in CSR group 0x200 |
+| `i_mac_events[N-1:0]` | in | one-cycle RMON event pulses; lane index = `ethernet_events_t` enum (`hdl/common/eth_event_counter/ethernet_events.svh`), counted by the 9 RMON counters in CSR group 0x200 |
 | `o_irq_csr` | out | level interrupt: `tx_ts_ready \| link_change \| rmon_rollover` (see 1.5) |
 
 Any MAC works if you can adapt it to 64-bit AXIS with `tkeep`/`tlast` and
@@ -131,15 +131,15 @@ both the SoC sim and first silicon were validated. Then attach the MAC
 The canonical file list is `_MILAN_DATAPATH_SOURCES` in
 `sw/litex/milan_soc.py` - packages first, then the verilog-axis cores
 (`axis_fifo`, `axis_demux`, `axis_arb_mux`, `arbiter`, `priority_encoder`),
-then the datapath RTL, ending in `hdl/common/milan_datapath.sv`. The same
+then the datapath RTL, ending in `hdl/milan/milan_datapath.sv`. The same
 set is used by the `tb/verilator/milan_dp` harness and the `syn/yosys` flow,
 so it cannot silently drift. Add these include directories for the
-`` `include `` files (`*.svh`): `hdl/common`, `hdl/802_1q_traffic_shaper`,
-`hdl/ptp_timestamp`, `hdl/adp`, `hdl/csr`, `hdl/eth_event_counter`.
+`` `include `` files (`*.svh`): `hdl/common`, `hdl/ieee8021q/ts`,
+`hdl/ieee8021as/ptp_timestamp`, `hdl/ieee17221/adp`, `hdl/common/csr`, `hdl/common/eth_event_counter`.
 
 Prerequisite: `git submodule update --init third_party/verilog-axis`.
 
-Do **not** add `hdl/common/milan_top.sv` or `hdl/common/milan_dma_wrapper.v`
+Do **not** add `hdl/milan/milan_top.sv` or `hdl/milan/milan_dma_wrapper.v`
 to a non-Zynq build - they are the Zynq variant and drag in the
 verilog-ethernet MAC and PS7.
 

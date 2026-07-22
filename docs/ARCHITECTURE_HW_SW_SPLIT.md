@@ -3,7 +3,7 @@
 Status: 2026-07-12 (rev 2 — USER DIRECTIVE: **everything goes FPGA; use
 lwSRP**. The media plane, SRP and ACMP connections move to fabric; PipeWire
 is out of the plan of record. The softcore keeps provisioning, gPTP protocol
-(linuxptp), the PCM producer and ops.) Diagram: `hdl/aecp/doc/atdecc_architecture.drawio` page
+(linuxptp), the PCM producer and ops.) Diagram: `hdl/ieee17221/aecp/doc/atdecc_architecture.drawio` page
 `9-hw-sw-split` (rendered PNG alongside). This document is the normative
 delimitation; the diagram mirrors it.
 

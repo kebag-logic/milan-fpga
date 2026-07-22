@@ -33,8 +33,10 @@ create_project -force milan_dma_project $BUILD -part $PART
 # Vivado orders by dependency during elaboration).
 set rtl {}
 foreach ext {svh sv v} {
-    # sources live one level under hdl/ (hdl/<block>/*.ext); include hdl/*.ext too
+    # sources live up to three levels under hdl/ (hdl/<family>/<block>[/gen]/*.ext)
     foreach f [glob -nocomplain \
+                   [file join $REPO hdl * * * *.$ext] \
+                   [file join $REPO hdl * * *.$ext] \
                    [file join $REPO hdl * *.$ext] \
                    [file join $REPO hdl *.$ext]] {
         lappend rtl $f
@@ -59,7 +61,7 @@ eval $bd_src
 set bd_file [get_files -quiet *milan_dma.bd]
 if {$bd_file eq ""} { error "block design milan_dma.bd was not created by $BD_TCL" }
 generate_target all [get_files $bd_file]
-# Do NOT make_wrapper: the repo ships a hand-edited hdl/common/milan_dma_wrapper.v
+# Do NOT make_wrapper: the repo ships a hand-edited hdl/milan/milan_dma_wrapper.v
 # (adds m_axi_csr + irq_csr) that instantiates the BD directly.
 
 set_property top $TOP [current_fileset]

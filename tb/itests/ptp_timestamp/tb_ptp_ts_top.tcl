@@ -69,9 +69,9 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../../../hdl/ptp_timestamp/ptp_ts_core.sv"] \
- [file normalize "${origin_dir}/../../../hdl/ptp_timestamp/ptp_ts_top.sv"] \
- [file normalize "${origin_dir}/../../../hdl/ptp_timestamp/timestamp_counter.sv"] \
+ [file normalize "${origin_dir}/../../../hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv"] \
+ [file normalize "${origin_dir}/../../../hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv"] \
+ [file normalize "${origin_dir}/../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv"] \
  [file normalize "${origin_dir}/../../../hdl/common/axi_stream_if.sv"] \
  [file normalize "${origin_dir}/../../../hdl/common/axis_mux_rr_2in_1out.sv"] \
  [file normalize "${origin_dir}/../../../hdl/common/parameters.svh"] \

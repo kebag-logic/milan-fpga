@@ -1,7 +1,7 @@
 # CBS verification harness (IEEE 802.1Qav credit-based shaper)
 
 A self-checking [Verilator](https://verilator.org) harness for
-`hdl/802_1q_traffic_shaper/credit_based_shaper.sv`. It answers the
+`hdl/ieee8021q/ts/credit_based_shaper.sv`. It answers the
 REQUIREMENTS.md concern that *"the math behind the CBS logic is a little too
 complicated, propose something to verify and run it."*
 

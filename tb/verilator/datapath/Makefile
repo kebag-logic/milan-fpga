@@ -10,7 +10,7 @@ VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = datapath_wrap
-Q          = $(RTL_DIR)/802_1q_traffic_shaper
+Q          = $(RTL_DIR)/ieee8021q/ts
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \

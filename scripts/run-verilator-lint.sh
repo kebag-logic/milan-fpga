@@ -8,9 +8,9 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-AECP_DIR="${REPO_ROOT}/hdl/aecp"
+AECP_DIR="${REPO_ROOT}/hdl/ieee17221/aecp"
 COMMON_DIR="${REPO_ROOT}/hdl/common"
-ADP_DIR="${REPO_ROOT}/hdl/adp"
+ADP_DIR="${REPO_ROOT}/hdl/ieee17221/adp"
 
 STRICT=${1:-""}
 FLAGS="--lint-only --sv"
@@ -57,8 +57,8 @@ for MOD in "${MODULES[@]}"; do
   fi
 done
 
-# ACMP responder (stateless talker, hdl/acmp)
-ACMP_DIR="${REPO_ROOT}/hdl/acmp"
+# ACMP responder (stateless talker, hdl/ieee17221/acmp)
+ACMP_DIR="${REPO_ROOT}/hdl/ieee17221/acmp"
 echo -n "Linting KL_acmp_responder... "
 if verilator ${FLAGS} "${ACMP_DIR}/acmp_pkg.sv" "${ACMP_DIR}/KL_acmp_responder.sv" \
     2>&1 | grep -q "^%Error"; then

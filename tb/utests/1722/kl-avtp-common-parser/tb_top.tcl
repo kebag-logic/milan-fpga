@@ -52,8 +52,8 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 set obj [get_filesets sources_1]
 set files [list \
  [file normalize "${origin_dir}/../../../../hdl/common/axi_stream_if.sv"] \
- [file normalize "${origin_dir}/../../../../hdl/1722/avtp_subtype_pkg.sv"] \
- [file normalize "${origin_dir}/../../../../hdl/1722/KL_avtp_common_parser.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/ieee1722/avtp/KL_avtp_common_parser.sv"] \
 ]
 add_files -norecurse -fileset $obj $files
 

@@ -1,7 +1,7 @@
 # CSR verification harness (`milan_csr` AXI4-Lite control plane)
 
 Self-checking [Verilator](https://verilator.org) harness for
-[`hdl/csr/milan_csr.sv`](../../../hdl/csr/milan_csr.sv), the memory-mapped
+[`hdl/common/csr/milan_csr.sv`](../../../hdl/common/csr/milan_csr.sv), the memory-mapped
 control/status-register block that gives the Linux driver a way to configure the
 TSN datapath (the "memory-mapped configuration" called out in
 [`REQUIREMENTS.md`](../../../REQUIREMENTS.md), `REQ-CSR-*`).
@@ -43,6 +43,6 @@ compliant master that drops `*VALID` on handshake still commits every transfer.
 ## Extending
 
 When new register groups are added (classifier PCP table, more PTP fields),
-extend the offsets in both `hdl/csr/milan_csr.sv` and `docs/reference/REGISTER_MAP.md`, then
+extend the offsets in both `hdl/common/csr/milan_csr.sv` and `docs/reference/REGISTER_MAP.md`, then
 add the corresponding `ck(...)` assertions here. This harness is the executable
 contract for the CSR ABI (`REQ-VER-04`).

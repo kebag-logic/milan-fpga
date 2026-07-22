@@ -9,7 +9,7 @@
 # gen/aecp_aem_rom.svh / build.sh cfg_ax7101. Board of record: AX7101.
 #
 # Regenerate: python3 milan_system_map.gen.py milan_system_map.drawio
-# Render:     python3 ../../hdl/aecp/doc/atdecc_architecture.render.py milan_system_map.drawio
+# Render:     python3 ../../hdl/ieee17221/aecp/doc/atdecc_architecture.render.py milan_system_map.drawio
 import html, re, sys
 
 cells = []

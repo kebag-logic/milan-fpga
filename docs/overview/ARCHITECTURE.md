@@ -168,7 +168,7 @@ for waveform work; silicon procedures close the loop.
 
 | To change… | Edit… | Then… |
 |------------|-------|-------|
-| A register offset / new field | [`hdl/csr/milan_csr.sv`](../../hdl/csr/milan_csr.sv) offset block + decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a check in `tb/verilator/csr/sim_main.cpp` (same commit) |
+| A register offset / new field | [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) offset block + decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a check in `tb/verilator/csr/sim_main.cpp` (same commit) |
 | Number of HW queues | `NUM_QUEUES` (milan_csr) + `NUMBER_OF_QUEUES` (`ethernet_packet_pkg.sv`) | re-run `csr`, `queues`, `datapath` harnesses; ring/DMA queue count in `milan_soc.py` |
 | CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs`; remember the [reset-defaults shaping bug](../findings/CBS_DEFAULT_SHAPING_BUG.md) |
 | PCP→TC classification | `traffic_class_map.sv` decode | re-run `tb/verilator/cls` |
