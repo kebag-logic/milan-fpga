@@ -3540,7 +3540,7 @@ class MilanSoC(SoCCore):
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
-                 rx_fifo_beats=2048, board="ax7101", **kwargs):
+                 rx_fifo_beats=2048, board="ax7101", eth_phy_index=0, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3701,6 +3701,7 @@ class MilanSoC(SoCCore):
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
                                           gtx_tx_invert=gtx_tx_invert,
+                                          phy_index=eth_phy_index,
                                           phy_model=("mii" if board == "arty" else "gmii"),
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
@@ -3879,6 +3880,9 @@ def main():
                          "a complete/validated NIC  -  MDIO/PHY mgmt, the kl-eth driver, DMA "
                          "scatter-gather, and on-hardware traffic (M-A3..M-A5) are still open. "
                          "(--full is a legacy alias for this flag.)")
+    ap.add_argument("--eth-port", default="e1", choices=["e1", "e2"],
+                    help="AX7101 PHY port: e1 (default) or e2 — the e1-GMII-RX "
+                         "hardware-fault fallback (2026-07-22); both are 8-bit GMII")
     ap.add_argument("--gtx-tx-invert", action="store_true",
                     help="forward GMII gtx_clk 180° out of phase with TXD so the PHY samples "
                          "mid-bit  -  the fix for the marginal GMII-TX setup/hold at the RTL8211E "
@@ -3958,6 +3962,7 @@ def main():
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
                    rx_fifo_beats=int(args.rx_fifo_beats),
+                   eth_phy_index=(1 if args.eth_port == "e2" else 0),
                    hs_page_bytes=args.hs_page_bytes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    coherent_dma=args.coherent_dma,

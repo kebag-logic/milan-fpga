@@ -67,20 +67,30 @@ _io = [
         Subsignal("mdc",  Pins("J17"), IOStandard("LVCMOS33")),
         Subsignal("mdio", Pins("L16"), IOStandard("LVCMOS33"), Misc("PULLUP TRUE")),
     ),
-    # RGMII PHY1 = the AX7101 "e2" RTL8211E (the Milan NIC second port).
+    # GMII PHY1 = the AX7101 "e2" RTL8211E — the e1-fault fallback port
+    # (2026-07-22: e1's GMII-RX died in hardware, cold-soak-proven). The
+    # vendor 4-port example wires e2 EXACTLY like e1: 8-bit bus, separate
+    # rxdv/rxer, gtxc — i.e. GMII, not RGMII (all pins from the vendor
+    # propImpl XDC). e2_mdio = AB22 (EX SCH: E2_MDIO = B14_L10_N; CORE:
+    # B14_L10_N = AB22 — anchor-verified on the same row as E2_MDC =
+    # B14_L10_P = AB21, which the vendor XDC confirms).
     ("eth_clocks", 1,
-        Subsignal("tx", Pins("M16")),   # e2_gtxc
-        Subsignal("rx", Pins("J20")),   # e2_rxc
+        Subsignal("rx",  Pins("J20")),   # e2_rxc
+        Subsignal("gtx", Pins("M16")),   # e2_gtxc
+        Subsignal("tx",  Pins("T14")),   # e2_txc (MII 10/100)
         IOStandard("LVCMOS33"),
     ),
     ("eth", 1,
         Subsignal("rst_n",   Pins("L14"), IOStandard("LVCMOS33")),   # e2_reset
-        # PHY management: e2_mdc = AB21; MDIO data pin from SCH (see PHY0 note above).
-        # Subsignal("mdc", Pins("AB21"), IOStandard("LVCMOS33")),
-        Subsignal("rx_ctl",  Pins("L13"), IOStandard("LVCMOS33")),   # e2_rxdv
-        Subsignal("rx_data", Pins("M13 K14 K13 J14"), IOStandard("LVCMOS33")),  # e2_rxd[0:3]
-        Subsignal("tx_ctl",  Pins("M15"), IOStandard("LVCMOS33")),   # e2_txen
-        Subsignal("tx_data", Pins("L15 K16 W15 W16"), IOStandard("LVCMOS33")),  # e2_txd[0:3]
+        Subsignal("rx_dv",   Pins("L13"), IOStandard("LVCMOS33")),   # e2_rxdv
+        Subsignal("rx_er",   Pins("G13"), IOStandard("LVCMOS33")),   # e2_rxer
+        Subsignal("rx_data", Pins("M13 K14 K13 J14 H14 H15 J15 H13"),
+                  IOStandard("LVCMOS33")),                            # e2_rxd[0:7]
+        Subsignal("tx_en",   Pins("M15"), IOStandard("LVCMOS33")),   # e2_txen
+        Subsignal("tx_data", Pins("L15 K16 W15 W16 V17 W17 U15 V15"),
+                  IOStandard("LVCMOS33")),                            # e2_txd[0:7]
+        Subsignal("mdc",  Pins("AB21"), IOStandard("LVCMOS33")),
+        Subsignal("mdio", Pins("AB22"), IOStandard("LVCMOS33"), Misc("PULLUP TRUE")),
     ),
 
     # QSPI configuration flash = Micron N25Q128 (128 Mbit / 16 MB), confirmed from the
