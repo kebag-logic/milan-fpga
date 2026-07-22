@@ -380,6 +380,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
   wire [15:0] i2spb_underruns, i2spb_overruns;
+  wire        cfg_i2spb_clru, cfg_i2spb_clro;   //! I2SPB_STAT W1C strobes
   wire signed [15:0] i2spb_trim;
   wire [15:0] i2spb_fill;
   wire        i2spb_reset_p;
@@ -624,6 +625,8 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_pcmrx_cnt          ({pcmrx_drops, pcmrx_pdus}),
     .i_pcmrx_ts           (avtprx_last_ts),
     .i_i2spb_stat         ({i2spb_underruns, i2spb_overruns}),
+    .o_i2spb_clr_under    (cfg_i2spb_clru),
+    .o_i2spb_clr_over     (cfg_i2spb_clro),
     .i_i2spb_trim         ({i2spb_trim, i2spb_fill}),
     .i_maap_stat0         ({maap_conflicts, maap_defends, maap_offset}),
     .i_maap_stat1         ({29'd0, maap_addr_valid, maap_state}),
@@ -1288,6 +1291,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .wire_chans_i (mon_wire_chans_w),
     .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
     .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
+    .clr_under_i (cfg_i2spb_clru), .clr_over_i (cfg_i2spb_clro),
     .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns),
     .trim_o (i2spb_trim), .fill_o (i2spb_fill),
     .media_reset_p_o (i2spb_reset_p),

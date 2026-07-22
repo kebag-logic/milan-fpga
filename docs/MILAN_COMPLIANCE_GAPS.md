@@ -211,9 +211,13 @@ and is not repeated here.
   sink 1 honors an explicit sid (cap_sid_r). Software/synthetic talkers
   must choose their EID so the derivation lands on the sid they stamp
   (recipe proven: EUI64-from-MAC form, tuid = sid low16).
-- **I2SPB_STAT rail counters saturate at 0xFFFF and stick** (no clear
-  mechanism). After one bad episode the counter is blind forever;
-  today's diagnosis had to ignore it. RTL fix: clear-on-bind or W1C.
+- **I2SPB_STAT rail counters saturate at 0xFFFF and stick**: RESOLVED
+  2026-07-22 - W1C per half (write any bit of a half to restart that
+  rail; halves independent, zero write inert, readback stays live).
+  W1C over clear-on-bind: the rails are diagnostics, not Milan Table
+  5.6 counters - see docs/reference/REGISTER_MAP.md 0x6D8. VERSION
+  0x0007. TBs: tb/verilator/i2spb (counter behavior incl. re-arm after
+  clear) + tb/verilator/csr (strobe decode).
 - **Controller tooling must use distinct ACMP sequence_ids** —
   back-to-back commands with the same {controller, seq} are eaten by
   the responder's 1722.1 duplicate detection (correct DUT behavior,
