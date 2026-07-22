@@ -129,12 +129,16 @@ BOARDS = {
 }
 
 # Physical audio interfaces (item-4 subtask). channels = per direction.
-# Only i2s_philips exists in RTL today (KL_i2s_playback / aaf_talker_i2s).
+# i2s_philips (KL_i2s_playback / aaf_talker_i2s) and the tdm family
+# (KL_tdm_capture -> KL_aaf_packetizer multi-channel payload, selected via
+# milan_soc.py --audio-interface) exist in RTL; aes3/spdif have their
+# interface contract documented (hdl/ieee1722/aaf/doc/
+# audio_frontend_family.md) - the biphase-mark ser/des is a later member.
 INTERFACES = {
     "i2s_philips": dict(channels=2,  word_bits=(16, 24),     rtl="present"),
-    "tdm8":        dict(channels=8,  word_bits=(16, 24, 32), rtl="planned"),
-    "tdm16":       dict(channels=16, word_bits=(16, 24, 32), rtl="planned"),
-    "tdm32":       dict(channels=32, word_bits=(16, 24, 32), rtl="planned"),
+    "tdm8":        dict(channels=8,  word_bits=(16, 24, 32), rtl="present"),
+    "tdm16":       dict(channels=16, word_bits=(16, 24, 32), rtl="present"),
+    "tdm32":       dict(channels=32, word_bits=(16, 24, 32), rtl="present"),
     "aes3":        dict(channels=2,  word_bits=(16, 20, 24), rtl="planned"),
     "spdif":       dict(channels=2,  word_bits=(16, 20, 24), rtl="planned"),
 }
@@ -161,7 +165,7 @@ RTL_TODAY = dict(
     max_aaf_listeners=1,
     max_talkers=1,
     crf_sink=True,
-    interfaces={"i2s_philips"},
+    interfaces={"i2s_philips", "tdm8", "tdm16", "tdm32"},
     render_channels=2,          # wire-truth rule: extra stream chans virtual
     sampling_rates={48000},
 )
@@ -759,12 +763,15 @@ def rtl_capability_marks(cfg):
     kind = cfg["interface"]["kind"]
     if kind in RTL_TODAY["interfaces"]:
         marks.append((f"audio interface {kind}", "supported",
-                      "KL_i2s_playback / aaf_talker_i2s"))
+                      "KL_i2s_playback / aaf_talker_i2s" if kind == "i2s_philips"
+                      else "KL_tdm_capture -> KL_aaf_packetizer multi-channel "
+                           "payload (milan_soc.py --audio-interface)"))
     else:
         marks.append((f"audio interface {kind}",
-                      "planned (item 4 subtask - audio interfaces + cluster mapping)",
-                      "needs ser/des RTL family selection under the "
-                      "spec-aligned tree (TDM slots / biphase-mark for AES3-SPDIF)"))
+                      "planned (item 4 subtask - AES3/S-PDIF biphase-mark ser/des)",
+                      "interface contract documented "
+                      "(hdl/ieee1722/aaf/doc/audio_frontend_family.md); the "
+                      "biphase-mark clock-recovery RTL is the later family member"))
     rate = cfg["clocking"]["sampling_rate_hz"]
     if rate in RTL_TODAY["sampling_rates"]:
         marks.append((f"{rate} Hz media clock", "supported", ""))
@@ -834,6 +841,13 @@ def emit_soc_argv(cfg):
     n_streams = max(len(cfg["listeners"]), len(cfg["talkers"]))
     if n_streams > 1:
         argv += ["--num-streams", str(n_streams)]
+    # item-4 audio-interface family: the tdm kinds select the KL_tdm_capture
+    # front-end generate (milan_datapath AUDIO_IF_SLOTS_P). Emitted only for
+    # non-default kinds so the shipping i2s argv stays byte-identical;
+    # aes3/spdif have no ser/des RTL yet (planned mark) and emit nothing.
+    kind = cfg["interface"]["kind"]
+    if kind in ("tdm8", "tdm16", "tdm32"):
+        argv += ["--audio-interface", kind]
     return argv
 
 
