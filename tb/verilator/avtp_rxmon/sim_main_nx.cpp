@@ -248,7 +248,9 @@ int main(int argc,char**argv){
     ck("NULL route: s1 LCTX FRX advanced", lctx_rd(1, W_FRX), 3);
 
     printf("\n[R2] P3: s1 -> DMA passes tagged, render tap stays s0\n");
-    routewr(1, 2 /*DMA*/);
+    //! route field = FLAGS since the ALSA-design rework: bit0 DMA, bit1
+    //! RENDER (s0 reset = 0b11 RENDER|DMA = the P3 RENDER behavior)
+    routewr(1, 1 /*DMA flag*/);
     pcm.clear(); pcm_users.clear(); rend_users.clear();
     { AafCfg c; c.sid=SID1; c.seq=3; feed(mkaaf(c)); }
     { AafCfg c; c.seq=5; feed(mkaaf(c)); }        // s0 (RENDER default)
@@ -261,16 +263,16 @@ int main(int argc,char**argv){
        lctx_rd(1, 11) & 0xFFFF, 4);
 
     printf("\n[R3] P3: RENDER-lowest-wins + render switch\n");
-    routewr(1, 1 /*RENDER*/);                     // s0 and s1 both RENDER
+    routewr(1, 2 /*RENDER flag*/);                // s0 and s1 both RENDER
     ck("lowest-indexed RENDER wins (sel=0)", dut->render_sel_o, 0);
-    routewr(0, 2 /*DMA*/);                        // s0 leaves RENDER
+    routewr(0, 1 /*DMA only*/);                   // s0 leaves RENDER
     ck("render_sel moves to 1", dut->render_sel_o, 1);
     rend_users.clear();
     { AafCfg c; c.sid=SID1; c.seq=4; c.chans=2; feed(mkaaf(c)); }
-    { AafCfg c; c.seq=6; feed(mkaaf(c)); }        // s0 now DMA
+    { AafCfg c; c.seq=6; feed(mkaaf(c)); }        // s0 now DMA-only
     ck("render tap follows s1", rend_users.size()==1 && rend_users[0]==1, 1);
     ck("wire_chans follows the RENDER stream", dut->wire_chans_o, 2);
-    routewr(0, 1); routewr(1, 0);                 // restore defaults
+    routewr(0, 3); routewr(1, 0);                 // restore defaults
 
     printf("\n[E1] P1 eviction: unbind + retarget s1's table entry\n");
     //! an in-place rewrite keeps en=1 (no not-bound->bound edge, so no

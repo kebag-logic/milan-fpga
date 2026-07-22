@@ -17,8 +17,11 @@
 //                Integration contract:
 //                  m_axis_*          -> the low-rate control TX merge
 //                  rx_*              -> monitor tap on rx_axis_to_dma
-//                  stream_gate_o     -> AAF admission (with the CSR bypass
-//                                       resolved at the datapath level)
+//                  stream_gate_o     -> per-stream AAF admission (bit 0 =
+//                                       the legacy CSR talker row, bits
+//                                       1..N-1 = ctx-table talker rows;
+//                                       the CSR bypass is resolved at the
+//                                       datapath level)
 //                  slope_en/idle_slope -> CBS slope MUX for the class-A queue
 //                  listener_ready_o  -> ACMP listener_observed (replaces the
 //                                       manual A_ACMP_LOBS override)
@@ -81,10 +84,12 @@ module KL_lwsrp_top #(
     input  wire         m_axis_tready,
 
     // ---- reservation outputs ----------------------------------------------
-    output wire         stream_gate_o,     //! AAF admission
+    //! per-stream AAF admission: [0] = legacy CSR talker row, [t] = ctx
+    //! row t (talker-direction rows only; listener rows never gate)
+    output wire [N_CTX_P-1:0] stream_gate_o,
     output wire         slope_en_o,        //! CBS slope MUX select
-    output wire [31:0]  idle_slope_o,      //! granted idleSlope, bps
-    output wire         res_active_o,
+    output wire [31:0]  idle_slope_o,      //! Σ granted idleSlope, bps
+    output wire         res_active_o,      //! legacy-row reservation ACTIVE
     output wire         listener_ready_o,  //! -> ACMP listener_observed
 
     // ---- CSR status ---------------------------------------------------------
@@ -300,17 +305,63 @@ module KL_lwsrp_top #(
     .pdu_cnt_o ()
   );
 
-  KL_lwsrp_bw_gate bw_gate (
+  // ---- per-stream bw-gate feeds (P12 follow-up: talker t>0 arming) --------
+  //! bit 0 = the legacy CSR talker row; bits 1..N-1 = ctx-table rows,
+  //! talker-direction only (a listener row never requests bandwidth here -
+  //! its reservation is the remote talker's).
+  //! TSpec shadow for the extra rows: the ctx record RAM keeps its ONE
+  //! explicit read port (defect-4 house rule), so the bw-gate's parallel
+  //! quasi-static TSpec inputs come from small shadow flops captured at the
+  //! same provisioning grant that writes the record.
+  wire [N_CTX_P-1:0]    gate_tdecl_w, gate_lrdy_w;
+  wire [16*N_CTX_P-1:0] gate_maxf_w, gate_intv_w;
+  logic [15:0] gate_maxf_r [EXT_LANES_C];
+  logic [15:0] gate_intv_r [EXT_LANES_C];
+
+  always_ff @(posedge clk_i or negedge rst_n) begin : gate_tspec_shadow
+    if (!rst_n) begin
+      for (int l = 0; l < int'(EXT_LANES_C); l++) begin
+        gate_maxf_r[l] <= '0;
+        gate_intv_r[l] <= '0;
+      end
+    end
+    else if (ctx_req_i && ctx_we_i && ctx_gnt_o && (ctx_idx_i != 4'd0) &&
+             (32'(ctx_idx_i) < N_CTX_P)) begin
+      gate_maxf_r[ctx_idx_i - 4'd1] <= ctx_max_frame_i;
+      gate_intv_r[ctx_idx_i - 4'd1] <= ctx_interval_i;
+    end
+  end : gate_tspec_shadow
+
+  assign gate_tdecl_w[0]    = talker_declared_o;
+  assign gate_lrdy_w[0]     = listener_ready_o;
+  assign gate_maxf_w[15:0]  = max_frame_i;
+  assign gate_intv_w[15:0]  = interval_frames_i;
+  generate
+    for (genvar gt = 1; gt < int'(N_CTX_P); gt++) begin : g_gate_feed
+      //! declared = valid talker row (the ctx TX refreshes it while the
+      //! engine runs); ready = Listener Ready/ReadyFail registered (the
+      //! per-direction row_ready view, talker rows only)
+      assign gate_tdecl_w[gt] = row_valid_w[gt-1] & ~row_dir_w[gt-1];
+      assign gate_lrdy_w[gt]  = row_ready_w[gt-1] & ~row_dir_w[gt-1];
+      assign gate_maxf_w[16*gt +: 16] = gate_maxf_r[gt-1];
+      assign gate_intv_w[16*gt +: 16] = gate_intv_r[gt-1];
+    end
+  endgenerate
+
+  wire [N_CTX_P-1:0] res_active_w;
+  assign res_active_o = res_active_w[0];
+
+  KL_lwsrp_bw_gate #(.N_STREAMS_P(N_CTX_P)) bw_gate (
     .clk_i (clk_i), .rst_n (rst_n),
     .enable_i (enable_i),
-    .talker_declared_i (talker_declared_o),
-    .listener_ready_i (listener_ready_o),
+    .talker_declared_i (gate_tdecl_w),
+    .listener_ready_i (gate_lrdy_w),
     .domain_ok_i (domain_ok_o),
     .is_1g_i (is_1g_i),
-    .max_frame_i (max_frame_i), .interval_frames_i (interval_frames_i),
+    .max_frame_i (gate_maxf_w), .interval_frames_i (gate_intv_w),
     .stream_gate_o (stream_gate_o),
     .slope_en_o (slope_en_o), .idle_slope_o (idle_slope_o),
-    .res_active_o (res_active_o),
+    .res_active_o (res_active_w),
     .over_limit_o (over_limit_o)
   );
 

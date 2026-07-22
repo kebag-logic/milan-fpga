@@ -327,7 +327,7 @@ elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
 |--------|------|-----|-------|-------------|
 | `0x800` | `A_STRM_SEL` | RW | `0` | `[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker). Only these bits are stored/read back. Writing SEL invalidates the ACMP/SRP read snapshots (they re-poll for the new selection) |
 | `0x804` | `A_STRM_SNAP` | W1S / RO | `0` | Write `[0]`=1: latch the selected stream's `STATE` + `CNT0..9` + `PDUS` into the window shadow as ONE coherent block. Read: `[0]` busy. Poll busy=0 before reading the latched words |
-| `0x810` | `A_STRMW_CTRL` | RW | — | listener: `[0]` en, `[2:1]` route (LCTX w4, engine-backed); talker idx 0: `[0]` en = **hard alias of `AAF_CTRL[0]`** (merge write — VID/bypass bits untouched); talker idx>0: TCTX w0. A CTRL write at idx>0 also COMMITS the lwSRP provisioning record (see below) |
+| `0x810` | `A_STRMW_CTRL` | RW | — | listener: `[0]` en, `[2:1]` route FLAGS `{[2] RENDER, [1] DMA}` — independently combinable, see the route paragraph below (LCTX w4, engine-backed); talker idx 0: `[0]` en = **hard alias of `AAF_CTRL[0]`** (merge write — VID/bypass bits untouched); talker idx>0: TCTX w0 (`[0]` en arms the stream — the per-stream admission composition, see the talker t>0 paragraph). A CTRL write at idx>0 also COMMITS the lwSRP provisioning record (see below) |
 | `0x814` | `A_STRMW_SID_LO` | RW/RO | — | stream_id `[31:0]`. listener: RO from the ACMP bind context (tbl port); talker idx 0: RO derived `{station MAC, uid=0}`; talker idx>0: RO from the lwSRP row snapshot. Writes stage the provisioning sid (and forward to LCTX w0 for listeners) |
 | `0x818` | `A_STRMW_SID_HI` | RW/RO | — | stream_id `[63:32]`, same rules (LCTX w1) |
 | `0x81C` | `A_STRMW_DMAC_LO` | RW/RO | — | stream DMAC `[31:0]`. listener: RO ACMP bind context; talker idx 0: **hard alias of `AAF_DMLO`** (RW, exact); talker idx>0: TCTX w1 (engine-backed). Writes stage the provisioning DMAC |
@@ -369,9 +369,30 @@ monotonic, reset only on that stream's bind edge). Engine-backed CFG words
 reads served live from the context RAM (>= 4 AXI-stalled cycles, longer
 while the engine walks an event). A listener `CTRL` commit at any idx also
 writes the classification stream-table entry `{sid staged via SID_LO/HI,
-en}` and the route field (`[2:1]`: 0 NULL / 1 RENDER / 2 DMA — DMA streams
-land in DRAM at `pcm base + s*stride`, see the `_PCMRingNxN` CSRs at
-N > 1).
+en}` and the route field.
+
+**Route flags (`CTRL[2:1]`, KL_pcm_route).** The 2-bit field is a pair of
+INDEPENDENT flags, not an exclusive enum: `CTRL[1]` = DMA (payload lands in
+the stream's DRAM ring at `pcm base + s*stride`, see the `_PCMRingNxN` CSRs
+at N > 1), `CTRL[2]` = RENDER (feeds the LPF + I2S render path; if several
+streams carry the flag the lowest-indexed one wins). `0b11` = RENDER|DMA =
+capture-while-rendering; `0b00` = NULL (neither — the monitor still
+counts). Mapping from the retired P3 enum (ALSA-design feedback, open
+question 4): P3 `0 NULL` -> `0b00`; P3 `1 RENDER` -> `0b11` (P3's RENDER
+also forwarded the ring copy — the flags now say so directly); P3 `2 DMA`
+-> `0b01` (the raw value 2 now means RENDER-only). Reset default: stream 0
+= `0b11`, others `0b00` — bit-identical N=1 behavior to P3.
+
+**Talker t>0 arming (`aaf_stream_en_w`).** Talker stream 0's admission is
+the flat `aaf_gate` unchanged (`AAF_CTRL` en/bypass, MAAP claim, ACMP
+talker-active, lwSRP row-0 gate). A talker idx>0 arms as: TCTX `CTRL[0]`
+(this window) AND the per-stream lwSRP bw-gate (its ctx-table talker row,
+`~LWSRP_CTRL[0]` bypasses) AND the engine-wide MAAP term (`~MAAP_CTRL[0] |
+addr_valid` — ONE claim engine, mirrors t0). Honest gaps (documented in
+the RTL): no per-stream ACMP talker-active exists (single talker SM), so
+t>0 has no ACMP term and `AAF_CTRL[1]` bypass plays no t>0 role; the
+capture front-end still emits slot 0 only (item-4 TDM), so an armed t>0
+emits no frames until it has a sample source.
 
 **Engine-backed words + read timing.** Window reads of LCTX/TCTX-backed
 words (`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are

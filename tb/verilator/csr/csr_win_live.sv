@@ -79,7 +79,9 @@ module csr_win_live #(
   wire [47:0] lwsrp_dmac_w;
   wire [15:0] lwsrp_maxf_w, lwsrp_intv_w;
   wire [31:0] lwsrp_lat_w;
-  wire        slope_en_w, stream_gate_w, over_limit_w, res_active_w;
+  wire        slope_en_w, over_limit_w, res_active_w;
+  wire [2:0]  stream_gate_w;          //! per-stream (P12 follow-up); the
+                                      //! flat status word packs bit 0
   wire        domain_ok_w, talker_declared_w, listener_ready_w, listener_reg_w;
   wire        tfail_valid_w;
   wire [1:0]  listener_decl_w;
@@ -107,7 +109,7 @@ module csr_win_live #(
     .o_lwsrp_max_frame (lwsrp_maxf_w), .o_lwsrp_interval (lwsrp_intv_w),
     .o_lwsrp_latency (lwsrp_lat_w),
     .i_lwsrp_status ({rx_drops_w, tfail_code_w, 5'd0, tfail_valid_w,
-                      slope_en_w, stream_gate_w, over_limit_w, res_active_w,
+                      slope_en_w, stream_gate_w[0], over_limit_w, res_active_w,
                       domain_ok_w, talker_declared_w, listener_ready_w,
                       listener_reg_w, listener_decl_w}),
     // window: LCTX/TCTX at the no-engine ties (P12 contract: rd_valid/
