@@ -20,11 +20,28 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        avtp_rxmon_wrap.sv
+# NxN lane-A stack (NXN_ARCHITECTURE P1/P2/P3): table + parser + ctx monitor
+# + depacketizer + route at N=4
+NXFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_nx_wrap \
+         -GCLK_FREQ_HZ_P=10000 \
+         +incdir+$(C) +incdir+$(A) \
+         -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
+         -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2"
+NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
+       $(A)/avtp_stream_parser.sv $(A)/KL_stream_table.sv \
+       $(A)/KL_avtp_rx_monitor_ctx.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
+       ../../../third_party/verilog-axis/rtl/axis_fifo.v \
+       avtp_rxmon_nx_wrap.sv
 .PHONY: all run clean coverage
 all: run
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) sim_main.cpp -o Vavtp_rxmon_wrap_sim
 	./obj_dir/Vavtp_rxmon_wrap_sim
+	$(VERILATOR) $(NXFLAGS) --Mdir obj_nx $(NXSRCS) sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
+	./obj_nx/Vavtp_rxmon_nx_sim
 
 # Line+toggle coverage over the RX stack (parser + monitor + depacketizer).
 # Gate: LINE coverage of the two KL_ modules must be >= 95 % (defensive-only arms carry coverage_off pragmas).
