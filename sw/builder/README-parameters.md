@@ -36,6 +36,8 @@ configs/endstation_<x>.yaml
 | `audio_interface.cluster_mapping.policy` | `cap-at-interface` \| `cluster-per-stream-channel` | `cluster-per-stream-channel` | overlay emitter (`cluster_layout`) | Replaces 1.0 `rule` (now rejected). `cluster-per-stream-channel`: the stream's `clusters` field verbatim (legacy/pipewire-reference). `cap-at-interface`: per stream `min(clusters, interface channels/direction)` — clusters model real endpoints only. Both generators implemented; 4x4/8x8 examples choose `cap-at-interface`, `arty_current` keeps the deployed legacy layout. |
 | `streams.talkers[].clusters` | int 1..32 | `channels` | overlay emitter | SINGLE AUTHORITY for the talker's cluster count (pre-policy). Example configs ship the wire-truth 2 (today's framer RTL is stereo); `arty_current` expresses the deployed legacy-8. |
 | `streams.listeners[].clusters` | int 1..32 | `channels` | overlay emitter | Same authority, listener side. |
+| `streams.listeners[].map_mode` | `static` \| `dynamic` | `static` | overlay emitter + gen_aem_store `AEM_DYNMAP | Gaps item 8. `dynamic` drops the port's AUDIO_MAP descriptor and advertises `number_of_maps=0` (1722.1-2021 7.2.13); the RTL then serves ADD/REMOVE/GET_AUDIO_MAPPINGS from a mappings store (Milan 5.4.2.26–28). RTL scope: `listeners[0]` only; talkers and other listeners are rejected (outputs stay static = NOT_SUPPORTED per 5.4.2.27/28). Changes the model hash (conditional key: static configs keep their ids). |
+| `streams.listeners[].map_page` | int 1..11 | `min(clusters, 8)` | gen_aem_store `AEM_DYNMAP | GET_AUDIO_MAP fixed partition size in cluster keys (Milan 5.4.2.26; `number_of_maps = ceil(clusters/map_page)`). Only valid with `map_mode: dynamic`; 11 = the RTL const-scratch bound. |
 | `board.constraints.eth_port` | board's `eth_ports` (`ax7101`: `e1`\|`e2`) | absent | soc argv + sweep opts | Multi-PHY boards only (arty rejects it). `ax7101` ships `e2` (e1 GMII-RX hardware fault, 2026-07-22). |
 | `entity.entity_model_id` | `hash-derived` \| EUI-64 hex | required | model-id resolution | `hash-derived` = the default path (recipe below); a hex literal stays expressible. |
 | `entity.model_id_pin` | EUI-64 hex | absent | model-id resolution | WINS over everything: pins already-flashed silicon to its deployed identity (`arty_current` → `0x001BC50AC1000001`). Remove only with a model-changing reflash. |
@@ -80,12 +82,16 @@ without an audio port). Every port owns
   all input blocks precede all output blocks; the physical interface
   channels bind in order to the first clusters per direction — wire-truth
   1-to-1 rule), and
-- exactly ONE `AUDIO_MAP` (`base_map`; input ports take map indexes
-  `0..L-1`, output ports `L..L+T-1`) whose rows carry cluster offsets
-  RELATIVE to the port's `base_cluster` (IEEE 1722.1-2021 §7.2.19).
+- exactly ONE `AUDIO_MAP` (`base_map`; static input ports first, then
+  output ports, numbered contiguously) whose rows carry cluster offsets
+  RELATIVE to the port's `base_cluster` (IEEE 1722.1-2021 §7.2.19) —
+  UNLESS the port is `map_mode: dynamic`: it then carries NO map,
+  advertises `number_of_maps=0`/`base_map=0` (§7.2.13) and its mappings
+  are runtime state behind ADD/REMOVE/GET_AUDIO_MAPPINGS.
 
 Descriptor counts follow: `STREAM_PORT_INPUT = L`, `STREAM_PORT_OUTPUT = T`,
-`AUDIO_MAP = L + T`, `AUDIO_CLUSTER = Σ per-port clusters`.
+`AUDIO_MAP = static ports only (L + T minus dynamic)`,
+`AUDIO_CLUSTER = Σ per-port clusters`.
 
 ## sweep.sh single-source contract
 

@@ -43,6 +43,38 @@ and is not repeated here.
   NOT_SUPPORTED - exactly the specified behavior for this topology.
   Dynamic maps only become mandatory if the static maps are dropped
   (which the future 8ch/dynamic-routing work would do).
+  **IMPLEMENTED for dynamic ports (2026-07-22, roadmap item 8):** the
+  model gained a per-port `map_mode: static|dynamic` (builder
+  `listeners[].map_mode` + gen_aem_store spec/overlay key). A dynamic
+  STREAM_PORT_INPUT[0] emits NO AUDIO_MAP descriptor and advertises
+  `number_of_maps=0` (1722.1-2021 7.2.13 — the dynamic-capability
+  signal is exactly that, there is no port flag), and the svh emits
+  the `` `AEM_DYNMAP`` engine constants (keys/page/number_of_maps +
+  the static output map address). RTL: KL_aecp_response_builder gets
+  a direct-mapped mappings flop store (key = cluster_offset, mono
+  clusters; entry = {valid, stream_channel}, stream_index locked 0),
+  a two-pass ADD walk (validate-all-then-commit = 5.4.2.27
+  all-or-nothing; intra-command same-key conflict + out-of-range
+  cluster/channel + current-format channel bound rejects), lenient
+  REMOVE (exact-match clear, duplicates/unmatched ignored per
+  5.4.2.28), GET_AUDIO_MAP paging over the fixed partition (5.4.2.26:
+  number_of_maps constant, per-page mappings, map_index out of range
+  = BAD_ARGUMENTS), u=1 replay on actual change through the existing
+  unsol path (nochg-suppressed), and the lock rule via l0 (ADD/REMOVE
+  are not lock-exempt). Static shapes: byte-identical svh, identical
+  RTL, NOT_SUPPORTED regression TB-locked (sim_main [18]); the
+  dynamic shape is TB-locked by tb/verilator/aecp/sim_dynmap.cpp (72
+  checks) + builder gate 17. Deliberate bounds: dynamic maps on
+  STREAM_PORT_OUTPUT / ports beyond input 0 are codegen-rejected
+  (outputs keep the Milan-mandated static NOT_SUPPORTED), and one
+  ADD/REMOVE carries <= 60 mappings (an AECPDU fits 63 anyway).
+  **Render-consumption follow-up (documented flag):** the builder
+  exports live render taps `dmap_l/r_{ch,en}_o` (cluster 0/1 = the
+  DAC pair) through KL_aecp_top into milan_datapath, where they
+  terminate; generalizing the KL_i2s_playback half-beat walker's
+  fixed pos0/pos1 latch into per-position selects is the follow-up
+  (the walker is silicon-proven at the -73.4 dB record and a remap
+  rewrite is not bench-verifiable this round — honesty over reach).
 - ~~No-change SET suppression covers only SET_STREAM_INFO and
   SET_CONFIGURATION~~ **RESOLVED (2026-07-20):** WRITE_S reads the old
   store byte before writing (2-phase) and `wb_diff` gates the u=1
@@ -467,8 +499,10 @@ and is not repeated here.
    rate slaved to the media clock = why it follows the DRP servo);
    listener streams = capture PCMs, talker streams = playback PCMs;
    stock PipeWire ALSA source/sink replaces pw-milan-ring-source.
-8. Dynamic audio maps (ADD/REMOVE + es-4.16) — mandatory the moment
-   routing becomes dynamic.
+8. ~~Dynamic audio maps (ADD/REMOVE + es-4.16)~~ **DONE (2026-07-22):**
+   map_mode model + `AEM_DYNMAP RTL engine + sim_dynmap TB + builder
+   gate 17 (see §1); the render-consumption walker generalization is
+   the documented follow-up.
 9. Milan saved-state fast-connect (binds surviving reboot).
 10. **Spec-matrix peer-validation (USER 2026-07-22):** peer-test the
    specification matrix ONE-TO-ONE with a human — every clause →

@@ -358,7 +358,9 @@ def spec_from_overlay(ovl):
                  loc_index=int(c["location_index"]))
             for c in ovl["clock_sources"]],
         ports_in=[dict(clusters=p["clusters"], base_cluster=p["base_cluster"],
-                       maps=p["maps"], base_map=p["base_map"])
+                       maps=p["maps"], base_map=p["base_map"],
+                       map_mode=p.get("map_mode", "static"),
+                       map_page=p.get("map_page"))
                   for p in ovl["stream_ports"]["input"]],
         ports_out=[dict(clusters=p["clusters"], base_cluster=p["base_cluster"],
                         maps=p["maps"], base_map=p["base_map"])
@@ -407,12 +409,27 @@ def build_model(spec):
     descs.append((STRINGS, 0, d_strings(
         [spec["entity"]["name"], spec["rates_string"],
          spec["entity"]["vendor_name"], "", "", "", ""])))
+    # map_mode (gaps item 8, dynamic audio maps): a "dynamic" port carries
+    # NO AUDIO_MAP descriptor and advertises number_of_maps=0 / base_map=0 -
+    # the 1722.1-2021 7.2.13 dynamic-mapping capability signal ("These
+    # Entities set the number_of_maps field to zero (0) and the base_map
+    # field is ignored"). The RTL dynamic-map engine (`AEM_DYNMAP) today
+    # serves STREAM_PORT_INPUT[0] only (the render/NxN direction); any other
+    # placement is rejected here rather than silently mis-modeled.
     for k, p in enumerate(spec["ports_in"]):
+        dyn = p.get("map_mode", "static") == "dynamic"
+        if dyn and k != 0:
+            raise ValueError("map_mode dynamic is supported on "
+                             "STREAM_PORT_INPUT[0] only (RTL engine scope)")
         descs.append((STREAM_PORT_INPUT, k,
                       d_stream_port(STREAM_PORT_INPUT, k, 0x0001,
                                     p["clusters"], p["base_cluster"],
-                                    p["maps"], p["base_map"])))
+                                    0 if dyn else p["maps"],
+                                    0 if dyn else p["base_map"])))
     for k, p in enumerate(spec["ports_out"]):
+        if p.get("map_mode", "static") == "dynamic":
+            raise ValueError("map_mode dynamic on STREAM_PORT_OUTPUT is not "
+                             "supported (output maps stay static - follow-up)")
         descs.append((STREAM_PORT_OUTPUT, k,
                       d_stream_port(STREAM_PORT_OUTPUT, k, 0x0000,
                                     p["clusters"], p["base_cluster"],
@@ -502,10 +519,32 @@ def build_model(spec):
         EMIT=(len(si) > 2 or len(so) > 1),
     )
 
+    # Dynamic-map engine constants (gaps item 8). Gated exactly like
+    # PER_STREAM: emitted ONLY when input port 0 is map_mode dynamic, so the
+    # deployed static shape's svh (and the RTL path it compiles) stays
+    # byte-identical. Milan 5.4.2.26 partitioning: the port's cluster
+    # channels (mono clusters, d_audio_cluster channel_count=1 => keys ==
+    # clusters) are split into fixed subsets of PAGE keys; number_of_maps =
+    # ceil(keys/PAGE) is returned no matter the live mapping count. PAGE is
+    # capped at 11 by the RTL const-scratch (6 + 8*PAGE <= 96 bytes).
+    p0 = spec["ports_in"][0]
+    dynmap = dict(EMIT=(p0.get("map_mode", "static") == "dynamic"))
+    if dynmap["EMIT"]:
+        keys = p0["clusters"]
+        page = int(p0.get("map_page") or min(keys, 8))
+        if not 1 <= page <= 11:
+            raise ValueError(f"map_page {page} outside 1..11 (the RTL "
+                             "GET_AUDIO_MAP const-scratch bound)")
+        out_map = spec["ports_out"][0]["base_map"]
+        dynmap.update(
+            KEYS=keys, PAGE=page, NMAPS=-(-keys // page),
+            OUTROWS=len(spec["audio_maps"][out_map]),
+            OUT_WB=base_of(AUDIO_MAP, out_map))
+
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
-                PER_STREAM=per_stream)
+                PER_STREAM=per_stream, DYNMAP=dynmap)
 
 SRC_IDS = {name: n for n, name in enumerate(
     ["ENTITY_ID", "MODEL_ID", "ECAPS", "TALKER_SRC", "TALKER_CAP",
@@ -621,6 +660,23 @@ def emit_svh(M, path):
           "'{" + ", ".join(f"16'd{v}" for v in ps["IN_WB"]) + "};")
         a(f"localparam [15:0] WB_STROUT_FMT_ADDR_C [0:{n_out-1}] = "
           "'{" + ", ".join(f"16'd{v}" for v in ps["OUT_WB"]) + "};")
+        a("")
+    dm = M["DYNMAP"]
+    if dm["EMIT"]:
+        a("// Dynamic audio-map engine (gaps item 8: STREAM_PORT_INPUT[0] is")
+        a("// map_mode dynamic - no AUDIO_MAP descriptor, number_of_maps=0 per")
+        a("// 1722.1-2021 7.2.13; ADD/REMOVE/GET served by the RTL mappings")
+        a("// RAM per Milan 5.4.2.26-28. Static shapes never emit this block.")
+        a("`define AEM_DYNMAP")
+        a(f"localparam int unsigned AEM_DMAP_KEYS_C  = {dm['KEYS']};"
+          "   // port cluster channels (mono clusters)")
+        a(f"localparam int unsigned AEM_DMAP_PAGE_C  = {dm['PAGE']};"
+          "   // GET_AUDIO_MAP fixed partition size")
+        a(f"localparam int unsigned AEM_DMAP_NMAPS_C = {dm['NMAPS']};"
+          "   // number_of_maps (ceil(keys/page))")
+        a(f"localparam int unsigned AEM_DMAP_OUTROWS_C = {dm['OUTROWS']};"
+          "   // static output map rows (GET source)")
+        a(f"localparam [15:0] WB_AUDIO_MAP_OUT_C = 16'd{dm['OUT_WB']};")
         a("")
     with open(path, "w") as f:
         f.write("\n".join(lines))

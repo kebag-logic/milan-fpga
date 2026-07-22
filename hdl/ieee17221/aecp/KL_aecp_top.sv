@@ -72,6 +72,12 @@ module KL_aecp_top #(
   input  wire          listener_observed_i,//! lwSRP registrar hook
   output wire [31:0]   pres_offset_o,      //! live presentation offset (ns) -> framer
   output wire          identify_o,         //! IDENTIFY control active (LED hook)
+
+  // ---- dynamic audio-map render taps (gaps item 8; `AEM_DYNMAP) -------
+  output wire [3:0]    dmap_l_ch_o,        //! cluster 0 (render L) stream ch
+  output wire          dmap_l_en_o,        //! cluster 0 mapping valid
+  output wire [3:0]    dmap_r_ch_o,        //! cluster 1 (render R) stream ch
+  output wire          dmap_r_en_o,        //! cluster 1 mapping valid
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT counters)
 
@@ -274,6 +280,10 @@ module KL_aecp_top #(
     .pres_offset_i(pres_offset_r),
     .pres_wr_p_o(pres_wr_p_w), .pres_wr_val_o(pres_wr_val_w),
     .identify_o(identify_o),
+    .dmap_l_ch_o(dmap_l_ch_o),
+    .dmap_l_en_o(dmap_l_en_o),
+    .dmap_r_ch_o(dmap_r_ch_o),
+    .dmap_r_en_o(dmap_r_en_o),
     .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
     .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),

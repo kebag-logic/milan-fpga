@@ -465,9 +465,28 @@ def _streams(lst, ctx, direction):
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
+        # map_mode (gaps item 8): "dynamic" drops the port's static
+        # AUDIO_MAP (1722.1-2021 7.2.13 number_of_maps=0) and arms the RTL
+        # ADD/REMOVE/GET_AUDIO_MAP engine. RTL scope today: the FIRST
+        # listener stream only (STREAM_PORT_INPUT[0]); talkers stay static.
+        map_mode = s.get("map_mode", "static")
+        if map_mode not in ("static", "dynamic"):
+            raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
+                              "static|dynamic")
+        if map_mode == "dynamic" and (direction != "listener" or k != 0):
+            raise ConfigError(f"{sctx}: map_mode dynamic is supported on "
+                              "listeners[0] only (RTL engine scope)")
+        map_page = s.get("map_page")
+        if map_page is not None:
+            if map_mode != "dynamic":
+                raise ConfigError(f"{sctx}: map_page needs map_mode dynamic")
+            if not (isinstance(map_page, int) and 1 <= map_page <= 11):
+                raise ConfigError(f"{sctx}: map_page {map_page} outside "
+                                  "1..11 (RTL GET scratch bound)")
         out.append(dict(
             name=s.get("name", f"Stream {'In' if direction == 'listener' else 'Out'} {k}"),
             channels=ch, formats=fmts, clusters=clusters,
+            map_mode=map_mode, map_page=map_page,
             buffer_length_ns=s.get("buffer_length_ns", BUFLEN_DEFAULT_NS),
         ))
     return out
@@ -496,18 +515,28 @@ def cluster_layout(listeners, talkers, policy, iface_channels):
             return min(s["clusters"], iface_channels)
         return s["clusters"]
 
-    ports_in, base = [], 0
+    # map_mode dynamic (gaps item 8): the port carries NO AUDIO_MAP
+    # (7.2.13 number_of_maps=0, base_map ignored) - static maps are
+    # renumbered contiguously so the descriptor set stays gapless.
+    ports_in, base, next_map = [], 0, 0
     for i, s in enumerate(listeners):
         n = eff(s)
+        dyn = s.get("map_mode", "static") == "dynamic"
         ports_in.append(dict(index=i, stream_index=i, clusters=n,
-                             base_cluster=base, maps=1, base_map=i))
+                             base_cluster=base,
+                             maps=0 if dyn else 1,
+                             base_map=0 if dyn else next_map,
+                             map_mode=s.get("map_mode", "static"),
+                             map_page=s.get("map_page")))
+        if not dyn:
+            next_map += 1
         base += n
     ports_out = []
     for j, s in enumerate(talkers):
         n = eff(s)
         ports_out.append(dict(index=j, stream_index=j, clusters=n,
                               base_cluster=base, maps=1,
-                              base_map=len(listeners) + j))
+                              base_map=next_map + j))
         base += n
     return ports_in, ports_out
 
@@ -518,7 +547,7 @@ def model_shape(cfg):
     input to the hash-derived entity_model_id. Any key added here changes
     every hash-derived id - extend deliberately."""
     i, clk = cfg["interface"], cfg["clocking"]
-    return {
+    shape = {
         "cluster_policy": i["cluster_policy"],
         "interface": {"kind": i["kind"], "channels": i["channels"],
                       "word_length_bits": i["word_length_bits"]},
@@ -539,6 +568,14 @@ def model_shape(cfg):
         "ports_out": [[p["base_cluster"], p["clusters"], p["base_map"]]
                       for p in cfg["ports_out"]],
     }
+    # dynamic-map ports change the model (descriptor set + capabilities):
+    # the key is CONDITIONAL so every existing static config's hash - and
+    # therefore its derived entity_model_id - stays exactly what it was
+    if any(p.get("map_mode", "static") == "dynamic" for p in cfg["ports_in"]):
+        shape["dyn_maps_in"] = [
+            [p.get("map_mode", "static"), p.get("map_page") or 0]
+            for p in cfg["ports_in"]]
+    return shape
 
 
 def derive_model_id(shape):
@@ -931,10 +968,14 @@ def emit_aem_overlay(cfg):
                                   location_type="STREAM_INPUT",
                                   location_index=len(L)))
 
-    # one AUDIO_MAP per port; rows = (stream_index, stream_channel,
-    # cluster_offset RELATIVE to the port's base_cluster, cluster_channel)
+    # one AUDIO_MAP per STATIC port; rows = (stream_index, stream_channel,
+    # cluster_offset RELATIVE to the port's base_cluster, cluster_channel).
+    # map_mode dynamic ports (gaps item 8) emit NO map - their mappings are
+    # runtime state behind ADD/REMOVE/GET_AUDIO_MAPPINGS (Milan 5.4.2.26-28).
     audio_maps = []
     for p in P_in:
+        if p.get("map_mode", "static") == "dynamic":
+            continue
         audio_maps.append(dict(
             index=p["base_map"], direction="input", port_index=p["index"],
             mappings=[[p["stream_index"], ch, ch, 0]
@@ -945,6 +986,19 @@ def emit_aem_overlay(cfg):
             mappings=[[p["stream_index"], ch, ch, 0]
                       for ch in range(p["clusters"])]))
     audio_maps.sort(key=lambda m: m["index"])
+
+    # overlay port entries: map_mode/map_page keys appear ONLY on dynamic
+    # ports so every static config's overlay stays byte-identical
+    def port_public(p):
+        q = {k: p[k] for k in ("index", "stream_index", "clusters",
+                               "base_cluster", "maps", "base_map")}
+        if p.get("map_mode", "static") == "dynamic":
+            q["map_mode"] = "dynamic"
+            if p.get("map_page"):
+                q["map_page"] = p["map_page"]
+        return q
+    P_in_pub = [port_public(p) for p in P_in]
+    P_out_pub = [port_public(p) for p in P_out]
 
     return {
         "_schema": OVERLAY_SCHEMA_ID,
@@ -969,12 +1023,12 @@ def emit_aem_overlay(cfg):
             "STREAM_PORT_INPUT": len(P_in),
             "STREAM_PORT_OUTPUT": len(P_out),
             "AUDIO_CLUSTER": in_clusters + out_clusters,
-            "AUDIO_MAP": len(P_in) + len(P_out),
+            "AUDIO_MAP": len(audio_maps),   # dynamic ports carry none
         },
         "stream_inputs": stream_inputs,
         "stream_outputs": stream_outputs,
         "clock_sources": clock_sources,
-        "stream_ports": {"input": P_in, "output": P_out},
+        "stream_ports": {"input": P_in_pub, "output": P_out_pub},
         "audio_maps": audio_maps,
         "cluster_format": "MBLA-mono",
         "cluster_policy": cfg["interface"]["cluster_policy"],
