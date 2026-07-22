@@ -78,18 +78,24 @@ module KL_aaf_rx_depacketizer #(
   //! --- accept verdict from KL_avtp_rx_monitor ----------------------------
   input  wire         pdu_accept_p_i,     //! pulse: current in-flight PDU is
                                           //! bound + sid + format valid
+  // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
+  // verilator coverage_off
   input  wire [3:0]   pdu_accept_idx_i,   //! matched stream index s riding the
                                           //! accept pulse (NXN §1.1 tuser tag;
                                           //! constant 0 in the N=1 shape)
+  // verilator coverage_on
 
   //! --- PCM payload out (full 8-byte beats, wire byte order = S32BE) ------
   output logic [63:0] m_axis_tdata,
   output logic [7:0]  m_axis_tkeep,
   output logic        m_axis_tvalid,
   output logic        m_axis_tlast,       //! one AXIS frame per AAF PDU
+  // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
+  // verilator coverage_off
   output logic [3:0]  m_axis_tuser,       //! stream index s of this PDU's
                                           //! payload (NXN §1.2: {tuser=s}
                                           //! rides each buffered frame)
+  // verilator coverage_on
   input  wire         m_axis_tready,
 
   //! --- observability ------------------------------------------------------
@@ -97,9 +103,15 @@ module KL_aaf_rx_depacketizer #(
   output logic [15:0] drops_o,            //! whole frames lost to FIFO overflow
   //! per-stream attribution pulses (LCTX w11 DEPKT_CNT, NXN §1.4)
   output logic        pdu_out_p_o,        //! pulse per emitted payload PDU
+  // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
+  // verilator coverage_off
   output logic [3:0]  pdu_out_idx_o,      //! its stream index
+  // verilator coverage_on
   output logic        drop_p_o,           //! pulse per overflow-dropped frame
+  // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
+  // verilator coverage_off
   output logic [3:0]  drop_idx_o          //! its stream index (last-latched)
+  // verilator coverage_on
 );
 
   // ------------------------------------------------------------------ //
@@ -114,8 +126,11 @@ module KL_aaf_rx_depacketizer #(
   //! truncated right at parse-complete pulses one cycle AFTER its tlast, and
   //! an unguarded pulse would pre-approve the NEXT frame regardless of its
   //! own verdict (found by the coverage drive)
+  // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
+  // verilator coverage_off
   logic [3:0] wv_idx_r;                   //! stream index of the accepted frame
   logic [3:0] tl_idx_r;                   //! index latched at the frame's tlast
+  // verilator coverage_on
 
   always_ff @(posedge clk_i) begin : write_verdict
     if (!rst_n) begin
@@ -202,7 +217,10 @@ module KL_aaf_rx_depacketizer #(
   // the 2 KB FIFO's worst case (>= 56-byte committed frames = 36 max).    //
   // ------------------------------------------------------------------ //
   localparam int IDXQ_LOG2_C = 6;
+  // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
+  // verilator coverage_off
   logic [3:0]              idxq_r [(1 << IDXQ_LOG2_C)];
+  // verilator coverage_on
   logic [IDXQ_LOG2_C-1:0]  idxq_wp_r, idxq_rp_r;
 
   //! read-side frame boundary: the frame's last FIFO word is consumed
