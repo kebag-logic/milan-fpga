@@ -383,11 +383,15 @@ def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath):
     if milan_cd == "sys":
         ep = stream.Endpoint(layout)
         return _AxisDP(dp=ep, sys=ep)
+    # buffered=True (AsyncFIFOBuffered) re-registers dout in the read domain:
+    # the BRAM CLK->Q cone otherwise fans straight into the datapath consumers
+    # (AX33 x3-seed violator, storage cell = mac_rx_cdc). +1 cycle on a
+    # handshaked stream = transparent.
     if to_datapath:                                        # sys -> milan_cd
-        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=16)
+        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=16, buffered=True)
         setattr(host, name, cdc)                           # LiteXModule auto-submodule
         return _AxisDP(dp=cdc.source, sys=cdc.sink)
-    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=16)  # milan_cd -> sys
+    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=16, buffered=True)  # milan_cd -> sys
     setattr(host, name, cdc)
     return _AxisDP(dp=cdc.sink, sys=cdc.source)
 
