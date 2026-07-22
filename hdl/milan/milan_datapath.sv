@@ -145,7 +145,14 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   input  wire        i_ethrx_tgl,
   input  wire        i_ethtx_tgl,
   input  wire        i_ethact_tgl,
-  //! RMON event pulses from the external MAC (lane index == ethernet_events_t enum)
+  //! RMON event pulses from the external MAC (lane index == ethernet_events_t
+  //! enum). Lanes TX_FIFO_GOOD_FRAME/RX_FIFO_GOOD_FRAME are IGNORED here: the
+  //! datapath derives them itself from the MAC AXIS boundary handshake (RMON
+  //! never-worked-on-silicon fix, 2026-07-22 - the LiteX SoC glue tied this
+  //! whole bus to 0 because LiteEth exposes no Forencich-style event pulses,
+  //! so every lane counted nothing on both boards). Integrations supply only
+  //! the MAC-internal lanes (underflow/overflow/bad-frame/bad-FCS); tie 0
+  //! when the MAC exposes none.
   input  wire [_ETH_EVENT_COUNTER-1:0] i_mac_events,
 
   // ---- interrupt (milan_csr aggregate: tx_ts_ready | link_change | rmon_rollover) ----
@@ -1522,13 +1529,31 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  RMON event counters (fed by the external MAC's event pulses)
+  //  RMON event counters
   // ==========================================================================
+  //! Good-frame lanes are derived HERE from the MAC AXIS boundary handshake
+  //! (one accepted `tlast` beat = one frame), so they count on every
+  //! integration - including the LiteX SoCs, whose glue has no MAC event
+  //! pulses to offer (i_mac_events tied 0 there = the "RMON never worked on
+  //! silicon" root cause). The remaining MAC-internal lanes pass through from
+  //! i_mac_events; its good-frame bits are ignored to make double-counting
+  //! structurally impossible.
+  wire tx_mac_good_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready
+                     & m_axis_mac_tx_tlast;
+  wire rx_mac_good_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready
+                     & s_axis_mac_rx_tlast;
+  logic [_ETH_EVENT_COUNTER-1:0] mac_events_w;
+  always_comb begin : mac_event_merge
+    mac_events_w = i_mac_events;
+    mac_events_w[TX_FIFO_GOOD_FRAME] = tx_mac_good_w;
+    mac_events_w[RX_FIFO_GOOD_FRAME] = rx_mac_good_w;
+  end : mac_event_merge
+
   ethernet_events ethernet_counters(
     .clk(axis_clk),
     .resetn(axis_resetn),
     .stats_reset(cfg_stats_reset),
-    .events(i_mac_events),
+    .events(mac_events_w),
     .counts_o(stats_counts),
     .rollover_o(stats_rollover)
   );
