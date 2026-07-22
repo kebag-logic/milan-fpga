@@ -340,6 +340,13 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
         # no PHY in the stub: static toggles keep the link guard unarmed/inert
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
+        # P11 indexed CSR window (0x800): lane-K context engines pending  -
+        # INTENTIONAL inert ties (allowlisted in scripts/check_tied_inputs.sh).
+        # snap_ok=1 lets A_STRM_SNAP complete immediately; rd_data/tbl_*=0
+        # makes the engine-backed window words read 0 until lane K connects.
+        i_i_lctx_rd_data = 0, i_i_lctx_snap_ok = 1,
+        i_i_tctx_rd_data = 0, i_i_tctx_snap_ok = 1,
+        i_i_acmp_tbl_gnt = 0, i_i_acmp_tbl_ctx = 0,
         # interrupt (csr aggregate; DMA-done IRQs come from §A.6). CDC'd to sys above.
         o_o_irq_csr = irq_port,
     )

@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010007);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010008);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -444,6 +444,113 @@ int main(int argc, char** argv) {
   ck("o_crft_dest_mac", dut->o_crft_dest_mac, 0x91E0F0002A07ULL);
   dut->i_crft_count = 1234;
   ck("CRFT_COUNT live", axi_read(0x764), 1234);
+
+  // =====================================================================
+  // P11 indexed per-stream window, N=1 silicon shape (defaults):
+  // SEL/SNAP decode, index-0 hard aliases onto the flat registers, and the
+  // defined out-of-range behaviour (reads 0, writes ignored). The lane-K
+  // engine inputs stay at their datapath ties (rd_data=0, snap_ok=0 is
+  // irrelevant here: index 0 never bursts) — engine-backed words read 0.
+  // =====================================================================
+  enum {
+    A_STRM_SEL=0x800, A_STRM_SNAP=0x804, A_SW_CTRL=0x810,
+    A_SW_SID_LO=0x814, A_SW_SID_HI=0x818, A_SW_DMAC_LO=0x81C,
+    A_SW_DMAC_HI=0x820, A_SW_FMT_LO=0x824, A_SW_FMT_HI=0x828,
+    A_SW_STATE=0x82C, A_SW_CNT0=0x830, A_SW_PDUS=0x858, A_SW_SRP=0x85C,
+  };
+
+  printf("-- 0x800 window: SEL decode + out-of-range rule (N=1) --\n");
+  ck("SEL reset", axi_read(A_STRM_SEL), 0);
+  axi_write(A_STRM_SEL, 0x0000011F);            // dir=1, idx=15 (garbage high bits masked)
+  ck("SEL stores {dir,idx} only", axi_read(A_STRM_SEL), 0x0000010F);
+  axi_write(A_STRM_SEL, 0x00000001);            // dir=0 (listener), idx=1: OUT of range at N=1
+  uint32_t aaf_ctrl_before = axi_read(0x654);
+  axi_write(A_SW_CTRL, 0xFFFFFFFF);             // must be ignored
+  axi_write(A_SW_SID_LO, 0x11111111);
+  ck("oor CTRL reads 0",   axi_read(A_SW_CTRL),   0);
+  ck("oor SID_LO reads 0", axi_read(A_SW_SID_LO), 0);
+  ck("oor SRP reads 0",    axi_read(A_SW_SRP),    0);
+  ck("oor write left AAF_CTRL alone", axi_read(0x654), aaf_ctrl_before);
+  axi_write(A_STRM_SNAP, 1);                    // out-of-range snap: zeros, completes
+  for (int i = 0; i < 8; ++i) posedge();
+  ck("oor SNAP busy clears", axi_read(A_STRM_SNAP), 0);
+  ck("oor SNAP CNT0 zero",   axi_read(A_SW_CNT0), 0);
+
+  printf("-- window idx0 dir=talker: hard aliases of the flat AAF regs --\n");
+  axi_write(A_STRM_SEL, 0x00000100);            // dir=1 (talker), idx=0
+  axi_write(0x654, 0x00020003);                 // AAF_CTRL: en=1, bypass=1, VID=2
+  axi_write(0x658, 0xF000FE01);                 // AAF_DMLO
+  axi_write(0x65C, 0x000091E0);                 // AAF_DMHI
+  ck("win CTRL == AAF_CTRL[0]", axi_read(A_SW_CTRL), 1);
+  ck("win DMAC_LO == AAF_DMLO", axi_read(A_SW_DMAC_LO), 0xF000FE01);
+  ck("win DMAC_HI == AAF_DMHI[15:0]", axi_read(A_SW_DMAC_HI), 0x000091E0);
+  // alias is BIDIRECTIONAL: a window write lands in the flat register (and
+  // its shadow readback), CTRL merges bit 0 only — VID/bypass survive
+  axi_write(A_SW_CTRL, 0);
+  ck("win CTRL wrote AAF_CTRL[0]=0", axi_read(0x654), 0x00020002);
+  ck("o_aaf_enable follows", dut->o_aaf_enable, 0);
+  axi_write(A_SW_CTRL, 1);
+  ck("CTRL merge keeps VID/bypass", axi_read(0x654), 0x00020003);
+  axi_write(A_SW_DMAC_LO, 0xF000AB01);
+  axi_write(A_SW_DMAC_HI, 0x000091E0);
+  ck("win DMAC_LO write -> flat 0x658", axi_read(0x658), 0xF000AB01);
+  dut->eval();
+  ck("o_aaf_dest_mac follows", dut->o_aaf_dest_mac, 0x91E0F000AB01ULL);
+  // talker idx0 stream_id derivation {station_mac(wire order), uid=0}
+  // (MAC regs still hold 0x554433221100 from the MAC test above)
+  ck("win SID_HI = mac[47:16]", axi_read(A_SW_SID_HI), 0x00112233);
+  ck("win SID_LO = {mac[15:0],0}", axi_read(A_SW_SID_LO), 0x44550000);
+
+  printf("-- window idx0 talker SNAP: PDUS/STATE flat latch --\n");
+  dut->i_aaf_frames = 0xCAFE0001;
+  dut->i_aaf_gate = 1; dut->i_acmp_probe_armed = 1; dut->i_acmp_talker_active = 0;
+  dut->i_lwsrp_status = 0x000001FF;             // low 9 bits -> STATE[27:19]
+  axi_write(A_STRM_SNAP, 1);
+  for (int i = 0; i < 8; ++i) posedge();
+  ck("SNAP busy clears", axi_read(A_STRM_SNAP), 0);
+  ck("talker PDUS = AAF_FRAMES", axi_read(A_SW_PDUS), 0xCAFE0001);
+  // STATE = {4'0, srp9, 15'0, gate, lobs, active, armed}
+  ck("talker STATE pack", axi_read(A_SW_STATE), (0x1FFu << 19) | (1u << 3) | 1u);
+  ck("talker CNT0 zero", axi_read(A_SW_CNT0), 0);
+  // events after the snap do NOT move the latched block (snapshot semantics)
+  dut->i_aaf_frames = 0xCAFE0099;
+  ck("PDUS frozen until next SNAP", axi_read(A_SW_PDUS), 0xCAFE0001);
+
+  printf("-- window idx0 dir=listener: Table 7-157 flat aliases --\n");
+  axi_write(A_STRM_SEL, 0x00000000);            // dir=0 (listener), idx=0
+  dut->i_avtprx_stat = 0x05040301;              // {intr=5, unlocked=4, locked=3, ..., locked=1}
+  dut->i_avtprx_err  = 0x00070203;              // {seqmm=7, unsupp=2, tu=3}
+  dut->i_avtprx_frx  = 123456;
+  dut->i_pcmrx_cnt   = 0x00020064;              // {drops=2, pdus=100}
+  dut->i_acmpl_state = (7u << 8) | (2u << 13) | 6u;  // status=7, probing=2, state=6
+  dut->i_lwsrp_status = 0x00000155;
+  axi_write(A_STRM_SNAP, 1);
+  for (int i = 0; i < 8; ++i) posedge();
+  ck("CNT0 MEDIA_LOCKED",        axi_read(A_SW_CNT0 + 0*4), 3);
+  ck("CNT1 MEDIA_UNLOCKED",      axi_read(A_SW_CNT0 + 1*4), 4);
+  ck("CNT2 STREAM_INTERRUPTED",  axi_read(A_SW_CNT0 + 2*4), 5);
+  ck("CNT3 SEQ_NUM_MISMATCH",    axi_read(A_SW_CNT0 + 3*4), 7);
+  ck("CNT4 MEDIA_RESET (0)",     axi_read(A_SW_CNT0 + 4*4), 0);
+  ck("CNT5 TIMESTAMP_UNCERTAIN", axi_read(A_SW_CNT0 + 5*4), 3);
+  ck("CNT6 UNSUPPORTED_FORMAT",  axi_read(A_SW_CNT0 + 6*4), 2);
+  ck("CNT7 LATE_TS (0)",         axi_read(A_SW_CNT0 + 7*4), 0);
+  ck("CNT8 EARLY_TS (0)",        axi_read(A_SW_CNT0 + 8*4), 0);
+  ck("CNT9 FRAMES_RX = 0x6BC",   axi_read(A_SW_CNT0 + 9*4), 123456);
+  ck("PDUS = PCMRX_CNT (0x6C4)", axi_read(A_SW_PDUS), 0x00020064);
+  // STATE = {4'0, srp9, wire_chans=0, media_locked, status, probing, state}
+  ck("listener STATE pack", axi_read(A_SW_STATE),
+     (0x155u << 19) | (1u << 10) | (7u << 5) | (2u << 3) | 6u);
+  // flat-vs-window equivalence, the alias axiom made executable:
+  ck("win CNT9 == flat 0x6BC", axi_read(A_SW_CNT0 + 9*4), axi_read(0x6BC));
+  ck("win PDUS == flat 0x6C4", axi_read(A_SW_PDUS), axi_read(0x6C4));
+  ck("win SRP  == flat 0x694", axi_read(A_SW_SRP), axi_read(0x694));
+  // listener SID/DMAC come from the ACMP tbl port — tied (gnt=0) here, so
+  // they read 0 exactly like today's silicon shape
+  ck("listener SID_LO 0 (tbl tied)",  axi_read(A_SW_SID_LO), 0);
+  ck("listener DMAC_LO 0 (tbl tied)", axi_read(A_SW_DMAC_LO), 0);
+  // engine-backed words (LCTX port B) read 0 at the tie
+  ck("listener CTRL 0 (LCTX tied)",   axi_read(A_SW_CTRL), 0);
+  ck("listener FMT_LO 0 (LCTX tied)", axi_read(A_SW_FMT_LO), 0);
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
