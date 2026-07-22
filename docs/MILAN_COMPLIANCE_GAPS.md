@@ -431,6 +431,11 @@ and is not repeated here.
    S50 boot wiring + the ACMP talker context for the CRF stream
    (KL_crf_tx itself exists, CSRs 0x750-0x764, silicon-proven
    500 PDU/s).
+   **Architecture (normative): `docs/NXN_ARCHITECTURE.md`** — shared
+   engines + per-stream context RAM (replication is dead: estimator
+   prices it 142%/107.5% LUT on 8x8/4x4); context-record layouts,
+   indexed CSR window at 0x800, CRF output provisioning per Milan
+   7.2.3, TB-gated phasing P0–P12, resource budget ~87.7%/87.3% LUT.
 6. MMCM-DRP media-clock servo (retires the drift-lottery rails for
    good; shares the clock-outage sequencing with the GMII CDC reinit).
 7. **ALSA driver (USER 2026-07-22):** record/play music from/to
