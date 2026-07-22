@@ -229,9 +229,10 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pair_valid_i (aafcap_pv_w), .pair_slot_i (aafcap_slot_w),
     .pair_l_i (aafcap_l_w), .pair_r_i (aafcap_r_w),
-    //! t0 = the legacy admission gate; t>0 arm via TCTX CTRL + the P5
-    //! per-stream bw-gate outputs once the P11 window provisions them
-    .stream_en_i (N_STREAMS'(aaf_gate)),
+    //! t0 = the legacy admission gate bit-identically; t>0 = TCTX CTRL[0]
+    //! (window) & per-stream lwSRP gate & the engine-wide MAAP term (the
+    //! composed aaf_stream_en_w - see its comment for the honest gaps)
+    .stream_en_i (aaf_stream_en_w),
     .dest_mac_i (eff_aaf_dmac),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
@@ -354,7 +355,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [47:0] cfg_lwsrp_dmac;
   wire [15:0] cfg_lwsrp_max_frame, cfg_lwsrp_interval;
   wire [31:0] cfg_lwsrp_latency;
-  wire        lwsrp_stream_gate, lwsrp_slope_en, lwsrp_res_active;
+  //! per-stream admission gates from the bw-gate ([0] = legacy CSR row,
+  //! [t] = ctx-table talker rows - the P5 vector, plumbed in the P12
+  //! follow-up); the flat CSR status keeps bit 0 only
+  wire [N_STREAMS-1:0] lwsrp_stream_gate;
+  wire        lwsrp_slope_en, lwsrp_res_active;
   wire [31:0] lwsrp_idle_slope;
   wire        lwsrp_listener_ready, lwsrp_listener_reg;
   wire [1:0]  lwsrp_listener_decl;
@@ -456,7 +461,41 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //! The bypass bit stays the legacy stream-whenever-enabled escape hatch.
   wire aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
                   (cfg_aaf_bypass |
-                  (acmp_talker_active & (~cfg_lwsrp_enable | lwsrp_stream_gate)));
+                  (acmp_talker_active &
+                   (~cfg_lwsrp_enable | lwsrp_stream_gate[0])));
+
+  //! ---- per-stream talker admission (P12 follow-up: t>0 arming) ----------
+  //! [0] = aaf_gate above, bit-identical (the N=1 axiom). t>0 mirrors the
+  //! t0 composition term by term with the per-stream sources that exist:
+  //!   * enable        : TCTX w0 CTRL[0] (window-provisioned; shadowed
+  //!                     below from the accepted TCTX window writes - the
+  //!                     window is the only w0 writer). The flat
+  //!                     AAF_CTRL[0] is t0's enable only.
+  //!   * MAAP term     : ENGINE-WIDE, same expression as t0. Honest gap:
+  //!                     ONE KL_maap instance claims ONE address range, so
+  //!                     per-stream claim validity does not exist; t>0
+  //!                     DMACs are window-provisioned (TCTX w1/w2), and
+  //!                     this term only holds streams off while MAAP is
+  //!                     enabled but unclaimed (t0 semantics mirrored).
+  //!   * lwSRP term    : per-stream P5 gate (KL_lwsrp_bw_gate via the ctx
+  //!                     rows), with t0's ~cfg_lwsrp_enable escape.
+  //!   * ACMP term     : ABSENT for t>0 - honest gap, not faked: the
+  //!                     single Milan talker SM (acmp_talker_active)
+  //!                     tracks the legacy stream only; per-stream talker
+  //!                     START/STOP_STREAMING state does not exist yet.
+  //!                     Consequently t0's cfg_aaf_bypass (the escape
+  //!                     hatch AROUND that ACMP term) has no t>0 role.
+  wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
+  logic [N_STREAMS-1:0] tctx_en_r;
+  assign aaf_stream_en_w[0] = aaf_gate;
+  generate
+    for (genvar gs = 1; gs < N_STREAMS; gs++) begin : g_aaf_stream_en
+      assign aaf_stream_en_w[gs] =
+          tctx_en_r[gs] &
+          (~cfg_maap_enable | maap_addr_valid) &
+          (~cfg_lwsrp_enable | lwsrp_stream_gate[gs]);
+    end
+  endgenerate
   wire [63:0]              ptp_now_w;
   wire [31:0]              aaf_frames_w, aaf_pairs_w;
   wire [TDATA_WIDTH-1:0]   aaf_tx_tdata;
@@ -688,7 +727,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .o_lwsrp_latency      (cfg_lwsrp_latency),
     .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 5'd0,
                             lwsrp_tfail_valid, lwsrp_slope_en,
-                            lwsrp_stream_gate, lwsrp_over_limit,
+                            lwsrp_stream_gate[0], lwsrp_over_limit,
                             lwsrp_res_active, lwsrp_domain_ok,
                             lwsrp_talker_declared, lwsrp_listener_ready,
                             lwsrp_listener_reg, lwsrp_listener_decl}),
@@ -1299,6 +1338,20 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     end
   end : win_commit_glue
 
+  //! P12 follow-up: TCTX CTRL[0] shadow for the t>0 admission gates. The
+  //! CSR window is the ONLY writer of TCTX w0 (the packetizer engine
+  //! writes w3/w4/w5 only), so mirroring the ACCEPTED window writes
+  //! (wr_p & wr_rdy, word 0) is exact. Bit 0 is never consumed - t0's
+  //! enable is the flat AAF_CTRL path inside aaf_gate.
+  always_ff @(posedge axis_clk) begin : tctx_en_shadow
+    if (!axis_resetn) tctx_en_r <= '0;
+    else if (csr_tctx_wr_p_w && tctx_wr_rdy_w &&
+             (csr_tctx_wr_addr_w[3:0] == 4'd0) &&
+             (32'(csr_tctx_wr_addr_w[6:4]) < N_STREAMS)) begin
+      tctx_en_r[csr_tctx_wr_addr_w[6:4]] <= csr_tctx_wr_data_w[0];
+    end
+  end : tctx_en_shadow
+
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
@@ -1490,19 +1543,22 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  PCM routing policy (NXN §1.3, P3) — per-stream route field between the
-  //  shared depacketizer and the sinks: RENDER (lowest-indexed wins) feeds
-  //  the LPF + I2S playback tap, DMA streams ride the ring output tagged
-  //  with tuser = s, NULL discards. Reset default (s0 = RENDER, others
-  //  NULL) is today's shape bit-exactly; the route write port is parked
-  //  until the P11 CSR window.
+  //  PCM routing policy (NXN §1.3, P3 + flag rework) — per-stream route
+  //  FLAGS between the shared depacketizer and the sinks: bit1 RENDER
+  //  (lowest-indexed wins) feeds the LPF + I2S playback tap, bit0 DMA rides
+  //  the ring output tagged with tuser = s; independently combinable
+  //  (0b11 = capture-while-rendering, 0b00 = NULL discards). Reset default
+  //  (s0 = RENDER|DMA, others NULL) is today's shape bit-exactly; writes
+  //  arrive from the window CTRL[2:1] commit (wing glue above).
   // ==========================================================================
   wire [TDATA_WIDTH-1:0] dpkt_pcm_tdata_w;
   wire                   dpkt_pcm_tvalid_w, dpkt_pcm_tlast_w;
   wire [3:0]             dpkt_pcm_tuser_w;
   wire                   dpkt_pcm_tready_w;
   wire [TDATA_WIDTH-1:0] rend_pcm_tdata_w;
-  wire                   rend_pcm_tvalid_w, rend_pcm_tlast_w;
+  //! render-tap valid is TB-observable (route-flag truth in sim_nxn)
+  wire                   rend_pcm_tvalid_w /* verilator public_flat_rd */;
+  wire                   rend_pcm_tlast_w;
   wire [3:0]             route_render_sel_w;
 
   KL_pcm_route #(.N_LISTENERS_P(N_STREAMS)) pcm_route (
@@ -1602,7 +1658,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //  Listener attribute for our stream, and resolves the reservation into
   //  the AAF admission gate + the CBS class-A slope (mux above).
   // ==========================================================================
-  KL_lwsrp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) lwsrp (
+  //! N_CTX_P = N_STREAMS: the ctx-table talker rows feed the per-stream
+  //! bw-gate vector consumed by aaf_stream_en_w (N=1 keeps the structural
+  //! TX-mux passthrough + single-row bw-gate = byte-identical)
+  KL_lwsrp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
+                 .N_CTX_P(N_STREAMS)) lwsrp (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_lwsrp_enable),
     .talker_en_i (cfg_lwsrp_talker_en),
