@@ -21,12 +21,12 @@ is the clause-anchored join between them.
 
 | Family | File | Rows | ✅ verified | 🟡 partial | ❌ MISSING | ➖ N/A |
 |--------|------|------|------------|-----------|-----------|--------|
-| IEEE 1722.1-2021 (ADP/ACMP/AECP+AEM) | [`traceability/ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) | 72 | 58 | 4 | 0 | 10 |
-| IEEE 1722-2016 (AVTP/AAF/CRF/MAAP) | [`traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md) | 38 | 30 | 4 | 2 | 2 |
-| IEEE 802.1Q-2022 (VLAN/CBS/MRP/MSRP/MVRP) | [`traceability/ieee8021q.md`](traceability/ieee8021q.md) | 31 | 23 | 3 | 2 | 3 |
+| IEEE 1722.1-2021 (ADP/ACMP/AECP+AEM) | [`traceability/ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) | 72 | 59 | 3 | 0 | 10 |
+| IEEE 1722-2016 (AVTP/AAF/CRF/MAAP) | [`traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md) | 38 | 33 | 2 | 1 | 2 |
+| IEEE 802.1Q-2022 (VLAN/CBS/MRP/MSRP/MVRP) | [`traceability/ieee8021q.md`](traceability/ieee8021q.md) | 31 | 24 | 3 | 1 | 3 |
 | IEEE 802.1AS-2020 (gPTP HW-assist scope) | [`traceability/ieee8021as.md`](traceability/ieee8021as.md) | 11 | 8 | 1 | 1 | 1 |
-| Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 52 | 36 | 11 | 4 | 1 |
-| **Total** | | **204** | **155** | **23** | **9** | **17** |
+| Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 52 | 38 | 9 | 4 | 1 |
+| **Total** | | **204** | **162** | **18** | **7** | **17** |
 
 Legend: **✅** requirement has a specific self-checking verification today
 (named TB / CERT feature / silicon wire proof). **🟡** partially verified —
@@ -125,14 +125,19 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
 5. **SRP-9** — 802.1Q 35.2.7: single-stream lwSRP engine; NxN AAF streams
    (AX 8x8 / Arty 4x4) need per-stream registrar/declaration instances.
    Roadmap 4.
-6. **SRP-8** — 802.1Q 35.1.4/34.5: SR class B never implemented or
-   exercised (bench is class A only) — incoming class-B Domain PDUs are
-   untested against the walker.
+6. **SRP-8** — 802.1Q 35.1.4/34.5: SR class B never *declared/used* (bench
+   is class A only). The incoming half is now walker-TB-proven (lwsrp_rx
+   8b, packed B-first Domain vectors) — which also FOUND the walker's
+   stale-`dom_a_evt_r` defect (class-A event lags one Domain PDU; RTL fix
+   pending, see the SRP-8 row).
 7. **AS-4** — 802.1AS 8.4.3: ingress/egress latency constants are
    bench-calibrated with no per-board calibration procedure; the
    ingress/egress split was never measured separately.
 8. **AVTP-5 + M-CNT-4** — 1722 4.4.4.3 mr (media clock restart) toggle has
-   no listener response or MEDIA_RESET counter assertion.
+   no listener response: the parser does not extract mr, so it can never
+   tick MEDIA_RESET (gap TB-pinned, avtp_rxmon [30]; the counter's
+   servo-rail semantics are now asserted). M-CNT-4's talker-side
+   MEDIA_RESET is still unasserted.
 9. **AS-6 (variant)** — Milan es-1.1 DUT-wins-BMCA: blocked on the bench
    switch's gPTP claim (USER-ordered to the bottom of the attack list); a
    tsn_gen gPTP model is the unblocking path.
