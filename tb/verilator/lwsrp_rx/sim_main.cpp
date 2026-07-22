@@ -363,30 +363,30 @@ int main(int argc, char** argv) {
         feed_parse(frame(true, {msg_domain(p)}), "domain-b2-heal: parse");
         ck("domain-b2-heal: ok restored", dut->domain_ok_o, 1);
         // packed pair where the class-A value carries Mt: per 802.1Q the
-        // Mt event is not a class-A signal (should be neither boundary nor
-        // heal). >>> RTL DEFECT, found 2026-07-22 by this vector <<<
-        // KL_lwsrp_walker.vector_done() reads dom_a_evt_r on the SAME cycle
-        // W_EVT_S non-blocking-writes it, so for a packed B-first Domain
-        // vector domain_evt_o carries the PREVIOUS Domain PDU's class-A
-        // event (here: the heal PDU's JoinIn) — the Mt is mis-attributed
-        // as JoinIn with prio {6,2} and WRONGLY flags the boundary. Silicon
-        // never showed it because bridges re-declare JoinIn forever. Fix =
-        // pipeline the domain emit one cycle (RTL change, outside this
-        // coverage lane); when fixed, flip these two checks and update
-        // traceability/ieee8021q.md SRP-8 in the same commit.
+        // Mt event is not a class-A signal — neither boundary nor heal.
+        // This vector FOUND (2026-07-22) and now ASSERTS the fix of an RTL
+        // defect: KL_lwsrp_walker.vector_done() read dom_a_evt_r on the
+        // SAME cycle W_EVT_S non-blocking-writes it, so for a packed
+        // B-first NoV=2 Domain vector domain_evt_o carried the PREVIOUS
+        // Domain PDU's class-A event (here: the heal PDU's JoinIn) — the
+        // Mt was mis-attributed as JoinIn with prio {6,2} and WRONGLY
+        // flagged the boundary. Fixed by passing the just-decoded class-A
+        // event through vector_done (daevt), the same staleness rule every
+        // other capture already followed; traceability/ieee8021q.md SRP-8.
         Vec m; m.nv = 2; m.fv = fv_domain(5, 1, VID);
         m.evts = {EV_JOININ, EV_MT};
         feed_parse(frame(true, {msg_domain(m)}), "domain-b2-mt: parse");
-        ck("domain-b2-mt: DEFECT stale evt flags boundary (spec: ignore)",
-           dut->domain_ok_o, 0);
-        // same PDU again: dom_a_evt_r now holds Mt (lagged) -> ignored,
-        // boundary stays armed until healed — the lag made explicit
+        ck("domain-b2-mt: class-A Mt ignored, no boundary (was: stale-evt "
+           "boundary)", dut->domain_ok_o, 1);
+        // same PDU again: pre-fix the lag surfaced here (register finally
+        // held Mt); post-fix every PDU stands alone — still ignored
         feed_parse(frame(true, {msg_domain(m)}), "domain-b2-mt2: parse");
-        ck("domain-b2-mt2: lagged evt now ignored (boundary persists)",
-           dut->domain_ok_o, 0);
+        ck("domain-b2-mt2: repeat still ignored, ok holds",
+           dut->domain_ok_o, 1);
         feed_parse(frame(true, {msg_domain(p)}), "domain-b2-mt-heal: parse");
         feed_parse(frame(true, {msg_domain(p)}), "domain-b2-mt-heal2: parse");
-        ck("domain-b2-mt-heal: ok restored", dut->domain_ok_o, 1);
+        ck("domain-b2-mt-heal: ok holds through re-declares",
+           dut->domain_ok_o, 1);
         // class-B Domain + Listener in ONE MRPDU: the domain message must
         // not desync the walker before the listener message (the +k/packed
         // window arithmetic shares the same lane counters)

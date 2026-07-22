@@ -252,7 +252,7 @@ module KL_lwsrp_walker #(
   // there would be one cycle stale when the matched byte is also the last.
   // -----------------------------------------------------------------------
   task automatic vector_done(input [2:0] evt, input [1:0] par,
-                             input [2:0] levt,
+                             input [2:0] levt, input [2:0] daevt,
                              input [EXT_LANES_P*3-1:0] eevt,
                              input [EXT_LANES_P*2-1:0] epar,
                              output wst_t nxt);
@@ -269,7 +269,11 @@ module KL_lwsrp_walker #(
             (13'(SR_CLASS_A_ID_C - d_class_r) < nv_r)) begin
           domain_class_o <= SR_CLASS_A_ID_C;
           domain_prio_o  <= d_prio_r + (SR_CLASS_A_ID_C - d_class_r);
-          domain_evt_o   <= dom_a_evt_r;
+          //! daevt, not dom_a_evt_r: for a single-packed-byte vector (the
+          //! bench's NoV=2 shape) the register is non-blocking-written this
+          //! same cycle - reading it here surfaced the PREVIOUS Domain
+          //! PDU's class-A event (lwsrp_rx 8b, SRP-8)
+          domain_evt_o   <= daevt;
         end else begin
           domain_class_o <= d_class_r;
           domain_prio_o  <= d_prio_r;
@@ -317,6 +321,7 @@ module KL_lwsrp_walker #(
     logic [2:0] evt_v;
     logic [1:0] par_v;
     logic [2:0] levt_v;
+    logic [2:0] daevt_v;
     logic [EXT_LANES_P*3-1:0] eevt_v;
     logic [EXT_LANES_P*2-1:0] epar_v;
     if (!rst_n) begin
@@ -492,6 +497,7 @@ module KL_lwsrp_walker #(
                 // A stream/listener match cannot exist with nv==0, so only
                 // a Domain pulse (with the MT default event) can emit here.
                 vector_done(MRP_EVT_MT_C, LSTN_DECL_IGNORE_C, MRP_EVT_MT_C,
+                            dom_a_evt_r,   // unread: class-A cover needs nv>0
                             {EXT_LANES_P{MRP_EVT_MT_C}},
                             {EXT_LANES_P{LSTN_DECL_IGNORE_C}}, nxt);
               end else begin
@@ -503,9 +509,10 @@ module KL_lwsrp_walker #(
 
           // ---- ThreePackedEvents -----------------------------------------
           W_EVT_S: begin
-            evt_v  = cap_evt_r;
-            levt_v = lcap_evt_r;
-            eevt_v = ecap_evt_r;
+            evt_v   = cap_evt_r;
+            levt_v  = lcap_evt_r;
+            eevt_v  = ecap_evt_r;
+            daevt_v = dom_a_evt_r;
             if (val_match_r &&
                 ({1'b0, k_r} >= vbase_r) && ({1'b0, k_r} < vbase_r + 14'd3))
               evt_v = unpack3(byte_w, 2'(14'({1'b0, k_r}) - vbase_r));
@@ -523,13 +530,17 @@ module KL_lwsrp_walker #(
             if (is_domain_w && pack_idx_r == '0) begin
               evt_v = unpack3(byte_w, 2'd0);   // FirstValue event
               //! class-A value event: index (A - FirstValue.class) inside
-              //! packed byte 0 (Domain NoV in practice <= 3)
+              //! packed byte 0 (Domain NoV in practice <= 3). Decoded into
+              //! the pass-through variable FIRST - when this byte is also
+              //! the vector's last (NoV <= 3), vector_done runs this same
+              //! cycle and must see the just-decoded value, not the
+              //! register (same staleness rule as evt_v/levt_v/eevt_v)
               if ((SR_CLASS_A_ID_C > d_class_r) &&
                   (8'(SR_CLASS_A_ID_C - d_class_r) < 8'd3))
-                dom_a_evt_r <= unpack3(byte_w,
-                                       2'(SR_CLASS_A_ID_C - d_class_r));
+                daevt_v = unpack3(byte_w, 2'(SR_CLASS_A_ID_C - d_class_r));
               else
-                dom_a_evt_r <= evt_v;
+                daevt_v = evt_v;
+              dom_a_evt_r <= daevt_v;
             end
             cap_evt_r  <= evt_v;
             lcap_evt_r <= levt_v;
@@ -543,7 +554,8 @@ module KL_lwsrp_walker #(
                 vbase_r    <= '0;
                 nxt = W_PAR_S;
               end else begin
-                vector_done(evt_v, cap_par_r, levt_v, eevt_v, ecap_par_r, nxt);
+                vector_done(evt_v, cap_par_r, levt_v, daevt_v,
+                            eevt_v, ecap_par_r, nxt);
               end
             end
           end
@@ -568,7 +580,9 @@ module KL_lwsrp_walker #(
             vbase_r    <= vbase_r + 14'd4;
             pack_idx_r <= pack_idx_r + 13'd1;
             if (pack_idx_r == pack_n_r - 13'd1) begin
-              vector_done(cap_evt_r, par_v, lcap_evt_r, ecap_evt_r, epar_v, nxt);
+              // Listener-only phase: is_domain_w is false, daevt unread
+              vector_done(cap_evt_r, par_v, lcap_evt_r, dom_a_evt_r,
+                          ecap_evt_r, epar_v, nxt);
             end
           end
 
