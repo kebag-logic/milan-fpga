@@ -56,11 +56,16 @@ _io = [
         Subsignal("tx_data", Pins("D22 H20 H22 J22 K22 L19 K19 L20"),
                   IOStandard("LVCMOS33")),                            # e1_txd[0:7]
         # PHY management (2026-07-22, kl-eth ethtool ops): e1_mdc = J17 (every
-        # vendor example XDC), e1_mdio = K16 (EX SCH: E1_MDIO = B15_L23_N;
-        # CORE SCH: B15_L23_N = ball K16/IO_L23N_T3_FWE_B_15). liteeth's GMII
-        # PHY auto-adds the LiteEthPHYMDIO bitbang CSRs when mdc is present.
+        # vendor example XDC), e1_mdio = L16 (EX SCH: E1_MDIO = B15_L23_P;
+        # CORE SCH: B15_L23_P = ball L16/IO_L23P_T3_FOE_B_15). NB the EX
+        # schematic's pdftotext pairs labels ONE ROW BELOW their nets — the
+        # first read gave K16/B15_L23_N, which is really E2_TXD1 (silicon:
+        # pull-up line, drives fine, no PHY ever answered); anchors RXD5=
+        # B15_L18_P=N20 / RXD6=B15_L18_N=M20 pin the offset against the
+        # vendor XDC. liteeth's GMII PHY auto-adds the LiteEthPHYMDIO
+        # bitbang CSRs when mdc is present.
         Subsignal("mdc",  Pins("J17"), IOStandard("LVCMOS33")),
-        Subsignal("mdio", Pins("K16"), IOStandard("LVCMOS33"), Misc("PULLUP TRUE")),
+        Subsignal("mdio", Pins("L16"), IOStandard("LVCMOS33"), Misc("PULLUP TRUE")),
     ),
     # RGMII PHY1 = the AX7101 "e2" RTL8211E (the Milan NIC second port).
     ("eth_clocks", 1,

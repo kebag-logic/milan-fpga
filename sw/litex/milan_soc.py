@@ -447,6 +447,18 @@ class MilanMAC(LiteXModule):
                 "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
             platform.add_platform_command(
                 "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
+            # GMII RX capture is equally unconstrained. AX36 (the first build
+            # adding IOBs in the RX bank: e1 MDC J17 / MDIO L16) shifted the
+            # IO-adjacent placement and killed RX on BOTH seeds: PHY-level
+            # frames toggled act_tgl but RMON counted 0 good AND 0 bad =
+            # preamble-stage death on corrupt sampling. Pad-lock the capture
+            # FFs like the TX launch FFs.
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports {{eth%d_rx_data[*]}}]" % phy_index)
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports eth%d_rx_dv]" % phy_index)
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports eth%d_rx_er]" % phy_index)
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
         # halves kept their pointers = permanent desync after a link bounce

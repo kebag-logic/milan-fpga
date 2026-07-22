@@ -277,30 +277,71 @@ and is not repeated here.
 
 1. ~~AX timing closure with the link guard~~ **DONE 2026-07-22**
    (buffered dp-CDCs; AX34 3/3 keep + silicon drills green — §5b).
-2. **Spec-aligned module tree (USER 2026-07-22):** re-arrange hdl/ to
+   Residual: AX36 = the e1 MDIO pin correction (L16) sweep → flash →
+   RTL8211E ethtool drills.
+2. RTL fixes for the workaround items (GMII CDC reinit, shadow
+   invalidate-on-reset, I2SPB counters W1C) — **moved to #2 (USER
+   2026-07-22)**.
+3. **Spec-aligned module tree (USER 2026-07-22):** re-arrange hdl/ to
    mirror the standards' clause structure — IEEE 1722.1
    (ADP / ACMP / AECP/AEM/DESCRIPTORS / AECP/GET_* command units),
    IEEE 1722 (AAF, CRF), IEEE 802.1Q (TS/ = the traffic shaper, SRP,
    MRP, VLAN/TCAM), IEEE 802.1AS (gPTP) — so what is missing is
    visible from the tree itself. Mechanical round (git mv + file-list
    sync in milan_soc.py/TBs/yosys), own clean commit.
-3. **Software-defined End-Station build (USER 2026-07-22):** one
+   **Subtask (USER 2026-07-22): per-module spec-test traceability** —
+   for every module, what SHOULD be tested per 1722.1-2021 /
+   1722-2016 / 802.1Q (clause refs) and how to verify it with
+   tsn_gen; deliverable = a 1:1 matrix spec clause → behavior → test
+   (existing / tsn_gen / MISSING) → why. The tree shows missing
+   implementation; the matrix shows missing verification.
+4. **Software-defined End-Station build (USER 2026-07-22):** one
    declarative definition (build params / config file, cf.
    avdecc/milan-v12-entity.json) drives gateware elaboration, AEM
    ROM, lwSRP tables and DT/driver shape consistently.
-4. **NxN AAF Milan streams (USER 2026-07-22):** N talker + N listener
+   **Refined (USER):** every submodule parameterizable (if needed) so
+   the endstation builder composes correctly — SV parameters where
+   they fit + codegen (aecp_aem_rom.svh pattern) where structure
+   changes. Each element keeps its TBs + README-tests.md (MERGED with
+   the #3 traceability matrix: clause → behavior → test → why) +
+   README-parameters.md (how to parameterize), at BOTH levels: per
+   leaf module dir + a rolled-up per-spec-family index.
+   **Subtask (USER 2026-07-22): audio interfaces + cluster mapping** —
+   the config defines the physical audio interface (TDM8/16/32, I2S
+   Philips, AES3, S/PDIF) and how its channels map onto the AEM
+   audio clusters (AUDIO_CLUSTER/AUDIO_MAP generation + the matching
+   ser/des RTL selection and parameters: slots, word length, frame
+   format). The current fixed Philips-stereo I2S becomes one
+   selectable instance; AES3/S-PDIF add a biphase-mark + channel-
+   status RTL family under the spec-aligned tree.
+5. **NxN AAF Milan streams (USER 2026-07-22):** N talker + N listener
    streams configurable via the command parameters — test shapes
    AX7101 = 8x8, Arty = 4x4. Subsumes the multi-stream registrar
-   direction; needs per-stream ACMP/MAAP/monitor contexts and the
-   2nd+ lwSRP attributes.
-5. MMCM-DRP media-clock servo (retires the drift-lottery rails for
+   direction (and the 2nd lwSRP listener attribute / CRF reservation);
+   needs per-stream ACMP/MAAP/monitor contexts.
+6. MMCM-DRP media-clock servo (retires the drift-lottery rails for
    good; shares the clock-outage sequencing with the GMII CDC reinit).
-6. RTL fixes for the workaround items (GMII CDC reinit, shadow
-   invalidate-on-reset, I2SPB counters W1C).
-7. 2nd lwSRP listener attribute (CRF reservation) — folds into #4.
+7. **ALSA driver (USER 2026-07-22):** record/play music from/to
+   over-Milan using PipeWire — a real ALSA card on the boards (PCM
+   ring DMA as the ALSA buffer, period IRQs from the ring pointers,
+   rate slaved to the media clock = why it follows the DRP servo);
+   listener streams = capture PCMs, talker streams = playback PCMs;
+   stock PipeWire ALSA source/sink replaces pw-milan-ring-source.
 8. Dynamic audio maps (ADD/REMOVE + es-4.16) — mandatory the moment
    routing becomes dynamic.
 9. Milan saved-state fast-connect (binds surviving reboot).
-10. **es-1.1/1.2 DUT-wins-BMCA variants — BOTTOM of the list (USER
-    2026-07-21): blocked on the bench switch's gPTP claim anyway; the
-    wire-observable halves are already green.**
+10. **Spec-matrix peer-validation (USER 2026-07-22):** peer-test the
+   specification matrix ONE-TO-ONE with a human — every clause →
+   behavior → test row reviewed and confirmed — and write behave
+   features that validate each confirmed row (the CERT-harness
+   pattern: the matrix rows become executable scenarios).
+11. **AAF end-to-end latency breakdown (USER 2026-07-22):**
+    per-stage TX/RX pipeline latency taps (TX: DMA fetch → packetizer
+    → shaper queue → MAC egress; RX: MAC ingress → classifier →
+    depacketizer → PCM ring → DAC fetch), measurement points
+    documented on the pipeline diagrams, results exposed through the
+    CSR space (telemetry-block pattern) with a DDR3-backed history
+    readable via a CSR window.
+12. **es-1.1/1.2 DUT-wins-BMCA variants — VERY END (USER 2026-07-22
+    final reorder):** blocked on the bench switch's gPTP claim anyway;
+    the wire-observable halves are green.
