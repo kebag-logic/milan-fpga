@@ -382,6 +382,14 @@ and is not repeated here.
    the #3 traceability matrix: clause → behavior → test → why) +
    README-parameters.md (how to parameterize), at BOTH levels: per
    leaf module dir + a rolled-up per-spec-family index.
+   **Subtask (USER 2026-07-22): approximate resource-usage
+   estimator** — the builder estimates LUT/FF/BRAM/DSP for a config
+   BEFORE any Vivado run: per-module cost table calibrated from real
+   utilization reports (anchor on OOC/synth figures — the area-70
+   lesson: hierarchical reports mislead) × instance counts from the
+   config, emitted in the build plan with a budget verdict vs the
+   part (xc7a100t; flag >~70-80%). Feeds NxN sizing before burning
+   sweeps.
    **Subtask (USER 2026-07-22): audio interfaces + cluster mapping** —
    the config defines the physical audio interface (TDM8/16/32, I2S
    Philips, AES3, S/PDIF) and how its channels map onto the AEM
