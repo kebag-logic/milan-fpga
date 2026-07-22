@@ -46,7 +46,8 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee17221/aecp/KL_aecp_accessor.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_aem_store.sv \
        $(RTL_DIR)/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_response_builder.sv \
        $(RTL_DIR)/ieee17221/aecp/KL_aecp_ingress.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_top.sv \
-       $(RTL_DIR)/ieee17221/acmp/acmp_pkg.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_responder.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_listener.sv \
+       $(RTL_DIR)/ieee17221/acmp/acmp_pkg.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_tlkr_ctx.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_responder.sv \
+       $(RTL_DIR)/ieee17221/acmp/KL_acmp_lstn_ctx.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_listener.sv \
        $(RTL_DIR)/ieee8021q/srp/lwsrp_pkg.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_timers.sv \
        $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_tx.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ingress.sv \
        $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_walker.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_registrar.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ta_registrar.sv \

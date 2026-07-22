@@ -257,8 +257,10 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee17221/aecp/KL_aecp_accessor.sv", "hdl/ieee17221/aecp/KL_aecp_aem_store.sv",
     "hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/ieee17221/aecp/KL_aecp_response_builder.sv",
     "hdl/ieee17221/aecp/KL_aecp_ingress.sv", "hdl/ieee17221/aecp/KL_aecp_top.sv",
-    # ACMP stateless talker responder (Milan v1.2 §5.5)
-    "hdl/ieee17221/acmp/acmp_pkg.sv", "hdl/ieee17221/acmp/KL_acmp_responder.sv", "hdl/ieee17221/acmp/KL_acmp_listener.sv",
+    # ACMP N-context engine + compatibility wrappers (Milan v1.2 §5.5)
+    "hdl/ieee17221/acmp/acmp_pkg.sv",
+    "hdl/ieee17221/acmp/KL_acmp_tlkr_ctx.sv", "hdl/ieee17221/acmp/KL_acmp_responder.sv",
+    "hdl/ieee17221/acmp/KL_acmp_lstn_ctx.sv", "hdl/ieee17221/acmp/KL_acmp_listener.sv",
     # lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6). Order: pkg first.
     "hdl/ieee8021q/srp/lwsrp_pkg.sv", "hdl/ieee8021q/srp/KL_lwsrp_timers.sv",
     "hdl/ieee8021q/srp/KL_lwsrp_tx.sv", "hdl/ieee8021q/srp/KL_lwsrp_ingress.sv",
