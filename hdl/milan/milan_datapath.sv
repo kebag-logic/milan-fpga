@@ -176,7 +176,26 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   output wire        o_irq_csr,
 
   // ---- AECP IDENTIFY control (Milan FR-MGT-01): board LED blink hook ----
-  output wire        o_identify
+  output wire        o_identify,
+
+  // ---- audio-MMCM media-clock servo (KL_mmcm_drp_servo -> MMCME2_ADV at
+  //      the SoC layer; UG472 PS + XAPP888 DRP interfaces). i_ps_clk is
+  //      the MMCM PSCLK domain (SoC: 200 MHz idelay; DS181 MMCM_FMAX_PSCLK
+  //      450 MHz at -1); the DRP DCLK is axis_clk. Tops without the MMCM
+  //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0
+  //      (servo idles unless clock_source == 2). ----
+  input  wire        i_ps_clk,
+  output wire [6:0]  o_mmcm_drp_addr,
+  output wire        o_mmcm_drp_en,
+  output wire        o_mmcm_drp_we,
+  output wire [15:0] o_mmcm_drp_di,
+  input  wire [15:0] i_mmcm_drp_do,
+  input  wire        i_mmcm_drp_rdy,
+  output wire        o_mmcm_rst,
+  input  wire        i_mmcm_locked,
+  output wire        o_mmcm_ps_en,
+  output wire        o_mmcm_ps_incdec,
+  input  wire        i_mmcm_ps_done
 );
   // P12 (NXN_ARCHITECTURE.md §1.5): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -437,6 +456,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [7:0]  avtprx_b3;
   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
   wire signed [31:0] crf_delta_w, crf_rate_w;
+  wire [31:0] mcsrv_stat_w;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
   wire [15:0] crf_pducnt_w;
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
@@ -818,6 +838,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_crf_rate         (crf_rate_w),
     .i_crf_status       ({crf_pducnt_w, crf_fmterr_w, crf_seqerr_w}),
     .i_crf_locked       (crf_locked_w),
+    .i_mcsrv_stat       (mcsrv_stat_w),
     .o_crft_en          (cfg_crft_en),
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
@@ -1506,6 +1527,39 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .locked_o    (crf_locked_w),
     .cnt_locked_o   (crf_cnt_locked_w),
     .cnt_unlocked_o (crf_cnt_unlocked_w)
+  );
+
+  // ==========================================================================
+  //  CRF media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo.
+  //  Consumes the KL_crf_rx rate measurement when clock_source == 2 and
+  //  steers the SoC audio MMCM through the UG472 fine-phase-shift port
+  //  (ppm-fine, glitch-free) + the XAPP888 DRP engine (verified divider
+  //  reprogramming, reset-sequenced). auto_repair is tied OFF for silicon
+  //  bring-up: the DRP limb read-verifies but never writes until the bench
+  //  confirms the expected ClkReg encoding (see the module header).
+  // ==========================================================================
+  KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) mmcm_servo (
+    .clk_i         (axis_clk),
+    .rst_n         (axis_resetn),
+    .clk_audio_i   (clk_audio_i),
+    .ps_clk_i      (i_ps_clk),
+    .ptp_now_i     (ptp_now_w),
+    .clk_src_i     (aecp_clk_src),
+    .crf_locked_i  (crf_locked_w),
+    .crf_rate_i    (crf_rate_w),
+    .auto_repair_i (1'b0),
+    .drp_addr_o    (o_mmcm_drp_addr),
+    .drp_en_o      (o_mmcm_drp_en),
+    .drp_we_o      (o_mmcm_drp_we),
+    .drp_di_o      (o_mmcm_drp_di),
+    .drp_do_i      (i_mmcm_drp_do),
+    .drp_rdy_i     (i_mmcm_drp_rdy),
+    .mmcm_rst_o    (o_mmcm_rst),
+    .mmcm_locked_i (i_mmcm_locked),
+    .ps_en_o       (o_mmcm_ps_en),
+    .ps_incdec_o   (o_mmcm_ps_incdec),
+    .ps_done_i     (i_mmcm_ps_done),
+    .status_o      (mcsrv_stat_w)
   );
 
   // ==========================================================================
