@@ -375,6 +375,21 @@ and is not repeated here.
    declarative definition (build params / config file, cf.
    avdecc/milan-v12-entity.json) drives gateware elaboration, AEM
    ROM, lwSRP tables and DT/driver shape consistently.
+   **Generator round DONE 2026-07-22** (sw/builder/, 10-gate suite):
+   config-selectable cluster policy (cap-at-interface |
+   cluster-per-stream-channel), one STREAM_PORT per stream
+   (per-port cluster blocks + §7.2.19-relative AUDIO_MAPs),
+   talkers[].clusters = single authority (examples wire-truth 2,
+   legacy-8 expressible), sweep.sh sources generated
+   configs/generated/sweep_opts_<board>.sh (inline tables =
+   fallback, byte-match gated), hash-derived entity_model_id
+   (sha256 shape fold under the 00-1B-C5 OUI; arty_current PINNED
+   to the deployed 0x001BC50AC1000001); gen_aem_store.py --overlay
+   consumes the emitted overlay and reproduces the tracked
+   aecp_aem_rom.svh byte-identically for the current shape.
+   Recipe + limits: sw/builder/README-parameters.md. Remaining in
+   item 4: lwSRP tables + DT/driver shape emitters, per-module SV
+   parameterization, audio-interface ser/des RTL (subtask below).
    **Refined (USER):** every submodule parameterizable (if needed) so
    the endstation builder composes correctly — SV parameters where
    they fit + codegen (aecp_aem_rom.svh pattern) where structure

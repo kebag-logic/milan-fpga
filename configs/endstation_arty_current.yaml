@@ -3,24 +3,39 @@
 #
 # Software-defined Milan End-Station config (gaps attack item 4).
 # Shape: TODAY'S REAL ARTY BUILD - 1 AAF listener + CRF sink + 1 AAF talker,
-# Philips-stereo I2S render on the Pmod I2S2 (CS4344). The builder gate
-# asserts that this config emits exactly the design flags of
-# sw/litex/sweep.sh (arty OPTS + BASE) and the descriptor counts of
-# avdecc/gen_aem_store.py's hardcoded model.
+# Philips-stereo I2S render on the Pmod I2S2 (CS4344). The builder gates
+# assert that this config emits exactly the design flags of
+# sw/litex/sweep.sh (arty OPTS + BASE) and that its AEM overlay, consumed by
+# avdecc/gen_aem_store.py --overlay, reproduces the tracked
+# hdl/ieee17221/aecp/gen/aecp_aem_rom.svh BYTE-IDENTICALLY.
 #
-# Schema (normative for v1.0): every key below; optional keys carry their
+# Schema (normative for v1.1): every key below; optional keys carry their
 # defaults in sw/builder/endstation_builder.py.
 
 schema: kebag-logic/milan-endstation-config
-schema_version: "1.0.0"
+schema_version: "1.1.0"
 
 entity:
   name: "Milan FPGA Talker"          # AEM ENTITY object_name (<=63 bytes)
-  entity_model_id: "0x001BC50AC1000001"  # vendor EUI-64 (OUI 00-1B-C5)
+  entity_model_id: hash-derived      # default path: EUI-64 from the model
+                                     # shape (sha256 of the canonical shape
+                                     # JSON, top 8 bytes folded under the
+                                     # 00-1B-C5 OUI prefix - exact recipe in
+                                     # sw/builder/README-parameters.md)
+  model_id_pin: "0x001BC50AC1000001" # PINNED: the CURRENTLY DEPLOYED model
+                                     # id - already-flashed silicon must not
+                                     # change identity when the hash recipe
+                                     # or shape serialization evolves.
+                                     # Remove the pin only with a model-
+                                     # changing reflash.
   entity_id: mac-derived             # EUI-64 from station MAC (MAC48->FF-FE)
   vendor_name: "Kebag Logic"
   firmware_version: "0.1.0"
-  serial_number: "ARTY-0001"
+  serial_number: "AX7101-0001"       # deployed-ROM truth: the serial baked
+                                     # into the shared AEM ROM image (both
+                                     # boards; per-board identity rides the
+                                     # runtime ENT_NAME8 CSR overlay).
+                                     # Byte-identity gate pins this value.
   group_name: ""
 
 board:
@@ -37,6 +52,7 @@ board:
     rx_queues: 2                     # flow-steered RX fan-out
     hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
     strip_probes: true               # area-70 ship diet
+    # eth_port: only for multi-PHY boards (ax7101 e1|e2); arty has one PHY
 
 clocking:
   sampling_rate_hz: 48000            # current media clock (AAF base rate)
@@ -51,11 +67,17 @@ audio_interface:
   kind: i2s_philips                  # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
   word_length_bits: 24               # CS4344 24-bit Philips
   cluster_mapping:
-    rule: mono-cluster-per-stream-channel
-    # each AAF stream channel -> one mono MBLA AUDIO_CLUSTER; physical
-    # interface channels bind in order to the first clusters per direction;
-    # extra stream channels are virtual, missing physical render 0
-    # (USER wire-truth 1-to-1 rule).
+    policy: cluster-per-stream-channel
+    # cluster-count policy (USER decision, config-selectable):
+    #   cluster-per-stream-channel - the stream's `clusters` field verbatim
+    #     (legacy/pipewire-reference layout; what the deployed ROM ships)
+    #   cap-at-interface - min(clusters, physical interface channels):
+    #     clusters model real endpoints only (wire truth)
+    # Either way each cluster is mono MBLA; each stream owns ONE
+    # STREAM_PORT + cluster block + AUDIO_MAP (port-relative offsets,
+    # 1722.1-2021 7.2.19); physical interface channels bind in order to
+    # the first clusters per direction; extra stream channels are virtual,
+    # missing physical render 0 (USER wire-truth 1-to-1 rule).
 
 streams:
   listeners:
@@ -69,5 +91,9 @@ streams:
     - name: "Stream Output 0"
       channels: 2                    # talker truth: stereo framer
       formats: ["0x0205022000806000"]
-      clusters: 8                    # today's ROM keeps 8 output clusters
-                                     # (pipewire reference layout)
+      clusters: 8                    # legacy-8: today's DEPLOYED ROM keeps 8
+                                     # output clusters (pipewire reference
+                                     # layout); `clusters` is the single
+                                     # authority - new shapes ship the
+                                     # wire-truth value instead (see the
+                                     # 4x4/8x8 examples)
