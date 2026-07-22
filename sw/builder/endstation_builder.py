@@ -778,6 +778,12 @@ def emit_soc_argv(cfg):
         argv += ["--strip-probes"]
     argv += ["--hs-page-bytes", str(c["hs_page_bytes"])]
     argv += ["--cpu-count", str(soc["cpu_count"])]
+    # NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): milan_datapath
+    # N_STREAMS = the wider of the two stream directions. Emitted only when
+    # > 1 so the shipping 1x1 argv stays byte-identical (no-regression axiom).
+    n_streams = max(len(cfg["listeners"]), len(cfg["talkers"]))
+    if n_streams > 1:
+        argv += ["--num-streams", str(n_streams)]
     return argv
 
 
