@@ -18,6 +18,7 @@
 #include <vector>
 #include <deque>
 #include <string>
+#include <algorithm>
 
 static VKL_aecp_top* dut;
 static vluint64_t tk = 0;
@@ -1725,6 +1726,93 @@ int main(int argc, char** argv) {
         (void)collect_resp();
         feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x2308, {}));
         (void)collect_resp();
+    }
+
+    // [24] ADDRESS_ACCESS message type (traceability AECP-8, IEEE
+    //      1722.1-2021 9.4): AA is the raw-memory escape hatch (firmware
+    //      upload). This entity does not implement it — the packet
+    //      validator admits only AEM_COMMAND/VU_COMMAND — and the safety
+    //      property under test is the listener-deafness lesson inverted:
+    //      an AA command (or any malformed TLV inside one) must be dropped
+    //      WHOLE — no half-parse, no response, no store write, engine
+    //      still live. (Command-level AA support itself stays an open
+    //      matrix leg; a tsn_gen aecp_address_access.yaml sweep rides on
+    //      this same drop contract.)
+    printf("\n[24] ADDRESS_ACCESS commands dropped whole (9.4)\n");
+    {
+        // baseline: remember a store byte via READ_DESCRIPTOR(ENTITY)
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x2400,
+                         {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00}));
+        auto base = collect_resp();
+        ck("[24a] baseline READ_DESCRIPTOR ok", r_status(base), 0);
+        // (b) well-formed AA READ command (mode 0, len 4, addr 0):
+        //     msg_type 2 -> not admitted, NO response of any type
+        std::vector<uint8_t> aa; put_be16(aa, 0x0001);       // tlv_count 1
+        aa.push_back(0x00); aa.push_back(0x04);              // mode|len
+        for (int i = 0; i < 8; i++) aa.push_back(0);         // address 0
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 2, 0, 0x2401, aa));
+        auto r = collect_resp(800);
+        ck("[24b] AA READ command: no response", r.size(), 0);
+        // (c) AA WRITE with a hostile TLV (mode 1, oversize len, address
+        //     inside the AEM store): must not touch the store
+        std::vector<uint8_t> wr; put_be16(wr, 0x0001);
+        wr.push_back(0x10); wr.push_back(0xFF);              // mode 1|len 0xFF
+        for (int i = 0; i < 8; i++) wr.push_back(0);
+        for (int i = 0; i < 16; i++) wr.push_back(0xDE);     // payload garbage
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 2, 0, 0x2402, wr));
+        r = collect_resp(800);
+        ck("[24c] AA WRITE command: no response", r.size(), 0);
+        // (d) engine live + store byte-identical after both
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x2403,
+                         {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00}));
+        auto after = collect_resp();
+        ck("[24d] engine live after AA frames", r_status(after), 0);
+        ck("[24d] store untouched (byte-exact vs baseline)",
+           after.size() == base.size() &&
+           std::equal(after.begin()+38, after.end(), base.begin()+38), 1);
+    }
+
+    // [25] changing MSRP AccumulatedLatency reaches the AECP readback
+    //      (traceability SRP-6, 802.1Q 35.2.2 + Milan 5.4.2.7): [22b]
+    //      proved ONE registered value; controllers align presentation
+    //      offsets from this number, so a CHANGED wire latency (bridge
+    //      re-declares with a new AccumulatedLatency) must show up on the
+    //      next GET_STREAM_INFO. Chain evidence: the walker capture side
+    //      is lwsrp_rx's TalkerAdvertise cases; the join is the direct
+    //      milan_datapath net lwsrp_ta_acclat (ta_acclat_o ->
+    //      lstn_ta_acclat_i, no CSR hop); this case drives that input at
+    //      the aecp_top boundary — the deepest verilator can reach in this
+    //      suite (integration gap: no single TB yet drives wire-MRPDU ->
+    //      GET_STREAM_INFO in one run; the dp TB defers AECP command-level
+    //      to this suite).
+    printf("\n[25] changing acc-latency propagates to GET_STREAM_INFO\n");
+    {
+        auto si_pl = [](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
+        };
+        dut->lstn_bound_i = 1; dut->lstn_ta_reg_i = 1;
+        dut->lstn_ta_acclat_i = 137042;                     // 0x00021752
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2500,
+                         si_pl(0x0005, 0)));
+        auto r = collect_resp();
+        ck("[25a] GET_STREAM_INFO SUCCESS", r_status(r), 0);
+        ckbytes("[25a] acc_lat initial", r, 62, {0x00,0x02,0x17,0x52});
+        dut->lstn_ta_acclat_i = 250000;                     // 0x0003D090 re-declare
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2501,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ck("[25b] GET_STREAM_INFO SUCCESS", r_status(r), 0);
+        ckbytes("[25b] acc_lat FOLLOWS the re-declare", r, 62,
+                {0x00,0x03,0xD0,0x90});
+        // registration dropped: the stale latency must not linger
+        dut->lstn_ta_reg_i = 0;
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2502,
+                         si_pl(0x0005, 0)));
+        r = collect_resp();
+        ckbytes("[25c] unregistered -> acc_lat zero", r, 62, {0,0,0,0});
     }
 
     // counters
