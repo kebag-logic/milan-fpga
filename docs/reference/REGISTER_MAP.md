@@ -37,7 +37,8 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x680` | lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) |
 | `0x6A4` | ACMP listener SM (Milan v1.2 §5.5, RO) |
 | `0x700` | RX destination-MAC TCAM filter |
-| `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x85C) |
+| `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
+| `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
@@ -49,7 +50,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0009` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed) |
+| `0x004` | `VERSION` | RO | `0x0001_000A` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -315,6 +316,36 @@ controller-driven over ACMP.
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
 
+### 0x7A0  -  ACMP bind-restore  `(saved-state fast-connect E1, Milan 5.5.3.5.2)`
+
+Boot-time re-injection of a listener bind saved in non-volatile memory
+(`acmp-persist`, milan-tests-avb `fpga/docs/SAVED_STATE_FASTCONNECT.md`).
+Software stages the persisted binding parameters (5.5.2.4 + 5.5.3.5.3:
+talker_entity_id, talker_unique_id, controller_entity_id, flags) and
+commits; the fabric writes the Milan 5.5.3.5.2 ENTRY record into the ACMP
+listener context table — state `PRB_W_AVAIL`, probing_status `PASSIVE`,
+ACMP status 0, and the SRP stream parameters (stream_id / dest MAC / VLAN)
+**cleared** per 5.5.2.6 step 1. No new connection logic: the existing
+fabric ladder (ADP talker watch -> TMR_DELAY -> PROBE_TX ladder) takes
+over, so the sink waits for the talker's ENTITY_AVAILABLE (5.5.1.4) and
+re-probes exactly like a power-on fast-connect. Software gate: VERSION >=
+`0x000A` **and** a write/readback probe of `0x7A0` (pattern `0xA5C35A3C`).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x7A0` | `REST_TK_LO` | RW | `0` | saved talker_entity_id `[31:0]` (doubles as the feature probe word) |
+| `0x7A4` | `REST_TK_HI` | RW | `0` | saved talker_entity_id `[63:32]` |
+| `0x7A8` | `REST_META` | RW | `0` | `[15:0]` talker_unique_id; `[27:16]` saved VLAN — informational only, **ignored on load** (5.5.2.6 step 1 re-probes it) |
+| `0x7AC` | `REST_CTLR_LO` | RW | `0` | saved controller_entity_id `[31:0]` |
+| `0x7B0` | `REST_CTLR_HI` | RW | `0` | saved controller_entity_id `[63:32]` |
+| `0x7B4` | `REST_CMD` | W1S / RO | `0` | Write: `[31]` commit (accepted only while idle), `[23:8]` binding flags (bit 3 = STREAMING_WAIT), `[3:0]` target sink index (listener_unique_id). Read (live): `[31]` busy (commit in flight), `[30]` done (a commit completed since reset), `[9:8]` status of the last commit — `0` injected, `1` refused: target context OCCUPIED (not `LSM_UNBOUND_S`; record untouched), `2` refused: bad index (>= N sinks, or a record-only context without the probe SM — the CRF sink re-arms via `0x738`), `[3:0]` last committed index |
+
+The commit is refused rather than merged when the context is already bound
+(5.5.1.2: only a controller changes a bound state) — `acmp-persist` treats
+status 1/2 as "leave the fabric alone". With no engine attached (TB ties)
+a commit stays busy forever; the VERSION + probe gate prevents software
+from ever committing on such gateware.
+
 ### 0x800  -  Indexed per-stream window  `(NxN streams, NXN_ARCHITECTURE.md §1.5)`
 
 One SELECT register plus ONE decoded word block views any of the N listener /
@@ -338,6 +369,9 @@ elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
 | `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. Talker contexts read 0 |
 | `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: frames_sent (= `AAF_FRAMES` at idx 0) |
 | `0x85C` | `A_STRMW_SRP` | RO | — | per-stream lwSRP attribute status. idx 0: **live hard alias of `LWSRP_STATUS` (0x694)**. idx>0: `{16'0, ctx_rd_stat}` = `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the live lwSRP context row |
+| `0x860` | `A_STRMW_CTLR_LO` | RO | — | **E2 (saved-state fast-connect):** binding controller_entity_id `[31:0]` from the ACMP bind context (5.5.3.5.3 step 2). Listener contexts only — talker dir reads 0 |
+| `0x864` | `A_STRMW_CTLR_HI` | RO | — | controller_entity_id `[63:32]` |
+| `0x868` | `A_STRMW_BIND` | RO | — | `{flags[31:16], tuid[15:0]}` from the ACMP bind context — `flags` are the stored binding flags (bit 3 = STREAMING_WAIT, 5.5.2.4), `tuid` the bound talker_unique_id. `0x86C` reads 0 (window hole) |
 
 **The alias rule (N=1 bit-compat axiom).** The legacy flat registers remain
 the authority and index 0 of the window is a HARD ALIAS of them — never a

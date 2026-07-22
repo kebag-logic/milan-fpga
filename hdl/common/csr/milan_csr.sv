@@ -57,7 +57,7 @@ module milan_csr #(
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
   parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
   parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
-  parameter logic [31:0] VERSION = 32'h0001_0009 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter logic [31:0] VERSION = 32'h0001_000A //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -298,6 +298,20 @@ module milan_csr #(
   output wire [3:0]              o_acmp_tbl_idx,
   input  wire                    i_acmp_tbl_gnt,
   input  wire [316:0]            i_acmp_tbl_ctx,
+  //! ACMP bind-restore master (E1, SAVED_STATE_FASTCONNECT.md §5): a 0x7B4
+  //! commit holds o_acmp_rest_req until the engine's 1-cycle
+  //! i_acmp_rest_ack; i_acmp_rest_status is valid WITH the ack (0 =
+  //! injected, 1 = target occupied, 2 = bad index). Tie {ack=0, status=0}
+  //! with no engine attached: the commit then reads back busy forever —
+  //! the honest no-engine behaviour (software must probe VERSION first).
+  output wire                    o_acmp_rest_req,
+  output wire [3:0]              o_acmp_rest_idx,
+  output wire [63:0]             o_acmp_rest_talker,
+  output wire [15:0]             o_acmp_rest_tuid,
+  output wire [63:0]             o_acmp_rest_ctlr,
+  output wire [15:0]             o_acmp_rest_flags,
+  input  wire                    i_acmp_rest_ack,
+  input  wire [1:0]              i_acmp_rest_status,
   //! lwSRP attribute-context provisioning port (KL_lwsrp_top ctx_* shape):
   //! window CTRL commits for idx>0 write a row (sid/dmac staged via the
   //! window SID/DMAC words, TSpec from the legacy 0x690/0x6A0 regs); reads
@@ -415,6 +429,18 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_BDBG1 = 'h76C;  //! RO live: {0, cmd15, dlen16}
   localparam [ADDR_WIDTH-1:0] A_BDBG2 = 'h770;  //! RO live: {ptr, end}
   localparam [ADDR_WIDTH-1:0] A_LINKG_STAT = 'h774;  //! RO live: link guard {bounce16, flags, alive}
+  // ---- 0x7A0 ACMP bind-restore (E1, SAVED_STATE_FASTCONNECT.md §5):
+  //  acmp-persist reloads a saved bind at boot — the commit injects a Milan
+  //  5.5.3.5.2 entry record {PRB_W_AVAIL, probing PASSIVE, status 0,
+  //  sid/dmac/vlan CLEARED per 5.5.2.6 step 1} into the listener ctx table;
+  //  the fabric ADP watch + probe ladder take over. Plain-RW staging words
+  //  (0x7A0 doubles as the software write/readback feature probe).
+  localparam [ADDR_WIDTH-1:0] A_REST_TKLO = 'h7A0;   //! saved talker_entity_id [31:0]
+  localparam [ADDR_WIDTH-1:0] A_REST_TKHI = 'h7A4;   //! saved talker_entity_id [63:32]
+  localparam [ADDR_WIDTH-1:0] A_REST_META = 'h7A8;   //! {vlan[27:16] informational (ignored on load), tuid[15:0]}
+  localparam [ADDR_WIDTH-1:0] A_REST_CTLO = 'h7AC;   //! saved controller_entity_id [31:0]
+  localparam [ADDR_WIDTH-1:0] A_REST_CTHI = 'h7B0;   //! saved controller_entity_id [63:32]
+  localparam [ADDR_WIDTH-1:0] A_REST_CMD  = 'h7B4;   //! W: [31] W1S commit, [23:8] binding flags, [3:0] sink idx; R live: {[31] busy, [30] done, [9:8] status, [3:0] idx}
   // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
   //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
   //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
@@ -433,7 +459,12 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_STRMW_CNT_END= 'h858; //! one past CNT9 (0x854)
   localparam [ADDR_WIDTH-1:0] A_STRMW_PDUS   = 'h858; //! RO (snap-latched): {drops,pdus} (listener) / frames_sent (talker)
   localparam [ADDR_WIDTH-1:0] A_STRMW_SRP    = 'h85C; //! RO live: per-stream lwSRP status (idx0 = 0x694 alias)
-  localparam [ADDR_WIDTH-1:0] A_STRMW_END    = 'h860; //! one past the window
+  //  E2 (SAVED_STATE_FASTCONNECT.md §5): the remaining 5.5.2.4/5.5.3.5.3
+  //  persisted binding fields, from the same ACMP ctx snapshot as SID/DMAC
+  localparam [ADDR_WIDTH-1:0] A_STRMW_CTLR_LO= 'h860; //! RO: binding controller_entity_id [31:0] (listener dir only)
+  localparam [ADDR_WIDTH-1:0] A_STRMW_CTLR_HI= 'h864; //! RO: controller_entity_id [63:32]
+  localparam [ADDR_WIDTH-1:0] A_STRMW_BIND   = 'h868; //! RO: {flags[31:16] (bit 3 = STREAMING_WAIT), tuid[15:0]}
+  localparam [ADDR_WIDTH-1:0] A_STRMW_END    = 'h870; //! one past the window (0x86C reads 0)
   localparam [ADDR_WIDTH-1:0] A_STATS_BASE = 'h210;                        //! STAT0 base; STAT0..8 at stride 4
   localparam [ADDR_WIDTH-1:0] A_CBS_BASE   = 'h400;                        //! CBS queue 0 base; stride 0x20
   localparam [ADDR_WIDTH-1:0] A_STATS_END  = A_STATS_BASE + ADDR_WIDTH'(NS*4);          //! One past last STAT
@@ -602,8 +633,11 @@ module milan_csr #(
   //! acmp_lstn_ctx_t flattened-field LSB offsets (single source: acmp_pkg;
   //! kept as literals so milan_csr stays package-free for the yosys file
   //! lists — the layout is locked by the tbl-port TB in tb/verilator/csr)
+  localparam int ACMP_CTX_CTLR_LO_C    = 0;    //! ctlr[63:0]
   localparam int ACMP_CTX_SID_LO_C     = 128;  //! sid[63:0]
   localparam int ACMP_CTX_DMAC_LO_C    = 192;  //! dmac[47:0]
+  localparam int ACMP_CTX_FLAGS_LO_C   = 252;  //! flags[15:0]
+  localparam int ACMP_CTX_TUID_LO_C    = 268;  //! tuid[15:0]
   localparam int ACMP_CTX_STATUS_LO_C  = 305;  //! status[4:0]
   localparam int ACMP_CTX_PROBING_LO_C = 310;  //! probing[1:0]
   localparam int ACMP_CTX_STATE_LO_C   = 314;  //! state[2:0]
@@ -636,6 +670,16 @@ module milan_csr #(
   logic [2:0]  acmp_state_q_r;
   logic [1:0]  acmp_probing_q_r;
   logic [4:0]  acmp_status_q_r;
+  logic [63:0] acmp_ctlr_q_r;         //! E2: binding controller_entity_id
+  logic [15:0] acmp_flags_q_r;        //! E2: binding flags (STREAMING_WAIT)
+  logic [15:0] acmp_tuid_q_r;         //! E2: bound talker_unique_id
+  //! ACMP bind-restore commit state (E1): staging regs are plain-RW
+  //! shadow-backed; the CMD holds the rest master req until the engine ack
+  logic [31:0] rest_tklo, rest_tkhi, rest_meta, rest_ctlo, rest_cthi;
+  logic        rest_pend_r, rest_done_r;
+  logic [1:0]  rest_stat_r;
+  logic [3:0]  rest_idx_r;
+  logic [15:0] rest_flags_r;
   //! SNAP shadow: the ONE permitted window shadow ([M-5.4.2.25] coherent
   //! counter block): [0] STATE, [1..10] CNT0..9, [11] PDUS
   logic [31:0] snap_shadow_r [0:11];
@@ -758,6 +802,10 @@ module milan_csr #(
       stg_dmac_lo_r <= 32'h0; stg_dmac_hi_r <= 32'h0;
       lctx_wr_p_r <= 1'b0; lctx_wr_addr_r <= 8'h0; lctx_wr_data_r <= 32'h0;
       tctx_wr_p_r <= 1'b0; tctx_wr_addr_r <= 7'h0; tctx_wr_data_r <= 32'h0;
+      rest_tklo <= 32'h0; rest_tkhi <= 32'h0; rest_meta <= 32'h0;
+      rest_ctlo <= 32'h0; rest_cthi <= 32'h0;
+      rest_pend_r <= 1'b0; rest_done_r <= 1'b0; rest_stat_r <= 2'd0;
+      rest_idx_r <= 4'd0; rest_flags_r <= 16'h0;
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
@@ -942,6 +990,23 @@ module milan_csr #(
             lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd3};
             lctx_wr_data_r <= s_axi_wdata;
           end
+          //! E1 bind-restore group (0x7A0): plain-RW staging + the commit.
+          //! A commit is only accepted while idle (busy readback covers the
+          //! re-commit race); done/status stick until the next commit.
+          A_REST_TKLO: rest_tklo <= s_axi_wdata;
+          A_REST_TKHI: rest_tkhi <= s_axi_wdata;
+          A_REST_META: rest_meta <= s_axi_wdata;
+          A_REST_CTLO: rest_ctlo <= s_axi_wdata;
+          A_REST_CTHI: rest_cthi <= s_axi_wdata;
+          A_REST_CMD: begin
+            if (s_axi_wdata[31] && !rest_pend_r) begin
+              rest_pend_r  <= 1'b1;
+              rest_done_r  <= 1'b0;
+              rest_stat_r  <= 2'd0;
+              rest_idx_r   <= s_axi_wdata[3:0];
+              rest_flags_r <= s_axi_wdata[23:8];
+            end
+          end
           A_TCAM_CTRL: tcam_ctrl <= s_axi_wdata;
           A_TCAM_KLO:  tcam_klo  <= s_axi_wdata;
           A_TCAM_KHI:  tcam_khi  <= s_axi_wdata;
@@ -970,6 +1035,16 @@ module milan_csr #(
             end
           end
         endcase
+      end
+
+      // E1 bind-restore completion: the engine's 1-cycle ack ends the
+      // commit; status is latched with it (0 injected / 1 occupied / 2 bad
+      // idx). A CMD write can never coincide with an ack for the SAME
+      // commit (the ack only follows a held req = an accepted commit).
+      if (i_acmp_rest_ack && rest_pend_r) begin
+        rest_pend_r <= 1'b0;
+        rest_done_r <= 1'b1;
+        rest_stat_r <= i_acmp_rest_status;
       end
 
       // Hardware-set event latches, applied AFTER the W1C write above so a
@@ -1057,7 +1132,8 @@ module milan_csr #(
       A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL,
       A_ENT_NAME_LO, A_ENT_NAME_HI, A_LPF_CTRL, A_AS2_LO, A_AS2_HI,
       A_CRF_SIDLO, A_CRF_SIDHI,
-      A_CRFT_CTRL, A_CRFT_SIDLO, A_CRFT_SIDHI, A_CRFT_DMLO, A_CRFT_DMHI:
+      A_CRFT_CTRL, A_CRFT_SIDLO, A_CRFT_SIDHI, A_CRFT_DMLO, A_CRFT_DMHI,
+      A_REST_TKLO, A_REST_TKHI, A_REST_META, A_REST_CTLO, A_REST_CTHI:
         is_plain_rw = 1'b1;
       default:
         if (a >= A_CBS_BASE && a < A_CBS_END)
@@ -1180,6 +1256,9 @@ module milan_csr #(
       A_BDBG2:      live_mux = i_bdbg2;
       A_LINKG_STAT: live_mux = i_linkg_stat;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
+      //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
+      A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
+                                rest_stat_r, 4'd0, rest_idx_r};
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
@@ -1242,6 +1321,17 @@ module milan_csr #(
         A_STRMW_SRP:
           strm_mux = (strm_idx_r == 4'd0) ? i_lwsrp_status  // = 0x694
                    : (srp_fresh_r ? {16'd0, i_srp_ctx_rd_stat} : 32'd0);
+        //! E2: the remaining persisted binding fields (5.5.2.4/5.5.3.5.3),
+        //! listener contexts only — talker dir reads 0
+        A_STRMW_CTLR_LO:
+          if (!strm_dir_r)
+            strm_mux = acmp_fresh_r ? acmp_ctlr_q_r[31:0] : 32'd0;
+        A_STRMW_CTLR_HI:
+          if (!strm_dir_r)
+            strm_mux = acmp_fresh_r ? acmp_ctlr_q_r[63:32] : 32'd0;
+        A_STRMW_BIND:
+          if (!strm_dir_r)
+            strm_mux = acmp_fresh_r ? {acmp_flags_q_r, acmp_tuid_q_r} : 32'd0;
         default:
           if (rd_addr_q >= A_STRMW_CNT0 && rd_addr_q < A_STRMW_CNT_END)
             strm_mux = snap_shadow_r[1 + 32'(coff[5:2])];
@@ -1597,6 +1687,7 @@ module milan_csr #(
       acmp_fresh_r  <= 1'b0;
       acmp_sid_q_r  <= 64'h0; acmp_dmac_q_r <= 48'h0;
       acmp_state_q_r <= 3'd0; acmp_probing_q_r <= 2'd0; acmp_status_q_r <= 5'd0;
+      acmp_ctlr_q_r <= 64'h0; acmp_flags_q_r <= 16'h0; acmp_tuid_q_r <= 16'h0;
     end else begin
       if (i_acmp_tbl_gnt) begin
         acmp_sid_q_r     <= i_acmp_tbl_ctx[ACMP_CTX_SID_LO_C     +: 64];
@@ -1604,6 +1695,9 @@ module milan_csr #(
         acmp_state_q_r   <= i_acmp_tbl_ctx[ACMP_CTX_STATE_LO_C   +: 3];
         acmp_probing_q_r <= i_acmp_tbl_ctx[ACMP_CTX_PROBING_LO_C +: 2];
         acmp_status_q_r  <= i_acmp_tbl_ctx[ACMP_CTX_STATUS_LO_C  +: 5];
+        acmp_ctlr_q_r    <= i_acmp_tbl_ctx[ACMP_CTX_CTLR_LO_C    +: 64];
+        acmp_flags_q_r   <= i_acmp_tbl_ctx[ACMP_CTX_FLAGS_LO_C   +: 16];
+        acmp_tuid_q_r    <= i_acmp_tbl_ctx[ACMP_CTX_TUID_LO_C    +: 16];
         acmp_fresh_r     <= 1'b1;
       end
       if (sel_wr_w) acmp_fresh_r <= 1'b0;
@@ -1612,6 +1706,14 @@ module milan_csr #(
 
   assign o_acmp_tbl_req = !strm_dir_r && win_in_range_w;
   assign o_acmp_tbl_idx = strm_idx_r;
+
+  //! E1 bind-restore master: the commit holds the request until the ack
+  assign o_acmp_rest_req    = rest_pend_r;
+  assign o_acmp_rest_idx    = rest_idx_r;
+  assign o_acmp_rest_talker = {rest_tkhi, rest_tklo};
+  assign o_acmp_rest_tuid   = rest_meta[15:0];
+  assign o_acmp_rest_ctlr   = {rest_cthi, rest_ctlo};
+  assign o_acmp_rest_flags  = rest_flags_r;
 
   //! engine port-B buses: the SNAP burst and the slow-read fetch never
   //! overlap (slow reads fall back to fast-0 during a snap; a snap yields
