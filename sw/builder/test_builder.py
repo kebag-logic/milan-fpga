@@ -224,6 +224,11 @@ def test_current_shape_matches_sweep_flags():
     for name in ("ax7101_8x8",):
         r = eb.build(CONFIGS[name], OUT)
         got, want = _canon(r["argv"]), sweep_expected("ax7101")
+        # NXN_ARCHITECTURE P0: multi-stream shapes additionally carry
+        # --num-streams (the milan_datapath N_STREAMS parameter); sweep.sh
+        # tracks today's 1x1 build, so the flag rides on top of its OPTS.
+        want = dict(want)
+        want["--num-streams"] = [8.0]
         assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
         assert got["--eth-port"] == ["e2"], "ax7101 must carry --eth-port e2"
         print(f"  [gate 2] {name} argv == sweep.sh ax7101 design flags "
