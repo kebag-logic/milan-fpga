@@ -12,8 +12,8 @@ Module(s): `sw/builder/endstation_builder.py` (generator),
 Configs: `configs/endstation_*.yaml`
 (schema `kebag-logic/milan-endstation-config` 1.1.x; the annotated normative
 form is `configs/endstation_arty_current.yaml`).
-Gate: `python3 sw/builder/test_builder.py` (10 gates, incl. the ROM
-byte-identity no-regression gate).
+Gate: `python3 sw/builder/test_builder.py` (16 gates, incl. the ROM
+byte-identity no-regression gate and the Milan 7.2.3 CRF-output rule).
 
 ## Pipeline
 
@@ -39,6 +39,7 @@ configs/endstation_<x>.yaml
 | `board.constraints.eth_port` | board's `eth_ports` (`ax7101`: `e1`\|`e2`) | absent | soc argv + sweep opts | Multi-PHY boards only (arty rejects it). `ax7101` ships `e2` (e1 GMII-RX hardware fault, 2026-07-22). |
 | `entity.entity_model_id` | `hash-derived` \| EUI-64 hex | required | model-id resolution | `hash-derived` = the default path (recipe below); a hex literal stays expressible. |
 | `entity.model_id_pin` | EUI-64 hex | absent | model-id resolution | WINS over everything: pins already-flashed silicon to its deployed identity (`arty_current` → `0x001BC50AC1000001`). Remove only with a model-changing reflash. |
+| `clocking.crf_output` | mapping: `enabled` bool + `format` EUI-64 hex | `{enabled: false, format: 0x041060010000BB80}` | overlay emitter → `gen_aem_store` | CRF Media Clock OUTPUT (Milan 7.2.3). **RULE ENFORCED:** a config with >=2 AAF listener streams is rejected without `enabled: true` (error cites 7.2.3). Emits a CRF STREAM_OUTPUT appended after the AAF talkers — Milan 7.3.2 format word, `clock_domain_index` 0, CLOCK_SYNC_SOURCE\|CLASS_A flags, NO STREAM_PORT/cluster/map (mirrors the CRF sink), ADP talker count +1. Model half only: S50 provisioning + the ACMP talker context for the CRF stream ride with item-5 NxN (the `KL_crf_tx` fabric talker already exists, CSRs 0x750-0x764). |
 
 ## entity_model_id: hash-derived recipe (normative)
 
@@ -47,7 +48,11 @@ Resolution order: `model_id_pin` > `entity_model_id: hash-derived` >
 
 1. **shape** = `model_shape(cfg)`: the model-shaping fields ONLY — cluster
    policy; interface kind/channels/word length; sampling rates + current
-   rate; CRF sink + format; per-listener channels/formats/clusters/buffer;
+   rate; CRF sink + format; CRF output (enabled + format, since the
+   Milan-7.2.3 round — extended deliberately: a CRF output IS a model-shape
+   change, so pre-existing hash-derived 4x4/8x8 ids changed with it; the
+   deployed identity is pinned and unaffected); per-listener
+   channels/formats/clusters/buffer;
    per-talker channels/formats/clusters; the derived per-stream port layout
    (`[base_cluster, clusters, base_map]` per port, both directions). NO
    board flags, names or serials: two boards with the same audio shape share
