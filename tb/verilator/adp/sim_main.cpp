@@ -44,8 +44,9 @@ static const uint32_t ENT_CAPS     = 0x0000C588u;
 static const uint16_t TALK_SRC     = 8, TALK_CAP = 0x0001;
 static const uint16_t LIST_SNK     = 8, LIST_CAP = 0x0001;
 static const uint32_t CTRL_CAPS    = 0x00000000u;
-static const uint64_t GPTP_GM      = 0x0011223344556677ULL;
-static const uint8_t  GPTP_DOMAIN  = 0;
+// mutable: case 14 re-provisions them for the GM-change scenario (ADP-9)
+static uint64_t GPTP_GM      = 0x0011223344556677ULL;
+static uint8_t  GPTP_DOMAIN  = 0;
 static const uint8_t  VALID_TIME   = 5;         // also the re-advertise period (ticks)
 static const uint64_t STATION_MAC  = 0x001BC5AABBCCULL;
 static const uint16_t CUR_CFG = 0, IDENT_CTRL = 0, IFACE_IDX = 0;
@@ -274,6 +275,28 @@ int main(int argc, char** argv) {
     auto f13b = capture_frame();
     check_common("re-arm after re-enable", f13b, 0, 14);
     ck("rearm_cnt after 2nd heal", dut->rearm_cnt_o, 2);
+
+    // 14) GM CHANGE re-advertises the NEW grandmaster (traceability ADP-9 /
+    //     M-ADP-2, IEEE 1722.1-2021 6.2.2.16-6.2.2.17 + Milan v1.2 5.6.3.5):
+    //     the gPTP daemon rewrites gptp_grandmaster_id/domain (CSRs
+    //     0x624/0x628) and pulses gm_change — the very next ADPDU must carry
+    //     the NEW GM id + domain (a stale id misleads controllers diagnosing
+    //     clock domains) and bump available_index (6.2.2.15). Case 4 above
+    //     proved the re-advertise fires; this proves the FIELDS follow.
+    //     Silicon note stays: gptp2csr publishes the LOCAL id when
+    //     gmPresent=false — the field feed, not this engine.
+    GPTP_GM     = 0xFEDCBA9876543210ULL;        // new grandmaster elected
+    GPTP_DOMAIN = 3;
+    dut->gptp_grandmaster_id_i = GPTP_GM;
+    dut->gptp_domain_number_i  = GPTP_DOMAIN;
+    pulse(dut->gm_change_i);
+    auto f14 = capture_frame();
+    check_common("gm-change advertises NEW GM fields", f14, 0, 15);
+    // and the next PERIODIC advertise keeps carrying the new GM (no
+    // one-shot latch of the old value anywhere in the serializer)
+    for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
+    auto f14b = capture_frame();
+    check_common("periodic after GM change keeps NEW GM", f14b, 0, 16);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
