@@ -158,9 +158,18 @@ and is not repeated here.
   floats). No true carrier state; a totally idle-but-up network segment
   would read as link-down after the quiet threshold (gPTP makes this
   practically impossible on an AVB network, but it is a heuristic).
-- **CSR config shadow serves stale values across an unnoticed fabric
-  reset**; mitigated by the RST_EPOCH canary + daemon reconfig, not
-  fixed in hardware (a shadow invalidate-on-reset would be the RTL fix).
+- **CSR shadow/counter staleness across resets**: RESOLVED in RTL
+  2026-07-22 to the extent RTL can. The config shadow was already
+  invalidated on any CSR-visible reset (aresetn defaults-ROM sweep,
+  7c5f053); the remaining hole was the MAC reinit, which restarts the
+  MAC path with NO aresetn event here - a pre-reset STAT0-8 RMON
+  snapshot kept serving stale counts. milan_csr now takes the effective
+  MAC-reset line (`i_mac_reinit` = guard | LINK_CTRL[1]) and zeroes the
+  snapshot on its release edge (all-zero = "no valid snapshot",
+  software re-arms via STATS_CTRL[0]). TB: tb/verilator/csr. The
+  RST_EPOCH canary + daemon reconfig stay as the defense for resets the
+  CSR clock never sees (clock-dead reset pulses are invisible to any
+  synchronous fix).
 - **Synthesis-style landmines (2026-07-20 cbuf lesson):** `fword_r`
   (KL_acmp_responder) and `nochg_q` (response builder) draw the same
   Vivado Synth 8-7137 "set/reset same priority - may cause simulation

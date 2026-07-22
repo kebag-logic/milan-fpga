@@ -652,6 +652,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_bdbg1            (aecp_bdbg1_w),
     .i_bdbg2            (aecp_bdbg2_w),
     .i_linkg_stat       (linkg_stat_w),
+    .i_mac_reinit       (linkg_reinit_w),
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
     .o_as_parent_ckid   (cfg_as_parent_ckid),
