@@ -117,6 +117,7 @@ int main(int argc, char** argv) {
   dut->i_link_up = 1; dut->i_speed = 2; dut->i_full_duplex = 1;
   dut->i_ptp_tod = 0; dut->i_ptp_tod_valid = 0;
   dut->i_adp_available_index = 0;
+  dut->i_mac_reinit = 0;
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
@@ -231,6 +232,26 @@ int main(int argc, char** argv) {
   seen_stats_reset = false;
   axi_write(A_STATS_CTRL, 0x2);          // reset pulse
   ck("o_stats_reset pulsed", seen_stats_reset, 1);
+
+  printf("-- MAC-reset snapshot invalidate (stale-shadow fix) --\n");
+  // A MAC reinit (link guard / LINK_CTRL[1]) restarts the MAC path without
+  // an aresetn event here; a pre-reset snapshot must NOT survive it (the
+  // 2026-07-19 "CSR plane lies until live counters tick" forensics).
+  for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0xBBBB0000u + k;
+  dut->eval();
+  axi_write(A_STATS_CTRL, 0x1);          // snapshot before the "bounce"
+  ck("STAT0 pre-reinit latched", axi_read(A_STAT0), 0xBBBB0000u);
+  dut->i_mac_reinit = 1;                 // guard holds the MAC in reset
+  for (int i = 0; i < 4; ++i) posedge();
+  ck("STAT0 held during reinit", axi_read(A_STAT0), 0xBBBB0000u);
+  dut->i_mac_reinit = 0;                 // release = MAC restarted
+  for (int i = 0; i < 4; ++i) posedge();
+  ck("STAT0 invalidated on release", axi_read(A_STAT0), 0);
+  ck("STAT8 invalidated on release", axi_read(A_STAT8), 0);
+  axi_write(A_STATS_CTRL, 0x1);          // software re-arms a fresh snapshot
+  ck("STAT0 re-armed post-reinit", axi_read(A_STAT0), 0xBBBB0000u);
+  // config state is NOT MAC-domain state: it must survive the reinit
+  ck("SCRATCH unaffected by reinit", axi_read(A_SCRATCH), 0xDEADBEEF);
 
   printf("-- ADP advertiser identity/control (FR-DISC-*) --\n");
   ck("ADP_CTRL(reset valid_time=31)", axi_read(A_ADP_CTRL), 0x00001F00);
