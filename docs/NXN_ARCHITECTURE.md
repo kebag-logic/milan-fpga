@@ -470,3 +470,10 @@ Levers, in order, if a shape refuses to close:
 The estimator's `RESOURCE_COSTS` UPPER BOUND rows are to be replaced by
 shared-engine rows (engine x1 + per-context marginal ≈ 0 LUT + BRAM model)
 in P12, keeping the calibration gate honest.
+
+**P12 DONE (2026-07-22):** the shared-engine rows landed — engines charged
+once at the measured x1 + yosys-OOC-derived per-context marginals (N=1→8
+deltas of the merged engines, LUT4:LUT6 charged 1:1 = safe-side). Recomputed
+verdicts: **4x4 = 84.9% LUT, 8x8 = 89.2% LUT** — both FIT the part with
+headroom, both in the OVER band as this table predicted (87.3/87.7 modeled);
+`test_builder` gate 13 pins the envelope (< 88% / < 92%).

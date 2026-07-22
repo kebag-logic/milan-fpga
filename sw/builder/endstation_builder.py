@@ -186,10 +186,24 @@ BUFLEN_DEFAULT_NS = 2126000
 # HOUSE RULE (area-70 campaign): hierarchical figures are trusted for the
 # LARGE blocks only (cpu, milan_datapath children, MAC/DMA/DDR); small-module
 # rows are labeled low-confidence (cross-hierarchy LUT combining skews them).
-# bram36 = RAMB36 + RAMB18/2 equivalents. Where a per-instance marginal cost
-# does not exist yet (NxN engines, item 5), the cost of TODAY's single
-# instance is charged per instance = a labeled UPPER BOUND (full replication,
-# no sharing).
+# bram36 = RAMB36 + RAMB18/2 equivalents.
+#
+# NxN rows (P12, replacing the item-5 UPPER BOUNDs): the shared engines
+# exist and are merged, so per-stream scaling is FIRST INSTANCE at the
+# measured x1 cost + a per-extra-context MARGINAL row derived from yosys
+# OOC synth_ecp5 of the merged engine at N=1 vs N=8 (delta/7; ECP5 LUT4
+# charged 1:1 against Artix LUT6 = deliberately safe-side). Raw stats
+# (2026-07-22, this tree):
+#   KL_avtp_rx_monitor_ctx  N1 1349/992 LUT4/FF  N8 1904/1194 (+79/+29 per ctx)
+#   KL_stream_table         N1   75/68           N8  110/537  (+5/+67)
+#   KL_pcm_route            N1   20/2            N8   88/16   (+10/+2)
+#   KL_aaf_packetizer       N1 1153/527/0BRAM16  N8 957/742/3 (LUT SHRINKS:
+#     staging+TCTX migrate to BRAM; +31 FF, +0.43 BRAM16K per ctx)
+#   KL_acmp_lstn_ctx        N1 2982/2228         N8 3651/2209 (+96/+0)
+#   KL_lwsrp_ctx            N1  219/418          N8  319/428  (+14/+1.4)
+#   KL_lwsrp_ctx_tx   LANES1  902/260      LANES7 1651/299    (+125/+6.5)
+#   KL_lwsrp_walker   LANES1  667/572      LANES7  980/734    (+52/+27)
+#   KL_lwsrp_bw_gate (30b P12 trim) N1 163/202   N8 839/581   (+97/+54)
 
 PART_XC7A100T = dict(lut=63400, ff=126800, bram36=135, dsp=240)
 RESOURCE_CATS = ("lut", "ff", "bram36", "dsp")
@@ -257,31 +271,60 @@ RESOURCE_COSTS = {
                            "(summed)",
                            "low (small-module hierarchical rows; area-70 "
                            "rule: cross-hierarchy LUT combining skews them)"),
-    # -- per-instance marginals (first instance measured; instances beyond
-    #    today's single-instance RTL are UPPER BOUNDS = full replication) --
-    "aaf_listener_engine": _cost(1223, 2094, 1.5, 1,
+    # -- shared-engine scaling (P12): first instance = measured x1 of the
+    #    engine complex; extras = yosys-derived marginal rows below --
+    "aaf_listener_engine": _cost(1223, 2094, 2.0, 1,
                                  "arty mf48 rows aaf_rx_depkt+avtp_rx_parser+"
-                                 "avtp_rx_monitor+pcm_lpf (summed; per AAF "
-                                 "listener stream)",
-                                 "measured x1; UPPER BOUND beyond 1 (item-5 "
-                                 "NxN engines do not exist yet)"),
+                                 "avtp_rx_monitor+pcm_lpf (summed; the shared "
+                                 "RX engine complex, charged ONCE) + 0.5 "
+                                 "BRAM36 for the P2 LCTX context RAM the mf48 "
+                                 "calibration predates",
+                                 "measured x1 (shared engine)"),
+    "aaf_listener_ctx_extra": _cost(94, 98, 0, 0,
+                                    "yosys OOC N=1->8 delta/7 of monitor_ctx"
+                                    "+stream_table+pcm_route (79+5+10 LUT4, "
+                                    "29+67+2 FF; LUT4:LUT6 1:1 = safe-side)",
+                                    "shared-engine marginal (yosys-derived)"),
     "aaf_talker_engine": _cost(338, 645, 0, 0,
-                               "arty mf48 row 'aaf_talker' (aaf_talker_i2s; "
-                               "per talker stream)",
-                               "measured x1; UPPER BOUND beyond 1"),
+                               "arty mf48 row 'aaf_talker' (capture front-end "
+                               "+ shared KL_aaf_packetizer, charged ONCE)",
+                               "measured x1 (shared engine)"),
+    "aaf_talker_ctx_extra": _cost(0, 31, 0.25, 0,
+                                  "yosys OOC packetizer N=1->8: LUT SHRINKS "
+                                  "(-28/ctx, staging+TCTX migrate to BRAM -> "
+                                  "clamped 0), +31 FF, +0.43 BRAM16K = 0.25 "
+                                  "BRAM36 per ctx (rounded up)",
+                                  "shared-engine marginal (yosys-derived)"),
     "maap_claim_ctx": _cost(480, 267, 0, 0,
-                            "arty mf48 row 'maap_engine' (KL_maap; per talker "
-                            "stream claim)", "measured x1; UPPER BOUND beyond 1"),
+                            "arty mf48 row 'maap_engine' (KL_maap; ONE block "
+                            "claim covers all N streams, NXN §3.3 - no "
+                            "per-stream claim contexts)",
+                            "measured x1 (shared engine)"),
+    "maap_dmac_slot_extra": _cost(9, 2, 0, 0,
+                                  "model: per-stream derived-DMAC adder slot "
+                                  "(dmac = claimed_base + t; NXN §6 MAAP "
+                                  "shared delta 60 LUT / 7 ctx)",
+                                  "model (NXN §3.3)"),
     "acmp_listener_ctx": _cost(1569, 1527, 0, 0,
                                "arty mf48 row 'acmp_listener_sm' "
-                               "(KL_acmp_listener; per listener stream)",
-                               "measured x1; UPPER BOUND beyond 1"),
-    "lwsrp_attr_ctx": _cost(926, 750, 0, 0,
-                            "arty mf48 rows lwsrp rx walker+registrar+"
-                            "ta_registrar (summed; per attribute context "
-                            "beyond today's 1L+1T+CRF)",
-                            "UPPER BOUND (derived from today's single-context "
-                            "modules)"),
+                               "(KL_acmp_lstn_ctx shared frame engine + ctx "
+                               "RAM, charged ONCE)",
+                               "measured x1 (shared engine)"),
+    "acmp_lstn_ctx_extra": _cost(96, 0, 0, 0,
+                                 "yosys OOC KL_acmp_lstn_ctx N_SINKS 1->8 "
+                                 "delta/7 (+96 LUT4, FF flat)",
+                                 "shared-engine marginal (yosys-derived)"),
+    "lwsrp_attr_ctx": _cost(191, 36, 0, 0,
+                            "yosys OOC per extra attribute lane: "
+                            "KL_lwsrp_ctx (+14 LUT4) + ctx_tx (+125) + "
+                            "walker key lane (+52); per context beyond "
+                            "today's 1L+1T+CRF",
+                            "shared-engine marginal (yosys-derived)"),
+    "lwsrp_bw_slot_extra": _cost(97, 54, 0, 0,
+                                 "yosys OOC KL_lwsrp_bw_gate (30-bit P12 "
+                                 "trim) N_STREAMS 1->8 delta/7; per talker "
+                                 "stream beyond 1",
+                                 "shared-engine marginal (yosys-derived)"),
 }
 
 
@@ -306,12 +349,19 @@ def resource_instances(cfg, overlay):
         ("rx_filter", 1),
         ("i2s_renderer", 1),
         ("datapath_misc", 1),
-        ("aaf_listener_engine", L),
-        ("aaf_talker_engine", T),
-        ("maap_claim_ctx", T),
-        ("acmp_listener_ctx", L),
+        # P12 shared-engine scaling: engines charged ONCE, extra stream
+        # contexts via the yosys-derived marginal rows
+        ("aaf_listener_engine", min(L, 1)),
+        ("aaf_listener_ctx_extra", max(0, L - 1)),
+        ("aaf_talker_engine", min(T, 1)),
+        ("aaf_talker_ctx_extra", max(0, T - 1)),
+        ("maap_claim_ctx", min(T, 1)),
+        ("maap_dmac_slot_extra", max(0, T - 1)),
+        ("acmp_listener_ctx", min(L, 1)),
+        ("acmp_lstn_ctx_extra", max(0, L - 1)),
         ("lwsrp_base", 1),
         ("lwsrp_attr_ctx", (L - 1) + (T - 1)),
+        ("lwsrp_bw_slot_extra", max(0, T - 1)),
     ]
 
 
@@ -933,8 +983,10 @@ def emit_resource_section(est):
     a("")
     a("Per-module costs calibrated from the REAL arty mf48 hierarchical "
       "place report (cross-checked ax mf38); large blocks measured, "
-      "small-module rows low-confidence, NxN scaling rows UPPER BOUND "
-      "(area-70 house rule - see sw/builder/README-parameters.md).")
+      "small-module rows low-confidence. NxN scaling (P12): shared engines "
+      "charged once at the measured x1, per-extra-context marginals derived "
+      "from yosys OOC N=1->8 deltas of the merged engines (LUT4:LUT6 1:1 = "
+      "safe-side; see sw/builder/README-parameters.md).")
     a("")
     a("| Module | Inst | LUT | FF | BRAM36 | DSP | Confidence |")
     a("|--------|------|-----|----|--------|-----|------------|")

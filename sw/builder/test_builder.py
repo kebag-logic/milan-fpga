@@ -535,18 +535,27 @@ def test_resource_verdicts():
     assert not est["upper_bound"]
     assert "UPPER BOUND estimate" not in cur["plan"]
     assert est["worst_category"] == "lut" and est["verdict"] == "OVER"
-    # NxN shapes: UPPER BOUND labeled, OVER on xc7a100t (feeds sizing before
-    # burning sweeps - that is the point)
-    for name in ("arty_4x4", "ax7101_8x8"):
+    # NxN shapes (P12 shared-engine rows): no longer UPPER BOUND - engines
+    # charged once + yosys-derived per-context marginals. Both shapes FIT
+    # the part arithmetically (<100% every category) but land in the OVER
+    # band (>80% LUT, area-70: expect placement/timing pain) exactly as
+    # NXN_ARCHITECTURE.md §6 predicted (4x4 ~85%, 8x8 ~89% vs modeled
+    # 87.3/87.7).
+    for name, worst_max in (("arty_4x4", 88.0), ("ax7101_8x8", 92.0)):
         r = eb.build(CONFIGS[name], OUT)
         e = r["resource_estimate"]
-        assert e["upper_bound"], f"{name}: NxN estimate must be UPPER BOUND"
+        assert not e["upper_bound"], \
+            f"{name}: shared-engine estimate must not be UPPER BOUND"
         assert e["verdict"] == "OVER", f"{name}: expected OVER, got {e}"
-        assert "UPPER BOUND estimate" in r["plan"]
+        assert e["worst_pct"] < 100.0, f"{name}: must FIT the part, got {e}"
+        assert e["worst_pct"] <= worst_max, \
+            f"{name}: worst {e['worst_pct']}% blew the §6 envelope {worst_max}%"
+        assert "UPPER BOUND estimate" not in r["plan"]
+        assert "shared engines" in r["plan"] or "shared-engine" in r["plan"]
         assert "## Resource estimate" in r["plan"]
         print(f"  [gate 13] {name}: verdict {e['verdict']} "
               f"(worst {e['worst_category'].upper()} {e['worst_pct']}%, "
-              "UPPER BOUND labeled)")
+              "fits the part, shared-engine rows)")
     print("  [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current "
           f"verdict {est['verdict']} (worst LUT {est['worst_pct']}%), "
           "no upper-bound rows")
