@@ -265,6 +265,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021q/srp/lwsrp_pkg.sv", "hdl/ieee8021q/srp/KL_lwsrp_timers.sv",
     "hdl/ieee8021q/srp/KL_lwsrp_tx.sv", "hdl/ieee8021q/srp/KL_lwsrp_ingress.sv",
     "hdl/ieee8021q/srp/KL_lwsrp_walker.sv", "hdl/ieee8021q/srp/KL_lwsrp_registrar.sv", "hdl/ieee8021q/srp/KL_lwsrp_ta_registrar.sv",
+    "hdl/ieee8021q/srp/KL_lwsrp_ctx.sv", "hdl/ieee8021q/srp/KL_lwsrp_ctx_tx.sv",
     "hdl/ieee8021q/srp/KL_lwsrp_rx.sv", "hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv",
     "hdl/ieee8021q/srp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
