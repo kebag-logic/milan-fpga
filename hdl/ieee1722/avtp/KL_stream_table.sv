@@ -29,6 +29,18 @@
                 edge - the per-stream LCTX counter-reset trigger
                 ([M-5.3.8.10], consumed by KL_avtp_rx_monitor_ctx in P2).
 
+                STORAGE DECISION (P12, the lane-K "override sids to RAM"
+                lever - evaluated and REJECTED): the override sids stay a
+                flop array. The consumer is avtp_stream_parser's N-way
+                COMBINATIONAL 64-bit compare - every entry is read every
+                cycle in parallel, which a house-rules RAM (ONE explicit
+                sync read port, defect-4 lineage) cannot serve; N read
+                ports would be exactly the inferred read-port-replica
+                divergence defect 4 forbids, and serializing the match
+                would put a walk into the frame-classification path (the
+                index must ride the frame as tuser, NXN §1.1). Cost at
+                N=8 is ~530 FF (8 x 66 b) - not worth a spec exception.
+
   Company     : Kebag Logic
   Project     : Milan AVTP
 ------------------------------------------------------------------------------
