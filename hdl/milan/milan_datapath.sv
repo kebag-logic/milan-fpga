@@ -1152,6 +1152,18 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //  advertiser in a low-rate arbiter that takes the ADP slot below. Identity =
   //  the milan_csr 0x600 group, so ADP and AEM cannot disagree.
   // ==========================================================================
+  //! dynamic audio-map render taps (gaps item 8): live only when the AEM
+  //! shape compiles `AEM_DYNMAP (deployed static shapes tie en=0 with the
+  //! wire-truth ch0/ch1 defaults). CONSUMPTION by the playback walker
+  //! (KL_i2s_playback position remap) is the documented follow-up —
+  //! docs/MILAN_COMPLIANCE_GAPS.md §1 — so the taps terminate here.
+  wire [3:0] dmap_l_ch_w, dmap_r_ch_w;
+  wire       dmap_l_en_w, dmap_r_en_w;
+  // verilator lint_off UNUSED
+  wire       dmap_unused_ok = &{1'b0, dmap_l_ch_w, dmap_r_ch_w,
+                                dmap_l_en_w, dmap_r_en_w};
+  // verilator lint_on  UNUSED
+
   KL_aecp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) aecp_listener (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
@@ -1177,6 +1189,10 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .listener_observed_i (listener_observed_w),
     .pres_offset_o (aecp_pres_offset),
     .identify_o    (o_identify),
+    .dmap_l_ch_o   (dmap_l_ch_w),
+    .dmap_l_en_o   (dmap_l_en_w),
+    .dmap_r_ch_o   (dmap_r_ch_w),
+    .dmap_r_en_o   (dmap_r_en_w),
     .link_up_i     (cnt_link_w),
     .frames_tx_i   (aaf_frames_w),
     .lstn_bound_i   (acmpl_bound),

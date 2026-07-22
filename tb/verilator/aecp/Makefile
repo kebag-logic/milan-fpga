@@ -4,12 +4,15 @@
 # Verilator verification of the full AECP/AEM listener subsystem (KL_aecp_top):
 # drives real AECP command Ethernet frames into the RX monitor tap and checks
 # the response frames byte-for-byte. Pure RTL, no Xilinx tools.
-# Two executables:
-#   sim_main.cpp -> deployed shape (tracked gen/aecp_aem_rom.svh)
-#   sim_fmt2.cpp -> 2-AAF-input shape (gen_fmt2_shape.py -> fmt2_inc/, which
+# Three executables:
+#   sim_main.cpp   -> deployed shape (tracked gen/aecp_aem_rom.svh)
+#   sim_fmt2.cpp   -> 2-AAF-input shape (gen_fmt2_shape.py -> fmt2_inc/, which
 #     SHADOWS gen/ via include order) exercising the per-stream
 #     `AEM_PER_STREAM_FMT format tables per descriptor.
-#   make        - build and run both self-checking harnesses
+#   sim_dynmap.cpp -> dynamic-audio-map shape (gen_dynmap_shape.py ->
+#     dynmap_inc/, same shadowing) exercising the `AEM_DYNMAP
+#     ADD/REMOVE/GET_AUDIO_MAP engine (Milan 5.4.2.26-28).
+#   make        - build and run all self-checking harnesses
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -48,9 +51,13 @@ run: $(GEN)
 	python3 gen_fmt2_shape.py fmt2_inc
 	$(VERILATOR) -Ifmt2_inc $(VFLAGS) --Mdir obj_fmt2 \
 	  $(SRCS) sim_fmt2.cpp -o Vaecp_fmt2   # -Ifmt2_inc FIRST: shadows gen/
+	python3 gen_dynmap_shape.py dynmap_inc
+	$(VERILATOR) -Idynmap_inc $(VFLAGS) --Mdir obj_dynmap \
+	  $(SRCS) sim_dynmap.cpp -o Vaecp_dynmap   # -Idynmap_inc shadows gen/
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
+	./obj_dynmap/Vaecp_dynmap
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -65,4 +72,4 @@ cosim: $(GEN)
 	$(VERILATOR) $(COSIM_FLAGS) $(SRCS) cosim_main.cpp -o Vaecp_cosim
 
 clean:
-	rm -rf obj_dir obj_fmt2 fmt2_inc
+	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc
