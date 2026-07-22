@@ -201,24 +201,47 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
   );
 
-  aaf_talker_i2s #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) aaf_talker (
-    .clk_i (axis_clk), .rst_n (axis_resetn), .adv_i (1'b1),
+  //! NXN P4: the flat aaf_talker_i2s splits into the physical capture
+  //! front-end (x1) + the shared N-context packetizer (TCTX). Talker 0
+  //! aliases the legacy CSR config (golden byte-compare proven); talkers
+  //! 1..N-1 arm via the TCTX window in P11.
+  wire        aafcap_pv_w;
+  wire [3:0]  aafcap_slot_w;
+  wire [23:0] aafcap_l_w, aafcap_r_w;
+
+  KL_aaf_capture_i2s aaf_capture (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i (clk_audio_i),
-    .enable_i (aaf_gate),
     .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
+    .i2s_mclk_o (i2s_mclk_o), .i2s_sclk_o (i2s_sclk_o),
+    .i2s_lrck_o (i2s_lrck_o), .i2s_sdout_i (i2s_sdout_i),
+    .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
+    .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
+    .pairs_captured_o (aaf_pairs_w)
+  );
+
+  KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS)) aaf_packetizer (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .pair_valid_i (aafcap_pv_w), .pair_slot_i (aafcap_slot_w),
+    .pair_l_i (aafcap_l_w), .pair_r_i (aafcap_r_w),
+    //! t0 = the legacy admission gate; t>0 arm via TCTX CTRL + the P5
+    //! per-stream bw-gate outputs once the P11 window provisions them
+    .stream_en_i (N_STREAMS'(aaf_gate)),
     .dest_mac_i (eff_aaf_dmac),
-    .transit_ns_i (aecp_pres_offset),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .vlan_vid_i (cfg_aaf_vid),
+    .transit_ns_i (aecp_pres_offset),
     .ptp_ns_i (ptp_now_w),
-    .i2s_mclk_o (i2s_mclk_o), .i2s_sclk_o (i2s_sclk_o),
-    .i2s_lrck_o (i2s_lrck_o), .i2s_sdout_i (i2s_sdout_i),
+    .tctx_wr_en_i (1'b0), .tctx_wr_addr_i (7'd0),   //! P11 window hook
+    .tctx_wr_data_i (32'd0), .tctx_wr_rdy_o (),
+    .tctx_rd_en_i (1'b0), .tctx_rd_addr_i (7'd0),
+    .tctx_rd_data_o (), .tctx_rd_valid_o (),
     .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
     .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
     .m_axis_tready(aaf_tx_tready),
-    .frames_sent_o (aaf_frames_w), .pairs_captured_o (aaf_pairs_w)
+    .frames_sent_o (aaf_frames_w)
   );
   // arbiter out -> MAC-facing TX
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
