@@ -275,7 +275,8 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/KL_stream_table.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
-    "hdl/ieee1722/aaf/KL_pcm_route.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_pcm_route.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     "hdl/common/csr/milan_csr.sv", "hdl/milan/milan_datapath.sv",
 ]
