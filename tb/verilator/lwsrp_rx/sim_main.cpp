@@ -340,6 +340,89 @@ int main(int argc, char** argv) {
         ck("domain-b: class B ignored", dut->domain_ok_o, 1);
     }
 
+    // 8b) SR class B Domain PDUs (traceability SRP-8, 802.1Q 35.1.4/34.5 +
+    //     Milan 4.2.7.1: the bench bridge really declares BOTH classes, and
+    //     the certified switch packs them B-first NoV=2 from FirstValue
+    //     {5,2,VID} — ProfiShark 2026-07-19). The engine runs class A only;
+    //     the obligation this covers is that INCOMING class-B Domain data
+    //     never confuses the walker/registrar (class-B declaration/use is
+    //     the remaining MISSING half — matrix row stays open on that leg).
+    {
+        // packed B-first pair: walker must surface the CLASS-A value (+1
+        // pair rule) and the registrar must keep domain_ok on {6,3,VID}
+        Vec p; p.nv = 2; p.fv = fv_domain(5, 2, VID);
+        p.evts = {EV_JOININ, EV_JOININ};
+        feed_parse(frame(true, {msg_domain(p)}), "domain-b2: packed parse");
+        ck("domain-b2: packed pair keeps ok", dut->domain_ok_o, 1);
+        // packed pair whose DERIVED class-A prio is wrong (B prio 1 -> A
+        // prio 2): the class-A leg must flag the boundary, not the B leg
+        Vec w; w.nv = 2; w.fv = fv_domain(5, 1, VID);
+        w.evts = {EV_JOININ, EV_JOININ};
+        feed_parse(frame(true, {msg_domain(w)}), "domain-b2-bad: packed parse");
+        ck("domain-b2-bad: derived-A prio boundary", dut->domain_ok_o, 0);
+        feed_parse(frame(true, {msg_domain(p)}), "domain-b2-heal: parse");
+        ck("domain-b2-heal: ok restored", dut->domain_ok_o, 1);
+        // packed pair where the class-A value carries Mt: per 802.1Q the
+        // Mt event is not a class-A signal (should be neither boundary nor
+        // heal). >>> RTL DEFECT, found 2026-07-22 by this vector <<<
+        // KL_lwsrp_walker.vector_done() reads dom_a_evt_r on the SAME cycle
+        // W_EVT_S non-blocking-writes it, so for a packed B-first Domain
+        // vector domain_evt_o carries the PREVIOUS Domain PDU's class-A
+        // event (here: the heal PDU's JoinIn) — the Mt is mis-attributed
+        // as JoinIn with prio {6,2} and WRONGLY flags the boundary. Silicon
+        // never showed it because bridges re-declare JoinIn forever. Fix =
+        // pipeline the domain emit one cycle (RTL change, outside this
+        // coverage lane); when fixed, flip these two checks and update
+        // traceability/ieee8021q.md SRP-8 in the same commit.
+        Vec m; m.nv = 2; m.fv = fv_domain(5, 1, VID);
+        m.evts = {EV_JOININ, EV_MT};
+        feed_parse(frame(true, {msg_domain(m)}), "domain-b2-mt: parse");
+        ck("domain-b2-mt: DEFECT stale evt flags boundary (spec: ignore)",
+           dut->domain_ok_o, 0);
+        // same PDU again: dom_a_evt_r now holds Mt (lagged) -> ignored,
+        // boundary stays armed until healed — the lag made explicit
+        feed_parse(frame(true, {msg_domain(m)}), "domain-b2-mt2: parse");
+        ck("domain-b2-mt2: lagged evt now ignored (boundary persists)",
+           dut->domain_ok_o, 0);
+        feed_parse(frame(true, {msg_domain(p)}), "domain-b2-mt-heal: parse");
+        feed_parse(frame(true, {msg_domain(p)}), "domain-b2-mt-heal2: parse");
+        ck("domain-b2-mt-heal: ok restored", dut->domain_ok_o, 1);
+        // class-B Domain + Listener in ONE MRPDU: the domain message must
+        // not desync the walker before the listener message (the +k/packed
+        // window arithmetic shares the same lane counters)
+        Vec l; l.fv = fv_listener(OUR_SID); l.evts = {EV_JOININ};
+        l.pars = {D_READY};
+        feed_parse(frame(true, {msg_domain(p), msg_listener(l)}),
+                   "domain-b2+listener: parse");
+        ck("domain-b2+listener: registered after B-pair",
+           dut->listener_reg_o, 1);
+        ck("domain-b2+listener: ready", dut->listener_ready_o, 1);
+    }
+
+    // 8c) instantaneous IN->MT without Lv (traceability M-DEV-9, Milan
+    //     4.2.7.2.2 + 802.1Q 10.7.8 Table 10-7: rMt! causes NO registrar
+    //     transition). A bridge that empties its registration on a link
+    //     event just declares Mt — our registrar must neither treat it as
+    //     a join refresh nor as a covert leave; teardown remains the
+    //     explicit Lv / LeaveAll aging path (proven in 5/6 above).
+    {
+        ck("in-mt: precondition registered", dut->listener_reg_o, 1);
+        Vec v; v.fv = fv_listener(OUR_SID); v.evts = {EV_MT}; v.pars = {D_IGN};
+        feed_parse(frame(true, {msg_listener(v)}), "in-mt: Mt parse");
+        ck("in-mt: Mt is not a leave (still registered)",
+           dut->listener_reg_o, 1);
+        ck("in-mt: declaration untouched", dut->listener_decl_o, D_READY);
+        ticks(650);                    // longer than the 600 ms leave window
+        ck("in-mt: no covert leave armed", dut->listener_reg_o, 1);
+        Vec lv; lv.fv = fv_listener(OUR_SID); lv.evts = {EV_LV}; lv.pars = {D_IGN};
+        feed_parse(frame(true, {msg_listener(lv)}), "in-mt: Lv parse");
+        ticks(601);
+        ck("in-mt: explicit Lv still tears down", dut->listener_reg_o, 0);
+        // restore the registration the later cases started from
+        Vec r; r.fv = fv_listener(OUR_SID); r.evts = {EV_JOININ}; r.pars = {D_READY};
+        feed_parse(frame(true, {msg_listener(r)}), "in-mt: re-register");
+    }
+
     // 9) TalkerFailed capture + TalkerAdvertise clear
     {
         Vec f1; f1.fv = fv_tfail(OUR_SID, 0x08); f1.evts = {EV_JOININ};
@@ -435,6 +518,13 @@ int main(int argc, char** argv) {
         k.evts = {EV_MT, EV_MT, EV_JOININ, EV_MT, EV_MT};
         feed_parse(frame(true, {msg_tadv(k)}), "ta: +k parse");
         ck("ta: +k registered", dut->ta_registered_o, 1);
+
+        // instantaneous IN->MT without Lv on the TA context too (M-DEV-9,
+        // 802.1Q Table 10-7 rMt! no-op): the bound talker's registration
+        // must survive an Mt declaration — only Lv/LeaveAll age it out
+        Vec mt; mt.fv = fv_talker(BOUND); mt.evts = {EV_MT};
+        feed_parse(frame(true, {msg_tadv(mt)}), "ta: Mt parse");
+        ck("ta: Mt is not a leave", dut->ta_registered_o, 1);
 
         // Lv arms the 600 ms leave window; expiry deregisters
         Vec l; l.fv = fv_talker(BOUND); l.evts = {EV_LV};
