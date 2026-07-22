@@ -73,6 +73,13 @@ module csr_win_live #(
   acmp_pkg::acmp_lstn_ctx_t tbl_ctx_w;
   wire [316:0] tbl_ctx_flat_w = tbl_ctx_w;
 
+  // ---- csr <-> ACMP bind-restore port (E1) ----
+  wire        rest_req_w, rest_ack_w;
+  wire [3:0]  rest_idx_w;
+  wire [63:0] rest_talker_w, rest_ctlr_w;
+  wire [15:0] rest_tuid_w, rest_flags_w;
+  wire [1:0]  rest_stat_w;
+
   // ---- lwSRP engine control/status (window SRP idx0 = 0x694 alias) ----
   wire        lwsrp_en_w, lwsrp_talker_en_w;
   wire [11:0] lwsrp_vid_w;
@@ -120,6 +127,10 @@ module csr_win_live #(
     .i_tctx_wr_rdy (1'b1),
     .o_acmp_tbl_req (tbl_req_w), .o_acmp_tbl_idx (tbl_idx_w),
     .i_acmp_tbl_gnt (tbl_gnt_w), .i_acmp_tbl_ctx (tbl_ctx_flat_w),
+    .o_acmp_rest_req (rest_req_w), .o_acmp_rest_idx (rest_idx_w),
+    .o_acmp_rest_talker (rest_talker_w), .o_acmp_rest_tuid (rest_tuid_w),
+    .o_acmp_rest_ctlr (rest_ctlr_w), .o_acmp_rest_flags (rest_flags_w),
+    .i_acmp_rest_ack (rest_ack_w), .i_acmp_rest_status (rest_stat_w),
     .o_srp_ctx_req (srp_req_w), .o_srp_ctx_we (srp_we_w),
     .o_srp_ctx_idx (srp_idx_w), .o_srp_ctx_valid (srp_valid_w),
     .o_srp_ctx_dir (srp_dir_w), .o_srp_ctx_sid (srp_sid_w),
@@ -200,7 +211,11 @@ module csr_win_live #(
     .tbl_req_i (tbl_req_w),
     .tbl_idx_i (tbl_idx_w[0]),
     .tbl_gnt_o (tbl_gnt_w),
-    .tbl_ctx_o (tbl_ctx_w)
+    .tbl_ctx_o (tbl_ctx_w),
+    .rest_req_i (rest_req_w), .rest_idx_i (rest_idx_w),
+    .rest_talker_i (rest_talker_w), .rest_tuid_i (rest_tuid_w),
+    .rest_ctlr_i (rest_ctlr_w), .rest_flags_i (rest_flags_w),
+    .rest_ack_o (rest_ack_w), .rest_status_o (rest_stat_w)
   );
 
 endmodule

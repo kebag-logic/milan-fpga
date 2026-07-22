@@ -193,6 +193,42 @@ int main(int argc, char** argv) {
   ck("STATE.state bound (!= UNBOUND)", (st & 7) != 0, 1);
   ck("CNT block zero (LCTX tied)", axi_read(A_SW_CNT0), 0);
 
+  printf("-- E1 bind-restore inject + E2 readback (live engine) --\n");
+  // ctx0 (probe-SM media sink) is UNBOUND: stage + commit the saved bind
+  axi_write(0x7A0, 0xFE000001);           // talker lo (T1)
+  axi_write(0x7A4, 0x02000000);           // talker hi
+  axi_write(0x7A8, 0x00020007);           // vlan 2 (informational), tuid 7
+  axi_write(0x7AC, (uint32_t)CT_EID);
+  axi_write(0x7B0, (uint32_t)(CT_EID >> 32));
+  axi_write(0x7B4, 0x80000000u | (0x0008u << 8) | 0);  // commit idx0, SW flag
+  uint32_t rc = 0;
+  for (int g = 0; g < 100; ++g) { rc = axi_read(0x7B4); if (!(rc >> 31)) break; }
+  ck("restore commit completed", rc >> 31, 0);
+  ck("restore done", (rc >> 30) & 1, 1);
+  ck("restore status 0 (injected)", (rc >> 8) & 3, 0);
+  // E2 readback of the injected record through the window (ctx0)
+  axi_write(A_STRM_SEL, 0x000);           // dir=0 idx=0 -> acmp ctx0
+  run(30);                                // tbl grant refresh
+  ck("E2 CTLR_LO = restored ctlr", axi_read(0x860), (uint32_t)CT_EID);
+  ck("E2 CTLR_HI = restored ctlr", axi_read(0x864), (uint32_t)(CT_EID >> 32));
+  ck("E2 BIND {SW flag, tuid}", axi_read(0x868), 0x00080007);
+  ck("injected sid CLEARED (5.5.2.6 step 1)", axi_read(A_SW_SID_LO), 0);
+  ck("injected dmac CLEARED", axi_read(A_SW_DMAC_LO), 0);
+  // ctx0 now occupied (PRB_W_AVAIL): a re-commit is refused with status 1
+  axi_write(0x7B4, 0x80000000u);
+  for (int g = 0; g < 100; ++g) { rc = axi_read(0x7B4); if (!(rc >> 31)) break; }
+  ck("occupied re-commit refused (1)", (rc >> 8) & 3, 1);
+  // ctx1 is a record-only context: refused with status 2
+  axi_write(0x7B4, 0x80000000u | 1);
+  for (int g = 0; g < 100; ++g) { rc = axi_read(0x7B4); if (!(rc >> 31)) break; }
+  ck("record-only ctx refused (2)", (rc >> 8) & 3, 2);
+  // ctx1's earlier fast-connect bind is untouched by the refusals
+  ck("ctx1 bind survives refusals", dut->acmp1_bound_o, 1);
+  axi_write(A_STRM_SEL, 0x001);
+  run(30);
+  ck("ctx1 E2 tuid still 0", axi_read(0x868) & 0xFFFF, 0);
+  ck("ctx1 sid intact", axi_read(A_SW_SID_LO), (uint32_t)SID1);
+
   printf("-- index 0 SRP word = live 0x694 alias --\n");
   axi_write(A_STRM_SEL, 0x000);
   ck("win SRP idx0 == flat 0x694", axi_read(A_SW_SRP), axi_read(0x694));

@@ -121,6 +121,7 @@ int main(int argc, char** argv) {
   dut->i_ptp_tod = 0; dut->i_ptp_tod_valid = 0;
   dut->i_adp_available_index = 0;
   dut->i_mac_reinit = 0;
+  dut->i_acmp_rest_ack = 0; dut->i_acmp_rest_status = 0;
   // P12 no-engine ties (see the milan_csr port contract): rd_valid/wr_rdy
   // tied 1 reproduce the P11 fixed 4-cycle window timing with rd_data=0
   dut->i_lctx_rd_valid = 1; dut->i_tctx_rd_valid = 1;
@@ -133,7 +134,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010009);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001000A);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -448,6 +449,52 @@ int main(int argc, char** argv) {
   ck("o_crft_dest_mac", dut->o_crft_dest_mac, 0x91E0F0002A07ULL);
   dut->i_crft_count = 1234;
   ck("CRFT_COUNT live", axi_read(0x764), 1234);
+
+  printf("-- ACMP bind-restore group (0x7A0, E1) --\n");
+  // the acmp-persist feature probe: 0x7A0 write/readback of the pattern
+  axi_write(0x7A0, 0xA5C35A3C);
+  ck("REST_TKLO probe pattern", axi_read(0x7A0), 0xA5C35A3C);
+  axi_write(0x7A0, 0xFE000001);          // talker_entity_id lo
+  axi_write(0x7A4, 0x02000000);          // talker_entity_id hi
+  axi_write(0x7A8, 0x00020005);          // vlan 2 (informational), tuid 5
+  axi_write(0x7AC, 0xFE0000AA);          // controller_entity_id lo
+  axi_write(0x7B0, 0x68050000);          // controller_entity_id hi
+  ck("REST_TKHI rw", axi_read(0x7A4), 0x02000000);
+  ck("REST_META rw", axi_read(0x7A8), 0x00020005);
+  ck("REST_CTLO rw", axi_read(0x7AC), 0xFE0000AA);
+  ck("REST_CTHI rw", axi_read(0x7B0), 0x68050000);
+  ck("REST_CMD idle", axi_read(0x7B4), 0);
+  // commit sink 0 with STREAMING_WAIT: req held + staged record on the port
+  axi_write(0x7B4, 0x80000000u | (0x0008u << 8) | 0x0);
+  dut->eval();
+  ck("rest req held", dut->o_acmp_rest_req, 1);
+  ck("rest idx", dut->o_acmp_rest_idx, 0);
+  ck("rest talker", dut->o_acmp_rest_talker, 0x02000000FE000001ULL);
+  ck("rest tuid (META[15:0])", dut->o_acmp_rest_tuid, 5);
+  ck("rest ctlr", dut->o_acmp_rest_ctlr, 0x68050000FE0000AAULL);
+  ck("rest flags (CMD[23:8])", dut->o_acmp_rest_flags, 0x0008);
+  ck("CMD busy readback", axi_read(0x7B4) >> 31, 1);
+  // engine ack with status 0 -> done, not busy
+  dut->i_acmp_rest_ack = 1; dut->i_acmp_rest_status = 0;
+  posedge();
+  dut->i_acmp_rest_ack = 0; posedge();
+  dut->eval();
+  ck("rest req dropped", dut->o_acmp_rest_req, 0);
+  uint32_t rcmd = axi_read(0x7B4);
+  ck("CMD done", (rcmd >> 30) & 1, 1);
+  ck("CMD not busy", (rcmd >> 31) & 1, 0);
+  ck("CMD status 0 (injected)", (rcmd >> 8) & 3, 0);
+  // a refused commit (engine status 1 = occupied) reads back as done+1
+  axi_write(0x7B4, 0x80000000u | 0x0);
+  dut->i_acmp_rest_ack = 1; dut->i_acmp_rest_status = 1;
+  posedge();
+  dut->i_acmp_rest_ack = 0; posedge();
+  rcmd = axi_read(0x7B4);
+  ck("CMD refused status 1", (rcmd >> 8) & 3, 1);
+  ck("CMD done after refusal", (rcmd >> 30) & 1, 1);
+  // a write without the commit bit is inert
+  axi_write(0x7B4, 0x00000001);
+  ck("no-commit write inert", (axi_read(0x7B4) >> 31) & 1, 0);
 
   // =====================================================================
   // P11 indexed per-stream window, N=1 silicon shape (defaults):

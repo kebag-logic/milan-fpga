@@ -312,8 +312,11 @@ int main(int argc, char** argv) {
   ck("listener provision dir=1", srp_wr_dir, 1);
 
   printf("-- ACMP tbl master: 317-bit ctx latch + field extraction --\n");
+  set_ctx_bits(0, 64, 0x680500FFFE0000AAULL);    // ctlr (E2)
   set_ctx_bits(128, 64, 0xAABBCCDD00112233ULL);  // sid
   set_ctx_bits(192, 48, 0x91E0F0004455ULL);      // dmac
+  set_ctx_bits(252, 16, 0x0008);                 // flags STREAMING_WAIT (E2)
+  set_ctx_bits(268, 16, 0x0005);                 // tuid (E2)
   set_ctx_bits(305, 5, 21);                      // status
   set_ctx_bits(310, 2, 1);                       // probing
   set_ctx_bits(314, 3, 7);                       // state
@@ -323,6 +326,17 @@ int main(int argc, char** argv) {
   ck("acmp SID_HI",  axi_read(A_SW_SID_HI),  0xAABBCCDD);
   ck("acmp DMAC_LO", axi_read(A_SW_DMAC_LO), 0xF0004455);
   ck("acmp DMAC_HI", axi_read(A_SW_DMAC_HI), 0x91E0);
+  // E2: the remaining persisted binding fields at 0x860/0x864/0x868
+  ck("acmp CTLR_LO (E2)", axi_read(0x860), 0xFE0000AA);
+  ck("acmp CTLR_HI (E2)", axi_read(0x864), 0x680500FF);
+  ck("acmp BIND {flags,tuid} (E2)", axi_read(0x868), 0x00080005);
+  ck("window hole 0x86C reads 0", axi_read(0x86C), 0);
+  axi_write(A_STRM_SEL, 0x101);              // dir=1: listener-only words
+  for (int i = 0; i < 10; ++i) posedge();
+  ck("talker dir CTLR_LO reads 0 (E2)", axi_read(0x860), 0);
+  ck("talker dir BIND reads 0 (E2)",    axi_read(0x868), 0);
+  axi_write(A_STRM_SEL, 0x001);              // back to the listener ctx
+  for (int i = 0; i < 10; ++i) posedge();
   dut->i_srp_ctx_rd_stat = 0;                // keep the STATE srp9 field 0
   pump_on = true;
   snap_and_wait();
@@ -341,6 +355,8 @@ int main(int argc, char** argv) {
   ck("oor CTRL reads 0",   axi_read(A_SW_CTRL), 0);
   ck("oor SID_LO reads 0", axi_read(A_SW_SID_LO), 0);
   ck("oor SRP reads 0",    axi_read(A_SW_SRP), 0);
+  ck("oor CTLR_LO reads 0 (E2)", axi_read(0x860), 0);
+  ck("oor BIND reads 0 (E2)",    axi_read(0x868), 0);
   ck("oor no LCTX write",  seen_lctx_wr, 0);
   ck("oor no SRP provision", srp_saw_wr, 0);
   ck("oor SEL readback intact", axi_read(A_STRM_SEL), 0x004);

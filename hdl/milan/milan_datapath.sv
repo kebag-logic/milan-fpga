@@ -641,6 +641,15 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [3:0]  csr_acmp_tbl_idx_w;
   wire        acmp_tbl_gnt_w;
   wire [316:0] acmp_tbl_ctx_w;
+  //! E1 bind-restore master (0x7A0 group) -> ACMP listener ctx injection
+  wire        csr_acmp_rest_req_w;
+  wire [3:0]  csr_acmp_rest_idx_w;
+  wire [63:0] csr_acmp_rest_talker_w;
+  wire [15:0] csr_acmp_rest_tuid_w;
+  wire [63:0] csr_acmp_rest_ctlr_w;
+  wire [15:0] csr_acmp_rest_flags_w;
+  wire        acmp_rest_ack_w;
+  wire [1:0]  acmp_rest_status_w;
 
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
@@ -841,6 +850,14 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .o_acmp_tbl_idx     (csr_acmp_tbl_idx_w),
     .i_acmp_tbl_gnt     (acmp_tbl_gnt_w),
     .i_acmp_tbl_ctx     (acmp_tbl_ctx_w),
+    .o_acmp_rest_req    (csr_acmp_rest_req_w),
+    .o_acmp_rest_idx    (csr_acmp_rest_idx_w),
+    .o_acmp_rest_talker (csr_acmp_rest_talker_w),
+    .o_acmp_rest_tuid   (csr_acmp_rest_tuid_w),
+    .o_acmp_rest_ctlr   (csr_acmp_rest_ctlr_w),
+    .o_acmp_rest_flags  (csr_acmp_rest_flags_w),
+    .i_acmp_rest_ack    (acmp_rest_ack_w),
+    .i_acmp_rest_status (acmp_rest_status_w),
     .o_srp_ctx_req      (csr_srp_ctx_req),
     .o_srp_ctx_we       (csr_srp_ctx_we),
     .o_srp_ctx_idx      (csr_srp_ctx_idx),
@@ -1332,7 +1349,18 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .tbl_req_i (csr_acmp_tbl_req_w && (32'(csr_acmp_tbl_idx_w) < ACMP_SINKS_C)),
     .tbl_idx_i (ACMP_SIDXW_C'(csr_acmp_tbl_idx_w)),
     .tbl_gnt_o (acmp_tbl_gnt_w),
-    .tbl_ctx_o (acmp_tbl_ctx_w)
+    .tbl_ctx_o (acmp_tbl_ctx_w),
+    //! E1 saved-state fast-connect: the 0x7A0 commit injects the Milan
+    //! 5.5.3.5.2 entry record (PRB_W_AVAIL / PASSIVE, SRP params cleared)
+    //! into the ctx table; the engine range/occupancy-checks and acks
+    .rest_req_i    (csr_acmp_rest_req_w),
+    .rest_idx_i    (csr_acmp_rest_idx_w),
+    .rest_talker_i (csr_acmp_rest_talker_w),
+    .rest_tuid_i   (csr_acmp_rest_tuid_w),
+    .rest_ctlr_i   (csr_acmp_rest_ctlr_w),
+    .rest_flags_i  (csr_acmp_rest_flags_w),
+    .rest_ack_o    (acmp_rest_ack_w),
+    .rest_status_o (acmp_rest_status_w)
   );
 
   // ==========================================================================

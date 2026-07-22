@@ -36,6 +36,13 @@ An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
   register reads back 0.
 * **Statistics** — snapshot latches `i_stats[9]` into the read window; reset
   emits a pulse.
+* **ACMP bind-restore (0x7A0, E1)** — staging-register RW (incl. the
+  `0xA5C35A3C` feature-probe pattern at `0x7A0`), commit → held
+  `o_acmp_rest_*` request with the staged record, busy/done/status readback
+  through the engine ack. `sim_live.cpp` drives the LIVE
+  `KL_acmp_lstn_ctx` end-to-end (inject → PRB_W_AVAIL, occupied/record-only
+  refusals) and reads the E2 window words `0x860-0x868`
+  (controller_entity_id + {flags, tuid}) back through the tbl port.
 
 The AXI slave uses the combinational-ready, single-outstanding pattern, so a
 compliant master that drops `*VALID` on handshake still commits every transfer.
