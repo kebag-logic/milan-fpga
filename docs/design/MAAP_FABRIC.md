@@ -1,7 +1,7 @@
 # MAAP in fabric — design + reference contract (task #18)
 
 Goal: Milan-mandatory dynamic multicast-DMAC allocation for the talker
-(today `cfg_aaf_dmac` is statically provisioned). New `hdl/maap/KL_maap.sv`
+(today `cfg_aaf_dmac` is statically provisioned). New `hdl/ieee1722/maap/KL_maap.sv`
 on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)

@@ -145,7 +145,7 @@ is §4's per-frame cost). **Live mitigation applied:** `rx-usecs-low=2000` on th
 
 | Lever | Attacks | Effort | Status |
 |-------|---------|--------|--------|
-| **Hardware L2 forwarding (ALE/TCAM)** | keeps CPU out of the switched path entirely | large (RTL) | `hdl/common/tcam.sv` exists; the switch answer |
+| **Hardware L2 forwarding (ALE/TCAM)** | keeps CPU out of the switched path entirely | large (RTL) | `hdl/ieee8021q/filtering/tcam.sv` exists; the switch answer |
 | **RX completion interrupt + pacing** | RX delivery latency (unlocks 3k→14k headroom) | medium | IRQ 13 wired, unused  -  proposed |
 | **Hugepage the ring/buffers** | TLB half (713 ns → ~0) | low (SW/DT) | proven 2× in `membench`; proposed |
 | **Pointer-writeback** | per-poll MMIO CSR stall | done (RTL+sim) | §7 |

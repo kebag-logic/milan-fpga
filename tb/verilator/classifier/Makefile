@@ -14,7 +14,7 @@ TOP        = classifier_wrap
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/802_1q_traffic_shaper \
+         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE \
@@ -23,8 +23,8 @@ VFLAGS = --cc --exe --build -j 0 \
 SRCS = $(RTL_DIR)/common/ethernet_packet_pkg.sv \
        $(RTL_DIR)/common/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v \
-       $(RTL_DIR)/802_1q_traffic_shaper/traffic_class_map.sv \
-       $(RTL_DIR)/802_1q_traffic_shaper/traffic_classifier.sv \
+       $(RTL_DIR)/ieee8021q/ts/traffic_class_map.sv \
+       $(RTL_DIR)/ieee8021q/ts/traffic_classifier.sv \
        classifier_wrap.sv
 CPP  = sim_main.cpp
 

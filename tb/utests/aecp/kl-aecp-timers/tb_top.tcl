@@ -65,8 +65,8 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object — RTL sources for the DUT
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../../../../hdl/aecp/aecp_pkg.sv"] \
- [file normalize "${origin_dir}/../../../../hdl/aecp/KL_aecp_timers.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/ieee17221/aecp/aecp_pkg.sv"] \
+ [file normalize "${origin_dir}/../../../../hdl/ieee17221/aecp/KL_aecp_timers.sv"] \
 ]
 add_files -norecurse -fileset $obj $files
 

@@ -14,7 +14,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `(REQ-xxx)` requirement
 Implemented and unit-tested this session (all harnesses green in
 [`tb/verilator/`](tb/verilator)):
 
-* **CSR plane** (`hdl/csr/milan_csr.sv`) — AXI4-Lite control plane, 44 checks.
+* **CSR plane** (`hdl/common/csr/milan_csr.sv`) — AXI4-Lite control plane, 44 checks.
 * **CBS runtime config** (`credit_based_shaper` + `traffic_shaping_core`) —
   per-queue idleSlope/hi/lo/enable from CSR, strict-priority bypass, back-pressure
   accrual, hiCredit down-clamp on reconfig. CBS math (87 k) + arbiter (61 k).
@@ -66,7 +66,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [x] **B — Register-map ABI doc** `docs/reference/REGISTER_MAP.md` `(REQ-CSR-05)` — the
   contract shared by HDL + driver + DT. Done.
 - [x] **B — Developer documentation** — `docs/overview/ARCHITECTURE.md` (system map +
-  maintainability guide), `docs/README.md` (doc index), `hdl/csr/doc/milan_csr.md`
+  maintainability guide), `docs/README.md` (doc index), `hdl/common/csr/doc/milan_csr.md`
   (TerosHDL module page), `tb/verilator/README.md`; all RTL annotated in TerosHDL
   `//!` syntax with named processes.
 - [x] **H — Delete/replace stale CBS TB** — remove or `git mv` the old
@@ -74,7 +74,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 ## Phase 1 — Memory-mapped CSR plane (critical path) `(REQ-CSR-*)`
 
-- [x] **B — AXI4-Lite CSR RTL** `hdl/csr/milan_csr.sv` `(REQ-CSR-01)` — 32-bit,
+- [x] **B — AXI4-Lite CSR RTL** `hdl/common/csr/milan_csr.sv` `(REQ-CSR-01)` — 32-bit,
   64 KB window, combinational-ready single-outstanding AXI4-Lite slave; register
   groups for PTP / CBS / classifier / MAC / stats / IRQ per the ABI; lint-clean.
 - [x] **B — ID / VERSION / CAPABILITIES regs** `(REQ-CSR-02)` — CAPABILITIES
@@ -88,12 +88,12 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   `gtx_clk` consumers (PTP counter, TX side) when wiring Phase 2.
 - [~] **B — Block-design integration** `bd/milan-dma.tcl` — add a 3rd `axi_smc`
   master, connect `milan_csr` S_AXI_LITE, `assign_bd_address 0x43C0_0000/64K`,
-  widen `IRQ_F2P`/`ilconcat`; wire `milan_csr` into `hdl/common/milan_top.sv`
+  widen `IRQ_F2P`/`ilconcat`; wire `milan_csr` into `hdl/milan/milan_top.sv`
   (needs Vivado; RTL + ABI are ready).
 
 ## Phase 2 — PTP hardware clock (PHC) `(REQ-PTP-*)`
 
-- [x] **B — Register-controlled accumulator** `hdl/ptp_timestamp/timestamp_counter.sv`
+- [x] **B — Register-controlled accumulator** `hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`
   `(REQ-PTP-01)` — replace fixed `+STEP_SIZE` with `+ (nominal_incr + adj)` using a
   fractional-ns phase accumulator; SW-writable addend (adjfine).
 - [x] **B — adjtime / settime** `(REQ-PTP-02)` — `load_value`+`load_valid` and
@@ -151,7 +151,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 - [x] **B — Drive MAC cfg from CSR** `(REQ-MAC-01)` — `cfg_ifg/tx_en/rx_en/is_1g/
   stats_reset` from registers (default to current constants at reset);
-  `hdl/common/milan_top.sv:151,206,256-258`.
+  `hdl/milan/milan_top.sv:151,206,256-258`.
 - [ ] **H — RX address filter** `(REQ-MAC-02)` — exact-match unicast + multicast
   hash/CAM + promisc/allmulti on the RX AXIS path.
 - [ ] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — use MAC `speed[]`;

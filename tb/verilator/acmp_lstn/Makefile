@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-MULTIDRIVEN -Wno-IMPORTSTAR \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/acmp/acmp_pkg.sv $(RTL_DIR)/acmp/KL_acmp_listener.sv
+SRCS = $(RTL_DIR)/ieee17221/acmp/acmp_pkg.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_listener.sv
 
 all: run
 

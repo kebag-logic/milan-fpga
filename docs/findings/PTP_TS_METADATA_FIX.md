@@ -76,7 +76,7 @@ Two adjacent latent bugs surfaced by the same TB:
   arrived before `src_rcv` returned (only possible <8 clks apart — but free
   to guard).
 
-## Fix (hdl/ptp_timestamp/ptp_ts_core.sv, commit 32e5c41)
+## Fix (hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv, commit 32e5c41)
 Decoupled capture / qualify / emit:
 - `dest_req` only fills a holding register (`ts_hold`, one per SOP);
 - the frame **qualifies at TLAST**, when `eth_type_valid && is_ptp &&

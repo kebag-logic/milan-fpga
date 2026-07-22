@@ -31,7 +31,7 @@ while data is queued**  -  the CBS credit gate.
 
 ## Root cause  -  two defaults contradicting each other
 
-`hdl/csr/milan_csr.sv` reset values:
+`hdl/common/csr/milan_csr.sv` reset values:
 
 ```systemverilog
 localparam int CBS_IDLE_RST [0:3] = '{300_000_000, 200_000_000, 150_000_000, 100_000_000};

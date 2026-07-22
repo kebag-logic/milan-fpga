@@ -209,7 +209,7 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 
 | To add… | Do this |
 |---------|---------|
-| a new CSR register | add it in `hdl/csr/milan_csr.sv` (write-case + read-mux + reset), extend `tb/verilator/csr`, document in `REGISTER_MAP.md` (the harness asserts they agree) |
+| a new CSR register | add it in `hdl/common/csr/milan_csr.sv` (write-case + read-mux + reset), extend `tb/verilator/csr`, document in `REGISTER_MAP.md` (the harness asserts they agree) |
 | a new datapath stage | insert into `milan_datapath.sv` between the existing AXIS hops; add a `tb/verilator/*` harness; add it to `syn/yosys/run.sh` |
 | a new AXIS core on the CPU | follow the 3-plane pattern in [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md) |
 | the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |

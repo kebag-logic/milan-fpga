@@ -9,30 +9,30 @@
 
 VERILATOR ?= verilator
 RTL        = ../../../hdl
-GEN        = $(RTL)/aecp/gen/aecp_aem_rom.svh
+GEN        = $(RTL)/ieee17221/aecp/gen/aecp_aem_rom.svh
 TOP        = KL_aecp_top
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         -I$(RTL)/aecp -I$(RTL)/common \
+         -I$(RTL)/ieee17221/aecp -I$(RTL)/common \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
          -CFLAGS "-std=c++17 -O2 -I.."
 
-SRCS = $(RTL)/aecp/aecp_pkg.sv \
-       $(RTL)/adp/adp_pkg.sv \
+SRCS = $(RTL)/ieee17221/aecp/aecp_pkg.sv \
+       $(RTL)/ieee17221/adp/adp_pkg.sv \
        $(RTL)/common/axi_stream_if.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
-       $(RTL)/aecp/KL_aecp_ingress.sv \
-       $(RTL)/aecp/KL_aecp_packet_validator.sv \
-       $(RTL)/aecp/KL_aecp_common_parser.sv \
-       $(RTL)/aecp/KL_aecp_l0_state.sv \
-       $(RTL)/aecp/KL_aecp_timers.sv \
-       $(RTL)/aecp/KL_aecp_accessor.sv \
-       $(RTL)/aecp/KL_aecp_aem_store.sv \
-       $(RTL)/aecp/KL_aecp_aem_dyn_mux.sv \
-       $(RTL)/aecp/KL_aecp_response_builder.sv \
-       $(RTL)/aecp/KL_aecp_top.sv
+       $(RTL)/ieee17221/aecp/KL_aecp_ingress.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_packet_validator.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_common_parser.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_l0_state.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_timers.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_accessor.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_aem_store.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_response_builder.sv \
+       $(RTL)/ieee17221/aecp/KL_aecp_top.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean
@@ -48,7 +48,7 @@ $(GEN):
 
 # tsn-gen <-> Verilator co-sim harness: a UNIX-socket AECP responder DUT.
 COSIM_FLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
-              -I$(RTL)/aecp -I$(RTL)/common \
+              -I$(RTL)/ieee17221/aecp -I$(RTL)/common \
               -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
               -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
               -CFLAGS "-std=c++17 -O2"

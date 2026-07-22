@@ -16,7 +16,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/adp/adp_tx_arbiter.sv
+SRCS = $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

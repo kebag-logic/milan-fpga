@@ -57,6 +57,8 @@ create_project -force milan_dma_project $BUILD_DIR -part $PART
 set rtl {}
 foreach ext {svh sv v} {
     foreach f [glob -nocomplain \
+                   [file join $REPO hdl * * * *.$ext] \
+                   [file join $REPO hdl * * *.$ext] \
                    [file join $REPO hdl * *.$ext] \
                    [file join $REPO hdl *.$ext]] {
         lappend rtl $f

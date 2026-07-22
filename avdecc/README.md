@@ -67,7 +67,7 @@ volatile mirror that the AECP memory-mapped module updates
 ## How to use it
 
 ### A. Generate the FPGA AEM memory image
-Feed the JSON to a small generator (to be written under `hdl/aecp/` or a
+Feed the JSON to a small generator (to be written under `hdl/ieee17221/aecp/` or a
 `tools/aem_gen.py`) that emits the L0..L3 memory per `aem-and-aecp.md`:
 - **L0** ENTITY + current-configuration/current-entity-id pointers.
 - **L1** per-configuration table of descriptor-type addresses (ordered from

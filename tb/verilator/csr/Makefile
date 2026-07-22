@@ -14,7 +14,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
          -CFLAGS "-std=c++17 -O2"
 
-SRCS = $(RTL_DIR)/csr/milan_csr.sv
+SRCS = $(RTL_DIR)/common/csr/milan_csr.sv
 CPP  = sim_main.cpp
 
 .PHONY: all run clean

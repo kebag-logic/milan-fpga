@@ -133,8 +133,8 @@ couldn't resolve the includes. (The board Vivado build worked, masking the probl
 
 **Fix.** Add the include directories explicitly. In the shared datapath helper:
 ```python
-for inc in ("hdl/common", "hdl/802_1q_traffic_shaper", "hdl/ptp_timestamp",
-            "hdl/adp", "hdl/csr", "hdl/eth_event_counter"):
+for inc in ("hdl/common", "hdl/ieee8021q/ts", "hdl/ieee8021as/ptp_timestamp",
+            "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter"):
     platform.add_verilog_include_path(os.path.join(base, inc))
 ```
 The RTL harness Makefiles do the same with `+incdir+<dir>`.

@@ -6,6 +6,6 @@
   geometry, and all address maps (SoC, milan_csr, AEM store, QSPI slots,
   control-plane frame formats). Rendered: `.svg` / `.png`.
   Regenerate: `python3 milan_system_map.gen.py milan_system_map.drawio`,
-  render with `../../hdl/aecp/doc/atdecc_architecture.render.py`.
+  render with `../../hdl/ieee17221/aecp/doc/atdecc_architecture.render.py`.
 - The ATDECC subsystem's own multi-page deep-dive (per-block, bit level) lives
-  in `hdl/aecp/doc/atdecc_architecture.drawio` (pages 1-9).
+  in `hdl/ieee17221/aecp/doc/atdecc_architecture.drawio` (pages 1-9).

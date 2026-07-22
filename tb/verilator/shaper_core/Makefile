@@ -16,12 +16,12 @@ VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINMISSING \
-         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/802_1q_traffic_shaper \
+         +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
          -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
 
 SRCS = shaper_core_wrap.sv \
-       $(RTL_DIR)/802_1q_traffic_shaper/traffic_shaping_core.sv \
-       $(RTL_DIR)/802_1q_traffic_shaper/credit_based_shaper.sv \
+       $(RTL_DIR)/ieee8021q/ts/traffic_shaping_core.sv \
+       $(RTL_DIR)/ieee8021q/ts/credit_based_shaper.sv \
        $(RTL_DIR)/common/axi_stream_if.sv
 CPP  = sim_main.cpp
 

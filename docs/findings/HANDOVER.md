@@ -1385,7 +1385,7 @@ fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
 | Feature | State | Proof / normative doc |
 |---|---|---|
 | ADP advertise + depart + **dormancy self-re-arm** | DONE both boards | drill 0x00020001→0x00020101 ≤5 s; `docs/findings/ADP_DORMANCY.md` |
-| AECP/AEM Milan entity (5 descriptors, getters/setters, LOCK, MVU, COUNTERS, AS_PATH) | DONE | la_avdecc Milan=1 CLEAN; `hdl/aecp/doc/atdecc_architecture.drawio` |
+| AECP/AEM Milan entity (5 descriptors, getters/setters, LOCK, MVU, COUNTERS, AS_PATH) | DONE | la_avdecc Milan=1 CLEAN; `hdl/ieee17221/aecp/doc/atdecc_architecture.drawio` |
 | AECP streaming cmds (GET/SET_STREAM_INFO Milan semantics, START/STOP=NOT_SUPPORTED, **real unsolicited** 4-slot engine) | DONE | 121-check TB + drill §7/7b; `docs/design/MILAN_TALKER_SM.md` |
 | ACMP Milan talker SM (CONNECT_TX==PROBE_TX, 15 s window, near-stateless) | DONE | 71-check TB + wire probe→stream→expiry; same doc |
 | AAF talker (48 kHz I2S2 → class-A frames, probe-gated, VID0) | DONE | 8138 fr/s, seq+1/122 µs; `docs/design/MVP_TALKER.md` |
@@ -1394,7 +1394,7 @@ fpga-ps-tools main ahead-5 unpushed. Never commit `graphify-out/`/.gitprep.
 | TCP perf (separate perf-lineage gateware) | TX >500, RX 316 practical ceiling | `docs/findings/PERFORMANCE_GOAL.md` |
 | Portability | XPM-free HDL; Yosys/sv2v 22/22 tops (ECP5 check) | `syn/yosys/run.sh` |
 | **lwSRP fabric engine** (MSRP talker-adv + domain + **Listener attr declare**, MVRP, both-side registrars, 75 % bw gate → CBS slope + TX gate + listener_observed) | **RTL+TB DONE `b19287e`+07-15; silicon vs switch/pw0 PENDING** | 445+96+36-check TBs; `docs/LWSRP_FPGA_ARCHITECTURE.md` |
-| **AEM/AECP Milan v1.2 mandatory set** (full 34-descriptor ROM FR-ENUM-02, SET/GET_CLOCK_SOURCE, CONTROL IDENTIFY → LED, GET_AUDIO_MAP, MVU SYSTEM_UNIQUE_ID + MEDIA_CLOCK_REF_INFO, live GET_COUNTERS, MAX_TRANSIT_TIME 0x4C/4D, STREAM_INPUT stream-info/format/start-stop) | **RTL+TB DONE 07-15; silicon re-cert PENDING** | aecp TB 345; `hdl/aecp/doc/README.md` |
+| **AEM/AECP Milan v1.2 mandatory set** (full 34-descriptor ROM FR-ENUM-02, SET/GET_CLOCK_SOURCE, CONTROL IDENTIFY → LED, GET_AUDIO_MAP, MVU SYSTEM_UNIQUE_ID + MEDIA_CLOCK_REF_INFO, live GET_COUNTERS, MAX_TRANSIT_TIME 0x4C/4D, STREAM_INPUT stream-info/format/start-stop) | **RTL+TB DONE 07-15; silicon re-cert PENDING** | aecp TB 345; `hdl/ieee17221/aecp/doc/README.md` |
 | **ACMP listener SM** (BIND_RX/UNBIND_RX/GET_RX_STATE + probe ladder + SRP binding via lwSRP TA registrar; CSR 0x6A4 RO group) | **RTL+TB DONE 07-15; silicon vs a real talker PENDING** | acmp_lstn TB 89; pipewire acmp-milan-v12.c contract |
 
 Regression: 25 Verilator harnesses under `tb/verilator/<name>/` (latest
@@ -1622,7 +1622,7 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
    playback NCO servo, trim @0x6E0), depacketizer -> PCM ring + I2S DAC
    playback, pilot tone acceptance path. Control plane (ACMP listener SM) + diagnostics
    (AVTP-RX monitor 07-17) + **fabric/SoC media plumbing DONE 07-17
-   (`e8efecc`)**: KL_aaf_rx_depacketizer (hdl/avtp) strips 38/42-byte
+   (`e8efecc`)**: KL_aaf_rx_depacketizer (hdl/ieee1722/aaf) strips 38/42-byte
    headers off monitor-accepted PDUs and streams full-word S32BE payload
    out m_axis_pcm into a WishboneDMAWriter loop-mode DRAM ring
    (milan_dma_pcm_* CSRs @0xf0003120, additions-only; offset = wr pointer;
@@ -1667,7 +1667,7 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
     mirror today), GET_DYNAMIC_INFO 0x4B (SHOULD), dynamic audio-map edits
     (ADD/REMOVE — static maps shipped), MAAP dynamic allocation,
     unsolicited pushes for clock/control changes. **DONE 07-17:
-    STREAM_INPUT counters** — KL_avtp_rx_monitor (hdl/1722) on the RX tap
+    STREAM_INPUT counters** — KL_avtp_rx_monitor (hdl/ieee1722/avtp) on the RX tap
     matched to the ACMP-listener bound sid: valid=0xF3F live (lock/settle/
     mismatch/interrupt/100ms-unlock/format-compare per the pipewire
     stream.c contract), GET_COUNTERS(in0/in1) full-size, unsolicited
@@ -1690,7 +1690,7 @@ command + live counters + ACMP LISTENER SM with lwSRP SRP-binding**
 ### History anchors (git, newest first)
 `2d700ec` AECP Milan v1.2 mandatory-set close-out (34-descriptor ROM + all
 mandatory commands) ·
-`b19287e` lwSRP fabric engine (hdl/lwsrp ×9, CSR 0x680, 3 TB suites) ·
+`b19287e` lwSRP fabric engine (hdl/ieee8021q/srp ×9, CSR 0x680, 3 TB suites) ·
 `3fce652` miltick close-out (window 15 s exact, cadence 31 s ×2, 41/41,
 Milan=1) · `c3b0e82` MILAN_CLK_FREQ_HZ never passed — plumbed ·
 `165d57c` talker SM RTL · `ba76908` ADP dormancy self-re-arm + DIAG ·

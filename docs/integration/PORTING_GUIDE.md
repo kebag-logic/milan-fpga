@@ -42,19 +42,19 @@ portability were removed (history: [OPEN_SOURCE_MIGRATION.md](OPEN_SOURCE_MIGRAT
 FIFOs/demux now come from the MIT-licensed
 [`third_party/verilog-axis`](../../THIRD_PARTY.md) submodule and the CDC from
 in-repo plain-FF primitives (`hdl/common/cdc_pulse.sv`,
-`hdl/common/cdc_handshake.sv`, `hdl/ptp_timestamp/ptp_csr_sync.sv`).
+`hdl/common/cdc_handshake.sv`, `hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv`).
 
 What remains vendor-*touching* is only attributes and parameters - all of them
 harmless or overridable off-Xilinx:
 
 | Where | What | Effect on Xilinx | Effect elsewhere | Action when porting |
 |---|---|---|---|---|
-| `hdl/802_1q_traffic_shaper/credit_based_shaper.sv:80` | `(* use_dsp = "yes" *)` on the 48-bit credit accumulator | infers DSP48 | ignored; infers LUT/carry logic (works, uses more fabric) | optional: replace with your vendor's DSP-inference attribute (Intel `multstyle`, Gowin `syn_dspstyle`) |
+| `hdl/ieee8021q/ts/credit_based_shaper.sv:80` | `(* use_dsp = "yes" *)` on the 48-bit credit accumulator | infers DSP48 | ignored; infers LUT/carry logic (works, uses more fabric) | optional: replace with your vendor's DSP-inference attribute (Intel `multstyle`, Gowin `syn_dspstyle`) |
 | `credit_based_shaper.sv:111-112` | `(* dont_touch = "true" *)` on the slope registers | keeps regs named for the multicycle constraint (§4.5) | generic attribute, widely honored (Synplify/Quartus accept it) | keep; re-express the paired multicycle constraint in your SDC |
-| `hdl/eth_event_counter/ethernet_events.sv:60-68` | `(* mark_debug = "true" *)` on RMON counters | Vivado ILA probe hint | ignored | keep or delete |
-| `hdl/common/milan_datapath.sv:229`, `milan_top.sv:187`, `cdc_pulse.sv`, `cdc_handshake.sv`, `ptp_csr_sync.sv` | `(* ASYNC_REG = "TRUE" *)` on CDC synchronizer FFs | placement + no-SRL-inference for metastability hardening | Xilinx/Intel-recognized; others ignore it | add the equivalent vendor constraint on the same registers (§4.5) - functionally safe either way |
-| `hdl/common/milan_top.sv:51-53` (Zynq top only) | MAC params `MAC_TARGET="XILINX"`, `MAC_IODDR_STYLE="IODDR"`, `MAC_CLK_STYLE="BUFR"` | selects Series-7 DDR I/O cells inside the verilog-ethernet MAC | set `TARGET="GENERIC"` (sim) or your vendor's value | only relevant if you use `milan_top` + verilog-ethernet; `milan_datapath` has no MAC at all |
-| `hdl/common/milan_dma_wrapper.v:200-201` (Zynq wrapper only) | MDIO tristate is *inferred* (`t ? 1'bz : o`) - no `IOBUF` primitive | Vivado infers IOBUF | every toolchain infers its pad tristate | nothing |
+| `hdl/common/eth_event_counter/ethernet_events.sv:60-68` | `(* mark_debug = "true" *)` on RMON counters | Vivado ILA probe hint | ignored | keep or delete |
+| `hdl/milan/milan_datapath.sv:229`, `milan_top.sv:187`, `cdc_pulse.sv`, `cdc_handshake.sv`, `ptp_csr_sync.sv` | `(* ASYNC_REG = "TRUE" *)` on CDC synchronizer FFs | placement + no-SRL-inference for metastability hardening | Xilinx/Intel-recognized; others ignore it | add the equivalent vendor constraint on the same registers (§4.5) - functionally safe either way |
+| `hdl/milan/milan_top.sv:51-53` (Zynq top only) | MAC params `MAC_TARGET="XILINX"`, `MAC_IODDR_STYLE="IODDR"`, `MAC_CLK_STYLE="BUFR"` | selects Series-7 DDR I/O cells inside the verilog-ethernet MAC | set `TARGET="GENERIC"` (sim) or your vendor's value | only relevant if you use `milan_top` + verilog-ethernet; `milan_datapath` has no MAC at all |
+| `hdl/milan/milan_dma_wrapper.v:200-201` (Zynq wrapper only) | MDIO tristate is *inferred* (`t ? 1'bz : o`) - no `IOBUF` primitive | Vivado infers IOBUF | every toolchain infers its pad tristate | nothing |
 
 Everything else in `hdl/` is plain synthesizable SystemVerilog
 (`default_nettype none`, 64-bit AXIS, AXI4-Lite CSR).

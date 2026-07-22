@@ -12,7 +12,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **Milan** | AVnu Alliance's interoperability profile of AVB/AVDECC for pro audio (this project targets **Milan v1.2**). See `MILAN_V12_DEPENDENCY_MATRIX.md`. |
 | **AVTP** | Audio Video Transport Protocol (IEEE 1722)  -  the L2 media transport; carries streams with presentation timestamps. |
 | **AVDECC** | Device discovery/enumeration/control (IEEE 1722.1) on top of AVTP; comprises ADP, AECP, ACMP. |
-| **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart (implemented in RTL: `hdl/adp/adp_advertiser.sv`). |
+| **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart (implemented in RTL: `hdl/ieee17221/adp/adp_advertiser.sv`). |
 | **AECP** | AVDECC Enumeration & Control Protocol  -  AEM command/response. |
 | **ACMP** | AVDECC Connection Management Protocol  -  stream connect/disconnect handshakes. |
 | **AEM** | AVDECC Entity Model  -  the descriptor tree describing an entity (`avdecc/milan-v12-entity.json` mirrors ours). |
@@ -95,7 +95,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 
 | Term | Meaning |
 |------|---------|
-| **milan_datapath** | The §A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → arbiter, both directions (`hdl/common/milan_datapath.sv`). |
+| **milan_datapath** | The §A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → arbiter, both directions (`hdl/milan/milan_datapath.sv`). |
 | **MilanMAC / MilanDMA** | The LiteX glue wrapping LiteEth (+ PacketFIFO, IOB constraints) / the three DMA engines (`milan_soc.py`). |
 | **MILN** | The CSR ID magic (`0x4D494C4E`) proving the CPU⇄NIC path. |
 | **Ring DMA** | The circular coherent-DRAM frame rings (`RingDMAWriter` RX / `RingDMAReader` TX) walked by AXI-burst engines  -  see `RX_RING_DMA.md` + `RX_RING_OPERATION.svg`. |
@@ -107,7 +107,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **Burst geometry / PREP state** | The per-burst address/length computation (capped by 16 beats, ring wrap, 4 KB AXI rule), registered in a dedicated FSM state for timing. |
 | **Whole-frame drop** | The overload contract: a frame is delivered intact or dropped entirely and counted (`dropped` CSR == `rx_missed_errors`); mid-frame corruption is impossible by construction. |
 | **Simple-mode DMA** | The old LiteX single-buffer `base/length/enable/done` engines (still used by `dma-ts`). |
-| **TCAM** | Ternary CAM (`hdl/common/tcam.sv`)  -  masked MAC-address matching for steering/switching. |
+| **TCAM** | Ternary CAM (`hdl/ieee8021q/filtering/tcam.sv`)  -  masked MAC-address matching for steering/switching. |
 | **Telemetry (milan_tlm)** | In-fabric frame/beat/stall counters at every pipeline stage + coherent snapshot (`pipeline-telemetry.md`; sysfs `telemetry/snapshot`). |
 | **Stall (telemetry)** | A cycle where a stage held valid data the next stage didn't accept  -  the bottleneck localizer (the RX ring's headline metric is *0 stalls*). |
 | **kl-eth** | The Linux platform driver for the NIC (in `the-private-test-repo/fpga/kl-eth/`). |

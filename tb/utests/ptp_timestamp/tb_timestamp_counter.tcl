@@ -69,7 +69,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../../../hdl/ptp_timestamp/timestamp_counter.sv"] \
+ [file normalize "${origin_dir}/../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv"] \
 ]
 add_files -norecurse -fileset $obj $files
 
