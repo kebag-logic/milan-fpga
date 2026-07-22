@@ -77,6 +77,15 @@ The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 Counters mirror `ethernet_events`. Software writes `STATS_CTRL[0]=1` to latch a
 **coherent snapshot** of all counters into the read window, then reads them.
 
+**Invalidate-on-MAC-reset (2026-07-22):** a MAC reinit (link-guard episode or
+`LINK_CTRL[1]`) restarts the MAC path *without* a CSR-domain reset, so a
+pre-reset snapshot would keep serving stale counts (the 2026-07-19
+"CSR plane lies until live counters tick" forensics). The reinit **release**
+edge now zeroes `STAT0..8` in hardware; all-zero means "no valid snapshot" -
+software re-arms with a fresh `STATS_CTRL[0]` write. Plain-RW config
+registers are unaffected (they are not MAC-domain state; the aresetn-swept
+defaults ROM already covers full fabric resets).
+
 Order follows the `ethernet_events_t` enum in
 `hdl/common/eth_event_counter/ethernet_events.svh`; `STAT`*n* is counter lane *n*
 (`counts_o[n*32 +: 32]`), so the HW packing and the ABI stay 1:1.

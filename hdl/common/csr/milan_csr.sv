@@ -225,6 +225,9 @@ module milan_csr #(
   input  wire [31:0]             i_bdbg1,
   input  wire [31:0]             i_bdbg2,
   input  wire [31:0]             i_linkg_stat,        //! RO 0x774: link-guard status
+  input  wire                    i_mac_reinit,        //! effective MAC-reset line (link guard |
+                                                      //! LINK_CTRL[1]); its release invalidates
+                                                      //! the STAT0-8 snapshot (stale-shadow fix)
   output wire                    o_linkg_dis,         //! LINK_CTRL[2]: 1 = link guard disabled
   output wire                    o_linkg_freeze,      //! LINK_CTRL[3]: test - fake eth clock death
   output wire [63:0]             o_as_parent_ckid,    //! AS2: 802.1AS parent bridge ckid
@@ -484,6 +487,19 @@ module milan_csr #(
 
   integer i;                             //! Loop index for reset/stats iteration
 
+  //! MAC-reset snapshot invalidate (gaps 5 stale-shadow fix, 2026-07-22): a
+  //! MAC reinit (link-guard episode or LINK_CTRL[1]) restarts the MAC path
+  //! WITHOUT an aresetn event here, so a pre-reset STAT0-8 snapshot would
+  //! keep serving stale counts - the 2026-07-19 "CSR plane lies until live
+  //! counters tick" forensics. The reinit RELEASE edge zeroes the snapshot
+  //! (0 = "no valid snapshot"); software re-arms it via STATS_CTRL[0].
+  logic mac_reinit_q;
+  always_ff @(posedge aclk) begin : mac_reinit_edge
+    if (!aresetn) mac_reinit_q <= 1'b0;
+    else          mac_reinit_q <= i_mac_reinit;
+  end : mac_reinit_edge
+  wire mac_reinit_rel_w = mac_reinit_q && !i_mac_reinit;
+
   //! Register file write path: synchronous reset defaults, hardware event
   //! latching (before W1C), AXI-Lite register writes, W1C on IRQ_STATUS, and
   //! the single-cycle command strobes (stats snapshot/reset, PTP load/adjust/
@@ -683,6 +699,12 @@ module milan_csr #(
       if (i_evt_tx_ts_ready)   irq_status[0] <= 1'b1;
       if (i_evt_link_change)   irq_status[1] <= 1'b1;
       if (i_evt_rmon_rollover) irq_status[2] <= 1'b1;
+
+      // MAC-reset snapshot invalidate, applied AFTER the write path so it
+      // wins a coincident STATS_CTRL[0] latch: no stale pre-reset counts
+      // can survive a MAC reinit into the read window.
+      if (mac_reinit_rel_w)
+        for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
     end
   end
 
