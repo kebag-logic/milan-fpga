@@ -390,6 +390,9 @@ and is not repeated here.
    Recipe + limits: sw/builder/README-parameters.md. Remaining in
    item 4: lwSRP tables + DT/driver shape emitters, per-module SV
    parameterization, audio-interface ser/des RTL (subtask below).
+   Spec-referenced design record: `docs/ENDSTATION_BUILDER.md`
+   (clause-verified design decisions D1–D5 + schema→descriptor
+   mapping; every ref PDF-extracted per the traceability-matrix rule).
    **Refined (USER):** every submodule parameterizable (if needed) so
    the endstation builder composes correctly — SV parameters where
    they fit + codegen (aecp_aem_rom.svh pattern) where structure
