@@ -316,9 +316,9 @@ def spec_from_overlay(ovl):
     spec. Structure (N ports/streams) is fully consumed, including a CRF
     Media Clock Output (Milan 7.2.3: stream_outputs entry kind "crf" —
     appended after the AAF talkers, no STREAM_PORT/cluster/map, mirroring
-    the CRF sink); the svh VALIDATION tables (AEM_FMTS_C) and WB targets
-    keep their single-stream reach — per-stream tables land with item 5
-    (NxN AAF streams)."""
+    the CRF sink). Multi-stream shapes additionally emit the per-descriptor
+    format tables (AEM_STRIN_*/AEM_STROUT_*, gated behind the stream count
+    so the deployed shape's svh stays byte-identical — see emit_svh)."""
     if ovl.get("_schema") != "kebag-logic/aem-overlay":
         raise ValueError("not a kebag-logic/aem-overlay document")
     if not str(ovl.get("_schema_version", "")).startswith("2."):
@@ -457,8 +457,9 @@ def build_model(spec):
     ]
 
     # SET_* write-back targets (rom_addr of the field inside its descriptor).
-    # NOTE: STREAM_FORMAT reaches STREAM_OUTPUT[0] only — per-stream WB
-    # register files land with item 5 (NxN AAF streams).
+    # NOTE: the legacy WB_STREAM_FORMAT_C symbol reaches STREAM_OUTPUT[0]
+    # only; multi-stream shapes get the per-descriptor WB_STRIN/STROUT_FMT_
+    # ADDR_C arrays (PER_STREAM below) the gated RTL path indexes instead.
     wb = {
         "SAMPLING_RATE":   base_of(AUDIO_UNIT) + 136,
         "STREAM_FORMAT":   base_of(STREAM_OUTPUT) + 74,   # STREAM_OUTPUT[0] current
@@ -481,14 +482,30 @@ def build_model(spec):
                  AUDIO_CLUSTER)
     ]
 
-    # svh validation tables: first AAF input / the CRF input (single-stream
-    # reach — see spec_from_overlay note)
+    # svh validation tables: first AAF input / the CRF input (the legacy
+    # single-stream symbols, always emitted — the RTL default/reset reach)
     fmts = next(s["formats"] for s in si if s.get("kind", "aaf") == "aaf")
     crf_fmts = next(s["formats"] for s in si if s.get("kind") == "crf")
 
+    # Per-descriptor stream-format tables (item-4 follow-up): kind flag,
+    # reference entry (formats[0] = the current/base format the RTL
+    # validates against) and SET/GET write-back address per STREAM_INPUT/
+    # STREAM_OUTPUT descriptor. EMIT gates the svh block behind the stream
+    # count so the deployed 1-AAF-in/1-out shape's svh (and the RTL path it
+    # compiles) stays byte-identical (see emit_svh).
+    per_stream = dict(
+        IN_CRF=[s.get("kind", "aaf") == "crf" for s in si],
+        IN_FMT0=[s["formats"][0] for s in si],
+        OUT_FMT0=[s["formats"][0] for s in so],
+        IN_WB=[base_of(STREAM_INPUT, k) + 74 for k in range(len(si))],
+        OUT_WB=[base_of(STREAM_OUTPUT, k) + 74 for k in range(len(so))],
+        EMIT=(len(si) > 2 or len(so) > 1),
+    )
+
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
-                RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts)
+                RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
+                PER_STREAM=per_stream)
 
 SRC_IDS = {name: n for n, name in enumerate(
     ["ENTITY_ID", "MODEL_ID", "ECAPS", "TALKER_SRC", "TALKER_CAP",
@@ -584,6 +601,27 @@ def emit_svh(M, path):
     a(f"localparam [63:0] AEM_CRF_FMTS_C [0:{len(M['CRF_FMTS'])-1}] = "
       "'{" + ", ".join(f"64'h{f:016X}" for f in M["CRF_FMTS"]) + "};")
     a("")
+    ps = M["PER_STREAM"]
+    if ps["EMIT"]:
+        n_in, n_out = len(ps["IN_FMT0"]), len(ps["OUT_FMT0"])
+        a("// Per-descriptor stream-format tables (multi-stream shapes only:")
+        a("// the deployed 1-AAF-in/1-out shape keeps the legacy layout above")
+        a("// byte-identical; KL_aecp_response_builder switches on this define)")
+        a("`define AEM_PER_STREAM_FMT")
+        a(f"localparam int unsigned AEM_N_STRIN_C  = {n_in};")
+        a(f"localparam int unsigned AEM_N_STROUT_C = {n_out};")
+        a(f"localparam bit AEM_STRIN_CRF_C [0:{n_in-1}] = "
+          "'{" + ", ".join("1'b1" if c else "1'b0" for c in ps["IN_CRF"])
+          + "};")
+        a(f"localparam [63:0] AEM_STRIN_FMT_C [0:{n_in-1}] = "
+          "'{" + ", ".join(f"64'h{f:016X}" for f in ps["IN_FMT0"]) + "};")
+        a(f"localparam [63:0] AEM_STROUT_FMT_C [0:{n_out-1}] = "
+          "'{" + ", ".join(f"64'h{f:016X}" for f in ps["OUT_FMT0"]) + "};")
+        a(f"localparam [15:0] WB_STRIN_FMT_ADDR_C [0:{n_in-1}] = "
+          "'{" + ", ".join(f"16'd{v}" for v in ps["IN_WB"]) + "};")
+        a(f"localparam [15:0] WB_STROUT_FMT_ADDR_C [0:{n_out-1}] = "
+          "'{" + ", ".join(f"16'd{v}" for v in ps["OUT_WB"]) + "};")
+        a("")
     with open(path, "w") as f:
         f.write("\n".join(lines))
 
