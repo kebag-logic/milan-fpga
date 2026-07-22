@@ -268,6 +268,38 @@ and is not repeated here.
   traced through the Alinx schematics to ball K16 (EX SCH: E1_MDIO =
   B15_L23_N; CORE SCH: B15_L23_N = K16), e1_mdc = J17 (every vendor
   XDC); wired in platforms/alinx_ax7101.py, in gateware from AX35 on.
+### 5d. Additions 2026-07-22 (merge-validation + AX e1 rounds)
+
+- **RMON STATS SNAPSHOT HAS NEVER WORKED ON SILICON (both boards):**
+  `STATS_CTRL[0]` latch then read returns all-zero lanes even with
+  provable traffic (TX=305 kernel frames). Every historical RMON read
+  was an UNLATCHED (= reset-value) read and meaningless. ALSO the
+  lane offsets in this repo disagree: `ethernet_events.svh` enum
+  (9 lanes, TX_GOOD=0x210, RX_GOOD=0x224) vs REGISTER_MAP.md rows
+  (RX_GOOD=0x230). Fix the latch on silicon + reconcile the ABI docs;
+  until then no RMON-based conclusion is valid. (Lane-A's
+  invalidate-on-reinit is TB-proven but silicon-unprovable behind
+  this.)
+- **AX7101 e1 GMII-RX HARDWARE FAULT (2026-07-22 ~07:05-07:55):** the
+  e1 RTL8211E stopped delivering RX frames on GMII (RXD/RX_DV) —
+  MDI receives (PHYSR 0xbd02 = 1000/full/link-up, LEDs), TX and MDIO
+  byte-exact, RX clock alive, but zero frames reach the FPGA's
+  PHY-level detector under an RX flood. Survives: bit-identical
+  previously-working bitstream, cold power cycles, switch cycle, tap
+  bypass, direct cable. Software exhausted; suspect PHY RX-output/
+  joint failure. Mitigation lane: migrate the NIC to e2 (RGMII,
+  MilanRGMIIPHY exists, vendor-matched). e1 PHY addr = 0 on this
+  board (silicon-proven; the vendor example's 0b00001 is not this
+  board).
+- **linkmon vs guard-era gateware:** linkmon's eth_reinit hardware-
+  resets the PHY every ~30 s while RX liveness fails — an
+  interference storm for any MDIO user (slow console bitbangs read
+  garbage; even ethtool ksettings can race it) and redundant next to
+  the guard's <50 ms auto-recovery. Back it off / gate it on
+  VERSION >= 0x0006; serialize MDIO users. Also: add
+  SIOCGMIIREG/SIOCSMIIREG to kl-eth (mii-tool access; would have
+  replaced the console-bitbang saga).
+
 - **Boot-images trap re-burned (silent hang at "Liftoff!"):**
   buildroot's generic fw_jump.bin is SILENT on this SoC — the boot
   opensbi must be the custom litex_nax build (fpga/boot/
