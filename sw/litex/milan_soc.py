@@ -28,6 +28,7 @@ import argparse
 
 from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import LiteXModule
 from litex.soc.interconnect import stream
@@ -148,23 +149,88 @@ class _CRG(LiteXModule):
 
             # CLEAN audio clock (07-18): the CS4344 needs a ~ps-jitter MCLK -
             # the fractional-N divider's +-1-cycle edge jitter measured
-            # THD+N -4.5 dB analog. A fractional MMCM makes 24.576 MHz
-            # (+-ppm); the I2S serializer divides it /2 /8 /512 in clean
-            # registers. Rate mismatch vs the talker's 48 kHz = counted
-            # slips (USER internal-clock rule).
+            # THD+N -4.5 dB analog. The I2S serializer divides MCLK
+            # /2 /8 /512 in clean registers. Rate mismatch vs the talker's
+            # 48 kHz = counted slips (USER internal-clock rule) until the
+            # CRF servo below pulls it in.
+            #
+            # MMCM-DRP media-clock servo plan (2026-07-22, roadmap item 6):
+            # the audio MMCM is now the ACTUATOR of the CRF media-clock
+            # servo (hdl/ieee1722/crf/KL_mmcm_drp_servo.sv). The fine,
+            # glitch-free knob is the MMCME2 dynamic fine phase shift
+            # (UG472: steps of 1/(56*F_VCO), PSDONE after exactly 12 PSCLK
+            # cycles, round-robin wrap = a sustained step rate is a
+            # permanent frequency trim), and UG472 forbids fractional
+            # divide in fine-PS mode. So the audio clock is INTEGER-ONLY,
+            # produced deterministically in two stages (best single-stage
+            # integer ratio from 100 MHz is 43/175 = -186 ppm, beyond the
+            # PS slew budget; two stages reach -10.6 ppm):
+            #   pre-PLL : 100 MHz /2 x23      -> VCO 1150 MHz, /37 -> 31.081081 MHz
+            #   MMCM    : 31.081081 /1 x34    -> VCO 1056.7568 MHz (DS181 -1:
+            #             600-1200), /43      -> 24.575739 MHz = 24.576 MHz - 10.6 ppm
+            # PS step = 1/(56*1056.76 MHz) = 16.9 ps; PSCLK = 200 MHz idelay
+            # (DS181 MMCM_FMAX_PSCLK 450 MHz at -1) -> sustained-slew ceiling
+            # (200e6/13)*16.9ps = 260 ppm, covering base 10.6 + talker 100 ppm
+            # with >2x margin. DRP DCLK = the milan clock (DS181 FDCK <= 200 MHz).
+            # Both boards run the same 100 MHz-referenced plan (Arty: clk100
+            # pad - a second load on the pad is fine, silicon-proven mf14-17;
+            # AX: cascade from the buffered sys clock - a second IBUFDS on the
+            # clk200 pads is Place 30-475 unplaceable, AX13 2026-07-18).
+            # BANDWIDTH=LOW on the MMCM filters the cascade jitter (UG472
+            # "Jitter Filter"); bench THD+N re-check is on the bring-up list.
             self.cd_audio = ClockDomain()
-            self.mmcm_audio = mmcm_audio = S7MMCM(speedgrade=-1 if board == "arty" else -2)
-            if board == "arty":
-                # single-ended clk100 pad: a second buffer on the pad is fine
-                # (silicon-proven mf14-17)
-                mmcm_audio.register_clkin(clkin, clkin_freq)
-            else:
-                # differential clk200: register_clkin here would instantiate a
-                # SECOND IBUFDS on the same pads = Place 30-475 unplaceable
-                # (AX13 asl 2026-07-18). Cascade from the buffered sys clock;
-                # the MMCM's own filtering keeps MCLK jitter in the ps range.
-                mmcm_audio.register_clkin(ClockSignal("sys"), sys_clk_freq)
-            mmcm_audio.create_clkout(self.cd_audio, 24.576e6, margin=1e-3)
+            audio_in = clkin if board == "arty" else ClockSignal("sys")
+            pll_audio_fb  = Signal()
+            audio_ref_raw = Signal()
+            audio_ref     = Signal()
+            self.specials += Instance("PLLE2_ADV", name="pll_audio_pre",
+                p_STARTUP_WAIT="FALSE", p_BANDWIDTH="OPTIMIZED",
+                p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=1e9/clkin_freq if board == "arty" else 1e9/sys_clk_freq,
+                p_DIVCLK_DIVIDE=2, p_CLKFBOUT_MULT=23,   # PFD 50 MHz, VCO 1150 MHz
+                p_CLKOUT0_DIVIDE=37, p_CLKOUT0_PHASE=0.0,  # 31.081081 MHz
+                i_CLKIN1=audio_in, i_RST=~rst_n, i_PWRDWN=0,
+                i_CLKFBIN=pll_audio_fb, o_CLKFBOUT=pll_audio_fb,
+                o_CLKOUT0=audio_ref_raw,
+            )
+            self.specials += Instance("BUFG", i_I=audio_ref_raw, o_O=audio_ref)
+            # KL_mmcm_drp_servo <-> MMCME2_ADV wiring (through milan_datapath)
+            self.audio_drp_addr   = Signal(7)
+            self.audio_drp_en     = Signal()
+            self.audio_drp_we     = Signal()
+            self.audio_drp_di     = Signal(16)
+            self.audio_drp_do     = Signal(16)
+            self.audio_drp_rdy    = Signal()
+            self.audio_mmcm_rst   = Signal()
+            self.audio_mmcm_locked= Signal()
+            self.audio_ps_en      = Signal()
+            self.audio_ps_incdec  = Signal()
+            self.audio_ps_done    = Signal()
+            self.audio_ps_clk     = ClockSignal("idelay") if (with_dram or with_eth) else ClockSignal("sys")
+            mmcm_audio_fb  = Signal()
+            audio_mclk_raw = Signal()
+            self.specials += Instance("MMCME2_ADV", name="mmcm_audio",
+                p_STARTUP_WAIT="FALSE", p_BANDWIDTH="LOW",
+                p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=1e9/(clkin_freq*23/(2*37)) if board == "arty" else 1e9/(sys_clk_freq*23/(2*37)),
+                p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT_F=34.0,  # PFD 31.08 MHz, VCO 1056.76 MHz
+                p_CLKOUT0_DIVIDE_F=43.0, p_CLKOUT0_PHASE=0.0,
+                p_CLKOUT0_USE_FINE_PS="TRUE",               # UG472 dynamic fine PS
+                i_CLKIN1=audio_ref, i_RST=self.audio_mmcm_rst, i_PWRDWN=0,
+                i_CLKFBIN=mmcm_audio_fb, o_CLKFBOUT=mmcm_audio_fb,
+                o_CLKOUT0=audio_mclk_raw, o_LOCKED=self.audio_mmcm_locked,
+                # DRP port (DCLK = milan clock; XAPP888 sequencing in the servo)
+                i_DCLK=ClockSignal("milan"), i_DADDR=self.audio_drp_addr,
+                i_DEN=self.audio_drp_en, i_DWE=self.audio_drp_we,
+                i_DI=self.audio_drp_di, o_DO=self.audio_drp_do,
+                o_DRDY=self.audio_drp_rdy,
+                # dynamic fine phase shift port (UG472)
+                i_PSCLK=self.audio_ps_clk, i_PSEN=self.audio_ps_en,
+                i_PSINCDEC=self.audio_ps_incdec, o_PSDONE=self.audio_ps_done,
+            )
+            self.specials += Instance("BUFG", i_I=audio_mclk_raw, o_O=self.cd_audio.clk)
+            # audio-domain reset while the MMCM is unlocked (incl. during a
+            # servo DRP repair - the clock-outage sequencing class shared
+            # with the link-guard GMII CDC reinit)
+            self.specials += AsyncResetSynchronizer(self.cd_audio, ~self.audio_mmcm_locked)
             platform.add_false_path_constraints(self.cd_sys.clk,   self.cd_audio.clk)
             platform.add_false_path_constraints(self.cd_milan.clk, self.cd_audio.clk)
 
@@ -280,6 +346,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     "hdl/common/csr/milan_csr.sv", "hdl/milan/milan_datapath.sv",
 ]
@@ -347,6 +414,13 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # AUDIO_IF_SLOTS_P > 0; neither board has a TDM header today, so a
         # platform extension overrides these via extra_ports when it lands.
         i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0,
+        # audio-MMCM servo boundary: inert ties (servo idles unless
+        # clock_source == 2; locked=1 keeps a future VERIFY from hanging).
+        # The board SoC overrides these with the real MMCME2_ADV wiring
+        # (_CRG audio_* bundle) via extra_ports.
+        i_i_ps_clk = ClockSignal(milan_cd),
+        i_i_mmcm_drp_do = 0, i_i_mmcm_drp_rdy = 0,
+        i_i_mmcm_locked = 1, i_i_mmcm_ps_done = 0,
         # P12: the 0x800 window's LCTX/TCTX/ACMP-tbl engine boundary moved
         # INSIDE milan_datapath (wired to the live monitor_ctx/packetizer/
         # acmp engines) - the P11 inert ties are gone with the ports.
@@ -3878,6 +3952,24 @@ class MilanSoC(SoCCore):
                     ):
                         dbg._snap(sig, 32, tag, f"{d} (q0, free-running)")
                 self.milan_tlm = MilanDebug(self.milan_dma, self.milan_mac, extra=_phase0)
+            # audio-MMCM servo boundary: the real MMCME2_ADV DRP/PS wiring
+            # (KL_mmcm_drp_servo inside milan_datapath <-> _CRG mmcm_audio)
+            if hasattr(self.crg, "audio_mmcm_rst"):
+                mmcm_ports = dict(
+                    i_i_ps_clk         = self.crg.audio_ps_clk,
+                    o_o_mmcm_drp_addr  = self.crg.audio_drp_addr,
+                    o_o_mmcm_drp_en    = self.crg.audio_drp_en,
+                    o_o_mmcm_drp_we    = self.crg.audio_drp_we,
+                    o_o_mmcm_drp_di    = self.crg.audio_drp_di,
+                    i_i_mmcm_drp_do    = self.crg.audio_drp_do,
+                    i_i_mmcm_drp_rdy   = self.crg.audio_drp_rdy,
+                    o_o_mmcm_rst       = self.crg.audio_mmcm_rst,
+                    i_i_mmcm_locked    = self.crg.audio_mmcm_locked,
+                    o_o_mmcm_ps_en     = self.crg.audio_ps_en,
+                    o_o_mmcm_ps_incdec = self.crg.audio_ps_incdec,
+                    i_i_mmcm_ps_done   = self.crg.audio_ps_done,
+                )
+                dp_ports = dict(dp_ports or {}, **mmcm_ports)
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd,
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
