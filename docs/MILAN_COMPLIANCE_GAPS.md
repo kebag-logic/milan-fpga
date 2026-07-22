@@ -421,6 +421,16 @@ and is not repeated here.
    AX7101 = 8x8, Arty = 4x4. Subsumes the multi-stream registrar
    direction (and the 2nd lwSRP listener attribute / CRF reservation);
    needs per-stream ACMP/MAAP/monitor contexts.
+   **Milan 7.2.3 CRF Media Clock Output — model half DONE
+   2026-07-22:** builder `clocking.crf_output` (rule ENFORCED: >=2
+   AAF listener streams reject without it, citing 7.2.3) + CRF
+   STREAM_OUTPUT in the overlay/gen_aem_store (7.3.2 word
+   0x041060010000BB80, clock_domain_index 0, no audio port —
+   mirrors the CRF sink; 4x4/8x8 configs carry it; arty_current
+   ROM byte-identity kept). Remaining here: RTL *provisioning* —
+   S50 boot wiring + the ACMP talker context for the CRF stream
+   (KL_crf_tx itself exists, CSRs 0x750-0x764, silicon-proven
+   500 PDU/s).
 6. MMCM-DRP media-clock servo (retires the drift-lottery rails for
    good; shares the clock-outage sequencing with the GMII CDC reinit).
 7. **ALSA driver (USER 2026-07-22):** record/play music from/to

@@ -41,7 +41,21 @@ Gates (gaps item 4, generator round):
       dict + identical plan bytes);
   13. verdict thresholds (OK <70, TIGHT 70-80, OVER >80), UPPER BOUND
       labeling: absent for arty_current, present (with OVER verdicts) for
-      the 4x4/8x8 shapes.
+      the 4x4/8x8 shapes;
+  14. Milan 7.2.3 rule ENFORCED: >=2 AAF listener streams without
+      clocking.crf_output (absent or disabled) -> ConfigError citing 7.2.3;
+      1-listener shapes keep it optional (arty_current absent = ok,
+      enabled = ok with the Milan 7.3.2 default format);
+  15. CRF-output overlay structure (4x4 + 8x8): STREAM_OUTPUT count +1 with
+      a kind=crf entry (Milan 7.3.2 format word), NO STREAM_PORT/cluster/
+      map growth, talker_stream_sources +1, CLOCK_SOURCE set unchanged
+      (1722.1 7.2.9.2 has no OUTPUT_STREAM type); arty_current stays
+      CRF-output-free (deployed shape untouched);
+  16. gen_aem_store.py consumes a CRF-output overlay (--overlay, 4x4) to a
+      structurally valid ROM: contiguous directory, 5 STREAM_OUTPUTs, the
+      CRF one with clock_domain_index 0 / flags CLOCK_SYNC_SOURCE|CLASS_A /
+      current_format 0x041060010000BB80, AAF outputs unchanged (0x0002),
+      CONFIGURATION counts advertise it, STREAM_PORT_OUTPUT count stays 4.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -533,6 +547,142 @@ def test_resource_verdicts():
           "no upper-bound rows")
 
 
+CRF_FMT = "0x041060010000BB80"       # Milan 7.3.2 Table 7.1 format word
+
+
+def test_milan_723_crf_output_rule():
+    # >=2 AAF listener streams REQUIRE clocking.crf_output (Milan 7.2.3:
+    # "an AAF Media Listener with two or more AAF Media Inputs shall
+    # implement a CRF Media Clock Output")
+    def drop(c):
+        c["clocking"].pop("crf_output", None)
+
+    def disable(c):
+        c["clocking"]["crf_output"]["enabled"] = False
+
+    for label, mutate in (("crf_output absent", drop),
+                          ("crf_output disabled", disable)):
+        for shape in ("arty_4x4", "ax7101_8x8"):
+            p = _variant(CONFIGS[shape], mutate)
+            try:
+                try:
+                    eb.load_config(p)
+                except eb.ConfigError as e:
+                    assert "7.2.3" in str(e), \
+                        f"{shape}/{label}: error must cite Milan 7.2.3: {e}"
+                else:
+                    raise AssertionError(
+                        f"{shape}/{label}: >=2-listener shape accepted "
+                        "without a CRF Media Clock Output")
+            finally:
+                os.unlink(p)
+    # exactly 2 AAF listeners is already >= 2 (rule boundary)
+    def two_listeners(c):
+        del c["streams"]["listeners"][2:]
+        c["clocking"].pop("crf_output", None)
+    p = _variant(CONFIGS["arty_4x4"], two_listeners)
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "7.2.3" in str(e)
+        else:
+            raise AssertionError("2-listener shape accepted without CRF output")
+    finally:
+        os.unlink(p)
+    # 1 AAF listener: CRF output OPTIONAL - arty_current has none (deployed
+    # shape untouched); enabling it on a 1-listener shape is legal and the
+    # format defaults to the Milan 7.3.2 word
+    cur = eb.load_config(CONFIGS["arty_current"])
+    assert cur["clocking"]["crf_output"] is False
+    p = _variant(CONFIGS["arty_current"],
+                 lambda c: c["clocking"].__setitem__("crf_output",
+                                                     {"enabled": True}))
+    try:
+        c1 = eb.load_config(p)
+        assert c1["clocking"]["crf_output"] is True
+        assert c1["clocking"]["crf_output_format"] == CRF_FMT
+    finally:
+        os.unlink(p)
+    print("  [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes "
+          "rejected without crf_output (error cites 7.2.3); optional at "
+          "1 listener, format defaults to " + CRF_FMT)
+
+
+def test_crf_output_overlay_structure():
+    for name, n in (("arty_4x4", 4), ("ax7101_8x8", 8)):
+        ovl = eb.build(CONFIGS[name], OUT)["overlay"]
+        so = ovl["stream_outputs"]
+        assert len(so) == n + 1, f"{name}: expected {n} AAF + 1 CRF output"
+        assert so[-1] == dict(index=n, name="CRF", kind="crf", channels=0,
+                              formats=[CRF_FMT]), f"{name}: CRF entry {so[-1]}"
+        assert all(s["kind"] == "aaf" for s in so[:-1])
+        dc = ovl["descriptor_counts"]
+        assert dc["STREAM_OUTPUT"] == n + 1
+        assert dc["STREAM_PORT_OUTPUT"] == n      # CRF output: NO audio port
+        assert dc["AUDIO_MAP"] == 2 * n           # ...and no map/cluster growth
+        assert ovl["entity_counts"]["talker_stream_sources"] == n + 1
+        # CLOCK_SOURCE set unchanged by the output: 1722.1 7.2.9.2 defines
+        # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + N inputs + CRF sink
+        assert dc["CLOCK_SOURCE"] == 1 + n + 1
+        check_port_layout(ovl, n, n)              # port invariants still hold
+        print(f"  [gate 15] {name}: CRF STREAM_OUTPUT idx {n} advertised "
+              "(no port/cluster/map growth, talker count +1, "
+              "clock sources unchanged)")
+    ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
+    assert ovl["descriptor_counts"]["STREAM_OUTPUT"] == 1
+    assert all(s["kind"] == "aaf" for s in ovl["stream_outputs"])
+    assert ovl["entity_counts"]["talker_stream_sources"] == 1
+    print("  [gate 15] arty_current: no CRF output (deployed shape untouched)")
+
+
+def test_gen_aem_store_crf_output_overlay():
+    import json
+    r = eb.build(CONFIGS["arty_4x4"], OUT)
+    with tempfile.TemporaryDirectory() as td:
+        subprocess.run(
+            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+             "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+            check=True, capture_output=True)
+        j = json.load(open(os.path.join(td, "aem_rom.json")))
+    rom = bytes.fromhex(j["rom_hex"])
+    dirv = j["directory"]
+    # directory covers the ROM contiguously (structural validity)
+    off = 0
+    for d in dirv:
+        assert d["base"] == off, f"directory hole at {d}"
+        off += d["len"]
+    assert off == len(rom)
+    outs = [d for d in dirv if d["type"] == 0x0006]
+    assert [d["index"] for d in outs] == list(range(5)), \
+        f"expected STREAM_OUTPUT 0..4, got {outs}"
+    crf = outs[4]
+    b = crf["base"]
+    assert crf["len"] == 132 + 8                  # header + ONE format entry
+    assert rom[b + 4:b + 7] == b"CRF"             # object_name
+    assert rom[b + 70:b + 72] == b"\x00\x00"      # clock_domain_index 0 (7.2.6)
+    assert rom[b + 72:b + 74] == b"\x00\x03"      # CLOCK_SYNC_SOURCE|CLASS_A
+    assert rom[b + 74:b + 82].hex().upper() == CRF_FMT[2:]   # current_format
+    assert rom[b + 132:b + 140].hex().upper() == CRF_FMT[2:]  # formats[0]
+    b0 = outs[0]["base"]
+    assert rom[b0 + 72:b0 + 74] == b"\x00\x02"    # AAF outputs keep CLASS_A
+    # CONFIGURATION descriptor_counts advertise the 5 outputs; the CRF one
+    # adds no STREAM_PORT_OUTPUT
+    cb = next(d for d in dirv if d["type"] == 0x0001)["base"]
+    n_counts = int.from_bytes(rom[cb + 72:cb + 74], "big")
+    pairs = {}
+    for k in range(n_counts):
+        o = cb + 74 + 4 * k
+        pairs[int.from_bytes(rom[o:o + 2], "big")] = \
+            int.from_bytes(rom[o + 2:o + 4], "big")
+    assert pairs[0x0006] == 5, f"CONFIGURATION counts: {pairs}"
+    assert sum(1 for d in dirv if d["type"] == 0x000F) == 4
+    print(f"  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM "
+          f"{len(rom)} B structurally valid; STREAM_OUTPUT[4] = CRF "
+          f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "
+          "4 output ports")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -541,7 +691,9 @@ if __name__ == "__main__":
                test_model_id_hashing, test_sweep_opts_fragments,
                test_gen_aem_store_consumes_overlay,
                test_resource_calibration, test_resource_determinism,
-               test_resource_verdicts):
+               test_resource_verdicts, test_milan_723_crf_output_rule,
+               test_crf_output_overlay_structure,
+               test_gen_aem_store_crf_output_overlay):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
