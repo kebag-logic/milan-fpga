@@ -8,10 +8,11 @@
 //
 //  Description : Compatibility wrapper — the Milan v1.2 LISTENER-side ACMP
 //                engine now lives in KL_acmp_lstn_ctx (N bind contexts in a
-//                shared SM + context RAM). This wrapper pins today's proven
-//                two-sink configuration and port surface, byte/bit-identical
-//                to the original single-sink module (the no-regression
-//                axiom; pinned by tb/verilator/acmp_lstn):
+//                shared SM + context RAM). This wrapper keeps today's proven
+//                port surface and pins the per-context POLICY map; at the
+//                default N_SINKS_P=2 it is byte/bit-identical to the
+//                original single-sink module (the no-regression axiom;
+//                pinned by tb/verilator/acmp_lstn):
 //
 //                  context 0 = STREAM_INPUT[0] media sink: full Milan 5.5.3
 //                    binding SM (probe ladder, ADP talker watch, lwSRP
@@ -21,12 +22,18 @@
 //                    record (no probe SM, no MSRP attach, no ADP watch),
 //                    explicit fast-connect stream_id honoured (nonzero
 //                    command sid wins, zero falls back to the derivation).
+//                  contexts 2..N-1 (N-sink round, N_SINKS_P from the
+//                    datapath's N_STREAMS): window-provisioned listener
+//                    binds for the extra 0x800-window streams — same
+//                    record-only + explicit-sid policy as the CRF sink
+//                    (the Lane-C/§3.1 per-context config the ctx core
+//                    already implements). They bind via CONNECT_RX with
+//                    listener_unique_id = context index.
 //
 //                P12 (NxN integration): the context-table request/grant
 //                port passes through this wrapper (tbl_*) so the 0x800
-//                CSR window's ACMP master reads live bind records; the
-//                per-context config surface stays the pinned two-sink
-//                shape until a full N-sink ACMP round.
+//                CSR window's ACMP master reads live bind records for
+//                EVERY context index < N_SINKS_P.
 //
 //                Behavioural contract, SM states, timers, REF-BUG fixes,
 //                silicon lessons (always-armed capture, TX-grant watchdog,
@@ -38,7 +45,10 @@
 import acmp_pkg::*;
 
 module KL_acmp_listener #(
-    parameter int unsigned CLK_FREQ_HZ_P = 100_000_000
+    parameter int unsigned CLK_FREQ_HZ_P = 100_000_000,
+    //! bind contexts (>= 2: ctx0 media + ctx1 CRF are always present);
+    //! the datapath feeds max(2, N_STREAMS)
+    parameter int unsigned N_SINKS_P     = 2
 ) (
     input  wire         clk_i,
     input  wire         rst_n,
@@ -93,20 +103,28 @@ module KL_acmp_listener #(
     // ---- context-table access (P12: the 0x800 CSR window's ACMP master) --
     //! pass-through of KL_acmp_lstn_ctx's tbl_* port: req held until the
     //! 1-cycle gnt; ctx (acmp_lstn_ctx_t, 317 b) valid WITH gnt. Index is
-    //! the wrapper's context index (0 = STREAM_INPUT[0], 1 = CRF sink).
+    //! the wrapper's context index (0 = STREAM_INPUT[0], 1 = CRF sink,
+    //! 2..N-1 = window streams).
     input  wire         tbl_req_i,
-    input  wire         tbl_idx_i,
+    input  wire [((N_SINKS_P > 1) ? $clog2(N_SINKS_P) : 1)-1:0] tbl_idx_i,
     output wire         tbl_gnt_o,
     output acmp_lstn_ctx_t tbl_ctx_o
 );
 
-  wire [1:0]      w_declare, w_active;
+  //! per-context policy map (the N-sink round): bit 0 = the full media
+  //! binding SM + derived sid; every other context = record-only bind with
+  //! the explicit fast-connect sid honoured (ctx1 CRF + window contexts).
+  //! N=2 reproduces the original pinned pair {2'b01, 2'b10} exactly.
+  localparam logic [N_SINKS_P-1:0] SM_EN_MAP_C  = N_SINKS_P'(1);
+  localparam logic [N_SINKS_P-1:0] SID_EX_MAP_C = ~SM_EN_MAP_C;
+
+  wire [N_SINKS_P-1:0] w_declare, w_active;
 
   KL_acmp_lstn_ctx #(
     .CLK_FREQ_HZ_P  (CLK_FREQ_HZ_P),
-    .N_SINKS_P      (2),
-    .PROBE_SM_EN_P  (2'b01),      //! ctx0 = full SM, ctx1 = bind record
-    .SID_EXPLICIT_P (2'b10)       //! ctx0 = derive, ctx1 = explicit sid
+    .N_SINKS_P      (N_SINKS_P),
+    .PROBE_SM_EN_P  (SM_EN_MAP_C),
+    .SID_EXPLICIT_P (SID_EX_MAP_C)
   ) u_ctx (
     .clk_i           (clk_i),
     .rst_n           (rst_n),
@@ -114,8 +132,9 @@ module KL_acmp_listener #(
     .station_mac_i   (station_mac_i),
     .entity_id_i     (entity_id_i),
     .tick_1s_i       (tick_1s_i),
-    .ta_registered_i ({1'b0, ta_registered_i}),   //! sink 0 only (today)
-    .ta_failed_i     ({1'b0, ta_failed_i}),
+    //! lwSRP coupling stays sink-0 only (record-only contexts never attach)
+    .ta_registered_i ({{(N_SINKS_P-1){1'b0}}, ta_registered_i}),
+    .ta_failed_i     ({{(N_SINKS_P-1){1'b0}}, ta_failed_i}),
     .lstn_declare_o  (w_declare),
     .stream_active_o (w_active),
     .rx_tvalid_i     (rx_tvalid_i),
