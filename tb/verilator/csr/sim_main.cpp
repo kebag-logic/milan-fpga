@@ -121,6 +121,10 @@ int main(int argc, char** argv) {
   dut->i_ptp_tod = 0; dut->i_ptp_tod_valid = 0;
   dut->i_adp_available_index = 0;
   dut->i_mac_reinit = 0;
+  // P12 no-engine ties (see the milan_csr port contract): rd_valid/wr_rdy
+  // tied 1 reproduce the P11 fixed 4-cycle window timing with rd_data=0
+  dut->i_lctx_rd_valid = 1; dut->i_tctx_rd_valid = 1;
+  dut->i_lctx_wr_rdy = 1;   dut->i_tctx_wr_rdy = 1;
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
@@ -129,7 +133,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010008);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010009);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);

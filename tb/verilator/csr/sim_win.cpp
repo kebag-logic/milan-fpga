@@ -45,6 +45,7 @@ static void ck(const char* what, uint64_t got, uint64_t exp) {
 static uint32_t lctx[8][32];        // {s[2:0], word[4:0]}
 static uint32_t tctx[8][16];        // {t[2:0], word[3:0]}
 static uint32_t l_q1, l_q2, t_q1, t_q2;   // port-B registered pipelines
+static int      l_ev1, l_ev2, t_ev1, t_ev2; // rd_valid pipelines (P12 contract)
 static int      l_ok_cnt, t_ok_cnt;       // snap_ok grant delay counters
 static bool     pump_on;
 static uint32_t evt;                       // coherent event epoch
@@ -83,12 +84,18 @@ static void model_pre_edge() {
       tctx[s][5]  = evt;                                 // talker FRAMES
     }
   }
-  // port-B pipelines: present q2, then shift (data valid 2 edges after addr)
+  // port-B pipelines: present q2, then shift (data valid 2 edges after addr).
+  // P12 contract: rd_valid mirrors the data pipeline (valid = rd_en two
+  // edges ago) — an always-idle engine model, the P11 timing exactly.
   uint32_t la = dut->o_lctx_rd_addr, ta = dut->o_tctx_rd_addr;
   dut->i_lctx_rd_data = l_q2;
   l_q2 = l_q1; l_q1 = lctx[(la >> 5) & 7][la & 31];
+  dut->i_lctx_rd_valid = l_ev2;
+  l_ev2 = l_ev1; l_ev1 = dut->o_lctx_rd_en & 1;
   dut->i_tctx_rd_data = t_q2;
   t_q2 = t_q1; t_q1 = tctx[(ta >> 4) & 7][ta & 15];
+  dut->i_tctx_rd_valid = t_ev2;
+  t_ev2 = t_ev1; t_ev1 = dut->o_tctx_rd_en & 1;
   // snap_ok: granted 3 cycles into a held request
   l_ok_cnt = dut->o_lctx_snap_req ? l_ok_cnt + 1 : 0;
   t_ok_cnt = dut->o_tctx_snap_req ? t_ok_cnt + 1 : 0;
@@ -186,6 +193,9 @@ int main(int argc, char** argv) {
   Verilated::commandArgs(argc, argv);
   dut = new Vmilan_csr;
   memset(lctx, 0, sizeof lctx); memset(tctx, 0, sizeof tctx);
+  // P12: CFG-word writes are held until the engine's wr_rdy; the model
+  // accepts every cycle (arbitration under load is the milan_dp NxN TB's job)
+  dut->i_lctx_wr_rdy = 1; dut->i_tctx_wr_rdy = 1;
 
   dut->aresetn = 0;
   dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_bready = 0;
