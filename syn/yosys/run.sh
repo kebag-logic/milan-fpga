@@ -45,7 +45,7 @@ tops=(
   "KL_crf_tx|$C/cdc_pulse.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv"
   "KL_link_guard|$C/KL_link_guard.sv"
   "KL_maap|$R/hdl/ieee1722/maap/KL_maap.sv"
-  "KL_i2s_playback|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
+  "KL_i2s_playback|$C/cdc_pair_fifo.sv $C/cdc_pulse.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
   "KL_tone_gen|$R/hdl/ieee1722/aaf/KL_tone_gen.sv"
   "KL_aaf_rx_depacketizer|$A/axis_fifo.v $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"

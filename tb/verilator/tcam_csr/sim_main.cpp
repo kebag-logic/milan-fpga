@@ -23,10 +23,16 @@ int main(int argc,char**argv){
         for(int b=0;b<4;b++){
             dut->s_tdata = b? 0 : d; dut->s_tkeep=0xFF;
             dut->s_tvalid=1; dut->s_tlast=(b==3);
-            step();
+            // sample the cut-through outputs BEFORE the clock edge: the
+            // filter is combinational per beat, and sampling after the edge
+            // shows the NEXT-cycle view - on the tlast beat that view is the
+            // runt-SOF guard (rx_mac_filter 2026-07-19) rejecting a phantom
+            // 1-beat frame, not this beat's verdict
+            dut->eval();
             printf("    f%d b%d: s_tvalid=%d s_tready=%d m_tvalid=%d dropped=%d\n",
                    f,b,dut->s_tvalid,dut->s_tready,dut->m_tvalid,dut->dropped_o);
             if(dut->m_tvalid && dut->m_tready){ if(f) out2++; else out1++; }
+            step();
         }
         dut->s_tvalid=0; dut->s_tlast=0; step(); step();
     }
