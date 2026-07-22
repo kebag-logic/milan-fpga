@@ -55,7 +55,12 @@ _io = [
         Subsignal("tx_en",   Pins("G22"), IOStandard("LVCMOS33")),   # e1_txen
         Subsignal("tx_data", Pins("D22 H20 H22 J22 K22 L19 K19 L20"),
                   IOStandard("LVCMOS33")),                            # e1_txd[0:7]
-        # MDIO (e1_mdc=J17, mdio from SCH) left unwired — PHY runs on straps (§A.7).
+        # PHY management (2026-07-22, kl-eth ethtool ops): e1_mdc = J17 (every
+        # vendor example XDC), e1_mdio = K16 (EX SCH: E1_MDIO = B15_L23_N;
+        # CORE SCH: B15_L23_N = ball K16/IO_L23N_T3_FWE_B_15). liteeth's GMII
+        # PHY auto-adds the LiteEthPHYMDIO bitbang CSRs when mdc is present.
+        Subsignal("mdc",  Pins("J17"), IOStandard("LVCMOS33")),
+        Subsignal("mdio", Pins("K16"), IOStandard("LVCMOS33"), Misc("PULLUP TRUE")),
     ),
     # RGMII PHY1 = the AX7101 "e2" RTL8211E (the Milan NIC second port).
     ("eth_clocks", 1,

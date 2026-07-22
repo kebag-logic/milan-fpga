@@ -798,6 +798,13 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
 
   assign eff_link_w = i_link_up & cfg_sw_link &
                       (cfg_linkg_dis | linkg_est_w);
+  //! Counter-only link view: PHY + guard, WITHOUT the linkmon daemon term.
+  //! One physical flap = guard pair (41us detect/21ms settle) + a second
+  //! sw_link pair 7-14s later (rx-liveness lags the recovered link) -> the
+  //! Milan LINK_UP/LINK_DOWN counters read +2 per flap on eff_link. The
+  //! counters follow the physical event; eff_link keeps gating ADP/datapath.
+  wire cnt_link_w;
+  assign cnt_link_w = i_link_up & (cfg_linkg_dis | linkg_est_w);
   assign o_mac_reinit = linkg_reinit_w;
 
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
@@ -957,7 +964,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .listener_observed_i (listener_observed_w),
     .pres_offset_o (aecp_pres_offset),
     .identify_o    (o_identify),
-    .link_up_i     (eff_link_w),
+    .link_up_i     (cnt_link_w),
     .frames_tx_i   (aaf_frames_w),
     .lstn_bound_i   (acmpl_bound),
     .lstn_sid_i     (acmpl_sid),

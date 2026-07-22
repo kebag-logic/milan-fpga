@@ -16,7 +16,7 @@ name; its material is private (see §7).
 | amx-ubuntu-server | `ssh amx-ubuntu-server` | ProfiShark capture host. `enxe8eb1b37e2c0` = tap1 **inline on the ALINX↔switch link**; `enxe8eb1b39111a` = tap2 **inline on the ARTY↔switch link**. Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]`, SMAC at `ether[34:4]`); FCS included. |
 | amx-pi | `ssh amx-pi` | Power strip: `powerstrip off/on 4` = **the AVB switch**; OUT0 = AX7101 power. |
 | amx-pw1 | — | **NEVER TOUCH** (standing rule). |
-| AVB switch | 192.168.127.1 (ssh open, **user holds credentials**) | AVB-certified bridge. clockIdentity `3cc0c6.fffe.fe0210`, port MAC toward AX `3c:c0:c6:fe:02:17`. Claims gPTP priority1=246/cc248/acc0x20 (tap-read) — why boards run priority1=238 (USER default; cert posture 246\|248). MSRP Domain = class A, prio 3, **VID 2**. |
+| AVB switch | **no IP/UI management** (USER 2026-07-22; the old "192.168.127.1 ssh open" row was stale — that address is now the AX's eth0) | AVB-certified bridge. clockIdentity `3cc0c6.fffe.fe0210`, port MAC toward AX `3c:c0:c6:fe:02:17`. Claims gPTP priority1=246/cc248/acc0x20 (tap-read) — why boards run priority1=238 (USER default; cert posture 246\|248). MSRP Domain = class A, prio 3, **VID 2**. |
 
 ## 2. Boards (DUTs)
 
@@ -61,7 +61,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | Path | What |
 |---|---|
 | `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL (aecp, acmp, adp, lwsrp, maap, avtp, 1722, csr, common, 802_1q_traffic_shaper, ptp_timestamp), `tb/verilator/*` (aecp 474, milan_dp 105, pcmlpf 7, + suites), `syn/yosys/run.sh` (28 tops, device-portability gate), `sw/litex/` (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → `hdl/aecp/gen/aecp_aem_rom.svh` + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
-| `~/milan-tests-avb` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the CERT suite + official run — see §7). Commits: `-c user.name="Alexandre Malki" -c user.email="alexandremalki89@gmail.com"`, one line. |
+| `~/milan-tests-avb` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the CERT suite + official run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
 | `~/repo-backups-0720` | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
@@ -177,7 +177,7 @@ reads lie (shadow).
   written; the --reset self-config test tells whether the mode pins
   boot it standalone.
 - The CERT suite = 63 scenarios (private/recreate snapshot
-  aets_recreate_20260721); tap helpers gptp_cadence.py + srp_domain.py
+  <CERT-recreate-snapshot-20260721>); tap helpers gptp_cadence.py + srp_domain.py
   on amx-ubuntu-server; es-4.5 self-quiesces (poll, no fixed sleeps).
 - Loop CLOSED 07-21: -73.4 dB (record) x3 on mf42+AX30, both channels,
   LPF A/B flat; the night's -2.8 was a lapsed-bind + capture artifact
