@@ -88,6 +88,12 @@ module KL_i2s_playback #(
   output logic        i2s_sdin_o,        //! serial data to the CS4344
 
   //! --- observability (CSR I2SPB_STAT / I2SPB_TRIM) ------------------------
+  input  wire         clr_under_i,       //! 1-cycle (clk_i): W1C restart of the
+                                         //! underrun rail (I2SPB_STAT[31:16]
+                                         //! write; crosses to audio via
+                                         //! cdc_pulse)
+  input  wire         clr_over_i,        //! 1-cycle (clk_i): W1C restart of the
+                                         //! overrun rail (I2SPB_STAT[15:0])
   output logic [15:0] underruns_o,       //! audio frames padded (CDC empty)
   output logic [15:0] overruns_o,        //! sample pairs dropped (FIFO full)
   output logic signed [15:0] trim_o,     //! retired NCO trim - always 0
@@ -237,10 +243,15 @@ module KL_i2s_playback #(
         wptr_r   <= wptr_r + 1'b1;
       end
       if (stg_drop_w) begin
-        overruns_o <= (&overruns_o) ? overruns_o : overruns_o + 16'd1;
         media_reset_p_o <= was_filled_r;   //! overrun rail = media reset
         was_filled_r    <= 1'b0;
       end
+      //! overrun rail: saturating count, W1C restart (gaps 5b - a stuck
+      //! 0xFFFF rail was blind forever). A clear coincident with a drop
+      //! restarts at that drop's count so no event is lost.
+      if (clr_over_i)      overruns_o <= stg_drop_w ? 16'd1 : 16'd0;
+      else if (stg_drop_w) overruns_o <= (&overruns_o) ? overruns_o
+                                                       : overruns_o + 16'd1;
       if (!empty_w) was_filled_r <= 1'b1;
 
       // ---- underrun rail: enter prefill (one gap, then recenter) ------
@@ -304,6 +315,20 @@ module KL_i2s_playback #(
     arst_n_r <= {arst_n_r[0], rst_n};
   end : audio_rst_sync
 
+  //! W1C clear of the audio-domain underrun rail: CSR strobes are clk_i
+  //! pulses, the counter lives on clk_audio_i - cdc_pulse carries it over
+  //! (spacing is CSR-write-rate, far beyond the round-trip constraint)
+  wire clr_under_a_w;
+
+  cdc_pulse u_clr_under_cdc (
+    .src_clk    (clk_i),
+    .src_rst_n  (rst_n),
+    .src_pulse  (clr_under_i),
+    .dest_clk   (clk_audio_i),
+    .dest_rst_n (arst_n_r[1]),
+    .dest_pulse (clr_under_a_w)
+  );
+
   logic [8:0]  adiv_r;                   //! /512 master divider
   wire         mclk_w = adiv_r[0];
   wire         sclk_w = adiv_r[2];
@@ -334,15 +359,19 @@ module KL_i2s_playback #(
       i2s_lrck_o <= lrck_w;
       rd_en_r <= 1'b0;
 
+      //! underrun rail: saturating count, W1C restart (gaps 5b); a clear
+      //! coincident with an underrun frame restarts at that frame's count
+      if (clr_under_a_w)
+        underrun_a_r <= (frame_start_w && rd_empty_w) ? 16'd1 : 16'd0;
+      else if (frame_start_w && rd_empty_w)
+        underrun_a_r <= (&underrun_a_r) ? underrun_a_r
+                                        : underrun_a_r + 16'd1;
+
       //! pop one pair per audio frame; on empty repeat the last pair
-      //! (slip-dup) and count the underrun
+      //! (slip-dup; the underrun rail above counts it)
       if (frame_start_w) begin
         if (!rd_empty_w) begin
           rd_en_r <= 1'b1;               //! rdata registered -> use next frame
-        end
-        else begin
-          underrun_a_r <= (&underrun_a_r) ? underrun_a_r
-                                          : underrun_a_r + 16'd1;
         end
         //! load the serializer from the last popped data
         shift_r  <= {rd_pair_w[47:24], 8'h00};   //! left, 24-in-32 justified

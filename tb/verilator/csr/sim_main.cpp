@@ -39,6 +39,7 @@ static long fails = 0, checks = 0;
 static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
 static bool seen_stats_snap, seen_stats_reset;
 static bool seen_adp_adv, seen_adp_dep;
+static bool seen_i2spb_clru, seen_i2spb_clro;
 // TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
 static bool     seen_tcam_wr;
 static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
@@ -53,6 +54,8 @@ static void posedge() {
   seen_stats_reset |= dut->o_stats_reset;
   seen_adp_adv     |= dut->o_adp_advertise_p;
   seen_adp_dep     |= dut->o_adp_depart_p;
+  seen_i2spb_clru  |= dut->o_i2spb_clr_under;
+  seen_i2spb_clro  |= dut->o_i2spb_clr_over;
   if (dut->o_tcam_wr_en) {          // latch the committed entry
     seen_tcam_wr = true;
     tcam_wr_index = dut->o_tcam_wr_index; tcam_wr_valid = dut->o_tcam_wr_valid;
@@ -126,7 +129,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010006);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010007);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -356,6 +359,22 @@ int main(int argc, char** argv) {
   axi_write(0x6CC, 0x00000800);   // restore reset default
   dut->i_i2spb_stat = 0x00050002; dut->eval();
   ck("I2SPB_STAT RO", axi_read(0x6D8), 0x00050002);
+
+  // I2SPB_STAT W1C halves (gaps 5b): a write with any bit of a half set
+  // pulses that rail's clear strobe; the halves are independent and a
+  // zero write is inert. Readback stays the live engine value.
+  seen_i2spb_clru = seen_i2spb_clro = false;
+  axi_write(0x6D8, 0xFFFF0000);          // clear the underrun rail only
+  ck("I2SPB W1C under strobe", seen_i2spb_clru, 1);
+  ck("I2SPB W1C under only",   seen_i2spb_clro, 0);
+  seen_i2spb_clru = seen_i2spb_clro = false;
+  axi_write(0x6D8, 0x0000FFFF);          // clear the overrun rail only
+  ck("I2SPB W1C over strobe",  seen_i2spb_clro, 1);
+  ck("I2SPB W1C over only",    seen_i2spb_clru, 0);
+  seen_i2spb_clru = seen_i2spb_clro = false;
+  axi_write(0x6D8, 0);                   // zero write clears nothing
+  ck("I2SPB W1C zero inert", seen_i2spb_clru || seen_i2spb_clro, 0);
+  ck("I2SPB_STAT still live", axi_read(0x6D8), 0x00050002);
 
   // link guard: RO status mux + LINK_CTRL[3:2] control outputs
   dut->i_linkg_stat = 0x00070013; dut->eval();

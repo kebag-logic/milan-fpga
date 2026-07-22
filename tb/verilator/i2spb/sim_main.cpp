@@ -23,6 +23,7 @@ int main(int argc, char** argv){
     dut->rst_n = 0; dut->clk_i = 0; dut->clk_audio_i = 0;
     dut->pcm_tvalid_i = 0; dut->pcm_tready_i = 1; dut->pcm_tlast_i = 0;
     dut->wire_chans_i = 2; dut->servo_en_i = 0;
+    dut->clr_under_i = 0; dut->clr_over_i = 0;
 
     // ================================================================
     // [W] half-beat walker rates (USER 1-to-1 mapping rule): fill_o is
@@ -152,6 +153,51 @@ int main(int argc, char** argv){
     for (size_t i = 4; i < 20 && i < got.size(); i++) printf("  s[%zu]=0x%06X\n", i, got[i]);
     ck("[A] enough samples decoded", got.size() >= 100, 1);
     ck("[A] zero bad jumps (no CDC corruption)", bad_jumps == 0, 1);
+
+    // ================================================================
+    // [C] rail-counter W1C (gaps 5b): the saturating rails were stuck
+    // forever once hit; an I2SPB_STAT write now restarts them per half
+    // (clr_over_i direct in clk_i, clr_under_i via cdc_pulse to audio).
+    // ================================================================
+    {
+        auto wait_posedge_i = [&](){
+            for (;;) { int w = dut->clk_i; tickmin(); if (!w && dut->clk_i) return; }
+        };
+        auto run_us = [&](uint64_t us){
+            uint64_t te = t + us * 1000000ull; while (t < te) tickmin();
+        };
+        dut->pcm_tvalid_i = 0;
+
+        // both rails are nonzero after [A]: the boot prefill starved the
+        // audio side (underruns), the 3 ms overfeed hit FIFO-full (overruns)
+        long u0 = dut->underruns_o, v0 = dut->overruns_o;
+        ck("[C] underrun rail armed", u0 > 0, 1);
+        ck("[C] overrun rail armed",  v0 > 0, 1);
+
+        // W1C the OVERRUN half only (feed stopped -> no new drops)
+        wait_posedge_i();
+        dut->clr_over_i = 1; wait_posedge_i(); dut->clr_over_i = 0;
+        run_us(5);
+        ck("[C] overruns cleared", dut->overruns_o, 0);
+        ck("[C] underruns untouched by over-clear", dut->underruns_o, u0);
+
+        // W1C the UNDERRUN half (crosses into the audio domain; the CDC
+        // FIFO is stocked so no new underrun accrues during the check)
+        wait_posedge_i();
+        dut->clr_under_i = 1; wait_posedge_i(); dut->clr_under_i = 0;
+        run_us(5);
+        ck("[C] underruns cleared", dut->underruns_o, 0);
+
+        // re-arm: the cleared overrun rail counts again (FIFO still full,
+        // a continuous feed drops immediately) - no stuck-at-zero either
+        dut->pcm_tdata_i = 0x0011223300445566ull;
+        dut->pcm_tvalid_i = 1;
+        for (int b = 0; b < 64; b++) wait_posedge_i();
+        dut->pcm_tvalid_i = 0;
+        run_us(2);
+        ck("[C] overrun rail re-armed", dut->overruns_o > 0, 1);
+    }
+
     printf("i2spb-async: %ld checks, %ld failures\n", checks, fails);
     return fails ? 1 : 0;
 }
