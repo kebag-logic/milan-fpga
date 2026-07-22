@@ -1115,12 +1115,31 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //  listener SM; the counter engine feeds AECP GET_COUNTERS(STREAM_INPUT 0),
   //  its 1 Hz unsolicited push, and the 0x6B8 CSR observability group.
   // ==========================================================================
+  //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
+  //! the ACMP bound record combinationally (bit-exact N=1 legacy); entries
+  //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (phase P11 -
+  //! the write port is parked until then).
+  localparam int NSIDX_W_C = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
+  wire [64*N_STREAMS-1:0] strtbl_sid_w;
+  wire [N_STREAMS-1:0]    strtbl_en_w;
+  wire [N_STREAMS-1:0]    strtbl_bind_rise_w;
+  wire [NSIDX_W_C-1:0]    avtprx_idx;
+
+  KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
+    .wr_en_i (1'b0), .wr_idx_i (4'd0),          //! P11 CSR-window hook
+    .wr_sid_i (64'd0), .wr_valid_i (1'b0),
+    .tbl_sid_o (strtbl_sid_w), .tbl_en_o (strtbl_en_w),
+    .bind_rise_o (strtbl_bind_rise_w)
+  );
+
   avtp_stream_parser #(
-    .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (1)
+    .TDATA_WIDTH (TDATA_WIDTH), .BIG_ENDIAN (0), .N_STREAMS (N_STREAMS)
   ) avtp_rx_parser (
     .clk (axis_clk), .resetn (axis_resetn),
-    .cfg_stream_id_i (acmpl_sid),
-    .cfg_stream_en_i (acmpl_bound),
+    .cfg_stream_id_i (strtbl_sid_w),
+    .cfg_stream_en_i (strtbl_en_w),
     //! PRE-FILTER tap (2026-07-19): the media path must not depend on the
     //! kernel's dest-MAC filter config - the TCAM now shields the CPU from
     //! the AVTP multicast flood (16 kfps ate the 1-hart kernel: 55k RX
@@ -1132,7 +1151,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .s_tready_i (rx_axis_ptp_to_filt.tready),
     .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
     .match_valid_o (avtprx_match),
-    .match_index_o (),
+    .match_index_o (avtprx_idx),
     .stream_id_o   (avtprx_sid_frame),
     .avtp_ts_o     (avtprx_ts),
     .subtype_o     (avtprx_subtype),
@@ -1255,13 +1274,19 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .s_tready_i (rx_axis_ptp_to_filt.tready),
     .s_tlast_i  (rx_axis_ptp_to_filt.tlast),
     .pdu_accept_p_i (avtprx_accept_p),
+    //! NXN §1.1 tuser tag: constant 0 at N=1 (P1); the shared monitor's
+    //! accept-index output takes over in P2
+    .pdu_accept_idx_i (4'd0),
     .m_axis_tdata (m_axis_pcm_tdata),
     .m_axis_tkeep (m_axis_pcm_tkeep),
     .m_axis_tvalid(m_axis_pcm_tvalid),
     .m_axis_tlast (m_axis_pcm_tlast),
+    .m_axis_tuser (),
     .m_axis_tready(m_axis_pcm_tready),
     .pdus_o  (pcmrx_pdus),
-    .drops_o (pcmrx_drops)
+    .drops_o (pcmrx_drops),
+    .pdu_out_p_o (), .pdu_out_idx_o (),
+    .drop_p_o (), .drop_idx_o ()
   );
 
   // ==========================================================================

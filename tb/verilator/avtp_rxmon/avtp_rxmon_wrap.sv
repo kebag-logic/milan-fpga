@@ -104,10 +104,13 @@ module avtp_rxmon_wrap #(
     .s_tdata_i (s_tdata_i), .s_tkeep_i (s_tkeep_i),
     .s_tvalid_i (s_tvalid_i), .s_tready_i (1'b1), .s_tlast_i (s_tlast_i),
     .pdu_accept_p_i (pdu_accept_p_o),
+    .pdu_accept_idx_i (4'd0),          //! N=1 shape: index constant 0 (NXN P1)
     .m_axis_tdata (pcm_tdata_o), .m_axis_tkeep (),
     .m_axis_tvalid (pcm_tvalid_o), .m_axis_tlast (pcm_tlast_o),
+    .m_axis_tuser (),
     .m_axis_tready (pcm_tready_i),
-    .pdus_o (pcm_pdus_o), .drops_o (pcm_drops_o)
+    .pdus_o (pcm_pdus_o), .drops_o (pcm_drops_o),
+    .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_idx_o ()
   );
 
   assign match_o = match_w;
