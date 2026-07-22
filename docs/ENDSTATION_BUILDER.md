@@ -267,8 +267,9 @@ the field itself.
 | 23 | `streams.talkers[].clusters` | output AUDIO_CLUSTERs + STREAM_PORT_OUTPUT bases + AUDIO_MAP (D1/D3) | 1722.1 7.2.13, 7.2.16, 7.2.19; Milan 5.3.9.1 | AEM |
 | 24 | `len(listeners)` / `len(talkers)` | CONFIGURATION `descriptor_counts`; ADPDU `talker_stream_sources` / `listener_stream_sinks` (honest counts) | 1722.1 7.2.2, 6.2.2.10, 6.2.2.12 | AEM, prov |
 | 25 | stream count (NxN shapes) | per-stream ACMP/MAAP/monitor contexts + per-stream lwSRP attribute instances (capacity is an implementation decision, stated in PICS) | Q 35.2.7 | SoC (planned, item 5) |
+| 26 | whole config (stream/cluster/L2 counts) | build-plan `## Resource estimate`: LUT/FF/BRAM36/DSP vs xc7a100t + OK/TIGHT/OVER verdict (cost table calibrated from the real mf48 place report; NxN rows UPPER BOUND; recipe in sw/builder/README-parameters.md) | - (engineering budget; area-70 directive) | build_plan.md |
 
-25 rows. Rows 14 (AEM half) and 25 generate *planned* artifacts: the config
+26 rows. Rows 14 (AEM half) and 25 generate *planned* artifacts: the config
 validates and the overlay is complete, but the RTL lands with the
 referenced roadmap items — the build plan marks them, never errors.
 
