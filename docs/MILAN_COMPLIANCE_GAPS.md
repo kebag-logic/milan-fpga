@@ -165,15 +165,22 @@ and is not repeated here.
 
 ### 5b. Additions found 2026-07-21 afternoon (power-event + music round)
 
-- **AX 100 MHz timing vs the link guard (OPEN):** the guard's ~433
-  cells pushed the AX past its placement-luck envelope — SIX directive
-  draws on the AX31 netlist all missed (best −0.142; violator =
-  `storage_32` CPU-internal BRAM addr cone, not Milan RTL). ARTY
-  unaffected (mf43 closed 3/3, keeper eppo +0.102, guard
-  silicon-proven there). AX32 (guard + audio round) building; if it
-  misses, the next levers are CPU L2 knob A/Bs (l2-down-pending /
-  general-slots, with perf re-measure per the L2 rule) or an area-70
-  style trim pass.
+- ~~AX 100 MHz timing vs the link guard~~ **RESOLVED (2026-07-22):
+  buffered dp-CDCs closed it — AX34 all 3 seeds keep (asl +0.053 /
+  eto +0.076 / eppo +0.066) after 12 missed draws.** The tx_sf
+  1024→512 lever deleted its ADDR[9] cone but AX33 still missed ×3
+  with a NEW common violator: the mac_rx_cdc 16×74 CDC FIFO mapped
+  into BRAM, its CLK→Q fanning into ptp_ts_rx/aaf_rx_depkt/aecp.
+  Fix = `stream.ClockDomainCrossing(..., buffered=True)` in
+  `_axis_dp_cdc` (migen AsyncFIFOBuffered: a read-domain dout
+  register — its documented purpose is exactly sluggish BRAM
+  clock-to-out; +1 cycle on a handshaked stream = transparent). The
+  same lever lifted the ARTY to mf46 eto **+0.378 = new record
+  margin**. Trap burned: LiteX `storage_N` names reshuffle between
+  builds — map the name in the generated .v before chasing a violator.
+  AX flashed eto_milanfinal34: guard drills silicon-proven (freeze
+  byte-exact 0x000102D0→0x00010083, real phy_crg_reset bounce, TX
+  alive after = the old permanent-wedge scenario auto-recovers).
 
 - **ACMP binds do not persist across a board reboot** (fabric state
   only). Milan's saved-state fast-connect (listener re-connects on its
@@ -211,6 +218,42 @@ and is not repeated here.
   audible click every few minutes. Fine for listening; a tick-trim or
   a CRF-disciplined pacer would fix it properly.
 
+### 5c. Additions 2026-07-22 (counter fix + ethtool/MDIO round)
+
+- **LINK_UP/LINK_DOWN double-count per physical flap (FIXED in RTL,
+  found by the CERT link-flap re-run on mf45):** the AECP counters
+  counted edges of `eff_link = i_link_up & cfg_sw_link & linkg_est`,
+  so one flap produced the guard pair (41 µs detect / 21 ms settle)
+  PLUS a second linkmon pair (sw_link drops 7–14 s AFTER the link is
+  back — rx-liveness lags; console-timeline-proven). Milan wants +1.
+  Pre-guard mf39 passed because only the linkmon term existed. Fix:
+  the counter tap now uses `cnt_link = i_link_up & (linkg_dis |
+  linkg_est)` — the physical+guard view — while eff_link keeps gating
+  ADP/datapath. Heisenberg trap burned: AECP polling during the
+  outage FEEDS rx-liveness and suppresses the linkmon pair — quiet
+  runs read +2, polled runs +1.
+- **kl-eth ethtool ops implemented (driver `mdio1`):** clause-22 MDIO
+  bitbang over the LiteEthPHYMDIO CSRs (0xf0003804/08, DT reg-name
+  "phy" with fixed-address fallback for flashed DTBs), PHY discovery,
+  `ethtool -r` (nway_reset = real BMCR autoneg restart — the guard
+  rightly does NOT count it as a bounce: MII/GMII clocks keep running;
+  phy_crg_reset stays the clock-death drill), get/set_link_ksettings
+  (100/Full verified on the ARTY DP83848, id 2000:5c90 byte-exact),
+  `-S` forensics stats, drvinfo version. Sampling trap burned: the
+  CSR-write + 2-FF-sync read lands one MDC cycle late — consume ONE
+  turnaround cycle, not two, or every register reads (val<<1)|1.
+  **The AX7101 e1 PHY had NO MDIO pads wired in the platform** (the
+  handover's "AX MDIO works" claim was wrong — ethtool -r returned
+  EOPNOTSUPP on the old driver and the pads did not exist): e1_mdio
+  traced through the Alinx schematics to ball K16 (EX SCH: E1_MDIO =
+  B15_L23_N; CORE SCH: B15_L23_N = K16), e1_mdc = J17 (every vendor
+  XDC); wired in platforms/alinx_ax7101.py, in gateware from AX35 on.
+- **Boot-images trap re-burned (silent hang at "Liftoff!"):**
+  buildroot's generic fw_jump.bin is SILENT on this SoC — the boot
+  opensbi must be the custom litex_nax build (fpga/boot/
+  build_opensbi.sh; embeds the DTB via FW_FDT_PATH, per-board
+  NAX_HARTS/TIMER_HZ/BOARD_TAG). Never flash `images/fw_jump.bin`.
+
 ## 6. Certification scope
 
 - **Our CERT suite is a recreation, not the official ATL run.**
@@ -230,19 +273,34 @@ and is not repeated here.
   pipewire cannot be stopped by the harness). Bench goal, not DUT
   compliance.
 
-## Suggested order of attack (reordered 2026-07-21 per USER)
+## Suggested order of attack (reordered 2026-07-22 per USER)
 
-1. AX timing closure with the link guard (tx_sf 512 lever in; then
-   L2 knobs / area trim if needed) + silicon drills on the AX.
-2. MMCM-DRP media-clock servo (retires the drift-lottery rails for
+1. ~~AX timing closure with the link guard~~ **DONE 2026-07-22**
+   (buffered dp-CDCs; AX34 3/3 keep + silicon drills green — §5b).
+2. **Spec-aligned module tree (USER 2026-07-22):** re-arrange hdl/ to
+   mirror the standards' clause structure — IEEE 1722.1
+   (ADP / ACMP / AECP/AEM/DESCRIPTORS / AECP/GET_* command units),
+   IEEE 1722 (AAF, CRF), IEEE 802.1Q (TS/ = the traffic shaper, SRP,
+   MRP, VLAN/TCAM), IEEE 802.1AS (gPTP) — so what is missing is
+   visible from the tree itself. Mechanical round (git mv + file-list
+   sync in milan_soc.py/TBs/yosys), own clean commit.
+3. **Software-defined End-Station build (USER 2026-07-22):** one
+   declarative definition (build params / config file, cf.
+   avdecc/milan-v12-entity.json) drives gateware elaboration, AEM
+   ROM, lwSRP tables and DT/driver shape consistently.
+4. **NxN AAF Milan streams (USER 2026-07-22):** N talker + N listener
+   streams configurable via the command parameters — test shapes
+   AX7101 = 8x8, Arty = 4x4. Subsumes the multi-stream registrar
+   direction; needs per-stream ACMP/MAAP/monitor contexts and the
+   2nd+ lwSRP attributes.
+5. MMCM-DRP media-clock servo (retires the drift-lottery rails for
    good; shares the clock-outage sequencing with the GMII CDC reinit).
-3. RTL fixes for the workaround items (GMII CDC reinit, shadow
+6. RTL fixes for the workaround items (GMII CDC reinit, shadow
    invalidate-on-reset, I2SPB counters W1C).
-4. 2nd lwSRP listener attribute (CRF reservation) + multi-stream
-   registrar direction (the 64x64 context-engine path).
-5. Dynamic audio maps (ADD/REMOVE + es-4.16) — mandatory the moment
+7. 2nd lwSRP listener attribute (CRF reservation) — folds into #4.
+8. Dynamic audio maps (ADD/REMOVE + es-4.16) — mandatory the moment
    routing becomes dynamic.
-6. Milan saved-state fast-connect (binds surviving reboot).
-7. **es-1.1/1.2 DUT-wins-BMCA variants — BOTTOM of the list (USER
-   2026-07-21): blocked on the bench switch's gPTP claim anyway; the
-   wire-observable halves are already green.**
+9. Milan saved-state fast-connect (binds surviving reboot).
+10. **es-1.1/1.2 DUT-wins-BMCA variants — BOTTOM of the list (USER
+    2026-07-21): blocked on the bench switch's gPTP claim anyway; the
+    wire-observable halves are already green.**

@@ -141,7 +141,7 @@ Milan 6.4 all-channel-counts (both user-caught compliance reads).**
    variants stay switch-gated) and **es-1.2 SRP wire half** (every Domain
    declaration = {class A(6), prio 3, VID 2}). Tap helpers
    /tmp/gptp_cadence.py + /tmp/srp_domain.py on amx-ubuntu-server; suite
-   snapshot in private/recreate/aets_recreate_20260721 (git-ignored).
+   snapshot in private/recreate/<CERT-recreate-snapshot-20260721> (git-ignored).
    **★ ARTY mf39: 61/61 scenarios, 305/305 steps, 0 failures ★** (+ the
    2 tap features green in separate runs).
 7. **Loop analog leg: RESOLVED 07-21 morning — never broken.** The
