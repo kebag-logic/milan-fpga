@@ -223,6 +223,7 @@ module milan_csr #(
   input  wire [31:0]             i_crf_rate,          //! RO 0x748
   input  wire [31:0]             i_crf_status,        //! RO 0x74C {pdu16,fmt8,seq8}
   input  wire                    i_crf_locked,        //! RO in 0x738 bit 31,        //! LPF_CTRL[0]: playback biquad
+  input  wire [31:0]             i_mcsrv_stat,        //! RO 0x8F8: MMCM-DRP media-clock servo status
   output wire                    o_crft_en,           //! CRF talker enable (0x750)
   output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
   output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
@@ -441,6 +442,11 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_REST_CTLO = 'h7AC;   //! saved controller_entity_id [31:0]
   localparam [ADDR_WIDTH-1:0] A_REST_CTHI = 'h7B0;   //! saved controller_entity_id [63:32]
   localparam [ADDR_WIDTH-1:0] A_REST_CMD  = 'h7B4;   //! W: [31] W1S commit, [23:8] binding flags, [3:0] sink idx; R live: {[31] busy, [30] done, [9:8] status, [3:0] idx}
+  //! MMCM-DRP media-clock servo status. Deliberately parked at the 0x8F8
+  //! tail (after the 0x800-0x85C indexed window) so parallel feature lanes
+  //! extending the 0x700 group cannot collide; 0x8FC stays reserved next
+  //! to it for a future servo knob.
+  localparam [ADDR_WIDTH-1:0] A_MCSRV_STAT = 'h8F8;  //! RO live: {trim16, flags, state3}
   // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
   //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
   //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
@@ -1255,6 +1261,7 @@ module milan_csr #(
       A_BDBG1:      live_mux = i_bdbg1;
       A_BDBG2:      live_mux = i_bdbg2;
       A_LINKG_STAT: live_mux = i_linkg_stat;
+      A_MCSRV_STAT: live_mux = i_mcsrv_stat;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,

@@ -453,6 +453,18 @@ TSpec words exist.
 strobes, no provisioning), SNAP latches zeros and completes. `A_STRM_SEL` /
 `A_STRM_SNAP` themselves always decode.
 
+### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
+
+The CRF clock-recovery ACTUATOR status (ONE RO word). Parked at the map
+TAIL (after the 0x800-0x85C window) on purpose: parallel feature lanes are
+extending the 0x700 group, so a tail slot cannot collide on merge; `0x8FC`
+is reserved next to it for a future servo control knob (auto-repair enable
+is an RTL tie today).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; informative while auto-repair is tied off), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only at `clock_source == 2` (CRF descriptor); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 
 On the fully-FPGA VexiiRiscv (formerly NaxRiscv) SoC the AXIS↔memory DMA (§A.6,

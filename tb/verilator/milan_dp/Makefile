@@ -66,6 +66,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
+	$(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \
        $(RTL_DIR)/ieee1722/maap/KL_maap.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_i2s_playback.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tone_gen.sv \

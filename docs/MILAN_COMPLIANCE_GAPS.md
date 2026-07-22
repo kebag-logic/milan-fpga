@@ -114,12 +114,27 @@ and is not repeated here.
   REMAINING for the full chain: a second lwSRP listener attribute for
   the CRF reservation (until then the CRF stream rides untagged
   best-effort — an SR-tagged unregistered stream is pruned to zero
-  ports by the bridge), and the **clock-recovery ACTUATOR: the
-  clean-clock rework retired the playback NCO (trim_o = 0) in favour of
-  a future MMCM-DRP servo — that DRP engine (audio-MMCM fractional
-  reprogramming steered by CRF_DELTA/RATE at clock_source==2) is the
-  remaining hardware; measurement, bind and CLOCK_DOMAIN counter muxing
-  are all in place.**
+  ports by the bridge), and bench validation of the **clock-recovery
+  ACTUATOR — RTL LANDED (2026-07-22, roadmap item 6):**
+  `KL_mmcm_drp_servo` (hdl/ieee1722/crf/) closes the loop at
+  clock_source==2: differential-rate FLL (CRF_RATE 0x748 vs a local
+  512 ms audio-vs-gPTP window, same ns/512ms units) → PI (halve error
+  per window, bounded step, ±200 ppm authority) → the MMCME2 **dynamic
+  fine phase shift** (UG472: 1/(56·F_VCO) ≈ 16.9 ps steps, glitch-free,
+  round-robin wrap ⇒ a sustained step rate is a permanent frequency
+  trim; ceiling 260 ppm at 200 MHz PSCLK) + an **XAPP888 DRP engine**
+  (read-VERIFY of the CLKOUT0 ClkRegs on engage; full reset-sequenced
+  RMW repair path, auto_repair tied OFF until bench confirms the
+  Vivado ClkReg encoding). The honest granularity math forced the PS
+  actuator: the DRP fractional fields are 1/8-resolution (≥1953 ppm
+  per LSB) — three orders too coarse for a ppm servo, and every write
+  costs a relock outage. Audio clocking reworked integer-only two-stage
+  (100→31.081081 via PLL /2×23/37 → MMCM ×34/43 = 24.576 MHz −10.6 ppm;
+  best single-stage integer is −186 ppm, beyond the PS budget).
+  HOLDOVER on CRF unlock (frozen trim keeps stepping), CSR MCSRV_STAT
+  0x8F8, TB-proven (unit 40 checks + rails-cease closed loop: control
+  +8 rail events, servo 0). REMAINING: silicon bring-up (bench drill in
+  the roadmap item), then delete the drift-lottery caveats above.
 - **Channel policy: 1-to-1 wire-truth mapping (USER rule, 2026-07-21,
   c705091).** The render follows the WIRE's channels_per_frame
   (exported by the RX monitor from the last accepted PDU), never the
@@ -491,8 +506,15 @@ and is not repeated here.
    prices it 142%/107.5% LUT on 8x8/4x4); context-record layouts,
    indexed CSR window at 0x800, CRF output provisioning per Milan
    7.2.3, TB-gated phasing P0–P12, resource budget ~87.7%/87.3% LUT.
-6. MMCM-DRP media-clock servo (retires the drift-lottery rails for
-   good; shares the clock-outage sequencing with the GMII CDC reinit).
+6. MMCM-DRP media-clock servo — **RTL LANDED 2026-07-22** (retires the
+   drift-lottery rails for good; shares the clock-outage sequencing
+   with the GMII CDC reinit): `KL_mmcm_drp_servo` fine-PS FLL + XAPP888
+   DRP verify/repair, integer two-stage audio clocking, MCSRV_STAT
+   0x8F8, rails-cease TB-proven (§2). Remaining: silicon bring-up drill
+   (engage on the AX24/mf39 CRF wire, read 0x8F8 trim vs the known
+   crystal offsets, one-shot ClkReg readback to bless auto_repair,
+   verify I2SPB_STAT rails stay zero over an hour, THD+N re-check of
+   the cascaded MCLK).
 7. **ALSA driver (USER 2026-07-22):** record/play music from/to
    over-Milan using PipeWire — a real ALSA card on the boards (PCM
    ring DMA as the ALSA buffer, period IRQs from the ring pointers,
