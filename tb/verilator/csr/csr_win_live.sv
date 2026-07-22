@@ -110,9 +110,12 @@ module csr_win_live #(
                       slope_en_w, stream_gate_w, over_limit_w, res_active_w,
                       domain_ok_w, talker_declared_w, listener_ready_w,
                       listener_reg_w, listener_decl_w}),
-    // P11 window: LCTX/TCTX at the datapath ties, live SRP/ACMP engines
-    .i_lctx_rd_data (32'h0), .i_lctx_snap_ok (1'b1),
-    .i_tctx_rd_data (32'h0), .i_tctx_snap_ok (1'b1),
+    // window: LCTX/TCTX at the no-engine ties (P12 contract: rd_valid/
+    // wr_rdy tied 1 = P11 fixed timing, words read 0), live SRP/ACMP engines
+    .i_lctx_rd_data (32'h0), .i_lctx_rd_valid (1'b1), .i_lctx_snap_ok (1'b1),
+    .i_lctx_wr_rdy (1'b1),
+    .i_tctx_rd_data (32'h0), .i_tctx_rd_valid (1'b1), .i_tctx_snap_ok (1'b1),
+    .i_tctx_wr_rdy (1'b1),
     .o_acmp_tbl_req (tbl_req_w), .o_acmp_tbl_idx (tbl_idx_w),
     .i_acmp_tbl_gnt (tbl_gnt_w), .i_acmp_tbl_ctx (tbl_ctx_flat_w),
     .o_srp_ctx_req (srp_req_w), .o_srp_ctx_we (srp_we_w),

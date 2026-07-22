@@ -22,10 +22,11 @@
 //                    explicit fast-connect stream_id honoured (nonzero
 //                    command sid wins, zero falls back to the derivation).
 //
-//                The NxN integration lane consumes KL_acmp_lstn_ctx
-//                directly (per-context config + the context-table
-//                request/grant port); this wrapper keeps milan_datapath
-//                and the CSR map untouched until then.
+//                P12 (NxN integration): the context-table request/grant
+//                port passes through this wrapper (tbl_*) so the 0x800
+//                CSR window's ACMP master reads live bind records; the
+//                per-context config surface stays the pinned two-sink
+//                shape until a full N-sink ACMP round.
 //
 //                Behavioural contract, SM states, timers, REF-BUG fixes,
 //                silicon lessons (always-armed capture, TX-grant watchdog,
@@ -87,14 +88,19 @@ module KL_acmp_listener #(
     // ---- sink 1 (CRF Media Clock Input) — the context-1 view -----------
     output wire         s1_bound_o,
     output wire [63:0]  s1_sid_o,
-    output wire [47:0]  s1_dmac_o
+    output wire [47:0]  s1_dmac_o,
+
+    // ---- context-table access (P12: the 0x800 CSR window's ACMP master) --
+    //! pass-through of KL_acmp_lstn_ctx's tbl_* port: req held until the
+    //! 1-cycle gnt; ctx (acmp_lstn_ctx_t, 317 b) valid WITH gnt. Index is
+    //! the wrapper's context index (0 = STREAM_INPUT[0], 1 = CRF sink).
+    input  wire         tbl_req_i,
+    input  wire         tbl_idx_i,
+    output wire         tbl_gnt_o,
+    output acmp_lstn_ctx_t tbl_ctx_o
 );
 
   wire [1:0]      w_declare, w_active;
-  /* verilator lint_off UNUSEDSIGNAL */
-  wire            w_tbl_gnt_nc;      //! table port idle in the wrapper
-  acmp_lstn_ctx_t w_tbl_ctx_nc;
-  /* verilator lint_on UNUSEDSIGNAL */
 
   KL_acmp_lstn_ctx #(
     .CLK_FREQ_HZ_P  (CLK_FREQ_HZ_P),
@@ -137,10 +143,10 @@ module KL_acmp_listener #(
     .probe_count_o   (probe_count_o),
     .tx_wedge_cnt_o  (tx_wedge_cnt_o),
     .dbg_o           (dbg_o),
-    .tbl_req_i       (1'b0),      //! table port idle until the NxN CSR lane
-    .tbl_idx_i       (1'b0),
-    .tbl_gnt_o       (w_tbl_gnt_nc),
-    .tbl_ctx_o       (w_tbl_ctx_nc)
+    .tbl_req_i       (tbl_req_i),  //! P12: the CSR window's ACMP tbl master
+    .tbl_idx_i       (tbl_idx_i),
+    .tbl_gnt_o       (tbl_gnt_o),
+    .tbl_ctx_o       (tbl_ctx_o)
   );
 
   assign lstn_declare_o  = w_declare[0];

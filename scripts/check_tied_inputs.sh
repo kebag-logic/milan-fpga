@@ -54,16 +54,11 @@ SIM="$R/sw/litex/milan_sim.py"
 # so the report stays clean of KNOWN-inert boundaries — remove the entry the
 # moment a real engine is supposed to drive the port (then a green TB with
 # the tie still in place becomes the RMON class again).
-# P11 (NxN CSR window, NXN_ARCHITECTURE.md §1.5): the 0x800 window's
-# LCTX/TCTX/ACMP-tbl engine boundary is tied inert until the lane-K shared
-# context engines land; snap_ok=1 completes A_STRM_SNAP immediately and
-# rd_data/tbl_*=0 makes the engine-backed window words read 0 (the CSR-side
-# FSMs are TB-proven against modeled/live engines in tb/verilator/csr).
+# (P12 note: the P11 0x800-window engine-boundary allowlist entries are
+# GONE - the LCTX/TCTX/ACMP-tbl ports moved inside milan_datapath, wired
+# to the live context engines.)
 allow_reason() {
   case "$1" in
-    i_i_lctx_rd_data|i_i_lctx_snap_ok|i_i_tctx_rd_data|i_i_tctx_snap_ok|\
-    i_i_acmp_tbl_gnt|i_i_acmp_tbl_ctx)
-      echo "P11 0x800 window: lane-K context engine pending" ;;
     *) echo "" ;;
   esac
 }

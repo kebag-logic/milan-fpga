@@ -57,7 +57,7 @@ module milan_csr #(
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
   parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
   parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
-  parameter logic [31:0] VERSION = 32'h0001_0008 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter logic [31:0] VERSION = 32'h0001_0009 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -246,34 +246,48 @@ module milan_csr #(
   output wire [7:0]              o_tcam_wr_action,    //! action/tag (TCAM_ACTION[7:0])
 
   // ---- P11 indexed per-stream CSR window (0x800, NXN_ARCHITECTURE.md §1.5) ----
-  //! LCTX context-RAM port B (lane-K listener engine boundary; NORMATIVE
-  //! contract): the CSR owns the read side outright. o_lctx_rd_en is held
-  //! with a stable o_lctx_rd_addr = {s[2:0], word[4:0]}; the engine presents
-  //! the addressed 32-bit word on i_lctx_rd_data through its registered BRAM
-  //! pipeline and the CSR samples it 3 clk edges after asserting rd_en (T2
-  //! rule: registered BRAM output, ONE explicit read port, no CSR-side mux
-  //! widening). While o_lctx_snap_req is high AND the engine answers with
-  //! i_lctx_snap_ok (level, held for the burst), the engine SHALL NOT modify
-  //! the selected stream's words — that arbitration IS the [M-5.4.2.25]
-  //! GET_COUNTERS coherence. Tie {rd_data=0, snap_ok=1} while no engine
-  //! exists (window engine words read 0; SNAP completes immediately).
+  //! LCTX context-RAM port B (KL_avtp_rx_monitor_ctx window port; NORMATIVE
+  //! contract, P12 shape): the engine arbitrates its single explicit RAM
+  //! read port (T2 rule: registered BRAM output, ONE read port, no CSR-side
+  //! mux widening) and serves a window read only in fully-idle slots. The
+  //! CSR holds o_lctx_rd_en with a stable o_lctx_rd_addr = {s[2:0],
+  //! word[4:0]} and completes on i_lctx_rd_valid — but only AFTER a 4-cycle
+  //! flush window (the P11 fixed timing constant, kept as the stale-valid
+  //! guard: a valid pulse in flight for a PREVIOUS address dies within 2
+  //! cycles of its request dropping/changing, so any valid seen after the
+  //! flush carries the CURRENT address's word). i_lctx_rd_data is REQUIRED
+  //! to hold its value from one valid pulse to the next (the engine's
+  //! registered read-data output does). Writes: o_lctx_wr_p is a REQUEST
+  //! held (with stable addr/data) until the engine accepts it with a
+  //! same-cycle i_lctx_wr_rdy; while a request is pending the AXI write
+  //! channel is held off (wr_fire gate) so a request is never clobbered.
+  //! o_lctx_snap_req/i_lctx_snap_ok stay a level handshake; the P12 engine
+  //! grants immediately (see milan_datapath: the engine serves each burst
+  //! word only when fully event-drained, so every WORD is event-atomic and
+  //! the burst is bounded by its start/end engine state).
+  //! TBs without an engine tie {rd_data=0, rd_valid=1, wr_rdy=1, snap_ok=1}
+  //! (window engine words read 0 at the P11 fixed latency).
   output wire                    o_lctx_rd_en,      //! port-B fetch (level)
   output wire [7:0]              o_lctx_rd_addr,    //! {s[2:0], word[4:0]}
-  input  wire [31:0]             i_lctx_rd_data,    //! word, 3 cycles after rd_en
+  input  wire [31:0]             i_lctx_rd_data,    //! held word (see contract)
+  input  wire                    i_lctx_rd_valid,   //! rd_data is the answer
   output wire                    o_lctx_snap_req,   //! coherent-burst request
   input  wire                    i_lctx_snap_ok,    //! engine grant (level)
-  output wire                    o_lctx_wr_p,       //! CFG-word write pulse (w0..w4)
+  output wire                    o_lctx_wr_p,       //! CFG-word write request (w0..w4; held until wr_rdy)
   output wire [7:0]              o_lctx_wr_addr,    //! {s[2:0], word[4:0]}
   output wire [31:0]             o_lctx_wr_data,
-  //! TCTX context-RAM port B (lane-K talker engine boundary, same contract)
+  input  wire                    i_lctx_wr_rdy,     //! engine accepted this cycle
+  //! TCTX context-RAM port B (KL_aaf_packetizer window port, same contract)
   output wire                    o_tctx_rd_en,
   output wire [6:0]              o_tctx_rd_addr,    //! {t[2:0], word[3:0]}
   input  wire [31:0]             i_tctx_rd_data,
+  input  wire                    i_tctx_rd_valid,
   output wire                    o_tctx_snap_req,
   input  wire                    i_tctx_snap_ok,
-  output wire                    o_tctx_wr_p,       //! CFG-word write pulse (w0..w2)
+  output wire                    o_tctx_wr_p,       //! CFG-word write request (w0..w2; held until wr_rdy)
   output wire [6:0]              o_tctx_wr_addr,
   output wire [31:0]             o_tctx_wr_data,
+  input  wire                    i_tctx_wr_rdy,
   //! ACMP context-table request/grant (KL_acmp_lstn_ctx tbl_* shape, RO):
   //! req held until the 1-cycle gnt; i_acmp_tbl_ctx (acmp_lstn_ctx_t
   //! flattened, 317 b) is valid WITH gnt and latched here. Tie {gnt=0,
@@ -445,14 +459,20 @@ module milan_csr #(
   logic         sweep_busy;              //! defaults -> shadow copy after reset
   logic [9:0]   sweep_cnt;
 
-  wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid && !sweep_busy;
+  //! wr_fire additionally holds off while a P11 engine CFG-word write
+  //! request is pending (held until i_*_wr_rdy): a second AXI write landing
+  //! mid-request would clobber the held addr/data. The engine accepts
+  //! within a bounded walk (a few tens of cycles worst case), invisible to
+  //! software except as AWREADY backpressure.
+  wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid && !sweep_busy &&
+                 !lctx_wr_p_r && !tctx_wr_p_r;
   wire rd_fire = s_axi_arvalid && !r_valid && !rd_pend && !rds_busy_r &&
                  !sweep_busy;
   wire [ADDR_WIDTH-1:0] wr_addr = s_axi_awaddr;             //! Decoded write address
   wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;             //! Decoded read address
 
   //! P11 window words backed by the LCTX/TCTX context-RAM port B are "slow"
-  //! reads: the AXI read stretches 4 cycles through the strm_slow_rd_S fetch
+  //! reads: the AXI read stretches >= 4 cycles through the strm_slow_rd_S fetch
   //! (T2 rule: the window is served from the RAM's second port, never a
   //! widened CSR mux). During a SNAP burst they fall back to the fast path
   //! and read 0 (poll A_STRM_SNAP.busy first — documented ABI).
@@ -464,7 +484,12 @@ module milan_csr #(
         : ((strm_idx_r != 4'd0) &&
            (rd_addr == A_STRMW_CTRL || rd_addr == A_STRMW_DMAC_LO ||
             rd_addr == A_STRMW_DMAC_HI)));
-  wire rds_done_w = rds_busy_r && (rds_cyc_r == 2'd0);
+  //! P12: an engine-backed fetch completes on the engine's rd_valid, but
+  //! only after the 4-cycle flush window (stale-valid guard — see the port
+  //! contract above). With rd_valid tied 1 (no-engine TBs) this is the P11
+  //! fixed 4-cycle timing exactly.
+  wire rds_valid_w = rds_dir_r ? i_tctx_rd_valid : i_lctx_rd_valid;
+  wire rds_done_w  = rds_busy_r && (rds_cyc_r == 2'd0) && rds_valid_w;
 
   assign s_axi_awready = wr_fire;
   assign s_axi_wready  = wr_fire;
@@ -740,7 +765,11 @@ module milan_csr #(
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
       tcam_wr_p <= 1'b0;
-      lctx_wr_p_r <= 1'b0; tctx_wr_p_r <= 1'b0;
+      //! P12: engine CFG-word write requests hold until the engine's
+      //! same-cycle accept (the engines arbitrate their single RAM write
+      //! port; a one-cycle pulse could be lost to an engine-write slot)
+      if (i_lctx_wr_rdy) lctx_wr_p_r <= 1'b0;
+      if (i_tctx_wr_rdy) tctx_wr_p_r <= 1'b0;
 
       // gettime result: latch the PHC snapshot when it returns (crosses CDC
       // asynchronously to the snapshot command, REQ-PTP-03/CSR-03).
@@ -1444,7 +1473,12 @@ module milan_csr #(
           snap_st_r   <= SN_FETCH_C;
         end
         SN_FETCH_C: begin
+          //! per-word: 4-cycle flush window, then complete on the engine's
+          //! rd_valid (P12 valid-driven contract; tied-1 = P11 timing)
           if (snap_cyc_r != 2'd0) snap_cyc_r <= snap_cyc_r - 2'd1;
+          else if (!(snap_dir_r ? i_tctx_rd_valid : i_lctx_rd_valid)) begin
+            //! engine busy: hold rd_en/addr, wait for its idle slot
+          end
           else if (snap_dir_r) begin
             //! talker burst = ONE word: TCTX w5 FRAMES -> PDUS, then compose
             snap_shadow_r[11] <= i_tctx_rd_data;
@@ -1482,7 +1516,8 @@ module milan_csr #(
     end
   end : strm_snap_S
 
-  //! slow window read: 4-cycle port-B fetch of an engine-backed word
+  //! slow window read: port-B fetch of an engine-backed word (>= 4 cycles:
+  //! flush window + the engine's idle-slot grant, P12 valid-driven)
   always_ff @(posedge aclk) begin : strm_slow_rd_S
     if (!aresetn) begin
       rds_busy_r <= 1'b0; rds_dir_r <= 1'b0; rds_cyc_r <= 2'd0;
@@ -1500,8 +1535,8 @@ module milan_csr #(
                (rd_addr == A_STRMW_DMAC_LO) ? 5'd1 : 5'd2);
       end
     end else begin
-      if (rds_cyc_r != 2'd0) rds_cyc_r <= rds_cyc_r - 2'd1;
-      else                   rds_busy_r <= 1'b0;
+      if (rds_cyc_r != 2'd0)   rds_cyc_r <= rds_cyc_r - 2'd1;
+      else if (rds_valid_w)    rds_busy_r <= 1'b0;   //! engine answered
     end
   end : strm_slow_rd_S
 
