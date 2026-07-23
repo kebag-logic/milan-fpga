@@ -1,0 +1,52 @@
+--- a/liteeth/phy/gmii.py
++++ b/liteeth/phy/gmii.py
+@@ -52,7 +52,8 @@
+ # LiteEth PHY GMII RX ------------------------------------------------------------------------------
+ 
+ class LiteEthPHYGMIICRG(LiteXModule):
+-    def __init__(self, clock_pads, pads, with_hw_init_reset, mii_mode=0, model=False, tx_clk_invert=False):
++    def __init__(self, clock_pads, pads, with_hw_init_reset, mii_mode=0, model=False, tx_clk_invert=False,
++                 ext_reset=None):
+         self._reset = CSRStorage(description="PHY reset.")
+ 
+         # # #
+@@ -98,9 +99,22 @@
+                 self.comb += reset.eq(self._reset.storage)
+             if hasattr(pads, "rst_n"):
+                 self.comb += pads.rst_n.eq(~reset)
++            # ext_reset (e.g. KL_link_guard eth_rst): an external hardware request OR-ed
++            # into the eth-domain reset so cd_eth_tx/cd_eth_rx - the PHY TX register stage
++            # (LiteEthPHYGMIITX) and the gtx clock-forward (DDROutput) - re-init exactly
++            # like phy_crg_reset: async-asserted (fires even while the eth clock is
++            # stopped, e.g. GMII RXC dropped on a link bounce) / sync-released per eth
++            # clock. It is deliberately NOT fed to pads.rst_n: the physical PHY chip must
++            # NOT be reset (that restarts autoneg and would break the sub-50 ms link-guard
++            # recovery). ext_reset=None -> eth_reset is `reset` verbatim, so the generated
++            # netlist is byte-identical to before.
++            eth_reset = reset
++            if ext_reset is not None:
++                eth_reset = Signal()
++                self.comb += eth_reset.eq(reset | ext_reset)
+             self.specials += [
+-                AsyncResetSynchronizer(self.cd_eth_tx, reset),
+-                AsyncResetSynchronizer(self.cd_eth_rx, reset),
++                AsyncResetSynchronizer(self.cd_eth_tx, eth_reset),
++                AsyncResetSynchronizer(self.cd_eth_rx, eth_reset),
+             ]
+         else:
+             self.comb += [
+@@ -114,10 +128,11 @@
+     dw          = 8
+     tx_clk_freq = 125e6
+     rx_clk_freq = 125e6
+-    def __init__(self, clock_pads, pads, with_hw_init_reset=True, model=False, tx_clk_invert=False):
++    def __init__(self, clock_pads, pads, with_hw_init_reset=True, model=False, tx_clk_invert=False,
++                 ext_reset=None):
+         self.model = model
+         self.crg   = LiteEthPHYGMIICRG(clock_pads, pads, with_hw_init_reset, model=model,
+-                                       tx_clk_invert=tx_clk_invert)
++                                       tx_clk_invert=tx_clk_invert, ext_reset=ext_reset)
+         self.tx    = ClockDomainsRenamer("eth_tx")(LiteEthPHYGMIITX(pads))
+         self.rx    = ClockDomainsRenamer("eth_rx")(LiteEthPHYGMIIRX(pads))
+         self.sink, self.source = self.tx.sink, self.rx.source
+
