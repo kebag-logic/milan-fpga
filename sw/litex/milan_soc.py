@@ -55,6 +55,17 @@ import alinx_ax7101
 MILAN_CSR_BASE = 0x9000_0000
 MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
 
+# On-chip BRAM PCM ring MMIO window (--pcm-ring bram). Uncached IO region just
+# above the CSR window; the CPU mmaps this to read received PCM straight out of
+# the dual-port BRAM (no DRAM ring, no DMA writer => the datapath's sink.ready is
+# constant 1, so mf52 SHED + I6 are structurally impossible). The pcm CSR block
+# (base/length/stride/enable/sel/offset) is UNCHANGED - the driver ABI is
+# identical; only `base` now reads this window instead of a DRAM address. 32 KB
+# = 64b x 4096 = 8 RAMB36 (mf53e has 36 free); the CSR `length` may program a
+# smaller live sub-ring. DT: the pcm-ring reg node's base becomes 0x9010_0000.
+MILAN_PCM_BRAM_BASE = 0x9010_0000
+MILAN_PCM_BRAM_SIZE = 0x0000_8000  # 32 KB, power of two
+
 # ---- QSPI flash boot ("gain time"  -  skip the ~4-min serial image upload) -------------------------
 # The AX7101 flash is a Micron N25Q128 = 16 MB (confirmed from the Alinx repo datasheet).
 # The Linux boot images total ~23 MB (14 MB kernel Image + 8.7 MB rootfs.cpio.gz + 0.26 MB
@@ -338,6 +349,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021q/srp/KL_lwsrp_top.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/ieee1722/aaf/aaf_talker_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+    "hdl/ieee1722/aaf/KL_pcm_ring_bram.sv",   # --pcm-ring bram: shed-proof on-chip PCM ring
     "hdl/ieee1722/aaf/KL_i2s_playback.sv", "hdl/ieee1722/aaf/KL_tone_gen.sv",
     "hdl/ieee1722/aaf/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
     "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",
@@ -523,6 +535,13 @@ class MilanMAC(LiteXModule):
 
         clk_pads = platform.request("eth_clocks", phy_index)
         pads     = platform.request("eth",        phy_index)
+        # Sequenced eth-side reset request from the datapath's KL_link_guard (o_eth_rst),
+        # created UP-FRONT (before the PHY is built) so it can be threaded into BOTH the
+        # PHY CRG (ext_reset -> re-inits the PHY TX register stage + gtx forward in
+        # cd_eth_tx/cd_eth_rx) and, further down, the MAC core's ETH-side CDC halves.
+        # The guard drops it mid-settle, strictly BEFORE reinit, so release order stays
+        # eth-first-then-sys (AX42: 2026-07-23).
+        self.eth_rst = Signal()  # driven from the datapath's link guard (o_eth_rst)
         # phy_model="mii": Arty A7 DP83848 (10/100, MII 4-bit). The MAC core
         # handles the PHY-width conversion, so everything downstream of
         # self.phy (store-and-forward FIFO, last_be conversion, CDC, loopback)
@@ -537,7 +556,15 @@ class MilanMAC(LiteXModule):
             # MAC preamble errors (evidence/hw_ma3_*). LiteEthPHYGMII is the right PHY.
             # (`**_rgmii` absorbs the now-unused --rgmii-*-delay knobs for API compat.)
             self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
-                                       tx_clk_invert=gtx_tx_invert)
+                                       tx_clk_invert=gtx_tx_invert,
+                                       # AX42: thread the guard's eth_rst into the PHY CRG so a
+                                       # link bounce that stops RXC (and with it the eth_tx domain,
+                                       # which GMII forwards off RXC) re-inits the PHY TX register
+                                       # stage + gtx clock-forward on recovery - not just the MAC
+                                       # CDC halves. Same signal, so the eth-first-then-sys release
+                                       # ordering is preserved. (MII/Arty PHY: TX_CLK is separate,
+                                       # so the eth_tx domain does not die on an RXC drop - N/A.)
+                                       ext_reset=self.eth_rst)
             # GMII TX output timing is otherwise UNCONSTRAINED, so the placer may put the
             # tx_data/tx_en launch FFs anywhere: measured on silicon, FFs at SLICE_X1 (next to
             # the IO column, data-vs-gtx skew ~1-2 ns) TX 10/10 frames; FFs at SLICE_X14
@@ -597,7 +624,9 @@ class MilanMAC(LiteXModule):
         # matched pointers with zero software involvement (previously only the
         # daemon's phy_crg_reset strobe covered the eth side).
         from migen.genlib.resetsync import AsyncResetSynchronizer
-        self.eth_rst = Signal()  # driven from the datapath's link guard (o_eth_rst)
+        # self.eth_rst is created up-front (near the eth pads request) so it can also be
+        # threaded into the PHY CRG (ext_reset); here it additionally re-inits the MAC
+        # core's ETH-side CDC halves.
         self.cd_maceth_tx = ClockDomain()
         self.cd_maceth_rx = ClockDomain()
         self.comb += [
@@ -3187,6 +3216,65 @@ class _PCMRingNxN(LiteXModule):
         ]
 
 
+class _PCMRingBRAM(LiteXModule):
+    """On-chip dual-port BRAM PCM ring (KL_pcm_ring_bram.sv) - the shed-proof
+    drop-in for the WishboneDMAWriter / _PCMRingNxN DRAM ring.
+
+    Same sink + SAME CSR block as _PCMRingNxN (base[64], length[32], stride[32],
+    enable, sel[4], offset[32]) so the kl-eth/PipeWire ABI is byte-for-byte
+    unchanged; N=1 is byte-identical to the flat ring. The write side rides the
+    pcm CDC lane and its ready is CONSTANT 1 (single-cycle BRAM write), so the
+    non-stallable datapath can never be told to wait - mf52 SHED + I6 cannot
+    exist. The CPU reads PCM words through a read-only wishbone slave into the
+    2nd BRAM port, mapped by MilanDMA into an uncached SoCRegion at
+    MILAN_PCM_BRAM_BASE (a CPU *write* to the window is unacked by design)."""
+    def __init__(self, n_streams=1, ring_bytes=MILAN_PCM_BRAM_SIZE, data_width=64):
+        from litex.soc.interconnect import stream as _stream
+        from litex.soc.interconnect import wishbone
+        import math
+        adr_w = 32 - int(math.log2(data_width // 8))
+        self.sink    = _stream.Endpoint([("data", data_width), ("user", 4)])
+        self._base   = CSRStorage(64, description="PCM ring base = BRAM MMIO window "
+                                  "(driver-programmed; gateware ignores it for intra-BRAM addressing).")
+        self._length = CSRStorage(32, description="per-stream sub-ring length (bytes).")
+        self._stride = CSRStorage(32, description="byte distance between stream sub-ring bases.")
+        self._enable = CSRStorage(description="ring enable (0 drops beats + clears offsets).")
+        self._sel    = CSRStorage(4,  description="stream index for the offset readback.")
+        self._offset = CSRStatus(32,  description="selected stream's write pointer (bytes).")
+        # CPU read port: read-only wishbone slave into BRAM port B.
+        self.bus = wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
+
+        # # #
+
+        # `base` is a plain RW CSR the driver programs (byte-identical to the
+        # _PCMRingNxN ABI); the gateware does NOT drive it. An earlier revision
+        # combinationally forced `_base.storage`, DOUBLE-DRIVING the register that
+        # the CSR bus already writes (a migen driver conflict). The SoC decoder
+        # places the whole BRAM array at MILAN_PCM_BRAM_BASE and the driver mmaps
+        # that window (from the DT reg node); the SV ignores base for addressing.
+        self.specials += Instance("KL_pcm_ring_bram",
+            p_DATA_W     = data_width,
+            p_N_STREAMS  = n_streams,
+            p_RING_BYTES = ring_bytes,
+            i_clk_i      = ClockSignal("sys"),
+            i_rst_n      = ~ResetSignal("sys"),
+            i_wr_data_i  = self.sink.data,
+            i_wr_user_i  = self.sink.user,
+            i_wr_valid_i = self.sink.valid,
+            o_wr_ready_o = self.sink.ready,
+            i_length_i   = self._length.storage,
+            i_stride_i   = self._stride.storage,
+            i_enable_i   = self._enable.storage,
+            i_sel_i      = self._sel.storage,
+            o_offset_o   = self._offset.status,
+            i_wb_adr_i   = self.bus.adr,
+            i_wb_cyc_i   = self.bus.cyc,
+            i_wb_stb_i   = self.bus.stb,
+            o_wb_dat_o   = self.bus.dat_r,
+            o_wb_ack_o   = self.bus.ack,
+        )
+
+
 class MilanDMA(LiteXModule):
     """AXIS ↔ system-memory DMA (§A.6), attaching the milan_datapath TX/RX/TS DMA
     AXIS ports to the CPU's memory via three LiteX simple-mode DMA engines:
@@ -3207,7 +3295,7 @@ class MilanDMA(LiteXModule):
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
-                 legacy_ring=True, rx_fifo_beats=2048, num_streams=1):
+                 legacy_ring=True, rx_fifo_beats=2048, num_streams=1, pcm_ring="dram"):
         # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
         # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
         # mode burst absorbency lives in the 60x16K posted-page pool, so 1024 is
@@ -3307,7 +3395,18 @@ class MilanDMA(LiteXModule):
         # axiom); num_streams > 1 swaps in the per-stream ring writer keyed by
         # the datapath's m_axis_pcm_tuser: stream s lands at base + s*stride
         # (stream 0 at the base; stride only engages for s > 0).
-        if num_streams > 1:
+        if pcm_ring == "bram":
+            # On-chip BRAM ring: NO DMA master (not a DMA) and NO DRAM arbitration
+            # => sink.ready is constant 1, so mf52 SHED + I6 cannot occur. The read
+            # port is an uncached SoCRegion at MILAN_PCM_BRAM_BASE; the pcm CSR block
+            # is identical to the DRAM path so the kl-eth/PipeWire ABI is unchanged
+            # (N=1 stays byte-identical to the flat ring).
+            self.pcm = _PCMRingBRAM(n_streams=num_streams, ring_bytes=MILAN_PCM_BRAM_SIZE,
+                                    data_width=data_width)
+            soc.bus.add_slave("milan_pcm_bram", self.pcm.bus,
+                              region=SoCRegion(origin=MILAN_PCM_BRAM_BASE,
+                                               size=MILAN_PCM_BRAM_SIZE, cached=False))
+        elif num_streams > 1:
             self.pcm = _PCMRingNxN(mk_bus(), n_streams=num_streams)
             dma_bus.add_master("milan_dma_pcm", master=self.pcm.writer.bus)
         else:
@@ -3735,7 +3834,7 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
-                 num_streams=1, audio_if_slots=0, **kwargs):
+                 num_streams=1, audio_if_slots=0, pcm_ring="dram", **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3898,7 +3997,8 @@ class MilanSoC(SoCCore):
                                           hs_page_bytes=hs_page_bytes,
                                           legacy_ring=legacy_ring,
                                           rx_fifo_beats=rx_fifo_beats,
-                                          num_streams=int(num_streams))
+                                          num_streams=int(num_streams),
+                                          pcm_ring=pcm_ring)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
@@ -4080,6 +4180,13 @@ def main():
                          "contexts per shared engine (milan_datapath N_STREAMS). The "
                          "builder emits this from the config's streams section; default "
                          "1 = today's bit-compatible single-stream shape.")
+    ap.add_argument("--pcm-ring", default="dram", choices=("dram", "bram"),
+                    help="Milan listener PCM ring backend. 'dram' (default) = the LiteDRAM "
+                         "WishboneDMAWriter ring (unchanged). 'bram' = the on-chip dual-port "
+                         "BRAM ring (KL_pcm_ring_bram): single-cycle writes, sink.ready "
+                         "constant 1, so no beat can ever be shed (kills mf52 SHED + I6 at "
+                         "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
+                         "is unchanged. ~8 RAMB36.")
     ap.add_argument("--audio-interface", default="i2s_philips",
                     choices=("i2s_philips", "tdm8", "tdm16", "tdm32"),
                     help="item-4 audio-interface family: capture front-end generate "
@@ -4194,6 +4301,7 @@ def main():
                    main_ram_size=args.main_ram_size,
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
+                   pcm_ring=args.pcm_ring,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
