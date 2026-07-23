@@ -43,6 +43,28 @@ header MAC artifacts) — use `-w` + offset-28 python, or the srp_qna.py dissect
   nxn-sid-0 legs, aecp clk_src_o pin, servo U10. Gates: dp 172/0, nxn 63/0,
   aecp 490/0, servo 52/0, csr 41/0, yosys 39/39.
 
+## The USER-ordered 12-item roadmap — status
+(the canonical list; the "open items" below are the delta of what's left)
+
+|  # | Item                                             | Status |
+|----|--------------------------------------------------|--------|
+|  1 | AX timing/residuals (dp-CDCs, MDIO, e2 migration)| ✅ DONE (silicon) |
+|  2 | RTL fixes for the workaround items (GMII CDC reinit, shadow invalidate, I2SPB W1C) | ✅ DONE — **except the e2 TX wedge → re-scoped as AX42, gaps item 0** |
+|  3 | Spec-aligned module tree + tsn_gen traceability matrix | ✅ DONE (204 rows, 162✅/18🟡/7❌) |
+|  4 | Software-defined End-Station builder (clusters, EUI-64, estimator, TDM/I2S/AES3/SPDIF) | ✅ DONE |
+|  5 | N×N AAF streams (AX 8×8 / Arty 4×4), shared engines + ctx RAM | 🟡 4×4 silicon-proven; **8×8 pending AX42** (area levers queued) |
+|  6 | MMCM-DRP media-clock servo | ✅ DONE — **silicon-proven this session** (LOCKED, rails zero, HOLDOVER, −83.9 dB at the converter floor); polish left: bless auto_repair + rails soak |
+|  7 | ALSA driver record/play over-Milan via PipeWire | 🟡 record functional (arecord rw+mmap, .copy op); **left: PHC LINK-ts leg, on-board PipeWire, playback (KL_pcm_tx gateware)** |
+|  8 | Dynamic audio maps (ADD/REMOVE + es-4.16) | ✅ DONE |
+|  9 | Milan saved-state fast-connect | ✅ DONE — M-ACMP-9 exit proven; **left: acmp-persist save-wedge fix + the CRF-flags journal drill leg** |
+| 10 | Spec-matrix peer-validation (human 1:1 + behaves per row) | ⏳ PENDING — **human-gated (USER)** |
+| 11 | AAF end-to-end per-stage latency taps (CSR + DDR3 history) | ⏳ NOT STARTED (deliberately near-last) |
+| 12 | es-1.1/1.2 BMCA variants | ⏳ NOT STARTED (very end, switch-gated) |
+
+Cross-cutting adds this session (not in the original 12): **AX42** bug-fix
+round (gaps item 0) and the **PCM-ring-in-BRAM** proposal (gaps §2), both in
+the prioritized open items below.
+
 ## Open items (prioritized)
 1. **AX42 — ROADMAP BUG FIX (USER, gaps item 0):** the e2 MAC-TX wedge fixed
    IN THE LOGIC. Link bounce wedges e2 TX permanently (internal counters
