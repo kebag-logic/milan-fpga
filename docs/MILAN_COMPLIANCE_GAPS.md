@@ -421,6 +421,29 @@ and is not repeated here.
 
 ## Suggested order of attack (reordered 2026-07-22 per USER)
 
+0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
+   fixed IN THE LOGIC — the AX42 round.** Silicon truth: a link bounce
+   wedges the e2 TX path permanently (internal TX counters tick, the
+   WIRE stays empty — the RMON live-counter test is blind to it, only
+   the tap tells the truth); KL_link_guard DETECTS every outage and
+   fires its auto-reinit, but the wedge lives OUTSIDE the reinit's
+   reset scope (macsys + maceth CDC domains are reset; the PHY-side
+   TX/gtx clock path — GMII gtx ODDR / eth_tx-domain proper — is not).
+   CERT link-flap features re-trigger it every run; JTAG reconfig is
+   the only recovery. AX42 scope:
+   a. root-cause the wedge flop/FIFO on the e2 TX clock path and put
+      it INSIDE a guard-sequenced reset (the clock-outage sequencing
+      class: quiesce -> reset the eth_tx-side path incl. the gtx
+      output primitive -> settle -> release), TB-first with a
+      clock-stop model;
+   b. carry the PCM ring CDC depth-128 fix (80ee795, sim-proven by
+      sw/litex/test_pcm_ring.py) — the AX ring writer still sheds
+      1-in-24 under CPU ring reads until then (low impact today: no
+      ALSA/DAC use on the AX);
+   c. then the AX 8x8 stream round with its area levers (L2 32K is
+      already in; crf_rx ts-ring->BRAM; pruning) on top of the fixed
+      base.
+
 1. ~~AX timing closure with the link guard~~ **DONE 2026-07-22**
    (buffered dp-CDCs; AX34 3/3 keep + silicon drills green — §5b).
    Residual: AX36 = the e1 MDIO pin correction (L16) sweep → flash →
