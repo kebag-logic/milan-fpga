@@ -92,8 +92,12 @@ module KL_aaf_packetizer #(
 
   //! --- pair stream from the capture front-end (one crossing, all slots) -
   input  wire         pair_valid_i,      //! one-cycle pulse per L/R pair
-  input  wire [3:0]   pair_slot_i,       //! pair slot (talker t owns chans/2
-                                         //! consecutive slots - see header)
+  input  wire [4:0]   pair_slot_i,       //! pair slot 0..31 (talker t owns
+                                         //! chans/2 consecutive slots; 32-slot
+                                         //! space = 8 talkers x 4 pairs max -
+                                         //! see header. Physical capture drives
+                                         //! only 0..15; the chan-map mux uses
+                                         //! the full width)
   input  wire [23:0]  pair_l_i,
   input  wire [23:0]  pair_r_i,
 
