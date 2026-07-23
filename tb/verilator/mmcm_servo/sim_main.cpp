@@ -16,6 +16,9 @@
 //   U7  auto_repair OFF    -> mismatch flagged, 0 writes, still locks
 //   U8  auto_repair ON     -> XAPP888 sequence: PS quiesced, RST held around
 //       power+RMW writes, reserved bits preserved, relock waited
+//   U9  ps_invert knob     -> locks vs inverted-polarity MMCM; control never locks
+//   U10 local ptp step     -> stepped/slewed ptp_now windows DISCARDED (trim
+//       held, stays LOCKED); sustained slew resyncs the window baseline
 //
 // Sim-compressed servo params (-G): 125 us tick, 4 ms window; the ns/512ms
 // CSR unit scale is preserved by NORM_SHIFT so crf_rate_i uses REAL units.
@@ -43,6 +46,7 @@ static void ckr(const char* w, double got, double lo, double hi) {
 
 // ---- clocks (femtosecond wheel) ------------------------------------------
 static double t_fs = 0;
+static double ptp_step_ns = 0;                // U10: injected local-PHC step
 static double next_i = 10000e3, next_p = 2500e3, next_a = 12345e3;
 static const double HALF_I = 10000e3;         // clk_i 50 MHz
 static const double HALF_P = 2500e3;          // ps_clk 200 MHz
@@ -58,7 +62,7 @@ static void tick_one() {
     if (next_i <= next_p && next_i <= next_a) {
         t_fs = next_i; next_i += HALF_I;
         dut->clk_i ^= 1;
-        if (dut->clk_i) dut->ptp_now_i = (uint64_t)(t_fs / 1e6);
+        if (dut->clk_i) dut->ptp_now_i = (uint64_t)(t_fs / 1e6 + ptp_step_ns);
         dut->eval();
         if (dut->clk_i) {   // registered model side of the DRP/reset
             mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
@@ -263,6 +267,67 @@ int main(int argc, char** argv) {
         while (state() != 4 && guard < 300) { run_ms(1); guard++; }
         ck("[U9] control: wrong polarity never locks", state() == 4 ? 1 : 0, 0);
         mm.invert = false; dut->ps_invert_i = 0;
+    }
+
+    // ---------------------------------------------------------------- //
+    // U10: local-clock (ptp_now) step robustness - 2026-07-23 silicon:
+    //      a GM reboot made the local ptp4l step/slew the PHC hard; ONE
+    //      window measured against the stepped span wound the PI integ
+    //      straight to the -200 ppm output clamp (trim 0xF380 = -3200)
+    //      and it STAYED railed (state ACQUIRE) until an IDLE bounce +
+    //      fresh ptp4l. crf_rate_i stayed healthy (+6.7 ppm) the whole
+    //      time - so step ONLY the TB ptp timeline, leave crf_rate_i on
+    //      the old (still-true) talker rate.
+    //      Guard = discard any window with |ew| > 1<<19 (1024 ppm) like
+    //      a win_skip window; 4 consecutive discards resync win_start.
+    //      PRE-GUARD RTL (recorded before the fix, base b4b450f): the
+    //      +50 ms step alone kicked trim 1519 -> 2059 (|d|=540 vs <=48
+    //      allowed) and dropped state to 3 (ACQUIRE); the slew storm
+    //      railed trim 1539 -> 3200 = the 200 ppm output clamp (the
+    //      silicon signature, sign per step direction) in state 3.
+    //      3 checks failed; all green with the guard.
+    // ---------------------------------------------------------------- //
+    printf("[U10] local ptp step: bad window discarded, no rail-out\n");
+    {
+        dut->clk_src_i = 0; run_ms(3);
+        ck("[U10] back to IDLE", state(), 0);
+        dut->crf_rate_i = rate_for_ppm(+80.0);
+        dut->clk_src_i = 2;
+        long guard = 0;
+        while (state() != 4 && guard < 300) { run_ms(1); guard++; }
+        ck("[U10] locked before the step", state(), 4);
+        run_ms(20);                          // settle well inside LOCKED
+        int16_t t0 = trim();
+        ptp_step_ns += 50e6;                 // ptp4l STEP: +50 ms, once
+        run_ms(12);                          // 3 windows on the new timeline
+        printf("  info: trim pre-step=%d post-3-win=%d state=%d\n",
+               t0, trim(), state());
+        ck("[U10] trim held across the step (3 win, |d|<=48)",
+           labs((long)trim() - (long)t0) <= 48, 1);
+        run_ms(28);                          // 10 windows total since step
+        ck("[U10] still LOCKED 10 windows after the step", state(), 4);
+        // sustained slew storm: every window implausible for 6 windows
+        // (>= 4 consecutive discards = the baseline-resync path; the
+        // servo must ride it out - silicon railed to trim -3200 in
+        // state ACQUIRE here and never came back)
+        int16_t t1 = trim();
+        for (int i = 0; i < 6; i++) { ptp_step_ns += 8e6; run_ms(4); }
+        printf("  info: trim pre-storm=%d in-storm=%d state=%d\n",
+               t1, trim(), state());
+        ck("[U10] still LOCKED through the slew storm", state(), 4);
+        ck("[U10] trim held through the storm (|d|<=48)",
+           labs((long)trim() - (long)t1) <= 48, 1);
+        run_ms(40);                          // slew over, normal windows
+        printf("  info: trim post-recovery=%d state=%d\n", trim(), state());
+        ck("[U10] LOCKED after the storm ends", state(), 4);
+        // post-recovery tolerance = the compressed-TB steady-state wobble
+        // (+-2-clk tick sampling jitter x128 NORM_SHIFT ~ 10 ppm = 160
+        // readout units - same scale LOCK_THR is widened for); the rail
+        // signature this leg hunts is |d| ~ 1700 (the 200 ppm clamp)
+        ck("[U10] trim near pre-storm after recovery (|d|<=160)",
+           labs((long)trim() - (long)t1) <= 160, 1);
+        double eff = eff_ppm_meas(20.0);
+        ckr("[U10] effective clock still ~ talker (+80)", eff, 77.0, 83.0);
     }
 
     printf("======================================================================\n");
