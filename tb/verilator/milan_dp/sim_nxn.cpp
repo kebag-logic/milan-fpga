@@ -240,6 +240,20 @@ int main(int argc, char** argv) {
     axi_write(A_SW_CTRL, 0x1);                       // en, route=NULL
     ck("stream 2 CTRL readback (port B)", axi_read(A_SW_CTRL), 0x1);
 
+    printf("-- idx-0 alias protection: route-only CTRL commit (2026-07-23) --\n");
+    {
+        // a CTRL commit at idx 0 with NO staged sid must not arm the
+        // stream-table override: before the fix it wrote {sid=0, en=1},
+        // hijacking the live ACMP alias AND matching sid-0 frames
+        axi_write(A_STRM_SEL, 0x000);                // dir=0 idx=0
+        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);    // en + DMA, sid NOT staged
+        size_t before = pcm_frames.size();
+        const uint8_t sid0[8] = {0,0,0,0,0,0,0,0};
+        inject(mkaaf(sid0, 5, 2, 0x10), 120);        // sid 0 must NOT match
+        ck("route-only idx0 commit: sid-0 frame ignored",
+           pcm_frames.size(), before);
+    }
+
     printf("-- tagged AAF frames: 3x stream1, 2x stream2, 1x unknown --\n");
     inject(mkaaf(sidB, 10, 2, 0x30), 120);
     inject(mkaaf(sidB, 11, 2, 0x40), 120);

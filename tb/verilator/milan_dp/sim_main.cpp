@@ -1139,6 +1139,77 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // [SERVO] media-clock servo INTEGRATION (2026-07-23 bench escape):  //
+    // AECP SET_CLOCK_SOURCE(2) through the REAL RX path + CRF lock must //
+    // take KL_mmcm_drp_servo out of IDLE (0x8F8). The aecp TB pins      //
+    // clk_src_o and the mmcm_servo TB pins the FSM - this pins the      //
+    // datapath wiring BETWEEN them, which no TB covered.                //
+    // ---------------------------------------------------------------- //
+    printf("\n[SERVO] clock_source=2 -> servo leaves IDLE (0x8F8)\n");
+    {
+        enum { A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
+               A_MCSRV_STAT = 0x8F8 };
+        dut->i_mmcm_locked = 1;
+        for (int c = 0; c < 8; c++) step();
+        ck("SERVO idle before (state 0, trim 0, locked bit follows later)",
+           axi_read(A_MCSRV_STAT) & 0x7, 0);
+
+        // re-lock the CRF sink (sid {..:02, uid 1} per the [CRF] section)
+        axi_write(A_CRF_SIDLO, 0x00020001);
+        axi_write(A_CRF_SIDHI, 0x02000000);
+        axi_write(A_CRF_CTRL,  0x1);
+        uint64_t ts = 5000000000ULL; uint8_t sq = 0;
+        uint8_t f[64];
+        for (int k = 0; k < 9; k++) {
+            memset(f, 0, sizeof f);
+            const uint8_t dmac[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x03};
+            memcpy(f, dmac, 6);
+            const uint8_t src[6] = {0x02,0x00,0x00,0x00,0x00,0x02};
+            memcpy(f+6, src, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0x04; f[15]=0x80; f[16]=sq++;
+            f[17]=0x01;
+            const uint8_t sid[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x01};
+            memcpy(f+18, sid, 8);
+            f[28]=0xBB; f[29]=0x80; f[31]=0x08; f[32]=0; f[33]=96;
+            for (int i = 0; i < 8; i++) f[34+i] = (uint8_t)(ts >> (8*(7-i)));
+            inject(f, 64);
+            ts += 2000000ULL;
+        }
+        ck("SERVO precondition: CRF locked", axi_read(A_CRF_CTRL) >> 31, 1);
+
+        // AECP SET_CLOCK_SOURCE(CLOCK_DOMAIN[0], index 2) on the wire
+        uint8_t a[64]; memset(a, 0, sizeof a);
+        const uint8_t emac[6] = {0x02,0x00,0x00,0x00,0x00,0x01};
+        const uint8_t cmac[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+        memcpy(a, emac, 6); memcpy(a+6, cmac, 6);
+        a[12]=0x22; a[13]=0xF0; a[14]=0xFB; a[15]=0x00;      // AECP AEM_COMMAND
+        a[16]=0x00; a[17]=20;                                 // status0 | cdl 20
+        const uint8_t teid[8]={0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+        memcpy(a+18, teid, 8);
+        const uint8_t ceid[8]={0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
+        memcpy(a+26, ceid, 8);
+        a[34]=0x30; a[35]=0x01;                               // seq
+        a[36]=0x00; a[37]=22;                                 // SET_CLOCK_SOURCE
+        a[38]=0x00; a[39]=0x24; a[40]=0; a[41]=0;             // CLOCK_DOMAIN[0]
+        a[42]=0x00; a[43]=0x02; a[44]=0; a[45]=0;             // index 2
+        inject(a, 64);
+        for (int c = 0; c < 40; c++) step();
+
+        uint32_t sv = axi_read(A_MCSRV_STAT);
+        ck("SERVO left IDLE after SET_CLOCK_SOURCE(2)", (sv & 0x7) != 0, 1);
+        ck("SERVO sees MMCM locked (bit5)", (sv >> 5) & 1, 1);
+
+        // back to internal: SET_CLOCK_SOURCE(0) -> servo returns to IDLE
+        a[34]=0x30; a[35]=0x02; a[43]=0x00;
+        inject(a, 64);
+        for (int c = 0; c < 40; c++) step();
+        ck("SERVO back to IDLE at clock_source 0",
+           axi_read(A_MCSRV_STAT) & 0x7, 0);
+        axi_write(A_CRF_CTRL, 0x0);
+        dut->i_mmcm_locked = 0;
+    }
+
+    // ---------------------------------------------------------------- //
     // CRF Media Clock Output engine (Milan 7.3.1): KL_crf_tx emits on   //
     // the audio-MMCM 96-sample grid; wire frames byte-checked, then     //
     // looped back into KL_crf_rx for the tx->rx closure.                //

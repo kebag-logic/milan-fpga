@@ -1059,6 +1059,28 @@ int main(int argc, char** argv) {
         put_be64(ul, 0);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1904, ul));
         ck("[19] UNLOCK", r_status(collect_resp()), 0);
+
+        // -- [19b] the FABRIC view: clk_src_o must follow an accepted
+        //    SET_CLOCK_SOURCE (the 2026-07-23 bench found GET reading 2
+        //    from the WB store while the servo/monitor consumers idled -
+        //    this pins the live output, not just the response bytes)
+        std::vector<uint8_t> cs; put_be16(cs, 0x0024); put_be16(cs, 0);
+        put_be16(cs, 2); put_be16(cs, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1905, cs));
+        ck("[19b] SET_CLOCK_SOURCE(2) SUCCESS", r_status(collect_resp()), 0);
+        ck("[19b] clk_src_o follows = 2", dut->clk_src_o, 2);
+        std::vector<uint8_t> gc; put_be16(gc, 0x0024); put_be16(gc, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1906, gc));
+        {
+            auto r = collect_resp();
+            ck("[19b] GET_CLOCK_SOURCE SUCCESS", r_status(r), 0);
+            ck("[19b] GET readback = 2", (r.size() > 43) ? ((r[42] << 8) | r[43]) : -1, 2);
+        }
+        std::vector<uint8_t> c0; put_be16(c0, 0x0024); put_be16(c0, 0);
+        put_be16(c0, 0); put_be16(c0, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1907, c0));
+        ck("[19b] SET back to 0", r_status(collect_resp()), 0);
+        ck("[19b] clk_src_o back = 0", dut->clk_src_o, 0);
     }
 
     // ---------------------------------------------------------------- //
