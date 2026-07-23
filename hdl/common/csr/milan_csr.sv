@@ -1349,7 +1349,12 @@ module milan_csr #(
   //! Register read data one cycle after the AR handshake (BRAM latency);
   //! RDATA is held stable while RVALID is asserted. Slow (engine port-B)
   //! window reads latch on the fetch-done beat instead.
-  wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11];
+  //! reads at/above 0x800 return 0 unless a mapped block claims them: the
+  //! 0x800 stream window (strm_hit, priority above) or the servo word at
+  //! 0x8F8 (2026-07-23: this term was missing, so A_MCSRV_STAT read 0 on
+  //! EVERY build while the servo ran fine - caught by the [SERVO] dp-TB leg)
+  wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] ||
+                      (rd_addr_q == A_MCSRV_STAT);
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) r_data <= 32'h0;
     else if (rd_pend)
