@@ -543,7 +543,11 @@ and is not repeated here.
    set the knob, verify rails cease + trim reads sane vs the crystal
    offsets, bake the winning polarity as the RTL default, one-shot
    ClkReg readback to bless auto_repair, hour-long rails-zero soak,
-   THD+N of the coherent chain (AX tone_gen + CRF + clock_source 2 -
+   THD+N of the coherent chain — **DONE 2026-07-23: −83.9 dB measured
+   = the −83.8 dB CS4344⊕CS5343 datasheet power-sum limit (the loop is
+   at the converter silicon floor; budget + history in
+   the-private-test-repo fpga/docs/AUDIO_THDN_BUDGET.md)** — (AX tone_gen +
+   CRF + clock_source 2 -
    the old internal-clock -73.4 protocol is obsolete: the NCO actuator
    is gone by the USER exact-recovery rule).
 7. **ALSA driver (USER 2026-07-22):** record/play music from/to
