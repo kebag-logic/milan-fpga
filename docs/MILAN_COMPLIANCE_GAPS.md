@@ -90,6 +90,25 @@ and is not repeated here.
 
 ## 2. Streaming / media
 
+- **PROPOSAL — PCM ring in on-chip BRAM (USER 2026-07-23).** The listener
+  PCM ring is a LiteDRAM window today (`pcmring` @0x4ff00000, WishboneDMAWriter
+  loop). Two silicon failure classes live on that DRAM path: (a) the real-time
+  writer SHEDS a beat when the wishbone side stalls under CPU DRAM contention
+  (the CDC-depth-16 → 128 fix, `test_pcm_ring.py`); (b) I6, the 1-in-24 read
+  artifact that survives CDC-128 (write-posting vs the OFFSET CSR / arbitration
+  ambiguity, still open). A **dual-port BRAM ring kills BOTH at the root**: the
+  BRAM write port is always ready (no shed, CDC depth moot) and there is no
+  DRAM controller / L2 / posting between the writer and the reader (I6 cannot
+  exist). Budget FITS: mf53e uses 99/135 RAMB36 (73 %), **36 free**; a
+  period-latency ring needs only ~16–32 KB (4–8 RAMB36 = 42–85 ms stereo/48k —
+  the ALSA buffer only has to cover the period-IRQ latency, not seconds of
+  audio). Design: swap the WishboneDMAWriter target for a BRAM behind the SAME
+  `base/length/enable/loop/offset` CSR ABI so the snd-kl-milan driver is
+  unchanged (map the BRAM into the CPU address space RO for the reader; the
+  offset CSR stays the hw_ptr). If taken, this SUPERSEDES the AX CDC-128 carry
+  and closes I6. AX 8×8 would need N×32 KB — still inside 36 tiles for N≤8 at
+  16 KB/stream, gate on the utilization report.
+
 - **CRF media clocking: the measurement half is IN (2026-07-20).**
   KL_crf_rx validates the Avnu Pro Audio CRF stream (Milan 7.3.2:
   subtype 4/type 1/pull 0/48k/interval 96/1 ts) selected by CSRs
