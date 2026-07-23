@@ -215,6 +215,18 @@ Whitelist: `default_pass=0` + accept entries (`ACTION[0]=0`). Blacklist:
 multicast block `01-80-C2-00-00-0x` = key `0x0180C2000000`, mask `0xFFFFFFFFFFF0`.
 See [`../hdl/ieee8021q/filtering/doc/tcam.md`](../../hdl/ieee8021q/filtering/doc/tcam.md).
 
+### Link guard / MAC recovery (VERSION minor ≥ 0x0006)
+
+The L1/L2 link-bounce supervisor (`hdl/common/KL_link_guard.sv`) and the daemon
+recovery strobes. (Added 2026-07-23 — these were live in RTL but undocumented here,
+which caused a false "0x774 = TCAM" reading; TCAM is 0x700–0x718 only.)
+
+| Offset | Name | Acc | Reset | Fields |
+|--------|------|-----|-------|--------|
+| `0x71C` | `LINK_CTRL` | RW | `0` | `[0]` sw_link (daemon-tracked PHY link), `[1]` mac_reinit (hold MAC sys-side in reset), `[2]` linkg_dis (1 = guard disabled), `[3]` linkg_freeze (test hook: fake eth clock death → drills the full FSM with no cable) |
+| `0x720` | `RST_EPOCH` | RO | `0` | datapath reset-release count — the shadow-lie canary (a live tick proves a real reset happened, e.g. so a CSR-wipe is not mistaken for an unbind) |
+| `0x774` | `LINKG_STAT` | RO | — | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX seen ~1.3 s), `[6]` guard_rst (reinit held), `[5:4]` state (0 RUN, 1 HOLD, 2 SETTLE), `[2]` eth_rst (sequenced eth-CDC reset, minor ≥ 0x0007), `[1]` tx_alive, `[0]` rx_alive |
+
 `PTP_CMD` strobes cross into the `gtx_clk` PTP domain via `ptp_csr_sync`
 (value + toggle-synchronised apply strobe, `REQ-CSR-03`). `gettime` is
 asynchronous: writing `PTP_CMD[2]` pulses the snapshot command into the PHC; the

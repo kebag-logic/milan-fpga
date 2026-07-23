@@ -25,8 +25,16 @@ is the clause-anchored join between them.
 | IEEE 1722-2016 (AVTP/AAF/CRF/MAAP) | [`traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md) | 38 | 33 | 2 | 1 | 2 |
 | IEEE 802.1Q-2022 (VLAN/CBS/MRP/MSRP/MVRP) | [`traceability/ieee8021q.md`](traceability/ieee8021q.md) | 31 | 24 | 3 | 1 | 3 |
 | IEEE 802.1AS-2020 (gPTP HW-assist scope) | [`traceability/ieee8021as.md`](traceability/ieee8021as.md) | 11 | 8 | 1 | 1 | 1 |
-| Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 52 | 38 | 9 | 4 | 1 |
-| **Total** | | **204** | **162** | **18** | **7** | **17** |
+| Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 52 | 39 | 8 | 4 | 1 |
+| **Total** | | **204** | **163** | **17** | **7** | **17** |
+
+<!-- Tally reconciliation 2026-07-23: the Milan family previously read 38✅/9🟡;
+     a 1:1 re-count of every row's leading status glyph in milan-v12.md gives
+     39✅/8🟡 (§1 11✅/4🟡/1➖, §2 3✅, §3 9✅/1❌, §4 9✅/2🟡/1❌, §5 3✅/1🟡,
+     §6 4✅/1🟡/2❌ = 52). No row status changed — it was a summing typo (one ✅
+     counted as partial). Grand total ✅ 162→163, 🟡 18→17 accordingly. Downstream
+     quotes of "162✅/18🟡" (e.g. HANDOVER roadmap table) are now stale → 163✅/17🟡. -->
+
 
 Legend: **✅** requirement has a specific self-checking verification today
 (named TB / CERT feature / silicon wire proof). **🟡** partially verified —
