@@ -20,6 +20,9 @@ current-state documentation.
 | [CBS_DATAPATH_BUG.md](CBS_DATAPATH_BUG.md) | Classifier `tdest` mis-timing under back-to-back frames → TX wedge; per-frame tdest sideband redesign | FIXED (gating harness: `tb/verilator/controller_rate`) |
 | [CBS_DEFAULT_SHAPING_BUG.md](CBS_DEFAULT_SHAPING_BUG.md) | Reset defaults credit-paced ALL best-effort TX at ~300 Mb/s | FIXED |
 | [RX_OVERLOAD_WEDGE.md](RX_OVERLOAD_WEDGE.md) | Two storm-lethal RX wedges (BD-order inversion; `drops` field aliasing the v2 marker) | FIXED |
+| [ADP_DORMANCY.md](ADP_DORMANCY.md) | ADP advertiser fell dormant on silicon; self-re-arm + `A_ADP_DIAG` forensics and fix | FIXED |
+| [GPTP_RXPAD_ROOTCAUSE.md](GPTP_RXPAD_ROOTCAUSE.md) | gPTP "bad message": RX DMA delivered 8-byte-padded frames; gateware pad-strip fix + switch-behavior matrix | FIXED |
+| [PTP_TS_METADATA_FIX.md](PTP_TS_METADATA_FIX.md) | HW-timestamp metadata pipeline root cause + the DMA record contract (v2.1) | FIXED |
 
 ## Performance investigations & campaigns
 
@@ -41,6 +44,14 @@ current-state documentation.
 On-silicon evidence logs live in
 [`sw/litex/evidence/`](../../sw/litex/evidence/) (BIOS banners, memtest, the
 M-A3 DMA write-up `hw_ma3_dma_datapath_100mhz.md`).
+
+## Handover & bench
+
+| Doc | What it holds |
+|---|---|
+| [HANDOVER_SMALL.md](HANDOVER_SMALL.md) | The current (2026-07-23) short handover — read this first each session |
+| [HANDOVER.md](HANDOVER.md) | The deep session-history log — machine, topology, live state, task queue |
+| [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) | Bench-ops onboarding: where-is-what + the physical/tap topology |
 
 ## Conventions
 

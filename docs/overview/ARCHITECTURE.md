@@ -48,10 +48,15 @@ milan-fpga/
 ├─ bd/ constraints/          Zynq-variant block design + XDC
 ├─ syn/yosys/                open-toolchain portability check
 └─ tb/
-   ├─ verilator/             17 self-checking harnesses (the live regression)
+   ├─ verilator/             ~40 self-checking harness dirs (live regression; `ls tb/verilator/` authoritative)
    ├─ utests/ itests/        legacy Vivado/xsim testbenches
    └─ avtp_packet_gen_sv/    AVTP stimulus classes (Questa)
 ```
+
+> Note: the `hdl/` subtree above predates the spec-aligned reorg - RTL now lives
+> under `hdl/ieee1722/`, `hdl/ieee17221/`, `hdl/ieee8021as/`, `hdl/ieee8021q/`,
+> plus `hdl/milan/` (the `milan_datapath`/`milan_top` wrappers) and `hdl/common/`;
+> see [../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) §2 for the current tree.
 
 ## 2. System block diagram (fully-FPGA softcore)
 
@@ -75,6 +80,11 @@ milan-fpga/
    └──────────────────────────────────────────────────────────────────────────── │ ────┘
                                                                         RTL8211E PHY (GMII)
 ```
+
+The ship SoC is a **1-hart VexiiRiscv + `--l2-bytes 32768`** (32 KB L2) on the
+AX7101; the 2-hart / 64 KB-L2 SMP shape drawn in the diagram above is the
+superseded performance-campaign peak (kept for the perf lineage), not the
+deployed config.
 
 The same `milan_datapath` is what the Zynq variant, the Verilator harnesses
 (`tb/verilator/milan_dp`), the SoC sim (`milan_sim.py`) and the Yosys
@@ -123,7 +133,7 @@ The ring-DMA engines have their own LiteX-generated CSR space
 | Domain | Freq | Covers |
 |--------|------|--------|
 | `sys` | 100 MHz | CPU, DDR3, DMA engines, MAC core (softcore build) |
-| `cd_milan` (= `axis_clk`) | 50 MHz in the deployed build (`--milan-clk-freq`); 100 MHz when not split | the whole `milan_datapath`, incl. the CSR block |
+| `cd_milan` (= `axis_clk`) | 100 MHz in the deployed build; ~50 MHz only when split via `--milan-clk-freq` | the whole `milan_datapath`, incl. the CSR block |
 | `gtx_clk` | 125 MHz | PTP timestamp counter + MAC-side capture (tied to `axis_clk` on the softcore build; separate on Zynq) |
 | PHY RX clock | 125 MHz | inside the MAC only |
 
@@ -157,11 +167,11 @@ caveats: [`sw/driver/README.md`](../../sw/driver/README.md).
 ## 7. Verification
 
 Six layers, one map: [../testing/TESTING.md](../testing/TESTING.md).
-Quick version: 17 self-checking Verilator harnesses
+Quick version: ~40 self-checking Verilator harness dirs (`ls tb/verilator/` authoritative)
 ([`tb/verilator/README.md`](../../tb/verilator/README.md)) cover every RTL
 block through the whole `milan_datapath` wrapper; Migen sims cover the DMA
 engines; `milan_sim.py` boots the SoC in Verilator; `syn/yosys` proves
-device portability (18 tops, generic + ECP5); the legacy xsim TBs remain
+device portability (~39 tops, generic + ECP5); the legacy xsim TBs remain
 for waveform work; silicon procedures close the loop.
 
 ## 8. Where to change things (maintainability)

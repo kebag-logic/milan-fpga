@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `litex/LITEX_SOC.md` + `integration/BOARD_PORTING_AX7101.md` + `integration/INTEGRATION_GUIDE.md`. Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # Milan on a fully-FPGA RISC-V platform  -  detailed migration & implementation plan
 
 This document is the step-by-step engineering plan to take the Milan TSN NIC

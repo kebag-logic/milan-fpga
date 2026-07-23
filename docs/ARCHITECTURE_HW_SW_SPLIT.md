@@ -47,15 +47,15 @@ the framer, the reservation gate and connection liveness are fabric work.
 | **ADP advertiser** (available/depart/discover, available_index) | fabric | silicon | la_avdecc-clean; index +1 every ADPDU |
 | **AECP/AEM entity** (5 descriptors, Milan §5.4.4 command set, LOCK) | fabric | silicon | zero-CPU responder; ROM+overlay store |
 | **ACMP stateless responder** (GET_TX_STATE / GET_TX_CONNECTION, count=0) | fabric | silicon | la_avdecc Milan=1 CLEAN (2026-07-12, eto_acmp2); CSR 0x650 |
-| ACMP connection handling (CONNECT/DISCONNECT_TX, PROBE_TX fast-connect) | **fabric** | next | in-fabric connection table + acceptance (resource check against lwSRP grant); CSR mailbox demoted to telemetry/override |
+| ACMP connection handling (CONNECT/DISCONNECT_TX, PROBE_TX fast-connect) | **fabric** | silicon | in-fabric connection table + acceptance (resource check against lwSRP grant); CSR mailbox demoted to telemetry/override; ACMP listener SM + PROBE_TX activation SM silicon-proven |
 | kl-eth driver (rings, NAPI, ethtool, CSR) | softcore | silicon | Linux 6.x, kl,dma-ether |
-| kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | **next** | exposes the fabric counter/timestamps to linuxptp |
-| gPTP protocol (BMCA, servo, pdelay) | softcore | present, unvalidated | linuxptp ptp4l + phc2sys in the rootfs; needs the PHC to be real |
-| gPTP → entity bridge (GM id/domain into CSR 0x624/0x628 on change) | softcore | future | tiny daemon or ptp4l hook; fabric already has gm_change → re-advertise + index bump + AS_PATH/AVB_INFO truth |
-| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | next | Milan v1.2 §5.6 constrains SRP enough for a small engine (ADP/AECP responder pattern); the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
-| MAAP (multicast MAC allocation) | **fabric** | future | probe/defend state machine, same low-rate responder pattern |
-| **AAF framer** (AVTP talker payloads) | **fabric** | next (PLAN OF RECORD) | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU |
-| PCM producer (fills the audio ring, ms-cadence) | softcore | future | any Linux source (ALSA app, test tone); timing-uncritical by design; PipeWire optional as a source, NOT in the datapath |
+| kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | silicon | exposes the fabric counter/timestamps to linuxptp; HW-ts green zero-overrides |
+| gPTP protocol (BMCA, servo, pdelay) | softcore | present, silicon-validated | linuxptp ptp4l + phc2sys in the rootfs; the PHC is real; media-clock MMCM-DRP servo silicon-proven (−83.9 dB) |
+| gPTP → entity bridge (GM id/domain into CSR 0x624/0x628 on change) | softcore | present | `gptp2csr.sh` daemon publishes GM id/domain (0x624/0x628) on change; fabric already has gm_change → re-advertise + index bump + AS_PATH/AVB_INFO truth |
+| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | silicon | RTL (`hdl/lwsrp`, 9 modules, CSR 0x680) + harness, silicon-validated; the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
+| MAAP (multicast MAC allocation) | **fabric** | silicon | `KL_maap` probe/defend/announce, silicon-proven (CSR 0x6CC-0x6D4) |
+| **AAF framer** (AVTP talker payloads) | **fabric** | silicon | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU; RTL + harness, silicon-validated |
+| PCM producer (fills the audio ring, ms-cadence) | softcore | present (ALSA record) | any Linux source (ALSA app, test tone); ALSA record byte-exact on silicon (playback scaffold pending); PipeWire optional as a source, NOT in the datapath |
 | Identity provisioning (0x600 group, caps 0x8588) | softcore | silicon | once per boot (avdecc/aecp_csr_setup.sh); after that the fabric is autonomous |
 
 ## Boundary contracts (the only crossings)

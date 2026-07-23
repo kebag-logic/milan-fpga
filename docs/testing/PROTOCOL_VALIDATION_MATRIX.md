@@ -97,10 +97,10 @@ Read with:
 | H-4 | AXIS↔memory DMA, simple-mode CSRs (§A.6) | HW | `MilanDMA` (WishboneDMA ×3) | 🟩 | `ELAB` `--with-dma` (CSRs in csr.csv); `BOARD` loopback (M-A3) |
 | H-5 | IRQ → PLIC (tx/rx/ts-dma + csr) | HW | `EventManager` → PLIC | 🟩 | `ELAB`; `BOARD` `/proc/interrupts` increments |
 | H-6 | Full SoC assembly (NIC+DMA+MAC) | HW | `milan_soc.py --full` | 🟩 | `ELAB` gateware export (all instances present) |
-| H-7 | Device portability (non-Xilinx) | HW | all `hdl/` | ✅ | `SYN` 18 tops incl. Lattice ECP5 |
+| H-7 | Device portability (non-Xilinx) | HW | all `hdl/` | ✅ | `SYN` ~39 tops incl. Lattice ECP5 (`syn/yosys/run.sh` authoritative) |
 | H-8 | Linux driver: NAPI/XDP/PTP/ethtool | SW | `kl-eth` (`sw/driver/`) | 🟡 ABI | `BOARD` bring-up (M-A5) |
 | H-9 | Device tree `kl,dma-ether` | SW | `sw/dts/milan.dtsi` + binding | ✅ struct | `dtc` parse; `BOARD` driver binds |
-| H-10 | Artix-7 bitstream (place & route) | HW | `--full --build` | ⛔ blocked | `BOARD`  -  needs Vivado Artix-7 device install |
+| H-10 | Artix-7 bitstream (place & route) | HW | `--full --build` | ⛔ blocked | `BOARD`  -  **Vivado 2026.1 now has Artix-7 (+Zynq) installed; both boards build+run on silicon, CERT 63/63** — glyph left as-is pending USER matrix review |
 | H-11 | Soft-TSO via BD chains (driver-segmented GSO: header arena + zero-copy frag BDs) | SW | `kl-eth` (milan-tests-avb `e7b9c77`) + `RingDMAReader` continuity | ✅ | `BOARD` iperf3 @ MTU 1500: TX 58→88 single-flow (103 w/ `-l 1M`) |
 | H-12 | TX cs-across-BDs (chain-wide csum pre-pass + BD-ring rewind + published-rd) | HW+SW | `RingDMAReader` v2b (`milan_soc.py`, `e633032`, bitstream rsc6) | ✅ | `SIM` `test_tx_bd.py::test_bd_csum_chain` (suite 8/8); `BOARD` rsc6 iperf3 |
 | H-13 | Multi-flow (`-P4`) stability (doorbell-before-stop, reaper-owned cursor, DISCARD black-hole fix, single-seg RSC clamp) | HW+SW | `kl-eth` + `RingDMAWriter` (`9584927`, bitstream rsc5) | ✅ | `SIM` `test_ring_bd.py::test_rsc_tiny_drop_recovers`; `BOARD` iperf3 `-P4` stable |
@@ -112,8 +112,8 @@ Read with:
 
 | Suite | Command | Proves |
 |-------|---------|--------|
-| RTL harnesses (17) | `cd tb/verilator && for d in */ ; do (cd $d && make) || break; done` | every HW block above (rows tagged `RTL`) |
-| Yosys portability (18) | `cd syn/yosys && ./run.sh` | every block synthesizes device-independently (`SYN`) |
+| RTL harnesses (~41; `ls tb/verilator/` authoritative) | `cd tb/verilator && for d in */ ; do (cd $d && make) || break; done` | every HW block above (rows tagged `RTL`) |
+| Yosys portability (~39 tops) | `cd syn/yosys && ./run.sh` | every block synthesizes device-independently (`SYN`) |
 | Softcore sim (M-A1/M-A2) | `./sw/litex/milan_sim.py --xlen 32` then `mem_read 0x90000000` | CPU boots + reaches the NIC CSR (`SIM`) |
 | SoC elaboration | `./sw/litex/milan_soc.py --full` | the full FPGA design assembles + exports gateware (`ELAB`) |
 

@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `fpga/PIPELINE_STAGES.md` (`--legacy-ring` restores the byte-ring). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # RX ring DMA  -  root cause of the large-frame RX loss + the AXI-burst fix
 
 > **STATUS: HISTORICAL (byte-ring era, ≤2026-07-05).** The RX path since moved to BD/CQ mode with the hsq6 full-gate, 2-queue hs, LUTRAM CQ and (hsq12+) cut-through ordering. Living map: **RX_PERF_TUNING_MAP.drawio** + HEADER_SPLIT_DESIGN.md. The byte-ring remains the bd=0 fallback only (AREA-70 removal candidate).

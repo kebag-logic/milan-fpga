@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `fpga/HEADER_SPLIT_DESIGN.md` (hsq4-hsq12 unified there). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # hsplit14 / hsq12  -  per-page (cut-through) hs delivery
 
 *2026-07-11. Kills the RSC hold latency (the per-flow ~95 Mbit plateau: rate =

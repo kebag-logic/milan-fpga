@@ -30,7 +30,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `soak` | pw1↔pw0 stream + clock-recovery soak | `srcs/milan-tests-avb/scripts/pw1-pw0-clockrec-soak.sh` |
 | `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/milan-tests-avb/docs/` |
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
-| `vtb:<n>` | Verilator self-checking harness | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`; **`adp` = to add**, migration plan §B.2) |
+| `vtb:<n>` | Verilator self-checking harness | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`; `adp` now present) |
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |
 | `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp + Linux net tooling | on-target |
 | `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP go to fabric (**lwSRP** engine + fabric MAAP; see ARCHITECTURE_HW_SW_SPLIT.md) | peer-side only |
@@ -162,7 +162,7 @@ Milan only **CONSTRAINS** these; it does not require them.
 - **Every Milan area (A–J) maps to ≥1 MANDATES FR** with a named test artifact  -  no
   Milan area is unmapped or unverified.
 - **HW-verifiable now (Verilator, no controller):** FR-QOS-\* (`vtb:cbs/shaper_core/cls`),
-  FR-CLK-02/05 (`vtb:ptp`), CSR/IRQ (`vtb:csr`), FR-DISC ADPDU (`vtb:adp`, to add).
+  FR-CLK-02/05 (`vtb:ptp`), CSR/IRQ (`vtb:csr`), FR-DISC ADPDU (`vtb:adp`, present).
 - **Interop/system:** ADP/AECP/ACMP/MVU via `avdecc_l2`/`tap_acmp`/`tsn-gen`/`Hive`;
   gPTP via `ptp4l`; streaming via `soak`/`thdn`; reservation via `mrpd`/`maap`.
 - **Conformance:** the `AVnu` Milan test plan is the acceptance gate.

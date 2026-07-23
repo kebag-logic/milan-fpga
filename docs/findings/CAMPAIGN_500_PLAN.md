@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `findings/PERFORMANCE_GOAL.md` + `CHANGELOG.md`. Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # Campaign plan: >500 Mbit/s TX *and* RX  -  every step gated by a gateware measurement
 
 > **STATUS: SUPERSEDED by the measured record (2026-07-11).** Outcome: TX 582–646 ✓; TCP-socket RX plateaus at 381/374 (ACK-hold law  -  see RX_PERF_TUNING_MAP.drawio); the >500 RX lane is the no-copy consumer (MSG_TRUNC ceiling 585–594 measured; recv_zc on hs@4K = the open experiment). Current plan lives in SESSION_HANDOFF.md.

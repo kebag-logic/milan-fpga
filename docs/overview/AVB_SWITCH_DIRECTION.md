@@ -130,7 +130,7 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 
 | # | Work item | Notes at 4-port scope | Risk | Priority |
 |---|---|---|---|---|
-| S1 | **AVTP stream engine** (panel ① hook A) | Endpoint deliverable + switch CPU-port media path; CPU wakes per audio period, not per packet. **STARTED 2026-07-05**: `hdl/ieee1722/avtp/avtp_stream_parser.sv` (stream-id + presentation-time extract + programmable match table, 21/21 harness)  -  the classifier tap. Next: datapath+CSR integration, then the per-stream sample-ring DMA. | Med | **in progress** |
+| S1 | **AVTP stream engine** (panel ① hook A) | Endpoint deliverable + switch CPU-port media path; CPU wakes per audio period, not per packet. **STARTED 2026-07-05**: `hdl/ieee1722/avtp/avtp_stream_parser.sv` (stream-id + presentation-time extract + programmable match table, 21/21 harness)  -  the classifier tap. The AAF/CRF datapath + PCM sample-ring DMA have since landed (integrated in `milan_datapath`, silicon-validated). | Med | **LANDED on silicon** |
 | S1b | **Per-class ingress** (retire the shared single-classifier ingress) | Removes the head-of-line coupling measured 2026-07-05 (CBS reserved class degraded by BE ingress contention  -  docs/findings/CBS_DATAPATH_BUG.md); prerequisite for real reservation protection | Med | with S1 |
 | S2 | **4-port fabric**: shared-BRAM output-queued + TCAM + per-port CBS egress | Aggregate 1 GB/s = one 128-bit @ 125 MHz BRAM path  -  comfortable | Med | 2nd |
 | S3 | gPTP transparent clock (per-port ts → residence-time correction) | Rides S2 | Med | 2nd |
@@ -166,13 +166,15 @@ sockets" is not a goal. The CPU is the control plane + CPU port; sockets need to
 prototype on copper) → S4 (SRP) → I2/I3 experiments during build waits → C4 only if a
 proven CPU-port bulk-TCP requirement appears.
 
-**Production scoreboard @ MTU 1500**  -  the ladder below (ring8 + C1 driver) was measured on
-the **historical NaxRiscv** CPU (2026-07-05): TX TCP 62.3 Mbit/s 0 retr · RX TCP 66.7 · TX UDP
-27.5 lossless · 0 desync/InCsumErrors · 0 fabric stalls. (Reference: the same platform measured
-TX 16.3 / RX 58.4 twenty-four hours earlier.) The **current shipping CPU is VexiiRiscv**, whose
-single-flow socket numbers are lower  -  **TX ~27 / RX ~30 Mbit/s** at the same MTU (single-issue
-in-order IPC; see the migration table above)  -  which **does not gate the switch**, since
-forwarding runs in fabric and never touches the CPU. Next in sequence: S1 (AVTP engine).
+**Production scoreboard @ MTU 1500** — **SUPERSEDED early snapshot; for current perf numbers see
+[`../../CHANGELOG.md`](../../CHANGELOG.md) (perf-lineage ledger) + [`../findings/HANDOVER.md`](../findings/HANDOVER.md).**
+The ladder below (ring8 + C1 driver) was measured on the **historical NaxRiscv** CPU (2026-07-05):
+TX TCP 62.3 Mbit/s 0 retr · RX TCP 66.7 · TX UDP 27.5 lossless · 0 desync/InCsumErrors · 0 fabric
+stalls. The VexiiRiscv **TX ~27 / RX ~30 Mbit/s** figures were the *early-migration* single-flow
+numbers — the later perf campaign drove VexiiRiscv far past 500 (TX 582–646, RX no-copy 585–594 on
+the 2-hart peak; ship = 1-hart). Since this snapshot, **S1 (the AVTP/AAF stream engine) and the
+MMCM-DRP media-clock servo (−83.9 dB) have both LANDED on silicon**, and I-series I1 (L2) is done.
+Switch forwarding runs in fabric and never touches the CPU, so CPU socket throughput does not gate it.
 
 ### Step plan for the executed session (C1/C2/I1)
 
