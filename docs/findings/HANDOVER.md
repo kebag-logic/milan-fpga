@@ -516,8 +516,11 @@ announces; switch sends only pdelay_req). Stream-PHC-sync stopgap (shell
 loop vs avtp_ts) got LATE=+0 but oscillates vs the 12 ms accept window
 (process-spawn noise ~30 ms) -> proper fix = ts_delta CSR 0x6EC
 (HW-latched signed avtp_ts-now at each accepted PDU) riding milanfinal13.
-**SRP BREAKTHROUGH FINDING: the switch's MSRP Domain declares SR class A
-prio 3 on VID 0x27E = 638 (NOT VLAN 2!)** - the VLAN-2 assumption dates
+**[RETRACTED - see the 07-19 OVERTURNS section: the SR VID is 2, "638"
+was the switch's MVRP VLAN declaration misparsed as the MSRP Domain.
+There is NO VID 638 anywhere on this bench (USER 2026-07-23).]**
+~~SRP BREAKTHROUGH FINDING: the switch's MSRP Domain declares SR class A
+prio 3 on VID 0x27E = 638 (NOT VLAN 2!)~~ - the VLAN-2 assumption dates
 to the MVP and explains BOTH the historical tagged-VID2 ingress filtering
 AND every TalkerFailed degradation. Tagged-638 streaming attempt: AX
 streams 8.8k fr/s tagged, switch still does NOT forward to the arty
