@@ -1,64 +1,48 @@
-# Small handover — 2026-07-22 night (item-4 done, item-5 in flight)
+# Small handover — 2026-07-23 morning (servo bring-up + SRP-cascade repair)
 
-Full history: `HANDOVER.md` + `BENCH_TOPOLOGY.md` + `MILAN_COMPLIANCE_GAPS.md`
-(§5b/5c/5d + the USER-reordered 12-item attack order). NxN design:
-`docs/NXN_ARCHITECTURE.md` (normative). Builder: `docs/ENDSTATION_BUILDER.md`
-+ `sw/builder/` (16+ test gates). Traceability: `docs/SPEC_TRACEABILITY.md`
-(162✅/18🟡/7❌ after the coverage round).
+Full history: `HANDOVER.md` + `MILAN_COMPLIANCE_GAPS.md` (item-6 updated) +
+memory `servo-bringup-round-0723`. Consoles `~/bench-console/` (ARTY
+serial-open TRAP stands). Wire truth via the taps (tools redeployed to
+tap-host /tmp; **never `tcpdump -e` on ProfiShark links** — pseudo-header
+artifacts; use `-w` + offset-28 python or the srp_qna.py dissector).
 
-## Consoles — `/home/alex/bench-console/` (unchanged)
-TRAP: (re)opening the ARTY serial port RESETS the board (DTR). AX port safe.
-`strings` on console logs DROPS <4-char lines — prefix reads (`echo X=$(...)`).
+## Boards
+- **ARTY** = `eto_milanfinal51` (VERSION 0x000A, the everything-build).
+  KNOWN mf51 SILICON QUIRKS (all fixed in RTL, land with mf52):
+  0x8F8 reads 0 (CSR dead-zone bug — the servo runs invisibly);
+  stage SID 0x814/8 before ANY 0x810 CTRL write at a live idx (override
+  arming trap froze a locked stream); servo steps the WRONG WAY
+  (rails 25x worse at clock_source=2 — set 0x8FC[0] ps_invert on mf52).
+- **ALINX** = AX39 (0x0009) + LIVE `modprobe kl-eth rsc_clk_mhz=100`
+  (the dts lacked kl,rsc-clk-mhz -> 2x PHC -> switch dropped asCapable ->
+  TalkerFailed code 8 -> pruning; fixed dts+dtb+opensbi committed, land
+  with the AX41 flash). After the fix: AX = GM (relayed by the switch),
+  clean TalkerAdvertise, ARTY Listener Ready, reservation ACTIVE.
+- A REBOOT of the AX before the AX41 images flash REVERTS the PHC fix
+  (rerun the modprobe with rsc_clk_mhz=100).
 
-## Boards (QSPI self-boot, milan CSR 0x90000000, both VERSION 0x0007)
-- **ARTY** = `eto_milanfinal48` (+0.349): RMON latch WORKING (first silicon
-  ever — the event bus was tied off in milan_soc.py since forever; TX_GOOD
-  0x21C / RX_GOOD 0x230, latch 0x200=1, invalidate-on-reinit proven).
-  Music locked (rebind = one acmp_bind connect, no set_fmt).
-- **ALINX** = `eppo_milanfinal38` (+0.063, **e2 port** — `--eth-port e2`,
-  sweep default): e1's "death" was the ROTTED DTB dma-ts window (0x3064 =
-  rx_rsc_en; images-flash poison, NOT hardware — e1 retest with fixed
-  images pending, needs a cable move). RTL8211E at MDIO addr 0 via
-  AB21/AB22. **DOCTRINE: diff the dtb reg windows vs the build csr.csv
-  before EVERY images flash.**
-- Rootfs (both): kl-eth **mdio2** (MII ioctls silicon-proven incl.
-  SIOCSMIIREG real renegotiation), mii-tool on-board, linkmon back-off
-  (one "reinit #N (guard gw vX)" per outage, exponential, capped 600 s;
-  `/tmp/linkmon.pause` = full MDIO quiet — all bench-drilled).
-  linkmon logs to /dev/console NOT dmesg.
+## Proven this round
+- Saved-state drills 1-6, 8-10 ★ incl. **M-ACMP-9 exit**: reboot ->
+  S51 journal restore -> 0x7A0 injection -> fast-connect -> stream
+  re-locks with NO controller. CRF-flags save retry pending (saves take
+  minutes under full datapath load and can wedge — Ctrl-C recovers).
+- Digital wire THD+N -149.6 dB PASS. Analog loop on mf51 = -21 dB
+  EXPECTED (NCO actuator removed by USER exact-recovery rule): the valid
+  loop = AX tone 0x6DC + CRF + ARTY clock_source=2 + a WORKING servo
+  (mf52 + ps_invert).
+- dp-TB grew: SERVO integration leg, 0x8FC RW leg, nxn sid-0 alias leg,
+  aecp clk_src_o pin, servo U9 inverted-model leg. Gates: dp 172/0,
+  nxn 63/0, aecp 490/0, servo 43/0, csr 41/0, yosys 39/39.
 
-## CERT — ★ 63/63 scenarios, 321/321 steps ★ (final pair, one clean run)
-Harness: pw0 home `aets_recreate/` (runners run_arty.sh/run_alinx.sh; flap
-cmds need `sudo -u alex ssh` — root has no dropbear key; dropbear host keys
-REGENERATE on reflash → ssh-keygen -R). Tap helpers: redeploy from the
-private snapshot tools-tap/ after every tap-host /tmp wipe. es-4.7 carries
-a scratch-name pre-step (the DUT rightly suppresses no-change SET replays).
-
-## Item 4 (software-defined End-Station): DONE
-Builder = working generator: config-selectable clusters, one STREAM_PORT
-per stream, talker clusters = config, sweep.sh single-source (generated
-opts fragments; inline tables = fallback), hash-derived entity_model_id
-(sha256 of model-shaping fields under 0x001BC5, arty_current PINNED),
-CRF output per Milan 7.2.3 (>=2 AAF inputs => mandatory, enforced),
-resource estimator (calibrated ±0.21% vs real mf48; **replication for
-NxN = 142%/107% LUT = DEAD; shared-engine ≈87.7% projected**).
-No-regression gates: arty_current ROM byte-identical + sweep flags
-byte-match.
-
-## Item 5 (NxN, shared engines + context RAM): IN FLIGHT
-Merged: architecture (LCTX/TCTX/ACTX/SCTX records, indexed CSR 0x800
-window spec, P0-P12 phasing), CRF-output model, ACMP N-contexts (~764
-cells/ctx), lwSRP N-attributes (~1.9k cells/attr, CRF reservation
-registrar closed), coverage round (+tied-input check
-scripts/check_tied_inputs.sh — 3 real constant ties incl. the historic
-i_mac_events). In flight: dataplane core (stream table/LCTX monitor/PCM
-routing/shared packetizer), walker dom_a_evt_r fix, indexed CSR window
-(VERSION→0x0008). Then: P12 integration → mf49/AX39 sweeps → drills →
-CERT. AX budget watch: 8x8 ≈ 87.7% LUT (levers: L2 32K authorized,
-crf_rx ts-ring→BRAM, pruning).
-
-## Standing rules burned in this round
-Every round grows the TB suite (USER directive; matrix 🟡/❌ = backlog) ·
-pkill/pgrep self-match: bracket patterns · busybox has killall not pkill ·
-worktree agents: verify base first (stale-fork trap), cp -r third_party ·
-one-line commits, hackerman-kl, both repos, push --force on USER ask.
+## In flight / next
+1. mf52 ARTY 3-seed (all fixes) -> flash bitstream + images (rootfs has
+   snd-kl-milan + alsa-utils; fresh crc32 xz ready) -> servo drill WITH
+   0x8FC (set invert, rails cease, trim vs crystal, bake RTL default) ->
+   coherent-chain THD -> ALSA arecord drill (card `Milan` probes ✓).
+2. AX41 3-seed (AX40 was pre-fix and all-negative -0.5-class, sys-domain
+   milandma cs_lanes cone; if AX41 misses -> sweep_extra exp/asm/enl,
+   then levers: crf_rx ts-ring->BRAM, pruning).
+3. CERT vs ARTY mf51 running (pw0 run_mf51_postfix.log; launch
+   run_alinx.sh after). Then the pair CERT on mf52+AX41.
+4. SR VID = 2 ONLY (USER: "638" never existed - memories + HANDOVER
+   retraction done).
