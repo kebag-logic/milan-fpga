@@ -45,6 +45,25 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'SET_STREAM_INFO': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_stream_info::AECP_SET_STREAM_INFO::'
+                      'AECP_SET_STREAM_INFO_IF'),
+        # GET_STREAM_INFO (0x0F) shares the SET_STREAM_INFO (0x0E) wire layout;
+        # the GET frame is the SET frame with command_type patched. Field order
+        # and widths mirror aecp_aem_set_stream_info.yaml exactly (the stream_info
+        # flags word is named msrp_flags there — 64 bits, defined bits [63:59]).
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('msrp_flags', 64),
+                   ('stream_format', 64), ('stream_id', 64),
+                   ('msrp_accumulated_latency', 32), ('stream_dest_mac', 48),
+                   ('msrp_failure_code', 8), ('reserved0', 8),
+                   ('msrp_failure_bridge_id', 64), ('stream_vlan_id', 16),
+                   ('reserved1', 16)],
+    },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
         'interface': 'milan_acmp::MILAN_ACMP::MILAN_ACMP_IF',
@@ -120,21 +139,60 @@ def pg_decode(context, key, hexstr):
 # ---------------------------------------------------------------------------
 
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
+STATUS_NOT_SUPPORTED = 11
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x05, 0x06
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_STREAM_INFO, CMD_GET_STREAM_INFO = 14, 15         # 0x000E / 0x000F
+
+# STREAM_INFO flags live in the tsn-gen 'msrp_flags' 64-bit word (the RTL's
+# 32-bit w_si_flags mapped into its top 32 bits, so w_si_flags[29] -> bit 61).
+# Milan §5.4.2.9: MSRP_ACC_LAT_VALID is the ONLY supported SET sub-command; any
+# other spec-defined flag -> NOT_SUPPORTED (mirrors SI_UNSUPPORTED_MASK_C in
+# KL_aecp_response_builder.sv).
+SI_FLAG_MSRP_ACC_LAT = 1 << 61                           # 0x2000000000000000
+SI_UNSUPPORTED_MASK = 0xD800000000000000                 # 0xF8.. defined bits minus ACC_LAT
 
 
 class MilanAecpModel:
     """clock_source_index in 0..2 on CLOCK_DOMAIN[0]; IDENTIFY control is
-    LINEAR_UINT8 with step 255 (only 0 / 255 legal) on CONTROL[0]."""
+    LINEAR_UINT8 with step 255 (only 0 / 255 legal) on CONTROL[0]. STREAM_INFO:
+    GET on STREAM_INPUT[<2]/STREAM_OUTPUT[0] is SUCCESS; SET is Milan-partial —
+    unsupported on a Listener STREAM_INPUT, and on a Talker STREAM_OUTPUT only
+    the MSRP_ACC_LAT sub-command is honoured (msrp_acc_lat presentation offset)."""
 
     def __init__(self):
         self.clock_source_index = 0
         self.identify = 0
+        self.msrp_acc_lat = 0
 
     def process(self, fields):
         cmd = fields['command_type']
         dt, di = fields['descriptor_type'], fields['descriptor_index']
+        if cmd == CMD_GET_STREAM_INFO:
+            # getter: SUCCESS on the talker source[0] and the listener sinks[<2]
+            if dt == DESC_STREAM_OUTPUT and di == 0:
+                return STATUS_SUCCESS
+            if dt == DESC_STREAM_INPUT and di < 2:
+                return STATUS_SUCCESS
+            return STATUS_NO_SUCH_DESCRIPTOR
+        if cmd == CMD_SET_STREAM_INFO:
+            # Milan §5.4.2.9 documented-partial (KL_aecp_response_builder.sv):
+            if dt == DESC_STREAM_INPUT:
+                return STATUS_NOT_SUPPORTED       # Listener STREAM_INPUT: unimplemented
+            if dt != DESC_STREAM_OUTPUT:
+                return STATUS_BAD_ARGUMENTS
+            if di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            flags = fields['msrp_flags']
+            if flags & SI_UNSUPPORTED_MASK:
+                return STATUS_NOT_SUPPORTED       # any other defined sub-command
+            if not (flags & SI_FLAG_MSRP_ACC_LAT):
+                return STATUS_SUCCESS             # nothing requested: no-op (w_si_flags[29]==0)
+            if fields['msrp_accumulated_latency'] & (1 << 31):
+                return STATUS_BAD_ARGUMENTS       # latency > 0x7FFFFFFF ns
+            self.msrp_acc_lat = fields['msrp_accumulated_latency']
+            return STATUS_SUCCESS
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -377,6 +435,12 @@ def step_model_csi(context, v):
 @then('the model identify level is {v:d}')
 def step_model_identify(context, v):
     assert context.aecp_model.identify == v
+
+
+@then('the model msrp_acc_lat is {v:d}')
+def step_model_msrp_acc_lat(context, v):
+    assert context.aecp_model.msrp_acc_lat == v, \
+        f'msrp_acc_lat={context.aecp_model.msrp_acc_lat}, expected {v}'
 
 
 @when('the model processes {n:d} SET_CLOCK_SOURCE frames from seeds {a:d} to {b:d}')
