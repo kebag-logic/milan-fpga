@@ -6,6 +6,29 @@ Each command lands as its own branch `item-10-<cmd>` → PR against `main`, revi
 Builds on the existing host-sim + tsn_gen infra (`tests/steps/aecp_common_steps.py`,
 `tests/steps/tsn_gen_steps.py`) and the real-wire CERT `es-4.x` suite.
 
+## Prerequisites & running (common to every item-10 PR)
+
+Every item-10 fixture is **offline host-sim** — the tsn_gen `packet_gen` generates the PDUs
+and the Milan AECP/ACMP model (mirrors the RTL, itself verified by `tb/verilator/aecp`) checks
+them. No board, no bench. One-time setup (paths are the bench convention):
+
+```bash
+git clone git@github.com:kebag-logic/milan-fpga.git && cd milan-fpga
+export TSAGEN_DIR=/home/alex/tsn-gen
+export PACKET_GEN=$TSAGEN_DIR/build/traffic-gen/packet_gen
+BEHAVE=~/litex-milan/venv/bin/behave
+```
+
+Then **each PR differs only by its branch + feature filter** — this is what the PRs reference
+instead of repeating the setup:
+
+```bash
+git checkout <PR-branch>            # e.g. item-10-clock-source
+$BEHAVE tests -i <feature>          # e.g. -i item10_clock_source
+```
+
+`@tsn_gen` scenarios skip cleanly when `packet_gen` is absent (CI/bench runs them for real).
+
 ## Why a command needs a *fixture class* (not one generic test)
 
 A getter and a setter have fundamentally different failure surfaces, so they get different
