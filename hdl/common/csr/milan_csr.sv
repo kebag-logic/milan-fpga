@@ -226,6 +226,11 @@ module milan_csr #(
   input  wire [31:0]             i_mcsrv_stat,        //! RO 0x8F8: MMCM-DRP media-clock servo status
   output wire                    o_mcsrv_ps_invert,   //! MCSRV_CTRL 0x8FC[0]: PS direction flip
   output wire                    o_mcsrv_auto_repair, //! MCSRV_CTRL 0x8FC[1]: 1 = allow DRP divider repair (bench-gated, default 0)
+  //! item-11 AAF per-stage latency taps (LTAP group, base 0x870)
+  input  wire [16*32-1:0]        i_ltap_regs,         //! RO 0x874-0x8B0: 16 packed readback words (KL_aaf_latency_taps)
+  input  wire [31:0]             i_ltap_status,       //! RO 0x870 status field (active/stage; enable OR-ed in here)
+  output wire                    o_ltap_en,           //! LTAP_CTRL[1]: measurement enable (default 1)
+  output wire                    o_ltap_clr,          //! LTAP_CTRL[0] W1S: 1-cycle stats clear
   output wire                    o_crft_en,           //! CRF talker enable (0x750)
   output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
   output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
@@ -450,6 +455,13 @@ module milan_csr #(
   //! to it for a future servo knob.
   localparam [ADDR_WIDTH-1:0] A_MCSRV_STAT = 'h8F8;  //! RO live: {trim16, flags, state3}
   localparam [ADDR_WIDTH-1:0] A_MCSRV_CTRL = 'h8FC;  //! RW: [0] ps_invert (bench sign knob, 2026-07-23); [1] auto_repair enable (bench-gated DRP divider repair, default 0)
+  //! item-11 AAF per-stage latency taps (KL_aaf_latency_taps). Parked just
+  //! ABOVE the 0x800 stream window (which ends at A_STRMW_END = 0x870): CTRL
+  //! at 0x870 then 16 packed RO words at 0x874-0x8B0. Like the servo, the RO
+  //! words need the >=0x800 rd_in_window carve-out below or they read 0.
+  localparam [ADDR_WIDTH-1:0] A_LTAP_CTRL = 'h870;   //! RW: [1] enable (def 1); W1S [0] clear stats. RO: {stage/active status}
+  localparam [ADDR_WIDTH-1:0] A_LTAP_BASE = 'h874;   //! first RO readback word (16 words, packed)
+  localparam [ADDR_WIDTH-1:0] A_LTAP_END  = 'h8B4;   //! one past the last RO word (0x8B0)
   // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
   //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
   //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
@@ -611,6 +623,8 @@ module milan_csr #(
   logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] mcsrv_ctrl;               //! MCSRV_CTRL 0x8FC: [0]=ps_invert, [1]=auto_repair enable
+  logic        ltap_en_r;                //! LTAP_CTRL[1]: latency-tap measurement enable (reset 1)
+  logic        ltap_clr_p;               //! LTAP_CTRL[0] W1S: 1-cycle stats-clear strobe
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
@@ -795,6 +809,8 @@ module milan_csr #(
       as2_lo <= 32'h0; as2_hi <= 32'h0;
       tone_ctrl  <= 32'h0;
       mcsrv_ctrl <= 32'h0;
+      ltap_en_r  <= 1'b1;   //! latency taps measure by default
+      ltap_clr_p <= 1'b0;
       gptp_pdelay <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
       lwsrp_dmlo <= 32'hF000_FE01;
@@ -824,6 +840,7 @@ module milan_csr #(
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
       tcam_wr_p <= 1'b0;
+      ltap_clr_p <= 1'b0;
       //! P12: engine CFG-word write requests hold until the engine's
       //! same-cycle accept (the engines arbitrate their single RAM write
       //! port; a one-cycle pulse could be lost to an engine-write slot)
@@ -897,6 +914,10 @@ module milan_csr #(
           A_AS2_HI:     as2_hi   <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
           A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;
+          A_LTAP_CTRL: begin              //! [1] enable RW; [0] W1S stats clear
+            ltap_en_r <= s_axi_wdata[1];
+            if (s_axi_wdata[0]) ltap_clr_p <= 1'b1;
+          end
           //! I2SPB rail counters W1C (gaps 5b): each half clears on a write
           //! with any bit of that half set - the saturated-and-stuck-forever
           //! rail becomes re-armable without touching the other rail
@@ -1220,9 +1241,11 @@ module milan_csr #(
 
   always_comb begin : read_mux
     logic [ADDR_WIDTH-1:0] soff;         //! STAT window offset
+    logic [ADDR_WIDTH-1:0] loff;         //! LTAP RO-word offset
     live_mux = 32'h0;
     live_hit = 1'b1;
     soff = rd_addr_q - A_STATS_BASE;
+    loff = rd_addr_q - A_LTAP_BASE;
     unique case (rd_addr_q)
       A_IRQ_STATUS: live_mux = irq_status;
       A_IRQ_RAW:    live_mux = irq_status;
@@ -1269,6 +1292,8 @@ module milan_csr #(
       A_LINKG_STAT: live_mux = i_linkg_stat;
       A_MCSRV_STAT: live_mux = i_mcsrv_stat;
       A_MCSRV_CTRL: live_mux = mcsrv_ctrl;
+      //! LTAP_CTRL: module status ({stage,active}) with enable OR-ed into [1]
+      A_LTAP_CTRL:  live_mux = i_ltap_status | {30'd0, ltap_en_r, 1'b0};
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
@@ -1276,6 +1301,8 @@ module milan_csr #(
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
+        else if (rd_addr_q >= A_LTAP_BASE && rd_addr_q < A_LTAP_END)
+          live_mux = i_ltap_regs[32*32'(loff[5:2]) +: 32];  //! 16 packed RO words
         else
           live_hit = 1'b0;                //! -> shadow (or 0 above the window)
       end
@@ -1362,7 +1389,10 @@ module milan_csr #(
   //! EVERY build while the servo ran fine - caught by the [SERVO] dp-TB leg)
   wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] ||
                       (rd_addr_q == A_MCSRV_STAT) ||
-                      (rd_addr_q == A_MCSRV_CTRL);
+                      (rd_addr_q == A_MCSRV_CTRL) ||
+                      //! item-11 LTAP group (CTRL 0x870 + 16 RO words) lives
+                      //! >=0x800, so it needs the same carve-out as the servo
+                      ((rd_addr_q >= A_LTAP_CTRL) && (rd_addr_q < A_LTAP_END));
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) r_data <= 32'h0;
     else if (rd_pend)
@@ -1424,6 +1454,8 @@ module milan_csr #(
   assign o_tone_enable      = tone_ctrl[0];
   assign o_mcsrv_ps_invert  = mcsrv_ctrl[0];
   assign o_mcsrv_auto_repair = mcsrv_ctrl[1];
+  assign o_ltap_en          = ltap_en_r;
+  assign o_ltap_clr         = ltap_clr_p;
   assign o_i2spb_clr_under  = i2spb_clru_p;
   assign o_i2spb_clr_over   = i2spb_clro_p;
   assign o_tone_att         = tone_ctrl[3:1];

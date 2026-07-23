@@ -39,6 +39,8 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x700` | RX destination-MAC TCAM filter |
 | `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
+| `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
+| `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
@@ -464,6 +466,60 @@ TSpec words exist.
 (dir 1): every window word reads 0, writes are ignored (no alias, no engine
 strobes, no provisioning), SNAP latches zeros and completes. `A_STRM_SEL` /
 `A_STRM_SNAP` themselves always decode.
+
+### 0x870  -  AAF per-stage latency taps  `(roadmap item-11, KL_aaf_latency_taps)`
+
+Per-stage TX/RX AAF pipeline latency, measured in **axis_clk cycles** (divide
+by the datapath clock - 50 MHz Arty / 100 MHz AX7101 - for seconds). Two
+independent chains each latch a free-running cycle count at the documented
+pipeline points and expose the inter-stage deltas (last / min / max,
+saturating 16-bit) plus the gPTP epoch of the measured reference frame:
+
+  * **TX**: `CAP` (ring/I2S pair in) `->` `PKT_SOF` (packetizer first beat)
+    `->` `PKT_EOF` (packetizer last beat) `->` `MAC_TX` (frame egresses the
+    MAC boundary). Deltas d0 = CAP→SOF, d1 = SOF→EOF, d2 = EOF→MAC.
+  * **RX**: `MAC_RX` (frame ingress) `->` `ACCEPT` (AVTP monitor
+    parse-complete / accept pulse) `->` `DEPKT` (payload last beat) `->`
+    `PCM_RING` (payload accepted at the ring writer). Deltas d0 = MAC_RX→ACCEPT,
+    d1 = ACCEPT→DEPKT, d2 = DEPKT→RING.
+
+**Measurement model.** Each chain follows ONE tagged reference frame at a
+time: it arms on a stage-0 edge (latching the epoch cycle + gPTP time), takes
+the next edge at each later stage as that frame's progress, and on the final
+stage records the deltas + publishes the epoch + increments `samples`. A
+per-stage timeout (`TIMEOUT_C` ≈ 0.5 ms) aborts and re-arms a stuck token
+(`timeouts++`), so a dropped frame never wedges the chain. The token is
+followed by ORDER, not a threaded frame id, so under mixed traffic a shared
+boundary (`MAC_TX`/`MAC_RX`) may catch a nearer non-AAF edge - min/last/max
+therefore characterise the latency ENVELOPE rather than one exact frame. The
+I2S-out playout stage is FIFO-fill dominated (the CDC pair FIFO decouples PDUs
+from DAC frames) and stays observed via `I2SPB_STAT` fill/converged; a **DDR3
+per-sample history ring is the documented follow-up**.
+
+Both the `LTAP_CTRL` status word and the 16 RO readback words live at
+`>= 0x800`, so - exactly like the servo - they need the `rd_in_window`
+carve-out or they read 0. Per-delta packing: word `2d` = `{max16, last16}`,
+word `2d+1` = `{16'd0, min16}`.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x870` | `LTAP_CTRL` | RW | `0x2` | W: `[1]` enable (measure; reset 1), `[0]` W1S clear all stats. R: `[1]` enable, `[8]` tx_active, `[11:9]` tx stage awaited, `[12]` rx_active, `[15:13]` rx stage awaited |
+| `0x874` | `LTAP_TX_EPOCH` | RO | `0` | gPTP ns (`ptp_now[31:0]`) latched at the last completed TX frame's CAP stage |
+| `0x878` | `LTAP_TX_INFO` | RO | `0` | `[15:0]` samples (completed TX frames, saturating), `[31:16]` timeouts (aborted tokens) |
+| `0x87C` | `LTAP_TX_D0` | RO | `0` | CAP→SOF: `[15:0]` last, `[31:16]` max (cycles) |
+| `0x880` | `LTAP_TX_D0_MIN` | RO | `0xFFFF` | CAP→SOF: `[15:0]` min (cycles) |
+| `0x884` | `LTAP_TX_D1` | RO | `0` | SOF→EOF: `[15:0]` last, `[31:16]` max |
+| `0x888` | `LTAP_TX_D1_MIN` | RO | `0xFFFF` | SOF→EOF: `[15:0]` min |
+| `0x88C` | `LTAP_TX_D2` | RO | `0` | EOF→MAC_TX: `[15:0]` last, `[31:16]` max |
+| `0x890` | `LTAP_TX_D2_MIN` | RO | `0xFFFF` | EOF→MAC_TX: `[15:0]` min |
+| `0x894` | `LTAP_RX_EPOCH` | RO | `0` | gPTP ns latched at the last completed RX frame's MAC_RX stage |
+| `0x898` | `LTAP_RX_INFO` | RO | `0` | `[15:0]` samples, `[31:16]` timeouts |
+| `0x89C` | `LTAP_RX_D0` | RO | `0` | MAC_RX→ACCEPT: `[15:0]` last, `[31:16]` max |
+| `0x8A0` | `LTAP_RX_D0_MIN` | RO | `0xFFFF` | MAC_RX→ACCEPT: `[15:0]` min |
+| `0x8A4` | `LTAP_RX_D1` | RO | `0` | ACCEPT→DEPKT: `[15:0]` last, `[31:16]` max |
+| `0x8A8` | `LTAP_RX_D1_MIN` | RO | `0xFFFF` | ACCEPT→DEPKT: `[15:0]` min |
+| `0x8AC` | `LTAP_RX_D2` | RO | `0` | DEPKT→PCM_RING: `[15:0]` last, `[31:16]` max |
+| `0x8B0` | `LTAP_RX_D2_MIN` | RO | `0xFFFF` | DEPKT→PCM_RING: `[15:0]` min |
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 
