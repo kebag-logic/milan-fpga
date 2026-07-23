@@ -33,8 +33,7 @@ BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv 
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
  --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \
  --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues 2 \
- --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 \
- --update-repo no --build"
+ --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
 cd "$W"
 rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}
 launch() {
