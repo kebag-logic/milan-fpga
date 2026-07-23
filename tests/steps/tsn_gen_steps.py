@@ -45,6 +45,30 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'GET_AUDIO_MAP': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_get_audio_map::AECP_GET_AUDIO_MAP::'
+                      'AECP_GET_AUDIO_MAP_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('map_index', 16),
+                   ('reserved', 16)],
+    },
+    'AUDIO_MAPPINGS': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_audio_mappings::AECP_AUDIO_MAPPINGS::'
+                      'AECP_AUDIO_MAPPINGS_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('number_of_mappings', 16),
+                   ('reserved', 16), ('mapping_stream_index', 16),
+                   ('mapping_stream_channel', 16), ('mapping_cluster_offset', 16),
+                   ('mapping_cluster_channel', 16)],
+    },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
         'interface': 'milan_acmp::MILAN_ACMP::MILAN_ACMP_IF',
@@ -150,6 +174,143 @@ class MilanAecpModel:
                 return STATUS_BAD_ARGUMENTS
             self.identify = value
             return STATUS_SUCCESS
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Milan v1.2 dynamic audio-map model + chmap64 fabric projection
+# (mirrors KL_aecp_response_builder under `AEM_DYNMAP, and encodes the
+# AEM->fabric binding contract documented in docs/CHMAP64_AEM_BINDING.md).
+#
+# Command codes are the RTL/spec values from hdl/ieee17221/aecp/aecp_pkg.sv:
+#   GET_AUDIO_MAP        = 43 (0x2B)   §7.4.44
+#   ADD_AUDIO_MAPPINGS   = 44 (0x2C)   §7.4.45 / Milan 5.4.2.27
+#   REMOVE_AUDIO_MAPPINGS= 45 (0x2D)   §7.4.46 / Milan 5.4.2.28
+# ---------------------------------------------------------------------------
+
+CMD_GET_AUDIO_MAP = 43
+CMD_ADD_AUDIO_MAPPINGS = 44
+CMD_REMOVE_AUDIO_MAPPINGS = 45
+DESC_STREAM_PORT_INPUT = 0x0E
+DESC_STREAM_PORT_OUTPUT = 0x0F
+STATUS_NOT_SUPPORTED = 11
+
+
+class MilanAudioMapModel:
+    """Dynamic audio-map responder for STREAM_PORT_INPUT[0], mirroring the
+    `AEM_DYNMAP path of KL_aecp_response_builder (defaults KEYS=8, NMAPS=2,
+    PAGE=4 from avdecc/gen_aem_store.py; the RTL is verified by tb/aecp).
+
+    Milan 5.4.2.26 mono clusters: the store key IS the mapping_cluster_offset
+    (at most one dynamic mapping per Audio-Cluster channel). A mapping record
+    is (stream_index, stream_channel, cluster_offset, cluster_channel).
+
+      * ADD is all-or-nothing (5.4.2.27): any invalid record -> BAD_ARGUMENTS
+        and NOTHING is written; a repeated key within one command is the
+        mandated same-cluster-channel conflict -> BAD_ARGUMENTS.
+      * REMOVE is lenient (5.4.2.28): clears exact matches, ignores the rest,
+        always SUCCESS on the input port.
+
+    Each accepted record projects to a chmap64 render map word
+    {en, stream[2:0], ch[2:0]} at the cluster-offset (physical-channel)
+    address; each cleared record disables that word. That projection IS the
+    executable chmap64 binding contract (docs/CHMAP64_AEM_BINDING.md)."""
+
+    def __init__(self, keys=8, nmaps=2, page=4, stream_channels=8):
+        self.keys = keys              # AEM_DMAP_KEYS_C: render output channels
+        self.nmaps = nmaps            # AEM_DMAP_NMAPS_C: GET_AUDIO_MAP pages
+        self.page = page              # AEM_DMAP_PAGE_C: mappings per page
+        self.stream_channels = stream_channels  # channels in STREAM_INPUT[0]
+        self.store = {}               # cluster_offset -> stream_channel
+        self.fabric_map = {}          # cluster_offset -> {en,stream,ch} word
+        self.last_get = None          # rows returned by the last GET page
+
+    # -- validity (5.4.2.27) ------------------------------------------------
+    def _shape_ok(self, si, sc, co, cc):
+        # single audio-carrying input (stream_index 0), mono cluster
+        # (cluster_channel 0), cluster key in range
+        return si == 0 and cc == 0 and co < self.keys
+
+    def _ch_ok(self, sc):
+        # stream_channel inside the current STREAM_INPUT[0] format
+        return sc < self.stream_channels
+
+    # -- fabric projection --------------------------------------------------
+    def _project_add(self, si, sc, co):
+        self.fabric_map[co] = {'en': 1, 'stream': si, 'ch': sc}
+
+    def _project_remove(self, co):
+        self.fabric_map[co] = {'en': 0, 'stream': 0, 'ch': 0}
+
+    def word(self, co):
+        """The 7-bit chmap64 map word {en[6], stream[5:3], ch[2:0]}."""
+        m = self.fabric_map.get(co, {'en': 0, 'stream': 0, 'ch': 0})
+        return ((m['en'] & 1) << 6) | ((m['stream'] & 0x7) << 3) | (m['ch'] & 0x7)
+
+    def enabled_words(self):
+        return sum(1 for m in self.fabric_map.values() if m['en'])
+
+    # -- command processing -------------------------------------------------
+    def process_mappings(self, cmd, dt, di, mappings):
+        if dt == DESC_STREAM_PORT_OUTPUT and di == 0:
+            return STATUS_NOT_SUPPORTED          # static output maps
+        if dt != DESC_STREAM_PORT_INPUT or di != 0:
+            return STATUS_NO_SUCH_DESCRIPTOR
+        if len(mappings) > 60:                   # one-AECPDU engine bound
+            return STATUS_BAD_ARGUMENTS
+        if not mappings:
+            return STATUS_SUCCESS                # empty edit, no change
+
+        if cmd == CMD_ADD_AUDIO_MAPPINGS:
+            claim = set()                        # intra-command same-key guard
+            for si, sc, co, cc in mappings:      # validate pass
+                if (not self._shape_ok(si, sc, co, cc)
+                        or not self._ch_ok(sc) or co in claim):
+                    return STATUS_BAD_ARGUMENTS  # all-or-nothing
+                claim.add(co)
+            for si, sc, co, cc in mappings:      # commit pass (replace allowed)
+                self.store[co] = sc
+                self._project_add(si, sc, co)
+            return STATUS_SUCCESS
+
+        # REMOVE — lenient single commit pass
+        for si, sc, co, cc in mappings:
+            if (self._shape_ok(si, sc, co, cc) and sc < 16
+                    and self.store.get(co) == sc):
+                del self.store[co]
+                self._project_remove(co)
+        return STATUS_SUCCESS
+
+    def process_get(self, dt, di, map_index):
+        if dt == DESC_STREAM_PORT_OUTPUT and di == 0:
+            self.last_get = None                 # static output map, well-formed
+            return STATUS_SUCCESS
+        if dt != DESC_STREAM_PORT_INPUT or di != 0:
+            self.last_get = None
+            return STATUS_NO_SUCH_DESCRIPTOR
+        if map_index >= self.nmaps:              # 7.4.44.1 paging
+            self.last_get = None
+            return STATUS_BAD_ARGUMENTS
+        lo = map_index * self.page
+        self.last_get = [(0, self.store[k], k, 0)
+                         for k in range(lo, lo + self.page) if k in self.store]
+        return STATUS_SUCCESS
+
+    def process(self, fields):
+        """Drive the model from a decoded tsn_gen frame (one mapping/frame,
+        matching the aecp_aem_audio_mappings.yaml single-mapping layout)."""
+        cmd = fields['command_type']
+        dt = fields.get('descriptor_type', 0)
+        di = fields.get('descriptor_index', 0)
+        if cmd == CMD_GET_AUDIO_MAP:
+            return self.process_get(dt, di, fields.get('map_index', 0))
+        if cmd in (CMD_ADD_AUDIO_MAPPINGS, CMD_REMOVE_AUDIO_MAPPINGS):
+            n = fields.get('number_of_mappings', 1)
+            rec = (fields.get('mapping_stream_index', 0),
+                   fields.get('mapping_stream_channel', 0),
+                   fields.get('mapping_cluster_offset', 0),
+                   fields.get('mapping_cluster_channel', 0))
+            return self.process_mappings(cmd, dt, di, [rec] if n else [])
         return None
 
 
@@ -403,6 +564,85 @@ def step_fuzz_invariant(context):
                 f'model rejected a legal write with {status}: {f}'
     csi = context.aecp_model.clock_source_index
     assert csi < 3, f'state corrupted: clock_source_index={csi}'
+
+
+# ---------------------------------------------------------------------------
+# Steps — Milan dynamic audio maps + chmap64 fabric projection
+# ---------------------------------------------------------------------------
+
+@given('a fresh Milan audio-map model')
+def step_fresh_audiomap(context):
+    context.amap = MilanAudioMapModel()
+
+
+@when('the audio-map model processes the frame')
+def step_audiomap_process(context):
+    context.amap_status = context.amap.process(context.frame_fields)
+
+
+@when('I ADD mapping stream_channel {sc:d} at cluster_offset {co:d}')
+def step_amap_add(context, sc, co):
+    context.amap_status = context.amap.process_mappings(
+        CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0, [(0, sc, co, 0)])
+
+
+@when('I REMOVE mapping stream_channel {sc:d} at cluster_offset {co:d}')
+def step_amap_remove(context, sc, co):
+    context.amap_status = context.amap.process_mappings(
+        CMD_REMOVE_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0, [(0, sc, co, 0)])
+
+
+@when('I ADD a same-key mapping pair at cluster_offset {co:d} with stream_channels {a:d} and {b:d}')
+def step_amap_add_dup(context, co, a, b):
+    context.amap_status = context.amap.process_mappings(
+        CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0,
+        [(0, a, co, 0), (0, b, co, 0)])
+
+
+@when('the audio-map model GETs input page {mi:d}')
+def step_amap_get(context, mi):
+    context.amap_status = context.amap.process_get(
+        DESC_STREAM_PORT_INPUT, 0, mi)
+
+
+@then('the audio-map model responds status {code:d}')
+def step_amap_status(context, code):
+    assert context.amap_status == code, \
+        f'audio-map status {context.amap_status}, expected {code}'
+
+
+@then('the fabric map word at cluster_offset {co:d} is en {en:d} stream {s:d} ch {ch:d}')
+def step_fabric_word_fields(context, co, en, s, ch):
+    m = context.amap.fabric_map.get(co, {'en': 0, 'stream': 0, 'ch': 0})
+    assert (m['en'], m['stream'], m['ch']) == (en, s, ch), \
+        f'cluster_offset {co}: fabric word {m}, expected en={en} stream={s} ch={ch}'
+
+
+@then('the fabric map word at cluster_offset {co:d} equals {val}')
+def step_fabric_word_value(context, co, val):
+    v = int(val, 0)
+    assert context.amap.word(co) == v, \
+        f'cluster_offset {co}: word {context.amap.word(co):#04x}, expected {v:#04x}'
+
+
+@then('the fabric render crossbar has {n:d} enabled words')
+def step_fabric_enabled(context, n):
+    assert context.amap.enabled_words() == n, \
+        f'{context.amap.enabled_words()} enabled words, expected {n}'
+
+
+@then('the last GET lists {n:d} mappings')
+def step_get_count(context, n):
+    assert context.amap.last_get is not None, 'no GET page captured'
+    assert len(context.amap.last_get) == n, \
+        f'GET page has {len(context.amap.last_get)} mappings, expected {n}'
+
+
+@then('the last GET contains stream_channel {sc:d} at cluster_offset {co:d}')
+def step_get_contains(context, sc, co):
+    assert context.amap.last_get is not None, 'no GET page captured'
+    assert (0, sc, co, 0) in context.amap.last_get, \
+        f'(sc={sc}, co={co}) not in GET page {context.amap.last_get}'
 
 
 # ---------------------------------------------------------------------------
