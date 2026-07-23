@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `findings/PERFORMANCE_GOAL.md` (budget model folded in). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # Getting the maximum out of the gigabit link  -  headroom analysis at 100 MHz
 
 *2026-07-09/10 night. Every number here is silicon-measured on `build_r2slots`

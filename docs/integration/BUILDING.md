@@ -5,7 +5,7 @@ maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
 configuration, and the per-board load/console facts you need after a build
 lands. Test layers around a build: ../testing/RUNNING_TESTS.md. Live lab
-state: ../findings/SESSION_HANDOFF.md.*
+state: ../findings/HANDOVER.md.*
 
 ## 1. Usage
 
@@ -39,20 +39,21 @@ them override).
 ### `ax7101`  -  Alinx AX7101, the perf/ship platform
 
 xc7a100t**fgg484-2**, 1 GbE (RTL8211E strapped GMII), 512 MB DDR3
-(MT41J256M16), 16 MB N25Q128 QSPI. Shape: 2x VexiiRiscv @100 MHz, datapath in
-its own 100 MHz domain, 2 RX queues, header-split 16K pages (STRICT driver
-pairing, kl-eth `hs_pgsz=16384`), `--strip-probes` (ship diet), QSPI flashboot
-(hands-free Linux boot), `--gtx-tx-invert`, `--timing-opt --floorplan`, place
-directive ExtraPostPlacementOpt (the measured density winner, 91.0 pct slices
-vs 94.9 for the spread directives at identical RTL).
+(MT41J256M16), 16 MB N25Q128 QSPI. Shape: 1x VexiiRiscv @100 MHz + `--l2-bytes
+32768` (L2-32K; the 2x/L2-64K SMP shape is the SUPERSEDED perf-lineage variant),
+datapath in its own 100 MHz domain, 2 RX queues, header-split 16K pages (STRICT
+driver pairing, kl-eth `hs_pgsz=16384`), `--strip-probes` (ship diet), QSPI
+flashboot (hands-free Linux boot), `--gtx-tx-invert`, `--timing-opt --floorplan`,
+place directive ExtraPostPlacementOpt (the measured density winner, ~83 pct
+slices at identical RTL).
 
 ### `arty`  -  Digilent Arty A7-100, the second Milan node
 
 xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 100 MHz), 10/100 Ethernet (DP83848, **MII**; the SoC drives its 25 MHz
-`eth_ref_clk`), 256 MB DDR3 (MT41K128M16), serial boot only (`--with-spiflash`
-asserts on arty until the S25FL128S flashboot increment lands). Probes KEPT
-(bring-up forensics). Role: AVDECC/Milan interop peer and the 100 Mbit CBS
+`eth_ref_clk`), 256 MB DDR3 (MT41K128M16), QSPI flashboot (`--with-spiflash
+--flashboot full`; the S25FL128S flashboot increment has landed) and
+`--strip-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
 test point (`is_1g=0` slope branch); not a throughput peer.
 
 ### Adding a configuration
@@ -97,11 +98,11 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 | AX7101 | `openFPGALoader --ftdi-serial 210512180081 -c ft232 <bit>` | CP2102N adapter (by-id path appears when attached to the VM), 115200; tmux session `milan_qspi_boot` |
 | Arty A7-100 | `openFPGALoader --ftdi-serial 210319AFEED0 -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0`, 115200; tmux session `arty_console` |
 
-AX7101 traps (details in SESSION_HANDOFF/QSPI_FLASHBOOT): the bitstream goes
+AX7101 traps (details in HANDOVER/QSPI_FLASHBOOT): the bitstream goes
 to SRAM over JTAG (flash holds NO bitstream); NEVER `openFPGALoader -f` (it
 clobbers the Linux kernel at flash offset 0); power-cycle blanks the FPGA.
-The Arty has no flash images yet: after JTAG load, boot over serial
-(`litex_term --kernel ...`) or run the BIOS interactively.
+The Arty now flashboots too (`--flashboot full`); or, after JTAG load, boot
+over serial (`litex_term --kernel ...`) or run the BIOS interactively.
 
 ## 5. Gates before a build is "good"
 
@@ -114,5 +115,6 @@ The Arty has no flash images yet: after JTAG load, boot over serial
    line, see TROUBLESHOOTING (../limitations/) section 15).
 3. **Silicon section V checklist** (RUNNING_TESTS): boot, ID=MILN, driver
    pairing probe, ghost-peer ARP check, TX gate, RX cells. A build that
-   passes 1-2 but regresses the TX gate is NOT ship-cleared (see the open
-   cbsf_epo TX investigation in SESSION_HANDOFF).
+   passes 1-2 but regresses the TX gate is NOT ship-cleared (see the
+   cbsf_epo TX "regression", now RESOLVED as a phantom baseline — a gate
+   number is only valid with its full cell recipe; details in HANDOVER).

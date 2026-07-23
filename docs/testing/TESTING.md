@@ -8,7 +8,7 @@ protocol-level coverage contract is
 [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_MATRIX.md).
 
 > **Suite counts in prose go stale.** The authoritative count is the
-> directory listing (`ls tb/verilator/` - **17 suites** as of 2026-07). If a
+> directory listing (`ls tb/verilator/` - **~41 harness dirs** as of 2026-07). If a
 > doc and the tree disagree, the tree wins.
 
 ## 0. Prerequisites
@@ -30,8 +30,7 @@ for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 ```
 
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
-The 17 suites: `adp adp_tx avtp_stream cbs cdc classifier cls controller_rate
-csr datapath milan_dp ptp ptp_sync queues rx_filter shaper_core tcam`.
+`ls tb/verilator/` is authoritative (~41 harness dirs).
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, classifier programming, byte-exact
 TX/RX); `controller_rate` is the gating regression born from the
@@ -65,7 +64,7 @@ Detail (incl. what each of the three sim layers can and cannot catch):
 
 ## 4. Device-portability check - `syn/yosys/`
 
-sv2v + Yosys `synth` + `hierarchy -check` over **18 tops** (fails on any
+sv2v + Yosys `synth` + `hierarchy -check` over **~39 tops** (fails on any
 leftover vendor primitive), plus a concrete non-Xilinx mapping:
 
 ```sh

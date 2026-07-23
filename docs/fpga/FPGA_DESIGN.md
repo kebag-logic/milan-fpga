@@ -121,7 +121,7 @@ build/sim:** `git submodule update --init third_party/verilog-axis`.
 
 | Domain | Contents |
 |---|---|
-| `axis_clk` (~100 MHz, or its own 50 MHz `cd_milan` in the deployed LiteX build) | all of §2 except the PHC |
+| `axis_clk` (100 MHz `cd_milan` in the deployed LiteX build; ~50 MHz only when split via `--milan-clk-freq`) | all of §2 except the PHC |
 | `gtx_clk` (125 MHz) | `timestamp_counter` (PHC), MAC-side timestamp capture |
 | MAC RX recovered clock | inside the external MAC only |
 | host clocks (PS7 / LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |

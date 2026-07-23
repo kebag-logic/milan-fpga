@@ -1,5 +1,14 @@
 # HANDOVER — machine, topology, live state, tasks
 
+> ⚠️ **SUPERSEDED for LIVE STATE by [`HANDOVER_SMALL.md`](HANDOVER_SMALL.md) (2026-07-23).**
+> This file is the deep session-history log — read it for *how* things got done, not for
+> the current state. Live deltas since this log: the MMCM-DRP media-clock **servo is
+> silicon-proven at −83.9 dB** (the loop record below; the −73.4 dB figures are dated
+> NCO-era captures); the ship pair is **ARTY `asl_milanfinal53e` (VERSION 0x000A) + ALINX
+> `AX39`**, both **CERT 63/63**; the **AX42 e2 MAC-TX logic fix has landed** (silicon bench
+> pending); **ALSA record** works on silicon (playback scaffold pending); and the PCM ring
+> can target **on-chip BRAM** (`--pcm-ring bram`).
+
 > **Fresh session? Read `BENCH_TOPOLOGY.md` (same directory) FIRST** —
 > it is the where-is-what: machines, consoles, build/flash pipeline,
 > pw0 tooling, CERT-suite privacy rules, and the at-handover state.
@@ -7,9 +16,10 @@
 Updated 2026-07-20 (all-night CERT conformance campaign + two-entity re-verify
 after the AX manual power-cycle; ACMP-timeout mystery SOLVED = test-tool NIC
 filter, never a DUT bug).
-This is THE entry point for a fresh session or person: everything needed to
-operate the bench, trust the current state, and pick the next task. Detail
-lives in the named normative docs; this file states what is true NOW.
+This is the deep session-history log. For the CURRENT live state read
+[`HANDOVER_SMALL.md`](HANDOVER_SMALL.md) (2026-07-23) first; detail
+lives in the named normative docs. This file states what was true at the
+2026-07-20/21 campaign close — read it as history (see the banner above).
 
 ---
 

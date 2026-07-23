@@ -6,10 +6,10 @@ explains each layer: what it is, how it is wired, how to run it, and what it pro
 
 | Layer | Tool | Top | Proves | Where |
 |-------|------|-----|--------|-------|
-| **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | `tb/verilator/` (17 harnesses — the directory listing is authoritative) |
+| **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | `tb/verilator/` (~41 harnesses — `ls tb/verilator/` authoritative) |
 | **2. Softcore boot** | Verilator (via LiteX) | the whole SoC | the NaxRiscv core boots the LiteX BIOS | `litex_sim` / `sw/litex/evidence/naxriscv_sim_boot.log` |
 | **3. Softcore + NIC (M-A2)** | Verilator (via LiteX) | SoC + `milan_datapath` | the **CPU reads the NIC over the real bus** | `sw/litex/milan_sim.py` / `…/naxriscv_reads_MILN.log` |
-| (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | `syn/yosys/` (18 tops)  -  not simulation, see its README |
+| (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | `syn/yosys/` (~39 tops)  -  not simulation, see its README |
 
 These three layers map to the sections below:
 [Section 1](#section-1-verilator-rtl-harnesses),
@@ -19,6 +19,10 @@ These three layers map to the sections below:
 Read alongside [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (architecture) and
 [`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md) (which test covers
 which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
+
+> **Softcore note:** the current ship softcore is **VexiiRiscv** (1-hart, `--l2-bytes 32768`);
+> NaxRiscv is the historical / pure-NIC option, and the NaxRiscv boot logs referenced below
+> are retained as the original softcore-boot evidence trail.
 
 ---
 
@@ -130,8 +134,8 @@ Source order matters: packages (`ethernet_packet_pkg.sv`, `adp_pkg.sv`) and the
 ```sh
 cd tb/verilator/milan_dp && make          # one harness
 # the whole suite:
-cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # glob = all 17
-# expected: each ends "<name>: N checks, 0 failures"; suite total 17/17 green
+cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # glob = all ~41
+# expected: each ends "<name>: N checks, 0 failures"; suite total ~41/~41 green
 ```
 
 ### Section 1.4: Warning suppressions and why they are safe
@@ -266,10 +270,10 @@ the prompt in seconds instead of grinding the memtest/memspeed at the simulated
 
 | Result | File |
 |--------|------|
-| 15 RTL harnesses pass | run `tb/verilator/` (self-checking; no stored log) |
+| ~41 RTL harnesses pass | run `tb/verilator/` (self-checking; no stored log) |
 | Bare softcore boots to `litex>` | `sw/litex/evidence/naxriscv_sim_boot.log` |
 | CPU reads NIC ID = MILN (M-A2) | `sw/litex/evidence/naxriscv_reads_MILN.log` |
-| 18 tops synthesize (device-portable) | run `syn/yosys/run.sh` |
+| ~39 tops synthesize (device-portable) | run `syn/yosys/run.sh` |
 
 ## Section 5: Speed notes
 

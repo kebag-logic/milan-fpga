@@ -1,8 +1,10 @@
 # Milan v1.2 — remaining gaps to FULL compliance
 
-Status date: 2026-07-21 morning, after the close-all-gaps night
-(ARTY 63/63 on `eppo_milanfinal41`, ALINX 63/63 on `eppo_milanfinal30`
-QSPI-self-boot; both 0x4B byte-exact; CRF e2e locked at +6.7 ppm).
+Status date: 2026-07-23 (was 07-21 morning, after the close-all-gaps night;
+ARTY 63/63 on `eppo_milanfinal41`, ALINX 63/63 on `eppo_milanfinal30`
+QSPI-self-boot; both 0x4B byte-exact; CRF e2e locked at +6.7 ppm; since then
+the MMCM-DRP media-clock servo is silicon-proven at −83.9 dB and the AX42 logic
+fix has landed — see item 0).
 This file lists ONLY what is still missing or approximate. What already
 passes is recorded in `docs/findings/HANDOVER.md` (certification section)
 and is not repeated here.
@@ -73,7 +75,8 @@ and is not repeated here.
   DAC pair) through KL_aecp_top into milan_datapath, where they
   terminate; generalizing the KL_i2s_playback half-beat walker's
   fixed pos0/pos1 latch into per-position selects is the follow-up
-  (the walker is silicon-proven at the -73.4 dB record and a remap
+  (the walker is silicon-proven at the -83.9 dB record — MMCM-DRP servo
+  coherent chain, converter floor — and a remap
   rewrite is not bench-verifiable this round — honesty over reach).
 - ~~No-change SET suppression covers only SET_STREAM_INFO and
   SET_CONFIGURATION~~ **RESOLVED (2026-07-20):** WRITE_S reads the old
@@ -441,7 +444,10 @@ and is not repeated here.
 ## Suggested order of attack (reordered 2026-07-22 per USER)
 
 0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
-   fixed IN THE LOGIC — the AX42 round.** Silicon truth: a link bounce
+   fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED this session**
+   (the guard `eth_rst` reset scope now covers the PHY-side `eth_tx`/gtx
+   path; sim + full-SoC elaboration validated, **silicon bench pending**).
+   Silicon truth: a link bounce
    wedges the e2 TX path permanently (internal TX counters tick, the
    WIRE stays empty — the RMON live-counter test is blind to it, only
    the tap tells the truth); KL_link_guard DETECTS every outage and

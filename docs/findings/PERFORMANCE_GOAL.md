@@ -1,6 +1,6 @@
 # Throughput goal  -  >500 Mbit/s RX *and* TX, reach for 1 Gbit/s
 
-> 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
+> 📌 **Current state lives in [`../CHANGELOG.md`](../../CHANGELOG.md)** (the perf lever ledger + final campaign scoreboard). This doc is the perf-lineage campaign **record**; every number here is the **2-hart perf-campaign peak** — the **ship shape is 1-hart + `--l2-bytes 32768`**. Campaign **closed 07-10/11** (header-split zero-copy RX): **TX 582–646, RX no-copy 585–594, RX-with-copy 381/374** (both directions cross 500). **DDIO was REFUTED** — the copy tax was removed by header-split, not DDIO.
 
 ## ⚡ FORCED-MARCH RESULTS (2026-07-09 evening  -  R1 refuted, R2 LANDED, R3 in flight)
 

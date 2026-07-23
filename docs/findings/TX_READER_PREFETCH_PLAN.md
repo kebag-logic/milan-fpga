@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `fpga/PIPELINE_STAGES.md` (TX) + `CHANGELOG.md` (rejected-lever). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # TX RingDMAReader prefetch  -  design plan (roadmap step 1, primary TX lever)
 
 > ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.

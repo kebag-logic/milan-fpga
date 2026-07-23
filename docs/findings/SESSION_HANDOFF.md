@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `findings/HANDOVER_SMALL.md` (live state) + `findings/BENCH_TOPOLOGY.md`. Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # Session handoff  -  results, topology, harness (read this first)
 
 *Updated 2026-07-11 night. This page states RESULTS and live state; the deep

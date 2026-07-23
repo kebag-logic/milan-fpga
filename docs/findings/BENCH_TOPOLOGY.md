@@ -34,7 +34,8 @@ name; its material is private (see §7).
 
 Audio loop: ALINX tone (S50 enables TONE_CTRL) → AAF → ARTY DAC (Pmod
 I2S2 HP out, through the render LPF) → analog cable → ARTY ADC (line in)
-→ ARTY talker stream → wire. Loop THD+N record −73.4 dB (LPF on).
+→ ARTY talker stream → wire. Loop THD+N record −83.9 dB (LPF on, MMCM-DRP servo
+coherent chain — the CS4344⊕CS5343 converter floor; the old −73.4 was NCO-era).
 
 ## 3. Consoles from the dev box
 
@@ -134,8 +135,9 @@ segfaults) → scp via pw0 → `tone_thdn.py --chans 2 --f0 1000`.
   `~/bin/arty-linkflap.sh`, `~/bin/ax-linkflap.sh` (phy_crg_reset
   0xf0003800 via console). la_avdecc lib+probe: `~/la_avdecc-{src,build,probe}`
   (counters-probe expects ENTITY GET_COUNTERS = SUCCESS+empty).
-- Score to beat: **43/43 scenarios per board** (last full pass on
-  asl_mf35 + eppo_AX21).
+- Score to beat: **63/63 scenarios per board** (CERT; ship pair
+  ARTY `asl_milanfinal53e` (VERSION 0x000A) + ALINX `AX39`; suite grew past the
+  earlier 43/43 on asl_mf35 + eppo_AX21).
 
 ## 8. Board runtime (what runs where)
 
@@ -179,15 +181,17 @@ reads lie (shadow).
 - The CERT suite = 63 scenarios (private/recreate snapshot
   <CERT-recreate-snapshot-20260721>); tap helpers gptp_cadence.py + srp_domain.py
   on amx-ubuntu-server; es-4.5 self-quiesces (poll, no fixed sleeps).
-- Loop CLOSED 07-21: -73.4 dB (record) x3 on mf42+AX30, both channels,
-  LPF A/B flat; the night's -2.8 was a lapsed-bind + capture artifact
+- Loop CLOSED 07-21: -73.4 dB (record *that date*, NCO-era) x3 on mf42+AX30, both
+  channels, LPF A/B flat — **later superseded by the MMCM-DRP servo at −83.9 dB**
+  (converter floor); the night's -2.8 was a lapsed-bind + capture artifact
   (I2SPB_DBG decode = (word>>7)&0xFFFFFF — LRCK-aligned window shows
   the Philips 1-bit delay; re-bind + `tcpdump -B 16384` before
   measuring; THD on the longest seq-gap-free run only).
 - Open for the day shift: switch gPTP claim for the es-1.1/1.2 BMCA variants,
-  gaps-doc deferred list (MMCM-DRP servo actuator, 2nd lwSRP attr,
-  GMII CDC reinit, 8ch render, class-B, shadow invalidate,
-  pcm_ring_dump segv, kl-eth tx-stamp latency).
+  gaps-doc deferred list (MMCM-DRP servo actuator [**since BUILT + silicon-proven
+  −83.9 dB**], 2nd lwSRP attr, GMII CDC reinit, 8ch render, class-B, shadow
+  invalidate, pcm_ring_dump segv, kl-eth tx-stamp latency). Note: the PCM ring can
+  now also target on-chip BRAM (`--pcm-ring bram`); DRAM ring stays the default.
 - Bench-tooling fragilities learned tonight: arty-linkflap.sh drives
   the SESSION console (a login race eats the flap - verify SHELL-OK
   before cert runs); background flashes need ABSOLUTE paths; `timeout
@@ -197,9 +201,10 @@ reads lie (shadow).
 ## 10. Standing rules (violating any of these has burned us)
 
 1. amx-pw1 untouchable; dev box never on 192.168.127.x.
-2. AX QSPI never receives a bitstream; always JTAG-reload the AX after
-   flash-images; every openFPGALoader call carries the right
-   `--ftdi-serial`.
+2. AX QSPI-boot works since 2026-07-21 (see §2: bitstream@0 + images) — this
+   supersedes the old "AX QSPI never receives a bitstream / always JTAG-reload"
+   rule; JTAG-reload remains the belt until the mode-pin self-config `--reset`
+   test is confirmed. Every openFPGALoader call carries the right `--ftdi-serial`.
 3. Commits: one line, no trailers; milan-fpga = hackerman-kl,
    the-private-test-repo = the Alexandre Malki identity. Push only on request
    (and remember: force-push after the rewrite).

@@ -8,7 +8,9 @@ proven not to help - do not re-try without new evidence). Fixed bugs are not
 listed here; their post-mortems live in the [findings log](../findings/README.md)
 (§5) and field-level symptom→fix recipes in [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
-_Last reconciled against the tree: 2026-07-11._
+_Last reconciled against the tree: 2026-07-23 (note: this page does not yet fully
+reflect the −83.9 dB media-clock servo, the AX42 e2 MAC-TX logic fix, the on-chip
+BRAM PCM-ring option, or ALSA record)._
 
 ---
 
@@ -29,7 +31,7 @@ _Last reconciled against the tree: 2026-07-11._
 |---|---|---|
 | **No CI** | Nothing runs the (CI-ready) suites automatically; regressions are caught by discipline | run the [TESTING.md](../testing/TESTING.md) layers 1/2/4 before pushing |
 | **No version pins** | No requirements.txt / lockfile; `sw/litex/patches` are diffed against LiteX `master` and can stop applying | known-good LiteX: `a1e1c36` (recorded in `sw/litex/evidence/hw_naxriscv_reads_MILN.log`); re-diff per `patches/README.md` |
-| **CPU default ≠ published config** | `milan_soc.py --cpu` defaults to `naxriscv` and `deploy.sh` does not override it, while the scoreboard results are dual-hart **VexiiRiscv** (`--cpu vexiiriscv --cpu-count 2`) | see [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §2.5 |
+| **CPU default ≠ published config** | `milan_soc.py --cpu` defaults to `naxriscv` and `deploy.sh` does not override it, while the **shipped config is 1-hart VexiiRiscv** (`--cpu vexiiriscv` + `--l2-bytes 32768`). (The dual-hart `--cpu-count 2` scoreboard was a superseded perf-lineage variant.) | see [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §2.5 |
 | **`--coherent-dma` not implied by `--all-blocks`** | Omitting it builds a NIC that silently drops all RX and TXes garbage (DMA bypasses the snooping bus) | always pass it (deploy.sh does); hardware-confirmed 2026-07-04 |
 | **`external` submodule is SSH-only** | anonymous `git clone --recurse-submodules` fails on it | it is **not needed** - init only `third_party/verilog-axis` |
 | **Driver out of tree** | the `kl-eth` Linux driver lives in the sibling repo `kl-linux-drivers`; no kernel-version pin is documented | contract in [`sw/driver/README.md`](../../sw/driver/README.md) |

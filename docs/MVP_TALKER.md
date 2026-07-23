@@ -4,6 +4,13 @@ Status: 2026-07-12. Goal: a discoverable, la_avdecc-clean Milan endstation that
 STREAMS AAF-PCM audio from the Pmod I2S2 (JA) with zero CPU in the media path —
 running entirely from QSPI flash on power-up.
 
+> **STATUS SUPERSEDED (media clock):** the free-running media-clock caveats
+> below are a MILESTONE RECORD. The media clock is now recovered in silicon by
+> the MMCM-DRP servo (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`, MCSRV CSR
+> `0x8F8`/`0x8FC`): coherent CS4344+CS5343 chain, analog loop measured
+> **-83.9 dB** (the converter floor). Read this doc as the flash-standalone MVP
+> talker milestone; the AAF frame/CSR content below is unchanged and accurate.
+
 ## Signal chain (all fabric, cd_milan 50 MHz on the Arty)
 
 Pmod I2S2 ADC (CS5343, JA/pmoda) -> aaf_talker_i2s (I2S master; MCLK=clk/4,

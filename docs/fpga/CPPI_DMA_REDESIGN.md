@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `fpga/PIPELINE_STAGES.md`. Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # CPPI-style DMA redesign  -  on-chip descriptors, cut-through, zero-copy (plan)
 
 > **STATUS: DESIGN-ERA (pre-gate).** The BD/CPPI mode shipped, then gained: the drain full-gate at wr+16==rd (hsq6  -  the missing piece that caused the lap/desync storms this doc could not foresee), 256-entry rings (hsplit10), per-queue instances, hs v2/v3 encodings, cut-through ordering (hsq12). Living map: **RX_PERF_TUNING_MAP.drawio**.

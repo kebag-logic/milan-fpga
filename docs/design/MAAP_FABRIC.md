@@ -4,6 +4,11 @@ Goal: Milan-mandatory dynamic multicast-DMAC allocation for the talker
 (today `cfg_aaf_dmac` is statically provisioned). New `hdl/ieee1722/maap/KL_maap.sv`
 on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
+> **AS-BUILT:** `KL_maap` (`hdl/ieee1722/maap/KL_maap.sv`) is implemented in
+> fabric and silicon-proven (per `docs/ARCHITECTURE_HW_SW_SPLIT.md` rev 2) — no
+> longer a plan/future item. The design + reference contract below is the
+> as-built spec; the CSR block has been reconciled to REGISTER_MAP.
+
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)
 
 - Pool base `91:E0:F0:00:00:00`, size `0xFE00`; conflict compare = first
@@ -40,9 +45,12 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
   mux into the AAF framer dmac + GET_STREAM_INFO/ACMP dmac reporting when
   `MAAP_CTRL.en=1 && maap_valid`; `cfg_aaf_dmac` stays the manual lever
   (en=0 keeps today's behavior bit-exact — soft-migration like CBS bypass).
-- CSR (next free after 0x6C8): `0x6CC MAAP_CTRL` (en, count[7:0]),
-  `0x6D0 MAAP_STATUS` (state[1:0], valid, probe_count, offset[15:0]),
-  `0x6D4 MAAP_ADDR_LO/0x6D8 _HI` (RO allocated address), conflict counter.
+- CSR (per REGISTER_MAP): `0x6CC MAAP_CTRL` (RW, reset `0x0800`: `[0]` en,
+  `[1]` seed_valid, `[15:8]` block count (default 8), `[31:16]` seed offset),
+  `0x6D0 MAAP_STAT0` (RO: `[31:24]` conflicts, `[23:16]` DEFENDs sent,
+  `[15:0]` claimed offset), `0x6D4 MAAP_STAT1` (RO: `[2]` addr_valid
+  (= ANNOUNCE state), `[1:0]` state). There are NO separate ADDR_LO/ADDR_HI
+  registers — the allocated DMAC is 91:E0:F0:00 + claimed offset.
 - NV persistence (reference load/save_state) = softcore provisioning
   (S50milan writes the last-known offset into MAAP_CTRL before enable) —
   document, not fabric.
