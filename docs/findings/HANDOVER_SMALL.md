@@ -46,3 +46,33 @@ artifacts; use `-w` + offset-28 python or the srp_qna.py dissector).
    run_alinx.sh after). Then the pair CERT on mf52+AX41.
 4. SR VID = 2 ONLY (USER: "638" never existed - memories + HANDOVER
    retraction done).
+
+## LATE-MORNING ADDENDUM (07-23 ~07:30)
+- ★ SERVO SILICON-PROVEN on mf52: 0x8F8 visible, state LOCKED, trim
+  +7.3 ppm (= the known CRF offset), **rails ZERO** on the coherent
+  chain, analog loop **-83.9 dB NEW RECORD** (+10 dB over the NCO era),
+  HOLDOVER proven (state 5, trim frozen +8.1 ppm when the AX died).
+  The mf51 "wrong-way" was an INCOHERENT-CHAIN confounder (pw0 talker
+  rendered while the servo tracked the AX CRF) - polarity is CORRECT,
+  0x8FC knob default stays 0.
+- ★ PAIR CERT 63/63 + 63/63 (323/323 both) post-SRP-repair. run_alinx.sh
+  had the WRONG FLAP TARGET (127.3 = the ARTY - fixed to 127.1).
+- **AX IS NETWORK-DEAD, NEEDS HANDS**: the CERT link-flaps re-fired the
+  historic MAC-TX wedge (e2: the link guard DETECTS - 12 events - but
+  its auto macsys-reset never fires on e2, EPOCH stayed 1). JTAG
+  reconfig rebooted it but the LINK never returned: the PHY reports
+  no-link and the tap-1 leg carries ZERO frames both directions ->
+  physical: power-cycle/reseat the ProfiShark tap-1 leg (or bypass it).
+  After link returns: `modprobe kl-eth rsc_clk_mhz=100` + ifconfig
+  192.168.127.1 (the flashed rootfs still has the 50-default until the
+  AX41 images land). AX41 must add: e2 link-guard reset-path fix.
+- **ALSA rw-capture root cause = GATEWARE**: the 16-deep PCM CDC lane
+  sheds 1 beat in 24 when the CPU reads the ring region concurrently
+  (ring idle-clean, loaded-holed - proven by a concurrent
+  pcm_ring_dump). Fix committed: lane depth 128 (80ee795) -> needs the
+  mf53 build (chained after AX41 in Vivado). arecord itself works
+  (driver .copy op landed, d5c23b3); mmap mode clean even today.
+- mf52-asl (+0.155) FLASHED on the ARTY with the slim rootfs (alsa
+  fits: alsamixer/alsactl/ncurses/terminfo/fputest/iproute2-extras/
+  unused-modules trimmed; slot 8.89 of 8.91 MB - nearly full, next
+  growth needs a flash relayout).
