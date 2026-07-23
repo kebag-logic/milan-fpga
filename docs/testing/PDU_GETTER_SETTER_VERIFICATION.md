@@ -147,6 +147,8 @@ Scenario: every AAF-PCM PDU carries the Milan class-A field set
 | LOCK_ENTITY | setter (lock sem) | es-4.18, aecp_stack_lock_acquire | `item-10-lock` |
 | START/STOP_STREAMING | action | es-4.11 | `item-10-streaming` |
 | ENTITY_AVAILABLE | getter (liveness) | es-4.2 | `item-10-entity-available` |
+| CONTROLLER_AVAILABLE | getter (liveness) | — | `item-10-controller-available` |
+| REGISTER / DEREGISTER_UNSOLICITED_NOTIFICATION | action (notification registry) | aecp_unsolicited | `item-10-unsolicited-reg` |
 | GET_MILAN_INFO (MVU) | getter | es-4.17 | `item-10-milan-info` |
 | GET/SET_SYSTEM_UNIQUE_ID (MVU) | paired | — | `item-10-system-unique-id` |
 | GET/SET_MEDIA_CLOCK_REFERENCE_INFO (MVU) | paired **@wip** (M-AECP-9 unimpl.) | matrix ❌ | `item-10-media-clock-ref` |
