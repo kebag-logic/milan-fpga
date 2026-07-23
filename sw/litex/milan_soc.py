@@ -3760,6 +3760,12 @@ class MilanSoC(SoCCore):
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             _vex_args.vexii_args  = ("--xlen=64 " + vexii_extra).strip()
+            # NEVER pull the pinned VexiiRiscv/SpinalHDL repos at build time:
+            # the wrapper's `git checkout dev && git pull` dies the moment
+            # upstream dev touches the locally-patched Soc.scala (2026-07-23:
+            # upstream moved and killed 4 sweep launches on a clean bench).
+            # The build is hash-pinned - updating is a deliberate manual step.
+            _vex_args.update_repo = "no"
             VexiiRiscv.args_read(_vex_args)
             kwargs["cpu_type"]    = "vexiiriscv"
             kwargs["cpu_variant"] = "linux"
