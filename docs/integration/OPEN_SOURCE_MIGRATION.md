@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `integration/PORTING_GUIDE.md` §2 (Forencich core catalog preserved there). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # De-Xilinx plan  -  replace XPM/vendor IP with Alex Forencich open cores
 
 Goal: remove every **Xilinx-specific / licensed** primitive from the RTL and

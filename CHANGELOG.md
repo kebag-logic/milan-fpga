@@ -7,6 +7,12 @@ both RX and TX**, reaching for 1 Gbit/s. Platform: Alinx AX7101 (xc7a100t), dual
 **Discipline:** every lever is gated by an on-silicon HW-counter measurement *before and after*
 (the "measure, don't assume" rule). Numbers below are measured, deterministic-split harness.
 
+> **Perf-lineage banner (2026-07-23).** Every scoreboard number in this file was measured on the
+> **2-hart** VexiiRiscv perf-campaign SoC. That campaign is **closed**; the **ship shape is
+> 1-hart** VexiiRiscv + `--l2-bytes 32768`. The numbers below are retained as the **perf-lineage
+> record**, not the shipped configuration. Campaign close-out (07-10/11 header-split): TX
+> **582–646**, RX-with-copy **381/374**, RX no-copy **585–594** — both directions crossed 500.
+
 **Status (2026-07-09 night, post-R2):** TX **crosses 500** (513 −P4 re-verified on the R2
 gateware). RX after the R2 multi-slot-RSC campaign (`build_r2slots` + kl-eth `mslot60d`):
 **no-copy stack ceiling 925 Mbit (was 481 — ~93 % of line rate)**, TCP-with-copy
@@ -83,6 +89,7 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
 - **Deepen the DMA interconnect** (task #13): RX writer `outhi=2` has ~30× headroom — not the bottleneck.
 - **Driver `rxzc` zero-copy** (task #14): dead code (removed); the copy is the socket-API copy, not driver-fixable.
 - **Software prefetch**: VexiiRiscv D$ is blocking + no prefetch instruction → no-op on this core.
+- **DDIO / allocate-on-DMA-write** (`build_ddio`, task #15): **DEAD** — allocating every DMA write pollutes the L2 without warming the copy (frame evicted before `copy_to_user`); the copy tax was ultimately removed by **header-split zero-copy RX** (07-10/11), which is what carried RX no-copy to **585–594**.
 
 ---
 
@@ -90,9 +97,9 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
 
 | direction | best measured | goal | note |
 |---|:--:|:--:|---|
-| **TX** | **−P2 525–536**, −P4 ~410–475 | 500 | **crosses 500** at −P2; TX is datapath/shaper-bound (CPU levers don't move it) |
-| **RX** | **−P2 298** (mlp3) | 500 | copy-bound; **481 ceiling** if the recv copy is removed |
+| **TX** | **582–646** (07-10/11 header-split) | 500 | **crosses 500**; TX is datapath/shaper-bound (CPU levers don't move it) |
+| **RX** | **585–594** no-copy · **381/374** with real `recv()` copy | 500 | **crosses 500** no-copy via header-split zero-copy RX; the socket-copy path is the residual tax |
 
-**Next (task #15):** remove/​warm the recv payload copy — **DDIO / allocate-on-DMA-write** (a stash
-that lands the DMA'd frame warm so the copy and GRO header reads hit cache) or app-side zero-copy
-recv. The ceiling test proves this reaches ~481, i.e. essentially the RX goal.
+**Campaign closed (07-10/11).** The recv copy tax was removed by **header-split zero-copy RX**
+(not DDIO — that lever is DEAD, see above), carrying RX no-copy to **585–594** and TX to
+**582–646** on the 2-hart perf SoC. These are perf-lineage records; the ship shape is 1-hart.

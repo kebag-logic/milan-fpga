@@ -1,5 +1,14 @@
 # AEM and AECP
 
+> **As-built reconciliation (2026-07-23).** This page is the original design-rationale
+> notes. The shipped implementation (`hdl/ieee17221/aecp/`, silicon-validated) diverged in
+> a few specifics: the device ships **two entities — a small MII endstation entity and a
+> full entity** (not the illustrative "Raki 48/96/192 kHz" descriptor set sketched below);
+> the **AUDIO_MAP default is STATIC** (not "everything can be dynamic"); and
+> **WRITE_DESCRIPTOR** and **GET/SET_ASSOCIATION_ID** are **NOT_IMPLEMENTED** in the shipped
+> AECP responder. The command-level taxonomy tables below are the 1722.1 spec model, not an
+> as-built status list.
+
 ## Introduction
 
 The ATDECC Entity Model, is the modelled representation of what a network system's abilities. This is meant to be static for every system as an initial state. However, it provides a way to configure a system, allowing some flexibility, and permit inter-operabilities between systems so that they can understand each other.
@@ -85,7 +94,7 @@ Three configurations may be supported, for the following sample rate: 192 kHz, 9
 - 8 input audio clusters
 - 8 output audio clusters
 
-</td><td></td></tr><tr><td>AUDIO\_MAP</td><td>None, everything can be dynamic  
+</td><td></td></tr><tr><td>AUDIO\_MAP</td><td>As-built: **STATIC map by default** (originally sketched as "None, everything can be dynamic")  
 </td><td></td></tr><tr><td>CONTROL</td><td>1   
 </td><td>Identity control.
 

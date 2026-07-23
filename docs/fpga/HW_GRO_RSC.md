@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `fpga/PIPELINE_STAGES.md` (R3 RSC) + `fpga/HEADER_SPLIT_DESIGN.md`. Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # HW-GRO/RSC  -  receive-side coalescing in the RX BD engine (design, 2026-07-07)
 
 > **STATUS: PARTIALLY SUPERSEDED (single-slot RSC era).** Concepts hold; the implementation is now 4-slot mslot + pop-ordered CQ + header-split (v2/v3 BDs) + the hsq6 BD-ring gate + (hsq12) close-allocated metas. Living map: **RX_PERF_TUNING_MAP.drawio**; silicon history: HEADER_SPLIT_DESIGN.md.

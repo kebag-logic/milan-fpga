@@ -21,7 +21,7 @@ docs/
 
 | If you want to… | read, in order |
 |---|---|
-| **Understand the system** (new contributor) | [overview/FULL_FPGA_SOLUTION](overview/FULL_FPGA_SOLUTION.md) → [overview/ARCHITECTURE](overview/ARCHITECTURE.md) → [overview/SYSTEM_DOMAIN_MAP](overview/SYSTEM_DOMAIN_MAP.md) → [GLOSSARY](GLOSSARY.md) |
+| **Understand the system** (new contributor) | [overview/FULL_FPGA_SOLUTION](overview/FULL_FPGA_SOLUTION.md) → [overview/ARCHITECTURE](overview/ARCHITECTURE.md) → [ARCHITECTURE_HW_SW_SPLIT](ARCHITECTURE_HW_SW_SPLIT.md) (normative HW/SW plan-of-record) → [overview/SYSTEM_DOMAIN_MAP](overview/SYSTEM_DOMAIN_MAP.md) → [GLOSSARY](GLOSSARY.md) |
 | **Integrate the datapath into your own SoC** | [integration/INTEGRATION_GUIDE](integration/INTEGRATION_GUIDE.md) → [reference/REGISTER_MAP](reference/REGISTER_MAP.md) → [fpga/FPGA_DESIGN](fpga/FPGA_DESIGN.md) |
 | **Build it without Vivado / port to another board** | [integration/PORTING_GUIDE](integration/PORTING_GUIDE.md) → [integration/OPEN_SOURCE_MIGRATION](integration/OPEN_SOURCE_MIGRATION.md) → [integration/BOARD_PORTING_AX7101](integration/BOARD_PORTING_AX7101.md) (worked example) |
 | **Build / boot / operate the AX7101 board** | [litex/LITEX_SOC](litex/LITEX_SOC.md) → [integration/QSPI_FLASHBOOT](integration/QSPI_FLASHBOOT.md) → [limitations/TROUBLESHOOTING](limitations/TROUBLESHOOTING.md) |
@@ -37,6 +37,7 @@ docs/
 |----------|---------|
 | [FULL_FPGA_SOLUTION.md](overview/FULL_FPGA_SOLUTION.md) | **The master guide to the fully-FPGA solution** - high/medium-level architecture, the three datapath boundaries, build/run, roadmap. **Read first.** |
 | [ARCHITECTURE.md](overview/ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, where to change things - fully-FPGA primary, Zynq legacy appendix. |
+| [ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) | **Normative HW/SW plan-of-record (rev 2)**: what runs in fabric vs the softcore (lwSRP/AAF/MAAP/ADP/AECP/ACMP all in fabric, silicon-validated; the softcore does linuxptp + PCM ring + provisioning). |
 | [SYSTEM_DOMAIN_MAP.md](overview/SYSTEM_DOMAIN_MAP.md) | Which module lives in which domain/language (userspace → kernel → firmware → LiteX → RTL → vendored IP → silicon). Diagram: [SYSTEM_DOMAIN_MAP.svg](SYSTEM_DOMAIN_MAP.svg). |
 | [AVB_SWITCH_DIRECTION.md](overview/AVB_SWITCH_DIRECTION.md) | The direction: endpoint → 4-port AVB switch (decision matrix + scoreboard). Diagram: [AVB_SWITCH_DIRECTION.svg](AVB_SWITCH_DIRECTION.svg). |
 | [GLOSSARY.md](GLOSSARY.md) | Every term of art in one place. |
@@ -86,8 +87,8 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | The all-layers walkthrough (elaboration smoke test → Migen sims → harnesses → board). |
 | [SIMULATION.md](testing/SIMULATION.md) | The three simulation layers in detail (RTL harnesses, softcore boot, softcore+NIC M-A2). |
 | [PROTOCOL_VALIDATION_MATRIX.md](testing/PROTOCOL_VALIDATION_MATRIX.md) | Every protocol × where implemented × the test that validates it. |
-| [`../tb/verilator/README.md`](../tb/verilator/README.md) | The 17 self-checking harnesses, suite by suite. |
-| [`../syn/yosys/README.md`](../syn/yosys/README.md) | The 18-top device-portability check (generic + ECP5). |
+| [`../tb/verilator/README.md`](../tb/verilator/README.md) | The self-checking harnesses (~41 dirs; `ls tb/verilator/` is authoritative), suite by suite. |
+| [`../syn/yosys/README.md`](../syn/yosys/README.md) | The device-portability check (~39 tops; generic + ECP5). |
 
 ## 6 - limitations/ (make the problems apparent)
 

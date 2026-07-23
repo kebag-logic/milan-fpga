@@ -1,12 +1,15 @@
 # milan-fpga — IEEE 1722 / 1722.1 / Milan v1.2 on FPGA
 
 A Milan-profile TSN/AVB network interface implemented as a **fully-FPGA softcore
-system** (dual-hart SMP VexiiRiscv RV64IMA Linux SoC — NaxRiscv retained as a pure-NIC
-option — + TSN datapath on an Alinx AX7101 / Artix-7), now evolving toward a **4-port
-AVB switch**. Verified on silicon: ring-DMA networking at line-rate ingest, hardware
-802.1Qav CBS, PTP timestamping, ADP advertisement, QSPI flash-boot (zero-upload), and
-the 2026-07 **>500 Mbit/s campaign** (TCP TX crossed 500 Mbit/s @ MTU 1500 on the
-100 MHz 2-core SoC). Current RX/TX numbers live in the measured ledger —
+system** (single-hart VexiiRiscv RV64IMA Linux SoC with `--l2-bytes 32768` — NaxRiscv
+retained as a pure-NIC option — + TSN datapath on an Alinx AX7101 / Artix-7), now
+evolving toward a **4-port AVB switch**. Verified on silicon: both boards **CERT
+63/63**, ring-DMA networking at line-rate ingest, hardware 802.1Qav CBS, PTP
+timestamping, ADP advertisement, the MMCM-DRP media-clock servo (analog loop **−83.9 dB**,
+converter-floor), ALSA record over Milan, and QSPI flash-boot (zero-upload). The 2026-07
+**>500 Mbit/s campaign** (TCP TX crossed 500 Mbit/s @ MTU 1500 on a 100 MHz **2-hart**
+SoC) was a perf-lineage peak; the ship shape is 1-hart. Current RX/TX numbers live in the
+measured ledger —
 [CHANGELOG.md](CHANGELOG.md) + [docs/findings/](docs/findings/README.md); any number
 quoted elsewhere is a dated snapshot.
 
@@ -34,7 +37,7 @@ Quick jumps:
 
 ## Running the testbenches
 
-Self-checking Verilator harnesses — 17 suites, no vendor tools needed
+Self-checking Verilator harnesses — ~41 suites (`ls tb/verilator/` is authoritative), no vendor tools needed
 (`verilator >= 5.0` + C++17; the full verification map is
 [docs/testing/TESTING.md](docs/testing/TESTING.md)):
 
@@ -47,7 +50,7 @@ cd tb/verilator/<suite>   # e.g. cbs, milan_dp, controller_rate …
 make                      # builds and runs; exit 0 = PASS
 ```
 
-Device portability (Yosys generic + Lattice ECP5, 18 tops):
+Device portability (Yosys generic + Lattice ECP5, ~39 tops):
 
 ```sh
 cd syn/yosys && make && make ecp5

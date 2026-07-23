@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `fpga/PIPELINE_STAGES.md` + `findings/LATENCY_INVESTIGATION.md`. Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # RX memory-hierarchy plan  -  cold vs capacity, and the dedicated-network-cache decision
 
 > 📌 **The top sections (PERF VERDICT, Phase L2 RESULT) are current; the plan below is the 2026-07-08 cold-vs-capacity exploration.** Outcome: the wall is the recv copy's cold reads, and **DDIO (Branch B) is the chosen next lever  -  not deferred**. Current state: [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).

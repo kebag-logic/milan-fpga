@@ -143,7 +143,7 @@ into 4+ hours). Always share a stop flag that stim sets on every exit path.
 **Trap:** printed event ORDER from sparse samplers is meaningless  -  batch prints
 lag. Only the full-rate watcher's cycle numbers are ordering-trustworthy.
 
-## 3. Verilator harnesses (tb/verilator/*, 17 of them — `ls tb/verilator/` is authoritative)
+## 3. Verilator harnesses (tb/verilator/*, ~41 harness dirs — `ls tb/verilator/` is authoritative)
 
 Standalone self-checking C++ harnesses for the pure-SV modules (adp, adp_tx, cbs,
 cdc, classifier, csr, datapath, ptp, …). Each dir:
@@ -153,7 +153,7 @@ cd tb/verilator/adp && make        # builds + runs; self-checking, prints PASS/c
 ```
 
 No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
-touching its SV; run all 17 before a release-ish commit (`for d in tb/verilator/*/;
+touching its SV; run all ~41 before a release-ish commit (`for d in tb/verilator/*/;
 do make -C "$d" || break; done`).
 
 ## 4. Yosys device-portability check (syn/yosys)
@@ -163,7 +163,7 @@ cd syn/yosys && ./run.sh           # sv2v + yosys generic-cell mapping, per-modu
 ```
 
 Proves the RTL maps to a generic cell library (no silent Xilinx-primitive
-dependences); historically 17-18/18 green (ECP5 target as the neutral device).
+dependences); historically green across ~39 tops (ECP5 target as the neutral device).
 
 ## 5. P&R (Vivado)  -  see the build scripts
 

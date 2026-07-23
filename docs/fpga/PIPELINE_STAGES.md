@@ -133,7 +133,9 @@ Behavior a maintainer must not break:
   is not the CPU cost.
 - Poll cadence: 20 microsecond kick timers on activity (all queues since
   hsplit12), self-rearm at `coalesce_us` while active. Topology verdict on
-  this 2-hart part: the winning arrangement is the pipeline (all NAPI in
+  this 2-hart part (the perf-campaign peak SoC - the ship shape is 1-hart +
+  32 KB L2, so this NAPI fanout applies only to the 2-hart build; the throughput
+  figures here are that peak's ceiling): the winning arrangement is the pipeline (all NAPI in
   softirq on cpu0, receivers on cpu1, `threaded=0`). Symmetric fanout
   measured strictly worse (281-381 pipeline vs 220 threaded-unpinned vs 206
   threaded-pinned). Queue-1 drop excess is the pipeline's tail latency, not
@@ -161,7 +163,10 @@ version (STRICT gateware pairing):
 
 ### Stage R8: the consumer
 
-The consumer choice decides the record. All four lanes measured on the keeper:
+The consumer choice decides the record (all records in this section are the
+2-hart + 64 KB-L2 performance-campaign peak; the shipped SoC is 1-hart + 32 KB
+L2, so these are the ceiling, not the deployed-config figure). All four lanes
+measured on the keeper:
 - Socket read with copy (recv_spin, iperf3): 363-381 Mbit sustained at P4.
   The copy costs one cold DRAM read per cache line (about 18 cycles per 8
   bytes at 100 MHz); it is two thirds of the application hart.

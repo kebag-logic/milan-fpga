@@ -264,6 +264,11 @@ dipped to 259 (the 64 KB L2's slightly higher hit latency); −P2 still shows **
 under 2-hart load  -  the prefetcher's speculative traffic still stresses the rings, so a gentler
 `--lsu-rpt-block-ahead-max` is the next tuning knob to cut drops and push −P2 higher.
 
+**Ship-shape note:** the mlp3 config profiled here (2-hart + 64 KB L2) is the
+*performance-campaign peak*, not the shipped SoC - production ships **1-hart
+VexiiRiscv + `--l2-bytes 32768`** (32 KB L2, the `m1`/`mlp2` L2 size); the measured
+numbers above are retained as the campaign ceiling for that peak config.
+
 **What actually caps RX (measured after this study, `perf` 2026-07-09).** mlp3's 298 is not an
 interconnect or "shared-resource" ceiling  -  `perf` shows RX −P2 is **CPU-bound** (harts 98 % busy)
 and **51 % of that is the recv payload copy** (`copy_to_user`), which stalls on **cold DRAM reads**

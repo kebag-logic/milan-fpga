@@ -50,7 +50,7 @@ header MAC artifacts) — use `-w` + offset-28 python, or the srp_qna.py dissect
 |----|--------------------------------------------------|--------|
 |  1 | AX timing/residuals (dp-CDCs, MDIO, e2 migration)| ✅ DONE (silicon) |
 |  2 | RTL fixes for the workaround items (GMII CDC reinit, shadow invalidate, I2SPB W1C) | ✅ DONE — **except the e2 TX wedge → re-scoped as AX42, gaps item 0** |
-|  3 | Spec-aligned module tree + tsn_gen traceability matrix | ✅ DONE (204 rows, 162✅/18🟡/7❌) |
+|  3 | Spec-aligned module tree + tsn_gen traceability matrix | ✅ DONE (204 rows, 163✅/17🟡/7❌ + 17 ➖ N/A) |
 |  4 | Software-defined End-Station builder (clusters, EUI-64, estimator, TDM/I2S/AES3/SPDIF) | ✅ DONE |
 |  5 | N×N AAF streams (AX 8×8 / Arty 4×4), shared engines + ctx RAM | 🟡 4×4 silicon-proven; **8×8 pending AX42** (area levers queued) |
 |  6 | MMCM-DRP media-clock servo | ✅ DONE — **silicon-proven this session** (LOCKED, rails zero, HOLDOVER, −83.9 dB at the converter floor); polish left: bless auto_repair + rails soak |

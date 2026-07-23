@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
+> Living successor: `findings/PERFORMANCE_GOAL.md` (consolidated campaign record). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+
 # RX / TX performance  -  what we improved, how, and what's next
 
 *Authoritative current-state reference (2026-07-09, updated after the R2 multi-slot RSC

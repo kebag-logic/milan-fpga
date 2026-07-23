@@ -98,15 +98,22 @@ aaf_gate = cfg_aaf_enable && (cfg_aaf_bypass ? 1'b1 : talker_active)
   presentation_offset[…]} — exact packing in the RTL header.
 - `A_ACMP_LOBS = 0x670` (RW): [0] listener_observed override (pre-lwSRP).
 - NOTE: LWSRP_FPGA_ARCHITECTURE.md's CSR sketch (0x660-0x674) is STALE —
-  0x660/0x664/0x668 are now AAF_FRAMES/AAF_PAIRS/ADP_DIAG. lwSRP's block
-  moves to 0x680+ when it lands (update that doc then).
+  0x660/0x664/0x668 are now AAF_FRAMES/AAF_PAIRS/ADP_DIAG. lwSRP's block has
+  LANDED at `0x680`–`0x6A0` (in fabric).
 
 ## Explicitly out of scope (this increment)
 
+> **UPDATE:** this "out of scope" list is from the original talker-SM
+> increment. Since then **lwSRP**, **fabric MAAP**, and the **ACMP listener**
+> have all LANDED in fabric (silicon-validated, per
+> `docs/ARCHITECTURE_HW_SW_SPLIT.md` rev 2) — they are no longer out of scope.
+
 - lwSRP itself (MSRP TA declare / Listener Ready registrar) — the
-  `listener_observed` input is its socket.
-- STREAM_INPUT / listener side, BIND_RX/UNBIND_RX/GET_RX_STATE.
-- MAAP dynamic allocation (static MAAP-range dmac from CSR).
+  `listener_observed` input is its socket. **(LANDED — see update above.)**
+- STREAM_INPUT / listener side, BIND_RX/UNBIND_RX/GET_RX_STATE. **(ACMP
+  listener has LANDED — see update above.)**
+- MAAP dynamic allocation (static MAAP-range dmac from CSR). **(LANDED — fabric
+  MAAP, see update above.)**
 - GET_DYNAMIC_INFO (Milan §5.4.2.24) — la_avdecc enum passes without it;
   revisit if Hive complains.
 - Talker counters STREAM_START/STREAM_STOP wiring into GET_COUNTERS

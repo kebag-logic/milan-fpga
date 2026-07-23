@@ -35,9 +35,10 @@ the SoC's anatomy; the step-by-step build/boot recipe stays in
 `S7PLL` takes the board's 200 MHz to `sys` (100 MHz for the full build - DDR3
 requires it), plus `sys4x`/`sys4x_dqs` + 200 MHz `idelay`/`S7IDELAYCTRL` for
 the `A7DDRPHY`. With `--milan-clk-freq` the Milan datapath gets its **own
-slower clock domain** (`cd_milan`, 50 MHz in the deployed build): the dense
-CBS/TCAM/PTP logic leaves the 100 MHz timing budget while a 64-bit datapath
-at 50 MHz (3.2 Gb/s) still outruns 1 GbE. The CSR bus crosses via
+clock domain** (`cd_milan`, 100 MHz in the current ship build; the
+SUPERSEDED perf-lineage builds ran it at 50 MHz to lift the dense
+CBS/TCAM/PTP logic off the sys timing budget): a 64-bit datapath at 100 MHz
+(6.4 Gb/s) far outruns 1 GbE. The CSR bus crosses via
 `AXILiteClockDomainCrossing`, each DMA/MAC AXIS lane via a
 `stream.ClockDomainCrossing` FIFO, the IRQ via `MultiReg`.
 
@@ -81,18 +82,23 @@ packet intelligence; the MAC does L1/framing only.
 `deploy.sh` does not override it.
 
 * **VexiiRiscv** (`--cpu vexiiriscv`, forced `linux` variant, RV64IMASU,
-  sv39) is the core behind the dual-hart SMP Linux results on the project
-  scoreboard (`--cpu-count 2`); the perf-campaign docs
-  ([findings](../findings/README.md)) all measure this configuration.
+  sv39) is the ship core: the CERT/ship shape is **1-hart + `--l2-bytes
+  32768`** (L2-32K) at 100e6. The **dual-hart SMP** (`--cpu-count 2`,
+  L2-64K) configuration behind the older project-scoreboard Linux results is
+  a SUPERSEDED perf-lineage variant; the perf-campaign docs
+  ([findings](../findings/README.md)) measure that earlier configuration.
 * **NaxRiscv** (default, RV64GC) is the earlier bring-up core, retained as a
   pure-NIC option and used by `milan_sim.py`. `--with-fpu`/`--xlen` behave
   as documented in the source (the FPU needs both the toolchain arch *and*
   the scala flags - handled for you).
 
-So: to reproduce the published Linux/perf results build
-`--cpu vexiiriscv --cpu-count 2`; a bare `deploy.sh build` gives you a
-NaxRiscv SoC. This asymmetry is tracked in
+So: the CERT/ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
+at 100e6; to reproduce the older published Linux/perf results build the
+SUPERSEDED perf-lineage `--cpu vexiiriscv --cpu-count 2` (L2-64K) instead; a
+bare `deploy.sh build` gives you a NaxRiscv SoC. This asymmetry is tracked in
 [KNOWN_ISSUES_AND_LIMITATIONS.md](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md).
+The full named build configurations (`build.sh`) live in
+[../integration/BUILDING.md](../integration/BUILDING.md).
 
 ### 2.6 QSPI flash-boot
 `FLASHBOOT_LAYOUT`/`FLASHBOOT_MANIFESTS` in `milan_soc.py` are the **single
@@ -107,10 +113,12 @@ drift. Guide: [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.m
 
 ```sh
 cd sw/litex
-./milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 50e6 \
-               --gtx-tx-invert --timing-opt --cpu vexiiriscv --cpu-count 2
+# CERT/ship shape: 1-hart VexiiRiscv + L2-32K, datapath @ 100 MHz
+./milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 100e6 \
+               --gtx-tx-invert --timing-opt --cpu vexiiriscv --l2-bytes 32768
                # add --build to run Vivado P&R; without it, elaboration +
                # gateware/Verilog export runs with NO vendor tools
+               # (SUPERSEDED perf-lineage: --cpu-count 2 for dual-hart SMP / L2-64K)
 ./milan_soc.py ... --build     # Vivado bitstream
 ./milan_soc.py ... --load      # openFPGALoader -c ft232 (JTAG -> SRAM)
 ```
@@ -130,7 +138,7 @@ in [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §6.1.
 |---|---|
 | `--coherent-dma` | **NOT implied by `--all-blocks`.** Without it the DMA masters bypass the CPU's snooping `dma_bus`: RX buffers are never CPU-visible (all-zero skbs, every frame dropped) and TX reads stale data (garbage dst MAC). Hardware-confirmed 2026-07-04 |
 | `--gtx-tx-invert` | AX7101/RTL8211E GMII: edge-aligned TX launch is hold-marginal → 25-40 % corrupt frames; inverted (mid-bit) sampling → 0. Needs the LiteEth patch (§6) |
-| `--milan-clk-freq 50e6` | Lifts the dense datapath off the 100 MHz sys budget (DDR3 pins sys at 100 MHz); without it the CBS block is the critical path |
+| `--milan-clk-freq 100e6` | Puts the datapath in its own `cd_milan` domain; the ship shape closes timing at 100e6 (SUPERSEDED perf-lineage builds used 50e6 to lift the dense CBS/TCAM/PTP logic off the sys budget, where the CBS block is the critical path) |
 | `--all-blocks` | NIC+DMA+MAC+DDR3 in one build; implies `--with-spiflash` |
 
 ## 5. Simulation (`milan_sim.py`)
