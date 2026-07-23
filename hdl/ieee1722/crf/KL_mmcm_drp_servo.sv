@@ -199,6 +199,12 @@ module KL_mmcm_drp_servo #(
   input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)
 
   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
+  input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
+                                      //! knob, MCSRV_CTRL 0x8FC[0]: 2026-07-23
+                                      //! mf51 silicon stepped the WRONG way -
+                                      //! rails 25x worse under the servo; the
+                                      //! TB model bakes the UG472 sign, so
+                                      //! only silicon can settle it)
 
   //! MMCME2_ADV DRP port (DCLK = clk_i; DS181 FDCK <= 200 MHz)
   output logic [6:0]  drp_addr_o,
@@ -551,9 +557,10 @@ module KL_mmcm_drp_servo #(
             if (b_v > 32'sd16383)  b_v = 32'sd16383;
             if (b_v < -32'sd16383) b_v = -32'sd16383;
             if (b_v != 0) begin
-              //! u > 0 = speed up = PS decrement (UG472: increment delays)
-              hs_data_r <= (b_v > 0) ? {1'b0,  14'(b_v)}
-                                     : {1'b1,  14'(-b_v)};
+              //! u > 0 = speed up = PS decrement (UG472: increment delays);
+              //! ps_invert_i flips the mapping (see the port comment)
+              hs_data_r <= (b_v > 0) ? {ps_invert_i,  14'(b_v)}
+                                     : {~ps_invert_i, 14'(-b_v)};
               hs_send_r <= 1'b1;
               a_v       = a_v - (b_v <<< 9);
             end

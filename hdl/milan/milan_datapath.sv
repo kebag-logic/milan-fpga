@@ -457,6 +457,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
   wire signed [31:0] crf_delta_w, crf_rate_w;
   wire [31:0] mcsrv_stat_w;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
+  wire        mcsrv_ps_invert_w;  //! MCSRV_CTRL 0x8FC[0] bench sign knob
   wire [15:0] crf_pducnt_w;
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
@@ -839,6 +840,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_crf_status       ({crf_pducnt_w, crf_fmterr_w, crf_seqerr_w}),
     .i_crf_locked       (crf_locked_w),
     .i_mcsrv_stat       (mcsrv_stat_w),
+    .o_mcsrv_ps_invert  (mcsrv_ps_invert_w),
     .o_crft_en          (cfg_crft_en),
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
@@ -1553,6 +1555,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
     .auto_repair_i (1'b0),
+    .ps_invert_i   (mcsrv_ps_invert_w),
     .drp_addr_o    (o_mmcm_drp_addr),
     .drp_en_o      (o_mmcm_drp_en),
     .drp_we_o      (o_mmcm_drp_we),

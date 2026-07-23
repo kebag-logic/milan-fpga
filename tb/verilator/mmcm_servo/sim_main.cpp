@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
     mm.regs[0x09] = 0x0080;
 
     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
-    dut->crf_rate_i = 0; dut->auto_repair_i = 0;
+    dut->crf_rate_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
     dut->mmcm_locked_i = 1;
     run_ms(0.01);
     dut->rst_n = 1;
@@ -237,6 +237,32 @@ int main(int argc, char** argv) {
         (void)w0; (void)ops0;
         while (state() != 4 && guard < 600) { run_ms(1); guard++; }
         ck("[U8] locks after repair", state(), 4);
+    }
+
+    // ---------------------------------------------------------------- //
+    // U9: ps_invert knob (MCSRV_CTRL 0x8FC[0]) - with an MMCM whose fine-
+    //     PS polarity is OPPOSITE the UG472 reading (the 2026-07-23 mf51
+    //     silicon: rails 25x worse under the servo), setting the knob
+    //     restores convergence. Symmetric-proof: model.invert ^ knob.
+    // ---------------------------------------------------------------- //
+    printf("[U9] ps_invert knob vs an inverted-polarity MMCM\n");
+    {
+        dut->clk_src_i = 0; run_ms(3);
+        ck("[U9] back to IDLE", state(), 0);
+        mm.invert = true;
+        dut->ps_invert_i = 1;
+        dut->clk_src_i = 2;
+        int guard = 0;
+        while (state() != 4 && guard < 900) { run_ms(1); guard++; }
+        ck("[U9] locks with knob vs inverted MMCM", state(), 4);
+        // control: knob off against the inverted model must NOT relock
+        dut->clk_src_i = 0; run_ms(3);
+        dut->ps_invert_i = 0;
+        dut->clk_src_i = 2;
+        guard = 0;
+        while (state() != 4 && guard < 300) { run_ms(1); guard++; }
+        ck("[U9] control: wrong polarity never locks", state() == 4 ? 1 : 0, 0);
+        mm.invert = false; dut->ps_invert_i = 0;
     }
 
     printf("======================================================================\n");
