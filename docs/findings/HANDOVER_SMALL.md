@@ -76,3 +76,23 @@ artifacts; use `-w` + offset-28 python or the srp_qna.py dissector).
   fits: alsamixer/alsactl/ncurses/terminfo/fputest/iproute2-extras/
   unused-modules trimmed; slot 8.89 of 8.91 MB - nearly full, next
   growth needs a flash relayout).
+
+## FINAL (07-23 ~mid-day): the pair on the final builds
+- **ARTY = asl_milanfinal53e (+0.174, VERSION 0x000A)**: CDC-128 ring lane,
+  servo step-guard, 0x8F8/0x8FC, stream-table protection, .copy ALSA
+  driver + alsa-utils rootfs - ★ CERT 63/63 + 323/323 single clean run ★
+  (a first run showed 2 fails = MY leftover clock_source=2; the suite
+  correctly pins the default - reset before CERT).
+- **ALINX = AX39 + fixed flash images (PHC permanent)**: ★ 63/63 ★
+  (61 clean + link-flap 2/2 after the dropbear key refresh; reflash =
+  new host keys, `accept-new` does NOT cover CHANGED keys - always
+  `ssh-keygen -R` both boards on pw0 after images). The e2 TX wedge did
+  NOT fire this run (intermittent; AX42 item 0 fix stands).
+- Servo: LOCKED +6.75..+8.4 ppm across three bring-ups; step-guard
+  hardened (U10); HOLDOVER + re-acquire proven; after any GM reboot
+  restart the ARTY ptp4l once (epoch-chase poisons windows; the U10
+  guard caps the damage but a fresh step is still cleanest).
+- OPEN, queued: I6 1-in-24 ring artifact (NOT CDC depth - characterized
+  in memory; needs the one-shot prober lane), acmp-persist save wedge
+  (drill-7 leg), AX42 wedge-in-logic round, spec-matrix peer review
+  (USER), latency taps, es-1.1/1.2.
