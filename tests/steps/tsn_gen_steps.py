@@ -45,6 +45,17 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'SET_NAME': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::'
+                      'AECP_SET_NAME_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('name_index', 16),
+                   ('configuration_index', 16), ('name', 512)],
+    },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
         'interface': 'milan_acmp::MILAN_ACMP::MILAN_ACMP_IF',
@@ -121,7 +132,9 @@ def pg_decode(context, key, hexstr):
 
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
+DESC_ENTITY, DESC_CONFIGURATION = 0x0000, 0x0001
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_NAME, CMD_GET_NAME = 16, 17     # 0x0010 / 0x0011 (IEEE 1722.1 Table 7.126)
 
 
 class MilanAecpModel:
@@ -131,10 +144,21 @@ class MilanAecpModel:
     def __init__(self):
         self.clock_source_index = 0
         self.identify = 0
+        self.object_name = 0          # 64-octet avdecc_string (ENTITY/CONFIGURATION name)
 
     def process(self, fields):
         cmd = fields['command_type']
         dt, di = fields['descriptor_type'], fields['descriptor_index']
+        if cmd in (CMD_SET_NAME, CMD_GET_NAME):
+            # NAME lives on ENTITY[0] / CONFIGURATION[0], name_index 0; GET
+            # shares the wire layout and is read-only (the response carries
+            # object_name), SET writes it.
+            if dt not in (DESC_ENTITY, DESC_CONFIGURATION) \
+                    or fields['name_index'] != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if cmd == CMD_SET_NAME:
+                self.object_name = fields['name']
+            return STATUS_SUCCESS
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -377,6 +401,12 @@ def step_model_csi(context, v):
 @then('the model identify level is {v:d}')
 def step_model_identify(context, v):
     assert context.aecp_model.identify == v
+
+
+@then('the model object_name is {v:d}')
+def step_model_object_name(context, v):
+    assert context.aecp_model.object_name == v, \
+        f"object_name={context.aecp_model.object_name}, expected {v}"
 
 
 @when('the model processes {n:d} SET_CLOCK_SOURCE frames from seeds {a:d} to {b:d}')
