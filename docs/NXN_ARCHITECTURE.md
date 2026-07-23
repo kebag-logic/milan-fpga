@@ -3,7 +3,8 @@
 Normative architecture for roadmap item 5 (`docs/MILAN_COMPLIANCE_GAPS.md`,
 "Suggested order of attack" item 5). Test shapes: **AX7101 = 8x8**,
 **Arty = 4x4** (`configs/endstation_ax7101_8x8.yaml`,
-`configs/endstation_arty_4x4.yaml`). Status: DESIGN — no RTL in this round.
+`configs/endstation_arty_4x4.yaml`). Status: IMPLEMENTED — shared-engine RTL
+is live; the 8x8 shape elaborates and sim-scales green (§6 item-5 note).
 
 **The replication verdict (why this doc exists).** The calibrated resource
 estimator (`sw/builder/endstation_builder.py`, per-module costs measured from
@@ -487,3 +488,38 @@ deltas of the merged engines, LUT4:LUT6 charged 1:1 = safe-side). Recomputed
 verdicts: **4x4 = 84.9% LUT, 8x8 = 89.2% LUT** — both FIT the part with
 headroom, both in the OVER band as this table predicted (87.3/87.7 modeled);
 `test_builder` gate 13 pins the envelope (< 88% / < 92%).
+
+### 6.1 item-5 ELABORATION + SIM PROOF (2026-07-23)
+
+The 8x8 shape is no longer design-only — it elaborates and sim-scales:
+
+- **Elaborates.** `milan_soc.py --full --milan-clk-freq 50e6 --num-streams 8
+  --output-dir /tmp/elab_nxn8` emits `gateware/alinx_ax7101.v` clean
+  (43 359 lines; `.N_STREAMS(4'd8)` on the `milan_datapath` instance). No N=8
+  elaboration errors. The `--num-streams 4` netlist is identical except the
+  deltas below.
+- **Sim-scales green.** `tb/verilator/milan_dp` builds an N=8 config
+  (`obj_nxn8`, `-GN_STREAMS=8 -DNSTREAMS_TB=8`) of the same self-checking
+  `sim_nxn` harness: **82 checks / 0 fail**, adding a full-index routing sweep
+  that provisions streams 3..7 *simultaneously* and proves each lands on the
+  PCM ring with its own `tuser` + byte-exact payload, isolated per-stream
+  Table 7-157 counters, and unknown-sid drop at width N — the 8-stream
+  independent-routing proof. N=4 (`obj_nxn`) stays green 70/0; legacy 172/0.
+- **Measured 4→8 resource delta.** The LiteX netlist grows ~84 lines: the
+  per-stream PCM-ring offset CSRs `milandma_pcm_offsets{0..N-1}` gain +4
+  32-bit regs, the ring-select muxes widen to a 3-bit index, and the `>= N`
+  user/sel clamps move 4→8. The real per-stream growth lives inside
+  `milan_datapath` (parameter-passed, not flattened into this netlist): the
+  LCTX monitor context RAM `lctx_r` (32×32b = 1 Kib/stream) doubles 128→256
+  words (4→8 Kib — still ¼ of one RAMB36 as this section predicted); the
+  stream-table SID flops add 64 b/stream (256→512 b); ACMP/lwSRP/packetizer
+  contexts index-widen by log2 N only. Confirms the thesis: cost is
+  per-ENGINE, N only widens indexes and deepens BRAM.
+- **Ship levers to fit 8x8 on xc7a100t** (bench Vivado build is gated, not
+  this round): the shipping config is **1-hart NaxRiscv** (`--cpu-count 1`,
+  the arg default) **+ `--l2-bytes 32768`** (lever 1 above: −8 BRAM +
+  placement relief; perf delta per the standing USER authorization). With
+  both, the modeled 8x8 envelope holds at 89.2% LUT / 70% BRAM (gate 13
+  ceiling < 92%). If it still refuses to close, levers 2–5 apply, ending in
+  the config-selectable-N fallback (ship the 4x4 gateware on AX, keep 8x8 as
+  the sweep target — the architecture is unchanged).
