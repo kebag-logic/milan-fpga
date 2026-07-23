@@ -45,6 +45,16 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'SET_SAMPLING_RATE': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::'
+                      'AECP_SET_SAMPLING_RATE_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('sampling_rate', 32)],
+    },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
         'interface': 'milan_acmp::MILAN_ACMP::MILAN_ACMP_IF',
@@ -122,6 +132,9 @@ def pg_decode(context, key, hexstr):
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_SAMPLING_RATE, CMD_GET_SAMPLING_RATE = 20, 21
+DESC_AUDIO_UNIT = 0x0002
+VALID_RATES = {44100, 48000, 96000}
 
 
 class MilanAecpModel:
@@ -131,10 +144,22 @@ class MilanAecpModel:
     def __init__(self):
         self.clock_source_index = 0
         self.identify = 0
+        self.sampling_rate = 48000
 
     def process(self, fields):
         cmd = fields['command_type']
         dt, di = fields['descriptor_type'], fields['descriptor_index']
+        if cmd == CMD_SET_SAMPLING_RATE:
+            if dt != DESC_AUDIO_UNIT or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if fields['sampling_rate'] not in VALID_RATES:
+                return STATUS_BAD_ARGUMENTS
+            self.sampling_rate = fields['sampling_rate']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_SAMPLING_RATE:
+            if dt != DESC_AUDIO_UNIT or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries sampling_rate
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -538,3 +563,8 @@ def step_acmp_fuzz_invariant(context):
             assert addressed, f'unaddressed frame answered: {f}'
             assert resp['message_type'] == f['message_type'] + 1
     assert context.listener.state in LSM
+
+
+@then('the model sampling_rate is {v:d}')
+def _model_sr(context, v):
+    assert context.aecp_model.sampling_rate == v, f"sr={context.aecp_model.sampling_rate}"
