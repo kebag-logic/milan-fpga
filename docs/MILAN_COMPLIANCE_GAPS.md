@@ -510,11 +510,19 @@ and is not repeated here.
    drift-lottery rails for good; shares the clock-outage sequencing
    with the GMII CDC reinit): `KL_mmcm_drp_servo` fine-PS FLL + XAPP888
    DRP verify/repair, integer two-stage audio clocking, MCSRV_STAT
-   0x8F8, rails-cease TB-proven (§2). Remaining: silicon bring-up drill
-   (engage on the AX24/mf39 CRF wire, read 0x8F8 trim vs the known
-   crystal offsets, one-shot ClkReg readback to bless auto_repair,
-   verify I2SPB_STAT rails stay zero over an hour, THD+N re-check of
-   the cascaded MCLK).
+   0x8F8, rails-cease TB-proven (§2). **Silicon bring-up 2026-07-23
+   (mf51):** (a) 0x8F8 was UNREADABLE on every build (rd_in_window cut
+   the read space at 0x800) - fixed + dp-TB SERVO leg; (b) the servo
+   ACTUATES on silicon but steps the fine-PS the WRONG way (rails 25x
+   worse under the servo vs internal clock; the TB model bakes the
+   UG472 sign so only silicon could catch it) - bench knob MCSRV_CTRL
+   0x8FC[0] ps_invert added (U9 symmetric TB leg). Remaining on mf52+:
+   set the knob, verify rails cease + trim reads sane vs the crystal
+   offsets, bake the winning polarity as the RTL default, one-shot
+   ClkReg readback to bless auto_repair, hour-long rails-zero soak,
+   THD+N of the coherent chain (AX tone_gen + CRF + clock_source 2 -
+   the old internal-clock -73.4 protocol is obsolete: the NCO actuator
+   is gone by the USER exact-recovery rule).
 7. **ALSA driver (USER 2026-07-22):** record/play music from/to
    over-Milan using PipeWire — a real ALSA card on the boards (PCM
    ring DMA as the ALSA buffer, period IRQs from the ring pointers,
