@@ -47,6 +47,7 @@ struct MmcmModel {
     long     ps_viol = 0;      // PSEN while busy
     long     ps_during_drp_rst = 0;  // PSEN while RST high (XAPP888 rule)
     int64_t  net_steps = 0;    // +1 per increment (delay), -1 per decrement
+    bool     invert = false;   // U9: silicon-observed opposite step polarity
 
     // audio clock phase adjustment accumulator (femtoseconds)
     double   step_fs = 16898.0;    // 1/(56 * 1056.7568 MHz) = 16.898 ps
@@ -88,8 +89,8 @@ struct MmcmModel {
             if (psen) ps_viol++;
             if (--ps_busy == 0) {
                 psdone = true;             // UG472: 12 PSCLK cycles, 1-cycle pulse
-                net_steps += ps_dir ? +1 : -1;
-                audio_adj_fs += ps_dir ? +step_fs : -step_fs;
+                net_steps += (ps_dir ^ invert) ? +1 : -1;
+                audio_adj_fs += (ps_dir ^ invert) ? +step_fs : -step_fs;
                 ps_ops++;
             }
         } else if (psen) {

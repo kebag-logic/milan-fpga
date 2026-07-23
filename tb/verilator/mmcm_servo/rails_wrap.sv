@@ -133,6 +133,7 @@ module rails_wrap (
     .crf_locked_i  (crf_locked_i),
     .crf_rate_i    (crf_rate_i),
     .auto_repair_i (1'b0),
+    .ps_invert_i   (1'b0),
     .drp_addr_o    (drp_addr_o),
     .drp_en_o      (drp_en_o),
     .drp_we_o      (drp_we_o),

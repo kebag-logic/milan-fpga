@@ -224,6 +224,7 @@ module milan_csr #(
   input  wire [31:0]             i_crf_status,        //! RO 0x74C {pdu16,fmt8,seq8}
   input  wire                    i_crf_locked,        //! RO in 0x738 bit 31,        //! LPF_CTRL[0]: playback biquad
   input  wire [31:0]             i_mcsrv_stat,        //! RO 0x8F8: MMCM-DRP media-clock servo status
+  output wire                    o_mcsrv_ps_invert,   //! MCSRV_CTRL 0x8FC[0]: PS direction flip
   output wire                    o_crft_en,           //! CRF talker enable (0x750)
   output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
   output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
@@ -447,6 +448,7 @@ module milan_csr #(
   //! extending the 0x700 group cannot collide; 0x8FC stays reserved next
   //! to it for a future servo knob.
   localparam [ADDR_WIDTH-1:0] A_MCSRV_STAT = 'h8F8;  //! RO live: {trim16, flags, state3}
+  localparam [ADDR_WIDTH-1:0] A_MCSRV_CTRL = 'h8FC;  //! RW: [0] ps_invert (bench sign knob, 2026-07-23)
   // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
   //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
   //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
@@ -607,6 +609,7 @@ module milan_csr #(
   logic [31:0] crft_ctrl, crft_sidlo, crft_sidhi, crft_dmlo, crft_dmhi;  //! CRF talker CSRs
   logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
+  logic [31:0] mcsrv_ctrl;               //! MCSRV_CTRL 0x8FC: [0]=ps_invert
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
@@ -790,6 +793,7 @@ module milan_csr #(
       crft_dmhi   <= 32'h0;
       as2_lo <= 32'h0; as2_hi <= 32'h0;
       tone_ctrl  <= 32'h0;
+      mcsrv_ctrl <= 32'h0;
       gptp_pdelay <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
       lwsrp_dmlo <= 32'hF000_FE01;
@@ -891,6 +895,7 @@ module milan_csr #(
           A_AS2_LO:     as2_lo   <= s_axi_wdata;
           A_AS2_HI:     as2_hi   <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
+          A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;
           //! I2SPB rail counters W1C (gaps 5b): each half clears on a write
           //! with any bit of that half set - the saturated-and-stuck-forever
           //! rail becomes re-armable without touching the other rail
@@ -1262,6 +1267,7 @@ module milan_csr #(
       A_BDBG2:      live_mux = i_bdbg2;
       A_LINKG_STAT: live_mux = i_linkg_stat;
       A_MCSRV_STAT: live_mux = i_mcsrv_stat;
+      A_MCSRV_CTRL: live_mux = mcsrv_ctrl;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
@@ -1354,7 +1360,8 @@ module milan_csr #(
   //! 0x8F8 (2026-07-23: this term was missing, so A_MCSRV_STAT read 0 on
   //! EVERY build while the servo ran fine - caught by the [SERVO] dp-TB leg)
   wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] ||
-                      (rd_addr_q == A_MCSRV_STAT);
+                      (rd_addr_q == A_MCSRV_STAT) ||
+                      (rd_addr_q == A_MCSRV_CTRL);
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) r_data <= 32'h0;
     else if (rd_pend)
@@ -1414,6 +1421,7 @@ module milan_csr #(
   assign o_aaf_bypass          = aaf_ctrl[1];
   assign o_acmp_lobs           = acmp_lobs[0];
   assign o_tone_enable      = tone_ctrl[0];
+  assign o_mcsrv_ps_invert  = mcsrv_ctrl[0];
   assign o_i2spb_clr_under  = i2spb_clru_p;
   assign o_i2spb_clr_over   = i2spb_clro_p;
   assign o_tone_att         = tone_ctrl[3:1];
