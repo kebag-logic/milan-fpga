@@ -122,6 +122,7 @@ def pg_decode(context, key, hexstr):
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_GET_CONTROL = 25   # 0x0019
 
 
 class MilanAecpModel:
@@ -142,6 +143,10 @@ class MilanAecpModel:
                 return STATUS_BAD_ARGUMENTS
             self.clock_source_index = fields['clock_source_index']
             return STATUS_SUCCESS
+        if cmd == CMD_GET_CONTROL:
+            if dt != DESC_CONTROL or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries self.identify
         if cmd == CMD_SET_CONTROL:
             if dt != DESC_CONTROL or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
