@@ -1430,7 +1430,12 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
           5'd0 : wing_sid_lo_r <= csr_lctx_wr_data_w;
           5'd1 : wing_sid_hi_r <= csr_lctx_wr_data_w;
           5'd4 : begin              //! CTRL commit: {en[0], route[2:1]}
-            wing_tbl_we_r   <= 1'b1;
+            //! table override only when a sid was actually staged (or on
+            //! eviction): a route-flags-only CTRL=en commit at idx 0 must
+            //! NOT hijack the live ACMP alias with the zero reset sid -
+            //! 2026-07-23 bench: that froze a locked stream mid-flight
+            wing_tbl_we_r   <= (|{wing_sid_hi_r, wing_sid_lo_r}) |
+                               ~csr_lctx_wr_data_w[0];
             wing_route_we_r <= 1'b1;
             wing_idx_r      <= {1'b0, csr_lctx_wr_addr_w[7:5]};
             wing_sid_r      <= {wing_sid_hi_r, wing_sid_lo_r};
