@@ -229,11 +229,31 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //! 97.7 kHz while advertising 48 k (silicon: 16.9k fr/s, servo pegged).
   localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
 
+  //! chmap media grid: a ~48 kHz strobe on the datapath clock that paces the
+  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4). Consumed ONLY by
+  //! the map fabric; the CERT audio path never sees it.
+  localparam int MEDIA_TICK_DIV_C = MILAN_CLK_FREQ_HZ / 48_000;
+
 
   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
     .clk_i (clk_audio_i), .rst_n (axis_resetn), .adv_i (1'b1),
     .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
   );
+
+  logic [$clog2(MEDIA_TICK_DIV_C)-1:0] media_tick_cnt_r;
+  logic                                media_tick_p;
+  always_ff @(posedge axis_clk) begin : chmap_media_tick
+    if (!axis_resetn) begin
+      media_tick_cnt_r <= '0;
+      media_tick_p     <= 1'b0;
+    end else if (32'(media_tick_cnt_r) == MEDIA_TICK_DIV_C - 1) begin
+      media_tick_cnt_r <= '0;
+      media_tick_p     <= 1'b1;
+    end else begin
+      media_tick_cnt_r <= media_tick_cnt_r + 1'b1;
+      media_tick_p     <= 1'b0;
+    end
+  end : chmap_media_tick
 
   //! NXN P4: the flat aaf_talker_i2s splits into the physical capture
   //! front-end (x1) + the shared N-context packetizer (TCTX). Talker 0
@@ -277,10 +297,56 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     assign i2s_lrck_o = 1'b0;
   end endgenerate
 
+  // ==========================================================================
+  //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4) — ADD-ALONGSIDE.
+  //  Sits between the physical capture front-end and the shared packetizer.
+  //  cfg_chmap_enable = 0 (reset default) selects the front-end pair stream
+  //  BIT-IDENTICALLY (today's CERT wiring); = 1 selects the CMAP-routed source
+  //  per media tick. The map RAM resets all-zero, so the enable bit is the
+  //  single bypass truth (program CMAP through the 0x900 port, then arm).
+  //  Phase-1 sources: physical capture (I2S/TDM front-end pair) + tone; the
+  //  ALSA ring (KL_pcm_tx) and per-lane TDM sources are documented follow-ups.
+  // ==========================================================================
+  wire        cmap_pv_w;
+  wire [4:0]  cmap_slot_w;
+  wire [23:0] cmap_l_w, cmap_r_w;
+
+  KL_chan_map_capture #(
+    .N_SLOTS_P (N_STREAMS*4),
+    .N_TDM_P   (8),
+    .N_RING_P  (16)
+  ) chan_map_capture (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .map_wr_en_i   (cfg_chmap_wr_en && cfg_chmap_wr_side),
+    .map_wr_addr_i (cfg_chmap_wr_addr[$clog2(N_STREAMS*4)-1:0]),
+    //! §5 16-bit word -> capture 8-bit {en[7], src[6:4], idx[3:0]}
+    .map_wr_data_i ({cfg_chmap_wr_data[15], cfg_chmap_wr_data[14:12],
+                     cfg_chmap_wr_data[3:0]}),
+    .map_rd_en_i (1'b0), .map_rd_addr_i ('0),
+    .map_rd_data_o (), .map_rd_valid_o (),
+    .i2s_pair_valid_i (aafcap_pv_w),
+    .i2s_l_i (aafcap_l_w), .i2s_r_i (aafcap_r_w),
+    .tdm_pair_valid_i (1'b0), .tdm_pair_slot_i (4'd0),
+    .tdm_l_i (24'd0), .tdm_r_i (24'd0),
+    .ring_pair_valid_i (1'b0), .ring_pair_slot_i (4'd0),
+    .ring_l_i (24'd0), .ring_r_i (24'd0),
+    .tone_smp_i (tone_smp),
+    .tick_i (media_tick_p),
+    .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
+    .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w)
+  );
+
+  //! bypass mux: enable=0 -> the front-end pair drives the packetizer EXACTLY
+  //! (5'(aafcap_slot_w) == today's 4-bit slot zero-extended: bit-identical).
+  wire        pkt_pv_w   = cfg_chmap_enable ? cmap_pv_w   : aafcap_pv_w;
+  wire [4:0]  pkt_slot_w = cfg_chmap_enable ? cmap_slot_w : {1'b0, aafcap_slot_w};
+  wire [23:0] pkt_l_w    = cfg_chmap_enable ? cmap_l_w    : aafcap_l_w;
+  wire [23:0] pkt_r_w    = cfg_chmap_enable ? cmap_r_w    : aafcap_r_w;
+
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .pair_valid_i (aafcap_pv_w), .pair_slot_i (aafcap_slot_w),
-    .pair_l_i (aafcap_l_w), .pair_r_i (aafcap_r_w),
+    .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
+    .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),
     //! t0 = the legacy admission gate bit-identically; t>0 = TCTX CTRL[0]
     //! (window) & per-stream lwSRP gate & the engine-wide MAAP term (the
     //! composed aaf_stream_en_w - see its comment for the honest gaps)
@@ -459,6 +525,15 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire [31:0] mcsrv_stat_w;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
   wire        mcsrv_ps_invert_w;  //! MCSRV_CTRL 0x8FC[0] bench sign knob
   wire        mcsrv_auto_repair_w;//! MCSRV_CTRL 0x8FC[1] bench-gated DRP repair enable (default 0)
+  //! chmap 0x900 fabric (docs/CHANNEL_MAP_64.md §6): CSR map-RAM write port +
+  //! bypass arm. Default (cfg_chmap_enable=0) leaves the CERT audio path
+  //! bit-identical (render/capture crossbars are muxed OUT of both the
+  //! packetizer feed and the i2s_playback feed).
+  wire        cfg_chmap_enable;
+  wire        cfg_chmap_wr_en;
+  wire        cfg_chmap_wr_side;
+  wire [5:0]  cfg_chmap_wr_addr;
+  wire [15:0] cfg_chmap_wr_data;
   wire [15:0] crf_pducnt_w;
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
@@ -843,6 +918,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_mcsrv_stat       (mcsrv_stat_w),
     .o_mcsrv_ps_invert  (mcsrv_ps_invert_w),
     .o_mcsrv_auto_repair (mcsrv_auto_repair_w),
+    .o_chmap_enable     (cfg_chmap_enable),
+    .o_chmap_wr_en      (cfg_chmap_wr_en),
+    .o_chmap_wr_side    (cfg_chmap_wr_side),
+    .o_chmap_wr_addr    (cfg_chmap_wr_addr),
+    .o_chmap_wr_data    (cfg_chmap_wr_data),
     .o_crft_en          (cfg_crft_en),
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
@@ -1751,13 +1831,19 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .active_o (pcm_lpf_active)
   );
 
+  //! optional mapped-I2S data mux (docs/CHANNEL_MAP_64.md §3): enable=0 ->
+  //! rend_pcm_tdata_w (the CERT render tap) drives the DAC BIT-IDENTICALLY;
+  //! enable=1 -> the render crossbar's phys{0,1} repacked into the S32BE beat.
+  //! Driven by the render-fabric block below (nets resolve module-wide).
+  wire [TDATA_WIDTH-1:0] i2s_pcm_tdata_mux_w;
+
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
                     .PREFILL_C(PB_PREFILL_C)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
-    .pcm_tdata_i  (rend_pcm_tdata_w),
+    .pcm_tdata_i  (i2s_pcm_tdata_mux_w),
     .lpf_tdata_i  (pcm_lpf_tdata),
     .lpf_tvalid_i (pcm_lpf_tvalid),
     .lpf_active_i (pcm_lpf_active),
@@ -1773,6 +1859,102 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .media_reset_p_o (i2spb_reset_p),
     .converged_o     (i2spb_converged),
     .dbg_frame_o     (i2spb_dbg_frame)
+  );
+
+  // ==========================================================================
+  //  Channel-map RENDER crossbar (docs/CHANNEL_MAP_64.md §3) — ADD-ALONGSIDE.
+  //  A parallel, NEVER-backpressuring tap on the depacketizer PCM AXIS: it
+  //  latches every (stream, wire-channel) sample and, on each media tick,
+  //  renders CHMAP_PHYS_C physical channels through RMAP. phys{0,1} feed the
+  //  optional mapped-I2S path above; phys{2..9} feed the parked TDM8 render
+  //  lane. cfg_chmap_enable = 0 leaves rend_pcm_tdata_w -> i2s_playback
+  //  untouched (the assign below resolves to the exact CERT net).
+  // ==========================================================================
+  localparam int CHMAP_PHYS_C = 10;
+  wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
+  wire                       chmap_phys_v_w;
+
+  KL_chan_map_render #(
+    .N_STREAMS_P (N_STREAMS),
+    .N_CH_P      (8),
+    .N_PHYS_P    (CHMAP_PHYS_C)
+  ) chan_map_render (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! clone tap: accepted-beat strobe (tvalid && tready); never backpressures
+    .s_tdata_i  (dpkt_pcm_tdata_w),
+    .s_tvalid_i (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
+    .s_tlast_i  (dpkt_pcm_tlast_w),
+    .s_tuser_i  (dpkt_pcm_tuser_w),
+    //! per-stream wire-truth (phase-1: the render-stream count broadcast; the
+    //! per-stream LCTX wire_chans fan-out is the documented follow-up)
+    .wire_chans_i ({N_STREAMS{mon_wire_chans_w[3:0]}}),
+    .tick_i (media_tick_p),
+    .map_wr_en_i   (cfg_chmap_wr_en && !cfg_chmap_wr_side),
+    .map_wr_addr_i (cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
+    //! §5 16-bit word -> render 8-bit {en[7], rsvd[6], stream[5:3], ch[2:0]}
+    .map_wr_data_i ({cfg_chmap_wr_data[15], 1'b0,
+                     cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
+    .map_rd_addr_i ('0), .map_rd_data_o (),
+    .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
+    .mapped_mask_o ()
+  );
+
+  //! phys{0,1} repacked into the depacketizer's S32BE beat order (pad byte 0)
+  wire [23:0] chmap_i2s_l_w = chmap_phys_w[0*24 +: 24];
+  wire [23:0] chmap_i2s_r_w = chmap_phys_w[1*24 +: 24];
+  wire [TDATA_WIDTH-1:0] chmap_i2s_pcm_w = {
+    8'h00, chmap_i2s_r_w[7:0], chmap_i2s_r_w[15:8], chmap_i2s_r_w[23:16],
+    8'h00, chmap_i2s_l_w[7:0], chmap_i2s_l_w[15:8], chmap_i2s_l_w[23:16] };
+  assign i2s_pcm_tdata_mux_w =
+           cfg_chmap_enable ? chmap_i2s_pcm_w : rend_pcm_tdata_w;
+
+  // ---- parked TDM8 render lane (docs §8): phys{2..9} -> 8 slot writes -------
+  //! The render xbar emits the whole phys vector once per media tick; the TDM
+  //! slave serializer wants slot-indexed writes + a frame commit. A tiny burst
+  //! adapter walks phys{2..9} into the bank on each phys_valid, then commits.
+  //! tdm_dout is PARKED (no board pin routes it yet); it shares the datapath
+  //! TDM bus, so it is live only when AUDIO_IF_SLOTS_P>0 drives tdm_bclk_i.
+  logic        tdmr_wr_en_r;
+  logic [2:0]  tdmr_slot_r;
+  logic [23:0] tdmr_data_r;
+  logic        tdmr_tick_r;
+  logic        tdmr_busy_r;
+  always_ff @(posedge axis_clk) begin : chmap_tdm_adapter
+    if (!axis_resetn) begin
+      tdmr_wr_en_r <= 1'b0; tdmr_slot_r <= 3'd0; tdmr_data_r <= 24'd0;
+      tdmr_tick_r  <= 1'b0; tdmr_busy_r <= 1'b0;
+    end else begin
+      tdmr_wr_en_r <= 1'b0;
+      tdmr_tick_r  <= 1'b0;
+      if (!tdmr_busy_r) begin
+        if (chmap_phys_v_w) begin
+          tdmr_busy_r  <= 1'b1;
+          tdmr_slot_r  <= 3'd0;
+          tdmr_wr_en_r <= 1'b1;
+          tdmr_data_r  <= chmap_phys_w[2*24 +: 24];   //! slot 0 <- phys 2
+        end
+      end else if (tdmr_slot_r == 3'd7) begin
+        tdmr_busy_r <= 1'b0;
+        tdmr_tick_r <= 1'b1;                           //! commit after slot 7
+      end else begin
+        tdmr_slot_r  <= tdmr_slot_r + 3'd1;
+        tdmr_wr_en_r <= 1'b1;
+        tdmr_data_r  <= chmap_phys_w[(2 + 32'(tdmr_slot_r) + 1)*24 +: 24];
+      end
+    end
+  end : chmap_tdm_adapter
+
+  wire chmap_tdm_dout_w;   //! parked serial output (no board pin yet)
+  KL_tdm_render #(.SLOTS_P(8), .SLOT_BITS_P(32)) chan_tdm_render (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .smp_wr_en_i   (tdmr_wr_en_r),
+    .smp_wr_slot_i (tdmr_slot_r),
+    .smp_wr_data_i (tdmr_data_r),
+    .tick_i        (tdmr_tick_r),
+    .tdm_bclk_i    (tdm_bclk_i),
+    .tdm_fsync_i   (tdm_fsync_i),
+    .tdm_dout_o    (chmap_tdm_dout_w),
+    .frames_o (), .underruns_o (), .overruns_o ()
   );
 
   // ==========================================================================

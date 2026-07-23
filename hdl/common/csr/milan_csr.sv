@@ -226,6 +226,13 @@ module milan_csr #(
   input  wire [31:0]             i_mcsrv_stat,        //! RO 0x8F8: MMCM-DRP media-clock servo status
   output wire                    o_mcsrv_ps_invert,   //! MCSRV_CTRL 0x8FC[0]: PS direction flip
   output wire                    o_mcsrv_auto_repair, //! MCSRV_CTRL 0x8FC[1]: 1 = allow DRP divider repair (bench-gated, default 0)
+  //! chmap 0x900 window (docs/CHANNEL_MAP_64.md §6): render/capture map-RAM
+  //! debug write port + fabric bypass arm. Default 0 = today's audio path.
+  output wire                    o_chmap_enable,      //! CHMAP_CTRL 0x900[0]: fabric bypass arm (0 = legacy path)
+  output wire                    o_chmap_wr_en,       //! one-cycle map-word write strobe (gated by CHMAP_CTRL[0])
+  output wire                    o_chmap_wr_side,     //! CHMAP_SEL[8]: 0 = RMAP (render), 1 = CMAP (capture)
+  output wire [5:0]              o_chmap_wr_addr,     //! CHMAP_SEL[5:0]: map entry index
+  output wire [15:0]             o_chmap_wr_data,     //! CHMAP_WORD[15:0]: the §5 map word
   output wire                    o_crft_en,           //! CRF talker enable (0x750)
   output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
   output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
@@ -450,6 +457,14 @@ module milan_csr #(
   //! to it for a future servo knob.
   localparam [ADDR_WIDTH-1:0] A_MCSRV_STAT = 'h8F8;  //! RO live: {trim16, flags, state3}
   localparam [ADDR_WIDTH-1:0] A_MCSRV_CTRL = 'h8FC;  //! RW: [0] ps_invert (bench sign knob, 2026-07-23); [1] auto_repair enable (bench-gated DRP divider repair, default 0)
+  //! chmap map-RAM window (docs/CHANNEL_MAP_64.md §6). Same dedicated-arm
+  //! carve-out as MCSRV (0x8F8/0x8FC): NOT in is_plain_rw (a 0x900 shadow
+  //! write would alias word 0x100), a live read arm per word, and its own
+  //! rd_in_window term (else every read here is the 0x8F8 dead-read trap).
+  localparam [ADDR_WIDTH-1:0] A_CHMAP_CTRL = 'h900;  //! RW: [0] csr_write_en (fabric bypass arm)
+  localparam [ADDR_WIDTH-1:0] A_CHMAP_SEL  = 'h904;  //! RW: [5:0] entry idx, [8] side (0=render,1=capture)
+  localparam [ADDR_WIDTH-1:0] A_CHMAP_WORD = 'h908;  //! RW: [15:0] §5 map word; write commits via the shared port (needs CTRL[0])
+  localparam [ADDR_WIDTH-1:0] A_CHMAP_STAT = 'h90C;  //! RO: [15:0] commits, [23:16] refused
   // ---- 0x800 indexed per-stream window (P11, NXN_ARCHITECTURE.md §1.5).
   //  SEL picks {dir, idx}; the 0x810-0x85C word block then views ONE stream.
   //  Legacy flat registers stay the authority for index 0 (N=1 bit-compat
@@ -611,6 +626,12 @@ module milan_csr #(
   logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
   logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
   logic [31:0] mcsrv_ctrl;               //! MCSRV_CTRL 0x8FC: [0]=ps_invert, [1]=auto_repair enable
+  logic [31:0] chmap_ctrl;               //! CHMAP_CTRL 0x900: [0]=csr_write_en (bypass arm)
+  logic [31:0] chmap_sel;                //! CHMAP_SEL 0x904: [5:0]=idx, [8]=side
+  logic [31:0] chmap_word;               //! CHMAP_WORD 0x908: last committed §5 word
+  logic [15:0] chmap_commits;            //! CHMAP_STAT[15:0]: committed CSR writes (wraps)
+  logic [7:0]  chmap_refused;            //! CHMAP_STAT[23:16]: refused writes (saturates)
+  logic        chmap_wr_p;               //! one-cycle map-word write strobe
   logic [31:0] gptp_pdelay;              //! GPTP_PDELAY: neighbor pdelay (ns)
   logic [31:0] lwsrp_vid;                //! LWSRP_VID: [11:0] SR VID
   logic [31:0] lwsrp_dmlo, lwsrp_dmhi;   //! lwSRP stream DMAC {dmhi[15:0], dmlo}
@@ -795,6 +816,8 @@ module milan_csr #(
       as2_lo <= 32'h0; as2_hi <= 32'h0;
       tone_ctrl  <= 32'h0;
       mcsrv_ctrl <= 32'h0;
+      chmap_ctrl <= 32'h0; chmap_sel <= 32'h0; chmap_word <= 32'h0;
+      chmap_commits <= 16'h0; chmap_refused <= 8'h0; chmap_wr_p <= 1'b0;
       gptp_pdelay <= 32'h0;
       lwsrp_vid  <= 32'h0000_0002;
       lwsrp_dmlo <= 32'hF000_FE01;
@@ -824,6 +847,7 @@ module milan_csr #(
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
       tcam_wr_p <= 1'b0;
+      chmap_wr_p <= 1'b0;
       //! P12: engine CFG-word write requests hold until the engine's
       //! same-cycle accept (the engines arbitrate their single RAM write
       //! port; a one-cycle pulse could be lost to an engine-write slot)
@@ -897,6 +921,21 @@ module milan_csr #(
           A_AS2_HI:     as2_hi   <= s_axi_wdata;
           A_TONE_CTRL:  tone_ctrl  <= s_axi_wdata;
           A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;
+          A_CHMAP_CTRL: chmap_ctrl <= s_axi_wdata;
+          A_CHMAP_SEL:  chmap_sel  <= s_axi_wdata;
+          //! §6: the map word commits through the shared write port only while
+          //! the override is armed (CTRL[0]); a disarmed write is refused and
+          //! counted, never touching the map (AEM stays the sole programmer).
+          A_CHMAP_WORD: begin
+            if (chmap_ctrl[0]) begin
+              chmap_word    <= s_axi_wdata;
+              chmap_wr_p    <= 1'b1;
+              chmap_commits <= chmap_commits + 16'd1;
+            end else begin
+              chmap_refused <= (&chmap_refused) ? chmap_refused
+                                                : chmap_refused + 8'd1;
+            end
+          end
           //! I2SPB rail counters W1C (gaps 5b): each half clears on a write
           //! with any bit of that half set - the saturated-and-stuck-forever
           //! rail becomes re-armable without touching the other rail
@@ -1269,6 +1308,10 @@ module milan_csr #(
       A_LINKG_STAT: live_mux = i_linkg_stat;
       A_MCSRV_STAT: live_mux = i_mcsrv_stat;
       A_MCSRV_CTRL: live_mux = mcsrv_ctrl;
+      A_CHMAP_CTRL: live_mux = chmap_ctrl;
+      A_CHMAP_SEL:  live_mux = chmap_sel;
+      A_CHMAP_WORD: live_mux = {16'd0, chmap_word[15:0]};
+      A_CHMAP_STAT: live_mux = {8'd0, chmap_refused, chmap_commits};
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
@@ -1276,6 +1319,9 @@ module milan_csr #(
       default: begin
         if (rd_addr_q >= A_STATS_BASE && rd_addr_q < A_STATS_END)
           live_mux = stat_snap[soff[2 +: 4]];
+        else if (rd_addr_q >= A_CHMAP_CTRL &&
+                 rd_addr_q <  A_CHMAP_CTRL + 16'h40)
+          live_mux = 32'h0;               //! reserved chmap words read 0 (never shadow)
         else
           live_hit = 1'b0;                //! -> shadow (or 0 above the window)
       end
@@ -1362,7 +1408,10 @@ module milan_csr #(
   //! EVERY build while the servo ran fine - caught by the [SERVO] dp-TB leg)
   wire rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] ||
                       (rd_addr_q == A_MCSRV_STAT) ||
-                      (rd_addr_q == A_MCSRV_CTRL);
+                      (rd_addr_q == A_MCSRV_CTRL) ||
+                      //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
+                      (rd_addr_q >= A_CHMAP_CTRL &&
+                       rd_addr_q <  A_CHMAP_CTRL + 16'h40);
   always_ff @(posedge aclk) begin : read_data_reg
     if (!aresetn) r_data <= 32'h0;
     else if (rd_pend)
@@ -1424,6 +1473,11 @@ module milan_csr #(
   assign o_tone_enable      = tone_ctrl[0];
   assign o_mcsrv_ps_invert  = mcsrv_ctrl[0];
   assign o_mcsrv_auto_repair = mcsrv_ctrl[1];
+  assign o_chmap_enable   = chmap_ctrl[0];
+  assign o_chmap_wr_en    = chmap_wr_p;
+  assign o_chmap_wr_side  = chmap_sel[8];
+  assign o_chmap_wr_addr  = chmap_sel[5:0];
+  assign o_chmap_wr_data  = chmap_word[15:0];
   assign o_i2spb_clr_under  = i2spb_clru_p;
   assign o_i2spb_clr_over   = i2spb_clro_p;
   assign o_tone_att         = tone_ctrl[3:1];
