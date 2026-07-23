@@ -42,7 +42,7 @@ module aaf_nx_wrap (
 
   //! N=2 packetizer with direct pair injection (interleave checks)
   input  wire         p2_pair_valid_i,
-  input  wire [3:0]   p2_pair_slot_i,
+  input  wire [4:0]   p2_pair_slot_i,
   input  wire [23:0]  p2_pair_l_i,
   input  wire [23:0]  p2_pair_r_i,
   input  wire [1:0]   p2_en_i,
