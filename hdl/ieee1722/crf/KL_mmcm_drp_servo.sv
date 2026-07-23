@@ -33,6 +33,23 @@
                           bounded step (|du| <= SLEW_MAX_P per window)
                           and bounded authority (|u| <= U_MAX_P).
 
+                  step guard (2026-07-23 silicon): a local ptp_now
+                          step/slew (GM reboot -> ptp4l stepping the
+                          PHC) makes ONE window's local span enormous
+                          while crf_rate_i stays healthy; that single
+                          window used to wind the integrator straight
+                          to the +-200 ppm clamp (trim 0xF380 seen),
+                          where it STAYED until an IDLE bounce. Any
+                          window with |e| > GUARD_THR_C (2^19 = 1024
+                          ppm in the x512 units - legit acquire errors
+                          stay < ~211 ppm = base + authority) is now
+                          DISCARDED like a win_skip window: no PI, no
+                          trim, no lock_cnt change; counted in
+                          status_o[15:10]. DISC_MAX_C consecutive
+                          discards resync win_start like a CRF relock
+                          (PI state kept), so a sustained slew can
+                          never wedge the servo.
+
                   actuator (fine, glitch-free): MMCME2 dynamic fine
                           phase shift, UG472 "Interpolated Fine Phase
                           Shift in Fixed or Dynamic Mode in the MMCM":
@@ -239,6 +256,10 @@ module KL_mmcm_drp_servo #(
 
   localparam int unsigned WIN_TICKS_C = 1 << WIN_LOG2_P;
   localparam int signed   ECLAMP_C    = 32'sd1 << 20;  //! window-error bound
+  //! step guard: |e| beyond this (1024 ppm at 512 units/ppm) is not a
+  //! plant error, it is a broken measurement (local PHC step) - discard
+  localparam int signed   GUARD_THR_C = 32'sd1 << 19;
+  localparam int unsigned DISC_MAX_C  = 4;  //! consecutive discards -> resync
 
   // ------------------------------------------------------------------ //
   //  Audio-domain tick divider (TICK_CYC_P cycles -> 1 pulse)           //
@@ -329,6 +350,8 @@ module KL_mmcm_drp_servo #(
   logic                     win_valid_r;
   logic [1:0]               win_skip_r;   //! PI warm-up (crf ring refill)
   logic signed [31:0]       ew_r;         //! last window error (normalized)
+  logic [1:0]               disc_run_r;   //! consecutive guard-discarded windows
+  logic [5:0]               disc_cnt_r;   //! saturating discard total (status)
 
   //! PI
   logic signed [23:0]       integ_r, u_cmd_r;
@@ -389,6 +412,7 @@ module KL_mmcm_drp_servo #(
       state_r  <= IDLE_S;   dstate_r <= D_IDLE_S;
       tick_cnt_r <= '0;     win_start_r <= '0;
       win_valid_r <= 1'b0;  win_skip_r <= '0;
+      disc_run_r <= '0;     disc_cnt_r <= '0;
       ew_r <= '0;           integ_r <= '0;      u_cmd_r <= '0;
       lock_cnt_r <= '0;     acc_r <= '0;
       hs_send_r <= 1'b0;    hs_data_r <= '0;    ps_hold_r <= 1'b0;
@@ -415,6 +439,7 @@ module KL_mmcm_drp_servo #(
         IDLE_S: begin
           u_cmd_r <= '0; integ_r <= '0; acc_r <= '0;
           win_valid_r <= 1'b0; lock_cnt_r <= '0;
+          disc_run_r <= '0; disc_cnt_r <= '0;
           verified_r <= 1'b0; mismatch_r <= 1'b0; drp_fault_r <= 1'b0;
           mmcm_rst_o <= 1'b0; ps_hold_r <= 1'b0;
           if (servo_sel_w && crf_locked_i) begin
@@ -510,6 +535,24 @@ module KL_mmcm_drp_servo #(
           3'd4: begin : pi_isum_S
             pp_isum_r <= 32'(integ_r) + (ew_r >>> KI_SHIFT_P);
             pp_thr_r  <= (ew_r < LOCK_THR_P) && (ew_r > -LOCK_THR_P);
+            //! step guard: an implausible window error (|e| > 1024 ppm
+            //! equivalent - a local PHC step, not the plant) is squashed
+            //! like a win_skip window: pp_run_r cleared before the S7
+            //! writeback, so u_cmd/integ/lock_cnt all hold. DISC_MAX_C
+            //! consecutive discards resync the window baseline (CRF-
+            //! relock pattern: win_valid_r drops, PI state kept)
+            if (pp_run_r &&
+                ((ew_r > GUARD_THR_C) || (ew_r < -GUARD_THR_C))) begin
+              pp_run_r <= 1'b0;
+              if (disc_cnt_r != 6'h3F)
+                disc_cnt_r <= disc_cnt_r + 6'd1;
+              if (disc_run_r == 2'(DISC_MAX_C - 1)) begin
+                win_valid_r <= 1'b0;
+                disc_run_r  <= '0;
+              end else begin
+                disc_run_r <= disc_run_r + 2'd1;
+              end
+            end
             pp_seq_r  <= 3'd5;
           end : pi_isum_S
           3'd5: begin : pi_pterm_S
@@ -524,6 +567,7 @@ module KL_mmcm_drp_servo #(
           end : pi_uclamp_S
           3'd7: begin : pi_wb_S
             if (pp_run_r) begin
+              disc_run_r <= '0;   //! a committed window ends the streak
               //! bounded step (slew limit)
               if (pp_du_r > 32'(SLEW_MAX_P))
                 u_cmd_r <= u_cmd_r + 24'(SLEW_MAX_P);
@@ -780,7 +824,7 @@ module KL_mmcm_drp_servo #(
   // ------------------------------------------------------------------ //
   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
   assign status_o = {trim_w,                       //! [31:16] signed trim
-                     6'd0,                         //! [15:10] reserved
+                     disc_cnt_r,                   //! [15:10] guard discards
                      1'b0,                         //! [9]     reserved
                      drp_fault_r,                  //! [8]
                      ps_fault_s_w,                 //! [7]
