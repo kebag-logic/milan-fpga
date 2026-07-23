@@ -458,6 +458,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire signed [31:0] crf_delta_w, crf_rate_w;
   wire [31:0] mcsrv_stat_w;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
   wire        mcsrv_ps_invert_w;  //! MCSRV_CTRL 0x8FC[0] bench sign knob
+  wire        mcsrv_auto_repair_w;//! MCSRV_CTRL 0x8FC[1] bench-gated DRP repair enable (default 0)
   wire [15:0] crf_pducnt_w;
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
@@ -841,6 +842,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_crf_locked       (crf_locked_w),
     .i_mcsrv_stat       (mcsrv_stat_w),
     .o_mcsrv_ps_invert  (mcsrv_ps_invert_w),
+    .o_mcsrv_auto_repair (mcsrv_auto_repair_w),
     .o_crft_en          (cfg_crft_en),
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
@@ -1541,9 +1543,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   //  Consumes the KL_crf_rx rate measurement when clock_source == 2 and
   //  steers the SoC audio MMCM through the UG472 fine-phase-shift port
   //  (ppm-fine, glitch-free) + the XAPP888 DRP engine (verified divider
-  //  reprogramming, reset-sequenced). auto_repair is tied OFF for silicon
-  //  bring-up: the DRP limb read-verifies but never writes until the bench
-  //  confirms the expected ClkReg encoding (see the module header).
+  //  reprogramming, reset-sequenced). auto_repair defaults OFF for silicon
+  //  bring-up (MCSRV_CTRL 0x8FC[1] resets 0): the DRP limb read-verifies but
+  //  never writes until the bench confirms the expected ClkReg encoding (see
+  //  the module header) and sets 0x8FC[1] = 1. TB: tb/verilator/
+  //  mmcm_servo_autorepair (47/47) proves the enabled repair path.
   // ==========================================================================
   KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) mmcm_servo (
     .clk_i         (axis_clk),
@@ -1554,7 +1558,7 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .clk_src_i     (aecp_clk_src),
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
-    .auto_repair_i (1'b0),
+    .auto_repair_i (mcsrv_auto_repair_w),
     .ps_invert_i   (mcsrv_ps_invert_w),
     .drp_addr_o    (o_mmcm_drp_addr),
     .drp_en_o      (o_mmcm_drp_en),
