@@ -46,8 +46,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! (KL_tdm_capture; tdm_* pins live, i2s sclk/lrck parked, i2s_mclk_o
   //! carries the codec MCLK, TONE_CTRL pilot override has no effect).
   parameter int AUDIO_IF_SLOTS_P = 0,
-parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
+parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
+  //! item-7 ALSA playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
+  //! pair source) and let it drive the packetizer in place of the ADC capture
+  //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
+  //! the datapath is byte-identical to the pre-item-7 shape.
+  parameter int AAF_PLAYBACK_P = 0
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -195,7 +200,28 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   input  wire        i_mmcm_locked,
   output wire        o_mmcm_ps_en,
   output wire        o_mmcm_ps_incdec,
-  input  wire        i_mmcm_ps_done
+  input  wire        i_mmcm_ps_done,
+
+  // ---- item-7 ALSA playback: host PCM ring -> KL_pcm_tx pair source --------
+  //! Only live when AAF_PLAYBACK_P != 0; the SoC inert-ties these otherwise
+  //! (and the KL_pcm_tx generate prunes, so the ports read/drive constants).
+  //! The word-fetch port (pb_mem_*) is bridged to a DRAM ring read master at
+  //! the SoC layer; control/status are the milan_dma playback CSR block.
+  input  wire        pb_enable_i,             //! master play enable (pair mux)
+  input  wire        pb_underrun_silence_i,   //! 0 repeat-last, 1 digital silence
+  input  wire [N_STREAMS-1:0] pb_stream_en_i, //! per-stream ring-read gate
+  input  wire [63:0] pb_ring_base_i,          //! stream-0 sub-ring byte base
+  input  wire [31:0] pb_ring_len_i,           //! per-stream sub-ring bytes (mult 8)
+  input  wire [31:0] pb_ring_stride_i,        //! bytes between stream sub-ring bases
+  input  wire [N_STREAMS*32-1:0] pb_wr_ptr_i, //! per-stream host write pointers
+  output wire [31:0] pb_mem_addr_o,           //! ring word fetch: byte address
+  output wire        pb_mem_rd_o,             //! ring word fetch: read strobe
+  input  wire [63:0] pb_mem_data_i,           //! ring word fetch: returned word
+  input  wire        pb_mem_valid_i,          //! ring word fetch: data valid
+  output wire [N_STREAMS*32-1:0] pb_rd_ptr_o,   //! per-stream consumed bytes
+  output wire [N_STREAMS*16-1:0] pb_underrun_o, //! per-stream underrun count
+  output wire [N_STREAMS*16-1:0] pb_overrun_o,  //! per-stream overrun count
+  output wire        pb_playing_o             //! engine walking a sample tick
 );
   // P12 (NXN_ARCHITECTURE.md §1.5): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -277,10 +303,71 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     assign i2s_lrck_o = 1'b0;
   end endgenerate
 
+  // ==========================================================================
+  //  item-7 ALSA playback source (KL_pcm_tx) — the TX/talker mirror of the RX
+  //  depacketizer PCM ring. A host-written DRAM PCM ring, read through the
+  //  SoC's word-fetch bridge (pb_mem_*), is de-interleaved and media-clock-
+  //  paced into the SAME {pair_valid, pair_slot, L, R} contract the packetizer
+  //  consumes. While pb_enable_i is set it REPLACES the ADC capture front-end
+  //  as the pair source (KL_pcm_tx.sv's drop-in contract); the packetizer,
+  //  merge, PTP-stamp and MAC-TX path downstream are unchanged. AAF_PLAYBACK_P
+  //  = 0 prunes it and the packetizer sees the capture front-end bit-identically.
+  // ==========================================================================
+  wire        pkt_pv_w;
+  wire [3:0]  pkt_slot_w;
+  wire [23:0] pkt_l_w, pkt_r_w;
+
+  //! internal sample-tick divider (local media-clock MVP, like aaf_talker_i2s:
+  //! the accepted +ppm offset; a CRF-disciplined external smp_tick is the
+  //! follow-up once the servo drives the TX media clock)
+  localparam int PB_SAMPLE_DIV_C = (MILAN_CLK_FREQ_HZ / 48000 < 2)
+                                   ? 2 : MILAN_CLK_FREQ_HZ / 48000;
+
+  generate if (AAF_PLAYBACK_P != 0) begin : g_aaf_playback
+    wire        pb_pv_w;
+    wire [3:0]  pb_slot_w;
+    wire [23:0] pb_l_w, pb_r_w;
+    KL_pcm_tx #(
+      .N_STREAMS_P   (N_STREAMS),
+      .CHANS_P       (2),               //! stereo pair stream (all-stereo NxN)
+      .SAMPLE_DIV_C  (PB_SAMPLE_DIV_C),
+      .USE_EXT_TICK_P(1'b0)
+    ) pcm_tx (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .enable_i (pb_enable_i), .stream_en_i (pb_stream_en_i),
+      .underrun_silence_i (pb_underrun_silence_i),
+      .ring_base_i (pb_ring_base_i), .ring_len_i (pb_ring_len_i),
+      .ring_stride_i (pb_ring_stride_i), .wr_ptr_i (pb_wr_ptr_i),
+      .smp_tick_i (1'b0),
+      .mem_addr_o (pb_mem_addr_o), .mem_rd_o (pb_mem_rd_o),
+      .mem_data_i (pb_mem_data_i), .mem_valid_i (pb_mem_valid_i),
+      .pair_valid_o (pb_pv_w), .pair_slot_o (pb_slot_w),
+      .pair_l_o (pb_l_w), .pair_r_o (pb_r_w),
+      .rd_ptr_o (pb_rd_ptr_o), .underrun_o (pb_underrun_o),
+      .overrun_o (pb_overrun_o), .smp_tick_o (), .playing_o (pb_playing_o)
+    );
+    //! playback overrides the capture front-end at the packetizer's pair port
+    assign pkt_pv_w   = pb_enable_i ? pb_pv_w   : aafcap_pv_w;
+    assign pkt_slot_w = pb_enable_i ? pb_slot_w : aafcap_slot_w;
+    assign pkt_l_w    = pb_enable_i ? pb_l_w    : aafcap_l_w;
+    assign pkt_r_w    = pb_enable_i ? pb_r_w    : aafcap_r_w;
+  end else begin : g_no_playback
+    assign pkt_pv_w   = aafcap_pv_w;
+    assign pkt_slot_w = aafcap_slot_w;
+    assign pkt_l_w    = aafcap_l_w;
+    assign pkt_r_w    = aafcap_r_w;
+    assign pb_mem_addr_o = 32'd0;
+    assign pb_mem_rd_o   = 1'b0;
+    assign pb_rd_ptr_o   = '0;
+    assign pb_underrun_o = '0;
+    assign pb_overrun_o  = '0;
+    assign pb_playing_o  = 1'b0;
+  end endgenerate
+
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .pair_valid_i (aafcap_pv_w), .pair_slot_i (aafcap_slot_w),
-    .pair_l_i (aafcap_l_w), .pair_r_i (aafcap_r_w),
+    .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
+    .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),
     //! t0 = the legacy admission gate bit-identically; t>0 = TCTX CTRL[0]
     //! (window) & per-stream lwSRP gate & the engine-wide MAAP term (the
     //! composed aaf_stream_en_w - see its comment for the honest gaps)
