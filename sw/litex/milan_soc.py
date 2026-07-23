@@ -475,7 +475,7 @@ class _AxisDP:
         self.dp  = dp
         self.sys = sys
 
-def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath):
+def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16):
     """Cross one AXIS lane between the sys domain (DMA engine / MAC core) and the
     datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
     (the "use a FIFO to compensate the timing" boundary). `to_datapath=True` is a
@@ -490,10 +490,10 @@ def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath):
     # (AX33 x3-seed violator, storage cell = mac_rx_cdc). +1 cycle on a
     # handshaked stream = transparent.
     if to_datapath:                                        # sys -> milan_cd
-        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=16, buffered=True)
+        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=depth, buffered=True)
         setattr(host, name, cdc)                           # LiteXModule auto-submodule
         return _AxisDP(dp=cdc.source, sys=cdc.sink)
-    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=16, buffered=True)  # milan_cd -> sys
+    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=depth, buffered=True)  # milan_cd -> sys
     setattr(host, name, cdc)
     return _AxisDP(dp=cdc.sink, sys=cdc.source)
 
@@ -3324,7 +3324,13 @@ class MilanDMA(LiteXModule):
         # PCM lane carries the stream-index tuser through the CDC at N > 1
         # (the per-stream ring writer's key); N = 1 keeps the exact P11 lane.
         Lp = L + [("user", 4)] if num_streams > 1 else L
-        pcm_dp = _axis_dp_cdc(self, "dma_pcm_cdc", Lp, milan_cd, to_datapath=False)
+        # depth 128 (2026-07-23): the 16-deep lane dropped EXACTLY 1 beat in 24
+        # whenever the CPU read the ring region concurrently (arecord rw path;
+        # ring holes at a stable mod-24 phase, 2 kHz whole-frame artifact) -
+        # the wishbone writer sustains ~23/24 of the PCM rate under DRAM
+        # contention and the real-time datapath side sheds on full. 1 KB of
+        # FIFO absorbs the CPU's bursty copy stalls outright.
+        pcm_dp = _axis_dp_cdc(self, "dma_pcm_cdc", Lp, milan_cd, to_datapath=False, depth=128)
         # exposed for MilanDebug's TX datapath-input probe: tx_dp.dp is the milan-domain
         # endpoint feeding the datapath (traffic_controller s_axis). tx_dp.dp.ready IS
         # the traffic_controller's backpressure  -  the direct "is the datapath the TX
