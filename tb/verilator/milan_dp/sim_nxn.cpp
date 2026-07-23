@@ -47,6 +47,15 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <cstdio>
+
+// Stream count the C++ side walks. Paired with the RTL -GN_STREAMS by the
+// Makefile: the default obj_nxn build is N=4; the obj_nxn8 build passes
+// -GN_STREAMS=8 AND -DNSTREAMS_TB=8 so the sweep below walks idx 3..7 (the
+// AX 8x8 target - the top half of the index space only exists at N=8).
+#ifndef NSTREAMS_TB
+#define NSTREAMS_TB 4
+#endif
 
 static Vmilan_datapath* dut;
 static long checks = 0, fails = 0;
@@ -197,7 +206,8 @@ int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     dut = new Vmilan_datapath;
 
-    printf("=== milan_datapath NxN integration (N_STREAMS=4, P12) ===\n");
+    printf("=== milan_datapath NxN integration (N_STREAMS=%d, P12) ===\n",
+           NSTREAMS_TB);
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
     dut->s_axi_bready = dut->s_axi_rready = 0;
@@ -464,6 +474,76 @@ int main(int argc, char** argv) {
     (void)axi_read(A_SW_SID_LO);
     ck("ctx0 SID reads 0 (bind left ctx0 alone)", axi_read(A_SW_SID_LO) |
                                                   axi_read(A_SW_SID_HI), 0);
+
+    // ======================================================================
+    // item-5 (N x N, the AX 8x8 target): full-index routing sweep. The checks
+    // above prove idx 1/2/3 at N=4; this proves EVERY fresh index 3..N-1 is
+    // provisioned, live, and routed independently AT THE SAME TIME. Default
+    // build (N=4) walks idx 3; the obj_nxn8 build (-GN_STREAMS=8) walks idx
+    // 3..7 - the top half of the stream-index space that exists only at N=8,
+    // so a PASS here IS the 8-stream routing proof the AX shape needs.
+    printf("-- N-wide routing: fresh streams 3..%d live at once, by index --\n",
+           NSTREAMS_TB - 1);
+    // provision every fresh stream simultaneously, DMA route so each lands on
+    // the PCM ring tagged with its own tuser. sid(s) = {0x30+s,0,0,0,0,
+    // 0x30+s,0,s}: distinct from sidB/C/X and from each other.
+    for (int s = 3; s < NSTREAMS_TB; s++) {
+        uint32_t sid_hi = ((uint32_t)(0x30 + s) << 24);
+        uint32_t sid_lo = ((uint32_t)(0x30 + s) << 16) | (uint32_t)s;
+        axi_write(A_STRM_SEL, s & 0xF);                  // dir=0 idx=s
+        axi_write(A_SW_SID_LO, sid_lo);
+        axi_write(A_SW_SID_HI, sid_hi);
+        axi_write(A_SW_FMT_LO, FMT_LO);
+        axi_write(A_SW_FMT_HI, FMT_HI);
+        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);        // en, DMA flag
+    }
+    // CFG readback per stream through the ENGINE-ARBITRATED LCTX port B
+    for (int s = 3; s < NSTREAMS_TB; s++) {
+        axi_write(A_STRM_SEL, s & 0xF);
+        char nm[56]; snprintf(nm, sizeof nm, "ctx%d CTRL readback (port B)", s);
+        ck(nm, axi_read(A_SW_CTRL), 0x3);
+    }
+    // inject one uniquely-payloaded frame per stream, interleaved, ALL table
+    // entries live: the classifier must tag each frame with the right index.
+    size_t ring0 = pcm_frames.size();
+    for (int s = 3; s < NSTREAMS_TB; s++) {
+        uint8_t sid[8] = {(uint8_t)(0x30 + s), 0, 0, 0, 0,
+                          (uint8_t)(0x30 + s), 0, (uint8_t)s};
+        inject(mkaaf(sid, (uint8_t)(0x40 + s), 2, (uint8_t)(0xA0 + s)), 120);
+    }
+    ck("sweep: one ring frame per fresh stream",
+       (unsigned)(pcm_frames.size() - ring0), (unsigned)(NSTREAMS_TB - 3));
+    // each ring frame carries its own stream's tuser + byte-exact payload
+    bool sweep_user_ok = true, sweep_pay_ok = true;
+    for (int s = 3; s < NSTREAMS_TB; s++) {
+        size_t k = ring0 + (size_t)(s - 3);
+        if (k >= pcm_frames.size()) { sweep_user_ok = false; break; }
+        if (pcm_frames[k].user != s) sweep_user_ok = false;
+        if (pcm_frames[k].bytes.size() != 48) sweep_pay_ok = false;
+        else for (int i = 0; i < 48; i++)
+            if (pcm_frames[k].bytes[i] != (uint8_t)(0xA0 + s + i)) sweep_pay_ok = false;
+    }
+    ck("sweep: ring tuser == stream index for all", sweep_user_ok, 1);
+    ck("sweep: 48-byte payload byte-exact for all", sweep_pay_ok, 1);
+    // isolation: each fresh stream counted EXACTLY its own single frame (no
+    // cross-count across the N simultaneously-live contexts) - Table 7-157.
+    for (int s = 3; s < NSTREAMS_TB; s++) {
+        axi_write(A_STRM_SEL, s & 0xF);
+        snap_and_wait();
+        char nm[64];
+        snprintf(nm, sizeof nm, "ctx%d FRAMES_RX == 1 (isolated)", s);
+        ck(nm, axi_read(A_SW_CNT0 + 9*4), 1);
+        snprintf(nm, sizeof nm, "ctx%d PDUS == 1", s);
+        ck(nm, axi_read(A_SW_PDUS), 1);
+    }
+    // an unknown sid (no table entry at any index) is still ignored at width N
+    {
+        const uint8_t sidU[8] = {0x5A, 0, 0, 0, 0, 0x5A, 0, 0x0F};
+        size_t before = pcm_frames.size();
+        inject(mkaaf(sidU, 50, 2, 0x11), 120);
+        ck("sweep: unknown sid ignored (no ring frame)",
+           (unsigned)pcm_frames.size(), (unsigned)before);
+    }
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
