@@ -478,6 +478,25 @@ is an RTL tie today).
 | `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; informative while auto-repair is tied off), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only at `clock_source == 2` (CRF descriptor); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
+### 0x900  -  channel-map fabric  `(docs/CHANNEL_MAP_64.md §6, KL_chan_map_render / KL_chan_map_capture)`
+
+Debug write port + bypass arm for the 64x64 render/capture map RAMs. Same
+dedicated-arm carve-out as MCSRV (NOT in `is_plain_rw` - a 0x900 shadow write
+would alias word 0x100 - plus its own `rd_in_window` 0x900-0x93F term, or every
+read here would be the 0x8F8 dead-read trap). `CHMAP_CTRL[0]` = 0 (reset) leaves
+the CERT audio path bit-identical: the render/capture crossbars are muxed OUT of
+both the packetizer feed and the i2s_playback feed. The AEM audio-map projector
+(1722.1 7.2.19 / Milan es-4.16) is the canonical programmer; this window is the
+bench override (a documented follow-up wires the projector to the same port).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en - fabric bypass arm. While 0, the CERT capture/render paths drive bit-identically and `CHMAP_WORD` writes are refused (counted in `CHMAP_STAT[23:16]`). Set 1 after programming the map to select the crossbar outputs |
+| `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` map entry index, `[8]` side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture pair slot 0..31). Selects the target of the next `CHMAP_WORD` write |
+| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word |
+| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem/csr commits (wraps), `[23:16]` csr_refused (override disarmed; saturates) |
+| `0x910`-`0x93C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased) |
+
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 
 On the fully-FPGA VexiiRiscv (formerly NaxRiscv) SoC the AXIS↔memory DMA (§A.6,
