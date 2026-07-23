@@ -1205,6 +1205,15 @@ int main(int argc, char** argv) {
         for (int c = 0; c < 40; c++) step();
         ck("SERVO back to IDLE at clock_source 0",
            axi_read(A_MCSRV_STAT) & 0x7, 0);
+
+        // MCSRV_CTRL 0x8FC: the ps_invert bench knob must be RW-readable
+        // (it shares the >=0x800 live-read region the 0x8F8 fix opened)
+        enum { A_MCSRV_CTRL = 0x8FC };
+        ck("MCSRV_CTRL reads 0 at reset", axi_read(A_MCSRV_CTRL), 0);
+        axi_write(A_MCSRV_CTRL, 0x1);
+        ck("MCSRV_CTRL ps_invert readback", axi_read(A_MCSRV_CTRL), 1);
+        axi_write(A_MCSRV_CTRL, 0x0);
+        ck("MCSRV_CTRL clears", axi_read(A_MCSRV_CTRL), 0);
         axi_write(A_CRF_CTRL, 0x0);
         dut->i_mmcm_locked = 0;
     }
