@@ -673,6 +673,12 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
   wire        acmp_rest_ack_w;
   wire [1:0]  acmp_rest_status_w;
 
+  //! item-11 AAF per-stage latency taps (LTAP CSR group, base 0x870):
+  //! 16 packed RO words + status feed milan_csr; en/clr come back from it.
+  wire [16*32-1:0] ltap_regs_w;
+  wire [31:0]      ltap_status_w;
+  wire             ltap_en_w, ltap_clr_w;
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
@@ -843,6 +849,11 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .i_mcsrv_stat       (mcsrv_stat_w),
     .o_mcsrv_ps_invert  (mcsrv_ps_invert_w),
     .o_mcsrv_auto_repair (mcsrv_auto_repair_w),
+    // item-11 AAF per-stage latency taps (LTAP group 0x870)
+    .i_ltap_regs        (ltap_regs_w),
+    .i_ltap_status      (ltap_status_w),
+    .o_ltap_en          (ltap_en_w),
+    .o_ltap_clr         (ltap_clr_w),
     .o_crft_en          (cfg_crft_en),
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
@@ -2041,6 +2052,85 @@ parameter int PB_PREFILL_C = 0     //! playback prefill release (0 = midpoint;
     .counts_o(stats_counts),
     .rollover_o(stats_rollover)
   );
+
+  // ==========================================================================
+  //  AAF per-stage latency taps (roadmap item 11) — latch a free-running
+  //  cycle count at each documented AAF pipeline point, expose per-stage
+  //  last/min/max deltas + the gPTP epoch over the LTAP CSR group (0x870).
+  //  TX chain: CAP (pair in) -> PKT_SOF -> PKT_EOF -> MAC_TX.
+  //  RX chain: MAC_RX -> ACCEPT (AVTP parse) -> DEPKT -> PCM_RING.
+  //  (I2S-out playout is FIFO-fill dominated — observed via I2SPB_STAT; a
+  //   DDR3 per-sample history ring is the documented follow-up.)
+  // ==========================================================================
+  wire aaf_tx_acc_w = aaf_tx_tvalid       & aaf_tx_tready;
+  wire mac_tx_acc_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready;
+  wire mac_rx_acc_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready;
+  wire dpkt_acc_w   = dpkt_pcm_tvalid_w    & dpkt_pcm_tready_w;
+  wire ring_acc_w   = m_axis_pcm_tvalid    & m_axis_pcm_tready;
+
+  //! start-of-frame trackers for the two shared AXIS boundaries
+  logic aaf_tx_inframe_r, mac_rx_inframe_r;
+  always_ff @(posedge axis_clk) begin : ltap_inframe
+    if (!axis_resetn) begin
+      aaf_tx_inframe_r <= 1'b0;
+      mac_rx_inframe_r <= 1'b0;
+    end
+    else begin
+      if (aaf_tx_acc_w) aaf_tx_inframe_r <= ~aaf_tx_tlast;
+      if (mac_rx_acc_w) mac_rx_inframe_r <= ~s_axis_mac_rx_tlast;
+    end
+  end : ltap_inframe
+
+  //! single-cycle stage edges (stage 0 = the chain's arm/epoch trigger)
+  wire ltap_txcap_w  = aafcap_pv_w;                             //! ring/I2S pair in
+  wire ltap_txsof_w  = aaf_tx_acc_w & ~aaf_tx_inframe_r;        //! packetizer first beat
+  wire ltap_txeof_w  = aaf_tx_acc_w &  aaf_tx_tlast;            //! packetizer last beat
+  wire ltap_txmac_w  = mac_tx_acc_w &  m_axis_mac_tx_tlast;     //! frame egress at MAC
+  wire ltap_rxsof_w  = mac_rx_acc_w & ~mac_rx_inframe_r;        //! frame ingress from MAC
+  wire ltap_rxacc_w  = avtprx_accept_p;                        //! AVTP monitor accept/parse
+  wire ltap_rxdpk_w  = dpkt_acc_w & dpkt_pcm_tlast_w;          //! depacketizer payload last
+  wire ltap_rxring_w = ring_acc_w & m_axis_pcm_tlast;          //! payload into the PCM ring
+
+  wire [31:0]     ltap_tx_epoch_w, ltap_rx_epoch_w;
+  wire [15:0]     ltap_tx_smp_w, ltap_rx_smp_w, ltap_tx_to_w, ltap_rx_to_w;
+  wire [3*16-1:0] ltap_tx_last_w, ltap_tx_min_w, ltap_tx_max_w;
+  wire [3*16-1:0] ltap_rx_last_w, ltap_rx_min_w, ltap_rx_max_w;
+
+  KL_aaf_latency_taps #(
+    .N_STAGES_P (4), .CW_P (32), .DW_P (16),
+    .TIMEOUT_C  (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
+  ) aaf_latency_taps (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .en_i  (ltap_en_w), .clr_i (ltap_clr_w),
+    .now_i (ptp_now_w[31:0]),
+    .tx_stage_p_i ({ltap_txmac_w, ltap_txeof_w, ltap_txsof_w, ltap_txcap_w}),
+    .rx_stage_p_i ({ltap_rxring_w, ltap_rxdpk_w, ltap_rxacc_w, ltap_rxsof_w}),
+    .tx_epoch_o (ltap_tx_epoch_w), .rx_epoch_o (ltap_rx_epoch_w),
+    .tx_samples_o (ltap_tx_smp_w), .rx_samples_o (ltap_rx_smp_w),
+    .tx_timeouts_o (ltap_tx_to_w), .rx_timeouts_o (ltap_rx_to_w),
+    .tx_last_o (ltap_tx_last_w), .tx_min_o (ltap_tx_min_w), .tx_max_o (ltap_tx_max_w),
+    .rx_last_o (ltap_rx_last_w), .rx_min_o (ltap_rx_min_w), .rx_max_o (ltap_rx_max_w),
+    .status_o (ltap_status_w)
+  );
+
+  //! pack the 16 RO words in the exact LTAP CSR order (0x874..0x8B0). Per
+  //! delta d: word{2d} = {max16, last16}, word{2d+1} = {16'd0, min16}.
+  assign ltap_regs_w[32*0  +: 32] = ltap_tx_epoch_w;
+  assign ltap_regs_w[32*1  +: 32] = {ltap_tx_to_w, ltap_tx_smp_w};
+  assign ltap_regs_w[32*2  +: 32] = {ltap_tx_max_w[16*0 +: 16], ltap_tx_last_w[16*0 +: 16]};
+  assign ltap_regs_w[32*3  +: 32] = {16'd0,                     ltap_tx_min_w [16*0 +: 16]};
+  assign ltap_regs_w[32*4  +: 32] = {ltap_tx_max_w[16*1 +: 16], ltap_tx_last_w[16*1 +: 16]};
+  assign ltap_regs_w[32*5  +: 32] = {16'd0,                     ltap_tx_min_w [16*1 +: 16]};
+  assign ltap_regs_w[32*6  +: 32] = {ltap_tx_max_w[16*2 +: 16], ltap_tx_last_w[16*2 +: 16]};
+  assign ltap_regs_w[32*7  +: 32] = {16'd0,                     ltap_tx_min_w [16*2 +: 16]};
+  assign ltap_regs_w[32*8  +: 32] = ltap_rx_epoch_w;
+  assign ltap_regs_w[32*9  +: 32] = {ltap_rx_to_w, ltap_rx_smp_w};
+  assign ltap_regs_w[32*10 +: 32] = {ltap_rx_max_w[16*0 +: 16], ltap_rx_last_w[16*0 +: 16]};
+  assign ltap_regs_w[32*11 +: 32] = {16'd0,                     ltap_rx_min_w [16*0 +: 16]};
+  assign ltap_regs_w[32*12 +: 32] = {ltap_rx_max_w[16*1 +: 16], ltap_rx_last_w[16*1 +: 16]};
+  assign ltap_regs_w[32*13 +: 32] = {16'd0,                     ltap_rx_min_w [16*1 +: 16]};
+  assign ltap_regs_w[32*14 +: 32] = {ltap_rx_max_w[16*2 +: 16], ltap_rx_last_w[16*2 +: 16]};
+  assign ltap_regs_w[32*15 +: 32] = {16'd0,                     ltap_rx_min_w [16*2 +: 16]};
 
 endmodule
 
