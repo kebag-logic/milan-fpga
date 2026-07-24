@@ -45,6 +45,10 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'SET_STREAM_FORMAT': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
+                      'AECP_SET_STREAM_FORMAT_IF'),
     'SET_SAMPLING_RATE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::'
@@ -53,6 +57,7 @@ LAYOUTS = {
                    ('control_data_length', 11), ('target_entity_id', 64),
                    ('controller_entity_id', 64), ('sequence_id', 16),
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('stream_format', 64)],
                    ('descriptor_index', 16), ('sampling_rate', 32)],
     'SET_CONFIGURATION': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
@@ -141,6 +146,12 @@ def pg_decode(context, key, hexstr):
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_STREAM_FORMAT, CMD_GET_STREAM_FORMAT = 8, 9   # IEEE 1722.1 Table 7.126
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
+# Milan AAF_PCM 48 kHz stream formats (avdecc/milan-v12-entity.json STREAM_INPUT/OUTPUT[0]):
+STREAM_FMT_AAF_48K_2CH = 0x0205022000806000          # AAF_PCM 48k 2ch 32b (default)
+STREAM_FMT_AAF_48K_8CH = 0x0215022002006000          # AAF_PCM 48k up-to-8ch 32b
+VALID_STREAM_FORMATS = {STREAM_FMT_AAF_48K_2CH, STREAM_FMT_AAF_48K_8CH}
 CMD_SET_SAMPLING_RATE, CMD_GET_SAMPLING_RATE = 20, 21
 DESC_AUDIO_UNIT = 0x0002
 VALID_RATES = {44100, 48000, 96000}
@@ -157,6 +168,7 @@ class MilanAecpModel:
     def __init__(self):
         self.clock_source_index = 0
         self.identify = 0
+        self.stream_format = STREAM_FMT_AAF_48K_2CH
         self.sampling_rate = 48000
         self.configuration_index = 0
 
@@ -171,6 +183,17 @@ class MilanAecpModel:
         if cmd == CMD_GET_CONFIGURATION:
             return STATUS_SUCCESS        # getter: response carries configuration_index
         dt, di = fields['descriptor_type'], fields['descriptor_index']
+        if cmd == CMD_SET_STREAM_FORMAT:
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if fields['stream_format'] not in VALID_STREAM_FORMATS:
+                return STATUS_BAD_ARGUMENTS
+            self.stream_format = fields['stream_format']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_STREAM_FORMAT:
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries stream_format
         if cmd == CMD_SET_SAMPLING_RATE:
             if dt != DESC_AUDIO_UNIT or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -595,6 +618,10 @@ def step_acmp_fuzz_invariant(context):
     assert context.listener.state in LSM
 
 
+@then('the model stream_format is {v:d}')
+def _model_sf(context, v):
+    assert context.aecp_model.stream_format == v, \
+        f"sf={context.aecp_model.stream_format}"
 @then('the model sampling_rate is {v:d}')
 def _model_sr(context, v):
     assert context.aecp_model.sampling_rate == v, f"sr={context.aecp_model.sampling_rate}"
