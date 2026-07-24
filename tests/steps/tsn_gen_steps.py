@@ -134,6 +134,7 @@ DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
 CMD_SET_CONFIGURATION, CMD_GET_CONFIGURATION = 6, 7
 NUM_CONFIGS = 3
+CMD_GET_CONTROL = 25   # 0x0019
 CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
@@ -168,6 +169,10 @@ class MilanAecpModel:
                 return STATUS_BAD_ARGUMENTS
             self.clock_source_index = fields['clock_source_index']
             return STATUS_SUCCESS
+        if cmd == CMD_GET_CONTROL:
+            if dt != DESC_CONTROL or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries self.identify
         if cmd == CMD_SET_CONTROL:
             if dt != DESC_CONTROL or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
