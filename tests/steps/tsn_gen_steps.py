@@ -49,12 +49,41 @@ LAYOUTS = {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::'
                       'AECP_SET_NAME_IF'),
+    'READ_DESCRIPTOR': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::'
+                      'AECP_READ_DESCRIPTOR_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('configuration_index', 16),
+                   ('reserved', 16), ('descriptor_type', 16),
+                   ('descriptor_index', 16)],
+    'SET_STREAM_FORMAT': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
+                      'AECP_SET_STREAM_FORMAT_IF'),
+    'SET_SAMPLING_RATE': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::'
+                      'AECP_SET_SAMPLING_RATE_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
                    ('controller_entity_id', 64), ('sequence_id', 16),
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('name_index', 16),
                    ('configuration_index', 16), ('name', 512)],
+                   ('descriptor_index', 16), ('stream_format', 64)],
+                   ('descriptor_index', 16), ('sampling_rate', 32)],
+    'SET_CONFIGURATION': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::'
+                      'AECP_SET_CONFIGURATION_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('reserved', 16),
+                   ('configuration_index', 16)],
     },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
@@ -135,6 +164,31 @@ DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 DESC_ENTITY, DESC_CONFIGURATION = 0x0000, 0x0001
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
 CMD_SET_NAME, CMD_GET_NAME = 16, 17     # 0x0010 / 0x0011 (IEEE 1722.1 Table 7.126)
+CMD_READ_DESCRIPTOR = 4                 # 0x0004, verified vs aecp_aem_read_descriptor.yaml
+DESC_ENTITY, DESC_CONFIGURATION, DESC_AUDIO_UNIT = 0x0000, 0x0001, 0x0002
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
+# Known descriptors of the Milan entity: descriptor_type -> count of valid indices.
+# A read outside this map (unknown type, or index >= count) is NO_SUCH_DESCRIPTOR.
+KNOWN_DESCRIPTORS = {
+    DESC_ENTITY: 1,          # ENTITY[0]
+    DESC_CONFIGURATION: 3,   # CONFIGURATION[0..2]
+    DESC_AUDIO_UNIT: 1,      # AUDIO_UNIT[0]
+    DESC_STREAM_INPUT: 1,    # STREAM_INPUT[0]
+    DESC_STREAM_OUTPUT: 1,   # STREAM_OUTPUT[0]
+    DESC_CLOCK_DOMAIN: 1,    # CLOCK_DOMAIN[0]
+}
+CMD_SET_STREAM_FORMAT, CMD_GET_STREAM_FORMAT = 8, 9   # IEEE 1722.1 Table 7.126
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
+# Milan AAF_PCM 48 kHz stream formats (avdecc/milan-v12-entity.json STREAM_INPUT/OUTPUT[0]):
+STREAM_FMT_AAF_48K_2CH = 0x0205022000806000          # AAF_PCM 48k 2ch 32b (default)
+STREAM_FMT_AAF_48K_8CH = 0x0215022002006000          # AAF_PCM 48k up-to-8ch 32b
+VALID_STREAM_FORMATS = {STREAM_FMT_AAF_48K_2CH, STREAM_FMT_AAF_48K_8CH}
+CMD_SET_SAMPLING_RATE, CMD_GET_SAMPLING_RATE = 20, 21
+DESC_AUDIO_UNIT = 0x0002
+VALID_RATES = {44100, 48000, 96000}
+CMD_SET_CONFIGURATION, CMD_GET_CONFIGURATION = 6, 7
+NUM_CONFIGS = 3
+CMD_GET_CONTROL = 25   # 0x0019
 CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
@@ -146,9 +200,20 @@ class MilanAecpModel:
         self.clock_source_index = 0
         self.identify = 0
         self.object_name = 0          # 64-octet avdecc_string (ENTITY/CONFIGURATION name)
+        self.stream_format = STREAM_FMT_AAF_48K_2CH
+        self.sampling_rate = 48000
+        self.configuration_index = 0
 
     def process(self, fields):
         cmd = fields['command_type']
+        dt, di = fields.get('descriptor_type'), fields.get('descriptor_index')  # entity-level cmds (CONFIGURATION) have none
+        if cmd == CMD_SET_CONFIGURATION:
+            if fields['configuration_index'] >= NUM_CONFIGS:
+                return STATUS_BAD_ARGUMENTS
+            self.configuration_index = fields['configuration_index']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_CONFIGURATION:
+            return STATUS_SUCCESS        # getter: response carries configuration_index
         dt, di = fields['descriptor_type'], fields['descriptor_index']
         if cmd in (CMD_SET_NAME, CMD_GET_NAME):
             # NAME lives on ENTITY[0] / CONFIGURATION[0], name_index 0; GET
@@ -160,6 +225,33 @@ class MilanAecpModel:
             if cmd == CMD_SET_NAME:
                 self.object_name = fields['name']
             return STATUS_SUCCESS
+        if cmd == CMD_READ_DESCRIPTOR:
+            n = KNOWN_DESCRIPTORS.get(dt)
+            if n is None or di >= n:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: read-only, response echoes the descriptor
+        if cmd == CMD_SET_STREAM_FORMAT:
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if fields['stream_format'] not in VALID_STREAM_FORMATS:
+                return STATUS_BAD_ARGUMENTS
+            self.stream_format = fields['stream_format']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_STREAM_FORMAT:
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries stream_format
+        if cmd == CMD_SET_SAMPLING_RATE:
+            if dt != DESC_AUDIO_UNIT or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if fields['sampling_rate'] not in VALID_RATES:
+                return STATUS_BAD_ARGUMENTS
+            self.sampling_rate = fields['sampling_rate']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_SAMPLING_RATE:
+            if dt != DESC_AUDIO_UNIT or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries sampling_rate
         if cmd == CMD_GET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -171,6 +263,10 @@ class MilanAecpModel:
                 return STATUS_BAD_ARGUMENTS
             self.clock_source_index = fields['clock_source_index']
             return STATUS_SUCCESS
+        if cmd == CMD_GET_CONTROL:
+            if dt != DESC_CONTROL or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries self.identify
         if cmd == CMD_SET_CONTROL:
             if dt != DESC_CONTROL or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -573,3 +669,15 @@ def step_acmp_fuzz_invariant(context):
             assert addressed, f'unaddressed frame answered: {f}'
             assert resp['message_type'] == f['message_type'] + 1
     assert context.listener.state in LSM
+
+
+@then('the model stream_format is {v:d}')
+def _model_sf(context, v):
+    assert context.aecp_model.stream_format == v, \
+        f"sf={context.aecp_model.stream_format}"
+@then('the model sampling_rate is {v:d}')
+def _model_sr(context, v):
+    assert context.aecp_model.sampling_rate == v, f"sr={context.aecp_model.sampling_rate}"
+@then('the model configuration_index is {v:d}')
+def _model_cfg(context, v):
+    assert context.aecp_model.configuration_index == v, f"cfg={context.aecp_model.configuration_index}"
