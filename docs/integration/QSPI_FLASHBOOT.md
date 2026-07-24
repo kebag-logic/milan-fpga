@@ -1,6 +1,41 @@
 # QSPI flash-boot  -  skip the multi-minute serial upload
 
-## Layout v3 — QSPI-BOOTED BITSTREAM + XZ KERNEL (2026-07-12)
+## Layout "full" — THE DEPLOYED TRUTH (2026-07-24, silicon-verified end-to-end)
+
+The layout of record is the `--flashboot full` manifest baked into the
+gateware BIOS (`flashboot_layout.json` in every build dir — ALWAYS read the
+build's own copy; offsets below are the current AX/Arty builds'):
+
+| slot      | offset      | budget    | measured (AX 07-24) | notes |
+|-----------|-------------|-----------|---------------------|-------|
+| bitstream | `0x00_0000` | 4 MiB     | 3.6 MiB (raw)       | AX: platform-pinned **SPIx4 / CONFIGRATE 50, UNCOMPRESSED** — cold-config silicon-proven (the x1/33/COMPRESS pin is the **Arty-only** override; the milan_soc.py comment says why). `openFPGALoader -f --verify`, NOT fbi-wrapped. |
+| kernel    | `0x40_0000` | 3 MiB     | 2.52 MB             | Image.xz (`xz -9 --check=crc32`); BIOS xz_embedded decodes → DRAM |
+| opensbi   | `0x70_0000` | 384 KiB   | 266,824 B           | fw_jump → 0x40F0_0000. **CARRIES THE KERNEL'S DTB (FW_FDT_PATH embed)** — see the decoy warning below |
+| dtb       | `0x76_0000` | 128 KiB   | ~3 KB               | **A DECOY for the kernel**: the BIOS copies it, but the kernel boots on the *OpenSBI-embedded* FDT. Changing the DTB = rebuild opensbi (`fpga/boot/build_opensbi.sh`, always-clean rule) + flash the OPENSBI slot. Keep this slot in sync anyway (safety copy). |
+| rootfs    | `0x78_0000` | 8.5 MiB   | 8,898,244 B (**14.6 KB headroom**) | rootfs.cpio + `xz -9 -e --check=crc32` **by hand** (NOT a buildroot target in this output tree: `rm images/rootfs.cpio*; make rootfs-cpio; xz …`) |
+
+All Linux images are FBI-wrapped (`python -m litex.soc.software.crcfbigen
+<img> -f -l`) then written raw at their offsets
+(`openFPGALoader -o <offset> --write-flash --file-type raw --verify`);
+`deploy.sh flash-images` automates the set. `openFPGALoader --reset` pulses
+PROGRAM_B = reboot from flash without a power cycle.
+
+**Matched-image rule (the CSR-rot trap, bitten twice — 07-22 and 07-24):**
+the kl-eth LiteX CSR block addresses (dma-ts, dma-pcm, …) are AUTO-ALLOCATED
+and SHIFT whenever the gateware's block set changes (e.g. `--rx-queues 1`
+dropped the RX1 queue CSRs and moved dma-ts 0x3100→0x308c, dma-pcm
+0x3120→0x30ac). The DTB **must be regenerated from the build's `csr.csv`**
+and re-embedded into opensbi with every gateware change that touches the
+map — the symptom of a stale DTB is subtle (e.g. ptp4l "timed out while
+polling for tx timestamp" while everything else works).
+
+**Boot timing truth (07-24):** power-on → network-up ≈ **7 min** (FPGA
+config and kernel are seconds; the rootfs init + S50milan devmem storm is
+the bulk). Warm boots (link already negotiated) ≈ 2.5–3 min. **Reachability
+probes need ≥ 8 min windows** — two false "cold-boot dead" verdicts were
+probe timeouts.
+
+## Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)
 
 The gateware lives in flash and the FPGA config-boots it (mode pins: Arty
 JP1 -> QSPI, AX7101 boot switch -> QSPI); bitstreams are COMPRESSED (pinned:
