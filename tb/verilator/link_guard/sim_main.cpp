@@ -93,11 +93,20 @@ int main(int argc, char **argv) {
   run(SETTLE + DEAD + 16);
   ck("tx-recover reinit",  dut->reinit_o, 0);
 
-  // -- manual reinit OR-path -------------------------------------------
+  // -- manual reinit now drives the FULL sequenced eth+sys recovery -----
+  // (LINK_CTRL[1] rising edge -> HOLD -> SETTLE -> eth-first release), so a
+  // software reinit clears an eth-side CDC desync even with the eth clocks
+  // ALIVE - the old sys-only path could not, and the MAC stayed wedged.
+  uint64_t b_before = dut->stat_o >> 16;
   dut->man_reinit_i = 1; run(2);
-  ck("manual reinit",      dut->reinit_o, 1);
+  ck("manual reinit",       dut->reinit_o, 1);
+  ck("manual eth_rst",      dut->eth_rst_o, 1);          // eth side reset too now
   dut->man_reinit_i = 0; run(2);
-  ck("manual release",     dut->reinit_o, 0);
+  ck("manual still held",   dut->reinit_o, 1);           // sequenced, not instant
+  run(SETTLE + DEAD + 16);                               // ride out the settle
+  ck("manual recovered",    dut->reinit_o, 0);           // then releases
+  ck("manual eth released", dut->eth_rst_o, 0);
+  ck("manual not a bounce", dut->stat_o >> 16, b_before);// sw reinit != cable event
 
   // -- freeze test hook: fakes death, full sequence --------------------
   dut->freeze_i = 1;
@@ -272,11 +281,15 @@ int main(int argc, char **argv) {
     rx_period = 2; run(SETTLE + DEAD + 16);
     ck("re-death episode recovers",  dut->reinit_o, 0);
 
-    // manual reinit stays sys-only (daemon owns phy_crg_reset in that flow)
+    // manual reinit now drives the sequenced eth+sys recovery (it was sys-only,
+    // which could not clear a live-clock eth-side CDC desync -> permanent wedge)
+    rx_period = 2; tx_period = 3;
     dut->man_reinit_i = 1; run(2);
     ck("manual reinit sys held",     dut->reinit_o, 1);
-    ck("manual reinit eth idle",     ethrst(), 0);
-    dut->man_reinit_i = 0; run(2);
+    ck("manual reinit eth reset",    ethrst(), 1);
+    dut->man_reinit_i = 0;
+    run(SETTLE + DEAD + 16);                 // let the manual episode settle back
+    ck("manual reinit settled",      dut->reinit_o, 0);
 
     // disable drops the eth reset immediately (matches reinit semantics)
     rx_period = 0; run(DEAD + 8);
