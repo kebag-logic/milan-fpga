@@ -282,7 +282,7 @@ class MilanNIC(LiteXModule):
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
-                 audio_if_slots=0):
+                 audio_if_slots=0, aaf_playback=False):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -307,7 +307,7 @@ class MilanNIC(LiteXModule):
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
-                           audio_if_slots=audio_if_slots)
+                           audio_if_slots=audio_if_slots, aaf_playback=aaf_playback)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -365,7 +365,8 @@ _MILAN_DATAPATH_SOURCES = [
 
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
-                       milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0):
+                       milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
+                       aaf_playback=False):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -454,10 +455,15 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # select (0 = stereo I2S default, 8/16/32 = KL_tdm_capture TDM slave).
     # The builder emits --audio-interface for the tdm kinds; default 0 keeps
     # the shipping I2S build bit-identical.
-    host.specials += Instance("milan_datapath",
-                              p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
-                              p_N_STREAMS=int(num_streams),
-                              p_AUDIO_IF_SLOTS_P=int(audio_if_slots), **ports)
+    # AAF_PLAYBACK_P (item-7): passed ONLY when --aaf-playback is on, so the
+    # default build's Instance (and generated top .v) is byte-identical - the
+    # SV default AAF_PLAYBACK_P=0 prunes the KL_pcm_tx generate.
+    dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
+                     p_N_STREAMS=int(num_streams),
+                     p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+    if aaf_playback:
+        dp_params["p_AAF_PLAYBACK"] = 1
+    host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
     # cycle combinational constant-divide cones (~9.3K LUTs over 4 queues,
@@ -474,7 +480,12 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                 "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter",
                 "hdl/ieee17221/aecp", "hdl/ieee17221/aecp/gen", "hdl/ieee1722/avtp"):
         platform.add_verilog_include_path(os.path.join(base, inc))
-    for f in _MILAN_DATAPATH_SOURCES:
+    srcs = list(_MILAN_DATAPATH_SOURCES)
+    if aaf_playback:
+        # item-7: the host-PCM-ring AAF talker source (only referenced when the
+        # AAF_PLAYBACK_P generate is live, so the default source list is unchanged).
+        srcs.append("hdl/ieee1722/aaf/KL_pcm_tx.sv")
+    for f in srcs:
         platform.add_source(os.path.join(base, f))
 
 
@@ -3295,7 +3306,8 @@ class MilanDMA(LiteXModule):
     targets LiteDRAM. Descriptor/scatter-gather (Option 6b, multi-queue) is a later
     upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
-                 legacy_ring=True, rx_fifo_beats=2048, num_streams=1, pcm_ring="dram"):
+                 legacy_ring=True, rx_fifo_beats=2048, num_streams=1, pcm_ring="dram",
+                 aaf_playback=False):
         # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
         # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
         # mode burst absorbency lives in the 60x16K posted-page pool, so 1024 is
@@ -3513,6 +3525,104 @@ class MilanDMA(LiteXModule):
                 self.i2s_dac_pads = (_tmk, _tx.clk, _tx.sync, _tx.tx)
             except Exception:
                 self.i2s_pads = None
+        # ---- item-7 ALSA playback: host PCM ring -> KL_pcm_tx pair source ----
+        # The TX/talker mirror of the RX depacketizer PCM ring. Software writes
+        # S32BE-interleaved PCM into a DRAM ring (per-stream sub-rings at
+        # base + s*stride, `length` bytes each) and bumps the per-stream wr_ptr
+        # doorbell; KL_pcm_tx (inside milan_datapath, milan_cd) paces the media
+        # clock, de-interleaves, and drives the AAF packetizer pair stream in
+        # place of the ADC capture front-end. KL_pcm_tx OWNS the ring addressing
+        # (rd_ptr/wrap), so its word-fetch port is bridged to a dumb random-
+        # access wishbone READ master on the DMA bus (req/resp AXIS CDC when
+        # milan_cd != sys). Control/status are a small CSR block in the milan_dma
+        # group. All gated on --aaf-playback: off => none of this exists, so the
+        # default build is byte-identical.
+        pb_ports = {}
+        if aaf_playback:
+            shift = int(math.log2(nb))
+            ns    = int(num_streams)
+            self._pb_enable      = CSRStorage(description="AAF playback master enable (KL_pcm_tx pair source).")
+            self._pb_silence     = CSRStorage(description="underrun policy: 0 repeat-last, 1 digital silence.")
+            self._pb_ring_base   = CSRStorage(64, description="playback PCM ring base (stream 0 sub-ring, bytes).")
+            self._pb_ring_len    = CSRStorage(32, description="per-stream sub-ring length (bytes, multiple of 8).")
+            self._pb_ring_stride = CSRStorage(32, description="bytes between stream sub-ring bases.")
+            self._pb_stream_en   = CSRStorage(ns, description="per-stream ring-read gate (bit s).")
+            self._pb_playing     = CSRStatus(description="KL_pcm_tx is walking a sample tick.")
+            # per-stream vectors packed 32/16b each in one wide CSR (spanning
+            # ceil(width/32) sub-words; stream s is bits [s*w +: w]). wr_ptr is
+            # the host doorbell; rd_ptr/under/over are the KL_pcm_tx status.
+            self._pb_wr_ptr = CSRStorage(ns*32, description="per-stream host write pointers (32b each, absolute bytes).")
+            self._pb_rd_ptr = CSRStatus(ns*32,  description="per-stream consumed pointers (32b each, absolute bytes).")
+            self._pb_under  = CSRStatus(ns*16,  description="per-stream underrun counts (16b each).")
+            self._pb_over   = CSRStatus(ns*16,  description="per-stream overrun counts (16b each).")
+            # CDC control sys<->milan_cd. Multi-bit -> BusSynchronizer (coherent
+            # word); 1-bit -> MultiReg. The wr_ptr doorbell tolerates the resync
+            # latency (KL_pcm_tx only reads it to gauge fill); a credit handshake
+            # is the silicon follow-up.
+            def _in(name, sig):
+                if milan_cd == "sys":
+                    return sig
+                if len(sig) == 1:
+                    d = Signal(); self.specials += MultiReg(sig, d, odomain=milan_cd); return d
+                bs = BusSynchronizer(len(sig), "sys", milan_cd); setattr(self, name, bs)
+                self.comb += bs.i.eq(sig); return bs.o
+            def _out(name, width):
+                dp = Signal(width)
+                if milan_cd == "sys":
+                    return dp, dp
+                if width == 1:
+                    o = Signal(); self.specials += MultiReg(dp, o); return dp, o
+                bs = BusSynchronizer(width, milan_cd, "sys"); setattr(self, name, bs)
+                self.comb += bs.i.eq(dp); return dp, bs.o
+            pb_rd_dp, pb_rd_s = _out("aafpb_bs_rd", ns*32)
+            pb_un_dp, pb_un_s = _out("aafpb_bs_un", ns*16)
+            pb_ov_dp, pb_ov_s = _out("aafpb_bs_ov", ns*16)
+            pb_pl_dp, pb_pl_s = _out("aafpb_bs_pl", 1)
+            self.comb += [self._pb_rd_ptr.status.eq(pb_rd_s), self._pb_under.status.eq(pb_un_s),
+                          self._pb_over.status.eq(pb_ov_s), self._pb_playing.status.eq(pb_pl_s)]
+            # word-fetch bridge: KL_pcm_tx mem port <-> wishbone READ master.
+            pb_mem_addr  = Signal(32)      # milan_cd (datapath out)
+            pb_mem_rd    = Signal()        # milan_cd
+            pb_mem_data  = Signal(64)      # milan_cd (datapath in)
+            pb_mem_valid = Signal()        # milan_cd
+            req  = _axis_dp_cdc(self, "aafpb_req_cdc",  [("addr", 32)], milan_cd, to_datapath=False)
+            resp = _axis_dp_cdc(self, "aafpb_resp_cdc", [("data", 64)], milan_cd, to_datapath=True)
+            self.comb += [
+                req.dp.valid.eq(pb_mem_rd), req.dp.addr.eq(pb_mem_addr),
+                pb_mem_data.eq(resp.dp.data), pb_mem_valid.eq(resp.dp.valid),
+                resp.dp.ready.eq(1),       # KL_pcm_tx latches its awaited word
+            ]
+            self.aafpb_wb = wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
+            dma_bus.add_master("milan_aaf_pb", master=self.aafpb_wb)
+            pb_addr_l = Signal(32); pb_data_l = Signal(data_width)
+            self.aafpb_fsm = fsm = FSM(reset_state="IDLE")
+            fsm.act("IDLE",
+                req.sys.ready.eq(1),
+                If(req.sys.valid, NextValue(pb_addr_l, req.sys.addr), NextState("READ")))
+            fsm.act("READ",
+                self.aafpb_wb.cyc.eq(1), self.aafpb_wb.stb.eq(1),
+                self.aafpb_wb.adr.eq(pb_addr_l[shift:]), self.aafpb_wb.sel.eq(2**nb - 1),
+                If(self.aafpb_wb.ack, NextValue(pb_data_l, self.aafpb_wb.dat_r), NextState("RESP")))
+            fsm.act("RESP",
+                resp.sys.valid.eq(1), resp.sys.data.eq(pb_data_l),
+                If(resp.sys.ready, NextState("IDLE")))
+            pb_ports = dict(
+                i_pb_enable_i           = _in("aafpb_bs_en",  self._pb_enable.storage),
+                i_pb_underrun_silence_i = _in("aafpb_bs_sil", self._pb_silence.storage),
+                i_pb_stream_en_i        = _in("aafpb_bs_sen", self._pb_stream_en.storage),
+                i_pb_ring_base_i        = _in("aafpb_bs_base", self._pb_ring_base.storage),
+                i_pb_ring_len_i         = _in("aafpb_bs_len",  self._pb_ring_len.storage),
+                i_pb_ring_stride_i      = _in("aafpb_bs_str",  self._pb_ring_stride.storage),
+                i_pb_wr_ptr_i           = _in("aafpb_bs_wr",   self._pb_wr_ptr.storage),
+                i_pb_mem_data_i         = pb_mem_data,
+                i_pb_mem_valid_i        = pb_mem_valid,
+                o_pb_mem_addr_o         = pb_mem_addr,
+                o_pb_mem_rd_o           = pb_mem_rd,
+                o_pb_rd_ptr_o           = pb_rd_dp,
+                o_pb_underrun_o         = pb_un_dp,
+                o_pb_overrun_o          = pb_ov_dp,
+                o_pb_playing_o          = pb_pl_dp,
+            )
         self.dp_ports = dict(
             # TX: reader.source (mem data) -> datapath s_axis_tx
             i_s_axis_tx_tdata  = tx_dp.dp.data,  i_s_axis_tx_tkeep = tx_dp.dp.keep,
@@ -3539,6 +3649,8 @@ class MilanDMA(LiteXModule):
             o_m_axis_pcm_tvalid = pcm_dp.dp.valid,
             o_m_axis_pcm_tlast  = pcm_dp.dp.last,  i_m_axis_pcm_tready = pcm_dp.dp.ready,
             o_m_axis_pcm_tuser  = (pcm_dp.dp.user if num_streams > 1 else Signal(4)),
+            # item-7 ALSA playback ports (empty dict unless --aaf-playback)
+            **pb_ports,
         )
 
 
@@ -3834,7 +3946,7 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
-                 num_streams=1, audio_if_slots=0, pcm_ring="dram", **kwargs):
+                 num_streams=1, audio_if_slots=0, pcm_ring="dram", aaf_playback=False, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -3991,6 +4103,11 @@ class MilanSoC(SoCCore):
             # ports; merge them (idle stubs remain for any port neither drives).
             dp_ports = {}
             milan_cd = "milan" if milan_clk_freq else "sys"
+            # item-7: playback needs the DMA (the PCM-ring read master lives in
+            # MilanDMA); silently no-op it without --with-dma/--full.
+            aaf_pb = bool(aaf_playback) and with_dma
+            if aaf_playback and not with_dma:
+                print("[milan] --aaf-playback ignored without --with-dma/--full")
             if with_dma:
                 self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
                                           rx_queues=rx_queues,
@@ -3998,7 +4115,7 @@ class MilanSoC(SoCCore):
                                           legacy_ring=legacy_ring,
                                           rx_fifo_beats=rx_fifo_beats,
                                           num_streams=int(num_streams),
-                                          pcm_ring=pcm_ring)
+                                          pcm_ring=pcm_ring, aaf_playback=aaf_pb)
                 dp_ports.update(self.milan_dma.dp_ports)
             if with_mac:
                 self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
@@ -4089,7 +4206,8 @@ class MilanSoC(SoCCore):
                                            if (with_dma and rx_queues >= 2) else None),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
                                   num_streams=int(num_streams),
-                                  audio_if_slots=int(audio_if_slots))
+                                  audio_if_slots=int(audio_if_slots),
+                                  aaf_playback=aaf_pb)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -4187,6 +4305,13 @@ def main():
                          "constant 1, so no beat can ever be shed (kills mf52 SHED + I6 at "
                          "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
                          "is unchanged. ~8 RAMB36.")
+    ap.add_argument("--aaf-playback", action="store_true",
+                    help="item-7 ALSA playback: wire KL_pcm_tx (host PCM ring -> AAF "
+                         "talker pair source) into milan_datapath, the TX mirror of the RX "
+                         "PCM ring. Software writes S32BE PCM to a DRAM ring + bumps a wr_ptr "
+                         "doorbell; while PB_CTRL.enable is set KL_pcm_tx feeds the packetizer "
+                         "in place of the ADC front-end. Needs --with-dma/--full. Default off "
+                         "=> byte-identical build.")
     ap.add_argument("--audio-interface", default="i2s_philips",
                     choices=("i2s_philips", "tdm8", "tdm16", "tdm32"),
                     help="item-4 audio-interface family: capture front-end generate "
@@ -4302,6 +4427,7 @@ def main():
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
                    pcm_ring=args.pcm_ring,
+                   aaf_playback=args.aaf_playback,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
