@@ -9,7 +9,7 @@ Companion docs: `docs/NXN_ARCHITECTURE.md` (shared engines, TCTX/LCTX,
 the 0x800 indexed window), `docs/ENDSTATION_BUILDER.md` (D1: one
 STREAM_PORT per stream, config-selectable clusters),
 `docs/reference/REGISTER_MAP.md` (CSR ABI authority),
-milan-tests-avb `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
+the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 
 ## 0. Grounding facts (read from the tree, quoted not assumed)
 
