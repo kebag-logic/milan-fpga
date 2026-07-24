@@ -1,79 +1,110 @@
 # milan-fpga — IEEE 1722 / 1722.1 / Milan v1.2 on FPGA
 
-A Milan-profile TSN/AVB network interface implemented as a **fully-FPGA softcore
-system** (single-hart VexiiRiscv RV64IMA Linux SoC with `--l2-bytes 32768` — NaxRiscv
-retained as a pure-NIC option — + TSN datapath on an Alinx AX7101 / Artix-7), now
-evolving toward a **4-port AVB switch**. Verified on silicon: both boards **CERT
-63/63**, ring-DMA networking at line-rate ingest, hardware 802.1Qav CBS, PTP
-timestamping, ADP advertisement, the MMCM-DRP media-clock servo (analog loop **−83.9 dB**,
-converter-floor), ALSA record over Milan, and QSPI flash-boot (zero-upload). The 2026-07
-**>500 Mbit/s campaign** (TCP TX crossed 500 Mbit/s @ MTU 1500 on a 100 MHz **2-hart**
-SoC) was a perf-lineage peak; the ship shape is 1-hart. Current RX/TX numbers live in the
-measured ledger —
-[CHANGELOG.md](CHANGELOG.md) + [docs/findings/](docs/findings/README.md); any number
-quoted elsewhere is a dated snapshot.
+> A fully-FPGA **AVnu Milan v1.2 AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
+> running Linux, with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
+> an Alinx AX7101 (Artix-7). Evolving toward a 4-port AVB switch.
 
-The TSN datapath RTL is **vendor-neutral** — no Xilinx primitives, machine-checked by
-the [Yosys/ECP5 portability flow](syn/yosys/README.md) — and building it without
-Vivado, or on a non-Xilinx board, is a supported, documented path.
+![System domain map — every module by layer](docs/SYSTEM_DOMAIN_MAP.png)
 
-**📚 New here? → [docs/README.md](docs/README.md) picks your lane by role**
-(Developer · System Engineer · Integrator · Tester) with a one-page
-[visual map](docs/DOC_MAP.png). **Everyone's first doc is the
-[Systems-Engineer Guide](docs/SYSTEMS_ENGINEER_GUIDE.md)** — what the system is +
-a journey-ordered map of the whole doc set. Unsure of a term? →
-[glossary](docs/GLOSSARY.md).
+## What's proven on silicon
 
-Quick jumps:
+| Area | State |
+|---|---|
+| Milan v1.2 end-station (talker + listener) | both boards **CERT 63/63** |
+| TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · ADP/AECP/ACMP · MAAP · lwSRP |
+| Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
+| Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
+| Audio | ALSA record over Milan · live talker↔listener E2E |
+| CPU / board | 1-hart VexiiRiscv RV64 Linux SoC · xc7a100t · DDR3 512 MB |
+| Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
+
+> Live perf numbers live in the measured ledger — [CHANGELOG.md](CHANGELOG.md) +
+> [docs/findings/](docs/findings/README.md). Any number quoted elsewhere is a dated snapshot.
+
+## Prerequisites
+
+Everything is open-source **except the final Xilinx bitstream**. Package names are Arch; the
+equivalents exist on any distro.
+
+| Tool | Install (Arch) | Needed for | Required? |
+|---|---|---|---|
+| `riscv64-elf-gcc` + binutils + newlib | `pacman -S riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib` | BIOS + firmware | ✅ always |
+| `verilator` ≥ 5.0 (+ a C++17 compiler) | `pacman -S verilator` | the Verilator testbenches + sim | ✅ to run tests |
+| `jdk17` + `sbt` | `pacman -S jdk17-openjdk sbt` | generate the VexiiRiscv/NaxRiscv core (SpinalHDL) | ✅ to build gateware |
+| `meson ninja cmake dtc` | `pacman -S meson ninja cmake dtc` | build tooling + device tree | ✅ always |
+| Python 3 + the **LiteX venv** | `litex_setup.py` (see quickstart) | SoC elaboration (LiteX/Migen) | ✅ always |
+| **Vivado 2026.1** with Artix-7 | Xilinx installer | place & route → `.bit` | ⬦ only to build a bitstream |
+| `openFPGALoader` | `pacman -S openfpgaloader` | flash the board over JTAG | ⬦ only to flash hardware |
+
+## Quickstart — copy/paste
+
+```sh
+# 1 · clone + the one required submodule
+git clone <this-repo> milan-fpga && cd milan-fpga
+git submodule update --init third_party/verilog-axis
+
+# 2 · toolchain, once (Arch shown — see Prerequisites for your distro)
+sudo pacman -S --needed riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib \
+                        jdk17-openjdk sbt meson ninja cmake dtc verilator
+python3 -m venv ~/litex-milan/venv && . ~/litex-milan/venv/bin/activate
+curl -sSL https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py \
+     | python - --init --install --config=full
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+# 3 · run a self-checking testbench — no vendor tools, exit 0 = PASS
+cd tb/verilator/milan_dp && make
+
+# 4 · boot the softcore in simulation — no Vivado; the CPU reads ID = "MILN"
+cd sw/litex && ./milan_sim.py
+
+# 5 · build a real bitstream — needs Vivado + Artix-7
+cd sw/litex && ./build.sh ax7101
+```
+
+> ⚠️ Run builds from **any directory except** the litex-repos parent, or `import litex` resolves
+> to the repo root (a namespace package) and `get_data_mod` fails.
+
+## Where to start — pick your lane
+
+New here? **[docs/README.md](docs/README.md)** routes you by role, and everyone's first doc is
+the **[Systems-Engineer Guide](docs/SYSTEMS_ENGINEER_GUIDE.md)** (what the system is + a map of
+every other doc). Terms → [glossary](docs/GLOSSARY.md).
+
+![Documentation map — the four reading lanes by role](docs/DOC_MAP.png)
 
 | I want to… | Go to |
 |---|---|
 | **Know where to start (by role)** | [docs/README.md](docs/README.md) → [SYSTEMS_ENGINEER_GUIDE.md](docs/SYSTEMS_ENGINEER_GUIDE.md) |
 | Understand the whole system | [docs/overview/FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) |
-| Integrate the datapath into my own SoC | [docs/integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) |
-| **Build without Vivado / port to a non-Xilinx board** | [docs/integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) |
-| Understand the LiteX SoC (`sw/litex/`) | [docs/litex/LITEX_SOC.md](docs/litex/LITEX_SOC.md) |
-| Build & boot the board | [sw/README.md](sw/README.md) → [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) |
+| Integrate the datapath into my SoC | [docs/integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) |
+| **Build without Vivado / port off-Xilinx** | [docs/integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) |
 | Program against the registers | [docs/reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) |
 | Run the verification suites | [docs/testing/TESTING.md](docs/testing/TESTING.md) |
-| Know the limitations & known issues | [docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) |
-| See the direction + measured scoreboard | [docs/overview/AVB_SWITCH_DIRECTION.md](docs/overview/AVB_SWITCH_DIRECTION.md) |
+| Known limitations & issues | [docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) |
 
-## Running the testbenches
+## Run the tests
 
-Self-checking Verilator harnesses — ~41 suites (`ls tb/verilator/` is authoritative), no vendor tools needed
-(`verilator >= 5.0` + C++17; the full verification map is
-[docs/testing/TESTING.md](docs/testing/TESTING.md)):
+| Suite | Command | Needs |
+|---|---|---|
+| **All Verilator TBs** (~41, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.0 |
+| One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
+| Device portability | `cd syn/yosys && make && make ecp5` | yosys |
+| behave / tsn_gen fixtures | `~/litex-milan/venv/bin/behave tests` | the venv + `TSAGEN_DIR` |
 
-```sh
-git submodule update --init third_party/verilog-axis   # required once
-cd tb/verilator
-for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
-# or a single suite:
-cd tb/verilator/<suite>   # e.g. cbs, milan_dp, controller_rate …
-make                      # builds and runs; exit 0 = PASS
-```
+`ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
-Device portability (Yosys generic + Lattice ECP5, ~39 tops):
+## Build & flash a board
 
-```sh
-cd syn/yosys && make && make ecp5
-```
+`./build.sh ax7101` (or `arty`) → `./deploy.sh flash` + `flash-images`. The full flow, with the
+load-bearing rules (compressed bitstream, matched image set, recovery) in one picture:
 
-Legacy Vivado-xsim testbenches (waveform work only — see
-[tb/itests/README.md](tb/itests/README.md) and
-[tb/utests/](tb/utests/802_1q_traffic_shaper/README.md)):
+![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
 
-```sh
-cd tb/itests/ptp_timestamp
-vivado -mode tcl -source tb_ptp_ts_top.tcl
-```
+Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
+[docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·
+[docs/findings/BENCH_TOPOLOGY.md](docs/findings/BENCH_TOPOLOGY.md).
 
-## Developers
+## Credits
 
-* [Cemal Dogan](https://github.com/cemaldogann)
-* [Oguz Kahraman](https://github.com/OguzKahramn)
-
-### Maintainers
-
-* [Alexandre Malki](https://github.com/Mister-M-alt)
+**Developers:** [Cemal Dogan](https://github.com/cemaldogann) · [Oguz Kahraman](https://github.com/OguzKahramn)
+**Maintainer:** [Alexandre Malki](https://github.com/Mister-M-alt)
