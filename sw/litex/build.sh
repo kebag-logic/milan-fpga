@@ -124,6 +124,28 @@ cfg_ax7101() {   # bench/cert shape (USER 2026-07-21: 1 hart + L2 32K - the
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --place-directive ExtraPostPlacementOpt"
 }
+cfg_ax8x8() {    # 8-stream (64ch) fits+closes shape. The 8x8 was NOT area-bound
+                 # (it placed at ~88%); it was a single-path TIMING miss. Two
+                 # measured moves close it @100 MHz with the CPU/audio/control
+                 # plane untouched: (1) --rx-queues 1 drops the RX1 DMA RSC/TCP
+                 # coalescing engine - pure Linux-throughput logic that audio
+                 # never touches - which removed the sys_clk critical path AND
+                 # freed ~3% LUT; (2) default (timing) synth instead of the blunt
+                 # AreaOptimized flag. The remaining -0.155 was a FALSE path
+                 # (cap_luid_r -> shared ctx read mux -> ACMP sweep writeback,
+                 # impossible: sweep write needs !w_frame_latch) fixed in RTL by
+                 # a dedicated sweep read port in KL_acmp_lstn_ctx.sv. Result
+                 # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
+          --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
+          --timing-opt --floorplan --l2-bytes 16384 \
+          --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
+          --uart-baudrate 115200 --rx-queues 1 --strip-probes --hs-page-bytes 16384 \
+          --num-streams 8 --place-directive AltSpreadLogic_high"
+                 # eth-port defaults to e1 (the bench default, same as cfg_ax7101).
+                 # If the AX cable is on e2, append `-- --eth-port e2`; AX42's guard
+                 # reset scope covers either PHY's tx/gtx path.
+}
 cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probes stripped since v8 - AVDECC stack needs the slices: v7-style probes overflowed by 181)
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
     # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
