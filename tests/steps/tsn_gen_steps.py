@@ -45,6 +45,16 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'READ_DESCRIPTOR': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::'
+                      'AECP_READ_DESCRIPTOR_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('configuration_index', 16),
+                   ('reserved', 16), ('descriptor_type', 16),
+                   ('descriptor_index', 16)],
     'SET_STREAM_FORMAT': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
@@ -146,6 +156,19 @@ def pg_decode(context, key, hexstr):
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_READ_DESCRIPTOR = 4                 # 0x0004, verified vs aecp_aem_read_descriptor.yaml
+DESC_ENTITY, DESC_CONFIGURATION, DESC_AUDIO_UNIT = 0x0000, 0x0001, 0x0002
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
+# Known descriptors of the Milan entity: descriptor_type -> count of valid indices.
+# A read outside this map (unknown type, or index >= count) is NO_SUCH_DESCRIPTOR.
+KNOWN_DESCRIPTORS = {
+    DESC_ENTITY: 1,          # ENTITY[0]
+    DESC_CONFIGURATION: 3,   # CONFIGURATION[0..2]
+    DESC_AUDIO_UNIT: 1,      # AUDIO_UNIT[0]
+    DESC_STREAM_INPUT: 1,    # STREAM_INPUT[0]
+    DESC_STREAM_OUTPUT: 1,   # STREAM_OUTPUT[0]
+    DESC_CLOCK_DOMAIN: 1,    # CLOCK_DOMAIN[0]
+}
 CMD_SET_STREAM_FORMAT, CMD_GET_STREAM_FORMAT = 8, 9   # IEEE 1722.1 Table 7.126
 DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
 # Milan AAF_PCM 48 kHz stream formats (avdecc/milan-v12-entity.json STREAM_INPUT/OUTPUT[0]):
@@ -183,6 +206,11 @@ class MilanAecpModel:
         if cmd == CMD_GET_CONFIGURATION:
             return STATUS_SUCCESS        # getter: response carries configuration_index
         dt, di = fields['descriptor_type'], fields['descriptor_index']
+        if cmd == CMD_READ_DESCRIPTOR:
+            n = KNOWN_DESCRIPTORS.get(dt)
+            if n is None or di >= n:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: read-only, response echoes the descriptor
         if cmd == CMD_SET_STREAM_FORMAT:
             if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
