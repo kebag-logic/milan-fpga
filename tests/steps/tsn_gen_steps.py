@@ -152,6 +152,7 @@ CMD_SET_STREAM_INFO, CMD_GET_STREAM_INFO = 14, 15         # 0x000E / 0x000F
 # KL_aecp_response_builder.sv).
 SI_FLAG_MSRP_ACC_LAT = 1 << 61                           # 0x2000000000000000
 SI_UNSUPPORTED_MASK = 0xD800000000000000                 # 0xF8.. defined bits minus ACC_LAT
+CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
 class MilanAecpModel:
@@ -193,6 +194,10 @@ class MilanAecpModel:
                 return STATUS_BAD_ARGUMENTS       # latency > 0x7FFFFFFF ns
             self.msrp_acc_lat = fields['msrp_accumulated_latency']
             return STATUS_SUCCESS
+        if cmd == CMD_GET_CLOCK_SOURCE:
+            if dt != DESC_CLOCK_DOMAIN or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: no state change; response carries clock_source_index
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
