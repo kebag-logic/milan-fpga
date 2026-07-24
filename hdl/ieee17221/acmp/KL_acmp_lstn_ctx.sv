@@ -194,11 +194,20 @@ module KL_acmp_lstn_ctx #(
   acmp_lstn_ctx_t       wr_data_w;
   logic [IDX_W_C-1:0]   rd_idx_w;
   acmp_lstn_ctx_t       rd_ctx_w;
+  acmp_lstn_ctx_t       swp_rd_ctx_w;
 
   always_ff @(posedge clk_i) begin : ctx_ram_wr    // RAM in its own process
     if (wr_en_w) ctx_ram[wr_idx_w] <= wr_data_w;
   end
-  assign rd_ctx_w = ctx_ram[rd_idx_w];             //! the single read port
+  assign rd_ctx_w = ctx_ram[rd_idx_w];             //! frame/launch/rest/tbl read
+  //! Dedicated sweep read port (addressed by swp_idx_r ONLY). The timer-wheel
+  //! sweep reads the context via this port instead of the shared rd_ctx_w so the
+  //! frame index (cap_luid_r) — which drives rd_idx_w only in the w_frame_latch
+  //! branch — can never appear on the sweep writeback cone. That cross-coupling
+  //! is FALSE (the sweep write fires only under w_swp_run == !w_frame_latch) but
+  //! the shared read mux let STA trace it as a 14-level path. During the sweep
+  //! rd_idx_w == swp_idx_r, so swp_rd_ctx_w == rd_ctx_w — behaviour is identical.
+  assign swp_rd_ctx_w = ctx_ram[swp_idx_r];
 
   //! post-reset init walk: all-zero records = UNBOUND everywhere
   reg                 init_done_r;
@@ -685,7 +694,7 @@ module KL_acmp_lstn_ctx #(
   logic           swp_probe_set_w;
   always_comb begin : sweep_next
     logic fire, adp_disc, adp_dep, sm, reg_rise, reg_fall, fail_rise;
-    sn_w            = rd_ctx_w;
+    sn_w            = swp_rd_ctx_w;
     sn_wr_w         = 1'b0;
     swp_probe_set_w = 1'b0;
     sm       = PROBE_SM_EN_P[swp_idx_r];
@@ -693,26 +702,26 @@ module KL_acmp_lstn_ctx #(
     adp_disc = 1'b0;
     adp_dep  = 1'b0;
     // ---- 1 s ADP availability aging --------------------------------
-    if (c_1s_r && rd_ctx_w.tk_avail) begin
-      if (rd_ctx_w.adp_age >= LSM_ADP_AGE_S_C) sn_w.tk_avail = 1'b0;
-      else                                     sn_w.adp_age  = rd_ctx_w.adp_age + 7'd1;
+    if (c_1s_r && swp_rd_ctx_w.tk_avail) begin
+      if (swp_rd_ctx_w.adp_age >= LSM_ADP_AGE_S_C) sn_w.tk_avail = 1'b0;
+      else                                         sn_w.adp_age  = swp_rd_ctx_w.adp_age + 7'd1;
       sn_wr_w = 1'b1;
     end
     // ---- 1 ms countdown (fire on the 1 -> 0 edge) --------------------
-    if (c_ms_r && rd_ctx_w.tmr != 14'd0) begin
-      fire     = (rd_ctx_w.tmr == 14'd1);
-      sn_w.tmr = rd_ctx_w.tmr - 14'd1;
+    if (c_ms_r && swp_rd_ctx_w.tmr != 14'd0) begin
+      fire     = (swp_rd_ctx_w.tmr == 14'd1);
+      sn_w.tmr = swp_rd_ctx_w.tmr - 14'd1;
       sn_wr_w  = 1'b1;
     end
     // ---- ADP available/departing for THIS context's bound talker -----
-    if (c_adp_r && sm && rd_ctx_w.state != LSM_UNBOUND_S &&
-        rd_ctx_w.talker == adp_eid_r) begin
+    if (c_adp_r && sm && swp_rd_ctx_w.state != LSM_UNBOUND_S &&
+        swp_rd_ctx_w.talker == adp_eid_r) begin
       if (adp_avail_r) begin
-        adp_disc      = !rd_ctx_w.tk_avail;
+        adp_disc      = !swp_rd_ctx_w.tk_avail;
         sn_w.tk_avail = 1'b1;
         sn_w.adp_age  = 7'd0;
       end else begin
-        adp_dep       = rd_ctx_w.tk_avail;
+        adp_dep       = swp_rd_ctx_w.tk_avail;
         sn_w.tk_avail = 1'b0;
       end
       sn_wr_w = 1'b1;
@@ -723,7 +732,7 @@ module KL_acmp_lstn_ctx #(
     fail_rise = sm &&  ta_failed_i[swp_idx_r]     && !srv_fail_r[swp_idx_r];
     // ---- per-state transitions (single-sink SM table, per context) ---
     if (sm) begin
-      unique case (rd_ctx_w.state)
+      unique case (swp_rd_ctx_w.state)
         LSM_PRB_W_DELAY_S: begin
           if (fire) begin
             swp_probe_set_w = 1'b1;
