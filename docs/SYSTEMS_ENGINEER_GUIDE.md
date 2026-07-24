@@ -10,6 +10,46 @@ stated here so this guide is accurate *today*; the doc audit (`DOC_AUDIT.md`) tr
 
 ---
 
+
+## 0. The system at a glance (start here)
+
+Two Artix-7 boards are complete Milan/AVB end-stations: gPTP-synced fabric
+PHC, lwSRP reservations, full 1722.1 entity (ADP/AECP/ACMP), 8×8 AAF
+streams, and an ALSA capture card fed straight from the fabric DMA ring.
+Everything below is measured on silicon, not simulated.
+
+```mermaid
+flowchart LR
+    subgraph AX["AX7101 (8x8, GM, flash-boots)"]
+        TONE[tone / I2S / KL_pcm_tx ring] --> TXMUX[playback + chmap muxes] --> PKT[AAF packetizer + CBS + PTP stamp]
+        RXD[depacketizer] --> RING[PCM DMA ring] --> ALSA["arecord (snd-kl-milan)"]
+    end
+    subgraph SW["AVB switch (802.1AS-aware)"] 
+    end
+    subgraph ARTY["Arty A7 (4x4, PipeWire loop)"]
+        ARX[listener] --> PW[PipeWire] --> ATX[talker]
+    end
+    PKT -->|"AAF, VID 2"| SW --> ARX
+    ATX --> SW2[" "]:::hidden --> RXD
+    SW --- SW2
+    classDef hidden fill:none,stroke:none
+```
+
+**Measured truth (2026-07-24/25):** E2E capture→render = the presentation
+offset exactly — pto 500 µs ⇒ `ts_delta` +384 µs, **0 LATE** (datapath
+pipeline ≈ 116 µs); talker wire output **bit-exact** vs the tone table
+(900/900); full board→board→PipeWire→board loop −72.7 dB THD+N; gPTP slave
+rms 44 ns through the switch.
+
+```mermaid
+flowchart LR
+    PWR((power-on)) --> CFG["FPGA self-config from QSPI\n(SPIx4/50, ~0.2 s)"] --> BIOS[LiteX BIOS] -->|"flashboot: kernel/opensbi/dtb/rootfs\nfrom their QSPI slots"| SBI["OpenSBI (carries the kernel's DTB!)"] --> LNX[Linux] --> NET["network up (~7 min total)"]
+```
+
+Fastest useful commands: `docs/integration/QSPI_FLASHBOOT.md` (flash/boot),
+`docs/testing/TESTING.md` (run any TB), `CONTRIBUTING.md` (house rules),
+`docs/fpga/FPGA_DESIGN.md` (all 77 modules).
+
 ## 1. What this system is
 
 **milan-fpga is a fully-FPGA AVB/TSN Milan end-station.** It is a RISC-V/LiteX softcore SoC with
