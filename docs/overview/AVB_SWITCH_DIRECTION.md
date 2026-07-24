@@ -167,7 +167,7 @@ prototype on copper) → S4 (SRP) → I2/I3 experiments during build waits → C
 proven CPU-port bulk-TCP requirement appears.
 
 **Production scoreboard @ MTU 1500** — **SUPERSEDED early snapshot; for current perf numbers see
-[`../../CHANGELOG.md`](../../CHANGELOG.md) (perf-lineage ledger) + [`../findings/HANDOVER.md`](../findings/HANDOVER.md).**
+[`../../CHANGELOG.md`](../../CHANGELOG.md) (perf-lineage ledger) + `../findings/HANDOVER.md`.**
 The ladder below (ring8 + C1 driver) was measured on the **historical NaxRiscv** CPU (2026-07-05):
 TX TCP 62.3 Mbit/s 0 retr · RX TCP 66.7 · TX UDP 27.5 lossless · 0 desync/InCsumErrors · 0 fabric
 stalls. The VexiiRiscv **TX ~27 / RX ~30 Mbit/s** figures were the *early-migration* single-flow

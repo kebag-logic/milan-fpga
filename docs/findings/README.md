@@ -28,7 +28,6 @@ current-state documentation.
 
 | Doc | What it holds |
 |---|---|
-| [SESSION_HANDOFF.md](SESSION_HANDOFF.md) | **The newest live-state handoff** (2026-07-11): scoreboard, re-baselined ceilings, decided next campaign |
 | [RX_TX_PERFORMANCE.md](RX_TX_PERFORMANCE.md) | The >500 Mbit/s campaign narrative: current state, story, diagrams |
 | [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md) | The >500 north star + forced-march results |
 | [CAMPAIGN_500_PLAN.md](CAMPAIGN_500_PLAN.md) | The campaign plan + status ledger (superseded banners intact) |
@@ -49,8 +48,6 @@ M-A3 DMA write-up `hw_ma3_dma_datapath_100mhz.md`).
 
 | Doc | What it holds |
 |---|---|
-| [HANDOVER_SMALL.md](HANDOVER_SMALL.md) | The current (2026-07-23) short handover — read this first each session |
-| [HANDOVER.md](HANDOVER.md) | The deep session-history log — machine, topology, live state, task queue |
 | [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) | Bench-ops onboarding: where-is-what + the physical/tap topology |
 
 ## Conventions

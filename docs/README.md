@@ -44,7 +44,7 @@ Goal: understand it + assess compliance & roadmap.
 3. [overview/SYSTEM_DOMAIN_MAP.md](overview/SYSTEM_DOMAIN_MAP.md) — every module by domain/language, one picture.
 4. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — IEEE/Milan clause → module → test, with status (204 rows).
 5. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is + isn't compliant, honest gaps.
-6. [findings/HANDOVER_SMALL.md](findings/HANDOVER_SMALL.md) — **the current roadmap** + live state (not FULL_FPGA_SOLUTION §9).
+6. **GitHub Issues** — the current roadmap + open gaps are tracked as issues (not FULL_FPGA_SOLUTION §9).
 
 ### 🔧 Integrator — *you make it RUN on hardware*
 Goal: build → flash → bring up the board. → **[the pipeline at a glance](BUILD_FLASH_BOOT.png)**.
@@ -170,11 +170,9 @@ wedges, the latency investigation, the >500 Mbit/s campaign, the session
 handoffs. The per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 (chart: [perf_campaign.svg](perf_campaign.svg)).
 
-> Current performance numbers: read
-> [findings/HANDOVER.md](findings/HANDOVER.md) (the operational one-pager:
-> topology rules + live states) then [findings/SESSION_HANDOFF.md](findings/SESSION_HANDOFF.md) (results archive)
-> and [`../CHANGELOG.md`](../CHANGELOG.md) - numbers quoted anywhere else are
-> dated snapshots (why: [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) §6).
+> Current performance numbers live in [`../CHANGELOG.md`](../CHANGELOG.md) and
+> [findings/](README.md); numbers quoted anywhere else are dated snapshots (why:
+> [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) §6).
 
 ## Conventions
 
