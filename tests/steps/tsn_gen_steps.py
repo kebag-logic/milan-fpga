@@ -26,7 +26,7 @@ from behave import given, when, then
 LAYOUTS = {
     'SET_CLOCK_SOURCE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_clock_source::AECP_SET_CLOCK_SOURCE::'
+        'interface': ('atdecc_aecp_set_clock_source::AECP_SET_CLOCK_SOURCE::AECP_SET_CLOCK_SOURCE::'
                       'AECP_SET_CLOCK_SOURCE_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -37,13 +37,79 @@ LAYOUTS = {
     },
     'SET_CONTROL': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_control::AECP_SET_CONTROL::'
+        'interface': ('atdecc_aecp_set_control::AECP_SET_CONTROL::AECP_SET_CONTROL::'
                       'AECP_SET_CONTROL_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
                    ('controller_entity_id', 64), ('sequence_id', 16),
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
+    },
+    'SET_STREAM_INFO': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_stream_info::AECP_SET_STREAM_INFO::'
+                      'AECP_SET_STREAM_INFO_IF'),
+        # GET_STREAM_INFO (0x0F) shares the SET_STREAM_INFO (0x0E) wire layout;
+        # the GET frame is the SET frame with command_type patched. Field order
+        # and widths mirror aecp_aem_set_stream_info.yaml exactly (the stream_info
+        # flags word is named msrp_flags there — 64 bits, defined bits [63:59]).
+    'SET_NAME': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::AECP_SET_NAME::'
+                      'AECP_SET_NAME_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('msrp_flags', 64),
+                   ('stream_format', 64), ('stream_id', 64),
+                   ('msrp_accumulated_latency', 32), ('stream_dest_mac', 48),
+                   ('msrp_failure_code', 8), ('reserved0', 8),
+                   ('msrp_failure_bridge_id', 64), ('stream_vlan_id', 16),
+                   ('reserved1', 16)],
+                   ('descriptor_index', 16), ('name_index', 16),
+                   ('configuration_index', 16), ('name', 512)],
+    },
+    'READ_DESCRIPTOR': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::AECP_READ_DESCRIPTOR::'
+                      'AECP_READ_DESCRIPTOR_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('configuration_index', 16),
+                   ('reserved', 16), ('descriptor_type', 16),
+                   ('descriptor_index', 16)],
+    },
+    'SET_STREAM_FORMAT': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::AECP_SET_STREAM_FORMAT::'
+                      'AECP_SET_STREAM_FORMAT_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('stream_format', 64)],
+    },
+    'SET_SAMPLING_RATE': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::AECP_SET_SAMPLING_RATE::'
+                      'AECP_SET_SAMPLING_RATE_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('sampling_rate', 32)],
+    },
+    'SET_CONFIGURATION': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::AECP_SET_CONFIGURATION::'
+                      'AECP_SET_CONFIGURATION_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('reserved', 16),
+                   ('configuration_index', 16)],
     },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
@@ -173,8 +239,47 @@ def pg_decode(context, key, hexstr):
 # ---------------------------------------------------------------------------
 
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
+STATUS_NOT_SUPPORTED = 11
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x05, 0x06
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_STREAM_INFO, CMD_GET_STREAM_INFO = 14, 15         # 0x000E / 0x000F
+
+# STREAM_INFO flags live in the tsn-gen 'msrp_flags' 64-bit word (the RTL's
+# 32-bit w_si_flags mapped into its top 32 bits, so w_si_flags[29] -> bit 61).
+# Milan §5.4.2.9: MSRP_ACC_LAT_VALID is the ONLY supported SET sub-command; any
+# other spec-defined flag -> NOT_SUPPORTED (mirrors SI_UNSUPPORTED_MASK_C in
+# KL_aecp_response_builder.sv).
+SI_FLAG_MSRP_ACC_LAT = 1 << 61                           # 0x2000000000000000
+SI_UNSUPPORTED_MASK = 0xD800000000000000                 # 0xF8.. defined bits minus ACC_LAT
+DESC_ENTITY, DESC_CONFIGURATION = 0x0000, 0x0001
+CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_NAME, CMD_GET_NAME = 16, 17     # 0x0010 / 0x0011 (IEEE 1722.1 Table 7.126)
+CMD_READ_DESCRIPTOR = 4                 # 0x0004, verified vs aecp_aem_read_descriptor.yaml
+DESC_ENTITY, DESC_CONFIGURATION, DESC_AUDIO_UNIT = 0x0000, 0x0001, 0x0002
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
+# Known descriptors of the Milan entity: descriptor_type -> count of valid indices.
+# A read outside this map (unknown type, or index >= count) is NO_SUCH_DESCRIPTOR.
+KNOWN_DESCRIPTORS = {
+    DESC_ENTITY: 1,          # ENTITY[0]
+    DESC_CONFIGURATION: 3,   # CONFIGURATION[0..2]
+    DESC_AUDIO_UNIT: 1,      # AUDIO_UNIT[0]
+    DESC_STREAM_INPUT: 1,    # STREAM_INPUT[0]
+    DESC_STREAM_OUTPUT: 1,   # STREAM_OUTPUT[0]
+    DESC_CLOCK_DOMAIN: 1,    # CLOCK_DOMAIN[0]
+}
+CMD_SET_STREAM_FORMAT, CMD_GET_STREAM_FORMAT = 8, 9   # IEEE 1722.1 Table 7.126
+DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
+# Milan AAF_PCM 48 kHz stream formats (avdecc/milan-v12-entity.json STREAM_INPUT/OUTPUT[0]):
+STREAM_FMT_AAF_48K_2CH = 0x0205022000806000          # AAF_PCM 48k 2ch 32b (default)
+STREAM_FMT_AAF_48K_8CH = 0x0215022002006000          # AAF_PCM 48k up-to-8ch 32b
+VALID_STREAM_FORMATS = {STREAM_FMT_AAF_48K_2CH, STREAM_FMT_AAF_48K_8CH}
+CMD_SET_SAMPLING_RATE, CMD_GET_SAMPLING_RATE = 20, 21
+DESC_AUDIO_UNIT = 0x0002
+VALID_RATES = {44100, 48000, 96000}
+CMD_SET_CONFIGURATION, CMD_GET_CONFIGURATION = 6, 7
+NUM_CONFIGS = 3
+CMD_GET_CONTROL = 25   # 0x0019
 CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 # -- item-10 batch-2 constants: every code below verified 1:1 against
@@ -193,7 +298,10 @@ MAX_TRANSIT_TIME_MAX = 0x7FFFFFFF   # responder: value >0x7FFFFFFF -> BAD_ARGUME
 
 class MilanAecpModel:
     """clock_source_index in 0..2 on CLOCK_DOMAIN[0]; IDENTIFY control is
-    LINEAR_UINT8 with step 255 (only 0 / 255 legal) on CONTROL[0]."""
+    LINEAR_UINT8 with step 255 (only 0 / 255 legal) on CONTROL[0]. STREAM_INFO:
+    GET on STREAM_INPUT[<2]/STREAM_OUTPUT[0] is SUCCESS; SET is Milan-partial —
+    unsupported on a Listener STREAM_INPUT, and on a Talker STREAM_OUTPUT only
+    the MSRP_ACC_LAT sub-command is honoured (msrp_acc_lat presentation offset)."""
 
     def __init__(self):
         self.clock_source_index = 0
@@ -210,6 +318,11 @@ class MilanAecpModel:
         self.milan_version = None
         self.milan_features = None
         self.milan_cert_version = None
+        self.msrp_acc_lat = 0
+        self.object_name = 0          # 64-octet avdecc_string (ENTITY/CONFIGURATION name)
+        self.stream_format = STREAM_FMT_AAF_48K_2CH
+        self.sampling_rate = 48000
+        self.configuration_index = 0
 
     def process(self, fields):
         # Vendor-Unique / MVU frames carry a protocol_id (not an AEM
@@ -231,7 +344,76 @@ class MilanAecpModel:
         # ---- SET/GET_MAX_TRANSIT_TIME (KL_aecp_response_builder.sv:2005-2036) -
         if cmd in (CMD_SET_MAX_TRANSIT_TIME, CMD_GET_MAX_TRANSIT_TIME):
             return self._process_mtt(cmd, dt, di, fields)
+        dt, di = fields.get('descriptor_type'), fields.get('descriptor_index')  # entity-level cmds (CONFIGURATION) have none
+        if cmd == CMD_SET_CONFIGURATION:
+            if fields['configuration_index'] >= NUM_CONFIGS:
+                return STATUS_BAD_ARGUMENTS
+            self.configuration_index = fields['configuration_index']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_CONFIGURATION:
+            return STATUS_SUCCESS        # getter: response carries configuration_index
         dt, di = fields['descriptor_type'], fields['descriptor_index']
+        if cmd == CMD_GET_STREAM_INFO:
+            # getter: SUCCESS on the talker source[0] and the listener sinks[<2]
+            if dt == DESC_STREAM_OUTPUT and di == 0:
+                return STATUS_SUCCESS
+            if dt == DESC_STREAM_INPUT and di < 2:
+                return STATUS_SUCCESS
+            return STATUS_NO_SUCH_DESCRIPTOR
+        if cmd == CMD_SET_STREAM_INFO:
+            # Milan §5.4.2.9 documented-partial (KL_aecp_response_builder.sv):
+            if dt == DESC_STREAM_INPUT:
+                return STATUS_NOT_SUPPORTED       # Listener STREAM_INPUT: unimplemented
+            if dt != DESC_STREAM_OUTPUT:
+                return STATUS_BAD_ARGUMENTS
+            if di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            flags = fields['msrp_flags']
+            if flags & SI_UNSUPPORTED_MASK:
+                return STATUS_NOT_SUPPORTED       # any other defined sub-command
+            if not (flags & SI_FLAG_MSRP_ACC_LAT):
+                return STATUS_SUCCESS             # nothing requested: no-op (w_si_flags[29]==0)
+            if fields['msrp_accumulated_latency'] & (1 << 31):
+                return STATUS_BAD_ARGUMENTS       # latency > 0x7FFFFFFF ns
+            self.msrp_acc_lat = fields['msrp_accumulated_latency']
+            return STATUS_SUCCESS
+        if cmd in (CMD_SET_NAME, CMD_GET_NAME):
+            # NAME lives on ENTITY[0] / CONFIGURATION[0], name_index 0; GET
+            # shares the wire layout and is read-only (the response carries
+            # object_name), SET writes it.
+            if dt not in (DESC_ENTITY, DESC_CONFIGURATION) \
+                    or fields['name_index'] != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if cmd == CMD_SET_NAME:
+                self.object_name = fields['name']
+            return STATUS_SUCCESS
+        if cmd == CMD_READ_DESCRIPTOR:
+            n = KNOWN_DESCRIPTORS.get(dt)
+            if n is None or di >= n:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: read-only, response echoes the descriptor
+        if cmd == CMD_SET_STREAM_FORMAT:
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if fields['stream_format'] not in VALID_STREAM_FORMATS:
+                return STATUS_BAD_ARGUMENTS
+            self.stream_format = fields['stream_format']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_STREAM_FORMAT:
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries stream_format
+        if cmd == CMD_SET_SAMPLING_RATE:
+            if dt != DESC_AUDIO_UNIT or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            if fields['sampling_rate'] not in VALID_RATES:
+                return STATUS_BAD_ARGUMENTS
+            self.sampling_rate = fields['sampling_rate']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_SAMPLING_RATE:
+            if dt != DESC_AUDIO_UNIT or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries sampling_rate
         if cmd == CMD_GET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -243,6 +425,10 @@ class MilanAecpModel:
                 return STATUS_BAD_ARGUMENTS
             self.clock_source_index = fields['clock_source_index']
             return STATUS_SUCCESS
+        if cmd == CMD_GET_CONTROL:
+            if dt != DESC_CONTROL or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: response carries self.identify
         if cmd == CMD_SET_CONTROL:
             if dt != DESC_CONTROL or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
@@ -547,6 +733,16 @@ def step_model_identify(context, v):
     assert context.aecp_model.identify == v
 
 
+@then('the model msrp_acc_lat is {v:d}')
+def step_model_msrp_acc_lat(context, v):
+    assert context.aecp_model.msrp_acc_lat == v, \
+        f'msrp_acc_lat={context.aecp_model.msrp_acc_lat}, expected {v}'
+@then('the model object_name is {v:d}')
+def step_model_object_name(context, v):
+    assert context.aecp_model.object_name == v, \
+        f"object_name={context.aecp_model.object_name}, expected {v}"
+
+
 @when('the model processes {n:d} SET_CLOCK_SOURCE frames from seeds {a:d} to {b:d}')
 def step_model_fuzz(context, n, a, b):
     assert b - a + 1 == n
@@ -765,3 +961,15 @@ def step_acmp_fuzz_invariant(context):
             assert addressed, f'unaddressed frame answered: {f}'
             assert resp['message_type'] == f['message_type'] + 1
     assert context.listener.state in LSM
+
+
+@then('the model stream_format is {v:d}')
+def _model_sf(context, v):
+    assert context.aecp_model.stream_format == v, \
+        f"sf={context.aecp_model.stream_format}"
+@then('the model sampling_rate is {v:d}')
+def _model_sr(context, v):
+    assert context.aecp_model.sampling_rate == v, f"sr={context.aecp_model.sampling_rate}"
+@then('the model configuration_index is {v:d}')
+def _model_cfg(context, v):
+    assert context.aecp_model.configuration_index == v, f"cfg={context.aecp_model.configuration_index}"
