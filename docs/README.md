@@ -47,7 +47,7 @@ Goal: understand it + assess compliance & roadmap.
 6. [findings/HANDOVER_SMALL.md](findings/HANDOVER_SMALL.md) — **the current roadmap** + live state (not FULL_FPGA_SOLUTION §9).
 
 ### 🔧 Integrator — *you make it RUN on hardware*
-Goal: build → flash → bring up the board.
+Goal: build → flash → bring up the board. → **[the pipeline at a glance](BUILD_FLASH_BOOT.png)**.
 1. [../sw/README.md](../sw/README.md) — toolchain (riscv64-elf, jdk+sbt, the LiteX venv) + `git submodule update --init third_party/verilog-axis`.
 2. [integration/BUILDING.md](integration/BUILDING.md) — `build.sh` configs, the 3×32-thread discipline, WNS gate.
 3. [litex/LITEX_SOC.md](litex/LITEX_SOC.md) §4 — the mandatory, non-obvious flags (`--coherent-dma`, `--gtx-tx-invert`, `--with-spiflash --flashboot full`) and why.
@@ -90,6 +90,13 @@ Goal: prove it works, per spec.
 | [GLOSSARY.md](GLOSSARY.md) | Every term of art in one place. |
 
 ## 2 - integration/ (your SoC, your board, your toolchain)
+
+**The build → flash → boot → verify pipeline in one picture** (the flow otherwise spread
+across BUILDING / LITEX_SOC / QSPI_FLASHBOOT / BENCH_TOPOLOGY). Editable
+[BUILD_FLASH_BOOT.drawio](BUILD_FLASH_BOOT.drawio).
+
+![AX7101 build → flash → boot → verify pipeline](BUILD_FLASH_BOOT.png)
+
 
 | Document | Purpose |
 |----------|---------|

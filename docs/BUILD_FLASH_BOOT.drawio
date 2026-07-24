@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net"><diagram name="build-flash-boot"><mxGraphModel dx="1400" dy="900" grid="0" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2002" pageHeight="698" math="0" shadow="0"><root><mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="n2" value="Build → Flash → Boot → Verify — the AX7101 pipeline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=22;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1200" height="34" as="geometry"/></mxCell>
+<mxCell id="n3" value="1 · BUILD   —   dev host · Vivado
+
+$ sw/litex/build.sh ax7101
+  mandatory: --coherent-dma
+  --gtx-tx-invert --all-blocks
+$ --with-spiflash --flashboot full
+    → pins BITSTREAM COMPRESS
+  3×32-thread seed sweep
+  GATE: WNS ≥ 0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="150" width="440" height="332" as="geometry"/></mxCell>
+<mxCell id="n4" value="OUTPUT
+compressed .bit ~1.74 MiB (60% off 3.65)
++ kernel · dtb · rootfs · opensbi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="504" width="440" height="64" as="geometry"/></mxCell>
+<mxCell id="n5" value="2 · FLASH   —   JTAG → QSPI (16 MB)
+
+$ deploy.sh flash  (bitstream @0)
+$ deploy.sh flash-images
+    matched set, FBI-wrapped
+    per-slot budget + --verify
+  openFPGALoader -c ft232
+  RULE: flash the WHOLE set —
+  a gateware-only load won&#x27;t boot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="534" y="150" width="440" height="332" as="geometry"/></mxCell>
+<mxCell id="n6" value="OUTPUT
+persistent QSPI image:
+bitstream@0 · kernel · dtb · rootfs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="534" y="504" width="440" height="64" as="geometry"/></mxCell>
+<mxCell id="n7" value="3 · BOOT   —   on target · self-configures
+
+$ power on / power-cycle
+  FPGA config-boots from QSPI
+  LiteX BIOS → DDR3 init
+  linux_flashboot QSPI→DRAM
+  OpenSBI (M-mode) → Linux
+  S50milan provisions CSRs
+  ptp4l · phc2sys · linkmon up" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1028" y="150" width="440" height="332" as="geometry"/></mxCell>
+<mxCell id="n8" value="OUTPUT
+buildroot Linux on VexiiRiscv,
+Milan NIC live" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1028" y="504" width="440" height="64" as="geometry"/></mxCell>
+<mxCell id="n9" value="4 · VERIFY   —   on the bench
+
+$ devmem 0x90000000 == &#x27;MILN&#x27;
+    (M-A2 first-silicon smoke)
+  link up · GM / talker / listener
+$ CERT 63/63  (the-private-test-repo)
+  behave · TB · audio E2E
+  REGISTER_MAP.md = the ABI
+  BENCH_TOPOLOGY.md = the rig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1522" y="150" width="440" height="332" as="geometry"/></mxCell>
+<mxCell id="n10" value="OUTPUT
+a validated Milan end-station" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1522" y="504" width="440" height="64" as="geometry"/></mxCell>
+<mxCell id="e11" style="endArrow=block;html=1;strokeColor=#455A64;strokeWidth=3;" edge="1" parent="1" source="n3" target="n5"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e12" style="endArrow=block;html=1;strokeColor=#455A64;strokeWidth=3;" edge="1" parent="1" source="n5" target="n7"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e13" style="endArrow=block;html=1;strokeColor=#455A64;strokeWidth=3;" edge="1" parent="1" source="n7" target="n9"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="n14" value="↩ Recovery — the board is not a brick
+amx-pi powerstrip off 0 &amp;&amp; powerstrip on 0 (known-good QSPI) · JTAG-load to SRAM tests without flashing · never openFPGALoader -f onto a kernel-at-0 layout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="602" width="1922" height="72" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
