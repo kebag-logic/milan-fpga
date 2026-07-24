@@ -95,16 +95,30 @@ module KL_link_guard #(
   // Toggle synchronizers + transition detect                            //
   // ------------------------------------------------------------------ //
   logic [2:0] rx_sync_r, tx_sync_r, act_sync_r;
+  logic       man_reinit_r;   //! delay FF for the manual-reinit rising edge
 
   always_ff @(posedge clk_i) begin : sync_ffs
-    rx_sync_r  <= {rx_sync_r[1:0],  rx_tgl_i};
-    tx_sync_r  <= {tx_sync_r[1:0],  tx_tgl_i};
-    act_sync_r <= {act_sync_r[1:0], act_tgl_i};
+    rx_sync_r    <= {rx_sync_r[1:0],  rx_tgl_i};
+    tx_sync_r    <= {tx_sync_r[1:0],  tx_tgl_i};
+    act_sync_r   <= {act_sync_r[1:0], act_tgl_i};
+    man_reinit_r <= man_reinit_i;
   end : sync_ffs
 
   wire rx_trans_w  = (rx_sync_r[2]  ^ rx_sync_r[1])  && !freeze_i;
   wire tx_trans_w  = (tx_sync_r[2]  ^ tx_sync_r[1])  && !freeze_i;
   wire act_trans_w = (act_sync_r[2] ^ act_sync_r[1]);
+
+  //! Manual reinit (LINK_CTRL[1]) rising edge -> drives the SAME sequenced
+  //! eth+sys recovery as a clock-death event. Without this the manual path was
+  //! sys-only (reinit_o) and could NOT clear an eth-side CDC desync that occurred
+  //! while the eth clocks stayed ALIVE - a warm reconfigure, or a switch bounce
+  //! whose RXC never fully dropped below the death threshold. The guard then sits
+  //! in RUN_S (both clocks alive -> no auto trigger) and linkmon's reinit resets
+  //! only the sys side, so the MAC wedges until a gateware reload despite repeated
+  //! reinit strobes. Routing it through the FSM applies eth_rst for >=SETTLE/2
+  //! clean eth cycles and releases eth-first-then-sys -> both CDC pointer sets
+  //! restart matched. (The daemon no longer needs to also strobe phy_crg_reset.)
+  wire man_edge_w  = man_reinit_i && !man_reinit_r;
 
   // ------------------------------------------------------------------ //
   // Per-clock liveness (dead = no transition for DEAD_CYC_C)            //
@@ -174,6 +188,7 @@ module KL_link_guard #(
   logic [15:0]        bounce_cnt_r;
   logic               guard_rst_r;
   logic               eth_rst_r;
+  logic               bounced_r;   //! this episode already counted a cable bounce
 
   wire both_alive_w = rx_alive_r && tx_alive_r;
 
@@ -184,29 +199,49 @@ module KL_link_guard #(
       bounce_cnt_r <= '0;
       guard_rst_r  <= 1'b0;
       eth_rst_r    <= 1'b0;
+      bounced_r    <= 1'b0;
     end
     else if (dis_i) begin
       state_r     <= RUN_S;
       guard_rst_r <= 1'b0;
       eth_rst_r   <= 1'b0;
+      bounced_r   <= 1'b0;
     end
     else begin
       unique case (state_r)
         RUN_S : begin
           guard_rst_r <= 1'b0;
           eth_rst_r   <= 1'b0;
-          if (!both_alive_w) begin
+          //! trigger on clock death OR a manual reinit edge - both run the full
+          //! sequenced eth-then-sys CDC reset (manual reinit is no longer sys-only)
+          if (!both_alive_w || man_edge_w) begin
             state_r      <= HOLD_S;
             guard_rst_r  <= 1'b1;
             eth_rst_r    <= 1'b1;
-            bounce_cnt_r <= (&bounce_cnt_r) ? bounce_cnt_r
-                                            : bounce_cnt_r + 16'd1;
+            //! count only genuine physical link bounces (clock death), not
+            //! software-requested reinits, so LINKG_STAT.bounce_cnt stays a
+            //! true cable-event counter
+            if (!both_alive_w) begin
+              bounced_r    <= 1'b1;
+              bounce_cnt_r <= (&bounce_cnt_r) ? bounce_cnt_r
+                                              : bounce_cnt_r + 16'd1;
+            end
+            else begin
+              bounced_r    <= 1'b0;   //! manual-triggered episode - no bounce yet
+            end
           end
         end
 
         HOLD_S : begin
           guard_rst_r <= 1'b1;
           eth_rst_r   <= 1'b1;
+          //! a real clock death arriving during a manual-triggered hold IS a
+          //! cable bounce - count it once (bounced_r guards mid-episode re-deaths)
+          if (!both_alive_w && !bounced_r) begin
+            bounced_r    <= 1'b1;
+            bounce_cnt_r <= (&bounce_cnt_r) ? bounce_cnt_r
+                                            : bounce_cnt_r + 16'd1;
+          end
           if (both_alive_w) begin
             state_r  <= SETTLE_S;
             settle_r <= '0;
@@ -222,6 +257,7 @@ module KL_link_guard #(
           else if (settle_r == SETW_C'(SETTLE_CYC_C)) begin
             state_r     <= RUN_S;
             guard_rst_r <= 1'b0;
+            bounced_r   <= 1'b0;   //! episode done - re-arm bounce counting
           end
           else begin
             settle_r <= settle_r + 1'b1;
