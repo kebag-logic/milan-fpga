@@ -37,6 +37,63 @@ TX/RX); `controller_rate` is the gating regression born from the
 [CBS datapath bug](../findings/CBS_DATAPATH_BUG.md); `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
+
+### 1.1 Suite index (47 harnesses, auto-listed 2026-07-25)
+
+| suite | last verified |
+|---|---|
+| `tb/verilator/aaf` | run `make` in the dir |
+| `tb/verilator/aaf_audio_loop` | run `make` in the dir |
+| `tb/verilator/aaf_latency_taps` | 58/58 (07-25) |
+| `tb/verilator/acmp` | run `make` in the dir |
+| `tb/verilator/acmp_lstn` | run `make` in the dir |
+| `tb/verilator/adp` | run `make` in the dir |
+| `tb/verilator/adp_tx` | run `make` in the dir |
+| `tb/verilator/aecp` | run `make` in the dir |
+| `tb/verilator/avtp_rxmon` | run `make` in the dir |
+| `tb/verilator/avtp_stream` | run `make` in the dir |
+| `tb/verilator/cbs` | run `make` in the dir |
+| `tb/verilator/cdc` | run `make` in the dir |
+| `tb/verilator/chmap_capture` | PASS (07-25) |
+| `tb/verilator/chmap_render` | 58/0 (07-25) |
+| `tb/verilator/classifier` | run `make` in the dir |
+| `tb/verilator/cls` | run `make` in the dir |
+| `tb/verilator/controller_rate` | run `make` in the dir |
+| `tb/verilator/crf_tx` | run `make` in the dir |
+| `tb/verilator/csr` | 206+58+28 PASS (07-25 merge tip) |
+| `tb/verilator/datapath` | run `make` in the dir |
+| `tb/verilator/eth_tx_reset` | run `make` in the dir |
+| `tb/verilator/i2spb` | run `make` in the dir |
+| `tb/verilator/ifg` | run `make` in the dir |
+| `tb/verilator/lat_history_ring` | run `make` in the dir |
+| `tb/verilator/link_guard` | 104/104 (07-24 merge gate) |
+| `tb/verilator/lwsrp` | run `make` in the dir |
+| `tb/verilator/lwsrp_ctx` | run `make` in the dir |
+| `tb/verilator/lwsrp_rx` | run `make` in the dir |
+| `tb/verilator/lwsrp_switchpdu` | run `make` in the dir |
+| `tb/verilator/lwsrp_tx` | run `make` in the dir |
+| `tb/verilator/maap` | run `make` in the dir |
+| `tb/verilator/milan_dp` | 70/0 + 82/0 (07-25 merge tip) |
+| `tb/verilator/mmcm_servo` | run `make` in the dir |
+| `tb/verilator/mmcm_servo_autorepair` | run `make` in the dir |
+| `tb/verilator/pcm_ring_bram` | run `make` in the dir |
+| `tb/verilator/pcm_tx` | run `make` in the dir |
+| `tb/verilator/pcmlpf` | run `make` in the dir |
+| `tb/verilator/ptp` | run `make` in the dir |
+| `tb/verilator/ptp_sync` | run `make` in the dir |
+| `tb/verilator/ptp_ts` | run `make` in the dir |
+| `tb/verilator/queues` | run `make` in the dir |
+| `tb/verilator/rx_filter` | run `make` in the dir |
+| `tb/verilator/shaper_core` | run `make` in the dir |
+| `tb/verilator/tcam` | run `make` in the dir |
+| `tb/verilator/tcam_csr` | run `make` in the dir |
+| `tb/verilator/tdm` | run `make` in the dir |
+| `tb/verilator/tdm_render` | run `make` in the dir |
+
+The six counts above were re-run at the 2026-07-25 11-PR merge tip; every
+other suite is one `make` away (self-checking, exit-code gated). The standing
+rule: every round grows this table, never shrinks it.
+
 ## 2. Migen DMA-engine sims - `sw/litex/test_*.py`
 
 Behavioral sims of the ring-DMA/BD engines that live in `milan_soc.py`
