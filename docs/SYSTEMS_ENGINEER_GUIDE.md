@@ -171,6 +171,9 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **Media-clock servo** — silicon-proven MMCM-DRP servo (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`,
   MCSRV_STAT/CTRL at 0x8F8/0x8FC), coherent chain, -83.9 dB. Documented in
   `MILAN_COMPLIANCE_GAPS.md` item 6 and the register map; the traceability rows are being updated.
+- **`docs/CHANNEL_MAP_64.md`** — the 64-in/64-out channel-map architecture: render crossbar + capture
+  mux over one shared MAP-RAM, programmed by the IEEE 1722.1 dynamic audio maps (CSR window 0x900-0x97F
+  is the bench override). Read for AAF stream-channel → physical-I/O routing and the pair-slot widening.
 
 **MAAP (address allocation)**
 - → **`docs/design/MAAP_FABRIC.md`** — the fabric MAAP engine design + byte-exact PDU contract
