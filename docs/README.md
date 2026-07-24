@@ -60,7 +60,7 @@ Goal: prove it works, per spec.
 1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · CERT/bench).
 2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` = ~41 suites (the count wins over any prose).
 3. [../tests/README.md](../tests/README.md) — run the behave/tsn_gen fixtures: `~/litex-milan/venv/bin/behave tests` (needs `TSAGEN_DIR`).
-4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench`/CERT tier (CERT suites live in the sibling **the-private-test-repo** repo).
+4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench`/CERT tier (CERT suites live in the sibling private test repo).
 5. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
 6. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is validated vs pending.
 
@@ -189,4 +189,4 @@ handoffs. The per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 * **Counts:** suite/top counts in prose go stale; the directory listing and
   `run.sh` are authoritative.
 * Board-recipe skills for the sibling test rig live out-of-repo in the
-  `the-private-test-repo` repo (`fpga/skills/milan-fpga-nic/SKILL.md` there).
+  the private test repo repo (`fpga/skills/milan-fpga-nic/SKILL.md` there).

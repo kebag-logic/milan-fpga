@@ -44,7 +44,7 @@ STAGES = [
    ("devmem 0x90000000 == 'MILN'", 1),
    ("  (M-A2 first-silicon smoke)", 0),
    ("link up · GM / talker / listener", 0),
-   ("CERT 63/63  (the-private-test-repo)", 1),
+   ("CERT 63/63", 1),
    ("behave · TB · audio E2E", 0),
    ("REGISTER_MAP.md = the ABI", 0),
    ("BENCH_TOPOLOGY.md = the rig", 0),
