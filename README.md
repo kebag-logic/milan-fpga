@@ -17,14 +17,18 @@ The TSN datapath RTL is **vendor-neutral** — no Xilinx primitives, machine-che
 the [Yosys/ECP5 portability flow](syn/yosys/README.md) — and building it without
 Vivado, or on a non-Xilinx board, is a supported, documented path.
 
-**📚 Start with the [documentation index](docs/README.md)** — curated reading
-paths (understand the system / integrate into your SoC / port off-Vivado /
-board bring-up / tests / driver & ABI) plus a [glossary](docs/GLOSSARY.md).
+**📚 New here? → [docs/README.md](docs/README.md) picks your lane by role**
+(Developer · System Engineer · Integrator · Tester) with a one-page
+[visual map](docs/DOC_MAP.png). **Everyone's first doc is the
+[Systems-Engineer Guide](docs/SYSTEMS_ENGINEER_GUIDE.md)** — what the system is +
+a journey-ordered map of the whole doc set. Unsure of a term? →
+[glossary](docs/GLOSSARY.md).
 
 Quick jumps:
 
 | I want to… | Go to |
 |---|---|
+| **Know where to start (by role)** | [docs/README.md](docs/README.md) → [SYSTEMS_ENGINEER_GUIDE.md](docs/SYSTEMS_ENGINEER_GUIDE.md) |
 | Understand the whole system | [docs/overview/FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) |
 | Integrate the datapath into my own SoC | [docs/integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) |
 | **Build without Vivado / port to a non-Xilinx board** | [docs/integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) |
