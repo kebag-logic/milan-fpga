@@ -261,17 +261,15 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   to SPEC_TRACEABILITY.
 
 ### Stage 8 — Current ops + historical findings
-- → **`docs/findings/HANDOVER_SMALL.md`** — **the current (07-23) live-state handover**: ship
-  boards, what was proven this session, the 12-item roadmap status table, prioritized open items.
-  Read to know the state right now.
+- → **GitHub Issues** — the current roadmap, open gaps, and live state are tracked as issues.
+  Read the open issues to know what's left and what's in flight right now.
 - **`docs/findings/BENCH_TOPOLOGY.md`** — the "read this first" bench-ops reference: machines,
   consoles, repos, the build→flash→verify pipeline, pw0 wire tooling, CERT privacy rules, the CSR
-  quick-map, standing rules. High value for operating the bench. *(Its §9 live-state has drifted;
-  the infra content is stable.)*
-- **`docs/findings/HANDOVER.md`** — the deep accumulated session-history log (109 KB). The
-  irreplaceable campaign trail; **history, not current live state** (that's HANDOVER_SMALL).
+  quick-map, standing rules. High value for operating the bench.
+- Historical campaign narrative lives in the git history and [`../CHANGELOG.md`](../CHANGELOG.md);
+  the per-bug post-mortems below are the evergreen record.
 - **`docs/findings/README.md`** — the findings-directory index (symptom→measurement→root-cause→
-  fix→verification framing). *(Being extended to list the handovers + control-plane post-mortems.)*
+  fix→verification framing).
 - **Fixed-bug post-mortems** (all silicon-validated, evergreen teaching docs):
   `kl-eth-tx-debug.md` (the definitive TX bring-up saga + "never trust dst-MAC-keyed counters as
   TX proof"), `CBS_DATAPATH_BUG.md`, `CBS_DEFAULT_SHAPING_BUG.md`, `ADP_DORMANCY.md`,
@@ -282,7 +280,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   12-item roadmap, but still the open-REQ checkbox ledger.
 - **`docs/archive/README.md`** — the index of the 15 **superseded / historical** docs (the
   byte-ring/CPPI/RSC DMA-origin docs, the completed migration & de-Xilinx plans, the 07-11
-  SESSION_HANDOFF, the early perf snapshots). Each is marked in place with a `⚠️ SUPERSEDED`
+  the early perf snapshots). Each is marked in place with a `⚠️ SUPERSEDED`
   banner + its living successor (they stay at their paths to preserve inbound links). Read
   only for deep history.
 
@@ -301,7 +299,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 | Port to a new board / non-Xilinx | `BOARD_PORTING_AX7101.md` / `PORTING_GUIDE.md` |
 | Run the tests | `docs/testing/RUNNING_TESTS.md` |
 | Check what's compliant | `docs/SPEC_TRACEABILITY.md` |
-| Know today's live state | `docs/findings/HANDOVER_SMALL.md` |
+|  Know the roadmap / live state | the GitHub issues |
 | Avoid a known dead end / lethal pairing | `docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md` |
 | Debug a bring-up failure | `docs/limitations/TROUBLESHOOTING.md` |
 | Look up a term | `docs/GLOSSARY.md` |

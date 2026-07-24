@@ -35,7 +35,7 @@ PERSONAS = [
    ("overview/SYSTEM_DOMAIN_MAP.md", "every module by domain/language, one picture"),
    ("SPEC_TRACEABILITY.md", "IEEE/Milan clause → module → test, with status"),
    ("MILAN_COMPLIANCE_GAPS.md", "what is + isn't compliant, honest gaps"),
-   ("findings/HANDOVER_SMALL.md", "the 12-item roadmap + current state"),
+   ("GitHub Issues", "the live roadmap + open gaps, tracked as issues"),
  ]),
  ("Integrator", "you make it RUN on hardware",
   "build → flash → bring up the board", ORANGE, [
