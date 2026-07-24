@@ -607,9 +607,16 @@ class MilanMAC(LiteXModule):
         # declares a clock dead after 41 us without a transition, and then
         # auto-sequences the reinit strobe (hold through the outage + ~21 ms
         # clean-clock settle) - the hardware version of the linkmon recovery.
-        self.ethrx_tgl  = Signal()
-        self.ethtx_tgl  = Signal()
-        self.ethact_tgl = Signal()
+        # reset_less: the toggles OBSERVE the raw clocks, so they must sit outside
+        # every reset cone the guard itself drives. With plain FFs the AX42 ext_reset
+        # thread (eth_rst -> PHY CRG -> cd_eth_tx/rx domain resets) froze the toggles
+        # whenever the guard asserted eth_rst: both_alive dropped 41 us into SETTLE,
+        # the FSM fell back to HOLD with eth_rst still high, and the guard deadlocked
+        # holding MAC+PHY in reset forever (silicon 2026-07-24: every cold boot with
+        # an autoneg RXC bounce, and every manual LINK_CTRL[1] reinit, wire-dead).
+        self.ethrx_tgl  = Signal(reset_less=True)
+        self.ethtx_tgl  = Signal(reset_less=True)
+        self.ethact_tgl = Signal(reset_less=True)
         self.sync.eth_rx += self.ethrx_tgl.eq(~self.ethrx_tgl)
         self.sync.eth_tx += self.ethtx_tgl.eq(~self.ethtx_tgl)
         self.sync.eth_rx += If(self.phy.source.valid & self.phy.source.last,
