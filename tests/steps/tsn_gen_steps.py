@@ -26,7 +26,7 @@ from behave import given, when, then
 LAYOUTS = {
     'SET_CLOCK_SOURCE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_clock_source::AECP_SET_CLOCK_SOURCE::'
+        'interface': ('atdecc_aecp_set_clock_source::AECP_SET_CLOCK_SOURCE::AECP_SET_CLOCK_SOURCE::'
                       'AECP_SET_CLOCK_SOURCE_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -37,7 +37,7 @@ LAYOUTS = {
     },
     'SET_CONTROL': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_control::AECP_SET_CONTROL::'
+        'interface': ('atdecc_aecp_set_control::AECP_SET_CONTROL::AECP_SET_CONTROL::'
                       'AECP_SET_CONTROL_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -47,11 +47,18 @@ LAYOUTS = {
     },
     'SET_NAME': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::'
+        'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::AECP_SET_NAME::'
                       'AECP_SET_NAME_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('name_index', 16),
+                   ('configuration_index', 16), ('name', 512)],
+    },
     'READ_DESCRIPTOR': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::'
+        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::AECP_READ_DESCRIPTOR::'
                       'AECP_READ_DESCRIPTOR_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -59,25 +66,30 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('configuration_index', 16),
                    ('reserved', 16), ('descriptor_type', 16),
                    ('descriptor_index', 16)],
+    },
     'SET_STREAM_FORMAT': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
+        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::AECP_SET_STREAM_FORMAT::'
                       'AECP_SET_STREAM_FORMAT_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('stream_format', 64)],
+    },
     'SET_SAMPLING_RATE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::'
+        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::AECP_SET_SAMPLING_RATE::'
                       'AECP_SET_SAMPLING_RATE_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
                    ('controller_entity_id', 64), ('sequence_id', 16),
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
-                   ('descriptor_index', 16), ('name_index', 16),
-                   ('configuration_index', 16), ('name', 512)],
-                   ('descriptor_index', 16), ('stream_format', 64)],
                    ('descriptor_index', 16), ('sampling_rate', 32)],
+    },
     'SET_CONFIGURATION': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::'
+        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::AECP_SET_CONFIGURATION::'
                       'AECP_SET_CONFIGURATION_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
