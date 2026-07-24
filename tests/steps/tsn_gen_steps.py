@@ -135,6 +135,7 @@ DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 DESC_ENTITY, DESC_CONFIGURATION = 0x0000, 0x0001
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
 CMD_SET_NAME, CMD_GET_NAME = 16, 17     # 0x0010 / 0x0011 (IEEE 1722.1 Table 7.126)
+CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
 class MilanAecpModel:
@@ -159,6 +160,10 @@ class MilanAecpModel:
             if cmd == CMD_SET_NAME:
                 self.object_name = fields['name']
             return STATUS_SUCCESS
+        if cmd == CMD_GET_CLOCK_SOURCE:
+            if dt != DESC_CLOCK_DOMAIN or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: no state change; response carries clock_source_index
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
