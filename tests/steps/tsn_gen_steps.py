@@ -135,6 +135,7 @@ CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
 CMD_SET_SAMPLING_RATE, CMD_GET_SAMPLING_RATE = 20, 21
 DESC_AUDIO_UNIT = 0x0002
 VALID_RATES = {44100, 48000, 96000}
+CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
 class MilanAecpModel:
@@ -160,6 +161,10 @@ class MilanAecpModel:
             if dt != DESC_AUDIO_UNIT or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
             return STATUS_SUCCESS        # getter: response carries sampling_rate
+        if cmd == CMD_GET_CLOCK_SOURCE:
+            if dt != DESC_CLOCK_DOMAIN or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: no state change; response carries clock_source_index
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
