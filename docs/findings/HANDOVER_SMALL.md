@@ -52,18 +52,41 @@ header MAC artifacts) — use `-w` + offset-28 python, or the srp_qna.py dissect
 |  2 | RTL fixes for the workaround items (GMII CDC reinit, shadow invalidate, I2SPB W1C) | ✅ DONE — **except the e2 TX wedge → re-scoped as AX42, gaps item 0** |
 |  3 | Spec-aligned module tree + tsn_gen traceability matrix | ✅ DONE (204 rows, 163✅/17🟡/7❌ + 17 ➖ N/A) |
 |  4 | Software-defined End-Station builder (clusters, EUI-64, estimator, TDM/I2S/AES3/SPDIF) | ✅ DONE |
-|  5 | N×N AAF streams (AX 8×8 / Arty 4×4), shared engines + ctx RAM | 🟡 4×4 silicon-proven; **8×8 pending AX42** (area levers queued) |
+|  5 | N×N AAF streams (AX 8×8 / Arty 4×4), shared engines + ctx RAM | 🟡 4×4 silicon-proven; 8×8 sim 82/0 (PR #16); **8×8 Vivado ship build TIMING-MET (WNS +0.61/+0.40 ns); compressed full-flashboot rebuild in flight → matched-image QSPI flash + silicon verify pending** (07-24: gateware-only SRAM load did NOT boot — needs compressed bit + matched images) |
 |  6 | MMCM-DRP media-clock servo | ✅ DONE — **silicon-proven this session** (LOCKED, rails zero, HOLDOVER, −83.9 dB at the converter floor); polish left: bless auto_repair + rails soak |
-|  7 | ALSA driver record/play over-Milan via PipeWire | 🟡 record functional (arecord rw+mmap, .copy op); **left: PHC LINK-ts leg, on-board PipeWire, playback (KL_pcm_tx gateware)** |
+|  7 | ALSA driver record/play over-Milan via PipeWire | 🟡 record functional; **`snd-kl-milan` ALSA card driver EXISTS in-repo but NOT in the deployed rootfs (aplay/arecord = 0 cards on both boards — PipeWire-only today); playback KL_pcm_tx PR #18; the card deploys with the 8×8 reflash** |
 |  8 | Dynamic audio maps (ADD/REMOVE + es-4.16) | ✅ DONE |
 |  9 | Milan saved-state fast-connect | ✅ DONE — M-ACMP-9 exit proven; **left: acmp-persist save-wedge fix + the CRF-flags journal drill leg** |
-| 10 | Spec-matrix peer-validation (human 1:1 + behaves per row) | ⏳ PENDING — **human-gated (USER)** |
-| 11 | AAF end-to-end per-stage latency taps (CSR + DDR3 history) | ⏳ NOT STARTED (deliberately near-last) |
-| 12 | es-1.1/1.2 BMCA variants | ⏳ NOT STARTED (very end, switch-gated) |
+| 10 | Spec-matrix peer-validation (human 1:1 + behaves per row) | 🟡 human 1:1 still USER-gated; **per-command tsn_gen behave fixtures landed (unmerged PRs): CLOCK_SOURCE/CONTROL/CONFIGURATION/SAMPLING_RATE/STREAM_FORMAT/READ_DESCRIPTOR/NAME/STREAM_INFO (#14-24) + AUDIO_MAPS (#28) + MAX_TRANSIT_TIME/GET_MILAN_INFO/ACQUIRE/LOCK (#33)** — each self-tested + independently reproduced |
+| 11 | AAF end-to-end per-stage latency taps (CSR + DDR3 history) | 🟡 **CSR taps PR #17 + `KL_lat_history_ring` DDR3 time-series ring PR #32 (TB 84/0, PCM-ring CSR ABI); live E2E latency MEASURED (ts_delta 0x6EC = +633 µs stable, 0 LATE/EARLY)** |
+| 12 | es-1.1/1.2 BMCA variants | ⏳ NOT STARTED (very end, switch-gated) — **USER-excluded from the 07-24 "finish the roadmap" push** |
+| 13 | **Reduce E2E latency to EQUAL the pto** (USER 07-24) | ⏳ NEW — the measured capture→accept pipeline is ~1.37 ms of overhead atop the presentation buffer; decompose with the item-11 taps, cut talker-side batching/FIFO so pto=500 µs → real 500 µs E2E, 0 LATE |
 
 Cross-cutting adds this session (not in the original 12): **AX42** bug-fix
 round (gaps item 0) and the **PCM-ring-in-BRAM** proposal (gaps §2), both in
 the prioritized open items below.
+
+**chmap64 — 64-in/64-out channel-map fabric (USER 07-23/24, major feature):**
+8×8 streams × up to 8 ch = 64 stream-channels each way, mapped to/from ALSA
+(8× 8-ch subdevices) and TDM8/I2S physical I/O. Delivered as 6 verified-unmerged
+PRs: `KL_chan_map_render` (RX (stream,ch)→phys crossbar, #26 58/0), `KL_chan_map_capture`
+(per-pair-slot TX source mux + `pair_slot`→[4:0], #29 43/0), `KL_tdm_render`
+(TDM8 out serializer, #30 37/0), the es-4.16 dynamic-audio-map→fabric binding
+behave fixture (#28 9/9), the architecture doc (#27), and the datapath
+**integration** (#31, add-alongside + bypass-by-default, milan_dp **172/0**
+byte-exact, 8×8 elaborates, CSR 0x900 map window). Map word = 16-bit
+{en,src,idx}; AEM `ADD/REMOVE_AUDIO_MAPPINGS` (0x2C/0x2D) owns the write port,
+CSR 0x900 = debug override. Default-off = bit-identical CERT audio path.
+
+**E2E latency + flash findings (07-24):** live E2E on AX→Arty = `ts_delta`
+(0x6EC) +633 µs, 0 LATE ⇒ samples held to `avtp_timestamp`, E2E = `pres_offset`
+(NOT ts_delta — that is only the residual buffer headroom). pto lever
+(SET_STREAM_INFO/MSRP_ACC_LAT, or SET_MAX_TRANSIT_TIME 0x4C) = NOT_SUPPORTED on
+the deployed bitstream (feature newer than the flash). Flash lessons: a
+QSPI-bootable AX bitstream MUST be built with `--with-spiflash --flashboot full`
+(pins `BITSTREAM.GENERAL.COMPRESS`; raw 100t frame is 3.65 MiB, slot is 2.25 MiB)
+AND flashed as a **matched image set** (bitstream+kernel+dtb+rootfs) — a
+gateware-only SRAM load does NOT boot. Recovery = `amx-pi powerstrip off/on 0`.
 
 ## Open items (prioritized)
 1. **AX42 — ROADMAP BUG FIX (USER, gaps item 0):** the e2 MAC-TX wedge fixed
