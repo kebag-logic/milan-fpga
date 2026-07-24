@@ -141,7 +141,11 @@ cfg_ax8x8() {    # 8-stream (64ch) fits+closes shape. The 8x8 was NOT area-bound
           --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --uart-baudrate 115200 --rx-queues 1 --strip-probes --hs-page-bytes 16384 \
-          --num-streams 8 --place-directive AltSpreadLogic_high"
+          --num-streams 8 --eth-port e2 --place-directive AltSpreadLogic_high"
+                 # --eth-port e2: the bench cable is on the AX7101's e2 RGMII port
+                 # (default e1 leaves the driven PHY unlinked -> MAC quiet -> "no
+                 # route to host"). AX42's guard-reset scope already covers e2's
+                 # PHY tx/gtx path; this just selects the physically-cabled port.
 }
 cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probes stripped since v8 - AVDECC stack needs the slices: v7-style probes overflowed by 181)
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
