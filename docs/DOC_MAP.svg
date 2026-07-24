@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1878" height="1060" viewBox="0 0 1878 1060" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#607D8B"/></marker></defs>
+<rect width="1878" height="1060" fill="#FAFAFA"/>
+<text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">milan-fpga documentation — where do I start?</text>
+<text x="40" y="88" font-size="15" fill="#546E7A">Pick your lane. Each column is an ordered reading journey, top to bottom. Boxes are clickable doc paths under <tspan font-weight="bold">docs/</tspan> (or the repo).</text>
+<text x="40" y="112" font-size="15" fill="#546E7A">New to the project? Read the universal entry first, then follow your lane.</text>
+<rect x="40" y="150" width="1798" height="60" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2.5"/>
+<text x="62" y="176" font-size="16" font-weight="bold" fill="#212121">★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md</text>
+<text x="62" y="198" font-size="13.5" fill="#5D4037">what the system is + a journey-ordered map of the whole doc set. Then jump into your lane below. Unsure of a term? → docs/GLOSSARY.md</text>
+<rect x="40" y="244" width="430" height="92" rx="10" fill="#1565C0" stroke="#1565C0" stroke-width="2"/>
+<text x="60" y="275" font-size="21" font-weight="bold" fill="#ffffff">Developer</text>
+<text x="60" y="299" font-size="13" fill="#ffffff" fill-opacity="0.92">you write RTL / gateware / firmware</text>
+<text x="60" y="323" font-size="13.5" fill="#ffffff"><tspan font-style="italic" fill-opacity="0.85">goal:  </tspan><tspan font-weight="bold">add or change a module in the fabric</tspan></text>
+<rect x="40" y="362" width="430" height="62" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.6"/>
+<circle cx="66" cy="393" r="15" fill="#1565C0"/>
+<text x="66" y="398" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<text x="92" y="387" font-size="14.5" font-weight="bold" fill="#212121">SYSTEMS_ENGINEER_GUIDE.md</text>
+<text x="92" y="408" font-size="12.8" fill="#37474F">orient: what the system is + the doc map</text>
+<path d="M255 424 L255 447" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="40" y="450" width="430" height="62" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.6"/>
+<circle cx="66" cy="481" r="15" fill="#1565C0"/>
+<text x="66" y="486" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<text x="92" y="475" font-size="14.5" font-weight="bold" fill="#212121">overview/ARCHITECTURE.md</text>
+<text x="92" y="496" font-size="12.8" fill="#37474F">the developer guide — §8 &#x27;where to change things&#x27;</text>
+<path d="M255 512 L255 535" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="40" y="538" width="430" height="62" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.6"/>
+<circle cx="66" cy="569" r="15" fill="#1565C0"/>
+<text x="66" y="574" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<text x="92" y="563" font-size="14.5" font-weight="bold" fill="#212121">ARCHITECTURE_HW_SW_SPLIT.md</text>
+<text x="92" y="584" font-size="12.8" fill="#37474F">does your feature belong in fabric or the softcore?</text>
+<path d="M255 600 L255 623" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="40" y="626" width="430" height="62" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.6"/>
+<circle cx="66" cy="657" r="15" fill="#1565C0"/>
+<text x="66" y="662" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<text x="92" y="651" font-size="14.5" font-weight="bold" fill="#212121">fpga/FPGA_DESIGN.md</text>
+<text x="92" y="672" font-size="12.8" fill="#37474F">the hdl/ module map + which TB verifies each</text>
+<path d="M255 688 L255 711" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="40" y="714" width="430" height="62" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.6"/>
+<circle cx="66" cy="745" r="15" fill="#1565C0"/>
+<text x="66" y="750" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<text x="92" y="739" font-size="14.5" font-weight="bold" fill="#212121">reference/REGISTER_MAP.md</text>
+<text x="92" y="760" font-size="12.8" fill="#37474F">the CSR/AXI-Lite ABI shared by RTL + driver + DT</text>
+<path d="M255 776 L255 799" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="40" y="802" width="430" height="62" rx="8" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.6"/>
+<circle cx="66" cy="833" r="15" fill="#1565C0"/>
+<text x="66" y="838" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<text x="92" y="827" font-size="14.5" font-weight="bold" fill="#212121">testing/TESTING.md  +  tb/verilator/</text>
+<text x="92" y="848" font-size="12.8" fill="#37474F">build + run the unit TBs for your change</text>
+<rect x="496" y="244" width="430" height="92" rx="10" fill="#2E7D32" stroke="#2E7D32" stroke-width="2"/>
+<text x="516" y="275" font-size="21" font-weight="bold" fill="#ffffff">System Engineer</text>
+<text x="516" y="299" font-size="13" fill="#ffffff" fill-opacity="0.92">you reason about the whole system</text>
+<text x="516" y="323" font-size="13.5" fill="#ffffff"><tspan font-style="italic" fill-opacity="0.85">goal:  </tspan><tspan font-weight="bold">understand it + assess compliance &amp; roadmap</tspan></text>
+<rect x="496" y="362" width="430" height="62" rx="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.6"/>
+<circle cx="522" cy="393" r="15" fill="#2E7D32"/>
+<text x="522" y="398" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<text x="548" y="387" font-size="14.5" font-weight="bold" fill="#212121">SYSTEMS_ENGINEER_GUIDE.md</text>
+<text x="548" y="408" font-size="12.8" fill="#37474F">the single best starting doc — read first</text>
+<path d="M711 424 L711 447" stroke="#2E7D32" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="496" y="450" width="430" height="62" rx="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.6"/>
+<circle cx="522" cy="481" r="15" fill="#2E7D32"/>
+<text x="522" y="486" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<text x="548" y="475" font-size="14.5" font-weight="bold" fill="#212121">ARCHITECTURE_HW_SW_SPLIT.md</text>
+<text x="548" y="496" font-size="12.8" fill="#37474F">normative plan of record: fabric vs softcore</text>
+<path d="M711 512 L711 535" stroke="#2E7D32" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="496" y="538" width="430" height="62" rx="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.6"/>
+<circle cx="522" cy="569" r="15" fill="#2E7D32"/>
+<text x="522" y="574" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<text x="548" y="563" font-size="14.5" font-weight="bold" fill="#212121">overview/SYSTEM_DOMAIN_MAP.md</text>
+<text x="548" y="584" font-size="12.8" fill="#37474F">every module by domain/language, one picture</text>
+<path d="M711 600 L711 623" stroke="#2E7D32" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="496" y="626" width="430" height="62" rx="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.6"/>
+<circle cx="522" cy="657" r="15" fill="#2E7D32"/>
+<text x="522" y="662" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<text x="548" y="651" font-size="14.5" font-weight="bold" fill="#212121">SPEC_TRACEABILITY.md</text>
+<text x="548" y="672" font-size="12.8" fill="#37474F">IEEE/Milan clause → module → test, with status</text>
+<path d="M711 688 L711 711" stroke="#2E7D32" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="496" y="714" width="430" height="62" rx="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.6"/>
+<circle cx="522" cy="745" r="15" fill="#2E7D32"/>
+<text x="522" y="750" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<text x="548" y="739" font-size="14.5" font-weight="bold" fill="#212121">MILAN_COMPLIANCE_GAPS.md</text>
+<text x="548" y="760" font-size="12.8" fill="#37474F">what is + isn&#x27;t compliant, honest gaps</text>
+<path d="M711 776 L711 799" stroke="#2E7D32" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="496" y="802" width="430" height="62" rx="8" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.6"/>
+<circle cx="522" cy="833" r="15" fill="#2E7D32"/>
+<text x="522" y="838" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<text x="548" y="827" font-size="14.5" font-weight="bold" fill="#212121">findings/HANDOVER_SMALL.md</text>
+<text x="548" y="848" font-size="12.8" fill="#37474F">the 12-item roadmap + current state</text>
+<rect x="952" y="244" width="430" height="92" rx="10" fill="#EF6C00" stroke="#EF6C00" stroke-width="2"/>
+<text x="972" y="275" font-size="21" font-weight="bold" fill="#ffffff">Integrator</text>
+<text x="972" y="299" font-size="13" fill="#ffffff" fill-opacity="0.92">you make it RUN on hardware</text>
+<text x="972" y="323" font-size="13.5" fill="#ffffff"><tspan font-style="italic" fill-opacity="0.85">goal:  </tspan><tspan font-weight="bold">build → flash → bring up the board</tspan></text>
+<rect x="952" y="362" width="430" height="62" rx="8" fill="#FFF3E0" stroke="#EF6C00" stroke-width="1.6"/>
+<circle cx="978" cy="393" r="15" fill="#EF6C00"/>
+<text x="978" y="398" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<text x="1004" y="387" font-size="14.5" font-weight="bold" fill="#212121">sw/README.md</text>
+<text x="1004" y="408" font-size="12.8" fill="#37474F">toolchain: riscv64-elf, jdk+sbt, the litex venv</text>
+<path d="M1167 424 L1167 447" stroke="#EF6C00" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="952" y="450" width="430" height="62" rx="8" fill="#FFF3E0" stroke="#EF6C00" stroke-width="1.6"/>
+<circle cx="978" cy="481" r="15" fill="#EF6C00"/>
+<text x="978" y="486" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<text x="1004" y="475" font-size="14.5" font-weight="bold" fill="#212121">integration/BUILDING.md</text>
+<text x="1004" y="496" font-size="12.8" fill="#37474F">build.sh: configs, parallel discipline, gates</text>
+<path d="M1167 512 L1167 535" stroke="#EF6C00" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="952" y="538" width="430" height="62" rx="8" fill="#FFF3E0" stroke="#EF6C00" stroke-width="1.6"/>
+<circle cx="978" cy="569" r="15" fill="#EF6C00"/>
+<text x="978" y="574" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<text x="1004" y="563" font-size="14.5" font-weight="bold" fill="#212121">litex/LITEX_SOC.md  §4</text>
+<text x="1004" y="584" font-size="12.8" fill="#37474F">the mandatory, non-obvious build flags + why</text>
+<path d="M1167 600 L1167 623" stroke="#EF6C00" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="952" y="626" width="430" height="62" rx="8" fill="#FFF3E0" stroke="#EF6C00" stroke-width="1.6"/>
+<circle cx="978" cy="657" r="15" fill="#EF6C00"/>
+<text x="978" y="662" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<text x="1004" y="651" font-size="14.5" font-weight="bold" fill="#212121">integration/QSPI_FLASHBOOT.md</text>
+<text x="1004" y="672" font-size="12.8" fill="#37474F">flash layout, COMPRESS, matched image set</text>
+<path d="M1167 688 L1167 711" stroke="#EF6C00" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="952" y="714" width="430" height="62" rx="8" fill="#FFF3E0" stroke="#EF6C00" stroke-width="1.6"/>
+<circle cx="978" cy="745" r="15" fill="#EF6C00"/>
+<text x="978" y="750" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<text x="1004" y="739" font-size="14.5" font-weight="bold" fill="#212121">findings/BENCH_TOPOLOGY.md</text>
+<text x="1004" y="760" font-size="12.8" fill="#37474F">reach the boards · power · taps · recovery</text>
+<path d="M1167 776 L1167 799" stroke="#EF6C00" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="952" y="802" width="430" height="62" rx="8" fill="#FFF3E0" stroke="#EF6C00" stroke-width="1.6"/>
+<circle cx="978" cy="833" r="15" fill="#EF6C00"/>
+<text x="978" y="838" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<text x="1004" y="827" font-size="14.5" font-weight="bold" fill="#212121">limitations/TROUBLESHOOTING.md</text>
+<text x="1004" y="848" font-size="12.8" fill="#37474F">when boot / flash / link goes wrong</text>
+<rect x="1408" y="244" width="430" height="92" rx="10" fill="#6A1B9A" stroke="#6A1B9A" stroke-width="2"/>
+<text x="1428" y="275" font-size="21" font-weight="bold" fill="#ffffff">Tester / Validator</text>
+<text x="1428" y="299" font-size="13" fill="#ffffff" fill-opacity="0.92">you run the suites + validate</text>
+<text x="1428" y="323" font-size="13.5" fill="#ffffff"><tspan font-style="italic" fill-opacity="0.85">goal:  </tspan><tspan font-weight="bold">prove it works, per spec</tspan></text>
+<rect x="1408" y="362" width="430" height="62" rx="8" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="1.6"/>
+<circle cx="1434" cy="393" r="15" fill="#6A1B9A"/>
+<text x="1434" y="398" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+<text x="1460" y="387" font-size="14.5" font-weight="bold" fill="#212121">testing/TESTING.md</text>
+<text x="1460" y="408" font-size="12.8" fill="#37474F">the test taxonomy: TB · behave · CERT/bench</text>
+<path d="M1623 424 L1623 447" stroke="#6A1B9A" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="1408" y="450" width="430" height="62" rx="8" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="1.6"/>
+<circle cx="1434" cy="481" r="15" fill="#6A1B9A"/>
+<text x="1434" y="486" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+<text x="1460" y="475" font-size="14.5" font-weight="bold" fill="#212121">tb/verilator/README.md</text>
+<text x="1460" y="496" font-size="12.8" fill="#37474F">run every Verilator TB (ls = 41 suites)</text>
+<path d="M1623 512 L1623 535" stroke="#6A1B9A" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="1408" y="538" width="430" height="62" rx="8" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="1.6"/>
+<circle cx="1434" cy="569" r="15" fill="#6A1B9A"/>
+<text x="1434" y="574" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+<text x="1460" y="563" font-size="14.5" font-weight="bold" fill="#212121">tests/README.md</text>
+<text x="1460" y="584" font-size="12.8" fill="#37474F">run the behave/tsn_gen fixtures (venv + TSAGEN_DIR)</text>
+<path d="M1623 600 L1623 623" stroke="#6A1B9A" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="1408" y="626" width="430" height="62" rx="8" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="1.6"/>
+<circle cx="1434" cy="657" r="15" fill="#6A1B9A"/>
+<text x="1434" y="662" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+<text x="1460" y="651" font-size="14.5" font-weight="bold" fill="#212121">testing/BEHAVE_TEST_PLAN.md</text>
+<text x="1460" y="672" font-size="12.8" fill="#37474F">the tag taxonomy, tiers, @bench / CERT</text>
+<path d="M1623 688 L1623 711" stroke="#6A1B9A" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="1408" y="714" width="430" height="62" rx="8" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="1.6"/>
+<circle cx="1434" cy="745" r="15" fill="#6A1B9A"/>
+<text x="1434" y="750" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+<text x="1460" y="739" font-size="14.5" font-weight="bold" fill="#212121">SPEC_TRACEABILITY.md</text>
+<text x="1460" y="760" font-size="12.8" fill="#37474F">read the pass / partial / fail matrix (204 rows)</text>
+<path d="M1623 776 L1623 799" stroke="#6A1B9A" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="1408" y="802" width="430" height="62" rx="8" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="1.6"/>
+<circle cx="1434" cy="833" r="15" fill="#6A1B9A"/>
+<text x="1434" y="838" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+<text x="1460" y="827" font-size="14.5" font-weight="bold" fill="#212121">MILAN_COMPLIANCE_GAPS.md</text>
+<text x="1460" y="848" font-size="12.8" fill="#37474F">what is validated vs pending</text>
+<rect x="40" y="910" width="1798" height="96" rx="10" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="62" y="938" font-size="16" font-weight="bold" fill="#212121">Shared references — every lane comes back to these</text>
+<rect x="62" y="952" width="336" height="38" rx="6" fill="#ffffff" stroke="#455A64" stroke-opacity="0.6"/>
+<text x="74" y="970" font-size="12" font-weight="bold" fill="#212121">reference/REGISTER_MAP.md</text>
+<text x="74" y="985" font-size="11.5" fill="#546E7A">the CSR ABI</text>
+<rect x="412" y="952" width="336" height="38" rx="6" fill="#ffffff" stroke="#455A64" stroke-opacity="0.6"/>
+<text x="424" y="970" font-size="12" font-weight="bold" fill="#212121">GLOSSARY.md</text>
+<text x="424" y="985" font-size="11.5" fill="#546E7A">every term</text>
+<rect x="762" y="952" width="336" height="38" rx="6" fill="#ffffff" stroke="#455A64" stroke-opacity="0.6"/>
+<text x="774" y="970" font-size="12" font-weight="bold" fill="#212121">SPEC_TRACEABILITY.md</text>
+<text x="774" y="985" font-size="11.5" fill="#546E7A">clause→module→test</text>
+<rect x="1112" y="952" width="336" height="38" rx="6" fill="#ffffff" stroke="#455A64" stroke-opacity="0.6"/>
+<text x="1124" y="970" font-size="12" font-weight="bold" fill="#212121">findings/</text>
+<text x="1124" y="985" font-size="11.5" fill="#546E7A">dated bug post-mortems</text>
+<rect x="1462" y="952" width="336" height="38" rx="6" fill="#ffffff" stroke="#455A64" stroke-opacity="0.6"/>
+<text x="1474" y="970" font-size="12" font-weight="bold" fill="#212121">DOC_AUDIT.md</text>
+<text x="1474" y="985" font-size="11.5" fill="#546E7A">doc freshness tracker</text>
+</svg>

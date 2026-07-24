@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net"><diagram name="doc-map"><mxGraphModel dx="1400" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1878" pageHeight="1060" math="0" shadow="0"><root><mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="n2" value="milan-fpga documentation — where do I start?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=22;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1100" height="34" as="geometry"/></mxCell>
+<mxCell id="n3" value="★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md
+(what the system is + a journey-ordered doc map; then follow your lane)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=14;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="150" width="1798" height="60" as="geometry"/></mxCell>
+<mxCell id="n4" value="Developer
+you write RTL / gateware / firmware  ·  goal: add or change a module in the fabric" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565C0;strokeColor=#1565C0;fontSize=15;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="244" width="430" height="92" as="geometry"/></mxCell>
+<mxCell id="n5" value="1.  SYSTEMS_ENGINEER_GUIDE.md
+orient: what the system is + the doc map" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="362" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n6" value="2.  overview/ARCHITECTURE.md
+the developer guide — §8 &#x27;where to change things&#x27;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="450" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n7" value="3.  ARCHITECTURE_HW_SW_SPLIT.md
+does your feature belong in fabric or the softcore?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="538" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n8" value="4.  fpga/FPGA_DESIGN.md
+the hdl/ module map + which TB verifies each" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="626" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n9" value="5.  reference/REGISTER_MAP.md
+the CSR/AXI-Lite ABI shared by RTL + driver + DT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="714" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n10" value="6.  testing/TESTING.md  +  tb/verilator/
+build + run the unit TBs for your change" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="40" y="802" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n11" value="System Engineer
+you reason about the whole system  ·  goal: understand it + assess compliance &amp; roadmap" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E7D32;strokeColor=#2E7D32;fontSize=15;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="496" y="244" width="430" height="92" as="geometry"/></mxCell>
+<mxCell id="n12" value="1.  SYSTEMS_ENGINEER_GUIDE.md
+the single best starting doc — read first" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="496" y="362" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n13" value="2.  ARCHITECTURE_HW_SW_SPLIT.md
+normative plan of record: fabric vs softcore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="496" y="450" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n14" value="3.  overview/SYSTEM_DOMAIN_MAP.md
+every module by domain/language, one picture" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="496" y="538" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n15" value="4.  SPEC_TRACEABILITY.md
+IEEE/Milan clause → module → test, with status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="496" y="626" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n16" value="5.  MILAN_COMPLIANCE_GAPS.md
+what is + isn&#x27;t compliant, honest gaps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="496" y="714" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n17" value="6.  findings/HANDOVER_SMALL.md
+the 12-item roadmap + current state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="496" y="802" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n18" value="Integrator
+you make it RUN on hardware  ·  goal: build → flash → bring up the board" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EF6C00;strokeColor=#EF6C00;fontSize=15;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="952" y="244" width="430" height="92" as="geometry"/></mxCell>
+<mxCell id="n19" value="1.  sw/README.md
+toolchain: riscv64-elf, jdk+sbt, the litex venv" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="952" y="362" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n20" value="2.  integration/BUILDING.md
+build.sh: configs, parallel discipline, gates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="952" y="450" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n21" value="3.  litex/LITEX_SOC.md  §4
+the mandatory, non-obvious build flags + why" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="952" y="538" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n22" value="4.  integration/QSPI_FLASHBOOT.md
+flash layout, COMPRESS, matched image set" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="952" y="626" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n23" value="5.  findings/BENCH_TOPOLOGY.md
+reach the boards · power · taps · recovery" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="952" y="714" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n24" value="6.  limitations/TROUBLESHOOTING.md
+when boot / flash / link goes wrong" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="952" y="802" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n25" value="Tester / Validator
+you run the suites + validate  ·  goal: prove it works, per spec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6A1B9A;strokeColor=#6A1B9A;fontSize=15;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1408" y="244" width="430" height="92" as="geometry"/></mxCell>
+<mxCell id="n26" value="1.  testing/TESTING.md
+the test taxonomy: TB · behave · CERT/bench" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1408" y="362" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n27" value="2.  tb/verilator/README.md
+run every Verilator TB (ls = 41 suites)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1408" y="450" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n28" value="3.  tests/README.md
+run the behave/tsn_gen fixtures (venv + TSAGEN_DIR)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1408" y="538" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n29" value="4.  testing/BEHAVE_TEST_PLAN.md
+the tag taxonomy, tiers, @bench / CERT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1408" y="626" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n30" value="5.  SPEC_TRACEABILITY.md
+read the pass / partial / fail matrix (204 rows)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1408" y="714" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n31" value="6.  MILAN_COMPLIANCE_GAPS.md
+what is validated vs pending" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;" vertex="1" parent="1"><mxGeometry x="1408" y="802" width="430" height="62" as="geometry"/></mxCell>
+<mxCell id="n32" value="Shared references — every lane comes back to these
+
+reference/REGISTER_MAP.md · GLOSSARY.md · SPEC_TRACEABILITY.md · findings/ · DOC_AUDIT.md" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=13;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="910" width="1798" height="96" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

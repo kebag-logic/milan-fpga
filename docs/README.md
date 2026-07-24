@@ -17,7 +17,54 @@ docs/
 └─ findings/      dated bug post-mortems + perf-campaign logs (indexed)
 ```
 
-## Reading paths
+## ⭐ New here? Start with the guide, then pick your lane
+
+**Everyone starts here → [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md)** — what the
+system is, plus a journey-ordered map of the whole doc set. Then follow the lane below that
+matches what you're here to do. Unsure of a term? → [GLOSSARY.md](GLOSSARY.md).
+
+![Where do I start — the four reading lanes by role](DOC_MAP.png)
+
+> The picture above is generated (editable [DOC_MAP.drawio](DOC_MAP.drawio); regenerate with
+> `python3 docs/DOC_MAP.gen.py docs/DOC_MAP && rsvg-convert -w 2400 docs/DOC_MAP.svg -o docs/DOC_MAP.png`).
+
+### 👩‍💻 Developer — *you write RTL / gateware / firmware*
+Goal: add or change a module in the fabric.
+1. [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md) — orient.
+2. [overview/ARCHITECTURE.md](overview/ARCHITECTURE.md) — the developer guide; **§8 "where to change things"**.
+3. [ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) — fabric vs softcore (decide where your feature belongs).
+4. [fpga/FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) — the `hdl/` module map + which TB verifies each (`ls hdl/` is authoritative).
+5. [reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) — the CSR/AXI-Lite ABI shared by RTL ⇄ driver ⇄ DT.
+6. [testing/TESTING.md](testing/TESTING.md) + [../tb/verilator/README.md](../tb/verilator/README.md) — a DUT change ships its harness in the same commit.
+
+### 🧭 System Engineer — *you reason about the whole system*
+Goal: understand it + assess compliance & roadmap.
+1. [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md) — the single best starting doc.
+2. [ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) — **normative** plan of record: fabric vs softcore (wins where overview docs conflict).
+3. [overview/SYSTEM_DOMAIN_MAP.md](overview/SYSTEM_DOMAIN_MAP.md) — every module by domain/language, one picture.
+4. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — IEEE/Milan clause → module → test, with status (204 rows).
+5. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is + isn't compliant, honest gaps.
+6. [findings/HANDOVER_SMALL.md](findings/HANDOVER_SMALL.md) — **the current roadmap** + live state (not FULL_FPGA_SOLUTION §9).
+
+### 🔧 Integrator — *you make it RUN on hardware*
+Goal: build → flash → bring up the board.
+1. [../sw/README.md](../sw/README.md) — toolchain (riscv64-elf, jdk+sbt, the LiteX venv) + `git submodule update --init third_party/verilog-axis`.
+2. [integration/BUILDING.md](integration/BUILDING.md) — `build.sh` configs, the 3×32-thread discipline, WNS gate.
+3. [litex/LITEX_SOC.md](litex/LITEX_SOC.md) §4 — the mandatory, non-obvious flags (`--coherent-dma`, `--gtx-tx-invert`, `--with-spiflash --flashboot full`) and why.
+4. [integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) — flash layout, `COMPRESS`, **flash a matched image set** (a gateware-only load won't boot).
+5. [findings/BENCH_TOPOLOGY.md](findings/BENCH_TOPOLOGY.md) — reach the boards, power, taps, recovery (`amx-pi powerstrip off/on 0`).
+6. [limitations/TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) — when boot / flash / link goes wrong.
+
+### 🧪 Tester / Validator — *you run the suites + validate*
+Goal: prove it works, per spec.
+1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · CERT/bench).
+2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` = ~41 suites (the count wins over any prose).
+3. [../tests/README.md](../tests/README.md) — run the behave/tsn_gen fixtures: `~/litex-milan/venv/bin/behave tests` (needs `TSAGEN_DIR`).
+4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench`/CERT tier (CERT suites live in the sibling **the-private-test-repo** repo).
+5. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
+6. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is validated vs pending.
+
+## Quick task jumps
 
 | If you want to… | read, in order |
 |---|---|
