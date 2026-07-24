@@ -138,6 +138,7 @@ DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x0005, 0x0006
 STREAM_FMT_AAF_48K_2CH = 0x0205022000806000          # AAF_PCM 48k 2ch 32b (default)
 STREAM_FMT_AAF_48K_8CH = 0x0215022002006000          # AAF_PCM 48k up-to-8ch 32b
 VALID_STREAM_FORMATS = {STREAM_FMT_AAF_48K_2CH, STREAM_FMT_AAF_48K_8CH}
+CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
 class MilanAecpModel:
@@ -163,6 +164,10 @@ class MilanAecpModel:
             if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
             return STATUS_SUCCESS        # getter: response carries stream_format
+        if cmd == CMD_GET_CLOCK_SOURCE:
+            if dt != DESC_CLOCK_DOMAIN or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: no state change; response carries clock_source_index
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
