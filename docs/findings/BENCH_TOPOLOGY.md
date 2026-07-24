@@ -62,7 +62,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | Path | What |
 |---|---|
 | `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL in standards-clause layout (ieee17221/{adp,acmp,aecp}, ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,srp,filtering}, ieee8021as/ptp_timestamp, milan/ tops, common/{csr,eth_event_counter,cdc}), `tb/verilator/*` (aecp 474, milan_dp 105, pcmlpf 7, + suites), `syn/yosys/run.sh` (device-portability gate), `sw/litex/` (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh` + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
-| `~/milan-tests-avb` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the CERT suite + official run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
+| `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the CERT suite + official run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
 | `~/repo-backups-0720` | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
@@ -83,14 +83,14 @@ cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh <arty|ax7101> <tag>
 # ARTY (QSPI boot: bitstream + images):
 PATH="$HOME/litex-milan/venv/bin:$PATH" PYTHON="$HOME/litex-milan/venv/bin/python3" \
 KERNEL=/tmp/scratch/Image.xz ROOTFS=/tmp/scratch/rootfs.cpio.xz \
-OPENSBI=~/milan-tests-avb/fpga/boot/opensbi_arty.bin \
-DTB=~/milan-tests-avb/fpga/boot/milan_arty_vexii.dtb \
+OPENSBI=~/the-private-test-repo/fpga/boot/opensbi_arty.bin \
+DTB=~/the-private-test-repo/fpga/boot/milan_arty_vexii.dtb \
 ./sw/litex/build.sh flash arty:build_arty_<seed>_<tag>
 openFPGALoader --ftdi-serial 210319AFEED0 -c digilent --reset   # then ~100 s boot
 
 # AX (QSPI boot since 2026-07-21: bitstream@0 + images, one verb):
-KERNEL=... ROOTFS=... OPENSBI=~/milan-tests-avb/fpga/boot/opensbi.bin \
-DTB=~/milan-tests-avb/fpga/dts/milan_ax7101_linux.dtb \
+KERNEL=... ROOTFS=... OPENSBI=~/the-private-test-repo/fpga/boot/opensbi.bin \
+DTB=~/the-private-test-repo/fpga/dts/milan_ax7101_linux.dtb \
 ./sw/litex/build.sh flash ax7101:build_ax7101_<seed>_<tag>
 # JTAG-load the same bit for the immediate session (belt until the
 # mode-pin self-config question is settled by an openFPGALoader --reset):
@@ -123,7 +123,7 @@ segfaults) → scp via pw0 → `tone_thdn.py --chans 2 --f0 1000`.
 
 ## 7. The CERT suite (PRIVATE — never in git, never pushed)
 
-- `~/milan-tests-avb/private/recreate` = the behave conformance-recreation
+- `~/the-private-test-repo/private/recreate` = the behave conformance-recreation
   suite (features es-2.1…es-4.13, hive-counters, link-flap; steps, pdu
   lib, tools-la-avdecc probe). `private/official-run` = the official run
   results. `/private/` is git-ignored; **never `git add` it**; the word
@@ -206,7 +206,7 @@ reads lie (shadow).
    rule; JTAG-reload remains the belt until the mode-pin self-config `--reset`
    test is confirmed. Every openFPGALoader call carries the right `--ftdi-serial`.
 3. Commits: one line, no trailers; milan-fpga = hackerman-kl,
-   milan-tests-avb = the Alexandre Malki identity. Push only on request
+   the-private-test-repo = the Alexandre Malki identity. Push only on request
    (and remember: force-push after the rewrite).
 4. Max 3 parallel Vivado; WNS ≥ 0 or it doesn't ship. Kill builds by
    output-dir match (killing python parents leaves vivado children).

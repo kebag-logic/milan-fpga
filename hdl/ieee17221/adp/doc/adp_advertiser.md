@@ -50,7 +50,7 @@ carries the **first** byte on the wire.
 | 78–81 | reserved = 0 | — |
 
 All multi-byte fields are network (big-endian) order. These offsets match
-`srcs/milan-tests-avb/controller/avdecc_l2.py::parse_adp` — i.e. what a real
+`srcs/the-private-test-repo/controller/avdecc_l2.py::parse_adp` — i.e. what a real
 controller decodes — which is exactly what the harness re-checks.
 
 On the bus: **11 beats** of 8 bytes; the last beat carries 2 valid bytes

@@ -205,8 +205,8 @@ regression at this clock (likely the tight margin); single-queue (hash_sel=1) is
 | Gateware datapath-input probe | `vexii_dpin.bit` · milan-fpga `064485a` (probe) + `cf98505` (burst-64) |
 | Gateware 100 MHz datapath | `build_dp100/alinx_ax7101.bit` · `--milan-clk-freq 100e6` · WNS **+0.010 ns** · CSR map identical |
 | Datapath-input probe | `MilanDebug.dp_in_probe` (txdp_in) · CSRs busy/stall/starve/cyc @0xf0004060–6c |
-| Driver HW-TSO | kl-eth `tso1` · milan-tests-avb `151032d` |
-| Driver RX fan-out | kl-eth `rxfan1` · milan-tests-avb `01a484c` |
+| Driver HW-TSO | kl-eth `tso1` · the-private-test-repo `151032d` |
+| Driver RX fan-out | kl-eth `rxfan1` · the-private-test-repo `01a484c` |
 | Sim HW-TSO | `sw/litex/test_tx_bd.py::test_tso_hw` |
 | Sim RX steering | `sw/litex/test_rx_steer.py` |
 

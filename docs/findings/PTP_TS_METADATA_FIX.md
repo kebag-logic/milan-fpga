@@ -104,7 +104,7 @@ Records arrive in wire order per direction (RR mux across directions).
 - Yosys portability: milan_datapath re-passes (also fixed: run.sh was missing
   aaf_talker_i2s.sv since the MVP-talker merge — unrelated omission).
 
-## Driver / DT side (milan-tests-avb 5b942c3, kl-eth `hwts1`)
+## Driver / DT side (the-private-test-repo 5b942c3, kl-eth `hwts1`)
 - dma-ts record consumer: coherent 4 KB loop ring, empty-slot sentinel
   (word0==0, re-zeroed on consume → no MMIO polling); TX = one-deep pending
   skb completed via `skb_tstamp_tx` (IRQ_TX_TS_READY drain + NAPI fallback +

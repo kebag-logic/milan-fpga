@@ -199,7 +199,7 @@ L2-32K** ship shape (2-hart = superseded perf variant); **-73.4 dB → -83.9 dB*
 |---|---|
 | `README.md` | dual-hart→1-hart+L2-32K; drop "2-core >500 campaign" as current capability; 17→~41, 18→~39; surface CERT 63/63 + servo-proven + ALSA record. |
 | `docs/README.md` | fix harness count; add `docs/ARCHITECTURE_HW_SW_SPLIT.md` to a reading path + bucket table. |
-| `REQUIREMENTS.md` | add platform preamble: Zynq-7020/RGMII → full-FPGA VexiiRiscv/Artix-7/GMII; CSR base 0x43C0→0x9000; driver now in milan-tests-avb, DT via LiteX. Leave REQ-* IDs untouched. |
+| `REQUIREMENTS.md` | add platform preamble: Zynq-7020/RGMII → full-FPGA VexiiRiscv/Artix-7/GMII; CSR base 0x43C0→0x9000; driver now in the-private-test-repo, DT via LiteX. Leave REQ-* IDs untouched. |
 | `TODO.md` | mark Zynq-BD phases (bd/milan-dma.tcl, axi_mcdma, IRQ_F2P) superseded; note driver/DT delivered via kl-eth+LiteX (CERT 63/63); point to 12-item roadmap + BEHAVE plan; keep open-REQ ledger. |
 | `CHANGELOG.md` | add 07-10/11 header-split closing rows (TX 582-646, RX 381/374, no-copy 585-594); fix "Where the goal stands"; DDIO measured DEAD; "ship=1-hart, perf-lineage records" banner. |
 | `THIRD_PARTY.md` | add `external`/fpga-avb-ethernet submodule row; verilog-ethernet Planned→Vendored (verilog-axis 48ff7a7 pin is correct). |

@@ -331,7 +331,7 @@ Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 ### 0x7A0  -  ACMP bind-restore  `(saved-state fast-connect E1, Milan 5.5.3.5.2)`
 
 Boot-time re-injection of a listener bind saved in non-volatile memory
-(`acmp-persist`, milan-tests-avb `fpga/docs/SAVED_STATE_FASTCONNECT.md`).
+(`acmp-persist`, the-private-test-repo `fpga/docs/SAVED_STATE_FASTCONNECT.md`).
 Software stages the persisted binding parameters (5.5.2.4 + 5.5.3.5.3:
 talker_entity_id, talker_unique_id, controller_entity_id, flags) and
 commits; the fabric writes the Milan 5.5.3.5.2 ENTRY record into the ACMP

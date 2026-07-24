@@ -89,7 +89,7 @@ side emits `{s, pcm beats}`.
 
 Each listener context carries a 2-bit `route` field of INDEPENDENT flags
 (reworked from the P3 exclusive enum per the ALSA driver design feedback,
-milan-tests-avb `fpga/docs/ALSA_DRIVER_DESIGN.md` open question 4):
+the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` open question 4):
 
 | bit | Flag | Meaning |
 |-----|------|---------|

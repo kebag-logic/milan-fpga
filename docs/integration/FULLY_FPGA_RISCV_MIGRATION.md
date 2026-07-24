@@ -478,7 +478,7 @@ Substantial AVDECC design already exists in this repo/tree  -  the plan below
 - **Reference software entity:** `srcs/.../module-avb/entity-model-milan-v12.h` +
   `aecp-vendor-unique-milan-v12.h` (PipeWire `module-avb`)  -  the working
   implementation the JSON mirrors. Reuse it as the SW AVDECC stack (see B.0).
-- **Test/interop:** `srcs/milan-tests-avb/controller/avdecc_l2.py` (ADP watch,
+- **Test/interop:** `srcs/the-private-test-repo/controller/avdecc_l2.py` (ADP watch,
   GET_COUNTERS, ACMP connect) and `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`
   (byte-exact AECP PDU specs incl. `milan/aecp_read_descriptor.yaml`)  -  the
   conformance oracles for B.2–B.4.

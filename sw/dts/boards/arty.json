@@ -1,5 +1,5 @@
 {
-  "_comment": "Board-specific device-tree values for the Digilent Arty A7-100 (xc7a100t) that are NOT derivable from the gateware csr.json. Silicon-true values mirror milan-tests-avb fpga/dts/milan_arty_vexii.dts (boots on the board 2026-07-11). No phy reg/reset: the DP83848 runs unmanaged MII, the node carries phy-mode only. MAC ..:02 = Milan node 2 (MUST differ from the AX7101's ..:01 on the shared AVB switch). One of these per board.",
+  "_comment": "Board-specific device-tree values for the Digilent Arty A7-100 (xc7a100t) that are NOT derivable from the gateware csr.json. Silicon-true values mirror the-private-test-repo fpga/dts/milan_arty_vexii.dts (boots on the board 2026-07-11). No phy reg/reset: the DP83848 runs unmanaged MII, the node carries phy-mode only. MAC ..:02 = Milan node 2 (MUST differ from the AX7101's ..:01 on the shared AVB switch). One of these per board.",
   "interrupt_parent": "intc0",
   "phy": { "mode": "mii" },
   "mac_address": "02:00:00:00:00:02",

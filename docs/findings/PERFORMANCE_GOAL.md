@@ -331,7 +331,7 @@ same ones that carry on to 1 Gbit.
 | Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | `docs/findings/TX_READER_PREFETCH_PLAN.md` |
 | HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | `docs/findings/RX_FANOUT_AND_TX_CEILING.md` |
 | Memory-latency root cause (1424 ns/miss), floorplan/clock experiments | `docs/findings/LATENCY_INVESTIGATION.md`, `docs/findings/SINGLE_PORT_PERF.md` |
-| RX RSC coalescing + `ethtool -C rx-usecs` (default 250 µs) | `../milan-tests-avb/fpga/kl-eth/README.md` |
+| RX RSC coalescing + `ethtool -C rx-usecs` (default 250 µs) | `../the-private-test-repo/fpga/kl-eth/README.md` |
 
 ## Ground rules for this campaign
 

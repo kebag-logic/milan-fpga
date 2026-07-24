@@ -255,7 +255,7 @@ latency above by design:
 | `sw/litex/milan_soc.py` | `RingDMAWriter` pointer-writeback (`status` CSR + WB_AW/W/B states); `--floorplan` (reset-fanout replication) |
 | `sw/litex/test_ring_writeback.py` | NEW  -  writeback correctness + engine bandwidth sim |
 | `sw/litex/poll_cost_model.py` | NEW  -  CSR-poll cost model fit to the silicon sweep |
-| `fpga/kl-eth/kl-eth.c` (milan-tests-avb) | `ethtool -C` `rx-usecs` (active) + `rx-usecs-low` (idle) NAPI-poll-period knobs |
+| `fpga/kl-eth/kl-eth.c` (the-private-test-repo) | `ethtool -C` `rx-usecs` (active) + `rx-usecs-low` (idle) NAPI-poll-period knobs |
 | board (live) | `rx-usecs-low=2000` (+32 % RX); new `.ko` hot-loaded (not yet in initrd) |
 | build | `build_vexii_fp{,2,3}`  -  `--floorplan` + `--sys-clk-freq 112.5e6`: all 3 closed +0.043 ns, DDR3-900 on silicon, then **reverted to 100 MHz** (§8.1) |
 

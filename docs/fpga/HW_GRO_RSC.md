@@ -197,7 +197,7 @@ mss. Stack cost then runs once per 64 KB: TCP output ÷44, skb_segment gone enti
 Step 3 landed as **soft-TSO**: no per-MSS header-replay gateware  -  the DRIVER does the
 MSS cutting by writing BDs, and the Step-1 continuity engine does the stitching.
 
-**Soft-TSO via BD choreography (driver `kl-eth`, milan-tests-avb `e7b9c77`).**
+**Soft-TSO via BD choreography (driver `kl-eth`, the-private-test-repo `e7b9c77`).**
 `NETIF_F_TSO` advertised; each gso super-skb is segmented by the driver writing
 per-segment BD chains: a per-segment header built in a coherent **header arena**
 (256 slots × 128 B, one slot per BD index, headers at **slot+2** so the IP/TCP fields
@@ -274,7 +274,7 @@ engages: peer ACK spacing is ~200 µs at 115 Mbit/s, so each pending ACK flushes
 its successor arrives (merge rate ~8/s). At **512 µs** (25600 cycles @50 MHz) the merge
 fully engages (~2,000 ACKs/s absorbed) and single-flow TX goes **109 → 121 Mbit/s**. At
 **≥1 ms TX COLLAPSES** to ~300 Kbit/s  -  the sender's ACK clock starves. RX is
-insensitive across 100 µs–2 ms (201-206 Mbit/s). The driver (milan-tests-avb `85122fa`)
+insensitive across 100 µs–2 ms (201-206 Mbit/s). The driver (the-private-test-repo `85122fa`)
 programs 25600 at init.
 
 **Final measured ladder @ MTU 1500** (`rsc7` + driver `85122fa`; session baseline TX 58):
@@ -297,7 +297,7 @@ zerocopy = iperf3 `-Z` (sendfile), board-as-client, measured on `rsc6`.
   0xf0003058 reads bits[63:32], always 0 for 32-bit DMA addresses; the live value is
   at +4).
 
-### Driver robustness (milan-tests-avb `85122fa`)
+### Driver robustness (the-private-test-repo `85122fa`)
 
 RX and TX **BD-ring self-heal** paths: full CSR reprogram (base/mask/rd/tout/enable) +
 page/skb reclaim, behind a **race-free detector**  -  re-read the BD after sampling the

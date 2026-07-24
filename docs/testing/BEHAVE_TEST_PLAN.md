@@ -22,9 +22,9 @@ together, and the two CERT copies are drifting.
 
 | Suite | Path | Feat/Scen | Class | Role in the new plan |
 |-------|------|-----------|-------|----------------------|
-| **A CERT** | `milan-tests-avb/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
-| **B AETS** | `milan-tests-avb/private/recreate/aets_recreate_20260721/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
-| **C PipeWire E2E** | `milan-tests-avb/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
+| **A CERT** | `the-private-test-repo/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
+| **B AETS** | `the-private-test-repo/private/recreate/aets_recreate_20260721/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
+| **C PipeWire E2E** | `the-private-test-repo/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
 | **D milan-fpga AECP** | `milan-fpga/tests/` | 8 / 55 | host-sim (+ tsn_gen frame codec) | the T0 RTL-contract tier; already has `@tsn_gen @T2 @wip` |
 
 **Coverage holes visible immediately** (domains with weak/no behave today): **MAAP**,

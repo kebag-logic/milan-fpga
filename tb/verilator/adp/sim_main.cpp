@@ -7,7 +7,7 @@
  *
  * It captures the emitted AXI4-Stream frame, decodes it exactly the way a real
  * AVDECC controller does (IEEE 1722.1-2021 ADPDU layout; identical byte offsets
- * to srcs/milan-tests-avb/controller/avdecc_l2.py::parse_adp), and asserts:
+ * to srcs/the-private-test-repo/controller/avdecc_l2.py::parse_adp), and asserts:
  *   - Ethernet header: dst = 91:E0:F0:01:00:00, src = station MAC, type 0x22F0
  *   - ADPDU: subtype 0xFA, control_data_length 0x38, all entity fields byte-exact
  *   - message_type per scenario: AVAILABLE(0) / DEPARTING(1)

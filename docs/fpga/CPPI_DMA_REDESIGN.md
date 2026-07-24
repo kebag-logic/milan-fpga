@@ -217,12 +217,12 @@ no userspace recv) never hits this; for CPU-terminated bulk the remaining lever 
 a second hart cannot parallelize it (RPS measured neutral). Timing prerequisite: the v2b
 **csum-accumulate cone (21 logic levels) was the design critical path**; pipelined
 (lane-sum register + deferred add, commit `a82fc2e`) → the dual-core build closes +0.574.
-Three OpenSBI gotchas, solved (details in `milan-tests-avb/fpga/README.md`):
+Three OpenSBI gotchas, solved (details in `the-private-test-repo/fpga/README.md`):
 1. the custom `litex_nax` platform **hard-codes `hart_count`**  -  it does NOT read the DTB;
-2. `build_opensbi.sh` **copies `milan-tests-avb/fpga/opensbi/litex_nax/platform.c` over the
+2. `build_opensbi.sh` **copies `the-private-test-repo/fpga/opensbi/litex_nax/platform.c` over the
    OpenSBI tree on every run**  -  edit the repo copy, never `~/opensbi-nax`;
 3. fix = the **`NAX_HARTS=2`** env param to `build_opensbi.sh`.
-SMP DTS: `milan-tests-avb/fpga/dts/milan_ax7101_smp.dts` (`cpu@1` + both harts' CLINT
+SMP DTS: `the-private-test-repo/fpga/dts/milan_ax7101_smp.dts` (`cpu@1` + both harts' CLINT
 `interrupts-extended = <&L0 3 &L0 7 &L1 3 &L1 7>` and PLIC `<&L0 11 &L0 9 &L1 11 &L1 9>`).
 
 **Kernel tick-profile  -  RX CPU time is THREE COPIES of every byte** (`CONFIG_PROFILING` +
@@ -236,7 +236,7 @@ SMP DTS: `milan-tests-avb/fpga/dts/milan_ax7101_smp.dts` (`cpu@1` + both harts' 
 | locks + task-switch | ~12 % | |
 | idle | 18.8 % | |
 
-**The stack logic is cheap  -  bytes are expensive.** Fix shipped (`kl-eth`, milan-tests-avb
+**The stack logic is cheap  -  bytes are expensive.** Fix shipped (`kl-eth`, the-private-test-repo
 commit `2786912`): **header-copybreak (192 B) + page-frag payload RX**  -  payload delivered
 via `skb_add_rx_frag` + `skb_mark_for_recycle`, so TCP coalesces by frag pointers instead
 of memmove (frames ≤192 B keep full-copy+recycle). **RX 25 → 45.6.** Re-profile: memmove
@@ -248,7 +248,7 @@ irreducible app-delivery cost  -  ~44 MB/s effective on cold data on this core.
 was disproven by experiment (no link flap; concurrent CSR hammer 0/400k errors on both
 harts; per-hart pinned IO monitors clean). Best-fit explanation: **garbled serial-console
 input executing mutated `devmem` commands**. Mitigated permanently by the SSH workflow  - 
-the board now boots dropbear on :2222 from flash (see `milan-tests-avb/fpga/README.md`);
+the board now boots dropbear on :2222 from flash (see `the-private-test-repo/fpga/README.md`);
 the 1.5 Mbaud serial console drops input characters and is for boot logs only.
 
 **Active workstream toward ≥200: [HW-GRO/RSC](HW_GRO_RSC.md)**  -  the ÷K lever (merge K

@@ -64,7 +64,7 @@ L2 protocol parser that would choke on the pad (future lwSRP MSRP/MVRP RX).
 
 
 ## SILICON RESULT (2026-07-12 night) — FIX VALIDATED
-Driver trim applied (milan-tests-avb kl-eth 24438f3), .ko hot-swapped on the Arty:
+Driver trim applied (the-private-test-repo kl-eth 24438f3), .ko hot-swapped on the Arty:
 - **"bad message": thousands/min -> 0.** ptp4l accepts every switch pdelay_req.
 - Full pdelay handshake with the d&b switch BOTH ways (tcpdump): Arty sends
   pdelay_req + pdelay_resp; switch (3c:c0:c6:fe:02:18) sends pdelay_req +

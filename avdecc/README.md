@@ -83,7 +83,7 @@ both and diff the descriptor values (entity_id, capabilities, stream formats,
 counts, strings). When they diverge, this JSON wins and the header is regenerated.
 
 ### C. Drive READ_DESCRIPTOR tests
-`srcs/milan-tests-avb/controller/avdecc_l2.py` and
+`srcs/the-private-test-repo/controller/avdecc_l2.py` and
 `software-defined-tsn-stack/.../aecp/aecp_aem_read_descriptor.yaml` read
 descriptors off the wire; this JSON is the expected-value oracle for those tests
 (descriptor type codes and counter names already match — see `counters`).

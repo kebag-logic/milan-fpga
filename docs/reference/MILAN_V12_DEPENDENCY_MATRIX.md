@@ -24,11 +24,11 @@ is verified*, and which requirements are **not** Milan-driven.
 
 | Token | Artifact | Location |
 |-------|----------|----------|
-| `avdecc_l2` | ADP watch / GET_COUNTERS / ACMP connect script | `srcs/milan-tests-avb/controller/avdecc_l2.py` |
-| `tap_acmp` / `tap_sniff` | ACMP + frame taps | `srcs/milan-tests-avb/controller/` |
+| `avdecc_l2` | ADP watch / GET_COUNTERS / ACMP connect script | `srcs/the-private-test-repo/controller/avdecc_l2.py` |
+| `tap_acmp` / `tap_sniff` | ACMP + frame taps | `srcs/the-private-test-repo/controller/` |
 | `thdn` | audio THD+N quality check | `.../controller/pipewire_avb_thdn.py` |
-| `soak` | pw1↔pw0 stream + clock-recovery soak | `srcs/milan-tests-avb/scripts/pw1-pw0-clockrec-soak.sh` |
-| `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/milan-tests-avb/docs/` |
+| `soak` | pw1↔pw0 stream + clock-recovery soak | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
+| `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/the-private-test-repo/docs/` |
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
 | `vtb:<n>` | Verilator self-checking harness | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`; `adp` now present) |
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |

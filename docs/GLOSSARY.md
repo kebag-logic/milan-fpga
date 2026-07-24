@@ -88,7 +88,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **FBI / crcfbigen** | The LiteX flash-boot image format `[length][crc32][data]` and the tool that wraps images in it. |
 | **QSPI / N25Q128** | Quad-SPI flash interface / the board's 16 MB Micron flash chip (needs the `A13` LiteSPI module name for quad mode). |
 | **Device tree (DTS/DTB)** | Hardware description passed to Linux; our node is `kl,dma-ether`; per-platform generation via `sw/dts/milan_dt.py`. |
-| **Buildroot** | The embedded-Linux build system producing kernel + rootfs (`milan-tests-avb/fpga/buildroot`); NB `linux-reconfigure` does **not** rebuild out-of-tree modules. |
+| **Buildroot** | The embedded-Linux build system producing kernel + rootfs (`the-private-test-repo/fpga/buildroot`); NB `linux-reconfigure` does **not** rebuild out-of-tree modules. |
 | **litex_term** | The UART console + serialboot uploader (needs a real pty  -  run in tmux; open the CP2102N via `/dev/serial/by-id`, ttyUSBn shuffles). |
 
 ## This design (datapath, DMA, driver)
@@ -110,7 +110,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **TCAM** | Ternary CAM (`hdl/ieee8021q/filtering/tcam.sv`)  -  masked MAC-address matching for steering/switching. |
 | **Telemetry (milan_tlm)** | In-fabric frame/beat/stall counters at every pipeline stage + coherent snapshot (`pipeline-telemetry.md`; sysfs `telemetry/snapshot`). |
 | **Stall (telemetry)** | A cycle where a stage held valid data the next stage didn't accept  -  the bottleneck localizer (the RX ring's headline metric is *0 stalls*). |
-| **kl-eth** | The Linux platform driver for the NIC (in `milan-tests-avb/fpga/kl-eth/`). |
+| **kl-eth** | The Linux platform driver for the NIC (in `the-private-test-repo/fpga/kl-eth/`). |
 
 ## Linux networking / performance
 

@@ -46,7 +46,7 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 | **flash core** | `sw/litex/milan_soc.py`, `sw/litex/platforms/alinx_ax7101.py` | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
 | **BIOS method** | `sw/litex/patches/0001-milan-linux-flashboot.patch` | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
 | **flashing** | `sw/litex/deploy.sh flash-images` | wraps each image as a LiteX FBI and writes it at the compiled-in offset |
-| **host boot-list** | `milan-tests-avb/fpga/boot/boot_flashkernel.json` | serial upload of only the *non*-flashed images (partial mode) |
+| **host boot-list** | `the-private-test-repo/fpga/boot/boot_flashkernel.json` | serial upload of only the *non*-flashed images (partial mode) |
 
 ---
 
@@ -158,7 +158,7 @@ machine-specific defaults.
 
 ```sh
 sw/litex/deploy.sh load             # JTAG → SRAM (kernel stays in flash across reloads)
-# then, in milan-tests-avb:
+# then, in the-private-test-repo:
 O=<buildroot-out> FLASH_KERNEL=1 fpga/boot/boot.sh   # uploads opensbi+dtb+rootfs only (~9 MB)
 ```
 

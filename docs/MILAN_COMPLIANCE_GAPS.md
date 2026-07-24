@@ -571,7 +571,7 @@ and is not repeated here.
    THD+N of the coherent chain — **DONE 2026-07-23: −83.9 dB measured
    = the −83.8 dB CS4344⊕CS5343 datasheet power-sum limit (the loop is
    at the converter silicon floor; budget + history in
-   milan-tests-avb fpga/docs/AUDIO_THDN_BUDGET.md)** — (AX tone_gen +
+   the-private-test-repo fpga/docs/AUDIO_THDN_BUDGET.md)** — (AX tone_gen +
    CRF + clock_source 2 -
    the old internal-clock -73.4 protocol is obsolete: the NCO actuator
    is gone by the USER exact-recovery rule).

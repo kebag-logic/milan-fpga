@@ -301,7 +301,7 @@ cites the FRs it satisfies and the milestone in
 9. **ACMP**  -  connect/disconnect + Milan fast-connect/state-restore. *(FR-CONN-\*)*
 10. **Fault behavior**  -  stream-interruption/redundancy-off recovery, counters,
     IDENTIFY. *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
-11. **Conformance**  -  run the AVnu Milan test plan + `srcs/milan-tests-avb`
+11. **Conformance**  -  run the AVnu Milan test plan + `srcs/the-private-test-repo`
     (`avdecc_l2.py`, `ptp4l`, `tc cbs`) and the `tsn-gen` AECP PDU checks. *(all Ver=T)*
 12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
     `P_CORES ≥ 2` (SMP then AMP) to prove §3.3/§3.4. *(NFR-SCUP/SCOUT)*
@@ -330,7 +330,7 @@ cites the FRs it satisfies and the milestone in
 ## 7. Verification approach
 - **HW leaf blocks:** Verilator self-checking harnesses (CBS, classifier, PTP, CSR,
   + new ADP advertiser).
-- **Integration/interop:** Hive + `srcs/milan-tests-avb/controller/avdecc_l2.py`
+- **Integration/interop:** Hive + `srcs/the-private-test-repo/controller/avdecc_l2.py`
   (ADP, GET_COUNTERS, ACMP), `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
 - **PDU byte-exactness:** `software-defined-tsn-stack/.../1722_1/aecp/*.yaml` +
   `protocols/milan/aecp_read_descriptor.yaml`.
