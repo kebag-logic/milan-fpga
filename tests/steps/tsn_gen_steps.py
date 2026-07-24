@@ -26,7 +26,7 @@ from behave import given, when, then
 LAYOUTS = {
     'SET_CLOCK_SOURCE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_clock_source::AECP_SET_CLOCK_SOURCE::AECP_SET_CLOCK_SOURCE::'
+        'interface': ('atdecc_aecp_set_clock_source::AECP_SET_CLOCK_SOURCE::'
                       'AECP_SET_CLOCK_SOURCE_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -37,7 +37,7 @@ LAYOUTS = {
     },
     'SET_CONTROL': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_control::AECP_SET_CONTROL::AECP_SET_CONTROL::'
+        'interface': ('atdecc_aecp_set_control::AECP_SET_CONTROL::'
                       'AECP_SET_CONTROL_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -53,10 +53,6 @@ LAYOUTS = {
         # the GET frame is the SET frame with command_type patched. Field order
         # and widths mirror aecp_aem_set_stream_info.yaml exactly (the stream_info
         # flags word is named msrp_flags there — 64 bits, defined bits [63:59]).
-    'SET_NAME': {
-        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::AECP_SET_NAME::'
-                      'AECP_SET_NAME_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
                    ('controller_entity_id', 64), ('sequence_id', 16),
@@ -67,12 +63,21 @@ LAYOUTS = {
                    ('msrp_failure_code', 8), ('reserved0', 8),
                    ('msrp_failure_bridge_id', 64), ('stream_vlan_id', 16),
                    ('reserved1', 16)],
+    },
+    'SET_NAME': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_name::AECP_SET_NAME::'
+                      'AECP_SET_NAME_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('name_index', 16),
                    ('configuration_index', 16), ('name', 512)],
     },
     'READ_DESCRIPTOR': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::AECP_READ_DESCRIPTOR::'
+        'interface': ('atdecc_aecp_read_descriptor::AECP_READ_DESCRIPTOR::'
                       'AECP_READ_DESCRIPTOR_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -83,7 +88,7 @@ LAYOUTS = {
     },
     'SET_STREAM_FORMAT': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::AECP_SET_STREAM_FORMAT::'
+        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
                       'AECP_SET_STREAM_FORMAT_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -93,7 +98,7 @@ LAYOUTS = {
     },
     'SET_SAMPLING_RATE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::AECP_SET_SAMPLING_RATE::'
+        'interface': ('atdecc_aecp_set_sampling_rate::AECP_SET_SAMPLING_RATE::'
                       'AECP_SET_SAMPLING_RATE_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -103,7 +108,7 @@ LAYOUTS = {
     },
     'SET_CONFIGURATION': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
-        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::AECP_SET_CONFIGURATION::'
+        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::'
                       'AECP_SET_CONFIGURATION_IF'),
         'fields': [('message_type', 4), ('status', 5),
                    ('control_data_length', 11), ('target_entity_id', 64),
@@ -122,10 +127,6 @@ LAYOUTS = {
                    ('connection_count', 16), ('sequence_id', 16),
                    ('flags', 16), ('stream_vlan_id', 16), ('reserved', 16)],
     },
-    # -- item-10 batch-2 layouts (field order/width mirror the tsn-gen YAMLs) --
-    # LOCK_ENTITY (IEEE 1722.1-2021 §9.2.8, command_type=1): flags[0]=UNLOCK
-    # per the RESPONDER's parser (KL_aecp_common_parser.sv:193 reads flags bit0
-    # = tdata[16]; a documented deviation from the spec's 0x80000000).
     'LOCK_ENTITY': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_lock_entity::AECP_LOCK_ENTITY::'
@@ -137,7 +138,6 @@ LAYOUTS = {
                    ('locked_id', 64), ('descriptor_type', 16),
                    ('descriptor_index', 16)],
     },
-    # ACQUIRE_ENTITY (IEEE 1722.1-2021 §9.2.7, command_type=0)
     'ACQUIRE_ENTITY': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_acquire_entity::AECP_ACQUIRE_ENTITY::'
@@ -149,8 +149,6 @@ LAYOUTS = {
                    ('owner_id', 64), ('descriptor_type', 16),
                    ('descriptor_index', 16)],
     },
-    # VENDOR_UNIQUE / MVU (IEEE 1722.1-2021 §9.4): protocol_id + 8-byte vendor
-    # data whose top 16 bits carry the Milan MVU command_type.
     'VENDOR_UNIQUE': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_vendor_unique::AECP_VENDOR_UNIQUE::'
@@ -160,11 +158,6 @@ LAYOUTS = {
                    ('controller_entity_id', 64), ('sequence_id', 16),
                    ('protocol_id', 48), ('vendor_data', 64)],
     },
-    # MAX_TRANSIT_TIME has no dedicated tsn-gen YAML: reuse SET_STREAM_FORMAT
-    # (the nearest AEM SET whose u64 payload 'stream_format' sits at the exact
-    # bytes 6-13 offset MAX_TRANSIT_TIME's max_transit_time u64 occupies) and
-    # patch command_type to 0x4C/0x4D. Documented honestly — the u64 rides the
-    # 'stream_format' slot.
     'MAX_TRANSIT_TIME': {
         'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
         'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
