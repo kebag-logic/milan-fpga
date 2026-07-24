@@ -122,6 +122,59 @@ LAYOUTS = {
                    ('connection_count', 16), ('sequence_id', 16),
                    ('flags', 16), ('stream_vlan_id', 16), ('reserved', 16)],
     },
+    # -- item-10 batch-2 layouts (field order/width mirror the tsn-gen YAMLs) --
+    # LOCK_ENTITY (IEEE 1722.1-2021 §9.2.8, command_type=1): flags[0]=UNLOCK
+    # per the RESPONDER's parser (KL_aecp_common_parser.sv:193 reads flags bit0
+    # = tdata[16]; a documented deviation from the spec's 0x80000000).
+    'LOCK_ENTITY': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_lock_entity::AECP_LOCK_ENTITY::'
+                      'AECP_LOCK_ENTITY_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('lock_entity_flags', 32),
+                   ('locked_id', 64), ('descriptor_type', 16),
+                   ('descriptor_index', 16)],
+    },
+    # ACQUIRE_ENTITY (IEEE 1722.1-2021 §9.2.7, command_type=0)
+    'ACQUIRE_ENTITY': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_acquire_entity::AECP_ACQUIRE_ENTITY::'
+                      'AECP_ACQUIRE_ENTITY_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('acquire_entity_flags', 32),
+                   ('owner_id', 64), ('descriptor_type', 16),
+                   ('descriptor_index', 16)],
+    },
+    # VENDOR_UNIQUE / MVU (IEEE 1722.1-2021 §9.4): protocol_id + 8-byte vendor
+    # data whose top 16 bits carry the Milan MVU command_type.
+    'VENDOR_UNIQUE': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_vendor_unique::AECP_VENDOR_UNIQUE::'
+                      'AECP_VENDOR_UNIQUE_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('protocol_id', 48), ('vendor_data', 64)],
+    },
+    # MAX_TRANSIT_TIME has no dedicated tsn-gen YAML: reuse SET_STREAM_FORMAT
+    # (the nearest AEM SET whose u64 payload 'stream_format' sits at the exact
+    # bytes 6-13 offset MAX_TRANSIT_TIME's max_transit_time u64 occupies) and
+    # patch command_type to 0x4C/0x4D. Documented honestly — the u64 rides the
+    # 'stream_format' slot.
+    'MAX_TRANSIT_TIME': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_stream_format::AECP_SET_STREAM_FORMAT::'
+                      'AECP_SET_STREAM_FORMAT_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('descriptor_type', 16),
+                   ('descriptor_index', 16), ('stream_format', 64)],
+    },
 }
 
 def _layout(context, key):
@@ -229,6 +282,19 @@ NUM_CONFIGS = 3
 CMD_GET_CONTROL = 25   # 0x0019
 CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
+# -- item-10 batch-2 constants: every code below verified 1:1 against
+# -- hdl/ieee17221/aecp/aecp_pkg.sv and the responder RTL, never memory.
+STATUS_ENTITY_LOCKED, STATUS_NOT_SUPPORTED = 3, 11   # aecp_pkg.sv:91, :99
+CMD_ACQUIRE_ENTITY, CMD_LOCK_ENTITY = 0, 1           # aecp_pkg.sv:49, :50
+CMD_SET_MAX_TRANSIT_TIME = 0x4C                      # aecp_pkg.sv:82
+CMD_GET_MAX_TRANSIT_TIME = 0x4D                      # aecp_pkg.sv:83
+DESC_STREAM_OUTPUT = 0x0006                          # aecp_pkg.sv:111
+MSG_VENDOR_UNIQUE_COMMAND = 6                        # aecp_pkg.sv:43
+VU_GET_MILAN_INFO = 0x0000                           # aecp_pkg.sv:149
+MILAN_PROTOCOL_ID = 0x001BC50AC100                   # aecp_pkg.sv:33
+LOCK_TIMER_TICKS = 60000                             # aecp_pkg.sv:168 (60 s x 1 kHz)
+MAX_TRANSIT_TIME_MAX = 0x7FFFFFFF   # responder: value >0x7FFFFFFF -> BAD_ARGUMENTS
+
 
 class MilanAecpModel:
     """clock_source_index in 0..2 on CLOCK_DOMAIN[0]; IDENTIFY control is
@@ -240,6 +306,18 @@ class MilanAecpModel:
     def __init__(self):
         self.clock_source_index = 0
         self.identify = 0
+        # -- item-10 batch-2 state --
+        # LOCK_ENTITY SM (KL_aecp_l0_state.sv): no ACQUIRE state exists.
+        self.locked = False
+        self.locking_controller = 0
+        self.lock_timer = 0
+        self.acquired = False           # Milan: ACQUIRE never mutates -> stays 0
+        # SET/GET_MAX_TRANSIT_TIME reflects STREAM_OUTPUT[0] presentation offset.
+        self.max_transit_time = 0
+        # GET_MILAN_INFO (MVU) getter response payload (mirrors const_q).
+        self.milan_version = None
+        self.milan_features = None
+        self.milan_cert_version = None
         self.msrp_acc_lat = 0
         self.object_name = 0          # 64-octet avdecc_string (ENTITY/CONFIGURATION name)
         self.stream_format = STREAM_FMT_AAF_48K_2CH
@@ -247,7 +325,25 @@ class MilanAecpModel:
         self.configuration_index = 0
 
     def process(self, fields):
+        # Vendor-Unique / MVU frames carry a protocol_id (not an AEM
+        # command_type) — dispatch on message_type before touching AEM fields.
+        if fields.get('message_type') == MSG_VENDOR_UNIQUE_COMMAND:
+            return self._process_mvu(fields)
         cmd = fields['command_type']
+        # entity-level cmds (ACQUIRE/LOCK) carry a descriptor, but VU/other
+        # layouts may not: fall back with .get()
+        dt = fields.get('descriptor_type', 0)
+        di = fields.get('descriptor_index', 0)
+        # ---- ACQUIRE_ENTITY: Milan NOT_SUPPORTED, state untouched -------------
+        # (KL_aecp_l0_state.sv:145-147 + :81 acquired hardwired 0)
+        if cmd == CMD_ACQUIRE_ENTITY:
+            return STATUS_NOT_SUPPORTED
+        # ---- LOCK_ENTITY / UNLOCK (KL_aecp_l0_state.sv:132-133,199-221) -------
+        if cmd == CMD_LOCK_ENTITY:
+            return self._process_lock(fields)
+        # ---- SET/GET_MAX_TRANSIT_TIME (KL_aecp_response_builder.sv:2005-2036) -
+        if cmd in (CMD_SET_MAX_TRANSIT_TIME, CMD_GET_MAX_TRANSIT_TIME):
+            return self._process_mtt(cmd, dt, di, fields)
         dt, di = fields.get('descriptor_type'), fields.get('descriptor_index')  # entity-level cmds (CONFIGURATION) have none
         if cmd == CMD_SET_CONFIGURATION:
             if fields['configuration_index'] >= NUM_CONFIGS:
@@ -342,6 +438,73 @@ class MilanAecpModel:
             self.identify = value
             return STATUS_SUCCESS
         return None
+
+    # -- LOCK_ENTITY semaphore (KL_aecp_l0_state.sv) ------------------------
+    def _process_lock(self, fields):
+        ctrl = fields['controller_entity_id']
+        # RTL keys UNLOCK off flags bit0 (common_parser flags_lsb = tdata[16]);
+        # a documented deviation from the spec's 0x80000000.
+        unlock = (fields.get('lock_entity_flags', 0) & 1) != 0
+        from_owner = self.locked and (ctrl == self.locking_controller)
+        # A LOCK_ENTITY (lock OR unlock) from a non-owner while locked is
+        # denied ENTITY_LOCKED and leaves state untouched (w_lock_denied).
+        if self.locked and not from_owner:
+            return STATUS_ENTITY_LOCKED
+        if unlock:
+            if from_owner:                      # UNLOCK by the owner
+                self.locked = False
+                self.locking_controller = 0
+                self.lock_timer = 0
+            return STATUS_SUCCESS               # UNLOCK while free: no-op SUCCESS
+        if not self.locked:                     # grant
+            self.locked = True
+            self.locking_controller = ctrl
+            self.lock_timer = LOCK_TIMER_TICKS
+        else:                                   # re-lock by owner reloads timer
+            self.lock_timer = LOCK_TIMER_TICKS
+        return STATUS_SUCCESS
+
+    def tick(self, n=1):
+        """1 kHz lock-timer countdown; auto-unlock exactly like the RTL
+        (locked & timer==0 -> unlock, else decrement: LOCK_TIMER_TICKS+1
+        ticks to expire)."""
+        for _ in range(n):
+            if self.locked:
+                if self.lock_timer == 0:
+                    self.locked = False
+                    self.locking_controller = 0
+                else:
+                    self.lock_timer -= 1
+
+    # -- SET/GET_MAX_TRANSIT_TIME (STREAM_OUTPUT[0] presentation offset) ----
+    def _mtt_value(self, fields):
+        # base layout rides the u64 in the 'stream_format' slot (bytes 6-13),
+        # exactly the max_transit_time position; prefer a real field if present
+        return fields.get('max_transit_time', fields.get('stream_format', 0))
+
+    def _process_mtt(self, cmd, dt, di, fields):
+        if dt != DESC_STREAM_OUTPUT or di != 0:
+            return STATUS_NO_SUCH_DESCRIPTOR
+        if cmd == CMD_SET_MAX_TRANSIT_TIME:
+            val = self._mtt_value(fields)
+            if val > MAX_TRANSIT_TIME_MAX:      # >0x7FFFFFFF ns -> refused
+                return STATUS_BAD_ARGUMENTS
+            self.max_transit_time = val & 0xFFFFFFFF   # responder stores low 32b
+            return STATUS_SUCCESS
+        return STATUS_SUCCESS                   # GET reflects the stored value
+
+    # -- MVU GET_MILAN_INFO (KL_aecp_response_builder.sv:1328-1341) ---------
+    def _process_mvu(self, fields):
+        if fields.get('protocol_id', 0) != MILAN_PROTOCOL_ID:
+            return None                         # not Milan MVU: silently dropped
+        vd = fields.get('vendor_data', 0)
+        mvu_cmd = (vd >> 48) & 0x7FFF           # top 15 bits (r-bit at 63 dropped)
+        if mvu_cmd == VU_GET_MILAN_INFO:
+            self.milan_version = 1              # protocol_version = 1
+            self.milan_features = 0             # features_flags = 0
+            self.milan_cert_version = 0         # certification_version = 0 (uncert.)
+            return STATUS_SUCCESS
+        return None                             # other MVU: not modelled here
 
 
 # ---------------------------------------------------------------------------
@@ -604,6 +767,65 @@ def step_fuzz_invariant(context):
                 f'model rejected a legal write with {status}: {f}'
     csi = context.aecp_model.clock_source_index
     assert csi < 3, f'state corrupted: clock_source_index={csi}'
+
+
+# ---- item-10 batch-2 assertions (LOCK / ACQUIRE / MAX_TRANSIT / MVU) ------
+
+@then('the AECP model ignores the frame')
+def step_aecp_ignored(context):
+    assert context.model_status is None, \
+        f'expected the frame to be ignored, got status {context.model_status}'
+
+
+@then('the model entity is {state}')
+def step_model_lock_state(context, state):
+    assert state in ('locked', 'unlocked'), f'bad state literal {state!r}'
+    assert context.aecp_model.locked == (state == 'locked'), \
+        f'locked={context.aecp_model.locked}, expected {state}'
+
+
+@then('the model locking controller is {v}')
+def step_model_lock_owner(context, v):
+    want = int(v, 0)
+    assert context.aecp_model.locking_controller == want, \
+        f'locking_controller={context.aecp_model.locking_controller:#x}, ' \
+        f'expected {want:#x}'
+
+
+@then('the model has not acquired the entity')
+def step_model_not_acquired(context):
+    assert context.aecp_model.acquired is False, \
+        'ACQUIRE must never mutate state (Milan: NOT_SUPPORTED)'
+
+
+@when('the 1 kHz lock timer advances {n:d} ticks')
+def step_lock_tick(context, n):
+    context.aecp_model.tick(n)
+
+
+@then('the model max_transit_time is {v}')
+def step_model_mtt(context, v):
+    want = int(v, 0)
+    assert context.aecp_model.max_transit_time == want, \
+        f'max_transit_time={context.aecp_model.max_transit_time}, expected {want}'
+
+
+@then('the model milan_version is {v:d}')
+def step_model_milan_version(context, v):
+    assert context.aecp_model.milan_version == v, \
+        f'milan_version={context.aecp_model.milan_version}, expected {v}'
+
+
+@then('the model milan features_flags is {v:d}')
+def step_model_milan_features(context, v):
+    assert context.aecp_model.milan_features == v, \
+        f'features_flags={context.aecp_model.milan_features}, expected {v}'
+
+
+@then('the model certification_version is {v:d}')
+def step_model_milan_cert(context, v):
+    assert context.aecp_model.milan_cert_version == v, \
+        f'certification_version={context.aecp_model.milan_cert_version}, expected {v}'
 
 
 # ---------------------------------------------------------------------------
