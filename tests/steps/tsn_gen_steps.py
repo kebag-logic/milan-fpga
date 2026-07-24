@@ -146,6 +146,7 @@ KNOWN_DESCRIPTORS = {
     DESC_STREAM_OUTPUT: 1,   # STREAM_OUTPUT[0]
     DESC_CLOCK_DOMAIN: 1,    # CLOCK_DOMAIN[0]
 }
+CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
 
 class MilanAecpModel:
@@ -164,6 +165,10 @@ class MilanAecpModel:
             if n is None or di >= n:
                 return STATUS_NO_SUCH_DESCRIPTOR
             return STATUS_SUCCESS        # getter: read-only, response echoes the descriptor
+        if cmd == CMD_GET_CLOCK_SOURCE:
+            if dt != DESC_CLOCK_DOMAIN or di != 0:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS        # getter: no state change; response carries clock_source_index
         if cmd == CMD_SET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
