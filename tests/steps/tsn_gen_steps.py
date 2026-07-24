@@ -45,6 +45,16 @@ LAYOUTS = {
                    ('u', 1), ('command_type', 15), ('descriptor_type', 16),
                    ('descriptor_index', 16), ('control_values', 64)],
     },
+    'SET_CONFIGURATION': {
+        'yaml_dir': '{tsn}/protocols/application/1722_1/aecp',
+        'interface': ('atdecc_aecp_set_configuration::AECP_SET_CONFIGURATION::'
+                      'AECP_SET_CONFIGURATION_IF'),
+        'fields': [('message_type', 4), ('status', 5),
+                   ('control_data_length', 11), ('target_entity_id', 64),
+                   ('controller_entity_id', 64), ('sequence_id', 16),
+                   ('u', 1), ('command_type', 15), ('reserved', 16),
+                   ('configuration_index', 16)],
+    },
     'ACMP': {
         'yaml_dir': '{repo}/tests/protocols/acmp',
         'interface': 'milan_acmp::MILAN_ACMP::MILAN_ACMP_IF',
@@ -122,6 +132,8 @@ def pg_decode(context, key, hexstr):
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 CMD_SET_CLOCK_SOURCE, CMD_SET_CONTROL = 22, 24
+CMD_SET_CONFIGURATION, CMD_GET_CONFIGURATION = 6, 7
+NUM_CONFIGS = 3
 CMD_GET_CONTROL = 25   # 0x0019
 CMD_GET_CLOCK_SOURCE = 23   # 0x0017
 
@@ -133,9 +145,18 @@ class MilanAecpModel:
     def __init__(self):
         self.clock_source_index = 0
         self.identify = 0
+        self.configuration_index = 0
 
     def process(self, fields):
         cmd = fields['command_type']
+        dt, di = fields.get('descriptor_type'), fields.get('descriptor_index')  # entity-level cmds (CONFIGURATION) have none
+        if cmd == CMD_SET_CONFIGURATION:
+            if fields['configuration_index'] >= NUM_CONFIGS:
+                return STATUS_BAD_ARGUMENTS
+            self.configuration_index = fields['configuration_index']
+            return STATUS_SUCCESS
+        if cmd == CMD_GET_CONFIGURATION:
+            return STATUS_SUCCESS        # getter: response carries configuration_index
         dt, di = fields['descriptor_type'], fields['descriptor_index']
         if cmd == CMD_GET_CLOCK_SOURCE:
             if dt != DESC_CLOCK_DOMAIN or di != 0:
@@ -548,3 +569,8 @@ def step_acmp_fuzz_invariant(context):
             assert addressed, f'unaddressed frame answered: {f}'
             assert resp['message_type'] == f['message_type'] + 1
     assert context.listener.state in LSM
+
+
+@then('the model configuration_index is {v:d}')
+def _model_cfg(context, v):
+    assert context.aecp_model.configuration_index == v, f"cfg={context.aecp_model.configuration_index}"
