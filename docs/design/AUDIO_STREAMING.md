@@ -25,27 +25,38 @@ deep-dive for the media plane; the scaling model behind it is
 A Milan audio stream on this hardware is a class-A AAF-PCM stream: the
 talker groups **6 samples per channel into one PDU**, 8000 PDUs/s at
 48 kHz (`hdl/ieee1722/aaf/KL_aaf_packetizer.sv` header; traceability row
-[AAF-9](../traceability/ieee1722-2016.md)). Each PDU's `avtp_timestamp`
-is the **presentation time**: the gPTP nanosecond clock latched when the
-PDU's first sample was captured, plus the configurable transit offset
-(packetizer TCTX word `w4 TS`, "latched presentation time (ptp_ns +
-transit at first-sample capture)"; row
+[AAF-9](../traceability/ieee1722-2016.md)).
+
+Each PDU's `avtp_timestamp` is the **presentation time**: the gPTP
+nanosecond clock latched when the PDU's first sample was captured, plus
+the configurable transit offset (packetizer TCTX word `w4 TS`, "latched
+presentation time (ptp_ns + transit at first-sample capture)"; row
 [AVTP-10](../traceability/ieee1722-2016.md)).
 
 The listener does the inverse: for every accepted PDU it computes
 `ts_delta = avtp_timestamp − ptp_now` (signed; negative = LATE, i.e. the
 presentation instant already passed; larger than the presentation offset
 plus margin = EARLY — `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`,
-`tsd_w`/`late_w`/`early_w`). The last value is readable at CSR `0x6EC`
-(`A_AVTPRX_TSD`, `hdl/common/csr/milan_csr.sv`). The presentation offset
-is therefore the *rendering budget* the talker grants the network plus
-the listener pipeline.
+`tsd_w`/`late_w`/`early_w`).
+
+The last value is readable at CSR `0x6EC` (`A_AVTPRX_TSD`,
+`hdl/common/csr/milan_csr.sv`). The presentation offset is therefore the
+*rendering budget* the talker grants the network plus the listener
+pipeline.
+
+![AAF class-A pacing — 6-sample epochs, presentation stamped at the first sample, ts_delta at the listener](../diagrams/wd_aaf_pacing.png)
+
+> The chronogram above is generated (editable WaveDrom master
+> [`wd_aaf_pacing.json`](../diagrams/wd_aaf_pacing.json); regenerate with
+> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_aaf_pacing.json`
+> — it emits the `.svg` and the `.png`).
 
 **NxN** means the whole media plane is one shared engine per function
 plus N per-stream BRAM contexts, selected at build time with
 `--num-streams` (`sw/litex/milan_soc.py` argparse: "AAF stream contexts
-per shared engine"). The deployed shapes are the AX7101 at 8×8 streams
-and the Arty A7 at 4×4
+per shared engine").
+
+The deployed shapes are the AX7101 at 8×8 streams and the Arty A7 at 4×4
 ([`SYSTEMS_ENGINEER_GUIDE.md`](../SYSTEMS_ENGINEER_GUIDE.md) §0 topology
 figure). Every stream carries up to 8 channels, so both directions
 expose 64 stream-channels ([`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §1).
@@ -56,9 +67,10 @@ expose 64 stream-channels ([`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §1).
 
 Every audio source speaks one contract into the packetizer: a
 `{pair_valid, pair_slot, pair_l, pair_r}` pulse stream — one pulse per
-stereo pair of 24-bit left-justified samples, in the datapath clock,
-with serial capture running in the interface's own bit-clock domain and
-crossing through a gray-pointer `cdc_pair_fifo`
+stereo pair of 24-bit left-justified samples, in the datapath clock.
+
+Serial capture runs in the interface's own bit-clock domain and crosses
+through a gray-pointer `cdc_pair_fifo`
 (`hdl/ieee1722/aaf/KL_tdm_capture.sv` "INTERFACE CONTRACT (the whole
 capture family)"; grounding rows G2/G4 in
 [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §0). The sources:
@@ -70,37 +82,68 @@ capture family)"; grounding rows G2/G4 in
 | ALSA playback | `KL_pcm_tx.sv` | Reads a host-written PCM ring (per-stream sub-rings, S32BE wire byte order) and emits the same pair stream — the playback counterpart of the RX ring, see §2.2 |
 | Pilot tone | `KL_tone_gen.sv` | 1 kHz 0 dBFS exact-period 48-entry 24-bit sine (digital THD+N −148.1 dB per the module header); enabled by `TONE_CTRL 0x6DC`, it replaces the ADC samples on both channels |
 
+The two serial-bus frontends have exact frame timing worth a picture.
+First the I2S frame (capture and render share the same Philips shape —
+the render serializer in `KL_i2s_playback.sv` obeys the same 1-bit-delay
+rule, where a doubled delay was the historical sign-square failure):
+
+![I2S Philips frame timing — the 1-bit delay after each LRCK edge and the capture latch points](../diagrams/wd_i2s_philips.png)
+
+> The chronogram above is generated (editable WaveDrom master
+> [`wd_i2s_philips.json`](../diagrams/wd_i2s_philips.json); regenerate with
+> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_i2s_philips.json`
+> — it emits the `.svg` and the `.png`).
+
+And the TDM8 slave frame — the armed-fsync rule, the `DATA_DELAY_P`
+offset, and the even-holds/odd-pushes pair cadence:
+
+![TDM8 slave frame — armed fsync edge, DATA_DELAY_P, MSB-first slots and pair pushes](../diagrams/wd_tdm8_frame.png)
+
+> The chronogram above is generated (editable WaveDrom master
+> [`wd_tdm8_frame.json`](../diagrams/wd_tdm8_frame.json); regenerate with
+> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_tdm8_frame.json`
+> — it emits the `.svg` and the `.png`).
+
 `KL_pcm_tx` deserves its own paragraph because it is the ALSA *playback*
 path (roadmap item 7). Its header states the design intent verbatim: "a
 drop-in replacement for the physical capture front-end … it emits the
 SAME {pair_valid, pair_slot, pair_l, pair_r} contract that
 KL_aaf_packetizer consumes, but the samples come from a host-written
-DRAM/BRAM ring rather than an ADC" (`KL_pcm_tx.sv` header). The ring ABI
-mirrors the RX PCM ring in the read direction (base / per-stream length
-/ stride, absolute monotonic `wr_ptr` doorbell per stream, published
-`rd_ptr`); pacing is one media tick = one sample for every stream and
-every channel pair, so 6 ticks fill one PDU per stream; an underrun
-still emits the pair (repeat-last or digital silence, CSR-selected) so
-the media cadence never skews; a host overrun fast-forwards the read
-pointer one ring lap. De-interleave is byte-identical to the packetizer
-payload, so ring → packet → wire → depacketizer → ring is byte-exact
-(all from the `KL_pcm_tx.sv` header). In the SoC it is compiled in with
-`--aaf-playback` (`sw/litex/milan_soc.py`, `AAF_PLAYBACK_P` generate) and
-wired two ways in `hdl/milan/milan_datapath.sv` (`g_aaf_playback`
-block): `pb_enable` swaps it wholesale for the ADC frontend at the
-packetizer's pair port, and its raw pair bus is also exposed as the
-capture mux's RING source bucket.
+DRAM/BRAM ring rather than an ADC" (`KL_pcm_tx.sv` header).
+
+All of the following is from the same header:
+
+- **Ring ABI** — mirrors the RX PCM ring in the read direction (base /
+  per-stream length / stride, absolute monotonic `wr_ptr` doorbell per
+  stream, published `rd_ptr`).
+- **Pacing** — one media tick = one sample for every stream and every
+  channel pair, so 6 ticks fill one PDU per stream.
+- **Underrun / overrun** — an underrun still emits the pair (repeat-last
+  or digital silence, CSR-selected) so the media cadence never skews; a
+  host overrun fast-forwards the read pointer one ring lap.
+- **De-interleave** — byte-identical to the packetizer payload, so
+  ring → packet → wire → depacketizer → ring is byte-exact.
+
+In the SoC it is compiled in with `--aaf-playback`
+(`sw/litex/milan_soc.py`, `AAF_PLAYBACK_P` generate) and wired two ways
+in `hdl/milan/milan_datapath.sv` (`g_aaf_playback` block): `pb_enable`
+swaps it wholesale for the ADC frontend at the packetizer's pair port,
+and its raw pair bus is also exposed as the capture mux's RING source
+bucket.
 
 ### 2.2 The capture mux (channel map, TX side)
 
 `hdl/ieee1722/aaf/KL_chan_map_capture.sv` sits between the sources and
 the packetizer: a 32-entry map RAM (one 8-bit entry
 `{en[7], src[6:4], idx[3:0]}` per TX pair slot) selects, per slot, one
-of the buckets ZERO / I2S_IN / TDM_IN / RING / TONE. Source pairs are
-latched free-running into hold registers; on each media tick the engine
-walks the enabled slots low-to-high and injects one pair per slot with a
-settle gap — six ticks fill one PDU per talker (module header). The map
-is programmed through the CSR `0x900` channel-map window
+of the buckets ZERO / I2S_IN / TDM_IN / RING / TONE.
+
+Source pairs are latched free-running into hold registers; on each
+media tick the engine walks the enabled slots low-to-high and injects
+one pair per slot with a settle gap — six ticks fill one PDU per talker
+(module header).
+
+The map is programmed through the CSR `0x900` channel-map window
 ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map fabric"); with
 `CHMAP_CTRL[0] = 0` (reset) the frontend pair stream drives the
 packetizer **bit-identically** to the pre-chmap wiring — the bypass mux
@@ -148,18 +191,23 @@ The host TX path (Linux frames via kl-eth DMA) runs through
 `traffic_controller_802_1q` — 802.1Q classification plus the 802.1Qav
 credit-based shaper — and then `ptp_ts_top`, which hardware-timestamps
 egress frames (`milan_datapath.sv` "shaper→PTP→ADP arbiter" TX
-ordering). The fabric AAF stream does **not** queue through CBS: it is
-injected after the shaper through the `aaf_final_mux` arbiter — the
-in-tree comment is explicit: "AAF injected AFTER the shaper (MVP:
-bypasses CBS for continuous emission, like ADP; class-A shaping = the
-is_1g follow-up)" (`milan_datapath.sv`). Bandwidth protection instead
-comes from admission: an lwSRP reservation is a precondition for AAF
-transmit (`FR-SRP-03`), the reservation also resolves into the class-A
-CBS idleSlope for the host-side queue, and `AAF_CTRL[1]` remains the
-bypass escape hatch ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) 0x680 lwSRP section). Per-stream
-admission for talker t > 0 composes TCTX enable, the per-stream lwSRP
-gate and the engine-wide MAAP claim (`milan_datapath.sv`,
-`aaf_stream_en_w`).
+ordering).
+
+The fabric AAF stream does **not** queue through CBS: it is injected
+after the shaper through the `aaf_final_mux` arbiter — the in-tree
+comment is explicit: "AAF injected AFTER the shaper (MVP: bypasses CBS
+for continuous emission, like ADP; class-A shaping = the is_1g
+follow-up)" (`milan_datapath.sv`).
+
+Bandwidth protection instead comes from admission: an lwSRP reservation
+is a precondition for AAF transmit (`FR-SRP-03`), the reservation also
+resolves into the class-A CBS idleSlope for the host-side queue, and
+`AAF_CTRL[1]` remains the bypass escape hatch
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) 0x680 lwSRP section).
+
+Per-stream admission for talker t > 0 composes TCTX enable, the
+per-stream lwSRP gate and the engine-wide MAAP claim
+(`milan_datapath.sv`, `aaf_stream_en_w`).
 
 Presentation time is **not** stamped at egress — it was latched at
 first-sample capture inside the packetizer (§1). The independent
@@ -219,13 +267,16 @@ media-locked level), `0x6BC AVTPRX_FRX`, `0x6C0 AVTPRX_ERR`
 (never backpressuring the datapath), buffers each frame through a
 drop-capable FIFO, and emits **only the AAF sample payload** — wire byte
 order = S32BE interleaved PCM, one AXIS frame per PDU, always full
-8-byte beats, `tuser` = stream index. Frames without the monitor's
-accept pulse are dropped at FIFO commit, "so the ring receives exactly
-the PDUs FRAMES_RX counts"; payload realignment strips 38 (untagged) or
-42 (C-VLAN) header bytes; Milan base-format payloads are 8-byte
-multiples (48 k: 192 B) (module header). Whole-frame drops and emitted
-payload counts sit in `PCMRX_CNT 0x6C4`; the last accepted PDU's
-`avtp_timestamp` in `PCMRX_TS 0x6C8` ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
+8-byte beats, `tuser` = stream index.
+
+Frames without the monitor's accept pulse are dropped at FIFO commit,
+"so the ring receives exactly the PDUs FRAMES_RX counts"; payload
+realignment strips 38 (untagged) or 42 (C-VLAN) header bytes; Milan
+base-format payloads are 8-byte multiples (48 k: 192 B) (module header).
+
+Whole-frame drops and emitted payload counts sit in `PCMRX_CNT 0x6C4`;
+the last accepted PDU's `avtp_timestamp` in `PCMRX_TS 0x6C8`
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
 
 ### 3.4 Routing and the PCM DMA ring
 
@@ -258,10 +309,11 @@ The ALSA card driver `snd-kl-milan` and the PipeWire
 `pw-milan-ring-source` consumer live in the **private test repo**, not
 here — see that repo's
 `fpga/docs/ALSA_DRIVER_DESIGN.md` (referenced from
-[`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) companions). The contract it
-consumes is entirely on this side: the ring ABI of §3.4 (`offset` CSR =
-the hardware pointer) and the S32BE interleaved word format. The BRAM
-option was designed to keep that driver unchanged
+[`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) companions).
+
+The contract it consumes is entirely on this side: the ring ABI of §3.4
+(`offset` CSR = the hardware pointer) and the S32BE interleaved word
+format. The BRAM option was designed to keep that driver unchanged
 ([`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §2).
 
 ### 3.6 Physical render and the wire-truth rule
@@ -269,21 +321,26 @@ option was designed to keep that driver unchanged
 The RENDER-flagged stream feeds `KL_pcm_lpf` (20 kHz Butterworth biquad,
 serial-MAC so it closes timing at 100 MHz, ~12 clk/pair — absorbed by
 the playback FIFO) and `KL_i2s_playback` (CS4344 DAC, clean-clock:
-plain dividers in the dedicated audio MMCM domain, gray-pointer CDC;
-the audio domain free-runs, underrun repeats the last pair, overrun
-drops, both rails counted in `I2SPB_STAT 0x6D8`). In parallel,
-`KL_chan_map_render` clones the depacketizer payload stream and keeps a
-latest-sample latch of all 64 (stream, wire-channel) values, rendering
-any of them onto 10 physical output channels (I2S L/R + TDM8 lane 0)
-through its map RAM; `KL_tdm_render` serializes the TDM8 output frame
-(module headers).
+plain dividers in the dedicated audio MMCM domain, gray-pointer CDC).
+
+The audio domain free-runs; underrun repeats the last pair, overrun
+drops, both rails counted in `I2SPB_STAT 0x6D8`. The DAC serializer's
+frame timing is the same Philips shape as the §2.1 chronogram — the
+1-bit delay comes from its output-register pipeline.
+
+In parallel, `KL_chan_map_render` clones the depacketizer payload
+stream and keeps a latest-sample latch of all 64 (stream, wire-channel)
+values, rendering any of them onto 10 physical output channels (I2S L/R
++ TDM8 lane 0) through its map RAM; `KL_tdm_render` serializes the TDM8
+output frame (module headers).
 
 The rendering rule throughout is **wire truth**: de-interleave stride
 and channel count follow `channels_per_frame` *from the wire* (the
 monitors export `wire_chans` per stream; 0-before-first-accept is
-treated as 2), never the AEM store — the declared-8ch/wire-2ch mismatch
-produced total silence in the field and the store-driven stride bug
-played quarter-rate garbage (rows
+treated as 2), never the AEM store.
+
+The declared-8ch/wire-2ch mismatch produced total silence in the field
+and the store-driven stride bug played quarter-rate garbage (rows
 [AAF-4](../traceability/ieee1722-2016.md) and
 [M-FMT-2](../traceability/milan-v12.md);
 `KL_chan_map_render.sv` header).
@@ -302,9 +359,13 @@ The measured relationship on this bench (2026-07-24/25,
 "Measured truth"): **end-to-end capture→render equals the presentation
 offset exactly** — with pto = 500 µs the listener sees
 `ts_delta` +384 µs and **0 LATE**, and the datapath pipeline is
-**≈ 116 µs** (AX7101, 100 MHz datapath build). In other words the
-pipeline fits comfortably inside the 500 µs budget and the presentation
-mechanism, not queueing, sets the delivered latency.
+**≈ 116 µs** (AX7101, 100 MHz datapath build).
+
+In other words the pipeline fits comfortably inside the 500 µs budget
+and the presentation mechanism, not queueing, sets the delivered
+latency. The §1 pacing chronogram draws exactly this: the accept lands
+well before the presentation instant, and `ts_delta` is the remaining
+margin.
 
 Where those numbers come from:
 
@@ -331,10 +392,13 @@ channels). The fabric **selects, never composes**: the TX side is the
 32-pair-slot capture mux of §2.2 (each slot picks a source pair), the RX
 side is the render crossbar of §3.6 (any stream-channel to any of 10
 physical outputs) plus the per-stream DMA rings that PipeWire composes
-in software. The map RAM is canonically programmed by the IEEE 1722.1
-dynamic audio-map commands — `GET_AUDIO_MAP` / `ADD_AUDIO_MAPPINGS` /
+in software.
+
+The map RAM is canonically programmed by the IEEE 1722.1 dynamic
+audio-map commands — `GET_AUDIO_MAP` / `ADD_AUDIO_MAPPINGS` /
 `REMOVE_AUDIO_MAPPINGS` (command_type 43/44/45, verified against
 `aecp_pkg.sv`) — with the CSR `0x900` window as the bench override.
+
 Deep docs: [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) (the normative
 64×64 architecture, map-word format, pair-slot widening) and
 [`CHMAP64_AEM_BINDING.md`](../CHMAP64_AEM_BINDING.md) (the AEM binding
