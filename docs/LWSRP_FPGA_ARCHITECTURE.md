@@ -8,7 +8,7 @@ Verilator `lwsrp_tx` 363 / `lwsrp_rx` 75 / `lwsrp` 36 checks + `milan_dp`
 pipewire module-avb mrp.c/msrp.c/mvrp.c (byte-exact; one deliberate
 deviation: we gate the talker on the four-packed Ready/ReadyFailed
 declaration, the reference ignores it — see §1). Silicon vs the AVB switch +
-pw0 = the remaining §6.3 gate. Listener half lands with STREAM_INPUT.
+the peer host = the remaining §6.3 gate. Listener half lands with STREAM_INPUT.
 Pattern of record: the ADP/AECP/ACMP responder recipe (registered monitor tap,
 template TX, low-rate merge, CSR status) — proven Milan=1-clean four times.
 
@@ -194,10 +194,10 @@ next to the AVDECC multicast (default-pass covers it today; make explicit).
 2. **Yosys/lint gates** — same 20/20 discipline (streaming walker is plain
    FSM logic; no memories beyond the stream table FFs).
 3. **Silicon** — the AVB switch is a real SRP bridge: talker attribute must
-   appear in its registration database; **pw0's pipewire module-avb acts as
+   appear in its registration database; **the peer host's pipewire module-avb acts as
    the listener** (Listener Ready on connect — the same
    reference-as-validator move that closed the AECP campaign); OpenAvnu
-   `mrpd` on pw0 as a second oracle. Gate: reservation_active=1 on the
+   `mrpd` on the peer host as a second oracle. Gate: reservation_active=1 on the
    board, bandwidth visible on the switch, stream gate opens; unplug the
    listener -> Ready withdrawn -> gate closes within the leave time.
 
@@ -206,7 +206,7 @@ next to the AVDECC multicast (default-pass covers it today; make explicit).
 1. `lwsrp_pkg` + TX templates + applicant timers -> TB checks TX bytes.
 2. Streaming walker + registrar -> TB bridge-PDU suite.
 3. bw_gate + slope mux into CBS + stream gate -> milan_dp integration test.
-4. CSR group + status; lint/yosys; build sweep; silicon vs the switch + pw0.
+4. CSR group + status; lint/yosys; build sweep; silicon vs the switch + the peer host.
 5. Then: fabric ACMP connection table consuming `reservation_active`.
 
 Est. size: well under the AECP entity (~8-10K LUTs by analogy with the

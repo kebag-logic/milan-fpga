@@ -6,7 +6,7 @@ TB / bench behave feature / silicon finding / tsn_gen wire model), or an
 explicit **MISSING** / **N/A** verdict. This is roadmap item 3's spec-test
 subtask. Every row is meant to be human peer-reviewed and then turned into a
 behave feature — clause references are the load-bearing content; they were
-verified against the PDFs in `/home/alex/standards/` (pdftotext extraction,
+verified against the local standards PDFs (`$STANDARDS_DIR`) (pdftotext extraction,
 2026-07-22).
 
 Companion documents: [`testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_VALIDATION_MATRIX.md)
@@ -93,7 +93,7 @@ category claim, not the row in isolation:
 
 ## tsn_gen (wire-test engine) — model inventory and gaps
 
-tsn_gen (`/home/alex/tsn-gen`) generates, fuzzes and decodes wire frames from
+tsn_gen (the local tsn-gen checkout) generates, fuzzes and decodes wire frames from
 YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
 "would be verified with tsn_gen" statements refer to.
 

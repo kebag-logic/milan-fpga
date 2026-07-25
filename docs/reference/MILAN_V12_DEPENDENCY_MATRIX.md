@@ -27,7 +27,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `avdecc_l2` | ADP watch / GET_COUNTERS / ACMP connect script | `srcs/the-private-test-repo/controller/avdecc_l2.py` |
 | `tap_acmp` / `tap_sniff` | ACMP + frame taps | `srcs/the-private-test-repo/controller/` |
 | `thdn` | audio THD+N quality check | `.../controller/pipewire_avb_thdn.py` |
-| `soak` | pw1↔pw0 stream + clock-recovery soak | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
+| `soak` | peer-host-pair stream + clock-recovery soak (between the two bench PipeWire hosts) | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
 | `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/the-private-test-repo/docs/` |
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
 | `vtb:<n>` | Verilator self-checking harness | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`; `adp` now present) |
@@ -91,7 +91,7 @@ is verified*, and which requirements are **not** Milan-driven.
 
 | Milan requirement | Dep | FR/NFR | Why necessary | Verify |
 |-------------------|-----|--------|---------------|--------|
-| Talker AAF encapsulation + valid presentation time | MANDATES | FR-STR-01 | Presentation time aligns listener playout. | T  -  `soak` (pw1→pw0); `tap_sniff` AVTP; `thdn` |
+| Talker AAF encapsulation + valid presentation time | MANDATES | FR-STR-01 | Presentation time aligns listener playout. | T  -  `soak` (peer-host pair); `tap_sniff` AVTP; `thdn` |
 | Listener de-encapsulation + de-jitter to presentation time | MANDATES | FR-STR-02, NFR-LAT-01 | Must render at the presentation instant within Class A. | T  -  `soak`; `thdn`; `latency.md` |
 | **Listener format-adaptive** (`SET_STREAM_FORMAT` → talker's format; match incoming AAF) | MANDATES | FR-STR-03, FR-STR-03b | A format-locked listener can't connect to a differing talker. | T  -  set talker format, connect, confirm listener `current_format` follows (`Hive`+`avdecc_l2`); packet-match per `stream.c` |
 | Talker format is fixed | MANDATES | FR-STR-03a | Only the talker source is singular. | I,T  -  inspect `STREAM_OUTPUT`; `tap_sniff` transmitted format |

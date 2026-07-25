@@ -14,7 +14,7 @@ them. No board, no bench. One-time setup (paths are the bench convention):
 
 ```bash
 git clone git@github.com:kebag-logic/milan-fpga.git && cd milan-fpga
-export TSAGEN_DIR=/home/alex/tsn-gen
+export TSAGEN_DIR=<path-to-the-local-tsn-gen-checkout>
 export PACKET_GEN=$TSAGEN_DIR/build/traffic-gen/packet_gen
 BEHAVE=~/litex-milan/venv/bin/behave
 ```

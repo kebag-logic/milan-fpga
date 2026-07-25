@@ -21,7 +21,7 @@ Vivado projects with real constraints).
 | DDR3 | **512 MB, 2× MT41J256M16** (32-bit) | `SRC/07_ddr3_test/…/ddr3.ucf` |
 
 The Milan NIC's two ports map to **`e1` and `e2`**  -  i.e. the "two first interfaces"
-the `amx-pw0` / `amx-pw1` test endpoints exercise. `e3`/`e4` are spare.
+the bench test endpoints (the peer test host + the reserved bench host) exercise. `e3`/`e4` are spare.
 
 ## 2. Porting method (reproducible)
 

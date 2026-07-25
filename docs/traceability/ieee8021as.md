@@ -1,7 +1,7 @@
 # Traceability — IEEE 802.1AS-2020 (gPTP) — hardware-assist scope
 
 Part of [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Clause numbers
-verified against `/home/alex/standards/802.1AS-2020.pdf`. Architecture split
+verified against the local standards PDFs (`$STANDARDS_DIR/802.1AS-2020.pdf`). Architecture split
 (normative: `docs/ARCHITECTURE_HW_SW_SPLIT.md`): the **protocol** (BMCA,
 Announce/Sync/Pdelay state machines, servo) runs in `ptp4l`/linuxptp on the
 softcore; the **fabric** provides the PTP hardware clock and event-message

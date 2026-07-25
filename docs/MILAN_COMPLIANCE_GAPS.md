@@ -124,7 +124,7 @@ and is not repeated here.
   event grid — the wire carries the true media-clock rate), CSRs
   0x750-0x764 {en, sid, dmac, RO count}, 6th low-rate control-merge
   source; S50 provisions the ALINX with DMAC = MAAP claim+1 on
-  gateware >= 0x0005. Rx silicon-proven against a synthetic pw0 source
+  gateware >= 0x0005. Rx silicon-proven against a synthetic peer-host source
   (lock, 13000/13000 counted, rate-from-field, timeout unlock);
   board-to-board e2e = the AX24/mf39 wire test.
   **The sink-1 bind SM is IN (2026-07-21, b692395):** listener uid=1 is
@@ -217,7 +217,7 @@ and is not repeated here.
   Sync cadence; our switch claims priority1=246 clockClass=248
   clockAccuracy=0x20 (tap-read) and outranks every Milan-legal
   end-station value (246|248 tie loses on clockAccuracy). Until the
-  switch's gPTP claim is weakened (mgmt ssh at 192.168.127.1), the
+  switch's gPTP claim is weakened (via the switch's management interface), the
   recreation cannot run and the bench ships the 100 override to keep
   the ALINX-GM one-oscillator media architecture. **The shipping
   priority1 must be 246** (the Milan es-1.1 posture; 100 is
@@ -319,7 +319,7 @@ and is not repeated here.
   7.0.0-28; recurs on every kernel bump: install the matching
   `profishark-linux-driver-<kver>` from the Profitap repo (exists for
   each kernel) or hold the kernel package.
-- **Bench: pw0 /tmp tooling is volatile** — the reboot deleted
+- **Bench: peer-host /tmp tooling is volatile** — the reboot deleted
   milan_controller.py / bind_sink1.py / dyninfo_probe.py /
   silicon_battery.py etc. Rebuilt so far in persistent ~/milanmusic/:
   acmp_bind.py (connect/disconnect incl. synthetic-talker recipe) and
@@ -436,9 +436,9 @@ and is not repeated here.
   maps — NOT_SUPPORTED by design with static maps, see §1). A formal
   external validation (and one clean interactive Hive diagnostics pass)
   is the final word.
-- **PipeWire consumer topology** (pw0 as the Milan listener rendering to
+- **PipeWire consumer topology** (the peer host as the Milan listener rendering to
   the host audio stack): the milan_listener_* behave features for that
-  topology still fail on the pw0 pipewire environment (greeter-session
+  topology still fail on the peer host's pipewire environment (greeter-session
   pipewire cannot be stopped by the harness). Bench goal, not DUT
   compliance.
 

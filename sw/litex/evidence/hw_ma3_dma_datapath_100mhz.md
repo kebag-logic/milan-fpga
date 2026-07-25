@@ -35,12 +35,13 @@ The **memory → DMA → AXIS-CDC → datapath** half of M-A3 is proven on silic
 `i_mac_events` stub). RX loopback (the other half of M-A3) needs a link partner / plug.
 
 ## Update — tested against the live rig (ProfiTap ProfiShark 1G+ taps)
-Rig up: `amx-pw0`/`amx-pw1` i210s (`enp6s0`), `amx-ubuntu-server` with the `pt3usb`
-driver loaded + two ProfiShark 1G+ capture ifaces (`enxe8eb1b37e2c0`/`…39111a`). Armed
+Rig up: the peer test host / the reserved bench host i210s (`enp6s0`), the capture
+host with the `pt3usb`
+driver loaded + two ProfiShark 1G+ capture ifaces (`<tap1-if>`/`<tap2-if>`). Armed
 continuous FPGA **loop-TX** (DMA `loop=1`, `enable=1`) of the broadcast frame and
 captured on both taps:
 - **No FPGA frame on either tap** (`ether src 02:00:00:00:00:01` = 0 hits; only
-  amx-ubuntu's own IPv6 MLD on the capture iface).
+  the capture host's own IPv6 MLD on the capture iface).
 - **i210 `carrier=0 / Link detected: no`** on both ports, even with the taps active.
 
 **Localization (definitive):** the FPGA moves the frame all the way DDR3 → DMA →
@@ -51,7 +52,7 @@ reset / not clocked, not merely an RGMII-data problem. The break is the last, le
 validated stage: **LiteEth `LiteEthPHYRGMII` → RGMII → RTL8211E**.
 
 ## Root cause (once the tap ports were enabled and the link came up)
-With the ProfiShark ports up, `amx-pw0` i210 shows **`carrier=1, 1000Mb/s, Full`** — the
+With the ProfiShark ports up, the peer-host i210 shows **`carrier=1, 1000Mb/s, Full`** — the
 copper link negotiates. But **no data flows either way**: 250 single-shot FPGA DMA-TX
 frames → i210 `rx_packets/rx_errors/rx_dropped` all **+0**; i210 broadcast bursts (ARP,
 tx_packets↑) → FPGA RX-DMA `done=0`, buffer all zeros. Link up + zero data in *both*
@@ -131,7 +132,7 @@ proven result that frames are received and DMA'd.
 
 Deep dive to get a **correct TX frame onto the wire** end-to-end (memory → TX-DMA →
 AXIS-CDC → datapath → LiteEth MAC → GMII → i210). Driven from the BIOS console; egress
-observed on the `amx-pw0` i210 (`enp6s0`) via `rx_packets` deltas + `tcpdump`. Findings,
+observed on the peer-host i210 (`enp6s0`) via `rx_packets` deltas + `tcpdump`. Findings,
 in the order they eliminated hypotheses:
 
 **1. The LiteX simple-mode DMA `length` is in BYTES, not words.**
@@ -226,7 +227,7 @@ which no RTL harness covers. Follow-up: add an egress-`tkeep` assertion to
 ### CONFIRMED ON SILICON — the `last_be` fix makes frames egress (2026-07-03)
 
 `build_gmii_lastbe` built (timing met), loaded, NIC `ID=MILN`. Driving DMA-TX of a 64-byte
-frame (`length=64` **bytes**), measured on the `amx-pw0` i210 hardware counters:
+frame (`length=64` **bytes**), measured on the peer-host i210 hardware counters:
 - **`rx_packets` Δ = exactly the frames fired** (150→150, 300→300, 500→443-with-serial-loss)
   — **was Δ=0 for multi-beat before the fix**.
 - **`rx_crc_errors`=0, `rx_errors`=0, `rx_length_errors`=0**; `rx_bytes` ≈ 64 B/frame.
@@ -257,8 +258,8 @@ is needed. The `kl-eth` driver (M-A5) handles this exactly like the Zynq path
 BIOS console cannot. TX-DMA reads, the datapath, the `last_be` handoff, GMII RX, and now
 GMII TX-egress are all proven on silicon.
 
-**Rig note:** amx-pw0 `tcpdump` captured nothing (even self-sent outgoing frames) and the
-ProfiShark taps (`amx-ubuntu-server` `enxe8eb1b3*`) were flaky, so byte-level content was
+**Rig note:** peer-host `tcpdump` captured nothing (even self-sent outgoing frames) and the
+ProfiShark taps (the capture host's `<tap1-if>`/`<tap2-if>`) were flaky, so byte-level content was
 read via the i210 stats + counters instead of pcap. Capture-tooling issue, not the NIC.
 
 ## Coherent DMA + internal loopback + endianness (2026-07-03, `build_gmii_coh`/`_final`)
@@ -302,10 +303,10 @@ wire order.
 
 `endianness="big"` build loaded (ID=MILN). Four checks, all pass:
 1. **Loopback** (regression) — `0x40020000` byte-identical to the written frame ✓ (no flush).
-2. **RX order** — amx-pw0 → FPGA; `0x40030000` = **wire order** `ff ff ff ff ff ff 02 aa bb cc
+2. **RX order** — peer host → FPGA; `0x40030000` = **wire order** `ff ff ff ff ff ff 02 aa bb cc
    dd ee 88 b5 10 11 …` (was reversed before) ✓.
 3. **TX broadcast** — i210 `rx_broadcast` Δ=290/300 ✓ (correct `ff:ff:ff:ff:ff:ff` dst on wire).
-4. **TX → i210 MAC** — dst = `68:05:ca:95:b2:d1`; i210 `rx_unicast` Δ=295/300 ✓ (accepted
+4. **TX → i210 MAC** — dst = `<peer-host-mac>`; i210 `rx_unicast` Δ=295/300 ✓ (accepted
    unicast-to-self, so the on-wire bytes are correct).
 
 ⇒ **M-A3 complete on silicon**: correct frames cross the Milan NIC in **both directions** —

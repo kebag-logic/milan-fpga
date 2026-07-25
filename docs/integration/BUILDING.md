@@ -25,7 +25,7 @@ cd sw/litex
 | `./build.sh ... --dry-run` | print the exact launch commands, start nothing |
 | `./build.sh flash <config>[:<builddir>]` | flash the newest matching build (or the named one) to QSPI: bitstream @0, then the Linux image set  -  see section 4 |
 
-Outputs land in `/home/alex/litex-milan/work/build_<config>[_<directive>]_<TAG>/`
+Outputs land in `~/litex-milan/work/build_<config>[_<directive>]_<TAG>/`
 with a `*.launch.log` next to each. Builds run detached; check progress with
 `grep -oE "Phase [0-9.]+ .*" <outdir>/gateware/vivado.log | tail -1` and gate on
 the timing/utilization reports (see section 5).
@@ -108,8 +108,8 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 
 | Board | JTAG load | Console |
 |---|---|---|
-| AX7101 | `openFPGALoader --ftdi-serial 210512180081 -c ft232 <bit>` | CP2102N adapter (by-id path appears when attached to the VM), 115200; tmux session `milan_qspi_boot` |
-| Arty A7-100 | `openFPGALoader --ftdi-serial 210319AFEED0 -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0`, 115200; tmux session `arty_console` |
+| AX7101 | `openFPGALoader --ftdi-serial <ax-ftdi-serial> -c ft232 <bit>` | CP2102N adapter (by-id path appears when attached to the VM), 115200; tmux session `milan_qspi_boot` |
+| Arty A7-100 | `openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/<board-usb-serial>` (`-if01-port0`), 115200; tmux session `arty_console` |
 
 Flash layout (v3 `--flashboot full` manifest, BOTH boards  -  `board_facts`
 in `build.sh`, details in QSPI_FLASHBOOT.md): QSPI holds the bitstream at
