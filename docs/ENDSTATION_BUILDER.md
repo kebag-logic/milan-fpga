@@ -3,11 +3,14 @@
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM
 ROM, lwSRP tables and the DT/driver shape consistently
-([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) attack item 4). This document is the
-specification-referenced design record for that builder: the settled design
-decisions with their clause basis, and the config-schema → AEM-descriptor
-mapping. Every clause reference below was verified against the local standards
-PDFs (`$STANDARDS_DIR`) (pdftotext extraction, 2026-07-22) — the same rule as
+([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) attack item 4).
+
+This document is the specification-referenced design record for that
+builder: the settled design decisions with their clause basis, and the
+config-schema → AEM-descriptor mapping.
+
+Every clause reference below was verified against the local standards PDFs
+(`$STANDARDS_DIR`) (pdftotext extraction, 2026-07-22) — the same rule as
 [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md). Cited documents: IEEE
 1722.1-2021 ("1722.1"), IEEE 1722-2016 ("1722"), Milan Specification v1.2
 Consolidated ("Milan"), IEEE 802.1Q-2022 ("Q").
@@ -69,9 +72,12 @@ v1.0 overlay gate asserts.
 **Why.** Port-relative map offsets mean each stream's map is the identity
 map over its own cluster group regardless of global cluster numbering —
 adding or removing a stream never rewrites another stream's AUDIO_MAP
-contents, only base indices. The 7.2.19 uniqueness rules (input: at most
-one entry per cluster channel; output: at most one entry per stream channel
-across the entire Configuration) hold trivially for per-port identity maps.
+contents, only base indices.
+
+The 7.2.19 uniqueness rules (input: at most one entry per cluster channel;
+output: at most one entry per stream channel across the entire
+Configuration) hold trivially for per-port identity maps.
+
 And because Milan's static/dynamic split is per-port, one-port-per-stream
 is what later lets roadmap item 8 (dynamic maps, es-4.16) flip individual
 streams to `number_of_maps = 0` without touching the rest of the model.
@@ -107,13 +113,16 @@ interface width instead.
 **Why.** Cap-at-interface makes the AEM model a function of the hardware
 SKU: an 8ch-capable Stream Input behind Arty's 2ch I2S could not represent
 mappings for channels 2..7, violating the Milan 6.4 all-channel-counts
-posture the moment a controller selects a wider family member. With
-cluster-per-stream-channel the model is constant across interface families
-and the *physical* truth lives in the binding rule instead (project
-wire-truth 1-to-1 rule, `c705091`): physical interface channels bind in
-order to the first clusters per direction; extra stream channels are
-virtual; missing physical channels render 0. Mono clusters also match the
-PipeWire reference layout the ROM was byte-derived from.
+posture the moment a controller selects a wider family member.
+
+With cluster-per-stream-channel the model is constant across interface
+families and the *physical* truth lives in the binding rule instead
+(project wire-truth 1-to-1 rule, `c705091`): physical interface channels
+bind in order to the first clusters per direction; extra stream channels
+are virtual; missing physical channels render 0.
+
+Mono clusters also match the PipeWire reference layout the ROM was
+byte-derived from.
 
 ### D3 — talker cluster count as config
 
@@ -139,12 +148,15 @@ layout).
   for its functionality" — the advertisement is a functional choice, not a
   hardware echo.
 
-**Why.** Wire truth and model capacity are different quantities. The
-talker's `channels` is wire truth (what the framer emits — the value
-GET_STREAM_FORMAT must report, and the pure-ACMP compatibility gate:
-listeners with no SET_STREAM_FORMAT round-trip connect against the
-*current* format). The talker's `clusters` is model shape (how much
-routing capacity the entity exposes; today 8, per the reference layout).
+**Why.** Wire truth and model capacity are different quantities.
+
+- The talker's `channels` is wire truth (what the framer emits — the value
+  GET_STREAM_FORMAT must report, and the pure-ACMP compatibility gate:
+  listeners with no SET_STREAM_FORMAT round-trip connect against the
+  *current* format).
+- The talker's `clusters` is model shape (how much routing capacity the
+  entity exposes; today 8, per the reference layout).
+
 Deriving one from the other silently is exactly the class of divergence
 that produced the declared-8ch/wire-2ch silence incident — so both are
 config, and the builder refuses to guess.
@@ -164,13 +176,15 @@ field walk lives with the implementation lane.
   unique entity_model_id" — any config change that alters a generated
   descriptor field must change the id.
 - The clause then enumerates the fields **excluded** from "structure":
-  `object_name` everywhere; ENTITY `entity_name`, `firmware_version`,
-  `group_name`, `serial_number`, `available_index`, `association_id`,
-  `current_configuration`; AUDIO_UNIT `current_sampling_rate`;
-  STREAM_INPUT/OUTPUT `current_format`; CLOCK_SOURCE
-  `clock_source_identifier`/`flags`; CLOCK_DOMAIN `clock_source_index`;
-  control current values; AVB_INTERFACE `mac_address` + gPTP dynamics —
-  these must **not** feed the hash, so renaming a unit, bumping
+  - `object_name` everywhere; ENTITY `entity_name`, `firmware_version`,
+    `group_name`, `serial_number`, `available_index`, `association_id`,
+    `current_configuration`;
+  - AUDIO_UNIT `current_sampling_rate`; STREAM_INPUT/OUTPUT
+    `current_format`;
+  - CLOCK_SOURCE `clock_source_identifier`/`flags`; CLOCK_DOMAIN
+    `clock_source_index`; control current values;
+  - AVB_INTERFACE `mac_address` + gPTP dynamics.
+- These must **not** feed the hash, so renaming a unit, bumping
   `firmware_version`, changing a serial number or re-selecting a clock
   source never bumps the model id.
 - NOTE in 6.2.2.8: "The entity_model_id is not a device's product or model
@@ -183,12 +197,15 @@ field walk lives with the implementation lane.
 entity_model_id (the ADP-6 traceability row's field catch: reusing an id
 across ROM changes serves stale models — and the inverse, gratuitous id
 churn, defeats caching and can strand saved bindings, cf. 1722.1's own
-note on stale connections after entity_model_id changes). Hashing the
-model-shaping fields makes "model changed ⇔ id changed" structural instead
-of a release-checklist item. The pin override exists because both flashed
-boards already advertise fixed ids; a pinned config must reproduce them
-byte-exactly, and the builder's job there is to *verify* the pin still
-matches the generated model rather than to invent a new id.
+note on stale connections after entity_model_id changes).
+
+Hashing the model-shaping fields makes "model changed ⇔ id changed"
+structural instead of a release-checklist item.
+
+The pin override exists because both flashed boards already advertise
+fixed ids; a pinned config must reproduce them byte-exactly, and the
+builder's job there is to *verify* the pin still matches the generated
+model rather than to invent a new id.
 
 ### D5 — config as single source of truth (sweep flags generated)
 
@@ -203,26 +220,34 @@ four places — `sweep.sh` OPTS, `gen_aem_store.py` constants,
 `milan_soc.py` defaults, the DT — and every desynchronization so far became
 a field incident: declared-8ch vs wire-2ch silence, the honest-counts
 provisioning round, the AEM-default-8ch trap that rejected 2ch pure-ACMP
-connects. A generated artifact can be stale but never *divergent*; the
+connects.
+
+A generated artifact can be stale but never *divergent*; the
 `test_builder.py` gate pins the emitted argv to `sweep.sh`'s BASE and the
 overlay counts to the shipped ROM for today's shape.
 
 **Audio-interface family subtask** (gaps item 4 subtask). The config's
 `audio_interface.kind` — `tdm8|tdm16|tdm32|i2s_philips|aes3|spdif` — selects
 the ser/des RTL family and its parameters (slots, word length, frame
-format). In RTL today: `i2s_philips` (`KL_i2s_playback` /
-`aaf_talker_i2s`/`KL_aaf_capture_i2s`, the default) and the `tdmN` kinds —
-the builder emits `--audio-interface tdmN`, which `milan_soc.py` maps to
+format).
+
+In RTL today: `i2s_philips` (`KL_i2s_playback` /
+`aaf_talker_i2s`/`KL_aaf_capture_i2s`, the default) and the `tdmN` kinds.
+The builder emits `--audio-interface tdmN`, which `milan_soc.py` maps to
 the `milan_datapath` `AUDIO_IF_SLOTS_P` generate select instantiating the
 `KL_tdm_capture` TDM slave (N slots × 32-bclk words, pulse or 50%-duty
-frame sync, data delay 0/1); its per-slot pair stream feeds the
-`KL_aaf_packetizer` multi-channel payload builder (TCTX `chans` =
-`channels_per_frame`, even 2..8 per stream, partitioning the pair-slot
-space). `aes3`/`spdif` are contract-only for now (the pair-stream contract
+frame sync, data delay 0/1).
+
+Its per-slot pair stream feeds the `KL_aaf_packetizer` multi-channel
+payload builder (TCTX `chans` = `channels_per_frame`, even 2..8 per
+stream, partitioning the pair-slot space).
+
+`aes3`/`spdif` are contract-only for now (the pair-stream contract
 and the biphase-mark plan live in
 [`hdl/ieee1722/aaf/doc/audio_frontend_family.md`](../hdl/ieee1722/aaf/doc/audio_frontend_family.md)) and validate with a
-planned mark. On the AEM side the physical interface is modeled by,
-per 1722.1:
+planned mark.
+
+On the AEM side the physical interface is modeled by, per 1722.1:
 - **JACK_INPUT/JACK_OUTPUT** (7.2.7): the physical connector, with
   `jack_type` from Table 7-12 — `SPDIF` and `AES_EBU` are dedicated types;
   TDM and I2S headers use the generic `DIGITAL` type.
@@ -305,24 +330,30 @@ Unchanged: ENTITY, CONFIGURATION, AUDIO_UNIT (still one clock domain,
 
 **New Milan obligation the shape triggers — model half DONE.** With two
 or more AAF Media Inputs, Milan 7.2.3 makes a **CRF Media Clock Output**
-mandatory (7.2.2 already mandates the CRF input, which we have). The
-builder now ENFORCES the rule (`clocking.crf_output`, mapping row 27: a
->=2-AAF-listener config without it is a validation error citing 7.2.3)
+mandatory (7.2.2 already mandates the CRF input, which we have).
+
+The builder now ENFORCES the rule (`clocking.crf_output`, mapping row 27:
+a >=2-AAF-listener config without it is a validation error citing 7.2.3)
 and the overlay/`gen_aem_store.py` advertise the CRF STREAM_OUTPUT
 (Milan 7.3.2 format `0x041060010000BB80`, `clock_domain_index` 0,
 CLOCK_SYNC_SOURCE|CLASS_A, no audio port — mirrors the CRF sink; counts
-above include it). The fabric talker exists (`KL_crf_tx`, CSRs
-0x750–0x764, silicon-proven at 500 PDU/s); what still rides with the
-item-5 round is the *provisioning* half: S50 boot wiring + the ACMP
-talker context for the CRF stream (plus its Class-A reservation, Milan
-7.3.3 — traceability M-CLK-2).
+above include it).
+
+The fabric talker exists (`KL_crf_tx`, CSRs 0x750–0x764, silicon-proven at
+500 PDU/s); what still rides with the item-5 round is the *provisioning*
+half: S50 boot wiring + the ACMP talker context for the CRF stream (plus
+its Class-A reservation, Milan 7.3.3 — traceability M-CLK-2).
 
 **Stays planned-item-5** (config validates, build plan marks it):
-per-stream ACMP listener/talker contexts, per-stream MAAP allocations and
-RX-monitor counter blocks, per-stream lwSRP registrar/declaration
-instances (Q 35.2.7 — today's engine is single-stream, traceability row
-SRP-9), the CRF stream's own reservation (Milan 7.3.3, Class A —
-traceability M-CLK-2), and the TDM16 ser/des (item-4 audio subtask, D5).
+
+- per-stream ACMP listener/talker contexts;
+- per-stream MAAP allocations and RX-monitor counter blocks;
+- per-stream lwSRP registrar/declaration instances (Q 35.2.7 — today's
+  engine is single-stream, traceability row SRP-9);
+- the CRF stream's own reservation (Milan 7.3.3, Class A — traceability
+  M-CLK-2);
+- the TDM16 ser/des (item-4 audio subtask, D5).
+
 What 8 depacketizer/framer contexts cost the AX7101 in area/timing at
 100 MHz is an item-5 measurement, not a claim this document makes.
 
@@ -330,12 +361,17 @@ What 8 depacketizer/framer contexts cost the AX7101 in area/timing at
 
 The builder does not add new normative behavior — it *generates* the
 artifacts whose behavior the existing rows already verify (AEM-1..8,
-M-FMT-1/2, ADP-7 honest counts, M-AECP-4 static-maps posture). Its own
-gates are: (a) the `test_builder.py` identity gate — today's config must
-reproduce the shipped ROM's descriptor counts and `sweep.sh`'s design argv
-byte-for-byte; (b) on migration, `gen_aem_store.py` consuming the overlay
-must keep the bench conformance suite green on both boards with an
-unchanged entity_model_id for an unchanged model (D4). Any new descriptor
-content the NxN shapes introduce (per-stream ports/maps, CRF output) gets
-new traceability rows before it gets RTL, per the matrix's review
-workflow.
+M-FMT-1/2, ADP-7 honest counts, M-AECP-4 static-maps posture).
+
+Its own gates are:
+
+- (a) the `test_builder.py` identity gate — today's config must reproduce
+  the shipped ROM's descriptor counts and `sweep.sh`'s design argv
+  byte-for-byte;
+- (b) on migration, `gen_aem_store.py` consuming the overlay must keep the
+  bench conformance suite green on both boards with an unchanged
+  entity_model_id for an unchanged model (D4).
+
+Any new descriptor content the NxN shapes introduce (per-stream
+ports/maps, CRF output) gets new traceability rows before it gets RTL,
+per the matrix's review workflow.
