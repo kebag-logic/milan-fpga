@@ -30,22 +30,19 @@ dates with conflicting scoreboards. They consolidate to a small living set:
 | [`findings/RX_MEMORY_HIERARCHY_PLAN.md`](findings/RX_MEMORY_HIERARCHY_PLAN.md) | completed L2 disambiguation plan | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md), [`docs/findings/LATENCY_INVESTIGATION.md`](../docs/findings/LATENCY_INVESTIGATION.md) |
 | [`findings/RX_OVERLOAD_WEDGE.md`](findings/RX_OVERLOAD_WEDGE.md) | [FIXED] RX-storm post-mortem | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) |
 | [`findings/RX_RING_DMA.md`](findings/RX_RING_DMA.md) | byte-ring era (folded out; `--legacy-ring` restores) | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) |
+| [`findings/RX_TX_PERFORMANCE.md`](findings/RX_TX_PERFORMANCE.md) | merged 2026-07-25: plain-language RX story + diagrams + levers table folded in | [`docs/findings/PERFORMANCE_GOAL.md`](../docs/findings/PERFORMANCE_GOAL.md) |
+| [`findings/GIGABIT_HEADROOM_ANALYSIS.md`](findings/GIGABIT_HEADROOM_ANALYSIS.md) | merged 2026-07-25: cycles/byte budget model + "data-plane is already gigabit" verdict folded in | [`docs/findings/PERFORMANCE_GOAL.md`](../docs/findings/PERFORMANCE_GOAL.md) |
+| [`findings/SINGLE_PORT_PERF.md`](findings/SINGLE_PORT_PERF.md) | merged 2026-07-25: "second core won't help — latency-bound, measured three ways" folded in as §2.1 | [`docs/findings/LATENCY_INVESTIGATION.md`](../docs/findings/LATENCY_INVESTIGATION.md) |
 | [`findings/TX_READER_PREFETCH_PLAN.md`](findings/TX_READER_PREFETCH_PLAN.md) | completed-and-rejected plan (measure-first exemplar) | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md), [`CHANGELOG.md`](../CHANGELOG.md) |
 | [`fpga/CPPI_DMA_REDESIGN.md`](fpga/CPPI_DMA_REDESIGN.md) | design-era byte-ring→BD-ring log | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) |
 | [`fpga/HW_GRO_RSC.md`](fpga/HW_GRO_RSC.md) | single-slot RSC + 07-07 campaign log | [`docs/fpga/PIPELINE_STAGES.md`](../docs/fpga/PIPELINE_STAGES.md) (R3), [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../docs/fpga/HEADER_SPLIT_DESIGN.md) |
+| [`fpga/HSPLIT14_DESIGN.md`](fpga/HSPLIT14_DESIGN.md) | merged 2026-07-25: hsq12 cut-through chapter folded in (v3 `fill_len`/`hdr_idx` ABI lives there) | [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../docs/fpga/HEADER_SPLIT_DESIGN.md) |
 | [`integration/FULLY_FPGA_RISCV_MIGRATION.md`](integration/FULLY_FPGA_RISCV_MIGRATION.md) | completed PS→fabric migration plan | [`docs/litex/LITEX_SOC.md`](../docs/litex/LITEX_SOC.md), [`docs/integration/BOARD_PORTING_AX7101.md`](../docs/integration/BOARD_PORTING_AX7101.md), [`docs/integration/INTEGRATION_GUIDE.md`](../docs/integration/INTEGRATION_GUIDE.md) |
 | [`integration/OPEN_SOURCE_MIGRATION.md`](integration/OPEN_SOURCE_MIGRATION.md) | completed de-Xilinx plan | [`docs/integration/PORTING_GUIDE.md`](../docs/integration/PORTING_GUIDE.md) §2 |
 
-## Still in place (merge pending)
-
-Four merge-source docs keep their `⚠️ SUPERSEDED` banners at their original paths until
-their content is folded into the successors, then they move here too:
-[`docs/findings/RX_TX_PERFORMANCE.md`](../docs/findings/RX_TX_PERFORMANCE.md),
-[`docs/findings/GIGABIT_HEADROOM_ANALYSIS.md`](../docs/findings/GIGABIT_HEADROOM_ANALYSIS.md),
-[`docs/findings/SINGLE_PORT_PERF.md`](../docs/findings/SINGLE_PORT_PERF.md),
-[`docs/fpga/HSPLIT14_DESIGN.md`](../docs/fpga/HSPLIT14_DESIGN.md).
-
 Preserved evergreen nuggets (recorded so nothing is lost): the datapath-input TX-vs-CPU
-probe method (RX_FANOUT), the cycles/byte budget model (GIGABIT_HEADROOM), the Forencich
-open-core catalog (OPEN_SOURCE_MIGRATION), the measure-before-build discipline
-(TX_READER_PREFETCH / CAMPAIGN_500), the NET_IP_ALIGN +2 misalignment lesson (RX_FANOUT).
+probe method (RX_FANOUT), the Forencich open-core catalog (OPEN_SOURCE_MIGRATION), the
+measure-before-build discipline (TX_READER_PREFETCH / CAMPAIGN_500), the NET_IP_ALIGN +2
+misalignment lesson (RX_FANOUT). The cycles/byte budget model (GIGABIT_HEADROOM) and the
+hsq12 cut-through ABI (HSPLIT14) were not just preserved — they were folded into their
+living successors on 2026-07-25.

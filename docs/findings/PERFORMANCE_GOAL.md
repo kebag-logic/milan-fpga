@@ -1,8 +1,57 @@
 # Throughput goal  -  >500 Mbit/s RX *and* TX, reach for 1 Gbit/s
 
-> 📌 **Current state lives in [`../CHANGELOG.md`](../../CHANGELOG.md)** (the perf lever ledger + final campaign scoreboard). This doc is the perf-lineage campaign **record**; every number here is the **2-hart perf-campaign peak** — the **ship shape is 1-hart + `--l2-bytes 32768`**. Campaign **closed 07-10/11** (header-split zero-copy RX): **TX 582–646, RX no-copy 585–594, RX-with-copy 381/374** (both directions cross 500). **DDIO was REFUTED** — the copy tax was removed by header-split, not DDIO.
+> 📌 **CAMPAIGN CLOSED 2026-07-10/11 (header-split zero-copy RX).** This doc is the consolidated
+> campaign **record**; every number in it is a **2-hart perf-campaign** measurement — the
+> **ship shape is 1-hart + `--l2-bytes 32768`**, so these are perf-lineage records, not the
+> shipped configuration. The per-lever ledger is [`../CHANGELOG.md`](../../CHANGELOG.md); the
+> as-built datapath is [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md); the profiling
+> method is [`PERF_ON_MILAN.md`](PERF_ON_MILAN.md); the memory root cause is
+> [`LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md). **DDIO was REFUTED** — the copy tax
+> was removed by header-split, not DDIO.
+> Consolidated 2026-07-25: this file absorbed `RX_TX_PERFORMANCE.md` (the plain-language RX
+> story + diagrams) and `GIGABIT_HEADROOM_ANALYSIS.md` (the cycles/byte budget model); the
+> originals are archived under [`historical_now_obsolete/findings/`](../../historical_now_obsolete/README.md).
+
+## Final scoreboard — reconciled at campaign close (2026-07-11)
+
+Three docs used to freeze this campaign's scoreboard at different dates with conflicting
+numbers: this one at 07-09 (TX −P2 525–536, RX −P2 316), `RX_TX_PERFORMANCE` at 07-09 eve
+(TX −P4 513, RX ~370–410 sustained, no-copy 925), `GIGABIT_HEADROOM_ANALYSIS` at 07-09/10
+night (TX 503–513, RX 368–407). None of those was wrong — each was a dated waypoint of a
+moving system. This table is the ONE scoreboard now; the waypoints survive below in their
+dated sections. Close-out method for every record row: peer `tx_bytes` 5-second deltas,
+first and last intervals excluded, fresh client ports per cell, TX gate after every RX change.
+
+| metric | record | date | build (gateware + driver) |
+|---|:--:|:--:|---|
+| **TX TCP** | **582–646** | 2026-07-10/11 | `build_hsq8`/`build_hsq10` TX gates + kl-eth `hsplit11/12` |
+| **RX TCP, real `recv()` copies** | **381 steady / 374 over a 120 s soak** (−P4 2:2) | 2026-07-10/11 | `build_hsq10` (16 KB pages) + `hsplit12` |
+| RX TCP single-flow | **329** (cut-through) | 2026-07-11 | `build_hsq12` + `hsplit14` |
+| **RX no-copy stack ceiling, hs era** | **585–594** (`MSG_TRUNC`, sustained) | 2026-07-11 | `build_hsq10` keeper + `recv_trunc` |
+| RX no-copy stack ceiling, mslot era | **925** (`MSG_TRUNC` −P2, ~98 % of the ~941 wire ceiling) | 2026-07-09 eve | `build_r2slots` + `mslot60c` (60 KB RSC aggregates) |
+| RX steady, mslot keeper | 368–407 (−P8, peer time-series) | 2026-07-09/10 | `build_r2slots` + `mslot60d` |
+| UDP TX / RX goodput | 24 / 65 | 2026-07-11 | keeper (no USO / UDP-GRO offloads) |
+
+**Verdict: both directions crossed 500** — TX 582–646, RX 585–594 no-copy. The
+socket-`recv()` path closed at 381/374: the residual is the kernel socket API's copy +
+envelope cost on two 100 MHz in-order harts, not the silicon (see the headroom chapter
+below — the data-plane itself measured 925 of a ~941 wire ceiling). The two no-copy
+ceilings are different geometries, not a contradiction: 925 was measured on the 60 KB
+multi-slot-RSC generation, 585–594 on the 16 KB header-split keeper generation.
+
+Waypoint lineage, RX −P2/−P4: 165 (07-08, `build_dp100_m1` R0) → 230–238 (07-08, m1 +
+2-queue fan-out) → 280 (`build_l2x2`) → 298 (`build_mlp3`) → 316 (07-09, `build_l2deep`) →
+368–407 −P8 steady (07-09/10, `build_r2slots`) → **381/374** (07-10/11, `build_hsq10`).
+TX: 238–247 (07-07, `build_dp100_p0`, CBS-paced) → 452 −P4 (07-08, `build_dp100_m1` T1) →
+525–536 −P2 (07-09, `build_l2x2`/`build_mlp3` A/B) → 513 −P4 (07-09, `build_r2slots`) →
+**582–646** (07-10/11, hsq series).
 
 ## ⚡ FORCED-MARCH RESULTS (2026-07-09 evening  -  R1 refuted, R2 LANDED, R3 in flight)
+
+*(Frozen mid-flight. Outcomes: R3 112.5 MHz was shelved — three builds, best WNS −0.036
+corrupted QSPI reads on-die; R3b rpt-ahead-8 measured flat (see the headroom chapter, R-4).
+The lever that closed the campaign was header-split zero-copy RX, 07-10/11 —
+[`../fpga/HEADER_SPLIT_DESIGN.md`](../fpga/HEADER_SPLIT_DESIGN.md).)*
 
 **R1 (warm copy)  -  REFUTED with mechanism** (details: memory `r1-warm-copy-refuted`,
 tools `tools_wakebench.c`/`tools_recv_spin.c`): bounded receive windows are throttled by a
@@ -56,7 +105,7 @@ The NIC's PHY is 1 GbE and the 64-bit datapath has ample raw bandwidth (3.2 Gbit
 memory latency), not a wire limit. Every step is measured on silicon with HW counters +
 CPU profile side by side  -  no blind changes.
 
-## Where we are (measured on silicon, 2026-07-09)
+## Where we stood (measured on silicon, 2026-07-09  -  waypoint; final numbers in the scoreboard at top)
 
 | path | best measured | ≥500? | bound by | next lever toward 500+ |
 |------|:-------------:|:-----:|----------|------------------------|
@@ -74,7 +123,7 @@ two runs, rsc250 hwtso+rsc_clk_mhz=100, hash_sel=1): TX **238/247 Mbit/s, 0 retr
 **3.8% busy**; `L_pay = 45 cyc` (450 ns, NOT the ~140 assumed); prefetchable read-latency stall is
 only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefetch was refuted**  - 
 the walls were datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
-`docs/findings/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
+`historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md` (MEASURED VERDICT + Appendix A). "Never assume, always measure."
 ³ **CBS root cause, MEASURED + FIXED 2026-07-08.** The 39–42% datapath-input `stall` was the
 **802.1Qav CBS shaper actively pacing best-effort traffic**: `milan_csr` reset `CBS_EN_RST=0011`
 shaped **q0 at idleSlope 300 Mb/s** while the default class map (`cls_dpcp=0`, `cls_tcq=0xE4`)
@@ -111,8 +160,8 @@ BD's 16-bit `drops` field aliased bit 56 (the v2 marker) at drops ≥ 256, makin
 completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Both fixes are
 silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
 runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
-`docs/findings/RX_OVERLOAD_WEDGE.md`.
-⁵ **RX memory levers, MEASURED 2026-07-08** (`RX_MEMORY_HIERARCHY_PLAN.md` + `LSU_NONBLOCKING_DCACHE.md`). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
+`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`.
+⁵ **RX memory levers, MEASURED 2026-07-08** (`historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md` + `docs/fpga/LSU_NONBLOCKING_DCACHE.md`). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
 **Status vs goal (>500):** **TX ✅ done (−P2 525–536). RX = 316  -  and RX > 500 is a HARD GOAL:
 the campaign does not close without it** (goal reasserted 2026-07-09 evening). Position: the RX
@@ -124,7 +173,11 @@ ceiling. Refuted (measured, do not retry): page-flip zero-copy recv (flip 44.9 v
 depth-2 interconnect, L2 > 64 KB for capacity, software prefetch, deeper LiteDRAM cmd queues.
 1 Gbit/s remains the stretch. UDP is a separate (offload) problem. Every step measured on silicon.
 
-## The path to RX > 500 (forced march  -  each phase gated by silicon numbers)
+*(How the 07-09 hard goal resolved: no copy trick crossed 500 through `recv()` — the copy
+tax fell to header-split zero-copy RX on 07-10/11, which took RX no-copy to 585–594 and
+with-copy to 381/374. See the final scoreboard at top.)*
+
+## The path to RX > 500 (forced march  -  each phase gated by silicon numbers; 2026-07-09 plan, executed)
 
 Budget logic: `RX = min(stack-ceiling, stack-ceiling − copy-tax)`. Today: ceiling 481 (MSG_TRUNC),
 copy-tax ≈ 165 (481−316). 500 requires ceiling ≈ 550+ *and* copy-tax ≤ ~50. Three stacked phases:
@@ -273,15 +326,272 @@ records, **latency is not the 500-blocker**  -  T2 driver surgery is parked.
 "peer sweep" silently never applied (peer sat at 1000 µs); always verify with
 `ethtool -c` readback. The genuine peer knob is mild (437/435/452/424 at 3/50/200/1000).
 
-## Why we are not at 1 Gbit/s yet  -  the bottleneck map
+## The RX story in plain language (2026-07-08/09  -  folded from `RX_TX_PERFORMANCE.md`, 2026-07-25)
+
+*Written 2026-07-09 after the R2 multi-slot-RSC campaign; kept as the pedagogical
+walk-through of the RX levers. Deep mechanism:
+[`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md) and
+[`RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md).*
+
+The whole campaign on one chart:
+
+![campaign chart](../perf_campaign.svg)
+
+### How we explained the RX improvements (the short version)
+
+Think of RX as a bucket brigade: the NIC drops each frame into DRAM, then the CPU has to pick it
+up and hand it to the application. We made the *pickup* faster in three ways, then found the real
+wall.
+
+![RX path and the wall](../diagrams/rx_path_wall.svg)
+
+1. **Bigger shared L2 (64 KB).** With two harts both doing RX, their working sets were evicting
+   each other out of the 32 KB cache. Doubling it stopped the thrash → **RX −P2 238 → 280**.
+2. **Non-blocking data cache (8 refill slots).** The CPU's L1 could only have *one* cache miss
+   outstanding at a time  -  every miss stalled the core until DRAM answered (~1424 ns). We widened
+   it to 8. **On its own this did nothing** (229 ≈ 238): an in-order core replays the missing load,
+   it doesn't run ahead, so the 8 slots sat empty. Capacity for parallelism isn't parallelism.
+3. **RPT hardware prefetcher  -  this is the one that worked.** It watches the access pattern, learns
+   the stride, and *fills* those 8 slots ahead of the CPU, so the data is already on its way before
+   the CPU asks. **RX single-flow 207 → 277 (+34%).**
+
+![memory hierarchy and the three levers](../diagrams/memory_hierarchy_levers.svg)
+
+Combined (config **mlp3** = 64 KB L2 + refill=8 + RPT), **RX −P2 = 298**  -  the best so far, and
+the refill slots cost **zero BRAM** (they're flip-flops), so the AVDECC logic budget is untouched.
+
+#### Then `perf` told us the truth
+
+We cross-built `perf` for the board and profiled RX. **51% of the RX CPU is one line: the
+`copy_to_user` in `recv()`**  -  the kernel copying the payload from DRAM into the app's buffer. And
+it's slow (~18 cycles per 8-byte word) because it reads the payload **cold**  -  the NIC DMA'd it to
+DRAM and this is the CPU's first touch, so every line misses.
+
+We proved it with a ceiling test: a receiver that drains the socket with `recv(MSG_TRUNC)` (which
+skips the copy) hits **RX single 427, −P2 481**  -  **+61%, i.e. 96% of the 500 goal.** So the copy
+*is* the wall, and removing it essentially reaches the target.
+
+### TX (and why the RX change didn't touch it)
+
+TX already **crosses 500**  -  a back-to-back A/B of the pre-change (l2x2) and post-change (mlp3)
+gateware showed TX is **unaffected** by the refill/RPT change (ranges overlap; both −P2 peak
+525–536). That's expected: **TX is datapath/shaper-bound, not CPU-bound**, so a CPU-memory lever
+doesn't move it. The RX-targeted change carries **no TX regression**  -  good.
+
+TX got to 500 earlier in the campaign via: the CBS default-shaping bug fix (`34cc2bc`, it had been
+pacing best-effort traffic at 300 Mb/s), HW TSO, and softirq-NAPI + peer receive-coalescing.
+
+### DDIO (the "network cache")  -  measured 2026-07-09, and why it died
+
+The copy is fundamental to the socket API  -  the driver can't remove it (its zero-copy path is dead
+code and wouldn't help the `copy_to_user` anyway). Two ways to beat it:
+
+- **App zero-copy recv** (`MSG_ZEROCOPY`/mmap) → the 481 ceiling, but the *application* must opt in.
+- **DDIO / allocate-on-DMA-write** → make the copy's read a cache **hit** by landing the DMA'd
+  payload *warm* in the L2 (or a small dedicated stash) instead of cold in DRAM. Works for any app.
+
+![DDIO before and after](../diagrams/ddio_before_after.svg)
+
+This is the **"dedicated cache for the network"** idea from the very start of the campaign  -  first
+dismissed, then vindicated once `perf` showed the dominant cost is the copy's cold reads of the
+DMA'd payload.
+
+**MEASURED on silicon (2026-07-09).** Good news first: VexiiRiscv's coherent L2 (SpinalHDL
+`tilelink.coherent.Cache`) *already has* an `allocateOnMiss` policy hook, and its opcodes include
+the DMA write (`PUT_FULL_DATA`)  -  so shared-L2 DDIO is **a one-line config, not weeks of RTL**
+(wired as `--l2-ddio`; `build_ddio` closed timing at the same WNS +0.102 and 0 extra BRAM). The
+bad news: **it didn't help**  -  RX −P2 ~300 (flat vs mlp3's 298), and single/−P4 dipped slightly.
+Allocating *every* DMA write into the 64 KB shared L2 **pollutes** the CPU's working set without
+**warming** the copy: under two harts streaming 16 KB payloads, each payload is **evicted before
+`copy_to_user` reads it** (the NAPI→recv gap). Scoping the allocate to RX-writer Puts would only
+recover the small regression, not fix the *residency* problem.
+
+**So DDIO on this SoC needs the payload to survive from DMA-write to copy-read**, which the shared
+L2 can't guarantee. That points at a **dedicated stash** (a small cache reserved for in-flight RX,
+not competing with the CPU/other DMA)  -  real RTL, and it still has to win the residency race  -  or
+the **header-split + app-zero-copy** path (a driver+HW change so `TCP_ZEROCOPY_RECEIVE` can
+page-flip; measured 0% today because the HW-RSC frag isn't page-aligned). Both are substantial.
+**The practical RX ceiling with tractable levers is mlp3's ~298**; the measured 481 says the
+headroom is real, but capturing it is a project, not a knob.
+
+*(That project was then built: header-split zero-copy RX  - 
+[`../fpga/HEADER_SPLIT_DESIGN.md`](../fpga/HEADER_SPLIT_DESIGN.md)  -  and it closed the
+campaign on 07-10/11.)*
+
+### The levers at a glance (measured)
+
+| lever | effect | note |
+|---|---|---|
+| 64 KB L2 | RX −P2 238 → **280** | capacity (both harts) |
+| refill=8 alone | 229 ≈ 238 (**no gain**) | in-order core; slots need a filler |
+| **RPT prefetcher** | RX single 207 → **277** (+34%) | fills the slots; +2 BRAM tiles |
+| mlp3 (all three) | RX −P2 = **298** | slots cost 0 BRAM |
+| **L2→DRAM depth 8** (l2deep) | RX −P2 = **316 (best)** | `downPendingMax` 4→8: 2 harts stopped serializing at the L2's DRAM port; knee at 8 (16 flat; LiteDRAM cmd 16 flat) |
+| shared-L2 DDIO | ~300 (**flat**) | allocate-on-DMA-write pollutes without warming (residency) |
+| *ceiling if copy removed* | RX −P2 = **481** | via `recv(MSG_TRUNC)` |
+| copy removal  -  **CLOSED, measured dead** | (481 unreachable via sockets) | stash: refuted on residency (Recv-Q 1–3 MB ≫ BRAM). Zero-copy recv: the kernel's `can_map_frag()` demands order-0 4 KB driver pages at offset 0 (16 KB compound RSC pages can never flip), **and** `mapbench` measured the flip machinery at **44.9 µs/page vs 25.0 µs/page for the cold copy**  -  page-flipping *loses* on this 100 MHz sv39 core |
+
+**Checkpoint verdict (2026-07-09, superseded the same evening).** With the levers measured so far,
+socket-API TCP RX sat at **~316**, and the 481 stack-ceiling was reachable only by consumers that
+never materialize the payload through `recv()` (`MSG_TRUNC`-class, `AF_PACKET` mmap rings  -  the
+latter being how the real Milan/AVTP media path works, copy-free by design). **The goal was then
+reasserted: RX > 500 over standard TCP recv is a hard goal  -  the campaign does not close without
+it.** The engineering consequence of the 481 measurement: *no copy trick alone can cross 500*  - 
+the path must raise the stack ceiling **and** close the copy tax. The forced-march plan (R1 warm
+copy via DDIO + bounded residency; R2 RSC multi-slot to kill park-closes and raise the ceiling;
+R3 112.5 MHz final mile) is the "path to RX > 500" section above.
+
+**Refuted along the way** (so we don't retry them): the depth-2 DMA interconnect (RX writer has
+30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),
+and 112.5 MHz (only +4–8%). See [`../CHANGELOG.md`](../../CHANGELOG.md).
+
+## Gigabit headroom at 100 MHz (2026-07-09/10 night  -  folded from `GIGABIT_HEADROOM_ANALYSIS.md`, 2026-07-25)
+
+*2026-07-09/10 night. Every number here is silicon-measured on `build_r2slots`
+(+ kl-eth `mslot60c/d`) unless marked **hypothesis**. Clock fixed at 100 MHz by
+direction (112.5 MHz shelved: three builds  -  best WNS −0.036 corrupted QSPI reads
+on-die; a future 112.5 needs a dedicated retiming/floorplan campaign, not seeds).*
+
+### 1. Where the link stands
+
+Wire ceiling at MTU 1500: **~941 Mbit/s** TCP goodput.
+
+| path | measured | % of wire | binder (measured) |
+|---|:--:|:--:|---|
+| RX, full stack, **no copy** (MSG_TRUNC −P2) | **925** | 98 % | none  -  HW+driver+GRO+TCP run line-rate-class |
+| RX, TCP with real `recv()` copies, sustained | **368–407** (flat, peer-tx_bytes time-series) | ~41 % | 2-hart CPU equilibrium: cpu0 100 % softirq, cpu1 100 % sys/copy |
+| RX transient drain (slow-start window) | ≥ 520 real reads | 55 % | proves the drain machinery exceeds steady state |
+| TX −P4 (iperf3 `-Z`) | **503–513** (−P2 record 525–536) | ~54 % | CPU descriptor feed: TX reader **63.4 % idle**, busy 6.2 %, datapath stall 4.1 % |
+
+**The one-sentence verdict: the gateware + driver data-plane is already a gigabit
+data-plane (925/941); everything still on the table is the cost of the kernel
+socket API on two 100 MHz in-order harts.**
+
+### 2. The budget model (anchor for every lever)
+
+Two harts × 100 MHz = **200 M cycles/s** total compute.
+
+| regime | throughput | system cycles/byte | notes |
+|---|:--:|:--:|---|
+| no-copy stack (925 Mbit) | 115.6 MB/s | **1.73** | GRO+TCP+reap only |
+| with-copy steady (400 Mbit) | 50 MB/s | **4.0** | + copy + recv envelope + full-queue tax |
+| wire (941 Mbit) | 117.6 MB/s | 1.70 | the whole budget |
+
+Decomposition of the with-copy 4.0 cycles/byte:
+- **cpu0 (softirq/GRO/TCP): 2.0 cy/B**  -  already amortized by R2's 60 KB aggregates
+  (22.8 segs/agg; interleave parks eliminated).
+- **cpu1 (app hart): 2.0 cy/B**, of which the **raw copy is only 0.64 cy/B**
+  (26.37 µs/4 KB cold, mapbench)  -  the other **~1.36 cy/B is the recv() envelope**:
+  syscall + sock-lock (incl. backlog double-handling in the full-queue regime) +
+  skb-chain walk + rcvbuf accounting + window updates.
+- **Full-queue tax ≈ 25 %**: steady 390 vs ≥520 transient with identical machinery  - 
+  when Recv-Q pegs, every byte drags window-update generation and sock-lock backlog
+  processing with it.
+
+Consequence: even a *free* copy inside the present socket path leaves ~3.4 cy/B ⇒
+~470 Mbit. **No tuning of the existing recv() path reaches the wire. Reaching the
+wire means removing bytes from the socket path, not polishing it.**
+
+### 3. RX levers, ranked
+
+| # | lever | expected (measured basis) | effort | confidence |
+|---|---|---|---|---|
+| R-1 | **Userspace data-plane on the existing BD ring** (UIO/mmap export of the completion-BD ring + posted buffers; DPDK-style poll-mode consumer; kernel keeps control-plane) | **toward 925**  -  the ring/buffer architecture already exists and measured 925 through a heavier path; no RTL | driver: UIO/mmap export + small user lib | high (arch exists; the 925 proves the HW side) |
+| R-2 | **AF_PACKET v3 RX_RING for the AVTP/Milan product path** | same class as R-1, standard ABI; copy-free by design | none in RTL; app-side | high  -  this is the real media path anyway |
+| R-3 | **HW header-split** (writer scatters payload across order-0 4 KB pages at offset 0, headers in a side ring; BD carries the page count) → unlocks `tcp_zerocopy_receive` / io_uring zero-copy RX for *socket TCP* | **MEASURED ENABLER (tonight): batched trap-free PTE moves = 1.22 µs/page vs copy 26.3 µs  -  21.5× cheaper** (mremap ping-pong, mapbench mode C). The old refutation (48 µs "map-cycle") was a trap-per-page artifact; the real vm_insert_pages path pays no traps. Budget: copy 0.64 cy/B → ~0.03; socket TCP ~700–870 Mbit becomes arithmetically reachable at 100 MHz | RTL: writer 4 KB-scatter (AW/W already splits at 4 KB boundaries  -  geometry fits) + driver posts order-0 pages / multi-frag skbs + `tools_recv_zc.c` already exists for validation | **high**  -  enabler measured; remaining risk is the insert+zap syscall envelope (est. 3–5 µs/page batched, still 5–8× under copy) |
+| R-4 | ~~rpt-block-ahead-max=8~~ **MEASURED FLAT**: copy 27.04 vs 26.37 µs/4 KB, steady −P8 371–394 ≈ keeper  -  ahead=4 already saturates the memory path's useful MLP at the downPending=8 knee (`build_r2rpt`, WNS −0.077, not a keeper) | 0 % | done | measured  -  refuted |
+| R-5 | Pool 63 + rmem ~800 K ×8 flows (pool ≥ Σrwnd, tax-reduction attempt) | +5–10 % **hypothesis**  -  196 K rmem was catastrophic (window < 2 aggregates), 1–2 MB untested against pool 7.5 MB max | config | low-medium |
+| R-6 | recv envelope micro-opts (io_uring multishot, busy-poll) | ~5 % class | app/driver | low |
+
+Refuted / structurally capped (do not revisit without new evidence):
+- Aggregates > 64 KB: v2 BD `len`/`agg_off` are 16-bit and GRO's skb cap is 64 KB  - 
+  60 KB is the practical max for skb-based delivery.
+- DDIO / BRAM stash / page-flip zero-copy / bounded-rmem warm-copy: all measured dead
+  (residency physics + 1 ms structural window-cycle + sv39 remap cost).
+- 3rd hart: **slices 98.24 %**, LUTs 82.7 %, BRAM 83.3 %  -  does not fit beside this
+  datapath on xc7a100t.
+- 112.5 MHz: shelved by direction; empirically needs WNS ≥ +0.03 to survive QSPI on
+  this die (−0.036 corrupted flash reads).
+
+### 4. TX levers, ranked
+
+At 503 Mbit the reader idles 63.4 % waiting for descriptors (books balance:
+busy 6.2 + stall 4.1 + pre-pass 15.9 + rd-wait 9.8 + idle 63.4 + setup 0.6 = cyc).
+The datapath could carry ~8× more. TX is purely a CPU-feed problem:
+
+| # | lever | expected | effort |
+|---|---|---|---|
+| T-1 | Userspace TX ring (mirror of R-1; the TX BD engine already reads straight from arbitrary addresses) | toward line rate for the data-plane | driver export |
+| T-2 | Feed batching: larger app writes, `sendmsg` batching, doorbell coalescing (`xmit_more` is already batched  -  verify), TCP autocork tuning | +10–20 % **hypothesis** | config/driver |
+| T-3 | Board-side ACK-RX cost: the RSC ack-merge already coalesces; extend merge window at high TX rates | small | RTL knob exists (`rsc_tout`) |
+| T-4 | csum pre-pass removal (16 % of *reader* cycles, structural double-read) | 0 % until T-1/T-2 land (reader isn't the binder) | RTL, later |
+
+### 5. What actually reaches the wire (recommendation)
+
+1. **Product path (AVTP/Milan): go around the socket.** R-1/R-2 (userspace BD ring
+   or AF_PACKET ring). The 925 measurement is the proof the silicon side is done;
+   this is driver+app work with no RTL and no timing risk. This is how this class
+   of NIC reaches line rate everywhere (DPDK/AF_XDP precedent).
+2. **Socket-TCP benchmark path: header-split (R-3) is the door to ~700-870 Mbit,
+   and its enabler is now MEASURED** (PTE-move 21.5× cheaper than copy, mapbench
+   mode C tonight). This is the highest-value RTL investment left in the design:
+   4 KB-scatter in the RSC writer + order-0 page posting in kl-eth, validated by
+   the existing `tools_recv_zc.c`.
+3. **Keep harvesting the cheap %:** pool/rmem coupling (R-5), TX feed batching
+   (T-2). rpt8 measured flat  -  struck off.
+4. **Re-open 112.5 MHz only as a real timing campaign** (retime the writer-match and
+   reader-assembly cones, floorplan CPU vs datapath)  -  worth +8–12 % on every
+   CPU-bound number above, but not seed-lottery material.
+
+*(Outcome, 2026-07-10/11: R-3 was built  - 
+[`../fpga/HEADER_SPLIT_DESIGN.md`](../fpga/HEADER_SPLIT_DESIGN.md). It carried RX
+with-copy to 381/374 and no-copy to 585–594  -  but the `TCP_ZEROCOPY_RECEIVE` flip path
+itself measured 110–113 Mbit at 87 % flipped (hsq13, 4 K pages): the flip loses to the
+aligned copy on this core, so the ~700–870 socket-TCP projection was not realized. What
+landed instead was the **aligned-copy** win predicted in the app profile below.)*
+
+### 6. Evidence index (that night)
+
+- 925 no-copy: two MSG_TRUNC flows 480.7+444.3, steer split live, drops Δ0, canary 0.
+- Steady 368–407: 75 s / 60 s runs, peer `tx_bytes` 5 s windows, flat; both harts
+  100 % via /proc/stat (cpu0 softirq-dominated, cpu1 sys-dominated).
+- Transient ≥520: 8 s −P8 cells read 553 MB of real copies (rate-sum cross-checked).
+- Copy 26.37 µs/4 KB, trap-fault remap-cycle 48.03 µs, **batched PTE move 1.22 µs
+  (21.5× under copy)**  -  mapbench modes A/B/C on r2slots.
+- TX buckets: POST deltas at 503 Mbit −P4, books balance to cyc.
+- Famine: KL_BD_POST 48→60 zeroed 60 s drops (earlier +137/60 s at 48).
+- Full histogram at −P2: psh 55 %, rollover-park 45 %, tout 0.2 %, cap/age/prs 0,
+  ratio 22.8.
+
+### App profile (2026-07-10, keeper @ steady −P8 334 Mbit, per-hart, symbolized)
+
+- **cpu1 (app hart): 83.2 % of cycles in ONE kernel loop**  - 
+  `fallback_scalar_usercopy_sum_enabled+0xa8..0xcc`. Disassembly: the **misaligned
+  shift-and-merge path** (`ld; srl; ld; sll; or; sd` = 5 ops per 8 B), NOT the fast
+  64-B-unrolled aligned path 0x6c bytes earlier (≈1.06 ld+sd per 8 B).
+- **cpu0 (softirq hart)**: ~19 % is the same usercopy (second app's share), 4.6 %
+  `_raw_spin_unlock_irqrestore`, 1.4 % softirq dispatch, rest fragmented GRO/TCP/driver.
+- **Root cause of the misalignment**: the 54/66-B frame header inside the copybreak
+  linear part shifts the payload boundary to dst%8=2/6; every subsequent frag byte
+  copies through the slow path. Per-aggregate payloads are 8-multiples (n×1448), so
+  once misaligned, always misaligned.
+- **Consequence: header-split fixes the copy tax twice**  -  (a) zerocopy for full 4 K
+  frags, and (b) even the *copied* fallback becomes aligned (payload at page offset 0)
+  ⇒ ~2–3× faster copies before any mmap. The 0.64 cy/B "raw copy" figure in §2 is a
+  *misaligned* figure; the aligned budget is ~0.25–0.3 cy/B.
+- Keeper-side partial trick (rx offset +2 to align doff=5 payloads) helps only
+  timestamp-less flows (doff=8 → 68%8=4)  -  not pursued; hsplit is the clean fix.
+
+## Why we are not at 1 Gbit/s  -  the early bottleneck map (pre-07-08 view; close-out view = the headroom chapter above)
 
 The datapath is never the raw-bandwidth limit (64-bit × 50–100 MHz ≫ 1 Gbit). The real walls,
-in the order they surface as load rises:
+in the order they surfaced as load rose:
 
 - **TX ≤ ~186:** the 50 MHz CBS-shaper stage adds per-frame grant latency (datapath-input
   probe: 60% stall). Raising the datapath to 100 MHz halved that (→27% stall) and moved the
   wall to the **RingDMAReader**, which is serial/latency-exposed  -  one outstanding coherent
-  DMA read at a time (70% starve). See `RX_FANOUT_AND_TX_CEILING.md`, `tx-datapath-limit`.
+  DMA read at a time (70% starve). See
+  `historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md`, `tx-datapath-limit`.
 - **RX per-frame CPU cost:** each RX frame pays DMA cache ops + skb alloc + stack traversal;
   a single flow saturates one hart in `sys` at ~40 Mbit/s. **RSC** (HW receive coalescing)
   amortizes this and lifts single-flow RX to 209; the 2-queue fan-out reaches 223. Beyond
@@ -290,10 +600,10 @@ in the order they surface as load rises:
   (≈50% TLB walk + 50% DRAM), DDR3-800, 32 KB L2. Both directions are ultimately gated by
   how fast a 100 MHz RV64 core can touch uncached DMA memory per frame.
 
-## Roadmap toward >500 Mbit/s, then 1 Gbit/s (ordered, each independently measurable)
+## Roadmap toward >500 Mbit/s, then 1 Gbit/s (historical execution plan  -  campaign closed 07-10/11)
 
 **Immediate bar: >500 both directions** (≥200 met; TX at 354). The phased, gateware-gated
-execution plan is **`docs/findings/CAMPAIGN_500_PLAN.md`** (M1 instrumentation → R0 re-baseline →
+execution plan was **`historical_now_obsolete/findings/CAMPAIGN_500_PLAN.md`** (M1 instrumentation → R0 re-baseline →
 R1 2-queue fan-out → R2 RSC geometry → T1/T2 TX levers + completion-IRQ → conditional
 T3/X)  -  every phase has a numeric gate read from HW counters. The levers below are the
 same ones that carry on to 1 Gbit.
@@ -326,11 +636,12 @@ same ones that carry on to 1 Gbit.
 
 | topic | doc |
 |-------|-----|
-| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | `docs/findings/RX_OVERLOAD_WEDGE.md` |
+| **RX overload wedge**: completion-order inversion, sim repro + fix (2026-07-08) | `historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md` |
 | **CBS default-shaping bug**: reset config paced BE TX at 300 Mb/s (2026-07-08) | `docs/findings/CBS_DEFAULT_SHAPING_BUG.md` |
-| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | `docs/findings/TX_READER_PREFETCH_PLAN.md` |
-| HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | `docs/findings/RX_FANOUT_AND_TX_CEILING.md` |
-| Memory-latency root cause (1424 ns/miss), floorplan/clock experiments | `docs/findings/LATENCY_INVESTIGATION.md`, `docs/findings/SINGLE_PORT_PERF.md` |
+| Reader-prefetch refutation (Phase-0 probes, MEASURED VERDICT) | `historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md` |
+| HW-TSO, single-flow ceiling, RX fan-out, datapath-input probe, 100 MHz datapath | `historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md` |
+| Memory-latency root cause (1424 ns/miss), floorplan/clock experiments, the second-core refutation | `docs/findings/LATENCY_INVESTIGATION.md` |
+| Header-split silicon history (hsq4-hsq12) + live BD v2/v3 ABI | `docs/fpga/HEADER_SPLIT_DESIGN.md` |
 | RX RSC coalescing + `ethtool -C rx-usecs` (default 250 µs) | `../the-private-test-repo/fpga/kl-eth/README.md` |
 
 ## Ground rules for this campaign

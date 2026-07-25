@@ -1,6 +1,7 @@
-# Header-split zero-copy RX  -  design (2026-07-10)
+# Header-split zero-copy RX  -  design + silicon history (2026-07-10/11)
 
-**Goal** (GIGABIT_HEADROOM_ANALYSIS R-3): payload lands at **offset 0 of order-0 4 KB
+**Goal** (headroom lever R-3, now in [`PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md)
+§"Gigabit headroom"): payload lands at **offset 0 of order-0 4 KB
 pages** so `tcp_zerocopy_receive`'s `can_map_frag()` accepts every full frag  - 
 measured enabler: batched PTE moves 1.22 µs/page vs 26.3 µs copy (21.5×). Target
 ~700–870 Mbit socket TCP at 100 MHz.
@@ -369,3 +370,98 @@ hsq7t proves the 2-queue shape fits, but at 99.4% there is NO room for
 rx1 hs_capable  -  the strip-probes diet (area-70 catalog) gates the full
 2-queue-hs build. Next: strip-probes flag → rebuild 2-queue with rx1-hs →
 kl-eth hsplit11 (per-queue hs) → the 368-407 mslot aggregate assault.
+
+## hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from HSPLIT14_DESIGN.md, 2026-07-25)
+
+*2026-07-11. Kills the RSC hold latency (the per-flow ~95 Mbit plateau closed-form:
+rate = PAYCAP/fill-cycle, because ACKs wait for aggregate close). Pages become visible
+as they complete; the meta arrives LAST and only finalizes. Effective hold:
+PAYCAP-fill (~4.8 ms) → page-fill (~1.3 ms @16K). Pairs STRICTLY: hsq12 gateware ↔
+kl-eth hsplit14.*
+
+### Why the pre-hsq12 RTL holds everything to close
+
+The hs opener allocates TWO CQ entries: meta FIRST (drains first), page second.
+The meta's `done` only sets at close (stage_close fills it)  -  and the CQ drain
+is pop-ordered, so the undone meta at the head **blocks every completed page
+v3 behind it** until close. The driver (hsplit9..13) builds the header skb from
+the meta then attaches v3 frags: meta-then-pages is the ABI today.
+
+### hsq12 RTL changes (RingDMAWriter)
+
+1. **Opener allocates ONE entry** (the first page). Delete `cur_cqm` staging and
+   the second `cq_tail+2` bump (gate can relax to `cq_level < CQD-1`; keep -2
+   for margin). Delete the `s_cqm` array, the `mcl_of_*` hops, and the hsq9
+   META-at-head term in `head_open_hit` (dead  -  there is no undone meta at the
+   head anymore; pages are done-at-completion, the close-meta is done-at-fill).
+2. **stage_close(k, cqi, …) allocates the meta at CLOSE**: replace
+   `NextValue(meta_cqi, mcqi)` with a tail alloc
+   (`meta_cqi←cq_tail; cq_done[tail]←0; tail+1`)  -  CQ order becomes
+   v3…v3, meta (meta LAST). The pv3 (last page) still fills `cqi` =
+   `cq_of_sel`/the slot's registered page entry (LIVELOCK INVARIANT: the page
+   v3 always targets the slot's own entry  -  unchanged).
+3. **Every stage_close caller gains `& cq_room`** (alloc needs a free entry).
+   Deferral semantics per site:
+   - exp (tout/age) + pressure closes: simply retry next cycle (conditions
+     persist).
+   - same-flow-gap / victim park-closes: the existing `.Else` drop path
+     already handles no-room (frame drops counted; BD-gate makes full-CQ safe).
+   - psh-close-after-append: defer = aggregate stays open with s_psh[k] held;
+     exp/pressure close it later. VERIFY s_psh persists (slot reg  -  it does).
+   - ACK-flush-vs-open ordering (test_bd_ack_flush…): re-run, order semantics
+     unchanged (v1 ACks unaffected).
+4. **v3 w0 gains two fields** (both zero today):
+   - `[63:59] hdr_idx`  -  same position as the meta's (uniform decode). Sites:
+     HS_PGSWAP writes `s_hidx[slot_sel]`; the pv3 path stages `pv3_hidx` in
+     stage_close (`s_hidx[k]`).
+   - `[31:16] fill_len`  -  bytes in THIS page. HS_PGSWAP writes
+     `hs_page_bytes`; the pv3 writes the partial fill
+     `(s_off[k] & (hs_page_bytes-1))`, with the ==0 case fixed up to
+     `hs_page_bytes` (one Mux). This lets the driver deliver every v3
+     immediately (no deferral waiting for the meta to learn the last page's
+     length).
+   Layout after: [7:0]=0xBD, [15:8]=seq(drain-patched), [31:16]=fill_len,
+   [47:32]=0, [53:48]=drops6(drain-patched), [55:54]=tag, [56]=1, [57]=0,
+   [58]=1, [63:59]=hdr_idx.
+
+### kl-eth hsplit14 changes
+
+v3 handler (pages now arrive FIRST):
+- `tag`, `hdr_idx=(w0>>59)&0x1F`, `fill=(w0>>16)&0xFFFF`, page from FIFO
+  pairing (w1 addr verify unchanged).
+- If `!asm[tag].active`: bind headers  -  parse the hs_hdr slot directly
+  (hdrlen = 34+4*doff from slot byte 46>>4; seq from bytes 38-41); record
+  `{hdr_idx, seq_base, delivered=0}`.
+- **Deliver PER PAGE**: alloc skb (hdrlen), memcpy headers from the slot,
+  patch: ip tot_len = hdrlen-14+fill, tcp seq = seq_base+delivered, recompute
+  IP csum (as today's meta path), attach the page frag (len=fill, truesize=
+  hs_pgsz), gso_size=1448 when fill>1448, CHECKSUM_UNNECESSARY,
+  napi_gro_receive. `delivered += fill`.
+- META handler shrinks: stats (rx_packets += segs), psh/ack/win are NOT
+  retro-patched (already-delivered units carried the open header's ack/win  - 
+  acceptable; psh only affects app-wake latency), clear asm[tag]. The stale-asm
+  guard flips: a META with no active asm = normal for 0-payload closes.
+- Teardown/resync: clear asm (exists).
+
+### Sim updates (test_ring_bd.py)
+
+- ALL hs tests flip expected BD order to pages…meta (basic_split, crossing,
+  tag_interleave, famine, pressure) + assert v3 hdr_idx/fill_len.
+- New: interleaved two-flow early-binding test (v3s of A and B interleave
+  before either meta  -  driver-model binds per-tag headers correctly).
+- Livelock probe: reap model's page/meta accounting is order-agnostic (verify).
+
+### Expected effect + follow-ups (as planned, 07-11)
+
+rtt ≈ page-fill + delivery (~1.5 ms) ⇒ per-flow headroom ≈ cwnd·MSS/rtt ≫ 125;
+P4 should push toward the CPU ceiling (~550-600 aggregate at the measured
+cy/B). Pairs best with 16K pages (early delivery recycles pages sooner  - 
+famine pressure drops, so 32K's absorbency matters less; re-measure). Keep
+`hs_pgsz`/`hs_page_bytes` STRICT pairing. TX gate after every swap.
+
+### Measured outcome (2026-07-11)
+
+Cut-through took the **single-flow record: 329 (hsq12 + hsplit14)** but lost multi-flow
+to the hsq10 keeper (staircase granularity + per-unit cost); the parked follow-ups are
+8 K pages or chunk batching in the v3 handler. Delivery generations + records table:
+[`PIPELINE_STAGES.md`](PIPELINE_STAGES.md) (stages R7/R8).

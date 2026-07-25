@@ -147,7 +147,7 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) | **Every module in `hdl/`**: purpose, interfaces, clock domain, verifying harness, doc link; the wrappers; the full CDC inventory. |
 | [PIPELINE_STAGES.md](fpga/PIPELINE_STAGES.md) | Canonical stage-by-stage pipeline prose (datapath + DMA/BD engines as running on silicon). |
 | [pipeline-telemetry.md](fpga/pipeline-telemetry.md) | The `milan_tlm` in-fabric observability block: per-stage counters, Little's-law occupancy, sysfs/BIOS access. |
-| [HEADER_SPLIT_DESIGN.md](fpga/HEADER_SPLIT_DESIGN.md) / [HSPLIT14_DESIGN.md](fpga/HSPLIT14_DESIGN.md) | Header-split zero-copy RX design + per-page cut-through delivery. |
+| [HEADER_SPLIT_DESIGN.md](fpga/HEADER_SPLIT_DESIGN.md) | Header-split zero-copy RX design + per-page cut-through delivery. |
 | [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) | The DMA design-era logs (CPPI byte-ring→BD-ring, HW-GRO/RSC) — historical; PIPELINE_STAGES is the living reference. |
 | [LSU_NONBLOCKING_DCACHE.md](fpga/LSU_NONBLOCKING_DCACHE.md) | VexiiRiscv non-blocking D$ / refill mechanics reference. |
 | Per-module TerosHDL pages | `hdl/**/doc/*.md`, linked from [FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) §2; regenerate with the TerosHDL documenter (`//!` comments are the source). |

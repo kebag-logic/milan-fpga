@@ -6,7 +6,7 @@
 > **STATUS: SUPERSEDED by the measured record (2026-07-11).** Outcome: TX 582–646 ✓; TCP-socket RX plateaus at 381/374 (ACK-hold law  -  see RX_PERF_TUNING_MAP.drawio); the >500 RX lane is the no-copy consumer (MSG_TRUNC ceiling 585–594 measured; recv_zc on hs@4K = the open experiment). Current plan lives in SESSION_HANDOFF.md.
 
 
-> 📌 **Current state lives in [`RX_TX_PERFORMANCE.md`](../../docs/findings/RX_TX_PERFORMANCE.md)** (+ [`../CHANGELOG.md`](../../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
+> 📌 **Current state lives in [`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md)** (+ [`../CHANGELOG.md`](../../CHANGELOG.md)). This doc's older scoreboard rows/roadmap predate the mlp3 + perf findings (RX −P2 298, ceiling 481; TX −P2 crosses 500; next RX lever = DDIO).
 
 *Successor plan to the 2026-07-07/08 sessions (CBS default bug, both RX wedges  -  see
 [`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md), [`RX_OVERLOAD_WEDGE.md`](RX_OVERLOAD_WEDGE.md),
@@ -37,7 +37,7 @@ decision tree (cold vs capacity, and the dedicated-network-cache branch): **`RX_
 | T3 2nd TX queue | ⛔ refuted by proxy | dual-process at the operating point = 341 < 417 single-process −P4 |
 | X clock | 🟡 **RTL WIN, measurement blocked** | 106.25 REFUTED (no PLL config: sys must coexist w/ milan=100 from 200 MHz → only 100/112.5 valid). **112.5 MHz now CLOSES: WNS +0.038** via a `stream.Buffer` register between the TX reader source and the CDC (`d35f666`) that cuts the assembly-cone violators  -  reader RTL untouched, CSR identical, sims pass. **Throughput unmeasured: QSPI flashboot fails CRC at 112.5** (SPI-flash read clock marginal). Fix = `add_spi_flash(clk_freq=25e6)` (cap SPI clk independent of sys) or serial-boot → one rebuild. **TX ~508 stays a PROJECTION until booted.** |
 
-**Scoreboard (updated 2026-07-09): TX −P2 525–536 (✓ crosses 500) · RX −P2 298 (ceiling 481 once the copy is removed). Next RX lever = DDIO  -  see [`RX_TX_PERFORMANCE.md`](../../docs/findings/RX_TX_PERFORMANCE.md).** (Historical below: TX 452 / RX 238.)** Operating point: peer(sudo) `rx-usecs` 50–200,
+**Scoreboard (updated 2026-07-09): TX −P2 525–536 (✓ crosses 500) · RX −P2 298 (ceiling 481 once the copy is removed). Next RX lever = DDIO  -  see [`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md).** (Historical below: TX 452 / RX 238.)** Operating point: peer(sudo) `rx-usecs` 50–200,
 board `rx-usecs` 2000, `threaded=0`, `hash_sel=0`, MTU 1500.
 
 **Honest gap assessment:** TX closes with X (106.25 + top-of-band, or the 112.5 unlock).

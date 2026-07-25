@@ -138,9 +138,9 @@ Totals: **31 KEEP, 33 UPDATE, 4 MERGE (sources), 11 ARCHIVE, 1 NEW** = 79 existi
 > destination is the repo-root **`historical_now_obsolete/`** (USER decision), not
 > `docs/archive/`, and the docs were **physically moved** (no stubs) with every inbound
 > link repaired. `scripts/docs_check.py` now gates link integrity. SESSION_HANDOFF was
-> never on this branch's tree; the merge-source docs (RX_TX_PERFORMANCE,
-> GIGABIT_HEADROOM_ANALYSIS, SINGLE_PORT_PERF, HSPLIT14_DESIGN) stay in place until their
-> §3 merges execute.
+> never on this branch's tree. The four merge-source docs (RX_TX_PERFORMANCE,
+> GIGABIT_HEADROOM_ANALYSIS, SINGLE_PORT_PERF, HSPLIT14_DESIGN) were folded per §3 and
+> moved to `historical_now_obsolete/` on 2026-07-25.
 
 Move each to `docs/archive/` (create the dir), leaving a one-line stub/pointer at the old path
 so inbound links resolve. All are completed plans or point-in-time snapshots whose durable
@@ -168,6 +168,12 @@ Link-repair required when these land:
 ---
 
 ## 3. MERGE groups (target ← sources)
+
+> **EXECUTED 2026-07-25.** All three merges landed as specified: A (PERFORMANCE_GOAL now
+> carries the reconciled close-out scoreboard, the plain-language RX story + diagrams, and
+> the headroom/budget chapter), B (LATENCY_INVESTIGATION §2.1), C (HEADER_SPLIT_DESIGN
+> cut-through chapter). The four sources moved to `historical_now_obsolete/` with
+> merged-2026-07-25 banners and rebased links; all inbound references repaired.
 
 ### Merge A — Perf/DMA campaign consolidation → `docs/findings/PERFORMANCE_GOAL.md`
 - **Target**: `docs/findings/PERFORMANCE_GOAL.md` (the HANDOVER-designated surviving perf-lineage landing doc).
