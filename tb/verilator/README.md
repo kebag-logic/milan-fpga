@@ -1,8 +1,8 @@
 # Verilator verification harnesses
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
-Milan TSN NIC — **25 suites** (one per subdirectory; the directory listing is
-the authoritative count).
+Milan TSN NIC — one suite per subdirectory (the directory listing is
+the authoritative count; prose numbers go stale).
 
 They need **only** `verilator >= 5.0`, a C++17
 compiler and the `third_party/verilog-axis` submodule
@@ -31,6 +31,7 @@ CI-ready (note: no CI is wired up in this repo yet — see
 | [`cdc/`](cdc) | `cdc_pulse.sv` + `cdc_handshake.sv` | Open CDC primitives that replaced `xpm_cdc_*` (T1.4): across two *independent* clocks — every source pulse yields one dest pulse; each value crosses byte-exact with req/ack (16 checks). | `cd cdc && make` |
 | [`datapath/`](datapath) | `traffic_controller_802_1q.sv` | **End-to-end** de-Xilinx'd 802.1Q TX datapath (T1.5): classifier → Forencich per-queue FIFOs → CBS shaper. VLAN frames in → byte-exact egress, PCP→queue routing (exact `tdest`), all 4 queues, strict-priority + CBS modes, burst (15 checks). | `cd datapath && make` |
 | [`milan_dp/`](milan_dp) | `milan_datapath.sv` | **Whole-wrapper integration** (§A.9 PS-less datapath the LiteX SoC instantiates): drive the AXI4-Lite CSR slave to read `ID="MILN"` (**M-A2**), VERSION, CAP bits; program the classifier over the CSR (readback); push a frame TX-DMA-port → MAC-port and MAC-port → RX-DMA-port, both byte-exact through classify→CBS→PTP→ADP-arbiter and PTP-RX→dest-MAC-filter (11 checks). | `cd milan_dp && make` |
+| [`hostplane/`](hostplane) | `milan_datapath.sv` (**silicon shape**: `N_STREAMS=8`, 100 MHz, cfg_ax8x8 mapping pinned in the suite README) | **Host-facing lanes** under concurrent stream traffic: host RX AXIS delivery (ARP/unicast/gPTP byte-exact), ts-record production per record contract v2.1 (event=1 record, general=0, TX+RX), TCAM shield no-leak both ways + whitelist mode, observer purity under host-lane backpressure (LTAP telemetry live, zero stream loss/reorder), 3-shape cfg-sweep smoke. **KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25)** — see its README for the honest signature. | `cd hostplane && make` |
 | [`avtp_stream/`](avtp_stream) | `avtp_stream_parser.sv` | IEEE 1722 AVTP stream-header monitor (the S1 AVTP-engine foundation): stream-id / presentation-time / subtype / `tv` extraction against a programmable stream-match table, accept + reject cases, untagged and VLAN-tagged frames (21 checks). | `cd avtp_stream && make` |
 | [`controller_rate/`](controller_rate) | `traffic_controller_802_1q.sv` | **Gating regression** for the CBS interference TX-wedge ([`docs/findings/CBS_DATAPATH_BUG.md`](../../docs/findings/CBS_DATAPATH_BUG.md)): back-to-back frames landing in *different* queues must each come out byte-exact — catches classifier `tdest` mis-timing / parse-FSM desync. | `cd controller_rate && make` |
 | [`lwsrp_tx/`](lwsrp_tx) | `KL_lwsrp_tx.sv` | lwSRP applicant TX (802.1Q MSRP/MVRP, Milan v1.2 §5.6): byte-exact MSRP Domain/TalkerAdvertise + MVRP VID MRPDUs decoded like a bridge (endmark walk), NEW/JOININ/LV lifecycle, LeaveAll turn, back-pressure (363 checks). | `cd lwsrp_tx && make` |

@@ -10,16 +10,16 @@ hand-edit. Part of the IEEE 802.1Q family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_lwsrp_bw_gate` | `KL_lwsrp_bw_gate.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_ctx` | `KL_lwsrp_ctx.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_ctx_tx` | `KL_lwsrp_ctx_tx.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_ingress` | `KL_lwsrp_ingress.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
-| ✅ `KL_lwsrp_registrar` | `KL_lwsrp_registrar.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
-| ✅ `KL_lwsrp_rx` | `KL_lwsrp_rx.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
-| ✅ `KL_lwsrp_ta_registrar` | `KL_lwsrp_ta_registrar.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
-| ✅ `KL_lwsrp_timers` | `KL_lwsrp_timers.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_top` | `KL_lwsrp_top.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_tx` | `KL_lwsrp_tx.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `lwsrp_tx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_walker` | `KL_lwsrp_walker.sv` | `csr` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
+| ✅ `KL_lwsrp_bw_gate` | `KL_lwsrp_bw_gate.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_ctx` | `KL_lwsrp_ctx.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_ctx_tx` | `KL_lwsrp_ctx_tx.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_ingress` | `KL_lwsrp_ingress.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
+| ✅ `KL_lwsrp_registrar` | `KL_lwsrp_registrar.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
+| ✅ `KL_lwsrp_rx` | `KL_lwsrp_rx.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
+| ✅ `KL_lwsrp_ta_registrar` | `KL_lwsrp_ta_registrar.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
+| ✅ `KL_lwsrp_timers` | `KL_lwsrp_timers.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_top` | `KL_lwsrp_top.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_tx` | `KL_lwsrp_tx.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_tx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_walker` | `KL_lwsrp_walker.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
 | 📦 `lwsrp_pkg` | `lwsrp_pkg.sv` | — | — |
 
