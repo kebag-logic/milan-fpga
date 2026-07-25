@@ -71,14 +71,18 @@ nanoseconds, which gives software the full linuxptp clock-ops set
 
 The CSR plane and the PHC live in different clock domains;
 `ptp_csr_sync.sv` carries values plus toggle-synchronized apply strobes
-across (REQ-CSR-03). On the fully-FPGA LiteX SoCs the PHC clock (`gtx_clk`)
-is tied to the datapath clock (`sw/litex/milan_soc.py`, the
+across (REQ-CSR-03).
+
+On the fully-FPGA LiteX SoCs the PHC clock (`gtx_clk`) is tied to the
+datapath clock (`sw/litex/milan_soc.py`, the
 `i_gtx_clk = ClockSignal(milan_cd)` instantiation) — 50 MHz Arty, 100 MHz
 AX7101 — and `PTP_INCR` carries the matching ns-per-tick (its reset value
 `0x0800_0000` = 8.0 ns assumes the recommended 125 MHz reference,
-REQ-PTP-07). The tie also satisfies the timestamping core's one hard
-requirement: `ts_in` synchronous to the AXIS domain
-(`ptp_ts_core.sv` header, 2026-07-13 redesign note).
+REQ-PTP-07).
+
+The tie also satisfies the timestamping core's one hard requirement:
+`ts_in` synchronous to the AXIS domain (`ptp_ts_core.sv` header,
+2026-07-13 redesign note).
 
 ### 2.2 Where frames get stamped
 
@@ -101,11 +105,28 @@ they never stall a frame. Per direction, `ptp_ts_core.sv`:
 Qualify-at-TLAST is the load-bearing part. The original core decided the
 record when a timestamp CDC handshake returned, which raced the ingress beat
 rate both ways — first record never emitted on slow MII beats, stale
-one-frame-late pairing after, records lost on fast back-to-back frames. The
-full root cause, the synchronous redesign, and the netlist-forensics fallout
-(LUTRAM-inferred record queues mis-wired by the cross-hierarchy optimizer,
-rebuilt as explicit flops) are recorded in
+one-frame-late pairing after, records lost on fast back-to-back frames.
+
+The full root cause, the synchronous redesign, and the netlist-forensics
+fallout (LUTRAM-inferred record queues mis-wired by the cross-hierarchy
+optimizer, rebuilt as explicit flops) are recorded in
 [`../findings/PTP_TS_METADATA_FIX.md`](../findings/PTP_TS_METADATA_FIX.md).
+
+Both exchanges, as this design stamps them:
+
+![gPTP timelines: peer delay and Sync/Follow_Up with the PHC latch points](../diagrams/wd_gptp_pdelay.png)
+
+> Generated chronogram (master
+> [wd_gptp_pdelay.json](../diagrams/wd_gptp_pdelay.json); regenerate with
+> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py
+> docs/diagrams/wd_gptp_pdelay.json`). Each tap's `ptp_ts_core` latches the
+> PHC at SOP and qualifies the record at TLAST (event messages only), so
+> `t1`/`t4` come from hardware records while the peer's `t2`/`t3` arrive
+> inside `Pdelay_Resp`/`Pdelay_Resp_Follow_Up`; `ptp4l` computes
+> `meanLinkDelay = ((t4 - t1) - (t3 - t2)) / 2` (802.1AS 11.2.19) and the
+> result is published at CSR 0x6E4 (section 4). Cadences per
+> [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) rows
+> AS-7/AS-8: pdelay 1/s, Sync+Follow_Up 8/s.
 
 ### 2.3 How stamps reach the driver — the record contract
 
@@ -120,25 +141,30 @@ Each qualified frame emits a two-beat, 16-byte metadata record
 
 The always-1 **marker** (bit 1) is the driver's race-free slot sentinel: DMA
 lands word 0 before word 1, so "marker set" proves the timestamp word is
-complete. TX and RX records pass per-direction 16-deep `axis_fifo`s, a
+complete.
+
+TX and RX records pass per-direction 16-deep `axis_fifo`s, a
 round-robin mux, and a final FIFO (`ptp_ts_top.sv`), then the **dma-ts**
 engine (a LiteX simple-mode DMA writer in loop mode, register block in
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "DMA
 registers"; its absolute address is build-generated — `build/csr.csv` is the
 authority, stale device trees have burned three generations of addresses)
-writes them into a coherent DRAM ring. `tlast` is deliberately **not**
-forwarded to the DMA writer — forwarded, LiteX treated every record as
-end-of-transfer and each record overwrote slot 0 (the "lossy mailbox",
-found on silicon).
+writes them into a coherent DRAM ring.
+
+`tlast` is deliberately **not** forwarded to the DMA writer — forwarded,
+LiteX treated every record as end-of-transfer and each record overwrote
+slot 0 (the "lossy mailbox", found on silicon).
 
 The kl-eth driver (the-private-test-repo) drains the ring: TX records
 complete the one pending timestamp-requested skb via `skb_tstamp_tx`
 (`SO_TIMESTAMPING`), RX records ride a small wire-order FIFO matched by
-order with `seq` as the consistency check. `o_tx_ts_ready` pulses
-`IRQ_STATUS[0]` (0x010) at core emission — which precedes the DMA landing by
-microseconds, so the driver pairs the IRQ drain with a NAPI-poll fallback and
-`ptp4l` runs `tx_timestamp_timeout` raised well above default (500 on the
-current images, [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md)
+order with `seq` as the consistency check.
+
+`o_tx_ts_ready` pulses `IRQ_STATUS[0]` (0x010) at core emission — which
+precedes the DMA landing by microseconds, so the driver pairs the IRQ drain
+with a NAPI-poll fallback and `ptp4l` runs `tx_timestamp_timeout` raised
+well above default (500 on the current images,
+[`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md)
 section 8).
 
 One RX-path prerequisite is easy to forget: gPTP frames must arrive
@@ -151,11 +177,14 @@ TLV). Root cause and the true-length gateware fix:
 
 The taps stamp at the MAC-side AXIS boundary, not at the wire (802.1AS
 8.4.3's "reference plane"), so each board carries a constant correction in
-its `ptp4l` config. The values are **tap-measured** (ProfiShark, inline):
+its `ptp4l` config.
+
+The values are **tap-measured** (ProfiShark, inline):
 **ingressLatency 3511 ns on the Arty, 1490 ns on the AX7101, egressLatency
 0**, provisioned by `S50milan` at boot
 ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8;
 [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 4).
+
 Uncompensated, the late RX stamps kept `asCapable` permanently false — the
 single biggest gPTP field bug of this project
 ([`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) row AS-3).
@@ -196,13 +225,17 @@ pairing by construction.
 Sample clocks are made from a dedicated MMCM, not from logic dividers of the
 datapath clock: fractional-N edge jitter on MCLK measurably wrecked the
 converters (analog THD+N collapsed to -4.5 dB; history in
-`hdl/ieee1722/aaf/KL_i2s_playback.sv`'s header). The chain is two-stage and
-**integer-only** (`sw/litex/milan_soc.py`, `_CRG`): 100 MHz -> PLL /2 x23
-/37 -> 31.081081 MHz -> MMCM x34 /43 -> **24.575739 MHz = 24.576 MHz
--10.6 ppm**. Integer dividers are a servo prerequisite: UG472 forbids
-fractional divide in fine-phase-shift mode, and the best single-stage integer
-alternative lands -186 ppm — beyond the servo's trim budget
+`hdl/ieee1722/aaf/KL_i2s_playback.sv`'s header).
+
+The chain is two-stage and **integer-only** (`sw/litex/milan_soc.py`,
+`_CRG`): 100 MHz -> PLL /2 x23 /37 -> 31.081081 MHz -> MMCM x34 /43 ->
+**24.575739 MHz = 24.576 MHz -10.6 ppm**.
+
+Integer dividers are a servo prerequisite: UG472 forbids fractional divide
+in fine-phase-shift mode, and the best single-stage integer alternative
+lands -186 ppm — beyond the servo's trim budget
 ([`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 2).
+
 `/512` of this clock is the 48 kHz sample grid; I2S (`MCLK/SCLK/LRCK`) and
 TDM front-ends are plain registered dividers of it.
 
@@ -211,17 +244,21 @@ TDM front-ends are plain registered dividers of it.
 `hdl/ieee1722/crf/KL_crf_tx.sv` emits the Milan CRF Media Clock Stream
 (Milan v1.2 7.3.1 / IEEE 1722-2016 Clause 10): subtype 4, type
 CRF_AUDIO_SAMPLE, pull 0, base_frequency 48000, one 64-bit timestamp per
-PDU, timestamp_interval 96 — one PDU per 96 sample events = 500 PDU/s. The
-timestamp grid is the **real media clock**: an own `/512` divider of
+PDU, timestamp_interval 96 — one PDU per 96 sample events = 500 PDU/s.
+
+The timestamp grid is the **real media clock**: an own `/512` divider of
 `clk_audio` counts sample ticks, and every 96th event crosses into the
 datapath domain where the live PHC value is latched as that event's gPTP
 time. The wire therefore carries the actual audio-MMCM rate as the PHC sees
-it — not a synthetic 2 ms accumulator. Milan applies the stream
-**presentation time offset to CRF exactly as to media streams**: every
-emitted timestamp is `event gPTP time + transit_ns`, from the same offset
-source as the AAF framer (SET_STREAM_INFO accumulated-latency field; reset
-2 ms) — see the `transit_ns_i` wiring in `hdl/milan/milan_datapath.sv`. A
-PDU that would collide with a busy serializer is skipped whole, so emitted
+it — not a synthetic 2 ms accumulator.
+
+Milan applies the stream **presentation time offset to CRF exactly as to
+media streams**: every emitted timestamp is `event gPTP time + transit_ns`,
+from the same offset source as the AAF framer (SET_STREAM_INFO
+accumulated-latency field; reset 2 ms) — see the `transit_ns_i` wiring in
+`hdl/milan/milan_datapath.sv`.
+
+A PDU that would collide with a busy serializer is skipped whole, so emitted
 timestamps stay truthful and only the cadence stretches. The stream leaves
 untagged on the low-rate control lane until a second lwSRP talker
 declaration exists (section 5).
@@ -250,14 +287,16 @@ lever (`milan_datapath.sv`, `crf_rx` instance).
 
 `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv` closes the loop when
 `clock_source == 2` (the CRF CLOCK_SOURCE descriptor); in every other mode
-it is IDLE with zero DRP/PS activity. The loop error is **differential
-rate**, not phase: `e = local_rate - crf_rate`, both in gPTP-ns per 512 ms
-of media events (the module measures our own audio clock against the PHC
-over a matching 512 ms window; 1 ppm = 512 units). `CRF_DELTA` (0x744) is
-deliberately NOT a loop input — it contains the arbitrary talker+transit
-phase constant. A PI controller (integrator halves the error per window,
-bounded slew +-100 ppm/window, bounded authority +-200 ppm) drives two
-actuators:
+it is IDLE with zero DRP/PS activity.
+
+The loop error is **differential rate**, not phase: `e = local_rate -
+crf_rate`, both in gPTP-ns per 512 ms of media events (the module measures
+our own audio clock against the PHC over a matching 512 ms window; 1 ppm =
+512 units). `CRF_DELTA` (0x744) is deliberately NOT a loop input — it
+contains the arbitrary talker+transit phase constant.
+
+A PI controller (integrator halves the error per window, bounded slew
++-100 ppm/window, bounded authority +-200 ppm) drives two actuators:
 
 * **fine (the real one)**: MMCME2 dynamic fine phase shift — UG472-linear
   steps of `1/(56*F_VCO)` = 16.9 ps, glitch-free, wrap-around — so a
@@ -271,13 +310,18 @@ actuators:
   have 1/8 resolution (>= 1953 ppm/LSB) — three orders too coarse for a ppm
   servo, which is exactly why the fine-PS actuator exists.
 
-Hardening from the silicon rounds: a **step guard** discards any
-window whose error exceeds ~1024 ppm (a local PHC step — GM reboot — used to
-wind the integrator to the clamp and stick there); **HOLDOVER** on CRF
-unlock freezes the trim but keeps stepping at the held rate; `ps_invert`
-(0x8FC bit 0) is the bench polarity knob from the mf51 bring-up where
-silicon stepped opposite the TB's UG472 reading. `MCSRV_STAT` (0x8F8)
-exposes state (IDLE/VERIFY/REPAIR/ACQUIRE/LOCKED/HOLDOVER/FAULT), the DRP
+Hardening from the silicon rounds:
+
+* a **step guard** discards any window whose error exceeds ~1024 ppm (a
+  local PHC step — GM reboot — used to wind the integrator to the clamp and
+  stick there);
+* **HOLDOVER** on CRF unlock freezes the trim but keeps stepping at the
+  held rate;
+* `ps_invert` (0x8FC bit 0) is the bench polarity knob from the mf51
+  bring-up where silicon stepped opposite the TB's UG472 reading.
+
+`MCSRV_STAT` (0x8F8) exposes state
+(IDLE/VERIFY/REPAIR/ACQUIRE/LOCKED/HOLDOVER/FAULT), the DRP
 verify/mismatch and fault flags, and the **signed applied trim in 1/16 ppm
 units** in bits [31:16].
 
@@ -285,13 +329,15 @@ units** in bits [31:16].
 
 **Coherent chain** means: one audio-MMCM lineage carries every media-rate
 element — the ADC capture front-end, the CRF talker's timestamp grid, and
-(through the servo) the listener's playback clock. There is no software
-resampler and no NCO anywhere in the path; the old playback NCO was removed
-by the exact-recovery rule and its trim output reads 0
-(`KL_i2s_playback.sv` header). When the servo locks, talker and listener
-run at the *same* frequency, so the playback FIFO neither drains nor fills
-and the drift-glitch class (underrun repeats / overrun drops) ends. The
-chain was measured end to end 2026-07-23 at **-83.9 dB loop THD+N — the
+(through the servo) the listener's playback clock.
+
+There is no software resampler and no NCO anywhere in the path; the old
+playback NCO was removed by the exact-recovery rule and its trim output
+reads 0 (`KL_i2s_playback.sv` header). When the servo locks, talker and
+listener run at the *same* frequency, so the playback FIFO neither drains
+nor fills and the drift-glitch class (underrun repeats / overrun drops) ends.
+
+The chain was measured end to end 2026-07-23 at **-83.9 dB loop THD+N — the
 CS4344+CS5343 converter datasheet floor**
 ([`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) roadmap item 6;
 [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 2).
@@ -300,12 +346,14 @@ The **media-lock rule** (`hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`, the
 MEDIA_LOCKED engine): with an **internal** clock source
 (`clock_source_index == 0`) the stream locks on the first valid PDU — lock
 means "buffer position established", and slips are accepted as
-underrun/overrun rail events. With an **external** source (CRF) the stream
-locks **only once the recovered clock has converged near nominal**
-(`servo_conv` — the playback-FIFO convergence flag: fill inside the
-mid-window sustained for 100 ms, `KL_i2s_playback.sv`), and losing
-convergence while locked is an immediate MEDIA_UNLOCKED event. Internal
-locks immediately; external must earn it.
+underrun/overrun rail events.
+
+With an **external** source (CRF) the stream locks **only once the
+recovered clock has converged near nominal** (`servo_conv` — the
+playback-FIFO convergence flag: fill inside the mid-window sustained for
+100 ms, `KL_i2s_playback.sv`), and losing convergence while locked is an
+immediate MEDIA_UNLOCKED event. Internal locks immediately; external must
+earn it.
 
 ### 3.6 AAF presentation time against the PHC
 
@@ -314,10 +362,12 @@ The same PHC dates the audio itself: the AAF packetizer latches
 (`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`, `tsw_val_r` assignment), and the
 listener-side monitor computes `ts_delta = avtp_timestamp - ptp_now` on
 every accepted PDU (CSR 0x6EC), counting LATE (delta < 0) and EARLY (delta
-beyond offset + margin) per Milan Table 5.6. This is the number the
-latency-equals-pto work steers by, and the per-stage breakdown of where the
-time goes lives in [`../AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md) (the
-0x870 tap block latches `ptp_now` epochs per measured frame).
+beyond offset + margin) per Milan Table 5.6.
+
+This is the number the latency-equals-pto work steers by, and the per-stage
+breakdown of where the time goes lives in
+[`../AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md) (the 0x870 tap block
+latches `ptp_now` epochs per measured frame).
 
 ## 4. Time-related CSRs — quick table
 
