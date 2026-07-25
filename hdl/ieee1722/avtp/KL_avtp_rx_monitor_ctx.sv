@@ -139,6 +139,10 @@ module KL_avtp_rx_monitor_ctx #(
   output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
   output logic [3:0]  pdu_accept_idx_o,  //! its stream index
   output logic [7:0]  wire_chans_o,      //! RENDER stream's wire channels
+  //! chmap follow-up 3: EVERY context's wire_chans as packed 4-bit fields
+  //! (the render crossbar's per-stream de-interleave truth; 0 = stream
+  //! default/2ch per its contract; >15ch saturates the nibble)
+  output logic [N_LISTENERS_P*4-1:0] wire_chans_all_o,
   output logic [31:0] last_ts_o,         //! stream-0 last accepted avtp_ts
   output logic [31:0] last_tsd_o         //! stream-0 last signed ts_delta
 );
@@ -221,6 +225,11 @@ module KL_avtp_rx_monitor_ctx #(
 
   logic [N_LISTENERS_P-1:0] locked_sh_r;     //! media_locked mirror (w8[12])
   logic [7:0] chans_sh_r [N_LISTENERS_P];    //! wire_chans mirror (w8[21:14])
+  always_comb begin : chans_fanout
+    for (int c = 0; c < N_LISTENERS_P; c++)
+      wire_chans_all_o[c*4 +: 4] =
+          (chans_sh_r[c] > 8'd15) ? 4'd15 : chans_sh_r[c][3:0];
+  end : chans_fanout
   logic [6:0] sil_ms_r   [N_LISTENERS_P];    //! silence watchdog, ms units
 
   // ======================================================================

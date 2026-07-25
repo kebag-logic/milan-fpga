@@ -32,10 +32,16 @@
 static VKL_aecp_top* dut;
 static long checks = 0, fails = 0;
 
+//! chmap64 fabric-mirror recorder: every dmap_wr_p_o pulse (addr, word)
+struct DmapWr { int addr, word; };
+static std::vector<DmapWr> g_dmap_wrs;
 static void tick() {
     dut->clk_i = 0; dut->eval();
     dut->clk_i = 1; dut->eval();
+    if (dut->dmap_wr_p_o)
+        g_dmap_wrs.push_back({(int)dut->dmap_wr_addr_o, (int)dut->dmap_wr_word_o});
 }
+static std::vector<DmapWr> take_wrs() { auto v = g_dmap_wrs; g_dmap_wrs.clear(); return v; }
 static void ck(const char* what, long got, long exp) {
     checks++;
     if (got != exp) { fails++; printf("  [FAIL] %-52s got=%ld exp=%ld\n", what, got, exp); }
@@ -287,21 +293,31 @@ int main(int argc, char** argv) {
         ck("ctlr2 REGISTER_UNSOLICITED SUCCESS", r_status(r), 0);
 
         // SET_STREAM_FORMAT above already replayed once; drain nothing more.
+        take_wrs();   //! drain earlier sections' fabric-mirror strobes
         feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("ADD cl2 SUCCESS (u=0 response)", r_status(r), 0);
+        { auto w = take_wrs();
+          ck("fabric mirror: ADD -> exactly 1 map write", (long)w.size(), 1);
+          if (w.size()==1) { ck("... addr == cluster_offset 2", w[0].addr, 2);
+                             ck("... word == {en,strm0,ch0} 0x80", w[0].word, 0x80); } }
         ck("... response u bit = 0", r_u(r), 0);
         auto u = collect_resp();
         ck("replay frame arrived (u=1)", r_u(u), 1);
         ck("replay is the ADD response", r_be16(u, 36) & 0x7FFF, CMD_ADD_MAP);
         ck("replay status SUCCESS", r_status(u), 0);
         ck("replay dst = ctlr2 MAC", memcmp(u.data(), CTL2_MAC, 6), 0);
+        { auto w = take_wrs();
+          ck("fabric mirror: u=1 replay re-commits idempotently", (long)w.size(), 1);
+          if (w.size()==1) ck("... replay word identical 0x80", w[0].word, 0x80); }
 
         feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("same ADD again SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          ck("fabric mirror: idempotent re-ADD still writes", (long)w.size(), 1); }
         u = collect_resp();
         ck("no-change ADD -> NO replay (nochg rule)", (long)u.size(), 0);
 
@@ -309,6 +325,9 @@ int main(int argc, char** argv) {
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("REMOVE cl2 SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          ck("fabric mirror: REMOVE -> 1 clearing write", (long)w.size(), 1);
+          if (w.size()==1) { ck("... addr 2, word 0 (en=0)", w[0].addr*256+w[0].word, 2*256+0); } }
         u = collect_resp();
         ck("REMOVE change -> replay (u=1)", r_u(u), 1);
 
@@ -316,6 +335,8 @@ int main(int argc, char** argv) {
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("REMOVE of absent mapping SUCCESS (ignored)", r_status(r), 0);
+        { auto w = take_wrs();
+          ck("fabric mirror: unmatched REMOVE -> NO write", (long)w.size(), 0); }
         u = collect_resp();
         ck("... and NO replay (nothing changed)", (long)u.size(), 0);
 

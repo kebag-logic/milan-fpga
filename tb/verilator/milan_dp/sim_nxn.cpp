@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x000A (E1 bind-restore + E2 window)", axi_read(A_VERSION), 0x0001000A);
+    ck("VERSION 0x000B (chmap64 AEM projector round)", axi_read(A_VERSION), 0x0001000B);
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
