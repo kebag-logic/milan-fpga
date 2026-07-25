@@ -1,6 +1,6 @@
 # milan-fpga — IEEE 1722 / 1722.1 / Milan v1.2 on FPGA
 
-> A fully-FPGA **AVnu Milan v1.2 AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
+> A fully-FPGA **Milan v1.2 AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
 > running Linux, with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
 > an Alinx AX7101 (Artix-7). Evolving toward a 4-port AVB switch.
 
@@ -10,7 +10,7 @@
 
 | Area | State |
 |---|---|
-| Milan v1.2 end-station (talker + listener) | both boards **CERT 63/63** |
+| Milan v1.2 end-station (talker + listener) | internal conformance suite **green on both boards** |
 | TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · ADP/AECP/ACMP · MAAP · lwSRP |
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
 | Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
@@ -75,6 +75,8 @@ every other doc). Terms → [glossary](docs/GLOSSARY.md).
 | I want to… | Go to |
 |---|---|
 | **Know where to start (by role)** | [docs/README.md](docs/README.md) → [SYSTEMS_ENGINEER_GUIDE.md](docs/SYSTEMS_ENGINEER_GUIDE.md) |
+| **Evaluate it for a product** (what works, what's open) | [docs/overview/FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) → [docs/MILAN_COMPLIANCE_GAPS.md](docs/MILAN_COMPLIANCE_GAPS.md) + [docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) |
+| **Hobbyist — run it on your own board** | [docs/integration/BUILDING.md](docs/integration/BUILDING.md) → [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) → [docs/limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) |
 | Understand the whole system | [docs/overview/FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) |
 | Integrate the datapath into my SoC | [docs/integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) |
 | **Build without Vivado / port off-Xilinx** | [docs/integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) |

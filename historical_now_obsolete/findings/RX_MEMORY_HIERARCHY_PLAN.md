@@ -3,7 +3,7 @@
 
 # RX memory-hierarchy plan  -  cold vs capacity, and the dedicated-network-cache decision
 
-> 📌 **The top sections (PERF VERDICT, Phase L2 RESULT) are current; the plan below is the 2026-07-08 cold-vs-capacity exploration.** Outcome: the wall is the recv copy's cold reads, and **DDIO (Branch B) is the chosen next lever  -  not deferred**. Current state: [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md).
+> 📌 **The top sections (PERF VERDICT, Phase L2 RESULT) are current; the plan below is the 2026-07-08 cold-vs-capacity exploration.** Outcome: the wall is the recv copy's cold reads, and **DDIO (Branch B) is the chosen next lever  -  not deferred**. Current state: [`RX_TX_PERFORMANCE.md`](../../docs/findings/RX_TX_PERFORMANCE.md).
 
 *Sub-plan of [`CAMPAIGN_500_PLAN.md`](CAMPAIGN_500_PLAN.md), opened 2026-07-08. RX at the
 2-hart fan-out ceiling is memory-bound; this plan disambiguates **which** memory problem and
@@ -171,7 +171,7 @@ before trusting B.0.** On an in-order blocking D$ the only lever is "make the re
 **A cheaper first move than DDIO exists on the *core* side: make the D$ non-blocking.** The
 LSU's refill engine is depth-1 by default (blocking  -  misses serialize); widening it to 8
 refill slots lets cold misses overlap (MLP) and costs **0 BRAM** (FF/LUT state). Full mechanism
-+ the `build_mlp1` result in [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md). This is
++ the `build_mlp1` result in [`LSU_NONBLOCKING_DCACHE.md`](../../docs/fpga/LSU_NONBLOCKING_DCACHE.md). This is
 the lever now in flight.
 
 **Therefore the form of the idea that actually works is DDIO / allocate-on-DMA-write (B.3

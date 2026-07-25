@@ -1,7 +1,7 @@
 # `tcam` — ternary CAM destination-MAC database (design doc)
 
 **Module:** [`hdl/ieee8021q/filtering/tcam.sv`](../tcam.sv)
-**Verification:** [`tb/verilator/tcam/`](../../../tb/verilator/tcam) — 19 self-checks, PASS
+**Verification:** [`tb/verilator/tcam/`](../../../../tb/verilator/tcam) — 19 self-checks, PASS
 **Relates to:** `REQ-MAC-02` (RX MAC filtering), `MC_HASH_*` CSR, the AVDECC/gPTP
 control-frame tap (`OPEN`/migration §B.1).
 
@@ -76,7 +76,7 @@ Typical power-on entries a driver would install:
 
 ## 5. Verification
 
-[`tb/verilator/tcam/sim_main.cpp`](../../../tb/verilator/tcam/sim_main.cpp) programs
+[`tb/verilator/tcam/sim_main.cpp`](../../../../tb/verilator/tcam/sim_main.cpp) programs
 the table and checks: empty-table miss, **exact** match, **ternary/range** match,
 **priority** when an address hits both an exact and a range entry (lowest index
 wins), the **multi-hit vector**, clean **miss**, and **remove / update** of entries.

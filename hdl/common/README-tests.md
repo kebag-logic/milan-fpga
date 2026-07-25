@@ -6,7 +6,7 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 
 **GENERATED** by `docs/traceability/gen_module_matrix.py` — do not
 hand-edit. Part of the Common / integration family; rolled up in
-[`docs/traceability/MODULE_MATRIX.md`](../../../docs/traceability/MODULE_MATRIX.md).
+[`docs/traceability/MODULE_MATRIX.md`](../../docs/traceability/MODULE_MATRIX.md).
 
 | module | file | test | clauses |
 |---|---|---|---|

@@ -3,7 +3,7 @@
 A **configurable** software/SoC bring-up (single- or multi-hart): a RISC-V softcore running
 Linux, with the Milan TSN NIC memory-mapped and its `kl-eth` driver bound via the
 device tree. This is the smallest bootable slice of
-[`docs/integration/FULLY_FPGA_RISCV_MIGRATION.md`](../docs/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+[`docs/integration/FULLY_FPGA_RISCV_MIGRATION.md`](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 ```
    milan_soc.py  ──build──▶  bitstream + LiteX BIOS      (1 core + DDR + UART + Milan NIC)

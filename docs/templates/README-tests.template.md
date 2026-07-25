@@ -7,7 +7,7 @@ traceability subtask: every leaf module dir carries a README-tests.md
 rolled-up index. The matrix row format below IS the traceability-matrix
 row format (clause -> behavior -> test -> why) — rows here roll up 1:1
 into the per-spec-family matrix, and (item 10) each confirmed row becomes
-an executable behave scenario (CERT-harness pattern).
+an executable behave scenario (bench-harness pattern).
 -->
 
 Module(s): `<hdl/.../KL_x.sv>`

@@ -3,7 +3,7 @@
 
 # RX overload wedge  -  TWO bugs: BD-order inversion + drops/v2-marker alias [FIXED, silicon-validated]
 
-> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](../../docs/findings/RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
 
 *Found 2026-07-07/08 during the >500 Mbit/s campaign (parallel RX testing). TWO independent
 root causes, both localized with the stage probes, sim-repro'd deterministically, fixed and
@@ -16,10 +16,10 @@ silicon-geometry MSS storms, heal-race sweep, seeded fuzz, and the deterministic
 each bug. Final gateware `build_dp100_v2fix` (WNS +0.123) survives the previously-fatal
 storm sequence end-to-end (see Status).*
 
-Related: [`CBS_DATAPATH_BUG.md`](CBS_DATAPATH_BUG.md) (an earlier, unrelated TX wedge),
-[`CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md) (found the same night),
+Related: [`CBS_DATAPATH_BUG.md`](../../docs/findings/CBS_DATAPATH_BUG.md) (an earlier, unrelated TX wedge),
+[`CBS_DEFAULT_SHAPING_BUG.md`](../../docs/findings/CBS_DEFAULT_SHAPING_BUG.md) (found the same night),
 [`HW_GRO_RSC.md`](../fpga/HW_GRO_RSC.md) (the RSC design this bug lives in),
-[`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) (campaign context).
+[`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md) (campaign context).
 
 ## Symptom (silicon)
 

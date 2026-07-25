@@ -1,10 +1,10 @@
 # `adp_advertiser` — ADP transmit engine (design doc)
 
 **Module:** [`hdl/ieee17221/adp/adp_advertiser.sv`](../adp_advertiser.sv)
-**Verification:** [`tb/verilator/adp/`](../../../tb/verilator/adp) — 121 self-checks, PASS
-**Standards:** IEEE 1722.1-2021 §6 (ADP), AVnu **Milan v1.2** Discovery
-**Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../docs/reference/FR_NFR.md),
-[`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
+**Verification:** [`tb/verilator/adp/`](../../../../tb/verilator/adp) — 121 self-checks, PASS
+**Standards:** IEEE 1722.1-2021 §6 (ADP), **Milan v1.2** Discovery
+**Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../../docs/reference/FR_NFR.md),
+[`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../../docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
 
 ## 1. Purpose
 
@@ -99,7 +99,7 @@ changes an advertised field, `shutdown_i` from a CSR bit.
 
 ## 5. Verification (what the harness proves)
 
-[`tb/verilator/adp/sim_main.cpp`](../../../tb/verilator/adp/sim_main.cpp) drives the
+[`tb/verilator/adp/sim_main.cpp`](../../../../tb/verilator/adp/sim_main.cpp) drives the
 events and **decodes the emitted frame like a controller**, asserting (121 checks):
 - Ethernet header (dst/src/type), subtype, `control_data_length`, `valid_time`;
 - every entity field byte-exact against the driven model;
@@ -121,7 +121,7 @@ Run: `cd tb/verilator/adp && make` → `RESULT: PASS`.
   CSR harness extended (62 checks, PASS).
 - **Done — MAC TX integration:** [`adp_tx_arbiter.sv`](../adp_tx_arbiter.sv) merges
   the ADP stream with the datapath into the MAC TX between frames (never mid-frame);
-  verified in [`tb/verilator/adp_tx/`](../../../tb/verilator/adp_tx) (26 checks, PASS).
+  verified in [`tb/verilator/adp_tx/`](../../../../tb/verilator/adp_tx) (26 checks, PASS).
   Wired in `milan_top.sv` (advertiser + arbiter + 1 s tick + link-edge pulses); all
   ports connectivity-checked; `milan_top` elaborates the ADP modules cleanly.
 - **Next:** `rcv_discover_i` and `gm_change_i` are tied 0 pending the `KL_adp_parser`

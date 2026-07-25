@@ -5,7 +5,7 @@ annotated, journey-ordered map of the whole doc set: Overview → Architecture /
 Subsystem specs → Register map / ABI → Build & deploy → Test & verify → Compliance status →
 Historical findings.
 
-Status: current as of **2026-07-23**. Where a linked doc is mid-refresh, the current fact is
+Status: current as of **2026-07-25**. Where a linked doc is mid-refresh, the current fact is
 stated here so this guide is accurate *today*; the doc audit (`DOC_AUDIT.md`) tracks the fixes.
 
 ---
@@ -53,7 +53,7 @@ Fastest useful commands: `docs/integration/QSPI_FLASHBOOT.md` (flash/boot),
 ## 1. What this system is
 
 **milan-fpga is a fully-FPGA AVB/TSN Milan end-station.** It is a RISC-V/LiteX softcore SoC with
-a custom TSN network datapath in fabric, running Linux, that behaves as an AVnu **Milan v1.2**
+a custom TSN network datapath in fabric, running Linux, that behaves as a **Milan v1.2**
 audio end-station (talker + listener) on the wire.
 
 - **The end-station**: a 1 Gb Ethernet NIC whose *data plane* (MAC, classifier, CBS shaper,
@@ -66,11 +66,11 @@ audio end-station (talker + listener) on the wire.
   software", they are superseded — ADP/AECP/ACMP/MAAP/lwSRP are in fabric and silicon-validated.
 - **Standards implemented**: IEEE 1722-2016 (AVTP/AAF/CRF/MAAP), IEEE 1722.1-2021 (ATDECC:
   ADP/AECP/ACMP/AEM), IEEE 802.1AS-2020 (gPTP), IEEE 802.1Q-2022 (VLAN/PCP, CBS credit-based
-  shaper, MSRP/MVRP), all under the **AVnu Milan v1.2** profile.
+  shaper, MSRP/MVRP), all under the **Milan v1.2** profile.
 - **Direction**: a 1-NIC end-station today, evolving toward a 4-port AVB switch; the
   NaxRiscv→VexiiRiscv softcore migration that this direction drove is now as-built.
 
-### The two boards (ship pair, both CERT 63/63)
+### The two boards (ship pair, bench conformance suite clean on both)
 
 | Board | SoC | Role |
 |---|---|---|
@@ -83,9 +83,9 @@ audio end-station (talker + listener) on the wire.
 > "dual-hart / 2-core / L2-64K" as the ship or published shape is stale — read those numbers as
 > perf-campaign peaks, not shipped-SoC behaviour.
 
-### Current top-line state (2026-07-23)
+### Current top-line state (2026-07-25)
 
-- Both boards **CERT 63/63**.
+- Both boards pass the **bench conformance suite clean**.
 - Compliance matrix: **163 verified / 17 partial / 7 MISSING / 17 N-A** (204 rows).
 - **Media-clock servo (MMCM-DRP) silicon-proven**: coherent-chain analog loop **-83.9 dB** =
   the CS4344+CS5343 converter power-sum floor. (A "-73.4 dB" loop figure anywhere is the stale
@@ -93,12 +93,16 @@ audio end-station (talker + listener) on the wire.
 - **ALSA**: record works on silicon (arecord byte-exact); playback (`KL_pcm_tx`) is a validated
   scaffold, not yet integrated.
 - **PCM ring** can now target on-chip BRAM (`--pcm-ring bram`); DRAM ring remains default.
-- **AX42** (e2 MAC-TX link-bounce wedge) fix landed this session (guard `eth_rst` now covers the
-  PHY-side `eth_tx`/gtx path); sim + full-SoC elaboration validated, silicon bench pending.
+- **AX42** (e2 MAC-TX link-bounce wedge): the guard `eth_rst` fix now covers the PHY-side
+  `eth_tx`/gtx path, and the follow-up link-guard liveness-toggle deadlock fix is merged and
+  flashed to the AX (2026-07-24).
 - Toolchain: Vivado 2026.1 with **Artix-7 + Zynq installed** (`/home/alex/Xilinx*`); both boards
   build and run. (Docs saying "only Spartan-7 / `--build` blocked here" are stale.)
-- 12-item USER roadmap: **items 1-4, 6, 8, 9 DONE**; 5 partial (8x8 pending), 7 partial
-  (playback pending), 10 in progress (the behave suite), 11/12 pending.
+- 12-item USER roadmap: **items 1-6, 8, 9, 11 DONE** (8×8 end-to-end measured 07-24; the
+  per-stage latency taps landed 07-25 — see `AAF_LATENCY_TAPS.md`); 7 = record proven on
+  silicon, playback (`KL_pcm_tx` ring → render mux) integrated in gateware with the
+  end-to-end proof pending; 10 in progress (the behave suite; the human 1:1 matrix review
+  is USER-gated); 12 pending (switch-gated).
 
 ---
 
@@ -108,8 +112,8 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 
 ### Stage 0 — Orientation
 - **`docs/SYSTEMS_ENGINEER_GUIDE.md`** (this doc) — start here.
-- **`README.md`** (repo root) — one-paragraph description + quick jumps. *(Front door; being
-  refreshed for the 1-hart / CERT-63 state.)*
+- **`README.md`** (repo root) — one-paragraph description + quick jumps. *(The front door;
+  routes by persona.)*
 - **`docs/README.md`** — the documentation nav hub: directory-purpose map + curated reading
   paths + per-doc one-liners. Read when you want a different slice than this guide's.
 - **`docs/GLOSSARY.md`** — every term of art (AVB/TSN, PHY, LiteX/SoC, datapath/DMA, cache).
@@ -275,7 +279,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   "CPU reads MILN" evidence walk. Read to understand what each sim layer can/can't catch.
 - **`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`** — the protocol × module × test coverage view
   ("which harness proves protocol X"). *(Status glyphs are a pre-silicon snapshot — many rows are
-  now CERT/silicon-done.)*
+  now bench/silicon-done.)*
 - **`docs/testing/BEHAVE_TEST_PLAN.md`** — the live plan (roadmap item 10) turning the 204-row
   traceability matrix into a tag-taxonomy'd behave suite. Dated today; the active compliance-test
   bridge. Read for the executable-compliance direction.
@@ -307,8 +311,8 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - → **GitHub Issues** — the current roadmap, open gaps, and live state are tracked as issues.
   Read the open issues to know what's left and what's in flight right now.
 - **`docs/findings/BENCH_TOPOLOGY.md`** — the "read this first" bench-ops reference: machines,
-  consoles, repos, the build→flash→verify pipeline, pw0 wire tooling, CERT privacy rules, the CSR
-  quick-map, standing rules. High value for operating the bench.
+  consoles, repos, the build→flash→verify pipeline, pw0 wire tooling, the private-suite naming
+  rules, the CSR quick-map, standing rules. High value for operating the bench.
 - Historical campaign narrative lives in the git history and [`../CHANGELOG.md`](../CHANGELOG.md);
   the per-bug post-mortems below are the evergreen record.
 - **`docs/findings/README.md`** — the findings-directory index (symptom→measurement→root-cause→
@@ -321,11 +325,13 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   + the refuted-levers list. The single canonical lever→effect table for the perf campaign.
 - **`TODO.md`** (root) — the original Phase 0-9 NIC bring-up plan; largely done/superseded by the
   12-item roadmap, but still the open-REQ checkbox ledger.
-- **`docs/archive/README.md`** — the index of the 15 **superseded / historical** docs (the
-  byte-ring/CPPI/RSC DMA-origin docs, the completed migration & de-Xilinx plans, the 07-11
-  the early perf snapshots). Each is marked in place with a `⚠️ SUPERSEDED`
-  banner + its living successor (they stay at their paths to preserve inbound links). Read
-  only for deep history.
+- **[`historical_now_obsolete/`](../historical_now_obsolete/README.md)** (repo root) — the
+  **superseded / completed-plan** docs (the byte-ring/CPPI/RSC DMA-origin docs, the completed
+  migration & de-Xilinx plans, the early perf snapshots), physically moved out of the active
+  tree; its README maps each to its living successor. The four merge-source docs
+  (RX_TX_PERFORMANCE, GIGABIT_HEADROOM_ANALYSIS, SINGLE_PORT_PERF, HSPLIT14_DESIGN) still sit
+  in place with `⚠️ SUPERSEDED` banners until their content is folded into the successors.
+  Read only for deep history.
 
 ---
 

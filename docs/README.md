@@ -11,11 +11,18 @@ docs/
 ├─ integration/   make it work in YOUR SoC / on YOUR board (incl. non-Vivado)
 ├─ litex/         the LiteX softcore host in depth
 ├─ fpga/          the gateware: every module, DMA/BD design docs, telemetry
+├─ design/        protocol subsystem design records (MAAP, talker SM)
 ├─ testing/       every verification layer + how to run it
-├─ limitations/   known issues, limitations, hazards, troubleshooting
+├─ traceability/  spec clause ↔ module ↔ test matrices (per standard + generated)
 ├─ reference/     contracts: register ABI, FR/NFR, Milan v1.2 matrix
-└─ findings/      dated bug post-mortems + perf-campaign logs (indexed)
+├─ limitations/   known issues, limitations, hazards, troubleshooting
+├─ findings/      dated bug post-mortems + perf-campaign logs (indexed)
+├─ templates/     per-module doc templates (parameters, tests)
+└─ diagrams/      generated system diagrams (edit .gen.py/.drawio, never renders)
 ```
+
+> Superseded and completed-plan docs are moved out of this tree into
+> [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) — indexed there.
 
 ## ⭐ New here? Start with the guide, then pick your lane
 
@@ -23,7 +30,7 @@ docs/
 system is, plus a journey-ordered map of the whole doc set. Then follow the lane below that
 matches what you're here to do. Unsure of a term? → [GLOSSARY.md](GLOSSARY.md).
 
-![Where do I start — the four reading lanes by role](DOC_MAP.png)
+![Where do I start — the reading lanes by role](DOC_MAP.png)
 
 > The picture above is generated (editable [DOC_MAP.drawio](DOC_MAP.drawio); regenerate with
 > `python3 docs/DOC_MAP.gen.py docs/DOC_MAP && rsvg-convert -w 2400 docs/DOC_MAP.svg -o docs/DOC_MAP.png`).
@@ -57,12 +64,26 @@ Goal: build → flash → bring up the board. → **[the pipeline at a glance](B
 
 ### 🧪 Tester / Validator — *you run the suites + validate*
 Goal: prove it works, per spec.
-1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · CERT/bench).
+1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · bench).
 2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` = ~41 suites (the count wins over any prose).
 3. [../tests/README.md](../tests/README.md) — run the behave/tsn_gen fixtures: `~/litex-milan/venv/bin/behave tests` (needs `TSAGEN_DIR`).
-4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench`/CERT tier (CERT suites live in the sibling private test repo).
+4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench` tier (the conformance suites live in the sibling private test repo).
 5. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
 6. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is validated vs pending.
+
+### 📦 Product evaluator — *you decide whether to build on this*
+Goal: an honest picture of what provably works and what is open.
+1. [overview/FULL_FPGA_SOLUTION.md](overview/FULL_FPGA_SOLUTION.md) — what the system is.
+2. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — clause-level verification status (204 rows).
+3. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is still missing, and the attack order.
+4. [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) — what bites.
+
+### 🎧 Hobbyist — *you want it running on your desk*
+Goal: build, flash, hear audio.
+1. [../README.md](../README.md) quickstart — run the testbenches, no hardware needed.
+2. [integration/BUILDING.md](integration/BUILDING.md) — build a bitstream for your board.
+3. [integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) — flash it and boot Linux.
+4. [limitations/TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) — when it fights back.
 
 ## Quick task jumps
 
@@ -70,11 +91,11 @@ Goal: prove it works, per spec.
 |---|---|
 | **Understand the system** (new contributor) | [overview/FULL_FPGA_SOLUTION](overview/FULL_FPGA_SOLUTION.md) → [overview/ARCHITECTURE](overview/ARCHITECTURE.md) → [ARCHITECTURE_HW_SW_SPLIT](ARCHITECTURE_HW_SW_SPLIT.md) (normative HW/SW plan-of-record) → [overview/SYSTEM_DOMAIN_MAP](overview/SYSTEM_DOMAIN_MAP.md) → [GLOSSARY](GLOSSARY.md) |
 | **Integrate the datapath into your own SoC** | [integration/INTEGRATION_GUIDE](integration/INTEGRATION_GUIDE.md) → [reference/REGISTER_MAP](reference/REGISTER_MAP.md) → [fpga/FPGA_DESIGN](fpga/FPGA_DESIGN.md) |
-| **Build it without Vivado / port to another board** | [integration/PORTING_GUIDE](integration/PORTING_GUIDE.md) → [integration/OPEN_SOURCE_MIGRATION](integration/OPEN_SOURCE_MIGRATION.md) → [integration/BOARD_PORTING_AX7101](integration/BOARD_PORTING_AX7101.md) (worked example) |
+| **Build it without Vivado / port to another board** | [integration/PORTING_GUIDE](integration/PORTING_GUIDE.md) → [integration/BOARD_PORTING_AX7101](integration/BOARD_PORTING_AX7101.md) (worked example) |
 | **Build / boot / operate the AX7101 board** | [litex/LITEX_SOC](litex/LITEX_SOC.md) → [integration/QSPI_FLASHBOOT](integration/QSPI_FLASHBOOT.md) → [limitations/TROUBLESHOOTING](limitations/TROUBLESHOOTING.md) |
 | **Run the tests** | [testing/TESTING.md](testing/TESTING.md) (the map) → [../tb/verilator/README.md](../tb/verilator/README.md) (suite detail) |
 | **Know what does NOT work** | [limitations/KNOWN_ISSUES_AND_LIMITATIONS](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) |
-| **See where the project is heading** | [overview/AVB_SWITCH_DIRECTION](overview/AVB_SWITCH_DIRECTION.md) → [integration/FULLY_FPGA_RISCV_MIGRATION](integration/FULLY_FPGA_RISCV_MIGRATION.md) |
+| **See where the project is heading** | [overview/AVB_SWITCH_DIRECTION](overview/AVB_SWITCH_DIRECTION.md) → the GitHub issues (the live roadmap) |
 | **Debug a datapath problem** | [fpga/pipeline-telemetry](fpga/pipeline-telemetry.md) → [findings/](findings/README.md) (how every past bug was cornered) → [testing/SIMULATION](testing/SIMULATION.md) |
 | **Write driver / DT / register code** | [reference/REGISTER_MAP](reference/REGISTER_MAP.md) → [`../sw/driver/README.md`](../sw/driver/README.md) + [`../sw/dts/README.md`](../sw/dts/README.md) |
 
@@ -105,9 +126,8 @@ across BUILDING / LITEX_SOC / QSPI_FLASHBOOT / BENCH_TOPOLOGY). Editable
 | [BOARD_PORTING_AX7101.md](integration/BOARD_PORTING_AX7101.md) | The worked board port: pin extraction, DDR3/LiteDRAM, verification. |
 | [BUILDING.md](integration/BUILDING.md) | **Building + flashing bitstreams in the two-board lab** (`build.sh`): named configs (ax7101/arty), parallel launch discipline, the `flash` subcommand per-board QSPI policy interlocks, gates. |
 | [QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | Boot Linux from QSPI flash (zero-upload achieved 2026-07-06); flash layout + `deploy.sh flash-images`. |
-| [OPEN_SOURCE_MIGRATION.md](integration/OPEN_SOURCE_MIGRATION.md) | How the RTL became vendor-neutral (XPM → Forencich cores + in-repo CDC); the de-Xilinx track record. |
-| [FULLY_FPGA_RISCV_MIGRATION.md](integration/FULLY_FPGA_RISCV_MIGRATION.md) | The step-numbered Zynq→softcore migration plan (now largely as-built - see its status banner). |
 | [AXIS_CORES_ON_NAXRISCV.md](integration/AXIS_CORES_ON_NAXRISCV.md) | The general pattern: attaching AXI-Stream cores to a LiteX softcore (control/data/event planes). |
+| [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) | The completed migration + de-Xilinx plans (historical); the living porting successor is PORTING_GUIDE above. |
 | [`../THIRD_PARTY.md`](../THIRD_PARTY.md) | Vendored third-party code, pins and licenses. |
 
 ## 3 - litex/ (the softcore host)
@@ -127,9 +147,8 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) | **Every module in `hdl/`**: purpose, interfaces, clock domain, verifying harness, doc link; the wrappers; the full CDC inventory. |
 | [PIPELINE_STAGES.md](fpga/PIPELINE_STAGES.md) | Canonical stage-by-stage pipeline prose (datapath + DMA/BD engines as running on silicon). |
 | [pipeline-telemetry.md](fpga/pipeline-telemetry.md) | The `milan_tlm` in-fabric observability block: per-stage counters, Little's-law occupancy, sysfs/BIOS access. |
-| [CPPI_DMA_REDESIGN.md](fpga/CPPI_DMA_REDESIGN.md) | The DMA/MAC memory-architecture plan + the dated silicon addenda (BD zero-copy, TX-BD v1/v2/v2b, the 2026-07-07 campaign). |
-| [HW_GRO_RSC.md](fpga/HW_GRO_RSC.md) | HW-GRO/RSC receive coalescing in the RX BD engine (phases A+B sim-verified). |
 | [HEADER_SPLIT_DESIGN.md](fpga/HEADER_SPLIT_DESIGN.md) / [HSPLIT14_DESIGN.md](fpga/HSPLIT14_DESIGN.md) | Header-split zero-copy RX design + per-page cut-through delivery. |
+| [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) | The DMA design-era logs (CPPI byte-ring→BD-ring, HW-GRO/RSC) — historical; PIPELINE_STAGES is the living reference. |
 | [LSU_NONBLOCKING_DCACHE.md](fpga/LSU_NONBLOCKING_DCACHE.md) | VexiiRiscv non-blocking D$ / refill mechanics reference. |
 | Per-module TerosHDL pages | `hdl/**/doc/*.md`, linked from [FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) §2; regenerate with the TerosHDL documenter (`//!` comments are the source). |
 
@@ -166,13 +185,33 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 
 **[findings/README.md](findings/README.md)** indexes every dated post-mortem
 and campaign log - the CBS bugs, the TX saga, the ring-DMA rework, the RX
-wedges, the latency investigation, the >500 Mbit/s campaign, the session
-handoffs. The per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
+wedges, the latency investigation, the >500 Mbit/s campaign. The
+per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 (chart: [perf_campaign.svg](perf_campaign.svg)).
 
 > Current performance numbers live in [`../CHANGELOG.md`](../CHANGELOG.md) and
 > [findings/](README.md); numbers quoted anywhere else are dated snapshots (why:
 > [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) §6).
+
+## 9 - traceability/ (spec clause ↔ module ↔ test)
+
+| Document | Purpose |
+|----------|---------|
+| [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) | **The traceability hub**: the 204-row coverage table across the five standards families, the N/A taxonomy, the attack order. |
+| [traceability/ieee1722_1-2021.md](traceability/ieee1722_1-2021.md) · [ieee1722-2016.md](traceability/ieee1722-2016.md) · [ieee8021as.md](traceability/ieee8021as.md) · [ieee8021q.md](traceability/ieee8021q.md) · [milan-v12.md](traceability/milan-v12.md) | Per-standard clause → behavior → module → test tables, each row with a "why it matters". |
+| [traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | **GENERATED** module ↔ spec ↔ test roll-up (all 77 modules); regenerate with [gen_module_matrix.py](traceability/gen_module_matrix.py) (`--check` gates drift). |
+| [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) | The live "what's still missing + attack order" narrative. |
+
+## 10 - design records, top-level specs, templates, diagrams
+
+| Where | Purpose |
+|----------|---------|
+| [design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) · [design/MILAN_TALKER_SM.md](design/MILAN_TALKER_SM.md) | Protocol subsystem design records (the fabric MAAP engine; the Milan talker connection SM). |
+| [NXN_ARCHITECTURE.md](NXN_ARCHITECTURE.md) · [LWSRP_FPGA_ARCHITECTURE.md](LWSRP_FPGA_ARCHITECTURE.md) · [ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) · [CHANNEL_MAP_64.md](CHANNEL_MAP_64.md) · [CHMAP64_AEM_BINDING.md](CHMAP64_AEM_BINDING.md) · [AAF_LATENCY_TAPS.md](AAF_LATENCY_TAPS.md) · [LATENCY_HISTORY_RING.md](LATENCY_HISTORY_RING.md) · [MVP_TALKER.md](MVP_TALKER.md) | Top-level subsystem specs: NxN stream scaling, the lwSRP engine, the end-station builder, the 64-channel map + its AEM binding, the per-stage latency taps + DDR3 history ring, the first AAF talker. |
+| [templates/](templates/README-tests.template.md) | Per-module doc templates (parameters, tests) — their rows roll up 1:1 into the traceability matrix. |
+| [diagrams/](diagrams/README.md) | Generated system diagrams (the giant single-page system map and friends). Every diagram ships as an editable `.drawio` + rendered `.svg`/`.png`; edit the source (`.gen.py` or the `.drawio`), never the render. |
+| [DOC_AUDIT.md](DOC_AUDIT.md) | The 2026-07-23 doc audit + cleanup record (§2 archive move executed 2026-07-25 → `historical_now_obsolete/`). |
+| [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md) | The journey-ordered front-door guide (also linked at the very top). |
 
 ## Conventions
 

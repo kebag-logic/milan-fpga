@@ -5,8 +5,8 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # `milan/milan` — modules & test coverage
 
 **GENERATED** by `docs/traceability/gen_module_matrix.py` — do not
-hand-edit. Part of the Milan (Avnu) integration family; rolled up in
-[`docs/traceability/MODULE_MATRIX.md`](../../../docs/traceability/MODULE_MATRIX.md).
+hand-edit. Part of the Milan integration family; rolled up in
+[`docs/traceability/MODULE_MATRIX.md`](../../docs/traceability/MODULE_MATRIX.md).
 
 | module | file | test | clauses |
 |---|---|---|---|

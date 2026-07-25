@@ -18,12 +18,12 @@ the behavior is wire-invisible.
 ## 1. Current state (reconnaissance 2026-07-23)
 
 Four real behave suites exist; **no `behave.ini`, no tag taxonomy, no CI** ties them
-together, and the two CERT copies are drifting.
+together, and the two conformance-suite copies are drifting.
 
 | Suite | Path | Feat/Scen | Class | Role in the new plan |
 |-------|------|-----------|-------|----------------------|
-| **A CERT** | `the-private-test-repo/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
-| **B AETS** | `the-private-test-repo/private/recreate/aets_recreate_20260721/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
+| **A bench-conf** | `the-private-test-repo/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
+| **B private snapshot** | `the-private-test-repo/private/recreate/<snapshot_20260721>/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
 | **C PipeWire E2E** | `the-private-test-repo/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
 | **D milan-fpga AECP** | `milan-fpga/tests/` | 8 / 55 | host-sim (+ tsn_gen frame codec) | the T0 RTL-contract tier; already has `@tsn_gen @T2 @wip` |
 
@@ -245,7 +245,7 @@ changed. `SPEC_TRACEABILITY.md` now reads **163✅ / 17🟡 / 7❌ / 17➖** (Mi
   *fuzzed*. Author order (highest value first):
   1. **ACMP model** (`protocols/acmp/*.yaml`) — lets the suite fuzz connection-management
      (BIND/UNBIND/PROBE/GET_RX_STATE); pairs with Suite D `acmp_listener_tsn_gen.feature`
-     and the CERT ACMP path. Highest-value: ACMP is the most stateful engine with no model.
+     and the bench-suite ACMP path. Highest-value: ACMP is the most stateful engine with no model.
   2. **CRF model** (M-CLK-1 params) + **MRPDU/MSRP models** (M-DEV-5..9, 802.1Q) — fuzz the
      reservation + media-clock framing.
   3. **gPTP model** + **MVU payload models** (GET_MILAN_INFO / SYSTEM_UNIQUE_ID /
@@ -261,7 +261,7 @@ changed. `SPEC_TRACEABILITY.md` now reads **163✅ / 17🟡 / 7❌ / 17➖** (Mi
 - **Add `behave.ini`** at each suite root with the tag taxonomy + a `default` profile that
   excludes `@wip,@bench,@soak` (the CI green gate). None exists today.
 - **Converge suites A and B** (they differ in 8 files and will keep drifting); keep one
-  CERT tree, snapshot only for release tags. Commit the `aem/` package into the tracked
+  conformance tree, snapshot only for release tags. Commit the `aem/` package into the tracked
   tree (today it lives only in the private snapshot; the tracked steps `import from aem`).
 - **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D —
   wire the T0 green gate into it; no CI YAML exists in any repo yet.

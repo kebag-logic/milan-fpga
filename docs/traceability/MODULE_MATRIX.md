@@ -136,7 +136,7 @@ _CSR, CDC, RMON, utilities_
 | ✅ `ethernet_events` | `common/eth_event_counter/ethernet_events.sv` | `milan_dp` | — |
 | ➰ `event_counter` | `common/eth_event_counter/event_counter.sv` | ➰milan_dp | — |
 
-## Milan (Avnu) integration
+## Milan integration
 
 _datapath + top wrappers_
 

@@ -28,7 +28,9 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
   pattern). Copy (`cp -r`), never symlink, `third_party/` into a worktree —
   a symlink escapes to the main repo and builds silently stale RTL; then
   delete the copied submodule's `.git` file.
-- **Commits: one line, no trailers.** Say CERT, never the A-word.
+- **Commits: one line, no trailers.** The private bench suite is referenced
+  only as *the bench suite* (evidence token `BENCH`) in committed text —
+  never by any external name.
 - PRs use the template: Status / Description / how-to-reproduce / how-to-
   validate / DoD. **Self-test results go in a PR comment** — a comment is
   evidence, not approval. Maintainer merges by default.

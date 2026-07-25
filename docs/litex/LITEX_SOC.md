@@ -64,7 +64,7 @@ depth 32), TS a `WishboneDMAWriter`. Masters attach to the CPU's **coherent**
 An optional second RX queue (`--rx-queues 2`) adds an `RxSteer` classifier.
 Endianness is `"big"` on purpose: memory order == wire order, so the CPU
 never byte-swaps. The BD-format/zero-copy/checksum evolution of these
-engines is chronicled in [../fpga/CPPI_DMA_REDESIGN.md](../fpga/CPPI_DMA_REDESIGN.md)
+engines is chronicled in [../fpga/CPPI_DMA_REDESIGN.md](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
 and the [findings log](../findings/README.md).
 
 ### 2.4 The MAC (`MilanMAC`)
@@ -82,7 +82,7 @@ packet intelligence; the MAC does L1/framing only.
 `deploy.sh` does not override it.
 
 * **VexiiRiscv** (`--cpu vexiiriscv`, forced `linux` variant, RV64IMASU,
-  sv39) is the ship core: the CERT/ship shape is **1-hart + `--l2-bytes
+  sv39) is the ship core: the ship shape is **1-hart + `--l2-bytes
   32768`** (L2-32K) at 100e6. The **dual-hart SMP** (`--cpu-count 2`,
   L2-64K) configuration behind the older project-scoreboard Linux results is
   a SUPERSEDED perf-lineage variant; the perf-campaign docs
@@ -92,7 +92,7 @@ packet intelligence; the MAC does L1/framing only.
   as documented in the source (the FPU needs both the toolchain arch *and*
   the scala flags - handled for you).
 
-So: the CERT/ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
+So: the ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
 at 100e6; to reproduce the older published Linux/perf results build the
 SUPERSEDED perf-lineage `--cpu vexiiriscv --cpu-count 2` (L2-64K) instead; a
 bare `deploy.sh build` gives you a NaxRiscv SoC. This asymmetry is tracked in
@@ -113,7 +113,7 @@ drift. Guide: [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.m
 
 ```sh
 cd sw/litex
-# CERT/ship shape: 1-hart VexiiRiscv + L2-32K, datapath @ 100 MHz
+# ship shape: 1-hart VexiiRiscv + L2-32K, datapath @ 100 MHz
 ./milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 100e6 \
                --gtx-tx-invert --timing-opt --cpu vexiiriscv --l2-bytes 32768
                # add --build to run Vivado P&R; without it, elaboration +
