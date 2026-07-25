@@ -539,10 +539,17 @@ in both directions at the wire.
 3. **Diff the dtb `reg` windows against `csr.csv`** - mis-split from window 1 onward, ts
    window absent. Case closed.
 
-**Fix.** Compile the device tree **fresh from the committed dts source** at flash time; never
-flash a prebuilt `.dtb` fossil. [`deploy.sh`](../../sw/litex/deploy.sh) `flash-images` now
-refuses the mismatch outright: [`check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) validates
-the DTB's `kl,dma-ether` windows against the build's `csr.csv` before anything is written.
+**Fix - and the twist that made round one of the fix a no-op.** Compiling the device tree
+fresh from the committed dts source and flashing it is **not enough**: on this boot path the
+LiteX BIOS jumps to OpenSBI with `a1 = 0`, so the kernel only ever sees the fdt **embedded in
+the opensbi image** (`FW_FDT_PATH`). Flashing a corrected `.dtb` into its slot changed nothing;
+the fix is to **rebuild opensbi around the corrected tree** (`build_opensbi.sh` in the private
+test repo) and flash *that*.
+
+[`deploy.sh`](../../sw/litex/deploy.sh) `flash-images` now refuses the mismatch outright:
+[`check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) validates the `kl,dma-ether` windows
+against the build's `csr.csv` for **both** `$DTB` and `$OPENSBI` - it carves the embedded FDT
+out of any binary, so the image that actually boots is the image that gets checked.
 
 **Lessons.**
 

@@ -26,11 +26,20 @@ import sys
 MILAN_CSR_BASE = 0x9000_0000
 
 
+FDT_MAGIC = b"\xd0\x0d\xfe\xed"
+
+
 def decompile(path):
-    """Return normalized device-tree source text for a .dtb or .dts input."""
-    with open(path, "rb") as f:
-        magic = f.read(4)
-    if magic != b"\xd0\x0d\xfe\xed":
+    """Normalized dts text for a .dts, a .dtb, or ANY binary embedding an FDT.
+
+    The embedded case is the one that matters most: the LiteX BIOS jumps to
+    OpenSBI with a1=0, so the fdt OpenSBI carries (FW_FDT_PATH) is the ONLY
+    device tree the kernel ever sees - the flash "dtb" slot is decorative on
+    this boot path. Gate the opensbi image, not just the slot file.
+    """
+    blob = open(path, "rb").read()
+    off = blob.find(FDT_MAGIC)
+    if off < 0:
         # dts source: compile first so multi-group `reg = <..>, <..>` and
         # include/label sugar come back as one flat cell list.
         with tempfile.NamedTemporaryFile(suffix=".dtb") as tmp:
@@ -39,8 +48,15 @@ def decompile(path):
             if out.returncode != 0:
                 sys.exit("check_dtb_csr: dtc failed on %s: %s" % (path, out.stderr.strip()))
             return decompile(tmp.name)
-    out = subprocess.run(["dtc", "-I", "dtb", "-O", "dts", path],
-                         capture_output=True, text=True)
+    size = int.from_bytes(blob[off + 4:off + 8], "big")
+    if off > 0:
+        print("check_dtb_csr: using the FDT embedded at +0x%x in %s (%d B)"
+              % (off, path, size))
+    with tempfile.NamedTemporaryFile(suffix=".dtb") as tmp:
+        tmp.write(blob[off:off + size])
+        tmp.flush()
+        out = subprocess.run(["dtc", "-I", "dtb", "-O", "dts", tmp.name],
+                             capture_output=True, text=True)
     if out.returncode != 0:
         sys.exit("check_dtb_csr: dtc failed on %s: %s" % (path, out.stderr.strip()))
     return out.stdout
