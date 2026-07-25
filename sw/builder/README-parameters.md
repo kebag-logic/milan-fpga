@@ -6,14 +6,14 @@
      Companion of the per-module README-parameters.md files
      (docs/templates/README-parameters.template.md). -->
 
-Module(s): `sw/builder/endstation_builder.py` (generator),
-`avdecc/gen_aem_store.py --overlay` (AEM-overlay consumer),
-`sw/litex/sweep.sh` (sweep-opts consumer).
-Configs: `configs/endstation_*.yaml`
-(schema `kebag-logic/milan-endstation-config` 1.1.x; the annotated normative
-form is `configs/endstation_arty_current.yaml`).
-Gate: `python3 sw/builder/test_builder.py` (16 gates, incl. the ROM
-byte-identity no-regression gate and the Milan 7.2.3 CRF-output rule).
+- Module(s): `sw/builder/endstation_builder.py` (generator),
+  `avdecc/gen_aem_store.py --overlay` (AEM-overlay consumer),
+  `sw/litex/sweep.sh` (sweep-opts consumer).
+- Configs: `configs/endstation_*.yaml`
+  (schema `kebag-logic/milan-endstation-config` 1.1.x; the annotated
+  normative form is `configs/endstation_arty_current.yaml`).
+- Gate: `python3 sw/builder/test_builder.py` (16 gates, incl. the ROM
+  byte-identity no-regression gate and the Milan 7.2.3 CRF-output rule).
 
 ## Pipeline
 
@@ -48,17 +48,20 @@ configs/endstation_<x>.yaml
 Resolution order: `model_id_pin` > `entity_model_id: hash-derived` >
 `entity_model_id: <hex literal>`.
 
-1. **shape** = `model_shape(cfg)`: the model-shaping fields ONLY — cluster
-   policy; interface kind/channels/word length; sampling rates + current
-   rate; CRF sink + format; CRF output (enabled + format, since the
-   Milan-7.2.3 round — extended deliberately: a CRF output IS a model-shape
-   change, so pre-existing hash-derived 4x4/8x8 ids changed with it; the
-   deployed identity is pinned and unaffected); per-listener
-   channels/formats/clusters/buffer;
-   per-talker channels/formats/clusters; the derived per-stream port layout
-   (`[base_cluster, clusters, base_map]` per port, both directions). NO
-   board flags, names or serials: two boards with the same audio shape share
-   one model id (AEM semantics — same model, different instances).
+1. **shape** = `model_shape(cfg)`: the model-shaping fields ONLY —
+   - cluster policy; interface kind/channels/word length; sampling rates +
+     current rate; CRF sink + format;
+   - CRF output (enabled + format, since the Milan-7.2.3 round — extended
+     deliberately: a CRF output IS a model-shape change, so pre-existing
+     hash-derived 4x4/8x8 ids changed with it; the deployed identity is
+     pinned and unaffected);
+   - per-listener channels/formats/clusters/buffer; per-talker
+     channels/formats/clusters;
+   - the derived per-stream port layout (`[base_cluster, clusters,
+     base_map]` per port, both directions).
+   - NO board flags, names or serials: two boards with the same audio
+     shape share one model id (AEM semantics — same model, different
+     instances).
 2. **canon** = `json.dumps(shape, sort_keys=True, separators=(",", ":"))`
    (UTF-8).
 3. **id** = `(MODEL_ID_OUI << 40) | (int.from_bytes(sha256(canon).digest()[:8], "big") & (2**40 - 1))`
@@ -98,13 +101,16 @@ Descriptor counts follow: `STREAM_PORT_INPUT = L`, `STREAM_PORT_OUTPUT = T`,
 `endstation_builder.py` emits `configs/generated/sweep_opts_<board>.sh` — a
 sh fragment defining exactly `OPTS` (the board design-flag prefix:
 `--board`, non-default `--sys-clk-freq`, `--milan-clk-freq`,
-`--gtx-tx-invert`, `--floorplan`, `--eth-port`) and `L2`. `sw/litex/sweep.sh`
-sources the fragment when present and only falls back to its inline case
-tables (loudly commented as FALLBACK) when it is absent. The test gate
-asserts fragment `OPTS`/`L2` == the inline tables byte-for-byte for both
-boards, and `sh -n` on sweep.sh + fragments. The fragment is board-level:
-every config of a board emits the same content as long as its
-`board.constraints` agree.
+`--gtx-tx-invert`, `--floorplan`, `--eth-port`) and `L2`.
+
+`sw/litex/sweep.sh` sources the fragment when present and only falls back
+to its inline case tables (loudly commented as FALLBACK) when it is absent.
+
+The test gate asserts fragment `OPTS`/`L2` == the inline tables
+byte-for-byte for both boards, and `sh -n` on sweep.sh + fragments.
+
+The fragment is board-level: every config of a board emits the same
+content as long as its `board.constraints` agree.
 
 ## gen_aem_store consumption + current limits
 
@@ -126,13 +132,16 @@ gate). Known single-stream reach, planned item 5 (NxN AAF streams):
 Every build plan carries a `## Resource estimate` section: per-module
 LUT/FF/BRAM36/DSP costs x instance counts from the config, summed against
 the xc7a100t budget (63400 LUT / 126800 FF / 135 BRAM36 / 240 DSP;
-BRAM36 = RAMB36 + RAMB18/2 equivalents). The cost table
-(`RESOURCE_COSTS` in `endstation_builder.py`) is calibrated 2026-07-22
-from the REAL hierarchical place report of the shipping Arty build
-(`build_arty_eto_milanfinal48`, cross-checked `build_ax7101_eppo_milanfinal38`,
-totals within 2.4%); every entry states its provenance row. Confidence
-labels, per the area-70 house rule (hierarchical figures mislead for small
-modules):
+BRAM36 = RAMB36 + RAMB18/2 equivalents).
+
+The cost table (`RESOURCE_COSTS` in `endstation_builder.py`) is calibrated
+2026-07-22 from the REAL hierarchical place report of the shipping Arty
+build (`build_arty_eto_milanfinal48`, cross-checked
+`build_ax7101_eppo_milanfinal38`, totals within 2.4%); every entry states
+its provenance row.
+
+Confidence labels, per the area-70 house rule (hierarchical figures
+mislead for small modules):
 
 - `measured` - large blocks read straight from the report (cpu subtree,
   soc_infra top leaf incl MAC/DMA/DDR, milan_datapath major children);
@@ -146,10 +155,12 @@ modules):
   128 B per cluster beyond 16 (tracked ROM = 3653 B / 34 descriptors).
 
 Verdict = worst category vs the part: **OK** (<70%), **TIGHT** (70-80%,
-area-70 directive: keep slice headroom), **OVER** (>80%). Calibration gate
-(test_builder gate 11): the `arty_current` estimate must land within
-+/-15% of the real mf48 place totals, parsed from the report at test time
-(SKIPs when the build tree is absent); current deltas are +0.21% LUT /
--0.13% FF / 0% BRAM36 / 0% DSP. The NxN shapes come out OVER on
-xc7a100t (4x4 ~108% LUT, 8x8 ~142% LUT, upper bounds) - that is the
-point: sizing before burning sweeps.
+area-70 directive: keep slice headroom), **OVER** (>80%).
+
+Calibration gate (test_builder gate 11): the `arty_current` estimate must
+land within +/-15% of the real mf48 place totals, parsed from the report
+at test time (SKIPs when the build tree is absent); current deltas are
++0.21% LUT / -0.13% FF / 0% BRAM36 / 0% DSP.
+
+The NxN shapes come out OVER on xc7a100t (4x4 ~108% LUT, 8x8 ~142% LUT,
+upper bounds) - that is the point: sizing before burning sweeps.
