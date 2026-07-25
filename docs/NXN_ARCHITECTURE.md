@@ -80,11 +80,14 @@ matcher, only new table writers. Normative:
 Finding from the single-stream RTL: the AAF frames arrive serialized on one
 MAC pipe, and `KL_aaf_rx_depacketizer`'s in-flight scratch (`rstate_r`,
 `rbeat_r`, `hold_r`, `remain_r`, `vlan_r`, `good_r`, `in_frame_r`) only ever
-describes ONE frame at a time. Therefore the depacketizer engine stays a
-**single instance with zero context duplication of its FSM**; only its
-counters (`pdus`, `drops`) become per-stream context words. The frame FIFO
-stays single (2 KB) and stores `{tuser=s}` alongside each frame; the read
-side emits `{s, pcm beats}`.
+describes ONE frame at a time.
+
+Therefore the depacketizer engine stays a **single instance with zero
+context duplication of its FSM**; only its counters (`pdus`, `drops`)
+become per-stream context words.
+
+The frame FIFO stays single (2 KB) and stores `{tuser=s}` alongside each
+frame; the read side emits `{s, pcm beats}`.
 
 ### 1.3 PCM routing policy
 
@@ -140,9 +143,12 @@ wrap-to-zero, reset ONLY on that stream's not-bound→bound edge —
 
 **Timer rule (normative, applies to every context engine in this doc):**
 free-running per-stream timers do NOT go to RAM. They are re-based to the
-shared 1 ms tick and held as narrow per-stream flop arrays. The monitor's
-100 ms silence watchdog becomes a 7-bit ms-counter × N (56 FF for N=8)
-instead of a 32-bit cycle counter × N in RAM needing a RMW every cycle.
+shared 1 ms tick and held as narrow per-stream flop arrays.
+
+The monitor's 100 ms silence watchdog becomes a 7-bit ms-counter × N
+(56 FF for N=8) instead of a 32-bit cycle counter × N in RAM needing a
+RMW every cycle.
+
 Context RAM holds event-driven state only; the engine performs a serial
 read-modify-write walk per accepted frame (≥ ~780 cycles available between
 frames of one stream at 8 kHz class-A cadence; total RX PDU rate 64 k/s at
@@ -172,14 +178,19 @@ replication for 8+8 streams would add ~500 decoded words to `milan_csr`
 | 0x85C | `A_STRMW_SRP` | RO | per-stream lwSRP attribute status (mirrors 0x694 bit layout) |
 
 Window reads are served from the context RAM's second port (SDP port B) —
-no shadow copies except the SNAP latch block. Justification of indexed over
-flat: (a) decode area O(1) instead of O(N); (b) the reader is the single
-softcore daemon — sequential SEL-then-read costs nothing; (c) SNAP gives
-GET_COUNTERS atomicity that flat regs never had; (d) legacy flat registers
-(0x648–0x764) stay wired to index 0 / the dedicated CRF engines, which IS
-the no-regression axiom for N=1. AECP GET_COUNTERS handling in firmware
-switches from fixed 0x6B8-group reads to SEL/SNAP/window reads keyed by
-descriptor index.
+no shadow copies except the SNAP latch block.
+
+Justification of indexed over flat:
+
+- (a) decode area O(1) instead of O(N);
+- (b) the reader is the single softcore daemon — sequential SEL-then-read
+  costs nothing;
+- (c) SNAP gives GET_COUNTERS atomicity that flat regs never had;
+- (d) legacy flat registers (0x648–0x764) stay wired to index 0 / the
+  dedicated CRF engines, which IS the no-regression axiom for N=1.
+
+AECP GET_COUNTERS handling in firmware switches from fixed 0x6B8-group
+reads to SEL/SNAP/window reads keyed by descriptor index.
 
 ## 2. Dataplane TX — shared packetizer
 
@@ -214,25 +225,30 @@ packetizer drains bank B; the bank swap IS the epoch boundary.
 
 All N talker streams share the media clock, so all frame on the same
 6-sample cadence (48 kHz / 6 = 8 kHz per stream, the class-A observation
-interval, [M-6.3]). Normative scheduler: an **epoch round-robin** — on each
-8 kHz epoch strobe (media_adv-derived / audio-MMCM grid), the packetizer
-walks `t = 0..T-1`, emits one AAF PDU per enabled stream back-to-back into
-the AAF class-A queue. Worst case 8 streams × ~25 beats ≈ 200 datapath
-cycles per 6250-cycle epoch (50 MHz) — 3% occupancy; no per-stream pacing
-needed. Per-stream ts is latched per epoch from the shared PHC read (one
-read, N stamps).
+interval, [M-6.3]).
+
+Normative scheduler: an **epoch round-robin** — on each 8 kHz epoch strobe
+(media_adv-derived / audio-MMCM grid), the packetizer walks `t = 0..T-1`,
+emits one AAF PDU per enabled stream back-to-back into the AAF class-A
+queue.
+
+Worst case 8 streams × ~25 beats ≈ 200 datapath cycles per 6250-cycle
+epoch (50 MHz) — 3% occupancy; no per-stream pacing needed. Per-stream ts
+is latched per epoch from the shared PHC read (one read, N stamps).
 
 ### 2.4 CBS interaction
 
 The shaper is untouched: all AAF streams map to the same class-A queue
 (qidx from `LWSRP_CTRL[3:2]`). The epoch burst (≤ 8 × ~190 B ≈ 1.5 KB) is
-spread across the 125 µs interval by CBS credits exactly as designed. What
-generalizes is the **reservation math**: `KL_lwsrp_bw_gate` becomes a
+spread across the 125 µs interval by CBS credits exactly as designed.
+
+What generalizes is the **reservation math**: `KL_lwsrp_bw_gate` becomes a
 Σ-slope accumulator — idleSlope(queue) = Σ granted per-stream slopes, and
-`over_limit` compares the Σ against the 75% ceiling (§3.4). Per-stream
-`stream_gate[t]` gates each stream's epoch slot individually (a torn-down
-stream stops instantly; others keep their slots). Bandwidth sanity at
-N=8×8ch: 8 × 8000 × ~190 B ≈ 97 Mbit/s < 750 Mbit/s ceiling.
+`over_limit` compares the Σ against the 75% ceiling (§3.4).
+
+Per-stream `stream_gate[t]` gates each stream's epoch slot individually
+(a torn-down stream stops instantly; others keep their slots). Bandwidth
+sanity at N=8×8ch: 8 × 8000 × ~190 B ≈ 97 Mbit/s < 750 Mbit/s ceiling.
 
 ### 2.5 CRF output — dedicated engine, not a stream slot
 
@@ -290,13 +306,18 @@ per-stream lwSRP listener-ready bit (§3.4).
 
 `KL_maap` claims ONE contiguous block of `count_i` addresses ([P-AnnexB]);
 `MAAP_CTRL[15:8]` already resets to 8. Normative: **no per-stream claim
-contexts.** Per-stream DMACs are derived: `dmac(t) = claimed_base + t` for
-AAF talkers, `dmac(CRF) = claimed_base + T`; the block count becomes
-`T + 1` (CSR default lifted 8→9 when the CRF output is enabled). Conflict
-detection and DEFEND are already range-based over the whole block, so the
-single SM defends all stream DMACs at today's cost. The `eff_aaf_dmac` mux
-generalizes to a per-context adder. This is the cheapest subsystem of the
-whole item — by design the protocol did the N-scaling for us.
+contexts.**
+
+Per-stream DMACs are derived: `dmac(t) = claimed_base + t` for AAF
+talkers, `dmac(CRF) = claimed_base + T`; the block count becomes `T + 1`
+(CSR default lifted 8→9 when the CRF output is enabled).
+
+Conflict detection and DEFEND are already range-based over the whole
+block, so the single SM defends all stream DMACs at today's cost. The
+`eff_aaf_dmac` mux generalizes to a per-context adder.
+
+This is the cheapest subsystem of the whole item — by design the protocol
+did the N-scaling for us.
 
 ### 3.4 lwSRP — N + N attribute contexts (subsumes the CRF-reservation gap)
 
@@ -349,16 +370,20 @@ and station identity. The CRF sink side ([M-7.2.2]) is already compliant.
 
 The overlay path already builds structurally valid multi-port ROMs (one
 STREAM_PORT per stream, per-port cluster blocks, §7.2.19-relative maps —
-builder D1/D2/D3); nothing in fabric consumes them yet. AECP RTL changes:
-DONE (item-4 follow-up) — the svh validation tables became per-descriptor
-arrays (`AEM_STRIN_*`/`AEM_STROUT_FMT_C` + `WB_STRIN/STROUT_FMT_ADDR_C`)
-emitted by `gen_aem_store.py` for multi-stream shapes behind
-`` `AEM_PER_STREAM_FMT`` (the deployed 1-AAF-in shape keeps the legacy
-layout byte-identical); SET/GET_STREAM_FORMAT and the RX monitor's
-format-compare reference key the addressed descriptor's own entry
-(tb/verilator/aecp `sim_fmt2`). Remaining: GET_STREAM_INFO and
-GET_COUNTERS handlers keying the §1.5 window by descriptor index. ADP
-source/sink counts already come honest from the overlay.
+builder D1/D2/D3); nothing in fabric consumes them yet.
+
+AECP RTL changes: DONE (item-4 follow-up) — the svh validation tables
+became per-descriptor arrays (`AEM_STRIN_*`/`AEM_STROUT_FMT_C` +
+`WB_STRIN/STROUT_FMT_ADDR_C`) emitted by `gen_aem_store.py` for
+multi-stream shapes behind `` `AEM_PER_STREAM_FMT`` (the deployed
+1-AAF-in shape keeps the legacy layout byte-identical).
+
+SET/GET_STREAM_FORMAT and the RX monitor's format-compare reference key
+the addressed descriptor's own entry (tb/verilator/aecp `sim_fmt2`).
+
+Remaining: GET_STREAM_INFO and GET_COUNTERS handlers keying the §1.5
+window by descriptor index. ADP source/sink counts already come honest
+from the overlay.
 
 ## 4. Clock domains, CDC, and the timing-risk register
 
@@ -423,13 +448,17 @@ this doc's scope.
 
 Baseline = the estimator's calibrated per-module numbers (mf48 measured
 x1); "replicated" = the estimator's UPPER BOUND (dead); "shared" = this
-architecture. **Stated assumptions:** context RAM in BRAM is charged at its
-BRAM cost only; the shared-engine LUT/FF overhead for context indexing,
-RMW pipelining and muxing is modeled at **+35% LUT / +20% FF** of the
-measured single-instance engine (+50%/+40% for the TX packetizer whose
-scheduler is new; +40% for ACMP; +60% for the lwSRP walker whose compare
-tree really grows) — deliberately conservative, and to first order
-N-independent (mux widths grow with log2 N only). All rows LUT/FF/BRAM36/DSP.
+architecture.
+
+**Stated assumptions:** context RAM in BRAM is charged at its BRAM cost
+only; the shared-engine LUT/FF overhead for context indexing, RMW
+pipelining and muxing is modeled at **+35% LUT / +20% FF** of the measured
+single-instance engine (+50%/+40% for the TX packetizer whose scheduler is
+new; +40% for ACMP; +60% for the lwSRP walker whose compare tree really
+grows).
+
+The model is deliberately conservative, and to first order N-independent
+(mux widths grow with log2 N only). All rows LUT/FF/BRAM36/DSP.
 
 | Subsystem | Measured x1 | 8x8 replicated (estimator UB) | 8x8 shared (this doc) | 4x4 shared |
 |---|---|---|---|---|
@@ -456,13 +485,16 @@ N-independent (mux widths grow with log2 N only). All rows LUT/FF/BRAM36/DSP.
 
 The shared-engine architecture makes 4x4 and 8x8 nearly the same size —
 that is the point: cost is per-ENGINE, and N only widens indexes and
-deepens BRAMs. **Both shapes fit the part arithmetically with ~12% LUT
-headroom**, but both land in the estimator's OVER band (> 80%, area-70
-directive: expect placement/timing pain), only +6 points over the shipping
-81.7% build that closes timing on both boards today. Honest split: **4x4 on
-Arty (50 MHz milan domain) is expected to close** on the shipping
-precedent; **8x8 on AX at 100 MHz is the timing-risk shape** (§4 T6).
-Levers, in order, if a shape refuses to close:
+deepens BRAMs.
+
+**Both shapes fit the part arithmetically with ~12% LUT headroom**, but
+both land in the estimator's OVER band (> 80%, area-70 directive: expect
+placement/timing pain), only +6 points over the shipping 81.7% build that
+closes timing on both boards today.
+
+Honest split: **4x4 on Arty (50 MHz milan domain) is expected to close**
+on the shipping precedent; **8x8 on AX at 100 MHz is the timing-risk
+shape** (§4 T6). Levers, in order, if a shape refuses to close:
 
 1. **L2 32 KB** (standing USER authorization when space-bound; already in
    the 8x8 config, applicable to 4x4 too: −8 BRAM + placement relief; note
@@ -505,21 +537,25 @@ The 8x8 shape is no longer design-only — it elaborates and sim-scales:
   PCM ring with its own `tuser` + byte-exact payload, isolated per-stream
   Table 7-157 counters, and unknown-sid drop at width N — the 8-stream
   independent-routing proof. N=4 (`obj_nxn`) stays green 70/0; legacy 172/0.
-- **Measured 4→8 resource delta.** The LiteX netlist grows ~84 lines: the
-  per-stream PCM-ring offset CSRs `milandma_pcm_offsets{0..N-1}` gain +4
-  32-bit regs, the ring-select muxes widen to a 3-bit index, and the `>= N`
-  user/sel clamps move 4→8. The real per-stream growth lives inside
-  `milan_datapath` (parameter-passed, not flattened into this netlist): the
-  LCTX monitor context RAM `lctx_r` (32×32b = 1 Kib/stream) doubles 128→256
-  words (4→8 Kib — still ¼ of one RAMB36 as this section predicted); the
-  stream-table SID flops add 64 b/stream (256→512 b); ACMP/lwSRP/packetizer
-  contexts index-widen by log2 N only. Confirms the thesis: cost is
-  per-ENGINE, N only widens indexes and deepens BRAM.
+- **Measured 4→8 resource delta.**
+  - The LiteX netlist grows ~84 lines: the per-stream PCM-ring offset CSRs
+    `milandma_pcm_offsets{0..N-1}` gain +4 32-bit regs, the ring-select
+    muxes widen to a 3-bit index, and the `>= N` user/sel clamps move 4→8.
+  - The real per-stream growth lives inside `milan_datapath`
+    (parameter-passed, not flattened into this netlist): the LCTX monitor
+    context RAM `lctx_r` (32×32b = 1 Kib/stream) doubles 128→256 words
+    (4→8 Kib — still ¼ of one RAMB36 as this section predicted).
+  - The stream-table SID flops add 64 b/stream (256→512 b);
+    ACMP/lwSRP/packetizer contexts index-widen by log2 N only.
+  - Confirms the thesis: cost is per-ENGINE, N only widens indexes and
+    deepens BRAM.
 - **Ship levers to fit 8x8 on xc7a100t** (bench Vivado build is gated, not
-  this round): the shipping config is **1-hart NaxRiscv** (`--cpu-count 1`,
-  the arg default) **+ `--l2-bytes 32768`** (lever 1 above: −8 BRAM +
-  placement relief; perf delta per the standing USER authorization). With
-  both, the modeled 8x8 envelope holds at 89.2% LUT / 70% BRAM (gate 13
-  ceiling < 92%). If it still refuses to close, levers 2–5 apply, ending in
-  the config-selectable-N fallback (ship the 4x4 gateware on AX, keep 8x8 as
-  the sweep target — the architecture is unchanged).
+  this round):
+  - the shipping config is **1-hart NaxRiscv** (`--cpu-count 1`, the arg
+    default) **+ `--l2-bytes 32768`** (lever 1 above: −8 BRAM + placement
+    relief; perf delta per the standing USER authorization);
+  - with both, the modeled 8x8 envelope holds at 89.2% LUT / 70% BRAM
+    (gate 13 ceiling < 92%);
+  - if it still refuses to close, levers 2–5 apply, ending in the
+    config-selectable-N fallback (ship the 4x4 gateware on AX, keep 8x8
+    as the sweep target — the architecture is unchanged).

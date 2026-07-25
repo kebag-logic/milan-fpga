@@ -4,9 +4,10 @@
 FPGA host that replaced the Zynq PS. It builds a RISC-V Linux SoC on the
 Alinx AX7101 (Artix-7 `xc7a100t`) with the Milan TSN datapath attached as a
 real RTL instance, the ring-DMA engines, the LiteEth GMII MAC, DDR3, QSPI
-flash-boot and the telemetry block. This page maps the whole directory and
-the SoC's anatomy; the step-by-step build/boot recipe stays in
-[`sw/README.md`](../../sw/README.md) and
+flash-boot and the telemetry block.
+
+This page maps the whole directory and the SoC's anatomy; the step-by-step
+build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
 
 ---
@@ -32,50 +33,74 @@ the SoC's anatomy; the step-by-step build/boot recipe stays in
 ## 2. SoC anatomy (`milan_soc.py`)
 
 ### 2.1 Clocking (`_CRG`)
+
 `S7PLL` takes the board's 200 MHz to `sys` (100 MHz for the full build - DDR3
 requires it), plus `sys4x`/`sys4x_dqs` + 200 MHz `idelay`/`S7IDELAYCTRL` for
-the `A7DDRPHY`. With `--milan-clk-freq` the Milan datapath gets its **own
-clock domain** (`cd_milan`, 100 MHz in the current ship build; the
-SUPERSEDED perf-lineage builds ran it at 50 MHz to lift the dense
-CBS/TCAM/PTP logic off the sys timing budget): a 64-bit datapath at 100 MHz
-(6.4 Gb/s) far outruns 1 GbE. The CSR bus crosses via
-`AXILiteClockDomainCrossing`, each DMA/MAC AXIS lane via a
-`stream.ClockDomainCrossing` FIFO, the IRQ via `MultiReg`.
+the `A7DDRPHY`.
+
+With `--milan-clk-freq` the Milan datapath gets its **own clock domain**
+(`cd_milan`, 100 MHz in the current ship build; the SUPERSEDED perf-lineage
+builds ran it at 50 MHz to lift the dense CBS/TCAM/PTP logic off the sys
+timing budget): a 64-bit datapath at 100 MHz (6.4 Gb/s) far outruns 1 GbE.
+
+The crossings:
+
+- CSR bus via `AXILiteClockDomainCrossing`;
+- each DMA/MAC AXIS lane via a `stream.ClockDomainCrossing` FIFO;
+- the IRQ via `MultiReg`.
 
 ### 2.2 The datapath attach (`MilanNIC` / `add_milan_datapath()`)
+
 Instantiates `milan_datapath` as **real RTL** (no black box) from the curated
 `_MILAN_DATAPATH_SOURCES` list (the same file set the `tb/verilator/milan_dp`
 harness and `syn/yosys` use, so the build can't drift from what is verified).
+
 The CSR window is an AXI4-Lite slave at `MILAN_CSR_BASE = 0x9000_0000`
 (64 KB, uncached-IO region on these CPUs; the Zynq build used
 `0x43C0_0000` - only the base differs, offsets are the ABI in
-[../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)). It also emits
-the CBS slope **multicycle constraint** on Xilinx parts - a porting-relevant
-detail explained in [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.5.
+[../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)).
+
+It also emits the CBS slope **multicycle constraint** on Xilinx parts - a
+porting-relevant detail explained in
+[../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.5.
+
 Interrupts: an `EventManager` with four level sources (`tx`/`rx`/`ts`/`csr`)
 folded into one PLIC line - matching the driver's four `interrupt-names`
 (the DT encodes the aggregation; see [`sw/dts/README.md`](../../sw/dts/README.md)).
 
 ### 2.3 The DMA (`MilanDMA`)
-TX is a `RingDMAReader` (native AXI bursts, DRAM → datapath), RX a
-`RingDMAWriter` (always-ready ingress, datapath → DRAM, completion-queue
-depth 32), TS a `WishboneDMAWriter`. Masters attach to the CPU's **coherent**
-`dma_bus` when present - which is why `--coherent-dma` is mandatory (§4).
-An optional second RX queue (`--rx-queues 2`) adds an `RxSteer` classifier.
+
+The engines:
+
+- TX is a `RingDMAReader` (native AXI bursts, DRAM → datapath);
+- RX a `RingDMAWriter` (always-ready ingress, datapath → DRAM,
+  completion-queue depth 32);
+- TS a `WishboneDMAWriter`.
+
+Masters attach to the CPU's **coherent** `dma_bus` when present - which is
+why `--coherent-dma` is mandatory (§4). An optional second RX queue
+(`--rx-queues 2`) adds an `RxSteer` classifier.
+
 Endianness is `"big"` on purpose: memory order == wire order, so the CPU
-never byte-swaps. The BD-format/zero-copy/checksum evolution of these
-engines is chronicled in [../fpga/CPPI_DMA_REDESIGN.md](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
+never byte-swaps.
+
+The BD-format/zero-copy/checksum evolution of these engines is chronicled
+in [../fpga/CPPI_DMA_REDESIGN.md](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
 and the [findings log](../findings/README.md).
 
 ### 2.4 The MAC (`MilanMAC`)
+
 `LiteEthPHYGMII` + `LiteEthMACCore` (preamble/CRC/padding) + a
-store-and-forward `PacketFIFO` + a thin stream↔AXIS adapter. The AX7101's
-RTL8211E port is wired **GMII** (not RGMII - see
+store-and-forward `PacketFIFO` + a thin stream↔AXIS adapter.
+
+The AX7101's RTL8211E port is wired **GMII** (not RGMII - see
 [../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md) §3),
 and the TX clock is forwarded **inverted** (`--gtx-tx-invert`, via the LiteEth
 patch, §6) because edge-aligned launch off IOB-packed FFs was hold-marginal at
-the PHY (25-40 % corrupt frames without it). The Milan datapath keeps all
-packet intelligence; the MAC does L1/framing only.
+the PHY (25-40 % corrupt frames without it).
+
+The Milan datapath keeps all packet intelligence; the MAC does L1/framing
+only.
 
 ### 2.5 CPU: VexiiRiscv and NaxRiscv - read this before building
 `--cpu {naxriscv,vexiiriscv}`; **the CLI default is `naxriscv`**, and
