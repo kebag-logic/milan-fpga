@@ -1,8 +1,8 @@
 # Traceability — Milan v1.2 (Consolidated, 2023-11-30) — profile deltas
 
 Part of [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Section
-numbers verified against
-`/home/alex/standards/Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf`.
+numbers verified against the local standards PDF
+`$STANDARDS_DIR/Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf`.
 This file carries only what Milan **adds to or overrides in** the base
 standards; base rows live in the per-standard files. BENCH = our bench behave
 recreation of the end-station validation plan (63 scenarios, both boards
@@ -46,7 +46,7 @@ a recreation, not the official ATL run).
 | M-ACMP-2 | 5.5.2.3 (Table 5.26) | Milan command timeouts (probe ladder timing) | KL_acmp_listener timers | ✅ RTL acmp_lstn (200 ms ×2 → 4 s retry ladder, scaled clock) | Table 5.26 differs from 1722.1 8.2.2 — asserting the wrong table passes one spec and fails the other. |
 | M-ACMP-3 | 5.5.3 (Tables 5.28–5.30) | Listener binding SM: BIND_RX → respond + PROBE_TX; probing/settled states; SRP registered/failed transitions; UNBIND teardown | KL_acmp_lstn_ctx (N bind contexts, shared SM + context RAM; KL_acmp_listener = the 2-sink compat wrapper) | ✅ RTL acmp_lstn (126 wrapper byte-identical + 100 ctx N=4: per-context ladders on ONE timer wheel, occupied-sink rebind-same/-different, per-context ADP watch + SRP edges, unbind isolation) | 5.5.3 replaces 1722.1 8.2.4 wholesale; the binding SM *is* Milan connection management. |
 | M-ACMP-4 | 5.5.3.1 (Table 5.31/5.35) | Wrong controller_entity_id on BIND/UNBIND → exact refusal field set | KL_acmp_listener | ✅ RTL acmp_lstn (wrong-EID case → CONTROLLER_NOT_AUTHORIZED, no state change) | Table 5.31: refusal must not disturb the existing bind — a hostile unbind attempt is a no-op. |
-| M-ACMP-5 | 5.5.3.5 / Table 5.34+5.37 | GET_RX_STATE returns the per-state payload (bound, talker, count, flags) | KL_acmp_lstn_ctx (served for ANY context by listener_unique_id) | ✅ RTL acmp_lstn (per-state payloads; ctx N=4 per-uid payload isolation + per-context SRP_REG_FAILED sourcing); SILICON (CSR-verify recipe — pw0 can't see board ACMP responses) | Table 5.37 is how controllers resynchronize after missing responses; wrong payloads corrupt controller state silently. |
+| M-ACMP-5 | 5.5.3.5 / Table 5.34+5.37 | GET_RX_STATE returns the per-state payload (bound, talker, count, flags) | KL_acmp_lstn_ctx (served for ANY context by listener_unique_id) | ✅ RTL acmp_lstn (per-state payloads; ctx N=4 per-uid payload isolation + per-context SRP_REG_FAILED sourcing); SILICON (CSR-verify recipe — the peer host can't see board ACMP responses) | Table 5.37 is how controllers resynchronize after missing responses; wrong payloads corrupt controller state silently. |
 | M-ACMP-6 | 5.5.4.1 (Tables 5.40–5.43) | Talker PROBE_TX: SUCCESS + live stream params (stream_id = {MAC, uid} matching the AVTP header), count=0, flag rules; invalid uid → TALKER_UNKNOWN_ID | KL_acmp_responder | ✅ RTL acmp (all four response tables) | 5.5.4.1: PROBE_TX is the *only* way a Milan listener learns stream_id/DMAC — any field error propagates into the bind. |
 | M-ACMP-7 | 5.5.4.2 / 5.5.4.3 (Tables 5.44–5.47) | DISCONNECT_TX always SUCCESS + zeroed stream fields, flags echoed, no state change; GET_TX_STATE live params | KL_acmp_responder | ✅ RTL acmp | 5.5.4.2's "no state change" is a deliberate Milan deviation from 1722.1 — the talker is near-stateless. |
 | M-ACMP-8 | 5.5.4.4 (Table 5.48) | GET_TX_CONNECTION → NOT_SUPPORTED | KL_acmp_responder | ✅ RTL acmp | 5.5.4.4: answering it (1722.1-style) advertises state Milan says we don't keep. |

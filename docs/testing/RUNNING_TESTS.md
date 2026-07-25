@@ -185,10 +185,10 @@ After flashing/JTAG-loading any new bitstream, BEFORE trusting any number:
 3. known-good single-flow cell vs the build's baseline, `dmesg` clean
    (no pairing/realign/resync), drop counters sane (`devmem 0xf000303c`),
 4. throughput claims ONLY from the peer-side tx_bytes 5 s time-series
-   (`ssh amx-pw0 cat /sys/class/net/enp6s0/statistics/tx_bytes`, delta/5 s ×8)  - 
+   (`ssh peer-host cat /sys/class/net/enp6s0/statistics/tx_bytes`, delta/5 s ×8)  - 
    short cells are slow-start-flattered,
-5. verify the PEER is real: board `ip neigh` for 192.168.127.2 must show the pw0
-   i210 MAC (68:05:ca:95:b2:d1)  -  a stale ARP to a ghost host invalidates everything.
+5. verify the PEER is real: board `ip neigh` for `<peer-ip>` must show the peer
+   host's i210 MAC (`<peer-host-mac>`)  -  a stale ARP to a ghost host invalidates everything.
 
 ## The debug playbook that worked (for the next hard bug)
 

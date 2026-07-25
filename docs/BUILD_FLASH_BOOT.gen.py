@@ -50,7 +50,7 @@ STAGES = [
    ("BENCH_TOPOLOGY.md = the rig", 0),
  ], "a validated Milan end-station"),
 ]
-RECOVERY = "Recovery — board wedged or won't boot:  amx-pi powerstrip off 0 && powerstrip on 0  (reverts to the known-good QSPI gateware) · JTAG-load a bitstream to SRAM to test without flashing · never openFPGALoader -f a bitstream onto a kernel-at-0 layout"
+RECOVERY = "Recovery — board wedged or won't boot:  power-host powerstrip off N && powerstrip on N  (reverts to the known-good QSPI gateware; outlet N is bench-specific) · JTAG-load a bitstream to SRAM to test without flashing · never openFPGALoader -f a bitstream onto a kernel-at-0 layout"
 
 X0,Y0=40,150; CW,CG=440,54; HDR=56; RH,RGAP=30,7; PAD=12; OUT_H=64
 def stage_h(lines): return HDR+PAD+len(lines)*(RH+RGAP)-RGAP+PAD
@@ -96,7 +96,7 @@ def svg():
     # recovery banner
     o.append('<rect x="%d" y="%d" width="%d" height="72" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'%(X0,rec_y,W-2*X0,RED[0],RED[1]))
     o.append('<text x="%d" y="%d" font-size="15" font-weight="bold" fill="%s">↩ Recovery — the board is not a brick</text>'%(X0+20,rec_y+26,RED[1]))
-    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">amx-pi powerstrip off 0 &amp;&amp; powerstrip on 0  reverts to the known-good QSPI gateware  ·  JTAG-load to SRAM tests a bitstream without flashing</text>'%(X0+20,rec_y+48))
+    o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">power-host powerstrip off N &amp;&amp; powerstrip on N (outlet N is bench-specific)  reverts to the known-good QSPI gateware  ·  JTAG-load to SRAM tests a bitstream without flashing</text>'%(X0+20,rec_y+48))
     o.append('<text x="%d" y="%d" font-size="12.8" fill="#37474F">never  openFPGALoader -f  a bitstream onto a kernel-at-0 flash layout  ·  full field log: docs/limitations/TROUBLESHOOTING.md</text>'%(X0+20,rec_y+66))
     o.append('</svg>')
     return "\n".join(o)
@@ -119,7 +119,7 @@ def drawio():
         nid=add(x,Y0,CW,box_h,"%s   —   %s\n\n%s"%(name,tool,body),fill,stroke,13,1); ids.append(nid)
         add(x,out_y,CW,OUT_H,"OUTPUT\n"+out,"#ffffff",stroke,12,0)
     for a,b in zip(ids,ids[1:]): edge(a,b)
-    add(X0,rec_y,W-2*X0,72,"↩ Recovery — the board is not a brick\namx-pi powerstrip off 0 && powerstrip on 0 (known-good QSPI) · JTAG-load to SRAM tests without flashing · never openFPGALoader -f onto a kernel-at-0 layout",RED[0],RED[1],13,1)
+    add(X0,rec_y,W-2*X0,72,"↩ Recovery — the board is not a brick\npower-host powerstrip off N && powerstrip on N (known-good QSPI; outlet N is bench-specific) · JTAG-load to SRAM tests without flashing · never openFPGALoader -f onto a kernel-at-0 layout",RED[0],RED[1],13,1)
     body="\n".join(cells)
     return ('<mxfile host="app.diagrams.net"><diagram name="build-flash-boot">'
             '<mxGraphModel dx="1400" dy="900" grid="0" guides="1" tooltips="1" connect="1" arrows="1" fold="1" '

@@ -4,7 +4,7 @@
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
-(`192.168.127.2`) · **Load:** iperf3, MTU 1500 · **Driver:** `kl-eth` (IRQ-less polled rings).
+(`<peer-ip>`) · **Load:** iperf3, MTU 1500 · **Driver:** `kl-eth` (IRQ-less polled rings).
 
 This is the full symptom → measurement → root-cause chain for the single-port throughput
 ceiling, including **two conclusions I had to retract mid-investigation** (kept here on

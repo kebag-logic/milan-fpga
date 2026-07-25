@@ -6,8 +6,8 @@ ROM, lwSRP tables and the DT/driver shape consistently
 (`docs/MILAN_COMPLIANCE_GAPS.md` attack item 4). This document is the
 specification-referenced design record for that builder: the settled design
 decisions with their clause basis, and the config-schema → AEM-descriptor
-mapping. Every clause reference below was verified against the PDFs in
-`/home/alex/standards/` (pdftotext extraction, 2026-07-22) — the same rule as
+mapping. Every clause reference below was verified against the local standards
+PDFs (`$STANDARDS_DIR`) (pdftotext extraction, 2026-07-22) — the same rule as
 [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md). Cited documents: IEEE
 1722.1-2021 ("1722.1"), IEEE 1722-2016 ("1722"), Milan Specification v1.2
 Consolidated ("Milan"), IEEE 802.1Q-2022 ("Q").

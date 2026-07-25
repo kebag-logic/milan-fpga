@@ -40,9 +40,9 @@ es-4.15 and es-4.17). Suite D has no live-DUT wiring (Verilator socket "pending"
 2. **Three tiers**, keep **T0/T1 CI-green**, gate **T2** behind `@bench`:
    - **T0 host/sim** — no board: packet builders, tsn_gen frame codec, Python RTL-mirror
      models, AEM-JSON schema, Verilator-TB outputs. Runs in CI / the `Containerfile.bdd-runner`.
-   - **T1 board-CSR** — one board via `ssh-pw0` + `devmem` on base `0x90000000`; asserts on
+   - **T1 board-CSR** — one board via ssh through the peer host + `devmem` on base `0x90000000`; asserts on
      CSR readback. Headless-capable.
-   - **T2 real-wire** — both boards + ProfiShark taps + pw0 raw sockets; asserts on captured
+   - **T2 real-wire** — both boards + ProfiShark taps + peer-host raw sockets; asserts on captured
      frames / decoded audio / iperf. The gold tier; `@bench`-gated.
 3. **P0 first** = the 7 matrix-❌ rows + this session's roadmap validations (they double as
    acceptance gates for work already proven or in flight).
@@ -74,7 +74,7 @@ the "Then" assertion mechanism (see BENCH_TOPOLOGY / REGISTER_MAP for each).
 |---|-----------|-----------|---------------|--------------------|----------------|
 | 1 | **gPTP/802.1AS** | es-1.1 cadence via tap | AS-4 latency calib ❌; AS-6 DUT-BMCA 🟡; M-DEV-2/3/4 Pdelay 🟡; M-DEV-13 tu 🟡 | `gptp.feature`, `gptp_latency.feature`, `gptp_bmca.feature`(@wip switch-gated) | `gptp_cadence.py` (tap1, ether[40:2]=0x88f7); CSR GM `0x624/8`, pdelay `0x6E4` |
 | 2 | **SRP/lwSRP** | es-1.2 Domain via tap | SRP-9 NxN ❌; SRP-8 class B 🟡; SRP-2 single-stream 🟡; MRP-7 🟡; M-CLK-2 ❌ | `srp.feature`, `srp_nxn.feature`, `srp_classb.feature`(@wip) | `srp_domain.py` (0x22ea), `srp_qna.py`; CSR `0x680/694/698/69C` |
-| 3 | **MAAP** | silicon_battery defend check (thin) | (MAAP ✅ RTL, no behave) | `maap.feature` | inject conflict on pw0 → tap defend frame; CSR eff dmac |
+| 3 | **MAAP** | silicon_battery defend check (thin) | (MAAP ✅ RTL, no behave) | `maap.feature` | inject conflict on the peer host → tap defend frame; CSR eff dmac |
 | 4 | **AVDECC/ATDECC** | es-2.1..4.18 (63), Suite C bind, Suite D AECP models | AECP-8 🟡; CMD-7 🟡; CMD-14/M-AECP-12 🟡; M-AECP-11 🟡; **M-AECP-9 ❌** | retag es-4.x; `aecp_mvu.feature`(M-AECP-9 @wip); `aecp_identify_cadence.feature` | raw AF_PACKET (`aem/controller.py`, `avdecc_l2.py`, `silicon_battery.Ctl`); la_avdecc counters-probe `verdict CLEAN` |
 | 5 | **AAF talker** | Suite C talker_steps (VID2/prio3/subtype/dmac, rate) | SRP-2/SRP-9 NxN | `aaf_talker.feature`, extend for NxN | tap AAF capture → inter-frame Δt histogram, byte fields (`pcap2s32.py`) |
 | 6 | **AAF listener** | Suite C bind + counters | **es-4.16 media-map ADD/REMOVE** (absent); AVTP-3 🟡; AVTP-5/M-CNT-4 🟡 | `aaf_listener.feature`, `media_maps.feature`(es-4.16), `pcm_ring.feature` | STREAM_INPUT GET_COUNTERS; AVTPRX `0x6B8/6BC/6C0/6C4` |
@@ -268,7 +268,7 @@ changed. `SPEC_TRACEABILITY.md` now reads **163✅ / 17🟡 / 7❌ / 17➖** (Mi
 - **Harness traps every new step must bake in** (from BENCH_TOPOLOGY / tool sources):
   ProfiShark **+28** byte offset, never `tcpdump -e`; raw AVDECC sockets **must
   PACKET_MR_PROMISC-join `91:E0:F0:01:00:00`**; ADP census matches `ether[14]==0xFA`;
-  board ACMP/MAAP responses do **not** reach pw0's port (switch relay gap → verify via
+  board ACMP/MAAP responses do **not** reach the peer host's port (switch relay gap → verify via
   CSR/counters, not capture); la_avdecc feature-defines are ABI; `AAF_CTRL 0x654` writes
   must preserve VID 2; a new plain-RW CSR ≥0x800 needs the `rd_in_window` carve-out or
   reads lie; validate wire frames by **length**, not headers alone.

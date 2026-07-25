@@ -35,7 +35,7 @@ here), `docs/SPEC_TRACEABILITY.md` rows M-CNT-2 (Table 7-156 counters),
 AAF-4 / M-FMT-2 (wire-truth channel policy), SRP-9 (per-stream attribute
 instances).
 
-## 0. Clause references (verified via pdftotext against /home/alex/standards)
+## 0. Clause references (verified via pdftotext against the local standards PDFs, `$STANDARDS_DIR`)
 
 | Ref | Source | Clause | Requirement grounded here |
 |-----|--------|--------|---------------------------|

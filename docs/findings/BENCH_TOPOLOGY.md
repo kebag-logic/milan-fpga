@@ -1,5 +1,7 @@
 # BENCH TOPOLOGY & WHERE-IS-WHAT — the context-reset handover
 
+Concrete bench values (hostnames, serials, IPs, outlet numbers) live in the private test repo's bench notes.
+
 Written 2026-07-20 (post history-rewrite). This is the single document a
 fresh session needs to operate the bench. Live campaign state is tracked
 in the GitHub issues; the remaining compliance work is
@@ -11,12 +13,12 @@ any other name; its material is private (see §7).
 
 | Name | Reach | Role |
 |---|---|---|
-| dev box (this host) | local | Vivado 2026.1 (`/home/alex/Xilinx`, 96 cores), repos, JTAG cables, board serial consoles. NEVER gets a 192.168.127.x address. |
-| amx-pw0 | `ssh amx-pw0` | Test controller on the AVB LAN: `enp6s0` = 68:05:ca:95:b2:d1 = 192.168.127.2. All wire probes run here (needs sudo for raw sockets + PACKET_MR_PROMISC — raw AVDECC tools MUST join promisc or responses are NIC-dropped). |
-| amx-ubuntu-server | `ssh amx-ubuntu-server` | ProfiShark capture host. `enxe8eb1b37e2c0` = tap1 **inline on the ALINX↔switch link**; `enxe8eb1b39111a` = tap2 **inline on the ARTY↔switch link**. Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]`, SMAC at `ether[34:4]`); FCS included. |
-| amx-pi | `ssh amx-pi` | Power strip: `powerstrip off/on 4` = **the AVB switch**; OUT0 = AX7101 power. |
-| amx-pw1 | — | **NEVER TOUCH** (standing rule). |
-| AVB switch | **no IP/UI management** (USER 2026-07-22; the old "192.168.127.1 ssh open" row was stale — that address is now the AX's eth0) | Managed AVB bridge. clockIdentity `3cc0c6.fffe.fe0210`, port MAC toward AX `3c:c0:c6:fe:02:17`. Claims gPTP priority1=246/cc248/acc0x20 (tap-read) — why boards run priority1=238 (USER default; ship posture 246\|248). MSRP Domain = class A, prio 3, **VID 2**. |
+| dev box (this host) | local | Vivado 2026.1 (the local Vivado install, 96 cores), repos, JTAG cables, board serial consoles. NEVER gets an address on the bench AVB subnet. |
+| the peer test host (`peer-host`) | `ssh peer-host` | Test controller on the AVB LAN: `enp6s0` = `<peer-host-mac>` = `<peer-ip>`. Bench-specific subnet, role split: .1 = AX eth0, .2 = peer, .3 = ARTY. All wire probes run here (needs sudo for raw sockets + PACKET_MR_PROMISC — raw AVDECC tools MUST join promisc or responses are NIC-dropped). |
+| the capture host (`capture-host`) | `ssh capture-host` | ProfiShark capture host. `<tap1-if>` = tap1 **inline on the ALINX↔switch link**; `<tap2-if>` = tap2 **inline on the ARTY↔switch link**. Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]`, SMAC at `ether[34:4]`); FCS included. |
+| the power controller (`power-host`) | `ssh power-host` | Power strip: `powerstrip off/on <outlet>` — outlet numbers are bench-specific (one outlet = **the AVB switch**, another = AX7101 power; see the private bench notes). |
+| a reserved bench host | — | **NEVER TOUCH** (standing rule). |
+| AVB switch | **no IP/UI management** (USER 2026-07-22; the old ".1 ssh open" row was stale — .1 is now the AX's eth0) | Managed AVB bridge. clockIdentity `<bridge-clockidentity>`, port MAC toward AX `<bridge-port-mac>`. Claims gPTP priority1=246/cc248/acc0x20 (tap-read) — why boards run priority1=238 (USER default; ship posture 246\|248). MSRP Domain = class A, prio 3, **VID 2**. |
 
 ## 2. Boards (DUTs)
 
@@ -24,13 +26,13 @@ any other name; its material is private (see §7).
 |---|---|---|
 | Entity/board name | "ARTY", entity :02 | "ALINX", entity :01 |
 | MAC / entity_id | 02:00:00:00:00:02 / 020000fffe000002 | 02:00:00:00:00:01 / 020000fffe000001 |
-| IP (eth0) | 192.168.127.3 | on the same /24 (read via console `ip -br addr`) |
-| JTAG/flash | `--ftdi-serial 210319AFEED0 -c digilent`, part xc7a100tcsg324 | `--ftdi-serial 210512180081 -c ft232`, part xc7a100tfgg484 |
+| IP (eth0) | `<board-ip>` (.3 on the bench subnet) | on the same /24 (read via console `ip -br addr`) |
+| JTAG/flash | `--ftdi-serial <arty-ftdi-serial> -c digilent`, part xc7a100tcsg324 | `--ftdi-serial <ax-ftdi-serial> -c ft232`, part xc7a100tfgg484 |
 | QSPI policy | **boot**: bitstream@0 + image set (16 MB) | **boot** since 2026-07-21 (USER "to flash use qspi"): bitstream@0 + images — the old kernel-clobber trap described the DEAD kernel@0 layout; the manifest-"full" map has a dedicated 4 MiB bitstream slot. JTAG-load remains the belt until the mode-pin self-config test is confirmed. |
 | Datapath clock | 50 MHz | 100 MHz (timing-critical; the serial-MAC LPF exists because a combinational biquad fails here) |
 | gPTP role | SLAVE (priority1 248 base cfg) | **GM** (S50 sed-REPLACEs priority1 → 238) |
-| Serial console | `/dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0` | `/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_66e0ce96...-if00-port0` |
-| ssh | dropbear, root, no password — `ssh root@192.168.127.3` **from pw0** (large-file path; console base64 fails) | same (find IP first) |
+| Serial console | `/dev/serial/by-id/<board-usb-serial>` (Digilent FT2232 channel B, `-if01-port0`) | `/dev/serial/by-id/<board-usb-serial>` (CP2102N, `-if00-port0`) |
+| ssh | dropbear, root, no password — `ssh root@<board-ip>` **from the peer test host** (large-file path; console base64 fails) | same (find IP first) |
 
 Audio loop: ALINX tone (S50 enables TONE_CTRL) → AAF → ARTY DAC (Pmod
 I2S2 HP out, through the render LPF) → analog cable → ARTY ADC (line in)
@@ -65,8 +67,8 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
-| `~/repo-backups-0720` | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
-| `/home/alex/standards/` | All specs: 1722.1-2021.pdf, 1722-2016, Milan v1.2 consolidated, 802.1AS/Q, the official validation test plan, etc. Extracted text: `/tmp/scratch/1722.txt`, `milan12.txt`, `certplan.txt` (re-extract with pdftotext after reboot). |
+| the private pre-rewrite backups (off-repo) | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
+| the local standards PDFs (`$STANDARDS_DIR`) | All specs: 1722.1-2021.pdf, 1722-2016, Milan v1.2 consolidated, 802.1AS/Q, the official validation test plan, etc. Extracted text: `/tmp/scratch/1722.txt`, `milan12.txt`, `certplan.txt` (re-extract with pdftotext after reboot). |
 | `~/refs/AX7101` | Board reference repo (schematic, flash + PHY datasheets). Read-only. |
 
 **Both repos DIVERGE from their GitHub origins** (2026-07-20 history
@@ -86,7 +88,7 @@ KERNEL=/tmp/scratch/Image.xz ROOTFS=/tmp/scratch/rootfs.cpio.xz \
 OPENSBI=~/the-private-test-repo/fpga/boot/opensbi_arty.bin \
 DTB=~/the-private-test-repo/fpga/boot/milan_arty_vexii.dtb \
 ./sw/litex/build.sh flash arty:build_arty_<seed>_<tag>
-openFPGALoader --ftdi-serial 210319AFEED0 -c digilent --reset   # then ~100 s boot
+openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent --reset   # then ~100 s boot
 
 # AX (QSPI boot since 2026-07-21: bitstream@0 + images, one verb):
 KERNEL=... ROOTFS=... OPENSBI=~/the-private-test-repo/fpga/boot/opensbi.bin \
@@ -94,7 +96,7 @@ DTB=~/the-private-test-repo/fpga/dts/milan_ax7101_linux.dtb \
 ./sw/litex/build.sh flash ax7101:build_ax7101_<seed>_<tag>
 # JTAG-load the same bit for the immediate session (belt until the
 # mode-pin self-config question is settled by an openFPGALoader --reset):
-openFPGALoader --ftdi-serial 210512180081 -c ft232 --fpga-part xc7a100tfgg484 \
+openFPGALoader --ftdi-serial <ax-ftdi-serial> -c ft232 --fpga-part xc7a100tfgg484 \
   ~/litex-milan/work/build_ax7101_<seed>_<tag>/gateware/alinx_ax7101.bit
 ```
 
@@ -105,13 +107,13 @@ Regression before any commit: aecp + milan_dp + pcmlpf TBs green,
 `./syn/yosys/run.sh` = `RESULT: PASS` (check it REALLY passed — a piped
 tail can eat the exit code).
 
-## 6. pw0 wire tooling (all `sudo`, iface `enp6s0`)
+## 6. Peer-host wire tooling (all `sudo`, iface `enp6s0`)
 
 | Tool | Purpose |
 |---|---|
 | `/tmp/milan_controller.py` | Entity(iface) with discover (cdl=56!), read_descriptor, `_aecp`, ACMP helpers. The repo master: `milan-fpga/avdecc/milan_controller.py`. |
 | `/tmp/dyninfo_probe.py <01\|02>` | GET_DYNAMIC_INFO (7.4.76) batch vs classic responses, byte-exact + BAD_ARGUMENTS case. Expect PASS on ≥ mf38/AX23 silicon (mf37 had the BSCAN race). |
-| `/tmp/crf_inject.py [n]` | 500 Hz Milan CRF source (subtype4/type1/48k/ival96), sid `6805ca95b2d10001`, synthetic exact-2ms timestamps (CRF_RATE reads ≈0). Provision the DUT: CRF_SIDLO/HI + CTRL en, watch 0x744-0x74C + lock. |
+| `/tmp/crf_inject.py [n]` | 500 Hz Milan CRF source (subtype4/type1/48k/ival96), sid = peer-host MAC + `0001`, synthetic exact-2ms timestamps (CRF_RATE reads ≈0). Provision the DUT: CRF_SIDLO/HI + CTRL en, watch 0x744-0x74C + lock. |
 | `/tmp/ctr.py` | STREAM_INPUT counters snapshot (LOCKED/UNLOCKED/RESET/UNCERT) — the media-health detector. |
 | runner scripts → see §7 | conformance suite runners. |
 | capture | `tcpdump -i enp6s0 ether proto 0x22f0` (AVTP/AVDECC). AECP is unicast; ADP/ACMP multicast 91:E0:F0:01:00:00; MAAP 91:E0:F0:00:FF:00. |
@@ -119,7 +121,7 @@ tail can eat the exit code).
 THD+N: capture the stream at a tap (`pcap2s32.py` in /tmp/scratch
 strips ProfiShark+VLAN, extracts S32BE), or `pcm_ring_dump --ring
 0x4ff00000 --bytes N` on the ARTY (ring only in the ARTY DT! `--secs`
-segfaults) → scp via pw0 → `tone_thdn.py --chans 2 --f0 1000`.
+segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
 
 ## 7. The bench conformance suite (PRIVATE — never in git, never pushed)
 
@@ -128,10 +130,11 @@ segfaults) → scp via pw0 → `tone_thdn.py --chans 2 --f0 1000`.
   lib, tools-la-avdecc probe). `private/official-run` = the reference run
   results. `/private/` is git-ignored; **never `git add` it**; the only
   name for it in any committed text is **the bench suite**.
-- Runners live on pw0 under the suite's legacy-named home directory +
-  venv, driven by two /tmp run scripts (DUT :02 = the plain one, DUT :01
-  = the -alinx one) — pw0-local paths, not in any repo; the EXACT paths
-  are in the session memory index (private), or `ls ~pw0` + `/tmp/run*`. Link-flap helpers:
+- Runners live on the peer test host under the suite's legacy-named home
+  directory + venv, driven by two /tmp run scripts (DUT :02 = the plain one,
+  DUT :01 = the -alinx one) — peer-host-local paths, not in any repo; the
+  EXACT paths are in the session memory index (private), or list the suite's
+  home directory + `/tmp/run*` on the peer host. Link-flap helpers:
   `~/bin/arty-linkflap.sh`, `~/bin/ax-linkflap.sh` (phy_crg_reset
   0xf0003800 via console). la_avdecc lib+probe: `~/la_avdecc-{src,build,probe}`
   (counters-probe expects ENTITY GET_COUNTERS = SUCCESS+empty).
@@ -180,7 +183,7 @@ reads lie (shadow).
   boot it standalone.
 - The bench suite = 63 scenarios (private/recreate snapshot
   <recreate-snapshot-20260721>); tap helpers gptp_cadence.py + srp_domain.py
-  on amx-ubuntu-server; es-4.5 self-quiesces (poll, no fixed sleeps).
+  on the capture host; es-4.5 self-quiesces (poll, no fixed sleeps).
 - Loop CLOSED 07-21: -73.4 dB (record *that date*, NCO-era) x3 on mf42+AX30, both
   channels, LPF A/B flat — **later superseded by the MMCM-DRP servo at −83.9 dB**
   (converter floor); the night's -2.8 was a lapsed-bind + capture artifact
@@ -200,7 +203,7 @@ reads lie (shadow).
 
 ## 10. Standing rules (violating any of these has burned us)
 
-1. amx-pw1 untouchable; dev box never on 192.168.127.x.
+1. The reserved bench host is untouchable; the dev box never joins the bench subnet.
 2. AX QSPI-boot works since 2026-07-21 (see §2: bitstream@0 + images) — this
    supersedes the old "AX QSPI never receives a bitstream / always JTAG-reload"
    rule; JTAG-reload remains the belt until the mode-pin self-config `--reset`

@@ -30,7 +30,7 @@ conclusion was checked.*
 ```sh
 # workload: steady-state receive, 8 flows (past slow-start  -  short cells lie;
 # the peer-side tx_bytes time-series is the sustain metric, see the analysis doc)
-for i in 1..8: recv_spin 192.168.127.2 5202 4400$i 25 0 &
+for i in 1..8: recv_spin <peer-ip> 5202 4400$i 25 0 &
 sleep 3                                    # skip the slow-start transient
 perf record -a -F 250 -o /tmp/p8.data -- sleep 12
 ```
