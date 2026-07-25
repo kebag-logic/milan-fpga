@@ -34,13 +34,20 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x400` | 802.1Qav CBS (per-queue, stride `0x20`) |
 | `0x500` | PTP hardware clock |
 | `0x600` | ADP advertiser (IEEE 1722.1 entity model) |
+| `0x648` | AECP/ACMP status + AAF talker (flat stream-0 registers) |
 | `0x680` | lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) |
-| `0x6A4` | ACMP listener SM (Milan v1.2 §5.5, RO) |
+| `0x6A4` | ACMP listener SM + AVTP RX / MAAP / audio diagnostics (Milan v1.2 §5.5) |
 | `0x700` | RX destination-MAC TCAM filter |
+| `0x71C` | Link guard / MAC recovery (`LINK_CTRL`, `RST_EPOCH`, `LINKG_STAT` 0x774) |
+| `0x724` | Identity / playback / 802.1AS overlay words |
+| `0x738` | CRF media-clock sink (Milan v1.2 7.3, `KL_crf_rx`) |
+| `0x750` | CRF media-clock talker (`KL_crf_tx`) |
+| `0x768` | AECP GET_DYNAMIC_INFO scan forensics (BDBG) |
 | `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
+| `0x900` | Channel-map fabric debug window (chmap64) |
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
@@ -236,6 +243,71 @@ sampled TOD returns across the CDC and lands in `PTP_TOD_RD_{LO,HI}` a few cycle
 later (the driver reads it after the round trip). `PTP_INCR`/`PTP_ADJ` are the
 Q8.24-ns rate controls consumed by `timestamp_counter`.
 
+### 0x724  -  identity / playback / 802.1AS overlay
+
+Software-published overlay words: the softcore daemons write board identity
+and live gPTP topology here so the fabric ADP/AEM engines answer with wire
+truth ([`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §2.5).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x724` | `ENT_NAME_LO` | RW | `0` | entity_name chars 0-3, `[7:0]` = char 0 (board-name overlay; all-zero = keep the ROM name) |
+| `0x728` | `ENT_NAME_HI` | RW | `0` | entity_name chars 4-7 |
+| `0x72C` | `LPF_CTRL` | RW | `0x1` | `[0]` playback biquad LPF enable (`KL_pcm_lpf`), on by default |
+| `0x730` | `AS2_LO` | RW | `0` | 802.1AS parent bridge clockIdentity `[31:0]` |
+| `0x734` | `AS2_HI` | RW | `0` | parent bridge clockIdentity `[63:32]`; 0 = none/unknown. Daemon-written from the gPTP PARENT_DATA_SET; the AEM AVB_INTERFACE overlay answers AS_PATH = [GM, parent bridge] from it |
+
+### 0x738  -  CRF media-clock sink  `(Milan v1.2 7.3, KL_crf_rx)`
+
+The measurement half of the CRF clock-recovery loop: `KL_crf_rx` validates
+every PDU of the followed CRF stream against the Milan 7.3.2 profile
+constants and produces the servo's phase/frequency inputs; the MMCM-DRP
+actuator status lives at `0x8F8`. Loop semantics + RTL citations:
+[`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.3-3.4. The followed
+stream normally comes from the CRF sink bind (ACMP listener sink 1 — the
+bind wins); the SID pair here is the manual lever, and the bind-restore
+group notes that this sink re-arms via `0x738`.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x738` | `CRF_CTRL` | RW/RO | `0` | `[0]` CRF sink enable (RW); `[31]` locked (RO live: 8 clean consecutive PDUs to lock, 100 ms silence or a validation error to unlock) |
+| `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
+| `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
+| `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
+| `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
+| `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
+
+### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
+
+Emits the CRF AUDIO_SAMPLE stream (subtype 4, pull 0, base_frequency 48000,
+timestamp_interval 96 ⇒ 500 PDU/s), timestamped from the real audio-MMCM
+sample grid: every 96th `/512` sample event latches the live PHC value, so
+the wire carries the actual audio-clock rate as the PHC sees it. A PDU that
+would collide with a busy serializer is skipped whole — timestamps stay
+truthful, only the cadence stretches
+([`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.2).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable |
+| `0x754` | `CRFT_SIDLO` | RW | `0` | CRF talker stream_id `[31:0]` |
+| `0x758` | `CRFT_SIDHI` | RW | `0` | stream_id `[63:32]` |
+| `0x75C` | `CRFT_DMLO` | RW | `0` | CRF stream dest MAC `[31:0]` (same packing as `AAF_DM*`) |
+| `0x760` | `CRFT_DMHI` | RW | `0` | dest MAC `[47:32]` in `[15:0]` |
+| `0x764` | `CRFT_COUNT` | RO | `0` | CRF PDUs emitted |
+
+### 0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG)
+
+Three RO words latched at each record verdict of the `0x4B`
+GET_DYNAMIC_INFO batch scanner in `KL_aecp_response_builder`
+(descriptor-read debugging).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x768` | `BDBG0` | RO | `0` | the four record-header bytes as scanned `{dlen_hi, dlen_lo, cmd_hi, cmd_lo}` |
+| `0x76C` | `BDBG1` | RO | `0` | `[30:16]` record command_type, `[15:0]` record data length, at the verdict |
+| `0x770` | `BDBG2` | RO | `0` | `[24:16]` scan pointer, `[8:0]` payload end (bytes) |
+
 ### 0x600  -  ADP advertiser  `(IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)`
 
 Identity and control for the hardware ADP transmit engine (`adp_advertiser`). The
@@ -267,8 +339,35 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 
 The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F0`,
 subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
-`available_index` is bumped on link-up and on `ADP_CMD[0]` (a field change), and held
-on periodic re-advertise. See [`../hdl/ieee17221/adp/doc/adp_advertiser.md`](../../hdl/ieee17221/adp/doc/adp_advertiser.md).
+`available_index` increments on EVERY transmitted ADPDU — periodic re-advertise,
+discover response and departing alike (`adp_advertiser.sv` serialiser: controllers
+treat a repeated index as an incoherent entity; bump-on-change-only was
+silicon-diagnosed 2026-07-12). A frozen `ADP_STATUS` therefore means no ADPDUs are
+leaving at all — the [`ADP_DORMANCY.md`](../findings/ADP_DORMANCY.md) incident
+signature. See
+[`../hdl/ieee17221/adp/doc/adp_advertiser.md`](../../hdl/ieee17221/adp/doc/adp_advertiser.md).
+
+### 0x648  -  AECP/ACMP status + AAF talker  `(IEEE 1722.1 / Milan v1.2)`
+
+Read-only counters from the AECP/AEM listener (`KL_aecp_top`) and the ACMP
+responder, the legacy flat AAF talker configuration for stream 0 (talker
+index 0 of the 0x800 window is a hard alias of these — see the alias rule
+there), the ADP dormancy diagnostics and the Milan talker SM view. Stream
+semantics: [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x648` | `AECP_STAT0` | RO | `0` | `[16]` entity locked (a controller holds LOCK_ENTITY), `[15:0]` AECP commands accepted |
+| `0x64C` | `AECP_STAT1` | RO | `0` | `[31:16]` AECP responses sent, `[15:0]` live current_configuration_index |
+| `0x650` | `ACMP_STAT` | RO | `0` | ACMP responder: `[31:16]` responses sent, `[15:0]` commands accepted |
+| `0x654` | `AAF_CTRL` | RW | `0x0002_0002` | `[0]` talker enable, `[1]` gate bypass (1 = stream whenever enabled — legacy default until the probe path is silicon-proven; 0 = Milan probe-gated), `[27:16]` SR VID (reset 2). Write bit-preserving — `0x0002_0003` to enable; a bare `0x3` zeroes the VID, and VID-0 frames leave the reserved SR tree (bridges strip the tag on egress) and flood unshaped |
+| `0x658` | `AAF_DMLO` | RW | `0xF000_FE01` | AAF stream dest MAC `[31:0]` (reset = MAAP-range `91:E0:F0:00:FE:01`). Fallback value: while `MAAP_CTRL[0]` is set and `MAAP_STAT1[2]` addr_valid, the datapath streams to the MAAP-claimed DMAC instead (`eff_aaf_dmac` mux) |
+| `0x65C` | `AAF_DMHI` | RW | `0x91E0` | dest MAC `[47:32]` in `[15:0]` |
+| `0x660` | `AAF_FRAMES` | RO | `0` | AAF frames sent (the window `PDUS` word latches this at talker idx 0) |
+| `0x664` | `AAF_PAIRS` | RO | `0` | I2S sample pairs captured by the talker front-end |
+| `0x668` | `ADP_DIAG` | RO | `0` | ADP dormancy forensics: `[7:0]` depart events taken, `[15:8]` dormancy self-re-arms, `[17:16]` last depart cause `{shutdown, link_down}`. rearm_cnt ticking while depart_cnt holds = a state upset, not a commanded depart ([`ADP_DORMANCY.md`](../findings/ADP_DORMANCY.md)) |
+| `0x66C` | `ACMP_TALKER` | RO | `0` | Milan talker SM: `[0]` probe_armed (PROBE_TX activation), `[1]` talker_active, `[2]` mirror of the `ACMP_LOBS[0]` manual override (the SM's effective listener_observed additionally ORs the lwSRP term in the datapath), `[3]` resolved AAF admission gate |
+| `0x670` | `ACMP_LOBS` | RW | `0` | `[0]` manual listener_observed override — OR-ed with the lwSRP-sourced listener_observed (the lwSRP socket, see the 0x680 group) |
 
 ### 0x680  -  lwSRP engine  `(802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-*)`
 
@@ -301,12 +400,13 @@ MSRP frames go to `01:80:C2:00:00:0E`/`0x22EA`, MVRP to
 the low-rate control TX merge. `CAP[14]` advertises the group. Timers: Join
 200 ms, Leave 600 ms, LeaveAll 10 s from `MILAN_CLK_FREQ_HZ`.
 
-### 0x6A4  -  ACMP listener SM  `(Milan v1.2 §5.5 listener, FR-CONN-01)` — RO
+### 0x6A4  -  ACMP listener SM  `(Milan v1.2 §5.5 listener, FR-CONN-01)`
 
 The `KL_acmp_listener` state machine for the STREAM_INPUT[0] sink
 (BIND_RX/UNBIND_RX/GET_RX_STATE + the talker-probe ladder; pipewire
-acmp-milan-v12.c contract). All registers read-only; the binding is
-controller-driven over ACMP.
+acmp-milan-v12.c contract). The SM/monitor registers are read-only — the
+binding is controller-driven over ACMP; the group tail carries the RW
+MAAP/tone/pdelay knobs.
 
 | Offset | Register | Access | Fields |
 |--------|----------|--------|--------|
@@ -326,6 +426,10 @@ controller-driven over ACMP.
 | `0x6D8` | `I2SPB_STAT` | RO/W1C | I2S playback drift rails: `[31:16]` underruns (silence frames), `[15:0]` overruns (pairs dropped) — measures free-running-48k drift until CRF media-clock discipline. Both rails saturate at `0xFFFF`; **W1C per half (2026-07-22, gaps 5b)**: a write with any bit of a half set restarts that half's counter (the other half is untouched; a zero write is inert; readback stays the live count). W1C was chosen over clear-on-bind: the rails are engine diagnostics, not Milan Table 5.6 stream counters — a bind-triggered clear would erase evidence mid-diagnosis and add a bind-path dependency, while W1C leaves the observation window entirely under software control |
 | `0x6DC` | `TONE_CTRL` | RW | `[0]` pilot tone: 1 kHz 0 dBFS exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS via `tone_thdn.py` on the listener ring dump) |
 | `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
+| `0x6E4` | `GPTP_PDELAY` | RW | reset `0`: measured gPTP neighbor propagation delay, ns — written by the softcore gPTP daemon, served back through the AEM AVB_INTERFACE overlay ([`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §2.5) |
+| `0x6E8` | `ACMPL_DBG` | RO | listener walker forensics: `[31:24]` CLASSIFY entries (any frame), `[23:16]` ACMP-subtype (0xFC) classifies, `[15:8]` flags at the last ACMP classify `{dst_ok, etype_ok, sv0, len_ok, ovfl, lstnr_hi_ok, lstnr_lo_ok, is_lstn_cmd}`, `[7:0]` ACMP-base + listener-command hits |
+| `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU — the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.6) |
+| `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
@@ -527,16 +631,16 @@ word `2d+1` = `{16'd0, min16}`.
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 
-The CRF clock-recovery ACTUATOR status (ONE RO word). Parked at the map
-TAIL (after the 0x800-0x85C window) on purpose: parallel feature lanes are
-extending the 0x700 group, so a tail slot cannot collide on merge; `0x8FC`
-is reserved next to it for a future servo control knob (auto-repair enable
-is an RTL tie today).
+The CRF clock-recovery ACTUATOR (status word + control knobs; loop
+semantics in [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.4).
+Parked at the map TAIL (after the 0x800-0x85C window) on purpose: parallel
+feature lanes are extending the 0x700 group, so a tail slot cannot collide
+on merge; `0x8FC` next to it holds the servo control knobs.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; informative while auto-repair is tied off), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only at `clock_source == 2` (CRF descriptor); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
-| `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
+| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only at `clock_source == 2` (CRF descriptor); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+| `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
 ### 0x900  -  channel-map fabric  `(docs/CHANNEL_MAP_64.md §6, KL_chan_map_render / KL_chan_map_capture)`
 
