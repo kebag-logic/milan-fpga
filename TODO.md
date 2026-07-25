@@ -208,6 +208,28 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   offload 1` shapes SR while BE uses the remainder · `ethtool -S` counters · CBS +
   CSR harnesses green in CI.
 
+## Phase 10 — Persistent user storage (added 2026-07-25)
+
+- [ ] **H — 2 MiB `/user` folder overlay for persistent data** *(new REQ candidate)*.
+  Carve a 2 MiB QSPI slot as an mtd partition and mount it writable over the
+  initramfs (overlay at `/user`; wear-aware NOR filesystem, jffs2 first), so
+  runtime state survives reboots: the saved-state fast-connect journal,
+  entity/group names, channel maps, ALSA/mixer state.
+  - **Layout**: `FLASHBOOT_LAYOUT`/`FLASHBOOT_MANIFESTS` in `sw/litex/milan_soc.py`
+    are the single source of truth — the slot is added there, never by hand.
+    Budget today: the AX rootfs slot (9.75 MiB) has ~4 MiB slack — a 2 MiB slot
+    fits; the ARTY rootfs slot has **~15 KB headroom** — ARTY needs a relayout
+    or rootfs slimming first.
+  - **Kernel side**: mtd partition node in the DT (regenerate the DTB from the
+    build's `csr.csv` on any layout change — the CSR-rot rule) + SPI-NOR/mtd
+    support over the LiteSPI controller in the kernel config.
+  - **Boot side**: an early S-script mounts `/user` before `S50milan`/`S51`;
+    migrate today's persist paths (the fast-connect journal write) onto it;
+    `build.sh flash` / `deploy.sh flash-images` must never erase the user slot
+    on a reflash.
+  - **Gate**: reboot drill — write a marker file + a saved bind, power-cycle,
+    the marker survives and fast-connect restores with no controller.
+
 ---
 
 ### Dependency summary
