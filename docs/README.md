@@ -210,6 +210,7 @@ per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 | [NXN_ARCHITECTURE.md](NXN_ARCHITECTURE.md) · [LWSRP_FPGA_ARCHITECTURE.md](LWSRP_FPGA_ARCHITECTURE.md) · [ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) · [CHANNEL_MAP_64.md](CHANNEL_MAP_64.md) · [CHMAP64_AEM_BINDING.md](CHMAP64_AEM_BINDING.md) · [AAF_LATENCY_TAPS.md](AAF_LATENCY_TAPS.md) · [LATENCY_HISTORY_RING.md](LATENCY_HISTORY_RING.md) · [MVP_TALKER.md](MVP_TALKER.md) | Top-level subsystem specs: NxN stream scaling, the lwSRP engine, the end-station builder, the 64-channel map + its AEM binding, the per-stage latency taps + DDR3 history ring, the first AAF talker. |
 | [templates/](templates/README-tests.template.md) | Per-module doc templates (parameters, tests) — their rows roll up 1:1 into the traceability matrix. |
 | [diagrams/](diagrams/README.md) | Generated system diagrams (the giant single-page system map and friends). Every diagram ships as an editable `.drawio` + rendered `.svg`/`.png`; edit the source (`.gen.py` or the `.drawio`), never the render. |
+| [DOC_GENERATION.md](DOC_GENERATION.md) | **How to generate the docs**: the matrix generator, the TerosHDL module pages, the diagram + chronogram pipelines, the gate/CI — commands + the you-changed-X-run-Y cheat sheet. |
 | [DOC_AUDIT.md](DOC_AUDIT.md) | The 2026-07-23 doc audit + cleanup record (§2 archive move executed 2026-07-25 → `historical_now_obsolete/`). |
 | [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md) | The journey-ordered front-door guide (also linked at the very top). |
 
@@ -224,7 +225,8 @@ per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 * **Verification:** every DUT change ships with its harness update in the same
   commit.
 * **Diagrams:** every `*.svg`/`*.png`/`*.drawio` in this directory is
-  generated - edit the sibling `*.gen.py`, never the outputs.
+  generated - edit the sibling `*.gen.py`, never the outputs. All generator
+  commands in one page: [DOC_GENERATION.md](DOC_GENERATION.md).
 * **Counts:** suite/top counts in prose go stale; the directory listing and
   `run.sh` are authoritative.
 * Board-recipe skills for the sibling test rig live out-of-repo in the
