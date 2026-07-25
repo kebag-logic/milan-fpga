@@ -273,7 +273,14 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   same signed-delta contract as the AAF `ts_delta` at 0x6EC);
 * **frequency**: `rate` (CSR 0x748) = accumulated timestamp advance across a
   256-PDU ring (512 ms) minus the nominal 512 ms — signed ns per window,
-  i.e. the talker's media clock measured against gPTP;
+  i.e. the talker's media clock measured against gPTP. Implementation
+  (2026-07-25): the ring is a 256×32 **single-port READ_FIRST BRAM** —
+  storing the truncated 32-bit timestamp is bit-exact because the window
+  subtraction is congruent mod 2^32, and one same-port access reads the
+  oldest entry and overwrites it in place. `rate` updates one clock after
+  the accepted PDU (invisible at any CSR poll rate; pinned by the
+  `tb/verilator/crf_rx` regression). The previous 256×64 flop file was
+  the exact placer-overflow victim of the first 8×8+chmap build;
 * **lock**: 8 clean consecutive PDUs to lock, 100 ms of silence (or a
   validation error) to unlock — mirroring the AAF media-lock contract —
   with lock/unlock event counters feeding CLOCK_DOMAIN GET_COUNTERS when
