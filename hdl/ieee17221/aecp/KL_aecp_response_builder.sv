@@ -112,6 +112,13 @@ module KL_aecp_response_builder (
   output wire          dmap_l_en_o,        //! cluster 0 mapping valid
   output wire [3:0]    dmap_r_ch_o,        //! cluster 1 (render R) stream ch
   output wire          dmap_r_en_o,        //! cluster 1 mapping valid
+  //! chmap64 fabric binding (docs/CHMAP64_AEM_BINDING.md): every ACCEPTED
+  //! ADD/REMOVE commit is mirrored into the render crossbar's map RAM as a
+  //! one-write-per-record strobe stream. Word = the render RAM format
+  //! {en[7], 1'b0, stream[5:3], ch[2:0]}; REMOVE writes 0 (en=0).
+  output logic         dmap_wr_p_o,        //! 1-cycle map-RAM write strobe
+  output logic [5:0]   dmap_wr_addr_o,     //! cluster_offset = phys channel idx
+  output logic [7:0]   dmap_wr_word_o,     //! render map word (see above)
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT)
 
@@ -1020,6 +1027,9 @@ module KL_aecp_response_builder (
         unsol_seq_r[s]   <= 16'd0;
       end
 `ifdef AEM_DYNMAP
+      dmap_wr_p_o    <= 1'b0;
+      dmap_wr_addr_o <= 6'd0;
+      dmap_wr_word_o <= 8'd0;
       for (int k = 0; k < AEM_DMAP_KEYS_C; k++) begin
         dmap_v_r[k]  <= 1'b0;
         dmap_ch_r[k] <= 4'd0;
@@ -1050,6 +1060,9 @@ module KL_aecp_response_builder (
       evt_drop_o <= 1'b0;
       st_wr_o    <= 1'b0;
       pres_wr_p_o <= 1'b0;
+`ifdef AEM_DYNMAP
+      dmap_wr_p_o <= 1'b0;
+`endif
 
       // ---- output beat handshake (runs EVERY cycle, independent of the
       //      ADDR/DATA assembly sub-state, so a beat transfers exactly once) --
@@ -2459,9 +2472,16 @@ module KL_aecp_response_builder (
                 dmap_v_r [w_dm_key] <= 1'b1;
                 dmap_ch_r[w_dm_key] <= dm_sc_q[3:0];
                 if (w_dm_add_chg) dmap_diff_q <= 1'b1;
+                //! fabric mirror: one render-map write per accepted record
+                dmap_wr_p_o    <= 1'b1;
+                dmap_wr_addr_o <= 6'(w_dm_key);
+                dmap_wr_word_o <= {1'b1, 1'b0, dm_si_q[2:0], dm_sc_q[2:0]};
               end else if (w_dm_rm_hit) begin
                 dmap_v_r[w_dm_key] <= 1'b0;
                 dmap_diff_q <= 1'b1;
+                dmap_wr_p_o    <= 1'b1;
+                dmap_wr_addr_o <= 6'(w_dm_key);
+                dmap_wr_word_o <= 8'h00;
               end
               if (dmi_r == dmn_q - 6'd1) begin
                 //! no state change -> suppress the u=1 replay (the
@@ -2563,6 +2583,11 @@ module KL_aecp_response_builder (
   assign dmap_r_en_o = (AEM_DMAP_KEYS_C > 1) ? dmap_v_r[DMAP_RK_C] : 1'b0;
   assign dmap_r_ch_o = dmap_ch_r[DMAP_RK_C];
 `else
+  always_comb begin
+    dmap_wr_p_o    = 1'b0;
+    dmap_wr_addr_o = 6'd0;
+    dmap_wr_word_o = 8'd0;
+  end
   assign dmap_l_en_o = 1'b0;
   assign dmap_l_ch_o = 4'd0;   //! wire-truth default: stream ch0 -> L
   assign dmap_r_en_o = 1'b0;

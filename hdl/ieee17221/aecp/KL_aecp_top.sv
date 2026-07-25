@@ -78,6 +78,9 @@ module KL_aecp_top #(
   output wire          dmap_l_en_o,        //! cluster 0 mapping valid
   output wire [3:0]    dmap_r_ch_o,        //! cluster 1 (render R) stream ch
   output wire          dmap_r_en_o,        //! cluster 1 mapping valid
+  output wire          dmap_wr_p_o,        //! chmap64 binding: map-RAM write strobe
+  output wire [5:0]    dmap_wr_addr_o,     //! phys channel idx (cluster_offset)
+  output wire [7:0]    dmap_wr_word_o,     //! render map word {en,0,stream,ch}
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT counters)
 
@@ -284,6 +287,8 @@ module KL_aecp_top #(
     .dmap_l_en_o(dmap_l_en_o),
     .dmap_r_ch_o(dmap_r_ch_o),
     .dmap_r_en_o(dmap_r_en_o),
+    .dmap_wr_p_o(dmap_wr_p_o), .dmap_wr_addr_o(dmap_wr_addr_o),
+    .dmap_wr_word_o(dmap_wr_word_o),
     .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
     .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),
