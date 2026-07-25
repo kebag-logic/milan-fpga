@@ -12,7 +12,7 @@
 #   TAG=myrun ./build.sh arty          # output dir suffix (default: date +%m%d%H%M)
 #   ./build.sh arty -- --sys-clk-freq 90e6   # append/override milan_soc.py args
 #
-# Discipline encoded here (docs/findings/SESSION_HANDOFF.md):
+# Discipline encoded here (docs/integration/BUILDING.md):
 #   * every build: setsid nohup (harness task-kills must never reap Vivado),
 #     --vivado-max-threads 32 (Vivado hard cap), launch log next to the outdir;
 #   * parallel launches staggered 90 s (shared pythondata git checkout: two
@@ -150,8 +150,9 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
     # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
     # PLL divisor set (VCO 1000; 90e6 has NO solution with the 25 MHz eth ref).
-    # Flash = LINUX IMAGES at the full-manifest offsets (kernel at 0), so a
-    # bitstream in flash is sacrificed - gateware is JTAG-SRAM, like the AX7101.
+    # Flash = bitstream@0 + the full-manifest Linux images (QSPI self-boot on
+    # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
+    # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
     echo "--board arty --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
