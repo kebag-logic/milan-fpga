@@ -360,7 +360,7 @@ clock  -  the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not th
 (**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific  -  a VexiiRiscv
 build closed and ran **112.5 MHz / DDR3-900** on silicon, memtest OK. It was nonetheless
 reverted to 100 MHz / DDR3-800 because the higher clock *worsened* memory latency and the
-UDP-flood pps ceiling  -  see `LATENCY_INVESTIGATION.md` §8.) The S7PLL also
+UDP-flood pps ceiling  -  see [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md) §8.) The S7PLL also
 rejects intermediate frequencies (115 MHz → `No PLL config found`, since `sys4x=4·sys`
 plus the 50/200 MHz clocks force no valid VCO between 100 and 125). Faster DDR3
 (DDR3-1000 @ a 125 MHz `dram` domain) would need the controller+PHY decoupled onto their
@@ -420,7 +420,7 @@ as `ff:00:00:00:00:00` (only byte 0 survived, rest zero), and a full 64-byte fra
 isolated Migen sim of the 64→32 converter); the datapath TX (byte-exact in
 `tb/verilator/datapath`, tkeep-preserving `traffic_queues.sv`); CBS (`CBS_CTRL[0]=0` is
 *unshaped*, not starved); DMA `length` units (a separate bug  -  it's **bytes**, see
-`REGISTER_MAP.md`, so `length=8` sent one word).
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md), so `length=8` sent one word).
 
 **Root cause.** `MilanMAC` mapped AXIS `tkeep` straight onto LiteEth `core.sink.last_be`.
 LiteEth's `last_be` is a **one-hot pointer to the last valid byte** (`liteeth/mac/padding.py`

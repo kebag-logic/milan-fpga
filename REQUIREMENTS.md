@@ -85,7 +85,7 @@ Verilator harness ([`tb/verilator/cbs`](tb/verilator/cbs)):
 ## 4. Requirements (normative)
 
 Keywords **MUST / SHOULD / MAY** per RFC 2119. Each item lists a standard ref
-and the acceptance criterion. IDs are stable and referenced from `TODO.md`.
+and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TODO.md).
 
 ### 4.A Control plane — memory-mapped CSR (foundation)
 
@@ -105,7 +105,7 @@ and the acceptance criterion. IDs are stable and referenced from `TODO.md`.
   timestamp available, link/speed change, RMON counter rollover. — *Accept:*
   masked events raise IRQ_F2P and are cleared W1C.
 * **REQ-CSR-05 (MUST)** The register map MUST be documented as a stable **ABI**
-  (`docs/reference/REGISTER_MAP.md`) shared by HDL, driver, and device tree.
+  ([`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md)) shared by HDL, driver, and device tree.
 
 ### 4.B gPTP / IEEE 1588 hardware clock (PHC)
 
@@ -275,7 +275,7 @@ and the acceptance criterion. IDs are stable and referenced from `TODO.md`.
 * **REQ-VER-03 (SHOULD)** A **classifier** harness (PCP→TC table, VLAN offsets,
   default priority, back-to-back frames).
 * **REQ-VER-04 (SHOULD)** A **CSR/register-map** testbench (reset values, W1C,
-  RO/RW masks, CDC apply-strobe) checked against `docs/reference/REGISTER_MAP.md`.
+  RO/RW masks, CDC apply-strobe) checked against [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md).
 * **REQ-VER-05 (SHOULD)** Driver bring-up validation: `ethtool -T`, `phc2sys`/
   `ptp4l` lock, `tc qdisc … cbs offload`, `ethtool -S`.
 
@@ -296,7 +296,7 @@ frame preemption (802.1Qbu/802.3br).
 Every requirement traces to a standard clause (above) and to a gap ID from the
 §3 audit. The audit's full per-gap detail (current file:line, required behavior,
 recommendation) is retained in the project analysis output and mirrored by the
-`TODO.md` task descriptions.
+[`TODO.md`](TODO.md) task descriptions.
 
 ## 8. Acceptance (end-to-end)
 
@@ -322,10 +322,10 @@ the HW shaper and SR streams meet their reservation while BE uses the remainder;
 >
 > **What was to do →** ① list the missing elements for 802.1 compliance → **done
 > (§3)**; ② add standards-compliant requirements → **done (§4)**; ③ create
-> `TODO.md` → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
+> [`TODO.md`](TODO.md) → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
 > the CBS verification harness (`tb/verilator/cbs`, REQ-VER-01), the CSR register
-> ABI (`docs/reference/REGISTER_MAP.md`, REQ-CSR-05), the AXI4-Lite control-plane RTL
+> ABI ([`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), REQ-CSR-05), the AXI4-Lite control-plane RTL
 > (`hdl/common/csr/milan_csr.sv`, REQ-CSR-01/02/04) — the previously-missing
 > memory-mapped configuration — and its verification harness
-> (`tb/verilator/csr`, REQ-VER-04). Remaining work is tracked in `TODO.md`
+> (`tb/verilator/csr`, REQ-VER-04). Remaining work is tracked in [`TODO.md`](TODO.md)
 > (block-design integration, then PTP/CBS/classifier/MAC wiring, driver, DT).

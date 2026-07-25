@@ -3,7 +3,7 @@
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM
 ROM, lwSRP tables and the DT/driver shape consistently
-(`docs/MILAN_COMPLIANCE_GAPS.md` attack item 4). This document is the
+([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) attack item 4). This document is the
 specification-referenced design record for that builder: the settled design
 decisions with their clause basis, and the config-schema → AEM-descriptor
 mapping. Every clause reference below was verified against the local standards
@@ -220,7 +220,7 @@ frame sync, data delay 0/1); its per-slot pair stream feeds the
 `channels_per_frame`, even 2..8 per stream, partitioning the pair-slot
 space). `aes3`/`spdif` are contract-only for now (the pair-stream contract
 and the biphase-mark plan live in
-`hdl/ieee1722/aaf/doc/audio_frontend_family.md`) and validate with a
+[`hdl/ieee1722/aaf/doc/audio_frontend_family.md`](../hdl/ieee1722/aaf/doc/audio_frontend_family.md)) and validate with a
 planned mark. On the AEM side the physical interface is modeled by,
 per 1722.1:
 - **JACK_INPUT/JACK_OUTPUT** (7.2.7): the physical connector, with
@@ -277,7 +277,7 @@ the field itself.
 | 23 | `streams.talkers[].clusters` | output AUDIO_CLUSTERs + STREAM_PORT_OUTPUT bases + AUDIO_MAP (D1/D3) | 1722.1 7.2.13, 7.2.16, 7.2.19; Milan 5.3.9.1 | AEM |
 | 24 | `len(listeners)` / `len(talkers)` | CONFIGURATION `descriptor_counts`; ADPDU `talker_stream_sources` / `listener_stream_sinks` (honest counts) | 1722.1 7.2.2, 6.2.2.10, 6.2.2.12 | AEM, prov |
 | 25 | stream count (NxN shapes) | per-stream ACMP/MAAP/monitor contexts + per-stream lwSRP attribute instances (capacity is an implementation decision, stated in PICS) | Q 35.2.7 | SoC (planned, item 5) |
-| 26 | whole config (stream/cluster/L2 counts) | build-plan `## Resource estimate`: LUT/FF/BRAM36/DSP vs xc7a100t + OK/TIGHT/OVER verdict (cost table calibrated from the real mf48 place report; NxN rows UPPER BOUND; recipe in sw/builder/README-parameters.md) | - (engineering budget; area-70 directive) | build_plan.md |
+| 26 | whole config (stream/cluster/L2 counts) | build-plan `## Resource estimate`: LUT/FF/BRAM36/DSP vs xc7a100t + OK/TIGHT/OVER verdict (cost table calibrated from the real mf48 place report; NxN rows UPPER BOUND; recipe in [sw/builder/README-parameters.md](../sw/builder/README-parameters.md)) | - (engineering budget; area-70 directive) | build_plan.md |
 | 27 | `clocking.crf_output` (enabled + format) | CRF STREAM_OUTPUT appended after the AAF talkers (mirrors the CRF sink: no STREAM_PORT/cluster/map — it carries no audio); `stream_flags` = CLOCK_SYNC_SOURCE\|CLASS_A (0x0003); domain wiring = the STREAM descriptor's own `clock_domain_index` 0 — 7.2.9.2 defines no OUTPUT_STREAM CLOCK_SOURCE type, so the CLOCK_SOURCE/CLOCK_DOMAIN sets are unchanged; ADPDU `talker_stream_sources` +1. **RULE ENFORCED**: >=2 AAF listener streams reject without it, citing Milan 7.2.3 | Milan 7.2.3, 7.3.2 (format 0x041060010000BB80), 7.3.3 (Class A); 1722.1 7.2.6, 7.2.6.1, 7.2.9.2, 7.2.32 | AEM; SoC (provisioning planned, item 5) |
 
 27 rows. Rows 14 (AEM half), 25, and the SoC half of 27 generate *planned*

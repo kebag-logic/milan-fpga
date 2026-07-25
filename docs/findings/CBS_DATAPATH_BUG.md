@@ -47,7 +47,7 @@ A third, unrelated issue found in the same pass and **fixed** here: `CLS_PRIO_RE
 reset was `0x688FAC`, a half-swap of priorities (0–3 ↔ 4–7) instead of the 802.1Q
 identity `0xFAC688`, so every tagged SR frame was priority-regenerated into the wrong
 class before it even reached the (buggy) queue routing. Fixed to identity in
-`hdl/common/csr/milan_csr.sv` + `REGISTER_MAP.md` (verified: `tb/verilator/cls`,
+`hdl/common/csr/milan_csr.sv` + [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (verified: `tb/verilator/cls`,
 `tb/verilator/classifier` green with the identity constant).
 
 ## The fix (shipped)
@@ -147,7 +147,7 @@ its 10 Mbit/s reservation) while best-effort runs, because both classes share ON
 classifier ingress  -  BE frames occupy ingress slots and delay reserved frames into
 their queue. CBS still bounds egress correctly (single-flow B clips to 9.95); it cannot
 protect the *reservation* from ingress contention when ingress is shared. The cure is
-per-class ingress / the multi-queue fabric (S2 in `AVB_SWITCH_DIRECTION.md`).
+per-class ingress / the multi-queue fabric (S2 in [`AVB_SWITCH_DIRECTION.md`](../overview/AVB_SWITCH_DIRECTION.md)).
 
 ## Status
 
@@ -156,7 +156,7 @@ per-class ingress / the multi-queue fabric (S2 in `AVB_SWITCH_DIRECTION.md`).
   single-flow CBS shaping silicon-confirmed (A/B/C above).
 * `traffic_queues` arbiter cross-lock (two-flow TX wedge)  -  **fixed** (grant-indexed
   mux), sim-verified; silicon interference re-test on ring10.
-* Remaining architectural limit (documented in `AVB_SWITCH_DIRECTION.md`): the shared
+* Remaining architectural limit (documented in [`AVB_SWITCH_DIRECTION.md`](../overview/AVB_SWITCH_DIRECTION.md)): the shared
   single-ingress classifier means a full queue backpressures *ingress* for all queues
   (bounded, not a deadlock, once the cross-lock is gone). Per-class ingress / the
   multi-queue fabric (S2) is the structural cure.

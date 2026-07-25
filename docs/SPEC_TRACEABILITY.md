@@ -158,4 +158,4 @@ Each family file is a table meant for row-by-row peer review; the intended
 lifecycle per row is: review clause ref → confirm/adjust required-behavior
 wording → promote to a behave feature (bench suite) and/or a tsn_gen sweep →
 flip the row's status. When a TB or module changes, the row citing it must
-change in the same commit (same rule as `tb/verilator/README.md`).
+change in the same commit (same rule as [`tb/verilator/README.md`](../tb/verilator/README.md)).

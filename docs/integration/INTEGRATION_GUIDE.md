@@ -109,7 +109,7 @@ the LiteX build tied `i_mac_speed=2'b10, i_link_up=1` until the MAC landed).
 events (TX timestamp ready, link change, RMON rollover). DMA-completion
 interrupts are **your DMA engine's** to generate. The Linux driver expects
 four lines named `tx-dma`, `rx-dma`, `ts-dma`, `csr`
-(`sw/driver/README.md`); on the LiteX host they are EventManager sources
+([`sw/driver/README.md`](../../sw/driver/README.md)); on the LiteX host they are EventManager sources
 folded into one PLIC line, on Zynq four separate GIC lines - the device
 tree, not the RTL, encodes that difference (`sw/dts/`).
 

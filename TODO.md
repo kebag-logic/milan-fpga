@@ -59,7 +59,7 @@ full-FPGA solution is **assembled and elaborating** end-to-end. See
   (device-support install).
 * Device tree (`sw/dts/`), driver ABI (`sw/driver/`), and the DMA CSR ABI documented.
 
-Remaining for on-hardware bring-up (roadmap in FULL_FPGA_SOLUTION.md §9): Artix-7
+Remaining for on-hardware bring-up (roadmap in [FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) §9): Artix-7
 Vivado device install → LiteDRAM → board M-A2/M-A3 → Linux (M-A4) → driver (M-A5) →
 AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
@@ -72,13 +72,13 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   replica vs ideal 802.1Qav model), directed scenarios + 50 k randomized cycles,
   `make` → PASS with CI exit code. Supersedes the stale
   `tb/utests/802_1q_traffic_shaper/tb_credit_based_shaper.sv`.
-- [x] **B — Requirements & gap analysis** `(REQUIREMENTS.md §3–§4)` — done.
+- [x] **B — Requirements & gap analysis** `([REQUIREMENTS.md](REQUIREMENTS.md) §3–§4)` — done.
 - [x] **B — This task list** — done.
-- [x] **B — Register-map ABI doc** `docs/reference/REGISTER_MAP.md` `(REQ-CSR-05)` — the
+- [x] **B — Register-map ABI doc** [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) `(REQ-CSR-05)` — the
   contract shared by HDL + driver + DT. Done.
-- [x] **B — Developer documentation** — `docs/overview/ARCHITECTURE.md` (system map +
-  maintainability guide), `docs/README.md` (doc index), `hdl/common/csr/doc/milan_csr.md`
-  (TerosHDL module page), `tb/verilator/README.md`; all RTL annotated in TerosHDL
+- [x] **B — Developer documentation** — [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) (system map +
+  maintainability guide), [`docs/README.md`](docs/README.md) (doc index), [`hdl/common/csr/doc/milan_csr.md`](hdl/common/csr/doc/milan_csr.md)
+  (TerosHDL module page), [`tb/verilator/README.md`](tb/verilator/README.md); all RTL annotated in TerosHDL
   `//!` syntax with named processes.
 - [x] **H — Delete/replace stale CBS TB** — remove or `git mv` the old
   `tb_credit_based_shaper.sv` once the Verilator harness is the reference.

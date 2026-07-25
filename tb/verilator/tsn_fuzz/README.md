@@ -62,10 +62,10 @@ exists:
 
 | campaign | results file |
 |---|---|
-| `make aecp` | `hdl/ieee17221/aecp/doc/TEST_RESULTS.md` |
-| `make acmp` | `hdl/ieee17221/acmp/doc/TEST_RESULTS.md` |
-| `make adp`  | `hdl/ieee17221/adp/doc/TEST_RESULTS.md` |
-| `make aaf`  | `hdl/ieee1722/avtp/doc/TEST_RESULTS.md` (pointer in `hdl/ieee1722/aaf/doc/`) |
+| `make aecp` | [`hdl/ieee17221/aecp/doc/TEST_RESULTS.md`](../../../hdl/ieee17221/aecp/doc/TEST_RESULTS.md) |
+| `make acmp` | [`hdl/ieee17221/acmp/doc/TEST_RESULTS.md`](../../../hdl/ieee17221/acmp/doc/TEST_RESULTS.md) |
+| `make adp`  | [`hdl/ieee17221/adp/doc/TEST_RESULTS.md`](../../../hdl/ieee17221/adp/doc/TEST_RESULTS.md) |
+| `make aaf`  | [`hdl/ieee1722/avtp/doc/TEST_RESULTS.md`](../../../hdl/ieee1722/avtp/doc/TEST_RESULTS.md) (pointer in `hdl/ieee1722/aaf/doc/`) |
 
 Each file records the verdict, the DUT, the exact RTL files under test, the
 per-section pass/fail/gap breakdown, every tracked gap, and the one-line

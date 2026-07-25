@@ -110,7 +110,7 @@ fraction: 1.7 %  -  matches the drift model, not a bug. Fixes, in order of value
 3. Accept the copy path: header-split still delivers the **aligned** copy
    (payload at page offset 0 ⇒ dst/src co-aligned ⇒ the fast 64 B-unrolled
    loop, 2–3× the misaligned baseline). This is the near-term win; the
-   PERF_ON_MILAN.md §6.4 falsifiable prediction (hs-mode profile shows the
+   [PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md) §6.4 falsifiable prediction (hs-mode profile shows the
    fast loop) is still PENDING a valid-peer re-run.
 
 **Open on silicon  -  multi-page pairing storm (UNDER SUSPICION, DATA TAINTED):**
@@ -371,7 +371,7 @@ rx1 hs_capable  -  the strip-probes diet (area-70 catalog) gates the full
 2-queue-hs build. Next: strip-probes flag → rebuild 2-queue with rx1-hs →
 kl-eth hsplit11 (per-queue hs) → the 368-407 mslot aggregate assault.
 
-## hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from HSPLIT14_DESIGN.md, 2026-07-25)
+## hsplit14 / hsq12  -  per-page (cut-through) hs delivery (2026-07-11; folded from [HSPLIT14_DESIGN.md](../../historical_now_obsolete/fpga/HSPLIT14_DESIGN.md), 2026-07-25)
 
 *2026-07-11. Kills the RSC hold latency (the per-flow ~95 Mbit plateau closed-form:
 rate = PAYCAP/fill-cycle, because ACKs wait for aggregate close). Pages become visible

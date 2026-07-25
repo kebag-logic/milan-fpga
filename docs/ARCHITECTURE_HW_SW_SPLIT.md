@@ -88,7 +88,7 @@ the framer, the reservation gate and connection liveness are fabric work.
 
 ## Open decisions (flagged, not blocking)
 
-- **lwSRP scope**: proposed architecture in docs/LWSRP_FPGA_ARCHITECTURE.md
+- **lwSRP scope**: proposed architecture in [docs/LWSRP_FPGA_ARCHITECTURE.md](LWSRP_FPGA_ARCHITECTURE.md)
   (streaming vector walker, always-declare applicant, gate-before-slope).
   MSRP talker-side + MVRP first (talker endpoint); the
   listener half (Listener Ready TX) lands with STREAM_INPUT. Domain/SR-class

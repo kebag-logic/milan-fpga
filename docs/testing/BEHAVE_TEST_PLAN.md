@@ -2,13 +2,13 @@
 
 Status: 2026-07-23 (planning round). Executes **roadmap item 10** (peer-review the
 204-row traceability matrix 1:1, then author a behave per confirmed row). Companion
-docs: `docs/SPEC_TRACEABILITY.md` (the 204-row matrix this suite mirrors),
-`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`, `docs/reference/REGISTER_MAP.md`
-(CSR ABI, base `0x90000000`), `docs/findings/BENCH_TOPOLOGY.md` (rig + tap tools).
+docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix this suite mirrors),
+[`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md), [`docs/reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md)
+(CSR ABI, base `0x90000000`), [`docs/findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) (rig + tap tools).
 
 ## 0. Principle — the suite IS the matrix
 
-The behave suite is a **live mirror of `SPEC_TRACEABILITY.md`**, not a parallel pile.
+The behave suite is a **live mirror of [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md)**, not a parallel pile.
 Every `Scenario` carries `@clause/@matrix/@roadmap` tags, so running the suite *reports
 compliance* and the matrix's 🟡/❌ rows literally generate the backlog. A matrix row
 may be marked ✅ only once a passing (non-`@wip`) behave scenario cites it. Prefer
@@ -230,7 +230,7 @@ exists and passes; the behave scenarios above are the *wire* half:
 **Doc bug — RECONCILED (2026-07-23):** the summary tallied 18 partials / 9 Milan, but a
 1:1 re-count of every Milan row's leading glyph gives **39✅ / 8🟡 / 4❌ / 1➖ = 52**. It
 was a summing typo (one ✅ counted as partial), not a mismarked row — no compliance status
-changed. `SPEC_TRACEABILITY.md` now reads **163✅ / 17🟡 / 7❌ / 17➖** (Milan 39/8). The
+changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 17🟡 / 7❌ / 17➖** (Milan 39/8). The
 17 🟡 rows above are the authoritative partial backlog. Stale downstream quotes of
 "162✅/18🟡" (HANDOVER roadmap table) should now read 163✅/17🟡.
 

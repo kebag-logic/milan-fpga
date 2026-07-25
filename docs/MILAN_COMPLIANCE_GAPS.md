@@ -307,7 +307,7 @@ and is not repeated here.
   2026-07-22 - W1C per half (write any bit of a half to restart that
   rail; halves independent, zero write inert, readback stays live).
   W1C over clear-on-bind: the rails are diagnostics, not Milan Table
-  5.6 counters - see docs/reference/REGISTER_MAP.md 0x6D8. VERSION
+  5.6 counters - see [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) 0x6D8. VERSION
   0x0007. TBs: tb/verilator/i2spb (counter behavior incl. re-arm after
   clear) + tb/verilator/csr (strobe decode).
 - **Controller tooling must use distinct ACMP sequence_ids** —
@@ -379,7 +379,7 @@ and is not repeated here.
   reads the latched lanes over AXI — 4 FAILs on the pre-fix RTL
   (TX_GOOD/RX_GOOD = 0 with 3/2 real frames = the exact silicon
   symptom), 158/158 after. ABI reconciled: the enum WAS already 1:1
-  with REGISTER_MAP.md (lane n at `0x210 + 4*n`: TX_GOOD = lane 3 =
+  with [REGISTER_MAP.md](reference/REGISTER_MAP.md) (lane n at `0x210 + 4*n`: TX_GOOD = lane 3 =
   `0x21C`, RX_GOOD = lane 8 = `0x230`); the earlier "TX_GOOD=0x210 /
   RX_GOOD=0x224" reading of the svh was a misread (it forgot the
   `0x210` base is lane 0) — the svh now carries the per-lane CSR
@@ -506,10 +506,10 @@ and is not repeated here.
    to the deployed 0x001BC50AC1000001); gen_aem_store.py --overlay
    consumes the emitted overlay and reproduces the tracked
    aecp_aem_rom.svh byte-identically for the current shape.
-   Recipe + limits: sw/builder/README-parameters.md. Remaining in
+   Recipe + limits: [sw/builder/README-parameters.md](../sw/builder/README-parameters.md). Remaining in
    item 4: lwSRP tables + DT/driver shape emitters, per-module SV
    parameterization, audio-interface ser/des RTL (subtask below).
-   Spec-referenced design record: `docs/ENDSTATION_BUILDER.md`
+   Spec-referenced design record: [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md)
    (clause-verified design decisions D1–D5 + schema→descriptor
    mapping; every ref PDF-extracted per the traceability-matrix rule).
    **Refined (USER):** every submodule parameterizable (if needed) so
@@ -550,7 +550,7 @@ and is not repeated here.
    S50 boot wiring + the ACMP talker context for the CRF stream
    (KL_crf_tx itself exists, CSRs 0x750-0x764, silicon-proven
    500 PDU/s).
-   **Architecture (normative): `docs/NXN_ARCHITECTURE.md`** — shared
+   **Architecture (normative): [`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md)** — shared
    engines + per-stream context RAM (replication is dead: estimator
    prices it 142%/107.5% LUT on 8x8/4x4); context-record layouts,
    indexed CSR window at 0x800, CRF output provisioning per Milan

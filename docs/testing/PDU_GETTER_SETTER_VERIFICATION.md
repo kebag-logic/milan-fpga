@@ -184,5 +184,5 @@ Base = `main`. Per command: `git checkout -b item-10-<cmd> main`, add the featur
 (`tests/features/item10/<cmd>.feature`) + any new steps, run the host-sim/tsn_gen suite green,
 `gh pr create -R kebag-logic/milan-fpga --base main --head item-10-<cmd>`. Tag each scenario
 `@class:<getter|setter|paired|action|pdu>` + `@cmd:<X>` + `@matrix:<row>` so the PRs slice by
-class and roll up into `SPEC_TRACEABILITY.md`. Merge order roughly follows the table
+class and roll up into [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Merge order roughly follows the table
 (descriptor/getters first — they are the read-model other fixtures assert against).

@@ -155,4 +155,4 @@ Records arrive in wire order per direction (RR mux across directions).
   opensbi_arty (embedded dtb with dma-ts 0x3100) = fully self-hosting; a
   clean flash boot needs NO dma_ts_addr override and no manual config.
 - Arty-as-slave with HW ts = the direct-cable session (the switch never
-  masters into board ports by design — GPTP_RXPAD_ROOTCAUSE.md matrix).
+  masters into board ports by design — [GPTP_RXPAD_ROOTCAUSE.md](GPTP_RXPAD_ROOTCAUSE.md) matrix).

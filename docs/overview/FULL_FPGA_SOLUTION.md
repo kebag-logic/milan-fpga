@@ -60,7 +60,7 @@ Companion documents:
   `--l2-bytes 32768`). Boots the LiteX BIOS → OpenSBI → Linux. (The dual-hart SMP
   `--cpu-count 2` config is a superseded perf-lineage variant. The historical NaxRiscv
   RV64GC core is retained as a pure-NIC/FPU option and remains the CLI default —
-  see docs/litex/LITEX_SOC.md §2.5.)
+  see [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §2.5.)
 - **The whole TSN datapath is in fabric**  -  `milan_datapath` (the §A.9 PS-less
   wrapper) owns classification, the credit-based shaper, PTP timestamping, the
   dest-MAC TCAM filter, and the hardware ADP advertiser. It is completely
@@ -101,12 +101,12 @@ the entity model under `avdecc/`.
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
 | **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
 | §A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
-| §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; `kl-eth-tx-debug.md` |
+| §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
 | HW ADP advertiser | ✅ complete + verified | `tb/verilator/adp` (121 checks) |
-| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in `hdl/ieee17221/` + `hdl/ieee1722/maap/` (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record `docs/design/AEM_AND_AECP.md`; per-command glyphs live in the validation matrix |
-| Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | `RX_RING_DMA.md`, `AVB_SWITCH_DIRECTION.md` |
-| Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, `QSPI_FLASHBOOT.md` |
+| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in `hdl/ieee17221/` + `hdl/ieee1722/maap/` (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record [`docs/design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md); per-command glyphs live in the validation matrix |
+| Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | [`RX_RING_DMA.md`](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
+| Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md) |
 | lwSRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric, silicon-validated** | `hdl/ieee8021q/srp/`, `hdl/ieee1722/aaf/`+`crf/` (per rev 2); per-clause glyphs live in the validation matrix |
 
 ---
@@ -223,13 +223,13 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 
 | To add… | Do this |
 |---------|---------|
-| a new CSR register | add it in `hdl/common/csr/milan_csr.sv` (write-case + read-mux + reset), extend `tb/verilator/csr`, document in `REGISTER_MAP.md` (the harness asserts they agree) |
+| a new CSR register | add it in `hdl/common/csr/milan_csr.sv` (write-case + read-mux + reset), extend `tb/verilator/csr`, document in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the harness asserts they agree) |
 | a new datapath stage | insert into `milan_datapath.sv` between the existing AXIS hops; add a `tb/verilator/*` harness; add it to `syn/yosys/run.sh` |
 | a new AXIS core on the CPU | follow the 3-plane pattern in [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md) |
 | the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |
 | link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (§A.7 refine) |
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
-| an AVDECC protocol behavior (AECP/ACMP/MAAP) | extend the fabric engines (`hdl/ieee17221/`, `hdl/ieee1722/maap/`) + their harnesses; the entity model (`avdecc/milan-v12-entity.json`) and `REGISTER_MAP.md` stay the contract |
+| an AVDECC protocol behavior (AECP/ACMP/MAAP) | extend the fabric engines (`hdl/ieee17221/`, `hdl/ieee1722/maap/`) + their harnesses; the entity model (`avdecc/milan-v12-entity.json`) and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) stay the contract |
 
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
@@ -264,10 +264,10 @@ Kept here as the historical order, each item marked with its result.
    On `LiteEthPHYGMII` (+ `last_be`/coherent-DMA/endianness fixes) the FPGA exchanges
    correct frames both directions with the i210 through the ProfiTap taps.
 5. **Linux boot (M-A4)**  -  ✅ **DONE.** OpenSBI + kernel + Buildroot boot with the
-   `kl,dma-ether` DT node (serial upload and QSPI flash-boot  -  `QSPI_FLASHBOOT.md`).
+   `kl,dma-ether` DT node (serial upload and QSPI flash-boot  -  [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md)).
 6. **Driver bring-up (M-A5)**  -  ✅ **DONE.** `kl-eth` is up: `ping`, `ethtool -T` (PHC),
    `ptp4l`, `tc … cbs offload`, and ring-DMA networking at the measured scoreboard
-   (`RX_RING_DMA.md`, `AVB_SWITCH_DIRECTION.md`). **M-A5 = "Milan on FPGA" closed.**
+   ([`RX_RING_DMA.md`](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md)). **M-A5 = "Milan on FPGA" closed.**
 7. **AVDECC protocols**  -  ✅ **DONE, in fabric.** AECP/AEM enumeration, ACMP, MAAP,
    MVU, lwSRP (MSRP/MVRP) and the AAF/CRF media datapath are all silicon-validated RTL
    (`hdl/ieee17221/`, `hdl/ieee1722/`, `hdl/ieee8021q/srp/`). Each row in the

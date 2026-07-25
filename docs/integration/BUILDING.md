@@ -4,7 +4,7 @@
 maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
 configuration, and the per-board load/console facts you need after a build
-lands. Test layers around a build: ../testing/RUNNING_TESTS.md. Live lab
+lands. Test layers around a build: [../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md). Live lab
 state: ../findings/HANDOVER.md.*
 
 ## 1. Usage
@@ -112,7 +112,7 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 | Arty A7-100 | `openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/<board-usb-serial>` (`-if01-port0`), 115200; tmux session `arty_console` |
 
 Flash layout (v3 `--flashboot full` manifest, BOTH boards  -  `board_facts`
-in `build.sh`, details in QSPI_FLASHBOOT.md): QSPI holds the bitstream at
+in `build.sh`, details in [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md)): QSPI holds the bitstream at
 offset 0 (dedicated 4 MiB slot) plus the Linux images at the
 `flashboot_layout.json` offsets (kernel 4 MiB, opensbi 7, dtb 7.38, rootfs
 7.5), so a power-cycle boots gateware + Linux hands-free. Flash with

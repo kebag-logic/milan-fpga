@@ -65,4 +65,4 @@
   -  1-to-4 routing by `tdest` into the per-queue FIFOs- queue FIFOs: axis_fifo (verilog-axis; replaced xpm_fifo_axis)
   -  per-queue buffering; egress is a grant-indexed combinational mux
      (replaced axis_arb_mux after the CBS cross-lock fix,
-     docs/findings/CBS_DATAPATH_BUG.md)
+     [docs/findings/CBS_DATAPATH_BUG.md](../../../../../docs/findings/CBS_DATAPATH_BUG.md))

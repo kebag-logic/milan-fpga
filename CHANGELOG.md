@@ -1,6 +1,6 @@
 # Performance CHANGELOG — Milan FPGA TSN NIC
 
-**Goal (`docs/findings/PERFORMANCE_GOAL.md`, set `21bd213`):** best-effort TCP throughput **>500 Mbit/s in
+**Goal ([`docs/findings/PERFORMANCE_GOAL.md`](docs/findings/PERFORMANCE_GOAL.md), set `21bd213`):** best-effort TCP throughput **>500 Mbit/s in
 both RX and TX**, reaching for 1 Gbit/s. Platform: Alinx AX7101 (xc7a100t), dual VexiiRiscv RV64
 @ 100 MHz, 64-bit datapath, DDR3-800, MTU 1500.
 
@@ -26,7 +26,7 @@ closed on header-split zero-copy RX, 07-10/11 (row 14 below, banner above).
 (`build_l2deep`). **RX > 500 is a HARD GOAL — the campaign does not close without it.** The
 measured 481 no-copy ceiling means the path must raise the ceiling *and* close the copy tax:
 **R1** warm copy (`build_ddio` + bounded `tcp_rmem` residency), **R2** RSC multi-slot (kill the
-58–66 % park-closes), **R3** 112.5 MHz final mile — plan in `docs/findings/PERFORMANCE_GOAL.md`.
+58–66 % park-closes), **R3** 112.5 MHz final mile — plan in [`docs/findings/PERFORMANCE_GOAL.md`](docs/findings/PERFORMANCE_GOAL.md).
 
 ![campaign chart](docs/perf_campaign.svg) — regenerate: `python3 docs/perf_campaign_chart.py docs/perf_campaign.svg`
 
@@ -52,7 +52,7 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to `sw/l
 | 11 | `perf` profiling (cross-built) | *find* the RX wall | `04c8144`; perf in defconfig `b8e2fb6` | **RX −P2 = 51 % `copy_to_user`** (recv payload copy, cold-DRAM-read bound) — interconnect hypothesis refuted |
 | 12 | `MSG_TRUNC` ceiling test | bound >500 feasibility | `2ddf5e4` (`tools_recv_trunc.c`) | **RX without the copy: single 427, −P2 481** (96 % of goal) |
 | 13 | **L2→DRAM depth** (`downPendingMax` 4→8) | stop 2 harts serializing at the L2's DRAM port | `--l2-down-pending=8 --l2-general-slots=16` (patch `sw/litex/patches/0002-vexiiriscv-l2-depth-args.patch`); `build_l2deep` | **RX −P2 296→316 (+7 %)**, single 233→274, §V clean, 0 BRAM, WNS +0.259 — **the keeper config** |
-| 14 | **Header-split zero-copy RX** — campaign close (2026-07-10/11) | remove the socket `recv()` copy tax | `build_hsq8`/`build_hsq10` (16 KB pages) + kl-eth `hsplit11/12` | **TX 513 → 582–646; RX with-copy 368–407 → 381 steady / 374 soak; RX no-copy 585–594 (`MSG_TRUNC`, hs geometry) — both directions crossed 500** (reconciled scoreboard: `docs/findings/PERFORMANCE_GOAL.md`) |
+| 14 | **Header-split zero-copy RX** — campaign close (2026-07-10/11) | remove the socket `recv()` copy tax | `build_hsq8`/`build_hsq10` (16 KB pages) + kl-eth `hsplit11/12` | **TX 513 → 582–646; RX with-copy 368–407 → 381 steady / 374 soak; RX no-copy 585–594 (`MSG_TRUNC`, hs geometry) — both directions crossed 500** (reconciled scoreboard: [`docs/findings/PERFORMANCE_GOAL.md`](docs/findings/PERFORMANCE_GOAL.md)) |
 
 ### DDIO / zero-copy RX levers (measured 2026-07-09, toward the 481 ceiling)
 - **Shared-L2 DDIO** (`build_ddio` = mlp3 + `--l2-ddio`, allocate-on-DMA-write via the SpinalHDL

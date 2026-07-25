@@ -197,7 +197,7 @@ procedures close the loop.
 **Conventions:** SystemVerilog with `` `default_nettype none ``,
 TerosHDL/Doxygen `//!` comments on every generic/port/signal, named
 `always_*` processes. Register offsets and reset values are defined once in
-the RTL, documented in REGISTER_MAP.md, and asserted equal by the CSR
+the RTL, documented in [REGISTER_MAP.md](../reference/REGISTER_MAP.md), and asserted equal by the CSR
 harness. Every DUT change ships with its harness update in the same commit.
 
 ## 9. The Zynq-7020 variant (legacy)
@@ -206,8 +206,8 @@ harness. Every DUT change ships with its harness update in the same commit.
 `eth_mac_1g_rgmii_fifo` MAC (source vendored externally) and hangs off the
 PS7 via `milan_dma_wrapper.v` + the `bd/milan-dma.tcl` block design (PS7,
 2× AXI-DMA, `clk_wiz`, `smartconnect`; CSR at `0x43C0_0000`, four GIC IRQ
-lines). Constraints in `constraints/*.xdc`. `REQUIREMENTS.md` and parts of
-`TODO.md` were written in this era - where they talk about `0x43C0_0000`,
+lines). Constraints in `constraints/*.xdc`. [`REQUIREMENTS.md`](../../REQUIREMENTS.md) and parts of
+[`TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
 `IRQ_F2P` or `device-tree-xlnx`, they describe this variant only. The
 migration story from PS to softcore is
 [../integration/FULLY_FPGA_RISCV_MIGRATION.md](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).

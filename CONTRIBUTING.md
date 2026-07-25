@@ -43,7 +43,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 
 - Every functional RTL change ships with a self-checking Verilator harness
   under `tb/verilator/<name>/` (`make` = build+run, exit code is the gate).
-  See `docs/testing/TESTING.md` for the suite index and tiers.
+  See [`docs/testing/TESTING.md`](docs/testing/TESTING.md) for the suite index and tiers.
 - Coverage-matrix rows (`docs/testing/`) only move ✅ with a runnable test.
   Prefer real-wiring-path tests over unit mocks.
 - **Measure, don't assume**: no number from a comment or model drives a
@@ -64,4 +64,4 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
   first; DTB changes go through the **OpenSBI FW_FDT_PATH embed** (the dtb
   flash slot is not what the kernel boots on); regenerate the DTB from the
   build's `csr.csv` on ANY gateware block-set change (CSR-rot rule,
-  `docs/integration/QSPI_FLASHBOOT.md`).
+  [`docs/integration/QSPI_FLASHBOOT.md`](docs/integration/QSPI_FLASHBOOT.md)).

@@ -3,7 +3,7 @@
 *2026-07-11. The canonical prose reference for developers (what each stage does
 and where its code lives) and maintainers (which knob changes which behavior,
 what was measured, what breaks if you get it wrong). The visual twin is
-`RX_PERF_TUNING_MAP.drawio`. Silicon history lives in `HEADER_SPLIT_DESIGN.md`,
+`RX_PERF_TUNING_MAP.drawio`. Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
 the live state in `SESSION_HANDOFF.md`. Referenced from the source headers of
 `sw/litex/milan_soc.py` (gateware) and `the-private-test-repo fpga/kl-eth/kl-eth.c`
 (driver).*
