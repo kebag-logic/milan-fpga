@@ -1,0 +1,15 @@
+{
+  "signal": [
+    {"name": "queue_has_data_i", "wave": "01................0..."},
+    {"name": "allow_transmit_o (credit >= 0)", "wave": "1.0........1.....0..1.", "node": "..n........g.........."},
+    {"name": "is_granted_i", "wave": "01....0....1......0..."},
+    {"name": "is_transmitting_i", "wave": "01....0........1..0..."},
+    {"name": "credit (Q31.16)", "wave": "24..9.7....6.9.4..7.2.", "data": ["0", "drain @ sendSlope", "clamp loCredit", "accrue @ idleSlope", "accrue (grant,!rdy)", "clamp hiCredit", "drain @ sendSlope", "accrue -> 0", "0 (hold)"]}
+  ],
+  "edge": [
+    "n~>g no new tx start while credit < 0"
+  ],
+  "head": {"text": "credit_based_shaper.sv - one shaped class: two frames, a back-pressured grant, then idle"},
+  "foot": {"text": "sendSlope = idleSlope - portRate ; granted + !ready still accrues (REQ-CBS-04) ; queue empty: credit returns to 0 and parks"},
+  "config": {"hscale": 2}
+}

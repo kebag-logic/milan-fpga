@@ -1,0 +1,21 @@
+{
+  "signal": [
+    {"name": "AXIS in (from MAC)", "wave": "x3..x3..x9..x...........", "data": ["frame A", "frame B", "frame C"]},
+    {"name": "drop-FIFO (sink.ready==1)", "wave": "x3..x3..x9..x...........", "data": ["buffer A", "buffer B", "buffer C"]},
+    {"name": "writer FSM", "wave": "2...56...7.256..7.259..2", "data": ["IDLE", "CHECK", "PREP/AW/W", "WAIT_B", "IDLE", "CHECK", "PREP/AW/W", "WAIT_B", "IDLE", "CHECK", "DISCARD", "IDLE"], "node": "...................n...."},
+    {"name": "AXI AW / W", "wave": "x.....6.6x....6.x.......", "data": ["burst 1 (hdr beat 0)", "burst 2", "burst (<=16 beats)"]},
+    {"name": "AXI B responses", "wave": "0........1.0......10....", "node": "..........b......c......"},
+    {"name": "outstanding (AW - B)", "wave": "=.....=.===...=..=......", "data": ["0", "1", "2", "1", "0", "1", "0"]},
+    {"name": "wr_ptr (CSR, RO)", "wave": "=..........=......=.....", "data": ["w0", "w0+A", "w0+A+B"], "node": "...........W......X....."},
+    {"name": "rd_ptr (driver, RW)", "wave": "=......................=", "data": ["r0 == w0 (consumer stalled)", "reap A+B"]},
+    {"name": "dropped (CSR, RO)", "wave": "=.....................=.", "data": ["0", "1"], "node": "......................d."}
+  ],
+  "edge": [
+    "b~>W commit-after-B",
+    "c~>X commit-after-B",
+    "n-~>d no_fit: drop whole + count"
+  ],
+  "head": {"text": "RingDMAWriter RX ring: wr_ptr commits only after the frame's last AXI B response"},
+  "foot": {"text": "overload contract: frame C dropped WHOLE + counted, wr_ptr/seq untouched ; rd_ptr is the driver's consumer walk"},
+  "config": {"hscale": 2}
+}
