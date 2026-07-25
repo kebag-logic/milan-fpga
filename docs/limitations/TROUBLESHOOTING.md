@@ -500,3 +500,56 @@ bytes)…` and the kernel boots.
 - This masqueraded perfectly as an FPU/timing bug. The FPU hardware was fine the whole time
   (misa `rv64imafd`, fits at 58 % BRAM / 77 % LUT, timing met)  -  see the FPU notes in
   `board-session-state`.
+
+## Section 20: host plane dead, CSR readbacks perfect  -  a stale device tree maps every DMA window onto the wrong registers
+
+**Symptom (2026-07-25, chmap bring-up).** After a boot-image reflash, the kernel counts
+`rx_packets=0` absolute, yet the driver's `bd probe` line shows the RX ring base written *and
+read back correctly*. `ptp4l` times out polling for TX timestamps. The driver counts outgoing
+ARP requests as sent, but **zero of them appear at the inline capture tap** - while the fabric
+plane (AAF talker, CRF, MSRP) streams flawlessly out of the same connector.
+
+It reproduced identically across three bitstreams (two fresh seeds *and* the previous
+known-good build) and survived a full board power-cycle.
+
+**Root cause.** The flashed `.dtb` was a three-week-old prebuilt artifact with an obsolete
+5-window `reg` list (no ts window, no pcm node). The `kl-eth` driver maps its `kl,dma-ether`
+`reg` windows **by index**, so every host-DMA register access landed on a
+*wrong-but-writable* CSR. A `CSRStorage` stores whatever it is given, so every readback
+matched perfectly - while the real ring engine sat unprogrammed and the host lane stayed dead
+in both directions at the wire.
+
+**False leads burned** (hours each):
+
+- *Placement lottery* - a second seed was identically dead: the fault was deterministic.
+- *PHY RX wedge* - a power-cycle changed nothing, and the PHY honestly reported
+  1000 Mb/s full-duplex over MDIO the whole time.
+- *Inline-tap egress wedge* - a USB bus reset never touches the tap's line side (the board
+  logged no link bounce), so that test was void, not negative.
+- *"Fabric RX is dead too"* - the STREAM_INPUT counters only count a **bound** stream's
+  frames; reading 0 while unbound means nothing.
+
+**Diagnosis that cracked it.**
+
+1. **Ping out from the board while capturing at the tap.** The driver counted 54 TX frames;
+   zero reached the wire. One experiment, and the "TX works" claim collapsed - every earlier
+   TX proof had been *fabric* TX, which shares nothing with the host lane above the MAC mux.
+2. **`devmem` the real ring-base CSR** (address from the build's `csr.csv`) - it read 0 while
+   the driver believed the ring was armed. The writes were landing somewhere else.
+3. **Diff the dtb `reg` windows against `csr.csv`** - mis-split from window 1 onward, ts
+   window absent. Case closed.
+
+**Fix.** Compile the device tree **fresh from the committed dts source** at flash time; never
+flash a prebuilt `.dtb` fossil. [`deploy.sh`](../../sw/litex/deploy.sh) `flash-images` now
+refuses the mismatch outright: [`check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) validates
+the DTB's `kl,dma-ether` windows against the build's `csr.csv` before anything is written.
+
+**Lessons.**
+
+- A matching readback proves only that *something* stored the write. Verify the **engine**
+  (live counters ticking, pointers advancing), never the register echo - the same class as
+  the CSR-shadow-lies trap in [KNOWN_ISSUES_AND_LIMITATIONS](KNOWN_ISSUES_AND_LIMITATIONS.md).
+- "TX works" must name the lane. Fabric TX flowing proves nothing about host TX.
+- A capture tap proves frames reached the *tap*; it never proves they exited toward the DUT.
+- Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
+  driver ↔ gateware pairing - gate it mechanically, don't trust discipline.
