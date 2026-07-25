@@ -21,7 +21,7 @@ BRAM PCM-ring option, or ALSA record)._
 | **Single endpoint port** | One MAC/PHY today; the 4-port AVB switch is direction, not implementation ([../overview/AVB_SWITCH_DIRECTION.md](../overview/AVB_SWITCH_DIRECTION.md)) |
 | **MTU fixed at 1500** | A deliberate decision of the switch direction doc; no jumbo support |
 | **802.1 standards gaps** | The normative gap analysis (~60 items: SRP/MSRP, full gPTP stack, MVRP, …) is [`REQUIREMENTS.md`](../../REQUIREMENTS.md) §3 - read it before claiming Milan conformance. [../reference/MILAN_V12_DEPENDENCY_MATRIX.md](../reference/MILAN_V12_DEPENDENCY_MATRIX.md) traces what is covered |
-| **MDIO not yet fabric-driven** | `MAC_STATUS` fields are partly hardcoded until the MDIO master lands (see `sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`); `i_mac_speed` etc. tied to constants on the LiteX build |
+| **MDIO not yet fabric-driven** | `MAC_STATUS` fields are partly hardcoded until the MDIO master lands (see [`sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md)); `i_mac_speed` etc. tied to constants on the LiteX build |
 | **Open CBS requirements** | REQ-CBS-05/06/07 (credit-skew/pacing refinements) are open in [`REQUIREMENTS.md`](../../REQUIREMENTS.md) |
 | **Latent CBS slope truncation** | The CBS slope divide truncates: zero error only while configured slopes divide evenly (today's do). Documented in the CBS math section of [`REQUIREMENTS.md`](../../REQUIREMENTS.md) - re-check before exotic `tc cbs` configs |
 
@@ -102,8 +102,8 @@ banners). The rules:
 * `sw/litex/milan_rgmii.py` - unused legacy RGMII PHY experiment; the board
   is GMII.
 * `milan_top.sv` + `bd/` + `constraints/*.xdc` - the Zynq-7020 variant,
-  maintained but not the primary target; `REQUIREMENTS.md`/`TODO.md` still
+  maintained but not the primary target; [`REQUIREMENTS.md`](../../REQUIREMENTS.md)/[`TODO.md`](../../TODO.md) still
   describe some Zynq-era mechanics (`0x43C0_0000`, IRQ_F2P) that only apply
   there.
-* `docs/design/AEM_AND_AECP.md` - the AEM/AECP design record, reconciled to
+* [`docs/design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md) - the AEM/AECP design record, reconciled to
   the as-built fabric subsystem (2026-07-25).

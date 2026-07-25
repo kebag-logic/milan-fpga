@@ -5,7 +5,7 @@ from the pipewire module-avb Milan v1.2 implementation (the project's
 normative reference) — `acmp-cmds-resps/acmp-milan-v12.c`,
 `aecp-aem-cmds-resps/cmd-get-set-stream-info.c`, `cmd-start-stop-streaming.c`,
 `cmd-register-unsolicited-notifications.c`, `reply-unsol-helpers.c`,
-`stream.c` — plus docs/LWSRP_FPGA_ARCHITECTURE.md for the gating contract.
+`stream.c` — plus [docs/LWSRP_FPGA_ARCHITECTURE.md](../LWSRP_FPGA_ARCHITECTURE.md) for the gating contract.
 Wire message types are IEEE 1722.1-2021; semantics are Milan v1.2.
 
 ## The Milan v1.2 talker connection model (what surprised us)
@@ -74,7 +74,7 @@ frames the AAF talker emits):
 - `talker_active = ARMED || listener_observed` — exported to the datapath.
 - Tick source: the existing 1 s `adp_tick_1s` (shared; already clock-true).
 - `listener_observed` is an INPUT — the lwSRP hook per
-  LWSRP_FPGA_ARCHITECTURE.md ("gate = talker declared && listener READY &&
+  [LWSRP_FPGA_ARCHITECTURE.md](../LWSRP_FPGA_ARCHITECTURE.md) ("gate = talker declared && listener READY &&
   domain ok"; "PROBE_TX arms talker0"). Until lwSRP lands it is driven by a
   CSR override bit so the bench can pin the gate open.
 
@@ -97,7 +97,7 @@ aaf_gate = cfg_aaf_enable && (cfg_aaf_bypass ? 1'b1 : talker_active)
   listener_observed(csr-or-lwsrp), probe_timer[7:0], unsol_registered[3:0],
   presentation_offset[…]} — exact packing in the RTL header.
 - `A_ACMP_LOBS = 0x670` (RW): [0] listener_observed override (pre-lwSRP).
-- NOTE: LWSRP_FPGA_ARCHITECTURE.md's CSR sketch (0x660-0x674) is STALE —
+- NOTE: [LWSRP_FPGA_ARCHITECTURE.md](../LWSRP_FPGA_ARCHITECTURE.md)'s CSR sketch (0x660-0x674) is STALE —
   0x660/0x664/0x668 are now AAF_FRAMES/AAF_PAIRS/ADP_DIAG. lwSRP's block has
   LANDED at `0x680`–`0x6A0` (in fabric).
 
@@ -106,7 +106,7 @@ aaf_gate = cfg_aaf_enable && (cfg_aaf_bypass ? 1'b1 : talker_active)
 > **UPDATE:** this "out of scope" list is from the original talker-SM
 > increment. Since then **lwSRP**, **fabric MAAP**, and the **ACMP listener**
 > have all LANDED in fabric (silicon-validated, per
-> `docs/ARCHITECTURE_HW_SW_SPLIT.md` rev 2) — they are no longer out of scope.
+> [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2) — they are no longer out of scope.
 
 - lwSRP itself (MSRP TA declare / Listener Ready registrar) — the
   `listener_observed` input is its socket. **(LANDED — see update above.)**

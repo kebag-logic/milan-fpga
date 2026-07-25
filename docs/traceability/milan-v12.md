@@ -6,7 +6,7 @@ numbers verified against the local standards PDF
 This file carries only what Milan **adds to or overrides in** the base
 standards; base rows live in the per-standard files. BENCH = our bench behave
 recreation of the end-station validation plan (63 scenarios, both boards
-green 2026-07-21; scope caveats in `docs/MILAN_COMPLIANCE_GAPS.md` §6 — it is
+green 2026-07-21; scope caveats in [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §6 — it is
 a recreation, not the official ATL run).
 
 ## 1. Device-level requirements (Milan §4)
@@ -59,7 +59,7 @@ a recreation, not the official ATL run).
 |---|---------|-------------------|--------|------------------------------|----------------|
 | M-AECP-1 | 5.3.2 / 5.3.3.x | Descriptor tree shaped per Milan (mandatory descriptor set + per-descriptor field constraints) | aem_store ROM from `milan-v12-entity.json` | ✅ RTL aecp vs golden; SILICON Hive; BENCH enumerate | 5.3.3: Milan constrains fields 1722.1 leaves free — e.g. stream counts, clock tree shape; BENCH walks all of it. |
 | M-AECP-2 | 5.3.4–5.3.11 | Dynamic states exposed (lock, sampling rate, gPTP, stream format/bound/started, counters, clock source) | aem_dyn_mux overlays | ✅ RTL aecp (dyn reads after SETs); SILICON | 5.3.x dynamic state is what separates a live device from a ROM dump; stale overlays fail interactive BENCH checks. |
-| M-AECP-3 | 5.4.2.x (all 29) | Per-command Milan deltas for the mandatory AEM set (support level, payload constraints, unsolicited rules) | aecp subsystem | ✅ RTL aecp command matrix; BENCH; per-command base rows in `ieee1722_1-2021.md` §3c | 5.4.2 is the Milan mandatory-command contract — the row-by-row source for behave features. |
+| M-AECP-3 | 5.4.2.x (all 29) | Per-command Milan deltas for the mandatory AEM set (support level, payload constraints, unsolicited rules) | aecp subsystem | ✅ RTL aecp command matrix; BENCH; per-command base rows in [`ieee1722_1-2021.md`](ieee1722_1-2021.md) §3c | 5.4.2 is the Milan mandatory-command contract — the row-by-row source for behave features. |
 | M-AECP-4 | 5.4.2.26 / 5.4.2.27 / 5.4.2.28 | Audio maps both ways: NOT_SUPPORTED on ports **with** static Audio Maps (deployed topology) AND the full dynamic engine for `map_mode: dynamic` ports — GET_AUDIO_MAP fixed-partition paging (number_of_maps constant, map_index range = BAD_ARGUMENTS), ADD all-or-nothing validation (format-bound channels, same-key conflict), REMOVE duplicate-ignore, u=1 on change, lock rule | response_builder (`AEM_DYNMAP) + gen_aem_store map_mode | ✅ RTL aecp; TB sim_dynmap 72 checks + sim_main [18] static regression + builder gate 17 (es-4.16) | 5.4.2.28's exact sentence turned the suspected gap into specified behavior for static ports; the dynamic engine (2026-07-22) now covers the other half. Render-consumption of the input map = documented follow-up (gaps §1). |
 | M-AECP-5 | 5.4.2.29 | GET_DYNAMIC_INFO per Milan (mandatory subset of 1722.1 7.4.76) | KL_aecp_top 0x4B engine | ✅ RTL aecp byte-exact; SILICON both boards (dyninfo probe) | 5.4.2.29: Milan controllers poll it continuously; the four silicon-only defects show TB-pass ≠ compliant here. |
 | M-AECP-6 | 5.4.3 (MVU format) | Milan Vendor Unique protocol_id 00-1B-C5-0A-C1-00, status codes, timeouts | KL_aecp_top MVU dispatch | ✅ RTL aecp (MVU header + unknown protocol_id) | 5.4.3.2: MVU is how a controller decides "this is a Milan device" — before any feature works. |

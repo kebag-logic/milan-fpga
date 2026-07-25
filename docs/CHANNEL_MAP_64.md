@@ -1,14 +1,14 @@
 # 64-in / 64-out Channel Mapping — Render Crossbar + Capture Mux + AEM Audio-Map Binding
 
 Normative architecture for the channel-mapping layer on top of the NxN
-stream fabric (`docs/NXN_ARCHITECTURE.md`, roadmap item 5) and the ALSA
+stream fabric ([`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md), roadmap item 5) and the ALSA
 lane (roadmap item 7). Status: **DESIGN — no RTL in this round.**
 Decisions in §1–§2 are USER-decided inputs, not open questions.
 
-Companion docs: `docs/NXN_ARCHITECTURE.md` (shared engines, TCTX/LCTX,
-the 0x800 indexed window), `docs/ENDSTATION_BUILDER.md` (D1: one
+Companion docs: [`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md) (shared engines, TCTX/LCTX,
+the 0x800 indexed window), [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (D1: one
 STREAM_PORT per stream, config-selectable clusters),
-`docs/reference/REGISTER_MAP.md` (CSR ABI authority),
+[`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) (CSR ABI authority),
 the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 
 ## 0. Grounding facts (read from the tree, quoted not assumed)
@@ -21,11 +21,11 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 | G4 | The whole capture family shares the pair-stream contract: `KL_tdm_capture` ("emits the same {slot, L, R} pair stream toward KL_aaf_packetizer that KL_aaf_capture_i2s emits"), pairs cross into `clk_i` via a 52-bit gray-pointer `cdc_pair_fifo` (`{cap_slot_r[3:0], cap_l_r[23:0], cap_r_r[23:0]}`); `KL_pcm_tx` is "a drop-in replacement for the physical capture front-end … emits the SAME {pair_valid, pair_slot, pair_l, pair_r} contract", tick-paced ("one media sample tick emits ONE audio sample for EVERY stream and EVERY channel pair") | `KL_tdm_capture.sv`, `KL_pcm_tx.sv` headers |
 | G5 | The I2S render path already keeps a latest-sample discipline: `KL_i2s_playback` re-strides the AXIS tap by the **wire-truth** channel count (`wire_chans_i`, "0 until first accept -> 2"), repeats the last pair on underrun, and its physical render is 2-channel (stream ch0/ch1, extras virtual) | `hdl/ieee1722/aaf/KL_i2s_playback.sv` header + walker |
 | G6 | `milan_csr` plain-RW readback is a **512-word shadow BRAM covering 0x000–0x7FF only**: `shadow_ram[0:511]`, write gate `wr_fire && !(|wr_addr[ADDR_WIDTH-1:11])`, word address `wr_addr[10:2]` / `rd_addr[10:2]` (milan_csr.sv ~1173–1201). A 0x900 address has bit 11 set → it can never be shadow-served (it would alias word 0x100) | `hdl/common/csr/milan_csr.sv` `shadow_mem` block |
-| G7 | Reads **at/above 0x800 return 0 unless explicitly claimed**: `rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] || (rd_addr_q == A_MCSRV_STAT) || (rd_addr_q == A_MCSRV_CTRL)` (milan_csr.sv ~1363). The comment records that 0x8F8 read 0 on every build until 2026-07-23 because this term was missing | `milan_csr.sv` `rd_in_window` + `REGISTER_MAP.md` 0x8F8 note |
+| G7 | Reads **at/above 0x800 return 0 unless explicitly claimed**: `rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] || (rd_addr_q == A_MCSRV_STAT) || (rd_addr_q == A_MCSRV_CTRL)` (milan_csr.sv ~1363). The comment records that 0x8F8 read 0 on every build until 2026-07-23 because this term was missing | `milan_csr.sv` `rd_in_window` + [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x8F8 note |
 | G8 | Writes to 0x900+ ARE reachable: the AXI window is 64 KB (`ADDR_WIDTH = 16`) and the write decode is a full-address exact-match `case (wr_addr)` (e.g. `A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;` at 0x8FC) — new registers above 0x800 follow the MCSRV pattern: dedicated storage + explicit live-read arm + `rd_in_window` term | `milan_csr.sv` write decode ~860–915 |
 | G9 | AECP already decodes the audio-map verbs: `CMD_GET_AUDIO_MAP = 15'd43`, `CMD_ADD_AUDIO_MAPPINGS = 15'd44`, `CMD_REMOVE_AUDIO_MAPPINGS = 15'd45`, `DESC_AUDIO_MAP = 16'h0017` | `hdl/ieee17221/aecp/aecp_pkg.sv` 76–78, 128; `KL_aecp_l0_state.sv` 113 |
 | G10 | The entity model's mapping entry is `(mapping_stream_index, mapping_stream_channel, mapping_cluster_offset, mapping_cluster_channel)`; every AUDIO_CLUSTER in the model is **1-channel MBLA** (`"channel_count": 1, "format": "MBLA"`), STREAM_PORT_INPUT[0] owns clusters 0–7 (`base_cluster 0`), STREAM_PORT_OUTPUT[0] owns clusters 8–15 (`base_cluster 8`), each port has exactly one AUDIO_MAP (1722.1 7.2.13/7.2.19, builder D1) | `avdecc/milan-v12-entity.json` |
-| G11 | Per-stream DRAM PCM rings exist from the NxN work: route flag `DMA` = "payload lands in the stream's DRAM ring at `pcm base + s*stride`"; ring words are "full 64-bit words in wire byte order = S32BE interleaved PCM" | `REGISTER_MAP.md` 0x800 route-flags paragraph + PCM-ring section |
+| G11 | Per-stream DRAM PCM rings exist from the NxN work: route flag `DMA` = "payload lands in the stream's DRAM ring at `pcm base + s*stride`"; ring words are "full 64-bit words in wire byte order = S32BE interleaved PCM" | [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x800 route-flags paragraph + PCM-ring section |
 
 ## 1. The 64×64 model
 
@@ -243,7 +243,7 @@ reserved to this feature, 5 words used):
 | `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem_commits (map words written by the AEM projector, wraps), `[23:16]` csr_refused (CSR writes dropped: override disarmed or port collision; saturates), `[24]` aem_busy (projector burst in flight) |
 | `0x910`–`0x97C` | — | — | `0` | reserved (phase 2: flat per-entry view / composed-device controls) |
 
-`REGISTER_MAP.md` gains the `0x900` group row; `VERSION` minor bumps
+[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) gains the `0x900` group row; `VERSION` minor bumps
 (additive change).
 
 ## 7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16)
@@ -274,7 +274,7 @@ model is 1-channel MBLA, so `mapping_cluster_channel = 0` always
 (non-zero → refused, `BAD_ARGUMENTS`).
 
 The **cluster↔physical table** is emitted by the end-station builder
-(the same config that sizes streams — `ENDSTATION_BUILDER.md` D1/D2)
+(the same config that sizes streams — [`ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) D1/D2)
 and baked into the AEM projector as a small ROM. Phase-1 default shape
 (1×1 model, G10; the 8×8 overlay generalizes the same pattern
 port-by-port):
@@ -344,7 +344,7 @@ pins its contract as the mirror of `KL_tdm_capture` (G4 conventions):
 - Feed: 8 mapped channels per media tick from the render xbar cross
   one widened `cdc_pair_fifo`-style crossing into the bclk domain
   (one crossing for the whole lane — the §4 CDC-does-not-multiply
-  rule of `NXN_ARCHITECTURE.md` §4).
+  rule of [`NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md) §4).
 - Status: `frames_out` liveness counter, CSR-exposed later (not in the
   0x900 window; it is a front-end, not the map).
 
@@ -403,7 +403,7 @@ phase-1 engines.
 4. **CSR** — `milan_csr`: `A_CHMAP_*` constants, dedicated
    storage + write-decode arms (G8 pattern), live read arms, and the
    **`rd_in_window` 0x900–0x97F term (G7 — the dead-read trap)**; NOT
-   in `is_plain_rw` (G6). `REGISTER_MAP.md` group row + VERSION minor
+   in `is_plain_rw` (G6). [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) group row + VERSION minor
    bump. TB: csr harness window rows incl. the ≥0x800 read gate.
 5. **TDM8 render lane merge** (§8) — parallel lane lands
    independently; until merged, RMAP entries 2..9 are writable but

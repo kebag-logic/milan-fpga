@@ -50,6 +50,6 @@ compliant master that drops `*VALID` on handshake still commits every transfer.
 ## Extending
 
 When new register groups are added (classifier PCP table, more PTP fields),
-extend the offsets in both `hdl/common/csr/milan_csr.sv` and `docs/reference/REGISTER_MAP.md`, then
+extend the offsets in both `hdl/common/csr/milan_csr.sv` and [`docs/reference/REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md), then
 add the corresponding `ck(...)` assertions here. This harness is the executable
 contract for the CSR ABI (`REQ-VER-04`).

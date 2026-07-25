@@ -71,7 +71,7 @@ absent, so the suite stays runnable without the generator. Each campaign
 writes its `TEST_RESULTS.md` **into the folder of the RTL it validates**
 (`hdl/ieee17221/{aecp,acmp,adp}/doc/`, `hdl/ieee1722/avtp/doc/`), so a block's
 verification status is visible from the block itself. Full rationale,
-the tsn-gen wire-layout caveat and the tracked gaps: `tb/verilator/tsn_fuzz/README.md`.
+the tsn-gen wire-layout caveat and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn_fuzz/README.md).
 
 ### 1.1 Suite index (47 harnesses, auto-listed 2026-07-25)
 
@@ -173,7 +173,7 @@ not timing. See [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.m
 
 | Where | What | Status |
 |---|---|---|
-| `tb/utests/` | Hand-written SystemVerilog TBs run under Vivado **xsim** (`vivado -mode tcl -source <tb>.tcl` where a `.tcl` exists) | **Superseded** for regression by the Verilator suites (`tb/utests/802_1q_traffic_shaper/README.md` maps old→new); waveform-inspection style, not exit-code gating |
+| `tb/utests/` | Hand-written SystemVerilog TBs run under Vivado **xsim** (`vivado -mode tcl -source <tb>.tcl` where a `.tcl` exists) | **Superseded** for regression by the Verilator suites ([`tb/utests/802_1q_traffic_shaper/README.md`](../../tb/utests/802_1q_traffic_shaper/README.md) maps old→new); waveform-inspection style, not exit-code gating |
 | `tb/itests/` | xsim integration TBs: `ptp_timestamp/` (has `.tcl`, Vivado 2023.1) and `802_1q_traffic_shaper/` (**`.sv` only - no `.tcl` runner**) | Legacy; the Verilator `milan_dp`/`datapath` suites cover the integration seams without vendor tools |
 | `tb/avtp_packet_gen_sv/` | Randomized AVTP packet-generator class library for the xsim TBs (Modelsim/Questa: `cd tb/avtp_packet_gen_sv/examples && do run.do`) | Development aid, in-progress |
 | `tb/common/` | `axi_stream_driver.svh` - shared AXIS BFM class for the xsim TBs (the Verilator suites have their own C++ BFMs) | - |

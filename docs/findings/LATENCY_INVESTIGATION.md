@@ -1,6 +1,6 @@
 # Latency & memory investigation  -  why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. §2.1 absorbs the `SINGLE_PORT_PERF.md` prequel (merged 2026-07-25).
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. §2.1 absorbs the [`SINGLE_PORT_PERF.md`](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
@@ -68,7 +68,7 @@ clockevent are correct. **Lesson: a marker that can be corrupted is not a measur
 
 **Not a silicon delivery gate.** See §3  -  the flood proves the CPU *does* saturate.
 
-### 2.1 Prequel  -  a second core won't help a single flow (folded from `SINGLE_PORT_PERF.md`, 2026-07-25)
+### 2.1 Prequel  -  a second core won't help a single flow (folded from [`SINGLE_PORT_PERF.md`](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md), 2026-07-25)
 
 The first slice of this investigation (2026-07-05, same silicon and load) asked one
 question: *would a second core raise single-port throughput?* Answer: **no  -  measured

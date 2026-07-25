@@ -47,7 +47,7 @@ re-derived if the board revision changes:
 > errors** on silicon  -  reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
 > byte. The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) is explicit:
 > `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`. Full story in
-> `docs/limitations/TROUBLESHOOTING.md` §17 + `sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`.
+> [`docs/limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) §17 + [`sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md).
 
 The **GMII (8-bit)** wiring per port is therefore: `rx_data[0:7]`, `tx_data[0:7]`,
 `rx_dv = e_rxdv`, `rx_er = e_rxer`, `tx_en = e_txen`, clocks `rx = e_rxc` /
@@ -94,5 +94,5 @@ gateware** (exit 0):
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
   (the `ttyUSBn` numbers flip on re-plug). Program with `sw/litex/deploy.sh`, then
-  M-A1…M-A5 (see `FULL_FPGA_SOLUTION.md` §9). Since completed on silicon — the boot
+  M-A1…M-A5 (see [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) §9). Since completed on silicon — the boot
   banners and memtest logs are in `sw/litex/evidence/`.

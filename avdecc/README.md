@@ -44,7 +44,7 @@ Top-level keys: `spec`, `avtp_subtypes`, `milan_mvu`, `adp`, `counters`,
 `configurations[]` array; each configuration has `descriptor_counts` and a flat
 `descriptors[]` list addressed by **`(configuration_index, descriptor_type,
 descriptor_index)`** — exactly the READ_DESCRIPTOR key and the L1/L2/L3 levels of
-the `docs/design/AEM_AND_AECP.md` memory.
+the [`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md) memory.
 
 ### Field classes (the important convention)
 
@@ -63,13 +63,13 @@ that touches it:
 This is the exact split the FPGA design needs: `static`/`semi_static` land in the
 read-only factory NVM, `nonvolatile` in the modifiable overlay, `dynamic` in the
 volatile mirror that the AECP memory-mapped module updates
-(`docs/design/AEM_AND_AECP.md` §"Memory-mapped dynamic information").
+([`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md) §"Memory-mapped dynamic information").
 
 ## How to use it
 
 ### A. Generate the FPGA AEM memory image
 Feed the JSON to a small generator (to be written under `hdl/ieee17221/aecp/` or a
-`tools/aem_gen.py`) that emits the L0..L3 memory per `docs/design/AEM_AND_AECP.md`:
+`tools/aem_gen.py`) that emits the L0..L3 memory per [`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md):
 - **L0** ENTITY + current-configuration/current-entity-id pointers.
 - **L1** per-configuration table of descriptor-type addresses (ordered from
   CONFIGURATION).

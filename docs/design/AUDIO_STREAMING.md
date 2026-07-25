@@ -101,7 +101,7 @@ latched free-running into hold registers; on each media tick the engine
 walks the enabled slots low-to-high and injects one pair per slot with a
 settle gap — six ticks fill one PDU per talker (module header). The map
 is programmed through the CSR `0x900` channel-map window
-(`REGISTER_MAP.md` "0x900 — channel-map fabric"); with
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map fabric"); with
 `CHMAP_CTRL[0] = 0` (reset) the frontend pair stream drives the
 packetizer **bit-identically** to the pre-chmap wiring — the bypass mux
 in `milan_datapath.sv` zero-extends today's 4-bit slot into the widened
@@ -114,7 +114,7 @@ talker contexts in a BRAM context RAM (TCTX: enable, channels, VLAN,
 DMAC, stream UID, sequence number, latched presentation time, frame
 counter) plus a double-banked sample staging RAM; the bank swap is the
 6-sample epoch boundary and scheduling is round-robin over pending banks
-(header §2.2/§2.3 references into `NXN_ARCHITECTURE.md`). The channel
+(header §2.2/§2.3 references into [`NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md)). The channel
 math, quoting the header's IEEE 1722-2016 citations:
 
 - `channels_per_frame` is TCTX `w0.chans`, **even 2..8** (the pair
@@ -156,7 +156,7 @@ is_1g follow-up)" (`milan_datapath.sv`). Bandwidth protection instead
 comes from admission: an lwSRP reservation is a precondition for AAF
 transmit (`FR-SRP-03`), the reservation also resolves into the class-A
 CBS idleSlope for the host-side queue, and `AAF_CTRL[1]` remains the
-bypass escape hatch (`REGISTER_MAP.md` 0x680 lwSRP section). Per-stream
+bypass escape hatch ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) 0x680 lwSRP section). Per-stream
 admission for talker t > 0 composes TCTX enable, the per-stream lwSRP
 gate and the engine-wide MAAP claim (`milan_datapath.sv`,
 `aaf_stream_en_w`).
@@ -210,7 +210,7 @@ The monitor's `pdu_accept_p` pulse (bound + stream_id + format valid,
 fired at parse-complete) is the **commit verdict** for the
 depacketizer. CSR view: `0x6B8 AVTPRX_STAT` (low counter bytes +
 media-locked level), `0x6BC AVTPRX_FRX`, `0x6C0 AVTPRX_ERR`
-(`REGISTER_MAP.md`), and per-stream full Table 7-157 counter windows at
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)), and per-stream full Table 7-157 counter windows at
 `0x830–0x854` in the 0x800 indexed window.
 
 ### 3.3 The depacketizer
@@ -225,7 +225,7 @@ the PDUs FRAMES_RX counts"; payload realignment strips 38 (untagged) or
 42 (C-VLAN) header bytes; Milan base-format payloads are 8-byte
 multiples (48 k: 192 B) (module header). Whole-frame drops and emitted
 payload counts sit in `PCMRX_CNT 0x6C4`; the last accepted PDU's
-`avtp_timestamp` in `PCMRX_TS 0x6C8` (`REGISTER_MAP.md`).
+`avtp_timestamp` in `PCMRX_TS 0x6C8` ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
 
 ### 3.4 Routing and the PCM DMA ring
 
@@ -242,7 +242,7 @@ The DMA ring is where ALSA capture reads from:
   `base + s·stride`; the LiteX CSR bank at `0xf0003120`
   (`base/length/enable/loop`, `offset` = the write pointer the consumer
   chases); payload stays full 64-bit words in wire byte order
-  (`REGISTER_MAP.md` "PCM ring" section).
+  ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "PCM ring" section).
 - **BRAM (option)**: `--pcm-ring bram` swaps in
   `hdl/ieee1722/aaf/KL_pcm_ring_bram.sv`, a dual-port on-chip ring at
   the MMIO window `0x9010_0000` (32 KB) with the **same** CSR ABI, so

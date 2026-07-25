@@ -3,7 +3,7 @@
 *2026-07-11. Companion to **`RX_PERF_TUNING_MAP.drawio`** (open in
 diagrams.net; three lanes: gateware / driver / kernel+consumer, every box
 carries the knob, its location, current value, and the measured effect). This
-page is the how-to-use; the diagram is the map; HEADER_SPLIT_DESIGN.md is the
+page is the how-to-use; the diagram is the map; [HEADER_SPLIT_DESIGN.md](../fpga/HEADER_SPLIT_DESIGN.md) is the
 silicon history; SESSION_HANDOFF.md is the live state.*
 
 ## How to change behavior safely (the loop)
@@ -31,7 +31,7 @@ silicon history; SESSION_HANDOFF.md is the live state.*
 
 1. AF_XDP ZC driver support: the one remaining above-500 consumer lane
    (zc-flip MEASURED and closed: 110-113 at 87 percent flipped; kernel batching
-   exists, the economics do not work at 100 MHz. See PIPELINE_STAGES.md R8).
+   exists, the economics do not work at 100 MHz. See [PIPELINE_STAGES.md](../fpga/PIPELINE_STAGES.md) R8).
 2. PAYCAP CSR widening (16-bit truncation): bigger aggregates for the copy lane.
 3. Cut-through multi-flow: 8K pages or driver chunk-batching (hsplit14 v3 path).
 4. `CONFIG_NET_SCH_FQ`: TX 2-proc fairness.

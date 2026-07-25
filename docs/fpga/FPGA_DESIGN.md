@@ -256,8 +256,8 @@ toolchain: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §
 ## 5. Per-module doc regeneration
 
 The `hdl/**/doc/*.md` pages are TerosHDL-generated from the in-code `//!`
-comments (plus a few hand-written ones: `tcam.md`, `adp_advertiser.md`,
-`milan_csr.md`). Regenerate after RTL changes by running the TerosHDL
+comments (plus a few hand-written ones: [`tcam.md`](../../hdl/ieee8021q/filtering/doc/tcam.md), [`adp_advertiser.md`](../../hdl/ieee17221/adp/doc/adp_advertiser.md),
+[`milan_csr.md`](../../hdl/common/csr/doc/milan_csr.md)). Regenerate after RTL changes by running the TerosHDL
 documenter on the `.sv` - and treat the RTL as the source of truth if a
 generated page lags. Modules currently missing a doc page:
 `milan_datapath`/`milan_top` (rich header comments serve instead),

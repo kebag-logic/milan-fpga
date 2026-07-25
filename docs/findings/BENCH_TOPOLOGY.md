@@ -5,7 +5,7 @@ Concrete bench values (hostnames, serials, IPs, outlet numbers) live in the priv
 Written 2026-07-20 (post history-rewrite). This is the single document a
 fresh session needs to operate the bench. Live campaign state is tracked
 in the GitHub issues; the remaining compliance work is
-`docs/MILAN_COMPLIANCE_GAPS.md`. Naming rule: the conformance suite is
+[`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md). Naming rule: the conformance suite is
 called **the bench suite** everywhere (commits, docs, comments) — never
 any other name; its material is private (see §7).
 

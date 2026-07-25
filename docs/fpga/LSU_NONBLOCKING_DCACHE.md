@@ -13,7 +13,7 @@ source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/m
 
 The RX −P2 wall is **serial cold-miss latency**: HW DMAs each frame to DRAM, the CPU's first
 touch always misses, and each miss pays ~1424 ns (≈50 % TLB + 50 % DRAM,
-`LATENCY_INVESTIGATION.md`). The question was whether we can *overlap* those misses instead of
+[`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md)). The question was whether we can *overlap* those misses instead of
 paying them one-at-a-time. The answer lives in the load/store unit's **refill engine**, whose
 depth is the config knob `lsuL1RefillCount`  -  **1 by default in LiteX's "linux" variant, which
 makes the D-cache blocking.** This doc explains the machinery that knob controls.

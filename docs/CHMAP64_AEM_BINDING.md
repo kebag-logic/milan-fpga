@@ -141,9 +141,9 @@ RTL: I2S/TDM8 capture channels → outgoing stream channels).
   to be re-asserted by the next AEM edit / `GET_AUDIO_MAP` reconciliation. Do not
   drive both concurrently in production; the CSR path carries no lock semantics.
 
-## Traceability — `PDU_GETTER_SETTER_VERIFICATION.md` audio-maps row
+## Traceability — [`PDU_GETTER_SETTER_VERIFICATION.md`](testing/PDU_GETTER_SETTER_VERIFICATION.md) audio-maps row
 
-The item-10 plan doc `docs/testing/PDU_GETTER_SETTER_VERIFICATION.md` is owned
+The item-10 plan doc [`docs/testing/PDU_GETTER_SETTER_VERIFICATION.md`](testing/PDU_GETTER_SETTER_VERIFICATION.md) is owned
 by the sibling open PR `item-10-pdu-getter-setter-verify` and is **not present on
 `main`** (this PR's base), so its table cannot be appended here without an
 add/add collision. When that PR lands, its AECP/AEM table row

@@ -8,7 +8,7 @@ This is deliverable #2 of the AAF-latency-breakdown directive: a picture of
 **where in the TX and RX pipeline each latency point is measured**, mapped to
 the exact RTL trigger and the CSR that reports it. The measurement engine is
 `hdl/ieee1722/aaf/KL_aaf_latency_taps.sv`; the register block is
-`REGISTER_MAP.md` §0x870; the per-sample DDR3 history is
+[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) §0x870; the per-sample DDR3 history is
 [`LATENCY_HISTORY_RING.md`](LATENCY_HISTORY_RING.md).
 
 All deltas are in **`axis_clk` cycles** — divide by the datapath clock

@@ -257,7 +257,7 @@ kernel fails loudly instead of half-writing.
   correctly **rejects** the 14 MB kernel against the 8.5 MiB `full` slot.
 
 See also [pipeline-telemetry.md](../fpga/pipeline-telemetry.md), [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md),
-and `sw/litex/patches/README.md`.
+and [`sw/litex/patches/README.md`](../../sw/litex/patches/README.md).
 
 ---
 

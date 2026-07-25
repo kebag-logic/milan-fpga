@@ -5,7 +5,7 @@ This matrix traces each **Milan v1.2** requirement to the
 Milan requirement makes that FR/NFR necessary**, and gives the **verification /
 test** that proves it.
 
-Read the pair `FR_NFR.md` ⇄ this file: `FR_NFR.md` says *what* the system must do
+Read the pair [`FR_NFR.md`](FR_NFR.md) ⇄ this file: [`FR_NFR.md`](FR_NFR.md) says *what* the system must do
 (+ the `Ver` method letter); this file says *why Milan v1.2 forces it* and *how it
 is verified*, and which requirements are **not** Milan-driven.
 
@@ -17,7 +17,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | **CONSTRAINS** | Milan does **not** require the feature, but *if built* it must respect a Milan invariant. |
 | **ENABLES** | A Milan capability a project NFR leverages (informational). |
 
-## Verification method letters (as in `FR_NFR.md`)
+## Verification method letters (as in [`FR_NFR.md`](FR_NFR.md))
 **T** = test/interop · **A** = analysis · **D** = demonstration · **I** = inspection.
 
 ## Verification artifacts (tokens used in the *Verify* column)
@@ -33,7 +33,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `vtb:<n>` | Verilator self-checking harness | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`; `adp` now present) |
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |
 | `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp + Linux net tooling | on-target |
-| `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP go to fabric (**lwSRP** engine + fabric MAAP; see ARCHITECTURE_HW_SW_SPLIT.md) | peer-side only |
+| `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP go to fabric (**lwSRP** engine + fabric MAAP; see [ARCHITECTURE_HW_SW_SPLIT.md](../ARCHITECTURE_HW_SW_SPLIT.md)) | peer-side only |
 | `CONF` | the **Milan conformance plan** as recreated by the private bench suite | private test repo |
 
 > Clause numbers for AEM (§5.3.3.x) and MVU (§5.4.3.2) are evidence-backed; other

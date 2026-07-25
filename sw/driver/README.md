@@ -12,7 +12,7 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 - `kl,txq-cnt`/`kl,rxq-cnt`, `kl,shaped-queues` (`<0 1>`), `phy-handle`, `phy-mode`,
   `local-mac-address`, `kl,ptp*`.
 
-## Feature surface → CSR (see `docs/reference/FR_NFR.md` §2.10 `FR-DRV-*`)
+## Feature surface → CSR (see [`docs/reference/FR_NFR.md`](../../docs/reference/FR_NFR.md) §2.10 `FR-DRV-*`)
 | Linux feature | Hook | HW / CSR |
 |---------------|------|----------|
 | NAPI RX/TX, N queues | `netif_napi_add`, `netif_set_real_num_*_queues` | DMA rings + `IRQ_STATUS` |
@@ -39,4 +39,4 @@ address** (`config_csr_ordering_big`) — program it as `hi @ +0x0`, `lo @ +0x4`
 `iowrite64` swaps the halves → wrong DMA address). Map the `dma-*` ranges with
 `devm_ioremap` (they are sub-page, inside the shared CSR bus), not the exclusive
 `devm_ioremap_resource`. On Zynq the DMA was a plain-MMIO `axi_dma` block, so this only
-applies to the fully-FPGA build. See `docs/reference/REGISTER_MAP.md` → DMA registers.
+applies to the fully-FPGA build. See [`docs/reference/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) → DMA registers.

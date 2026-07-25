@@ -21,7 +21,7 @@ docs/reference/REGISTER_MAP.md.
 
 ## Description
 
-Memory-mapped control plane (REQUIREMENTS.md `REQ-CSR-*`) that the Linux driver
+Memory-mapped control plane ([REQUIREMENTS.md](../../../../REQUIREMENTS.md) `REQ-CSR-*`) that the Linux driver
 binds to. It converts the previously compile-time-only TSN knobs (MAC config,
 802.1Q classifier map, 802.1Qav CBS slopes, PTP clock control) into
 runtime-writable registers, and exposes MAC statistics, link status and

@@ -12,7 +12,7 @@ with TXD via the ODDR. Default `False` = upstream edge-aligned behavior. Exposed
 
 **Final measured verdict on the AX7101 (RTL8211E), 2026-07-04 — REQUIRED (with IOB-packed
 TX FFs):** the phase was never the *silence* bug (that was the cut-through/starvation issue
-+ missing `--coherent-dma` — see `docs/findings/kl-eth-tx-debug.md`), but once the GMII TX launch
++ missing `--coherent-dma` — see [`docs/findings/kl-eth-tx-debug.md`](../../../docs/findings/kl-eth-tx-debug.md)), but once the GMII TX launch
 FFs are packed into the IOB (deterministic skew ≈ 0 vs the forwarded clock), edge-aligned
 sampling is hold-marginal: measured 25–40 % corrupt frames (`rx_crc_errors` at the peer) vs
 **20/20 pings + 0 CRC errors with the invert** (mid-bit sampling, ~4 ns/4 ns margins).
@@ -39,7 +39,7 @@ the patch is inert on non-Milan builds.
 ## `0002-vexiiriscv-l2-depth-args.patch` — VexiiRiscv L2 geometry args
 
 Exposes VexiiRiscv L2 depth/geometry arguments used by the performance
-campaign's L2 experiments (see `CHANGELOG.md` / `docs/findings/`). **Not
+campaign's L2 experiments (see [`CHANGELOG.md`](../../../CHANGELOG.md) / `docs/findings/`). **Not
 applied by `apply.sh`** — apply it manually (`patch -p1 -d <pythia/litex
 tree>`) only when building VexiiRiscv with a non-default L2. (Yes, the file
 shares the `0002-` prefix with the LiteEth patch — they target different

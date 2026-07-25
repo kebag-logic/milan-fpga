@@ -5,7 +5,7 @@ Goal: Milan-mandatory dynamic multicast-DMAC allocation for the talker
 on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 > **AS-BUILT:** `KL_maap` (`hdl/ieee1722/maap/KL_maap.sv`) is implemented in
-> fabric and silicon-proven (per `docs/ARCHITECTURE_HW_SW_SPLIT.md` rev 2) — no
+> fabric and silicon-proven (per [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2) — no
 > longer a plan/future item. The design + reference contract below is the
 > as-built spec; the CSR block has been reconciled to REGISTER_MAP.
 

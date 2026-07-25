@@ -1,6 +1,6 @@
 # NxN AAF Milan Streams — Shared Engines + Per-Stream Context RAM
 
-Normative architecture for roadmap item 5 (`docs/MILAN_COMPLIANCE_GAPS.md`,
+Normative architecture for roadmap item 5 ([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md),
 "Suggested order of attack" item 5). Test shapes: **AX7101 = 8x8**,
 **Arty = 4x4** (`configs/endstation_ax7101_8x8.yaml`,
 `configs/endstation_arty_4x4.yaml`). Status: IMPLEMENTED — shared-engine RTL
@@ -28,10 +28,10 @@ addresses, byte-identical `aecp_aem_rom.svh` for `endstation_arty_current`
 (the tracked-ROM identity gate). The legacy flat per-stream CSRs remain and
 alias stream index 0.
 
-Companion docs: `docs/ENDSTATION_BUILDER.md` (design decisions D1–D5; one
+Companion docs: [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (design decisions D1–D5; one
 STREAM_PORT per stream; config-selectable clusters),
-`docs/LWSRP_FPGA_ARCHITECTURE.md` (single-attribute engine being scaled
-here), `docs/SPEC_TRACEABILITY.md` rows M-CNT-2 (Table 7-156 counters),
+[`docs/LWSRP_FPGA_ARCHITECTURE.md`](LWSRP_FPGA_ARCHITECTURE.md) (single-attribute engine being scaled
+here), [`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) rows M-CNT-2 (Table 7-156 counters),
 AAF-4 / M-FMT-2 (wire-truth channel policy), SRP-9 (per-stream attribute
 instances).
 
@@ -156,7 +156,7 @@ group, 0x6B8 `AVTPRX_STAT` = "STREAM_INPUT[0], Milan Table 7-156"). Flat
 replication for 8+8 streams would add ~500 decoded words to `milan_csr`
 (~1.6 k LUT today for ~120 registers — decode scales with word count).
 **Decision: indexed window, placed in the free CSR tail (map is used up to
-0x774; 0x778+ is free — see `docs/reference/REGISTER_MAP.md`).**
+0x774; 0x778+ is free — see [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md)).**
 
 | Addr | Name | R/W | Fields |
 |------|------|-----|--------|

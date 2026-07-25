@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2026 Kebag Logic
 SPDX-License-Identifier: CERN-OHL-W-2.0
 -->
 
-Item-4 audio-interface subtask (docs/NXN_ARCHITECTURE.md §2.1 "physical
+Item-4 audio-interface subtask ([docs/NXN_ARCHITECTURE.md](../../../../docs/NXN_ARCHITECTURE.md) §2.1 "physical
 interface x1"). One capture front-end exists per build, selected by the
 `milan_datapath` `AUDIO_IF_SLOTS_P` generate (`milan_soc.py
 --audio-interface`, emitted by `sw/builder` from `audio_interface.kind`).

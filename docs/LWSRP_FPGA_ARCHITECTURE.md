@@ -2,7 +2,7 @@
 
 Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in `hdl/ieee8021q/srp/`,
 integrated into `milan_datapath`; CSR group re-homed to **0x680-0x6A0** —
-REGISTER_MAP.md is normative for the map, §4 below matches it). Verified:
+[REGISTER_MAP.md](reference/REGISTER_MAP.md) is normative for the map, §4 below matches it). Verified:
 Verilator `lwsrp_tx` 363 / `lwsrp_rx` 75 / `lwsrp` 36 checks + `milan_dp`
 53 + `csr` 76 regressions green; Yosys 21/21. Wire contract extracted from
 pipewire module-avb mrp.c/msrp.c/mvrp.c (byte-exact; one deliberate
@@ -151,7 +151,7 @@ Key structural choices:
 
 ## 4. CSR group (0x680-0x6A0 as built — re-homed from the original 0x660
 sketch, whose addresses had been claimed by AAF/DIAG/ACMP; full field
-detail in `docs/reference/REGISTER_MAP.md`)
+detail in [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md))
 
 | Offset | Field |
 |---|---|

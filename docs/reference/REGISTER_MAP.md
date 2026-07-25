@@ -163,7 +163,7 @@ Reset defaults (`milan_csr` `CBS_*_RST`, mirroring `ethernet_packet_pkg.sv`):
 power up unshaped** (`CBS_EN_RST = 0b0000`): the default class map routes
 untagged/BE traffic to q0, and shaping q0 at reset silently paced all
 best-effort TX to ~250 Mbit/s (measured on silicon 2026-07-07, see
-CBS_DEFAULT_SHAPING_BUG.md). Software opts a queue in via `CBS_CTRL[0]`
+[CBS_DEFAULT_SHAPING_BUG.md](../findings/CBS_DEFAULT_SHAPING_BUG.md)). Software opts a queue in via `CBS_CTRL[0]`
 (REQ-CBS-02: SR classes only, never BE). The HW clamps credit down immediately
 if a write lowers hiCredit below the current credit, so shrinking a burst
 allowance takes effect at once. An `CBS_IDLE_SLOPE` write takes effect within
@@ -464,7 +464,7 @@ status 1/2 as "leave the fabric alone". With no engine attached (TB ties)
 a commit stays busy forever; the VERSION + probe gate prevents software
 from ever committing on such gateware.
 
-### 0x800  -  Indexed per-stream window  `(NxN streams, NXN_ARCHITECTURE.md §1.5)`
+### 0x800  -  Indexed per-stream window  `(NxN streams, [NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §1.5)`
 
 One SELECT register plus ONE decoded word block views any of the N listener /
 N talker stream contexts — decode area is O(1) in N instead of the O(N) flat
@@ -642,7 +642,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 | `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only at `clock_source == 2` (CRF descriptor); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
-### 0x900  -  channel-map fabric  `(docs/CHANNEL_MAP_64.md §6, KL_chan_map_render / KL_chan_map_capture)`
+### 0x900  -  channel-map fabric  `([docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) §6, KL_chan_map_render / KL_chan_map_capture)`
 
 Debug write port + bypass arm for the 64x64 render/capture map RAMs. Same
 dedicated-arm carve-out as MCSRV (NOT in `is_plain_rw` - a 0x900 shadow write
@@ -743,7 +743,7 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > a `big-endian` property on the node or use `ioread32be`/a BE regmap  -  that would
 > byte-swap and corrupt every read. The only "big" here is the multi-word *word* order
 > above. This whole caveat is LiteX-specific  -  on Zynq the DMA was a plain-MMIO `axi_dma`
-> block. See also `sw/dts/README.md` and `sw/driver/README.md`.
+> block. See also [`sw/dts/README.md`](../../sw/dts/README.md) and [`sw/driver/README.md`](../../sw/driver/README.md).
 
 ## Notes
 

@@ -2,7 +2,7 @@
 
 A self-checking [Verilator](https://verilator.org) harness for
 `hdl/ieee8021q/ts/credit_based_shaper.sv`. It answers the
-REQUIREMENTS.md concern that *"the math behind the CBS logic is a little too
+[REQUIREMENTS.md](../../../REQUIREMENTS.md) concern that *"the math behind the CBS logic is a little too
 complicated, propose something to verify and run it."*
 
 ## Run it

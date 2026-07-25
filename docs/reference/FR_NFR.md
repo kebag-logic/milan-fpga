@@ -201,7 +201,7 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-SCUP-01 | The entity model, driver, and datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (e.g. 8-ch, 48/96/192 kHz  -  the full entity model) is a configuration change, not a redesign. | M | A,I |
 | NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase bandwidth, buffer, and DSP; the control plane (ADP/AECP/ACMP) MUST be unaffected. | M | A |
 | NFR-SCUP-03 | FPGA resource use MUST stay within the `xc7a100t` budget at the largest supported single-node profile (document the profile that first exceeds it). | S | A |
-| NFR-SCUP-04 | The AEM memory (HW 4-level, `docs/design/AEM_AND_AECP.md`) MUST size from the JSON model at build time so more descriptors need no RTL edit. | S | I |
+| NFR-SCUP-04 | The AEM memory (HW 4-level, [`docs/design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md)) MUST size from the JSON model at build time so more descriptors need no RTL edit. | S | I |
 
 ### 3.4 Scale-**out** (more than one softcore)  *(the key architectural NFR)*
 | ID | Requirement | Pri | Ver |

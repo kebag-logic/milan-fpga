@@ -33,10 +33,10 @@ their living successors on 2026-07-25.
 |---|---|
 | [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md) | The consolidated >500 campaign record: goal, forced-march log, close-out scoreboard, plain-language RX story + diagrams, gigabit headroom analysis |
 | [CAMPAIGN_500_PLAN.md](../../historical_now_obsolete/findings/CAMPAIGN_500_PLAN.md) | The campaign plan + status ledger (superseded banners intact) |
-| [RX_TX_PERFORMANCE.md](../../historical_now_obsolete/findings/RX_TX_PERFORMANCE.md) | The 07-09 campaign narrative (merged into PERFORMANCE_GOAL.md 2026-07-25) |
-| [GIGABIT_HEADROOM_ANALYSIS.md](../../historical_now_obsolete/findings/GIGABIT_HEADROOM_ANALYSIS.md) | Headroom at 100 MHz; wire-rate tables (merged into PERFORMANCE_GOAL.md 2026-07-25) |
+| [RX_TX_PERFORMANCE.md](../../historical_now_obsolete/findings/RX_TX_PERFORMANCE.md) | The 07-09 campaign narrative (merged into [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md) 2026-07-25) |
+| [GIGABIT_HEADROOM_ANALYSIS.md](../../historical_now_obsolete/findings/GIGABIT_HEADROOM_ANALYSIS.md) | Headroom at 100 MHz; wire-rate tables (merged into [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md) 2026-07-25) |
 | [LATENCY_INVESTIGATION.md](LATENCY_INVESTIGATION.md) | Why single-port TCP capped at 30 Mbit/s: memory latency decomposition (1424 ns/miss), the 112.5 MHz build-and-revert, retracted theories kept as lessons; §2.1 = the folded second-core prequel |
-| [SINGLE_PORT_PERF.md](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md) | Would a second core help a single flow? (No - latency-bound; merged into LATENCY_INVESTIGATION.md 2026-07-25) |
+| [SINGLE_PORT_PERF.md](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md) | Would a second core help a single flow? (No - latency-bound; merged into [LATENCY_INVESTIGATION.md](LATENCY_INVESTIGATION.md) 2026-07-25) |
 | [RX_FANOUT_AND_TX_CEILING.md](../../historical_now_obsolete/findings/RX_FANOUT_AND_TX_CEILING.md) | HW-TSO, 2-queue RX fan-out, the TX ceiling |
 | [RX_MEMORY_HIERARCHY_PLAN.md](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md) | Cold-vs-capacity decision tree → the DDIO choice |
 | [TX_READER_PREFETCH_PLAN.md](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) | A full plan whose measured verdict is **do not build it** (kept as the refutation record) |
@@ -45,7 +45,7 @@ their living successors on 2026-07-25.
 
 On-silicon evidence logs live in
 [`sw/litex/evidence/`](../../sw/litex/evidence/) (BIOS banners, memtest, the
-M-A3 DMA write-up `hw_ma3_dma_datapath_100mhz.md`).
+M-A3 DMA write-up [`hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md)).
 
 ## Handover & bench
 

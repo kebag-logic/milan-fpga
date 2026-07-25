@@ -40,7 +40,7 @@ final output = 600 Mbit cap).
 ## 2. MRP core (Clause 10) — as profiled by lwSRP
 
 lwSRP is a deliberate *simplified applicant* (deviations from the full MRP
-applicant/registrar are documented in `docs/LWSRP_FPGA_ARCHITECTURE.md` and
+applicant/registrar are documented in [`docs/LWSRP_FPGA_ARCHITECTURE.md`](../LWSRP_FPGA_ARCHITECTURE.md) and
 the pipewire-contract notes). Rows assert the observable wire contract, not
 the internal 10.7 state tables.
 
