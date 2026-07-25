@@ -172,7 +172,7 @@ The XDC content to re-express in your SDC/LPF/CST:
 ```sh
 git submodule update --init third_party/verilog-axis   # required first
 cd syn/yosys
-make          # sv2v -> Yosys generic `synth` + `hierarchy -check`, ~39 tops -> PASS
+make          # sv2v -> Yosys generic `synth` + `hierarchy -check`, every top -> PASS
               # (the `tops` array in syn/yosys/run.sh is authoritative)
 make ecp5     # map every top to a real non-Xilinx device (Lattice ECP5)
 ```
@@ -181,7 +181,7 @@ make ecp5     # map every top to a real non-Xilinx device (Lattice ECP5)
 "fully mapped to generic cells". The `ecp5` target then proves a concrete
 non-Xilinx mapping (e.g. `tcam` → ~1.7k `TRELLIS_FF`).
 
-Covered (~39 tops; `syn/yosys/run.sh` authoritative): every datapath leaf + `milan_csr` + the flat wrappers +
+Covered (the `syn/yosys/run.sh` `tops` array is authoritative): every datapath leaf + `milan_csr` + the flat wrappers +
 the vendored Forencich cores + **`milan_datapath` itself** (which pulls in
 `ptp_ts_top`/`ptp_ts_core` hierarchically).
 **Not covered:** `milan_top` (needs the RGMII SelectIO MAC + PS).
