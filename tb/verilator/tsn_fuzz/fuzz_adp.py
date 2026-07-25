@@ -243,7 +243,13 @@ def main():
     ap.add_argument("--seed", type=int, default=20260725)
     args = ap.parse_args()
 
-    rep = cosim.Report("ADP discovery field campaign (tsn-gen driven)")
+    rep = cosim.Report(
+        "ADP discovery field campaign (tsn-gen driven)",
+        dut="adp_advertiser",
+        rtl_files=["hdl/ieee17221/adp/adp_advertiser.sv",
+                   "hdl/ieee17221/adp/adp_pkg.sv"],
+        results_dir="../../../hdl/ieee17221/adp/doc",
+        reproduce="cd tb/verilator/tsn_fuzz && make adp")
     cosim.require_tsn_gen(rep)
     with cosim.Dut(args.dut) as dut:
         c = Campaign(dut, rep, args.seed)

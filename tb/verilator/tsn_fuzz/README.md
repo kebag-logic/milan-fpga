@@ -53,6 +53,24 @@ flowchart LR
   reset, or an event — that is how the campaigns observe state machines
   rather than guessing from replies.
 
+## Where the results go
+
+Each campaign writes `TEST_RESULTS.md` **into the folder of the RTL it
+validates**, not into a scratch directory — someone opening a block's `doc/`
+sees that block's verification status in place, without knowing this campaign
+exists:
+
+| campaign | results file |
+|---|---|
+| `make aecp` | `hdl/ieee17221/aecp/doc/TEST_RESULTS.md` |
+| `make acmp` | `hdl/ieee17221/acmp/doc/TEST_RESULTS.md` |
+| `make adp`  | `hdl/ieee17221/adp/doc/TEST_RESULTS.md` |
+| `make aaf`  | `hdl/ieee1722/avtp/doc/TEST_RESULTS.md` (pointer in `hdl/ieee1722/aaf/doc/`) |
+
+Each file records the verdict, the DUT, the exact RTL files under test, the
+per-section pass/fail/gap breakdown, every tracked gap, and the one-line
+reproduce command. They are generated — do not hand-edit.
+
 ## Why "state stability" is the real gate
 
 Fuzzing an entity to see if it crashes is a weak test — this RTL has no

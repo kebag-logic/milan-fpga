@@ -271,7 +271,15 @@ def main():
     ap.add_argument("--seed", type=int, default=20260725)
     args = ap.parse_args()
 
-    rep = cosim.Report("AAF/AVTP stream field campaign (tsn-gen driven)")
+    rep = cosim.Report(
+        "AAF/AVTP stream field campaign (tsn-gen driven)",
+        dut="avtp_stream_parser -> KL_avtp_rx_monitor -> KL_aaf_rx_depacketizer",
+        rtl_files=["hdl/ieee1722/avtp/avtp_stream_parser.sv",
+                   "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
+                   "hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
+                   "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv"],
+        results_dir="../../../hdl/ieee1722/avtp/doc",
+        reproduce="cd tb/verilator/tsn_fuzz && make aaf")
     cosim.require_tsn_gen(rep)
     with cosim.Dut(args.dut) as dut:
         c = Campaign(dut, rep, args.seed)

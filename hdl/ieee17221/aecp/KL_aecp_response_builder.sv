@@ -323,6 +323,10 @@ module KL_aecp_response_builder (
   //! + 25-31) minus the ONE supported (MSRP_ACC_LAT_VALID, bit 29): any of
   //! these requested -> NOT_SUPPORTED for the whole command (§5.4.2.9).
   localparam [31:0] SI_UNSUPPORTED_MASK_C = 32'hDE00_03FF;
+  //! ACQUIRE/LOCK descriptor_type (payload bytes 14-15): both commands are
+  //! ENTITY-scoped, so this is the whole validity test the decode can make
+  wire [15:0] w_lock_dtype  = {w_b14, w_b15};
+  wire        w_lock_desc_ok = (w_lock_dtype == DESC_ENTITY);
   wire [15:0] w_name_idx = {w_b6, w_b7};   //! SET/GET_NAME name_index
   wire [15:0] w_as_path_idx = {w_b2, w_b3};  //! GET_AS_PATH descriptor_index (no type field)
   //! live gPTP state (USER bugs 1-4, 07-18): GM + pdelay are daemon-written
@@ -1414,7 +1418,17 @@ module KL_aecp_response_builder (
             case (w_cmd_eff)
               // -------------------------------------------------- //
               CMD_ACQUIRE_ENTITY, CMD_LOCK_ENTITY: begin
-                status_q      <= l0_status_q;  // NOT_SUPPORTED/LOCKED/SUCCESS
+                //! 1722.1-2021 §7.4.1/§7.4.2 scope ACQUIRE and LOCK to the
+                //! ENTITY descriptor. The payload's descriptor_type sits at
+                //! bytes 14-15 (the same field the echo segment below
+                //! replays); anything other than ENTITY is NO_SUCH_DESCRIPTOR
+                //! rather than a silent entity-wide lock. descriptor_index
+                //! (bytes 16-17) is NOT validated: those bytes are outside
+                //! the decode capture (cw2_r is deliberately not registered),
+                //! and index != 0 with type == ENTITY is not a case any real
+                //! controller produces.
+                status_q      <= (w_lock_desc_ok) ? l0_status_q
+                                                  : STATUS_NO_SUCH_DESCRIPTOR;
                 seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
                 seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd8;
                 seg_kind_q[2] <= SEG_ECHO;  seg_addr_q[2] <= 16'd14; seg_len_q[2] <= 16'd4;

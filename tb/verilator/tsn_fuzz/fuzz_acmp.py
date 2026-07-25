@@ -307,7 +307,14 @@ def main():
     ap.add_argument("--seed", type=int, default=20260725)
     args = ap.parse_args()
 
-    rep = cosim.Report("ACMP field + state-machine campaign (tsn-gen driven)")
+    rep = cosim.Report(
+        "ACMP field + state-machine campaign (tsn-gen driven)",
+        dut="KL_acmp_listener",
+        rtl_files=["hdl/ieee17221/acmp/KL_acmp_listener.sv",
+                   "hdl/ieee17221/acmp/KL_acmp_lstn_ctx.sv",
+                   "hdl/ieee17221/acmp/acmp_pkg.sv"],
+        results_dir="../../../hdl/ieee17221/acmp/doc",
+        reproduce="cd tb/verilator/tsn_fuzz && make acmp")
     cosim.require_tsn_gen(rep)
     with cosim.Dut(args.dut) as dut:
         c = Campaign(dut, rep, args.seed)

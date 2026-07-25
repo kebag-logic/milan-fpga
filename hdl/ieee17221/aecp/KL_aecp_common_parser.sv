@@ -122,13 +122,23 @@ module KL_aecp_common_parser (
         // ------------------------------------------------------------ //
         // verilator lint_off SELRANGE  // tdata is 64b at runtime; default if param is 32
         BEAT0_S: begin
-          mismatch_o <= 1'b0;   // clear at the start of every frame
+          //! The verdict of the PREVIOUS frame must survive until this frame
+          //! actually starts: clearing it unconditionally here erased the
+          //! mismatch of any frame that ended exactly on BEAT3 (which returns
+          //! straight to BEAT0_S) before the consumer could act on it, so a
+          //! 44-byte AECPDU addressed to a FOREIGN entity was answered while a
+          //! 45-byte one - parked in PAYLOAD_S, verdict intact - was correctly
+          //! dropped. Clear on the new frame's first beat instead.
           if (w_hs) begin
+            mismatch_o                <= 1'b0;
             hdr_r.message_type        <= s_axis_tdata[35:32];
             hdr_r.status              <= s_axis_tdata[31:27];
             hdr_r.control_data_length <= s_axis_tdata[26:16];
             hdr_r.target_entity_id[63:48] <= s_axis_tdata[15:0];
-            state_r <= BEAT1_S;
+            //! a frame that ends on its FIRST beat never carries a
+            //! target_entity_id at all - it is addressed to nobody
+            if (s_axis_tlast) mismatch_o <= 1'b1;
+            state_r <= s_axis_tlast ? BEAT0_S : BEAT1_S;
           end
         end
 
@@ -141,7 +151,10 @@ module KL_aecp_common_parser (
           if (w_hs) begin
             hdr_r.target_entity_id[47:0]       <= s_axis_tdata[63:16];
             hdr_r.controller_entity_id[63:48]  <= s_axis_tdata[15:0];
-            state_r <= BEAT2_S;
+            //! truncated before the header completes -> treat as unaddressed
+            //! (the entity-id compare below never gets to run on this frame)
+            if (s_axis_tlast) mismatch_o <= 1'b1;
+            state_r <= s_axis_tlast ? BEAT0_S : BEAT2_S;
           end
         end
 
@@ -154,7 +167,8 @@ module KL_aecp_common_parser (
           if (w_hs) begin
             hdr_r.controller_entity_id[47:0] <= s_axis_tdata[63:16];
             hdr_r.sequence_id                <= s_axis_tdata[15:0];
-            state_r <= BEAT3_S;
+            if (s_axis_tlast) mismatch_o <= 1'b1;   //! truncated header
+            state_r <= s_axis_tlast ? BEAT0_S : BEAT3_S;
           end
         end
 
