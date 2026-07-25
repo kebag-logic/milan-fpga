@@ -115,7 +115,8 @@ aaf_gate = cfg_aaf_enable && (cfg_aaf_bypass ? 1'b1 : talker_active)
 - MAAP dynamic allocation (static MAAP-range dmac from CSR). **(LANDED — fabric
   MAAP, see update above.)**
 - GET_DYNAMIC_INFO (Milan §5.4.2.24) — la_avdecc enum passes without it;
-  revisit if Hive complains.
+  revisit if Hive complains. **(Since LANDED — the 0x4B batch engine is in
+  `KL_aecp_response_builder.sv`.)**
 - Talker counters STREAM_START/STREAM_STOP wiring into GET_COUNTERS
   (masks already advertised; values stay 0 this increment).
 
