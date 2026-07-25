@@ -1,0 +1,25 @@
+{
+  "head": {"text": "AAF class-A pacing at 48 kHz: 6 samples/channel per PDU = 125 us cadence, presentation stamped at the first sample"},
+  "signal": [
+    ["talker",
+      {"name": "tick 48k", "wave": "p.............|....."},
+      {"name": "bank",     "wave": "=.....=.....=.|.....",
+       "data": ["bank A: s0..s5", "bank B: s0..s5", "bank A ..."]},
+      {"name": "TS latch", "wave": "10....10....10|.....", "node": "t..................."},
+      {"name": "wire out", "wave": "0.....=0....=0|.....",
+       "data": ["PDU n", "PDU n+1"]}
+    ],
+    ["listener",
+      {"name": "accept",   "wave": "0......=.0....|.....", "node": ".......r............",
+       "data": ["accept n"]},
+      {"name": "present",  "wave": "0.............|.=.0.", "node": "................q...",
+       "data": ["play s0(n)"]}
+    ]
+  ],
+  "edge": [
+    "t-~>q avtp_ts = gPTP@s0 + pto (w4)",
+    "r~>q ts_delta (0x6EC): <0 = LATE"
+  ],
+  "foot": {"text": "1 column = 1 media tick (~20.8 us); bank swap = epoch boundary; elided span: pto 500 us = 24 ticks."},
+  "config": {"hscale": 1}
+}
