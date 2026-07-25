@@ -545,6 +545,173 @@ int main(int argc, char** argv) {
            (unsigned)pcm_frames.size(), (unsigned)before);
     }
 
+    // ======================================================================
+    // HOST-PLANE drill (silicon 0x1000B regression, 2026-07-25): the fabric
+    // above is fully provisioned and N streams are live - exactly the state
+    // the flashed ax8x8 build was in when host RX read dead. In THIS shape
+    // (N=NSTREAMS_TB, single host RX lane) the host-facing lanes must work:
+    //   [H1] a non-AVTP broadcast frame on the MAC RX AXIS emerges byte-exact
+    //        on the host DMA RX port (MAC -> PTP-RX -> dest-MAC filter ->
+    //        m_axis_rx = the RingDMAWriter's input);
+    //   [H2] a gPTP pdelay_req (event) frame yields one 2-beat metadata
+    //        record on m_axis_ts (= the dma-ts writer's input), with the
+    //        host RX copy of the same frame still delivered.
+    // sim_main proves both at N=1 only; this is the N>1 silicon-shape gate.
+    // ======================================================================
+    printf("-- host plane: MAC->host-RX + PTP ts record at N=%d --\n",
+           NSTREAMS_TB);
+    {
+        // drain the host RX lane first: every earlier inject() left frames
+        // parked against m_axis_rx_tready=0 (the fabric tests never drain it)
+        dut->m_axis_rx_tready = 1;
+        for (int c = 0; c < 4000; c++) step();
+
+        // [H1] 64-byte broadcast ARP-ish frame, LE lanes like the real ingress
+        uint8_t hf[64]; memset(hf, 0, sizeof hf);
+        const uint8_t hh[14] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+                                0x02,0x11,0x22,0x33,0x44,0x55, 0x08,0x06};
+        memcpy(hf, hh, 14);
+        for (int i = 14; i < 64; i++) hf[i] = (uint8_t)(0xC0 + i);
+        std::vector<uint64_t> hb, hout;
+        for (int bt = 0; bt < 8; bt++) {
+            uint64_t v = 0;
+            for (int j = 0; j < 8; j++) v |= (uint64_t)hf[bt*8+j] << (8*j);
+            hb.push_back(v);
+        }
+        size_t idx = 0;
+        for (int c = 0; c < 800; c++) {
+            if (idx < hb.size()) {
+                dut->s_axis_mac_rx_tdata  = hb[idx];
+                dut->s_axis_mac_rx_tkeep  = 0xFF;
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast  = (idx == hb.size()-1);
+            } else {
+                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+            }
+            lo();
+            bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+            bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
+            uint64_t od  = dut->m_axis_rx_tdata;
+            hi();
+            if (in_acc) idx++;
+            if (out_acc) hout.push_back(od);
+        }
+        dut->s_axis_mac_rx_tvalid = 0;
+        ck("host RX: broadcast frame beats delivered", hout.size(), hb.size());
+        bool hexact = hout.size() == hb.size();
+        if (hexact)
+            for (size_t i = 0; i < hb.size(); i++)
+                if (hout[i] != hb[i]) hexact = false;
+        ck("host RX: broadcast frame byte-exact", hexact ? 1 : 0, 1);
+
+        // [H2] PTP event frame -> exactly one 2-beat ts record + host RX copy
+        enum { A_PTP_CTRL = 0x500, A_PTP_INCR = 0x504 };
+        axi_write(A_PTP_INCR, 20u << 24);          // 20 ns/tick Q8.24
+        axi_write(A_PTP_CTRL, 1);
+        uint8_t g[68]; memset(g, 0, sizeof g);
+        const uint8_t gh[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
+        memcpy(g, gh, 14);
+        g[14] = 0x12; g[15] = 0x02; g[17] = 54;    // pdelay_req, v2, len 54
+        g[44] = 0xBE; g[45] = 0xEF;                // sequenceId
+        std::vector<uint64_t> gb, ts;
+        size_t hrx_beats = 0;
+        for (int bt = 0; bt < 9; bt++) {
+            uint64_t v = 0;
+            for (int j = 0; j < 8 && bt*8+j < 68; j++)
+                v |= (uint64_t)g[bt*8+j] << (8*j);
+            gb.push_back(v);
+        }
+        idx = 0;
+        dut->m_axis_ts_tready = 1;
+        for (int c = 0; c < 800; c++) {
+            if (idx < gb.size()) {
+                dut->s_axis_mac_rx_tdata  = gb[idx];
+                dut->s_axis_mac_rx_tkeep  = (idx == gb.size()-1) ? 0x0F : 0xFF;
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast  = (idx == gb.size()-1);
+            } else {
+                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+            }
+            lo();
+            bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+            bool tsx    = dut->m_axis_ts_tvalid && dut->m_axis_ts_tready;
+            uint64_t td = dut->m_axis_ts_tdata;
+            bool hrx    = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
+            hi();
+            if (in_acc) idx++;
+            if (tsx) ts.push_back(td);
+            if (hrx) hrx_beats++;
+        }
+        dut->s_axis_mac_rx_tvalid = 0;
+        ck("ts record emitted (2 beats)", ts.size(), 2);
+        if (ts.size() == 2) {
+            ck("ts word1 dir=RX", (unsigned long)(ts[1] & 1), 0);
+            ck("ts word1 mtype=2 (pdelay_req)",
+               (unsigned long)((ts[1] >> 4) & 0xF), 2);
+            ck("ts word1 seq=0xBEEF",
+               (unsigned long)((ts[1] >> 8) & 0xFFFF), 0xBEEFUL);
+        }
+        ck("host RX: gPTP frame copy delivered (9 beats)", hrx_beats, 9);
+
+        // [H3] silicon boot ordering: the dma-ts writer is NOT armed at boot
+        // (m_axis_ts_tready = 0) while the LAN already carries gPTP event
+        // frames (the switch runs 802.1AS). The ts record lane fills - and
+        // MUST NOT wedge the shared RX pipeline: after a burst of un-drained
+        // event frames, a host-destined frame still has to emerge on
+        // m_axis_rx. This is the exact state the flashed ax8x8 build boots
+        // into (rx_packets = 0 forever, fabric TX still perfect).
+        dut->m_axis_ts_tready = 0;
+        for (int burst = 0; burst < 40; burst++) {
+            g[44] = (uint8_t)(burst >> 8); g[45] = (uint8_t)burst;
+            idx = 0;
+            for (int c = 0; c < 60; c++) {
+                if (idx < gb.size()) {
+                    dut->s_axis_mac_rx_tdata  = gb[idx];
+                    dut->s_axis_mac_rx_tkeep  = (idx == gb.size()-1) ? 0x0F : 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (idx == gb.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+                }
+                lo();
+                bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+                hi();
+                if (in_acc) idx++;
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+        }
+        // now the host frame again, RX ring armed (tready=1), ts still unarmed
+        std::vector<uint64_t> hout2;
+        idx = 0;
+        for (int c = 0; c < 800; c++) {
+            if (idx < hb.size()) {
+                dut->s_axis_mac_rx_tdata  = hb[idx];
+                dut->s_axis_mac_rx_tkeep  = 0xFF;
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast  = (idx == hb.size()-1);
+            } else {
+                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+            }
+            lo();
+            bool in_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+            bool out_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
+            uint64_t od  = dut->m_axis_rx_tdata;
+            hi();
+            if (in_acc) idx++;
+            if (out_acc) hout2.push_back(od);
+        }
+        dut->s_axis_mac_rx_tvalid = 0;
+        ck("host RX alive under un-drained ts lane (8 beats)",
+           hout2.size(), hb.size());
+        bool h2exact = hout2.size() == hb.size();
+        if (h2exact)
+            for (size_t i = 0; i < hb.size(); i++)
+                if (hout2[i] != hb[i]) h2exact = false;
+        ck("host RX under ts backpressure byte-exact", h2exact ? 1 : 0, 1);
+        dut->m_axis_ts_tready = 1;
+        dut->m_axis_rx_tready = 0;
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
