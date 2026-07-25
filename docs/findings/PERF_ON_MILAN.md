@@ -126,7 +126,8 @@ PCs, not inferred.
    modulo 8. Cross-check by arithmetic: mapbench measured 26.3 µs/4 KB (~0.64 cy/B);
    the shift-merge op count predicts ~2–3× the aligned loop's cost  -  consistent.
    (The earlier campaign number "copy = 0.64 cy/B" was therefore a *misaligned*
-   figure, and the budget table in GIGABIT_HEADROOM_ANALYSIS was corrected.)
+   figure, and the budget table in the headroom analysis — now folded into
+   [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) — was corrected.)
 3. **"Why misaligned": reasoned from the data layout, then checked for
    self-consistency.** The RX buffer is page-aligned and the frame lands at +0, so
    the payload begins at +54 (doff=5) or +66 (doff=8)  -  neither ≡ 0 (mod 8). The

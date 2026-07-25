@@ -1,5 +1,5 @@
-> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
-> Living successor: `fpga/HEADER_SPLIT_DESIGN.md` (hsq4-hsq12 unified there). Index: `historical_now_obsolete/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+> ⚠️ **SUPERSEDED / HISTORICAL** — merged into its successor 2026-07-25. Kept intact as the historical record; **not current state**.
+> Living successor: [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../../docs/fpga/HEADER_SPLIT_DESIGN.md) (folded in as the hsq12 cut-through chapter; the BD v3 `fill_len`/`hdr_idx` encoding there is the live driver ABI). Index: [`../README.md`](../README.md); orientation: [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../../docs/SYSTEMS_ENGINEER_GUIDE.md).
 
 # hsplit14 / hsq12  -  per-page (cut-through) hs delivery
 

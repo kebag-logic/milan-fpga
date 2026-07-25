@@ -1,13 +1,13 @@
-> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
-> Living successor: `findings/PERFORMANCE_GOAL.md` (consolidated campaign record). Index: `historical_now_obsolete/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+> ⚠️ **SUPERSEDED / HISTORICAL** — merged into its successor 2026-07-25. Kept intact as the historical record; **not current state**.
+> Living successor: [`docs/findings/PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md) (the plain-language RX story, the four diagrams, and the levers table were folded in). Index: [`../README.md`](../README.md); orientation: [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../../docs/SYSTEMS_ENGINEER_GUIDE.md).
 
 # RX / TX performance  -  what we improved, how, and what's next
 
 *Authoritative current-state reference (2026-07-09, updated after the R2 multi-slot RSC
 campaign). Plain-language story of the >500 Mbit/s campaign, with the measurements and
 diagrams. For the per-commit log see [`../CHANGELOG.md`](../../CHANGELOG.md);
-for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md) and
-[`RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
+for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](../../docs/fpga/LSU_NONBLOCKING_DCACHE.md) and
+[`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
 snapshots  -  trust the numbers here.*
 
 ## The goal, in one line
@@ -33,7 +33,7 @@ over the transient drain rate (≥520 proven).
 
 The whole campaign on one chart:
 
-![campaign chart](../perf_campaign.svg)
+![campaign chart](../../docs/perf_campaign.svg)
 
 ---
 
@@ -43,7 +43,7 @@ Think of RX as a bucket brigade: the NIC drops each frame into DRAM, then the CP
 up and hand it to the application. We made the *pickup* faster in three ways, then found the real
 wall.
 
-![RX path and the wall](../diagrams/rx_path_wall.svg)
+![RX path and the wall](../../docs/diagrams/rx_path_wall.svg)
 
 1. **Bigger shared L2 (64 KB).** With two harts both doing RX, their working sets were evicting
    each other out of the 32 KB cache. Doubling it stopped the thrash → **RX −P2 238 → 280**.
@@ -55,7 +55,7 @@ wall.
    the stride, and *fills* those 8 slots ahead of the CPU, so the data is already on its way before
    the CPU asks. **RX single-flow 207 → 277 (+34%).**
 
-![memory hierarchy and the three levers](../diagrams/memory_hierarchy_levers.svg)
+![memory hierarchy and the three levers](../../docs/diagrams/memory_hierarchy_levers.svg)
 
 Combined (config **mlp3** = 64 KB L2 + refill=8 + RPT), **RX −P2 = 298**  -  the best so far, and
 the refill slots cost **zero BRAM** (they're flip-flops), so the AVDECC logic budget is untouched.
@@ -94,7 +94,7 @@ code and wouldn't help the `copy_to_user` anyway). Two ways to beat it:
 - **DDIO / allocate-on-DMA-write** → make the copy's read a cache **hit** by landing the DMA'd
   payload *warm* in the L2 (or a small dedicated stash) instead of cold in DRAM. Works for any app.
 
-![DDIO before and after](../diagrams/ddio_before_after.svg)
+![DDIO before and after](../../docs/diagrams/ddio_before_after.svg)
 
 This is the **"dedicated cache for the network"** idea from the very start of the campaign  -  first
 dismissed, then vindicated once `perf` showed the dominant cost is the copy's cold reads of the
@@ -141,7 +141,7 @@ reasserted: RX > 500 over standard TCP recv is a hard goal  -  the campaign does
 it.** The engineering consequence of the 481 measurement: *no copy trick alone can cross 500*  - 
 the path must raise the stack ceiling **and** close the copy tax. The forced-march plan (R1 warm
 copy via DDIO + bounded residency; R2 RSC multi-slot to kill park-closes and raise the ceiling;
-R3 112.5 MHz final mile) lives in [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md).
+R3 112.5 MHz final mile) lives in [`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md).
 
 **Refuted along the way** (so we don't retry them): the depth-2 DMA interconnect (RX writer has
 30× headroom), growing L2 past 64 KB, a BRAM buffer scratchpad, software prefetch (blocking D$),
