@@ -15,9 +15,9 @@ repo's minimal headless renderer
 | Diagram | Shows | Editable source | Render(s) | Embedded in |
 |---|---|---|---|---|
 | `milan_system_map` | THE GIANT single-page system map (4640x2980): the complete AX7101 SoC + NIC datapath with every block, bus width and byte-lane convention on every edge, clock domains by colour, DMA/ring geometry, and all address maps (SoC, milan_csr, AEM store, QSPI slots, control-plane frame formats) | `milan_system_map.gen.py` → `milan_system_map.drawio` (regenerate: `python3 milan_system_map.gen.py milan_system_map.drawio`) | `.svg` / `.png` (via `atdecc_architecture.render.py`) | [`../overview/FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) |
-| `rx_path_wall.svg` | Perf campaign: the RX receive path - where the CPU time goes, and the wall | `diag_rxpath.py` (uses `svglib.py`; run `python3 diag_rxpath.py rx_path_wall.svg`) | the `.svg` itself | [`../findings/RX_TX_PERFORMANCE.md`](../findings/RX_TX_PERFORMANCE.md) |
-| `memory_hierarchy_levers.svg` | Perf campaign: the memory hierarchy and the three levers pulled on it | `diag_memhier.py` (same usage) | the `.svg` itself | [`../findings/RX_TX_PERFORMANCE.md`](../findings/RX_TX_PERFORMANCE.md) |
-| `ddio_before_after.svg` | Perf campaign: the DDIO-analog experiment, before/after | `diag_ddio.py` (same usage) | the `.svg` itself | [`../findings/RX_TX_PERFORMANCE.md`](../findings/RX_TX_PERFORMANCE.md) |
+| `rx_path_wall.svg` | Perf campaign: the RX receive path - where the CPU time goes, and the wall | `diag_rxpath.py` (uses `svglib.py`; run `python3 diag_rxpath.py rx_path_wall.svg`) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
+| `memory_hierarchy_levers.svg` | Perf campaign: the memory hierarchy and the three levers pulled on it | `diag_memhier.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
+| `ddio_before_after.svg` | Perf campaign: the DDIO-analog experiment, before/after | `diag_ddio.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 
 `svglib.py` is the tiny shared SVG builder the three `diag_*.py` perf
 scripts import (no external deps).
@@ -35,7 +35,7 @@ scripts import (no external deps).
 | `TX_STARVATION_FIX` | The MAC TX starvation root cause and the PacketFIFO fix, one picture | `TX_STARVATION_FIX.gen.py` → `TX_STARVATION_FIX.drawio` | `.svg` / `.png` | [`../findings/kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
 | `RX_PERF_TUNING_MAP.drawio` | The living RX datapath tuning map (every stage x every knob) | the `.drawio` itself (hand-drawn master, no generator) | none committed (open in draw.io) | companion prose [`../findings/RX_PERF_TUNING_MAP.md`](../findings/RX_PERF_TUNING_MAP.md); named by [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md) |
 | `milan_tx_rx_datapath.drawio` | One-page TX/RX + control-path block map of the NIC | the `.drawio` itself (hand-drawn master, no generator) | none committed (open in draw.io) | pointed to from [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md) |
-| `perf_campaign.svg` | The perf-campaign progress chart (TX/RX per lever over time) | `perf_campaign_chart.py` (regenerate: `python3 docs/perf_campaign_chart.py docs/perf_campaign.svg`) | the `.svg` itself | [`../../CHANGELOG.md`](../../CHANGELOG.md), [`../README.md`](../README.md), [`../findings/RX_TX_PERFORMANCE.md`](../findings/RX_TX_PERFORMANCE.md) |
+| `perf_campaign.svg` | The perf-campaign progress chart (TX/RX per lever over time) | `perf_campaign_chart.py` (regenerate: `python3 docs/perf_campaign_chart.py docs/perf_campaign.svg`) | the `.svg` itself | [`../../CHANGELOG.md`](../../CHANGELOG.md), [`../README.md`](../README.md), [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 
 ## Elsewhere in the repo
 
