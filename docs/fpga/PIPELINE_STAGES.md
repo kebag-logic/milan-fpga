@@ -3,7 +3,9 @@
 *2026-07-11. The canonical prose reference for developers (what each stage does
 and where its code lives) and maintainers (which knob changes which behavior,
 what was measured, what breaks if you get it wrong). The visual twin is
-`RX_PERF_TUNING_MAP.drawio`. Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
+`RX_PERF_TUNING_MAP.drawio`.*
+
+*Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
 the live state in `SESSION_HANDOFF.md`. Referenced from the source headers of
 `sw/litex/milan_soc.py` (gateware) and `the-private-test-repo fpga/kl-eth/kl-eth.c`
 (driver).*
@@ -13,13 +15,16 @@ Editable diagram: [`milan_tx_rx_datapath.drawio`](../milan_tx_rx_datapath.drawio
 render yet; open in draw.io/diagrams.net; see
 [`../diagrams/README.md`](../diagrams/README.md) for the render rules).
 
-Conventions used below. "CSR" means a register you can poke live with devmem.
-"Elab param" means a Python elaboration parameter: changing it requires a
-Vivado rebuild (about one hour; always launch 2 or 3 place-directive variants
-in parallel, staggered by 90 seconds because the elaborations share one
-pythondata git checkout). "Module param" means an insmod argument. Per-queue
-CSR blocks have identical layouts: queue 0 base 0xf0003024, queue 1 base
-0xf0003098.
+Conventions used below.
+
+- "CSR" means a register you can poke live with devmem.
+- "Elab param" means a Python elaboration parameter: changing it requires a
+  Vivado rebuild (about one hour; always launch 2 or 3 place-directive
+  variants in parallel, staggered by 90 seconds because the elaborations
+  share one pythondata git checkout).
+- "Module param" means an insmod argument.
+- Per-queue CSR blocks have identical layouts: queue 0 base 0xf0003024,
+  queue 1 base 0xf0003098.
 
 ## RX stages
 
@@ -121,6 +126,24 @@ Structure and invariants, in the order they were earned:
   ACK-hold law). All six close paths gained a `cq_room` gate because closing
   now allocates.
 
+The writer's pointer contract as a chronogram (drawn on the byte-ring view;
+in BD mode `wr_ptr` is the BD write offset and the same commit rule holds):
+
+![RX ring DMA: commit-after-B and the whole-frame drop](../diagrams/wd_ring_pointers.png)
+
+> Generated chronogram (master
+> [wd_ring_pointers.json](../diagrams/wd_ring_pointers.json); regenerate with
+> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py
+> docs/diagrams/wd_ring_pointers.json`). The contract, per the
+> `RingDMAWriter` docstring in `sw/litex/milan_soc.py` and the
+> Commit-after-B / Whole-frame drop entries in
+> [`../GLOSSARY.md`](../GLOSSARY.md): the ingress FIFO is always ready
+> (`sink.ready` constant 1) with the drop decision taken at a frame's first
+> beat; `wr_ptr`/`seq` advance only in WAIT_B once `outstanding` (AW issued
+> minus B received) reaches 0, so software never sees a partial frame; an
+> overload frame is dropped whole and counted (`dropped` CSR ==
+> `rx_missed_errors`), pointers untouched.
+
 ### Stage R6: driver reap and repost
 
 Purpose: consume BDs, pair pages, keep the hardware fed. Code:
@@ -200,7 +223,22 @@ processes and is scheduler-fairness bound, not NIC bound.
 - T2: the reader DMAs payload straight from DRAM (cache state irrelevant),
   so TX pays almost no per-byte CPU on the send side.
 - T3: the datapath (classifier, optional CBS shaper which resets DISABLED
-  since the CBS_EN_RST bug, MAC) runs at 100 MHz.
+  since the CBS_EN_RST bug, MAC) runs at 100 MHz. The shaper's credit
+  contract, as a chronogram:
+
+![CBS credit evolution: slopes, clamps, and the transmit gate](../diagrams/wd_cbs_credit.png)
+
+> Generated chronogram (master
+> [wd_cbs_credit.json](../diagrams/wd_cbs_credit.json); regenerate with
+> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py
+> docs/diagrams/wd_cbs_credit.json`). Semantics per the
+> `credit_based_shaper.sv` header (802.1Qav, one traffic class): credit
+> accrues at idleSlope while the queue waits with data, drains at sendSlope
+> (= idleSlope - portRate) while transmitting, is clamped to
+> [loCredit, hiCredit], and transmission is allowed only when credit >= 0;
+> a granted-but-backpressured queue keeps accruing (REQ-CBS-04), and an
+> empty queue's credit returns to 0. Verified by the dual-model TB of row
+> Q-8 in [`../traceability/ieee8021q.md`](../traceability/ieee8021q.md).
 - The hidden dependency: TX throughput requires its ACK stream (an RX flow)
   to be processed promptly; TX collapses if RX delivery stalls. Always gate
   TX after any RX change.
