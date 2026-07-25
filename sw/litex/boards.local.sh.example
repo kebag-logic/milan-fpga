@@ -1,0 +1,6 @@
+# Bench-local board facts — copy to sw/litex/boards.local.sh (gitignored) and
+# fill in your cables' FTDI serials (`openFPGALoader --scan-usb` lists them).
+# NEVER commit the real serials: two cables on one bus + a wrong pick = a
+# destructive flash on the wrong board, and serials identify the bench.
+AX_FTDI=<ax-ftdi-serial>
+ARTY_FTDI=<arty-ftdi-serial>

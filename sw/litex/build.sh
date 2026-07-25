@@ -31,17 +31,22 @@ STAGGER=90
 
 # ---- per-board flash/JTAG facts (docs/integration/BUILDING.md section 4) --------------------
 # serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
-# wrong board is destructive). policy = what this board's QSPI holds:
+# wrong board is destructive). Serials are BENCH-LOCAL: set AX_FTDI/ARTY_FTDI in
+# the environment or in sw/litex/boards.local.sh (gitignored; template =
+# boards.local.sh.example). policy = what this board's QSPI holds:
 #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
 #   offset 0 (dedicated 4 MiB slot in the "full" manifest) + Linux images at
 #   the flashboot_layout.json offsets (kernel 4 MiB, opensbi 7, dtb 7.38,
 #   rootfs 7.5; 3.6 MiB bit + 8.2 MiB rootfs fit the 16 MB N25Q128 with room).
 #   The historical "AX bitstream = kernel-clobber trap" note described the OLD
 #   kernel-at-offset-0 layout and died with the manifest-"full" port.
+[ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
+AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoader
+ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
-        ax7101) echo "210512180081 ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
-        arty)   echo "210319AFEED0 digilent xc7a100tcsg324 boot      digilent_arty.bit";;
+        ax7101) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
+        arty)   echo "$ARTY_FTDI digilent xc7a100tcsg324 boot      digilent_arty.bit";;
         *)      return 1;;
     esac
 }
