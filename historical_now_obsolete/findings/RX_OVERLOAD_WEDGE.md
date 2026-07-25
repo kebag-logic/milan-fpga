@@ -3,7 +3,7 @@
 
 # RX overload wedge  -  TWO bugs: BD-order inversion + drops/v2-marker alias [FIXED, silicon-validated]
 
-> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](../../docs/findings/RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-08).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
 
 *Found 2026-07-07/08 during the >500 Mbit/s campaign (parallel RX testing). TWO independent
 root causes, both localized with the stage probes, sim-repro'd deterministically, fixed and

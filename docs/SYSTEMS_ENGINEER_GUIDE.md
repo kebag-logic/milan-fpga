@@ -329,8 +329,8 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   **superseded / completed-plan** docs (the byte-ring/CPPI/RSC DMA-origin docs, the completed
   migration & de-Xilinx plans, the early perf snapshots), physically moved out of the active
   tree; its README maps each to its living successor. The four merge-source docs
-  (RX_TX_PERFORMANCE, GIGABIT_HEADROOM_ANALYSIS, SINGLE_PORT_PERF, HSPLIT14_DESIGN) still sit
-  in place with `⚠️ SUPERSEDED` banners until their content is folded into the successors.
+  (RX_TX_PERFORMANCE, GIGABIT_HEADROOM_ANALYSIS, SINGLE_PORT_PERF, HSPLIT14_DESIGN) were
+  folded into their successors on 2026-07-25 and moved here too.
   Read only for deep history.
 
 ---

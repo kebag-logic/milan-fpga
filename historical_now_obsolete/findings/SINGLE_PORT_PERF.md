@@ -1,16 +1,16 @@
-> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
-> Living successor: `findings/LATENCY_INVESTIGATION.md` (the deeper corrected story). Index: `historical_now_obsolete/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+> ⚠️ **SUPERSEDED / HISTORICAL** — merged into its successor 2026-07-25. Kept intact as the historical record; **not current state**.
+> Living successor: [`docs/findings/LATENCY_INVESTIGATION.md`](../../docs/findings/LATENCY_INVESTIGATION.md) §2.1 (the "second core won't help — latency-bound, measured three ways" conclusion was folded in). Index: [`../README.md`](../README.md); orientation: [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../../docs/SYSTEMS_ENGINEER_GUIDE.md).
 
 # Single-port throughput on VexiiRiscv  -  what a second core would (not) buy
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
 
 > **This doc is the first slice of a larger investigation.** The "second core won't help /
 > latency-bound not CPU-bound" conclusion below is correct, but the root cause was chased
 > much deeper afterward  -  to **memory latency (1424 ns/miss)** with a UDP-flood test that
 > shows the CPU *does* saturate at 14k pps, a TLB-vs-DRAM decomposition, the `rx-usecs-low`
 > +32 % win, the pointer-writeback, and the 112.5 MHz floorplan. **Read
-> [LATENCY_INVESTIGATION.md](LATENCY_INVESTIGATION.md) for the complete, corrected story.**
+> [LATENCY_INVESTIGATION.md](../../docs/findings/LATENCY_INVESTIGATION.md) for the complete, corrected story.**
 
 **Date:** 2026-07-05 · **Silicon:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @ 100 MHz,
 sv39 · **Link:** 1000BASE-T copper to an Intel i210 peer (`enp6s0`, 192.168.127.2) ·

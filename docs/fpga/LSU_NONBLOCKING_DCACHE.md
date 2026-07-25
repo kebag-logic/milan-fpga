@@ -276,7 +276,7 @@ of the DMA'd payload. The `recv(MSG_TRUNC)` ceiling test (drains without the cop
 = 96 % of the 500 goal. So the RPT prefetcher here is *exactly* the right kind of lever (it hides
 that same cold read for single-flow); the −P2 case just needs the read to be a **hit**, which is
 what **DDIO / allocate-on-DMA-write** does (task #15). The earlier "depth-2 interconnect / more
-parallelism / fewer touches" framing is superseded  -  see [`RX_TX_PERFORMANCE.md`](../findings/RX_TX_PERFORMANCE.md).
+parallelism / fewer touches" framing is superseded  -  see [`PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md).
 
 **Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
 not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+34 % single); the
