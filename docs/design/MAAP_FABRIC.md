@@ -45,7 +45,8 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
   mux into the AAF framer dmac + GET_STREAM_INFO/ACMP dmac reporting when
   `MAAP_CTRL.en=1 && maap_valid`; `cfg_aaf_dmac` stays the manual lever
   (en=0 keeps today's behavior bit-exact — soft-migration like CBS bypass).
-- CSR (per REGISTER_MAP): `0x6CC MAAP_CTRL` (RW, reset `0x0800`: `[0]` en,
+- CSR ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is authoritative;
+  the block below mirrors its `0x6CC`-`0x6D4` rows): `0x6CC MAAP_CTRL` (RW, reset `0x0800`: `[0]` en,
   `[1]` seed_valid, `[15:8]` block count (default 8), `[31:16]` seed offset),
   `0x6D0 MAAP_STAT0` (RO: `[31:24]` conflicts, `[23:16]` DEFENDs sent,
   `[15:0]` claimed offset), `0x6D4 MAAP_STAT1` (RO: `[2]` addr_valid
@@ -96,4 +97,6 @@ segments; the builder's segment arrays (seg_kind/addr/len/cum_q[0:3]) and
 the WRITE_S cum computation must grow to [0:11] first — mechanical but
 touches the emit core; do it as an isolated commit with the full aecp TB
 before adding the 0x4B branch.
-Status: NOT yet implemented (next increment).
+Status: IMPLEMENTED since - the GET_DYNAMIC_INFO (0x4B) batch engine lives in
+`hdl/ieee17221/aecp/KL_aecp_response_builder.sv` (record validate/classify
+passes + the 7.4.76 dispatch branch).
