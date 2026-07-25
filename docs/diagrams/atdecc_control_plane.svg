@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1940" height="1500" viewBox="0 0 1940 1500" font-family="Helvetica,Arial,sans-serif">
+<rect width="1940" height="1500" fill="#FAFAFA"/>
+<defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#607D8B"/></marker></defs>
+<text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">ATDECC control plane in fabric — ADP · AECP/AEM · ACMP · MAAP</text>
+<text x="40" y="88" font-size="14.5" fill="#546E7A">Every engine follows the monitor-tap + low-rate-TX recipe; identity is shared through the 0x600 CSR group so ADP and AEM can never disagree. Design record: docs/design/AEM_AND_AECP.md</text>
+<rect x="340" y="130" width="1160" height="540" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2" fill-opacity="0.45"/>
+<text x="358" y="160" font-size="16.5" font-weight="bold" fill="#1565C0">KL_aecp_top — AECP / AEM listener   (IEEE 1722.1-2021 §9 · Milan v1.2 §5.4)</text>
+<rect x="340" y="720" width="390" height="310" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2" fill-opacity="0.45"/>
+<text x="358" y="750" font-size="16.5" font-weight="bold" fill="#2E7D32">ADP   (IEEE 1722.1-2021 §6 · discovery)</text>
+<rect x="770" y="720" width="450" height="310" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2" fill-opacity="0.45"/>
+<text x="788" y="750" font-size="16.5" font-weight="bold" fill="#EF6C00">ACMP   (IEEE 1722.1-2021 §8 · Milan v1.2 §5.5)</text>
+<rect x="40" y="1090" width="1860" height="330" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2" fill-opacity="0.45"/>
+<text x="58" y="1120" font-size="16.5" font-weight="bold" fill="#F9A825">CSR / driver touchpoints   (milan_csr window; ABI: docs/reference/REGISTER_MAP.md)</text>
+<text x="58" y="1142" font-size="12.5" fill="#5D4037">softcore/driver: provisions identity at boot, runs the gptp-&gt;CSR daemon, seeds MAAP re-claim, saves/restores ACMP binds (acmp-persist), reads status + forensics</text>
+<rect x="40" y="190" width="250" height="840" rx="10" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="52" y="212" font-size="13.5" font-weight="bold" fill="#212121">MAC RX stream</text>
+<text x="52" y="230" font-size="11.5" fill="#37474F">post rx_mac_filter (TCAM)</text>
+<text x="52" y="245" font-size="11.5" fill="#37474F"></text>
+<text x="52" y="260" font-size="11.5" fill="#37474F">MONITOR taps only:</text>
+<text x="52" y="275" font-size="11.5" fill="#37474F">every control engine</text>
+<text x="52" y="290" font-size="11.5" fill="#37474F">reads this stream,</text>
+<text x="52" y="305" font-size="11.5" fill="#37474F">none may backpressure</text>
+<text x="52" y="320" font-size="11.5" fill="#37474F">it (house recipe)</text>
+<rect x="370" y="190" width="200" height="95" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="382" y="212" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_ingress</text>
+<text x="382" y="230" font-size="11.5" fill="#37474F">AECP-for-us / discover filter</text>
+<text x="382" y="245" font-size="11.5" fill="#37474F">store-and-forward, src MAC</text>
+<rect x="595" y="190" width="200" height="95" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="607" y="212" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_packet_validator</text>
+<text x="607" y="230" font-size="11.5" fill="#37474F">drop bad message_type /</text>
+<text x="607" y="245" font-size="11.5" fill="#37474F">control_data_length &lt; 12</text>
+<rect x="820" y="190" width="200" height="95" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="832" y="212" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_common_parser</text>
+<text x="832" y="230" font-size="11.5" fill="#37474F">header struct, entity_id</text>
+<text x="832" y="245" font-size="11.5" fill="#37474F">match on the first beat</text>
+<rect x="1045" y="190" width="200" height="95" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="1057" y="212" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_l0_state</text>
+<text x="1057" y="230" font-size="11.5" fill="#37474F">LOCK 60 s owner/expiry</text>
+<text x="1057" y="245" font-size="11.5" fill="#37474F">ACQUIRE -&gt; NOT_SUPPORTED</text>
+<rect x="1270" y="190" width="205" height="95" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="1282" y="212" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_timers</text>
+<text x="1282" y="230" font-size="11.5" fill="#37474F">1 kHz tick · lock expiry</text>
+<text x="1282" y="245" font-size="11.5" fill="#37474F">counter-push 1/s throttle</text>
+<rect x="370" y="340" width="470" height="180" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="382" y="362" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_response_builder</text>
+<text x="382" y="380" font-size="11.5" fill="#37474F">capture · classify · SET_* write-back · segment serialiser</text>
+<text x="382" y="395" font-size="11.5" fill="#37474F">4-slot unsolicited push engine (u=1, no-change gate)</text>
+<text x="382" y="410" font-size="11.5" fill="#37474F">GET_DYNAMIC_INFO 0x4B two-pass batch engine</text>
+<text x="382" y="425" font-size="11.5" fill="#37474F">`AEM_DYNMAP dynamic audio-map engine (5.4.2.26-28)</text>
+<text x="382" y="440" font-size="11.5" fill="#37474F">identify_o -&gt; board LED</text>
+<rect x="870" y="340" width="310" height="55" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="882" y="362" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_accessor</text>
+<text x="882" y="380" font-size="11.5" fill="#37474F">directory (type,index) -&gt; {base,len}</text>
+<rect x="870" y="415" width="310" height="55" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="882" y="437" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_aem_store</text>
+<text x="882" y="455" font-size="11.5" fill="#37474F">generated ROM + write-back RAM</text>
+<rect x="870" y="490" width="310" height="55" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="882" y="512" font-size="13.5" font-weight="bold" fill="#212121">KL_aecp_aem_dyn_mux</text>
+<text x="882" y="530" font-size="11.5" fill="#37474F">live-field read overlay</text>
+<rect x="365" y="785" width="165" height="150" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+<text x="377" y="807" font-size="13.5" font-weight="bold" fill="#212121">KL_adp_parser</text>
+<text x="377" y="825" font-size="11.5" fill="#37474F">RX: ENTITY_AVAILABLE /</text>
+<text x="377" y="840" font-size="11.5" fill="#37474F">DEPARTING / DISCOVER</text>
+<text x="377" y="855" font-size="11.5" fill="#37474F">decode (82-B rule)</text>
+<rect x="550" y="785" width="165" height="220" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+<text x="562" y="807" font-size="13.5" font-weight="bold" fill="#212121">adp_advertiser</text>
+<text x="562" y="825" font-size="11.5" fill="#37474F">ENTITY_AVAILABLE every</text>
+<text x="562" y="840" font-size="11.5" fill="#37474F">valid_time; discover resp</text>
+<text x="562" y="855" font-size="11.5" fill="#37474F">(random delay); departing;</text>
+<text x="562" y="870" font-size="11.5" fill="#37474F">available_index++ on</text>
+<text x="562" y="885" font-size="11.5" fill="#37474F">EVERY ADPDU; discover</text>
+<text x="562" y="900" font-size="11.5" fill="#37474F">pulse from AECP ingress</text>
+<rect x="785" y="785" width="205" height="220" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
+<text x="797" y="807" font-size="13.5" font-weight="bold" fill="#212121">KL_acmp_lstn_ctx</text>
+<text x="797" y="825" font-size="11.5" fill="#37474F">N sink bind contexts,</text>
+<text x="797" y="840" font-size="11.5" fill="#37474F">one SM + one ctx RAM:</text>
+<text x="797" y="855" font-size="11.5" fill="#37474F">ctx0 probe ladder (5.5.3),</text>
+<text x="797" y="870" font-size="11.5" fill="#37474F">ctx1 CRF record;</text>
+<text x="797" y="885" font-size="11.5" fill="#37474F">CONNECT/DISCONNECT/</text>
+<text x="797" y="900" font-size="11.5" fill="#37474F">GET_RX_STATE responder;</text>
+<text x="797" y="915" font-size="11.5" fill="#37474F">ADP talker watch feeds it</text>
+<rect x="1005" y="785" width="200" height="130" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
+<text x="1017" y="807" font-size="13.5" font-weight="bold" fill="#212121">KL_acmp_tlkr_ctx</text>
+<text x="1017" y="825" font-size="11.5" fill="#37474F">N source contexts:</text>
+<text x="1017" y="840" font-size="11.5" fill="#37474F">PROBE_TX SM, 15 s</text>
+<text x="1017" y="855" font-size="11.5" fill="#37474F">window, live params</text>
+<rect x="1005" y="925" width="200" height="80" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
+<text x="1017" y="947" font-size="13.5" font-weight="bold" fill="#212121">bind-restore port</text>
+<text x="1017" y="965" font-size="11.5" fill="#37474F">0x7A0 commit -&gt; ENTRY</text>
+<text x="1017" y="980" font-size="11.5" fill="#37474F">record (saved-state)</text>
+<rect x="1250" y="720" width="270" height="310" rx="10" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
+<text x="1262" y="742" font-size="13.5" font-weight="bold" fill="#212121">KL_maap</text>
+<text x="1262" y="760" font-size="11.5" fill="#37474F">IEEE 1722 Annex B</text>
+<text x="1262" y="775" font-size="11.5" fill="#37474F">PROBE x3 -&gt; ANNOUNCE,</text>
+<text x="1262" y="790" font-size="11.5" fill="#37474F">DEFEND on conflict;</text>
+<text x="1262" y="805" font-size="11.5" fill="#37474F">pool 91:E0:F0 + offset;</text>
+<text x="1262" y="820" font-size="11.5" fill="#37474F">claimed DMAC drives the</text>
+<text x="1262" y="835" font-size="11.5" fill="#37474F">AAF framer (eff_aaf_dmac</text>
+<text x="1262" y="850" font-size="11.5" fill="#37474F">mux); softcore may seed</text>
+<text x="1262" y="865" font-size="11.5" fill="#37474F">the offset (re-claim)</text>
+<rect x="1620" y="190" width="280" height="400" rx="10" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="1632" y="212" font-size="13.5" font-weight="bold" fill="#212121">low-rate TX arbiter chain</text>
+<text x="1632" y="230" font-size="11.5" fill="#37474F">pairwise adp_tx_arbiter tree:</text>
+<text x="1632" y="245" font-size="11.5" fill="#37474F"></text>
+<text x="1632" y="260" font-size="11.5" fill="#37474F">1  AECP + ACMP talker</text>
+<text x="1632" y="275" font-size="11.5" fill="#37474F">2  + ADP advertise</text>
+<text x="1632" y="290" font-size="11.5" fill="#37474F">3  + lwSRP MRPDUs (0x680)</text>
+<text x="1632" y="305" font-size="11.5" fill="#37474F">4  + ACMP listener</text>
+<text x="1632" y="320" font-size="11.5" fill="#37474F">5  + MAAP</text>
+<text x="1632" y="335" font-size="11.5" fill="#37474F"></text>
+<text x="1632" y="350" font-size="11.5" fill="#37474F">one whole frame per grant</text>
+<rect x="1620" y="660" width="280" height="90" rx="10" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="1632" y="682" font-size="13.5" font-weight="bold" fill="#212121">TX merge with datapath</text>
+<text x="1632" y="700" font-size="11.5" fill="#37474F">control stream + shaped/PTP</text>
+<text x="1632" y="715" font-size="11.5" fill="#37474F">stream -&gt; one MAC TX</text>
+<rect x="1620" y="790" width="280" height="80" rx="10" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="1632" y="812" font-size="13.5" font-weight="bold" fill="#212121">MAC TX</text>
+<text x="1632" y="830" font-size="11.5" fill="#37474F">MilanMAC -&gt; PHY</text>
+<rect x="70" y="1165" width="580" height="110" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="82" y="1187" font-size="13.5" font-weight="bold" fill="#212121">0x600-0x644  ADP identity + control</text>
+<text x="82" y="1205" font-size="11.5" fill="#37474F">entity_id/model_id/caps · gPTP GM 0x624/8 + domain (daemon-fed)</text>
+<text x="82" y="1220" font-size="11.5" fill="#37474F">valid_time · ADP_CMD advertise-now · ADP_STATUS available_index</text>
+<rect x="670" y="1165" width="580" height="110" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="682" y="1187" font-size="13.5" font-weight="bold" fill="#212121">0x648 / 0x64C  AECP status (RO)</text>
+<text x="682" y="1205" font-size="11.5" fill="#37474F">A_AECP_STAT0/1: locked + command count ·</text>
+<text x="682" y="1220" font-size="11.5" fill="#37474F">response count + current_configuration</text>
+<rect x="1270" y="1165" width="580" height="110" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="1282" y="1187" font-size="13.5" font-weight="bold" fill="#212121">0x6A4 ACMPL_STATE (RO) · 0x6E8 forensics</text>
+<text x="1282" y="1205" font-size="11.5" fill="#37474F">listener SM state / bound / SRP flags / last ACMP status ·</text>
+<text x="1282" y="1220" font-size="11.5" fill="#37474F">walker classify counters</text>
+<rect x="70" y="1290" width="580" height="110" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="82" y="1312" font-size="13.5" font-weight="bold" fill="#212121">0x6CC-0x6D4  MAAP</text>
+<text x="82" y="1330" font-size="11.5" fill="#37474F">enable / seed re-claim · claimed offset, conflicts, DEFENDs ·</text>
+<text x="82" y="1345" font-size="11.5" fill="#37474F">addr_valid + SM state</text>
+<rect x="670" y="1290" width="580" height="110" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="682" y="1312" font-size="13.5" font-weight="bold" fill="#212121">0x7A0-0x7B4  ACMP bind-restore</text>
+<text x="682" y="1330" font-size="11.5" fill="#37474F">saved talker/controller ids + flags + commit/status;</text>
+<text x="682" y="1345" font-size="11.5" fill="#37474F">software-gated: VERSION &gt;= 0x000A + 0x7A0 write/readback probe</text>
+<rect x="1270" y="1290" width="580" height="110" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="1282" y="1312" font-size="13.5" font-weight="bold" fill="#212121">0x680  lwSRP engine (neighbor)</text>
+<text x="1282" y="1330" font-size="11.5" fill="#37474F">MSRP Domain/TalkerAdvertise; couples listener_observed into the</text>
+<text x="1282" y="1345" font-size="11.5" fill="#37474F">talker contexts and gates AAF admission on the reservation</text>
+<rect x="1210" y="340" width="270" height="185" rx="10" fill="#FFFFFF" stroke="#90A4AE" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="1222" y="362" font-size="13.5" font-weight="bold" fill="#212121">entity model (generated)</text>
+<text x="1222" y="380" font-size="11.5" fill="#37474F">avdecc/milan-v12-entity*.json</text>
+<text x="1222" y="395" font-size="11.5" fill="#37474F">-&gt; avdecc/gen_aem_store.py</text>
+<text x="1222" y="410" font-size="11.5" fill="#37474F">   (--overlay: sw/builder</text>
+<text x="1222" y="425" font-size="11.5" fill="#37474F">    endstation shapes, NxN)</text>
+<text x="1222" y="440" font-size="11.5" fill="#37474F">-&gt; gen/aecp_aem_rom.svh</text>
+<text x="1222" y="455" font-size="11.5" fill="#37474F">   + aem_golden.h + aem_rom.json</text>
+<path d="M290 237 L370 237" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<text x="296" y="231" font-size="11.5" fill="#455A64">tap</text>
+<path d="M290 500 L318 500 L318 692 L1385 692" fill="none" stroke="#455A64" stroke-width="2" stroke-dasharray="7,5"/>
+<text x="1150" y="684" font-size="11.5" fill="#455A64">monitor-tap rail</text>
+<path d="M535 692 L535 720" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M995 692 L995 720" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1385 692 L1385 720" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M570 237 L595 237" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M795 237 L820 237" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1020 237 L1045 237" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1270 237 L1245 237" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M920 285 L920 305 L560 305 L560 340" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1145 285 L1145 318 L660 318 L660 340" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<text x="900" y="314" font-size="11.5" fill="#1565C0">status/reject</text>
+<path d="M1372 285 L1372 330 L760 330 L760 340" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<text x="1080" y="326" font-size="11.5" fill="#1565C0">ticks</text>
+<path d="M840 367 L870 367" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1025 395 L1025 415" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1025 470 L1025 490" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M840 442 L870 442" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<text x="843" y="410" font-size="11.5" fill="#1565C0">SET_* wb</text>
+<path d="M870 517 L840 517" fill="none" stroke="#1565C0" stroke-width="2" marker-end="url(#arr)"/>
+<text x="700" y="535" font-size="11.5" fill="#1565C0">overlaid byte</text>
+<path d="M1210 442 L1180 442" fill="none" stroke="#90A4AE" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#arr)"/>
+<text x="1198" y="462" font-size="11.5" fill="#90A4AE">generates</text>
+<path d="M370 262 L332 262 L332 714 L632 714 L632 720" fill="none" stroke="#2E7D32" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#arr)"/>
+<path d="M460 720 L460 706 L860 706 L860 720" fill="none" stroke="#EF6C00" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#arr)"/>
+<path d="M1500 430 L1620 430" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<text x="1504" y="424" font-size="11.5" fill="#455A64">AECP responses</text>
+<path d="M535 1030 L535 1055 L1548 1055 L1548 470 L1620 470" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<text x="600" y="1049" font-size="11.5" fill="#455A64">ADPDUs</text>
+<path d="M995 1030 L995 1065 L1560 1065 L1560 510 L1620 510" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<text x="1060" y="1082" font-size="11.5" fill="#455A64">ACMP responses / probes</text>
+<path d="M1520 875 L1572 875 L1572 550 L1620 550" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1760 590 L1760 660" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<path d="M1760 750 L1760 790" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arr)"/>
+<text x="40" y="1468" font-size="12.5" fill="#546E7A">Generated by docs/diagrams/atdecc_control_plane.gen.py — edit the generator (or the .drawio), never the render. Beat-level drill-down: hdl/ieee17221/aecp/doc/atdecc_architecture.drawio</text>
+</svg>
