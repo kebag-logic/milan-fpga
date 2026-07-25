@@ -1,0 +1,19 @@
+{
+  "head": {"text": "TDM8 slave frame: 8 slots x 32 BCLK, MSB first, sampled on the BCLK rising edge (DATA_DELAY_P = 1 shown)"},
+  "signal": [
+    {"name": "BCLK",        "wave": "p....|..|..|.|......", "node": "...b................"},
+    {"name": "fsync pulse", "wave": "0.10.|..|..|.|.10...", "node": "..a............c...."},
+    {"name": "fsync 50%",   "wave": "0.1..|..|..|0|.1...."},
+    {"name": "armed",       "wave": "01...|..|..|.|......"},
+    {"name": "DATA",        "wave": "x..==|==|==|=|===.x.", "node": "...............e....",
+     "data": ["S0 b31", "b30", "b0", "S1b31", "S1b0", "S2..S3", "S4..", "S7b1", "S7b0", "S0' b31"]},
+    {"name": "pair events", "wave": "0....|=0|=0|.|.=0...",
+     "data": ["hold L", "pair 0", "pair 3"]}
+  ],
+  "edge": [
+    "a~>b delay=1: MSB on the NEXT edge",
+    "c~>e finishes the prior frame"
+  ],
+  "foot": {"text": "fsync 0->1 only (pulse or 50% duty); arms after one LOW sample - a level is never an edge."},
+  "config": {"hscale": 1}
+}
