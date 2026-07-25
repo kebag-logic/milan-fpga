@@ -422,3 +422,39 @@ phase-1 engines.
 8. **Docs/tests close-out** — SPEC_TRACEABILITY rows (1722.1
    7.2.19 / es-4.16), behave-suite scenarios (roadmap 10), this doc
    flipped DESIGN → AS-BUILT per phase.
+
+## 12. Silicon validation — the first crossbar walk (2026-07-25)
+
+Run on the deployed 8×8 chmap bitstream, with the second board's PCM ring
+(pair 0 of its bound stream) as the observation window and the pilot tone
+(`TONE_CTRL`) as the probe. All programming through the `0x900` bench window
+([REGISTER_MAP](reference/REGISTER_MAP.md) `CHMAP_*` rows).
+
+**All-slots proof (G2).** Every capture slot set to `{EN, SRC=TONE}`
+(`0xC000`, 32/32 commits in `CHMAP_STAT`): the window shows a full-scale
+1 kHz sine, 24-in-32, **sample-exact against the 48-sample period** within
+every continuous span of the dump. The seams between spans are the dump
+tool's chunk cadence (spacing 5860 samples, zero jitter) with the stream
+error counters static - tooling, not path. The digital path delivers the
+generator's quality end to end: wire, bridge, depacketizer, ring.
+
+**Identity walk (G3, observable window).** One slot at a time set to TONE,
+all others `{EN, SRC=ZERO}`:
+
+| delta on slot | window (stream 0, pair 0) | verdict |
+|---|---|---|
+| 0 | tone (repeated at walk start AND end) | slot 0 ↔ stream 0 pair 0 |
+| 1 | digital silence | no intra-stream pair leak |
+| 4 | digital silence | no cross-stream leak |
+| 8 | digital silence | kills the pair-major layout misread |
+
+The ZERO source is true digital silence (`nz=0` over a full ring), so the
+negatives are exact, not thresholded.
+
+**Scope honestly stated:** this proves the map word decode and the crossbar
+mux on the reachable window - 1 of 32 slots directly lit, 3 adjacent
+negatives, with the remaining slots driven by the same TB-proven mux logic.
+The full 64-channel walk needs a listener that exposes more than one pair
+(the NxN ring engine, or an 8-channel ALSA capture on refreshed listener
+images) plus per-stream talker arming through the lwSRP admission gate -
+that is the next bench lane.

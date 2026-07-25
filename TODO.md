@@ -249,3 +249,8 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
                      ▼
                   Phase 8 Device tree + dtg ──► Phase 9 end-to-end bring-up
 ```
+- [ ] Full 64-slot chmap walk on silicon: per-stream talker arming through the
+      lwSRP admission gate (idx>0 SEL/SID/DMAC staging + listener-ready), an
+      NxN-ring or 8ch-ALSA listener window (refresh the second board's images),
+      then the binary walking-tone identity over all 32 pair slots
+      (docs/CHANNEL_MAP_64.md §12 records the first walk, 2026-07-25).
