@@ -83,12 +83,17 @@ do_flash_images() {
         echo "[deploy] flash-images: no flashboot_layout.json (build --with-spiflash, or set LAYOUT=<path>)"; exit 2; }
     # A device tree from an older CSR layout kills the whole host plane with
     # perfect CSR readbacks (kl-eth maps reg windows by index) — refuse it here
-    # rather than debug it on silicon again. Skipped only if dtc is unavailable.
-    local csrcsv; csrcsv="$(dirname "$LAYOUT")/csr.csv"
-    if [ -n "${DTB:-}" ] && [ -f "$csrcsv" ] && command -v dtc >/dev/null; then
-        "$PYTHON" "$HERE/check_dtb_csr.py" "$DTB" "$csrcsv" || {
-            echo "[deploy] flash-images REFUSED: \$DTB does not match this build's csr.csv."
-            echo "[deploy] Compile it fresh from the dts source (never flash a prebuilt fossil)."; exit 2; }
+    # rather than debug it on silicon again. The OPENSBI check is the decisive
+    # one: the BIOS jumps a1=0, so the fdt EMBEDDED in opensbi (FW_FDT_PATH) is
+    # the only tree the kernel sees. Skipped only if dtc is unavailable.
+    local csrcsv img; csrcsv="$(dirname "$LAYOUT")/csr.csv"
+    if [ -f "$csrcsv" ] && command -v dtc >/dev/null; then
+        for img in "${DTB:-}" "${OPENSBI:-}"; do
+            [ -n "$img" ] || continue
+            "$PYTHON" "$HERE/check_dtb_csr.py" "$img" "$csrcsv" || {
+                echo "[deploy] flash-images REFUSED: $img does not match this build's csr.csv."
+                echo "[deploy] Rebuild it from the dts source (opensbi embeds the fdt — rebuild it too)."; exit 2; }
+        done
     fi
     echo "[deploy] flash-images  (JTAG -> QSPI flash): layout $LAYOUT"
     local tmp; tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' RETURN
