@@ -7,6 +7,13 @@ interface: a single **VexiiRiscv RV64IMA** softcore running Linux (the historica
 an **Alinx AX7101 (Xilinx Artix-7 xc7a100t)**  -  built with an **open toolchain**
 (LiteX + Verilator + Yosys; Vivado only for the final Artix bitstream).
 
+![The full system on one page - SoC, datapath, clock domains, address maps](../diagrams/milan_system_map.png)
+
+> The picture above is generated (editable
+> [`milan_system_map.drawio`](../diagrams/milan_system_map.drawio); regenerate with
+> `python3 docs/diagrams/milan_system_map.gen.py docs/diagrams/milan_system_map.drawio`,
+> render per [`docs/diagrams/README.md`](../diagrams/README.md) - never edit the render).
+
 It is written for two audiences:
 - **High-level** (§1–§3): what the system is, the protocol stack, the block diagram,
   and current status  -  enough to reason about the solution and plan work.
@@ -71,7 +78,7 @@ Companion documents:
 
 | Plane | Protocols | Where |
 |-------|-----------|-------|
-| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | SW talker/listener (optional D5) + entity model |
+| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF + media-clock servo, `hdl/ieee1722/`, silicon-validated) |
 | **Control / AVDECC** | ADP, AECP/AEM, ACMP, MVU (Milan)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric** (ADP/AECP/ACMP/MAAP, silicon-validated; per ARCHITECTURE_HW_SW_SPLIT rev 2) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **lwSRP in fabric** (silicon-validated) + HW TCAM filter |
 | **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping, SW `ptp4l` |
@@ -88,7 +95,7 @@ the entity model under `avdecc/`.
 
 | Layer | State | Evidence |
 |-------|-------|----------|
-| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | ~41 Verilator harnesses green; ~39 Yosys tops (`ls tb/verilator/` / `syn/yosys/run.sh` authoritative) |
+| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in `syn/yosys/run.sh` are the authoritative counts) |
 | `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | `tb/verilator/milan_dp` (11 checks); Yosys |
 | VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; `sw/litex/evidence/naxriscv_sim_boot.log` |
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
@@ -97,27 +104,30 @@ the entity model under `avdecc/`.
 | §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; `kl-eth-tx-debug.md` |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
 | HW ADP advertiser | ✅ complete + verified | `tb/verilator/adp` (121 checks) |
-| AVDECC in fabric (AECP/ACMP/MAAP/MVU) | 🟡 entity model + prior work | `avdecc/`, `docs/aem-and-aecp.md` (NOTE: AECP/ACMP/MAAP RTL now in `hdl/ieee17221/`, silicon-validated; candidate for status upgrade pending USER matrix review) |
+| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in `hdl/ieee17221/` + `hdl/ieee1722/maap/` (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record `aem-and-aecp.md` (repo root); per-command glyphs live in the validation matrix |
 | Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | `RX_RING_DMA.md`, `AVB_SWITCH_DIRECTION.md` |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, `QSPI_FLASHBOOT.md` |
-| SRP/MSRP/MVRP, AVTP media datapath | ⏳ future | matrix rows (NOTE: lwSRP + AAF/CRF datapath now in fabric, silicon-validated; candidate for status upgrade pending USER matrix review) |
+| lwSRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric, silicon-validated** | `hdl/ieee8021q/srp/`, `hdl/ieee1722/aaf/`+`crf/` (per rev 2); per-clause glyphs live in the validation matrix |
 
 ---
 
 ## 4. Repository map (medium level)
 
 ```
-hdl/                         vendor-neutral RTL (Verilator + Yosys verified)
-  common/
-    milan_datapath.sv        §A.9 PS-less wrapper  -  the fabric NIC (CSR+DMA+MAC-AXIS boundary)
-    milan_top.sv             Zynq variant (PS + MAC in-line)  -  kept for the Zynq build
-    milan_csr.sv (../csr/)   AXI4-Lite control plane (register map)
-    tcam.sv, rx_mac_filter.sv  dest-MAC TCAM database + RX filter
-    cdc_pulse/handshake.sv   open CDC primitives (replaced xpm_cdc_*)
-  802_1q_traffic_shaper/     classify + 802.1Qav CBS (traffic_controller_802_1q)
-  ptp_timestamp/             PHC + TX/RX timestamping (ptp_ts_top)
-  adp/                       HW ADP advertiser (adp_advertiser) + TX arbiter
-  eth_event_counter/         RMON counters (ethernet_events)
+hdl/                         vendor-neutral RTL (Verilator + Yosys verified), spec-aligned tree
+  milan/                     milan_datapath.sv (§A.9 PS-less wrapper - the fabric NIC)
+                             + milan_top.sv (Zynq variant, PS + MAC in-line)
+  common/                    csr/milan_csr.sv (AXI4-Lite control plane), CDC primitives
+                             (cdc_pulse/handshake/pair_fifo), AXIS iface + pkgs,
+                             KL_link_guard, tx_ifg_gasket, eth_event_counter/ (RMON)
+  ieee1722/                  aaf/ (packetizer/depacketizer, I2S/TDM capture+render, PCM
+                             ring/LPF/route, tone gen) · avtp/ (parsers, stream table,
+                             RX monitor) · crf/ (CRF RX/TX + KL_mmcm_drp_servo) · maap/
+  ieee17221/                 adp/ (advertiser, parser, TX arbiter) · aecp/ (AEM entity)
+                             · acmp/ (responder + listener)
+  ieee8021as/                ptp_timestamp/ (PHC + TX/RX timestamping, ptp_ts_top)
+  ieee8021q/                 ts/ (classify + queues + 802.1Qav CBS) · srp/ (lwSRP engine)
+                             · filtering/ (dest-MAC TCAM + RX filter)
 third_party/verilog-axis/    Forencich AXIS cores (vendored)
 sw/
   litex/
@@ -125,10 +135,12 @@ sw/
     milan_sim.py             Verilator sim SoC (proves M-A2 on the softcore)
     platforms/alinx_ax7101.py  the AX7101 (xc7a100t) LiteX platform
     evidence/                captured sim boot + MILN-read logs
+  builder/                   endstation_builder.py - declarative end-station definition
   dts/                       device tree (kl,dma-ether) + binding
   driver/                    kl-eth driver ABI contract
-tb/verilator/                ~41 self-checking RTL harnesses (see its README; `ls` is authoritative)
-syn/yosys/                   sv2v + Yosys device-portability check (~39 tops, incl. ECP5)
+tb/verilator/                self-checking RTL harnesses (see its README; `ls` is authoritative)
+syn/yosys/                   sv2v + Yosys device-portability check (the `tops` list in
+                             run.sh is authoritative; generic synth + ECP5)
 docs/                        this file + the companions listed at the top
 ```
 
@@ -185,8 +197,8 @@ that is **not** the litex-repos parent.
 
 ```sh
 # --- RTL verification (no Vivado, no LiteX) ---
-cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # all 17
-cd syn/yosys && ./run.sh                       # 18 device-portability tops
+cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # every harness dir
+cd syn/yosys && ./run.sh                       # every device-portability top (list in run.sh)
 
 # --- softcore in simulation (Verilator; proves the CPU + NIC CSR path) ---
 ./sw/litex/milan_sim.py --xlen 32              # build + boot; mem_read 0x90000000 => MILN
@@ -217,7 +229,7 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 | the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |
 | link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (§A.7 refine) |
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
-| an AVDECC protocol (AECP/ACMP/MAAP) | implement in the driver/daemon per the entity model (`avdecc/milan-v12-entity.json`); the HW path is the CSR + control-frame filter |
+| an AVDECC protocol behavior (AECP/ACMP/MAAP) | extend the fabric engines (`hdl/ieee17221/`, `hdl/ieee1722/maap/`) + their harnesses; the entity model (`avdecc/milan-v12-entity.json`) and `REGISTER_MAP.md` stay the contract |
 
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
@@ -256,9 +268,12 @@ Kept here as the historical order, each item marked with its result.
 6. **Driver bring-up (M-A5)**  -  ✅ **DONE.** `kl-eth` is up: `ping`, `ethtool -T` (PHC),
    `ptp4l`, `tc … cbs offload`, and ring-DMA networking at the measured scoreboard
    (`RX_RING_DMA.md`, `AVB_SWITCH_DIRECTION.md`). **M-A5 = "Milan on FPGA" closed.**
-7. **AVDECC protocols** *(remaining)*  -  AECP/AEM enumeration, ACMP connect, MAAP, MVU,
-   then SRP/MSRP/MVRP, then (optional) the AVTP media datapath. Each row in the
+7. **AVDECC protocols**  -  ✅ **DONE, in fabric.** AECP/AEM enumeration, ACMP, MAAP,
+   MVU, lwSRP (MSRP/MVRP) and the AAF/CRF media datapath are all silicon-validated RTL
+   (`hdl/ieee17221/`, `hdl/ieee1722/`, `hdl/ieee8021q/srp/`). Each row in the
    [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md) names its test.
 
-The full `--full` SoC builds, boots Linux, and passes traffic on silicon today; the
-remaining work is the AVDECC/SRP control stack and the optional media datapath (step 7).
+The full SoC builds, boots Linux, passes traffic, and runs the Milan control + media
+planes in fabric on silicon today. What is still open lives in
+[`KNOWN_ISSUES_AND_LIMITATIONS.md`](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) and
+the GitHub issue tracker (the per-round status files were retired in favor of issues).

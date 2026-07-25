@@ -8,6 +8,11 @@ the live state in `SESSION_HANDOFF.md`. Referenced from the source headers of
 `sw/litex/milan_soc.py` (gateware) and `the-private-test-repo fpga/kl-eth/kl-eth.c`
 (driver).*
 
+Editable diagram: [`milan_tx_rx_datapath.drawio`](../milan_tx_rx_datapath.drawio)
+- the one-page TX/RX + control-path block map (draw.io master, no committed
+render yet; open in draw.io/diagrams.net; see
+[`../diagrams/README.md`](../diagrams/README.md) for the render rules).
+
 Conventions used below. "CSR" means a register you can poke live with devmem.
 "Elab param" means a Python elaboration parameter: changing it requires a
 Vivado rebuild (about one hour; always launch 2 or 3 place-directive variants
