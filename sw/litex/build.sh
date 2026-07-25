@@ -24,7 +24,7 @@
 # load/console facts, gates). Update it when adding a config or a rule here.
 
 set -euo pipefail
-WORK=/home/alex/litex-milan/work
+WORK=$HOME/litex-milan/work
 SOC_DIR="$(cd "$(dirname "$0")" && pwd)"
 TAG=${TAG:-$(date +%m%d%H%M)}
 STAGGER=90
@@ -204,8 +204,8 @@ first=1
 for job in "${JOBS[@]}"; do
     name=${job%%|*}; args=${job#*|}
     out="$WORK/build_${name}_${TAG}"
-    cmd="cd $SOC_DIR && source /home/alex/Xilinx2/2026.1/Vivado/settings64.sh && \
-         export PATH=/home/alex/litex-milan/venv/bin:\$PATH && \
+    cmd="cd $SOC_DIR && source $HOME/Xilinx2/2026.1/Vivado/settings64.sh && \
+         export PATH=$HOME/litex-milan/venv/bin:\$PATH && \
          exec python3 milan_soc.py $args ${EXTRA[*]:-} --vivado-max-threads 32 --build --output-dir $out"
     if [ "$DRY" = 1 ]; then
         echo "DRY [$name] -> $out"; echo "  $cmd" | tr -s ' '; continue

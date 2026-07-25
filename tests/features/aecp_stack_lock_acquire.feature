@@ -14,7 +14,7 @@ Feature: AECP stack — LOCK and ACQUIRE entity round-trips with a simulated con
     And the DUT is reset
     And controller "C1" has id 0xAABBCCDDEEFF0011
     And controller "C2" has id 0x1122334455667788
-    And the AECP protocol directory is "/home/alex/tsn-gen/protocols"
+    And the AECP protocol directory is "~/tsn-gen/protocols"
 
   Scenario: Controller C1 locks the entity and receives SUCCESS response
     When I inject a LOCK_ENTITY AECP frame from "C1" to entity 0x001BC5FFFE112233

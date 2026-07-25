@@ -256,7 +256,7 @@ box("plic", 15, 172, 710, 50, "PLIC + CLINT — kl-eth per-queue · milan_csr ·
 box("bus", 15, 238, 710, 60, "LiteX interconnect — Wishbone/AXI · CSR 32b ·\ncoherent DMA port 64b into the L2 (--coherent-dma)",
     fill=SYS[0], stroke=SYS[1], font=9, parent="c_cpu")
 box("uart", 15, 314, 340, 60, "UART 115200 (litex_term)", fill=SYS[0], stroke=SYS[1], font=9, parent="c_cpu")
-box("jtag", 375, 314, 350, 60, "JTAG — openFPGALoader\nft232 210512180081", fill=SYS[0], stroke=SYS[1], font=9, parent="c_cpu")
+box("jtag", 375, 314, 350, 60, "JTAG — openFPGALoader\nft232 (serial: bench-local)", fill=SYS[0], stroke=SYS[1], font=9, parent="c_cpu")
 
 cont("c_drv", 20, 520, 1520, 780, "software (Linux on the softcore)", stroke=SYS[1], fill="#faf6fc", parent="c_soc")
 box("kleth", 15, 35, 1490, 280,

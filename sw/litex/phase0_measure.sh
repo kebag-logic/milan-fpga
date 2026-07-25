@@ -8,10 +8,11 @@
 #     whether prefetch ALONE can reach 200
 #   * the write-outstanding depth proxy (RX phase) — can the interconnect pipeline reads?
 #
-# Peer must be running `iperf3 -s` (default 192.168.127.2). Sys clock = 100 MHz => 10 ns/cyc.
+# Peer must be running `iperf3 -s` (peer IP from sw/litex/boards.local.sh or arg1). Sys clock = 100 MHz => 10 ns/cyc.
 # Usage: sh phase0_measure.sh [PEER_IP] [DURATION_s]
 set -e
-PEER="${1:-192.168.127.2}"
+HERE_P="$(dirname "$0")"; [ -f "$HERE_P/boards.local.sh" ] && . "$HERE_P/boards.local.sh"
+PEER="${1:-${PEER_IP:-PEER_IP_UNSET}}"
 DUR="${2:-12}"
 NSCYC=10                                   # ns per sys cycle @100 MHz
 

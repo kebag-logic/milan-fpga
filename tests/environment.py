@@ -6,7 +6,7 @@
 import os
 import subprocess
 
-TSAGEN_DIR = os.environ.get("TSAGEN_DIR", "/home/alex/tsn-gen")
+TSAGEN_DIR = os.environ.get("TSAGEN_DIR", os.path.expanduser("~/tsn-gen"))
 PROTOCOLS_DIR = os.path.join(TSAGEN_DIR, "protocols")
 DUT_SOCKET   = os.environ.get("DUT_SOCKET", "/work/sock/aecp.sock")
 PACKET_GEN   = os.path.join(TSAGEN_DIR, "build/traffic-gen/packet_gen")
