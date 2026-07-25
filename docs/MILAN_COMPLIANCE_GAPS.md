@@ -539,8 +539,14 @@ and is not repeated here.
      1-in-24 under CPU ring reads until then (low impact today: no
      ALSA/DAC use on the AX);
    - c. then the AX 8x8 stream round with its area levers (L2 32K is
-     already in; crf_rx ts-ring->BRAM; pruning) on top of the fixed
-     base.
+     already in; **crf_rx ts-ring->BRAM DONE 2026-07-25** — the 8x8+chmap
+     placer overflow at 90.97% synth LUT unplaced exactly
+     `crf_rx/ts_hist_r_reg[*]`; the 256x64 flop file became a 256x32
+     single-port READ_FIRST BRAM ring (bit-exact: `rate` subtraction is
+     congruent mod 2^32, the high words were dead), OOC −3177 LUT /
+     −8159 FF / +1 RAMB18, `rate_o` one clock later (pinned by the new
+     `tb/verilator/crf_rx` 7073-check suite); pruning stays queued) on
+     top of the fixed base.
 
 1. ~~AX timing closure with the link guard~~ **DONE 2026-07-22**
    (buffered dp-CDCs; AX34 3/3 keep + silicon drills green — §5b).
