@@ -57,20 +57,27 @@ The lever that closed the campaign was header-split zero-copy RX, 07-10/11 —
 tools `tools_wakebench.c`/`tools_recv_spin.c`): bounded receive windows are throttled by a
 **structural ~1 ms kernel window-cycle at 100 MHz** (ICMP kernel turnaround 0.574 ms tight;
 sleep-wake 340–560 µs/leg) → rate ≈ rwnd/1.2 ms ≈ 100–240 Mbit for 48–384 KB buffers,
-regardless of copy warmth. Unbounded windows self-defeat residency (slow copy ⇒ 1–3 MB
+regardless of copy warmth.
+
+Unbounded windows self-defeat residency (slow copy ⇒ 1–3 MB
 standing Recv-Q ⇒ cold copy). DDIO×spin×paced-entry all measured flat. Keepers: busy-poll
 receiver (`recv_spin`, +8% over iperf3), quickack regime rule (helps lockstep, kills
 streaming  -  default OFF), threaded=0.
 
 **R2 (RSC multi-slot × geometry)  -  LANDED, the campaign's structural win** (`build_r2slots`
-WNS +0.018 + kl-eth `mslot60c`, commits a238f84/98b9708/b880cdf/5c6f1a6). Park was 90% of
+WNS +0.018 + kl-eth `mslot60c`, commits a238f84/98b9708/b880cdf/5c6f1a6).
+
+Park was 90% of
 closes at −P2 and aggregates were 16 KB-buffer-bound at 10.6 segs  -  so the fix is 4 aggregate
 slots (kill interleave parks) × 60 KB order-4 buffers (segcap 60, agemax 2 ms) × a
 **pop-ordered completion queue** that keeps BD order == posted-pop order BY CONSTRUCTION
 (the RX-wedge invariant generalized; both historical `~agg_open` gates removed; driver ABI
-unchanged  -  v2 BDs still carry no address). Timing needed a MATCH pipeline stage + staged
+unchanged  -  v2 BDs still carry no address).
+
+Timing needed a MATCH pipeline stage + staged
 close-meta (CQ_FILL). Driver: lost-edge IRQ race closed (PLIC edge + re-enable race → BDs
 rode the 5 ms idle poll; p90 5.5 ms stalls measured, re-check after enable_irq).
+
 **Silicon: no-copy ceiling (MSG_TRUNC −P2) 458 → 925 Mbit (~93% of line rate, 2×);
 coalesce ratio 10.6 → 22.8 segs/agg; TX −P4 513 (no regression); §V storm 5 rounds mixed
 3-flow 620–668 Mbit aggregate, drops delta 0, canary 0.**
@@ -80,10 +87,14 @@ short-cell (6–20 s) TCP number is slow-start-flattered  -  the 8 Recv-Qs absor
 Mbit ingest burst while the apps drain at copy speed, so an 8 s cell reports 520–660
 "received" (582/610/660 measured) while the **peer tx_bytes time-series shows the steady
 truth: −P8 = 379–407 Mbit flat** (256 KB reads; other read sizes lower in steady despite
-looking better in short cells). Both harts are 100 % (cpu0 all-softirq, cpu1 all-sys/copy)
+looking better in short cells).
+
+Both harts are 100 % (cpu0 all-softirq, cpu1 all-sys/copy)
  -  a genuine CPU equilibrium; the full-queue regime costs more per byte than the transient
 (window-update + sock-lock backlog double-handling). mslot60d (KL_BD_POST 48→60) zeroed
-the famine drops. **Sustain claims henceforth require the peer-side time-series.**
+the famine drops.
+
+**Sustain claims henceforth require the peer-side time-series.**
 Honest R2 @100 MHz ledger: steady RX ~390–410, transient-drain proof ≥520, ceiling 925.
 
 **R3 (112.5 MHz sys on the R2 keeper) + R3b (112.5 + `--lsu-rpt-block-ahead-max=8`)  - 
@@ -118,57 +129,77 @@ CPU profile side by side  -  no blind changes.
 
 ¹ 145 unpinned / 186 pinned-SSH with HW-TSO zerocopy; the datapath-input probe proved the
 50 MHz shaper stage was the wall.
+
 ² **MEASURED 2026-07-07** on `build_dp100_p0` (reader latency/starve probes, `phase0_measure.sh`,
 two runs, rsc250 hwtso+rsc_clk_mhz=100, hash_sel=1): TX **238/247 Mbit/s, 0 retr**. Reader is only
 **3.8% busy**; `L_pay = 45 cyc` (450 ns, NOT the ~140 assumed); prefetchable read-latency stall is
 only **~13%** and interconnect depth (`rxw_out_hi`) is **2**. So **reader prefetch was refuted**  - 
 the walls were datapath back-pressure (`stall` 39%) and CPU/ring-empty (`idle` 39%). Full evidence:
 [`historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md`](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) (MEASURED VERDICT + Appendix A). "Never assume, always measure."
+
 ³ **CBS root cause, MEASURED + FIXED 2026-07-08.** The 39–42% datapath-input `stall` was the
 **802.1Qav CBS shaper actively pacing best-effort traffic**: `milan_csr` reset `CBS_EN_RST=0011`
 shaped **q0 at idleSlope 300 Mb/s** while the default class map (`cls_dpcp=0`, `cls_tcq=0xE4`)
 routes untagged/BE traffic exactly to q0  -  two defaults contradicting each other (the comment even
-says BE stays unshaped per REQ-CBS-02). Verified live on silicon (q0 read back idle=0x11E1A300,
+says BE stays unshaped per REQ-CBS-02).
+
+Verified live on silicon (q0 read back idle=0x11E1A300,
 en=1), then clearing en via `devmem 0x9000_040C` dropped `tx_dma` stalls **418‰ → 4‰** on the spot.
 Permanent fix: **`CBS_EN_RST = 4'b0000`** (all queues strict-priority at reset; SRP/AVDECC opts SR
 classes into shaping)  -  `tb/verilator/csr` updated (76 checks green), built as `build_dp100_cbs0`
-(WNS **+0.031**), **verified at reset on silicon** (q0–q3 en=0). Un-paced TX then measured
+(WNS **+0.031**), **verified at reset on silicon** (q0–q3 en=0).
+
+Un-paced TX then measured
 265 single / **339 −P4 @ rx-usecs 1000** / **354 dual-process**  -  now genuinely **CPU-bound**
 (`/proc/stat` 84–96% busy; the +23% from rx-usecs 500→1000 = fewer ACK-batch wakeups; iperf3 −P is
 single-threaded, hence the dual-process-per-hart test; noZ costs ~20% → zerocopy is load-bearing).
 ⁴ **RX overload wedge  -  ROOT-CAUSED IN SIM AND FIXED (2026-07-08, commit `09e3a09`).** Symptom:
 parallel RX (−P2) reliably killed RX **delivery** while **every HW stage kept flowing** (stage
-probes wire=core=dp=dma in lockstep; writer still committing BDs). Root cause, reproduced by a
+probes wire=core=dp=dma in lockstep; writer still committing BDs).
+
+Root cause, reproduced by a
 minimal deterministic sim (`test_bd_ack_flush_vs_open_agg_order`): the **pending-ACK timeout
 flush (`ACK_POP`) pops a NEW posted buffer and completes its v1 BD while an OPEN RSC aggregate
 still holds an EARLIER buffer whose v2 BD only comes at close**  -  completion order inverts
 posted-buffer pop order, and the driver's FIFO page pairing (`page[comp_i++]`) then mispairs
-every later completion: RX delivery dead, HW healthy. −P2 made it near-certain (two data flows
+every later completion: RX delivery dead, HW healthy.
+
+−P2 made it near-certain (two data flows
 churn the single aggregate slot so one is almost always open; the iperf control connection's
 pure ACKs sit in the merge slot and expire mid-aggregate); single-flow rarely hit the window.
+
 **Fix:** never flush the pending ACK while an aggregate is open  -  IDLE gates `ack_expired` on
 `~agg_open`, and DISPATCH closes the aggregate first for a different-flow mack newcomer (the
 extra ACK delay is bounded by the aggregate's own `rsc_tout`). BD order == pop order by
-construction. Verified: `test_ring_bd.py` **22/22**  -  17 pre-existing + minimal repro + −P2
+construction.
+
+Verified: `test_ring_bd.py` **22/22**  -  17 pre-existing + minimal repro + −P2
 storm cocktail + heal-race (5 disable phases) + seeded fuzz ×2 against a `DriverModel` that
 mirrors kl-eth's reap bit-for-bit. Driver keeps the v1 address-verify realign guard
 (`kl-eth 83aa7ec`) as defense-in-depth. Gateware with the fix: `build_dp100_wfix`.
 Also seen: idle RTT is 3–11 ms (irq 13 fires but delivery rides the 5 ms fallback poll;
 `rx-usecs-low` 200 µs storms the CPU)  -  a completion-IRQ NAPI is the latency fix, now unblocked.
+
 **UPDATE (later 2026-07-08): a SECOND wedge was subsequently root-caused and fixed**  -  the v1
 BD's 16-bit `drops` field aliased bit 56 (the v2 marker) at drops ≥ 256, making every v1
 completion parse as a v2 aggregate under parallel-storm famine (`2c44757`). **Both fixes are
 silicon-validated on `build_dp100_v2fix` (WNS +0.123)**: the previously-fatal storm sequence
 runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 [`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md).
+
+
 ⁵ **RX memory levers, MEASURED 2026-07-08** ([`historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md) + [`docs/fpga/LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md)). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
 **Status vs goal (>500):** **TX ✅ done (−P2 525–536). RX = 316  -  and RX > 500 is a HARD GOAL:
-the campaign does not close without it** (goal reasserted 2026-07-09 evening). Position: the RX
+the campaign does not close without it** (goal reasserted 2026-07-09 evening).
+
+Position: the RX
 wall is the **recv payload copy** (`copy_to_user`, ~35–51 % of RX CPU, cold DRAM reads, perf-
 proven); the `recv(MSG_TRUNC)` ceiling says the *rest* of the stack tops at **481**  -  so **no
 copy trick alone can cross 500**: the path must both close the copy tax *and* raise the stack
-ceiling. Refuted (measured, do not retry): page-flip zero-copy recv (flip 44.9 vs copy 25.0
+ceiling.
+
+Refuted (measured, do not retry): page-flip zero-copy recv (flip 44.9 vs copy 25.0
 µs/page), BRAM stash (residency 1–3 MB), *unscoped* shared-L2 DDIO at default rmem (pollution),
 depth-2 interconnect, L2 > 64 KB for capacity, software prefetch, deeper LiteDRAM cmd queues.
 1 Gbit/s remains the stretch. UDP is a separate (offload) problem. Every step measured on silicon.
@@ -242,9 +273,11 @@ suppressed; the peer sat at 1000 µs throughout. The genuine (sudo'd) sweep at t
 operating point (board `rx-usecs=2000`, softirq NAPI `threaded=0`, steer on, −P4):
 peer 3/50/200/1000 = **437/435/452/424 Mbit/s, all 0 retr** (repeat band 398–452)  - 
 the peer knob is mild (±5 %); the real levers were **board-side u2000 + softirq**.
+
 Single-flow TX 350. The threaded→softirq switch also cut idle RTT 1.7→1.08 ms
 (threaded-NAPI wakeup ≈ 0.65 ms; ~1.0 ms fixed remains, poll-independent, IRQ-per-packet
 verified  -  latency is NOT the 500-blocker, so T2 driver surgery is deprioritized).
+
 **T3 refuted by its proxy**: dual-process at the operating point = 341 < 417 single-process
 −P4  -  a second TX queue is not the binder; CPU per-byte is.
 
@@ -277,10 +310,14 @@ correct; the serial-boot images carried a stale built-in driver  -  caught and d
 | TX single | 350 | **379** | **+8 %** | ⅔ of ideal |
 
 **The +12.5 % CPU clock yields only +4 % (−P4) / +8 % (single)  -  the 508 projection is
-REFUTED.** Measured TX at 112.5 is ~470–479, **still short of 500.** The reason is
+REFUTED.** Measured TX at 112.5 is ~470–479, **still short of 500.**
+
+The reason is
 structural: `--milan-clk-freq` keeps the **datapath at 100 MHz** (only sys/CPU moved to
 112.5), so any datapath- or TCP-dynamics-bound fraction of TX does not scale with sys  -  and
-−P4 (more of that fraction) scales worse than single-flow (more purely CPU-bound). This is
+−P4 (more of that fraction) scales worse than single-flow (more purely CPU-bound).
+
+This is
 the measure-don't-assume payoff: the clean CPU-bound story at 452 (reader 66 % idle) does
 **not** translate to linear clock scaling; the operating-point ceiling is a CPU/datapath/TCP
 *mix*, not pure CPU. Caveat: the board ran a 100 MHz-timebase dtb (its own clock miscalibrated
@@ -297,15 +334,21 @@ real but modest (~+4–8 %), not the projected ~+12.5 %.
 
 **X (sys clock)  -  RTL WIN, throughput measurement pending a boot fix.**
 112.5's first build failed WNS −0.226 with **every violator in the TX reader's byte-assembly
-cone** (`blen_r → in_last → a_nxt → CDC FIFO write`  -  the CPU itself closed). A `stream.Buffer`
+cone** (`blen_r → in_last → a_nxt → CDC FIFO write`  -  the CPU itself closed).
+
+A `stream.Buffer`
 register stage between the reader `source` and the CDC (`d35f666`) cuts that cone off the
 FIFO write-setup path  -  reader RTL untouched, +1 cycle TX latency, CSR map identical, 28/28
 sims  -  and **112.5 MHz now CLOSES at WNS +0.038** (`build_x1125b`). (106.25 was refuted at
 elaboration: no PLL config exists with sys≠100 sharing the 200 MHz input against milan=100  - 
-only 100 and 112.5 are legal.) **But the throughput number is not yet measured**: QSPI
+only 100 and 112.5 are legal.)
+
+**But the throughput number is not yet measured**: QSPI
 flashboot fails a CRC at 112.5 (the SPI-flash memory-mapped read clock is sys-derived and
 marginal at the higher rate; DRAM/memtest pass, so DRAM is fine). Fix = cap the SPI clock
-independent of sys (`add_spi_flash(clk_freq=25e6)`) or serial-boot  -  one rebuild. **TX ≈ 508
+independent of sys (`add_spi_flash(clk_freq=25e6)`) or serial-boot  -  one rebuild.
+
+**TX ≈ 508
 (452 × 1.125) remains a PROJECTION until booted and measured**  -  never-assume applies to our
 own optimism too. RX ≈ 268 likewise. The engineering result (112.5 is reachable) is banked;
 the measurement is the immediate next step.
@@ -315,7 +358,9 @@ delta == ping count) the delivery latency is **poll-independent**: peer→board 
 any active `rx-usecs`. Switching threaded NAPI off (`/sys/class/net/eth0/threaded=0`)
 removes 0.65 ms (kthread wakeup) → **1.08 ms, mdev 36 µs**; the remaining ~1.0 ms is a
 tight unexplained constant (not the poll, not the IRQ, not the peer  -  peer localhost
-0.058 ms). Throughput A/B: threaded on/off is neutral → **`threaded=0` is the standard
+0.058 ms).
+
+Throughput A/B: threaded on/off is neutral → **`threaded=0` is the standard
 operating mode** (latency win, no cost). Since TCP runs 0-retr and CPU-pegged at the
 records, **latency is not the 500-blocker**  -  T2 driver surgery is parked.
 
@@ -399,7 +444,9 @@ DMA'd payload.
 **MEASURED on silicon (2026-07-09).** Good news first: VexiiRiscv's coherent L2 (SpinalHDL
 `tilelink.coherent.Cache`) *already has* an `allocateOnMiss` policy hook, and its opcodes include
 the DMA write (`PUT_FULL_DATA`)  -  so shared-L2 DDIO is **a one-line config, not weeks of RTL**
-(wired as `--l2-ddio`; `build_ddio` closed timing at the same WNS +0.102 and 0 extra BRAM). The
+(wired as `--l2-ddio`; `build_ddio` closed timing at the same WNS +0.102 and 0 extra BRAM).
+
+The
 bad news: **it didn't help**  -  RX −P2 ~300 (flat vs mlp3's 298), and single/−P4 dipped slightly.
 Allocating *every* DMA write into the 64 KB shared L2 **pollutes** the CPU's working set without
 **warming** the copy: under two harts streaming 16 KB payloads, each payload is **evicted before
@@ -434,10 +481,14 @@ campaign on 07-10/11.)*
 **Checkpoint verdict (2026-07-09, superseded the same evening).** With the levers measured so far,
 socket-API TCP RX sat at **~316**, and the 481 stack-ceiling was reachable only by consumers that
 never materialize the payload through `recv()` (`MSG_TRUNC`-class, `AF_PACKET` mmap rings  -  the
-latter being how the real Milan/AVTP media path works, copy-free by design). **The goal was then
+latter being how the real Milan/AVTP media path works, copy-free by design).
+
+**The goal was then
 reasserted: RX > 500 over standard TCP recv is a hard goal  -  the campaign does not close without
 it.** The engineering consequence of the 481 measurement: *no copy trick alone can cross 500*  - 
-the path must raise the stack ceiling **and** close the copy tax. The forced-march plan (R1 warm
+the path must raise the stack ceiling **and** close the copy tax.
+
+The forced-march plan (R1 warm
 copy via DDIO + bounded residency; R2 RSC multi-slot to kill park-closes and raise the ceiling;
 R3 112.5 MHz final mile) is the "path to RX > 500" section above.
 

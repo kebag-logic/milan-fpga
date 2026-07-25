@@ -34,14 +34,21 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
   (drop into `~/.local/bin`). No Xilinx tools required.
 
 ## Coverage
-18 tops (the `tops=()` array in `run.sh` is authoritative): the new open blocks (`tcam`, `rx_mac_filter`, `cdc_pulse`, `cdc_handshake`,
-`adp_advertiser`, `adp_tx_arbiter`), the CSR (`milan_csr`), the de-Xilinx'd 802.1Q
-datapath (`classifier_wrap`→`traffic_classifier`, `queues_wrap`→`traffic_queues`),
-the CBS/PTP/RMON leaves, the vendored Forencich cores (`axis_fifo`, `axis_demux`,
-`axis_arb_mux` — kept as a portability check even though the queue egress now
-uses a plain grant-indexed mux instead of `axis_arb_mux`), and **`milan_datapath`
-itself** (the full integration wrapper, which pulls in `ptp_ts_top`/`ptp_ts_core`
-hierarchically). Not covered: `milan_top` (RGMII SelectIO + PS block design, T2)
+18 tops (the `tops=()` array in `run.sh` is authoritative):
+
+- the new open blocks (`tcam`, `rx_mac_filter`, `cdc_pulse`, `cdc_handshake`,
+  `adp_advertiser`, `adp_tx_arbiter`),
+- the CSR (`milan_csr`),
+- the de-Xilinx'd 802.1Q datapath (`classifier_wrap`→`traffic_classifier`,
+  `queues_wrap`→`traffic_queues`),
+- the CBS/PTP/RMON leaves,
+- the vendored Forencich cores (`axis_fifo`, `axis_demux`, `axis_arb_mux` —
+  kept as a portability check even though the queue egress now uses a plain
+  grant-indexed mux instead of `axis_arb_mux`), and
+- **`milan_datapath` itself** (the full integration wrapper, which pulls in
+  `ptp_ts_top`/`ptp_ts_core` hierarchically).
+
+Not covered: `milan_top` (RGMII SelectIO + PS block design, T2)
 and `avtp_stream_parser` (has a Verilator harness but no yosys top yet — a known
 gap, see [`docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md`](../../docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)).
 

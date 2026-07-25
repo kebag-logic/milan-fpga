@@ -84,10 +84,14 @@ three independent ways**, all pointing at latency, not CPU throughput:
 
 A second core adds *throughput* (independent work in parallel); this ceiling is
 *latency* on a serialized per-frame path (DMA-ring → NAPI → GRO → TCP → ACK). Adding a
-core to a 94 %-idle core does not shorten that path. The confirming datum: the identical
+core to a 94 %-idle core does not shorten that path.
+
+The confirming datum: the identical
 datapath under **NaxRiscv (dual-issue)** reached **TX 62 / RX 67 Mbit/s** at the same
 MTU 1500  -  ~2.3×  -  because higher IPC shortens the per-frame critical path; more cores
-do not. For the switch role the number is moot anyway: forwarding runs in fabric at line
+do not.
+
+For the switch role the number is moot anyway: forwarding runs in fabric at line
 rate and the CPU is the control plane, so this software ceiling never gates switched
 traffic. Full matrices + reproduce recipe:
 [`SINGLE_PORT_PERF.md`](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md).
