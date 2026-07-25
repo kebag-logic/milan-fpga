@@ -469,6 +469,10 @@ strobes, no provisioning), SNAP latches zeros and completes. `A_STRM_SEL` /
 
 ### 0x870  -  AAF per-stage latency taps  `(roadmap item-11, KL_aaf_latency_taps)`
 
+> **Pipeline diagram of where every tap sits:** [`../AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md)
+> (TX CAP→SOF→EOF→MAC_TX, RX MAC_RX→ACCEPT→DEPKT→PCM_RING, each mapped to its
+> trigger and CSR). Per-sample DDR3 history: [`../LATENCY_HISTORY_RING.md`](../LATENCY_HISTORY_RING.md).
+
 Per-stage TX/RX AAF pipeline latency, measured in **axis_clk cycles** (divide
 by the datapath clock - 50 MHz Arty / 100 MHz AX7101 - for seconds). Two
 independent chains each latch a free-running cycle count at the documented
