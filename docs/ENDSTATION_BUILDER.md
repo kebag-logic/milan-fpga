@@ -266,6 +266,93 @@ entity JSON's 8 external ports are not emitted). The schema reserves the
 physical-side model for this subtask; the builder's capability marks call
 every non-I2S `kind` "planned".
 
+### D6 — descriptor storage split: BRAM hot stub + DRAM bulk tree (model as a file)
+
+**Decision** (USER 2026-07-25). The AEM store splits in two:
+
+- a small **BRAM stub** keeps the hot, latency-critical rows single-cycle —
+  ENTITY, CONFIGURATION, the identity registers, the dynamic overlays and
+  counter paths (none of which depend on the bulk ROM);
+- the **bulk descriptor tree** (AUDIO_CLUSTERs, STRINGS/LOCALEs — cold and
+  bulky) lives in **DRAM** behind a read-only fetch master, loaded at boot
+  by the driver from a **builder-emitted model blob** and verified against
+  the D4 `entity_model_id` hash.
+
+**Why.** The D8 per-port cluster pools cost roughly 250–300 KB — ~80 RAMB36
+against ~36 free on the ship build (impossible in BRAM, trivial in 512 MB
+DDR3). AECP is control-plane: at the measured DDR3 floor a 512 B descriptor
+assembles in tens of µs against 250 ms-class protocol timeouts, and a full
+fat-tree enumeration stays in the low milliseconds. DRAM-backed fabric
+structures are established practice here (the PCM ring and the latency
+history ring). The prize beyond area: the entity model becomes a **loadable
+file** — a model change no longer needs a bitstream rebuild.
+
+**Rules pinned with the decision:**
+
+1. **Boot sequencing** — the entity **advertises only after the blob is
+   loaded and hash-verified** (an advertised entity that cannot be
+   enumerated is worse than a late one). Fabric ACMP saved-state restore is
+   independent of the bulk tree and keeps working before the load.
+2. **QoS** — the descriptor fetch master takes the lowest priority on the
+   DRAM port; it never delays the PCM or Ethernet rings; the bounded worst
+   case gets documented with the RTL.
+3. **Integrity** — a hash mismatch means no advertise plus a diagnostic CSR
+   code, never a silently wrong model.
+
+Status: decision recorded 2026-07-25, **not implemented** — the accessor
+fetch engine, the driver loader and the blob emitter are pending subtasks;
+verification rows land with the RTL.
+
+### D7 — dynamic-map store keyed by the TARGET (stream channel), not the source cluster
+
+**Decision** (USER 2026-07-25). The dynamic audio-map store flips its key:
+per dynamic port, one entry **per stream channel** holding `{valid,
+source}` — replacing today's `key = cluster_offset` store.
+
+**Why.** The invariant Milan 5.4.2.27/28 protects is *one source per stream
+channel* (no mixing). The cluster-keyed store enforces the converse — one
+target per source — which forbids legal **selection fan-out** (the Pilot
+cluster onto many channels). The target-keyed word is structurally the
+CHMAP map word (`{EN, SRC, IDX}` per slot,
+[`reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x900
+group): the AEM engine becomes the canonical projector into the fabric map,
+completing [`CHMAP64_AEM_BINDING.md`](CHMAP64_AEM_BINDING.md). Per-port
+store instances keep `stream_index` implicit, exactly as D1 intends. The
+ADD/REMOVE contract (all-or-nothing validate-commit, unsolicited on change,
+lock rules) is unchanged and owed on every dynamic port.
+
+Status: recorded 2026-07-25; today's RTL is input[0]-scoped and
+cluster-keyed (`` `AEM_DYNMAP ``) — the migration is the store flip,
+per-port instances, and the render/capture consumption follow-up.
+
+### D8 — role-named 8×8 port model: per-platform cluster pools, Pilot cluster, loopback lane
+
+**Decision** (USER sketch 2026-07-25, reconciled to D1/D2). The NxN model
+keeps one STREAM_PORT per stream (D1) and mono clusters (D2), but ports are
+**role-named** ("TDM 1..8", "PipeWire 1..8"). Because a mapping's
+`cluster_offset` is **port-relative** (1722.1 7.2.19), there are no shared
+cluster pools: each port carries its own pool, and pool contents are
+**derived from the platform config, never hardcoded** —
+
+- the physical audio-interface channels (the AX today: TDM8 + I2S = 10 per
+  direction — a "64 TDM" pool is only honest on a platform that
+  instantiates it);
+- the PipeWire lane channels for that stream (8 per subdevice);
+- on talker ports, **one Pilot cluster** (the tone source; fan-out is legal
+  selection under D7);
+- on talker ports, **stream_loopback clusters** (the received pair streams
+  as talker sources — same media-clock domain, so coherent). This is a
+  **new fabric lane**: the rx pair streams are not in today's capture-mux
+  source set; RTL plus traceability rows are a pending subtask.
+
+Talker-port maps program the capture mux; listener-port maps program the
+render map. The all-channels pilot run uses D7 fan-out (or the 0x900 bench
+override until D7 lands). The CRF Media Clock Output rule (7.2.3) and the
+clock tree are untouched by this decision.
+
+Status: model shape recorded 2026-07-25; the loopback lane and the
+per-platform pool emission are pending subtasks.
+
 ## 3. Config schema → AEM descriptor mapping
 
 Consumers: **AEM** = `avdecc/gen_aem_store.py` (via `aem_overlay.json` —

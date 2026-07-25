@@ -28,7 +28,7 @@ addresses, byte-identical `aecp_aem_rom.svh` for `endstation_arty_current`
 (the tracked-ROM identity gate). The legacy flat per-stream CSRs remain and
 alias stream index 0.
 
-Companion docs: [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (design decisions D1–D5; one
+Companion docs: [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (design decisions D1–D8; one
 STREAM_PORT per stream; config-selectable clusters),
 [`docs/LWSRP_FPGA_ARCHITECTURE.md`](LWSRP_FPGA_ARCHITECTURE.md) (single-attribute engine being scaled
 here), [`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) rows M-CNT-2 (Table 7-156 counters),
