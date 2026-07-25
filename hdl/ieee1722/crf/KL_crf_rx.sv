@@ -24,7 +24,11 @@
                             contract as the AAF ts_delta CSR 0x6EC).
                   rate_o  : accumulated (crf_ts[n] - crf_ts[n-256]) minus
                             nominal 256*2ms, signed ns per 512 ms window -
-                            the frequency error input.
+                            the frequency error input. Updates one clk after
+                            the accepted PDU (the 256-entry ts history lives
+                            in a single-port READ_FIRST BRAM ring; the read
+                            lands the cycle after the accept - a fixed +1
+                            clk skew, invisible to the ms-scale CSR poll).
                   locked_o: PDUs arriving AND |delta jitter| within window
                             for 8 consecutive PDUs; drops after 100 ms
                             without an accepted PDU (mirrors the AAF
@@ -106,13 +110,37 @@ module KL_crf_rx #(
 
   wire [63:0] w_crf_ts = {fsh_i[31:0], fsh2_i[63:32]};
 
-  logic [63:0] ts_hist_r [0:(1<<RATE_LOG2_C)-1];  //! ring of accepted ts
+  //! ring of accepted ts (the 512 ms frequency-error window) in ONE
+  //! single-port READ_FIRST block RAM - never a multi-read-port LUTRAM
+  //! replica structure (the 0x4B read-port-divergence rule). The only
+  //! access the algorithm needs is read-old + write-new at hidx_r on an
+  //! accepted PDU; same-port READ_FIRST returns the pre-write content, so
+  //! both happen in one well-defined access. Entries keep ts[31:0] only:
+  //! rate_o is a 32-bit truncation and subtraction is congruent mod 2^32,
+  //! so the high half can never influence the result (bit-exact vs 64-bit
+  //! storage for all inputs; the flop-file original was pruned the same
+  //! way by synthesis).
+  (* ram_style = "block" *)
+  logic [31:0] ts_hist_r [0:(1<<RATE_LOG2_C)-1];
+  logic [31:0] hist_old_r;   //! sync read data: ts[31:0] from 256 PDUs ago
+  logic [31:0] ts_new_r;     //! accepted ts[31:0], aligned with hist_old_r
+  logic        rate_pend_r;  //! rate math scheduled (ring full on accept)
   logic [RATE_LOG2_C-1:0] hidx_r;
   logic [8:0]  hfill_r;                           //! saturates at 256
   logic [7:0]  exp_seq_r;
   logic        have_seq_r;
   logic [2:0]  settle_r;
   logic [$clog2(TOUT_CYC_C+1)-1:0] tout_r;
+
+  wire w_acc = w_hit && w_fmt_ok;
+
+  //! the BRAM port: no reset (BRAM), enabled once per accepted PDU
+  always_ff @(posedge clk_i) begin : ts_hist_port
+    if (w_acc) begin
+      ts_hist_r[hidx_r] <= w_crf_ts[31:0];
+      hist_old_r        <= ts_hist_r[hidx_r];
+    end
+  end : ts_hist_port
 
   always_ff @(posedge clk_i or negedge rst_n) begin : engine
     if (!rst_n) begin
@@ -122,9 +150,20 @@ module KL_crf_rx #(
       hidx_r <= '0; hfill_r <= '0;
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
+      ts_new_r <= '0; rate_pend_r <= 1'b0;
     end else begin
+      //! retimed rate math: one clk after the accepted PDU, when the BRAM
+      //! read (hist_old_r) is valid. ts_new_r - hist_old_r is congruent
+      //! mod 2^32 with the 64-bit timestamp difference. Placed before the
+      //! hit block so a same-cycle new accept re-arms rate_pend_r.
+      if (rate_pend_r) begin
+        rate_o      <= 32'(signed'(ts_new_r - hist_old_r
+                                   - NOM_WIN_NS_C[31:0]));
+        rate_pend_r <= 1'b0;
+      end
+
       //! lock timeout: 100 ms without an accepted PDU
-      if (w_hit && w_fmt_ok) begin
+      if (w_acc) begin
         tout_r <= '0;
       end else if (tout_r == TOUT_CYC_C[$clog2(TOUT_CYC_C+1)-1:0]) begin
         if (locked_o) begin
@@ -160,12 +199,12 @@ module KL_crf_rx #(
 
           delta_o <= 32'(signed'(w_crf_ts - ptp_now_i));
 
-          //! frequency error across the 256-PDU ring (512 ms)
-          ts_hist_r[hidx_r] <= w_crf_ts;
-          if (hfill_r == 9'(1 << RATE_LOG2_C)) begin
-            rate_o <= 32'(signed'((w_crf_ts - ts_hist_r[hidx_r])
-                                  - NOM_WIN_NS_C));
-          end else begin
+          //! frequency error across the 256-PDU ring (512 ms): the BRAM
+          //! port (ts_hist_port) reads old + writes new this cycle; the
+          //! subtraction is retimed to next cycle via rate_pend_r
+          ts_new_r    <= w_crf_ts[31:0];
+          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C));
+          if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
             hfill_r <= hfill_r + 9'd1;
           end
           hidx_r <= hidx_r + 1'b1;

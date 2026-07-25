@@ -76,7 +76,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_stream_table` | `ieee1722/avtp/KL_stream_table.sv` | `avtp_rxmon` · `avtp_stream` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.4.3.4 |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
-| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `milan_dp` | — |
+| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `milan_dp` | — |
 | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `milan_dp` | — |
 | ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | — |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `maap` · `milan_dp` | — |
