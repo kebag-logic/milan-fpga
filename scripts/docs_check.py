@@ -164,7 +164,7 @@ def main():
         findings.extend(check_md(REPO / rel, rel, resolve))
     # local-info sweep over diagram sources (text formats only)
     for pattern in ("docs/*.gen.py", "docs/**/*.gen.py", "docs/*.drawio",
-                    "docs/**/*.drawio"):
+                    "docs/**/*.drawio", "docs/*.svg", "docs/**/*.svg"):
         for rel in tracked(pattern):
             for lineno, line in enumerate(
                     (REPO / rel).read_text(encoding="utf-8",
