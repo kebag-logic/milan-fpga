@@ -1,0 +1,17 @@
+{
+  "head": {"text": "I2S Philips frame (64 fs): 32 SCLK per LRCK half, 24-bit MSB-first, 1-bit delay after every LRCK edge"},
+  "signal": [
+    {"name": "SCLK 3.072 MHz", "wave": "p.....|........|........", "node": "...b........d..........."},
+    {"name": "LRCK 48 kHz",    "wave": "1.0...|....1...|....0...", "node": "..a........c............"},
+    {"name": "SD (MSB first)", "wave": "=.====|===.====|===.==x.",
+     "data": ["0-tail", "dly", "L b23", "b22", "b21", "b1", "b0", "0-tail x8", "dly", "R b23", "b22", "b21", "b1", "b0", "0-tail x8", "dly", "L' b23"]},
+    {"name": "capture latch",  "wave": "0.....|....=..0|....=..0",
+     "data": ["L = tshift[30:7]", "{L,R} > cdc_pair_fifo"]}
+  ],
+  "edge": [
+    "a~>b Philips 1-bit delay",
+    "c~>d 1 SCLK"
+  ],
+  "foot": {"text": "LRCK low = LEFT. Sampled on SCLK rise, shifted on SCLK fall. A second delay stage = the sign-square failure (sign bit at 2^22)."},
+  "config": {"hscale": 1}
+}
