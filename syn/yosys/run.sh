@@ -94,4 +94,9 @@ rm -rf "$TMP"
 # port-level TB can never again silently vouch for a cone silicon never
 # drives. Informational only — never changes this script's RESULT.
 "$R/scripts/check_tied_inputs.sh" || true
+# Observer-purity structural report (the host-plane regression class,
+# 2026-07-25): taps/telemetry must never drive the observed streams' nets.
+# Reported here like the tied-input inventory (never changes this script's
+# RESULT); standalone syn/yosys/check_tap_purity.sh is the exit-coded gate.
+"$R/syn/yosys/check_tap_purity.sh" || true
 [ $fail -eq 0 ]

@@ -124,6 +124,9 @@ bitstream / never `openFPGALoader -f`  -  it clobbers the kernel at offset
 manifest-full port. JTAG load (table above) still runs a build from SRAM
 without touching flash; after a JTAG load you can also boot over serial
 (`litex_term --kernel ...`) or use the BIOS interactively.
+After every flash, the mandatory first validation step is
+`scripts/hostplane_smoke.sh` on the board shell (host-plane liveness in
+~60 s  -  see [../testing/TESTING.md](../testing/TESTING.md) section 6).
 
 ## 5. Gates before a build is "good"
 

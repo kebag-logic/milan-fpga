@@ -98,6 +98,7 @@ the tsn-gen wire-layout caveat and the tracked gaps: [`tb/verilator/tsn_fuzz/REA
 | `tb/verilator/csr` | 206+58+28 PASS (07-25 merge tip) |
 | `tb/verilator/datapath` | run `make` in the dir |
 | `tb/verilator/eth_tx_reset` | run `make` in the dir |
+| `tb/verilator/hostplane` | KNOWN-FAIL on main until rtl-hostplane-fix merges (07-25) — see the suite README (host-plane lanes in the silicon shape) |
 | `tb/verilator/i2spb` | run `make` in the dir |
 | `tb/verilator/ifg` | run `make` in the dir |
 | `tb/verilator/lat_history_ring` | run `make` in the dir |
@@ -168,6 +169,11 @@ make ecp5     # Lattice ECP5 mapping
 
 Proves synthesizability off-Xilinx, not behaviour (layer 1 does that) and
 not timing. See [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §5.
+`run.sh` also prints two trailing structural reports: the tied-off-input
+inventory (`scripts/check_tied_inputs.sh`, the RMON class) and the
+observer-purity check (`syn/yosys/check_tap_purity.sh` — taps/telemetry must
+never drive the observed streams' nets; standalone it is exit-coded and
+self-tests against a deliberately-broken fixture).
 
 ## 5. Legacy / auxiliary testbenches
 
@@ -179,6 +185,16 @@ not timing. See [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.m
 | `tb/common/` | `axi_stream_driver.svh` - shared AXIS BFM class for the xsim TBs (the Verilator suites have their own C++ BFMs) | - |
 
 ## 6. On-silicon validation
+
+**Mandatory first step after EVERY flash: `scripts/hostplane_smoke.sh` on
+the board shell (~60 s).** It verifies the host plane specifically —
+`rx_packets` increments, the dma-ts ring offset advances, ID=`MILN` +
+VERSION readable, the `AAF_CTRL` VID field intact (`0x0002xxxx`), the ALSA
+card module loaded — one PASS/FAIL line per check, nonzero exit on any FAIL.
+Rationale: a build whose fabric paths (AAF/CRF/SRP/ADP) run perfectly can
+still ship with a dead host plane (2026-07-25 regression class), and every
+audio-first drill stays green while the kernel sees nothing. Do not start
+any other board procedure until this passes.
 
 Bring-up order and board procedures:
 [../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)
