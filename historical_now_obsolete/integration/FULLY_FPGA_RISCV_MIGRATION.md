@@ -12,13 +12,13 @@ It is written to be read top-to-bottom by someone who will actually build it.
 Every step names the concrete module, tool, file, signal, and address involved,
 and cross-references the current RTL. For *what/why* see
 [`REQUIREMENTS.md`](../../REQUIREMENTS.md); for the datapath see
-[`ARCHITECTURE.md`](../overview/ARCHITECTURE.md); for the CSR ABI see
-[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+[`ARCHITECTURE.md`](../../docs/overview/ARCHITECTURE.md); for the CSR ABI see
+[`REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md).
 
 > **Status note (2026-07).** Written as a forward *plan*; large parts have since
 > been **built and verified on silicon** — §A.6 (DMA), §A.7 (MAC), §A.9 (wrapper),
 > the boot chain and the driver bring-up are done (see `sw/litex/evidence/` and
-> [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) for the as-built reality; where
+> [docs/litex/LITEX_SOC.md](../../docs/litex/LITEX_SOC.md) for the as-built reality; where
 > this plan and the code disagree, the code wins). It is split into **Part A**
 > (fully-FPGA RISC-V Linux platform  -  replaces the PS) and **Part B**
 > (ADP/AVDECC  -  the protocol stack on top). Part B builds on Part A.
@@ -221,7 +221,7 @@ LiteX simple-mode DMA engines to the `milan_datapath` DMA AXIS ports  -  TX
 `WishboneDMAReader` (memory→`s_axis_tx`), RX + TS `WishboneDMAWriter`
 (`m_axis_rx`/`m_axis_ts`→memory). Each is `with_csr=True`, giving the
 `base`/`length`/`enable`/`done`/`loop`/`offset` simple-mode register block the driver
-expects (documented in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) → DMA registers). Each is
+expects (documented in [`REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) → DMA registers). Each is
 its own Wishbone master, width-adapted 64→32 into the SoC interconnect. Verified:
 `ELAB` gateware export (masters + CSRs present in `csr.csv`). Board-gated: on hardware
 these target LiteDRAM (§A.3) instead of integrated RAM; a loopback + DMA-done IRQ test
@@ -366,7 +366,7 @@ original plan:
 - **CBS/mqprio offload, HW timestamping, ethtool_ops**  -  unchanged CSR ABI, so the
   bulk of `REQ-DRV-05..08` is portable verbatim.
 
-**Required driver feature surface** (`FR-DRV-*` in [`FR_NFR.md`](../reference/FR_NFR.md) §2.10):
+**Required driver feature surface** (`FR-DRV-*` in [`FR_NFR.md`](../../docs/reference/FR_NFR.md) §2.10):
 - **NAPI** RX/TX poll with per-queue contexts over the fabric DMA rings; the N HW
   queues exposed as real netdev queues (so `tc mqprio`/CBS map to hardware).
 - **XDP**: `ndo_bpf`/`ndo_xdp_xmit`, all `XDP_*` actions, page-pool RX + headroom;
@@ -445,7 +445,7 @@ a fallback if LiteX/AX7101 integration proves troublesome.
 
 ## PART B  -  ADP / AVDECC (the complete AVB solution)
 
-Milan is an **AVnu profile of IEEE 1722/1722.1 (AVDECC) over 802.1 TSN**. The TSN
+Milan is an **interoperability profile of IEEE 1722/1722.1 (AVDECC) over 802.1 TSN**. The TSN
 plane (802.1Q/Qav/1588) is done; the **AVDECC control plane and reservation plane
 are essentially absent**. Today only two **RX-only, unconnected parser stubs** exist:
 - `hdl/ieee17221/adp/KL_adp_parser.sv`  -  decodes an incoming ADPDU into `entity_info_t`
@@ -456,7 +456,7 @@ are essentially absent**. Today only two **RX-only, unconnected parser stubs** e
 - `hdl/ieee1722/avtp/KL_avtp_common_parser.sv`  -  steers AVTP frames by subtype
   (ADP/AECP/ACMP/MAAP→tdest0, AAF/…→tdest1, CRF→tdest2, else drop); also unconnected.
 
-Target specs: **IEEE 1722.1-2021** (AVDECC) with the **AVnu Milan v1.2** profile.
+Target specs: **IEEE 1722.1-2021** (AVDECC) with the **Milan v1.2** profile.
 
 ### B.pre  -  Prior work to build on (do NOT start from scratch)
 
@@ -526,7 +526,7 @@ them to a control handler. Add a **control tap**:
 > - [`hdl/ieee17221/adp/adp_advertiser.sv`](../../hdl/ieee17221/adp/adp_advertiser.sv)  -  [`tb/verilator/adp/`](../../tb/verilator/adp) **121 checks PASS**.
 > - **CSR wiring:** `milan_csr` **0x600 ADP group** (identity/control + `available_index` RO);
 >   [`tb/verilator/csr/`](../../tb/verilator/csr) extended to **62 checks PASS**; ABI in
->   [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) §0x600.
+>   [`REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) §0x600.
 > - **MAC TX integration:** [`hdl/ieee17221/adp/adp_tx_arbiter.sv`](../../hdl/ieee17221/adp/adp_tx_arbiter.sv) merges
 >   ADP into the MAC TX between frames  -  [`tb/verilator/adp_tx/`](../../tb/verilator/adp_tx) **26 checks PASS**.
 > - **Wired in `milan_top.sv`** (advertiser + arbiter + 1 s tick + link-edge pulses); all ports
@@ -577,7 +577,7 @@ AEM handler (SW stack, or the HW 4-level AEM per B.0):
 
 **Deliverable B.3:** a controller (Hive / `avdecc_l2.py`) enumerates the entity and
 every `READ_DESCRIPTOR` matches the JSON; `GET_COUNTERS` matches `ethtool -S`;
-`GET_MILAN_INFO` returns Milan v1.2 protocol_version/certification.
+`GET_MILAN_INFO` returns the Milan v1.2 protocol_version/`certification_version`.
 
 ### B.4  -  ACMP  -  stream connection management (software)
 Implement `CONNECT_TX/RX_COMMAND`, `DISCONNECT_*`, `GET_TX/RX_STATE` in the SW stack.

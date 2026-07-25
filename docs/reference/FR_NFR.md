@@ -9,7 +9,7 @@ one softcore).
 - **Milan v1.2 → FR/NFR dependency matrix (why each is necessary):** [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md)
 - **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
 - **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
-- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md`](../integration/FULLY_FPGA_RISCV_MIGRATION.md)
+- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md`](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
 - **HW AEM/AECP design:** [`../aem-and-aecp.md`](../../aem-and-aecp.md)
 
 Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement has a
@@ -281,7 +281,7 @@ benchmarks during bring-up; publish alongside the resource report.
 
 The ordered path from the baseline endpoint to a Milan-conformant device. Each step
 cites the FRs it satisfies and the milestone in
-[`FULLY_FPGA_RISCV_MIGRATION.md`](../integration/FULLY_FPGA_RISCV_MIGRATION.md).
+[`FULLY_FPGA_RISCV_MIGRATION.md`](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 1. **Platform up**  -  RISC-V Linux on the AX7101 with the HW datapath (MAC/CBS/
    classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*
@@ -301,7 +301,7 @@ cites the FRs it satisfies and the milestone in
 9. **ACMP**  -  connect/disconnect + Milan fast-connect/state-restore. *(FR-CONN-\*)*
 10. **Fault behavior**  -  stream-interruption/redundancy-off recovery, counters,
     IDENTIFY. *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
-11. **Conformance**  -  run the AVnu Milan test plan + `srcs/the-private-test-repo`
+11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
     (`avdecc_l2.py`, `ptp4l`, `tc cbs`) and the `tsn-gen` AECP PDU checks. *(all Ver=T)*
 12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
     `P_CORES ≥ 2` (SMP then AMP) to prove §3.3/§3.4. *(NFR-SCUP/SCOUT)*
@@ -334,5 +334,5 @@ cites the FRs it satisfies and the milestone in
   (ADP, GET_COUNTERS, ACMP), `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
 - **PDU byte-exactness:** `software-defined-tsn-stack/.../1722_1/aecp/*.yaml` +
   `protocols/milan/aecp_read_descriptor.yaml`.
-- **Conformance:** AVnu Milan test plan.
+- **Conformance:** the internal Milan conformance plan (bench suite).
 - **Scale:** repeat the suite at the full profile and at `P_CORES=2..N` (SMP, AMP).

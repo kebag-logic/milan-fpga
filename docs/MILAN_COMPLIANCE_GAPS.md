@@ -6,7 +6,7 @@ QSPI-self-boot; both 0x4B byte-exact; CRF e2e locked at +6.7 ppm; since then
 the MMCM-DRP media-clock servo is silicon-proven at −83.9 dB and the AX42 logic
 fix has landed — see item 0).
 This file lists ONLY what is still missing or approximate. What already
-passes is recorded in `docs/findings/HANDOVER.md` (certification section)
+passes is recorded row-by-row in [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md)
 and is not repeated here.
 
 ## 1. AECP / AEM
@@ -113,13 +113,13 @@ and is not repeated here.
   16 KB/stream, gate on the utilization report.
 
 - **CRF media clocking: the measurement half is IN (2026-07-20).**
-  KL_crf_rx validates the Avnu Pro Audio CRF stream (Milan 7.3.2:
+  KL_crf_rx validates the Milan CRF media-clock stream (7.3.2:
   subtype 4/type 1/pull 0/48k/interval 96/1 ts) selected by CSRs
   0x738-0x74C, and produces the phase delta (0x744, ts_delta contract),
   the 512-ms frequency error (0x748), lock state + CLOCK_DOMAIN
   LOCKED/UNLOCKED events (muxed in when clock_source = CRF descriptor
   2). **The talker half is IN too (2026-07-20 night, USER-requested):**
-  KL_crf_tx sources the Avnu Pro Audio CRF stream (500 PDU/s, one
+  KL_crf_tx sources the Milan CRF media-clock stream (500 PDU/s, one
   gPTP-ns timestamp per PDU captured on the REAL audio-MMCM 96-sample
   event grid — the wire carries the true media-clock rate), CSRs
   0x750-0x764 {en, sid, dmac, RO count}, 6th low-rate control-merge
@@ -220,7 +220,7 @@ and is not repeated here.
   switch's gPTP claim is weakened (mgmt ssh at 192.168.127.1), the
   recreation cannot run and the bench ships the 100 override to keep
   the ALINX-GM one-oscillator media architecture. **The shipping
-  priority1 for certification must be 246** (Milan es-1.1; 100 is
+  priority1 must be 246** (the Milan es-1.1 posture; 100 is
   bench-only).
 - **ingressLatency constants are bench-calibrated** (tap-measured 3511 ns
   Arty / 1490 ns AX; egressLatency 0). A production story needs a
@@ -333,7 +333,7 @@ and is not repeated here.
 ### 5c. Additions 2026-07-22 (counter fix + ethtool/MDIO round)
 
 - **LINK_UP/LINK_DOWN double-count per physical flap (FIXED in RTL,
-  found by the CERT link-flap re-run on mf45):** the AECP counters
+  found by the bench link-flap re-run on mf45):** the AECP counters
   counted edges of `eff_link = i_link_up & cfg_sw_link & linkg_est`,
   so one flap produced the guard pair (41 µs detect / 21 ms settle)
   PLUS a second linkmon pair (sw_link drops 7–14 s AFTER the link is
@@ -422,9 +422,10 @@ and is not repeated here.
   build_opensbi.sh; embeds the DTB via FW_FDT_PATH, per-board
   NAX_HARTS/TIMER_HZ/BOARD_TAG). Never flash `images/fw_jump.bin`.
 
-## 6. Certification scope
+## 6. Conformance scope
 
-- **Our CERT suite is a recreation, not the official ATL run.**
+- **The bench suite is an in-house recreation of the interop test plan,
+  not an official lab run.**
   **2026-07-21: the recreation gap is closed to this bench's limits** —
   es-4.1/4.2/4.6/4.11/4.14/4.15/4.17/4.18 are now features (suite 43 →
   63 scenarios; ARTY mf39 = 61/61 + the 2 tap features green), es-1.1's
@@ -433,7 +434,7 @@ and is not repeated here.
   the es-1.1/1.2 DUT-wins-BMCA/marker variants (gated on weakening the
   bench switch's gPTP claim — user credentials) and es-4.16 (dynamic
   maps — NOT_SUPPORTED by design with static maps, see §1). A formal
-  Avnu certification (and one clean interactive Hive diagnostics pass)
+  external validation (and one clean interactive Hive diagnostics pass)
   is the final word.
 - **PipeWire consumer topology** (pw0 as the Milan listener rendering to
   the host audio stack): the milan_listener_* behave features for that
@@ -454,7 +455,7 @@ and is not repeated here.
    fires its auto-reinit, but the wedge lives OUTSIDE the reinit's
    reset scope (macsys + maceth CDC domains are reset; the PHY-side
    TX/gtx clock path — GMII gtx ODDR / eth_tx-domain proper — is not).
-   CERT link-flap features re-trigger it every run; JTAG reconfig is
+   The bench link-flap features re-trigger it every run; JTAG reconfig is
    the only recovery. AX42 scope:
    a. root-cause the wedge flop/FIFO on the e2 TX clock path and put
       it INSIDE a guard-sequenced reset (the clock-outage sequencing
@@ -589,7 +590,7 @@ and is not repeated here.
 10. **Spec-matrix peer-validation (USER 2026-07-22):** peer-test the
    specification matrix ONE-TO-ONE with a human — every clause →
    behavior → test row reviewed and confirmed — and write behave
-   features that validate each confirmed row (the CERT-harness
+   features that validate each confirmed row (the bench-harness
    pattern: the matrix rows become executable scenarios).
 11. **AAF end-to-end latency breakdown (USER 2026-07-22):**
     per-stage TX/RX pipeline latency taps (TX: DMA fetch → packetizer

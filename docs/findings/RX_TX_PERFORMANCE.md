@@ -1,5 +1,5 @@
 > ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
-> Living successor: `findings/PERFORMANCE_GOAL.md` (consolidated campaign record). Index: `docs/archive/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+> Living successor: `findings/PERFORMANCE_GOAL.md` (consolidated campaign record). Index: `historical_now_obsolete/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
 
 # RX / TX performance  -  what we improved, how, and what's next
 
@@ -7,7 +7,7 @@
 campaign). Plain-language story of the >500 Mbit/s campaign, with the measurements and
 diagrams. For the per-commit log see [`../CHANGELOG.md`](../../CHANGELOG.md);
 for the deep mechanism see [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md) and
-[`RX_MEMORY_HIERARCHY_PLAN.md`](RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
+[`RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md). Older phase docs are point-in-time
 snapshots  -  trust the numbers here.*
 
 ## The goal, in one line

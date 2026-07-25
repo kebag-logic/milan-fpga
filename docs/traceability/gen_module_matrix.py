@@ -40,7 +40,7 @@ FAMILY = {
     "ieee8021q": ("IEEE 802.1Q", "TS/CBS shaping · SRP/MRP · VLAN/TCAM filtering"),
     "ieee8021as": ("IEEE 802.1AS", "gPTP timestamping / pdelay / sync"),
     "common": ("Common / integration", "CSR, CDC, RMON, utilities"),
-    "milan": ("Milan (Avnu) integration", "datapath + top wrappers"),
+    "milan": ("Milan integration", "datapath + top wrappers"),
 }
 #: tsn_fuzz field campaigns by the leaf dir they principally cover
 FUZZ_LEAF = {"aecp": "make aecp", "acmp": "make acmp", "adp": "make adp",
@@ -254,12 +254,14 @@ def render_top(rows):
 
 def render_leaf(fam, leaf, frows):
     title, _ = FAMILY.get(fam, (fam, ""))
+    # flat families (leaf == fam) live at hdl/<fam>/ — one level shallower
+    up = "../../" if leaf == fam else "../../../"
     out = ["<!--", "SPDX-FileCopyrightText: 2026 Kebag Logic",
            "SPDX-License-Identifier: CERN-OHL-W-2.0", "-->",
            "# `%s/%s` — modules & test coverage" % (fam, leaf), "",
            "**GENERATED** by `docs/traceability/gen_module_matrix.py` — do not",
            "hand-edit. Part of the %s family; rolled up in" % title,
-           "[`docs/traceability/MODULE_MATRIX.md`](../../../docs/traceability/MODULE_MATRIX.md).",
+           "[`docs/traceability/MODULE_MATRIX.md`](%sdocs/traceability/MODULE_MATRIX.md)." % up,
            "", "| module | file | test | clauses |", "|---|---|---|---|"]
     for r in sorted(frows, key=lambda r: r["rel"]):
         cl = ", ".join(r["clauses"][:4]) or "—"

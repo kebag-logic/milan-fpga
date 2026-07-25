@@ -1,6 +1,6 @@
 # Milan v1.2 → FR/NFR dependency matrix
 
-This matrix traces each **AVnu Milan v1.2** requirement to the
+This matrix traces each **Milan v1.2** requirement to the
 [functional/non-functional requirements](FR_NFR.md) it drives, states **why the
 Milan requirement makes that FR/NFR necessary**, and gives the **verification /
 test** that proves it.
@@ -34,7 +34,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `Hive` | AVDECC controller (enumerate/lock/connect/identify) | external |
 | `ptp4l`/`phc2sys`, `ethtool`, `tc cbs` | linuxptp + Linux net tooling | on-target |
 | `mrpd` / `maap` | OpenAvnu daemons — SUPERSEDED 2026-07-12: SRP/MAAP go to fabric (**lwSRP** engine + fabric MAAP; see ARCHITECTURE_HW_SW_SPLIT.md) | peer-side only |
-| `AVnu` | AVnu **Milan test plan** (conformance) | external |
+| `CONF` | the **Milan conformance plan** as recreated by the private bench suite | private test repo |
 
 > Clause numbers for AEM (§5.3.3.x) and MVU (§5.4.3.2) are evidence-backed; other
 > Milan clause numbers are by **topic**  -  verify against the Milan v1.2 PDF.
@@ -45,7 +45,7 @@ is verified*, and which requirements are **not** Milan-driven.
 
 | Milan requirement | Dep | FR/NFR | Why necessary | Verify |
 |-------------------|-----|--------|---------------|--------|
-| Periodic `ENTITY_AVAILABLE`, `available_index` monotonic per state change | MANDATES | FR-DISC-01, FR-DISC-04 | No advertise / wrong index ⇒ device invisible or controllers act on **stale** models. | T  -  `avdecc_l2 listen`; `vtb:adp` (ADPDU bytes, re-advertise timing, index increment); `AVnu` |
+| Periodic `ENTITY_AVAILABLE`, `available_index` monotonic per state change | MANDATES | FR-DISC-01, FR-DISC-04 | No advertise / wrong index ⇒ device invisible or controllers act on **stale** models. | T  -  `avdecc_l2 listen`; `vtb:adp` (ADPDU bytes, re-advertise timing, index increment); `CONF` |
 | Answer `ENTITY_DISCOVER` (global + targeted) | MANDATES | FR-DISC-02 | Controllers probe; ignoring DISCOVER ⇒ can't be brought online on demand. | T  -  `Hive` discover; `avdecc_l2 listen`; `vtb:adp` |
 | `ENTITY_DEPARTING` on shutdown/link-down | MANDATES | FR-DISC-03 | Otherwise controllers keep dead entities/connections. | T  -  `avdecc_l2 listen` + `tap_sniff` (observe departing on link down) |
 | Stable EUI-64 `entity_id` (MAC-derived) | MANDATES | FR-DISC-05 | Fast-connect keys on a stable id; a changing id breaks reconnection. | A,T  -  inspect derivation; power-cycle, confirm id unchanged (`avdecc_l2 listen`) |
@@ -75,7 +75,7 @@ is verified*, and which requirements are **not** Milan-driven.
 
 | Milan requirement | Dep | FR/NFR | Why necessary | Verify |
 |-------------------|-----|--------|---------------|--------|
-| MVU (`00-1B-C5-0A-C1-00`) + `GET_MILAN_INFO` | MANDATES | FR-MVU-01 | The Milan identity handshake; no MVU ⇒ not a Milan device. | T  -  `tsn-gen aecp_vendor_unique.yaml`; `Hive` Milan-info; `AVnu` |
+| MVU (`00-1B-C5-0A-C1-00`) + `GET_MILAN_INFO` | MANDATES | FR-MVU-01 | The Milan identity handshake; no MVU ⇒ not a Milan device. | T  -  `tsn-gen aecp_vendor_unique.yaml`; `Hive` Milan-info; `CONF` |
 | `GET/SET_SYSTEM_UNIQUE_ID`, `…_MEDIA_CLOCK_REFERENCE_INFO` | MANDATES | FR-MVU-02 | Media-clock-reference mgmt + system grouping. | T  -  MVU command exchange (custom `tsn-gen` case) |
 | `features_flags` truthful | MANDATES | FR-MVU-03 | Controllers plan features from these bits. | I,T  -  inspect + read `GET_MILAN_INFO` (`MILAN_REDUNDANCY=0`) |
 
@@ -96,7 +96,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | **Listener format-adaptive** (`SET_STREAM_FORMAT` → talker's format; match incoming AAF) | MANDATES | FR-STR-03, FR-STR-03b | A format-locked listener can't connect to a differing talker. | T  -  set talker format, connect, confirm listener `current_format` follows (`Hive`+`avdecc_l2`); packet-match per `stream.c` |
 | Talker format is fixed | MANDATES | FR-STR-03a | Only the talker source is singular. | I,T  -  inspect `STREAM_OUTPUT`; `tap_sniff` transmitted format |
 | Base Audio Formats (6/12/24 spp @48/96/192k) | MANDATES | FR-STR-03, FR-STR-05 | Cross-vendor interop. | I,T  -  inspect `raw_hex`; interop against a reference talker |
-| Stream counters + fault recovery | MANDATES | FR-STR-04, NFR-REL-01 | Milan adverse-network conformance. | T  -  `avdecc_l2 counters` during induced link flap; `AVnu` |
+| Stream counters + fault recovery | MANDATES | FR-STR-04, NFR-REL-01 | Milan adverse-network conformance. | T  -  `avdecc_l2 counters` during induced link flap; `CONF` |
 
 ## G. Reservation & addressing  -  MAAP, SRP  *(Milan v1.2 §5.6; 802.1Qat/Qak)*
 
@@ -165,7 +165,7 @@ Milan only **CONSTRAINS** these; it does not require them.
   FR-CLK-02/05 (`vtb:ptp`), CSR/IRQ (`vtb:csr`), FR-DISC ADPDU (`vtb:adp`, present).
 - **Interop/system:** ADP/AECP/ACMP/MVU via `avdecc_l2`/`tap_acmp`/`tsn-gen`/`Hive`;
   gPTP via `ptp4l`; streaming via `soak`/`thdn`; reservation via `mrpd`/`maap`.
-- **Conformance:** the `AVnu` Milan test plan is the acceptance gate.
+- **Conformance:** the `CONF` plan (the private bench suite) is the acceptance gate.
 - **Scale (L):** the same T-suite is re-run at the full profile and at `P_CORES=2..N`
   (SMP, AMP)  -  passing there proves scale-up/out without re-proving Milan logic.
 

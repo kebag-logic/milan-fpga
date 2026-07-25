@@ -9,7 +9,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 |------|---------|
 | **AVB** | Audio Video Bridging  -  the IEEE 802.1 suite (gPTP + SRP + CBS + AVTP) for synchronized, bounded-latency media over Ethernet. |
 | **TSN** | Time-Sensitive Networking  -  the successor umbrella to AVB (adds preemption, TAS, per-stream policing, …). |
-| **Milan** | AVnu Alliance's interoperability profile of AVB/AVDECC for pro audio (this project targets **Milan v1.2**). See `MILAN_V12_DEPENDENCY_MATRIX.md`. |
+| **Milan** | The pro-audio interoperability profile of AVB/AVDECC (this project targets **Milan v1.2**). See `MILAN_V12_DEPENDENCY_MATRIX.md`. |
 | **AVTP** | Audio Video Transport Protocol (IEEE 1722)  -  the L2 media transport; carries streams with presentation timestamps. |
 | **AVDECC** | Device discovery/enumeration/control (IEEE 1722.1) on top of AVTP; comprises ADP, AECP, ACMP. |
 | **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart (implemented in RTL: `hdl/ieee17221/adp/adp_advertiser.sv`). |
@@ -163,3 +163,9 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **C1/C2, S1-S5, I1-I6** | The decision-matrix work items in `AVB_SWITCH_DIRECTION.md` (CPU-port, Switch, IPC tracks). |
 | **build_ringN** | The overnight bitstream lineage (ring2 = RX ring … ring7 = +csum offload, ring8 = +256 KB L2); copies kept as `~/litex-milan/work/ringN_test.bit`. |
 | **amx-pw0** | The peer test host (i210 NIC, `192.168.127.2`) used for all wire-truth measurements. |
+| **BENCH (evidence token)** | In the traceability tables: verified on the bench — the internal conformance behave suite and/or a wire capture at the taps. |
+| **mfNN / AXNN** | Bitstream build codenames: `mf` = the ARTY lineage, `AX` = the AX7101 lineage; the number is the build round. A build number is only meaningful with its full recipe (config + directive + seed). |
+| **eppo_* / asl_*** | Config-recipe prefixes stamped into build codenames (they say which `build.sh` recipe produced the bitstream). |
+| **hsqN** | The header-split RX bring-up build series (hsq4…hsq12); the story is [`fpga/HEADER_SPLIT_DESIGN.md`](fpga/HEADER_SPLIT_DESIGN.md). |
+| **tap1 / tap2** | The two inline wire-capture taps on the bench (tap1 = the AX7101 link, tap2 = the ARTY link); map in [`findings/BENCH_TOPOLOGY.md`](findings/BENCH_TOPOLOGY.md). |
+| **e1 / e2** | The AX7101's two Ethernet ports; a build selects one via `--eth-port` (ship = e2). |

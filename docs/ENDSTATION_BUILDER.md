@@ -15,7 +15,7 @@ Consolidated ("Milan"), IEEE 802.1Q-2022 ("Q").
 The implementation lane (`sw/builder/endstation_builder.py`, the three
 emitters, the `test_builder.py` identity gate against today's ROM) runs in
 parallel; this document is the contract it converges on, and its rows are
-meant to be promoted into the traceability matrix / CERT features per the
+meant to be promoted into the traceability matrix / bench features per the
 [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) review workflow.
 
 ## 1. Artifacts and flow
@@ -326,7 +326,7 @@ traceability M-CLK-2), and the TDM16 ser/des (item-4 audio subtask, D5).
 What 8 depacketizer/framer contexts cost the AX7101 in area/timing at
 100 MHz is an item-5 measurement, not a claim this document makes.
 
-## 5. Relation to CERT and the traceability matrix
+## 5. Relation to the bench suite and the traceability matrix
 
 The builder does not add new normative behavior — it *generates* the
 artifacts whose behavior the existing rows already verify (AEM-1..8,
@@ -334,7 +334,7 @@ M-FMT-1/2, ADP-7 honest counts, M-AECP-4 static-maps posture). Its own
 gates are: (a) the `test_builder.py` identity gate — today's config must
 reproduce the shipped ROM's descriptor counts and `sweep.sh`'s design argv
 byte-for-byte; (b) on migration, `gen_aem_store.py` consuming the overlay
-must keep the CERT suite green on both boards (63/63 posture) with an
+must keep the bench conformance suite green on both boards with an
 unchanged entity_model_id for an unchanged model (D4). Any new descriptor
 content the NxN shapes introduce (per-stream ports/maps, CRF output) gets
 new traceability rows before it gets RTL, per the matrix's review

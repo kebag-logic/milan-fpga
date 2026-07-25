@@ -22,8 +22,8 @@ top-level, journey-ordered reading guide a fresh systems engineer should be hand
 - **Ship CPU shape = VexiiRiscv 1-hart + `--l2-bytes 32768`** on xc7a100t (AX7101). The
   2-hart / L2-64K SMP variant is a **superseded perf-lineage** config. Any doc presenting
   "dual-hart / 2-core / L2-64K" as the ship/published config is STALE.
-- **Both boards CERT 63/63.** Ship pair: ARTY `asl_milanfinal53e` (VERSION 0x000A) +
-  ALINX `AX39`. Arty is a small MII endstation.
+- **Both boards pass the bench conformance suite clean.** Ship pair: ARTY `asl_milanfinal53e`
+  (VERSION 0x000A) + ALINX `AX39`. Arty is a small MII endstation.
 - **AX42** (e2 MAC-TX link-bounce wedge) fix LANDED this session (guard `eth_rst` now covers
   the PHY-side `eth_tx`/gtx path); sim + full-SoC elaboration validated, silicon bench pending.
 - **PCM ring can target on-chip BRAM** (`--pcm-ring bram`); DRAM ring is still the default.
@@ -46,7 +46,7 @@ Action = KEEP / UPDATE / MERGE / ARCHIVE.
 
 | Path | Status | Action | One-line rationale |
 |---|---|---|---|
-| `README.md` | STALE | UPDATE | Repo front door; fix dual-hart→1-hart, drop 2-core >500 headline, refresh counts, surface CERT 63/63 + servo. |
+| `README.md` | STALE | UPDATE | Repo front door; fix dual-hart→1-hart, drop 2-core >500 headline, refresh counts, surface the bench-suite-clean state + servo. |
 | `docs/README.md` | STALE | UPDATE | Doc nav hub; sound, but add ARCHITECTURE_HW_SW_SPLIT to reading paths; fix harness count. |
 | `docs/SYSTEMS_ENGINEER_GUIDE.md` | NEW | CREATE | New journey-ordered entry point (this audit's companion). |
 | `docs/GLOSSARY.md` | CURRENT | KEEP | Accurate, already uses post-reorg paths + VexiiRiscv-current framing. Definitions authority. |
@@ -122,7 +122,7 @@ Action = KEEP / UPDATE / MERGE / ARCHIVE.
 | `docs/testing/TESTING.md` | STALE | UPDATE | Top-level verification index; drop hardcoded 17-name list for "ls tb/verilator/ is authoritative". |
 | `docs/testing/RUNNING_TESTS.md` | STALE | UPDATE | Layered test runbook; refresh harness/top counts. |
 | `docs/testing/SIMULATION.md` | STALE | UPDATE | Sim-layers explainer; fix 15-vs-17 inconsistency, add VexiiRiscv-now note. |
-| `docs/testing/PROTOCOL_VALIDATION_MATRIX.md` | STALE | UPDATE | module×test coverage view; roll status glyphs forward to CERT/silicon, fix counts, H-10 Vivado-installed. |
+| `docs/testing/PROTOCOL_VALIDATION_MATRIX.md` | STALE | UPDATE | module×test coverage view; roll status glyphs forward to bench/silicon, fix counts, H-10 Vivado-installed. |
 | `docs/testing/BEHAVE_TEST_PLAN.md` | CURRENT | KEEP | Dated TODAY; live bridge SPEC_TRACEABILITY→behave (item 10 active). |
 | `docs/templates/README-parameters.template.md` | CURRENT | KEEP | Per-module parameter template; load-bearing for the builder. |
 | `docs/templates/README-tests.template.md` | CURRENT | KEEP | Per-module test template; row format rolls up into SPEC_TRACEABILITY. |
@@ -133,6 +133,14 @@ Totals: **31 KEEP, 33 UPDATE, 4 MERGE (sources), 11 ARCHIVE, 1 NEW** = 79 existi
 ---
 
 ## 2. OBSOLETE → ARCHIVE list
+
+> **EXECUTED 2026-07-25.** The move landed with one deviation from the plan below: the
+> destination is the repo-root **`historical_now_obsolete/`** (USER decision), not
+> `docs/archive/`, and the docs were **physically moved** (no stubs) with every inbound
+> link repaired. `scripts/docs_check.py` now gates link integrity. SESSION_HANDOFF was
+> never on this branch's tree; the merge-source docs (RX_TX_PERFORMANCE,
+> GIGABIT_HEADROOM_ANALYSIS, SINGLE_PORT_PERF, HSPLIT14_DESIGN) stay in place until their
+> §3 merges execute.
 
 Move each to `docs/archive/` (create the dir), leaving a one-line stub/pointer at the old path
 so inbound links resolve. All are completed plans or point-in-time snapshots whose durable
@@ -192,15 +200,15 @@ Link-repair required when these land:
 Recurring themes (apply the same reconciliation everywhere it appears): **dual-hart → 1-hart +
 L2-32K** ship shape (2-hart = superseded perf variant); **-73.4 dB → -83.9 dB** loop
 (servo silicon-proven); **162/18 → 163/17** matrix; **17 harnesses → ~41 dirs**, **18 tops →
-~39 tops** (prefer "listing is authoritative"); **Vivado Artix-7 installed / CERT 63/63**;
+~39 tops** (prefer "listing is authoritative"); **Vivado Artix-7 installed / bench suite clean**;
 **RGMII → GMII**; **CSR base 0x43C0_0000 → 0x9000_0000**.
 
 | Path | Fixes |
 |---|---|
-| `README.md` | dual-hart→1-hart+L2-32K; drop "2-core >500 campaign" as current capability; 17→~41, 18→~39; surface CERT 63/63 + servo-proven + ALSA record. |
+| `README.md` | dual-hart→1-hart+L2-32K; drop "2-core >500 campaign" as current capability; 17→~41, 18→~39; surface bench-suite-clean + servo-proven + ALSA record. |
 | `docs/README.md` | fix harness count; add `docs/ARCHITECTURE_HW_SW_SPLIT.md` to a reading path + bucket table. |
 | `REQUIREMENTS.md` | add platform preamble: Zynq-7020/RGMII → full-FPGA VexiiRiscv/Artix-7/GMII; CSR base 0x43C0→0x9000; driver now in the-private-test-repo, DT via LiteX. Leave REQ-* IDs untouched. |
-| `TODO.md` | mark Zynq-BD phases (bd/milan-dma.tcl, axi_mcdma, IRQ_F2P) superseded; note driver/DT delivered via kl-eth+LiteX (CERT 63/63); point to 12-item roadmap + BEHAVE plan; keep open-REQ ledger. |
+| `TODO.md` | mark Zynq-BD phases (bd/milan-dma.tcl, axi_mcdma, IRQ_F2P) superseded; note driver/DT delivered via kl-eth+LiteX (bench suite clean); point to 12-item roadmap + BEHAVE plan; keep open-REQ ledger. |
 | `CHANGELOG.md` | add 07-10/11 header-split closing rows (TX 582-646, RX 381/374, no-copy 585-594); fix "Where the goal stands"; DDIO measured DEAD; "ship=1-hart, perf-lineage records" banner. |
 | `THIRD_PARTY.md` | add `external`/fpga-avb-ethernet submodule row; verilog-ethernet Planned→Vendored (verilog-axis 48ff7a7 pin is correct). |
 | `aem-and-aecp.md` | relocate root→docs/architecture/; small↔full entity split (not Raki 48/96/192); STATIC AUDIO_MAP default; WRITE_DESCRIPTOR/GET_SET_ASSOCIATION_ID → NOT_IMPLEMENTED; resolve TODO callouts; fix drawio/kebag-logic links. |
@@ -230,7 +238,7 @@ L2-32K** ship shape (2-hart = superseded perf variant); **-73.4 dB → -83.9 dB*
 | `docs/testing/TESTING.md` | drop hardcoded 17-name list → "ls tb/verilator/ authoritative"; 18→~39 tops. |
 | `docs/testing/RUNNING_TESTS.md` | 17→41 harness dirs; 18→~39 tops. |
 | `docs/testing/SIMULATION.md` | fix 15-vs-17 internal inconsistency (→ tree wins); 18→~39; add VexiiRiscv-current/NaxRiscv-historical note. |
-| `docs/testing/PROTOCOL_VALIDATION_MATRIX.md` | 17→41, 18→~39; H-10 Vivado Artix-7 installed + CERT 63/63; roll glyphs forward (T-5 gPTP lock, A-5/7/8 AECP/ACMP/MVU, M-1/2 AVTP, L2-1/H-6 CERT). |
+| `docs/testing/PROTOCOL_VALIDATION_MATRIX.md` | 17→41, 18→~39; H-10 Vivado Artix-7 installed + bench suite clean; roll glyphs forward (T-5 gPTP lock, A-5/7/8 AECP/ACMP/MVU, M-1/2 AVTP, L2-1/H-6 BENCH). |
 
 ---
 

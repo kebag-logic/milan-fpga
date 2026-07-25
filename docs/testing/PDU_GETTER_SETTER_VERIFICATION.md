@@ -4,7 +4,7 @@ Roadmap item 10 (spec-matrix peer-validation) decomposed into **one verification
 command**, grouped by PDU family (ADP · ACMP · AECP/AEM+MVU · AAF) and by **fixture class**.
 Each command lands as its own branch `item-10-<cmd>` → PR against `main`, reviewed one-by-one.
 Builds on the existing host-sim + tsn_gen infra (`tests/steps/aecp_common_steps.py`,
-`tests/steps/tsn_gen_steps.py`) and the real-wire CERT `es-4.x` suite.
+`tests/steps/tsn_gen_steps.py`) and the real-wire bench `es-4.x` suite.
 
 ## Prerequisites & running (common to every item-10 PR)
 

@@ -1,7 +1,7 @@
 # ADP advertiser dormancy — silicon incident, forensics & fix (2026-07-13)
 
 ## Incident
-During post-hwts re-certification of the Milan control plane, the Arty (:02)
+During post-hwts re-validation of the Milan control plane, the Arty (:02)
 vanished from ADP discovery: 35 s of `tcpdump ether proto 0x22f0` on pw0 showed
 only the AX7101 (:01), while the same capture minutes after the session wrap-up
 had shown both. **gPTP was unaffected the whole time** (pw0 stayed SLAVE at
@@ -91,11 +91,11 @@ left a witness — which is exactly what the fix changes.
   from the fast-path commit, caught by this regression sweep.)
 - Yosys portability: 20/20 tops PASS.
 
-## Re-certification context (what this session was doing when it hit)
+## Re-validation context (what this session was doing when it hit)
 Both boards run same-day gateware (Arty asl_hwts5, AX eto_hwts_ax2). The AX
-re-certified clean on the new stack: `milan_controller.py` 31/31 and la_avdecc
+re-validated clean on the new stack: `milan_controller.py` 31/31 and la_avdecc
 enum-probe **IEEE17221=1 Milan=1 verdict CLEAN, 0 complaints**. The Arty's :02
-was mid-certification when the dormancy was caught (its +2 index during the
+was mid-validation when the dormancy was caught (its +2 index during the
 probes = discover responses that died against the dormant state — see chain
 above).
 

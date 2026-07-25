@@ -17,8 +17,8 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 > every byte**  -  driver ring→skb memcpy, TCP receive-queue coalesce memmove, and the
 > kernel→user usercopy  -  while the TCP protocol logic itself costs ~1 % per function.
 > See the **2026-07-07 campaign** addendum in
-> [CPPI_DMA_REDESIGN.md](../fpga/CPPI_DMA_REDESIGN.md) for the profile and the copybreak/page-frag
-> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md](../fpga/HW_GRO_RSC.md) for the ÷K plan toward
+> [CPPI_DMA_REDESIGN.md](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md) for the profile and the copybreak/page-frag
+> fix (RX 25 → 45.6 Mbit/s), and [HW_GRO_RSC.md](../../historical_now_obsolete/fpga/HW_GRO_RSC.md) for the ÷K plan toward
 > ≥200. This document's history below is unchanged.
 
 ---

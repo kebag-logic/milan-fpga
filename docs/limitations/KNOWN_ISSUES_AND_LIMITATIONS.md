@@ -62,7 +62,7 @@ These pairings are **known-fatal**:
 |---|---|---|
 | driver `--hs-page-bytes` ≠ gateware `hs_page_bytes` | **kernel panic** (Bad page map class) | `milan_dma_hs_pgsz_cap` reads back the elaborated size (`0xf000311c` in the reference build — LiteX assigns CSR offsets at build time, so confirm against your build's `csr.csv`); the hsplit16 driver **refuses to load** on mismatch. Reads 0 on older gateware = warn-and-trust |
 | hsplit10+ driver on ≤hsq5 gateware | **silent ring lap** (by construction, no error) | never load it there - see [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) |
-| BD-256 ring depth without the hsq6 drain gate | RX wedge under overload | use hsq6+ gateware ([../findings/RX_OVERLOAD_WEDGE.md](../findings/RX_OVERLOAD_WEDGE.md) history) |
+| BD-256 ring depth without the hsq6 drain gate | RX wedge under overload | use hsq6+ gateware ([../findings/RX_OVERLOAD_WEDGE.md](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md) history) |
 
 STRICT-pairing rules and the current compatibility ledger:
 [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) and
@@ -75,7 +75,7 @@ the write-ups explain why, so the next person doesn't re-spend the effort:
 
 | Lever | Verdict | Where |
 |---|---|---|
-| TX reader prefetch | "MEASURED VERDICT: do not build it" | [../findings/TX_READER_PREFETCH_PLAN.md](../findings/TX_READER_PREFETCH_PLAN.md) |
+| TX reader prefetch | "MEASURED VERDICT: do not build it" | [../findings/TX_READER_PREFETCH_PLAN.md](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) |
 | Second core for single-flow throughput | single flow is latency-bound, not CPU-bound; SMP helps multi-flow TX instead | [../findings/SINGLE_PORT_PERF.md](../findings/SINGLE_PORT_PERF.md), [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) |
 | Interrupt-coalescing sweeps for single-flow RX | `rx-usecs` 5 µs→1 ms flat | [../findings/SINGLE_PORT_PERF.md](../findings/SINGLE_PORT_PERF.md) |
 | 112.5 MHz sys clock | built + measured, reverted (reset fanout) | [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) |

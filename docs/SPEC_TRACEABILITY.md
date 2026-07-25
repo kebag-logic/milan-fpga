@@ -2,7 +2,7 @@
 
 **Purpose.** For every implemented module: what SHOULD be tested per the
 governing standard clause, how that requirement IS verified today (Verilator
-TB / CERT bench feature / silicon finding / tsn_gen wire model), or an
+TB / bench behave feature / silicon finding / tsn_gen wire model), or an
 explicit **MISSING** / **N/A** verdict. This is roadmap item 3's spec-test
 subtask. Every row is meant to be human peer-reviewed and then turned into a
 behave feature — clause references are the load-bearing content; they were
@@ -37,7 +37,7 @@ is the clause-anchored join between them.
 
 
 Legend: **✅** requirement has a specific self-checking verification today
-(named TB / CERT feature / silicon wire proof). **🟡** partially verified —
+(named TB / BENCH feature / silicon wire proof). **🟡** partially verified —
 the cell says exactly which leg is missing. **❌ MISSING** — no verification
 (or no implementation where the clause is claimed). **➖ N/A** — clause
 deliberately out of scope, with the reason in the row. A ✅ row may still
@@ -55,7 +55,7 @@ category claim, not the row in isolation:
 1. **Wrong role — controller/bridge obligations** (ADP-15, ACMP-11, AECP-7,
    Q-13): the clause binds ATDECC controllers or 802.1Q bridges. We are an
    end-station entity; the counterpart behavior is provided by the bench
-   (Hive, `avdecc_l2`, the certified switch) — which is what the entity is
+   (Hive, `avdecc_l2`, the reference AVB switch) — which is what the entity is
    tested *against*, not what it implements.
 2. **Superseded by Milan** (ACMP-12, ACMP-13): Milan v1.2 5.5.3/5.5.4
    replaces the 1722.1 8.2.4/8.2.5 state machines wholesale. Asserting the
@@ -156,6 +156,6 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
 
 Each family file is a table meant for row-by-row peer review; the intended
 lifecycle per row is: review clause ref → confirm/adjust required-behavior
-wording → promote to a behave feature (CERT suite) and/or a tsn_gen sweep →
+wording → promote to a behave feature (bench suite) and/or a tsn_gen sweep →
 flip the row's status. When a TB or module changes, the row citing it must
 change in the same commit (same rule as `tb/verilator/README.md`).
