@@ -33,10 +33,14 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 ## Caveat — the `dma-*` reg window has a different layout (LiteX build)
 Both `csr` (`0x9000_0000`) and `dma-*` (`0xf000_0000` family) are **native-endian** 32-bit
 MMIO — use `readl`/`writel`; do **not** mark the node `big-endian` or use `ioread32be`
-(that byte-swaps and corrupts). The catch is *word* order, not byte order: on the LiteX
+(that byte-swaps and corrupts).
+
+The catch is *word* order, not byte order: on the LiteX
 `dma-*` window the 64-bit `base` is two 32-bit words with the **MS word at the lower
 address** (`config_csr_ordering_big`) — program it as `hi @ +0x0`, `lo @ +0x4` (a native
-`iowrite64` swaps the halves → wrong DMA address). Map the `dma-*` ranges with
+`iowrite64` swaps the halves → wrong DMA address).
+
+Map the `dma-*` ranges with
 `devm_ioremap` (they are sub-page, inside the shared CSR bus), not the exclusive
 `devm_ioremap_resource`. On Zynq the DMA was a plain-MMIO `axi_dma` block, so this only
 applies to the fully-FPGA build. See [`docs/reference/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) → DMA registers.

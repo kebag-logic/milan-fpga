@@ -91,11 +91,12 @@ Counters mirror `ethernet_events`. Software writes `STATS_CTRL[0]=1` to latch a
 **Invalidate-on-MAC-reset (2026-07-22):** a MAC reinit (link-guard episode or
 `LINK_CTRL[1]`) restarts the MAC path *without* a CSR-domain reset, so a
 pre-reset snapshot would keep serving stale counts (the 2026-07-19
-"CSR plane lies until live counters tick" forensics). The reinit **release**
-edge now zeroes `STAT0..8` in hardware; all-zero means "no valid snapshot" -
-software re-arms with a fresh `STATS_CTRL[0]` write. Plain-RW config
-registers are unaffected (they are not MAC-domain state; the aresetn-swept
-defaults ROM already covers full fabric resets).
+"CSR plane lies until live counters tick" forensics).
+
+The reinit **release** edge now zeroes `STAT0..8` in hardware; all-zero means
+"no valid snapshot" - software re-arms with a fresh `STATS_CTRL[0]` write.
+Plain-RW config registers are unaffected (they are not MAC-domain state; the
+aresetn-swept defaults ROM already covers full fabric resets).
 
 Order follows the `ethernet_events_t` enum in
 `hdl/common/eth_event_counter/ethernet_events.svh`; `STAT`*n* is counter lane *n*
@@ -106,10 +107,12 @@ stay 1:1.
 lanes (`0x21C`/`0x230`) are derived *inside* `milan_datapath` from its MAC AXIS
 boundary handshake (one accepted `tlast` beat = one frame) — the matching bits
 of the `i_mac_events` port are ignored, so an external MAC can never
-double-count them. The remaining lanes pass through `i_mac_events` from the
-external MAC; the LiteX/LiteEth SoCs tie that port to 0 (LiteEth exposes no
-event pulses), so on both boards those error/overflow lanes legitimately read 0
-while the good-frame lanes count real traffic.
+double-count them.
+
+The remaining lanes pass through `i_mac_events` from the external MAC; the
+LiteX/LiteEth SoCs tie that port to 0 (LiteEth exposes no event pulses), so on
+both boards those error/overflow lanes legitimately read 0 while the
+good-frame lanes count real traffic.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -159,23 +162,33 @@ Reset defaults (`milan_csr` `CBS_*_RST`, mirroring `ethernet_packet_pkg.sv`):
 | 3 | 100 Mb/s | 152 | −1369 | 0 |
 
 Σ idleSlope = 750 Mb/s = 75 % of the 1 Gb/s port rate (`REQ-CBS-03`); hi/lo are
-`calc_hi/lo_credit(idleSlope, 1e9)` for MAX_FRAME_SIZE = 1522. **ALL queues
-power up unshaped** (`CBS_EN_RST = 0b0000`): the default class map routes
-untagged/BE traffic to q0, and shaping q0 at reset silently paced all
+`calc_hi/lo_credit(idleSlope, 1e9)` for MAX_FRAME_SIZE = 1522.
+
+**ALL queues power up unshaped** (`CBS_EN_RST = 0b0000`): the default class map
+routes untagged/BE traffic to q0, and shaping q0 at reset silently paced all
 best-effort TX to ~250 Mbit/s (measured on silicon 2026-07-07, see
 [CBS_DEFAULT_SHAPING_BUG.md](../findings/CBS_DEFAULT_SHAPING_BUG.md)). Software opts a queue in via `CBS_CTRL[0]`
-(REQ-CBS-02: SR classes only, never BE). The HW clamps credit down immediately
-if a write lowers hiCredit below the current credit, so shrinking a burst
-allowance takes effect at once. An `CBS_IDLE_SLOPE` write takes effect within
-two slope-engine passes, at most 200 datapath cycles = 2 us at 100 MHz
-(`credit_based_shaper.sv slope_engine`, sequential divider since 2026-07-11);
-hiCredit/loCredit/shaped-enable act on the next cycle. The driver must keep
-Σ idleSlope of the *shaped* queues ≤ 75 % of the port rate.
+(REQ-CBS-02: SR classes only, never BE).
 
-**Shaping applies per queue, not globally.** A frame is credit-based-shaped **only
-when both** hold: (1) its PCP maps  -  through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` →
-`CLS_TC_QUEUE_MAP`  -  to a queue, **and** (2) that queue's `CBS_CTRL[0]` shaped-enable
-is **1**. A queue with `CBS_CTRL[0]=0` (or a PCP that maps to it) is **strict
+Write semantics:
+
+* The HW clamps credit down immediately if a write lowers hiCredit below the
+  current credit, so shrinking a burst allowance takes effect at once.
+* An `CBS_IDLE_SLOPE` write takes effect within two slope-engine passes, at
+  most 200 datapath cycles = 2 us at 100 MHz
+  (`credit_based_shaper.sv slope_engine`, sequential divider since 2026-07-11);
+  hiCredit/loCredit/shaped-enable act on the next cycle.
+* The driver must keep Σ idleSlope of the *shaped* queues ≤ 75 % of the port
+  rate.
+
+**Shaping applies per queue, not globally.** A frame is credit-based-shaped
+**only when both** hold:
+
+1. its PCP maps  -  through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` →
+   `CLS_TC_QUEUE_MAP`  -  to a queue, **and**
+2. that queue's `CBS_CTRL[0]` shaped-enable is **1**.
+
+A queue with `CBS_CTRL[0]=0` (or a PCP that maps to it) is **strict
 priority / unshaped** (`allow_transmit` forced 1 in `credit_based_shaper.sv`). At
 reset **no queue is shaped** (`CBS_EN_RST = 0b0000`, see the reset-defaults note
 above). Software chooses which queues are SR/shaped (subject to the
@@ -263,10 +276,11 @@ The measurement half of the CRF clock-recovery loop: `KL_crf_rx` validates
 every PDU of the followed CRF stream against the Milan 7.3.2 profile
 constants and produces the servo's phase/frequency inputs; the MMCM-DRP
 actuator status lives at `0x8F8`. Loop semantics + RTL citations:
-[`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.3-3.4. The followed
-stream normally comes from the CRF sink bind (ACMP listener sink 1 — the
-bind wins); the SID pair here is the manual lever, and the bind-restore
-group notes that this sink re-arms via `0x738`.
+[`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.3-3.4.
+
+The followed stream normally comes from the CRF sink bind (ACMP listener
+sink 1 — the bind wins); the SID pair here is the manual lever, and the
+bind-restore group notes that this sink re-arms via `0x738`.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -339,12 +353,14 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 
 The advertiser emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType `0x22F0`,
 subtype `0xFA`) merged into the MAC TX stream by `adp_tx_arbiter` between frames.
+
 `available_index` increments on EVERY transmitted ADPDU — periodic re-advertise,
 discover response and departing alike (`adp_advertiser.sv` serialiser: controllers
 treat a repeated index as an incoherent entity; bump-on-change-only was
-silicon-diagnosed 2026-07-12). A frozen `ADP_STATUS` therefore means no ADPDUs are
-leaving at all — the [`ADP_DORMANCY.md`](../findings/ADP_DORMANCY.md) incident
-signature. See
+silicon-diagnosed 2026-07-12).
+
+A frozen `ADP_STATUS` therefore means no ADPDUs are leaving at all — the
+[`ADP_DORMANCY.md`](../findings/ADP_DORMANCY.md) incident signature. See
 [`../hdl/ieee17221/adp/doc/adp_advertiser.md`](../../hdl/ieee17221/adp/doc/adp_advertiser.md).
 
 ### 0x648  -  AECP/ACMP status + AAF talker  `(IEEE 1722.1 / Milan v1.2)`
@@ -374,14 +390,19 @@ semantics: [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md).
 The fabric SRP talker endpoint (`hdl/ieee8021q/srp/KL_lwsrp_top.sv`,
 [`LWSRP_FPGA_ARCHITECTURE.md`](../LWSRP_FPGA_ARCHITECTURE.md)). Re-homed here
 from that doc's original 0x660 sketch (0x654-0x670 are AAF/DIAG/ACMP now).
+
 While enabled it declares MSRP Domain (+ TalkerAdvertise when `[1]` is set)
 and the MVRP VID every JoinTime, registers the bridge's Listener attribute
 for our StreamID `{station MAC, 0}`, and resolves the reservation into the
 AAF admission gate + the class-A CBS idleSlope (hardware mux over the 0x400
-value of the queue selected in `LWSRP_CTRL[3:2]` — no CSR write-back). While
-enabled it also (a) sources ACMP `listener_observed` (OR-ed with the manual
-`A_ACMP_LOBS` override at 0x670) and (b) makes a reservation a PRECONDITION
-for AAF transmit (`FR-SRP-03`; `AAF_CTRL[1]` bypass remains the escape hatch).
+value of the queue selected in `LWSRP_CTRL[3:2]` — no CSR write-back).
+
+While enabled it also:
+
+* sources ACMP `listener_observed` (OR-ed with the manual `A_ACMP_LOBS`
+  override at 0x670), and
+* makes a reservation a PRECONDITION for AAF transmit (`FR-SRP-03`;
+  `AAF_CTRL[1]` bypass remains the escape hatch).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -438,16 +459,19 @@ Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 
 Boot-time re-injection of a listener bind saved in non-volatile memory
 (`acmp-persist`, the-private-test-repo `fpga/docs/SAVED_STATE_FASTCONNECT.md`).
+
 Software stages the persisted binding parameters (5.5.2.4 + 5.5.3.5.3:
 talker_entity_id, talker_unique_id, controller_entity_id, flags) and
 commits; the fabric writes the Milan 5.5.3.5.2 ENTRY record into the ACMP
 listener context table — state `PRB_W_AVAIL`, probing_status `PASSIVE`,
 ACMP status 0, and the SRP stream parameters (stream_id / dest MAC / VLAN)
-**cleared** per 5.5.2.6 step 1. No new connection logic: the existing
-fabric ladder (ADP talker watch -> TMR_DELAY -> PROBE_TX ladder) takes
-over, so the sink waits for the talker's ENTITY_AVAILABLE (5.5.1.4) and
-re-probes exactly like a power-on fast-connect. Software gate: VERSION >=
-`0x000A` **and** a write/readback probe of `0x7A0` (pattern `0xA5C35A3C`).
+**cleared** per 5.5.2.6 step 1.
+
+No new connection logic: the existing fabric ladder (ADP talker watch ->
+TMR_DELAY -> PROBE_TX ladder) takes over, so the sink waits for the talker's
+ENTITY_AVAILABLE (5.5.1.4) and re-probes exactly like a power-on
+fast-connect. Software gate: VERSION >= `0x000A` **and** a write/readback
+probe of `0x7A0` (pattern `0xA5C35A3C`).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -493,16 +517,21 @@ elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
 
 **The alias rule (N=1 bit-compat axiom).** The legacy flat registers remain
 the authority and index 0 of the window is a HARD ALIAS of them — never a
-copy: talker idx 0 `CTRL[0]`/`DMAC_LO`/`DMAC_HI` are the same storage as
-`AAF_CTRL[0]`/`AAF_DMLO`/`AAF_DMHI` (a window write is visible at the flat
-address and vice versa; the `CTRL` alias merges bit 0 only), `SRP` idx 0 is
-the live `0x694` word, and the listener idx-0 SNAP latches the flat
-`AVTPRX_*`/`PCMRX_CNT`/`ACMPL_STATE` sources (`CNT0..3/5/6` mirror today's
-truncated 8/16-bit flat counters — the idx-0 SNAP deliberately keeps the
-flat sources in P12 too, which IS the alias axiom; extra contexts read the
-full 32-bit LCTX words). Every pre-window CSR TB passes unchanged.
-`PCMRX_CNT` (0x6C4) stays the SHARED depacketizer's global `{drops,pdus}`
-across all streams; per-stream pdus live in the window `PDUS` word.
+copy:
+
+* talker idx 0 `CTRL[0]`/`DMAC_LO`/`DMAC_HI` are the same storage as
+  `AAF_CTRL[0]`/`AAF_DMLO`/`AAF_DMHI` (a window write is visible at the flat
+  address and vice versa; the `CTRL` alias merges bit 0 only),
+* `SRP` idx 0 is the live `0x694` word, and
+* the listener idx-0 SNAP latches the flat
+  `AVTPRX_*`/`PCMRX_CNT`/`ACMPL_STATE` sources (`CNT0..3/5/6` mirror today's
+  truncated 8/16-bit flat counters — the idx-0 SNAP deliberately keeps the
+  flat sources in P12 too, which IS the alias axiom; extra contexts read the
+  full 32-bit LCTX words).
+
+Every pre-window CSR TB passes unchanged. `PCMRX_CNT` (0x6C4) stays the
+SHARED depacketizer's global `{drops,pdus}` across all streams; per-stream
+pdus live in the window `PDUS` word.
 
 **SNAP atomicity ([M-5.4.2.25] GET_COUNTERS).** A SNAP latches `STATE` +
 `CNT0..9` + `PDUS` as one coherent set. Index 0 latches all flat sources in
@@ -516,51 +545,69 @@ serve each burst word only when fully event-drained, so every latched WORD
 is event-atomic and reflects a completely-applied event state; the engines
 do not freeze across the whole burst, so a block whose fetch straddles an
 in-flight event is bounded by the burst's start/end states (counters are
-monotonic, reset only on that stream's bind edge). Engine-backed CFG words
-(`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are "slow"
-reads served live from the context RAM (>= 4 AXI-stalled cycles, longer
-while the engine walks an event). A listener `CTRL` commit at any idx also
-writes the classification stream-table entry `{sid staged via SID_LO/HI,
-en}` and the route field.
+monotonic, reset only on that stream's bind edge).
+
+Engine-backed CFG words (`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra
+talker contexts) are "slow" reads served live from the context RAM (>= 4
+AXI-stalled cycles, longer while the engine walks an event). A listener
+`CTRL` commit at any idx also writes the classification stream-table entry
+`{sid staged via SID_LO/HI, en}` and the route field.
 
 **Route flags (`CTRL[2:1]`, KL_pcm_route).** The 2-bit field is a pair of
-INDEPENDENT flags, not an exclusive enum: `CTRL[1]` = DMA (payload lands in
-the stream's DRAM ring at `pcm base + s*stride`, see the `_PCMRingNxN` CSRs
-at N > 1), `CTRL[2]` = RENDER (feeds the LPF + I2S render path; if several
-streams carry the flag the lowest-indexed one wins). `0b11` = RENDER|DMA =
-capture-while-rendering; `0b00` = NULL (neither — the monitor still
-counts). Mapping from the retired P3 enum (ALSA-design feedback, open
-question 4): P3 `0 NULL` -> `0b00`; P3 `1 RENDER` -> `0b11` (P3's RENDER
-also forwarded the ring copy — the flags now say so directly); P3 `2 DMA`
--> `0b01` (the raw value 2 now means RENDER-only). Reset default: stream 0
-= `0b11`, others `0b00` — bit-identical N=1 behavior to P3.
+INDEPENDENT flags, not an exclusive enum:
+
+* `CTRL[1]` = DMA (payload lands in the stream's DRAM ring at
+  `pcm base + s*stride`, see the `_PCMRingNxN` CSRs at N > 1),
+* `CTRL[2]` = RENDER (feeds the LPF + I2S render path; if several streams
+  carry the flag the lowest-indexed one wins).
+
+`0b11` = RENDER|DMA = capture-while-rendering; `0b00` = NULL (neither — the
+monitor still counts).
+
+Mapping from the retired P3 enum (ALSA-design feedback, open question 4):
+
+* P3 `0 NULL` -> `0b00`;
+* P3 `1 RENDER` -> `0b11` (P3's RENDER also forwarded the ring copy — the
+  flags now say so directly);
+* P3 `2 DMA` -> `0b01` (the raw value 2 now means RENDER-only).
+
+Reset default: stream 0 = `0b11`, others `0b00` — bit-identical N=1
+behavior to P3.
 
 **Talker t>0 arming (`aaf_stream_en_w`).** Talker stream 0's admission is
 the flat `aaf_gate` unchanged (`AAF_CTRL` en/bypass, MAAP claim, ACMP
-talker-active, lwSRP row-0 gate). A talker idx>0 arms as: TCTX `CTRL[0]`
-(this window) AND the per-stream lwSRP bw-gate (its ctx-table talker row,
-`~LWSRP_CTRL[0]` bypasses) AND the engine-wide MAAP term (`~MAAP_CTRL[0] |
-addr_valid` — ONE claim engine, mirrors t0). Honest gaps (documented in
-the RTL): no per-stream ACMP talker-active exists (single talker SM), so
-t>0 has no ACMP term and `AAF_CTRL[1]` bypass plays no t>0 role; the
-capture front-end still emits slot 0 only (item-4 TDM), so an armed t>0
-emits no frames until it has a sample source.
+talker-active, lwSRP row-0 gate). A talker idx>0 arms as:
+
+* TCTX `CTRL[0]` (this window) AND
+* the per-stream lwSRP bw-gate (its ctx-table talker row,
+  `~LWSRP_CTRL[0]` bypasses) AND
+* the engine-wide MAAP term (`~MAAP_CTRL[0] | addr_valid` — ONE claim
+  engine, mirrors t0).
+
+Honest gaps (documented in the RTL): no per-stream ACMP talker-active
+exists (single talker SM), so t>0 has no ACMP term and `AAF_CTRL[1]` bypass
+plays no t>0 role; the capture front-end still emits slot 0 only (item-4
+TDM), so an armed t>0 emits no frames until it has a sample source.
 
 **Engine-backed words + read timing.** Window reads of LCTX/TCTX-backed
 words (`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are
 served from the context RAM's second port — the AXI read simply stretches a
-few clocks (handshake absorbs it, like the config-shadow reads). While the
-lane-K engines are not connected, those inputs are tied inert at the SoC
-(`i_lctx_rd_data=0`, `i_lctx_snap_ok=1`, same for TCTX, `i_acmp_tbl_*=0` —
-allowlisted in `scripts/check_tied_inputs.sh`), so engine-backed words read
-0 and SNAP completes immediately; the index-0 aliases are fully live today.
-During a SNAP burst, engine-backed word reads return 0 (poll busy first).
+few clocks (handshake absorbs it, like the config-shadow reads).
+
+While the lane-K engines are not connected, those inputs are tied inert at
+the SoC (`i_lctx_rd_data=0`, `i_lctx_snap_ok=1`, same for TCTX,
+`i_acmp_tbl_*=0` — allowlisted in `scripts/check_tied_inputs.sh`), so
+engine-backed words read 0 and SNAP completes immediately; the index-0
+aliases are fully live today. During a SNAP burst, engine-backed word reads
+return 0 (poll busy first).
 
 **lwSRP provisioning through the window.** For idx>0, writing `SID_LO/HI`
 (+ `DMAC_LO/HI` for talkers) stages the record and a `CTRL` write commits it
 to the live lwSRP attribute-context port (`KL_lwsrp_top ctx_*`): `en`=1
 provisions (TalkerAdvertise or Listener declaration per dir), `en`=0
-withdraws. Row map: listener idx k → ctx row k, talker idx t → ctx row
+withdraws.
+
+Row map: listener idx k → ctx row k, talker idx t → ctx row
 `N_LISTENERS_P-1+t`; row 0 is the legacy pair (read-only, served by the
 flat aliases). PriorityAndRank is the class-A constant; TSpec/latency come
 from the shared `LWSRP_TSPEC`/`LWSRP_LATENCY` registers until per-stream
@@ -594,15 +641,17 @@ saturating 16-bit) plus the gPTP epoch of the measured reference frame:
 **Measurement model.** Each chain follows ONE tagged reference frame at a
 time: it arms on a stage-0 edge (latching the epoch cycle + gPTP time), takes
 the next edge at each later stage as that frame's progress, and on the final
-stage records the deltas + publishes the epoch + increments `samples`. A
-per-stage timeout (`TIMEOUT_C` ≈ 0.5 ms) aborts and re-arms a stuck token
+stage records the deltas + publishes the epoch + increments `samples`.
+
+A per-stage timeout (`TIMEOUT_C` ≈ 0.5 ms) aborts and re-arms a stuck token
 (`timeouts++`), so a dropped frame never wedges the chain. The token is
 followed by ORDER, not a threaded frame id, so under mixed traffic a shared
 boundary (`MAC_TX`/`MAC_RX`) may catch a nearer non-AAF edge - min/last/max
-therefore characterise the latency ENVELOPE rather than one exact frame. The
-I2S-out playout stage is FIFO-fill dominated (the CDC pair FIFO decouples PDUs
-from DAC frames) and stays observed via `I2SPB_STAT` fill/converged; a **DDR3
-per-sample history ring is the documented follow-up**.
+therefore characterise the latency ENVELOPE rather than one exact frame.
+
+The I2S-out playout stage is FIFO-fill dominated (the CDC pair FIFO decouples
+PDUs from DAC frames) and stays observed via `I2SPB_STAT` fill/converged; a
+**DDR3 per-sample history ring is the documented follow-up**.
 
 Both the `LTAP_CTRL` status word and the 16 RO readback words live at
 `>= 0x800`, so - exactly like the servo - they need the `rd_in_window`
@@ -647,11 +696,13 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 Debug write port + bypass arm for the 64x64 render/capture map RAMs. Same
 dedicated-arm carve-out as MCSRV (NOT in `is_plain_rw` - a 0x900 shadow write
 would alias word 0x100 - plus its own `rd_in_window` 0x900-0x93F term, or every
-read here would be the 0x8F8 dead-read trap). `CHMAP_CTRL[0]` = 0 (reset) leaves
-the deployed audio path bit-identical: the render/capture crossbars are muxed OUT of
-both the packetizer feed and the i2s_playback feed. The AEM audio-map projector
-(1722.1 7.2.19 / Milan es-4.16) is the canonical programmer; this window is the
-bench override (a documented follow-up wires the projector to the same port).
+read here would be the 0x8F8 dead-read trap).
+
+`CHMAP_CTRL[0]` = 0 (reset) leaves the deployed audio path bit-identical: the
+render/capture crossbars are muxed OUT of both the packetizer feed and the
+i2s_playback feed. The AEM audio-map projector (1722.1 7.2.19 / Milan es-4.16)
+is the canonical programmer; this window is the bench override (a documented
+follow-up wires the projector to the same port).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
