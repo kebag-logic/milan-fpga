@@ -127,6 +127,7 @@ across BUILDING / LITEX_SOC / QSPI_FLASHBOOT / BENCH_TOPOLOGY). Editable
 | [BUILDING.md](integration/BUILDING.md) | **Building + flashing bitstreams in the two-board lab** (`build.sh`): named configs (ax7101/arty), parallel launch discipline, the `flash` subcommand per-board QSPI policy interlocks, gates. |
 | [QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | Boot Linux from QSPI flash (zero-upload achieved 2026-07-06); flash layout + `deploy.sh flash-images`. |
 | [AXIS_CORES_ON_NAXRISCV.md](integration/AXIS_CORES_ON_NAXRISCV.md) | The general pattern: attaching AXI-Stream cores to a LiteX softcore (control/data/event planes). |
+| [PIPEWIRE_AVB_PEER.md](integration/PIPEWIRE_AVB_PEER.md) | **Using a PipeWire host as the AVB peer**: the gPTP→core→daemon stack in order, the working-log signals, binding the pilot tone to a stream, and the verified fault dictionary. |
 | [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) | The completed migration + de-Xilinx plans (historical); the living porting successor is PORTING_GUIDE above. |
 | [`../THIRD_PARTY.md`](../THIRD_PARTY.md) | Vendored third-party code, pins and licenses. |
 
