@@ -271,8 +271,8 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 
 ### Stage 6 — Test & verify
 - → **`docs/testing/TESTING.md`** — the top-level verification map/index: every layer, what it
-  proves, the exact command. *(Trust `ls tb/verilator/` for the harness list, not the hardcoded
-  count — the tree has ~41 harness dirs, ~39 Yosys tops.)*
+  proves, the exact command. *(Trust `ls tb/verilator/` for the harness list and
+  `syn/yosys/run.sh` for the tops — counts in prose rot; the listing is authoritative.)*
 - **`docs/testing/RUNNING_TESTS.md`** — the layered how-to-run runbook (cheapest-first: smoke →
   migen sims → verilator → yosys → P&R → silicon) with time budgets and the traps that bit.
 - **`docs/testing/SIMULATION.md`** — the conceptual explainer of the three sim layers + the M-A2
@@ -363,8 +363,8 @@ Several docs predate recent changes. When you hit these phrasings, substitute th
   perf-campaign peaks.
 - "-73.4 dB" as the analog loop record → **-83.9 dB** (servo silicon-proven).
 - "162 verified / 18 partial" → **163 / 17** (204-row matrix, reconciled today).
-- "17 Verilator harnesses" / "18 Yosys tops" → **~41 harness dirs / ~39 tops** (the directory
-  listing is authoritative).
+- "17 Verilator harnesses" / "18 Yosys tops" or any other hardcoded count → **the directory
+  listing is authoritative** (`ls tb/verilator/`; the `syn/yosys/run.sh` tops array).
 - "RGMII" for the board MAC → **GMII** (the AX7101 strap correction).
 - CSR base "0x43C0_0000" (Zynq PS) → **0x9000_0000** (softcore IO region).
 - "only Spartan-7 installed / `--build` blocked" → **Vivado 2026.1 has Artix-7 + Zynq**; both

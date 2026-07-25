@@ -88,7 +88,7 @@ every other doc). Terms → [glossary](docs/GLOSSARY.md).
 
 | Suite | Command | Needs |
 |---|---|---|
-| **All Verilator TBs** (~41, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.0 |
+| **All Verilator TBs** (one dir per suite, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.0 |
 | One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys |
 | behave / tsn_gen fixtures | `~/litex-milan/venv/bin/behave tests` | the venv + `TSAGEN_DIR` |
