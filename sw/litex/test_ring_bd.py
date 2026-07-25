@@ -13,7 +13,7 @@ Proven here BEFORE a bitstream:
   4. THROUGHPUT: BD-mode drain pps is within a few % of ring mode (one less payload
      beat, plus a 2-beat BD per frame).
 
-Run: cd sw/litex && /home/alex/litex-milan/venv/bin/python3 test_ring_bd.py
+Run: cd sw/litex && ~/litex-milan/venv/bin/python3 test_ring_bd.py
 """
 import sys, importlib.util
 from migen import *

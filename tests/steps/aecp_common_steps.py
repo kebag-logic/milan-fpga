@@ -331,7 +331,7 @@ def step_dut_reset(context):
 
 @given('the AECP protocol directory is "{proto_dir}"')
 def step_proto_dir(context, proto_dir):
-    context.protocols_dir = proto_dir
+    context.protocols_dir = os.path.expanduser(proto_dir)
 
 
 @given('the entity_id is {eid}')

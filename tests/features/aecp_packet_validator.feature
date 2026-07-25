@@ -10,7 +10,7 @@ Feature: KL_aecp_packet_validator — AECP frame admission control
   Background:
     Given the DUT is KL_aecp_packet_validator
     And the DUT is reset
-    And the AECP protocol directory is "/home/alex/tsn-gen/protocols"
+    And the AECP protocol directory is "~/tsn-gen/protocols"
 
   Scenario: Valid AEM_COMMAND with minimum CDL is accepted
     When I send an AECP frame with message_type 0 and control_data_length 20

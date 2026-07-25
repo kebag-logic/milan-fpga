@@ -13,7 +13,7 @@ Proven here BEFORE spending a bitstream:
 The *system* pps gain (CPU no longer stalling on an MMIO read per poll) is not visible to
 an RTL-only sim — that is projected by the measured-sweep model in poll_cost_model.py.
 
-Run: cd sw/litex && /home/alex/litex-milan/venv/bin/python3 test_ring_writeback.py
+Run: cd sw/litex && ~/litex-milan/venv/bin/python3 test_ring_writeback.py
 """
 import sys, importlib.util
 from migen import *

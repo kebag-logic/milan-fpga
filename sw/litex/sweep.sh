@@ -6,7 +6,7 @@
 set -euo pipefail
 BOARD=${1:?board}; TAG=${2:?tag}
 export PATH="$HOME/litex-milan/venv/bin:$PATH"
-source /home/alex/Xilinx/2026.1/Vivado/settings64.sh
+source $HOME/Xilinx/2026.1/Vivado/settings64.sh
 W=$HOME/litex-milan/work
 # Per-board design OPTS/L2: SINGLE SOURCE = the end-station configs.
 # sw/builder/endstation_builder.py emits configs/generated/sweep_opts_<board>.sh

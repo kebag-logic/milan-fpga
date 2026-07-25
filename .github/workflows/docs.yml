@@ -1,0 +1,16 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link health, wording and local-info gate
+        run: python3 scripts/docs_check.py
+      - name: Traceability matrix no-drift gate
+        run: python3 docs/traceability/gen_module_matrix.py --check
