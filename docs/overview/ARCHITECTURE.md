@@ -32,38 +32,44 @@ milan-fpga/
 │  ├─ overview/  integration/  fpga/  litex/  testing/  limitations/
 │  ├─ reference/             REGISTER_MAP, FR/NFR, Milan v1.2 matrix
 │  └─ findings/              dated bug post-mortems + perf campaigns
-├─ hdl/
-│  ├─ common/                milan_datapath + milan_top wrappers, TCAM,
-│  │                         RX filter, CDC primitives, AXIS iface, pkgs
-│  ├─ csr/                   milan_csr.sv ← memory-mapped control plane
-│  ├─ 802_1q_traffic_shaper/ classifier + queues + CBS + arbiter
-│  ├─ ptp_timestamp/         PHC counter + ptp_csr_sync CDC + TX/RX stampers
-│  ├─ eth_event_counter/     RMON event counters
-│  ├─ 1722/  adp/            AVTP parsers · ADP advertiser/parser
+├─ hdl/                      spec-aligned RTL tree (directories mirror the standards)
+│  ├─ milan/                 milan_datapath.sv (fabric NIC wrapper) + milan_top.sv (Zynq)
+│  ├─ common/                csr/milan_csr.sv ← memory-mapped control plane;
+│  │                         CDC primitives (cdc_pulse/handshake/pair_fifo), AXIS
+│  │                         iface + pkgs, KL_link_guard, tx_ifg_gasket,
+│  │                         eth_event_counter/ (RMON)
+│  ├─ ieee1722/              aaf/ (AAF packetize/depacketize, I2S/TDM capture+render,
+│  │                         PCM ring/LPF/route) · avtp/ (parsers, stream table, RX
+│  │                         monitor) · crf/ (CRF RX/TX + MMCM-DRP servo) · maap/
+│  ├─ ieee17221/             adp/ (advertiser, parser, TX arbiter) · aecp/ (AEM
+│  │                         entity) · acmp/ (responder + listener)
+│  ├─ ieee8021as/            ptp_timestamp/ (PHC counter + ptp_csr_sync CDC +
+│  │                         TX/RX stampers)
+│  └─ ieee8021q/             ts/ (classifier + queues + CBS + arbiter) · srp/
+│                            (lwSRP engine) · filtering/ (TCAM + RX dest-MAC filter)
 ├─ sw/
 │  ├─ litex/                 the LiteX SoC (milan_soc.py), sims, patches, tools
+│  ├─ builder/               endstation_builder.py - declarative end-station definition
 │  ├─ driver/                kl-eth driver contract (source in sibling repo)
 │  └─ dts/                   device-tree generator (per-host overlays)
 ├─ third_party/verilog-axis  vendored AXIS cores (submodule - init required!)
 ├─ bd/ constraints/          Zynq-variant block design + XDC
 ├─ syn/yosys/                open-toolchain portability check
 └─ tb/
-   ├─ verilator/             ~40 self-checking harness dirs (live regression; `ls tb/verilator/` authoritative)
+   ├─ verilator/             self-checking harness dirs (live regression; `ls tb/verilator/` authoritative)
    ├─ utests/ itests/        legacy Vivado/xsim testbenches
    └─ avtp_packet_gen_sv/    AVTP stimulus classes (Questa)
 ```
 
-> Note: the `hdl/` subtree above predates the spec-aligned reorg - RTL now lives
-> under `hdl/ieee1722/`, `hdl/ieee17221/`, `hdl/ieee8021as/`, `hdl/ieee8021q/`,
-> plus `hdl/milan/` (the `milan_datapath`/`milan_top` wrappers) and `hdl/common/`;
-> see [../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) §2 for the current tree.
+> Per-module detail for the `hdl/` tree:
+> [../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) §2.
 
 ## 2. System block diagram (fully-FPGA softcore)
 
 ```
    ┌─────────────────────────── Artix-7 fabric (LiteX SoC) ───────────────────────────┐
    │                                                                                   │
-   │  VexiiRiscv ×2 (or NaxRiscv)   L2   DDR3 ctrl (LiteDRAM)   QSPI   UART   PLIC     │
+   │  VexiiRiscv ×1 (ship; NaxRiscv hist.)  L2  DDR3 ctrl (LiteDRAM)  QSPI  UART  PLIC │
    │        │ CPU bus                        │ dma_bus (coherent)                      │
    │        ├────────────────┬───────────────┴───────────────┐                         │
    │   AXI-Lite CSR      LiteX CSRs                  ring-DMA engines                  │
@@ -81,10 +87,10 @@ milan-fpga/
                                                                         RTL8211E PHY (GMII)
 ```
 
-The ship SoC is a **1-hart VexiiRiscv + `--l2-bytes 32768`** (32 KB L2) on the
-AX7101; the 2-hart / 64 KB-L2 SMP shape drawn in the diagram above is the
-superseded performance-campaign peak (kept for the perf lineage), not the
-deployed config.
+The ship SoC on the AX7101 is a **1-hart VexiiRiscv + `--l2-bytes 32768`**
+(32 KB L2), as drawn (`sw/litex/build.sh cfg_ax7101`); the 2-hart / 64 KB-L2
+SMP shape is the superseded performance-campaign peak (kept for the perf
+lineage), not the deployed config.
 
 The same `milan_datapath` is what the Zynq variant, the Verilator harnesses
 (`tb/verilator/milan_dp`), the SoC sim (`milan_sim.py`) and the Yosys
@@ -167,12 +173,13 @@ caveats: [`sw/driver/README.md`](../../sw/driver/README.md).
 ## 7. Verification
 
 Six layers, one map: [../testing/TESTING.md](../testing/TESTING.md).
-Quick version: ~40 self-checking Verilator harness dirs (`ls tb/verilator/` authoritative)
-([`tb/verilator/README.md`](../../tb/verilator/README.md)) cover every RTL
-block through the whole `milan_datapath` wrapper; Migen sims cover the DMA
-engines; `milan_sim.py` boots the SoC in Verilator; `syn/yosys` proves
-device portability (~39 tops, generic + ECP5); the legacy xsim TBs remain
-for waveform work; silicon procedures close the loop.
+Quick version: the self-checking Verilator harness dirs (`ls tb/verilator/`
+is authoritative; [`tb/verilator/README.md`](../../tb/verilator/README.md))
+cover every RTL block through the whole `milan_datapath` wrapper; Migen sims
+cover the DMA engines; `milan_sim.py` boots the SoC in Verilator; `syn/yosys`
+proves device portability (the `tops` list in `run.sh` is authoritative;
+generic + ECP5); the legacy xsim TBs remain for waveform work; silicon
+procedures close the loop.
 
 ## 8. Where to change things (maintainability)
 
