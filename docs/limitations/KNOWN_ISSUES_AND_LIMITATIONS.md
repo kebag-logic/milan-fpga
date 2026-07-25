@@ -76,8 +76,8 @@ the write-ups explain why, so the next person doesn't re-spend the effort:
 | Lever | Verdict | Where |
 |---|---|---|
 | TX reader prefetch | "MEASURED VERDICT: do not build it" | [../findings/TX_READER_PREFETCH_PLAN.md](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) |
-| Second core for single-flow throughput | single flow is latency-bound, not CPU-bound; SMP helps multi-flow TX instead | [../findings/SINGLE_PORT_PERF.md](../findings/SINGLE_PORT_PERF.md), [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) |
-| Interrupt-coalescing sweeps for single-flow RX | `rx-usecs` 5 µs→1 ms flat | [../findings/SINGLE_PORT_PERF.md](../findings/SINGLE_PORT_PERF.md) |
+| Second core for single-flow throughput | single flow is latency-bound, not CPU-bound; SMP helps multi-flow TX instead | [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) §2.1 |
+| Interrupt-coalescing sweeps for single-flow RX | `rx-usecs` 5 µs→1 ms flat | [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) §2/§2.1 |
 | 112.5 MHz sys clock | built + measured, reverted (reset fanout) | [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) |
 | L2 > 64 KB, BRAM scratchpad, software prefetch (blocking D$) | no measured gain on this core | campaign ledger: [`CHANGELOG.md`](../../CHANGELOG.md), [../findings/PERFORMANCE_GOAL.md](../findings/PERFORMANCE_GOAL.md) |
 | Socket zero-copy RX (TCP_ZEROCOPY_RECEIVE) on this core+kernel | 110-113 Mbit at 87 % zero-copied - equilibrium economics refute the lane; AF_XDP ZC remains the open >500 lane | ../findings/SESSION_HANDOFF.md, [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) |
@@ -89,7 +89,7 @@ measurement** of a moving system (and several older docs carry superseded
 banners). The rules:
 
 * The per-lever measured ledger is [`CHANGELOG.md`](../../CHANGELOG.md).
-* The narrative current-state is [../findings/RX_TX_PERFORMANCE.md](../findings/RX_TX_PERFORMANCE.md),
+* The consolidated campaign record is [../findings/PERFORMANCE_GOAL.md](../findings/PERFORMANCE_GOAL.md),
   with the newest working state in ../findings/SESSION_HANDOFF.md
   (which re-baselined the no-copy RX ceiling measurement).
 * Any number embedded elsewhere (including the root README) is a snapshot

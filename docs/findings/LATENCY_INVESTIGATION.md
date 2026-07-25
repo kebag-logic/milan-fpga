@@ -1,6 +1,6 @@
 # Latency & memory investigation  -  why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for current RX/TX numbers and the live bottleneck/lever see [`RX_TX_PERFORMANCE.md`](RX_TX_PERFORMANCE.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical.
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. §2.1 absorbs the `SINGLE_PORT_PERF.md` prequel (merged 2026-07-25).
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
@@ -67,6 +67,30 @@ limit. The clean passive test overturned it: board uptime advanced **31.83 s ove
 clockevent are correct. **Lesson: a marker that can be corrupted is not a measurement.**
 
 **Not a silicon delivery gate.** See §3  -  the flood proves the CPU *does* saturate.
+
+### 2.1 Prequel  -  a second core won't help a single flow (folded from `SINGLE_PORT_PERF.md`, 2026-07-25)
+
+The first slice of this investigation (2026-07-05, same silicon and load) asked one
+question: *would a second core raise single-port throughput?* Answer: **no  -  measured
+three independent ways**, all pointing at latency, not CPU throughput:
+
+1. **Baseline:** RX 30.1 / TX 26–27 Mbit/s with the core **94 % idle** (`vmstat`:
+   us 1–3 / sy 2–4 / id 94, ~3130 int/s). Nothing for a second core to do.
+2. **Coalesce sweep:** `ethtool -C rx-usecs` swept 5 µs → 1 ms (200×)  -  **flat**
+   at ~30 Mbit/s both directions. The poll cadence is not the bottleneck.
+3. **Parallel flows:** `iperf3 -P 4` does **not** aggregate  -  RX/TX fall to
+   ~20 Mbit/s while the CPU stays **95 % idle**. Not a per-flow window; a shared
+   serialized limit that more flows (and therefore more cores) cannot widen.
+
+A second core adds *throughput* (independent work in parallel); this ceiling is
+*latency* on a serialized per-frame path (DMA-ring → NAPI → GRO → TCP → ACK). Adding a
+core to a 94 %-idle core does not shorten that path. The confirming datum: the identical
+datapath under **NaxRiscv (dual-issue)** reached **TX 62 / RX 67 Mbit/s** at the same
+MTU 1500  -  ~2.3×  -  because higher IPC shortens the per-frame critical path; more cores
+do not. For the switch role the number is moot anyway: forwarding runs in fabric at line
+rate and the CPU is the control plane, so this software ceiling never gates switched
+traffic. Full matrices + reproduce recipe:
+[`SINGLE_PORT_PERF.md`](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md).
 
 ## 3. The two regimes  -  flood localises the ceiling
 

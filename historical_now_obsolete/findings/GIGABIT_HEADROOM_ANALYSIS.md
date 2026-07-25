@@ -1,5 +1,5 @@
-> ⚠️ **SUPERSEDED / HISTORICAL** — archived 2026-07-23. Kept for history; **not current state**.
-> Living successor: `findings/PERFORMANCE_GOAL.md` (budget model folded in). Index: `historical_now_obsolete/README.md`; orientation: `docs/SYSTEMS_ENGINEER_GUIDE.md`.
+> ⚠️ **SUPERSEDED / HISTORICAL** — merged into its successor 2026-07-25. Kept intact as the historical record; **not current state**.
+> Living successor: [`docs/findings/PERFORMANCE_GOAL.md`](../../docs/findings/PERFORMANCE_GOAL.md) (the cycles/byte budget model, the lever rankings, and the "silicon data-plane is already gigabit; the rest is the socket API" verdict were folded in as the headroom chapter). Index: [`../README.md`](../README.md); orientation: [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../../docs/SYSTEMS_ENGINEER_GUIDE.md).
 
 # Getting the maximum out of the gigabit link  -  headroom analysis at 100 MHz
 
