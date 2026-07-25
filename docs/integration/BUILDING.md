@@ -1,6 +1,6 @@
 # Building bitstreams  -  the two-board build flow
 
-*2026-07-11. Canonical entry point: **`sw/litex/build.sh`**. This page is the
+*2026-07-25. Canonical entry point: **`sw/litex/build.sh`**. This page is the
 maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
 configuration, and the per-board load/console facts you need after a build
@@ -23,6 +23,7 @@ cd sw/litex
 | `TAG=fold2 ./build.sh arty` | output dir `work/build_arty_fold2` (default TAG = mmddHHMM) |
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
 | `./build.sh ... --dry-run` | print the exact launch commands, start nothing |
+| `./build.sh flash <config>[:<builddir>]` | flash the newest matching build (or the named one) to QSPI: bitstream @0, then the Linux image set  -  see section 4 |
 
 Outputs land in `/home/alex/litex-milan/work/build_<config>[_<directive>]_<TAG>/`
 with a `*.launch.log` next to each. Builds run detached; check progress with
@@ -46,6 +47,18 @@ driver pairing, kl-eth `hs_pgsz=16384`), `--strip-probes` (ship diet), QSPI
 flashboot (hands-free Linux boot), `--gtx-tx-invert`, `--timing-opt --floorplan`,
 place directive ExtraPostPlacementOpt (the measured density winner, ~83 pct
 slices at identical RTL).
+
+### `ax8x8`  -  AX7101, the 8-stream (64-channel) shape
+
+Same board and CPU shape as `ax7101` (1x VexiiRiscv, GMII, QSPI flashboot,
+`--strip-probes`, 16K header-split pages) with `--num-streams 8`,
+`--rx-queues 1` (drops the RX1 DMA RSC/TCP-coalescing engine  -  pure
+Linux-throughput logic the audio path never touches  -  which removed the
+sys_clk critical path AND freed ~3 pct LUT), `--l2-bytes 16384`, place
+directive AltSpreadLogic_high. Closed 2026-07-24: WNS +0.080, LUT 85.15 pct,
+TNS 0, all seeds close (measured record in the `cfg_ax8x8` comment in
+`build.sh`). Ethernet port defaults to e1; append `-- --eth-port e2` if the
+cable is on e2.
 
 ### `arty`  -  Digilent Arty A7-100, the second Milan node
 
@@ -98,11 +111,19 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 | AX7101 | `openFPGALoader --ftdi-serial 210512180081 -c ft232 <bit>` | CP2102N adapter (by-id path appears when attached to the VM), 115200; tmux session `milan_qspi_boot` |
 | Arty A7-100 | `openFPGALoader --ftdi-serial 210319AFEED0 -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319AFEED0-if01-port0`, 115200; tmux session `arty_console` |
 
-AX7101 traps (details in HANDOVER/QSPI_FLASHBOOT): the bitstream goes
-to SRAM over JTAG (flash holds NO bitstream); NEVER `openFPGALoader -f` (it
-clobbers the Linux kernel at flash offset 0); power-cycle blanks the FPGA.
-The Arty now flashboots too (`--flashboot full`); or, after JTAG load, boot
-over serial (`litex_term --kernel ...`) or run the BIOS interactively.
+Flash layout (v3 `--flashboot full` manifest, BOTH boards  -  `board_facts`
+in `build.sh`, details in QSPI_FLASHBOOT.md): QSPI holds the bitstream at
+offset 0 (dedicated 4 MiB slot) plus the Linux images at the
+`flashboot_layout.json` offsets (kernel 4 MiB, opensbi 7, dtb 7.38, rootfs
+7.5), so a power-cycle boots gateware + Linux hands-free. Flash with
+`./build.sh flash <config>[:<builddir>]`  -  bitstream write is verified,
+then the image set goes through `deploy.sh flash-images` (per-image slot
+budget checks + `--verify`). The historical trap note ("flash holds NO
+bitstream / never `openFPGALoader -f`  -  it clobbers the kernel at offset
+0") described the OLD kernel-at-offset-0 layout and died with the
+manifest-full port. JTAG load (table above) still runs a build from SRAM
+without touching flash; after a JTAG load you can also boot over serial
+(`litex_term --kernel ...`) or use the BIOS interactively.
 
 ## 5. Gates before a build is "good"
 
