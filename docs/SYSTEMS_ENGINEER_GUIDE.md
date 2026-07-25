@@ -241,7 +241,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 
 **End-station composition**
 - **[`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md)** — the software-defined end-station builder (roadmap item 4):
-  D1-D5 decisions + the 27-row config-schema→AEM-descriptor mapping (config → SoC argv / AEM
+  D1-D8 decisions + the 27-row config-schema→AEM-descriptor mapping (config → SoC argv / AEM
   overlay / DT). Read to understand how a declared end-station drives gateware + AEM + lwSRP.
 
 ### Stage 4 — Register map / ABI

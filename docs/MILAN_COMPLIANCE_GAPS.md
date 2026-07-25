@@ -13,6 +13,14 @@ and is not repeated here.
 
 ## 1. AECP / AEM
 
+- **AEM store redesign decided (2026-07-25, builder D6–D8):** BRAM hot
+  stub + DRAM bulk tree loaded as a hash-verified model blob
+  (advertise-after-load rule), target-keyed dynamic-map store (= the CHMAP
+  projector), role-named 8×8 ports with per-platform cluster pools, a Pilot
+  cluster, and a NEW rx→talker loopback mux lane. Decisions recorded in
+  [`ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) §2 (D6–D8); RTL,
+  loader and traceability rows all pending.
+
 - ~~GET_DYNAMIC_INFO (0x4B)~~ **RESOLVED ON SILICON, BOTH ENTITIES
   (2026-07-21 morning): dyninfo probe byte-exact PASS on mf41 + AX30.**
   History of the four stacked silicon defects (kept for the record):
@@ -579,7 +587,7 @@ and is not repeated here.
      per-module SV parameterization, audio-interface ser/des RTL
      (subtask below).
    - Spec-referenced design record: [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md)
-     (clause-verified design decisions D1–D5 + schema→descriptor
+     (clause-verified design decisions D1–D8 + schema→descriptor
      mapping; every ref PDF-extracted per the traceability-matrix rule).
    - **Refined (USER):** every submodule parameterizable (if needed) so
      the endstation builder composes correctly — SV parameters where
