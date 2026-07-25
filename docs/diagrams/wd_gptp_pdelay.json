@@ -1,0 +1,29 @@
+{
+  "signal": [
+    ["pdelay 1/s",
+      {"name": "our egress (TX tap: shaper->arb)", "wave": "x3.x...........", "data": ["Pdelay_Req"]},
+      {"name": "our PHC latch @ SOP", "wave": "010....10......", "node": ".a.....d......."},
+      {"name": "peer PHC latch", "wave": "0..10.10.......", "node": "...b..c........"},
+      {"name": "our ingress (RX tap: MAC->filter)", "wave": "x......3.x5.x..", "data": ["Pdelay_Resp", "Resp_Follow_Up"], "node": ".......R..F...."},
+      {"name": "records -> dma-ts ring", "wave": "x..4.x...4.x...", "data": ["{t1,seq,TX}", "{t4,seq,RX}"]}
+    ],
+    {},
+    ["Sync 8/s",
+      {"name": "our ingress (RX tap: MAC->filter)", "wave": "x3.x5.x|3.x5.x.", "data": ["Sync", "Follow_Up", "Sync", "Follow_Up"]},
+      {"name": "our PHC latch @ SOP", "wave": "010....|10.....", "node": ".g......h......"},
+      {"name": "records -> dma-ts ring", "wave": "x..4.x.|.4.x...", "data": ["{ns,seq,RX}", "{ns,seq,RX}"]}
+    ]
+  ],
+  "edge": [
+    "a~>d t4 - t1",
+    "b~>c t3 - t2",
+    "a-~>b",
+    "c-~>d",
+    "b-~>R t2 in Resp",
+    "c-~>F t3 in FUp",
+    "g~>h 125 ms"
+  ],
+  "head": {"text": "gPTP HW timestamps: PHC latched @ SOP, record qualified @ TLAST, event msgs only"},
+  "foot": {"text": "meanLinkDelay = ((t4-t1) - (t3-t2)) / 2 ; Follow_Ups are general msgs (msgType[3]=1): parsed, never recorded"},
+  "config": {"hscale": 2}
+}
