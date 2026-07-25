@@ -119,23 +119,29 @@ tree, not the RTL, encodes that difference (`sw/dts/`).
 
 Wire only clocks + reset + the AXI4-Lite CSR port; tie every AXIS input to
 zero and every `*_tready` input to 0, tie `i_mac_speed=2'b10`,
-`i_link_up=1`, `i_full_duplex=1`, `i_mac_events=0`. This elaborates, meets
-timing, and gives you a live CPU⇄CSR path: read offset `0x0`, expect
-`"MILN"`. This exact stub-everything pattern is what
+`i_link_up=1`, `i_full_duplex=1`, `i_mac_events=0`.
+
+This elaborates, meets timing, and gives you a live CPU⇄CSR path: read
+offset `0x0`, expect `"MILN"`. This exact stub-everything pattern is what
 `add_milan_datapath()` does before the DMA/MAC are attached, and it is how
-both the SoC sim and first silicon were validated. Then attach the MAC
-(§1.4), then the DMA (§1.3) - in that order, each step separately testable.
+both the SoC sim and first silicon were validated.
+
+Then attach the MAC (§1.4), then the DMA (§1.3) - in that order, each step
+separately testable.
 
 ## 3. Source files and includes
 
 The canonical file list is `_MILAN_DATAPATH_SOURCES` in
 `sw/litex/milan_soc.py` - packages first, then the verilog-axis cores
 (`axis_fifo`, `axis_demux`, `axis_arb_mux`, `arbiter`, `priority_encoder`),
-then the datapath RTL, ending in `hdl/milan/milan_datapath.sv`. The same
-set is used by the `tb/verilator/milan_dp` harness and the `syn/yosys` flow,
-so it cannot silently drift. Add these include directories for the
-`` `include `` files (`*.svh`): `hdl/common`, `hdl/ieee8021q/ts`,
-`hdl/ieee8021as/ptp_timestamp`, `hdl/ieee17221/adp`, `hdl/common/csr`, `hdl/common/eth_event_counter`.
+then the datapath RTL, ending in `hdl/milan/milan_datapath.sv`.
+
+The same set is used by the `tb/verilator/milan_dp` harness and the
+`syn/yosys` flow, so it cannot silently drift.
+
+Add these include directories for the `` `include `` files (`*.svh`):
+`hdl/common`, `hdl/ieee8021q/ts`, `hdl/ieee8021as/ptp_timestamp`,
+`hdl/ieee17221/adp`, `hdl/common/csr`, `hdl/common/eth_event_counter`.
 
 Prerequisite: `git submodule update --init third_party/verilog-axis`.
 
@@ -148,12 +154,16 @@ verilog-ethernet MAC and PS7.
 If 100 MHz timing is tight in your system (the CBS slope divide is the known
 critical path), you can run the whole datapath in a slower clock domain and
 cross at the boundary - the LiteX build implements this as `--milan-clk-freq`:
-AXI-Lite crosses through an async-FIFO CDC (`AXILiteClockDomainCrossing`),
-each AXIS lane through a `stream.ClockDomainCrossing`, and the IRQ through a
-2-FF synchronizer. A 64-bit datapath at ≥50 MHz still exceeds 1 GbE line
-rate, so this costs no throughput. See `add_milan_datapath()` and
-`_axis_dp_cdc()` in `sw/litex/milan_soc.py` for the working pattern, plus
-the CBS multicycle constraint described in
+
+- AXI-Lite crosses through an async-FIFO CDC (`AXILiteClockDomainCrossing`);
+- each AXIS lane through a `stream.ClockDomainCrossing`;
+- the IRQ through a 2-FF synchronizer.
+
+A 64-bit datapath at ≥50 MHz still exceeds 1 GbE line rate, so this costs
+no throughput.
+
+See `add_milan_datapath()` and `_axis_dp_cdc()` in `sw/litex/milan_soc.py`
+for the working pattern, plus the CBS multicycle constraint described in
 [PORTING_GUIDE.md](PORTING_GUIDE.md) §4.5.
 
 ## 5. Software contract

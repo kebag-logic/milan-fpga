@@ -88,15 +88,18 @@ mutable state, in descriptor-list order. Records (BE):
 Our fixed entity ⇒ FIXED response: 4 + 8 + 8 + 28×3 + 8 = 112 B payload
 (+12 AECP hdr = CDL 124). All source fields already exist in the builder
 (store scratch + the load_stream_info_consts / load_input_stream_info_consts
-field logic + clock_src_idx/sampling-rate registers). Implement as one
-DECIDE branch: SEG_ECHO(4: config_index+rsvd from cmd) + CONST/STORE
-segments per record; NO_SUCH_DESCRIPTOR for config_index != 0.
+field logic + clock_src_idx/sampling-rate registers).
+
+Implement as one DECIDE branch: SEG_ECHO(4: config_index+rsvd from cmd) +
+CONST/STORE segments per record; NO_SUCH_DESCRIPTOR for config_index != 0.
+
 IMPLEMENTATION NOTE: records interleave const-sourced (hdrs, stream_id,
 flags) and store-sourced (formats, sampling rate) fields => needs ~9
 segments; the builder's segment arrays (seg_kind/addr/len/cum_q[0:3]) and
 the WRITE_S cum computation must grow to [0:11] first — mechanical but
 touches the emit core; do it as an isolated commit with the full aecp TB
 before adding the 0x4B branch.
+
 Status: IMPLEMENTED since - the GET_DYNAMIC_INFO (0x4B) batch engine lives in
 `hdl/ieee17221/aecp/KL_aecp_response_builder.sv` (record validate/classify
 passes + the 7.4.76 dispatch branch).

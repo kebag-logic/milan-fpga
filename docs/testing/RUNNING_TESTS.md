@@ -61,17 +61,20 @@ Suites and what they own:
 
 - **test_ring_bd.py**  -  THE regression net for the RX BD/RSC/header-split engine
   (~42 tests: +full-gate, +hs CQ pressure, cut-through ordering since hsq12; +the
-  byte-ring-fold pair since cbsf: folded-BD equivalence and the unarmed quiesce.
-  For a fold-shape sweep, flip the class defaults to legacy_ring=False and rerun
-  the BD suites  -  the byte-ring suites test_ring_dma/test_ring_tx/
-  test_ring_writeback need the legacy default). Ordering invariants (BD order == posted-pop order), the drops/v2-alias
-  regression, half-BD guards, multi-slot RSC, hs split/crossing/interleave/famine,
-  reload flush, storm models, the livelock probe, the BD-ring full-gate (hsq6: drain
-  stalls at wr+16==rd instead of lapping the driver). `ALL PASS` on success; each test
-  prints a `PASS <name>` line. NOTE the driver contract the models mirror since hsq6:
-  every mid-sim reap ends with a RING_RD write (`BDHarness.rd_sync(m.bd_rd)`), every
-  heal with `rd_sync(0)`  -  a model that reaps without advancing rd_ptr wedges the
-  gated HW exactly like a dead driver.
+  byte-ring-fold pair since cbsf: folded-BD equivalence and the unarmed quiesce).
+  - For a fold-shape sweep, flip the class defaults to legacy_ring=False and
+    rerun the BD suites  -  the byte-ring suites test_ring_dma/test_ring_tx/
+    test_ring_writeback need the legacy default.
+  - Covers: ordering invariants (BD order == posted-pop order), the
+    drops/v2-alias regression, half-BD guards, multi-slot RSC, hs
+    split/crossing/interleave/famine, reload flush, storm models, the
+    livelock probe, the BD-ring full-gate (hsq6: drain stalls at wr+16==rd
+    instead of lapping the driver).
+  - `ALL PASS` on success; each test prints a `PASS <name>` line.
+  - NOTE the driver contract the models mirror since hsq6: every mid-sim
+    reap ends with a RING_RD write (`BDHarness.rd_sync(m.bd_rd)`), every
+    heal with `rd_sync(0)`  -  a model that reaps without advancing rd_ptr
+    wedges the gated HW exactly like a dead driver.
 - **test_ring_dma.py**  -  the base `Harness` (ring mode) + AXI slave memory model.
   Imported by test_ring_bd via `importlib` (module name `trd`), also runnable alone.
 - **test_ring_tx.py / test_tx_bd.py**  -  TX ring + TX BD engines (HW-TSO era).
@@ -171,8 +174,11 @@ array (the authoritative list; ECP5 target as the neutral device).
 `~/litex-milan/work/build_*.sh` are the reproducible build recipes (each one = a
 documented experiment). Conventions: `source <your Vivado install>/settings64.sh`,
 venv on PATH, `--vivado-max-threads 32` (hard cap  -  more aborts P&R), launch via
-`nohup <script> > <log> &`, watch for the bitstream file. ~50 min. Read the LAST
-"Design Timing Summary" (post-physopt)  -  mid-router WNS lines are pessimistic.
+`nohup <script> > <log> &`, watch for the bitstream file. ~50 min.
+
+Read the LAST "Design Timing Summary" (post-physopt)  -  mid-router WNS
+lines are pessimistic.
+
 Utilization headroom is thin (~81-98% LUT/slice depending on build): big register
 arrays (e.g. CQ depth) can overflow placement  -  check
 `<build>/gateware/*utilization_place.rpt`.
