@@ -26,7 +26,7 @@
                   so the fifo absorbs bursts incl. RR-mux backpressure), then
                   emits 2-beat metadata records:
                     beat0 = timestamp[63:0] (integer ns, disciplined PHC)
-                    beat1 = {40'0, seq[15:0], msgType[3:0], 3'0, IS_TX}
+                    beat1 = {40'0, seq[15:0], msgType[3:0], 2'0, marker=1, dir}
 
   2026-07-13 REDESIGN (docs/findings/PTP_TS_METADATA_FIX.md): the original
   captured the timestamp through a per-event pulse+handshake CDC and decided

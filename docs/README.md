@@ -59,7 +59,7 @@ Goal: build → flash → bring up the board. → **[the pipeline at a glance](B
 2. [integration/BUILDING.md](integration/BUILDING.md) — `build.sh` configs, the 3×32-thread discipline, WNS gate.
 3. [litex/LITEX_SOC.md](litex/LITEX_SOC.md) §4 — the mandatory, non-obvious flags (`--coherent-dma`, `--gtx-tx-invert`, `--with-spiflash --flashboot full`) and why.
 4. [integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) — flash layout, `COMPRESS`, **flash a matched image set** (a gateware-only load won't boot).
-5. [findings/BENCH_TOPOLOGY.md](findings/BENCH_TOPOLOGY.md) — reach the boards, power, taps, recovery (`amx-pi powerstrip off/on 0`).
+5. [findings/BENCH_TOPOLOGY.md](findings/BENCH_TOPOLOGY.md) — reach the boards, power, taps, recovery (power-controller `powerstrip off/on <outlet>`; outlet numbers are bench-specific).
 6. [limitations/TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) — when boot / flash / link goes wrong.
 
 ### 🧪 Tester / Validator — *you run the suites + validate*

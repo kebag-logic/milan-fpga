@@ -29,7 +29,7 @@ top-level, journey-ordered reading guide a fresh systems engineer should be hand
 - **PCM ring can target on-chip BRAM** (`--pcm-ring bram`); DRAM ring is still the default.
 - **ALSA**: record works on silicon (arecord byte-exact); playback (`KL_pcm_tx`) is a validated
   scaffold, not integrated.
-- **Vivado 2026.1 (Artix-7 + Zynq) IS installed** at `/home/alex/Xilinx*`. Any doc saying "only
+- **Vivado 2026.1 (Artix-7 + Zynq) IS installed** (the local Vivado install). Any doc saying "only
   Spartan-7 installed / `--build` blocked here" is STALE.
 - **Harness/top counts drifted repo-wide**: `tb/verilator/` now has ~41 harness dirs (not 17);
   `syn/yosys/run.sh` now drives ~39 tops (not 18). Prefer "the directory listing is

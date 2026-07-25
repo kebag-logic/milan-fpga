@@ -131,5 +131,5 @@ push sequencing. milan_dp e2e: PROBE_TX through the real datapath ->
 AAF frames on the MAC carry the probed stream_id/dmac/vlan; gate opens
 only in probe mode (bypass=0) and closes on expiry; GET_STREAM_INFO
 matches the AVTP header bytes. Then the standard yosys + full-regression
-+ 3-seed sweeps + silicon drill (controller PROBE_TX from pw0, ADP census,
++ 3-seed sweeps + silicon drill (controller PROBE_TX from the peer host, ADP census,
 la_avdecc Milan=1 CLEAN re-cert).
