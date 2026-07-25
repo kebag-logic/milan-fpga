@@ -2,11 +2,15 @@
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
 Milan TSN NIC — **25 suites** (one per subdirectory; the directory listing is
-the authoritative count). They need **only** `verilator >= 5.0`, a C++17
+the authoritative count).
+
+They need **only** `verilator >= 5.0`, a C++17
 compiler and the `third_party/verilog-axis` submodule
 (`git submodule update --init third_party/verilog-axis`) — no Xilinx tools —
 because they target the pure-RTL blocks (no XPM/DSP primitives are
-instantiated). Each exits `0` on pass / non-zero on failure, so they are
+instantiated).
+
+Each exits `0` on pass / non-zero on failure, so they are
 CI-ready (note: no CI is wired up in this repo yet — see
 [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md)).
 

@@ -34,12 +34,15 @@ Since 2026-07-11 the DUT derives `idle_slope_per_cycle_r` /
 restoring divider on a fixed 100-cycle cadence (sample config at cnt 0, 48
 iterations per divide, commit both results atomically at cnt 99). The old
 per-cycle combinational divides cost ~2.3K LUTs per queue and are gone.
+
 `SlopeEngineRef` in `cbs_ref_model.h` mirrors that engine **state-for-state**,
 and the harness compares the DUT slope registers against it **every cycle**,
 including reset warm-up (slopes read 0 until the first commit, 99 cycles after
 reset release) and mid-run reconfiguration transitions. Convergence asserts
 additionally pin the committed values to the exact SystemVerilog `/` results
-after every long stable-config run. If you change the engine's state timing in
+after every long stable-config run.
+
+If you change the engine's state timing in
 the RTL you MUST update `SlopeEngineRef` in the same commit, and vice versa.
 
 `cbs_ver_wrap.sv` exposes the DUT's internal `credit` and the engine-committed

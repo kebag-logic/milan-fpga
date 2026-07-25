@@ -91,7 +91,9 @@ After ~a dozen FPGA reconfigs/reboots tonight the switch stopped sending pdelay
 to the Arty port (0 inbound 88F7), while the DATA plane still works (the peer
 host pings the Arty fine). This is switch-side flap-suppression / RSTP state on that port,
 NOT the fix or our stack (both proven: bad=0, asCapable=1, full handshake
-earlier the same session). To re-validate: power-cycle the switch (or re-enable
+earlier the same session).
+
+To re-validate: power-cycle the switch (or re-enable
 the board port in its management), then `ptp4l -i eth0 -f /etc/gptp.cfg -S -m`
 should show asCapable within seconds. Cleaner path unaffected by switch state =
 the direct board<->board cable (gptp_direct_cable.sh) — both boards now carry
