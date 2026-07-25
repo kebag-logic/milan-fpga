@@ -59,6 +59,22 @@ def send_frame(s, f):
         s.sendall(BEAT.pack(tdata, tkeep, tlast))
         off += 8
 
+def recv_response(s):
+    """First frame of a command's reply burst, draining to the terminator.
+
+    The DUT sends every frame a command produced (reply + any unsolicited
+    notification) and then an empty terminator frame, so the request/response
+    stream cannot desynchronise on a silent or double reply.
+    """
+    first = b""
+    while True:
+        f = recv_frame(s)
+        if not f:
+            return first
+        if not first:
+            first = f
+
+
 def recv_frame(s):
     out = bytearray()
     while True:
@@ -111,7 +127,12 @@ def main():
         ("GET_CONFIGURATION",             0, 7, b"", False, 0),
         ("GET_STREAM_INFO(STREAM_OUTPUT)", 0, 15, struct.pack(">HH", 0x0006, 0), False, 0),
         ("GET_COUNTERS(STREAM_OUTPUT)",   0, 41, struct.pack(">HH", 0x0006, 0), False, 0),
-        ("GET_COUNTERS(ENTITY->BAD_ARG)", 0, 41, struct.pack(">HH", 0x0000, 0), False, 7),
+        # ENTITY counters ARE a supported GET_COUNTERS target (1722.1-2021
+        # §7.4.42 defines entity-level counters), so SUCCESS is correct here.
+        # The old BAD_ARGUMENTS expectation was stale: this script is not run
+        # by `make`, so it drifted from the RTL until the tsn_fuzz campaign
+        # swept every descriptor_type and pinned the real behaviour.
+        ("GET_COUNTERS(ENTITY)", 0, 41, struct.pack(">HH", 0x0000, 0), False, 0),
         ("GET_AS_PATH(if 0)",             0, 40, struct.pack(">HH", 0, 0), False, 0),
         ("GET_AS_PATH(if 9->NO_SUCH)",    0, 40, struct.pack(">HH", 9, 0), False, 2),
         ("MVU GET_MILAN_INFO",            6, 0, b"", True, 0),
@@ -121,7 +142,7 @@ def main():
         seq += 1
         s.sendall(b"")  # noop
         send_frame(s, aecp_cmd(mt, cmd, spec, seq, vu))
-        r = recv_frame(s)
+        r = recv_response(s)
         ok = len(r) > 18
         ck(f"{name}: response received", ok, f"{len(r)}B")
         if not ok: continue

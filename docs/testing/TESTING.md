@@ -38,6 +38,26 @@ TX/RX); `controller_rate` is the gating regression born from the
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
 
+### 1.0 `tb/verilator/tsn_fuzz/` — IEEE 1722.1 field-validation campaign (2026-07-25)
+
+Four co-simulation campaigns that drive the **real RTL** with spec-modelled
+1722.1 traffic and grade every field of every message. tsn-gen supplies the
+field/constraint model; the campaign builds real wire frames, reads DUT state
+in-band, and gates on state stability. **3049 checks, 0 failures, 4 tracked
+gaps.**
+
+| campaign | DUT | checks | covers |
+|---|---|---:|---|
+| `make aecp` | `KL_aecp_top` | 2602 | getters × 19 descriptor types, setters (legal/illegal/SET→GET), header fuzz, addressing, length, **Milan v1.2 mandatory census 10/10** |
+| `make adp` | `adp_advertiser` | 222 | all 20 advertised fields at their wire offsets, events, `available_index` |
+| `make acmp` | `KL_acmp_listener` | 123 | 15 ACMP fields, all 16 message types, BIND→state→UNBIND, 70-byte rule |
+| `make aaf` | parser→rxmon→depacketizer | 102 | per-field accept/reject verdicts, wire-truth channels, **lock survival** |
+| `make legacy` | `KL_aecp_top` | 42 | the original 14-command cosim smoke driver |
+
+Run `make` in that directory (~3 min). It **skips cleanly** when tsn-gen is
+absent, so the suite stays runnable without the generator. Full rationale,
+the tsn-gen wire-layout caveat and the tracked gaps: `tb/verilator/tsn_fuzz/README.md`.
+
 ### 1.1 Suite index (47 harnesses, auto-listed 2026-07-25)
 
 | suite | last verified |

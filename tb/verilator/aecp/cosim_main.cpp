@@ -74,6 +74,8 @@ static bool send_frame(int fd, const std::vector<uint8_t>& f) {
 }
 
 // drive one command frame into the RX tap; capture the response frame (empty if none)
+static bool collect_frame(std::vector<uint8_t>& resp);
+
 static void run_command(const std::vector<uint8_t>& cmd, std::vector<uint8_t>& resp) {
     int n = (int)cmd.size();
     for (int off = 0; off < n; off += 8) {
@@ -84,6 +86,15 @@ static void run_command(const std::vector<uint8_t>& cmd, std::vector<uint8_t>& r
     }
     dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
 
+    collect_frame(resp);
+}
+
+// Harvest ONE frame off the TX master; false = the DUT stayed silent.
+// Split out of run_command so the server can drain EVERY frame a command
+// produces: the entity emits unsolicited notifications (u=1 replays) as
+// additional frames, and leaving one queued would make it surface as the
+// NEXT command's response - a silent one-off desync of the whole session.
+static bool collect_frame(std::vector<uint8_t>& resp) {
     resp.clear();
     dut->m_axis_tready = 1;
     int idle = 0;
@@ -92,10 +103,11 @@ static void run_command(const std::vector<uint8_t>& cmd, std::vector<uint8_t>& r
         if (dut->m_axis_tvalid && dut->m_axis_tready) {
             for (int l = 0; l < 8; l++) if ((dut->m_axis_tkeep >> l) & 1) resp.push_back((uint8_t)(dut->m_axis_tdata >> (8 * l)));
             bool last = dut->m_axis_tlast; tick();
-            if (last) return;
+            if (last) return true;
             idle = 0;
-        } else { tick(); if (++idle > 600) return; }
+        } else { tick(); if (++idle > 600) return !resp.empty(); }
     }
+    return !resp.empty();
 }
 
 int main(int argc, char** argv) {
@@ -129,9 +141,23 @@ int main(int argc, char** argv) {
         if (fd < 0) break;
         std::vector<uint8_t> cmd, resp;
         while (recv_frame(fd, cmd)) {
+            // Response framing: send EVERY frame this command produced (the
+            // first is the reply, any further ones are unsolicited
+            // notifications), then always an empty beat as the end-of-
+            // responses terminator. That keeps the request/response stream
+            // in lockstep whether the entity answers once, twice, or stays
+            // silent (entity-id mismatch, failed length check, ...) - without
+            // it the first silent or double reply desynchronises the session
+            // and every later reply is attributed to the wrong command.
             run_command(cmd, resp);
-            fprintf(stderr, "[cosim] cmd %zuB -> resp %zuB\n", cmd.size(), resp.size());
-            if (!resp.empty()) { if (!send_frame(fd, resp)) break; }
+            int nframes = 0;
+            bool alive = true;
+            if (!resp.empty()) { nframes++; alive = send_frame(fd, resp); }
+            while (alive && collect_frame(resp)) { nframes++; alive = send_frame(fd, resp); }
+            fprintf(stderr, "[cosim] cmd %zuB -> %d frame(s)\n", cmd.size(), nframes);
+            if (!alive) break;
+            AxiStreamBeat term{0, 0, 1};
+            if (!write_all(fd, &term, sizeof(term))) break;
         }
         close(fd);
     }
