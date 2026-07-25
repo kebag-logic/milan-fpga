@@ -98,14 +98,51 @@ The digital-path acceptance for the pilot is on the
 | `can't connect: Host is down` at module load | no PipeWire core socket in the runtime dir the daemon was pointed at | launch with `XDG_RUNTIME_DIR` of a session with a live core |
 | `SIOCGIFINDEX <iface> failed: No such device` | `ifname` in the conf names another machine's interface | set this host's interface |
 | `Failed to connect PTP management socket` loop | ptp4l not running, or `ptp.management-socket` points at a path ptp4l no longer binds | start gPTP first; make the conf path match `ss -xl` truth |
-| Daemon healthy but no bind from the peer | the 68-byte ACMPDU length quirk (§3) | bind via a controller or fast-connect instead |
+| Daemon healthy but no bind from the peer | nobody commanded the listener - the peer never fast-connects to a talker it has no saved state for | send one `CONNECT_RX_COMMAND` from any host on the AVB LAN (§5) |
+| Registry tools (`pw-dump`, `pw-cli ls`, `pw-link`) hang or return an empty list against the AVB core | the daemon's own core has no session manager; also its metadata global has a broken protocol marshal that aborts full-registry clients | don't manage the AVB core with registry tools; the AVB/Milan plane needs none of them (§5) |
 
-## Status (2026-07-25)
+## 5. The bind, as it actually ran (2026-07-25, late)
 
-Proven on the bench: the endpoint stack up on the peer test host, gPTP
-client-locked to the board grandmaster through the bridge
-(`steps_removed=2`, ≈ −6 ns), ADP advertise out, **both board entities
-discovered** — all through PipeWire. Pending: the listener bind + first
-`pw-record` of the pilot (this page gains the exact bind transcript then),
-and the all-channels tone sweep, which waits on the channel-map-capable
-bitstream (see [`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md)).
+The missing piece was never the peer's ACMP - it was that **nothing ever
+commanded its listener**. A Milan listener fast-connects only to a talker it
+has *saved state* for; a first-ever bind needs one `CONNECT_RX_COMMAND` from
+a controller. The bench had no controller host on the AVB LAN, so the talker
+board itself played controller: a ~100-line one-shot tool (raw `AF_PACKET`,
+spec-exact 70-byte ACMPDU - the 2 reserved tail bytes included) sent the
+command from the board's own Linux.
+
+The exchange, end to end:
+
+```
+board ctl  > CONNECT_RX_COMMAND  len=70  listener=<peer>.0  talker=<board>.0
+peer log   > got ACMP connect-rx-command
+peer log   > Listener probe complete: stream_id=0x0200000000010000
+             dest_mac=91:e0:f0:00:9e:f5 vlan=2          (talker answered in 165 us)
+peer log   > listener RX via VLAN sub-iface <iface>.2 (vid 2)
+peer log   > join 91:e0:f0:00:9e:f5
+peer log   > pw stream created
+board ctl  < CONNECT_RX_RESPONSE len=72  status=0 (SUCCESS)
+```
+
+Two long-standing beliefs died that night:
+
+- **The 68-byte era is over.** The peer's stack emits 72-byte ACMPDUs now -
+  past the 1722.1 70-byte minimum - and the fabric's length-validating
+  parser accepts them. Peer-initiated probes bind fine.
+- The peer's AVB core is a **protocol engine, not a desktop audio host**: its
+  stream nodes live in-process, the registry tooling around it is broken
+  (metadata marshal defect), and `pw-record` against it is not a supported
+  surface in the current bench build. Record at a **board's PCM ring**
+  instead (`pcm_ring_dump` → `tone_thdn.py`, the analyzer's canonical
+  input) - that is also the measurement the acceptance limits are written
+  against.
+
+## Status (2026-07-25, end of campaign day)
+
+Proven on the bench, all through PipeWire on the peer: gPTP client-locked to
+the board grandmaster through the bridge (`steps_removed=2`, ≈ −6 ns), both
+board entities discovered, **the Milan listener bind transcript above**, and
+the peer consuming the stream (VLAN-2 sub-interface, stream DMAC joined).
+The all-channels pilot sweep and per-channel identity ran on the
+channel-map bitstream the same night - results live with the campaign notes
+(see [`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) for the map ABI).
