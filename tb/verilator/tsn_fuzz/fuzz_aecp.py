@@ -369,10 +369,14 @@ class Campaign:
 
         # --- UNDERSIZED frames: the entity-id filter is bypassed below a
         #     frame size Ethernet cannot actually deliver. Measured
-        #     2026-07-25: frames <= 44 B answer a FOREIGN target (and echo OUR
-        #     entity id); >= 45 B filter correctly. Unreachable on a real link
-        #     (60-byte minimum, the MAC pads), so this is a latent robustness
-        #     gap rather than a live exposure — tracked, not failed.
+        #     #48 PARTIALLY ADDRESSED 2026-07-25: the parser's mismatch verdict
+        #     now survives until the NEXT frame starts and a header truncated
+        #     before BEAT3 is treated as unaddressed. The residual path is
+        #     still open (a frame ending ON beat 3 is processed - it echoes its
+        #     own sequence_id - without the verdict reaching discard_q), so
+        #     this stays a tracked gap. Unreachable on a real link: Ethernet's
+        #     60-byte minimum means a MAC never delivers such a frame, and the
+        #     padded case above is asserted silent.
         bypass = []
         for plen in (0, 2, 4, 6, 8, 12):
             self.seq = (self.seq + 1) & 0xFFFF
@@ -381,11 +385,11 @@ class Campaign:
             if r:
                 bypass.append("%dB" % len(f))
         if bypass:
-            self.rep.gap("undersized frames bypass the entity-id filter",
-                         "answered at frame sizes: %s (all < 60 B Ethernet minimum)"
+            self.rep.gap("undersized frames bypass the entity-id filter (#48)",
+                         "answered at: %s (all < 60 B Ethernet minimum)"
                          % ", ".join(bypass))
         else:
-            self.rep.ck("undersized frames also filtered by entity-id", True)
+            self.rep.ck("undersized frames also filtered by entity-id (#48)", True)
         # a second controller must be answered normally (multi-controller entity)
         r, seq = self.cmd(READ_DESCRIPTOR, gs4(D_ENTITY, 0),
                           controller=wire.CTRLR2_ID, src=wire.CTRLR2_MAC)
@@ -625,12 +629,10 @@ SETTERS = [
                         ("unlock ENTITY",
                          struct.pack(">I", 1) + struct.pack(">Q", wire.CTRLR_ID)
                          + gs4(D_ENTITY, 0))],
-         # GAP (measured 2026-07-25): LOCK_ENTITY ignores descriptor_type and
-         # descriptor_index entirely and answers SUCCESS for any value.
-         # 1722.1-2021 §7.4.2 scopes LOCK to the ENTITY descriptor, so a
-         # foreign descriptor should draw NO_SUCH_DESCRIPTOR. Low impact (every
-         # real controller sends ENTITY/0) but it is a conformance gap; the
-         # sibling ACQUIRE_ENTITY answers NOT_SUPPORTED and is unaffected.
+         # #47 FIXED 2026-07-25: LOCK/ACQUIRE now answer NO_SUCH_DESCRIPTOR
+         # for any descriptor_type other than ENTITY (§7.4.2). Only
+         # descriptor_index remains unvalidated - bytes 16-17 are outside the
+         # decode capture - and is kept as a narrow tracked gap below.
          illegal=lambda: [("lock type=0xFFFF",
                            struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
                            + gs4(0xFFFF, 0)),
@@ -640,7 +642,9 @@ SETTERS = [
                           ("lock index=0xFFFF",
                            struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
                            + gs4(D_ENTITY, 0xFFFF))],
-         gaps=("lock type=0xFFFF", "lock type=STREAM_OUTPUT", "lock index=0xFFFF"),
+         # descriptor_type is now validated (#47). descriptor_index stays a
+         # narrow, documented gap: bytes 16-17 are outside the decode capture.
+         gaps=("lock index=0xFFFF",),
          roundtrip=None, get_payload=lambda: b""),
     dict(name="STREAMING_CMDS", code=START_STREAMING,
          legal=lambda: [],
@@ -657,7 +661,20 @@ def main():
     ap.add_argument("--seed", type=int, default=20260725)
     args = ap.parse_args()
 
-    rep = cosim.Report("AECP/AEM getter-setter field campaign (tsn-gen driven)")
+    rep = cosim.Report(
+        "AECP/AEM getter-setter field campaign (tsn-gen driven)",
+        dut="KL_aecp_top",
+        rtl_files=["hdl/ieee17221/aecp/KL_aecp_top.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_response_builder.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_common_parser.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_packet_validator.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_l0_state.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_ingress.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_aem_store.sv",
+                   "hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv",
+                   "hdl/ieee17221/aecp/aecp_pkg.sv"],
+        results_dir="../../../hdl/ieee17221/aecp/doc",
+        reproduce="cd tb/verilator/tsn_fuzz && make aecp")
     cosim.require_tsn_gen(rep)
     with cosim.Dut(args.dut) as dut:
         c = Campaign(dut, rep, args.seed)

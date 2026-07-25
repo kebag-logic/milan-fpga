@@ -55,7 +55,10 @@ gaps.**
 | `make legacy` | `KL_aecp_top` | 42 | the original 14-command cosim smoke driver |
 
 Run `make` in that directory (~3 min). It **skips cleanly** when tsn-gen is
-absent, so the suite stays runnable without the generator. Full rationale,
+absent, so the suite stays runnable without the generator. Each campaign
+writes its `TEST_RESULTS.md` **into the folder of the RTL it validates**
+(`hdl/ieee17221/{aecp,acmp,adp}/doc/`, `hdl/ieee1722/avtp/doc/`), so a block's
+verification status is visible from the block itself. Full rationale,
 the tsn-gen wire-layout caveat and the tracked gaps: `tb/verilator/tsn_fuzz/README.md`.
 
 ### 1.1 Suite index (47 harnesses, auto-listed 2026-07-25)
