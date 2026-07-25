@@ -36,8 +36,10 @@ BAUD="${BAUD:-115200}"
 CABLE="${CABLE:-ft232}"       # FT232H JTAG on the AX7101
 # TWO FTDI cables live on this bus since the Arty arrived (2026-07-11): always
 # pin the cable by serial or a flash op can hit the WRONG BOARD. Default = the
-# AX7101's FT232H; build.sh overrides per board (docs/integration/BUILDING.md section 4).
-SERIAL="${SERIAL:-210512180081}"
+# AX7101's cable; serials are bench-local (env SERIAL/AX_FTDI or
+# sw/litex/boards.local.sh — gitignored; build.sh overrides per board).
+[ -f "$HERE/boards.local.sh" ] && . "$HERE/boards.local.sh"
+SERIAL="${SERIAL:-${AX_FTDI:-SET_AX_FTDI}}"
 OFL="openFPGALoader --ftdi-serial $SERIAL"
 CONSOLE="$(ls /dev/serial/by-id/*CP2102* 2>/dev/null | head -1 || echo /dev/ttyUSB0)"
 # newest built bitstream (override with BIT=...); `|| true` so an empty glob doesn't trip set -e
