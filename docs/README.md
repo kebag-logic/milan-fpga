@@ -179,7 +179,7 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [MILAN_V12_DEPENDENCY_MATRIX.md](reference/MILAN_V12_DEPENDENCY_MATRIX.md) | Milan v1.2 → FR/NFR dependency matrix with verification traceability. |
 | [`../REQUIREMENTS.md`](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (REQ-*; partly Zynq-era). |
 | [`../TODO.md`](../TODO.md) | Phased, dependency-ordered task list with status. |
-| [`../aem-and-aecp.md`](../aem-and-aecp.md) | AVDECC entity-model / AECP design notes (pairs with [`../avdecc/README.md`](../avdecc/README.md)). |
+| [`design/AEM_AND_AECP.md`](design/AEM_AND_AECP.md) | AVDECC entity-model / AECP design record, reconciled to as-built 2026-07-25 (pairs with [`../avdecc/README.md`](../avdecc/README.md)). |
 
 ## 8 - findings/ (the engineering record)
 
@@ -206,7 +206,7 @@ per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 
 | Where | Purpose |
 |----------|---------|
-| [design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) · [design/MILAN_TALKER_SM.md](design/MILAN_TALKER_SM.md) | Protocol subsystem design records (the fabric MAAP engine; the Milan talker connection SM). |
+| [design/TIME_SYNC.md](design/TIME_SYNC.md) · [design/AUDIO_STREAMING.md](design/AUDIO_STREAMING.md) · [design/AEM_AND_AECP.md](design/AEM_AND_AECP.md) · [design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) · [design/MILAN_TALKER_SM.md](design/MILAN_TALKER_SM.md) | Protocol subsystem design records: the time-sync deep-dive (gPTP → PHC → media clock, servo, every time CSR), the end-to-end audio path (talker/listener chains + latency taps), the AEM/AECP entity-model record (as-built), the fabric MAAP engine, the Milan talker connection SM. |
 | [NXN_ARCHITECTURE.md](NXN_ARCHITECTURE.md) · [LWSRP_FPGA_ARCHITECTURE.md](LWSRP_FPGA_ARCHITECTURE.md) · [ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) · [CHANNEL_MAP_64.md](CHANNEL_MAP_64.md) · [CHMAP64_AEM_BINDING.md](CHMAP64_AEM_BINDING.md) · [AAF_LATENCY_TAPS.md](AAF_LATENCY_TAPS.md) · [LATENCY_HISTORY_RING.md](LATENCY_HISTORY_RING.md) · [MVP_TALKER.md](MVP_TALKER.md) | Top-level subsystem specs: NxN stream scaling, the lwSRP engine, the end-station builder, the 64-channel map + its AEM binding, the per-stage latency taps + DDR3 history ring, the first AAF talker. |
 | [templates/](templates/README-tests.template.md) | Per-module doc templates (parameters, tests) — their rows roll up 1:1 into the traceability matrix. |
 | [diagrams/](diagrams/README.md) | Generated system diagrams (the giant single-page system map and friends). Every diagram ships as an editable `.drawio` + rendered `.svg`/`.png`; edit the source (`.gen.py` or the `.drawio`), never the render. |

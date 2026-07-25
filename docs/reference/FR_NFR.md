@@ -10,7 +10,7 @@ one softcore).
 - **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
 - **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
 - **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md`](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
-- **HW AEM/AECP design:** [`../aem-and-aecp.md`](../../aem-and-aecp.md)
+- **HW AEM/AECP design:** [`AEM_AND_AECP.md`](../design/AEM_AND_AECP.md)
 
 Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement has a
 **priority** (M=MUST, S=SHOULD, C=MAY), a **source**, and a **verification method**
@@ -201,7 +201,7 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-SCUP-01 | The entity model, driver, and datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (e.g. 8-ch, 48/96/192 kHz  -  the full entity model) is a configuration change, not a redesign. | M | A,I |
 | NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase bandwidth, buffer, and DSP; the control plane (ADP/AECP/ACMP) MUST be unaffected. | M | A |
 | NFR-SCUP-03 | FPGA resource use MUST stay within the `xc7a100t` budget at the largest supported single-node profile (document the profile that first exceeds it). | S | A |
-| NFR-SCUP-04 | The AEM memory (HW 4-level, `aem-and-aecp.md`) MUST size from the JSON model at build time so more descriptors need no RTL edit. | S | I |
+| NFR-SCUP-04 | The AEM memory (HW 4-level, `docs/design/AEM_AND_AECP.md`) MUST size from the JSON model at build time so more descriptors need no RTL edit. | S | I |
 
 ### 3.4 Scale-**out** (more than one softcore)  *(the key architectural NFR)*
 | ID | Requirement | Pri | Ver |

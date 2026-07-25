@@ -104,7 +104,7 @@ the entity model under `avdecc/`.
 | §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; `kl-eth-tx-debug.md` |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
 | HW ADP advertiser | ✅ complete + verified | `tb/verilator/adp` (121 checks) |
-| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in `hdl/ieee17221/` + `hdl/ieee1722/maap/` (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record `aem-and-aecp.md` (repo root); per-command glyphs live in the validation matrix |
+| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in `hdl/ieee17221/` + `hdl/ieee1722/maap/` (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record `docs/design/AEM_AND_AECP.md`; per-command glyphs live in the validation matrix |
 | Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | `RX_RING_DMA.md`, `AVB_SWITCH_DIRECTION.md` |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, `QSPI_FLASHBOOT.md` |
 | lwSRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric, silicon-validated** | `hdl/ieee8021q/srp/`, `hdl/ieee1722/aaf/`+`crf/` (per rev 2); per-clause glyphs live in the validation matrix |

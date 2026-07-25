@@ -63,7 +63,7 @@ Read with:
 | A-2 | ADP `available_index` semantics (bump-on-change) | 1722.1/Milan | HW | `adp_advertiser` | ✅ | `RTL` adp (index scenarios) |
 | A-3 | ADP TX merge into MAC stream |  -  | HW | `adp_tx_arbiter` | ✅ | `RTL` adp_tx (26); milan_dp |
 | A-4 | ADP discover (rcv DISCOVER → advertise) | 1722.1 | HW+SW | `adp_advertiser.rcv_discover_i` + parser | 🟡 wire-up | `RTL` adp (discover input); `SW` `avdecc_l2` watch |
-| A-5 | AECP / AEM  -  entity model, READ_DESCRIPTOR, GET/SET | 1722.1 §7 | SW | entity model `avdecc/milan-v12-entity.json`; `aem-and-aecp.md` | 🟡 model+prior | `SW` `avdecc_l2` enumerate; `raw_hex` |
+| A-5 | AECP / AEM  -  entity model, READ_DESCRIPTOR, GET/SET | 1722.1 §7 | SW | entity model `avdecc/milan-v12-entity.json`; `docs/design/AEM_AND_AECP.md` | 🟡 model+prior | `SW` `avdecc_l2` enumerate; `raw_hex` |
 | A-6 | AECP SET_STREAM_FORMAT (listener format adaptation) | 1722.1/Milan | SW | entity model (adaptive listener) | 🟡 | `SW` set format 48/96/192 k; `sampling_rates` |
 | A-7 | ACMP  -  stream connection management | 1722.1 §8 | SW | controller/daemon | ⏳ | `SW` `tap_acmp` connect/disconnect |
 | A-8 | MVU  -  Milan vendor-unique (protocol_id 00-1B-C5-0A-C1-00) | Milan v1.2 | SW | daemon | ⏳ | `SW` `avdecc_l2` MVU commands |
