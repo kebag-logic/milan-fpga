@@ -52,7 +52,7 @@ AAF_SRCS = $(RTL)/common/ethernet_packet_pkg.sv \
 AAF_FLAGS = --top-module avtp_rxmon_wrap -GCLK_FREQ_HZ_P=10000 \
             +incdir+$(RTL)/common +incdir+$(RTL)/ieee1722/avtp --Mdir obj_aaf
 
-.PHONY: all build run aecp acmp adp aaf legacy clean
+.PHONY: all build run aecp acmp adp aaf legacy matrix matrix-check clean
 
 all: run
 
@@ -70,8 +70,16 @@ obj_adp/Vadp_cosim: cosim_adp.cpp cosim_axis.h $(ADP_SRCS)
 obj_aaf/Vaaf_cosim: cosim_aaf.cpp cosim_axis.h $(AAF_SRCS)
 	$(VERILATOR) $(VCOMMON) $(AAF_FLAGS) $(AAF_SRCS) cosim_aaf.cpp -o Vaaf_cosim
 
-run: build aecp acmp adp aaf legacy
+run: build aecp acmp adp aaf legacy matrix-check
 	@echo "== tsn_fuzz: all campaigns passed =="
+
+# regenerate the module<->spec<->test traceability matrix from the tree
+matrix:
+	$(PY) ../../../docs/traceability/gen_module_matrix.py
+
+# fail if the committed matrix is stale (the no-drift contract)
+matrix-check:
+	$(PY) ../../../docs/traceability/gen_module_matrix.py --check
 
 aecp: ../aecp/obj_dir/Vaecp_cosim
 	$(PY) fuzz_aecp.py

@@ -38,6 +38,17 @@ TX/RX); `controller_rate` is the gating regression born from the
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
 
+### 0.1 Coverage map — the module ↔ spec ↔ test matrix
+
+[`docs/traceability/MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md) maps
+**every** `hdl/` module to its spec family, the clause(s) it appears against,
+and the testbench(es) that compile it — with a top **⚪ untested** list that
+makes coverage gaps visible (roadmap item-3 per-module traceability). It is
+**generated** from the RTL tree + the TB Makefiles + the tsn_fuzz campaign, so
+it never drifts: `make matrix` regenerates it and `make matrix-check` (run by
+`make` in `tb/verilator/tsn_fuzz/`) fails if the committed copy is stale. Each
+spec-family leaf dir carries the same table as `README-tests.md`.
+
 ### 1.0 `tb/verilator/tsn_fuzz/` — IEEE 1722.1 field-validation campaign (2026-07-25)
 
 Four co-simulation campaigns that drive the **real RTL** with spec-modelled

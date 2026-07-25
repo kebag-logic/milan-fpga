@@ -48,7 +48,7 @@ flowchart LR
 
 Fastest useful commands: `docs/integration/QSPI_FLASHBOOT.md` (flash/boot),
 `docs/testing/TESTING.md` (run any TB), `CONTRIBUTING.md` (house rules),
-`docs/fpga/FPGA_DESIGN.md` (all 77 modules).
+`docs/fpga/FPGA_DESIGN.md` (all 77 modules), `docs/traceability/MODULE_MATRIX.md` (module ↔ spec ↔ test coverage).
 
 ## 1. What this system is
 
