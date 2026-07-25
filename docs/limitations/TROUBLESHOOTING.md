@@ -2,17 +2,20 @@
 
 This is the field log of every real problem encountered building and simulating the
 fully-FPGA Milan softcore solution, with the **symptom**, the **cause**, and the
-**fix**. It is meant to save the next developer the debugging time. Grouped as:
-toolchain/environment ([Sections 1–2](#section-1-import-litex-resolves-to-a-namespace-package)),
-LiteX/SoC build ([Sections 3–6](#section-3-identifier-string-must-not-contain-commas)),
-Verilator simulation ([Sections 7–8](#section-7-verilator-cannot-find-include-file)),
-shell/process ([Section 9](#section-9-pkill--f-self-matches-the-running-shell)),
-synthesis ([Section 10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)),
-RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
-P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
-CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz),
-and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up--dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
-the AX7101 PHY is GMII, not RGMII).
+**fix**. It is meant to save the next developer the debugging time.
+
+Grouped as:
+
+- toolchain/environment ([Sections 1–2](#section-1-import-litex-resolves-to-a-namespace-package)),
+- LiteX/SoC build ([Sections 3–6](#section-3-identifier-string-must-not-contain-commas)),
+- Verilator simulation ([Sections 7–8](#section-7-verilator-cannot-find-include-file)),
+- shell/process ([Section 9](#section-9-pkill--f-self-matches-the-running-shell)),
+- synthesis ([Section 10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)),
+- RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
+- P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
+  CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz),
+- and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up--dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
+  the AX7101 PHY is GMII, not RGMII).
 
 Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (the architecture).
@@ -311,19 +314,23 @@ cones are GONE, not multicycle-hidden. The slope terms are now produced by a
 **sequential slope engine** in `credit_based_shaper.sv` (`slope_engine`): one
 31-bit serial restoring divider per queue on a fixed 100-cycle cadence, results
 committed atomically into `idle_slope_per_cycle_r`/`send_slope_per_byte_r`.
+
 Steady-state values are bit-identical to the old `/` operator; a config write
 takes effect at most 200 cycles later (2 us at 100 MHz, irrelevant vs `tc cbs`
 reprogramming rates). This deleted ~9.3K LUTs of combinational divide cones
 (~2.3K per queue, measured: the per-queue OOC synth went 1265+leaked to 362
 LUTs) and with them BOTH gotchas: the `dont_touch` attributes and the
 `set_multicycle_path` XDC in `milan_soc.py` are removed  -  there is no wide
-config->slope cone left to constrain. The Verilator `cbs` harness now mirrors
-the engine cadence state-for-state (`SlopeEngineRef` in `cbs_ref_model.h`) and
-compares the slope registers every cycle including warm-up and reconfiguration
-(87233 checks, 0 mismatches). Do not change the engine timing without updating
-that model. Background: the cross-boundary attribution trap this exposed (the
-cones showed up as `milan_csr` LUTs in hierarchical utilization because the
-`cbs_idle` source registers live there) is written up in SESSION_HANDOFF.md;
+config->slope cone left to constrain.
+
+The Verilator `cbs` harness now mirrors the engine cadence state-for-state
+(`SlopeEngineRef` in `cbs_ref_model.h`) and compares the slope registers every
+cycle including warm-up and reconfiguration (87233 checks, 0 mismatches). Do
+not change the engine timing without updating that model.
+
+Background: the cross-boundary attribution trap this exposed (the cones showed
+up as `milan_csr` LUTs in hierarchical utilization because the `cbs_idle`
+source registers live there) is written up in SESSION_HANDOFF.md;
 OOC-synth a module standalone before believing its hierarchical LUT count.
 
 ## Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain
@@ -357,16 +364,18 @@ clock domain and cross the CPU boundary with a FIFO:
 **DDR3 ceiling.** DDR3 rate = `8×sys`, and the CPU shares `sys`; the **NaxRiscv** core
 capped `sys` at **~102 MHz** (register-file path), so DDR3-800 was the max with a shared
 clock  -  the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not the DRAM.
+
 (**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific  -  a VexiiRiscv
 build closed and ran **112.5 MHz / DDR3-900** on silicon, memtest OK. It was nonetheless
 reverted to 100 MHz / DDR3-800 because the higher clock *worsened* memory latency and the
-UDP-flood pps ceiling  -  see [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md) §8.) The S7PLL also
-rejects intermediate frequencies (115 MHz → `No PLL config found`, since `sys4x=4·sys`
-plus the 50/200 MHz clocks force no valid VCO between 100 and 125). Faster DDR3
-(DDR3-1000 @ a 125 MHz `dram` domain) would need the controller+PHY decoupled onto their
-own clock with a memory-bus FIFO (LiteDRAM `crossbar.get_port(clock_domain=…)`), a
-bigger change for a mostly-latency gain  -  not pursued (3.2 GB/s already exceeds a 100 MHz
-core's bandwidth demand).
+UDP-flood pps ceiling  -  see [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md) §8.)
+
+The S7PLL also rejects intermediate frequencies (115 MHz → `No PLL config found`,
+since `sys4x=4·sys` plus the 50/200 MHz clocks force no valid VCO between 100 and 125).
+Faster DDR3 (DDR3-1000 @ a 125 MHz `dram` domain) would need the controller+PHY
+decoupled onto their own clock with a memory-bus FIFO
+(LiteDRAM `crossbar.get_port(clock_domain=…)`), a bigger change for a mostly-latency
+gain  -  not pursued (3.2 GB/s already exceeds a 100 MHz core's bandwidth demand).
 
 ## Section 17: on-hardware NIC bring-up  -  DMA works, but no packet on the wire (it's GMII, not RGMII)
 
@@ -380,7 +389,9 @@ DMA-TX, and an FPGA RX-DMA captures nothing from i210 broadcasts.
 `0xf0003800`: `rx_datapath_preamble_errors` @ `0xf0003808`, `rx_datapath_crc_errors` @
 `0xf000380c`). Blasting a known count of frames from the i210 and reading these gives a
 precise signal (the milan RMON at `0x90000200` is useless here  -  `MilanMAC` ties
-`i_mac_events=0`). The result: a **20000-frame blast → `preamble_errors` +20000, `crc` +0,
+`i_mac_events=0`).
+
+The result: a **20000-frame blast → `preamble_errors` +20000, `crc` +0,
 0 captured**. *Exactly one preamble error per frame* ⇒ every frame reaches the MAC (RX_DV
 sampled fine) but the **data is structurally corrupted**  -  not a timing margin (that would
 give a *fraction* of errors), and not the datapath (frames never get past the preamble).
@@ -451,12 +462,16 @@ regression  -  **all red herrings.**
 **Root cause  -  the kernel was never loaded to `0x40000000`.** The boot console showed
 serialboot uploading only `milan.dtb`, `rootfs.cpio.gz`, `opensbi.bin`  -  **the `Image` was
 never uploaded.** That file set is exactly `boot_flashkernel.json` (kernel-from-QSPI), *not*
-`boot.json` (kernel-over-serial). A **stale `litex_term` process from earlier QSPI-boot work
+`boot.json` (kernel-over-serial).
+
+A **stale `litex_term` process from earlier QSPI-boot work
 was still holding the serial port and serving `boot_flashkernel.json`**; `tmux send-keys C-c`
 plus a fresh `litex_term …–images boot.json` command did **not** replace it (the C-c reached
 the tmux pane but the old process kept the port, and the new command couldn't open the busy
 device). Every board reset  -  triggered by each `openFPGALoader` reload  -  was answered by the
-old process. And because the QSPI had been `--bulk-erase`d for the FPU work, linux_flashboot
+old process.
+
+And because the QSPI had been `--bulk-erase`d for the FPU work, linux_flashboot
 printed `Error: invalid image length 0xffffffff` and fell through, so **no kernel came from
 QSPI either.** OpenSBI dutifully jumped to `0x40000000`, which held only memtest patterns →
 silent hang.

@@ -48,6 +48,7 @@ reproducible), fields are patched bit-exactly by the steps and every patch
 is cross-checked through `packet_gen --decode` (bidirectional wire-layout
 oracle), then the Milan v1.2 semantic models mirroring
 `KL_aecp_response_builder` / `KL_acmp_listener` are driven and asserted.
+
 ACMP has no YAML in tsn-gen, so the repo carries its own:
 `tests/protocols/acmp/1722_1_acmp.yaml` (validated by
 `packet_gen --validate`). The suite also PINS the known tsn-gen CDL model
