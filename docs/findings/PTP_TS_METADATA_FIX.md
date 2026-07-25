@@ -133,7 +133,7 @@ Records arrive in wire order per direction (RR mux across directions).
   the wire (8 Hz sync + follow_up each carrying a HW t1).
 - **peerMeanPathDelay: 600 us (SW stamps) -> 1.3 us (460x)** against the
   switch; the residue is the switch's own turnaround stamps + MII PHY.
-- INTERFERENCE BATTERY (the silicon mirror of tb/verilator/ptp_ts): pw0 held
+- INTERFERENCE BATTERY (the silicon mirror of tb/verilator/ptp_ts): the peer host held
   **rms 2-5 ns THROUGH a 45 s RX flood (TCP 93.0 Mbit, baseline 93.9), a TX
   flood + AAF talker streaming (85.7 Mbit, baseline 83.3, 0 retr), and a
   simultaneous bidirectional flood (rms 2 ns — best of the session)**.

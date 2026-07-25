@@ -130,14 +130,14 @@ if it reproduces, sim the exact regime (tout-degenerate → ramp transition,
 
 **Measurement-validity note:** overnight the dev VM lost the Intel NIC
 passthrough (enp6s0 → gone; the new enp7s0 is an isolated segment). The board's
-ARP for 192.168.127.2 resolved to the OUTER machine (68:05:ca:…), where a
+ARP for the peer IP resolved to the OUTER machine (an Intel-OUI MAC, not the real peer NIC), where a
 previous session's http server and tcp_blast listeners still answered  -  a ghost
 peer over a degraded bridge. Every throughput number from this night's silicon
 session (zc 1.4 Mbit, mslot 0.2–1.6 Mbit "collapse") is **invalid as a
 performance measurement**; only the BD-stream decodes, the reload-resync
 root-cause, and the zc-alignment fraction analysis survive.
 
-## Silicon session 2 (2026-07-10 morning, REAL peer amx-pw0)  -  storms were DRIVER bugs; zc model CORRECTED
+## Silicon session 2 (2026-07-10 morning, REAL peer = the peer test host)  -  storms were DRIVER bugs; zc model CORRECTED
 
 **The pairing storm reproduced against a healthy peer and was root-caused to TWO driver
 bugs** (forensics: a last-48 BD ledger tagged {slot,seq,comp_i,exit} dumped at mismatch,

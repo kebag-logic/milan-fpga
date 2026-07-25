@@ -70,7 +70,7 @@ built `packet_gen`.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `TSAGEN_DIR` | `/home/alex/tsn-gen` | tsn-gen checkout (protocol YAMLs + packet_gen binary) |
+| `TSAGEN_DIR` | *(set to the local tsn-gen checkout)* | tsn-gen checkout (protocol YAMLs + packet_gen binary) |
 | `DUT_SOCKET` | `/work/sock/aecp.sock` | UNIX socket for live DUT |
 | `PACKET_GEN` | `$TSAGEN_DIR/build/traffic-gen/packet_gen` | tsn-gen binary (optional) |
 

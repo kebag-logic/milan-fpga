@@ -42,7 +42,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **MTU / MSS** | Maximum Transmission Unit (L3 payload per frame; product-pinned to **1500** here) / Maximum Segment Size (TCP payload per segment). |
 | **Jumbo frame** | Frame beyond 1500 B MTU (we validated up to 4074 but the product keeps 1500). |
 | **Runt** | Frame under the 64-byte Ethernet minimum; receivers drop it silently. |
-| **i210** | The Intel gigabit NIC in the peer test host (`amx-pw0`, `enp6s0`)  -  its `ethtool -S` counters are our wire ground truth. |
+| **i210** | The Intel gigabit NIC in the peer test host (`enp6s0`)  -  its `ethtool -S` counters are our wire ground truth. |
 | **QSGMII / SGMII** | SerDes-based 1G PHY interfaces (4 ports / 1 port per lane)  -  *not* used in the 4-port copper plan. |
 
 ## FPGA / tooling
@@ -162,7 +162,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **Track 1 (de-Xilinx)** | The vendor-independence workstream (vendored `verilog-axis`, XPM removal, Yosys/ECP5 checks). |
 | **C1/C2, S1-S5, I1-I6** | The decision-matrix work items in `AVB_SWITCH_DIRECTION.md` (CPU-port, Switch, IPC tracks). |
 | **build_ringN** | The overnight bitstream lineage (ring2 = RX ring … ring7 = +csum offload, ring8 = +256 KB L2); copies kept as `~/litex-milan/work/ringN_test.bit`. |
-| **amx-pw0** | The peer test host (i210 NIC, `192.168.127.2`) used for all wire-truth measurements. |
+| **peer-host / pw0** | The peer test host (i210 NIC, `<peer-ip>` on the bench-specific subnet) used for all wire-truth measurements; its concrete identity lives in the private bench notes. |
 | **BENCH (evidence token)** | In the traceability tables: verified on the bench — the internal conformance behave suite and/or a wire capture at the taps. |
 | **mfNN / AXNN** | Bitstream build codenames: `mf` = the ARTY lineage, `AX` = the AX7101 lineage; the number is the build round. A build number is only meaningful with its full recipe (config + directive + seed). |
 | **eppo_* / asl_*** | Config-recipe prefixes stamped into build codenames (they say which `build.sh` recipe produced the bitstream). |

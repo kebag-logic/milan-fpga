@@ -7,8 +7,8 @@ entity on silicon. Protocol-equivalent to what Hive / la_avdecc drive, but
 self-contained (raw AF_PACKET, no external AVDECC stack) so it runs on any
 Linux peer on the AVB segment.
 
-Run on the measurement peer (amx-pw0), which shares the AVB switch with the
-AX7101 entity:
+Run on the measurement peer (the peer test host), which shares the AVB switch
+with the AX7101 entity:
 
     sudo python3 milan_controller.py <iface>            # full validation
     sudo python3 milan_controller.py <iface> --read-all # dump every descriptor

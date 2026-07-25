@@ -2,9 +2,9 @@
 
 ## Incident
 During post-hwts re-validation of the Milan control plane, the Arty (:02)
-vanished from ADP discovery: 35 s of `tcpdump ether proto 0x22f0` on pw0 showed
+vanished from ADP discovery: 35 s of `tcpdump ether proto 0x22f0` on the peer host showed
 only the AX7101 (:01), while the same capture minutes after the session wrap-up
-had shown both. **gPTP was unaffected the whole time** (pw0 stayed SLAVE at
+had shown both. **gPTP was unaffected the whole time** (the peer host stayed SLAVE at
 offset ~6 ns under the Arty's HW-timestamped GM) — so the board, link, MAC and
 driver-DMA TX path were all healthy; only the fabric-autonomous ADP TX had
 stopped.

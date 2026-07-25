@@ -96,7 +96,7 @@ audio end-station (talker + listener) on the wire.
 - **AX42** (e2 MAC-TX link-bounce wedge): the guard `eth_rst` fix now covers the PHY-side
   `eth_tx`/gtx path, and the follow-up link-guard liveness-toggle deadlock fix is merged and
   flashed to the AX (2026-07-24).
-- Toolchain: Vivado 2026.1 with **Artix-7 + Zynq installed** (`/home/alex/Xilinx*`); both boards
+- Toolchain: Vivado 2026.1 with **Artix-7 + Zynq installed** (the local Vivado install); both boards
   build and run. (Docs saying "only Spartan-7 / `--build` blocked here" are stale.)
 - 12-item USER roadmap: **items 1-6, 8, 9, 11 DONE** (8×8 end-to-end measured 07-24; the
   per-stage latency taps landed 07-25 — see `AAF_LATENCY_TAPS.md`); 7 = record proven on
@@ -318,7 +318,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - → **GitHub Issues** — the current roadmap, open gaps, and live state are tracked as issues.
   Read the open issues to know what's left and what's in flight right now.
 - **`docs/findings/BENCH_TOPOLOGY.md`** — the "read this first" bench-ops reference: machines,
-  consoles, repos, the build→flash→verify pipeline, pw0 wire tooling, the private-suite naming
+  consoles, repos, the build→flash→verify pipeline, peer-host wire tooling, the private-suite naming
   rules, the CSR quick-map, standing rules. High value for operating the bench.
 - Historical campaign narrative lives in the git history and [`../CHANGELOG.md`](../CHANGELOG.md);
   the per-bug post-mortems below are the evergreen record.

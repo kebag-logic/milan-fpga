@@ -12,8 +12,8 @@
 ## The overturn
 Earlier conclusion ("the switch doesn't run gPTP on the board ports") was WRONG.
 Verified with an inbound-only capture while ptp4l runs: the switch **does** send
-gPTP pdelay_req to the Arty port — src 3c:c0:c6:fe:02:18 (switch port-8 MAC),
-clock id 0x3cc0c6fffefe0210, ~2.6/s, valid PTPv2, messageLength 54. (My first
+gPTP pdelay_req to the Arty port — src `<bridge-port8-mac>` (switch port-8 MAC),
+clock id `<bridge-clockidentity>`, ~2.6/s, valid PTPv2, messageLength 54. (My first
 captures showed zero because /tmp/gptp.cfg was wiped on the v10 reboot so ptp4l
 wasn't running — but the switch sends pdelay unconditionally regardless.)
 
@@ -67,13 +67,13 @@ L2 protocol parser that would choke on the pad (future lwSRP MSRP/MVRP RX).
 Driver trim applied (the-private-test-repo kl-eth 24438f3), .ko hot-swapped on the Arty:
 - **"bad message": thousands/min -> 0.** ptp4l accepts every switch pdelay_req.
 - Full pdelay handshake with the d&b switch BOTH ways (tcpdump): Arty sends
-  pdelay_req + pdelay_resp; switch (3c:c0:c6:fe:02:18) sends pdelay_req +
+  pdelay_req + pdelay_resp; switch (`<bridge-port8-mac>`) sends pdelay_req +
   pdelay_resp + pdelay_resp_followup. 7 each per 8 s.
-- `port 1 (eth0): peer port id set to 3cc0c6.fffe.fe0210-8` (switch recognized).
+- `port 1 (eth0): peer port id set to <bridge-clockidentity>-8` (switch recognized).
 - `port 1 (eth0): setting asCapable` — **eth0 IS asCapable.** Our stack is
   fully proven end to end (RX delivery, timestamping, pdelay, PHC).
 - Then `announce timeout` -> self-elects GM: the switch sends NO Announce/Sync
-  on the board port (verified with pw0 forced GM priority1=100 — still no relay).
+  on the board port (verified with the peer host forced GM priority1=100 — still no relay).
 
 ## Remaining (switch-side, NOT our stack)
 The switch does per-port pdelay but does not relay a grandmaster's Sync/Announce
@@ -88,8 +88,8 @@ relay both absent). To get a SLAVE/offset-converged validation:
 
 ## Bench note (end of session)
 After ~a dozen FPGA reconfigs/reboots tonight the switch stopped sending pdelay
-to the Arty port (0 inbound 88F7), while the DATA plane still works (pw0 pings
-the Arty fine). This is switch-side flap-suppression / RSTP state on that port,
+to the Arty port (0 inbound 88F7), while the DATA plane still works (the peer
+host pings the Arty fine). This is switch-side flap-suppression / RSTP state on that port,
 NOT the fix or our stack (both proven: bad=0, asCapable=1, full handshake
 earlier the same session). To re-validate: power-cycle the switch (or re-enable
 the board port in its management), then `ptp4l -i eth0 -f /etc/gptp.cfg -S -m`
@@ -108,15 +108,15 @@ The user was right: sync/follow_up DO work. Demonstrated end to end:
 - **Arty = grandmaster** (priority1 100, clockClass 6, software timestamps).
   It sends Sync (56/cap) + Follow_Up (56) + Announce — a complete two-step GM.
 - The **switch relays** the Arty's time as a boundary clock (its own clock id
-  3c:c0:c6:ff:fe:fe:02:10) to the gigabit uplink port.
-- **pw0 (hardware timestamps) SLAVED to it and CONVERGED: rms 2-4 ns, max 4-8 ns,
+  `<bridge-clockidentity>`) to the gigabit uplink port.
+- **The peer host (hardware timestamps) SLAVED to it and CONVERGED: rms 2-4 ns, max 4-8 ns,
   freq ~-26500 stable, delay -8.** A locked gPTP domain, Arty as time source.
 So the whole chain works: our Sync/Follow_Up (post RX-pad fix) discipline a real
 slave to single-digit nanoseconds through the AVB switch.
 
 Direction notes:
-- board -> uplink relay (Arty GM -> pw0 slave): WORKS, 2-4 ns lock.
-- uplink -> board relay (pw0 GM -> Arty slave): flaky this session — the Arty
+- board -> uplink relay (Arty GM -> peer-host slave): WORKS, 2-4 ns lock.
+- uplink -> board relay (peer-host GM -> Arty slave): flaky this session — the Arty
   board port kept getting flap-suppressed by the switch after ~a dozen FPGA
   reconfigs. When the port is live the pdelay + asCapable establish; a switch
   power-cycle (or the direct cable) gives the Arty a clean slave lock too.
@@ -134,7 +134,7 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
 
 | Port | pdelay | accepts strong GM announce (slaves) | sends announce/sync (masters) |
 |---|---|---|---|
-| uplink (pw0) | always | NO — ignored pw0 100/cc6 for 25+ min (clean obs) | YES (self-GM at boot; relay when slaved on port 8) |
+| uplink (peer host) | always | NO — ignored the peer host's 100/cc6 for 25+ min (clean obs) | YES (self-GM at boot; relay when slaved on port 8) |
 | port 8 (Arty) | always | YES — Arty 100/cc6 engaged the relay | no VALID observation (see revision) |
 | port 7 (AX) | always | not proven either way (contaminated) | no VALID observation (see revision) |
 
@@ -160,7 +160,7 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
     only GM-election port, now settled uncontaminated** (the port-7 caveat
     closes);
   * GM DEATH mid-lock: the switch enters HOLDOVER so cleanly the slave never
-    leaves lock - pw0 stayed SLAVE rms 2-4 ns at the learned rate for 4+ min
+    leaves lock - the peer host stayed SLAVE rms 2-4 ns at the learned rate for 4+ min
     with the source dead (no UNCALIBRATED, no announce loss);
   * GM RETURN mid-holdover: seamless re-acquisition, ~18 ppb freq re-pull,
     no step;
@@ -168,7 +168,7 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
     0 retransmits, every 10 s interval within 92.7-94.1 - the data plane is
     fully decoupled from GM state.
 - **SETTLED (2026-07-13, clean observation)**: with the Arty-GM relay
-  demonstrably engaged (pw0 SLAVE rms 2 ns on the uplink at the same
+  demonstrably engaged (peer host SLAVE rms 2 ns on the uplink at the same
   moment), a 60 s PROMISCUOUS capture on the AX port (MAC filter bypassed)
   shows **exactly 60 pdelay_req + 60 pdelay_resp + 60 resp_fup — zero
   Announce, zero Sync/Follow_Up**. The edge ports do not source sync BY
@@ -176,28 +176,29 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
   assignment, not a malfunction, and matches the operator's expectation.
   Board-as-slave therefore validates over the direct board<->board cable
   (gptp_direct_cable.sh), full stop.
-- **Multi-claimant confusion**: with 3 strong GMs at once (pw0 100 + Arty 100
+- **Multi-claimant confusion**: with 3 strong GMs at once (peer host 100 + Arty 100
   + AX 90, all cc6) the switch went announce-SILENT on every port (even its
   own self-GM stopped). Reverting to a SINGLE strong claimant (Arty 100/cc6,
   everyone else 248-254/cc248) re-engaged the relay within ~1 min. Keep the
   segment single-claimant.
 - Re-proven end to end after the power-cycle: Arty GM -> switch (presents its
-  own clock id 3cc0c6.fffe.fe0210, boundary-style) -> **pw0 SLAVE rms 3 ns,
+  own clock id `<bridge-clockidentity>`, boundary-style) -> **peer host SLAVE rms 3 ns,
   freq -26.5k** (same freq as last night = same Arty time source).
 - The AX had been running the OLD un-trimmed kl-eth (adp2-era QSPI rootfs,
   up 14 h) -> "bad message" spam, asCapable never, its announces invisible.
-  Hot-swapped the trim .ko (VM -> pw0 -> AX via `ssh cat`; the built artifact
+  Hot-swapped the trim .ko (VM -> peer host -> AX via `ssh cat`; the built artifact
   at br-milan-output/build/kl-eth-1.0/kl-eth.ko has the trim) -> badmsg=0,
   peer delay 450 us, full GM output on the wire. **RAM-only fix: the AX QSPI
   rootfs still ships the old driver — reflash for persistence.**
 - ptp4l 4.4 sends PTPv2.1 headers (minorVersion 1) on gPTP; the switch
   handles them fine for pdelay AND (from the Arty, same 4.4) announce accept
   — version is NOT a factor (theory tested and dropped).
-- Ops traps paid: both boards bake 192.168.127.1 (shared rootfs) — the Arty
-  shadowed the AX until `ip addr del`; deleting the primary .1 also dropped
-  the secondary .3 (busybox promote_secondaries off) — re-add .3 after.
+- Ops traps paid: both boards bake the same .1 address on the bench-specific
+  subnet (shared rootfs) — the Arty shadowed the AX until `ip addr del`;
+  deleting the primary .1 also dropped the secondary .3 (busybox
+  promote_secondaries off) — re-add .3 after.
   TWO sessions drove the bench concurrently this morning (this one + the
-  8bbe361 session with amx-pi switch power control) — ptp4l restarts/kills
+  8bbe361 session with power-controller switch power control) — ptp4l restarts/kills
   from the other session look like silent crashes; check `ps` + attribute
   before debugging.
 - LIVE-STATE DEPENDENCY: the current lock chain requires **allmulti pinned on
@@ -208,15 +209,15 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
 
 
 ## Arty-as-slave: exhaustively tested, blocked by switch role (2026-07-13)
-Tried hard to get the Arty to SLAVE (discipline its own PHC from pw0-as-GM),
-using the amx-pi switch power control:
+Tried hard to get the Arty to SLAVE (discipline its own PHC from the peer host
+as GM), using the power controller's switch outlet:
 - Fresh Arty boot (clean driver), AAF talker OFF (rule out multicast storm),
   `ip link set eth0 allmulticast on` (MAC_CTRL 0x13->0x1B; see driver-gap below),
   link held stable, switch power-cycled AGAINST the stable link + full STP/AS
-  convergence (~2.5 min), pw0 = HW-timestamped GM.
+  convergence (~2.5 min), peer host = HW-timestamped GM.
 - Result: the Arty's board port receives ZERO gPTP (asCapable=0, peer=0, bad=0)
-  in this direction. Data plane is fine (pw0 pings the Arty). So the switch
-  ACCEPTS a board port's time as a GM source (board->uplink relay to pw0 works,
+  in this direction. Data plane is fine (the peer host pings the Arty). So the switch
+  ACCEPTS a board port's time as a GM source (board->uplink relay to the peer host works,
   2-4 ns) but does NOT distribute a grandmaster's Sync to the board ports
   (uplink->board). That is a switch per-port ROLE/config (board ports are
   GM-source / slave-only from the switch's view), changeable only via the

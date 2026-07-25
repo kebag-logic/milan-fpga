@@ -1,7 +1,7 @@
 # Traceability — IEEE 802.1Q-2022 (VLAN / FQTSS-CBS / MRP / MSRP / MVRP)
 
 Part of [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Clause numbers
-verified against `/home/alex/standards/8021Q-2022.pdf` (Q-2018 numbering is
+verified against the local standards PDFs (`$STANDARDS_DIR/8021Q-2022.pdf`) (Q-2018 numbering is
 identical for these clauses). We are an **end station** (Talker/Listener PAAD),
 not a bridge: bridge-only clauses are marked N/A. Milan MRP/MSRP deltas
 (timer tolerances, endmarks, Domain values) live in

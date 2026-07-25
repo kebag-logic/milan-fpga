@@ -13,7 +13,7 @@
 > [LATENCY_INVESTIGATION.md](../../docs/findings/LATENCY_INVESTIGATION.md) for the complete, corrected story.**
 
 **Date:** 2026-07-05 · **Silicon:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @ 100 MHz,
-sv39 · **Link:** 1000BASE-T copper to an Intel i210 peer (`enp6s0`, 192.168.127.2) ·
+sv39 · **Link:** 1000BASE-T copper to an Intel i210 peer (`enp6s0`, `<peer-ip>`) ·
 **Frame:** MTU 1500 · **Load:** `iperf3` TCP.
 
 ## The question
@@ -133,7 +133,7 @@ the NaxRiscv+FPU bitstream (`~/litex-milan/work/fpu32.bit`), not more cores.
 # on the board (kl-eth ≥ the rx-usecs build):
 ethtool -c eth0                      # show coalesce
 ethtool -C eth0 rx-usecs 1000        # 1 ms coalescing (runtime)
-iperf3 -c 192.168.127.2 -t 8 -R      # RX; drop -R for TX; -P 4 for parallel
+iperf3 -c <peer-ip> -t 8 -R      # RX; drop -R for TX; -P 4 for parallel
 vmstat 2 4                           # watch 'id' (idle) during the transfer
 ```
 
