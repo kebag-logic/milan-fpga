@@ -90,6 +90,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ---- TDM bus (AUDIO_IF_SLOTS_P > 0; we are slave - tie 0 when unused) ----
   input  wire                     tdm_bclk_i,
   input  wire                     tdm_fsync_i,
+  output wire                     tdm_dout_o,     //! chmap follow-up 4: KL_tdm_render serial out (TDM8, ext-clocked by tdm_bclk/fsync)
   input  wire                     tdm_data_i,
   // ---- Pmod I2S2 DAC (line-out): zero-CPU playback of the bound stream ----
   output wire                     i2s_dac_mclk_o,
@@ -335,6 +336,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //! capture-or-playback pair bus (item-7 KL_pcm_tx mux output); feeds the
   //! chmap capture stage below - both features default-off => legacy path
+  //! chmap follow-up 2: the RAW KL_pcm_tx pair bus exposed as the capture
+  //! mux's RING source (per-map-entry src selection, independent of the
+  //! wholesale pb_enable replacement below). Zero when playback is pruned.
+  wire        ring_src_pv_w;
+  wire [3:0]  ring_src_slot_w;
+  wire [23:0] ring_src_l_w, ring_src_r_w;
   wire        cappb_pv_w;
   wire [3:0]  cappb_slot_w;
   wire [23:0] cappb_l_w, cappb_r_w;
@@ -368,12 +375,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .rd_ptr_o (pb_rd_ptr_o), .underrun_o (pb_underrun_o),
       .overrun_o (pb_overrun_o), .smp_tick_o (), .playing_o (pb_playing_o)
     );
+    assign ring_src_pv_w   = pb_pv_w;
+    assign ring_src_slot_w = pb_slot_w;
+    assign ring_src_l_w    = pb_l_w;
+    assign ring_src_r_w    = pb_r_w;
     //! playback overrides the capture front-end at the packetizer's pair port
     assign cappb_pv_w   = pb_enable_i ? pb_pv_w   : aafcap_pv_w;
     assign cappb_slot_w = pb_enable_i ? pb_slot_w : aafcap_slot_w;
     assign cappb_l_w    = pb_enable_i ? pb_l_w    : aafcap_l_w;
     assign cappb_r_w    = pb_enable_i ? pb_r_w    : aafcap_r_w;
   end else begin : g_no_playback
+    assign ring_src_pv_w   = 1'b0;
+    assign ring_src_slot_w = 4'd0;
+    assign ring_src_l_w    = 24'd0;
+    assign ring_src_r_w    = 24'd0;
     assign cappb_pv_w   = aafcap_pv_w;
     assign cappb_slot_w = aafcap_slot_w;
     assign cappb_l_w    = aafcap_l_w;
@@ -415,8 +430,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i2s_l_i (cappb_l_w), .i2s_r_i (cappb_r_w),
     .tdm_pair_valid_i (1'b0), .tdm_pair_slot_i (4'd0),
     .tdm_l_i (24'd0), .tdm_r_i (24'd0),
-    .ring_pair_valid_i (1'b0), .ring_pair_slot_i (4'd0),
-    .ring_l_i (24'd0), .ring_r_i (24'd0),
+    //! follow-up 2: the ALSA-playback ring (KL_pcm_tx) as a selectable source
+    .ring_pair_valid_i (ring_src_pv_w), .ring_pair_slot_i (ring_src_slot_w),
+    .ring_l_i (ring_src_l_w), .ring_r_i (ring_src_r_w),
     .tone_smp_i (tone_smp),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
@@ -617,6 +633,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! bit-identical (render/capture crossbars are muxed OUT of both the
   //! packetizer feed and the i2s_playback feed).
   wire        cfg_chmap_enable;
+  //! chmap64 AEM binding: the AECP dynamic-map engine's accepted commits
+  //! mirrored into the render map RAM (the CANONICAL programmer; the CSR
+  //! 0x900 window below stays as the debug/bringup port)
+  wire        aecp_dmap_wr_p_w;
+  wire [5:0]  aecp_dmap_wr_addr_w;
+  wire [7:0]  aecp_dmap_wr_word_w;
   wire        cfg_chmap_wr_en;
   wire        cfg_chmap_wr_side;
   wire [5:0]  cfg_chmap_wr_addr;
@@ -1413,6 +1435,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .dmap_l_en_o   (dmap_l_en_w),
     .dmap_r_ch_o   (dmap_r_ch_w),
     .dmap_r_en_o   (dmap_r_en_w),
+    .dmap_wr_p_o   (aecp_dmap_wr_p_w),
+    .dmap_wr_addr_o(aecp_dmap_wr_addr_w),
+    .dmap_wr_word_o(aecp_dmap_wr_word_w),
     .link_up_i     (cnt_link_w),
     .frames_tx_i   (aaf_frames_w),
     .lstn_bound_i   (acmpl_bound),
@@ -1780,6 +1805,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! wire-truth channel count (USER 1-to-1 rule): the RENDER path follows
   //! the last accepted PDU's channels_per_frame, never the AEM store
   wire [7:0] mon_wire_chans_w;
+  wire [N_STREAMS*4-1:0] mon_wire_chans_all_w;   //! per-stream (follow-up 3)
 
   //! NXN P2: the shared monitor engine (LCTX context RAM, N_STREAMS
   //! contexts) replaces the flat single-stream KL_avtp_rx_monitor. All
@@ -1830,6 +1856,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_unsupported_fmt_o    (avtprx_unsupp_c),
     .cnt_frames_rx_o          (avtprx_frx_c),
     .wire_chans_o             (mon_wire_chans_w),
+    .wire_chans_all_o         (mon_wire_chans_all_w),
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),
@@ -1983,15 +2010,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_tvalid_i (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
     .s_tlast_i  (dpkt_pcm_tlast_w),
     .s_tuser_i  (dpkt_pcm_tuser_w),
-    //! per-stream wire-truth (phase-1: the render-stream count broadcast; the
-    //! per-stream LCTX wire_chans fan-out is the documented follow-up)
-    .wire_chans_i ({N_STREAMS{mon_wire_chans_w[3:0]}}),
+    //! per-stream LCTX wire-truth fan-out (follow-up 3 DONE: each stream
+    //! de-interleaves by its OWN wire channels_per_frame)
+    .wire_chans_i (mon_wire_chans_all_w),
     .tick_i (media_tick_p),
-    .map_wr_en_i   (cfg_chmap_wr_en && !cfg_chmap_wr_side),
-    .map_wr_addr_i (cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
+    //! write mux: the AEM ADD/REMOVE mirror is the canonical programmer
+    //! (docs/CHMAP64_AEM_BINDING.md); the CSR 0x900 window is the debug port
+    //! and yields on collision (one write/cycle, AEM strobes are 1-cycle)
+    .map_wr_en_i   (aecp_dmap_wr_p_w ||
+                    (cfg_chmap_wr_en && !cfg_chmap_wr_side)),
+    .map_wr_addr_i (aecp_dmap_wr_p_w
+                    ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
+                    : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
     //! §5 16-bit word -> render 8-bit {en[7], rsvd[6], stream[5:3], ch[2:0]}
-    .map_wr_data_i ({cfg_chmap_wr_data[15], 1'b0,
-                     cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
+    .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
+                    : {cfg_chmap_wr_data[15], 1'b0,
+                       cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
     .map_rd_addr_i ('0), .map_rd_data_o (),
     .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
     .mapped_mask_o ()
@@ -2051,9 +2085,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tick_i        (tdmr_tick_r),
     .tdm_bclk_i    (tdm_bclk_i),
     .tdm_fsync_i   (tdm_fsync_i),
-    .tdm_dout_o    (chmap_tdm_dout_w),
+    .tdm_dout_o    (chmap_tdm_dout_w),   //! exported as tdm_dout_o below
     .frames_o (), .underruns_o (), .overruns_o ()
   );
+
+  assign tdm_dout_o = chmap_tdm_dout_w;
 
   // ==========================================================================
   //  MAAP engine (IEEE 1722 Annex B) — dynamic stream-DMAC allocation.

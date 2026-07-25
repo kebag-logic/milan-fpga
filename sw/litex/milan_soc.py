@@ -428,6 +428,10 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # AUDIO_IF_SLOTS_P > 0; neither board has a TDM header today, so a
         # platform extension overrides these via extra_ports when it lands.
         i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0,
+        # chmap follow-up 4: KL_tdm_render serial out is EXPORTED (tdm_dout_o);
+        # open here - the same TDM-header platform extension that provides
+        # bclk/fsync claims it (extra_ports), no RTL change needed then.
+        o_tdm_dout_o = Signal(),
         # audio-MMCM servo boundary: inert ties (servo idles unless
         # clock_source == 2; locked=1 keeps a future VERIFY from hanging).
         # The board SoC overrides these with the real MMCME2_ADV wiring
