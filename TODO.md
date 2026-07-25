@@ -49,8 +49,8 @@ full-FPGA solution is **assembled and elaborating** end-to-end. See
 [`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](docs/testing/PROTOCOL_VALIDATION_MATRIX.md) (protocol×test).
 
 * **De-Xilinx complete** — all XPM/vendor IP replaced by Forencich `verilog-axis`
-  + open CDC/TCAM; ~41 Verilator harnesses + ~39 Yosys tops (incl. Lattice ECP5;
-  `ls tb/verilator/` / `syn/yosys/run.sh` authoritative).
+  + open CDC/TCAM; the full Verilator harness suite + every Yosys top (incl. Lattice
+  ECP5; `ls tb/verilator/` / the `syn/yosys/run.sh` `tops` array authoritative).
 * **`milan_datapath.sv`** — PS-less §A.9 wrapper; verified `tb/verilator/milan_dp`.
 * **Softcore** — NaxRiscv boots the LiteX BIOS in sim; the CPU reads the NIC
   `ID="MILN"` over the bus (**M-A2**) — `sw/litex/milan_sim.py`, evidence saved.

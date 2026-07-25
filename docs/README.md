@@ -65,7 +65,7 @@ Goal: build → flash → bring up the board. → **[the pipeline at a glance](B
 ### 🧪 Tester / Validator — *you run the suites + validate*
 Goal: prove it works, per spec.
 1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · bench).
-2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` = ~41 suites (the count wins over any prose).
+2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` is the authoritative suite list (the listing wins over any prose count).
 3. [../tests/README.md](../tests/README.md) — run the behave/tsn_gen fixtures: `~/litex-milan/venv/bin/behave tests` (needs `TSAGEN_DIR`).
 4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench` tier (the conformance suites live in the sibling private test repo).
 5. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
@@ -160,8 +160,8 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | The all-layers walkthrough (elaboration smoke test → Migen sims → harnesses → board). |
 | [SIMULATION.md](testing/SIMULATION.md) | The three simulation layers in detail (RTL harnesses, softcore boot, softcore+NIC M-A2). |
 | [PROTOCOL_VALIDATION_MATRIX.md](testing/PROTOCOL_VALIDATION_MATRIX.md) | Every protocol × where implemented × the test that validates it. |
-| [`../tb/verilator/README.md`](../tb/verilator/README.md) | The self-checking harnesses (~41 dirs; `ls tb/verilator/` is authoritative), suite by suite. |
-| [`../syn/yosys/README.md`](../syn/yosys/README.md) | The device-portability check (~39 tops; generic + ECP5). |
+| [`../tb/verilator/README.md`](../tb/verilator/README.md) | The self-checking harnesses (one dir per suite; `ls tb/verilator/` is authoritative), suite by suite. |
+| [`../syn/yosys/README.md`](../syn/yosys/README.md) | The device-portability check (the `run.sh` `tops` array is authoritative; generic + ECP5). |
 
 ## 6 - limitations/ (make the problems apparent)
 
