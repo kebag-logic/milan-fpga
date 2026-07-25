@@ -81,6 +81,15 @@ do_flash()  {
 do_flash_images() {
     [ -n "$LAYOUT" ] && [ -f "$LAYOUT" ] || {
         echo "[deploy] flash-images: no flashboot_layout.json (build --with-spiflash, or set LAYOUT=<path>)"; exit 2; }
+    # A device tree from an older CSR layout kills the whole host plane with
+    # perfect CSR readbacks (kl-eth maps reg windows by index) — refuse it here
+    # rather than debug it on silicon again. Skipped only if dtc is unavailable.
+    local csrcsv; csrcsv="$(dirname "$LAYOUT")/csr.csv"
+    if [ -n "${DTB:-}" ] && [ -f "$csrcsv" ] && command -v dtc >/dev/null; then
+        "$PYTHON" "$HERE/check_dtb_csr.py" "$DTB" "$csrcsv" || {
+            echo "[deploy] flash-images REFUSED: \$DTB does not match this build's csr.csv."
+            echo "[deploy] Compile it fresh from the dts source (never flash a prebuilt fossil)."; exit 2; }
+    fi
     echo "[deploy] flash-images  (JTAG -> QSPI flash): layout $LAYOUT"
     local tmp; tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' RETURN
     # name<TAB>offset<TAB>ceiling  for each manifest image (ceiling = next offset or 16 MB)
