@@ -105,5 +105,5 @@ banners). The rules:
   maintained but not the primary target; `REQUIREMENTS.md`/`TODO.md` still
   describe some Zynq-era mechanics (`0x43C0_0000`, IRQ_F2P) that only apply
   there.
-* `aem-and-aecp.md` (root) - design notes for AEM/AECP prior work, not
-  implemented RTL.
+* `docs/design/AEM_AND_AECP.md` - the AEM/AECP design record, reconciled to
+  the as-built fabric subsystem (2026-07-25).

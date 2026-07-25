@@ -463,7 +463,7 @@ Target specs: **IEEE 1722.1-2021** (AVDECC) with the **Milan v1.2** profile.
 Substantial AVDECC design already exists in this repo/tree  -  the plan below
 *continues* it:
 
-- **HW AEM/AECP design:** [`aem-and-aecp.md`](../../aem-and-aecp.md) + `aem-and-aecp.pdf`
+- **HW AEM/AECP design:** [`aem-and-aecp.md`](../../docs/design/AEM_AND_AECP.md) + `aem-and-aecp.pdf`
   specify the FPGA **4-level AEM memory** (L0 ENTITY → L1 config table → L2
   per-type tables → L3 payload, static/semi-static/dynamic split), the generic
   getter/setter keyed by `command_type / configuration_index / descriptor_type /
@@ -500,7 +500,7 @@ This mirrors how real Milan endpoints are built and keeps HW small.
 
 > **Optional HW AEM.** If you want the AEM served from the FPGA instead of Linux
 > (lower latency, CPU-independent enumeration), implement the **4-level AEM memory +
-> AECP pipeline** from [`aem-and-aecp.md`](../../aem-and-aecp.md), generating its L0–L3
+> AECP pipeline** from [`aem-and-aecp.md`](../../docs/design/AEM_AND_AECP.md), generating its L0–L3
 > image from [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json). The
 > JSON's `static/semi_static/nonvolatile/dynamic` field classes map directly onto
 > that design's factory-NVM / modifiable-overlay / volatile-mirror memories. Start
@@ -648,7 +648,7 @@ software leveraging OpenAvnu / avdecc-lib.
   Verilator harnesses `tb/verilator/adp/`, and (optional HW AEM) `hdl/ieee17221/aecp/*` +
   `tools/aem_gen.py` consuming the entity model.
 - **Already added (this work):** `avdecc/milan-v12-entity.json` + `avdecc/README.md`
-  (the Milan v1.2 entity model); the AEM/AECP HW design in `aem-and-aecp.{md,pdf}`.
+  (the Milan v1.2 entity model); the AEM/AECP HW design in `docs/design/AEM_AND_AECP.md` (+ the frozen `aem-and-aecp.pdf` wiki export).
 - **Reused unchanged:** classifier, CBS, PTP, MAC, CSR, RMON; the PipeWire `module-avb`
   SW AVDECC stack (`entity-model-milan-v12.h`), `avdecc_l2.py` test controller.
 - **Retired for this build:** `bd/milan-dma.tcl` PS7 block design, `milan_dma_wrapper.v`,

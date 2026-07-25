@@ -54,7 +54,7 @@ Action = KEEP / UPDATE / MERGE / ARCHIVE.
 | `TODO.md` | STALE | UPDATE | Phase 0-9 plan largely done/superseded; keep open-REQ ledger, point to 12-item roadmap + BEHAVE plan. |
 | `CHANGELOG.md` | STALE | UPDATE | Canonical perf lever→effect ledger; add 07-10/11 header-split closing rows + "perf-lineage, ship=1-hart" banner. |
 | `THIRD_PARTY.md` | STALE | UPDATE | Add `external` (fpga-avb-ethernet) submodule row; move verilog-ethernet Planned→Vendored. |
-| `aem-and-aecp.md` | STALE | UPDATE + RELOCATE | AEM/AECP design rationale; relocate root→`docs/architecture/`; reconcile to as-built (small↔full entity, static AUDIO_MAP, NOT_IMPLEMENTED cmds). |
+| `aem-and-aecp.md` | STALE | UPDATE + RELOCATE | AEM/AECP design rationale; relocate root→`docs/architecture/`; reconcile to as-built (small↔full entity, static AUDIO_MAP, NOT_IMPLEMENTED cmds). **DONE 2026-07-25 → landed at `docs/design/AEM_AND_AECP.md`.** |
 | `docs/overview/FULL_FPGA_SOLUTION.md` | STALE | UPDATE | Master "read first" overview; fix CPU config, RGMII→GMII contradiction, AVDECC-in-fabric status, counts. |
 | `docs/overview/ARCHITECTURE.md` | STALE | UPDATE | By-flow arch map; fix hdl/ tree (spec-aligned reorg), 1-hart, harness/top counts. Near-dup pair w/ FULL_FPGA_SOLUTION. |
 | `docs/overview/SYSTEM_DOMAIN_MAP.md` | CURRENT | KEEP | By-domain/by-language partition; accurate, ideal "where does X live". |
@@ -217,7 +217,7 @@ L2-32K** ship shape (2-hart = superseded perf variant); **-73.4 dB → -83.9 dB*
 | `TODO.md` | mark Zynq-BD phases (bd/milan-dma.tcl, axi_mcdma, IRQ_F2P) superseded; note driver/DT delivered via kl-eth+LiteX (bench suite clean); point to 12-item roadmap + BEHAVE plan; keep open-REQ ledger. |
 | `CHANGELOG.md` | add 07-10/11 header-split closing rows (TX 582-646, RX 381/374, no-copy 585-594); fix "Where the goal stands"; DDIO measured DEAD; "ship=1-hart, perf-lineage records" banner. |
 | `THIRD_PARTY.md` | add `external`/fpga-avb-ethernet submodule row; verilog-ethernet Planned→Vendored (verilog-axis 48ff7a7 pin is correct). |
-| `aem-and-aecp.md` | relocate root→docs/architecture/; small↔full entity split (not Raki 48/96/192); STATIC AUDIO_MAP default; WRITE_DESCRIPTOR/GET_SET_ASSOCIATION_ID → NOT_IMPLEMENTED; resolve TODO callouts; fix drawio/kebag-logic links. |
+| `aem-and-aecp.md` | relocate root→docs/architecture/; small↔full entity split (not Raki 48/96/192); STATIC AUDIO_MAP default; WRITE_DESCRIPTOR/GET_SET_ASSOCIATION_ID → NOT_IMPLEMENTED; resolve TODO callouts; fix drawio/kebag-logic links. **DONE 2026-07-25 (target = `docs/design/`).** |
 | `docs/overview/FULL_FPGA_SOLUTION.md` | CPU 2→1-hart+L2-32K; RGMII→GMII (own §9 contradicts); AVDECC/SRP now in fabric (per ARCHITECTURE_HW_SW_SPLIT rev 2); 17→~41, 18→~39. |
 | `docs/overview/ARCHITECTURE.md` | hdl/ tree → spec-aligned (ieee1722/ ieee17221/ ieee8021as/ ieee8021q/ + hdl/milan/ + hdl/common); 2-hart→1-hart; 17→~40 harness dirs; 18→~39 tops. |
 | `docs/overview/AVB_SWITCH_DIRECTION.md` | demote Production scoreboard (NaxRiscv 62/66, Vexii 27/30) to pointer at CHANGELOG/HANDOVER; note S1/I-series/servo landed. |
@@ -269,7 +269,7 @@ docs/
 
   architecture/                    # 2. HW/SW split + deep architecture  (NEW dir)
     ARCHITECTURE_HW_SW_SPLIT.md    #   MOVE from docs/ — normative plan-of-record (UPDATE)
-    aem-and-aecp.md                #   MOVE from repo root — AEM/AECP subsystem design (UPDATE)
+    aem-and-aecp.md                #   MOVE from repo root — AEM/AECP subsystem design (UPDATE; landed in docs/design/ 2026-07-25)
 
   fpga/                            # 3a. Datapath / gateware subsystem specs
     PIPELINE_STAGES.md             #   flagship living datapath prose (UPDATE)

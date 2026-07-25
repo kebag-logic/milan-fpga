@@ -90,8 +90,8 @@ audio end-station (talker + listener) on the wire.
 - **Media-clock servo (MMCM-DRP) silicon-proven**: coherent-chain analog loop **-83.9 dB** =
   the CS4344+CS5343 converter power-sum floor. (A "-73.4 dB" loop figure anywhere is the stale
   pre-servo NCO-era number.)
-- **ALSA**: record works on silicon (arecord byte-exact); playback (`KL_pcm_tx`) is a validated
-  scaffold, not yet integrated.
+- **ALSA**: record works on silicon (arecord byte-exact); playback (`KL_pcm_tx` ring → render
+  mux) is integrated in gateware — the end-to-end aplay proof is pending.
 - **PCM ring** can now target on-chip BRAM (`--pcm-ring bram`); DRAM ring remains default.
 - **AX42** (e2 MAC-TX link-bounce wedge): the guard `eth_rst` fix now covers the PHY-side
   `eth_tx`/gtx path, and the follow-up link-guard liveness-toggle deadlock fix is merged and
@@ -140,11 +140,11 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   dividing principle + per-function fabric-vs-softcore placement table + boundary contracts.
   **This wins where overview docs conflict** on what is HW vs SW. Read before deciding where any
   new function belongs.
-- **`aem-and-aecp.md`** (currently at repo root; relocating to `docs/architecture/`) — the
-  AEM+AECP subsystem design rationale: the 4-level block-memory descriptor scheme, the
-  getter/setter accessor model, the AECP parse→respond→unsolicited pipeline. Read for AEM/AECP
-  internals; cross-check dynamic behaviour against `traceability/ieee1722_1-2021.md §3` +
-  `REGISTER_MAP` (some accessor rows have drifted).
+- **`docs/design/AEM_AND_AECP.md`** — the AEM+AECP subsystem design record, reconciled to the
+  as-built subsystem (2026-07-25): the 4-level block-memory descriptor scheme, the
+  getter/setter accessor model, the AECP parse→respond→unsolicited pipeline, and the honest
+  as-built/diverged tables. Read for AEM/AECP internals, paired with
+  `traceability/ieee1722_1-2021.md §3`.
 - **`docs/integration/AXIS_CORES_ON_NAXRISCV.md`** — the clearest "how the CPU talks to fabric"
   mental model (control AXI-Lite/CSR, data AXIS↔DMA, events IRQ→PLIC). Read before wiring any
   new core. (Mechanics hold for the shipped VexiiRiscv too.)
@@ -181,7 +181,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   before touching any perf knob.
 
 **gPTP (time)**
-- → **`docs/findings/GPTP_RXPAD_ROOTCAUSE.md`** — the RX-pad root cause + the operative
+- → **`docs/design/TIME_SYNC.md`** — the time-sync design record: the three clocks (network
+  PHC / system / media), the HW timestamp path, the CRF + MMCM-DRP servo loop, every time CSR
+  in one table, honest status. **Read this first for time.**
+- **`docs/findings/GPTP_RXPAD_ROOTCAUSE.md`** — the RX-pad root cause + the operative
   switch-behaviour matrix (the bench switch does per-port pdelay but never masters Sync/Announce
   into board ports → why es-1.1/1.2 BMCA variants are switch-gated). Read for why gPTP behaves
   as it does on this bench.
@@ -201,14 +204,18 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **`docs/design/MILAN_TALKER_SM.md`** — the shipped talker connection model (ACMP PROBE_TX SM,
   GET/SET_STREAM_INFO byte rules, stream_id = {mac,uid}). *(Its "out of scope" list is stale —
   lwSRP/MAAP/listener all landed.)*
-- **`aem-and-aecp.md`** — AEM/AECP internals (see Stage 2).
+- **`docs/design/AEM_AND_AECP.md`** — AEM/AECP internals (see Stage 2).
 - **`docs/findings/ADP_DORMANCY.md`** — the ADP-dormancy incident post-mortem: the self-re-arm
   fix, A_ADP_DIAG 0x668, and the "always pass MILAN_CLK_FREQ_HZ to the Instance()" trap. Read
   before touching ADP timing.
 
 **AAF (audio streaming) + CRF / media-clock**
-- → **`docs/traceability/ieee1722-2016.md`** — per-clause AVTP/AAF/CRF/MAAP map. *(CRF-8 still
-  says the servo is "not built" — stale: the MMCM-DRP servo IS built and silicon-proven.)*
+- → **`docs/design/AUDIO_STREAMING.md`** — the end-to-end media-plane deep-dive: talker and
+  listener chains with CSR touchpoints, presentation-time vs pipeline latency (links
+  AAF_LATENCY_TAPS + LATENCY_HISTORY_RING), honest status. **Read this first for audio.**
+- **`docs/traceability/ieee1722-2016.md`** — per-clause AVTP/AAF/CRF/MAAP map (the verification
+  view). *(CRF-8 still says the servo is "not built" — stale: the MMCM-DRP servo IS built and
+  silicon-proven.)*
 - **`docs/MVP_TALKER.md`** — the AAF-PCM talker: the 90-byte frame format, the CSR 0x654 group,
   silicon bring-up. *(Its headline "media clock not locked" caveat is superseded by the servo;
   the frame/CSR content is still live.)*

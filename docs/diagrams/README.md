@@ -18,6 +18,9 @@ repo's minimal headless renderer
 | `rx_path_wall.svg` | Perf campaign: the RX receive path - where the CPU time goes, and the wall | `diag_rxpath.py` (uses `svglib.py`; run `python3 diag_rxpath.py rx_path_wall.svg`) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `memory_hierarchy_levers.svg` | Perf campaign: the memory hierarchy and the three levers pulled on it | `diag_memhier.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `ddio_before_after.svg` | Perf campaign: the DDIO-analog experiment, before/after | `diag_ddio.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
+| `audio_stream_path` | The end-to-end AAF path: talker + listener chains, CSR touchpoints, the 8 latency-tap chips | `audio_stream_path.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) |
+| `timesync_chain` | The three-clock chain (network PHC / system / media) with CSR touchpoints | `timesync_chain.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) |
+| `atdecc_control_plane` | The fabric control plane (ADP / AECP / ACMP / MAAP + the CSR/driver touchpoints) | `atdecc_control_plane.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md) |
 
 `svglib.py` is the tiny shared SVG builder the three `diag_*.py` perf
 scripts import (no external deps).
