@@ -152,6 +152,20 @@ cd syn/yosys && make            # generic synth of every top
 cd syn/yosys && make ecp5       # map to Lattice ECP5 (TRELLIS_FF/LUT4)
 ```
 
+Both were run here (yosys 0.66 + sv2v v0.0.13), and both end in:
+
+```
+tops: 39   pass: 39   fail: 0
+RESULT: PASS
+```
+
+`make` took ~8 min, `make ecp5` ~11 min on a desktop x86-64 — `milan_datapath`,
+the full integration wrapper, is most of it. Each run then prints two extra,
+non-fatal reports: a tied-off-input inventory for `milan_datapath` (which
+`WARNING` lines flag inputs constant at every wiring site) and an observer-purity
+structural check (`TAP-PURITY RESULT: PASS` — it self-tests against a
+deliberately broken fixture first).
+
 **You need `sv2v` on `PATH`** — yosys's Verilog frontend cannot read SystemVerilog
 interfaces and packages. On Arch `sv2v` is **AUR-only, not in the official
 repositories**, so the least painful route on any distribution is the upstream
