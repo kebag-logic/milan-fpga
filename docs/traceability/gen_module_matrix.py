@@ -20,9 +20,24 @@ Outputs (regenerate on any tree change; that is the no-drift contract):
 
   * docs/traceability/MODULE_MATRIX.md      the rolled-up top index
   * hdl/<family>/<leaf>/README-tests.md     per spec-family-leaf index
+  * docs/traceability/untested.budget       the coverage ratchet (see below)
+
+A module may declare itself out of scope for the open flows with an
+`Coverage    : ARCHIVED - <reason>` line in its file banner (source 5). That
+turns its row from a lying "untested" into a stated decision carrying its
+reason, and it is the ONLY way a module leaves the untested count without
+gaining a test. The reason lives next to the code so it cannot drift.
+
+COVERAGE RATCHET (`untested.budget`): a plain integer, the largest number of
+UNTESTED rows this tree is allowed to carry. A normal run only ever lowers it
+(coverage improved -> the new floor is recorded); it is never raised
+automatically. `--check` FAILS when the live count exceeds it, so adding an
+RTL module with no testbench and no archive marker breaks the gate instead of
+silently growing the backlog.
 
 Run:  python3 docs/traceability/gen_module_matrix.py [--check]
-      --check exits non-zero if the generated files are stale (for CI).
+      --check exits non-zero if the generated files are stale, or if the
+      UNTESTED count regressed past the ratchet (for CI).
 """
 import os
 import re
@@ -32,6 +47,11 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HDL = os.path.join(ROOT, "hdl")
 TBDIR = os.path.join(ROOT, "tb", "verilator")
 TRACE = os.path.join(ROOT, "docs", "traceability")
+BUDGET = os.path.join(TRACE, "untested.budget")
+
+#: file-banner marker that takes a module out of the untested backlog by
+#: DECISION rather than by test: `Coverage    : ARCHIVED - <reason>`
+ARCHIVE_RE = re.compile(r"^\s*Coverage\s*:\s*ARCHIVED\s*[-:]?\s*(.*)$", re.M)
 
 #: spec family (first path component under hdl/) -> human name + standard
 FAMILY = {
@@ -47,8 +67,28 @@ FUZZ_LEAF = {"aecp": "make aecp", "acmp": "make acmp", "adp": "make adp",
              "avtp": "make aaf", "aaf": "make aaf"}
 
 
+def archive_reason(txt):
+    """First line of an `Coverage: ARCHIVED - ...` banner marker, or None.
+
+    Banner text wraps, so continuation lines (indented, no `Key :` of their
+    own) are folded in until the next banner key or the end of the block.
+    """
+    m = ARCHIVE_RE.search(txt)
+    if not m:
+        return None
+    parts = [m.group(1).strip()]
+    for line in txt[m.end():].splitlines():
+        s = line.strip()
+        if not s or s.startswith("--") or s.startswith("*/"):
+            break
+        if re.match(r"^\w[\w ]*\s:\s", s):      # next banner key
+            break
+        parts.append(s)
+    return " ".join(p for p in parts if p).strip() or "no reason given"
+
+
 def rtl_modules():
-    """[(family, leaf, relpath, module_or_pkg, is_pkg)] for every hdl .sv."""
+    """[(family, leaf, relpath, module_or_pkg, is_pkg, archived)] per hdl .sv."""
     out = []
     for dirpath, _dirs, files in os.walk(HDL):
         for fn in sorted(files):
@@ -60,12 +100,13 @@ def rtl_modules():
             family = parts[0]
             leaf = parts[1] if len(parts) > 2 else parts[0]
             txt = open(path, errors="ignore").read()
+            arch = archive_reason(txt)
             m = re.search(r"^\s*module\s+(\w+)", txt, re.M)
             p = re.search(r"^\s*package\s+(\w+)", txt, re.M)
             if m:
-                out.append((family, leaf, rel, m.group(1), False))
+                out.append((family, leaf, rel, m.group(1), False, arch))
             elif p:
-                out.append((family, leaf, rel, p.group(1), True))
+                out.append((family, leaf, rel, p.group(1), True, arch))
     return out
 
 
@@ -92,9 +133,9 @@ def instantiation_edges(mods):
     or a function call — SV module names here are all specific (KL_*, adp_*,
     ...). Include directives (`include "x.sv"`) are followed too.
     """
-    known = {name for _f, _l, _r, name, is_pkg in mods if not is_pkg}
+    known = {name for _f, _l, _r, name, is_pkg, _a in mods if not is_pkg}
     file_of = {}
-    for _f, _l, rel, name, is_pkg in mods:
+    for _f, _l, rel, name, is_pkg, _a in mods:
         if not is_pkg:
             file_of[name] = rel
     edges = {}
@@ -127,7 +168,7 @@ def coverage(mods, tbi):
                 instantiation graph (compiled + simulated in that TB's design).
     """
     direct = {}
-    for _f, _l, rel, name, is_pkg in mods:
+    for _f, _l, rel, name, is_pkg, _a in mods:
         if is_pkg:
             continue
         tbs = tbi.get(os.path.basename(rel), set())
@@ -174,7 +215,7 @@ def build():
     refs = clause_refs()
     direct, exercised = coverage(mods, tbi)
     rows = []
-    for family, leaf, rel, name, is_pkg in mods:
+    for family, leaf, rel, name, is_pkg, arch in mods:
         base = os.path.basename(rel)
         dtbs = sorted(direct.get(name, set()))
         xtbs = sorted(exercised.get(name, set()) - direct.get(name, set()))
@@ -188,16 +229,18 @@ def build():
             status = "exercised"       # compiled+simulated in a broader TB only
         elif fuzz:
             status = "fuzz"
+        elif arch:
+            status = "archived"        # stated decision, reason in the banner
         else:
             status = "UNTESTED"
         rows.append(dict(family=family, leaf=leaf, rel=rel, name=name,
                          is_pkg=is_pkg, dtbs=dtbs, xtbs=xtbs, fuzz=fuzz,
-                         clauses=cl, status=status))
+                         clauses=cl, status=status, archived=arch))
     return rows
 
 
 STATUS_GLYPH = {"direct": "✅", "exercised": "➰", "fuzz": "🔬",
-                "pkg": "📦", "UNTESTED": "⚪"}
+                "pkg": "📦", "archived": "🗄️", "UNTESTED": "⚪"}
 
 
 def _test_cell(r):
@@ -206,6 +249,8 @@ def _test_cell(r):
         parts.append("➰" + ",".join(r["xtbs"][:3]))
     if r["fuzz"]:
         parts.append("🔬`%s`" % r["fuzz"])
+    if not parts and r["status"] == "archived":
+        return "🗄️ archived"
     return " · ".join(parts) or "—"
 
 
@@ -214,27 +259,45 @@ def render_top(rows):
     exok = sum(1 for r in rows if r["status"] == "exercised")
     fuzz = sum(1 for r in rows if r["fuzz"])
     unt = [r for r in rows if r["status"] == "UNTESTED"]
+    arch = [r for r in rows if r["status"] == "archived"]
     mods = [r for r in rows if not r["is_pkg"]]
     out = ["<!--", "SPDX-FileCopyrightText: 2026 Kebag Logic",
            "SPDX-License-Identifier: CERN-OHL-W-2.0", "-->",
            "# Module ↔ spec ↔ test traceability matrix", "",
            "**GENERATED — do not hand-edit.** `python3 docs/traceability/gen_module_matrix.py`",
-           "(regenerate on any RTL/TB tree change; `--check` gates staleness in CI).",
+           "(regenerate on any RTL/TB tree change; `--check` gates staleness "
+           "**and the untested-count ratchet** in CI).",
            "",
            "Every module in `hdl/` mapped to its spec family, the clause(s) it",
            "appears against in the clause matrices, and the testbench(es) that",
            "compile it. A module with no testbench is an **⚪ UNTESTED** row —",
            "that is the coverage gap this matrix exists to make visible.", "",
+           "The count of ⚪ rows is ratcheted by "
+           "[`untested.budget`](untested.budget): a normal run only ever lowers",
+           "it, and `--check` fails when the live count exceeds it — so a new",
+           "module without a testbench breaks the gate instead of quietly",
+           "growing the backlog. The one escape is a 🗄️ **ARCHIVED** banner",
+           "marker in the module's own file, which states *why* no open-flow",
+           "test is possible and is reproduced verbatim below.", "",
            "Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a "
            "broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package "
-           "· ⚪ not compiled by any TB.", "",
+           "· 🗄️ archived by a stated decision · ⚪ not compiled by any TB.", "",
            "**Totals:** %d modules · %d with a dedicated TB · %d exercised-only · "
-           "%d field-fuzzed · **%d not in any TB**"
-           % (len(mods), direct, exok, fuzz, len(unt)), ""]
+           "%d field-fuzzed · %d archived · **%d not in any TB**"
+           % (len(mods), direct, exok, fuzz, len(arch), len(unt)), ""]
     if unt:
         out += ["## ⚪ Untested modules (the backlog)", ""]
         for r in sorted(unt, key=lambda r: r["rel"]):
             out.append("* `%s` — `%s`" % (r["name"], r["rel"]))
+        out.append("")
+    if arch:
+        out += ["## 🗄️ Archived modules (no open-flow test is possible)", "",
+                "Reason quoted from each module's own file banner — the "
+                "generator reads it there, so it cannot drift from the code.",
+                ""]
+        for r in sorted(arch, key=lambda r: r["rel"]):
+            out.append("* `%s` — `%s`  " % (r["name"], r["rel"]))
+            out.append("  %s" % r["archived"])
         out.append("")
     for fam in ["ieee17221", "ieee1722", "ieee8021q", "ieee8021as", "common", "milan"]:
         frows = [r for r in rows if r["family"] == fam]
@@ -285,6 +348,31 @@ def leaf_files(rows):
     return files
 
 
+BUDGET_HDR = [
+    "# GENERATED by docs/traceability/gen_module_matrix.py - the coverage",
+    "# ratchet: the largest number of UNTESTED modules this tree may carry.",
+    "# A normal run only ever LOWERS it; --check fails when the live count",
+    "# exceeds it. To legitimately retire a row without a test, put a",
+    "# `Coverage    : ARCHIVED - <reason>` marker in the module's own banner.",
+]
+
+
+def read_budget(default):
+    """The committed ratchet value, or `default` when the file is missing."""
+    try:
+        for line in open(BUDGET).read().splitlines():
+            s = line.strip()
+            if s and not s.startswith("#"):
+                return int(s)
+    except (OSError, ValueError):
+        pass
+    return default
+
+
+def write_budget(n):
+    open(BUDGET, "w").write("\n".join(BUDGET_HDR) + "\n%d\n" % n)
+
+
 def main():
     check = "--check" in sys.argv
     rows = build()
@@ -300,17 +388,37 @@ def main():
                 open(path, "w").write(content)
     mods = [r for r in rows if not r["is_pkg"]]
     unt = [r for r in mods if r["status"] == "UNTESTED"]
+    arch = [r for r in mods if r["status"] == "archived"]
+    budget = read_budget(len(unt))
     if check:
+        rc = 0
+        if len(unt) > budget:
+            print("COVERAGE REGRESSION: %d untested modules, ratchet allows %d"
+                  % (len(unt), budget))
+            for r in sorted(unt, key=lambda r: r["rel"]):
+                print("  ⚪ %s — %s" % (r["name"], r["rel"]))
+            print("  give it a testbench, or state the decision with a")
+            print("  `Coverage    : ARCHIVED - <reason>` banner marker.")
+            rc = 1
         if stale:
             print("STALE (run gen_module_matrix.py):")
             for s in stale:
                 print("  " + s)
-            return 1
-        print("traceability matrix up to date (%d modules, %d untested)"
-              % (len(mods), len(unt)))
-        return 0
-    print("wrote %d files · %d modules · %d untested: %s"
-          % (len(artifacts), len(mods), len(unt),
+            rc = 1
+        if rc == 0:
+            print("traceability matrix up to date (%d modules, %d untested "
+                  "<= ratchet %d, %d archived)"
+                  % (len(mods), len(unt), budget, len(arch)))
+        return rc
+    if len(unt) < budget or not os.path.exists(BUDGET):
+        write_budget(len(unt))
+        print("coverage ratchet tightened: %d -> %d untested" % (budget, len(unt)))
+        budget = len(unt)
+    elif len(unt) > budget:
+        print("WARNING: %d untested modules exceeds the ratchet (%d) - "
+              "--check will FAIL" % (len(unt), budget))
+    print("wrote %d files · %d modules · %d archived · %d untested: %s"
+          % (len(artifacts), len(mods), len(arch), len(unt),
              ", ".join(r["name"] for r in unt) or "none"))
     return 0
 
