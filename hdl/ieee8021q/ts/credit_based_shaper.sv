@@ -116,10 +116,12 @@ module credit_based_shaper #(
   //    cnt 51..98   48 divide iterations -> send_slope_per_byte quotient
   //    cnt 99       commit BOTH results atomically, wrap to cnt 0
   //
-  //  Steady-state results are bit-identical to the SystemVerilog '/' operator
-  //  (signed division truncating toward zero, including the 48-bit <<< wrap on
-  //  out-of-range configs): the divider runs magnitude / positive-divisor and
-  //  reapplies the dividend sign. Note (a/b)/c == a/(b*c) exactly for trunc
+  //  Steady-state results are the exact rational quotients ROUNDED TO NEAREST,
+  //  ties away from zero (REQ-CBS-06) - NOT the SystemVerilog '/' operator,
+  //  which truncates toward zero and therefore biased sendSlope toward
+  //  under-debiting. The 48-bit <<< wrap on out-of-range configs is unchanged.
+  //  The divider runs magnitude / positive-divisor and reapplies the dividend
+  //  sign, so the rounding is applied to the magnitude. Note (a/b)/c == a/(b*c) exactly for trunc
   //  division with positive divisors, so the two chained constant divides of
   //  the old RTL collapse into the single CLK_FREQ_HZ*BYTE_TO_BIT divisor.
   //  A config write takes effect at the next commit, at most 2 passes = 200
@@ -174,7 +176,23 @@ module credit_based_shaper #(
   wire        [31:0] eng_trial  = {eng_rem, eng_num[47]};
   wire               eng_ge     = (eng_trial >= {1'b0, eng_den});
   wire        [31:0] eng_diff   = eng_trial - {1'b0, eng_den};
-  wire signed [47:0] eng_quo_s  = eng_sign ? -$signed(eng_quo) : $signed(eng_quo);
+  //! REQ-CBS-06: ROUND-TO-NEAREST instead of truncating toward zero. The
+  //! restoring divider leaves `eng_rem` = the true remainder and `eng_den` =
+  //! the divisor of the divide that just finished, so `2*rem >= den` is exactly
+  //! "the discarded fraction is >= 1/2". Rounding the MAGNITUDE and then
+  //! reapplying the sign gives round-half-away-from-zero, which is unbiased -
+  //! truncation was not: it always shrank |quotient|, so idleSlope accrued
+  //! slightly SLOW (harmless, conservative) while sendSlope - a NEGATIVE term -
+  //! debited slightly LESS than it should (not conservative: the queue keeps
+  //! credit it has spent). With idleSlope runtime-programmable the residual is
+  //! no longer a compile-time-known constant, which is why REQ-CBS-06 waited
+  //! for REQ-CBS-01. Cost: one 32-bit compare and a 48-bit +1, both outside
+  //! the 96 iteration cycles. Overflow-safe: a +1 could only carry out of 48
+  //! bits if the quotient were all ones, which needs den == 1 - and den == 1
+  //! leaves remainder 0, so the round bit is 0.
+  wire               eng_round  = ({eng_rem, 1'b0} >= {1'b0, eng_den});
+  wire        [47:0] eng_quo_r  = eng_quo + {47'd0, eng_round};
+  wire signed [47:0] eng_quo_s  = eng_sign ? -$signed(eng_quo_r) : $signed(eng_quo_r);
 
   //! Slope engine sequencer (see the cadence table above). The iterate arm is
   //! the catch-all: every cnt value that is not sample/load/commit is one of

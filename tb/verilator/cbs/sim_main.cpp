@@ -326,6 +326,79 @@ int main(int argc, char** argv) {
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
+    // ---- REQ-CBS-06: slope fixed-point rounding + measured residual ----
+    // The serial divider used to TRUNCATE toward zero. That is not a symmetric
+    // error: idleSlope (positive) accrued slightly slow, which is harmless, but
+    // sendSlope is NEGATIVE, so truncating its magnitude DOWN debited a
+    // transmitting queue less than the standard says - it kept credit it had
+    // spent. With idleSlope runtime-programmable (REQ-CBS-01) the residual
+    // stopped being a compile-time constant, so the engine now rounds to
+    // nearest (ties away from zero).
+    {
+        long f0 = h.fails;
+        // A config where round and truncate DISAGREE on BOTH quotients, so the
+        // check fails against the pre-2026-07-26 RTL rather than being vacuous:
+        //   idleSlope 1007081 @ 100 MHz: idle_slope_per_cycle trunc 82 -> 83
+        //                                send_slope_per_byte  trunc -65469 -> -65470
+        const int32_t IDLE_R = 1007081;
+        h.do_reset(4);
+        for (int i = 0; i < 400; i++)   // > 2 engine passes so the config commits
+            h.cycle(mk(true, false, false, true, false, 0, true, IDLE_R), "cbs06 warm");
+        int64_t isc = sx48(h.dut->dbg_idle_slope_per_cycle);
+        int64_t ssb = sx48(h.dut->dbg_send_slope_per_byte);
+        h.expect_eq(isc,  83,     "cbs06", "idle_slope_per_cycle rounded (trunc gives 82)");
+        h.expect_eq(ssb, -65470,  "cbs06", "send_slope_per_byte rounded (trunc gives -65469)");
+        // and rounding must be to NEAREST, not "always up": a config whose
+        // fraction is below 1/2 must still land on the truncated value
+        h.do_reset(4);
+        for (int i = 0; i < 400; i++)
+            h.cycle(mk(true, false, false, true, false, 0, true, 1000000), "cbs06 warm2");
+        int64_t isc2 = sx48(h.dut->dbg_idle_slope_per_cycle);
+        //  1000000<<16 / 8e8 = 81.92 -> nearest 82
+        h.expect_eq(isc2, 82, "cbs06", "fraction < 1/2 still rounds down");
+        printf("  [%s] REQ-CBS-06 slope quotients round to nearest (both terms)\n",
+               (h.fails == f0) ? "PASS" : "FAIL");
+    }
+
+    // ---- REQ-CBS-06: harness MEASURES the residual fixed-point error ----
+    // The REQ asks for the number, not just the fix. Free-accrue below the
+    // hiCredit clamp for a long run and report the fixed-point credit's drift
+    // from the exact-rate ideal, in bytes and in ppm of the accrued value.
+    // Two points: a deliberately awkward tiny slope (worst relative case) and a
+    // realistic Class-A-sized one, so the number is interpretable.
+    for (int mi = 0; mi < 2; mi++) {
+        long f0 = h.fails;
+        const int32_t IDLE_M = mi ? 490000000 : 1007081;  // 490 Mb/s frac .8 / 1 Mb/s frac .5+
+        const int     N      = 20000;        // cycles of uninterrupted accrual
+        h.do_reset(4);
+        for (int i = 0; i < 300; i++)        // let the engine commit first
+            h.cycle(mk(true, false, false, true, false, 0, true, IDLE_M, 1 << 20, -(1 << 20)), "cbs06m warm");
+        double err0 = h.max_ideal_err;
+        for (int i = 0; i < N; i++)          // queue has data, not transmitting -> pure accrual
+            h.cycle(mk(true, true, false, true, true, 0, true, IDLE_M, 1 << 20, -(1 << 20)), "cbs06m accrue");
+        // measure the DUT's own credit register, not the model's, so this
+        // number is a hardware measurement and moves when the RTL moves
+        double accrued = (double)sx48(h.dut->dbg_credit) / 65536.0;
+        double ideal   = h.iref.credit_bytes();
+        double drift   = std::fabs(accrued - ideal);
+        double ppm     = (ideal != 0.0) ? (drift / std::fabs(ideal)) * 1e6 : 0.0;
+        printf("  [INFO] REQ-CBS-06 residual over %d free-accrual cycles @ idleSlope %d:\n"
+               "         fixed-point %.6f B, ideal %.6f B, drift %.6f B (%.2f ppm)\n",
+               N, IDLE_M, accrued, ideal, drift, ppm);
+        // the accrual must be non-trivial or the measurement means nothing
+        if (ideal < 1.0) { printf("  [FAIL] cbs06m: accrual too small to measure\n"); h.fails++; }
+        // and rounding must keep the drift inside half an LSB per cycle
+        double bound = (double)N * 0.5 / 65536.0;
+        if (drift > bound) {
+            printf("  [FAIL] cbs06m: drift %.6f B exceeds the half-LSB-per-cycle bound %.6f B\n",
+                   drift, bound);
+            h.fails++;
+        }
+        printf("  [%s] REQ-CBS-06 residual measured and inside the half-LSB/cycle bound\n",
+               (h.fails == f0) ? "PASS" : "FAIL");
+        (void)err0;
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("cycle checks: %ld   mismatches: %ld   max |DUT-ideal|: %.4f bytes\n",
            h.checks, h.fails, h.max_ideal_err);

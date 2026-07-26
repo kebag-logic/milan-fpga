@@ -109,7 +109,10 @@ struct SlopeEngineRef {
         uint64_t ldmag  = (uint64_t)(ldsign ? -ldval : ldval) & M48;
         uint64_t trial  = (rem << 1) | ((num >> 47) & 1);
         bool     ge     = (trial >= den);
-        int64_t  quo_s  = sign ? -(int64_t)quo : (int64_t)quo;
+        // REQ-CBS-06: round the magnitude to nearest (ties away from zero)
+        // using the finished divide's remainder/divisor, then apply the sign.
+        uint64_t quo_r  = (quo + (((rem << 1) >= den) ? 1u : 0u)) & M48;
+        int64_t  quo_s  = sign ? -(int64_t)quo_r : (int64_t)quo_r;
 
         if (cnt == 0) {
             idle_s = (int64_t)idle_slope_i;
@@ -147,15 +150,26 @@ public:
     // PURE steady-state slope values (the SystemVerilog '/' results). The
     // engine converges to exactly these once the config has been stable for
     // two passes; the harness asserts that convergence after long runs.
+    // REQ-CBS-06: the engine now rounds to nearest (ties away from zero), so
+    // the steady-state values are round(numerator/denominator), not the
+    // truncating '/' of the pre-2026-07-26 RTL.
+    static int64_t div_round(int64_t num, int64_t den) {
+        bool neg = (num < 0);
+        uint64_t m = (uint64_t)(neg ? -num : num);
+        uint64_t d = (uint64_t)den;
+        uint64_t q = m / d;
+        if ((m % d) * 2 >= d) q++;
+        return neg ? -(int64_t)q : (int64_t)q;
+    }
     int64_t idle_slope_per_cycle(bool is_1g, int32_t idle_slope) const {
         (void)is_1g;
         int64_t idle = (int64_t)idle_slope;
-        return ((idle << CbsConfig::FP) / cfg.clk_freq_hz) / CbsConfig::BYTE_TO_BIT;
+        return div_round(idle << CbsConfig::FP, cfg.clk_freq_hz * CbsConfig::BYTE_TO_BIT);
     }
     int64_t send_slope_per_byte(bool is_1g, int32_t idle_slope) const {
         int64_t link = is_1g ? 1000000000LL : 100000000LL;
         int64_t send = (int64_t)idle_slope - link;   // negative
-        return (send << CbsConfig::FP) / link;        // constant divisor per branch
+        return div_round(send << CbsConfig::FP, link);
     }
 
     // Engine-committed slope registers (what the credit datapath consumes).
