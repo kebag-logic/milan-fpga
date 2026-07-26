@@ -23,7 +23,14 @@
     - Tested with TDATA_WIDTH = 32, 64, 128.
     - Automatically detects and decodes Ethernet headers.
     - Endianness configurable per instance.
-    - Current Limitation : There should be at least one clock cycle delay incoming packets.
+    - No inter-frame idle beat is required (REQ-CLS-06): the parse state
+      re-arms on EVERY tlast, same-cycle, so a frame whose header completes
+      on its own tlast beat (3 beats at TDATA_WIDTH=64) is followed
+      immediately by a correctly-parsed next frame. The pre-2026-07-05 code
+      only re-armed on a tlast that arrived with header_ready and DID need
+      the idle beat; tb/verilator/classifier drives a zero-idle line-rate
+      burst of such frames and its rotated-model negative fails loudly on
+      that shape.
 ------------------------------------------------------------------------------
 */
 
