@@ -123,8 +123,37 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
 
 1. **M-ACMP-9** — Milan 5.5.1.4/5.5.2.6 saved-state fast-connect: binds do
    not survive reboot (caused the overnight-lapse incident). Roadmap item 9.
-2. **M-CLK-2** — Milan 7.3.3: the CRF stream has no SRP reservation (rides
-   untagged best-effort); needs the 2nd lwSRP listener attribute.
+2. **M-CLK-2** — Milan 7.3.3: the CRF stream is not a class A stream at all.
+   **Scope corrected 2026-07-26 by reading the RTL** — the old wording ("no SRP
+   reservation; needs the 2nd lwSRP listener attribute") named only the third
+   of three gaps and badly undersold the work.
+
+   CRF *is* **fully in fabric** — `KL_crf_tx`, `KL_crf_rx` and
+   `KL_mmcm_drp_servo` are all instantiated in `milan_datapath`, with no
+   software in the generate or consume path. But **being in fabric is not the
+   same as being a reserved, shaped class A stream**, and three things are
+   missing:
+
+   1. **No VLAN tag.** `hdl/ieee1722/crf/KL_crf_tx.sv` contains no `0x8100`, no
+      PCP and no TCI field — it emits a bare 60-byte L2 frame. Without PCP 3 on
+      the SR VID a bridge cannot classify it as class A, and untagged / VID-0 SR
+      traffic floods **unshaped**.
+   2. **Not in the shaped lane.** `crft_tx_tdata` is merged by an
+      `adp_tx_arbiter` into the **control** lane alongside ADP/ACMP/AECP/MAAP/
+      lwSRP and then through the control-lane min-IFG gasket
+      (`milan_datapath.sv` ~2634, whose own comment reads *"the CRF talker's
+      PDUs (6th low-rate source, 500/s untagged)"*). The data/AAF lane bypasses
+      that gasket, so CRF never touches the CBS class A shaped queue and is not
+      credit-shaped.
+   3. **No MSRP/lwSRP declaration** — the reservation itself. This is the only
+      part the previous wording described. The `0x800` window addresses talker
+      idx `< T`, so no row can even be selected for the CRF output today.
+
+   Closing it therefore means tagging the CRF PDU with PCP 3 on the SR VID,
+   routing it through the shaped lane, **and** giving it an attribute row —
+   not just adding a context row. Note the interim compromise is deliberate:
+   an SR-tagged stream that is *unregistered* would be pruned by the bridge,
+   which is why untagged was chosen over half-done tagging.
    **Budget this before building it (costed 2026-07-26).** The CRF Media Clock
    Output is **mandatory** whenever an AAF Media Listener has ≥2 AAF Media
    Inputs (Milan 7.2.3 — `endstation_builder` raises `ConfigError` without it),
