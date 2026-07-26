@@ -5,20 +5,30 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # Module ↔ spec ↔ test traceability matrix
 
 **GENERATED — do not hand-edit.** `python3 docs/traceability/gen_module_matrix.py`
-(regenerate on any RTL/TB tree change; `--check` gates staleness in CI).
+(regenerate on any RTL/TB tree change; `--check` gates staleness **and the untested-count ratchet** in CI).
 
 Every module in `hdl/` mapped to its spec family, the clause(s) it
 appears against in the clause matrices, and the testbench(es) that
 compile it. A module with no testbench is an **⚪ UNTESTED** row —
 that is the coverage gap this matrix exists to make visible.
 
-Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · ⚪ not compiled by any TB.
+The count of ⚪ rows is ratcheted by [`untested.budget`](untested.budget): a normal run only ever lowers
+it, and `--check` fails when the live count exceeds it — so a new
+module without a testbench breaks the gate instead of quietly
+growing the backlog. The one escape is a 🗄️ **ARCHIVED** banner
+marker in the module's own file, which states *why* no open-flow
+test is possible and is reproduced verbatim below.
 
-**Totals:** 77 modules · 74 with a dedicated TB · 0 exercised-only · 43 field-fuzzed · **1 not in any TB**
+Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-## ⚪ Untested modules (the backlog)
+**Totals:** 77 modules · 74 with a dedicated TB · 0 exercised-only · 43 field-fuzzed · 1 archived · **0 not in any TB**
 
-* `milan_top` — `hdl/milan/milan_top.sv`
+## 🗄️ Archived modules (no open-flow test is possible)
+
+Reason quoted from each module's own file banner — the generator reads it there, so it cannot drift from the code.
+
+* `milan_top` — `hdl/milan/milan_top.sv`  
+  no open-flow testbench is possible for THIS file, and
 
 ## IEEE 1722.1 (ATDECC)
 
@@ -143,5 +153,5 @@ _datapath + top wrappers_
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3 |
-| ⚪ `milan_top` | `milan/milan_top.sv` | — | — |
+| 🗄️ `milan_top` | `milan/milan_top.sv` | 🗄️ archived | — |
 

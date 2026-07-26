@@ -31,6 +31,25 @@
                 events (TX-timestamp-ready, link-change, RMON-rollover) flow back
                 into milan_csr and out to the PS interrupt.
 
+  Coverage    : ARCHIVED - no open-flow testbench is possible for THIS file, and
+                the two things that make it different from milan_datapath are
+                exactly the two that cannot be elaborated here:
+                  * milan_dma_wrapper.v is a Vivado block-design netlist wrapper
+                    (Zynq-7020 PS7 + AXI SmartConnect + DMA IP, generated from
+                    bd/milan-dma.tcl) - PS7 is a hard macro, not RTL;
+                  * eth_mac_1g_rgmii_fifo is the verilog-ethernet MAC, an
+                    EXTERNAL source that is not vendored in this repo (only
+                    verilog-axis is).
+                A "smoke TB" here could therefore only drive stubs of both, i.e.
+                it would assert nothing this file is responsible for while
+                reporting a green row - worse than an honest gap. Every TSN
+                block instantiated below is the same RTL the PS-less §A.9
+                assembly instantiates and is covered there (tb/verilator/
+                milan_dp, hostplane, csr, cls, cbs, ptp*, rx_filter, adp*,
+                avtp_parser, ...). Recorded in docs/testing/TESTING.md "Known
+                gaps"; the matrix generator reads this marker so the row states
+                the decision instead of claiming an untested module.
+
   Company     : Kebag Logic
   Project     : Milan FPGA Platform
 ------------------------------------------------------------------------------
