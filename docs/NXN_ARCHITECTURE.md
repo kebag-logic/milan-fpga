@@ -499,11 +499,14 @@ shape** (§4 T6). Levers, in order, if a shape refuses to close:
 1. **L2 32 KB** (standing USER authorization when space-bound; already in
    the 8x8 config, applicable to 4x4 too: −8 BRAM + placement relief; note
    the perf delta per the authorization's terms).
-2. `crf_rx` ts-history ring 256×64 b → BRAM (today ~8.4 k FF in that
-   module; −FF and placement relief, ≈ +1 BRAM).
+2. `crf_rx` ts-history ring 256×64 b → BRAM — **SPENT 2026-07-25**: the flop
+   file became a 256×32 single-port `READ_FIRST` BRAM ring (bit-exact deltas),
+   measured OOC **−3 177 LUT / −8 159 FF / +1 RAMB18**. It was the exact
+   placer-overflow victim of the first 8×8+chmap build.
 3. Compile-time `N_RENDER=1` pruning already assumed (LPF + playback walker
    x1); further: compile out DMA-ring writers for shapes that don't enable
-   ALSA capture yet.
+   ALSA capture yet. **Measured (2026-07-26) — see §6.2 before spending
+   this one: the LPF is a 428-LUT prize, 20× smaller than levers 1–2.**
 4. Area-70 playbook trims (sequentialize any remaining parallel cones —
    T5's pattern; `tx_sf` 512 lever from the AX seed-miss round).
 5. If 8x8-ax still refuses: ship 8x8 with the 4x4 gateware config on AX
@@ -559,3 +562,38 @@ The 8x8 shape is no longer design-only — it elaborates and sim-scales:
   - if it still refuses to close, levers 2–5 apply, ending in the
     config-selectable-N fallback (ship the 4x4 gateware on AX, keep 8x8
     as the sweep target — the architecture is unchanged).
+
+### 6.2 Lever 3 priced: is removing the render LPF worth it? (2026-07-26)
+
+Asked directly, answered with the place report of the **shipping 8x8
+bitstream** (`utilization_hierarchical_place.rpt`, Vivado 2026.1,
+xc7a100t-2, postPlace):
+
+| item | LUTs | FFs | BRAM | DSP |
+|---|---|---|---|---|
+| `KL_pcm_lpf` (whole instance) | **428** (all logic, no LUTRAM/SRL) | 756 | 0 | 0 |
+| design total | 53 727 (**84.74 %** of 63 400) | 50 829 (40.09 %) | 85.5 tiles (63.33 %) | 43 |
+
+So the LPF is **0.8 % of the used LUTs** — in a design placed at
+**99.93 % slice occupancy** (15 839 / 15 850 slices), which is the real
+pressure: slices, not LUT count. Compare the ranked levers of §6:
+sequentializing a parallel cone bought **≈ 8 000 LUTs** (the area-70
+CBS slope engine), and lever 2 moved **8 159 FFs + 3 177 LUTs** out of
+`crf_rx` for one BRAM. The LPF is a **20× smaller prize**.
+
+Scope matters as much as size. `KL_pcm_lpf` sits on the **render path
+only** (`milan_datapath` → I2S DAC). Every digital acceptance surface —
+the PCM DMA ring, ALSA capture, the channel-map walk evidence, the wire
+tone comparison — is taken *upstream* of it, so removing it changes no
+measurement in this repo's evidence trail. It is also **already
+runtime-bypassable** (`LPF_CTRL 0x72C[0]` → `cfg_lpf_enable`, default on),
+so nothing is blocked by its presence today.
+
+**Verdict: do not remove it, bank it.** The −72.7 dB analog loop record
+was measured *through* this filter, so deleting it is a behaviour change
+with a re-measurement cost, for 0.8 % of the LUTs. The right form is an
+**elaboration-time prune parameter** (`LPF_P = 0` → tie the bypass and
+let synthesis drop the instance) added when a shape is genuinely
+space-bound: a banked headroom lever with zero cost until it is pulled,
+spent only *after* levers 1–2, and never as a first response to a
+placement failure.

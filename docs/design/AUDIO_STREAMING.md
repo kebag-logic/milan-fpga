@@ -367,6 +367,20 @@ latency. The §1 pacing chronogram draws exactly this: the accept lands
 well before the presentation instant, and `ts_delta` is the remaining
 margin.
 
+**Where the talker half of that pipeline goes (measured per stage,
+2026-07-26, AX7101 `VERSION 0x0001_000B`, 100 MHz datapath):** capture →
+first packetizer beat is **≤ 125.04 µs** (the 6-sample accumulation
+window at 48 kHz), the packetizer itself is a **constant 110 ns**, and
+last beat → MAC egress is **≤ 125.29 µs** (one class-A observation
+interval waiting for the shaper slot) — 0 timeouts over 65 k+ frames.
+Worst-case fabric TX is therefore **≈ 250 µs** as an envelope bound,
+while the live `ts_delta`-derived figure above (≈ 116 µs) is the typical
+case; the two are consistent because the two dominant terms are windows
+a frame lands *somewhere inside*, not queues it must drain. Neither term
+shrinks with a faster clock — they are protocol structure (samples per
+frame, class interval). Full per-stage numbers and the reading rules:
+[`AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md).
+
 Where those numbers come from:
 
 - [`AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md) — the authoritative
