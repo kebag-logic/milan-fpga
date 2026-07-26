@@ -93,7 +93,15 @@ module KL_stream_table #(
     else if (wr_en_i && (32'(wr_idx_i) < N_LISTENERS_P)) begin
       ovr_sid_r[wr_idx_i]   <= wr_sid_i;
       ovr_en_r[wr_idx_i]    <= wr_valid_i;
-      ovr_armed_r[wr_idx_i] <= 1'b1;
+      //! RELEASE-TO-ALIAS: an eviction (valid=0) that carries the zero sid
+      //! DISARMS the override instead of arming it, so entry 0 can return to
+      //! the ACMP alias at runtime. Without this, `ovr_armed_r[0]` was set by
+      //! any write and cleared only by reset: one stray window CTRL write
+      //! detached the alias for good and every later CONNECT_RX bound but
+      //! never matched. Inert for idx>0 (tbl_mux only consults ovr_armed for
+      //! entry 0) and for every arming write, so the deployed provisioning
+      //! sequence is unchanged.
+      ovr_armed_r[wr_idx_i] <= !(!wr_valid_i && (wr_sid_i == 64'd0));
     end
   end : tbl_write
 

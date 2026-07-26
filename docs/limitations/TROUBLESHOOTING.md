@@ -562,7 +562,39 @@ out of any binary, so the image that actually boots is the image that gets check
 - Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
   driver ↔ gateware pairing - gate it mechanically, don't trust discipline.
 
-## Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (OPEN)
+## Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED, fix in `VERSION 0x000F`, silicon confirmation pending)
+
+> **ROOT CAUSE FOUND 2026-07-26 — reproduced in simulation, fixed in RTL, not yet
+> confirmed on silicon.** The verdict does not die in the *parse*; it dies in the
+> stream **table** that tells the parser what to match. Two RTL layers combined:
+>
+> 1. `hdl/milan/milan_datapath.sv` `win_commit_glue` staged the window's
+>    `SID_LO`/`SID_HI` in **one global register pair shared by every index**. Its
+>    commit guard asked *"is some sid staged?"*, never *"was a sid staged for THIS
+>    index?"* — so a route-flags-only `CTRL` write at idx 0 armed entry 0 with
+>    **whatever other listener staged a sid earlier**. A second term
+>    (`| ~csr_lctx_wr_data_w[0]`) let an `en=0` write through unconditionally.
+> 2. `hdl/ieee1722/avtp/KL_stream_table.sv` set `ovr_armed_r[idx]` on **any** write
+>    and cleared it **only on reset**. Once idx 0 was armed, entry 0 permanently
+>    stopped aliasing the ACMP bound record — **there was no runtime path back**.
+>
+> Net effect: one stray window `CTRL` write at index 0 detaches the ACMP alias for
+> good, so every later `CONNECT_RX` binds cleanly and changes nothing — exactly the
+> **PARSED climbs / MATCHED static / listener reports bound** signature below. It
+> also explains why reaching `RSV_OK` changed nothing, and it supplies the missing
+> *reason* behind the 2026-07-23 operational rule "stage SID before CTRL".
+>
+> **Fix (`VERSION 0x0001_000F`):** staging is tagged with the index it was staged
+> for, and `{en=0, sid=0}` became **RELEASE-TO-ALIAS**, disarming the override so
+> entry 0 returns to the ACMP record at runtime. Regression guards:
+> `tb/verilator/milan_dp/sim_nxn.cpp` TRAP-1 (N=4 and N=8, through the real CSR
+> window) and `tb/verilator/avtp_parser/sim_tbl.cpp` T6 (table level, from reset),
+> both including negative legs.
+>
+> **Still to do on silicon:** the reads below remain the confirmation instrument.
+> On the *currently flashed* `0x000B` the bug is present, so the workaround is to
+> **explicitly stage the correct sid at idx 0 and commit** — proven to recover the
+> match in sim. Record the numbers either way.
 
 **Symptom (2026-07-26, 8x8 AX gateware `VERSION 0x0001_000B`).** A controller binds the
 board's listener 0 to the peer board's talker 0. Every control-plane indication is healthy:

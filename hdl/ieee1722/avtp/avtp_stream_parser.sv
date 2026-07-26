@@ -56,7 +56,10 @@ import avtp_subtype_pkg::*;
 module avtp_stream_parser #(
   parameter int TDATA_WIDTH = 64,     //! AXIS data width
   parameter bit BIG_ENDIAN  = 0,      //! 0 = LE beats (datapath default)
-  parameter int N_STREAMS   = 8       //! programmable stream-match table depth
+  parameter int N_STREAMS   = 8,      //! programmable stream-match table depth
+  //! match-index width; $clog2(1) = 0 would make the port an illegal
+  //! ascending [-1:0] range, so N_STREAMS = 1 floors at one bit
+  localparam int IDXW_P     = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS)
 )(
   input  wire clk,                    //! clock
   input  wire resetn,                 //! synchronous active-low reset
@@ -74,7 +77,7 @@ module avtp_stream_parser #(
 
   //! --- extracted per-frame metadata (one-cycle pulse on match) ---
   output logic                      match_valid_o,   //! matched AVTP stream frame
-  output logic [$clog2(N_STREAMS)-1:0] match_index_o,//! matched table entry
+  output logic [IDXW_P-1:0]         match_index_o,   //! matched table entry
   output logic [63:0]               stream_id_o,     //! parsed stream_id
   output logic [31:0]               avtp_ts_o,       //! presentation time
   output logic [7:0]                subtype_o,       //! AVTP subtype
@@ -101,7 +104,7 @@ module avtp_stream_parser #(
                                                   // o+31 = 49
   localparam int HDRW       = HDR_BYTES * 8;
   localparam int BPW        = TDATA_WIDTH / 8;     // bytes per beat
-  localparam int IDXW       = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
+  localparam int IDXW       = IDXW_P;
 
   //! input pipeline stage (2026-07-21): the RX-CDC FIFO's BRAM dout fed
   //! this parser's shift/capture cones directly - BRAM Tco + the widened
