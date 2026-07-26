@@ -332,7 +332,24 @@ In parallel, `KL_chan_map_render` clones the depacketizer payload
 stream and keeps a latest-sample latch of all 64 (stream, wire-channel)
 values, rendering any of them onto 10 physical output channels (I2S L/R
 + TDM8 lane 0) through its map RAM; `KL_tdm_render` serializes the TDM8
-output frame (module headers).
+output frame (module headers). Since item-7 it keeps a **second**
+latest-sample latch over `KL_pcm_tx`'s pair bus, so a map entry with
+`SRC = PCM_TX` renders the **host playback ring** onto a physical
+output - the only route from an ALSA playback ring to the line-out that
+does not go out on the wire and back.
+
+Which of the two sources reaches the DAC, and at what rate, is
+`KL_i2s_feed_mux` (`CHMAP_CTRL[0]`): 0 = the listener render tap
+passed through bit- and cycle-identically (LPF override included), 1 =
+the crossbar's phys{0,1} pair on the **48 kHz media tick**, with the
+LPF masked because it belongs to the listener tap it filters. The pace
+has to move with the source: the listener feed's strobe is an inbound
+depacketizer beat and its stride is the listener's channel count, so a
+crossbar output clocked by it does not advance at all without an
+inbound stream, and gets its L/R swapped whenever an unrelated
+listener reports an odd channel count. `PBK_STAT`/`PBK_FEEDS`/
+`PBK_RAILS` (`0x8C8`, [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md))
+read the chain end to end.
 
 The rendering rule throughout is **wire truth**: de-interleave stride
 and channel count follow `channels_per_frame` *from the wire* (the
@@ -428,15 +445,23 @@ Honest state of this subsystem, with evidence:
   board→board→PipeWire→board loop at −72.7 dB THD+N
   ([`SYSTEMS_ENGINEER_GUIDE.md`](../SYSTEMS_ENGINEER_GUIDE.md) §0,
   measured 2026-07-24/25).
-- **Playback path (`KL_pcm_tx`): integrated in gateware, end-to-end
-  proof pending.** The module is TB-proven (27/27,
-  `tb/verilator/pcm_tx`, per
+- **Playback path (`KL_pcm_tx`): the fabric chain is now continuous and
+  TB-proven end to end; SILICON proof still pending.** The engine has
+  its own harness (27/27, `tb/verilator/pcm_tx`, per
   [`testing/BEHAVE_TEST_PLAN.md`](../testing/BEHAVE_TEST_PLAN.md)) and
   the SoC integration is in-tree behind `--aaf-playback`
   (`milan_datapath.sv` `g_aaf_playback` + the `pb_*` CSR block and
-  word-fetch bridge in `milan_soc.py`); the roadmap line in the guide
-  records item 7 as "record proven on silicon, playback … integrated in
-  gateware with the end-to-end proof pending".
+  word-fetch bridge in `milan_soc.py`). Until 2026-07-26 the ring
+  reached only the **talker** (packetizer pair port); it had no path to
+  the local DAC at all, because the render crossbar had no playback
+  source and the DAC feed was strobed by inbound listener traffic.
+  `tb/verilator/pcm_playback` now drives host-ring words in and decodes
+  the serialized DAC output back with a spec-derived I2S receiver: 40/40
+  checks, 41 consecutive ring words replayed bit-exactly on the pin with
+  the listener side completely silent, plus the ring under-run /
+  over-run / disarmed-map / mid-stream-channel-count negatives. What is
+  NOT proven is anything past the RTL: no board has been flashed with
+  this gateware and no ALSA sink drives it yet.
 - **The DRAM-ring artifact and the BRAM option.**
   [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §2 records
   two silicon failure classes on the DRAM ring path: the real-time
