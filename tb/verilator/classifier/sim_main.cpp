@@ -127,6 +127,41 @@ static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, con
     }
 }
 
+
+// Drive `frames` at LINE RATE (s_tvalid never deasserts between frames, m_tready
+// pinned high) and return the per-frame tdest actually observed on the FIRST
+// beat of each output frame. Used by the REQ-CLS-06 checks, which need the raw
+// vector so the harness can also prove its own comparison has teeth.
+static std::vector<int> collect_dest_line_rate(const std::vector<std::vector<Beat>>& frames) {
+    std::vector<int> per_frame;
+    size_t fi = 0, bi = 0, nbeats = 0;
+    for (auto& f : frames) nbeats += f.size();
+    size_t seen = 0;
+    bool first_of_frame = true;
+    dut->m_tready = 1;
+    for (int c = 0; c < 60000 && seen < nbeats; c++) {
+        bool have_in = (fi < frames.size());
+        if (have_in) {
+            const Beat& b = frames[fi][bi];
+            dut->s_tdata = b.data; dut->s_tkeep = b.keep;
+            dut->s_tlast = b.last; dut->s_tvalid = 1;    // NEVER deasserted mid-burst
+        } else {
+            dut->s_tvalid = 0;
+        }
+        lo();
+        if (dut->m_tvalid) {
+            if (first_of_frame) { per_frame.push_back(dut->m_tdest); first_of_frame = false; }
+            seen++;
+            if (dut->m_tlast) first_of_frame = true;
+        }
+        bool in_acc = have_in && dut->s_tvalid && dut->s_tready;
+        hi();
+        if (in_acc) { if (++bi >= frames[fi].size()) { bi = 0; fi++; } }
+    }
+    dut->s_tvalid = 0;
+    return per_frame;
+}
+
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     dut = new Vclassifier_wrap;
@@ -314,6 +349,65 @@ int main(int argc, char** argv) {
             std::vector<int> unexp  = { 0, 0, 1, 0 };
             run_frames(un, /*bp=*/0, "cls05 untagged DEI=0 (negative)", &undest, &unexp);
         }
+    }
+
+    // ---- REQ-CLS-06: back-to-back parsing at line rate ----
+    // The header FSM must re-arm on tlast SAME-CYCLE: no inter-frame idle beat
+    // exists at line rate, and the 18-byte header spans 3 of the 64-bit beats,
+    // so a 3-beat frame completes its header ON its tlast beat - the tightest
+    // re-arm case there is. (The module's original note claimed "there should
+    // be at least one clock cycle delay incoming packets"; the 2026-07-05
+    // sideband redesign removed that constraint, this pins it.)
+    {
+        std::vector<std::vector<Beat>> burst;
+        std::vector<int> exp;
+        auto mkgptp_min = [](int nbeats) {          // untagged 0x88F7, reserved DMAC
+            std::vector<uint8_t> f(nbeats * 8, 0x00);
+            const uint8_t hdr[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
+            for (int i = 0; i < 14; i++) f[i] = hdr[i];
+            std::vector<Beat> fr;
+            for (int b = 0; b < nbeats; b++) {
+                uint64_t d = 0;
+                for (int k = 0; k < 8; k++) d |= (uint64_t)f[b * 8 + k] << (8 * k);
+                fr.push_back({ d, (uint8_t)(b == nbeats - 1 ? 0x0F : 0xFF), b == nbeats - 1 });
+            }
+            return fr;
+        };
+        // 3-beat frames dominate: header completes exactly on tlast
+        for (int r = 0; r < 6; r++) {
+            burst.push_back(mkhdr(true, 6, 3));  exp.push_back(expq(true, 6));   // SR-ish
+            burst.push_back(mkhdr(false, 0, 3)); exp.push_back(expq(false, 0));  // best effort
+            burst.push_back(mkgptp_min(3));      exp.push_back(1);               // gPTP
+            burst.push_back(mkhdr(true, 2, 4));  exp.push_back(expq(true, 2));
+            burst.push_back(mkhdr(true, 6, 3));  exp.push_back(expq(true, 6));
+            burst.push_back(mkgptp_min(4));      exp.push_back(1);
+        }
+        std::vector<int> got = collect_dest_line_rate(burst);
+        ck("cls06: line-rate frame count", (long)got.size(), (long)exp.size());
+        bool ok = got.size() == exp.size();
+        for (size_t i = 0; ok && i < got.size(); i++)
+            if (got[i] != exp[i]) {
+                printf("  [FAIL] cls06 frame %zu: tdest=%d expect %d\n", i, got[i], exp[i]);
+                ok = false;
+            }
+        ck("cls06: zero-idle burst classifies every frame correctly", ok ? 1 : 0, 1);
+
+        // NEGATIVE / teeth: a classifier that reports the PREVIOUS frame's class
+        // (the pre-2026-07-05 failure mode, and exactly what a missing tlast
+        // re-arm produces) would match this ROTATED expectation. It must not.
+        if (got.size() == exp.size() && got.size() > 1) {
+            bool rot_match = true;
+            for (size_t i = 1; i < got.size(); i++) if (got[i] != exp[i - 1]) rot_match = false;
+            ck("cls06: NOT stale-by-one-frame (rotated model must mismatch)",
+               rot_match ? 1 : 0, 0);
+            // and the expectation vector must actually vary, or the above is vacuous
+            bool varies = false;
+            for (size_t i = 1; i < exp.size(); i++) if (exp[i] != exp[0]) varies = true;
+            ck("cls06: burst spans multiple queues (negative is not vacuous)", varies ? 1 : 0, 1);
+        }
+
+        // and the same burst still passes the full integrity model
+        run_frames(burst, /*bp=*/0, "cls06 zero-idle burst", &exp);
     }
 
     printf("--------------------------------------------------------------\n");

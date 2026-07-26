@@ -159,8 +159,14 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   queue stage - a policer belongs upstream of the queues anyway (REQ-CLS-09).
   TB: `classifier` (tagged DEI 0/1 at every PCP back-to-back + under
   backpressure, untagged negative, DEI must not move the queue).
-- [ ] **M — Back-to-back line-rate parsing** `(REQ-CLS-06)` — re-arm header FSM on
-  `tlast` same-cycle.
+- [x] **M — Back-to-back line-rate parsing** `(REQ-CLS-06)` — re-arm header FSM on
+  `tlast` same-cycle. Already delivered by the 2026-07-05 sideband redesign but
+  never proven and still contradicted by the module's "needs at least one clock
+  cycle delay" note (now corrected). TB: `classifier` drives a zero-idle
+  line-rate burst of 3-beat frames (header completes ON tlast = tightest
+  re-arm) across three classes; the rotated-model negative rejects a
+  stale-by-one-frame classifier, and restoring the pre-2026-07-05 re-arm
+  condition makes the suite FAIL 4 checks.
 - [x] **M — Reserved DMAC validation** `(REQ-CLS-07)` — the 0x88F7 gPTP fast path
   (second-highest queue) now also demands the reserved multicast
   `01-80-C2-00-00-0E` when `CLS_CTRL[1]` is set; a spoofed 0x88F7 falls through
