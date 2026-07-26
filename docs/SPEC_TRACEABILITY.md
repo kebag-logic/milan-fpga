@@ -125,6 +125,29 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
    not survive reboot (caused the overnight-lapse incident). Roadmap item 9.
 2. **M-CLK-2** — Milan 7.3.3: the CRF stream has no SRP reservation (rides
    untagged best-effort); needs the 2nd lwSRP listener attribute.
+   **Budget this before building it (costed 2026-07-26).** The CRF Media Clock
+   Output is **mandatory** whenever an AAF Media Listener has ≥2 AAF Media
+   Inputs (Milan 7.2.3 — `endstation_builder` raises `ConfigError` without it),
+   and it **must be SR class A**. `SRP_SR_CLASSES` therefore defines class A
+   only; class B is not a permitted escape and the builder refuses it.
+   The consequence is a **structural ~11.4× over-provision**, not an
+   arithmetic bug:
+
+   | | |
+   |---|---|
+   | CRF on the wire | **one PDU every 2 ms** = 500 PDU/s × 84 B = **0.336 Mb/s**. The rate is `base_frequency / (timestamp_interval × timestamps_per_pdu)` = `48000 / (96 × 1)` = 500 Hz, from the Milan 7.3.2 format word `0x041060010000BB80`; the frame is 60 B L2 (`KL_crf_tx` `FRAME_BYTES` = 14 eth + 28 CRF PDU + 18 pad) |
+   | Class-A reservation | MaxFrameSize 18, MaxIntervalFrames **1** → **3.840 Mb/s** |
+   | Cost | **5.12%** of the 75 Mb/s class-A budget, for 0.45% of it in traffic |
+
+   The whole discrepancy is one ratio: class A's classMeasurementInterval is
+   **125 µs**, and CRF sends every **2 ms** — so **2 ms / 125 µs = 16
+   intervals per PDU**. `MaxIntervalFrames` is an integer count *per interval*
+   and a TSpec cannot express a fraction, so **1** is the floor and the
+   reservation buys 8000 frames/s of slot for a 500 frame/s stream. On the 100 Mb Arty this
+   moves class-A utilisation from 55.30% to **60.42%** — real headroom that must
+   be planned for, and only visible since the `is_1g` fix (`REQ-MAC-03`) stopped
+   the 100 Mb board admitting against a 750 Mb/s budget. On the gigabit AX it is
+   0.51 points. Do not "optimise" this by weakening the class.
 3. **CRF-8 / M-CLK-3** — 1722 10.6/10.8 + Milan 7.2.2: clock-recovery
    actuator absent (MMCM-DRP servo); measurement half is done. Roadmap 5.
 4. **M-AECP-9 / M-CLK-5** — Milan 5.4.4.4/5.4.4.5 + 7.6:
