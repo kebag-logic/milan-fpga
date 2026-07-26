@@ -370,25 +370,58 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 ## Phase 10 — Persistent user storage (added 2026-07-25)
 
-- [ ] **H — 2 MiB `/user` folder overlay for persistent data** *(new REQ candidate)*.
-  Carve a 2 MiB QSPI slot as an mtd partition and mount it writable over the
-  initramfs (overlay at `/user`; wear-aware NOR filesystem, jffs2 first), so
-  runtime state survives reboots: the saved-state fast-connect journal,
-  entity/group names, channel maps, ALSA/mixer state.
+Design record for everything below:
+[`docs/design/SAVED_STATE_FASTCONNECT.md`](docs/design/SAVED_STATE_FASTCONNECT.md)
+(record format §4, QSPI slot map §5, torn-write contract §6, boot replay §7, CSR
+ingest ABI §8, bench recipe §11).
+
+- [x] **H1 — journal record format + fabric replay path** *(2026-07-26)*.
+  `KLJ1` v1: 6-word header (magic / format version / `SEQ` / shape / owning
+  `entity_id`) + N 6-word records that ARE the six E1 register writes
+  (`0x7A0-0x7B4`) + a `zlib.crc32` trailer. New
+  [`hdl/ieee17221/aecp/KL_persist_journal.sv`](hdl/ieee17221/aecp/KL_persist_journal.sv)
+  verifies the WHOLE image before issuing a single bind-restore, so a torn slot
+  is rejected rather than half-applied. Gated by `tb/verilator/persist`
+  (96 checks: golden format, every rejection class with **zero** restores, the
+  5.5.3.5.2 entry record, a restored sink driven to SETTLED with no controller,
+  A/B fall-back, `SEQ` monotonicity); yosys 44/44.
+- [ ] **H2 — wire the ingest group into the CSR plane**. Add `0x7B8-0x7C4`
+  (`JNL_CTRL`/`JNL_DATA`/`JNL_STAT`/`JNL_SEQ`) to `hdl/common/csr/milan_csr.sv`
+  and instance `KL_persist_journal` in `milan_datapath`, including the `rest_*`
+  arbiter between the journal master and the manual `0x7B4` commit path. The
+  decode is already written and gated as an executable spec in
+  `tb/verilator/persist/persist_wrap.sv`. Needs a `VERSION` bump.
+- [ ] **H3 — 2 MiB `/user` overlay + 128 KiB raw journal slot** *(new REQ candidate)*.
+  Carve the QSPI slots as mtd partitions and mount `/user` writable over the
+  initramfs (wear-aware NOR filesystem, jffs2 first), so runtime state survives
+  reboots: entity/group names, channel maps, ALSA/mixer state. The
+  fast-connect journal gets its **own raw 128 KiB partition** (2 × 64 KiB erase
+  blocks = slot A / slot B) rather than a file, so "a torn write cannot damage
+  the other slot" is flash geometry rather than a filesystem promise, and so it
+  is readable before any mount.
   - **Layout**: `FLASHBOOT_LAYOUT`/`FLASHBOOT_MANIFESTS` in `sw/litex/milan_soc.py`
-    are the single source of truth — the slot is added there, never by hand.
-    Budget today: the AX rootfs slot (9.75 MiB) has ~4 MiB slack — a 2 MiB slot
-    fits; the ARTY rootfs slot has **~15 KB headroom** — ARTY needs a relayout
-    or rootfs slimming first.
+    are the single source of truth — the slots are added there, never by hand.
+    Budget today (from the code, not the old estimate in this row): the AX
+    rootfs slot is **8.5 MiB with 5.6 MiB used**, so shrinking it to 6.375 MiB
+    frees `0xDE_0000` for the journal and `0xE0_0000` for `/user`. The ARTY
+    rootfs slot has **~15 KB headroom** — ARTY gets neither slot until its
+    rootfs is slimmed, and degrades gracefully (no partition → no replay →
+    boots unbound).
   - **Kernel side**: mtd partition node in the DT (regenerate the DTB from the
     build's `csr.csv` on any layout change — the CSR-rot rule) + SPI-NOR/mtd
-    support over the LiteSPI controller in the kernel config.
-  - **Boot side**: an early S-script mounts `/user` before `S50milan`/`S51`;
-    migrate today's persist paths (the fast-connect journal write) onto it;
-    `build.sh flash` / `deploy.sh flash-images` must never erase the user slot
-    on a reflash.
-  - **Gate**: reboot drill — write a marker file + a saved bind, power-cycle,
-    the marker survives and fast-connect restores with no controller.
+    support over the LiteSPI controller in the kernel config. **Nothing exists
+    today** — there is no `mtd`/`spi-nor`/`jffs2` node anywhere in `sw/dts`.
+    Reads alone unblock the restore half (the flash is memory-mapped), so the
+    read path can be proven before the writable mtd path exists.
+  - **Boot side**: an early S-script mounts `/user` before `S50milan`/`S51` and
+    replays the journal BEFORE the media stack (a sink the local software has
+    already bound refuses the restore, correctly, per 5.5.1.2);
+    `build.sh flash` / `deploy.sh flash-images` must never erase the journal or
+    user slots on a reflash.
+  - **Gate**: reboot drill — write a marker file + a saved bind, power-cycle **at
+    the wall**, the marker survives and fast-connect restores with no
+    controller. Then the torn-write drill: cut power *during* a journal write
+    ~10 times; every boot must come up on one intact slot, never half-applied.
 
 ---
 
