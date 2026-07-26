@@ -90,12 +90,12 @@ the tsn-gen wire-layout caveat and the tracked gaps: [`tb/verilator/tsn_fuzz/REA
 | `tb/verilator/cbs` | run `make` in the dir |
 | `tb/verilator/cdc` | run `make` in the dir |
 | `tb/verilator/chmap_capture` | PASS (07-25) |
-| `tb/verilator/chmap_render` | 58/0 (07-25) |
+| `tb/verilator/chmap_render` | 76/0 (07-26, +playback-source leg) |
 | `tb/verilator/classifier` | run `make` in the dir |
 | `tb/verilator/cls` | run `make` in the dir |
 | `tb/verilator/controller_rate` | run `make` in the dir |
 | `tb/verilator/crf_tx` | run `make` in the dir |
-| `tb/verilator/csr` | 206+58+28 PASS (07-25 merge tip) |
+| `tb/verilator/csr` | 219+58+28 PASS (07-26) |
 | `tb/verilator/datapath` | run `make` in the dir |
 | `tb/verilator/eth_tx_reset` | run `make` in the dir |
 | `tb/verilator/hostplane` | KNOWN-FAIL on main until rtl-hostplane-fix merges (07-25) — see the suite README (host-plane lanes in the silicon shape) |
@@ -112,6 +112,7 @@ the tsn-gen wire-layout caveat and the tracked gaps: [`tb/verilator/tsn_fuzz/REA
 | `tb/verilator/milan_dp` | 70/0 + 82/0 (07-25 merge tip) |
 | `tb/verilator/mmcm_servo` | run `make` in the dir |
 | `tb/verilator/mmcm_servo_autorepair` | run `make` in the dir |
+| `tb/verilator/pcm_playback` | 40/0 (07-26) — item-7 host ring -> `KL_pcm_tx` -> render crossbar -> `KL_i2s_feed_mux` -> DAC pin, bit-exact + the under-run / over-run / disarmed-map / channel-count negatives |
 | `tb/verilator/pcm_ring_bram` | run `make` in the dir |
 | `tb/verilator/pcm_tx` | run `make` in the dir |
 | `tb/verilator/pcmlpf` | run `make` in the dir |

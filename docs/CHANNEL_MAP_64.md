@@ -186,14 +186,17 @@ and one explicit sync read port.
 ```
 [15]    EN      entry enabled. 0 = render: silence / capture: slot not emitted
 [14:12] SRC     source class
-                  render side : 0 = AVTP_RX   (only legal value; 1-7 reserved)
+                  render side : 0 = AVTP_RX, 1 = PCM_TX (host playback
+                                ring, roadmap item-7); 2-7 reserved
                   capture side: 0 = ZERO, 1 = I2S_IN, 2 = TDM8_IN,
                                 3 = PCM_TX, 4 = TONE, 5-7 reserved
 [11:8]  rsvd    write 0, read 0
-[7:4]   IDX_HI  render : RX stream index s (0-7)
+[7:4]   IDX_HI  render : AVTP_RX: RX stream index s (0-7)
+                         PCM_TX : high half of the LINEAR playback channel
                 capture: source stream/lane — PCM_TX: talker stream t (0-7);
                          TDM8_IN: lane (0 in phase 1); I2S_IN/TONE/ZERO: 0
-[3:0]   IDX_LO  render : wire channel c (0-7)
+[3:0]   IDX_LO  render : AVTP_RX: wire channel c (0-7)
+                         PCM_TX : low half of the LINEAR playback channel
                 capture: source pair index — TDM8_IN: 0-3; PCM_TX:
                          pair-within-stream 0-3; I2S_IN/TONE/ZERO: 0
 ```
@@ -203,6 +206,16 @@ EN | AVTP_RX | stream 2 | channel 1). The 4-bit index fields match the
 fabric-wide "spec-fixed 4-bit stream index" convention (G1's `tuser`).
 Illegal encodings (reserved SRC, out-of-range index for the elaborated
 shape) behave as `EN = 0` — never a lockup, RTL-enforced.
+
+**Render `SRC = 1` (PCM_TX), normative.** On the render side the two
+index nibbles are NOT a `{stream, channel}` split: they concatenate into
+one **linear playback channel** `pbch = 2*pair_slot + (0 = L, 1 = R)`
+over `KL_pcm_tx`'s pair bus, so `0x9002` = EN | PCM_TX | playback
+channel 2 = pair slot 1's LEFT sample. With the datapath's all-stereo
+NxN shape (`CHANS_P = 2`) pair slot == talker stream index, so talker
+`t` owns `pbch` `2t` / `2t+1`. `SRC = 0` keeps its original split
+verbatim, and the AEM projector only ever emits `SRC = 0`, so every map
+word written before item-7 means exactly what it did.
 
 **Reset state (N=1 bit-compat axiom):** `RMAP[0] = 0x8000` (EN,
 AVTP_RX, s=0, c=0), `RMAP[1] = 0x8001`, all other RMAP = 0 — today's

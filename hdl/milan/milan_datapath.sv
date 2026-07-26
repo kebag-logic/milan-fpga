@@ -894,6 +894,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [5*32-1:0]  aprb_regs_w;
   wire [31:0]      aprb_parsed_w, aprb_matched_w;
 
+  //! item-7 playback probe (PBK CSR group, base 0x8C8): the host-ring ->
+  //! KL_pcm_tx -> render crossbar -> DAC chain read as 3 packed RO words.
+  //! Every other playback counter lives in the LiteX/migen CSR block, which
+  //! a fabric-only build (and the CSR TB) cannot see - this group is the
+  //! chain's evidence on the AXI-Lite control plane.
+  wire [3*32-1:0]  pbk_regs_w;
+  wire [31:0]      pbk_feeds_w;
+  wire [15:0]      pbk_unarmed_w;
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
@@ -1073,6 +1082,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_ltap_regs        (ltap_regs_w),
     .i_ltap_status      (ltap_status_w),
     .i_aprb_regs        (aprb_regs_w),
+    .i_pbk_regs         (pbk_regs_w),
     .o_ltap_en          (ltap_en_w),
     .o_ltap_clr         (ltap_clr_w),
     .o_chmap_enable     (cfg_chmap_enable),
@@ -2043,11 +2053,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .active_o (pcm_lpf_active)
   );
 
-  //! optional mapped-I2S data mux (docs/CHANNEL_MAP_64.md §3): enable=0 ->
-  //! rend_pcm_tdata_w (the CERT render tap) drives the DAC BIT-IDENTICALLY;
-  //! enable=1 -> the render crossbar's phys{0,1} repacked into the S32BE beat.
-  //! Driven by the render-fabric block below (nets resolve module-wide).
-  wire [TDATA_WIDTH-1:0] i2s_pcm_tdata_mux_w;
+  //! item-7 DAC feed selector (KL_i2s_feed_mux, instanced with the render
+  //! fabric below - nets resolve module-wide): CHMAP_CTRL[0]=0 passes the
+  //! CERT render tap through BIT- and CYCLE-identically; =1 selects the
+  //! render crossbar's phys{0,1} pair paced by the 48 kHz media tick (and
+  //! masks the LPF, which belongs to the listener tap it filters).
+  wire [TDATA_WIDTH-1:0] i2s_feed_tdata_w;
+  wire                   i2s_feed_tvalid_w, i2s_feed_tready_w, i2s_feed_tlast_w;
+  wire [7:0]             i2s_feed_chans_w;
+  wire                   i2s_feed_lpf_act_w;
 
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
@@ -2055,14 +2069,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
-    .pcm_tdata_i  (i2s_pcm_tdata_mux_w),
+    .pcm_tdata_i  (i2s_feed_tdata_w),
     .lpf_tdata_i  (pcm_lpf_tdata),
     .lpf_tvalid_i (pcm_lpf_tvalid),
-    .lpf_active_i (pcm_lpf_active),
-    .pcm_tvalid_i (rend_pcm_tvalid_w),
-    .pcm_tready_i (m_axis_pcm_tready),
-    .pcm_tlast_i  (rend_pcm_tlast_w),
-    .wire_chans_i (mon_wire_chans_w),
+    .lpf_active_i (i2s_feed_lpf_act_w),
+    .pcm_tvalid_i (i2s_feed_tvalid_w),
+    .pcm_tready_i (i2s_feed_tready_w),
+    .pcm_tlast_i  (i2s_feed_tlast_w),
+    .wire_chans_i (i2s_feed_chans_w),
     .i2s_mclk_o (i2s_dac_mclk_o), .i2s_sclk_o (i2s_dac_sclk_o),
     .i2s_lrck_o (i2s_dac_lrck_o), .i2s_sdin_o (i2s_dac_sdin_o),
     .clr_under_i (cfg_i2spb_clru), .clr_over_i (cfg_i2spb_clro),
@@ -2085,11 +2099,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int CHMAP_PHYS_C = 10;
   wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
   wire                       chmap_phys_v_w;
+  wire [CHMAP_PHYS_C-1:0]    chmap_pb_mask_w;
+  wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
 
   KL_chan_map_render #(
-    .N_STREAMS_P (N_STREAMS),
-    .N_CH_P      (8),
-    .N_PHYS_P    (CHMAP_PHYS_C)
+    .N_STREAMS_P  (N_STREAMS),
+    .N_CH_P       (8),
+    .N_PHYS_P     (CHMAP_PHYS_C),
+    //! item-7: one playback pair slot per talker stream (KL_pcm_tx is
+    //! elaborated CHANS_P=2, so slot == stream index)
+    .N_PB_SLOTS_P (N_STREAMS)
   ) chan_map_render (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! clone tap: accepted-beat strobe (tvalid && tready); never backpressures
@@ -2100,6 +2119,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! per-stream LCTX wire-truth fan-out (follow-up 3 DONE: each stream
     //! de-interleaves by its OWN wire channels_per_frame)
     .wire_chans_i (mon_wire_chans_all_w),
+    //! item-7 host playback ring: the RAW KL_pcm_tx pair bus (the same net
+    //! the capture mux takes as its RING source) - map entries with src = 1
+    //! route it to the physical outputs, closing ring -> render -> I2S
+    .pb_valid_i (ring_src_pv_w), .pb_slot_i (ring_src_slot_w),
+    .pb_l_i (ring_src_l_w), .pb_r_i (ring_src_r_w),
     .tick_i (media_tick_p),
     //! write mux: the AEM ADD/REMOVE mirror is the canonical programmer
     //! (docs/CHMAP64_AEM_BINDING.md); the CSR 0x900 window is the debug port
@@ -2109,23 +2133,68 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_wr_addr_i (aecp_dmap_wr_p_w
                     ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
                     : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
-    //! §5 16-bit word -> render 8-bit {en[7], rsvd[6], stream[5:3], ch[2:0]}
+    //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
+    //! the §5 word selects the source bank (0 = AVB listener {stream,ch},
+    //! 1 = host playback ring channel); the AEM projector always emits bit 6
+    //! = 0, so every map word written before item-7 still means AVB.
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
-                    : {cfg_chmap_wr_data[15], 1'b0,
+                    : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
     .map_rd_addr_i ('0), .map_rd_data_o (),
     .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
-    .mapped_mask_o ()
+    .mapped_mask_o (chmap_mapped_mask_w), .pb_mask_o (chmap_pb_mask_w)
   );
 
-  //! phys{0,1} repacked into the depacketizer's S32BE beat order (pad byte 0)
-  wire [23:0] chmap_i2s_l_w = chmap_phys_w[0*24 +: 24];
-  wire [23:0] chmap_i2s_r_w = chmap_phys_w[1*24 +: 24];
-  wire [TDATA_WIDTH-1:0] chmap_i2s_pcm_w = {
-    8'h00, chmap_i2s_r_w[7:0], chmap_i2s_r_w[15:8], chmap_i2s_r_w[23:16],
-    8'h00, chmap_i2s_l_w[7:0], chmap_i2s_l_w[15:8], chmap_i2s_l_w[23:16] };
-  assign i2s_pcm_tdata_mux_w =
-           cfg_chmap_enable ? chmap_i2s_pcm_w : rend_pcm_tdata_w;
+  // ---- DAC feed selector (item-7): the one place the DAC's source AND its
+  //      pace are decided, and the one place the render chain is counted.
+  //      enable=0 -> the CERT tap passes through bit-/cycle-identically;
+  //      enable=1 -> phys{0,1} on the 48 kHz media tick (the ONLY pace at
+  //      which a host-ring playback can reach the line-out at all). ------
+  KL_i2s_feed_mux i2s_feed_mux (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .sel_render_i (cfg_chmap_enable),
+    .tap_tdata_i  (rend_pcm_tdata_w),
+    .tap_tvalid_i (rend_pcm_tvalid_w),
+    .tap_tready_i (m_axis_pcm_tready),
+    .tap_tlast_i  (rend_pcm_tlast_w),
+    .tap_chans_i  (mon_wire_chans_w),
+    .lpf_active_i (pcm_lpf_active),
+    .phys_l_i     (chmap_phys_w[0*24 +: 24]),
+    .phys_r_i     (chmap_phys_w[1*24 +: 24]),
+    .phys_valid_i (chmap_phys_v_w),
+    .phys_armed_i (|chmap_mapped_mask_w[1:0]),
+    .pcm_tdata_o (i2s_feed_tdata_w), .pcm_tvalid_o (i2s_feed_tvalid_w),
+    .pcm_tready_o (i2s_feed_tready_w), .pcm_tlast_o (i2s_feed_tlast_w),
+    .chans_o (i2s_feed_chans_w), .lpf_active_o (i2s_feed_lpf_act_w),
+    .feeds_o (pbk_feeds_w), .unarmed_o (pbk_unarmed_w), .src_render_o ()
+  );
+
+  // ---- item-7 playback probe pack (PBK group 0x8C8-0x8D0) ----------------
+  //! per-stream KL_pcm_tx rails rolled into ONE saturating pair: only one
+  //! stream renders locally, but ANY starving stream is evidence the host
+  //! is not feeding the ring, so the sum (not stream 0) is the honest read.
+  logic [19:0] pbk_und_sum_w, pbk_ovr_sum_w;
+  always_comb begin : pbk_rail_sum
+    pbk_und_sum_w = 20'd0;
+    pbk_ovr_sum_w = 20'd0;
+    for (int s = 0; s < N_STREAMS; s++) begin
+      pbk_und_sum_w = pbk_und_sum_w + 20'(pb_underrun_o[s*16 +: 16]);
+      pbk_ovr_sum_w = pbk_ovr_sum_w + 20'(pb_overrun_o[s*16 +: 16]);
+    end
+  end : pbk_rail_sum
+  wire [15:0] pbk_und_w = (|pbk_und_sum_w[19:16]) ? 16'hFFFF
+                                                  : pbk_und_sum_w[15:0];
+  wire [15:0] pbk_ovr_w = (|pbk_ovr_sum_w[19:16]) ? 16'hFFFF
+                                                  : pbk_ovr_sum_w[15:0];
+
+  //! 0x8C8 PBK_STAT: {pb_mask[9:0], 2'0, armed, pb_en, playing, src, unarmed}
+  assign pbk_regs_w[32*0 +: 32] = {
+    10'(chmap_pb_mask_w), 2'd0, |chmap_mapped_mask_w[1:0], pb_enable_i,
+    pb_playing_o, cfg_chmap_enable, pbk_unarmed_w };
+  //! 0x8CC PBK_FEEDS: frames handed to the DAC producer on the live source
+  assign pbk_regs_w[32*1 +: 32] = pbk_feeds_w;
+  //! 0x8D0 PBK_RAILS: {KL_pcm_tx underruns, overruns} (saturating sums)
+  assign pbk_regs_w[32*2 +: 32] = {pbk_und_w, pbk_ovr_w};
 
   // ---- parked TDM8 render lane (docs §8): phys{2..9} -> 8 slot writes -------
   //! The render xbar emits the whole phys vector once per media tick; the TDM
