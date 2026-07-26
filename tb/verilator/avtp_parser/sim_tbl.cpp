@@ -246,38 +246,46 @@ int main(int argc, char** argv) {
   }
 
   // =========================================================================
-  sect("T6. TRAP-1: ANY entry-0 window write detaches the ACMP alias");
+  sect("T6. RELEASE-TO-ALIAS: an entry-0 evict hands entry 0 back to ACMP");
   // =========================================================================
   {
-    // KL_stream_table latches ovr_armed_r[0] on ANY write to entry 0 - an
-    // evict (wr_valid_i=0) included - and from then on entry 0 is the
-    // override, never the ACMP bound record again, until reset.
+    // REGRESSION GUARD for the fabric-listener blocker (2026-07-26).
     //
-    // milan_datapath's win_commit_glue (hdl/milan/milan_datapath.sv, the
-    // `wing_tbl_we_r` term) explicitly guards the en=1-with-no-staged-sid
-    // case ("must NOT hijack the live ACMP alias with the zero reset sid")
-    // but its `| ~csr_lctx_wr_data_w[0]` term lets an en=0 CTRL write
-    // through unconditionally. A listener-window CTRL write with en=0 at
-    // index 0 - the natural "clear this sink before provisioning it" move -
-    // therefore kills the alias permanently. The listener SM keeps reporting
-    // a clean bind; the parser never matches again.
+    // KL_stream_table used to latch ovr_armed_r[0] on ANY write to entry 0 -
+    // an evict (wr_valid_i=0) included - and from then on entry 0 was the
+    // override, never the ACMP bound record again, until RESET. A listener
+    // window CTRL write with en=0 at index 0 (the natural "clear this sink
+    // before provisioning it" move, which milan_datapath's win_commit_glue
+    // let through unconditionally via `| ~csr_lctx_wr_data_w[0]`) therefore
+    // killed the alias permanently: the listener SM kept reporting a clean
+    // bind and the parser never matched again.
     //
-    // This is CHARACTERISED here, not endorsed. If the guard is ever made
-    // symmetric, this section flips and must be updated with the fix.
+    // The fix gives {valid=0, sid=0} a meaning - RELEASE-TO-ALIAS - so the
+    // evict DISARMS the override instead of arming it. An evict that carries
+    // a real sid still arms (that is a deliberate disable-this-stream), which
+    // the negative leg below pins.
     dut->resetn = 0; cyc(8); dut->resetn = 1;
     dut->bound0_i = 1; dut->sid0_i = SID_ACMP; cyc(2);
     { Obs o = feed(mkaaf(SID_ACMP));
       ck("T6 pre-write: ACMP alias matches", o.matches, 1); }
     tblwr(0, 0, /*valid=*/false);         // "clear sink 0" - no sid staged
-    ck("T6 alias detached: armed entries now 0", popcnt8(dut->tbl_en_o), 0);
+    ck("T6 evict released entry 0: alias still enabled",
+       popcnt8(dut->tbl_en_o), 1);
     { Obs o = feed(mkaaf(SID_ACMP));
-      ck("T6 post-write: parse still fires", o.parses, 1);
-      ck("T6 post-write: ACMP alias is DEAD (no match)", o.matches, 0); }
-    // re-binding the listener does not bring it back
+      ck("T6 post-evict: parse still fires", o.parses, 1);
+      ck("T6 post-evict: ACMP alias SURVIVES the evict", o.matches, 1); }
+    // re-binding the listener lands on a live alias
     dut->bound0_i = 0; cyc(2); dut->bound0_i = 1; cyc(2);
     { Obs o = feed(mkaaf(SID_ACMP));
-      ck("T6 re-bind does NOT revive the alias", o.matches, 0); }
-    // only an explicit override write, or a reset, recovers it
+      ck("T6 re-bind keeps the alias alive", o.matches, 1); }
+    // NEGATIVE leg: an evict carrying a REAL sid is a deliberate disable and
+    // must still arm the override - release-to-alias is the zero-sid code
+    // only, not "any evict"
+    tblwr(0, SIDS[5], /*valid=*/false);
+    { Obs o = feed(mkaaf(SID_ACMP));
+      ck("T6 evict WITH a sid still detaches (deliberate disable)",
+         o.matches, 0); }
+    // an explicit override write, or a reset, recovers it
     tblwr(0, SID_ACMP, true);
     { Obs o = feed(mkaaf(SID_ACMP));
       ck("T6 explicit override recovers the match", o.matches, 1);

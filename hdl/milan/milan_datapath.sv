@@ -1687,15 +1687,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! and the route policy shadow the SAME accepted writes here — SID_LO/HI
   //! (w0/w1) stage, a CTRL (w4) write COMMITS {sid, en} into the stream
   //! table entry and [2:1] into the route table (mirrors the CSR's own
-  //! SEL-then-words staging ABI; one staging register set, single-writer
-  //! softcore daemon).
+  //! SEL-then-words staging ABI).
+  //!
+  //! The staging pair is ONE register set shared by every index, so it MUST
+  //! carry the index it was staged for: a CTRL commit only overrides the
+  //! table when a sid was staged FOR THAT INDEX. Testing "some sid is staged"
+  //! instead (the pre-2026-07-26 form) let a route-flags-only CTRL write at
+  //! idx 0 arm entry 0 with another listener's sid, permanently detaching the
+  //! ACMP alias -> bound-but-never-matching. See `tb/verilator/milan_dp`
+  //! TRAP-1 and NXN_ARCHITECTURE §1.3.
   logic [31:0] wing_sid_lo_r, wing_sid_hi_r;
   logic        wing_tbl_we_r, wing_route_we_r;
   logic [3:0]  wing_idx_r;
   logic [63:0] wing_sid_r;
   logic        wing_en_r;
   logic [1:0]  wing_route_r;
+  //! which index the staged sid belongs to, and whether it is still unspent
+  logic [2:0]  wing_stg_idx_r;
+  logic        wing_stg_vld_r;
   wire lctx_wr_acc_w = csr_lctx_wr_p_w && lctx_wr_rdy_w;
+  //! the index carried by the window write currently being accepted
+  wire [2:0] wing_wr_idx_w = csr_lctx_wr_addr_w[7:5];
+  //! staging is only spendable by a commit to the SAME index
+  wire wing_stg_hit_w = wing_stg_vld_r && (wing_stg_idx_r == wing_wr_idx_w);
 
   always_ff @(posedge axis_clk) begin : win_commit_glue
     if (!axis_resetn) begin
@@ -1703,26 +1717,45 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       wing_tbl_we_r <= 1'b0; wing_route_we_r <= 1'b0;
       wing_idx_r <= '0; wing_sid_r <= '0; wing_en_r <= 1'b0;
       wing_route_r <= '0;
+      wing_stg_idx_r <= '0; wing_stg_vld_r <= 1'b0;
     end
     else begin
       wing_tbl_we_r   <= 1'b0;
       wing_route_we_r <= 1'b0;
       if (lctx_wr_acc_w) begin
         unique case (csr_lctx_wr_addr_w[4:0])
-          5'd0 : wing_sid_lo_r <= csr_lctx_wr_data_w;
-          5'd1 : wing_sid_hi_r <= csr_lctx_wr_data_w;
+          //! staging a sid half BINDS the staging set to that index; a half
+          //! aimed at a different index restarts the set rather than mixing
+          //! two listeners' halves into one 64-bit value
+          5'd0 : begin
+            wing_sid_lo_r  <= csr_lctx_wr_data_w;
+            if (!wing_stg_hit_w) wing_sid_hi_r <= '0;
+            wing_stg_idx_r <= wing_wr_idx_w;
+            wing_stg_vld_r <= 1'b1;
+          end
+          5'd1 : begin
+            wing_sid_hi_r  <= csr_lctx_wr_data_w;
+            if (!wing_stg_hit_w) wing_sid_lo_r <= '0;
+            wing_stg_idx_r <= wing_wr_idx_w;
+            wing_stg_vld_r <= 1'b1;
+          end
           5'd4 : begin              //! CTRL commit: {en[0], route[2:1]}
-            //! table override only when a sid was actually staged (or on
-            //! eviction): a route-flags-only CTRL=en commit at idx 0 must
-            //! NOT hijack the live ACMP alias with the zero reset sid -
-            //! 2026-07-23 bench: that froze a locked stream mid-flight
-            wing_tbl_we_r   <= (|{wing_sid_hi_r, wing_sid_lo_r}) |
-                               ~csr_lctx_wr_data_w[0];
+            //! Override the table ONLY when a sid was staged FOR THIS INDEX,
+            //! or on an eviction (en=0). Testing "some sid is staged" instead
+            //! let a route-flags-only CTRL=en at idx 0 arm entry 0 with
+            //! another listener's stale sid and detach the ACMP alias for
+            //! good (bound-but-never-matching). 2026-07-23 bench: the
+            //! zero-sid variant of the same write froze a locked stream.
+            wing_tbl_we_r   <= wing_stg_hit_w | ~csr_lctx_wr_data_w[0];
             wing_route_we_r <= 1'b1;
-            wing_idx_r      <= {1'b0, csr_lctx_wr_addr_w[7:5]};
-            wing_sid_r      <= {wing_sid_hi_r, wing_sid_lo_r};
+            wing_idx_r      <= {1'b0, wing_wr_idx_w};
+            //! an eviction with nothing staged for this index commits the
+            //! ZERO sid, which is `KL_stream_table`'s release-to-alias code
+            wing_sid_r      <= wing_stg_hit_w ? {wing_sid_hi_r, wing_sid_lo_r}
+                                              : 64'd0;
             wing_en_r       <= csr_lctx_wr_data_w[0];
             wing_route_r    <= csr_lctx_wr_data_w[2:1];
+            wing_stg_vld_r  <= 1'b0;   //! staging is spent by its commit
           end
           default : ;
         endcase
