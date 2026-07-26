@@ -82,6 +82,7 @@ Goal: an honest picture of what provably works and what is open.
 2. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — clause-level verification status (204 rows).
 3. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is still missing, and the attack order.
 4. [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) — what bites.
+5. [limitations/RECURRING_DEFECT_PATTERNS.md](limitations/RECURRING_DEFECT_PATTERNS.md) — how the bugs that got through actually looked, and why the tests missed them.
 
 ### 🎧 Hobbyist — *you want it running on your desk (or you have no board at all)*
 Goal: build, flash, hear audio — or get value out of the repo without buying anything.
@@ -104,6 +105,7 @@ Goal: build, flash, hear audio — or get value out of the repo without buying a
 | **Know what does NOT work** | [limitations/KNOWN_ISSUES_AND_LIMITATIONS](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) |
 | **See where the project is heading** | [overview/AVB_SWITCH_DIRECTION](overview/AVB_SWITCH_DIRECTION.md) → the GitHub issues (the live roadmap) |
 | **Debug a datapath problem** | [fpga/pipeline-telemetry](fpga/pipeline-telemetry.md) → [findings/](findings/README.md) (how every past bug was cornered) → [testing/SIMULATION](testing/SIMULATION.md) |
+| **Review RTL, or sanity-check a green test run** | [limitations/RECURRING_DEFECT_PATTERNS](limitations/RECURRING_DEFECT_PATTERNS.md) — the eight shapes this project's real bugs keep taking, each with the check that catches it |
 | **Write driver / DT / register code** | [reference/REGISTER_MAP](reference/REGISTER_MAP.md) → [`../sw/driver/README.md`](../sw/driver/README.md) + [`../sw/dts/README.md`](../sw/dts/README.md) |
 
 ## 1 - overview/ (what the system is)
