@@ -31,7 +31,7 @@
 
 module traffic_queues #(
   parameter int TDATA_WIDTH = 64,     //! Width of tdata bus
-  parameter int NUMBER_OF_QUEUES = 4, //! Number of network queues
+  parameter int NUMBER_OF_QUEUES = 6, //! Number of network queues
   parameter int FIFO_DEPTH = 16384    //! Buffer depth
 )(
   input wire clk,                     //! clock signal

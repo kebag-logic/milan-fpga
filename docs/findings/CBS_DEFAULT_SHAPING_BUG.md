@@ -78,6 +78,21 @@ enable default changes. `tb/verilator/csr` reset-default checks updated
 (`CBS0_EN(reset) == 0`); 76 checks green. Built as `build_dp100_cbs0` (WNS +0.031) and
 **verified at reset on silicon** (q0–q3 `en=0`).
 
+## Update 2026-07-26 — the six-queue map keeps this fix intact
+
+The egress map grew to **six queues in 802.1Q order** (q5 SR class A … q0 best
+effort — [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md)), which moved
+every number quoted above: `CBS_IDLE_RST` is now indexed **by queue** (q0 =
+25 Mb/s best effort, q5 = 450 Mb/s class A) and `cls_tcq` resets to
+`0x006D2B00` instead of `0xE4`. The invariant this document exists to protect
+is unchanged and was re-asserted in the same commit:
+
+* `CBS_EN_RST = 6'b000000` — **no queue is shaped at reset**, checked in
+  `tb/verilator/csr` for all six (`CBS0_EN`…`CBS5_EN`);
+* best-effort still lands on **q0**, which is still the *lowest*-priority
+  queue and still unshaped at power-on. The only thing that changed is that q0
+  is no longer *also* the arbitration winner.
+
 ## Lessons
 
 * **A default is product behaviour.** The shaper RTL was correct and sim-proven; the

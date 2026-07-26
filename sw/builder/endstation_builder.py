@@ -257,7 +257,8 @@ L2_HDR_BYTES = 18                 #: DA 6 + SA 6 + VLAN 4 + EtherType 2
 #: (the AVTPDU), NOT the L2 frame: MaxFrameSize + 42 = the full wire slot.
 SRP_FRAME_OVERHEAD_B = 42
 SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
-SRP_QUEUE_BITS = 2                #: LWSRP_CTRL[3:2] class-A queue select
+SRP_QUEUE_BITS = 3                #: LWSRP_CTRL[4:2] class-A queue select
+#: (widened from [3:2] with the 6-queue map: class A now lives on q5)
 
 #: lwSRP policy defaults = EXACTLY today's RTL reset words, so a config with
 #: no `srp:` section emits the deployed gateware bit-for-bit (the
@@ -267,7 +268,8 @@ SRP_DEFAULTS = dict(
     vid=2,                                   # USER: VID 2 is THE SR vid
     stream_dmac_base="0x91E0F000FE01",       # MAAP range; stream t = base + t
     accumulated_latency_ns=0,
-    class_queue=3,                           # reset PCP3 -> TC3 -> q3 map
+    class_queue=5,                           # reset PCP3 -> TC3 -> q5 map
+                                             # (802.1Q order: q5 = class A)
     enable_at_reset=False,
     talker_declare_at_reset=False,
     bandwidth_limit_pct=75,                  # Milan §5.6 / 802.1Q §34.3.1
@@ -766,7 +768,7 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
     if not (isinstance(s["class_queue"], int)
             and 0 <= s["class_queue"] < (1 << SRP_QUEUE_BITS)):
         raise ConfigError(f"srp.class_queue {s['class_queue']} does not fit "
-                          f"LWSRP_CTRL[3:2] ({SRP_QUEUE_BITS} bits)")
+                          f"LWSRP_CTRL[4:2] ({SRP_QUEUE_BITS} bits)")
     if s["class_queue"] >= cons["num_queues"]:
         raise ConfigError(f"srp.class_queue {s['class_queue']} >= the board's "
                           f"{cons['num_queues']} shaper queues")
@@ -908,7 +910,11 @@ SRP_CSR_OFFSETS = {"LWSRP_CTRL": 0x680, "LWSRP_VID": 0x684,
 #: asserts emitted == frozen == the generated header == REGISTER_MAP, so a
 #: config edit that would move a deployed reset word fails loudly instead of
 #: silently re-elaborating the CSR block.
-SRP_FROZEN_RESETS = {"LWSRP_CTRL": 0x0000000C, "LWSRP_VID": 0x00000002,
+#: MOVED ONCE, DELIBERATELY (6-queue map, VERSION 0x0011): LWSRP_CTRL went
+#: 0x0C -> 0x14 because the class-A queue field widened to [4:2] and its reset
+#: moved from q3 to q5 - the queue the 802.1Q-ordered map puts SR class A on.
+#: That is a REFLASH-VISIBLE change; every other word is untouched.
+SRP_FROZEN_RESETS = {"LWSRP_CTRL": 0x00000014, "LWSRP_VID": 0x00000002,
                      "LWSRP_DMAC_LO": 0xF000FE01, "LWSRP_DMAC_HI": 0x000091E0,
                      "LWSRP_TSPEC": 0x000100E0, "LWSRP_LATENCY": 0x00000000}
 SRP_FROZEN_PRIO_RANK = 0x70          #: milan_csr's old SRP_PRIO_RANK_C literal
@@ -1521,7 +1527,11 @@ def load_config(path):
         flashboot=c.get("flashboot", "full"),
         uart_baudrate=int(c.get("uart_baudrate", 115200)),
         rx_queues=int(c.get("rx_queues", 2)),
-        num_queues=int(c.get("num_queues", 4)),
+        num_queues=int(c.get("num_queues", 6)),   # = NUMBER_OF_QUEUES; gate 18c
+                                                  # pins this against the package,
+                                                  # so a stale 4 here would make
+                                                  # every config that omits the
+                                                  # key fail rather than build
         hs_page_bytes=_pow2(c.get("hs_page_bytes", 16384),
                             "board.constraints.hs_page_bytes"),
         strip_probes=bool(c.get("strip_probes", True)),
@@ -1540,8 +1550,12 @@ def load_config(path):
     # tables (IDLE_SLOPE_*/HI_CREDIT/LO_CREDIT) are sized by it and the CSR
     # CAP[3:0] advertises it - a config that disagrees with the RTL package
     # would silently mis-size CLS_PRIO_REGEN and the class-A queue select.
-    _pow2(cons["num_queues"], "board.constraints.num_queues")
-    if not 1 <= cons["num_queues"] <= 8:
+    # NOT a power of two any more: the USER's egress map is SIX queues
+    # (q5 class A .. q0 best effort, docs/reference/EGRESS_QUEUE_MAP.md). The
+    # ceiling is what ceil(log2 N) can index inside one 32-bit
+    # CLS_TC_QUEUE_MAP word (8 traffic classes x 4 bits), i.e. 16; the RTL
+    # tables are written out to 6, so hold the gate at 8 until they grow.
+    if not (isinstance(cons["num_queues"], int) and 1 <= cons["num_queues"] <= 8):
         raise ConfigError(f"num_queues {cons['num_queues']} outside 1..8")
     if not cons["milan_clk_hz"] <= cons["sys_clk_hz"]:
         raise ConfigError("milan_clk_hz must not exceed sys_clk_hz")

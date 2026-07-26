@@ -9,7 +9,7 @@
 | Generic name     | Type | Value | Description              |
 | ---------------- | ---- | ----- | ------------------------ |
 | TDATA_WIDTH      | int  | 64    | Widht of tdata bus       |
-| NUMBER_OF_QUEUES | int  | 4     | Number of network queues |
+| NUMBER_OF_QUEUES | int  | 6     | Number of network queues |
 | FIFO_DEPTH       | int  | 16384 | Buffer depth (default; `traffic_controller_802_1q` instantiates it with `BUFFER_FIFO_DEPTH = 1024`) |
 
 ## Ports

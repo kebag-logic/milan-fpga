@@ -38,13 +38,13 @@ board:
     rx_queues: 2
     hs_page_bytes: 16384
     strip_probes: true
-    num_queues: 4
+    num_queues: 6
 
 srp:
   sr_class: A
   vid: 2
   stream_dmac_base: "0x91E0F000FE01"
-  class_queue: 3
+  class_queue: 5                     # 802.1Q order: q5 = SR class A
   bandwidth_limit_pct: 75
   tspec:
     policy: derived                  # 4ch -> MaxFrameSize 120 B ->

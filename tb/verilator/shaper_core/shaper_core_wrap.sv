@@ -16,7 +16,7 @@ import ethernet_packet_pkg::*;
 
 module shaper_core_wrap #(
   parameter int TDATA_WIDTH = 64,      //! AXI-Stream data width
-  parameter int NQ          = 4        //! Number of queues
+  parameter int NQ          = 6        //! Number of queues (802.1Q order: q5 highest)
 )(
   input  wire            clk,          //! Clock
   input  wire            resetn,       //! Active-low synchronous reset
@@ -44,8 +44,44 @@ module shaper_core_wrap #(
   output wire signed [47:0]         dbg_credit1, //! Queue-1 CBS credit (Q16)
   output wire signed [47:0]         dbg_credit2, //! Queue-2 CBS credit (Q16)
   output wire signed [47:0]         dbg_credit3, //! Queue-3 CBS credit (Q16)
-  output wire [NQ-1:0]             dbg_allow    //! Per-queue allow_transmit
+  output wire signed [47:0]         dbg_credit4, //! Queue-4 CBS credit (Q16)
+  output wire signed [47:0]         dbg_credit5, //! Queue-5 CBS credit (Q16)
+  output wire [NQ-1:0]              dbg_allow,   //! Per-queue allow_transmit
+
+  // --- 802.1Q-2018 34.3.1 bandwidth availability, lifted from the PACKAGE ---
+  // These are elaboration-time sums over ethernet_packet_pkg's reset idleSlope
+  // tables, exported so the FQTSS gate in sim_main.cpp measures the single
+  // source of truth instead of a C++ copy of it.
+  output wire [31:0]                cap_nq,        //! ethernet_packet_pkg::NUMBER_OF_QUEUES
+  output wire [31:0]                cap_sum_1g,    //! sum of IDLE_SLOPE_1G   (bits/s)
+  output wire [31:0]                cap_sum_100m,  //! sum of IDLE_SLOPE_100M (bits/s)
+  output wire [31:0]                cap_sum_sr_1g, //! SR class A + B idleSlope (bits/s)
+  output wire [31:0]                cap_slope_sra, //! IDLE_SLOPE_1G[SRA_CLASS]
+  output wire [31:0]                cap_slope_srb  //! IDLE_SLOPE_1G[SRB_CLASS]
 );
+
+  //! Sum of the package's 1 Gb/s reset idleSlope table (802.1Q-2018 34.3.1).
+  function automatic longint unsigned sum_1g();
+    longint unsigned s;
+    s = 0;
+    for (int i = 0; i < NUMBER_OF_QUEUES; i++) s += longint'(IDLE_SLOPE_1G[i]);
+    return s;
+  endfunction
+
+  //! Sum of the package's 100 Mb/s reset idleSlope table.
+  function automatic longint unsigned sum_100m();
+    longint unsigned s;
+    s = 0;
+    for (int i = 0; i < NUMBER_OF_QUEUES; i++) s += longint'(IDLE_SLOPE_100M[i]);
+    return s;
+  endfunction
+
+  assign cap_nq        = 32'(NUMBER_OF_QUEUES);
+  assign cap_sum_1g    = 32'(sum_1g());
+  assign cap_sum_100m  = 32'(sum_100m());
+  assign cap_slope_sra = 32'(IDLE_SLOPE_1G[int'(SRA_CLASS)]);
+  assign cap_slope_srb = 32'(IDLE_SLOPE_1G[int'(SRB_CLASS)]);
+  assign cap_sum_sr_1g = cap_slope_sra + cap_slope_srb;
 
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH), .TDEST_WIDTH_P($clog2(NQ))) s_if();
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH), .TDEST_WIDTH_P($clog2(NQ))) m_if();
@@ -83,6 +119,8 @@ module shaper_core_wrap #(
   assign dbg_credit1 = u_core.gen_cbs[1].u_cbs.credit;
   assign dbg_credit2 = u_core.gen_cbs[2].u_cbs.credit;
   assign dbg_credit3 = u_core.gen_cbs[3].u_cbs.credit;
+  assign dbg_credit4 = u_core.gen_cbs[4].u_cbs.credit;
+  assign dbg_credit5 = u_core.gen_cbs[5].u_cbs.credit;
   assign dbg_allow   = u_core.allow_transmit;
 
 endmodule

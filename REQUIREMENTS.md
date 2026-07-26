@@ -182,8 +182,16 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
 * **REQ-CLS-03 (MUST)** Untagged/priority-tagged frames MUST use a configurable
   **default port priority**, not a hardwired Best-Effort. *(802.1Q §6.9.3)*
 * **REQ-CLS-04 (SHOULD)** The class→queue ordering MUST be configurable and its
-  defaults MUST follow the standard (network-control/gPTP ranked per Table 8-5,
-  not fixed below SR-A). *(802.1Q Table 8-5)*
+  defaults MUST follow the standard. *(802.1Q Table 8-5)* — *Satisfied
+  2026-07-26 by the six-queue 802.1Q-ordered map* (q5 SR class A, q4 SR class B,
+  q3 gPTP, q2 control, q1 spare, q0 best effort; higher index = higher
+  priority). Note the **deliberate deviation**: gPTP is ranked **below** the
+  CBS-shaped classes, not above them. Credit-based shaping only bounds class-A
+  latency if the shaped queues are the top of the strict-priority order; gPTP
+  tolerates the demotion because it is timestamped in hardware at the egress
+  SFD, so queueing delay shifts *when* a message leaves, not the timestamp it
+  carries. Full reasoning in
+  [`docs/reference/EGRESS_QUEUE_MAP.md`](docs/reference/EGRESS_QUEUE_MAP.md).
 * **REQ-CLS-05 (SHOULD)** Extract and propagate **DEI** (`vlan_tci[12]`) as
   sideband for policing/drop decisions. *(802.1Q §6.9.4)*
 * **REQ-CLS-06 (SHOULD)** The classifier MUST parse frames **back-to-back at line

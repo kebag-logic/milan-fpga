@@ -13,7 +13,7 @@ import ethernet_packet_pkg::*;
 
 module controller_rate_wrap #(
   parameter int TDATA_WIDTH = 64,
-  parameter int NQ          = 4
+  parameter int NQ          = 6
 )(
   input  wire clk,
   input  wire resetn,

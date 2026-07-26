@@ -239,7 +239,7 @@ is latched per epoch from the shared PHC read (one read, N stamps).
 ### 2.4 CBS interaction
 
 The shaper is untouched: all AAF streams map to the same class-A queue
-(qidx from `LWSRP_CTRL[3:2]`). The epoch burst (≤ 8 × ~190 B ≈ 1.5 KB) is
+(qidx from `LWSRP_CTRL[4:2]`). The epoch burst (≤ 8 × ~190 B ≈ 1.5 KB) is
 spread across the 125 µs interval by CBS credits exactly as designed.
 
 What generalizes is the **reservation math**: `KL_lwsrp_bw_gate` becomes a

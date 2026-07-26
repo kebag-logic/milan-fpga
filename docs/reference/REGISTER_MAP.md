@@ -21,7 +21,9 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   original mux (AXI4-Lite handshake absorbs it; no driver change). After reset
   the block holds `*READY` low for ~513 clocks while the defaults ROM is swept
   into the shadow, so soft-reset readback values are identical to before.
-* `N` = `NUMBER_OF_QUEUES` (from `CAP.num_queues`, default 4).
+* `N` = `NUMBER_OF_QUEUES` (from `CAP.num_queues`, default **6** since
+  VERSION `0x0011`). Queue **5 is the highest priority**, queue 0 the lowest
+  (802.1Q order) — see [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md).
 
 ## Register groups
 
@@ -31,7 +33,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x100` | MAC control / status |
 | `0x200` | Statistics (RMON) |
 | `0x300` | 802.1Q classifier |
-| `0x400` | 802.1Qav CBS (per-queue, stride `0x20`) |
+| `0x400` | 802.1Qav CBS (per-queue, stride `0x20`; `0x400`-`0x4BF` at `N`=6) |
 | `0x500` | PTP hardware clock |
 | `0x600` | ADP advertiser (IEEE 1722.1 entity model) |
 | `0x648` | AECP/ACMP status + AAF talker (flat stream-0 registers) |
@@ -62,7 +64,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0010` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view, 0x000E item-7 playback chain closed in fabric — render crossbar gains a host-ring source (map `SRC` bit) and `KL_i2s_feed_mux` picks the DAC source **and** its pace, plus the PBK probe group 0x8C8-0x8D0, 0x000F fabric-listener blocker fix — window sid staging is qualified by the index it was staged for, and an eviction carrying the ZERO sid is RELEASE-TO-ALIAS (entry 0 returns to the ACMP bound record at runtime), 0x0010 lwSRP attribute rows sized L+T-1 instead of max(L,T) — every t>0 talker row was above `N_CTX_P` and refused; out-of-range rows read `0xDEAD` instead of aliasing row 0, `LWSRP_STATUS[11]` is the sticky shortfall flag, talker rows derive MaxFrameSize `24 + 24*C` from their own TCTX chans, and the CRF media clock output is a bindable ACMP talker source at `talker_unique_id = N_STREAMS`) |
+| `0x004` | `VERSION` | RO | `0x0001_0011` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view, 0x000E item-7 playback chain closed in fabric — render crossbar gains a host-ring source (map `SRC` bit) and `KL_i2s_feed_mux` picks the DAC source **and** its pace, plus the PBK probe group 0x8C8-0x8D0, 0x000F fabric-listener blocker fix — window sid staging is qualified by the index it was staged for, and an eviction carrying the ZERO sid is RELEASE-TO-ALIAS (entry 0 returns to the ACMP bound record at runtime), 0x0010 lwSRP attribute rows sized L+T-1 instead of max(L,T) — every t>0 talker row was above `N_CTX_P` and refused; out-of-range rows read `0xDEAD` instead of aliasing row 0, `LWSRP_STATUS[11]` is the sticky shortfall flag, talker rows derive MaxFrameSize `24 + 24*C` from their own TCTX chans, and the CRF media clock output is a bindable ACMP talker source at `talker_unique_id = N_STREAMS`, 0x0011 **six egress queues in 802.1Q order** (higher index = higher priority): q5 CBS SR class A, q4 CBS SR class B, q3 gPTP, q2 MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP, q1 spare, q0 best effort — the CBS window runs to `0x4BF`, `CAP.num_queues` reads 6, the CBS reset slopes are re-derived per queue, `CLS_TC_QUEUE_MAP` packs 3 bits/entry and resets to `0x006D2B00`, and `LWSRP_CTRL`'s class-A queue field widens to `[4:2]` with reset 5) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -169,11 +171,19 @@ good-frame lanes count real traffic.
 | `0x304` | `CLS_DEFAULT_PCP` | RW | `0` | `[2:0]` default port priority for untagged frames |
 | `0x308` | `CLS_PCP_TC_MAP` | RW | `0xFAC688`* | PCP→traffic-class, 8×3 bits: TC of PCP `p` = `[3p+2:3p]` |
 | `0x30C` | `CLS_PRIO_REGEN` | RW | `0xFAC688` (identity) | priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05  -  a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity. |
-| `0x310` | `CLS_TC_QUEUE_MAP` | RW | `0xE4` | TC→queue, `N`×`ceil(log2 N)` bits (default identity `3,2,1,0`) |
+| `0x310` | `CLS_TC_QUEUE_MAP` | RW | `0x006D2B00` | TC→queue, 8×`ceil(log2 N)` bits. At `N`=6 that is 3 bits/entry and the reset is the 6-queue map: TC0/1→q0, TC2→**q4** (SR class B), TC3→**q5** (SR class A), TC4/5→q2 (control), TC6/7→q3 (gPTP); q1 is the reserved spare and is unmapped. An entry naming a queue ≥ `N` is **clamped to q0** by `traffic_class_map` (without the clamp `axis_demux` would silently drop the frame — `select >= M_COUNT`). |
 
-\* Reset packs the Table 8-5 default PCP→TC for 4 classes; driver overwrites via
-`tc mqprio`. The identity map keeps parity with the current enum ordering until
-the driver programs Table 8-5 (see `REQ-CLS-04`).
+\* `0xFAC688` is the **identity** PCP→TC map (TC `p` = `p`), so at reset the
+traffic class *is* the PCP and `CLS_TC_QUEUE_MAP` alone decides the queue. The
+Table 8-5 collapse for a station with fewer than 8 classes is the driver's to
+program via `tc mqprio` (see `REQ-CLS-04`).
+
+**gPTP fast path.** EtherType `0x88F7` short-circuits the tables and always
+lands on `GPTP_CLASS` = **q3**, i.e. *below* the CBS-shaped q5/q4. That is
+deliberate and is a correctness requirement, not a preference — see
+[EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) §"Why gPTP sits below the shaped
+classes". With `CLS_CTRL[1]` set the fast path also demands the reserved DMAC
+(`REQ-CLS-07`).
 
 ### 0x400  -  802.1Qav CBS (per queue)  `(REQ-CBS-01..03)`
 
@@ -184,21 +194,29 @@ Per queue `q ∈ [0,N)` at `0x400 + q*0x20`:
 | `+0x00` | `CBS_IDLE_SLOPE` | RW | see below | idleSlope, bits/s (sendSlope = idleSlope − portRate, derived in HW) |
 | `+0x04` | `CBS_HI_CREDIT` | RW | see below | hiCredit, signed bytes |
 | `+0x08` | `CBS_LO_CREDIT` | RW | see below | loCredit, signed bytes |
-| `+0x0C` | `CBS_CTRL` | RW | q<2?1:0 | `[0]` shaped-enable (0 = strict priority, credit forced eligible) |
+| `+0x0C` | `CBS_CTRL` | RW | `0` | `[0]` shaped-enable (0 = strict priority, credit forced eligible) |
 
-Reset defaults (`milan_csr` `CBS_*_RST`, mirroring `ethernet_packet_pkg.sv`):
+Reset defaults (`milan_csr` `CBS_*_RST`, mirroring `ethernet_packet_pkg.sv`).
+**Indexed by queue**, so row 0 is q0 = best effort and row 5 is q5 = SR class A
+— the table used to run the other way round, because q0 used to be the
+highest-priority queue:
 
-| q | idleSlope | hiCredit | loCredit | shaped |
-|---|-----------|----------|----------|--------|
-| 0 | 300 Mb/s | 456 | −1065 | 0 |
-| 1 | 200 Mb/s | 304 | −1217 | 0 |
-| 2 | 150 Mb/s | 228 | −1293 | 0 |
-| 3 | 100 Mb/s | 152 | −1369 | 0 |
+| q | class | idleSlope | % of 1 Gb/s | hiCredit | loCredit | shaped |
+|---|-------|-----------|-------------|----------|----------|--------|
+| 5 | SR class A (CBS) | 450 Mb/s | 45 % | 684 | −837 | 0 |
+| 4 | SR class B (CBS) | 150 Mb/s | 15 % | 228 | −1293 | 0 |
+| 3 | gPTP | 50 Mb/s | 5 % | 76 | −1445 | 0 |
+| 2 | control (MAAP/MSRP/MVRP, ADP/ACMP/AECP) | 50 Mb/s | 5 % | 76 | −1445 | 0 |
+| 1 | reserved spare | 25 Mb/s | 2.5 % | 38 | −1483 | 0 |
+| 0 | best effort | 25 Mb/s | 2.5 % | 38 | −1483 | 0 |
 
-Σ idleSlope = 750 Mb/s = 75 % of the 1 Gb/s port rate (`REQ-CBS-03`); hi/lo are
-`calc_hi/lo_credit(idleSlope, 1e9)` for MAX_FRAME_SIZE = 1522.
+Σ idleSlope = 750 Mb/s = 75 % of the 1 Gb/s port rate (`REQ-CBS-03`); the two
+shaped classes alone are 600 Mb/s = 60 %, which is the figure 802.1Q-2018
+§34.3.1 actually constrains. hi/lo are `calc_hi/lo_credit(idleSlope, 1e9)` for
+MAX_FRAME_SIZE = 1522. The 100 Mb/s table (`IDLE_SLOPE_100M`) is the same
+shares of 100 Mb/s.
 
-**ALL queues power up unshaped** (`CBS_EN_RST = 0b0000`): the default class map
+**ALL queues power up unshaped** (`CBS_EN_RST = 0b000000`): the default class map
 routes untagged/BE traffic to q0, and shaping q0 at reset silently paced all
 best-effort TX to ~250 Mbit/s (measured on silicon 2026-07-07, see
 [CBS_DEFAULT_SHAPING_BUG.md](../findings/CBS_DEFAULT_SHAPING_BUG.md)). Software opts a queue in via `CBS_CTRL[0]`
@@ -224,7 +242,7 @@ Write semantics:
 
 A queue with `CBS_CTRL[0]=0` (or a PCP that maps to it) is **strict
 priority / unshaped** (`allow_transmit` forced 1 in `credit_based_shaper.sv`). At
-reset **no queue is shaped** (`CBS_EN_RST = 0b0000`, see the reset-defaults note
+reset **no queue is shaped** (`CBS_EN_RST = 0b000000`, see the reset-defaults note
 above). Software chooses which queues are SR/shaped (subject to the
 75 % Σ idleSlope budget) by programming the PCP→queue map and the per-queue enables
 together  -  e.g. `tc mqprio` + `tc cbs offload`.
@@ -436,7 +454,9 @@ While enabled it declares MSRP Domain (+ TalkerAdvertise when `[1]` is set)
 and the MVRP VID every JoinTime, registers the bridge's Listener attribute
 for our StreamID `{station MAC, 0}`, and resolves the reservation into the
 AAF admission gate + the class-A CBS idleSlope (hardware mux over the 0x400
-value of the queue selected in `LWSRP_CTRL[3:2]` — no CSR write-back).
+value of the queue selected in `LWSRP_CTRL[4:2]` — no CSR write-back). A qidx
+that names a queue ≥ `N` leaves the 0x400 values untouched (`milan_datapath`
+gates the mux on the index being real).
 
 While enabled it also:
 
@@ -447,7 +467,7 @@ While enabled it also:
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x680` | `LWSRP_CTRL` | RW | `0xC` | `[0]` engine enable, `[1]` talker declare, `[3:2]` class-A queue for the slope mux (reset 3 = the reset PCP3→TC3→q3 map) |
+| `0x680` | `LWSRP_CTRL` | RW | `0x14` | `[0]` engine enable, `[1]` talker declare, `[4:2]` class-A queue for the slope mux (reset **5** = the reset PCP3→TC3→**q5** map). The field was `[3:2]` until VERSION `0x0011`; it had to widen because the 802.1Q-ordered map puts SR class A on q5 and 2 bits cannot reach it. |
 | `0x684` | `LWSRP_VID` | RW | `2` | `[11:0]` SR VID (Domain + DataFrameParameters + MVRP) |
 | `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | stream dest MAC `[31:0]` (same packing as `AAF_DM*`) |
 | `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | stream dest MAC `[47:32]` |

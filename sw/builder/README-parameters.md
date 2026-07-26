@@ -57,7 +57,7 @@ any disagreement.
 | `srp.sr_class` | `A` | `A` | Milan v1.2 §5.6 defines class A only for a Milan end station; class B is rejected. |
 | `srp.vid` | int 1..4094 | `2` | The SR VID. `0` is rejected — a stream on VID 0 floods **unshaped**. |
 | `srp.stream_dmac_base` | MAC-48 hex | `0x91E0F000FE01` | Must be multicast (MAAP range). Stream `t` declares `base + t` (the MAAP-base+uid rule). |
-| `srp.class_queue` | int, `< num_queues` | `3` | `LWSRP_CTRL[3:2]`, the class-A queue the granted slope muxes into (reset PCP3→TC3→q3). |
+| `srp.class_queue` | int, `< num_queues` | `5` | `LWSRP_CTRL[4:2]`, the class-A queue the granted slope muxes into (reset PCP3→TC3→q5 — q5 is the top of the 802.1Q-ordered 6-queue egress map). |
 | `srp.enable_at_reset` / `talker_declare_at_reset` | bool | `false` | `LWSRP_CTRL[0]` / `[1]`. |
 | `srp.accumulated_latency_ns` | uint32 | `0` | `LWSRP_LATENCY` (0x6A0). |
 | `srp.bandwidth_limit_pct` | int 1..100 | `75` | Milan §5.6 / 802.1Q §34.3.1. Gate 18b checks the `KL_lwsrp_bw_gate` 750e6/75e6 ceiling literals against it. |
@@ -132,9 +132,12 @@ those trees are absent).
 | `platform.dma_coherent` | bool | `true` | Emits `dma-coherent;`. |
 | `platform.boot_chain_pin` | map `window → address` | absent | **The CSR-rot guard.** The flashed DTB/opensbi/`kl-eth` address these windows *by address*; if `rx_queues` would move a pinned one, the build is REFUSED. |
 
-`board.constraints.num_queues` (default `4`) joins the schema here: it is
+`board.constraints.num_queues` (default `6`) joins the schema here: it is
 `ethernet_packet_pkg::NUMBER_OF_QUEUES`, sizes the CBS tables and bounds
-`srp.class_queue`; gate 18c parses the package and compares.
+`srp.class_queue`; gate 18c parses the package and compares. It is **not**
+required to be a power of two - the shipping egress map is six queues
+(q5 SR class A down to q0 best effort, see
+[EGRESS_QUEUE_MAP.md](../../docs/reference/EGRESS_QUEUE_MAP.md)).
 
 Derived DT properties: `phy-mode` from `board.constraints.phy`
 (`mii-100 → mii`, `gmii-1g → gmii`), and `kl,rsc-clk-mhz` from
