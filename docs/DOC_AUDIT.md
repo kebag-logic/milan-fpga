@@ -1,5 +1,10 @@
 # Documentation Audit & Restructure Plan
 
+<!-- docs-check: allow-dead-refs — this page IS the archive ledger: naming the
+     documents that were archived or untracked is its job, so the dead-reference
+     rule in scripts/docs_check.py is deliberately switched off here. Living docs
+     must never carry such a reference. -->
+
 Date: 2026-07-23
 Scope: full 79-doc corpus (the milan-fpga repo, all `*.md`).
 Nature: **planning + drafting only** — no existing doc is edited, moved, or deleted by this

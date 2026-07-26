@@ -9,8 +9,26 @@ jobs:
   docs-check:
     runs-on: ubuntu-latest
     steps:
+      # No submodules on purpose: all three gates below are pure Python and must
+      # keep working for someone who only has the repo (see QUICKSTART.md).
       - uses: actions/checkout@v4
-      - name: Link health, wording and local-info gate
+      - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
       - name: Traceability matrix no-drift gate
         run: python3 docs/traceability/gen_module_matrix.py --check
+      - name: End-station builder gates
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 sw/builder/test_builder.py
+
+  # The same docs gate with no git metadata at all - proves it still runs in an
+  # extracted tarball or a downloaded zip, which is how most outsiders will
+  # first meet this repo.
+  docs-check-no-git:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strip git metadata, then run the docs gate
+        run: |
+          rm -rf .git
+          python3 scripts/docs_check.py

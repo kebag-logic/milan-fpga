@@ -5,7 +5,7 @@ maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
 configuration, and the per-board load/console facts you need after a build
 lands. Test layers around a build: [../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md). Live lab
-state: ../findings/HANDOVER.md.*
+state: [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md).*
 
 ## 1. Usage
 
