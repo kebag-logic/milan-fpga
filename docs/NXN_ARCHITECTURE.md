@@ -356,6 +356,84 @@ the context engine. Generalization (SRP-9, [Q-35.2.7]):
   with the Class A reservation [M-7.3.3] — the CRF stream stops riding
   untagged best-effort (gaps §2 REMAINING item).
 
+#### 3.4.1 Attribute-row map and sizing  *(SHIPPED 2026-07-26)*
+
+An lwSRP attribute row is **not** a stream. The CSR `0x800` window
+(`milan_csr` `srp_sel_row_w`) addresses `KL_lwsrp_ctx` rows as
+
+| window selection | ctx row |
+|---|---|
+| row 0 | the legacy talker+listener pair (`LWSRP_*` 0x680 group) |
+| listener idx `k` (1..L-1) | `k` |
+| talker idx `t` (1..T-1) | `(L-1)+t` |
+
+so the highest row an `LxT` shape can name is `(L-1)+(T-1)` and the table
+must be **`L+T-1` rows**, *not* `max(L,T)`. `milan_datapath` therefore
+elaborates
+
+```
+localparam int SRP_CTX_ROWS_C = 2*N_STREAMS - 1;      // L = T = N_STREAMS
+KL_lwsrp_top #(.N_CTX_P(SRP_CTX_ROWS_C),
+               .N_LISTENERS_P(N_STREAMS),
+               .N_TALKERS_P (N_STREAMS)) ...
+```
+
+`N_TALKERS_P` is deliberately separate from `N_CTX_P`: `stream_gate_o`,
+`res_active` and the Σ-slope engine stay **T** wide (indexed by talker
+stream index, which is what `aaf_stream_en_w` consumes), so the bw-gate
+does not grow to 15 slope slots at 8x8 for 7 usable talkers. Inside
+`KL_lwsrp_top` talker `t` reads extra lane `(L-1)+t-1`.
+
+> **What this fixed.** With `N_CTX_P = N_STREAMS` the arithmetic was short
+> by `min(L,T)-1` rows: at 4x4 every talker row (4,5,6) and at 8x8 rows
+> 8..14 were `>= N_CTX_P`, and `KL_lwsrp_ctx` refused them **silently**
+> while the readback aliased row 0 — so the window reported the legacy
+> pair's live status and the legacy stream_id for a row that had never been
+> provisioned. The talker gate compounded it by reading lane `t-1`, a
+> *listener* row, whose `~row_dir` term is 0: every `t>0` admission gate was
+> pinned shut whenever the engine was enabled. `N=1` is unchanged
+> (`2*1-1 = 1`).
+
+**The refusal is now loud.** An out-of-range row is still granted (the port
+must never hang) but `ctx_rd_stat` returns `0xDEAD` — the window's
+"not backed" idiom — instead of row 0's status, and `ctx_oor_o` latches to
+`LWSRP_STATUS[11]`. On a correctly-sized build that bit reads 0; a 1 means
+the shape needs more attribute rows than `N_CTX_P` provides, which is
+otherwise invisible from every counter in the design.
+
+`sw/builder` already computes `ctx_rows_required = L+T-1` and refuses a
+shape needing more than `1 << SRP_CTX_IDX_BITS = 16` rows, so `ctx_idx_i`
+staying 4 bits caps the fabric at `L+T-1 <= 16`, i.e. **N_STREAMS ≤ 8**.
+
+#### 3.4.2 Per-row TSpec  *(SHIPPED 2026-07-26)*
+
+The ctx record carries `{dmac, prio_rank, max_frame, interval, latency}`
+per row and `KL_lwsrp_ctx_tx` serializes each row's own values into its own
+TalkerAdvertise vector, but the `0x800` window has no per-stream TSpec word
+and used to source `max_frame` from the shared `LWSRP_TSPEC` (0x690) for
+every row — a 2-channel and an 8-channel talker reserved identically.
+
+`milan_datapath` now derives it from the geometry the packetizer itself
+frames with: the **same** TCTX w0 `chans` field, under the **same** clamp
+(`chn_clamp`, even 2..8), so the reservation and the wire cannot disagree:
+
+```
+payload       = SAMPLES_PER_FRAME(6) x C x 4  = 24*C octets
+MaxFrameSize  = 24 + 24*C            (the MSDU / AVTPDU — what MSRP wants)
+L2 frame      = 42 + 24*C            = MaxFrameSize + the 802.1Q overhead
+```
+
+which is `sw/builder`'s `srp_frame_geometry` verbatim, so the emitter's
+per-talker `max_frame_bytes` in `lwsrp_table.json` is now what the fabric
+actually declares. Row 0 keeps `LWSRP_TSPEC` untouched (the silicon-proven
+legacy path), and `MaxIntervalFrames` stays shared on purpose — it is an
+SR-class property, and the builder emits one value for every row.
+
+The bw-gate's per-row TSpec shadow captures on the **service beat**
+(`ctx_req_i && !ctx_gnt_o`) — the same cycle `KL_lwsrp_ctx` writes the
+record RAM — not on the grant beat one cycle later, so a caller that drops
+`req/we` at the grant can no longer write a record whose slope is 0.
+
 ### 3.5 CRF Media Clock Output provisioning ([M-7.2.3])
 
 With N ≥ 2 AAF listener sinks, the CRF Media Clock Output is mandatory.
@@ -365,6 +443,46 @@ one STREAM_OUTPUT with format 0x041060010000BB80, no STREAM_PORT per D1);
 (b) MAAP DMAC slot `base + T` (§3.3); (c) lwSRP talker attribute context
 `T` (§3.4); (d) provisioning daemon arms `A_CRFT_*` from the claimed DMAC
 and station identity. The CRF sink side ([M-7.2.2]) is already compliant.
+
+**Fabric half SHIPPED 2026-07-26 — (b) + the bindable talker context, and
+(d) reduced to nothing.** `milan_datapath` elaborates the ACMP talker
+responder at
+
+```
+localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;
+localparam int CRF_TUID_C = N_STREAMS;
+```
+
+so at `N > 1` — exactly the "N ≥ 2 sinks" rule above — source context
+`talker_unique_id = N_STREAMS` **is** the CRF Media Clock Output. A
+controller binds it with the same `CONNECT_TX_COMMAND` / PROBE_TX it uses
+for audio: the responder answers SUCCESS with `stream_id = {station MAC,
+N_STREAMS}` (it echoes the uid tail) and `stream_dest_mac = MAAP block slot
+base + N_STREAMS`, one past the audio sources — so `MAAP_CTRL`'s claimed
+count must be `N_STREAMS+1`. `uid = N_STREAMS+1` still returns
+`TALKER_UNKNOWN_ID`. At `N_STREAMS = 1` the extra context does not exist
+and the responder is the byte-identical single-source shape.
+
+`KL_crf_tx` then takes **that same pair** whenever `CRFT_SIDLO/HI` and
+`CRFT_DMLO/HI` are left at their 0 reset, so what the controller was told
+and what the fabric emits cannot disagree and no daemon has to recompute
+them — step (d) collapses to "leave the registers alone". A non-zero
+`CRFT_SID`/`CRFT_DMAC` still wins outright (today's static provisioning,
+exact).
+
+Still open on the CRF path:
+
+* **(c) the lwSRP talker attribute row.** The `0x800` window addresses
+  talker idx `< T` only, so there is no selection that reaches a row for
+  the CRF output; giving it one needs `N_CTX_P = L+T` plus a window/CSR way
+  to name it. Until then the CRF stream is declared by nothing and its
+  ACMP activation is the PROBE_TX window plus the `A_ACMP_LOBS` socket —
+  honest, but not a Class A reservation ([M-7.3.3]).
+* **(a) the AEM/ADP advertisement.** `ADP_TALKER_SOURCES` and the AEM
+  `STREAM_OUTPUT` count must include the CRF output or a controller never
+  learns the uid exists (builder + `0x600` group).
+* The 8-bit `A_ACMP_TLK*` CSR vectors carry the **audio** sources only;
+  the CRF context would not fit the field at N = 8.
 
 ### 3.6 AEM / AECP changes
 
