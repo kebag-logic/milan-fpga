@@ -108,6 +108,41 @@ module KL_aaf_latency_chain #(
   //! delta-array index for the awaited stage (stg_r-1 -> 0..NDLT_C-1)
   wire [SIDXW_C-1:0] didx_w = stg_r - 1'b1;
 
+  //! same-cycle cascade scans (2026-07-26 silicon/TB find): a combinational
+  //! pipeline hop - e.g. the KL_pcm_route DEPKT->RING pass-through - fires
+  //! two stage pulses in ONE cycle. The old walk consumed one stage per
+  //! cycle, so the second pulse was gone by the time it was awaited and the
+  //! token stranded until timeout. The scans count how many CONSECUTIVE
+  //! awaited stages pulse THIS cycle; the walk consumes them all at once
+  //! (first hop carries the measured delta, each extra same-cycle hop
+  //! records an honest 0-cycle delta).
+  logic [SIDXW_C:0] nadv_w;    //! consecutive pulses from stg_r (mid-chain)
+  logic [SIDXW_C:0] nadv0_w;   //! consecutive pulses from stage 1 (at arm)
+
+  always_comb begin : adv_scan
+    logic run_v, run0_v;
+    nadv_w  = '0;
+    nadv0_w = '0;
+    run_v   = 1'b1;
+    run0_v  = 1'b1;
+    for (int unsigned k = 1; k < N_STAGES_P; k++) begin
+      if ((k >= 32'(stg_r)) && run_v) begin
+        if (stage_p_i[k]) nadv_w = nadv_w + 1'b1;
+        else run_v = 1'b0;
+      end
+      if (run0_v && (k >= 1)) begin
+        if (stage_p_i[k]) nadv0_w = nadv0_w + 1'b1;
+        else run0_v = 1'b0;
+      end
+    end
+  end : adv_scan
+
+  //! delta for hop k of a cascade whose first (measured) hop sits at didx
+  function automatic [DW_P-1:0] hopd(input [31:0] k, input [31:0] didx,
+                                     input [DW_P-1:0] meas);
+    hopd = (k == didx) ? meas : '0;
+  endfunction
+
   function automatic [15:0] inc16(input [15:0] v);
     inc16 = (&v) ? v : v + 16'd1;
   endfunction
@@ -146,13 +181,32 @@ module KL_aaf_latency_chain #(
     end
     else begin
       if (!active_r) begin
-        //! ARM on a stage-0 edge: latch the epoch cycle + gPTP time
+        //! ARM on a stage-0 edge: latch the epoch cycle + gPTP time.
+        //! Later stages pulsing in the SAME cycle are consumed immediately
+        //! as 0-cycle hops (combinational pipeline stages).
         if (stage_p_i[0]) begin
           active_r     <= 1'b1;
           stg_r        <= SIDXW_C'(1);
           prevc_r      <= cyc_i;
           epoch_pend_r <= now_i;
           to_r         <= TOW_C'(TIMEOUT_C);
+          if (nadv0_w != '0) begin
+            for (int unsigned k = 0; k < NDLT_C; k++) begin
+              if (k < 32'(nadv0_w)) begin
+                last_r[k] <= '0;
+                min_r[k]  <= '0;
+                //! max unchanged: 0 never raises it
+              end
+            end
+            if (32'(nadv0_w) == NDLT_C) begin
+              active_r  <= 1'b0;               //! whole chain in one cycle
+              samples_r <= inc16(samples_r);
+              epoch_r   <= now_i;
+            end
+            else begin
+              stg_r <= SIDXW_C'(1) + SIDXW_C'(nadv0_w);
+            end
+          end
         end
       end
       else if (to_r == '0) begin
@@ -162,19 +216,27 @@ module KL_aaf_latency_chain #(
       end
       else begin
         to_r <= to_r - 1'b1;
-        if (stage_p_i[stg_r]) begin
-          last_r[didx_w] <= dsat_w;
-          if (dsat_w < min_r[didx_w]) min_r[didx_w] <= dsat_w;
-          if (dsat_w > max_r[didx_w]) max_r[didx_w] <= dsat_w;
+        if (nadv_w != '0) begin
+          //! consume every consecutive stage pulsing THIS cycle: the first
+          //! hop carries the measured delta, extra hops are 0-cycle
+          for (int unsigned k = 0; k < NDLT_C; k++) begin
+            if ((k >= 32'(didx_w)) && (k < 32'(didx_w) + 32'(nadv_w))) begin
+              last_r[k] <= hopd(k, 32'(didx_w), dsat_w);
+              if (hopd(k, 32'(didx_w), dsat_w) < min_r[k])
+                min_r[k] <= hopd(k, 32'(didx_w), dsat_w);
+              if (hopd(k, 32'(didx_w), dsat_w) > max_r[k])
+                max_r[k] <= hopd(k, 32'(didx_w), dsat_w);
+            end
+          end
           prevc_r <= cyc_i;
           to_r    <= TOW_C'(TIMEOUT_C);       //! re-arm per-stage guard
-          if (32'(stg_r) == NDLT_C) begin
+          if (32'(stg_r) + 32'(nadv_w) - 1 == NDLT_C) begin
             active_r  <= 1'b0;                 //! final stage: sample complete
             samples_r <= inc16(samples_r);
             epoch_r   <= epoch_pend_r;
           end
           else begin
-            stg_r <= stg_r + 1'b1;
+            stg_r <= stg_r + SIDXW_C'(nadv_w);
           end
         end
       end

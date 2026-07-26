@@ -283,9 +283,7 @@ int main(int argc, char** argv) {
 
     printf("=== hostplane: milan_datapath SILICON SHAPE (N=%d, %d MHz) ===\n",
            NSTREAMS_TB, MILAN_CLK_TB / 1000000);
-    printf("KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25):\n");
-    printf("a FAIL below on that tree is the live host-plane regression being\n");
-    printf("caught by design - see tb/verilator/hostplane/README.md.\n");
+    printf("LTAP same-cycle staging FIXED 2026-07-26 (cascade walk in KL_aaf_latency_taps).\n");
 
     // ---- reset with the SoC's stub levels (milan_soc.py ports dict) ----
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
@@ -549,8 +547,6 @@ int main(int argc, char** argv) {
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
-    if (fails)
-        printf("NOTE: KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25)\n");
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final();
     delete dut;

@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0001000B);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001000C);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -562,7 +562,7 @@ int main(int argc, char** argv) {
   ck("talker PDUS = AAF_FRAMES", axi_read(A_SW_PDUS), 0xCAFE0001);
   // STATE = {4'0, srp9, 15'0, gate, lobs, active, armed}
   ck("talker STATE pack", axi_read(A_SW_STATE), (0x1FFu << 19) | (1u << 3) | 1u);
-  ck("talker CNT0 zero", axi_read(A_SW_CNT0), 0);
+  ck("talker CNT0 poison (not-backed rule 2026-07-26)", axi_read(A_SW_CNT0), 0xDEADDEADu);
   // events after the snap do NOT move the latched block (snapshot semantics)
   dut->i_aaf_frames = 0xCAFE0099;
   ck("PDUS frozen until next SNAP", axi_read(A_SW_PDUS), 0xCAFE0001);
