@@ -13,9 +13,13 @@
                 - AXI-Stream pass-through for Ethernet frames (combinational,
                   never stalls the tap).
                 - Latches the PHC value at each frame's FIRST beat (SOP).
-                - Parses ethertype / PTP messageType / sequenceId at their
-                  fixed untagged-gPTP offsets (802.1AS frames are untagged;
-                  a VLAN-tagged frame simply never matches ETH_TYPE).
+                - Parses ethertype / PTP messageType / sequenceId at the
+                  untagged-gPTP offsets, and at the C-TAG-shifted offsets when
+                  the frame carries an 802.1Q tag (REQ-PTP-09): TPID 0x8100 at
+                  bytes 12-13 moves ethertype to 16-17, messageType to 18 and
+                  sequenceId to 48-49. 802.1AS-2020 §11.3.3 lets a port send
+                  gPTP with a VLAN tag; before this the tagged frames simply
+                  never matched ETH_TYPE and silently produced no timestamp.
                 - Qualifies at TLAST: ethertype match AND an EVENT message
                   (msgType[3:2]==00 - Sync/Delay_Req/Pdelay_Req/Pdelay_Resp,
                   REQ-PTP-05). General messages (Announce, Follow_Up,
@@ -86,11 +90,18 @@ module ptp_ts_core #(
 
 localparam int BEAT_BYTES = TDATA_WIDTH / BYTE_TO_BIT;
 
-// Fixed untagged-gPTP byte offsets and the beats that carry them (64-bit beats):
-// ethertype @12-13 and messageType @14 live in beat 1 (bytes 8-15);
-// sequenceId @44-45 lives in beat 5 (bytes 40-47).
-localparam int ETHTYPE_BEAT_OFF = 8;
-localparam int SEQID_BEAT_OFF   = 40;
+// Fixed gPTP byte offsets and the beats that carry them (64-bit beats):
+//   UNTAGGED: ethertype @12-13 + messageType @14 in beat 1 (bytes 8-15);
+//             sequenceId @44-45 in beat 5 (bytes 40-47).
+//   C-TAGGED (REQ-PTP-09, +4 bytes of tag): TPID 0x8100 @12-13 in beat 1;
+//             ethertype @16-17 + messageType @18 in beat 2 (bytes 16-23);
+//             sequenceId @48-49 in beat 6 (bytes 48-55).
+// Both offset sets land on beat boundaries only because BEAT_BYTES == 8, which
+// is what both real instantiations use (milan_datapath / milan_top).
+localparam int ETHTYPE_BEAT_OFF     = 8;
+localparam int SEQID_BEAT_OFF       = 40;
+localparam int TAG_ETHTYPE_BEAT_OFF = 16;
+localparam int TAG_SEQID_BEAT_OFF   = 48;
 
 //! Byte-lane LSB index by WIRE order within a beat, as ELABORATION constants
 //! (a function capturing the BIG_ENDIAN parameter is legal SV but is exactly
@@ -101,11 +112,17 @@ localparam int LANE13 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-5) : 8*5;  // frame byte 13
 localparam int LANE14 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-6) : 8*6;  // frame byte 14
 localparam int LANE44 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-4) : 8*4;  // frame byte 44
 localparam int LANE45 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-5) : 8*5;  // frame byte 45
+//! C-TAG-shifted extracts (REQ-PTP-09): bytes 16/17/18 and 48/49 all sit at
+//! lane offsets 0/1/2 of their beat.
+localparam int LANE_B0 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-0) : 8*0;  // bytes 16 / 48
+localparam int LANE_B1 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-1) : 8*1;  // bytes 17 / 49
+localparam int LANE_B2 = BIG_ENDIAN ? 8*(BEAT_BYTES-1-2) : 8*2;  // byte  18
 
 //! Flag indicating the next accepted beat is a frame's first (SOP)
 logic start_packet = 1'b1;
-//! Byte offset of the current beat from frame start (stops past the extracts)
-logic [$clog2(SEQID_BEAT_OFF + 2*BEAT_BYTES):0] byte_counter;
+//! Byte offset of the current beat from frame start (stops past the extracts -
+//! now the C-TAG-shifted seqId beat, the furthest field we look at)
+logic [$clog2(TAG_SEQID_BEAT_OFF + 2*BEAT_BYTES):0] byte_counter;
 //! PHC value latched at the current frame's SOP
 logic [TS_WIDTH-1:0] ts_sop;
 
@@ -120,6 +137,9 @@ logic        eth_type_valid = 1'b0;
 logic [3:0]  msg_type;
 logic [15:0] ptp_seq_id;             // held in WIRE byte order {b44, b45}
 logic        ptp_seq_id_valid = 1'b0;
+//! Frame carries an 802.1Q C-TAG (TPID 0x8100 at bytes 12-13), latched at
+//! beat 1 so the shifted extract beats below can select on it (REQ-PTP-09).
+logic        vlan_tagged = 1'b0;
 
 wire beat_acc = s_axis.tvalid && s_axis.tready;
 //! EVENT-message qualification (REQ-PTP-05, IEEE 1588-2019 Table 36 / §7.3.4).
@@ -159,7 +179,7 @@ always_ff @(posedge ts_dst_clk) begin : sop_and_counter
       start_packet <= 1'b0;
       // stop counting once every extract offset has passed (overflow-safe
       // for any frame length; comparisons below only need exact low values)
-      if (byte_counter <= SEQID_BEAT_OFF)
+      if (byte_counter <= TAG_SEQID_BEAT_OFF)
         byte_counter <= byte_counter + BEAT_BYTES;
     end
     if (start_packet)
@@ -176,6 +196,12 @@ wire [7:0] et_lo = s_axis.tdata[LANE13 +: 8];
 wire [7:0] mt_b  = s_axis.tdata[LANE14 +: 8];
 wire [7:0] sq_hi = s_axis.tdata[LANE44 +: 8];
 wire [7:0] sq_lo = s_axis.tdata[LANE45 +: 8];
+//! C-TAG-shifted views of the same fields (REQ-PTP-09)
+wire [7:0] tet_hi = s_axis.tdata[LANE_B0 +: 8];   // frame byte 16
+wire [7:0] tet_lo = s_axis.tdata[LANE_B1 +: 8];   // frame byte 17
+wire [7:0] tmt_b  = s_axis.tdata[LANE_B2 +: 8];   // frame byte 18
+wire [7:0] tsq_hi = s_axis.tdata[LANE_B0 +: 8];   // frame byte 48
+wire [7:0] tsq_lo = s_axis.tdata[LANE_B1 +: 8];   // frame byte 49
 
 always_ff @(posedge ts_dst_clk) begin : field_extraction
   if (!ts_dst_resetn) begin
@@ -184,21 +210,40 @@ always_ff @(posedge ts_dst_clk) begin : field_extraction
     ptp_seq_id       <= '0;
     eth_type_valid   <= 1'b0;
     ptp_seq_id_valid <= 1'b0;
+    vlan_tagged      <= 1'b0;
   end
   else if (beat_acc) begin
+    //! Beat 1 (bytes 8-15): either the untagged ethertype+messageType, or the
+    //! C-TAG's TPID - in which case the real fields are 4 bytes further on and
+    //! nothing is qualified yet (REQ-PTP-09).
     if (!start_packet && byte_counter == ETHTYPE_BEAT_OFF) begin
-      eth_match <= ({et_hi, et_lo} == ETH_TYPE);
-      msg_type <= mt_b[3:0];
+      vlan_tagged <= ({et_hi, et_lo} == ETH_TYPE_VLAN);
+      if ({et_hi, et_lo} != ETH_TYPE_VLAN) begin
+        eth_match <= ({et_hi, et_lo} == ETH_TYPE);
+        msg_type <= mt_b[3:0];
+        eth_type_valid <= 1'b1;
+      end
+    end
+    //! Beat 2 (bytes 16-23), tagged frames only: the C-TAG-shifted ethertype
+    //! and messageType.
+    if (!start_packet && vlan_tagged && byte_counter == TAG_ETHTYPE_BEAT_OFF) begin
+      eth_match <= ({tet_hi, tet_lo} == ETH_TYPE);
+      msg_type <= tmt_b[3:0];
       eth_type_valid <= 1'b1;
     end
-    if (!start_packet && byte_counter == SEQID_BEAT_OFF) begin
+    if (!start_packet && !vlan_tagged && byte_counter == SEQID_BEAT_OFF) begin
       ptp_seq_id <= {sq_hi, sq_lo};
+      ptp_seq_id_valid <= 1'b1;
+    end
+    if (!start_packet && vlan_tagged && byte_counter == TAG_SEQID_BEAT_OFF) begin
+      ptp_seq_id <= {tsq_hi, tsq_lo};
       ptp_seq_id_valid <= 1'b1;
     end
     if (s_axis.tlast) begin
       eth_type_valid   <= 1'b0;
       eth_match        <= 1'b0;
       ptp_seq_id_valid <= 1'b0;
+      vlan_tagged      <= 1'b0;
     end
   end
 end
