@@ -27,7 +27,7 @@ R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 # ========================================================================
 case "$BOARD" in
   arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536; RXQ=2;;
-  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=32768; RXQ=1;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven)
+  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=16384; RXQ=1;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven); L2 16K = the 8x8 shape that closed (build.sh cfg_ax8x8), NOT the 1x1 32K
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
 # NS = NxN dataplane width (--num-streams / milan_datapath N_STREAMS). It is a

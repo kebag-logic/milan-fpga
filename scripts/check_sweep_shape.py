@@ -58,16 +58,14 @@ BUILD_CFGS = {
 # instead of being an untracked gap.
 #   (source, board/cfg, key): (source_value, config_value, reason)
 PINNED = {
-    ("build.sh", "ax8x8", "l2_bytes"): (
-        16384, 32768,
-        "the FLASHED ax8x8 gateware was built with --l2-bytes 16384 "
-        "(build_ax8x8_rxq1fix_eppo.log line 1: `l2_bytes=16384`) because the "
-        "8-stream shape did not close at 32K, but "
-        "configs/endstation_ax7101_8x8.yaml still declares 32768 - and "
-        "test_builder gate 9 pins sweep.sh's L2 to that config. Resolving it "
-        "means changing the CONFIG (configs/ is the declarative source), not "
-        "this script. Recorded 2026-07-26; see docs/limitations/"
-        "KNOWN_ISSUES_AND_LIMITATIONS.md."),
+    # (empty) - the ax8x8 l2_bytes divergence was RESOLVED 2026-07-26 by
+    # correcting configs/endstation_ax7101_8x8.yaml from 32768 to 16384.
+    # The USER 32K authorisation belongs to the 1x1 bench shape
+    # (build.sh cfg_ax7101, --rx-queues 2); cfg_ax8x8 is --l2-bytes 16384
+    # and its own comment records the measured close: WNS +0.080,
+    # LUT 85.15%, TNS 0, all seeds. The deployed 8x8 bitstream was built
+    # at 16384. Keep this dict as the place to record a DELIBERATE, dated
+    # divergence rather than letting one go untracked.
 }
 
 
