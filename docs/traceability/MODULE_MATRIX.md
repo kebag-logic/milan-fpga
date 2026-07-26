@@ -14,7 +14,7 @@ that is the coverage gap this matrix exists to make visible.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · ⚪ not compiled by any TB.
 
-**Totals:** 77 modules · 74 with a dedicated TB · 0 exercised-only · 43 field-fuzzed · **1 not in any TB**
+**Totals:** 78 modules · 75 with a dedicated TB · 0 exercised-only · 44 field-fuzzed · **1 not in any TB**
 
 ## ⚪ Untested modules (the backlog)
 
@@ -58,14 +58,15 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `chmap_capture` · `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | — |
 | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | — |
 | ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · 🔬`make aaf` | — |
+| ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `hostplane` · `milan_dp` · `pcm_playback` · 🔬`make aaf` | — |
+| ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `hostplane` · `milan_dp` · `pcm_playback` · 🔬`make aaf` | — |
+| ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `pcm_playback` · 🔬`make aaf` | — |
 | ✅ `KL_lat_history_ring` | `ieee1722/aaf/KL_lat_history_ring.sv` | `lat_history_ring` · 🔬`make aaf` | — |
 | ✅ `KL_media_adv` | `ieee1722/aaf/KL_media_adv.sv` | `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `hostplane` · `milan_dp` · `pcmlpf` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_ring_bram` | `ieee1722/aaf/KL_pcm_ring_bram.sv` | `hostplane` · `pcm_ring_bram` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_pcm_tx` | `ieee1722/aaf/KL_pcm_tx.sv` | `pcm_tx` · ➰hostplane,milan_dp · 🔬`make aaf` | — |
+| ✅ `KL_pcm_tx` | `ieee1722/aaf/KL_pcm_tx.sv` | `pcm_playback` · `pcm_tx` · ➰hostplane,milan_dp · 🔬`make aaf` | — |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | — |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `hostplane` · `milan_dp` · `tdm_render` · 🔬`make aaf` | — |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `hostplane` · `milan_dp` · 🔬`make aaf` | — |
@@ -128,8 +129,8 @@ _CSR, CDC, RMON, utilities_
 | ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `hostplane` · `link_guard` · `milan_dp` | 6.2.5, 6.2.5.2.2 |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` | — |
-| ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` | — |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `cdc` · `crf_tx` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` | — |
+| ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `pcm_playback` · `tdm` · `tdm_render` | — |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `cdc` · `crf_tx` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `pcm_playback` · `ptp_ts` | — |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | — | — |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `hostplane` · `ifg` · `milan_dp` | — |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `hostplane` · `milan_dp` | — |

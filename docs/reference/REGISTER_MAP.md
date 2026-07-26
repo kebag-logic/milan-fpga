@@ -47,6 +47,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
+| `0x8C8` | Playback chain probe (item-7: host ring -> render crossbar -> DAC) |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) |
 
@@ -60,7 +61,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_000D` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view) |
+| `0x004` | `VERSION` | RO | `0x0001_000E` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view, 0x000E item-7 playback chain closed in fabric — render crossbar gains a host-ring source (map `SRC` bit) and `KL_i2s_feed_mux` picks the DAC source **and** its pace, plus the PBK probe group 0x8C8-0x8D0) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -737,6 +738,40 @@ get a rate.
 | climbing | static | the parser sees them and the compare misses — diff `APRB_SID_*` against the bind record (`0x814`/`0x818`) and check `INFO[23:16]` is non-zero (a table with **no armed entry** matches nothing) |
 | climbing | climbing | the match is fine; the loss is downstream — `AVTPRX_ERR` (format) then the depacketizer/ring |
 
+### 0x8C8  -  Playback chain probe  `(PBK, roadmap item-7: KL_pcm_tx -> KL_chan_map_render -> KL_i2s_feed_mux -> KL_i2s_playback)`
+
+**Why this group exists (2026-07-26).** The playback engine's own control and
+status (`pb_enable`, ring base/len/stride, per-stream `wr_ptr`/`rd_ptr`,
+underrun/overrun) are **migen** CSRs generated inside the LiteX SoC
+(`sw/litex/milan_soc.py`), so they exist only on that build and never appear
+in this map. Nothing on the AXI-Lite control plane could answer the first
+question you ask of a silent line-out: *did any audio frame reach the DAC at
+all, and if not, where did it stop?* These three words answer it end to end —
+`PBK_FEEDS` moving proves the chain is delivering, `PBK_STAT[15:0]` separates
+"armed and genuinely silent" from "you never programmed the map", and
+`PBK_RAILS` says whether the host is keeping the ring fed.
+
+All words are live RO (no arm, no snapshot) and free-running from reset; read
+them twice to get a rate. Same `>= 0x800` `rd_in_window` carve-out class as
+the `0x8B4` and `0x870` groups (without it the whole block reads 0 while the
+fabric counts fine — the `0x8F8` dead-read trap).
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x8C8` | `PBK_STAT` | RO | `0` | `[15:0]` disarmed-render frames: media frames delivered to the DAC while the crossbar was selected and **no** map entry backed phys{0,1} (saturates at `0xFFFF`) — nonzero means the audio is silent because the map is empty, not because the source is; `[16]` feed source (1 = render crossbar, 0 = legacy listener tap) = `CHMAP_CTRL[0]`; `[17]` `KL_pcm_tx` is walking a sample tick; `[18]` playback master enable; `[19]` phys{0,1} armed in the render map; `[21:20]` reserved 0; `[31:22]` per-phys playback-source mask (map entry `EN` **and** `SRC` = playback), phys 0..9 |
+| `0x8CC` | `PBK_FEEDS` | RO | `0` | media frames handed to the `KL_i2s_playback` producer on the **live** source (32-bit, wraps). Render mode counts 48 kHz media ticks; legacy mode counts accepted listener-tap beats. A **static** count with the chain armed is the "nothing is being delivered" verdict |
+| `0x8D0` | `PBK_RAILS` | RO | `0` | `KL_pcm_tx` host-ring rails, summed across streams and saturating at `0xFFFF` per half: `[31:16]` underruns (ring empty at a media tick — the host is not refilling; the pair is still emitted so the cadence never skews), `[15:0]` overruns (host lapped the reader by more than one sub-ring; `rd_ptr` fast-forwards one lap) |
+| `0x8D4` | - | - | `0` | unmapped (reads 0, never shadow-aliased) |
+
+**Reading a silent line-out** (playback armed, nothing audible):
+
+| `PBK_FEEDS` | `PBK_STAT[15:0]` | `PBK_RAILS[31:16]` | verdict |
+|---|---|---|---|
+| static | - | - | nothing is reaching the DAC feed. If `PBK_STAT[16]` = 0 the crossbar is not even selected (`CHMAP_CTRL[0]`); if it is 1 the media grid is dead |
+| climbing | climbing | - | the crossbar is running but the render map is empty — program phys 0/1 (`CHMAP_SEL`/`CHMAP_WORD` with `SRC` = playback) and re-check `PBK_STAT[31:22]` |
+| climbing | static 0 | climbing | the map is armed and the DAC is being fed, but the **host** is starving the ring — the samples are repeat-last (or silence) substitutes, not audio. Look at the ALSA writer, not the fabric |
+| climbing | static 0 | static | the chain is delivering real ring words; a silent output is downstream (DAC mute/level, `I2SPB_STAT` rails at `0x6D8`) |
+
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 
 The CRF clock-recovery ACTUATOR (status word + control knobs; loop
@@ -759,7 +794,10 @@ read here would be the 0x8F8 dead-read trap).
 
 `CHMAP_CTRL[0]` = 0 (reset) leaves the deployed audio path bit-identical: the
 render/capture crossbars are muxed OUT of both the packetizer feed and the
-i2s_playback feed. The AEM audio-map projector (1722.1 7.2.19 / Milan es-4.16)
+i2s_playback feed. Setting it to 1 also moves the DAC's **pace** onto the
+48 kHz media grid and masks the render LPF (`KL_i2s_feed_mux`; see the
+`0x8C8` group) - without that a host-ring playback can never advance the
+DAC, because the legacy feed only ticks when an inbound AVB stream does. The AEM audio-map projector (1722.1 7.2.19 / Milan es-4.16)
 is the canonical programmer; this window is the bench override (a documented
 follow-up wires the projector to the same port).
 
@@ -767,7 +805,7 @@ follow-up wires the projector to the same port).
 |--------|------|-----|-------|-------------|
 | `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en - fabric bypass arm. While 0, the default capture/render paths drive bit-identically and `CHMAP_WORD` writes are refused (counted in `CHMAP_STAT[23:16]`). Set 1 after programming the map to select the crossbar outputs |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` map entry index, `[8]` side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture pair slot 0..31). Selects the target of the next `CHMAP_WORD` write |
-| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word |
+| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word. **Render side (RMAP)**: `SRC[12]` selects the source bank — 0 = AVB listener, `IDX` = `{stream[6:4], ch[2:0]}` (the pre-item-7 meaning, and what the AEM projector always writes); 1 = **host playback ring**, `IDX` = `{[6:4],[2:0]}` read as one linear playback channel `2*pair_slot + (0 L / 1 R)` from `KL_pcm_tx`. This is the only route from an ALSA playback ring to the line-out |
 | `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem/csr commits (wraps), `[23:16]` csr_refused (override disarmed; saturates) |
 | `0x910`-`0x93C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased) |
 

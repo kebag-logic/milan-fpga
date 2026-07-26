@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x000D (parser probe group)", axi_read(A_VERSION), 0x0001000D);
+    ck("VERSION 0x000E (item-7 playback chain)", axi_read(A_VERSION), 0x0001000E);
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};

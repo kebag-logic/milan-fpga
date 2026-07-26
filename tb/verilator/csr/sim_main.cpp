@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0001000D);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001000E);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -617,13 +617,31 @@ int main(int argc, char** argv) {
   ck("APRB last SID_LO 0x8BC",   axi_read(0x8BC), aprb[2]);
   ck("APRB last SID_HI 0x8C0",   axi_read(0x8C0), aprb[3]);
   ck("APRB info 0x8C4",          axi_read(0x8C4), aprb[4]);
-  // the word above the group is unmapped: reads 0, never a shadow alias
-  ck("APRB 0x8C8 unmapped reads 0", axi_read(0x8C8), 0);
   // live: the words follow their inputs with no arm/strobe needed
   for (int k = 0; k < 5; ++k) dut->i_aprb_regs[k] = 0xA5A50000u + k;
   posedge(); posedge();
   ck("APRB word 0 live",  axi_read(0x8B4), 0xA5A50000u);
   ck("APRB word 4 live",  axi_read(0x8C4), 0xA5A50004u);
+
+  // ---- item-7 playback chain probe (PBK 0x8C8-0x8D0) --------------------
+  // 3 packed RO words, same >=0x800 carve-out class as APRB/LTAP above.
+  // These are the ONLY fabric-side evidence of the host-ring -> KL_pcm_tx ->
+  // render crossbar -> DAC chain (every other playback counter is a migen
+  // CSR that exists only inside the LiteX SoC).
+  printf("-- playback chain probe (0x8C8-0x8D0) --\n");
+  const uint32_t pbk[3] = {0x03C0000Bu, 0x0001D4C0u, 0x000700FFu};
+  for (int k = 0; k < 3; ++k) dut->i_pbk_regs[k] = pbk[k];
+  posedge(); posedge();
+  ck("PBK_STAT 0x8C8",  axi_read(0x8C8), pbk[0]);
+  ck("PBK_FEEDS 0x8CC", axi_read(0x8CC), pbk[1]);
+  ck("PBK_RAILS 0x8D0", axi_read(0x8D0), pbk[2]);
+  // the word above the group is unmapped: reads 0, never a shadow alias
+  ck("PBK 0x8D4 unmapped reads 0", axi_read(0x8D4), 0);
+  // live: no arm/strobe, the words track their inputs
+  for (int k = 0; k < 3; ++k) dut->i_pbk_regs[k] = 0x5A5A0000u + k;
+  posedge(); posedge();
+  ck("PBK word 0 live", axi_read(0x8C8), 0x5A5A0000u);
+  ck("PBK word 2 live", axi_read(0x8D0), 0x5A5A0002u);
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
