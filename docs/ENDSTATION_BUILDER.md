@@ -242,10 +242,22 @@ Its per-slot pair stream feeds the `KL_aaf_packetizer` multi-channel
 payload builder (TCTX `chans` = `channels_per_frame`, even 2..8 per
 stream, partitioning the pair-slot space).
 
-`aes3`/`spdif` are contract-only for now (the pair-stream contract
-and the biphase-mark plan live in
-[`hdl/ieee1722/aaf/doc/audio_frontend_family.md`](../hdl/ieee1722/aaf/doc/audio_frontend_family.md)) and validate with a
-planned mark.
+`aes3`/`spdif` are the biphase-mark family. Since 2026-07-26 the ser/des
+RTL exists — `KL_aes3_rx` (recovered symbol clock, X/Y/Z subframe and
+192-frame block framing, P-parity, channel status, honest lock/error
+census) and `KL_aes3_tx` (the encoder), proven by `tb/verilator/aes3` — so
+the config now SELECTS a real family member: one core serves both
+transports and `audio_interface.kind` picks `CONSUMER_P` (AES3-2009
+professional vs IEC 60958-3 consumer channel status) while
+`word_length_bits` picks `WORD_BITS_P` (16/20/24). The builder emits those
+parameters plus the serial clock the transport forces
+(`sampling_rate_hz × 128 UI/frame × 4 oversample`, refused unless it is an
+exact `audio_pll_hz` divide) in `build_plan.md` and in `interface_params`.
+What is still a **planned** mark is the SoC plumbing: the `milan_datapath`
+front-end generate for the AES3 family and the `milan_soc.py
+--audio-interface` value that selects it (the `tdmN` path, reused). The
+pair-stream contract lives in
+[`hdl/ieee1722/aaf/doc/audio_frontend_family.md`](../hdl/ieee1722/aaf/doc/audio_frontend_family.md).
 
 On the AEM side the physical interface is modeled by, per 1722.1:
 - **JACK_INPUT/JACK_OUTPUT** (7.2.7): the physical connector, with
@@ -377,7 +389,7 @@ the field itself.
 | 11 | `clocking.crf_sink` | CRF STREAM_INPUT (appended after AAF listeners) + its INPUT_STREAM CLOCK_SOURCE + `KL_crf_rx` instance | Milan 7.2.2; 1722.1 7.2.9.2 | AEM, SoC |
 | 12 | `clocking.crf_format` | CRF STREAM_INPUT `formats` entry (48 kHz base, 1 ts/PDU, interval 96) | Milan 7.3.2 | AEM |
 | 13 | `clocking.audio_pll_hz` | audio MMCM constraint (MCLK derivation) | — | SoC |
-| 14 | `audio_interface.kind` | ser/des RTL family + params (`i2s_philips` = default front-end; `tdmN` → `--audio-interface` → `AUDIO_IF_SLOTS_P` / `KL_tdm_capture`; `aes3`/`spdif` contract-only); planned: JACK_IN/OUT `jack_type`, EXTERNAL_PORT_IN/OUT, AUDIO_UNIT ext-port counts (D5) | 1722.1 7.2.7 (Table 7-12), 7.2.14, 7.2.3 | SoC, AEM (planned) |
+| 14 | `audio_interface.kind` | ser/des RTL family + params (`i2s_philips` = default front-end; `tdmN` → `--audio-interface` → `AUDIO_IF_SLOTS_P` / `KL_tdm_capture`; `aes3`/`spdif` → `KL_aes3_rx`/`KL_aes3_tx` `CONSUMER_P`, SoC plumbing planned); planned: JACK_IN/OUT `jack_type`, EXTERNAL_PORT_IN/OUT, AUDIO_UNIT ext-port counts (D5) | 1722.1 7.2.7 (Table 7-12), 7.2.14, 7.2.3 | SoC, AEM (planned) |
 | 15 | `audio_interface.word_length_bits` | ser/des word length; bounds usable AAF `bit_depth` | 1722 7.3.4 | SoC |
 | 16 | `audio_interface.cluster_mapping.rule` | AUDIO_CLUSTER + AUDIO_MAP generation policy (D2) | 1722.1 7.2.16, 7.2.19; Milan 5.3.9.1/5.3.10.1 | AEM |
 | 17 | `streams.listeners[].channels` | STREAM_INPUT default `current_format` channel count (= wire `channels_per_frame`) | 1722.1 7.2.6; 1722 7.3.3; Milan 6.4 | AEM, SoC |

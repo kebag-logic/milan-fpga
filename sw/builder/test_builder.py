@@ -61,12 +61,13 @@ Gates (gaps item 4, generator round):
   17. dynamic audio maps (gaps item 8): map_mode dynamic drops the port's
       AUDIO_MAP and emits the `AEM_DYNMAP engine constants; reject paths;
   18a. lwSRP table emitter: the emitted 0x680 reset words + CSR offsets are
-      identical in the THREE hand-written places that carry them today -
-      milan_csr's reset block, milan_csr's csr_default readback table and
-      the REGISTER_MAP Reset column (all parsed at test time);
+      the words milan_csr.sv elaborates - the gate walks emitted word ->
+      the generated LWSRP_*_RST_C symbol -> milan_csr's reset block ->
+      milan_csr's csr_default readback table -> the REGISTER_MAP Reset
+      column (all parsed at test time);
   18b. the emitted SR-class / MRP-timer / bandwidth constants equal the
-      lwsrp_pkg.sv localparams, the PriorityAndRank byte milan_csr
-      duplicates literally, and the KL_lwsrp_bw_gate 75%-ceiling literals;
+      lwsrp_pkg.sv localparams, the PriorityAndRank byte milan_csr drives
+      onto o_srp_ctx_prio_rank, and the KL_lwsrp_bw_gate 75%-ceiling literals;
       the tracked hdl/ieee8021q/srp/gen/lwsrp_table.svh regenerates
       BYTE-IDENTICALLY (the staleness gate);
   18c. TSpec derivation anchored in the RTL frame geometry (KL_aaf_packetizer
@@ -91,7 +92,28 @@ Gates (gaps item 4, generator round):
   19c. reject paths: multicast/missing station MAC, csr_base below the IO
       region, a PCM ring overrun, an unknown pinned window, a non-integer-MHz
       datapath clock - and THE gate, flipping rx_queues under a
-      boot_chain_pin (5ce9a13 verbatim) raises ConfigError.
+      boot_chain_pin (5ce9a13 verbatim) raises ConfigError;
+  20a. THE LOOP IS CLOSED: milan_csr.sv `include-s the generated
+      hdl/common/csr/gen/lwsrp_csr_defaults.svh instead of hand-keeping the
+      0x680 literals. The tracked header regenerates byte-identically, every
+      emitted word equals the FROZEN pre-switch literal (so the switch is a
+      provable zero-change refactor), no 0x680 literal survives in the RTL,
+      the CSR subset agrees word-for-word with lwsrp_table.svh, and every
+      flow that compiles milan_csr.sv carries hdl/common/csr as an include
+      dir (Verilator resolves `include against -I/+incdir and the CWD only,
+      never against the including file's directory);
+  20b. reject paths for the newly RTL-consumed word: a non-boolean
+      enable_at_reset / talker_declare_at_reset (2 << 1 used to land silently
+      in class_queue[0]) or rtl_table raises ConfigError;
+  21a. `audio_interface.kind: aes3|spdif` is a REAL config switch: the
+      biphase-mark ser/des landed (KL_aes3_rx + KL_aes3_tx), one core serves
+      both transports, and the config picks CONSUMER_P (channel-status
+      dialect), WORD_BITS_P (16/20/24) and the serial clock the transport
+      forces (rate x 128 UI/frame x oversample, an exact audio-PLL divide).
+      Parameter names, RTL defaults and the 192-frame block are PARSED from
+      the modules; the non-biphase kinds emit nothing;
+  21b. reject paths: a word length the AES3 subframe cannot carry, and an
+      audio PLL that cannot divide to the serial clock, raise ConfigError.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -331,13 +353,29 @@ def test_capability_marks():
         assert "planned (item 5" in r["plan"], f"{name}: plan lacks marker"
         print(f"  [gate 4] {name}: {len(planned)} planned mark(s) "
               f"(item 5 only; tdm supported), no failure")
-    # aes3/spdif stay planned (contract documented, biphase-mark RTL later)
-    v = _variant(CONFIGS["arty_current"],
-                 lambda c: c["audio_interface"].__setitem__("kind", "aes3"))
-    r = eb.build(v, OUT)
-    planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
-    assert any("item 4" in p for p in planned), "aes3 lost its planned mark"
-    print("  [gate 4] aes3 variant: still planned (biphase-mark RTL later)")
+    # aes3/spdif: the biphase-mark ser/des LANDED (KL_aes3_rx + KL_aes3_tx),
+    # so the transport itself is supported and only the datapath/SoC plumbing
+    # is still a planned mark - the mark must say WHICH half is missing.
+    for kind in ("aes3", "spdif"):
+        v = _variant(CONFIGS["arty_current"],
+                     lambda c, k=kind: c["audio_interface"].__setitem__("kind", k))
+        try:
+            r = eb.build(v, OUT)
+        finally:
+            os.unlink(v)
+        serdes = [m for m in r["marks"] if m[0].endswith("ser/des")]
+        assert serdes and serdes[0][1] == "supported" \
+            and eb.AES3_RX_MODULE in serdes[0][2] \
+            and eb.AES3_TX_MODULE in serdes[0][2], \
+            f"{kind}: ser/des must be supported now: {serdes}"
+        integ = [m for m in r["marks"] if m[0].endswith("datapath integration")]
+        assert integ and integ[0][1].startswith("planned (item 4") \
+            and "milan_datapath" in integ[0][2] \
+            and "milan_soc.py" in integ[0][2], \
+            f"{kind}: SoC plumbing must stay an HONEST planned mark: {integ}"
+        print(f"  [gate 4] {kind} variant: ser/des supported "
+              f"({eb.AES3_RX_MODULE} + {eb.AES3_TX_MODULE}), datapath/SoC "
+              f"plumbing still planned")
     print("  [gate 4] arty_current: zero planned marks")
 
 
@@ -851,7 +889,19 @@ PACKETIZER_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aaf_packetizer.sv")
 ETH_PKG_SV = os.path.join(ROOT, "hdl/common/ethernet_packet_pkg.sv")
 MILAN_SOC_PY = os.path.join(ROOT, "sw/litex/milan_soc.py")
 TRACKED_SRP_SVH = os.path.join(ROOT, "hdl/ieee8021q/srp/gen/lwsrp_table.svh")
+TRACKED_CSR_SVH = os.path.join(ROOT, eb.CSR_DEFAULTS_REL)
 REGMAP_MD = os.path.join(ROOT, "docs/reference/REGISTER_MAP.md")
+
+#: Everything that compiles hdl/common/csr/milan_csr.sv. Since 11944cd that
+#: file `include-s gen/lwsrp_csr_defaults.svh, so each of these must carry
+#: hdl/common/csr as an include dir (gate 20a). (path, regex proving it).
+CSR_INCDIR_CONSUMERS = (
+    ("tb/verilator/csr/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
+    ("tb/verilator/milan_dp/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
+    ("tb/verilator/hostplane/Makefile", r"\+incdir\+\$\(RTL_DIR\)/common/csr"),
+    ("sw/litex/milan_soc.py", r"\"hdl/common/csr\""),
+    ("syn/yosys/run.sh", r"-I \$R/hdl/common/csr"),
+)
 
 #: Real build trees / sibling repo used by the optional cross-check gates.
 #: Absent in a bare container -> those assertions SKIP with a message.
@@ -881,16 +931,30 @@ def _sv_int(txt, pat, label):
     return int(m.group(1).replace("_", ""))
 
 
+def _svh_localparams(txt):
+    """{NAME: int} for every `localparam [W:0] NAME = W'hXXXX_XXXX;` line of a
+    generated include (the only form the emitters produce for the scalars)."""
+    out = {}
+    for m in re.finditer(r"^\s*localparam\s+\[[^\]]+\]\s+(\w+)\s*=\s*"
+                         r"\d+'h([0-9A-Fa-f_]+);", txt, re.M):
+        out[m.group(1)] = int(m.group(2).replace("_", ""), 16)
+    return out
+
+
 def test_lwsrp_reset_words_match_rtl():
-    """Gate 18a: the emitted 0x680 reset words are byte-identical to the
-    THREE hand-written places that carry them today - the milan_csr reset
-    block, the milan_csr csr_default readback table, and the REGISTER_MAP
-    Reset column. A hand edit in any of them that the config does not know
-    about fails here."""
+    """Gate 18a: the emitted 0x680 reset words are the words milan_csr.sv
+    actually elaborates. Since the RTL `include-s the GENERATED header there
+    is no second hand-written copy left to compare against, so the chain the
+    gate walks is: emitted word -> the LWSRP_*_RST_C symbol in the tracked
+    hdl/common/csr/gen/lwsrp_csr_defaults.svh -> the symbol milan_csr's reset
+    block assigns -> the symbol its csr_default readback table returns -> the
+    REGISTER_MAP Reset column. Every link must name the SAME constant, so a
+    hand edit anywhere still fails here."""
     csr = open(MILAN_CSR_SV).read()
     reg = open(REGMAP_MD).read()
     r = eb.build(CONFIGS["arty_current"], OUT)
     got = r["lwsrp"]["reset_words"]
+    hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
     # (emitter name, milan_csr storage reg, milan_csr A_* enum, doc reset)
     rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0xC"),
             ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "2"),
@@ -899,17 +963,19 @@ def test_lwsrp_reset_words_match_rtl():
             ("LWSRP_TSPEC", "lwsrp_tspec", "A_LWSRP_TSPEC", "0x0001_00E0"),
             ("LWSRP_LATENCY", "lwsrp_lat", None, "0")]
     for name, storage, enum, doc in rows:
-        want = _sv_hex(csr, rf"{storage}\s*<=\s*32'h([0-9A-Fa-f_]+);",
-                       f"milan_csr reset block {storage}")
+        sym = name + "_RST_C"
+        assert sym in hdr, f"{sym} missing from {eb.CSR_DEFAULTS_REL}"
+        want = hdr[sym]
         assert int(got[name], 16) == want, (
-            f"{name}: emitted {got[name]} != milan_csr reset "
-            f"0x{want:08X} - the config and the RTL have drifted")
+            f"{name}: emitted {got[name]} != the tracked header's 0x{want:08X} "
+            f"- regenerate {eb.CSR_DEFAULTS_REL}")
+        # the reset block must ASSIGN the generated symbol, never a literal
+        assert re.search(rf"{storage}\s*<=\s*{sym};", csr), (
+            f"milan_csr reset block no longer assigns {storage} <= {sym} - "
+            f"the CSR block has stopped consuming the generated header")
         if enum:
-            want2 = _sv_hex(csr,
-                            rf"{enum}\[10:0\]:\s*csr_default = "
-                            rf"32'h([0-9A-Fa-f_]+);",
-                            f"milan_csr csr_default {enum}")
-            assert want2 == want, f"{name}: milan_csr disagrees with itself"
+            assert re.search(rf"{enum}\[10:0\]:\s*csr_default = {sym};", csr), \
+                f"milan_csr csr_default {enum} no longer returns {sym}"
         # documented Reset column of the REGISTER_MAP row
         m = re.search(rf"\| `0x[0-9A-F]{{3}}` \| `{name}` \| RW \| `([^`]+)` \|",
                       reg)
@@ -924,9 +990,10 @@ def test_lwsrp_reset_words_match_rtl():
                     name, "A_" + name)
         want = _sv_hex(csr, rf"{enum}\s*=\s*'h([0-9A-Fa-f]+)", f"enum {enum}")
         assert off == want, f"{name}: offset 0x{off:X} != RTL 0x{want:X}"
-    print(f"  [gate 18a] arty_current lwSRP reset words == milan_csr reset "
-          f"block == csr_default table == REGISTER_MAP Reset column "
-          f"({len(rows)} registers, {len(eb.SRP_CSR_OFFSETS)} offsets)")
+    print(f"  [gate 18a] arty_current lwSRP reset words == the generated "
+          f"{os.path.basename(TRACKED_CSR_SVH)} == the symbols milan_csr's "
+          f"reset block and csr_default table use == the REGISTER_MAP Reset "
+          f"column ({len(rows)} registers, {len(eb.SRP_CSR_OFFSETS)} offsets)")
 
 
 def test_lwsrp_class_constants_match_rtl():
@@ -960,9 +1027,15 @@ def test_lwsrp_class_constants_match_rtl():
     for label, got, want in checks:
         assert got == want, f"{label}: emitted {got} != lwsrp_pkg {want}"
     pr = t["sr_class"]["prio_rank"]
-    assert pr == _sv_hex(csr, r"SRP_PRIO_RANK_C\s*=\s*8'h([0-9A-Fa-f]+);",
-                         "milan_csr SRP_PRIO_RANK_C"), \
-        "PriorityAndRank: emitter vs the milan_csr literal duplicate"
+    # milan_csr's literal duplicate is GONE: it drives o_srp_ctx_prio_rank from
+    # the generated LWSRP_PRIO_RANK_C, so the chain is emitter -> header -> RTL.
+    hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
+    assert pr == hdr["LWSRP_PRIO_RANK_C"], \
+        "PriorityAndRank: emitter vs the generated CSR header"
+    assert re.search(r"assign o_srp_ctx_prio_rank\s*=\s*LWSRP_PRIO_RANK_C;",
+                     csr), \
+        "milan_csr no longer drives o_srp_ctx_prio_rank from the generated " \
+        "LWSRP_PRIO_RANK_C"
     assert pr == (t["sr_class"]["priority"] << 5) | (t["sr_class"]["rank"] << 4)
     # the bw_gate's hard ceiling literals must agree with the emitted limits
     bwg = open(os.path.join(ROOT,
@@ -982,9 +1055,9 @@ def test_lwsrp_class_constants_match_rtl():
                    "LWSRP_TSPEC_RST_C     = 32'h0001_00E0;"):
         assert needle in svh, f"tracked svh lacks {needle!r}"
     print(f"  [gate 18b] {len(checks)} SR-class/timer/bandwidth constants == "
-          "lwsrp_pkg.sv, PriorityAndRank == the milan_csr literal duplicate, "
-          "bw_gate 75% ceilings agree; tracked lwsrp_table.svh regenerates "
-          "byte-identically")
+          "lwsrp_pkg.sv, PriorityAndRank == the generated symbol milan_csr "
+          "drives, bw_gate 75% ceilings agree; tracked lwsrp_table.svh "
+          "regenerates byte-identically")
 
 
 def test_lwsrp_tspec_and_params():
@@ -1338,6 +1411,245 @@ def test_platform_rejects():
           "platform shapes rejected with ConfigError")
 
 
+def test_csr_defaults_header_consumed():
+    """Gate 20a: the RTL CONSUMES the generated header - the loop is closed.
+
+    Up to 11944cd the emitters only *compared* against milan_csr.sv's
+    hand-written 0x680 literals; the generated .svh was included by no RTL, so
+    the two could still be edited apart. milan_csr.sv now `include-s
+    hdl/common/csr/gen/lwsrp_csr_defaults.svh, which makes the config the only
+    source of those words. This gate asserts, in order:
+      1. the tracked header regenerates BYTE-IDENTICALLY (staleness);
+      2. milan_csr.sv carries the `include, with the path spelled exactly as
+         the emitter documents it;
+      3. every emitted value equals the FROZEN pre-switch literal, i.e. the
+         switch was a refactor with zero functional change (a config edit that
+         would move a deployed reset word fails HERE, loudly, instead of
+         silently re-elaborating the CSR block);
+      4. no hand-written 0x680 literal survives in milan_csr.sv;
+      5. the CSR subset agrees word-for-word with the full lwSRP table
+         (hdl/ieee8021q/srp/gen/lwsrp_table.svh) - one config, one pass;
+      6. every build/sim/synth flow that compiles milan_csr.sv carries
+         hdl/common/csr as an include dir, so the `include always resolves
+         (Verilator searches -I/+incdir and the CWD only, NEVER the including
+         file's directory)."""
+    r = eb.build(CONFIGS["arty_current"], OUT)
+    csr = open(MILAN_CSR_SV).read()
+    # 1. staleness
+    assert open(TRACKED_CSR_SVH).read() == r["csr_defaults_svh"], \
+        f"{eb.CSR_DEFAULTS_REL} is STALE - regenerate it"
+    # 2. the include, exactly as the emitter documents it
+    inc = f'`include "{eb.CSR_DEFAULTS_INCLUDE}"'
+    assert inc in csr, f"milan_csr.sv does not {inc}"
+    # 3. byte-identical behaviour: emitted == the frozen pre-switch literals
+    got = {k: int(v, 16) for k, v in r["lwsrp"]["reset_words"].items()}
+    assert got == eb.SRP_FROZEN_RESETS, (
+        "the deployed 0x680 reset words MOVED: "
+        + ", ".join(f"{k} 0x{got[k]:08X} != 0x{v:08X}"
+                    for k, v in eb.SRP_FROZEN_RESETS.items() if got[k] != v))
+    hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
+    for k, v in eb.SRP_FROZEN_RESETS.items():
+        assert hdr[k + "_RST_C"] == v, f"{k}_RST_C != the frozen 0x{v:08X}"
+    assert hdr["LWSRP_PRIO_RANK_C"] == eb.SRP_FROZEN_PRIO_RANK
+    # 4. no hand-written literal left behind
+    for storage in ("lwsrp_ctrl", "lwsrp_vid", "lwsrp_dmlo", "lwsrp_dmhi",
+                    "lwsrp_tspec", "lwsrp_lat"):
+        assert not re.search(rf"{storage}\s*<=\s*\d+'h", csr), \
+            f"milan_csr.sv still resets {storage} from a LITERAL"
+    assert not re.search(r"A_LWSRP_\w+\[10:0\]:\s*csr_default = \d+'h", csr), \
+        "milan_csr.sv csr_default still returns a LITERAL for a 0x680 register"
+    assert "SRP_PRIO_RANK_C = 8'h" not in csr, \
+        "milan_csr.sv still declares its own PriorityAndRank literal"
+    # 5. the subset agrees with the full table
+    tbl = _svh_localparams(open(TRACKED_SRP_SVH).read())
+    shared = sorted(set(hdr) & set(tbl))
+    assert len(shared) == len(hdr), \
+        f"CSR header carries constants the lwSRP table does not: " \
+        f"{sorted(set(hdr) - set(tbl))}"
+    for k in shared:
+        assert hdr[k] == tbl[k], (
+            f"{k}: CSR header 0x{hdr[k]:X} != lwsrp_table.svh 0x{tbl[k]:X} - "
+            "the two generated headers have drifted")
+    # 6. every consumer can resolve the include
+    for rel, pat in CSR_INCDIR_CONSUMERS:
+        p = os.path.join(ROOT, rel)
+        assert os.path.exists(p), f"{rel} is gone - is it still building?"
+        txt = open(p).read()
+        assert "milan_csr" in txt, f"{rel} no longer names milan_csr"
+        assert re.search(pat, txt), (
+            f"{rel} compiles milan_csr.sv but has no hdl/common/csr include "
+            f"dir - `include \"{eb.CSR_DEFAULTS_INCLUDE}\" cannot resolve")
+    print(f"  [gate 20a] milan_csr.sv `include-s {eb.CSR_DEFAULTS_INCLUDE}; "
+          f"{len(eb.SRP_FROZEN_RESETS)} reset words + PriorityAndRank == the "
+          f"FROZEN pre-switch literals (zero functional change), 0 literals "
+          f"left in the RTL, {len(shared)} constants agree with "
+          f"lwsrp_table.svh, {len(CSR_INCDIR_CONSUMERS)} consumers carry the "
+          f"include dir")
+
+
+def test_csr_defaults_rejects():
+    """Gate 20b: a config that would emit a MALFORMED header - one milan_csr
+    would silently compile into the wrong reset word - raises ConfigError.
+
+    LWSRP_CTRL[0]/[1] are single bits: `talker_declare_at_reset: 2` used to
+    emit 2 << 1 = 0b100, i.e. it quietly rewrote class_queue[0] and shipped."""
+    cases = [
+        ("enable_at_reset: 'yes' (string)",
+         lambda c: c["srp"].__setitem__("enable_at_reset", "yes"),
+         "must be a boolean"),
+        ("talker_declare_at_reset: 2 (shifts into class_queue)",
+         lambda c: c["srp"].__setitem__("talker_declare_at_reset", 2),
+         "shifts into class_queue"),
+        ("rtl_table: 'true' (string)",
+         lambda c: c["srp"].__setitem__("rtl_table", "true"),
+         eb.CSR_DEFAULTS_REL),
+    ]
+    for label, mutate, needle in cases:
+        p = _variant(CONFIGS["arty_current"], mutate)
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert needle in str(e), f"{label}: got {e}"
+            else:
+                raise AssertionError(f"{label}: accepted")
+        finally:
+            os.unlink(p)
+    # and the emitted LWSRP_CTRL word really is bit-exact for the legal shape
+    def enable(c):
+        c["srp"]["enable_at_reset"] = True
+        c["srp"]["talker_declare_at_reset"] = True
+    p = _variant(CONFIGS["arty_current"], enable)
+    try:
+        cfg = eb.load_config(p)
+        w = eb.srp_reset_words(cfg)["LWSRP_CTRL"]
+        assert w == 0x0000000F, f"LWSRP_CTRL {w:#010x} != 0x0000000F"
+    finally:
+        os.unlink(p)
+    print(f"  [gate 20b] {len(cases)}/{len(cases)} malformed LWSRP_CTRL "
+          "sources rejected with ConfigError; en+talker+q3 emits 0x0000000F")
+
+
+AES3_RX_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aes3_rx.sv")
+AES3_TX_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aes3_tx.sv")
+AES3_TB_MK = os.path.join(ROOT, "tb/verilator/aes3/Makefile")
+
+
+def _sv_param_default(txt, name):
+    """Default of `parameter [type] NAME = <value>` in an SV module header."""
+    m = re.search(rf"parameter\s+(?:bit|int\s+unsigned|int)\s+{name}\s*=\s*"
+                  r"(?:1'b)?([0-9_]+)", txt)
+    assert m, f"no parameter {name} in the RTL"
+    return int(m.group(1).replace("_", ""))
+
+
+def test_aes3_interface_switch():
+    """Gate 21a: `audio_interface.kind: aes3|spdif` is a REAL switch now.
+
+    One core (KL_aes3_rx / KL_aes3_tx) carries both transports, so the config
+    has to pick the parameters - and the parameters it picks must be the ones
+    the RTL actually declares. Everything here is parsed out of the RTL at
+    test time: the parameter names, the defaults the emitter reuses
+    (OVERSAMPLE_P, LOCK_BLOCKS_P), the CONSUMER_P dialect split, and the
+    serial-clock arithmetic the transport forces."""
+    rx = open(AES3_RX_SV).read()
+    tx = open(AES3_TX_SV).read()
+    # the parameters the emitter names must EXIST on the modules it names
+    for p in ("CONSUMER_P", "WORD_BITS_P", "LOCK_BLOCKS_P"):
+        assert re.search(rf"parameter\s+\S+.*?\b{p}\b", rx), f"{p} not on the rx"
+    for p in ("CONSUMER_P", "WORD_BITS_P", "OVERSAMPLE_P"):
+        assert re.search(rf"parameter\s+\S+.*?\b{p}\b", tx), f"{p} not on the tx"
+    assert eb.AES3_OVERSAMPLE == _sv_param_default(tx, "OVERSAMPLE_P")
+    assert eb.AES3_LOCK_BLOCKS == _sv_param_default(rx, "LOCK_BLOCKS_P")
+    # the transport's own arithmetic, stated in both places
+    assert re.search(r"BLOCK_FRAMES_C\s*=\s*(\d+)", rx).group(1) == \
+        str(eb.AES3_BLOCK_FRAMES)
+    assert re.search(r"BLOCK_FRAMES_C\s*=\s*(\d+)", tx).group(1) == \
+        str(eb.AES3_BLOCK_FRAMES)
+    # the suite the mark points at must exist and compile these two modules
+    mk = open(AES3_TB_MK).read()
+    for m in (eb.AES3_RX_MODULE, eb.AES3_TX_MODULE):
+        assert f"{m}.sv" in mk, f"tb/verilator/aes3 does not build {m}"
+    seen = []
+    for kind, consumer in (("aes3", 0), ("spdif", 1)):
+        for wl in (16, 20, 24):
+            def mutate(c, k=kind, w=wl):
+                c["audio_interface"]["kind"] = k
+                c["audio_interface"]["word_length_bits"] = w
+            v = _variant(CONFIGS["arty_current"], mutate)
+            try:
+                r = eb.build(v, OUT)
+            finally:
+                os.unlink(v)
+            ip = r["interface_params"]
+            assert ip["family"] == "aes3" and ip["kind"] == kind
+            assert ip["rx_module"] == eb.AES3_RX_MODULE
+            assert ip["tx_module"] == eb.AES3_TX_MODULE
+            # THE switch: one core, two dialects, chosen by the config
+            assert ip["params"]["CONSUMER_P"] == consumer, \
+                f"{kind}: CONSUMER_P {ip['params']['CONSUMER_P']} != {consumer}"
+            assert ip["params"]["WORD_BITS_P"] == wl
+            # serial clock = rate x 128 UI/frame x oversample, an exact
+            # integer divide of the audio PLL
+            rate = r["cfg"]["clocking"]["sampling_rate_hz"]
+            pll = r["cfg"]["clocking"]["audio_pll_hz"]
+            assert ip["serial_clk_hz"] == rate * eb.AES3_UI_PER_FRAME \
+                * eb.AES3_OVERSAMPLE
+            assert ip["serial_clk_div"] * ip["serial_clk_hz"] == pll
+            assert f"`WORD_BITS_P={wl}`" in r["plan"]
+            assert f"{ip['serial_clk_hz']} Hz" in r["plan"]
+            seen.append((kind, wl))
+    # the kinds that take no ser/des parameters must emit nothing at all
+    for name in CONFIGS:
+        assert eb.build(CONFIGS[name], OUT)["interface_params"] is None, \
+            f"{name}: a non-biphase interface emitted ser/des parameters"
+    print(f"  [gate 21a] {len(seen)} aes3/spdif shapes: one core, CONSUMER_P "
+          f"picks the dialect, WORD_BITS_P 16/20/24, serial clock "
+          f"{eb.AES3_UI_PER_FRAME}x{eb.AES3_OVERSAMPLE}x rate = an exact PLL "
+          f"divide; RTL defaults (OVERSAMPLE_P={eb.AES3_OVERSAMPLE}, "
+          f"LOCK_BLOCKS_P={eb.AES3_LOCK_BLOCKS}, {eb.AES3_BLOCK_FRAMES} "
+          f"frames/block) parsed from the modules themselves")
+
+
+def test_aes3_rejects():
+    """Gate 21b: an AES3/S-PDIF shape the RTL could not actually clock, or a
+    word length the transport cannot carry, raises ConfigError - it is never
+    emitted as a ser/des that would transmit at the wrong rate."""
+    cases = [
+        ("word_length_bits 32 (AES3 subframe is 24 bits max)",
+         lambda c: (c["audio_interface"].__setitem__("kind", "aes3"),
+                    c["audio_interface"].__setitem__("word_length_bits", 32)),
+         "word_length_bits 32 invalid for aes3"),
+        ("audio PLL cannot divide to the serial clock",
+         lambda c: (c["audio_interface"].__setitem__("kind", "spdif"),
+                    c["clocking"].__setitem__("audio_pll_hz", 25_000_000)),
+         "not an integer divide"),
+    ]
+    for label, mutate, needle in cases:
+        p = _variant(CONFIGS["arty_current"], mutate)
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert needle in str(e), f"{label}: got {e}"
+            else:
+                raise AssertionError(f"{label}: accepted")
+        finally:
+            os.unlink(p)
+    # the shipping 24.576 MHz PLL DOES carry 48 kHz AES3 (divide by 1)
+    p = _variant(CONFIGS["arty_current"],
+                 lambda c: c["audio_interface"].__setitem__("kind", "aes3"))
+    try:
+        cfg = eb.load_config(p)
+        assert cfg["interface"]["serial_clk_hz"] == 24_576_000
+        assert cfg["interface"]["serial_clk_div"] == 1
+    finally:
+        os.unlink(p)
+    print(f"  [gate 21b] {len(cases)}/{len(cases)} unclockable AES3 shapes "
+          "rejected with ConfigError; 48 kHz AES3 rides the shipping "
+          "24.576 MHz audio PLL exactly (divide 1)")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -1354,7 +1666,9 @@ if __name__ == "__main__":
                test_lwsrp_class_constants_match_rtl,
                test_lwsrp_tspec_and_params, test_lwsrp_rejects,
                test_platform_window_map,
-               test_platform_dt_and_driver_shape, test_platform_rejects):
+               test_platform_dt_and_driver_shape, test_platform_rejects,
+               test_csr_defaults_header_consumed, test_csr_defaults_rejects,
+               test_aes3_interface_switch, test_aes3_rejects):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

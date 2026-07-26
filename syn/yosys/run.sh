@@ -20,7 +20,7 @@ A="$R/third_party/verilog-axis/rtl"
 C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
 E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"; K="$R/hdl/ieee17221/aecp"; M="$R/hdl/ieee17221/acmp"
 S="$R/hdl/ieee8021q/srp"; F="$R/hdl/ieee8021q/filtering"
-INC="-DSYNTHESIS -I $R/hdl/common -I $Q -I $E -I $D -I $P -I $K -I $K/gen"
+INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P -I $K -I $K/gen"
 SYNTH="${YOSYS_SYNTH:-synth}"           # generic 'synth' = device-independent
 TMP="$(mktemp -d)"
 
@@ -50,6 +50,8 @@ tops=(
   "KL_pcm_route|$R/hdl/ieee1722/aaf/KL_pcm_route.sv"
   "KL_aaf_capture_i2s|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv"
   "KL_tdm_capture|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv"
+  "KL_aes3_rx|$C/cdc_pair_fifo.sv $C/cdc_pulse.sv $R/hdl/ieee1722/aaf/KL_aes3_rx.sv"
+  "KL_aes3_tx|$C/cdc_pair_fifo.sv $C/cdc_pulse.sv $R/hdl/ieee1722/aaf/KL_aes3_tx.sv"
   "KL_aaf_packetizer|$R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"
   "KL_crf_tx|$C/cdc_pulse.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv"

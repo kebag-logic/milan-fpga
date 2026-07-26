@@ -711,9 +711,14 @@ module milan_csr #(
   localparam int ACMP_CTX_STATUS_LO_C  = 305;  //! status[4:0]
   localparam int ACMP_CTX_PROBING_LO_C = 310;  //! probing[1:0]
   localparam int ACMP_CTX_STATE_LO_C   = 314;  //! state[2:0]
-  //! PriorityAndRank for CSR-provisioned SRP rows (= lwsrp_pkg::SR_PRIO_RANK_C:
-  //! class-A priority 3, rank 1 — kept literal for the same package-free rule)
-  localparam [7:0] SRP_PRIO_RANK_C = 8'h70;
+  //! lwSRP deployment constants — the 0x680 group reset words and the
+  //! PriorityAndRank byte — GENERATED from the declarative end-station config
+  //! by sw/builder/endstation_builder.py (roadmap item 4). They were literals
+  //! here up to 11944cd; including them keeps this block package-free while
+  //! making the config their single source, so a config edit re-elaborates the
+  //! CSR block instead of silently disagreeing with it. Resolved through
+  //! +incdir/-I hdl/common/csr, like gen/aecp_aem_rom.svh next door.
+  `include "gen/lwsrp_csr_defaults.svh"
   logic        strm_dir_r;               //! A_STRM_SEL[8]: 0=listener, 1=talker
   logic [3:0]  strm_idx_r;               //! A_STRM_SEL[3:0]: stream index
   logic [31:0] stg_sid_lo_r, stg_sid_hi_r;   //! window write staging: stream_id
@@ -838,8 +843,9 @@ module milan_csr #(
       aaf_dmlo <= 32'hF000_FE01;   // MAAP-range default 91:E0:F0:00:FE:01
       aaf_dmhi <= 32'h0000_91E0;
       // lwSRP: disabled; class-A queue 3 (the reset PCP3->TC3->q3 map);
-      // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}
-      lwsrp_ctrl <= 32'h0000_000C;
+      // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}.
+      // All six words come from gen/lwsrp_csr_defaults.svh (the config).
+      lwsrp_ctrl <= LWSRP_CTRL_RST_C;
       maap_ctrl  <= 32'h0000_0800;
       link_ctrl  <= 32'h0000_0001;      //! link assumed UP until a daemon says otherwise
       ent_name_lo <= 32'h0; ent_name_hi <= 32'h0;
@@ -860,11 +866,11 @@ module milan_csr #(
       chmap_ctrl <= 32'h0; chmap_sel <= 32'h0; chmap_word <= 32'h0;
       chmap_commits <= 16'h0; chmap_refused <= 8'h0; chmap_wr_p <= 1'b0;
       gptp_pdelay <= 32'h0;
-      lwsrp_vid  <= 32'h0000_0002;
-      lwsrp_dmlo <= 32'hF000_FE01;
-      lwsrp_dmhi <= 32'h0000_91E0;
-      lwsrp_tspec<= 32'h0001_00E0;
-      lwsrp_lat  <= 32'h0;
+      lwsrp_vid  <= LWSRP_VID_RST_C;
+      lwsrp_dmlo <= LWSRP_DMAC_LO_RST_C;
+      lwsrp_dmhi <= LWSRP_DMAC_HI_RST_C;
+      lwsrp_tspec<= LWSRP_TSPEC_RST_C;
+      lwsrp_lat  <= LWSRP_LATENCY_RST_C;
       adp_eidlo <= 32'h0; adp_eidhi <= 32'h0; adp_midlo <= 32'h0; adp_midhi <= 32'h0;
       adp_ecaps <= 32'h0; adp_talk <= 32'h0; adp_list <= 32'h0; adp_ccaps <= 32'h0;
       adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_domain <= 32'h0;
@@ -1187,11 +1193,11 @@ module milan_csr #(
       A_AAF_CTRL[10:0]:   csr_default = 32'h0002_0002;
       A_AAF_DMLO[10:0]:   csr_default = 32'hF000_FE01;
       A_AAF_DMHI[10:0]:   csr_default = 32'h0000_91E0;
-      A_LWSRP_CTRL[10:0]: csr_default = 32'h0000_000C;
-      A_LWSRP_VID[10:0]:  csr_default = 32'h0000_0002;
-      A_LWSRP_DMLO[10:0]: csr_default = 32'hF000_FE01;
-      A_LWSRP_DMHI[10:0]: csr_default = 32'h0000_91E0;
-      A_LWSRP_TSPEC[10:0]: csr_default = 32'h0001_00E0;
+      A_LWSRP_CTRL[10:0]: csr_default = LWSRP_CTRL_RST_C;
+      A_LWSRP_VID[10:0]:  csr_default = LWSRP_VID_RST_C;
+      A_LWSRP_DMLO[10:0]: csr_default = LWSRP_DMAC_LO_RST_C;
+      A_LWSRP_DMHI[10:0]: csr_default = LWSRP_DMAC_HI_RST_C;
+      A_LWSRP_TSPEC[10:0]: csr_default = LWSRP_TSPEC_RST_C;
       A_TCAM_CTRL[10:0]:  csr_default = 32'h1;
       A_LINK_CTRL[10:0]:  csr_default = 32'h1;   // link assumed up at boot
       A_LPF_CTRL[10:0]:   csr_default = 32'h1;   // playback LPF on by default
@@ -1853,7 +1859,7 @@ module milan_csr #(
   assign o_srp_ctx_dir       = srp_wr_pend_r ? srp_wr_dir_r : ~strm_dir_r;
   assign o_srp_ctx_sid       = srp_wr_sid_r;
   assign o_srp_ctx_dmac      = srp_wr_dmac_r;
-  assign o_srp_ctx_prio_rank = SRP_PRIO_RANK_C;
+  assign o_srp_ctx_prio_rank = LWSRP_PRIO_RANK_C;
   //! TSpec/latency: shared with the legacy attribute until per-stream TSpec
   //! window words exist (all streams are 48 kHz class A base formats today)
   assign o_srp_ctx_max_frame = lwsrp_tspec[15:0];
