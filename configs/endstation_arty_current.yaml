@@ -49,12 +49,15 @@ board:
     floorplan: false
     flashboot: full                  # none | kernel | full (N25Q128 QSPI)
     uart_baudrate: 115200
-    rx_queues: 2                     # flow-steered RX fan-out. Per-board on
-                                     # purpose: the deployed arty gateware
-                                     # carries rx1_* + steer_q0/q1 in its
-                                     # csr.csv, so 2 is ITS boot-chain layout
-                                     # (the ax8x8 shape ships 1 - see that
-                                     # config; never unify these blindly)
+    rx_queues: 2                     # ingress fan-out. Since 2026-07-26 the
+                                     # split is gPTP (q1) vs everything else
+                                     # (q0), NOT the old TCP 4-tuple flow hash
+                                     # - docs/reference/EGRESS_QUEUE_MAP.md.
+                                     # Per-board on purpose: the deployed arty
+                                     # gateware carries rx1_* + steer_q0/q1 in
+                                     # its csr.csv, so 2 is ITS boot-chain
+                                     # layout (the ax8x8 shape still ships 1 -
+                                     # see that config; never unify blindly)
     hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
     strip_probes: true               # area-70 ship diet
     num_queues: 6                    # 802.1Q shaper queues =

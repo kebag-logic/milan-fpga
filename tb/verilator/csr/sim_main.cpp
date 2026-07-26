@@ -187,6 +187,26 @@ int main(int argc, char** argv) {
      axi_read(A_CBS5_IDLE));
   ck("o_cbs_enable == 0 at reset (all six unshaped)", dut->o_cbs_enable, 0);
 
+  // FQTSS bandwidth availability (802.1Q-2018 §34.3.1 / REQ-CBS-03) over the
+  // registers SOFTWARE actually reads, not over the RTL package. `deltaBandwidth`
+  // caps the reserved share of portTransmitRate at 75 %; the shaper harness
+  // (tb/verilator/shaper_core) gates the package tables, this gates the CSR
+  // window they are supposed to mirror. A slope table edited past the ceiling
+  // is a spec violation that no per-register readback check can see.
+  {
+    uint64_t sum = 0;
+    for (int q = 0; q < 6; q++) sum += axi_read(0x400 + 0x20 * q);
+    ck("FQTSS 34.3.1: sum(CBSn_IDLE) <= 75% of 1 Gb/s", sum <= 750000000ull, 1);
+    ck("FQTSS 34.3.1: SR A+B <= 75% of 1 Gb/s",
+       (uint64_t)axi_read(A_CBS5_IDLE) + axi_read(A_CBS4_IDLE) <= 750000000ull, 1);
+    // class A must outrank class B in bandwidth as well as in queue order
+    ck("FQTSS: class A slope > class B slope",
+       axi_read(A_CBS5_IDLE) > axi_read(A_CBS4_IDLE), 1);
+    printf("   [info] reset idleSlope sum = %llu bps (%.1f%% of 1 Gb/s), "
+           "SR A+B = %u bps\n", (unsigned long long)sum, sum / 1e7,
+           axi_read(A_CBS5_IDLE) + axi_read(A_CBS4_IDLE));
+  }
+
   printf("-- read-only registers reject writes --\n");
   axi_write(A_ID, 0xFFFFFFFF);
   ck("ID stays RO", axi_read(A_ID), 0x4D494C4E);

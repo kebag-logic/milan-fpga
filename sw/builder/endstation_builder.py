@@ -1527,7 +1527,11 @@ def load_config(path):
         flashboot=c.get("flashboot", "full"),
         uart_baudrate=int(c.get("uart_baudrate", 115200)),
         rx_queues=int(c.get("rx_queues", 2)),
-        num_queues=int(c.get("num_queues", 4)),
+        num_queues=int(c.get("num_queues", 6)),   # = NUMBER_OF_QUEUES; gate 18c
+                                                  # pins this against the package,
+                                                  # so a stale 4 here would make
+                                                  # every config that omits the
+                                                  # key fail rather than build
         hs_page_bytes=_pow2(c.get("hs_page_bytes", 16384),
                             "board.constraints.hs_page_bytes"),
         strip_probes=bool(c.get("strip_probes", True)),

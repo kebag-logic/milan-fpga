@@ -112,10 +112,15 @@ it is a correctness requirement:
   residence time is exactly what the protocol's correction field exists to
   absorb. What would genuinely hurt gPTP is timestamp *error*, and that is
   unaffected by queue order.
-* **The load argument is not close.** A Milan class-A domain at 48 kHz runs
-  8000 frames/s per stream; gPTP runs 8–16 frames/s. Even a fully-loaded q5
-  leaves q3 orders of magnitude more service than it can use, and q5 is
-  credit-shaped so it *must* yield periodically by construction.
+* **The load argument is not close, and it is measured, not asserted.** A Milan
+  class-A domain at 48 kHz runs 8000 frames/s per stream; gPTP runs 8–16
+  frames/s. `tb/verilator/shaper_core` (FQTSS-4) drives q5 shaped at its 450 Mb/s
+  class-A reset slope and permanently backlogged, offers q3 continuously, and
+  measures what q3 gets: **9.18 % of the port, worst service gap 368 slots =
+  23.55 µs** of 1 Gb/s wire time. 8–16 frames of 64–90 B per second is ~0.2 % of
+  a 1 Gb/s port, so q3 is offered **more than 40×** what 802.1AS can consume, and
+  the gap is bounded because a credit-shaped q5 *must* yield periodically by
+  construction.
 
 Note also that the historical worry here was misdiagnosed: the TX
 timestamp timeouts of 2026-07-13 were **not** queue starvation. Silicon was
@@ -123,6 +128,33 @@ running the legacy classifier at the time and gPTP already outranked bulk TCP;
 the delay lived in the driver's single 256-slot TX descriptor ring, upstream of
 the classifier entirely. The fix for that class of problem is a priority TX
 ring/doorbell, not a queue promotion.
+
+## FQTSS: what is actually measured
+
+802.1Q-2018 clause 34 ("Forwarding and Queuing Enhancements for Time-Sensitive
+Streams") is the layer *above* both the credit arithmetic and the arbiter, and
+it is the property this whole ordering argument rests on. It is gated in
+`tb/verilator/shaper_core` (and, for the register view software sees, in
+`tb/verilator/csr`):
+
+| Check | Clause | Result |
+|-------|--------|--------|
+| **Bandwidth availability.** Σ idleSlope over the SR classes, and over every queue, at both link rates | §34.3.1 / `REQ-CBS-03` | SR A+B = **600 Mb/s = 60 %** of 1 Gb/s; all six = **750 Mb/s = 75 %** at 1 G and 75 % at 100 M. Class A's slope must also exceed class B's. Read out of `ethernet_packet_pkg` **and** out of the `0x400` CSR window, so the package and the registers cannot drift apart. |
+| **The shaped class and best effort share the port.** q5 shaped and permanently backlogged, q0 unshaped and permanently backlogged | §8.6.8.2 | q5 outranks q0 absolutely, so only the credit gate can stop it — and it does: **13.70 / 30.11 / 90.82 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. |
+| **Non-vacuity.** Same stimulus with CBS switched off | — | q5 takes **100.00 %**. So the split above *is* the shaper, not the arbiter and not the harness. |
+| **gPTP is not starved by a saturating class A** | §8.6.8.2 | 9.18 % of the port, worst gap 23.55 µs — see above. |
+| **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | `KL_lwsrp_bw_gate` carries the 750e6 / 75e6 limits in RTL and tears down an over-budget TSpec on a live reservation (`tb/verilator/lwsrp`); the config side is builder gate 18d, which rejects an over-subscribed class-A request before a bitstream exists. |
+
+**The reservation is honoured but over-delivered**, and that is `REQ-CBS-07`, not
+a queue-map defect: at the 450 Mb/s class-A reset slope the shaped queue takes
+90.8 % of the port where 802.1Qav would give it 45 %. The egress here is not
+paced to line rate — the shaper hands 8 B per cycle into a MAC FIFO, so a beat
+leaves in 10 ns while 8 B on a 1 Gb/s wire take 64 ns, and the queue accrues
+idleSlope during the ~5.4 cycles the wire would still be busy. The debit per
+byte is exact; the accrual is not. The suite asserts the accounting model and
+**reports** the delta against the standard rather than hiding it. Anyone sizing
+a reservation against this gateware must read the delivered share, not the
+configured slope.
 
 ## Ingress (RX to the CPU): two queues
 

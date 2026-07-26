@@ -173,9 +173,10 @@ good-frame lanes count real traffic.
 | `0x30C` | `CLS_PRIO_REGEN` | RW | `0xFAC688` (identity) | priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05  -  a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity. |
 | `0x310` | `CLS_TC_QUEUE_MAP` | RW | `0x006D2B00` | TC→queue, 8×`ceil(log2 N)` bits. At `N`=6 that is 3 bits/entry and the reset is the 6-queue map: TC0/1→q0, TC2→**q4** (SR class B), TC3→**q5** (SR class A), TC4/5→q2 (control), TC6/7→q3 (gPTP); q1 is the reserved spare and is unmapped. An entry naming a queue ≥ `N` is **clamped to q0** by `traffic_class_map` (without the clamp `axis_demux` would silently drop the frame — `select >= M_COUNT`). |
 
-\* Reset packs the Table 8-5 default PCP→TC for 4 classes; driver overwrites via
-`tc mqprio`. The identity map keeps parity with the current enum ordering until
-the driver programs Table 8-5 (see `REQ-CLS-04`).
+\* `0xFAC688` is the **identity** PCP→TC map (TC `p` = `p`), so at reset the
+traffic class *is* the PCP and `CLS_TC_QUEUE_MAP` alone decides the queue. The
+Table 8-5 collapse for a station with fewer than 8 classes is the driver's to
+program via `tc mqprio` (see `REQ-CLS-04`).
 
 **gPTP fast path.** EtherType `0x88F7` short-circuits the tables and always
 lands on `GPTP_CLASS` = **q3**, i.e. *below* the CBS-shaped q5/q4. That is
