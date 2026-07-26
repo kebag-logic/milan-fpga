@@ -18,6 +18,24 @@
 //                Whitelist: default_pass_i=0, add accept entries (action[0]=0).
 //                Blacklist: default_pass_i=1, add drop entries (action[0]=1).
 //
+//                REQ-MAC-02 (2026-07-26): on top of the TCAM the block now
+//                implements the 802.3 §4.2.4.2.2 station address filter that
+//                the CSR ABI has advertised since 2026-07-01 but nothing in
+//                fabric consumed - MAC_CTRL promisc/allmulti, MAC_ADDR_HI/LO
+//                exact-match unicast and the MC_HASH_HI/LO multicast bucket
+//                set. Decision order for a frame's first beat:
+//
+//                  runt (tlast at SOF)         -> drop, always
+//                  promisc_i                   -> pass (tcpdump must see all)
+//                  TCAM hit                    -> action[0] decides
+//                  addr_filter_en_i            -> broadcast          -> pass
+//                                                 group  -> allmulti | hash bit
+//                                                 unicast-> == station_mac_i
+//                  otherwise                   -> default_pass_i (legacy)
+//
+//                addr_filter_en_i is TCAM_CTRL[1], reset 0, so a build that
+//                never sets it behaves exactly as before.
+//
 //                Assumes the 6-byte destination MAC lies entirely in beat 0
 //                (true for TDATA_WIDTH>=48, e.g. the 64-bit datapath), so the
 //                accept/drop decision is available before beat 0 is forwarded —
@@ -35,6 +53,13 @@ module rx_mac_filter #(
 )(
     input  wire                     clk_i,
     input  wire                     rst_n,
+
+    // ---- 802.3 station address filter (REQ-MAC-02, milan_csr 0x100) --------
+    input  wire                     addr_filter_en_i, //! TCAM_CTRL[1]: apply the address filter on a TCAM miss
+    input  wire                     promisc_i,        //! MAC_CTRL[2]: accept every frame
+    input  wire                     allmulti_i,       //! MAC_CTRL[3]: accept every group address
+    input  wire [47:0]              station_mac_i,    //! MAC_ADDR_HI/LO, MSB-first (byte 0 in [47:40])
+    input  wire [63:0]              mc_hash_i,        //! MC_HASH_HI/LO: one bit per hash bucket
 
     // ---- filter policy + TCAM programming (from milan_csr 0x700) -----------
     input  wire                     default_pass_i, //! accept frames that miss the TCAM
@@ -72,6 +97,29 @@ module rx_mac_filter #(
   wire [47:0] dmac = { s_tdata[7:0],   s_tdata[15:8],  s_tdata[23:16],
                        s_tdata[31:24], s_tdata[39:32], s_tdata[47:40] };
 
+  // -----------------------------------------------------------------------
+  //  802.3 station address filter (REQ-MAC-02). All combinational off beat 0.
+  // -----------------------------------------------------------------------
+  //! I/G bit = the LEAST significant bit of the FIRST octet, i.e. dmac[40].
+  wire dmac_group = dmac[40];
+  //! The broadcast address is accepted by every conformant station.
+  wire dmac_bcast = &dmac;
+  //! Multicast hash bucket. DEFINED HERE (nothing specified one before): a
+  //! 6-bit XOR fold of the 48-bit address, MSB-aligned groups of 6. Chosen
+  //! over an ether_crc fold because it is a handful of XOR gates instead of a
+  //! 48-bit CRC cone and the driver can reproduce it in two lines - the exact
+  //! function only has to MATCH between HW and `ndo_set_rx_mode`, and the
+  //! filter is approximate by construction either way (docs/reference/REGISTER_MAP.md 0x114).
+  wire [5:0] mc_index = dmac[47:42] ^ dmac[41:36] ^ dmac[35:30] ^ dmac[29:24]
+                      ^ dmac[23:18] ^ dmac[17:12] ^ dmac[11:6]  ^ dmac[5:0];
+  wire mc_hit = mc_hash_i[mc_index];
+  //! Address-filter verdict for a frame that missed the TCAM.
+  wire addr_pass = dmac_bcast ? 1'b1
+                 : dmac_group ? (allmulti_i | mc_hit)
+                              : (dmac == station_mac_i);
+  //! Miss policy: the address filter when armed, else the legacy blanket bit.
+  wire miss_pass = addr_filter_en_i ? addr_pass : default_pass_i;
+
   wire                    match;
   wire [ACTION_WIDTH-1:0] action;
 
@@ -99,8 +147,13 @@ module rx_mac_filter #(
   //! at drop-frame tails (dp TB 2026-07-19); swallow them here so the kernel
   //! DMA never sees them, whatever their origin.
   wire runt_sof  = sof && s_tlast;
-  wire pass_sof  = runt_sof ? 1'b0
-                 : match    ? ~action[0] : default_pass_i;         //! SOF decision
+  //! SOF decision. promisc outranks an explicit TCAM drop on purpose: MAC_CTRL
+  //! promiscuous means "hand me the wire", which is exactly what a capture
+  //! needs; a drop entry is a filtering policy and filtering is what promisc
+  //! switches off.
+  wire pass_sof  = runt_sof  ? 1'b0
+                 : promisc_i ? 1'b1
+                 : match     ? ~action[0] : miss_pass;             //! SOF decision
   wire pass_now  = sof ? pass_sof : pass_r;                        //! decision applied this beat
 
   // Cut-through: forward when passing, silently consume when dropping.

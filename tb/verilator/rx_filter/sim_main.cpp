@@ -13,6 +13,9 @@
  *   - blacklist mode (default_pass=1): a drop entry (action[0]=1) drops its MAC,
  *     everything else passes
  *   - passed frames come out byte-exact (cut-through, no corruption)
+ *   - REQ-MAC-02 station address filter: promiscuous, exact-match unicast,
+ *     broadcast, allmulti, the 64-bucket multicast hash, and the interaction
+ *     with the TCAM (hit wins over the address filter, promisc wins over both)
  *
  * Exit 0 = pass, non-zero = fail.
  */
@@ -88,6 +91,8 @@ int main(int argc, char** argv) {
 
     dut->rst_n = 0; dut->s_tvalid = 0; dut->s_tlast = 0; dut->m_tready = 1;
     dut->tcam_wr_en_i = 0; dut->default_pass_i = 0;
+    dut->addr_filter_en_i = 0; dut->promisc_i = 0; dut->allmulti_i = 0;
+    dut->station_mac_i = 0; dut->mc_hash_i = 0;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; step();
 
@@ -123,6 +128,96 @@ int main(int argc, char** argv) {
     dut->default_pass_i = 1;
     ck("runt 1-beat frame swallowed", (long)send_frame(MAC_UNI, 1).size(), 0);
     ck("normal frame after runt passes", send_frame(MAC_UNI, 8).size() == 8 ? 1 : 0, 1);
+
+
+    // ======================================================================
+    //  REQ-MAC-02 - 802.3 station address filter (the CSR ABI has advertised
+    //  promisc/allmulti/MAC_ADDR/MC_HASH since 2026-07-01; nothing in fabric
+    //  consumed them, so non-matching unicast was NEVER dropped in hardware).
+    // ======================================================================
+    // reference hash: 6-bit XOR fold of the 48-bit address, MSB-aligned
+    auto mc_bucket = [](uint64_t mac) {
+        int h = 0;
+        for (int g = 0; g < 8; g++) h ^= (int)((mac >> (42 - 6 * g)) & 0x3F);
+        return h;
+    };
+    const uint64_t MAC_STATION = 0x001BC50AC100ULL;   // our unicast
+    const uint64_t MAC_OTHER   = 0x001BC50AC101ULL;   // one bit off - foreign
+    const uint64_t MAC_MAAP    = 0x91E0F000FE00ULL;   // a MAAP-allocated group
+
+    // clear the blacklist entry left over above, back to a bare table
+    wr_tcam(0, 0, 0, 0, 0);
+    dut->default_pass_i = 1;    // legacy blanket accept still the miss policy
+    dut->station_mac_i  = MAC_STATION;
+
+    // ---- disarmed: reset behaviour must be bit-identical to before ----
+    dut->addr_filter_en_i = 0;
+    ck("mac02 disarmed: foreign unicast passes", (long)send_frame(MAC_OTHER, 4).size(), 4);
+
+    // ---- armed: exact-match unicast, everything else off ----
+    dut->addr_filter_en_i = 1;
+    ck("mac02 station unicast passes",   (long)send_frame(MAC_STATION, 4).size(), 4);
+    ck("mac02 foreign unicast DROPPED",  (long)send_frame(MAC_OTHER, 4).size(),   0);
+    ck("mac02 broadcast passes",         (long)send_frame(MAC_BCAST, 4).size(),   4);
+    ck("mac02 multicast dropped (no hash, no allmulti)",
+                                         (long)send_frame(MAC_GPTP, 4).size(),    0);
+
+    // ---- allmulti: every group address, station unicast still exact ----
+    dut->allmulti_i = 1;
+    ck("mac02 allmulti: gPTP mcast passes",   (long)send_frame(MAC_GPTP, 4).size(),   4);
+    ck("mac02 allmulti: MAAP group passes",   (long)send_frame(MAC_MAAP, 4).size(),   4);
+    ck("mac02 allmulti: foreign unicast STILL dropped",
+                                              (long)send_frame(MAC_OTHER, 4).size(),  0);
+    dut->allmulti_i = 0;
+
+    // ---- multicast hash: only the programmed buckets pass ----
+    {
+        int bg = mc_bucket(MAC_GPTP);
+        // pins the worked example in docs/reference/REGISTER_MAP.md 0x114 so the
+        // documented fold and the driver's copy of it cannot drift apart
+        ck("mac02 hash: 01-80-C2-00-00-0E -> bucket 23 (REGISTER_MAP)", bg, 23);
+        dut->mc_hash_i = 1ULL << bg;
+        ck("mac02 hash: programmed bucket passes", (long)send_frame(MAC_GPTP, 4).size(), 4);
+        // a group whose bucket is NOT set must drop (pick one that differs)
+        uint64_t other_grp = MAC_MAAP;
+        if (mc_bucket(other_grp) == bg) other_grp = 0x91E0F000FE01ULL;
+        ck("mac02 hash: unprogrammed bucket DROPPED",
+           (long)send_frame(other_grp, 4).size(), 0);
+        // and setting its bucket lets it through - proves the index is the
+        // documented fold and not an accident of one address
+        dut->mc_hash_i = (1ULL << bg) | (1ULL << mc_bucket(other_grp));
+        ck("mac02 hash: second bucket added passes",
+           (long)send_frame(other_grp, 4).size(), 4);
+        ck("mac02 hash: unicast unaffected by hash bits",
+           (long)send_frame(MAC_OTHER, 4).size(), 0);
+        dut->mc_hash_i = 0;
+    }
+
+    // ---- TCAM still overrides the address filter both ways ----
+    wr_tcam(3, 1, MAC_OTHER, MASK_ALL, 0x00);       // accept a foreign unicast
+    ck("mac02 TCAM accept beats the address filter",
+       (long)send_frame(MAC_OTHER, 4).size(), 4);
+    wr_tcam(4, 1, MAC_STATION, MASK_ALL, 0x01);     // drop OUR OWN address
+    ck("mac02 TCAM drop beats the address filter",
+       (long)send_frame(MAC_STATION, 4).size(), 0);
+
+    // ---- promiscuous outranks everything except the runt guard ----
+    dut->promisc_i = 1;
+    ck("mac02 promisc: foreign unicast passes",  (long)send_frame(MAC_OTHER, 4).size(),   4);
+    ck("mac02 promisc: TCAM-dropped MAC passes", (long)send_frame(MAC_STATION, 4).size(), 4);
+    ck("mac02 promisc: random group passes",     (long)send_frame(MAC_MAAP, 4).size(),    4);
+    ck("mac02 promisc: runt STILL swallowed",    (long)send_frame(MAC_OTHER, 1).size(),   0);
+    dut->promisc_i = 0;
+
+    // ---- disarming restores the legacy miss policy exactly ----
+    wr_tcam(3, 0, 0, 0, 0); wr_tcam(4, 0, 0, 0, 0);
+    dut->addr_filter_en_i = 0;
+    ck("mac02 re-disarmed: foreign unicast passes again",
+       (long)send_frame(MAC_OTHER, 4).size(), 4);
+    dut->default_pass_i = 0;
+    ck("mac02 re-disarmed + whitelist: foreign unicast dropped",
+       (long)send_frame(MAC_OTHER, 4).size(), 0);
+    dut->default_pass_i = 1;
 
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

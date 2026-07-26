@@ -263,6 +263,7 @@ module milan_csr #(
   output wire                    o_linkg_freeze,      //! LINK_CTRL[3]: test - fake eth clock death
   output wire [63:0]             o_as_parent_ckid,    //! AS2: 802.1AS parent bridge ckid
   output wire                    o_tcam_default_pass, //! accept frames that miss the TCAM (TCAM_CTRL[0])
+  output wire                    o_tcam_addr_filt_en, //! apply the 802.3 station address filter on a TCAM miss (TCAM_CTRL[1], REQ-MAC-02)
   output wire                    o_tcam_wr_en,        //! 1-cycle: commit an entry write to the TCAM
   output wire [4:0]              o_tcam_wr_index,     //! entry index (TCAM_CMD[4:0])
   output wire                    o_tcam_wr_valid,     //! 1 = add/update, 0 = remove (TCAM_CMD[8])
@@ -681,7 +682,7 @@ module milan_csr #(
   logic adp_dep_p;                       //! ADP depart strobe (1 cycle)
 
   // RX dest-MAC TCAM filter programming (0x700 group)
-  logic [31:0] tcam_ctrl;                //! TCAM_CTRL: [0]=default_pass
+  logic [31:0] tcam_ctrl;                //! TCAM_CTRL: [0]=default_pass, [1]=addr_filter_en
   logic [31:0] tcam_klo, tcam_khi;       //! TCAM key {khi[15:0], klo}
   logic [31:0] tcam_mlo, tcam_mhi;       //! TCAM mask {mhi[15:0], mlo}
   logic [31:0] tcam_act;                 //! TCAM action ([7:0])
@@ -1608,6 +1609,9 @@ module milan_csr #(
   assign o_adp_depart_p        = adp_dep_p;
 
   assign o_tcam_default_pass = tcam_ctrl[0];
+  //! REQ-MAC-02: reset 0 (tcam_ctrl reset 0x1) so the RX path keeps the legacy
+  //! blanket default_pass miss policy until software arms the address filter.
+  assign o_tcam_addr_filt_en = tcam_ctrl[1];
   assign o_tcam_wr_en        = tcam_wr_p;
   assign o_tcam_wr_index     = tcam_wr_index;
   assign o_tcam_wr_valid     = tcam_wr_valid_r;
