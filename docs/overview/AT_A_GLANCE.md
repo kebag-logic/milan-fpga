@@ -69,7 +69,7 @@ flowchart TB
     MAC --> FILT --> DEP
     MAC --> PHC
     PHC --> SERVO --> MEDIA
-    MAC <==>|"1 Gb Ethernet<br/>AVB/TSN wire"| WIRE(("802.1AS-capable<br/>AVB switch"))
+    MAC <-->|"1 Gb Ethernet<br/>AVB/TSN wire"| WIRE(("802.1AS-capable<br/>AVB switch"))
 ```
 
 Deeper, generated versions of this picture:
