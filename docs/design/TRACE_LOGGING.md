@@ -50,6 +50,12 @@ do.
 
 ## 2. What is worth tracing
 
+> **The enumerated catalogue — every event type, every field, every enum —
+> is [`../reference/TRACE_EVENTS.md`](../reference/TRACE_EVENTS.md)**, generated
+> from `milan_trace.yaml` by `sw/trace/gen_trace_events.py` and gated against
+> staleness (round-trip gate 15). This section is the *reasoning*; that page is
+> the reference.
+
 The event set was not designed from first principles. It was designed by reading
 [`RECURRING_DEFECT_PATTERNS.md`](../limitations/RECURRING_DEFECT_PATTERNS.md)
 and [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) and asking, for

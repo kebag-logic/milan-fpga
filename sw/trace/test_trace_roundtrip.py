@@ -524,6 +524,21 @@ def test_babeltrace2_agrees():
     print(f"  [gate 14] babeltrace2 and ctf_read.py agree on {ours} records")
 
 
+def test_event_catalogue_fresh():
+    """Gate 15: docs/reference/TRACE_EVENTS.md is generated from the YAML, so
+    "what is being logged" cannot drift from the ABI that emits it. Same
+    staleness contract as the traceability matrix."""
+    import subprocess
+    r = subprocess.run([sys.executable, os.path.join(HERE, "gen_trace_events.py"), "--check"],
+                       capture_output=True, text=True)
+    if "pyyaml not installed" in (r.stderr or ""):
+        _skip("gate 15 event catalogue", "pyyaml not installed")
+        return
+    assert r.returncode == 0, \
+        f"event catalogue is STALE - run sw/trace/gen_trace_events.py\n{r.stdout}{r.stderr}"
+    print(f"  [gate 15] {r.stdout.strip()}")
+
+
 if __name__ == "__main__":
     for fn in (test_flash_map_and_mtd_node, test_generated_is_fresh,
                test_event_ids_pinned, test_producer_builds_and_runs,
@@ -532,7 +547,7 @@ if __name__ == "__main__":
                test_negative_controls, test_timestamp_wrap_margin,
                test_flash_wear_budget,
                test_rotation_policy, test_log_budget_fits_user_slot,
-               test_babeltrace2_agrees):
+               test_babeltrace2_agrees, test_event_catalogue_fresh):
         print(f"{fn.__name__}:")
         fn()
     if "dir" in _RUN:
