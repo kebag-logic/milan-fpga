@@ -265,6 +265,16 @@ int main(int argc, char** argv) {
         inject(mkaaf(sid0, 5, 2, 0x10), 120);        // sid 0 must NOT match
         ck("route-only idx0 commit: sid-0 frame ignored",
            pcm_frames.size(), before);
+        // ...but it was not BLOCKED, only mis-aimed. win_commit_glue's guard
+        // is `(|{wing_sid_hi_r, wing_sid_lo_r})`, and that staging pair is
+        // GLOBAL, not per index: it still holds listener 2's sid staged three
+        // writes ago, so this route-only commit DOES write the stream table -
+        // it arms entry 0 with SOMEBODY ELSE'S stream_id. The armed-entry
+        // count is what shows it (2 if the guard worked as its comment
+        // claims, 3 because it does not). CHARACTERISED, NOT ENDORSED - see
+        // the TRAP-1 section at the end of this file for the consequence.
+        ck("route-only idx0 commit ARMED entry 0 anyway (stale staged sid)",
+           (axi_read(0x8C4) >> 16) & 0xFF, 3);
     }
 
     printf("-- tagged AAF frames: 3x stream1, 2x stream2, 1x unknown --\n");
@@ -751,6 +761,155 @@ int main(int argc, char** argv) {
         ck("host RX under ts backpressure byte-exact", h2exact ? 1 : 0, 1);
         dut->m_axis_ts_tready = 1;
         dut->m_axis_rx_tready = 0;
+    }
+
+    // ======================================================================
+    // TRAP-1 END-TO-END (2026-07-26): once ANY window CTRL write lands at
+    // index 0, the ACMP entry-0 alias is detached FOR GOOD and an ACMP bind
+    // of listener 0 becomes cosmetic - the listener SM reports bound, the
+    // stream table never sees that stream_id, the parser never matches.
+    // PARSED climbs, MATCHED does not: the open 8x8 blocker's exact symptom,
+    // reached from a CSR write sequence a provisioning daemon would make.
+    //
+    // Two RTL terms combine to make it reachable
+    // (hdl/milan/milan_datapath.sv, `win_commit_glue`):
+    //   * `(|{wing_sid_hi_r, wing_sid_lo_r})` is meant to mean "a sid was
+    //     staged for this commit", but the staging pair is GLOBAL, not per
+    //     index - any earlier stage for any OTHER listener satisfies it, so
+    //     a route-flags-only CTRL write at idx 0 arms entry 0 with that other
+    //     listener's stream_id (asserted at the route-only commit above);
+    //   * `| ~csr_lctx_wr_data_w[0]` lets an en=0 CTRL write through
+    //     unconditionally, so even "clear this sink" reaches the table.
+    // Either way KL_stream_table latches ovr_armed_r[0] and the alias is
+    // gone until reset. tb/verilator/avtp_parser/sim_tbl.cpp T6 proves the
+    // table-level mechanism from a clean reset; this section proves it is
+    // reachable through the real CSR window in the real datapath.
+    //
+    // Asserted through the 0x8B4 APRB probe group only - upstream of format,
+    // route and depacketizer policy, so the verdict under test is the
+    // stream-table match itself and nothing else. Runs last: it deliberately
+    // leaves listener 0 provisioned as an override. CHARACTERISED, NOT
+    // ENDORSED: when the guards are made per-index and symmetric, this
+    // section must be updated with the fix.
+    printf("-- TRAP-1: the entry-0 ACMP alias is detached by ANY window write --\n");
+    {
+        enum { A_APRB_PARSED = 0x8B4, A_APRB_MATCHED = 0x8B8,
+               A_APRB_INFO = 0x8C4 };
+        auto armed   = [&]{ return (axi_read(A_APRB_INFO) >> 16) & 0xFF; };
+        auto matched = [&]{ return axi_read(A_APRB_MATCHED); };
+        auto parsed  = [&]{ return axi_read(A_APRB_PARSED); };
+
+        // the host-plane drill above deliberately left the DMA RX port
+        // un-drained; the shared inject() never drives it, so frame tails
+        // stall at the filter boundary and back-pressure the whole RX
+        // pipeline - including the PRE-filter parser tap. Arm the port and
+        // let the stalled tails flush before measuring anything.
+        dut->m_axis_rx_tready = 1;
+        for (int c = 0; c < 400; c++) step();
+
+        // bind listener_unique_id 0 over ACMP with an explicit stream_id -
+        // the entry-0 alias, exactly how the bench listener comes up
+        const uint8_t sid0[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
+        const unsigned long armed_pre = armed();
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;   // CONNECT_RX_COMMAND
+            f[16]=0x00; f[17]=44;
+            memcpy(f+18, sid0, 8);                            // explicit sid
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+            const uint8_t tk[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
+            memcpy(f+34, tk, 8);
+            const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us, 8);
+            f[50]=0x00; f[51]=0x00;                           // talker_unique_id
+            f[52]=0x00; f[53]=0x00;                           // listener_unique_id 0
+            const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x02};
+            memcpy(f+54, dm, 6);
+            f[62]=0x77; f[63]=0x22;
+            inject(f, 70, 400);
+        }
+        unsigned long m0 = matched(), p0 = parsed();
+        inject(mkaaf(sid0, 0x11, 2, 0xC0), 120);
+        // THE FINDING: the listener is bound, both ends agree on the sid, the
+        // frame reaches the parser - and the verdict is still "not ours",
+        // because entry 0 stopped being the ACMP alias hundreds of cycles ago
+        // when a route-flags CTRL write landed on it.
+        ck("TRAP-1 bound-but-detached: PARSED climbs",  parsed()  - p0, 1);
+        ck("TRAP-1 bound-but-detached: MATCHED STATIC", matched() - m0, 0);
+        ck("TRAP-1 bound-but-detached: INFO match flag clear",
+           (axi_read(A_APRB_INFO) >> 8) & 1, 0);
+        // the bind did not arm anything: the ACMP alias is not in the table
+        ck("TRAP-1 bound-but-detached: armed count unchanged by the bind",
+           armed(), armed_pre);
+
+        // recovery 1: an EXPLICIT override write of the same sid at idx 0
+        axi_write(A_STRM_SEL, 0x000);
+        axi_write(A_SW_SID_LO, 0x00020000);
+        axi_write(A_SW_SID_HI, 0x02000000);
+        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);
+        ck("TRAP-1 explicit override armed entry 0", armed() - armed_pre, 1);
+        m0 = matched(); p0 = parsed();
+        inject(mkaaf(sid0, 0x12, 2, 0xC0), 120);
+        ck("TRAP-1 explicit override at idx0: MATCH", matched() - m0, 1);
+        ck("TRAP-1 explicit override: INFO index 0",
+           (axi_read(A_APRB_INFO) >> 12) & 0xF, 0);
+
+        // the evict leg: "clear this sink" - en=0, nothing staged for idx 0.
+        // `| ~csr_lctx_wr_data_w[0]` lets it through unconditionally.
+        axi_write(A_STRM_SEL, 0x000);                 // dir=0 idx=0
+        axi_write(A_SW_CTRL, 0x0);                    // en=0, route=NULL
+        ck("TRAP-1 en=0 CTRL write: armed entries back down", armed(), armed_pre);
+
+        m0 = matched(); p0 = parsed();
+        inject(mkaaf(sid0, 0x13, 2, 0xC0), 120);
+        ck("TRAP-1 after the en=0 write: PARSED still climbs", parsed() - p0, 1);
+        ck("TRAP-1 after the en=0 write: MATCHED STATIC", matched() - m0, 0);
+        ck("TRAP-1 after the en=0 write: INFO match flag clear",
+           (axi_read(A_APRB_INFO) >> 8) & 1, 0);
+
+        // and re-binding over ACMP does NOT bring it back: ovr_armed_r[0] is
+        // latched, so the alias is gone until reset or an explicit override
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;
+            f[16]=0x00; f[17]=44;
+            memcpy(f+18, sid0, 8);
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+            const uint8_t tk[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
+            memcpy(f+34, tk, 8);
+            const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us, 8);
+            f[52]=0x00; f[53]=0x00;
+            const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x02};
+            memcpy(f+54, dm, 6);
+            f[62]=0x77; f[63]=0x23;
+            inject(f, 70, 400);
+        }
+        m0 = matched(); p0 = parsed();
+        inject(mkaaf(sid0, 0x14, 2, 0xC0), 120);
+        ck("TRAP-1 ACMP re-bind does NOT revive: PARSED climbs", parsed() - p0, 1);
+        ck("TRAP-1 ACMP re-bind does NOT revive: MATCHED static", matched() - m0, 0);
+
+        // recovery 2: the only software route back is another explicit
+        // override write - there is no CSR path that returns entry 0 to the
+        // ACMP alias short of a datapath reset
+        axi_write(A_STRM_SEL, 0x000);
+        axi_write(A_SW_SID_LO, 0x00020000);
+        axi_write(A_SW_SID_HI, 0x02000000);
+        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);
+        m0 = matched(); p0 = parsed();
+        inject(mkaaf(sid0, 0x15, 2, 0xC0), 120);
+        ck("TRAP-1 re-override recovers the match", matched() - m0, 1);
+        ck("TRAP-1 recovered: INFO index 0", (axi_read(A_APRB_INFO) >> 12) & 0xF, 0);
+        ck("TRAP-1 recovered: entry 0 armed again", armed() - armed_pre, 1);
     }
 
     printf("--------------------------------------------------------------\n");
