@@ -44,6 +44,7 @@ tops=(
   "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv"
   "KL_avtp_rx_monitor|$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv"
   "KL_stream_table|$R/hdl/ieee1722/avtp/KL_stream_table.sv"
+  "avtp_stream_parser|$C/ethernet_packet_pkg.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv"
   "KL_avtp_rx_monitor_ctx|$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv"
   "KL_pcm_route|$R/hdl/ieee1722/aaf/KL_pcm_route.sv"
   "KL_aaf_capture_i2s|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv"
