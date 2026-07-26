@@ -51,6 +51,15 @@ board:
                                      # 2-queue build shifts every DMA window
                                      # (verified against the flashed csr.csv:
                                      # no rx1_*, no steer registers)
+                                     # SHOULD BECOME 2, REFLASH-GATED: with 1
+                                     # there is no steer block at all, so gPTP
+                                     # shares the bulk ring and the USER's
+                                     # 2-ingress-queue directive is simply not
+                                     # implemented on this build. Raising it
+                                     # means moving boot_chain_pin.dma-ts and
+                                     # pcm-dma by 0x74, rebuilding, reflashing
+                                     # and re-pinning against the new csr.csv
+                                     # (builder gate 19c refuses it until then)
     hs_page_bytes: 16384
     strip_probes: true
     num_queues: 6
