@@ -277,8 +277,26 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   unicast dropped, allmulti, a two-bucket hash sweep against an independent
   reference fold, TCAM-beats-filter both ways, promisc-beats-everything, runt
   still swallowed).
-- [ ] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — use MAC `speed[]`;
-  drive `is_1g`; expose link-status bit + IRQ.
+- [~] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — **`is_1g` now
+  follows MAC `speed[]` (fixes a live 10x mis-sizing); link status still
+  structurally constant.** `o_mac_is_1g` was `MAC_CTRL[4]` alone, reset 1, so a
+  100 Mb/s port (the Arty MII DP83848, `i_speed` = 01) told every consumer it
+  was on a gigabit link until software wrote the register. Not cosmetic:
+  `is_1g` sets the lwSRP bandwidth gate's admission limit (750 vs 75 Mb/s  -
+  and the AAF path rides that gate today) and the CBS sendSlope denominator.
+  It now derives from `i_speed`, with `MAC_CTRL[5]` (speed_manual, reset 0) to
+  pin it by hand. TB: `csr` (auto at 1000/100/10, MAC_STATUS agreement, both
+  manual-override directions, and a negative proving `MAC_CTRL[4]` is inert
+  while auto  -  the old expression fails 4 of them).
+  - **STILL OPEN, and not fixable in `hdl/`:** `sw/litex/milan_soc.py` ties
+    `i_i_link_up = 1` and `i_i_full_duplex = 1` at **both** datapath
+    instantiations, and `i_i_mac_speed` to a per-board constant
+    (`0b01` MII / `0b10` GMII) rather than the autoneg result. So
+    `MAC_STATUS[0]` can never report link-down and the speed is build-time, not
+    negotiated  -  the same structurally-silent-port class as the 2026-07-22
+    RMON `i_mac_events = 0` root cause. The link-change IRQ path itself exists.
+    Closing this needs the LiteEth PHY link/speed status wired into
+    `milan_datapath` in `milan_soc.py` (SoC glue, not this lane).
 - [x] **H — Stats readback + snapshot + reset** `(REQ-MAC-04)` — map
   `ethernet_events` counters into CSR; replace `// TODO Add VIO`.
 - [ ] **M — MAC/link/error IRQ** `(REQ-MAC-05)` · **M — PHY reset GPIO**
