@@ -98,15 +98,23 @@ int main(int argc, char** argv) {
     printf("== traffic_queues harness (axis_demux/axis_fifo/axis_arb_mux) ==\n");
 
     // distinct frames per queue (>= 8 beats so each fills past the has-data margin)
+    // SIX queues since the 802.1Q map round: q5 SR-A, q4 SR-B, q3 gPTP,
+    // q2 control, q1 spare, q0 best effort.
     std::vector<Beat> fq0 = mk(0xA0, 8), fq1 = mk(0xB1, 10),
-                      fq2 = mk(0xC2, 8), fq3 = mk(0xD3, 9);
+                      fq2 = mk(0xC2, 8), fq3 = mk(0xD3, 9),
+                      fq4 = mk(0xE4, 9),  fq5 = mk(0xF5, 8);
+    // NOTE: keep every frame <= 10 beats. FIFO_DEPTH is 64 BYTES here, which
+    // axis_fifo turns into 8 RAM entries (+ its output skid), so an 11-beat
+    // frame stalls mid-push; axis_demux holds `select` until tlast, so the
+    // NEXT queue's frame would then land in the stalled queue's FIFO.
 
-    // load all four queues
-    push_frame(0, fq0); push_frame(1, fq1); push_frame(2, fq2); push_frame(3, fq3);
+    // load all six queues
+    push_frame(0, fq0); push_frame(1, fq1); push_frame(2, fq2);
+    push_frame(3, fq3); push_frame(4, fq4); push_frame(5, fq5);
     for (int i = 0; i < 8; i++) step();
 
     // each queue reports data buffered
-    ck("queue_has_data all set", dut->queue_has_data_o & 0xF, 0xF);
+    ck("queue_has_data all set", dut->queue_has_data_o & 0x3F, 0x3F);
 
     // with no grant, nothing drains
     dut->queue_grant_i = 0;
@@ -115,7 +123,8 @@ int main(int argc, char** argv) {
     ck("no drain without grant", leaked ? 1 : 0, 0);
 
     // grant queues out of order; each must emerge intact with correct tdest
-    struct { int q; std::vector<Beat>* f; } order[] = { {2,&fq2}, {0,&fq0}, {3,&fq3}, {1,&fq1} };
+    struct { int q; std::vector<Beat>* f; } order[] = { {2,&fq2}, {5,&fq5}, {0,&fq0},
+                                                        {3,&fq3}, {4,&fq4}, {1,&fq1} };
     for (auto& o : order) {
         int d; auto got = drain(o.q, d);
         ck((std::string("q") + std::to_string(o.q) + " tdest").c_str(), d, o.q);
@@ -124,7 +133,7 @@ int main(int argc, char** argv) {
 
     // all queues drained -> has_data clears
     for (int i = 0; i < 8; i++) step();
-    ck("queue_has_data all clear", dut->queue_has_data_o & 0xF, 0x0);
+    ck("queue_has_data all clear", dut->queue_has_data_o & 0x3F, 0x0);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

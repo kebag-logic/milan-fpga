@@ -22,7 +22,9 @@
                                802.1Q Table 6-4 style, programmable)
                     tc       = PCP_TC_MAP[regen]          (PCP -> traffic class,
                                802.1Q Table 8-5 style, programmable)
-                    queue    = TC_QUEUE_MAP[tc]           (traffic class -> queue)
+                    queue    = TC_QUEUE_MAP[tc]           (traffic class -> queue,
+                               clamped to BEST_EFFORT when the programmed
+                               index is >= NUMBER_OF_QUEUES - see below)
 
                   dmac_check (REQ-CLS-07, both modes):
                     the 0x88F7 gPTP fast path additionally requires the
@@ -49,7 +51,7 @@ import ethernet_packet_pkg::*;
 `default_nettype none
 
 module traffic_class_map #(
-  parameter int NUMBER_OF_QUEUES = 4,                    //! Number of egress queues
+  parameter int NUMBER_OF_QUEUES = 6,                    //! Number of egress queues
   parameter int TDEST_WIDTH = $clog2(NUMBER_OF_QUEUES)   //! Width of the queue index
 )(
   //! --- runtime configuration (milan_csr classifier group) ---
@@ -79,8 +81,11 @@ module traffic_class_map #(
   logic [2:0] traffic_class;
   //! Queue selected by the TC->queue table. Per the ABI (docs/reference/REGISTER_MAP.md)
   //! CLS_TC_QUEUE_MAP packs one TDEST_WIDTH-bit queue index per traffic class
-  //! (ceil(log2 N) bits/entry), so the reset value 0xE4 is the identity map
-  //! 3,2,1,0 for N=4.
+  //! (ceil(log2 N) bits/entry), so at N=6 (3 bits/entry) the reset value
+  //! 0x006D2B00 is the map TC0,1 -> q0 - TC2 -> q4 - TC3 -> q5 - TC4,5 -> q2 -
+  //! TC6,7 -> q3 (docs/reference/EGRESS_QUEUE_MAP.md).
+  logic [TDEST_WIDTH-1:0] queue_sel_raw;
+  //! ...clamped to a queue that EXISTS (see below).
   logic [TDEST_WIDTH-1:0] queue_sel;
 
   //! Legacy EtherType classification, matching the historical enum ordering.
@@ -111,7 +116,20 @@ module traffic_class_map #(
     eff_pcp       = vlan_valid_i ? pcp_i : default_pcp_i;
     regen_prio    = prio_regen_i[eff_pcp*3 +: 3];
     traffic_class = pcp_tc_map_i[regen_prio*3 +: 3];
-    queue_sel     = tc_queue_map_i[traffic_class*TDEST_WIDTH +: TDEST_WIDTH];
+    queue_sel_raw = tc_queue_map_i[traffic_class*TDEST_WIDTH +: TDEST_WIDTH];
+
+    // ---- OUT-OF-RANGE QUEUE CLAMP (new at N=6) ----
+    // With N a power of two the queue index could not overflow: every
+    // TDEST_WIDTH-bit value named a real queue. At N=6 the 3-bit field can
+    // name q6/q7, which do not exist - and the downstream axis_demux SILENTLY
+    // DROPS a frame whose `select >= M_COUNT` (verilog-axis axis_demux.v:
+    // `drop_ctl = drop || select >= M_COUNT`). A single mis-programmed
+    // CLS_TC_QUEUE_MAP nibble would therefore turn into an invisible TX black
+    // hole. Clamp instead: an unmapped traffic class rides BEST_EFFORT, which
+    // is observable (frames arrive, just unprioritised) rather than silent.
+    // No-op for N = 2/4/8, so this costs nothing on a power-of-two build.
+    queue_sel     = (32'(queue_sel_raw) >= NUMBER_OF_QUEUES)
+                    ? TDEST_WIDTH'(BEST_EFFORT) : queue_sel_raw;
 
     // ---- legacy EtherType path (fallback, unchanged semantics) ----
     unique case (1'b1)
@@ -127,17 +145,28 @@ module traffic_class_map #(
 
     // ---- select mode ----
     // gPTP FAST-PATH (2026-07-13): 0x88F7 frames are untagged (no PCP) yet
-    // latency-critical. The legacy arm always classed them GPTP_CLASS (q1,
-    // second-highest; q0 = SRA and queue index 0 = HIGHEST at the grant's
-    // priority encoder); in PCP mode they fell through default_pcp to
-    // whatever the tables say. Make PCP mode match legacy: gPTP always rides
-    // its own class, above best-effort and OUT of the CBS-shaped SRA queue
-    // (audio credit windows must not gate sync). NOTE: the TX-flood tx-ts
-    // timeouts of 2026-07-13 were NOT queue starvation - silicon ran legacy
-    // mode (gPTP already q1 > TCP q3); the delay lives in the DRIVER's single
-    // TX descriptor ring (256 slots ~ 30 ms of bulk backlog at 100 Mbit,
-    // upstream of this classifier). tx_timestamp_timeout 50 covers it; the
-    // real fix for that class is a priority TX ring/doorbell (future).
+    // latency-critical. The legacy arm always classed them GPTP_CLASS; in PCP
+    // mode they fell through default_pcp to whatever the tables say. Make PCP
+    // mode match legacy: gPTP always rides its own class, above best-effort
+    // and control, and OUT of the CBS-shaped SR queues.
+    //
+    // 6-QUEUE MAP: GPTP_CLASS is now q3 and sits BELOW the shaped q5/q4, not
+    // above them. That is deliberate and it is a CORRECTNESS requirement, not
+    // a preference - 802.1Q credit-based shaping assumes the shaped queues are
+    // the top of the strict-priority order, and any strict-priority queue
+    // above them invalidates the credit accounting that bounds class-A
+    // latency. gPTP is unharmed: every event message is timestamped in
+    // hardware at the egress SFD (ptp_ts_top), so a queueing delay moves only
+    // *when* the frame leaves, never the value it carries. The full argument
+    // lives in ethernet_packet_pkg::network_priority_t and
+    // docs/reference/EGRESS_QUEUE_MAP.md - do not "fix" this by promoting
+    // gPTP back above the SR classes.
+    //
+    // NOTE: the TX-flood tx-ts timeouts of 2026-07-13 were NOT queue
+    // starvation - the delay lives in the DRIVER's single TX descriptor ring
+    // (256 slots ~ 30 ms of bulk backlog at 100 Mbit, upstream of this
+    // classifier). tx_timestamp_timeout 50 covers it; the real fix for that
+    // class is a priority TX ring/doorbell (future).
     if (gptp_frame)
       tdest_o = TDEST_WIDTH'(GPTP_CLASS);
     else if (use_pcp_i)

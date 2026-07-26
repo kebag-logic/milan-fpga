@@ -3201,38 +3201,61 @@ class RingDMAReader(LiteXModule):
 
 
 class RxSteer(LiteXModule):
-    """2-way RX flow-steering front-end (parallel ACK/recv processing, TX>=200 step).
+    """2-way RX steering front-end: gPTP gets its OWN queue, everything else shares q0.
 
-    A single MTU-1500 RX stream can only be processed by one NAPI on one hart  -  the
-    ACK-processing ceiling. This splits it into 2 flow-consistent queues so two TCP
-    flows' ACK streams land on two harts. Per frame: buffer the head (<=5 beats),
-    extract the IPv4/TCP 4-tuple (src/dst IP + ports, complete by beat 4), hash to
-    q0/q1, and route the WHOLE frame there. `hash` is over the 4-tuple so a flow's
-    packets never reorder. Non-IPv4/TCP and short frames -> q0 (control/ARP/PTP path).
+    USER directive (2026-07-26, the 6-queue egress round): "one [ingress queue]
+    dedicated to gPTP, one for everything else".
+
+      q1  frames whose DMAC is the 802.1AS reserved multicast 01-80-C2-00-00-0E
+          AND whose (inner) EtherType is 0x88F7  -  i.e. exactly the gPTP test
+          `hdl/ieee8021q/ts/traffic_class_map.sv` applies on egress with
+          CLS_CTRL[1] set (REQ-CLS-07). One detector, one rule, both directions.
+      q0  everything else.
+
+    WHAT THIS REPLACES AND WHAT IT COSTS. Until this commit the block was a TCP
+    4-tuple flow hash built for THROUGHPUT: it split one MTU-1500 RX stream into
+    two flow-consistent queues so two TCP flows' ACK/recv processing ran on two
+    harts, breaking the single-NAPI ACK-processing ceiling (measured RX 223
+    Mbit, see docs/findings/RX_PERF_TUNING_MAP.md). That parallel ACK split is
+    GONE - bulk RX is single-NAPI again and the RX ceiling reverts to the
+    one-hart number. What is bought is latency where it actually matters: PTP
+    event messages no longer queue behind bulk traffic in a shared ring, and
+    RX-side PTP latency is precisely what once held `asCapable` false
+    (docs/findings/GPTP_RXPAD_ROOTCAUSE.md - late RX stamps, not a switch
+    fault). A sync/pdelay pair is ~64-90 B at
+    8-16 frames/s, so the dedicated queue is essentially never backlogged and
+    its NAPI never competes with a 1500 B bulk burst.
+
+    Per frame: buffer the head (<=3 beats = wire bytes 0..23, enough for the
+    DMAC, the EtherType and one C-TAG's inner EtherType), decide, then route the
+    WHOLE frame to the chosen queue. Frames never reorder within a queue.
 
     Downstream (both RingDMAWriter.sink) is always-ready (drop-on-full), so a small
     SyncFIFO holds `sink` (constant-ready preserved) while the head is decoded; the
-    FIFO peaks ~5 beats/frame (head re-fill during replay) and never backpressures."""
+    FIFO peaks ~3 beats/frame (head re-fill during replay) and never backpressures."""
     def __init__(self, depth=64):
-        from functools import reduce as _reduce
-        from operator import xor as _xor
         self.sink    = sink    = stream.Endpoint([("data", 64), ("keep", 8)])
         self.source0 = source0 = stream.Endpoint([("data", 64), ("keep", 8)])
         self.source1 = source1 = stream.Endpoint([("data", 64), ("keep", 8)])
-        self.q0_frames = CSRStatus(32, description="frames steered to RX queue 0 (telemetry)")
-        self.q1_frames = CSRStatus(32, description="frames steered to RX queue 1 (telemetry)")
-        self.hash_sel  = CSRStorage(1, reset=0, description="0 = steer by 4-tuple hash; 1 = force all to q0 (bypass)")
+        self.q0_frames = CSRStatus(32, description="frames steered to RX queue 0 (everything but gPTP)")
+        self.q1_frames = CSRStatus(32, description="frames steered to RX queue 1 (gPTP)")
+        # NAME KEPT ON PURPOSE: `hash_sel` is the third and last register of the
+        # steer block and the DMA window map is pinned to its size/offset
+        # (endstation_builder DMA_STEER_BYTES = 0x0C). Renaming it would move
+        # nothing but would break every csr.csv-derived tool. It is now simply
+        # the bypass bit it always doubled as.
+        self.hash_sel  = CSRStorage(1, reset=0, description="0 = steer gPTP to q1; 1 = force all to q0 (bypass)")
 
         # # #
         self.fifo = fifo = stream.SyncFIFO([("data", 64), ("keep", 8)], depth=depth, buffered=True)
         self.comb += sink.connect(fifo.sink)          # sink.ready = fifo.sink.ready (~always 1)
         src = fifo.source
 
-        NHEAD = 5                                     # beats buffered to cover the 4-tuple
+        NHEAD = 3                                     # beats buffered: wire bytes 0..23
         obuf_d = Array([Signal(64) for _ in range(NHEAD)])
         obuf_k = Array([Signal(8)  for _ in range(NHEAD)])
         obuf_l = Array([Signal()   for _ in range(NHEAD)])
-        ocnt   = Signal(4)                            # beats collected into obuf (0..5)
+        ocnt   = Signal(4)                            # beats collected into obuf (0..3)
         sawlast = Signal()                            # frame ended within the head
         q      = Signal()                             # latched queue for the current frame
         ridx   = Signal(4)                            # replay index
@@ -3241,27 +3264,27 @@ class RxSteer(LiteXModule):
 
         def B(beat, byte):                            # byte `byte` (0..7) of head beat `beat`
             return obuf_d[beat][8*byte:8*byte+8]
-        eth_ip = Signal(); ihl5 = Signal(); tcp = Signal()
-        src_ip = Signal(32); dst_ip = Signal(32); sport = Signal(16); dport = Signal(16)
+        # 802.1AS-2020 s10.5: gPTP rides the reserved multicast 01-80-C2-00-00-0E.
+        # EtherType 0x88F7 ALONE is not proof of a gPTP frame (any station can mint
+        # one at an arbitrary destination) - the same argument REQ-CLS-07 makes on
+        # the egress side, so demand both here too. A spoofed 0x88F7 lands on q0.
+        dmac_gptp = Signal(); et_ptp = Signal(); et_vlan = Signal(); vet_ptp = Signal()
         self.comb += [
-            eth_ip.eq((B(1,4) == 0x08) & (B(1,5) == 0x00)),   # ethertype 0x0800 (bytes 12,13)
-            ihl5.eq(B(1,6) == 0x45),                          # IPv4 ihl=5 (byte 14)
-            tcp.eq(B(2,7) == 6),                              # IP proto TCP (byte 23)
-            src_ip.eq(Cat(B(3,2), B(3,3), B(3,4), B(3,5))),   # bytes 26-29
-            dst_ip.eq(Cat(B(3,6), B(3,7), B(4,0), B(4,1))),   # bytes 30-33
-            sport.eq(Cat(B(4,2), B(4,3))),                    # bytes 34-35
-            dport.eq(Cat(B(4,4), B(4,5))),                    # bytes 36-37
+            dmac_gptp.eq((B(0,0) == 0x01) & (B(0,1) == 0x80) & (B(0,2) == 0xC2) &
+                         (B(0,3) == 0x00) & (B(0,4) == 0x00) & (B(0,5) == 0x0E)),
+            et_ptp.eq((B(1,4) == 0x88) & (B(1,5) == 0xF7)),   # bytes 12,13 = 0x88F7
+            et_vlan.eq((B(1,4) == 0x81) & (B(1,5) == 0x00)),  # bytes 12,13 = C-TAG
+            vet_ptp.eq((B(2,0) == 0x88) & (B(2,1) == 0xF7)),  # bytes 16,17 after a C-TAG
         ]
-        hashbit = Signal()
-        self.comb += hashbit.eq(
-            _reduce(_xor, [src_ip[i] for i in range(32)]) ^
-            _reduce(_xor, [dst_ip[i] for i in range(32)]) ^
-            _reduce(_xor, [sport[i] for i in range(16)]) ^
-            _reduce(_xor, [dport[i] for i in range(16)]))
-        # decision from the (registered) head  -  evaluated when HEAD is complete
+        gptp = Signal()
+        self.comb += gptp.eq(dmac_gptp & (et_ptp | (et_vlan & vet_ptp)))
+        # decision from the (registered) head  -  evaluated when HEAD is complete.
+        # `sawlast` = the frame ended inside the head; a runt that short cannot be a
+        # valid gPTP PDU (the smallest, pdelay_resp_follow_up, is 60 B on the wire),
+        # so it takes q0 like every other non-gPTP frame.
         qsel = Signal()
-        self.comb += If(sawlast | ~(eth_ip & ihl5) | ~tcp | self.hash_sel.storage,
-                        qsel.eq(0)).Else(qsel.eq(hashbit))
+        self.comb += If(sawlast | ~gptp | self.hash_sel.storage,
+                        qsel.eq(0)).Else(qsel.eq(1))
 
         self.submodules.fsm = fsm = FSM(reset_state="HEAD")
         fsm.act("HEAD",
@@ -3513,10 +3536,13 @@ class MilanDMA(LiteXModule):
                                 hs_page_bytes=hs_page_bytes, legacy_ring=legacy_ring,
                                 fifo_beats=rx_fifo_beats)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
-        # RX fan-out (rx_queues=2): a flow-steering front-end splits the single RX
-        # stream into 2 flow-consistent queues, each its own RingDMAWriter + IRQ +
-        # NAPI, so two TCP flows' ACK/recv processing runs on two harts (breaks the
-        # single-NAPI ACK-processing ceiling). rx1's IRQ reuses the unused ev.tx line.
+        # RX fan-out (rx_queues=2): a steering front-end splits the single RX stream
+        # into 2 queues, each its own RingDMAWriter + IRQ + NAPI. Since the 6-queue
+        # round (2026-07-26) the split is gPTP (q1) vs everything else (q0) per the
+        # USER's 2-ingress-queue directive, NOT the old TCP 4-tuple flow hash - see
+        # RxSteer's docstring for what that trades away (parallel ACK processing)
+        # and what it buys (PTP off the bulk ring). rx1's IRQ reuses the unused
+        # ev.tx line.
         if rx_queues >= 2:
             self.steer = RxSteer()
             # hsq8 (2026-07-10): rx1 goes hs-capable + CQD=32  -  the CQ LUTRAM diet +

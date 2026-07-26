@@ -53,11 +53,11 @@
 `default_nettype none
 
 module milan_csr #(
-  parameter int NUM_QUEUES  = 4,             //! Number of HW traffic-class queues (reported in CAP.num_queues)
+  parameter int NUM_QUEUES  = 6,             //! Number of HW traffic-class queues (reported in CAP.num_queues); q5 = highest priority
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
   parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
   parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
-  parameter logic [31:0] VERSION = 32'h0001_0010 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0010 = lwSRP attribute rows sized L+T-1 instead of max(L,T) - the 0x800 window maps listener k to ctx row k and talker t to ctx row (L-1)+t, so EVERY t>0 talker row sat above N_CTX_P and was refused, pinning those admission gates shut whenever lwSRP was enabled; out-of-range rows now read 0xDEAD at A_STRMW_SRP instead of aliasing row 0's live status and stream_id, LWSRP_STATUS[11] is the sticky shortfall flag, LWSRP_TSPEC (0x690) MaxFrameSize scopes to row 0 + listener rows while a talker row derives 24 + 24*C from its own TCTX w0 chans under the packetizer's clamp, and the CRF media clock output is a bindable ACMP talker source at talker_unique_id = N_STREAMS with CRFT_SID/CRFT_DMAC reset 0 meaning AUTO; the saved-state fast-connect journal RTL (KL_persist_journal, CSR group 0x7B8-0x7C4) is PRESENT IN THE TREE BUT NOT YET WIRED INTO milan_csr - see the REGISTER_MAP banner; 0x000F = fabric-listener blocker fix: the 0x800 window's sid staging is qualified by the index it was staged for (a CTRL commit only overrides the stream table when a sid was staged FOR THAT INDEX), and KL_stream_table treats an eviction carrying the ZERO sid as RELEASE-TO-ALIAS so entry 0 returns to the ACMP bound record at runtime instead of staying detached until reset; 0x000E = item-7 playback chain closed in fabric - the render crossbar gains a HOST-RING source (map entry src bit; KL_pcm_tx pair bus latched alongside the AVB stream-channels) and KL_i2s_feed_mux picks the DAC source AND its pace (48 kHz media tick for the crossbar, LPF masked there) so an ALSA playback ring reaches the line-out with no inbound stream, plus the PBK probe group 0x8C8-0x8D0 (delivered frames / disarmed-render frames / KL_pcm_tx rails); 0x000D = RX stream-parser probe group 0x8B4-0x8C4 (frames parsed / matched / last stream-subtype stream_id + subtype, match flag, index and the count of armed table entries) - the first view UPSTREAM of the stream-table match, for the fabric-listener accept blocker; 0x000C = N-context ACMP talker responder (probes answered per uid 0..N-1, dmac = MAAP base+uid), t>0 admission mirrors t0 term-by-term (per-stream ACMP term + cfg_aaf_bypass escape), talker-window honesty (idx>0 STATE bits [3:0] live, not-backed words read 0xDEADDEAD), LTAP same-cycle cascade; 0x000B = chmap64 follow-ups: AEM dynamic-map projector wired to the render map RAM (CHMAP64_AEM_BINDING.md; CSR 0x900 demoted to debug port), KL_pcm_tx as capture-mux ring source, per-stream wire_chans fan-out, tdm_dout exported; 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter logic [31:0] VERSION = 32'h0001_0011 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x0011 = SIX egress queues in 802.1Q order (higher index = higher priority): q5 CBS SR class A, q4 CBS SR class B, q3 gPTP, q2 MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP, q1 spare, q0 best effort. The CBS window at 0x400 therefore runs to 0x4BF (was 0x47F), CAP.num_queues reads 6, the CBS reset slopes are re-derived per queue (25/25/50/50/150/450 Mb/s, still summing to the 75 % REQ-CBS-03 ceiling; ALL queues still unshaped at reset per CBS_DEFAULT_SHAPING_BUG), CLS_TC_QUEUE_MAP packs 3 bits per traffic class and resets to 0x006D2B00 (TC0/1 -> q0, TC2 -> q4, TC3 -> q5, TC4/5 -> q2, TC6/7 -> q3) instead of the 2-bit identity 0xE4, and LWSRP_CTRL's class-A queue field WIDENS from [3:2] to [4:2] with reset 5 so the granted slope can mux into q5; 0x0010 = lwSRP attribute rows sized L+T-1 instead of max(L,T) - the 0x800 window maps listener k to ctx row k and talker t to ctx row (L-1)+t, so EVERY t>0 talker row sat above N_CTX_P and was refused, pinning those admission gates shut whenever lwSRP was enabled; out-of-range rows now read 0xDEAD at A_STRMW_SRP instead of aliasing row 0's live status and stream_id, LWSRP_STATUS[11] is the sticky shortfall flag, LWSRP_TSPEC (0x690) MaxFrameSize scopes to row 0 + listener rows while a talker row derives 24 + 24*C from its own TCTX w0 chans under the packetizer's clamp, and the CRF media clock output is a bindable ACMP talker source at talker_unique_id = N_STREAMS with CRFT_SID/CRFT_DMAC reset 0 meaning AUTO; the saved-state fast-connect journal RTL (KL_persist_journal, CSR group 0x7B8-0x7C4) is PRESENT IN THE TREE BUT NOT YET WIRED INTO milan_csr - see the REGISTER_MAP banner; 0x000F = fabric-listener blocker fix: the 0x800 window's sid staging is qualified by the index it was staged for (a CTRL commit only overrides the stream table when a sid was staged FOR THAT INDEX), and KL_stream_table treats an eviction carrying the ZERO sid as RELEASE-TO-ALIAS so entry 0 returns to the ACMP bound record at runtime instead of staying detached until reset; 0x000E = item-7 playback chain closed in fabric - the render crossbar gains a HOST-RING source (map entry src bit; KL_pcm_tx pair bus latched alongside the AVB stream-channels) and KL_i2s_feed_mux picks the DAC source AND its pace (48 kHz media tick for the crossbar, LPF masked there) so an ALSA playback ring reaches the line-out with no inbound stream, plus the PBK probe group 0x8C8-0x8D0 (delivered frames / disarmed-render frames / KL_pcm_tx rails); 0x000D = RX stream-parser probe group 0x8B4-0x8C4 (frames parsed / matched / last stream-subtype stream_id + subtype, match flag, index and the count of armed table entries) - the first view UPSTREAM of the stream-table match, for the fabric-listener accept blocker; 0x000C = N-context ACMP talker responder (probes answered per uid 0..N-1, dmac = MAAP base+uid), t>0 admission mirrors t0 term-by-term (per-stream ACMP term + cfg_aaf_bypass escape), talker-window honesty (idx>0 STATE bits [3:0] live, not-backed words read 0xDEADDEAD), LTAP same-cycle cascade; 0x000B = chmap64 follow-ups: AEM dynamic-map projector wired to the render map RAM (CHMAP64_AEM_BINDING.md; CSR 0x900 demoted to debug port), KL_pcm_tx as capture-mux ring source, per-stream wire_chans fan-out, tdm_dout exported; 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -184,7 +184,7 @@ module milan_csr #(
   // ---- lwSRP engine (0x680 group, docs/LWSRP_FPGA_ARCHITECTURE.md) ----
   output wire                    o_lwsrp_enable,        //! LWSRP_CTRL[0] engine enable
   output wire                    o_lwsrp_talker_en,     //! LWSRP_CTRL[1] TalkerAdvertise declare
-  output wire [1:0]              o_lwsrp_qidx,          //! LWSRP_CTRL[3:2] class-A queue (slope MUX target)
+  output wire [2:0]              o_lwsrp_qidx,          //! LWSRP_CTRL[4:2] class-A queue (slope MUX target); 3 bits since the 6-queue map put class A on q5
   output wire [11:0]             o_lwsrp_vid,           //! LWSRP_VID[11:0] SR VID
   output wire [47:0]             o_lwsrp_dest_mac,      //! stream DMAC {DMHI[15:0], DMLO}
   output wire [15:0]             o_lwsrp_max_frame,     //! LWSRP_TSPEC[15:0] MaxFrameSize
@@ -781,14 +781,21 @@ module milan_csr #(
   // but NO queue is shaped at reset. CBS shapes RESERVED SR classes only, never
   // best-effort (REQ-CBS-02); software (SRP/AVDECC reservation, `tc ... cbs`) opts a
   // queue in by setting CBS_CTRL[0]. The old default 4'b0011 contradicted the default
-  // class map: cls_tcq=0xE4 routes untagged/BE traffic to q0, so shaping q0 at
+  // class map: cls_tcq routes untagged/BE traffic to q0, so shaping q0 at
   // idleSlope 300 Mb/s silently paced ALL best-effort TX to ~250 Mbit/s — measured on
   // silicon 2026-07-07 (datapath-input stall 42 % -> 0.4 % and TX wall moved to the
   // CPU the moment q0's en bit was cleared live via devmem 0x9000_040C).
-  localparam int CBS_IDLE_RST [0:3] = '{300_000_000, 200_000_000, 150_000_000, 100_000_000}; //! idleSlope bps
-  localparam int CBS_HI_RST   [0:3] = '{456, 304, 228, 152};       //! hiCredit bytes
-  localparam int CBS_LO_RST   [0:3] = '{-1065, -1217, -1293, -1369}; //! loCredit bytes
-  localparam bit [3:0] CBS_EN_RST   = 4'b0000;                    //! ALL unshaped at reset (BE must never be CBS-paced)
+  //
+  // INDEXED BY QUEUE in the 6-queue map, so entry 0 is q0 = BEST EFFORT and
+  // entry 5 is q5 = SR class A (the array used to run the other way round,
+  // because q0 used to be the highest-priority queue). The bandwidth follows
+  // the priority: the two CBS-shaped classes take 45 % + 15 %, the strict-
+  // priority remainder 5 % + 5 % + 2.5 % + 2.5 %.
+  localparam int CBS_IDLE_RST [0:5] = '{25_000_000, 25_000_000, 50_000_000,
+                                        50_000_000, 150_000_000, 450_000_000}; //! idleSlope bps, q0..q5
+  localparam int CBS_HI_RST   [0:5] = '{38, 38, 76, 76, 228, 684};              //! hiCredit bytes, q0..q5
+  localparam int CBS_LO_RST   [0:5] = '{-1483, -1483, -1445, -1445, -1293, -837}; //! loCredit bytes, q0..q5
+  localparam bit [5:0] CBS_EN_RST   = 6'b000000;                  //! ALL unshaped at reset (BE must never be CBS-paced)
 
   integer i;                             //! Loop index for reset/stats iteration
 
@@ -824,15 +831,28 @@ module milan_csr #(
       // The previous 0x688FAC half-swapped priorities (0..3 <-> 4..7), silently
       // regenerating PCP 1..3 to 5..7 so SR-class frames landed in the wrong
       // queue (HW-diagnosed 2026-07-05 during the CBS interference bring-up).
-      cls_regen <= 32'h00FAC688; cls_tcq <= 32'h000000E4;
+      // CLS_TC_QUEUE_MAP packs one ceil(log2 NUM_QUEUES)-bit queue index per
+      // traffic class. At NUM_QUEUES = 6 that is 3 bits/entry and the reset
+      // word is the 6-queue map (docs/reference/EGRESS_QUEUE_MAP.md):
+      //   TC0,TC1 -> q0 (best effort / background)
+      //   TC2     -> q4 (SR class B, 802.1Q Table 34-1 default priority 2)
+      //   TC3     -> q5 (SR class A, 802.1Q Table 34-1 default priority 3 -
+      //                  the PCP the AAF packetizer and lwSRP actually emit)
+      //   TC4,TC5 -> q2 (control: MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP)
+      //   TC6,TC7 -> q3 (internetwork/network control -> gPTP)
+      // q1 is the reserved spare and is deliberately unmapped. It replaces the
+      // 2-bit identity 0xE4 that the 4-queue map used; a traffic class that
+      // still named q6/q7 would be CLAMPED to best effort by traffic_class_map
+      // rather than silently dropped in the demux.
+      cls_regen <= 32'h00FAC688; cls_tcq <= 32'h006D2B00;
       ptp_ctrl <= 32'h1; ptp_incr <= 32'h0800_0000; ptp_adj <= 32'h0;
       ptp_twlo <= 32'h0; ptp_twhi <= 32'h0; ptp_oflo <= 32'h0; ptp_ofhi <= 32'h0;
       ptp_ilat <= 32'h0; ptp_elat <= 32'h0; ptp_tod_rd <= 64'h0;
       for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
       for (i = 0; i < NUM_QUEUES; i = i + 1) begin
-        cbs_idle[i] <= (i < 4) ? CBS_IDLE_RST[i][31:0] : 32'h0;
-        cbs_hi[i]   <= (i < 4) ? CBS_HI_RST[i][31:0]   : 32'h0;
-        cbs_lo[i]   <= (i < 4) ? CBS_LO_RST[i][31:0]   : 32'h0;
+        cbs_idle[i] <= (i < 6) ? CBS_IDLE_RST[i][31:0] : 32'h0;
+        cbs_hi[i]   <= (i < 6) ? CBS_HI_RST[i][31:0]   : 32'h0;
+        cbs_lo[i]   <= (i < 6) ? CBS_LO_RST[i][31:0]   : 32'h0;
       end
       cbs_en <= CBS_EN_RST[NUM_QUEUES-1:0];
       adp_ctrl <= 32'h0000_1F00;   // enable=0, valid_time=31 (validity 62 s)
@@ -1186,7 +1206,7 @@ module milan_csr #(
       A_CLS_CTRL[10:0]:   csr_default = 32'h1;
       A_CLS_MAP[10:0]:    csr_default = 32'h00FAC688;
       A_CLS_REGEN[10:0]:  csr_default = 32'h00FAC688;
-      A_CLS_TCQ[10:0]:    csr_default = 32'h000000E4;
+      A_CLS_TCQ[10:0]:    csr_default = 32'h006D2B00;
       A_PTP_CTRL[10:0]:   csr_default = 32'h1;
       A_PTP_INCR[10:0]:   csr_default = 32'h0800_0000;
       A_ADP_CTRL[10:0]:   csr_default = 32'h0000_1F00;
@@ -1613,7 +1633,7 @@ module milan_csr #(
 
   assign o_lwsrp_enable        = lwsrp_ctrl[0];
   assign o_lwsrp_talker_en     = lwsrp_ctrl[1];
-  assign o_lwsrp_qidx          = lwsrp_ctrl[3:2];
+  assign o_lwsrp_qidx          = lwsrp_ctrl[4:2];
   assign o_lwsrp_vid           = lwsrp_vid[11:0];
   assign o_lwsrp_dest_mac      = {lwsrp_dmhi[15:0], lwsrp_dmlo};
   assign o_lwsrp_max_frame     = lwsrp_tspec[15:0];

@@ -580,7 +580,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0]              aecp_pres_offset;
   //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
   wire        cfg_lwsrp_enable, cfg_lwsrp_talker_en;
-  wire [1:0]  cfg_lwsrp_qidx;
+  wire [2:0]  cfg_lwsrp_qidx;
   wire [11:0] cfg_lwsrp_vid;
   wire [47:0] cfg_lwsrp_dmac;
   wire [15:0] cfg_lwsrp_max_frame, cfg_lwsrp_interval;
@@ -1232,10 +1232,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! grant releases. No CSR write-back.
   logic [32*NUM_QUEUES-1:0] cbs_idle_slope_mux;
   logic [NUM_QUEUES-1:0]    cbs_enable_mux;
+  //! LWSRP_CTRL[4:2] is 3 bits wide (it must reach q5, the 6-queue map's class-A
+  //! slot) so software CAN name a queue this build does not have. An
+  //! out-of-range part-select write is undefined, so gate the MUX on the index
+  //! being real: a bogus qidx then leaves the 0x400 CSR values untouched
+  //! instead of corrupting a neighbouring queue's slope.
+  wire lwsrp_qidx_ok_w = (32'(cfg_lwsrp_qidx) < NUM_QUEUES);
   always_comb begin
     cbs_idle_slope_mux = cfg_cbs_idle_slope;
     cbs_enable_mux     = cfg_cbs_enable;
-    if (lwsrp_slope_en) begin
+    if (lwsrp_slope_en && lwsrp_qidx_ok_w) begin
       cbs_idle_slope_mux[32*cfg_lwsrp_qidx +: 32] = lwsrp_idle_slope;
       cbs_enable_mux[cfg_lwsrp_qidx]              = 1'b1;
     end

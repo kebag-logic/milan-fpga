@@ -9,7 +9,7 @@
 | Generic name     | Type | Value | Description              |
 | ---------------- | ---- | ----- | ------------------------ |
 | TDATA_WIDTH      | int  | 64    | Widht of tdata bus       |
-| NUMBER_OF_QUEUES | int  | 4     | Number of network queues |
+| NUMBER_OF_QUEUES | int  | 6     | Number of network queues |
 
 ## Ports
 
