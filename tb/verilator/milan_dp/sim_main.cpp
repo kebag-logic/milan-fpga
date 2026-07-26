@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010012);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010013);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -1054,6 +1054,39 @@ int main(int argc, char** argv) {
         ck("no PCM for rejected PDU", (long)pcm.size(), 0);
         ck("PCMRX unchanged by wrong-rate", axi_read(A_PCMRX_CNT), pcm_before);
 
+        // ---- narrow counter views SATURATE, they do not wrap ---------------
+        // AVTPRX_ERR packs three 32-bit STREAM_INPUT counters into one word,
+        // so it can only ever show a byte or half-word of each. Truncating
+        // makes a busy counter count DOWN again past its ceiling - a link
+        // getting worse reads as a link getting better (silicon 2026-07-26:
+        // SEQ_NUM_MISMATCH 51,523, 79 % of the way to a 16-bit roll). Push
+        // UNSUPPORTED_FORMAT well past its 8-bit ceiling with wrong-rate PDUs
+        // and require the field to STICK at 0xFF - "at least 255" - while the
+        // full-width counter behind it keeps counting in the 0x800 window.
+        // On the pre-fix RTL this wraps to a small number and FAILS.
+        {
+            enum { A_STRM_SEL = 0x800, A_STRM_SNAP = 0x804,
+                   A_STRMW_CNT_UF = 0x830 + 6*4 };   // word 6 = UNSUPPORTED_FORMAT
+            long uf = (long)(axi_read(A_AVTPRX_ERR) >> 8) & 0xFF;
+            int  sent = 0;
+            while (uf < 0xFF && sent < 400) {        // climb to the ceiling
+                inject(mkaaf(7, 0x07), 120); sent++;
+                uf = (long)(axi_read(A_AVTPRX_ERR) >> 8) & 0xFF;
+            }
+            ck("UNSUPPORTED_FORMAT view reached its 0xFF ceiling", uf, 0xFF);
+            for (int k = 0; k < 8; k++) inject(mkaaf(7, 0x07), 120);
+            ck("saturated view STAYS 0xFF (no wrap)",
+               (long)(axi_read(A_AVTPRX_ERR) >> 8) & 0xFF, 0xFF);
+            ck("neighbouring TIMESTAMP_UNCERTAIN byte untouched",
+               axi_read(A_AVTPRX_ERR) & 0xFF, 0);
+            // the honest full-width value is still there, in the 0x800 window
+            axi_write(A_STRM_SEL, 0x000);            // listener context 0
+            axi_write(A_STRM_SNAP, 0x1);
+            for (int c = 0; c < 64; c++) step();
+            ck("full 32-bit UNSUPPORTED_FORMAT > the saturated view",
+               axi_read(A_STRMW_CNT_UF) > 0xFF ? 1 : 0, 1);
+        }
+
 
     // ---------------------------------------------------------------- //
     // CRF Media Clock Input engine (Milan 7.3.2): parse/validate/lock    //
@@ -1576,6 +1609,37 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 8; i++) step();
         ck("[RMON] reinit release zeroes TX_GOOD", axi_read(A_STAT_TX_GOOD), 0);
         ck("[RMON] reinit release zeroes RX_GOOD", axi_read(A_STAT_RX_GOOD), 0);
+    }
+
+    // --- STATS_CAP 0x204: which STAT lanes are REAL in this build ------------
+    // The honesty half of the RMON fix. A zero STAT word used to be ambiguous
+    // ("no errors" vs "no counter"), which is exactly why a whole tied-off
+    // counter group survived on silicon. 0x204 resolves it structurally: the
+    // two good-frame lanes are forced supported because the datapath derives
+    // them HERE, and every other lane is claimed only if the integration says
+    // it drives it (i_mac_events_cap - the SoC's KL_mac_rmon_events mask).
+    printf("[RMON] STATS_CAP lane capability mask (0x204)\n");
+    {
+        enum { A_STATS_CAP = 0x204, TX_GOOD_L = 3, RX_GOOD_L = 8 };
+        const uint32_t GOOD = (1u << TX_GOOD_L) | (1u << RX_GOOD_L);
+        dut->i_mac_events_cap = 0;                 // "no MAC attached" stub
+        for (int i = 0; i < 4; i++) step();
+        ck("[RMON] cap with no MAC = the two derived lanes only",
+           axi_read(A_STATS_CAP), GOOD);
+        // a MAC that checks FCS + preamble and flags bad frames (lanes 4,5,7)
+        dut->i_mac_events_cap = (1u << 4) | (1u << 5) | (1u << 7);
+        for (int i = 0; i < 4; i++) step();
+        ck("[RMON] cap ORs the integration's lanes over the derived pair",
+           axi_read(A_STATS_CAP), GOOD | (1u << 4) | (1u << 5) | (1u << 7));
+        // the four MAC-internal lanes are never claimed by this integration
+        long cap = axi_read(A_STATS_CAP);
+        ck("[RMON] TX_ERROR_UNDERFLOW declared unsupported", (cap >> 0) & 1, 0);
+        ck("[RMON] TX_FIFO_OVERFLOW declared unsupported",   (cap >> 1) & 1, 0);
+        ck("[RMON] TX_FIFO_BAD_FRAME declared unsupported",  (cap >> 2) & 1, 0);
+        ck("[RMON] RX_FIFO_OVERFLOW declared unsupported",   (cap >> 6) & 1, 0);
+        ck("[RMON] cap is a live read (bits 31:9 reserved 0)", cap >> 9, 0);
+        dut->i_mac_events_cap = 0;
+        for (int i = 0; i < 4; i++) step();
     }
 
     printf("======================================================================\n");
