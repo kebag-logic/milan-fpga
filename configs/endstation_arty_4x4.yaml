@@ -38,6 +38,32 @@ board:
     rx_queues: 2
     hs_page_bytes: 16384
     strip_probes: true
+    num_queues: 4
+
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01"
+  class_queue: 3
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived                  # 4ch -> MaxFrameSize 120 B ->
+                                     # 10.368 Mb/s per stream; 4 streams =
+                                     # 41.5 Mb/s = 55% of the 100 Mb/s port,
+                                     # inside the 75% class-A ceiling
+    interval_frames: 1
+
+platform:
+  csr_base: 0x90000000
+  mac_address: "02:00:00:00:00:02"
+  interrupt: 3
+  pcm_ring_phys: 0x4fc00000          # 4 capture streams x 1 MiB stride: the
+  pcm_ring_bytes: 0x400000           # no-map region grows with N (the 1 MiB
+  pcm_ring_stride: 0x100000          # 1x1 region would be DMA-overrun)
+  boot_chain_pin:                    # 2-queue arty map (same as the deployed
+                                     # shape - this config keeps rx_queues 2)
+    dma-ts: 0xf0003100
+    pcm-dma: 0xf0003120
 
 clocking:
   sampling_rate_hz: 48000

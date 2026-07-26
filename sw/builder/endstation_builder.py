@@ -23,13 +23,23 @@ Outputs (into OUTDIR/<config-stem>/):
   aem_overlay.json  - AEM model overlay (descriptor counts, stream formats,
                       per-stream STREAM_PORT/cluster/map layout) consumed by
                       avdecc/gen_aem_store.py --overlay.
+  lwsrp_table.json  - lwSRP (802.1Q MSRP/MVRP) reservation table: SR class,
+  lwsrp_table.svh     MRP timers, class-A bandwidth math, the 0x680 CSR reset
+                      words, the engine's elaboration parameters and one
+                      provisioning record per stream.
+  platform_shape.json - driver-visible layout: Milan CSR base, the DMA window
+  milan-nic.dtsi      map DERIVED from board.constraints.rx_queues, the
+                      physical addresses kl-eth hardcodes, and the
+                      kl,dma-ether / kl,milan-pcm device-tree nodes.
   build_plan.md     - human-readable build plan. Shapes beyond current RTL
                       capability (NxN streams, TDM/AES3/SPDIF interfaces,
                       non-48k rates) VALIDATE but are marked "planned".
-Plus (into configs/generated/, board-level, shared by all configs of a board):
-  sweep_opts_<board>.sh - shell fragment (OPTS/L2) sourced by
-                      sw/litex/sweep.sh; the inline tables there are the
-                      loud FALLBACK only.
+Plus (repo-level, single-sourced so nothing can drift):
+  configs/generated/sweep_opts_<board>.sh - shell fragment (OPTS/L2/RXQ)
+                      sourced by sw/litex/sweep.sh; the inline tables there
+                      are the loud FALLBACK only.
+  hdl/ieee8021q/srp/gen/lwsrp_table.svh   - the DEPLOYED shape's lwSRP table
+                      (written by the one config carrying srp.rtl_table).
 
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
@@ -61,6 +71,22 @@ Schema summary (see the example configs for the annotated normative form):
                                  formats (AAF 64-bit hex), buffer_length_ns,
                                  clusters (SINGLE AUTHORITY for the stream's
                                  cluster count; default = channels)
+  srp:                         - lwSRP reservation table (all optional; the
+                                 defaults ARE today's 0x680 reset words):
+                                 sr_class, vid, stream_dmac_base,
+                                 accumulated_latency_ns, class_queue,
+                                 enable_at_reset, talker_declare_at_reset,
+                                 bandwidth_limit_pct, timers_ms{join,leave,
+                                 leaveall}, tspec{policy: pinned|derived,
+                                 max_frame_bytes, interval_frames},
+                                 rtl_table (owns the tracked .svh)
+  platform:                    - DT + driver shape: csr_base, mac_address
+                                 (REQUIRED, unicast), interrupt,
+                                 pcm_ring_phys/_bytes/_stride, dma_coherent,
+                                 boot_chain_pin{window: address} - the
+                                 FLASHED DTB's window map; a config whose
+                                 rx_queues would move a pinned window is
+                                 REFUSED (the 5ce9a13 CSR-rot rule)
 
 entity_model_id derivation ("hash-derived", the default path; exact recipe,
 also in sw/builder/README-parameters.md):
@@ -96,6 +122,12 @@ SCHEMA_MAJOR = "1"
 
 OVERLAY_SCHEMA_ID = "kebag-logic/aem-overlay"
 OVERLAY_SCHEMA_VERSION = "2.0.0"     # 2.x: per-stream STREAM_PORT layout
+
+LWSRP_SCHEMA_ID = "kebag-logic/lwsrp-table"
+LWSRP_SCHEMA_VERSION = "1.0.0"       # 1.x: SR class + 0x680 resets + rows
+
+PLATFORM_SCHEMA_ID = "kebag-logic/platform-shape"
+PLATFORM_SCHEMA_VERSION = "1.0.0"    # 1.x: DT node + driver-visible layout
 
 # Base EUI-64 prefix for hash-derived entity_model_id values (see module
 # docstring step 3). Schema-level constant: changing it re-identifies every
@@ -176,6 +208,104 @@ CRF_FORMAT_DEFAULT = "0x041060010000BB80"     # CRF AUDIO_SAMPLE 48k, gen_aem_st
 #   base_frequency 48000 -> ATDECC format string 0x041060010000BB80. Used for
 #   BOTH the CRF sink (Milan 7.2.2) and the CRF output (Milan 7.2.3).
 BUFLEN_DEFAULT_NS = 2126000
+
+# --------------------------------------------------------- lwSRP constants --
+# Item-4 emitter: the lwSRP (802.1Q MSRP/MVRP) reservation table. The config
+# becomes the single source of truth for what is TODAY hand-written twice -
+# hdl/ieee8021q/srp/lwsrp_pkg.sv (SR class + timers + bandwidth math) and the
+# 0x680 CSR reset defaults in hdl/common/csr/milan_csr.sv. test_builder gates
+# 18a/18b PARSE both RTL files and assert the emission agrees, so a hand edit
+# on either side that the config does not know about fails the build.
+
+#: SR classes. Milan v1.2 §5.6 defines class A only for a Milan end station;
+#: the table is keyed so a class-B RTL round has somewhere to land.
+SRP_SR_CLASSES = {
+    "A": dict(class_id=6, priority=3, intervals_ps=8000),
+}
+SRP_RANK = 1                      #: PriorityAndRank rank bit (emergency = 0)
+AVTP_AAF_HDR_BYTES = 24           #: IEEE 1722-2016 Fig 26 AAF AVTPDU header
+AAF_SAMPLE_OCTETS = 4             #: AAF format INT_32BIT (§7.3.5)
+L2_HDR_BYTES = 18                 #: DA 6 + SA 6 + VLAN 4 + EtherType 2
+#: 802.1Q idleSlope overhead: preamble 8 + eth hdr 14 + VLAN 4 + FCS 4 + IPG 12
+#: (= lwsrp_pkg::MSRP_FRAME_OVERHEAD_C). MaxFrameSize is therefore the MSDU
+#: (the AVTPDU), NOT the L2 frame: MaxFrameSize + 42 = the full wire slot.
+SRP_FRAME_OVERHEAD_B = 42
+SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
+SRP_QUEUE_BITS = 2                #: LWSRP_CTRL[3:2] class-A queue select
+
+#: lwSRP policy defaults = EXACTLY today's RTL reset words, so a config with
+#: no `srp:` section emits the deployed gateware bit-for-bit (the
+#: no-regression axiom this builder follows everywhere else).
+SRP_DEFAULTS = dict(
+    sr_class="A",
+    vid=2,                                   # USER: VID 2 is THE SR vid
+    stream_dmac_base="0x91E0F000FE01",       # MAAP range; stream t = base + t
+    accumulated_latency_ns=0,
+    class_queue=3,                           # reset PCP3 -> TC3 -> q3 map
+    enable_at_reset=False,
+    talker_declare_at_reset=False,
+    bandwidth_limit_pct=75,                  # Milan §5.6 / 802.1Q §34.3.1
+    join_time_ms=200,                        # 802.1Q Table 10-7 defaults
+    leave_time_ms=600,
+    leaveall_time_ms=10_000,
+    tspec_policy="pinned",                   # pinned | derived
+    max_frame_bytes=224,                     # pinned only (the 0x690 reset)
+    interval_frames=1,
+    rtl_table=False,                         # write the tracked hdl/ .svh
+)
+SRP_TSPEC_POLICIES = ("pinned", "derived")
+
+# ------------------------------------------------------ platform / DT shape --
+# Item-4 emitter: the device-tree node shape + the driver-visible layout.
+# THE bug class this closes shipped in 5ce9a13: rx-queues is per board, the
+# DMA window map is a FUNCTION of it, and a DTB built against the other
+# board's count maps every window onto the wrong registers (CSR rot,
+# TROUBLESHOOTING 20) - silent until the host plane is dead.
+#
+# LiteX allocates CSR addresses in submodule-registration order
+# (sw/litex/milan_soc.py MilanDMA.__init__), so the map is deterministic:
+#
+#   +0x000  tx            RingDMAReader                     0x24
+#   +0x024  rx  (q0)      RingDMAWriter incl. rsc + hs      0x68
+#   +0x08C  steer         RxSteer               rx_queues>=2 0x0C  }  0x74
+#   +0x098  rx1 (q1)      RingDMAWriter         rx_queues>=2 0x68  }  shift
+#   +0x08C/+0x100  ts     WishboneDMAWriter                 0x1C
+#   ...+0x1C  hs_pgsz_cap CSRStatus                         0x04
+#   ...+0x04  pcm         PCM ring (flat or NxN)            0x1C
+#
+# and the MAC/MDIO bank is a SEPARATE LiteX bank that never shifts.
+DMA_BANK_BASE = 0xF0003000       #: milan_dma CSR bank origin
+DMA_TX_BYTES = 0x24              #: base/mask/wr/rd/enable/sent/bd_base
+DMA_RX_BLOCK_BYTES = 0x68        #: q0 block incl. rsc + header-split regs
+DMA_RX_MAP_BYTES = 0x40          #: extent kl-eth maps as the "dma-rx" window
+DMA_STEER_BYTES = 0x0C           #: q0_frames/q1_frames/hash_sel (2 queues)
+DMA_RX1_BLOCK_BYTES = 0x68       #: the q1 RingDMAWriter block (2 queues)
+DMA_TS_BYTES = 0x1C              #: base/length/enable/done/loop/offset
+DMA_HS_CAP_BYTES = 0x04          #: hs_pgsz_cap readback (hsq14 pairing check)
+DMA_PCM_BYTES = 0x1C             #: PCM ring block (flat and NxN are both 0x1C)
+MAC_BANK_BASE = 0xF0003800       #: milan_mac bank: crg_reset + MDIO bitbang
+MAC_PHY_MAP_BYTES = 0x0C
+MILAN_CSR_BASE = 0x9000_0000     #: AXI-Lite Milan CSR window (milan_soc.py)
+MILAN_CSR_BYTES = 0x1_0000
+EV_BANK_BASE = 0xF0002800        #: EventManager (kl-eth MILAN_EV_PHYS)
+
+#: phy-mode DT string per board.constraints.phy
+DT_PHY_MODE = {"mii-100": "mii", "gmii-1g": "gmii"}
+
+PLATFORM_DEFAULTS = dict(
+    csr_base=MILAN_CSR_BASE,
+    dma_bank_base=DMA_BANK_BASE,
+    mac_bank_base=MAC_BANK_BASE,
+    ev_bank_base=EV_BANK_BASE,
+    interrupt=3,                             # constant,milan_interrupt,3
+    interrupt_parent="intc0",
+    mac_address=None,                        # required: must differ per board
+    pcm_ring_phys=0x4FF0_0000,
+    pcm_ring_bytes=0x10_0000,
+    pcm_ring_stride=0x10_0000,
+    dma_coherent=True,
+    boot_chain_pin=None,                     # flashed DTB's window map
+)
 
 # ------------------------------------------------------ resource estimator --
 # Approximate pre-Vivado FPGA resource model (gaps item-4 subtask, USER
@@ -541,6 +671,606 @@ def cluster_layout(listeners, talkers, policy, iface_channels):
     return ports_in, ports_out
 
 
+# ------------------------------------------------------------ lwSRP table ---
+def srp_frame_geometry(channels, rate_hz, intervals_ps):
+    """AAF-PCM32 frame geometry for ONE class-interval frame, from the
+    KL_aaf_packetizer contract (its header states the identity: payload =
+    SAMPLES_PER_FRAME x C x 4 octets, so the L2 frame is 42 + 24*C bytes at
+    48 kHz - C=2 is the golden 90-byte shape the RTL byte-compare gate pins).
+
+    MaxFrameSize for the MSRP TSpec is the AVTPDU (MSDU), never the L2
+    frame: the 802.1Q idleSlope overhead of 42 already carries the Ethernet
+    header + VLAN tag, so MaxFrameSize + 42 == the exact wire slot
+    (preamble 8 + eth 14 + VLAN 4 + AVTPDU + FCS 4 + IPG 12)."""
+    if rate_hz % intervals_ps:
+        raise ConfigError(
+            f"sampling_rate_hz {rate_hz} is not a whole number of samples "
+            f"per class interval ({intervals_ps}/s) - no integer AAF frame")
+    spf = rate_hz // intervals_ps
+    payload = spf * channels * AAF_SAMPLE_OCTETS
+    avtpdu = AVTP_AAF_HDR_BYTES + payload
+    return dict(samples_per_frame=spf, payload_bytes=payload,
+                avtpdu_bytes=avtpdu, l2_frame_bytes=L2_HDR_BYTES + avtpdu)
+
+
+def srp_idle_slope_bps(max_frame_bytes, interval_frames, intervals_ps):
+    """Class-A idleSlope, bits/s (802.1Q §34.3.1, LWSRP_FPGA_ARCHITECTURE §2 /
+    KL_lwsrp_bw_gate): MaxIntervalFrames x (MaxFrameSize + 42) x 8 x 8000."""
+    return interval_frames * (max_frame_bytes + SRP_FRAME_OVERHEAD_B) * 8 \
+        * intervals_ps
+
+
+def load_srp(raw, listeners, talkers, clocking, cons, binfo):
+    """Validate + normalize the optional `srp:` section and resolve every
+    per-stream TSpec. Raises ConfigError on a contradictory reservation
+    (unknown SR class, illegal VID/queue, over-subscribed class-A ceiling)."""
+    raw = raw or {}
+    if not isinstance(raw, dict):
+        raise ConfigError("srp: must be a mapping")
+    tm = raw.get("timers_ms") or {}
+    ts = raw.get("tspec") or {}
+    if not isinstance(tm, dict) or not isinstance(ts, dict):
+        raise ConfigError("srp.timers_ms / srp.tspec must be mappings")
+    s = dict(SRP_DEFAULTS)
+    for k in ("sr_class", "vid", "stream_dmac_base", "accumulated_latency_ns",
+              "class_queue", "enable_at_reset", "talker_declare_at_reset",
+              "bandwidth_limit_pct", "rtl_table"):
+        if k in raw:
+            s[k] = raw[k]
+    for k, key in (("join", "join_time_ms"), ("leave", "leave_time_ms"),
+                   ("leaveall", "leaveall_time_ms")):
+        if k in tm:
+            s[key] = int(tm[k])
+    if "policy" in ts:
+        s["tspec_policy"] = ts["policy"]
+    if "max_frame_bytes" in ts:
+        s["max_frame_bytes"] = int(ts["max_frame_bytes"])
+    if "interval_frames" in ts:
+        s["interval_frames"] = int(ts["interval_frames"])
+
+    if s["sr_class"] not in SRP_SR_CLASSES:
+        raise ConfigError(f"srp.sr_class '{s['sr_class']}' unknown - Milan "
+                          f"v1.2 5.6 defines {sorted(SRP_SR_CLASSES)} for a "
+                          "Milan end station")
+    cls = SRP_SR_CLASSES[s["sr_class"]]
+    if not (isinstance(s["vid"], int) and 1 <= s["vid"] <= 4094):
+        raise ConfigError(f"srp.vid {s['vid']} outside 1..4094 (VID 0 is the "
+                          "priority-tagged/no-VLAN encoding - an SR stream on "
+                          "VID 0 floods UNSHAPED)")
+    if not (isinstance(s["class_queue"], int)
+            and 0 <= s["class_queue"] < (1 << SRP_QUEUE_BITS)):
+        raise ConfigError(f"srp.class_queue {s['class_queue']} does not fit "
+                          f"LWSRP_CTRL[3:2] ({SRP_QUEUE_BITS} bits)")
+    if s["class_queue"] >= cons["num_queues"]:
+        raise ConfigError(f"srp.class_queue {s['class_queue']} >= the board's "
+                          f"{cons['num_queues']} shaper queues")
+    if s["tspec_policy"] not in SRP_TSPEC_POLICIES:
+        raise ConfigError(f"srp.tspec.policy '{s['tspec_policy']}' not in "
+                          f"{SRP_TSPEC_POLICIES}")
+    if not (isinstance(s["interval_frames"], int)
+            and 1 <= s["interval_frames"] <= 0xFFFF):
+        raise ConfigError(f"srp.tspec.interval_frames {s['interval_frames']} "
+                          "outside 1..65535 (TSpec MaxIntervalFrames is 16 bit)")
+    if not (isinstance(s["max_frame_bytes"], int)
+            and 1 <= s["max_frame_bytes"] <= 0xFFFF):
+        raise ConfigError(f"srp.tspec.max_frame_bytes {s['max_frame_bytes']} "
+                          "outside 1..65535 (TSpec MaxFrameSize is 16 bit)")
+    if not (isinstance(s["bandwidth_limit_pct"], int)
+            and 1 <= s["bandwidth_limit_pct"] <= 100):
+        raise ConfigError(f"srp.bandwidth_limit_pct {s['bandwidth_limit_pct']} "
+                          "outside 1..100")
+    dmac = _eui64(s["stream_dmac_base"], "srp.stream_dmac_base")
+    if dmac > 0xFFFFFFFFFFFF:
+        raise ConfigError(f"srp.stream_dmac_base {s['stream_dmac_base']} is "
+                          "wider than a MAC-48")
+    if not (dmac >> 40) & 1:
+        raise ConfigError(f"srp.stream_dmac_base {s['stream_dmac_base']} is "
+                          "not a MULTICAST address (I/G bit clear) - an AAF "
+                          "stream DMAC must come from the MAAP range")
+    lat = int(s["accumulated_latency_ns"])
+    if not 0 <= lat <= 0xFFFFFFFF:
+        raise ConfigError(f"srp.accumulated_latency_ns {lat} outside 32 bits")
+
+    # ---- per-talker TSpec ------------------------------------------------
+    rate = clocking["sampling_rate_hz"]
+    rows, total_slope = [], 0
+    for t, st in enumerate(talkers):
+        geo = srp_frame_geometry(st["channels"], rate, cls["intervals_ps"])
+        mf = geo["avtpdu_bytes"] if s["tspec_policy"] == "derived" \
+            else s["max_frame_bytes"]
+        if mf > 0xFFFF:
+            raise ConfigError(f"streams.talkers[{t}]: derived MaxFrameSize "
+                              f"{mf} exceeds the 16-bit TSpec field")
+        slope = srp_idle_slope_bps(mf, s["interval_frames"],
+                                   cls["intervals_ps"])
+        total_slope += slope
+        rows.append(dict(direction="talker", stream_index=t, name=st["name"],
+                         channels=st["channels"], unique_id=t,
+                         dest_mac=f"0x{dmac + t:012X}",
+                         max_frame_bytes=mf,
+                         interval_frames=s["interval_frames"],
+                         latency_ns=lat, idle_slope_bps=slope,
+                         l2_frame_bytes=geo["l2_frame_bytes"],
+                         samples_per_frame=geo["samples_per_frame"]))
+    # listener rows declare the Listener attribute; they reserve nothing
+    for k, sl in enumerate(listeners):
+        rows.append(dict(direction="listener", stream_index=k, name=sl["name"],
+                         channels=sl["channels"], unique_id=None,
+                         dest_mac=None, max_frame_bytes=0, interval_frames=0,
+                         latency_ns=0, idle_slope_bps=0,
+                         l2_frame_bytes=srp_frame_geometry(
+                             sl["channels"], rate,
+                             cls["intervals_ps"])["l2_frame_bytes"],
+                         samples_per_frame=rate // cls["intervals_ps"]))
+
+    link_bps = binfo["link_mbps"] * 1_000_000
+    limit_bps = link_bps * s["bandwidth_limit_pct"] // 100
+    if total_slope > limit_bps:
+        raise ConfigError(
+            f"class-{s['sr_class']} reservation {total_slope} bps over "
+            f"{len(talkers)} talker stream(s) exceeds the "
+            f"{s['bandwidth_limit_pct']}% ceiling of the "
+            f"{binfo['link_mbps']} Mb/s port ({limit_bps} bps) - "
+            "KL_lwsrp_bw_gate would refuse the excess streams (802.1Q "
+            "34.3.1 / Milan v1.2 5.6). Reduce channels/streams or move the "
+            "shape to a faster port.")
+
+    s.update(
+        class_id=cls["class_id"], priority=cls["priority"],
+        intervals_ps=cls["intervals_ps"], rank=SRP_RANK,
+        prio_rank=(cls["priority"] << 5) | (SRP_RANK << 4),
+        stream_dmac_base=f"0x{dmac:012X}", accumulated_latency_ns=lat,
+        rows=rows, total_idle_slope_bps=total_slope,
+        limit_bps=limit_bps, link_bps=link_bps,
+        utilization_pct=round(100.0 * total_slope / link_bps, 2),
+        # KL_lwsrp_top ctx row map (REGISTER_MAP 0x800 window): listener k ->
+        # row k, talker t -> row (L-1)+t, row 0 = the legacy pair. Available
+        # rows = N_CTX_P, which milan_datapath ties to N_STREAMS = max(L, T).
+        ctx_rows_required=len(listeners) + len(talkers) - 1,
+        ctx_rows_available=max(len(listeners), len(talkers)),
+    )
+    if s["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS):
+        raise ConfigError(
+            f"{s['ctx_rows_required']} lwSRP attribute rows needed "
+            f"(L+T-1) but ctx_idx is {SRP_CTX_IDX_BITS} bits = "
+            f"{1 << SRP_CTX_IDX_BITS} rows max")
+    return s
+
+
+def srp_reset_words(cfg):
+    """The 0x680 CSR group reset words this config implies. For a config with
+    no `srp:` section these are EXACTLY the hand-written reset defaults in
+    hdl/common/csr/milan_csr.sv (test gate 18a parses the RTL and compares)."""
+    s = cfg["srp"]
+    dmac = int(s["stream_dmac_base"], 16)
+    return {
+        "LWSRP_CTRL": (int(s["enable_at_reset"])
+                       | (int(s["talker_declare_at_reset"]) << 1)
+                       | (s["class_queue"] << 2)),
+        "LWSRP_VID": s["vid"],
+        "LWSRP_DMAC_LO": dmac & 0xFFFFFFFF,
+        "LWSRP_DMAC_HI": (dmac >> 32) & 0xFFFF,
+        "LWSRP_TSPEC": (s["interval_frames"] << 16) | s["max_frame_bytes"],
+        "LWSRP_LATENCY": s["accumulated_latency_ns"],
+    }
+
+
+#: 0x680 group offsets, REGISTER_MAP.md "0x680 - lwSRP engine"
+SRP_CSR_OFFSETS = {"LWSRP_CTRL": 0x680, "LWSRP_VID": 0x684,
+                   "LWSRP_DMAC_LO": 0x688, "LWSRP_DMAC_HI": 0x68C,
+                   "LWSRP_TSPEC": 0x690, "LWSRP_LATENCY": 0x6A0}
+
+
+def emit_lwsrp_table(cfg):
+    """The lwSRP reservation table this config defines: SR-class + timer +
+    bandwidth constants (today hand-written in lwsrp_pkg.sv), the 0x680 CSR
+    reset words (today hand-written in milan_csr.sv), the RTL elaboration
+    parameters, and one provisioning record per stream."""
+    s = cfg["srp"]
+    return {
+        "_schema": LWSRP_SCHEMA_ID,
+        "_schema_version": LWSRP_SCHEMA_VERSION,
+        "_generated_by": "sw/builder/endstation_builder.py",
+        "_source_config": cfg["source"],
+        "csr_base": 0x680,
+        "sr_class": dict(name=s["sr_class"], class_id=s["class_id"],
+                         priority=s["priority"], rank=s["rank"],
+                         prio_rank=s["prio_rank"],
+                         intervals_per_second=s["intervals_ps"]),
+        "domain": dict(vid=s["vid"], class_id=s["class_id"],
+                       priority=s["priority"]),
+        "timers_ms": dict(join=s["join_time_ms"], leave=s["leave_time_ms"],
+                          leaveall=s["leaveall_time_ms"]),
+        "bandwidth": dict(limit_pct=s["bandwidth_limit_pct"],
+                          link_bps=s["link_bps"], limit_bps=s["limit_bps"],
+                          total_idle_slope_bps=s["total_idle_slope_bps"],
+                          utilization_pct=s["utilization_pct"],
+                          frame_overhead_bytes=SRP_FRAME_OVERHEAD_B),
+        "tspec_policy": s["tspec_policy"],
+        "stream_dmac_base": s["stream_dmac_base"],
+        "reset_words": {k: f"0x{v:08X}" for k, v in
+                        srp_reset_words(cfg).items()},
+        "csr_offsets": {k: f"0x{v:03X}" for k, v in SRP_CSR_OFFSETS.items()},
+        "module_params": lwsrp_module_params(cfg),
+        "ctx_rows": dict(required=s["ctx_rows_required"],
+                         available=s["ctx_rows_available"],
+                         index_bits=SRP_CTX_IDX_BITS,
+                         row_map="listener k -> row k; talker t -> row "
+                                 "(L-1)+t; row 0 = the legacy pair"),
+        "rows": s["rows"],
+    }
+
+
+def lwsrp_module_params(cfg):
+    """Item-4 subtask 3: the config values that ARE module parameters today
+    (milan_datapath -> KL_lwsrp_top / milan_csr), emitted as one table so a
+    hand edit on either side is visible. Gate 18c parses the RTL."""
+    L, T = len(cfg["listeners"]), len(cfg["talkers"])
+    return {
+        "KL_lwsrp_top.CLK_FREQ_HZ_P": cfg["constraints"]["milan_clk_hz"],
+        "KL_lwsrp_top.N_CTX_P": max(L, T),
+        "KL_lwsrp_bw_gate.N_STREAMS_P": max(L, T),
+        "milan_datapath.N_STREAMS": max(L, T),
+        "milan_datapath.MILAN_CLK_FREQ_HZ": cfg["constraints"]["milan_clk_hz"],
+        "milan_csr.N_LISTENERS_P": L,
+        "milan_csr.N_TALKERS_P": T,
+        "milan_csr.NUM_QUEUES": cfg["constraints"]["num_queues"],
+    }
+
+
+def emit_lwsrp_svh(cfg, table):
+    """SystemVerilog include with the lwSRP table constants. Include-only: it
+    deliberately carries NO `default_nettype directive (that would leak into
+    the including file's scope) and declares no nets."""
+    s = cfg["srp"]
+    ln = []
+    a = ln.append
+    a("// SPDX-FileCopyrightText: 2026 Kebag Logic")
+    a("// SPDX-License-Identifier: CERN-OHL-W-2.0")
+    a("//--------------------------------------------------------------------"
+      "-------//")
+    a("//  File        : lwsrp_table.svh")
+    a("//  Project     : Milan lwSRP  (IEEE 802.1Q MSRP/MVRP, Milan v1.2 "
+      "5.6)")
+    a("//")
+    a("//  GENERATED by sw/builder/endstation_builder.py - DO NOT EDIT.")
+    a(f"//  Source      : {cfg['source']}")
+    a("//  Description : Deployment-variable half of the lwSRP contract - SR")
+    a("//                class, MRP timers, bandwidth math and the 0x680 CSR")
+    a("//                reset words - emitted from the declarative end-")
+    a("//                station config so the config and the RTL can never")
+    a("//                drift. Values are gated against the hand-written")
+    a("//                hdl/ieee8021q/srp/lwsrp_pkg.sv and")
+    a("//                hdl/common/csr/milan_csr.sv by")
+    a("//                sw/builder/test_builder.py (gates 18a-18c).")
+    a("//                Include-only: no `default_nettype directive (it would")
+    a("//                leak into the includer's scope) and no net decls.")
+    a("//--------------------------------------------------------------------"
+      "-------//")
+    a("")
+    a("`ifndef LWSRP_TABLE_SVH")
+    a("`define LWSRP_TABLE_SVH")
+    a("")
+    a("  //! SR class (Milan v1.2 5.6: class A only for a Milan end station)")
+    a(f"  localparam [7:0] LWSRP_CLASS_ID_C   = 8'd{s['class_id']};")
+    a(f"  localparam [7:0] LWSRP_CLASS_PRIO_C = 8'd{s['priority']};")
+    a(f"  localparam       LWSRP_RANK_C       = 1'b{s['rank']};")
+    a("  //! PriorityAndRank byte: priority[7:5], rank[4], reserved[3:0]")
+    a(f"  localparam [7:0] LWSRP_PRIO_RANK_C  = 8'h{s['prio_rank']:02X};")
+    a("")
+    a("  //! MRP timers (802.1Q Table 10-7)")
+    a(f"  localparam int unsigned LWSRP_JOIN_TIME_MS_C     = "
+      f"{s['join_time_ms']};")
+    a(f"  localparam int unsigned LWSRP_LEAVE_TIME_MS_C    = "
+      f"{s['leave_time_ms']};")
+    a(f"  localparam int unsigned LWSRP_LEAVEALL_TIME_MS_C = "
+      f"{s['leaveall_time_ms']:_};")
+    a("")
+    a("  //! Class-A bandwidth math: idleSlope[bps] = MaxIntervalFrames x")
+    a("  //! (MaxFrameSize + 42) x 8 x 8000")
+    a(f"  localparam int unsigned LWSRP_FRAME_OVERHEAD_C = "
+      f"{SRP_FRAME_OVERHEAD_B};")
+    a(f"  localparam int unsigned LWSRP_INTERVALS_PS_C   = "
+      f"{s['intervals_ps']};")
+    a(f"  localparam int unsigned LWSRP_BW_LIMIT_PCT_C   = "
+      f"{s['bandwidth_limit_pct']};")
+    a(f"  //! {s['bandwidth_limit_pct']} % of the {s['link_bps'] // 1_000_000}"
+      f" Mb/s port")
+    a(f"  localparam int unsigned LWSRP_BW_LIMIT_BPS_C   = {s['limit_bps']};")
+    a("")
+    a("  //! 0x680 CSR group reset words (REGISTER_MAP.md '0x680 - lwSRP')")
+    for k, v in srp_reset_words(cfg).items():
+        a(f"  localparam [31:0] {k + '_RST_C':<21} = "
+          f"32'h{v >> 16:04X}_{v & 0xFFFF:04X};"
+          f"  //! 0x{SRP_CSR_OFFSETS[k]:03X}")
+    a("")
+    a("  //! Elaboration parameters milan_datapath passes to the engine")
+    a(f"  localparam int unsigned LWSRP_N_CTX_C      = "
+      f"{table['module_params']['KL_lwsrp_top.N_CTX_P']};")
+    a(f"  localparam int unsigned LWSRP_CLK_FREQ_C   = "
+      f"{table['module_params']['KL_lwsrp_top.CLK_FREQ_HZ_P']};")
+    a("")
+    a("  //! Reservation table: one entry per stream, TALKERS FIRST then")
+    a("  //! listeners. The 0x800 window row map is listener k -> ctx row k,")
+    a("  //! talker t -> ctx row (L-1)+t, ctx row 0 = the legacy pair, so a")
+    a("  //! shape needs L+T-1 ctx rows against the N_CTX_P available.")
+    a(f"  localparam int unsigned LWSRP_STREAMS_C    = {len(s['rows'])};")
+    a(f"  localparam int unsigned LWSRP_ROWS_REQ_C   = "
+      f"{s['ctx_rows_required']};")
+    a(f"  localparam int unsigned LWSRP_ROWS_AVAIL_C = "
+      f"{s['ctx_rows_available']};")
+    a("  //! {dmac[119:72], prio_rank[71:64], max_frame[63:48],")
+    a("  //! interval[47:32], latency[31:0]} - the KL_lwsrp_ctx record layout")
+    a("  //! verbatim; listener entries carry zeros (their sid + DMAC arrive")
+    a("  //! from the ACMP bind at run time).")
+    a(f"  localparam [119:0] LWSRP_ROW_C [0:{len(s['rows']) - 1}] = '{{")
+    for k, r in enumerate(s["rows"]):
+        dm = int(r["dest_mac"], 16) if r["dest_mac"] else 0
+        word = (dm << 72) | (s["prio_rank"] << 64) \
+            | (r["max_frame_bytes"] << 48) | (r["interval_frames"] << 32) \
+            | r["latency_ns"]
+        tail = "," if k < len(s["rows"]) - 1 else ""
+        a(f"    120'h{word:030X}{tail}  //! {r['direction']} "
+          f"{r['stream_index']}: {r['channels']}ch, "
+          f"slope {r['idle_slope_bps']} bps")
+    a("  };")
+    a("")
+    a("`endif  // LWSRP_TABLE_SVH")
+    a("")
+    return "\n".join(ln)
+
+
+# ------------------------------------------------------- platform / DT ------
+def dma_window_map(dma_base, rx_queues):
+    """The driver-visible DMA window map for `rx_queues`, in LiteX
+    submodule-registration order (sw/litex/milan_soc.py MilanDMA.__init__).
+    Returns an ORDERED dict name -> (base, size, in_dt). The 2-queue build
+    inserts steer + rx1 (0x74 bytes) before `ts`, which is why every window
+    from `ts` on moves - the 5ce9a13 CSR-rot bug in one function."""
+    if rx_queues not in (1, 2):
+        raise ConfigError(f"rx_queues {rx_queues} outside 1..2")
+    m, off = {}, 0
+    def add(name, size, in_dt):
+        nonlocal off
+        m[name] = dict(base=dma_base + off, size=size, in_dt=in_dt)
+        off += size
+    add("dma-tx", DMA_TX_BYTES, True)
+    # the DT window is the extent kl-eth maps, the CSR block is wider
+    m["dma-rx"] = dict(base=dma_base + off, size=DMA_RX_MAP_BYTES, in_dt=True,
+                       block_size=DMA_RX_BLOCK_BYTES)
+    off += DMA_RX_BLOCK_BYTES
+    if rx_queues >= 2:
+        add("steer", DMA_STEER_BYTES, False)
+        add("dma-rx1", DMA_RX1_BLOCK_BYTES, False)
+    add("dma-ts", DMA_TS_BYTES, True)
+    add("hs-pgsz-cap", DMA_HS_CAP_BYTES, False)
+    add("pcm-dma", DMA_PCM_BYTES, False)      # its own DT node, not the NIC's
+    return m
+
+
+def _mac48(v, ctx):
+    """'02:00:00:00:00:02' or 0x020000000002 -> int, unicast + non-zero."""
+    s = str(v).replace(":", "").replace("-", "").replace("_", "")
+    try:
+        n = int(s, 16)
+    except ValueError:
+        raise ConfigError(f"{ctx}: '{v}' is not a MAC-48")
+    if not 0 < n <= 0xFFFFFFFFFFFF:
+        raise ConfigError(f"{ctx}: '{v}' out of MAC-48 range (or all-zero)")
+    if (n >> 40) & 1:
+        raise ConfigError(f"{ctx}: '{v}' has the I/G bit set - a station MAC "
+                          "must be UNICAST (it becomes the AVTP stream_id "
+                          "prefix and the ATDECC entity_id)")
+    return n
+
+
+def load_platform(raw, cons, target, listeners):
+    """Validate + normalize the `platform:` section and DERIVE the DMA window
+    map from board.constraints.rx_queues. Raises ConfigError when the derived
+    map contradicts `boot_chain_pin` - the flashed boot chain's map, which is
+    exactly the 5ce9a13 failure caught before a build instead of after a
+    flash."""
+    raw = raw or {}
+    if not isinstance(raw, dict):
+        raise ConfigError("platform: must be a mapping")
+    p = dict(PLATFORM_DEFAULTS)
+    for k in PLATFORM_DEFAULTS:
+        if k in raw:
+            p[k] = raw[k]
+    for k in ("csr_base", "dma_bank_base", "mac_bank_base", "ev_bank_base",
+              "pcm_ring_phys", "pcm_ring_bytes", "pcm_ring_stride"):
+        p[k] = int(p[k])
+    if p["csr_base"] < 0x8000_0000:
+        raise ConfigError(f"platform.csr_base 0x{p['csr_base']:08X} is below "
+                          "0x80000000 - an MMIO peripheral must live in the "
+                          "CPU IO region (REGISTER_MAP.md 'Bus')")
+    if p["mac_address"] is None:
+        raise ConfigError("platform.mac_address is required - two boards on "
+                          "one AVB switch MUST NOT share a station MAC")
+    mac = _mac48(p["mac_address"], "platform.mac_address")
+    p["mac_address"] = ":".join(f"{(mac >> s) & 0xFF:02x}"
+                                for s in range(40, -8, -8))
+    if not (isinstance(p["interrupt"], int) and 0 <= p["interrupt"] < 32):
+        raise ConfigError(f"platform.interrupt {p['interrupt']} outside the "
+                          "PLIC's riscv,ndev = 32")
+    _pow2(p["pcm_ring_bytes"], "platform.pcm_ring_bytes")
+    _pow2(p["pcm_ring_stride"], "platform.pcm_ring_stride")
+    if p["pcm_ring_stride"] * len(listeners) > p["pcm_ring_bytes"]:
+        raise ConfigError(
+            f"platform: {len(listeners)} capture stream(s) x stride "
+            f"0x{p['pcm_ring_stride']:X} overruns the reserved PCM ring "
+            f"(0x{p['pcm_ring_bytes']:X}) - snd-kl-milan would DMA past the "
+            "no-map region")
+    phy = DT_PHY_MODE.get(cons["phy"])
+    if phy is None:
+        raise ConfigError(f"platform: no DT phy-mode for board phy "
+                          f"'{cons['phy']}' (known {sorted(DT_PHY_MODE)})")
+    p["phy_mode"] = phy
+    p["rsc_clk_mhz"] = cons["milan_clk_hz"] // 1_000_000
+    if p["rsc_clk_mhz"] * 1_000_000 != cons["milan_clk_hz"]:
+        raise ConfigError(
+            f"platform: milan_clk_hz {cons['milan_clk_hz']} is not a whole "
+            "MHz - kl,rsc-clk-mhz is an integer and the driver clamps it to "
+            "10..250 (a wrong value runs the PHC at the wrong rate)")
+    if not 10 <= p["rsc_clk_mhz"] <= 250:
+        raise ConfigError(f"platform: kl,rsc-clk-mhz {p['rsc_clk_mhz']} "
+                          "outside the driver's 10..250 accept window")
+    p["windows"] = dma_window_map(p["dma_bank_base"], cons["rx_queues"])
+    p["rx_queues"] = cons["rx_queues"]
+
+    # CSR-rot guard: the flashed boot chain fixes its own window map. A pin
+    # that the derived map contradicts means the DTB/opensbi on that board
+    # would address the wrong registers - refuse to emit.
+    pin = p["boot_chain_pin"]
+    if pin is not None:
+        if not isinstance(pin, dict):
+            raise ConfigError("platform.boot_chain_pin must be a mapping of "
+                              "window name -> address")
+        for name, want in pin.items():
+            if name not in p["windows"]:
+                raise ConfigError(f"platform.boot_chain_pin: unknown window "
+                                  f"'{name}' (known {sorted(p['windows'])})")
+            got = p["windows"][name]["base"]
+            if int(want) != got:
+                raise ConfigError(
+                    f"platform.boot_chain_pin['{name}'] = "
+                    f"0x{int(want):08X} but rx_queues={cons['rx_queues']} "
+                    f"puts it at 0x{got:08X}. The flashed boot chain "
+                    f"(DTB + opensbi + kl-eth) maps this window BY ADDRESS: "
+                    "changing rx_queues shifts every window from dma-ts on "
+                    "by 0x74 and the host plane dies silently (the 5ce9a13 "
+                    "CSR-rot rule). Rebuild the whole boot chain and move "
+                    "the pin, or restore rx_queues.")
+    return p
+
+
+def emit_platform_shape(cfg):
+    """The driver-visible layout this config implies: CSR base, the DMA
+    window map, the queue count, and the physical addresses kl-eth hardcodes
+    (they MOVE with rx_queues - the biggest un-modelled coupling)."""
+    p, c = cfg["platform"], cfg["constraints"]
+    w = p["windows"]
+    return {
+        "_schema": PLATFORM_SCHEMA_ID,
+        "_schema_version": PLATFORM_SCHEMA_VERSION,
+        "_generated_by": "sw/builder/endstation_builder.py",
+        "_source_config": cfg["source"],
+        "board": cfg["board_target"],
+        "csr": dict(base=f"0x{p['csr_base']:08X}", size=MILAN_CSR_BYTES),
+        "rx_queues": p["rx_queues"],
+        "tx_queues": c["num_queues"],
+        "shaped_queues": [0, 1],
+        "phy_mode": p["phy_mode"],
+        "rsc_clk_mhz": p["rsc_clk_mhz"],
+        "hs_page_bytes": c["hs_page_bytes"],
+        "mac_address": p["mac_address"],
+        "interrupt": p["interrupt"],
+        "windows": {k: dict(base=f"0x{v['base']:08X}",
+                            size=f"0x{v['size']:X}",
+                            in_device_tree=v["in_dt"])
+                    for k, v in w.items()},
+        "phy_window": dict(base=f"0x{p['mac_bank_base']:08X}",
+                           size=f"0x{MAC_PHY_MAP_BYTES:X}"),
+        # kl-eth.c hardcodes these; they are NOT in the DT and they shift
+        # with rx_queues. Emitting them is the point of this table.
+        "driver_constants": {
+            "MILAN_EV_PHYS": f"0x{p['ev_bank_base']:08X}",
+            "MILAN_PHY_CSR_PHYS": f"0x{p['mac_bank_base']:08X}",
+            "MILAN_DMA_RX1_PHYS": (f"0x{w['dma-rx1']['base']:08X}"
+                                   if "dma-rx1" in w else None),
+            "MILAN_HS_PGSZ_CAP_PHYS": f"0x{w['hs-pgsz-cap']['base']:08X}",
+        },
+        "pcm": dict(base=f"0x{w['pcm-dma']['base']:08X}",
+                    size=f"0x{w['pcm-dma']['size']:X}",
+                    capture_streams=len(cfg["listeners"]),
+                    playback_streams=0,
+                    ring_phys=f"0x{p['pcm_ring_phys']:08X}",
+                    ring_bytes=f"0x{p['pcm_ring_bytes']:X}",
+                    ring_stride=f"0x{p['pcm_ring_stride']:X}"),
+        "boot_chain_pin": ({k: f"0x{int(v):08X}"
+                            for k, v in p["boot_chain_pin"].items()}
+                           if p["boot_chain_pin"] else None),
+    }
+
+
+def emit_dt_overlay(cfg):
+    """The device-tree nodes: ethernet@<csr_base> (kl,dma-ether), the PCM
+    node (kl,milan-pcm) and its no-map reserved-memory region. Overlaid onto
+    the LiteX base tree (litex_json2dts_linux) - the NIC/PCM nodes sit at the
+    ROOT beside `soc`, which is why they carry an explicit interrupt-parent."""
+    p, c = cfg["platform"], cfg["constraints"]
+    w = p["windows"]
+    ln = []
+    a = ln.append
+    a("// SPDX-License-Identifier: (GPL-2.0 OR MIT)")
+    a("/*")
+    a(" * Milan TSN NIC + PCM nodes - GENERATED by")
+    a(" * sw/builder/endstation_builder.py. DO NOT EDIT BY HAND;")
+    a(f" * edit {cfg['source']} and regenerate.")
+    a(" *")
+    a(f" * Board {cfg['board_target']}, rx_queues {p['rx_queues']}: the DMA")
+    a(" * window map is a FUNCTION of the queue count (a 2-queue build")
+    a(" * inserts steer + rx1 = 0x74 bytes before dma-ts). A DTB built")
+    a(" * against the other count maps every window onto the wrong")
+    a(" * registers - rebuild DTB + opensbi with the gateware.")
+    a(" */")
+    a("")
+    a("/ {")
+    a("\treserved-memory {")
+    a("\t\t#address-cells = <1>;")
+    a("\t\t#size-cells    = <1>;")
+    a("\t\tranges;")
+    a("")
+    a(f"\t\tpcmring: pcmring@{p['pcm_ring_phys']:x} {{")
+    a(f"\t\t\treg = <0x{p['pcm_ring_phys']:x} 0x{p['pcm_ring_bytes']:x}>;")
+    a("\t\t\tno-map;")
+    a("\t\t};")
+    a("\t};")
+    a("")
+    a(f"\tmilan_nic: ethernet@{p['csr_base']:x} {{")
+    a('\t\tcompatible = "kl,dma-ether-0.9", "kl,dma-ether";')
+    a(f"\t\treg = <0x{p['csr_base']:x} 0x{MILAN_CSR_BYTES:x}>,"
+      "        /* csr    control plane */")
+    for name in ("dma-tx", "dma-rx", "dma-ts"):
+        a(f"\t\t      <0x{w[name]['base']:x} 0x{w[name]['size']:x}>,"
+          f"          /* {name} */")
+    a(f"\t\t      <0x{p['mac_bank_base']:x} 0x{MAC_PHY_MAP_BYTES:x}>;"
+      "           /* phy  crg_reset + MDIO */")
+    a('\t\treg-names = "csr", "dma-tx", "dma-rx", "dma-ts", "phy";')
+    a(f"\t\tinterrupt-parent = <&{p['interrupt_parent']}>;")
+    a(f"\t\tinterrupts = <{p['interrupt']}>;")
+    a('\t\tinterrupt-names = "csr";')
+    if p["dma_coherent"]:
+        a("\t\tdma-coherent;")
+    a(f"\t\tkl,rsc-clk-mhz = <{p['rsc_clk_mhz']}>;"
+      "\t/* datapath clock (PHC rate + RSC timing) */")
+    a(f'\t\tphy-mode = "{p["phy_mode"]}";')
+    a("\t\tlocal-mac-address = [" +
+      " ".join(p["mac_address"].split(":")) + "];")
+    a(f"\t\tkl,txq-cnt = <{c['num_queues']}>;")
+    a(f"\t\tkl,rxq-cnt = <{p['rx_queues']}>;")
+    a("\t\tkl,shaped-queues = <0 1>;")
+    a("\t\tkl,ptp;")
+    a('\t\tstatus = "okay";')
+    a("\t};")
+    a("")
+    a(f"\tmilan_pcm: audio@{w['pcm-dma']['base']:x} {{")
+    a('\t\tcompatible = "kl,milan-pcm-0.9", "kl,milan-pcm";')
+    a(f"\t\treg = <0x{w['pcm-dma']['base']:x} "
+      f"0x{w['pcm-dma']['size']:x}>,")
+    a(f"\t\t      <0x{p['csr_base']:x} 0x1000>;")
+    a('\t\treg-names = "pcm-dma", "milan-csr";')
+    a("\t\tmemory-region = <&pcmring>;")
+    a(f"\t\tkl,capture-streams = <{len(cfg['listeners'])}>;")
+    a("\t\tkl,playback-streams = <0>;")
+    a(f"\t\tkl,ring-stride = <0x{p['pcm_ring_stride']:x}>;")
+    a('\t\tstatus = "okay";')
+    a("\t};")
+    a("};")
+    a("")
+    return "\n".join(ln)
+
+
 # ------------------------------------------------------- model-id hashing ---
 def model_shape(cfg):
     """The model-shaping fields ONLY (no board flags / names / serials): the
@@ -636,6 +1366,7 @@ def load_config(path):
         flashboot=c.get("flashboot", "full"),
         uart_baudrate=int(c.get("uart_baudrate", 115200)),
         rx_queues=int(c.get("rx_queues", 2)),
+        num_queues=int(c.get("num_queues", 4)),
         hs_page_bytes=_pow2(c.get("hs_page_bytes", 16384),
                             "board.constraints.hs_page_bytes"),
         strip_probes=bool(c.get("strip_probes", True)),
@@ -650,6 +1381,13 @@ def load_config(path):
         raise ConfigError(f"flashboot '{cons['flashboot']}' not none|kernel|full")
     if not 1 <= cons["rx_queues"] <= 2:
         raise ConfigError(f"rx_queues {cons['rx_queues']} outside 1..2")
+    # shaper queue count = ethernet_packet_pkg::NUMBER_OF_QUEUES; the CBS
+    # tables (IDLE_SLOPE_*/HI_CREDIT/LO_CREDIT) are sized by it and the CSR
+    # CAP[3:0] advertises it - a config that disagrees with the RTL package
+    # would silently mis-size CLS_PRIO_REGEN and the class-A queue select.
+    _pow2(cons["num_queues"], "board.constraints.num_queues")
+    if not 1 <= cons["num_queues"] <= 8:
+        raise ConfigError(f"num_queues {cons['num_queues']} outside 1..8")
     if not cons["milan_clk_hz"] <= cons["sys_clk_hz"]:
         raise ConfigError("milan_clk_hz must not exceed sys_clk_hz")
     if cons["eth_port"] is not None and cons["eth_port"] not in binfo["eth_ports"]:
@@ -738,12 +1476,17 @@ def load_config(path):
     if soc["cpu"] not in ("vexiiriscv", "naxriscv"):
         raise ConfigError(f"soc.cpu '{soc['cpu']}' unknown")
 
+    srp = load_srp(cfg.get("srp"), listeners, talkers, clocking, cons,
+                   BOARDS[target])
+    platform = load_platform(cfg.get("platform"), cons, target, listeners)
+
     out = dict(
         source=os.path.relpath(path, ROOT),
         name=os.path.splitext(os.path.basename(path))[0],
         entity=entity, board_target=target, constraints=cons,
         clocking=clocking, interface=interface,
-        listeners=listeners, talkers=talkers, soc=soc,
+        listeners=listeners, talkers=talkers, soc=soc, srp=srp,
+        platform=platform,
     )
 
     # per-stream port layout (needed by the model-id hash and the overlay)
@@ -816,6 +1559,35 @@ def rtl_capability_marks(cfg):
         marks.append((f"{rate} Hz media clock",
                       "planned (item 6 - MMCM-DRP media-clock servo)",
                       "render path is 48k-only today"))
+    # lwSRP attribute-context capacity. milan_datapath ties N_CTX_P to
+    # N_STREAMS = max(L, T), but the 0x800 window row map needs L+T-1 rows
+    # (listener k -> row k, talker t -> row (L-1)+t). Every NxN shape beyond
+    # 1x1 therefore has more declarations than rows: talker gate bits and
+    # listener rows collide. Surfaced here, not hidden.
+    srp = cfg["srp"]
+    if srp["ctx_rows_required"] > srp["ctx_rows_available"]:
+        marks.append((f"{srp['ctx_rows_required']} lwSRP attribute rows "
+                      f"(L+T-1) in {srp['ctx_rows_available']} contexts",
+                      "planned (item 5 - NxN AAF streams)",
+                      "KL_lwsrp_top N_CTX_P = milan_datapath N_STREAMS = "
+                      "max(L,T), but the 0x800 window row map (listener k -> "
+                      "row k, talker t -> row (L-1)+t) needs L+T-1; the "
+                      "surplus listener declarations have no context row "
+                      "until N_CTX_P is decoupled from N_STREAMS"))
+    else:
+        marks.append((f"{srp['ctx_rows_required']} lwSRP attribute row(s) in "
+                      f"{srp['ctx_rows_available']} context(s)", "supported",
+                      "KL_lwsrp_top ctx table"))
+    # per-stream TSpec: the RTL serves every context from the shared
+    # LWSRP_TSPEC/LWSRP_LATENCY words (REGISTER_MAP 0x800 provisioning note)
+    if srp["tspec_policy"] == "derived" and \
+            len({r["max_frame_bytes"] for r in srp["rows"]
+                 if r["direction"] == "talker"}) > 1:
+        marks.append(("per-stream TSpec (heterogeneous MaxFrameSize)",
+                      "planned (item 5 - NxN AAF streams)",
+                      "the ctx provisioning port carries max_frame/interval "
+                      "per row, but the 0x800 window sources both from the "
+                      "shared LWSRP_TSPEC until per-stream TSpec words exist"))
     max_ch = max(s["channels"] for s in cfg["listeners"])
     if max_ch > RTL_TODAY["render_channels"] and kind in RTL_TODAY["interfaces"]:
         marks.append((f"{max_ch}ch listener formats on a "
@@ -1100,7 +1872,86 @@ def emit_resource_section(est):
     return ln
 
 
-def emit_build_plan(cfg, argv, overlay, marks, est):
+def emit_lwsrp_section(cfg, lwsrp):
+    """The '## lwSRP reservation table' block of the build plan."""
+    s, b = cfg["srp"], lwsrp["bandwidth"]
+    ln = []
+    a = ln.append
+    a("## lwSRP reservation table (802.1Q MSRP/MVRP, CSR 0x680)")
+    a("")
+    a(f"- SR class {s['sr_class']} (id {s['class_id']}, priority "
+      f"{s['priority']}, rank {s['rank']}, PriorityAndRank "
+      f"0x{s['prio_rank']:02X}), VID {s['vid']}, "
+      f"stream DMAC base {s['stream_dmac_base']} (stream t = base + t)")
+    a(f"- MRP timers: join {s['join_time_ms']} ms, leave "
+      f"{s['leave_time_ms']} ms, leaveall {s['leaveall_time_ms']} ms")
+    a(f"- TSpec policy `{s['tspec_policy']}`; idleSlope = "
+      f"MaxIntervalFrames x (MaxFrameSize + "
+      f"{b['frame_overhead_bytes']}) x 8 x {s['intervals_ps']}")
+    a(f"- reserved {b['total_idle_slope_bps']} bps of "
+      f"{b['link_bps']} bps ({b['utilization_pct']}% of the port; ceiling "
+      f"{b['limit_pct']}% = {b['limit_bps']} bps)")
+    a("")
+    a("| Offset | Register | Reset word |")
+    a("|--------|----------|------------|")
+    for k, v in lwsrp["reset_words"].items():
+        a(f"| `{lwsrp['csr_offsets'][k]}` | `{k}` | `{v}` |")
+    a("")
+    a("| Dir | Stream | Ch | DMAC | MaxFrameSize | IntervalFrames | "
+      "idleSlope bps |")
+    a("|-----|--------|----|------|--------------|----------------|"
+      "---------------|")
+    for r in lwsrp["rows"]:
+        a(f"| {r['direction']} | {r['stream_index']} | {r['channels']} "
+          f"| {r['dest_mac'] or '(ACMP bind)'} | {r['max_frame_bytes']} "
+          f"| {r['interval_frames']} | {r['idle_slope_bps']} |")
+    a("")
+    cr = lwsrp["ctx_rows"]
+    a(f"Attribute context rows: {cr['required']} required (L+T-1), "
+      f"{cr['available']} available (`KL_lwsrp_top.N_CTX_P` = "
+      "`milan_datapath.N_STREAMS`). Row map: " + cr["row_map"] + ".")
+    a("")
+    return ln
+
+
+def emit_platform_section(shape):
+    """The '## Platform shape (device tree + driver)' block."""
+    ln = []
+    a = ln.append
+    a("## Platform shape (device tree + driver-visible layout)")
+    a("")
+    a(f"- Milan CSR window {shape['csr']['base']} "
+      f"(0x{shape['csr']['size']:X} B), IRQ {shape['interrupt']}, "
+      f"MAC {shape['mac_address']}, phy-mode `{shape['phy_mode']}`, "
+      f"kl,rsc-clk-mhz {shape['rsc_clk_mhz']}")
+    a(f"- RX DMA queues {shape['rx_queues']}, shaper queues "
+      f"{shape['tx_queues']}, hs_page_bytes {shape['hs_page_bytes']}")
+    a("")
+    a("| Window | Base | Size | In device tree |")
+    a("|--------|------|------|----------------|")
+    for k, v in shape["windows"].items():
+        a(f"| `{k}` | `{v['base']}` | `{v['size']}` | "
+          f"{'yes' if v['in_device_tree'] else 'no'} |")
+    a(f"| `phy` | `{shape['phy_window']['base']}` | "
+      f"`{shape['phy_window']['size']}` | yes |")
+    a("")
+    a("Driver constants kl-eth.c hardcodes (NOT in the device tree - they "
+      "move with rx-queues):")
+    a("")
+    for k, v in shape["driver_constants"].items():
+        a(f"- `{k}` = {v or '(absent at 1 queue)'}")
+    a("")
+    if shape["boot_chain_pin"]:
+        a("Flashed boot chain pinned to "
+          + ", ".join(f"`{k}`={v}"
+                      for k, v in shape["boot_chain_pin"].items())
+          + " - the builder REFUSES a config whose rx-queues would move "
+            "them (the 5ce9a13 CSR-rot rule).")
+        a("")
+    return ln
+
+
+def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     c, e, i = cfg["constraints"], cfg["entity"], cfg["interface"]
     ln = []
     a = ln.append
@@ -1182,6 +2033,8 @@ def emit_build_plan(cfg, argv, overlay, marks, est):
       "stay in sw/litex/sweep.sh; sweep.sh sources the generated "
       f"configs/generated/sweep_opts_{cfg['board_target']}.sh for OPTS/L2)")
     a("")
+    ln.extend(emit_lwsrp_section(cfg, lwsrp))
+    ln.extend(emit_platform_section(shape))
     ln.extend(emit_resource_section(est))
     a("## RTL capability")
     a("")
@@ -1208,9 +2061,13 @@ def build(config_path, outdir=None):
     cfg = load_config(config_path)
     argv = emit_soc_argv(cfg)
     overlay = emit_aem_overlay(cfg)
+    lwsrp = emit_lwsrp_table(cfg)
+    lwsrp_svh = emit_lwsrp_svh(cfg, lwsrp)
+    shape = emit_platform_shape(cfg)
+    dtsi = emit_dt_overlay(cfg)
     marks = rtl_capability_marks(cfg)
     est = estimate_resources(cfg, overlay)
-    plan = emit_build_plan(cfg, argv, overlay, marks, est)
+    plan = emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape)
     sweep = emit_sweep_opts(cfg)
 
     outdir = outdir or os.path.join(HERE, "out")
@@ -1229,6 +2086,20 @@ def build(config_path, outdir=None):
     with open(p_plan, "w") as f:
         f.write(plan)
         f.write("\n")
+    p_srp = os.path.join(d, "lwsrp_table.json")
+    with open(p_srp, "w") as f:
+        json.dump(lwsrp, f, indent=1)
+        f.write("\n")
+    p_srp_svh = os.path.join(d, "lwsrp_table.svh")
+    with open(p_srp_svh, "w") as f:
+        f.write(lwsrp_svh)
+    p_shape = os.path.join(d, "platform_shape.json")
+    with open(p_shape, "w") as f:
+        json.dump(shape, f, indent=1)
+        f.write("\n")
+    p_dtsi = os.path.join(d, "milan-nic.dtsi")
+    with open(p_dtsi, "w") as f:
+        f.write(dtsi)
     # board-level sweep fragment: canonical location, shared by every config
     # of the board (content depends only on board constraints)
     gen_dir = os.path.join(ROOT, "configs/generated")
@@ -1236,10 +2107,24 @@ def build(config_path, outdir=None):
     p_sweep = os.path.join(gen_dir, f"sweep_opts_{cfg['board_target']}.sh")
     with open(p_sweep, "w") as f:
         f.write(sweep)
+    paths = dict(soc_params=p_soc, aem_overlay=p_ovl, build_plan=p_plan,
+                 lwsrp_table=p_srp, lwsrp_svh=p_srp_svh,
+                 platform_shape=p_shape, dt_overlay=p_dtsi,
+                 sweep_opts=p_sweep)
+    # The TRACKED RTL table: exactly one config (the DEPLOYED shape, marked
+    # srp.rtl_table) owns hdl/ieee8021q/srp/gen/lwsrp_table.svh, so the
+    # generated include and the hand-written RTL constants it mirrors are
+    # gate-compared on every run (test_builder 18a/18b).
+    if cfg["srp"]["rtl_table"]:
+        gen_svh = os.path.join(ROOT, "hdl/ieee8021q/srp/gen/lwsrp_table.svh")
+        os.makedirs(os.path.dirname(gen_svh), exist_ok=True)
+        with open(gen_svh, "w") as f:
+            f.write(lwsrp_svh)
+        paths["rtl_lwsrp_svh"] = gen_svh
     return dict(cfg=cfg, argv=argv, overlay=overlay, marks=marks, plan=plan,
-                resource_estimate=est, sweep_opts=sweep,
-                paths=dict(soc_params=p_soc, aem_overlay=p_ovl,
-                           build_plan=p_plan, sweep_opts=p_sweep))
+                resource_estimate=est, sweep_opts=sweep, lwsrp=lwsrp,
+                lwsrp_svh=lwsrp_svh, platform=shape, dt_overlay=dtsi,
+                paths=paths)
 
 
 def main():
