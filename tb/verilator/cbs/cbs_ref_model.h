@@ -38,8 +38,9 @@
  *                        and send_delta/credit_add_idle, but clamps to the
  *                        *current* cycle's hiCredit/loCredit (the RTL clamp
  *                        terms are combinational from the config ports).
- *   allow_transmit     : registers (credit >= 0); output is forced high when
- *                        the (registered) shaped bit is 0.
+ *   allow_transmit     : COMBINATIONAL (credit >= 0) off the credit register
+ *                        (REQ-CBS-05 removed the extra decision flop); output
+ *                        is forced high when the (registered) shaped bit is 0.
  */
 
 #ifndef CBS_REF_MODEL_H
@@ -141,7 +142,6 @@ public:
         send_delta = 0; credit_add_idle = 0;
         eng.reset();
         istx = false; qhd = false; isg = false; shaped = false;
-        allow = false;
     }
 
     // PURE steady-state slope values (the SystemVerilog '/' results). The
@@ -199,33 +199,30 @@ public:
             n_credit = (credit + credit_add_idle > HIc) ? HIc : credit + credit_add_idle;
         }
 
-        // allow_transmit (registers current credit sign)
-        bool n_allow = (credit >= 0);
-
         // ---- commit, honouring synchronous reset ----
         if (!in.resetn) {
             credit = 0; send_delta = 0; credit_add_idle = 0;
             eng.reset();
-            istx = false; qhd = false; isg = false; shaped = false; allow = false;
+            istx = false; qhd = false; isg = false; shaped = false;
         } else {
             credit = n_credit;
             eng.step(in.idle_slope, in.is_1g, cfg.clk_freq_hz);
             send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
-            allow = n_allow;
         }
     }
 
     int64_t credit_q16() const { return credit; }
     double  credit_bytes() const { return (double)credit / (double)(1 << CbsConfig::FP); }
-    // Output allow_transmit: forced high when unshaped (uses registered shaped).
-    bool    allow_transmit() const { return shaped ? allow : true; }
+    // Output allow_transmit: combinational off the CURRENT credit register
+    // (REQ-CBS-05); forced high when unshaped (uses registered shaped).
+    bool    allow_transmit() const { return shaped ? (credit >= 0) : true; }
 
     const CbsConfig cfg;
     int64_t credit;
     int64_t send_delta, credit_add_idle;
     SlopeEngineRef eng;     // mirrors the RTL slope_engine state-for-state
-    bool istx, qhd, isg, shaped, allow;
+    bool istx, qhd, isg, shaped;
 };
 
 // ---------------------------------------------------------------------------
@@ -239,7 +236,7 @@ public:
         credit = 0.0; send_delta = 0.0; credit_add_idle = 0.0;
         isc_r = 0.0; ssb_r = 0.0;
         cnt = 0; pend_isc = 0.0; pend_ssb = 0.0;
-        istx = false; qhd = false; isg = false; shaped = false; allow = false;
+        istx = false; qhd = false; isg = false; shaped = false;
     }
 
     double idle_rate_per_cycle(bool is_1g, int32_t idle_slope) const {
@@ -288,30 +285,29 @@ public:
         } else {
             n_credit = (credit + credit_add_idle > HIc) ? HIc : credit + credit_add_idle;
         }
-        bool n_allow = (credit >= 0.0);
-
         if (!in.resetn) {
             credit = 0.0; send_delta = 0.0; credit_add_idle = 0.0;
             isc_r = 0.0; ssb_r = 0.0;
             cnt = 0; pend_isc = 0.0; pend_ssb = 0.0;
-            istx = qhd = isg = shaped = allow = false;
+            istx = qhd = isg = shaped = false;
         } else {
             credit = n_credit; send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             isc_r = n_isc_r; ssb_r = n_ssb_r;
             cnt = n_cnt; pend_isc = n_pend_isc; pend_ssb = n_pend_ssb;
-            istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped; allow = n_allow;
+            istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
         }
     }
 
     double credit_bytes() const { return credit; }
-    bool   allow_transmit() const { return shaped ? allow : true; }
+    // REQ-CBS-05: combinational off the current credit, no decision flop
+    bool   allow_transmit() const { return shaped ? (credit >= 0.0) : true; }
 
     const CbsConfig cfg;
     double credit, send_delta, credit_add_idle;
     double isc_r, ssb_r;   // committed slope terms (cadence-aligned with the engine)
     int    cnt;            // slope-engine cadence mirror
     double pend_isc, pend_ssb;
-    bool istx, qhd, isg, shaped, allow;
+    bool istx, qhd, isg, shaped;
 };
 
 #endif // CBS_REF_MODEL_H
