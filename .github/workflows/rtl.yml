@@ -64,6 +64,23 @@ jobs:
           name: suite-logs
           path: ${{ runner.temp }}/suite-logs
 
+  # BDD conformance suite (Gherkin, tests/features). Offline by default - the
+  # Python models in tests/steps mirror the RTL, so it needs no DUT binary and
+  # no simulator, and it runs in seconds. It is the spec-facing counterpart to
+  # the Verilator suites: those prove the RTL does what it does, this proves it
+  # does what the standard says. USER standing order: it runs on EVERY
+  # verification round, so it is a gate, not a ritual.
+  bdd-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install behave
+        run: python3 -m pip install --quiet behave
+      - name: Run the suite
+        working-directory: tests
+        run: behave --no-capture -f plain
+
   # Vendor-independence gate: every top must synthesise under Yosys, which is
   # what keeps the ECP5 target reachable and keeps vendor primitives from
   # creeping back in. Needs sv2v, which is NOT in the Ubuntu repos - the
