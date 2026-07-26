@@ -49,7 +49,12 @@ board:
     floorplan: false
     flashboot: full                  # none | kernel | full (N25Q128 QSPI)
     uart_baudrate: 115200
-    rx_queues: 2                     # flow-steered RX fan-out
+    rx_queues: 2                     # flow-steered RX fan-out. Per-board on
+                                     # purpose: the deployed arty gateware
+                                     # carries rx1_* + steer_q0/q1 in its
+                                     # csr.csv, so 2 is ITS boot-chain layout
+                                     # (the ax8x8 shape ships 1 - see that
+                                     # config; never unify these blindly)
     hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
     strip_probes: true               # area-70 ship diet
     # eth_port: only for multi-PHY boards (ax7101 e1|e2); arty has one PHY

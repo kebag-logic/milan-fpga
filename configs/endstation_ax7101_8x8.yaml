@@ -35,7 +35,12 @@ board:
     floorplan: true
     flashboot: full
     uart_baudrate: 115200
-    rx_queues: 2
+    rx_queues: 1                     # the SHIPPING ax8x8 boot chain (2026-07-24
+                                     # CSR-rot fix): its DTB/opensbi/driver/ring
+                                     # tooling all map the 1-queue layout - a
+                                     # 2-queue build shifts every DMA window
+                                     # (verified against the flashed csr.csv:
+                                     # no rx1_*, no steer registers)
     hs_page_bytes: 16384
     strip_probes: true
     eth_port: e2                     # e2 since 2026-07-22 (e1 GMII-RX
