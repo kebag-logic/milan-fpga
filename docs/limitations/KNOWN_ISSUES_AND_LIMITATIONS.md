@@ -36,7 +36,7 @@ newer than that reconciliation._
 
 | Gap | Impact | Workaround |
 |---|---|---|
-| **No CI** | Nothing runs the (CI-ready) suites automatically; regressions are caught by discipline | run the [TESTING.md](../testing/TESTING.md) layers 1/2/4 before pushing |
+| **CI covers the paper gates only** | GitHub Actions ([`.github/workflows/docs.yml`](../../.github/workflows/docs.yml)) runs the docs gate (links, wording, dead references, local info — twice, the second time with `.git` deleted), the traceability no-drift gate and the end-station builder gates. **No Verilator suite, no yosys synthesis and nothing on hardware runs automatically**; those regressions are still caught by discipline | run the [TESTING.md](../testing/TESTING.md) layers 1/2/4 before pushing; [`../../QUICKSTART.md`](../../QUICKSTART.md) §2 has the exact local commands |
 | **No version pins** | No requirements.txt / lockfile; `sw/litex/patches` are diffed against LiteX `master` and can stop applying | known-good LiteX: `a1e1c36` (recorded in `sw/litex/evidence/hw_naxriscv_reads_MILN.log`); re-diff per `patches/README.md` |
 | **CPU default ≠ published config** | `milan_soc.py --cpu` defaults to `naxriscv` and `deploy.sh` does not override it, while the **shipped config is 1-hart VexiiRiscv** (`--cpu vexiiriscv` + `--l2-bytes 32768`). (The dual-hart `--cpu-count 2` scoreboard was a superseded perf-lineage variant.) | see [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §2.5 |
 | **`--coherent-dma` not implied by `--all-blocks`** | Omitting it builds a NIC that silently drops all RX and TXes garbage (DMA bypasses the snooping bus) | always pass it (deploy.sh does); hardware-confirmed 2026-07-04 |
