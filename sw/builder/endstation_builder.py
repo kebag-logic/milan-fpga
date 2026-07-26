@@ -866,9 +866,10 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
         utilization_pct=round(100.0 * total_slope / link_bps, 2),
         # KL_lwsrp_top ctx row map (REGISTER_MAP 0x800 window): listener k ->
         # row k, talker t -> row (L-1)+t, row 0 = the legacy pair. Available
-        # rows = N_CTX_P, which milan_datapath ties to N_STREAMS = max(L, T).
+        # rows = N_CTX_P, which milan_datapath sizes at 2*N_STREAMS-1 since
+        # 2026-07-26 (it was max(L, T), which refused every t>0 talker row).
         ctx_rows_required=len(listeners) + len(talkers) - 1,
-        ctx_rows_available=max(len(listeners), len(talkers)),
+        ctx_rows_available=2 * max(len(listeners), len(talkers)) - 1,
     )
     if s["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS):
         raise ConfigError(
@@ -967,7 +968,12 @@ def lwsrp_module_params(cfg):
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
     return {
         "KL_lwsrp_top.CLK_FREQ_HZ_P": cfg["constraints"]["milan_clk_hz"],
-        "KL_lwsrp_top.N_CTX_P": max(L, T),
+        # N_CTX_P covers listener + talker attribute rows (L+T-1, and the
+        # datapath sizes it 2*N_STREAMS-1); the bw-gate stays TALKER-wide so
+        # aaf_stream_en_w still indexes by talker index.
+        "KL_lwsrp_top.N_CTX_P": 2 * max(L, T) - 1,
+        "KL_lwsrp_top.N_LISTENERS_P": max(L, T),
+        "KL_lwsrp_top.N_TALKERS_P": max(L, T),
         "KL_lwsrp_bw_gate.N_STREAMS_P": max(L, T),
         "milan_datapath.N_STREAMS": max(L, T),
         "milan_datapath.MILAN_CLK_FREQ_HZ": cfg["constraints"]["milan_clk_hz"],
@@ -1752,16 +1758,19 @@ def rtl_capability_marks(cfg):
         marks.append((f"{srp['ctx_rows_required']} lwSRP attribute row(s) in "
                       f"{srp['ctx_rows_available']} context(s)", "supported",
                       "KL_lwsrp_top ctx table"))
-    # per-stream TSpec: the RTL serves every context from the shared
-    # LWSRP_TSPEC/LWSRP_LATENCY words (REGISTER_MAP 0x800 provisioning note)
+    # per-stream TSpec: CLOSED 2026-07-26. milan_datapath derives a talker
+    # row's MaxFrameSize from that row's own TCTX w0 chans field, under the
+    # same clamp KL_aaf_packetizer frames with, so the reservation and the
+    # wire cannot disagree. MaxIntervalFrames stays shared on purpose - it is
+    # an SR-class property, one value per config.
     if srp["tspec_policy"] == "derived" and \
             len({r["max_frame_bytes"] for r in srp["rows"]
                  if r["direction"] == "talker"}) > 1:
         marks.append(("per-stream TSpec (heterogeneous MaxFrameSize)",
-                      "planned (item 5 - NxN AAF streams)",
-                      "the ctx provisioning port carries max_frame/interval "
-                      "per row, but the 0x800 window sources both from the "
-                      "shared LWSRP_TSPEC until per-stream TSpec words exist"))
+                      "supported",
+                      "each talker row derives 24 + 24*C from its own TCTX w0 "
+                      "chans under the packetizer clamp; row 0 keeps "
+                      "LWSRP_TSPEC verbatim (no-regression axiom)"))
     max_ch = max(s["channels"] for s in cfg["listeners"])
     if max_ch > RTL_TODAY["render_channels"] and kind in RTL_TODAY["interfaces"]:
         marks.append((f"{max_ch}ch listener formats on a "
