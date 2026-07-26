@@ -44,7 +44,7 @@ _ADP / ACMP / AECP-AEM-MVU_
 | 🔬 `KL_adp_parser` | `ieee17221/adp/KL_adp_parser.sv` | 🔬`make adp` | — |
 | ✅ `adp_advertiser` | `ieee17221/adp/adp_advertiser.sv` | `adp` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make adp` | — |
 | 📦 `adp_pkg` | `ieee17221/adp/adp_pkg.sv` | 🔬`make adp` | — |
-| ✅ `adp_tx_arbiter` | `ieee17221/adp/adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` · 🔬`make adp` | — |
+| ✅ `adp_tx_arbiter` | `ieee17221/adp/adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` · 🔬`make adp` | 7.3.3, M-CLK-2 |
 | ✅ `KL_aecp_accessor` | `ieee17221/aecp/KL_aecp_accessor.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_aem_dyn_mux` | `ieee17221/aecp/KL_aecp_aem_dyn_mux.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_aem_store` | `ieee17221/aecp/KL_aecp_aem_store.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
@@ -90,9 +90,9 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_stream_table` | `ieee1722/avtp/KL_stream_table.sv` | `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.4.3.4 |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
-| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | — |
-| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | — |
-| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | — |
+| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | 7.3.3, M-CLK-2 |
+| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 7.3.3, M-CLK-2 |
+| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | 7.3.3, M-CLK-2 |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `hostplane` · `maap` · `milan_dp` | — |
 
 ## IEEE 802.1Q
@@ -156,6 +156,6 @@ _datapath + top wrappers_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3 |
+| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3, 7.3.3, M-CLK-2 |
 | 🗄️ `milan_top` | `milan/milan_top.sv` | 🗄️ archived | — |
 

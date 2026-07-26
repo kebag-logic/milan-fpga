@@ -159,11 +159,20 @@ and is not repeated here.
     GET_STREAM_INFO(input 1) reflect it (dp-TB closure: CONNECT_RX →
     lock on the bound sid → DISCONNECT cuts); **SILICON-PROVEN on mf40
     (bind → lock with CSR en=0 → disconnect cuts).**
-  - REMAINING for the full chain: a second lwSRP listener attribute for
-    the CRF reservation (until then the CRF stream rides untagged
-    best-effort — an SR-tagged unregistered stream is pruned to zero
-    ports by the bridge), and bench validation of the clock-recovery
-    actuator below.
+  - REMAINING for the full chain (**scope corrected 2026-07-26 from the
+    RTL** — this is three jobs, not one): CRF is *fully in fabric*
+    (`KL_crf_tx`/`KL_crf_rx`/`KL_mmcm_drp_servo` all live in
+    `milan_datapath`), but it is not a class A stream. (1) `KL_crf_tx`
+    emits **no VLAN tag** — no `0x8100`, no PCP, no TCI — so a bridge
+    cannot classify it as class A and untagged/VID-0 SR traffic floods
+    unshaped; (2) its AXIS is merged into the **control** lane by an
+    `adp_tx_arbiter` (with ADP/ACMP/AECP/MAAP/lwSRP) and through the
+    control min-IFG gasket, so it never enters the CBS class A shaped
+    queue; (3) only then does it need the lwSRP attribute row for the
+    reservation itself. The untagged state is a deliberate interim
+    compromise — an SR-tagged *unregistered* stream is pruned to zero
+    ports by the bridge, so half-done tagging is worse than none. Plus
+    bench validation of the clock-recovery actuator below.
   - **Clock-recovery ACTUATOR — RTL LANDED (2026-07-22, roadmap item 6):**
     `KL_mmcm_drp_servo` (hdl/ieee1722/crf/) closes the loop at
     clock_source==2: differential-rate FLL (CRF_RATE 0x748 vs a local
