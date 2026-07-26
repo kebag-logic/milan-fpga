@@ -34,7 +34,8 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
   (drop into `~/.local/bin`). No Xilinx tools required.
 
 ## Coverage
-18 tops (the `tops=()` array in `run.sh` is authoritative):
+43 tops (the `tops=()` array in `run.sh` is authoritative — that array is
+the count, this prose is not; re-read it rather than trusting a number here):
 
 - the new open blocks (`tcam`, `rx_mac_filter`, `cdc_pulse`, `cdc_handshake`,
   `adp_advertiser`, `adp_tx_arbiter`),

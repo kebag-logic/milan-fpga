@@ -1,0 +1,62 @@
+name: rtl
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # The full Verilator suite sweep. Unlike the docs workflow this one DOES need
+  # the verilog-axis submodule: every datapath-level harness (milan_dp,
+  # hostplane, the csr live leg, ...) instantiates it. Anonymous HTTPS, so a
+  # fork's CI can fetch it too.
+  verilator-suites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Fetch the one submodule the harnesses need
+        run: git submodule update --init third_party/verilog-axis
+      - name: Install Verilator
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends verilator
+          verilator --version
+      - name: Run every suite
+        run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"
+      - name: Upload suite logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-logs
+          path: ${{ runner.temp }}/suite-logs
+
+  # Vendor-independence gate: every top must synthesise under Yosys, which is
+  # what keeps the ECP5 target reachable and keeps Xilinx primitives from
+  # creeping back in. Needs sv2v, which is NOT in the Ubuntu repos - the
+  # prebuilt release binary is the supported route (same as QUICKSTART.md).
+  yosys-portability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the one submodule the tops need
+        run: git submodule update --init third_party/verilog-axis
+      - name: Install Yosys
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends yosys
+          yosys -V
+      - name: Install sv2v from the upstream release
+        run: |
+          set -eu
+          ver=v0.0.12
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v
+          sv2v --version
+      - name: Portability sweep
+        run: syn/yosys/run.sh

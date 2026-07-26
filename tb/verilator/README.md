@@ -10,9 +10,10 @@ compiler and the `third_party/verilog-axis` submodule
 because they target the pure-RTL blocks (no XPM/DSP primitives are
 instantiated).
 
-Each exits `0` on pass / non-zero on failure, so they are
-CI-ready (note: no CI is wired up in this repo yet — see
-[`docs/testing/TESTING.md`](../../docs/testing/TESTING.md)).
+Each exits `0` on pass / non-zero on failure. Run the whole set with
+`scripts/run_all_suites.sh` (exit status = number of failing suites); CI runs it
+in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
+— see [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md).
 
 | Harness | DUT | What it proves | Run |
 |---------|-----|----------------|-----|

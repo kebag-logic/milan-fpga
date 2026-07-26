@@ -209,15 +209,17 @@ Performance measurements on silicon are logged in the
 
 ## 7. Known gaps (kept honest)
 
-* **CI runs the paper gates only.** [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml)
-  runs the docs gate (twice — the second time with `.git` deleted, so the
-  tarball/zip path stays honest), the traceability no-drift gate and the
-  end-station builder gates. The Verilator harnesses are CI-ready (exit codes)
-  but **nothing runs them automatically**; adding layers 1, 2 and 4 to that
-  workflow is the obvious next step. Local commands:
-  [`../../QUICKSTART.md`](../../QUICKSTART.md) §2.
-* **`avtp_stream_parser` has a Verilator suite but is not in the Yosys tops
-  list** - its device portability is unchecked.
+* **CI now runs the RTL gates too** (2026-07-26).
+  [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml) runs the docs
+  gate (twice — the second time with `.git` deleted, so the tarball/zip path
+  stays honest), the traceability no-drift gate and the end-station builder
+  gates; [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) runs the
+  whole Verilator sweep via `scripts/run_all_suites.sh` and the Yosys
+  portability sweep. Both RTL jobs need the `verilog-axis` submodule, which is
+  why they are a separate workflow from the submodule-free docs gates. Local
+  commands: [`../../QUICKSTART.md`](../../QUICKSTART.md) §2. **Caveat:** the
+  `rtl` workflow has not yet been observed running on GitHub's runners — the
+  first PR that triggers it is its own proof.
 * `milan_top` (Zynq variant) is not coverable by the open flows (PS7 + the
   external verilog-ethernet MAC); its TSN content is covered via
   `milan_dp`.
