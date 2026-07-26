@@ -31,6 +31,29 @@ repo's minimal headless renderer
 `svglib.py` is the tiny shared SVG builder the three `diag_*.py` perf
 scripts import (no external deps).
 
+## Reproducibility audit (2026-07-26)
+
+Every generator in this catalog was re-run into a scratch directory and the
+output compared byte-for-byte with what is committed:
+
+* **All `.svg` renders and all six WaveDrom `.svg`/`.png` chronograms are
+  byte-identical** — the generators are deterministic and the renders are in
+  sync with their masters. Regenerating is safe and produces no diff.
+* **Four `.drawio` masters differ from their generator output in dashes only** —
+  `AVB_SWITCH_DIRECTION`, `RX_RING_DMA`, `RX_RING_OPERATION`,
+  `SYSTEM_DOMAIN_MAP`, `TX_STARVATION_FIX` were ASCII-fied in place (em-dash →
+  ` - `) after generation, while the generators still emit em-dashes. The
+  `.svg`/`.png` — which is what every doc actually embeds — are unaffected.
+  **Do not "fix" this by blind regeneration**: it reverts the ASCII pass and
+  produces a large cosmetic diff for zero reader benefit. If you change one of
+  those diagrams for real, regenerate it and re-apply the dash convention.
+* Every render has at least one live embed site, and every embed link resolves
+  (asserted continuously by [`../../scripts/docs_check.py`](../../scripts/docs_check.py)
+  rule 1).
+
+The chronograms need only `pip install wavedrom` in any virtualenv plus
+`rsvg-convert` — see [`../../scripts/gen_wavedrom.py`](../../scripts/gen_wavedrom.py).
+
 ## In `docs/` (root of the docs tree)
 
 | Diagram | Shows | Editable source | Render(s) | Embedded in |
