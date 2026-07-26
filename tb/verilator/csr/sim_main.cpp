@@ -19,7 +19,7 @@ enum {
   A_IRQ_STATUS=0x010, A_IRQ_MASK=0x014, A_IRQ_RAW=0x018,
   A_MAC_CTRL=0x100, A_MAC_IFG=0x104, A_MAC_ALO=0x108, A_MAC_AHI=0x10C,
   A_MAC_STATUS=0x110, A_MC_LO=0x114, A_MC_HI=0x118, A_PHY_RST=0x11C,
-  A_STATS_CTRL=0x200, A_STAT0=0x210, A_STAT8=0x230,
+  A_STATS_CTRL=0x200, A_STATS_CAP=0x204, A_STAT0=0x210, A_STAT8=0x230,
   A_CLS_CTRL=0x300, A_CLS_MAP=0x308, A_CLS_TCQ=0x310,
   A_CBS0_IDLE=0x400, A_CBS0_CTRL=0x40C, A_CBS1_IDLE=0x420, A_CBS2_CTRL=0x44C,
   A_CBS3_CTRL=0x46C, A_CBS4_IDLE=0x480, A_CBS4_CTRL=0x48C,
@@ -128,6 +128,8 @@ int main(int argc, char** argv) {
   dut->i_lctx_rd_valid = 1; dut->i_tctx_rd_valid = 1;
   dut->i_lctx_wr_rdy = 1;   dut->i_tctx_wr_rdy = 1;
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
+  dut->i_stats_cap = 0;
+  for (int k = 0; k < 10; ++k) dut->i_avtprx_cnt10[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
 
@@ -135,7 +137,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010012);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010013);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 6);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -303,6 +305,25 @@ int main(int argc, char** argv) {
   seen_stats_reset = false;
   axi_write(A_STATS_CTRL, 0x2);          // reset pulse
   ck("o_stats_reset pulsed", seen_stats_reset, 1);
+
+  printf("-- STATS_CAP 0x204 (which STAT lanes are real) --\n");
+  // The STAT window's zero used to be ambiguous: "no errors" and "no counter"
+  // read identically, which is how a fully tied-off RMON group survived on two
+  // boards. 0x204 is a LIVE, read-only capability mask - it must track the
+  // input every cycle and never become a writable shadow word.
+  dut->i_stats_cap = 0x000001B8;         // lanes 3,4,5,7,8 supported
+  dut->eval();
+  ck("STATS_CAP reads the live mask", axi_read(A_STATS_CAP), 0x000001B8);
+  dut->i_stats_cap = 0x00000108;         // MAC without FCS/preamble checking
+  dut->eval();
+  ck("STATS_CAP follows the input (no shadow latch)",
+     axi_read(A_STATS_CAP), 0x00000108);
+  axi_write(A_STATS_CAP, 0xFFFFFFFF);    // RO: a write must not stick
+  ck("STATS_CAP is read-only", axi_read(A_STATS_CAP), 0x00000108);
+  ck("STATS_CAP survives a snapshot (not a latched word)",
+     (axi_write(A_STATS_CTRL, 0x1), axi_read(A_STATS_CAP)), 0x00000108);
+  dut->i_stats_cap = 0x000001B8;
+  dut->eval();
 
   printf("-- MAC-reset snapshot invalidate (stale-shadow fix) --\n");
   // A MAC reinit (link guard / LINK_CTRL[1]) restarts the MAC path without
@@ -637,26 +658,50 @@ int main(int argc, char** argv) {
   dut->i_aaf_frames = 0xCAFE0099;
   ck("PDUS frozen until next SNAP", axi_read(A_SW_PDUS), 0xCAFE0001);
 
-  printf("-- window idx0 dir=listener: Table 7-157 flat aliases --\n");
+  printf("-- window idx0 dir=listener: FULL-WIDTH Table 7-157 counters --\n");
+  // The window's index-0 CNT words used to be re-derived from the PACKED
+  // 0x6B8/0x6C0 views, so they inherited their 8/16-bit truncation - and the
+  // flat views' "read the window for the real number" was simply not true
+  // anywhere. Since VERSION 0x0013 they come from the monitor's full 32-bit
+  // counters, so a count past 0xFF/0xFFFF survives here while the flat view
+  // saturates. Drive values BEYOND both ceilings: on the pre-fix RTL these
+  // read back as the truncated low bytes and FAIL.
   axi_write(A_STRM_SEL, 0x00000000);            // dir=0 (listener), idx=0
-  dut->i_avtprx_stat = 0x05040301;              // {intr=5, unlocked=4, locked=3, ..., locked=1}
-  dut->i_avtprx_err  = 0x00070203;              // {seqmm=7, unsupp=2, tu=3}
+  dut->i_avtprx_stat = 0x05040301;              // packed view (saturating)
+  dut->i_avtprx_err  = 0x00070203;              // packed view (saturating)
   dut->i_avtprx_frx  = 123456;
+  {                                             // full-width Table 7-157 lanes
+    const uint32_t c10[10] = {
+      0x00000103u,   // MEDIA_LOCKED        259  (> 8-bit view)
+      0x00001204u,   // MEDIA_UNLOCKED     4612
+      0x00034005u,   // STREAM_INTERRUPTED
+      0x0001C943u,   // SEQ_NUM_MISMATCH 116547 (> 16-bit view: the silicon case)
+      0x00000042u,   // MEDIA_RESET             (was hard 0 in the window)
+      0x00000903u,   // TIMESTAMP_UNCERTAIN
+      0x00002002u,   // UNSUPPORTED_FORMAT
+      0x00000077u,   // LATE_TIMESTAMP          (was hard 0 in the window)
+      0x00000088u,   // EARLY_TIMESTAMP         (was hard 0 in the window)
+      123456u };     // FRAMES_RX
+    for (int k = 0; k < 10; ++k) dut->i_avtprx_cnt10[k] = c10[k];
+  }
   dut->i_pcmrx_cnt   = 0x00020064;              // {drops=2, pdus=100}
   dut->i_acmpl_state = (7u << 8) | (2u << 13) | 6u;  // status=7, probing=2, state=6
   dut->i_lwsrp_status = 0x00000155;
   axi_write(A_STRM_SNAP, 1);
   for (int i = 0; i < 8; ++i) posedge();
-  ck("CNT0 MEDIA_LOCKED",        axi_read(A_SW_CNT0 + 0*4), 3);
-  ck("CNT1 MEDIA_UNLOCKED",      axi_read(A_SW_CNT0 + 1*4), 4);
-  ck("CNT2 STREAM_INTERRUPTED",  axi_read(A_SW_CNT0 + 2*4), 5);
-  ck("CNT3 SEQ_NUM_MISMATCH",    axi_read(A_SW_CNT0 + 3*4), 7);
-  ck("CNT4 MEDIA_RESET (0)",     axi_read(A_SW_CNT0 + 4*4), 0);
-  ck("CNT5 TIMESTAMP_UNCERTAIN", axi_read(A_SW_CNT0 + 5*4), 3);
-  ck("CNT6 UNSUPPORTED_FORMAT",  axi_read(A_SW_CNT0 + 6*4), 2);
-  ck("CNT7 LATE_TS (0)",         axi_read(A_SW_CNT0 + 7*4), 0);
-  ck("CNT8 EARLY_TS (0)",        axi_read(A_SW_CNT0 + 8*4), 0);
+  ck("CNT0 MEDIA_LOCKED",        axi_read(A_SW_CNT0 + 0*4), 0x103);
+  ck("CNT1 MEDIA_UNLOCKED",      axi_read(A_SW_CNT0 + 1*4), 0x1204);
+  ck("CNT2 STREAM_INTERRUPTED",  axi_read(A_SW_CNT0 + 2*4), 0x34005);
+  ck("CNT3 SEQ_NUM_MISMATCH",    axi_read(A_SW_CNT0 + 3*4), 0x1C943);
+  ck("CNT4 MEDIA_RESET",         axi_read(A_SW_CNT0 + 4*4), 0x42);
+  ck("CNT5 TIMESTAMP_UNCERTAIN", axi_read(A_SW_CNT0 + 5*4), 0x903);
+  ck("CNT6 UNSUPPORTED_FORMAT",  axi_read(A_SW_CNT0 + 6*4), 0x2002);
+  ck("CNT7 LATE_TS",             axi_read(A_SW_CNT0 + 7*4), 0x77);
+  ck("CNT8 EARLY_TS",            axi_read(A_SW_CNT0 + 8*4), 0x88);
   ck("CNT9 FRAMES_RX = 0x6BC",   axi_read(A_SW_CNT0 + 9*4), 123456);
+  // the point of the widening: the window keeps what the packed view cannot
+  ck("window CNT3 exceeds the 16-bit packed field",
+     axi_read(A_SW_CNT0 + 3*4) > 0xFFFF ? 1 : 0, 1);
   ck("PDUS = PCMRX_CNT (0x6C4)", axi_read(A_SW_PDUS), 0x00020064);
   // STATE = {4'0, srp9, wire_chans=0, media_locked, status, probing, state}
   ck("listener STATE pack", axi_read(A_SW_STATE),

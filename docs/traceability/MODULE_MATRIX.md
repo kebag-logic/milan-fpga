@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 81 modules · 78 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 82 modules · 79 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## 🗄️ Archived modules (no open-flow test is possible)
 
@@ -143,10 +143,11 @@ _CSR, CDC, RMON, utilities_
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` | — |
 | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `pcm_playback` · `tdm` · `tdm_render` | — |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `pcm_playback` · `ptp_ts` | — |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `hostplane` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `pcm_playback` · `ptp_ts` | — |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | — | — |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `hostplane` · `ifg` · `milan_dp` | — |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `hostplane` · `milan_dp` | — |
+| ✅ `KL_mac_rmon_events` | `common/eth_event_counter/KL_mac_rmon_events.sv` | `mac_rmon` | — |
 | ✅ `ethernet_events` | `common/eth_event_counter/ethernet_events.sv` | `hostplane` · `milan_dp` | — |
 | ✅ `event_counter` | `common/eth_event_counter/event_counter.sv` | `hostplane` · ➰milan_dp | — |
 

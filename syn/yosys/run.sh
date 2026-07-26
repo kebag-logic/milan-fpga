@@ -71,6 +71,7 @@ tops=(
   "ptp_csr_sync|$P/ptp_csr_sync.sv"
   "event_counter|$E/event_counter.sv"
   "ethernet_events|$E/ethernet_events.sv $E/event_counter.sv"
+  "KL_mac_rmon_events|$C/cdc_pulse.sv $E/KL_mac_rmon_events.sv"
   "classifier_wrap|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $Q/traffic_class_map.sv $Q/traffic_classifier.sv $A/axis_fifo.v $R/tb/verilator/classifier/classifier_wrap.sv"
   "queues_wrap|$C/axi_stream_if.sv $Q/traffic_queues.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $R/tb/verilator/queues/queues_wrap.sv"
   "axis_fifo|$A/axis_fifo.v"
@@ -96,14 +97,18 @@ echo "--------------------------------------------------------------"
 echo "tops: $((pass+fail))   pass: $pass   fail: $fail"
 echo "RESULT: $([ $fail -eq 0 ] && echo PASS || echo FAIL)"
 rm -rf "$TMP"
-# Non-fatal structural report (the RMON tied-bus class): inventory of
-# milan_datapath inputs the SoC instantiation ties to constants, so a green
-# port-level TB can never again silently vouch for a cone silicon never
-# drives. Informational only — never changes this script's RESULT.
-"$R/scripts/check_tied_inputs.sh" || true
+# STRUCTURAL GATE (the RMON tied-bus class): inventory of milan_datapath
+# inputs the SoC instantiation ties to constants, so a green port-level TB can
+# never again silently vouch for a cone silicon never drives. Since 2026-07-26
+# this FAILS the run on a never-overridden tie that carries no justified-tie
+# entry - it was informational-only while three of its four warnings were
+# expected, which is precisely why the fourth (dead RMON) went unread.
+tie_fail=0
+"$R/scripts/check_tied_inputs.sh" || tie_fail=1
 # Observer-purity structural report (the host-plane regression class,
 # 2026-07-25): taps/telemetry must never drive the observed streams' nets.
 # Reported here like the tied-input inventory (never changes this script's
 # RESULT); standalone syn/yosys/check_tap_purity.sh is the exit-coded gate.
 "$R/syn/yosys/check_tap_purity.sh" || true
-[ $fail -eq 0 ]
+[ $tie_fail -eq 0 ] || echo "RESULT: FAIL (tied-input gate)"
+[ $fail -eq 0 ] && [ $tie_fail -eq 0 ]

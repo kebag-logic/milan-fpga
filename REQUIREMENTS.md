@@ -246,7 +246,21 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
 * **REQ-MAC-04 (MUST)** MAC statistics (`ethernet_events`: tx/rx good/bad frame,
   FCS error, FIFO over/underflow) MUST be **readable via CSR** with a coherent
   **snapshot latch** and a `stats_reset` bit. *(802.3 Clause 30 / RMON;
-  `ethtool -S`)* — replaces the ILA/VIO-only `mark_debug` regs.
+  `ethtool -S`)* — replaces the ILA/VIO-only `mark_debug` regs. — *Satisfied
+  2026-07-26, VERSION `0x0013`.* Readable-via-CSR was true from the start and
+  was **not enough**: the counters were wired, latched, documented and unit
+  tested while the event bus into them was tied to `0` in SoC glue, so both
+  boards read the whole group as zero for months. So the requirement now also
+  demands, and the build now provides:
+  1. every lane a soft MAC can honestly source MUST be sourced — good frames
+     from the MAC AXIS boundary, FCS and preamble/alignment errors and the
+     per-frame bad-frame flag from the MAC itself (`KL_mac_rmon_events`);
+  2. a lane with **no** source MUST be distinguishable from a lane with nothing
+     to report, through the `STATS_CAP` capability mask (`0x204`) — a zero
+     count alone is not an acceptable answer to "is this feature present?";
+  3. a never-overridden constant tie on the datapath boundary MUST fail a gate
+     (`scripts/check_tied_inputs.sh`) unless it carries a justified-tie entry
+     naming the reason and where the reason is recorded.
 * **REQ-MAC-05 (SHOULD)** MAC error/link events (RX overrun, TX underrun,
   bad-FCS, link change) SHOULD raise a **PS interrupt** (via REQ-CSR-04).
 * **REQ-MAC-06 (SHOULD)** Provide a **software-controllable PHY reset** GPIO

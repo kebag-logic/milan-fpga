@@ -22,6 +22,7 @@
 # (M-A2), evidence in sw/litex/evidence/naxriscv_reads_MILN.log.
 
 import os
+import re
 import sys
 import json
 import argparse
@@ -438,8 +439,37 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
+    # RMON pulse synthesiser at the SoC's MAC boundary (MilanMAC instantiates it;
+    # listed here because add_milan_datapath is the one place RTL sources are
+    # registered, and the STAT window is meaningless without it)
+    "hdl/common/eth_event_counter/KL_mac_rmon_events.sv",
     "hdl/common/csr/milan_csr.sv", "hdl/milan/milan_datapath.sv",
 ]
+
+
+def _eth_event_lanes():
+    """Number of RMON lanes, READ OUT OF `ethernet_events.svh` instead of being
+    duplicated here as a `9`.
+
+    This is the lane's own lesson applied to itself. A hardcoded width would be
+    the LiteX silent-no-op class one level up: add a lane to the enum and the
+    migen `Signal` stays 9 bits, so the tenth lane's pulse and its capability
+    bit are dropped on the floor with nothing failing anywhere - the same shape
+    as the tie that killed RMON in the first place. Parsing the single source of
+    truth costs three lines and cannot drift."""
+    svh = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "hdl", "common", "eth_event_counter",
+        "ethernet_events.svh")
+    with open(svh) as f:
+        body = f.read()
+    m = re.search(r"typedef\s+enum\s+int\s*\{(.*?)\}", body, re.S)
+    assert m, f"{svh}: ethernet_events_t enum not found"
+    names = [n.split("=")[0].strip()
+             for n in re.sub(r"//.*", "", m.group(1)).split(",")]
+    names = [n for n in names if n]
+    assert names[-1] == "_ETH_EVENT_COUNTER", \
+        f"{svh}: enum must end with the _ETH_EVENT_COUNTER terminator"
+    return len(names) - 1          # the terminator is the count, not a lane
 
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
@@ -494,11 +524,15 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_m_axis_mac_tx_tready = 0,
         i_s_axis_mac_rx_tdata = 0, i_s_axis_mac_rx_tkeep = 0,
         i_s_axis_mac_rx_tvalid = 0, i_s_axis_mac_rx_tlast = 0,
-        # MAC status (from the external MAC; constants until §A.7). i_mac_events
-        # carries only the MAC-internal RMON lanes (underflow/overflow/bad); the
-        # good-frame lanes are derived inside milan_datapath at its MAC AXIS
-        # boundary, so tying this 0 no longer zeroes TX/RX_FIFO_GOOD_FRAME.
+        # MAC status (from the external MAC; constants until §A.7). RMON: this is
+        # the NO-MAC-ATTACHED stub (CSR-only / sim elaboration), so there is no
+        # boundary to derive events from - and that is now SAID rather than
+        # implied: the zeroed capability mask below publishes "every lane
+        # structurally silent" at CSR 0x204, except the two good-frame lanes
+        # milan_datapath derives itself and forces supported. MilanMAC overrides
+        # BOTH ties with the live KL_mac_rmon_events vector + mask.
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+        i_i_mac_events_cap = 0,
         # no PHY in the stub: static toggles keep the link guard unarmed/inert
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
         # TDM bus (item-4 front-end family): only sampled when
@@ -895,6 +929,72 @@ class MilanMAC(LiteXModule):
             MultiReg(self.link_status.fields.full_duplex, full_duplex_cd, odomain=milan_cd),
         ]
 
+        # ---- RMON event pulses (STAT window 0x210..0x230 / STATS_CAP 0x204) -------
+        # THE FIX for "RMON reads zero on both boards" (root-caused 2026-07-22,
+        # re-confirmed on silicon 2026-07-26): `ethernet_events` + `event_counter`
+        # were unit-tested, wired into milan_csr and documented in REGISTER_MAP,
+        # and every lane still read 0 forever, because this glue tied
+        # `i_mac_events` to the literal 0. LiteEth genuinely exposes no
+        # Forencich-style event pulses - but it is NOT silent either, and nothing
+        # existed to turn what it DOES expose into pulses. `KL_mac_rmon_events`
+        # (hdl/common/eth_event_counter) is that block, deliberately RTL rather
+        # than more migen glue: glue is what tied the port off, and glue has no
+        # testbench. It derives, at this MAC boundary:
+        #   * TX/RX good frames  <- the frame AXIS handshakes (accepted tlast)
+        #   * RX_FIFO_BAD_FRAME  <- LiteEth's per-frame `error` field, which the
+        #                           CRC32 checker sets on FCS failure and the
+        #                           padding checker sets on an undersize runt.
+        #                           NOTE this is a real finding of its own: the
+        #                           datapath consumes `core.source` WITHOUT that
+        #                           flag, so bad frames were being handed to the
+        #                           classifier as if good; they are now at least
+        #                           counted.
+        #   * RX_ERROR_BAD_FCS   <- LiteEth's `crc_errors` counter (CRC32Checker)
+        #   * RX_ERROR_BAD_FRAME <- LiteEth's `preamble_errors` counter
+        # TX_ERROR_UNDERFLOW / TX_FIFO_OVERFLOW / TX_FIFO_BAD_FRAME /
+        # RX_FIFO_OVERFLOW have NO source at this boundary and are NOT faked from
+        # AXIS backpressure - they stay 0 and say so through `cap_o` (0x204), so
+        # software can tell "structurally silent" from "nothing went wrong".
+        # The counters live in `milan_cd`; the MAC boundary is `macsys`, so the
+        # module owns the crossing (one cdc_pulse per lane, per-frame rates).
+        n_lane         = _eth_event_lanes()
+        mac_events     = Signal(n_lane, name="mac_rmon_events")
+        mac_events_cap = Signal(n_lane, name="mac_rmon_cap")
+        rx_bad_frame   = Signal(name="mac_rmon_rx_err")
+        self.comb += rx_bad_frame.eq(self.core.source.error != 0)
+        # `rx_datapath` only owns these two counters when the core was built with
+        # preamble/CRC checking; parameterise the module off the same fact so the
+        # capability mask can never over-claim (getattr, not a bare attribute:
+        # a with_preamble_crc=False core has no such CSRs at all).
+        rx_dp_stage  = self.core.rx_datapath
+        fcs_cnt      = getattr(rx_dp_stage, "crc_errors",      None)
+        align_cnt    = getattr(rx_dp_stage, "preamble_errors", None)
+        self.specials += Instance("KL_mac_rmon_events",
+            p_HAS_FCS_CHECK_P   = 1 if fcs_cnt   is not None else 0,
+            p_HAS_ALIGN_CHECK_P = 1 if align_cnt is not None else 0,
+            # the per-frame `error` field only ever gets set by the checker
+            # stages; no checkers, no flag - so gate the claim on the same fact
+            # rather than asserting it. Under-claiming is the safe direction:
+            # an unclaimed lane reads as "not supported", never as "all clean".
+            p_HAS_RX_ERR_FLAG_P = 1 if fcs_cnt is not None else 0,
+            i_mac_clk_i       = ClockSignal("macsys"),
+            i_mac_rst_n       = ~ResetSignal("macsys"),
+            i_attached_i      = 1,        # a real MAC drives this boundary
+            i_mac_tx_tvalid_i = self.core.sink.valid,
+            i_mac_tx_tready_i = self.core.sink.ready,
+            i_mac_tx_tlast_i  = self.core.sink.last,
+            i_mac_rx_tvalid_i = self.core.source.valid,
+            i_mac_rx_tready_i = self.core.source.ready,
+            i_mac_rx_tlast_i  = self.core.source.last,
+            i_mac_rx_err_i    = rx_bad_frame,
+            i_fcs_err_cnt_i   = fcs_cnt.status   if fcs_cnt   is not None else 0,
+            i_align_err_cnt_i = align_cnt.status if align_cnt is not None else 0,
+            i_dp_clk_i        = ClockSignal(milan_cd),
+            i_dp_rst_n        = ~ResetSignal(milan_cd),
+            o_events_o        = mac_events,
+            o_cap_o           = mac_events_cap,
+        )
+
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
             o_o_eth_rst         = self.eth_rst,
@@ -907,15 +1007,14 @@ class MilanMAC(LiteXModule):
             # MAC status: from the `link_status` CSR above (software-published MDIO
             # autoneg result), NOT constants - see the block comment there for why a
             # CSR is the only honest source on a LiteEth GMII/MII PHY.
-            # RMON: LiteEth exposes no Forencich-style event pulses, so i_mac_events
-            # stays 0 - but STAT_TX/RX_FIFO_GOOD_FRAME (0x21C/0x230) now count anyway:
-            # milan_datapath derives those two lanes from its own MAC AXIS boundary
-            # handshake (2026-07-22 fix; this tie-0 was why RMON never worked on
-            # silicon - every lane was hardwired silent). The MAC-internal error/
-            # overflow lanes legitimately read 0 on LiteEth builds.
+            # RMON: real pulses from KL_mac_rmon_events above (this line was
+            # `i_i_mac_events = 0` until 2026-07-26 - the tie that made a
+            # fully-tested counter block dead in silicon). `cap` tells software
+            # which of the nine lanes those pulses actually cover.
             i_i_mac_speed = self.link_status.fields.speed,
             i_i_link_up = link_up_cd, i_i_full_duplex = full_duplex_cd,
-            i_i_mac_events = 0,
+            i_i_mac_events = mac_events,
+            i_i_mac_events_cap = mac_events_cap,
             i_i_ethrx_tgl = self.ethrx_tgl, i_i_ethtx_tgl = self.ethtx_tgl,
             i_i_ethact_tgl = self.ethact_tgl,
         )

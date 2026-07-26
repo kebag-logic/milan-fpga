@@ -64,7 +64,11 @@ is the meaningful result: the packetizer, the wire format and the presentation
 timestamps are right. The only defects are sequence gaps, at 7 × 10⁻⁸ (AX) and
 2.6 × 10⁻⁵ (Arty ≈ 0.18/s). Note SEQ_NUM_MISMATCH is a 16-bit field and the
 Arty's count is approaching its ceiling — treat it as a floor, not an exact
-count, on a long-lived board.
+count, on a long-lived board. On the flashed gateware that "floor" was wishful:
+the field **truncated**, so past 65,535 it would have counted up from zero again
+and a worsening link would have read as a healing one. From VERSION `0x0013` it
+**saturates** (all-ones = "at least this many") and the honest full-width value
+lives at `A_STRMW_CNT` `0x83C`.
 
 ### Live audio capture works
 
@@ -83,12 +87,70 @@ command is:
 arecord -D hw:0,0 -t raw -f S32_BE -c 2 -r 48000 -d 3 /tmp/cap.raw
 ```
 
+## The frame-rate arithmetic does not close — and the RTL says why not
+
+The tick test also recorded, over a nominal 10 s window:
+
+| direction | receiver `AVTPRX_FRX` | peer talker `AAF_FRAMES` |
+|---|---|---|
+| Arty → AX | AX **9,930/s** | Arty **10,102/s** |
+| AX → Arty | Arty **11,162/s** | AX **9,892/s** |
+
+Two things are wrong with that table. One class-A AAF stream at 48 kHz with
+6 samples per frame is **8,000 frames/s**, and every figure is 1.24-1.40× that;
+and the Arty claims to *receive* 13 % more frames than the AX claims to *send*.
+
+**Read out of the RTL, both counters are frame-exact and neither can inflate.**
+`AVTPRX_FRX` (`0x6BC`) increments once per `tlast`-delimited AVTP stream-subtype
+frame whose 64-bit `stream_id` matched an enabled stream-table entry *and* whose
+AAF header matched the bound format — the parser latches `parsed` on the header
+beat and clears it only at `tlast`, the match loop yields exactly one index, and
+the monitor's event queue drops rather than duplicates when it is full. It is
+also **context 0 only** (a write-through mirror of stream 0's context words), so
+a wider build cannot sum extra streams into it. `AAF_FRAMES` (`0x660`) likewise
+increments once per PDU whose last beat was *accepted* by the TX AXIS, for
+talker 0 only. Every error path in both counters can lose events; none can
+manufacture them. So `FRX ≤ AAF_FRAMES` must hold on a lossless link, and the
+observed inversion cannot come from the fabric.
+
+The rate is pinned too. The packetizer emits strictly per 6 captured pairs (no
+timer, no fill threshold), and pairs arrive at the I2S capture rate
+`clk_audio / 512`, where `clk_audio` is an **integer-only** two-stage plan
+(100 MHz → 31.081081 MHz → 24.575739 MHz) on both boards. That is
+`fs = 47,999.49 Hz` ⇒ **7,999.91 frames/s**, and the only actuator on it is the
+media-clock servo's fine phase shift, whose ceiling is 260 ppm (≈ ±2 frames/s).
+No configuration in this tree's history produces 9,892 or 10,102 frames/s — and
+note the old 48,828.125 Hz "pumping" divider is not in this path at all.
+
+**What is left is the denominator.** Each of the four readings is a *different*
+factor (1.237, 1.241, 1.263, 1.395); a clock error would be one shared factor
+per board, and the ratio of the two inflation factors, 1.395/1.237 = **1.128**,
+is exactly the "13 %" — i.e. the asymmetry is the difference between the two
+boards' sampling overheads, not a frame-count difference. A per-reading scatter
+of ±6 % on a counter that is frame-exact by construction is the signature of a
+sampling interval that is not the 10 s it is divided by (the read pair costs a
+login round-trip per board, taken outside the timed window). The same skew is
+already recorded elsewhere in this tree: an earlier session logged 12.5 k/s,
+16.6 k/s and 9.6 k/s for the same steady stream, and its "sustained 5 s" sample
+is 47,973 frames = **exactly 6.00 s** of 8,000/s traffic.
+
+**This is a diagnosis, not a proof** — the RTL cannot tell us what wall-clock
+interval a host script used. The measurement that would close it uses the
+board's own clock as the denominator: read `PTP_TOD_RD_LO/HI` (`0x530`/`0x534`)
+in the *same* batch as `0x660`/`0x6BC`, twice, and divide Δcount by Δ(PHC ns).
+Two cross-checks come free: `AAF_PAIRS` (`0x664`) ÷ `AAF_FRAMES` must be exactly
+6.000, and on a reflashed board `APRB_PARSED`/`APRB_MATCHED` (`0x8B4`/`0x8B8`)
+localise any real inflation to the wire rather than the counter.
+
 ## Confirmed-still-broken (already known, now observed live)
 
-* **RMON counters are dead on both boards.** The `0x200` group reads zero and
-  does not tick. This is the 2026-07-22 root cause — `i_mac_events` tied to `0`
-  in SoC glue — and it is the same structurally-silent-port class as the
-  tie-offs closed this round. Not yet fixed on any flashed build.
+* ~~**RMON counters are dead on both boards.**~~ The `0x200` group reads zero
+  and does not tick. This was the 2026-07-22 root cause — `i_mac_events` tied to
+  `0` in SoC glue — **fixed in RTL 2026-07-26** (VERSION `0x0013`): the tie is
+  gone, `KL_mac_rmon_events` derives the pulses at the MAC boundary, and the
+  lanes that genuinely have no source now say so in `STATS_CAP` (`0x204`)
+  instead of reading as a clean zero. Still pending a flash, like everything
+  else below.
 * **The Arty's netdev reports `speed = -1`** while its own `MAC_STATUS` reads
   100 Mb/s correctly (`[2:1] = 01`). That is exactly the `REQ-MAC-03` gap: the
   CSR now derives `is_1g` from the real speed, but `sw/litex` still ties the
