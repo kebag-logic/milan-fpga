@@ -24,8 +24,9 @@ board**, and nothing below claims otherwise.
 | Torn-record rejection (never half-applied) | **RTL, Verilator-proven** | `tb/verilator/persist` `[J1]`/`[J2]`/`[J7]` |
 | Restored sink reaches a bound listener | **RTL, Verilator-proven** | `tb/verilator/persist` `[J4]` |
 | CSR ingest group `0x7B8-0x7C4` | **specified, NOT in `milan_csr` yet** | executable spec in `tb/verilator/persist/persist_wrap.sv` |
-| QSPI repartition (§5) | **designed only** | needs a build + a flash |
-| mtd / `/user` overlay, kernel side (§10) | **designed only** | no `mtd`/`spi-nor` node exists in [`sw/dts`](../../sw/dts) today |
+| QSPI repartition (§5) | **in `FLASHBOOT_LAYOUT`, host-gated** | `sw/trace/test_trace_roundtrip.py` gate 1 (alignment, no overlap, fits) — still needs a build + a flash |
+| mtd partition node (§10 item 1) | **generated + `dtc`-checked** | `sw/dts/gen_mtd_partitions.py --check --dtc`, same gate 1 |
+| mtd driver actually binding, `/user` mounted (§10 items 2-3) | **designed only** | no board has been booted with an mtd node; §11 gate G1 |
 | `journald` writer daemon (§9) | **designed only** | lives in the private test repo |
 | Reboot drill (§11) | **designed only** | needs a board |
 
@@ -173,7 +174,10 @@ fully allocated:
 | `0x76_0000` | 128 KiB | dtb |
 | `0x78_0000` | 8.5 MiB | rootfs — **measured 5.6 MiB, ~2.9 MiB slack** |
 
-The persistence slots come out of that rootfs slack:
+The persistence slots come out of that rootfs slack. **This is now what
+`FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) actually say** (landed
+2026-07-26 with the fault-logging work, which needs the same `/user`):
 
 | Offset | Size | Slot |
 |---|---|---|
@@ -189,8 +193,11 @@ Two separate partitions, deliberately:
   also readable the moment the mtd driver probes — before any mount, before
   udev, before the audio stack — which is where a fast-connect wants to happen.
 * **`/user` is a filesystem** (`jffs2` first) for everything that genuinely
-  wants files: entity/group names, channel maps, mixer state. Its durability
-  story is the filesystem's, and nothing safety-relevant depends on it.
+  wants files: entity/group names, channel maps, mixer state, and `/user/log` —
+  the rotating compressed CTF fault log ([`TRACE_LOGGING.md`](TRACE_LOGGING.md)),
+  which takes 1.5 MiB of the 2 and carries its own flash-wear budget. Its
+  durability story is the filesystem's, and nothing safety-relevant depends on
+  it.
 
 **Board applicability.** The AX7101 rootfs has the slack. The Arty rootfs slot
 does **not** (~15 KB headroom per [`TODO.md`](../../TODO.md) Phase 10), so the
@@ -396,24 +403,27 @@ row of [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md):
 
 ---
 
-## 10. Kernel / boot-side work (designed only)
+## 10. Kernel / boot-side work
 
-None of this exists yet — there is no `mtd`, `spi-nor` or `jffs2` node anywhere
-in [`sw/dts`](../../sw/dts) today.
+> **Partly landed 2026-07-26.** Items 1 and the flash map itself now exist in
+> the tree and are gated; items 2-4 remain designed-only. The slot carving was
+> done by the fault-logging work, which needs the same `/user` partition —
+> [`TRACE_LOGGING.md`](TRACE_LOGGING.md) is the design record for what lives in
+> it. There is still **no `spi-nor`/`jffs2` binding proven on a board**.
 
-1. **mtd partitions in the DT**, derived from `FLASHBOOT_LAYOUT` (regenerate the
-   DTB from the build's `csr.csv` on any layout change — the CSR-rot rule):
-
-   ```dts
-   /* under the LiteSPI flash node */
-   partitions {
-       compatible = "fixed-partitions";
-       #address-cells = <1>;
-       #size-cells = <1>;
-       partition@de0000 { label = "journal"; reg = <0xde0000 0x020000>; };
-       partition@e00000 { label = "user";    reg = <0xe00000 0x200000>; };
-   };
-   ```
+1. **mtd partitions in the DT** — **DONE, generated, gated.** The slots are
+   declared in `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in
+   [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (with
+   `check_flash_map()` refusing an unaligned or overlapping map at build time),
+   and `sw/dts/gen_mtd_partitions.py` emits `sw/dts/mtd-partitions.dtsi` from
+   that single source. `--check` byte-compares the checked-in fragment against a
+   regeneration and `--dtc` runs `dtc` over it, both wired into
+   `sw/trace/test_trace_roundtrip.py` gate 1 — so the partition table can never
+   drift from the flash map the BIOS was built with. The fragment attaches to
+   the `&flash` label LiteX's `json2dts` already emits for LiteSPI
+   (`compatible = "jedec,spi-nor"`), which was read out of the LiteX source
+   rather than assumed. `rootfs` is now 6.375 MiB (was 8.5), which is §5's
+   repartition and gate G0 step 1.
 
 2. **A writable mtd path.** The shipping SoC gives LiteSPI a memory-mapped read
    window plus a master (`with_master=True`), but Linux has no mtd driver bound
@@ -429,12 +439,25 @@ in [`sw/dts`](../../sw/dts) today.
    That is the natural first milestone (§11 gate G2).
 
 3. **`/user` mount** before the Milan init scripts (`S50milan`/`S51`), `jffs2`
-   first.
+   first. Two tenants share it: this journal's operator-facing state, and
+   `/user/log` (1.5 MiB of the 2 MiB) for the rotating fault log —
+   [`TRACE_LOGGING.md`](TRACE_LOGGING.md) §5 owns that budget and the flash-wear
+   arithmetic behind it. Nothing in the fast-connect path depends on either.
 
 4. **`build.sh flash` / `deploy.sh flash-images` must never erase the journal or
    user slots on a reflash.** A gateware or kernel update that silently wipes
    saved bindings is worse than no persistence at all — the entity would come
    back unbound *sometimes*, which is the hardest class of bug to chase.
+
+   **Still open, and now with a sharper edge:** `deploy.sh` derives each image's
+   ceiling from the *next image* offset in `flashboot_layout.json`, and the two
+   writable slots are exported under a separate `reserved` key it does not read.
+   So its printed `rootfs` budget is still `16 MiB − 0x78_0000` even though the
+   slot is now 6.375 MiB, and an oversized rootfs would be **accepted** and
+   would overwrite `journal` and `user`. Each image entry now carries its own
+   `budget` field; the fix is one line in `do_flash_images()` preferring it over
+   the next-offset computation. Until then, the size-vs-budget line `deploy.sh`
+   prints before writing is a manual check, not an automatic one.
 
 ---
 
