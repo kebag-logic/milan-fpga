@@ -74,7 +74,7 @@ The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x100` | `MAC_CTRL` | RW | `0x13` | `[0]` tx_en, `[1]` rx_en, `[2]` promisc, `[3]` allmulti, `[4]` is_1g |
+| `0x100` | `MAC_CTRL` | RW | `0x13` | `[0]` tx_en, `[1]` rx_en, `[2]` promisc, `[3]` allmulti, `[4]` is_1g (only consulted when `[5]` is set), `[5]` speed_manual (0 = derive the link rate from `MAC_STATUS` speed, 1 = use `[4]` verbatim  -  REQ-MAC-03, reset 0) |
 | `0x104` | `MAC_IFG` | RW | `0x0C` | `[7:0]` inter-frame gap (bytes), default 12 |
 | `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words) |
 | `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]` |
@@ -84,6 +84,15 @@ The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 | `0x11C` | `PHY_RESET` | RW | `0x1` | `[0]` phy_reset_n (0 = hold PHY in reset) |
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
+
+**Link rate (REQ-MAC-03).** The effective `is_1g` follows the MAC's reported
+speed (`MAC_STATUS[2:1] == 2`) unless `MAC_CTRL[5]` is set. `MAC_CTRL[4]`'s
+reset value is 1, so before 2026-07-26 a 100 Mb/s port reported gigabit to every
+`is_1g` consumer until software wrote the register  -  and `is_1g` sets the lwSRP
+bandwidth-gate admission limit (750 vs 75 Mb/s) and the CBS sendSlope
+denominator, so a 100 Mb/s port admitted reservations against a 10x-too-large
+budget. `MAC_CTRL[5]` exists to pin the rate by hand when the MAC's speed report
+cannot be trusted.
 
 **RX address filter (REQ-MAC-02).** `promisc`/`allmulti`/`MAC_ADDR_*`/`MC_HASH_*`
 are consumed by `rx_mac_filter` in the RX AXIS path, but only once

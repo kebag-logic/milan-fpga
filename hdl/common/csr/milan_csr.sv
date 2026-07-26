@@ -86,7 +86,7 @@ module milan_csr #(
   output wire                    o_mac_rx_en,    //! MAC receive enable (MAC_CTRL[1])
   output wire                    o_mac_promisc,  //! Promiscuous mode: accept all frames (MAC_CTRL[2])
   output wire                    o_mac_allmulti, //! Accept all multicast (MAC_CTRL[3])
-  output wire                    o_mac_is_1g,    //! Link-rate select: 1 = 1 Gb/s, 0 = 100 Mb/s (MAC_CTRL[4])
+  output wire                    o_mac_is_1g,    //! Link-rate select: 1 = 1 Gb/s, 0 = 100 Mb/s (from i_speed unless MAC_CTRL[5])
   output wire [7:0]              o_mac_ifg,      //! Inter-frame gap, bytes (MAC_IFG)
   output wire [47:0]             o_mac_addr,     //! Station MAC address {MAC_ADDR_HI[15:0], MAC_ADDR_LO}
   output wire [63:0]             o_mc_hash,      //! Multicast hash filter {MC_HASH_HI, MC_HASH_LO}
@@ -612,7 +612,7 @@ module milan_csr #(
   logic [31:0] scratch;                  //! SCRATCH: R/W bus-liveness test register
   logic [31:0] irq_mask;                 //! IRQ_MASK: 1 = interrupt source enabled
   logic [31:0] irq_status;               //! IRQ_STATUS: W1C latched event bits
-  logic [31:0] mac_ctrl;                 //! MAC_CTRL: tx/rx enable, promisc, allmulti, is_1g
+  logic [31:0] mac_ctrl;                 //! MAC_CTRL: tx/rx enable, promisc, allmulti, is_1g, speed_manual
   logic [31:0] mac_ifg;                  //! MAC_IFG: inter-frame gap (bytes)
   logic [31:0] mac_alo;                  //! MAC_ADDR_LO: station MAC [31:0]
   logic [31:0] mac_ahi;                  //! MAC_ADDR_HI: station MAC [47:32]
@@ -1507,7 +1507,19 @@ module milan_csr #(
   assign o_mac_rx_en    = mac_ctrl[1];
   assign o_mac_promisc  = mac_ctrl[2];
   assign o_mac_allmulti = mac_ctrl[3];
-  assign o_mac_is_1g    = mac_ctrl[4];
+  //! REQ-MAC-03: the link rate now FOLLOWS the MAC's reported speed by default.
+  //! It used to be MAC_CTRL[4] alone, whose reset is 1 - so on a 100 Mb/s port
+  //! (the Arty MII DP83848, i_speed = 01) every is_1g consumer believed it was
+  //! on a gigabit link until software wrote the register. That is not cosmetic:
+  //! `is_1g` sets the lwSRP bandwidth gate's admission limit (750 Mb/s vs
+  //! 75 Mb/s) and the CBS sendSlope denominator, so a 100 Mb/s port was
+  //! admitting reservations against a 10x-too-large budget and computing
+  //! sendSlope against the wrong line rate. MAC_CTRL[5] = speed_manual keeps
+  //! the old behaviour available (1 = use MAC_CTRL[4] verbatim); reset 0 =
+  //! follow the PHY/MAC. i_speed is already the CDC-synced value that
+  //! MAC_STATUS reports, so the register and the datapath can no longer
+  //! disagree about the link rate.
+  assign o_mac_is_1g    = mac_ctrl[5] ? mac_ctrl[4] : (i_speed == 2'd2);
   assign o_mac_ifg      = mac_ifg[7:0];
   assign o_mac_addr     = {mac_ahi[15:0], mac_alo};
   assign o_mc_hash      = {mc_hi, mc_lo};

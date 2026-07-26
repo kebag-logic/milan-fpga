@@ -116,10 +116,12 @@ module credit_based_shaper #(
   //    cnt 51..98   48 divide iterations -> send_slope_per_byte quotient
   //    cnt 99       commit BOTH results atomically, wrap to cnt 0
   //
-  //  Steady-state results are bit-identical to the SystemVerilog '/' operator
-  //  (signed division truncating toward zero, including the 48-bit <<< wrap on
-  //  out-of-range configs): the divider runs magnitude / positive-divisor and
-  //  reapplies the dividend sign. Note (a/b)/c == a/(b*c) exactly for trunc
+  //  Steady-state results are the exact rational quotients ROUNDED TO NEAREST,
+  //  ties away from zero (REQ-CBS-06) - NOT the SystemVerilog '/' operator,
+  //  which truncates toward zero and therefore biased sendSlope toward
+  //  under-debiting. The 48-bit <<< wrap on out-of-range configs is unchanged.
+  //  The divider runs magnitude / positive-divisor and reapplies the dividend
+  //  sign, so the rounding is applied to the magnitude. Note (a/b)/c == a/(b*c) exactly for trunc
   //  division with positive divisors, so the two chained constant divides of
   //  the old RTL collapse into the single CLK_FREQ_HZ*BYTE_TO_BIT divisor.
   //  A config write takes effect at the next commit, at most 2 passes = 200
@@ -144,9 +146,6 @@ module credit_based_shaper #(
   logic [47:0]        eng_quo;    //! quotient shift register
   logic signed [47:0] eng_q1;     //! stashed signed quotient of divide 1
   logic [30:0]        eng_den;    //! active divisor
-
-  //! registered allow_transmit signal
-  logic allow_transmit_reg;
 
   //! stage-1 pipeline registers (registered for timing; see stage1_pipe)
   logic signed [47:0] send_delta;
@@ -177,7 +176,23 @@ module credit_based_shaper #(
   wire        [31:0] eng_trial  = {eng_rem, eng_num[47]};
   wire               eng_ge     = (eng_trial >= {1'b0, eng_den});
   wire        [31:0] eng_diff   = eng_trial - {1'b0, eng_den};
-  wire signed [47:0] eng_quo_s  = eng_sign ? -$signed(eng_quo) : $signed(eng_quo);
+  //! REQ-CBS-06: ROUND-TO-NEAREST instead of truncating toward zero. The
+  //! restoring divider leaves `eng_rem` = the true remainder and `eng_den` =
+  //! the divisor of the divide that just finished, so `2*rem >= den` is exactly
+  //! "the discarded fraction is >= 1/2". Rounding the MAGNITUDE and then
+  //! reapplying the sign gives round-half-away-from-zero, which is unbiased -
+  //! truncation was not: it always shrank |quotient|, so idleSlope accrued
+  //! slightly SLOW (harmless, conservative) while sendSlope - a NEGATIVE term -
+  //! debited slightly LESS than it should (not conservative: the queue keeps
+  //! credit it has spent). With idleSlope runtime-programmable the residual is
+  //! no longer a compile-time-known constant, which is why REQ-CBS-06 waited
+  //! for REQ-CBS-01. Cost: one 32-bit compare and a 48-bit +1, both outside
+  //! the 96 iteration cycles. Overflow-safe: a +1 could only carry out of 48
+  //! bits if the quotient were all ones, which needs den == 1 - and den == 1
+  //! leaves remainder 0, so the round bit is 0.
+  wire               eng_round  = ({eng_rem, 1'b0} >= {1'b0, eng_den});
+  wire        [47:0] eng_quo_r  = eng_quo + {47'd0, eng_round};
+  wire signed [47:0] eng_quo_s  = eng_sign ? -$signed(eng_quo_r) : $signed(eng_quo_r);
 
   //! Slope engine sequencer (see the cadence table above). The iterate arm is
   //! the catch-all: every cnt value that is not sample/load/commit is one of
@@ -219,17 +234,27 @@ module credit_based_shaper #(
     end
   end
 
-  //! Allow transmit if shaping is disabled (strict priority) or credit >= 0
-  assign allow_transmit_o = shaped ? allow_transmit_reg : 1'b1;
-
-  //! allow_transmit registered
-  always_ff @(posedge clk) begin : allow_transmit
-    if(!resetn)begin
-      allow_transmit_reg <= '0;
-    end else begin
-      allow_transmit_reg <= (credit >= 0);
-    end
-  end
+  //! Allow transmit if shaping is disabled (strict priority) or credit >= 0.
+  //!
+  //! REQ-CBS-05: this was a REGISTERED copy of (credit >= 0), so the arbiter's
+  //! 802.1Qav transmissionAllowed test ran against the credit of the PREVIOUS
+  //! cycle and could start a frame on a queue whose credit had already gone
+  //! negative. Reading the sign bit of the credit register directly removes
+  //! that cycle at ZERO cost in logic depth: the output was already
+  //! reg -> 2:1 mux -> arbitration (`shaped` is itself a stage-1 register), and
+  //! it still is - one register bit simply swaps for another.
+  //!
+  //! The REMAINING skew is the credit datapath's input pipeline, deliberately
+  //! kept: `traffic_shaping_core` registers is_transmitting/bytes_sent off the
+  //! AXIS handshake and stage1 here registers send_delta, so a transmitted beat
+  //! reaches `credit` 2 cycles later. Collapsing that would move the
+  //! send_slope x bytes_sent multiply into the tkeep/$countones cone, and this
+  //! design places at 99.93 percent slice packing with WNS margins in the tens
+  //! of picoseconds - not a change to make without a Vivado run. The residual
+  //! is a fixed 2-cycle phase shift of an INTEGRAL, not an accumulating error
+  //! (every beat is still debited exactly once), and tb/verilator/cbs pins the
+  //! lag at exactly 2 so a future collapse has a number to beat.
+  assign allow_transmit_o = shaped ? (credit >= 0) : 1'b1;
 
   //! Register every input for better timing (stage 1 of the credit pipeline).
   //! send_delta / credit_add_idle derive from the engine-registered slope
