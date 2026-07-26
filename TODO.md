@@ -163,12 +163,66 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   `ethernet_packet_pkg.sv` idleSlope defaults; driver rejects over-subscription.
 - [x] **M — Accrue credit during grant-with-backpressure** `(REQ-CBS-04)` — replace
   the "hold" branch (`credit_based_shaper.sv:133-135`) with idle accrual.
-- [ ] **M — Remove credit/transmit pipeline skew** `(REQ-CBS-05)` — collapse double
-  registration; non-stale `allow_transmit` to arbitration.
-- [ ] **M — Round slope fixed-point / widen fraction** `(REQ-CBS-06)` — matters once
-  idleSlope is runtime; harness measures the residual error.
-- [ ] **M — Pace egress to line rate** `(REQ-CBS-07)` — ensure `bytes_sent`/
-  `is_transmitting` reflect real occupancy; assert/doc upstream pacing.
+- [~] **M — Remove credit/transmit pipeline skew** `(REQ-CBS-05)` — **non-stale
+  `allow_transmit` DONE**, double registration deliberately kept (reason below).
+  `allow_transmit_o` was a registered copy of `(credit >= 0)`, so the arbiter's
+  802.1Qav `transmissionAllowed` test ran against the previous cycle's credit
+  and could start a frame on a queue that had already gone negative. It now
+  reads the credit register's sign directly — **zero added logic depth**, since
+  the output was already `reg → 2:1 mux → arbitration` (`shaped` is itself a
+  stage-1 register) and still is. TB: `cbs` drives two directed properties off
+  the DUT (not via the model, so a model+RTL change cannot hide it) —
+  `allow_transmit_o == (credit >= 0)` every cycle while shaped, and a 0-cycle
+  deassert lag; restoring the flop reports `lag 1 cycle(s), 1 P1 misses`.
+  - **Left open: collapsing the input pipeline.** `traffic_shaping_core`
+    registers `is_transmitting`/`bytes_sent` off the AXIS handshake and stage 1
+    registers `send_delta`, so a beat reaches `credit` 2 cycles later (now
+    pinned by a directed check so it cannot drift). Removing a stage moves the
+    `send_slope × bytes_sent` multiply into the `tkeep`/`$countones` cone on a
+    design that places at 99.93 % slice packing with WNS margins in the tens of
+    picoseconds — not a blind change, and no Vivado in this lane. The clean
+    path for whoever has a build: `bytes_sent ∈ [0, BEAT_BYTES]`, so precompute
+    `send_slope × k` for `k = 0..8` in the slope engine and select instead of
+    multiplying; that removes the multiply and lets the two stages collapse to
+    one. The residual is a fixed phase shift of an integral, not an
+    accumulating error — every beat is still debited exactly once.
+- [x] **M — Round slope fixed-point / widen fraction** `(REQ-CBS-06)` — the
+  serial slope divider truncated toward zero, which is a *biased* error: the
+  positive idleSlope term accrued slow (harmless), but sendSlope is NEGATIVE,
+  so truncating its magnitude down debited a transmitting queue **less** than
+  802.1Qav requires — it kept credit it had spent. Both quotients now round to
+  nearest (ties away from zero) using the restoring divider's own remainder
+  (`2*rem >= den`), one compare + a 48-bit `+1` outside the 96 iteration
+  cycles. The fraction was NOT widened: Q16 with correct rounding is inside
+  half an LSB per cycle, which the harness now proves. **Harness measures the
+  residual** (the REQ asks for the number, and it is read off the DUT's own
+  credit register, not the model): over 20 000 free-accrual cycles —
+  idleSlope 490 Mb/s → drift 0.061 B (**4.98 ppm**), truncating RTL 0.244 B
+  (19.93 ppm); idleSlope 1 Mb/s worst case → 0.153 B (6060 ppm), where the
+  per-cycle increment is only 82/65536 B so half an LSB dominates. Truncation
+  blows the half-LSB/cycle bound at both points; rounding stays inside it.
+- [~] **M — Pace egress to line rate** `(REQ-CBS-07)` — **measured, documented,
+  not yet fixed.** `bytes_sent`/`is_transmitting` DO reflect real occupancy:
+  they come from accepted beats only, and `tb/verilator/shaper_core` proves it
+  by throttling the sink 8× and getting the same egress rate to **0.00 %**. The
+  per-byte sendSlope debit is therefore exact. The **accrual** is not: the
+  shaper hands 8 B/cycle to a MAC FIFO, so at 100 MHz a beat leaves in 10 ns
+  while 8 B on a 1 Gb/s wire occupy 64 ns, and the queue accrues idleSlope
+  through the ~5.4 cycles the wire is still busy. Steady state
+  `r = (S/8) / [S/(64·CLK) + (link−S)/link]` vs the standard's `S/8` —
+  **measured over-delivery 9.6 % at idleSlope 100 Mb/s and 20.5 % at
+  200 Mb/s**, growing with idleSlope and with the CLK-to-link compression
+  ratio. The harness now asserts that accounting model (±1.5 %), so any change
+  to the credit arithmetic fails there.
+  - Live only when per-queue CBS is enabled — the shipping config disables it
+    (AAF rides the reservation bandwidth gate).
+  - Fix options, neither blind-safe without a bench/Vivado run: (a) pace the
+    sink to line rate, which a store-and-forward MAC FIFO will not do; or
+    (b) make the accrual wall-clock-honest — after `B` bytes suppress accrual
+    for `B·8·CLK/link` cycles via a fractional wire-time-debt accumulator.
+    That is sink-independent and is the natural home for
+    `credit_based_shaper`'s currently **dead** `is_granted_i` port
+    (registered into stage 1 and then never read by the credit update).
 - [x] **H — Multi-queue arbitration harness** `(REQ-VER-02)` — approach already
   proven (flat wrapper + XMR into `gen_cbs[*].u_cbs.credit` lints clean).
 
@@ -223,8 +277,26 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   unicast dropped, allmulti, a two-bucket hash sweep against an independent
   reference fold, TCAM-beats-filter both ways, promisc-beats-everything, runt
   still swallowed).
-- [ ] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — use MAC `speed[]`;
-  drive `is_1g`; expose link-status bit + IRQ.
+- [~] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — **`is_1g` now
+  follows MAC `speed[]` (fixes a live 10x mis-sizing); link status still
+  structurally constant.** `o_mac_is_1g` was `MAC_CTRL[4]` alone, reset 1, so a
+  100 Mb/s port (the Arty MII DP83848, `i_speed` = 01) told every consumer it
+  was on a gigabit link until software wrote the register. Not cosmetic:
+  `is_1g` sets the lwSRP bandwidth gate's admission limit (750 vs 75 Mb/s  -
+  and the AAF path rides that gate today) and the CBS sendSlope denominator.
+  It now derives from `i_speed`, with `MAC_CTRL[5]` (speed_manual, reset 0) to
+  pin it by hand. TB: `csr` (auto at 1000/100/10, MAC_STATUS agreement, both
+  manual-override directions, and a negative proving `MAC_CTRL[4]` is inert
+  while auto  -  the old expression fails 4 of them).
+  - **STILL OPEN, and not fixable in `hdl/`:** `sw/litex/milan_soc.py` ties
+    `i_i_link_up = 1` and `i_i_full_duplex = 1` at **both** datapath
+    instantiations, and `i_i_mac_speed` to a per-board constant
+    (`0b01` MII / `0b10` GMII) rather than the autoneg result. So
+    `MAC_STATUS[0]` can never report link-down and the speed is build-time, not
+    negotiated  -  the same structurally-silent-port class as the 2026-07-22
+    RMON `i_mac_events = 0` root cause. The link-change IRQ path itself exists.
+    Closing this needs the LiteEth PHY link/speed status wired into
+    `milan_datapath` in `milan_soc.py` (SoC glue, not this lane).
 - [x] **H — Stats readback + snapshot + reset** `(REQ-MAC-04)` — map
   `ethernet_events` counters into CSR; replace `// TODO Add VIO`.
 - [ ] **M — MAC/link/error IRQ** `(REQ-MAC-05)` · **M — PHY reset GPIO**

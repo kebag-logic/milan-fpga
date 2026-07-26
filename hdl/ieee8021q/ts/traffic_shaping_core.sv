@@ -101,6 +101,44 @@ module traffic_shaping_core #(
     );
   end
 
+  // --------------------------------------------------------------------------
+  //  REQ-CBS-07 - EGRESS PACING. `is_transmitting_raw`/`bytes_sent_raw` below
+  //  are derived from ACCEPTED beats only, so they are an honest measure of
+  //  this AXIS port's occupancy (tb/verilator/shaper_core proves it: throttling
+  //  the sink 8x moves the measured egress rate by 0.00 %). The per-BYTE
+  //  sendSlope debit is therefore exact.
+  //
+  //  What is NOT exact is the accrual, and this is a real, measured deviation
+  //  from 802.1Qav rather than a rounding artefact. The shaper hands 8 bytes
+  //  per cycle to a MAC FIFO: at 100 MHz a beat leaves in 10 ns while 8 bytes
+  //  on a 1 Gb/s wire occupy 64 ns. The queue accrues idleSlope during the
+  //  ~5.4 cycles per beat that the wire is still busy, so with accrual on every
+  //  non-transmitting cycle the steady state is
+  //
+  //      (CLK - r/8) * S/(8*CLK)  +  r * (S - link)/link  =  0
+  //   => r = (S/8) / [ S/(64*CLK) + (link - S)/link ]           bytes/s
+  //
+  //  against the standard's r = S/8. Measured on the harness at 100 MHz /
+  //  1 Gb/s: idleSlope 100 Mb/s over-delivers 9.6 %, 200 Mb/s over-delivers
+  //  20.5 % - the error grows with idleSlope and with the CLK-to-link
+  //  compression ratio.
+  //
+  //  UPSTREAM CONTRACT: the accounting is exact only if the egress is paced to
+  //  line rate, i.e. a transmitting queue holds the port for the frame's real
+  //  wire time. Our MAC TX FIFO absorbs frames faster than that, so the gap is
+  //  live whenever per-queue CBS is enabled (it is disabled in the shipping
+  //  config today - AAF rides the reservation bandwidth gate instead).
+  //
+  //  Two ways to close it, neither blind-safe without a bench run:
+  //    (a) pace the sink - only correct if the MAC really backpressures at line
+  //        rate, which a store-and-forward FIFO does not; or
+  //    (b) make the accrual wall-clock-honest: after B bytes, suppress accrual
+  //        for B*8*CLK/link cycles (a fractional "wire-time debt" accumulator).
+  //        Sink-independent, and the natural home for the currently DEAD
+  //        `is_granted_i` port of credit_based_shaper.
+  //  tb/verilator/shaper_core asserts the accounting model above, so any change
+  //  to the credit arithmetic shows up there immediately.
+  // --------------------------------------------------------------------------
   for (genvar i = 0; i < NUMBER_OF_QUEUES; i++) begin : gen_transmit_info
     //! Track transmission status and byte count
     always_comb begin : transmissionStatus

@@ -18,6 +18,7 @@
 #include "verilated.h"
 
 #include <cstdio>
+#include <cmath>
 #include <cstdint>
 #include <random>
 
@@ -122,6 +123,46 @@ struct Harness {
     int grant_index() { return penc(dut->grant_o); }
 };
 
+
+// ---------------------------------------------------------------------------
+//  REQ-CBS-07 helper: run a single shaped queue flat out for `cycles` and
+//  return the bytes actually ACCEPTED at the egress. `ready_period` paces the
+//  sink: 1 = accept every cycle (the datapath can drain 8 B/cycle = 6.4 Gb/s at
+//  100 MHz, far above any wire), 8 = one beat per 8 cycles (~0.8 Gb/s, about
+//  line rate). The long-run average must come out the same either way - the
+//  credit math is rate-correct because credit accrues per CYCLE and is debited
+//  per BYTE, so the fixed point is bytes/s == idleSlope/8 regardless of how
+//  bursty the drain is. If bytes_sent/is_transmitting counted anything other
+//  than accepted beats, the two regimes would disagree.
+// ---------------------------------------------------------------------------
+static long run_rate(Harness& h, uint32_t idle_slope, int ready_period,
+                     int cycles, int frame_beats, const char* tag) {
+    Cfg c;
+    c.idle[0] = idle_slope;
+    c.hi[0]   = 456; c.lo[0] = -1065;
+    c.shaped  = 0xF;
+    h.apply_cfg(c);
+    h.reset(4);
+    // let the slope engine commit (2 passes = 200 cycles) before measuring
+    for (int i = 0; i < 400; i++) h.cycle(0x1, false, false, true, tag);
+
+    long beats = 0;
+    int  beat_in_frame = 0;
+    for (int i = 0; i < cycles; i++) {
+        bool rdy   = (i % ready_period) == 0;
+        bool tlast = (beat_in_frame == frame_beats - 1);
+        // count the beat if it is actually accepted at the egress
+        h.dut->eval();
+        bool granted = (h.dut->grant_o != 0);
+        h.cycle(0x1, /*s_tvalid=*/true, tlast, rdy, tag);
+        if (granted && rdy) {
+            beats++;
+            beat_in_frame = tlast ? 0 : beat_in_frame + 1;
+        }
+    }
+    return beats * 8;   // 8 bytes per beat (tkeep = 0xFF)
+}
+
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     Vshaper_core_wrap* dut = new Vshaper_core_wrap;
@@ -223,6 +264,74 @@ int main(int argc, char** argv) {
         }
         printf("  [%s] randomized 60000 cycles: grant matches arbiter reference exactly\n",
                (h.fails == f0) ? "PASS" : "FAIL");
+    }
+
+    // ---- REQ-CBS-07: egress pacing / real occupancy, MEASURED ----
+    // 802.1Qav assumes a transmitting queue occupies the port for the frame's
+    // real wire time. Ours does not: the shaper hands 8 B per cycle to a MAC
+    // FIFO, so at 100 MHz a beat leaves in 10 ns while 8 B on a 1 Gb/s wire take
+    // 64 ns. `is_transmitting` is asserted only on ACCEPTED beats (real
+    // occupancy of the AXIS port - confirmed below, both drain regimes agree),
+    // so the debit is exact per byte; but the queue then ACCRUES idleSlope
+    // during the 5.4 cycles per beat that the wire would still be busy.
+    //
+    // Steady state with accrual on every non-transmitting cycle and an exact
+    // per-byte debit:
+    //     (CLK - r/8)*S/(8*CLK) + r*(S - link)/link = 0
+    //  => r = (S/8) / [ S/(64*CLK) + (link - S)/link ]     bytes/s
+    // versus the 802.1Qav ideal r_ideal = S/8. The test asserts the ACCOUNTING
+    // model (so any change to the credit arithmetic fails here) and REPORTS the
+    // over-delivery against the standard, which is the REQ-CBS-07 finding.
+    {
+        long f0 = h.fails;
+        const int    CYCLES = 200000;
+        const int    FBEATS = 8;                 // 64-byte frames
+        const double CLK    = 100000000.0;       // wrapper CLK_FREQ_HZ
+        const double LINK   = 1000000000.0;      // is_1g_i = 1 in the wrapper
+
+        struct { uint32_t slope; int period; const char* name; } runs[] = {
+            { 100000000, 1, "fast drain  (8 B/cycle sink)" },
+            { 100000000, 8, "paced drain (1 beat / 8 cyc)" },
+            { 200000000, 8, "paced drain, 2x idleSlope   " },
+        };
+        double bpc[3];
+        for (int r = 0; r < 3; r++) {
+            long   bytes = run_rate(h, runs[r].slope, runs[r].period, CYCLES, FBEATS, "cbs07");
+            double S     = (double)runs[r].slope;
+            bpc[r]       = (double)bytes / (double)CYCLES;
+            double model = (S / 8.0) / (S / (64.0 * CLK) + (LINK - S) / LINK) / CLK;
+            double ideal = S / 8.0 / CLK;
+            double merr  = std::fabs(bpc[r] - model) / model * 100.0;
+            printf("  [INFO] REQ-CBS-07 %s  %.6f B/cyc | accounting model %.6f (%.2f%%) "
+                   "| 802.1Qav ideal %.6f -> OVER-DELIVERS %.1f%%\n",
+                   runs[r].name, bpc[r], model, merr, ideal,
+                   (bpc[r] / ideal - 1.0) * 100.0);
+            // pin the accounting: the startup hiCredit burst and frame
+            // quantisation account for well under 1.5% over 200k cycles
+            if (merr > 1.5) {
+                printf("  [FAIL] cbs07: %s is %.2f%% off the accounting model\n",
+                       runs[r].name, merr);
+                h.fails++;
+            }
+        }
+        // Both drain regimes must give the SAME rate. This is the real-occupancy
+        // check: if bytes_sent/is_transmitting counted anything but accepted
+        // beats, throttling the sink 8x would move the answer.
+        double disagree = std::fabs(bpc[0] - bpc[1]) / bpc[1] * 100.0;
+        if (disagree > 0.5) {
+            printf("  [FAIL] cbs07: fast vs paced drain disagree by %.2f%% - "
+                   "bytes_sent/is_transmitting are not counting accepted beats\n", disagree);
+            h.fails++;
+        }
+        // non-vacuity: the measurement must track idleSlope, not the harness
+        double ratio = bpc[2] / bpc[1];
+        if (ratio < 1.5 || ratio > 2.5) {
+            printf("  [FAIL] cbs07: 2x idleSlope gave %.3fx the rate (measurement is pinned)\n", ratio);
+            h.fails++;
+        }
+        printf("  [%s] REQ-CBS-07 bytes_sent/is_transmitting track accepted beats "
+               "(regimes differ %.2f%%); over-delivery vs 802.1Qav is the UNPACED-EGRESS gap\n",
+               (h.fails == f0) ? "PASS" : "FAIL", disagree);
     }
 
     printf("--------------------------------------------------------------\n");

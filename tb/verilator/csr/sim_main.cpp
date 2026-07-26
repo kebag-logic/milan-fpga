@@ -643,6 +643,50 @@ int main(int argc, char** argv) {
   ck("PBK word 0 live", axi_read(0x8C8), 0x5A5A0000u);
   ck("PBK word 2 live", axi_read(0x8D0), 0x5A5A0002u);
 
+  // ---- REQ-MAC-03: is_1g follows the MAC's reported speed ----
+  // MAC_CTRL[4] reset is 1, so before this a 100 Mb/s port (Arty MII, i_speed
+  // = 01) told every is_1g consumer it was on a gigabit link until software
+  // intervened - and is_1g sets the lwSRP bandwidth-gate admission limit
+  // (750 vs 75 Mb/s) and the CBS sendSlope denominator. Now it follows
+  // i_speed unless MAC_CTRL[5] (speed_manual) is set.
+  {
+    long f0 = fails;
+    axi_write(A_MAC_CTRL, 0x13);                 // the reset value: manual bit clear
+    dut->i_speed = 2; dut->eval();               // 1000 Mb/s
+    ck("mac03 auto: speed=1000 -> is_1g",  dut->o_mac_is_1g, 1);
+    dut->i_speed = 1; dut->eval();               // 100 Mb/s
+    ck("mac03 auto: speed=100 -> !is_1g",  dut->o_mac_is_1g, 0);
+    dut->i_speed = 0; dut->eval();               // 10 Mb/s
+    ck("mac03 auto: speed=10 -> !is_1g",   dut->o_mac_is_1g, 0);
+    // MAC_STATUS must report the same speed the rate select is derived from,
+    // so software and the datapath cannot disagree about the link
+    dut->i_speed = 1; dut->eval();
+    ck("mac03 MAC_STATUS speed tracks",     (axi_read(A_MAC_STATUS) >> 1) & 3, 1);
+
+    // manual override restores the old behaviour in BOTH directions
+    axi_write(A_MAC_CTRL, 0x33);                 // [5]=manual, [4]=1
+    dut->i_speed = 1; dut->eval();
+    ck("mac03 manual=1,is_1g=1 beats speed=100", dut->o_mac_is_1g, 1);
+    axi_write(A_MAC_CTRL, 0x23);                 // [5]=manual, [4]=0
+    dut->i_speed = 2; dut->eval();
+    ck("mac03 manual=1,is_1g=0 beats speed=1000", dut->o_mac_is_1g, 0);
+
+    // NEGATIVE: with manual CLEAR, MAC_CTRL[4] must have NO effect at all -
+    // otherwise the old wrong-default path is still reachable by accident
+    axi_write(A_MAC_CTRL, 0x13);                 // manual clear, [4]=1
+    dut->i_speed = 1; dut->eval();
+    ck("mac03 auto ignores MAC_CTRL[4]=1",  dut->o_mac_is_1g, 0);
+    axi_write(A_MAC_CTRL, 0x03);                 // manual clear, [4]=0
+    dut->i_speed = 2; dut->eval();
+    ck("mac03 auto ignores MAC_CTRL[4]=0",  dut->o_mac_is_1g, 1);
+
+    // restore the harness defaults for anything that follows
+    axi_write(A_MAC_CTRL, 0x13);
+    dut->i_speed = 2; dut->eval();
+    printf("  [%s] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)\n",
+           (fails == f0) ? "PASS" : "FAIL");
+  }
+
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
   printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
