@@ -76,14 +76,36 @@ The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 |--------|------|-----|-------|-------------|
 | `0x100` | `MAC_CTRL` | RW | `0x13` | `[0]` tx_en, `[1]` rx_en, `[2]` promisc, `[3]` allmulti, `[4]` is_1g |
 | `0x104` | `MAC_IFG` | RW | `0x0C` | `[7:0]` inter-frame gap (bytes), default 12 |
-| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]` |
-| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]` |
+| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words) |
+| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]` |
 | `0x110` | `MAC_STATUS` | RO | – | `[0]` link_up, `[2:1]` speed (0=10,1=100,2=1000), `[3]` full_duplex |
-| `0x114` | `MC_HASH_LO` | RW | `0` | multicast hash filter `[31:0]` |
-| `0x118` | `MC_HASH_HI` | RW | `0` | multicast hash filter `[63:32]` |
+| `0x114` | `MC_HASH_LO` | RW | `0` | multicast hash filter, buckets 0-31 (bit `n` = bucket `n`) |
+| `0x118` | `MC_HASH_HI` | RW | `0` | multicast hash filter, buckets 32-63 |
 | `0x11C` | `PHY_RESET` | RW | `0x1` | `[0]` phy_reset_n (0 = hold PHY in reset) |
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
+
+**RX address filter (REQ-MAC-02).** `promisc`/`allmulti`/`MAC_ADDR_*`/`MC_HASH_*`
+are consumed by `rx_mac_filter` in the RX AXIS path, but only once
+`TCAM_CTRL[1]` (`addr_filter_en`, reset 0) is set  -  a build that never sets it
+keeps the legacy blanket `TCAM_CTRL[0]` miss policy. Decision order per frame:
+
+1. a 1-beat runt is always swallowed;
+2. `promisc` → accept (it outranks even an explicit TCAM drop entry  -  a
+   capture must see the wire, and filtering is exactly what promiscuous mode
+   switches off);
+3. a TCAM hit → `ACTION[0]` decides;
+4. `addr_filter_en` → broadcast accepted; **group** address accepted if
+   `allmulti` **or** its hash bucket is set; **unicast** accepted only on an
+   exact match with `MAC_ADDR_HI/LO`;
+5. otherwise `TCAM_CTRL[0]`.
+
+**Multicast hash function.** Bucket = a 6-bit XOR fold of the 48-bit
+destination MAC in standard notation, MSB-aligned groups of six bits:
+`bucket = a[47:42] ^ a[41:36] ^ a[35:30] ^ a[29:24] ^ a[23:18] ^ a[17:12] ^
+a[11:6] ^ a[5:0]`. `ndo_set_rx_mode` must compute the same fold (`01-80-C2-00-00-0E`
+→ `0x0180C200000E` → bucket 23, i.e. `MC_HASH_LO` bit 23). The hash is approximate by design (many
+addresses share a bucket); the `0x700` TCAM is the exact alternative.
 
 ### 0x200  -  Statistics (RMON)  `(REQ-MAC-04)`
 
@@ -133,7 +155,7 @@ good-frame lanes count real traffic.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x300` | `CLS_CTRL` | RW | `0x1` | `[0]` use_pcp (1 = classify by PCP table, 0 = legacy EtherType), `[1]` dmac_check |
+| `0x300` | `CLS_CTRL` | RW | `0x1` | `[0]` use_pcp (1 = classify by PCP table, 0 = legacy EtherType), `[1]` dmac_check (1 = the 0x88F7 gPTP fast path also demands DMAC `01-80-C2-00-00-0E`; a spoofed 0x88F7 then falls to the PCP tables / BEST_EFFORT instead of taking the priority queue  -  REQ-CLS-07, reset 0 = today's wire behaviour) |
 | `0x304` | `CLS_DEFAULT_PCP` | RW | `0` | `[2:0]` default port priority for untagged frames |
 | `0x308` | `CLS_PCP_TC_MAP` | RW | `0xFAC688`* | PCP→traffic-class, 8×3 bits: TC of PCP `p` = `[3p+2:3p]` |
 | `0x30C` | `CLS_PRIO_REGEN` | RW | `0xFAC688` (identity) | priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05  -  a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity. |
@@ -211,8 +233,15 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | `0x520` | `PTP_CMD` | W1S | `0` | `[0]` load (apply settime), `[1]` adjust (apply adjtime), `[2]` snapshot (latch TOD for gettime)  -  self-clearing pulses |
 | `0x530` | `PTP_TOD_RD_LO` | RO | `0` | latched TOD `[31:0]` (updated when the PHC snapshot returns) |
 | `0x534` | `PTP_TOD_RD_HI` | RO | `0` | latched TOD `[63:32]` |
-| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction (ns) |
-| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction (ns) |
+| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction, ns  -  **SUBTRACTED** from every RX capture (the wire SFD preceded the AXIS SOP the tap stamps). Unsigned; the sign is fixed in HW, software never negates. |
+| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction, ns  -  **ADDED** to every TX capture (the SFD follows the AXIS SOP) |
+
+Both reset to 0 = uncorrected. The bench currently applies its measured
+constants in `ptp4l` (`ingressLatency`); move the correction to one side or the
+other, **never both**, or it double-counts. These registers are the
+register half of REQ-PTP-06  -  true SFD capture needs a tap at the GMII/PHY
+boundary, which nothing at the AXIS boundary can synthesise, so the constants
+stay characterisation-derived.
 
 ### 0x700  -  RX destination-MAC TCAM filter  `(REQ-MAC-02)`
 
@@ -224,7 +253,7 @@ entry per commit: write the KEY/MASK/ACTION shadows, then `TCAM_CMD`. Reset:
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x700` | `TCAM_CTRL` | RW | `0x1` | `[0]` default_pass (1 = accept frames that miss the table) |
+| `0x700` | `TCAM_CTRL` | RW | `0x1` | `[0]` default_pass (1 = accept frames that miss the table), `[1]` addr_filter_en (1 = a TCAM miss falls to the 802.3 station address filter of the `0x100` group instead of `[0]`  -  REQ-MAC-02, reset 0) |
 | `0x704` | `TCAM_KEY_LO` | RW | `0` | match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no  -  see note) |
 | `0x708` | `TCAM_KEY_HI` | RW | `0` | match key `[47:32]` in `[15:0]` |
 | `0x70C` | `TCAM_MASK_LO` | RW | `0` | care mask `[31:0]` (1 = compare, 0 = wildcard) |

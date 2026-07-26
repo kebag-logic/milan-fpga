@@ -23,12 +23,21 @@
     - Tested with TDATA_WIDTH = 32, 64, 128.
     - Automatically detects and decodes Ethernet headers.
     - Endianness configurable per instance.
-    - Current Limitation : There should be at least one clock cycle delay incoming packets.
+    - No inter-frame idle beat is required (REQ-CLS-06): the parse state
+      re-arms on EVERY tlast, same-cycle, so a frame whose header completes
+      on its own tlast beat (3 beats at TDATA_WIDTH=64) is followed
+      immediately by a correctly-parsed next frame. The pre-2026-07-05 code
+      only re-armed on a tlast that arrived with header_ready and DID need
+      the idle beat; tb/verilator/classifier drives a zero-idle line-rate
+      burst of such frames and its rotated-model negative fails loudly on
+      that shape.
 ------------------------------------------------------------------------------
 */
 
 //! This module implements an Ethernet packet classifier that parses incoming AXIS frames and 
 //! assigns traffic priority based on the VLAN PCP field or Ethertype (e.g., PTP detection).
+//! Per frame it also emits the 802.1Q drop-eligibility indicator on `m_axis.tuser[0]`
+//! (REQ-CLS-05) and validates the reserved gPTP destination multicast (REQ-CLS-07).
 //! The module is working with different tdata_widths, 32,64,128 are tested.
 //! Parsing is always performed in **big endian** byte order for consistent decoding.
 //! If `BIG_ENDIAN` is set to 0 (little endian system), the module automatically converts input
@@ -51,7 +60,7 @@ module traffic_classifier #(
 
   //! --- runtime configuration (milan_csr classifier group, REQ-CLS-01..04) ---
   input wire        use_pcp_i,      //! 1 = PCP-table classification, 0 = legacy EtherType
-  input wire        dmac_check_i,   //! Enable reserved-DMAC validation (placeholder, REQ-CLS-07)
+  input wire        dmac_check_i,   //! Enable reserved-DMAC validation (REQ-CLS-07)
   input wire [2:0]  default_pcp_i,  //! Default port priority for untagged frames
   input wire [23:0] pcp_tc_map_i,   //! PCP->traffic-class table, 8x3 bits
   input wire [23:0] prio_regen_i,   //! Priority regeneration table, 8x3 bits
@@ -132,9 +141,14 @@ logic [ETH_TYPE_BIT_WIDTH-1:0] eth_type_raw;
 //! sideband queue; the output side gates each frame's FIRST beat on its entry
 //! and pops at tlast. tdest is correct and stable from the first output beat
 //! by construction, with no data-path delay registers at all.
+//! Each entry is {drop_eligible, queue}: the DEI sideband (REQ-CLS-05) rides
+//! the SAME per-frame queue as tdest, so it is likewise correct and stable from
+//! the frame's first output beat - the only place a drop-eligibility mark is
+//! usable by a policer (802.1Q §6.9.4 conveys drop_eligible with the frame, not
+//! with the port).
 localparam int TQ_DEPTH = 32;   //! > max frames resident in the data FIFO
 localparam int TQW = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES);
-logic [TQW-1:0] tq_mem [0:TQ_DEPTH-1];
+logic [TQW:0] tq_mem [0:TQ_DEPTH-1];
 logic [$clog2(TQ_DEPTH):0] tq_wr, tq_rd;
 wire tq_empty = (tq_wr == tq_rd);
 wire [$clog2(TQ_DEPTH)-1:0] tq_wr_idx = tq_wr[$clog2(TQ_DEPTH)-1:0];
@@ -168,11 +182,21 @@ ethernet_vlan_hdr_t eth_packet;
 wire        vlan_valid = (eth_packet.vlan_tpid == ETH_TYPE_VLAN);
 wire [2:0]  frame_pcp  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1 -: PCP_BIT_WIDTH];
 wire        frame_dei  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1-PCP_BIT_WIDTH];
+//! REQ-CLS-05 drop_eligible: DEI only carries meaning inside a C-TAG. An
+//! untagged frame has no drop-eligibility indication at all (802.1Q §6.9.4) -
+//! it must read 0 rather than whatever the payload bytes happen to hold in the
+//! TCI slice of the staging buffer.
+wire        frame_de   = vlan_valid && frame_dei;
 //! network priority / queue index from the runtime class map.
 wire [$clog2(NUMBER_OF_QUEUES)-1:0] network_priority;
 
-//! dmac_check_i is reserved for reserved-DMAC validation (REQ-CLS-07); tie off.
-wire _unused_dmac = dmac_check_i;
+//! Reserved destination multicast for 802.1AS/gPTP (802.1AS-2020 §10.5, one of
+//! the 802.1Q Table 8-1 reserved addresses). REQ-CLS-07: EtherType 0x88F7 alone
+//! is not proof of a gPTP frame, and the classifier's gPTP fast path is the
+//! second-highest queue - validate the DMAC before granting it.
+localparam logic [MAC_ADDR_BIT_WIDTH-1:0] GPTP_DMAC = 48'h01_80_C2_00_00_0E;
+//! Frame destination MAC equals the reserved gPTP multicast (wire byte order).
+wire dmac_gptp = (eth_packet.eth_common_hdr.dst_mac == GPTP_DMAC);
 
 assign header_ready = (byte_counter >= ETH_HEADER_WIDTH);
 
@@ -185,7 +209,13 @@ assign m_axis.tdata  = m_axis_fifo.tdata;
 assign m_axis.tkeep  = m_axis_fifo.tkeep;
 assign m_axis.tvalid = m_axis_fifo.tvalid && !tq_empty;
 assign m_axis.tlast  = m_axis_fifo.tlast;
-assign m_axis.tdest  = tq_mem[tq_rd_idx];
+assign m_axis.tdest  = tq_mem[tq_rd_idx][TQW-1:0];
+//! tuser[0] = drop_eligible (REQ-CLS-05, 802.1Q §6.9.4). Carried on the AXIS
+//! sideband rather than a private port so any downstream policer/meter picks it
+//! up with no plumbing. NOTE: traffic_queues still instantiates its demux/FIFOs
+//! with USER_ENABLE(0), so the mark does not survive the buffering stage today
+//! - a policer belongs UPSTREAM of the queues anyway (802.1Qci, REQ-CLS-09).
+assign m_axis.tuser  = tq_mem[tq_rd_idx][TQW];
 assign m_axis_fifo.tready = m_axis.tready && !tq_empty;
 
 //! Runtime 802.1Q priority-to-queue classification (REQ-CLS-01..04).
@@ -197,9 +227,11 @@ traffic_class_map #(
   .pcp_tc_map_i  (pcp_tc_map_i),
   .prio_regen_i  (prio_regen_i),
   .tc_queue_map_i(tc_queue_map_i),
+  .dmac_check_i  (dmac_check_i),
   .vlan_valid_i  (vlan_valid),
   .pcp_i         (frame_pcp),
   .dei_i         (frame_dei),
+  .dmac_gptp_i   (dmac_gptp),
   .eth_type_i    (eth_packet.eth_common_hdr.eth_type),
   .tdest_o       (network_priority)
 );
@@ -238,7 +270,7 @@ always_ff @(posedge clk)begin : tdest_sideband
   end
   else begin
     if (do_push) begin
-      tq_mem[tq_wr_idx] <= network_priority;
+      tq_mem[tq_wr_idx] <= {frame_de, network_priority};
       tq_wr <= tq_wr + 1'b1;
     end
     if (in_acc)

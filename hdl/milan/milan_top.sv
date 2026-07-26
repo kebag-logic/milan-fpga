@@ -154,8 +154,8 @@ module milan_top import ethernet_packet_pkg::*; #(
   //! MAC control / status
   wire        cfg_mac_tx_en, cfg_mac_rx_en, cfg_mac_promisc, cfg_mac_allmulti, cfg_mac_is_1g;
   wire [7:0]  cfg_mac_ifg;
-  wire [47:0] cfg_mac_addr;      // reserved for RX address filter (REQ-MAC-02)
-  wire [63:0] cfg_mc_hash;       // reserved for multicast hash (REQ-MAC-02)
+  wire [47:0] cfg_mac_addr;      // RX address filter station MAC (REQ-MAC-02)
+  wire [63:0] cfg_mc_hash;       // RX multicast hash buckets (REQ-MAC-02)
   wire        cfg_phy_reset_n;   // reserved for PHY reset GPIO (REQ-MAC-06)
   wire [1:0]  mac_speed;         // from MAC speed[] indication
 
@@ -232,7 +232,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire                     ctl_tx_tvalid, ctl_tx_tlast, ctl_tx_tready;
 
   //! RX dest-MAC TCAM filter programming (from milan_csr 0x700 group)
-  wire        cfg_tcam_default_pass, cfg_tcam_wr_en, cfg_tcam_wr_valid;
+  wire        cfg_tcam_default_pass, cfg_tcam_addr_filt_en, cfg_tcam_wr_en, cfg_tcam_wr_valid;
   wire [4:0]  cfg_tcam_wr_index;
   wire [47:0] cfg_tcam_wr_key, cfg_tcam_wr_mask;
   wire [7:0]  cfg_tcam_wr_action;
@@ -479,6 +479,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_tone_enable        (),
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_tcam_default_pass(cfg_tcam_default_pass),
+    .o_tcam_addr_filt_en(cfg_tcam_addr_filt_en),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
     .o_tcam_wr_index    (cfg_tcam_wr_index),
     .o_tcam_wr_valid    (cfg_tcam_wr_valid),
@@ -538,6 +539,10 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_ptp_cmd_load    (cfg_ptp_cmd_load),
     .i_ptp_cmd_adjust  (cfg_ptp_cmd_adjust),
     .i_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
+    //! REQ-PTP-06: the 0x540/0x544 correction registers reach the capture
+    //! point instead of stopping at a wire declaration (reset 0 = no change).
+    .i_ptp_ingress_lat (cfg_ptp_ingress_lat),
+    .i_ptp_egress_lat  (cfg_ptp_egress_lat),
     .o_ptp_tod_rd      (ptp_tod_rd),
     .o_ptp_tod_rd_valid(ptp_tod_rd_valid),
     .o_tx_ts_ready     (evt_tx_ts_ready),
@@ -581,6 +586,16 @@ module milan_top import ethernet_packet_pkg::*; #(
   // ==========================================================================
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
     .clk_i(axis_clk), .rst_n(axis_resetn),
+    //! REQ-MAC-02 station address filter, armed by TCAM_CTRL[1] (reset 0).
+    //! cfg_mac_addr is LSB-first ({MAC_ADDR_HI[15:0], MAC_ADDR_LO}); the filter
+    //! compares MSB-first against the wire, so swap.
+    .addr_filter_en_i(cfg_tcam_addr_filt_en),
+    .promisc_i      (cfg_mac_promisc),
+    .allmulti_i     (cfg_mac_allmulti),
+    .station_mac_i  ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+    .mc_hash_i      (cfg_mc_hash),
     .default_pass_i (cfg_tcam_default_pass),
     .tcam_wr_en_i   (cfg_tcam_wr_en),
     .tcam_wr_index_i(cfg_tcam_wr_index[3:0]),
