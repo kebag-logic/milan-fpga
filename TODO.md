@@ -163,8 +163,29 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   `ethernet_packet_pkg.sv` idleSlope defaults; driver rejects over-subscription.
 - [x] **M — Accrue credit during grant-with-backpressure** `(REQ-CBS-04)` — replace
   the "hold" branch (`credit_based_shaper.sv:133-135`) with idle accrual.
-- [ ] **M — Remove credit/transmit pipeline skew** `(REQ-CBS-05)` — collapse double
-  registration; non-stale `allow_transmit` to arbitration.
+- [~] **M — Remove credit/transmit pipeline skew** `(REQ-CBS-05)` — **non-stale
+  `allow_transmit` DONE**, double registration deliberately kept (reason below).
+  `allow_transmit_o` was a registered copy of `(credit >= 0)`, so the arbiter's
+  802.1Qav `transmissionAllowed` test ran against the previous cycle's credit
+  and could start a frame on a queue that had already gone negative. It now
+  reads the credit register's sign directly — **zero added logic depth**, since
+  the output was already `reg → 2:1 mux → arbitration` (`shaped` is itself a
+  stage-1 register) and still is. TB: `cbs` drives two directed properties off
+  the DUT (not via the model, so a model+RTL change cannot hide it) —
+  `allow_transmit_o == (credit >= 0)` every cycle while shaped, and a 0-cycle
+  deassert lag; restoring the flop reports `lag 1 cycle(s), 1 P1 misses`.
+  - **Left open: collapsing the input pipeline.** `traffic_shaping_core`
+    registers `is_transmitting`/`bytes_sent` off the AXIS handshake and stage 1
+    registers `send_delta`, so a beat reaches `credit` 2 cycles later (now
+    pinned by a directed check so it cannot drift). Removing a stage moves the
+    `send_slope × bytes_sent` multiply into the `tkeep`/`$countones` cone on a
+    design that places at 99.93 % slice packing with WNS margins in the tens of
+    picoseconds — not a blind change, and no Vivado in this lane. The clean
+    path for whoever has a build: `bytes_sent ∈ [0, BEAT_BYTES]`, so precompute
+    `send_slope × k` for `k = 0..8` in the slope engine and select instead of
+    multiplying; that removes the multiply and lets the two stages collapse to
+    one. The residual is a fixed phase shift of an integral, not an
+    accumulating error — every beat is still debited exactly once.
 - [ ] **M — Round slope fixed-point / widen fraction** `(REQ-CBS-06)` — matters once
   idleSlope is runtime; harness measures the residual error.
 - [ ] **M — Pace egress to line rate** `(REQ-CBS-07)` — ensure `bytes_sent`/

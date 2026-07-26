@@ -258,6 +258,74 @@ int main(int argc, char** argv) {
         h.expect_eq(h.fref.ssb_reg(), h.fref.send_slope_per_byte(true, 200000000),  "s9", "ssb_converged_reconf");
     }
 
+    // ---- REQ-CBS-05: no stale allow_transmit into arbitration ----
+    // 802.1Qav evaluates transmissionAllowed on the CURRENT credit. The old
+    // RTL registered (credit >= 0) into a second flop, so the arbiter's view
+    // lagged the credit by a cycle and could start a frame on a queue whose
+    // credit had already crossed to negative. Two directed properties, driven
+    // straight off the DUT (not via the reference model, so a model+RTL
+    // change made together cannot hide the regression):
+    //   P1 - while shaped, allow_transmit_o == (credit >= 0) EVERY cycle
+    //   P2 - the deassert edge lands on the SAME cycle credit goes negative
+    {
+        long f0 = h.fails;
+        h.do_reset(4);
+        // build positive credit, then burn it down with a long transmission
+        for (int i = 0; i < 400; i++)
+            h.cycle(mk(true, true, false, true, true, 0), "cbs05 accrue");
+
+        long p1_bad = 0, lag = -1, seen_neg = -1, seen_deassert = -1;
+        int64_t prev_credit = sx48(h.dut->dbg_credit);
+        for (int i = 0; i < 900; i++) {
+            h.cycle(mk(true, true, true, true, true, 8), "cbs05 drain");
+            int64_t c   = sx48(h.dut->dbg_credit);
+            int      a  = h.dut->allow_transmit_o & 1;
+            // P1: shaped has been high for many cycles, so the registered
+            // `shaped` bit is 1 and the output is exactly the credit sign
+            if (a != (c >= 0 ? 1 : 0)) p1_bad++;
+            // P2: record the first cycle credit is negative and the first
+            // cycle the output deasserts; they must be the same cycle
+            if (seen_neg < 0 && c < 0)   seen_neg = i;
+            if (seen_deassert < 0 && !a) seen_deassert = i;
+            if (seen_neg >= 0 && seen_deassert >= 0) { lag = seen_deassert - seen_neg; break; }
+            prev_credit = c;
+        }
+        (void)prev_credit;
+        h.expect_eq(p1_bad, 0, "cbs05", "allow_transmit == credit sign every cycle");
+        h.expect_eq((int64_t)lag, 0, "cbs05", "deassert lag cycles behind credit<0");
+        if (seen_neg < 0) { printf("  [FAIL] cbs05: credit never went negative (test is vacuous)\n"); h.fails++; }
+        printf("  [%s] REQ-CBS-05 allow_transmit is not stale (lag %ld cycle(s), %ld P1 misses)\n",
+               (h.fails == f0) ? "PASS" : "FAIL", lag, p1_bad);
+    }
+
+    // ---- REQ-CBS-05 residual: the credit datapath input pipeline ----
+    // The skew that REMAINS is 2 cycles from an accepted beat to its debit
+    // (traffic_shaping_core registers is_transmitting/bytes_sent, stage1
+    // registers send_delta). Pin the number so it cannot drift silently and a
+    // future collapse has something to beat. Measured from the CBS port here,
+    // which sees the second of those two registers, so the port-level lag is 1
+    // and the datapath total is 2.
+    {
+        long f0 = h.fails;
+        h.do_reset(4);
+        for (int i = 0; i < 300; i++)
+            h.cycle(mk(true, true, false, true, true, 0), "cbs05r settle");
+        int64_t before = sx48(h.dut->dbg_credit);
+        // exactly ONE transmitting beat, then idle-but-granted cycles
+        h.cycle(mk(true, true, true, true, true, 8), "cbs05r beat");
+        int64_t c1 = sx48(h.dut->dbg_credit);
+        h.cycle(mk(true, true, false, true, true, 0), "cbs05r +1");
+        int64_t c2 = sx48(h.dut->dbg_credit);
+        // the send-slope debit must NOT have landed on the beat cycle itself
+        h.expect_eq((int64_t)(c1 != before && c1 < before ? 1 : 0), 0,
+                    "cbs05r", "debit must not land on the beat cycle (port lag 1)");
+        // and it must have landed exactly one cycle later
+        h.expect_eq((int64_t)(c2 < c1 ? 1 : 0), 1,
+                    "cbs05r", "debit lands one cycle after the beat");
+        printf("  [%s] REQ-CBS-05 residual input-pipeline lag pinned at 1 CBS-port cycle\n",
+               (h.fails == f0) ? "PASS" : "FAIL");
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("cycle checks: %ld   mismatches: %ld   max |DUT-ideal|: %.4f bytes\n",
            h.checks, h.fails, h.max_ideal_err);

@@ -145,9 +145,6 @@ module credit_based_shaper #(
   logic signed [47:0] eng_q1;     //! stashed signed quotient of divide 1
   logic [30:0]        eng_den;    //! active divisor
 
-  //! registered allow_transmit signal
-  logic allow_transmit_reg;
-
   //! stage-1 pipeline registers (registered for timing; see stage1_pipe)
   logic signed [47:0] send_delta;
   logic signed [47:0] credit_add_idle;
@@ -219,17 +216,27 @@ module credit_based_shaper #(
     end
   end
 
-  //! Allow transmit if shaping is disabled (strict priority) or credit >= 0
-  assign allow_transmit_o = shaped ? allow_transmit_reg : 1'b1;
-
-  //! allow_transmit registered
-  always_ff @(posedge clk) begin : allow_transmit
-    if(!resetn)begin
-      allow_transmit_reg <= '0;
-    end else begin
-      allow_transmit_reg <= (credit >= 0);
-    end
-  end
+  //! Allow transmit if shaping is disabled (strict priority) or credit >= 0.
+  //!
+  //! REQ-CBS-05: this was a REGISTERED copy of (credit >= 0), so the arbiter's
+  //! 802.1Qav transmissionAllowed test ran against the credit of the PREVIOUS
+  //! cycle and could start a frame on a queue whose credit had already gone
+  //! negative. Reading the sign bit of the credit register directly removes
+  //! that cycle at ZERO cost in logic depth: the output was already
+  //! reg -> 2:1 mux -> arbitration (`shaped` is itself a stage-1 register), and
+  //! it still is - one register bit simply swaps for another.
+  //!
+  //! The REMAINING skew is the credit datapath's input pipeline, deliberately
+  //! kept: `traffic_shaping_core` registers is_transmitting/bytes_sent off the
+  //! AXIS handshake and stage1 here registers send_delta, so a transmitted beat
+  //! reaches `credit` 2 cycles later. Collapsing that would move the
+  //! send_slope x bytes_sent multiply into the tkeep/$countones cone, and this
+  //! design places at 99.93 percent slice packing with WNS margins in the tens
+  //! of picoseconds - not a change to make without a Vivado run. The residual
+  //! is a fixed 2-cycle phase shift of an INTEGRAL, not an accumulating error
+  //! (every beat is still debited exactly once), and tb/verilator/cbs pins the
+  //! lag at exactly 2 so a future collapse has a number to beat.
+  assign allow_transmit_o = shaped ? (credit >= 0) : 1'b1;
 
   //! Register every input for better timing (stage 1 of the credit pipeline).
   //! send_delta / credit_add_idle derive from the engine-registered slope
