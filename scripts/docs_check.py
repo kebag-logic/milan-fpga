@@ -81,7 +81,11 @@ ALLOW_DEAD_MARK = re.compile(
     r"^<!--[^\n]*docs-check:\s*allow-dead-refs\b", re.MULTILINE)
 
 # Never walked: VCS metadata, vendored submodules, obvious build scratch.
-ALWAYS_PRUNE = {".git", "__pycache__", "obj_dir", "node_modules", ".venv"}
+# ``obj_*`` covers every Verilator scratch dir (obj_dir/obj_win/obj_live/…),
+# several of which are only named in per-suite .gitignore files this crude
+# reader does not descend into.
+ALWAYS_PRUNE = {".git", "__pycache__", "node_modules", ".venv"}
+ALWAYS_PRUNE_GLOBS = ("obj_*",)
 
 
 # --------------------------------------------------------------------------
@@ -139,6 +143,8 @@ def _walk_files():
 
     def ignored(rel, name):
         if name in ALWAYS_PRUNE or rel in pruned:
+            return True
+        if any(fnmatch.fnmatch(name, pat) for pat in ALWAYS_PRUNE_GLOBS):
             return True
         if any(fnmatch.fnmatch(name, pat) for pat in basenames):
             return True
