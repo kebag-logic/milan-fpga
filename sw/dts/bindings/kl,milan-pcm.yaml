@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+# Device-tree binding for the Milan PCM ring (kl,milan-pcm) - the ALSA side of
+# the end station (snd-kl-milan). Added 2026-07-26: this node has been on both
+# boards since the NxN capture rings landed and sw/builder emits it, but it had
+# NO binding at all, so `milan_dt.py validate` had nothing to check it against.
+# Transcribed from the deployed milan_ax7101_vexii.dts / milan_arty_vexii.dts.
+%YAML 1.2
+---
+$id: http://kebag-logic.com/dt/kl,milan-pcm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Kebag Logic Milan PCM capture/playback ring
+
+maintainers:
+  - hackerman-kl <hackerman-kl@kebag-logic.com>
+
+properties:
+  compatible:
+    items:
+      - const: kl,milan-pcm-0.9
+      - const: kl,milan-pcm
+    minItems: 1
+
+  reg:
+    minItems: 2
+    maxItems: 2
+    items:
+      - description: >
+          PCM ring DMA register block (`milan_dma_pcm_*`). Its base MOVES with
+          the gateware block set - it sits after the ts/hs registers in the
+          `milan_dma` bank, so an rx-queues change shifts it (CSR-rot rule);
+          always re-derive from the build's csr.csv.
+      - description: >
+          First 4 KB of the milan_csr window - the driver reads the stream/
+          channel geometry and the capture status words from there.
+
+  reg-names:
+    items: [pcm-dma, milan-csr]
+
+  memory-region:
+    maxItems: 1
+    description: >
+      phandle to the `no-map` reserved-memory region holding the PCM ring
+      (`pcmring@...`). no-map is required: the ring is written by a fabric DMA
+      master, so Linux must never map it cacheable.
+
+  kl,capture-streams:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: number of AAF listener (capture) streams the gateware carries
+  kl,playback-streams:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: >
+      number of AAF talker (playback) streams. 0 unless the gateware was built
+      with `--aaf-playback` (KL_pcm_tx).
+  kl,ring-stride:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: per-stream byte stride inside the reserved region
+
+  status: true
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - memory-region
+  - kl,capture-streams
+  - kl,ring-stride
+
+additionalProperties: false
+
+examples:
+  - |
+    audio@f00030ac {
+        compatible = "kl,milan-pcm-0.9", "kl,milan-pcm";
+        reg = <0xf00030ac 0x1c>,
+              <0x90000000 0x1000>;
+        reg-names = "pcm-dma", "milan-csr";
+        memory-region = <&pcmring>;
+        kl,capture-streams = <8>;
+        kl,playback-streams = <0>;
+        kl,ring-stride = <0x100000>;
+        status = "okay";
+    };

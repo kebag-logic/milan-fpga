@@ -21,6 +21,17 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 sw/builder/test_builder.py
 
+      # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
+      # must equal the end-station config they claim to build (--num-streams,
+      # --rx-queues, --l2-bytes). --self-test also proves a wrong value IS rejected.
+      - name: Sweep/build shape gate
+        run: python3 scripts/check_sweep_shape.py --self-test
+
+      # DT binding gate: negative controls for the kl,dma-ether / kl,milan-pcm
+      # binding checker (a checker that cannot fail is not a gate).
+      - name: Device-tree binding gate
+        run: python3 sw/dts/milan_dt.py selftest
+
   # The same docs gate with no git metadata at all - proves it still runs in an
   # extracted tarball or a downloaded zip, which is how most outsiders will
   # first meet this repo.

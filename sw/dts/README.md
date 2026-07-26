@@ -1,71 +1,78 @@
-# `sw/dts/` — platform-convergent device tree for the Milan NIC
+# `sw/dts/` — device-tree contract (bindings) for the Milan NIC
 
-The `kl,dma-ether` device-tree node splits into an **invariant contract** (compatible,
-`reg-names`/`interrupt-names` ordering, `kl,txq-cnt`/`kl,shaped-queues`, `phy-mode`,
-`kl,ptp`, sizes) and a few **platform holes** (reg bases, IRQ number(s),
-`interrupt-parent`, phy-handle/reset, mac address). The addresses differ completely
-per host — csr `0x9000_0000` + DMA `0xf0002800` on the fully-FPGA LiteX build vs csr
-`0x43c00000` + DMA `0x40410000` on Zynq — and the interrupt *model* differs too (LiteX
-has ONE aggregate PLIC line; Zynq has four GIC lines).
+> **GENERATION RETIRED — 2026-07-26.** The `kl,dma-ether` and `kl,milan-pcm`
+> nodes are emitted by **`sw/builder/endstation_builder.py`** (`emit_dt_overlay`)
+> from the declarative end-station config in `configs/`. Its output byte-matches
+> both deployed trees and is gated by `sw/builder/test_builder.py` gates 19a/19b.
+> `milan_dt.py extract` / `gen` now **exit 2 with a pointer**; `validate` stays
+> and is the binding check.
+>
+> **Why, with the numbers.** Fed the *current* deployed build's `csr.json`
+> (`build_ax8x8_rxq1fix_eppo`), the old generator emitted **four** reg windows
+> with no `phy` (deployed: **five**, `phy` = `0xf0003800`/`0xc` — the MDIO
+> bit-bang window `ethtool mdio1` uses), a `dma-rx` size of **0x68** (the
+> min/max span of the `milan_dma_rx_*` CSRs) where the deployed trees and the
+> driver ABI use **0x40**, a single-string `compatible`, and no `dma-coherent`
+> / `kl,rsc-clk-mhz` / PCM node / reserved-memory node. The DT window is a
+> **driver ABI constant, not a CSR span**, so no `csr.json`-derived rule can
+> produce it — making the old generator agree would mean copying `sw/builder`'s
+> window table into a second place, which is the drift class being closed (same
+> shape as the 2026-07-22 RMON tie-off and the 2026-07-24 `rx-queues` bug).
+> The checked-in `ir/*.json` and `milan-nic.*.dtsi` are two memory-map
+> generations stale (`0xf00028xx`) and are kept only as historical artifacts.
 
-So the overlay is **generated** from a small, platform-neutral **intermediate
-representation (IR) JSON**. The invariant part lives once in the generator; each
-platform provides only its IR. Adding a future SoC never touches the generator, the
-schema, or the binding.
+What lives here now is the **contract**, not a second implementation: the
+bindings, and a checker that holds any overlay to them.
 
 ```
- platform build ──extract──▶ ir/milan-dt.<plat>.json ──gen──▶ milan-nic.<plat>.dtsi ──validate──▶ overlay onto base .dts
-   (LiteX csr.json /            (canonical IR;                  (invariant template)     (dtc + binding)
-    hand for Zynq)               schema: milan-dt.schema.json)
+ configs/endstation_*.yaml ──endstation_builder──▶ overlay .dtsi ──milan_dt.py validate──▶ dtc + bindings/*.yaml
 ```
 
 ## Files
 
 | File | Role |
 |------|------|
-| [`milan_dt.py`](milan_dt.py) | the tool: `extract` (csr.json → IR), `gen` (IR → `.dtsi`), `validate` (dtc). |
-| [`milan-dt.schema.json`](milan-dt.schema.json) | JSON Schema for the IR (the stable, platform-neutral contract). |
-| [`boards/ax7101.json`](boards/ax7101.json) | board values not in the gateware (mac, phy addr, reset-gpio, shaped-queues, ptp, intc label). |
-| [`ir/milan-dt.litex.json`](ir/milan-dt.litex.json) | LiteX/NaxRiscv IR — **extracted from a `--full` build's `csr.json`**. |
-| [`ir/milan-dt.zynq.json`](ir/milan-dt.zynq.json) | Zynq-7000 IR — hand-authored (demonstrates convergence). |
-| `milan-nic.litex.dtsi` / `milan-nic.zynq.dtsi` | **generated** overlays (do not edit; edit the IR + regenerate). |
-| [`bindings/kl,dma-ether.yaml`](bindings/kl,dma-ether.yaml) | normative binding — the validation oracle. |
-| `milan.dtsi` | deprecated pointer to the generated files. |
+| [`bindings/kl,dma-ether.yaml`](bindings/kl,dma-ether.yaml) | **normative binding** for the NIC node — rewritten 2026-07-26 against both deployed trees (5 reg windows incl. `phy`, `dma-coherent`, `kl,rsc-clk-mhz`, the two-string `compatible`). |
+| [`bindings/kl,milan-pcm.yaml`](bindings/kl,milan-pcm.yaml) | **normative binding** for the PCM/ALSA node (`snd-kl-milan`) — added 2026-07-26; this node shipped on both boards with no binding at all. |
+| [`milan_dt.py`](milan_dt.py) | `validate <dts\|dtsi>` (dtc + binding check, works on an overlay OR a complete tree) and `selftest`. `extract`/`gen` retired. |
+| [`milan-dt.schema.json`](milan-dt.schema.json) | IR schema — historical, only the retired generator consumed it. |
+| [`boards/ax7101.json`](boards/ax7101.json) | historical board values (carries the wrong `rgmii-id` for a GMII board). |
+| [`ir/milan-dt.litex.json`](ir/milan-dt.litex.json) / [`ir/milan-dt.zynq.json`](ir/milan-dt.zynq.json) | historical IRs (stale `0xf00028xx` map). |
+| `milan-nic.litex.dtsi` / `milan-nic.zynq.dtsi` | historical generated overlays — **do not deploy**. |
+| `milan.dtsi` | deprecated pointer. |
 
-## Fully-FPGA flow (FR-DT-08)
+## Fully-FPGA flow
 
 ```sh
-# 1. build the SoC with the CSR JSON exported
-./../litex/milan_soc.py --full --csr-json build/csr.json     # (or any --full build dir)
+# 1. node + PCM node + reserved-memory, from the end-station config
+python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml
 
-# 2. base tree from LiteX, then the NIC overlay from the same csr.json
+# 2. base tree from LiteX, overlay on top
 litex_json2dts_linux build/csr.json > base.dts
-./milan_dt.py extract --platform litex build/csr.json --board boards/ax7101.json > ir/milan-dt.litex.json
-./milan_dt.py gen ir/milan-dt.litex.json > milan-nic.litex.dtsi
-./milan_dt.py validate milan-nic.litex.dtsi
-
-# 3. overlay + compile
-cat milan-nic.litex.dtsi >> base.dts
+python3 sw/dts/milan_dt.py validate <generated>/milan-nic.dtsi
+cat <generated>/milan-nic.dtsi >> base.dts
 dtc -I dts -O dtb base.dts -o milan.dtb
 ```
 
-For Zynq, the base tree comes from the Vivado export (the retired `device-tree-xlnx`
-path) and the overlay from `gen ir/milan-dt.zynq.json`.
+`validate` also accepts a complete deployed `.dts` — that is how the binding is
+kept honest:
 
-## Adding a new platform (the convergence contract)
+```sh
+python3 sw/dts/milan_dt.py validate <bench-repo>/fpga/dts/milan_ax7101_vexii.dts
+python3 sw/dts/milan_dt.py selftest       # negative controls for the checker
+```
 
-1. Produce an IR JSON that conforms to [`milan-dt.schema.json`](milan-dt.schema.json):
-   fill `reg` (csr + dma-tx/rx/ts base+size), `interrupts` (a list — one `{name,num}`
-   for a single-cell PLIC line, or `{name,cells:[…]}` for a multi-cell GIC line),
-   `interrupt_parent`, and the board bits (`phy`, `mac_address`, `ptp`, `queues`).
-   - If the platform emits a LiteX-style `csr.json`, reuse `extract --platform litex`.
-   - Otherwise write a small extractor (or hand-author the IR, like the Zynq one).
-2. `./milan_dt.py gen ir/milan-dt.<plat>.json > milan-nic.<plat>.dtsi` and `validate`.
+## Adding a new platform
 
-The generator, schema, and binding are unchanged — that is the point.
+Add its shape to `configs/` and let `sw/builder/endstation_builder.py` emit the
+node; extend the bindings here if the platform needs a property they do not
+declare (`additionalProperties: false` is enforced, so an undeclared property is
+a hard failure, not a silent pass).
 
 ## Notes
 
+- The first two notes below describe the retired IR generator and are kept
+  only to explain the historical artifacts in `ir/`.
 - IR addresses may be ints or hex strings (`"0x40410000"`) — hand-authored IRs use hex.
 - `address_cells` (default 1) controls 32- vs 64-bit `reg` cells; all current platforms
   fit in 32 bits.
