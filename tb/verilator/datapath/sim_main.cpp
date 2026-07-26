@@ -98,6 +98,7 @@ static void do_reset() {
 static void config_classifier() {
     dut->is_1g_i = 1;
     dut->cls_use_pcp_i = 1; dut->cls_dmac_check_i = 0; dut->cls_default_pcp_i = 0;
+    dut->cls_ctrl_class_i = 1;   // CLS_CTRL[2] resets to 1 (REQ-CLS-10)
     // identity maps so PCP p -> prio p -> TC p -> queue p (deterministic routing):
     dut->cls_prio_regen_i   = 0x00FAC688;  // PCP -> PCP
     dut->cls_pcp_tc_map_i    = 0x00FAC688;  // prio -> TC

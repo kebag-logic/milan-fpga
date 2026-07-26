@@ -13,18 +13,36 @@ The CSR view is [REGISTER_MAP.md](REGISTER_MAP.md) — `CAP.num_queues`,
 
 ## The map
 
-| Queue | Enum | Purpose | Shaping |
-|-------|------|---------|---------|
-| **q5** | `SRA_CLASS` | **SR class A** — every AVB stream MSRP reserved, per the reservation domains | **CBS** (802.1Qav) |
-| **q4** | `SRB_CLASS` | **SR class B** — not used today; provisioned so an MSRP class-B domain has somewhere to land | **CBS** (802.1Qav) |
-| **q3** | `GPTP_CLASS` | 802.1AS / gPTP. Today these frames come from the CPU (the PTP daemon), so this is the CPU's sync lane | strict priority |
-| **q2** | `CONTROL_CLASS` | MAAP, MSRP, MVRP, and IEEE 1722.1-2021 ADP / ACMP / AECP | strict priority |
-| **q1** | `RESERVED_CLASS` | **spare** — deliberately unused, nothing maps here. It keeps the numbering stable if a class has to be inserted later without renumbering q2…q5 | strict priority |
-| **q0** | `BEST_EFFORT` | everything else, to and from the CPU | strict priority — **never CBS**, see below |
+| Queue | Enum | Purpose | Classified by | Shaping |
+|-------|------|---------|---------------|---------|
+| **q5** | `SRA_CLASS` | **SR class A** — every AVB stream MSRP reserved, per the reservation domains | **PCP** (3) on the SR VID | **CBS** (802.1Qav) |
+| **q4** | `SRB_CLASS` | **SR class B** — not used today; provisioned so an MSRP class-B domain has somewhere to land | **PCP** (2) on the SR VID | **CBS** (802.1Qav) |
+| **q3** | `GPTP_CLASS` | 802.1AS / gPTP. Today these frames come from the CPU (the PTP daemon), so this is the CPU's sync lane | **DMAC** `01-80-C2-00-00-0E` + EtherType `0x88F7` | strict priority |
+| **q2** | `CONTROL_CLASS` | MAAP, MSRP, MVRP, and IEEE 1722.1-2021 ADP / ACMP / AECP | **DMAC** (reserved group address table) | strict priority |
+| **q1** | `RESERVED_CLASS` | **spare** — deliberately unused, nothing maps here. It keeps the numbering stable if a class has to be inserted later without renumbering q2…q5 | — | strict priority |
+| **q0** | `BEST_EFFORT` | everything else, to and from the CPU | fallthrough | strict priority — **never CBS**, see below |
 
-## PCP → traffic class → queue
+**Read the "classified by" column before the rest of this page.** There is one
+rule per kind of traffic, and they do not overlap:
 
-Classification is three programmable tables in series
+* **Tagged traffic carries a PCP, so 802.1Q decides.** That is the AVTP streams,
+  and the three programmable tables below route them — to the CBS-shaped
+  **q5 / q4**.
+* **Untagged control traffic carries no PCP at all**, so it is classified on the
+  reserved **destination MAC address**, the same thing a bridge itself keys on.
+  That is gPTP, MSRP, MVRP and the 1722.1 trio — **q3 / q2**. See
+  [Untagged control traffic is classified by destination MAC](#untagged-control-traffic-is-classified-by-destination-mac).
+* Everything else falls through to **q0**.
+
+Expressing the q3/q2 rows as a PCP mapping would be fiction: those frames have
+no tag, so the only PCP the tables could apply to them is the *port default*,
+which is one value for the whole port. Until VERSION `0x0012` that is exactly
+what happened and q2 was **dead on the wire** — the row was documented but not
+implemented.
+
+## PCP → traffic class → queue (tagged traffic)
+
+Classification of **VLAN-tagged** frames is three programmable tables in series
 (`traffic_class_map.sv`, `REQ-CLS-01..04`):
 
 ```
@@ -56,11 +74,95 @@ than being handed to the demux, which would silently drop the frame
 exists because 6 is not a power of two — with a power-of-two queue count every
 value of the field named a real queue.
 
-**gPTP fast path.** EtherType `0x88F7` short-circuits the tables and always
-lands on `GPTP_CLASS` (q3), in both PCP and legacy modes, because gPTP frames
-are untagged and carry no PCP. With `CLS_CTRL[1]` set (`REQ-CLS-07`) the fast
-path additionally demands the reserved destination `01-80-C2-00-00-0E`, so a
-spoofed `0x88F7` cannot steal the sync lane.
+An **untagged** frame has no PCP, so `eff_pcp` becomes `CLS_DEFAULT_PCP` — one
+value for every untagged frame on the port. That is why the tables cannot route
+control traffic and why the fast paths below exist.
+
+## Untagged control traffic is classified by destination MAC
+
+`traffic_class_map.sv` carries a **table of reserved control group addresses**
+(`REQ-CLS-10`, VERSION `0x0012`). An untagged frame addressed to a row in that
+table is control traffic:
+
+| Protocol | Destination MAC | EtherType | Queue |
+|----------|-----------------|-----------|-------|
+| gPTP (802.1AS) | `01:80:C2:00:00:0E` | `0x88F7` | **q3** |
+| MSRP | `01:80:C2:00:00:0E` | `0x22EA` | **q2** |
+| MVRP | `01:80:C2:00:00:21` | `0x88F5` | **q2** |
+| 1722.1 ADP / ACMP | `91:E0:F0:01:00:00` | `0x22F0` | **q2** |
+| 1722 MAAP | `91:E0:F0:00:FF:00` | `0x22F0` | **q2** |
+| 1722.1 AECP | the **peer entity's unicast MAC** | `0x22F0` | **q2** |
+
+Why the address and not the EtherType: these are the addresses a bridge
+classifies on, they are what the protocols are actually defined by, and a
+destination address is far harder to forge usefully than an EtherType. **A row
+hit needs no EtherType at all** — see the RSTP note below for why that is
+deliberate.
+
+Three things the table alone does not settle, handled explicitly:
+
+* **gPTP and MSRP share `01:80:C2:00:00:0E` and go to different queues.** The
+  address says "reserved control"; the EtherType then splits that **one**
+  address — `0x88F7` leaves for q3, everything else at that address (MSRP
+  included) stays on q2. In the RTL the split is simply that the gPTP arm is
+  tested first. `tb/verilator/cls` and `tb/verilator/classifier` both drive the
+  two protocols at that single address and assert they land on different queues.
+* **AECP has no group address.** An AECP command or response is addressed to the
+  *peer* entity's individual MAC; on egress that is the controller we are
+  answering, so our own station MAC (which `rx_mac_filter` knows, `REQ-MAC-02`)
+  is the **source** here and is no help. There is nothing to look up, so this
+  one arm — and only this one — is keyed on the EtherType: *untagged `0x22F0`
+  to an individual (unicast) address*. It is the weakest arm in the block and is
+  documented as such rather than dressed up: a forged untagged `0x22F0` to any
+  unicast destination reaches q2. The exposure is bounded, because q2 sits below
+  gPTP and below both CBS-shaped classes, so the most a forgery buys is a lift
+  over best effort — it cannot touch stream or sync latency.
+* **A tagged `0x22F0` is an AVTP *stream*, not control.** The fast path requires
+  the frame to be untagged, so a tagged `0x22F0` keeps its PCP and rides q5/q4
+  exactly as before — including when it is addressed to one of the control group
+  addresses above. This is asserted directly in both classifier suites and as a
+  config-independent invariant across the 200 000-frame randomised sweep.
+
+**RSTP is anticipated, and it is why the table has no EtherType precondition.**
+RSTP BPDUs ride the Bridge Group Address `01:80:C2:00:00:00`, and **a BPDU has
+no EtherType**: it is an 802.3/LLC frame whose two octets at that offset are a
+*length*, with the protocol identified by the LLC DSAP/SSAP `0x42`. Any
+`ethertype == X && dmac == Y` shape would lock it out permanently. Adding RSTP
+is therefore **a new row in `CTRL_DMAC_TBL`** (plus whatever LLC decode the
+queue choice needs) rather than a redesign. It is **not implemented today**:
+there is no row, no LLC/DSAP decode anywhere in `hdl/`, and no queue has been
+chosen for it — note q1 is the deliberate spare. Both classifier suites drive
+`01:80:C2:00:00:00` today as a **negative**, asserting it classifies like any
+other unknown address; whoever adds the row will see those checks flip, which is
+the point.
+
+**gPTP fast path (unchanged).** EtherType `0x88F7` short-circuits the tables and
+always lands on `GPTP_CLASS` (q3), in both PCP and legacy modes. With
+`CLS_CTRL[1]` set (`REQ-CLS-07`) the fast path additionally demands the reserved
+destination `01-80-C2-00-00-0E`, so a spoofed `0x88F7` cannot steal the sync
+lane. `REQ-CLS-10` did not touch this arm.
+
+### The enable bit, and why it ships ON
+
+The control fast path is gated by **`CLS_CTRL[2]`** (`ctrl_class`), and unlike
+`CLS_CTRL[1]` it **resets to 1**. `CLS_CTRL` therefore resets to `0x5`, not
+`0x1`. The reasoning, since the house pattern for a wire-behaviour change is
+normally to ship it off:
+
+* `CLS_CTRL[1]` ships **off** because it *restricts* an arm silicon already
+  depends on — turning it on can only take a queue away from a frame that has
+  it today, so software opts in. `CLS_CTRL[2]` is the opposite: it *implements* a
+  documented row that was never on the wire. The frames it moves are on q0
+  today and q2 outranks q0, so the change cannot take service away from
+  anything. There is no working behaviour to protect.
+* The map is the spec. Shipping the bit off would leave the q2 row of this very
+  page fiction, which is the defect being fixed.
+* It still gets a bit at all — the gPTP fast path has none — because **a fast
+  path is unbypassable by the tables**: once control frames short-circuit, no
+  `CLS_PCP_TC_MAP` / `CLS_TC_QUEUE_MAP` programming can move them. `CLS_CTRL[2]
+  = 0` is the only way back to table-only classification, and it restores the
+  VERSION `0x0011` wire behaviour **bit-for-bit** — which also makes it a clean
+  bisect lever if control traffic on q2 ever surprises anyone in the field.
 
 ## CBS reset slopes
 
@@ -211,3 +313,10 @@ software AVDECC controller or a software MSRP stack lands on q2, gPTP from the
 PTP daemon lands on q3, and everything else lands on q0. Moving the fabric
 talker inside the shaper is a separate piece of work (the `is_1g` follow-up
 noted in `milan_datapath.sv`).
+
+That bounds what `REQ-CLS-10` changes on the wire, and the honest version is
+worth stating: the fabric already emits ADP, ACMP, AECP, MAAP and the lwSRP
+MSRP/MVRP PDUs downstream of this classifier, so those frames never touched a
+queue and are unaffected. What moves from q0 to q2 is **software**-originated
+control traffic — a host AVDECC controller or a host MRP stack — plus anything
+the fabric hands to the classifier in future. The map is now true for both.

@@ -20,6 +20,7 @@ module datapath_wrap #(
   // classifier config
   input  wire                          cls_use_pcp_i,
   input  wire                          cls_dmac_check_i,
+  input  wire                          cls_ctrl_class_i,
   input  wire [2:0]                    cls_default_pcp_i,
   input  wire [23:0]                   cls_pcp_tc_map_i,
   input  wire [23:0]                   cls_prio_regen_i,
@@ -60,6 +61,7 @@ module datapath_wrap #(
   ) dut (
     .clk(clk), .resetn(resetn), .is_1g_i(is_1g_i),
     .cls_use_pcp_i(cls_use_pcp_i), .cls_dmac_check_i(cls_dmac_check_i),
+    .cls_ctrl_class_i(cls_ctrl_class_i),
     .cls_default_pcp_i(cls_default_pcp_i), .cls_pcp_tc_map_i(cls_pcp_tc_map_i),
     .cls_prio_regen_i(cls_prio_regen_i), .cls_tc_queue_map_i(cls_tc_queue_map_i),
     .cbs_idle_slope_i(cbs_idle_slope_i), .cbs_hi_credit_i(cbs_hi_credit_i),

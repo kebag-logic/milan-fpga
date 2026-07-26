@@ -80,7 +80,7 @@ module controller_rate_wrap #(
     .TDATA_WIDTH(TDATA_WIDTH), .BIG_ENDIAN(0), .NUMBER_OF_QUEUES(NQ)
   ) dut (
     .clk(clk), .resetn(resetn), .is_1g_i(is_1g_i),
-    .cls_use_pcp_i(cls_use_pcp_i), .cls_dmac_check_i(1'b0),
+    .cls_use_pcp_i(cls_use_pcp_i), .cls_dmac_check_i(1'b0), .cls_ctrl_class_i(1'b1),
     .cls_default_pcp_i(cls_default_pcp_i), .cls_pcp_tc_map_i(cls_pcp_tc_map_i),
     .cls_prio_regen_i(cls_prio_regen_i), .cls_tc_queue_map_i(cls_tc_queue_map_i),
     .cbs_idle_slope_i(cbs_idle_slope_i), .cbs_hi_credit_i(cbs_hi_credit_i),

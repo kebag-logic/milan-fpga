@@ -80,6 +80,7 @@ consumer using those strobes (`REQ-CSR-03`).
 | i_stats             | input     | wire [32*9-1:0]         | Live RMON counters, packed {STAT8..STAT0}            |
 | o_cls_use_pcp       | output    | wire                    | Classify by PCP table vs EtherType (CLS_CTRL[0])    |
 | o_cls_dmac_check    | output    | wire                    | Reserved-DMAC validation (CLS_CTRL[1])              |
+| o_cls_ctrl_class    | output    | wire                    | Untagged-control DMAC fast path (CLS_CTRL[2])       |
 | o_cls_default_pcp   | output    | wire [2:0]              | Default port priority (untagged)                     |
 | o_cls_pcp_tc_map    | output    | wire [23:0]             | Priority->traffic-class table (8x3)                  |
 | o_cls_prio_regen    | output    | wire [23:0]             | Priority regeneration table (8x3)                    |
