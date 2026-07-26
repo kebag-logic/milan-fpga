@@ -40,6 +40,10 @@ Plus (repo-level, single-sourced so nothing can drift):
                       are the loud FALLBACK only.
   hdl/ieee8021q/srp/gen/lwsrp_table.svh   - the DEPLOYED shape's lwSRP table
                       (written by the one config carrying srp.rtl_table).
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of that
+                      table (0x680 reset words + the PriorityAndRank byte),
+                      `include-d BY hdl/common/csr/milan_csr.sv: the config
+                      IS those literals now, they are not copied into RTL.
 
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
@@ -161,19 +165,41 @@ BOARDS = {
 }
 
 # Physical audio interfaces (item-4 subtask). channels = per direction.
-# i2s_philips (KL_i2s_playback / aaf_talker_i2s) and the tdm family
-# (KL_tdm_capture -> KL_aaf_packetizer multi-channel payload, selected via
-# milan_soc.py --audio-interface) exist in RTL; aes3/spdif have their
-# interface contract documented (hdl/ieee1722/aaf/doc/
-# audio_frontend_family.md) - the biphase-mark ser/des is a later member.
+# `rtl` says how far the fabric has got for this kind:
+#   present - front-end RTL AND the milan_datapath/milan_soc plumbing exist
+#             (i2s_philips: KL_i2s_playback / aaf_talker_i2s; the tdm family:
+#             KL_tdm_capture -> KL_aaf_packetizer, milan_soc.py
+#             --audio-interface)
+#   serdes  - the ser/des RTL exists and is TB-proven, but the datapath
+#             generate + the --audio-interface value do not (yet) carry it.
+#             That is the AES3/S-PDIF state since 2026-07-26: KL_aes3_rx +
+#             KL_aes3_tx implement the whole biphase-mark transport and
+#             tb/verilator/aes3 proves it, so the config SELECTS the family
+#             member and its SV parameters (emit_interface_params below);
+#             only the SoC wiring is still a planned mark.
 INTERFACES = {
     "i2s_philips": dict(channels=2,  word_bits=(16, 24),     rtl="present"),
     "tdm8":        dict(channels=8,  word_bits=(16, 24, 32), rtl="present"),
     "tdm16":       dict(channels=16, word_bits=(16, 24, 32), rtl="present"),
     "tdm32":       dict(channels=32, word_bits=(16, 24, 32), rtl="present"),
-    "aes3":        dict(channels=2,  word_bits=(16, 20, 24), rtl="planned"),
-    "spdif":       dict(channels=2,  word_bits=(16, 20, 24), rtl="planned"),
+    "aes3":        dict(channels=2,  word_bits=(16, 20, 24), rtl="serdes",
+                        consumer=0),
+    "spdif":       dict(channels=2,  word_bits=(16, 20, 24), rtl="serdes",
+                        consumer=1),
 }
+
+#: The AES3/S-PDIF family (hdl/ieee1722/aaf/KL_aes3_rx.sv + KL_aes3_tx.sv).
+#: ONE core serves both transports: CONSUMER_P picks the channel-status
+#: dialect (0 = AES3-2009 professional, 1 = IEC 60958-3 consumer) and nothing
+#: else. UI_PER_FRAME_C is the transport's own arithmetic: 2 subframes x 32
+#: cells x 2 unit intervals, so the serial clock is
+#: sampling_rate_hz * 128 * OVERSAMPLE_P.
+AES3_RX_MODULE = "KL_aes3_rx"
+AES3_TX_MODULE = "KL_aes3_tx"
+AES3_UI_PER_FRAME = 128           #: unit intervals per AES3 frame (2 subframes)
+AES3_OVERSAMPLE = 4               #! clk_audio_i cycles per UI (KL_aes3_tx default)
+AES3_LOCK_BLOCKS = 2              #: clean 192-frame blocks before locked_o
+AES3_BLOCK_FRAMES = 192           #: AES3-2009 4.3 channel-status block
 
 # SoC-glue policy defaults (overridable via the optional `soc:` section).
 # These mirror today's ship recipe = sw/litex/sweep.sh BASE (design flags).
@@ -770,6 +796,21 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
     lat = int(s["accumulated_latency_ns"])
     if not 0 <= lat <= 0xFFFFFFFF:
         raise ConfigError(f"srp.accumulated_latency_ns {lat} outside 32 bits")
+    # LWSRP_CTRL[0] / [1] are SINGLE BITS of the reset word milan_csr.sv now
+    # compiles in from the generated header; a non-boolean shifts straight
+    # into the neighbouring field (2 << 1 lands in class_queue[0]) and would
+    # be emitted without complaint.
+    for k in ("enable_at_reset", "talker_declare_at_reset"):
+        if not isinstance(s[k], bool):
+            raise ConfigError(
+                f"srp.{k} must be a boolean (got {s[k]!r}) - it is ONE BIT of "
+                f"the LWSRP_CTRL reset word hdl/common/csr/milan_csr.sv "
+                f"compiles in; any other value shifts into class_queue")
+    if not isinstance(s["rtl_table"], bool):
+        raise ConfigError(
+            f"srp.rtl_table must be a boolean (got {s['rtl_table']!r}) - it "
+            f"decides whether this config OWNS the tracked generated RTL "
+            f"headers ({CSR_DEFAULTS_REL})")
 
     # ---- per-talker TSpec ------------------------------------------------
     rate = clocking["sampling_rate_hz"]
@@ -859,6 +900,24 @@ def srp_reset_words(cfg):
 SRP_CSR_OFFSETS = {"LWSRP_CTRL": 0x680, "LWSRP_VID": 0x684,
                    "LWSRP_DMAC_LO": 0x688, "LWSRP_DMAC_HI": 0x68C,
                    "LWSRP_TSPEC": 0x690, "LWSRP_LATENCY": 0x6A0}
+
+#: The values hdl/common/csr/milan_csr.sv carried as HAND-WRITTEN literals up
+#: to and including 11944cd, before the include below made the config their
+#: only source. Frozen here so the switch is provably a refactor: gate 20a
+#: asserts emitted == frozen == the generated header == REGISTER_MAP, so a
+#: config edit that would move a deployed reset word fails loudly instead of
+#: silently re-elaborating the CSR block.
+SRP_FROZEN_RESETS = {"LWSRP_CTRL": 0x0000000C, "LWSRP_VID": 0x00000002,
+                     "LWSRP_DMAC_LO": 0xF000FE01, "LWSRP_DMAC_HI": 0x000091E0,
+                     "LWSRP_TSPEC": 0x000100E0, "LWSRP_LATENCY": 0x00000000}
+SRP_FROZEN_PRIO_RANK = 0x70          #: milan_csr's old SRP_PRIO_RANK_C literal
+
+#: Where milan_csr.sv `include-s the emitted CSR defaults from. The path is
+#: RELATIVE TO hdl/common/csr (Verilator resolves `include against -I/+incdir
+#: and the CWD only, never against the including file), which every consumer
+#: already carries as an include dir - exactly like gen/aecp_aem_rom.svh.
+CSR_DEFAULTS_INCLUDE = "gen/lwsrp_csr_defaults.svh"
+CSR_DEFAULTS_REL = "hdl/common/csr/" + CSR_DEFAULTS_INCLUDE
 
 
 def emit_lwsrp_table(cfg):
@@ -1018,6 +1077,96 @@ def emit_lwsrp_svh(cfg, table):
     a("`endif  // LWSRP_TABLE_SVH")
     a("")
     return "\n".join(ln)
+
+
+def emit_csr_defaults_svh(cfg):
+    """The CSR-facing SUBSET of the lwSRP table, as the SystemVerilog include
+    hdl/common/csr/milan_csr.sv actually compiles (`include
+    "gen/lwsrp_csr_defaults.svh"). Everything here was a hand-written literal
+    in that file up to 11944cd; the config is the only source now.
+
+    Deliberately a SUBSET, not emit_lwsrp_svh(): milan_csr consumes seven
+    constants, and dragging the full table (SR class, MRP timers, the 120-bit
+    per-stream row array) into the CSR block would put ~20 unused localparams
+    and an unpacked array into every milan_csr elaboration. Both files are
+    written from ONE config in ONE pass, and gate 20a compares them word for
+    word, so the subset can never disagree with the table.
+
+    Include-only, exactly like hdl/ieee17221/aecp/gen/aecp_aem_rom.svh: no
+    `default_nettype (it would leak into the includer's scope), no include
+    guard (these are MODULE-scope localparams - a second including module in
+    the same compilation unit must get its own copy) and no net decls."""
+    s = cfg["srp"]
+    ln = []
+    a = ln.append
+    a("// SPDX-FileCopyrightText: 2026 Kebag Logic")
+    a("// SPDX-License-Identifier: CERN-OHL-W-2.0")
+    a("//--------------------------------------------------------------------"
+      "-------//")
+    a("//  File        : lwsrp_csr_defaults.svh")
+    a("//  Project     : Milan FPGA Platform  (milan_csr 0x680 lwSRP group)")
+    a("//")
+    a("//  GENERATED by sw/builder/endstation_builder.py - DO NOT EDIT.")
+    a(f"//  Source      : {cfg['source']}")
+    a("//  Description : The 0x680 lwSRP CSR group's reset words and the")
+    a("//                PriorityAndRank byte milan_csr.sv drives onto")
+    a("//                o_srp_ctx_prio_rank. `include-d BY")
+    a("//                hdl/common/csr/milan_csr.sv, so the declarative end-")
+    a("//                station config IS these values rather than being")
+    a("//                compared against a second hand-written copy.")
+    a("//                Same values as the full table")
+    a("//                hdl/ieee8021q/srp/gen/lwsrp_table.svh (one config,")
+    a("//                one pass; test_builder gate 20a compares them).")
+    a("//                Include-only: no `default_nettype directive (it would")
+    a("//                leak into the includer's scope), no include guard")
+    a("//                (module-scope localparams - each including module")
+    a("//                needs its own copy, exactly like")
+    a("//                gen/aecp_aem_rom.svh) and no net decls.")
+    a("//--------------------------------------------------------------------"
+      "-------//")
+    a("")
+    a("  //! PriorityAndRank for CSR-provisioned SRP rows (= lwsrp_pkg::")
+    a("  //! SR_PRIO_RANK_C): priority[7:5], rank[4], reserved[3:0]")
+    a(f"  localparam [7:0] LWSRP_PRIO_RANK_C = 8'h{s['prio_rank']:02X};")
+    a("")
+    a("  //! 0x680 group reset words (REGISTER_MAP.md '0x680 - lwSRP engine')")
+    for k, v in srp_reset_words(cfg).items():
+        a(f"  localparam [31:0] {k + '_RST_C':<21} = "
+          f"32'h{v >> 16:04X}_{v & 0xFFFF:04X};"
+          f"  //! 0x{SRP_CSR_OFFSETS[k]:03X}")
+    a("")
+    return "\n".join(ln)
+
+
+def emit_interface_params(cfg):
+    """The SV parameters `audio_interface` selects on the physical front-end.
+
+    For the AES3/S-PDIF family this IS the config switch: one core
+    (KL_aes3_rx / KL_aes3_tx) serves both transports, and the config decides
+    CONSUMER_P (the channel-status dialect), WORD_BITS_P (what the link
+    truncates to) and the serial clock the media clock implies. Returns None
+    for the kinds whose front-end takes no config-driven parameters today.
+    test_builder gate 21a parses the RTL and asserts these names and defaults
+    are the ones the modules actually carry."""
+    i = cfg["interface"]
+    if i["rtl"] != "serdes":
+        return None
+    return {
+        "family": "aes3",
+        "kind": i["kind"],
+        "rx_module": AES3_RX_MODULE,
+        "tx_module": AES3_TX_MODULE,
+        "params": {
+            "CONSUMER_P": INTERFACES[i["kind"]]["consumer"],
+            "WORD_BITS_P": i["word_length_bits"],
+            "OVERSAMPLE_P": AES3_OVERSAMPLE,
+            "LOCK_BLOCKS_P": AES3_LOCK_BLOCKS,
+        },
+        "serial_clk_hz": i["serial_clk_hz"],
+        "serial_clk_div": i["serial_clk_div"],
+        "block_frames": AES3_BLOCK_FRAMES,
+        "testbench": "tb/verilator/aes3",
+    }
 
 
 # ------------------------------------------------------- platform / DT ------
@@ -1450,8 +1599,22 @@ def load_config(path):
                           f"{CLUSTER_POLICIES}")
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
-        cluster_policy=policy,
+        cluster_policy=policy, rtl=iinfo["rtl"],
     )
+    # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock
+    # (sampling_rate_hz x 128 UI/frame x OVERSAMPLE_P). A config whose audio
+    # PLL cannot produce it would emit a KL_aes3_tx that transmits at the
+    # wrong rate - refuse it here rather than on the bench.
+    if iinfo["rtl"] == "serdes":
+        need = rate * AES3_UI_PER_FRAME * AES3_OVERSAMPLE
+        if clocking["audio_pll_hz"] % need:
+            raise ConfigError(
+                f"audio_interface.kind '{kind}' at {rate} Hz needs a serial "
+                f"clock of {need} Hz (rate x {AES3_UI_PER_FRAME} UI/frame x "
+                f"{AES3_OVERSAMPLE} oversample), which is not an integer "
+                f"divide of clocking.audio_pll_hz {clocking['audio_pll_hz']}")
+        interface["serial_clk_hz"] = need
+        interface["serial_clk_div"] = clocking["audio_pll_hz"] // need
 
     # streams
     st = _req(cfg, "streams", path)
@@ -1547,11 +1710,22 @@ def rtl_capability_marks(cfg):
                       else "KL_tdm_capture -> KL_aaf_packetizer multi-channel "
                            "payload (milan_soc.py --audio-interface)"))
     else:
-        marks.append((f"audio interface {kind}",
-                      "planned (item 4 subtask - AES3/S-PDIF biphase-mark ser/des)",
-                      "interface contract documented "
-                      "(hdl/ieee1722/aaf/doc/audio_frontend_family.md); the "
-                      "biphase-mark clock-recovery RTL is the later family member"))
+        ip = emit_interface_params(cfg)
+        marks.append((f"audio interface {kind} biphase-mark ser/des",
+                      "supported",
+                      f"{AES3_RX_MODULE} + {AES3_TX_MODULE}: recovered symbol "
+                      f"clock, X/Y/Z subframe+block framing, P-parity and "
+                      f"channel status, honest lock/error census "
+                      f"(CONSUMER_P={ip['params']['CONSUMER_P']}, "
+                      f"WORD_BITS_P={ip['params']['WORD_BITS_P']}, serial "
+                      f"clock {ip['serial_clk_hz']} Hz); suite "
+                      f"{ip['testbench']}"))
+        marks.append((f"audio interface {kind} datapath integration",
+                      "planned (item 4 subtask - AES3/S-PDIF SoC plumbing)",
+                      "the ser/des RTL is landed and TB-proven; MISSING = the "
+                      "milan_datapath front-end generate for the AES3 family "
+                      "and the milan_soc.py --audio-interface value that "
+                      "selects it (the tdm kinds' path, reused)"))
     rate = cfg["clocking"]["sampling_rate_hz"]
     if rate in RTL_TODAY["sampling_rates"]:
         marks.append((f"{rate} Hz media clock", "supported", ""))
@@ -1987,6 +2161,13 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     a("")
     a(f"- {i['kind']}: {i['channels']} ch/direction, {i['word_length_bits']}-bit"
       f" words, cluster policy {i['cluster_policy']}")
+    ip = emit_interface_params(cfg)
+    if ip:
+        a(f"- ser/des: `{ip['rx_module']}` + `{ip['tx_module']}` "
+          + ", ".join(f"`{k}={v}`" for k, v in ip["params"].items()))
+        a(f"- serial clock: {ip['serial_clk_hz']} Hz "
+          f"({clk['sampling_rate_hz']} Hz x {AES3_UI_PER_FRAME} UI/frame x "
+          f"{AES3_OVERSAMPLE} oversample) = audio PLL / {ip['serial_clk_div']}")
     a("")
     a("## Streams")
     a("")
@@ -2063,6 +2244,8 @@ def build(config_path, outdir=None):
     overlay = emit_aem_overlay(cfg)
     lwsrp = emit_lwsrp_table(cfg)
     lwsrp_svh = emit_lwsrp_svh(cfg, lwsrp)
+    csr_svh = emit_csr_defaults_svh(cfg)
+    iparams = emit_interface_params(cfg)
     shape = emit_platform_shape(cfg)
     dtsi = emit_dt_overlay(cfg)
     marks = rtl_capability_marks(cfg)
@@ -2093,6 +2276,9 @@ def build(config_path, outdir=None):
     p_srp_svh = os.path.join(d, "lwsrp_table.svh")
     with open(p_srp_svh, "w") as f:
         f.write(lwsrp_svh)
+    p_csr_svh = os.path.join(d, "lwsrp_csr_defaults.svh")
+    with open(p_csr_svh, "w") as f:
+        f.write(csr_svh)
     p_shape = os.path.join(d, "platform_shape.json")
     with open(p_shape, "w") as f:
         json.dump(shape, f, indent=1)
@@ -2109,22 +2295,30 @@ def build(config_path, outdir=None):
         f.write(sweep)
     paths = dict(soc_params=p_soc, aem_overlay=p_ovl, build_plan=p_plan,
                  lwsrp_table=p_srp, lwsrp_svh=p_srp_svh,
+                 csr_defaults_svh=p_csr_svh,
                  platform_shape=p_shape, dt_overlay=p_dtsi,
                  sweep_opts=p_sweep)
-    # The TRACKED RTL table: exactly one config (the DEPLOYED shape, marked
-    # srp.rtl_table) owns hdl/ieee8021q/srp/gen/lwsrp_table.svh, so the
-    # generated include and the hand-written RTL constants it mirrors are
-    # gate-compared on every run (test_builder 18a/18b).
+    # The TRACKED RTL headers: exactly one config (the DEPLOYED shape, marked
+    # srp.rtl_table) owns them. lwsrp_table.svh is the full contract for the
+    # srp tree; lwsrp_csr_defaults.svh is the subset milan_csr.sv COMPILES,
+    # so a config edit re-elaborates the CSR block instead of drifting away
+    # from it (test_builder 18a/18b/20a).
     if cfg["srp"]["rtl_table"]:
         gen_svh = os.path.join(ROOT, "hdl/ieee8021q/srp/gen/lwsrp_table.svh")
         os.makedirs(os.path.dirname(gen_svh), exist_ok=True)
         with open(gen_svh, "w") as f:
             f.write(lwsrp_svh)
         paths["rtl_lwsrp_svh"] = gen_svh
+        csr_gen = os.path.join(ROOT, CSR_DEFAULTS_REL)
+        os.makedirs(os.path.dirname(csr_gen), exist_ok=True)
+        with open(csr_gen, "w") as f:
+            f.write(csr_svh)
+        paths["rtl_csr_defaults_svh"] = csr_gen
     return dict(cfg=cfg, argv=argv, overlay=overlay, marks=marks, plan=plan,
                 resource_estimate=est, sweep_opts=sweep, lwsrp=lwsrp,
-                lwsrp_svh=lwsrp_svh, platform=shape, dt_overlay=dtsi,
-                paths=paths)
+                lwsrp_svh=lwsrp_svh, csr_defaults_svh=csr_svh,
+                interface_params=iparams,
+                platform=shape, dt_overlay=dtsi, paths=paths)
 
 
 def main():
