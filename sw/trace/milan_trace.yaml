@@ -1,0 +1,600 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# milan_trace.yaml - the CTF trace ABI for the Milan end-station.
+#
+# THIS FILE IS THE CONTRACT.  barectf turns it into (a) a CTF 1.8 `metadata`
+# document, which is what any reader (babeltrace2, Trace Compass, our own
+# sw/trace/ctf_read.py) needs to decode a stream, and (b) dependency-free C
+# that produces those streams.  Both live checked-in under generated/ so the
+# repo gate runs WITHOUT barectf installed; sw/trace/test_trace_roundtrip.py
+# re-generates and diffs when barectf IS importable.
+#
+#   milan_trace.yaml --barectf--> generated/metadata      (the decode ABI)
+#                              -> generated/barectf.[ch]  (the producer)
+#
+# Design record + the reason each event exists:
+#   docs/design/TRACE_LOGGING.md
+#
+# RULES FOR CHANGING THIS FILE (it is an ABI, and a trace outlives the build
+# that wrote it):
+#   * MEASURED, not assumed: barectf 3.1.2 assigns event-record type IDs by
+#     SORTED EVENT NAME, not by declaration order
+#     (barectf/config.py: `enumerate(sorted(..., key=lambda evt: evt.name))`).
+#     So adding an event called `abort` would renumber EVERY event after it
+#     alphabetically.  The declaration order below is for human reading only.
+#     The consequence is a hard requirement, not a style note: **`metadata` must
+#     travel with the segments and a reader must use the SHIPPED metadata, never
+#     the current one.**  sw/trace/trace_segment.py copies it into every unpacked
+#     trace directory for exactly this reason, and
+#     sw/trace/test_trace_roundtrip.py pins the id->name map so a renumber is a
+#     visible diff instead of a silent mis-decode.
+#   * a payload member may be APPENDED to an event; existing members must not
+#     change size, signedness or meaning.
+#   * bump `environment.milan_trace_abi` on any change, breaking or not; it is
+#     also repeated in-band in the `boot` event so a stream that lost its
+#     metadata can still be identified.
+#
+# The trace clock is CLOCK_MONOTONIC in MICROSECONDS, NOT the PHC.  A gPTP step
+# moves the PHC backwards; a CTF clock that jumps backwards corrupts the whole
+# trace (timestamp_begin/end, packet ordering, every reader's index).  PTP time
+# is carried as ORDINARY PAYLOAD in the `ptp` event, so a clock step is visible
+# as data instead of destroying the container.  See TRACE_LOGGING.md.
+#
+# The event-record timestamp field is 32 bits over a 1 MHz clock = it wraps
+# every 4294.97 s (71.6 min).  A CTF reader reconstructs the full 64-bit value
+# from the packet's 64-bit timestamp_begin plus the assumption that consecutive
+# records are less than one wrap apart.  THAT ASSUMPTION IS A REQUIREMENT ON THE
+# PRODUCER: the `heartbeat` event MUST be emitted at least every 60 s so the gap
+# between two records can never approach 71.6 min.  MILAN_TRACE_HEARTBEAT_MAX_US
+# in milan_trace.h is the same number, and test_trace_roundtrip.py checks it.
+
+--- !<tag:barectf.org,2020/3/config>
+
+trace:
+  # ---- environment: what produced this trace -----------------------------
+  # `hostname`/`sysname` are deliberately absent: a trace is an artifact that
+  # leaves the bench, and the repo's local-information rule applies to it too.
+  environment:
+    milan_trace_abi: 1
+    project: milan-fpga
+
+  type:
+    native-byte-order: little-endian
+
+    # ---- packet header: 4-byte magic + 1-byte stream id ------------------
+    # The magic is kept (barectf can drop it) because it is the RESYNC ANCHOR:
+    # a reader scanning a torn or partially-decompressed segment finds the next
+    # packet by hunting 0xC1FC1FC1 on an 8-byte boundary.  UUID is dropped - it
+    # costs 16 B per packet and the `boot_id` packet-context member below
+    # answers the question a UUID would ("same boot?") in 4.
+    $features:
+      magic-field-type:
+        class: unsigned-integer
+        size: 32
+      uuid-field-type: false
+      data-stream-type-id-field-type:
+        class: unsigned-integer
+        size: 8
+
+    $field-type-aliases:
+      u8:   {class: unsigned-integer, size: 8}
+      u16:  {class: unsigned-integer, size: 16}
+      u32:  {class: unsigned-integer, size: 32}
+      u64:  {class: unsigned-integer, size: 64}
+      i16:  {class: signed-integer,   size: 16}
+      i32:  {class: signed-integer,   size: 32}
+      i64:  {class: signed-integer,   size: 64}
+      # hex-preferred views (readers print base 16) for register words and ids
+      x8:   {class: unsigned-integer, size: 8,  preferred-display-base: hexadecimal}
+      x16:  {class: unsigned-integer, size: 16, preferred-display-base: hexadecimal}
+      x32:  {class: unsigned-integer, size: 32, preferred-display-base: hexadecimal}
+      x64:  {class: unsigned-integer, size: 64, preferred-display-base: hexadecimal}
+      bool: {class: unsigned-integer, size: 8}
+      str:  {class: string}
+
+      # severity drives the FLUSH POLICY, not just pretty printing: a record at
+      # WARN or above is what arms a flush to /user (TRACE_LOGGING.md section 6).
+      sev:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          DEBUG:  [0]
+          INFO:   [1]
+          NOTICE: [2]
+          WARN:   [3]
+          ERROR:  [4]
+          FATAL:  [5]
+
+      # which producer wrote the record.  Several processes share one ring
+      # through the same CSR plane; "who saw this" is half of every postmortem.
+      src:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          FABRIC:    [0]    # a CSR-plane poller reading gateware state
+          JOURNALD:  [1]    # the saved-state journal writer/replayer
+          LINKMON:   [2]    # link/PHY supervisor
+          PROVISION: [3]    # stream-window provisioning (the 0x800 writer)
+          AUDIO:     [4]    # ALSA/PipeWire-side agent
+          KERNEL:    [5]    # kl-eth / snd-kl-milan shim
+          TRACE:     [6]    # the tracer talking about itself
+          TEST:      [7]    # host self-test / bench injection
+
+      # ACMP listener SM, REGISTER_MAP 0x6A4 [2:0]
+      lsm:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          UNBOUND:        [0]
+          PRB_W_AVAIL:    [1]
+          PRB_W_DELAY:    [2]
+          PRB_W_RESP:     [3]
+          PRB_W_RESP2:    [4]
+          PRB_W_RETRY:    [5]
+          SETTLED_NO_RSV: [6]
+          SETTLED_RSV_OK: [7]
+
+      # persistence-journal verdicts, REGISTER_MAP 0x7C0 [7:4]
+      jverdict:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          NONE:    [0]
+          ACCEPT:  [1]
+          MAGIC:   [2]
+          VERSION: [3]
+          SHAPE:   [4]
+          LENGTH:  [5]
+          CRC:     [6]
+          ENTITY:  [7]
+          STALE:   [8]
+
+      jop:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          READ:    [0]
+          VERIFY:  [1]
+          REPLAY:  [2]
+          WRITE:   [3]
+          SKIP:    [4]
+
+      # which latency-tap chain, docs/AAF_LATENCY_TAPS.md
+      tap:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          TX_CAP_SOF:    [0]
+          TX_SOF_EOF:    [1]
+          TX_EOF_MAC:    [2]
+          RX_MAC_ACCEPT: [3]
+          RX_ACCEPT_DEPKT: [4]
+          RX_DEPKT_RING: [5]
+
+      ringid:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          RX_BD:  [0]     # host-plane RX descriptor ring
+          TX_BD:  [1]
+          PCM_RX: [2]     # AVTP depacketizer -> PCM ring
+          PCM_TX: [3]
+          TRACE:  [4]     # this tracer's own RAM ring
+
+      # why the tracer lost records
+      droprsn:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          RING_FULL:    [0]   # producer outran the ring; oldest packets dropped
+          BACKEND_FULL: [1]   # barectf back end refused a packet
+          FLUSH_FAIL:   [2]   # the write to /user failed
+          BUDGET:       [3]   # the flash write budget refused the flush
+          TRUNCATED:    [4]   # a segment was found torn at read time
+
+      flushv:
+        class: unsigned-enumeration
+        size: 8
+        mappings:
+          OK:         [0]
+          NOSPACE:    [1]
+          IOERROR:    [2]
+          COMPRESS:   [3]
+          RATELIMIT:  [4]
+          DISABLED:   [5]
+
+    # ---- clock -----------------------------------------------------------
+    clock-types:
+      mono:
+        frequency: 1000000        # 1 MHz = microseconds
+        precision: 0
+        origin-is-unix-epoch: false
+        $c-type: uint64_t
+        description: >-
+          Free-running monotonic microseconds since tracer init. NOT the PHC:
+          the PHC steps on a gPTP correction and a CTF clock must never move
+          backwards. PTP time is payload (see the `ptp` event).
+
+    data-stream-types:
+      milan:
+        $is-default: true
+        $default-clock-type-name: mono
+
+        $features:
+          packet:
+            total-size-field-type:   u32
+            content-size-field-type: u32
+            beginning-timestamp-field-type: u64
+            end-timestamp-field-type:       u64
+            # a lost-packet counter and a packet sequence number: after a torn
+            # segment or a ring overrun, these are how a reader proves records
+            # are MISSING rather than assuming continuity.
+            discarded-event-records-counter-snapshot-field-type: u32
+            sequence-number-field-type: u32
+          event-record:
+            type-id-field-type: u8
+            # 32-bit truncated timestamp - see the header note about the
+            # mandatory heartbeat.
+            timestamp-field-type: u32
+
+        # `boot_id` distinguishes packets written before and after a reboot when
+        # segments from several boots sit in /user/log together. It is the cheap
+        # 4-byte answer to what the dropped 16-byte trace UUID would have said.
+        packet-context-field-type-extra-members:
+          - boot_id: x32
+
+        # 2 bytes on EVERY record. Severity is the flush trigger; source is who
+        # saw it. Both are questions asked of every single record in a
+        # postmortem, which is exactly what common context is for.
+        event-record-common-context-field-type:
+          class: structure
+          members:
+            - sev: sev
+            - src: src
+
+        event-record-types:
+
+          # -- 0 -------------------------------------------------------------
+          # First record of every trace. Everything a reader needs to know
+          # which gateware and which shape produced the rest.
+          boot:
+            log-level: 1
+            payload-field-type:
+              class: structure
+              members:
+                - boot_id:      x32
+                - csr_id:       x32   # 0x000 'MILN'
+                - csr_version:  x32   # 0x004 VERSION - the ABI of every other word
+                - entity_id:    x64
+                - board:        str    # "ax7101" / "arty"
+                - n_listeners:  u8
+                - n_talkers:    u8
+                - ring_bytes:   u32
+                - abi:          u32    # env.milan_trace_abi, repeated in-band
+
+          # -- 1 -------------------------------------------------------------
+          # Mandatory: bounds the 32-bit record timestamp wrap AND proves the
+          # tracer is alive (a trace that stops is otherwise indistinguishable
+          # from a box that went quiet).
+          heartbeat:
+            payload-field-type:
+              class: structure
+              members:
+                - uptime_s: u32
+                - armed:    x32   # bitmap of subsystems the poller is watching
+
+          # -- 2 -------------------------------------------------------------
+          # LINKG_STAT 0x774 + LINK_CTRL 0x71C. The 2026-07-24 link-guard
+          # eth_rst deadlock and the "MAC-TX permanent wedge on link bounce"
+          # both show here first, and both are invisible in any text log.
+          link:
+            payload-field-type:
+              class: structure
+              members:
+                - linkg_stat: x32
+                - link_ctrl:  x32
+                - bounce_cnt: u16
+                - state:      u8     # LINKG_STAT[5:4] 0 RUN 1 HOLD 2 SETTLE
+                - rx_alive:   bool
+                - tx_alive:   bool
+                - eth_rst:    bool
+                - guard_rst:  bool
+
+          # -- 3 -------------------------------------------------------------
+          # RST_EPOCH 0x720. The shadow-lie canary (RECURRING_DEFECT_PATTERNS
+          # pattern 8): a CSR that reads its pre-reset value is indistinguishable
+          # from a configured one UNLESS you know a reset happened. This event is
+          # what makes every later CSR value in the trace interpretable.
+          mac_reset:
+            log-level: 4
+            payload-field-type:
+              class: structure
+              members:
+                - rst_epoch: u32
+                - prev_epoch: u32
+
+          # -- 4 -------------------------------------------------------------
+          # ACMPL_STATE 0x6A4 + TALKER_LO/HI 0x6A8/0x6AC + TUID 0x6B4.
+          # The fast-connect ladder. Emitted on CHANGE, so the trace is the
+          # transition list a bench operator would otherwise hand-poll.
+          acmp_listener:
+            payload-field-type:
+              class: structure
+              members:
+                - idx:        u8
+                - state:      lsm
+                - prev_state: lsm
+                - flags:      x16   # 0x6A4 [7:3] bound/active/declared/adv/failed
+                - status:     u8    # 0x6A4 [12:8] last ACMP status
+                - probing:    u8    # 0x6A4 [14:13]
+                - talker_eid: x64
+                - talker_uid: u16
+                - vlan:       u16
+                - msrp_fail:  u8    # 0x6B4 [23:16]
+
+          # -- 5 -------------------------------------------------------------
+          # LWSRP_STATUS 0x694 + SLOPE 0x698 + CNT 0x69C.
+          # `row_shortfall` is 0x694[11] - documented as the ONLY software-
+          # visible symptom of a refused reservation row, which is precisely the
+          # class of failure that leaves no other footprint.
+          srp:
+            payload-field-type:
+              class: structure
+              members:
+                - status:        x32
+                - slope_bps:     u32
+                - mrpdu_rx:      u16
+                - mrpdu_tx:      u16
+                - msrp_fail:     u8
+                - ingress_drops: u8
+                - reserved_ok:   bool   # 0x694[6]
+                - gate_open:     bool   # 0x694[8]
+                - row_shortfall: bool   # 0x694[11]
+                - talker_failed: bool   # 0x694[10]
+
+          # -- 6 -------------------------------------------------------------
+          # An admission REFUSAL, as distinct from a status word that happens to
+          # read badly. Emitted by whoever asked for the reservation.
+          srp_refusal:
+            log-level: 4
+            payload-field-type:
+              class: structure
+              members:
+                - ctx_idx:       u8
+                - msrp_fail:     u8
+                - max_frame:     u16
+                - max_interval:  u16
+                - vid:           u16
+                - want_bps:      u32
+                - granted_bps:   u32
+
+          # -- 7 -------------------------------------------------------------
+          # The 0x800 window as OBSERVED (SELECT+SNAP, read until a value
+          # repeats). TROUBLESHOOTING section 21: the whole fabric-listener
+          # blocker is one word - A_STRMW_CTRL reading 0 while the bind record
+          # says bound. That comparison needs both halves in one record.
+          stream_ctx:
+            payload-field-type:
+              class: structure
+              members:
+                - dir:      u8     # 0 listener, 1 talker
+                - idx:      u8
+                - ctrl:     x32    # 0x810 A_STRMW_CTRL
+                - sid:      x64    # 0x814/0x818 as staged in the table
+                - dmac:     x64
+                - vlan:     u16
+                - bound:    bool
+                - enabled:  bool   # ctrl[0]
+                - armed:    bool   # stream-table override armed for this index
+
+          # -- 8 -------------------------------------------------------------
+          # The 0x800 window as WRITTEN. Ordering is load-bearing ("stage SID
+          # before CTRL"), and an ordering defect is invisible unless the
+          # WRITES are in the trace, not only the resulting state.
+          stream_ctx_write:
+            payload-field-type:
+              class: structure
+              members:
+                - dir:  u8
+                - idx:  u8
+                - reg:  x16    # CSR offset written
+                - val:  x32
+                - seq:  u32    # write order within this provisioning burst
+
+          # -- 9 -------------------------------------------------------------
+          # APRB 0x8B4-0x8C4. The only listener-side view UPSTREAM of the
+          # stream-table match: parsed climbing with matched static is the exact
+          # signature of the accept blocker, and the wire SID is what you diff
+          # against the bind record.
+          parser_probe:
+            payload-field-type:
+              class: structure
+              members:
+                - parsed:        u32
+                - matched:       u32
+                - wire_sid:      x64
+                - subtype:       x8
+                - match:         bool
+                - entry_idx:     u8
+                - armed_entries: u8
+
+          # -- 10 ------------------------------------------------------------
+          # AVTPRX_STAT/FRX/ERR 0x6B8-0x6C0 + PCMRX_CNT 0x6C4 + TSD 0x6EC.
+          avtp_rx:
+            payload-field-type:
+              class: structure
+              members:
+                - stat:        x32
+                - frames_rx:   u32
+                - err:         x32
+                - pcm_pdus:    u16
+                - pcm_drops:   u16
+                - ts_delta_ns: i32
+                - media_locked: bool
+
+          # -- 11 ------------------------------------------------------------
+          # 0x870 latency taps. `saturated` exists because a 16-bit max that hit
+          # 0xFFFF during a fault describes the fault, not the system
+          # (RECURRING_DEFECT_PATTERNS pattern 8) - the trace records that the
+          # number is contaminated instead of quoting it as a measurement.
+          ltap:
+            payload-field-type:
+              class: structure
+              members:
+                - tap:       tap
+                - min_cyc:   u16
+                - last_cyc:  u16
+                - max_cyc:   u16
+                - samples:   u16
+                - timeouts:  u16
+                - saturated: bool
+
+          # -- 12 ------------------------------------------------------------
+          # Ring lap / overrun. The multi-flow collapse root cause was hardware
+          # lapping an un-gated ring; head/tail at the moment of the lap is the
+          # evidence.
+          ring:
+            log-level: 4
+            payload-field-type:
+              class: structure
+              members:
+                - which:  ringid
+                - head:   u32
+                - tail:   u32
+                - drops:  u32
+                - depth:  u32
+                - lapped: bool
+
+          # -- 13 ------------------------------------------------------------
+          # Saved-state journal: 0x7C0 verdict + 0x7C4 SEQ, and the A/B slot
+          # decision on the write side. The section 6.3 failure taxonomy is
+          # exactly this enum.
+          journal:
+            payload-field-type:
+              class: structure
+              members:
+                - op:        jop
+                - slot:      u8       # 0 = A, 1 = B
+                - verdict:   jverdict
+                - seq:       u32
+                - n_rec:     u8
+                - n_applied: u8
+                - refusals:  x8       # 0x7C0[23:16] per-record refusal bitmap
+
+          # -- 14 ------------------------------------------------------------
+          # MAAP_STAT0/1 0x6D0/0x6D4. A DMAC collision is the documented cause
+          # of lwSRP failure code 5.
+          maap:
+            payload-field-type:
+              class: structure
+              members:
+                - state:      u8
+                - offset:     u16
+                - conflicts:  u8
+                - defends:    u8
+                - addr_valid: bool
+
+          # -- 15 ------------------------------------------------------------
+          # Media clock: MMCM-DRP servo 0x8F8 + I2SPB_STAT 0x6D8 + TRIM 0x6E0.
+          # "Pumping" was a media-clock rate error; the trim/fill pair is the
+          # signal that shows it.
+          mediaclk:
+            payload-field-type:
+              class: structure
+              members:
+                - servo:     x32
+                - trim:      i16
+                - fill:      u16
+                - underruns: u16
+                - overruns:  u16
+                - locked:    bool
+
+          # -- 16 ------------------------------------------------------------
+          # gPTP. `phc_tod_ns` is here rather than in the CTF clock ON PURPOSE:
+          # a PHC step is data. `as_capable` false was a real multi-day fault.
+          ptp:
+            payload-field-type:
+              class: structure
+              members:
+                - gm_id:      x64
+                - parent_id:  x64
+                - phc_tod_ns: u64
+                - offset_ns:  i64
+                - pdelay_ns:  u32
+                - as_capable: bool
+                - gm_changed: bool
+
+          # -- 17 ------------------------------------------------------------
+          # Generic CSR audit for anything the typed events above do not cover.
+          # Deliberately NOT the default: a trace of raw addresses is a hex dump,
+          # not evidence.
+          csr_access:
+            log-level: 0
+            payload-field-type:
+              class: structure
+              members:
+                - addr:  x32
+                - val:   x32
+                - write: bool
+
+          # -- 18 ------------------------------------------------------------
+          # The tracer describing its own flush to /user. in/out bytes give the
+          # live compression ratio; `ms` gives the live compressor cost on the
+          # softcore, which is the number no host measurement can supply.
+          trace_flush:
+            payload-field-type:
+              class: structure
+              members:
+                - segment:   u32
+                - packets:   u32
+                - in_bytes:  u32
+                - out_bytes: u32
+                - ms:        u32
+                - verdict:   flushv
+                - free_bytes: u32   # /user/log budget left after this flush
+
+          # -- 19 ------------------------------------------------------------
+          # Records LOST. A trace that silently omits records is worse than no
+          # trace; this event plus the packet-context discarded counter make
+          # every gap explicit.
+          trace_drop:
+            log-level: 3
+            payload-field-type:
+              class: structure
+              members:
+                - reason:      droprsn
+                - lost_events: u32
+                - lost_bytes:  u32
+
+          # -- 20 ------------------------------------------------------------
+          # Rotation evicted an older segment. Without this, "the evidence is
+          # not in /user/log" is ambiguous between never-written and evicted.
+          trace_evict:
+            payload-field-type:
+              class: structure
+              members:
+                - segment:    u32
+                - bytes:      u32
+                - free_after: u32
+                - pinned:     bool   # the first-fault segment is never evicted
+
+          # -- 21 ------------------------------------------------------------
+          # Producer lifecycle: which daemon started, stopped, or failed.
+          daemon:
+            payload-field-type:
+              class: structure
+              members:
+                - what:   u8    # 0 start, 1 stop, 2 error, 3 config
+                - code:   u32
+                - detail: str
+
+          # -- 22 ------------------------------------------------------------
+          # The escape hatch. LAST on purpose: free text is the thing this whole
+          # design exists to avoid, and every use of it is a missing typed event.
+          note:
+            payload-field-type:
+              class: structure
+              members:
+                - code: u32
+                - text: str
