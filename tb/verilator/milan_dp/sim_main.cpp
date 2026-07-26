@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x0001000C);
+    ck("VERSION",       axi_read(A_VERSION), 0x0001000D);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -766,12 +766,49 @@ int main(int argc, char** argv) {
             inject(tf, 124);
         }
         ck("tagged: FRAMES_RX 2", axi_read(A_AVTPRX_FRX), 2);
+
         ck("tagged: PCM 48 bytes", (long)pcm.size(), 48);
         bool tag_ok = pcm.size() >= 48;
         for (int i = 0; i < 48 && tag_ok; i++)
             if (pcm[i] != (uint8_t)(0x30+i)) tag_ok = false;
         ck("tagged: payload byte-exact", tag_ok ? 1 : 0, 1);
         ck("tagged: PCMRX pdus=2", axi_read(A_PCMRX_CNT), 2);
+        // ---- RX parser probe (APRB 0x8B4-0x8C4) --------------------------
+        // The pre-match view: every counter above only exists once a frame
+        // MATCHED, so on a listener that accepts nothing they all read 0 and
+        // say nothing about why. These words see the parser itself.
+        {
+            enum { A_APRB_PARSED = 0x8B4, A_APRB_MATCHED = 0x8B8,
+                   A_APRB_SIDLO = 0x8BC, A_APRB_SIDHI = 0x8C0,
+                   A_APRB_INFO = 0x8C4 };
+            ck("APRB parsed = 2 frames",  axi_read(A_APRB_PARSED), 2);
+            ck("APRB matched = 2 frames", axi_read(A_APRB_MATCHED), 2);
+            ck("APRB last SID_HI (wire)", axi_read(A_APRB_SIDHI), 0x02000000);
+            ck("APRB last SID_LO (wire)", axi_read(A_APRB_SIDLO), 0x00020000);
+            long info = axi_read(A_APRB_INFO);
+            ck("APRB info subtype = AAF",  info & 0xFF, 0x02);
+            ck("APRB info matched flag",  (info >> 8) & 1, 1);
+            ck("APRB info armed entries", (info >> 16) & 0xFF, 1);
+
+            // The decisive negative: an AAF frame whose stream_id is NOT in
+            // the table. parsed++ (the parser saw it), matched stays put, and
+            // the latch shows the stream_id LIFTED OFF THE WIRE - which is
+            // exactly what a silicon listener that accepts nothing must be
+            // able to report.
+            uint8_t nf[112]; memcpy(nf, mkaaf(7, 0x05), 112);
+            nf[18+5] = 0x09;                      // sid ...0009 0000: unknown
+            pcm.clear(); pcm_last = false;
+            inject(nf, 112);
+            ck("APRB unknown-sid: parsed = 3",  axi_read(A_APRB_PARSED), 3);
+            ck("APRB unknown-sid: matched still 2", axi_read(A_APRB_MATCHED), 2);
+            ck("APRB unknown-sid: SID_LO is the WIRE value",
+               axi_read(A_APRB_SIDLO), 0x00090000);
+            ck("APRB unknown-sid: match flag clear",
+               (axi_read(A_APRB_INFO) >> 8) & 1, 0);
+            ck("APRB unknown-sid: no PCM payload", (long)pcm.size(), 0);
+            ck("APRB unknown-sid: FRAMES_RX still 2",
+               axi_read(A_AVTPRX_FRX), 2);
+        }
 
         // PRE-FILTER TAP (2026-07-19): program a TCAM drop entry for the
         // AVTP multicast range (91:E0:F0::/24) - the KERNEL path must go

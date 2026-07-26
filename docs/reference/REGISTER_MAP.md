@@ -46,6 +46,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
+| `0x8B4` | RX stream-parser probe (the pre-match listener view) |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) |
 
@@ -59,7 +60,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_000C` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade) |
+| `0x004` | `VERSION` | RO | `0x0001_000D` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -699,6 +700,42 @@ word `2d+1` = `{16'd0, min16}`.
 | `0x8A8` | `LTAP_RX_D1_MIN` | RO | `0xFFFF` | ACCEPT→DEPKT: `[15:0]` min |
 | `0x8AC` | `LTAP_RX_D2` | RO | `0` | DEPKT→PCM_RING: `[15:0]` last, `[31:16]` max |
 | `0x8B0` | `LTAP_RX_D2_MIN` | RO | `0xFFFF` | DEPKT→PCM_RING: `[15:0]` min |
+
+### 0x8B4  -  RX stream-parser probe  `(APRB, avtp_stream_parser + milan_datapath)`
+
+**Why this group exists (2026-07-26).** Every other listener-side counter in
+this design — `AVTPRX_*`, `PCMRX_*`, the `0x800` window `CNT0..9`, the RX
+latency taps — lives **downstream of the stream-table match**. When a bound
+listener accepts nothing they all read 0 in unison and none of them can say
+*why*: frames never arrived, or arrived and matched nothing, or matched and
+were rejected. These five words are the view **upstream** of the match, and
+they were the missing instrument in the fabric-listener accept blocker
+([`../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md)
+§21). The counters already existed inside `avtp_stream_parser`; this group
+is what finally wires them out.
+
+The `SID`/`INFO` latch only follows **stream** subtypes (`subtype[7] = 0`:
+AAF, CRF, CVF, 61883). Control traffic — ADP/ACMP/AECP/MAAP, which is
+continuous on a live fabric — is deliberately excluded so it cannot
+overwrite the media evidence between two `devmem` reads. All words are live
+RO (no arm, no snapshot) and free-running from reset; read them twice to
+get a rate.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x8B4` | `APRB_PARSED` | RO | `0` | AVTP frames the RX parser fully parsed (32-bit free-running, all subtypes) |
+| `0x8B8` | `APRB_MATCHED` | RO | `0` | of those, frames whose `stream_id` matched an ARMED stream-table entry |
+| `0x8BC` | `APRB_SID_LO` | RO | `0` | `stream_id[31:0]` **as lifted off the wire** for the last stream-subtype frame |
+| `0x8C0` | `APRB_SID_HI` | RO | `0` | `stream_id[63:32]` of that frame |
+| `0x8C4` | `APRB_INFO` | RO | `0` | `[7:0]` that frame's AVTP subtype, `[8]` it matched, `[15:12]` matched entry index, `[23:16]` stream-table entries currently armed |
+
+**Reading the three failure modes** (listener bound, nothing accepted):
+
+| `PARSED` | `MATCHED` | verdict |
+|---|---|---|
+| static | static | frames are not reaching the parser at all — look upstream (MAC, filter, classify), not at the listener |
+| climbing | static | the parser sees them and the compare misses — diff `APRB_SID_*` against the bind record (`0x814`/`0x818`) and check `INFO[23:16]` is non-zero (a table with **no armed entry** matches nothing) |
+| climbing | climbing | the match is fine; the loss is downstream — `AVTPRX_ERR` (format) then the depacketizer/ring |
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 

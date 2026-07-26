@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0001000C);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001000D);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 4);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -602,6 +602,28 @@ int main(int argc, char** argv) {
   // engine-backed words (LCTX port B) read 0 at the tie
   ck("listener CTRL 0 (LCTX tied)",   axi_read(A_SW_CTRL), 0);
   ck("listener FMT_LO 0 (LCTX tied)", axi_read(A_SW_FMT_LO), 0);
+
+  // ---- RX parser probe group (APRB 0x8B4-0x8C4) -------------------------
+  // 5 packed RO words, same >=0x800 carve-out class as the LTAP group: a
+  // missing rd_in_window term makes the whole block read 0 while the fabric
+  // counts fine (the 0x8F8 dead-read trap, hit for real on the servo word).
+  printf("-- RX parser probe (0x8B4-0x8C4) --\n");
+  const uint32_t aprb[5] = {0x00001234u, 0x000000FEu, 0x00020000u,
+                            0x02000000u, 0x0008021Au};
+  for (int k = 0; k < 5; ++k) dut->i_aprb_regs[k] = aprb[k];
+  posedge(); posedge();
+  ck("APRB frames parsed 0x8B4", axi_read(0x8B4), aprb[0]);
+  ck("APRB frames matched 0x8B8", axi_read(0x8B8), aprb[1]);
+  ck("APRB last SID_LO 0x8BC",   axi_read(0x8BC), aprb[2]);
+  ck("APRB last SID_HI 0x8C0",   axi_read(0x8C0), aprb[3]);
+  ck("APRB info 0x8C4",          axi_read(0x8C4), aprb[4]);
+  // the word above the group is unmapped: reads 0, never a shadow alias
+  ck("APRB 0x8C8 unmapped reads 0", axi_read(0x8C8), 0);
+  // live: the words follow their inputs with no arm/strobe needed
+  for (int k = 0; k < 5; ++k) dut->i_aprb_regs[k] = 0xA5A50000u + k;
+  posedge(); posedge();
+  ck("APRB word 0 live",  axi_read(0x8B4), 0xA5A50000u);
+  ck("APRB word 4 live",  axi_read(0x8C4), 0xA5A50004u);
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);

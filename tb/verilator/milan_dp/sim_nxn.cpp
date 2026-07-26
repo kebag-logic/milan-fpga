@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x000C (N-ctx responder + window honesty)", axi_read(A_VERSION), 0x0001000C);
+    ck("VERSION 0x000D (parser probe group)", axi_read(A_VERSION), 0x0001000D);
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
@@ -276,6 +276,34 @@ int main(int argc, char** argv) {
     inject(mkaaf(sidX, 99, 2, 0x00), 120);           // no table entry: ignored
 
     ck("PCM ring frames = 3 (stream 1 only)", pcm_frames.size(), 3);
+
+    // ---- RX parser probe at width N (APRB 0x8B4) ------------------------
+    // The last frame injected above carries sidX, which no table entry
+    // holds: the probe must report it as PARSED-but-not-MATCHED and hand
+    // back the stream_id it read off the wire. That pairing is what makes
+    // the group usable on a listener that accepts nothing.
+    {
+        enum { A_APRB_PARSED = 0x8B4, A_APRB_MATCHED = 0x8B8,
+               A_APRB_SIDLO = 0x8BC, A_APRB_SIDHI = 0x8C0,
+               A_APRB_INFO = 0x8C4 };
+        long parsed = axi_read(A_APRB_PARSED);
+        long matched = axi_read(A_APRB_MATCHED);
+        long info = axi_read(A_APRB_INFO);
+        ck("APRB parsed > matched (unknown sid seen)", parsed > matched ? 1 : 0, 1);
+        ck("APRB last frame did NOT match", (info >> 8) & 1, 0);
+        ck("APRB last subtype = AAF", info & 0xFF, 0x02);
+        uint64_t wire = ((uint64_t)axi_read(A_APRB_SIDHI) << 32)
+                        | (uint32_t)axi_read(A_APRB_SIDLO);
+        uint64_t want = 0;
+        for (int i = 0; i < 8; i++) want = (want << 8) | sidX[i];
+        ck("APRB last SID == the unmatched wire sid", wire == want ? 1 : 0, 1);
+        // 3 = streams 1 and 2 provisioned above, PLUS entry 0 left enabled
+        // by the route-only commit (its sid was never staged) - the probe
+        // counts what is ARMED, which is exactly the distinction that makes
+        // "armed but matching nothing" visible on silicon.
+        ck("APRB armed entries = 3 (incl. the sid-less idx0)",
+           (info >> 16) & 0xFF, 3);
+    }
     bool user_ok = true, pay_ok = true;
     for (auto& fr : pcm_frames) {
         if (fr.user != 1) user_ok = false;
