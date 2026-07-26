@@ -114,8 +114,15 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [~] **B — TX-timestamp IRQ + unambiguous key** `(REQ-PTP-04)` — add
   messageType (+ HW cookie) to `ts_metadata` (`hdl/common/ethernet_packet_pkg.sv`);
   raise IRQ on TX ts available.
-- [ ] **M — Event-only timestamping** `(REQ-PTP-05)` — parse `messageType[3:0]`
-  (+domain) in `ptp_ts_core.sv`; only assert `ptp_pending` for event messages.
+- [x] **M — Event-only timestamping** `(REQ-PTP-05)` — `ptp_ts_core.sv` parses
+  `messageType[3:0]` at the PTP header offset and now qualifies on
+  `msgType[3:2]==00` = the four real event messages (Sync, Delay_Req,
+  Pdelay_Req, Pdelay_Resp, IEEE 1588-2019 Table 36). The previous
+  `!msgType[3]` test also admitted the RESERVED codes 0x4-0x7, minting records
+  for messages that can never carry a wire timestamp. TB: `ptp_ts` sweeps all
+  16 codes (0-3 record with the right seq, 4-15 record nothing, RX+TX event
+  bracket proves the tap is not merely deaf). Domain filtering is NOT
+  implemented (the REQ marks it optional) — no CSR for `domainNumber` yet.
 - [ ] **M — Ingress/egress latency correction regs + SFD capture** `(REQ-PTP-06)`.
 - [ ] **M — PHC clock source** `(REQ-PTP-07)` — clock counter from fixed 125 MHz
   (not speed-switched `gtx_clk`) or tie increment to link-speed/adjfine.
