@@ -264,8 +264,32 @@ and is not repeated here.
   Arty / 1490 ns AX; egressLatency 0). A production story needs a
   per-board calibration procedure, and the split between ingress/egress
   was never measured separately — only the sum.
+  - **2026-07-26:** the fabric can now apply them itself — `PTP_INGRESS_LAT`
+    (0x540, subtracted on RX) and `PTP_EGRESS_LAT` (0x544, added on TX) reach
+    `ptp_ts_core`'s capture point instead of stopping at a `milan_datapath`
+    wire declaration (REQ-PTP-06 register half, TB `ptp_ts`). Both reset 0 and
+    the bench applies its pair in `ptp4l` today: apply the correction on ONE
+    side only, or it double-counts. The capture point is still the AXIS SOP,
+    not the GMII SFD — the constants stay characterisation-derived until a
+    PHY-boundary tap exists.
 
 ## 5. Robustness items carried as workarounds (not spec gaps)
+
+**Re-audit 2026-07-26.** Every item below that is fixable *in RTL* is fixed in
+RTL: the GMII link-bounce CDC reinit (the headline one) is sequenced by
+`KL_link_guard` and gated by `tb/verilator/link_guard` (104/104 PASS in this
+tree); the CSR shadow/counter invalidate-on-reset and the I2SPB W1C rails
+likewise. What remains in this section is **not RTL debt**: the Arty
+RX-liveness heuristic is a missing MDIO *pad* on the MII-PMOD, the ACMP
+fast-connect persistence is an unimplemented Milan *feature* (not a
+workaround), and the rest are bench, driver or tooling items. The actionable
+RTL debt this round therefore sat in the open `REQ-*` ledger in
+[`../TODO.md`](../TODO.md), where REQ-CLS-05/06/07, REQ-MAC-02, REQ-PTP-05/09
+were closed and REQ-PTP-06's register half landed. Two of those were the same
+failure shape as a workaround: an ABI that milan_csr exported and **nothing in
+fabric consumed** (the RX address-filter fields; the PTP latency-correction
+registers) — decorative registers read as "implemented" from software and are
+worse than an admitted gap.
 
 - **AX GMII link-bounce CDC desync**: RESOLVED in RTL 2026-07-22. The
   link guard now sequences BOTH CDC halves:
