@@ -186,8 +186,21 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
     multiplying; that removes the multiply and lets the two stages collapse to
     one. The residual is a fixed phase shift of an integral, not an
     accumulating error — every beat is still debited exactly once.
-- [ ] **M — Round slope fixed-point / widen fraction** `(REQ-CBS-06)` — matters once
-  idleSlope is runtime; harness measures the residual error.
+- [x] **M — Round slope fixed-point / widen fraction** `(REQ-CBS-06)` — the
+  serial slope divider truncated toward zero, which is a *biased* error: the
+  positive idleSlope term accrued slow (harmless), but sendSlope is NEGATIVE,
+  so truncating its magnitude down debited a transmitting queue **less** than
+  802.1Qav requires — it kept credit it had spent. Both quotients now round to
+  nearest (ties away from zero) using the restoring divider's own remainder
+  (`2*rem >= den`), one compare + a 48-bit `+1` outside the 96 iteration
+  cycles. The fraction was NOT widened: Q16 with correct rounding is inside
+  half an LSB per cycle, which the harness now proves. **Harness measures the
+  residual** (the REQ asks for the number, and it is read off the DUT's own
+  credit register, not the model): over 20 000 free-accrual cycles —
+  idleSlope 490 Mb/s → drift 0.061 B (**4.98 ppm**), truncating RTL 0.244 B
+  (19.93 ppm); idleSlope 1 Mb/s worst case → 0.153 B (6060 ppm), where the
+  per-cycle increment is only 82/65536 B so half an LSB dominates. Truncation
+  blows the half-LSB/cycle bound at both points; rounding stays inside it.
 - [ ] **M — Pace egress to line rate** `(REQ-CBS-07)` — ensure `bytes_sent`/
   `is_transmitting` reflect real occupancy; assert/doc upstream pacing.
 - [x] **H — Multi-queue arbitration harness** `(REQ-VER-02)` — approach already
