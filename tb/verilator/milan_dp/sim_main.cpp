@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010010);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010011);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -984,7 +984,7 @@ int main(int argc, char** argv) {
         {
             axi_write(0x684, 0x002);            // SR VID 2
             axi_write(0x688, 0xF0001234); axi_write(0x68C, 0x91E0);
-            axi_write(0x680, 0x00F);            // en | talker | queue
+            axi_write(0x680, 0x017);            // en | talker | queue 5 (SR class A)
             int n22ea = 0, n88f5 = 0, nother = 0;
             std::vector<uint64_t> cur;
             dut->m_axis_mac_tx_tready = 1;
@@ -1012,7 +1012,7 @@ int main(int argc, char** argv) {
             printf("  [lwsrp-egress] MSRP=%d MVRP=%d at the MAC port\n", n22ea, n88f5);
             ck("lwsrp: MSRP pair half reaches MAC", n22ea >= 1, 1);
             ck("lwsrp: MVRP pair half reaches MAC", n88f5 >= 1, 1);
-            axi_write(0x680, 0x00C);            // disable again (LV pair drains)
+            axi_write(0x680, 0x014);            // disable again (LV pair drains)
             for (int c = 0; c < 5000; c++) step();
         }
 

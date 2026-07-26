@@ -22,7 +22,8 @@ enum {
   A_STATS_CTRL=0x200, A_STAT0=0x210, A_STAT8=0x230,
   A_CLS_CTRL=0x300, A_CLS_MAP=0x308, A_CLS_TCQ=0x310,
   A_CBS0_IDLE=0x400, A_CBS0_CTRL=0x40C, A_CBS1_IDLE=0x420, A_CBS2_CTRL=0x44C,
-  A_CBS3_CTRL=0x46C,
+  A_CBS3_CTRL=0x46C, A_CBS4_IDLE=0x480, A_CBS4_CTRL=0x48C,
+  A_CBS5_IDLE=0x4A0, A_CBS5_CTRL=0x4AC, A_CBS_PAST_END=0x4C0,
   A_PTP_CTRL=0x500, A_PTP_INCR=0x504, A_PTP_TWLO=0x510, A_PTP_TWHI=0x514,
   A_PTP_CMD=0x520, A_PTP_TRLO=0x530, A_PTP_TRHI=0x534,
   A_ADP_CTRL=0x600, A_ADP_EIDLO=0x604, A_ADP_EIDHI=0x608, A_ADP_ECAPS=0x614,
@@ -134,9 +135,9 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010010);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010011);
   uint32_t cap = axi_read(A_CAP);
-  ck("CAP.num_queues", cap & 0xF, 4);
+  ck("CAP.num_queues", cap & 0xF, 6);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
   ck("CAP.PTP",        (cap >> 9) & 1, 1);
   ck("CAP.STATS",      (cap >> 10) & 1, 1);
@@ -150,16 +151,41 @@ int main(int argc, char** argv) {
   ck("PHY_RST(reset)",   axi_read(A_PHY_RST),  0x1);
   ck("CLS_CTRL(reset)",  axi_read(A_CLS_CTRL), 0x1);
   ck("CLS_MAP(reset)",   axi_read(A_CLS_MAP),  0x00FAC688);
-  ck("CLS_TCQ(reset)",   axi_read(A_CLS_TCQ),  0x000000E4);
+  // 6-queue map, 3 bits per traffic class: TC0/1 -> q0, TC2 -> q4 (SR-B),
+  // TC3 -> q5 (SR-A), TC4/5 -> q2 (control), TC6/7 -> q3 (gPTP). q1 unmapped.
+  ck("CLS_TCQ(reset)",   axi_read(A_CLS_TCQ),  0x006D2B00);
   ck("PTP_CTRL(reset)",  axi_read(A_PTP_CTRL), 0x1);
   ck("PTP_INCR(reset)",  axi_read(A_PTP_INCR), 0x08000000);
-  ck("CBS0_IDLE(reset)", axi_read(A_CBS0_IDLE), 300000000u);
+  // CBS reset slopes are INDEXED BY QUEUE now (q0 = best effort ... q5 = SR-A)
+  // and sum to 750 Mb/s = the 75% REQ-CBS-03 ceiling.
+  ck("CBS0_IDLE(reset q0 BE)",  axi_read(A_CBS0_IDLE),  25000000u);
+  ck("CBS4_IDLE(reset q4 SR-B)",axi_read(A_CBS4_IDLE), 150000000u);
+  ck("CBS5_IDLE(reset q5 SR-A)",axi_read(A_CBS5_IDLE), 450000000u);
   // ALL queues unshaped at reset: BE lands on q0 via the default class map, and CBS
   // must never pace best-effort (REQ-CBS-02) — software opts SR queues in. The old
   // 4'b0011 default shaped q0 and capped BE TX at ~250 Mbit/s on silicon.
   ck("CBS0_EN(reset)",   axi_read(A_CBS0_CTRL) & 1, 0);   // unshaped (was 1 pre-fix)
   ck("CBS2_EN(reset)",   axi_read(A_CBS2_CTRL) & 1, 0);   // unshaped
   ck("CBS3_EN(reset)",   axi_read(A_CBS3_CTRL) & 1, 0);
+  ck("CBS4_EN(reset)",   axi_read(A_CBS4_CTRL) & 1, 0);
+  ck("CBS5_EN(reset)",   axi_read(A_CBS5_CTRL) & 1, 0);
+  // the CBS window now runs 0x400..0x4BF (6 queues x 0x20); one past the end
+  // must read 0 - a stride/size regression would alias a real queue here
+  ck("CBS window ends at 0x4C0", axi_read(A_CBS_PAST_END), 0);
+
+  // RESET VALUE vs RESET OUTPUT. Readback is served from the shadow BRAM
+  // (seeded from the `csr_default` table) while the datapath sees the register
+  // file's own reset assignment - two independent literals. If they diverge the
+  // classifier/shaper run on one value while software reads another, which no
+  // readback-only check can see. Pin them equal for the queue-shaped ones.
+  dut->eval();
+  ck("o_cls_tc_queue_map == CLS_TCQ readback", dut->o_cls_tc_queue_map,
+     axi_read(A_CLS_TCQ));
+  ck("o_cbs_idle_slope[0] == CBS0_IDLE readback", dut->o_cbs_idle_slope[0],
+     axi_read(A_CBS0_IDLE));
+  ck("o_cbs_idle_slope[5] == CBS5_IDLE readback", dut->o_cbs_idle_slope[5],
+     axi_read(A_CBS5_IDLE));
+  ck("o_cbs_enable == 0 at reset (all six unshaped)", dut->o_cbs_enable, 0);
 
   printf("-- read-only registers reject writes --\n");
   axi_write(A_ID, 0xFFFFFFFF);
@@ -190,6 +216,17 @@ int main(int argc, char** argv) {
   axi_write(A_CBS3_CTRL, 0x1);           // enable queue 3 shaping
   dut->eval();
   ck("o_cbs_enable bit3", (dut->o_cbs_enable >> 3) & 1, 1);
+
+  // the two NEW queues are reachable end-to-end (write -> readback -> output)
+  axi_write(A_CBS5_IDLE, 0x0C0FFEE0);
+  ck("CBS5_IDLE rw", axi_read(A_CBS5_IDLE), 0x0C0FFEE0);
+  dut->eval();
+  ck("o_cbs_idle_slope[5]", dut->o_cbs_idle_slope[5], 0x0C0FFEE0);
+  axi_write(A_CBS5_CTRL, 0x1);           // shape the class-A queue
+  dut->eval();
+  ck("o_cbs_enable bit5", (dut->o_cbs_enable >> 5) & 1, 1);
+  axi_write(A_CBS5_CTRL, 0x0);
+  axi_write(A_CBS5_IDLE, 450000000u);
 
   printf("-- IRQ: event latch, mask, W1C --\n");
   axi_write(A_IRQ_MASK, 0x7);
@@ -302,7 +339,8 @@ int main(int argc, char** argv) {
   ck("ADP_CMD reads 0 (strobe)", axi_read(A_ADP_CMD), 0);
 
   printf("-- lwSRP engine (0x680 group, FR-SRP-*) --\n");
-  ck("LWSRP_CTRL(reset q=3)", axi_read(0x680), 0x0000000C);
+  // class-A queue field is [4:2] (3 bits) and resets to q5 = SR class A
+  ck("LWSRP_CTRL(reset q=5)", axi_read(0x680), 0x00000014);
   ck("LWSRP_VID(reset 2)", axi_read(0x684), 2);
   ck("LWSRP_DMAC_LO(reset)", axi_read(0x688), 0xF000FE01u);
   ck("LWSRP_DMAC_HI(reset)", axi_read(0x68C), 0x91E0);
@@ -312,6 +350,12 @@ int main(int argc, char** argv) {
   ck("o_lwsrp_enable",    dut->o_lwsrp_enable, 1);
   ck("o_lwsrp_talker_en", dut->o_lwsrp_talker_en, 1);
   ck("o_lwsrp_qidx",      dut->o_lwsrp_qidx, 1);
+  // the widened field must actually REACH q5: bit 4 used to be reserved-0, so a
+  // build that kept [3:2] would report qidx 1 here instead of 5.
+  axi_write(0x680, 0x15);                // enable, queue 5
+  dut->eval();
+  ck("o_lwsrp_qidx q5",   dut->o_lwsrp_qidx, 5);
+  axi_write(0x680, 0x7);
   axi_write(0x684, 42);
   axi_write(0x690, 0x000200F0);
   dut->eval();

@@ -22,16 +22,18 @@
 #include <cstdint>
 #include <random>
 
-static const int NQ = 4;
-static const int TDEST_MASK = NQ - 1;
-static const int TDEST_W = 2;   // ceil(log2 NQ); CLS_TC_QUEUE_MAP packs TDEST_W bits/entry
+static const int NQ = 6;
+static const int TDEST_W = 3;   // ceil(log2 NQ); CLS_TC_QUEUE_MAP packs TDEST_W bits/entry
+static const int TDEST_MASK = (1 << TDEST_W) - 1;
 
 // EtherType constants (match ethernet_packet_pkg.sv)
 static const uint16_t ETH_TYPE_PTP  = 0x88F7;
 static const uint16_t ETH_TYPE_AVTP = 0x22F0;
 
-// Legacy enum ordering (ethernet_packet_pkg.sv network_priority_t)
-enum { SRA_CLASS = 0, GPTP_CLASS = 1, CONTROL_CLASS = 2, BEST_EFFORT = 3 };
+// Enum ordering (ethernet_packet_pkg.sv network_priority_t). 802.1Q order:
+// the value IS the queue index and the HIGHER index is the HIGHER priority.
+enum { BEST_EFFORT = 0, RESERVED_CLASS = 1, CONTROL_CLASS = 2,
+       GPTP_CLASS = 3, SRB_CLASS = 4, SRA_CLASS = 5 };
 
 struct Frame {
     bool     use_pcp;
@@ -61,6 +63,10 @@ static uint32_t ref_tdest(const Frame& f) {
         uint8_t tc      = (f.pcp_tc_map   >> (regen   * 3)) & 0x7;
         // TC->queue: TDEST_W bits per entry (matches the ABI / RTL bit-slice)
         uint8_t queue   = (f.tc_queue_map >> (tc * TDEST_W)) & TDEST_MASK;
+        // OUT-OF-RANGE CLAMP: at NQ=6 the 3-bit field can name q6/q7, which do
+        // not exist; traffic_class_map falls back to BEST_EFFORT rather than
+        // letting axis_demux silently drop the frame (`select >= M_COUNT`).
+        if (queue >= NQ) queue = BEST_EFFORT;
         return queue;
     } else {
         int p;
@@ -118,7 +124,11 @@ int main(int argc, char** argv) {
     // milan_csr reset defaults (docs/reference/REGISTER_MAP.md)
     const uint32_t DEF_PCP_TC = 0x00FAC688;
     const uint32_t DEF_REGEN  = 0x00FAC688;   // identity (reset fixed 2026-07-05)
-    const uint32_t DEF_TCQ    = 0x000000E4;   // identity 3,2,1,0
+    // milan_csr reset CLS_TC_QUEUE_MAP for the 6-queue map: 3 bits/entry,
+    // TC0/1 -> q0, TC2 -> q4 (SR class B), TC3 -> q5 (SR class A),
+    // TC4/5 -> q2 (control), TC6/7 -> q3 (gPTP). q1 is the reserved spare.
+    const uint32_t DEF_TCQ    = 0x006D2B00;
+    const int      DEF_TCQ_Q[8] = {0, 0, 4, 5, 2, 2, 3, 3};
 
     // ---- Directed 1: tagged frames through the default Table-8-5 map ----
     {
@@ -131,21 +141,76 @@ int main(int argc, char** argv) {
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
-    // ---- Directed 1b: default CLS_TC_QUEUE_MAP (0xE4) is the identity 3,2,1,0 ----
-    // Locks the ABI intent (TDEST_W bits/entry) so a wrong field width regresses.
+    // ---- Directed 1b: the 6-queue reset CLS_TC_QUEUE_MAP, entry by entry ----
+    // Locks the ABI intent (TDEST_W bits/entry) so a wrong field width regresses,
+    // AND locks the USER's egress map: SR class A on q5, class B on q4, control
+    // on q2, gPTP on q3, best effort on q0, nothing on the reserved q1.
     {
         long f0 = h.fails;
         // identity PCP->TC (DEF via prio_regen+pcp_tc), so route a tagged frame
-        // whose regenerated TC is exactly t, and confirm queue == t.
-        // Build a config: use_pcp, regen=identity, pcp_tc=identity, tcq=0xE4.
+        // whose regenerated TC is exactly t, and confirm queue == DEF_TCQ_Q[t].
         uint32_t ident24 = 0; for (int i=0;i<8;i++) ident24 |= (uint32_t)i << (3*i);
-        for (int tc = 0; tc < 4; tc++) {
+        for (int tc = 0; tc < 8; tc++) {
             Frame f{true, 0, ident24, ident24, DEF_TCQ, true, (uint8_t)tc, false, 0x0800};
             uint32_t q = h.eval(f);
-            if (q != (uint32_t)tc) { printf("  [FAIL] default TCQ identity: TC%d -> q%u (expect %d)\n", tc, q, tc); h.fails++; }
-            h.check(f, "tcq_identity");
+            if (q != (uint32_t)DEF_TCQ_Q[tc]) {
+                printf("  [FAIL] reset TCQ: TC%d -> q%u (expect q%d)\n", tc, q, DEF_TCQ_Q[tc]);
+                h.fails++;
+            }
+            if (q == 1) { printf("  [FAIL] reset TCQ: TC%d landed on the RESERVED q1\n", tc); h.fails++; }
+            h.check(f, "tcq_reset_map");
         }
-        printf("  [%s] default CLS_TC_QUEUE_MAP 0xE4 = identity 3,2,1,0\n",
+        printf("  [%s] reset CLS_TC_QUEUE_MAP 0x006D2B00 = the 6-queue map "
+               "(TC3->q5 class A, TC2->q4 class B, TC4/5->q2, TC6/7->q3, rest q0)\n",
+               (h.fails == f0) ? "PASS" : "FAIL");
+    }
+
+    // ---- Directed 1c: 802.1Q ORDER - the enum value IS the queue index and a
+    // higher index is a higher priority. Pins SRA above SRB above gPTP above
+    // control above the spare above best effort, which is what makes the
+    // arbiter in traffic_shaping_core grant audio before sync.
+    {
+        long f0 = h.fails;
+        bool ok = (SRA_CLASS == 5) && (SRB_CLASS == 4) && (GPTP_CLASS == 3) &&
+                  (CONTROL_CLASS == 2) && (RESERVED_CLASS == 1) && (BEST_EFFORT == 0);
+        // and the DUT agrees: legacy-mode VLAN AVTP -> q5, gPTP -> q3, IP -> q0
+        Frame avtp{false, 0, 0, 0, 0, true,  0, false, ETH_TYPE_AVTP};
+        Frame ptp {false, 0, 0, 0, 0, false, 0, false, ETH_TYPE_PTP};
+        Frame be  {false, 0, 0, 0, 0, false, 0, false, 0x0800};
+        uint32_t qa = h.eval(avtp), qp = h.eval(ptp), qb = h.eval(be);
+        if (!(qa == 5 && qp == 3 && qb == 0)) {
+            printf("  [FAIL] 802.1Q order: AVTP q%u (want 5), gPTP q%u (want 3), BE q%u (want 0)\n",
+                   qa, qp, qb);
+            h.fails++;
+        }
+        if (!(qa > qp && qp > qb)) {
+            printf("  [FAIL] 802.1Q order: shaped class A must outrank gPTP must outrank BE\n");
+            h.fails++;
+        }
+        if (!ok) { printf("  [FAIL] network_priority_t values are not the queue indices\n"); h.fails++; }
+        printf("  [%s] 802.1Q order: q5 SR-A > q4 SR-B > q3 gPTP > q2 control > q1 spare > q0 BE\n",
+               (h.fails == f0) ? "PASS" : "FAIL");
+    }
+
+    // ---- Directed 1d: an out-of-range programmed queue is CLAMPED to best
+    // effort, not handed to the demux (which would silently drop the frame).
+    // Only reachable because 6 is not a power of two: the 3-bit field can name
+    // q6/q7. NEGATIVE-by-construction - without the clamp the DUT returns 6/7.
+    {
+        long f0 = h.fails;
+        uint32_t ident24 = 0; for (int i=0;i<8;i++) ident24 |= (uint32_t)i << (3*i);
+        for (int bad = NQ; bad < 8; bad++) {
+            // map every traffic class to `bad`
+            uint32_t tcq = 0; for (int i=0;i<8;i++) tcq |= (uint32_t)bad << (TDEST_W*i);
+            Frame f{true, 0, ident24, ident24, tcq, true, 3, false, 0x0800};
+            uint32_t q = h.eval(f);
+            h.check(f, "tcq_out_of_range");
+            if (q != (uint32_t)BEST_EFFORT) {
+                printf("  [FAIL] out-of-range queue %d not clamped: tdest=q%u\n", bad, q);
+                h.fails++;
+            }
+        }
+        printf("  [%s] CLS_TC_QUEUE_MAP entries >= NUMBER_OF_QUEUES clamp to BEST_EFFORT\n",
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
@@ -214,11 +279,11 @@ int main(int argc, char** argv) {
         }
 
         // 4c: NEGATIVE - check ON + foreign DMAC -> must lose the fast path.
-        //     PCP mode: untagged, so default_pcp 5 through identity tables ->
-        //     queue (5 & TDEST_MASK) = 1... which IS GPTP_CLASS, so pick a
-        //     default_pcp whose queue is provably NOT GPTP_CLASS (use 2 -> q2).
+        //     PCP mode: untagged, so default_pcp picks the table queue. Use
+        //     default_pcp 0, which the reset map sends to q0 (best effort) -
+        //     provably NOT GPTP_CLASS (q3).
         {
-            Frame spoof{true, 2, ident24, ident24, DEF_TCQ, false, 0, false,
+            Frame spoof{true, 0, ident24, ident24, DEF_TCQ, false, 0, false,
                         ETH_TYPE_PTP, true, false};
             uint32_t q = h.eval(spoof);
             h.check(spoof, "cls07_spoof_pcp");
@@ -226,7 +291,11 @@ int main(int argc, char** argv) {
                 printf("  [FAIL] cls07 NEGATIVE: spoofed 0x88F7 still took GPTP_CLASS (q%u)\n", q);
                 h.fails++;
             }
-            if (q != 2) { printf("  [FAIL] cls07 NEGATIVE: spoof landed q%u, want the table queue 2\n", q); h.fails++; }
+            if (q != (uint32_t)DEF_TCQ_Q[0]) {
+                printf("  [FAIL] cls07 NEGATIVE: spoof landed q%u, want the table queue %d\n",
+                       q, DEF_TCQ_Q[0]);
+                h.fails++;
+            }
         }
         // 4d: NEGATIVE, legacy mode -> BEST_EFFORT, not GPTP_CLASS
         {
