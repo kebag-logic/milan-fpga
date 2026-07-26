@@ -28,11 +28,14 @@ else
     *) echo "unknown board $BOARD" >&2; exit 2;;
   esac
 fi
+# rx-queues 1 = the SHIPPING ax8x8 boot-chain layout since 2026-07-24 (the
+# CSR-rot incident: DTB/opensbi/driver/ring tooling all assume the 1-queue
+# map; a 2-queue build shifts every DMA window - caught pre-flash 2026-07-26)
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
  --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \
- --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues 2 \
+ --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues 1 \
  --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
 cd "$W"
 rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}
