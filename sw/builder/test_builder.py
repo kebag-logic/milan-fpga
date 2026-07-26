@@ -57,7 +57,41 @@ Gates (gaps item 4, generator round):
       structurally valid ROM: contiguous directory, 5 STREAM_OUTPUTs, the
       CRF one with clock_domain_index 0 / flags CLOCK_SYNC_SOURCE|CLASS_A /
       current_format 0x041060010000BB80, AAF outputs unchanged (0x0002),
-      CONFIGURATION counts advertise it, STREAM_PORT_OUTPUT count stays 4.
+      CONFIGURATION counts advertise it, STREAM_PORT_OUTPUT count stays 4;
+  17. dynamic audio maps (gaps item 8): map_mode dynamic drops the port's
+      AUDIO_MAP and emits the `AEM_DYNMAP engine constants; reject paths;
+  18a. lwSRP table emitter: the emitted 0x680 reset words + CSR offsets are
+      identical in the THREE hand-written places that carry them today -
+      milan_csr's reset block, milan_csr's csr_default readback table and
+      the REGISTER_MAP Reset column (all parsed at test time);
+  18b. the emitted SR-class / MRP-timer / bandwidth constants equal the
+      lwsrp_pkg.sv localparams, the PriorityAndRank byte milan_csr
+      duplicates literally, and the KL_lwsrp_bw_gate 75%-ceiling literals;
+      the tracked hdl/ieee8021q/srp/gen/lwsrp_table.svh regenerates
+      BYTE-IDENTICALLY (the staleness gate);
+  18c. TSpec derivation anchored in the RTL frame geometry (KL_aaf_packetizer
+      SAMPLES_PER_FRAME_C + its documented 42+24*C / 90-byte identities),
+      idleSlope == the bw_gate formula, module params == what milan_datapath
+      passes (N_CTX_P = N_STREAMS, bw_gate width = N_CTX_P, NUM_QUEUES ==
+      ethernet_packet_pkg), and the NxN ctx-row shortfall (L+T-1 rows in
+      max(L,T) contexts) surfaces as a planned mark;
+  18d. reject paths: class B, VID 0/4095, class_queue 4, a unicast stream
+      DMAC, an unknown TSpec policy and an over-subscribed class-A
+      reservation all raise ConfigError;
+  19a. platform emitter: the DMA window map is derived from rx-queues (1q->2q
+      inserts steer+rx1 = 0x74 and moves dma-ts/hs-pgsz-cap/pcm-dma by
+      exactly that, tx/rx0 never move - anchored in milan_soc.py's
+      MilanDMA registration order), and the queue count is ONE number across
+      config / soc argv / sweep fragment / device tree;
+  19b. the emitted DT node carries everything kl-eth + snd-kl-milan read
+      (5 reg windows, kl,rsc-clk-mhz, phy-mode, MAC, no-map PCM ring sized
+      for N capture streams); when the real build trees are on disk its
+      window bases BYTE-MATCH the LiteX csr.csv and the deployed .dts
+      (SKIPs with a message otherwise);
+  19c. reject paths: multicast/missing station MAC, csr_base below the IO
+      region, a PCM ring overrun, an unknown pinned window, a non-integer-MHz
+      datapath clock - and THE gate, flipping rx_queues under a
+      boot_chain_pin (5ce9a13 verbatim) raises ConfigError.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -809,6 +843,501 @@ def test_dynamic_audio_map_overlay():
           "map_page raise ConfigError")
 
 
+MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
+LWSRP_PKG_SV = os.path.join(ROOT, "hdl/ieee8021q/srp/lwsrp_pkg.sv")
+LWSRP_TOP_SV = os.path.join(ROOT, "hdl/ieee8021q/srp/KL_lwsrp_top.sv")
+DATAPATH_SV = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
+PACKETIZER_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aaf_packetizer.sv")
+ETH_PKG_SV = os.path.join(ROOT, "hdl/common/ethernet_packet_pkg.sv")
+MILAN_SOC_PY = os.path.join(ROOT, "sw/litex/milan_soc.py")
+TRACKED_SRP_SVH = os.path.join(ROOT, "hdl/ieee8021q/srp/gen/lwsrp_table.svh")
+REGMAP_MD = os.path.join(ROOT, "docs/reference/REGISTER_MAP.md")
+
+#: Real build trees / sibling repo used by the optional cross-check gates.
+#: Absent in a bare container -> those assertions SKIP with a message.
+CSR_CSV_2Q = os.path.expanduser(
+    "~/litex-milan/work/build_arty_eppo_milanfinal53e/csr.csv")
+CSR_CSV_1Q = os.path.expanduser(
+    "~/milan-avb-multiwork/build_ax8x8_rxq1fix_eppo/csr.csv")
+DEPLOYED_DTS = {
+    "arty": os.path.expanduser(
+        "~/milan-tests-avb/fpga/dts/milan_arty_vexii.dts"),
+    "ax7101": os.path.expanduser(
+        "~/milan-tests-avb/fpga/dts/milan_ax7101_vexii.dts"),
+}
+
+
+def _sv_hex(txt, pat, label):
+    """First hex literal (SystemVerilog 32'hAAAA_BBBB / 'h6A0 style) matched
+    by `pat` in `txt`."""
+    m = re.search(pat, txt)
+    assert m, f"{label}: no RTL match for {pat!r}"
+    return int(m.group(1).replace("_", ""), 16)
+
+
+def _sv_int(txt, pat, label):
+    m = re.search(pat, txt)
+    assert m, f"{label}: no RTL match for {pat!r}"
+    return int(m.group(1).replace("_", ""))
+
+
+def test_lwsrp_reset_words_match_rtl():
+    """Gate 18a: the emitted 0x680 reset words are byte-identical to the
+    THREE hand-written places that carry them today - the milan_csr reset
+    block, the milan_csr csr_default readback table, and the REGISTER_MAP
+    Reset column. A hand edit in any of them that the config does not know
+    about fails here."""
+    csr = open(MILAN_CSR_SV).read()
+    reg = open(REGMAP_MD).read()
+    r = eb.build(CONFIGS["arty_current"], OUT)
+    got = r["lwsrp"]["reset_words"]
+    # (emitter name, milan_csr storage reg, milan_csr A_* enum, doc reset)
+    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0xC"),
+            ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "2"),
+            ("LWSRP_DMAC_LO", "lwsrp_dmlo", "A_LWSRP_DMLO", "0xF000_FE01"),
+            ("LWSRP_DMAC_HI", "lwsrp_dmhi", "A_LWSRP_DMHI", "0x91E0"),
+            ("LWSRP_TSPEC", "lwsrp_tspec", "A_LWSRP_TSPEC", "0x0001_00E0"),
+            ("LWSRP_LATENCY", "lwsrp_lat", None, "0")]
+    for name, storage, enum, doc in rows:
+        want = _sv_hex(csr, rf"{storage}\s*<=\s*32'h([0-9A-Fa-f_]+);",
+                       f"milan_csr reset block {storage}")
+        assert int(got[name], 16) == want, (
+            f"{name}: emitted {got[name]} != milan_csr reset "
+            f"0x{want:08X} - the config and the RTL have drifted")
+        if enum:
+            want2 = _sv_hex(csr,
+                            rf"{enum}\[10:0\]:\s*csr_default = "
+                            rf"32'h([0-9A-Fa-f_]+);",
+                            f"milan_csr csr_default {enum}")
+            assert want2 == want, f"{name}: milan_csr disagrees with itself"
+        # documented Reset column of the REGISTER_MAP row
+        m = re.search(rf"\| `0x[0-9A-F]{{3}}` \| `{name}` \| RW \| `([^`]+)` \|",
+                      reg)
+        assert m, f"{name}: no REGISTER_MAP row"
+        assert m.group(1) == doc, f"{name}: REGISTER_MAP reset {m.group(1)}"
+        assert int(doc.replace("_", ""), 16 if doc.startswith("0x") else 10) \
+            == want, f"{name}: REGISTER_MAP reset {doc} != RTL 0x{want:08X}"
+    # CSR offsets too
+    for name, off in eb.SRP_CSR_OFFSETS.items():
+        enum = {"LWSRP_DMAC_LO": "A_LWSRP_DMLO", "LWSRP_DMAC_HI":
+                "A_LWSRP_DMHI", "LWSRP_LATENCY": "A_LWSRP_LAT"}.get(
+                    name, "A_" + name)
+        want = _sv_hex(csr, rf"{enum}\s*=\s*'h([0-9A-Fa-f]+)", f"enum {enum}")
+        assert off == want, f"{name}: offset 0x{off:X} != RTL 0x{want:X}"
+    print(f"  [gate 18a] arty_current lwSRP reset words == milan_csr reset "
+          f"block == csr_default table == REGISTER_MAP Reset column "
+          f"({len(rows)} registers, {len(eb.SRP_CSR_OFFSETS)} offsets)")
+
+
+def test_lwsrp_class_constants_match_rtl():
+    """Gate 18b: the emitted SR-class / MRP-timer / bandwidth constants equal
+    the hand-written lwsrp_pkg.sv localparams, and the PriorityAndRank byte
+    milan_csr duplicates literally (it does not import the package) agrees
+    with both."""
+    pkg = open(LWSRP_PKG_SV).read()
+    csr = open(MILAN_CSR_SV).read()
+    t = eb.build(CONFIGS["arty_current"], OUT)["lwsrp"]
+    checks = [
+        ("SR class id", t["sr_class"]["class_id"],
+         _sv_int(pkg, r"SR_CLASS_A_ID_C\s*=\s*8'd(\d+)", "pkg")),
+        ("SR priority", t["sr_class"]["priority"],
+         _sv_int(pkg, r"SR_CLASS_A_PRIO_C\s*=\s*8'd(\d+)", "pkg")),
+        ("SR rank", t["sr_class"]["rank"],
+         _sv_int(pkg, r"SR_RANK_C\s*=\s*1'b(\d)", "pkg")),
+        ("join ms", t["timers_ms"]["join"],
+         _sv_int(pkg, r"JOIN_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
+        ("leave ms", t["timers_ms"]["leave"],
+         _sv_int(pkg, r"LEAVE_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
+        ("leaveall ms", t["timers_ms"]["leaveall"],
+         _sv_int(pkg, r"LEAVEALL_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
+        ("frame overhead", t["bandwidth"]["frame_overhead_bytes"],
+         _sv_int(pkg, r"MSRP_FRAME_OVERHEAD_C\s*=\s*(\d+);", "pkg")),
+        ("intervals/s", t["sr_class"]["intervals_per_second"],
+         _sv_int(pkg, r"CLASS_A_INTERVALS_PS_C\s*=\s*([\d_]+);", "pkg")),
+        ("bw limit pct", t["bandwidth"]["limit_pct"],
+         _sv_int(pkg, r"SRP_BW_LIMIT_PCT_C\s*=\s*(\d+);", "pkg")),
+    ]
+    for label, got, want in checks:
+        assert got == want, f"{label}: emitted {got} != lwsrp_pkg {want}"
+    pr = t["sr_class"]["prio_rank"]
+    assert pr == _sv_hex(csr, r"SRP_PRIO_RANK_C\s*=\s*8'h([0-9A-Fa-f]+);",
+                         "milan_csr SRP_PRIO_RANK_C"), \
+        "PriorityAndRank: emitter vs the milan_csr literal duplicate"
+    assert pr == (t["sr_class"]["priority"] << 5) | (t["sr_class"]["rank"] << 4)
+    # the bw_gate's hard ceiling literals must agree with the emitted limits
+    bwg = open(os.path.join(ROOT,
+                            "hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv")).read()
+    for mbps, lit in ((1000, r"SLOPE_W_C'\((750_000_000)\)"),
+                      (100, r"SLOPE_W_C'\((75_000_000)\)")):
+        want = _sv_int(bwg, lit, "bw_gate ceiling")
+        assert want == mbps * 1_000_000 * t["bandwidth"]["limit_pct"] // 100, \
+            f"bw_gate {mbps} Mb/s ceiling literal != {t['bandwidth']['limit_pct']}%"
+    # and the tracked generated svh reproduces every one of them
+    svh = open(TRACKED_SRP_SVH).read()
+    assert svh == eb.build(CONFIGS["arty_current"], OUT)["lwsrp_svh"], \
+        "hdl/ieee8021q/srp/gen/lwsrp_table.svh is STALE - regenerate it"
+    for needle in (f"LWSRP_CLASS_ID_C   = 8'd{t['sr_class']['class_id']};",
+                   f"LWSRP_PRIO_RANK_C  = 8'h{pr:02X};",
+                   "LWSRP_CTRL_RST_C      = 32'h0000_000C;",
+                   "LWSRP_TSPEC_RST_C     = 32'h0001_00E0;"):
+        assert needle in svh, f"tracked svh lacks {needle!r}"
+    print(f"  [gate 18b] {len(checks)} SR-class/timer/bandwidth constants == "
+          "lwsrp_pkg.sv, PriorityAndRank == the milan_csr literal duplicate, "
+          "bw_gate 75% ceilings agree; tracked lwsrp_table.svh regenerates "
+          "byte-identically")
+
+
+def test_lwsrp_tspec_and_params():
+    """Gate 18c: the TSpec derivation is anchored in the RTL frame geometry
+    (KL_aaf_packetizer), the idleSlope formula matches KL_lwsrp_bw_gate, the
+    emitted module parameters match what milan_datapath actually passes, and
+    the ctx row arithmetic exposes the NxN shortfall."""
+    pk = open(PACKETIZER_SV).read()
+    spf = _sv_int(pk, r"SAMPLES_PER_FRAME_C\s*=\s*(\d+);", "packetizer")
+    geo = eb.srp_frame_geometry(2, 48000, 8000)
+    assert geo["samples_per_frame"] == spf
+    # the packetizer's own documented identity: frame = 42 + 24*C bytes, and
+    # C = 2 is the golden 90-byte shape its byte-compare gate pins
+    assert "42 + 24*C bytes" in pk and "90-byte shape" in pk, \
+        "KL_aaf_packetizer no longer states the 42 + 24*C frame identity"
+    for c in range(1, 33):
+        g = eb.srp_frame_geometry(c, 48000, 8000)
+        assert g["l2_frame_bytes"] == 42 + 24 * c, f"C={c}: {g}"
+        # MaxFrameSize is the MSDU: MaxFrameSize + 42 == the full wire slot
+        assert g["avtpdu_bytes"] + eb.SRP_FRAME_OVERHEAD_B == \
+            g["l2_frame_bytes"] + 8 + 4 + 12
+    assert eb.srp_frame_geometry(2, 48000, 8000)["l2_frame_bytes"] == 90
+    # idleSlope formula, verbatim from LWSRP_FPGA_ARCHITECTURE / bw_gate
+    assert eb.srp_idle_slope_bps(224, 1, 8000) == 1 * (224 + 42) * 8 * 8000
+    # per-config: derived TSpec, reservation under the ceiling, module params
+    dp = open(DATAPATH_SV).read()
+    top = open(LWSRP_TOP_SV).read()
+    epkg = open(ETH_PKG_SV).read()
+    assert re.search(r"KL_lwsrp_top #\(\.CLK_FREQ_HZ_P\(MILAN_CLK_FREQ_HZ\),"
+                     r"\s*\.N_CTX_P\(N_STREAMS\)\)", dp), \
+        "milan_datapath no longer ties N_CTX_P to N_STREAMS"
+    assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_CTX_P\)\)", top), \
+        "KL_lwsrp_top no longer ties the bw_gate width to N_CTX_P"
+    nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
+    for name, (L, T) in (("arty_current", (1, 1)), ("arty_4x4", (4, 4)),
+                         ("ax7101_8x8", (8, 8))):
+        r = eb.build(CONFIGS[name], OUT)
+        t, cfg = r["lwsrp"], r["cfg"]
+        mp = t["module_params"]
+        assert mp["KL_lwsrp_top.N_CTX_P"] == max(L, T) == \
+            mp["milan_datapath.N_STREAMS"] == mp["KL_lwsrp_bw_gate.N_STREAMS_P"]
+        assert mp["KL_lwsrp_top.CLK_FREQ_HZ_P"] == \
+            cfg["constraints"]["milan_clk_hz"] == \
+            mp["milan_datapath.MILAN_CLK_FREQ_HZ"]
+        assert mp["milan_csr.N_LISTENERS_P"] == L
+        assert mp["milan_csr.N_TALKERS_P"] == T
+        assert mp["milan_csr.NUM_QUEUES"] == nq, \
+            f"{name}: num_queues != ethernet_packet_pkg NUMBER_OF_QUEUES {nq}"
+        # the class-A queue must be a real queue
+        assert 0 <= cfg["srp"]["class_queue"] < nq
+        assert t["ctx_rows"]["required"] == L + T - 1
+        assert t["ctx_rows"]["available"] == max(L, T)
+        b = t["bandwidth"]
+        assert b["total_idle_slope_bps"] <= b["limit_bps"]
+        assert b["total_idle_slope_bps"] == sum(
+            row["idle_slope_bps"] for row in t["rows"])
+        talkers = [row for row in t["rows"] if row["direction"] == "talker"]
+        assert len(talkers) == T
+        if cfg["srp"]["tspec_policy"] == "derived":
+            for row in talkers:
+                assert row["max_frame_bytes"] == \
+                    eb.srp_frame_geometry(row["channels"], 48000,
+                                          8000)["avtpdu_bytes"]
+        # per-stream DMAC = MAAP base + uid
+        base = int(cfg["srp"]["stream_dmac_base"], 16)
+        assert [int(row["dest_mac"], 16) for row in talkers] == \
+            [base + k for k in range(T)]
+        print(f"  [gate 18c] {name}: TSpec {cfg['srp']['tspec_policy']}, "
+              f"{b['total_idle_slope_bps']} bps = {b['utilization_pct']}% of "
+              f"the port (ceiling {b['limit_pct']}%), ctx rows "
+              f"{t['ctx_rows']['required']} needed / "
+              f"{t['ctx_rows']['available']} available")
+    # the NxN row shortfall is a MARK, never silent
+    for name in ("arty_4x4", "ax7101_8x8"):
+        marks = eb.build(CONFIGS[name], OUT)["marks"]
+        assert any("lwSRP attribute rows" in m[0] and
+                   m[1].startswith("planned") for m in marks), \
+            f"{name}: ctx-row shortfall not marked"
+    cur = eb.build(CONFIGS["arty_current"], OUT)["marks"]
+    assert any("lwSRP attribute row(s)" in m[0] and m[1] == "supported"
+               for m in cur), "arty_current lwSRP rows must be supported"
+    print("  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) "
+          "contexts) marked planned; 1x1 supported")
+
+
+def test_lwsrp_rejects():
+    """Gate 18d: contradictory reservations raise ConfigError."""
+    cases = [
+        ("class B", lambda c: c["srp"].__setitem__("sr_class", "B"),
+         "5.6"),
+        ("VID 0", lambda c: c["srp"].__setitem__("vid", 0), "UNSHAPED"),
+        ("VID 4095", lambda c: c["srp"].__setitem__("vid", 4095), "4094"),
+        ("queue 4 (2-bit field)",
+         lambda c: c["srp"].__setitem__("class_queue", 4), "LWSRP_CTRL[3:2]"),
+        ("unicast stream DMAC",
+         lambda c: c["srp"].__setitem__("stream_dmac_base",
+                                        "0x020000000001"), "MULTICAST"),
+        ("unknown tspec policy",
+         lambda c: c["srp"]["tspec"].__setitem__("policy", "guess"),
+         "policy"),
+    ]
+    for label, mutate, needle in cases:
+        p = _variant(CONFIGS["arty_current"], mutate)
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert needle in str(e), f"{label}: got {e}"
+            else:
+                raise AssertionError(f"{label}: accepted")
+        finally:
+            os.unlink(p)
+    # over-subscription: 4 x 32ch talkers on the 100 Mb/s arty port =
+    # 213.5 Mb/s, far past the 75 % class-A ceiling
+    def fat(c):
+        for t in c["streams"]["talkers"]:
+            t["channels"] = 32
+            t["formats"] = ["0x0205022008006000"]
+    p = _variant(CONFIGS["arty_4x4"], fat)
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "75% ceiling" in str(e) and "34.3.1" in str(e), \
+                f"over-subscription error must cite the ceiling: {e}"
+        else:
+            raise AssertionError("over-subscribed reservation accepted")
+    finally:
+        os.unlink(p)
+    print(f"  [gate 18d] {len(cases) + 1}/{len(cases) + 1} contradictory "
+          "reservations rejected with ConfigError (incl. a 213 Mb/s class-A "
+          "request on a 100 Mb/s port)")
+
+
+def _csv_bases(path):
+    """{register name: address} from a LiteX csr.csv."""
+    out = {}
+    for line in open(path):
+        f = line.split(",")
+        if len(f) >= 3 and f[0] == "csr_register":
+            out[f[1]] = int(f[2], 16)
+    return out
+
+
+def test_platform_window_map():
+    """Gate 19a: the DMA window map is DERIVED from rx-queues, and the queue
+    count is the same number in the gateware argv, the sweep fragment and the
+    device tree. That triple is exactly what 5ce9a13 broke."""
+    m1 = eb.dma_window_map(eb.DMA_BANK_BASE, 1)
+    m2 = eb.dma_window_map(eb.DMA_BANK_BASE, 2)
+    assert "steer" not in m1 and "dma-rx1" not in m1
+    assert "steer" in m2 and "dma-rx1" in m2
+    shift = eb.DMA_STEER_BYTES + eb.DMA_RX1_BLOCK_BYTES
+    assert shift == 0x74, f"steer+rx1 = 0x{shift:X}, expected 0x74"
+    for name in ("dma-tx", "dma-rx"):
+        assert m1[name]["base"] == m2[name]["base"], \
+            f"{name} must NOT move with the queue count"
+    for name in ("dma-ts", "hs-pgsz-cap", "pcm-dma"):
+        assert m2[name]["base"] - m1[name]["base"] == shift, \
+            f"{name}: 1q {m1[name]['base']:#x} vs 2q {m2[name]['base']:#x}"
+    # milan_soc.py source order is what makes the shift happen - assert it
+    soc = open(MILAN_SOC_PY).read()
+    i_steer = soc.index("self.steer = RxSteer()")
+    i_rx1 = soc.index("self.rx1 = RingDMAWriter")
+    i_ts = soc.index("self.ts = WishboneDMAWriter")
+    i_cap = soc.index("self.hs_pgsz_cap = CSRStatus")
+    assert i_steer < i_rx1 < i_ts < i_cap, \
+        "milan_soc MilanDMA registration order changed - the window map " \
+        "derivation in dma_window_map() must be re-derived"
+    assert re.search(r"if rx_queues >= 2:\s*\n\s*self\.steer = RxSteer\(\)",
+                     soc), "steer is no longer conditional on rx_queues >= 2"
+    # config -> argv -> sweep fragment -> device tree: ONE queue count
+    for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
+        r = eb.build(CONFIGS[cfg_name], OUT)
+        n = r["cfg"]["constraints"]["rx_queues"]
+        argv_n = int(_canon(r["argv"])["--rx-queues"][0])
+        _o, _l, sweep_n = sweep_inline(board)
+        dt_n = int(re.search(r"kl,rxq-cnt = <(\d+)>", r["dt_overlay"]).group(1))
+        assert n == argv_n == int(sweep_n) == dt_n == r["platform"]["rx_queues"], (
+            f"{cfg_name}: rx-queues disagree - config {n}, argv {argv_n}, "
+            f"sweep {sweep_n}, device tree {dt_n}")
+        # ...and the map that count implies is the one in the DT/shape
+        want = eb.dma_window_map(eb.DMA_BANK_BASE, n)
+        for name in ("dma-tx", "dma-rx", "dma-ts"):
+            assert f"0x{want[name]['base']:x} 0x{want[name]['size']:x}" \
+                in r["dt_overlay"], f"{cfg_name}: DT lacks the {name} window"
+        assert r["platform"]["driver_constants"]["MILAN_HS_PGSZ_CAP_PHYS"] == \
+            f"0x{want['hs-pgsz-cap']['base']:08X}"
+        assert (r["platform"]["driver_constants"]["MILAN_DMA_RX1_PHYS"]
+                is None) == (n == 1)
+        print(f"  [gate 19a] {cfg_name}: rx-queues {n} agrees across config / "
+              f"soc argv / sweep fragment / device tree; dma-ts "
+              f"0x{want['dma-ts']['base']:08X}, pcm 0x{want['pcm-dma']['base']:08X}")
+    print("  [gate 19a] 1q->2q inserts steer+rx1 = 0x74 and moves dma-ts / "
+          "hs-pgsz-cap / pcm-dma by exactly that; tx/rx0 never move")
+
+
+def test_platform_dt_and_driver_shape():
+    """Gate 19b: the emitted device tree carries every property the driver
+    and the binding need, and - when the real build trees are on disk - its
+    window bases equal the LiteX csr.csv and the deployed .dts."""
+    for name in CONFIGS:
+        r = eb.build(CONFIGS[name], OUT)
+        dt, sh = r["dt_overlay"], r["platform"]
+        for needle in ('compatible = "kl,dma-ether-0.9", "kl,dma-ether";',
+                       'reg-names = "csr", "dma-tx", "dma-rx", "dma-ts", "phy";',
+                       'compatible = "kl,milan-pcm-0.9", "kl,milan-pcm";',
+                       'reg-names = "pcm-dma", "milan-csr";',
+                       "memory-region = <&pcmring>;", "no-map;",
+                       "dma-coherent;", "kl,ptp;"):
+            assert needle in dt, f"{name}: device tree lacks {needle!r}"
+        # kl,rsc-clk-mhz is the ONLY of_property_read_u32 kl-eth makes; omit
+        # it and the AX7101 runs its PHC at 2x rate from a clean boot
+        assert f"kl,rsc-clk-mhz = <{sh['rsc_clk_mhz']}>" in dt
+        assert sh["rsc_clk_mhz"] * 1_000_000 == \
+            r["cfg"]["constraints"]["milan_clk_hz"]
+        assert f'phy-mode = "{sh["phy_mode"]}"' in dt
+        assert "local-mac-address = [" + \
+            " ".join(sh["mac_address"].split(":")) + "]" in dt
+        # the no-map region must hold every capture stream's ring
+        n_l = len(r["cfg"]["listeners"])
+        assert int(sh["pcm"]["ring_stride"], 16) * n_l <= \
+            int(sh["pcm"]["ring_bytes"], 16)
+        assert f"kl,capture-streams = <{n_l}>" in dt
+        print(f"  [gate 19b] {name}: DT node complete (5 reg windows, "
+              f"kl,rsc-clk-mhz {sh['rsc_clk_mhz']}, phy-mode "
+              f"{sh['phy_mode']}, {n_l}-stream {sh['pcm']['ring_bytes']} "
+              "no-map ring)")
+    # ---- cross-check against real artifacts when they are on disk --------
+    checked = 0
+    for csv, cfg_name in ((CSR_CSV_2Q, "arty_current"),
+                          (CSR_CSV_1Q, "ax7101_8x8")):
+        if not os.path.exists(csv):
+            continue
+        regs = _csv_bases(csv)
+        sh = eb.build(CONFIGS[cfg_name], OUT)["platform"]
+        pairs = [("dma-tx", "milan_dma_tx_base"),
+                 ("dma-rx", "milan_dma_rx_base"),
+                 ("dma-ts", "milan_dma_ts_base"),
+                 ("hs-pgsz-cap", "milan_dma_hs_pgsz_cap"),
+                 ("pcm-dma", "milan_dma_pcm_base")]
+        if "dma-rx1" in sh["windows"]:
+            pairs.append(("dma-rx1", "milan_dma_rx1_base"))
+        for win, reg in pairs:
+            assert reg in regs, f"{csv}: no {reg} row"
+            assert int(sh["windows"][win]["base"], 16) == regs[reg], (
+                f"{cfg_name}: {win} {sh['windows'][win]['base']} != "
+                f"csr.csv {reg} 0x{regs[reg]:08X}")
+        checked += 1
+        print(f"  [gate 19b] {cfg_name}: {len(pairs)} window bases "
+              f"BYTE-MATCH the real LiteX csr.csv ({os.path.basename(os.path.dirname(csv))})")
+    if not checked:
+        print("  [gate 19b] SKIP csr.csv cross-check: no build tree on disk")
+    checked = 0
+    for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
+        dts = DEPLOYED_DTS[board]
+        if not os.path.exists(dts):
+            continue
+        txt = open(dts).read()
+        sh = eb.build(CONFIGS[cfg_name], OUT)["platform"]
+        nic = re.search(r"ethernet@\w+ \{(.*?)\n\t*\};", txt, re.S)
+        assert nic, f"{dts}: no ethernet node"
+        cells = [int(x, 16) for x in
+                 re.findall(r"<0x([0-9a-f]+) 0x[0-9a-f]+>", nic.group(1))]
+        want = [int(sh["csr"]["base"], 16)] + \
+            [int(sh["windows"][k]["base"], 16)
+             for k in ("dma-tx", "dma-rx", "dma-ts")] + \
+            [int(sh["phy_window"]["base"], 16)]
+        assert cells == want, (
+            f"{cfg_name}: emitted NIC reg bases {[hex(x) for x in want]} != "
+            f"deployed {dts} {[hex(x) for x in cells]}")
+        pcm = re.search(r"audio@([0-9a-f]+)", txt)
+        assert pcm and int(pcm.group(1), 16) == \
+            int(sh["pcm"]["base"], 16), \
+            f"{cfg_name}: PCM node base != deployed {dts}"
+        assert f"kl,rsc-clk-mhz = <{sh['rsc_clk_mhz']}>" in txt
+        checked += 1
+        print(f"  [gate 19b] {cfg_name}: all 5 NIC reg bases + the PCM node "
+              f"base + kl,rsc-clk-mhz MATCH the deployed {os.path.basename(dts)}")
+    if not checked:
+        print("  [gate 19b] SKIP deployed-.dts cross-check: sibling repo "
+              "milan-tests-avb not on disk")
+
+
+def test_platform_rejects():
+    """Gate 19c: a platform shape that contradicts itself or the flashed boot
+    chain raises ConfigError. The boot_chain_pin case IS the 5ce9a13 bug -
+    caught before a build instead of after a flash."""
+    cases = [
+        ("multicast station MAC",
+         lambda c: c["platform"].__setitem__("mac_address",
+                                             "01:00:00:00:00:02"),
+         "UNICAST"),
+        ("missing MAC", lambda c: c["platform"].pop("mac_address"),
+         "mac_address is required"),
+        ("csr_base below the IO region",
+         lambda c: c["platform"].__setitem__("csr_base", 0x4000_0000),
+         "0x80000000"),
+        ("PCM ring overrun",
+         lambda c: c["platform"].__setitem__("pcm_ring_bytes", 0x1000),
+         "no-map"),
+        ("unknown pinned window",
+         lambda c: c["platform"]["boot_chain_pin"].__setitem__("dma-rx7", 0),
+         "unknown window"),
+    ]
+    for label, mutate, needle in cases:
+        p = _variant(CONFIGS["arty_current"], mutate)
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert needle in str(e), f"{label}: got {e}"
+            else:
+                raise AssertionError(f"{label}: accepted")
+        finally:
+            os.unlink(p)
+    # THE gate: flip rx_queues under a pinned boot chain (5ce9a13 verbatim -
+    # sweep.sh set 1 for both boards while the deployed arty carries 2)
+    for cfg_name, flip in (("arty_current", 1), ("ax7101_8x8", 2)):
+        p = _variant(CONFIGS[cfg_name],
+                     lambda c, n=flip: c["board"]["constraints"]
+                     .__setitem__("rx_queues", n))
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert "boot_chain_pin" in str(e) and "0x74" in str(e) \
+                    and "CSR-rot" in str(e), f"{cfg_name}: got {e}"
+            else:
+                raise AssertionError(
+                    f"{cfg_name}: rx_queues={flip} accepted under a pinned "
+                    "boot chain - the 5ce9a13 CSR-rot bug is still possible")
+        finally:
+            os.unlink(p)
+        print(f"  [gate 19c] {cfg_name}: rx_queues -> {flip} REFUSED "
+              "(boot_chain_pin: every window from dma-ts on moves by 0x74)")
+    # a non-integer-MHz datapath clock cannot be expressed as kl,rsc-clk-mhz
+    p = _variant(CONFIGS["arty_current"],
+                 lambda c: c["board"]["constraints"]
+                 .__setitem__("milan_clk_hz", 50_000_001))
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "kl,rsc-clk-mhz" in str(e)
+        else:
+            raise AssertionError("non-integer-MHz datapath clock accepted")
+    finally:
+        os.unlink(p)
+    print(f"  [gate 19c] {len(cases) + 3}/{len(cases) + 3} contradictory "
+          "platform shapes rejected with ConfigError")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -820,7 +1349,12 @@ if __name__ == "__main__":
                test_resource_verdicts, test_milan_723_crf_output_rule,
                test_crf_output_overlay_structure,
                test_gen_aem_store_crf_output_overlay,
-               test_dynamic_audio_map_overlay):
+               test_dynamic_audio_map_overlay,
+               test_lwsrp_reset_words_match_rtl,
+               test_lwsrp_class_constants_match_rtl,
+               test_lwsrp_tspec_and_params, test_lwsrp_rejects,
+               test_platform_window_map,
+               test_platform_dt_and_driver_shape, test_platform_rejects):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
