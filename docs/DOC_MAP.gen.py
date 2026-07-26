@@ -49,7 +49,7 @@ PERSONAS = [
  ("Tester / Validator", "you run the suites + validate",
   "prove it works, per spec", PURPLE, [
    ("testing/TESTING.md", "the test taxonomy: TB · behave · CERT/bench"),
-   ("tb/verilator/README.md", "run every Verilator TB (ls = 41 suites)"),
+   ("tb/verilator/README.md", "run every Verilator TB (ls tb/verilator/ = the list)"),
    ("tests/README.md", "run the behave/tsn_gen fixtures (venv + TSAGEN_DIR)"),
    ("testing/BEHAVE_TEST_PLAN.md", "the tag taxonomy, tiers, @bench / CERT"),
    ("SPEC_TRACEABILITY.md", "read the pass / partial / fail matrix (204 rows)"),
@@ -62,7 +62,7 @@ X0, Y0 = 40, 150
 COLW, COLGAP = 430, 26
 HDR = 92                    # persona header height (name / who / goal stacked)
 SH, SGAP = 62, 26          # step box height / vertical gap (gap holds the arrow)
-TOP_H = 60                  # universal-entry banner height
+TOP_H = 86                  # universal-entry banner height (3 text lines)
 NUMR = 15                   # number chip radius
 
 ncols = len(PERSONAS)
@@ -86,6 +86,7 @@ def svg():
     o.append(f'<rect x="{bx}" y="{Y0}" width="{bw}" height="{TOP_H}" rx="10" fill="{GOLD[0]}" stroke="{GOLD[1]}" stroke-width="2.5"/>')
     o.append(f'<text x="{bx+22}" y="{Y0+26}" font-size="16" font-weight="bold" fill="#212121">★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md</text>')
     o.append(f'<text x="{bx+22}" y="{Y0+48}" font-size="13.5" fill="#5D4037">what the system is + a journey-ordered map of the whole doc set. Then jump into your lane below. Unsure of a term? → docs/GLOSSARY.md</text>')
+    o.append(f'<text x="{bx+22}" y="{Y0+72}" font-size="13.5" fill="#5D4037">First 30 minutes, no FPGA and no bench: <tspan font-weight="bold">QUICKSTART.md</tspan>   ·   the whole system on one page: <tspan font-weight="bold">docs/overview/AT_A_GLANCE.md</tspan></text>')
 
     def numchip(cx, cy, n, stroke):
         o.append(f'<circle cx="{cx}" cy="{cy}" r="{NUMR}" fill="{stroke}"/>')
@@ -143,7 +144,8 @@ def drawio():
                      f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
         return f"n{i}"
     add(X0,20,1100,34,"milan-fpga documentation — where do I start?","none","none",22,1)
-    add(X0,Y0,W-2*X0,TOP_H,"★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md\n(what the system is + a journey-ordered doc map; then follow your lane)",GOLD[0],GOLD[1],14,1)
+    add(X0,Y0,W-2*X0,TOP_H,"★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md\n(what the system is + a journey-ordered doc map; then follow your lane)\n"
+        "first 30 minutes, no FPGA: QUICKSTART.md  ·  one page: docs/overview/AT_A_GLANCE.md",GOLD[0],GOLD[1],14,1)
     for i,(name,who,goal,(fill,stroke),steps) in enumerate(PERSONAS):
         x=col_x(i); hy=Y0+TOP_H+34
         add(x,hy,COLW,HDR,f"{name}\n{who}  ·  goal: {goal}",stroke,stroke,15,1,font="#ffffff")

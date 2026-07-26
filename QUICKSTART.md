@@ -12,10 +12,20 @@ git submodule update --init third_party/verilog-axis     # NOT optional — see 
 > **§0 — the one thing people get wrong.** `third_party/verilog-axis` is a git
 > submodule (anonymous HTTPS, no account needed). Several testbenches and most of
 > the datapath will **not build without it**, and a GitHub *"Download ZIP"* does
-> not contain it. If you took a zip or a tarball, `cd` into the tree and run
-> `git init && git submodule ...` won't help — clone properly, or fetch
-> [verilog-axis](https://github.com/alexforencich/verilog-axis) yourself into
-> `third_party/verilog-axis/`.
+> not contain it.
+>
+> Already took a zip or a tarball? You do not have to start over — just drop the
+> dependency in by hand (verified to work: `milan_dp` builds and passes 98 checks
+> afterwards):
+>
+> ```sh
+> git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis
+> ```
+>
+> The exact revision this repo pins is recorded in its git tree
+> (`git ls-tree HEAD third_party/verilog-axis`); `git checkout <that sha>` inside
+> `third_party/verilog-axis` if you want to match it exactly.
+>
 > The repo's *other* submodule, `external`, is **SSH-only and not needed** for
 > anything on this page — leave it uninitialised.
 
@@ -148,10 +158,11 @@ repositories**, so the least painful route on any distribution is the upstream
 prebuilt static Linux binary:
 
 ```sh
+mkdir -p ~/.local/bin
 curl -fsSL -o /tmp/sv2v.zip \
   https://github.com/zachjs/sv2v/releases/download/v0.0.13/sv2v-Linux.zip
 unzip -q /tmp/sv2v.zip -d /tmp && install -m0755 /tmp/sv2v-Linux/sv2v ~/.local/bin/sv2v
-sv2v --version                  # v0.0.13
+sv2v --version                  # -> sv2v v0.0.13   (needs ~/.local/bin on PATH)
 ```
 
 (Releases: [github.com/zachjs/sv2v/releases](https://github.com/zachjs/sv2v/releases).)
@@ -184,7 +195,7 @@ repo. Everything upstream of place & route is open.
 ## 5. One command: the container
 
 [`Containerfile.dev`](Containerfile.dev) pins exactly the working set above —
-Arch base, the seven packages, plus a pinned `sv2v` binary:
+Arch base, the measured package set, plus a pinned `sv2v` binary:
 
 ```sh
 podman build -t milan-fpga-dev -f Containerfile.dev .
