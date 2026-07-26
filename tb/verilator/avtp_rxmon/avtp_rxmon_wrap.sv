@@ -43,7 +43,15 @@ module avtp_rxmon_wrap #(
   output wire        pdu_accept_p_o,
   output wire [31:0] last_ts_o,
   output wire [31:0] last_tsd_o,
-  output wire        match_o,
+  output wire        match_o,          //! ONE-CYCLE match pulse (not sticky)
+
+  //! the parser's own free-running counters - the sources milan_datapath
+  //! publishes as APRB_PARSED 0x8B4 / APRB_MATCHED 0x8B8. They are the only
+  //! PRE-match observables here: every other counter below exists solely
+  //! because a frame already matched, so on a listener that accepts nothing
+  //! they all read 0 and say nothing about why.
+  output wire [31:0] par_parsed_o,     //! AVTP stream frames the parser parsed
+  output wire [31:0] par_matched_o,    //! of those, frames that MATCHED
 
   //! PCM payload out (KL_aaf_rx_depacketizer, the datapath pairing)
   output wire [63:0] pcm_tdata_o,
@@ -71,7 +79,7 @@ module avtp_rxmon_wrap #(
     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
     .subtype_o (subtype_w), .ts_valid_o (),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
-    .avtp_frames_o (), .matched_frames_o ()
+    .avtp_frames_o (par_parsed_o), .matched_frames_o (par_matched_o)
   );
 
   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) u_mon (
