@@ -44,6 +44,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x750` | CRF media-clock talker (`KL_crf_tx`) |
 | `0x768` | AECP GET_DYNAMIC_INFO scan forensics (BDBG) |
 | `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
+| `0x7B8` | Persistence-journal ingest (**specified, not in gateware yet**) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -497,8 +498,10 @@ Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 
 ### 0x7A0  -  ACMP bind-restore  `(saved-state fast-connect E1, Milan 5.5.3.5.2)`
 
-Boot-time re-injection of a listener bind saved in non-volatile memory
-(`acmp-persist`, the-private-test-repo `fpga/docs/SAVED_STATE_FASTCONNECT.md`).
+Boot-time re-injection of a listener bind saved in non-volatile memory - the
+journal record format, the QSPI slot map, the torn-write contract and the boot
+replay sequence are in
+[`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md).
 
 Software stages the persisted binding parameters (5.5.2.4 + 5.5.3.5.3:
 talker_entity_id, talker_unique_id, controller_entity_id, flags) and
@@ -527,6 +530,44 @@ The commit is refused rather than merged when the context is already bound
 status 1/2 as "leave the fabric alone". With no engine attached (TB ties)
 a commit stays busy forever; the VERSION + probe gate prevents software
 from ever committing on such gateware.
+
+### 0x7B8  -  Persistence-journal ingest  `(saved-state fast-connect E3)`
+
+> **NOT IN GATEWARE YET.** The RTL
+> ([`../../hdl/ieee17221/aecp/KL_persist_journal.sv`](../../hdl/ieee17221/aecp/KL_persist_journal.sv))
+> and this ABI are Verilator-gated by `tb/verilator/persist` (96 checks), whose
+> `persist_wrap.sv` carries the decode below as an executable spec; `milan_csr`
+> has not been wired to it. Until it is, `0x7BC` writes go nowhere and `0x7C0`
+> reads `0` - which is indistinguishable from "idle, no verdict", so software
+> **must** gate on `VERSION` and not on a read of this group. Design record:
+> [`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md) §8.
+
+Software pushes ONE journal slot image (32-bit little-endian words, verbatim
+from flash) through this port. The fabric verifies magic / format major / shape
+/ length / CRC-32 / owning `entity_id` / `SEQ` monotonicity and only THEN issues
+the E1 bind-restore transactions above - one per journal record. **A torn,
+truncated, foreign or stale image produces ZERO restores**: the CRC-32 trailer
+is the last word of the image, so a half-applied context table is not
+representable, not merely avoided.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x7B8` | `JNL_CTRL` | W1S / RO | `0` | Write: `[0]` start a slot image, `[1]` image complete -> verify (+ replay), `[2]` abort back to idle. Read (live): `[31]` busy, `[30]` done (a verdict produced since reset) |
+| `0x7BC` | `JNL_DATA` | WO | - | next 32-bit journal word, little-endian exactly as read from flash. Reads `0` |
+| `0x7C0` | `JNL_STAT` | RO | `0` | `[2:0]` state (0 idle, 1 load, 2 verify, 3/4/5 replay, 6 done), `[7:4]` verdict, `[11:8]` records in the accepted image, `[15:12]` records the ACMP engine injected, `[23:16]` per-record refusal bitmap (bit r = record r came back with a nonzero E1 status), `[30]` done, `[31]` busy |
+| `0x7C4` | `JNL_SEQ` | RO | `0` | `SEQ` of the last **accepted** image; 0 = none accepted this boot. A rejected image never advances it, which is what makes the A/B fall-back to an older intact slot admissible |
+
+Verdicts in `0x7C0[7:4]`: `0` none · `1` ACCEPT · `2` MAGIC (not a journal slot,
+or an erased one) · `3` VERSION (format major this build cannot read) · `4`
+SHAPE (`rec_words` != 6, or `n_rec` 0 / above capacity) · `5` LENGTH (truncated
+or overlong transfer) · `6` CRC (**torn write / bit rot**) · `7` ENTITY (journal
+belongs to another `entity_id` - a cloned rootfs) · `8` STALE (`SEQ` does not
+beat the accepted watermark).
+
+Structural verdicts are ordered before the CRC so an operator gets a naming
+diagnosis (an erased slot reads as MAGIC, not CRC), but nothing that is
+**trusted for action** - the entity id, the `SEQ` watermark, any record word -
+is consulted until the CRC has closed.
 
 ### 0x800  -  Indexed per-stream window  `(NxN streams, [NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §1.5)`
 
