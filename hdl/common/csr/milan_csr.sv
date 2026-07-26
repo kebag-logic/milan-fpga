@@ -57,7 +57,7 @@ module milan_csr #(
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
   parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
   parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
-  parameter logic [31:0] VERSION = 32'h0001_000D //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x000D = RX stream-parser probe group 0x8B4-0x8C4 (frames parsed / matched / last stream-subtype stream_id + subtype, match flag, index and the count of armed table entries) - the first view UPSTREAM of the stream-table match, for the fabric-listener accept blocker; 0x000C = N-context ACMP talker responder (probes answered per uid 0..N-1, dmac = MAAP base+uid), t>0 admission mirrors t0 term-by-term (per-stream ACMP term + cfg_aaf_bypass escape), talker-window honesty (idx>0 STATE bits [3:0] live, not-backed words read 0xDEADDEAD), LTAP same-cycle cascade; 0x000B = chmap64 follow-ups: AEM dynamic-map projector wired to the render map RAM (CHMAP64_AEM_BINDING.md; CSR 0x900 demoted to debug port), KL_pcm_tx as capture-mux ring source, per-stream wire_chans fan-out, tdm_dout exported; 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter logic [31:0] VERSION = 32'h0001_000E //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x000E = item-7 playback chain closed in fabric - the render crossbar gains a HOST-RING source (map entry src bit; KL_pcm_tx pair bus latched alongside the AVB stream-channels) and KL_i2s_feed_mux picks the DAC source AND its pace (48 kHz media tick for the crossbar, LPF masked there) so an ALSA playback ring reaches the line-out with no inbound stream, plus the PBK probe group 0x8C8-0x8D0 (delivered frames / disarmed-render frames / KL_pcm_tx rails); 0x000D = RX stream-parser probe group 0x8B4-0x8C4 (frames parsed / matched / last stream-subtype stream_id + subtype, match flag, index and the count of armed table entries) - the first view UPSTREAM of the stream-table match, for the fabric-listener accept blocker; 0x000C = N-context ACMP talker responder (probes answered per uid 0..N-1, dmac = MAAP base+uid), t>0 admission mirrors t0 term-by-term (per-stream ACMP term + cfg_aaf_bypass escape), talker-window honesty (idx>0 STATE bits [3:0] live, not-backed words read 0xDEADDEAD), LTAP same-cycle cascade; 0x000B = chmap64 follow-ups: AEM dynamic-map projector wired to the render map RAM (CHMAP64_AEM_BINDING.md; CSR 0x900 demoted to debug port), KL_pcm_tx as capture-mux ring source, per-stream wire_chans fan-out, tdm_dout exported; 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -241,6 +241,9 @@ module milan_csr #(
   output wire                    o_ltap_clr,          //! LTAP_CTRL[0] W1S: 1-cycle stats clear
   //! RX stream-parser probe (APRB group, base 0x8B4) - the pre-match view
   input  wire [5*32-1:0]         i_aprb_regs,         //! RO 0x8B4-0x8C4: 5 packed readback words (avtp_stream_parser probe)
+
+  //! item-7 playback chain probe (PBK group, base 0x8C8)
+  input  wire [3*32-1:0]         i_pbk_regs,          //! RO 0x8C8-0x8D0: 3 packed readback words (host ring -> render -> DAC)
   //! chmap 0x900 window (docs/CHANNEL_MAP_64.md §6): render/capture map-RAM
   //! debug write port + fabric bypass arm. Default 0 = today's audio path.
   output wire                    o_chmap_enable,      //! CHMAP_CTRL 0x900[0]: fabric bypass arm (0 = legacy path)
@@ -484,6 +487,12 @@ module milan_csr #(
   //! >=0x800 carve-out rules as the LTAP group directly below it.
   localparam [ADDR_WIDTH-1:0] A_APRB_BASE = 'h8B4;   //! first RO word (5 packed words 0x8B4-0x8C4)
   localparam [ADDR_WIDTH-1:0] A_APRB_END  = 'h8C8;   //! one past the last RO word (0x8C4)
+  //! item-7 playback chain probe: host PCM ring -> KL_pcm_tx -> render
+  //! crossbar -> KL_i2s_playback. The migen playback CSRs live in the LiteX
+  //! SoC only; this group is the chain's evidence on the fabric control
+  //! plane. Same >=0x800 carve-out rules as the two groups below it.
+  localparam [ADDR_WIDTH-1:0] A_PBK_BASE  = 'h8C8;   //! first RO word (3 packed words 0x8C8-0x8D0)
+  localparam [ADDR_WIDTH-1:0] A_PBK_END   = 'h8D4;   //! one past the last RO word (0x8D0)
   //! chmap map-RAM window (docs/CHANNEL_MAP_64.md §6). Same dedicated-arm
   //! carve-out as MCSRV (0x8F8/0x8FC): NOT in is_plain_rw (a 0x900 shadow
   //! write would alias word 0x100), a live read arm per word, and its own
@@ -1297,11 +1306,13 @@ module milan_csr #(
     logic [ADDR_WIDTH-1:0] soff;         //! STAT window offset
     logic [ADDR_WIDTH-1:0] loff;         //! LTAP RO-word offset
     logic [ADDR_WIDTH-1:0] aoff;         //! APRB RO-word offset
+    logic [ADDR_WIDTH-1:0] poff;         //! PBK RO-word offset
     live_mux = 32'h0;
     live_hit = 1'b1;
     soff = rd_addr_q - A_STATS_BASE;
     loff = rd_addr_q - A_LTAP_BASE;
     aoff = rd_addr_q - A_APRB_BASE;
+    poff = rd_addr_q - A_PBK_BASE;
     unique case (rd_addr_q)
       A_IRQ_STATUS: live_mux = irq_status;
       A_IRQ_RAW:    live_mux = irq_status;
@@ -1365,6 +1376,8 @@ module milan_csr #(
           live_mux = i_ltap_regs[32*32'(loff[5:2]) +: 32];  //! 16 packed RO words
         else if (rd_addr_q >= A_APRB_BASE && rd_addr_q < A_APRB_END)
           live_mux = i_aprb_regs[32*32'(aoff[4:2]) +: 32];  //! 5 packed RO words
+        else if (rd_addr_q >= A_PBK_BASE && rd_addr_q < A_PBK_END)
+          live_mux = i_pbk_regs[32*32'(poff[3:2]) +: 32];   //! 3 packed RO words
         else if (rd_addr_q >= A_CHMAP_CTRL &&
                  rd_addr_q <  A_CHMAP_CTRL + 16'h40)
           live_mux = 32'h0;               //! reserved chmap words read 0 (never shadow)
@@ -1470,6 +1483,8 @@ module milan_csr #(
                       ((rd_addr_q >= A_LTAP_CTRL) && (rd_addr_q < A_LTAP_END)) ||
                       //! parser-probe group 0x8B4-0x8C4, same carve-out
                       ((rd_addr_q >= A_APRB_BASE) && (rd_addr_q < A_APRB_END)) ||
+                      //! item-7 playback-chain probe 0x8C8-0x8D0, same rule
+                      ((rd_addr_q >= A_PBK_BASE) && (rd_addr_q < A_PBK_END)) ||
                       //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
                       (rd_addr_q >= A_CHMAP_CTRL &&
                        rd_addr_q <  A_CHMAP_CTRL + 16'h40);
