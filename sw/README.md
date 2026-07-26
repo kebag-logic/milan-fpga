@@ -106,8 +106,8 @@ tc qdisc add dev eth0 ... cbs offload 1            # shape q0/q1 (kl,shaped-queu
 | SoC elaboration + gateware export | LiteX | ✅ `milan_soc.py` exports `alinx_ax7101.{v,xdc,tcl}` + BIOS |
 | BIOS build | `riscv64-elf-gcc` | ✅ builds |
 | **Sim boot of the core** | Verilator | ✅ boots to `litex>` (evidence saved) |
-| Milan RTL blocks | Verilator (`tb/verilator/`) | ✅ 14 harnesses green |
-| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ 18 tops (incl. ECP5) |
+| Milan RTL blocks | Verilator (`tb/verilator/`) | ✅ green — `ls tb/verilator/` is the authoritative suite list (55 dirs with a `Makefile` on 2026-07-26) |
+| Device portability | Yosys/sv2v (`syn/yosys/`) | ✅ the `tops=()` array in `syn/yosys/run.sh` is authoritative (47 tops on 2026-07-26; incl. ECP5) |
 | **Artix-7 bitstream** (`--build`) | Vivado | ✅ built + run on the board (see `litex/evidence/hw_*`); note: needs Vivado with Artix-7 device support — a Spartan-7-only install cannot P&R it. Gateware export needs no vendor tools. |
 | `milan_datapath` wrapper | — | ⏳ still a black box (`[BB:milan_datapath]`); milan_top minus the Zynq PS (migration §A.9). Needed for P&R, not for export. |
 

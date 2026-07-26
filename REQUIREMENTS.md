@@ -48,8 +48,18 @@ Software deliverables (sibling repos under `../`):
 
 ## 3. Missing elements to comply with the 802.1 configuration standards (gap analysis)
 
-A structured, multi-domain audit of the current RTL/driver was performed (with
-adversarial verification of the CBS arithmetic). **60 gaps** were identified.
+> **This section is the ORIGINAL audit snapshot, and it is deliberately frozen.**
+> It is the *motivation* for the `REQ-*` register below, not a statement of
+> current state — as its own headline finding ("there is no memory-mapped CSR
+> plane anywhere in the design") makes plain. Many rows have since been closed;
+> for example "stats invisible to SW" is satisfied by `REQ-MAC-04` (§4), the
+> `0x200` RMON group and the `STATS_CAP` capability mask. **Read §4's per-`REQ`
+> status for what is true today**, and
+> [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md) for clause coverage.
+
+A structured, multi-domain audit of the RTL/driver **as it stood at the time**
+was performed (with adversarial verification of the CBS arithmetic). **60 gaps**
+were identified.
 The single root cause behind most blockers: **there is no memory-mapped
 control/status-register (CSR) plane anywhere in the design** — every TSN knob is
 a compile-time parameter or a tied constant, so nothing can be configured at

@@ -32,7 +32,9 @@ filter → DMA.
 ## 1. Ports, group by group
 
 Parameters: `TDATA_WIDTH = 64` (all AXIS ports; `tkeep` is
-`TDATA_WIDTH/8 = 8` bits), `NUM_QUEUES = 4` (from `ethernet_packet_pkg`).
+`TDATA_WIDTH/8 = 8` bits), `NUM_QUEUES = 6` (from
+`ethernet_packet_pkg::NUMBER_OF_QUEUES`; **higher index = higher priority**,
+see [../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md)).
 Byte order on AXIS is big-endian (wire order = memory order; see
 `hdl/common/parameters.svh`).
 
@@ -67,7 +69,8 @@ hard-coding into your bring-up:
   first-silicon smoke test (milestone M-A2).
 * The map is decoded in `hdl/common/csr/milan_csr.sv` in 0x100-sized groups
   (0x000 ID/IRQ, 0x100 MAC, 0x200 RMON stats, 0x300 classifier,
-  0x400 CBS per-queue, 0x500 PTP, 0x600 ADP, 0x700 RX filter/TCAM).
+  0x400 CBS per-queue (`0x400`-`0x4BF`, stride `0x20` × 6 queues), 0x500 PTP,
+  0x600 ADP, 0x700 RX filter/TCAM).
 
 ### 1.3 DMA streams (to/from your memory engine)
 

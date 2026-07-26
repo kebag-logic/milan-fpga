@@ -158,7 +158,9 @@ control/data/event pattern documented generically in
   `0x43C0_0000`; only the base is host-specific  -  see [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
 - LiteX bridges the CPU Wishbone bus → AXI-Lite automatically (`Bus adapted`).
 - **Proven on the softcore:** the BIOS `mem_read 0x90000000` returns `4d 49 4c 4e`
-  ("MILN") + `0x00010003` (VERSION)  -  migration milestone **M-A2**.
+  ("MILN") + the `VERSION` word  -  migration milestone **M-A2**. That log captured
+  `0x00010003`; VERSION is bumped on every gateware change, so the current tree
+  returns `0x0001_0013`. Only the `"MILN"` ID is the stable part of this check.
 
 ### 5.2 Data  -  `MilanDMA` (§A.6, `--with-dma`)
 - Three LiteX simple-mode DMA engines, each its own Wishbone master:

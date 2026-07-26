@@ -29,10 +29,23 @@ Driven from the LiteX BIOS console (`mem_write`/`mem_read`) on the AX7101, all-b
   2. a MAC TX→RX loopback (plug or PHY-internal via MDIO) + read it back via the RX DMA, or
   3. wiring LiteEth's own MAC statistics to `i_mac_events` (a real follow-up).
 
+> **Superseded 2026-07-26 — option 3 was done.** This evidence file records the
+> state at the time of the M-A3 session and is kept as-is. Since VERSION
+> `0x0001_0013` the `i_mac_events = 0` tie is **gone at both SoC wiring sites**:
+> `KL_mac_rmon_events` derives the event vector at the MAC boundary from the
+> frame AXIS handshakes, the per-frame bad-frame flag and the FCS/preamble error
+> counts. The premise above — "the LiteEth MAC core doesn't expose the Forencich
+> event set" — is exactly what that block works around. **`STAT_TX_FIFO_GOOD_FRAME`
+> (`0x21C`) is now a real console-readable egress signal**, so "did the frame
+> egress?" no longer needs the rig. Read `STATS_CAP` (`0x204`) first to see which
+> lanes are real in your build.
+
 ## Net
-The **memory → DMA → AXIS-CDC → datapath** half of M-A3 is proven on silicon; the
-**datapath → MAC → wire** half is untestable from the console alone (rig-gated + the
-`i_mac_events` stub). RX loopback (the other half of M-A3) needs a link partner / plug.
+The **memory → DMA → AXIS-CDC → datapath** half of M-A3 is proven on silicon; at
+the time of this session the **datapath → MAC → wire** half was untestable from
+the console alone (rig-gated + the `i_mac_events` stub — see the note above,
+which retires the stub half of that). RX loopback (the other half of M-A3) needs
+a link partner / plug.
 
 ## Update — tested against the live rig (ProfiTap ProfiShark 1G+ taps)
 Rig up: the peer test host / the reserved bench host i210s (`enp6s0`), the capture

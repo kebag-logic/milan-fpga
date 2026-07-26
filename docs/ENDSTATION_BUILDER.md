@@ -32,9 +32,32 @@ configs/endstation_<shape>.yaml          (single source of truth)
         ├── aem_overlay.json  → avdecc/gen_aem_store.py migration contract
         │                       (descriptor counts, formats, cluster/map
         │                        layout, entity identity)
+        ├── lwsrp_table.json  → the lwSRP (802.1Q MSRP/MVRP) reservation table:
+        │   lwsrp_table.svh     SR class, MRP timers, class-A bandwidth math,
+        │                       the 0x680 CSR reset words, the engine's
+        │                       elaboration parameters, one record per stream
+        ├── platform_shape.json → driver-visible layout: the Milan CSR base, the
+        │   milan-nic.dtsi       DMA window map DERIVED from
+        │                        board.constraints.rx_queues, the addresses
+        │                        kl-eth hardcodes, and the kl,dma-ether /
+        │                        kl,milan-pcm device-tree nodes
         └── build_plan.md     → human review; shapes beyond current RTL
                                 VALIDATE and are marked "planned"
+
+plus, repo-level and single-sourced so nothing can drift:
+    configs/generated/sweep_opts_<board>.sh    OPTS / L2 / RXQ, sourced by
+                                               sw/litex/sweep.sh (its inline
+                                               tables are the loud FALLBACK only)
+    hdl/ieee8021q/srp/gen/lwsrp_table.svh      the DEPLOYED shape's lwSRP table
+    hdl/common/csr/gen/lwsrp_csr_defaults.svh  the CSR-facing SUBSET of it (the
+                                               0x680 reset words + the
+                                               PriorityAndRank byte)
 ```
+
+That last file is the one to notice: **`milan_csr.sv` `` `include ``-s it**, so
+the end-station config and the `LWSRP_*` register reset values are the same
+source and cannot drift apart. The generator's own header
+(`sw/builder/endstation_builder.py`) is authoritative for this list.
 
 Three example shapes exist: `endstation_arty_current.yaml` (today's real
 Arty build — the identity gate), `endstation_arty_4x4.yaml` and

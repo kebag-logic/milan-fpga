@@ -4,7 +4,7 @@ Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
 Milan TSN NIC — one suite per subdirectory (the directory listing is
 the authoritative count; prose numbers go stale).
 
-They need **only** `verilator >= 5.0`, a C++17
+They need **only** `verilator >= 5.050` (the CI pin; older 5.x cannot build every suite — see [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md) §7), a C++17
 compiler and the `third_party/verilog-axis` submodule
 (`git submodule update --init third_party/verilog-axis`) — no Xilinx tools —
 because they target the pure-RTL blocks (no XPM/DSP primitives are
@@ -33,7 +33,7 @@ in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
 | [`mac_rmon/`](mac_rmon) | `KL_mac_rmon_events.sv` (two shapes: a MAC that checks FCS/preamble/bad-frame, and one that checks none) | The block that turns MAC-boundary facts into the `ethernet_events` pulse vector — the RMON "decorative ABI" fix. Per-frame derivation at the AXIS boundary across an asynchronous clock ratio (exactly one 1-cycle destination pulse per frame; mid-frame beats and a backpressured `tlast` count for nothing), good-vs-bad RX frames mutually exclusive, MAC error counters turned into pulses with a counter RESET (link-guard reinit) deliberately emitting none, and — the honesty half — `cap_o` tracking the parameters rather than the wish: the four MAC-internal lanes are never claimed, an unattached boundary reports cap 0 **and** stays silent, and the no-checks shape drops the three optional lanes from the mask (2 × 28 checks). | `cd mac_rmon && make` |
 | [`datapath/`](datapath) | `traffic_controller_802_1q.sv` | **End-to-end** de-Xilinx'd 802.1Q TX datapath (T1.5): classifier → Forencich per-queue FIFOs → CBS shaper. VLAN frames in → byte-exact egress, PCP→queue routing (exact `tdest`), all 4 queues, strict-priority + CBS modes, burst (15 checks). | `cd datapath && make` |
 | [`milan_dp/`](milan_dp) | `milan_datapath.sv` | **Whole-wrapper integration** (§A.9 PS-less datapath the LiteX SoC instantiates): drive the AXI4-Lite CSR slave to read `ID="MILN"` (**M-A2**), VERSION, CAP bits; program the classifier over the CSR (readback); push a frame TX-DMA-port → MAC-port and MAC-port → RX-DMA-port, both byte-exact through classify→CBS→PTP→ADP-arbiter and PTP-RX→dest-MAC-filter (11 checks). Plus the NxN harness at N=4 and N=8 — window provisioning, per-index routing, the ACMP window bind, the host-plane drill, and **TRAP-1**: once any `0x800` listener CTRL write lands at index 0 the ACMP entry-0 alias is detached for good, so an ACMP bind of listener 0 is cosmetic (`PARSED` climbs, `MATCHED` static — the open 8×8 blocker's exact symptom, reached from a CSR write sequence a provisioning daemon would make). Characterised, not endorsed. The NxN shapes also cover the **lwSRP attribute rows through the window** (talker idx>0 reads its OWN row's stream_id rather than the aliased legacy pair, listener and talker rows no longer collide, `LWSRP_STATUS[11]` shortfall clear, and the per-row TSpec reaching the wire: 8ch → MaxFrameSize 216, 2ch → 72, neither the shared `LWSRP_TSPEC` 224) and the **CRF media-clock talker context** (PROBE_TX at `talker_unique_id = N` → SUCCESS with dmac = MAAP base+N, uid N+1 still TALKER_UNKNOWN_ID, and `KL_crf_tx` emitting that exact pair while `CRFT_SID`/`CRFT_DMAC` stay 0). | `cd milan_dp && make` |
-| [`hostplane/`](hostplane) | `milan_datapath.sv` (**silicon shape**: `N_STREAMS=8`, 100 MHz, cfg_ax8x8 mapping pinned in the suite README) | **Host-facing lanes** under concurrent stream traffic: host RX AXIS delivery (ARP/unicast/gPTP byte-exact), ts-record production per record contract v2.1 (event=1 record, general=0, TX+RX), TCAM shield no-leak both ways + whitelist mode, observer purity under host-lane backpressure (LTAP telemetry live, zero stream loss/reorder), 3-shape cfg-sweep smoke. **KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25)** — see its README for the honest signature. | `cd hostplane && make` |
+| [`hostplane/`](hostplane) | `milan_datapath.sv` (**silicon shape**: `N_STREAMS=8`, 100 MHz, cfg_ax8x8 mapping pinned in the suite README) | **Host-facing lanes** under concurrent stream traffic: host RX AXIS delivery (ARP/unicast/gPTP byte-exact), ts-record production per record contract v2.1 (event=1 record, general=0, TX+RX), TCAM shield no-leak both ways + whitelist mode, observer purity under host-lane backpressure (LTAP telemetry live, zero stream loss/reorder), 3-shape cfg-sweep smoke. **PASS** (77 checks) in the full 55-suite sweep of 2026-07-26; it was KNOWN-FAIL on main until the host-plane fix merged. | `cd hostplane && make` |
 | [`avtp_stream/`](avtp_stream) | `avtp_stream_parser.sv` | IEEE 1722 AVTP stream-header monitor (the S1 AVTP-engine foundation): stream-id / presentation-time / subtype / `tv` extraction against a programmable stream-match table, accept + reject cases, untagged and VLAN-tagged frames (21 checks). | `cd avtp_stream && make` |
 | [`avtp_parser/`](avtp_parser) | `avtp_stream_parser.sv` + `KL_stream_table.sv`, at **five shapes** (`N_STREAMS` = 1 / 4 / 8, `BIG_ENDIAN=1`, and the table+parser pairing at N=8) | The listener **accept verdict** and, above all, its **reject leg**: `stream_id` byte order as lifted off the wire, the VLAN-tagged vs untagged offset with both mis-offset negatives, the subtype/`sv` gate swept, every table entry reachable at each N (entries 4..7 exist only at N=8), the compare's failure modes — byte-reversed arm, transposed `SID_LO`/`SID_HI`, one-bit-off, armed-but-disabled — each asserted as the exact `0x8B4` APRB signature (*PARSED climbs, MATCHED does not, the latch shows the wire value*), frame-stream integrity (one verdict per frame, back-to-back with no gap, backpressure, the 56-byte header floor), 600 randomised frames per shape against an independent model, and TRAP-1: any entry-0 window write detaches the ACMP alias for good (~10 660 checks). | `cd avtp_parser && make` |
 | [`controller_rate/`](controller_rate) | `traffic_controller_802_1q.sv` | **Gating regression** for the CBS interference TX-wedge ([`docs/findings/CBS_DATAPATH_BUG.md`](../../docs/findings/CBS_DATAPATH_BUG.md)): back-to-back frames landing in *different* queues must each come out byte-exact — catches classifier `tdest` mis-timing / parse-FSM desync. | `cd controller_rate && make` |
@@ -52,6 +52,23 @@ in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
 # run everything (glob — never hand-list suites, lists go stale)
 for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 ```
+
+### Suites without a row above (yet)
+
+The table above is not complete — **`ls` is**, and it currently lists 55 suites
+with a `Makefile`. These 25 have no prose row here:
+
+[`aaf/`](aaf) · [`aaf_audio_loop/`](aaf_audio_loop) · [`aaf_latency_taps/`](aaf_latency_taps) · [`aecp/`](aecp) · [`avtp_rxmon/`](avtp_rxmon) · [`chmap_capture/`](chmap_capture) · [`chmap_render/`](chmap_render) · [`crf_rx/`](crf_rx) · [`crf_tx/`](crf_tx) · [`eth_tx_reset/`](eth_tx_reset) · [`i2spb/`](i2spb) · [`ifg/`](ifg) · [`lat_history_ring/`](lat_history_ring) · [`link_guard/`](link_guard) · [`lwsrp_switchpdu/`](lwsrp_switchpdu) · [`maap/`](maap) · [`mmcm_servo/`](mmcm_servo) · [`mmcm_servo_autorepair/`](mmcm_servo_autorepair) · [`pcm_ring_bram/`](pcm_ring_bram) · [`pcm_tx/`](pcm_tx) · [`pcmlpf/`](pcmlpf) · [`ptp_ts/`](ptp_ts) · [`tcam_csr/`](tcam_csr) · [`tdm_render/`](tdm_render) · [`tsn_fuzz/`](tsn_fuzz)
+
+Rather than guess at what each proves, use the two authoritative sources: the
+suite's own `README.md` where it has one, and
+[`docs/traceability/MODULE_MATRIX.md`](../../docs/traceability/MODULE_MATRIX.md),
+which is **generated** from the RTL tree and the TB Makefiles and lists, per
+module, every testbench that compiles it. (The four suites this round added —
+`aes3`, `avtp_parser`, `mac_rmon`, `persist` — *do* have rows above.)
+
+Full sweep on 2026-07-26: **55/55 PASS, 2 064 050 checks, 0 failures**
+(`scripts/run_all_suites.sh`, Verilator v5.050).
 
 ## Conventions
 

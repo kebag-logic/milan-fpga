@@ -78,8 +78,10 @@ milan-fpga/
    │        ▼                                         WishboneDMAWriter (TS)           │
    │  ┌─────────────────────── milan_datapath (hdl/, vendor-neutral) ───────────────┐  │
    │  │ milan_csr ── config/status/IRQ to every block below                         │  │
-   │  │ TX: s_axis_tx ─► classify ─► 6 queues ─► CBS ─► PTP-TX ─► ADP arb ─► mac_tx │  │
-   │  │ RX: mac_rx ─► PTP-RX ─► TCAM dest-MAC filter ─► m_axis_rx                   │  │
+   │  │ TX: s_axis_tx ─► classify ─► 6 queues ─► CBS ─► PTP-TX ─► arb ──► mac_tx    │  │
+   │  │     fabric engines (AAF/ADP/ACMP/AECP/MAAP/CRF/lwSRP) join at ─┘ (post-CBS) │  │
+   │  │ RX: mac_rx ─► PTP-RX ─┬─► TCAM dest-MAC filter ─► m_axis_rx   (host copy)   │  │
+   │  │                       └─► AVTP parse ─► monitor ─► depkt ─► PCM (media)     │  │
    │  │ TS: {dir, seq_id, timestamp} records ─► m_axis_ts                           │  │
    │  └──────────────────────────────────────────────────────────────────────────┬─┘  │
    │                                                     MilanMAC (LiteEth GMII) │     │
@@ -99,18 +101,35 @@ contract is [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUI
 
 ## 3. Datapath
 
-**TX:** DMA reader → `traffic_controller_802_1q` (classify → per-queue FIFOs
-→ CBS arbiter) → `ptp_ts_top` (TX timestamp capture) → `adp_tx_arbiter`
-(merges ADP advertisements) → MAC.
+**TX (CPU lane):** DMA reader → `traffic_controller_802_1q` (classify →
+**six** per-queue FIFOs → CBS arbiter) → `ptp_ts_top` (TX timestamp capture at
+the egress SFD) → a chain of `adp_tx_arbiter` mergers → MAC.
 
-**RX:** MAC → `ptp_ts_top` (RX timestamp capture) → `rx_mac_filter`
-(TCAM dest-MAC) → DMA writer.
+**TX (fabric lane):** the AAF talker, ADP, ACMP, AECP, MAAP, the CRF talker and
+the lwSRP MRPDUs inject into that arbiter chain **downstream of the shaper** —
+they never touch the classifier or a queue. The AAF talker is paced by the
+lwSRP bandwidth gate instead of by CBS; control frames pass a `tx_ifg_gasket`
+that the data lane bypasses.
+
+**RX:** MAC → `ptp_ts_top` (RX timestamp capture) → then the stream **tees**:
+
+* the **host copy** goes through `rx_mac_filter` (TCAM + station MAC) to the RX
+  DMA writer — and, on two-queue builds, `RxSteer` puts gPTP on its own queue;
+* the **media copy** is tapped *upstream of that filter*, so the fabric keeps
+  consuming the AVTP stream while the TCAM shields the CPU from the multicast
+  flood: `avtp_stream_parser` (told what to match by `KL_stream_table`) →
+  `KL_avtp_rx_monitor_ctx` (the accept verdict) → `KL_aaf_rx_depacketizer` →
+  `KL_pcm_route` → the DRAM PCM ring and/or the DAC render path.
 
 **Timestamp metadata:** `ptp_ts_top` emits `{direction, seq_id, timestamp}`
 records on a separate AXIS stream → TS DMA → DRAM, for the driver to
 correlate with skbs.
 
-Stage-by-stage prose with the DMA internals:
+**Follow one frame, hop by hop, with the CSR to read at each stage:**
+[../fpga/DATAPLANE_WALKTHROUGH.md](../fpga/DATAPLANE_WALKTHROUGH.md). Which
+queue a frame takes and why:
+[../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md). Stage-by-stage
+prose with the DMA/host internals:
 [../fpga/PIPELINE_STAGES.md](../fpga/PIPELINE_STAGES.md); per-stage counters
 to watch it live: [../fpga/pipeline-telemetry.md](../fpga/pipeline-telemetry.md).
 
@@ -175,11 +194,21 @@ caveats: [`sw/driver/README.md`](../../sw/driver/README.md).
 Six layers, one map: [../testing/TESTING.md](../testing/TESTING.md).
 Quick version: the self-checking Verilator harness dirs (`ls tb/verilator/`
 is authoritative; [`tb/verilator/README.md`](../../tb/verilator/README.md))
-cover every RTL block through the whole `milan_datapath` wrapper; Migen sims
-cover the DMA engines; `milan_sim.py` boots the SoC in Verilator; `syn/yosys`
-proves device portability (the `tops` list in `run.sh` is authoritative;
-generic + ECP5); the legacy xsim TBs remain for waveform work; silicon
-procedures close the loop.
+cover every RTL block through the whole `milan_datapath` wrapper; the **BDD
+conformance suite** (`cd tests && behave`) is the spec-facing counterpart —
+the Verilator suites prove the RTL does what it does, that proves it does what
+the standard says; Migen sims cover the DMA engines; `milan_sim.py` boots the
+SoC in Verilator; `syn/yosys` proves device portability (the `tops` list in
+`run.sh` is authoritative; generic + ECP5); the legacy xsim TBs remain for
+waveform work; silicon procedures close the loop.
+
+Since 2026-07-26 **CI runs the RTL gates too** — the full Verilator sweep, the
+Yosys sweep and the conformance suite, with Verilator built from source at a
+pinned tag ([`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)).
+`syn/yosys/run.sh` additionally fails on a **tied-off `milan_datapath` input**
+with no justified-tie entry: that is the defect class where a green port-level
+testbench vouched for a cone silicon never drove (it is how RMON read zero for
+months).
 
 ## 8. Where to change things (maintainability)
 

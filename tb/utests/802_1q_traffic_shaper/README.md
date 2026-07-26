@@ -11,6 +11,6 @@ self-checking Verilator harnesses under `tb/verilator/` for CI and regression:
 | `tb_traffic_classifier.sv` | stale (classification is now CSR-driven; decode moved to `traffic_class_map`) | [`tb/verilator/cls`](../../verilator/cls) |
 | `tb_traffic_queues.sv` | still valid (`traffic_queues` interface unchanged) | — |
 
-The Verilator harnesses need only `verilator >= 5.0` + a C++17 compiler (no
+The Verilator harnesses need only `verilator >= 5.050` (the CI pin) + a C++17 compiler (no
 Xilinx tools) and each exits non-zero on failure. See
 [`tb/verilator/README.md`](../../verilator/README.md).

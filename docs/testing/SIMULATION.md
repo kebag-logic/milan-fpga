@@ -28,7 +28,7 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitati
 
 ## Section 0: Prerequisites
 
-- **Layer 1 (RTL harnesses)** needs *only* `verilator >= 5.0` + a C++17 compiler.
+- **Layer 1 (RTL harnesses)** needs *only* `verilator >= 5.050` (the CI pin) + a C++17 compiler.
   No LiteX, no RISC-V toolchain, no Xilinx. This is the fast inner loop.
 - **Layers 2–3 (softcore)** additionally need the LiteX venv + RISC-V toolchain +
   JDK/sbt (NaxRiscv is generated from SpinalHDL). One-time setup is in
@@ -256,7 +256,10 @@ Memory dump:
   register holds the 32-bit word `0x4D494C4E`, which in memory is the byte sequence
   `4e 4c 49 4d` → the ASCII column reads **`NLIM`** (the little-endian byte order of
   the characters "MILN"). This is the NIC identifying itself  -  **M-A2 reached**.
-- The next word `03 00 01 00` = `0x00010003` = the `VERSION` register.
+- The next word `03 00 01 00` = `0x00010003` = the `VERSION` register **as it read
+  at the time of this M-A2 log**. VERSION is bumped on every gateware change, so a
+  build from the current tree returns `0x0001_0013` here — the byte pattern above
+  is the historical capture, not what you should expect to see.
 
 Captured output: [`../sw/litex/evidence/naxriscv_reads_MILN.log`](../../sw/litex/evidence/naxriscv_reads_MILN.log).
 

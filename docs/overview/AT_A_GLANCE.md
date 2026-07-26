@@ -48,8 +48,8 @@ flowchart TB
             SERVO["MMCM-DRP media-clock servo"]
         end
         subgraph NET["Network plane (802.1Q / 802.1AS)"]
-            CLS["classifier → per-queue FIFOs"]
-            CBS["802.1Qav credit-based shaper"]
+            CLS["classifier → 6 egress queues<br/>q5 SR-A · q4 SR-B · q3 gPTP<br/>q2 control · q1 spare · q0 BE"]
+            CBS["802.1Qav credit-based shaper<br/>(q5 / q4 only)"]
             PHC["PTP hardware clock<br/>+ TX/RX timestamp unit"]
             FILT["RX dest-MAC TCAM filter"]
         end
@@ -72,10 +72,18 @@ flowchart TB
     MAC <-->|"1 Gb Ethernet<br/>AVB/TSN wire"| WIRE(("802.1AS-capable<br/>AVB switch"))
 ```
 
+Two honest caveats the picture cannot hold: **only CPU-originated frames go
+through the classifier and the shaper** — the fabric engines inject after it —
+and the **RX media path taps upstream of the TCAM filter**, so the fabric keeps
+listening while the filter shields the CPU. Both are drawn properly, hop by hop,
+in [`../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md).
+
 Deeper, generated versions of this picture:
 [`SYSTEM_DOMAIN_MAP.md`](SYSTEM_DOMAIN_MAP.md) (every module by domain and
 language) and [`ARCHITECTURE.md`](ARCHITECTURE.md) (runtime data/control flow).
-The normative statement of what lives in fabric vs the softcore is
+The queue map itself is
+[`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md). The
+normative statement of what lives in fabric vs the softcore is
 [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md).
 
 ---
@@ -109,8 +117,8 @@ Verilator suite is its executable form.
 | Base | Group |
 |---|---|
 | `0x000` | Identification / IRQ — read `ID` here first: it spells `MILN` |
-| `0x100` · `0x200` | MAC control/status · RMON statistics |
-| `0x300` · `0x400` | 802.1Q classifier · 802.1Qav CBS (per queue, stride `0x20`) |
+| `0x100` · `0x200` | MAC control/status · RMON statistics — **read `STATS_CAP` (`0x204`) before believing a zero** |
+| `0x300` · `0x400` | 802.1Q classifier · 802.1Qav CBS (per queue, stride `0x20`; `0x400`–`0x4BF` at 6 queues) |
 | `0x500` | PTP hardware clock |
 | `0x600` · `0x648` | ADP advertiser · AECP/ACMP status + AAF talker (stream 0) |
 | `0x680` · `0x6A4` | lwSRP engine · ACMP listener SM + AVTP RX / MAAP / audio diagnostics |
@@ -128,7 +136,8 @@ LiteX-generated CSR space, not in this window.
 
 | Claim | Evidence you can re-run yourself |
 |---|---|
-| The RTL behaves per spec | the self-checking Verilator suites — `ls tb/verilator/` ([`../../tb/verilator/README.md`](../../tb/verilator/README.md)) |
+| The RTL behaves per spec | the self-checking Verilator suites — `ls tb/verilator/` ([`../../tb/verilator/README.md`](../../tb/verilator/README.md)); CI runs the whole sweep |
+| It behaves per the **standard**, not merely per its own RTL | the BDD conformance suite — `cd tests && behave -f plain` ([`../../tests/README.md`](../../tests/README.md)); a CI gate |
 | The RTL is vendor-neutral (no Xilinx primitives) | `cd syn/yosys && make && make ecp5` ([`../../syn/yosys/README.md`](../../syn/yosys/README.md)) |
 | The register map matches the RTL | the `csr` suite asserts it, offset by offset |
 | Every clause maps to a module and a test | [`traceability/MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md) (generated, gated for drift) |
