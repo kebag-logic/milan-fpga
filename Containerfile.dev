@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic <contact@kebag-logic.com>
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# The "simulate track" in one command — everything QUICKSTART.md track 1 and
+# track 2 need, and nothing else. No Xilinx tools, no LiteX, no JVM, no board.
+#
+#   podman build -t milan-fpga-dev -f Containerfile.dev .
+#   podman run --rm -v "$PWD":/work:z milan-fpga-dev          # run the gates
+#   podman run --rm -it -v "$PWD":/work:z milan-fpga-dev bash # poke around
+#
+# The repo is MOUNTED, not copied, so edits on the host are what gets tested.
+# The default command initialises third_party/verilog-axis if it is missing
+# (anonymous HTTPS), then runs the three repo gates and one Verilator suite.
+#
+# What this image can do : docs gate, traceability gate, builder gate,
+#                          every Verilator testbench, yosys generic + ECP5 synth.
+# What it deliberately cannot do : elaborate the LiteX SoC (needs migen/litex
+#                          from git + a JVM for the VexiiRiscv generator) and
+#                          place & route a bitstream (needs Vivado, proprietary).
+#                          See QUICKSTART.md track 3.
+
+FROM archlinux:latest
+
+LABEL org.opencontainers.image.title="milan-fpga-dev"
+LABEL org.opencontainers.image.description="Verilator + yosys + sv2v simulate/portability environment for milan-fpga"
+
+# Measured on a bare archlinux:latest: none of gcc, make, python3, verilator,
+# yosys, git or pyyaml are present — only bash. This is the whole list.
+#   gcc/make      : the Verilator harnesses are C++17
+#   python/pyyaml : docs gate, traceability gate, end-station builder
+#   verilator     : the testbenches            yosys : device-portability check
+#   git/which     : submodule init, tool probes in the makefiles
+#   unzip/curl    : fetch the sv2v release binary below
+RUN pacman -Syu --noconfirm --needed \
+        gcc make python python-yaml verilator yosys git which unzip curl \
+ && pacman -Scc --noconfirm
+
+# sv2v is NOT in the Arch official repositories (AUR only) — yosys cannot read
+# SystemVerilog interfaces without it, so syn/yosys/run.sh needs this binary.
+# Upstream ships a prebuilt static Linux build; pin the version.
+ARG SV2V_VERSION=v0.0.13
+RUN curl -fsSL -o /tmp/sv2v.zip \
+      "https://github.com/zachjs/sv2v/releases/download/${SV2V_VERSION}/sv2v-Linux.zip" \
+ && unzip -q /tmp/sv2v.zip -d /tmp \
+ && install -m0755 /tmp/sv2v-Linux/sv2v /usr/local/bin/sv2v \
+ && rm -rf /tmp/sv2v.zip /tmp/sv2v-Linux \
+ && sv2v --version
+
+WORKDIR /work
+
+# git refuses to operate on a tree owned by another uid (the bind mount).
+RUN git config --global --add safe.directory /work \
+ && git config --global --add safe.directory '*'
+
+CMD ["bash", "-lc", "\
+set -e; \
+if [ ! -e third_party/verilog-axis/rtl ]; then \
+  echo '== fetching third_party/verilog-axis =='; \
+  git submodule update --init third_party/verilog-axis; \
+fi; \
+echo '== gate 1/4: docs =='        && python3 scripts/docs_check.py; \
+echo '== gate 2/4: traceability ==' && python3 docs/traceability/gen_module_matrix.py --check; \
+echo '== gate 3/4: builder =='      && python3 sw/builder/test_builder.py | tail -1; \
+echo '== gate 4/4: verilator (tcam) ==' && ( cd tb/verilator/tcam && make ) \
+"]
