@@ -44,8 +44,18 @@ consecutive pair slots; `channels_per_frame` even 2..8 per stream).
 |--------|--------|-------------|-------|
 | `KL_aaf_capture_i2s` | RTL, silicon-proven | pair 0 only | stereo I2S master for the Pmod I2S2 (CS5343), pilot-tone override |
 | `KL_tdm_capture` | RTL (this round) | `SLOTS_P/2` pairs (TDM8/16/32) | TDM slave: pulse or 50%-duty fsync (edge-armed), data delay 0/1, 32/24/16-bclk words, MSB first; `tdm_mclk_o` = clk_audio/2 convenience MCLK |
-| `KL_aes3_capture` | contract only | pair 0 only | AES3 (AES3-2009 / IEC 60958-4 professional) |
-| `KL_spdif_capture` | contract only | pair 0 only | S/PDIF (IEC 60958-3 consumer) |
+| `KL_aes3_rx` | RTL (2026-07-26), TB-proven | pair 0 only | the biphase-mark RECEIVER for BOTH transports: AES3-2009 professional (`CONSUMER_P=0`) and S/PDIF / IEC 60958-3 consumer (`CONSUMER_P=1`). One core, one line format; `CONSUMER_P` changes only how the channel-status block is read back. `tb/verilator/aes3` |
+| `KL_aes3_tx` | RTL (2026-07-26), TB-proven | pair 0 only | the matching biphase-mark ENCODER: X/Y/Z preambles, 192-frame channel-status block, P-parity, V from the caller, underrun census. `tb/verilator/aes3` |
+
+> The two placeholders `KL_aes3_capture` / `KL_spdif_capture` never existed
+> as separate modules: the contract below already said the two transports
+> "SHALL share one deserializer core", and that is what shipped. What is
+> still MISSING is the integration, not the transport — the
+> `milan_datapath` front-end generate for this family and the
+> `milan_soc.py --audio-interface` value that selects it. `sw/builder`
+> already emits the parameters and the serial clock (see
+> [ENDSTATION_BUILDER.md](../../../../docs/ENDSTATION_BUILDER.md)) and marks
+> the SoC plumbing as planned.
 
 ## AES3 / S-PDIF contract (the later biphase-mark members)
 
