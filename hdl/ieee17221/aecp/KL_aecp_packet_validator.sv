@@ -89,7 +89,12 @@ module KL_aecp_packet_validator (
   //  [31:27] incoming status (must be 0 for commands)                   //
   //  [26:16] control_data_length[10:0]                                  //
   // ------------------------------------------------------------------ //
-  // verilator lint_off SELRANGE  // tdata is 64b at runtime; default if param is 32
+  //! tdata is 64b at runtime; the parameter default is 32, so the
+  //! constant selects below are out of range only in the unused
+  //! narrow-bus elaboration. NOTE: the waiver code must be the LAST
+  //! token on this line - Verilator parses trailing prose as part of
+  //! the message code and 5.020 rejects it outright.
+  // verilator lint_off SELRANGE
   wire [3:0]  w_msg_type = s_axis_tdata[35:32];
   wire [10:0] w_cdl      = s_axis_tdata[26:16];
   // verilator lint_on  SELRANGE

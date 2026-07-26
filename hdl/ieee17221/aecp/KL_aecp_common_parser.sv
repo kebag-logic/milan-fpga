@@ -120,7 +120,12 @@ module KL_aecp_common_parser (
         //   [26:16] control_data_length[10:0]
         //   [15: 0] target_entity_id[63:48]
         // ------------------------------------------------------------ //
-        // verilator lint_off SELRANGE  // tdata is 64b at runtime; default if param is 32
+        //! tdata is 64b at runtime; the parameter default is 32, so the
+        //! constant selects below are out of range only in the unused
+        //! narrow-bus elaboration. NOTE: the waiver code must be the LAST
+        //! token on this line - Verilator parses trailing prose as part of
+        //! the message code and 5.020 rejects it outright.
+        // verilator lint_off SELRANGE
         BEAT0_S: begin
           //! The verdict of the PREVIOUS frame must survive until this frame
           //! actually starts: clearing it unconditionally here erased the
