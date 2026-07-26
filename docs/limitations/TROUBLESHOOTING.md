@@ -591,10 +591,50 @@ out of any binary, so the image that actually boots is the image that gets check
 > window) and `tb/verilator/avtp_parser/sim_tbl.cpp` T6 (table level, from reset),
 > both including negative legs.
 >
-> **Still to do on silicon:** the reads below remain the confirmation instrument.
-> On the *currently flashed* `0x000B` the bug is present, so the workaround is to
-> **explicitly stage the correct sid at idx 0 and commit** — proven to recover the
-> match in sim. Record the numbers either way.
+> **CONFIRMED ON SILICON 2026-07-26**, on the AX 8x8 board still running the
+> pre-fix `VERSION 0x0001_000B`, with the peer talker live
+> (`AAF_STAT 0x694 = 0x37E`, `AAF_FRAMES` advancing ~12.9 k/s).
+>
+> *The defect, read off the board.* A SNAP'd read of the window at idx 0 showed
+> the **correct** stream_id staged — `SID_LO 0x00020000` / `SID_HI 0x02000000` =
+> `0x0200000000020000`, the sid both ends agree on — but `A_STRMW_CTRL 0x810`
+> read **`0x00000000`**, i.e. `en = 0`. Since
+> `tbl_en_o[0] = ovr_armed_r[0] ? ovr_en_r[0] : bound0_i`, an earlier `en=0` CTRL
+> write had armed the entry-0 override with en=0 and pinned entry 0 **disabled**,
+> regardless of what ACMP reported. `ACMPL_STATE 0x6A4 = 0x0002E07F` (bound,
+> stream active, Listener declared, TalkerAdvertise registered) with
+> `AVTPRX_FRX = 0`. That is the mechanism, observed directly rather than inferred.
+>
+> *The workaround, and the proof.* Re-staging the sid at idx 0 and committing
+> `CTRL = 0x3` (en + DMA route):
+>
+> ```sh
+> devmem 0x90000800 32 0x000        # SEL: dir=0 idx=0
+> devmem 0x90000814 32 0x00020000   # SID_LO
+> devmem 0x90000818 32 0x02000000   # SID_HI
+> devmem 0x90000810 32 0x3          # CTRL: en + DMA
+> ```
+>
+> | | before | +2 s | +4 s | sustained 5 s |
+> |---|---|---|---|---|
+> | `AVTPRX_FRX 0x6BC` | **0** | 24 971 | 58 222 | 223 673 → 271 646 |
+> | `AVTPRX_STAT 0x6B8` | 0 | 0x101 | 0x101 | 0x101 |
+> | `AVTPRX_ERR 0x6C0` | — | — | — | **0** |
+>
+> ~9.6 k frames/s sustained, zero format rejects. **The listener accepts.**
+>
+> *RX latency chain, finally readable* (AX datapath = 100 MHz, 1 cyc = 10 ns):
+> `MAC_RX→ACCEPT` min 49 cyc / last 50 = **~0.49 µs**; `ACCEPT→DEPKT` min 29 /
+> last 30 = **~0.30 µs**; `DEPKT→PCM_RING` min 10 378 / last 12 541 =
+> **~104-125 µs**. Total ≈ **105-126 µs**, dominated by the ring-fill stage
+> sitting at the 125 µs class-A interval — the expected shape.
+> **Caveat:** the `max` fields and `LTAP_RX_INFO 0x898` are saturated
+> (`0xFFFF`), polluted by the long blocked period when every frame timed out at
+> the tap. Only `min`/`last` are trustworthy above; a clean set needs a counter
+> reset, and the `0x000F` flash for the fixed provisioning path.
+>
+> On any board still carrying pre-`0x000F` gateware, the four `devmem` writes
+> above are the standing workaround.
 
 **Symptom (2026-07-26, 8x8 AX gateware `VERSION 0x0001_000B`).** A controller binds the
 board's listener 0 to the peer board's talker 0. Every control-plane indication is healthy:
