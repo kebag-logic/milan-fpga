@@ -108,8 +108,15 @@ def _ignore_matchers():
     """Crude .gitignore reader: (rooted globs, basename globs).
 
     Only the shapes this repo uses are honoured — directory entries, rooted
-    path globs and bare basenames. Enough to reproduce ``git ls-files`` for the
-    docs gate; ``_selftest_inventory`` asserts the two agree when git is around.
+    path globs and bare basenames; nested per-directory ``.gitignore`` files are
+    not read (``ALWAYS_PRUNE_GLOBS`` covers what they hide). This reproduces
+    ``git ls-files`` exactly today apart from submodule gitlinks, which git
+    reports as files and a filesystem walk cannot. To re-check that after
+    editing::
+
+        python3 -c "import sys; sys.path.insert(0,'scripts'); import docs_check as d; \
+                    g=set(d._git_files()); w=set(d._walk_files()); \
+                    print(sorted(g^w))"
     """
     rooted, basenames = [], []
     gi = REPO / ".gitignore"
