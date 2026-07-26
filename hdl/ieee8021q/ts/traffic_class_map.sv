@@ -24,6 +24,11 @@
                                802.1Q Table 8-5 style, programmable)
                     queue    = TC_QUEUE_MAP[tc]           (traffic class -> queue)
 
+                  dmac_check (REQ-CLS-07, both modes):
+                    the 0x88F7 gPTP fast path additionally requires the
+                    reserved destination multicast 01-80-C2-00-00-0E; a
+                    spoofed 0x88F7 otherwise takes the priority queue.
+
                   use_pcp = 0 (legacy EtherType fallback):
                     reproduce the previous EtherType-based classification
                     (gPTP / SR-A / control / best-effort) so existing behaviour
@@ -54,10 +59,13 @@ module traffic_class_map #(
   input  wire [23:0] prio_regen_i,     //! Priority regeneration table, 8 x 3 bits
   input  wire [31:0] tc_queue_map_i,   //! Traffic-class->queue table, 8 x 4 bits
 
+  input  wire        dmac_check_i,     //! 1 = the gPTP fast path also demands the reserved DMAC (REQ-CLS-07)
+
   //! --- parsed frame fields ---
   input  wire        vlan_valid_i,     //! Frame carried an 802.1Q C-TAG (0x8100)
   input  wire [2:0]  pcp_i,            //! PCP from vlan_tci[15:13] (valid if vlan_valid_i)
   input  wire        dei_i,            //! DEI from vlan_tci[12]   (valid if vlan_valid_i)
+  input  wire        dmac_gptp_i,      //! Frame DMAC == 01-80-C2-00-00-0E (802.1AS reserved mcast)
   input  wire [15:0] eth_type_i,       //! Inner EtherType (after any C-TAG)
 
   output logic [TDEST_WIDTH-1:0] tdest_o //! Egress queue index
@@ -84,6 +92,17 @@ module traffic_class_map #(
   //! change the queue selection in this revision. Tie-off to keep lint quiet.
   wire _unused_dei = dei_i;
 
+  //! Reserved-DMAC validation (REQ-CLS-07, 802.1AS-2020 §10.5 / 802.1Q Table 8-1).
+  //! EtherType 0x88F7 alone is NOT proof of a gPTP frame - any station can mint
+  //! one at an arbitrary destination, and the fast path below hands it the
+  //! second-highest queue ahead of every shaped stream. With `dmac_check_i` set
+  //! the fast path additionally demands the reserved multicast
+  //! 01-80-C2-00-00-0E; a spoofed 0x88F7 then falls through to the ordinary
+  //! PCP tables (or BEST_EFFORT in legacy mode) instead of stealing priority.
+  //! Default is OFF (CLS_CTRL[1] reset 0) so wire behaviour is unchanged until
+  //! software opts in.
+  wire gptp_frame = (eth_type_i == ETH_TYPE_PTP) && (!dmac_check_i || dmac_gptp_i);
+
   always_comb begin : classify
     // ---- PCP table path (REQ-CLS-01..04) ----
     eff_pcp       = vlan_valid_i ? pcp_i : default_pcp_i;
@@ -93,7 +112,7 @@ module traffic_class_map #(
 
     // ---- legacy EtherType path (fallback, unchanged semantics) ----
     unique case (1'b1)
-      (eth_type_i == ETH_TYPE_PTP):
+      gptp_frame:
         legacy_priority = GPTP_CLASS;
       (vlan_valid_i && (eth_type_i == ETH_TYPE_AVTP)):
         legacy_priority = SRA_CLASS;
@@ -116,7 +135,7 @@ module traffic_class_map #(
     // TX descriptor ring (256 slots ~ 30 ms of bulk backlog at 100 Mbit,
     // upstream of this classifier). tx_timestamp_timeout 50 covers it; the
     // real fix for that class is a priority TX ring/doorbell (future).
-    if (eth_type_i == ETH_TYPE_PTP)
+    if (gptp_frame)
       tdest_o = TDEST_WIDTH'(GPTP_CLASS);
     else if (use_pcp_i)
       tdest_o = queue_sel;

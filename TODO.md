@@ -154,7 +154,12 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [ ] **M — DEI sideband** `(REQ-CLS-05)`.
 - [ ] **M — Back-to-back line-rate parsing** `(REQ-CLS-06)` — re-arm header FSM on
   `tlast` same-cycle.
-- [ ] **M — Reserved DMAC validation** `(REQ-CLS-07)`.
+- [x] **M — Reserved DMAC validation** `(REQ-CLS-07)` — the 0x88F7 gPTP fast path
+  (second-highest queue) now also demands the reserved multicast
+  `01-80-C2-00-00-0E` when `CLS_CTRL[1]` is set; a spoofed 0x88F7 falls through
+  to the PCP tables / BEST_EFFORT. Reset 0 = unchanged wire behaviour. TBs:
+  `cls` (directed + 200k random incl. the negative), `classifier` (wire-parsed
+  DMAC, check-off/on/legacy legs).
 - [ ] **L — S-TAG / 802.1ad** `(REQ-CLS-08)` · **L — 802.1Qci PSFP** `(REQ-CLS-09)`.
 - [x] **H — Classifier harness** `(REQ-VER-03)`.
 

@@ -47,7 +47,7 @@ module traffic_controller_802_1q #(
 
   //! --- 802.1Q classifier runtime config (from milan_csr, REQ-CLS-01..04) ---
   input wire        cls_use_pcp_i,            //! 1 = classify by PCP table, 0 = legacy EtherType
-  input wire        cls_dmac_check_i,         //! Enable reserved-DMAC validation (unused placeholder)
+  input wire        cls_dmac_check_i,         //! Enable reserved-DMAC validation (REQ-CLS-07)
   input wire [2:0]  cls_default_pcp_i,        //! Default port priority for untagged frames
   input wire [23:0] cls_pcp_tc_map_i,         //! PCP->traffic-class table, 8x3 bits
   input wire [23:0] cls_prio_regen_i,         //! Priority regeneration table, 8x3 bits
