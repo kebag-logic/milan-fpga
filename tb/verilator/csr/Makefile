@@ -23,7 +23,12 @@ AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_csr
 TOPL       = csr_win_live
 
+# milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh (generated from the
+# end-station config by sw/builder/endstation_builder.py), so hdl/common/csr
+# must be an include dir here exactly as it already is in tb/verilator/milan_dp,
+# tb/verilator/hostplane and sw/litex/milan_soc.py.
 VFLAGS = --cc --exe --build -j 0 \
+         +incdir+$(RTL_DIR)/common/csr \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
          -CFLAGS "-std=c++17 -O2"
 
