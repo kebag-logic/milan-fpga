@@ -104,6 +104,7 @@ Goal: build, flash, hear audio — or get value out of the repo without buying a
 | **Run the tests** | [testing/TESTING.md](testing/TESTING.md) (the map) → [../tb/verilator/README.md](../tb/verilator/README.md) (suite detail) |
 | **Know what does NOT work** | [limitations/KNOWN_ISSUES_AND_LIMITATIONS](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) |
 | **See where the project is heading** | [overview/AVB_SWITCH_DIRECTION](overview/AVB_SWITCH_DIRECTION.md) → the GitHub issues (the live roadmap) |
+| **Know what the box records when it goes wrong** | [reference/TRACE_EVENTS](reference/TRACE_EVENTS.md) (the 23 logged event types, generated from the ABI) → [design/TRACE_LOGGING](design/TRACE_LOGGING.md) (why, budget, rotation, how to read one) |
 | **Debug a datapath problem** | [fpga/pipeline-telemetry](fpga/pipeline-telemetry.md) → [findings/](findings/README.md) (how every past bug was cornered) → [testing/SIMULATION](testing/SIMULATION.md) |
 | **Review RTL, or sanity-check a green test run** | [limitations/RECURRING_DEFECT_PATTERNS](limitations/RECURRING_DEFECT_PATTERNS.md) — the eight shapes this project's real bugs keep taking, each with the check that catches it |
 | **Write driver / DT / register code** | [reference/REGISTER_MAP](reference/REGISTER_MAP.md) → [`../sw/driver/README.md`](../sw/driver/README.md) + [`../sw/dts/README.md`](../sw/dts/README.md) |

@@ -404,29 +404,81 @@ ingest ABI §8, bench recipe §11).
   blocks = slot A / slot B) rather than a file, so "a torn write cannot damage
   the other slot" is flash geometry rather than a filesystem promise, and so it
   is readable before any mount.
-  - **Layout**: `FLASHBOOT_LAYOUT`/`FLASHBOOT_MANIFESTS` in `sw/litex/milan_soc.py`
-    are the single source of truth — the slots are added there, never by hand.
-    Budget today (from the code, not the old estimate in this row): the AX
-    rootfs slot is **8.5 MiB with 5.6 MiB used**, so shrinking it to 6.375 MiB
-    frees `0xDE_0000` for the journal and `0xE0_0000` for `/user`. The ARTY
-    rootfs slot has **~15 KB headroom** — ARTY gets neither slot until its
-    rootfs is slimmed, and degrades gracefully (no partition → no replay →
-    boots unbound).
-  - **Kernel side**: mtd partition node in the DT (regenerate the DTB from the
-    build's `csr.csv` on any layout change — the CSR-rot rule) + SPI-NOR/mtd
-    support over the LiteSPI controller in the kernel config. **Nothing exists
-    today** — there is no `mtd`/`spi-nor`/`jffs2` node anywhere in `sw/dts`.
-    Reads alone unblock the restore half (the flash is memory-mapped), so the
-    read path can be proven before the writable mtd path exists.
+  - **Layout — DONE 2026-07-26.** `FLASHBOOT_LAYOUT` + the new
+    `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py` are the single source of
+    truth. `rootfs` shrank 8.5 → **6.375 MiB** (measured 5.6 MiB used, ~0.775
+    MiB slack left), freeing `journal` @ `0xDE_0000` (128 KiB) and `user` @
+    `0xE0_0000` (2 MiB). `check_flash_map()` refuses an unaligned, overlapping
+    or oversized map **at build time**. The ARTY rootfs slot still has **~15 KB
+    headroom** — ARTY gets neither slot until its rootfs is slimmed, and
+    degrades gracefully (no partition → no replay → boots unbound).
+  - **DT node — DONE 2026-07-26.** `sw/dts/gen_mtd_partitions.py` emits
+    `sw/dts/mtd-partitions.dtsi` from that map (`&flash` = the label LiteX's
+    `json2dts` already gives the LiteSPI `jedec,spi-nor` node, read out of the
+    LiteX source rather than assumed); `--check` byte-compares and `--dtc` runs
+    `dtc`, both wired into `sw/trace/test_trace_roundtrip.py` gate 1.
+  - **Kernel side — STILL NOTHING.** No mtd driver is known to bind to the
+    LiteSPI controller in this kernel config, and no board has been booted with
+    an mtd node. Reads alone unblock the restore half (the flash is
+    memory-mapped), so the read path can be proven before the writable mtd path
+    exists.
   - **Boot side**: an early S-script mounts `/user` before `S50milan`/`S51` and
     replays the journal BEFORE the media stack (a sink the local software has
     already bound refuses the restore, correctly, per 5.5.1.2);
     `build.sh flash` / `deploy.sh flash-images` must never erase the journal or
-    user slots on a reflash.
+    user slots on a reflash. **Open, sharper now:** `deploy.sh` computes slot
+    ceilings from the next *image* offset and does not read the new `reserved`
+    key, so its printed `rootfs` budget is still 16 MiB − `0x78_0000` and an
+    oversized rootfs would overwrite `journal`/`user`. Each image entry now
+    exports its own `budget`; the fix is one line in `do_flash_images()`.
   - **Gate**: reboot drill — write a marker file + a saved bind, power-cycle **at
     the wall**, the marker survives and fast-connect restores with no
     controller. Then the torn-write drill: cut power *during* a journal write
     ~10 times; every boot must come up on one intact slot, never half-applied.
+- [ ] **H4 — rotating compressed CTF fault log in `/user/log`** *(2026-07-26;
+  host half DONE, board half needs H3's mtd path)*. Design record:
+  [`docs/design/TRACE_LOGGING.md`](docs/design/TRACE_LOGGING.md).
+  "Know what's happening when something goes wrong" needs **CSR-plane state**,
+  not text — so the log is a binary CTF trace produced by **barectf**
+  (dependency-free generated C, no LTTng runtime), buffered in DRAM, and written
+  to flash only on a fault.
+  - **DONE, host-gated** (`sw/trace/test_trace_roundtrip.py`, 14 gates,
+    `ALL GATES PASS`): the trace ABI (`sw/trace/milan_trace.yaml` → vendored
+    `metadata` + `barectf.[ch]`, id map pinned); the DRAM ring + severity flush
+    arming + rate limiter + flash-wear token bucket (`sw/trace/milan_trace.[ch]`);
+    the segment container and its pinned xz chain (`sw/trace/trace_segment.py`);
+    a stdlib CTF reader (`sw/trace/ctf_read.py`); and a scripted fault run
+    through the **shipping** producer (`sw/trace/trace_selftest.c`).
+  - **23 event types**, chosen from the shapes in
+    [`RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
+    and [`TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md) §21 — link
+    guard `0x774`, `RST_EPOCH 0x720`, ACMP
+    listener `0x6A4`, lwSRP `0x694` incl. the `[11]` row shortfall, the `0x800`
+    window state **and its writes**, the `0x8B4` parser probe, `AVTPRX_*`, the
+    `0x870` taps with a `saturated` flag, ring laps, journal verdicts, MAAP,
+    media clock, gPTP, and the tracer's own flush/drop/evict.
+  - **Measured**: 1 839 104 → 387 028 B (ratio **0.2104**, 4.41 compressed bytes
+    per record) with LZMA2 **preset 0, dict = the 256 KiB segment, CRC-32, one
+    block** — the ratio cliff is the HC4→BT4 match finder (presets 0-3 within
+    0.6 %, presets 4+ cost 3-6× the CPU for ~7 % of the bytes), and a dictionary
+    bigger than the segment is dead weight (`preset 6e, dict 256 KiB` produced
+    byte-identical output to `xz -9e` at 2× the speed and 1/68 of the memory).
+  - **Torn-write behaviour is measured, not assumed**: a truncated single-block
+    xz stream decodes **proportionally** (10 %→5 of 64 packets, 50 %→32,
+    90 %→59) and the recovered records are a byte-exact **prefix** of the intact
+    decode. `--block-size` costs 7-15 % of the ratio and recovers no more.
+  - **Flash budget**: `/user/log` = 1.5 MiB = 24 × 64 KiB blocks; at the part's
+    datasheet ">100 000 P/E cycles per sector" and a pessimistic 3× jffs2 write
+    amplification that is 48.8 GiB of payload. The 512 KiB/h token bucket caps a
+    permanently-faulting board at 12 MiB/day = **11.4 years**; a rate limiter
+    alone would be 1.4 years and a 10 KB/s text syslog would be **59 days**.
+  - **Board half (private test repo + H3)**: the CSR poller, the liblzma
+    compressor, the `/user/log` writer (write → `fsync` → `rename`), rotation,
+    and the init ordering. Bench recipe T0-T6 in
+    [`TRACE_LOGGING.md`](docs/design/TRACE_LOGGING.md) §12.
+  - **Gate**: T5 — cut power during a flush ~10 times; every boot must mount
+    `/user/log`, leave at most one `*.partial`, and decode every complete
+    segment plus the readable prefix of the torn one.
 
 ---
 
