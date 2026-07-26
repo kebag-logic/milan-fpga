@@ -570,7 +570,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! N-context ACMP talker activation (2026-07-26: the responder runs
   //! KL_acmp_tlkr_ctx at N_SRC_P = N_STREAMS - probes answer for every
   //! talker_unique_id 0..N-1). Bit 0 keeps the legacy scalar consumers.
-  wire [N_STREAMS-1:0]     acmp_talker_active_v, acmp_probe_armed_v;
+  //! ACMP talker source contexts = the N audio talkers plus, at N > 1, the
+  //! CRF Media Clock Output at talker_unique_id = N_STREAMS (see
+  //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
+  localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;
+  localparam int CRF_TUID_C = N_STREAMS;   //! only when ACMP_SRC_C > N_STREAMS
+  wire [ACMP_SRC_C-1:0]    acmp_talker_active_v, acmp_probe_armed_v;
   wire                     acmp_talker_active, acmp_probe_armed;
   wire [31:0]              aecp_pres_offset;
   //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
@@ -585,6 +590,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! follow-up); the flat CSR status keeps bit 0 only
   wire [N_STREAMS-1:0] lwsrp_stream_gate;
   wire        lwsrp_slope_en, lwsrp_res_active;
+  //! sticky ctx-table shortfall -> LWSRP_STATUS[11]
+  wire        lwsrp_ctx_oor_w;
   wire [31:0] lwsrp_idle_slope;
   wire        lwsrp_listener_ready, lwsrp_listener_reg;
   wire [1:0]  lwsrp_listener_decl;
@@ -707,9 +714,25 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! legacy composition; observed[j>0] = that stream's reservation row (a
   //! granted per-stream reservation implies a ready listener) with the
   //! same A_ACMP_LOBS manual override socket.
-  wire [N_STREAMS*48-1:0] acmp_src_dmac_w;
-  wire [N_STREAMS*12-1:0] acmp_src_vid_w;
-  wire [N_STREAMS-1:0]    acmp_lobs_v_w;
+  //!
+  //! CRF MEDIA CLOCK OUTPUT as an ACMP talker source (roadmap item 5,
+  //! NXN_ARCHITECTURE.md §3.5 / [M-7.2.3]):
+  //! "With N >= 2 AAF listener sinks the CRF Media Clock Output is
+  //! mandatory": at N_STREAMS > 1 the ACMP talker responder gains ONE more
+  //! source context, talker_unique_id = N_STREAMS, so a controller binds the
+  //! media-clock stream with the same CONNECT_TX/PROBE_TX it uses for audio
+  //! instead of it being an un-addressable side channel. Its stream_id is
+  //! {station MAC, N_STREAMS} (the responder echoes the uid tail) and its
+  //! DMAC is the MAAP block slot base+N_STREAMS - the same base+uid rule the
+  //! audio sources use, one slot past them (so MAAP_CTRL's claimed count
+  //! must be N_STREAMS+1 for the address to be ours).
+  //! At N_STREAMS = 1 the extra context does not exist and the responder is
+  //! the byte-identical single-source shape (the no-regression axiom).
+  wire [N_STREAMS-1:0]     acmp_talker_active_aaf_w =
+                               acmp_talker_active_v[N_STREAMS-1:0];
+  wire [ACMP_SRC_C*48-1:0] acmp_src_dmac_w;
+  wire [ACMP_SRC_C*12-1:0] acmp_src_vid_w;
+  wire [ACMP_SRC_C-1:0]    acmp_lobs_v_w;
   generate
     for (genvar gj = 0; gj < N_STREAMS; gj++) begin : g_acmp_src
       assign acmp_src_dmac_w[gj*48 +: 48] = eff_aaf_dmac + 48'(gj);
@@ -721,7 +744,33 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    (cfg_lwsrp_enable & lwsrp_stream_gate[gj]);
       end
     end
+    if (ACMP_SRC_C > N_STREAMS) begin : g_acmp_crf_src
+      assign acmp_src_dmac_w[CRF_TUID_C*48 +: 48] =
+          eff_aaf_dmac + 48'(CRF_TUID_C);
+      assign acmp_src_vid_w [CRF_TUID_C*12 +: 12] = cfg_aaf_vid;
+      //! the CRF output has no lwSRP attribute row yet (the 0x800 window
+      //! addresses talker idx < T only), so its activation is the PROBE_TX
+      //! window alone plus the A_ACMP_LOBS manual socket - honest, and the
+      //! Milan talker SM's own rule
+      assign acmp_lobs_v_w[CRF_TUID_C] = cfg_acmp_lobs;
+    end
   endgenerate
+
+  //! CRF talker identity follows the ACMP answer when the CSR fields are
+  //! left at 0: a controller that probe-binds tuid = N_STREAMS is told
+  //! {station MAC, N_STREAMS} / MAAP base+N_STREAMS, and the CRF PDUs the
+  //! fabric emits then carry exactly that - no provisioning daemon has to
+  //! recompute the pair and no mismatch is possible. A non-zero CRFT_SID /
+  //! CRFT_DMAC still wins outright (today's static provisioning, exact).
+  wire [47:0] crft_auto_dmac_w = eff_aaf_dmac + 48'(CRF_TUID_C);
+  wire [63:0] crft_auto_sid_w  =
+      {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+       cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+       cfg_mac_addr[39:32], cfg_mac_addr[47:40], 16'(CRF_TUID_C)};
+  wire [47:0] eff_crft_dmac_w = (|cfg_crft_dmac || (ACMP_SRC_C == N_STREAMS))
+                                ? cfg_crft_dmac : crft_auto_dmac_w;
+  wire [63:0] eff_crft_sid_w  = (|cfg_crft_sid  || (ACMP_SRC_C == N_STREAMS))
+                                ? cfg_crft_sid  : crft_auto_sid_w;
   //! AAF admission: probe-gated as before; with lwSRP enabled a reservation
   //! is additionally required (FR-SRP-03: no reservation -> no stream tx).
   //! The bypass bit stays the legacy stream-whenever-enabled escape hatch.
@@ -757,7 +806,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           tctx_en_r[gs] &
           (~cfg_maap_enable | maap_addr_valid) &
           (cfg_aaf_bypass |
-           (acmp_talker_active_v[gs] &
+           (acmp_talker_active_aaf_w[gs] &
             (~cfg_lwsrp_enable | lwsrp_stream_gate[gs])));
     end
   endgenerate
@@ -1007,9 +1056,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_acmp_talker_active (acmp_talker_active),
     //! per-stream talker truth vectors (window honesty, 2026-07-26)
     .i_tlk_gate_v         (8'(aaf_stream_en_w)),
-    .i_tlk_active_v       (8'(acmp_talker_active_v)),
-    .i_tlk_probe_v        (8'(acmp_probe_armed_v)),
-    .i_tlk_lobs_v         (8'(acmp_lobs_v_w)),
+    //! the 8-bit CSR view is the AUDIO sources only; the CRF context at
+    //! tuid = N_STREAMS would not fit the field at N = 8 (g_acmp_crf_src)
+    .i_tlk_active_v       (8'(acmp_talker_active_aaf_w)),
+    .i_tlk_probe_v        (8'(acmp_probe_armed_v[N_STREAMS-1:0])),
+    .i_tlk_lobs_v         (8'(acmp_lobs_v_w[N_STREAMS-1:0])),
     .i_aaf_gate           (aaf_gate),
     .o_aaf_dest_mac       (cfg_aaf_dmac),
     .o_aaf_vid            (cfg_aaf_vid),
@@ -1024,7 +1075,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_lwsrp_max_frame    (cfg_lwsrp_max_frame),
     .o_lwsrp_interval     (cfg_lwsrp_interval),
     .o_lwsrp_latency      (cfg_lwsrp_latency),
-    .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 5'd0,
+    //! [11] = ctx-table shortfall (sticky): a provisioning request named an
+    //! attribute row this build does not have. It is 0 on a correctly-sized
+    //! engine and the ONLY software-visible symptom when it is not - a
+    //! refused row silently drops the reservation everywhere else.
+    .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 4'd0,
+                            lwsrp_ctx_oor_w,
                             lwsrp_tfail_valid, lwsrp_slope_en,
                             lwsrp_stream_gate[0], lwsrp_over_limit,
                             lwsrp_res_active, lwsrp_domain_ok,
@@ -1571,7 +1627,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (the wrapper's documented NxN integration path) - CONNECT_TX/PROBE_TX
   //! answers SUCCESS for every talker_unique_id 0..N-1 with dmac = MAAP
   //! base+uid, so Milan listeners can probe-bind every talker stream.
-  KL_acmp_tlkr_ctx #(.N_SRC_P(N_STREAMS)) acmp_responder (
+  KL_acmp_tlkr_ctx #(.N_SRC_P(ACMP_SRC_C)) acmp_responder (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
     .src_dmac_i (acmp_src_dmac_w), .src_vid_i (acmp_src_vid_w),
@@ -1777,6 +1833,83 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   end : tctx_en_shadow
 
+  // ==========================================================================
+  //  PER-ROW lwSRP TSpec (2026-07-26): MaxFrameSize is a property of the
+  //  STREAM, not of the engine. The 0x800 window has no per-stream TSpec
+  //  word, so every ctx row used to be provisioned from the shared
+  //  LWSRP_TSPEC (0x690) and a 2-channel and an 8-channel talker reserved
+  //  identically — one of them always wrong, and the reservation could not
+  //  match the frames the packetizer actually emits.
+  //
+  //  The honest source is the geometry the packetizer itself uses: TCTX w0
+  //  `chans` (same field, same clamp), so reservation and wire can never
+  //  disagree. For the AAF-PCM32 frame this datapath builds,
+  //    payload = SAMPLES_PER_FRAME x C x 4 = 24*C octets
+  //    MSDU (AVTPDU) = 24 + 24*C  <- the MSRP TSpec MaxFrameSize
+  //    L2 frame      = 42 + 24*C  = MaxFrameSize + the 802.1Q overhead of 42
+  //  which is exactly sw/builder's `srp_frame_geometry` (gate: talker rows
+  //  in lwsrp_table.json carry avtpdu_bytes).
+  //
+  //  Row 0 (the legacy talker+listener pair) is untouched: it keeps
+  //  LWSRP_TSPEC verbatim, silicon-proven, per the no-regression axiom.
+  localparam int unsigned AAF_SPF_C        = 6;   //! 48 kHz / 8000 per s
+  localparam int unsigned AAF_SMP_OCTETS_C = 4;   //! AAF INT_32BIT
+  localparam int unsigned AVTP_AAF_HDR_C   = 24;  //! common + format header
+
+  //! same clamp as KL_aaf_packetizer's chn_clamp (even, 2..8)
+  function automatic [3:0] aaf_chn_clamp(input [3:0] c);
+    aaf_chn_clamp = (c < 4'd2)  ? 4'd2
+                  : (c >= 4'd8) ? 4'd8
+                  : (c[0] ? (c + 4'd1) : c);
+  endfunction
+
+  logic [3:0] tctx_chans_r [N_STREAMS];
+  //! the window raises tctx_wr_p AND the SRP provisioning request on the
+  //! SAME CTRL write, and the ctx record samples max_frame one cycle before
+  //! the accepted TCTX handshake retires — so the in-flight write is
+  //! bypassed here, never sampled a commit late
+  wire       tctx_w0_wr_w = csr_tctx_wr_p_w &&
+                            (csr_tctx_wr_addr_w[3:0] == 4'd0) &&
+                            (32'(csr_tctx_wr_addr_w[6:4]) < N_STREAMS);
+  wire [3:0] tctx_chans_w [N_STREAMS];
+  wire [15:0] tctx_maxf_w [N_STREAMS];
+  generate
+    for (genvar gc = 0; gc < N_STREAMS; gc++) begin : g_tctx_tspec
+      assign tctx_chans_w[gc] =
+          (tctx_w0_wr_w && (32'(csr_tctx_wr_addr_w[6:4]) == gc))
+              ? aaf_chn_clamp(csr_tctx_wr_data_w[4:1]) : tctx_chans_r[gc];
+      assign tctx_maxf_w[gc] =
+          16'(AVTP_AAF_HDR_C) +
+          16'(AAF_SPF_C * AAF_SMP_OCTETS_C) * 16'(tctx_chans_w[gc]);
+    end
+  endgenerate
+
+  always_ff @(posedge axis_clk) begin : tctx_chans_shadow
+    if (!axis_resetn) begin
+      for (int t = 0; t < N_STREAMS; t++) tctx_chans_r[t] <= 4'd2;
+    end else if (tctx_w0_wr_w && tctx_wr_rdy_w) begin
+      tctx_chans_r[csr_tctx_wr_addr_w[6:4]] <=
+          aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);
+    end
+  end : tctx_chans_shadow
+
+  //! ctx row -> talker index (the window's (L-1)+t map, L = N_STREAMS).
+  //! A ctx write in the talker direction naming row (N-1)+t takes talker
+  //! t's derived MaxFrameSize; everything else (listener rows, reads, row
+  //! 0) keeps the shared LWSRP_TSPEC value. MaxIntervalFrames stays shared
+  //! on purpose - it is an SR-class property (1 for class A) and the
+  //! builder emits the same value on every row.
+  wire [4:0]  srp_tk_idx_w = 5'(csr_srp_ctx_idx) - 5'(N_STREAMS - 1);
+  wire        srp_tk_row_w = csr_srp_ctx_we && !csr_srp_ctx_dir &&
+                             (srp_tk_idx_w >= 5'd1) &&
+                             (32'(srp_tk_idx_w) < N_STREAMS);
+  //! index the array only inside its range (the mux below discards the
+  //! value when srp_tk_row_w is low, but the SELECT must stay legal)
+  wire [4:0]  srp_tk_sel_w = srp_tk_row_w ? srp_tk_idx_w : 5'd0;
+  wire [15:0] srp_ctx_maxf_w = srp_tk_row_w
+                               ? tctx_maxf_w[srp_tk_sel_w]
+                               : cfg_lwsrp_max_frame;
+
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
@@ -1939,8 +2072,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i (clk_audio_i),
     .enable_i      (cfg_crft_en),
-    .sid_i         (cfg_crft_sid),
-    .dest_mac_i    (cfg_crft_dmac),
+    .sid_i         (eff_crft_sid_w),
+    .dest_mac_i    (eff_crft_dmac_w),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
@@ -2335,11 +2468,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  Listener attribute for our stream, and resolves the reservation into
   //  the AAF admission gate + the CBS class-A slope (mux above).
   // ==========================================================================
-  //! N_CTX_P = N_STREAMS: the ctx-table talker rows feed the per-stream
-  //! bw-gate vector consumed by aaf_stream_en_w (N=1 keeps the structural
-  //! TX-mux passthrough + single-row bw-gate = byte-identical)
+  //! ATTRIBUTE-ROW sizing (2026-07-26 fix). N_CTX_P used to be N_STREAMS =
+  //! max(L,T), but an attribute row is not a stream: the 0x800 window maps
+  //! listener k -> row k and talker t -> row (L-1)+t (milan_csr
+  //! `srp_sel_row_w`), so the top row is (L-1)+(T-1) and the table needs
+  //! L+T-1 rows. At L=T=N that is 2N-1 — 15 at 8x8, where 8 existed and
+  //! rows 8..14 (EVERY t>0 talker declaration) were refused in silence by
+  //! KL_lwsrp_ctx's `ctx_idx_i < N_CTX_P` guard. The talker gate then read
+  //! a LISTENER row and pinned every t>0 stream shut whenever lwSRP was on.
+  //! N_TALKERS_P keeps stream_gate_o (and the Σ-slope engine) T wide, so
+  //! aaf_stream_en_w still indexes it by talker index and the bw-gate does
+  //! not grow to 15 slots. N=1 -> 2*1-1 = 1 = today's shape exactly.
+  localparam int SRP_CTX_ROWS_C = 2*N_STREAMS - 1;
   KL_lwsrp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
-                 .N_CTX_P(N_STREAMS)) lwsrp (
+                 .N_CTX_P(SRP_CTX_ROWS_C),
+                 .N_LISTENERS_P(N_STREAMS),
+                 .N_TALKERS_P(N_STREAMS)) lwsrp (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_lwsrp_enable),
     .talker_en_i (cfg_lwsrp_talker_en),
@@ -2377,10 +2521,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ctx_idx_i (csr_srp_ctx_idx), .ctx_valid_i (csr_srp_ctx_valid),
     .ctx_dir_i (csr_srp_ctx_dir), .ctx_sid_i (csr_srp_ctx_sid),
     .ctx_dmac_i (csr_srp_ctx_dmac), .ctx_prio_rank_i (csr_srp_ctx_prio),
-    .ctx_max_frame_i (csr_srp_ctx_maxf), .ctx_interval_i (csr_srp_ctx_intv),
+    //! per-row MaxFrameSize (see the tctx_chans_shadow block); the CSR's
+    //! shared LWSRP_TSPEC word still serves row 0 and every listener row
+    .ctx_max_frame_i (srp_ctx_maxf_w), .ctx_interval_i (csr_srp_ctx_intv),
     .ctx_latency_i (csr_srp_ctx_lat),
     .ctx_gnt_o (srp_ctx_gnt_w), .ctx_rd_sid_o (srp_ctx_rd_sid_w),
-    .ctx_rd_stat_o (srp_ctx_rd_stat_w),
+    .ctx_rd_stat_o (srp_ctx_rd_stat_w), .ctx_oor_o (lwsrp_ctx_oor_w),
     .ctx_reg_o (), .ctx_ready_o (), .ctx_failed_o (), .ctx_tx_count_o (),
     .stream_gate_o (lwsrp_stream_gate),
     .slope_en_o (lwsrp_slope_en), .idle_slope_o (lwsrp_idle_slope),
