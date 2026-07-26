@@ -76,7 +76,7 @@ Gates (gaps item 4, generator round):
       passes (N_CTX_P = N_STREAMS, bw_gate width = N_CTX_P, NUM_QUEUES ==
       ethernet_packet_pkg), and the NxN ctx-row shortfall (L+T-1 rows in
       max(L,T) contexts) surfaces as a planned mark;
-  18d. reject paths: class B, VID 0/4095, class_queue 4, a unicast stream
+  18d. reject paths: class B, VID 0/4095, class_queue 8, a unicast stream
       DMAC, an unknown TSpec policy and an over-subscribed class-A
       reservation all raise ConfigError;
   19a. platform emitter: the DMA window map is derived from rx-queues (1q->2q
@@ -956,7 +956,7 @@ def test_lwsrp_reset_words_match_rtl():
     got = r["lwsrp"]["reset_words"]
     hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
     # (emitter name, milan_csr storage reg, milan_csr A_* enum, doc reset)
-    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0xC"),
+    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0x14"),
             ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "2"),
             ("LWSRP_DMAC_LO", "lwsrp_dmlo", "A_LWSRP_DMLO", "0xF000_FE01"),
             ("LWSRP_DMAC_HI", "lwsrp_dmhi", "A_LWSRP_DMHI", "0x91E0"),
@@ -1051,7 +1051,7 @@ def test_lwsrp_class_constants_match_rtl():
         "hdl/ieee8021q/srp/gen/lwsrp_table.svh is STALE - regenerate it"
     for needle in (f"LWSRP_CLASS_ID_C   = 8'd{t['sr_class']['class_id']};",
                    f"LWSRP_PRIO_RANK_C  = 8'h{pr:02X};",
-                   "LWSRP_CTRL_RST_C      = 32'h0000_000C;",
+                   "LWSRP_CTRL_RST_C      = 32'h0000_0014;",
                    "LWSRP_TSPEC_RST_C     = 32'h0001_00E0;"):
         assert needle in svh, f"tracked svh lacks {needle!r}"
     print(f"  [gate 18b] {len(checks)} SR-class/timer/bandwidth constants == "
@@ -1162,8 +1162,8 @@ def test_lwsrp_rejects():
          "5.6"),
         ("VID 0", lambda c: c["srp"].__setitem__("vid", 0), "UNSHAPED"),
         ("VID 4095", lambda c: c["srp"].__setitem__("vid", 4095), "4094"),
-        ("queue 4 (2-bit field)",
-         lambda c: c["srp"].__setitem__("class_queue", 4), "LWSRP_CTRL[3:2]"),
+        ("queue 8 (3-bit field)",
+         lambda c: c["srp"].__setitem__("class_queue", 8), "LWSRP_CTRL[4:2]"),
         ("unicast stream DMAC",
          lambda c: c["srp"].__setitem__("stream_dmac_base",
                                         "0x020000000001"), "MULTICAST"),
@@ -1493,7 +1493,8 @@ def test_csr_defaults_header_consumed():
             f"dir - `include \"{eb.CSR_DEFAULTS_INCLUDE}\" cannot resolve")
     print(f"  [gate 20a] milan_csr.sv `include-s {eb.CSR_DEFAULTS_INCLUDE}; "
           f"{len(eb.SRP_FROZEN_RESETS)} reset words + PriorityAndRank == the "
-          f"FROZEN pre-switch literals (zero functional change), 0 literals "
+          f"FROZEN literals (LWSRP_CTRL moved ONCE, 0x0C -> 0x14, for the "
+          f"6-queue map's class-A queue 5), 0 literals "
           f"left in the RTL, {len(shared)} constants agree with "
           f"lwsrp_table.svh, {len(CSR_INCDIR_CONSUMERS)} consumers carry the "
           f"include dir")
@@ -1535,11 +1536,11 @@ def test_csr_defaults_rejects():
     try:
         cfg = eb.load_config(p)
         w = eb.srp_reset_words(cfg)["LWSRP_CTRL"]
-        assert w == 0x0000000F, f"LWSRP_CTRL {w:#010x} != 0x0000000F"
+        assert w == 0x00000017, f"LWSRP_CTRL {w:#010x} != 0x00000017"
     finally:
         os.unlink(p)
     print(f"  [gate 20b] {len(cases)}/{len(cases)} malformed LWSRP_CTRL "
-          "sources rejected with ConfigError; en+talker+q3 emits 0x0000000F")
+          "sources rejected with ConfigError; en+talker+q5 emits 0x00000017")
 
 
 AES3_RX_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aes3_rx.sv")

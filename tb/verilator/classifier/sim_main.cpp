@@ -24,6 +24,12 @@
 #include <vector>
 #include <string>
 
+// ethernet_packet_pkg::network_priority_t - the value IS the queue index and
+// the HIGHER index is the HIGHER priority (802.1Q order, 6-queue map).
+static const int NQ = 6;
+enum { BEST_EFFORT = 0, RESERVED_CLASS = 1, CONTROL_CLASS = 2,
+       GPTP_CLASS = 3, SRB_CLASS = 4, SRA_CLASS = 5 };
+
 static Vclassifier_wrap* dut;
 static long checks = 0, fails = 0;
 static void ck(const char* what, long got, long exp) {
@@ -170,7 +176,9 @@ int main(int argc, char** argv) {
     dut->resetn = 0;
     dut->s_tvalid = dut->s_tlast = 0; dut->m_tready = 1;
     dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
-    dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688; dut->tc_queue_map_i = 0x000000E4;
+    // milan_csr reset CLS_TC_QUEUE_MAP for the 6-queue map: 3 bits/entry,
+    // TC0/1 -> q0, TC2 -> q4 (SR-B), TC3 -> q5 (SR-A), TC4/5 -> q2, TC6/7 -> q3.
+    dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688; dut->tc_queue_map_i = 0x006D2B00;
     for (int i = 0; i < 6; i++) { lo(); hi(); }
     dut->resetn = 1;
     for (int i = 0; i < 2; i++) { lo(); hi(); }
@@ -197,7 +205,8 @@ int main(int argc, char** argv) {
         int eff   = tagged ? pcp : (int)dut->default_pcp_i;
         int regen = (dut->prio_regen_i  >> (3 * eff))   & 7;
         int tc    = (dut->pcp_tc_map_i  >> (3 * regen)) & 7;
-        return (int)((dut->tc_queue_map_i >> (2 * tc)) & 3);
+        int q = (int)((dut->tc_queue_map_i >> (3 * tc)) & 7);
+        return (q >= NQ) ? 0 : q;   // traffic_class_map clamps to BEST_EFFORT
     };
     // little-endian beats (BIG_ENDIAN=0 instance): wire byte n = beat[n%8] lane n%8
     auto mkhdr = [](bool tagged, int pcp, int nbeats, int dei = 0) {
@@ -227,8 +236,9 @@ int main(int argc, char** argv) {
     run_frames(real, /*bp=*/1, "real-hdr b2b bp",    &expd);
 
     // ---- gPTP FAST-PATH (2026-07-13): untagged 0x88F7 must classify to
-    // GPTP_CLASS (q1) even in PCP mode (untagged default_pcp would otherwise
-    // send it wherever the tables point), sandwiched between bulk frames ----
+    // GPTP_CLASS (q3 in the 6-queue map) even in PCP mode (untagged default_pcp
+    // would otherwise send it wherever the tables point), sandwiched between
+    // bulk frames ----
     {
         auto mkgptp = [](int nbeats) {
             std::vector<uint8_t> f(nbeats * 8, 0x00);
@@ -246,14 +256,14 @@ int main(int argc, char** argv) {
         std::vector<std::vector<Beat>> gm;
         std::vector<int> gexp;
         gm.push_back(mkhdr(false, 0, 5)); gexp.push_back(expq(false, 0));   // bulk before
-        gm.push_back(mkgptp(9));          gexp.push_back(1);                // GPTP_CLASS
+        gm.push_back(mkgptp(9));          gexp.push_back(GPTP_CLASS);
         gm.push_back(mkhdr(true, 3, 4));  gexp.push_back(expq(true, 3));    // tagged after
-        gm.push_back(mkgptp(9));          gexp.push_back(1);                // again
+        gm.push_back(mkgptp(9));          gexp.push_back(GPTP_CLASS);        // again
         run_frames(gm, /*bp=*/0, "gptp fast-path (pcp mode)", &gexp);
         // and legacy mode lands on the same class
         dut->use_pcp_i = 0;
         std::vector<std::vector<Beat>> gl = { mkgptp(9) };
-        std::vector<int> glexp = { 1 };
+        std::vector<int> glexp = { GPTP_CLASS };
         run_frames(gl, /*bp=*/0, "gptp fast-path (legacy mode)", &glexp);
         dut->use_pcp_i = 1;
     }
@@ -284,34 +294,38 @@ int main(int argc, char** argv) {
         const uint8_t spoof[6]= {0x01,0x80,0xC2,0x00,0x00,0x0F};   // one bit off - not gPTP
         const uint8_t uni[6]  = {0x02,0x00,0x00,0x00,0x00,0x68};   // plain unicast
 
-        // default port priority 2 -> identity tables -> queue 2 (NOT q1=GPTP)
+        // default port priority 2 -> identity tables -> queue 2 (NOT q3=GPTP)
         uint32_t ident24 = 0; for (int i = 0; i < 8; i++) ident24 |= (uint32_t)i << (3 * i);
+        uint32_t ident_tcq = 0; for (int i = 0; i < NQ; i++) ident_tcq |= (uint32_t)i << (3 * i);
+        uint32_t save_tcq = dut->tc_queue_map_i;
         dut->default_pcp_i = 2; dut->pcp_tc_map_i = ident24; dut->prio_regen_i = ident24;
+        dut->tc_queue_map_i = ident_tcq;
 
         // (a) check OFF: every DMAC still takes the fast path
         dut->dmac_check_i = 0;
         std::vector<std::vector<Beat>> off = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9),
                                                mkgptp_dmac(uni, 9) };
-        std::vector<int> offexp = { 1, 1, 1 };
+        std::vector<int> offexp = { GPTP_CLASS, GPTP_CLASS, GPTP_CLASS };
         run_frames(off, /*bp=*/0, "cls07 check-off keeps fast path", &offexp);
 
-        // (b) check ON: only the reserved DMAC keeps q1; the others fall to q2
+        // (b) check ON: only the reserved DMAC keeps q3; the others fall to q2
         dut->dmac_check_i = 1;
         std::vector<std::vector<Beat>> on = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9),
                                               mkgptp_dmac(uni, 9), mkgptp_dmac(good, 9) };
-        std::vector<int> onexp = { 1, 2, 2, 1 };
+        std::vector<int> onexp = { GPTP_CLASS, 2, 2, GPTP_CLASS };
         run_frames(on, /*bp=*/0, "cls07 reserved DMAC gates gPTP", &onexp);
         run_frames(on, /*bp=*/1, "cls07 reserved DMAC gates gPTP bp", &onexp);
 
-        // (c) legacy mode: the spoof must land on BEST_EFFORT (q3), not q1
+        // (c) legacy mode: the spoof must land on BEST_EFFORT (q0), not q3
         dut->use_pcp_i = 0;
         std::vector<std::vector<Beat>> lg = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9) };
-        std::vector<int> lgexp = { 1, 3 };
+        std::vector<int> lgexp = { GPTP_CLASS, BEST_EFFORT };
         run_frames(lg, /*bp=*/0, "cls07 legacy spoof -> BEST_EFFORT", &lgexp);
 
         // restore the harness defaults for anything that follows
         dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
         dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688;
+        dut->tc_queue_map_i = save_tcq;
     }
 
     // ---- REQ-CLS-05: DEI (drop_eligible) sideband on m_axis.tuser[0] ----
@@ -377,10 +391,10 @@ int main(int argc, char** argv) {
         for (int r = 0; r < 6; r++) {
             burst.push_back(mkhdr(true, 6, 3));  exp.push_back(expq(true, 6));   // SR-ish
             burst.push_back(mkhdr(false, 0, 3)); exp.push_back(expq(false, 0));  // best effort
-            burst.push_back(mkgptp_min(3));      exp.push_back(1);               // gPTP
+            burst.push_back(mkgptp_min(3));      exp.push_back(GPTP_CLASS);      // gPTP
             burst.push_back(mkhdr(true, 2, 4));  exp.push_back(expq(true, 2));
             burst.push_back(mkhdr(true, 6, 3));  exp.push_back(expq(true, 6));
-            burst.push_back(mkgptp_min(4));      exp.push_back(1);
+            burst.push_back(mkgptp_min(4));      exp.push_back(GPTP_CLASS);
         }
         std::vector<int> got = collect_dest_line_rate(burst);
         ck("cls06: line-rate frame count", (long)got.size(), (long)exp.size());

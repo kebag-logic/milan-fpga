@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0010 (lwSRP L+T-1 rows)", axi_read(A_VERSION), 0x00010010);
+    ck("VERSION 0x0011 (six 802.1Q egress queues)", axi_read(A_VERSION), 0x00010011);
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
@@ -441,7 +441,7 @@ int main(int argc, char** argv) {
     // composition is term-by-term IDENTICAL for every stream now, so
     // cfg_aaf_bypass is the escape hatch for t>0 exactly as for t0 - the
     // old "only t1 drops" asymmetry WAS the honest gap this closes.
-    axi_write(A_LWSRP_CTRL, 0xD);
+    axi_write(A_LWSRP_CTRL, 0x15);          // enable, class-A queue 5
     for (int c = 0; c < 64; c++) step();
     ck("lwSRP on + bypass: t1 rides bypass like t0", (tap_stream_en() >> 1) & 1, 1);
     ck("lwSRP on + bypass: t0 unaffected", tap_stream_en() & 1, 1);
@@ -456,7 +456,7 @@ int main(int argc, char** argv) {
     for (int g = 0; g < 200 && axi_read(A_AAF_FRAMES) == fr0; g++)
         for (int c = 0; c < 512; c++) step();
     ck("t0 emission alive on bypass restore", axi_read(A_AAF_FRAMES) > fr0, 1);
-    axi_write(A_LWSRP_CTRL, 0xC);
+    axi_write(A_LWSRP_CTRL, 0x14);          // disable, class-A queue 5 kept
     for (int c = 0; c < 64; c++) step();
     ck("lwSRP off: t1 re-arms", (tap_stream_en() >> 1) & 1, 1);
     // MAAP enabled + unclaimed holds t0 AND t1 alike (the engine-wide
@@ -957,7 +957,7 @@ int main(int argc, char** argv) {
         enum { A_LWSRP_STATUS = 0x694, A_SW_SRP = 0x85C };
         // engine ON (enable + talker declare); the ctx port only grants
         // while the engine runs, so the window's SRP master needs this
-        axi_write(A_LWSRP_CTRL, 0x3);
+        axi_write(A_LWSRP_CTRL, 0x17);      // enable + talker, class-A queue 5
         for (int c = 0; c < 256; c++) step();
 
         // ---- talker idx 1 -> ctx row (N-1)+1 -------------------------

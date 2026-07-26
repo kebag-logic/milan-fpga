@@ -36,9 +36,11 @@ static void lo() { dut->clk = 0; dut->eval(); }
 static void hi() { dut->clk = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 
+static const int NQ = 6;    // ethernet_packet_pkg::NUMBER_OF_QUEUES (802.1Q order)
+
 static void set_cbs(bool shaped, uint32_t slope, int32_t hicr, int32_t locr) {
-    dut->cbs_shaped_i = shaped ? 0xF : 0x0;
-    for (int q = 0; q < 4; q++) {
+    dut->cbs_shaped_i = shaped ? ((1u << NQ) - 1) : 0x0;
+    for (int q = 0; q < NQ; q++) {
         dut->cbs_idle_slope_i[q] = slope;
         dut->cbs_hi_credit_i[q]  = (uint32_t)hicr;
         dut->cbs_lo_credit_i[q]  = (uint32_t)locr;
@@ -99,7 +101,12 @@ static void config_classifier() {
     // identity maps so PCP p -> prio p -> TC p -> queue p (deterministic routing):
     dut->cls_prio_regen_i   = 0x00FAC688;  // PCP -> PCP
     dut->cls_pcp_tc_map_i    = 0x00FAC688;  // prio -> TC
-    dut->cls_tc_queue_map_i  = 0x000000E4;  // TC0..3 -> queue 0..3
+    // TC t -> queue t for t < NQ (3 bits/entry at NQ=6); TC >= NQ is left at 0
+    // so it exercises nothing out of range here (traffic_class_map clamps those
+    // to BEST_EFFORT anyway - tb/verilator/cls owns that check).
+    uint32_t tcq = 0;
+    for (int t = 0; t < NQ; t++) tcq |= (uint32_t)t << (3 * t);
+    dut->cls_tc_queue_map_i  = tcq;
 }
 
 int main(int argc, char** argv) {
@@ -115,7 +122,7 @@ int main(int argc, char** argv) {
     printf("-- unshaped (strict priority) --\n");
     set_cbs(false, 0, 0, 0);
     std::set<int> dests;
-    for (int pcp = 0; pcp < 4; pcp++) {
+    for (int pcp = 0; pcp < NQ; pcp++) {
         auto f = vlan_frame(pcp, 0xA0 + pcp);
         auto r = run_frame(f, 300);
         ck("frame egressed", r.got ? 1 : 0, 1);
@@ -130,7 +137,7 @@ int main(int argc, char** argv) {
         ck("tdest == queue (PCP p -> q p)", r.dest, pcp);   // identity map -> exact routing
         if (r.dest >= 0) dests.insert(r.dest);
     }
-    ck("classification uses 4 queues", (long)dests.size(), 4);
+    ck("classification uses all 6 queues", (long)dests.size(), NQ);
 
     // ---- shaped (CBS path, generous credit): frames still pass byte-exact ----
     printf("-- shaped (CBS, generous credit) --\n");
@@ -138,7 +145,7 @@ int main(int argc, char** argv) {
     set_cbs(true, 300000000u, 1000000, -1000000);
     for (int i = 0; i < 8; i++) step();
     int shaped_ok = 0;
-    for (int pcp = 0; pcp < 4; pcp++) {
+    for (int pcp = 0; pcp < NQ; pcp++) {
         auto f = vlan_frame(pcp, 0xB0 + pcp);
         auto r = run_frame(f, 500);
         if (r.got) {
@@ -147,18 +154,18 @@ int main(int argc, char** argv) {
             if (eq) shaped_ok++;
         }
     }
-    ck("shaped frames pass byte-exact", shaped_ok, 4);
+    ck("shaped frames pass byte-exact", shaped_ok, NQ);
 
     // ---- back-to-back burst then drain (queue depth + arbiter under load) ----
     printf("-- burst of frames across queues --\n");
     do_reset(); config_classifier(); set_cbs(false, 0, 0, 0);
     int delivered = 0;
-    for (int n = 0; n < 6; n++) {
-        auto f = vlan_frame(n % 4, 0xC0 + n);
+    for (int n = 0; n < 12; n++) {
+        auto f = vlan_frame(n % NQ, 0xC0 + n);
         auto r = run_frame(f, 300);
         if (r.got && r.data.size() == f.size()) delivered++;
     }
-    ck("burst all delivered", delivered, 6);
+    ck("burst all delivered", delivered, 12);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
