@@ -23,19 +23,22 @@ else
   # The builder test gate asserts fragment == these tables byte-for-byte.
   # =======================================================================
   case "$BOARD" in
-    arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536;;
-    ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=32768;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven)
+    arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536; RXQ=2;;
+    ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=32768; RXQ=1;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven)
     *) echo "unknown board $BOARD" >&2; exit 2;;
   esac
 fi
-# rx-queues 1 = the SHIPPING ax8x8 boot-chain layout since 2026-07-24 (the
-# CSR-rot incident: DTB/opensbi/driver/ring tooling all assume the 1-queue
-# map; a 2-queue build shifts every DMA window - caught pre-flash 2026-07-26)
+# RXQ is PER BOARD because each board's flashed boot chain fixes its own DMA
+# window map (the 2026-07-24 CSR-rot rule): ax7101 ships 1 queue (its csr.csv
+# has no rx1_*/steer registers), arty ships 2 (its deployed gateware carries
+# rx1_* + steer_q0/q1). Building either with the other's count shifts every
+# DMA window under an unchanged DTB - unify them only with a full boot-chain
+# rebuild on that board.
 BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
  --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \
- --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues 1 \
+ --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues ${RXQ} \
  --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
 cd "$W"
 rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}

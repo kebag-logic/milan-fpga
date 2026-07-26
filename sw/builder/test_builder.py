@@ -28,7 +28,8 @@ Gates (gaps item 4, generator round):
       shape-sensitive (changed shape -> different id), OUI-prefixed;
       arty_current honors model_id_pin = the CURRENTLY DEPLOYED id;
    9. generated sweep_opts_<board>.sh == today's sweep.sh inline tables
-      BYTE-FOR-BYTE (OPTS string + L2) for both boards; sh -n passes on
+      BYTE-FOR-BYTE (OPTS string + L2 + the PER-BOARD RXQ: each flashed boot
+      chain fixes its own DMA window map) for both boards; sh -n passes on
       sweep.sh and both fragments;
   10. gen_aem_store.py CONSUMES the arty_current overlay (--overlay,
       subprocess) and the generated aecp_aem_rom.svh is byte-identical to
@@ -130,24 +131,26 @@ def _canon(tokens):
 
 
 def sweep_inline(board):
-    """(OPTS string, L2 string) of sweep.sh's inline FALLBACK table for
-    <board>."""
+    """(OPTS string, L2 string, RXQ string) of sweep.sh's inline FALLBACK
+    table for <board>. RXQ is per board: each flashed boot chain fixes its
+    own DMA window map (the CSR-rot rule)."""
     txt = open(SWEEP).read()
-    m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+)', txt)
+    m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+); RXQ=(\d+)', txt)
     assert m, f"sweep.sh: no OPTS case for {board}"
-    return m.group(1), m.group(2)
+    return m.group(1), m.group(2), m.group(3)
 
 
 def sweep_expected(board):
     """Design-flag dict sweep.sh composes for <board> (OPTS + BASE minus
     flow flags)."""
     txt = open(SWEEP).read()
-    opts, l2 = sweep_inline(board)
+    opts, l2, rxq = sweep_inline(board)
     mb = re.search(r'milan_soc\.py \$OPTS (.*?)"', txt, re.S)
     assert mb, "sweep.sh: BASE line not found"
     base = mb.group(1).replace("\\\n", " ")
     tokens = shlex.split(opts) + shlex.split(base)
-    tokens = [l2 if t == "${L2}" else t for t in tokens]
+    subst = {"${L2}": l2, "${RXQ}": rxq}
+    tokens = [subst.get(t, t) for t in tokens]
     out, i = [], 0
     while i < len(tokens):
         if tokens[i] in FLOW_FLAGS:
@@ -452,17 +455,20 @@ def test_sweep_opts_fragments():
         p = r["paths"]["sweep_opts"]
         assert os.path.basename(p) == f"sweep_opts_{board}.sh"
         txt = open(p).read()
-        m = re.search(r'^OPTS="([^"]*)"\nL2=(\d+)\n', txt, re.M)
-        assert m, f"{p}: fragment lacks OPTS/L2"
-        frag[board] = (m.group(1), m.group(2), p)
-    for board, (opts, l2, p) in frag.items():
-        want_opts, want_l2 = sweep_inline(board)
+        m = re.search(r'^OPTS="([^"]*)"\nL2=(\d+)\nRXQ=(\d+)\n', txt, re.M)
+        assert m, f"{p}: fragment lacks OPTS/L2/RXQ"
+        frag[board] = (m.group(1), m.group(2), m.group(3), p)
+    for board, (opts, l2, rxq, p) in frag.items():
+        want_opts, want_l2, want_rxq = sweep_inline(board)
         assert opts == want_opts, (f"{board}: fragment OPTS != sweep.sh inline\n"
                                    f" frag   {opts!r}\n inline {want_opts!r}")
         assert l2 == want_l2, f"{board}: fragment L2 {l2} != inline {want_l2}"
-        print(f"  [gate 9] {board}: generated OPTS/L2 byte-match sweep.sh "
-              f"inline table ({len(opts)} chars)")
-    for path in [SWEEP] + [p for (_o, _l, p) in frag.values()]:
+        # per-board RX-queue count: the CSR-rot rule (each flashed boot chain
+        # fixes its own DMA window map), so a drift here is a real hazard
+        assert rxq == want_rxq, f"{board}: fragment RXQ {rxq} != inline {want_rxq}"
+        print(f"  [gate 9] {board}: generated OPTS/L2/RXQ byte-match sweep.sh "
+              f"inline table ({len(opts)} chars, rx-queues {rxq})")
+    for path in [SWEEP] + [p for (_o, _l, _r, p) in frag.values()]:
         subprocess.run(["sh", "-n", path], check=True)
     print("  [gate 9] sh -n clean: sweep.sh + both fragments")
 
