@@ -103,6 +103,39 @@ parameter logic [ETH_TYPE_BIT_WIDTH-1:0] ETH_TYPE_VLAN = 16'h8100;
 parameter logic [ETH_TYPE_BIT_WIDTH-1:0] ETH_TYPE_PTP = 16'h88F7;
 //! 1722 IEEE Audio Video Transport Protocol (AVTP) Ethernet type
 parameter logic [ETH_TYPE_BIT_WIDTH-1:0] ETH_TYPE_AVTP = 16'h22F0;
+//! 802.1Q Multiple Stream Registration Protocol (MSRP) Ethernet type
+parameter logic [ETH_TYPE_BIT_WIDTH-1:0] ETH_TYPE_MSRP = 16'h22EA;
+//! 802.1Q Multiple VLAN Registration Protocol (MVRP) Ethernet type
+parameter logic [ETH_TYPE_BIT_WIDTH-1:0] ETH_TYPE_MVRP = 16'h88F5;
+
+// -----------------------------------------------------------------------------
+// Reserved control destination MAC addresses
+// -----------------------------------------------------------------------------
+
+//! The control protocols this end-station speaks are **untagged link-local
+//! frames**: they carry no C-TAG, therefore no PCP, therefore no 802.1Q
+//! priority at all. What identifies them is the **reserved destination group
+//! address** a bridge itself classifies on (802.1Q Table 8-1 / 802.1AS-2020
+//! §10.5 / 1722.1-2021 §6.2.1 / 1722-2016 Annex B), so that is what
+//! `traffic_class_map` matches on. Wire byte order: byte 0 is the MSB.
+//!
+//! NOTE the deliberate collision: gPTP and MSRP SHARE 01-80-C2-00-00-0E and go
+//! to DIFFERENT queues (q3 vs q2). The address alone cannot separate them; the
+//! EtherType splits that ONE address and only that one.
+
+//! 802.1D "Nearest Bridge" group address — gPTP (0x88F7) **and** MSRP (0x22EA).
+parameter logic [MAC_ADDR_BIT_WIDTH-1:0] MAC_DST_NEAREST_BRIDGE = 48'h0180_C200_000E;
+//! MVRP participant group address (0x88F5).
+parameter logic [MAC_ADDR_BIT_WIDTH-1:0] MAC_DST_MVRP           = 48'h0180_C200_0021;
+//! IEEE 1722.1 ADP / ACMP discovery group address (0x22F0).
+parameter logic [MAC_ADDR_BIT_WIDTH-1:0] MAC_DST_ATDECC         = 48'h91E0_F001_0000;
+//! IEEE 1722 MAAP group address (0x22F0).
+parameter logic [MAC_ADDR_BIT_WIDTH-1:0] MAC_DST_MAAP           = 48'h91E0_F000_FF00;
+
+//! Bit position of the I/G (individual / group) flag: the LSB of wire byte 0.
+//! 1 = multicast or broadcast, 0 = unicast. Used to recognise the one control
+//! protocol that has NO group address to match — see `traffic_class_map`.
+parameter int MAC_IG_BIT = MAC_ADDR_BIT_WIDTH - BYTE_TO_BIT;
 
 // -----------------------------------------------------------------------------
 // Endianness Conversion Function

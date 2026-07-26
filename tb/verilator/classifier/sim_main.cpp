@@ -176,6 +176,7 @@ int main(int argc, char** argv) {
     dut->resetn = 0;
     dut->s_tvalid = dut->s_tlast = 0; dut->m_tready = 1;
     dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
+    dut->ctrl_class_i = 1;   // CLS_CTRL[2] resets to 1 (REQ-CLS-10)
     // milan_csr reset CLS_TC_QUEUE_MAP for the 6-queue map: 3 bits/entry,
     // TC0/1 -> q0, TC2 -> q4 (SR-B), TC3 -> q5 (SR-A), TC4/5 -> q2, TC6/7 -> q3.
     dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688; dut->tc_queue_map_i = 0x006D2B00;
@@ -326,6 +327,154 @@ int main(int argc, char** argv) {
         dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
         dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688;
         dut->tc_queue_map_i = save_tcq;
+    }
+
+    // ---- REQ-CLS-10: the CONTROL fast path, through the REAL parser ----
+    // The unit-level decode is pinned in tb/verilator/cls; what this exercises
+    // is that the classifier hands the map the right FIELDS off the wire: the
+    // destination MAC in wire byte order (byte 0 first) and the INNER EtherType
+    // (after any C-TAG), for frames built byte-by-byte the way the MAC delivers
+    // them. Both matter - the fast path is keyed on the DMAC, and the tag test
+    // that keeps a stream out of q2 only works if `eth_type` is the inner one.
+    {
+        // generic control frame: any DMAC, any EtherType, untagged
+        auto mkctl = [](const uint8_t dm[6], uint16_t et, int nbeats) {
+            std::vector<uint8_t> f(nbeats * 8, 0x5A);
+            for (int i = 0; i < 6; i++) { f[i] = dm[i]; f[6 + i] = 0x02; }
+            f[12] = (uint8_t)(et >> 8); f[13] = (uint8_t)(et & 0xFF);
+            std::vector<Beat> fr;
+            for (int b = 0; b < nbeats; b++) {
+                uint64_t d = 0;
+                for (int k = 0; k < 8; k++) d |= (uint64_t)f[b * 8 + k] << (8 * k);
+                fr.push_back({ d, (uint8_t)(b == nbeats - 1 ? 0x0F : 0xFF), b == nbeats - 1 });
+            }
+            return fr;
+        };
+        // C-TAGGED frame with a settable DMAC, PCP and INNER EtherType
+        auto mktag = [](const uint8_t dm[6], uint16_t inner, int pcp, int nbeats) {
+            std::vector<uint8_t> f(nbeats * 8, 0x5A);
+            for (int i = 0; i < 6; i++) { f[i] = dm[i]; f[6 + i] = 0x02; }
+            f[12] = 0x81; f[13] = 0x00;                                  // TPID
+            f[14] = (uint8_t)(pcp << 5); f[15] = 0x02;                   // TCI: PCP, VID 2
+            f[16] = (uint8_t)(inner >> 8); f[17] = (uint8_t)(inner & 0xFF);
+            std::vector<Beat> fr;
+            for (int b = 0; b < nbeats; b++) {
+                uint64_t d = 0;
+                for (int k = 0; k < 8; k++) d |= (uint64_t)f[b * 8 + k] << (8 * k);
+                fr.push_back({ d, (uint8_t)(b == nbeats - 1 ? 0x0F : 0xFF), b == nbeats - 1 });
+            }
+            return fr;
+        };
+        const uint8_t NEAREST[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};  // gPTP + MSRP
+        const uint8_t MVRPA[6]   = {0x01,0x80,0xC2,0x00,0x00,0x21};
+        const uint8_t ATDECC[6]  = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+        const uint8_t MAAPA[6]   = {0x91,0xE0,0xF0,0x00,0xFF,0x00};
+        const uint8_t PEER[6]    = {0x02,0x11,0x22,0x33,0x44,0x55};  // AECP peer, unicast
+        const uint8_t BRIDGEG[6] = {0x01,0x80,0xC2,0x00,0x00,0x00};  // RSTP - NOT a row today
+
+        // (a) the documented map, back-to-back, interleaved with bulk so a
+        //     stale-by-one classification cannot hide
+        {
+            std::vector<std::vector<Beat>> ctl;
+            std::vector<int> exp;
+            ctl.push_back(mkhdr(false, 0, 4));           exp.push_back(expq(false, 0));
+            ctl.push_back(mkctl(NEAREST, 0x88F7, 3));    exp.push_back(GPTP_CLASS);     // gPTP
+            ctl.push_back(mkctl(NEAREST, 0x22EA, 4));    exp.push_back(CONTROL_CLASS);  // MSRP
+            ctl.push_back(mkctl(MVRPA,   0x88F5, 3));    exp.push_back(CONTROL_CLASS);  // MVRP
+            ctl.push_back(mkhdr(true, 3, 5));            exp.push_back(expq(true, 3));
+            ctl.push_back(mkctl(ATDECC,  0x22F0, 6));    exp.push_back(CONTROL_CLASS);  // ADP/ACMP
+            ctl.push_back(mkctl(MAAPA,   0x22F0, 3));    exp.push_back(CONTROL_CLASS);  // MAAP
+            ctl.push_back(mkctl(PEER,    0x22F0, 4));    exp.push_back(CONTROL_CLASS);  // AECP
+            ctl.push_back(mkhdr(false, 0, 3));           exp.push_back(expq(false, 0));
+            run_frames(ctl, /*bp=*/0, "cls10 control map",    &exp);
+            run_frames(ctl, /*bp=*/1, "cls10 control map bp", &exp);
+            std::vector<int> lr = collect_dest_line_rate(ctl);
+            bool ok = lr.size() == exp.size();
+            for (size_t i = 0; ok && i < lr.size(); i++)
+                if (lr[i] != exp[i]) {
+                    printf("  [FAIL] cls10 line-rate frame %zu: tdest=%d expect %d\n",
+                           i, lr[i], exp[i]);
+                    ok = false;
+                }
+            ck("cls10: control map holds at line rate", ok ? 1 : 0, 1);
+        }
+
+        // (b) the SHARED address, at line rate: 01-80-C2-00-00-0E carries gPTP
+        //     AND MSRP and they must land on DIFFERENT queues. Alternated so a
+        //     DMAC-only rule (which would send both to one queue) fails here.
+        {
+            std::vector<std::vector<Beat>> sh;
+            std::vector<int> exp;
+            for (int r = 0; r < 4; r++) {
+                sh.push_back(mkctl(NEAREST, 0x88F7, 3)); exp.push_back(GPTP_CLASS);
+                sh.push_back(mkctl(NEAREST, 0x22EA, 3)); exp.push_back(CONTROL_CLASS);
+            }
+            std::vector<int> lr = collect_dest_line_rate(sh);
+            bool split = lr.size() == exp.size();
+            for (size_t i = 0; split && i < lr.size(); i++) split = (lr[i] == exp[i]);
+            ck("cls10: gPTP/MSRP split at the shared 01-80-C2-00-00-0E", split ? 1 : 0, 1);
+        }
+
+        // (c) NEGATIVE - a TAGGED 0x22F0 is an AVTP STREAM. PCP 3 -> q5 class A,
+        //     PCP 2 -> q4 class B, even when addressed to a control group MAC.
+        {
+            std::vector<std::vector<Beat>> st;
+            std::vector<int> exp;
+            const uint8_t* dms[3] = { ATDECC, MAAPA, NEAREST };
+            for (int i = 0; i < 3; i++) {
+                st.push_back(mktag(dms[i], 0x22F0, 3, 5)); exp.push_back(SRA_CLASS);
+                st.push_back(mktag(dms[i], 0x22F0, 2, 4)); exp.push_back(SRB_CLASS);
+            }
+            run_frames(st, /*bp=*/0, "cls10 tagged 0x22F0 = stream", &exp);
+            bool none_ctl = true;
+            for (int e : exp) if (e == CONTROL_CLASS) none_ctl = false;
+            ck("cls10: tagged 0x22F0 never reaches CONTROL_CLASS", none_ctl ? 1 : 0, 1);
+        }
+
+        // (d) eth_type_i really IS the INNER EtherType, not the TPID. A tagged
+        //     frame whose inner type is 0x88F7 must still take the gPTP fast
+        //     path (q3); a classifier reading the 0x8100 TPID instead would fall
+        //     to the tables and hand PCP 0 -> q0. The two answers differ, so
+        //     this discriminates.
+        {
+            std::vector<std::vector<Beat>> in;
+            std::vector<int> exp;
+            in.push_back(mktag(NEAREST, 0x88F7, 0, 5)); exp.push_back(GPTP_CLASS);
+            in.push_back(mkhdr(false, 0, 3));           exp.push_back(expq(false, 0));
+            run_frames(in, /*bp=*/0, "cls10 inner EtherType (tagged 0x88F7)", &exp);
+            ck("cls10: TPID answer differs from inner answer (not vacuous)",
+               (expq(true, 0) != GPTP_CLASS) ? 1 : 0, 1);
+        }
+
+        // (e) NEGATIVE - an address with no table row gets nothing, whatever
+        //     sits in the EtherType slot. The Bridge Group Address is here on
+        //     purpose: RSTP is anticipated but NOT implemented (a BPDU is an
+        //     802.3/LLC frame - the two octets carry a LENGTH, not an
+        //     EtherType), so today it must classify like any unknown multicast.
+        {
+            std::vector<std::vector<Beat>> ng;
+            std::vector<int> exp;
+            ng.push_back(mkctl(BRIDGEG, 0x0026, 4));  exp.push_back(expq(false, 0)); // BPDU-shaped
+            ng.push_back(mkctl(BRIDGEG, 0x22F0, 4));  exp.push_back(expq(false, 0));
+            run_frames(ng, /*bp=*/0, "cls10 no row -> no q2 (RSTP not implemented)", &exp);
+            bool teeth = (expq(false, 0) != CONTROL_CLASS);
+            ck("cls10: table-queue answer is not q2 (negative has teeth)", teeth ? 1 : 0, 1);
+        }
+
+        // (f) NEGATIVE - CLS_CTRL[2] = 0 takes every control frame back to the
+        //     tables, i.e. VERSION 0x0011 behaviour. gPTP is untouched by it.
+        {
+            dut->ctrl_class_i = 0;
+            std::vector<std::vector<Beat>> gated;
+            std::vector<int> exp;
+            gated.push_back(mkctl(NEAREST, 0x22EA, 4)); exp.push_back(expq(false, 0));
+            gated.push_back(mkctl(MVRPA,   0x88F5, 3)); exp.push_back(expq(false, 0));
+            gated.push_back(mkctl(ATDECC,  0x22F0, 4)); exp.push_back(expq(false, 0));
+            gated.push_back(mkctl(PEER,    0x22F0, 4)); exp.push_back(expq(false, 0));
+            gated.push_back(mkctl(NEAREST, 0x88F7, 3)); exp.push_back(GPTP_CLASS);
+            run_frames(gated, /*bp=*/0, "cls10 CLS_CTRL[2]=0 restores 0x0011", &exp);
+            dut->ctrl_class_i = 1;
+        }
     }
 
     // ---- REQ-CLS-05: DEI (drop_eligible) sideband on m_axis.tuser[0] ----

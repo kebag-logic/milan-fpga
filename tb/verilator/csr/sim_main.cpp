@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010011);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010012);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 6);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -149,7 +149,13 @@ int main(int argc, char** argv) {
   ck("MAC_CTRL(reset)",  axi_read(A_MAC_CTRL), 0x13);
   ck("MAC_IFG(reset)",   axi_read(A_MAC_IFG),  0x0C);
   ck("PHY_RST(reset)",   axi_read(A_PHY_RST),  0x1);
-  ck("CLS_CTRL(reset)",  axi_read(A_CLS_CTRL), 0x1);
+  // CLS_CTRL resets to 0x5: [0] use_pcp = 1, [1] dmac_check = 0 (REQ-CLS-07
+  // opt-in), [2] ctrl_class = 1 - the REQ-CLS-10 control fast path ships ON so
+  // the q2 row of EGRESS_QUEUE_MAP.md is true on the wire at reset.
+  ck("CLS_CTRL(reset)",  axi_read(A_CLS_CTRL), 0x5);
+  ck("o_cls_use_pcp(reset)",    dut->o_cls_use_pcp,    1);
+  ck("o_cls_dmac_check(reset)", dut->o_cls_dmac_check, 0);
+  ck("o_cls_ctrl_class(reset)", dut->o_cls_ctrl_class, 1);
   ck("CLS_MAP(reset)",   axi_read(A_CLS_MAP),  0x00FAC688);
   // 6-queue map, 3 bits per traffic class: TC0/1 -> q0, TC2 -> q4 (SR-B),
   // TC3 -> q5 (SR-A), TC4/5 -> q2 (control), TC6/7 -> q3 (gPTP). q1 unmapped.

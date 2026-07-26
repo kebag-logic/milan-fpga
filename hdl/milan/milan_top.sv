@@ -165,7 +165,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire        stats_rollover;
 
   //! Classifier config
-  wire        cfg_cls_use_pcp, cfg_cls_dmac_check;
+  wire        cfg_cls_use_pcp, cfg_cls_dmac_check, cfg_cls_ctrl_class;
   wire [2:0]  cfg_cls_default_pcp;
   wire [23:0] cfg_cls_pcp_tc_map, cfg_cls_prio_regen;
   wire [31:0] cfg_cls_tc_queue_map;
@@ -379,6 +379,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     // classifier
     .o_cls_use_pcp     (cfg_cls_use_pcp),
     .o_cls_dmac_check  (cfg_cls_dmac_check),
+    .o_cls_ctrl_class  (cfg_cls_ctrl_class),
     .o_cls_default_pcp (cfg_cls_default_pcp),
     .o_cls_pcp_tc_map  (cfg_cls_pcp_tc_map),
     .o_cls_prio_regen  (cfg_cls_prio_regen),
@@ -506,6 +507,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .is_1g_i(cfg_mac_is_1g),
     .cls_use_pcp_i     (cfg_cls_use_pcp),
     .cls_dmac_check_i  (cfg_cls_dmac_check),
+    .cls_ctrl_class_i  (cfg_cls_ctrl_class),
     .cls_default_pcp_i (cfg_cls_default_pcp),
     .cls_pcp_tc_map_i  (cfg_cls_pcp_tc_map),
     .cls_prio_regen_i  (cfg_cls_prio_regen),
