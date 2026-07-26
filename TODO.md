@@ -114,13 +114,41 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [~] **B — TX-timestamp IRQ + unambiguous key** `(REQ-PTP-04)` — add
   messageType (+ HW cookie) to `ts_metadata` (`hdl/common/ethernet_packet_pkg.sv`);
   raise IRQ on TX ts available.
-- [ ] **M — Event-only timestamping** `(REQ-PTP-05)` — parse `messageType[3:0]`
-  (+domain) in `ptp_ts_core.sv`; only assert `ptp_pending` for event messages.
-- [ ] **M — Ingress/egress latency correction regs + SFD capture** `(REQ-PTP-06)`.
+- [x] **M — Event-only timestamping** `(REQ-PTP-05)` — `ptp_ts_core.sv` parses
+  `messageType[3:0]` at the PTP header offset and now qualifies on
+  `msgType[3:2]==00` = the four real event messages (Sync, Delay_Req,
+  Pdelay_Req, Pdelay_Resp, IEEE 1588-2019 Table 36). The previous
+  `!msgType[3]` test also admitted the RESERVED codes 0x4-0x7, minting records
+  for messages that can never carry a wire timestamp. TB: `ptp_ts` sweeps all
+  16 codes (0-3 record with the right seq, 4-15 record nothing, RX+TX event
+  bracket proves the tap is not merely deaf). Domain filtering is NOT
+  implemented (the REQ marks it optional) — no CSR for `domainNumber` yet.
+- [~] **M — Ingress/egress latency correction regs + SFD capture** `(REQ-PTP-06)`
+  — **register half DONE.** `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544)
+  existed in the ABI and reached `milan_datapath` as `cfg_ptp_ingress_lat`/
+  `cfg_ptp_egress_lat`, where they stopped at a wire declaration. They now
+  reach the capture point: `ptp_ts_core` subtracts the ingress constant on an
+  RX tap and adds the egress constant on a TX tap (sign fixed by `IS_TX`, so
+  software never negates); reset 0 = uncorrected. TB: `ptp_ts` measures the
+  correction as a delta shift on top of the golden SOP-cycle model, both
+  directions, plus a cross-talk negative (egress must not touch RX) and a
+  cleared-registers identity leg; a sign swap fails both legs.
+  **STILL OPEN: SFD capture.** The stamp point is the AXIS SOP; a true
+  GMII-SFD capture needs a tap at the PHY boundary, which does not exist in
+  this datapath — the constants remain characterisation-derived, and the bench
+  applies its measured pair in `ptp4l` today (do not enable both).
 - [ ] **M — PHC clock source** `(REQ-PTP-07)` — clock counter from fixed 125 MHz
   (not speed-switched `gtx_clk`) or tie increment to link-speed/adjfine.
-- [ ] **M — VLAN-tagged gPTP offsets** `(REQ-PTP-09)` — shift PTP field offsets by
-  the C-TAG width when 0x8100 present.
+- [x] **M — VLAN-tagged gPTP offsets** `(REQ-PTP-09)` — `ptp_ts_core.sv` latches
+  a `vlan_tagged` flag when bytes 12-13 hold TPID `0x8100` and then reads the
+  ethertype/messageType at bytes 16-18 and the sequenceId at bytes 48-49
+  instead of 12-14/44-45. Previously a C-tagged gPTP frame never matched
+  `ETH_TYPE` and produced NO timestamp at all — a silently unsynchronised port
+  on any tagged gPTP domain. The tag decision is per frame (no mode latch), and
+  S-TAG/stacked tags remain out of scope (REQ-CLS-08). TB: `ptp_ts` tagged
+  events with golden deltas, tagged/untagged interleave, and three negatives
+  (tagged non-PTP inner ethertype, tagged general messages, tagged frame
+  truncated before the shifted seqId).
 - [ ] **L — 1PPS / extts / perout** `(REQ-PTP-08)`.
 
 ## Phase 3 — 802.1Qav CBS fixes + runtime config `(REQ-CBS-*)`
@@ -151,10 +179,28 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   instead of the EtherType `case` in `traffic_classifier.sv:124-141`.
 - [x] **B — Programmable PCP→TC / TC→queue tables via CSR** `(REQ-CLS-02, CLS-04)`.
 - [x] **H — Configurable default port priority for untagged** `(REQ-CLS-03)`.
-- [ ] **M — DEI sideband** `(REQ-CLS-05)`.
-- [ ] **M — Back-to-back line-rate parsing** `(REQ-CLS-06)` — re-arm header FSM on
-  `tlast` same-cycle.
-- [ ] **M — Reserved DMAC validation** `(REQ-CLS-07)`.
+- [x] **M — DEI sideband** `(REQ-CLS-05)` — `traffic_classifier` emits
+  drop_eligible on `m_axis.tuser[0]`, pushed through the SAME per-frame
+  sideband queue as `tdest` (correct + stable from the first output beat) and
+  forced to 0 for untagged frames (802.1Q §6.9.4 has no DEI without a C-TAG).
+  `traffic_queues` still buffers with `USER_ENABLE(0)`, so the mark stops at the
+  queue stage - a policer belongs upstream of the queues anyway (REQ-CLS-09).
+  TB: `classifier` (tagged DEI 0/1 at every PCP back-to-back + under
+  backpressure, untagged negative, DEI must not move the queue).
+- [x] **M — Back-to-back line-rate parsing** `(REQ-CLS-06)` — re-arm header FSM on
+  `tlast` same-cycle. Already delivered by the 2026-07-05 sideband redesign but
+  never proven and still contradicted by the module's "needs at least one clock
+  cycle delay" note (now corrected). TB: `classifier` drives a zero-idle
+  line-rate burst of 3-beat frames (header completes ON tlast = tightest
+  re-arm) across three classes; the rotated-model negative rejects a
+  stale-by-one-frame classifier, and restoring the pre-2026-07-05 re-arm
+  condition makes the suite FAIL 4 checks.
+- [x] **M — Reserved DMAC validation** `(REQ-CLS-07)` — the 0x88F7 gPTP fast path
+  (second-highest queue) now also demands the reserved multicast
+  `01-80-C2-00-00-0E` when `CLS_CTRL[1]` is set; a spoofed 0x88F7 falls through
+  to the PCP tables / BEST_EFFORT. Reset 0 = unchanged wire behaviour. TBs:
+  `cls` (directed + 200k random incl. the negative), `classifier` (wire-parsed
+  DMAC, check-off/on/legacy legs).
 - [ ] **L — S-TAG / 802.1ad** `(REQ-CLS-08)` · **L — 802.1Qci PSFP** `(REQ-CLS-09)`.
 - [x] **H — Classifier harness** `(REQ-VER-03)`.
 
@@ -163,8 +209,20 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [x] **B — Drive MAC cfg from CSR** `(REQ-MAC-01)` — `cfg_ifg/tx_en/rx_en/is_1g/
   stats_reset` from registers (default to current constants at reset);
   `hdl/milan/milan_top.sv:151,206,256-258`.
-- [ ] **H — RX address filter** `(REQ-MAC-02)` — exact-match unicast + multicast
-  hash/CAM + promisc/allmulti on the RX AXIS path.
+- [x] **H — RX address filter** `(REQ-MAC-02)` — exact-match unicast + multicast
+  hash/CAM + promisc/allmulti on the RX AXIS path. The ternary CAM half shipped
+  2026-07-01; the `MAC_CTRL` promisc/allmulti bits, `MAC_ADDR_HI/LO` and
+  `MC_HASH_HI/LO` were exported by `milan_csr` but consumed by NOTHING in
+  fabric (they only left `milan_datapath` as ports for a MAC that does no
+  address filtering), so non-matching unicast was never dropped in HW.
+  `rx_mac_filter` now implements the 802.3 §4.2.4.2.2 filter and
+  `milan_datapath` feeds it those CSR fields; armed by `TCAM_CTRL[1]`
+  (reset 0 = legacy behaviour). Hash function + byte order are now specified in
+  [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md). TB:
+  `rx_filter` (49 checks incl. the disarmed/re-disarmed identity legs, foreign
+  unicast dropped, allmulti, a two-bucket hash sweep against an independent
+  reference fold, TCAM-beats-filter both ways, promisc-beats-everything, runt
+  still swallowed).
 - [ ] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — use MAC `speed[]`;
   drive `is_1g`; expose link-status bit + IRQ.
 - [x] **H — Stats readback + snapshot + reset** `(REQ-MAC-04)` — map

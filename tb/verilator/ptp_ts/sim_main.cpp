@@ -74,15 +74,20 @@ static void ipv4(uint8_t *b, int len, uint8_t marker)          // len >= 16
     for (int i = 14; i < len; i++) b[i] = (uint8_t)(marker ^ i);
 }
 
-static void vlan_gptp_lookalike(uint8_t *b)                    // 72 B, 0x8100 tagged
+// C-VLAN-tagged gPTP (REQ-PTP-09): the C-TAG pushes every PTP field 4 bytes on
+// - inner ethertype @16-17, messageType @18, sequenceId @48-49. 802.1AS-2020
+// §11.3.3 permits a tagged gPTP port; these frames used to record NOTHING.
+static void vlan_gptp(uint8_t *b, uint8_t msgtype, uint16_t seq,
+                      uint16_t inner = 0x88F7)                  // 72 B
 {
     memset(b, 0, 72);
     const uint8_t hdr[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x81,0x00};
     memcpy(b, hdr, 14);
-    b[14] = 0x60; b[15] = 0x00;          // PCP 3
-    b[16] = 0x88; b[17] = 0xF7;          // inner ethertype 88F7 - must NOT match
-    b[18] = 0x12; b[19] = 0x02; b[21] = 54;
-    b[48] = 0xAA; b[49] = 0x55;
+    b[14] = 0x60; b[15] = 0x02;                   // TCI: PCP 3, VID 2
+    b[16] = (uint8_t)(inner >> 8); b[17] = (uint8_t)inner;
+    b[18] = (uint8_t)(0x10 | (msgtype & 0xF));    // majorSdoId 1 | msgType
+    b[19] = 0x02; b[21] = 54;
+    b[48] = seq >> 8; b[49] = seq & 0xFF;
 }
 
 // ---- frame driver: returns the SOP-accept cycle -----------------------------
@@ -160,6 +165,7 @@ int main(int argc, char **argv)
     top->i_ptp_enable = 1;
     top->i_ptp_incr = (uint32_t)NS_PER_CYC << 24;
     top->i_ptp_adj = 0;
+    top->i_ptp_ingress_lat = 0; top->i_ptp_egress_lat = 0;   // REQ-PTP-06: off
     settle(8);
     top->gtx_resetn = 1; top->axis_resetn = 1;
     settle(8);
@@ -318,12 +324,195 @@ int main(int argc, char **argv)
     check_rec("runts then good", 0, 0, 2, 0x0901);
     (void)s9;
 
-    // 10: VLAN-tagged 88F7 lookalike must not match (gPTP is untagged)
-    recs.clear();
-    vlan_gptp_lookalike(f);
-    send(f, 72, false, 0);
-    settle(60);
-    expect_recs("vlan lookalike", 0);
+    // 10: REQ-PTP-09 - C-VLAN-tagged gPTP. The tag shifts ethertype to 16-17,
+    //     messageType to 18 and sequenceId to 48-49; before this the frames
+    //     never matched ETH_TYPE and produced no timestamp at all (a silently
+    //     unsynchronised port on any VLAN-tagged gPTP domain).
+    {
+        // 10a: tagged EVENT frames record, with the SHIFTED seq/msgType
+        recs.clear();
+        vlan_gptp(f, 2, 0x0C01);
+        uint64_t t1 = send(f, 72, false, 0);
+        vlan_gptp(f, 0, 0x0C02);
+        uint64_t t2 = send(f, 72, false, 0);
+        settle(120);
+        expect_recs("ptp09 tagged events", 2);
+        check_rec("ptp09 tagged", 0, 0, 2, 0x0C01);
+        check_rec("ptp09 tagged", 1, 0, 0, 0x0C02);
+        check_delta("ptp09 tagged", 0, 1, t1, t2);
+
+        // 10b: tagged and untagged interleaved back-to-back - the per-frame
+        //      offset selection must re-arm per frame, not latch a mode
+        recs.clear();
+        vlan_gptp(f, 3, 0x0C11);
+        uint64_t m1 = send(f, 72, false, 0);
+        gptp(b, 3, 0x0C12);
+        uint64_t m2 = send(b, 68, false, 0);
+        vlan_gptp(f, 1, 0x0C13);
+        uint64_t m3 = send(f, 72, false, 0);
+        settle(150);
+        expect_recs("ptp09 tagged/untagged interleave", 3);
+        check_rec("ptp09 mix", 0, 0, 3, 0x0C11);
+        check_rec("ptp09 mix", 1, 0, 3, 0x0C12);
+        check_rec("ptp09 mix", 2, 0, 1, 0x0C13);
+        check_delta("ptp09 mix", 0, 1, m1, m2);
+        check_delta("ptp09 mix", 1, 2, m2, m3);
+
+        // 10c: NEGATIVE - a tagged frame whose INNER ethertype is not 0x88F7
+        //      must still record nothing, even with PTP-shaped bytes at the
+        //      shifted offsets (the shift must not become a blanket accept)
+        recs.clear();
+        vlan_gptp(f, 2, 0x0C21, /*inner=*/0x0800);
+        send(f, 72, false, 0);
+        vlan_gptp(f, 0, 0x0C22, /*inner=*/0x22F0);
+        send(f, 72, false, 0);
+        settle(120);
+        expect_recs("ptp09 tagged non-PTP (negative)", 0);
+
+        // 10d: NEGATIVE - tagged GENERAL messages stay filtered at the shifted
+        //      messageType offset (REQ-PTP-05 must survive the shift)
+        recs.clear();
+        for (int mt = 8; mt <= 12; mt++) { vlan_gptp(f, (uint8_t)mt, (uint16_t)(0x0C30 + mt)); send(f, 72, false, 0); }
+        settle(150);
+        expect_recs("ptp09 tagged general msgs (negative)", 0);
+
+        // 10e: a tagged frame truncated before byte 49 has no sequenceId and
+        //      must not record (the untagged 44-45 bytes must NOT be reused)
+        recs.clear();
+        vlan_gptp(f, 2, 0x0C41);
+        send(f, 48, false, 0);
+        vlan_gptp(f, 2, 0x0C42);
+        uint64_t good = send(f, 72, false, 0);
+        settle(120);
+        expect_recs("ptp09 truncated tagged then good", 1);
+        check_rec("ptp09 truncated", 0, 0, 2, 0x0C42);
+        (void)good;
+    }
+
+    // 11: REQ-PTP-05 - EVENT-ONLY timestamping, full messageType sweep.
+    //     IEEE 1588-2019 Table 36: only 0x0 Sync, 0x1 Delay_Req, 0x2 Pdelay_Req
+    //     and 0x3 Pdelay_Resp are event messages. 0x4-0x7 are RESERVED (they
+    //     cannot be events - the older !msgType[3] test wrongly recorded them),
+    //     0x8-0xD are general, 0xE-0xF reserved. Positive leg first, then the
+    //     negative leg for all 12 non-event codes with an event bracket that
+    //     proves the pipeline is alive and not merely deaf.
+    {
+        // positive: each event type records exactly once, in order, with its seq
+        recs.clear();
+        for (int mt = 0; mt <= 3; mt++) { gptp(b, (uint8_t)mt, (uint16_t)(0x0A00 + mt)); send(b, 68, false, 0); }
+        settle(120);
+        expect_recs("ptp05 event types 0-3", 4);
+        for (int mt = 0; mt <= 3; mt++)
+            check_rec("ptp05 event", (size_t)mt, 0, mt, (uint16_t)(0x0A00 + mt));
+
+        // negative: every non-event code (reserved 4-7, general 8-D, reserved
+        // E-F) must record NOTHING, even back-to-back at line rate
+        recs.clear();
+        for (int mt = 4; mt <= 15; mt++) { gptp(b, (uint8_t)mt, (uint16_t)(0x0B00 + mt)); send(b, 68, false, 0); }
+        settle(160);
+        expect_recs("ptp05 non-event types 4-15 (negative)", 0);
+
+        // and the tap is not simply wedged: an event straight after the storm
+        // still records, on both directions
+        recs.clear();
+        gptp(b, 2, 0x0BEE); send(b, 68, false, 0);
+        gptp(b, 0, 0x0BEF); send(b, 68, true, 0);
+        settle(120);
+        expect_recs("ptp05 alive after non-event storm", 2);
+        {
+            bool rx_ok = false, tx_ok = false;
+            for (auto &r : recs) {
+                if ((r.meta & 1) == 0 && ((r.meta >> 8) & 0xFFFF) == 0x0BEE) rx_ok = true;
+                if ((r.meta & 1) == 1 && ((r.meta >> 8) & 0xFFFF) == 0x0BEF) tx_ok = true;
+            }
+            if (rx_ok && tx_ok) printf("PASS ptp05: RX+TX events survive the non-event storm\n");
+            else { printf("FAIL ptp05: rx=%d tx=%d after storm\n", rx_ok, tx_ok); fails++; }
+        }
+    }
+
+    // 12: REQ-PTP-06 - per-port latency correction registers.
+    //     The capture point is the AXIS SOP, not the GMII SFD: on RX the SFD
+    //     crossed the pins BEFORE this beat (subtract), on TX it leaves AFTER
+    //     (add). PTP_INGRESS_LAT/PTP_EGRESS_LAT carry those constants and were
+    //     dead wires in milan_datapath until now. Method: stamp the SAME frame
+    //     shape twice, once with the correction 0 and once with it set, and
+    //     require the record delta to move by EXACTLY the programmed ns on top
+    //     of the SOP-cycle delta - so this measures the correction, not the
+    //     wire time.
+    {
+        const uint64_t ILAT = 3511, ELAT = 1490;   // the bench-measured pair
+
+        // RX: uncorrected reference, then the same frame with ingress applied
+        recs.clear();
+        gptp(b, 2, 0x0D01);
+        uint64_t r0 = send(b, 68, false, 0);
+        // space the pair by > ILAT/20 cycles so the corrected delta stays
+        // positive and a sign inversion cannot hide in unsigned wrap-around
+        settle(300);
+        top->i_ptp_ingress_lat = (uint32_t)ILAT;
+        gptp(b, 2, 0x0D02);
+        uint64_t r1 = send(b, 68, false, 0);
+        settle(120);
+        top->i_ptp_ingress_lat = 0;
+        expect_recs("ptp06 rx pair", 2);
+        if (recs.size() == 2) {
+            uint64_t want = (r1 - r0) * NS_PER_CYC - ILAT;   // SUBTRACTED on RX
+            uint64_t got  = recs[1].ns - recs[0].ns;
+            bool ok = got == want;
+            printf("%s ptp06 rx: ingress %llu ns subtracted (delta %llu, want %llu)\n",
+                   ok ? "PASS" : "FAIL", (unsigned long long)ILAT,
+                   (unsigned long long)got, (unsigned long long)want);
+            if (!ok) fails++;
+        }
+
+        // TX: same shape, egress must be ADDED (opposite sign, same register
+        // shape) - the negative leg for a sign inversion
+        recs.clear();
+        gptp(b, 0, 0x0D11);
+        uint64_t t0 = send(b, 68, true, 0);
+        settle(60);
+        top->i_ptp_egress_lat = (uint32_t)ELAT;
+        gptp(b, 0, 0x0D12);
+        uint64_t t1 = send(b, 68, true, 0);
+        settle(120);
+        top->i_ptp_egress_lat = 0;
+        expect_recs("ptp06 tx pair", 2);
+        if (recs.size() == 2) {
+            uint64_t want = (t1 - t0) * NS_PER_CYC + ELAT;   // ADDED on TX
+            uint64_t got  = recs[1].ns - recs[0].ns;
+            bool ok = got == want;
+            printf("%s ptp06 tx: egress %llu ns added (delta %llu, want %llu)\n",
+                   ok ? "PASS" : "FAIL", (unsigned long long)ELAT,
+                   (unsigned long long)got, (unsigned long long)want);
+            if (!ok) fails++;
+        }
+
+        // NEGATIVE: the two registers must not leak into each other's tap -
+        // programming EGRESS must leave RX captures untouched and vice versa
+        recs.clear();
+        gptp(b, 2, 0x0D21);
+        uint64_t x0 = send(b, 68, false, 0);
+        settle(60);
+        top->i_ptp_egress_lat = 0x0BADF00D;          // wrong tap, huge value
+        gptp(b, 2, 0x0D22);
+        uint64_t x1 = send(b, 68, false, 0);
+        settle(120);
+        top->i_ptp_egress_lat = 0;
+        expect_recs("ptp06 cross-talk pair", 2);
+        if (recs.size() == 2) {
+            check_delta("ptp06 egress does NOT touch RX", 0, 1, x0, x1);
+        }
+
+        // and with BOTH back at 0 the tap is bit-identical to the baseline
+        recs.clear();
+        gptp(b, 2, 0x0D31);
+        uint64_t z0 = send(b, 68, false, 0);
+        gptp(b, 2, 0x0D32);
+        uint64_t z1 = send(b, 68, false, 0);
+        settle(120);
+        expect_recs("ptp06 corrections cleared", 2);
+        check_delta("ptp06 cleared", 0, 1, z0, z1);
+    }
 
     printf("======================================================================\n");
     printf(fails ? "PTP-TS METADATA (interference suite): %d FAILURE(S)\n"
