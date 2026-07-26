@@ -201,8 +201,28 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   (19.93 ppm); idleSlope 1 Mb/s worst case → 0.153 B (6060 ppm), where the
   per-cycle increment is only 82/65536 B so half an LSB dominates. Truncation
   blows the half-LSB/cycle bound at both points; rounding stays inside it.
-- [ ] **M — Pace egress to line rate** `(REQ-CBS-07)` — ensure `bytes_sent`/
-  `is_transmitting` reflect real occupancy; assert/doc upstream pacing.
+- [~] **M — Pace egress to line rate** `(REQ-CBS-07)` — **measured, documented,
+  not yet fixed.** `bytes_sent`/`is_transmitting` DO reflect real occupancy:
+  they come from accepted beats only, and `tb/verilator/shaper_core` proves it
+  by throttling the sink 8× and getting the same egress rate to **0.00 %**. The
+  per-byte sendSlope debit is therefore exact. The **accrual** is not: the
+  shaper hands 8 B/cycle to a MAC FIFO, so at 100 MHz a beat leaves in 10 ns
+  while 8 B on a 1 Gb/s wire occupy 64 ns, and the queue accrues idleSlope
+  through the ~5.4 cycles the wire is still busy. Steady state
+  `r = (S/8) / [S/(64·CLK) + (link−S)/link]` vs the standard's `S/8` —
+  **measured over-delivery 9.6 % at idleSlope 100 Mb/s and 20.5 % at
+  200 Mb/s**, growing with idleSlope and with the CLK-to-link compression
+  ratio. The harness now asserts that accounting model (±1.5 %), so any change
+  to the credit arithmetic fails there.
+  - Live only when per-queue CBS is enabled — the shipping config disables it
+    (AAF rides the reservation bandwidth gate).
+  - Fix options, neither blind-safe without a bench/Vivado run: (a) pace the
+    sink to line rate, which a store-and-forward MAC FIFO will not do; or
+    (b) make the accrual wall-clock-honest — after `B` bytes suppress accrual
+    for `B·8·CLK/link` cycles via a fractional wire-time-debt accumulator.
+    That is sink-independent and is the natural home for
+    `credit_based_shaper`'s currently **dead** `is_granted_i` port
+    (registered into stage 1 and then never read by the credit update).
 - [x] **H — Multi-queue arbitration harness** `(REQ-VER-02)` — approach already
   proven (flat wrapper + XMR into `gen_cbs[*].u_cbs.credit` lints clean).
 
