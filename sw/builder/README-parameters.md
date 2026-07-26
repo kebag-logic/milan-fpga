@@ -8,12 +8,16 @@
 
 - Module(s): `sw/builder/endstation_builder.py` (generator),
   `avdecc/gen_aem_store.py --overlay` (AEM-overlay consumer),
-  `sw/litex/sweep.sh` (sweep-opts consumer).
+  `sw/litex/sweep.sh` (sweep-opts consumer),
+  `hdl/ieee8021q/srp/` + `hdl/common/csr/milan_csr.sv` (lwSRP-table
+  gate-comparison targets), `kl-eth` / `snd-kl-milan` (DT consumers).
 - Configs: `configs/endstation_*.yaml`
   (schema `kebag-logic/milan-endstation-config` 1.1.x; the annotated
   normative form is `configs/endstation_arty_current.yaml`).
-- Gate: `python3 sw/builder/test_builder.py` (16 gates, incl. the ROM
-  byte-identity no-regression gate and the Milan 7.2.3 CRF-output rule).
+- Gate: `python3 sw/builder/test_builder.py` (17 numbered gates + the 18/19
+  emitter families, incl. the ROM byte-identity no-regression gate, the
+  Milan 7.2.3 CRF-output rule, the lwSRP↔RTL constant cross-check and the
+  CSR-rot `boot_chain_pin` refusal).
 
 ## Pipeline
 
@@ -24,10 +28,126 @@ configs/endstation_<x>.yaml
         ├─ out/<x>/aem_overlay.json     kebag-logic/aem-overlay 2.x
         │     └─ avdecc/gen_aem_store.py --overlay ...
         │            └─ aecp_aem_rom.svh / aem_golden.h / aem_rom.json
+        ├─ out/<x>/lwsrp_table.{json,svh}   kebag-logic/lwsrp-table 1.x
+        │     └─ gate-compared against lwsrp_pkg.sv + milan_csr.sv
+        ├─ out/<x>/platform_shape.json      kebag-logic/platform-shape 1.x
+        ├─ out/<x>/milan-nic.dtsi           kl,dma-ether + kl,milan-pcm nodes
         ├─ out/<x>/build_plan.md        human-readable, "planned" marks
-        └─ configs/generated/sweep_opts_<board>.sh   (board-level)
-              └─ sourced by sw/litex/sweep.sh (inline tables = fallback)
+        ├─ configs/generated/sweep_opts_<board>.sh   (board-level)
+        │     └─ sourced by sw/litex/sweep.sh (inline tables = fallback)
+        └─ hdl/ieee8021q/srp/gen/lwsrp_table.svh  (the srp.rtl_table config)
 ```
+
+## lwSRP reservation table (`srp:`, CSR 0x680)
+
+The lwSRP contract is hand-written in three places today —
+`hdl/ieee8021q/srp/lwsrp_pkg.sv` (SR class, MRP timers, bandwidth math),
+`hdl/common/csr/milan_csr.sv` (the 0x680 reset words, plus a *literal
+duplicate* of the class-A `PriorityAndRank` byte because that file
+deliberately does not import the package), and
+[`REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) (the documented
+Reset column). The config
+owns all three: **every default in `SRP_DEFAULTS` is exactly today's reset
+word**, so a config with no `srp:` section emits the deployed gateware
+bit-for-bit, and gates 18a/18b parse all three RTL/doc sources and fail on
+any disagreement.
+
+| Field | Type / values | Default | Notes |
+|-------|---------------|---------|-------|
+| `srp.sr_class` | `A` | `A` | Milan v1.2 §5.6 defines class A only for a Milan end station; class B is rejected. |
+| `srp.vid` | int 1..4094 | `2` | The SR VID. `0` is rejected — a stream on VID 0 floods **unshaped**. |
+| `srp.stream_dmac_base` | MAC-48 hex | `0x91E0F000FE01` | Must be multicast (MAAP range). Stream `t` declares `base + t` (the MAAP-base+uid rule). |
+| `srp.class_queue` | int, `< num_queues` | `3` | `LWSRP_CTRL[3:2]`, the class-A queue the granted slope muxes into (reset PCP3→TC3→q3). |
+| `srp.enable_at_reset` / `talker_declare_at_reset` | bool | `false` | `LWSRP_CTRL[0]` / `[1]`. |
+| `srp.accumulated_latency_ns` | uint32 | `0` | `LWSRP_LATENCY` (0x6A0). |
+| `srp.bandwidth_limit_pct` | int 1..100 | `75` | Milan §5.6 / 802.1Q §34.3.1. Gate 18b checks the `KL_lwsrp_bw_gate` 750e6/75e6 ceiling literals against it. |
+| `srp.timers_ms.{join,leave,leaveall}` | int ms | `200/600/10000` | 802.1Q Table 10-7. |
+| `srp.tspec.policy` | `pinned` \| `derived` | `pinned` | `pinned` keeps `max_frame_bytes` verbatim (the deployed 0x690 reset). `derived` computes MaxFrameSize per talker from its AAF format. |
+| `srp.tspec.max_frame_bytes` | uint16 | `224` | `pinned` only. |
+| `srp.tspec.interval_frames` | uint16 | `1` | `LWSRP_TSPEC[31:16]`. |
+| `srp.rtl_table` | bool | `false` | The one config that owns the tracked `hdl/ieee8021q/srp/gen/lwsrp_table.svh` (the DEPLOYED shape). |
+
+**TSpec derivation (`policy: derived`).** Anchored in the
+`KL_aaf_packetizer` contract, which states its own frame identity: payload =
+`SAMPLES_PER_FRAME_C × C × 4` octets, so the L2 frame is `42 + 24·C` bytes at
+48 kHz (`C = 2` is the golden 90-byte shape its byte-compare gate pins).
+MSRP `MaxFrameSize` is the **MSDU**, not the L2 frame — the 802.1Q idleSlope
+overhead of 42 already carries the Ethernet header + VLAN tag, so
+
+```
+samples_per_frame = sampling_rate_hz / 8000          (48 k → 6)
+MaxFrameSize      = 24 + samples_per_frame × C × 4   (AVTPDU; 8ch → 216)
+idleSlope[bps]    = MaxIntervalFrames × (MaxFrameSize + 42) × 8 × 8000
+MaxFrameSize + 42 == preamble 8 + eth 14 + VLAN 4 + AVTPDU + FCS 4 + IPG 12
+```
+
+i.e. `MaxFrameSize + 42` is the exact wire slot — the identity gate 18c
+checks for every `C` in 1..32. The deployed `pinned` 224 is a hand-picked
+conservative value with no derivation behind it; for the shipping 2-channel
+talker the derived MaxFrameSize is 72, so the deployed reservation
+over-reserves ~2.3×. It stays pinned because changing it needs a reflash.
+
+Σ-slope over `bandwidth_limit_pct` of the port rate is a **ConfigError**
+citing 802.1Q §34.3.1 — `KL_lwsrp_bw_gate` would refuse the excess streams
+anyway, and finding that out at config-load beats finding it out on silicon.
+
+**Attribute-context capacity (a real NxN shortfall this emitter surfaced).**
+The 0x800 window row map is `listener k → row k`, `talker t → row (L-1)+t`,
+row 0 = the legacy pair, so a shape needs **L+T-1** rows; but
+`milan_datapath` ties `KL_lwsrp_top.N_CTX_P` to `N_STREAMS = max(L, T)`.
+Every shape beyond 1x1 is therefore short: 4x4 needs 7 rows in 4, 8x8 needs
+15 in 8. It rides in the build plan as a `planned (item 5)` mark, never
+silently. Per-stream TSpec is a second mark: the ctx provisioning port
+carries `max_frame`/`interval` per row, but the window sources both from the
+shared `LWSRP_TSPEC` until per-stream TSpec words exist.
+
+## Platform shape (`platform:`) — device tree + driver-visible layout
+
+`sw/litex/milan_soc.py`'s `MilanDMA` registers its submodules in a fixed
+order and LiteX allocates CSR addresses in that order, so the driver-visible
+DMA window map is a pure **function of `board.constraints.rx_queues`**:
+
+```
++0x000  dma-tx        RingDMAReader                     0x24
++0x024  dma-rx  (q0)  RingDMAWriter incl. rsc + hs      0x68  (DT window 0x40)
++0x08C  steer         RxSteer               rx_queues≥2 0x0C  ┐ 0x74
++0x098  dma-rx1 (q1)  RingDMAWriter         rx_queues≥2 0x68  ┘ shift
+   …    dma-ts        WishboneDMAWriter                 0x1C
+   …    hs-pgsz-cap   CSRStatus                         0x04
+   …    pcm-dma       PCM ring (flat or NxN)            0x1C
+```
+
+1 queue → `dma-ts 0xf000308c`, `hs-pgsz-cap 0xf00030a8`,
+`pcm-dma 0xf00030ac`. 2 queues → `0xf0003100 / 0xf000311c / 0xf0003120`.
+Both are byte-verified against the real LiteX `csr.csv` of the shipping
+builds and against the deployed `.dts` files by gate 19b (which SKIPs when
+those trees are absent).
+
+| Field | Type | Default | Notes |
+|-------|------|---------|-------|
+| `platform.csr_base` | address | `0x90000000` | The AXI-Lite Milan CSR window. Rejected below `0x80000000` (an MMIO peripheral must live in the CPU IO region). |
+| `platform.mac_address` | MAC-48 | **required** | Must be unicast and non-zero. Two boards on one AVB switch must not share it. |
+| `platform.interrupt` | int 0..31 | `3` | The PLIC line (`constant,milan_interrupt` in `csr.csv`). |
+| `platform.pcm_ring_phys` / `_bytes` / `_stride` | address / pow2 / pow2 | `0x4ff00000` / `0x100000` / `0x100000` | The `no-map` reserved region `snd-kl-milan` DMAs into. `stride × capture streams > bytes` is a ConfigError (it would DMA past the region — an NxN shape must grow it). |
+| `platform.dma_coherent` | bool | `true` | Emits `dma-coherent;`. |
+| `platform.boot_chain_pin` | map `window → address` | absent | **The CSR-rot guard.** The flashed DTB/opensbi/`kl-eth` address these windows *by address*; if `rx_queues` would move a pinned one, the build is REFUSED. |
+
+`board.constraints.num_queues` (default `4`) joins the schema here: it is
+`ethernet_packet_pkg::NUMBER_OF_QUEUES`, sizes the CBS tables and bounds
+`srp.class_queue`; gate 18c parses the package and compares.
+
+Derived DT properties: `phy-mode` from `board.constraints.phy`
+(`mii-100 → mii`, `gmii-1g → gmii`), and `kl,rsc-clk-mhz` from
+`milan_clk_hz` — **the only `of_property_read_u32` `kl-eth` makes.** Omit it
+and the AX7101 runs its PHC at 2× rate from a clean boot, so a
+non-integer-MHz datapath clock is a ConfigError rather than a silent
+truncation.
+
+The shape also emits the physical addresses `kl-eth.c` **hardcodes** and the
+DT does not carry — `MILAN_EV_PHYS`, `MILAN_PHY_CSR_PHYS`,
+`MILAN_DMA_RX1_PHYS`, `MILAN_HS_PGSZ_CAP_PHYS`. Two of those move with
+`rx_queues`; that is the largest remaining un-modelled coupling and the
+reason the table exists.
 
 ## Schema 1.1 deltas (vs the 1.0 scaffold)
 

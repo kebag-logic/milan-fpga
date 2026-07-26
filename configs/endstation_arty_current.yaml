@@ -57,7 +57,54 @@ board:
                                      # config; never unify these blindly)
     hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
     strip_probes: true               # area-70 ship diet
+    num_queues: 4                    # 802.1Q shaper queues =
+                                     # ethernet_packet_pkg::NUMBER_OF_QUEUES
     # eth_port: only for multi-PHY boards (ax7101 e1|e2); arty has one PHY
+
+srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
+                                     # table -> CSR 0x680 group. Every value
+                                     # here is the DEPLOYED reset word; the
+                                     # builder gates 18a/18b parse
+                                     # hdl/common/csr/milan_csr.sv and
+                                     # hdl/ieee8021q/srp/lwsrp_pkg.sv and
+                                     # assert the emission matches, so a hand
+                                     # edit on either side fails the build.
+  sr_class: A                        # Milan v1.2 5.6: class A only
+  vid: 2                             # THE SR VID (VID 0 floods unshaped)
+  stream_dmac_base: "0x91E0F000FE01" # MAAP range 91:E0:F0:00:FE:01
+  accumulated_latency_ns: 0          # constant until measured
+  class_queue: 3                     # LWSRP_CTRL[3:2], reset PCP3->TC3->q3
+  enable_at_reset: false             # LWSRP_CTRL[0]
+  talker_declare_at_reset: false     # LWSRP_CTRL[1]
+  bandwidth_limit_pct: 75            # Milan 5.6 / 802.1Q 34.3.1
+  timers_ms: { join: 200, leave: 600, leaveall: 10000 }
+  tspec:
+    policy: pinned                   # pinned = keep the deployed reset word.
+                                     # `derived` computes MaxFrameSize from
+                                     # each talker's AAF format (see the
+                                     # 4x4/8x8 configs); the deployed 224 is
+                                     # a hand-picked conservative value that
+                                     # over-reserves a 2ch stream ~2.3x
+                                     # (derived would be 72) - changing it
+                                     # needs a reflash, so it stays pinned.
+    max_frame_bytes: 224             # LWSRP_TSPEC[15:0]
+    interval_frames: 1               # LWSRP_TSPEC[31:16]
+  rtl_table: true                    # THIS config owns the tracked
+                                     # hdl/ieee8021q/srp/gen/lwsrp_table.svh
+                                     # (the deployed gateware's table)
+
+platform:                            # device tree + driver-visible layout
+  csr_base: 0x90000000               # AXI-Lite Milan CSR window
+  mac_address: "02:00:00:00:00:02"   # board 2 - MUST differ from the AX7101's
+                                     # ..:01 on the shared AVB switch
+  interrupt: 3                       # constant,milan_interrupt from csr.csv
+  boot_chain_pin:                    # the FLASHED boot chain's window map.
+                                     # rx_queues moves every window from
+                                     # dma-ts on by 0x74; a config that
+                                     # contradicts these addresses is
+                                     # REFUSED (the 5ce9a13 CSR-rot rule).
+    dma-ts: 0xf0003100
+    pcm-dma: 0xf0003120
 
 clocking:
   sampling_rate_hz: 48000            # current media clock (AAF base rate)

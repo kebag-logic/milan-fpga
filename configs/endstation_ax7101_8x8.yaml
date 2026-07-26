@@ -43,8 +43,41 @@ board:
                                      # no rx1_*, no steer registers)
     hs_page_bytes: 16384
     strip_probes: true
+    num_queues: 4
     eth_port: e2                     # e2 since 2026-07-22 (e1 GMII-RX
                                      # hardware fault, cold-soak-proven)
+
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01" # stream t declares base + t (the
+                                     # MAAP-base+uid rule of the N-ctx ACMP
+                                     # talker responder)
+  class_queue: 3
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived                  # per-talker MaxFrameSize from the AAF
+                                     # format: 24 B AVTPDU header + 6 samples
+                                     # x C ch x 4 octets (the KL_aaf_packetizer
+                                     # identity; MaxFrameSize + 42 = the exact
+                                     # wire slot). 8ch -> 216 B -> 16.512 Mb/s
+                                     # per stream, 8 streams = 17.6% of the
+                                     # gigabit port.
+    interval_frames: 1
+
+platform:
+  csr_base: 0x90000000
+  mac_address: "02:00:00:00:00:01"   # board 1
+  interrupt: 3
+  pcm_ring_phys: 0x7f800000          # 8 capture streams x 1 MiB stride at the
+  pcm_ring_bytes: 0x800000           # top of the AX7101's 1 GiB main_ram
+  pcm_ring_stride: 0x100000
+  boot_chain_pin:                    # the SHIPPING 1-queue map (verified in
+                                     # the flashed csr.csv: no rx1_*/steer,
+                                     # so dma-ts/pcm sit 0x74 LOWER than on
+                                     # the 2-queue arty build)
+    dma-ts: 0xf000308c
+    pcm-dma: 0xf00030ac
 
 clocking:
   sampling_rate_hz: 48000
