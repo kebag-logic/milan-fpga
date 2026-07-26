@@ -253,4 +253,5 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       lwSRP admission gate (idx>0 SEL/SID/DMAC staging + listener-ready), an
       NxN-ring or 8ch-ALSA listener window (refresh the second board's images),
       then the binary walking-tone identity over all 32 pair slots
-      (docs/CHANNEL_MAP_64.md §12 records the first walk, 2026-07-25).
+      ([`docs/CHANNEL_MAP_64.md`](docs/CHANNEL_MAP_64.md) §12 records the
+      first walk, 2026-07-25).
