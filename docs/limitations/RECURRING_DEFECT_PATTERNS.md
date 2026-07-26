@@ -24,6 +24,16 @@ priority on EtherType alone. Same for `credit_based_shaper.is_granted_i`, a port
 with no job. The 2026-07-22 RMON root cause was the same thing one level up:
 `i_mac_events` tied to `0` in SoC glue.
 
+**Closed 2026-07-26**, and the way it closed is the reusable part. Reviving the
+counters was only half of it (`KL_mac_rmon_events` now synthesises the pulse
+vector from what the MAC really exposes). The other half is that four lanes
+genuinely have no source at that boundary — and a lane that is *structurally*
+zero must not read like a lane that is zero because nothing went wrong. So the
+build publishes a per-lane capability mask (`STATS_CAP`, `0x204`) beside the
+counters: bit set = real counter, bit clear = no source, do not render this as
+"0 errors". **Any decorative-ABI fix should ask the same question — after the
+feature works, can software still tell "fine" from "not implemented"?**
+
 **Why it survived.** Software reads the register, gets a plausible value, and
 concludes the feature exists. That is *worse than an admitted gap*: an unwired
 register is an actively misleading contract. Nothing fails — there is no test
@@ -33,9 +43,16 @@ the register does hold what was written.
 **Catch it with.** For every CSR output port, prove a consumer exists:
 
 ```sh
-scripts/check_tied_inputs.sh                     # tied-off / undriven sweep
+scripts/check_tied_inputs.sh                     # tied-off / undriven GATE
 grep -rn "o_<field>" hdl/ | grep -v milan_csr.sv  # who reads it?
 ```
+
+`check_tied_inputs.sh` became a **gate** on 2026-07-26 (it exits non-zero on a
+never-overridden tie). It had been printing four warnings for months, three of
+them expected — and a report whose warnings are mostly expected is a report
+nobody reads, which is how the fourth survived. Expected ties now need a
+justified-tie entry naming the reason *and where the reason is recorded*;
+everything else fails the run.
 
 A port that only appears in its own declaration and the CSR file is decorative.
 Treat a new CSR field as unfinished until a testbench observes its *effect*, not

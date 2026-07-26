@@ -460,17 +460,29 @@ worse than an admitted gap.
 - ~~RMON STATS SNAPSHOT HAS NEVER WORKED ON SILICON~~ **ROOT CAUSE
   FOUND AND FIXED IN RTL (2026-07-22 night, silicon pending):** the
   event bus was NEVER CONNECTED on the LiteX SoCs.
-  - `milan_soc.py` ties `i_i_mac_events = 0` at BOTH datapath
-    instantiations (LiteEth exposes no Forencich-style event pulses), so
-    every counter lane was structurally silent on both boards while
-    module TBs (which drive the port directly) passed. The latch/read
-    CSR chain was always correct.
-  - Fix: `milan_datapath` now derives `TX/RX_FIFO_GOOD_FRAME` itself
-    from the MAC AXIS boundary handshake (one accepted `tlast` beat =
-    one frame) and IGNORES those two bits of `i_mac_events`
-    (double-count impossible); the MAC-internal lanes (underflow/
-    overflow/bad-frame/bad-FCS) still pass through `i_mac_events` and
-    legitimately read 0 on LiteEth builds.
+  - `milan_soc.py` *used to tie* `i_i_mac_events` to `0` at BOTH
+    datapath instantiations (LiteEth exposes no Forencich-style event
+    pulses), so every counter lane was structurally silent on both
+    boards while module TBs (which drive the port directly) passed. The
+    latch/read CSR chain was always correct.
+  - Fix (part 1): `milan_datapath` now derives `TX/RX_FIFO_GOOD_FRAME`
+    itself from the MAC AXIS boundary handshake (one accepted `tlast`
+    beat = one frame) and IGNORES those two bits of `i_mac_events`
+    (double-count impossible).
+  - Fix (part 2, 2026-07-26): the tie is GONE. `KL_mac_rmon_events`
+    synthesises the pulse vector at the SoC's MAC boundary from what
+    LiteEth does expose — its per-frame `error` flag (FCS failure or
+    runt) and its `crc_errors` / `preamble_errors` counters, the same
+    registers the GMII bring-up used as its precise RX signal — so
+    `RX_ERROR_BAD_FCS`, `RX_ERROR_BAD_FRAME` and `RX_FIFO_BAD_FRAME`
+    count too. The four lanes that remain MAC-internal
+    (TX underflow / TX FIFO overflow / TX bad frame / RX FIFO overflow)
+    are declared UNSUPPORTED in the new `STATS_CAP` (`0x204`) instead of
+    reading as a lying zero, and are NOT faked from AXIS backpressure.
+  - Also found on the way: the datapath consumes LiteEth's RX stream
+    WITHOUT its `error` field, so FCS-failed and undersize frames are
+    handed to the classifier as if good. They are now at least counted
+    (`STAT_RX_FIFO_BAD_FRAME`); dropping them is a separate change.
   - TB: `tb/verilator/milan_dp` `[RMON]` case pushes real frames through
     the boundary ports and reads the latched lanes over AXI — 4 FAILs on
     the pre-fix RTL (TX_GOOD/RX_GOOD = 0 with 3/2 real frames = the

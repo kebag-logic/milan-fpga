@@ -10,15 +10,26 @@
 # instantiation (sw/litex/milan_soc.py, add_milan_datapath ports dict) ties
 # to a constant, and flags the ones no other wiring site ever overrides.
 #
-# NON-FATAL by design (exit 0 unless the inputs it needs are missing): the
-# default stub wiring is legitimate (CSR-only elaboration), the DMA/MAC
-# attach overrides part of it via extra_ports. The value is the INVENTORY —
-# a reviewer adding a TB for behavior behind one of these ports must find it
-# here and check the real build's extra_ports before trusting a green TB.
+# THIS IS A GATE (2026-07-26), not a report. It used to exit 0 always and
+# print three WARNINGs on every run — the three TDM inputs, which are
+# EXPECTED (no board has a TDM header, so there are no pins to wire). A
+# checker whose warnings are mostly expected is a checker nobody reads, and
+# the one genuine defect in the list (`i_mac_events`, dead RMON on both
+# boards) sat there unnoticed among them. So:
 #
-#   scripts/check_tied_inputs.sh            # report to stdout
+#   * a never-overridden tie WITH a justified-tie entry prints [expected]
+#     together with its reason and where that reason is recorded;
+#   * a never-overridden tie WITHOUT one prints [WARNING] and FAILS the run.
 #
-# Wired into syn/yosys/run.sh as a trailing non-fatal report.
+# Adding a new unjustified tie therefore breaks the build; keeping one costs
+# exactly one allowlist line naming the reason and its record. Exit codes:
+#   0 = clean · 1 = unjustified never-overridden tie(s) · 2 = inputs missing.
+#
+#   scripts/check_tied_inputs.sh            # report + gate
+#   SOC=<file> scripts/check_tied_inputs.sh # gate an alternative wiring file
+#                                           # (used to prove the gate bites)
+#
+# Wired into syn/yosys/run.sh as a trailing FATAL gate.
 
 set -u
 R="$(cd "$(dirname "$0")/.." && pwd)"
@@ -28,7 +39,7 @@ SOC="${SOC:-$R/sw/litex/milan_soc.py}"
 [ -r "$RTL" ] || { echo "check_tied_inputs: missing $RTL"; exit 2; }
 [ -r "$SOC" ] || { echo "check_tied_inputs: missing $SOC"; exit 2; }
 
-echo "== milan_datapath tied-off input inventory (non-fatal) =="
+echo "== milan_datapath tied-off input inventory (gate) =="
 
 # 1) input ports of the RTL wrapper (flat ANSI header, `input wire ...`)
 rtl_inputs="$(sed -n '/^module milan_datapath/,/^);/p' "$RTL" \
@@ -49,26 +60,46 @@ tied="$(sed -n '/^    ports = dict($/,/^    )$/p' "$SOC" \
 
 SIM="$R/sw/litex/milan_sim.py"
 
-# ---- allowlist: ties that are INTENTIONAL by design, with the reason.
-# An allowlisted never-overridden tie prints [allowed] instead of [WARNING]
-# so the report stays clean of KNOWN-inert boundaries — remove the entry the
-# moment a real engine is supposed to drive the port (then a green TB with
-# the tie still in place becomes the RMON class again).
-# (P12 note: the P11 0x800-window engine-boundary allowlist entries are
-# GONE - the LCTX/TCTX/ACMP-tbl ports moved inside milan_datapath, wired
-# to the live context engines.)
+# ---- JUSTIFIED-TIE ALLOWLIST ------------------------------------------------
+# One line per intentionally never-overridden tie:
+#
+#   <Instance kw>|<why this tie is correct>|<where that reason is recorded>
+#
+# The third field is the point: a reason with no record is an opinion, and the
+# next reader cannot check it. An entry here turns [WARNING] into [expected]
+# and keeps the run green; DELETE the entry the moment something is supposed
+# to drive the port, and the gate goes red until it does.
+#
+# Rules for adding one:
+#   * the tie must be structural (no pins / no engine exists), not "not done
+#     yet" — a TODO belongs in the roadmap, where it is visible, not here
+#     where it is silenced;
+#   * the record must be a real file (and ideally a line) a reviewer can open.
+#
+# (P12 note: the P11 0x800-window engine-boundary entries are GONE - the
+# LCTX/TCTX/ACMP-tbl ports moved inside milan_datapath, wired to live
+# engines. That is what retiring an entry looks like.)
+ALLOWLIST="\
+i_tdm_bclk_i|no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands|sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict
+i_tdm_fsync_i|no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands|sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict
+i_tdm_data_i|no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands|sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict"
+
+#! reason text for an allowlisted tie, or empty when it is not allowlisted
 allow_reason() {
-  case "$1" in
-    *) echo "" ;;
-  esac
+  printf '%s\n' "$ALLOWLIST" | awk -F'|' -v k="$1" '$1 == k { print $2; exit }'
+}
+#! where that reason is recorded (the auditable half of the entry)
+allow_record() {
+  printf '%s\n' "$ALLOWLIST" | awk -F'|' -v k="$1" '$1 == k { print $3; exit }'
 }
 
-n_tied=0; n_dead=0
+n_tied=0; n_dead=0; n_ok=0; n_stale=0
 while IFS='=' read -r kw val; do
   port="${kw#i_}"                      # Instance kw -> RTL port name
   # confirm the port really exists on the RTL boundary (catch renames)
   if ! printf '%s\n' "$rtl_inputs" | grep -qx "$port"; then
     echo "  [STALE]   $kw: no such input '$port' on milan_datapath — dict/RTL drifted"
+    n_stale=$((n_stale+1))
     continue
   fi
   n_tied=$((n_tied+1))
@@ -106,7 +137,10 @@ while IFS='=' read -r kw val; do
   else
     reason="$(allow_reason "$kw")"
     if [ -n "$reason" ]; then
-      echo "  [allowed] ${kw}=${val}  intentional: $reason"
+      n_ok=$((n_ok+1))
+      echo "  [expected] ${kw}=${val}"
+      echo "            why:       $reason"
+      echo "            recorded:  $(allow_record "$kw")"
     else
       n_dead=$((n_dead+1))
       echo "  [WARNING] ${kw}=${val}  constant at EVERY wiring site — the cone"
@@ -116,7 +150,24 @@ while IFS='=' read -r kw val; do
   fi
 done <<< "$tied"
 
+# an allowlist line whose port no longer exists (renamed / removed) is itself
+# rot: it would silently stop covering anything. Fail on it like a stale tie.
+while IFS='|' read -r kw _reason _rec; do
+  [ -n "$kw" ] || continue
+  port="${kw#i_}"
+  printf '%s\n' "$rtl_inputs" | grep -qx "$port" || {
+    echo "  [STALE]   allowlist entry '$kw' names no milan_datapath input"
+    n_stale=$((n_stale+1))
+  }
+done <<< "$ALLOWLIST"
+
 echo "--------------------------------------------------------------"
-echo "tied inputs: $n_tied   never-overridden: $n_dead"
-echo "TIED-INPUT REPORT: done (informational — see WARNING lines above)"
+echo "tied inputs: $n_tied   justified: $n_ok   UNJUSTIFIED: $n_dead   stale: $n_stale"
+if [ "$n_dead" -gt 0 ] || [ "$n_stale" -gt 0 ]; then
+  echo "TIED-INPUT GATE: FAIL — $n_dead unjustified never-overridden tie(s), $n_stale stale entr(y/ies)."
+  echo "  Either drive the port from a real wiring site, or add a justified-tie"
+  echo "  line (kw|reason|where the reason is recorded) to ALLOWLIST in $0."
+  exit 1
+fi
+echo "TIED-INPUT GATE: PASS ($n_ok justified tie(s), no unjustified ones)"
 exit 0

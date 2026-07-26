@@ -177,6 +177,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the MAC-internal lanes (underflow/overflow/bad-frame/bad-FCS); tie 0
   //! when the MAC exposes none.
   input  wire [_ETH_EVENT_COUNTER-1:0] i_mac_events,
+  //! RMON per-lane CAPABILITY mask from the integration (CSR 0x204 STATS_CAP):
+  //! bit n = 1 means lane n has a real event source in THIS build. A lane whose
+  //! bit is 0 is structurally silent - its STAT word is not a measurement, and
+  //! software must report "not supported" rather than "no errors". The two
+  //! good-frame lanes are OR-ed in below because the datapath derives them
+  //! itself, so they are supported on every integration by construction. Tie 0
+  //! together with i_mac_events when no MAC is attached at this boundary; the
+  //! SoC's KL_mac_rmon_events publishes the real mask.
+  input  wire [_ETH_EVENT_COUNTER-1:0] i_mac_events_cap,
 
   // ---- interrupt (milan_csr aggregate: tx_ts_ready | link_change | rmon_rollover) ----
   output wire        o_irq_csr,
@@ -952,6 +961,27 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0]      pbk_feeds_w;
   wire [15:0]      pbk_unarmed_w;
 
+  //! ------------------------------------------------------------------------
+  //! SATURATING narrow views of the 32-bit STREAM_INPUT counters.
+  //!
+  //! AVTPRX_STAT (0x6B8) and AVTPRX_ERR (0x6C0) pack several 32-bit counters
+  //! into one word, so they can only ever show the low byte / half-word. Until
+  //! now that was a plain TRUNCATION, i.e. a silent modulo: silicon 2026-07-26
+  //! read SEQ_NUM_MISMATCH = 51,523 on a board up 81 h - 79 % of the way to
+  //! the 16-bit roll, after which the field would have counted DOWN from zero
+  //! and looked healthier the worse the link got. Saturating instead makes the
+  //! narrow view an honest FLOOR: all-ones means ">= that many, read the full
+  //! 32-bit counter", which lives at the per-stream window A_STRMW_CNT
+  //! (0x830 + 4*k, SEQ_NUM_MISMATCH at 0x83C). Values below the ceiling are
+  //! bit-identical to the old behaviour, so no reader regresses.
+  //! ------------------------------------------------------------------------
+  function automatic logic [15:0] sat16_f(input logic [31:0] c);
+    sat16_f = (c > 32'h0000_FFFF) ? 16'hFFFF : c[15:0];
+  endfunction
+  function automatic logic [7:0] sat8_f(input logic [31:0] c);
+    sat8_f = (c > 32'h0000_00FF) ? 8'hFF : c[7:0];
+  endfunction
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
@@ -994,6 +1024,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_stats_snapshot(cfg_stats_snapshot),
     .o_stats_reset   (cfg_stats_reset),
     .i_stats         (stats_counts),
+    .i_stats_cap     ({{(32-_ETH_EVENT_COUNTER){1'b0}}, stats_cap_w}),
     // classifier
     .o_cls_use_pcp     (cfg_cls_use_pcp),
     .o_cls_dmac_check  (cfg_cls_dmac_check),
@@ -1102,11 +1133,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_acmpl_dbg          (acmpl_dbg),
     .i_avtprx_tsd         (avtprx_last_tsd),
     .i_i2spb_dbg          (i2spb_dbg_frame),
-    .i_avtprx_stat        ({avtprx_intr_c[7:0], avtprx_unlocked_c[7:0],
-                            avtprx_locked_c[7:0], 7'd0, avtprx_locked}),
+    .i_avtprx_stat        ({sat8_f(avtprx_intr_c), sat8_f(avtprx_unlocked_c),
+                            sat8_f(avtprx_locked_c), 7'd0, avtprx_locked}),
     .i_avtprx_frx         (avtprx_frx_c),
-    .i_avtprx_err         ({avtprx_seqmm_c[15:0], avtprx_unsupp_c[7:0],
-                            avtprx_tu_c[7:0]}),
+    //! full-width Table 7-157 counters for the 0x800 window's index-0 words
+    //! (the packed 0x6B8/0x6C0 views above are saturating summaries of these)
+    .i_avtprx_cnt10       ({avtprx_frx_c, avtprx_early_c, avtprx_late_c,
+                            avtprx_unsupp_c, avtprx_tu_c, avtprx_mreset_c,
+                            avtprx_seqmm_c, avtprx_intr_c, avtprx_unlocked_c,
+                            avtprx_locked_c}),
+    .i_avtprx_err         ({sat16_f(avtprx_seqmm_c), sat8_f(avtprx_unsupp_c),
+                            sat8_f(avtprx_tu_c)}),
     .i_pcmrx_cnt          ({pcmrx_drops, pcmrx_pdus}),
     .i_pcmrx_ts           (avtprx_last_ts),
     .i_i2spb_stat         ({i2spb_underruns, i2spb_overruns}),
@@ -2713,6 +2750,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     mac_events_w[TX_FIFO_GOOD_FRAME] = tx_mac_good_w;
     mac_events_w[RX_FIFO_GOOD_FRAME] = rx_mac_good_w;
   end : mac_event_merge
+
+  //! Capability mask published at CSR 0x204. The two good-frame lanes are
+  //! forced supported because they are derived RIGHT HERE (same override that
+  //! makes double-counting impossible); every other lane is only claimed if
+  //! the integration says it drives it. A zero bit is the honest statement
+  //! "this counter is structurally silent", as opposed to a zero COUNT, which
+  //! means "nothing happened" - the distinction the RMON tie-off erased.
+  wire [_ETH_EVENT_COUNTER-1:0] stats_cap_w = i_mac_events_cap
+                                            | (1 << TX_FIFO_GOOD_FRAME)
+                                            | (1 << RX_FIFO_GOOD_FRAME);
 
   ethernet_events ethernet_counters(
     .clk(axis_clk),
