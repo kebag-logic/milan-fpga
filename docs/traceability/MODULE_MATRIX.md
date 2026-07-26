@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 78 modules · 75 with a dedicated TB · 0 exercised-only · 44 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 79 modules · 76 with a dedicated TB · 0 exercised-only · 45 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## 🗄️ Archived modules (no open-flow test is possible)
 
@@ -37,7 +37,7 @@ _ADP / ACMP / AECP-AEM-MVU_
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `KL_acmp_listener` | `ieee17221/acmp/KL_acmp_listener.sv` | `acmp_lstn` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make acmp` | — |
-| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make acmp` | — |
+| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · 🔬`make acmp` | — |
 | ✅ `KL_acmp_responder` | `ieee17221/acmp/KL_acmp_responder.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | ✅ `KL_acmp_tlkr_ctx` | `ieee17221/acmp/KL_acmp_tlkr_ctx.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | 📦 `acmp_pkg` | `ieee17221/acmp/acmp_pkg.sv` | 🔬`make acmp` | — |
@@ -55,6 +55,7 @@ _ADP / ACMP / AECP-AEM-MVU_
 | ✅ `KL_aecp_response_builder` | `ieee17221/aecp/KL_aecp_response_builder.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_timers` | `ieee17221/aecp/KL_aecp_timers.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_top` | `ieee17221/aecp/KL_aecp_top.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_persist_journal` | `ieee17221/aecp/KL_persist_journal.sv` | `persist` · 🔬`make aecp` | — |
 | 📦 `aecp_pkg` | `ieee17221/aecp/aecp_pkg.sv` | 🔬`make aecp` | — |
 
 ## IEEE 1722 (AVTP)
