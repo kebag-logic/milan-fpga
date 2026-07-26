@@ -208,9 +208,13 @@ Performance measurements on silicon are logged in the
 
 ## 7. Known gaps (kept honest)
 
-* **No CI is wired up.** The harnesses are CI-ready (exit codes), but
-  nothing runs them automatically - a `.github/workflows` running layers
-  1, 2 and 4 is the obvious next step.
+* **CI runs the paper gates only.** [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml)
+  runs the docs gate (twice — the second time with `.git` deleted, so the
+  tarball/zip path stays honest), the traceability no-drift gate and the
+  end-station builder gates. The Verilator harnesses are CI-ready (exit codes)
+  but **nothing runs them automatically**; adding layers 1, 2 and 4 to that
+  workflow is the obvious next step. Local commands:
+  [`../../QUICKSTART.md`](../../QUICKSTART.md) §2.
 * **`avtp_stream_parser` has a Verilator suite but is not in the Yosys tops
   list** - its device portability is unchecked.
 * `milan_top` (Zynq variant) is not coverable by the open flows (PS7 + the
