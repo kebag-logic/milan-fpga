@@ -316,14 +316,24 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       Per-stream binding is **built** (`VERSION 0x0001_000C`: ACMP talker
       responder answers every uid, `t>0` admission mirrors `t0`); the walk
       itself waits on a flash of that gateware.
-- [~] **B — Fabric listener accept on the 8x8 gateware** — bound streams are
-      not accepted on silicon while the RTL N=8 path is green in sim; blocks
-      the RX half of the item-11 latency measurement. Symptom→suspect walk +
-      re-test recipe in
+- [~] **B — Fabric listener accept on the 8x8 gateware** — **ROOT-CAUSED and
+      fixed in RTL 2026-07-26 (`VERSION 0x0001_000F`); silicon confirmation is
+      all that remains.** The verdict never died in the *parse*, it died in the
+      stream **table**: `win_commit_glue` staged the `0x800` window's SID in one
+      global register pair shared by every index and only checked that *some*
+      sid was staged, so a route-flags-only `CTRL` write at idx 0 armed entry 0
+      with another listener's stream_id; `KL_stream_table` then held
+      `ovr_armed_r[0]` until reset, so the ACMP alias was detached for good and
+      every later `CONNECT_RX` bound cleanly and changed nothing. Fix: staging
+      is tagged with its index, and `{en=0, sid=0}` is RELEASE-TO-ALIAS.
+      Regression guards: `tb/verilator/milan_dp` TRAP-1 (N=4/N=8, through the
+      real CSR window) and `tb/verilator/avtp_parser` T6 (table level, from
+      reset), both with negative legs. Full write-up in
       [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md)
-      §21. The instrument it needed is **built** (`VERSION 0x0001_000D`: the
-      `0x8B4` parser-probe group — frames parsed/matched plus the wire-side
-      stream_id, upstream of the match); reading it needs the next flash.
+      §21. Remaining: flash `0x000F` and re-read the `0x8B4` probe group; on the
+      currently-flashed `0x000B` the workaround is to explicitly stage the sid
+      at idx 0 before committing `CTRL`. Still blocks the RX half of the item-11
+      latency measurement until that flash.
 - [ ] **L — `LPF_P = 0` elaboration-time prune** for `KL_pcm_lpf` — a banked
       area lever (428 LUT / 756 FF measured), to be spent only after the
       ranked levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)
