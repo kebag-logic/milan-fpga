@@ -200,6 +200,33 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
 * **REQ-CLS-07 (SHOULD)** gPTP/AVTP identification SHOULD validate the reserved
   **destination multicast** (01-80-C2-00-00-0E for gPTP), not trust EtherType
   alone. *(802.1AS §10.5)*
+* **REQ-CLS-10 (MUST)** **Untagged control frames MUST be classified by their
+  reserved destination MAC address, not by a PCP they do not carry.** MAAP,
+  MSRP, MVRP and the IEEE 1722.1-2021 ADP/ACMP/AECP trio are untagged
+  link-local PDUs; expressing their queue as a PCP mapping is fiction, and at
+  the reset configuration (`use_pcp = 1`) they fell through
+  `CLS_DEFAULT_PCP` into the ordinary tables and landed on best effort, leaving
+  the `CONTROL_CLASS` (q2) row of
+  [`docs/reference/EGRESS_QUEUE_MAP.md`](docs/reference/EGRESS_QUEUE_MAP.md)
+  documented but unimplemented. *(802.1Q Table 8-1; 802.1Q-2018 §35.2.2.1 MSRP;
+  §11.2.3.1.6 MVRP; 1722.1-2021 §6.2.1; 1722-2016 Annex B)* — *Satisfied
+  2026-07-26, VERSION `0x0012`.* Structural requirements, in order:
+  1. the match MUST be a **table of destination addresses** so a protocol is
+     added as a row, not a redesign;
+  2. a row hit MUST NOT be conditioned on an EtherType — RSTP BPDUs ride
+     `01-80-C2-00-00-00` and have **no EtherType** (802.3/LLC, DSAP/SSAP
+     `0x42`), so an EtherType precondition would lock them out permanently;
+  3. the EtherType MAY refine **only** an address that carries two protocols —
+     today exactly one does, `01-80-C2-00-00-0E` (gPTP `0x88F7` → q3, MSRP
+     `0x22EA` → q2), and the two MUST NOT collapse into one queue;
+  4. AECP has **no** group address (it is addressed to the peer entity's
+     individual MAC, which on egress is the far end, not our station address),
+     so it is covered by one EtherType-keyed arm — untagged `0x22F0` to a
+     unicast destination — and that limitation MUST be documented, not hidden;
+  5. a **tagged** `0x22F0` is an AVTP stream and MUST still classify to
+     `SRA_CLASS`/`SRB_CLASS` by its PCP;
+  6. the fast path is enabled by `CLS_CTRL[2]`, which **resets to 1**; clearing
+     it MUST restore VERSION `0x0011` behaviour exactly.
 * **REQ-CLS-08 (MAY)** Recognize the configurable **S-TAG (0x88A8)** and stacked
   C/S-TAG (802.1ad). *(802.1Q §9.5)*
 * **REQ-CLS-09 (MAY)** Per-stream filtering and policing (**802.1Qci**) —

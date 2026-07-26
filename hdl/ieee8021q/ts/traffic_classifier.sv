@@ -61,6 +61,7 @@ module traffic_classifier #(
   //! --- runtime configuration (milan_csr classifier group, REQ-CLS-01..04) ---
   input wire        use_pcp_i,      //! 1 = PCP-table classification, 0 = legacy EtherType
   input wire        dmac_check_i,   //! Enable reserved-DMAC validation (REQ-CLS-07)
+  input wire        ctrl_class_i,   //! Enable the untagged-control DMAC fast path (REQ-CLS-10)
   input wire [2:0]  default_pcp_i,  //! Default port priority for untagged frames
   input wire [23:0] pcp_tc_map_i,   //! PCP->traffic-class table, 8x3 bits
   input wire [23:0] prio_regen_i,   //! Priority regeneration table, 8x3 bits
@@ -189,14 +190,12 @@ wire        frame_dei  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1-PCP_BIT_WIDTH]
 wire        frame_de   = vlan_valid && frame_dei;
 //! network priority / queue index from the runtime class map.
 wire [$clog2(NUMBER_OF_QUEUES)-1:0] network_priority;
-
-//! Reserved destination multicast for 802.1AS/gPTP (802.1AS-2020 §10.5, one of
-//! the 802.1Q Table 8-1 reserved addresses). REQ-CLS-07: EtherType 0x88F7 alone
-//! is not proof of a gPTP frame, and the classifier's gPTP fast path is the
-//! second-highest queue - validate the DMAC before granting it.
-localparam logic [MAC_ADDR_BIT_WIDTH-1:0] GPTP_DMAC = 48'h01_80_C2_00_00_0E;
-//! Frame destination MAC equals the reserved gPTP multicast (wire byte order).
-wire dmac_gptp = (eth_packet.eth_common_hdr.dst_mac == GPTP_DMAC);
+//! Frame destination MAC as parsed off the wire (byte 0 in the MSB), handed to
+//! the class map intact. There is deliberately NO address compare here: the
+//! reserved control addresses live in one table inside `traffic_class_map`
+//! (REQ-CLS-07 gPTP validation and the REQ-CLS-10 control fast path both read
+//! it), so a new protocol is one row in one file.
+wire [MAC_ADDR_BIT_WIDTH-1:0] frame_dmac = eth_packet.eth_common_hdr.dst_mac;
 
 assign header_ready = (byte_counter >= ETH_HEADER_WIDTH);
 
@@ -228,10 +227,11 @@ traffic_class_map #(
   .prio_regen_i  (prio_regen_i),
   .tc_queue_map_i(tc_queue_map_i),
   .dmac_check_i  (dmac_check_i),
+  .ctrl_class_en_i(ctrl_class_i),
   .vlan_valid_i  (vlan_valid),
   .pcp_i         (frame_pcp),
   .dei_i         (frame_dei),
-  .dmac_gptp_i   (dmac_gptp),
+  .dmac_i        (frame_dmac),
   .eth_type_i    (eth_packet.eth_common_hdr.eth_type),
   .tdest_o       (network_priority)
 );

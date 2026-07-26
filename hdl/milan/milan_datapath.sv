@@ -509,7 +509,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [32*9-1:0] stats_counts;
   wire        stats_rollover;
 
-  wire        cfg_cls_use_pcp, cfg_cls_dmac_check;
+  wire        cfg_cls_use_pcp, cfg_cls_dmac_check, cfg_cls_ctrl_class;
   wire [2:0]  cfg_cls_default_pcp;
   wire [23:0] cfg_cls_pcp_tc_map, cfg_cls_prio_regen;
   wire [31:0] cfg_cls_tc_queue_map;
@@ -997,6 +997,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     // classifier
     .o_cls_use_pcp     (cfg_cls_use_pcp),
     .o_cls_dmac_check  (cfg_cls_dmac_check),
+    .o_cls_ctrl_class  (cfg_cls_ctrl_class),
     .o_cls_default_pcp (cfg_cls_default_pcp),
     .o_cls_pcp_tc_map  (cfg_cls_pcp_tc_map),
     .o_cls_prio_regen  (cfg_cls_prio_regen),
@@ -1257,6 +1258,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .is_1g_i(cfg_mac_is_1g),
     .cls_use_pcp_i     (cfg_cls_use_pcp),
     .cls_dmac_check_i  (cfg_cls_dmac_check),
+    .cls_ctrl_class_i  (cfg_cls_ctrl_class),
     .cls_default_pcp_i (cfg_cls_default_pcp),
     .cls_pcp_tc_map_i  (cfg_cls_pcp_tc_map),
     .cls_prio_regen_i  (cfg_cls_prio_regen),

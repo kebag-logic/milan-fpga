@@ -188,7 +188,8 @@ procedures close the loop.
 | A register offset / new field | [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) offset block + decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a check in `tb/verilator/csr/sim_main.cpp` (same commit) |
 | Number of HW queues | `NUM_QUEUES` (milan_csr) + `NUMBER_OF_QUEUES` (`ethernet_packet_pkg.sv`) | re-run `csr`, `queues`, `shaper_core`, `cls`, `classifier`, `datapath` harnesses; ring/DMA queue count in `milan_soc.py`; the map itself is [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
 | CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs`; remember the [reset-defaults shaping bug](../findings/CBS_DEFAULT_SHAPING_BUG.md) |
-| PCP→TC classification | `traffic_class_map.sv` decode | re-run `tb/verilator/cls` |
+| PCP→TC classification (**tagged** traffic only) | `traffic_class_map.sv` decode | re-run `tb/verilator/cls` |
+| Which queue a **control** protocol lands on | `CTRL_DMAC_TBL` in `traffic_class_map.sv` — one row per reserved destination MAC, **no EtherType precondition** (a BPDU has none) | re-run `tb/verilator/cls`, `tb/verilator/classifier`; the map itself is [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
 | PTP rate/offset | `timestamp_counter.sv` + `ptp_csr_sync.sv` | re-run `ptp`, `ptp_sync`; driver `ptp_clock_info` |
 | DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see the [pairing hazards](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)) |
 | Add an IRQ source | `milan_csr` IRQ_STATUS/MASK (+ EventManager wiring in `milan_soc.py`, or `bd/milan-dma.tcl` `IRQ_F2P` on Zynq) | DT regeneration |
