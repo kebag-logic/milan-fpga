@@ -467,7 +467,11 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
     if aaf_playback:
-        dp_params["p_AAF_PLAYBACK"] = 1
+        # param NAME must match the SV declaration exactly - a mismatched
+        # LiteX Instance param silently no-ops (latent find 2026-07-25:
+        # this line passed p_AAF_PLAYBACK for weeks and pruned nothing in,
+        # because the RTL parameter is AAF_PLAYBACK_P)
+        dp_params["p_AAF_PLAYBACK_P"] = 1
     host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
