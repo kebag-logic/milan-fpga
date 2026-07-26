@@ -151,7 +151,14 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   instead of the EtherType `case` in `traffic_classifier.sv:124-141`.
 - [x] **B — Programmable PCP→TC / TC→queue tables via CSR** `(REQ-CLS-02, CLS-04)`.
 - [x] **H — Configurable default port priority for untagged** `(REQ-CLS-03)`.
-- [ ] **M — DEI sideband** `(REQ-CLS-05)`.
+- [x] **M — DEI sideband** `(REQ-CLS-05)` — `traffic_classifier` emits
+  drop_eligible on `m_axis.tuser[0]`, pushed through the SAME per-frame
+  sideband queue as `tdest` (correct + stable from the first output beat) and
+  forced to 0 for untagged frames (802.1Q §6.9.4 has no DEI without a C-TAG).
+  `traffic_queues` still buffers with `USER_ENABLE(0)`, so the mark stops at the
+  queue stage - a policer belongs upstream of the queues anyway (REQ-CLS-09).
+  TB: `classifier` (tagged DEI 0/1 at every PCP back-to-back + under
+  backpressure, untagged negative, DEI must not move the queue).
 - [ ] **M — Back-to-back line-rate parsing** `(REQ-CLS-06)` — re-arm header FSM on
   `tlast` same-cycle.
 - [x] **M — Reserved DMAC validation** `(REQ-CLS-07)` — the 0x88F7 gPTP fast path

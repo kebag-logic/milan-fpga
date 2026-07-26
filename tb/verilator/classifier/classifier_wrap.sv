@@ -33,6 +33,7 @@ module classifier_wrap #(
   output wire                     m_tvalid,
   output wire                     m_tlast,
   output wire [TDEST_WIDTH-1:0]   m_tdest,
+  output wire                     m_tuser,     // [0] = drop_eligible (DEI, REQ-CLS-05)
   input  wire                     m_tready
 );
 
@@ -50,6 +51,7 @@ module classifier_wrap #(
   assign m_tvalid = m_axis.tvalid;
   assign m_tlast  = m_axis.tlast;
   assign m_tdest  = m_axis.tdest;
+  assign m_tuser  = m_axis.tuser;
   assign m_axis.tready = m_tready;
 
   traffic_classifier #(

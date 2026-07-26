@@ -29,6 +29,8 @@
 
 //! This module implements an Ethernet packet classifier that parses incoming AXIS frames and 
 //! assigns traffic priority based on the VLAN PCP field or Ethertype (e.g., PTP detection).
+//! Per frame it also emits the 802.1Q drop-eligibility indicator on `m_axis.tuser[0]`
+//! (REQ-CLS-05) and validates the reserved gPTP destination multicast (REQ-CLS-07).
 //! The module is working with different tdata_widths, 32,64,128 are tested.
 //! Parsing is always performed in **big endian** byte order for consistent decoding.
 //! If `BIG_ENDIAN` is set to 0 (little endian system), the module automatically converts input
@@ -132,9 +134,14 @@ logic [ETH_TYPE_BIT_WIDTH-1:0] eth_type_raw;
 //! sideband queue; the output side gates each frame's FIRST beat on its entry
 //! and pops at tlast. tdest is correct and stable from the first output beat
 //! by construction, with no data-path delay registers at all.
+//! Each entry is {drop_eligible, queue}: the DEI sideband (REQ-CLS-05) rides
+//! the SAME per-frame queue as tdest, so it is likewise correct and stable from
+//! the frame's first output beat - the only place a drop-eligibility mark is
+//! usable by a policer (802.1Q §6.9.4 conveys drop_eligible with the frame, not
+//! with the port).
 localparam int TQ_DEPTH = 32;   //! > max frames resident in the data FIFO
 localparam int TQW = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES);
-logic [TQW-1:0] tq_mem [0:TQ_DEPTH-1];
+logic [TQW:0] tq_mem [0:TQ_DEPTH-1];
 logic [$clog2(TQ_DEPTH):0] tq_wr, tq_rd;
 wire tq_empty = (tq_wr == tq_rd);
 wire [$clog2(TQ_DEPTH)-1:0] tq_wr_idx = tq_wr[$clog2(TQ_DEPTH)-1:0];
@@ -168,6 +175,11 @@ ethernet_vlan_hdr_t eth_packet;
 wire        vlan_valid = (eth_packet.vlan_tpid == ETH_TYPE_VLAN);
 wire [2:0]  frame_pcp  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1 -: PCP_BIT_WIDTH];
 wire        frame_dei  = eth_packet.vlan_tci[VLAN_TCI_BIT_WIDTH-1-PCP_BIT_WIDTH];
+//! REQ-CLS-05 drop_eligible: DEI only carries meaning inside a C-TAG. An
+//! untagged frame has no drop-eligibility indication at all (802.1Q §6.9.4) -
+//! it must read 0 rather than whatever the payload bytes happen to hold in the
+//! TCI slice of the staging buffer.
+wire        frame_de   = vlan_valid && frame_dei;
 //! network priority / queue index from the runtime class map.
 wire [$clog2(NUMBER_OF_QUEUES)-1:0] network_priority;
 
@@ -190,7 +202,13 @@ assign m_axis.tdata  = m_axis_fifo.tdata;
 assign m_axis.tkeep  = m_axis_fifo.tkeep;
 assign m_axis.tvalid = m_axis_fifo.tvalid && !tq_empty;
 assign m_axis.tlast  = m_axis_fifo.tlast;
-assign m_axis.tdest  = tq_mem[tq_rd_idx];
+assign m_axis.tdest  = tq_mem[tq_rd_idx][TQW-1:0];
+//! tuser[0] = drop_eligible (REQ-CLS-05, 802.1Q §6.9.4). Carried on the AXIS
+//! sideband rather than a private port so any downstream policer/meter picks it
+//! up with no plumbing. NOTE: traffic_queues still instantiates its demux/FIFOs
+//! with USER_ENABLE(0), so the mark does not survive the buffering stage today
+//! - a policer belongs UPSTREAM of the queues anyway (802.1Qci, REQ-CLS-09).
+assign m_axis.tuser  = tq_mem[tq_rd_idx][TQW];
 assign m_axis_fifo.tready = m_axis.tready && !tq_empty;
 
 //! Runtime 802.1Q priority-to-queue classification (REQ-CLS-01..04).
@@ -245,7 +263,7 @@ always_ff @(posedge clk)begin : tdest_sideband
   end
   else begin
     if (do_push) begin
-      tq_mem[tq_wr_idx] <= network_priority;
+      tq_mem[tq_wr_idx] <= {frame_de, network_priority};
       tq_wr <= tq_wr + 1'b1;
     end
     if (in_acc)
