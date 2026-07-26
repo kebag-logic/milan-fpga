@@ -133,9 +133,25 @@ do_flash_images() {
 import json, sys
 d = json.load(open(sys.argv[1])); fs = int(sys.argv[2])
 imgs = sorted(d["images"], key=lambda i: i["offset"])
-tops = [i["offset"] for i in imgs][1:] + [fs]
-for i, top in zip(imgs, tops):
-    print("%s\t%d\t%d" % (i["name"], i["offset"], top))
+
+# A ceiling is the next thing that must not be overwritten - which is NOT just
+# the next boot image. The writable slots (journal, /user) live under a
+# separate "reserved" key, so treating the last image's ceiling as end-of-flash
+# let an oversized rootfs pass the budget check and silently erase saved
+# bindings and fault logs on the next reflash. Every boundary counts.
+res = d.get("reserved") or {}
+res = list(res.values()) if isinstance(res, dict) else list(res)
+bounds = sorted({int(i["offset"]) for i in imgs} |
+                {int(r["offset"]) for r in res} | {fs})
+
+for i in imgs:
+    off = int(i["offset"])
+    above = [b for b in bounds if b > off]
+    top = min(above) if above else fs
+    # an explicit per-image size is authoritative when the generator emits one
+    if i.get("size"):
+        top = min(top, off + int(i["size"]))
+    print("%s\t%d\t%d" % (i["name"], off, top))
 PY
 )
     echo "[deploy] flash-images done. Reload the FPGA over JTAG ('deploy.sh load') and the BIOS will flash-boot."
