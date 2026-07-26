@@ -1087,18 +1087,22 @@ def test_lwsrp_tspec_and_params():
     top = open(LWSRP_TOP_SV).read()
     epkg = open(ETH_PKG_SV).read()
     assert re.search(r"KL_lwsrp_top #\(\.CLK_FREQ_HZ_P\(MILAN_CLK_FREQ_HZ\),"
-                     r"\s*\.N_CTX_P\(N_STREAMS\)\)", dp), \
-        "milan_datapath no longer ties N_CTX_P to N_STREAMS"
-    assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_CTX_P\)\)", top), \
-        "KL_lwsrp_top no longer ties the bw_gate width to N_CTX_P"
+                     r"\s*\.N_CTX_P\(SRP_CTX_ROWS_C\),"
+                     r"\s*\.N_LISTENERS_P\(N_STREAMS\),"
+                     r"\s*\.N_TALKERS_P\(N_STREAMS\)\)", dp), \
+        "milan_datapath no longer sizes the ctx table at L+T-1"
+    assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_TALKERS_P\)\)", top), \
+        "KL_lwsrp_top no longer ties the bw_gate width to N_TALKERS_P"
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
     for name, (L, T) in (("arty_current", (1, 1)), ("arty_4x4", (4, 4)),
                          ("ax7101_8x8", (8, 8))):
         r = eb.build(CONFIGS[name], OUT)
         t, cfg = r["lwsrp"], r["cfg"]
         mp = t["module_params"]
-        assert mp["KL_lwsrp_top.N_CTX_P"] == max(L, T) == \
-            mp["milan_datapath.N_STREAMS"] == mp["KL_lwsrp_bw_gate.N_STREAMS_P"]
+        assert mp["KL_lwsrp_top.N_CTX_P"] == 2 * max(L, T) - 1 >= L + T - 1, \
+            "ctx rows must cover every listener AND talker attribute row"
+        assert max(L, T) == mp["milan_datapath.N_STREAMS"] == \
+            mp["KL_lwsrp_bw_gate.N_STREAMS_P"] == mp["KL_lwsrp_top.N_TALKERS_P"]
         assert mp["KL_lwsrp_top.CLK_FREQ_HZ_P"] == \
             cfg["constraints"]["milan_clk_hz"] == \
             mp["milan_datapath.MILAN_CLK_FREQ_HZ"]
@@ -1109,7 +1113,11 @@ def test_lwsrp_tspec_and_params():
         # the class-A queue must be a real queue
         assert 0 <= cfg["srp"]["class_queue"] < nq
         assert t["ctx_rows"]["required"] == L + T - 1
-        assert t["ctx_rows"]["available"] == max(L, T)
+        # the shortfall closed 2026-07-26: the datapath sizes the table at
+        # 2*N_STREAMS-1, so every listener AND talker attribute row is backed
+        assert t["ctx_rows"]["available"] == 2 * max(L, T) - 1
+        assert t["ctx_rows"]["available"] >= t["ctx_rows"]["required"], \
+            "lwSRP ctx table must back every row the 0x800 window can select"
         b = t["bandwidth"]
         assert b["total_idle_slope_bps"] <= b["limit_bps"]
         assert b["total_idle_slope_bps"] == sum(
@@ -1130,12 +1138,16 @@ def test_lwsrp_tspec_and_params():
               f"the port (ceiling {b['limit_pct']}%), ctx rows "
               f"{t['ctx_rows']['required']} needed / "
               f"{t['ctx_rows']['available']} available")
-    # the NxN row shortfall is a MARK, never silent
-    for name in ("arty_4x4", "ax7101_8x8"):
+    # the NxN row shortfall CLOSED 2026-07-26 (datapath sizes the ctx table at
+    # 2*N_STREAMS-1). The mark must now read `supported` for every shape - if a
+    # future change reopens the shortfall the mark flips back to `planned`,
+    # which this asserts against, so the regression cannot be silent.
+    for name in ("arty_current", "arty_4x4", "ax7101_8x8"):
         marks = eb.build(CONFIGS[name], OUT)["marks"]
-        assert any("lwSRP attribute rows" in m[0] and
-                   m[1].startswith("planned") for m in marks), \
-            f"{name}: ctx-row shortfall not marked"
+        row_marks = [m for m in marks if "lwSRP attribute row" in m[0]]
+        assert row_marks, f"{name}: ctx rows not marked at all"
+        assert all(m[1] == "supported" for m in row_marks), \
+            f"{name}: ctx-row shortfall reopened -> {row_marks}"
     cur = eb.build(CONFIGS["arty_current"], OUT)["marks"]
     assert any("lwSRP attribute row(s)" in m[0] and m[1] == "supported"
                for m in cur), "arty_current lwSRP rows must be supported"
