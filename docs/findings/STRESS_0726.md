@@ -9,13 +9,13 @@ pre-round gateware `VERSION 0x0001_000B`.
 healthy: accepting, `AVTPRX_ERR = 0`, `RST_EPOCH` unchanged at 1 (no MAC reset
 was ever provoked), zero kernel errors.
 
-**Not attempted here:** a link flap. That has a documented history of wedging
-MAC-TX permanently on this hardware, and the bench is the only path to a flash.
-It is listed at the end as the outstanding test.
+**Includes the MAC-TX wedge drill (AX42)** — see section H. The AX42 fix is
+now **validated on silicon**: 9 induced eth-clock-death events, 9 clean
+recoveries, TX never wedged on the wire.
 
 ## Result
 
-**19 checks, 0 failures.** Nothing broke it. Two behaviours are worth knowing
+**19 checks + 9 wedge-drill cycles, 0 failures.** Nothing broke it. Two behaviours are worth knowing
 about, and one of them explains why the listener blocker took so long to find.
 
 ## The tests
@@ -124,9 +124,64 @@ they read as a clean slate that was never clean.
 spawn on the softcore**, not the CSR plane — the writes themselves are fast. A
 storm test should batch its accesses in one process rather than a shell loop.
 
+## H — the MAC-TX wedge drill (AX42): **the fix is validated on silicon**
+
+The long-standing hazard was that a link bounce wedges the e2 TX path
+permanently — *internal TX counters keep ticking while the wire stays empty*, so
+a live-counter check is blind to it and only a tap tells the truth. The AX42
+logic fix extended the link guard's `eth_rst` scope to cover the PHY-side
+`eth_tx`/gtx path. It had never been proven on hardware.
+
+**First: the fix really is on the deployed board.** The shipping netlist wires
+the guard's reset into exactly the domain the wedge lives in:
+
+```
+assign phy_eth_reset                     = (phy_reset0 | eth_rst);
+assign impl_xilinxasyncresetsynchronizerimpl8 = (eth_tx_rst | eth_rst);   // eth_tx domain
+assign impl_xilinxasyncresetsynchronizerimpl9 = (eth_rx_rst | eth_rst);
+```
+
+**A netdev down/up is NOT this test.** `ip link set eth0 down` detaches the
+Linux host plane while the AAF talker keeps transmitting from fabric —
+`LINKG_STAT` never moved and the peer's RX never dipped. The guard saw nothing
+because nothing happened to the link. Use the purpose-built hook instead:
+**`LINK_CTRL[3]` `linkg_freeze`** — *fake eth clock death, drills the full FSM
+with no cable* — which is the wedge's actual mechanism.
+
+**The wire truth is the PEER's RX counter.** Since the failure mode is "local
+counters lie", the only trustworthy observer is the other board: if this board's
+TX wedges, the peer stops receiving.
+
+### Single drill
+
+| t | state | `eth_rst` | tx_alive | rx_alive | bounce |
+|---|---|---|---|---|---|
+| pre | 0 RUN | 0 | 1 | 1 | 0 |
+| +00 | **1 HOLD** | **1** | 0 | 0 | 1 |
+| +01 | 1 HOLD | 1 | 0 | 0 | 1 |
+| **+02** | **0 RUN** | 0 | **1** | **1** | 1 |
+
+Fault detected, `eth_rst` asserted, **recovered to RUN in ~2 s**, `RST_EPOCH`
+unchanged (no MAC-domain reset was needed). Throughout, the peer's RX advanced
+97k-114k frames per 5 s with **no dip** — TX never stopped on the wire.
+
+### Repeatability — 8 consecutive cycles
+
+All 8 recovered: peak `LINKG` showed HOLD + `eth_rst` each time, every cycle
+returned to RUN with TX ticking, `bounce_cnt` counted every event (1 → 9), and
+`RST_EPOCH` never moved. Final state: RUN, carrier up, **0 kernel errors**.
+
+This is the silicon validation roadmap item 0 was waiting for.
+
+### Honest limit
+
+`linkg_freeze` fakes **eth clock death**, which is the wedge's mechanism and the
+thing the AX42 reset scope had to cover — so the fix itself is proven. It is not
+a physical cable pull, which would additionally exercise PHY autoneg and
+link-loss detection. A cable drill remains worth doing, and is now low-risk:
+the recovery path it depends on has been exercised 9 times.
+
 ## Outstanding
 
-**Link flap** — down/up the interface, verify the MAC recovers, then repeat.
-Deliberately not run: MAC-TX has wedged permanently on a link bounce before, and
-a wedged board blocks the pending gateware flash. It should be run when a reflash
-is already scheduled, so a wedge costs nothing that was not already planned.
+A **physical cable-pull** drill (see the limit above), and the same drills on the
+Arty.
