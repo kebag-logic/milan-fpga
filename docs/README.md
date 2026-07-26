@@ -26,8 +26,13 @@ docs/
 
 ## ⭐ New here? Start with the guide, then pick your lane
 
-**Everyone starts here → [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md)** — what the
-system is, plus a journey-ordered map of the whole doc set. Then follow the lane below that
+**Two shortcuts before the long form.** If you want to *know what this is* in one page —
+block diagram, the standards, the register map, what's proven and what isn't — read
+[overview/AT_A_GLANCE.md](overview/AT_A_GLANCE.md). If you want to *run something green in
+30 minutes* with no FPGA and no bench access, follow [`../QUICKSTART.md`](../QUICKSTART.md).
+
+**Then everyone starts here → [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md)** — what
+the system is, plus a journey-ordered map of the whole doc set. Then follow the lane below that
 matches what you're here to do. Unsure of a term? → [GLOSSARY.md](GLOSSARY.md).
 
 ![Where do I start — the reading lanes by role](DOC_MAP.png)
@@ -78,9 +83,11 @@ Goal: an honest picture of what provably works and what is open.
 3. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is still missing, and the attack order.
 4. [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) — what bites.
 
-### 🎧 Hobbyist — *you want it running on your desk*
-Goal: build, flash, hear audio.
-1. [../README.md](../README.md) quickstart — run the testbenches, no hardware needed.
+### 🎧 Hobbyist — *you want it running on your desk (or you have no board at all)*
+Goal: build, flash, hear audio — or get value out of the repo without buying anything.
+1. [`../QUICKSTART.md`](../QUICKSTART.md) — the honest on-ramp: track 1 (simulate, no FPGA,
+   no vendor tools), track 2 (yosys/ECP5 portability), track 3 (Vivado), track 4 (hardware).
+   §4 lists exactly what works with **no board at all**.
 2. [integration/BUILDING.md](integration/BUILDING.md) — build a bitstream for your board.
 3. [integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) — flash it and boot Linux.
 4. [limitations/TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) — when it fights back.
@@ -103,6 +110,7 @@ Goal: build, flash, hear audio.
 
 | Document | Purpose |
 |----------|---------|
+| [AT_A_GLANCE.md](overview/AT_A_GLANCE.md) | **The whole system on one page** - block diagram, the five standards it implements, the register map at a glance, what is proven by a re-runnable test vs by a bench measurement, and an honest "is this for you?". For someone deciding whether to use it at all. |
 | [FULL_FPGA_SOLUTION.md](overview/FULL_FPGA_SOLUTION.md) | **The master guide to the fully-FPGA solution** - high/medium-level architecture, the three datapath boundaries, build/run, roadmap. **Read first.** |
 | [ARCHITECTURE.md](overview/ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, where to change things - fully-FPGA primary, Zynq legacy appendix. |
 | [ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) | **Normative HW/SW plan-of-record (rev 2)**: what runs in fabric vs the softcore (lwSRP/AAF/MAAP/ADP/AECP/ACMP all in fabric, silicon-validated; the softcore does linuxptp + PCM ring + provisioning). |
