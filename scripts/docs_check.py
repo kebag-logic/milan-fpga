@@ -1,27 +1,40 @@
 #!/usr/bin/env python3
-"""Docs gate: link integrity + wording deny-list + bare references + local info.
+"""Docs gate: link integrity + wording deny-list + bare/dead references + local info.
 
-Run from the repo root:
+Run from anywhere (the script locates its own repo root):
 
     python3 scripts/docs_check.py
 
-Checks, over every git-tracked ``*.md`` file:
+**No git required.** The file inventory comes from ``git ls-files`` when the tree
+is a git working tree, and from a ``.gitignore``-aware filesystem walk otherwise —
+so an extracted tarball or a downloaded zip can run the same gate CI runs.
+
+Checks, over every ``*.md`` file in the tree:
 
 1. **Link integrity** — every relative markdown link/image target resolves to
    a file or directory in the tree (http/mailto/anchor-only links skipped).
 2. **Wording deny-list** — terms that must not appear in committed docs.
    Legitimate identifiers containing a denied stem are masked (``ALLOW``).
-3. **Bare doc references** — a mention of an existing tracked ``.md`` file
-   that is not an actual markdown link (living tree only; generated files,
-   code fences, HTML comments and ``historical_now_obsolete/`` are exempt).
-4. **Local information** — bench/host-identifying patterns (hostnames, home
+3. **Bare doc references** — a mention of an existing ``.md`` file that is not
+   an actual markdown link (living tree only; generated files, code fences,
+   HTML comments and ``historical_now_obsolete/`` are exempt).
+4. **Dead references** — a bare mention of a ``.md`` path that points *inside
+   this repo* but does not exist (5a), or of a document retired from the tree
+   (``RETIRED``, 5b). Rule 3 only sees references to files that still exist, so
+   without this a reference left behind by a deletion is invisible to the gate
+   and an outside reader follows it into nothing. A document whose job is to
+   record retired files (the doc-audit ledger) opts out with an HTML comment
+   line holding the token ``docs-check: allow-dead-refs``.
+5. **Local information** — bench/host-identifying patterns (hostnames, home
    paths, bench subnet, MAC-derived interface names, USB-serial paths) must
    not appear; also swept over ``docs/**`` diagram sources (``.gen.py``,
-   ``.drawio``).
+   ``.drawio``, ``.svg``).
 
 Exit 0 = clean; exit 1 = findings, one per line as ``path:line: message``.
 """
 
+import fnmatch
+import os
 import re
 import subprocess
 import sys
@@ -42,6 +55,16 @@ ALLOW = (
 DENY_CI = re.compile(r"avnu|aets|certif", re.IGNORECASE)
 DENY_CS = re.compile(r"\bCERT\b")   # the old evidence token, case-sensitive
 
+# Documents removed from the tree that must never be referenced again.
+# The 2026-07-20 privacy scrub untracked these three; the live state they used
+# to carry now lives in docs/findings/BENCH_TOPOLOGY.md (bench/board state) and
+# docs/findings/PERFORMANCE_GOAL.md (the measured campaign record).
+RETIRED = {
+    "SESSION_HANDOFF.md",
+    "HANDOVER.md",
+    "HANDOVER_SMALL.md",
+}
+
 # Bench/host-identifying patterns (generic shapes only — never the literals).
 LOCAL_RE = re.compile(
     r"amx-|/home/alex|enx[0-9a-f]{8,}|serial/by-id/usb-[A-Za-z0-9]|192\.168\.127"
@@ -52,13 +75,113 @@ LINK_SPAN_RE = re.compile(r"!?\[[^\]]*\]\([^)]*\)")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 CAND_RE = re.compile(r"(?<![\w/.-])((?:[\w.-]+/)*[\w][\w.-]*\.md)\b")
 GENERATED_MARK = re.compile(r"GENERATED", re.IGNORECASE)
+# Opt-out for the archive ledger: an HTML-comment line (not a fenced example,
+# which starts with a backtick) carrying the token.
+ALLOW_DEAD_MARK = re.compile(
+    r"^<!--[^\n]*docs-check:\s*allow-dead-refs\b", re.MULTILINE)
+
+# Never walked: VCS metadata, vendored submodules, obvious build scratch.
+ALWAYS_PRUNE = {".git", "__pycache__", "obj_dir", "node_modules", ".venv"}
+
+
+# --------------------------------------------------------------------------
+# file inventory — git when available, .gitignore-aware walk otherwise
+# --------------------------------------------------------------------------
+
+def _git_files():
+    """Repo-relative paths from git, or None when this is not a working tree."""
+    try:
+        out = subprocess.run(["git", "ls-files"], cwd=REPO,
+                             capture_output=True, text=True)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        return None
+    return [p for p in out.stdout.splitlines() if p]
+
+
+def _ignore_matchers():
+    """Crude .gitignore reader: (rooted globs, basename globs).
+
+    Only the shapes this repo uses are honoured — directory entries, rooted
+    path globs and bare basenames. Enough to reproduce ``git ls-files`` for the
+    docs gate; ``_selftest_inventory`` asserts the two agree when git is around.
+    """
+    rooted, basenames = [], []
+    gi = REPO / ".gitignore"
+    if gi.is_file():
+        for raw in gi.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = raw.strip()
+            if not line or line.startswith(("#", "!")):
+                continue
+            line = line.rstrip("/")
+            if not line:
+                continue
+            (rooted if "/" in line.strip("/") else basenames).append(
+                line.lstrip("/"))
+    return rooted, basenames
+
+
+def _submodule_paths():
+    out = set()
+    gm = REPO / ".gitmodules"
+    if gm.is_file():
+        for line in gm.read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.strip().startswith("path"):
+                out.add(line.split("=", 1)[1].strip())
+    return out
+
+
+def _walk_files():
+    """Repo-relative paths from the filesystem, minus ignored/vendored trees."""
+    rooted, basenames = _ignore_matchers()
+    pruned = _submodule_paths()
+
+    def ignored(rel, name):
+        if name in ALWAYS_PRUNE or rel in pruned:
+            return True
+        if any(fnmatch.fnmatch(name, pat) for pat in basenames):
+            return True
+        return any(fnmatch.fnmatch(rel, pat) for pat in rooted)
+
+    found = []
+    for dirpath, dirnames, filenames in os.walk(REPO):
+        base = Path(dirpath).relative_to(REPO)
+        dirnames[:] = [
+            d for d in dirnames
+            if not ignored(str(base / d) if str(base) != "." else d, d)
+        ]
+        for f in filenames:
+            rel = str(base / f) if str(base) != "." else f
+            if not ignored(rel, f):
+                found.append(rel)
+    return sorted(found)
+
+
+_INVENTORY = None
+_INVENTORY_SOURCE = "?"
+
+
+def inventory():
+    global _INVENTORY, _INVENTORY_SOURCE
+    if _INVENTORY is None:
+        files = _git_files()
+        if files is None:
+            files, _INVENTORY_SOURCE = _walk_files(), "filesystem walk (no git)"
+        else:
+            _INVENTORY_SOURCE = "git ls-files"
+        _INVENTORY = files
+    return _INVENTORY
 
 
 def tracked(pattern):
-    out = subprocess.run(["git", "ls-files", pattern], cwd=REPO,
-                         capture_output=True, text=True, check=True)
-    return [p for p in out.stdout.splitlines() if p]
+    """Files matching a git-pathspec-style glob (``*`` also matches ``/``)."""
+    return [p for p in inventory() if fnmatch.fnmatch(p, pattern)]
 
+
+# --------------------------------------------------------------------------
+# reference resolution
+# --------------------------------------------------------------------------
 
 def norm_join(base, ref):
     parts = []
@@ -91,7 +214,27 @@ def make_resolver(tracked_md):
     return resolve
 
 
-def check_md(path, relpath, resolve):
+def dead_inside_repo(ref, filedir, tracked_set):
+    """Repo-internal path that does not exist, or None.
+
+    A reference counts as repo-internal only when its *parent directory* is a
+    real directory of this repo — so ``fpga/docs/X.md`` (a sibling repo) and
+    ``patches/README.md`` (upstream LiteX) are correctly left alone, while
+    ``../findings/GONE.md`` and ``docs/findings/GONE.md`` are caught.
+    """
+    if "/" not in ref:
+        return None
+    for base in (filedir, Path(".")):
+        n = norm_join(base, ref)
+        if not n or n in tracked_set:
+            continue
+        parent = str(Path(n).parent)
+        if parent not in ("", ".") and (REPO / parent).is_dir():
+            return n
+    return None
+
+
+def check_md(path, relpath, resolve, tracked_set):
     findings = []
     try:
         text = path.read_text(encoding="utf-8")
@@ -100,6 +243,7 @@ def check_md(path, relpath, resolve):
     lines = text.splitlines()
     generated = bool(GENERATED_MARK.search(text[:400]))
     historical = relpath.startswith("historical_now_obsolete/")
+    allow_dead = bool(ALLOW_DEAD_MARK.search(text))
     filedir = Path(relpath).parent
 
     in_fence = in_comment = False
@@ -140,7 +284,7 @@ def check_md(path, relpath, resolve):
             if not resolved.exists():
                 findings.append(f"{relpath}:{lineno}: broken link -> {target}")
 
-        # --- bare doc references (living, non-generated files only) ---
+        # --- bare + dead doc references (living, non-generated files only) ---
         if generated or historical:
             continue
         stripped = LINK_SPAN_RE.sub(" ", line)
@@ -153,6 +297,21 @@ def check_md(path, relpath, resolve):
                 findings.append(
                     f"{relpath}:{lineno}: bare reference to {target} — make it a link"
                 )
+                continue
+            if target or allow_dead:
+                continue
+            if Path(ref).name in RETIRED:
+                findings.append(
+                    f"{relpath}:{lineno}: dead reference to retired doc {ref} — "
+                    f"repoint at the living doc or drop it"
+                )
+                continue
+            gone = dead_inside_repo(ref, filedir, tracked_set)
+            if gone:
+                findings.append(
+                    f"{relpath}:{lineno}: dead reference to {gone} — no such file "
+                    f"in the tree"
+                )
     return findings
 
 
@@ -160,11 +319,12 @@ def main():
     findings = []
     md = tracked("*.md")
     resolve = make_resolver(md)
+    tracked_set = set(md)
     for rel in md:
-        findings.extend(check_md(REPO / rel, rel, resolve))
+        findings.extend(check_md(REPO / rel, rel, resolve, tracked_set))
     # local-info sweep over diagram sources (text formats only)
-    for pattern in ("docs/*.gen.py", "docs/**/*.gen.py", "docs/*.drawio",
-                    "docs/**/*.drawio", "docs/*.svg", "docs/**/*.svg"):
+    for pattern in ("docs/*.gen.py", "docs/*/*.gen.py", "docs/*.drawio",
+                    "docs/*/*.drawio", "docs/*.svg", "docs/*/*.svg"):
         for rel in tracked(pattern):
             for lineno, line in enumerate(
                     (REPO / rel).read_text(encoding="utf-8",
@@ -175,7 +335,8 @@ def main():
     findings = sorted(set(findings))
     for f in findings:
         print(f)
-    print(f"docs_check: {len(findings)} finding(s) across {len(md)} tracked md files")
+    print(f"docs_check: {len(findings)} finding(s) across {len(md)} md files "
+          f"[{_INVENTORY_SOURCE}]")
     return 1 if findings else 0
 
 

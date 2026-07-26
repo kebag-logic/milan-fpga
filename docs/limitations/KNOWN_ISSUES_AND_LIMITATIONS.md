@@ -76,7 +76,8 @@ These pairings are **known-fatal**:
 
 STRICT-pairing rules and the current compatibility ledger:
 [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) and
-../findings/SESSION_HANDOFF.md.
+[../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md) (which gateware/rootfs
+pair is on which board).
 
 ## 5. Refuted performance levers (measured; do not rebuild without new evidence)
 
@@ -90,7 +91,7 @@ the write-ups explain why, so the next person doesn't re-spend the effort:
 | Interrupt-coalescing sweeps for single-flow RX | `rx-usecs` 5 µs→1 ms flat | [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) §2/§2.1 |
 | 112.5 MHz sys clock | built + measured, reverted (reset fanout) | [../findings/LATENCY_INVESTIGATION.md](../findings/LATENCY_INVESTIGATION.md) |
 | L2 > 64 KB, BRAM scratchpad, software prefetch (blocking D$) | no measured gain on this core | campaign ledger: [`CHANGELOG.md`](../../CHANGELOG.md), [../findings/PERFORMANCE_GOAL.md](../findings/PERFORMANCE_GOAL.md) |
-| Socket zero-copy RX (TCP_ZEROCOPY_RECEIVE) on this core+kernel | 110-113 Mbit at 87 % zero-copied - equilibrium economics refute the lane; AF_XDP ZC remains the open >500 lane | ../findings/SESSION_HANDOFF.md, [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) |
+| Socket zero-copy RX (TCP_ZEROCOPY_RECEIVE) on this core+kernel | 110-113 Mbit at 87 % zero-copied - equilibrium economics refute the lane; AF_XDP ZC remains the open >500 lane | [../findings/PERFORMANCE_GOAL.md](../findings/PERFORMANCE_GOAL.md), [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) |
 
 ## 6. Performance: where the numbers actually live
 
@@ -99,9 +100,10 @@ measurement** of a moving system (and several older docs carry superseded
 banners). The rules:
 
 * The per-lever measured ledger is [`CHANGELOG.md`](../../CHANGELOG.md).
-* The consolidated campaign record is [../findings/PERFORMANCE_GOAL.md](../findings/PERFORMANCE_GOAL.md),
-  with the newest working state in ../findings/SESSION_HANDOFF.md
-  (which re-baselined the no-copy RX ceiling measurement).
+* The consolidated campaign record is [../findings/PERFORMANCE_GOAL.md](../findings/PERFORMANCE_GOAL.md)
+  (it carries the no-copy RX ceiling re-baseline); the newest *board* state — which
+  gateware and rootfs each board is actually running — is
+  [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md).
 * Any number embedded elsewhere (including the root README) is a snapshot
   with a date - trust the ledger over prose.
 

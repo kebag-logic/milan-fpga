@@ -4,7 +4,8 @@
 diagrams.net; three lanes: gateware / driver / kernel+consumer, every box
 carries the knob, its location, current value, and the measured effect). This
 page is the how-to-use; the diagram is the map; [HEADER_SPLIT_DESIGN.md](../fpga/HEADER_SPLIT_DESIGN.md) is the
-silicon history; SESSION_HANDOFF.md is the live state.*
+silicon history; the live state is [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) (boards, images,
+pairings) plus [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md) (the measured campaign record).*
 
 ## How to change behavior safely (the loop)
 

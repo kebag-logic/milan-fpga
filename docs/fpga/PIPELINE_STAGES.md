@@ -6,7 +6,8 @@ what was measured, what breaks if you get it wrong). The visual twin is
 `RX_PERF_TUNING_MAP.drawio`.*
 
 *Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
-the live state in `SESSION_HANDOFF.md`. Referenced from the source headers of
+the live state in [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) and
+[`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md). Referenced from the source headers of
 `sw/litex/milan_soc.py` (gateware) and `the-private-test-repo fpga/kl-eth/kl-eth.c`
 (driver).*
 
