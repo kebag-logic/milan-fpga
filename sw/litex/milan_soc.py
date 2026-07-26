@@ -100,17 +100,94 @@ FLASHBOOT_LAYOUT = {
     # Image.xz 2.52 MB in 3; fw_jump 261 KB in 384 KiB; rootfs
     # gets 8.5 MiB (5.6 actual — 2.9 MiB slack).
     # BIOS copies only the manifest images; the bitstream is config-read.
-    "bitstream": {"offset": 0x00_0000, "addr": 0x0},        # 4 MiB gateware slot
-    "kernel":  {"offset": 0x40_0000, "addr": 0x4000_0000},  # 3 MiB (Image.xz)
-    "opensbi": {"offset": 0x70_0000, "addr": 0x40F0_0000},  # 384 KiB (fw_jump + FBI)
-    "dtb":     {"offset": 0x76_0000, "addr": 0x40EF_0000},  # 128 KiB
-    "rootfs":  {"offset": 0x78_0000, "addr": 0x4100_0000},  # 8.5 MiB → ends 16 MiB
+    "bitstream": {"offset": 0x00_0000, "addr": 0x0,          "size": 0x40_0000},
+    "kernel":  {"offset": 0x40_0000, "addr": 0x4000_0000, "size": 0x30_0000},
+    "opensbi": {"offset": 0x70_0000, "addr": 0x40F0_0000, "size": 0x06_0000},
+    "dtb":     {"offset": 0x76_0000, "addr": 0x40EF_0000, "size": 0x02_0000},
+    # v4 (2026-07-26): rootfs SHRUNK 8.5 -> 6.375 MiB to make room for the two
+    # writable slots below. Measured rootfs.cpio.xz was 5.6 MiB, so ~0.775 MiB
+    # of slack remains. `deploy.sh flash-images` prints each image's size next
+    # to its budget before writing anything - READ THAT LINE, it is the
+    # pre-flash check that the rootfs still fits (SAVED_STATE_FASTCONNECT.md
+    # section 11 gate G0). See the OPEN ITEM note under FLASHBOOT_RESERVED.
+    "rootfs":  {"offset": 0x78_0000, "addr": 0x4100_0000, "size": 0x66_0000},
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
     "kernel": ["kernel"],                              # partial: pre-load kernel, serial rest
     "full":   ["opensbi", "dtb", "kernel", "rootfs"],  # zero-upload (needs a slim kernel)
 }
+
+# Writable slots. NOT boot images: the BIOS never copies them, deploy.sh never
+# writes them, and `build.sh flash` / `deploy.sh flash-images` MUST NOT erase
+# them on a reflash - a gateware update that silently wipes saved bindings and
+# fault logs is worse than not having them, because the entity then comes back
+# unbound *sometimes*.  They are declared here so that the flash map has ONE
+# source of truth (docs/design/SAVED_STATE_FASTCONNECT.md section 5) and so that
+# sw/dts/gen_mtd_partitions.py can derive the kernel's `fixed-partitions` node
+# from it instead of a second hand-maintained copy.
+#
+#   journal  2 x 64 KiB erase blocks = slot A / slot B, RAW (no filesystem):
+#            "a torn write cannot damage the other slot" is then a property of
+#            the flash geometry, not a promise from a log-structured fs, and the
+#            slot is readable before any mount.
+#   user     jffs2, mounted at /user: entity/group names, channel maps, mixer
+#            state, and /user/log - the rotating xz CTF fault log
+#            (docs/design/TRACE_LOGGING.md).
+#
+# OPEN ITEM (deliberately not fixed here - deploy.sh is not this change's file):
+# deploy.sh derives each image's ceiling from the NEXT image offset in
+# flashboot_layout.json, and the reserved slots are exported under a separate
+# "reserved" key that it does not read.  So its printed rootfs budget is still
+# 16 MiB - 0x78_0000 and an oversized rootfs would be accepted and would
+# overwrite `journal`/`user`.  The one-line fix is for do_flash_images() to
+# prefer an image's own `budget` field (now exported below) over the
+# next-offset computation.  Until then the rootfs `size` above is the number to
+# check by hand.
+FLASH_SIZE        = 0x100_0000   # 16 MiB (N25Q128A13 / S25FL128S)
+FLASH_ERASE_BLOCK = 0x1_0000     # 64 KiB - the unit of erase, and of slot alignment
+FLASHBOOT_RESERVED = {
+    "journal": {"offset": 0xDE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+    "user":    {"offset": 0xE0_0000, "size": 0x20_0000},   # 2 MiB, jffs2 -> /user
+}
+
+
+def flash_map():
+    """Every slot on the device, ordered by offset: [(name, offset, size, kind)].
+
+    The single reader of both dicts.  `kind` is "image" for anything the BIOS
+    or deploy.sh transfers and "reserved" for the writable slots.
+    """
+    rows = [(n, e["offset"], e["size"], "image")
+            for n, e in FLASHBOOT_LAYOUT.items()]
+    rows += [(n, e["offset"], e["size"], "reserved")
+             for n, e in FLASHBOOT_RESERVED.items()]
+    return sorted(rows, key=lambda r: r[1])
+
+
+def check_flash_map():
+    """Return a list of problems with the flash map; empty means consistent.
+
+    Erase-block alignment is not cosmetic: an mtd partition that starts or ends
+    mid-block cannot be erased without destroying its neighbour, which would
+    turn "write the journal" into "corrupt the rootfs".
+    """
+    problems, prev_end, prev_name = [], 0, None
+    for name, off, size, _kind in flash_map():
+        if size <= 0:
+            problems.append(f"{name}: non-positive size {size}")
+        if off % FLASH_ERASE_BLOCK:
+            problems.append(f"{name}: offset 0x{off:X} is not erase-block aligned")
+        if size % FLASH_ERASE_BLOCK:
+            problems.append(f"{name}: size 0x{size:X} is not an erase-block multiple")
+        if off < prev_end:
+            problems.append(f"{name} @0x{off:X} overlaps {prev_name} "
+                            f"(ends 0x{prev_end:X})")
+        if off + size > FLASH_SIZE:
+            problems.append(f"{name}: ends 0x{off + size:X}, past the "
+                            f"0x{FLASH_SIZE:X} device")
+        prev_end, prev_name = off + size, name
+    return problems
 
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -4301,23 +4378,50 @@ class MilanSoC(SoCCore):
         either way. The layout is stored for deploy.sh in `_flashboot_layout` (written to
         <build>/flashboot_layout.json by main()), keeping gateware and flashing in lock-step.
         """
+        # A build must never emit a flash map that cannot be erased safely.
+        problems = check_flash_map()
+        if problems:
+            raise ValueError("FLASHBOOT flash map is inconsistent:\n  " +
+                             "\n  ".join(problems))
+
         images = FLASHBOOT_MANIFESTS[manifest_name]
         self._flashboot_layout = {"manifest": manifest_name, "entry": FLASHBOOT_ENTRY,
                                   "complete": images == FLASHBOOT_MANIFESTS["full"],
-                                  "images": []}
+                                  "flash_size": FLASH_SIZE,
+                                  "erase_block": FLASH_ERASE_BLOCK,
+                                  "images": [],
+                                  # deploy.sh does not read this key; it is here
+                                  # so the writable slots are visible to anything
+                                  # that consumes the layout json (see the OPEN
+                                  # ITEM note at FLASHBOOT_RESERVED).
+                                  "reserved": [
+                                      {"name": n, "offset": e["offset"],
+                                       "size": e["size"]}
+                                      for n, e in sorted(
+                                          FLASHBOOT_RESERVED.items(),
+                                          key=lambda kv: kv[1]["offset"])]}
+        # The writable slots exist independently of the boot manifest, so their
+        # constants are emitted even for manifest "none": a daemon looking for
+        # /user or the journal must not have to know how the box was booted.
+        for name, e in FLASHBOOT_RESERVED.items():
+            self.add_constant(f"MILAN_FLASH_{name.upper()}_OFFSET", e["offset"])
+            self.add_constant(f"MILAN_FLASH_{name.upper()}_SIZE",   e["size"])
         if not images:
             return
         # the gateware slot is not a BIOS-copied image, but deploy.sh needs it
         # in the json for slot ceilings + `flash` targeting
         eb = FLASHBOOT_LAYOUT["bitstream"]
         self._flashboot_layout["images"].append(
-            {"name": "bitstream", "offset": eb["offset"], "addr": eb["addr"]})
+            {"name": "bitstream", "offset": eb["offset"], "addr": eb["addr"],
+             "budget": eb["size"]})
         for name in images:
             e = FLASHBOOT_LAYOUT[name]
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_OFFSET", e["offset"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_ADDR",   e["addr"])
+            self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_SIZE",   e["size"])
             self._flashboot_layout["images"].append(
-                {"name": name, "offset": e["offset"], "addr": e["addr"]})
+                {"name": name, "offset": e["offset"], "addr": e["addr"],
+                 "budget": e["size"]})
         self.add_constant("MILAN_FLASHBOOT_ENTRY", FLASHBOOT_ENTRY)
         if self._flashboot_layout["complete"]:
             self.add_constant("MILAN_FLASHBOOT_COMPLETE")  # zero-upload full boot
