@@ -458,3 +458,43 @@ The full 64-channel walk needs a listener that exposes more than one pair
 (the NxN ring engine, or an 8-channel ALSA capture on refreshed listener
 images) plus per-stream talker arming through the lwSRP admission gate -
 that is the next bench lane.
+
+### 12.1 What the full 64-slot walk needs now (2026-07-26)
+
+Two of the three missing pieces are now built; the recipe below is the one to
+run on the next flash.
+
+**Built since the first walk.** `VERSION 0x0001_000C` answers `CONNECT_TX` /
+`PROBE_TX` for **every talker uid `0..N-1`** with `dmac = MAAP base + uid`
+(the MAAP claim already reserves a block of 8), and `t > 0` admission now
+mirrors the `t = 0` term-by-term. So a listener can be bound to stream *j*
+through a **real Milan probe** instead of a bench poke - that is the
+per-stream arming the walk was missing.
+
+**The walk, per stream j = 0..7** (one bound at a time, sequential):
+
+1. Stage talker context *j* through the `0x800` window (`SID`, `DMAC` =
+   MAAP base + j, `CTRL`), **with the lwSRP engine on** - engine-off window
+   writes are dropped, and the arm truth is a snapped
+   `A_STRMW_STATE 0x82C[3]` ([TROUBLESHOOTING §22](limitations/TROUBLESHOOTING.md)).
+2. Bind the listener to talker uid *j* with one controller `CONNECT_RX`
+   ([PipeWire peer guide](integration/PIPEWIRE_AVB_PEER.md) §6). The probe
+   response carries `dmac = base + j`; capture that line - it is the
+   per-stream evidence.
+3. Walk slots `4j..4j+3` through the `0x900` window: all-on, pair-bit0,
+   pair-bit1, all-off, checking the commit count in `CHMAP_STAT`.
+4. Verify at the listener's ring, plus paced `PDUS` on the talker window and
+   `wire_chans` on the listener's stream window.
+
+**Still missing: a listener window wider than one pair.** A single 2-channel
+ring shows pair 0 of the bound stream only, so pairs 1-3 of each stream stay
+covered by the crossbar + packetizer frame-placement TB proof rather than by
+direct observation (the honest scope statement of §12 still stands). Closing
+it needs the NxN ring engine or an 8-channel ALSA capture on a refreshed
+listener image.
+
+**And one blocker.** On the currently flashed gateware the fabric listener
+never accepts a bound stream
+([KNOWN_ISSUES §1.1](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)), so the
+listener-side half of every verification step above has to be re-checked on
+the next netlist before the walk is trusted.

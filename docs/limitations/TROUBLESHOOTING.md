@@ -560,3 +560,139 @@ out of any binary, so the image that actually boots is the image that gets check
 - A capture tap proves frames reached the *tap*; it never proves they exited toward the DUT.
 - Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
   driver ↔ gateware pairing - gate it mechanically, don't trust discipline.
+
+## Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (OPEN)
+
+**Symptom (2026-07-26, 8x8 AX gateware `VERSION 0x0001_000B`).** A controller binds the
+board's listener 0 to the peer board's talker 0. Every control-plane indication is healthy:
+
+```
+ACMP CONNECT_RX_RESPONSE   status = SUCCESS
+ACMPL_STATE  0x6A4 = 0x0002E07E
+             -> [2:0]=6 SETTLED_NO_RSV | [3] bound | [4] stream active
+                [5] Listener declared | [6] TalkerAdvertise registered
+                [14:13]=3 probing completed | [12:8]=0 status SUCCESS | VLAN 2
+talker board: AAF_STAT 0x694 = 0x37E   (reservation ACTIVE, paced, frames leaving)
+```
+
+And the media plane is dead: `AVTPRX_STAT` / `AVTPRX_FRX` / `AVTPRX_ERR` all **0**, the PCM ring
+never advances, and the RX latency-tap chain reports `samples = 0` with `timeouts` saturated
+(`LTAP_RX_INFO 0x898`).
+
+**What that combination already proves.** The `MAC_RX` tap sits on the datapath's RX input
+port (`s_axis_mac_rx_*`), *upstream* of the PTP stamper and the parser tap - so the chain
+arming on every frame is hard evidence that **AVTP frames do enter the datapath**. The chain
+then aborts at its first hop, which means `avtprx_accept_p` never fires. The failure is
+inside the window **parser match → monitor accept**, not on the wire, not in the bridge, and
+not in ACMP.
+
+**Narrowed further, from two facts that cost nothing to check.**
+
+- *The monitor is innocent.* `KL_avtp_rx_monitor` acts only under
+  `match_valid_i && bound_i`, and a matched PDU with a wrong format increments
+  UNSUPPORTED_FORMAT instead of accepting. `AVTPRX_ERR` reads **0**, so no PDU ever
+  arrived at the monitor with a match - the verdict is being made (or not made) in the
+  **parser**.
+- *The parser's input bus is alive.* The parser tap (`rx_axis_ptp_to_filt`) is a passive
+  fan-out of the same stream that feeds the host RX filter, and the board's own host network
+  lane is working normally over that path. Frames reach the parser; the parser does not
+  match them.
+
+**What is ruled out.**
+
+- *The RTL accept path.* `tb/verilator/milan_dp` builds the N=8 shape and proves streams 3..7
+  provisioned simultaneously, each landing on the PCM ring with byte-exact payload and
+  isolated counters. Sim accepts; silicon does not.
+- *A source regression.* No RX-path source change separates the built commit from the current
+  trunk.
+- *The missing reservation.* `SETTLED_NO_RSV` is suspicious but it is **not** the gate: the
+  stream table is written from the ACMP listener context (`bound0_i`/`sid0_i` on
+  `KL_stream_table`), and the parser's match is gated by that table alone - no lwSRP
+  reservation term stands between a matched frame and the monitor. Confirmed on the bench
+  the same day: the SM later reached **`SETTLED_RSV_OK`** (`ACMPL_STATE = 0x0002E07F`) on
+  its own and **nothing changed** - `AVTPRX_FRX` still 0. Reservation state is not the cause.
+- *The bind record itself, checked against the talker.* Read through the `0x800` window at
+  listener index 0, the context holds `SID = 0x0200_0000_0002_0000` with `DMAC` = the peer
+  talker's MAAP-claimed group address. Read on the **peer board's own talker window**
+  (6 consecutive SEL-bracketed samples, all identical) its stream_id is
+  `0x0200_0000_0002_0000` — **the same 64-bit value**. Listener and talker agree on what
+  the stream is called; the compare still fails.
+
+**Suspect list, in the order worth testing.** All three live in the parser or in what the
+parser is told to compare against:
+
+1. **Stream-ID compare in this placement.** The parser compares each frame's 64-bit
+   stream_id against `strtbl_sid_w` at width N=8. This bitstream placed at **99.93 % slice
+   occupancy**, the same build generation whose placer overflowed on `crf_rx` - "correct in
+   sim, wrong in this placement" is a live hypothesis. Re-test on a fresh netlist **first**,
+   before any redesign.
+2. **The path from the bind record to the compare.** The record is right (above), so what
+   is left on this axis is the wiring between them: the flat `acmpl_sid`/`acmpl_bound` pair
+   that `KL_stream_table` entry 0 is built from, versus the per-context RAM the window
+   reads. At N=8 those are two different readers of the same bind - a divergence there
+   would present exactly as "record correct, nothing matches".
+3. **What the parser extracts from a tagged frame.** Both endpoints agree on the stream_id
+   *as a register value*; the compare happens against the value the parser lifts **off the
+   wire**. A C-TAG offset - or a byte order - handled differently than in the harness
+   stimulus lands a different 64 bits in the comparator and produces exactly this
+   signature. The harness generates its own stimulus with the same convention it checks,
+   so it cannot catch this class; only a parser-level counter or a wire capture can.
+
+**The instrument this needs.** Every counter available today is *downstream* of the match
+(`AVTPRX_*` only counts accepted frames) - which is why the fault is invisible from software.
+The decisive next step is a **parser-level counter set** (frames seen at the parser tap,
+SID compares attempted, compares missed, tagged vs untagged) exposed in the CSR window, so
+silicon can distinguish "frames never reach the parser" from "parser sees them, no match"
+from "match, monitor rejects". A TB cannot find this one; only the silicon shape can.
+
+**Trap that will bite you while investigating this: a `0x800` window read of 0 does not mean
+"empty".** The listener `SID`/`DMAC` words are served from a snapshot that a `SEL` write
+**invalidates** - until the re-poll lands, `milan_csr` returns literal `0` for them
+(`acmp_fresh_r` guards the read mux). On a running board a persistence daemon is also
+selecting contexts in its own loop, so a bench `devmem` sequence "write SEL, then read"
+races with it and can return zeros, half-updated pairs (`SID_HI` right, `SID_LO` 0), or
+another context's record entirely. During this investigation that artifact briefly looked
+like the root cause. Read it three times and believe the value that repeats - or stop the
+daemon for the duration.
+
+**Re-test recipe (do this on the next flash, before anything else).**
+
+1. Bind the board listener to the peer talker (one controller `CONNECT_RX`, §6 of the
+   [PipeWire peer guide](../integration/PIPEWIRE_AVB_PEER.md)).
+2. Read `AVTPRX_FRX` twice, a second apart. Non-zero and climbing = blocker gone.
+3. If still 0, read `LTAP_RX_INFO 0x898`: `samples` 0 with `timeouts` climbing confirms the
+   same window, on a *different netlist* - that promotes suspect 2/3 over suspect 1.
+
+## Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)
+
+**Symptom (2026-07-26).** With the lwSRP engine disabled (`LWSRP_CTRL 0x680[0] = 0`) an extra
+talker context (`t > 0`) is armed for a per-stream experiment. The peer board immediately
+stops answering pings and its console floods; the talker sends **~56 000 frames/s** from one
+context - roughly 5x the paced class-A rate - and 626 807 frames landed in a single
+observation window. Disarming the context restores the peer instantly.
+
+**Root cause - the pacer is the reservation.** Class-A pacing on the extra-talker path comes
+from the lwSRP **bandwidth gate**, not from a free-running timer. `~LWSRP_CTRL[0]` is a
+deliberate escape hatch (it lets a stream run with no reservation), and with it engaged the
+context transmits as fast as the packetizer can build frames. A 50 MHz peer core cannot
+survive that interrupt load.
+
+**Rule.** Never leave the engine off with an armed `t > 0` context. Arm extras **only** with
+`LWSRP_CTRL[0] = 1`; the escape hatch is for deliberate, watched experiments on a link whose
+other end can take it.
+
+**The companion trap - the arm that silently did not happen.** With the engine **off**, `TCTX`
+window writes to word 0 (`CTRL`) are **dropped**: the provisioning-commit coupling holds
+`wr_rdy` low, and the CSR write completes on the bus with nothing stored. So the sequence
+"disable engine → arm context → enable engine" produces a context that was never armed, and a
+readback of the window can agree with you. Two rules follow:
+
+- Do the `t > 0` arm/disarm **with the engine on**.
+- Take the arm truth from a snapshot, not from the write: `A_STRM_SNAP 0x804[0] = 1`, poll
+  busy, then read `A_STRMW_STATE 0x82C[3]` (composed admission). The
+  [register map](../reference/REGISTER_MAP.md) `0x800` window rows carry the field layout.
+
+**Related bench fact worth knowing before blaming the board.** An unregistered VLAN-2 stream
+DMAC is **flooded** by the bridge - a stream nobody registered still reaches every port at
+full rate, while a *registered but listener-less* stream is pruned. A peer board drowning in
+frames it never asked for is a switch-forwarding behaviour, not a fabric fault.

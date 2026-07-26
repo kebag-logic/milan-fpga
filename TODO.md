@@ -249,9 +249,23 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
                      ▼
                   Phase 8 Device tree + dtg ──► Phase 9 end-to-end bring-up
 ```
-- [ ] Full 64-slot chmap walk on silicon: per-stream talker arming through the
+- [~] Full 64-slot chmap walk on silicon: per-stream talker arming through the
       lwSRP admission gate (idx>0 SEL/SID/DMAC staging + listener-ready), an
       NxN-ring or 8ch-ALSA listener window (refresh the second board's images),
       then the binary walking-tone identity over all 32 pair slots
       ([`docs/CHANNEL_MAP_64.md`](docs/CHANNEL_MAP_64.md) §12 records the
-      first walk, 2026-07-25).
+      first walk, 2026-07-25; §12.1 the recipe and what is still missing).
+      Per-stream binding is **built** (`VERSION 0x0001_000C`: ACMP talker
+      responder answers every uid, `t>0` admission mirrors `t0`); the walk
+      itself waits on a flash of that gateware.
+- [ ] **B — Fabric listener accept on the 8x8 gateware** — bound streams are
+      not accepted on silicon while the RTL N=8 path is green in sim; blocks
+      the RX half of the item-11 latency measurement. Symptom→suspect walk +
+      re-test recipe in
+      [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md)
+      §21; the instrument it needs is a parser-level counter set (frames at
+      the parser tap / SID compares / misses) — a TB cannot see this one.
+- [ ] **L — `LPF_P = 0` elaboration-time prune** for `KL_pcm_lpf` — a banked
+      area lever (428 LUT / 756 FF measured), to be spent only after the
+      ranked levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)
+      §6.2, never as a first response to a placement failure.

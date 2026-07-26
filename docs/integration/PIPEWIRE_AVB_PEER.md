@@ -74,7 +74,8 @@ rows):**
 **Connecting the listener — three paths:**
 
 - **An ATDECC controller** (Hive or la_avdecc from any allowed host) sends
-  `CONNECT_RX` binding the peer's listener sink to the board talker.
+  `CONNECT_RX` binding the peer's listener sink to the board talker — the
+  peer itself can play that role (§6).
 - **Milan fast-connect** (board-as-listener direction): the saved-state
   restore binds with no controller at all.
 - **The peer's own ACMP** (PipeWire-initiated): supported by `module-avb`,
@@ -136,6 +137,52 @@ Two long-standing beliefs died that night:
   instead (`pcm_ring_dump` → `tone_thdn.py`, the analyzer's canonical
   input) - that is also the measurement the acceptance limits are written
   against.
+
+## 6. The peer as an ATDECC controller (2026-07-26)
+
+The peer host has a third role beyond listener and talker: **controller**.
+Nothing in the fabric needs it — Milan fast-connect and the board-side
+one-shot of §5 both work — but a controller on the AVB LAN is what makes
+*board ↔ board* binds scriptable, and it exercises the same ACMP surface a
+real deployment would use.
+
+The shape that works: a small **la_avdecc** command-line tool (the library's
+`Controller` entity, built from the peer's own checkout) that issues one
+`CONNECT_RX` / `DISCONNECT_RX` and exits:
+
+```
+bind-ctl <iface> <talker_entity_id> <talker_uid> <listener_entity_id> <listener_uid> [disconnect]
+```
+
+Notes that cost time to rediscover:
+
+- **The controller is a full entity.** It advertises itself and discovers
+  before it commands. Its socket must actually receive the ATDECC
+  multicast (`91:E0:F0:01:00:00`) — raw-socket tools that skip the
+  promiscuous/multicast join see their responses dropped by the NIC, the
+  rule recorded in
+  [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md).
+- **Trust the response, not the exit code.** The status that matters is the
+  `SUCCESS` in the printed `CONNECT_RX_RESPONSE`; a wrapper's exit code can
+  be inverted or lose the ACMP status entirely.
+- **A talker uid > 0 is a real probe, not a shortcut.** Since
+  `VERSION 0x0001_000C` the fabric answers `CONNECT_TX`/`PROBE_TX` for
+  every talker uid `0..N-1` with `dmac = MAAP base + uid`, so binding a
+  listener to uid *j* is the honest per-stream path — that is how the
+  64-slot channel-map walk arms one stream at a time
+  ([`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §12).
+- **`SUCCESS` is a control-plane verdict only.** ACMP success means the
+  binding was accepted; it says nothing about frames being accepted by the
+  listener datapath. Confirm on the listener with `AVTPRX_STAT`/`FRX` and
+  the RX latency taps — see the accept blocker in
+  [`../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md`](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md).
+
+**The peer's own talker stays silent by design.** `module-avb` creates the
+talker stream node, but the AVB core runs **without a session manager**, so
+until an audio client is routed into that sink it produces no AVTP at all.
+Waiting for peer-originated frames as a test stimulus is a dead end; drive
+the experiment from a board talker (whose t0 is always-on once armed)
+instead.
 
 ## Status (2026-07-25, end of campaign day)
 

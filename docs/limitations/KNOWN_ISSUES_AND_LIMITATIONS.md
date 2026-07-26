@@ -10,7 +10,8 @@ listed here; their post-mortems live in the [findings log](../findings/README.md
 
 _Last reconciled against the tree: 2026-07-23 (note: this page does not yet fully
 reflect the −83.9 dB media-clock servo, the AX42 e2 MAC-TX logic fix, the on-chip
-BRAM PCM-ring option, or ALSA record)._
+BRAM PCM-ring option, or ALSA record). §1.1 and the 2026-07-26 rows in §4 are
+newer than that reconciliation._
 
 ---
 
@@ -24,6 +25,12 @@ BRAM PCM-ring option, or ALSA record)._
 | **MDIO not yet fabric-driven** | `MAC_STATUS` fields are partly hardcoded until the MDIO master lands (see [`sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md)); `i_mac_speed` etc. tied to constants on the LiteX build |
 | **Open CBS requirements** | REQ-CBS-05/06/07 (credit-skew/pacing refinements) are open in [`REQUIREMENTS.md`](../../REQUIREMENTS.md) |
 | **Latent CBS slope truncation** | The CBS slope divide truncates: zero error only while configured slopes divide evenly (today's do). Documented in the CBS math section of [`REQUIREMENTS.md`](../../REQUIREMENTS.md) - re-check before exotic `tc cbs` configs |
+
+### 1.1 Open silicon blockers (not by design — under investigation)
+
+| Blocker | State | Evidence / next step |
+|---|---|---|
+| **Fabric listener never accepts on the 8×8 AX gateware** (`VERSION 0x0001_000B`) | OPEN, blocks the RX half of the latency measurement | ACMP binds clean (`ACMPL_STATE = 0x0002_E07E`, later `…E07F` when the reservation completed — with **no change** to the symptom) and frames do enter the datapath (the `MAC_RX` latency tap arms on every ingress frame), but `avtprx_accept_p` never pulses: `AVTPRX_STAT`/`FRX`/`ERR` = 0 and the RX tap chain reports `samples = 0` with `timeouts` saturated. Listener and talker agree on the stream_id (`0x0200_0000_0002_0000`, read from both boards' windows), and the N=8 accept path is **green in RTL** (`tb/verilator/milan_dp` N=8 routing sweep) — so this is a silicon-shape or synthesis-artifact class problem, not a visible source defect. Full symptom→suspect walk: [TROUBLESHOOTING §21](TROUBLESHOOTING.md) |
 
 ## 2. Build & reproducibility gaps
 
@@ -63,6 +70,8 @@ These pairings are **known-fatal**:
 | driver `--hs-page-bytes` ≠ gateware `hs_page_bytes` | **kernel panic** (Bad page map class) | `milan_dma_hs_pgsz_cap` reads back the elaborated size (`0xf000311c` in the reference build — LiteX assigns CSR offsets at build time, so confirm against your build's `csr.csv`); the hsplit16 driver **refuses to load** on mismatch. Reads 0 on older gateware = warn-and-trust |
 | hsplit10+ driver on ≤hsq5 gateware | **silent ring lap** (by construction, no error) | never load it there - see [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) |
 | BD-256 ring depth without the hsq6 drain gate | RX wedge under overload | use hsq6+ gateware ([../findings/RX_OVERLOAD_WEDGE.md](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md) history) |
+| **Extra talker (`t > 0`) armed while the lwSRP engine is OFF** (2026-07-26) | the admitted stream transmits **unpaced** — the reservation bandwidth gate *is* the pacer. Measured ~56 k frames/s from one context; the peer board's 50 MHz core drowns in the interrupt storm and stops answering the network until the talker is disarmed | never leave `LWSRP_CTRL[0] = 0` with an armed `t > 0` context; arm extras only with the engine running ([TROUBLESHOOTING §22](TROUBLESHOOTING.md)) |
+| **`t > 0` context (`TCTX`) window writes while the engine is OFF** (2026-07-26) | writes are **silently dropped** (provisioning-commit coupling holds `wr_rdy` low) — the arm looks done and is not | arm/disarm `t > 0` with the engine ON, and take the arm truth from a snapped `A_STRMW_STATE 0x82C[3]` (composed admission), never from the write itself |
 
 STRICT-pairing rules and the current compatibility ledger:
 [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md) and
