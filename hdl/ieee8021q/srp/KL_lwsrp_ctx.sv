@@ -43,6 +43,19 @@
 //                Row 0 is read-only here (legacy status is muxed in);
 //                out-of-range rows grant but write nothing.
 //
+//                OUT-OF-RANGE IS LOUD (2026-07-26). A request naming a row
+//                this build does not have is still granted — the port must
+//                never hang — but it is no longer SILENT and no longer
+//                LIES: the readback returns CTX_NOT_BACKED_C instead of
+//                aliasing row 0's status (a caller polling row 9 of a
+//                4-row build used to read row 0's live status and believe
+//                its reservation existed), and ctx_oor_o latches so the
+//                integration layer can surface "this shape needs more
+//                context rows than N_CTX_P provides" in a status word.
+//                The row map that drives N_CTX_P is the 0x800 window's:
+//                listener k -> row k, talker t -> row (L-1)+t, so a shape
+//                needs L+T-1 rows (docs/NXN_ARCHITECTURE.md §3.4.1).
+//
 //                On engine disable the extra rows are cleared WITHOUT a
 //                farewell LV PDU (the bridge ages them out over one
 //                LeaveAll period); row 0 keeps its silicon-proven polite LV.
@@ -84,6 +97,10 @@ module KL_lwsrp_ctx #(
     output reg  [63:0] ctx_rd_sid_o,
     output reg  [15:0] ctx_rd_stat_o,     //! {valid,dir,declared,reg,ready,
                                           //!  failed,decl[1:0],code[7:0]}
+    //! STICKY: a serviced request named a row >= N_CTX_P (this build has
+    //! fewer context rows than the caller's row map needs). Cleared by
+    //! reset only — a mis-sized engine is a build defect, not a transient.
+    output reg         ctx_oor_o,
 
     // ---- legacy row-0 status (for the indexed view + status vectors) -----
     input  wire        leg_valid_i,       //! talker attribute exists
@@ -131,6 +148,12 @@ module KL_lwsrp_ctx #(
 
   localparam int unsigned LV_W_C = $clog2(LEAVE_TIME_MS_C + 1);
 
+  //! readback sentinel for a row this build does not have. Echoes the 0x800
+  //! window's `0xDEADDEAD` "not backed" idiom (REGISTER_MAP.md 0x82C/0x860)
+  //! and can never be mistaken for a live row: it is what an unbacked row
+  //! reads INSTEAD of row 0's status.
+  localparam logic [15:0] CTX_NOT_BACKED_C = 16'hDEAD;
+
   // -----------------------------------------------------------------------
   // Context identity flops (walker lanes read them in parallel)
   // -----------------------------------------------------------------------
@@ -154,6 +177,9 @@ module KL_lwsrp_ctx #(
   wire        svc_w     = ctx_req_i && !ctx_gnt_o;    //! service this cycle
   wire        idx_ext_w = (ctx_idx_i != 4'd0) &&
                           ({28'd0, ctx_idx_i} < N_CTX_P);
+  //! named a row this build has no storage for (row 0 always exists)
+  wire        idx_oor_w = (ctx_idx_i != 4'd0) &&
+                          ({28'd0, ctx_idx_i} >= N_CTX_P);
   wire [3:0]  ext_row_w = ctx_idx_i - 4'd1;
   wire        wr_en_w   = svc_w && ctx_we_i && idx_ext_w;
 
@@ -310,18 +336,25 @@ module KL_lwsrp_ctx #(
                    (enable_i && any_row_w &&
                     (refresh_pend_r || (|row_fresh_o)));
 
-  //! readback status mux (combinational; registered into the snapshot)
+  //! readback status mux (combinational; registered into the snapshot).
+  //! Three cases, and the third is the 2026-07-26 honesty fix: row 0 = the
+  //! legacy pair, an in-range extra row = its own state, and a row this
+  //! build does not have = CTX_NOT_BACKED_C (it used to alias row 0, which
+  //! reported a LIVE reservation for a row that was never provisioned).
   wire [3:0]  rb_row_w   = (ext_row_w < 4'(EXT_LANES_P)) ? ext_row_w : 4'd0;
-  wire        rb_leg_w   = (ctx_idx_i == 4'd0) || !idx_ext_w;
-  wire [15:0] rb_stat_w  = rb_leg_w
+  wire        rb_leg_w   = !idx_ext_w && !idx_oor_w;
+  wire [15:0] rb_stat_w  = idx_oor_w
+      ? CTX_NOT_BACKED_C
+      : rb_leg_w
       ? {leg_valid_i, 1'b0, leg_declared_i, leg_reg_i, leg_ready_i,
          leg_failed_i, leg_decl_i, leg_code_i}
       : {valid_r[rb_row_w], dir_r[rb_row_w],
          onwire_r[rb_row_w], areg_r[rb_row_w],
          eready_w[rb_row_w], afail_r[rb_row_w],
          adecl_r[2*rb_row_w +: 2], acode_r[8*rb_row_w +: 8]};
-  wire [63:0] rb_sid_w   = rb_leg_w ? leg_sid_i
-                                    : sid_r[64*rb_row_w +: 64];
+  wire [63:0] rb_sid_w   = idx_oor_w ? 64'd0
+                         : rb_leg_w  ? leg_sid_i
+                                     : sid_r[64*rb_row_w +: 64];
 
   always_ff @(posedge clk_i or negedge rst_n) begin : ctx_port_S
     if (!rst_n) begin
@@ -329,7 +362,7 @@ module KL_lwsrp_ctx #(
       row_fresh_o <= '0; row_lv_o <= '0;
       ctx_gnt_o <= 1'b0; ctx_rd_sid_o <= '0; ctx_rd_stat_o <= '0;
       jdiv_r <= '0; refresh_pend_r <= 1'b0; fastjoin_p_o <= 1'b0;
-      ready_q_r <= '0;
+      ready_q_r <= '0; ctx_oor_o <= 1'b0;
     end else begin
       ctx_gnt_o    <= 1'b0;
       fastjoin_p_o <= 1'b0;
@@ -364,6 +397,9 @@ module KL_lwsrp_ctx #(
         ctx_gnt_o     <= 1'b1;
         ctx_rd_stat_o <= rb_stat_w;
         ctx_rd_sid_o  <= rb_sid_w;
+        //! LOUD refusal: the request is answered (never hang the port) but
+        //! the shortfall is latched for the CSR status word
+        if (idx_oor_w) ctx_oor_o <= 1'b1;
         if (ctx_we_i && idx_ext_w) begin
           if (ctx_valid_i) begin
             valid_r[ext_row_w] <= 1'b1;

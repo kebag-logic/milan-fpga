@@ -935,6 +935,316 @@ int main(int argc, char** argv) {
         }
     }
 
+    // ==================================================================
+    //  lwSRP attribute rows through the 0x800 window (2026-07-26)
+    //
+    //  The window maps listener k -> ctx row k and talker t -> ctx row
+    //  (L-1)+t, so an LxT shape needs L+T-1 attribute rows. milan_datapath
+    //  used to size the engine at N_STREAMS = max(L,T): at 4x4 every talker
+    //  row (4,5,6) and at 8x8 rows 8..14 were >= N_CTX_P and KL_lwsrp_ctx
+    //  refused them - silently, and the readback then ALIASED row 0, so the
+    //  window reported the legacy pair's live status and the legacy sid for
+    //  a row that had never been provisioned.
+    //
+    //  Plus: the ctx port carries a per-row TSpec but the window sources it
+    //  from the shared LWSRP_TSPEC, so a 2ch and an 8ch talker reserved
+    //  identically. The datapath now derives MaxFrameSize from the SAME
+    //  TCTX w0 `chans` the packetizer frames with (MSDU = 24 + 24*C), so
+    //  the reservation and the wire cannot disagree.
+    // ==================================================================
+    printf("-- lwSRP ctx rows via 0x800: row map, sid honesty, TSpec --\n");
+    {
+        enum { A_LWSRP_STATUS = 0x694, A_SW_SRP = 0x85C };
+        // engine ON (enable + talker declare); the ctx port only grants
+        // while the engine runs, so the window's SRP master needs this
+        axi_write(A_LWSRP_CTRL, 0x3);
+        for (int c = 0; c < 256; c++) step();
+
+        // ---- talker idx 1 -> ctx row (N-1)+1 -------------------------
+        const uint32_t T1_LO = 0x0000A101, T1_HI = 0x0200BEEF;
+        axi_write(A_STRM_SEL, 0x101);                 // dir=1 (talker) idx=1
+        axi_write(A_SW_SID_LO, T1_LO);
+        axi_write(A_SW_SID_HI, T1_HI);
+        axi_write(A_SW_DMAC_LO, 0xF000FE11);
+        axi_write(A_SW_DMAC_HI, 0x000091E0);
+        // TCTX w0 = {en, chans=8, vid=2}: arms the stream AND (since the
+        // per-row TSpec fix) sets this row's MaxFrameSize = 24 + 24*8 = 216
+        axi_write(A_SW_CTRL, (2u << 5) | (8u << 1) | 1u);
+        for (int c = 0; c < 512; c++) step();
+
+        // the window's SRP words must now describe THIS row, not row 0's
+        uint32_t sid_lo = axi_read(A_SW_SID_LO);
+        uint32_t sid_hi = axi_read(A_SW_SID_HI);
+        for (int g = 0; g < 32 && sid_lo != T1_LO; g++) {
+            for (int c = 0; c < 64; c++) step();
+            sid_lo = axi_read(A_SW_SID_LO); sid_hi = axi_read(A_SW_SID_HI);
+        }
+        ck("talker idx1: window SID_LO = the row we provisioned",
+           sid_lo, T1_LO);
+        ck("talker idx1: window SID_HI = the row we provisioned",
+           sid_hi, T1_HI);
+        // NEGATIVE LEG: it is NOT the legacy row-0 sid the refused row used
+        // to alias ({station MAC, uid 0}; the harness MAC is 0 so row 0's
+        // sid is 0 - a refused row read 0/0 here)
+        ck("talker idx1: NOT the aliased legacy sid",
+           (sid_lo == 0 && sid_hi == 0) ? 1 : 0, 0);
+
+        uint32_t srp = axi_read(A_SW_SRP);
+        ck("talker idx1: SRP row valid", (srp >> 15) & 1, 1);
+        ck("talker idx1: SRP row dir = talker", (srp >> 14) & 1, 0);
+        ck("talker idx1: SRP row is backed (not the 0xDEAD sentinel)",
+           (srp & 0xFFFF) == 0xDEAD ? 1 : 0, 0);
+
+        // ---- talker idx 2 -> ctx row (N-1)+2, a DIFFERENT geometry ----
+        const uint32_t T2_LO = 0x0000A202, T2_HI = 0x0200BEEF;
+        axi_write(A_STRM_SEL, 0x102);
+        axi_write(A_SW_SID_LO, T2_LO);
+        axi_write(A_SW_SID_HI, T2_HI);
+        axi_write(A_SW_DMAC_LO, 0xF000FE12);
+        axi_write(A_SW_DMAC_HI, 0x000091E0);
+        axi_write(A_SW_CTRL, (2u << 5) | (2u << 1) | 1u);   // 2ch -> 72
+        for (int c = 0; c < 512; c++) step();
+        sid_lo = axi_read(A_SW_SID_LO);
+        for (int g = 0; g < 32 && sid_lo != T2_LO; g++) {
+            for (int c = 0; c < 64; c++) step();
+            sid_lo = axi_read(A_SW_SID_LO);
+        }
+        ck("talker idx2: its own row, distinct from idx1", sid_lo, T2_LO);
+        ck("talker idx2: SRP row valid", (axi_read(A_SW_SRP) >> 15) & 1, 1);
+        // idx1 is untouched by idx2's provisioning (separate rows)
+        axi_write(A_STRM_SEL, 0x101);
+        sid_lo = axi_read(A_SW_SID_LO);
+        for (int g = 0; g < 32 && sid_lo != T1_LO; g++) {
+            for (int c = 0; c < 64; c++) step();
+            sid_lo = axi_read(A_SW_SID_LO);
+        }
+        ck("talker idx1 still its own row after idx2", sid_lo, T1_LO);
+
+        // ---- listener rows live BELOW the talker block ----------------
+        // listener idx 1 is ctx row 1; provisioning it must not disturb
+        // talker idx 1 (ctx row (N-1)+1). Pre-fix they were the SAME row.
+        axi_write(A_STRM_SEL, 0x001);
+        axi_write(A_SW_SID_LO, 0x00030001);
+        axi_write(A_SW_SID_HI, 0x03000000);
+        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);
+        for (int c = 0; c < 512; c++) step();
+        uint32_t lsrp = axi_read(A_SW_SRP);
+        ck("listener idx1: SRP row dir = listener", (lsrp >> 14) & 1, 1);
+        axi_write(A_STRM_SEL, 0x101);
+        sid_lo = axi_read(A_SW_SID_LO);
+        for (int g = 0; g < 32 && sid_lo != T1_LO; g++) {
+            for (int c = 0; c < 64; c++) step();
+            sid_lo = axi_read(A_SW_SID_LO);
+        }
+        ck("talker idx1 survives a listener-row commit", sid_lo, T1_LO);
+
+        // ---- the shortfall flag: 0 on a correctly-sized engine --------
+        ck("LWSRP_STATUS[11] ctx shortfall clear",
+           (axi_read(A_LWSRP_STATUS) >> 11) & 1, 0);
+
+        // ---- per-row TSpec ON THE WIRE --------------------------------
+        // Re-declare both talker rows and read the MaxFrameSize each one
+        // puts in its own TalkerAdvertise vector. 8ch -> 216, 2ch -> 72.
+        int mf1 = -1, mf2 = -1;
+        std::vector<uint8_t> cur;
+        dut->m_axis_mac_tx_tready = 1;
+        for (int c = 0; c < 240000 && (mf1 < 0 || mf2 < 0); c++) {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                        cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                if (dut->m_axis_mac_tx_tlast) {
+                    // MSRP MRPDU whose first message is TalkerAdvertise:
+                    // eth 14 + ver 1 + msg hdr 4, then 28-byte vectors
+                    if (cur.size() >= 47 && cur[12] == 0x22 && cur[13] == 0xEA
+                        && cur[15] == 1) {
+                        size_t listlen = ((size_t)cur[17] << 8) | cur[18];
+                        for (size_t o = 0;
+                             o + 28 <= listlen - 2 && 19 + o + 28 <= cur.size();
+                             o += 28) {
+                            const uint8_t* v = &cur[19 + o];
+                            uint32_t slo = ((uint32_t)v[6] << 24) |
+                                           ((uint32_t)v[7] << 16) |
+                                           ((uint32_t)v[8] << 8) | v[9];
+                            int mf = (v[18] << 8) | v[19];
+                            if (slo == T1_LO) mf1 = mf;
+                            if (slo == T2_LO) mf2 = mf;
+                        }
+                    }
+                    cur.clear();
+                }
+            }
+            hi();
+        }
+        ck("talker idx1 TalkerAdvertise MaxFrameSize = 24 + 24*8",
+           (unsigned)mf1, 216);
+        ck("talker idx2 TalkerAdvertise MaxFrameSize = 24 + 24*2",
+           (unsigned)mf2, 72);
+        // NEGATIVE LEG: the two rows do NOT share one value, and neither
+        // fell back to the shared LWSRP_TSPEC reset (0x00E0 = 224)
+        ck("per-row TSpec: the two rows differ", mf1 == mf2 ? 1 : 0, 0);
+        ck("per-row TSpec: neither is the shared LWSRP_TSPEC 224",
+           (mf1 == 224 || mf2 == 224) ? 1 : 0, 0);
+
+        axi_write(A_LWSRP_CTRL, 0x0);
+    }
+
+    // ==================================================================
+    //  CRF Media Clock Output as an ACMP talker source  (item 5, §3.5)
+    //
+    //  With N >= 2 AAF sinks the CRF output is mandatory, and a controller
+    //  must be able to bind it with the SAME CONNECT_TX/PROBE_TX it uses
+    //  for audio. milan_datapath gives KL_acmp_tlkr_ctx one more source
+    //  context at talker_unique_id = N_STREAMS whose DMAC is the MAAP block
+    //  slot base+N_STREAMS; KL_crf_tx then takes that same {sid, dmac} pair
+    //  whenever CRFT_SID/CRFT_DMAC are left at 0, so the answer and the
+    //  frames cannot disagree.
+    // ==================================================================
+    printf("-- CRF media-clock output: ACMP talker context at uid N --\n");
+    {
+        enum { A_CRFT_CTRL = 0x750,
+               A_CRFT_SIDLO = 0x754, A_CRFT_SIDHI = 0x758,
+               A_CRFT_DMLO = 0x75C, A_CRFT_DMHI = 0x760 };
+        // the ACMP responder is gated by ADP enable
+        axi_write(A_ADP_CTRL, 0x1);
+        for (int c = 0; c < 64; c++) step();
+
+        // a PROBE_TX (CONNECT_TX_COMMAND) for talker_unique_id = uid
+        auto probe = [&](uint16_t uid, std::vector<uint8_t>& resp) {
+            uint8_t f[70]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0;
+            f[14]=0xFC; f[15]=0x00;              // CONNECT_TX_COMMAND
+            f[16]=0x00; f[17]=44;
+            // talker_entity_id (bytes 34..41) = ours (ADP_EIDHI/LO above)
+            f[34]=0x02; f[35]=0x00; f[36]=0x00; f[37]=0xFF;
+            f[38]=0xFE; f[39]=0x00; f[40]=0x00; f[41]=0x01;
+            f[50]=(uint8_t)(uid >> 8); f[51]=(uint8_t)uid;   // talker_unique_id
+            resp.clear();
+            std::vector<uint64_t> beats;
+            for (int bt = 0; bt < 9; bt++) {
+                uint64_t v = 0;
+                for (int j = 0; j < 8; j++)
+                    if (bt*8+j < 70) v |= (uint64_t)f[bt*8+j] << (8*j);
+                beats.push_back(v);
+            }
+            size_t idx = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 3000; c++) {
+                if (idx < beats.size()) {
+                    dut->s_axis_mac_rx_tdata  = beats[idx];
+                    dut->s_axis_mac_rx_tkeep  = 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+                }
+                lo();
+                bool acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            resp.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        hi(); if (acc) idx++;
+                        if (resp.size() >= 16 && resp[12] == 0x22 &&
+                            resp[13] == 0xF0 && resp[14] == 0xFC) break;
+                        resp.clear(); continue;
+                    }
+                }
+                hi();
+                if (acc) idx++;
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+        };
+        auto be = [](const std::vector<uint8_t>& v, size_t o, int n) {
+            uint64_t r = 0; for (int i = 0; i < n; i++) r = (r<<8) | v[o+i];
+            return r;
+        };
+
+        std::vector<uint8_t> r;
+        probe((uint16_t)NSTREAMS_TB, r);
+        ck("CRF probe: a 70-byte ACMP response came back", r.size(), 70);
+        if (r.size() == 70) {
+            ck("CRF probe: CONNECT_TX_RESPONSE(1)", r[15] & 0x0F, 1);
+            ck("CRF probe: status SUCCESS", r[16] >> 3, 0);
+            ck("CRF probe: talker_unique_id echoed = N",
+               be(r, 50, 2), (unsigned)NSTREAMS_TB);
+            // stream_id = {station MAC, uid}; the harness never sets MAC_ADDR
+            // so the MAC half is 0 and the uid tail is what identifies it
+            ck("CRF probe: stream_id tail = N", be(r, 24, 2),
+               (unsigned)NSTREAMS_TB);
+            // dest_mac = MAAP/AAF base + N (AAF_DMAC reset 0x91E0F000FE01)
+            ck("CRF probe: stream_dest_mac = base + N", be(r, 54, 6),
+               0x91E0F000FE01ULL + NSTREAMS_TB);
+        }
+        // NEGATIVE LEG: one uid past the CRF context is still unknown -
+        // this is not a "everything succeeds" responder
+        probe((uint16_t)(NSTREAMS_TB + 1), r);
+        ck("CRF probe negative: uid N+1 -> TALKER_UNKNOWN_ID",
+           r.size() == 70 ? (r[16] >> 3) : 0xFF, 2);
+        // and a plain audio uid is untouched by the extra context
+        probe(1, r);
+        ck("audio uid 1 still SUCCESS", r.size() == 70 ? (r[16] >> 3) : 0xFF, 0);
+        ck("audio uid 1 dest_mac = base + 1",
+           r.size() == 70 ? be(r, 54, 6) : 0, 0x91E0F000FE01ULL + 1);
+
+        // ---- KL_crf_tx takes the SAME pair when the CSR is left at 0 ----
+        ck("CRFT_SID unset (auto)", axi_read(A_CRFT_SIDLO) |
+                                    axi_read(A_CRFT_SIDHI), 0);
+        ck("CRFT_DMAC unset (auto)", axi_read(A_CRFT_DMLO) |
+                                     axi_read(A_CRFT_DMHI), 0);
+        axi_write(A_CRFT_CTRL, 0x1);                  // enable the CRF talker
+        std::vector<uint8_t> crf; std::vector<uint8_t> cur2;
+        for (int c = 0; c < 400000 && crf.empty(); c++) {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                        cur2.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                if (dut->m_axis_mac_tx_tlast) {
+                    // AVTP subtype 0x04 = CRF
+                    if (cur2.size() >= 26 && cur2[12] == 0x22 &&
+                        cur2[13] == 0xF0 && cur2[14] == 0x04) crf = cur2;
+                    cur2.clear();
+                }
+            }
+            hi();
+        }
+        ck("CRF PDU on the wire", crf.empty() ? 0 : 1, 1);
+        if (!crf.empty()) {
+            ck("CRF PDU dmac = the ACMP answer (base + N)", be(crf, 0, 6),
+               0x91E0F000FE01ULL + NSTREAMS_TB);
+            ck("CRF PDU stream_id tail = N", be(crf, 24, 2),
+               (unsigned)NSTREAMS_TB);
+        }
+        // NEGATIVE LEG: an explicit CRFT_DMAC still wins outright
+        axi_write(A_CRFT_DMLO, 0xF000FEAA);
+        axi_write(A_CRFT_DMHI, 0x000091E0);
+        crf.clear(); cur2.clear();
+        for (int c = 0; c < 400000 && crf.empty(); c++) {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                        cur2.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                if (dut->m_axis_mac_tx_tlast) {
+                    if (cur2.size() >= 26 && cur2[12] == 0x22 &&
+                        cur2[13] == 0xF0 && cur2[14] == 0x04) crf = cur2;
+                    cur2.clear();
+                }
+            }
+            hi();
+        }
+        ck("explicit CRFT_DMAC overrides the auto pair",
+           crf.empty() ? 0 : be(crf, 0, 6), 0x91E0F000FEAAULL);
+        axi_write(A_CRFT_CTRL, 0x0);
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
