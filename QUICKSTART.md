@@ -58,6 +58,14 @@ sudo pacman -S --needed gcc make python python-yaml verilator yosys git which
 ```
 
 Verified working versions: verilator 5.050, yosys 0.66, python 3.14.6, gcc 16.1.1.
+
+> **Verilator version matters.** Measured: **5.020** (Ubuntu 24.04) *cannot build*
+> the datapath harnesses at all, and **5.032** (Debian trixie / Ubuntu 25.04) builds
+> but fails 6 `aecp` checks. **Use 5.050 or newer.** If your distro ships an older
+> one, build it from source — that is exactly what CI does, pinned. The small
+> self-contained suites (`tcam`, `cbs`, `csr`) work on older versions; it is the
+> datapath harnesses that do not. Details and the measured table:
+> [docs/testing/TESTING.md](docs/testing/TESTING.md) §7.
 Verilator **≥ 5.0** is the real requirement.
 
 On other distributions install the same seven things — the package *names* differ

@@ -5,6 +5,15 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  # Pinned to the version the harnesses are developed and gated against.
+  # Distro Verilator is NOT usable here - see docs/testing/TESTING.md §7:
+  #   5.020 (Ubuntu 24.04)  cannot BUILD the datapath harnesses at all
+  #                         (BLKLOOPINIT on legal SystemVerilog).
+  #   5.032 (Debian trixie) builds, but 6 aecp checks read back 0.
+  # Both measured. Bump this pin deliberately, never incidentally.
+  VERILATOR_VERSION: v5.050
+
 jobs:
   # The full Verilator suite sweep. Unlike the docs workflow this one DOES need
   # the verilog-axis submodule: every datapath-level harness (milan_dp,
@@ -15,17 +24,39 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: false
       - name: Fetch the one submodule the harnesses need
         run: git submodule update --init third_party/verilog-axis
-      - name: Install Verilator
+
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Build Verilator from source (cache miss only)
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
         run: |
+          set -eu
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends verilator
-          verilator --version
+          sudo apt-get install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$(nproc)"
+          sudo make install
+
+      - name: Put Verilator on PATH and prove the version
+        run: |
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+
       - name: Run every suite
         run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"
+
       - name: Upload suite logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -34,9 +65,10 @@ jobs:
           path: ${{ runner.temp }}/suite-logs
 
   # Vendor-independence gate: every top must synthesise under Yosys, which is
-  # what keeps the ECP5 target reachable and keeps Xilinx primitives from
+  # what keeps the ECP5 target reachable and keeps vendor primitives from
   # creeping back in. Needs sv2v, which is NOT in the Ubuntu repos - the
   # prebuilt release binary is the supported route (same as QUICKSTART.md).
+  # Distro Yosys IS fine here: nothing above depends on its version.
   yosys-portability:
     runs-on: ubuntu-latest
     timeout-minutes: 120

@@ -217,9 +217,22 @@ Performance measurements on silicon are logged in the
   whole Verilator sweep via `scripts/run_all_suites.sh` and the Yosys
   portability sweep. Both RTL jobs need the `verilog-axis` submodule, which is
   why they are a separate workflow from the submodule-free docs gates. Local
-  commands: [`../../QUICKSTART.md`](../../QUICKSTART.md) §2. **Caveat:** the
-  `rtl` workflow has not yet been observed running on GitHub's runners — the
-  first PR that triggers it is its own proof.
+  commands: [`../../QUICKSTART.md`](../../QUICKSTART.md) §2.
+* **The Verilator version matters, and distro packages are not enough.**
+  Measured 2026-07-26 by running the suites under each version in a container:
+
+  | Verilator | ships with | result |
+  |---|---|---|
+  | 5.020 | Ubuntu 24.04 | **cannot build** `aecp`/`hostplane`/`milan_dp`/`tsn_fuzz` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
+  | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Open.** |
+  | 5.050 | Arch, and the CI pin | reference: 53/53 suites green |
+
+  CI therefore **builds Verilator from source at a pinned tag** (`VERILATOR_VERSION`
+  in the workflow) and caches it, rather than trusting `apt`. The RTL was
+  deliberately NOT contorted to satisfy 5.020: the construct it rejects is legal
+  and synthesises, so the cost belongs on the toolchain pin, not the design.
+  If you are on a distro Verilator and a datapath harness will not build, this
+  is why.
 * `milan_top` (Zynq variant) is not coverable by the open flows (PS7 + the
   external verilog-ethernet MAC); its TSN content is covered via
   `milan_dp`.
