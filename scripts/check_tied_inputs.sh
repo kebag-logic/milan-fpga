@@ -23,7 +23,7 @@
 set -u
 R="$(cd "$(dirname "$0")/.." && pwd)"
 RTL="$R/hdl/milan/milan_datapath.sv"
-SOC="$R/sw/litex/milan_soc.py"
+SOC="${SOC:-$R/sw/litex/milan_soc.py}"
 
 [ -r "$RTL" ] || { echo "check_tied_inputs: missing $RTL"; exit 2; }
 [ -r "$SOC" ] || { echo "check_tied_inputs: missing $SOC"; exit 2; }
@@ -76,16 +76,33 @@ while IFS='=' read -r kw val; do
   # dict stub + every extra_ports/dp_ports attach in soc/sim). A binding
   # whose value is a bare integer literal is a tie; anything else (a
   # Signal/endpoint/expression) means some build actually drives the port.
-  driven=0
+  driven=0; constexpr=""
   while read -r bind; do
     v="${bind#*=}"; v="$(echo "$v" | sed -E 's/^\s+|\s+$//g')"
+    # A BUILD-TIME CONSTANT EXPRESSION is still a tie. `i_i_mac_speed =
+    # (0b01 if phy_model == "mii" else 0b10)` looked "driven" to the old test
+    # (it is not a bare literal) while being just as constant in silicon as
+    # `= 1` - a per-board guess that MAC_STATUS reported as the negotiated
+    # speed. Strip an outer paren and match "<literal> [if ... else <literal>]".
+    t="$(echo "$v" | sed -E 's/^\(//; s/\)$//')"
     case "$v" in
       0b[01]*|0x[0-9a-fA-F]*|[0-9]*) : ;;   # integer literal = tie
-      *) driven=1 ;;
+      *)
+        if echo "$t" | grep -qE '^(0b[01]+|0x[0-9a-fA-F]+|[0-9]+)( +if +.+ +else +(0b[01]+|0x[0-9a-fA-F]+|[0-9]+))?$'; then
+          constexpr="$t"                     # constant ternary = tie
+        else
+          driven=1
+        fi ;;
     esac
-  done < <(grep -hoE "\b${kw}\s*=\s*[^,)]+" "$SOC" "$SIM" 2>/dev/null)
+  done < <(grep -hoE "\b${kw}\s*=\s*[^,)]+\)?" "$SOC" "$SIM" 2>/dev/null)
   if [ "$driven" -eq 1 ]; then
     echo "  [tied]    ${kw}=${val}  (stub default; a real attach site drives it)"
+  elif [ -n "$constexpr" ]; then
+    n_dead=$((n_dead+1))
+    echo "  [WARNING] ${kw}: every wiring site is a BUILD-TIME CONSTANT"
+    echo "            (\`${constexpr}\`) - a python-level select, constant in"
+    echo "            silicon. Same class as a bare tie: the CSR reports a"
+    echo "            build-time guess, not what the hardware negotiated."
   else
     reason="$(allow_reason "$kw")"
     if [ -n "$reason" ]; then

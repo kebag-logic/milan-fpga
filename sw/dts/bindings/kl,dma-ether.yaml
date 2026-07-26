@@ -1,7 +1,17 @@
 # SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 # Device-tree binding for the Milan TSN NIC (kl,dma-ether). This is the normative
 # DT contract between the HDL (docs/reference/REGISTER_MAP.md), the driver (kl-eth), and the
-# device tree (sw/dts/milan.dtsi). Requirements: docs/reference/FR_NFR.md §2.11 (FR-DT-*).
+# device tree. Requirements: docs/reference/FR_NFR.md §2.11 (FR-DT-*).
+#
+# 2026-07-26: REWRITTEN against the two DEPLOYED trees
+# (milan_ax7101_vexii.dts / milan_arty_vexii.dts) and against what
+# sw/builder/endstation_builder.py emit_dt_overlay() generates - the previous
+# revision described a node that has not shipped since the 4-window era: 4 reg
+# entries (no `phy`), `rgmii-id` on GMII/MII boards, and an
+# `additionalProperties: false` that REJECTED the deployed `dma-coherent`,
+# `kl,rsc-clk-mhz` and 5-entry `reg-names`. A binding that rejects the shipping
+# node is not a contract, it is a second source of truth that lost.
+# `sw/dts/milan_dt.py validate` checks an overlay against this file.
 %YAML 1.2
 ---
 $id: http://kebag-logic.com/dt/kl,dma-ether.yaml#
@@ -14,28 +24,59 @@ maintainers:
 
 properties:
   compatible:
-    const: kl,dma-ether-0.9        # matches driver of_match + CSR VERSION (FR-DT-01)
+    # Deployed trees carry the versioned id FIRST and the generic id as a
+    # fallback: `"kl,dma-ether-0.9", "kl,dma-ether"`. -0.9 tracks the CSR
+    # VERSION contract (FR-DT-01); the driver of_match table lists both.
+    items:
+      - const: kl,dma-ether-0.9
+      - const: kl,dma-ether
+    minItems: 1
 
   reg:
     minItems: 2
+    maxItems: 5
     items:
-      - description: CSR window (milan_csr), 64 KB @ 0x43C0_0000
-      - description: TX DMA register block
-      - description: RX DMA register block
-      - description: timestamp-metadata DMA register block
+      - description: >
+          CSR window (milan_csr), 64 KB. 0x9000_0000 on the fully-FPGA LiteX
+          build (AXI-Lite), 0x43C0_0000 on the retired Zynq PS build.
+      - description: TX DMA register block (`milan_dma_tx_*`)
+      - description: RX DMA register block (`milan_dma_rx_*`, driver ABI window)
+      - description: timestamp-metadata DMA register block (`milan_dma_ts_*`)
+      - description: >
+          PHY management window: LiteEth `phy_crg_reset` + the MDIO bit-bang
+          pair (`phy_mdio_w`/`phy_mdio_r`), 0xc bytes at the `milan_mac` CSR
+          bank base. This is the ONLY PHY-status path in the design - the
+          GMII/MII PHY wrappers expose no link/speed/duplex hardware output, so
+          the driver bit-bangs MDIO here and publishes the result back through
+          the `milan_mac_link_status` CSR (MAC_STATUS 0x110).
 
   reg-names:
     minItems: 2
-    items: [csr, dma-tx, dma-rx, dma-ts]
+    maxItems: 5
+    items: [csr, dma-tx, dma-rx, dma-ts, phy]
 
   interrupts:
-    description: tx-dma, rx-dma, ts-dma, csr (FR-DT-02)
+    description: >
+      LiteX exposes ONE aggregate PLIC line (the `milan` EventManager); the
+      driver demuxes via milan_csr IRQ_STATUS. The retired Zynq tree modelled
+      four discrete GIC lines (FR-DT-02).
     minItems: 1
     maxItems: 4
 
   interrupt-names:
     minItems: 1
+    maxItems: 4
     items: [tx-dma, rx-dma, ts-dma, csr]
+
+  interrupt-parent: true
+
+  dma-coherent:
+    type: boolean
+    description: >
+      Present on both deployed trees: the NaxRiscv/VexiiRiscv snooping dma_bus
+      keeps DMA buffers coherent, so the driver must NOT issue cache
+      maintenance. Absent means the driver falls back to explicit
+      flush/invalidate.
 
   kl,txq-cnt:
     $ref: /schemas/types.yaml#/definitions/uint32
@@ -49,7 +90,16 @@ properties:
     description: >
       Indices of the queues that are 802.1Qav CBS-shaped. Only these carry SR
       traffic; all others are strict-priority (FR-DT-03). Reset policy is <0 1>
-      (q0,q1), matching CBS_EN_RST. Σ idleSlope of shaped queues must stay ≤ 75%.
+      (q0,q1), matching CBS_EN_RST. Sum of shaped idleSlope must stay <= 75%.
+
+  kl,rsc-clk-mhz:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: >
+      Milan datapath clock in MHz (100 on ax7101, 50 on arty). Sets BOTH the PHC
+      tick rate and the RSC coalescing timebase. ABSENT means the driver's
+      50 MHz default, which on a 100 MHz datapath yields a 2x-fast PHC and broke
+      asCapable/SRP on silicon (2026-07-23) - so it is effectively required on
+      ax7101.
 
   kl,ptp:
     type: boolean
@@ -64,6 +114,7 @@ properties:
     maxItems: 1
   local-mac-address: true
   mac-address: true
+  status: true
 
   mdio:
     type: object
@@ -79,24 +130,26 @@ required:
 additionalProperties: false
 
 examples:
+  # The DEPLOYED ax7101 node, verbatim modulo comments (rx-queues 1, 8x8 shape).
   - |
-    ethernet@43c00000 {
-        compatible = "kl,dma-ether-0.9";
-        reg = <0x43c00000 0x10000>, <0x40410000 0x10000>,
-              <0x40410000 0x10000>, <0x40400000 0x10000>;
-        reg-names = "csr", "dma-tx", "dma-rx", "dma-ts";
-        interrupt-parent = <&plic>;
-        interrupts = <1>, <2>, <3>, <4>;
-        interrupt-names = "tx-dma", "rx-dma", "ts-dma", "csr";
+    ethernet@90000000 {
+        compatible = "kl,dma-ether-0.9", "kl,dma-ether";
+        reg = <0x90000000 0x10000>,
+              <0xf0003000 0x24>,
+              <0xf0003024 0x40>,
+              <0xf000308c 0x1c>,
+              <0xf0003800 0xc>;
+        reg-names = "csr", "dma-tx", "dma-rx", "dma-ts", "phy";
+        interrupt-parent = <&intc0>;
+        interrupts = <3>;
+        interrupt-names = "csr";
+        dma-coherent;
+        kl,rsc-clk-mhz = <100>;
+        phy-mode = "gmii";
+        local-mac-address = [02 00 00 00 00 01];
         kl,txq-cnt = <4>;
         kl,rxq-cnt = <4>;
         kl,shaped-queues = <0 1>;
-        phy-mode = "rgmii-id";
-        phy-handle = <&phy0>;
-        local-mac-address = [00 1b c5 00 00 01];
-        mdio {
-            #address-cells = <1>;
-            #size-cells = <0>;
-            phy0: ethernet-phy@1 { reg = <1>; };
-        };
+        kl,ptp;
+        status = "okay";
     };

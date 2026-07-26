@@ -101,6 +101,35 @@ exists so they cannot be forgotten:
   single important configs are built as sweeps and the best WNS/slices build
   is kept (the standing 96-core rule).
 
+### 3.1 The shape gate (`scripts/check_sweep_shape.py`)
+
+`sw/litex/sweep.sh` refuses to launch unless the command line it composed
+equals the end-station config it claims to build. It checks `--num-streams`,
+`--rx-queues` and `--l2-bytes` against `configs/endstation_<shape>.yaml`, and
+`build.sh`'s `cfg_*` recipes against the same configs. Exit non-zero = no
+Vivado runs.
+
+Why it exists: this class of bug is only visible on silicon and has now bitten
+three times.
+
+| Date | Knob | Symptom |
+|---|---|---|
+| 2026-07-22 | `i_mac_events` | RMON counters fully tested, permanently zero on hardware (tied off in SoC glue) |
+| 2026-07-24 | `--rx-queues` | `sweep.sh` passed `1` for both boards; the deployed Arty gateware has 2. A queue-count change moves every DMA window by `0x74` under an unchanged DTB |
+| 2026-07-26 | `--num-streams` | `sweep.sh` passed **nothing**, so `sweep.sh ax7101` built the default 1x1 datapath while the config, the docs and the build directories all called it 8x8 |
+
+Per board, `sweep.sh` sets the design defaults first and *then* sources
+`configs/generated/sweep_opts_<board>.sh`, so a fragment that predates a knob
+can never silently drop it, and a fragment that pins one wins. The stream count
+rides as `NS=` (or, for the historical `sweep_opts_arty_4x4.sh`, inline in
+`OPTS` - `sweep.sh` lifts it out so the flag is emitted exactly once).
+
+```sh
+python3 scripts/check_sweep_shape.py              # static check, no shell/Vivado
+python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS is rejected
+SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
+```
+
 ## 4. After the build: load + console, per board
 
 ttyUSB numbers RENUMBER whenever a USB device is replugged. Always select

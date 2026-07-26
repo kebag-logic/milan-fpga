@@ -5,12 +5,14 @@
  * fully-FPGA NaxRiscv/LiteX build, where the same hardware lives at csr 0x90000000
  * and the DMA engines are LiteX CSRs at 0xf0002800.
  *
- * The overlay is now GENERATED per-platform from a small intermediate JSON (IR) so it
- * converges for any SoC. Use the generated files instead:
+ * The overlay is GENERATED (2026-07-26 onward) by sw/builder/endstation_builder.py
+ * from the declarative end-station config:
  *
- *     milan-nic.litex.dtsi   fully-FPGA NaxRiscv/LiteX build   (from ir/milan-dt.litex.json)
- *     milan-nic.zynq.dtsi    Zynq-7000 build                   (from ir/milan-dt.zynq.json)
+ *     python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml
  *
- * Regenerate:  ./milan_dt.py gen ir/milan-dt.<platform>.json > milan-nic.<platform>.dtsi
- * See README.md for the full flow and how to add a new platform.
+ * Its output byte-matches both deployed trees (test_builder.py gate 19b). The
+ * older milan-nic.*.dtsi files here are HISTORICAL ARTIFACTS - do not deploy them.
+ * Check any overlay against the binding with
+ *     python3 sw/dts/milan_dt.py validate <overlay-or-tree>
+ * See README.md.
  */
