@@ -196,8 +196,20 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [x] **B — Drive MAC cfg from CSR** `(REQ-MAC-01)` — `cfg_ifg/tx_en/rx_en/is_1g/
   stats_reset` from registers (default to current constants at reset);
   `hdl/milan/milan_top.sv:151,206,256-258`.
-- [ ] **H — RX address filter** `(REQ-MAC-02)` — exact-match unicast + multicast
-  hash/CAM + promisc/allmulti on the RX AXIS path.
+- [x] **H — RX address filter** `(REQ-MAC-02)` — exact-match unicast + multicast
+  hash/CAM + promisc/allmulti on the RX AXIS path. The ternary CAM half shipped
+  2026-07-01; the `MAC_CTRL` promisc/allmulti bits, `MAC_ADDR_HI/LO` and
+  `MC_HASH_HI/LO` were exported by `milan_csr` but consumed by NOTHING in
+  fabric (they only left `milan_datapath` as ports for a MAC that does no
+  address filtering), so non-matching unicast was never dropped in HW.
+  `rx_mac_filter` now implements the 802.3 §4.2.4.2.2 filter and
+  `milan_datapath` feeds it those CSR fields; armed by `TCAM_CTRL[1]`
+  (reset 0 = legacy behaviour). Hash function + byte order are now specified in
+  [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md). TB:
+  `rx_filter` (49 checks incl. the disarmed/re-disarmed identity legs, foreign
+  unicast dropped, allmulti, a two-bucket hash sweep against an independent
+  reference fold, TCAM-beats-filter both ways, promisc-beats-everything, runt
+  still swallowed).
 - [ ] **H — Speed/duplex from PHY + link status** `(REQ-MAC-03)` — use MAC `speed[]`;
   drive `is_1g`; expose link-status bit + IRQ.
 - [x] **H — Stats readback + snapshot + reset** `(REQ-MAC-04)` — map

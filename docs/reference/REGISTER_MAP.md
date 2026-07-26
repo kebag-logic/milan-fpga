@@ -75,14 +75,36 @@ The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 |--------|------|-----|-------|-------------|
 | `0x100` | `MAC_CTRL` | RW | `0x13` | `[0]` tx_en, `[1]` rx_en, `[2]` promisc, `[3]` allmulti, `[4]` is_1g |
 | `0x104` | `MAC_IFG` | RW | `0x0C` | `[7:0]` inter-frame gap (bytes), default 12 |
-| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]` |
-| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]` |
+| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words) |
+| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]` |
 | `0x110` | `MAC_STATUS` | RO | – | `[0]` link_up, `[2:1]` speed (0=10,1=100,2=1000), `[3]` full_duplex |
-| `0x114` | `MC_HASH_LO` | RW | `0` | multicast hash filter `[31:0]` |
-| `0x118` | `MC_HASH_HI` | RW | `0` | multicast hash filter `[63:32]` |
+| `0x114` | `MC_HASH_LO` | RW | `0` | multicast hash filter, buckets 0-31 (bit `n` = bucket `n`) |
+| `0x118` | `MC_HASH_HI` | RW | `0` | multicast hash filter, buckets 32-63 |
 | `0x11C` | `PHY_RESET` | RW | `0x1` | `[0]` phy_reset_n (0 = hold PHY in reset) |
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
+
+**RX address filter (REQ-MAC-02).** `promisc`/`allmulti`/`MAC_ADDR_*`/`MC_HASH_*`
+are consumed by `rx_mac_filter` in the RX AXIS path, but only once
+`TCAM_CTRL[1]` (`addr_filter_en`, reset 0) is set  -  a build that never sets it
+keeps the legacy blanket `TCAM_CTRL[0]` miss policy. Decision order per frame:
+
+1. a 1-beat runt is always swallowed;
+2. `promisc` → accept (it outranks even an explicit TCAM drop entry  -  a
+   capture must see the wire, and filtering is exactly what promiscuous mode
+   switches off);
+3. a TCAM hit → `ACTION[0]` decides;
+4. `addr_filter_en` → broadcast accepted; **group** address accepted if
+   `allmulti` **or** its hash bucket is set; **unicast** accepted only on an
+   exact match with `MAC_ADDR_HI/LO`;
+5. otherwise `TCAM_CTRL[0]`.
+
+**Multicast hash function.** Bucket = a 6-bit XOR fold of the 48-bit
+destination MAC in standard notation, MSB-aligned groups of six bits:
+`bucket = a[47:42] ^ a[41:36] ^ a[35:30] ^ a[29:24] ^ a[23:18] ^ a[17:12] ^
+a[11:6] ^ a[5:0]`. `ndo_set_rx_mode` must compute the same fold (`01-80-C2-00-00-0E`
+→ `0x0180C200000E` → bucket 23, i.e. `MC_HASH_LO` bit 23). The hash is approximate by design (many
+addresses share a bucket); the `0x700` TCAM is the exact alternative.
 
 ### 0x200  -  Statistics (RMON)  `(REQ-MAC-04)`
 
@@ -223,7 +245,7 @@ entry per commit: write the KEY/MASK/ACTION shadows, then `TCAM_CMD`. Reset:
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x700` | `TCAM_CTRL` | RW | `0x1` | `[0]` default_pass (1 = accept frames that miss the table) |
+| `0x700` | `TCAM_CTRL` | RW | `0x1` | `[0]` default_pass (1 = accept frames that miss the table), `[1]` addr_filter_en (1 = a TCAM miss falls to the 802.3 station address filter of the `0x100` group instead of `[0]`  -  REQ-MAC-02, reset 0) |
 | `0x704` | `TCAM_KEY_LO` | RW | `0` | match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no  -  see note) |
 | `0x708` | `TCAM_KEY_HI` | RW | `0` | match key `[47:32]` in `[15:0]` |
 | `0x70C` | `TCAM_MASK_LO` | RW | `0` | care mask `[31:0]` (1 = compare, 0 = wildcard) |
