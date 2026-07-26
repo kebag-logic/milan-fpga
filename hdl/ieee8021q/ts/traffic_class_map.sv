@@ -88,8 +88,11 @@ module traffic_class_map #(
 
 
 
-  //! DEI is decoded for drop-eligibility sideband use (REQ-CLS-05); it does not
-  //! change the queue selection in this revision. Tie-off to keep lint quiet.
+  //! DEI does not change the queue selection: 802.1Q §6.9.4 conveys
+  //! drop_eligible WITH the frame for a downstream policer, it is not a
+  //! priority input. The sideband itself is produced by traffic_classifier on
+  //! `m_axis.tuser[0]` (REQ-CLS-05); the port stays here so the decode lives
+  //! next to the PCP decode. Tie-off to keep lint quiet.
   wire _unused_dei = dei_i;
 
   //! Reserved-DMAC validation (REQ-CLS-07, 802.1AS-2020 §10.5 / 802.1Q Table 8-1).

@@ -39,13 +39,15 @@ static void hi() { dut->clk = 1; dut->eval(); }
 // Drive `frames` through the DUT and collect the output; check integrity.
 // bp!=0 toggles m_tready to exercise back-pressure.
 static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, const char* tag,
-                       const std::vector<int>* exp_dest = nullptr) {
+                       const std::vector<int>* exp_dest = nullptr,
+                       const std::vector<int>* exp_de = nullptr) {
     // flatten expected input
     std::vector<Beat> expect;
     for (auto& f : frames) for (auto& b : f) expect.push_back(b);
 
     std::vector<Beat> got;
     std::vector<int>  got_dest;      // tdest per collected beat
+    std::vector<int>  got_de;        // tuser[0] = drop_eligible per collected beat
     size_t fi = 0, bi = 0;           // input cursor
     size_t total = expect.size();
     int phase = 0;
@@ -67,6 +69,7 @@ static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, con
         if (dut->m_tvalid && ready) {
             got.push_back({ (uint64_t)dut->m_tdata, (uint8_t)dut->m_tkeep, (bool)dut->m_tlast });
             got_dest.push_back(dut->m_tdest);
+            got_de.push_back(dut->m_tuser & 1);
         }
         bool in_acc = have_in && dut->s_tvalid && dut->s_tready;
         hi();
@@ -101,6 +104,26 @@ static void run_frames(const std::vector<std::vector<Beat>>& frames, int bp, con
             if (got[i].last) fidx++;
         }
         ck((std::string(tag) + ": tdest CORRECT per frame").c_str(), dest_ok ? 1 : 0, 1);
+    }
+
+    // ---- REQ-CLS-05: drop_eligible (DEI) sideband on tuser[0] ----
+    // Same contract as tdest: correct AND stable from the frame's FIRST beat.
+    if (exp_de) {
+        bool de_stable = true; int fde = -1;
+        for (size_t i = 0; i < got_de.size(); i++) {
+            if (fde < 0) fde = got_de[i];
+            else if (got_de[i] != fde) de_stable = false;
+            if (got[i].last) fde = -1;
+        }
+        ck((std::string(tag) + ": DEI stable per frame").c_str(), de_stable ? 1 : 0, 1);
+
+        bool de_ok = got.size() == total;
+        size_t fidx = 0;
+        for (size_t i = 0; de_ok && i < got_de.size(); i++) {
+            if (fidx < exp_de->size() && got_de[i] != (*exp_de)[fidx]) de_ok = false;
+            if (got[i].last) fidx++;
+        }
+        ck((std::string(tag) + ": DEI CORRECT per frame").c_str(), de_ok ? 1 : 0, 1);
     }
 }
 
@@ -142,12 +165,12 @@ int main(int argc, char** argv) {
         return (int)((dut->tc_queue_map_i >> (2 * tc)) & 3);
     };
     // little-endian beats (BIG_ENDIAN=0 instance): wire byte n = beat[n%8] lane n%8
-    auto mkhdr = [](bool tagged, int pcp, int nbeats) {
+    auto mkhdr = [](bool tagged, int pcp, int nbeats, int dei = 0) {
         std::vector<uint8_t> f(nbeats * 8, 0xA5);
         for (int i = 0; i < 6; i++) { f[i] = 0x68; f[6 + i] = 0x02; }
         if (tagged) {
             f[12] = 0x81; f[13] = 0x00;
-            f[14] = (uint8_t)(pcp << 5); f[15] = 0x02;   // TCI: PCP, VID 2
+            f[14] = (uint8_t)((pcp << 5) | (dei << 4)); f[15] = 0x02;   // TCI: PCP, DEI, VID 2
             f[16] = 0x08; f[17] = 0x00;
         } else { f[12] = 0x08; f[13] = 0x00; }
         std::vector<Beat> fr;
@@ -254,6 +277,43 @@ int main(int argc, char** argv) {
         // restore the harness defaults for anything that follows
         dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
         dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688;
+    }
+
+    // ---- REQ-CLS-05: DEI (drop_eligible) sideband on m_axis.tuser[0] ----
+    // 802.1Q §6.9.4: the drop-eligibility indicator is carried WITH the frame.
+    // Contract mirrors tdest - correct and stable from the frame's first beat,
+    // and it must NOT be inferred for untagged frames.
+    {
+        std::vector<std::vector<Beat>> de;
+        std::vector<int> dedest, deexp;
+        // tagged DEI=1 and DEI=0 at every PCP, back-to-back, so a stale-by-one
+        // sideband (the tdest bug class of 2026-07-05) shows up immediately
+        for (int pcp = 0; pcp < 8; pcp++) {
+            de.push_back(mkhdr(true, pcp, 4, 1)); dedest.push_back(expq(true, pcp)); deexp.push_back(1);
+            de.push_back(mkhdr(true, pcp, 5, 0)); dedest.push_back(expq(true, pcp)); deexp.push_back(0);
+        }
+        run_frames(de, /*bp=*/0, "cls05 DEI tagged", &dedest, &deexp);
+        run_frames(de, /*bp=*/1, "cls05 DEI tagged bp", &dedest, &deexp);
+
+        // DEI must not change the queue: same PCP, both DEI values -> same tdest
+        // (802.1Q: drop_eligible is a policer input, not a priority input)
+        {
+            bool same = true;
+            for (size_t i = 0; i + 1 < dedest.size(); i += 2) same &= dedest[i] == dedest[i + 1];
+            ck("cls05: DEI does not move the queue", same ? 1 : 0, 1);
+        }
+
+        // NEGATIVE: untagged frames have NO drop-eligibility indication. mkhdr
+        // fills the payload with 0xA5 - bit 4 of byte 14 is 0xA5 & 0x10 = SET -
+        // so a classifier that sliced the TCI unconditionally would report 1.
+        // It must report 0. A gPTP frame (untagged, 0x88F7) must likewise be 0.
+        {
+            std::vector<std::vector<Beat>> un = { mkhdr(false, 0, 4), mkhdr(false, 0, 6),
+                                                 mkhdr(true, 5, 4, 1), mkhdr(false, 0, 3) };
+            std::vector<int> undest = { expq(false, 0), expq(false, 0), expq(true, 5), expq(false, 0) };
+            std::vector<int> unexp  = { 0, 0, 1, 0 };
+            run_frames(un, /*bp=*/0, "cls05 untagged DEI=0 (negative)", &undest, &unexp);
+        }
     }
 
     printf("--------------------------------------------------------------\n");
