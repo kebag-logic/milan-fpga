@@ -115,7 +115,9 @@ VLAN 2; the SM later reached `SETTLED_RSV_OK` with no change). This is the open
 [fabric-listener accept blocker](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) —
 an instrumentation-visible symptom, not a tap defect: the RTL N=8 accept path
 is green in `tb/verilator/milan_dp`. The RX numbers land here once a listener
-accepts on silicon.
+accepts on silicon; the companion instrument for *that* diagnosis is the
+`0x8B4` parser-probe group (the pre-match view — see
+[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) §0x8B4).
 
 Note for whoever measures the RX chain next: since `VERSION 0x0001_000C` the
 chain consumes **same-cycle** stage pulses as 0-cycle hops, so **RX D2

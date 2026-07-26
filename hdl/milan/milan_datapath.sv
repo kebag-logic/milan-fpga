@@ -889,6 +889,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0]      ltap_status_w;
   wire             ltap_en_w, ltap_clr_w;
 
+  //! RX stream-parser probe (APRB CSR group, base 0x8B4): the pre-match view
+  //! of the listener path - 5 packed RO words, see the probe block below.
+  wire [5*32-1:0]  aprb_regs_w;
+  wire [31:0]      aprb_parsed_w, aprb_matched_w;
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
@@ -1067,6 +1072,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     // item-11 AAF per-stage latency taps (LTAP group 0x870)
     .i_ltap_regs        (ltap_regs_w),
     .i_ltap_status      (ltap_status_w),
+    .i_aprb_regs        (aprb_regs_w),
     .o_ltap_en          (ltap_en_w),
     .o_ltap_clr         (ltap_clr_w),
     .o_chmap_enable     (cfg_chmap_enable),
@@ -1743,9 +1749,53 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .fsh2_o        (avtprx_fsh2),
     .parse_valid_o (avtprx_parse_p),
     .b3_o          (avtprx_b3),
-    .avtp_frames_o (),
-    .matched_frames_o ()
+    .avtp_frames_o (aprb_parsed_w),
+    .matched_frames_o (aprb_matched_w)
   );
+
+  // ==========================================================================
+  //  RX parser probe (APRB CSR group 0x8B4, 2026-07-26). Every other RX
+  //  counter in this datapath lives DOWNSTREAM of the stream-table match
+  //  (AVTPRX_*, PCMRX_*): when a bound listener accepts nothing they all
+  //  read 0 and say nothing about why. These words are the pre-match view -
+  //  how many AVTP frames the parser saw, how many matched an armed table
+  //  entry, and the stream_id it actually lifted off the wire for the last
+  //  STREAM-subtype frame (subtype[7]=0; control subtypes ADP/ACMP/MAAP are
+  //  excluded so they cannot overwrite the media evidence).
+  // ==========================================================================
+  logic [63:0] aprb_sid_r;      //! stream_id of the last stream-subtype frame
+  logic [7:0]  aprb_subtype_r;  //! its subtype
+  logic        aprb_hit_r;      //! did that frame match a table entry
+  logic [3:0]  aprb_idx_r;      //! matched entry index (valid with aprb_hit_r)
+  logic [7:0]  aprb_armed_w;    //! table entries currently armed (live popcount)
+
+  always_comb begin : aprb_armed_count
+    aprb_armed_w = '0;
+    for (int unsigned k = 0; k < N_STREAMS; k++)
+      if (strtbl_en_w[k]) aprb_armed_w = aprb_armed_w + 8'd1;
+  end : aprb_armed_count
+
+  always_ff @(posedge axis_clk) begin : aprb_probe
+    if (!axis_resetn) begin
+      aprb_sid_r     <= '0;
+      aprb_subtype_r <= '0;
+      aprb_hit_r     <= 1'b0;
+      aprb_idx_r     <= '0;
+    end
+    else if (avtprx_parse_p && !avtprx_subtype[7]) begin
+      aprb_sid_r     <= avtprx_sid_frame;
+      aprb_subtype_r <= avtprx_subtype;
+      aprb_hit_r     <= avtprx_match;
+      aprb_idx_r     <= 4'(avtprx_idx);
+    end
+  end : aprb_probe
+
+  assign aprb_regs_w[32*0 +: 32] = aprb_parsed_w;
+  assign aprb_regs_w[32*1 +: 32] = aprb_matched_w;
+  assign aprb_regs_w[32*2 +: 32] = aprb_sid_r[31:0];
+  assign aprb_regs_w[32*3 +: 32] = aprb_sid_r[63:32];
+  assign aprb_regs_w[32*4 +: 32] = {8'd0, aprb_armed_w, 3'd0, aprb_idx_r,
+                                    aprb_hit_r, aprb_subtype_r};
 
   // ==========================================================================
   //  CRF Media Clock Input engine (Milan 7.3.2) - measurement half: parses

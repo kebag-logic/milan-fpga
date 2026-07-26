@@ -638,12 +638,28 @@ parser is told to compare against:
    signature. The harness generates its own stimulus with the same convention it checks,
    so it cannot catch this class; only a parser-level counter or a wire capture can.
 
-**The instrument this needs.** Every counter available today is *downstream* of the match
-(`AVTPRX_*` only counts accepted frames) - which is why the fault is invisible from software.
-The decisive next step is a **parser-level counter set** (frames seen at the parser tap,
-SID compares attempted, compares missed, tagged vs untagged) exposed in the CSR window, so
-silicon can distinguish "frames never reach the parser" from "parser sees them, no match"
-from "match, monitor rejects". A TB cannot find this one; only the silicon shape can.
+**The instrument this needs — now built (`VERSION 0x0001_000D`).** Every counter that
+existed when this was written is *downstream* of the match (`AVTPRX_*` only counts accepted
+frames), which is exactly why the fault was invisible from software. The parser's own
+frame/match counters turned out to exist in RTL and be left **unconnected** in
+`milan_datapath`; they are now wired out, with the wire-side stream_id beside them, as the
+**`0x8B4` parser-probe group** ([register map](../reference/REGISTER_MAP.md) §0x8B4):
+
+```sh
+# on the board, after binding the listener
+for a in 8B4 8B8 8BC 8C0 8C4; do
+  printf '0x%s = %s\n' $a "$(devmem 0x90000$a 32)"; done
+#   0x8B4 PARSED   0x8B8 MATCHED   0x8BC/0x8C0 last wire stream_id   0x8C4 INFO
+```
+
+- `PARSED` static → frames never reach the parser (look upstream: MAC, filter, classify).
+- `PARSED` climbing, `MATCHED` static → **the compare is the fault**; diff `0x8BC`/`0x8C0`
+  (the stream_id lifted off the wire) against the bind record at `0x814`/`0x818`, and check
+  `INFO[23:16]` — a table with zero armed entries matches nothing.
+- both climbing → the match is fine and the loss is downstream (format, depacketizer, ring).
+
+That read settles suspects 1 and 3 in one shot, and it is only readable on silicon: it
+needs the next flash.
 
 **Trap that will bite you while investigating this: a `0x800` window read of 0 does not mean
 "empty".** The listener `SID`/`DMAC` words are served from a snapshot that a `SEL` write
@@ -660,8 +676,9 @@ daemon for the duration.
 1. Bind the board listener to the peer talker (one controller `CONNECT_RX`, §6 of the
    [PipeWire peer guide](../integration/PIPEWIRE_AVB_PEER.md)).
 2. Read `AVTPRX_FRX` twice, a second apart. Non-zero and climbing = blocker gone.
-3. If still 0, read `LTAP_RX_INFO 0x898`: `samples` 0 with `timeouts` climbing confirms the
-   same window, on a *different netlist* - that promotes suspect 2/3 over suspect 1.
+3. If still 0, read the `0x8B4` probe group above - that is what it is for, and its three
+   readings map 1:1 onto the suspect list. Record the numbers here either way: a *negative*
+   ("`PARSED` climbing, `MATCHED` climbing, still no accept") is as informative as a hit.
 
 ## Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)
 
