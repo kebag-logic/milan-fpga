@@ -325,6 +325,47 @@ int main(int argc, char **argv)
     settle(60);
     expect_recs("vlan lookalike", 0);
 
+    // 11: REQ-PTP-05 - EVENT-ONLY timestamping, full messageType sweep.
+    //     IEEE 1588-2019 Table 36: only 0x0 Sync, 0x1 Delay_Req, 0x2 Pdelay_Req
+    //     and 0x3 Pdelay_Resp are event messages. 0x4-0x7 are RESERVED (they
+    //     cannot be events - the older !msgType[3] test wrongly recorded them),
+    //     0x8-0xD are general, 0xE-0xF reserved. Positive leg first, then the
+    //     negative leg for all 12 non-event codes with an event bracket that
+    //     proves the pipeline is alive and not merely deaf.
+    {
+        // positive: each event type records exactly once, in order, with its seq
+        recs.clear();
+        for (int mt = 0; mt <= 3; mt++) { gptp(b, (uint8_t)mt, (uint16_t)(0x0A00 + mt)); send(b, 68, false, 0); }
+        settle(120);
+        expect_recs("ptp05 event types 0-3", 4);
+        for (int mt = 0; mt <= 3; mt++)
+            check_rec("ptp05 event", (size_t)mt, 0, mt, (uint16_t)(0x0A00 + mt));
+
+        // negative: every non-event code (reserved 4-7, general 8-D, reserved
+        // E-F) must record NOTHING, even back-to-back at line rate
+        recs.clear();
+        for (int mt = 4; mt <= 15; mt++) { gptp(b, (uint8_t)mt, (uint16_t)(0x0B00 + mt)); send(b, 68, false, 0); }
+        settle(160);
+        expect_recs("ptp05 non-event types 4-15 (negative)", 0);
+
+        // and the tap is not simply wedged: an event straight after the storm
+        // still records, on both directions
+        recs.clear();
+        gptp(b, 2, 0x0BEE); send(b, 68, false, 0);
+        gptp(b, 0, 0x0BEF); send(b, 68, true, 0);
+        settle(120);
+        expect_recs("ptp05 alive after non-event storm", 2);
+        {
+            bool rx_ok = false, tx_ok = false;
+            for (auto &r : recs) {
+                if ((r.meta & 1) == 0 && ((r.meta >> 8) & 0xFFFF) == 0x0BEE) rx_ok = true;
+                if ((r.meta & 1) == 1 && ((r.meta >> 8) & 0xFFFF) == 0x0BEF) tx_ok = true;
+            }
+            if (rx_ok && tx_ok) printf("PASS ptp05: RX+TX events survive the non-event storm\n");
+            else { printf("FAIL ptp05: rx=%d tx=%d after storm\n", rx_ok, tx_ok); fails++; }
+        }
+    }
+
     printf("======================================================================\n");
     printf(fails ? "PTP-TS METADATA (interference suite): %d FAILURE(S)\n"
                  : "PTP-TS METADATA (interference suite): ALL PASS\n", fails);

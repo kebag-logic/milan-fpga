@@ -17,10 +17,12 @@
                   fixed untagged-gPTP offsets (802.1AS frames are untagged;
                   a VLAN-tagged frame simply never matches ETH_TYPE).
                 - Qualifies at TLAST: ethertype match AND an EVENT message
-                  (msgType[3]==0 - Sync/Delay_Req/Pdelay_Req/Pdelay_Resp).
-                  General messages (Announce, Follow_Up, Pdelay_Resp_FUp,
-                  Signaling) carry no wire timestamp semantics and would only
-                  waste record slots and invite seq collisions downstream.
+                  (msgType[3:2]==00 - Sync/Delay_Req/Pdelay_Req/Pdelay_Resp,
+                  REQ-PTP-05). General messages (Announce, Follow_Up,
+                  Pdelay_Resp_FUp, Signaling, Delay_Resp, Management) and the
+                  reserved types 0x4-0x7 carry no wire timestamp semantics and
+                  would only waste record slots and invite seq collisions
+                  downstream.
                 - Queues {timestamp, seqId, msgType} in a 4-deep record fifo
                   (the emitter needs ~4 cycles/record vs >=9 beat-cycles/frame,
                   so the fifo absorbs bursts incl. RR-mux backpressure), then
@@ -120,8 +122,16 @@ logic [15:0] ptp_seq_id;             // held in WIRE byte order {b44, b45}
 logic        ptp_seq_id_valid = 1'b0;
 
 wire beat_acc = s_axis.tvalid && s_axis.tready;
+//! EVENT-message qualification (REQ-PTP-05, IEEE 1588-2019 Table 36 / §7.3.4).
+//! The ONLY event messages are Sync (0x0), Delay_Req (0x1), Pdelay_Req (0x2)
+//! and Pdelay_Resp (0x3) - they alone carry a wire timestamp semantic. General
+//! messages (Follow_Up 0x8, Delay_Resp 0x9, Pdelay_Resp_Follow_Up 0xA,
+//! Announce 0xB, Signaling 0xC, Management 0xD) must not consume a record slot,
+//! and neither must the RESERVED types 0x4-0x7: the older `!msg_type[3]` test
+//! let all four through, minting records for messages that can never have a
+//! timestamp and inviting seqId collisions in the driver's TX-stamp lookup.
 wire is_ptp_event = eth_type_valid && eth_match &&
-                    ptp_seq_id_valid && !msg_type[3];
+                    ptp_seq_id_valid && (msg_type[3:2] == 2'b00);
 
 // -----------------------------------------------------------------------------
 //! AXI-Stream Passthrough
