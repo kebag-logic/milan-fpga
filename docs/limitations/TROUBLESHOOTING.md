@@ -389,8 +389,11 @@ DMA-TX, and an FPGA RX-DMA captures nothing from i210 broadcasts.
 **Diagnosis (the useful part).** The LiteEth MAC exposes RX error counters (`milan_mac` @
 `0xf0003800`: `rx_datapath_preamble_errors` @ `0xf0003808`, `rx_datapath_crc_errors` @
 `0xf000380c`). Blasting a known count of frames from the i210 and reading these gives a
-precise signal (the milan RMON at `0x90000200` is useless here  -  `MilanMAC` ties
-`i_mac_events=0`).
+precise signal. (At the time the milan RMON at `0x90000200` was useless here — `MilanMAC`
+tied `i_mac_events=0`. Since VERSION `0x0013` those very counters feed it: `preamble_errors`
+drives `STAT_RX_ERROR_BAD_FRAME` `0x220` and `crc_errors` drives `STAT_RX_ERROR_BAD_FCS`
+`0x224`, so this diagnosis is now available from the datapath CSR window too — check
+`STATS_CAP` `0x204` first to confirm the build has them.)
 
 The result: a **20000-frame blast → `preamble_errors` +20000, `crc` +0,
 0 captured**. *Exactly one preamble error per frame* ⇒ every frame reaches the MAC (RX_DV

@@ -64,7 +64,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_0012` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view, 0x000E item-7 playback chain closed in fabric — render crossbar gains a host-ring source (map `SRC` bit) and `KL_i2s_feed_mux` picks the DAC source **and** its pace, plus the PBK probe group 0x8C8-0x8D0, 0x000F fabric-listener blocker fix — window sid staging is qualified by the index it was staged for, and an eviction carrying the ZERO sid is RELEASE-TO-ALIAS (entry 0 returns to the ACMP bound record at runtime), 0x0010 lwSRP attribute rows sized L+T-1 instead of max(L,T) — every t>0 talker row was above `N_CTX_P` and refused; out-of-range rows read `0xDEAD` instead of aliasing row 0, `LWSRP_STATUS[11]` is the sticky shortfall flag, talker rows derive MaxFrameSize `24 + 24*C` from their own TCTX chans, and the CRF media clock output is a bindable ACMP talker source at `talker_unique_id = N_STREAMS`, 0x0011 **six egress queues in 802.1Q order** (higher index = higher priority): q5 CBS SR class A, q4 CBS SR class B, q3 gPTP, q2 MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP, q1 spare, q0 best effort — the CBS window runs to `0x4BF`, `CAP.num_queues` reads 6, the CBS reset slopes are re-derived per queue, `CLS_TC_QUEUE_MAP` packs 3 bits/entry and resets to `0x006D2B00`, and `LWSRP_CTRL`'s class-A queue field widens to `[4:2]` with reset 5, **0x0012 the q2 `CONTROL_CLASS` row is implemented, keyed on the DESTINATION MAC** — MAAP, MSRP, MVRP and 1722.1 ADP/ACMP/AECP are untagged link-local PDUs carrying no PCP, so at the `0x0011` reset configuration they fell through `CLS_DEFAULT_PCP` into the tables and landed on best effort; `traffic_class_map` now holds a table of reserved control group addresses (`01-80-C2-00-00-0E`, `01-80-C2-00-00-21`, `91-E0-F0-01-00-00`, `91-E0-F0-00-FF-00`) with **no EtherType precondition**, the EtherType splitting only the shared `01-80-C2-00-00-0E` (gPTP `0x88F7` → q3, MSRP `0x22EA` → q2), AECP covered by the one unicast+`0x22F0` arm, a **tagged `0x22F0` still riding the shaped SR queues**, and a new `CLS_CTRL[2]` `ctrl_class` enable that **resets to 1** so `CLS_CTRL` reads `0x5`) |
+| `0x004` | `VERSION` | RO | `0x0001_0013` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade, 0x000D RX stream-parser probe group 0x8B4-0x8C4 — the first pre-match listener view, 0x000E item-7 playback chain closed in fabric — render crossbar gains a host-ring source (map `SRC` bit) and `KL_i2s_feed_mux` picks the DAC source **and** its pace, plus the PBK probe group 0x8C8-0x8D0, 0x000F fabric-listener blocker fix — window sid staging is qualified by the index it was staged for, and an eviction carrying the ZERO sid is RELEASE-TO-ALIAS (entry 0 returns to the ACMP bound record at runtime), 0x0010 lwSRP attribute rows sized L+T-1 instead of max(L,T) — every t>0 talker row was above `N_CTX_P` and refused; out-of-range rows read `0xDEAD` instead of aliasing row 0, `LWSRP_STATUS[11]` is the sticky shortfall flag, talker rows derive MaxFrameSize `24 + 24*C` from their own TCTX chans, and the CRF media clock output is a bindable ACMP talker source at `talker_unique_id = N_STREAMS`, 0x0011 **six egress queues in 802.1Q order** (higher index = higher priority): q5 CBS SR class A, q4 CBS SR class B, q3 gPTP, q2 MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP, q1 spare, q0 best effort — the CBS window runs to `0x4BF`, `CAP.num_queues` reads 6, the CBS reset slopes are re-derived per queue, `CLS_TC_QUEUE_MAP` packs 3 bits/entry and resets to `0x006D2B00`, and `LWSRP_CTRL`'s class-A queue field widens to `[4:2]` with reset 5, **0x0012 the q2 `CONTROL_CLASS` row is implemented, keyed on the DESTINATION MAC** — MAAP, MSRP, MVRP and 1722.1 ADP/ACMP/AECP are untagged link-local PDUs carrying no PCP, so at the `0x0011` reset configuration they fell through `CLS_DEFAULT_PCP` into the tables and landed on best effort; `traffic_class_map` now holds a table of reserved control group addresses (`01-80-C2-00-00-0E`, `01-80-C2-00-00-21`, `91-E0-F0-01-00-00`, `91-E0-F0-00-FF-00`) with **no EtherType precondition**, the EtherType splitting only the shared `01-80-C2-00-00-0E` (gPTP `0x88F7` → q3, MSRP `0x22EA` → q2), AECP covered by the one unicast+`0x22F0` arm, a **tagged `0x22F0` still riding the shaped SR queues**, and a new `CLS_CTRL[2]` `ctrl_class` enable that **resets to 1** so `CLS_CTRL` reads `0x5`, **0x0013 RMON is alive and self-declaring** — `KL_mac_rmon_events` synthesises the `ethernet_events` pulse vector at the SoC's MAC boundary (frame AXIS handshakes, the MAC's per-frame bad-frame flag, and its FCS / preamble error counts), so `RX_ERROR_BAD_FCS`, `RX_ERROR_BAD_FRAME` and `RX_FIFO_BAD_FRAME` now count on LiteEth builds instead of reading a hardwired zero; the four MAC-internal lanes that genuinely have no source are declared **unsupported** in the new RO `STATS_CAP` (`0x204`) rather than faked, and `AVTPRX_STAT` / `AVTPRX_ERR` **saturate** their packed views of the 32-bit STREAM_INPUT counters instead of wrapping) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -139,28 +139,66 @@ Order follows the `ethernet_events_t` enum in
 (`counts_o[n*32 +: 32]`) at offset `0x210 + 4*n`, so the HW packing and the ABI
 stay 1:1.
 
-**Lane sources (2026-07-22 "RMON never worked on silicon" fix):** the good-frame
-lanes (`0x21C`/`0x230`) are derived *inside* `milan_datapath` from its MAC AXIS
-boundary handshake (one accepted `tlast` beat = one frame) — the matching bits
-of the `i_mac_events` port are ignored, so an external MAC can never
-double-count them.
+**READ `STATS_CAP` (`0x204`) BEFORE BELIEVING A ZERO.** A zero STAT word means
+one of two very different things, and until VERSION `0x0013` software could not
+tell them apart:
 
-The remaining lanes pass through `i_mac_events` from the external MAC; the
-LiteX/LiteEth SoCs tie that port to 0 (LiteEth exposes no event pulses), so on
-both boards those error/overflow lanes legitimately read 0 while the
-good-frame lanes count real traffic.
+* the lane counted, and nothing went wrong — good news;
+* the lane has **no event source in this build** — no news at all.
+
+`STATS_CAP` bit *n* = 1 says lane *n* at `0x210 + 4n` is real. Bit *n* = 0 says
+it is structurally silent, and a UI must render it "not supported", never
+"0 errors". This is the register that would have made the 2026-07-22 defect
+visible from software on day one: with `i_mac_events` tied to `0`, *every* lane
+read zero on both boards for months while every testbench passed.
+
+**Lane sources.** Two lanes are derived *inside* `milan_datapath` from its MAC
+AXIS boundary handshake (one accepted `tlast` beat = one frame) — the matching
+bits of the `i_mac_events` port are ignored, so an external MAC can never
+double-count them, and those two lanes are supported on every integration by
+construction. The rest arrive through `i_mac_events`, which on the LiteX/LiteEth
+SoCs is now driven by `KL_mac_rmon_events`
+(`hdl/common/eth_event_counter/KL_mac_rmon_events.sv`) from what LiteEth
+actually exposes at that boundary:
+
+| lane | source | in `STATS_CAP` on a LiteEth build |
+|---|---|---|
+| `TX_FIFO_GOOD_FRAME` | datapath MAC-TX AXIS accepted `tlast` | ✅ |
+| `RX_FIFO_GOOD_FRAME` | datapath MAC-RX AXIS accepted `tlast` | ✅ |
+| `RX_ERROR_BAD_FCS` | LiteEth `crc_errors` (CRC32 checker) | ✅ |
+| `RX_ERROR_BAD_FRAME` | LiteEth `preamble_errors` (preamble/alignment) | ✅ |
+| `RX_FIFO_BAD_FRAME` | frames delivered with LiteEth's `error` flag set — FCS failure **or** undersize runt | ✅ |
+| `TX_ERROR_UNDERFLOW` | none — MAC-internal, not exposed | ❌ |
+| `TX_FIFO_OVERFLOW` | none — MAC-internal, not exposed | ❌ |
+| `TX_FIFO_BAD_FRAME` | none — MAC-internal, not exposed | ❌ |
+| `RX_FIFO_OVERFLOW` | none — MAC-internal, not exposed | ❌ |
+
+The four unsupported lanes are deliberately **not** synthesised from AXIS
+backpressure: `rx_tvalid & ~rx_tready` is the datapath stalling the MAC, which
+is the *precursor* to an RX FIFO overflow rather than an overflow, and counting
+it as one would swap a lying zero for a lying count.
+
+A CSR-only / simulation elaboration with no MAC attached reports `STATS_CAP`
+`0x108` (the two derived good-frame lanes only); a board build with the LiteEth
+MAC reports `0x1B8`.
+
+Note `RX_FIFO_GOOD_FRAME` counts every frame crossing the boundary, including
+ones `RX_FIFO_BAD_FRAME` flags — the datapath's derivation has no visibility of
+the MAC's verdict, so *good* here means *delivered*, and the two lanes are a
+superset/subset pair rather than a partition.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x200` | `STATS_CTRL` | W1S/RW | `0` | `[0]` snapshot (W1S, self-clear), `[1]` reset-counters |
-| `0x210` | `STAT_TX_ERROR_UNDERFLOW` | RO | `0` | TX underflow |
-| `0x214` | `STAT_TX_FIFO_OVERFLOW` | RO | `0` | TX FIFO overflow |
-| `0x218` | `STAT_TX_FIFO_BAD_FRAME` | RO | `0` | TX FIFO bad frame |
+| `0x204` | `STATS_CAP` | RO live | build | `[8:0]` per-lane capability mask, lane *n* = `STAT` word at `0x210 + 4n`; 1 = real counter, 0 = structurally silent. **Live**, not snapshot-latched: `STATS_CTRL[0]` does not affect it. `[31:9]` reserved 0 |
+| `0x210` | `STAT_TX_ERROR_UNDERFLOW` | RO | `0` | TX underflow — no source, see `STATS_CAP` |
+| `0x214` | `STAT_TX_FIFO_OVERFLOW` | RO | `0` | TX FIFO overflow — no source, see `STATS_CAP` |
+| `0x218` | `STAT_TX_FIFO_BAD_FRAME` | RO | `0` | TX FIFO bad frame — no source, see `STATS_CAP` |
 | `0x21C` | `STAT_TX_FIFO_GOOD_FRAME` | RO | `0` | frames transmitted OK |
-| `0x220` | `STAT_RX_ERROR_BAD_FRAME` | RO | `0` | RX bad frames |
+| `0x220` | `STAT_RX_ERROR_BAD_FRAME` | RO | `0` | RX preamble/alignment errors |
 | `0x224` | `STAT_RX_ERROR_BAD_FCS` | RO | `0` | RX FCS errors |
-| `0x228` | `STAT_RX_FIFO_OVERFLOW` | RO | `0` | RX FIFO overflow |
-| `0x22C` | `STAT_RX_FIFO_BAD_FRAME` | RO | `0` | RX FIFO bad frame |
+| `0x228` | `STAT_RX_FIFO_OVERFLOW` | RO | `0` | RX FIFO overflow — no source, see `STATS_CAP` |
+| `0x22C` | `STAT_RX_FIFO_BAD_FRAME` | RO | `0` | RX frames delivered flagged bad (FCS failure or runt) |
 | `0x230` | `STAT_RX_FIFO_GOOD_FRAME` | RO | `0` | frames received OK |
 
 ### 0x300  -  802.1Q classifier  `(REQ-CLS-01..04)`
@@ -520,9 +558,9 @@ MAAP/tone/pdelay knobs.
 | `0x6AC` | `ACMPL_TALKER_HI` | RO | bound talker entity id `[63:32]` |
 | `0x6B0` | `ACMPL_CNT` | RO | `[31:16]` PROBE_TX commands sent, `[15:0]` listener commands accepted |
 | `0x6B4` | `ACMPL_TUID` | RO | `[23:16]` MSRP TalkerFailed code (bound stream), `[15:0]` bound talker unique id |
-| `0x6B8` | `AVTPRX_STAT` | RO | AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156): `[31:24]` STREAM_INTERRUPTED, `[23:16]` MEDIA_UNLOCKED, `[15:8]` MEDIA_LOCKED (low bytes), `[0]` media-locked level |
+| `0x6B8` | `AVTPRX_STAT` | RO | AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156): `[31:24]` STREAM_INTERRUPTED, `[23:16]` MEDIA_UNLOCKED, `[15:8]` MEDIA_LOCKED, `[0]` media-locked level. The three byte fields are **saturating** narrow views of 32-bit counters (VERSION `0x0013`, same rule as `AVTPRX_ERR`): `0xFF` = "at least 255", full width at `A_STRMW_CNT` `0x830 + 4k` |
 | `0x6BC` | `AVTPRX_FRX` | RO | STREAM_INPUT[0] FRAMES_RX (full 32-bit counter) |
-| `0x6C0` | `AVTPRX_ERR` | RO | `[31:16]` SEQ_NUM_MISMATCH, `[15:8]` UNSUPPORTED_FORMAT, `[7:0]` TIMESTAMP_UNCERTAIN (low bytes/half-words) |
+| `0x6C0` | `AVTPRX_ERR` | RO | `[31:16]` SEQ_NUM_MISMATCH, `[15:8]` UNSUPPORTED_FORMAT, `[7:0]` TIMESTAMP_UNCERTAIN. **Narrow SATURATING views** of 32-bit counters (VERSION `0x0013`): all-ones means "**at least** this many", not "exactly this many" — read the full-width value at `A_STRMW_CNT` (`0x830 + 4k`; SEQ_NUM_MISMATCH = `0x83C`). Before `0x0013` these fields TRUNCATED, i.e. counted down again after the roll: silicon 2026-07-26 read SEQ_NUM_MISMATCH `51,523` on a board up 81 h, 79 % of the way to a 16-bit wrap that would have made a degrading link look like a healing one. Values below the ceiling are unchanged |
 | `0x6C4` | `PCMRX_CNT` | RO | AAF RX depacketizer: `[31:16]` whole frames dropped (FIFO overflow), `[15:0]` PDU payloads emitted to the PCM ring |
 | `0x6C8` | `PCMRX_TS` | RO | avtp_timestamp of the last ring-accepted PDU (media-clock recovery hook) |
 | `0x6CC` | `MAAP_CTRL` | RW | reset `0x0800`: `[0]` en, `[1]` seed_valid, `[15:8]` block count (default 8), `[31:16]` seed offset (provisioning re-claim) |
@@ -632,7 +670,7 @@ elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
 | `0x824` | `A_STRMW_FMT_LO` | RW | — | current stream format `[31:0]` (LCTX w2, engine-backed; talker side is AECP-owned — reads `0xDEADDEAD`, writes ignored) |
 | `0x828` | `A_STRMW_FMT_HI` | RW | — | format `[63:32]` (LCTX w3; talker side reads `0xDEADDEAD`) |
 | `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C — bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |
-| `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. Talker contexts read `0xDEADDEAD` (the not-backed rule below) |
+| `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. **Full 32-bit** — this is the authoritative width; the flat `AVTPRX_STAT`/`AVTPRX_ERR` words are saturating 8/16-bit summaries of these. Until VERSION `0x0013` the index-0 words were re-derived from those packed views and inherited their truncation (and MEDIA_RESET / LATE / EARLY_TIMESTAMP read a hard 0 while the monitor was counting them), so there was **no** full-width path anywhere. Talker contexts read `0xDEADDEAD` (the not-backed rule below) |
 | `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: per-stream frames_sent (idx 0 = `AAF_FRAMES`; idx>0 = the packetizer ctx FRAMES word, snap-fetched through the TCTX port) |
 | `0x85C` | `A_STRMW_SRP` | RO | — | per-stream lwSRP attribute status. idx 0: **live hard alias of `LWSRP_STATUS` (0x694)**. idx>0: `{16'0, ctx_rd_stat}` = `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the live lwSRP context row — listener idx `k` = ctx row `k`, talker idx `t` = ctx row `(L-1)+t`, so the table is `L+T-1` rows deep ([NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §3.4.1). **`0xDEAD` = NOT BACKED** (since VERSION `0x0010`): the selected row is `>= N_CTX_P` in this build. It used to alias row 0 instead, i.e. report the legacy pair's live reservation for a row that was never provisioned; `LWSRP_STATUS[11]` latches whenever this happens. The ctx port only grants while `LWSRP_CTRL[0]` is set, so with the engine disabled the SRP-served words (`SRP`, and `SID_*` at talker idx>0) stay at their "not fresh" 0 |
 | `0x860` | `A_STRMW_CTLR_LO` | RO | — | **E2 (saved-state fast-connect):** binding controller_entity_id `[31:0]` from the ACMP bind context (5.5.3.5.3 step 2). Listener contexts only — talker dir reads `0xDEADDEAD` |
