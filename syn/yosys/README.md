@@ -34,8 +34,9 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
   (drop into `~/.local/bin`). No Xilinx tools required.
 
 ## Coverage
-45 tops (the `tops=()` array in `run.sh` is authoritative — that array is
-the count, this prose is not; re-read it rather than trusting a number here):
+47 tops as of 2026-07-26 (the `tops=()` array in `run.sh` is authoritative — that
+array is the count, this prose is not; re-read it rather than trusting a number
+here):
 
 - the new open blocks (`tcam`, `rx_mac_filter`, `cdc_pulse`, `cdc_handshake`,
   `adp_advertiser`, `adp_tx_arbiter`),
@@ -49,9 +50,9 @@ the count, this prose is not; re-read it rather than trusting a number here):
 - **`milan_datapath` itself** (the full integration wrapper, which pulls in
   `ptp_ts_top`/`ptp_ts_core` hierarchically).
 
-Not covered: `milan_top` (RGMII SelectIO + PS block design, T2)
-and `avtp_stream_parser` (has a Verilator harness but no yosys top yet — a known
-gap, see [`docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md`](../../docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)).
+Not covered: `milan_top` (RGMII SelectIO + PS block design, T2). The
+`avtp_stream_parser` gap noted here previously is **closed** — it is a top in
+the array.
 
 ## Notes
 - `synth_ecp5` (Lattice ECP5) and `synth_ice40` (iCE40) are concrete non-Xilinx

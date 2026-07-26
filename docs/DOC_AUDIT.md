@@ -7,6 +7,13 @@
 
 Date: 2026-07-23
 Scope: full 79-doc corpus (the milan-fpga repo, all `*.md`).
+
+> **Frozen record.** Every count in this page is as-of its date, including the
+> corrections it prescribes ("17 → ~41 harness dirs", "18 → ~39 tops"). Those
+> targets are themselves now stale: the tree carries **55** Verilator suites with
+> a `Makefile` and **47** Yosys tops (2026-07-26). The *principle* the audit
+> landed on is the durable part and still holds — prefer "the directory listing
+> is authoritative" to any number in prose.
 Nature: **planning + drafting only** — no existing doc is edited, moved, or deleted by this
 audit. It records the cleanup decisions and the proposed target structure so the moves can be
 executed in a later pass. USER rule: OBSOLETE docs are **archived** (moved to `docs/archive/`

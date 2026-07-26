@@ -37,8 +37,15 @@ fully-FPGA NaxRiscv/LiteX SoC):
 | RX-DMA base/len/enable/done/offset | `0xf000301c`/`24`/`28`/`2c`/`34` | |
 | MAC internal loopback | `0xf0003810` | `1` = loop datapath TX→datapath RX, bypassing the LiteEth core+PHY |
 
-> The RMON good/error counters (`0x90000210…0x90000230`) read **0 in this build**  -  the LiteEth
-> core does not drive `i_mac_events`, so they are hardwired 0. Do **not** use them as a signal.
+> **At the time of this debug session** the RMON good/error counters
+> (`0x90000210…0x90000230`) read **0 in this build**: `i_mac_events` was tied to 0
+> at the SoC wiring site, so they were hardwired 0 and were no signal at all.
+> **That is no longer true.** Since VERSION `0x0001_0013` `KL_mac_rmon_events`
+> synthesises the event vector at the SoC's MAC boundary, so the good-frame and
+> FCS/bad-frame lanes count on LiteEth builds — and the RO `STATS_CAP` (`0x204`)
+> capability mask tells you which lanes are real before you read a zero. Read
+> `STAT_TX_FIFO_GOOD_FRAME` (`0x21C`) first when asking "did it egress?"; see
+> [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
 ## The diagnostic chain (each step ruled something in or out)
 

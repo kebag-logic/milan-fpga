@@ -48,7 +48,7 @@ flowchart LR
 
 Fastest useful commands: [`docs/integration/QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md) (flash/boot),
 [`docs/testing/TESTING.md`](testing/TESTING.md) (run any TB), [`CONTRIBUTING.md`](../CONTRIBUTING.md) (house rules),
-[`docs/fpga/FPGA_DESIGN.md`](fpga/FPGA_DESIGN.md) (all 77 modules), [`docs/traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md) (module ↔ spec ↔ test coverage).
+[`docs/fpga/FPGA_DESIGN.md`](fpga/FPGA_DESIGN.md) (every module in `hdl/`), [`docs/traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md) (module ↔ spec ↔ test coverage).
 
 ## 1. What this system is
 
@@ -232,10 +232,15 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   sketch has drifted from REGISTER_MAP — trust REGISTER_MAP: 0x6D0 STAT0 / 0x6D4 STAT1.)*
 
 **QoS / CBS shaper**
+- → **[`docs/reference/EGRESS_QUEUE_MAP.md`](reference/EGRESS_QUEUE_MAP.md)** — **the map of record**: six queues in 802.1Q
+  order (q5 SR class A … q0 best effort, higher index = higher priority), how each kind of traffic is
+  classified (tagged by PCP, untagged control by reserved DMAC), the CBS reset slopes, why gPTP sits
+  *below* the shaped classes, and the FQTSS measurements. Read this first.
 - → **[`docs/traceability/ieee8021q.md`](traceability/ieee8021q.md)** — per-clause VLAN/PCP + MRP + MSRP/MVRP map (the QoS/CBS
   verification view).
 - **[`docs/findings/CBS_DEFAULT_SHAPING_BUG.md`](findings/CBS_DEFAULT_SHAPING_BUG.md)** — the permanent finding that CBS shapes reserved
-  SR classes only (CBS_EN_RST=0000); read to understand why plain TCP is not credit-paced.
+  SR classes only (`CBS_EN_RST = 6'b000000`, i.e. every queue unshaped at reset); read to understand
+  why plain TCP is not credit-paced.
 - **[`docs/findings/CBS_DATAPATH_BUG.md`](findings/CBS_DATAPATH_BUG.md)** — the classifier/arbiter tdest-timing fix (distinct bug
   from the reset-default one); read for the CBS/classifier datapath internals.
 

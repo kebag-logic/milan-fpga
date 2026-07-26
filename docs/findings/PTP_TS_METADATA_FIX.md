@@ -138,9 +138,13 @@ Records arrive in wire order per direction (RR mux across directions).
   flood + AAF talker streaming (85.7 Mbit, baseline 83.3, 0 retr), and a
   simultaneous bidirectional flood (rms 2 ns — best of the session)**.
 - TX-flood corner: 3 tx-ts timeouts = egress delay. CORRECTED ATTRIBUTION
-  (the queue-starvation theory died on inspection: silicon runs LEGACY
-  classification where gPTP already rides q1 above best-effort q3, and the
-  grant's priority encoder is ascending — q0 highest): the delay is the
+  (the queue-starvation theory died on inspection: silicon ran LEGACY
+  classification where gPTP already outranked best effort, and the grant's
+  priority encoder was ascending — q0 highest **under the four-queue map of
+  the day**; since VERSION `0x0011` the map is 802.1Q-ordered, gPTP is **q3**,
+  best effort is **q0**, and `priority_encode` scans **top-down** — see
+  [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md), which
+  carries the corrected retelling of this incident): the delay is the
   DRIVER'S single TX descriptor ring — 256 slots of bulk TCP ≈ 30 ms of
   in-DRAM backlog at 100 Mbit that no fabric classifier can reorder. The
   stamp remains exact-egress-time so sync accuracy was UNAFFECTED (rms 2-4

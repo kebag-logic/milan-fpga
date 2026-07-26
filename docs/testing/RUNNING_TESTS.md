@@ -79,7 +79,7 @@ Suites and what they own:
   Imported by test_ring_bd via `importlib` (module name `trd`), also runnable alone.
 - **test_ring_tx.py / test_tx_bd.py**  -  TX ring + TX BD engines (HW-TSO era).
 - **test_ring_writeback.py**  -  pointer-writeback.
-- **test_rx_steer.py**  -  the 2-queue flow-steering front-end.
+- **test_rx_steer.py**  -  the 2-queue RX steering front-end (gPTP to q1, everything else q0).
 
 Run the WHOLE ring suite after ANY RingDMAWriter change; it is the contract net that
 caught the s_cq width relic shrink and would catch a CQ regression.

@@ -250,7 +250,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   stale-by-one-frame classifier, and restoring the pre-2026-07-05 re-arm
   condition makes the suite FAIL 4 checks.
 - [x] **M — Reserved DMAC validation** `(REQ-CLS-07)` — the 0x88F7 gPTP fast path
-  (second-highest queue) now also demands the reserved multicast
+  (the gPTP queue, q3) now also demands the reserved multicast
   `01-80-C2-00-00-0E` when `CLS_CTRL[1]` is set; a spoofed 0x88F7 falls through
   to the PCP tables / BEST_EFFORT. Reset 0 = unchanged wire behaviour. TBs:
   `cls` (directed + 200k random incl. the negative), `classifier` (wire-parsed
@@ -389,7 +389,7 @@ ingest ABI §8, bench recipe §11).
   is rejected rather than half-applied. Gated by `tb/verilator/persist`
   (96 checks: golden format, every rejection class with **zero** restores, the
   5.5.3.5.2 entry record, a restored sink driven to SETTLED with no controller,
-  A/B fall-back, `SEQ` monotonicity); yosys 44/44.
+  A/B fall-back, `SEQ` monotonicity); yosys portability sweep green (the `tops=()` array in `syn/yosys/run.sh` is the authoritative count).
 - [ ] **H2 — wire the ingest group into the CSR plane**. Add `0x7B8-0x7C4`
   (`JNL_CTRL`/`JNL_DATA`/`JNL_STAT`/`JNL_SEQ`) to `hdl/common/csr/milan_csr.sv`
   and instance `KL_persist_journal` in `milan_datapath`, including the `rest_*`
@@ -508,9 +508,12 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       Per-stream binding is **built** (`VERSION 0x0001_000C`: ACMP talker
       responder answers every uid, `t>0` admission mirrors `t0`); the walk
       itself waits on a flash of that gateware.
-- [~] **B — Fabric listener accept on the 8x8 gateware** — **ROOT-CAUSED and
-      fixed in RTL 2026-07-26 (`VERSION 0x0001_000F`); silicon confirmation is
-      all that remains.** The verdict never died in the *parse*, it died in the
+- [x] **B — Fabric listener accept on the 8x8 gateware** — **ROOT-CAUSED,
+      fixed in RTL 2026-07-26 (`VERSION 0x0001_000F`, and in every build since),
+      and the mechanism CONFIRMED ON SILICON the same day by causation**
+      ([`docs/findings/STRESS_0726.md`](docs/findings/STRESS_0726.md) §D: the
+      trap was triggered on purpose, the listener went deaf, re-staging
+      recovered it). The verdict never died in the *parse*, it died in the
       stream **table**: `win_commit_glue` staged the `0x800` window's SID in one
       global register pair shared by every index and only checked that *some*
       sid was staged, so a route-flags-only `CTRL` write at idx 0 armed entry 0
@@ -522,10 +525,16 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       real CSR window) and `tb/verilator/avtp_parser` T6 (table level, from
       reset), both with negative legs. Full write-up in
       [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md)
-      §21. Remaining: flash `0x000F` and re-read the `0x8B4` probe group; on the
-      currently-flashed `0x000B` the workaround is to explicitly stage the sid
-      at idx 0 before committing `CTRL`. Still blocks the RX half of the item-11
-      latency measurement until that flash.
+      §21. The RX half of the item-11 latency measurement is **no longer
+      blocked** — it was taken on 2026-07-26 through the manual staging
+      workaround (`MAC_RX→ACCEPT` ~0.49 µs, `ACCEPT→DEPKT` ~0.30 µs,
+      `DEPKT→PCM_RING` ~104-125 µs; `min`/`last` only, the `max` fields were
+      saturated by the preceding blocked period — see
+      [`docs/AAF_LATENCY_TAPS.md`](docs/AAF_LATENCY_TAPS.md)). Remaining, and it
+      is bookkeeping rather than a blocker: reflash a board past `0x000F` to
+      retire the workaround and re-read the chain with clean `max` fields. Until
+      that flash, a board at `0x000B` must still explicitly stage the sid at
+      idx 0 before committing `CTRL`.
 - [ ] **L — `LPF_P = 0` elaboration-time prune** for `KL_pcm_lpf` — a banked
       area lever (428 LUT / 756 FF measured), to be spent only after the
       ranked levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)

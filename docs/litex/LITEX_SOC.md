@@ -79,7 +79,12 @@ The engines:
 
 Masters attach to the CPU's **coherent** `dma_bus` when present - which is
 why `--coherent-dma` is mandatory (§4). An optional second RX queue
-(`--rx-queues 2`) adds an `RxSteer` classifier.
+(`--rx-queues 2`) adds an `RxSteer` classifier — since 2026-07-26 that is a
+**dedicated gPTP lane** (q1 = DMAC `01-80-C2-00-00-0E` + EtherType `0x88F7`,
+q0 = everything else), not the TCP-flow load-balancer it used to be. Each queue
+is its own ring writer, interrupt and NAPI; per-board `rx_queues` and the
+reflash gate on raising it are in
+[../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md).
 
 Endianness is `"big"` on purpose: memory order == wire order, so the CPU
 never byte-swaps.

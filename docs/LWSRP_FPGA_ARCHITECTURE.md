@@ -4,7 +4,9 @@ Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in `hdl/ieee8021q/srp/`
 integrated into `milan_datapath`; CSR group re-homed to **0x680-0x6A0** —
 [REGISTER_MAP.md](reference/REGISTER_MAP.md) is normative for the map, §4 below matches it). Verified:
 Verilator `lwsrp_tx` 363 / `lwsrp_rx` 75 / `lwsrp` 36 checks + `milan_dp`
-53 + `csr` 76 regressions green; Yosys 21/21. Wire contract extracted from
+53 + `csr` 76 regressions green; Yosys portability green (counts as of
+2026-07-14 — the `tops=()` array in `syn/yosys/run.sh` and `ls tb/verilator/`
+are the authoritative counts). Wire contract extracted from
 pipewire module-avb mrp.c/msrp.c/mvrp.c (byte-exact; one deliberate
 deviation: we gate the talker on the four-packed Ready/ReadyFailed
 declaration, the reference ignores it — see §1). Silicon vs the AVB switch +
@@ -155,7 +157,7 @@ detail in [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md))
 
 | Offset | Field |
 |---|---|
-| 0x680 | LWSRP_CTRL (RW): [0] enable · [1] talker0 enable · [3:2] class-A queue for the slope mux (reset 3) |
+| 0x680 | LWSRP_CTRL (RW, reset `0x14`): [0] enable · [1] talker0 enable · [4:2] class-A queue for the slope mux (reset **5** = q5, the SR class A queue of the six-queue map; the field was [3:2] until VERSION `0x0011`) |
 | 0x684 | LWSRP_VID (RW): [11:0] SR VID (reset 2) |
 | 0x688/0x68C | LWSRP_DMAC lo/hi (RW): stream dest MAC (until fabric MAAP) |
 | 0x690 | LWSRP_TSPEC (RW): {MaxIntervalFrames[31:16], MaxFrameSize[15:0]} |
@@ -191,7 +193,8 @@ next to the AVDECC multicast (default-pass covers it today; make explicit).
    spanning our StreamID at an offset — the +k trap), Domain match/mismatch,
    LeaveAll storm, leave-timer expiry, TalkerFailed code capture, gate/slope
    ordering on teardown, byte-exact TX templates (MSRP + MVRP), 75 % refusal.
-2. **Yosys/lint gates** — same 20/20 discipline (streaming walker is plain
+2. **Yosys/lint gates** — every module carries a top in the `syn/yosys/run.sh`
+   `tops=()` array, same discipline as the rest (streaming walker is plain
    FSM logic; no memories beyond the stream table FFs).
 3. **Silicon** — the AVB switch is a real SRP bridge: talker attribute must
    appear in its registration database; **the peer host's pipewire module-avb acts as
