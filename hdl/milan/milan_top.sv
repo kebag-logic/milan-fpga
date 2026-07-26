@@ -520,6 +520,10 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_ptp_cmd_load    (cfg_ptp_cmd_load),
     .i_ptp_cmd_adjust  (cfg_ptp_cmd_adjust),
     .i_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
+    //! REQ-PTP-06: the 0x540/0x544 correction registers reach the capture
+    //! point instead of stopping at a wire declaration (reset 0 = no change).
+    .i_ptp_ingress_lat (cfg_ptp_ingress_lat),
+    .i_ptp_egress_lat  (cfg_ptp_egress_lat),
     .o_ptp_tod_rd      (ptp_tod_rd),
     .o_ptp_tod_rd_valid(ptp_tod_rd_valid),
     .o_tx_ts_ready     (evt_tx_ts_ready),

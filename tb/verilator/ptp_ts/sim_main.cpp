@@ -165,6 +165,7 @@ int main(int argc, char **argv)
     top->i_ptp_enable = 1;
     top->i_ptp_incr = (uint32_t)NS_PER_CYC << 24;
     top->i_ptp_adj = 0;
+    top->i_ptp_ingress_lat = 0; top->i_ptp_egress_lat = 0;   // REQ-PTP-06: off
     settle(8);
     top->gtx_resetn = 1; top->axis_resetn = 1;
     settle(8);
@@ -427,6 +428,90 @@ int main(int argc, char **argv)
             if (rx_ok && tx_ok) printf("PASS ptp05: RX+TX events survive the non-event storm\n");
             else { printf("FAIL ptp05: rx=%d tx=%d after storm\n", rx_ok, tx_ok); fails++; }
         }
+    }
+
+    // 12: REQ-PTP-06 - per-port latency correction registers.
+    //     The capture point is the AXIS SOP, not the GMII SFD: on RX the SFD
+    //     crossed the pins BEFORE this beat (subtract), on TX it leaves AFTER
+    //     (add). PTP_INGRESS_LAT/PTP_EGRESS_LAT carry those constants and were
+    //     dead wires in milan_datapath until now. Method: stamp the SAME frame
+    //     shape twice, once with the correction 0 and once with it set, and
+    //     require the record delta to move by EXACTLY the programmed ns on top
+    //     of the SOP-cycle delta - so this measures the correction, not the
+    //     wire time.
+    {
+        const uint64_t ILAT = 3511, ELAT = 1490;   // the bench-measured pair
+
+        // RX: uncorrected reference, then the same frame with ingress applied
+        recs.clear();
+        gptp(b, 2, 0x0D01);
+        uint64_t r0 = send(b, 68, false, 0);
+        // space the pair by > ILAT/20 cycles so the corrected delta stays
+        // positive and a sign inversion cannot hide in unsigned wrap-around
+        settle(300);
+        top->i_ptp_ingress_lat = (uint32_t)ILAT;
+        gptp(b, 2, 0x0D02);
+        uint64_t r1 = send(b, 68, false, 0);
+        settle(120);
+        top->i_ptp_ingress_lat = 0;
+        expect_recs("ptp06 rx pair", 2);
+        if (recs.size() == 2) {
+            uint64_t want = (r1 - r0) * NS_PER_CYC - ILAT;   // SUBTRACTED on RX
+            uint64_t got  = recs[1].ns - recs[0].ns;
+            bool ok = got == want;
+            printf("%s ptp06 rx: ingress %llu ns subtracted (delta %llu, want %llu)\n",
+                   ok ? "PASS" : "FAIL", (unsigned long long)ILAT,
+                   (unsigned long long)got, (unsigned long long)want);
+            if (!ok) fails++;
+        }
+
+        // TX: same shape, egress must be ADDED (opposite sign, same register
+        // shape) - the negative leg for a sign inversion
+        recs.clear();
+        gptp(b, 0, 0x0D11);
+        uint64_t t0 = send(b, 68, true, 0);
+        settle(60);
+        top->i_ptp_egress_lat = (uint32_t)ELAT;
+        gptp(b, 0, 0x0D12);
+        uint64_t t1 = send(b, 68, true, 0);
+        settle(120);
+        top->i_ptp_egress_lat = 0;
+        expect_recs("ptp06 tx pair", 2);
+        if (recs.size() == 2) {
+            uint64_t want = (t1 - t0) * NS_PER_CYC + ELAT;   // ADDED on TX
+            uint64_t got  = recs[1].ns - recs[0].ns;
+            bool ok = got == want;
+            printf("%s ptp06 tx: egress %llu ns added (delta %llu, want %llu)\n",
+                   ok ? "PASS" : "FAIL", (unsigned long long)ELAT,
+                   (unsigned long long)got, (unsigned long long)want);
+            if (!ok) fails++;
+        }
+
+        // NEGATIVE: the two registers must not leak into each other's tap -
+        // programming EGRESS must leave RX captures untouched and vice versa
+        recs.clear();
+        gptp(b, 2, 0x0D21);
+        uint64_t x0 = send(b, 68, false, 0);
+        settle(60);
+        top->i_ptp_egress_lat = 0x0BADF00D;          // wrong tap, huge value
+        gptp(b, 2, 0x0D22);
+        uint64_t x1 = send(b, 68, false, 0);
+        settle(120);
+        top->i_ptp_egress_lat = 0;
+        expect_recs("ptp06 cross-talk pair", 2);
+        if (recs.size() == 2) {
+            check_delta("ptp06 egress does NOT touch RX", 0, 1, x0, x1);
+        }
+
+        // and with BOTH back at 0 the tap is bit-identical to the baseline
+        recs.clear();
+        gptp(b, 2, 0x0D31);
+        uint64_t z0 = send(b, 68, false, 0);
+        gptp(b, 2, 0x0D32);
+        uint64_t z1 = send(b, 68, false, 0);
+        settle(120);
+        expect_recs("ptp06 corrections cleared", 2);
+        check_delta("ptp06 cleared", 0, 1, z0, z1);
     }
 
     printf("======================================================================\n");
