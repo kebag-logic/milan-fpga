@@ -64,6 +64,14 @@ static std::vector<uint8_t> state_dump() {
         static_cast<uint32_t>(dut->pcm_drops_o),
         static_cast<uint32_t>(dut->match_o),
         static_cast<uint32_t>(dut->last_ts_o),
+        // the PRE-match view (the 0x8B4 APRB group's sources): every word
+        // above it exists only because a frame already matched, so they can
+        // never tell an accept-nothing listener why. `match_o` is a
+        // one-cycle pulse and reads 0 in any snapshot; these two are
+        // free-running counters and are what the accept-verdict campaign
+        // grades.
+        static_cast<uint32_t>(dut->par_parsed_o),
+        static_cast<uint32_t>(dut->par_matched_o),
     });
 }
 

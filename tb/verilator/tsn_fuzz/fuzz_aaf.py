@@ -23,21 +23,22 @@ every single malformed probe and after a full random storm.
 Run: python3 fuzz_aaf.py [--rounds N] [--seed S]
 """
 import argparse
+import random
 import sys
 
 import cosim
 import tsn_model
 import wire
 
-# state_dump() word order — must match cosim_aaf.cpp
+# state_dump() word order — must match cosim_aaf.cpp (APPEND ONLY)
 (C_FRAMES, C_LOCKCNT, C_UNLOCKCNT, C_INTERRUPT, C_SEQMM, C_TSUNC, C_UNSUPFMT,
  C_MRESET, C_LATE, C_EARLY, C_LOCKED, C_PCMPDUS, C_PCMDROPS, C_MATCH,
- C_LASTTS) = range(15)
+ C_LASTTS, C_PARSED, C_MATCHED) = range(17)
 
 NAMES = ["frames_rx", "media_locked_cnt", "media_unlocked_cnt", "stream_interrupted",
          "seq_mismatch", "ts_uncertain", "unsupported_fmt", "media_reset",
          "late_ts", "early_ts", "media_locked", "pcm_pdus", "pcm_drops",
-         "match", "last_ts"]
+         "match", "last_ts", "parser_parsed", "parser_matched"]
 
 #: the bench stream (mirrors tb/verilator/avtp_rxmon and cosim_aaf.cpp)
 SID = 0x020000FFFE010000
@@ -198,6 +199,159 @@ class Campaign:
             if moved:
                 self.rep.note("%s moved: %s" % (label, moved))
 
+    # ------------------------------------------------ 4b the ACCEPT VERDICT
+    def accept_verdict(self):
+        """The listener ACCEPT VERDICT itself, graded on the parser counters.
+
+        Every other section of this campaign fuzzes fields of a frame that
+        ALREADY matched. This one fuzzes the match: the parser's own
+        free-running `parsed`/`matched` counters — the sources milan_datapath
+        publishes as APRB_PARSED `0x8B4` / APRB_MATCHED `0x8B8` — are graded
+        against an exact model: accept **iff** the eight wire bytes at o+4
+        equal the bound stream_id, MS byte first.
+
+        That makes the open 8×8 blocker's signature a verdict this campaign
+        can state rather than infer: *PARSED climbs, MATCHED does not*. The
+        population is the way software and the wire can disagree while both
+        ends believe they agree — every single-bit flip across the full 64,
+        the byte-reversal, the `SID_LO`/`SID_HI` transposition, per-byte
+        corruption — plus a seeded random sid population.
+        """
+        self.rep.section("listener ACCEPT VERDICT: wire stream_id vs bound sid")
+        st = self.lock_stream()
+        self.rep.eq("locked before the sid sweep", st[C_LOCKED], 1)
+
+        def probe(label, sid, expect_match):
+            before = self.state()
+            after = self.send(stream_id=sid)
+            if not after:
+                self.rep.ck("%s: DUT answered" % label, False, "no state")
+                return None
+            self.rep.eq("%s: parser PARSED climbs" % label,
+                        after[C_PARSED] - before[C_PARSED], 1)
+            self.rep.eq("%s: parser MATCHED %s" % (label,
+                        "climbs" if expect_match else "STATIC"),
+                        after[C_MATCHED] - before[C_MATCHED],
+                        1 if expect_match else 0)
+            self.rep.eq("%s: frames_rx %s" % (label,
+                        "advanced" if expect_match else "frozen"),
+                        after[C_FRAMES] - before[C_FRAMES],
+                        1 if expect_match else 0)
+            return after
+
+        # the exact bound sid: the positive control the whole section rests on
+        probe("exact bound sid", SID, True)
+
+        # every single-bit flip: the compare must be all 64 bits wide
+        bad = 0
+        for b in range(64):
+            before = self.state()
+            after = self.send(stream_id=SID ^ (1 << b))
+            if not after:
+                bad += 1
+                continue
+            if (after[C_PARSED] - before[C_PARSED] != 1 or
+                    after[C_MATCHED] != before[C_MATCHED] or
+                    after[C_FRAMES] != before[C_FRAMES]):
+                bad += 1
+                self.rep.note("bit %d flip was not rejected cleanly: %s"
+                              % (b, self.delta(before, after)))
+        self.rep.eq("all 64 single-bit sid flips rejected, all parsed", bad, 0)
+
+        # the named ways a controller and the wire disagree
+        rev = int.from_bytes(SID.to_bytes(8, "big"), "little")
+        transposed = ((SID >> 32) | ((SID & 0xFFFFFFFF) << 32)) & (2 ** 64 - 1)
+        named = [("byte-reversed sid (LE/BE confusion)", rev),
+                 ("SID_LO/SID_HI transposed", transposed),
+                 ("all-ones sid", 2 ** 64 - 1),
+                 ("zero sid", 0),
+                 ("sid + 1 (uid off by one)", SID + 1),
+                 ("sid - 1", SID - 1)]
+        for label, sid in named:
+            probe(label, sid, sid == SID)
+        # per-byte corruption: each wire byte of the sid is load-bearing
+        for i in range(8):
+            probe("wire sid byte %d corrupted" % i, SID ^ (0xFF << (8 * i)), False)
+
+        # a VLAN-tagged frame carrying the bound sid must accept identically:
+        # the header offset moves by 4 and the verdict must not
+        before = self.state()
+        tagged = wire.aaf_pdu(**dict(GOOD, sequence_num=(self.seq + 1) & 0xFF,
+                                     vlan=2))
+        self.seq = (self.seq + 1) & 0xFF
+        after = cosim.parse_state(self.dut.xact(tagged))
+        self.rep.eq("C-VLAN tagged, bound sid: parser PARSED climbs",
+                    after[C_PARSED] - before[C_PARSED], 1)
+        self.rep.eq("C-VLAN tagged, bound sid: parser MATCHED climbs",
+                    after[C_MATCHED] - before[C_MATCHED], 1)
+        self.rep.eq("C-VLAN tagged, bound sid: accepted (frames_rx)",
+                    after[C_FRAMES] - before[C_FRAMES], 1)
+        # ...and a tagged frame carrying a FOREIGN sid is still rejected, so
+        # the tagged path is not a blanket accept
+        before = self.state()
+        tagged_bad = wire.aaf_pdu(**dict(GOOD, stream_id=SID ^ 0x0100,
+                                         sequence_num=(self.seq + 1) & 0xFF,
+                                         vlan=2))
+        self.seq = (self.seq + 1) & 0xFF
+        after = cosim.parse_state(self.dut.xact(tagged_bad))
+        self.rep.eq("C-VLAN tagged, foreign sid: PARSED climbs",
+                    after[C_PARSED] - before[C_PARSED], 1)
+        self.rep.eq("C-VLAN tagged, foreign sid: MATCHED STATIC",
+                    after[C_MATCHED] - before[C_MATCHED], 0)
+
+        # seeded random sid population, verdict predicted by the model
+        rnd = random.Random(self.seed ^ 0x5A1D)
+        mism = 0
+        for _ in range(96):
+            sid = rnd.getrandbits(64)
+            if rnd.random() < 0.25:
+                sid = SID              # keep a real accept population in the mix
+            before = self.state()
+            after = self.send(stream_id=sid)
+            want = 1 if sid == SID else 0
+            if not after or after[C_MATCHED] - before[C_MATCHED] != want \
+                    or after[C_PARSED] - before[C_PARSED] != 1:
+                mism += 1
+                self.rep.note("random sid 0x%016X mis-verdicted: %s"
+                              % (sid, self.delta(before, after or before)))
+        self.rep.eq("96 random stream_ids: verdict matched the model every time",
+                    mism, 0)
+
+        end = self.state()
+        self.rep.ck("sid sweep: parser saw every probe",
+                    end[C_PARSED] > st[C_PARSED],
+                    "parsed %d -> %d, matched %d -> %d"
+                    % (st[C_PARSED], end[C_PARSED], st[C_MATCHED], end[C_MATCHED]))
+
+        # The gate here is the OPPOSITE of every other section's. Elsewhere a
+        # malformed PDU must never unlock the stream; here the frames are
+        # perfectly formed and simply are not ours, so a sustained accept
+        # drought MUST unlock — a listener still reporting MEDIA_LOCKED while
+        # it accepts nothing is lying to the controller, and that is exactly
+        # the state a silicon read must be able to tell apart from a healthy
+        # one (PARSED climbing + MATCHED static + UNLOCKED = "not my stream",
+        # not "no traffic").
+        st2 = self.lock_stream()
+        self.rep.eq("re-locked before the accept drought", st2[C_LOCKED], 1)
+        drought = st2
+        for _ in range(60):
+            drought = self.send(stream_id=SID ^ 0xDEAD)
+        self.rep.eq("accept drought: parser PARSED climbed by 60",
+                    drought[C_PARSED] - st2[C_PARSED], 60)
+        self.rep.eq("accept drought: parser MATCHED never moved",
+                    drought[C_MATCHED], st2[C_MATCHED])
+        self.rep.eq("accept drought: frames_rx never moved",
+                    drought[C_FRAMES], st2[C_FRAMES])
+        self.rep.eq("accept drought: nothing reached the PCM ring",
+                    drought[C_PCMPDUS], st2[C_PCMPDUS])
+        self.rep.eq("accept drought: media UNLOCKED (no LOCKED lie)",
+                    drought[C_LOCKED], 0)
+        self.rep.ck("accept drought: unlock counted",
+                    drought[C_UNLOCKCNT] > st2[C_UNLOCKCNT],
+                    "unlock cnt %d -> %d" % (st2[C_UNLOCKCNT], drought[C_UNLOCKCNT]))
+        fresh = self.lock_stream()
+        self.rep.eq("re-locks cleanly after the drought", fresh[C_LOCKED], 1)
+
     # ------------------------------------------------------- 5 truncation
     def truncation(self):
         self.rep.section("truncated / oversized stream PDUs")
@@ -288,6 +442,7 @@ def main():
         c.field_verdicts()
         c.wire_truth()
         c.foreign()
+        c.accept_verdict()
         c.truncation()
         c.storm(m, args.rounds)
     return rep.done()

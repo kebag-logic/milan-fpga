@@ -13,19 +13,19 @@ make            build the DUTs and run everything   (~3 min)
 make aecp       AECP / AEM getter-setter + descriptor sweep
 make acmp       ACMP connection management + listener state machine
 make adp        ADP discovery: every advertised field at its wire offset
-make aaf        AAF / AVTP stream: per-field accept-reject + lock stability
+make aaf        AAF / AVTP stream: the listener ACCEPT VERDICT + lock stability
 make legacy     the original 14-command cosim smoke driver
 TSN_FUZZ_VERBOSE=1 make aecp     print passing checks too
 ```
 
-Current tally — 3049 checks, 0 failures, 4 tracked gaps:
+Current tally — 3153 checks, 0 failures, 2 tracked gaps:
 
 | campaign | checks | what it drives |
 |---|---:|---|
-| `fuzz_aecp.py` | 2602 | `KL_aecp_top` — 16 tsn-gen command models, 9 getters × 19 descriptor types, 8 setters, header fuzz, addressing/length |
+| `fuzz_aecp.py` | 2644 | `KL_aecp_top` — 16 tsn-gen command models, 9 getters × 19 descriptor types, 8 setters, header fuzz, addressing/length |
 | `fuzz_adp.py`  | 222 | `adp_advertiser` — 20 advertised fields, events, `available_index`, departing |
 | `fuzz_acmp.py` | 123 | `KL_acmp_listener` — 15 ACMP fields, all 16 message types, BIND→state→UNBIND |
-| `fuzz_aaf.py`  | 102 | parser → rx-monitor → depacketizer — per-field verdicts, lock survival |
+| `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
 
 ## How it works
 
@@ -83,7 +83,16 @@ every campaign interleaves storms with a *canary*:
   wedge, and a legitimate BIND to still work afterwards;
 * ADP requires a complete, correct 82-byte ADPDU after an event storm;
 * AAF requires the stream to **stay locked** through every malformed PDU —
-  an unlock is an audible dropout and a Milan compliance failure.
+  an unlock is an audible dropout and a Milan compliance failure — and,
+  inversely, requires it to **unlock** during a sustained accept drought: a
+  listener still reporting `MEDIA_LOCKED` while it accepts nothing is lying
+  to the controller. The accept verdict itself is graded on the parser's
+  free-running `parsed`/`matched` counters (what `milan_datapath` publishes
+  as `APRB_PARSED`/`APRB_MATCHED`), so *PARSED climbs, MATCHED static* is a
+  verdict the campaign states rather than infers — every single-bit flip of
+  the 64-bit `stream_id`, the byte-reversal, the `SID_LO`/`SID_HI`
+  transposition, per-byte corruption, the C-VLAN-tagged path both ways, and
+  a seeded random `stream_id` population against an exact model.
 
 ## ⚠ tsn-gen wire-layout caveat (measured 2026-07-25)
 
