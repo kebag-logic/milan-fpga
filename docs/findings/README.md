@@ -52,6 +52,7 @@ M-A3 DMA write-up [`hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_m
 | Doc | What it holds |
 |---|---|
 | [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) | Bench-ops onboarding: where-is-what + the physical/tap topology |
+| [STRESS_0726.md](STRESS_0726.md) | 2026-07-26 adversarial campaign: 19 checks, 0 failures — stop/start storms, illegal CSR access, engine cycling, boundary sids, and the entry-0 blocker triggered ON PURPOSE to prove the root cause by causation |
 | [LIVE_BENCH_0726.md](LIVE_BENCH_0726.md) | 2026-07-26 live health + function sweep of both boards: gPTP converged, bidirectional streaming, 0 format errors over ~2 G frames, live audio capture, and the two known tie-offs observed on silicon |
 
 ## Conventions
