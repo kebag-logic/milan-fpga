@@ -200,6 +200,62 @@ int main(int argc, char** argv) {
         dut->use_pcp_i = 1;
     }
 
+    // ---- REQ-CLS-07: reserved-DMAC validation of the gPTP fast path ----
+    // 802.1AS-2020 s10.5 gPTP rides 01-80-C2-00-00-0E. The DUT parses the DMAC
+    // off the WIRE (byte 0 first), so this exercises the parse as well as the
+    // gate. Negative leg: the same 0x88F7 frame sent to a foreign DMAC must
+    // LOSE the priority queue once CLS_CTRL[1] is set - and must keep it while
+    // the bit is clear (reset behaviour is bit-identical to today's silicon).
+    {
+        // gPTP frame with a settable destination MAC
+        auto mkgptp_dmac = [](const uint8_t dm[6], int nbeats) {
+            std::vector<uint8_t> f(nbeats * 8, 0x00);
+            for (int i = 0; i < 6; i++) f[i] = dm[i];
+            const uint8_t rest[8] = {2,0,0,0,0,2, 0x88,0xF7};
+            for (int i = 0; i < 8; i++) f[6 + i] = rest[i];
+            f[14] = 0x12; f[15] = 0x02;
+            std::vector<Beat> fr;
+            for (int b = 0; b < nbeats; b++) {
+                uint64_t d = 0;
+                for (int k = 0; k < 8; k++) d |= (uint64_t)f[b * 8 + k] << (8 * k);
+                fr.push_back({ d, (uint8_t)(b == nbeats - 1 ? 0x0F : 0xFF), b == nbeats - 1 });
+            }
+            return fr;
+        };
+        const uint8_t good[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};   // reserved gPTP mcast
+        const uint8_t spoof[6]= {0x01,0x80,0xC2,0x00,0x00,0x0F};   // one bit off - not gPTP
+        const uint8_t uni[6]  = {0x02,0x00,0x00,0x00,0x00,0x68};   // plain unicast
+
+        // default port priority 2 -> identity tables -> queue 2 (NOT q1=GPTP)
+        uint32_t ident24 = 0; for (int i = 0; i < 8; i++) ident24 |= (uint32_t)i << (3 * i);
+        dut->default_pcp_i = 2; dut->pcp_tc_map_i = ident24; dut->prio_regen_i = ident24;
+
+        // (a) check OFF: every DMAC still takes the fast path
+        dut->dmac_check_i = 0;
+        std::vector<std::vector<Beat>> off = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9),
+                                               mkgptp_dmac(uni, 9) };
+        std::vector<int> offexp = { 1, 1, 1 };
+        run_frames(off, /*bp=*/0, "cls07 check-off keeps fast path", &offexp);
+
+        // (b) check ON: only the reserved DMAC keeps q1; the others fall to q2
+        dut->dmac_check_i = 1;
+        std::vector<std::vector<Beat>> on = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9),
+                                              mkgptp_dmac(uni, 9), mkgptp_dmac(good, 9) };
+        std::vector<int> onexp = { 1, 2, 2, 1 };
+        run_frames(on, /*bp=*/0, "cls07 reserved DMAC gates gPTP", &onexp);
+        run_frames(on, /*bp=*/1, "cls07 reserved DMAC gates gPTP bp", &onexp);
+
+        // (c) legacy mode: the spoof must land on BEST_EFFORT (q3), not q1
+        dut->use_pcp_i = 0;
+        std::vector<std::vector<Beat>> lg = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9) };
+        std::vector<int> lgexp = { 1, 3 };
+        run_frames(lg, /*bp=*/0, "cls07 legacy spoof -> BEST_EFFORT", &lgexp);
+
+        // restore the harness defaults for anything that follows
+        dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
+        dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688;
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
