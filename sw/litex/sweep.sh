@@ -3,38 +3,75 @@
 # parallel instances at 32 threads). Usage: sweep.sh <arty|ax7101> <tag>
 # Bits land in $WORK/build_<board>_{asl,eto,eppo}_<tag>; pick by WNS:
 #   grep -A6 "Design Timing Summary" build_*_<tag>/gateware/vivado.log
+#
+# Shape override (a non-default end-station config for this board):
+#   SWEEP_CFG=configs/endstation_arty_4x4.yaml sweep.sh arty 4x4
 set -euo pipefail
 BOARD=${1:?board}; TAG=${2:?tag}
 export PATH="$HOME/litex-milan/venv/bin:$PATH"
 source $HOME/Xilinx/2026.1/Vivado/settings64.sh
 W=$HOME/litex-milan/work
-# Per-board design OPTS/L2: SINGLE SOURCE = the end-station configs.
+R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
+# ======================= PER-BOARD DESIGN SHAPE =========================
+# SINGLE SOURCE = the end-station configs. These tables are the DEFAULTS;
 # sw/builder/endstation_builder.py emits configs/generated/sweep_opts_<board>.sh
-# from configs/endstation_*.yaml; sourced when present.
-GEN_OPTS="$(dirname "$(realpath "$0")")/../../configs/generated/sweep_opts_${BOARD}.sh"
+# from configs/endstation_*.yaml and it is sourced AFTER them, so anything the
+# fragment defines wins and anything it does not define keeps the default (that
+# ordering is why a fragment that predates a new knob can never silently drop
+# it). Regenerate the fragments with
+#   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
+#   python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml
+# The builder test gate (test_builder.py gate 9) asserts fragment OPTS/L2/RXQ ==
+# these tables byte-for-byte; check_sweep_shape.py asserts the EFFECTIVE
+# OPTS/L2/RXQ/NS == the end-station config named in CFG below.
+# ========================================================================
+case "$BOARD" in
+  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536; RXQ=2;;
+  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=32768; RXQ=1;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven)
+  *) echo "unknown board $BOARD" >&2; exit 2;;
+esac
+# NS = NxN dataplane width (--num-streams / milan_datapath N_STREAMS). It is a
+# SHAPE property, not a board property (arty has both a 1x1 and a 4x4 config),
+# which is why it sits on its own line beside the board defaults and beside the
+# config it comes from. UNTIL 2026-07-26 sweep.sh passed NO --num-streams AT
+# ALL, so `sweep.sh ax7101` built the DEFAULT 1x1 datapath while every config,
+# doc and build dir called it 8x8 - the same silent-divergence class as the
+# rx-queues bug (5ce9a13), one shape wider.
+case "$BOARD" in
+  arty)   NS=1; CFG=${SWEEP_CFG:-configs/endstation_arty_current.yaml};;
+  ax7101) NS=8; CFG=${SWEEP_CFG:-configs/endstation_ax7101_8x8.yaml};;
+esac
+GEN_OPTS="$R/configs/generated/sweep_opts_${BOARD}.sh"
 if [ -f "$GEN_OPTS" ]; then
   . "$GEN_OPTS"
-else
-  # ============================ FALLBACK ONLY ============================
-  # No generated fragment found - these inline tables are the FALLBACK, not
-  # the source of truth. Regenerate the fragments with
-  #   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
-  #   python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml
-  # The builder test gate asserts fragment == these tables byte-for-byte.
-  # =======================================================================
-  case "$BOARD" in
-    arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536; RXQ=2;;
-    ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"; L2=32768; RXQ=1;;  # e2 since 2026-07-22 (e1 GMII-RX hardware fault, cold-soak-proven)
-    *) echo "unknown board $BOARD" >&2; exit 2;;
-  esac
 fi
+# A fragment may express the stream count either as `NS=<n>` (preferred: the
+# same shape as L2/RXQ) or, historically, inline in OPTS (sweep_opts_arty_4x4.sh
+# does). Lift the inline form into NS so there is exactly ONE effective value
+# and the gate below sees it; never emit the flag twice (argparse would silently
+# keep the last one).
+case "$OPTS" in
+  *--num-streams*)
+    NS="$(printf '%s\n' "$OPTS" | sed -E 's/.*--num-streams[= ]+([0-9]+).*/\1/')"
+    ;;
+  *)
+    if [ "${NS}" -gt 1 ]; then OPTS="$OPTS --num-streams ${NS}"; fi
+    ;;
+esac
 # RXQ is PER BOARD because each board's flashed boot chain fixes its own DMA
 # window map (the 2026-07-24 CSR-rot rule): ax7101 ships 1 queue (its csr.csv
 # has no rx1_*/steer registers), arty ships 2 (its deployed gateware carries
 # rx1_* + steer_q0/q1). Building either with the other's count shifts every
 # DMA window under an unchanged DTB - unify them only with a full boot-chain
 # rebuild on that board.
-BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv \
+#
+# HARD GATE (not advisory): the effective shape must equal the end-station
+# config this sweep claims to build. set -e turns any disagreement into a
+# refusal to launch, so "the config says 8x8, the bitstream is 1x1" cannot
+# happen again.
+python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
+        --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2"
+BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
  --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \

@@ -37,7 +37,7 @@ from litex.build.io import DDROutput
 
 from litex.soc.cores.clock import S7PLL, S7MMCM
 from litex.soc.interconnect import axi
-from litex.soc.interconnect.csr import CSRStorage, CSRStatus
+from litex.soc.interconnect.csr import CSRStorage, CSRStatus, CSRField
 from litex.gen.genlib.cdc import BusSynchronizer
 from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
 from litex.soc.integration.soc_core import SoCCore
@@ -764,6 +764,60 @@ class MilanMAC(LiteXModule):
         # try/except only ever swallowed its own NameError)
         self.i2s_pads = None
         self.i2s_dac_pads = None
+
+        # ---- PHY/MAC link status (MAC_STATUS 0x110 / REQ-MAC-03) --------------------
+        # WHY A CSR AND NOT A WIRE: LiteEth's GMII/MII PHY wrappers expose NO link,
+        # speed or duplex output. `LiteEthPHYGMII`/`LiteEthPHYMII` carry the TX/RX
+        # datapaths, the CRG, and - only when the board routes mdc/mdio - a
+        # `LiteEthPHYMDIO`, which is a SOFTWARE BIT-BANG register pair (mdc / mdio_w
+        # {oe,w} / mdio_r), NOT an autoneg-result register. There is no hardware MDIO
+        # master anywhere in the SoC, so the negotiated state only ever exists where
+        # the MDIO transactions happen: in software (kl-eth's phylib/ethtool path,
+        # `phy` reg window 0xf000_3800). A fabric MDIO poller would be new
+        # SystemVerilog, i.e. a different lane - see docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md.
+        #
+        # Before this register the three datapath status inputs were CONSTANTS
+        # (`i_link_up = 1`, `i_full_duplex = 1`, `i_mac_speed` = a per-board build-time
+        # guess). That is the RMON tie-off class (2026-07-22: `i_mac_events = 0` made a
+        # fully-tested counter block dead in silicon): MAC_STATUS[0] could never report
+        # link-down, and REQ-MAC-03's `o_mac_is_1g = mac_ctrl[5] ? mac_ctrl[4] :
+        # (i_speed == 2'd2)` derived "1 Gb/s" from a build-time constant - so the lwSRP
+        # bandwidth gate's 750 Mb/s admission limit was pinned by the bitstream, not by
+        # the link. Reset values REPRODUCE the old constants exactly, so a build whose
+        # software never writes this register behaves bit-identically to before; the
+        # difference is that software CAN now publish the truth.
+        self.link_status = CSRStorage(fields=[
+            CSRField("link_up", size=1, offset=0, reset=1,
+                     description="PHY link is up (MAC_STATUS[0]). Software-published "
+                                 "from the MDIO autoneg result; reset 1 = the "
+                                 "pre-2026-07-26 hardwired constant."),
+            CSRField("speed", size=2, offset=1,
+                     reset=(0b01 if phy_model == "mii" else 0b10),
+                     description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
+                                 "2=1000 Mb/s. Feeds milan_csr i_speed, hence "
+                                 "o_mac_is_1g (REQ-MAC-03) unless MAC_CTRL[5] "
+                                 "manual-override is set. Reset = the board's PHY "
+                                 "wiring (mii -> 100, gmii -> 1000)."),
+            CSRField("full_duplex", size=1, offset=3, reset=1,
+                     description="Full-duplex indication (MAC_STATUS[3])."),
+        ], description="PHY/MAC link status published by software (MDIO). See "
+                       "MAC_STATUS 0x110 in docs/reference/REGISTER_MAP.md.")
+        # The register lives in `sys`; the datapath samples in `milan_cd`. `speed` is
+        # already 2-FF synchronised inside milan_datapath (`mac_speed_cdc`), so it goes
+        # across raw - exactly as the constant did. The two single-bit lanes are NOT
+        # synchronised in the RTL (link_up feeds eff_link/cnt_link combinationally and
+        # full_duplex feeds the CSR read mux), so they get the standard 2-FF treatment
+        # here. Same MultiReg idiom add_milan_datapath() uses for the CSR IRQ.
+        # NAME the two signals explicitly: migen derives wire names from the assignment
+        # frame, and a tuple assignment (`a, b = Signal(), Signal()`) leaves one of them
+        # with a degenerate name in the generated .v (`wire milanmac;` - verified).
+        link_up_cd     = Signal(name="link_up_cd")
+        full_duplex_cd = Signal(name="full_duplex_cd")
+        self.specials += [
+            MultiReg(self.link_status.fields.link_up,     link_up_cd,     odomain=milan_cd),
+            MultiReg(self.link_status.fields.full_duplex, full_duplex_cd, odomain=milan_cd),
+        ]
+
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
             o_o_eth_rst         = self.eth_rst,
@@ -773,16 +827,18 @@ class MilanMAC(LiteXModule):
             i_s_axis_mac_rx_tdata  = rx_dp.dp.data,  i_s_axis_mac_rx_tkeep = rx_dp.dp.keep,
             i_s_axis_mac_rx_tvalid = rx_dp.dp.valid, i_s_axis_mac_rx_tlast = rx_dp.dp.last,
             o_s_axis_mac_rx_tready = rx_dp.dp.ready,
-            # MAC status: up/full-duplex until MDIO link tracking lands (§A.7 refine);
-            # speed = 0b10 (1G, GMII boards) or 0b01 (100M, the Arty MII DP83848).
+            # MAC status: from the `link_status` CSR above (software-published MDIO
+            # autoneg result), NOT constants - see the block comment there for why a
+            # CSR is the only honest source on a LiteEth GMII/MII PHY.
             # RMON: LiteEth exposes no Forencich-style event pulses, so i_mac_events
             # stays 0 - but STAT_TX/RX_FIFO_GOOD_FRAME (0x21C/0x230) now count anyway:
             # milan_datapath derives those two lanes from its own MAC AXIS boundary
             # handshake (2026-07-22 fix; this tie-0 was why RMON never worked on
             # silicon - every lane was hardwired silent). The MAC-internal error/
             # overflow lanes legitimately read 0 on LiteEth builds.
-            i_i_mac_speed = (0b01 if phy_model == "mii" else 0b10),
-            i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
+            i_i_mac_speed = self.link_status.fields.speed,
+            i_i_link_up = link_up_cd, i_i_full_duplex = full_duplex_cd,
+            i_i_mac_events = 0,
             i_i_ethrx_tgl = self.ethrx_tgl, i_i_ethtx_tgl = self.ethtx_tgl,
             i_i_ethact_tgl = self.ethact_tgl,
         )
