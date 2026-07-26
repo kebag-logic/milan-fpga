@@ -17,11 +17,11 @@
 //                Integration contract:
 //                  m_axis_*          -> the low-rate control TX merge
 //                  rx_*              -> monitor tap on rx_axis_to_dma
-//                  stream_gate_o     -> per-stream AAF admission (bit 0 =
-//                                       the legacy CSR talker row, bits
-//                                       1..N-1 = ctx-table talker rows;
-//                                       the CSR bypass is resolved at the
-//                                       datapath level)
+//                  stream_gate_o     -> per-TALKER AAF admission (bit 0 =
+//                                       the legacy CSR talker row, bit t =
+//                                       ctx row (L-1)+t, the 0x800 window's
+//                                       talker row map; the CSR bypass is
+//                                       resolved at the datapath level)
 //                  slope_en/idle_slope -> CBS slope MUX for the class-A queue
 //                  listener_ready_o  -> ACMP listener_observed (replaces the
 //                                       manual A_ACMP_LOBS override)
@@ -39,7 +39,24 @@ module KL_lwsrp_top #(
   //! N > 1 adds N-1 generic context-table rows (talker OR listener each),
   //! provisioned through the ctx_* request/grant port — the 2nd-listener /
   //! CRF-reservation gap (docs/MILAN_COMPLIANCE_GAPS.md §3).
-  parameter int unsigned N_CTX_P        = 1
+  //!
+  //! SIZING (2026-07-26): N_CTX_P is the number of ATTRIBUTE rows, and an
+  //! LxT shape declares L+T-1 of them, NOT max(L,T). The 0x800 window's
+  //! row map (REGISTER_MAP.md, milan_csr `srp_sel_row_w`) is
+  //!   listener k -> row k          (k = 1..L-1)
+  //!   talker   t -> row (L-1)+t    (t = 1..T-1)
+  //! with row 0 the legacy talker+listener pair, so the top row is
+  //! (L-1)+(T-1) = L+T-2. Pass N_CTX_P = L+T-1; a smaller value makes the
+  //! surplus rows unbacked and KL_lwsrp_ctx latches ctx_oor_o for them.
+  parameter int unsigned N_CTX_P        = 1,
+  //! listener contexts the caller's row map assumes (the (L-1)+t talker
+  //! base). Default 1 = "no separate listener block", i.e. talker t -> row
+  //! t, which is exactly the pre-2026-07-26 mapping.
+  parameter int unsigned N_LISTENERS_P  = 1,
+  //! talker contexts = the width of stream_gate_o / res_active. Decoupled
+  //! from N_CTX_P so the Σ-slope bw-gate stays T slots wide instead of
+  //! growing to L+T-1 (it would spend ~7 unusable slope slots at 8x8).
+  parameter int unsigned N_TALKERS_P    = N_CTX_P
 )(
     input  wire         clk_i,
     input  wire         rst_n,
@@ -84,9 +101,9 @@ module KL_lwsrp_top #(
     input  wire         m_axis_tready,
 
     // ---- reservation outputs ----------------------------------------------
-    //! per-stream AAF admission: [0] = legacy CSR talker row, [t] = ctx
-    //! row t (talker-direction rows only; listener rows never gate)
-    output wire [N_CTX_P-1:0] stream_gate_o,
+    //! per-TALKER AAF admission, indexed by talker stream index (NOT by ctx
+    //! row): [0] = legacy CSR talker row 0, [t] = ctx row (L-1)+t
+    output wire [N_TALKERS_P-1:0] stream_gate_o,
     output wire         slope_en_o,        //! CBS slope MUX select
     output wire [31:0]  idle_slope_o,      //! Σ granted idleSlope, bps
     output wire         res_active_o,      //! legacy-row reservation ACTIVE
@@ -125,6 +142,10 @@ module KL_lwsrp_top #(
     output wire [63:0]  ctx_rd_sid_o,
     output wire [15:0]  ctx_rd_stat_o,     //! {valid,dir,declared,reg,ready,
                                            //!  failed,decl[1:0],code[7:0]}
+    //! sticky: a serviced provisioning request named a row >= N_CTX_P.
+    //! Surface it — an under-sized context table silently drops
+    //! reservations, which is invisible from every other counter.
+    output wire         ctx_oor_o,
     //! live per-context status vectors, bit 0 = legacy row
     output wire [15:0]  ctx_reg_o,
     output wire [15:0]  ctx_ready_o,
@@ -179,6 +200,7 @@ module KL_lwsrp_top #(
     .ctx_latency_i (ctx_latency_i),
     .ctx_gnt_o (ctx_gnt_o),
     .ctx_rd_sid_o (ctx_rd_sid_o), .ctx_rd_stat_o (ctx_rd_stat_o),
+    .ctx_oor_o (ctx_oor_o),
     .leg_valid_i (enable_i & talker_en_i),
     .leg_declared_i (talker_declared_o),
     .leg_reg_i (listener_reg_o), .leg_ready_i (listener_ready_o),
@@ -306,17 +328,39 @@ module KL_lwsrp_top #(
   );
 
   // ---- per-stream bw-gate feeds (P12 follow-up: talker t>0 arming) --------
-  //! bit 0 = the legacy CSR talker row; bits 1..N-1 = ctx-table rows,
-  //! talker-direction only (a listener row never requests bandwidth here -
-  //! its reservation is the remote talker's).
+  //! Indexed by TALKER stream index: bit 0 = the legacy CSR talker row,
+  //! bits 1..T-1 = the ctx-table rows the 0x800 window maps talkers to,
+  //! i.e. ctx row (L-1)+t = extra lane TK_LANE_C(t). Listener rows never
+  //! reach the gate (their reservation is the remote talker's), which is
+  //! why the gate is T slots wide and not N_CTX_P.
+  //!
+  //! Before 2026-07-26 this read lane gt-1 for talker gt — correct only at
+  //! L=1. At L=T=4 the window provisions talker 1 into ctx row 4 while the
+  //! gate read row 1, a LISTENER row, whose ~row_dir is 0: every t>0 gate
+  //! was pinned shut whenever the engine was enabled.
+  //!
   //! TSpec shadow for the extra rows: the ctx record RAM keeps its ONE
   //! explicit read port (defect-4 house rule), so the bw-gate's parallel
   //! quasi-static TSpec inputs come from small shadow flops captured at the
-  //! same provisioning grant that writes the record.
-  wire [N_CTX_P-1:0]    gate_tdecl_w, gate_lrdy_w;
-  wire [16*N_CTX_P-1:0] gate_maxf_w, gate_intv_w;
+  //! same provisioning grant that writes the record — PER ROW, so a
+  //! 2-channel and an 8-channel talker reserve their own slopes.
+  //!
+  //! extra-lane index of talker t (t >= 1) = ctx row (L-1)+t, minus the
+  //! row-0 offset the lane vectors carry
+  localparam int unsigned TK_ROW_BASE_C = (N_LISTENERS_P > 1)
+                                          ? N_LISTENERS_P - 1 : 0;
+  wire [N_TALKERS_P-1:0]    gate_tdecl_w, gate_lrdy_w;
+  wire [16*N_TALKERS_P-1:0] gate_maxf_w, gate_intv_w;
   logic [15:0] gate_maxf_r [EXT_LANES_C];
   logic [15:0] gate_intv_r [EXT_LANES_C];
+
+  //! capture on the SERVICE beat (`ctx_req_i && !ctx_gnt_o`) — the very
+  //! cycle KL_lwsrp_ctx writes the record RAM — not on the grant beat one
+  //! cycle later. The old grant-beat capture only worked while the caller
+  //! held req/we THROUGH the grant; a caller that dropped them at the grant
+  //! (every TB helper does) wrote the record and left the bw-gate's TSpec
+  //! at 0, i.e. a reservation with no slope. Same beat = cannot diverge.
+  wire ctx_svc_w = ctx_req_i && !ctx_gnt_o;
 
   always_ff @(posedge clk_i or negedge rst_n) begin : gate_tspec_shadow
     if (!rst_n) begin
@@ -325,7 +369,7 @@ module KL_lwsrp_top #(
         gate_intv_r[l] <= '0;
       end
     end
-    else if (ctx_req_i && ctx_we_i && ctx_gnt_o && (ctx_idx_i != 4'd0) &&
+    else if (ctx_svc_w && ctx_we_i && (ctx_idx_i != 4'd0) &&
              (32'(ctx_idx_i) < N_CTX_P)) begin
       gate_maxf_r[ctx_idx_i - 4'd1] <= ctx_max_frame_i;
       gate_intv_r[ctx_idx_i - 4'd1] <= ctx_interval_i;
@@ -337,21 +381,22 @@ module KL_lwsrp_top #(
   assign gate_maxf_w[15:0]  = max_frame_i;
   assign gate_intv_w[15:0]  = interval_frames_i;
   generate
-    for (genvar gt = 1; gt < int'(N_CTX_P); gt++) begin : g_gate_feed
+    for (genvar gt = 1; gt < int'(N_TALKERS_P); gt++) begin : g_gate_feed
       //! declared = valid talker row (the ctx TX refreshes it while the
       //! engine runs); ready = Listener Ready/ReadyFail registered (the
       //! per-direction row_ready view, talker rows only)
-      assign gate_tdecl_w[gt] = row_valid_w[gt-1] & ~row_dir_w[gt-1];
-      assign gate_lrdy_w[gt]  = row_ready_w[gt-1] & ~row_dir_w[gt-1];
-      assign gate_maxf_w[16*gt +: 16] = gate_maxf_r[gt-1];
-      assign gate_intv_w[16*gt +: 16] = gate_intv_r[gt-1];
+      localparam int unsigned LN = TK_ROW_BASE_C + gt - 1;   //! extra lane
+      assign gate_tdecl_w[gt] = row_valid_w[LN] & ~row_dir_w[LN];
+      assign gate_lrdy_w[gt]  = row_ready_w[LN] & ~row_dir_w[LN];
+      assign gate_maxf_w[16*gt +: 16] = gate_maxf_r[LN];
+      assign gate_intv_w[16*gt +: 16] = gate_intv_r[LN];
     end
   endgenerate
 
-  wire [N_CTX_P-1:0] res_active_w;
+  wire [N_TALKERS_P-1:0] res_active_w;
   assign res_active_o = res_active_w[0];
 
-  KL_lwsrp_bw_gate #(.N_STREAMS_P(N_CTX_P)) bw_gate (
+  KL_lwsrp_bw_gate #(.N_STREAMS_P(N_TALKERS_P)) bw_gate (
     .clk_i (clk_i), .rst_n (rst_n),
     .enable_i (enable_i),
     .talker_declared_i (gate_tdecl_w),
