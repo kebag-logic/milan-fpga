@@ -99,17 +99,38 @@ edge must be derived from the RTL or a named doc, never invented.
 ```sh
 python3 scripts/docs_check.py                            # exit 0 or it lists findings
 python3 docs/traceability/gen_module_matrix.py --check   # matrix no-drift
+python3 sw/builder/test_builder.py                       # end-station builder gates
 ```
 
-[`../scripts/docs_check.py`](../scripts/docs_check.py) enforces four rules
-over every tracked `*.md` (plus diagram sources for the last one): relative
-links must resolve; the wording deny-list; a mentioned doc must be a real
-link (generated files and [`../historical_now_obsolete/`](../historical_now_obsolete/README.md)
-are exempt); and no bench/host-identifying information (hostnames, home
-paths, serials, bench IPs). The exact allowlist is in the script header.
-Both commands run in CI on every push to `main` and every PR
-([`../.github/workflows/docs.yml`](../.github/workflows/docs.yml)) — run them
-locally first, exit-checked, never piped through `tail`.
+[`../scripts/docs_check.py`](../scripts/docs_check.py) enforces five rules
+over every `*.md` in the tree (plus diagram sources for the last one):
+
+1. relative links must resolve;
+2. the wording deny-list;
+3. a mentioned doc that **exists** must be a real link (generated files and
+   [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) are exempt);
+4. a mentioned doc that **does not exist** is a *dead reference* — either a path
+   inside this repo that is not there, or a document listed as retired in the
+   script's `RETIRED` set. Rule 3 cannot see these, so a reference left behind by
+   a deletion used to survive the gate silently; it no longer does. Sibling-repo
+   paths are left alone (the rule only fires when the reference's parent
+   directory is a real directory of this repo). One document opts out — the
+   archive ledger [`DOC_AUDIT.md`](DOC_AUDIT.md), whose job *is* to name retired
+   files — via an HTML-comment line carrying the token
+   `docs-check: allow-dead-refs`;
+5. no bench/host-identifying information (hostnames, home paths, serials, bench IPs).
+
+The exact allowlist and the `RETIRED` set are in the script header. **The gate
+does not need git**: inside a git working tree it takes the file list from
+`git ls-files`, and otherwise falls back to a `.gitignore`-aware filesystem walk,
+printing which source it used — so it runs identically in an extracted tarball or
+a downloaded zip. When you retire a document, add its basename to `RETIRED` and
+the gate will find every reference left pointing at it.
+
+All three commands run in CI on every push to `main` and every PR
+([`../.github/workflows/docs.yml`](../.github/workflows/docs.yml)), which also
+re-runs the docs gate a second time with `.git` deleted to keep the no-git path
+honest — run them locally first, exit-checked, never piped through `tail`.
 
 ## 6. Cheat sheet — you changed X, run Y
 
@@ -119,4 +140,6 @@ locally first, exit-checked, never piped through `tail`.
 | A module's `//!` comments | TerosHDL "Save documentation" on that `.sv` |
 | A `.gen.py` or `.drawio` diagram master | the `.gen.py` (or draw.io export) + `rsvg-convert`; update the catalog |
 | A `wd_*.json` chronogram | `scripts/gen_wavedrom.py` on it; inspect the png |
+| Deleted or archived a doc | add its basename to `RETIRED` in `scripts/docs_check.py`, then run the gate — it lists every reference now pointing at nothing |
+| A config schema / builder emission | `sw/builder/test_builder.py` |
 | Any `*.md` at all | `scripts/docs_check.py` before pushing |

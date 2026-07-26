@@ -169,7 +169,7 @@ ENT_NAME · 0x72C LPF_CTRL (default 1) · 0x730/0x734 AS_PATH parent ·
 New plain-RW CSRs MUST be added to `is_plain_rw()` in milan_csr.sv or
 reads lie (shadow).
 
-## 9. State at handover (2026-07-21 morning - campaign closed; log = HANDOVER.md)
+## 9. State at handover (2026-07-21 morning - campaign closed)
 
 - **ARTY QSPI = `eppo_milanfinal41` (+0.078) + rootfs #8**: 0x4B
   byte-exact PASS, bench suite 63/63, sink-1 chain proven, CRF rx proven.

@@ -330,8 +330,9 @@ not change the engine timing without updating that model.
 
 Background: the cross-boundary attribution trap this exposed (the cones showed
 up as `milan_csr` LUTs in hierarchical utilization because the `cbs_idle`
-source registers live there) is written up in SESSION_HANDOFF.md;
-OOC-synth a module standalone before believing its hierarchical LUT count.
+source registers live there) is a standing area-report trap — OOC-synth a
+module standalone before believing its hierarchical LUT count (the same rule
+carried as build gate 2 in [`../integration/BUILDING.md`](../integration/BUILDING.md) §5).
 
 ## Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain
 
