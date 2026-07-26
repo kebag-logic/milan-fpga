@@ -15,7 +15,7 @@
 // always instantiated; its runtime knob is LTAP_CTRL[1]) - the runtime-off
 // variant is exercised in the main harness case D instead.
 //
-// KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25).
+// LTAP same-cycle staging fixed 2026-07-26 (cascade walk).
 
 #include "Vmilan_datapath.h"
 #include "verilated.h"
@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
 
     printf("=== hostplane SMOKE shape %s (N=%d, %d MHz) ===\n",
            SHAPE_NAME, NSTREAMS_TB, MILAN_CLK_TB / 1000000);
-    printf("KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25)\n");
+    printf("LTAP same-cycle staging fixed 2026-07-26 (cascade walk)\n");
 
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
@@ -269,8 +269,6 @@ int main(int argc, char** argv) {
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld   shape: %s\n", checks, fails, SHAPE_NAME);
-    if (fails)
-        printf("NOTE: KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25)\n");
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final();
     delete dut;

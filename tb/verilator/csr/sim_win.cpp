@@ -268,7 +268,7 @@ int main(int argc, char** argv) {
   snap_and_wait();
   uint32_t vt = axi_read(A_SW_PDUS);
   ck("talker PDUS = TCTX w5 epoch", vt != 0 && vt >= v2, 1);
-  ck("talker CNT0 zero", axi_read(A_SW_CNT0), 0);
+  ck("talker CNT0 poison (not-backed rule 2026-07-26)", axi_read(A_SW_CNT0), 0xDEADDEADu);
   pump_on = false;
 
   printf("-- lwSRP ctx master: row map, provisioning, status readback --\n");
@@ -330,11 +330,11 @@ int main(int argc, char** argv) {
   ck("acmp CTLR_LO (E2)", axi_read(0x860), 0xFE0000AA);
   ck("acmp CTLR_HI (E2)", axi_read(0x864), 0x680500FF);
   ck("acmp BIND {flags,tuid} (E2)", axi_read(0x868), 0x00080005);
-  ck("window hole 0x86C reads 0", axi_read(0x86C), 0);
+  ck("window hole 0x86C poison (not-backed rule)", axi_read(0x86C), 0xDEADDEADu);
   axi_write(A_STRM_SEL, 0x101);              // dir=1: listener-only words
   for (int i = 0; i < 10; ++i) posedge();
-  ck("talker dir CTLR_LO reads 0 (E2)", axi_read(0x860), 0);
-  ck("talker dir BIND reads 0 (E2)",    axi_read(0x868), 0);
+  ck("talker dir CTLR_LO poison (E2, not-backed rule)", axi_read(0x860), 0xDEADDEADu);
+  ck("talker dir BIND poison (E2, not-backed rule)",    axi_read(0x868), 0xDEADDEADu);
   axi_write(A_STRM_SEL, 0x001);              // back to the listener ctx
   for (int i = 0; i < 10; ++i) posedge();
   dut->i_srp_ctx_rd_stat = 0;                // keep the STATE srp9 field 0

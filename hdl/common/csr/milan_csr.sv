@@ -57,7 +57,7 @@ module milan_csr #(
   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
   parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
   parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
-  parameter logic [31:0] VERSION = 32'h0001_000B //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x000B = chmap64 follow-ups: AEM dynamic-map projector wired to the render map RAM (CHMAP64_AEM_BINDING.md; CSR 0x900 demoted to debug port), KL_pcm_tx as capture-mux ring source, per-stream wire_chans fan-out, tdm_dout exported; 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
+  parameter logic [31:0] VERSION = 32'h0001_000C //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor); 0x000C = N-context ACMP talker responder (probes answered per uid 0..N-1, dmac = MAAP base+uid), t>0 admission mirrors t0 term-by-term (per-stream ACMP term + cfg_aaf_bypass escape), talker-window honesty (idx>0 STATE bits [3:0] live, not-backed words read 0xDEADDEAD), LTAP same-cycle cascade; 0x000B = chmap64 follow-ups: AEM dynamic-map projector wired to the render map RAM (CHMAP64_AEM_BINDING.md; CSR 0x900 demoted to debug port), KL_pcm_tx as capture-mux ring source, per-stream wire_chans fan-out, tdm_dout exported; 0x000A = saved-state fast-connect enablers (SAVED_STATE_FASTCONNECT.md): E1 bind-restore group 0x7A0-0x7B4 (commit injects a Milan 5.5.3.5.2 PRB_W_AVAIL/PASSIVE record into the ACMP listener ctx table) + E2 window words 0x860/0x864/0x868 (per-context controller_entity_id + {flags incl. STREAMING_WAIT, tuid}); 0x0009 = P12 NxN integration: the 0x800 window is ENGINE-BACKED (LCTX/TCTX port-B reads return live context words, CFG writes provision the real engines + stream table/route; same map); 0x0008 = P11 indexed per-stream CSR window 0x800 (NXN_ARCHITECTURE.md §1.5: SEL/SNAP + 0x810-0x85C, legacy flat regs alias index 0); 0x0007 = robustness round (I2SPB_STAT W1C halves, STAT0-8 invalidate-on-MAC-reset, LINKG_STAT[2] eth_rst); 0x0006 = link guard (LINKG_STAT 0x774, LINK_CTRL[3:2]); 0x0005 = CRF talker CSRs 0x750+
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
   input  wire                    aresetn,        //! AXI-Lite active-low synchronous reset
@@ -169,6 +169,14 @@ module milan_csr #(
   output wire                    o_acmp_lobs,           //! listener_observed override (A_ACMP_LOBS[0], the lwSRP socket)
   input  wire                    i_acmp_probe_armed,    //! ACMP probe SM state (A_ACMP_TALKER RO)
   input  wire                    i_acmp_talker_active,
+  //! per-stream talker truth vectors (2026-07-26 window honesty: the
+  //! talker-dir SNAP STATE bits [3:0] at idx>0 were hardwired 0 while
+  //! REGISTER_MAP documented them live - silicon-found). Zero-padded to 8
+  //! by the datapath (8'(vec)); bit j = talker stream j.
+  input  wire [7:0]              i_tlk_gate_v,          //! composed admission (aaf_stream_en)
+  input  wire [7:0]              i_tlk_active_v,        //! ACMP talker_active per stream
+  input  wire [7:0]              i_tlk_probe_v,         //! probe window open per stream
+  input  wire [7:0]              i_tlk_lobs_v,          //! listener observed per stream
   input  wire                    i_aaf_gate,            //! resolved AAF gate
   input  wire [31:0]             i_aaf_frames,          //! AAF frames sent (RO, 0x660)
   input  wire [31:0]             i_aaf_pairs,           //! AAF I2S pairs captured (RO, 0x664)
@@ -1405,23 +1413,33 @@ module milan_csr #(
             strm_mux = {16'd0, aaf_dmhi[15:0]};           // = AAF_DMHI[15:0]
         A_STRMW_STATE: strm_mux = snap_shadow_r[0];
         A_STRMW_PDUS:  strm_mux = snap_shadow_r[11];
+        //! talker-side FMT is AECP-owned - POISON (not zero) marks the word
+        //! as not-backed-at-this-dir (2026-07-26 rule; listener FMT is a
+        //! slow engine read and never reaches this arm)
+        A_STRMW_FMT_LO, A_STRMW_FMT_HI:
+          if (strm_dir_r) strm_mux = 32'hDEAD_DEAD;
         A_STRMW_SRP:
           strm_mux = (strm_idx_r == 4'd0) ? i_lwsrp_status  // = 0x694
                    : (srp_fresh_r ? {16'd0, i_srp_ctx_rd_stat} : 32'd0);
         //! E2: the remaining persisted binding fields (5.5.2.4/5.5.3.5.3),
         //! listener contexts only — talker dir reads 0
         A_STRMW_CTLR_LO:
-          if (!strm_dir_r)
-            strm_mux = acmp_fresh_r ? acmp_ctlr_q_r[31:0] : 32'd0;
+          strm_mux = !strm_dir_r
+              ? (acmp_fresh_r ? acmp_ctlr_q_r[31:0] : 32'd0)
+              : 32'hDEAD_DEAD;           //! talker dir: not backed - POISON
         A_STRMW_CTLR_HI:
-          if (!strm_dir_r)
-            strm_mux = acmp_fresh_r ? acmp_ctlr_q_r[63:32] : 32'd0;
+          strm_mux = !strm_dir_r
+              ? (acmp_fresh_r ? acmp_ctlr_q_r[63:32] : 32'd0)
+              : 32'hDEAD_DEAD;
         A_STRMW_BIND:
-          if (!strm_dir_r)
-            strm_mux = acmp_fresh_r ? {acmp_flags_q_r, acmp_tuid_q_r} : 32'd0;
+          strm_mux = !strm_dir_r
+              ? (acmp_fresh_r ? {acmp_flags_q_r, acmp_tuid_q_r} : 32'd0)
+              : 32'hDEAD_DEAD;
         default:
           if (rd_addr_q >= A_STRMW_CNT0 && rd_addr_q < A_STRMW_CNT_END)
             strm_mux = snap_shadow_r[1 + 32'(coff[5:2])];
+          else if (rd_addr_q == ADDR_WIDTH'('h86C))
+            strm_mux = 32'hDEAD_DEAD;    //! window hole: POISON, not zero
       endcase
     end
   end
@@ -1644,14 +1662,18 @@ module milan_csr #(
               snap_shadow_r[0] <= {4'd0, i_lwsrp_status[8:0], 15'd0,
                                    i_aaf_gate, acmp_lobs[0],
                                    i_acmp_talker_active, i_acmp_probe_armed};
-              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'h0;
+              //! talker CNT words don't exist (no Table 7-157 block):
+              //! POISON, not zero, so software can discriminate
+              //! "not-backed-here" from a true zero count (2026-07-26)
+              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'hDEAD_DEAD;
               snap_shadow_r[11] <= i_aaf_frames;                  // = 0x660
             end
             snap_st_r <= SN_DONE_C;
           end else begin
-            //! talker contexts have no Table 7-157 block: pre-zero CNT
+            //! talker contexts have no Table 7-157 block: pre-POISON CNT
+            //! (0xDEADDEAD = not-backed-at-this-index, 2026-07-26 rule)
             if (strm_dir_r)
-              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'h0;
+              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'hDEAD_DEAD;
             snap_st_r <= SN_WAIT_C;
           end
         end
@@ -1679,8 +1701,14 @@ module milan_csr #(
           end
           else if (snap_dir_r) begin
             //! talker burst = ONE word: TCTX w5 FRAMES -> PDUS, then compose
+            //! STATE with the LIVE per-stream truth vectors (bits [3:0] were
+            //! hardwired 0 until 2026-07-26 - the window-honesty fix)
             snap_shadow_r[11] <= i_tctx_rd_data;
-            snap_shadow_r[0]  <= {4'd0, snap_srp9_w, 19'd0};
+            snap_shadow_r[0]  <= {4'd0, snap_srp9_w, 15'd0,
+                                  i_tlk_gate_v[snap_idx_r[2:0]],
+                                  i_tlk_lobs_v[snap_idx_r[2:0]],
+                                  i_tlk_active_v[snap_idx_r[2:0]],
+                                  i_tlk_probe_v[snap_idx_r[2:0]]};
             snap_rden_r <= 1'b0; snap_req_r <= 1'b0;
             snap_st_r   <= SN_DONE_C;
           end else begin

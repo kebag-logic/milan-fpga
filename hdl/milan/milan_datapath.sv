@@ -567,6 +567,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the lwSRP listener socket (CSR override retained as the manual lever),
   //! the AECP presentation offset, and the resolved AAF gate.
   wire                     cfg_acmp_lobs;
+  //! N-context ACMP talker activation (2026-07-26: the responder runs
+  //! KL_acmp_tlkr_ctx at N_SRC_P = N_STREAMS - probes answer for every
+  //! talker_unique_id 0..N-1). Bit 0 keeps the legacy scalar consumers.
+  wire [N_STREAMS-1:0]     acmp_talker_active_v, acmp_probe_armed_v;
   wire                     acmp_talker_active, acmp_probe_armed;
   wire [31:0]              aecp_pres_offset;
   //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
@@ -695,6 +699,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
                              (cfg_lwsrp_enable & lwsrp_listener_ready);
+
+  //! per-source ACMP talker parameters (2026-07-26 N-context responder):
+  //! the MAAP claim is a BLOCK of N_STREAMS addresses (MAAP_CTRL block
+  //! count), so source j answers probes with base+j - the same DMAC the
+  //! TCTX window provisions for talker j's frames. observed[0] keeps the
+  //! legacy composition; observed[j>0] = that stream's reservation row (a
+  //! granted per-stream reservation implies a ready listener) with the
+  //! same A_ACMP_LOBS manual override socket.
+  wire [N_STREAMS*48-1:0] acmp_src_dmac_w;
+  wire [N_STREAMS*12-1:0] acmp_src_vid_w;
+  wire [N_STREAMS-1:0]    acmp_lobs_v_w;
+  generate
+    for (genvar gj = 0; gj < N_STREAMS; gj++) begin : g_acmp_src
+      assign acmp_src_dmac_w[gj*48 +: 48] = eff_aaf_dmac + 48'(gj);
+      assign acmp_src_vid_w [gj*12 +: 12] = cfg_aaf_vid;
+      if (gj == 0) begin : g_lobs0
+        assign acmp_lobs_v_w[gj] = listener_observed_w;
+      end else begin : g_lobsn
+        assign acmp_lobs_v_w[gj] = cfg_acmp_lobs |
+                                   (cfg_lwsrp_enable & lwsrp_stream_gate[gj]);
+      end
+    end
+  endgenerate
   //! AAF admission: probe-gated as before; with lwSRP enabled a reservation
   //! is additionally required (FR-SRP-03: no reservation -> no stream tx).
   //! The bypass bit stays the legacy stream-whenever-enabled escape hatch.
@@ -705,25 +732,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! ---- per-stream talker admission (P12 follow-up: t>0 arming) ----------
   //! [0] = aaf_gate above, bit-identical (the N=1 axiom). t>0 mirrors the
-  //! t0 composition term by term with the per-stream sources that exist:
+  //! t0 composition TERM BY TERM (2026-07-26: the last honest gap - the
+  //! missing ACMP term - closed with the N-context responder):
   //!   * enable        : TCTX w0 CTRL[0] (window-provisioned; shadowed
   //!                     below from the accepted TCTX window writes - the
   //!                     window is the only w0 writer). The flat
   //!                     AAF_CTRL[0] is t0's enable only.
-  //!   * MAAP term     : ENGINE-WIDE, same expression as t0. Honest gap:
-  //!                     ONE KL_maap instance claims ONE address range, so
-  //!                     per-stream claim validity does not exist; t>0
-  //!                     DMACs are window-provisioned (TCTX w1/w2), and
-  //!                     this term only holds streams off while MAAP is
-  //!                     enabled but unclaimed (t0 semantics mirrored).
+  //!   * MAAP term     : ENGINE-WIDE, same expression as t0: ONE KL_maap
+  //!                     instance claims ONE BLOCK of N_STREAMS addresses;
+  //!                     stream j uses base+j (probe answers and TCTX
+  //!                     provisioning agree on that rule).
+  //!   * ACMP term     : per-stream talker_active from KL_acmp_tlkr_ctx
+  //!                     at N_SRC_P = N_STREAMS (probe window per uid |
+  //!                     per-stream listener observation), with t0's
+  //!                     cfg_aaf_bypass escape hatch mirrored.
   //!   * lwSRP term    : per-stream P5 gate (KL_lwsrp_bw_gate via the ctx
   //!                     rows), with t0's ~cfg_lwsrp_enable escape.
-  //!   * ACMP term     : ABSENT for t>0 - honest gap, not faked: the
-  //!                     single Milan talker SM (acmp_talker_active)
-  //!                     tracks the legacy stream only; per-stream talker
-  //!                     START/STOP_STREAMING state does not exist yet.
-  //!                     Consequently t0's cfg_aaf_bypass (the escape
-  //!                     hatch AROUND that ACMP term) has no t>0 role.
   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
   logic [N_STREAMS-1:0] tctx_en_r;
   assign aaf_stream_en_w[0] = aaf_gate;
@@ -732,7 +756,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       assign aaf_stream_en_w[gs] =
           tctx_en_r[gs] &
           (~cfg_maap_enable | maap_addr_valid) &
-          (~cfg_lwsrp_enable | lwsrp_stream_gate[gs]);
+          (cfg_aaf_bypass |
+           (acmp_talker_active_v[gs] &
+            (~cfg_lwsrp_enable | lwsrp_stream_gate[gs])));
     end
   endgenerate
   wire [63:0]              ptp_now_w;
@@ -965,6 +991,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_acmp_lobs          (cfg_acmp_lobs),
     .i_acmp_probe_armed   (acmp_probe_armed),
     .i_acmp_talker_active (acmp_talker_active),
+    //! per-stream talker truth vectors (window honesty, 2026-07-26)
+    .i_tlk_gate_v         (8'(aaf_stream_en_w)),
+    .i_tlk_active_v       (8'(acmp_talker_active_v)),
+    .i_tlk_probe_v        (8'(acmp_probe_armed_v)),
+    .i_tlk_lobs_v         (8'(acmp_lobs_v_w)),
     .i_aaf_gate           (aaf_gate),
     .o_aaf_dest_mac       (cfg_aaf_dmac),
     .o_aaf_vid            (cfg_aaf_vid),
@@ -1498,14 +1529,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  -> NOT_SUPPORTED (connection POLICY is the softcore's, via a future
   //  mailbox — docs/ARCHITECTURE_HW_SW_SPLIT.md).
   // ==========================================================================
-  KL_acmp_responder acmp_responder (
+  //! 2026-07-26: KL_acmp_tlkr_ctx consumed DIRECTLY at N_SRC_P = N_STREAMS
+  //! (the wrapper's documented NxN integration path) - CONNECT_TX/PROBE_TX
+  //! answers SUCCESS for every talker_unique_id 0..N-1 with dmac = MAAP
+  //! base+uid, so Milan listeners can probe-bind every talker stream.
+  KL_acmp_tlkr_ctx #(.N_SRC_P(N_STREAMS)) acmp_responder (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
-    .aaf_dmac_i (eff_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
+    .src_dmac_i (acmp_src_dmac_w), .src_vid_i (acmp_src_vid_w),
     .tick_1s_i (adp_tick_1s),
-    .listener_observed_i (listener_observed_w),
-    .talker_active_o (acmp_talker_active),
-    .probe_armed_o (acmp_probe_armed),
+    .listener_observed_i (acmp_lobs_v_w),
+    .talker_active_o (acmp_talker_active_v),
+    .probe_armed_o (acmp_probe_armed_v),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
@@ -1519,6 +1554,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_axis_tready(acmp_tx_tready),
     .cmd_count_o (acmp_cmd_count), .resp_count_o (acmp_resp_count)
   );
+  assign acmp_talker_active = acmp_talker_active_v[0];
+  assign acmp_probe_armed   = acmp_probe_armed_v[0];
 
   // ==========================================================================
   //  ACMP listener SM (Milan v1.2 §5.5, FR-CONN-01) — the STREAM_INPUT[0]

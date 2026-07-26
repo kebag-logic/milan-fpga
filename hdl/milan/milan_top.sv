@@ -416,6 +416,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .o_acmp_lobs          (cfg_acmp_lobs),
     .i_acmp_probe_armed   (acmp_probe_armed),
     .i_acmp_talker_active (acmp_talker_active),
+    //! N=1 legacy top: per-stream vectors collapse to bit 0
+    .i_tlk_gate_v         ({7'd0, aaf_gate}),
+    .i_tlk_active_v       ({7'd0, acmp_talker_active}),
+    .i_tlk_probe_v        ({7'd0, acmp_probe_armed}),
+    .i_tlk_lobs_v         (8'd0),
     .i_aaf_gate           (aaf_gate),
     .o_aaf_dest_mac       (cfg_aaf_dmac),
     .o_aaf_vid            (cfg_aaf_vid),

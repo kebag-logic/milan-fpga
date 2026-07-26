@@ -24,15 +24,18 @@
  *      (capture-while-rendering), RENDER-only renders without a ring copy,
  *      NULL suppresses both (render truth = the datapath render-tap valid,
  *      a verilator-public probe - the flat CSRs expose no per-stream tap);
- *   6. talker t>0 arming composition (aaf_stream_en_w, verilator-public):
- *      t1 arms via the window TCTX CTRL[0] commit; enabling lwSRP without
- *      a t1 reservation drops ONLY t1 (t0 rides its bypass, emission keeps
- *      running); the engine-wide MAAP term holds t0 AND t1 alike (mirrors
- *      t0 semantics, one claim engine); window CTRL[0]=0 disarms t1.
- *      t>0 WIRE emission stays structurally impossible at datapath level
- *      (KL_aaf_capture_i2s emits slot 0 only until the item-4 TDM
- *      front-end) - frame-level TCTX-identity emission + per-slot gate
- *      drop are proven in tb/verilator/aaf sim_main_nx [I2T]/[I2T4].
+ *   6. talker t>0 arming composition (aaf_stream_en_w, verilator-public;
+ *      2026-07-26 mirrored contract): t1 arms via the window TCTX CTRL[0]
+ *      commit; the composition mirrors t0 TERM BY TERM - per-stream ACMP
+ *      talker_active (N-context responder), cfg_aaf_bypass as the escape
+ *      hatch for EVERY stream, per-stream lwSRP gate with the engine-off
+ *      escape, and the engine-wide MAAP term (one claim engine, block of
+ *      N addresses, stream j = base+j); window CTRL[0]=0 disarms t1.
+ *      t>0 wire emission needs a sample source for its slots: the chmap
+ *      capture crossbar (0x900/CMAP) feeds any of the 32 pair slots; the
+ *      PHYSICAL I2S front-end alone still emits slot 0 only - frame-level
+ *      TCTX-identity emission + per-slot gate drop are proven in
+ *      tb/verilator/aaf sim_main_nx [I2T]/[I2T4].
  *      KL_aaf_packetizer window port;
  *   5. N-sink ACMP round: a CONNECT_RX bind of listener context 2 (a
  *      window stream's record-only explicit-sid context) reads back
@@ -221,7 +224,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x000B (chmap64 AEM projector round)", axi_read(A_VERSION), 0x0001000B);
+    ck("VERSION 0x000C (N-ctx responder + window honesty)", axi_read(A_VERSION), 0x0001000C);
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
@@ -396,15 +399,25 @@ int main(int argc, char** argv) {
     for (int g = 0; g < 200 && axi_read(A_AAF_FRAMES) == fr0; g++)
         for (int c = 0; c < 512; c++) step();
     ck("t0 emission alive while t1 armed", axi_read(A_AAF_FRAMES) > fr0, 1);
-    // lwSRP on without a t1 reservation: ONLY t1 drops (t0 rides bypass)
+    // lwSRP on without reservations (2026-07-26 mirrored contract): the
+    // composition is term-by-term IDENTICAL for every stream now, so
+    // cfg_aaf_bypass is the escape hatch for t>0 exactly as for t0 - the
+    // old "only t1 drops" asymmetry WAS the honest gap this closes.
     axi_write(A_LWSRP_CTRL, 0xD);
     for (int c = 0; c < 64; c++) step();
-    ck("lwSRP on: t1 gate drops", (tap_stream_en() >> 1) & 1, 0);
-    ck("lwSRP on: t0 unaffected (bypass)", tap_stream_en() & 1, 1);
+    ck("lwSRP on + bypass: t1 rides bypass like t0", (tap_stream_en() >> 1) & 1, 1);
+    ck("lwSRP on + bypass: t0 unaffected", tap_stream_en() & 1, 1);
+    // bypass CLEAR: no reservation -> EVERY stream gates (FR-SRP-03 for all)
+    axi_write(A_AAF_CTRL, 0x00020001);
+    for (int c = 0; c < 64; c++) step();
+    ck("bypass clear: t1 gates (no reservation)", (tap_stream_en() >> 1) & 1, 0);
+    ck("bypass clear: t0 gates too (mirrored)", tap_stream_en() & 1, 0);
+    axi_write(A_AAF_CTRL, 0x00020003);       // the VID-2 rule value restored
+    for (int c = 0; c < 64; c++) step();
     fr0 = axi_read(A_AAF_FRAMES);
     for (int g = 0; g < 200 && axi_read(A_AAF_FRAMES) == fr0; g++)
         for (int c = 0; c < 512; c++) step();
-    ck("t0 emission alive after t1 drop", axi_read(A_AAF_FRAMES) > fr0, 1);
+    ck("t0 emission alive on bypass restore", axi_read(A_AAF_FRAMES) > fr0, 1);
     axi_write(A_LWSRP_CTRL, 0xC);
     for (int c = 0; c < 64; c++) step();
     ck("lwSRP off: t1 re-arms", (tap_stream_en() >> 1) & 1, 1);

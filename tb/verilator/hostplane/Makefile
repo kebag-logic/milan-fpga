@@ -15,10 +15,9 @@
 #   make build  - build only (the "suite BUILDS" gate)
 #   make clean  - remove build artifacts
 #
-# KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25): this suite
-# was BORN failing on a known-broken tree (host RX dead / no TX ts records on
-# silicon while every fabric-autonomous path runs). A FAIL here on that tree
-# is the suite doing its job - see README.md before blaming the harness.
+# Born 2026-07-25 on a known-broken tree (host RX dead on silicon while every
+# fabric-autonomous path ran); the LTAP same-cycle KNOWN-FAIL was fixed
+# 2026-07-26 (KL_aaf_latency_taps cascade walk) - expected green everywhere.
 
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
@@ -115,8 +114,6 @@ all: run
 banner:
 	@echo "======================================================================"
 	@echo " tb/verilator/hostplane - host-plane lanes in the SILICON SHAPE"
-	@echo " KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25):"
-	@echo " a FAIL on that tree is the regression being caught, not a TB bug."
 	@echo "======================================================================"
 
 build:

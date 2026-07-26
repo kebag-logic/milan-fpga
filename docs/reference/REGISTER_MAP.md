@@ -59,7 +59,7 @@ window.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x000` | `ID` | RO | `0x4D494C4E` | Magic `"MILN"`; driver match/probe check |
-| `0x004` | `VERSION` | RO | `0x0001_000B` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout) |
+| `0x004` | `VERSION` | RO | `0x0001_000C` | `[31:16]` major, `[15:0]` minor (0x0002 ADP, 0x0003 TCAM, 0x0005 CRF talker, 0x0006 link guard, 0x0007 robustness round, 0x0008 indexed per-stream window 0x800, 0x0009 P12: window engine-backed, 0x000A saved-state fast-connect: bind-restore 0x7A0 + window 0x860-0x868, 0x000B chmap64 AEM projector + ring source + wire_chans fan-out + tdm_dout, 0x000C N-context ACMP talker responder — probes answered per uid 0..N-1 with dmac = MAAP base+uid, t>0 admission mirrors t0 term-by-term, talker-window honesty + the 0xDEADDEAD not-backed rule, LTAP same-cycle cascade) |
 | `0x008` | `CAP` | RO | param | `[3:0]` num_queues, `[8]` CBS, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width |
 | `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |
 | `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready, `[1]` link_change, `[2]` rmon_rollover |
@@ -505,15 +505,21 @@ elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
 | `0x818` | `A_STRMW_SID_HI` | RW/RO | — | stream_id `[63:32]`, same rules (LCTX w1) |
 | `0x81C` | `A_STRMW_DMAC_LO` | RW/RO | — | stream DMAC `[31:0]`. listener: RO ACMP bind context; talker idx 0: **hard alias of `AAF_DMLO`** (RW, exact); talker idx>0: TCTX w1 (engine-backed). Writes stage the provisioning DMAC |
 | `0x820` | `A_STRMW_DMAC_HI` | RW/RO | — | DMAC `[47:32]` in `[15:0]`; talker idx 0 = **hard alias of `AAF_DMHI`**; talker idx>0: TCTX w2 |
-| `0x824` | `A_STRMW_FMT_LO` | RW | — | current stream format `[31:0]` (LCTX w2, engine-backed; talker side is AECP-owned — reads 0, writes ignored) |
-| `0x828` | `A_STRMW_FMT_HI` | RW | — | format `[63:32]` (LCTX w3) |
-| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker: `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` aaf_gate, `[27:19]` SRP bits |
-| `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. Talker contexts read 0 |
-| `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: frames_sent (= `AAF_FRAMES` at idx 0) |
+| `0x824` | `A_STRMW_FMT_LO` | RW | — | current stream format `[31:0]` (LCTX w2, engine-backed; talker side is AECP-owned — reads `0xDEADDEAD`, writes ignored) |
+| `0x828` | `A_STRMW_FMT_HI` | RW | — | format `[63:32]` (LCTX w3; talker side reads `0xDEADDEAD`) |
+| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C — bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |
+| `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. Talker contexts read `0xDEADDEAD` (the not-backed rule below) |
+| `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: per-stream frames_sent (idx 0 = `AAF_FRAMES`; idx>0 = the packetizer ctx FRAMES word, snap-fetched through the TCTX port) |
 | `0x85C` | `A_STRMW_SRP` | RO | — | per-stream lwSRP attribute status. idx 0: **live hard alias of `LWSRP_STATUS` (0x694)**. idx>0: `{16'0, ctx_rd_stat}` = `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the live lwSRP context row |
-| `0x860` | `A_STRMW_CTLR_LO` | RO | — | **E2 (saved-state fast-connect):** binding controller_entity_id `[31:0]` from the ACMP bind context (5.5.3.5.3 step 2). Listener contexts only — talker dir reads 0 |
-| `0x864` | `A_STRMW_CTLR_HI` | RO | — | controller_entity_id `[63:32]` |
-| `0x868` | `A_STRMW_BIND` | RO | — | `{flags[31:16], tuid[15:0]}` from the ACMP bind context — `flags` are the stored binding flags (bit 3 = STREAMING_WAIT, 5.5.2.4), `tuid` the bound talker_unique_id. `0x86C` reads 0 (window hole) |
+| `0x860` | `A_STRMW_CTLR_LO` | RO | — | **E2 (saved-state fast-connect):** binding controller_entity_id `[31:0]` from the ACMP bind context (5.5.3.5.3 step 2). Listener contexts only — talker dir reads `0xDEADDEAD` |
+| `0x864` | `A_STRMW_CTLR_HI` | RO | — | controller_entity_id `[63:32]` (talker dir `0xDEADDEAD`) |
+| `0x868` | `A_STRMW_BIND` | RO | — | `{flags[31:16], tuid[15:0]}` from the ACMP bind context — `flags` are the stored binding flags (bit 3 = STREAMING_WAIT, 5.5.2.4), `tuid` the bound talker_unique_id. Talker dir reads `0xDEADDEAD`; `0x86C` (window hole) reads `0xDEADDEAD` |
+
+**The `0xDEADDEAD` not-backed rule (0x000C).** A window word that does not
+exist for the selected direction/index reads the POISON value `0xDEADDEAD`,
+never 0 — software (and a bench devmem) can tell "this word is not backed
+here" from a true zero at first glance. Out-of-range index reads stay 0
+(a different condition: the selection itself is invalid).
 
 **The alias rule (N=1 bit-compat axiom).** The legacy flat registers remain
 the authority and index 0 of the window is a HARD ALIAS of them — never a
@@ -574,20 +580,36 @@ Mapping from the retired P3 enum (ALSA-design feedback, open question 4):
 Reset default: stream 0 = `0b11`, others `0b00` — bit-identical N=1
 behavior to P3.
 
-**Talker t>0 arming (`aaf_stream_en_w`).** Talker stream 0's admission is
-the flat `aaf_gate` unchanged (`AAF_CTRL` en/bypass, MAAP claim, ACMP
-talker-active, lwSRP row-0 gate). A talker idx>0 arms as:
+**Talker t>0 arming (`aaf_stream_en_w`, mirrored since 0x000C).** Talker
+stream 0's admission is the flat `aaf_gate` unchanged (`AAF_CTRL`
+en/bypass, MAAP claim, ACMP talker-active, lwSRP row-0 gate). A talker
+idx>0 arms with the SAME composition, term by term:
 
 * TCTX `CTRL[0]` (this window) AND
-* the per-stream lwSRP bw-gate (its ctx-table talker row,
-  `~LWSRP_CTRL[0]` bypasses) AND
 * the engine-wide MAAP term (`~MAAP_CTRL[0] | addr_valid` — ONE claim
-  engine, mirrors t0).
+  engine claims a BLOCK of N addresses; stream j transmits and answers
+  probes with base+j) AND
+* `AAF_CTRL[1]` bypass OR (per-stream ACMP talker_active AND the
+  per-stream lwSRP bw-gate with the `~LWSRP_CTRL[0]` escape).
 
-Honest gaps (documented in the RTL): no per-stream ACMP talker-active
-exists (single talker SM), so t>0 has no ACMP term and `AAF_CTRL[1]` bypass
-plays no t>0 role; the capture front-end still emits slot 0 only (item-4
-TDM), so an armed t>0 emits no frames until it has a sample source.
+The per-stream ACMP term comes from `KL_acmp_tlkr_ctx` at
+`N_SRC_P = N_STREAMS` (0x000C): CONNECT_TX/PROBE_TX answers SUCCESS for
+every `talker_unique_id` 0..N-1 (stream_id `{station MAC, uid}`, dest_mac
+`MAAP base + uid`), each uid keeping its own Milan §4.3.3.1 15 s probe
+window; `talker_active[j>0]` = probe window open OR that stream's
+reservation row live (a granted per-stream reservation implies a ready
+listener); `A_ACMP_LOBS[0]` overrides every stream. Note the sample-source
+reality: the PHYSICAL I2S capture front-end emits slot 0 only — an armed
+t>0 emits frames when the chmap capture crossbar
+([`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §4/§5) feeds its pair
+slots (any source, TONE included).
+
+**Bench warning (2026-07-26 silicon).** With `LWSRP_CTRL[0]` cleared the
+CBS slope mux disengages, so an admitted talker stream transmits UNPACED
+(measured ≈56 k frames/s against the paced 10.4 k/s on the AX 8×8) — a
+100M listener port drowns in minutes. Open t>0 admission through real
+per-stream reservations (or keep windows short) — never leave the engine
+off with armed extra talkers.
 
 **Engine-backed words + read timing.** Window reads of LCTX/TCTX-backed
 words (`CTRL`/`FMT` listener side, `CTRL`/`DMAC` extra talker contexts) are
@@ -660,7 +682,7 @@ word `2d+1` = `{16'd0, min16}`.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x870` | `LTAP_CTRL` | RW | `0x2` | W: `[1]` enable (measure; reset 1), `[0]` W1S clear all stats. R: `[1]` enable, `[8]` tx_active, `[11:9]` tx stage awaited, `[12]` rx_active, `[15:13]` rx stage awaited |
+| `0x870` | `LTAP_CTRL` | RW | `0x2` | W: `[1]` enable (measure; reset 1), `[0]` W1S clear all stats. R: `[1]` enable, `[8]` tx_active, `[11:9]` tx stage awaited, `[12]` rx_active, `[15:13]` rx stage awaited. Since 0x000C the chain walk consumes SAME-CYCLE stage pulses as 0-cycle hops (combinational stages — e.g. the `KL_pcm_route` DEPKT→RING pass-through — no longer strand the token; RX D2 legitimately reads min=0) |
 | `0x874` | `LTAP_TX_EPOCH` | RO | `0` | gPTP ns (`ptp_now[31:0]`) latched at the last completed TX frame's CAP stage |
 | `0x878` | `LTAP_TX_INFO` | RO | `0` | `[15:0]` samples (completed TX frames, saturating), `[31:16]` timeouts (aborted tokens) |
 | `0x87C` | `LTAP_TX_D0` | RO | `0` | CAP→SOF: `[15:0]` last, `[31:16]` max (cycles) |

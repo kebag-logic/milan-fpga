@@ -4,11 +4,13 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 -->
 # `tb/verilator/hostplane` — host-plane lanes in the SILICON SHAPE
 
-> **KNOWN-FAIL on main until rtl-hostplane-fix merges (2026-07-25).**
-> This suite was born on a tree with a live silicon regression (host RX dead,
-> zero ts records, every fabric-autonomous path perfect). A `RESULT: FAIL`
-> here on that tree is the suite doing its job — read the failure signature
-> below before blaming the harness. The same banner prints at run time.
+> **Historical note.** This suite was born (2026-07-25) on a tree with a live
+> silicon regression (host RX dead, zero ts records, every fabric-autonomous
+> path perfect) and carried a KNOWN-FAIL banner for the LTAP DEPKT→RING
+> same-cycle case. That case was fixed 2026-07-26: `KL_aaf_latency_taps` now
+> cascade-walks same-cycle stage pulses (combinational hops like
+> `KL_pcm_route` record an honest 0-cycle delta). The suite is expected
+> green everywhere.
 
 ## Why this suite exists
 
@@ -111,9 +113,10 @@ DTB/flash gates. Result state on current `main`:
   that cracked the incident (`rx_packets`, dma-ts offset, CSR wire-truth).
 * All three [E] smoke shapes: `RESULT: PASS`.
 
-The KNOWN-FAIL banner stays until the LTAP stage-pulse staging is fixed in
-the RTL lane and `make` runs green here; then drop it from this README, the
-Makefile and both harness banners in the same commit.
+The KNOWN-FAIL banner was dropped 2026-07-26 with the `KL_aaf_latency_taps`
+same-cycle cascade fix — `make` runs green here (73/73 in the dedicated taps
+TB, 51 + 8 in this suite), and the dedicated TB pins the cascade cases
+(`cascade *` / `armcascade *` checks).
 
 ## Running
 

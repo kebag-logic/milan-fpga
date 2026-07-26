@@ -181,6 +181,46 @@ int main(int argc, char **argv) {
   ck("post-clr min d2",  seg(dut->tx_min_o, 2), 14);
   ck("post-clr samples", dut->tx_samples_o, 1);
 
+  // -- same-cycle cascade (2026-07-26 silicon find): a combinational hop ---
+  // (KL_pcm_route DEPKT->RING) pulses two stages in ONE cycle. The walk must
+  // consume both: measured delta on the first hop, 0-cycle on the second,
+  // sample completes, no timeout.
+  idle(3);
+  uint32_t smp_cas = dut->rx_samples_o;
+  uint32_t tmo_cas = dut->rx_timeouts_o;
+  dut->now_i = 0xAAAA;
+  rx_pulse(0);
+  idle(4); rx_pulse(1);                       // d0 = 5
+  idle(2);
+  dut->rx_stage_p_i = (1u << 2) | (1u << 3);  // DEPKT + RING same cycle
+  tick();
+  dut->rx_stage_p_i = 0;
+  ck("cascade samples",   dut->rx_samples_o, smp_cas + 1);
+  ck("cascade timeouts",  dut->rx_timeouts_o, tmo_cas);
+  ck("cascade last d0",   seg(dut->rx_last_o, 0), 5);
+  ck("cascade last d1",   seg(dut->rx_last_o, 1), 3);   // idle(2)+1
+  ck("cascade last d2",   seg(dut->rx_last_o, 2), 0);   // same-cycle hop
+  ck("cascade min d2",    seg(dut->rx_min_o, 2), 0);
+  ck("cascade inactive",  (dut->status_o >> 12) & 1, 0);
+  // a normal spaced frame afterwards still measures cleanly
+  frame_rx(3, 3, 3, 0xBBBB);
+  ck("post-cascade samples", dut->rx_samples_o, smp_cas + 2);
+  ck("post-cascade last d2", seg(dut->rx_last_o, 2), 3);
+  ck("post-cascade max d2 kept", seg(dut->rx_max_o, 2) >= 3, 1);
+
+  // -- all-stages-one-cycle (arm cascade): chain completes instantly -------
+  idle(3);
+  uint32_t smp_all = dut->tx_samples_o;
+  dut->now_i = 0xCCCC;
+  dut->tx_stage_p_i = 0xF;                    // stages 0..3 in one cycle
+  tick();
+  dut->tx_stage_p_i = 0;
+  ck("armcascade samples", dut->tx_samples_o, smp_all + 1);
+  ck("armcascade epoch",   dut->tx_epoch_o, 0xCCCC);
+  ck("armcascade last d0", seg(dut->tx_last_o, 0), 0);
+  ck("armcascade last d2", seg(dut->tx_last_o, 2), 0);
+  ck("armcascade inactive", (dut->status_o >> 8) & 1, 0);
+
   printf("\n%d checks: %d PASS, %d FAIL\n", pass + fail, pass, fail);
   delete dut;
   return fail ? 1 : 0;
