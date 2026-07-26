@@ -39,7 +39,7 @@ output compared byte-for-byte with what is committed:
 * **All `.svg` renders and all six WaveDrom `.svg`/`.png` chronograms are
   byte-identical** — the generators are deterministic and the renders are in
   sync with their masters. Regenerating is safe and produces no diff.
-* **Four `.drawio` masters differ from their generator output in dashes only** —
+* **Five `.drawio` masters differ from their generator output in dashes only** —
   `AVB_SWITCH_DIRECTION`, `RX_RING_DMA`, `RX_RING_OPERATION`,
   `SYSTEM_DOMAIN_MAP`, `TX_STARVATION_FIX` were ASCII-fied in place (em-dash →
   ` - `) after generation, while the generators still emit em-dashes. The
