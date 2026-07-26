@@ -20,7 +20,7 @@ hand-edits there are lost on the next run and fail review.
 **Masters:** the RTL tree (`hdl/`), the TB tree (`tb/verilator/`), the
 per-standard clause tables in [`traceability/`](traceability/MODULE_MATRIX.md).
 **Outputs:** [`traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md)
-(all 77 modules) plus a generated `README-tests.md` in every `hdl/` leaf.
+(the generator prints the live total — 82 modules on 2026-07-26) plus a generated `README-tests.md` in every `hdl/` leaf.
 
 ```sh
 python3 docs/traceability/gen_module_matrix.py           # regenerate

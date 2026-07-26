@@ -17,15 +17,24 @@ the behavior is wire-invisible.
 
 ## 1. Current state (reconnaissance 2026-07-23)
 
-Four real behave suites exist; **no `behave.ini`, no tag taxonomy, no CI** ties them
+Four real behave suites exist; **no `behave.ini` and no tag taxonomy** ties them
 together, and the two conformance-suite copies are drifting.
+
+> **Update 2026-07-26 — "no CI" is no longer true for suite D.** The in-repo
+> suite (`milan-fpga/tests/`) is now the **BDD conformance suite** and runs as a
+> **gate** in the `bdd-conformance` job of
+> [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml), per the USER
+> standing order that it runs on every verification round. It has also roughly
+> doubled: **21 features / 113 scenarios / 1169 steps** (measured 2026-07-26),
+> the growth being the `item10_*` command coverage. The `behave.ini` / shared
+> tag-taxonomy work below is still open, and suites A/B/C are still un-gated.
 
 | Suite | Path | Feat/Scen | Class | Role in the new plan |
 |-------|------|-----------|-------|----------------------|
 | **A bench-conf** | `the-private-test-repo/tests/cert-recreate/features/` | 26 / 63 | real-wire (AVDECC + tap) | the T2 AVDECC/AEM backbone; retag + keep |
 | **B private snapshot** | `the-private-test-repo/private/recreate/<snapshot_20260721>/` | 25 / ~58 | real-wire (snapshot, bundles `aem/`) | **converge into A** (drift source) |
 | **C PipeWire E2E** | `the-private-test-repo/tests/features/` | 7 / ~24 | real-wire HIL (audio/THD+N/clock) | the T2 media/stream backbone; retag + extend |
-| **D milan-fpga AECP** | `milan-fpga/tests/` | 8 / 55 | host-sim (+ tsn_gen frame codec) | the T0 RTL-contract tier; already has `@tsn_gen @T2 @wip` |
+| **D milan-fpga conformance** | `milan-fpga/tests/` | 8 / 55 at recon; **21 / 113** on 2026-07-26 | host-sim (+ tsn_gen frame codec) | the T0 RTL-contract tier; already has `@tsn_gen @T2 @wip`, and is now a CI gate |
 
 **Coverage holes visible immediately** (domains with weak/no behave today): **MAAP**,
 **CBS/shaper + classifier/TCAM/VLAN**, **DMA/perf/throughput**, **saved-state /

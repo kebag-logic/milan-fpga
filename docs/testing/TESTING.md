@@ -16,7 +16,7 @@ protocol-level coverage contract is
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.0`, a C++17 compiler, **and** `git submodule update --init third_party/verilog-axis` (five suites elaborate Forencich cores) - no vendor tools |
+| Verilator harnesses | `verilator >= 5.050` (the CI pin — see §7: 5.020 **cannot build** four suites and 5.032 mis-reads six `aecp` checks), a C++17 compiler, **and** `git submodule update --init third_party/verilog-axis` (five suites elaborate Forencich cores) - no vendor tools |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
 | Migen DMA sims / SoC sim | a LiteX Python environment ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §7) |
 | Legacy utests/itests | Vivado (xsim); `tb/avtp_packet_gen_sv` needs Modelsim/Questa |
@@ -73,63 +73,82 @@ writes its `TEST_RESULTS.md` **into the folder of the RTL it validates**
 verification status is visible from the block itself. Full rationale,
 the tsn-gen wire-layout caveat and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn_fuzz/README.md).
 
-### 1.1 Suite index (47 harnesses, auto-listed 2026-07-25)
+### 1.1 Suite index — the full sweep, run 2026-07-26
 
-| suite | last verified |
-|---|---|
-| `tb/verilator/aaf` | run `make` in the dir |
-| `tb/verilator/aaf_audio_loop` | run `make` in the dir |
-| `tb/verilator/aaf_latency_taps` | 58/58 (07-25) |
-| `tb/verilator/acmp` | run `make` in the dir |
-| `tb/verilator/acmp_lstn` | run `make` in the dir |
-| `tb/verilator/adp` | run `make` in the dir |
-| `tb/verilator/adp_tx` | run `make` in the dir |
-| `tb/verilator/aecp` | run `make` in the dir |
-| `tb/verilator/avtp_rxmon` | run `make` in the dir |
-| `tb/verilator/avtp_stream` | run `make` in the dir |
-| `tb/verilator/cbs` | run `make` in the dir |
-| `tb/verilator/cdc` | run `make` in the dir |
-| `tb/verilator/chmap_capture` | PASS (07-25) |
-| `tb/verilator/chmap_render` | 76/0 (07-26, +playback-source leg) |
-| `tb/verilator/classifier` | run `make` in the dir |
-| `tb/verilator/cls` | run `make` in the dir |
-| `tb/verilator/controller_rate` | run `make` in the dir |
-| `tb/verilator/crf_tx` | run `make` in the dir |
-| `tb/verilator/csr` | 219+58+28 PASS (07-26) |
-| `tb/verilator/datapath` | run `make` in the dir |
-| `tb/verilator/eth_tx_reset` | run `make` in the dir |
-| `tb/verilator/hostplane` | KNOWN-FAIL on main until rtl-hostplane-fix merges (07-25) — see the suite README (host-plane lanes in the silicon shape) |
-| `tb/verilator/i2spb` | run `make` in the dir |
-| `tb/verilator/ifg` | run `make` in the dir |
-| `tb/verilator/lat_history_ring` | run `make` in the dir |
-| `tb/verilator/link_guard` | 104/104 (07-24 merge gate) |
-| `tb/verilator/lwsrp` | run `make` in the dir |
-| `tb/verilator/lwsrp_ctx` | run `make` in the dir |
-| `tb/verilator/lwsrp_rx` | run `make` in the dir |
-| `tb/verilator/lwsrp_switchpdu` | run `make` in the dir |
-| `tb/verilator/lwsrp_tx` | run `make` in the dir |
-| `tb/verilator/maap` | run `make` in the dir |
-| `tb/verilator/milan_dp` | 70/0 + 82/0 (07-25 merge tip) |
-| `tb/verilator/mmcm_servo` | run `make` in the dir |
-| `tb/verilator/mmcm_servo_autorepair` | run `make` in the dir |
-| `tb/verilator/pcm_playback` | 40/0 (07-26) — item-7 host ring -> `KL_pcm_tx` -> render crossbar -> `KL_i2s_feed_mux` -> DAC pin, bit-exact + the under-run / over-run / disarmed-map / channel-count negatives |
-| `tb/verilator/pcm_ring_bram` | run `make` in the dir |
-| `tb/verilator/pcm_tx` | run `make` in the dir |
-| `tb/verilator/pcmlpf` | run `make` in the dir |
-| `tb/verilator/ptp` | run `make` in the dir |
-| `tb/verilator/ptp_sync` | run `make` in the dir |
-| `tb/verilator/ptp_ts` | run `make` in the dir |
-| `tb/verilator/queues` | run `make` in the dir |
-| `tb/verilator/rx_filter` | run `make` in the dir |
-| `tb/verilator/shaper_core` | run `make` in the dir |
-| `tb/verilator/tcam` | run `make` in the dir |
-| `tb/verilator/tcam_csr` | run `make` in the dir |
-| `tb/verilator/tdm` | run `make` in the dir |
-| `tb/verilator/tdm_render` | run `make` in the dir |
+`scripts/run_all_suites.sh` over every dir under `tb/verilator/` that has a
+`Makefile`:
 
-The six counts above were re-run at the 2026-07-25 11-PR merge tip; every
-other suite is one `make` away (self-checking, exit-code gated). The standing
-rule: every round grows this table, never shrinks it.
+```
+suites: 55   passed: 55   failed: 0
+checks: 2064050   in-suite failures: 0
+```
+
+Verilator v5.050. The check total aggregates the suites that print a `checks:`
+line; the rest are exit-code gated only, which is why the third column is a note
+rather than a number for those.
+
+**This table is not the authority — `ls tb/verilator/` is.** Rerun the sweep
+rather than trusting the row count here.
+
+| suite | 2026-07-26 sweep | note |
+|---|---|---|
+| `tb/verilator/aaf` | PASS | — |
+| `tb/verilator/aaf_audio_loop` | PASS | — |
+| `tb/verilator/aaf_latency_taps` | PASS | 73 checks — the per-stage TX/RX taps |
+| `tb/verilator/acmp` | PASS | — |
+| `tb/verilator/acmp_lstn` | PASS | — |
+| `tb/verilator/adp` | PASS | — |
+| `tb/verilator/adp_tx` | PASS | — |
+| `tb/verilator/aecp` | PASS | — |
+| `tb/verilator/aes3` | PASS | 50 checks — the AES3/S-PDIF ser/des family |
+| `tb/verilator/avtp_parser` | PASS | 10 665 checks — the listener ACCEPT VERDICT at every shipping shape; carries the entry-0 blocker guard (T6) |
+| `tb/verilator/avtp_rxmon` | PASS | — |
+| `tb/verilator/avtp_stream` | PASS | — |
+| `tb/verilator/cbs` | PASS | 129 407 checks — CBS arithmetic vs a fixed-point replica and an ideal 802.1Qav model |
+| `tb/verilator/cdc` | PASS | — |
+| `tb/verilator/chmap_capture` | PASS | — |
+| `tb/verilator/chmap_render` | PASS | — |
+| `tb/verilator/classifier` | PASS | — |
+| `tb/verilator/cls` | PASS | 200 073 checks — classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+| `tb/verilator/controller_rate` | PASS | the gating regression born from the CBS datapath bug |
+| `tb/verilator/crf_rx` | PASS | — |
+| `tb/verilator/crf_tx` | PASS | — |
+| `tb/verilator/csr` | PASS | 337 checks — the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md) |
+| `tb/verilator/datapath` | PASS | — |
+| `tb/verilator/eth_tx_reset` | PASS | — |
+| `tb/verilator/hostplane` | PASS | 77 checks — the silicon-shape host lanes (RX delivery, ts records, filter-no-leak) |
+| `tb/verilator/i2spb` | PASS | — |
+| `tb/verilator/ifg` | PASS | — |
+| `tb/verilator/lat_history_ring` | PASS | — |
+| `tb/verilator/link_guard` | PASS | — |
+| `tb/verilator/lwsrp` | PASS | — |
+| `tb/verilator/lwsrp_ctx` | PASS | — |
+| `tb/verilator/lwsrp_rx` | PASS | — |
+| `tb/verilator/lwsrp_switchpdu` | PASS | — |
+| `tb/verilator/lwsrp_tx` | PASS | — |
+| `tb/verilator/maap` | PASS | — |
+| `tb/verilator/mac_rmon` | PASS | the revived RMON event derivation + STATS_CAP |
+| `tb/verilator/milan_dp` | PASS | 282 checks — the whole milan_datapath wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1) |
+| `tb/verilator/mmcm_servo` | PASS | — |
+| `tb/verilator/mmcm_servo_autorepair` | PASS | — |
+| `tb/verilator/pcm_playback` | PASS | 40 checks — host ring → KL_pcm_tx → render crossbar → feed mux → DAC pin, bit-exact plus the negatives |
+| `tb/verilator/pcm_ring_bram` | PASS | — |
+| `tb/verilator/pcm_tx` | PASS | — |
+| `tb/verilator/pcmlpf` | PASS | — |
+| `tb/verilator/persist` | PASS | the KLJ1 saved-state journal decode + replay |
+| `tb/verilator/ptp` | PASS | 201 250 checks — PHC arithmetic vs an independent reference model |
+| `tb/verilator/ptp_sync` | PASS | — |
+| `tb/verilator/ptp_ts` | PASS | — |
+| `tb/verilator/queues` | PASS | — |
+| `tb/verilator/rx_filter` | PASS | — |
+| `tb/verilator/shaper_core` | PASS | 1 520 848 checks — FQTSS/arbitration, incl. the gPTP-not-starved measurement |
+| `tb/verilator/tcam` | PASS | — |
+| `tb/verilator/tcam_csr` | PASS | — |
+| `tb/verilator/tdm` | PASS | — |
+| `tb/verilator/tdm_render` | PASS | — |
+| `tb/verilator/tsn_fuzz` | PASS | the IEEE 1722.1 field-validation campaign (skips cleanly without tsn-gen) |
+
+The standing rule: every round grows this table, never shrinks it.
 
 ## 2. Migen DMA-engine sims - `sw/litex/test_*.py`
 
@@ -232,7 +251,7 @@ Performance measurements on silicon are logged in the
   |---|---|---|
   | 5.020 | Ubuntu 24.04 | **cannot build** `aecp`/`hostplane`/`milan_dp`/`tsn_fuzz` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
   | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Open.** |
-  | 5.050 | Arch, and the CI pin | reference: 53/53 suites green |
+  | 5.050 | Arch, and the CI pin | reference: **55/55 suites green, 2 064 050 checks, 0 failures** (full sweep 2026-07-26) |
 
   CI therefore **builds Verilator from source at a pinned tag** (`VERILATOR_VERSION`
   in the workflow) and caches it, rather than trusting `apt`. The RTL was

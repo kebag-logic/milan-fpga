@@ -262,13 +262,18 @@ directly by the `queues` harness (`has_data` collapsing to one queue).
 **Symptom.** (Earlier, `datapath` harness.) A check expecting frames to land in ≥2
 distinct queues failed  -  everything clustered into one queue.
 
-**Cause.** The classifier's *reset* PCP→TC→queue map clusters PCP 0–3 into the same
-class, so distinct PCPs did not fan out to distinct queues.
+**Cause.** The classifier's *reset* PCP→TC→queue map did not fan distinct PCPs out to
+distinct queues. (With the four-queue map of the day it clustered PCP 0–3 into one class;
+the six-queue reset map `0x006D2B00` spreads PCP 0…7 over q0/q0/q4/q5/q2/q2/q3/q3, so it
+still is not an identity — the harness fix below is unchanged in kind.)
 
 **Fix.** Program an **identity** classifier config in the harness so PCP `p` → prio
 `p` → TC `p` → queue `p` (`cls_prio_regen=0x00FAC688`, `cls_pcp_tc_map=0x00FAC688`,
-`cls_tc_queue_map=0x000000E4`), then assert `tdest == pcp`. This is also why the
-`milan_dp` harness programs the identity map over the CSR before the TX test.
+`cls_tc_queue_map=0x0002C688` — 3 bits per entry at `NUMBER_OF_QUEUES = 6`, which is
+what `tb/verilator/datapath/sim_main.cpp` computes), then assert `tdest == pcp`. The
+identity only holds for `p < 6`: TC6/TC7 name queues ≥ N and `traffic_class_map` clamps
+them to q0. This is also why the `milan_dp` harness programs the identity map over the
+CSR before the TX test.
 
 ## Section 15: `--full` fails 100 MHz timing in the CBS credit-shaper
 
@@ -565,10 +570,12 @@ out of any binary, so the image that actually boots is the image that gets check
 - Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
   driver ↔ gateware pairing - gate it mechanically, don't trust discipline.
 
-## Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED, fix in `VERSION 0x000F`, silicon confirmation pending)
+## Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED and FIXED, `VERSION 0x000F`; mechanism confirmed on silicon 2026-07-26)
 
-> **ROOT CAUSE FOUND 2026-07-26 — reproduced in simulation, fixed in RTL, not yet
-> confirmed on silicon.** The verdict does not die in the *parse*; it dies in the
+> **ROOT CAUSE FOUND 2026-07-26 — reproduced in simulation, fixed in RTL, and
+> the mechanism then confirmed on silicon by causation** (see the confirmation
+> block below and [`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) §D).
+> The verdict does not die in the *parse*; it dies in the
 > stream **table** that tells the parser what to match. Two RTL layers combined:
 >
 > 1. `hdl/milan/milan_datapath.sv` `win_commit_glue` staged the window's
@@ -694,14 +701,22 @@ not in ACMP.
   `0x0200_0000_0002_0000` — **the same 64-bit value**. Listener and talker agree on what
   the stream is called; the compare still fails.
 
-**Suspect list, in the order worth testing.** All three live in the parser or in what the
-parser is told to compare against:
+> **SUPERSEDED — all three suspects below were REFUTED.** They are kept as the
+> record of how the fault was worked, not as live guidance. The fault was not in
+> the parser and not in the placement: it was **entry-0 provisioning**, two
+> layers up, in `win_commit_glue` + `KL_stream_table.ovr_armed_r` — see the
+> root-cause block at the top of this section. Do **not** spend a build cycle on
+> suspect 1's "re-test on a fresh netlist"; the mechanism is reproduced in
+> simulation and was then triggered deliberately on silicon.
 
-1. **Stream-ID compare in this placement.** The parser compares each frame's 64-bit
-   stream_id against `strtbl_sid_w` at width N=8. This bitstream placed at **99.93 % slice
-   occupancy**, the same build generation whose placer overflowed on `crf_rx` - "correct in
-   sim, wrong in this placement" is a live hypothesis. Re-test on a fresh netlist **first**,
-   before any redesign.
+**Suspect list (refuted), in the order it was tested.** All three lived in the parser or in
+what the parser is told to compare against:
+
+1. ~~**Stream-ID compare in this placement.**~~ **REFUTED.** The parser compares each
+   frame's 64-bit stream_id against `strtbl_sid_w` at width N=8. This bitstream placed at
+   **99.93 % slice occupancy**, the same build generation whose placer overflowed on
+   `crf_rx` - "correct in sim, wrong in this placement" was the live hypothesis at the time.
+   The defect reproduces in simulation, so placement was never the cause.
 2. **The path from the bind record to the compare.** The record is right (above), so what
    is left on this axis is the wiring between them: the flat `acmpl_sid`/`acmpl_bound` pair
    that `KL_stream_table` entry 0 is built from, versus the per-context RAM the window

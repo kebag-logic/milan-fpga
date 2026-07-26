@@ -66,7 +66,7 @@ Verified working versions: verilator 5.050, yosys 0.66, python 3.14.6, gcc 16.1.
 > self-contained suites (`tcam`, `cbs`, `csr`) work on older versions; it is the
 > datapath harnesses that do not. Details and the measured table:
 > [docs/testing/TESTING.md](docs/testing/TESTING.md) §7.
-Verilator **≥ 5.0** is the real requirement.
+Verilator **≥ 5.050** is the real requirement (that is the CI pin; see the note above).
 
 On other distributions install the same seven things — the package *names* differ
 and are deliberately not guessed here. If you would rather not think about it at
@@ -163,7 +163,7 @@ cd syn/yosys && make ecp5       # map to Lattice ECP5 (TRELLIS_FF/LUT4)
 Both were run here (yosys 0.66 + sv2v v0.0.13), and both end in:
 
 ```
-tops: 39   pass: 39   fail: 0
+tops: 47   pass: 47   fail: 0
 RESULT: PASS
 ```
 
