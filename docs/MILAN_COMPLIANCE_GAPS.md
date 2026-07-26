@@ -548,9 +548,17 @@ worse than an admitted gap.
 ## Suggested order of attack (reordered 2026-07-22 per USER)
 
 0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
-   fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED this session**
-   (the guard `eth_rst` reset scope now covers the PHY-side `eth_tx`/gtx
-   path; sim + full-SoC elaboration validated, **silicon bench pending**).
+   fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED, and
+   SILICON-VALIDATED 2026-07-26.** The guard `eth_rst` reset scope covers the
+   PHY-side `eth_tx`/gtx path, the deployed netlist wires it into the
+   `eth_tx`/`eth_rx` async reset synchronisers and the PHY reset, and the
+   `LINK_CTRL[3]` `linkg_freeze` hook (fake eth clock death — the wedge's own
+   mechanism) was fired **9 times**: every one detected, `eth_rst` asserted,
+   recovered to RUN in ~2 s, `bounce_cnt` counted all 9, `RST_EPOCH` never
+   moved, and the **peer board's RX never dipped** — TX never wedged on the
+   wire. Evidence: [`findings/STRESS_0726.md`](findings/STRESS_0726.md) §H. Residual: a physical
+   cable-pull drill (adds PHY autoneg / link-loss detection) and the same
+   drills on the Arty.
    - Silicon truth: a link bounce wedges the e2 TX path permanently
      (internal TX counters tick, the WIRE stays empty — the RMON
      live-counter test is blind to it, only the tap tells the truth).
