@@ -232,8 +232,15 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | `0x520` | `PTP_CMD` | W1S | `0` | `[0]` load (apply settime), `[1]` adjust (apply adjtime), `[2]` snapshot (latch TOD for gettime)  -  self-clearing pulses |
 | `0x530` | `PTP_TOD_RD_LO` | RO | `0` | latched TOD `[31:0]` (updated when the PHC snapshot returns) |
 | `0x534` | `PTP_TOD_RD_HI` | RO | `0` | latched TOD `[63:32]` |
-| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction (ns) |
-| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction (ns) |
+| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | ingress latency correction, ns  -  **SUBTRACTED** from every RX capture (the wire SFD preceded the AXIS SOP the tap stamps). Unsigned; the sign is fixed in HW, software never negates. |
+| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | egress latency correction, ns  -  **ADDED** to every TX capture (the SFD follows the AXIS SOP) |
+
+Both reset to 0 = uncorrected. The bench currently applies its measured
+constants in `ptp4l` (`ingressLatency`); move the correction to one side or the
+other, **never both**, or it double-counts. These registers are the
+register half of REQ-PTP-06  -  true SFD capture needs a tap at the GMII/PHY
+boundary, which nothing at the AXIS boundary can synthesise, so the constants
+stay characterisation-derived.
 
 ### 0x700  -  RX destination-MAC TCAM filter  `(REQ-MAC-02)`
 

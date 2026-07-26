@@ -123,7 +123,20 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   16 codes (0-3 record with the right seq, 4-15 record nothing, RX+TX event
   bracket proves the tap is not merely deaf). Domain filtering is NOT
   implemented (the REQ marks it optional) — no CSR for `domainNumber` yet.
-- [ ] **M — Ingress/egress latency correction regs + SFD capture** `(REQ-PTP-06)`.
+- [~] **M — Ingress/egress latency correction regs + SFD capture** `(REQ-PTP-06)`
+  — **register half DONE.** `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544)
+  existed in the ABI and reached `milan_datapath` as `cfg_ptp_ingress_lat`/
+  `cfg_ptp_egress_lat`, where they stopped at a wire declaration. They now
+  reach the capture point: `ptp_ts_core` subtracts the ingress constant on an
+  RX tap and adds the egress constant on a TX tap (sign fixed by `IS_TX`, so
+  software never negates); reset 0 = uncorrected. TB: `ptp_ts` measures the
+  correction as a delta shift on top of the golden SOP-cycle model, both
+  directions, plus a cross-talk negative (egress must not touch RX) and a
+  cleared-registers identity leg; a sign swap fails both legs.
+  **STILL OPEN: SFD capture.** The stamp point is the AXIS SOP; a true
+  GMII-SFD capture needs a tap at the PHY boundary, which does not exist in
+  this datapath — the constants remain characterisation-derived, and the bench
+  applies its measured pair in `ptp4l` today (do not enable both).
 - [ ] **M — PHC clock source** `(REQ-PTP-07)` — clock counter from fixed 125 MHz
   (not speed-switched `gtx_clk`) or tie increment to link-speed/adjfine.
 - [x] **M — VLAN-tagged gPTP offsets** `(REQ-PTP-09)` — `ptp_ts_core.sv` latches

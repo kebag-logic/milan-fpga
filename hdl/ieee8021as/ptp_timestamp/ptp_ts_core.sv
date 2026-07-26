@@ -12,7 +12,11 @@
 
                 - AXI-Stream pass-through for Ethernet frames (combinational,
                   never stalls the tap).
-                - Latches the PHC value at each frame's FIRST beat (SOP).
+                - Latches the PHC value at each frame's FIRST beat (SOP), with
+                  the SW-programmed per-port latency correction applied
+                  (REQ-PTP-06): RX SUBTRACTS the ingress latency (the wire SFD
+                  preceded this AXIS SOP), TX ADDS the egress latency (the SFD
+                  follows it). Reset 0 = uncorrected, i.e. today's behaviour.
                 - Parses ethertype / PTP messageType / sequenceId at the
                   untagged-gPTP offsets, and at the C-TAG-shifted offsets when
                   the frame carries an 802.1Q tag (REQ-PTP-09): TPID 0x8100 at
@@ -79,6 +83,11 @@ module ptp_ts_core #(
   input wire ts_dst_resetn,
   //! ts_in Global timestamp input - MUST be synchronous to ts_dst_clk
   input wire [TS_WIDTH-1:0] ts_in,
+  //! lat_corr_i Per-port latency correction, ns, UNSIGNED magnitude
+  //! (PTP_INGRESS_LAT on an RX tap, PTP_EGRESS_LAT on a TX tap). The DIRECTION
+  //! is fixed by IS_TX so software never has to negate: RX capture - lat_corr,
+  //! TX capture + lat_corr (REQ-PTP-06). 0 = disabled = today's behaviour.
+  input wire [31:0] lat_corr_i,
 
   //! s_axis Input AXI-Stream interface for Ethernet frames
   axi_stream_if.slave s_axis,
@@ -163,6 +172,22 @@ assign m_axis.tlast  = s_axis.tlast;
 assign s_axis.tready = m_axis.tready;
 
 // -----------------------------------------------------------------------------
+//! Per-port latency correction (REQ-PTP-06, 802.1AS-2020 §8.4.3). The capture
+//! point is the AXIS start-of-packet, which is NOT the GMII SFD: on RX the SFD
+//! crossed the pins some nanoseconds BEFORE this beat, on TX it leaves some
+//! nanoseconds AFTER. PTP_INGRESS_LAT/PTP_EGRESS_LAT carry those constants and
+//! the sign is applied here so software never has to think about it. Both reset
+//! to 0, and the bench today applies its measured constants in ptp4l instead -
+//! move one or the other, never both, or the correction double-counts.
+//! NOTE: this is the register half of REQ-PTP-06. True SFD capture needs a tap
+//! at the GMII/PHY boundary; nothing at this AXIS boundary can synthesise it,
+//! so the constants remain characterisation-derived.
+// -----------------------------------------------------------------------------
+wire [TS_WIDTH-1:0] lat_corr_w = {{(TS_WIDTH-32){1'b0}}, lat_corr_i};
+wire [TS_WIDTH-1:0] ts_corrected = IS_TX ? (ts_in + lat_corr_w)
+                                         : (ts_in - lat_corr_w);
+
+// -----------------------------------------------------------------------------
 //! SOP / byte counter / synchronous SOP timestamp
 // -----------------------------------------------------------------------------
 always_ff @(posedge ts_dst_clk) begin : sop_and_counter
@@ -183,7 +208,7 @@ always_ff @(posedge ts_dst_clk) begin : sop_and_counter
         byte_counter <= byte_counter + BEAT_BYTES;
     end
     if (start_packet)
-      ts_sop <= ts_in;      // exact per-frame pairing: SOP(N+1) is always
+      ts_sop <= ts_corrected; // exact per-frame pairing: SOP(N+1) is always
                             // after TLAST(N), so ts_sop is stable frame-long
   end
 end

@@ -58,6 +58,8 @@ module ptp_ts_top#(
   input  wire                 i_ptp_cmd_load,     //! settime apply strobe (axis_clk)
   input  wire                 i_ptp_cmd_adjust,   //! adjtime apply strobe (axis_clk)
   input  wire                 i_ptp_cmd_snapshot, //! gettime apply strobe (axis_clk)
+  input  wire [31:0]          i_ptp_ingress_lat,  //! PTP_INGRESS_LAT: ns subtracted from RX captures (REQ-PTP-06)
+  input  wire [31:0]          i_ptp_egress_lat,   //! PTP_EGRESS_LAT: ns added to TX captures (REQ-PTP-06)
   output wire [TS_WIDTH-1:0]  o_ptp_tod_rd,       //! gettime result, ns (axis_clk)
   output wire                 o_ptp_tod_rd_valid, //! gettime result valid (1 axis_clk pulse)
   output wire                 o_tx_ts_ready,      //! TX egress timestamp available (IRQ pulse, axis_clk)
@@ -238,6 +240,7 @@ module ptp_ts_top#(
     .ts_dst_clk(axis_clk),
     .ts_dst_resetn(axis_resetn),
     .ts_in(timestamp),
+    .lat_corr_i(i_ptp_egress_lat),
 
     .s_axis(s_axis_tx),
     .m_axis(m_axis_tx),
@@ -262,6 +265,7 @@ module ptp_ts_top#(
     .ts_dst_clk(axis_clk),
     .ts_dst_resetn(axis_resetn),
     .ts_in(timestamp),
+    .lat_corr_i(i_ptp_ingress_lat),
 
     .s_axis(s_axis_rx),
     .m_axis(m_axis_rx),
