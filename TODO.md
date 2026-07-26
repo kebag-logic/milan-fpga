@@ -126,8 +126,16 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [ ] **M — Ingress/egress latency correction regs + SFD capture** `(REQ-PTP-06)`.
 - [ ] **M — PHC clock source** `(REQ-PTP-07)` — clock counter from fixed 125 MHz
   (not speed-switched `gtx_clk`) or tie increment to link-speed/adjfine.
-- [ ] **M — VLAN-tagged gPTP offsets** `(REQ-PTP-09)` — shift PTP field offsets by
-  the C-TAG width when 0x8100 present.
+- [x] **M — VLAN-tagged gPTP offsets** `(REQ-PTP-09)` — `ptp_ts_core.sv` latches
+  a `vlan_tagged` flag when bytes 12-13 hold TPID `0x8100` and then reads the
+  ethertype/messageType at bytes 16-18 and the sequenceId at bytes 48-49
+  instead of 12-14/44-45. Previously a C-tagged gPTP frame never matched
+  `ETH_TYPE` and produced NO timestamp at all — a silently unsynchronised port
+  on any tagged gPTP domain. The tag decision is per frame (no mode latch), and
+  S-TAG/stacked tags remain out of scope (REQ-CLS-08). TB: `ptp_ts` tagged
+  events with golden deltas, tagged/untagged interleave, and three negatives
+  (tagged non-PTP inner ethertype, tagged general messages, tagged frame
+  truncated before the shifted seqId).
 - [ ] **L — 1PPS / extts / perout** `(REQ-PTP-08)`.
 
 ## Phase 3 — 802.1Qav CBS fixes + runtime config `(REQ-CBS-*)`

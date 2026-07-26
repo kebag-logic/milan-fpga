@@ -74,15 +74,20 @@ static void ipv4(uint8_t *b, int len, uint8_t marker)          // len >= 16
     for (int i = 14; i < len; i++) b[i] = (uint8_t)(marker ^ i);
 }
 
-static void vlan_gptp_lookalike(uint8_t *b)                    // 72 B, 0x8100 tagged
+// C-VLAN-tagged gPTP (REQ-PTP-09): the C-TAG pushes every PTP field 4 bytes on
+// - inner ethertype @16-17, messageType @18, sequenceId @48-49. 802.1AS-2020
+// §11.3.3 permits a tagged gPTP port; these frames used to record NOTHING.
+static void vlan_gptp(uint8_t *b, uint8_t msgtype, uint16_t seq,
+                      uint16_t inner = 0x88F7)                  // 72 B
 {
     memset(b, 0, 72);
     const uint8_t hdr[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x81,0x00};
     memcpy(b, hdr, 14);
-    b[14] = 0x60; b[15] = 0x00;          // PCP 3
-    b[16] = 0x88; b[17] = 0xF7;          // inner ethertype 88F7 - must NOT match
-    b[18] = 0x12; b[19] = 0x02; b[21] = 54;
-    b[48] = 0xAA; b[49] = 0x55;
+    b[14] = 0x60; b[15] = 0x02;                   // TCI: PCP 3, VID 2
+    b[16] = (uint8_t)(inner >> 8); b[17] = (uint8_t)inner;
+    b[18] = (uint8_t)(0x10 | (msgtype & 0xF));    // majorSdoId 1 | msgType
+    b[19] = 0x02; b[21] = 54;
+    b[48] = seq >> 8; b[49] = seq & 0xFF;
 }
 
 // ---- frame driver: returns the SOP-accept cycle -----------------------------
@@ -318,12 +323,70 @@ int main(int argc, char **argv)
     check_rec("runts then good", 0, 0, 2, 0x0901);
     (void)s9;
 
-    // 10: VLAN-tagged 88F7 lookalike must not match (gPTP is untagged)
-    recs.clear();
-    vlan_gptp_lookalike(f);
-    send(f, 72, false, 0);
-    settle(60);
-    expect_recs("vlan lookalike", 0);
+    // 10: REQ-PTP-09 - C-VLAN-tagged gPTP. The tag shifts ethertype to 16-17,
+    //     messageType to 18 and sequenceId to 48-49; before this the frames
+    //     never matched ETH_TYPE and produced no timestamp at all (a silently
+    //     unsynchronised port on any VLAN-tagged gPTP domain).
+    {
+        // 10a: tagged EVENT frames record, with the SHIFTED seq/msgType
+        recs.clear();
+        vlan_gptp(f, 2, 0x0C01);
+        uint64_t t1 = send(f, 72, false, 0);
+        vlan_gptp(f, 0, 0x0C02);
+        uint64_t t2 = send(f, 72, false, 0);
+        settle(120);
+        expect_recs("ptp09 tagged events", 2);
+        check_rec("ptp09 tagged", 0, 0, 2, 0x0C01);
+        check_rec("ptp09 tagged", 1, 0, 0, 0x0C02);
+        check_delta("ptp09 tagged", 0, 1, t1, t2);
+
+        // 10b: tagged and untagged interleaved back-to-back - the per-frame
+        //      offset selection must re-arm per frame, not latch a mode
+        recs.clear();
+        vlan_gptp(f, 3, 0x0C11);
+        uint64_t m1 = send(f, 72, false, 0);
+        gptp(b, 3, 0x0C12);
+        uint64_t m2 = send(b, 68, false, 0);
+        vlan_gptp(f, 1, 0x0C13);
+        uint64_t m3 = send(f, 72, false, 0);
+        settle(150);
+        expect_recs("ptp09 tagged/untagged interleave", 3);
+        check_rec("ptp09 mix", 0, 0, 3, 0x0C11);
+        check_rec("ptp09 mix", 1, 0, 3, 0x0C12);
+        check_rec("ptp09 mix", 2, 0, 1, 0x0C13);
+        check_delta("ptp09 mix", 0, 1, m1, m2);
+        check_delta("ptp09 mix", 1, 2, m2, m3);
+
+        // 10c: NEGATIVE - a tagged frame whose INNER ethertype is not 0x88F7
+        //      must still record nothing, even with PTP-shaped bytes at the
+        //      shifted offsets (the shift must not become a blanket accept)
+        recs.clear();
+        vlan_gptp(f, 2, 0x0C21, /*inner=*/0x0800);
+        send(f, 72, false, 0);
+        vlan_gptp(f, 0, 0x0C22, /*inner=*/0x22F0);
+        send(f, 72, false, 0);
+        settle(120);
+        expect_recs("ptp09 tagged non-PTP (negative)", 0);
+
+        // 10d: NEGATIVE - tagged GENERAL messages stay filtered at the shifted
+        //      messageType offset (REQ-PTP-05 must survive the shift)
+        recs.clear();
+        for (int mt = 8; mt <= 12; mt++) { vlan_gptp(f, (uint8_t)mt, (uint16_t)(0x0C30 + mt)); send(f, 72, false, 0); }
+        settle(150);
+        expect_recs("ptp09 tagged general msgs (negative)", 0);
+
+        // 10e: a tagged frame truncated before byte 49 has no sequenceId and
+        //      must not record (the untagged 44-45 bytes must NOT be reused)
+        recs.clear();
+        vlan_gptp(f, 2, 0x0C41);
+        send(f, 48, false, 0);
+        vlan_gptp(f, 2, 0x0C42);
+        uint64_t good = send(f, 72, false, 0);
+        settle(120);
+        expect_recs("ptp09 truncated tagged then good", 1);
+        check_rec("ptp09 truncated", 0, 0, 2, 0x0C42);
+        (void)good;
+    }
 
     // 11: REQ-PTP-05 - EVENT-ONLY timestamping, full messageType sweep.
     //     IEEE 1588-2019 Table 36: only 0x0 Sync, 0x1 Delay_Req, 0x2 Pdelay_Req
