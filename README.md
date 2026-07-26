@@ -63,7 +63,11 @@ sudo pacman -S --needed gcc make python python-yaml verilator git
 git submodule update --init third_party/verilog-axis     # anonymous HTTPS
 ```
 
-Verilator must be **≥ 5.0**. The repo's *other* submodule, `external`, is SSH-only and is
+Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from source
+at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
+cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
+`aecp` checks. The measured table is in
+[docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The repo's *other* submodule, `external`, is SSH-only and is
 **not needed** for anything here — leave it uninitialised. A GitHub *"Download ZIP"* has no
 submodule content, so the datapath testbenches will not build from a zip.
 
@@ -123,13 +127,13 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 
 | Suite | Command | Needs |
 |---|---|---|
-| **All Verilator TBs** (one dir per suite, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.0 |
+| **All Verilator TBs** (one dir per suite, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.050 (the CI pin) |
 | One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
 | Docs gate (links, wording, dead references) | `python3 scripts/docs_check.py` | python3 — **git optional** |
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| behave / tsn_gen fixtures | `~/litex-milan/venv/bin/behave tests` | the venv + `TSAGEN_DIR` |
+| **BDD conformance suite** (21 features / 113 scenarios, offline, ~3 s) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 

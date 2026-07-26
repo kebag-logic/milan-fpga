@@ -31,7 +31,13 @@ flowchart LR
 * **CAP → PKT_SOF** (`D0`) spans up to one 6-sample AAF accumulation window —
   the packetizer only starts a frame once it has a full PDU's worth of pairs.
 * **PKT_SOF → PKT_EOF** (`D1`) is the packetizer's own serialization time.
-* **PKT_EOF → MAC_TX** (`D2`) is the CBS/shaper queue + MAC boundary. Under
+* **PKT_EOF → MAC_TX** (`D2`) is the **`adp_tx_arbiter` merge chain + the MAC
+  boundary** — *not* a CBS queue. The fabric AAF talker injects **after** the
+  shaper (`aaf_final_mux` in `milan_datapath.sv`), so its frames never enter a
+  queue and never wait for credit; pacing comes from the lwSRP bandwidth gate
+  instead. See
+  [`reference/EGRESS_QUEUE_MAP.md`](reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
+  and [`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) §0. Under
   mixed traffic this shared boundary may catch a nearer non-AAF edge, which is
   why the envelope (min/max) matters more than a single sample here.
 * The existing `ptp_ts_top` **TX hardware timestamp** stamps the actual wire
@@ -88,7 +94,7 @@ windows (since boot, and two `LTAP_CTRL[0]` cleared re-measures) agree.
 |---|---|---|---|
 | **D0** CAP→PKT_SOF | 1 cycle (10 ns) | **12 504 cycles (125.04 µs)** | the 6-sample AAF accumulation window: 6/48 kHz = 125.0 µs. The max is the *structure* of the packetizer, not a stall; the min is a CAP edge landing on a frame boundary |
 | **D1** PKT_SOF→PKT_EOF | 11 cycles (110 ns) | 11 cycles (110 ns) | **constant** — pure serialization of one AAF PDU on the 64-bit datapath; no queueing, no variance across 65 k+ frames |
-| **D2** PKT_EOF→MAC_TX | 8 cycles (80 ns) | **12 529 cycles (125.29 µs)** | one class-A observation interval (125 µs): the CBS/shaper slot the frame waits for. Min = a frame arriving into an already-open credit window |
+| **D2** PKT_EOF→MAC_TX | 8 cycles (80 ns) | **12 529 cycles (125.29 µs)** | one class-A observation interval (125 µs). The measurement is solid; the *attribution* is not a CBS slot — this lane bypasses the shaper (see the note above), so the interval comes from the talker's own emission pacing and from the shared MAC-boundary tap catching a nearer edge. Min = a frame handed straight through the merge chain |
 
 `TX_INFO` reported **0 timeouts** in every window (samples saturate at
 `0xFFFF`; the 5 s cleared window closed at 31 303 completed TX chains). So
@@ -103,21 +109,35 @@ window, pacing interval) are protocol-structural: they do not shrink with a
 faster clock, only with a smaller `samples_per_frame` or a shorter class
 interval.
 
-### RX chain — not yet measurable on this gateware
+### RX chain — measured 2026-07-26, with a caveat
 
-On the same snapshot the RX chain reports **`samples = 0` with `timeouts`
-pinned at saturation**: `MAC_RX` arms the chain on every ingress frame, but
-`avtprx_accept_p` never pulses, so every token aborts at the D0 guard.
-`AVTPRX_STAT`/`FRX`/`ERR` all read 0 while the ACMP listener context reports a
-healthy bind (`ACMPL_STATE = 0x0002_E07E`: bound, stream active, Listener
-declared, TalkerAdvertise registered, probing completed, status SUCCESS,
-VLAN 2; the SM later reached `SETTLED_RSV_OK` with no change). This is the open
-[fabric-listener accept blocker](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) —
-an instrumentation-visible symptom, not a tap defect: the RTL N=8 accept path
-is green in `tb/verilator/milan_dp`. The RX numbers land here once a listener
-accepts on silicon; the companion instrument for *that* diagnosis is the
-`0x8B4` parser-probe group (the pre-match view — see
-[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) §0x8B4).
+**The earlier snapshot read `samples = 0` with `timeouts` pinned at saturation**:
+`MAC_RX` armed the chain on every ingress frame, but `avtprx_accept_p` never
+pulsed, so every token aborted at the D0 guard. That was the fabric-listener
+accept blocker, and it was **not** a tap defect — it was entry-0 provisioning
+([`limitations/TROUBLESHOOTING.md`](limitations/TROUBLESHOOTING.md) §21). With
+the listener accepting (~9.6 k frames/s sustained, `AVTPRX_ERR = 0`), the chain
+reads:
+
+| stage | min | last | reading |
+|---|---|---|---|
+| **D0** `MAC_RX→ACCEPT` | 49 cyc | 50 cyc | **~0.49 µs** — classify + stream-table match + the monitor's verdict |
+| **D1** `ACCEPT→DEPKT` | 29 cyc | 30 cyc | **~0.30 µs** — the depacketizer draining the accepted PDU |
+| **D2** `DEPKT→PCM_RING` | 10 378 cyc | 12 541 cyc | **~104–125 µs** — the ring-fill stage sitting at the 125 µs class-A interval |
+
+Total ≈ **105–126 µs** at 100 MHz (1 cycle = 10 ns). Measured on the AX7101 8×8
+board on **2026-07-26**, on gateware `VERSION 0x0001_000B` **through the manual
+staging workaround**, not through the fixed provisioning path.
+
+> **Caveat, and it matters.** The `max` fields and `LTAP_RX_INFO` (`0x898`) were
+> **saturated** (`0xFFFF`), polluted by the long blocked period when every frame
+> timed out at the tap. Only `min` and `last` above are trustworthy. A clean set
+> needs a counter reset **and** a board reflashed past `0x000F`.
+
+The companion instrument for diagnosing a non-accepting listener is the `0x8B4`
+parser-probe group (the pre-match view — see
+[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) §0x8B4); the ordered walk is in
+[`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) §3.
 
 Note for whoever measures the RX chain next: since `VERSION 0x0001_000C` the
 chain consumes **same-cycle** stage pulses as 0-cycle hops, so **RX D2

@@ -10,9 +10,12 @@ in-fabric observability block).
 
 ## 0. Global conventions
 
-* **AXIS:** 64-bit `tdata`, 8-bit `tkeep`, `tlast`, 2-bit `tdest` where
-  routed (`hdl/common/parameters.svh`); big-endian byte order (wire order ==
-  memory order, so the CPU never swaps).
+* **AXIS:** 64-bit `tdata`, 8-bit `tkeep`, `tlast`, and `$clog2(NUMBER_OF_QUEUES)`
+  = **3**-bit `tdest` where routed (`traffic_controller_802_1q`, since the queue
+  count went to 6); big-endian byte order (wire order == memory order, so the CPU
+  never swaps). The `` `AXIS_TDEST_WIDTH 2 `` define in
+  `hdl/common/parameters.svh` is a relic referenced only by the legacy xsim TBs
+  — the live path derives the width from the queue count.
 * **CSR:** AXI4-Lite, 16-bit offset (64 KB window), 32-bit data, decoded in
   `milan_csr` in 0x100 groups.
 * **Style:** SystemVerilog, `` `default_nettype none ``, TerosHDL `//!`
@@ -32,11 +35,19 @@ Pipeline (identical in both wrappers):
 
 ```
 TX: DMA ──► traffic_controller_802_1q ──► ptp_ts_top(TX stamp) ──► adp_tx_arbiter ──► MAC
-            (classify ► queues ► CBS)                                  ▲
-                                                          adp_advertiser┘
-RX: MAC ──► ptp_ts_top(RX stamp) ──► rx_mac_filter(TCAM) ──► DMA
+            (classify ► 6 queues ► CBS)                                ▲
+                          fabric engines (AAF talker, ADP/ACMP/AECP,   │
+                          MAAP, CRF, lwSRP) inject HERE ───────────────┘
+RX: MAC ──► ptp_ts_top(RX stamp) ─┬─► rx_mac_filter(TCAM) ──► DMA        (host copy)
+                                  └─► avtp_stream_parser ► stream table ► RX monitor
+                                      ► depacketizer ► PCM route ► ring / DAC
 TS: ptp_ts_top ──► m_axis_ts (timestamp metadata records) ──► DMA
 ```
+
+**Only CPU-originated frames traverse the classifier, the queues and the CBS.**
+The fabric engines merge in *after* the shaper, and the RX media path taps
+*before* the dest-MAC filter. Hop-by-hop, with the CSR to read at each stage:
+[DATAPLANE_WALKTHROUGH.md](DATAPLANE_WALKTHROUGH.md).
 
 
 ### 1.1 TX audio chain as composed on main (2026-07-25 merge round)
@@ -54,11 +65,14 @@ flowchart LR
 Both new stages default to bypass: with `pb_enable=0` and `chmap_enable=0`
 the packetizer input is bit-identical to the pre-merge datapath.
 
-## 2. Module inventory — COMPLETE (auto-generated from the RTL banners, 2026-07-25)
+## 2. Module inventory (from the RTL banners; refreshed 2026-07-26)
 
-Every `module` in `hdl/` (77 total, one row each; descriptions are the
-modules' own banner lines). Regenerate with the snippet in the commit that
-added this section whenever `hdl/` changes shape.
+Every `module` in `hdl/`, one row each; descriptions are the modules' own banner
+lines. **No count is stated here on purpose** — counts in prose go stale.
+[`../traceability/MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md) is
+*generated* from the tree, prints the live total, and is gated for drift by
+`gen_module_matrix.py --check`; `ls hdl/` is the ultimate authority. Regenerate
+this table whenever `hdl/` changes shape.
 
 ### `hdl/common/`
 
@@ -80,6 +94,7 @@ added this section whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
+| `KL_mac_rmon_events` | Derives the `ethernet_events` pulse vector from a soft MAC's boundary signals (AXIS handshakes, bad-frame flag, FCS/preamble counts) — the block that revived RMON at VERSION `0x0013`. |
 | `ethernet_events` | This module instantiates multiple `event_counter` modules, one for each |
 | `event_counter` | This module implements a simple synchronous event counter. |
 
@@ -95,10 +110,14 @@ added this section whenever `hdl/` changes shape.
 |---|---|
 | `KL_aaf_capture_i2s` | Audio capture front-end (NXN §2.1 / P4): the I2S/CDC half of the old |
 | `KL_aaf_latency_chain` |  |
+| `KL_aaf_latency_taps` | Per-stage TX/RX latency tap chains (item-11) feeding the `LTAP` CSR group at `0x870`. |
 | `KL_aaf_packetizer` |  |
 | `KL_aaf_rx_depacketizer` |  |
+| `KL_aes3_rx` | AES3 / S-PDIF biphase-mark receiver (item-4 front-end family): recovered pairs into the capture path. |
+| `KL_aes3_tx` | AES3 / S-PDIF biphase-mark transmitter (item-4 front-end family). |
 | `KL_chan_map_capture` |  |
 | `KL_chan_map_render` |  |
+| `KL_i2s_feed_mux` | DAC feed selector: the legacy listener render tap, or the render crossbar paced by the 48 kHz media tick (item-7 playback chain). |
 | `KL_i2s_playback` | I2S DAC serializer, clean-clocked: PCM tap (wire-order S32BE interleave, |
 | `KL_lat_history_ring` |  |
 | `KL_media_adv` | Fractional-N advance strobe: adv_o duty = TICK_HZ / CLK_FREQ_HZ exactly |
@@ -166,6 +185,7 @@ added this section whenever `hdl/` changes shape.
 | `KL_aecp_response_builder` |  |
 | `KL_aecp_timers` |  |
 | `KL_aecp_top` |  |
+| `KL_persist_journal` | `KLJ1` saved-state journal decode + replay (RTL and Verilator-proven; its CSR ingest group `0x7B8`-`0x7C4` is not wired into `milan_csr` yet). |
 
 ### `hdl/ieee8021as/ptp_timestamp/`
 
@@ -217,7 +237,8 @@ added this section whenever `hdl/` changes shape.
 | `milan_datapath` | This is the single clean HW/gateware boundary the LiteX SoC (sw/litex/milan_soc.py) |
 | `milan_top` |  |
 
-<!-- 77 modules -->
+<!-- Count deliberately not stated here: docs/traceability/MODULE_MATRIX.md is
+     GENERATED from the tree and prints the live total; `ls hdl/` is authoritative. -->
 
 
 Each module's authoritative documentation is its own header banner (house

@@ -38,20 +38,37 @@ been a bottleneck. Trap fixed long ago: LiteEth `last_be` is one-hot, AXIS
 `tkeep` is a mask; the M-A3 bug (no frames on the wire at all) came from that
 mismatch.
 
-### Stage R2: flow steering (RxSteer, 2-queue builds)
+### Stage R2: gPTP steering (RxSteer, 2-queue builds)
 
-Purpose: route each frame to queue 0 or queue 1 so two flows' protocol work
-can proceed independently. Code: `class RxSteer` in `milan_soc.py`. The hash
-is the XOR parity of every bit of the IPv4 4-tuple, so placement is
-deterministic per connection: you can engineer a split by picking client
-ports, and consecutive integers often share parity, so a naive port sequence
-lands 3:1 rather than 2:2.
+Purpose: give **gPTP its own RX queue** so PTP event messages never sit behind
+bulk traffic in a shared ring. Code: `class RxSteer` in `milan_soc.py`.
+
+- **q1** — frames whose DMAC is the 802.1AS reserved multicast
+  `01-80-C2-00-00-0E` **and** whose (inner) EtherType is `0x88F7`. That is
+  exactly the test `traffic_class_map.sv` applies on egress under `REQ-CLS-07`:
+  one detector, one rule, both directions.
+- **q0** — everything else.
+
+Each queue is its own ring writer, interrupt and NAPI.
+
+> **What this replaced, and what it cost (2026-07-26).** `RxSteer` used to be a
+> TCP 4-tuple XOR-parity flow hash built for *throughput* — it split one
+> MTU-1500 RX stream into two flow-consistent queues so two flows' ACK/receive
+> processing ran on two harts (measured RX 223 Mbit, see
+> [../findings/RX_PERF_TUNING_MAP.md](../findings/RX_PERF_TUNING_MAP.md)).
+> **That parallel ACK split is gone**: bulk RX is single-NAPI again and the RX
+> throughput ceiling reverts to the one-hart number. What is bought instead is
+> RX-side PTP latency, which is what once held `asCapable` false
+> ([../findings/GPTP_RXPAD_ROOTCAUSE.md](../findings/GPTP_RXPAD_ROOTCAUSE.md)).
+> Advice about engineering a split by picking client ports no longer applies.
 
 Knobs and traps:
-- `hash_sel` CSR at 0xf0003094: 1 forces everything to queue 0.
-- Non-IP, IHL not 5, or truncated heads go to queue 0 unconditionally.
+- `hash_sel` CSR at 0xf0003094 (**name kept on purpose**, it is the third
+  register of the block): 1 forces everything to queue 0 (bypass).
 - The steer counters at 0xf000308c / 0xf0003090 misreport under dual-active
   load. Trust them only as single-active deltas.
+- Per-board `rx_queues` differs, and raising it is reflash-gated — see
+  [../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md).
 
 ### Stage R3: RSC aggregation (RingDMAWriter slots)
 

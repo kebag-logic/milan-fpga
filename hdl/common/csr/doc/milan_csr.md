@@ -36,9 +36,9 @@ consumer using those strobes (`REQ-CSR-03`).
 
 | Generic name | Type          | Value          | Description                                             |
 | ------------ | ------------- | -------------- | ------------------------------------------------------- |
-| NUM_QUEUES   | int           | 4              | Number of HW traffic-class queues (reported in CAP)     |
+| NUM_QUEUES   | int           | 6              | Number of HW traffic-class queues (reported in CAP.num_queues); q5 = highest priority |
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
-| VERSION      | logic [31:0]  | 32'h0001_0001  | Value returned by the read-only VERSION register        |
+| VERSION      | logic [31:0]  | 32'h0001_0013  | Value returned by the read-only VERSION register (the RTL parameter's own comment carries the per-version changelog) |
 
 ## Ports
 
@@ -78,6 +78,7 @@ consumer using those strobes (`REQ-CSR-03`).
 | o_stats_snapshot    | output    | wire                    | 1-cycle pulse: latch RMON counters                   |
 | o_stats_reset       | output    | wire                    | 1-cycle pulse: clear RMON counters                   |
 | i_stats             | input     | wire [32*9-1:0]         | Live RMON counters, packed {STAT8..STAT0}            |
+| i_stats_cap         | input     | wire [31:0]             | Per-lane STAT capability mask -> RO STATS_CAP (0x204) |
 | o_cls_use_pcp       | output    | wire                    | Classify by PCP table vs EtherType (CLS_CTRL[0])    |
 | o_cls_dmac_check    | output    | wire                    | Reserved-DMAC validation (CLS_CTRL[1])              |
 | o_cls_ctrl_class    | output    | wire                    | Untagged-control DMAC fast path (CLS_CTRL[2])       |

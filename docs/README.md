@@ -71,8 +71,8 @@ Goal: build → flash → bring up the board. → **[the pipeline at a glance](B
 Goal: prove it works, per spec.
 1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · bench).
 2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` is the authoritative suite list (the listing wins over any prose count).
-3. [../tests/README.md](../tests/README.md) — run the behave/tsn_gen fixtures: `~/litex-milan/venv/bin/behave tests` (needs `TSAGEN_DIR`).
-4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench` tier (the conformance suites live in the sibling private test repo).
+3. [../tests/README.md](../tests/README.md) — run the **BDD conformance suite**: `cd tests && behave -f plain` (21 features / 113 scenarios, offline, ~3 s; the `@tsn_gen` tier additionally needs `TSAGEN_DIR`). It is a CI gate and a USER standing order on every verification round.
+4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench` tier (the *bench* suites, which need real hardware, live in the sibling private test repo).
 5. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
 6. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is validated vs pending.
 
@@ -116,6 +116,7 @@ Goal: build, flash, hear audio — or get value out of the repo without buying a
 | [AT_A_GLANCE.md](overview/AT_A_GLANCE.md) | **The whole system on one page** - block diagram, the five standards it implements, the register map at a glance, what is proven by a re-runnable test vs by a bench measurement, and an honest "is this for you?". For someone deciding whether to use it at all. |
 | [FULL_FPGA_SOLUTION.md](overview/FULL_FPGA_SOLUTION.md) | **The master guide to the fully-FPGA solution** - high/medium-level architecture, the three datapath boundaries, build/run, roadmap. **Read first.** |
 | [ARCHITECTURE.md](overview/ARCHITECTURE.md) | System map: datapath, control plane, clock domains, HDL↔software mapping, where to change things - fully-FPGA primary, Zynq legacy appendix. |
+| [RELEASE_0x0013.md](overview/RELEASE_0x0013.md) | **What changed from gateware `0x000B` to `0x0013`, and what you must do about it** — organised by consequence, not by feature: the fixed listener blocker, the breaking six-queue ABI change, control classification by DMAC, RMON's revival + `STATS_CAP`, what landed but is not yet reachable from software, and an upgrade checklist. Read this if you have a board on an older build. |
 | [ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) | **Normative HW/SW plan-of-record (rev 2)**: what runs in fabric vs the softcore (lwSRP/AAF/MAAP/ADP/AECP/ACMP all in fabric, silicon-validated; the softcore does linuxptp + PCM ring + provisioning). |
 | [SYSTEM_DOMAIN_MAP.md](overview/SYSTEM_DOMAIN_MAP.md) | Which module lives in which domain/language (userspace → kernel → firmware → LiteX → RTL → vendored IP → silicon). Diagram: [SYSTEM_DOMAIN_MAP.svg](SYSTEM_DOMAIN_MAP.svg). |
 | [AVB_SWITCH_DIRECTION.md](overview/AVB_SWITCH_DIRECTION.md) | The direction: endpoint → 4-port AVB switch (decision matrix + scoreboard). Diagram: [AVB_SWITCH_DIRECTION.svg](AVB_SWITCH_DIRECTION.svg). |
@@ -157,7 +158,8 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | Document | Purpose |
 |----------|---------|
 | [FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) | **Every module in `hdl/`**: purpose, interfaces, clock domain, verifying harness, doc link; the wrappers; the full CDC inventory. |
-| [PIPELINE_STAGES.md](fpga/PIPELINE_STAGES.md) | Canonical stage-by-stage pipeline prose (datapath + DMA/BD engines as running on silicon). |
+| [DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | **One AAF frame, hop by hop, in each direction** — the RTL instance and the CSR to read at every stage (classifier → queue → CBS → MAC on egress; MAC → parser → stream table → monitor → depacketizer → ring on ingress), plus the ordered "nothing arrives" fault-finding walk. The best first page for a newcomer to the media plane. |
+| [PIPELINE_STAGES.md](fpga/PIPELINE_STAGES.md) | Canonical stage-by-stage pipeline prose (the DMA/BD host engines as running on silicon — the throughput story; the media plane is the walkthrough above). |
 | [pipeline-telemetry.md](fpga/pipeline-telemetry.md) | The `milan_tlm` in-fabric observability block: per-stage counters, Little's-law occupancy, sysfs/BIOS access. |
 | [HEADER_SPLIT_DESIGN.md](fpga/HEADER_SPLIT_DESIGN.md) | Header-split zero-copy RX design + per-page cut-through delivery. |
 | [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) | The DMA design-era logs (CPPI byte-ring→BD-ring, HW-GRO/RSC) — historical; PIPELINE_STAGES is the living reference. |
@@ -180,13 +182,14 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | Document | Purpose |
 |----------|---------|
 | [KNOWN_ISSUES_AND_LIMITATIONS.md](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) | **The single page of everything that does not work, is not built, or bites**: scope limits, reproducibility gaps, timing constraints, lethal gateware⇄driver pairings, refuted perf levers, where the real numbers live. |
-| [TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) | Field log of every bring-up problem: symptom → cause → fix (17 sections). |
+| [TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) | Field log of every bring-up problem: symptom → cause → fix (22 sections; the listing in the file is authoritative). |
 
 ## 7 - reference/ (contracts)
 
 | Document | Purpose |
 |----------|---------|
-| [REGISTER_MAP.md](reference/REGISTER_MAP.md) | The AXI4-Lite CSR ABI (groups 0x000-0x700) + the ring-DMA CSR windows - the HDL/driver/DT contract, asserted by the `csr` harness. |
+| [REGISTER_MAP.md](reference/REGISTER_MAP.md) | The AXI4-Lite CSR ABI (groups 0x000-0x900) + the ring-DMA CSR windows - the HDL/driver/DT contract, asserted by the `csr` harness. |
+| [EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | **The map of record for the six egress queues** (802.1Q order, higher index = higher priority): what lands on q5…q0 and how it is classified, the PCP→TC→queue tables, control classification by reserved DMAC, the CBS reset slopes, why gPTP sits *below* the shaped classes, the FQTSS measurements, and the two-queue RX ingress split. |
 | [FR_NFR.md](reference/FR_NFR.md) | Functional / non-functional requirement register (FR-*/NFR-*). |
 | [MILAN_V12_DEPENDENCY_MATRIX.md](reference/MILAN_V12_DEPENDENCY_MATRIX.md) | Milan v1.2 → FR/NFR dependency matrix with verification traceability. |
 | [`../REQUIREMENTS.md`](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (REQ-*; partly Zynq-era). |
@@ -211,7 +214,7 @@ per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 |----------|---------|
 | [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) | **The traceability hub**: the 204-row coverage table across the five standards families, the N/A taxonomy, the attack order. |
 | [traceability/ieee1722_1-2021.md](traceability/ieee1722_1-2021.md) · [ieee1722-2016.md](traceability/ieee1722-2016.md) · [ieee8021as.md](traceability/ieee8021as.md) · [ieee8021q.md](traceability/ieee8021q.md) · [milan-v12.md](traceability/milan-v12.md) | Per-standard clause → behavior → module → test tables, each row with a "why it matters". |
-| [traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | **GENERATED** module ↔ spec ↔ test roll-up (all 77 modules); regenerate with [gen_module_matrix.py](traceability/gen_module_matrix.py) (`--check` gates drift). |
+| [traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | **GENERATED** module ↔ spec ↔ test roll-up (the generator prints the live total — 82 modules on 2026-07-26); regenerate with [gen_module_matrix.py](traceability/gen_module_matrix.py) (`--check` gates drift). |
 | [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) | The live "what's still missing + attack order" narrative. |
 
 ## 10 - design records, top-level specs, templates, diagrams

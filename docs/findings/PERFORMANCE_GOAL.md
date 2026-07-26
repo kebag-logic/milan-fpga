@@ -149,6 +149,18 @@ Permanent fix: **`CBS_EN_RST = 4'b0000`** (all queues strict-priority at reset; 
 classes into shaping)  -  `tb/verilator/csr` updated (76 checks green), built as `build_dp100_cbs0`
 (WNS **+0.031**), **verified at reset on silicon** (q0–q3 en=0).
 
+> **Superseded values, 2026-07-26 — the fix itself is intact.** Every literal in
+> this footnote is from the **four-queue** era. Since VERSION `0x0011` the egress
+> is six queues in 802.1Q order, so: `CBS_EN_RST` is **`6'b000000`** (still all
+> unshaped at reset, which is the point); the class map reset is
+> `cls_tcq = 0x006D2B00` at 3 bits per entry, not `0xE4`; the reset slopes are
+> per-queue (q5 class A 450 Mb/s … q0 best effort 25 Mb/s), not one 300 Mb/s
+> figure on q0; and the on-silicon check is now `q0–q5 en=0`. The *finding* —
+> that shaping best effort at reset paces all BE TX — is unchanged and is why
+> reset-unshaped is deliberate. See
+> [`CBS_DEFAULT_SHAPING_BUG.md`](CBS_DEFAULT_SHAPING_BUG.md) and
+> [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md).
+
 Un-paced TX then measured
 265 single / **339 −P4 @ rx-usecs 1000** / **354 dual-process**  -  now genuinely **CPU-bound**
 (`/proc/stat` 84–96% busy; the +23% from rx-usecs 500→1000 = fewer ACK-batch wakeups; iperf3 −P is
