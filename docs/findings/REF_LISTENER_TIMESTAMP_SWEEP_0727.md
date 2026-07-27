@@ -295,6 +295,14 @@ between the Arty's PHC and its monotonic reference. This does not affect the
 verdict — the clock is 60 hours out either way — but it should not be written
 up as understood when it is not.
 
+The mechanism behind this signature — why a huge offset alternates rather than
+biasing, and why no listener-side heuristic can recover the truth from it — is
+drawn out with timing diagrams in
+[`../design/PRESENTATION_TIME_WRAP.md`](../design/PRESENTATION_TIME_WRAP.md).
+That page also derives the observed half-period from the table above (90.62 s
+against 214.66 s predicted) and leaves the 2.4x gap open rather than closing
+it.
+
 ## Why this is a regression against the 07-24 record
 
 The 2026-07-24 record has this path at **E2E = pto = 500 µs with 0 LATE**. The
