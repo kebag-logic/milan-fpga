@@ -652,6 +652,45 @@ Green = this doc records it closed. Amber = partly landed, with the remainder
 named inside the item. Grey = no status recorded here. Red = blocked outside
 this repo.
 
+00. **THE ENTITY MODEL MUST BE ACCOUNTABLE TO THE FABRIC — a gate that
+   compares what we ADVERTISE against what the hardware can actually EMIT
+   (USER 2026-07-27, the very next item).** Every consistency gate in this
+   repo today checks a declaration against **another declaration**: config to
+   generated `svh` to CSR to descriptor counts, plus the `milan_datapath`
+   elaboration guard. Not one of them can see the wire. So the 8x8 talkers
+   advertised `0x0205022002006000` — AAF 48 kHz, **8 channels** — while the
+   framer emits **stereo**, and every gate stayed green: 57/57 Verilator
+   suites, 2,062,389 checks, yosys 48/48, behave 113/113, lint at ratchet.
+   The only thing that noticed was a Milan-validated reference device on the
+   bench, which bound to talker 0, passed the 5.5.1.2 format check, returned
+   ACMP SUCCESS with a correct MAAP dmac and MSRP latency, and then counted
+   `UNSUPPORTED_FORMAT` on **100 % of 296,294 frames at 8000/s**. The
+   deviation was recorded — in a *prose comment* in
+   `configs/endstation_ax7101_8x8.yaml` — and a comment does not fail a build.
+   - **What is missing is one constant.** The talker's real wire channel
+     capability is implicit in the RTL (the framer is stereo until item-5)
+     and is not expressed anywhere a gate can read. It must become a
+     first-class build constant derived FROM the framer, sitting beside
+     `N_STREAMS`, so the rule becomes checkable: *a declared
+     `channels_per_frame` must equal what the fabric emits.*
+   - **Two wrong attempts, recorded so they are not repeated** (2026-07-27):
+     (a) gating format-channels == `clusters` — REFUSED `arty_current`, which
+     ships `clusters: 8` with a 2ch format and demonstrably works on the wire,
+     so `clusters` is the AEM AUDIO_CLUSTER count and NOT the wire width;
+     (b) down-declaring the 8x8 talkers to 2ch (`dade536`) — "fixed" the
+     mismatch by abandoning the requirement and would have shipped an 8x8
+     board advertising itself as stereo forever; REVERTED in `e103d8e`.
+   - **This gate is EXPECTED TO FAIL the moment it exists**, loudly and in CI,
+     naming item-5 as the owner — that is the point. It converts a prose
+     deviation into a build failure.
+   - Scope beyond channels: the same accountability gap covers any advertised
+     capability the fabric cannot back. A `SET_STREAM_FORMAT` we ACCEPT must
+     be a format we can EMIT — unverified today and suspected to be the same
+     defect reachable at runtime.
+   - Acceptance oracle already exists and is baselined: bind talker 0 to a
+     reference-device 8ch sink and watch `UNSUPPORTED_FORMAT` go from 100 %
+     of frames to zero.
+
 0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
    fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED; guard FSM
    silicon-proven 2026-07-26; **WEDGE RECOVERY STILL UNPROVEN** (corrected
