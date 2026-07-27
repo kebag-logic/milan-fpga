@@ -458,7 +458,7 @@ is the honest part:
 
 | Term | Who knows it | How it reaches `tu` |
 |---|---|---|
-| PHC is disciplined to the domain | **software only** — it is a servo fact inside `ptp4l`, and nothing in fabric can observe it | `CLKV_CTRL[0]` **leased**, not flagged: every write reloads `[15:4]` quarter-seconds of validity and the claim lapses when they run out |
+| PHC is disciplined to the domain | **software only** — a servo fact inside `ptp4l`. This is information-theoretic, not a wiring gap: `avtp_timestamp` is the low 32 bits of an unsigned ns count and laps every 4.294967296 s, so past one lap the modular difference carries no information about the direction *or* magnitude of the error ([`../design/PRESENTATION_TIME_WRAP.md`](../design/PRESENTATION_TIME_WRAP.md)). Only the talker's own servo knows | `CLKV_CTRL[0]` **leased**, not flagged: every write reloads `[15:4]` quarter-seconds of validity and the claim lapses when they run out |
 | PHC **step** (settime / adjtime) | fabric, for itself — the `PTP_CMD` strobes | 0.25 s holdover, no software cooperation needed |
 | grandmaster change | the daemon already publishes it into `ADP_GM_LO/HI` for the advertiser | a change in that value arms the same holdover (Milan Annex B.1.1) |
 
