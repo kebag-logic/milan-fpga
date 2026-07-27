@@ -1,0 +1,27 @@
+{
+  "head": {"text": "avtp_timestamp = the LOW 32 UNSIGNED bits of the gPTP ns count (IEEE 1722-2016 4.4.4.9): four wrap epochs of 4.294967296 s"},
+  "signal": [
+    ["talker",
+      {"name": "ptp_now[63:32] wraps",  "wave": "3...4...5...6...",
+       "data": ["W", "W+1", "W+2", "W+3"]},
+      {"name": "ptp_now[31:0] + pto",   "wave": "=...=...=...=...",
+       "data": ["0 .. 2^32-1", "0 .. 2^32-1", "0 .. 2^32-1", "0 .. 2^32-1"]},
+      {"name": "wrap boundary",         "wave": "10..10..10..10..",
+       "node": "a..............."}
+    ],
+    ["wire",
+      {"name": "avtp_timestamp[31:0]",  "wave": "=...=...=...=...",
+       "data": ["ts", "ts", "ts", "ts"], "node": "..b............."},
+      {"name": "[63:32] transmitted",   "wave": "x..............."}
+    ],
+    ["clocks",
+      {"name": "true separation",       "wave": "5...............",
+       "data": ["+216,446 s  =  50,395 whole wraps  +  1.1 s"]},
+      {"name": "separation on the wire", "wave": "5...............",
+       "data": ["one point on a 4.294967296 s ring - unrelated to the row above"]}
+    ]
+  ],
+  "edge": ["a-|b the wrap count is never transmitted"],
+  "foot": {"text": "216,446 / 4.294967296 = 50,395.3 wraps. NOTHING in this chain is signed - talker reg [31:0] ts_r, packetizer logic [31:0] ets_r at frame bytes 30..33, parser wire [31:0] ats at AVTP bytes 12..15."},
+  "config": {"hscale": 2}
+}
