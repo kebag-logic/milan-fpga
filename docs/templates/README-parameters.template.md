@@ -18,6 +18,13 @@ otherwise.
 Module(s): `<hdl/.../KL_x.sv>`
 Instantiated by: `<parent module / milan_soc.py>`
 
+## Contents
+
+- **[Parameters](#parameters)** — The main table, one row per parameter. The column that does the work is **Config-schema origin** — it ties each parameter back to the end-station YAML key, or names it `(builder policy)` / `(not yet driven)` so an unreachable knob is visible rather than assumed.
+- **[Derived localparams that matter](#derived-localparams-that-matter)** — Only the localparams a reader must know about — divider targets, FIFO sizing — with the expression and why it matters, not a dump of every `localparam` in the file.
+- **[Cross-parameter / cross-module pairings (STRICT)](#cross-parameter--cross-module-pairings-strict)** — Values that must move together across module or repo boundaries, one row each, with the failure mode when they drift. This is the section that catches gateware↔driver pairing bugs.
+- **[Validation](#validation)** — Where each value is actually enforced: builder `ConfigError`, SV assertion, elaboration `$error` — or **UNCHECKED**, which the template asks you to say out loud.
+
 ## Parameters
 
 | Parameter | Type / valid range | Default | Set by (instantiation site) | Config-schema origin | Notes |

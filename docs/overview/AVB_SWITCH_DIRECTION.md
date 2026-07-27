@@ -14,6 +14,17 @@ DMA work this builds on).*
 
 ![endpoint -> switch direction](../AVB_SWITCH_DIRECTION.svg)
 
+## Contents
+
+- **[The constraint set](#the-constraint-set)** — The two facts everything else follows from: MTU is fixed at 1500, which at 1 Gbps leaves **1,230 CPU cycles per packet** on a 100 MHz RV64 — no software per-packet path fits — and forwarding 4×1G must not touch the CPU at all.
+- **[The three endpoint hooks (panel ①/②)](#the-three-endpoint-hooks-panel-①②)** — Three ways to take the CPU out of the per-packet path: the AVTP stream engine (wake per audio period, ~375/s, instead of per packet), hardware TSO, and RSC. Notes which is which in risk terms — the stream engine is *simpler* RTL than the two TCP offloads and it is the Milan roadmap.
+- **[The switch data plane (panel ③)](#the-switch-data-plane-panel-③)** — The proposed forwarding shape end to end, and the useful part: the list of blocks already in the repo and verified, so the fabric is assembly rather than green-field.
+- **[Memory: "would a wider bus help?" (panel ④)](#memory-would-a-wider-bus-help-panel-④)** — Answers "no" for the endpoint and shows the question inverting for the switch: 4×1G in and out is ~1 GB/s, near the DDR3 ceiling and hostage to refresh jitter. The answer is not a wider DRAM bus but keeping forwarding on-chip — CBS bounds queue depth by construction, so BRAM suffices.
+- **[VexiiRiscv migration  -  VERIFIED on silicon (2026-07-05)](#vexiiriscv-migration-----verified-on-silicon-2026-07-05)** — The CPU swap that made the switch fit: 43–49 k LUTs down to 31 k and WNS from a +0.004 ns knife-edge to +0.143 ns, with the ring DMA, datapath and driver porting over unchanged (one DTB line). Socket throughput halved and the section argues that is the right trade, because the CPU is the control plane.
+- **[CPU budget vs the 4-port switch (measured 2026-07-05, xc7a100t = 63,400 LUTs)](#cpu-budget-vs-the-4-port-switch-measured-2026-07-05-xc7a100t--63400-luts)** — Core count is decided by the fabric, not chosen: two cores + FPU measured **122 % of the part**, and the switch adds another 25–35 k LUTs on top. Hence one Linux core; SMP is coded and ready, and was deliberately verified to *fit-fail* so a part upgrade is a decision rather than a place-time surprise.
+- **[Hardware reality](#hardware-reality)** — The board has one PHY, so three more copper ports mean ~12 pins each off the 40-pin expansion headers into a daughter card. Every GMII lesson (IOB TX flops, per-PHY gtx invert) reuses directly; SerDes is only needed beyond four ports.
+- **[Decision matrix (2026-07-05, scope: 4× GMII/RGMII copper ports, MTU fixed 1500)](#decision-matrix-2026-07-05-scope-4-gmiirgmii-copper-ports-mtu-fixed-1500)** — Three tracks of work items with risk and status, plus the rejected ones and why. Historical status column — S1 and the media-clock servo have since landed, and the scoreboard paragraph explicitly supersedes its own numbers. The reframe it turns on: sockets need to be good enough, not line-rate.
+
 ## The constraint set
 
 * **MTU stays 1500** (interop; AVB frames are small anyway)  -  so all large-MTU levers are

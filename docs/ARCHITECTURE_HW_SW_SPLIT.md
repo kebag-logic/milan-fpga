@@ -7,6 +7,14 @@ is out of the plan of record. The softcore keeps provisioning, gPTP protocol
 `9-hw-sw-split` (rendered PNG alongside). This document is the normative
 delimitation; the diagram mirrors it.
 
+## Contents
+
+- **[The dividing principle](#the-dividing-principle)** — The test for "fabric or softcore", plus the measurement that forced rev 2: class-A AAF wants a frame every 125 us and the measured softcore wakeup is 340–560 us, so the framer cannot live in userspace.
+- **[Per-function delimitation](#per-function-delimitation)** — The normative table: every function, which side it lands on, and how far it has actually got. Read the Status column — most rows say silicon, and the bolded rows are the ones rev 2 moved into fabric.
+- **[Boundary contracts (the only crossings)](#boundary-contracts-the-only-crossings)** — The five interfaces that are allowed to cross: the 0x600 identity CSRs, the DMA rings + timestamp window, the PHC, the DMA audio ring, and the mailbox — now telemetry-and-override, explicitly not a liveness gate.
+- **[Rationale anchors (paid-for evidence)](#rationale-anchors-paid-for-evidence)** — Why the split is believed rather than asserted: la_avdecc enumerates the entity with the CPU idle, one hardware counter feeds both ADP and AEM so wire truth cannot diverge, and the TX-ceiling work showed the CPU is the scarce resource.
+- **[Open decisions (flagged, not blocking)](#open-decisions-flagged-not-blocking)** — Three things deliberately left unsettled: lwSRP scope, gPTP staying on the softcore (linuxptp, revisit only if servo jitter blocks), and whether audio ever arrives from a native I2S/TDM input instead of the DMA ring.
+
 ## The dividing principle
 
 Everything that must stay correct **per frame, at line rate, or while the CPU

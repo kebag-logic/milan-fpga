@@ -5,6 +5,13 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 ([`docs/reference/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md)). It lives in the sibling repo
 **`../../kl-linux-drivers`** (`kl-eth.c`); this note is the contract it implements.
 
+## Contents
+
+- **[DT match & resources](#dt-match--resources)** — What the driver requires from the device tree: the compatible string, the four named `reg` windows and four interrupts, and the queue/PTP properties. The `csr` base differs per platform while everything else does not.
+- **[Feature surface → CSR (see docs/reference/FR_NFR.md §2.10 FR-DRV-*)](#feature-surface--csr-see-docsreferencefr_nfrmd-210-fr-drv-)** — The mapping table: each Linux feature, the `ndo_`/subsystem hook that implements it, and the hardware register behind it. Use it to answer "what does this ethtool call actually touch?".
+- **[CBS offload policy](#cbs-offload-policy)** — The two rules `ndo_setup_tc` enforces: offload only for queues listed in `kl,shaped-queues`, and Σ idleSlope of those queues ≤ 75 % of the port rate — everything else is strict priority in hardware.
+- **[Caveat — the dma-* reg window has a different layout (LiteX build)](#caveat--the-dma--reg-window-has-a-different-layout-litex-build)** — Three ways to program the DMA window wrong. The registers are native-endian (never `ioread32be`), but the 64-bit `base` is **MS word at the lower address**, so a native `iowrite64` writes the halves backwards; and the sub-page ranges need `devm_ioremap`, not the exclusive variant.
+
 ## DT match & resources
 - `of_match`: `compatible = "kl,dma-ether-0.9"` (FR-DT-01).
 - `reg`/`reg-names`: `csr`, `dma-tx`, `dma-rx`, `dma-ts` — the `csr` base is per-platform: `0x9000_0000` on the LiteX softcore build, `0x43C0_0000` on Zynq (the generated DT carries the right one; see `sw/dts/`).
