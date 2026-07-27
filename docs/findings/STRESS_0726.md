@@ -18,6 +18,21 @@ recoveries, TX never wedged on the wire.
 **19 checks + 9 wedge-drill cycles, 0 failures.** Nothing broke it. Two behaviours are worth knowing
 about, and one of them explains why the listener blocker took so long to find.
 
+The whole campaign on one page — *what was attacked, how hard, and did anything
+actually break?*
+
+| § | what it attacked | the stressor | outcome |
+|---|---|---|---|
+| **A** | stream stop/start | 20 stop→start cycles, then 50 `en` toggles with **no settle time** | all 20 recovered, accepting afterwards, `RST_EPOCH` unchanged |
+| **B** | illegal / adversarial CSR access | out-of-range `SEL`, unmapped reads, a write to read-only `VERSION`, a snapshot read racing the busy flag, 30 mid-read `SEL` switches | no hang, CSR plane responsive, still accepting |
+| **C** | engine cycling | 10 × lwSRP off/on, 10 × chmap arm/disarm, a provisioning write **while the engine is off** | control registers restored, recovered after an explicit re-arm |
+| **D** | the entry-0 blocker, **caused on purpose** | foreign sid staged for index 2, then a route-flags-only commit at index 0 | **listener went DEAF** — root cause proven by *causation*, and a re-stage recovers it |
+| **E** | eviction semantics | `CTRL en=0`, then re-arm | stops and recovers; entry 0 cannot be handed back to the ACMP alias on this gateware |
+| **F** | provisioning storm | 200 back-to-back writes interleaving all 8 stream indices | survived, no MAC reset provoked |
+| **G** | boundary stream_ids | all zeros, all ones, minimal non-zero | all three behaved exactly as the guard specifies |
+| **H** | MAC-TX wedge drill (AX42) | 9 × `linkg_freeze`, plus a **guard-disabled control run** | guard FSM proven end to end — **but no wedge was ever induced** |
+| **I** | cluster tests | pilot tone end-to-end, PCM-ring drops, MAC loopback, 5 s THD+N | bit-exact tone, 0 new ring drops, loopback isolates and recovers, −147.99 dBFS |
+
 ## The tests
 
 ### A — stream stop/start
@@ -54,6 +69,23 @@ The most valuable test: rather than observing the blocker, **cause** it.
 1. Stage a foreign stream_id for **index 2**.
 2. Select **index 0** and issue a route-flags-only `CTRL` commit, with nothing
    staged for index 0.
+
+*Which two CSR writes make the listener go deaf, and why does the register you
+would check first still look right?*
+
+```mermaid
+flowchart TB
+    S1["1. stage a stream_id for INDEX 2<br/>the shared staging pair now holds index 2's sid"]
+    S2["2. select INDEX 0"]
+    S3["3. route-flags-only CTRL commit,<br/>nothing staged for index 0"]
+    S1 --> S2 --> S3
+    S3 --> T["KL_stream_table entry 0 takes whatever<br/>the shared staging pair happened to hold"]
+    S3 --> W["the engine-backed context readback at index 0<br/>still shows the CORRECT sid"]
+    T --> DEAF["the parser matches nothing:<br/>listener DEAF, confirmed as D1"]
+    W -.->|"the first register anyone checks<br/>reports the right answer"| WHY["why this blocker resisted diagnosis for so long"]
+    DEAF -->|"D2: explicit re-stage + commit at index 0"| OK["accepting again"]
+    DEAF -->|"VERSION 0x000F tags the staging set<br/>with the index it was staged for"| FIX["cannot happen"]
+```
 
 | # | test | result |
 |---|---|---|
@@ -198,6 +230,20 @@ without stopping the eth clock or disturbing the datapath. That is exactly what
 reading of it as "reproduces the wedge" was wrong.
 
 ### What IS proven, and what is still open
+
+*What did the freeze drill actually establish, and what does the guard-disabled
+control run take away from it?*
+
+```mermaid
+flowchart TB
+    F["linkg_freeze = 1, LINK_CTRL bit 3<br/>fakes eth-clock death, no cable needed"]
+    F --> G{"is the link guard enabled?"}
+    G -->|"guard ON, 9 consecutive drills"| A1["HOLD with eth_rst asserted,<br/>back to RUN in ~2 s, 9 of 9,<br/>bounce_cnt 1 to 9, RST_EPOCH never moves"]
+    G -->|"guard OFF, linkg_dis = 1, 24 s"| A2["TX TICKING at every sample,<br/>peer RX 92k-118k per 5 s, no dip"]
+    A1 --> P["PROVEN: detection, eth_rst sequencing, recovery -<br/>and that asserting eth_rst does not itself break TX"]
+    A2 --> N["freeze only forces the guard's LIVENESS INDICATORS low.<br/>It never stopped the eth clock, so NO WEDGE was induced"]
+    N --> U["NOT PROVEN: that the TX path recovers from a REAL wedge.<br/>Needs a physical cable pull or a managed switch port"]
+```
 
 **Proven:** the guard detects the condition, sequences `eth_rst` (HOLD), and
 returns to RUN in ~2 s, 9 times out of 9, with `bounce_cnt` counting every event

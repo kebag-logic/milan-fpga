@@ -193,9 +193,10 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
   **default port priority**, not a hardwired Best-Effort. *(802.1Q §6.9.3)*
 * **REQ-CLS-04 (SHOULD)** The class→queue ordering MUST be configurable and its
   defaults MUST follow the standard. *(802.1Q Table 8-5)* — *Satisfied
-  2026-07-26 by the six-queue 802.1Q-ordered map* (q5 SR class A, q4 SR class B,
-  q3 gPTP, q2 control, q1 spare, q0 best effort; higher index = higher
-  priority). Note the **deliberate deviation**: gPTP is ranked **below** the
+  2026-07-27 by the five-queue 802.1Q-ordered map* (q4 SR class A, q3 SR class B,
+  q2 gPTP, q1 control, q0 best effort; higher index = higher
+  priority; the map had a sixth, spare queue from VERSION `0x0011` to `0x0013`
+  and it was dropped for area). Note the **deliberate deviation**: gPTP is ranked **below** the
   CBS-shaped classes, not above them. Credit-based shaping only bounds class-A
   latency if the shaped queues are the top of the strict-priority order; gPTP
   tolerates the demotion because it is timestamped in hardware at the egress

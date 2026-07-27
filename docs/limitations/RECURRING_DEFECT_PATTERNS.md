@@ -12,6 +12,43 @@ test run.
 Each pattern gives: what it looked like, **why it survived** (the interesting
 part), and a check that would have caught it earlier.
 
+## Which pattern is this?
+
+*You arrive with a symptom and with something that told you everything was
+fine. The second half is the discriminator — every pattern below is a different
+way of being told "fine" by a thing that was not looking.*
+
+```mermaid
+flowchart TB
+    S(["a symptom, and something<br/>that told you it was fine"]) --> K{"what told you<br/>it was fine?"}
+
+    K -->|"a CSR readback"| R{"does anything in fabric<br/>CONSUME that register?"}
+    R -->|"no consumer: the name appears only in<br/>its own declaration and in milan_csr"| P1["1 - Decorative ABI"]
+    R -->|"consumer exists, but the value is<br/>0 / pre-reset / saturated at 0xFFFF"| P8["8 - Reads that lie"]
+
+    K -->|"a green test suite"| T{"where did the expected<br/>value come from?"}
+    T -->|"from the device under test,<br/>or from an existing model"| P7["7 - The model shares the bug"]
+    T -->|"from the standard, but only one<br/>toolchain ever built the source"| P5["5 - Toolchain tolerance"]
+
+    K -->|"a build that succeeded and<br/>a board that booted"| P4["4 - Recipe drifts from config"]
+    K -->|"a command whose output<br/>was quoted back"| P6["6 - Paths compared,<br/>content asked"]
+
+    K -->|"the hardware, and it<br/>worked once"| I{"what is different between<br/>the run that worked and this one?"}
+    I -->|"a second index was staged<br/>or committed in between"| P2["2 - Shared state where the<br/>protocol is per-index"]
+    I -->|"nothing, and only a reset<br/>brings the old mode back"| P3["3 - Sets on any write,<br/>clears only on reset"]
+```
+
+| # | Pattern | The tell | The check that confirms it | Where it bit us |
+|---|---|---|---|---|
+| [1](#1-decorative-abi--a-register-the-hardware-does-not-consume) | Decorative ABI | the register holds what you wrote; the behaviour it names never happens | `scripts/check_tied_inputs.sh` (a gate since 2026-07-26), then `grep -rn "o_<field>" hdl/` for a consumer | `MAC_ADDR` / `MC_HASH` / promisc / allmulti, `PTP_INGRESS_LAT`, `CLS_CTRL[1]`, `is_granted_i`, RMON with `i_mac_events` tied to `0` |
+| [2](#2-shared-state-where-the-protocol-is-per-index) | Shared state, per-index protocol | one index works; two indices interleaved do not | stage index *A*, commit index *B*, assert *B* is untouched | the `0x800` window's stream-id staging in `win_commit_glue` — the fabric-listener blocker |
+| [3](#3-a-latch-that-sets-on-any-write-and-clears-only-on-reset) | Set-on-write, clear-on-reset latch | a mode can be entered and never left; only a reset restores the old behaviour | for every `_r <= 1'b1` in a write path, name what clears it; test set → observe → clear → observe | `KL_stream_table.sv` `ovr_armed_r` — one stray write detached entry 0's ACMP alias permanently |
+| [4](#4-the-build-recipe-drifts-from-the-declarative-config) | Recipe drifts from the declarative config | the build succeeds, the board boots, and the shape is wrong | read the parameter out of the **artifact**: `grep -o '\.N_STREAMS *([0-9]*.d[0-9]*)' <build>/gateware/*.v` | `rx-queues` set globally in `sweep.sh`; `--num-streams` never passed at all, so sweep-and-flash rebuilds 8×8 as 1×1 |
+| [5](#5-toolchain-tolerance-masking-malformed-source) | Toolchain tolerance masking malformed source | green on the desk, unbuildable everywhere else | CI on a **different** toolchain than the one on the desk — [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) | a trailing `//` comment after a Verilator waiver code: fine on 5.050, four suites unbuildable on 5.020 |
+| [6](#6-comparing-paths-when-the-question-is-about-content) | Paths compared, content asked | the measurement is real, the command ran, and it answered a different question | compare by **basename and function**; `git diff --name-status <branch> origin/main` before anything destructive | a branch audit read "0 `.sv` files absent from trunk"; by basename, 13 modules were exclusive to that lineage |
+| [7](#7-a-model-that-shares-the-implementations-bug) | The model shares the implementation's bug | the suite agrees with the defect and passes | derive expected values from the **standard**; mutation-prove every check — revert the fix, confirm it fails, restore | the I2S sign-square defect: a doubled Philips-format delay in the RTL *and* in the testbench chip models |
+| [8](#8-reads-that-lie-snapshots-shadows-and-saturated-counters) | Reads that lie | the value is plausible: zero looks idle, a stale shadow looks like configuration, a saturated max looks like a measurement | follow the snapshot discipline (write, poll busy, read) and **read until a value repeats**; liveness is that it *ticks*, not that it is non-zero | `0x800` reads of `0` before the snapshot is fresh; CSR shadows after a MAC reset; latency-tap `max` pinned at `0xFFFF` |
+
 ---
 
 ## 1. Decorative ABI — a register the hardware does not consume

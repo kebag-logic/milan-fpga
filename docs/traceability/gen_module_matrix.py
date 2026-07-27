@@ -254,6 +254,57 @@ def _test_cell(r):
     return " · ".join(parts) or "—"
 
 
+def render_coverage_chart(mods):
+    """Per-family coverage, as a chart and a table — both GENERATED from `mods`.
+
+    The tables below answer "does module X have a test"; neither of them
+    answers "**which spec family is thinnest**", which is the question that
+    decides where the next testbench goes. One row per family, sorted by the
+    share of modules carrying a dedicated TB, makes that ordering visible at a
+    glance and cannot drift, because it is the same `mods` list the tables are
+    rendered from.
+    """
+    fams = [f for f in ["ieee17221", "ieee1722", "ieee8021q", "ieee8021as",
+                        "common", "milan"]
+            if any(r["family"] == f for r in mods)]
+    if not fams:
+        return []
+    stat = {}
+    for f in fams:
+        fr = [r for r in mods if r["family"] == f]
+        stat[f] = (len(fr),
+                   sum(1 for r in fr if r["dtbs"]),
+                   sum(1 for r in fr if r["status"] == "exercised"),
+                   sum(1 for r in fr if r["fuzz"]),
+                   sum(1 for r in fr if r["status"] == "archived"),
+                   sum(1 for r in fr if r["status"] == "UNTESTED"))
+    order = sorted(fams, key=lambda f: (stat[f][1] / stat[f][0], stat[f][0]))
+    ymax = max(stat[f][0] for f in fams)
+    out = ["## Coverage by spec family", "",
+           "*Which family is thinnest on dedicated testbenches?* — the ordering "
+           "the tables below cannot show. Weakest first.", "",
+           "```mermaid", "xychart-beta",
+           '    title "Modules per spec family: dedicated testbenches vs total"',
+           "    x-axis [%s]" % ", ".join('"%s"' % f for f in order),
+           '    y-axis "modules" 0 --> %d' % (ymax + 1),
+           "    bar [%s]" % ", ".join(str(stat[f][0]) for f in order),
+           "    bar [%s]" % ", ".join(str(stat[f][1]) for f in order),
+           "```", "",
+           "The solid bar is the modules carrying a dedicated Verilator "
+           "testbench; the pale sliver above it is the shortfall against the "
+           "family total. Exact numbers, including the archived and fuzzed "
+           "columns the chart cannot show:", "",
+           "| family | modules | ✅ dedicated TB | ➰ exercised only | "
+           "🔬 field-fuzzed | 🗄️ archived | ⚪ untested |",
+           "|---|---|---|---|---|---|---|"]
+    for f in order:
+        n, d, e, z, a, u = stat[f]
+        out.append("| %s | %d | %d | %d | %d | %d | %d |"
+                   % (FAMILY.get(f, (f, ""))[0], n, d, e, z, a, u))
+    out.append("")
+    return out
+
+
 def render_top(rows):
     direct = sum(1 for r in rows if r["dtbs"])
     exok = sum(1 for r in rows if r["status"] == "exercised")
@@ -285,6 +336,7 @@ def render_top(rows):
            "**Totals:** %d modules · %d with a dedicated TB · %d exercised-only · "
            "%d field-fuzzed · %d archived · **%d not in any TB**"
            % (len(mods), direct, exok, fuzz, len(arch), len(unt)), ""]
+    out += render_coverage_chart(mods)
     if unt:
         out += ["## ⚪ Untested modules (the backlog)", ""]
         for r in sorted(unt, key=lambda r: r["rel"]):

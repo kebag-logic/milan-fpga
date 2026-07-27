@@ -212,6 +212,56 @@ Milan datapath's RGMII side is 125 MHz while `sys` is 100 MHz. Cross the stream
 Never let a raw AXIS bus cross clock domains without a CDC FIFO  -  `tvalid`/`tready`
 handshakes will corrupt.
 
+### 6.1 The crossings this SoC actually has
+
+Every boundary below is a real call site in `sw/litex/milan_soc.py`, so the
+picture answers the practical question directly: **which signal crosses which
+boundary, in which direction, by what mechanism?**
+
+```mermaid
+flowchart LR
+    subgraph PHYD["eth_tx / eth_rx"]
+        PHY["LiteEthPHYGMII"]
+    end
+
+    subgraph SYS["sys"]
+        MACC["LiteEthMACCore<br/>renamed into cd_macsys"]
+        DMAE["ring DMA engines"]
+        CPUB["CPU bus / dma_bus"]
+        EVM["EventManager"]
+    end
+
+    subgraph MCD["milan_cd"]
+        DP["milan_datapath"]
+    end
+
+    PHY <-->|"maceth_tx / maceth_rx<br/>AsyncResetSynchronizer per domain"| MACC
+    MACC <-->|"mac_tx_cdc<br/>mac_rx_cdc"| DP
+    DMAE <-->|"dma_tx_cdc · dma_rx_cdc · dma_ts_cdc<br/>dma_pcm_cdc · aafpb_req_cdc · aafpb_resp_cdc"| DP
+    CPUB -->|"milan_axil_cdc, plus link_up<br/>and full_duplex via MultiReg"| DP
+    DP -->|"CSR IRQ level · MultiReg 2-FF"| EVM
+```
+
+| crossing | direction | mechanism | where |
+|---|---|---|---|
+| CSR bus | `sys` → `milan_cd` | `axi.AXILiteClockDomainCrossing` (`milan_axil_cdc`) | `add_milan_datapath()` |
+| aggregate CSR IRQ | `milan_cd` → `sys` | `MultiReg` (2-FF) into the `sys`-domain `EventManager` | `add_milan_datapath()` |
+| `link_up` / `full_duplex` | `sys` → `milan_cd` | `MultiReg` per bit | `MilanMAC.link_status` |
+| MAC TX / MAC RX AXIS | `milan_cd` ↔ `sys` | `stream.ClockDomainCrossing`, `buffered=True`, depth 16 | `MilanMAC` |
+| DMA TX / RX / TS AXIS | `sys` ↔ `milan_cd` | same, depth 16 | `MilanDMA` |
+| PCM AXIS | `milan_cd` → `sys` | same, **depth 128** (payload burstiness) | `MilanDMA` |
+| AAF playback req / resp | both ways | same, one per direction | `MilanDMA` |
+| MAC core ↔ PHY | `sys` ↔ `eth_tx`/`eth_rx` | LiteEth's own path, plus `AsyncResetSynchronizer` on the mirrored `maceth_*` domains | `MilanMAC` |
+
+Two properties worth internalising. `buffered=True` (`AsyncFIFOBuffered`)
+re-registers the FIFO output *in the read domain* — without it the BRAM
+clock-to-Q cone fans straight into the datapath consumers and becomes the
+timing violator; one extra cycle on a handshaked stream is transparent. And when
+the datapath is *not* given its own clock (`milan_cd == "sys"`, the default and
+what the Verilator SoC sim uses), `_axis_dp_cdc` returns the same endpoint for
+both sides — every crossing above collapses to a direct wire, so the CDC is a
+build-time choice, not a permanent cost.
+
 ---
 
 ## 7. Adding the RTL and constraints
@@ -280,6 +330,59 @@ The Milan NIC exercises all three planes at once, and `MilanNIC` in
 | ① control | `milan_csr` AXI-Lite slave @ `0x9000_0000` (register map: [`docs/reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md)) |
 | ② data | `milan_datapath` AXIS TX/RX ↔ the ring-DMA engines (`RingDMAReader`/`RingDMAWriter`/`WishboneDMAWriter`) ↔ `dma_bus` (TX/RX/timestamp rings) |
 | ③ events | `o_irq_tx/rx/ts/csr` → `EventManager` → `self.irq.add("milan")` → PLIC → one aggregate DT interrupt (see the generated `milan-nic.litex.dtsi`) |
+
+Drawn out, with the actual master/slave names the SoC registers  -  **what hangs
+off which bus, and how many masters the coherent port really carries:**
+
+```mermaid
+flowchart TB
+    subgraph CPUS["CPU / SoC"]
+        SB["SoC bus — MMIO decode"]
+        DB["dma_bus — coherent AXI, 64-bit"]
+        PL["PLIC @ 0xf0c0_0000"]
+    end
+
+    subgraph NIC["MilanNIC + MilanDMA + MilanMAC"]
+        CSRW["milan_csr — AXI-Lite slave<br/>0x9000_0000, 64 KB, cached=False"]
+        DPB["milan_datapath"]
+        TXE["RingDMAReader"]
+        RXE["RingDMAWriter q0"]
+        RX1["RingDMAWriter q1<br/>only at --rx-queues 2"]
+        TSE["WishboneDMAWriter — timestamps"]
+        PCMW["PCM ring writer"]
+        EVM["EventManager<br/>ev.tx · ev.rx · ev.ts · ev.csr"]
+        MACB["MilanMAC → LiteEthPHYGMII"]
+    end
+
+    SB -->|"plane ①"| CSRW
+    CSRW --> DPB
+    TXE -->|"milan_dma_tx"| DB
+    RXE -->|"milan_dma_rx"| DB
+    RX1 -->|"milan_dma_rx1"| DB
+    TSE -->|"milan_dma_ts"| DB
+    PCMW -->|"milan_dma_pcm — plane ②"| DB
+    DPB <--> TXE
+    DPB <--> RXE
+    DPB <--> RX1
+    DPB <--> TSE
+    DPB <--> PCMW
+    DPB <--> MACB
+    DPB -->|"o_irq_csr — plane ③"| EVM
+    RXE -->|"non_empty"| EVM
+    RX1 -->|"non_empty"| EVM
+    EVM -->|"self.irq.add milan — ONE aggregate line"| PL
+```
+
+The four event sources are named after the driver's four `interrupt-names`, but
+only one of them is raised by the datapath and one is not raised at all  -  read
+the wiring, not the names:
+
+| source | actually driven by | note |
+|---|---|---|
+| `ev.csr` | `o_irq_csr` out of `milan_datapath` | the only line the datapath itself raises |
+| `ev.rx` | `RingDMAWriter.non_empty`, queue 0 | level-high while the RX ring is non-empty  -  this is what makes NAPI interrupt-driven instead of hrtimer-polled |
+| `ev.tx` | **RX queue 1's** `non_empty`, else `0` | the TX reader has no completion IRQ (the driver reaps in NAPI), so the RX fan-out reuses the free line |
+| `ev.ts` | tied to `0` | the line exists to keep the four-line driver/DT shape |
 
 The internal AXIS pipeline (classifier → per-queue FIFOs → CBS shaper → MAC, plus
 the RX MAC filter) is all AXI-Stream and is verified stand-alone in

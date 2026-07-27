@@ -14,11 +14,68 @@ Grouped as:
 - RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
 - P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
   CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz),
-- and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up--dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
+- and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
   the AX7101 PHY is GMII, not RGMII).
 
 Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (the architecture).
+
+## Start here: which section is your problem in?
+
+*One question — how far did you get before it broke? — routes 22 field reports
+down to one or two.*
+
+```mermaid
+flowchart TB
+    S(["something is wrong"]) --> W{"how far did you get<br/>before it broke?"}
+
+    W -->|"the SoC build never produced<br/>a bitstream"| B["Sections 1-6<br/>toolchain env + LiteX/SoC build"]
+    W -->|"a Verilator suite will not build,<br/>blocks, or fails a check"| V["Sections 7, 8, 11-14<br/>simulation + harness"]
+    W -->|"a cleanup command killed<br/>my own shell"| SH["Section 9<br/>pkill -f self-match"]
+    W -->|"Yosys / sv2v rejects a top<br/>that Verilator accepted"| Y["Section 10<br/>list every source explicitly"]
+    W -->|"it built, but missed timing"| T["Sections 15-16<br/>CBS divide cone, own clock domain"]
+    W -->|"it flashed, but never<br/>reaches Linux"| BO["Section 19<br/>confirm the kernel was LOADED"]
+    W -->|"Linux is up, the link is up,<br/>and the wire is dead"| WI{"dead for whom?"}
+    W -->|"a stream binds and no<br/>audio ever arrives"| ST["Section 21<br/>entry-0 provisioning detached<br/>the ACMP alias"]
+    W -->|"a stream floods the link, or an<br/>arm silently did not happen"| FL["Section 22<br/>the pacer IS the reservation"]
+
+    WI -->|"both directions, every frame:<br/>one preamble error per frame"| P["Section 17<br/>the PHY is GMII, not RGMII"]
+    WI -->|"TX only: one byte egresses,<br/>or nothing does"| K["Section 18<br/>tkeep mask vs last_be one-hot"]
+    WI -->|"the HOST lane only: rx_packets 0,<br/>ptp4l timing out, readbacks perfect"| H["Section 20<br/>device tree vs csr.csv drift"]
+```
+
+Two of these branches are the same lesson in different clothes: **Sections 20,
+21 and 22 all begin with a readback that agreed with you.** If your evidence is
+a register echo rather than an engine ticking, read
+[`RECURRING_DEFECT_PATTERNS.md`](RECURRING_DEFECT_PATTERNS.md) before spending a
+build cycle.
+
+## Section index
+
+| § | The symptom you would search for | Root cause |
+|---|---|---|
+| [1](#section-1-import-litex-resolves-to-a-namespace-package) | `cannot import name 'get_data_mod' from 'litex'`, `litex.__file__` is `None` | the working directory is the litex-repos parent, whose `litex/` **subdirectory** shadows the installed package |
+| [2](#section-2-naxriscv-generation-needs-java_home) | the build dies in "NaxRiscv netlist generation" / `sbt` will not launch | the core is generated from SpinalHDL (Scala) and needs a JDK on `PATH`/`JAVA_HOME` |
+| [3](#section-3-identifier-string-must-not-contain-commas) | `ValueError: Identifier string must not contain commas` | `SoCCore(ident=…)` writes a hardware string ROM that forbids commas |
+| [4](#section-4-socerror-at-_finalize_cpu_reset_address-no-rom) | bare `SoCError` from `_finalize_cpu_reset_address`; no `rom` bus slave | the CPU reset vector points at an integrated ROM that was never added |
+| [5](#section-5-naxriscv-has-no-attribute-no_netlist_cache) | `AttributeError: … no attribute 'no_netlist_cache'` | NaxRiscv keeps its config in class attributes filled by its **own** argparse flow, which was bypassed |
+| [6](#section-6-region-not-in-io-region-it-must-be-cached) | `milan_csr Region not in IO region, it must be cached` | uncached MMIO must live inside `0x8000_0000`–`0xFFFF_FFFF`; the CSR window was at `0x43C0_0000` |
+| [7](#section-7-verilator-cannot-find-include-file) | `Cannot find include file` although the file is an added source | Vivado searches the directories of added sources; Verilator only searches `-I`/`+incdir` |
+| [8](#section-8-the-interactive-and-non-interactive-sim-both-block) | the sim driver is flaky; `--non-interactive` never returns | LiteX **couples build and run**, so the piped command lands during the multi-minute compile |
+| [9](#section-9-pkill--f-self-matches-the-running-shell) | cleanup exits `143`/`144` and the shell dies mid-command | `pkill -f` matches full command lines — including its own parent shell's argv |
+| [10](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out) | Yosys: module "is not part of the design"; Verilator built the same top | Verilator auto-resolves undefined modules from the source directories; sv2v/Yosys compile only what you list |
+| [11](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes) | a CSR written over AXI-Lite reads back `0`, while reset values read fine | the BFM sampled `awready`/`wready` **after** the edge; `milan_csr` is single-outstanding and takes AW+W together |
+| [12](#section-12-benign-verilator-warnings-pinmissing-and-selrange) | `%Warning-PINMISSING` / `%Warning-SELRANGE` during a harness build | optional interface pins left unconnected, and out-of-range selects inside provably dead ternary branches — noise, not defects |
+| [13](#section-13-traffic_queues-silently-dropped-a-frame) | a frame routed into a queue simply disappears | only the arbiter's `tvalid` was grant-gated; the prefetching mux drained the FIFO it had no grant to forward |
+| [14](#section-14-datapath-harness-2-queues-assertion-failed) | the "two or more distinct queues" check fails — everything clusters into one | the classifier's **reset** PCP→TC→queue map is not an identity; the harness must program one |
+| [15](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper) | `--full` routes but misses timing badly, `WNS = -19.25 ns`, every worst path in the CBS | a wide constant-divide **and** its multiply in one clock period; now a sequential slope engine (~9.3K LUTs of divide cone deleted) |
+| [16](#section-16-clean-100-mhz-----run-the-dense-datapath-in-its-own-clock-domain) | still `WNS ≈ -1` to `-2 ns` after the CBS is fixed | routing **congestion**, not logic depth, in a datapath too dense to route at 100 MHz — give it its own slower clock across an AXI-Lite CDC |
+| [17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii) | link is 1000/Full, the internal path is proven on silicon, and **no frame crosses either way** | the board's PHY is strapped for **GMII** (8-bit SDR), not RGMII — exactly one preamble error per frame is the tell |
+| [18](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be) | TX egresses one byte of an 8-byte word, or a full frame never egresses | AXIS `tkeep` (a contiguous mask) was wired straight onto LiteEth `last_be` (a one-hot last-byte pointer) |
+| [19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest) | OpenSBI's full banner, then silence — no `Linux version`, no panic | a stale `litex_term` still held the port and served the kernel-from-QSPI manifest, so `Image` was never uploaded (and the QSPI had been erased) |
+| [20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers) | `rx_packets=0`, `ptp4l` times out, every driver readback is perfect, fabric streaming is fine | a stale device tree with an obsolete `reg` list; the driver maps windows **by index**, so every DMA register write landed on a wrong-but-writable CSR |
+| [21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26) | ACMP returns SUCCESS, the listener reports bound, and `AVTPRX_FRX` stays `0` | a shared staging register plus a set-on-any-write `ovr_armed_r` detached entry 0 from the ACMP bound record, with no runtime path back (fixed, `VERSION 0x000F`) |
+| [22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened) | arming a `t > 0` talker takes the peer board off the network; and an arm that a readback confirms but that never happened | class-A pacing comes from the lwSRP **bandwidth gate**, not a timer; and with the engine off, `TCTX` word-0 writes are dropped while the bus write completes |
 
 ---
 
@@ -264,14 +321,14 @@ distinct queues failed  -  everything clustered into one queue.
 
 **Cause.** The classifier's *reset* PCP→TC→queue map did not fan distinct PCPs out to
 distinct queues. (With the four-queue map of the day it clustered PCP 0–3 into one class;
-the six-queue reset map `0x006D2B00` spreads PCP 0…7 over q0/q0/q4/q5/q2/q2/q3/q3, so it
+the five-queue reset map `0x004898C0` spreads PCP 0…7 over q0/q0/q3/q4/q1/q1/q2/q2, so it
 still is not an identity — the harness fix below is unchanged in kind.)
 
 **Fix.** Program an **identity** classifier config in the harness so PCP `p` → prio
 `p` → TC `p` → queue `p` (`cls_prio_regen=0x00FAC688`, `cls_pcp_tc_map=0x00FAC688`,
-`cls_tc_queue_map=0x0002C688` — 3 bits per entry at `NUMBER_OF_QUEUES = 6`, which is
+`cls_tc_queue_map=0x00004688` — 3 bits per entry at `NUMBER_OF_QUEUES = 5`, which is
 what `tb/verilator/datapath/sim_main.cpp` computes), then assert `tdest == pcp`. The
-identity only holds for `p < 6`: TC6/TC7 name queues ≥ N and `traffic_class_map` clamps
+identity only holds for `p < 5`: TC5…TC7 name queues ≥ N and `traffic_class_map` clamps
 them to q0. This is also why the `milan_dp` harness programs the identity map over the
 CSR before the TX test.
 

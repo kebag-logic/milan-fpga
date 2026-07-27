@@ -48,8 +48,8 @@ flowchart TB
             SERVO["MMCM-DRP media-clock servo"]
         end
         subgraph NET["Network plane (802.1Q / 802.1AS)"]
-            CLS["classifier → 6 egress queues<br/>q5 SR-A · q4 SR-B · q3 gPTP<br/>q2 control · q1 spare · q0 BE"]
-            CBS["802.1Qav credit-based shaper<br/>(q5 / q4 only)"]
+            CLS["classifier → 5 egress queues<br/>q4 SR-A · q3 SR-B · q2 gPTP<br/>q1 control · q0 BE"]
+            CBS["802.1Qav credit-based shaper<br/>(q4 / q3 only)"]
             PHC["PTP hardware clock<br/>+ TX/RX timestamp unit"]
             FILT["RX dest-MAC TCAM filter"]
         end
@@ -118,7 +118,7 @@ Verilator suite is its executable form.
 |---|---|
 | `0x000` | Identification / IRQ — read `ID` here first: it spells `MILN` |
 | `0x100` · `0x200` | MAC control/status · RMON statistics — **read `STATS_CAP` (`0x204`) before believing a zero** |
-| `0x300` · `0x400` | 802.1Q classifier · 802.1Qav CBS (per queue, stride `0x20`; `0x400`–`0x4BF` at 6 queues) |
+| `0x300` · `0x400` | 802.1Q classifier · 802.1Qav CBS (per queue, stride `0x20`; `0x400`–`0x49F` at 5 queues) |
 | `0x500` | PTP hardware clock |
 | `0x600` · `0x648` | ADP advertiser · AECP/ACMP status + AAF talker (stream 0) |
 | `0x680` · `0x6A4` | lwSRP engine · ACMP listener SM + AVTP RX / MAAP / audio diagnostics |

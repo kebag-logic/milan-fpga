@@ -1279,8 +1279,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! grant releases. No CSR write-back.
   logic [32*NUM_QUEUES-1:0] cbs_idle_slope_mux;
   logic [NUM_QUEUES-1:0]    cbs_enable_mux;
-  //! LWSRP_CTRL[4:2] is 3 bits wide (it must reach q5, the 6-queue map's class-A
-  //! slot) so software CAN name a queue this build does not have. An
+  //! LWSRP_CTRL[4:2] is 3 bits wide (it must reach the top queue - q4 in the
+  //! 5-queue map, q5 in the 6-queue map it replaced - and $clog2 of neither
+  //! count is under 3) so software CAN name a queue this build does not have,
+  //! and at N=5 three of the eight codes name nothing at all. An
   //! out-of-range part-select write is undefined, so gate the MUX on the index
   //! being real: a bogus qidx then leaves the 0x400 CSR values untouched
   //! instead of corrupting a neighbouring queue's slope.

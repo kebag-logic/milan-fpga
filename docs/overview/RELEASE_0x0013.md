@@ -2,6 +2,19 @@
 
 *Written 2026-07-26, for someone whose board is running `VERSION 0x0001_000B`.*
 
+> **Superseded in part by `0x0014` (2026-07-27): the egress map is FIVE queues,
+> not six.** The six-queue map of §2 did not fit the AX7101 — three Vivado seeds
+> failed placement 282 slices short with LUTs at 99.84 % of capacity — so the
+> spare queue was dropped and the map was compactly renumbered: **q4** CBS SR
+> class A · **q3** CBS SR class B · **q2** gPTP · **q1** control · **q0** best
+> effort. Everything §2 says about *why* the order changed still holds; the
+> indices, `CAP.num_queues` (5), the CBS window (`0x400`–`0x49F`), the
+> `CLS_TC_QUEUE_MAP` reset (`0x004898C0`) and the `LWSRP_CTRL` reset (`0x10`,
+> queue 4) do not. Current values are in
+> [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md) and
+> [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), which win over
+> this page.
+
 Eight minor versions landed in one day. This page is organised by **what you
 have to do differently**, not by what was built. Each section says whether it
 changes behaviour at reset, whether it needs a reflash, and where the real
@@ -76,6 +89,12 @@ Full symptom→cause walk, with the register reads:
 
 ## 2. Six egress queues, in 802.1Q order — a breaking ABI change
 
+> **Read the banner at the top of this page before this section.** `0x0014`
+> made it **five** queues. The *convention* below (higher index = higher
+> priority) is current and permanent; every *index, reset word and address* in
+> this section is one version out of date. Current values:
+> [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md).
+
 `VERSION 0x0011` took the egress from 4 queues to **6**, and reversed the
 priority convention: **higher index is now higher priority**, which is what
 802.1Q says and what the credit shaper needs.
@@ -91,10 +110,18 @@ priority convention: **higher index is now higher priority**, which is what
 | class-A queue | q0 | **q5** |
 | best effort | q3 | **q0** |
 
-The new map, top to bottom: **q5** CBS SR class A · **q4** CBS SR class B ·
-**q3** gPTP · **q2** control · **q1** deliberate spare · **q0** best effort.
-The per-queue CBS reset slopes were re-derived — 450/150/50/50/25/25 Mb/s for
-q5…q0, still summing to the 75 % `REQ-CBS-03` ceiling.
+The map `0x0011` introduced, top to bottom: **q5** CBS SR class A · **q4** CBS
+SR class B · **q3** gPTP · **q2** control · **q1** deliberate spare · **q0**
+best effort. The per-queue CBS reset slopes were re-derived —
+450/150/50/50/25/25 Mb/s for q5…q0, still summing to the 75 % `REQ-CBS-03`
+ceiling.
+
+**`0x0014` dropped the spare and renumbered** (it did not fit the part): **q4**
+class A · **q3** class B · **q2** gPTP · **q1** control · **q0** best effort;
+`CAP.num_queues` 5, CBS window `0x400`–`0x49F`, `CLS_TC_QUEUE_MAP` reset
+`0x004898C0` (still 3 bits/entry), `LWSRP_CTRL` reset `0x10` (queue 4), slopes
+450/150/50/50/25 = 725 Mb/s. If you are upgrading straight from `0x000B`,
+target those, not the table above.
 
 **What you must do.**
 
@@ -311,7 +338,8 @@ Status is tracked in [`../../TODO.md`](../../TODO.md); the normative text is
    dead host plane.
 3. **Read back `VERSION` (`0x004`), `CAP` (`0x008`), `CLS_CTRL` (`0x300`) and
    `STATS_CAP` (`0x204`).** Expect `0x0001_0013`, `num_queues` = 6,
-   `CLS_CTRL` = `0x5`.
+   `CLS_CTRL` = `0x5` — or, on a `0x0014` build, `0x0001_0014` and
+   `num_queues` = **5** (§2 banner).
 4. **Re-derive every `CLS_TC_QUEUE_MAP` write** against 3-bit packing (§2).
 5. **Check `rx_queues` for your board.** The AX7101 8×8 config ships **1**
    because that is the layout its flashed boot chain maps; raising it to 2 moves

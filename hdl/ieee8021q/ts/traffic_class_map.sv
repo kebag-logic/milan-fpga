@@ -44,7 +44,7 @@
 
                   TAGGED frames carry a real PCP, so 802.1Q decides: PCP ->
                   regen -> traffic class -> queue. That is the AVTP streams,
-                  and they land on the CBS-shaped q5/q4.
+                  and they land on the CBS-shaped q4/q3.
 
                   UNTAGGED CONTROL frames carry NO PCP at all, so any queue
                   assignment expressed as a PCP mapping is fiction for them.
@@ -71,7 +71,7 @@ import ethernet_packet_pkg::*;
 `default_nettype none
 
 module traffic_class_map #(
-  parameter int NUMBER_OF_QUEUES = 6,                    //! Number of egress queues
+  parameter int NUMBER_OF_QUEUES = 5,                    //! Number of egress queues
   parameter int TDEST_WIDTH = $clog2(NUMBER_OF_QUEUES)   //! Width of the queue index
 )(
   //! --- runtime configuration (milan_csr classifier group) ---
@@ -102,9 +102,9 @@ module traffic_class_map #(
   logic [2:0] traffic_class;
   //! Queue selected by the TC->queue table. Per the ABI (docs/reference/REGISTER_MAP.md)
   //! CLS_TC_QUEUE_MAP packs one TDEST_WIDTH-bit queue index per traffic class
-  //! (ceil(log2 N) bits/entry), so at N=6 (3 bits/entry) the reset value
-  //! 0x006D2B00 is the map TC0,1 -> q0 - TC2 -> q4 - TC3 -> q5 - TC4,5 -> q2 -
-  //! TC6,7 -> q3 (docs/reference/EGRESS_QUEUE_MAP.md).
+  //! (ceil(log2 N) bits/entry), so at N=5 (still 3 bits/entry) the reset value
+  //! 0x004898C0 is the map TC0,1 -> q0 - TC2 -> q3 - TC3 -> q4 - TC4,5 -> q1 -
+  //! TC6,7 -> q2 (docs/reference/EGRESS_QUEUE_MAP.md).
   logic [TDEST_WIDTH-1:0] queue_sel_raw;
   //! ...clamped to a queue that EXISTS (see below).
   logic [TDEST_WIDTH-1:0] queue_sel;
@@ -132,13 +132,15 @@ module traffic_class_map #(
   //! length field sits where an EtherType would, identified by DSAP/SSAP 0x42.
   //! Any `(eth_type == X) && (dmac == Y)` shape would lock it out permanently.
   //! (RSTP rides the Bridge Group Address 01-80-C2-00-00-00; the row, the LLC
-  //! decode and its queue are a future decision - note q1 is the spare.)
+  //! decode and its queue are a future decision. There is no spare queue to
+  //! put it in any more - the 5-queue map dropped it for area - so adding RSTP
+  //! means either sharing CONTROL_CLASS or renumbering.)
   localparam int CTRL_DMAC_N = 4;
   //! Row index of the ONE address that carries two protocols - see below.
   localparam int CTRL_ROW_NEAREST_BRIDGE = 0;
   //! The reserved control group addresses (ethernet_packet_pkg).
   localparam logic [MAC_ADDR_BIT_WIDTH-1:0] CTRL_DMAC_TBL [CTRL_DMAC_N] = '{
-    MAC_DST_NEAREST_BRIDGE,  //!< 01-80-C2-00-00-0E  gPTP (q3) *and* MSRP (q2)
+    MAC_DST_NEAREST_BRIDGE,  //!< 01-80-C2-00-00-0E  gPTP (q2) *and* MSRP (q1)
     MAC_DST_MVRP,            //!< 01-80-C2-00-00-21  MVRP
     MAC_DST_ATDECC,          //!< 91-E0-F0-01-00-00  1722.1 ADP / ACMP
     MAC_DST_MAAP             //!< 91-E0-F0-00-FF-00  1722 MAAP
@@ -181,7 +183,7 @@ module traffic_class_map #(
   //! is control traffic. No EtherType precondition (see the RSTP note above).
   //!
   //! THE ONE PLACE THE ETHERTYPE REFINES: 01-80-C2-00-00-0E carries BOTH gPTP
-  //! (0x88F7 -> q3) AND MSRP (0x22EA -> q2), and they must not collapse into one
+  //! (0x88F7 -> q2) AND MSRP (0x22EA -> q1), and they must not collapse into one
   //! queue. The split is the `gptp_frame` arm winning the priority chain below,
   //! so at that single address 0x88F7 leaves for GPTP_CLASS and everything else
   //! - MSRP included - stays here on CONTROL_CLASS.
@@ -195,7 +197,7 @@ module traffic_class_map #(
   //! this arm is keyed on the EtherType: an untagged 0x22F0 to an INDIVIDUAL
   //! address is AECP. It is the weakest arm by construction - say so plainly
   //! rather than pretend the table covers it - but it is bounded: CONTROL_CLASS
-  //! is q2, below gPTP and below both CBS-shaped classes, so the worst a forged
+  //! is q1, below gPTP and below both CBS-shaped classes, so the worst a forged
   //! 0x22F0 buys is a lift over best effort.
   wire ctrl_unicast = !dmac_group && (eth_type_i == ETH_TYPE_AVTP);
 
@@ -210,10 +212,10 @@ module traffic_class_map #(
     traffic_class = pcp_tc_map_i[regen_prio*3 +: 3];
     queue_sel_raw = tc_queue_map_i[traffic_class*TDEST_WIDTH +: TDEST_WIDTH];
 
-    // ---- OUT-OF-RANGE QUEUE CLAMP (new at N=6) ----
+    // ---- OUT-OF-RANGE QUEUE CLAMP (needed at N=6, still needed at N=5) ----
     // With N a power of two the queue index could not overflow: every
-    // TDEST_WIDTH-bit value named a real queue. At N=6 the 3-bit field can
-    // name q6/q7, which do not exist - and the downstream axis_demux SILENTLY
+    // TDEST_WIDTH-bit value named a real queue. At N=5 the 3-bit field can
+    // name q5/q6/q7, which do not exist - and the downstream axis_demux SILENTLY
     // DROPS a frame whose `select >= M_COUNT` (verilog-axis axis_demux.v:
     // `drop_ctl = drop || select >= M_COUNT`). A single mis-programmed
     // CLS_TC_QUEUE_MAP nibble would therefore turn into an invisible TX black
@@ -242,7 +244,7 @@ module traffic_class_map #(
     // mode match legacy: gPTP always rides its own class, above best-effort
     // and control, and OUT of the CBS-shaped SR queues.
     //
-    // 6-QUEUE MAP: GPTP_CLASS is now q3 and sits BELOW the shaped q5/q4, not
+    // 802.1Q-ORDER MAP: GPTP_CLASS is q2 and sits BELOW the shaped q4/q3, not
     // above them. That is deliberate and it is a CORRECTNESS requirement, not
     // a preference - 802.1Q credit-based shaping assumes the shaped queues are
     // the top of the strict-priority order, and any strict-priority queue
@@ -264,17 +266,17 @@ module traffic_class_map #(
     // untagged link-local frames - they carry no PCP, so the PCP tables could
     // never route them anywhere but `default_pcp_i`, and at the reset
     // configuration (use_pcp = 1, default_pcp = 0) that is BEST EFFORT. The
-    // q2 = CONTROL_CLASS row of docs/reference/EGRESS_QUEUE_MAP.md was
+    // CONTROL_CLASS row of docs/reference/EGRESS_QUEUE_MAP.md was
     // therefore unimplemented on the wire: only the legacy arm ever reached it,
     // and only for 0x22F0. This arm makes the documented map true at reset.
     //
     // ORDER IS LOAD-BEARING: gPTP is tested FIRST, and that test is what splits
-    // the shared 01-80-C2-00-00-0E address - 0x88F7 to GPTP_CLASS (q3), MSRP
-    // 0x22EA at the same address falls through to CONTROL_CLASS (q2).
+    // the shared 01-80-C2-00-00-0E address - 0x88F7 to GPTP_CLASS (q2), MSRP
+    // 0x22EA at the same address falls through to CONTROL_CLASS (q1).
     //
     // A TAGGED 0x22F0 IS A STREAM, NOT CONTROL: `control_frame` requires
     // `untagged`, so an AVTP stream keeps its PCP and rides the shaped SR
-    // queues (q5 class A / q4 class B). Do not relax that term.
+    // queues (q4 class A / q3 class B). Do not relax that term.
     if (gptp_frame)
       tdest_o = TDEST_WIDTH'(GPTP_CLASS);
     else if (control_frame)

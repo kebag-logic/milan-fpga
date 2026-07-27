@@ -258,7 +258,10 @@ L2_HDR_BYTES = 18                 #: DA 6 + SA 6 + VLAN 4 + EtherType 2
 SRP_FRAME_OVERHEAD_B = 42
 SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
 SRP_QUEUE_BITS = 3                #: LWSRP_CTRL[4:2] class-A queue select
-#: (widened from [3:2] with the 6-queue map: class A now lives on q5)
+#: (widened from [3:2] with the 802.1Q-order map: class A lives on the TOP
+#: queue, q4 at NUMBER_OF_QUEUES = 5. The field keeps 3 bits at N=5 because
+#: ceil(log2 5) is still 3 - so it can still name queues that do not exist,
+#: which is why milan_datapath gates the slope MUX on qidx < NUM_QUEUES.)
 
 #: lwSRP policy defaults = EXACTLY today's RTL reset words, so a config with
 #: no `srp:` section emits the deployed gateware bit-for-bit (the
@@ -268,8 +271,8 @@ SRP_DEFAULTS = dict(
     vid=2,                                   # USER: VID 2 is THE SR vid
     stream_dmac_base="0x91E0F000FE01",       # MAAP range; stream t = base + t
     accumulated_latency_ns=0,
-    class_queue=5,                           # reset PCP3 -> TC3 -> q5 map
-                                             # (802.1Q order: q5 = class A)
+    class_queue=4,                           # reset PCP3 -> TC3 -> q4 map
+                                             # (802.1Q order: q4 = class A)
     enable_at_reset=False,
     talker_declare_at_reset=False,
     bandwidth_limit_pct=75,                  # Milan §5.6 / 802.1Q §34.3.1
@@ -910,11 +913,16 @@ SRP_CSR_OFFSETS = {"LWSRP_CTRL": 0x680, "LWSRP_VID": 0x684,
 #: asserts emitted == frozen == the generated header == REGISTER_MAP, so a
 #: config edit that would move a deployed reset word fails loudly instead of
 #: silently re-elaborating the CSR block.
-#: MOVED ONCE, DELIBERATELY (6-queue map, VERSION 0x0011): LWSRP_CTRL went
-#: 0x0C -> 0x14 because the class-A queue field widened to [4:2] and its reset
-#: moved from q3 to q5 - the queue the 802.1Q-ordered map puts SR class A on.
-#: That is a REFLASH-VISIBLE change; every other word is untouched.
-SRP_FROZEN_RESETS = {"LWSRP_CTRL": 0x00000014, "LWSRP_VID": 0x00000002,
+#: MOVED TWICE, DELIBERATELY, both times for the egress queue map:
+#:   VERSION 0x0011 (6 queues): 0x0C -> 0x14. The class-A queue field widened
+#:     from [3:2] to [4:2] and its reset moved from q3 to q5 - the queue the
+#:     802.1Q-ordered map put SR class A on.
+#:   VERSION 0x0014 (5 queues): 0x14 -> 0x10. The six-queue map missed
+#:     placement on the xc7a100t by 282 slices, the spare queue was dropped and
+#:     class A moved down to q4. The FIELD keeps its 3 bits (ceil(log2 5) = 3);
+#:     only the reset value changed.
+#: Both are REFLASH-VISIBLE changes; every other word is untouched.
+SRP_FROZEN_RESETS = {"LWSRP_CTRL": 0x00000010, "LWSRP_VID": 0x00000002,
                      "LWSRP_DMAC_LO": 0xF000FE01, "LWSRP_DMAC_HI": 0x000091E0,
                      "LWSRP_TSPEC": 0x000100E0, "LWSRP_LATENCY": 0x00000000}
 SRP_FROZEN_PRIO_RANK = 0x70          #: milan_csr's old SRP_PRIO_RANK_C literal
@@ -1527,7 +1535,7 @@ def load_config(path):
         flashboot=c.get("flashboot", "full"),
         uart_baudrate=int(c.get("uart_baudrate", 115200)),
         rx_queues=int(c.get("rx_queues", 2)),
-        num_queues=int(c.get("num_queues", 6)),   # = NUMBER_OF_QUEUES; gate 18c
+        num_queues=int(c.get("num_queues", 5)),   # = NUMBER_OF_QUEUES; gate 18c
                                                   # pins this against the package,
                                                   # so a stale 4 here would make
                                                   # every config that omits the
@@ -1550,11 +1558,12 @@ def load_config(path):
     # tables (IDLE_SLOPE_*/HI_CREDIT/LO_CREDIT) are sized by it and the CSR
     # CAP[3:0] advertises it - a config that disagrees with the RTL package
     # would silently mis-size CLS_PRIO_REGEN and the class-A queue select.
-    # NOT a power of two any more: the USER's egress map is SIX queues
-    # (q5 class A .. q0 best effort, docs/reference/EGRESS_QUEUE_MAP.md). The
-    # ceiling is what ceil(log2 N) can index inside one 32-bit
-    # CLS_TC_QUEUE_MAP word (8 traffic classes x 4 bits), i.e. 16; the RTL
-    # tables are written out to 6, so hold the gate at 8 until they grow.
+    # NOT a power of two: the USER's egress map is FIVE queues
+    # (q4 class A .. q0 best effort, docs/reference/EGRESS_QUEUE_MAP.md) -
+    # the six-queue map missed placement on the xc7a100t by 282 slices and
+    # the spare queue was dropped. The ceiling is what ceil(log2 N) can index
+    # inside one 32-bit CLS_TC_QUEUE_MAP word (8 traffic classes x 4 bits),
+    # i.e. 16; the RTL tables are written out to 5, so hold the gate at 8.
     if not (isinstance(cons["num_queues"], int) and 1 <= cons["num_queues"] <= 8):
         raise ConfigError(f"num_queues {cons['num_queues']} outside 1..8")
     if not cons["milan_clk_hz"] <= cons["sys_clk_hz"]:

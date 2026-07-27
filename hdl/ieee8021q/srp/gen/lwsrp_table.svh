@@ -42,7 +42,7 @@
   localparam int unsigned LWSRP_BW_LIMIT_BPS_C   = 75000000;
 
   //! 0x680 CSR group reset words (REGISTER_MAP.md '0x680 - lwSRP')
-  localparam [31:0] LWSRP_CTRL_RST_C      = 32'h0000_0014;  //! 0x680
+  localparam [31:0] LWSRP_CTRL_RST_C      = 32'h0000_0010;  //! 0x680
   localparam [31:0] LWSRP_VID_RST_C       = 32'h0000_0002;  //! 0x684
   localparam [31:0] LWSRP_DMAC_LO_RST_C   = 32'hF000_FE01;  //! 0x688
   localparam [31:0] LWSRP_DMAC_HI_RST_C   = 32'h0000_91E0;  //! 0x68C
