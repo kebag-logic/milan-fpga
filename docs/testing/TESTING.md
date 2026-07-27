@@ -232,6 +232,16 @@ A long on-silicon campaign can run for **days**. It is driven from a host, not
 from a board, and it is built so that **nobody is woken unless something is
 actually wrong**. Silence means healthy.
 
+> **The implementation of this contract is [`../../harness/README.md`](../../harness/README.md)**
+> — `harness/run.sh`, one entry point over eight phases, with the resume cursor,
+> heartbeat, per-phase JSONL, forensic bundle and one-shot alert described below.
+> That page also carries the **3am operator contract** (start / resume / where
+> the logs are / what to do on `FAILED` / how to tell a device defect from a
+> harness problem) and an explicit **proven-vs-inferred** split, because as of
+> 2026-07-27 the harness has driven a mock bench and no real hardware. Its
+> `es-N.M` item registry lives in the private test repository; only the
+> machinery is in this tree.
+
 ### The contract is one file
 
 The runner maintains a single `STATUS` file containing exactly one word plus a

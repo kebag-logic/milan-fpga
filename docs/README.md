@@ -73,8 +73,9 @@ Goal: prove it works, per spec.
 2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` is the authoritative suite list (the listing wins over any prose count).
 3. [../tests/README.md](../tests/README.md) — run the **BDD conformance suite**: `cd tests && behave -f plain` (21 features / 113 scenarios, offline, ~3 s; the `@tsn_gen` tier additionally needs `TSAGEN_DIR`). It is a CI gate and a USER standing order on every verification round.
 4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench` tier (the *bench* suites, which need real hardware, live in the sibling private test repo).
-5. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
-6. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is validated vs pending.
+5. [`../harness/README.md`](../harness/README.md) — the **unattended campaign harness**: one entry point, eight phases, days-long runs, `STATUS`/heartbeat/resume, and the 3am operator page. Its item registry lives in the private test repo; the machinery is here.
+6. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
+7. [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md) — what is validated vs pending.
 
 ### 📦 Product evaluator — *you decide whether to build on this*
 Goal: an honest picture of what provably works and what is open.
@@ -174,6 +175,7 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | The all-layers walkthrough (elaboration smoke test → Migen sims → harnesses → board). |
 | [SIMULATION.md](testing/SIMULATION.md) | The three simulation layers in detail (RTL harnesses, softcore boot, softcore+NIC M-A2). |
 | [PROTOCOL_VALIDATION_MATRIX.md](testing/PROTOCOL_VALIDATION_MATRIX.md) | Every protocol × where implemented × the test that validates it. |
+| [`../harness/README.md`](../harness/README.md) | The **unattended campaign harness** (`harness/run.sh`): eight phases, days-long runs, JSONL + `STATUS` + heartbeat + resume, safety rails, the 3am operator page, and an explicit proven-vs-inferred split. |
 | [`../tb/verilator/README.md`](../tb/verilator/README.md) | The self-checking harnesses (one dir per suite; `ls tb/verilator/` is authoritative), suite by suite. |
 | [`../syn/yosys/README.md`](../syn/yosys/README.md) | The device-portability check (the `run.sh` `tops` array is authoritative; generic + ECP5). |
 
