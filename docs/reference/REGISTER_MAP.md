@@ -55,6 +55,34 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) |
 
+### A group can be STRUCTURALLY absent (optional-block prunes, 2026-07-27)
+
+Six `milan_datapath` blocks are now behind **elaboration-time prune
+parameters** ([docs/design/AREA_BUDGET.md](../design/AREA_BUDGET.md) tier 1).
+**Every one defaults to PRESENT**, so a shipping build's map is exactly what
+this page describes. A build that pulls a lever keeps the *register window* —
+the address still decodes, RW words still store and read back — but the block
+behind it is gone and its RO words read a **structural zero**, which is not a
+measurement:
+
+| Parameter | Reads 0 structurally | Other effect |
+|---|---|---|
+| `MCSERVO_P = 0` | `0x8F8 MCSRV_STAT` | `0x8FC MCSRV_CTRL` still RW; MMCM DRP/PS pins never move |
+| `LTAP_P = 0` | `0x874`-`0x8B0`; `0x870 LTAP_CTRL` reads `0x2` (enable bit only, no status) | — |
+| `MAAP_P = 0` | `0x6D0 MAAP_STAT0`, `0x6D4 MAAP_STAT1` | `MAAP_CTRL.en` becomes effectively **reserved**: setting it pins AAF admission shut |
+| `I2SPB_P = 0` | `0x6D8 I2SPB_STAT`, `0x6E0 I2SPB_TRIM`, `0x6F0 I2SPB_DBG` | the four `i2s_dac_*` pins park at 0 |
+| `RXFILT_P = 0` | — | the whole `0x700` TCAM group still stores; **nothing reads it** and the port is PROMISCUOUS |
+| `LPF_P = 0` | — | `0x72C LPF_CTRL` still RW with no filter behind it |
+
+There is deliberately **no capability bit** for these (unlike `STATS_CAP 0x204`
+for the RMON lanes): adding one would be a CSR contract change owing a `VERSION`
+bump at default settings, which the prune round did not spend. The declaration
+lives in the build config (`board.features`) and in the generated
+`build_plan.md`. **Consequence for a reader:** at `0x8F8` you cannot tell "no
+servo built" from "servo idle at internal clock", and at `0x870` you cannot tell
+"no taps built" from "taps never armed" — check the build plan, not the
+register.
+
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
 "DMA registers" section further down; those are not part of this 64 KB

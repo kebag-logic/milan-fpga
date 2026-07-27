@@ -35,6 +35,7 @@ mapping moves, this table (and the Makefile) is the place drift shows up:
 | `--milan-clk-freq 100e6` | `milan_clk_hz=100000000` | `MILAN_CLK_FREQ_HZ` | `100000000` |
 | *(no `--audio-interface`)* | `audio_if_slots=0` (`i2s_philips`) | `AUDIO_IF_SLOTS_P` | `0` |
 | *(no `--aaf-playback`)* | `aaf_playback=False` (param not passed) | `AAF_PLAYBACK_P` | `0` (SV default) |
+| *(no `--no-*` optional-block flag)* | `board.features` all `true` | `MCSERVO_P` `LTAP_P` `MAAP_P` `I2SPB_P` `RXFILT_P` `LPF_P` | `1` each (SV defaults; every tier-1 block PRESENT) |
 | *(never emitted by the SoC)* | — | `PB_PREFILL_C` | `0` (SV default — `milan_dp` shrinks it to 2; we keep the silicon value) |
 | `--rx-queues 1`, `--strip-probes`, … | SoC-layer only | — | out of scope (no datapath parameter) |
 
@@ -74,9 +75,14 @@ Drift notes observed while deriving the mapping (2026-07-25):
   claim: `syn/yosys/check_tap_purity.sh`.
 * **[E] cfg-sweep smoke** (`sim_smoke.cpp`) — the case-A/B kernel re-run at
   `small-1x-50MHz` (cfg_arty family), `mid-4x-100MHz`, `tdm8-8x-100MHz`
-  (`AUDIO_IF_SLOTS_P=8`). There is **no** elaboration-level taps-off
-  parameter (the taps are always instantiated; the knob is `LTAP_CTRL[1]`),
-  so the runtime-off variant lives in case D instead.
+  (`AUDIO_IF_SLOTS_P=8`). The runtime taps-off variant lives in case D.
+  An elaboration-level taps-off parameter **now exists** (`LTAP_P`,
+  [AREA_BUDGET.md](../../../docs/design/AREA_BUDGET.md) tier 1, default
+  `1` = taps PRESENT) and composes with the runtime knob: `LTAP_P` decides
+  whether the block is *built*, `LTAP_CTRL[1]` whether the built block
+  *runs*. This suite keeps the silicon default (taps present) and does not
+  sweep it; the pruned shape is covered by `tb/verilator/milan_dp`'s
+  `obj_prune` build, which elaborates all six tier-1 prunes at once.
 
 ## Status on `main` as of 2026-07-25 (the honest record)
 

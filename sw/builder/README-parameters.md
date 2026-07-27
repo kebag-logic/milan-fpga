@@ -152,6 +152,49 @@ DT does not carry — `MILAN_EV_PHYS`, `MILAN_PHY_CSR_PHYS`,
 `rx_queues`; that is the largest remaining un-modelled coupling and the
 reason the table exists.
 
+## Optional blocks (`board.features:`) — the tier-1 prune parameters
+
+[`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md) tier 1: six
+`milan_datapath` blocks that a given deployment may not be able to use, each
+behind an **elaboration-time** parameter so synthesis drops the instance. The
+whole section is **optional**, and every key **defaults to `true` = PRESENT** —
+a config that says nothing emits exactly today's argv and today's gateware.
+
+```yaml
+board:
+  features:                    # optional; omit the block to keep everything
+    media_clock_servo: true
+    latency_taps: true
+    maap: true
+    i2s_playback: true
+    rx_mac_filter: true
+    render_lpf: true
+```
+
+| Key | `milan_soc.py` flag | `milan_datapath` | Buys (yosys ESTIMATE) | Refused when the config still asks for it |
+|-----|---------------------|------------------|-----------------------|-------------------------------------------|
+| `media_clock_servo` | `--no-media-clock-servo` | `MCSERVO_P=0` | 814 LUT / 789 FF / 1 DSP | `clocking.media_clock_sources` offers anything but `internal` |
+| `latency_taps` | `--no-latency-taps` | `LTAP_P=0` | 948 LUT / 614 FF | `board.constraints.strip_probes: false` (this build keeps its probes) |
+| `maap` | `--no-maap` | `MAAP_P=0` | 634 LUT / 269 FF | `srp.stream_dmac_base: maap` (addresses claimed at run time) |
+| `i2s_playback` | `--no-i2s-playback` | `I2SPB_P=0` | 454 LUT / 631 FF / 1 BRAM36 | `audio_interface.kind: i2s_philips` (its render half IS this block) |
+| `rx_mac_filter` | `--no-rx-mac-filter` | `RXFILT_P=0` | 801 LUT / 1691 FF | `platform.rx_address_filter: hardware` (the default) |
+| `render_lpf` | `--no-render-lpf` | `LPF_P=0` | 864 LUT / 756 FF / 1 DSP | `i2s_playback` is pruned but this is kept — its only consumer would be gone |
+
+Every figure above is a **yosys estimate** from `syn/yosys/ooc.sh`'s toolchain
+on the 8×8 ship shape, **not a placement result**; on the one block where both
+numbers exist, Vivado places it at roughly half the LUTs. The last column is the
+gate (`validate_features()`): a config that prunes a block *and* keeps the
+element that needs it raises `ConfigError` naming both. A pruned block also
+prints into `build_plan.md` with its parameter, its flag and the
+**re-measurement it forces** — the obligation travels with the artefact.
+
+Two supporting fields land with it:
+
+| Field | Type / values | Default | Notes |
+|-------|---------------|---------|-------|
+| `platform.rx_address_filter` | `hardware` \| `software` \| `promiscuous` | `hardware` | Declares **where** the RX destination-address decision is taken. `hardware` (what both boards ship) requires `rx_mac_filter`; the other two are the honest statements that let it be pruned, because a pruned filter makes the port promiscuous. |
+| `srp.stream_dmac_base` | MAC-48 hex \| `maap` | `0x91E0F000FE01` | `maap` = the DMACs are claimed at run time by `KL_maap` rather than provisioned here. The tables still model the default base; the allocation POLICY is what the MAAP prune gate keys on. |
+
 ## Schema 1.1 deltas (vs the 1.0 scaffold)
 
 | Field | Type / values | Default | Consumed by | Notes |

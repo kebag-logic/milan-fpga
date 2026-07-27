@@ -85,14 +85,22 @@ CPP  = sim_main.cpp
 .PHONY: all run clean
 all: run
 
+# tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+# Every one defaults to 1 = PRESENT, so the two builds above are untouched;
+# this third build is the only place the 0 side is elaborated - and a prune
+# that was never elaborated is not a prune.
+PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
+
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+	$(VERILATOR) $(VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
 	./obj_nxn8/Vmilan_dp_nxn8
+	./obj_prune/Vmilan_dp_prune
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_prune
