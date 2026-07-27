@@ -11,6 +11,32 @@ This file lists ONLY what is still missing or approximate. What already
 passes is recorded row-by-row in [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md)
 and is not repeated here.
 
+## 0. Where the remaining work actually lives
+
+*One question, answered before the detail: of everything still open, how much
+of it is RTL this project can sit down and write?*
+
+| Where | Still open | What the block actually is |
+|---|---|---|
+| §1 AECP / AEM | AEM store redesign D6–D8 (RTL, loader, traceability rows); `SET_STREAM_INFO` beyond `MSRP_ACC_LAT`; the render-consumption walker generalization | **RTL** — designed, unwritten |
+| §2 streaming | CRF is not a class A stream: no VLAN tag, control-lane merge, no reservation row (three jobs, not one). Plus the BRAM PCM-ring proposal and a true >2ch physical render | **RTL** |
+| §3 SRP | the CRF-reservation datapath/CSR integration lane | **RTL** — the engine-side gap is gone |
+| §2 media clock | MMCM-DRP servo bring-up: set the polarity knob, bless `auto_repair`, rails-zero soak | **bench drill** — the RTL landed 2026-07-22 |
+| order item 0 | link-guard recovery from a *real* TX wedge | **bench drill** — a physical cable pull; the FSM and `eth_rst` sequence are already silicon-proven |
+| §3 SRP | SR class B — declarations, domain, the 250 µs interval — never exercised | **bench setup that has never existed**; class A only, engine and bench both |
+| §4 gPTP | es-1.1 / es-1.2 DUT-wins-BMCA and marker variants | **outside this repo** — the bench switch outranks every Milan-legal end-station claim and cannot be weakened without its management credentials |
+| §4 gPTP | the ingress/egress latency split (only the sum was ever measured) | **missing instrument** — needs a PHY-boundary tap; the capture point is the AXIS SOP, not the GMII SFD |
+| §5 robustness | Arty link detection is an RX-liveness heuristic, not carrier state | **hardware** — the MII-PMOD has no MDIO pad |
+| §5 robustness | ACMP binds do not survive a reboot | **an unimplemented Milan feature** (saved-state fast-connect), not a workaround — order-of-attack item 9 |
+| §5 bench & tooling | ProfiShark driver kernel-pinning; linkmon back-off vs guard-era gateware; `SIOCGMIIREG` in kl-eth; the software talker's host media clock | **housekeeping** — no DUT compliance impact |
+| §6 scope | a formal external validation run, plus one clean interactive Hive diagnostics pass | **outside this bench entirely** |
+
+Read the last column first. Only the top three rows are RTL debt, and that is
+the point of §5's 2026-07-26 re-audit: everything in that section that could
+be fixed in RTL has been, so what is left waits on a bench drill, a missing
+pad, an instrument nobody has built, or credentials this project does not
+hold.
+
 ## 1. AECP / AEM
 
 - **AEM store redesign decided (2026-07-25, builder D6–D8):** BRAM hot
@@ -558,6 +584,47 @@ worse than an admitted gap.
   harness). Bench goal, not DUT compliance.
 
 ## Suggested order of attack (reordered 2026-07-22 per USER)
+
+*The numbering below is a priority order, not a dependency order.* This is the
+dependency order — which is why item 7 sits downstream of both 5 and 6, and
+why only three of the thirteen (5, 7, 10) actually wait on another item:
+
+```mermaid
+flowchart LR
+    subgraph CLOSED["closed in this doc"]
+        I1["1 — AX timing closure"]:::done
+        I2["2 — RTL fixes for the workaround items"]:::done
+        I8["8 — dynamic audio maps"]:::done
+    end
+    subgraph FREE["no dependency stated here"]
+        I9["9 — saved-state fast-connect"]:::none
+        I11["11 — AAF latency breakdown"]:::none
+    end
+    I0["0 — AX e2 MAC-TX wedge<br/>logic fix landed, wedge recovery unproven"]:::part
+    I4["4 — software-defined end-station build"]:::part
+    I3["3 — spec-aligned module tree<br/>+ traceability matrix"]:::none
+    I5["5 — NxN AAF Milan streams"]:::part
+    I6["6 — MMCM-DRP media-clock servo<br/>RTL landed, silicon bring-up open"]:::part
+    I7["7 — ALSA driver over PipeWire"]:::none
+    I10["10 — spec-matrix peer-validation"]:::none
+    I12["12 — es-1.1 / 1.2 DUT-wins-BMCA"]:::block
+    SW(["the bench switch's gPTP claim outranks<br/>every Milan-legal end-station value"]):::ext
+    I0 -->|"0c: the AX 8x8 build rides on the fixed base"| I5
+    I4 -->|"emits the config that elaborates N"| I5
+    I5 -->|"per-stream PCM rings = the capture PCMs"| I7
+    I6 -->|"rate slaved to the media clock"| I7
+    I3 -->|"matrix rows become the scenarios"| I10
+    SW -.->|"blocks, outside this repo"| I12
+    classDef done fill:#dff0d8,stroke:#4a4,color:#000
+    classDef part fill:#fcf3cf,stroke:#b90,color:#000
+    classDef none fill:#eeeeee,stroke:#999,color:#000
+    classDef block fill:#f8d7da,stroke:#a33,color:#000
+    classDef ext fill:#ffffff,stroke:#666,color:#000
+```
+
+Green = this doc records it closed. Amber = partly landed, with the remainder
+named inside the item. Grey = no status recorded here. Red = blocked outside
+this repo.
 
 0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
    fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED; guard FSM

@@ -34,6 +34,46 @@ says it.
 the configured threshold is what promotes the RAM ring to a flash write, so
 choosing a severity is choosing whether the event can cost a flash erase.
 
+## Event-record type IDs — and why declaration order is not it
+
+*Which numeric `id` will a raw trace show for a given event, and what
+moves if I add one?* barectf assigns IDs by **sorted event name**, not by
+declaration order. The two orders below are generated the same way
+barectf generates them, so this table is the answer, not a restatement of
+the rule.
+
+| id | event (sorted name = the ID order) | # in declaration order |
+|---|---|---|
+| `0` | `acmp_listener` | 5 |
+| `1` | `avtp_rx` | 11 |
+| `2` | `boot` | 1 |
+| `3` | `csr_access` | 18 |
+| `4` | `daemon` | 22 |
+| `5` | `heartbeat` | 2 |
+| `6` | `journal` | 14 |
+| `7` | `link` | 3 |
+| `8` | `ltap` | 12 |
+| `9` | `maap` | 15 |
+| `10` | `mac_reset` | 4 |
+| `11` | `mediaclk` | 16 |
+| `12` | `note` | 23 |
+| `13` | `parser_probe` | 10 |
+| `14` | `ptp` | 17 |
+| `15` | `ring` | 13 |
+| `16` | `srp` | 6 |
+| `17` | `srp_refusal` | 7 |
+| `18` | `stream_ctx` | 8 |
+| `19` | `stream_ctx_write` | 9 |
+| `20` | `trace_drop` | 20 |
+| `21` | `trace_evict` | 21 |
+| `22` | `trace_flush` | 19 |
+
+23 of 23 events sit at a different position in the two
+orders. **Adding one event renames the IDs of every event that sorts after
+it** — an existing trace file decoded against the new `metadata` would be
+read as the wrong events. That is why the YAML header treats a new event
+name as an ABI change and not a cosmetic one.
+
 ## Event types
 
 ### `boot`

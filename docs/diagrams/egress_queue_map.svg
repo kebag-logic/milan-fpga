@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="940" viewBox="0 0 1700 940" font-family="Helvetica,Arial,sans-serif">
+<rect width="1700" height="940" fill="#FAFAFA"/>
+<defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#546E7A"/></marker></defs>
+<text x="40" y="52" font-size="30" font-weight="bold" fill="#263238">Egress queue map - 5 traffic classes, 802.1Q order</text>
+<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from hdl/common/ethernet_packet_pkg.sv (queue count, enum, slopes), hdl/common/csr/milan_csr.sv (reset credit + shaping mask + TC map) and hdl/ieee8021q/ts/traffic_class_map.sv (control addresses).</text>
+<text x="40" y="106" font-size="15" fill="#546E7A">HIGHER index = HIGHER priority - priority_encode scans from the top index down, so q4 is granted first.</text>
+<text x="700" y="178" font-size="17" font-weight="bold" fill="#78909C">STRICT-PRIORITY LADDER (the arbiter grants top-down)</text>
+<rect x="700" y="664" width="560" height="100" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="714" y="691" font-size="17" font-weight="bold" fill="#212121">q0  BEST_EFFORT</text>
+<text x="714" y="712" font-size="12.5" fill="#37474F">default for non-prioritized traffic (lowest)</text>
+<text x="714" y="734" font-size="12" fill="#37474F">idleSlope 25 Mb/s (2.5 % of 1G) | 2.5 Mb/s @100M</text>
+<text x="714" y="752" font-size="12" fill="#607D8B">reset hiCredit 38 B / loCredit -1483 B</text>
+<rect x="1110" y="701.0" width="138" height="26" rx="13" fill="#FFFFFF" stroke="#78909C" stroke-width="1.6"/>
+<text x="1179" y="719.0" font-size="12" font-weight="bold" fill="#78909C" text-anchor="middle">strict priority</text>
+<text x="686" y="720.0" font-size="15" font-weight="bold" fill="#90A4AE" text-anchor="end">#5</text>
+<rect x="700" y="548" width="560" height="100" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="714" y="575" font-size="17" font-weight="bold" fill="#212121">q1  CONTROL_CLASS</text>
+<text x="714" y="596" font-size="12.5" fill="#37474F">MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP</text>
+<text x="714" y="618" font-size="12" fill="#37474F">idleSlope 50 Mb/s (5 % of 1G) | 5 Mb/s @100M</text>
+<text x="714" y="636" font-size="12" fill="#607D8B">reset hiCredit 76 B / loCredit -1445 B</text>
+<rect x="1110" y="585.0" width="138" height="26" rx="13" fill="#FFFFFF" stroke="#78909C" stroke-width="1.6"/>
+<text x="1179" y="603.0" font-size="12" font-weight="bold" fill="#78909C" text-anchor="middle">strict priority</text>
+<text x="686" y="604.0" font-size="15" font-weight="bold" fill="#90A4AE" text-anchor="end">#4</text>
+<rect x="700" y="432" width="560" height="100" rx="9" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
+<text x="714" y="459" font-size="17" font-weight="bold" fill="#212121">q2  GPTP_CLASS</text>
+<text x="714" y="480" font-size="12.5" fill="#37474F">gPTP (Generalized Precision Time Protocol)</text>
+<text x="714" y="502" font-size="12" fill="#37474F">idleSlope 50 Mb/s (5 % of 1G) | 5 Mb/s @100M</text>
+<text x="714" y="520" font-size="12" fill="#607D8B">reset hiCredit 76 B / loCredit -1445 B</text>
+<rect x="1110" y="469.0" width="138" height="26" rx="13" fill="#FFFFFF" stroke="#78909C" stroke-width="1.6"/>
+<text x="1179" y="487.0" font-size="12" font-weight="bold" fill="#78909C" text-anchor="middle">strict priority</text>
+<text x="686" y="488.0" font-size="15" font-weight="bold" fill="#90A4AE" text-anchor="end">#3</text>
+<rect x="700" y="316" width="560" height="100" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+<text x="714" y="343" font-size="17" font-weight="bold" fill="#212121">q3  SRB_CLASS</text>
+<text x="714" y="364" font-size="12.5" fill="#37474F">Stream Reservation Class B (CBS shaped)</text>
+<text x="714" y="386" font-size="12" fill="#37474F">idleSlope 150 Mb/s (15 % of 1G) | 15 Mb/s @100M</text>
+<text x="714" y="404" font-size="12" fill="#607D8B">reset hiCredit 228 B / loCredit -1293 B</text>
+<rect x="1110" y="353.0" width="138" height="26" rx="13" fill="#FFFFFF" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="1179" y="371.0" font-size="12" font-weight="bold" fill="#2E7D32" text-anchor="middle">CBS-capable</text>
+<text x="686" y="372.0" font-size="15" font-weight="bold" fill="#90A4AE" text-anchor="end">#2</text>
+<rect x="700" y="200" width="560" height="100" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+<text x="714" y="227" font-size="17" font-weight="bold" fill="#212121">q4  SRA_CLASS</text>
+<text x="714" y="248" font-size="12.5" fill="#37474F">Stream Reservation Class A (highest priority)</text>
+<text x="714" y="270" font-size="12" fill="#37474F">idleSlope 450 Mb/s (45 % of 1G) | 45 Mb/s @100M</text>
+<text x="714" y="288" font-size="12" fill="#607D8B">reset hiCredit 684 B / loCredit -837 B</text>
+<rect x="1110" y="237.0" width="138" height="26" rx="13" fill="#FFFFFF" stroke="#2E7D32" stroke-width="1.6"/>
+<text x="1179" y="255.0" font-size="12" font-weight="bold" fill="#2E7D32" text-anchor="middle">CBS-capable</text>
+<text x="686" y="256.0" font-size="15" font-weight="bold" fill="#90A4AE" text-anchor="end">#1</text>
+<path d="M1294,200 L1310,200 L1310,416 L1294,416" fill="none" stroke="#2E7D32" stroke-width="2.4"/>
+<rect x="1320" y="200" width="340" height="216" rx="9" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+<text x="1336" y="230" font-size="15" font-weight="bold" fill="#1B5E20">802.1Qav credit-based shaper</text>
+<text x="1336" y="256" font-size="12" fill="#1B5E20">REQ-CBS-02: CBS shapes reserved SR classes</text>
+<text x="1336" y="275" font-size="12" fill="#1B5E20">only - never best effort.</text>
+<text x="1336" y="294" font-size="12" fill="#1B5E20">Shaped set at reset: CBS_EN_RST = none</text>
+<text x="1336" y="313" font-size="12" fill="#1B5E20">-&gt; every queue is strict priority until</text>
+<text x="1336" y="332" font-size="12" fill="#1B5E20">software sets CBS_CTRL[0] for a queue.</text>
+<text x="1336" y="351" font-size="12" fill="#1B5E20">hi/loCredit derived at MAX_FRAME_SIZE = 1522 B.</text>
+<rect x="700" y="798" width="960" height="106" rx="9" fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>
+<text x="716" y="824" font-size="14.5" font-weight="bold" fill="#B71C1C">Why gPTP sits BELOW the shaped classes - correctness, not preference</text>
+<text x="716" y="848" font-size="11.8" fill="#B71C1C">802.1Q-2018 8.6.8.2 assumes the shaped queues are the TOP of the strict-priority order. A</text>
+<text x="716" y="865" font-size="11.8" fill="#B71C1C">strict-priority queue above them preempts a class-A frame whose credit was already earned, so the</text>
+<text x="716" y="882" font-size="11.8" fill="#B71C1C">credit accounting no longer bounds class-A latency. gPTP tolerates the demotion because every event</text>
+<text x="716" y="899" font-size="11.8" fill="#B71C1C">message is hardware-stamped at the egress SFD - queueing moves WHEN it leaves, never the value it carries.</text>
+<text x="40" y="178" font-size="17" font-weight="bold" fill="#78909C">CLASSIFICATION - how a frame picks its queue</text>
+<rect x="40" y="200" width="600" height="196" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
+<text x="56" y="226" font-size="15" font-weight="bold" fill="#4A148C">TAGGED frame - 802.1Q decides (three programmable tables)</text>
+<text x="56" y="250" font-size="12" font-family="monospace" fill="#4A148C">eff_pcp = vlan_valid ? frame PCP : CLS_DEFAULT_PCP   (0x304)</text>
+<text x="56" y="267" font-size="12" font-family="monospace" fill="#4A148C">regen   = CLS_PRIO_REGEN[eff_pcp]                    (0x30C)</text>
+<text x="56" y="284" font-size="12" font-family="monospace" fill="#4A148C">tc      = CLS_PCP_TC_MAP[regen]                      (0x308)</text>
+<text x="56" y="301" font-size="12" font-family="monospace" fill="#4A148C">queue   = CLS_TC_QUEUE_MAP[tc]                       (0x310)</text>
+<text x="56" y="338" font-size="12" fill="#4A148C">reset CLS_TC_QUEUE_MAP = 0x004898C0, 3 bits per traffic class:</text>
+<rect x="56" y="348" width="60" height="34" rx="5" fill="#ECEFF1" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="86.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC0</text>
+<text x="86.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q0</text>
+<rect x="122" y="348" width="60" height="34" rx="5" fill="#ECEFF1" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="152.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC1</text>
+<text x="152.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q0</text>
+<rect x="188" y="348" width="60" height="34" rx="5" fill="#E8F5E9" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="218.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC2</text>
+<text x="218.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q3</text>
+<rect x="254" y="348" width="60" height="34" rx="5" fill="#E8F5E9" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="284.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC3</text>
+<text x="284.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q4</text>
+<rect x="320" y="348" width="60" height="34" rx="5" fill="#E3F2FD" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="350.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC4</text>
+<text x="350.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q1</text>
+<rect x="386" y="348" width="60" height="34" rx="5" fill="#E3F2FD" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="416.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC5</text>
+<text x="416.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q1</text>
+<rect x="452" y="348" width="60" height="34" rx="5" fill="#FFF3E0" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="482.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC6</text>
+<text x="482.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q2</text>
+<rect x="518" y="348" width="60" height="34" rx="5" fill="#FFF3E0" stroke="#6A1B9A" stroke-width="1.3"/>
+<text x="548.0" y="362" font-size="11" fill="#37474F" text-anchor="middle">TC7</text>
+<text x="548.0" y="377" font-size="12.5" font-weight="bold" fill="#212121" text-anchor="middle">q2</text>
+<rect x="40" y="424" width="600" height="198" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="56" y="450" font-size="15" font-weight="bold" fill="#0D47A1">UNTAGGED control - no PCP exists, so the DESTINATION MAC decides</text>
+<text x="56" y="474" font-size="12" font-family="monospace" fill="#0D47A1">01-80-C2-00-00-0E  gPTP (q2) and MSRP (q1)</text>
+<text x="56" y="494" font-size="12" font-family="monospace" fill="#0D47A1">01-80-C2-00-00-21  MVRP</text>
+<text x="56" y="514" font-size="12" font-family="monospace" fill="#0D47A1">91-E0-F0-01-00-00  1722.1 ADP / ACMP</text>
+<text x="56" y="534" font-size="12" font-family="monospace" fill="#0D47A1">91-E0-F0-00-FF-00  1722 MAAP</text>
+<text x="56" y="564" font-size="11.8" fill="#0D47A1">A row hit needs NO EtherType (the next protocol through this door is RSTP,</text>
+<text x="56" y="582" font-size="11.8" fill="#0D47A1">which has none). The EtherType refines exactly ONE address: at 01-80-C2-00-00-0E,</text>
+<text x="56" y="600" font-size="11.8" fill="#0D47A1">0x88F7 leaves for gPTP and everything else there - MSRP - stays on control.</text>
+<rect x="40" y="644" width="600" height="58" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2"/>
+<text x="56" y="669" font-size="14" font-weight="bold" fill="#263238">FALLTHROUGH - everything else, and any out-of-range map entry</text>
+<text x="56" y="689" font-size="12" fill="#37474F">clamped to q0: an unmapped class rides best effort (observable) rather than being silently dropped.</text>
+<path d="M640,298 L644,298" fill="none" stroke="#546E7A" stroke-width="2.2" marker-end="url(#arr)"/>
+<path d="M640,523 L644,523" fill="none" stroke="#546E7A" stroke-width="2.2" marker-end="url(#arr)"/>
+<path d="M640,673 L644,673" fill="none" stroke="#546E7A" stroke-width="2.2" marker-end="url(#arr)"/>
+<rect x="1320" y="442" width="340" height="104" rx="9" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="1336" y="468" font-size="15" font-weight="bold" fill="#795548">arbiter -&gt; MAC TX</text>
+<text x="1336" y="492" font-size="12" fill="#795548">ethernet_packet_pkg::priority_encode</text>
+<text x="1336" y="509" font-size="12" fill="#795548">scans q4 down to q0,</text>
+<text x="1336" y="526" font-size="12" fill="#795548">grants the first requester whose CBS</text>
+<text x="1336" y="543" font-size="12" fill="#795548">gate allows it (unshaped = always).</text>
+</svg>

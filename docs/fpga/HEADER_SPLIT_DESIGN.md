@@ -8,6 +8,42 @@ measured enabler: batched PTE moves 1.22 µs/page vs 26.3 µs copy (21.5×). Tar
 
 ## Layout
 
+The whole design is one change of *what a descriptor points at*. In legacy mode
+a BD points at one page holding a whole frame, headers in front of payload. In
+hs mode an aggregate becomes **three kinds of object**, and the meta BD carries
+an index into the header ring instead of the header itself:
+
+```mermaid
+flowchart LR
+    subgraph WIRE["one RSC aggregate, off the wire"]
+        OPEN["opener frame<br/>eth + IP + TCP + payload"]
+        MORE["merged segments<br/>payload only"]
+    end
+
+    subgraph DRAM["DRAM objects the driver owns"]
+        HRING["header ring @ hs_hdr_base<br/>32 slots x 128 B, coherent alloc"]
+        PG0["order-0 page<br/>payload bytes 0 .. PGSZ"]
+        PG1["order-0 page<br/>payload bytes PGSZ .. 2*PGSZ"]
+    end
+
+    subgraph BDR["BD ring entries the driver reaps"]
+        V2["v2 meta — w0[58]=0<br/>w0[63:59] = hdr_idx<br/>w0[31:16] = total len<br/>w1 = ack, win, segs, doff"]
+        V3A["v3 page — w0[58]=1<br/>w1 = page phys addr"]
+        V3B["v3 page — w0[58]=1<br/>w1 = page phys addr"]
+    end
+
+    OPEN -->|"HS_HAW burst: hdr_reg, 9 x 64 b = 72 B max"| HRING
+    OPEN -->|"payload written at page OFFSET 0"| PG0
+    MORE -->|"HS_PGSWAP — JIT page pop at each PGSZ crossing"| PG1
+    V2 -.->|"hdr_idx selects the slot"| HRING
+    V3A -.->|"w1 addresses"| PG0
+    V3B -.->|"w1 addresses"| PG1
+```
+
+`PGSZ` is the elaborated `hs_page_bytes`: 4096 as originally designed, 16384 in
+the records keeper (§build_hsq10). The bit positions above are the same ones the
+BD table below states normatively.
+
 - **Payload**: driver posts order-0 4 KB pages (same RING_POST FIFO). An aggregate
   concatenates TCP payload tightly across pages: page k holds payload bytes
   [4096k, 4096(k+1)). Pages pop **just-in-time at each 4 KB crossing**  -  the AW/W
@@ -47,6 +83,46 @@ measured enabler: batched PTE moves 1.22 µs/page vs 26.3 µs copy (21.5×). Tar
   v3(tag) BDs (interleaved with other tags) → attach full-4K frags (tail partial);
   countdown → `napi_gro_receive`. hdrlen = 34 + 4*doff (ihl=5 enforced by parser).
 - Famine mid-aggregate (no page at crossing): close with what's written (psh=0).
+
+End to end, **which copy disappeared?** Not the driver's header copy  -  that one
+is new (~54 B out of the ring slot). What goes away is the *payload* ever being
+touched by the split, and what changes is where the socket-read copy starts
+reading from:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant MAC as MAC RX
+    participant W as RingDMAWriter
+    participant M as DRAM
+    participant D as kl-eth NAPI
+    participant S as socket read
+
+    Note over MAC,S: hs_en = 0 — legacy v1 single, one page per frame
+    MAC->>W: frame
+    W->>M: whole frame at page offset 0, headers in front
+    D->>M: reap v1 BD, build the skb over that page
+    D->>S: napi_gro_receive
+    S->>M: copy_to_user reads payload at offset 34 + 4*doff — MISALIGNED vs dst
+
+    Note over MAC,S: hs_en = 1 — header split
+    MAC->>W: opener frame
+    W->>M: hdr_reg burst into hdr_ring slot hdr_idx
+    W->>M: payload at page offset 0
+    MAC->>W: merged segments
+    W->>M: payload continues, next page popped at each crossing
+    D->>M: reap v2 meta — alloc skb, memcpy ~54 B header from the ring slot
+    D->>M: reap v3 pages — attach each as a full frag, NO payload copy
+    D->>S: napi_gro_receive with gso from mss and segs
+    S->>M: copy_to_user src is page offset 0 — co-aligned, 64 B unrolled loop
+    Note over S,M: or no copy at all: a full order-0 offset-0 page is<br/>exactly what tcp_zerocopy_receive can_map_frag accepts
+```
+
+The last two lines are the two payoffs the campaign then had to choose between:
+the **aligned copy** (measured 2–3× the misaligned baseline, and the faster of
+the two on this core) and the **page flip** (measured 86.5 % zero-copied, but
+44.9 µs/page vs 25 µs to copy). Both sections below revisit that trade with
+silicon numbers.
 
 ## Driver (kl-eth `hsplit` mode, module param; legacy default intact)
 
@@ -427,6 +503,34 @@ is pop-ordered, so the undone meta at the head **blocks every completed page
 v3 behind it** until close. The driver (hsplit9..13) builds the header skb from
 the meta then attaches v3 frags: meta-then-pages is the ABI today.
 
+**Why the meta had to move from the head of the CQ to its tail** — the drain is
+pop-ordered, so whichever entry is allocated first is the one everything else
+queues behind, and an entry that only becomes `done` at close is a hold on the
+entire aggregate:
+
+```mermaid
+flowchart TB
+    subgraph PRE["pre-hsq12 — the opener allocates the meta FIRST"]
+        direction TB
+        PM["CQ head: v2 meta<br/>done = 0 until close"]
+        PP0["v3 page 0 — done at page completion"]
+        PP1["v3 page 1 — done at page completion"]
+        PM --> PP0 --> PP1
+        PM -.->|"pop-ordered drain stops HERE"| PSTALL["finished pages wait for the CLOSE<br/>effective hold = PAYCAP fill, ~4.8 ms<br/>so ACKs wait too"]
+    end
+
+    subgraph CT["hsq12 — the opener allocates only the PAGE; meta allocs at CLOSE"]
+        direction TB
+        CP0["CQ head: v3 page 0<br/>done at page completion"]
+        CP1["v3 page 1 — done at page completion"]
+        CM["v2 meta — allocated AND filled at close"]
+        CP0 --> CP1 --> CM
+        CP0 -.->|"drains the moment the page fills"| CGO["page delivered at once<br/>effective hold = page fill, ~1.3 ms at 16K<br/>the meta only finalizes"]
+    end
+
+    PRE ~~~ CT
+```
+
 ### hsq12 RTL changes (RingDMAWriter)
 
 1. **Opener allocates ONE entry** (the first page). Delete `cur_cqm` staging and
@@ -505,3 +609,27 @@ Cut-through took the **single-flow record: 329 (hsq12 + hsplit14)** but lost mul
 to the hsq10 keeper (staircase granularity + per-unit cost); the parked follow-ups are
 8 K pages or chunk batching in the v3 handler. Delivery generations + records table:
 [`PIPELINE_STAGES.md`](PIPELINE_STAGES.md) (stages R7/R8).
+
+## The ladder in one grid
+
+Each section above reports its own cells; this collects them so the shape of the
+campaign is visible at a glance. Every figure is quoted from the section that
+measured it — blanks are values that section never took, not zeros. (What each
+`hsqN`/`hsplitN` *means*, and the strict gateware↔driver pairings, are the
+lineage table in [`PIPELINE_STAGES.md`](PIPELINE_STAGES.md); this grid is the
+throughput ladder that table does not carry.)
+
+| build | q | page | WNS | single / −P1 | −P2 | −P4 | −P8 | the change that moved it |
+|---|:--:|:--:|---|---|---|---|---|---|
+| hsq4 | 1 | 4K | +0.224 | 312.8 cell, 333–348 steady | – | collapse | – | q0 `cq_depth` 8→32 + the `s_cq` width relic |
+| hsq5 | 1 | 4K | +0.132 | 308 | – | 217 (4/4 flows live) | 181–216 | v3 targets `cq_of_sel`: the multi-flow livelock |
+| hsq6 | 1 | 4K | +0.243 | 312 | – | **295** | **240** | `bd_room` gates the drain — desyncs 12+/cell → **0** |
+| hsq7 | 1 | 4K | +0.028 | 312 | – | 277 / 289 | – | CQ array → 128-bit LUTRAM memory, −4866 LUTs |
+| hsq7t | 2 | 4K | +0.028 | – | – | – | – | area proof only: the 2-queue shape **fits** at 99.40 % slices |
+| hsq8 | 2 | 4K | +0.139 | 285 | 306 | ~265 | 244 | dual-queue hs live, 0 desyncs all night; inverse scaling |
+| hsq9 | 2 | 4K | +0.141 | 285 | 306 | ~265 | 244 | META-at-head pressure fix — correct in sim, **inert** on silicon |
+| hsq10 | 2 | **16K** | – | – | drops 28→5/s | **381 steady, 374 over a 120 s soak** | 330–352 | page size 4K→16K: the famine breaks, scaling turns positive (P6 353) |
+| hsq12 | – | 16K | – | **329 — single-flow record** | – | – | – | cut-through CQ ordering; loses multi-flow back to hsq10 |
+
+Read the column, not the row: single-flow peaked at hsq4/hsq12 and multi-flow at
+hsq10, and no build has ever held both.

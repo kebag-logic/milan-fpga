@@ -27,9 +27,50 @@ repo's minimal headless renderer
 | `wd_gptp_pdelay` | Chronogram: gPTP peer delay (t1–t4, the meanLinkDelay annotation) + Sync/Follow_Up cadence with the PHC latch points (SOP latch, TLAST qualify, event messages only) | `wd_gptp_pdelay.json` (same regen pattern) | `.svg` / `.png` | [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §2.2 |
 | `wd_cbs_credit` | Chronogram: CBS credit evolution — idleSlope accrual, sendSlope drain, hiCredit/loCredit clamps, back-pressure accrual, the credit ≥ 0 transmit gate | `wd_cbs_credit.json` (same regen pattern) | `.svg` / `.png` | [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md) TX stage T3 |
 | `wd_ring_pointers` | Chronogram: the RX ring DMA contract — bursts, wr_ptr commit-after-B, rd_ptr consumer walk, the counted whole-frame drop with pointers untouched | `wd_ring_pointers.json` (same regen pattern) | `.svg` / `.png` | [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md) stage R5 |
+| `wd_linkguard_reset` | Chronogram: the link-guard episode — RUN → HOLD → SETTLE → RUN, and the **sequenced** release (`eth_rst_o` at settle/2, `guard_rst_o` at settle) that restarts both CDC pointer sets matched | `wd_linkguard_reset.json` (same regen pattern) | `.svg` / `.png` | [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) link-guard group |
+| `egress_queue_map` | **Derived from the RTL.** The egress queue map: the strict-priority ladder, which classes CBS may shape, the reset slopes/credits, the tagged (PCP-table) and untagged (reserved-DMAC) classification paths, and the gPTP-below-the-shaped-classes constraint | `egress_queue_map.gen.py` → `.drawio`; **parses** `hdl/common/ethernet_packet_pkg.sv` (`NUMBER_OF_QUEUES`, `network_priority_t`, `priority_encode`, `IDLE_SLOPE_*`), `hdl/common/csr/milan_csr.sv` (`CBS_HI/LO/EN_RST`, `cls_tcq` reset) and `hdl/ieee8021q/ts/traffic_class_map.sv` (`CTRL_DMAC_TBL`) | `.svg` / `.png` (rsvg-convert) | [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md) |
+| `flash_layout` | **Derived from the SoC.** The QSPI flash map drawn to scale: every slot, its DRAM target, its manifest membership, the writable slots a reflash must never erase, and the map-consistency verdict | `flash_layout.gen.py` → `.drawio`; reads `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` from `sw/litex/milan_soc.py` through `sw/dts/gen_mtd_partitions.py`'s `load_map()` — the same reader the kernel's `fixed-partitions` node comes from | `.svg` / `.png` (rsvg-convert) | [`../integration/QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md), [`../litex/LITEX_SOC.md`](../litex/LITEX_SOC.md) §2.6 |
+| `nxn_window_map` | **Derived from the configs + RTL.** The `0x800` window row map per shipping shape: listener `k` → row `k`, talker `t` → row `(L-1)+t`, with the old `max(L,T)` boundary marked — the geometry of a bug that shipped | `nxn_window_map.gen.py` → `.drawio`; reads `L`/`T` from every `configs/endstation_*.yaml` and **asserts** `SRP_CTX_ROWS_C = 2*N_STREAMS-1` (`hdl/milan/milan_datapath.sv`) and `ctx_rows_required = L+T-1` + `SRP_CTX_IDX_BITS` (`sw/builder/endstation_builder.py`) still hold | `.svg` / `.png` (rsvg-convert) | [`../NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md) §3.4.1 |
+| `cdc_census` | **Derived from the RTL + the SoC.** Every clock-domain crossing in the design: which primitive implements it, which module owns it, and the two clock nets its own port map connects — plus the SoC-generated `sys ⇄ cd_milan` set | `cdc_census.gen.py` → `.drawio`; parses every `cdc_pulse`/`cdc_handshake`/`cdc_pair_fifo`/`ptp_csr_sync` instantiation under `hdl/` and every `_axis_dp_cdc`/`AXILiteClockDomainCrossing`/`MultiReg` call site in `sw/litex/milan_soc.py`. **Refuses to emit** when a primitive's clock ports move rather than drawing a `?` | `.svg` / `.png` (rsvg-convert) | [`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md) §5 |
 
 `svglib.py` is the tiny shared SVG builder the three `diag_*.py` perf
 scripts import (no external deps).
+
+## Derived diagrams — the rule
+
+The three rows marked **Derived** above take *no* facts from prose. They parse
+the RTL / SoC / config that defines the thing they draw, and each one **raises
+rather than emitting a stale picture** when the shape it reads has moved. That
+is deliberate: a hand-drawn picture of generated data is a future
+contradiction, and this repo has already shipped one (the `max(L,T)` attribute
+table). Prefer this form for anything whose content already exists in the tree —
+the queue map, the flash map, the window geometry, the module matrix. If you
+find yourself typing an address, a slope or a row index into a diagram, stop
+and read it from the source instead.
+
+Reflow is part of the contract: `egress_queue_map.gen.py` was verified against a
+scratch tree with `NUMBER_OF_QUEUES` reduced to 5 and the spare queue dropped —
+the ladder renumbers, the CBS bracket follows the SR classes, ranks renumber and
+a `CLS_TC_QUEUE_MAP` entry that no longer names a real queue is drawn as the
+`q0` clamp it becomes. No hand-editing was needed.
+
+## Inline mermaid — the default for everything else
+
+Flowcharts, state machines, sequence diagrams and simple bar charts belong
+**inline in the markdown** as ```` ```mermaid ```` blocks: they render on GitHub,
+cost no build step and no committed binary, and diff as text. There is no local
+mermaid CLI in this environment, so the way to *prove* a block renders is to
+push it through a mermaid renderer and check the status — an invalid graph is
+rejected, it does not degrade gracefully. Two traps that have each cost a
+silently-broken diagram here:
+
+* **a trailing space after a `subgraph X["…"]` line** — shipped once, in
+  [`../SYSTEMS_ENGINEER_GUIDE.md`](../SYSTEMS_ENGINEER_GUIDE.md), where the
+  first diagram of a top-level entry-point document had never rendered;
+* **a `;` inside `sequenceDiagram` message text** — parsed as a statement
+  separator; use a comma.
+
+Also quote any label containing `(`, `[` or `,`.
 
 ## Reproducibility audit (2026-07-26)
 

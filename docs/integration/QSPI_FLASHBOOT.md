@@ -1,5 +1,26 @@
 # QSPI flash-boot  -  skip the multi-minute serial upload
 
+## The device at a glance
+
+![QSPI flash map](../diagrams/flash_layout.svg)
+
+*What is at which offset, how much of the device each slot actually costs, and
+which slots a reflash must never erase* — drawn **to scale**, and **generated**
+by [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) from the one source
+of truth (`FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`),
+read through the very same `load_map()` that emits the kernel's
+`fixed-partitions` node. The map, the device tree and this picture move
+together or not at all. Regenerate with:
+
+```
+python3 docs/diagrams/flash_layout.gen.py docs/diagrams/flash_layout
+rsvg-convert -w 1800 docs/diagrams/flash_layout.svg -o docs/diagrams/flash_layout.png
+```
+
+The generator also re-runs the map consistency check (overlap / erase-block
+alignment / past-the-device) and prints the verdict on the drawing, so a broken
+map is visible in the picture rather than only at flash time.
+
 ## Layout "full" — THE DEPLOYED TRUTH (2026-07-24, silicon-verified end-to-end)
 
 The layout of record is the `--flashboot full` manifest baked into the
@@ -12,7 +33,16 @@ build's own copy; offsets below are the current AX/Arty builds'):
 | kernel    | `0x40_0000` | 3 MiB     | 2.52 MB             | Image.xz (`xz -9 --check=crc32`); BIOS xz_embedded decodes → DRAM |
 | opensbi   | `0x70_0000` | 384 KiB   | 266,824 B           | fw_jump → 0x40F0_0000. **CARRIES THE KERNEL'S DTB (FW_FDT_PATH embed)** — see the decoy warning below |
 | dtb       | `0x76_0000` | 128 KiB   | ~3 KB               | **A DECOY for the kernel**: the BIOS copies it, but the kernel boots on the *OpenSBI-embedded* FDT. Changing the DTB = rebuild opensbi (`fpga/boot/build_opensbi.sh`, always-clean rule) + flash the OPENSBI slot. Keep this slot in sync anyway (safety copy). |
-| rootfs    | `0x78_0000` | 8.5 MiB   | 8,898,244 B (**14.6 KB headroom**) | rootfs.cpio + `xz -9 -e --check=crc32` **by hand** (NOT a buildroot target in this output tree: `rm images/rootfs.cpio*; make rootfs-cpio; xz …`) |
+| rootfs    | `0x78_0000` | **6.375 MiB** (was 8.5 MiB) | 8,898,244 B was the **2026-07-24** image, i.e. BEFORE the v4 shrink | rootfs.cpio + `xz -9 -e --check=crc32` **by hand** (NOT a buildroot target in this output tree: `rm images/rootfs.cpio*; make rootfs-cpio; xz …`) |
+
+> **The budget column above is a snapshot; the picture is the source.** The v4
+> map (2026-07-26) shrank `rootfs` from 8.5 MiB to `0x66_0000` = 6.375 MiB to
+> make room for the `journal` and `user` slots, and the measured image in the
+> "measured" column predates that change — an 8.49 MiB rootfs would no longer
+> fit. `sw/litex/milan_soc.py` records 5.6 MiB for the current image, leaving
+> ~0.775 MiB of slack. Read the live budget off the generated map above (or off
+> the build's own `flashboot_layout.json`), and read the pre-flash size line
+> `deploy.sh flash-images` prints before it writes anything.
 
 All Linux images are FBI-wrapped (`python -m litex.soc.software.crcfbigen
 <img> -f -l`) then written raw at their offsets
