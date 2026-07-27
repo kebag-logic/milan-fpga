@@ -551,7 +551,13 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       retire the workaround and re-read the chain with clean `max` fields. Until
       that flash, a board at `0x000B` must still explicitly stage the sid at
       idx 0 before committing `CTRL`.
-- [ ] **L — `LPF_P = 0` elaboration-time prune** for `KL_pcm_lpf` — a banked
-      area lever (428 LUT / 756 FF measured), to be spent only after the
-      ranked levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)
-      §6.2, never as a first response to a placement failure.
+- [x] **L — `LPF_P = 0` elaboration-time prune** for `KL_pcm_lpf` — wired
+      2026-07-27 (`milan_datapath LPF_P`, default 1 = filter PRESENT;
+      `milan_soc.py --no-render-lpf`) and **spent on `ax7101`**, declared once
+      in `board.constraints.render_lpf` and gated by
+      `scripts/check_sweep_shape.py`. 428 LUT / 756 FF from the shipping place
+      report ≈ 109 slices — the only Vivado-proven figure of the area round.
+      `arty` keeps the filter. The analog loop THD+N record was measured
+      THROUGH the filter and must be re-measured before it is quoted against
+      an `ax7101` bitstream built after this date; see
+      [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md) §6.2/§6.3.

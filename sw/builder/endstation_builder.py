@@ -1544,6 +1544,10 @@ def load_config(path):
                             "board.constraints.hs_page_bytes"),
         strip_probes=bool(c.get("strip_probes", True)),
         eth_port=c.get("eth_port"),
+        # milan_datapath LPF_P (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
+        # render-tap Butterworth is PRESENT unless a config prunes it, so
+        # omitting the key leaves every existing argv byte-identical.
+        render_lpf=bool(c.get("render_lpf", True)),
     )
     if cons["phy"] != binfo["phy"]:
         raise ConfigError(f"board.constraints.phy '{cons['phy']}' contradicts "
@@ -1824,6 +1828,11 @@ def emit_board_opts(cfg):
         opts += ["--floorplan"]
     if c["eth_port"]:
         opts += ["--eth-port", c["eth_port"]]
+    # AREA lever, board-level because fit is a board property: emitted ONLY
+    # when the filter is pruned, so a config that says nothing produces the
+    # same bytes it always did (the AAF_PLAYBACK_P discipline).
+    if not c["render_lpf"]:
+        opts += ["--no-render-lpf"]
     return opts
 
 

@@ -154,11 +154,20 @@ estimates, both anchored on real Vivado reports:
 So the **estimated** recovery is somewhere in **≈ 147 … 314 slices against 282
 required**, and the estimate anchored on real Vivado numbers sits at the
 *bottom* of that range. **Five queues on their own must not be assumed to
-place.** The next banked lever is `LPF_P = 0` (**428 LUT / 756 FF**, measured
-2026-07-26 from the shipping 8×8 place report,
-[NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §6.2); it is *not* spent here, and
-whoever runs the build should expect to need it, or one of the §6 levers above
-it.
+place.**
+
+**Both follow-on levers have since been spent (2026-07-27,
+[NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §6.3), so the 5-queue map no
+longer stands alone.** `LPF_P = 0` (**428 LUT / 756 FF ≈ 109 slices**, the
+shipping 8×8 place report's own row) is now declared in
+`board.constraints.render_lpf` of the `ax7101` config and rides `sweep.sh`
+and `build.sh cfg_ax8x8`; four logic levers in `KL_chan_map_render`,
+`KL_lwsrp_walker` and the two ACMP context engines add an **estimated
+383 … 877 slices** on top. The ladder — 282 over, −147 for the queue,
+−109 for the filter, −383…877 for the logic — leaves **357 … 851 slices of
+estimated margin**. That is an estimate, not a placement; the caveats in
+*What is not verified* below still apply in full, and a build is still the
+only thing that settles it.
 
 ### What is not verified
 
@@ -167,9 +176,9 @@ Stated plainly, because the numbers above are easy to over-read:
 * **No Vivado run.** Nothing here was synthesised, placed or routed by Vivado
   for the 5-queue map. The slice figures are converted from yosys cell counts
   or inferred from two earlier Vivado reports. **A 55-minute build is the only
-  thing that settles whether this places**, and if it does not, the shortfall
-  will be small — plan to spend `LPF_P = 0` in the same attempt rather than
-  burning a second build.
+  thing that settles whether this places.** `LPF_P = 0` and the four logic
+  levers of §6.3 are already in the shipping argv, so that build is the one to
+  run — there is no second lever left to hold back for a retry.
 * **The two Vivado reports being differenced are not the same design.** The
   shipping 8×8 place report is a 4-queue build; the failing report is a
   6-queue build that also added the DMAC control table, the out-of-range clamp

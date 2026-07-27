@@ -78,7 +78,7 @@ def _yaml():
 
 
 def config_shape(path):
-    """(board, num_streams, rx_queues, l2_bytes) implied by an end-station config.
+    """(board, num_streams, rx_queues, l2_bytes, render_lpf) implied by a config.
 
     num_streams == milan_datapath N_STREAMS == the WIDER of the two stream
     directions, exactly as sw/builder/endstation_builder.emit_soc_argv computes
@@ -93,8 +93,16 @@ def config_shape(path):
     s = cfg.get("streams") or {}
     n_streams = max(len(s.get("listeners") or []), len(s.get("talkers") or []))
     c = (cfg.get("board") or {}).get("constraints") or {}
+    # render_lpf is the milan_datapath LPF_P area lever
+    # (docs/NXN_ARCHITECTURE.md 6.2/6.3). Absent = filter PRESENT, which is
+    # what every config said before 2026-07-27, so the default keeps old
+    # configs byte-identical. It is gated here for the same reason
+    # --eth-port and --rx-queues are: it changes the BITSTREAM, one board at
+    # a time, and a silent divergence between build.sh and sweep.sh is how
+    # this project has lost builds twice.
     return (cfg["board"]["target"], n_streams,
-            int(c["rx_queues"]), int(c["l2_bytes"]))
+            int(c["rx_queues"]), int(c["l2_bytes"]),
+            bool(c.get("render_lpf", True)))
 
 
 def parse_sweep(path=SWEEP):
@@ -124,9 +132,9 @@ def parse_sweep(path=SWEEP):
     return boards
 
 
-def compare(board, cfg_path, ns, rxq, l2, where):
+def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
     """One board's effective shape vs its config. Returns a list of problems."""
-    c_board, c_ns, c_rxq, c_l2 = config_shape(cfg_path)
+    c_board, c_ns, c_rxq, c_l2, c_lpf = config_shape(cfg_path)
     bad = []
     if c_board != board:
         bad.append(f"config board {c_board!r} != sweep board {board!r}")
@@ -139,13 +147,18 @@ def compare(board, cfg_path, ns, rxq, l2, where):
                    "(CSR-rot rule: shifts every DMA window under the DTB)")
     if c_l2 != l2:
         bad.append(f"--l2-bytes {l2} != config l2_bytes {c_l2}")
+    lpf = "--no-render-lpf" not in opts
+    if c_lpf != lpf:
+        bad.append(f"--no-render-lpf {'absent' if lpf else 'present'} != "
+                   f"config render_lpf {c_lpf} - the LPF_P area lever must be "
+                   "spent (or not) in exactly one place per board")
     if bad:
         print(f"SHAPE DRIFT [{where}] {board} vs {cfg_path}:", file=sys.stderr)
         for b in bad:
             print(f"  - {b}", file=sys.stderr)
     else:
         print(f"  [sweep-shape] {board}: num-streams {ns}, rx-queues {rxq}, "
-              f"l2 {l2} == {os.path.basename(cfg_path)}")
+              f"l2 {l2}, render-lpf {lpf} == {os.path.basename(cfg_path)}")
     return bad
 
 
@@ -195,11 +208,13 @@ def check_build_sh(path=BUILD):
             bad.append(f"build.sh has no cfg_{name}")
             continue
         f = recipes[name]
-        _b, c_ns, c_rxq, c_l2 = config_shape(cfg_path)
+        _b, c_ns, c_rxq, c_l2, c_lpf = config_shape(cfg_path)
         got = {"num_streams": int(f.get("--num-streams", 1)),
                "rx_queues":   int(f["--rx-queues"]),
-               "l2_bytes":    int(f["--l2-bytes"])}
-        want = {"num_streams": c_ns, "rx_queues": c_rxq, "l2_bytes": c_l2}
+               "l2_bytes":    int(f["--l2-bytes"]),
+               "render_lpf":  "--no-render-lpf" not in f}
+        want = {"num_streams": c_ns, "rx_queues": c_rxq, "l2_bytes": c_l2,
+                "render_lpf": c_lpf}
         for k in sorted(got):
             pin = PINNED.get(("build.sh", name, k))
             if pin is not None:
@@ -228,7 +243,7 @@ def run_static(sweep_path=SWEEP, quiet=False):
     bad = []
     for board, v in sorted(boards.items()):
         bad += compare(board, v["cfg"], v["ns"], v["rxq"], v["l2"],
-                       os.path.basename(sweep_path))
+                       os.path.basename(sweep_path), opts=v["opts"])
         frag_ns = check_fragment(board)
         if frag_ns is not None and frag_ns != v["ns"]:
             msg = (f"{board}: generated fragment pins NS={frag_ns} but "

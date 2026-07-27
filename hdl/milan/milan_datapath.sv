@@ -52,7 +52,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! pair source) and let it drive the packetizer in place of the ADC capture
   //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
   //! the datapath is byte-identical to the pre-item-7 shape.
-  parameter int AAF_PLAYBACK_P = 0
+  parameter int AAF_PLAYBACK_P = 0,
+  //! BANKED AREA LEVER (NXN_ARCHITECTURE section 6.2): 1 (default) keeps the
+  //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
+  //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
+  //! a pruned build behaves like a shipped build with the filter switched
+  //! off - no new state, no new behaviour. Priced from the shipping place
+  //! report at 428 LUT / 756 FF / 0 DSP; spend it only when space-bound, and
+  //! remember the -72.7 dB analog loop record was measured THROUGH the
+  //! filter, so a pruned bitstream is not the one that number belongs to.
+  parameter int LPF_P = 1
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -2276,17 +2285,28 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! loop ADC. LPF_CTRL 0x72C[0], default on; auto-bypass for !=2ch.
   //! render tap = the route policy's RENDER stream share of the ring
   //! handshake (bit-identical to the flat m_axis_pcm tap at N=1)
-  KL_pcm_lpf pcm_lpf (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .enable_i (cfg_lpf_enable),
-    .chans_i  ({2'b0, mon_wire_chans_w}),   //! wire truth (2ch engages)
-    .s_tdata  (rend_pcm_tdata_w),
-    .s_tvalid (rend_pcm_tvalid_w),
-    .s_tready (m_axis_pcm_tready),
-    .m_tdata  (pcm_lpf_tdata),
-    .m_tvalid (pcm_lpf_tvalid),
-    .active_o (pcm_lpf_active)
-  );
+  //! LPF_P = 0 prunes the filter (see the parameter's note). The tie-off is
+  //! the runtime-bypass state, term by term: active_o = 0 makes
+  //! KL_i2s_playback take the RAW AXIS path, and m_tvalid = 0 means the
+  //! lpf_tdata port it then ignores never strobes - exactly what
+  //! LPF_CTRL[0] = 0 produces today.
+  generate if (LPF_P != 0) begin : g_pcm_lpf
+    KL_pcm_lpf pcm_lpf (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .enable_i (cfg_lpf_enable),
+      .chans_i  ({2'b0, mon_wire_chans_w}),   //! wire truth (2ch engages)
+      .s_tdata  (rend_pcm_tdata_w),
+      .s_tvalid (rend_pcm_tvalid_w),
+      .s_tready (m_axis_pcm_tready),
+      .m_tdata  (pcm_lpf_tdata),
+      .m_tvalid (pcm_lpf_tvalid),
+      .active_o (pcm_lpf_active)
+    );
+  end else begin : g_no_pcm_lpf
+    assign pcm_lpf_tdata  = 64'd0;
+    assign pcm_lpf_tvalid = 1'b0;
+    assign pcm_lpf_active = 1'b0;
+  end endgenerate
 
   //! item-7 DAC feed selector (KL_i2s_feed_mux, instanced with the render
   //! fabric below - nets resolve module-wide): CHMAP_CTRL[0]=0 passes the

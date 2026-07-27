@@ -66,3 +66,59 @@ the array.
   targets — `make ecp5` maps e.g. `tcam`→~1.7 k `TRELLIS_FF`, `milan_csr`→~2.2 k.
 - `axis_fifo`'s large cell count is its default `DEPTH=4096` RAM; instances in the
   design set a small depth.
+
+## `ooc.sh` — AREA measurement (a different question from `run.sh`)
+
+`run.sh` answers *"does this map to generic logic"* and gates on it.
+`ooc.sh` answers *"what does it cost"*, which is the only number an area
+lever may be judged on:
+
+```sh
+./ooc.sh                      # every top in its AREA list
+./ooc.sh KL_chan_map_render   # just these
+OOC_CHPARAM="N_STREAMS=8 AUDIO_IF_SLOTS_P=16" ./ooc.sh milan_datapath
+OOC_TMP=/some/dir ./ooc.sh …  # keep the .v / .log / .json artefacts
+```
+
+It runs `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat` and reports
+`LUT1..6`, `FD[CPRS]E?`, `RAMB36E1`, `RAMB18E1`, `DSP48E1`.
+
+Two traps this exists to avoid:
+
+- **`-flatten` is not optional.** A hierarchical synth's `stat` counts
+  *top-level* cells only, so a lever inside a submodule reads as exactly
+  zero — which looks like a clean "no regression" and is not.
+- **The SV defaults are not the ship shape.** `milan_datapath` defaults
+  `N_STREAMS = 1`, which constant-folds the NxN engines away; measuring
+  there reads as a free win. Use `OOC_CHPARAM`, or force the parameter
+  defaults in a scratch copy of `hdl/` when `chparam` cannot re-elaborate
+  the `sv2v` output (it cannot, for the interface-carrying tops).
+
+**These are estimates, not Artix LUT6 counts.** The yosys→Vivado LUT ratio
+measured against this tree's own two Vivado anchors is **0.31 … 0.71** —
+see [NXN_ARCHITECTURE](../../docs/NXN_ARCHITECTURE.md) section 6.3. Quote a
+band, never a single figure, and never call an `ooc.sh` number a placement
+result. **Flip-flops are the exception**: they convert one-for-one (the
+`KL_pcm_lpf` row is 756 FF in both toolchains), which makes an FF count the
+best available sanity check on an estimate.
+
+**Run the hierarchical instrument too, and say so when they disagree.** The
+same sources with **no** `-flatten` and `stat -top <mod>` sum each submodule
+into its parent: no cross-boundary optimisation, so absolute numbers are
+high, but the hierarchy survives and per-block attribution is possible
+(`abc` renames every cell in a flattened netlist, so nothing there can be
+traced back). The two instruments agreed within 11 % on the 2026-07-27 logic
+levers and disagreed 8× on the LPF prune; the hierarchical one was believed,
+because it reproduces the place report's FF and DSP columns exactly. When
+they disagree, prefer the instrument that reproduces a known Vivado row.
+
+**Control sets are NOT measurable here.** A yosys proxy was tried and
+discarded: counting `(clock, enable, set/reset)` triples over the `FD*` cells
+of the flattened netlist reports **18 691** sets for `milan_datapath`'s
+24 002 flops, against Vivado's **1 612** for the whole 56 k-flop design —
+yosys keeps a private enable net per flop and never merges them the way
+Vivado's `opt_design` does, so the proxy is ~12x wrong and its *delta* is
+meaningless too. Use the build's own `report_control_sets` output
+(`<board>_control_sets.rpt`), whose summary line
+"Unused register locations in slices containing registers" is the actual
+packing loss.

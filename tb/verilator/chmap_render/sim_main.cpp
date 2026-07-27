@@ -287,6 +287,113 @@ int main(int argc, char** argv) {
   ck("pb.disarmed renders 0", phys(0), 0);
   ck("pb.disarmed clears pb_mask bit", dut->pb_mask_o & 1, 0);
 
+  // ================================================================
+  // Phase 8: SAME-CYCLE map write + latch write to the address that map
+  //   write is pointing at. The render keeps, per phys channel, the value
+  //   of the entry its map word addresses (the 07-27 area round replaced
+  //   N_PHYS_P independent 80:1 muxes with one shared read plus write-side
+  //   tracking). The shared read returns the entry as it stands BEFORE the
+  //   edge, so if a sample for the newly-mapped address lands on that very
+  //   edge the tracker must take the sample, not the stale read - i.e. the
+  //   write-match has to be tested against the INCOMING map word.
+  //   The old muxes got this for free (they re-selected at the tick, long
+  //   after both writes had settled), so nothing in Phases 1-7 covers it.
+  // ================================================================
+  {
+    drive_frame(1, 8, 0xD00);            // cur[1][0] = value(1,0,0xD05)
+    wr_map(0, 1, 0, 0);                  // phys0 <- stream0 ch0 for now
+    do_tick();
+    ck("same.baseline s0c0", phys(0), value(0, 0, 0xC05));
+
+    // ONE beat carrying stream1 ch0/ch1 with tag 0xE00, on the SAME edge as
+    // the map write that repoints phys0 at stream1 ch0.
+    dut->s_tdata_i  = beat(value(1, 0, 0xE00), 0xAA, value(1, 1, 0xE00), 0x55);
+    dut->s_tvalid_i = 1; dut->s_tuser_i = 1; dut->s_tlast_i = 1;
+    dut->map_wr_en_i   = 1;
+    dut->map_wr_addr_i = 0;
+    dut->map_wr_data_i = (1 << 7) | (1 << 3) | 0;   // en, src=AVB, s1 c0
+    step();
+    dut->s_tvalid_i = 0; dut->s_tlast_i = 0; dut->map_wr_en_i = 0;
+
+    do_tick();
+    ck("same.map+latch takes the NEW sample", phys(0), value(1, 0, 0xE00));
+
+    // and the ordinary (no collision) repoint still shows the value that was
+    // already latched, which is what makes the check above specific
+    wr_map(1, 1, 1, 1);
+    do_tick();
+    ck("same.plain repoint sees latched", phys(1), value(1, 1, 0xE00));
+  }
+
+  // ================================================================
+  // Phase 9: EACH AVB write-match arm of the source tracker, ON ITS OWN.
+  //   A beat carries two samples, and the two land on DIFFERENT arms of
+  //   the tracker's priority chain - the even wire lane through smp0_w,
+  //   the odd one through smp1_w. Phase 8 only ever repoints at an EVEN
+  //   channel, so a build that dropped the smp1_w arm entirely still
+  //   passed every check in this suite (mutation-found 2026-07-27): the
+  //   odd-lane phys keeps rendering its LAST value forever, which reads
+  //   as a plausible steady signal rather than as a failure.
+  //   The playback L/R arms are already pinned by pb.after_tick /
+  //   pb.after_tick R above; these two are the AVB pair.
+  // ================================================================
+  {
+    // phys0 -> stream1 ch0 (even lane), phys1 -> stream1 ch1 (odd lane),
+    // both left mapped by Phase 8. One fresh frame must move BOTH.
+    drive_frame(1, 8, 0xF00);
+    do_tick();
+    ck("arm.even lane (smp0) tracks", phys(0), value(1, 0, 0xF05));
+    ck("arm.odd  lane (smp1) tracks", phys(1), value(1, 1, 0xF05));
+
+    // and again with a different tag, so neither can be a value that was
+    // merely re-seeded by the shared read at map-write time
+    drive_frame(1, 8, 0x100);
+    do_tick();
+    ck("arm.even lane moves again", phys(0), value(1, 0, 0x105));
+    ck("arm.odd  lane moves again", phys(1), value(1, 1, 0x105));
+  }
+
+  // ================================================================
+  // Phase 10: VIRTUAL wire channels (>= N_CH_P) are walked but never
+  //   latched - and must not update the source tracker either. Nothing in
+  //   Phases 1-9 declares more than 8 wire channels, so BOTH the latch's
+  //   own guard (line "wire channels beyond N_CH_P are virtual") and the
+  //   tracker's mirror of it were unpinned: dropping either one let ch8/ch9
+  //   alias onto ch0/ch1 (the address takes ch[2:0]) and quietly overwrite
+  //   a real mapped output with a channel that was never stored
+  //   (mutation-found 2026-07-27).
+  //   Stream 5 declares 12 wire channels; ch8..11 are virtual. Within the
+  //   frame ch8/ch9 are transmitted AFTER ch0/ch1 in every 12-sample round,
+  //   so an aliasing build ends the frame holding the virtual sample and
+  //   the check is decisive rather than order-lucky.
+  // ================================================================
+  {
+    int c12[8] = {2, 8, 2, 3, 2, 12, 2, 2};
+    set_chans(c12);
+    wr_map(0, 1, 5, 0);                 // phys0 <- stream5 ch0 (even lane)
+    wr_map(1, 1, 5, 1);                 // phys1 <- stream5 ch1 (odd lane)
+    drive_frame(5, 12, 0x300);
+    do_tick();
+    ck("virt.ch0 not clobbered by ch8", phys(0), value(5, 0, 0x305));
+    ck("virt.ch1 not clobbered by ch9", phys(1), value(5, 1, 0x305));
+    // a REAL high channel of the same stream still routes (7 < N_CH_P), so
+    // the guard cannot have been implemented as "drop everything above 0"
+    wr_map(2, 1, 5, 7);
+    do_tick();
+    ck("virt.real ch7 still routes", phys(2), value(5, 7, 0x305));
+    // The SEED path is a second, independent reader of the same guard: a map
+    // write AFTER the frame re-reads the latch instead of tracking writes, so
+    // these two catch a latch that stored the virtual channel even when the
+    // tracker refused it (the checks above alone do not - mutation-found).
+    wr_map(3, 1, 5, 0);
+    wr_map(4, 1, 5, 1);
+    do_tick();
+    ck("virt.seed ch0 reads clean latch", phys(3), value(5, 0, 0x305));
+    ck("virt.seed ch1 reads clean latch", phys(4), value(5, 1, 0x305));
+    int c8[8] = {2, 8, 2, 3, 2, 2, 2, 2};
+    set_chans(c8);
+  }
+
   printf("%ld checks, %ld failures, RESULT: %s\n", checks, fails,
          fails ? "FAIL" : "PASS");
   delete dut;
