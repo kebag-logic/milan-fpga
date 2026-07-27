@@ -1,0 +1,258 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Per-page annotated table of contents: generate, refresh, and gate.
+
+Why this exists. The corpus is 157 pages and 885 sections, several pages past
+600 lines. Landing on one of them gives a reader no way to see what is in it
+short of scrolling, and a bare list of headings barely helps - a heading like
+"The memory cascade" does not tell you whether the section is worth your time.
+So each entry carries a sentence saying what you get if you jump there.
+
+The split of ownership is the point:
+
+  * THIS SCRIPT owns which sections exist, their order, their nesting and
+    their anchors - all of it read off the page, so it cannot drift.
+  * A HUMAN owns the description. It is the part that carries judgement, and
+    a generated one would be worthless ("this section covers the budget").
+
+Descriptions survive regeneration: they are keyed by anchor and copied
+forward. Rename a heading and its anchor changes, so the description is NOT
+carried over - the gate then demands a fresh one rather than leaving a stale
+sentence pointing at a section that has become something else.
+
+Anchors follow GitHub's algorithm (lowercase; drop everything that is not
+alphanumeric, space or hyphen; spaces to hyphens; `-1`, `-2` on collision).
+`--verify-anchors` checks that algorithm against every `file.md#fragment`
+link already in the tree, which is the only independent evidence we have that
+it is right.
+
+Usage:
+    python3 scripts/gen_toc.py --check           # gate (exit 1 on drift/missing)
+    python3 scripts/gen_toc.py --write           # insert/refresh every TOC
+    python3 scripts/gen_toc.py --write PATH...   # just these pages
+    python3 scripts/gen_toc.py --verify-anchors  # anchor algorithm vs real links
+"""
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+
+TOC_HEAD = "## Contents"
+#: what the generator writes when it has no description yet. The gate REFUSES
+#: this, so a freshly generated TOC is not mistakable for a finished one.
+TODO = "TODO describe this section"
+
+#: A page with fewer than this many top-level sections gets no TOC - a
+#: contents list of two entries is furniture, not navigation.
+MIN_SECTIONS = 3
+
+#: When `##` is thin but `###` carries the real structure (REGISTER_MAP.md is
+#: 3 and 25), the TOC nests one level deeper or it says nothing useful.
+NEST_WHEN_H2_BELOW = 5
+NEST_WHEN_H3_ATLEAST = 8
+
+#: Pages that are deliberately TOC-free, with the reason.
+SKIP = {
+    "README.md":       "landing page - it IS a table of contents",
+    "docs/README.md":  "documentation index - it IS a table of contents",
+}
+
+FENCE_RE = re.compile(r"^(```|~~~)")
+HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
+
+
+def anchor(text, seen):
+    """GitHub's heading-anchor algorithm."""
+    a = text.strip().lower()
+    a = re.sub(r"[^\w\- ]", "", a, flags=re.UNICODE)  # \w keeps digits/underscore
+    a = a.replace(" ", "-")
+    n = seen.get(a, 0)
+    seen[a] = n + 1
+    return a if n == 0 else f"{a}-{n}"
+
+
+def strip_md(text):
+    """Heading text as a reader sees it: no backticks, no link syntax, no bold."""
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = text.replace("`", "")
+    text = re.sub(r"\*\*([^*]*)\*\*", r"\1", text)
+    return text.strip()
+
+
+def headings(text):
+    """(level, raw_text, anchor) for every heading outside a fenced block.
+
+    Anchors must be numbered over ALL headings - GitHub counts collisions
+    across the whole page, including the H1 and the Contents heading itself -
+    so the walk cannot skip anything before assigning."""
+    seen, out, fence = {}, [], None
+    for line in text.split("\n"):
+        f = FENCE_RE.match(line)
+        if f:
+            if fence is None:
+                fence = f.group(1)
+            elif line.startswith(fence):
+                fence = None
+            continue
+        if fence is not None:
+            continue
+        m = HEAD_RE.match(line)
+        if m:
+            lvl, raw = len(m.group(1)), m.group(2)
+            out.append((lvl, raw, anchor(strip_md(raw), seen)))
+    return out
+
+
+def plan(text):
+    """Which headings belong in this page's TOC, or None if it gets none."""
+    hs = headings(text)
+    h2 = [h for h in hs if h[0] == 2 and h[1].strip() != TOC_HEAD[3:]]
+    h3 = [h for h in hs if h[0] == 3]
+    if len(h2) < MIN_SECTIONS:
+        return None
+    nest = len(h2) < NEST_WHEN_H2_BELOW and len(h3) >= NEST_WHEN_H3_ATLEAST
+    want = {2, 3} if nest else {2}
+    return [h for h in hs if h[0] in want and h[1].strip() != TOC_HEAD[3:]]
+
+
+def existing(text):
+    """Descriptions already written, keyed by anchor, plus the TOC's span."""
+    lines = text.split("\n")
+    start = next((i for i, l in enumerate(lines) if l.strip() == TOC_HEAD), None)
+    if start is None:
+        return {}, None, None
+    end = start + 1
+    while end < len(lines) and not lines[end].startswith("## "):
+        end += 1
+    desc = {}
+    for l in lines[start:end]:
+        m = re.match(r"\s*-\s+(?:\*\*)?\[[^\]]*\]\(#([^)]*)\)(?:\*\*)?\s*(?:—|--)\s*(.*)",
+                     l)
+        if m:
+            desc[m.group(1)] = m.group(2).strip()
+    return desc, start, end
+
+
+def render(items, desc):
+    out = [TOC_HEAD, ""]
+    for lvl, raw, anc in items:
+        label = strip_md(raw)
+        d = desc.get(anc, TODO)
+        if lvl == 2:
+            out.append(f"- **[{label}](#{anc})** — {d}")
+        else:
+            out.append(f"  - [{label}](#{anc}) — {d}")
+    out.append("")
+    return out
+
+
+def apply(path, text):
+    """Return the page with its TOC inserted/refreshed, or None if unchanged."""
+    items = plan(text)
+    desc, start, end = existing(text)
+    lines = text.split("\n")
+
+    if items is None:
+        if start is None:
+            return None
+        del lines[start:end]                      # too few sections now
+        return "\n".join(lines)
+
+    block = render(items, desc)
+    if start is not None:
+        lines[start:end] = block
+    else:
+        first = next((i for i, l in enumerate(lines) if l.startswith("## ")), None)
+        if first is None:
+            return None
+        lines[first:first] = block
+    new = "\n".join(lines)
+    return None if new == text else new
+
+
+def pages():
+    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
+                         capture_output=True, text=True, check=True).stdout
+    for p in sorted(out.split("\0")):
+        if not p or p.startswith("historical_now_obsolete/") or p in SKIP:
+            continue
+        yield REPO / p
+
+
+def verify_anchors():
+    """Check the anchor algorithm against `file.md#frag` links people wrote."""
+    ok = bad = 0
+    for md in pages():
+        for m in re.finditer(r"\]\(([^)\s]+\.md)#([^)\s]+)\)", md.read_text()):
+            tgt = (md.parent / m.group(1))
+            if not tgt.exists():
+                continue
+            if m.group(2) in {a for _, _, a in headings(tgt.read_text())}:
+                ok += 1
+            else:
+                bad += 1
+                print(f"  MISS {md.relative_to(REPO)} -> {m.group(1)}#{m.group(2)}")
+    print(f"anchor check: {ok} existing cross-page fragment links reproduced"
+          f"{f', {bad} NOT reproduced' if bad else ''}")
+    return 1 if bad else 0
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+
+    if "--verify-anchors" in flags:
+        return verify_anchors()
+
+    targets = [Path(a).resolve() for a in args] if args else list(pages())
+    changed, missing, stale = [], [], []
+
+    for md in targets:
+        text = md.read_text()
+        rel = md.relative_to(REPO)
+        new = apply(md, text)
+        if "--write" in flags:
+            if new is not None:
+                md.write_text(new)
+                changed.append(rel)
+            continue
+        # --check
+        if new is not None:
+            (missing if TOC_HEAD not in text else stale).append(rel)
+        elif TOC_HEAD in text:
+            desc, _, _ = existing(text)
+            if any(d == TODO or not d for d in desc.values()):
+                stale.append(rel)
+
+    if "--write" in flags:
+        todo = sum(1 for md in targets
+                   if TOC_HEAD in md.read_text()
+                   for d in existing(md.read_text())[0].values() if d == TODO)
+        print(f"TOC: {len(changed)} page(s) written"
+              f"{f', {todo} description(s) still {TODO!r}' if todo else ''}")
+        return 0
+
+    if missing or stale:
+        for p in missing:
+            print(f"  NO TOC    {p}  (>= {MIN_SECTIONS} sections and no '{TOC_HEAD}')")
+        for p in stale:
+            print(f"  TOC DRIFT {p}  (headings changed, or a description is "
+                  f"still {TODO!r})")
+        print(f"\n{len(missing) + len(stale)} page(s) need attention. "
+              f"Run: python3 scripts/gen_toc.py --write <page>\nthen WRITE the "
+              f"description for each entry - the generator cannot, and a "
+              f"contents\nlist that only repeats the headings is not worth the "
+              f"space it takes.")
+        return 1
+
+    n = sum(1 for md in targets if TOC_HEAD in md.read_text())
+    print(f"TOC gate: OK ({n} page(s) carry an annotated contents list, "
+          f"{len(targets) - n} below the {MIN_SECTIONS}-section threshold)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
