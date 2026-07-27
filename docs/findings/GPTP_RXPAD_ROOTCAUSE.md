@@ -22,6 +22,26 @@ ptp4l rejects every pdelay_req as "bad message". tcpdump parses them fine, so
 the bytes are valid — but the FRAME is **72 bytes** on delivery, not 68
 (14 eth + 54 PTP). The extra 4 bytes are ZERO **DMA alignment padding**:
 
+*At exactly which byte does the delivered frame stop being the frame that
+arrived?*
+
+| byte range | length | content | who put it there |
+|---|---|---|---|
+| 0 – 13 | 14 B | Ethernet header | the wire |
+| 14 – 67 | 54 B | PTPv2 pdelay_req, `messageLength` = 54 | the wire |
+| **68 – 71** | **4 B** | **zeros — DMA alignment padding** | `RingDMAWriter`, not the sender |
+
+Same frame, two views of its length:
+
+| | the frame that arrived | the frame as delivered |
+|---|---|---|
+| bytes on the wire | 68 | 68 |
+| 8-byte AXIS beats | 9 (last beat carries 4 valid bytes) | 9 |
+| last beat's `sink.keep` | 4 valid bytes | **discarded at ingress** |
+| length the driver is told | 68 | **72** — `frame_beats << 3` |
+| what a parser sees past byte 67 | end of frame | 4 zero bytes |
+| verdict | valid PTPv2 | `EBADMSG` — the zeros parse as a bogus TLV |
+
 - `RingDMAWriter` (sw/litex/milan_soc.py) delivers each RX frame padded to an
   8-byte boundary and reports the **padded** length. Docstring line ~545:
   "length = padded payload bytes". Length = `frame_beats << 3` (line ~1251;
@@ -35,6 +55,30 @@ the bytes are valid — but the FRAME is **72 bytes** on delivery, not 68
   never threaded through, so the driver can't trim.
 - TCP/IP/UDP ignore the 4 pad bytes (length fields govern) → never noticed.
   ptp4l parses the 4 trailing zeros as a bogus TLV → EBADMSG "bad message".
+
+*Where in the delivery path is the true length lost, and where does that loss
+finally become an error?*
+
+```mermaid
+sequenceDiagram
+    participant SW as AVB switch, board port
+    participant MAC as MAC / AXIS ingress
+    participant W as RingDMAWriter
+    participant DRV as kl-eth driver
+    participant P as ptp4l
+    SW->>MAC: pdelay_req, 68 bytes on the wire
+    MAC->>W: 9 AXIS beats, last beat keep = 4 valid bytes
+    Note over W: s_data / s_valid / s_last are registered,<br/>sink.keep is DISCARDED - the true length dies HERE
+    W->>DRV: 72 payload bytes, length = beats x 8 = 72
+    Note over DRV: len mod 8 must be 0 as a ring-desync check,<br/>so the driver cannot trim what it was never told
+    DRV->>P: 72-byte skb = 68 real bytes + 4 zeros
+    P->>P: parses the 4 trailing zeros as a bogus TLV
+    P-->>DRV: EBADMSG bad message - every pdelay_req rejected
+```
+
+Note the two silent hops: the writer loses the truth without erroring, and the
+driver *anticipated* trimming (the gateware comment even names
+`pskb_trim_rcsum`) but was never handed a true length to trim to.
 
 ## The fix (careful, sim-gated — NOT a rushed change)
 Thread the true byte length from the ingress last-beat `keep`:
@@ -54,6 +98,15 @@ Thread the true byte length from the ingress last-beat `keep`:
 4. Gate on the RX sims (test_ring_dma.py, test_ring_bd.py) — lengths must be
    exact — then rebuild and re-run the RX perf regression (200+ Mbit, 0-drop)
    before trusting it. This touches the crown-jewel RX datapath; do it awake.
+
+*Which of the three delivery paths actually changes, and which stays frozen so
+the driver never has to move?*
+
+| delivery path | length the driver is told | driver change | why it is safe |
+|---|---|---|---|
+| **BD ring** — active under bd mode | **TRUE**: `(frame_beats << 3) − pad`, in BD word0 | **none** | the posted buffer is max-frame, the BD ring advances by a fixed 16 B, and the driver uses `len` only to size the skb |
+| **byte ring** — legacy, inactive under bd mode | stays **PADDED** (frozen ABI) | **none** | the driver advances `rx_rd += 8 + len` and checks `len & 7`; a true length would desync the ring |
+| **RSC aggregate** | true, minus **only the final beat's** pad | **none** | intermediate segments are whole beats; the pad only ever rides the last one |
 
 ## After the fix
 gPTP should converge: switch sends pdelay → ptp4l responds → asCapable → the
@@ -209,6 +262,30 @@ flap-suppression cleared). Systematic experiments, one variable at a time:
   with the Phase B kl-eth work. A reboot silently reverts to 0x13 = standalone
   ptp4l goes deaf.
 
+
+*Which way does time flow through the switch, and where does it stop?* Both
+directions as settled by the clean observations above:
+
+```mermaid
+flowchart LR
+    subgraph UP["the direction that WORKS - board time reaches a real slave"]
+        A1["ARTY as grandmaster<br/>priority1 100, clockClass 6, two-step"]
+        SW1["the switch, boundary-style<br/>presents its OWN clock id"]
+        PH1["peer host, hardware timestamps<br/>SLAVE: rms 2-4 ns, max 4-8 ns, freq stable"]
+        A1 -->|"Sync + Follow_Up + Announce"| SW1
+        SW1 -->|"relayed to the gigabit uplink"| PH1
+    end
+    subgraph DOWN["the direction that DOES NOT - a role assignment, not a fault"]
+        PH2["peer host as grandmaster"]
+        SW2["the switch"]
+        BD["board edge port<br/>receives pdelay, never Announce or Sync"]
+        PH2 --> SW2
+        SW2 -.->|"60 s promiscuous capture on the board port:<br/>60 pdelay_req + 60 resp + 60 resp_fup,<br/>ZERO Announce, ZERO Sync"| BD
+    end
+```
+
+The edge ports are GM-source + pdelay ports, so board-as-slave validates over
+the direct board↔board cable, not through the switch.
 
 ## Arty-as-slave: exhaustively tested, blocked by switch role (2026-07-13)
 Tried hard to get the Arty to SLAVE (discipline its own PHC from the peer host

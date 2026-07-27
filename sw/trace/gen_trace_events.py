@@ -150,6 +150,38 @@ def render():
     a("choosing a severity is choosing whether the event can cost a flash erase.")
     a("")
 
+    # --- the ID map: the ABI's least obvious property, made visible ---------
+    # barectf assigns event-record type IDs by SORTED EVENT NAME, not by the
+    # order they are declared in (barectf/config.py: `enumerate(sorted(...,
+    # key=lambda evt: evt.name))`). That is stated in the YAML header as a rule
+    # for changing the file, but the CONSEQUENCE - which id a raw trace will
+    # show for a given event, and how far a new name would shift things - is
+    # only visible as a table, and only correct if the table is derived the
+    # same way barectf derives it. So derive it here rather than repeat the
+    # rule in prose.
+    decl = list(events)
+    by_id = sorted(decl)
+    a("## Event-record type IDs — and why declaration order is not it")
+    a("")
+    a("*Which numeric `id` will a raw trace show for a given event, and what")
+    a("moves if I add one?* barectf assigns IDs by **sorted event name**, not by")
+    a("declaration order. The two orders below are generated the same way")
+    a("barectf generates them, so this table is the answer, not a restatement of")
+    a("the rule.")
+    a("")
+    a("| id | event (sorted name = the ID order) | # in declaration order |")
+    a("|---|---|---|")
+    for i, name in enumerate(by_id):
+        a(f"| `{i}` | `{name}` | {decl.index(name) + 1} |")
+    a("")
+    moved = sum(1 for i, name in enumerate(by_id) if decl.index(name) != i)
+    a(f"{moved} of {len(decl)} events sit at a different position in the two")
+    a("orders. **Adding one event renames the IDs of every event that sorts after")
+    a("it** — an existing trace file decoded against the new `metadata` would be")
+    a("read as the wrong events. That is why the YAML header treats a new event")
+    a("name as an ABI change and not a cosmetic one.")
+    a("")
+
     a("## Event types")
     a("")
     for i, (name, body) in enumerate(events.items()):

@@ -15,6 +15,32 @@ Single source of truth in the RTL: `ethernet_packet_pkg::network_priority_t`
 The CSR view is [REGISTER_MAP.md](REGISTER_MAP.md) — `CAP.num_queues`,
 `CLS_TC_QUEUE_MAP` (`0x310`) and the per-queue CBS window at `0x400`.
 
+## The map at a glance
+
+![Egress queue map](../diagrams/egress_queue_map.svg)
+
+*Which queue does a frame land in, who beats whom, and which classes may be
+credit-shaped* — one picture, and **it is generated, not drawn**:
+[`egress_queue_map.gen.py`](../diagrams/egress_queue_map.gen.py) parses the queue
+count, the enum, the reset idleSlopes, the reset hi/loCredit, the reset shaping
+mask, the reset TC→queue map and the reserved control addresses straight out of
+`hdl/common/ethernet_packet_pkg.sv`, `hdl/common/csr/milan_csr.sv` and
+`hdl/ieee8021q/ts/traffic_class_map.sv`. Change the queue count in the package
+and the drawing reflows — ranks renumber, the CBS bracket follows the SR
+classes, and a TC map entry that no longer names a real queue is drawn as the
+`q0` clamp it becomes. Regenerate with:
+
+```
+python3 docs/diagrams/egress_queue_map.gen.py docs/diagrams/egress_queue_map
+rsvg-convert -w 2000 docs/diagrams/egress_queue_map.svg -o docs/diagrams/egress_queue_map.png
+```
+
+Two things the picture makes hard to misread, both of which have already been
+"fixed" the wrong way once: **gPTP sits below both shaped classes on purpose**,
+and **no queue is CBS-shaped at reset** (`CBS_EN_RST` is all zeros — the shaper
+is opt-in per queue, and shaping `q0` once paced all best-effort TX to
+~250 Mbit/s, see [CBS_DEFAULT_SHAPING_BUG.md](../findings/CBS_DEFAULT_SHAPING_BUG.md)).
+
 ## The map
 
 | Queue | Enum | Purpose | Classified by | Shaping |

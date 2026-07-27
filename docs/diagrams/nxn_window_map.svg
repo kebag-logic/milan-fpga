@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1300" viewBox="0 0 1680 1300" font-family="Helvetica,Arial,sans-serif">
+<rect width="1680" height="1300" fill="#FAFAFA"/>
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#546E7A"/></marker></defs>
+<text x="40" y="52" font-size="30" font-weight="bold" fill="#263238">The 0x800 window row map - which lwSRP attribute row a selection really reaches</text>
+<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from milan_datapath.sv (SRP_CTX_ROWS_C = 2*N_STREAMS - 1), endstation_builder.py (ctx_rows_required = L+T-1, SRP_CTX_IDX_BITS) and every configs/endstation_*.yaml.</text>
+<text x="40" y="106" font-size="15" fill="#546E7A">An attribute row is NOT a stream. Row 0 is the legacy talker+listener PAIR (the LWSRP_* 0x680 group); listener k maps to row k; talker t maps to row (L-1)+t.</text>
+<text x="40" y="130" font-size="15" fill="#B71C1C">So the top row an LxT shape can name is (L-1)+(T-1) and the table must be L+T-1 rows - NOT max(L,T). ctx_idx is 4 bits, so L+T-1 &lt;= 16 caps the fabric.</text>
+<text x="60" y="190" font-size="19" font-weight="bold" fill="#263238">arty_4x4 - board arty, L=4 listeners, T=4 talkers  =&gt;  7 attribute rows</text>
+<text x="60" y="212" font-size="13" fill="#2E7D32">L+T-1 = 7 &lt;= 16: fits the ctx_idx width</text>
+<rect x="60" y="236" width="96" height="40" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.8"/>
+<text x="108.0" y="253" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="108.0" y="268" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 0</text>
+<rect x="164" y="236" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="212.0" y="253" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="212.0" y="268" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 1</text>
+<rect x="268" y="236" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="316.0" y="253" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="316.0" y="268" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 2</text>
+<rect x="372" y="236" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="420.0" y="253" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="420.0" y="268" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 3</text>
+<rect x="60" y="298" width="96" height="58" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="108.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 0</text>
+<text x="108.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">legacy pair</text>
+<rect x="164" y="298" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="212.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 1</text>
+<text x="212.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="268" y="298" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="316.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 2</text>
+<text x="316.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="372" y="298" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="420.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 3</text>
+<text x="420.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="476" y="298" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="524.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 4</text>
+<text x="524.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="580" y="298" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="628.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 5</text>
+<text x="628.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="684" y="298" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="732.0" y="322" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 6</text>
+<text x="732.0" y="341" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<path d="M472.0,290 L472.0,364" stroke="#C62828" stroke-width="2.6" stroke-dasharray="7,5"/>
+<text x="480.0" y="284" font-size="12" font-weight="bold" fill="#C62828">the old max(L,T)=4 table ended here - rows 4..6 were refused SILENTLY and aliased row 0</text>
+<rect x="60" y="378" width="96" height="40" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.8"/>
+<text x="108.0" y="395" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="108.0" y="410" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 0</text>
+<rect x="476" y="378" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="524.0" y="395" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="524.0" y="410" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 1</text>
+<rect x="580" y="378" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="628.0" y="395" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="628.0" y="410" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 2</text>
+<rect x="684" y="378" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="732.0" y="395" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="732.0" y="410" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 3</text>
+<path d="M108.0,276 L108.0,298" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M212.0,276 L212.0,298" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M316.0,276 L316.0,298" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M420.0,276 L420.0,298" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M108.0,378 L108.0,356" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M524.0,378 L524.0,356" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M628.0,378 L628.0,356" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M732.0,378 L732.0,356" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="60" y="490" font-size="19" font-weight="bold" fill="#263238">arty_current - board arty, L=1 listeners, T=1 talkers  =&gt;  1 attribute row</text>
+<text x="60" y="512" font-size="13" fill="#2E7D32">L+T-1 = 1 &lt;= 16: fits the ctx_idx width</text>
+<rect x="60" y="536" width="96" height="40" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.8"/>
+<text x="108.0" y="553" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="108.0" y="568" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 0</text>
+<rect x="60" y="598" width="96" height="58" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="108.0" y="622" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 0</text>
+<text x="108.0" y="641" font-size="11" fill="#546E7A" text-anchor="middle">legacy pair</text>
+<rect x="60" y="678" width="96" height="40" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.8"/>
+<text x="108.0" y="695" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="108.0" y="710" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 0</text>
+<path d="M108.0,576 L108.0,598" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M108.0,678 L108.0,656" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="60" y="790" font-size="19" font-weight="bold" fill="#263238">ax7101_8x8 - board ax7101, L=8 listeners, T=8 talkers  =&gt;  15 attribute rows</text>
+<text x="60" y="812" font-size="13" fill="#2E7D32">L+T-1 = 15 &lt;= 16: fits the ctx_idx width</text>
+<rect x="60" y="836" width="96" height="40" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.8"/>
+<text x="108.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="108.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 0</text>
+<rect x="164" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="212.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="212.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 1</text>
+<rect x="268" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="316.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="316.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 2</text>
+<rect x="372" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="420.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="420.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 3</text>
+<rect x="476" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="524.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="524.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 4</text>
+<rect x="580" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="628.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="628.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 5</text>
+<rect x="684" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="732.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="732.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 6</text>
+<rect x="788" y="836" width="96" height="40" rx="7" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.8"/>
+<text x="836.0" y="853" font-size="11.5" fill="#37474F" text-anchor="middle">dir=0 (listener)</text>
+<text x="836.0" y="868" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 7</text>
+<rect x="60" y="898" width="96" height="58" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+<text x="108.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 0</text>
+<text x="108.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">legacy pair</text>
+<rect x="164" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="212.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 1</text>
+<text x="212.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="268" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="316.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 2</text>
+<text x="316.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="372" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="420.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 3</text>
+<text x="420.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="476" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="524.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 4</text>
+<text x="524.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="580" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="628.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 5</text>
+<text x="628.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="684" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="732.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 6</text>
+<text x="732.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="788" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="836.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 7</text>
+<text x="836.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">listener</text>
+<rect x="892" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="940.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 8</text>
+<text x="940.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="996" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="1044.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 9</text>
+<text x="1044.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="1100" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="1148.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 10</text>
+<text x="1148.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="1204" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="1252.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 11</text>
+<text x="1252.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="1308" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="1356.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 12</text>
+<text x="1356.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="1412" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="1460.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 13</text>
+<text x="1460.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<rect x="1516" y="898" width="96" height="58" rx="7" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="2"/>
+<text x="1564.0" y="922" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">row 14</text>
+<text x="1564.0" y="941" font-size="11" fill="#546E7A" text-anchor="middle">talker</text>
+<path d="M888.0,890 L888.0,964" stroke="#C62828" stroke-width="2.6" stroke-dasharray="7,5"/>
+<text x="896.0" y="884" font-size="12" font-weight="bold" fill="#C62828">the old max(L,T)=8 table ended here - rows 8..14 were refused SILENTLY and aliased row 0</text>
+<rect x="60" y="978" width="96" height="40" rx="7" fill="#FFF8E1" stroke="#F9A825" stroke-width="1.8"/>
+<text x="108.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="108.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 0</text>
+<rect x="892" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="940.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="940.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 1</text>
+<rect x="996" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="1044.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="1044.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 2</text>
+<rect x="1100" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="1148.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="1148.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 3</text>
+<rect x="1204" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="1252.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="1252.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 4</text>
+<rect x="1308" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="1356.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="1356.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 5</text>
+<rect x="1412" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="1460.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="1460.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 6</text>
+<rect x="1516" y="978" width="96" height="40" rx="7" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.8"/>
+<text x="1564.0" y="995" font-size="11.5" fill="#37474F" text-anchor="middle">dir=1 (talker)</text>
+<text x="1564.0" y="1010" font-size="13.5" font-weight="bold" fill="#212121" text-anchor="middle">idx 7</text>
+<path d="M108.0,876 L108.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M212.0,876 L212.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M316.0,876 L316.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M420.0,876 L420.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M524.0,876 L524.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M628.0,876 L628.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M732.0,876 L732.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M836.0,876 L836.0,898" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M108.0,978 L108.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M940.0,978 L940.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M1044.0,978 L1044.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M1148.0,978 L1148.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M1252.0,978 L1252.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M1356.0,978 L1356.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M1460.0,978 L1460.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M1564.0,978 L1564.0,956" stroke="#546E7A" stroke-width="1.6" marker-end="url(#arr)"/>
+<rect x="60" y="1040" width="1560" height="112" rx="9" fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>
+<text x="78" y="1066" font-size="15" font-weight="bold" fill="#B71C1C">The refusal is now LOUD - which is the whole point of sizing the table from this arithmetic</text>
+<text x="78" y="1090" font-size="12" fill="#B71C1C">An out-of-range row is still granted (the port must never hang), but ctx_rd_stat returns 0xDEAD - the window&#x27;s</text>
+<text x="78" y="1108" font-size="12" fill="#B71C1C">&quot;not backed&quot; idiom - instead of row 0&#x27;s live status, and ctx_oor_o latches into LWSRP_STATUS[11]. On a correctly-sized</text>
+<text x="78" y="1126" font-size="12" fill="#B71C1C">build that bit reads 0; a 1 means the shape needs more attribute rows than N_CTX_P provides, which is otherwise</text>
+<text x="78" y="1144" font-size="12" fill="#B71C1C">invisible from every counter in the design.</text>
+</svg>

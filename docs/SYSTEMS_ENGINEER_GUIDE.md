@@ -24,7 +24,7 @@ flowchart LR
         TONE[tone / I2S / KL_pcm_tx ring] --> TXMUX[playback + chmap muxes] --> PKT[AAF packetizer + CBS + PTP stamp]
         RXD[depacketizer] --> RING[PCM DMA ring] --> ALSA["arecord (snd-kl-milan)"]
     end
-    subgraph SW["AVB switch (802.1AS-aware)"] 
+    subgraph SW["AVB switch (802.1AS-aware)"]
     end
     subgraph ARTY["Arty A7 (4x4, PipeWire loop)"]
         ARX[listener] --> PW[PipeWire] --> ATX[talker]

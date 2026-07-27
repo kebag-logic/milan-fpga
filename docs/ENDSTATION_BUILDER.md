@@ -59,11 +59,120 @@ the end-station config and the `LWSRP_*` register reset values are the same
 source and cannot drift apart. The generator's own header
 (`sw/builder/endstation_builder.py`) is authoritative for this list.
 
+The tree above says *what is emitted*; it cannot say **who reads each file
+and where a stale one gets caught** — which is the question you actually
+have after editing a config:
+
+```mermaid
+flowchart LR
+    CFG["configs/endstation_SHAPE.yaml<br/>the single source of truth"]
+    BLD["sw/builder/endstation_builder.py"]
+    CFG --> BLD
+
+    subgraph GW["Gateware shape"]
+        SOC["soc_params.json"]
+        SWP["configs/generated/<br/>sweep_opts_arty.sh - per BOARD"]
+    end
+    subgraph MODEL["Entity model"]
+        OVL["aem_overlay.json"]
+    end
+    subgraph RSV["Reservation"]
+        LTJ["lwsrp_table.json<br/>lwsrp_table.svh"]
+        LCD["lwsrp_csr_defaults.svh"]
+    end
+    subgraph HOSTV["Driver-visible layout"]
+        PSH["platform_shape.json"]
+        DTS["milan-nic.dtsi"]
+    end
+    PLAN["build_plan.md<br/>human review + resource estimate"]
+
+    BLD --> SOC
+    BLD --> SWP
+    BLD --> OVL
+    BLD --> LTJ
+    BLD --> LCD
+    BLD --> PSH
+    BLD --> DTS
+    BLD --> PLAN
+
+    SOC -->|"design argv"| MSOC["sw/litex/milan_soc.py"]
+    SWP -->|"sourced, OPTS / L2 / RXQ"| SWEEP["sw/litex/sweep.sh"]
+    OVL -->|"--overlay"| GEN["avdecc/gen_aem_store.py"]
+    GEN --> ROM["hdl/ieee17221/aecp/gen/<br/>aecp_aem_rom.svh - TRACKED"]
+    LTJ --> SRPRTL["hdl/ieee8021q/srp/gen/<br/>lwsrp_table.svh - TRACKED"]
+    LCD --> CSRINC["hdl/common/csr/gen/<br/>lwsrp_csr_defaults.svh - TRACKED,<br/>INCLUDE-d by milan_csr.sv"]
+    DTS --> DRV["device tree for kl-eth<br/>and snd-kl-milan"]
+    MSOC --> BIT["bitstream"]
+    SWEEP --> BIT
+    ROM --> BIT
+    SRPRTL --> BIT
+    CSRINC --> BIT
+```
+
+Four things in that graph are **tracked in the repo**: the three `gen/`
+headers marked TRACKED (one of them written by `gen_aem_store.py` rather than
+by the builder) plus the per-board sweep fragment. Those are the only files
+that can go stale inside a commit, and each has a byte-identity gate below.
+Everything else is regenerated into `sw/builder/out/<config-stem>/` and is not
+tracked at all.
+
+| Artefact | What it carries | Read by | Gate in `sw/builder/test_builder.py` |
+|---|---|---|---|
+| `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags) | `sw/litex/milan_soc.py` | 2 — argv equals `sweep.sh`'s design flags for arty *and* ax7101 |
+| `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay` | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (**the** gate: generated ROM byte-identical to the tracked `aecp_aem_rom.svh`), 15–17 (CRF output, dynamic maps) |
+| `lwsrp_table.json` + `lwsrp_table.svh` | SR class, MRP timers, class-A bandwidth math, TSpec, one record per stream, the engine's elaboration parameters | the lwSRP RTL tree; the `rtl_table` config also writes the tracked copy | 18a–18d — emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column; the tracked `.svh` regenerates byte-identically |
+| `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by `hdl/common/csr/milan_csr.sv` | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
+| `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base, the DMA window map **derived from** `board.constraints.rx_queues`, the addresses `kl-eth` hardcodes, the `kl,dma-ether` / `kl,milan-pcm` nodes | device tree / driver | 19a (queue count is one number across config, argv, sweep fragment and DT), 19b (window bases byte-match the generated CSR listing and the deployed tree), 19c (flipping `rx_queues` under a pinned boot chain is refused) |
+| `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
+| `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by `sw/litex/sweep.sh`, whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |
+
 Three example shapes exist: `endstation_arty_current.yaml` (today's real
 Arty build — the identity gate), `endstation_arty_4x4.yaml` and
-`endstation_ax7101_8x8.yaml` (the roadmap-item-5 NxN test shapes).
+`endstation_ax7101_8x8.yaml` (the roadmap-item-5 NxN test shapes). Descriptor
+counts below are read out of the **emitted** `aem_overlay.json`, not
+predicted — they are what `gen_aem_store.py` is handed:
+
+| | `arty_current` | `arty_4x4` | `ax7101_8x8` |
+|---|---|---|---|
+| Board · audio interface | arty · `i2s_philips` | arty · `tdm8` | ax7101 · `tdm16` |
+| AAF listeners × talkers | 1 × 1 | 4 × 4 | 8 × 8 |
+| Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 |
+| Talker `clusters` (D3) | 8 | 2 | 2 |
+| `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `cap-at-interface` |
+| `clocking.crf_output` | absent (legal at 1 listener) | enabled | enabled |
+| STREAM_INPUT / STREAM_OUTPUT | 2 / 1 | 5 / 5 | 9 / 9 |
+| STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 4 / 4 | 8 / 8 |
+| AUDIO_CLUSTER | 16 | 24 | 80 |
+| AUDIO_MAP | 2 | 8 | 16 |
+| CLOCK_SOURCE | 3 | 6 | 10 |
+
+The cluster row is where the policy bites and where a guess would have been
+wrong: `cap-at-interface` takes `min(stream.clusters, interface channels per
+direction)`, so the 8×8 shape emits 8 input ports × 8 + 8 output ports × 2 =
+**80** clusters, not one per stream channel in both directions.
 
 ## 2. Settled design decisions
+
+Eight decisions, four of them still unimplemented. Read this index first —
+it is the only place that says which of D1–D8 you can rely on today:
+
+| # | Decision, in one line | Rests on | Status |
+|---|---|---|---|
+| **D1** | one STREAM_PORT per AAF stream, each owning a contiguous cluster block and one AUDIO_MAP; CRF gets no port | 1722.1 7.2.13, 7.2.19; Milan 5.4.2.27/28 | **implemented** — emitted and layout-gated (gate 6) |
+| **D2** | cluster policy is config-selectable; a stream channel maps to a mono MBLA AUDIO_CLUSTER | 1722.1 7.2.16/7.2.16.1; Milan 6.4, 5.3.10.1, 5.4.2.27 | **implemented** — both policies gated (gate 7) |
+| **D3** | talker `clusters` is its own config field, never derived from `channels` | 1722.1 7.2.6, 7.4.10.2; Milan 5.3.7.1, 5.3.9.1, 6.3 | **implemented** — the shapes table above shows 8 vs 2 |
+| **D4** | `entity_model_id` = deterministic hash of the model-shaping fields only, or a pin for flashed silicon | 1722.1 6.2.2.8 (incl. its exclusion list) | **implemented** — determinism, shape-sensitivity and the pin are gated (gate 8) |
+| **D5** | the config is the single source of truth; flow flags stay in `sweep.sh`; `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
+| **D6** | AEM store splits: BRAM hot stub + DRAM bulk descriptor tree loaded from a builder-emitted, hash-verified blob | engineering (area: ~80 RAMB36 vs ~36 free) | **not implemented** (recorded 2026-07-25) |
+| **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **not implemented** — today's RTL is input[0]-scoped and cluster-keyed |
+| **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane | 1722.1 7.2.19 (port-relative offsets) | **not implemented** — loopback lane and pool emission are pending |
+
+> **D2 has moved on since it was written.** The builder's schema is 1.1: the
+> field is `cluster_mapping.policy` (a `rule` key is an explicit error), and
+> `cap-at-interface` — described below as the rejected alternative — is a
+> supported policy that both NxN example shapes select. The row above states
+> the schema; the section below states the reasoning that made
+> `cluster-per-stream-channel` the default. Read them in that order.
 
 ### D1 — one STREAM_PORT per AAF stream
 
@@ -449,6 +558,13 @@ Descriptor growth under D1–D3, relative to today's 1(+CRF)x1 model
 
 Unchanged: ENTITY, CONFIGURATION, AUDIO_UNIT (still one clock domain,
 1722.1 7.2.3), AVB_INTERFACE, CLOCK_DOMAIN, CONTROL, LOCALE, STRINGS.
+
+> **The AUDIO_CLUSTER row is the count under `cluster-per-stream-channel`
+> with talker `clusters` = 8.** The tracked `endstation_ax7101_8x8.yaml`
+> selects `cap-at-interface` and talker `clusters: 2` instead, so the overlay
+> it actually emits carries **80** clusters (8 input ports × 8 + 8 output
+> ports × 2) — see the shapes table in §1. Every other row above matches the
+> emitted overlay exactly.
 
 **New Milan obligation the shape triggers — model half DONE.** With two
 or more AAF Media Inputs, Milan 7.2.3 makes a **CRF Media Clock Output**

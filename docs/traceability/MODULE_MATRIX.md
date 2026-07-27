@@ -23,6 +23,30 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 
 **Totals:** 82 modules · 79 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
 
+## Coverage by spec family
+
+*Which family is thinnest on dedicated testbenches?* — the ordering the tables below cannot show. Weakest first.
+
+```mermaid
+xychart-beta
+    title "Modules per spec family: dedicated testbenches vs total"
+    x-axis ["milan", "ieee17221", "ieee1722", "ieee8021as", "common", "ieee8021q"]
+    y-axis "modules" 0 --> 30
+    bar [2, 18, 29, 4, 10, 19]
+    bar [1, 17, 28, 4, 10, 19]
+```
+
+The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
+
+| family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
+|---|---|---|---|---|---|---|
+| Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
+| IEEE 1722.1 (ATDECC) | 18 | 17 | 0 | 18 | 0 | 0 |
+| IEEE 1722 (AVTP) | 29 | 28 | 0 | 25 | 0 | 0 |
+| IEEE 802.1AS | 4 | 4 | 0 | 0 | 0 | 0 |
+| Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
+| IEEE 802.1Q | 19 | 19 | 0 | 0 | 0 | 0 |
+
 ## 🗄️ Archived modules (no open-flow test is possible)
 
 Reason quoted from each module's own file banner — the generator reads it there, so it cannot drift from the code.

@@ -86,6 +86,90 @@ Class-A idleSlope from TSpec (per reservation):
 
 ## 3. Block architecture (hdl/ieee8021q/srp/, KL_lwsrp_*)
 
+### 3.1 The instantiation tree as built
+
+*Where does an MSRP attribute enter the engine, and where does it leave?* It
+enters as bytes on a passive RX tap and leaves as three different things: a
+declaration back on the wire, a gate bit that admits AAF frames, and a slope
+number the credit shaper obeys.
+
+```mermaid
+flowchart TB
+    TAP["rx_axis_to_dma<br/>monitor tap - copy, never stalls tready"]
+
+    subgraph TOP["KL_lwsrp_top - the one instance milan_datapath takes"]
+        direction TB
+
+        subgraph RXC["KL_lwsrp_rx - receive chain"]
+            direction TB
+            ING["KL_lwsrp_ingress<br/>dst 01:80:C2:00:00:0E or :21 + EtherType<br/>whole PDUs into a frame FIFO, atomic drop"]
+            WLK["KL_lwsrp_walker<br/>STREAMING vector parser, no frame buffer<br/>out: leaveall - domain - listener - tadv - tfail"]
+            REG["KL_lwsrp_registrar<br/>row-0 Listener registration + declaration<br/>+ Domain sanity, 600 ms leave timer"]
+            TAR["KL_lwsrp_ta_registrar<br/>TalkerAdvertise / TalkerFailed for the<br/>ACMP-bound stream_id"]
+            ING --> WLK
+            WLK --> REG
+            WLK --> TAR
+        end
+
+        CTX["KL_lwsrp_ctx<br/>context table rows 1..N-1<br/>one SHARED registrar + per-row record"]
+        BW["KL_lwsrp_bw_gate<br/>ACTIVE := declared AND ready AND domain_ok<br/>AND admitted by the 75% sum-of-slopes ceiling"]
+        TX["KL_lwsrp_tx<br/>row-0 template applicant<br/>MSRP Domain + TalkerAdvertise, MVRP VID"]
+        CTXTX["KL_lwsrp_ctx_tx<br/>shared applicant serialiser, rows 1..N-1<br/>one MRPDU per declare batch"]
+        TIM["KL_lwsrp_timers<br/>1 kHz base - join 200 ms - leaveall 10 s"]
+
+        WLK --> CTX
+        REG --> BW
+        CTX --> BW
+        TIM --> REG
+        TIM --> TX
+        TIM --> CTXTX
+        CTX --> CTXTX
+    end
+
+    TAP --> ING
+    CSR["CSR 0x680-0x6A0<br/>enable - VID - DMAC - TSpec - latency"] --> TX
+    CSR --> BW
+    ACMPL["ACMP listener SM<br/>lstn_bound / lstn_declare / lstn_sid"] --> TAR
+    TAR --> ACMPL
+    BW --> GATE["stream_gate_o<br/>per-talker AAF admission"]
+    BW --> SLOPE["idle_slope_o + slope_en_o<br/>CBS class-A slope mux"]
+    BW --> STAT["res_active - over_limit<br/>LWSRP_STATUS 0x694"]
+    TX --> MERGE["m_axis_* into the low-rate<br/>control TX merge, then the MAC"]
+    CTXTX --> MERGE
+```
+
+Which module owns which piece of MSRP state — the question the frame flow does
+not answer, because most of these modules are on the same wire:
+
+| Module | The state it owns | Fed by | Hands on |
+|---|---|---|---|
+| `KL_lwsrp_top` | none — wiring, CSR fan-out, and the row map (`N_CTX_P` = L+T-1 attribute rows; `N_TALKERS_P` sizes `stream_gate_o`) | `milan_datapath` | everything below |
+| `KL_lwsrp_ingress` | the packet FIFO (whole PDUs) + the atomic-drop counter | the RX tap | walker |
+| `KL_lwsrp_walker` | **no attribute state** — only per-PDU parse state: message header, 25 B FirstValue accumulator, vector countdown | ingress FIFO, byte-serially | event pulses to both registrars and to the context table |
+| `KL_lwsrp_registrar` | row 0's **Listener** registration, its four-packed declaration, and the leave timer; Domain class/priority/VID sanity | walker + the 1 kHz tick | `listener_ready_o`, `domain_ok_o` |
+| `KL_lwsrp_ta_registrar` | the **TalkerAdvertise / TalkerFailed** registration for the ACMP-bound stream id, plus the registered VLAN, AccumulatedLatency and failure bridge id | walker + the 1 kHz tick | the ACMP listener SM's TK_REGISTERED / TK_UNREGISTERED events |
+| `KL_lwsrp_ctx` | rows 1..N-1: the record (sid, DMAC, priority/rank, TSpec, latency) **and** the dynamic bits (declared, registered, ready, failed) behind one shared state machine; `ctx_oor_o` when a request names a row past the table | walker + the provisioning request/grant port | per-context status vectors, and the rows the serialiser walks |
+| `KL_lwsrp_tx` | row 0's applicant lifecycle (NEW on the first TX after declaring, JoinIn on every refresh) and the MRPDU bytes | join tick, LeaveAll, CSR + stream-table row 0 | the control TX merge |
+| `KL_lwsrp_ctx_tx` | the same lifecycle for rows 1..N-1, packed into **one** MRPDU per batch | join tick + the context table | the control TX merge |
+| `KL_lwsrp_bw_gate` | the reservation verdict per stream, the granted slope sum, and the gate-before-slope teardown ordering | registrar + context table + `is_1g` | `stream_gate_o`, `idle_slope_o`, `slope_en_o`, CSR status |
+| `KL_lwsrp_timers` | the three MRP periods, as one-cycle pulses off a 1 kHz base | `CLK_FREQ_HZ_P` | every ageing and refresh decision above |
+
+`lwsrp_pkg.sv` holds the wire-format and timing constants the whole engine
+shares; it is a package, not a module.
+
+> **Counted against the source, 2026-07-26 — reported, not resolved.**
+> `hdl/ieee8021q/srp/` contains **11** `KL_lwsrp_*` modules plus `lwsrp_pkg.sv`,
+> not the nine this page and the module-to-family map in
+> [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) still quote. The 2026-07-14
+> sketch in §3.2 also names `KL_lwsrp_applicant`, which was never built: the
+> applicant role shipped as `KL_lwsrp_tx` (row 0) and `KL_lwsrp_ctx_tx`
+> (rows 1..N-1), and `KL_lwsrp_rx`, `KL_lwsrp_ta_registrar` and `KL_lwsrp_ctx`
+> arrived later with the NxN work. The graph and table above are read off the
+> RTL; the sketch below is kept as the design record it is. Neither has been
+> rewritten here.
+
+### 3.2 The original design sketch (2026-07-14)
+
 ```
 rx_axis_to_dma (the tap point, little lane) ──┐ (copy, never stalls)
                                               v
@@ -135,7 +219,8 @@ rx_axis_to_dma (the tap point, little lane) ──┐ (copy, never stalls)
         KL_lwsrp_top: wiring + CSR + N_STREAMS=1 stream table
 ```
 
-Key structural choices:
+### 3.3 Key structural choices
+
 - **Streaming walker, no frame buffer.** Bridge MRPDUs can be ~1500 B with
   many vectors; buffering invites truncation bugs. The walker keeps only
   the current attribute header + a 25 B FirstValue accumulator + counters —
