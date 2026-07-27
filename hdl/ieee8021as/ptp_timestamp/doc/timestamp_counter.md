@@ -2,6 +2,14 @@
 # Entity: timestamp_counter 
 - **File**: timestamp_counter.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — The rendered block diagram (`timestamp_counter.svg`).
+- **[Generics](#generics)** — `COUNTER_WIDTH` and `STEP_SIZE`. `STEP_SIZE` is the one that must match the clock — 8 ns per tick at 125 MHz — because it *is* the counter's resolution, not a scaling factor applied later.
+- **[Ports](#ports)** — Three signals: clock, synchronous active-low reset, and the free-running nanosecond count. There is no load or adjust port here; discipline happens elsewhere.
+- **[Signals](#signals)** — The single internal counter register.
+- **[Processes](#processes)** — One `always_ff`: add `STEP_SIZE` every cycle and wrap on overflow.
+
 ## Diagram
 ![Diagram](timestamp_counter.svg "Diagram")
 ## Generics

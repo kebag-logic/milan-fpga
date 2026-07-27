@@ -15,6 +15,12 @@ Testbenches: `<tb/verilator/<dir>/ …>`
 Specs: `<IEEE 1722.1-2021 / 1722-2016 / 802.1Q-2018 / 802.1AS-2020 /
 Milan v1.2 — list the ones this module implements>`
 
+## Contents
+
+- **[Traceability matrix](#traceability-matrix)** — The clause → behavior → test → why table, one row per normative behavior the module owns. Rows roll up 1:1 into the per-spec-family matrix, and the Test column is required to say **MISSING** where there is no test — a gap that is written down is the point of the format.
+- **[Non-normative / robustness tests](#non-normative--robustness-tests)** — Same four columns, `Clause = "house"`: the CDC and reset drills, W1C checks and silicon-lesson regressions that no standard asks for and that this project keeps anyway.
+- **[How to run](#how-to-run)** — A code block for the exact commands, including the yosys target — so a reader can execute the rows above without going hunting.
+
 ## Traceability matrix
 
 <!-- One row per NORMATIVE behavior this module owns. Test column states

@@ -24,6 +24,16 @@ the 3-place-directive sweep. `--dry-run` prints the exact commands.
 
 ---
 
+## Contents
+
+- **[1. Elaboration smoke test (ALWAYS before committing RTL to P&R)](#1-elaboration-smoke-test-always-before-committing-rtl-to-pr)** — Two seconds of import, then the **mandatory Migen-codegen grep**: three named constructs make Migen emit illegal Verilog that only Vivado rejects, and the Python simulator cannot see it because it evaluates the intent, not the emitted code.
+- **[2. The LiteX/Migen behavioral suites (sw/litex/test_*.py)](#2-the-litexmigen-behavioral-suites-swlitextest_py)** — Which suite owns which engine, how to run one test instead of twenty minutes of them (there is no pytest), and the standing rule to run the whole ring suite after any `RingDMAWriter` change. Three subsections follow: what a test body looks like and the warning that the driver models mirror the *contract* not the C code — so when silicon disagrees with a green sim, suspect the driver; the geometry traps that produce convincing fake failures (a default `max_frame_beats=16` silently clips MTU frames; an un-replenished buffer pool fakes famine); and the cycle-exact `dbg_*` alias toolkit, including the `while True` watcher that turned a 10-minute test into 4 hours.
+- **[3. Verilator harnesses (tb/verilator/*, one dir per suite — ls tb/verilator/ is authoritative)](#3-verilator-harnesses-tbverilator-one-dir-per-suite--ls-tbverilator-is-authoritative)** — `make` in the suite directory, roughly a minute each, self-checking. Also the one-liner that sweeps every suite before a release-ish commit.
+- **[4. Yosys device-portability check (syn/yosys)](#4-yosys-device-portability-check-synyosys)** — One script that maps the RTL to a generic cell library, which is what catches silent Xilinx-primitive dependence. The `tops` array in `run.sh` is the authoritative module list.
+- **[5. P&R (Vivado)  -  see the build scripts](#5-pr-vivado-----see-the-build-scripts)** — The conventions that keep a 50-minute build from being wasted: the hard 32-thread cap (more aborts P&R), reading the **last** timing summary because mid-router WNS lines are pessimistic, and checking the place-utilization report because headroom is thin enough for a big register array to overflow placement.
+- **[6. Silicon §V (board validation checklist)](#6-silicon-v-board-validation-checklist)** — Five checks to run after a flash **before trusting any number**, ending with two that invalidate whole sessions when skipped: take throughput only from the peer's `tx_bytes` time series (short cells are slow-start-flattered), and confirm the peer in `ip neigh` is real, because a stale ARP to a ghost host voids everything above it.
+- **[The debug playbook that worked (for the next hard bug)](#the-debug-playbook-that-worked-for-the-next-hard-bug)** — The four-step loop distilled from a session that caught two RTL bugs and a livelock: fingerprint on silicon, reproduce in sim *including the driver's reap-and-repost*, bisect with layered monitors, then one build.
+
 ## 1. Elaboration smoke test (ALWAYS before committing RTL to P&R)
 
 ```sh
