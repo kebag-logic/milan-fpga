@@ -9,6 +9,16 @@ How to stand up a plain Linux box as a **PipeWire-native AVB endpoint**
 from the talker's CSRs into a bound stream. Everything here was verified on
 the bench 2026-07-25; the fault list at the end is real history, not theory.
 
+## Contents
+
+- **[1. The endpoint stack, in order](#1-the-endpoint-stack-in-order)** — Three pieces in a mandatory order — ptp4l, then a PipeWire core, then `pipewire-avb` — each checkable before the next, plus the two config keys that bite when a conf is copied between machines.
+- **[2. What "working" looks like (log signals)](#2-what-working-looks-like-log-signals)** — The five `-v` log lines to look for and what each proves, including how to read `offset_from_master`: it is scaled-ns, so −393216 is −6 ns.
+- **[3. Binding the pilot tone to a stream](#3-binding-the-pilot-tone-to-a-stream)** — Talker-side CSR recipe (with the VID-clobber warning: a bare `AAF_CTRL` enable zeroes VID[27:16] and floods the stream as best-effort), the three ways to connect a listener, and where the pilot's acceptance limit is written down.
+- **[4. The fault dictionary (all hit on 2026-07-25, in this order)](#4-the-fault-dictionary-all-hit-on-2026-07-25-in-this-order)** — Six real symptom→cause→fix rows from one bench day, including two misleading errors: "Host is down" means no core in the runtime dir, and hanging registry tools mean the AVB core has no session manager and a broken metadata marshal.
+- **[5. The bind, as it actually ran (2026-07-25, late)](#5-the-bind-as-it-actually-ran-2026-07-25-late)** — The full transcript, and the diagnosis that unblocked it: nothing was ever *commanding* the peer's listener. Kills two long-standing beliefs — the 68-byte ACMPDU era is over (the peer emits 72 now and the fabric accepts it), and the peer's AVB core is a protocol engine, not a recording surface.
+- **[6. The peer as an ATDECC controller (2026-07-26)](#6-the-peer-as-an-atdecc-controller-2026-07-26)** — The third role: a small la_avdecc tool that issues one `CONNECT_RX` and exits, making board↔board binds scriptable. Four notes that cost time, chiefly that ACMP `SUCCESS` is a control-plane verdict only and says nothing about the listener datapath accepting frames — and that the peer's own talker stays silent by design.
+- **[Status (2026-07-25, end of campaign day)](#status-2026-07-25-end-of-campaign-day)** — What was proven on the bench that day, in one paragraph: gPTP client-locked at two hops, both board entities discovered, the listener bind, and the peer consuming the stream on the VLAN-2 sub-interface.
+
 ## 1. The endpoint stack, in order
 
 A PipeWire AVB endpoint is three cooperating pieces — bring them up in this
