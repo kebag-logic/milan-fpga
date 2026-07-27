@@ -159,16 +159,25 @@ streams:
     # 0x0205022002006000 = AAF PCM32 48k 8ch; 0x0215... = ut-bit 1..8 family
     # clusters default = channels (8 mono clusters per stream port)
   talkers:
-    # clusters = the single authority for the talker's cluster count; ships
+    # clusters = the single authority for the talker's cluster count, and
+    # THE DECLARED FORMAT MUST AGREE WITH IT. These rows shipped
+    # `clusters: 2` beside the EIGHT-channel format 0x0205022002006000,
+    # and on silicon 2026-07-27 a Milan-validated reference device bound
+    # to talker 0, passed the 5.5.1.2 format check, got ACMP SUCCESS with
+    # correct MAAP/MSRP - and counted UNSUPPORTED_FORMAT on 100 % of
+    # 296,294 frames at 8000/s, because it was promised 8ch AAF and
+    # handed 2ch. A listener validates the FORMAT, not `clusters`.
+    # endstation_builder.py now REFUSES a talker whose format disagrees.
+    # ships
     # WIRE TRUTH 2 (today's framer RTL is stereo - only 2 physical channels
     # exist behind any talker stream until the item-5 NxN talker lands;
     # raise together with that RTL). The legacy-8 layout stays expressible
     # (see endstation_arty_current.yaml).
-    - { name: "Stream Out 0", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 1", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 2", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 3", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 4", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 5", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 6", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 7", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 0", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 1", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 2", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 3", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 4", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 5", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 6", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
+    - { name: "Stream Out 7", channels: 8, clusters: 2, formats: ["0x0205022000806000"] }
