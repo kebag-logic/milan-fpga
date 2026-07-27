@@ -27,7 +27,8 @@ enum {
   A_PTP_CTRL=0x500, A_PTP_INCR=0x504, A_PTP_TWLO=0x510, A_PTP_TWHI=0x514,
   A_PTP_CMD=0x520, A_PTP_TRLO=0x530, A_PTP_TRHI=0x534,
   A_ADP_CTRL=0x600, A_ADP_EIDLO=0x604, A_ADP_EIDHI=0x608, A_ADP_ECAPS=0x614,
-  A_ADP_TALK=0x618, A_ADP_GMLO=0x624, A_ADP_GMHI=0x628, A_ADP_DOMAIN=0x62C,
+  A_ADP_TALK=0x618, A_ADP_LIST=0x61C,
+  A_ADP_GMLO=0x624, A_ADP_GMHI=0x628, A_ADP_DOMAIN=0x62C,
   A_ADP_IDX0=0x630, A_ADP_CMD=0x640, A_ADP_STATUS=0x644,
   A_TCAM_CTRL=0x700, A_TCAM_KLO=0x704, A_TCAM_KHI=0x708, A_TCAM_MLO=0x70C,
   A_TCAM_MHI=0x710, A_TCAM_ACT=0x714, A_TCAM_CMD=0x718,
@@ -137,7 +138,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010014);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010015);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -368,10 +369,29 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_ECAPS, 0x0000C588);
   dut->eval();
   ck("o_adp_entity_caps", dut->o_adp_entity_caps, 0x0000C588);
-  axi_write(A_ADP_TALK, 0x00010008);     // talker_caps=0x0001, sources=8
+  // ADP SHAPE IS READ-ONLY (VERSION 0x0015). 0x618/0x61C are hardwired from
+  // the elaboration parameters - at the default 1x1 shape that is
+  // {talker_caps 0x4001, sources 1} and {listener_caps 0x4801, sinks 1}.
+  // Before 0x0015 these were plain RW words resetting to ZERO and the values
+  // came from a boot script, which is how the 8x8 board advertised 1 source
+  // and 2 sinks on silicon (2026-07-27). A write must now change NOTHING.
+  ck("ADP_TALK RO reset = {0x4001, N_TALKER_SRC_P=1}",
+     axi_read(A_ADP_TALK), 0x40010001u);
+  ck("ADP_LIST RO reset = {0x4801, N_LISTENER_SINK_P=1}",
+     axi_read(A_ADP_LIST), 0x48010001u);
+  ck("o_adp_talker_sources", dut->o_adp_talker_sources, 1);
+  ck("o_adp_talker_caps",    dut->o_adp_talker_caps, 0x4001);
+  ck("o_adp_listener_sinks", dut->o_adp_listener_sinks, 1);
+  ck("o_adp_listener_caps",  dut->o_adp_listener_caps, 0x4801);
+  axi_write(A_ADP_TALK, 0x00010008);     // the retired S50milan-style poke
+  axi_write(A_ADP_LIST, 0x48010002);
   dut->eval();
-  ck("o_adp_talker_sources", dut->o_adp_talker_sources, 8);
-  ck("o_adp_talker_caps",    dut->o_adp_talker_caps, 0x0001);
+  ck("ADP_TALK ignores the write", axi_read(A_ADP_TALK), 0x40010001u);
+  ck("ADP_LIST ignores the write", axi_read(A_ADP_LIST), 0x48010001u);
+  ck("o_adp_talker_sources unmoved", dut->o_adp_talker_sources, 1);
+  ck("o_adp_talker_caps unmoved",    dut->o_adp_talker_caps, 0x4001);
+  ck("o_adp_listener_sinks unmoved", dut->o_adp_listener_sinks, 1);
+  ck("o_adp_listener_caps unmoved",  dut->o_adp_listener_caps, 0x4801);
   axi_write(A_ADP_GMLO, 0x44556677);
   axi_write(A_ADP_GMHI, 0x00112233);
   dut->eval();

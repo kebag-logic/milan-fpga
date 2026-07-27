@@ -47,7 +47,13 @@ consumer using those strobes (`REQ-CSR-03`).
 | ------------ | ------------- | -------------- | ------------------------------------------------------- |
 | NUM_QUEUES   | int           | 5              | Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority |
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
-| VERSION      | logic [31:0]  | 32'h0001_0014  | Value returned by the read-only VERSION register. **Do not quote this literal** — it moves with every CSR contract change; the RTL parameter's own comment is the per-version changelog and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number |
+| N_LISTENERS_P | int          | 1              | listener stream contexts addressable by the 0x800 window (`A_STRM_SEL` dir=0) |
+| N_TALKERS_P  | int           | 1              | talker stream contexts (`A_STRM_SEL` dir=1) |
+| N_TALKER_SRC_P | int         | 1              | **ADP shape, read-only.** `talker_stream_sources` served at `0x618` = the STREAM_OUTPUT descriptor count = the ACMP-addressable `talker_unique_id` range. `milan_datapath` passes its `ACMP_SRC_C` |
+| N_LISTENER_SINK_P | int      | 1              | **ADP shape, read-only.** `listener_stream_sinks` served at `0x61C` = the STREAM_INPUT descriptor count = the ACMP-addressable `listener_unique_id` range. `milan_datapath` passes its `ACMP_SINKS_C` |
+| ADP_TALKER_CAPS_P | logic [15:0] | 16'h4001   | `talker_capabilities` (1722.1 Table 6.4). `MEDIA_CLOCK_SOURCE` is added by `milan_datapath` only when a CRF STREAM_OUTPUT context exists |
+| ADP_LISTENER_CAPS_P | logic [15:0] | 16'h4801 | `listener_capabilities` (Table 6.5); the CRF sink context is pinned in every build |
+| VERSION      | logic [31:0]  | 32'h0001_0015  | Value returned by the read-only VERSION register. **Do not quote this literal** — it moves with every CSR contract change; the RTL parameter's own comment is the per-version changelog and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number |
 
 ## Ports
 

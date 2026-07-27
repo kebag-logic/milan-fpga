@@ -40,7 +40,7 @@ stopped.
 5. What can clear `available_r`: `link_down_i | shutdown_i`. On the fully-FPGA
    SoC `i_link_up` is **constant 1** (milan_soc.py `i_i_link_up=1`), so
    link_down is structurally impossible. `shutdown_i` = `ADP_CMD[1]` — and
-   NOTHING in the software stack writes 0x640 (boot script writes 0x600-0x61C
+   NOTHING in the software stack writes 0x640 (boot script writes 0x600-0x620
    once; kl-eth touches MAC/PHC/ring groups only). The dominant CSR write
    stream (ptp4l gettime -> `A_PTP_CMD` 0x520 wdata=0x4) carries bit2, which
    cannot assert the bit1 depart strobe even if misrouted.

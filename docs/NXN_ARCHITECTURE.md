@@ -551,7 +551,7 @@ individually and the rest of this section is their detail:
 
 | Step | What it is | Status |
 |---|---|---|
-| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **OPEN** — builder + the `0x600` group. Without it no controller ever learns the uid exists |
+| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was the `0x600` half. `ADP_TALKER` (`0x618`) is now a **read-only** word hardwired from `ACMP_SRC_C`, so the advertised range and the addressable range are the same number by construction. Gated by `scripts/check_entity_shape.py` |
 | (b) | MAAP DMAC slot `base + T` (§3.3) | **SHIPPED 2026-07-26** — the responder answers `stream_dest_mac` = block base + `N_STREAMS`; `MAAP_CTRL`'s claimed count must therefore be `N_STREAMS+1` |
 | (c) | lwSRP talker attribute context `T` — the Class A reservation ([M-7.3.3]) | **OPEN** — the `0x800` window addresses talker idx `< T` only, so no selection reaches the row; needs `N_CTX_P = L+T` plus a way to name it |
 | (d) | provisioning daemon arms `A_CRFT_*` from the claimed DMAC and identity | **COLLAPSED TO NOTHING** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
@@ -590,11 +590,21 @@ Still open on the CRF path:
   to name it. Until then the CRF stream is declared by nothing and its
   ACMP activation is the PROBE_TX window plus the `A_ACMP_LOBS` socket —
   honest, but not a Class A reservation ([M-7.3.3]).
-* **(a) the AEM/ADP advertisement.** `ADP_TALKER_SOURCES` and the AEM
-  `STREAM_OUTPUT` count must include the CRF output or a controller never
-  learns the uid exists (builder + `0x600` group).
 * The 8-bit `A_ACMP_TLK*` CSR vectors carry the **audio** sources only;
   the CRF context would not fit the field at N = 8.
+
+**(a) the AEM/ADP advertisement — CLOSED 2026-07-27.** It was open in the
+worst way: the fabric answered `CONNECT_TX` for `talker_unique_id =
+N_STREAMS` and emitted the CRF PDUs every 2 ms, and no controller ever
+asked, because `ADP_TALKER` (`0x618`) advertised **1** source. That
+register was plain RW resetting to zero, filled in by a boot script written
+when the board was 1×1, so the 8×8 build advertised the 1×1 shape and
+nothing looked broken. `0x618`/`0x61C` are now **read-only** words
+hardwired from `ACMP_SRC_C` / `ACMP_SINKS_C`, and `ACMP_SINKS_C` moved from
+`max(N_STREAMS, 2)` to `(N > 1) ? N + 1 : 2` so the CRF **sink** exists at
+every N as well (above N = 2 it had been silently dropped). What remains
+open on the CRF path is (c) alone — the Class A reservation, [M-CLK-2] —
+which is a different question from discoverability.
 
 ### 3.6 AEM / AECP changes
 

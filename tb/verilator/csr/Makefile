@@ -62,6 +62,7 @@ obj_dir/Vcsr_sim: $(SRCS) sim_main.cpp
 obj_win/Vcsr_win: $(SRCS) sim_win.cpp
 	$(VERILATOR) $(VFLAGS) --Mdir obj_win --top-module $(TOP) \
 	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 \
+	  -GN_TALKER_SRC_P=5 -GN_LISTENER_SINK_P=5 \
 	  $(SRCS) sim_win.cpp -o Vcsr_win
 
 obj_live/V$(TOPL): $(LIVE_SRCS) sim_live.cpp

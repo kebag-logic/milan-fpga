@@ -439,7 +439,10 @@ is what belongs in DRAM.
 
 ## `VERSION` was deliberately NOT bumped
 
-`milan_csr` `VERSION` stays `0x0001_0014`. At the **default** settings — every
+`milan_csr` `VERSION` stayed `0x0001_0014` **for this round**. (It has since moved
+to `0x0001_0015` for an unrelated change — the ADP shape registers becoming
+read-only, 2026-07-27 — which does not affect the reasoning below.) At the
+**default** settings — every
 parameter 1 — this change is a pure no-op parametrisation: the same instances,
 the same wiring, the same CSR values, and `tb/verilator/milan_dp`'s legacy and
 NxN shapes pass unchanged at 196 / 135 / 147 checks. A `VERSION` bump announces

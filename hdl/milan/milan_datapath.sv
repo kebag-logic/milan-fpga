@@ -654,6 +654,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
   localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;
   localparam int CRF_TUID_C = N_STREAMS;   //! only when ACMP_SRC_C > N_STREAMS
+  //! ACMP listener sink contexts (see the KL_acmp_listener banner below):
+  //! the N AAF sinks plus the pinned CRF sink at listener_unique_id =
+  //! N_STREAMS. Declared HERE, with ACMP_SRC_C, because these two counts
+  //! ARE the device's advertised shape - milan_csr serves them read-only at
+  //! 0x618/0x61C and the ADPDU carries them (VERSION 0x0015).
+  localparam int ACMP_SINKS_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 2;
+  localparam int ACMP_SIDXW_C = $clog2(ACMP_SINKS_C);
+  //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED | AUDIO_SOURCE,
+  //! plus MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT context actually
+  //! exists. At N = 1 there is none, so the bit is NOT set - it was set by
+  //! the boot script for years with nothing behind it.
+  localparam logic [15:0] ADP_TALKER_CAPS_C =
+      16'h4001 | ((ACMP_SRC_C > N_STREAMS) ? 16'h0800 : 16'h0000);
+  //! listener_capabilities (Table 6.5): IMPLEMENTED | AUDIO_SINK |
+  //! MEDIA_CLOCK_SINK - the CRF sink context is pinned in EVERY build.
+  localparam logic [15:0] ADP_LISTENER_CAPS_C = 16'h4801;
   wire [ACMP_SRC_C-1:0]    acmp_talker_active_v, acmp_probe_armed_v;
   wire                     acmp_talker_active, acmp_probe_armed;
   wire [31:0]              aecp_pres_offset;
@@ -1056,7 +1072,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
     .N_LISTENERS_P(N_STREAMS),
-    .N_TALKERS_P(N_STREAMS)
+    .N_TALKERS_P(N_STREAMS),
+    //! ADP shape: the ADVERTISED count IS the ADDRESSABLE context count, by
+    //! construction. 0x618/0x61C are read-only words built from these.
+    .N_TALKER_SRC_P(ACMP_SRC_C),
+    .N_LISTENER_SINK_P(ACMP_SINKS_C),
+    .ADP_TALKER_CAPS_P(ADP_TALKER_CAPS_C),
+    .ADP_LISTENER_CAPS_P(ADP_LISTENER_CAPS_C)
   ) csr (
     .aclk    (axis_clk),
     .aresetn (axis_resetn),
@@ -1786,12 +1808,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  sink: BIND_RX/UNBIND_RX/GET_RX_STATE + the talker-probe ladder; SRP
   //  coupling through the lwSRP TalkerAdvertise registrar + the Listener
   //  attribute applicant below.
-  //  N-sink round: N_STREAMS feeds the wrapper's context count (minimum 2 so
-  //  the pinned {ctx0 media, ctx1 CRF} pair always exists); contexts 2..N-1
-  //  are record-only explicit-sid binds for the 0x800-window streams.
+  //  N-sink round: N_STREAMS feeds the wrapper's context count; contexts
+  //  1..N-1 are record-only explicit-sid binds for the 0x800-window streams
+  //  and the LAST context is the pinned CRF sink at listener_unique_id =
+  //  N_STREAMS, mirroring the CRF source at talker_unique_id = N_STREAMS.
+  //
+  //  2026-07-27: this was max(N_STREAMS, 2), which reserved the CRF sink only
+  //  while N <= 2 and then SILENTLY DROPPED IT - a 4x4 or 8x8 build had N
+  //  sinks where its own AEM model declares N + 1 (N AAF STREAM_INPUTs plus
+  //  the CRF STREAM_INPUT), so the CRF sink was un-addressable exactly the
+  //  way the CRF source was un-advertised. N + 1 for N > 1 is symmetric with
+  //  ACMP_SRC_C above and BYTE-IDENTICAL at N = 1 (2 sinks = the deployed
+  //  1x1 shape and the tracked AEM ROM's two STREAM_INPUT descriptors).
+  //  ACMP_SINKS_C / ACMP_SIDXW_C are declared beside ACMP_SRC_C (the ADP
+  //  shape group) because milan_csr's RO 0x61C word needs them.
   // ==========================================================================
-  localparam int ACMP_SINKS_C = (N_STREAMS > 2) ? N_STREAMS : 2;
-  localparam int ACMP_SIDXW_C = $clog2(ACMP_SINKS_C);
   KL_acmp_listener #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
     .N_SINKS_P     (ACMP_SINKS_C)
