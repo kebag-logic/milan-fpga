@@ -70,7 +70,8 @@ esac
 # refusal to launch, so "the config says 8x8, the bitstream is 1x1" cannot
 # happen again.
 python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
-        --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2"
+        --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2" \
+        --opts "$OPTS"
 BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \

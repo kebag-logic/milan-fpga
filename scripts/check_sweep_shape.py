@@ -265,6 +265,14 @@ def main():
     ap.add_argument("--num-streams", type=int)
     ap.add_argument("--rx-queues", type=int)
     ap.add_argument("--l2-bytes", type=int)
+    # The EFFECTIVE option string, after sweep.sh has sourced the generated
+    # fragment. Without it the runtime branch compared the render-LPF lever
+    # against an empty string, concluded the filter was always PRESENT, and
+    # refused every ax7101 build the moment the config declared it pruned -
+    # while --self-test passed, because the self-test DID pass opts. A gate
+    # that is green in its own test and wrong in production is the worst kind.
+    ap.add_argument("--opts", default="",
+                    help="effective milan_soc.py options (runtime mode)")
     ap.add_argument("--sweep", default=SWEEP, help="sweep.sh to parse (static mode)")
     ap.add_argument("--self-test", action="store_true",
                     help="also prove a deliberately mutated sweep.sh is REJECTED")
@@ -276,7 +284,7 @@ def main():
             ap.error("runtime mode needs --board --config --num-streams "
                      "--rx-queues --l2-bytes together")
         bad = compare(a.board, a.config, a.num_streams, a.rx_queues,
-                      a.l2_bytes, "sweep.sh runtime")
+                      a.l2_bytes, "sweep.sh runtime", opts=a.opts)
         if bad:
             print("REFUSING TO BUILD: sweep.sh would produce a bitstream that "
                   "is not the shape the end-station config declares.",
