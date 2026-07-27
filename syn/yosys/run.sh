@@ -87,9 +87,12 @@ for spec in "${tops[@]}"; do
   if ! sv2v --top="$top" $INC $srcs > "$TMP/$top.v" 2> "$TMP/$top.sv2v.err"; then
     printf "  [FAIL] %-22s sv2v: %s\n" "$top" "$(head -1 "$TMP/$top.sv2v.err")"; fail=$((fail+1)); continue
   fi
-  yosys -p "read_verilog $TMP/$top.v; $SYNTH -top $top; hierarchy -check; stat" > "$TMP/$top.yos.log" 2>&1
+  # stat -top + the design-hierarchy total: plain `stat` prints one block per
+  # module and `head -1` picked whichever leaf came first (tcam), so the cells=
+  # column reported that leaf for every top rather than the design.
+  yosys -p "read_verilog $TMP/$top.v; $SYNTH -top $top; hierarchy -check; stat -top $top" > "$TMP/$top.yos.log" 2>&1
   rc=$?
-  cells="$(grep -E '^[[:space:]]+[0-9]+ cells$' "$TMP/$top.yos.log" | head -1 | grep -oE '[0-9]+')"
+  cells="$(awk '/=== design hierarchy ===/{f=1} f && /^[[:space:]]+[0-9]+ cells$/{print $1; exit}' "$TMP/$top.yos.log")"
   if [ $rc -eq 0 ]; then printf "  [PASS] %-22s cells=%s\n" "$top" "${cells:-?}"; pass=$((pass+1))
   else printf "  [FAIL] %-22s yosys: %s\n" "$top" "$(grep -iE '^ERROR' "$TMP/$top.yos.log" | head -1)"; fail=$((fail+1)); fi
 done
