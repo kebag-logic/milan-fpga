@@ -85,6 +85,12 @@ CPP  = sim_main.cpp
 .PHONY: all run clean
 all: run
 
+# tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+# Every one defaults to 1 = PRESENT, so the two builds above are untouched;
+# this third build is the only place the 0 side is elaborated - and a prune
+# that was never elaborated is not a prune.
+PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
+
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
@@ -96,12 +102,19 @@ run:
 # self-checking harness, unchanged, and every check must give the same
 # answer. It does not merely elaborate: it re-runs the whole legacy leg.
 	$(VERILATOR) $(VFLAGS) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
+# obj_prune is the OTHER direction: all six tier-1 blocks pruned at once, on a
+# dedicated harness that proves the inert values are STRUCTURAL zeros rather
+# than not-armed-yet zeros. The two legs answer different questions and both
+# stay.
+	$(VERILATOR) $(VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
 	./obj_nxn8/Vmilan_dp_nxn8
 	@echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
 	./obj_nolpf/Vmilan_dp_nolpf
+	@echo "---- all six tier-1 blocks pruned ----"
+	./obj_prune/Vmilan_dp_prune
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8 obj_nolpf
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_nolpf obj_prune

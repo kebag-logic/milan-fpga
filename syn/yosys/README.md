@@ -23,6 +23,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 - **[Tooling](#tooling)** — The two binaries you need and where to get them. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
 - **[Coverage](#coverage)** — What the 47 tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not. Also names the one deliberate gap: `milan_top`, which pulls in the RGMII SelectIO and PS block design.
 - **[Notes](#notes)** — Two facts that stop you misreading the output: the concrete non-Xilinx targets (`synth_ecp5`, `synth_ice40`) with real cell counts, and why `axis_fifo` looks enormous — its 4096-deep default, which no instance in the design uses.
+- **[ooc.sh — AREA measurement (a different question from run.sh)](#oocsh--area-measurement-a-different-question-from-runsh)** — `run.sh` asks *does it map*; this asks *what does it cost*, which is the only number an area lever may be judged on. Three traps it exists to avoid, and the third is the sharpest: `-flatten` can read a genuinely deleted block as **−1 LUT / −0 FF**, so a structural lever needs the hierarchy-preserving form as well. Ends with the honest caveat — these are estimates with a yosys→Vivado ratio between 0.25 and 0.86, and control sets are not measurable here at all.
 
 ## How it works
 1. **[sv2v](https://github.com/zachjs/sv2v)** converts the SystemVerilog (interfaces,
@@ -112,6 +113,41 @@ levers and disagreed 8× on the LPF prune; the hierarchical one was believed,
 because it reproduces the place report's FF and DSP columns exactly. When
 they disagree, prefer the instrument that reproduces a known Vivado row.
 
+### `-flatten` has a THIRD trap: it can read a real prune as zero
+
+Measuring the 2026-07-27 optional-block prunes
+([AREA_BUDGET](../../docs/design/AREA_BUDGET.md)) found a case where
+`-flatten` is not merely noisy but **wrong**. Removing `rx_mac_filter` +
+`tcam` from `milan_datapath` reads as **−1 LUT / −0 FF** in a flattened
+whole-design `stat`, and removing `KL_pcm_lpf` as **−14 LUT / −0 FF** — while
+`yosys hierarchy -top milan_datapath` proves neither module is in the design
+any more, and the blocks carry 1 691 and 756 flip-flops respectively. **A
+flip-flop total cannot be unchanged by deleting 1 691 flip-flops**, so that
+number is an artefact of whole-design flattening, not a measurement.
+
+Rule that follows: `-flatten` is the right instrument for a **logic** lever
+(rewrite a cone, keep the block), because both sides contain the same blocks
+and the mapping noise is symmetric. For a **structural** lever (delete a
+block), also run the hierarchy-preserving form and read the per-module `stat`
+of the block you removed:
+
+```sh
+yosys -p "read_verilog dp.v; synth_xilinx -family xc7 -top milan_datapath; \
+          stat -top milan_datapath"
+```
+
+If the two disagree by more than the cross-boundary slack, trust the
+hierarchical one and say so. The tier-1 leaf blocks (`KL_mmcm_drp_servo`,
+`KL_aaf_latency_taps`, `KL_maap`, `KL_i2s_playback`, `rx_mac_filter`, `tcam`,
+`KL_pcm_lpf`) are tops in `ooc.sh`'s array for exactly this cross-check —
+a standalone OOC figure is the **upper bound** for a prune, because in
+context a block shares decode and constants with its neighbours.
+
+**These are estimates, not Artix LUT6 counts.** The yosys→Vivado ratio
+measured against this tree's own place report ranges 0.25 (wide muxes,
+shared serial arithmetic) to 0.86 (the whole flattened datapath) — see
+[NXN_ARCHITECTURE](../../docs/NXN_ARCHITECTURE.md) section 6.3. Quote a band, never a single figure, and
+never call an `ooc.sh` number a placement result.
 **Control sets are NOT measurable here.** A yosys proxy was tried and
 discarded: counting `(clock, enable, set/reset)` triples over the `FD*` cells
 of the flattened netlist reports **18 691** sets for `milan_datapath`'s

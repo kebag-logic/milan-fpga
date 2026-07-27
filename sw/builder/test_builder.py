@@ -1800,6 +1800,258 @@ def test_cbs_reset_table_single_source():
           f"row for row")
 
 
+def _prune(cfg, **feats):
+    """board.features mutation helper for the tier-1 prune gates."""
+    cfg.setdefault("board", {}).setdefault("features", {}).update(feats)
+
+
+def test_optional_blocks_default_present():
+    """gate 23a - rule 1 (default PRESENT) enforced, not asserted: a block is
+    pruned ONLY where a config says so in as many words.
+
+    Not "no prune flag ever". `ax7101_8x8` deliberately SPENDS one - it
+    declares `board.constraints.render_lpf: false`, the only Vivado-priced
+    lever of the 2026-07-27 area round - and a gate that forbade every prune
+    flag would have made that spend unlandable. What must hold is that the
+    emitted flags are EXACTLY the declared ones, so an undeclared prune (the
+    real hazard: a block silently vanishing from a shipping build) still
+    fails."""
+    for name in ("arty_current", "arty_4x4", "ax7101_8x8"):
+        r = eb.build(CONFIGS[name], OUT)
+        cfg = eb.load_config(CONFIGS[name])
+        assert all(cfg["features"].values()), \
+            f"{name}: a shipped config must default every board.features " \
+            f"block PRESENT"
+        # what the config DECLARES pruned, across both spellings
+        declared = {flag for key, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()
+                    if not cfg["features"].get(key, True)
+                    or not cfg.get("constraints", {}).get(key, True)}
+        emitted = {f for f, _p, _w in eb.OPTIONAL_BLOCKS.values()} & set(r["argv"])
+        assert emitted == declared, (
+            f"{name}: argv prune flags {sorted(emitted)} do not match what the "
+            f"config declares {sorted(declared)} - a block is being pruned "
+            f"(or kept) that nothing asked for")
+        rows = dict(eb.resource_instances(cfg, r["overlay"]))
+        # a subtractive row is counted only where that block is declared pruned
+        for k in ("media_clock_servo", "latency_taps", "render_lpf"):
+            want = 1 if eb.OPTIONAL_BLOCKS[k][0] in declared else 0
+            assert rows[f"prune_{k}"] == want, \
+                f"{name}: prune_{k} row is {rows[f'prune_{k}']}, expected {want}"
+        # ...and the three blocks that have POSITIVE rows must still be
+        # charged for, i.e. pruning did not quietly stop counting them
+        assert rows["rx_filter"] == 1 and rows["i2s_renderer"] == 1 and \
+            rows["maap_claim_ctx"] == 1, f"{name}: a present block lost its row"
+        assert "ALL PRESENT" in r["plan"], \
+            f"{name}: build plan must state the optional-block posture"
+    # ...and the argv gate 2 above already pins arty/ax7101 byte-for-byte
+    # against sweep.sh, so "no flag" here means "the shipping argv".
+    print(f"  [gate 23a] 3 shipped configs: all "
+          f"{len(eb.OPTIONAL_BLOCKS)} optional blocks default PRESENT; argv "
+          f"prune flags == declared prunes exactly (ax7101_8x8 declares "
+          f"render_lpf: false and is expected to emit --no-render-lpf), and "
+          f"each subtractive estimate row is counted only where its block is "
+          f"declared pruned")
+
+
+def test_optional_block_gates_bite():
+    """gate 23b - THE GATE (AREA_BUDGET rule 5). Each case is a config that
+    asks for a feature the prune removed; every one must raise ConfigError.
+    The paired POSITIVE case proves the same prune is ACCEPTED once the
+    config stops asking - otherwise the gate would just be a ban."""
+    cases = [
+        # (label, feature(s) pruned, extra mutation, must-raise?)
+        ("servo pruned but CRF/input-stream clocking offered",
+         dict(media_clock_servo=False), lambda c: None, True),
+        ("servo pruned, internal-only clocking",
+         dict(media_clock_servo=False),
+         # crf_output STAYS on: emitting a CRF stream from the INTERNAL
+         # clock (Milan 7.2.3, mandatory at >=2 listeners) is KL_crf_tx and
+         # needs no servo - the servo is the SINK-side actuator.
+         lambda c: c["clocking"].update(media_clock_sources=["internal"],
+                                        default_source="internal",
+                                        crf_sink=False), False),
+        ("taps pruned but strip_probes false",
+         dict(latency_taps=False),
+         lambda c: c["board"]["constraints"].update(strip_probes=False), True),
+        ("taps pruned, probes stripped",
+         dict(latency_taps=False),
+         lambda c: c["board"]["constraints"].update(strip_probes=True), False),
+        ("MAAP pruned but stream DMACs are MAAP-allocated",
+         dict(maap=False),
+         lambda c: c.setdefault("srp", {}).update(stream_dmac_base="maap"),
+         True),
+        ("MAAP pruned, static DMAC base",
+         dict(maap=False), lambda c: None, False),
+        ("playback pruned but the interface is i2s_philips",
+         dict(i2s_playback=False, render_lpf=False),
+         lambda c: c["audio_interface"].update(kind="i2s_philips"), True),
+        ("playback+LPF pruned, TDM interface",
+         dict(i2s_playback=False, render_lpf=False), lambda c: None, False),
+        ("filter pruned but rx_address_filter is hardware",
+         dict(rx_mac_filter=False), lambda c: None, True),
+        ("filter pruned, filtering declared in software",
+         dict(rx_mac_filter=False),
+         lambda c: c.setdefault("platform", {}).update(
+             rx_address_filter="software"), False),
+        # the mirror-image lie: a filter with nothing behind it
+        ("playback pruned but the render LPF kept",
+         dict(i2s_playback=False), lambda c: None, True),
+        ("unknown feature name",
+         dict(no_such_block=False), lambda c: None, True),
+        ("non-boolean feature value",
+         dict(maap="false"), lambda c: None, True),
+        ("bad rx_address_filter value", {},
+         lambda c: c.setdefault("platform", {}).update(
+             rx_address_filter="firmware"), True),
+    ]
+    n_bad = n_ok = 0
+    for label, feats, mutate, must_raise in cases:
+        def m(c, feats=feats, mutate=mutate):
+            _prune(c, **feats)
+            mutate(c)
+        p = _variant(CONFIGS["ax7101_8x8"], m)
+        try:
+            try:
+                cfg = eb.load_config(p)
+            except eb.ConfigError as ex:
+                assert must_raise, f"{label}: ConfigError on a VALID config: {ex}"
+                n_bad += 1
+                continue
+            assert not must_raise, f"{label}: accepted a config that asks " \
+                                   "for a feature the prune removed"
+            n_ok += 1
+            # a valid prune must actually reach the argv and the estimate
+            for k, v in feats.items():
+                if v is False:
+                    flag, param, _w = eb.OPTIONAL_BLOCKS[k]
+                    argv = eb.emit_soc_argv(cfg)
+                    assert flag in argv, f"{label}: {flag} missing from argv"
+                    assert cfg["features"][k] is False
+        finally:
+            os.unlink(p)
+    print(f"  [gate 23b] {n_bad}/{n_bad} contradictory prune configs REFUSED "
+          f"with ConfigError; {n_ok}/{n_ok} honest prunes accepted and their "
+          "--no-* flags reach the soc argv")
+
+
+def test_optional_block_prune_accounting():
+    """gate 23c - a pruned config's estimate must go DOWN by the banked
+    figure, the plan must name the block, its milan_datapath parameter and
+    the re-measurement it forces, and the estimate must stay labelled an
+    ESTIMATE."""
+    def m(c):
+        _prune(c, media_clock_servo=False, latency_taps=False, maap=False,
+               i2s_playback=False, rx_mac_filter=False, render_lpf=False)
+        c["clocking"].update(media_clock_sources=["internal"],
+                             default_source="internal", crf_sink=False)
+        c["board"]["constraints"].update(strip_probes=True)
+        c.setdefault("platform", {}).update(rx_address_filter="promiscuous")
+    p = _variant(CONFIGS["ax7101_8x8"], m)
+    try:
+        base = eb.build(CONFIGS["ax7101_8x8"], OUT)
+        pruned = eb.build(p, OUT)
+    finally:
+        os.unlink(p)
+    b, q = base["resource_estimate"], pruned["resource_estimate"]
+    # the CRF sink also goes with internal-only clocking, so compare against
+    # the sum of the banked prune rows PLUS the crf_rx row the config drops.
+    want_lut = sum(-eb.RESOURCE_COSTS[f"prune_{k}"]["lut"]
+                   for k in ("media_clock_servo", "latency_taps",
+                             "render_lpf")) \
+        + eb.RESOURCE_COSTS["rx_filter"]["lut"] \
+        + eb.RESOURCE_COSTS["i2s_renderer"]["lut"] \
+        + eb.RESOURCE_COSTS["maap_claim_ctx"]["lut"]
+    got_lut = b["totals"]["lut"] - q["totals"]["lut"]
+    assert got_lut >= want_lut, \
+        f"pruned estimate fell by {got_lut} LUT, want at least {want_lut}"
+    assert q["totals"]["lut"] < b["totals"]["lut"]
+    assert q["totals"]["ff"] < b["totals"]["ff"]
+    plan = pruned["plan"]
+    for k, (flag, param, _w) in eb.OPTIONAL_BLOCKS.items():
+        assert f"`{k}`" in plan, f"plan does not name {k}"
+        assert f"`{param}=0`" in plan, f"plan does not name {param}=0"
+        assert flag in plan, f"plan does not name {flag}"
+    assert "RE-MEASURE" in plan and "yosys estimate" in plan
+    assert "ALL PRESENT" not in plan
+    print(f"  [gate 23c] all-pruned ax7101_8x8: estimate -{got_lut} LUT / "
+          f"-{b['totals']['ff'] - q['totals']['ff']} FF (banked rows "
+          f"-{want_lut} LUT), plan names every block, its parameter, its "
+          "flag and the re-measurement it forces, labelled ESTIMATE")
+
+
+def test_optional_block_names_reach_the_rtl():
+    """gate 23d - the DECORATIVE-ABI gate, and the reason it exists is on the
+    record: `milan_soc.py` passed `p_AAF_PLAYBACK` for weeks while the SV
+    parameter was `AAF_PLAYBACK_P`, so a LiteX Instance param silently no-oped
+    and the flag pruned nothing. Nothing caught it because no CI job runs
+    LiteX. This gate parses the three files as TEXT and pins them together:
+
+      builder OPTIONAL_BLOCKS  <->  milan_soc.py MILAN_OPTIONAL_BLOCKS + argparse
+                               <->  milan_datapath.sv `parameter int <NAME> = 1`
+
+    A rename or a typo in any one of them fails here in milliseconds."""
+    soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    rtl = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    # 1. the SoC's own keyword -> parameter map, parsed from the literal
+    soc_map = dict(re.findall(r'^\s*"([a-z0-9_]+)":\s*"([A-Z0-9_]+)",',
+                              soc[soc.index("MILAN_OPTIONAL_BLOCKS = {"):
+                                  soc.index("}", soc.index(
+                                      "MILAN_OPTIONAL_BLOCKS = {"))],
+                              re.M))
+    assert soc_map, "milan_soc.py: MILAN_OPTIONAL_BLOCKS did not parse"
+    for name, (flag, param, _why) in eb.OPTIONAL_BLOCKS.items():
+        assert soc_map.get(name) == param, (
+            f"{name}: builder says {param}, milan_soc.py says "
+            f"{soc_map.get(name)!r}")
+        # 2. the CLI flag really exists, as an off-by-default store_true
+        m = re.search(r'ap\.add_argument\("%s",\s*action="store_true"'
+                      % re.escape(flag), soc)
+        assert m, f"{name}: milan_soc.py has no `{flag}` store_true argument"
+        # 3. the RTL parameter exists AND DEFAULTS TO 1 (rule 1, at the source)
+        m = re.search(r"^\s*parameter\s+int\s+%s\s*=\s*(\d+)\s*[,)]"
+                      % re.escape(param), rtl, re.M)
+        assert m, f"{name}: milan_datapath.sv has no `parameter int {param}`"
+        assert m.group(1) == "1", (
+            f"{param} defaults to {m.group(1)} in milan_datapath.sv - every "
+            "prune parameter MUST default to 1 = PRESENT (AREA_BUDGET rule 1)")
+        # 4. it actually gates a generate, and the generate has an else arm
+        #    (an inert tie-off, rule 3) - a parameter that guards nothing is
+        #    the same lie in a different costume
+        g = re.search(r"generate if \(%s != 0\) begin : (\w+)"
+                      % re.escape(param), rtl)
+        assert g, f"{param} guards no `generate if` in milan_datapath.sv"
+        tail = rtl[g.end():]
+        nxt = tail.find("generate if (")
+        arm = tail[:nxt if nxt > 0 else len(tail)]
+        assert re.search(r"end else begin : \w+", arm), \
+            f"{param}: generate has no else arm - a pruned block must tie " \
+            "its outputs to an inert value, not float them"
+        # 5. the Instance passes the parameter ONLY to prune (p_<PARAM> = 0)
+        assert f'dp_params[f"p_{{param}}"] = 0' in soc or \
+               re.search(r'dp_params\[f?"p_\{?param\}?"\]\s*=\s*0', soc), \
+            "milan_soc.py must emit p_<PARAM>=0 only when pruning"
+    # 6. and the DOC that authorises all of this names the same six, with the
+    #    same parameter and the same flag. A prune table that drifts from the
+    #    RTL is how a banked lever becomes folklore.
+    doc = open(os.path.join(ROOT, "docs/design/AREA_BUDGET.md")).read()
+    for name, (flag, param, _why) in eb.OPTIONAL_BLOCKS.items():
+        row = re.search(r"^\|[^|\n]+\| `%s` \| `%s` \| `%s` \|"
+                        % (re.escape(param), re.escape(flag),
+                           re.escape(name)), doc, re.M)
+        assert row, (f"AREA_BUDGET.md tier-1 table has no row mapping "
+                     f"`{param}` / `{flag}` / `{name}`")
+    # the three subtractive estimator rows must quote the doc's figures
+    for k in ("media_clock_servo", "latency_taps", "render_lpf"):
+        lut = -eb.RESOURCE_COSTS[f"prune_{k}"]["lut"]
+        assert re.search(r"\| %s \|" % lut, doc) or f"{lut}" in doc, \
+            f"AREA_BUDGET.md does not carry the banked {lut} LUT for {k}"
+    print(f"  [gate 23d] {len(eb.OPTIONAL_BLOCKS)} optional blocks: builder "
+          "key == milan_soc.py map == a real --no-* store_true == a "
+          "milan_datapath `parameter int X = 1` guarding a generate WITH an "
+          "else arm == the AREA_BUDGET tier-1 table row (the "
+          "p_AAF_PLAYBACK silent-no-op class, closed)")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -1819,7 +2071,11 @@ if __name__ == "__main__":
                test_platform_dt_and_driver_shape, test_platform_rejects,
                test_csr_defaults_header_consumed, test_csr_defaults_rejects,
                test_aes3_interface_switch, test_aes3_rejects,
-               test_cbs_reset_table_single_source):
+               test_cbs_reset_table_single_source,
+               test_optional_blocks_default_present,
+               test_optional_block_gates_bite,
+               test_optional_block_prune_accounting,
+               test_optional_block_names_reach_the_rtl):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
