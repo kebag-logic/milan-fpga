@@ -2,6 +2,14 @@
 # Entity: credit_based_shaper 
 - **File**: credit_based_shaper.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — Generated block symbol only — the port picture, no timing and no credit waveform.
+- **[Generics](#generics)** — The five numbers that *are* the shaper: idleSlope defaults of 750 Mb/s at 1G and 75 Mb/s at 100M, hiCredit/loCredit clamped at ±1536 bytes, and the 125 MHz clock the slopes are scaled against.
+- **[Ports](#ports)** — Seven wires and no CSR: the queue tells it `queue_has_data_i` / `is_transmitting_i` / `bytes_sent_i`, it answers `allow_transmit_o`. Link rate arrives as `is_1g_i`, so one instance shapes one queue.
+- **[Signals](#signals)** — `credit` is a 48-bit signed Q31.16 accumulator; the two per-cycle/per-byte slope values are derived, not parameters.
+- **[Processes](#processes)** — Two blocks: a comb slope select off the link rate, and the clocked credit update. Transmission is permitted on the simple test `credit >= 0`.
+
 ## Diagram
 ![Diagram](credit_based_shaper.svg "Diagram")
 ## Generics

@@ -2,6 +2,17 @@
 # Entity: KL_avtp_common_parser 
 - **File**: KL_avtp_common_parser.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — Generated block symbol only — the port picture, nothing about the classification.
+- **[Generics](#generics)** — Just two knobs: a 64-bit `TDATA_WIDTH` and a one-beat `PIPELINE_DELAY`.
+- **[Description](#description)** — The classification contract, and the part you actually need: the word arrives EtherType-first (`TDATA[63:48]` = 0x22F0, `[47:40]` = subtype), the accepted subtype lists, and the `TDEST` encoding 0/1/2/3 = control / stream / alternative / dropped, with `TUSER` carrying the raw subtype.
+- **[Ports](#ports)** — Four ports only: clock, reset, and a slave/master `axi_stream_if` pair. Classification is entirely in-band — there is no CSR or sideband result.
+- **[Signals](#signals)** — The skid buffer and the pipeline register arrays that let `tready` propagate backwards without dropping a beat.
+- **[Types](#types)** — A two-state enum (`IDLE_S` / `WAIT_S`), annotated with which subtypes land in each of the three accepted groups.
+- **[Processes](#processes)** — Five blocks: skid buffer, input pipeline, backward `tready` comb, the `TDEST` assignment, and the subtype capture that decides forward-or-discard.
+- **[State machines](#state-machines)** — Generated FSM drawing for the two-state parser.
+
 ## Diagram
 ![Diagram](KL_avtp_common_parser.svg "Diagram")
 ## Generics

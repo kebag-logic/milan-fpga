@@ -11,6 +11,18 @@ planes.
 
 ---
 
+## Contents
+
+- **[1. The mental model: AXI-Stream is not memory-mapped](#1-the-mental-model-axi-stream-is-not-memory-mapped)** — Why "attach AXIS to the CPU bus" is not a thing you can do — the bus has no address — and the three-plane decomposition (control, data, events) that every following section builds on.
+- **[2. What NaxRiscv exposes in LiteX](#2-what-naxriscv-exposes-in-litex)** — The four buses you have to work with, and the two constraints that will bite at elaboration: MMIO must land at or above `0x8000_0000` or you get *"Region not in IO region"*, and the coherent DMA path is 64-bit.
+- **[3. Plane ①  -  control (AXI-Lite / CSR slave)](#3-plane-①-----control-axi-lite--csr-slave)** — Copy-ready Python: the AXI-Lite interface, the `SoCRegion` that maps it uncached, and the full channel-by-channel `Instance()` wiring. Plus what to do instead if your core has no AXI-Lite port.
+- **[4. Plane ②  -  data (AXI-Stream ↔ memory via DMA)](#4-plane-②-----data-axi-stream--memory-via-dma)** — The coherent-versus-not decision and what each costs the driver (plain `dma_map_*`, or manual cache maintenance forever). Ends with the AXIS wiring, where the load-bearing detail is that the DMA treats `tlast` as the descriptor boundary.
+- **[5. Plane ③  -  events (IRQ → PLIC)](#5-plane-③-----events-irq--plic)** — `EventManager` → `self.irq.add` → PLIC in a dozen lines, and how the allocated source numbers become the `interrupts` property the driver binds to.
+- **[6. Clock-domain crossing](#6-clock-domain-crossing)** — The general rule, then §6.1's table of every crossing this SoC actually has. Two things to internalise: `buffered=True` re-registers in the *read* domain and without it the BRAM clock-to-Q cone becomes your timing violator; and when the datapath shares `sys`, every crossing collapses to a plain wire — the CDC is a build-time choice, not a permanent cost.
+- **[7. Adding the RTL and constraints](#7-adding-the-rtl-and-constraints)** — Three `add_source` lines, plus a historical note: the datapath used to be a black box and no longer is.
+- **[8. Checklist / gotchas](#8-checklist--gotchas)** — The pre-flight list, and §8.1 — *"the single most expensive mistake this SoC glue has made"*. Three status inputs whose temporary constants outlived their excuse and turned tested RTL into dead silicon, including the subtle form: a Python per-board select is just as constant in the bitstream and *looks* like wiring in review.
+- **[9. Worked example  -  the Milan NIC](#9-worked-example-----the-milan-nic)** — All three planes at once with the real master and slave names. Read the last table before trusting any IRQ name: of the four event sources only one is raised by the datapath, one quietly reuses the free line for RX queue 1, and one is tied to `0` purely to keep the four-line driver shape.
+
 ## 1. The mental model: AXI-Stream is not memory-mapped
 
 A CPU talks to peripherals through **addresses**. AXI-Stream has **no address**  - 

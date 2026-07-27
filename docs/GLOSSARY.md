@@ -3,6 +3,17 @@
 Every term of art used across this repo's documentation, grouped by domain. One line
 each; deeper treatment is linked where a dedicated doc exists.
 
+## Contents
+
+- **[AVB / TSN / Milan](#avb--tsn--milan)** — The standards vocabulary: what AVTP carries, which three protocols AVDECC is made of, and the SR class A/B latency targets that everything else is sized against.
+- **[Ethernet / PHY / wire](#ethernet--phy--wire)** — MAC/PHY-layer terms with the board specifics folded in — why `--gtx-tx-invert` exists on this PHY, why MTU stays 1500 though 4074 was proven, and which peer NIC counters count as wire truth.
+- **[FPGA / tooling](#fpga--tooling)** — Part, resource and timing vocabulary. Two entries carry real scars: IOB packing (XDC ignores TCL `if` guards *silently*) and timing closure, which links the two lessons this repo paid for.
+- **[LiteX / SoC / boot](#litex--soc--boot)** — SoC-builder and boot-chain terms. The ones to know before touching software: there are **two** CSR spaces (`0x9000_0000` AXI-Lite vs `0xf000_xxxx` LiteX), `last_be` is a one-hot pointer and not a keep mask, and `--coherent-dma` is not implied by `--all-blocks`.
+- **[This design (datapath, DMA, driver)](#this-design-datapath-dma-driver)** — Names for our own blocks and their contracts: commit-after-B (software can never see a partial frame), whole-frame drop (mid-frame corruption is impossible by construction), and what a telemetry "stall" actually counts.
+- **[Linux networking / performance](#linux-networking--performance)** — Host-side terms needed to read the throughput write-ups: GRO/GSO versus their hardware twins, the three skb checksum states, and which of `rx_missed_errors` / `InCsumErrors` / `RcvbufErrors` blames the NIC versus the CPU.
+- **[CPU / cache / memory (the >500 RX campaign)](#cpu--cache--memory-the-500-rx-campaign)** — The cache vocabulary the RX campaign runs on, and its two verdicts inline: the RPT stride prefetcher is the lever that bought +34 %, software prefetch is a no-op on this core. Also `copy_to_user` at 51 % of RX CPU and the 481 ceiling measured with the copy removed.
+- **[Project shorthand](#project-shorthand)** — The decoder ring for local jargon in commits and filenames: bitstream lineages (`mfNN`/`AXNN`, `hsqN`, `ringN`, `mlpN`), the M-A milestones, `§A.x`, which tap is on which link, and why `e1` vs `e2` must match the physical cable.
+
 ## AVB / TSN / Milan
 
 | Term | Meaning |
