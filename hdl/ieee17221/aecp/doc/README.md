@@ -142,7 +142,9 @@ caps, MAC, gPTP GM/domain, available_index) — ADP and AEM can never disagree.
   on every status), MVU GET_MILAN_INFO, entity-id filtering, ADP-discover pulse. Run: `cd tb/verilator/aecp && make run`.
 - **Datapath integration:** `tb/verilator/milan_dp` (17 checks) exercises the
   full `milan_datapath` with the listener in place — no NIC regression.
-- **Lint:** `scripts/run-verilator-lint.sh` (per-module + full `KL_aecp_top`).
+- **Lint:** `python3 scripts/lint_rtl.py --check` — the whole-`hdl/` Verilator
+  sweep (`KL_aecp_top` is one of its 82 tops). This directory carries 5 of the
+  188 ratcheted violations and 2 of the 9 justified `lint_off` pragmas.
 - **Co-sim:** `tb/verilator/aecp/cosim_driver.py` — tsn-gen builds/parses the
   frames, the real `KL_aecp_top` RTL answers over an AxiStreamBeat socket (36/36).
 - **la_avdecc (Hive's library):** `enum_probe.cpp` on the AVB peer — full
