@@ -551,7 +551,7 @@ individually and the rest of this section is their detail:
 
 | Step | What it is | Status |
 |---|---|---|
-| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was the `0x600` half. `ADP_TALKER` (`0x618`) is now a **read-only** word hardwired from `ACMP_SRC_C`, so the advertised range and the addressable range are the same number by construction. Gated by `scripts/check_entity_shape.py` |
+| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was that nothing carried it to the `0x600` group or into the compiled descriptor ROM. The builder now emits `gen/adp_shape_defaults.svh` (the **read-only** `0x618`/`0x61C` words, which also size `ACMP_SRC_C`/`ACMP_SINKS_C`) and this shape's `aecp_aem_rom.svh`, from one config in one pass. Gated by `scripts/check_entity_shape.py`, including a pre-build refusal in `build.sh`/`sweep.sh` |
 | (b) | MAAP DMAC slot `base + T` (§3.3) | **SHIPPED 2026-07-26** — the responder answers `stream_dest_mac` = block base + `N_STREAMS`; `MAAP_CTRL`'s claimed count must therefore be `N_STREAMS+1` |
 | (c) | lwSRP talker attribute context `T` — the Class A reservation ([M-7.3.3]) | **OPEN** — the `0x800` window addresses talker idx `< T` only, so no selection reaches the row; needs `N_CTX_P = L+T` plus a way to name it |
 | (d) | provisioning daemon arms `A_CRFT_*` from the claimed DMAC and identity | **COLLAPSED TO NOTHING** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
@@ -599,10 +599,11 @@ N_STREAMS` and emitted the CRF PDUs every 2 ms, and no controller ever
 asked, because `ADP_TALKER` (`0x618`) advertised **1** source. That
 register was plain RW resetting to zero, filled in by a boot script written
 when the board was 1×1, so the 8×8 build advertised the 1×1 shape and
-nothing looked broken. `0x618`/`0x61C` are now **read-only** words
-hardwired from `ACMP_SRC_C` / `ACMP_SINKS_C`, and `ACMP_SINKS_C` moved from
-`max(N_STREAMS, 2)` to `(N > 1) ? N + 1 : 2` so the CRF **sink** exists at
-every N as well (above N = 2 it had been silently dropped). What remains
+nothing looked broken. `0x618`/`0x61C` are now **read-only** words whose
+values are generated from the end-station config, and `ACMP_SRC_C` /
+`ACMP_SINKS_C` are read from that same generated include instead of being
+computed here — which also retired `max(N_STREAMS, 2)`, under which the CRF
+**sink** was silently dropped above N = 2. What remains
 open on the CRF path is (c) alone — the Class A reservation, [M-CLK-2] —
 which is a different question from discoverability.
 

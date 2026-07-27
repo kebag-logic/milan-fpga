@@ -229,14 +229,16 @@ int main(int argc, char** argv) {
   ck("ctx1 E2 tuid still 0", axi_read(0x868) & 0xFFFF, 0);
   ck("ctx1 sid intact", axi_read(A_SW_SID_LO), (uint32_t)SID1);
 
-  // csr_win_live.sv elaborates the window at 2x2 but the ADP shape at 3/3,
-  // so this reads back the SHAPE parameters and not the window's context
-  // counts - the distinction 0x618/0x61C got wrong on silicon.
-  printf("-- ADP shape RO, distinct from the 2x2 window counts --\n");
-  ck("ADP_TALK = {0x4001, N_TALKER_SRC_P=3}", axi_read(0x618), 0x40010003u);
-  ck("ADP_LIST = {0x4801, N_LISTENER_SINK_P=3}", axi_read(0x61C), 0x48010003u);
+  // csr_win_live.sv elaborates the 0x800 window at 2x2 while the ADP shape
+  // comes from configs/generated/endstation_ax7101_8x8 (9 sources / 9 sinks
+  // = 8 AAF + CRF): the shape follows the CONFIG, never the window's context
+  // counts - the distinction 0x618/0x61C got wrong on silicon, where an 8x8
+  // board advertised the 1x1 numbers a boot script had been given.
+  printf("-- ADP shape RO, from the 8x8 config, not the 2x2 window --\n");
+  ck("ADP_TALK = {0x4801, ADP_TALKER_SRC_C=9}", axi_read(0x618), 0x48010009u);
+  ck("ADP_LIST = {0x4801, ADP_LISTENER_SINK_C=9}", axi_read(0x61C), 0x48010009u);
   axi_write(0x618, 0x48010001); run(4);
-  ck("ADP_TALK unmoved by a write", axi_read(0x618), 0x40010003u);
+  ck("ADP_TALK unmoved by a write", axi_read(0x618), 0x48010009u);
 
   printf("-- index 0 SRP word = live 0x694 alias --\n");
   axi_write(A_STRM_SEL, 0x000);

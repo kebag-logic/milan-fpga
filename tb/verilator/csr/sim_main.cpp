@@ -369,28 +369,33 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_ECAPS, 0x0000C588);
   dut->eval();
   ck("o_adp_entity_caps", dut->o_adp_entity_caps, 0x0000C588);
-  // ADP SHAPE IS READ-ONLY (VERSION 0x0015). 0x618/0x61C are hardwired from
-  // the elaboration parameters - at the default 1x1 shape that is
-  // {talker_caps 0x4001, sources 1} and {listener_caps 0x4801, sinks 1}.
+  // ADP SHAPE IS READ-ONLY AND COMES FROM THE CONFIG (VERSION 0x0015).
+  // 0x618/0x61C are built from gen/adp_shape_defaults.svh, which
+  // sw/builder/endstation_builder.py generates from an end-station config.
+  // This executable carries the TRACKED default - endstation_arty_current,
+  // 1 AAF listener + 1 AAF talker + a CRF sink and no CRF output - so the
+  // entity has 1 STREAM_OUTPUT and 2 STREAM_INPUTs, and talker_capabilities
+  // must NOT claim MEDIA_CLOCK_SOURCE. (sim_win.cpp elaborates the 4x4
+  // config and reads 5/5; sim_live.cpp the 8x8 and reads 9/9.)
   // Before 0x0015 these were plain RW words resetting to ZERO and the values
-  // came from a boot script, which is how the 8x8 board advertised 1 source
-  // and 2 sinks on silicon (2026-07-27). A write must now change NOTHING.
-  ck("ADP_TALK RO reset = {0x4001, N_TALKER_SRC_P=1}",
+  // came from a boot script, which is how the 8x8 board advertised the 1x1
+  // shape on silicon (2026-07-27). A write must now change NOTHING.
+  ck("ADP_TALK RO = {0x4001, ADP_TALKER_SRC_C=1}",
      axi_read(A_ADP_TALK), 0x40010001u);
-  ck("ADP_LIST RO reset = {0x4801, N_LISTENER_SINK_P=1}",
-     axi_read(A_ADP_LIST), 0x48010001u);
+  ck("ADP_LIST RO = {0x4801, ADP_LISTENER_SINK_C=2}",
+     axi_read(A_ADP_LIST), 0x48010002u);
   ck("o_adp_talker_sources", dut->o_adp_talker_sources, 1);
   ck("o_adp_talker_caps",    dut->o_adp_talker_caps, 0x4001);
-  ck("o_adp_listener_sinks", dut->o_adp_listener_sinks, 1);
+  ck("o_adp_listener_sinks", dut->o_adp_listener_sinks, 2);
   ck("o_adp_listener_caps",  dut->o_adp_listener_caps, 0x4801);
   axi_write(A_ADP_TALK, 0x00010008);     // the retired S50milan-style poke
-  axi_write(A_ADP_LIST, 0x48010002);
+  axi_write(A_ADP_LIST, 0x48010009);
   dut->eval();
   ck("ADP_TALK ignores the write", axi_read(A_ADP_TALK), 0x40010001u);
-  ck("ADP_LIST ignores the write", axi_read(A_ADP_LIST), 0x48010001u);
+  ck("ADP_LIST ignores the write", axi_read(A_ADP_LIST), 0x48010002u);
   ck("o_adp_talker_sources unmoved", dut->o_adp_talker_sources, 1);
   ck("o_adp_talker_caps unmoved",    dut->o_adp_talker_caps, 0x4001);
-  ck("o_adp_listener_sinks unmoved", dut->o_adp_listener_sinks, 1);
+  ck("o_adp_listener_sinks unmoved", dut->o_adp_listener_sinks, 2);
   ck("o_adp_listener_caps unmoved",  dut->o_adp_listener_caps, 0x4801);
   axi_write(A_ADP_GMLO, 0x44556677);
   axi_write(A_ADP_GMHI, 0x00112233);

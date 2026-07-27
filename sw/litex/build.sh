@@ -28,6 +28,7 @@ WORK=$HOME/litex-milan/work
 SOC_DIR="$(cd "$(dirname "$0")" && pwd)"
 TAG=${TAG:-$(date +%m%d%H%M)}
 STAGGER=90
+REPO_ROOT="$(cd "$SOC_DIR/../.." && pwd)"
 
 # ---- per-board flash/JTAG facts (docs/integration/BUILDING.md section 4) --------------------
 # serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
@@ -191,6 +192,24 @@ while [ $# -gt 0 ]; do
     shift
 done
 [ ${#CONFIGS[@]} -gt 0 ] || { echo "usage: $0 <config> [<config> ...] [--sweep] [--dry-run] [-- extra args]" >&2; exit 2; }
+
+# ---- entity-definition gate (HARD, not advisory) --------------------------------
+# The gateware `include-s a GENERATED entity definition: the ADPDU stream counts
+# (hdl/common/csr/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C and
+# also sizing the ACMP context arrays) and the AEM descriptor ROM
+# (hdl/ieee17221/aecp/gen/aecp_aem_rom.svh). Both come from ONE end-station
+# config via sw/builder/endstation_builder.py --write-rtl. Until 2026-07-27
+# nothing checked WHICH config: the tree carried the 1x1 shape and every build,
+# 8x8 included, compiled it in - so the 8x8 board advertised 1 talker source and
+# enumerated 1 STREAM_OUTPUT. Refuse to launch if the tree is another shape's.
+ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
+ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
+for c in "${CONFIGS[@]}"; do
+    eval "ecfg=\${ENTITY_CFG_$c:-}"
+    [ -n "$ecfg" ] || continue
+    python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" \
+        || { echo "refusing to build '$c': the tracked entity definition is not $ecfg's" >&2; exit 2; }
+done
 
 # ---- expand configs (x directives when sweeping) --------------------------------
 JOBS=()   # "name|args"
