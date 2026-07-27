@@ -286,6 +286,51 @@ SRP_DEFAULTS = dict(
 )
 SRP_TSPEC_POLICIES = ("pinned", "derived")
 
+#: `srp.stream_dmac_base: maap` means the stream destination addresses are
+#: ALLOCATED AT RUN TIME by the MAAP engine rather than provisioned here. It
+#: is the only value that makes KL_maap load-bearing, and therefore the only
+#: value that forbids `board.features.maap: false`.
+SRP_DMAC_DYNAMIC = "maap"
+
+# ------------------------------------------------- optional-block features --
+# docs/design/AREA_BUDGET.md tier 1: blocks a deployment may not be able to
+# use, each behind an ELABORATION-TIME milan_datapath parameter. The config
+# key is `board.features.<name>`; EVERY ONE DEFAULTS TO true = PRESENT, so a
+# config that omits the whole block emits exactly today's argv and today's
+# gateware (the no-regression axiom).
+#
+#   name -> (milan_soc.py flag, milan_datapath parameter, one-line summary)
+#
+# The flag is emitted by emit_soc_argv ONLY when the feature is false, so a
+# default config's argv is byte-identical to what sweep.sh carries.
+OPTIONAL_BLOCKS = {
+    "media_clock_servo": ("--no-media-clock-servo", "MCSERVO_P",
+                          "KL_mmcm_drp_servo - the audio-MMCM media-clock "
+                          "actuator (CRF / input-stream recovery)"),
+    "latency_taps":      ("--no-latency-taps", "LTAP_P",
+                          "KL_aaf_latency_taps - the per-stage AAF latency "
+                          "instrumentation behind CSR 0x870-0x8B0"),
+    "maap":              ("--no-maap", "MAAP_P",
+                          "KL_maap - IEEE 1722 Annex B dynamic stream-DMAC "
+                          "allocation and defence"),
+    "i2s_playback":      ("--no-i2s-playback", "I2SPB_P",
+                          "KL_i2s_playback - the DAC serializer and its "
+                          "rate servo"),
+    "rx_mac_filter":     ("--no-rx-mac-filter", "RXFILT_P",
+                          "rx_mac_filter + tcam - the RX station-address / "
+                          "dest-MAC filter"),
+    "render_lpf":        ("--no-render-lpf", "LPF_P",
+                          "KL_pcm_lpf - the 2nd-order Butterworth on the DAC "
+                          "render tap"),
+}
+
+#: Where the RX destination-address decision is taken. `hardware` (the
+#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
+#: are the honest declarations that let it be pruned. This key exists so that
+#: pruning the filter is a stated deployment property rather than a silent
+#: change of what the port accepts.
+RX_ADDRESS_FILTERS = ("hardware", "software", "promiscuous")
+
 # ------------------------------------------------------ platform / DT shape --
 # Item-4 emitter: the device-tree node shape + the driver-visible layout.
 # THE bug class this closes shipped in 5ce9a13: rx-queues is per board, the
@@ -336,6 +381,7 @@ PLATFORM_DEFAULTS = dict(
     pcm_ring_stride=0x10_0000,
     dma_coherent=True,
     boot_chain_pin=None,                     # flashed DTB's window map
+    rx_address_filter="hardware",            # hardware | software | promiscuous
 )
 
 # ------------------------------------------------------ resource estimator --
@@ -490,6 +536,43 @@ RESOURCE_COSTS = {
                                  "trim) N_STREAMS 1->8 delta/7; per talker "
                                  "stream beyond 1",
                                  "shared-engine marginal (yosys-derived)"),
+    # -- optional-block prunes (docs/design/AREA_BUDGET.md tier 1) ------------
+    # THREE of the six blocks already have POSITIVE rows above (`rx_filter`,
+    # `i2s_renderer`, `maap_claim_ctx` + `maap_dmac_slot_extra`), all of them
+    # Vivado-derived; pruning those simply counts the existing row 0, which is
+    # more accurate than subtracting a yosys number from a Vivado one.
+    # The three rows below are for blocks this table never charged for:
+    # the servo and the taps are MISSING from it entirely, and the render LPF
+    # is folded inside `aaf_listener_engine`. They are SUBTRACTIVE and counted
+    # 1 only when board.features prunes the block, so a default config counts
+    # them 0 and its estimate is BYTE-IDENTICAL to what this table produced
+    # before they existed - the gate-11 calibration against the real mf48
+    # place report is untouched by them.
+    #
+    # Figures = yosys ESTIMATES, not placement results: synth_xilinx -family
+    # xc7 with HIERARCHY PRESERVED on milan_datapath at the ship shape
+    # (N_STREAMS=8, AUDIO_IF_SLOTS_P=16), per-module `stat`, 2026-07-27.
+    # The whole-design `-flatten` delta was rejected for two of these six:
+    # it reports the flip-flop total as BIT-IDENTICAL after removing blocks
+    # that elaboration shows carry 1691 and 756 flops, which cannot be a
+    # measurement. See AREA_BUDGET.md "Which method to trust".
+    "prune_media_clock_servo": _cost(-814, -789, 0, -1,
+                                     "yosys hier OOC: KL_mmcm_drp_servo 807/745"
+                                     "/1DSP + cdc_handshake 5/40 + cdc_pulse "
+                                     "2/4 (ESTIMATE, 2026-07-27)",
+                                     "measured (yosys hierarchical ESTIMATE)"),
+    "prune_latency_taps": _cost(-948, -614, 0, 0,
+                                "yosys hier OOC: KL_aaf_latency_taps 0/32 + "
+                                "2 x KL_aaf_latency_chain 474/291 (ESTIMATE, "
+                                "2026-07-27)",
+                                "measured (yosys hierarchical ESTIMATE)"),
+    "prune_render_lpf": _cost(-864, -756, 0, -1,
+                              "yosys hier OOC: KL_pcm_lpf 864/756/1DSP "
+                              "(ESTIMATE, 2026-07-27). The shipping Vivado "
+                              "place report prices the same block at 428-445 "
+                              "LUT / 756 FF - the FF figures agree exactly, "
+                              "the LUT figure is yosys running ~2x high",
+                              "measured (yosys hierarchical ESTIMATE)"),
 }
 
 
@@ -511,8 +594,10 @@ def resource_instances(cfg, overlay):
         ("crf_rx", crf),
         ("csr", 1),
         ("ptp_timestamp", 1),
-        ("rx_filter", 1),
-        ("i2s_renderer", 1),
+        # tier-1 prunes with an EXISTING Vivado-derived row: pruning counts
+        # the row 0 rather than subtracting a yosys figure from a Vivado one
+        ("rx_filter", 1 if cfg["features"]["rx_mac_filter"] else 0),
+        ("i2s_renderer", 1 if cfg["features"]["i2s_playback"] else 0),
         ("datapath_misc", 1),
         # P12 shared-engine scaling: engines charged ONCE, extra stream
         # contexts via the yosys-derived marginal rows
@@ -520,14 +605,38 @@ def resource_instances(cfg, overlay):
         ("aaf_listener_ctx_extra", max(0, L - 1)),
         ("aaf_talker_engine", min(T, 1)),
         ("aaf_talker_ctx_extra", max(0, T - 1)),
-        ("maap_claim_ctx", min(T, 1)),
-        ("maap_dmac_slot_extra", max(0, T - 1)),
+        ("maap_claim_ctx", min(T, 1) if cfg["features"]["maap"] else 0),
+        ("maap_dmac_slot_extra",
+         max(0, T - 1) if cfg["features"]["maap"] else 0),
         ("acmp_listener_ctx", min(L, 1)),
         ("acmp_lstn_ctx_extra", max(0, L - 1)),
         ("lwsrp_base", 1),
         ("lwsrp_attr_ctx", (L - 1) + (T - 1)),
         ("lwsrp_bw_slot_extra", max(0, T - 1)),
+    ] + [
+        # tier-1 prunes with NO existing row (the servo and the taps are
+        # missing from the table; the render LPF is folded inside
+        # aaf_listener_engine): a SUBTRACTIVE row counted 1 ONLY when the
+        # feature is pruned, so a default config's row list ends exactly
+        # where it did before.
+        (f"prune_{name}", 0 if block_present(cfg, name) else 1)
+        for name in ("media_clock_servo", "latency_taps", "render_lpf")
     ]
+
+
+def block_present(cfg, name):
+    """Is optional block `name` built for this config?
+
+    There are TWO spellings that prune a block - `board.features.<name>` and,
+    for the render LPF, `board.constraints.render_lpf` (the key the ax7101
+    spend is declared in). They must resolve to ONE answer, because the argv
+    and the resource estimate both consume it: for a while they did not, and
+    the shipping ax7101 estimate charged for a Butterworth filter its own argv
+    told the build not to instantiate.
+    """
+    if not cfg.get("features", {}).get(name, True):
+        return False
+    return bool(cfg.get("constraints", {}).get(name, True))
 
 
 def resource_verdict(worst_pct):
@@ -790,6 +899,16 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
             and 1 <= s["bandwidth_limit_pct"] <= 100):
         raise ConfigError(f"srp.bandwidth_limit_pct {s['bandwidth_limit_pct']} "
                           "outside 1..100")
+    # `maap` = the DMACs are claimed at run time by KL_maap. Everything
+    # downstream still needs a concrete base to model the reservation with,
+    # so the default provisioned base is used for the tables and the
+    # ALLOCATION POLICY is recorded separately - that policy is what
+    # validate_features() keys the MAAP prune gate on.
+    s["stream_dmac_alloc"] = "static"
+    if isinstance(s["stream_dmac_base"], str) and \
+            s["stream_dmac_base"].strip().lower() == SRP_DMAC_DYNAMIC:
+        s["stream_dmac_alloc"] = SRP_DMAC_DYNAMIC
+        s["stream_dmac_base"] = SRP_DEFAULTS["stream_dmac_base"]
     dmac = _eui64(s["stream_dmac_base"], "srp.stream_dmac_base")
     if dmac > 0xFFFFFFFFFFFF:
         raise ConfigError(f"srp.stream_dmac_base {s['stream_dmac_base']} is "
@@ -1233,6 +1352,99 @@ def _mac48(v, ctx):
     return n
 
 
+def load_features(raw):
+    """Normalize `board.features`. Missing block or missing key = PRESENT."""
+    raw = raw or {}
+    if not isinstance(raw, dict):
+        raise ConfigError("board.features: must be a mapping of "
+                          f"{sorted(OPTIONAL_BLOCKS)} -> bool")
+    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS))
+    if unknown:
+        raise ConfigError(f"board.features: unknown block(s) {unknown} "
+                          f"(known: {sorted(OPTIONAL_BLOCKS)})")
+    out = {}
+    for k in OPTIONAL_BLOCKS:
+        v = raw.get(k, True)
+        if not isinstance(v, bool):
+            raise ConfigError(f"board.features.{k} must be a boolean (got "
+                              f"{v!r}); true = PRESENT (the default)")
+        out[k] = v
+    return out
+
+
+def validate_features(feat, cons, clocking, interface, srp, platform):
+    """THE GATE (docs/design/AREA_BUDGET.md rule 5): refuse a config that asks
+    for a feature one of the prune parameters removed. A silently absent
+    feature is the decorative-ABI defect in reverse - the register window
+    still answers, the block behind it is gone - and this project has been
+    bitten by exactly that (dead RMON, the `p_AAF_PLAYBACK` name typo that
+    pruned nothing, the 0x8F8 dead read). Each rule below names the config
+    element that makes the block load-bearing, so the contradiction is
+    reported against something the author actually wrote."""
+    # 1. media-clock servo: it is the ACTUATOR for a media clock the fabric
+    #    recovers. Internal-only clocking never engages it (the servo idles
+    #    unless clock_source != 0), so that is the one shape it may go.
+    if not feat["media_clock_servo"]:
+        ext = sorted(set(clocking["media_clock_sources"]) - {"internal"})
+        if ext:
+            raise ConfigError(
+                f"board.features.media_clock_servo: false prunes "
+                "KL_mmcm_drp_servo, but clocking.media_clock_sources offers "
+                f"{ext} - those sources are RECOVERED clocks and the servo is "
+                "what disciplines the audio MMCM to them. Restrict "
+                "media_clock_sources to [internal] (and clocking.crf_sink to "
+                "false) or keep the servo.")
+    # 2. latency taps: pure instrumentation, so the contradiction is with a
+    #    build that has explicitly asked to KEEP its instrumentation.
+    if not feat["latency_taps"] and not cons["strip_probes"]:
+        raise ConfigError(
+            "board.features.latency_taps: false prunes KL_aaf_latency_taps "
+            "and makes the whole LTAP window (0x870-0x8B0) read a structural "
+            "zero, but board.constraints.strip_probes is false - this build "
+            "has asked to keep its instrumentation. Set strip_probes: true "
+            "(a build that ships no probes) or keep the taps.")
+    # 3. MAAP: load-bearing exactly when the stream DMACs are allocated at
+    #    run time rather than provisioned in this file.
+    if not feat["maap"] and srp["stream_dmac_alloc"] == SRP_DMAC_DYNAMIC:
+        raise ConfigError(
+            "board.features.maap: false prunes KL_maap, but "
+            f"srp.stream_dmac_base is '{SRP_DMAC_DYNAMIC}' = the addresses "
+            "are claimed at run time by that engine. Provision a static "
+            "multicast base instead, or keep MAAP.")
+    # 4. I2S playback: the i2s_philips interface's RENDER half IS
+    #    KL_i2s_playback (INTERFACES rtl note), so pruning it guts the
+    #    declared physical interface.
+    if not feat["i2s_playback"] and interface["kind"] == "i2s_philips":
+        raise ConfigError(
+            "board.features.i2s_playback: false prunes KL_i2s_playback, "
+            "which is the RENDER half of audio_interface.kind 'i2s_philips' "
+            "- the config declares a DAC this build would not be able to "
+            "drive. Declare an interface without a local DAC render path, or "
+            "keep playback.")
+    # 5. RX filter: the port's address-filtering policy has to say so.
+    if not feat["rx_mac_filter"] and platform["rx_address_filter"] == "hardware":
+        raise ConfigError(
+            "board.features.rx_mac_filter: false prunes rx_mac_filter + its "
+            "TCAM, but platform.rx_address_filter is 'hardware'. A pruned "
+            "filter makes the port PROMISCUOUS (the RX stream becomes a "
+            "straight wire to the DMA port), which is a change in what the "
+            "station accepts. Declare rx_address_filter: software (the host "
+            "drops non-matching frames) or promiscuous, or keep the filter.")
+    # 6. render LPF: its ONLY consumer in milan_datapath is KL_i2s_playback
+    #    (pcm_lpf_tdata/tvalid -> i2s_player.lpf_*; pcm_lpf_active ->
+    #    KL_i2s_feed_mux, which exists to feed the same player). Keeping the
+    #    filter in a build with no player therefore synthesises a filter
+    #    nothing can hear - the mirror image of a silently absent feature,
+    #    and just as much a lie about what the gateware does.
+    if feat["render_lpf"] and not feat["i2s_playback"]:
+        raise ConfigError(
+            "board.features: render_lpf is true but i2s_playback is false. "
+            "KL_pcm_lpf's only consumer is KL_i2s_playback, so this build "
+            "would synthesise a render filter with nothing behind it. Set "
+            "render_lpf: false as well, or keep i2s_playback.")
+    return feat
+
+
 def load_platform(raw, cons, target, listeners):
     """Validate + normalize the `platform:` section and DERIVE the DMA window
     map from board.constraints.rx_queues. Raises ConfigError when the derived
@@ -1274,6 +1486,10 @@ def load_platform(raw, cons, target, listeners):
     if phy is None:
         raise ConfigError(f"platform: no DT phy-mode for board phy "
                           f"'{cons['phy']}' (known {sorted(DT_PHY_MODE)})")
+    if p["rx_address_filter"] not in RX_ADDRESS_FILTERS:
+        raise ConfigError(f"platform.rx_address_filter "
+                          f"'{p['rx_address_filter']}' not in "
+                          f"{list(RX_ADDRESS_FILTERS)}")
     p["phy_mode"] = phy
     p["rsc_clk_mhz"] = cons["milan_clk_hz"] // 1_000_000
     if p["rsc_clk_mhz"] * 1_000_000 != cons["milan_clk_hz"]:
@@ -1676,13 +1892,19 @@ def load_config(path):
                    BOARDS[target])
     platform = load_platform(cfg.get("platform"), cons, target, listeners)
 
+    # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
+    # because the gate cross-checks against clocking / interface / srp /
+    # platform - a prune is only wrong RELATIVE to what the rest asked for.
+    features = validate_features(load_features(brd.get("features")),
+                                 cons, clocking, interface, srp, platform)
+
     out = dict(
         source=os.path.relpath(path, ROOT),
         name=os.path.splitext(os.path.basename(path))[0],
         entity=entity, board_target=target, constraints=cons,
         clocking=clocking, interface=interface,
         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
-        platform=platform,
+        platform=platform, features=features,
     )
 
     # per-stream port layout (needed by the model-id hash and the overlay)
@@ -1872,6 +2094,12 @@ def emit_soc_argv(cfg):
     kind = cfg["interface"]["kind"]
     if kind in ("tdm8", "tdm16", "tdm32"):
         argv += ["--audio-interface", kind]
+    # docs/design/AREA_BUDGET.md tier-1 optional blocks. Emitted ONLY for a
+    # PRUNED block, in OPTIONAL_BLOCKS order, so a config that omits the
+    # whole board.features section produces a byte-identical argv.
+    for name, (flag, _param, _why) in OPTIONAL_BLOCKS.items():
+        if not cfg["features"][name]:
+            argv += [flag]
     return argv
 
 
@@ -2166,6 +2394,60 @@ def emit_platform_section(shape):
     return ln
 
 
+#: What re-measurement a prune invalidates. Rule 4 of AREA_BUDGET.md: a
+#: parameter that removes logic must say which recorded number stops being
+#: about the bitstream you are building. Printed in the build plan so the
+#: obligation travels with the config, not with the reviewer's memory.
+FEATURE_REMEASURE = {
+    "media_clock_servo":
+        "every CRF / input-stream media-clock lock result: with no actuator "
+        "the audio MMCM free-runs, so servo convergence, MCSRV_STAT states "
+        "and any recovered-clock jitter figure are not reproducible",
+    "latency_taps":
+        "ALL of docs/AAF_LATENCY_TAPS.md - the CAP-SOF, SOF-EOF and EOF-MAC "
+        "silicon numbers were read out of this block and cannot be re-read "
+        "from a build that does not contain it",
+    "maap":
+        "MAAP claim/defend behaviour: conflict and defence counts, and any "
+        "address-collision result that depended on the engine answering",
+    "i2s_playback":
+        "every analog measurement taken at the line out (loop THD+N, the "
+        "pilot-tone census) and the I2SPB underrun/overrun census",
+    "rx_mac_filter":
+        "the RX drop census and any statement about what the port refuses; "
+        "the port is PROMISCUOUS in the pruned build",
+    "render_lpf":
+        "the analog loop THD+N record, which was measured THROUGH this "
+        "filter (docs/NXN_ARCHITECTURE.md 6.2)",
+}
+
+
+def emit_features_line(cfg):
+    """The '## Optional blocks' section of the build plan. ALWAYS emitted, so
+    a reader of any plan can see which optional blocks this bitstream does and
+    does not contain - the point of the whole exercise is that an absent block
+    is never silent."""
+    ln = ["## Optional blocks (docs/design/AREA_BUDGET.md tier 1)", ""]
+    pruned = [k for k in OPTIONAL_BLOCKS if not cfg["features"][k]]
+    if not pruned:
+        ln.append("- ALL PRESENT (the default). This gateware contains every "
+                  "tier-1 optional block; no `--no-*` flag is emitted and the "
+                  "generated top is the shipping shape.")
+        return "\n".join(ln)
+    ln.append("| Block | Flag | milan_datapath | RE-MEASURE |")
+    ln.append("|-------|------|----------------|------------|")
+    for k in pruned:
+        flag, param, _why = OPTIONAL_BLOCKS[k]
+        ln.append(f"| `{k}` | `{flag}` | `{param}=0` | "
+                  f"{FEATURE_REMEASURE[k]} |")
+    present = [k for k in OPTIONAL_BLOCKS if cfg["features"][k]]
+    ln.append("")
+    ln.append(f"- PRESENT: {', '.join(f'`{k}`' for k in present) or '(none)'}")
+    ln.append("- Every figure attached to a pruned block in the resource "
+              "estimate is a **yosys estimate**, not a placement result.")
+    return "\n".join(ln)
+
+
 def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     c, e, i = cfg["constraints"], cfg["entity"], cfg["interface"]
     ln = []
@@ -2189,6 +2471,8 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
       f" / milan {_freq(c['milan_clk_hz'])} Hz, L2 {c['l2_bytes']} B,"
       f" flashboot {c['flashboot']}"
       + (f", eth port {c['eth_port']}" if c["eth_port"] else ""))
+    a("")
+    a(emit_features_line(cfg))
     a("")
     a("## Clocking")
     a("")

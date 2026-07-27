@@ -12,9 +12,15 @@ build failure, and nothing in CI would have seen it.
 
 Why this is cheap. Two facts make a sweep affordable:
 
-  * **sv2v preserves parameters.** Verified: `chparam -set NUM_ENTRIES 64`
-    after sv2v moves `tcam` from 4,911 to 19,707 cells. So sv2v runs ONCE per
-    top and every configuration reuses that one conversion - only Yosys reruns.
+  * **The override happens at sv2v time, not in Yosys.** Yosys `chparam` works
+    on a simple top (it moves `tcam` from 4,911 to 19,707 cells) but on
+    `milan_datapath` it forces an AST *re-derive*, and derive mode cannot width
+    -resolve sv2v's flattened SystemVerilog interface signals:
+    `ERROR: Failed to detect width for identifier
+    \traffic_controller...classifier_to_queue.tdest`. Every configuration
+    failed that way, including the one that only re-set the defaults. So the
+    sweep rewrites the parameter DEFAULTS in a scratch copy of the top and lets
+    sv2v elaborate the shape, which is the path `run.sh` already proves works.
   * **The space is partitioned before it is sampled** (below), so it never
     grows the way the raw legal-value count suggests.
 
@@ -140,20 +146,42 @@ def plan(max_runs):
     return chosen, covered, target
 
 
-def convert(top, srcs, inc, tmp):
-    """sv2v ONCE per top - the output keeps its parameters."""
-    out = tmp / f"{top}.v"
+#: `  parameter int N_STREAMS = 1,`  ->  capture so the default can be replaced
+def _param_re(name):
+    return re.compile(rf"(^\s*parameter\s+int\s+{re.escape(name)}\s*=\s*)"
+                      rf"([0-9_]+)", re.M)
+
+
+def convert(top, srcs, inc, cfg, tmp, tag):
+    """sv2v the sources with this configuration's parameter defaults applied.
+
+    The top's own source is copied and its parameter DEFAULTS rewritten, so
+    sv2v elaborates the requested shape. Only the top is patched; the rest of
+    the source list is passed through untouched.
+    """
+    top_src = next((s for s in srcs if Path(s).name == f"{top}.sv"), None)
+    if top_src is None:
+        return None, f"cannot find {top}.sv in the source list"
+    text = Path(top_src).read_text()
+    for k, v in cfg.items():
+        text, n = _param_re(k).subn(rf"\g<1>{v}", text)
+        if n == 0:
+            return None, f"parameter {k} not found in {top}.sv - cannot override"
+    patched = tmp / f"{tag}_{top}.sv"
+    patched.write_text(text)
+    srcs = [str(patched) if s == top_src else s for s in srcs]
+
     r = subprocess.run(["sv2v", f"--top={top}"] + inc + srcs,
                        capture_output=True, text=True)
     if r.returncode != 0:
-        return None, r.stderr.strip().split("\n")[0]
+        return None, r.stderr.strip().split("\n")[0][:110]
+    out = tmp / f"{tag}.v"
     out.write_text(r.stdout)
     return out, None
 
 
 def synth(top, vfile, cfg, tmp):
-    sets = " ".join(f"chparam -set {k} {v} {top};" for k, v in cfg.items())
-    script = f"read_verilog {vfile}; {sets} synth -top {top}; hierarchy -check; stat"
+    script = f"read_verilog {vfile}; synth -top {top}; hierarchy -check; stat"
     r = subprocess.run(["yosys", "-p", script], capture_output=True, text=True)
     cells = re.findall(r"^\s+(\d+) cells$", r.stdout, re.M)
     if r.returncode != 0:
@@ -237,22 +265,22 @@ def main():
                 print(f"  [FAIL] {top}: no source list found in run.sh")
                 fails += 1
                 continue
-            t0 = time.time()
-            vfile, err = convert(top, srcs, inc, tmp)
-            if err:
-                print(f"  [FAIL] {top} sv2v: {err}")
-                fails += 1
-                continue
-            print(f"\n== {top} == (sv2v once: {time.time() - t0:.0f}s, "
-                  f"reused by all {len(chosen)} configs)")
+            print(f"\n== {top} ==")
             base = None
+            seen_cells = {}
             for name, cfg in chosen.items():
                 t1 = time.time()
+                vfile, err = convert(top, srcs, inc, cfg, tmp, name)
+                if err:
+                    print(f"  [FAIL] {name:<14} sv2v: {err}")
+                    fails += 1
+                    continue
                 cells, err = synth(top, vfile, cfg, tmp)
                 if err:
                     print(f"  [FAIL] {name:<14} {err}")
                     fails += 1
                     continue
+                seen_cells.setdefault(cells, []).append(name)
                 if name == "default":
                     base = cells
                 delta = ""
@@ -260,6 +288,20 @@ def main():
                     delta = f"  ({cells / base:.2f}x default)"
                 print(f"  [PASS] {name:<14} cells={cells:<8} "
                       f"{time.time() - t1:.0f}s{delta}")
+
+            # An override that changes no cell count changed NOTHING. That is
+            # this project's decorative-ABI pattern wearing a new costume: the
+            # sweep would report every configuration green while having
+            # synthesised the same netlist over and over.
+            if len(seen_cells) == 1 and len(chosen) > 1:
+                print(f"  [FAIL] every configuration produced the SAME cell "
+                      f"count ({next(iter(seen_cells))}) - the parameter "
+                      f"override is not taking effect, so this sweep proves "
+                      f"nothing")
+                fails += 1
+            elif seen_cells:
+                print(f"  distinct netlist sizes: {len(seen_cells)} across "
+                      f"{len(chosen)} configurations (the overrides bite)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

@@ -42,6 +42,18 @@ tops=(
   "KL_lwsrp_rx|$A/axis_fifo.v $S/lwsrp_pkg.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv"
   "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $AECP_SRCS"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
+  # docs/design/AREA_BUDGET.md tier-1 optional blocks, each measured ALONE so
+  # its prune parameter can be priced against a standalone figure as well as
+  # against the milan_datapath delta. Standalone OOC is the UPPER bound for a
+  # prune: in context the block shares decode and constants with its
+  # neighbours, so the datapath delta is always the smaller (and truer) number.
+  "KL_mmcm_drp_servo|$C/cdc_pulse.sv $C/cdc_handshake.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
+  "KL_aaf_latency_taps|$R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv"
+  "KL_maap|$R/hdl/ieee1722/maap/KL_maap.sv"
+  "KL_i2s_playback|$C/cdc_pulse.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
+  "rx_mac_filter|$F/tcam.sv $F/rx_mac_filter.sv"
+  "tcam|$F/tcam.sv"
+  "KL_pcm_lpf|$R/hdl/ieee1722/aaf/KL_pcm_lpf.sv"
   "milan_datapath|$DP_SRCS"
 )
 
@@ -60,6 +72,17 @@ for spec in "${tops[@]}"; do
   # OOC_CHPARAM="N_STREAMS=8 AUDIO_IF_SLOTS_P=16 ..." elaborates the SHIP
   # shape instead of the SV defaults (milan_datapath defaults N_STREAMS=1,
   # which constant-folds the NxN engines away and reads as a fake win).
+  #
+  # KNOWN LIMIT (2026-07-27): `chparam` does NOT work on the milan_datapath
+  # top. It re-derives the module, which re-runs the AST frontend over sv2v's
+  # flattened interface names and dies with
+  #   ERROR: Failed to detect width for identifier
+  #          \traffic_controller.buffer_queues.…tdest
+  # It works fine on the leaf tops. To shape milan_datapath, patch the SV
+  # DEFAULT in a private copy of hdl/milan/milan_datapath.sv and point this
+  # script's source list at it - equivalent, since the parameter IS its
+  # default in any build that does not override it (recipe and the numbers it
+  # produced: docs/design/AREA_BUDGET.md).
   chp=""
   for kv in ${OOC_CHPARAM:-}; do chp="$chp chparam -set ${kv%%=*} ${kv#*=} $top;"; done
   yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7 -top $top -flatten; stat; write_json $TMP/$top.ooc.json" \

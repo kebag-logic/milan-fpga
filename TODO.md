@@ -561,3 +561,15 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       THROUGH the filter and must be re-measured before it is quoted against
       an `ax7101` bitstream built after this date; see
       [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md) §6.2/§6.3.
+- [x] **L — tier-1 optional blocks, generalised from `LPF_P`** — 2026-07-27,
+      six tier-1 optional blocks now have
+      elaboration-time prune parameters (`MCSERVO_P`, `LTAP_P`, `MAAP_P`,
+      `I2SPB_P`, `RXFILT_P`, `LPF_P`), each defaulting to PRESENT, each with a
+      `board.features` config key, a `milan_soc.py --no-*` flag, an inert
+      tie-off equal to its runtime-disabled state and a builder `ConfigError`
+      gate. Worth **~4.5 k LUT / 4.75 k FF as a yosys ESTIMATE** (see
+      [`docs/design/AREA_BUDGET.md`](docs/design/AREA_BUDGET.md) for the
+      measurement, the flatten-vs-hierarchical disagreement and the banked
+      terms of spending each one). Still to be spent only after the ranked
+      logic levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)
+      §6.2/§6.3, never as a first response to a placement failure.

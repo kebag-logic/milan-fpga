@@ -24,6 +24,7 @@
 - **[Pipeline](#pipeline)** — One diagram: one YAML config in, and every artifact it fans out to — SoC argv, AEM overlay, lwSRP table, platform shape, the DT fragment and the sweep-opts shell fragment. Start here to see which generated file you actually care about.
 - **[lwSRP reservation table (srp:, CSR 0x680)](#lwsrp-reservation-table-srp-csr-0x680)** — Every `srp:` knob with its default chosen so a config *without* the section emits the deployed gateware bit-for-bit. Two things worth the read: the TSpec derivation showing `MaxFrameSize + 42` is exactly the wire slot (so the deployed pinned 224 over-reserves ~2.3× for a stereo talker), and the attribute-context shortfall this emitter surfaced — an 8×8 shape needs 15 lwSRP rows and gets 8.
 - **[Platform shape (platform:) — device tree + driver-visible layout](#platform-shape-platform--device-tree--driver-visible-layout)** — Why the whole DMA window map is a function of `rx_queues`, with both layouts spelled out and byte-verified against real `csr.csv` files. Names the CSR-rot guard (`boot_chain_pin` refuses a build that would move a flashed-in address) and the addresses `kl-eth.c` hardcodes that the DT does not carry — the largest remaining un-modelled coupling.
+- **[Optional blocks (board.features:) — the tier-1 prune parameters](#optional-blocks-boardfeatures--the-tier-1-prune-parameters)** — Six `milan_datapath` blocks a deployment may not be able to use, each behind an elaboration-time parameter that makes synthesis drop the instance. Every key defaults to PRESENT, so omitting the section emits today's argv byte-for-byte. The column that matters is the last one: the config element whose presence makes each prune a `ConfigError` rather than a silent absence.
 - **[Schema 1.1 deltas (vs the 1.0 scaffold)](#schema-11-deltas-vs-the-10-scaffold)** — The nine fields 1.1 added or changed, including `model_id_pin` (which wins over everything and is what protects already-flashed silicon), the two cluster-mapping policies, and the enforced Milan 7.2.3 rule: ≥2 AAF listener streams without a CRF output is a hard rejection.
 - **[entity_model_id: hash-derived recipe (normative)](#entity_model_id-hash-derived-recipe-normative)** — The exact recipe — which fields enter the shape, the canonical JSON encoding, and the sha256 fold under the OUI. The design point is at the end: two boards with the same audio shape share one model id, because names and serials are deliberately excluded.
 - **[Per-stream STREAM_PORT layout (overlay 2.x)](#per-stream-stream_port-layout-overlay-2x)** — The rule that determines every descriptor count in an NxN overlay: one stream port per stream, one contiguous cluster block, exactly one audio map with port-relative rows — unless the port is `map_mode: dynamic`, which carries none.
@@ -163,6 +164,49 @@ DT does not carry — `MILAN_EV_PHYS`, `MILAN_PHY_CSR_PHYS`,
 `MILAN_DMA_RX1_PHYS`, `MILAN_HS_PGSZ_CAP_PHYS`. Two of those move with
 `rx_queues`; that is the largest remaining un-modelled coupling and the
 reason the table exists.
+
+## Optional blocks (`board.features:`) — the tier-1 prune parameters
+
+[`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md) tier 1: six
+`milan_datapath` blocks that a given deployment may not be able to use, each
+behind an **elaboration-time** parameter so synthesis drops the instance. The
+whole section is **optional**, and every key **defaults to `true` = PRESENT** —
+a config that says nothing emits exactly today's argv and today's gateware.
+
+```yaml
+board:
+  features:                    # optional; omit the block to keep everything
+    media_clock_servo: true
+    latency_taps: true
+    maap: true
+    i2s_playback: true
+    rx_mac_filter: true
+    render_lpf: true
+```
+
+| Key | `milan_soc.py` flag | `milan_datapath` | Buys (yosys ESTIMATE) | Refused when the config still asks for it |
+|-----|---------------------|------------------|-----------------------|-------------------------------------------|
+| `media_clock_servo` | `--no-media-clock-servo` | `MCSERVO_P=0` | 814 LUT / 789 FF / 1 DSP | `clocking.media_clock_sources` offers anything but `internal` |
+| `latency_taps` | `--no-latency-taps` | `LTAP_P=0` | 948 LUT / 614 FF | `board.constraints.strip_probes: false` (this build keeps its probes) |
+| `maap` | `--no-maap` | `MAAP_P=0` | 634 LUT / 269 FF | `srp.stream_dmac_base: maap` (addresses claimed at run time) |
+| `i2s_playback` | `--no-i2s-playback` | `I2SPB_P=0` | 454 LUT / 631 FF / 1 BRAM36 | `audio_interface.kind: i2s_philips` (its render half IS this block) |
+| `rx_mac_filter` | `--no-rx-mac-filter` | `RXFILT_P=0` | 801 LUT / 1691 FF | `platform.rx_address_filter: hardware` (the default) |
+| `render_lpf` | `--no-render-lpf` | `LPF_P=0` | 864 LUT / 756 FF / 1 DSP | `i2s_playback` is pruned but this is kept — its only consumer would be gone |
+
+Every figure above is a **yosys estimate** from `syn/yosys/ooc.sh`'s toolchain
+on the 8×8 ship shape, **not a placement result**; on the one block where both
+numbers exist, Vivado places it at roughly half the LUTs. The last column is the
+gate (`validate_features()`): a config that prunes a block *and* keeps the
+element that needs it raises `ConfigError` naming both. A pruned block also
+prints into `build_plan.md` with its parameter, its flag and the
+**re-measurement it forces** — the obligation travels with the artefact.
+
+Two supporting fields land with it:
+
+| Field | Type / values | Default | Notes |
+|-------|---------------|---------|-------|
+| `platform.rx_address_filter` | `hardware` \| `software` \| `promiscuous` | `hardware` | Declares **where** the RX destination-address decision is taken. `hardware` (what both boards ship) requires `rx_mac_filter`; the other two are the honest statements that let it be pruned, because a pruned filter makes the port promiscuous. |
+| `srp.stream_dmac_base` | MAC-48 hex \| `maap` | `0x91E0F000FE01` | `maap` = the DMACs are claimed at run time by `KL_maap` rather than provisioned here. The tables still model the default base; the allocation POLICY is what the MAAP prune gate keys on. |
 
 ## Schema 1.1 deltas (vs the 1.0 scaffold)
 

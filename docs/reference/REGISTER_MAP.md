@@ -29,6 +29,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 ## Contents
 
 - **[Register groups](#register-groups)** — The one-screen index: base offset → what lives there, from `0x000` to `0x900`. Start here to find which group you want, then jump to its own section below.
+  - [A group can be STRUCTURALLY absent (optional-block prunes, 2026-07-27)](#a-group-can-be-structurally-absent-optional-block-prunes-2026-07-27) — Six blocks can now be pruned at elaboration; all default PRESENT, so this map is exactly what a shipping build answers. Read it before trusting a zero: a pruned build keeps the window and the RW words but its RO words read a **structural** zero, and there is deliberately no capability bit to tell that apart from an idle block — check the build plan, not the register.
   - [0x000  -  Identification / IRQ](#0x000-----identification--irq) — `ID` = `"MILN"` for driver probe, the capability word, and the IRQ trio. `VERSION`'s description doubles as the gateware changelog — every minor from `0x0002` to `0x0014`, including why the queue count went 6 → 5 (three Vivado seeds failed placement 282 slices short).
   - [0x100  -  MAC control / status  (REQ-MAC-01..03)](#0x100-----mac-control--status--req-mac-0103) — Station address, IFG, link status, and the RX address filter's five-step decision order — note that `promisc` outranks even an explicit TCAM drop. Carries a real defect worth knowing: `is_1g` reset 1 meant a 100 Mb/s port admitted reservations against a 10× budget until software wrote the register. The multicast hash fold is given as an equation your `ndo_set_rx_mode` must match exactly.
   - [0x200  -  Statistics (RMON)  (REQ-MAC-04)](#0x200-----statistics-rmon--req-mac-04) — Nine counters behind a coherent snapshot latch, plus `STATS_CAP` — the register that tells "counted, nothing wrong" from "no event source in this build". Read it before believing a zero: with `i_mac_events` tied off, every lane read zero on both boards for months while every testbench passed.
@@ -85,6 +86,34 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8C8` | Playback chain probe (item-7: host ring -> render crossbar -> DAC) |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) |
+
+### A group can be STRUCTURALLY absent (optional-block prunes, 2026-07-27)
+
+Six `milan_datapath` blocks are now behind **elaboration-time prune
+parameters** ([docs/design/AREA_BUDGET.md](../design/AREA_BUDGET.md) tier 1).
+**Every one defaults to PRESENT**, so a shipping build's map is exactly what
+this page describes. A build that pulls a lever keeps the *register window* —
+the address still decodes, RW words still store and read back — but the block
+behind it is gone and its RO words read a **structural zero**, which is not a
+measurement:
+
+| Parameter | Reads 0 structurally | Other effect |
+|---|---|---|
+| `MCSERVO_P = 0` | `0x8F8 MCSRV_STAT` | `0x8FC MCSRV_CTRL` still RW; MMCM DRP/PS pins never move |
+| `LTAP_P = 0` | `0x874`-`0x8B0`; `0x870 LTAP_CTRL` reads `0x2` (enable bit only, no status) | — |
+| `MAAP_P = 0` | `0x6D0 MAAP_STAT0`, `0x6D4 MAAP_STAT1` | `MAAP_CTRL.en` becomes effectively **reserved**: setting it pins AAF admission shut |
+| `I2SPB_P = 0` | `0x6D8 I2SPB_STAT`, `0x6E0 I2SPB_TRIM`, `0x6F0 I2SPB_DBG` | the four `i2s_dac_*` pins park at 0 |
+| `RXFILT_P = 0` | — | the whole `0x700` TCAM group still stores; **nothing reads it** and the port is PROMISCUOUS |
+| `LPF_P = 0` | — | `0x72C LPF_CTRL` still RW with no filter behind it |
+
+There is deliberately **no capability bit** for these (unlike `STATS_CAP 0x204`
+for the RMON lanes): adding one would be a CSR contract change owing a `VERSION`
+bump at default settings, which the prune round did not spend. The declaration
+lives in the build config (`board.features`) and in the generated
+`build_plan.md`. **Consequence for a reader:** at `0x8F8` you cannot tell "no
+servo built" from "servo idle at internal clock", and at `0x870` you cannot tell
+"no taps built" from "taps never armed" — check the build plan, not the
+register.
 
 The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the

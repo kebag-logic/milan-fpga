@@ -61,7 +61,68 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! report at 428 LUT / 756 FF / 0 DSP; spend it only when space-bound, and
   //! remember the -72.7 dB analog loop record was measured THROUGH the
   //! filter, so a pruned bitstream is not the one that number belongs to.
-  parameter int LPF_P = 1
+  parameter int LPF_P = 1,
+  // ==========================================================================
+  //  OPTIONAL-BLOCK PRUNE PARAMETERS (docs/design/AREA_BUDGET.md tier 1).
+  //  Every one of them DEFAULTS TO 1 = PRESENT, so a build that passes none
+  //  of them elaborates the exact shape that ships today - a parameter that
+  //  changed a shipping build merely by existing would be a behaviour change
+  //  in disguise. They are ELABORATION-TIME: 0 makes synthesis DROP the
+  //  instance, which a runtime CSR enable never does. Where a runtime enable
+  //  already exists the two compose - the parameter decides whether the logic
+  //  is BUILT, the CSR bit decides whether the built logic RUNS - and a
+  //  pruned block behaves exactly as its runtime-disabled self does today
+  //  (each tie-off below states the term-by-term equivalence).
+  //  sw/builder/endstation_builder.py refuses a config that asks for a
+  //  feature one of these pruned (board.features), so an absent block is
+  //  never silent.
+  // ==========================================================================
+  //! Media-clock servo (KL_mmcm_drp_servo, 933 LUT / 807 FF measured).
+  //! 0 prunes it and parks the MMCM control ports: no DRP access, no phase
+  //! step, MMCM never reset, A_MCSRV_STAT 0x8F8 reads 0. Legal ONLY when the
+  //! media clock is INTERNAL - the servo is the actuator for clock_source ==
+  //! 2 (CRF recovered) and for input_stream lock, so a pruned build cannot
+  //! discipline the audio MMCM to a remote grandmaster at all. The builder
+  //! gate keys on clocking.media_clock_sources == [internal].
+  parameter int MCSERVO_P = 1,
+  //! AAF latency taps (KL_aaf_latency_taps, 696 LUT / 614 FF measured).
+  //! PURE INSTRUMENTATION: nothing in the media path reads a tap output -
+  //! the whole block feeds the LTAP CSR window 0x870-0x8B0 and nothing else.
+  //! 0 prunes it and every LTAP word reads 0 (a STRUCTURAL zero, not a
+  //! measurement - the same distinction STATS_CAP draws for the RMON lanes).
+  //! Pruning FORCES RE-MEASUREMENT of nothing in the media path and of
+  //! EVERYTHING in docs/AAF_LATENCY_TAPS.md: the CAP-SOF/SOF-EOF/EOF-MAC
+  //! silicon numbers cannot be reproduced on a pruned bitstream.
+  parameter int LTAP_P = 1,
+  //! MAAP engine (KL_maap, 621 LUT / 268 FF measured). 0 prunes it, ties
+  //! addr_valid_o = 0 and parks its low-rate TX port. Term-by-term that is
+  //! the state a build with MAAP_CTRL.en = 0 is in today: eff_aaf_dmac falls
+  //! back to the CSR-provisioned AAF_DMAC and the admission gate's MAAP term
+  //! (~cfg_maap_enable | maap_addr_valid) is satisfied by its first half.
+  //! CAUTION: with the engine pruned, setting MAAP_CTRL.en = 1 would pin
+  //! admission SHUT (the claim can never complete), so the CSR bit is
+  //! effectively reserved - the builder gate keys on a config that asks for
+  //! dynamic (srp.stream_dmac_base: maap) rather than static addresses.
+  parameter int MAAP_P = 1,
+  //! I2S DAC playback (KL_i2s_playback, 552 LUT / 624 FF measured). 0 prunes
+  //! the serializer and its rate servo: the four i2s_dac_* pins park at 0 and
+  //! the I2SPB CSR group (0x6D8 stat / 0x6E0 trim+fill / 0x6F0 dbg) reads 0.
+  //! Legal when the board has no DAC. NOTE the second-order effect:
+  //! i2spb_converged is KL_avtp_rx_monitor(_ctx)'s servo_conv_i, and its
+  //! media-lock rule is `clk_src == 0 || servo_conv` - so on a pruned build
+  //! an EXTERNAL media clock NEVER reaches media lock. That is consistent
+  //! (there is no render device to converge) but it IS a behavioural
+  //! consequence; internal-clock media lock is immediate and unaffected.
+  parameter int I2SPB_P = 1,
+  //! RX station-address filter (rx_mac_filter + tcam, 504-569 LUT /
+  //! 1568-1570 FF measured). 0 prunes it and wires the post-PTP RX stream
+  //! STRAIGHT to the DMA/monitor tap - which is bit-for-bit what the shipping
+  //! filter does with promisc_i = 1 (or with TCAM_CTRL[1] = 0 and
+  //! default_pass = 1). Legal when the port is promiscuous or address
+  //! filtering is done in software; the TCAM_* CSR window keeps its
+  //! addresses but nothing consumes them, so the builder gate keys on
+  //! platform.rx_address_filter being declared 'software'/'promiscuous'.
+  parameter int RXFILT_P = 1
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -1431,6 +1492,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! before this they only left milan_datapath as ports for a MAC that does no
   //! address filtering, so non-matching unicast was never dropped in HW.
   //! Armed by TCAM_CTRL[1] (reset 0 = legacy default_pass miss policy).
+  //! RXFILT_P = 0 prunes the filter AND its TCAM (see the parameter note).
+  //! The tie-off is a straight wire, which is EXACTLY what the shipping
+  //! filter emits with promisc_i = 1: every beat forwarded, tready passed
+  //! back combinationally, no drop. The TCAM_* CSR window still accepts
+  //! writes; nothing reads them, so software must own the filtering.
+  generate if (RXFILT_P != 0) begin : g_rx_filter
   rx_mac_filter #(.TDATA_WIDTH(TDATA_WIDTH)) rx_filter (
     .clk_i(axis_clk), .rst_n(axis_resetn),
     .addr_filter_en_i(cfg_tcam_addr_filt_en),
@@ -1464,6 +1531,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_tready(rx_axis_to_dma.tready),
     .frame_action_o(), .frame_match_o(), .frame_dropped_o()
   );
+  end else begin : g_no_rx_filter
+    assign rx_axis_to_dma.tdata        = rx_axis_ptp_to_filt.tdata;
+    assign rx_axis_to_dma.tkeep        = rx_axis_ptp_to_filt.tkeep;
+    assign rx_axis_to_dma.tvalid       = rx_axis_ptp_to_filt.tvalid;
+    assign rx_axis_to_dma.tlast        = rx_axis_ptp_to_filt.tlast;
+    assign rx_axis_ptp_to_filt.tready  = rx_axis_to_dma.tready;
+  end endgenerate
 
   // ==========================================================================
   //  ADP advertiser (IEEE 1722.1 / Milan v1.2) + MAC-TX arbiter
@@ -2093,6 +2167,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  the module header) and sets 0x8FC[1] = 1. TB: tb/verilator/
   //  mmcm_servo_autorepair (47/47) proves the enabled repair path.
   // ==========================================================================
+  //! MCSERVO_P = 0 prunes the servo (see the parameter note). The tie-off is
+  //! the servo's own IDLE state, term by term: it drives drp_en/we = 0 and
+  //! ps_en = 0 whenever clock_source != 2, and mmcm_rst_o is asserted only
+  //! inside a REPAIR sequence that a pruned build never enters. status_o = 0
+  //! makes A_MCSRV_STAT 0x8F8 a STRUCTURAL zero - REGISTER_MAP records that
+  //! this window already has a dead-read carve-out, so a reader cannot tell
+  //! "no servo built" from "servo idle" there and must not try.
+  generate if (MCSERVO_P != 0) begin : g_mmcm_servo
   KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) mmcm_servo (
     .clk_i         (axis_clk),
     .rst_n         (axis_resetn),
@@ -2117,6 +2199,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ps_done_i     (i_mmcm_ps_done),
     .status_o      (mcsrv_stat_w)
   );
+  end else begin : g_no_mmcm_servo
+    assign o_mmcm_drp_addr  = 7'd0;
+    assign o_mmcm_drp_en    = 1'b0;
+    assign o_mmcm_drp_we    = 1'b0;
+    assign o_mmcm_drp_di    = 16'd0;
+    assign o_mmcm_rst       = 1'b0;
+    assign o_mmcm_ps_en     = 1'b0;
+    assign o_mmcm_ps_incdec = 1'b0;
+    assign mcsrv_stat_w     = 32'd0;
+  end endgenerate
 
   // ==========================================================================
   //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the
@@ -2318,6 +2410,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [7:0]             i2s_feed_chans_w;
   wire                   i2s_feed_lpf_act_w;
 
+  //! I2SPB_P = 0 prunes the DAC serializer (see the parameter note). The
+  //! tie-off is what a board with no DAC already shows: the four i2s_dac_*
+  //! pins park low (the shipping serializer holds sclk/lrck/sdin at 0 until
+  //! the first prefilled frame, which never arrives without a DAC to clock),
+  //! every I2SPB counter reads 0, media_reset_p never pulses and converged
+  //! stays 0 - the identical set of values the block presents before its
+  //! first stream. It does NOT backpressure: the render tap is a clone tap,
+  //! so pruning the sink cannot stall the listener path.
+  generate if (I2SPB_P != 0) begin : g_i2s_player
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
                     .PREFILL_C(PB_PREFILL_C)) i2s_player (
@@ -2341,6 +2442,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .converged_o     (i2spb_converged),
     .dbg_frame_o     (i2spb_dbg_frame)
   );
+  end else begin : g_no_i2s_player
+    assign i2s_dac_mclk_o  = 1'b0;
+    assign i2s_dac_sclk_o  = 1'b0;
+    assign i2s_dac_lrck_o  = 1'b0;
+    assign i2s_dac_sdin_o  = 1'b0;
+    assign i2spb_underruns = 16'd0;
+    assign i2spb_overruns  = 16'd0;
+    assign i2spb_trim      = 16'sd0;
+    assign i2spb_fill      = 16'd0;
+    assign i2spb_reset_p   = 1'b0;
+    assign i2spb_converged = 1'b0;
+    assign i2spb_dbg_frame = 32'd0;
+  end endgenerate
 
   // ==========================================================================
   //  Channel-map RENDER crossbar (docs/CHANNEL_MAP_64.md §3) — ADD-ALONGSIDE.
@@ -2507,6 +2621,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  Same monitor-tap + low-rate-TX recipe; addr_valid gates AAF admission
   //  and muxes the effective stream DMAC when MAAP_CTRL.en=1.
   // ==========================================================================
+  //! MAAP_P = 0 prunes the engine (see the parameter note). The tie-off is
+  //! the engine's RESET state, term by term: state_o = INITIAL (2'd0),
+  //! addr_valid_o = 0, no conflicts, no defends, offset 0, and a TX port
+  //! that never asserts tvalid (the ADP arbiter's MAAP leg simply never
+  //! wins). eff_aaf_dmac therefore always resolves to the CSR-provisioned
+  //! AAF_DMAC, and MAAP_STAT0/1 (0x6D0/0x6D4) read 0.
+  generate if (MAAP_P != 0) begin : g_maap
   KL_maap #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) maap_engine (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_maap_enable),
@@ -2528,6 +2649,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .state_o (maap_state), .offset_o (maap_offset),
     .conflicts_o (maap_conflicts), .defends_o (maap_defends)
   );
+  end else begin : g_no_maap
+    assign maap_tx_tdata   = {TDATA_WIDTH{1'b0}};
+    assign maap_tx_tkeep   = {(TDATA_WIDTH/8){1'b0}};
+    assign maap_tx_tvalid  = 1'b0;
+    assign maap_tx_tlast   = 1'b0;
+    assign maap_addr       = 48'd0;
+    assign maap_addr_valid = 1'b0;
+    assign maap_state      = 2'd0;
+    assign maap_offset     = 16'd0;
+    assign maap_conflicts  = 8'd0;
+    assign maap_defends    = 8'd0;
+  end endgenerate
 
   // ==========================================================================
   //  lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) — same monitor-tap +
@@ -2835,6 +2968,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3*16-1:0] ltap_tx_last_w, ltap_tx_min_w, ltap_tx_max_w;
   wire [3*16-1:0] ltap_rx_last_w, ltap_rx_min_w, ltap_rx_max_w;
 
+  //! LTAP_P = 0 prunes the taps (see the parameter note). The tie-off is the
+  //! post-clear state the block presents with LTAP_CTRL.en = 0 and clr just
+  //! strobed: every epoch, sample count, timeout count, last/min/max and the
+  //! status word read 0. That is a STRUCTURAL zero and it is NOT a latency
+  //! measurement - a reader that cannot distinguish the two would report
+  //! 0 ns end-to-end, so the builder gate refuses to prune the taps in a
+  //! config that keeps its probes (board.constraints.strip_probes: false).
+  generate if (LTAP_P != 0) begin : g_ltap
   KL_aaf_latency_taps #(
     .N_STAGES_P (4), .CW_P (32), .DW_P (16),
     .TIMEOUT_C  (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
@@ -2851,6 +2992,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rx_last_o (ltap_rx_last_w), .rx_min_o (ltap_rx_min_w), .rx_max_o (ltap_rx_max_w),
     .status_o (ltap_status_w)
   );
+  end else begin : g_no_ltap
+    assign ltap_tx_epoch_w = 32'd0;
+    assign ltap_rx_epoch_w = 32'd0;
+    assign ltap_tx_smp_w   = 16'd0;
+    assign ltap_rx_smp_w   = 16'd0;
+    assign ltap_tx_to_w    = 16'd0;
+    assign ltap_rx_to_w    = 16'd0;
+    assign ltap_tx_last_w  = {(3*16){1'b0}};
+    assign ltap_tx_min_w   = {(3*16){1'b0}};
+    assign ltap_tx_max_w   = {(3*16){1'b0}};
+    assign ltap_rx_last_w  = {(3*16){1'b0}};
+    assign ltap_rx_min_w   = {(3*16){1'b0}};
+    assign ltap_rx_max_w   = {(3*16){1'b0}};
+    assign ltap_status_w   = 32'd0;
+  end endgenerate
 
   //! pack the 16 RO words in the exact LTAP CSR order (0x874..0x8B0). Per
   //! delta d: word{2d} = {max16, last16}, word{2d+1} = {16'd0, min16}.

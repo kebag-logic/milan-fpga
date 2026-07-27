@@ -797,7 +797,7 @@ them in, and the sizes are two orders of magnitude apart:
 |---|---|---|---|
 | 1 | L2 cache 32 KB | −8 BRAM36 + placement relief | already in the 8x8 config; applies to 4x4 too, perf delta per the standing authorization |
 | 2 | `crf_rx` ts-history ring → single-port BRAM | **−3 177 LUT / −8 159 FF** / +1 RAMB18 (OOC) | **SPENT 2026-07-25** — it was the exact placer-overflow victim of the first 8x8+chmap build |
-| 3 | Prune the render LPF (`LPF_P = 0`) | −428 LUT / −756 FF (§6.2, shipping place report) | **banked, do not spend** — 0.8% of used LUTs, and the analog loop record was measured *through* it |
+| 3 | Prune the **tier-1 optional blocks** (`LPF_P = 0` and its five siblings, [AREA_BUDGET.md](design/AREA_BUDGET.md)) | LPF alone −428 LUT / −756 FF (§6.2, shipping place report); all six ≈ **−4,515 LUT / −4,750 FF as a yosys ESTIMATE** | **banked, wired 2026-07-27, spend deliberately** — each defaults to PRESENT and each costs a stated re-measurement; the LPF's own is the analog loop record, measured *through* it |
 | 4 | Sequentialize a remaining parallel cone (area-70 playbook) | ≈ **8 000 LUT** on the precedent (the CBS slope engine) | pattern available; T5's Σ-slope is already built this way |
 | 5 | Ship the 4x4 gateware config on AX | the whole 8x8 delta | fallback of last resort; the architecture is unchanged |
 
@@ -918,6 +918,20 @@ whose flag and config disagree (mutation-checked: flipping `build.sh` alone
 fails the gate). `arty` keeps the filter. Setting the key back to `true`
 restores it and nothing else has to change.
 
+**GENERALISED (2026-07-27).** `LPF_P` is no longer a special case: it is one
+row of a six-block tier-1 prune table
+([docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md)) covering the
+media-clock servo, the latency taps, the MAAP engine, I2S playback, the RX
+address filter and this filter — **~4.5 k yosys-estimated LUTs**, every
+parameter defaulting to PRESENT, each with a `board.features` key, a
+`milan_soc.py --no-*` flag and a builder `ConfigError` gate that refuses a
+config asking for what the prune removed. One correction lands with it: this
+block's own **hierarchical** yosys figure is **864 LUT / 756 FF / 1 DSP**,
+not 441 — the flip-flop count agrees exactly with the place report and the
+LUT count is yosys running ~2× high, which is the calibration to carry into
+the other five (none of which has a Vivado cross-check).
+
+### 6.3 Area round 2026-07-27: logic levers, measured (no Vivado)
 **What it bought and what it cost.** It buys **428 LUT / 756 FF** — the
 shipping place report's own row, and the **only Vivado-proven figure in the
 whole 2026-07-27 round**; the same row shows **0 DSP and 0 BRAM**, so the
