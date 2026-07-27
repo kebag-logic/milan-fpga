@@ -93,7 +93,8 @@ node("alsa", 1240, 1104, 320, 78, "ALSA capture / PipeWire",
 
 # RENDER branch (right)
 node("lpf", 1660, 700, 220, 78, "KL_pcm_lpf",
-     ["20 kHz Butterworth biquad", "serial-MAC, ~12 clk/pair"], PURPLE)
+     ["20 kHz Butterworth biquad", "serial-MAC, ~12 clk/pair",
+      "LPF_P=0 PRUNES it (ax7101 does)"], PURPLE)
 node("i2spb", 1948, 700, 268, 78, "KL_i2s_playback",
      ["CS4344 DAC, clean-clock free-run", "I2SPB_STAT 0x6D8, wire-truth chans"], BLUE)
 node("cxbar", 1660, 812, 220, 92, "KL_chan_map_render",

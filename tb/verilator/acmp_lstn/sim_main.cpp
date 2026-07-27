@@ -178,6 +178,17 @@ int main(int argc, char** argv) {
     ck("[1] count 0", (long)r_be(r, 60, 2), 0);
     ckh("[1] talker 0", r_be(r, 34, 8), 0);
     ck("[1] flags 0", (long)r_be(r, 64, 2), 0);
+    // ECHOED fields: the response FSM overrides only the beats it owns and
+    // passes the rest STRAIGHT OUT OF the frame-word buffer (rword_w =
+    // fword_r[beat_r]). Nothing pinned that buffer until the 07-27 area
+    // round hoisted its write into its own reset-free process to let it
+    // infer as distributed RAM - perturbing the RAM's write address left
+    // every check in this suite green. sequence_id and the two unique-ids
+    // are the echo, and IEEE 1722.1 8.2.2 requires them verbatim.
+    ck("[1] sequence_id echoed", (long)r_be(r, 62, 2), 0x100);
+    ck("[1] talker_unique_id echoed", (long)r_be(r, 50, 2), 0);
+    ck("[1] listener_unique_id echoed", (long)r_be(r, 52, 2), 0);
+    ck("[1] control_data_length echoed", (long)r_be(r, 17, 1), 44);
 
     // sink 1 (CRF): valid but ALWAYS unbound (la_avdecc fatal-enumeration
     // field report: UNKNOWN_ID for an advertised sink is inconsistent)
@@ -232,6 +243,8 @@ int main(int argc, char** argv) {
     ck("[3] STREAMING_WAIT", (long)r_be(r, 64, 2), 0x0008);
     ckh("[3] dest_mac zeroed", r_be(r, 54, 6), 0);
     ck("[3] state unchanged", dut->state_o, 3);
+    //! a DIFFERENT sequence_id than [1], so the echo cannot be a constant
+    ck("[3] sequence_id echoed", (long)r_be(r, 62, 2), 0x102);
 
     // ---------------------------------------------------------------- //
     printf("\n[4] probe response SUCCESS -> SETTLED_NO_RSV\n");

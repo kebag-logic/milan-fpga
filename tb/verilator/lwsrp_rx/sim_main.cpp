@@ -561,6 +561,76 @@ int main(int argc, char** argv) {
         ck("ta: unbind clears failure", dut->ta_failed_o, 0);
     }
 
+    // ============================================================
+    // 16) +k RANGE MATCH MUST NOT WRAP (the borrow term).
+    //   The rule is base <= sid < base + nv over UNSIGNED 64-bit
+    //   arithmetic. If the "base <= sid" half is dropped and only
+    //   (sid - base) is range-checked, a FirstValue just under 2^64
+    //   aliases onto a small StreamID, because (sid - base) wraps to a
+    //   tiny positive number. That is reachable in silicon: before the
+    //   MAC is provisioned station_mac_i is all-zero, so our_sid is a
+    //   handful of counts above 0 and ANY bridge vector based near
+    //   0xFFFF_FFFF_FFFF_FFFF would look like a hit.
+    //   No prior check covered this - the 07-27 area round rewrote the
+    //   two-carry-chain compare into one 65-bit borrow-out subtract and
+    //   the whole suite stayed green with the borrow term deliberately
+    //   removed. It is pinned here.
+    {
+        dut->station_mac_i = 0; dut->unique_id_i = 5;   // our_sid = 5
+        dut->lsid_en_i = 0;
+        step(); step();
+        // base = 2^64-1, nv = 8  ->  (5 - base) mod 2^64 = 6 < 8, so a
+        // wrap-blind compare "matches" at k = 6 and would register READY.
+        Vec v; v.nv = 8; v.fv = fv_listener(0xFFFFFFFFFFFFFFFFULL);
+        v.evts.assign(8, EV_MT); v.evts[6] = EV_JOININ;
+        v.pars.assign(8, D_IGN); v.pars[6] = D_READY;
+        feed_parse(frame(true, {msg_listener(v)}), "wrap: clean parse");
+        ck("wrap: base > sid never registers", dut->listener_reg_o, 0);
+        ck("wrap: never ready", dut->listener_ready_o, 0);
+
+        // the SAME shape one step lower is a genuine hit: base = 0 covers
+        // sid 5 at k = 5, proving the negative above is the borrow term
+        // and not the vector being malformed.
+        Vec g; g.nv = 8; g.fv = fv_listener(0);
+        g.evts.assign(8, EV_MT); g.evts[5] = EV_JOININ;
+        g.pars.assign(8, D_IGN); g.pars[5] = D_READY;
+        feed_parse(frame(true, {msg_listener(g)}), "wrap: control parse");
+        ck("wrap: base <= sid still registers", dut->listener_reg_o, 1);
+        ck("wrap: control is ready", dut->listener_ready_o, 1);
+    }
+
+    // ============================================================
+    // 16b) THE SAME BORROW TERM ON THE lsid CONTEXT. The walker carries
+    //   three independent +k matchers - our_sid, the ACMP-bound lsid, and
+    //   the EXT_LANES_P context lanes - and each has its own subtract. 16)
+    //   above only covers the first: dropping the borrow bit from the lsid
+    //   compare alone left every check in this suite green
+    //   (mutation-found 2026-07-27). The ext lanes are the third and are
+    //   pinned in the lwsrp_ctx suite, which is the harness that can
+    //   provision them.
+    // ============================================================
+    //   The alias is only reachable for a SMALL sid (it needs
+    //   base - sid > 2^64 - 8192, which no base can reach once sid is
+    //   large), and lsid is exactly that before an ACMP bind lands: the
+    //   listener context holds 0 until a CONNECT_RX_COMMAND writes it.
+    {
+        dut->lsid_i = 5; dut->lsid_en_i = 1;
+        step(); step();
+        // base = 2^64-1, nv = 8 -> (5 - base) mod 2^64 = 6 < 8, so a
+        // wrap-blind compare "registers" the bound talker at k = 6.
+        Vec v; v.nv = 8; v.fv = fv_talker(0xFFFFFFFFFFFFFFFFULL);
+        v.evts.assign(8, EV_MT); v.evts[6] = EV_JOININ;
+        feed_parse(frame(true, {msg_tadv(v)}), "wrap-l: clean parse");
+        ck("wrap-l: base > lsid never registers", dut->ta_registered_o, 0);
+
+        // control: the same shape based at 0 is a genuine hit at k = 5
+        Vec g; g.nv = 8; g.fv = fv_talker(0);
+        g.evts.assign(8, EV_MT); g.evts[5] = EV_JOININ;
+        feed_parse(frame(true, {msg_tadv(g)}), "wrap-l: control parse");
+        ck("wrap-l: base <= lsid registers", dut->ta_registered_o, 1);
+        dut->lsid_en_i = 0; step(); step();
+    }
+
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;
     return fails ? 1 : 0;
