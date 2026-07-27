@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010014);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010015);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -269,6 +269,43 @@ int main(int argc, char** argv) {
        adp.data.size() < 2 ? 0 : (unsigned long)(adp.data[1] & 0xFFFFFFFFUL),
        0x01000000UL);
     ck("available_index bumped", axi_read(A_ADP_STATUS) > ai0 ? 1 : 0, 1);
+
+    // --- 6a-bis. THE ADVERTISED SHAPE, decoded off the wire (2026-07-27) ---
+    // This is the exact field a controller reads to decide how many streams
+    // our entity has. Until VERSION 0x0015 it was a plain RW register that
+    // reset to ZERO and was filled in by a boot script; on silicon the 8x8
+    // board therefore advertised 1 talker source / 2 listener sinks - the
+    // numbers that were true when the script was written at 1x1 - and the
+    // CRF Media Clock Output at talker_unique_id = N_STREAMS was outside the
+    // advertised range, so no controller could see or bind it even though
+    // its PDUs were on the wire every 2 ms.
+    // NOTHING has been written to 0x618/0x61C here. At this build's shape
+    // (N_STREAMS = 1: ACMP_SRC_C = 1, ACMP_SINKS_C = 2) the ADPDU must carry
+    // 1 source / 2 sinks straight out of reset, and talker_capabilities must
+    // NOT claim MEDIA_CLOCK_SOURCE because there is no CRF source context.
+    {
+        auto ab = [&](size_t i) -> unsigned {
+            return (i / 8 < adp.data.size())
+                       ? (unsigned)((adp.data[i / 8] >> ((i % 8) * 8)) & 0xFF)
+                       : 0x100u;   // out of frame -> never matches
+        };
+        // ADPDU big-endian fields (adp_advertiser.sv fb[38..45])
+        ck("ADPDU talker_stream_sources == ACMP_SRC_C (1)",
+           (ab(38) << 8) | ab(39), 1u);
+        ck("ADPDU talker_capabilities (no MEDIA_CLOCK_SOURCE at N=1)",
+           (ab(40) << 8) | ab(41), 0x4001u);
+        ck("ADPDU listener_stream_sinks == ACMP_SINKS_C (2: AAF + CRF)",
+           (ab(42) << 8) | ab(43), 2u);
+        ck("ADPDU listener_capabilities", (ab(44) << 8) | ab(45), 0x4801u);
+        // and the CSR view agrees, read-only, without any provisioning
+        enum { A_ADP_TALK = 0x618, A_ADP_LIST = 0x61C };
+        ck("0x618 RO shape word", axi_read(A_ADP_TALK), 0x40010001u);
+        ck("0x61C RO shape word", axi_read(A_ADP_LIST), 0x48010002u);
+        axi_write(A_ADP_TALK, 0x48010008);   // the retired S50milan poke
+        axi_write(A_ADP_LIST, 0x48010008);
+        ck("0x618 refuses the poke", axi_read(A_ADP_TALK), 0x40010001u);
+        ck("0x61C refuses the poke", axi_read(A_ADP_LIST), 0x48010002u);
+    }
 
     // --- 6b. ACMP GET_TX_STATE through the full datapath ---
     // The responder taps rx_axis_to_dma (little lane, like silicon); inject a

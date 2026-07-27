@@ -114,6 +114,7 @@ enum {
     A_ID = 0x000, A_VERSION = 0x004,
     A_AAF_CTRL = 0x654, A_AAF_FRAMES = 0x660, A_LWSRP_CTRL = 0x680,
     A_ADP_CTRL = 0x600, A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
+    A_ADP_TALK = 0x618, A_ADP_LIST = 0x61C,
     A_AVTPRX_STAT = 0x6B8, A_AVTPRX_FRX = 0x6BC, A_PCMRX_CNT = 0x6C4,
     A_MAAP_CTRL = 0x6CC,
     A_STRM_SEL = 0x800, A_STRM_SNAP = 0x804, A_SW_CTRL = 0x810,
@@ -224,8 +225,35 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0014 (five egress queues, compactly renumbered)",
-       axi_read(A_VERSION), 0x00010014);
+    ck("VERSION 0x0015 (ADP shape registers are read-only)",
+       axi_read(A_VERSION), 0x00010015);
+
+    // ---- THE ADVERTISED SHAPE AT N > 1 (2026-07-27) --------------------
+    // The CRF Media Clock Output lives at talker_unique_id = N_STREAMS and
+    // the CRF sink at listener_unique_id = N_STREAMS, so the entity has
+    // N+1 sources and N+1 sinks. Nothing is written here: 0x618/0x61C are
+    // read-only words hardwired from milan_datapath's ACMP_SRC_C /
+    // ACMP_SINKS_C. On silicon these came from a boot script frozen at the
+    // 1x1 shape, so the 8x8 board advertised 1 source / 2 sinks and the CRF
+    // source was OUTSIDE the advertised range - the probe test further down
+    // proves uid N answers SUCCESS, and this proves a controller is ever
+    // told to ask.
+    {
+        const uint32_t NSRC = (uint32_t)NSTREAMS_TB + 1;
+        ck("0x618 = {caps 0x4801, sources N+1}", axi_read(A_ADP_TALK),
+           0x48010000u | NSRC);
+        ck("0x61C = {caps 0x4801, sinks N+1}", axi_read(A_ADP_LIST),
+           0x48010000u | NSRC);
+        ck("the CRF talker uid N is INSIDE the advertised range",
+           (axi_read(A_ADP_TALK) & 0xFFFFu) > (uint32_t)NSTREAMS_TB ? 1 : 0, 1);
+        ck("the CRF sink uid N is INSIDE the advertised range",
+           (axi_read(A_ADP_LIST) & 0xFFFFu) > (uint32_t)NSTREAMS_TB ? 1 : 0, 1);
+        // and no poke can move them (the retired S50milan lines)
+        axi_write(A_ADP_TALK, 0x48010001);
+        axi_write(A_ADP_LIST, 0x48010002);
+        ck("0x618 refuses the poke", axi_read(A_ADP_TALK), 0x48010000u | NSRC);
+        ck("0x61C refuses the poke", axi_read(A_ADP_LIST), 0x48010000u | NSRC);
+    }
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};

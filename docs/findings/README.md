@@ -16,7 +16,7 @@ their living successors on 2026-07-25.
 
 ## Contents
 
-- **[Fixed-bug post-mortems](#fixed-bug-post-mortems)** — Eight closed root causes in one table — TX `last_be` truncation, the classifier `tdest` wedge, ADP falling dormant, gPTP frames delivered 8-byte-padded — each with its status and, where one exists, the gating harness that keeps it fixed.
+- **[Fixed-bug post-mortems](#fixed-bug-post-mortems)** — Nine closed root causes in one table — TX `last_be` truncation, the classifier `tdest` wedge, ADP falling dormant, gPTP frames delivered 8-byte-padded — each with its status and, where one exists, the gating harness that keeps it fixed.
 - **[Performance investigations & campaigns](#performance-investigations--campaigns)** — Eleven rows of measurement work, including the ones whose verdict was *do not build it*: the TX reader prefetch plan is kept solely as a refutation record. Several rows are merge sources folded into their living successors on 2026-07-25 and now link into the archive.
 - **[Handover & bench](#handover--bench)** — Bench-ops onboarding plus the two 2026-07-26 campaigns: an adversarial sweep that triggered the entry-0 blocker *on purpose* to prove the root cause by causation, and a live health sweep showing 0 format errors over ~2 G frames.
 - **[Conventions](#conventions)** — The two rules for adding to this log. The one that surprises people: nothing is ever deleted, and refuted theories stay in, because the refutation is the value.
@@ -33,6 +33,7 @@ their living successors on 2026-07-25.
 | [ADP_DORMANCY.md](ADP_DORMANCY.md) | ADP advertiser fell dormant on silicon; self-re-arm + `A_ADP_DIAG` forensics and fix | FIXED |
 | [GPTP_RXPAD_ROOTCAUSE.md](GPTP_RXPAD_ROOTCAUSE.md) | gPTP "bad message": RX DMA delivered 8-byte-padded frames; gateware pad-strip fix + switch-behavior matrix | FIXED |
 | [PTP_TS_METADATA_FIX.md](PTP_TS_METADATA_FIX.md) | HW-timestamp metadata pipeline root cause + the DMA record contract (v2.1) | FIXED |
+| [ADP_SHAPE_STATIC_0727.md](ADP_SHAPE_STATIC_0727.md) | The 8x8 board advertised the 1x1 shape: `ADP_TALKER`/`ADP_LISTENER` were RW registers filled in by a boot script frozen at 1x1, so it offered 1 talker source / 2 listener sinks beside a reference device offering 4/10 - and the CRF talker at uid 8 was outside the advertised range. The counts are now read-only, elaborated from the same localparams that size the ACMP context arrays | FIXED (gate: `scripts/check_entity_shape.py`) |
 
 ## Performance investigations & campaigns
 

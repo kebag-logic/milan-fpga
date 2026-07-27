@@ -346,6 +346,20 @@ int main(int argc, char** argv) {
   ck("STATE acmp probing", (st >> 3) & 3, 1);
   ck("STATE acmp status",  (st >> 5) & 31, 21);
 
+  // A SECOND elaboration of the ADP shape (this executable is built with
+  // -GN_TALKER_SRC_P=5 -GN_LISTENER_SINK_P=5, i.e. the 4x4 window shape plus
+  // the CRF source/sink). Reading 5 here while sim_main.cpp reads 1 proves
+  // 0x618/0x61C track the PARAMETERS, not a reset literal - and that they
+  // are NOT the 0x800 window's N_TALKERS_P/N_LISTENERS_P (both 4).
+  printf("-- ADP shape is RO and parameter-derived (4x4 + CRF = 5/5) --\n");
+  ck("ADP_TALK = {0x4001, 5}", axi_read(0x618), 0x40010005u);
+  ck("ADP_LIST = {0x4801, 5}", axi_read(0x61C), 0x48010005u);
+  axi_write(0x618, 0x48010001);
+  axi_write(0x61C, 0x48010002);
+  for (int i = 0; i < 4; ++i) posedge();
+  ck("ADP_TALK still 5 after a write", axi_read(0x618), 0x40010005u);
+  ck("ADP_LIST still 5 after a write", axi_read(0x61C), 0x48010005u);
+
   printf("-- out-of-range at N=4: idx 4+ reads 0 / writes ignored --\n");
   axi_write(A_STRM_SEL, 0x004);              // dir=0 idx=4: OUT of range
   seen_lctx_wr = false; srp_saw_wr = false;
