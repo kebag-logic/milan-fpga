@@ -84,7 +84,7 @@ thing to re-check._
 * **`--gtx-tx-invert` is required on the AX7101** - edge-aligned GMII TX
   launch is hold-marginal at the RTL8211E (25-40 % corrupt frames without
   it). Other boards must re-evaluate TX clock phase.
-* **A `0x0015` board stamps AVTP `tu = 1` on every stream frame until the
+* **A `0x0016` board stamps AVTP `tu = 1` on every stream frame until the
   gPTP daemon leases the clock.** Nothing in fabric can observe whether the
   PHC is disciplined - that fact lives in `ptp4l`'s servo - so `CLKV_CTRL`
   `0x778` resets with `SYNC_OK = 0` and an expired lease, and unknown means

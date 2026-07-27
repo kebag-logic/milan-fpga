@@ -210,8 +210,8 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
 Boot: QSPI/SRAM gateware → BIOS flash-boot (xz kernel) → buildroot →
 `S50milan` provisions CSRs (names, model id, vt=10, MAAP adopt, kernel
 shield /32, **AAF_CTRL 0x654 = 0x00020003 — bit-preserve VID 2 [27:16]
-or the switch floods the stream as best-effort**, honest counts
-0x618/0x61C, ingressLatency sed 3511(ARTY)/1490(AX) ns, priority1 238 on
+or the switch floods the stream as best-effort**, ingressLatency sed
+3511(ARTY)/1490(AX) ns, priority1 238 on
 AX, tone on AX) → daemons: `ptp4l` (tx_timestamp_timeout **500**),
 `phc2sys`, `linkmon.sh` (kernel rx_packets liveness, one edge-pair per
 outage, up-after-settle, LINK_CTRL 0x71C reinit, RST_EPOCH 0x720
@@ -230,7 +230,7 @@ flowchart TB
     BR --> S["S50milan provisions the CSRs"]
     S --> S1["names, model id, vt=10, MAAP adopt, kernel shield /32"]
     S --> S2["AAF_CTRL 0x654 = 0x00020003 - bit-preserve VID 2 in bits 27:16<br/>or the switch floods the stream as best-effort"]
-    S --> S3["honest counts 0x618/0x61C, ingressLatency per board,<br/>priority1 238 on the AX, tone on the AX"]
+    S --> S3["ingressLatency per board, priority1 238 on the AX, tone on the AX<br/>(the stream counts are NOT provisioned: 0x618/0x61C are read-only)"]
     S --> DMN["then the daemons"]
     DMN --> D1["ptp4l with tx_timestamp_timeout 500, plus phc2sys"]
     DMN --> D2["linkmon.sh - kernel rx_packets liveness, one edge-pair per outage,<br/>LINK_CTRL 0x71C reinit, RST_EPOCH 0x720 canary"]
@@ -239,7 +239,7 @@ flowchart TB
 ```
 
 CSR quick map (base 0x90000000, addresses = offsets): 0x600 ADP ctrl ·
-0x60C/0x610 model id · 0x618/0x61C caps+counts · 0x624/0x628 GM ·
+0x60C/0x610 model id · 0x618/0x61C caps+counts (**RO**, elaborated) · 0x624/0x628 GM ·
 0x654 AAF_CTRL {vid[27:16],bypass,en} · 0x680 lwSRP · 0x6A4 ACMP-L state
 · 0x6B8/0x6BC/0x6C0 RX monitor stat/frames/err · 0x6C4/0x6C8 PCM ring ·
 0x6CC-0x6D4 MAAP · 0x6D8 drift rails · 0x6DC TONE · 0x6E4 pdelay ·

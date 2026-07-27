@@ -566,6 +566,13 @@ def base_of(t, i=0):
 
 # ------------------------------------------------------------- emitters ----
 def emit_svh(M, path):
+    """Write the ROM include. The text itself comes from emit_svh_text() so a
+    caller that wants the bytes without a file (sw/builder/endstation_builder
+    .py emit_aem_rom_svh) gets the SAME generator, not a second one."""
+    with open(path, "w") as f:
+        f.write(emit_svh_text(M))
+
+def emit_svh_text(M):
     rom_, directory_ = M["rom"], M["directory"]
     rom_size = M["ROM_SIZE"]
     lines = []
@@ -678,8 +685,7 @@ def emit_svh(M, path):
           "   // static output map rows (GET source)")
         a(f"localparam [15:0] WB_AUDIO_MAP_OUT_C = 16'd{dm['OUT_WB']};")
         a("")
-    with open(path, "w") as f:
-        f.write("\n".join(lines))
+    return "\n".join(lines)
 
 def emit_c_golden(M, path):
     rom_, directory_ = M["rom"], M["directory"]

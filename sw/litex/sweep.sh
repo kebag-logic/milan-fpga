@@ -72,6 +72,15 @@ esac
 python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
         --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2" \
         --opts "$OPTS"
+# SAME GATE, ONE LAYER UP: the gateware `include-s a GENERATED entity
+# definition - hdl/common/csr/gen/adp_shape_defaults.svh (the ADPDU stream
+# counts served RO at 0x618/0x61C, and the ACMP context-array sizing) and
+# hdl/ieee17221/aecp/gen/aecp_aem_rom.svh (the descriptor set a controller
+# enumerates). Both are written by the builder FROM A CONFIG, and until
+# 2026-07-27 nothing checked that it was THIS config: the tracked ROM was the
+# 1x1 shape and every build - including the 8x8 - compiled it in. Refuse to
+# launch unless the tree carries the definition of the config being built.
+python3 "$R/scripts/check_entity_shape.py" --built-config "$R/$CFG"
 BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \

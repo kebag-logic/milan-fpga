@@ -52,6 +52,15 @@ jobs:
       - name: Sweep/build shape gate
         run: python3 scripts/check_sweep_shape.py --self-test
 
+      # Advertised-shape gate: the ADPDU stream counts (milan_csr 0x618/0x61C),
+      # the AEM STREAM_INPUT/STREAM_OUTPUT descriptor counts and the ACMP
+      # context counts the gateware elaborates must be the SAME number. They
+      # were three different numbers on silicon 2026-07-27 because 0x618/0x61C
+      # were RW registers filled in by a boot script frozen at the 1x1 shape.
+      # --self-test also proves a disagreeing shape IS rejected.
+      - name: Entity shape gate
+        run: python3 scripts/check_entity_shape.py --self-test
+
       # DT binding gate: negative controls for the kl,dma-ether / kl,milan-pcm
       # binding checker (a checker that cannot fail is not a gate).
       - name: Device-tree binding gate

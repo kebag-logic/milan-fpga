@@ -18,6 +18,7 @@ docs/reference/REGISTER_MAP.md.
 - **[Diagram](#diagram)** — No schematic is checked in; the section says how to produce one and points at the architecture page for system context. Skip unless you are regenerating.
 - **[Description](#description)** — What the block is for and the one implementation choice with a visible consequence: a combinational-ready, single-outstanding AXI4-Lite slave commits on the same edge that `*READY` asserts, so a master dropping `*VALID` cannot lose a write.
 - **[Generics](#generics)** — Three parameters — queue count, the 16-bit address width that fixes the 64 KB window, and `VERSION`, whose own RTL comment is where the per-version changelog actually lives.
+- **[Generated includes](#generated-includes)** — The two `.svh` files this block compiles in rather than hard-coding: the `0x680` lwSRP reset words and the entity's advertised shape, both generated from the declarative end-station config. The shape include is shared with `milan_datapath.sv`, which is what keeps the advertised stream counts and the ACMP context counts the same number.
 - **[Ports](#ports)** — The full fan-out, and the most useful table on the page: it maps each register field to the fabric wire it drives, e.g. `o_mac_is_1g` ← `MAC_CTRL[4]`, `o_cbs_enable` ← the per-queue shaped-enable. Use it when you need to know whether a register bit is actually consumed.
 - **[Signals](#signals)** — The internal register-file storage, grouped by family. Mostly of interest when reading the RTL alongside this page.
 - **[Processes](#processes)** — Five named processes and what each owns. The ordering inside the write path is the part worth reading: reset defaults, then hardware event latching *before* the write-1-to-clear, so an event arriving in the same cycle as its own clear is not lost.
@@ -47,7 +48,20 @@ consumer using those strobes (`REQ-CSR-03`).
 | ------------ | ------------- | -------------- | ------------------------------------------------------- |
 | NUM_QUEUES   | int           | 5              | Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority |
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
-| VERSION      | logic [31:0]  | 32'h0001_0014  | Value returned by the read-only VERSION register. **Do not quote this literal** — it moves with every CSR contract change; the RTL parameter's own comment is the per-version changelog and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number |
+| N_LISTENERS_P | int          | 1              | listener stream contexts addressable by the 0x800 window (`A_STRM_SEL` dir=0) |
+| N_TALKERS_P  | int           | 1              | talker stream contexts (`A_STRM_SEL` dir=1) |
+| VERSION      | logic [31:0]  | 32'h0001_0015  | Value returned by the read-only VERSION register. **Do not quote this literal** — it moves with every CSR contract change; the RTL parameter's own comment is the per-version changelog and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number |
+
+## Generated includes
+
+`milan_csr.sv` `` `include ``-s two files that `sw/builder/endstation_builder.py`
+generates from the declarative end-station config, so the config is the single
+source for both groups rather than a second hand-written copy:
+
+| Include | Carries | Consumed at |
+|---|---|---|
+| `gen/lwsrp_csr_defaults.svh` | the `0x680` lwSRP reset words + the PriorityAndRank byte | the reset block / defaults ROM |
+| `gen/adp_shape_defaults.svh` | `ADP_TALKER_SRC_C`, `ADP_LISTENER_SINK_C` and the two capability words — the entity's advertised shape | the **read-only** `0x618`/`0x61C` words. `hdl/milan/milan_datapath.sv` includes the same file to size its ACMP context arrays |
 
 ## Ports
 

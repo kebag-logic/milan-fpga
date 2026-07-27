@@ -26,8 +26,15 @@ w 0x610 0x00000000     # entity_model_id high
 # control, so identify_control_index 0 is valid again (it was dropped while
 # the 5-descriptor model had no CONTROL — la_avdecc flagged it).
 w 0x614 0x0000C588
-w 0x618 0x48010008     # ADP_TALK  {talker_caps=0x4801, talker_sources=8}
-w 0x61C 0x48010008     # ADP_LIST  {listener_caps=0x4801, listener_sinks=8}
+# 0x618 ADP_TALK and 0x61C ADP_LIST are NOT written here any more. Since
+# VERSION 0x0015 they are READ-ONLY words hardwired from the elaboration
+# parameters: talker_stream_sources = the ACMP talker source contexts the
+# gateware actually has (the AAF talkers plus the CRF Media Clock Output at
+# talker_unique_id = N_STREAMS), listener_stream_sinks likewise. A stream
+# count is a physical fact about the built bitstream - software cannot make
+# a ninth stream engine by writing a register - and a writable count is how
+# the 8x8 board came to advertise 1 source / 2 sinks on 2026-07-27.
+# Read them back to see the built shape:  r 0x618 ; r 0x61C
 w 0x620 0x00000000     # controller_capabilities
 w 0x624 0x00000000     # gPTP grandmaster id low
 w 0x628 0x00000000     # gPTP grandmaster id high
