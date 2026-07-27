@@ -8,8 +8,8 @@
 > method is [`PERF_ON_MILAN.md`](PERF_ON_MILAN.md); the memory root cause is
 > [`LATENCY_INVESTIGATION.md`](LATENCY_INVESTIGATION.md). **DDIO was REFUTED** — the copy tax
 > was removed by header-split, not DDIO.
-> Consolidated 2026-07-25: this file absorbed [`RX_TX_PERFORMANCE.md`](../../historical_now_obsolete/findings/RX_TX_PERFORMANCE.md) (the plain-language RX
-> story + diagrams) and [`GIGABIT_HEADROOM_ANALYSIS.md`](../../historical_now_obsolete/findings/GIGABIT_HEADROOM_ANALYSIS.md) (the cycles/byte budget model); the
+> Consolidated 2026-07-25: this file absorbed [`RX_TX_PERFORMANCE.md` (archived)](../../historical_now_obsolete/findings/RX_TX_PERFORMANCE.md) (the plain-language RX
+> story + diagrams) and [`GIGABIT_HEADROOM_ANALYSIS.md` (archived)](../../historical_now_obsolete/findings/GIGABIT_HEADROOM_ANALYSIS.md) (the cycles/byte budget model); the
 > originals are archived under [`historical_now_obsolete/findings/`](../../historical_now_obsolete/README.md).
 
 ## Contents
@@ -409,7 +409,7 @@ records, **latency is not the 500-blocker**  -  T2 driver surgery is parked.
 *Written 2026-07-09 after the R2 multi-slot-RSC campaign; kept as the pedagogical
 walk-through of the RX levers. Deep mechanism:
 [`LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md) and
-[`RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md).*
+[`RX_MEMORY_HIERARCHY_PLAN.md` (archived)](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md).*
 
 The whole campaign on one chart:
 
@@ -702,7 +702,7 @@ same ones that carry on to 1 Gbit.
    the old bottleneck map is **also resolved**: it was the CBS default shaping BE (footnote ³,
    fixed in `milan_csr`). The measured TX levers now: cut per-ACK/per-reap/per-wakeup CPU cost
    (rx-usecs 1000 already buys +23%), a second TX queue for dual-hart xmit, completion-IRQ
-   latency. See [`TX_READER_PREFETCH_PLAN.md`](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) MEASURED VERDICT.
+   latency. See [`TX_READER_PREFETCH_PLAN.md` (archived)](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md) MEASURED VERDICT.
 2. **Recover 100 MHz timing margin:** +0.031 ns on `build_dp100_cbs0`; **2-queue RxSteer at
    100 MHz** still needs re-validation once the wedge (item 0) is fixed  -  it may have been the
    wedge all along. Then run both directions at 100 MHz with the fan-out intact.

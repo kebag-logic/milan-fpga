@@ -83,7 +83,7 @@ Full sweep on 2026-07-26: **55/55 PASS, 2 064 050 checks, 0 failures**
 ## Notes
 
 * The XPM/vendor IP is **gone** (Forencich open cores, see
-  [`docs/integration/OPEN_SOURCE_MIGRATION.md`](../../historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md)): `hdl/` is
+  [`docs/integration/OPEN_SOURCE_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md)): `hdl/` is
   XPM-free (T1.2 FIFOs, T1.3 switch/mux, T1.4 CDC). `traffic_classifier`,
   `traffic_queues`, `traffic_controller_802_1q` and `ptp_ts_top` all Verilate.
 * Device portability is proven separately by the open Yosys synthesis check in

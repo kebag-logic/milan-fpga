@@ -281,4 +281,4 @@ lines). Constraints in `constraints/*.xdc`. [`REQUIREMENTS.md`](../../REQUIREMEN
 [`TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
 `IRQ_F2P` or `device-tree-xlnx`, they describe this variant only. The
 migration story from PS to softcore is
-[../integration/FULLY_FPGA_RISCV_MIGRATION.md](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+[../integration/FULLY_FPGA_RISCV_MIGRATION.md (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).

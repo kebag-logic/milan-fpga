@@ -94,7 +94,7 @@ datapath asserts backpressure-correct AXIS handshakes on all three; your
 engine must too (the RX path ultimately needs an always-ready sink at line
 rate or frames drop at the MAC FIFO, which is what the ring-DMA engines in
 `sw/litex/milan_soc.py` - `RingDMAReader`/`RingDMAWriter` - implement; their
-design history is in [../findings/RX_RING_DMA.md](../../historical_now_obsolete/findings/RX_RING_DMA.md)).
+design history is in [../findings/RX_RING_DMA.md (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md)).
 
 ### 1.4 MAC-facing streams + sideband (to/from your MAC)
 

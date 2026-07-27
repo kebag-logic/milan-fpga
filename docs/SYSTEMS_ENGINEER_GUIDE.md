@@ -6,7 +6,7 @@ Subsystem specs → Register map / ABI → Build & deploy → Test & verify → 
 Historical findings.
 
 Status: current as of **2026-07-25**. Where a linked doc is mid-refresh, the current fact is
-stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md`](../historical_now_obsolete/DOC_AUDIT.md)) tracks the fixes.
+stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (archived)](../historical_now_obsolete/DOC_AUDIT.md)) tracks the fixes.
 
 ---
 

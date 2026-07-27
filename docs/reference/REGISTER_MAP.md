@@ -1057,7 +1057,7 @@ tree exposes them via the `dma-tx`, `dma-rx`, `dma-ts` `reg` entries).
 
 **`dma-tx` and `dma-rx` are ring engines** (2026-07-04: `RingDMAReader`/`RingDMAWriter`,
 native AXI-burst masters on the coherent dma_bus  -  see
-[`RX_RING_DMA.md`](../../historical_now_obsolete/findings/RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
+[`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md) for why the simple-mode/wishbone predecessors were
 throughput-broken). Both share one 7-word layout over a circular coherent buffer of
 frame slots `[8 B header][payload padded to 8 B]`, wrapping via `mask`:
 
@@ -1092,7 +1092,7 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > **⚠ `base`/`length` are BYTE quantities, not words** (simple-mode: hardware-confirmed
 > `length=8` transmits ONE 8-byte word; `offset` counts words). The ring pointers/masks
 > are byte quantities too, always 8-aligned. (Descriptor rings / multi-queue remain the
-> later Option 6b upgrade  -  see [`FULLY_FPGA_RISCV_MIGRATION.md`](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
+> later Option 6b upgrade  -  see [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) §A.6.)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
 > the DMA masters attach to VexiiRiscv's (formerly NaxRiscv's) cache-snooping `dma_bus`, so

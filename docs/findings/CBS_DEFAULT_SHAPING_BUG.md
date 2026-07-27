@@ -26,7 +26,7 @@ RTL shaped correctly; the *defaults* told it to shape the wrong traffic.
 TCP TX plateaued at **238–247 Mbit/s** on the 100 MHz datapath with the datapath-input
 probe showing a persistent **`stall` ≈ 39–42 %** (reader has a beat, datapath refuses).
 The stall survived the reader-prefetch refutation (reader was 3.8 % busy  -  see
-[`TX_READER_PREFETCH_PLAN.md`](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md)), so the back-pressure had to originate *inside*
+[`TX_READER_PREFETCH_PLAN.md` (archived)](../../historical_now_obsolete/findings/TX_READER_PREFETCH_PLAN.md)), so the back-pressure had to originate *inside*
 `traffic_controller_802_1q`. A stage-probe triangulation pinned it:
 
 | probe | stalls | conclusion |

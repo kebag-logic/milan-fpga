@@ -2,7 +2,7 @@
 
 Open-source RTL vendored as git submodules under `third_party/` (plus the `external`
 AVB/Ethernet submodule at the repo root). See the de-Xilinx plan in
-[`OPEN_SOURCE_MIGRATION.md`](historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md) (archived).
+[`OPEN_SOURCE_MIGRATION.md` (archived)](historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md) (archived).
 
 | Submodule | Upstream | License | Pinned commit | Used by |
 |-----------|----------|---------|---------------|---------|

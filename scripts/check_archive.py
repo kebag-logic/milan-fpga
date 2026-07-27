@@ -45,6 +45,14 @@ IN_LINK_RE = re.compile(r"\[[^\]]*\]\((?!\.\./)([A-Za-z0-9_./-]+\.md)\)")
 OUT_LINK_RE = re.compile(r"\[[^\]]*\]\((\.\./[A-Za-z0-9_./-]+\.md)\)")
 
 
+def tracked_outside_archive():
+    """Committed markdown that is NOT itself in the archive."""
+    out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
+                         capture_output=True, text=True, check=True).stdout
+    return [REPO / p for p in sorted(out.split("\0"))
+            if p and not p.startswith("historical_now_obsolete/")]
+
+
 def archived():
     out = subprocess.run(
         ["git", "-C", str(REPO), "ls-files", "-z", "historical_now_obsolete/*.md"],
@@ -106,6 +114,32 @@ def main():
                 if not (ARCHIVE / o).resolve().exists():
                     problems.append(f"DEAD FORWARD {tgt} -> '{o}' does not "
                                     f"exist; the successor moved or was renamed")
+
+    # 3. a link INTO the archive must SAY so in its visible text. `[`X.md`](
+    #    ../historical_now_obsolete/findings/X.md)` renders as a bare filename,
+    #    so a reader following it has no way to know they are being sent to a
+    #    retired document until they land on it - the banner catches them one
+    #    click too late, and only if they read it.
+    for md in tracked_outside_archive():
+        rel = md.relative_to(REPO)
+        for line in md.read_text().split("\n"):
+            # HEADINGS are exempt: a heading is a structural identifier, and
+            # editing its text changes its anchor, which silently breaks every
+            # inbound `#fragment` link and the page's own contents list. The
+            # three headings in the tree that link into the archive already say
+            # "folded from", which conveys the same thing without moving an
+            # anchor.
+            if line.startswith("#"):
+                continue
+            for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", line):
+                text, tgt = m.group(1), m.group(2)
+                if "historical_now_obsolete" not in tgt:
+                    continue
+                low = text.lower()
+                if "archiv" in low or "historical_now_obsolete" in low:
+                    continue
+                problems.append(f"UNMARKED    {rel}: link text {text!r} points "
+                                f"into the archive but does not say so")
 
     if problems:
         print(f"archive gate: {len(problems)} problem(s)\n")

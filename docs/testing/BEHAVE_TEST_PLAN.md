@@ -285,10 +285,13 @@ changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 
 - **Converge suites A and B** (they differ in 8 files and will keep drifting); keep one
   conformance tree, snapshot only for release tags. Commit the `aem/` package into the tracked
   tree (today it lives only in the private snapshot; the tracked steps `import from aem`).
-- **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D —
-  wire the T0 green gate into it. The only CI YAML today is
-  [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml) (docs gate ×2,
-  traceability, builder); it runs no behave suite.
+- **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D.
+  **The in-repo suite is already gated** — [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)
+  carries a `bdd-conformance` job that runs `behave -f plain` on every push and
+  pull request (21 features / 113 scenarios / 1169 steps), alongside
+  [`docs.yml`](../../.github/workflows/docs.yml) (docs, cited paths, archive,
+  contents, traceability, builder, DT, trace). What is still unwired is the
+  **Suite D container** path — the DUT-sim gate, not the suite itself.
 - **Harness traps every new step must bake in** (from BENCH_TOPOLOGY / tool sources):
   ProfiShark **+28** byte offset, never `tcpdump -e`; raw AVDECC sockets **must
   PACKET_MR_PROMISC-join `91:E0:F0:01:00:00`**; ADP census matches `ether[14]==0xFA`;
