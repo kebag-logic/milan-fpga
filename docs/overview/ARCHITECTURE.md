@@ -114,7 +114,7 @@ contract is [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUI
 ## 3. Datapath
 
 **TX (CPU lane):** DMA reader → `traffic_controller_802_1q` (classify →
-**six** per-queue FIFOs → CBS arbiter) → `ptp_ts_top` (TX timestamp capture at
+**five** per-queue FIFOs → CBS arbiter) → `ptp_ts_top` (TX timestamp capture at
 the egress SFD) → a chain of `adp_tx_arbiter` mergers → MAC.
 
 **TX (fabric lane):** the AAF talker, ADP, ACMP, AECP, MAAP, the CRF talker and
