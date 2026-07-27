@@ -293,9 +293,16 @@ def test_current_shape_matches_sweep_flags():
         # as the front-end generate select (default i2s emits nothing).
         want["--audio-interface"] = ["tdm16"]
         assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
-        assert got["--eth-port"] == ["e2"], "ax7101 must carry --eth-port e2"
+        # The port is NOT pinned to a literal here. It is a property of the
+        # BENCH (which socket the cable is in), not of the design, and pinning
+        # it to `e2` is what let the config and sweep.sh disagree until a
+        # bitstream was built for a port with no cable in it. What must hold is
+        # that every source agrees with the config - which the `got == want`
+        # comparison above already enforces, since `want` is derived from it.
+        assert got["--eth-port"] in (["e1"], ["e2"]), \
+            f"ax7101 --eth-port must be e1 or e2, got {got['--eth-port']}"
         print(f"  [gate 2] {name} argv == sweep.sh ax7101 design flags "
-              f"({len(got)} flags, incl --eth-port e2)")
+              f"({len(got)} flags, --eth-port {got['--eth-port'][0]} == the config)")
 
 
 def test_current_shape_matches_gen_aem_store():

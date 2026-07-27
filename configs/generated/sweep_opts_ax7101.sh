@@ -5,6 +5,6 @@
 # identical bytes). Sourced by sw/litex/sweep.sh when present; its
 # inline tables are the fallback. Regenerate:
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
-OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e2"
+OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1"
 L2=16384
 RXQ=1

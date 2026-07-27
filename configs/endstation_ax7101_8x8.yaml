@@ -63,8 +63,13 @@ board:
     hs_page_bytes: 16384
     strip_probes: true
     num_queues: 6
-    eth_port: e2                     # e2 since 2026-07-22 (e1 GMII-RX
-                                     # hardware fault, cold-soak-proven)
+    eth_port: e1                     # MUST match the physical cable, which is
+                                     # on e1 (USER 2026-07-27) - and the
+                                     # shipping bitstream was built with the e1
+                                     # default. e2 remains the fallback for the
+                                     # 2026-07-22 e1 GMII-RX cold-soak fault:
+                                     # move the cable FIRST, then change this.
+                                     # See docs/integration/BUILDING.md.
 
 srp:
   sr_class: A
