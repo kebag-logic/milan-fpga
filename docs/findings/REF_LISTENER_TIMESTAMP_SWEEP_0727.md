@@ -26,7 +26,7 @@ page. Every number below is a read.
 - **[Root cause: the talker's clock, not the talker's logic](#root-cause-the-talkers-clock-not-the-talkers-logic)** — The measurement that separates the two hypotheses. Our AX board's transmitted timestamps hold constant against the domain clock; the Arty's PHC is 60 hours out and slewing at the ±1 % rail. Includes the `ptp4l` log line that names the mechanism.
 - **[The sweep signature](#the-sweep-signature)** — Why the split is not "all late" but alternating blocks of 100 % LATE and 100 % EARLY, measured at 20 s cadence. Also the one number that does *not* close, recorded honestly rather than smoothed over.
 - **[Why this is a regression against the 07-24 record](#why-this-is-a-regression-against-the-07-24-record)** — The grandmaster reboots; the PHC counts from boot, not from an epoch; a slew-only client can never re-acquire. The offset is measured *growing*, which is what makes this a trap rather than a transient.
-- **[What to change](#what-to-change)** — Three candidate fixes with the measurement that would confirm each. Read-only when written; item 2 (the talker's `tu` bit) has since landed in fabric at VERSION `0x0015`, and the entry records what the clause actually required — which was *not* the "stop streaming" half of the original suggestion.
+- **[What to change](#what-to-change)** — Three candidate fixes with the measurement that would confirm each. Read-only when written; item 2 (the talker's `tu` bit) has since landed in fabric at VERSION `0x0016`, and the entry records what the clause actually required — which was *not* the "stop streaming" half of the original suggestion.
 - **[Reproduce it](#reproduce-it)** — The exact command sequence, including our own CSR snapshot protocol and the `phc_ctl` trick that measures PHC frequency error with no network round-trip in the loop.
 
 ## Verdict
@@ -295,6 +295,14 @@ between the Arty's PHC and its monotonic reference. This does not affect the
 verdict — the clock is 60 hours out either way — but it should not be written
 up as understood when it is not.
 
+The mechanism behind this signature — why a huge offset alternates rather than
+biasing, and why no listener-side heuristic can recover the truth from it — is
+drawn out with timing diagrams in
+[`../design/PRESENTATION_TIME_WRAP.md`](../design/PRESENTATION_TIME_WRAP.md).
+That page also derives the observed half-period from the table above (90.62 s
+against 214.66 s predicted) and leaves the 2.4x gap open rather than closing
+it.
+
 ## Why this is a regression against the 07-24 record
 
 The 2026-07-24 record has this path at **E2E = pto = 500 µs with 0 LATE**. The
@@ -334,7 +342,7 @@ that would confirm it.
    sweep.
 2. **Gate the talker on clock validity.** ~~Today we transmit at full rate with
    a PHC 60 h out and advertise `TIMESTAMP_UNCERTAIN` = 0 while doing it.~~
-   **DONE IN FABRIC, VERSION `0x0015` (not yet flashed).** The clause work
+   **DONE IN FABRIC, VERSION `0x0016` (not yet flashed).** The clause work
    settled the "either / or" in this bullet: it is **not** either. Milan v1.2
    5.3.7.3 forbids stopping a Stream Output outright ("it **shall be
    streaming** AVTP packets ... STREAMING_WAIT shall not be implemented") and
@@ -348,7 +356,7 @@ that would confirm it.
    observe a servo — see
    [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), the `0x778`
    group. **The bench software half is still owed**: until the gPTP daemon
-   leases the claim, a `0x0015` board emits `tu = 1` continuously, which is
+   leases the claim, a `0x0016` board emits `tu = 1` continuously, which is
    the honest reading of this very measurement. *Confirm by:* the reference
    device's `TIMESTAMP_UNCERTAIN` counter moving instead of its LATE/EARLY
    pair.

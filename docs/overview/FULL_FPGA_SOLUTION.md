@@ -176,9 +176,9 @@ control/data/event pattern documented generically in
   ("MILN") + the `VERSION` word  -  migration milestone **M-A2**. That log captured
   `0x00010003`; VERSION is bumped on every gateware change, so the current tree
   returns `0x0001_0015` (`milan_csr.sv`). The last value read back off silicon is
-  `0x0001_0014` ([`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md)) — the
-  flashed bitstream predates the clock-validity round. Only the `"MILN"`
-  ID is the stable part of this check.
+  `0x0001_0014` — [`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md) —
+  because neither `0x0015` nor `0x0016` has been built yet. Only the `"MILN"` ID
+  is the stable part of this check.
 
 ### 5.2 Data  -  `MilanDMA` (§A.6, `--with-dma`)
 - Three LiteX simple-mode DMA engines, each its own Wishbone master:

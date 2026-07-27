@@ -12,6 +12,27 @@ RTL_DIR    = ../../../hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_datapath
 
+# ENTITY SHAPE (2026-07-27). milan_datapath and milan_csr both `include
+# gen/adp_shape_defaults.svh - the stream counts the entity advertises AND the
+# ACMP context-array sizing - and that file is GENERATED from an end-station
+# config by sw/builder/endstation_builder.py. The default 1x1 copy lives in
+# hdl/common/csr/gen; the NxN legs elaborate a DIFFERENT shape by putting that
+# config's generated directory FIRST on the include path. There is no way to
+# build an N=8 datapath against the 1x1 entity definition and not notice: the
+# ACMP arrays would be sized 1/2 and the harness reads the mismatch straight
+# off 0x618/0x61C.
+CFG_DIR    = ../../../configs/generated
+SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
+SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
+# ...and as PREREQUISITES: make cannot see through a `include, so a
+# regenerated shape must still force a rebuild or the harness keeps testing
+# the previous entity definition out of a stale objdir.
+GEN_CSR     = $(RTL_DIR)/common/csr/gen/lwsrp_csr_defaults.svh
+SHAPE_DEF   = $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh
+SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
+SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F)
+
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
@@ -91,10 +112,10 @@ all: run
 # that was never elaborated is not a prune.
 PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
 
-run:
+run: $(GEN_ALL)
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
-	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
-	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # LPF_P=0 is the SPENT area lever (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
 # ax7101 shipping argv carries --no-render-lpf, so the pruned shape is a
 # SHIPPING shape and has to be in the suite. The claim being proved is

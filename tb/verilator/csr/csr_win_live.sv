@@ -94,6 +94,10 @@ module csr_win_live #(
   wire [1:0]  listener_decl_w;
   wire [7:0]  tfail_code_w, rx_drops_w;
 
+  //! The 0x800 window is elaborated 2x2 here while the ADP shape comes from
+  //! whichever end-station config the Makefile puts on the include path (the
+  //! 8x8 one: 9 sources / 9 sinks). Reading 9 back from a 2x2 window proves
+  //! 0x618/0x61C follow the CONFIG and not N_TALKERS_P / N_LISTENERS_P.
   milan_csr #(
     .N_LISTENERS_P (2),
     .N_TALKERS_P   (2)

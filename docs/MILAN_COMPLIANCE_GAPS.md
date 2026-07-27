@@ -143,9 +143,24 @@ hold.
   met, but a controller writing e.g. STREAM_VLAN_ID gets refused.
 
 - ~~Declared capability counts exceed reality~~ **RESOLVED
-  (2026-07-20):** S50 provisions honest ADP counts (talker sources 1,
-  listener sinks 2 = media + CRF; 0x618/0x61C) and the ENTITY
-  descriptor overlays follow the same values.
+  (2026-07-27):** the counts are no longer *provisioned* at all.
+  `ADP_TALKER` (`0x618`) and `ADP_LISTENER` (`0x61C`) are **read-only**
+  words hardwired from the elaboration parameters, so the ENTITY
+  descriptor overlays and the ADPDU carry the shape the gateware was
+  actually built with.
+
+  The 2026-07-20 fix was the boot script writing "honest counts" — talker
+  sources 1, listener sinks 2 — and that was honest for the 1×1 board it
+  was written on. When the AX7101 went 8×8 the script did not, so on
+  2026-07-27 the board advertised **1 source / 2 sinks** beside a
+  reference device advertising 4/10 and a peer host advertising 8/8:
+  every controller on the segment could see and bind exactly one of its
+  eight streams, and the CRF Media Clock Output at `talker_unique_id =
+  N_STREAMS` was outside the advertised range and therefore invisible to
+  ATDECC while its PDUs were on the wire every 2 ms. A stream count is a
+  physical fact about the built bitstream; a writable count buys nothing
+  and buys a way for the device to lie about itself invisibly, because
+  the register faithfully holds what was written.
 
 ## 2. Streaming / media
 

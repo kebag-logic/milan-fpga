@@ -346,6 +346,22 @@ int main(int argc, char** argv) {
   ck("STATE acmp probing", (st >> 3) & 3, 1);
   ck("STATE acmp status",  (st >> 5) & 31, 21);
 
+  // A SECOND config's shape: this executable is built with
+  // +incdir+configs/generated/endstation_arty_4x4, whose generated
+  // adp_shape_defaults.svh says 5 sources / 5 sinks (4 AAF + the CRF Media
+  // Clock Output / sink) and sets MEDIA_CLOCK_SOURCE because that config HAS
+  // a CRF output. sim_main.cpp reads 1/2 with caps 0x4001 off the tracked 1x1
+  // default. Same RTL, same registers, different end-station config - which
+  // is what "software-defined" has to mean for a count that hardware owns.
+  printf("-- ADP shape is RO and comes from the 4x4 config (5/5) --\n");
+  ck("ADP_TALK = {0x4801, 5}", axi_read(0x618), 0x48010005u);
+  ck("ADP_LIST = {0x4801, 5}", axi_read(0x61C), 0x48010005u);
+  axi_write(0x618, 0x48010001);
+  axi_write(0x61C, 0x48010002);
+  for (int i = 0; i < 4; ++i) posedge();
+  ck("ADP_TALK still 5 after a write", axi_read(0x618), 0x48010005u);
+  ck("ADP_LIST still 5 after a write", axi_read(0x61C), 0x48010005u);
+
   printf("-- out-of-range at N=4: idx 4+ reads 0 / writes ignored --\n");
   axi_write(A_STRM_SEL, 0x004);              // dir=0 idx=4: OUT of range
   seen_lctx_wr = false; srp_saw_wr = false;

@@ -439,11 +439,11 @@ is what belongs in DRAM.
 
 ## `VERSION` was deliberately NOT bumped
 
-*(By this round. `VERSION` is `0x0001_0015` on trunk today — the clock-validity
-round bumped it, for exactly the reason stated below: it changed CSR-observable
-behaviour at the settings a board actually runs.)*
-
-`milan_csr` `VERSION` stayed `0x0001_0014` for the area round. At the **default** settings — every
+`milan_csr` `VERSION` stayed `0x0001_0014` **for this round**. (It has since moved
+to `0x0001_0015` for an unrelated change — the ADP shape registers becoming
+read-only — and to `0x0001_0016` for another, the AVTP `tu` bit becoming driven;
+neither affects the reasoning below.) At the
+**default** settings — every
 parameter 1 — this change is a pure no-op parametrisation: the same instances,
 the same wiring, the same CSR values, and `tb/verilator/milan_dp`'s legacy and
 NxN shapes pass unchanged at 196 / 135 / 147 checks. A `VERSION` bump announces
