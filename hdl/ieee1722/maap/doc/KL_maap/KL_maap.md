@@ -4,6 +4,12 @@
 
 Dynamic multicast-DMAC allocation for the Milan talker: probe/defend/announce state machine over the `91:E0:F0:00:00:00`/0xFE00 pool. Three PROBEs at 500 ms + jitter, then ANNOUNCE at 3-5 s forever; the claim (`addr_o`) is valid only in ANNOUNCE. A conflicting received PROBE re-randomizes while probing and is DEFENDed (with the exact overlap sub-range) while announced; a conflicting received DEFEND/ANNOUNCE (their CONFLICT fields - reference behavior) re-randomizes unconditionally. Randomness = a station-MAC-seeded 16-bit LFSR (offset choice + interval jitter). `seed_offset_i`/`seed_valid_i` let provisioning re-claim the previously won block (the reference's persisted state).
 
+## Contents
+
+- **[Generics](#generics)** — One parameter, `CLK_FREQ_HZ_P` — the base for the millisecond tick divider, so it must match the datapath clock or every PROBE/ANNOUNCE interval scales wrong.
+- **[Ports](#ports)** — The interface, including the two that are easy to miss: `seed_offset_i`/`seed_valid_i` let provisioning re-claim a previously won block, and `addr_valid_o` is only high in ANNOUNCE — it is the admission gate, not a "module is running" flag.
+- **[Integration](#integration)** — The one expression that decides whether the claimed address or the statically provisioned one reaches the AAF framer, and the guarantee that comes with it: `en = 0` keeps static provisioning bit-exact.
+
 ## Generics
 
 | Generic | Type | Default | Description |
