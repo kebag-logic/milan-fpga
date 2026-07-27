@@ -43,10 +43,10 @@ One entity, one network port, on **one softcore**:
    │   • OpenAvnu mrpd: MSRP/MVRP   • linuxptp: gPTP (802.1AS)          │
    │   • kl-eth driver: PHC, HW timestamps, CBS offload                 │
    ├───────────────────────────────────────────────────────────────────┤
-   │  FPGA datapath (HW): RGMII MAC ─ 802.1Q classifier ─ 802.1Qav CBS  │
+   │  FPGA datapath (HW): GMII MAC ─ 802.1Q classifier ─ 802.1Qav CBS   │
    │                       ─ PTP timestamp ─ (AVTP talker/listener)     │
    └───────────────────────────────────────────────────────────────────┘
-                                   │ RGMII 1 GbE
+                                   │ GMII 1 GbE
                                    ▼  AVB/TSN network (bridge)
 ```
 Baseline stream profile, 48 kHz, 32-bit, Class A (2 ms, 8000 pkt/s), + a CRF
@@ -165,7 +165,7 @@ The `kl,dma-ether` platform net driver (`../kl-linux-drivers`). Extends the exis
 | FR-DRV-P2 | **HW timestamping** MUST be wired: `SIOCSHWTSTAMP`/`ndo_hwtstamp_set`, TX/RX descriptor timestamps from the PTP metadata stream into `skb_hwtstamps`/`skb_tstamp_tx`, and `ethtool -T` MUST advertise the PHC + `SOF_TIMESTAMPING_{TX,RX}_HARDWARE|RAW_HARDWARE`. | M | T |
 | FR-DRV-E1 | **ethtool_ops** MUST provide: `get_ts_info` (`-T`), `get/set_channels` (`-l`/`-L`), `get/set_ringparam` (`-g`/`-G`), `get/set_coalesce` (`-c`/`-C`), `get_strings`/`get_sset_count`/`get_ethtool_stats` (`-S`, from the RMON CSRs), `get_link_ksettings`/`nway_reset`. | M | T |
 | FR-DRV-E2 | **CBS / TSN offload** MUST be exposed via `ndo_setup_tc` (`TC_SETUP_QDISC_CBS` → the `0x400` CBS CSRs, `mqprio`; `taprio` MAY). | M | T |
-| FR-DRV-C1 | **MDIO/phylib**: register the fabric MDIO bus, `phy_connect` (rgmii-id), `adjust_link` drives MAC speed/duplex + PHY-reset GPIO. | M | T |
+| FR-DRV-C1 | **MDIO/phylib**: register the MDIO bus, `phy_connect` with the DT's `phy-mode` (`gmii` on the AX7101, `mii` on the Arty — never `rgmii-id`, see FR-DT-04), `adjust_link` drives MAC speed/duplex + PHY-reset GPIO. | M | T |
 | FR-DRV-R1 | RX **dest-MAC filter** programming MUST be exposed: `ndo_set_rx_mode` maps the multicast/unicast list onto the HW filter (MC_HASH and/or the TCAM `0x700` group). | S | T |
 
 ### 2.11 Device tree  *(Phase 8 / `REQ-DT-*`; the DT contract the driver binds to)*
@@ -176,10 +176,10 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| FR-DT-01 | The node MUST set `compatible = "kl,dma-ether-0.9"` (matches the driver `of_match` + the CSR `VERSION`); the DT `reg` MUST cover the **CSR window** (`0x43C0_0000`/64 KB) and the **DMA register blocks**, each with `reg-names`. | M | I,T |
+| FR-DT-01 | The node MUST set `compatible = "kl,dma-ether-0.9"` (matches the driver `of_match` + the CSR `VERSION`); the DT `reg` MUST cover the **CSR window** (64 KB) and the **DMA register blocks**, each with `reg-names`. The CSR *base* is host-specific and the requirement is on the window, not on a literal: **`0x9000_0000` on the shipping softcore build** (`MILAN_CSR_BASE` in `sw/builder/endstation_builder.py`; the AXI-Lite slave must sit in the CPU IO region at or above `0x8000_0000`), `0x43C0_0000` on the retired Zynq PS build. Both are recorded in the binding, [`sw/dts/bindings/kl,dma-ether.yaml`](../../sw/dts/bindings/kl,dma-ether.yaml). | M | I,T |
 | FR-DT-02 | `interrupts` (or `interrupts-extended`) MUST list the four sources (tx-dma, rx-dma, ts-dma, csr) against the SoC interrupt controller (`&plic` on the RISC-V SoC, `&intc`/`IRQ_F2P` on Zynq), with `interrupt-names`. | M | I,T |
 | FR-DT-03 | Queue counts MUST be declared: `kl,txq-cnt`/`kl,rxq-cnt` (= `CAP.num_queues`), and **`kl,shaped-queues`** MUST list which queues are CBS-shaped (a bitmap/phandle-list)  -  reset **`<>`** (empty: `CBS_EN_RST = 0b00000`, every queue powers up unshaped), consistent with `REGISTER_MAP` §0x400 and the five-queue map in [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md). | M | I,T |
-| FR-DT-04 | PHY MUST be described: a child `mdio` bus with the PHY node, `phy-handle`, `phy-mode = "rgmii-id"`, and `phy-reset-gpios` (`REQ-MAC-06`). | M | I,T |
+| FR-DT-04 | PHY MUST be described: a child `mdio` bus with the PHY node, `phy-handle`, a `phy-mode` matching how the board actually wires the PHY, and `phy-reset-gpios` (`REQ-MAC-06`). The shipping builder derives the string from `board.constraints.phy` — **`"gmii"`** on the AX7101 (8-bit SDR, the §2 correction in [BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)) and `"mii"` on the Arty; `"rgmii-id"` appears only in the retired `sw/dts` artifacts and is wrong for both boards. | M | I,T |
 | FR-DT-05 | `local-mac-address`/`mac-address` MUST be honoured (else derive from a stable source); the driver seeds the AVDECC `entity_id` (EUI-64) from it (`FR-DISC-05`). | M | T |
 | FR-DT-06 | PTP MUST be discoverable: a `ptp` sub-node or `kl,ptp` props so the driver registers the PHC on the `0x500` CSRs (fixed-125 MHz clock ref, `FR-CLK-02`). | S | I |
 | FR-DT-07 | Optional `clocks`/`clock-names` for `axis`/`gtx`/`ptp`; the node MUST bind with them absent (driver falls back to the fixed rates). | S | T |

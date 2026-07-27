@@ -1,8 +1,20 @@
 # Attaching AXI-Stream FPGA cores to the NaxRiscv SoC
 
+> **The filename says NaxRiscv; the content is CPU-agnostic and current
+> (re-framed 2026-07-27).** NaxRiscv is the **historical** soft core
+> ([`GLOSSARY.md`](../GLOSSARY.md)); the shipping builds run **VexiiRiscv**
+> (`sw/litex/sweep.sh` passes `--cpu vexiiriscv`, and `sw/builder` defaults to it —
+> `milan_soc.py --cpu` still *defaults* to `naxriscv`, which is its own trap, see
+> [KNOWN_ISSUES §2](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)). **The
+> three-plane method below does not change with the core**, and neither do the
+> `milan_soc.py` call sites or the §6.1 CDC table — both are read off the current
+> tree. The only core-specific material is §2's bus table, which now covers both.
+> **The page is deliberately not renamed**: inbound links and section anchors
+> across the corpus point here.
+
 How to connect an **AXI4-Stream** FPGA core (a MAC, a DSP block, a crypto engine,
-the Milan TSN datapath …) to the NaxRiscv/LiteX SoC so that software running on
-the core can configure it, move data to/from it, and get interrupts from it.
+the Milan TSN datapath …) to a LiteX RISC-V softcore SoC so that software running
+on the core can configure it, move data to/from it, and get interrupts from it.
 
 The concrete, working reference for everything below is
 [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (class `MilanNIC`): the Milan
@@ -14,7 +26,7 @@ planes.
 ## Contents
 
 - **[1. The mental model: AXI-Stream is not memory-mapped](#1-the-mental-model-axi-stream-is-not-memory-mapped)** — Why "attach AXIS to the CPU bus" is not a thing you can do — the bus has no address — and the three-plane decomposition (control, data, events) that every following section builds on.
-- **[2. What NaxRiscv exposes in LiteX](#2-what-naxriscv-exposes-in-litex)** — The four buses you have to work with, and the two constraints that will bite at elaboration: MMIO must land at or above `0x8000_0000` or you get *"Region not in IO region"*, and the coherent DMA path is 64-bit.
+- **[2. What NaxRiscv exposes in LiteX](#2-what-naxriscv-exposes-in-litex)** — The four buses you have to work with — the same four under the same names on both NaxRiscv and the shipping VexiiRiscv, which is what makes the rest of the page core-agnostic — and the two constraints that will bite at elaboration: MMIO must land at or above `0x8000_0000` or you get *"Region not in IO region"*, and the coherent DMA path is 64-bit in the `--xlen 64` build.
 - **[3. Plane ①  -  control (AXI-Lite / CSR slave)](#3-plane-①-----control-axi-lite--csr-slave)** — Copy-ready Python: the AXI-Lite interface, the `SoCRegion` that maps it uncached, and the full channel-by-channel `Instance()` wiring. Plus what to do instead if your core has no AXI-Lite port.
 - **[4. Plane ②  -  data (AXI-Stream ↔ memory via DMA)](#4-plane-②-----data-axi-stream--memory-via-dma)** — The coherent-versus-not decision and what each costs the driver (plain `dma_map_*`, or manual cache maintenance forever). Ends with the AXIS wiring, where the load-bearing detail is that the DMA treats `tlast` as the descriptor boundary.
 - **[5. Plane ③  -  events (IRQ → PLIC)](#5-plane-③-----events-irq--plic)** — `EventManager` → `self.irq.add` → PLIC in a dozen lines, and how the allocated source numbers become the `interrupts` property the driver binds to.
@@ -32,7 +44,7 @@ on **three separate planes**:
 
 ```
                           ┌───────────────────────────────────────────────┐
-                          │                 NaxRiscv SoC                   │
+                          │          LiteX RISC-V softcore SoC             │
    register  ┌────────────┤  pbus (AXI-Lite)  ── CSR / control ───────────►│  ① CONTROL
    reads/    │            │                                                │
    writes    │   AXIS     │  dma_bus (AXI, coherent) ◄─ DMA ─► DRAM/L2 ────│  ② DATA
@@ -59,24 +71,35 @@ a checklist.
 
 ## 2. What NaxRiscv exposes in LiteX
 
-`litex/soc/cores/cpu/naxriscv/core.py` gives the SoC these buses:
+Both cores this SoC has been built on present the **same four buses** under the
+same attribute names — which is why the rest of this page needs no per-core
+variant. `litex/soc/cores/cpu/naxriscv/core.py` and
+`litex/soc/cores/cpu/vexiiriscv/core.py`:
 
 | Bus | Type | Purpose |
 |-----|------|---------|
 | `ibus` / `dbus` | AXI-Lite → wishbone/axi | instruction fetch + load/store to memory |
-| `pbus` | `AXILiteInterface` | **peripheral bus**  -  where MMIO slaves (your control plane) land |
-| `dma_bus` | `AXIInterface(data_width=64, addr=32, id=4)` | **coherent DMA** into L2/DRAM  -  only when built with `--with-coherent-dma` |
+| `pbus` | `AXILiteInterface` (32-bit data, 32-bit address on both) | **peripheral bus**  -  where MMIO slaves (your control plane) land |
+| `dma_bus` | `AXIInterface`, `addr=32`, `id=4`. Nax **hardwires** `data_width=64`; Vexii takes `dma_data_width or internal_bus_width` | **coherent DMA** into L2/DRAM  -  only when built with coherent DMA (`--with-coherent-dma` on Nax, `--with-dma` on Vexii; `milan_soc.py` drives both off its own `--coherent-dma`) |
 | `interrupt` | `Signal(32)` | external interrupt lines, driven by the **PLIC** (`0xf0c0_0000`) + CLINT (`0xf001_0000`) |
+
+VexiiRiscv adds one thing Nax does not: `memory_buses` /
+`add_memory_buses()`, an AXI port straight to LiteDRAM. It is not part of the
+three-plane pattern — your core never touches it — but it is why a Vexii SoC's
+`main_ram` can bypass the interconnect.
 
 Two consequences you must respect:
 
-1. **MMIO must be in the IO region.** NaxRiscv marks `0x8000_0000–0xFFFF_FFFF` as
+1. **MMIO must be in the IO region.** Both cores declare
+   `io_regions = {0x8000_0000: 0x8000_0000}`, i.e. `0x8000_0000–0xFFFF_FFFF` is
    the uncached IO region. A control-plane slave placed below that (e.g. the Zynq
    address `0x43C0_0000`) fails with *"Region not in IO region, it must be
    cached."* `milan_soc.py` maps the Milan CSR window at `0x9000_0000` for this
    reason (the register **offsets** are unchanged; only the base differs per host).
-2. **The DMA data path is 64-bit** on the coherent `dma_bus`. Size your AXIS↔AXI
-   bridge and buffers accordingly (`xlen=64` → `data_width=64`).
+2. **The DMA data path is 64-bit** on the coherent `dma_bus` in the shipping
+   `--xlen 64` configuration. Size your AXIS↔AXI bridge and buffers accordingly.
+   On Vexii this follows the core's internal bus width rather than being fixed, so
+   read it off the elaborated interface instead of assuming it.
 
 ---
 
@@ -128,8 +151,11 @@ Build the CPU with coherent DMA and give your AXIS→AXI bridge a master on the
 coherent `dma_bus`:
 
 ```python
-# milan_soc.py: enable it via NaxRiscv args (see §2 table).
-_nax_args.with_coherent_dma = True     # -> NaxRiscv.with_dma, exposes self.cpu.dma_bus
+# milan_soc.py: enable it via the CPU's own args (see §2 table). The flag name
+# differs per core - Nax `with_coherent_dma`, Vexii `with_dma` - and milan_soc.py
+# drives whichever applies from its single `--coherent-dma`. Either way the CPU
+# then exposes self.cpu.dma_bus.
+_nax_args.with_coherent_dma = True     # NaxRiscv;  _vex_args.with_dma = True on VexiiRiscv
 
 # Declare the stream your core drives (RX) / consumes (TX), 64-bit to match dma_bus.
 rx_axis = axi.AXIStreamInterface(data_width=64, clock_domain="sys")
@@ -177,7 +203,8 @@ DMA uses `tlast` as the packet/descriptor boundary.
 ## 5. Plane ③  -  events (IRQ → PLIC)
 
 Surface each interrupt line through a LiteX `EventManager`; `self.irq.add` routes
-it to the PLIC that NaxRiscv already instantiates. Straight from `MilanNIC`:
+it to the PLIC the CPU already instantiates (both cores do). Straight from
+`MilanNIC`:
 
 ```python
 from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
@@ -398,4 +425,5 @@ the wiring, not the names:
 
 The internal AXIS pipeline (classifier → per-queue FIFOs → CBS shaper → MAC, plus
 the RX MAC filter) is all AXI-Stream and is verified stand-alone in
-`tb/verilator/`  -  attaching it to NaxRiscv is purely the three-plane wiring above.
+`tb/verilator/`  -  attaching it to the softcore is purely the three-plane wiring
+above, and that wiring did not change when the CPU did.
