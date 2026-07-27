@@ -18,7 +18,10 @@ make legacy     the original 14-command cosim smoke driver
 TSN_FUZZ_VERBOSE=1 make aecp     print passing checks too
 ```
 
-Current tally — 3153 checks, 0 failures, 2 tracked gaps:
+Current tally — 3153 checks, 0 failures, 2 tracked gaps. This is what `make`
+prints; each campaign rewrites the same line into its `TEST_RESULTS.md` on
+every run, so the generated files are the fresher authority if this table and
+they ever disagree:
 
 | campaign | checks | what it drives |
 |---|---:|---|

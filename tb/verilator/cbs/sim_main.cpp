@@ -126,7 +126,11 @@ int main(int argc, char** argv) {
     Vcbs_ver_wrap* dut = new Vcbs_ver_wrap;
     Harness h(dut, cfg);
 
-    printf("== CBS verification harness (runtime config; default queue-0 Class-A "
+    // The DUT carries no queue index: this is a SLOPE test, not a queue test.
+    // 500 Mbit/s is 50 % of 1G - it was q0's share before the 0x0011->0x0014
+    // renumbering made q0 best effort and SR class A q4 (450 Mbit/s). See
+    // README.md "Configuration".
+    printf("== CBS verification harness (runtime config; default slope "
            "@1G idleSlope=500Mbps HI=761 LO=-761 clk=%lldMHz) ==\n",
            (long long)(cfg.clk_freq_hz/1000000));
 
