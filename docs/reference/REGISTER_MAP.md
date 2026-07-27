@@ -734,8 +734,17 @@ is consulted until the CRC has closed.
 One SELECT register plus ONE decoded word block views any of the N listener /
 N talker stream contexts — decode area is O(1) in N instead of the O(N) flat
 replication (~500 words at 8x8). The reader is the single softcore daemon:
-SEL-then-read sequencing costs nothing. `N_LISTENERS_P` / `N_TALKERS_P` are
-elaboration parameters of `milan_csr` (both 1 in today's shipping shape).
+SEL-then-read sequencing costs nothing.
+
+`N_LISTENERS_P` / `N_TALKERS_P` are elaboration parameters of `milan_csr`.
+**They both default to 1 in the RTL, and the shipping AX7101 shape is 8** —
+`milan_datapath` drives both from its own `N_STREAMS`, which the builder sets to
+`max(listeners, talkers)` from the config, and `configs/endstation_ax7101_8x8.yaml`
+declares 8 of each (`test_builder.py` gate 2 pins `--num-streams 8` for that
+board). The Arty config declares one of each, so that board *is* the N = 1 shape
+and every window word there is the flat alias described below. **Read the count off
+the build, never off this page**: the index is only 4 bits wide and an out-of-range
+selection reads 0, which is indistinguishable from a real zero at a glance.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
