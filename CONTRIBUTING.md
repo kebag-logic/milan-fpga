@@ -8,7 +8,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 
 - **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** — The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
 - **[2. Workflow](#2-workflow)** — One lane = one worktree = one branch = one PR, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
-- **[3. Verification bar](#3-verification-bar)** — What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
+- **[3. Verification bar](#3-verification-bar)** — What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** — Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate the DTB from `csr.csv` on any gateware block-set change.
 
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
@@ -51,6 +51,23 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - Every functional RTL change ships with a self-checking Verilator harness
   under `tb/verilator/<name>/` (`make` = build+run, exit code is the gate).
   See [`docs/testing/TESTING.md`](docs/testing/TESTING.md) for the suite index and tiers.
+- **Lint before you push**: `python3 scripts/lint_rtl.py --check` (~10 s,
+  needs only the Verilator you already have). It sweeps every module in
+  `hdl/` and fails on a **new** violation — today's 188 are grandfathered by
+  a per-directory ratchet in [`scripts/lint.budget`](scripts/lint.budget) and
+  printed in full, so the backlog is never hidden. Lowering an entry is a
+  normal commit: `python3 scripts/lint_rtl.py && git add scripts/lint.budget`.
+  Raising one is not an option — fix the finding, or add a `RULE_WAIVERS`
+  entry naming the reason **and where the reason is recorded**.
+  `--pragmas` alone is instantaneous and is the useful pre-commit hook:
+  `echo 'python3 scripts/lint_rtl.py --pragmas' >> .git/hooks/pre-commit`.
+- **A `// verilator lint_off X` needs a justification**, exactly like a
+  tied-off input does — an unexplained suppression is the same defect class
+  as an unexplained tie. Put the reason next to the code AND a
+  `PRAGMA_WAIVERS` entry in `scripts/lint_rtl.py`; the gate fails without
+  one. The waiver code must be the **last token on the line**: a trailing
+  `// prose` comment builds under Verilator 5.050 and does not build under
+  5.020, which is how four suites became unbuildable once.
 - Coverage-matrix rows (`docs/testing/`) only move ✅ with a runnable test.
   Prefer real-wiring-path tests over unit mocks.
 - **Measure, don't assume**: no number from a comment or model drives a

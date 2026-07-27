@@ -132,9 +132,14 @@ Extends `avtp_control_subtype`. Key methods:
 ## Lint
 
 ```bash
-./scripts/run-verilator-lint.sh           # check all 13 AECP modules
-./scripts/run-verilator-lint.sh --strict  # enables -Wall
+python3 scripts/lint_rtl.py           # sweep every module in hdl/, print the census
+python3 scripts/lint_rtl.py --check   # the CI gate: fail on a NEW violation
+python3 scripts/lint_rtl.py --pragmas # just the `lint_off` well-formedness gate
 ```
+
+Replaces the AECP-only `run-verilator-lint.sh`: the sweep lints all 82 modules,
+`KL_aecp_top` included, and the AECP directory carries 5 of the 188 ratcheted
+violations. See [`../docs/testing/TESTING.md`](../docs/testing/TESTING.md) §4b.
 
 ---
 
