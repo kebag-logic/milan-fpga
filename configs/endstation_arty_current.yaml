@@ -43,13 +43,13 @@ board:
   constraints:                       # physical facts -> milan_soc.py argv
     sys_clk_hz: 83333000             # 83.333e6: the DDR3-666 window
     milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
-    l2_bytes: 16384
+    l2_bytes: 65536
     phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)
     gtx_tx_invert: false             # GMII-only knob (ax7101)
     floorplan: false
     flashboot: full                  # none | kernel | full (N25Q128 QSPI)
     uart_baudrate: 115200
-    rx_queues: 1                     # ingress fan-out. Since 2026-07-26 the
+    rx_queues: 2                     # ingress fan-out. Since 2026-07-26 the
                                      # split is gPTP (q1) vs everything else
                                      # (q0), NOT the old TCP 4-tuple flow hash
                                      # - docs/reference/EGRESS_QUEUE_MAP.md.
@@ -110,8 +110,8 @@ platform:                            # device tree + driver-visible layout
                                      # dma-ts on by 0x74; a config that
                                      # contradicts these addresses is
                                      # REFUSED (the 5ce9a13 CSR-rot rule).
-    dma-ts: 0xf000308c
-    pcm-dma: 0xf00030ac
+    dma-ts: 0xf0003100
+    pcm-dma: 0xf0003120
 
 clocking:
   sampling_rate_hz: 48000            # current media clock (AAF base rate)
