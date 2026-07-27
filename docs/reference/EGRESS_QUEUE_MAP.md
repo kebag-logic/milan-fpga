@@ -112,11 +112,27 @@ this page and `ethernet_packet_pkg` knows an index.
 
 ### How much this recovers — an ESTIMATE, and why it may not be enough
 
-> **This section is an ESTIMATE, not a result.** Every figure below is either
-> open-synthesis output (`yosys`, not Vivado) or arithmetic on two Vivado
-> reports that are not otherwise identical builds. **No Vivado run was made for
-> the 5-queue map.** Whether it places is a *prediction* until a build says
-> otherwise — see [What is not verified](#what-is-not-verified).
+> **RESOLVED 2026-07-27 — it placed, and it met timing.** The prediction below
+> was tested: three Vivado seeds of the five-queue map all placed and **all met
+> timing** (best WNS **+0.147 ns**), and that bitstream is now flashed and
+> running — see
+> [`../findings/FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md).
+>
+> The estimate was good on LUTs and **misleading on the thing that actually
+> binds**. Predicted ≈147–314 slices recovered from the queue reduction alone;
+> delivered, across the queue reduction *plus* the four logic levers *plus* the
+> LPF prune, **−5,216 LUT** (61,959 → 56,743, 97.7 % → 89.5 %) — yet slice
+> occupancy moved only **99.93 % → 99.65 %**, leaving **fifty-five slices free**.
+> LUT count and slice count are not proportional at this occupancy, so a LUT
+> recovery does not convert to slices at anything like face value. Read the
+> estimate below as the record of a prediction that was right in direction and
+> optimistic in units.
+
+> **Everything below this line is the ORIGINAL ESTIMATE, kept as written.**
+> Every figure is either open-synthesis output (`yosys`, not Vivado) or
+> arithmetic on two Vivado reports that are not otherwise identical builds. At
+> the time it was written no Vivado run had been made for the 5-queue map — see
+> [What is not verified](#what-is-not-verified).
 
 **Estimate**, from device-mapped open synthesis (`yosys 0.66`,
 `synth_xilinx -family xc7`, `stat -top` over the whole hierarchy; run
