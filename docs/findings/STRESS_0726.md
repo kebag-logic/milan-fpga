@@ -276,3 +276,53 @@ the stream_id.
 **Method note:** enabling loopback cuts the board off the network, including the
 session driving the test. Run it detached with an unconditional auto-revert
 (`setsid script &`), never interactively.
+
+### THD+N verified over ALL frames (2026-07-27)
+
+5 s captured from the listener's ALSA device with the pilot tone on the peer
+talker: **240,000 frames**, and the analysis covers every one of them.
+
+**Method — and the trap.** The tone is *exact-period*: 48 samples = exactly
+1 kHz at 48 kHz. That makes the capture **coherently sampled**, so an FFT over an
+integer number of periods has no spectral leakage and **must not be windowed**.
+Applying a Hann (or any) window to a coherently-sampled tone spreads the
+fundamental across neighbouring bins and inflates the apparent residual — it
+manufactures the very distortion it claims to measure. A rectangular window over
+exactly 5,000 periods is the correct instrument here.
+
+**Every frame is bit-identical**, which is what lets one spectrum characterise
+the whole capture:
+
+| check | result |
+|---|---|
+| `s[n] == s[n+48]` over the whole capture | **0 mismatches / 239,952 comparisons** |
+| control periods 47 / 49 | 239,953 / 239,951 mismatches — the period really is 48 |
+| `L == R` | **0 differences / 240,000 frames** |
+| peak | 0.999999881 FS (24-bit full scale in a 32-bit container) |
+
+**THD+N, coherent, no window:**
+
+| | L | R |
+|---|---|---|
+| whole capture (5,000 periods) | **-147.99 dBFS** | **-147.99 dBFS** |
+| per-block, 100 blocks covering all 240,000 frames | -147.50 worst / -147.50 best | -147.50 / -147.50 |
+| **spread across all blocks** | **0.00 dB** | **0.00 dB** |
+| blocks failing the `<= -120 dBFS` acceptance | **0 of 100** | **0 of 100** |
+
+The digital source is specified at **-148.1 dB**; the measured end-to-end figure
+is **-147.99 dBFS**, i.e. within 0.11 dB of the generator — **the transport adds
+no measurable degradation**, and there is **27.5 dB of margin** against the
+acceptance threshold.
+
+**The residual is textbook.** The strongest components are odd harmonics only —
+5x, 7x, 11x, 17x, 19x, 23x at -166 to -156 dBFS:
+
+* **no even harmonics** -> no asymmetry or DC offset in the reconstruction;
+* **no non-harmonic spurs** -> no jitter, no interference, no clock artefacts;
+* odd-only is exactly the signature of a symmetrically quantised sine, i.e. the
+  floor is the source's own 24-bit quantisation and nothing the datapath did.
+
+Zero spread across blocks is not a coincidence — it follows from the bit-exact
+periodicity above. It also means a *single* bad frame anywhere in the 5 s would
+have shown up both as a periodicity mismatch and as a block outlier; neither
+occurred.
