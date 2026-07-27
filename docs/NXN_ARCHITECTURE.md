@@ -78,13 +78,13 @@ instances).
 
 ## Contents
 
-- **[0. Clause references (verified via pdftotext against the local standards PDFs, $STANDARDS_DIR)](#0-clause-references-verified-via-pdftotext-against-the-local-standards-pdfs-standards_dir)** — TODO describe this section
-- **[1. Dataplane RX — shared depacketizer + monitor engine](#1-dataplane-rx--shared-depacketizer--monitor-engine)** — TODO describe this section
-- **[2. Dataplane TX — shared packetizer](#2-dataplane-tx--shared-packetizer)** — TODO describe this section
-- **[3. Control plane](#3-control-plane)** — TODO describe this section
-- **[4. Clock domains, CDC, and the timing-risk register](#4-clock-domains-cdc-and-the-timing-risk-register)** — TODO describe this section
-- **[5. Phasing — TB-gated increments (no-regression axiom throughout)](#5-phasing--tb-gated-increments-no-regression-axiom-throughout)** — TODO describe this section
-- **[6. Resource budget per subsystem](#6-resource-budget-per-subsystem)** — TODO describe this section
+- **[0. Clause references (verified via pdftotext against the local standards PDFs, $STANDARDS_DIR)](#0-clause-references-verified-via-pdftotext-against-the-local-standards-pdfs-standards_dir)** — The standards receipts. Every requirement this architecture rests on, traced to a clause verified against the local PDFs rather than recalled — Milan 5.3.8 per-stream state, the 10 diagnostic counters per Stream Input, GET_COUNTERS coherency.
+- **[1. Dataplane RX — shared depacketizer + monitor engine](#1-dataplane-rx--shared-depacketizer--monitor-engine)** — The listener side, and the key discovery that shaped the whole design: `avtp_stream_parser` ALREADY carries an 8-entry match table, so classification needed no new matcher — only new table writers. Covers the stream table as single authority, then the shared depacketizer and monitor.
+- **[2. Dataplane TX — shared packetizer](#2-dataplane-tx--shared-packetizer)** — The talker side. Where `aaf_talker_i2s` splits cleanly — the audio capture front-end is physical-interface-scoped and stays x1, while the framer/serializer becomes the shared packetizer with per-stream state lifted into context.
+- **[3. Control plane](#3-control-plane)** — ACMP, MAAP, lwSRP and AECP at N contexts. `KL_acmp_listener` already had the right split (shared frame engine, per-sink binding record) — it was just duplicating the record by hand.
+- **[4. Clock domains, CDC, and the timing-risk register](#4-clock-domains-cdc-and-the-timing-risk-register)** — The CDC audit for the NxN shape, and the load-bearing invariant that keeps it simple: every context engine and context RAM lives entirely in the milan clock domain, verified per module. Also the timing-risk register.
+- **[5. Phasing — TB-gated increments (no-regression axiom throughout)](#5-phasing--tb-gated-increments-no-regression-axiom-throughout)** — How this lands without a big-bang merge — TB-gated increments under the no-regression axiom, with the N=1 shape staying bit-compatible at every step. Names which lanes parallelize and which integration steps must stay serial.
+- **[6. Resource budget per subsystem](#6-resource-budget-per-subsystem)** — What NxN costs per subsystem, with the shared-engine numbers set against the replicated upper bound. Read the stated assumptions first — context RAM is charged at BRAM cost only, which is what makes the comparison fair.
 
 ## 0. Clause references (verified via pdftotext against the local standards PDFs, `$STANDARDS_DIR`)
 
