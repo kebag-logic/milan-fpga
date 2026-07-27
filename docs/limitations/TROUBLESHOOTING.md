@@ -14,8 +14,16 @@ Grouped as:
 - RTL/testbench ([Sections 11–14](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)),
 - P&R timing closure ([Sections 15–16](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper):
   CBS pipelining + running the dense datapath in its own CDC clock domain for a clean 100 MHz),
-- and on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
-  the AX7101 PHY is GMII, not RGMII).
+- on-hardware NIC bring-up ([Section 17](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii):
+  the AX7101 PHY is GMII, not RGMII; [Section 18](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be):
+  AXIS `tkeep` is not LiteEth's `last_be`),
+- boot / flash ([Section 19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest):
+  the kernel that was never uploaded),
+- host plane vs device tree ([Section 20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers):
+  `reg` windows are mapped by index, so a stale dtb writes DMA into the wrong CSRs),
+- and streaming, listener and talker ([Section 21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26):
+  a bound listener that accepts nothing; [Section 22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened):
+  the bandwidth gate *is* the pacer, and the arm that never happened).
 
 Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (the architecture).

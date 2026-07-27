@@ -8,7 +8,7 @@ TSN datapath (the "memory-mapped configuration" called out in
 
 ## Contents
 
-- **[Run it](#run-it)** — One `make`. No vendor tools — the register block is a standalone AXI4-Lite slave.
+- **[Run it](#run-it)** — One `make`, three self-checking harnesses over the same register block (legacy N=1 map, the `0x800` window against modelled engines, the same window against live ones). No vendor tools — the register block is a standalone AXI4-Lite slave. Says where the check count is printed rather than quoting a number that rots.
 - **[What it checks](#what-it-checks)** — Eight families of assertion, from `ID`/`CAP` self-description through reset values, read-only enforcement, output wiring, IRQ write-1-to-clear and the PTP command strobes, ending with the ACMP bind-restore window driven against the live listener context. Also states the AXI pattern in use — combinational-ready and single-outstanding — so a master that drops `*VALID` on handshake still commits.
 - **[Extending](#extending)** — The rule that keeps the ABI honest: a new register group is three edits (RTL, [`REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md), and a `ck(...)` here), because this harness *is* the executable contract for the CSR ABI.
 
@@ -16,9 +16,23 @@ TSN datapath (the "memory-mapped configuration" called out in
 
 ```
 cd tb/verilator/csr
-make            # verilate + build + run; the last lines print the live
-                # "checks: N   failures: N" tally and RESULT: PASS/FAIL
+make            # verilate + build + run all three harnesses; each prints its
+                # own live "checks: N   failures: N" tally and RESULT: PASS/FAIL
 ```
+
+`make` builds and runs **three** self-checking harnesses against the same
+register block:
+
+| Harness | Shape under test |
+|---|---|
+| `sim_main.cpp` → `Vcsr_sim` | the legacy flat map at the `N=1` silicon shape, plus the `0x800` index-0 hard aliases and the out-of-range rule |
+| `sim_win.cpp` → `obj_win/Vcsr_win` | the `0x800` indexed window at `N_LISTENERS_P=4`/`N_TALKERS_P=4` against **modelled** lane-K engines |
+| `sim_live.cpp` → `obj_live/Vcsr_win_live` | the same window against **live** `KL_lwsrp_top` + `KL_acmp_lstn_ctx` (wrapper `csr_win_live.sv`) |
+
+Each prints its own `checks: <n>   failures: 0` / `RESULT: PASS` line — that
+printout is where the current count lives. No total is quoted here on purpose:
+a hand-maintained count rots on the next register group, and the exit code is
+the gate anyway.
 
 No Xilinx tools required — `milan_csr.sv` is a standalone AXI4-Lite slave.
 

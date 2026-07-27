@@ -111,23 +111,28 @@ spec-family leaf dir carries the same table as `README-tests.md`.
 Four co-simulation campaigns that drive the **real RTL** with spec-modelled
 1722.1 traffic and grade every field of every message. tsn-gen supplies the
 field/constraint model; the campaign builds real wire frames, reads DUT state
-in-band, and gates on state stability. **3049 checks, 0 failures, 4 tracked
-gaps.**
+in-band, and gates on state stability.
 
-| campaign | DUT | checks | covers |
-|---|---|---:|---|
-| `make aecp` | `KL_aecp_top` | 2602 | getters × 19 descriptor types, setters (legal/illegal/SET→GET), header fuzz, addressing, length, **Milan v1.2 mandatory census 10/10** |
-| `make adp` | `adp_advertiser` | 222 | all 20 advertised fields at their wire offsets, events, `available_index` |
-| `make acmp` | `KL_acmp_listener` | 123 | 15 ACMP fields, all 16 message types, BIND→state→UNBIND, 70-byte rule |
-| `make aaf` | parser→rxmon→depacketizer | 102 | per-field accept/reject verdicts, wire-truth channels, **lock survival** |
-| `make legacy` | `KL_aecp_top` | 42 | the original 14-command cosim smoke driver |
+| campaign | DUT | covers |
+|---|---|---|
+| `make aecp` | `KL_aecp_top` | getters × 19 descriptor types, setters (legal/illegal/SET→GET), header fuzz, addressing, length, **Milan v1.2 mandatory census 10/10** |
+| `make adp` | `adp_advertiser` | all 20 advertised fields at their wire offsets, events, `available_index` |
+| `make acmp` | `KL_acmp_listener` | 15 ACMP fields, all 16 message types, BIND→state→UNBIND, 70-byte rule |
+| `make aaf` | parser→rxmon→depacketizer | the listener **accept verdict** graded on the parser's own pre-match counters, per-field verdicts, wire-truth channels, **lock survival** |
+| `make legacy` | `KL_aecp_top` | the original 14-command cosim smoke driver |
 
 Run `make` in that directory (~3 min). It **skips cleanly** when tsn-gen is
-absent, so the suite stays runnable without the generator. Each campaign
-writes its `TEST_RESULTS.md` **into the folder of the RTL it validates**
-(`hdl/ieee17221/{aecp,acmp,adp}/doc/`, `hdl/ieee1722/avtp/doc/`), so a block's
-verification status is visible from the block itself. Full rationale,
-the tsn-gen wire-layout caveat and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn_fuzz/README.md).
+absent, so the suite stays runnable without the generator.
+
+**No check total is quoted here on purpose.** Every campaign ends by printing
+its own `N pass, M fail, K known gaps` line, and writes that same line into a
+`TEST_RESULTS.md` **in the folder of the RTL it validates**
+(`hdl/ieee17221/{aecp,acmp,adp}/doc/`, `hdl/ieee1722/avtp/doc/`) — so a block's
+verification status is visible from the block itself and there is no
+hand-maintained copy to drift. A second copy here rotted once already: this
+page carried a total and a per-campaign breakdown that were both a campaign
+behind the suite. Current tally, full rationale, the tsn-gen wire-layout caveat
+and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn_fuzz/README.md).
 
 ### 1.1 Suite index — the full sweep, run 2026-07-26
 
