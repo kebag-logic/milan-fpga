@@ -1,0 +1,69 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# A SYNTHETIC item registry, for the harness's own tests.
+#
+# The real registry lives in the private test repository (its `validation/`
+# directory) because item procedures, expected values and pass criteria are
+# derived from material that must not enter this repo. This fixture exists so
+# the loader, the validator, the declared-shape gate and the overlay-merge rules
+# stay self-testable by anyone who checks out the public tree, with no plan
+# content in it: the ids are just ids, and the notes describe the FIXTURE.
+
+schema = "kebag-logic/milan-harness-items"
+schema_version = "1.0.0"
+
+# The registry declares its own shape. A lost row is then a gate failure rather
+# than an invisible omission - which is the one thing the registry exists for.
+expect_total = 5
+
+[expect.groups]
+"es-1" = 2
+"es-2" = 1
+"es-3" = 1
+"es-4" = 1
+
+[[item]]
+id      = "es-1.1"
+group   = "es-1"
+area    = "gptp"
+mapping = "fixture"
+runner  = "gptp_posture"
+status  = "implemented"
+note    = "fixture row exercising an implemented runner"
+
+[[item]]
+id      = "es-1.2"
+group   = "es-1"
+area    = "srp"
+mapping = "fixture"
+runner  = "srp_domain"
+status  = "implemented"
+note    = "fixture row exercising a second implemented runner"
+
+[[item]]
+id      = "es-2.1"
+group   = "es-2"
+area    = ""
+mapping = ""
+runner  = ""
+status  = "stub"
+note    = ""
+
+[[item]]
+id      = "es-3.1"
+group   = "es-3"
+area    = ""
+mapping = ""
+runner  = ""
+status  = "blocked"
+note    = "fixture row exercising the blocked status, which requires a note"
+
+[[item]]
+id      = "es-4.1"
+group   = "es-4"
+area    = "aecp"
+mapping = "fixture"
+runner  = "aecp_cmd"
+status  = "implemented"
+note    = "fixture row exercising the AECP command runner"
