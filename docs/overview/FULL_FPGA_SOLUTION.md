@@ -41,7 +41,7 @@ Companion documents:
 - **[5. The three datapath boundaries (medium level)](#5-the-three-datapath-boundaries-medium-level)** — CSR, DMA and MAC taken one at a time, plus the event path. Worth reading for two facts: only the CSR *base* is host-specific (the offsets are the ABI), and the M-A2 log's `VERSION` word is stale by design — only the `"MILN"` ID is the stable part of that check.
 - **[6. Build & run (medium level)](#6-build--run-medium-level)** — Copy-pasteable commands per tier: harnesses and Yosys with no LiteX, the softcore sim, elaboration with no vendor tools, then the bitstream and the Linux device-tree generation.
 - **[7. How to extend (medium level, cookbook)](#7-how-to-extend-medium-level-cookbook)** — A "to add X, touch these files" table. Each row names the harness you also owe — the CSR row notes the harness asserts the RTL and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) agree, so documentation is not optional there.
-- **[8. The CSR / DMA / IRQ ABI (medium level)](#8-the-csr--dma--irq-abi-medium-level)** — The three ABIs in one screen: the CSR group summary (`0x000`–`0x700`; the indexed `0x800`/`0x900` windows landed later, and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is the authority), the DMA simple-mode register names as they appear in `csr.csv`, and the four PLIC source names.
+- **[8. The CSR / DMA / IRQ ABI (medium level)](#8-the-csr--dma--irq-abi-medium-level)** — The three ABIs in one screen: the CSR group summary (`0x000`–`0x900`, including the indexed per-stream and channel-map windows that landed after the Zynq-era `0x000`–`0x700` block, with [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) as the authority), the DMA simple-mode register names as they appear in `csr.csv`, and the four PLIC source names.
 - **[9. What remains, and how to finish it (the roadmap)](#9-what-remains-and-how-to-finish-it-the-roadmap)** — Historical: all seven steps are done, and it is kept for the order and the results. The one still worth reading is step 4 — the AX7101 is GMII, and the RGMII mis-strap gave 100 % preamble errors.
 
 ## 1. What the full-FPGA solution is (high level)
@@ -165,14 +165,19 @@ control/data/event pattern documented generically in
 [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md).
 
 ### 5.1 Control  -  `milan_csr` (AXI4-Lite)
-- A 64 KB AXI4-Lite slave mapped in the CPU IO region at **`0x9000_0000`** (the
-  register *offsets* `0x000..0x700` are unchanged from the Zynq build at
-  `0x43C0_0000`; only the base is host-specific  -  see [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)).
+- A 64 KB AXI4-Lite slave mapped in the CPU IO region at **`0x9000_0000`**. Only
+  the *base* is host-specific: the offsets the Zynq build also carried
+  (`0x000`–`0x700`) are unchanged from that build at `0x43C0_0000`, and the map
+  has since grown past them — the indexed per-stream window at `0x800` and the
+  channel-map window at `0x900` are inside the same 64 KB slave.
+  [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is the authority for all of it.
 - LiteX bridges the CPU Wishbone bus → AXI-Lite automatically (`Bus adapted`).
 - **Proven on the softcore:** the BIOS `mem_read 0x90000000` returns `4d 49 4c 4e`
   ("MILN") + the `VERSION` word  -  migration milestone **M-A2**. That log captured
   `0x00010003`; VERSION is bumped on every gateware change, so the current tree
-  returns `0x0001_0013`. Only the `"MILN"` ID is the stable part of this check.
+  returns `0x0001_0014` (`milan_csr.sv`, and the value read back off silicon in
+  [`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md)). Only the `"MILN"`
+  ID is the stable part of this check.
 
 ### 5.2 Data  -  `MilanDMA` (§A.6, `--with-dma`)
 - Three LiteX simple-mode DMA engines, each its own Wishbone master:
@@ -247,10 +252,18 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
-- **milan_csr** window `0x9000_0000` + offsets `0x000..0x700`  -  full table in
-  [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md). Groups: `0x000` ID/VERSION/CAP, `0x100` MAC,
-  `0x200` RMON stats, `0x300` classifier, `0x400` CBS (per-queue), `0x500` PTP,
-  `0x600` ADP, `0x700` TCAM.
+- **milan_csr** window `0x9000_0000` + offsets `0x000..0x900`  -  full table in
+  [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md), which is normative; the list
+  below is a summary of the group *bases* only. `0x000` ID/VERSION/CAP, `0x100`
+  MAC, `0x200` RMON stats, `0x300` classifier, `0x400` CBS (per-queue), `0x500`
+  PTP, `0x600` ADP, then the AVDECC/SRP control groups (`0x648` AECP/ACMP + AAF
+  talker, `0x680` lwSRP, `0x6A4` ACMP listener + AVTP RX/MAAP/audio), `0x700`
+  TCAM and the `0x71C`-`0x7B8` overlay/CRF/bind-restore words. Above those sit
+  the two **indexed** windows that are not a flat register block: `0x800` the
+  per-stream window (`A_STRM_SEL` selects one of the N listener / N talker
+  contexts, `A_STRM_SNAP` latches it), with the latency taps at `0x870` and the
+  probe groups at `0x8B4`/`0x8C8`/`0x8F8` above it, and `0x900` the channel-map
+  fabric debug port.
 - **DMA** simple-mode CSRs (LiteX CSR space, auto-mapped; names in `build/csr.csv`):
   `milan_dma_tx_{base,length,enable,done}`, `milan_dma_rx_{…}`, `milan_dma_ts_{…}`.
 - **IRQ** → PLIC sources `tx-dma, rx-dma, ts-dma, csr` (DT `interrupts = <1..4>`).

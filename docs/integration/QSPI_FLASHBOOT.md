@@ -5,11 +5,11 @@
 - **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from the same `load_map()` that emits the kernel's `fixed-partitions` node — so map, device tree and picture cannot drift apart. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
 - **[Layout "full" — THE DEPLOYED TRUTH (2026-07-24, silicon-verified end-to-end)](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)** — Start here. The current slot table, plus two traps that have each bitten twice: the `dtb` slot is a **decoy** — the kernel boots on the FDT embedded in OpenSBI — and LiteX CSR addresses shift whenever the gateware block set changes, so a stale DTB produces symptoms as oblique as a ptp4l tx-timestamp timeout. Ends with real boot timing: ~7 min cold to network-up, so probe windows need ≥ 8 min.
 - **[Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)](#layout-v3--superseded-history-2026-07-12-offsets-no-longer-deployed)** — Historical: these offsets are not what ships. Kept for the reasoning that is still true — why the kernel is flashed as `Image.xz` (there is no non-EFI self-extracting kernel on RISC-V), the xz stream rule the vendored decoder imposes, and the four cooperating pieces the whole feature is built from.
-- **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Why there are two manifests at all: 16 MB of device against ~23 MB of images. Describes the older kernel-at-offset-0 arrangement, in which the bitstream is deliberately *not* in flash — read it against the deployed layout above, which now starts with the bitstream.
+- **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Why there are two manifests at all: 16 MB of device against ~23 MB of un-slimmed images. Bannered — the arithmetic is permanent but the kernel-at-offset-0 arrangement it argued for is pre-v3 and has not shipped since 2026-07-12. The slot map inside is now read off `FLASHBOOT_LAYOUT` and starts with the bitstream, matching the deployed table above.
 - **[How the boot works](#how-the-boot-works)** — The boot-method priority chain and what full vs partial each do. The reassuring part: every copy is CRC-checked from the FBI header, so an empty or half-written flash falls through to serialboot rather than bricking the boot.
 - **[Usage](#usage)** — The four commands in order — apply the BIOS patch (re-run after every LiteX upgrade), build, flash, then the fast iteration loop that JTAG-loads gateware while the kernel stays in flash.
 - **[Getting to zero-upload](#getting-to-zero-upload)** — The three steps that get a boot to upload nothing, and the size targets they have to hit. `flash-images` refuses an oversized image, so an un-slimmed kernel fails loudly instead of half-writing the layout.
-- **[Caveats](#caveats)** — Six, and the first is the expensive one: `--coherent-dma` is mandatory and *not* implied by `--all-blocks` — without it RX skbs arrive all-zero and TX sends stale data the peer silently filters. The rest cover FBI endianness, flash addressing and why kernel-at-0 is safe with this loader.
+- **[Caveats](#caveats)** — Six, and the first is the expensive one: `--coherent-dma` is mandatory and *not* implied by `--all-blocks` — without it RX skbs arrive all-zero and TX sends stale data the peer silently filters. The rest cover FBI endianness, flash addressing, and one bullet struck through: the board *does* hold its bitstream in flash and config-boots from it, so JTAG `load` is a speed choice rather than a requirement.
 - **[Validated](#validated)** — What was actually checked at the time, including the negative: the slot check correctly *rejects* a 14 MB kernel against the 8.5 MiB slot.
 - **[2026-07-06: zero-upload ACHIEVED  -  the sizes that made "full" fit](#2026-07-06-zero-upload-achieved-----the-sizes-that-made-full-fit)** — Frozen record of the two rounds of slimming, with the before/after per lever. The kernel-config gotcha worth stealing: without `CONFIG_EXPERT=y` the VT/INPUT disables **silently fail**.
 - **[Planned: boot-chain compression (BIOS-LZ4 kernel)  -  bitstream stays JTAG](#planned-boot-chain-compression-bios-lz4-kernel-----bitstream-stays-jtag)** — A proposal, not shipped. Argues the decompressor belongs in the LiteX BIOS rather than OpenSBI, prices the gain at ~3.4 MiB of freed flash, and records the decision that the bitstream stays JTAG-loaded even though the freed space would fit it.
@@ -132,6 +132,21 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 
 ## The hard constraint: 16 MB flash vs 23 MB of images
 
+> **PARTLY SUPERSEDED — read the arithmetic, not the offsets (bannered
+> 2026-07-27).** The *constraint* below is permanent and is why the layout looks
+> the way it does: 16 MB of device against ~23 MB of un-slimmed images. The
+> *arrangement* it describes — kernel at offset 0, bitstream deliberately not in
+> flash — is the **pre-v3** layout and has not been deployed since 2026-07-12.
+> What ships puts the **bitstream at `0x00_0000` with a 4 MiB budget and the
+> kernel at `0x40_0000`**; that is what
+> [Layout "full"](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)
+> above describes, what `FLASHBOOT_LAYOUT` in `sw/litex/milan_soc.py` contains,
+> and what a build's own `flashboot_layout.json` exports (re-verified against a
+> build dir while flashing, 2026-07-27). Two things below are stale rather than
+> merely dated — the *sizes* in the image table (the kernel is flashed as a
+> ~2.5 MB `Image.xz`, not a ~14 MB raw `Image`) and the bitstream paragraph,
+> which is bannered where it sits.
+
 The AX7101 flash is a **Micron N25Q128 = 128 Mbit = 16 MB** (confirmed from the Alinx repo,
 `DATASHEET/QSPI FLASH/N25Q128.pdf`). The boot images total **~23 MB**:
 
@@ -142,9 +157,14 @@ The AX7101 flash is a **Micron N25Q128 = 128 Mbit = 16 MB** (confirmed from the 
 | `opensbi.bin` (fw_jump) | ~0.26 MB | `0x40f0_0000` (**boot entry**, a0=hartid, a1=0) |
 | `milan.dtb` | ~3 KB | `0x40ef_0000` |
 
+(Those are the *un-slimmed* sizes that created the problem. The kernel has since
+been slimmed and is flashed compressed, which is what dissolved it — see
+[Getting to zero-upload](#getting-to-zero-upload).)
+
 So **not everything fits at once**. Two manifests (`--flashboot`):
 
-* **`kernel` (default)  -  partial, works today.** Flash only the big, static 14 MB kernel.
+* **`kernel` (the `--flashboot` default)  -  partial.** Flash only the big, static kernel (a ~14 MB raw `Image`
+  at the time this was written; ~2.5 MB as `Image.xz` today).
   `linux_flashboot` pre-loads it to DRAM; serialboot then uploads only OpenSBI+dtb+rootfs
   (~9 MB). **~60 % faster** per boot, no image rebuild. The kernel + OpenSBI are the images
   that change *least*, so most iterations upload just the ~9 MB rest.
@@ -154,22 +174,47 @@ So **not everything fits at once**. Two manifests (`--flashboot`):
   [Getting to zero-upload](#getting-to-zero-upload)); the deploy step refuses an oversized
   image rather than silently corrupt the layout.
 
-Because the default kernel occupies flash offset 0, **the bitstream is *not* stored in flash**
-in this layout  -  flash-boot builds are JTAG-`load`ed (`deploy.sh load`), which is the normal
-iteration path anyway. (A bitstream + a 14 MB kernel cannot coexist in 16 MB.)
+> **NOT TRUE OF A CURRENT BUILD.** *"Because the default kernel occupies flash
+> offset 0, the bitstream is not stored in flash in this layout — flash-boot
+> builds are JTAG-`load`ed (`deploy.sh load`) … a bitstream + a 14 MB kernel
+> cannot coexist in 16 MB."* Both halves were resolved rather than refuted: the
+> kernel moved off offset 0 and the 14 MB `Image` became a ~2.5 MB `Image.xz`,
+> which is exactly what made room for the bitstream. **The board now QSPI
+> config-boots the bitstream from offset 0**, and `deploy.sh load` is the fast
+> *iteration* path, not the only one.
 
 ### Flash layout (`FLASHBOOT_LAYOUT` in `milan_soc.py`)
 
+The map below is read straight out of `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED`
+in `sw/litex/milan_soc.py`. It is the same map the
+[deployed-truth table](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)
+above renders slot by slot, and the same one the SVG at the top of this page is
+generated from:
+
 ```
- offset      kernel manifest (default)        full manifest (slim kernel)
- 0x00_0000   kernel  (≤ 16 MB)                kernel   (≤ 8.5 MiB)
- 0x88_0000    -                                opensbi  (512 KB; fw_jump 261 KB + FBI)
- 0x90_0000    -                                dtb      (256 KB)
- 0x94_0000    -                                rootfs   (≤ 6.75 MiB → ends = 16 MiB)
+ offset      slot       budget      notes
+ 0x00_0000   bitstream  4 MiB       config-read by the FPGA, NOT fbi-wrapped
+ 0x40_0000   kernel     3 MiB       Image.xz, BIOS xz_embedded -> 0x4000_0000
+ 0x70_0000   opensbi    384 KiB     fw_jump -> 0x40F0_0000 (carries the kernel DTB)
+ 0x76_0000   dtb        128 KiB     decoy copy; the kernel boots on OpenSBI's FDT
+ 0x78_0000   rootfs     6.375 MiB   cpio.xz -> 0x4100_0000 (v4: was 8.5 MiB)
+ 0xDE_0000   journal    128 KiB     RESERVED, raw A/B - never erased by a reflash
+ 0xE0_0000   user       2 MiB       RESERVED, jffs2 -> /user
 ```
+
+The two `RESERVED` slots are not boot images: the BIOS never copies them and a
+reflash must not erase them ([SAVED_STATE_FASTCONNECT.md](../design/SAVED_STATE_FASTCONNECT.md) §5).
+
+The manifests (`--flashboot`) select which *images* the BIOS copies, not where
+they live: `kernel` (partial) pre-loads only the kernel and lets serialboot
+supply the rest, `full` copies opensbi + dtb + kernel + rootfs for a zero-upload
+boot. The bitstream is in neither manifest — the FPGA config logic reads it
+before any BIOS runs.
 
 The build writes `<build>/flashboot_layout.json` (the single source of truth); `deploy.sh
 flash-images` reads it, so the gateware's compiled-in offsets and the flashing never drift.
+**Read the build's own copy** — the numbers above are a snapshot of the tree, and
+the `rootfs` budget in particular has already moved once (v4, 2026-07-26).
 
 ---
 
@@ -274,10 +319,14 @@ kernel fails loudly instead of half-writing.
   DMA masters bypass the NaxRiscv snooping `dma_bus`: RX data never becomes CPU-visible (the
   stack drops every frame  -  all-zero skbs) and TX reads stale skb data (garbage dst MAC that
   the peer NIC silently filters). Hardware-confirmed 2026-07-04; `deploy.sh` includes it.
-* **No bitstream in flash (kernel layout).** The kernel sits at offset 0, so a power-cycle
-  will not auto-configure the FPGA from flash  -  always JTAG-`load`. This is the normal dev
-  flow. (`deploy.sh flash` writes a *bitstream* to offset 0 and is mutually exclusive with
-  `flash-images` on 16 MB.)
+* ~~**No bitstream in flash (kernel layout).**~~ **NO LONGER TRUE (since the v3
+  layout, 2026-07-12).** This bullet described the pre-v3 arrangement, where the
+  kernel sat at offset 0, a power-cycle left the FPGA unconfigured and every
+  power-on needed a JTAG `load`. The deployed layout puts the **bitstream at
+  offset 0** and the board config-boots it from flash; `deploy.sh flash` and
+  `flash-images` write disjoint slots and are no longer mutually exclusive.
+  JTAG `load` remains the *iteration* path because it skips the flash write, not
+  because flash cannot hold a bitstream.
 * **Re-apply the patch after LiteX updates** (`apply.sh` is idempotent and errors clearly if
   LiteX has moved the patched lines  -  then refresh the `.patch`).
 * **Endianness:** the FBI header is little-endian (`crcfbigen -l`), matching the BIOS's
@@ -286,7 +335,9 @@ kernel fails loudly instead of half-writing.
   reachable with the standard quad read (`READ_1_1_4`, 0x6B). `mode="4x"` drives all four DQ,
   so WP#/HOLD# are never left floating.
 * **openFPGALoader offset 0** is only guarded on *Efinix* boards; the Xilinx SPI path (v1.1.1,
-  verified) writes raw at any offset, so kernel-at-0 is fine here.
+  verified) writes raw at any offset, so writing offset 0 by hand is fine here
+  (it is the bitstream slot in the deployed layout, and was the kernel slot
+  pre-v3).
 
 ---
 

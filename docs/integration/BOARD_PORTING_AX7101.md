@@ -11,7 +11,7 @@ board-gated. The result is `sw/litex/platforms/alinx_ax7101.py` +
 - **[2. Porting method (reproducible)](#2-porting-method-reproducible)** — The four-step derivation from the vendor's own XDC/UCF files (with the 68 DDR3 pins parsed programmatically rather than transcribed), so the pinout can be re-derived on a board revision. Contains the hardware-bring-up CORRECTION worth the visit: this PHY is strapped GMII 8-bit SDR, not RGMII — porting it as RGMII gave 100 % MAC preamble errors on silicon.
 - **[3. What changed](#3-what-changed)** — The two files edited and what landed in each: the real pinout replacing AX7203 placeholders, and the 512 MB LiteDRAM addition (A7DDRPHY, `sys4x`/idelay clocks, `--with-dram`) that moves main RAM to `0x4000_0000` and is what makes the SoC Linux-capable.
 - **[4. Verification (open toolchain, no Vivado)](#4-verification-open-toolchain-no-vivado)** — What `--full --xlen 64` proves without a synthesis run: DDR3 PHY and LiteDRAM instantiated, 284 `ddram` constraint lines in the generated XDC, NIC plus MAC/PHY present, device tree regenerating from `csr.json`.
-- **[5. Board-gated (needs the schematic / Vivado / the board)](#5-board-gated-needs-the-schematic--vivado--the-board)** — The three items that could not be closed from source alone, two of them since cleared on silicon. Still open: the MDIO data pin, which the vendor GMII example does not route and must be read out of the schematic PDF — PHY management runs on power-on straps meanwhile.
+- **[5. Board-gated (needs the schematic / Vivado / the board)](#5-board-gated-needs-the-schematic--vivado--the-board)** — The three items that could not be closed from source alone, all three since cleared: the MDIO pins came out of the schematic PDF in July, and the bitstream and bring-up gates cleared on silicon. What the MDIO pins did *not* buy is the useful part — the block behind them is a software bit-bang, so `MAC_STATUS` stays software-published and the data path still runs on the PHY power-on straps.
 
 ## 1. Board facts (from the official Alinx repo)
 
@@ -40,7 +40,8 @@ re-derived if the board revision changes:
    example XDC/UCF files (led, uart, ethernet, ddr3).
 2. **Fetch** them with `raw.githubusercontent.com` and read the `PACKAGE_PIN` /
    `NET … LOC` lines.
-3. **Simple groups** (clock/reset/UART/LED, and the `e1`/`e2` RGMII data+control pins)
+3. **Simple groups** (clock/reset/UART/LED, and the `e1`/`e2` Ethernet data+control
+   pins — GMII, per the correction below)
    → transcribed directly into the LiteX `_io` list, with each pin annotated by its
    Alinx signal name (`e1_rxd[0]` = N22, …).
 4. **DDR3 (68 pins)** → parsed programmatically from `ddr3.ucf` into a LiteX `ddram`
@@ -67,8 +68,12 @@ this board).
 
 - **`sw/litex/platforms/alinx_ax7101.py`**  -  replaced the placeholder pins (borrowed
   from the AX7203) with the real AX7101 pinout: exact part `xc7a100t-fgg484-2`, clock
-  R4/T4, reset T6, UART AB15/AA15, LEDs, `eth`/`eth_clocks` 0+1 (e1/e2 RGMII), the
-  full `ddram` group, and the SPIx4/CONFIGRATE bitstream settings from the Alinx XDC.
+  R4/T4, reset T6, UART AB15/AA15, LEDs, `eth`/`eth_clocks` 0+1 (e1/e2 — **GMII**,
+  8-bit SDR per the §2 correction; the platform file's own comments say so at each
+  pad group), the full `ddram` group, and the SPIx4/CONFIGRATE bitstream settings
+  from the Alinx XDC. Both ports also carry `mdc`/`mdio` (e1 = J17/L16,
+  e2 = AB21/AB22), added 2026-07-22 once the pins were read out of the schematic —
+  see §5.
 - **`sw/litex/milan_soc.py`**  -  added **512 MB DDR3 (LiteDRAM)**: `_CRG` now generates
   the DDR3 PHY clocks (`sys4x`, `sys4x_dqs`, `idelay` + IDELAYCTRL); `MilanSoC` adds
   `s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new
@@ -89,10 +94,17 @@ gateware** (exit 0):
 
 ## 5. Board-gated (needs the schematic / Vivado / the board)
 
-- **MDIO data pin**  -  the Alinx GMII example doesn't route it; `e_mdc` is known
-  (J17/AB21) but the `mdio` pin must come from `SCH/AX7101_EX_SCH.pdf`. MDIO is left
-  unwired for now (the RGMII data path works on the PHY power-on straps); PHY
-  management is migration §A.7.
+- **MDIO data pin**  -  ✅ **CLEARED (2026-07-22).** The Alinx GMII example doesn't
+  route it, so `e_mdc` was known from the vendor XDC (J17/AB21) but `mdio` had to be
+  read out of `SCH/AX7101_EX_SCH.pdf`: **e1 = L16, e2 = AB22**, both now in
+  `alinx_ax7101.py` with a pull-up. LiteEth's GMII PHY auto-adds the
+  `LiteEthPHYMDIO` block once `mdc` is present. Two things this does *not* buy, and
+  they are the reason PHY management is still open: `LiteEthPHYMDIO` is a **software
+  bit-bang** register pair, not an autoneg-result register, and there is no hardware
+  MDIO master anywhere in the design — so `MAC_STATUS` is software-published from the
+  `milan_mac_link_status` CSR and reports its reset default until a driver writes it
+  ([KNOWN_ISSUES §1](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)). Until then the
+  data path runs on the PHY power-on straps. Migration §A.7.
 - **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
   support (the original dev host had only Spartan-7 installed). This gate has since
   been cleared: bitstreams were built and run on the board — see the `hw_*` logs in
