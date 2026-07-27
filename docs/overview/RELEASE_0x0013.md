@@ -3,7 +3,10 @@
 *Written 2026-07-26, for someone whose board is running `VERSION 0x0001_000B`.*
 
 > **Superseded in part by `0x0014` (2026-07-27): the egress map is FIVE queues,
-> not six.** The six-queue map of §2 did not fit the AX7101 — three Vivado seeds
+> not six — and `0x0014` is now BUILT, PLACED, TIMING-MET AND FLASHED**
+> (3 seeds, best WNS +0.147 ns, 99.65 % slice occupancy, running on the AX7101;
+> [`../findings/FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md)).
+> The six-queue map of §2 did not fit the AX7101 — three Vivado seeds
 > failed placement 282 slices short with LUTs at 99.84 % of capacity — so the
 > spare queue was dropped and the map was compactly renumbered: **q4** CBS SR
 > class A · **q3** CBS SR class B · **q2** gPTP · **q1** control · **q0** best
