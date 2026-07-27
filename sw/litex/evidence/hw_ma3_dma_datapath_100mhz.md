@@ -327,6 +327,34 @@ wire order.
 
 ### CONFIRMED ON SILICON — full TX/RX correct, both directions (`build_gmii_final`, 2026-07-03)
 
+> **SUPERSEDED IN PART, recorded 2026-07-27 — checks 3 and 4 do not prove what
+> they claim, and the closing "M-A3 complete" is therefore overstated.**
+>
+> Both TX checks below read the **peer i210's `rx_broadcast` / `rx_unicast`**
+> counters. Those are keyed on the destination MAC, which sits in the first 6
+> bytes of the frame — so they increment identically whether the frame that
+> followed was complete or **truncated to 8 bytes**. They confirm the dst-MAC
+> bytes reached the wire; they cannot confirm the rest of the frame did.
+>
+> That distinction is not hypothetical for this build.
+> [`docs/findings/kl-eth-tx-debug.md`](../../../docs/findings/kl-eth-tx-debug.md)
+> lists **this exact bitstream** in its build matrix as
+> *`build_gmii_final` (Jul 3) — pre-gating `last_be` (truncates to 8 B!) —
+> 10/10 ⚠ truncated frames*. So the frames these counters counted were, on the
+> evidence of the later investigation, **truncated**.
+>
+> **What still stands:** checks 1 and 2 — the internal loopback being
+> byte-identical, and RX arriving in wire order — are independent of the peer
+> counters and are unaffected. Coherent DMA and the endianness fix are real.
+> **What does not:** "correct frames cross in both directions" on the strength
+> of checks 3 and 4. First-correct-frame TX was actually closed later, by the
+> store-and-forward `PacketFIFO` work written up in the TX-debug page.
+>
+> Kept rather than rewritten, because the *method* failure is the lesson: a
+> counter keyed on a header field cannot validate a payload, and reading one as
+> if it could is pattern 8, "reads that lie", in
+> [`RECURRING_DEFECT_PATTERNS.md`](../../../docs/limitations/RECURRING_DEFECT_PATTERNS.md).
+
 `endianness="big"` build loaded (ID=MILN). Four checks, all pass:
 1. **Loopback** (regression) — `0x40020000` byte-identical to the written frame ✓ (no flush).
 2. **RX order** — peer host → FPGA; `0x40030000` = **wire order** `ff ff ff ff ff ff 02 aa bb cc
