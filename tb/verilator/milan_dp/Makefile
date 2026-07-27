@@ -22,6 +22,14 @@ TOP        = milan_datapath
 # ACMP arrays would be sized 1/2 and the harness reads the mismatch straight
 # off 0x618/0x61C.
 CFG_DIR    = ../../../configs/generated
+# The N=1 legs need this JUST AS MUCH as the NxN ones. Without it they fall
+# through to hdl/common/csr/gen/, which is whichever config was last written
+# with --write-rtl - so regenerating the tree for the 8x8 ship shape made the
+# N_STREAMS=1 legs elaborate a 9-source ACMP array with 7 sources undriven,
+# and the ONLY thing that caught it was Verilator's -Werror-UNDRIVEN. Vivado
+# would have tied those DMAC/VID bits to zero and built a bitstream whose
+# talker sources 2..8 advertise a null destination address. Name the shape.
+SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
 SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
 SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
 # ...and as PREREQUISITES: make cannot see through a `include, so a
@@ -39,7 +47,7 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
          +incdir+$(RTL_DIR)/ieee17221/aecp +incdir+$(RTL_DIR)/ieee17221/aecp/gen \
-         -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
@@ -113,7 +121,7 @@ all: run
 PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
 
 run: $(GEN_ALL)
-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # LPF_P=0 is the SPENT area lever (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
@@ -122,12 +130,12 @@ run: $(GEN_ALL)
 # "no digital acceptance surface moves" - so this leg runs the SAME
 # self-checking harness, unchanged, and every check must give the same
 # answer. It does not merely elaborate: it re-runs the whole legacy leg.
-	$(VERILATOR) $(VFLAGS) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
 # obj_prune is the OTHER direction: all six tier-1 blocks pruned at once, on a
 # dedicated harness that proves the inert values are STRUCTURAL zeros rather
 # than not-armed-yet zeros. The two legs answer different questions and both
 # stay.
-	$(VERILATOR) $(VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn

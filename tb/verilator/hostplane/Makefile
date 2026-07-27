@@ -31,7 +31,7 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
          +incdir+$(RTL_DIR)/ieee17221/aecp +incdir+$(RTL_DIR)/ieee17221/aecp/gen \
-         -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
@@ -117,17 +117,25 @@ banner:
 	@echo " tb/verilator/hostplane - host-plane lanes in the SILICON SHAPE"
 	@echo "======================================================================"
 
+# Entity definition per shape. hdl/common/csr/gen/ + hdl/ieee17221/aecp/gen/
+# hold whichever config was last written with --write-rtl, so every leg must
+# name the shape it is actually elaborating or it inherits a foreign one.
+CFG_DIR    = ../../../configs/generated
+SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
+SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
+SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
+
 build:
-	$(VERILATOR) $(VFLAGS_COMMON) --Mdir obj_ax8x8 $(G_AX8X8) \
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_ax8x8 $(G_AX8X8) \
 		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000" \
 		$(SRCS) sim_hostplane.cpp -o Vhostplane_ax8x8
-	$(VERILATOR) $(VFLAGS_COMMON) --Mdir obj_small $(G_SMALL) \
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS_COMMON) --Mdir obj_small $(G_SMALL) \
 		-CFLAGS "-DNSTREAMS_TB=1 -DMILAN_CLK_TB=50000000 -DSHAPE_NAME=\\\"small-1x-50MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_small
-	$(VERILATOR) $(VFLAGS_COMMON) --Mdir obj_n4 $(G_N4) \
+	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS_COMMON) --Mdir obj_n4 $(G_N4) \
 		-CFLAGS "-DNSTREAMS_TB=4 -DMILAN_CLK_TB=100000000 -DSHAPE_NAME=\\\"mid-4x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_n4
-	$(VERILATOR) $(VFLAGS_COMMON) --Mdir obj_tdm8 $(G_TDM8) \
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm8 $(G_TDM8) \
 		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm8-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm8
 

@@ -29,6 +29,11 @@ RTL_DIR    = ../../../hdl
 # Note sim_win's 0x800 WINDOW is 4x4 and sim_live's is 2x2: the shape numbers
 # come from the config, never from N_TALKERS_P/N_LISTENERS_P.
 CFG_DIR    = ../../../configs/generated
+# The N=1 default target needs its shape named just as much as the NxN ones:
+# without it the include falls through to hdl/common/csr/gen/, which is
+# whichever config was last --write-rtl'd, so regenerating for the 8x8 ship
+# shape made this suite assert the 1x1 ADP words against an 8x8 entity.
+SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
 SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
 SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
@@ -79,7 +84,7 @@ LIVE_SRCS = $(RTL_DIR)/ieee8021q/srp/lwsrp_pkg.sv \
 all: run
 
 obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
-	$(VERILATOR) $(VFLAGS) --top-module $(TOP) $(SRCS) sim_main.cpp -o Vcsr_sim
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --top-module $(TOP) $(SRCS) sim_main.cpp -o Vcsr_sim
 
 obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_win --top-module $(TOP) \

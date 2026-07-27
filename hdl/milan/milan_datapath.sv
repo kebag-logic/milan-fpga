@@ -677,6 +677,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Output at talker_unique_id = the AAF talker count (see g_acmp_crf_src).
   localparam int ACMP_SRC_C = ADP_TALKER_SRC_C;
   localparam int CRF_TUID_C = N_STREAMS;   //! only when ACMP_SRC_C > N_STREAMS
+  //! ELABORATION GUARD. g_acmp_src drives sources 0..N_STREAMS-1 and
+  //! g_acmp_crf_src drives exactly ONE more, so the only shapes this module
+  //! can actually implement are ACMP_SRC_C == N_STREAMS (no CRF output) and
+  //! ACMP_SRC_C == N_STREAMS + 1 (with it). Any other value leaves sources
+  //! N_STREAMS+1 .. ACMP_SRC_C-1 with an undriven dmac/vid, which Verilator
+  //! reports as UNDRIVEN but SYNTHESIS SILENTLY TIES TO ZERO - i.e. talker
+  //! sources advertising a null destination MAC. That is not hypothetical:
+  //! regenerating the tracked entity definition for the 8x8 ship shape put
+  //! ACMP_SRC_C = 9 in front of every N_STREAMS=1 elaboration in the tree.
+  //! The 0x0015 claim that a gateware "cannot be handed another shape's
+  //! entity definition and still elaborate" was only true by accident; this
+  //! makes it true by construction.
+  //! ONE format string: $error takes the first argument as the format and
+  //! every later one as a VALUE, so a "wrapped" message silently prints the
+  //! continuation strings as integers (measured: ADP_TALKER_SRC_C=6253896...).
+  if (ACMP_SRC_C != N_STREAMS && ACMP_SRC_C != N_STREAMS + 1)
+    $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+           ACMP_SRC_C, N_STREAMS);
   //! ACMP listener sink contexts (see the KL_acmp_listener banner below):
   //! the AAF sinks plus the pinned CRF sink at listener_unique_id =
   //! N_STREAMS.

@@ -20,8 +20,18 @@ RTL        = ../../../hdl
 GEN        = $(RTL)/ieee17221/aecp/gen/aecp_aem_rom.svh
 TOP        = KL_aecp_top
 
+# This suite asserts DESCRIPTOR CONTENT, so it must name the entity whose
+# descriptors it expects. gen/aecp_aem_rom.svh under hdl/ieee17221/aecp/ is
+# whichever config was last written with --write-rtl; regenerating the tree
+# for the 8x8 ship shape pointed this 1x1 harness at an 8x8 descriptor set
+# (NO_SUCH_DESCRIPTOR, wrong current_format). The config dir comes FIRST so
+# its gen/ wins the include search.
+CFG_DIR    = ../../../configs/generated
+SHAPE_1x1  = -I$(CFG_DIR)/endstation_arty_current
+
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
+         $(SHAPE_1x1) \
          -I$(RTL)/ieee17221/aecp -I$(RTL)/common \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \

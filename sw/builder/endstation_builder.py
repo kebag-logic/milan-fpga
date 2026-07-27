@@ -2803,6 +2803,20 @@ def build(config_path, outdir=None, write_rtl=False):
     os.makedirs(os.path.dirname(p_cfg_adp), exist_ok=True)
     with open(p_cfg_adp, "w") as f:
         f.write(adp_svh)
+    # ...and the DESCRIPTOR SET beside it. The shape include alone is only
+    # half an entity definition: KL_aecp_aem_store `include-s gen/
+    # aecp_aem_rom.svh from the SAME `gen/` directory, so a harness that
+    # points +incdir at a config to get its ACMP array sizes still picked up
+    # whatever ROM was last written into hdl/. That is how regenerating the
+    # tree for the 8x8 ship shape broke the aecp suite (a 1x1 harness asking
+    # for descriptors that only exist in the 8x8 model) while the shape
+    # include it DID select was perfectly correct. One directory, one whole
+    # entity: shape + descriptors, or neither.
+    if aem_rom is not None:
+        p_cfg_rom = os.path.join(os.path.dirname(p_cfg_adp),
+                                 "aecp_aem_rom.svh")
+        with open(p_cfg_rom, "w") as f:
+            f.write(aem_rom)
     paths = dict(soc_params=p_soc, aem_overlay=p_ovl, build_plan=p_plan,
                  lwsrp_table=p_srp, lwsrp_svh=p_srp_svh,
                  csr_defaults_svh=p_csr_svh, adp_shape_svh=p_adp_svh,
