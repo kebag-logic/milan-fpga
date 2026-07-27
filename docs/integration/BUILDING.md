@@ -57,8 +57,44 @@ Linux-throughput logic the audio path never touches  -  which removed the
 sys_clk critical path AND freed ~3 pct LUT), `--l2-bytes 16384`, place
 directive AltSpreadLogic_high. Closed 2026-07-24: WNS +0.080, LUT 85.15 pct,
 TNS 0, all seeds close (measured record in the `cfg_ax8x8` comment in
-`build.sh`). Ethernet port defaults to e1; append `-- --eth-port e2` if the
-cable is on e2.
+`build.sh`).
+
+#### Choosing the Ethernet port (`--eth-port`)
+
+The AX7101 has **two** Ethernet ports, `e1` and `e2`, and a bitstream is built
+for **one** of them. **The build must match the physical cable** — get it wrong
+and the board comes up with no network, recoverable only by re-flashing the
+other variant over JTAG.
+
+| | |
+|---|---|
+| default | **`e1`** (`milan_soc.py --eth-port`, `choices=[e1, e2]`) |
+| `build.sh cfg_ax8x8` / `cfg_ax7101` | inherit the default → **e1** |
+| `sweep.sh ax7101` | pins it explicitly in that board's `OPTS` line |
+| bench cable (2026-07-27) | **e1** |
+
+To change it:
+
+```sh
+# one-off build
+sw/litex/build.sh cfg_ax8x8 -- --eth-port e2
+
+# the 3-seed sweep: edit the ax7101 OPTS line in sw/litex/sweep.sh
+#   ... --floorplan --eth-port e1     <- keep in step with the cable
+```
+
+**Verify before flashing**, rather than trusting the recipe — the invocation is
+recorded in the build itself:
+
+```sh
+grep -m1 -oE 'milan_soc\.py.*' <build>/litex.log | grep -o '\-\-eth-port [a-z0-9]*'
+# no match  =>  built with the e1 default
+```
+
+`e2` exists as the fallback for the 2026-07-22 **e1 GMII-RX hardware fault**
+(cold-soak-proven). If that fault resurfaces, **move the cable first, then
+change the build** — the two must be changed together, and the cable is the
+side that decides.
 
 ### `arty`  -  Digilent Arty A7-100, the second Milan node
 

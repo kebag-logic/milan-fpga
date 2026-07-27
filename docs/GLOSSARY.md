@@ -168,4 +168,4 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **eppo_* / asl_*** | Config-recipe prefixes stamped into build codenames (they say which `build.sh` recipe produced the bitstream). |
 | **hsqN** | The header-split RX bring-up build series (hsq4…hsq12); the story is [`fpga/HEADER_SPLIT_DESIGN.md`](fpga/HEADER_SPLIT_DESIGN.md). |
 | **tap1 / tap2** | The two inline wire-capture taps on the bench (tap1 = the AX7101 link, tap2 = the ARTY link); map in [`findings/BENCH_TOPOLOGY.md`](findings/BENCH_TOPOLOGY.md). |
-| **e1 / e2** | The AX7101's two Ethernet ports; a build selects one via `--eth-port` (ship = e2). |
+| **e1 / e2** | The AX7101's two Ethernet ports; a build selects one via `--eth-port`. **Default and current bench cable = `e1`**; `e2` is the fallback for the 2026-07-22 e1 GMII-RX fault. The build must match the physical cable — see [integration/BUILDING.md](integration/BUILDING.md). |
