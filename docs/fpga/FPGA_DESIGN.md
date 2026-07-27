@@ -274,8 +274,8 @@ toolchain: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §
 
 * **The ring-DMA engines** (`RingDMAReader`/`RingDMAWriter`, BD formats,
   header-split, RSC/GRO) are **Migen**, inside `sw/litex/milan_soc.py` -
-  design docs: [CPPI_DMA_REDESIGN.md](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md),
-  [HW_GRO_RSC.md](../../historical_now_obsolete/fpga/HW_GRO_RSC.md),
+  design docs: [CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md),
+  [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md),
   [HEADER_SPLIT_DESIGN.md](HEADER_SPLIT_DESIGN.md) (includes the hsq12 cut-through chapter); running system view:
   [PIPELINE_STAGES.md](PIPELINE_STAGES.md).
 * **The MAC** - external by design (LiteEth on LiteX, verilog-ethernet on

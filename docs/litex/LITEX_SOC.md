@@ -153,7 +153,7 @@ Endianness is `"big"` on purpose: memory order == wire order, so the CPU
 never byte-swaps.
 
 The BD-format/zero-copy/checksum evolution of these engines is chronicled
-in [../fpga/CPPI_DMA_REDESIGN.md](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
+in [../fpga/CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md)
 and the [findings log](../findings/README.md).
 
 ### 2.4 The MAC (`MilanMAC`)

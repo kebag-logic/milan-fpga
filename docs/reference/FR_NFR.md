@@ -9,7 +9,7 @@ one softcore).
 - **Milan v1.2 → FR/NFR dependency matrix (why each is necessary):** [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md)
 - **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
 - **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
-- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md`](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
+- **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
 - **HW AEM/AECP design:** [`AEM_AND_AECP.md`](../design/AEM_AND_AECP.md)
 
 Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement has a
@@ -291,7 +291,7 @@ benchmarks during bring-up; publish alongside the resource report.
 
 The ordered path from the baseline endpoint to a Milan-conformant device. Each step
 cites the FRs it satisfies and the milestone in
-[`FULLY_FPGA_RISCV_MIGRATION.md`](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
+[`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 1. **Platform up**  -  RISC-V Linux on the AX7101 with the HW datapath (MAC/CBS/
    classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*

@@ -1,7 +1,7 @@
 # Direction: from the 1-NIC endpoint to a 4-port AVB switch (MTU fixed at 1500)
 
 *Design note, 2026-07-05. One-picture summary below (source `AVB_SWITCH_DIRECTION.gen.py`,
-editable `.drawio`). Companion to [`RX_RING_DMA.md`](../../historical_now_obsolete/findings/RX_RING_DMA.md) (the endpoint ring
+editable `.drawio`). Companion to [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md) (the endpoint ring
 DMA work this builds on).*
 
 > **Dated decision snapshot (2026-07-05) - kept as the WHY record.** The
@@ -205,4 +205,4 @@ Switch forwarding runs in fabric and never touches the CPU, so CPU socket throug
    `TcpExtTCPLossProbes`/`TCPSpuriousRTOs` during the TX run (C2 verdict), acceptance
    counters (desync/InCsumErrors == 0), telemetry stalls == 0.
 4. A/B the L2 effect: same driver, ring7 (128 KB) vs ring8 (256 KB) numbers.
-5. Update this doc + [RX_RING_DMA.md](../../historical_now_obsolete/findings/RX_RING_DMA.md) with measured results; commit both repos.
+5. Update this doc + [RX_RING_DMA.md (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md) with measured results; commit both repos.
