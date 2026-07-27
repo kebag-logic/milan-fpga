@@ -963,7 +963,7 @@ def test_lwsrp_reset_words_match_rtl():
     got = r["lwsrp"]["reset_words"]
     hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
     # (emitter name, milan_csr storage reg, milan_csr A_* enum, doc reset)
-    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0x14"),
+    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0x10"),
             ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "2"),
             ("LWSRP_DMAC_LO", "lwsrp_dmlo", "A_LWSRP_DMLO", "0xF000_FE01"),
             ("LWSRP_DMAC_HI", "lwsrp_dmhi", "A_LWSRP_DMHI", "0x91E0"),
@@ -1058,7 +1058,7 @@ def test_lwsrp_class_constants_match_rtl():
         "hdl/ieee8021q/srp/gen/lwsrp_table.svh is STALE - regenerate it"
     for needle in (f"LWSRP_CLASS_ID_C   = 8'd{t['sr_class']['class_id']};",
                    f"LWSRP_PRIO_RANK_C  = 8'h{pr:02X};",
-                   "LWSRP_CTRL_RST_C      = 32'h0000_0014;",
+                   "LWSRP_CTRL_RST_C      = 32'h0000_0010;",
                    "LWSRP_TSPEC_RST_C     = 32'h0001_00E0;"):
         assert needle in svh, f"tracked svh lacks {needle!r}"
     print(f"  [gate 18b] {len(checks)} SR-class/timer/bandwidth constants == "
@@ -1500,8 +1500,8 @@ def test_csr_defaults_header_consumed():
             f"dir - `include \"{eb.CSR_DEFAULTS_INCLUDE}\" cannot resolve")
     print(f"  [gate 20a] milan_csr.sv `include-s {eb.CSR_DEFAULTS_INCLUDE}; "
           f"{len(eb.SRP_FROZEN_RESETS)} reset words + PriorityAndRank == the "
-          f"FROZEN literals (LWSRP_CTRL moved ONCE, 0x0C -> 0x14, for the "
-          f"6-queue map's class-A queue 5), 0 literals "
+          f"FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: "
+          f"0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals "
           f"left in the RTL, {len(shared)} constants agree with "
           f"lwsrp_table.svh, {len(CSR_INCDIR_CONSUMERS)} consumers carry the "
           f"include dir")
@@ -1543,11 +1543,11 @@ def test_csr_defaults_rejects():
     try:
         cfg = eb.load_config(p)
         w = eb.srp_reset_words(cfg)["LWSRP_CTRL"]
-        assert w == 0x00000017, f"LWSRP_CTRL {w:#010x} != 0x00000017"
+        assert w == 0x00000013, f"LWSRP_CTRL {w:#010x} != 0x00000013"
     finally:
         os.unlink(p)
     print(f"  [gate 20b] {len(cases)}/{len(cases)} malformed LWSRP_CTRL "
-          "sources rejected with ConfigError; en+talker+q5 emits 0x00000017")
+          "sources rejected with ConfigError; en+talker+q4 emits 0x00000013")
 
 
 AES3_RX_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aes3_rx.sv")
@@ -1670,6 +1670,136 @@ def test_aes3_rejects():
           "24.576 MHz audio PLL exactly (divide 1)")
 
 
+# ---------------------------------------------------------------------------
+#  Gate 22 - the CBS reset slope/credit table has FOUR copies and they must
+#  agree. It is hand-written in two places in the RTL and re-tabulated in two
+#  markdown pages; a hand-maintained table is a future contradiction, so pin
+#  every copy against ethernet_packet_pkg (the single source of truth) here.
+#
+#    ethernet_packet_pkg::IDLE_SLOPE_1G / IDLE_SLOPE_100M / NUMBER_OF_QUEUES
+#      -> milan_csr::CBS_IDLE_RST / CBS_HI_RST / CBS_LO_RST / CBS_EN_RST
+#      -> docs/reference/REGISTER_MAP.md      section 0x400 table
+#      -> docs/reference/EGRESS_QUEUE_MAP.md  "CBS reset slopes" table
+#
+#  hi/lo credit are RE-DERIVED here from the slopes with the package's own
+#  calc_hi_credit/calc_lo_credit arithmetic (MAX_FRAME_SIZE 1522, trunc toward
+#  zero), so a slope edit that forgets its credits fails even if all four
+#  copies were edited consistently-but-wrongly.
+# ---------------------------------------------------------------------------
+EPKG_SV = os.path.join(ROOT, "hdl/common/ethernet_packet_pkg.sv")
+EGRESS_MD = os.path.join(ROOT, "docs/reference/EGRESS_QUEUE_MAP.md")
+MAX_FRAME_SIZE = 1522
+PORT_RATE_1G = 1_000_000_000
+
+
+def _sv_int_array(txt, name, label):
+    """Elements of `parameter/localparam int NAME [0:k] = '{a, b, ...};`."""
+    m = re.search(rf"{name}\s*\[0:[^\]]*\]\s*=\s*'\{{(.*?)\}}\s*;", txt, re.S)
+    assert m, f"{label}: no array {name}"
+    # strip trailing // comments FIRST - they contain commas ("45 %, CBS ...")
+    body = "\n".join(re.sub(r"//.*", "", ln) for ln in m.group(1).splitlines())
+    out = []
+    for tok in body.split(","):
+        tok = tok.strip().replace("_", "")
+        if not tok:
+            continue
+        assert re.fullmatch(r"-?\d+", tok), f"{label}: {name} element {tok!r}"
+        out.append(int(tok))
+    return out
+
+
+def _md_table_ints(md, header_re, ncols):
+    """Rows of the first markdown table whose header line matches header_re."""
+    lines = md.splitlines()
+    for i, ln in enumerate(lines):
+        if re.search(header_re, ln):
+            rows, j = [], i + 2          # skip the |---|---| separator
+            while j < len(lines) and lines[j].lstrip().startswith("|"):
+                cells = [c.strip() for c in lines[j].strip().strip("|").split("|")]
+                if len(cells) == ncols:
+                    rows.append(cells)
+                j += 1
+            return rows
+    assert False, f"no markdown table matching {header_re}"
+
+
+def _num(cell):
+    """First signed integer in a markdown cell (handles the U+2212 minus)."""
+    t = cell.replace("\u2212", "-").replace(",", "").replace("_", "")
+    m = re.search(r"-?\d+", t)
+    assert m, f"no number in {cell!r}"
+    return int(m.group(0))
+
+
+def test_cbs_reset_table_single_source():
+    epkg = open(EPKG_SV).read()
+    csr = open(MILAN_CSR_SV).read()
+    reg = open(REGMAP_MD).read()
+    egr = open(EGRESS_MD).read()
+
+    nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
+    s1g = _sv_int_array(epkg, "IDLE_SLOPE_1G", "ethernet_packet_pkg")
+    s100 = _sv_int_array(epkg, "IDLE_SLOPE_100M", "ethernet_packet_pkg")
+    assert len(s1g) == len(s100) == nq, (
+        f"IDLE_SLOPE_1G/100M have {len(s1g)}/{len(s100)} entries, "
+        f"NUMBER_OF_QUEUES is {nq}")
+
+    # 802.1Q-2018 34.3.1 / REQ-CBS-03: the ceiling is 75 %, at BOTH link rates,
+    # and class A must outrank class B in bandwidth as well as in queue order.
+    assert sum(s1g) <= 0.75 * PORT_RATE_1G, f"sum(IDLE_SLOPE_1G) {sum(s1g)} > 75 %"
+    assert sum(s100) <= 0.75 * PORT_RATE_1G / 10, f"sum(IDLE_SLOPE_100M) {sum(s100)} > 75 %"
+    assert all(a == b * 10 for a, b in zip(s1g, s100)), \
+        "IDLE_SLOPE_100M is not IDLE_SLOPE_1G/10 - the two rate tables disagree"
+    assert s1g[nq - 1] > s1g[nq - 2], \
+        "class A (top queue) slope must exceed class B (the one below it)"
+
+    # milan_csr's reset arrays must BE the package tables, and its credits must
+    # be the package's calc_hi/lo_credit of those slopes.
+    ci = _sv_int_array(csr, "CBS_IDLE_RST", "milan_csr")
+    ch = _sv_int_array(csr, "CBS_HI_RST", "milan_csr")
+    cl = _sv_int_array(csr, "CBS_LO_RST", "milan_csr")
+    assert ci == s1g, f"milan_csr CBS_IDLE_RST {ci} != ethernet_packet_pkg {s1g}"
+    want_hi = [MAX_FRAME_SIZE * s // PORT_RATE_1G for s in s1g]
+    want_lo = [-((MAX_FRAME_SIZE * (PORT_RATE_1G - s)) // PORT_RATE_1G) for s in s1g]
+    assert ch == want_hi, f"CBS_HI_RST {ch} != calc_hi_credit {want_hi}"
+    assert cl == want_lo, f"CBS_LO_RST {cl} != calc_lo_credit {want_lo}"
+
+    # REQ-CBS-02 / CBS_DEFAULT_SHAPING_BUG.md: EVERY queue powers up UNSHAPED.
+    # Shaping q0 at reset once paced all best-effort TX to ~250 Mbit/s on
+    # silicon (2026-07-07), so this is a standing invariant, not a default.
+    m = re.search(r"CBS_EN_RST\s*=\s*(\d+)'b([01]+)\s*;", csr)
+    assert m, "milan_csr: no CBS_EN_RST"
+    assert int(m.group(1)) == nq, f"CBS_EN_RST is {m.group(1)} bits, want {nq}"
+    assert set(m.group(2)) == {"0"}, \
+        f"CBS_EN_RST {m.group(2)} shapes a queue at reset (REQ-CBS-02)"
+
+    # Both markdown tables, row by row, highest queue first.
+    reg_rows = _md_table_ints(reg, r"\|\s*q\s*\|\s*class\s*\|\s*idleSlope", 7)
+    assert len(reg_rows) == nq, f"REGISTER_MAP 0x400 table has {len(reg_rows)} rows, want {nq}"
+    for r in reg_rows:
+        q = _num(r[0])
+        assert _num(r[2]) * 1_000_000 == s1g[q], f"REGISTER_MAP q{q} idleSlope"
+        assert _num(r[4]) == want_hi[q], f"REGISTER_MAP q{q} hiCredit"
+        assert _num(r[5]) == want_lo[q], f"REGISTER_MAP q{q} loCredit"
+        assert _num(r[6]) == 0, f"REGISTER_MAP q{q} shaped-at-reset must be 0"
+
+    egr_rows = _md_table_ints(egr, r"\|\s*Queue\s*\|\s*idleSlope @ 1 Gb/s", 5)
+    assert len(egr_rows) == nq, f"EGRESS_QUEUE_MAP slope table has {len(egr_rows)} rows, want {nq}"
+    for r in egr_rows:
+        q = _num(r[0])
+        assert _num(r[1]) * 1_000_000 == s1g[q], f"EGRESS_QUEUE_MAP q{q} idleSlope"
+        assert _num(r[3]) == want_hi[q], f"EGRESS_QUEUE_MAP q{q} hiCredit"
+        assert _num(r[4]) == want_lo[q], f"EGRESS_QUEUE_MAP q{q} loCredit"
+
+    print(f"  [gate 22] CBS reset table single-sourced: {nq} queues, "
+          f"sum(IDLE_SLOPE_1G) = {sum(s1g)/1e6:.0f} Mb/s "
+          f"({sum(s1g)/PORT_RATE_1G*100:.1f} % <= 75 %), SR A+B = "
+          f"{(s1g[nq-1]+s1g[nq-2])/1e6:.0f} Mb/s; milan_csr CBS_*_RST == the "
+          f"package (credits re-derived, not copied), CBS_EN_RST = {nq}'b"
+          f"{'0'*nq}, and both REGISTER_MAP 0x400 and EGRESS_QUEUE_MAP agree "
+          f"row for row")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -1688,7 +1818,8 @@ if __name__ == "__main__":
                test_platform_window_map,
                test_platform_dt_and_driver_shape, test_platform_rejects,
                test_csr_defaults_header_consumed, test_csr_defaults_rejects,
-               test_aes3_interface_switch, test_aes3_rejects):
+               test_aes3_interface_switch, test_aes3_rejects,
+               test_cbs_reset_table_single_source):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

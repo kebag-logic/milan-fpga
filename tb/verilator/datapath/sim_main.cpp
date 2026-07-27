@@ -36,7 +36,7 @@ static void lo() { dut->clk = 0; dut->eval(); }
 static void hi() { dut->clk = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 
-static const int NQ = 6;    // ethernet_packet_pkg::NUMBER_OF_QUEUES (802.1Q order)
+static const int NQ = 5;    // ethernet_packet_pkg::NUMBER_OF_QUEUES (802.1Q order)
 
 static void set_cbs(bool shaped, uint32_t slope, int32_t hicr, int32_t locr) {
     dut->cbs_shaped_i = shaped ? ((1u << NQ) - 1) : 0x0;
@@ -102,7 +102,7 @@ static void config_classifier() {
     // identity maps so PCP p -> prio p -> TC p -> queue p (deterministic routing):
     dut->cls_prio_regen_i   = 0x00FAC688;  // PCP -> PCP
     dut->cls_pcp_tc_map_i    = 0x00FAC688;  // prio -> TC
-    // TC t -> queue t for t < NQ (3 bits/entry at NQ=6); TC >= NQ is left at 0
+    // TC t -> queue t for t < NQ (3 bits/entry at NQ=5); TC >= NQ is left at 0
     // so it exercises nothing out of range here (traffic_class_map clamps those
     // to BEST_EFFORT anyway - tb/verilator/cls owns that check).
     uint32_t tcq = 0;
@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
         ck("tdest == queue (PCP p -> q p)", r.dest, pcp);   // identity map -> exact routing
         if (r.dest >= 0) dests.insert(r.dest);
     }
-    ck("classification uses all 6 queues", (long)dests.size(), NQ);
+    ck("classification uses all 5 queues", (long)dests.size(), NQ);
 
     // ---- shaped (CBS path, generous credit): frames still pass byte-exact ----
     printf("-- shaped (CBS, generous credit) --\n");

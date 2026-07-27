@@ -11,7 +11,7 @@
 | TDATA_WIDTH           | int  | 64    | AXI-Stream data bus width            |
 | BIG_ENDIAN            | bit  | 1     | Determines byte order for classifier |
 | CLASSIFIER_FIFO_DEPTH | int  | 64    | FIFO depth for classification stage  |
-| NUMBER_OF_QUEUES      | int  | 6     | Number of traffic classes/queues     |
+| NUMBER_OF_QUEUES      | int  | 5     | Number of traffic classes/queues     |
 | BUFFER_FIFO_DEPTH     | int  | 8192  | Per-queue FIFO depth                 |
 
 ## Ports

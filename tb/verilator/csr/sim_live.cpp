@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
   printf("== P11 window vs LIVE KL_lwsrp_ctx + KL_acmp_lstn_ctx ==\n");
 
   printf("-- lwSRP row provisioning through the window --\n");
-  axi_write(0x680, 0x15);                 // LWSRP_CTRL: enable (qidx 5 kept)
+  axi_write(0x680, 0x11);                 // LWSRP_CTRL: enable (qidx 4 = class A kept)
   run(4);
   // listener stream 1 -> ctx row 1: stage sid, commit with CTRL.en
   axi_write(A_STRM_SEL, 0x001);           // dir=0 (listener), idx=1

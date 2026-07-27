@@ -3307,7 +3307,7 @@ class RingDMAReader(LiteXModule):
 class RxSteer(LiteXModule):
     """2-way RX steering front-end: gPTP gets its OWN queue, everything else shares q0.
 
-    USER directive (2026-07-26, the 6-queue egress round): "one [ingress queue]
+    USER directive (2026-07-26, the 802.1Q-ordered egress round): "one [ingress queue]
     dedicated to gPTP, one for everything else".
 
       q1  frames whose DMAC is the 802.1AS reserved multicast 01-80-C2-00-00-0E
@@ -3641,7 +3641,7 @@ class MilanDMA(LiteXModule):
                                 fifo_beats=rx_fifo_beats)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
         # RX fan-out (rx_queues=2): a steering front-end splits the single RX stream
-        # into 2 queues, each its own RingDMAWriter + IRQ + NAPI. Since the 6-queue
+        # into 2 queues, each its own RingDMAWriter + IRQ + NAPI. Since the 802.1Q-ordered
         # round (2026-07-26) the split is gPTP (q1) vs everything else (q0) per the
         # USER's 2-ingress-queue directive, NOT the old TCP 4-tuple flow hash - see
         # RxSteer's docstring for what that trades away (parallel ACK processing)

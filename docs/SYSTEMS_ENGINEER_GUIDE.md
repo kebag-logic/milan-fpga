@@ -232,14 +232,14 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   sketch has drifted from REGISTER_MAP — trust REGISTER_MAP: 0x6D0 STAT0 / 0x6D4 STAT1.)*
 
 **QoS / CBS shaper**
-- → **[`docs/reference/EGRESS_QUEUE_MAP.md`](reference/EGRESS_QUEUE_MAP.md)** — **the map of record**: six queues in 802.1Q
-  order (q5 SR class A … q0 best effort, higher index = higher priority), how each kind of traffic is
+- → **[`docs/reference/EGRESS_QUEUE_MAP.md`](reference/EGRESS_QUEUE_MAP.md)** — **the map of record**: five queues in 802.1Q
+  order (q4 SR class A … q0 best effort, higher index = higher priority), how each kind of traffic is
   classified (tagged by PCP, untagged control by reserved DMAC), the CBS reset slopes, why gPTP sits
   *below* the shaped classes, and the FQTSS measurements. Read this first.
 - → **[`docs/traceability/ieee8021q.md`](traceability/ieee8021q.md)** — per-clause VLAN/PCP + MRP + MSRP/MVRP map (the QoS/CBS
   verification view).
 - **[`docs/findings/CBS_DEFAULT_SHAPING_BUG.md`](findings/CBS_DEFAULT_SHAPING_BUG.md)** — the permanent finding that CBS shapes reserved
-  SR classes only (`CBS_EN_RST = 6'b000000`, i.e. every queue unshaped at reset); read to understand
+  SR classes only (`CBS_EN_RST = 5'b00000`, i.e. every queue unshaped at reset); read to understand
   why plain TCP is not credit-paced.
 - **[`docs/findings/CBS_DATAPATH_BUG.md`](findings/CBS_DATAPATH_BUG.md)** — the classifier/arbiter tdest-timing fix (distinct bug
   from the reset-default one); read for the CBS/classifier datapath internals.

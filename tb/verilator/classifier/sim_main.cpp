@@ -25,10 +25,10 @@
 #include <string>
 
 // ethernet_packet_pkg::network_priority_t - the value IS the queue index and
-// the HIGHER index is the HIGHER priority (802.1Q order, 6-queue map).
-static const int NQ = 6;
-enum { BEST_EFFORT = 0, RESERVED_CLASS = 1, CONTROL_CLASS = 2,
-       GPTP_CLASS = 3, SRB_CLASS = 4, SRA_CLASS = 5 };
+// the HIGHER index is the HIGHER priority (802.1Q order, 5-queue map).
+static const int NQ = 5;
+enum { BEST_EFFORT = 0, CONTROL_CLASS = 1, GPTP_CLASS = 2,
+       SRB_CLASS = 3, SRA_CLASS = 4 };
 
 static Vclassifier_wrap* dut;
 static long checks = 0, fails = 0;
@@ -177,9 +177,9 @@ int main(int argc, char** argv) {
     dut->s_tvalid = dut->s_tlast = 0; dut->m_tready = 1;
     dut->use_pcp_i = 1; dut->dmac_check_i = 0; dut->default_pcp_i = 0;
     dut->ctrl_class_i = 1;   // CLS_CTRL[2] resets to 1 (REQ-CLS-10)
-    // milan_csr reset CLS_TC_QUEUE_MAP for the 6-queue map: 3 bits/entry,
-    // TC0/1 -> q0, TC2 -> q4 (SR-B), TC3 -> q5 (SR-A), TC4/5 -> q2, TC6/7 -> q3.
-    dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688; dut->tc_queue_map_i = 0x006D2B00;
+    // milan_csr reset CLS_TC_QUEUE_MAP for the 5-queue map: 3 bits/entry,
+    // TC0/1 -> q0, TC2 -> q3 (SR-B), TC3 -> q4 (SR-A), TC4/5 -> q1, TC6/7 -> q2.
+    dut->pcp_tc_map_i = 0x00FAC688; dut->prio_regen_i = 0x00FAC688; dut->tc_queue_map_i = 0x004898C0;
     for (int i = 0; i < 6; i++) { lo(); hi(); }
     dut->resetn = 1;
     for (int i = 0; i < 2; i++) { lo(); hi(); }
@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
     run_frames(real, /*bp=*/1, "real-hdr b2b bp",    &expd);
 
     // ---- gPTP FAST-PATH (2026-07-13): untagged 0x88F7 must classify to
-    // GPTP_CLASS (q3 in the 6-queue map) even in PCP mode (untagged default_pcp
+    // GPTP_CLASS (q2 in the 5-queue map) even in PCP mode (untagged default_pcp
     // would otherwise send it wherever the tables point), sandwiched between
     // bulk frames ----
     {
@@ -295,11 +295,16 @@ int main(int argc, char** argv) {
         const uint8_t spoof[6]= {0x01,0x80,0xC2,0x00,0x00,0x0F};   // one bit off - not gPTP
         const uint8_t uni[6]  = {0x02,0x00,0x00,0x00,0x00,0x68};   // plain unicast
 
-        // default port priority 2 -> identity tables -> queue 2 (NOT q3=GPTP)
+        // Default port priority -> identity tables -> a queue that is NEITHER
+        // GPTP_CLASS nor BEST_EFFORT, so the negative below discriminates both
+        // ways. At N=5 GPTP_CLASS is q2, so the old default_pcp = 2 would have
+        // made "fell through to the tables" indistinguishable from "took the
+        // fast path" - use 3 (identity -> q3, SR class B).
+        const int TBL_PCP = 3;
         uint32_t ident24 = 0; for (int i = 0; i < 8; i++) ident24 |= (uint32_t)i << (3 * i);
         uint32_t ident_tcq = 0; for (int i = 0; i < NQ; i++) ident_tcq |= (uint32_t)i << (3 * i);
         uint32_t save_tcq = dut->tc_queue_map_i;
-        dut->default_pcp_i = 2; dut->pcp_tc_map_i = ident24; dut->prio_regen_i = ident24;
+        dut->default_pcp_i = TBL_PCP; dut->pcp_tc_map_i = ident24; dut->prio_regen_i = ident24;
         dut->tc_queue_map_i = ident_tcq;
 
         // (a) check OFF: every DMAC still takes the fast path
@@ -309,15 +314,18 @@ int main(int argc, char** argv) {
         std::vector<int> offexp = { GPTP_CLASS, GPTP_CLASS, GPTP_CLASS };
         run_frames(off, /*bp=*/0, "cls07 check-off keeps fast path", &offexp);
 
-        // (b) check ON: only the reserved DMAC keeps q3; the others fall to q2
+        // (b) check ON: only the reserved DMAC keeps GPTP_CLASS; the others
+        //     fall through to the identity table queue TBL_PCP
         dut->dmac_check_i = 1;
         std::vector<std::vector<Beat>> on = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9),
                                               mkgptp_dmac(uni, 9), mkgptp_dmac(good, 9) };
-        std::vector<int> onexp = { GPTP_CLASS, 2, 2, GPTP_CLASS };
+        std::vector<int> onexp = { GPTP_CLASS, TBL_PCP, TBL_PCP, GPTP_CLASS };
+        ck("cls07: the table answer differs from GPTP_CLASS (negative has teeth)",
+           (TBL_PCP != GPTP_CLASS && TBL_PCP != BEST_EFFORT) ? 1 : 0, 1);
         run_frames(on, /*bp=*/0, "cls07 reserved DMAC gates gPTP", &onexp);
         run_frames(on, /*bp=*/1, "cls07 reserved DMAC gates gPTP bp", &onexp);
 
-        // (c) legacy mode: the spoof must land on BEST_EFFORT (q0), not q3
+        // (c) legacy mode: the spoof must land on BEST_EFFORT (q0), not GPTP_CLASS
         dut->use_pcp_i = 0;
         std::vector<std::vector<Beat>> lg = { mkgptp_dmac(good, 9), mkgptp_dmac(spoof, 9) };
         std::vector<int> lgexp = { GPTP_CLASS, BEST_EFFORT };
@@ -335,7 +343,7 @@ int main(int argc, char** argv) {
     // destination MAC in wire byte order (byte 0 first) and the INNER EtherType
     // (after any C-TAG), for frames built byte-by-byte the way the MAC delivers
     // them. Both matter - the fast path is keyed on the DMAC, and the tag test
-    // that keeps a stream out of q2 only works if `eth_type` is the inner one.
+    // that keeps a stream out of CONTROL_CLASS only works if `eth_type` is the inner one.
     {
         // generic control frame: any DMAC, any EtherType, untagged
         auto mkctl = [](const uint8_t dm[6], uint16_t et, int nbeats) {
@@ -415,8 +423,8 @@ int main(int argc, char** argv) {
             ck("cls10: gPTP/MSRP split at the shared 01-80-C2-00-00-0E", split ? 1 : 0, 1);
         }
 
-        // (c) NEGATIVE - a TAGGED 0x22F0 is an AVTP STREAM. PCP 3 -> q5 class A,
-        //     PCP 2 -> q4 class B, even when addressed to a control group MAC.
+        // (c) NEGATIVE - a TAGGED 0x22F0 is an AVTP STREAM. PCP 3 -> q4 class A,
+        //     PCP 2 -> q3 class B, even when addressed to a control group MAC.
         {
             std::vector<std::vector<Beat>> st;
             std::vector<int> exp;
@@ -433,7 +441,7 @@ int main(int argc, char** argv) {
 
         // (d) eth_type_i really IS the INNER EtherType, not the TPID. A tagged
         //     frame whose inner type is 0x88F7 must still take the gPTP fast
-        //     path (q3); a classifier reading the 0x8100 TPID instead would fall
+        //     path (q2); a classifier reading the 0x8100 TPID instead would fall
         //     to the tables and hand PCP 0 -> q0. The two answers differ, so
         //     this discriminates.
         {
@@ -456,9 +464,9 @@ int main(int argc, char** argv) {
             std::vector<int> exp;
             ng.push_back(mkctl(BRIDGEG, 0x0026, 4));  exp.push_back(expq(false, 0)); // BPDU-shaped
             ng.push_back(mkctl(BRIDGEG, 0x22F0, 4));  exp.push_back(expq(false, 0));
-            run_frames(ng, /*bp=*/0, "cls10 no row -> no q2 (RSTP not implemented)", &exp);
+            run_frames(ng, /*bp=*/0, "cls10 no row -> no CONTROL_CLASS (RSTP not implemented)", &exp);
             bool teeth = (expq(false, 0) != CONTROL_CLASS);
-            ck("cls10: table-queue answer is not q2 (negative has teeth)", teeth ? 1 : 0, 1);
+            ck("cls10: table-queue answer is not CONTROL_CLASS (negative has teeth)", teeth ? 1 : 0, 1);
         }
 
         // (f) NEGATIVE - CLS_CTRL[2] = 0 takes every control frame back to the

@@ -66,11 +66,31 @@ parameter int ETH_HEADER_BUFFER_WIDTH = ETH_HEADER_CHUNKS * TDATA_WIDTH;
 //! PCP field width (IEEE 802.1Q: 3 bits)
 parameter int PCP_BIT_WIDTH = 3;
 
-//! Number of egress queues (traffic classes), q0 .. q5.
-//! 802.1Q ORDER: the HIGHER index is the HIGHER priority, so q5 (SR class A)
+//! Number of egress queues (traffic classes), q0 .. q4.
+//! 802.1Q ORDER: the HIGHER index is the HIGHER priority, so q4 (SR class A)
 //! wins arbitration over q0 (best effort). See `network_priority_t` and
 //! docs/reference/EGRESS_QUEUE_MAP.md for the full map and the reasoning.
-parameter int NUMBER_OF_QUEUES = 6;
+//!
+//! WHY FIVE AND NOT SIX (VERSION 0x0014): the 6-queue map DID NOT FIT the
+//! xc7a100t. Three Vivado seeds failed placement identically - 11955 slices
+//! required against 11673 available, i.e. 282 short, with LUTs at 99.84 % of
+//! capacity while flip-flops sat at 42 %. The step from 4 to 6 queues had added
+//! two CBS slope engines, two queue FIFOs and a wider CSR decode to a design
+//! that already placed at 99.93 % slice occupancy. The queue that went is the
+//! one that carried no traffic: the deliberate SPARE. Every other class keeps
+//! its rank, its shaping and its bandwidth share - only the indices below it
+//! shift down by one. Do not reintroduce a spare "for symmetry"; the numbering
+//! is compact on purpose and there are no slices to pay for it.
+//!
+//! HOW MUCH THIS BUYS IS AN ESTIMATE, NOT A RESULT. No Vivado run has been made
+//! against this map. Open synthesis (yosys synth_xilinx xc7, 2026-07-27) puts
+//! the whole milan_datapath saving at -812 LUT1..6 / -1224 including bare INV /
+//! -590 FF / -3 BRAM / -3 DSP, which converts to roughly 147..314 slices
+//! against the 282 the placer asked for - i.e. it may well still be short.
+//! docs/reference/EGRESS_QUEUE_MAP.md carries the full arithmetic and the
+//! "what is not verified" list; treat placement as UNPROVEN until a build says
+//! otherwise.
+parameter int NUMBER_OF_QUEUES = 5;
 
 //! Priority Queues Bit field
 parameter int PRIORITY_QUEUES_BIT_WIDTH = $clog2(NUMBER_OF_QUEUES);
@@ -120,7 +140,7 @@ parameter logic [ETH_TYPE_BIT_WIDTH-1:0] ETH_TYPE_MVRP = 16'h88F5;
 //! `traffic_class_map` matches on. Wire byte order: byte 0 is the MSB.
 //!
 //! NOTE the deliberate collision: gPTP and MSRP SHARE 01-80-C2-00-00-0E and go
-//! to DIFFERENT queues (q3 vs q2). The address alone cannot separate them; the
+//! to DIFFERENT queues (q2 vs q1). The address alone cannot separate them; the
 //! EtherType splits that ONE address and only that one.
 
 //! 802.1D "Nearest Bridge" group address — gPTP (0x88F7) **and** MSRP (0x22EA).
@@ -167,15 +187,20 @@ endfunction
  * These classes are used to categorize incoming Ethernet traffic for
  * queue-based scheduling. Each class is mapped to a distinct output queue,
  * and the ENUM VALUE *IS* THE QUEUE INDEX: higher index = higher priority
- * (802.1Q order), so the arbiter in traffic_shaping_core grants q5 first and
+ * (802.1Q order), so the arbiter in traffic_shaping_core grants q4 first and
  * q0 last.
  *
- *   q5  SRA_CLASS       CBS-shaped SR class A - every MSRP-reserved AVB stream
- *   q4  SRB_CLASS       CBS-shaped SR class B (provisioned, unused today)
- *   q3  GPTP_CLASS      802.1AS / gPTP (CPU path)
- *   q2  CONTROL_CLASS   MAAP, MSRP, MVRP, 1722.1 ADP / ACMP / AECP
- *   q1  RESERVED_CLASS  spare, deliberately unmapped
+ *   q4  SRA_CLASS       CBS-shaped SR class A - every MSRP-reserved AVB stream
+ *   q3  SRB_CLASS       CBS-shaped SR class B (provisioned, unused today)
+ *   q2  GPTP_CLASS      802.1AS / gPTP (CPU path)
+ *   q1  CONTROL_CLASS   MAAP, MSRP, MVRP, 1722.1 ADP / ACMP / AECP
  *   q0  BEST_EFFORT     everything else, to/from the CPU
+ *
+ * There is NO spare queue. The 6-queue map had one at q1 and it cost 282
+ * slices the xc7a100t does not have (see NUMBER_OF_QUEUES above). Inserting a
+ * class later means renumbering, and renumbering is cheap here because every
+ * user of this map is symbolic - nothing outside this enum, the CSR reset
+ * words and the docs knows an index.
  *
  * WHY gPTP SITS *BELOW* THE SHAPED CLASSES (correctness, not preference):
  * 802.1Q-2018 8.6.8.2 credit-based shaping assumes the shaped queues are the
@@ -191,11 +216,10 @@ endfunction
 
 typedef enum logic [PRIORITY_QUEUES_BIT_WIDTH-1:0] {
   BEST_EFFORT    = 3'd0, //!< q0: default for non-prioritized traffic (lowest)
-  RESERVED_CLASS = 3'd1, //!< q1: spare slot, nothing is mapped here
-  CONTROL_CLASS  = 3'd2, //!< q2: MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP
-  GPTP_CLASS     = 3'd3, //!< q3: gPTP (Generalized Precision Time Protocol)
-  SRB_CLASS      = 3'd4, //!< q4: Stream Reservation Class B (CBS shaped)
-  SRA_CLASS      = 3'd5  //!< q5: Stream Reservation Class A (highest priority)
+  CONTROL_CLASS  = 3'd1, //!< q1: MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP
+  GPTP_CLASS     = 3'd2, //!< q2: gPTP (Generalized Precision Time Protocol)
+  SRB_CLASS      = 3'd3, //!< q3: Stream Reservation Class B (CBS shaped)
+  SRA_CLASS      = 3'd4  //!< q4: Stream Reservation Class A (highest priority)
 } network_priority_t;
 
 // -----------------------------------------------------------------------------
@@ -210,11 +234,11 @@ typedef enum logic [PRIORITY_QUEUES_BIT_WIDTH-1:0] {
  *         (NUMBER_OF_QUEUES-1 = highest priority, 0 = lowest).
  *         Returns -1 if no request is active.
  *
- * 802.1Q ORDER (changed with the 6-queue map): the scan runs from the top
- * index DOWN, so q5 (SR class A) beats q4 (class B) beats q3 (gPTP) ...
- * beats q0 (best effort). It used to scan upward with q0 as the winner; the
- * enum `network_priority_t` was renumbered in the same commit so every
- * symbolic user (SRA_CLASS, GPTP_CLASS, ...) keeps its relative rank.
+ * 802.1Q ORDER (introduced with the 6-queue map, kept at 5): the scan runs
+ * from the top index DOWN, so q4 (SR class A) beats q3 (class B) beats q2
+ * (gPTP) ... beats q0 (best effort). It used to scan upward with q0 as the
+ * winner; the enum `network_priority_t` was renumbered in the same commit so
+ * every symbolic user (SRA_CLASS, GPTP_CLASS, ...) keeps its relative rank.
  *
  * This function is synthesizable since it uses a single return
  * statement and a deterministic loop.
@@ -234,38 +258,40 @@ endfunction
 //! The idle slope defines the rate at which credit increases when the queue is idle and has data.
 //! It is proportional to the guaranteed bandwidth for that traffic class.
 //!
-//! INDEXED BY QUEUE, so entry 0 is q0 = BEST_EFFORT and entry 5 is q5 =
-//! SR class A. (Before the 6-queue map this array ran the other way round -
-//! entry 0 was class A - because q0 used to be the highest priority.)
+//! INDEXED BY QUEUE, so entry 0 is q0 = BEST_EFFORT and entry 4 is q4 =
+//! SR class A. (Before the 802.1Q-order map this array ran the other way round
+//! - entry 0 was class A - because q0 used to be the highest priority.)
 //!
 //! These are the *reset defaults* only: at runtime the shaper is reprogrammed
-//! per queue from the milan_csr CBS registers (REQ-CBS-01). The sum across all
-//! six classes is 750 Mb/s = 75 % of the 1 Gb/s port rate, honouring the
-//! 802.1Qav deltaBandwidth <= 75 % guidance (REQ-CBS-03); the shaped pair
-//! alone (q5 + q4 = 600 Mb/s = 60 %) is likewise inside that ceiling, which is
-//! the number 802.1Q-2018 34.3.1 actually constrains. The milan_csr reset
+//! per queue from the milan_csr CBS registers (REQ-CBS-01). Every class keeps
+//! the share it had in the 6-queue map; what disappeared with the spare queue
+//! is that queue's 2.5 %, so the sum is now 725 Mb/s = 72.5 % of the 1 Gb/s
+//! port rate. REQ-CBS-03 / 802.1Qav deltaBandwidth is a CEILING of 75 %, not a
+//! target, so the freed 2.5 % is deliberately left unallocated rather than
+//! quietly handed to best effort - moving it would change a live class's
+//! provisioned share for no reason, and best effort is unshaped at reset
+//! anyway. The shaped pair alone (q4 + q3 = 600 Mb/s = 60 %) is unchanged and
+//! is the number 802.1Q-2018 34.3.1 actually constrains. The milan_csr reset
 //! defaults mirror these values.
 parameter int IDLE_SLOPE_1G [0:NUMBER_OF_QUEUES-1] = '{
    25_000_000,  //!< q0 Best Effort  (2.5 %)
-   25_000_000,  //!< q1 Reserved     (2.5 %, spare slot)
-   50_000_000,  //!< q2 Control      (5 %)
-   50_000_000,  //!< q3 gPTP         (5 %)
-  150_000_000,  //!< q4 SR Class B   (15 %, CBS)
-  450_000_000   //!< q5 SR Class A   (45 %, CBS - the AVB streams)
+   50_000_000,  //!< q1 Control      (5 %)
+   50_000_000,  //!< q2 gPTP         (5 %)
+  150_000_000,  //!< q3 SR Class B   (15 %, CBS)
+  450_000_000   //!< q4 SR Class A   (45 %, CBS - the AVB streams)
 };
 
 //! Array of idle slopes (bps) for each traffic class for 100MBps.
 //! The idle slope defines the rate at which credit increases when the queue is idle and has data.
 //! It is proportional to the guaranteed bandwidth for that traffic class.
-//! Same queue order as IDLE_SLOPE_1G; sum is 75 Mb/s = 75 % of the 100 Mb/s
-//! port rate (REQ-CBS-03).
+//! Same queue order and same shares as IDLE_SLOPE_1G; sum is 72.5 Mb/s =
+//! 72.5 % of the 100 Mb/s port rate, under the 75 % REQ-CBS-03 ceiling.
 parameter int IDLE_SLOPE_100M [0:NUMBER_OF_QUEUES-1] = '{
    2_500_000,  //!< q0 Best Effort
-   2_500_000,  //!< q1 Reserved
-   5_000_000,  //!< q2 Control
-   5_000_000,  //!< q3 gPTP
-  15_000_000,  //!< q4 SR Class B
-  45_000_000   //!< q5 SR Class A
+   5_000_000,  //!< q1 Control
+   5_000_000,  //!< q2 gPTP
+  15_000_000,  //!< q3 SR Class B
+  45_000_000   //!< q4 SR Class A
 };
 
 //! Maximum  frame length for MTU1500
@@ -299,8 +325,7 @@ parameter int HI_CREDIT [0:NUMBER_OF_QUEUES-1] = '{
   calc_hi_credit(IDLE_SLOPE_1G[1], 1_000_000_000),
   calc_hi_credit(IDLE_SLOPE_1G[2], 1_000_000_000),
   calc_hi_credit(IDLE_SLOPE_1G[3], 1_000_000_000),
-  calc_hi_credit(IDLE_SLOPE_1G[4], 1_000_000_000),
-  calc_hi_credit(IDLE_SLOPE_1G[5], 1_000_000_000)
+  calc_hi_credit(IDLE_SLOPE_1G[4], 1_000_000_000)
 };
 
 //! Minimum credit threshold (in bytes).
@@ -311,8 +336,7 @@ parameter int LO_CREDIT [0:NUMBER_OF_QUEUES-1] = '{
   calc_lo_credit(IDLE_SLOPE_1G[1], 1_000_000_000),
   calc_lo_credit(IDLE_SLOPE_1G[2], 1_000_000_000),
   calc_lo_credit(IDLE_SLOPE_1G[3], 1_000_000_000),
-  calc_lo_credit(IDLE_SLOPE_1G[4], 1_000_000_000),
-  calc_lo_credit(IDLE_SLOPE_1G[5], 1_000_000_000)
+  calc_lo_credit(IDLE_SLOPE_1G[4], 1_000_000_000)
 };
 
 //! Clock frequency used for credit slope calculations.

@@ -36,7 +36,7 @@ consumer using those strobes (`REQ-CSR-03`).
 
 | Generic name | Type          | Value          | Description                                             |
 | ------------ | ------------- | -------------- | ------------------------------------------------------- |
-| NUM_QUEUES   | int           | 6              | Number of HW traffic-class queues (reported in CAP.num_queues); q5 = highest priority |
+| NUM_QUEUES   | int           | 5              | Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority |
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
 | VERSION      | logic [31:0]  | 32'h0001_0013  | Value returned by the read-only VERSION register (the RTL parameter's own comment carries the per-version changelog) |
 
