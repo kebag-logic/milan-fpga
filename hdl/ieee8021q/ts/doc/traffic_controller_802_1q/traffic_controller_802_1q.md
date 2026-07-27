@@ -2,6 +2,15 @@
 # Entity: traffic_controller_802_1q 
 - **File**: traffic_controller_802_1q.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — The generated block picture of the classify → queue → shape chain.
+- **[Generics](#generics)** — The five elaboration parameters with their defaults: 64-bit AXIS, big-endian classification, `NUMBER_OF_QUEUES` = 5 (the 802.1Q-ordered egress map) and an 8192-deep per-queue FIFO.
+- **[Ports](#ports)** — A slave AXIS in, a master AXIS out, and one sideband that matters: `is_1g_i`, the link-rate input the CBS sendSlope denominator depends on.
+- **[Signals](#signals)** — The two internal buses between the queues and the shaper — one-hot `queue_grant` and `queue_has_data`, one bit per traffic class.
+- **[Constants](#constants)** — One derived constant: `TDEST_WIDTH` follows `NUMBER_OF_QUEUES`, so `tdest` is the queue selector the classifier writes and the queue block decodes.
+- **[Instantiations](#instantiations)** — The four children and the two AXIS interfaces between them, in datapath order: classifier assigns `tdest`, `traffic_queues` buffers one FIFO per queue, `traffic_shaping_core` applies CBS on egress.
+
 ## Diagram
 ![Diagram](traffic_controller_802_1q.svg "Diagram")
 ## Generics

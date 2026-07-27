@@ -11,6 +11,14 @@ stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md`](D
 ---
 
 
+## Contents
+
+- **[0. The system at a glance (start here)](#0-the-system-at-a-glance-start-here)** — Two diagrams — the board-to-board media path and the power-on-to-network boot chain — plus the measured headline: E2E capture→render equals the presentation offset exactly (pto 500 µs, `ts_delta` +384 µs, 0 LATE), talker wire output bit-exact 900/900, gPTP slave rms 44 ns.
+- **[1. What this system is](#1-what-this-system-is)** — The one-paragraph definition, the normative dividing principle (per-frame work → fabric, negotiation → softcore), the two-board ship pair, and the framing fact everything else depends on: the ship CPU is **1-hart**, so the 2-hart perf-campaign numbers are lineage, not behaviour.
+- **[2. The reading path (annotated doc map)](#2-the-reading-path-annotated-doc-map)** — The bulk of the guide: every page in the corpus in journey order across nine stages, each with *when to read it* and, where it matters, what in it is already known stale. The `→` markers give one starting doc per stage and per protocol.
+- **[3. Fast lookups ("I need to…")](#3-fast-lookups-i-need-to)** — A thirteen-row task→page table for when you already know what you want to do. The shortcut past §2.
+- **[4. Watch-outs when reading older docs (2026-07-23 reconciliation)](#4-watch-outs-when-reading-older-docs-2026-07-23-reconciliation)** — Nine phrasings that mark a stale page, each with the current fact to substitute: dual-hart→1-hart, −73.4→−83.9 dB, RGMII→GMII, `0x43C0_0000`→`0x9000_0000`, and "AVDECC/SRP is future software" → it is in fabric and silicon-validated.
+
 ## 0. The system at a glance (start here)
 
 Two Artix-7 boards are complete Milan/AVB end-stations: gPTP-synced fabric

@@ -24,6 +24,19 @@
 > [`atdecc_architecture.drawio`](../../hdl/ieee17221/aecp/doc/atdecc_architecture.drawio)
 > in the subsystem doc directory.
 
+## Contents
+
+- **[Status (2026-07-25) — design vs as-built](#status-2026-07-25--design-vs-as-built)** — The reconciliation table, and the most useful page here: seven places the shipped subsystem answered differently from the 2025 sketch (one configuration not three, 4 unsolicited slots not 16, malformed frames dropped rather than answered BAD_ARGUMENTS), each with the row ID that carries the evidence, plus four items kept explicitly open.
+- **[1. Introduction](#1-introduction)** — Two paragraphs defining AEM (clause 7) and AECP (clause 9) and how they relate. Skip it if you already know the acronyms.
+- **[2. Scope](#2-scope)** — Three lines: what a Milan end-station needs, in fabric, with softcore provisioning only, deferring to the normative HW/SW split doc.
+- **[3. AECP protocol scope](#3-aecp-protocol-scope)** — Which clause-9.2.2 state machines exist, and the five Milan MVU commands under protocol_id `00-1B-C5-0A-C1-00` — all five answered from fabric, correcting an earlier note that MEDIA_CLOCK_REFERENCE_INFO was missing.
+- **[4. Entity model — as-built](#4-entity-model--as-built)** — How the 34-descriptor ROM is generated: the small (stereo 48 k, Arty MII) versus full (8-ch 48/96/192 k, AX7101) entity JSONs, the builder overlay that produces NxN shapes, and the four artifacts they feed. §4.1 keeps the original three-configuration sketch as a historical record.
+- **[5. The FPGA memory design](#5-the-fpga-memory-design)** — The four questions the memory design had to answer, the designed 4-level descriptor walk, and why L1/L2 collapse to a flat 34-entry directory in a single-configuration entity — a divergence recorded in `KL_aecp_accessor.sv`'s own banner. §5.3 shows the generic segment engine that replaced per-command response code.
+- **[6. Processing pipeline — parse → respond → unsolicited](#6-processing-pipeline--parse--respond--unsolicited)** — The module-by-module RX-to-TX chain as a diagram, then a stage-by-stage reconciliation of designed against built. Answers a real question: a foreign `target_entity_id` gets no response at all, and neither does a malformed frame.
+- **[7. Command support — as-built](#7-command-support--as-built)** — The per-command verdict table — what is implemented, what answers NOT_SUPPORTED by Milan's instruction, what answers NOT_IMPLEMENTED — with the documented gaps named (SET_STREAM_INFO takes only the MSRP latency sub-command; START/STOP_STREAMING is input-side only). §7.1 covers the static-default / dynamic-opt-in audio maps.
+- **[8. Memory-mapped dynamic information](#8-memory-mapped-dynamic-information)** — How live data reaches a descriptor read without a memory-mapped module: a read overlay mux, live counter taps, and the CSR groups the softcore provisions through. Also records that no filtering-database coupling exists, because every response is already unicast.
+- **[9. Non-volatile information — OPEN](#9-non-volatile-information--open)** — The honest gap: factory NVM, overlay NVM and factory reset are not built, so every SET_* write-back is lost on reload. The one persistence path Milan makes operationally important — ACMP saved-state fast-connect — is covered elsewhere via the `0x7A0` CSR group.
+
 ## Status (2026-07-25) — design vs as-built
 
 **As-built and silicon-proven.** The AECP subsystem answers the full Milan v1.2

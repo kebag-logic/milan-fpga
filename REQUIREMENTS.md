@@ -1,5 +1,17 @@
 # TSN on FPGA — Requirements
 
+## Contents
+
+- **[1. Goal and scope](#1-goal-and-scope)** — The four standards in scope and the software deliverables, prefaced by the platform-migration note that supersedes the Zynq framing everywhere below: softcore on Artix-7, GMII not RGMII, CSR base `0x9000_0000`. The `REQ-*` IDs survived the move; only the mechanics changed.
+- **[2. Reference standards](#2-reference-standards)** — One table pinning each abbreviation to an edition and the clauses actually used (802.1Q §8.6.8 CBS, §34 deltaBandwidth, 802.3 Clauses 22/28/30/31), plus the Linux-side contracts a driver must satisfy.
+- **[3. Missing elements to comply with the 802.1 configuration standards (gap analysis)](#3-missing-elements-to-comply-with-the-8021-configuration-standards-gap-analysis)** — The frozen original audit: 60 gaps across six domains, one root cause (no memory-mapped CSR plane at all), and the CBS-math verdict split into confirmed / latent / refuted. Historical — it is the motivation for §4, not current state; the refuted "hiCredit wrong at 100 M" claim is worth reading before you re-raise it.
+- **[4. Requirements (normative)](#4-requirements-normative)** — The normative register itself, `REQ-CSR/PTP/CBS/CLS/MAC/DRV/DT/VER-*`, each with a standard clause and an acceptance criterion. The long entries carry the history: REQ-CLS-10 on why untagged control frames match by destination MAC and not PCP, and REQ-MAC-04 on why "readable via CSR" was not enough when the event bus was tied to `0`.
+- **[5. Priority / phasing](#5-priority--phasing)** — Two sentences: the CSR plane is the critical path that unblocks everything else; the ordered work items live in [`TODO.md`](TODO.md).
+- **[6. Out of scope (future work)](#6-out-of-scope-future-work)** — The explicit not-doing list — 802.1Qbv/TAS, Qci PSFP, one-step PTP, UDP/IPv4 transport, 802.1ad, frame preemption — so their absence reads as a decision rather than an oversight.
+- **[7. Traceability](#7-traceability)** — Where the per-gap detail went: each requirement traces to a clause and a §3 gap ID, with the full detail mirrored in [`TODO.md`](TODO.md) task descriptions.
+- **[8. Acceptance (end-to-end)](#8-acceptance-end-to-end)** — The five-part definition of done for the whole interface, from driver bind through `ptp4l` lock, `tc … cbs offload`, `ethtool -S` and green harnesses in CI.
+- **[9. Original brief (preserved)](#9-original-brief-preserved)** — The verbatim starting brief and its status snapshot, kept so the scope creep is visible, with a delivered-so-far list appended at the end.
+
 ## 1. Goal and scope
 
 Turn the Milan FPGA design (Zynq-7020, custom 1 G RGMII MAC) into a **real,
