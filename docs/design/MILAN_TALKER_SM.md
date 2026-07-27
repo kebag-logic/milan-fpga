@@ -8,6 +8,16 @@ normative reference) — `acmp-cmds-resps/acmp-milan-v12.c`,
 `stream.c` — plus [docs/LWSRP_FPGA_ARCHITECTURE.md](../LWSRP_FPGA_ARCHITECTURE.md) for the gating contract.
 Wire message types are IEEE 1722.1-2021; semantics are Milan v1.2.
 
+## Contents
+
+- **[The Milan v1.2 talker connection model (what surprised us)](#the-milan-v12-talker-connection-model-what-surprised-us)** — The finding that shaped the whole design: `CONNECT_TX` *is* Milan's PROBE_TX, so the talker keeps almost no ACMP state. It activates on the first probe, re-arms a 15 s window on each one, always answers `connection_count = 0`, and treats DISCONNECT_TX as a SUCCESS that changes nothing.
+- **[Command/response matrix (talker-relevant)](#commandresponse-matrix-talker-relevant)** — Per-message guard and exact response for the four ACMP messages and the AECP commands Milan changes. Includes the `stream_id = {station_mac, unique_id}` formula and the defect it corrects — GET_STREAM_INFO was reporting `entity_id`, which can never match the AVTP stream, so a listener binding on it would always fail.
+- **[Activation state machine (fabric, KL_acmp_responder evolves)](#activation-state-machine-fabric-kl_acmp_responder-evolves)** — Two states and one export: `talker_active = ARMED || listener_observed`, with deactivation requiring *both* the 15 s timer and the SRP registration to lapse. `listener_observed` is an input, driven by a CSR override until lwSRP fills the socket.
+- **[AAF gate (milan_datapath)](#aaf-gate-milan_datapath)** — The one-line gate expression, and the compatibility decision inside it: `cfg_aaf_bypass` resets to **1**, so probe-gated transmit is opt-in and existing flash-boot benches keep streaming until the flow is silicon-proven.
+- **[CSR additions](#csr-additions)** — Three additions (`AAF_CTRL[1]`, `ACMP_TALKER 0x66C`, `ACMP_LOBS 0x670`), plus a correction to a neighbouring doc: the lwSRP page's `0x660`–`0x674` sketch is stale — those addresses are now AAF/ADP_DIAG and lwSRP landed at `0x680`.
+- **[Explicitly out of scope (this increment)](#explicitly-out-of-scope-this-increment)** — Historical, and banner-corrected in place: the list dates from the original increment, and lwSRP, fabric MAAP, the ACMP listener and GET_DYNAMIC_INFO have all landed since. Read it for the one item still open — talker STREAM_START/STOP counter values.
+- **[Gates](#gates)** — What each tier must prove before this ships: byte-exact response fields against a C++ model, the SET_STREAM_INFO accept/reject matrix, and an end-to-end check that AAF frames on the MAC carry the *probed* stream_id/dmac/vlan.
+
 ## The Milan v1.2 talker connection model (what surprised us)
 
 Milan v1.2 does NOT use CONNECT_TX as talker-side connection bookkeeping.

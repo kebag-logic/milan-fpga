@@ -4,6 +4,15 @@ Three verification tiers, each building on the previous.
 
 ---
 
+## Contents
+
+- **[T0 — Unit tests (Vivado XSIM)](#t0--unit-tests-vivado-xsim)** — Four SV-class benches, one per AECP module, with the stimulus each drives and its simulated run time. The only tier here that needs a vendor simulator.
+- **[T1 — BDD (Verilator + behave)](#t1--bdd-verilator--behave)** — The conformance suite and a CI gate, and it runs **offline in about 3 seconds** against a Python model — no DUT, no simulator. Includes the per-feature scenario table (with the standing rule that a disagreeing run wins over the table), the `@tsn_gen` tier where frames are generated from protocol YAMLs and every patch is re-checked through `--decode`, and the pinned tsn-gen CDL `+8` deviation so it is never mistaken for wire truth again.
+- **[T2 — Integration (full pipeline)](#t2--integration-full-pipeline)** — Two lines: blocked on two unimplemented modules, with the scenarios already written and tagged.
+- **[Packet generator](#packet-generator)** — The SV class the scenarios build frames with, and its five entry points — one per AECP command family, plus the response validator that checks status and the `sequence_id` echo.
+- **[Lint](#lint)** — Two commands over all thirteen AECP modules; the `--strict` form turns on `-Wall`.
+- **[Containers (T1/T2 CI)](#containers-t1t2-ci)** — Copy-pasteable podman builds for the two CI images: the DUT simulation server and the BDD runner.
+
 ## T0 — Unit tests (Vivado XSIM)
 
 SV-class testbenches targeting individual RTL modules.  

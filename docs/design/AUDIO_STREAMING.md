@@ -20,6 +20,15 @@ deep-dive for the media plane; the scaling model behind it is
 > `python3 docs/diagrams/audio_stream_path.gen.py docs/diagrams/audio_stream_path &&
 > rsvg-convert -w 2000 docs/diagrams/audio_stream_path.svg -o docs/diagrams/audio_stream_path.png`).
 
+## Contents
+
+- **[1. A stream's life](#1-a-streams-life)** — The shape of a class-A AAF stream in six numbers: 6 samples per PDU, 8000 PDUs/s at 48 kHz, presentation time latched at first-sample capture, and the listener's inverse `ts_delta = avtp_timestamp − ptp_now` readable at CSR `0x6EC`.
+- **[2. Talker path — capture to wire](#2-talker-path--capture-to-wire)** — Everything from a microphone or a host ring to the MAC. The one contract all four sources speak, the packetizer's channel math (`42 + 24·C` bytes, always `≡ 2 (mod 8)`), the fractional-N strobe that fixed the 48,828.125 Hz audible pumping, and the egress fact people trip on — the fabric AAF stream is injected *after* the shaper and never queues through CBS.
+- **[3. Listener path — wire to render](#3-listener-path--wire-to-render)** — The receive half, with the counter contract spelled out: what UNSUPPORTED_FORMAT suppresses, the 8-PDU settle window, the 100 ms unlock, and that counters reset on not-bound → bound *only*. Also the DRAM-vs-BRAM PCM ring choice and the wire-truth rule that de-interleaves by `channels_per_frame` from the wire, never the AEM store.
+- **[4. Latency: presentation offset vs pipeline](#4-latency-presentation-offset-vs-pipeline)** — Two numbers usually conflated, then the measurement: end-to-end equals the presentation offset *exactly* (pto 500 µs, `ts_delta` +384 µs, 0 LATE) while the pipeline is ≈ 116 µs. The per-stage talker breakdown shows why neither dominant term shrinks with a faster clock — they are the 6-sample window and the class-A interval.
+- **[5. Channel mapping — 64 in / 64 out](#5-channel-mapping--64-in--64-out)** — One paragraph of orientation: the fabric selects and never composes, the canonical programmer is `ADD/REMOVE/GET_AUDIO_MAP` (43/44/45) with CSR `0x900` as the bench override, and pointers to the two deep docs.
+- **[6. Status (2026-07-25)](#6-status-2026-07-25)** — What is actually proven, per path. Record path: silicon, with the tone table matched 900/900 and a −72.7 dB loop. Playback path: TB-proven 40/40 through a decoded DAC pin, **never flashed**. Plus the open DRAM-ring read artifact I6, why `--pcm-ring bram` kills it at the root, and the one pinned RTL gap (AVTP-3, version-field).
+
 ## 1. A stream's life
 
 A Milan audio stream on this hardware is a class-A AAF-PCM stream: the

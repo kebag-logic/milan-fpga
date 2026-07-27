@@ -12,6 +12,17 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 
 ---
 
+## Contents
+
+- **[1. Directory map - what each file is](#1-directory-map---what-each-file-is)** — One row per file with who it is for, so you can tell the SoC from the board file from the research instruments. Includes the two easy-to-misread entries: `milan_rgmii.py` is legacy and imported by nothing, and `evidence/` is where the known-good LiteX commit is recorded.
+- **[2. SoC anatomy (milan_soc.py)](#2-soc-anatomy-milan_socpy)** — The memory map with bases read from the source, not prose (`milan_csr` at `0x9000_0000`, PCM BRAM at `0x9010_0000`), and why: everything at or above `0x8000_0000` is uncached IO on these CPUs, which is what moved the CSR window off the Zynq address. Six subsections take clocking, the datapath attach, DMA, MAC, CPU choice and flash-boot in turn — the flash map is generated, and the note there warns that the layout has moved twice, so any offset you remember is probably from before one of those moves.
+- **[3. Building](#3-building)** — The ship-shape command line to copy, and the useful distinction: without `--build` you get elaboration and Verilog export with **no vendor tools at all**. Vivado is currently the only P&R backend wired for this board.
+- **[4. The flags that are not optional](#4-the-flags-that-are-not-optional)** — Four flags and the exact failure each one prevents. `--coherent-dma` is not implied by `--all-blocks` and its absence looks like all-zero skbs and a garbage destination MAC; `--gtx-tx-invert` is the difference between 25–40 % corrupt frames and none.
+- **[5. Simulation (milan_sim.py)](#5-simulation-milan_simpy)** — A single non-interactive command that boots the BIOS on a softcore and reads `"MILN"` back through the real datapath — the SoC-level rung between the RTL harnesses and silicon.
+- **[6. Patches (patches/)](#6-patches-patches)** — Three patches applied in place to your LiteX/LiteEth trees, re-run after every LiteX update. Note that the VexiiRiscv L2-geometry one is **not** applied by `apply.sh` — apply it by hand for non-default L2.
+- **[7. Reproducibility - versions](#7-reproducibility---versions)** — There is no pinned requirements file; this is the list of known-good anchors instead (LiteX `a1e1c36`, openFPGALoader ≥ v1.1.1, the `verilog-axis` gitlink) and what to do when `apply.sh` fails after an upgrade.
+- **[8. The Migen DMA sims and on-target tools](#8-the-migen-dma-sims-and-on-target-tools)** — The six commands to run after touching ring or BD logic, straight from the interpreter with no pytest. Also flags that the `tools_*.c` benchmarks are board-side research instruments, not part of any build.
+
 ## 1. Directory map - what each file is
 
 | File | Role | Audience |

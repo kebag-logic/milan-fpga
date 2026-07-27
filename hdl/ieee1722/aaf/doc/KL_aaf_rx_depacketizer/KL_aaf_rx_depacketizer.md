@@ -10,6 +10,12 @@ Payload realignment strips 38 (untagged) or 42 (C-VLAN) header bytes via a hold-
 
 ---
 
+## Contents
+
+- **[Generics](#generics)** — One parameter, the frame-FIFO depth, and what happens when it is too small: whole frames are dropped, and the count comes out on `drops_o`.
+- **[Ports](#ports)** — Note the shape, not just the names: the `s_*` side is a tap the module only *observes* (`s_tready_i` is an input it watches, never drives), the output `tkeep` is always `0xFF` because the ring takes whole words, and the two counters are the halves of CSR `0x6C4`.
+- **[Integration](#integration)** — Where it sits (beside the parser/monitor pair on the RX tap) and where its payload goes — out of the datapath to the SoC PCM ring writer, which crosses domains and writes the wrapping DRAM ring.
+
 ## Generics
 
 | Generic | Type | Default | Description |

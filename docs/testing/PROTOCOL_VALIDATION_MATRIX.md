@@ -12,6 +12,19 @@ Read with:
   requires each, mapped to FR/NFR.
 - [`FR_NFR.md`](../reference/FR_NFR.md)  -  the normative requirement text (`REQ-*`, `FR-*`).
 
+## Contents
+
+- **[Legend](#legend)** — Read this first or the rows are unreadable: the five status glyphs, and the six test kinds (`RTL`/`SYN`/`SIM`/`ELAB`/`BOARD`/`SW`) that say what level of evidence a row actually has.
+- **[1. L1 / L2  -  Ethernet, filtering, stats](#1-l1--l2-----ethernet-filtering-stats)** — Six rows from the MAC to RMON, each naming its module and CSR group. Note the L2-1 row still describes the PHY as RGMII/`s7rgmii`, which the board bring-up retired in favour of GMII.
+- **[2. Shaping / QoS  -  802.1Qav CBS](#2-shaping--qos-----8021qav-cbs)** — Five CBS rows with the harness check-counts behind them (87 k on the shaper against fixed-point *and* ideal models). Includes a deliberately empty row: 802.1Qbv time-aware shaping, kept only to record that it is out of scope.
+- **[3. Timing  -  gPTP / 802.1AS + PHC](#3-timing-----gptp--8021as--phc)** — The PHC, its clock-domain crossing, hardware timestamping and the 125 MHz reference — all hardware. The only software row is T-5, the `ptp4l` daemon lock.
+- **[4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)](#4-discovery--control-----avdecc-ieee-17221-2021--milan-v12)** — Ten rows, A-1 to A-10. The ADP rows are the solid ones (byte-exact ADPDU harness, `available_index` scenarios); the AECP/ACMP/MVU rows here are marked software or planned and predate the fabric engines — cross-check [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2 before quoting them.
+- **[5. Reservation + address allocation](#5-reservation--address-allocation)** — Three rows: MAAP, MSRP/MVRP and the 75 % admission bound. All three are still written as daemon-side work, which is older than the fabric lwSRP and MAAP engines.
+- **[6. Media transport  -  AVTP (IEEE 1722)](#6-media-transport-----avtp-ieee-1722)** — Four rows for AAF, CRF and the fixed-talker/adaptive-listener pair, plus the one explicit exclusion on the page: media redundancy, out of scope by decision, not by omission.
+- **[7. Host / SoC / driver](#7-host--soc--driver)** — The freshest table here, and the longest. H-11 to H-14 are the throughput lineage — soft-TSO, checksum across BD chains, multi-flow stability, ACK-run merging — each pinned to the bitstream and commit it needs. H-10 is worth a look for its own footnote: marked blocked, with a note saying both boards build and run.
+- **[8. Test inventory (how to run every automated test today)](#8-test-inventory-how-to-run-every-automated-test-today)** — Four commands, all runnable with no hardware and no vendor tools, and what each one actually proves.
+- **[9. Coverage summary](#9-coverage-summary)** — The whole matrix folded into four buckets: proven in the open toolchain, elaborating but board-gated, software/planned, and out of scope.
+
 ## Legend
 
 **Status:** ✅ done+verified · 🟩 assembled/elaborates (board-gated) · 🟡 partial/prior-work ·

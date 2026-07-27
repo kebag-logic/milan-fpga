@@ -13,6 +13,16 @@ was ever provoked), zero kernel errors.
 now **validated on silicon**: 9 induced eth-clock-death events, 9 clean
 recoveries, TX never wedged on the wire.
 
+## Contents
+
+- **[Result](#result)** — The scoreboard: 19 checks plus 9 drill cycles, 0 failures, nothing broke it. One table gives what each of the nine attacks was, how hard it was pushed, and the outcome — read this and you can skip the detail below.
+- **[The tests](#the-tests)** — Per-test tables for A–G. The one to read is **D**: the entry-0 listener blocker triggered deliberately (stage a sid for index 2, then a route-flags-only commit at index 0) — root cause proven by causation on silicon, not inferred. G also explains why an all-zeros stream_id keeps the previous binding: that is the staging guard doing its job.
+- **[Two behaviours worth knowing](#two-behaviours-worth-knowing)** — The two traps this campaign surfaced. The window readback and the match table are different structures, so "the window shows the right sid" proves nothing — that is why the blocker hid for weeks. And a bind edge zeroes `AVTPRX_ERR`, so error counts are per-binding, not since boot: read them *before* re-binding.
+- **[Operational note](#operational-note)** — 800 `devmem` calls took over ten minutes, and the cost is busybox process spawn on the softcore, not the CSR plane. Batch a storm test into one process instead of a shell loop.
+- **[H — the MAC-TX wedge drill (AX42): the guard FSM is proven, the wedge is NOT](#h--the-mac-tx-wedge-drill-ax42-the-guard-fsm-is-proven-the-wedge-is-not)** — Corrected 2026-07-27, and the correction is the point: a guard-**disabled** control run showed TX ticking anyway, so `linkg_freeze` only forces the liveness indicators low and never induced a wedge. Proven is detection → `eth_rst` → RUN in ~2 s, 9 of 9. Unproven is the fix's actual claim; item 0 should read "wedge recovery UNPROVEN".
+- **[Outstanding](#outstanding)** — Two items: a physical cable-pull drill, and the same drills on the Arty.
+- **[I — cluster tests: loopback, pilot tone, shared memory (2026-07-27)](#i--cluster-tests-loopback-pilot-tone-shared-memory-2026-07-27)** — Peer tone through the whole chain to ALSA: **0 periodicity mismatches in 239,952 comparisons** and −147.99 dBFS THD+N, within 0.11 dB of the generator. Also a corrected doc bug (`milan_mac_loopback` is `0xf0003818`, not the read-only `0xf0003810`) and the coherent-sampling trap — windowing an exact-period tone manufactures the distortion it claims to measure.
+
 ## Result
 
 **19 checks + 9 wedge-drill cycles, 0 failures.** Nothing broke it. Two behaviours are worth knowing
