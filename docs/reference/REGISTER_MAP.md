@@ -1023,7 +1023,7 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > DMA engines use `endianness="big"` (no byte-swap) so the Wishbone/AXIS/on-wire byte order
 > all match; the LiteX default `"little"` byte-swaps each word and reverses every frame.
 >
-> **MAC loopback**  -  `milan_mac_loopback` (`0xf0003810`, bit 0): `1` feeds the datapath's
+> **MAC loopback**  -  `milan_mac_loopback` (**`0xf0003818`**, bit 0): `1` feeds the datapath's
 > MAC-TX stream straight back into MAC-RX (bypassing LiteEth core + PHY), for a
 > memory→TX-DMA→datapath→RX-DMA→memory self-test with no wire. `0` = normal (to the PHY).
 

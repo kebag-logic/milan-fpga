@@ -221,3 +221,58 @@ FSM silicon-proven, wedge recovery UNPROVEN**.
 
 A **physical cable-pull** drill (see the limit above), and the same drills on the
 Arty.
+
+## I — cluster tests: loopback, pilot tone, shared memory (2026-07-27)
+
+### Pilot tone end-to-end — **bit-exact**
+
+`TONE_CTRL 0x6DC[0]` on the *peer* talker (1 kHz, 0 dBFS, exact-period 48x24-bit
+sine replacing the I2S ADC), captured on this board's ALSA device, so the test
+covers the whole chain: peer tone generator -> AAF packetizer -> wire -> parser
+-> stream table -> monitor -> depacketizer -> **PCM ring** -> ALSA.
+
+| check | result |
+|---|---|
+| L == R every frame | **true** (tone on both talker channels) |
+| peak amplitude | **1.000000 FS = -0.00 dBFS** |
+| **exact 48-sample periodicity** `s[n] == s[n+48]` | **0 mismatches in 36,964 comparisons** (~770 consecutive periods) |
+| period 47 / 49 (controls) | 36,965 / 36,963 mismatches — it really is 48 |
+| frequency from zero crossings | **999.9 Hz** |
+
+Zero bit errors over 771 ms. That single result validates the tone cluster *and*
+the shared-memory cluster together: any PCM-ring fault — a dropped sample, a lap,
+a torn word — would break the periodicity.
+
+### Shared memory (PCM ring)
+
+`PCMRX_CNT 0x6C4` = `{drops[31:16], pdus[15:0]}`. Across the tone capture the
+drop field was **unchanged** (0 new drops) while the payload count advanced.
+Combined with the bit-exact periodicity above, the ring delivered every sample.
+
+### MAC loopback
+
+**Doc bug found and fixed:** `REGISTER_MAP` gave `milan_mac_loopback` as
+`0xf0003810`. That address is **`milan_mac_core_rx_datapath_preamble_errors`,
+which is read-only** — a write there is silently discarded, so the first drill
+was a no-op that looked like "loopback does nothing". All six build `csr.csv`
+files agree the real address is **`0xf0003818`**. Corrected.
+
+At the correct address:
+
+| phase | `loopback` | RX (peer stream) | TX |
+|---|---|---|---|
+| before | 0 | 33,648 / 3 s | running |
+| **ON** | **1** | **0** — port isolated | 65,037 / 6 s |
+| after revert | 0 | **43,851 / 4 s, recovered** | running |
+
+`LINKG_STAT`, `RST_EPOCH`, `AVTPRX_ERR` and carrier all unchanged throughout.
+
+**Bonus confirmation:** with loopback on, this board's own frames fold back into
+its RX — and `AVTPRX_FRX` stayed at **0**. Correct: those frames carry *this*
+board's stream_id, not the bound peer's, so the stream table rightly refuses
+them. A match table that counted them would be matching on something other than
+the stream_id.
+
+**Method note:** enabling loopback cuts the board off the network, including the
+session driving the test. Run it detached with an unconditional auto-revert
+(`setsid script &`), never interactively.
