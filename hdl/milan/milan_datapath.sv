@@ -58,7 +58,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
   //! a pruned build behaves like a shipped build with the filter switched
   //! off - no new state, no new behaviour. Priced from the shipping place
-  //! report at 441 LUT / 756 FF / 1 DSP; spend it only when space-bound, and
+  //! report at 428 LUT / 756 FF / 0 DSP; spend it only when space-bound, and
   //! remember the -72.7 dB analog loop record was measured THROUGH the
   //! filter, so a pruned bitstream is not the one that number belongs to.
   parameter int LPF_P = 1

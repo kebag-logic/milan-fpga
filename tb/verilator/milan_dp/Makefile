@@ -89,10 +89,19 @@ run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 	$(VERILATOR) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+# LPF_P=0 is the SPENT area lever (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
+# ax7101 shipping argv carries --no-render-lpf, so the pruned shape is a
+# SHIPPING shape and has to be in the suite. The claim being proved is
+# "no digital acceptance surface moves" - so this leg runs the SAME
+# self-checking harness, unchanged, and every check must give the same
+# answer. It does not merely elaborate: it re-runs the whole legacy leg.
+	$(VERILATOR) $(VFLAGS) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
 	./obj_nxn8/Vmilan_dp_nxn8
+	@echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
+	./obj_nolpf/Vmilan_dp_nolpf
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_nolpf

@@ -39,7 +39,7 @@ tops=(
   "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"
   "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv"
-  "KL_lwsrp_rx|$S/lwsrp_pkg.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv"
+  "KL_lwsrp_rx|$S/lwsrp_pkg.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv"
   "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $AECP_SRCS"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
   "milan_datapath|$DP_SRCS"
@@ -47,7 +47,7 @@ tops=(
 
 want=("$@")
 printf "== OOC area (synth_xilinx -family xc7 -flatten) ==\n"
-printf "%-28s %8s %8s %8s %8s %8s\n" top LUT FF RAMB36 RAMB18 DSP
+printf "%-28s %8s %8s %8s %8s %8s %8s\n" top LUT FF RAMB36 RAMB18 DSP CARRY4
 for spec in "${tops[@]}"; do
   top="${spec%%|*}"; srcs="${spec#*|}"
   if [ ${#want[@]} -gt 0 ]; then
@@ -71,13 +71,14 @@ for spec in "${tops[@]}"; do
   # "<count>   <CELLTYPE>", so the count is $1 and the type is $2.
   awk -v top="$top" '
     /^=== .* ===$/ { inblk = 0 }
-    $0 == "=== " top " ===" { inblk = 1; lut=0; ff=0; r36=0; r18=0; dsp=0 }
+    $0 == "=== " top " ===" { inblk = 1; lut=0; ff=0; r36=0; r18=0; dsp=0; c4=0 }
     inblk && $2 ~ /^LUT[1-6]$/     { lut += $1 }
     inblk && $2 ~ /^FD[CPRS]E?$/   { ff  += $1 }
     inblk && $2 ~ /^RAMB36E1$/     { r36 += $1 }
     inblk && $2 ~ /^RAMB18E1$/     { r18 += $1 }
     inblk && $2 ~ /^DSP48E1$/      { dsp += $1 }
-    END { printf "%-28s %8d %8d %8d %8d %8d\n", top, lut, ff, r36, r18, dsp }
+    inblk && $2 ~ /^CARRY4$/       { c4  += $1 }
+    END { printf "%-28s %8d %8d %8d %8d %8d %8d\n", top, lut, ff, r36, r18, dsp, c4 }
   ' "$TMP/$top.ooc.log"
 done
 [ -n "${OOC_TMP:-}" ] || rm -rf "$TMP"

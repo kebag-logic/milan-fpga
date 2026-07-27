@@ -87,11 +87,23 @@ Two traps this exists to avoid:
   defaults in a scratch copy of `hdl/` when `chparam` cannot re-elaborate
   the `sv2v` output (it cannot, for the interface-carrying tops).
 
-**These are estimates, not Artix LUT6 counts.** The yosys→Vivado ratio
-measured against this tree's own place report ranges 0.25 (wide muxes,
-shared serial arithmetic) to 0.86 (the whole flattened datapath) — see
-[NXN_ARCHITECTURE](../../docs/NXN_ARCHITECTURE.md) section 6.3. Quote a band, never a single figure, and
-never call an `ooc.sh` number a placement result.
+**These are estimates, not Artix LUT6 counts.** The yosys→Vivado LUT ratio
+measured against this tree's own two Vivado anchors is **0.31 … 0.71** —
+see [NXN_ARCHITECTURE](../../docs/NXN_ARCHITECTURE.md) section 6.3. Quote a
+band, never a single figure, and never call an `ooc.sh` number a placement
+result. **Flip-flops are the exception**: they convert one-for-one (the
+`KL_pcm_lpf` row is 756 FF in both toolchains), which makes an FF count the
+best available sanity check on an estimate.
+
+**Run the hierarchical instrument too, and say so when they disagree.** The
+same sources with **no** `-flatten` and `stat -top <mod>` sum each submodule
+into its parent: no cross-boundary optimisation, so absolute numbers are
+high, but the hierarchy survives and per-block attribution is possible
+(`abc` renames every cell in a flattened netlist, so nothing there can be
+traced back). The two instruments agreed within 11 % on the 2026-07-27 logic
+levers and disagreed 8× on the LPF prune; the hierarchical one was believed,
+because it reproduces the place report's FF and DSP columns exactly. When
+they disagree, prefer the instrument that reproduces a known Vivado row.
 
 **Control sets are NOT measurable here.** A yosys proxy was tried and
 discarded: counting `(clock, enable, set/reset)` triples over the `FD*` cells

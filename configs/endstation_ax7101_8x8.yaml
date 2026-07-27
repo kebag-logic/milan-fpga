@@ -70,6 +70,26 @@ board:
                                      # 2026-07-22 e1 GMII-RX cold-soak fault:
                                      # move the cable FIRST, then change this.
                                      # See docs/integration/BUILDING.md.
+    render_lpf: false                # SPENT AREA LEVER (milan_datapath LPF_P,
+                                     # docs/NXN_ARCHITECTURE.md 6.2/6.3): prune
+                                     # KL_pcm_lpf, the 2nd-order Butterworth on
+                                     # the DAC render tap. This is the ONLY
+                                     # Vivado-PROVEN area figure in the 07-27
+                                     # round - 428 LUT / 756 FF / 0 DSP, read
+                                     # off the shipping 8x8 place report, not
+                                     # estimated - and this board is the one
+                                     # that missed placement by 282 slices.
+                                     # A pruned build behaves exactly like a
+                                     # shipped one with LPF_CTRL[0] = 0 (raw
+                                     # AXIS to the DAC): no CSR moves, no
+                                     # digital acceptance surface moves. What
+                                     # it DOES cost is the analog loop THD+N
+                                     # record its bitstream - that number was
+                                     # measured THROUGH the filter and must be
+                                     # re-measured before it is quoted against
+                                     # a pruned build. Set back to true (or
+                                     # delete the key) to restore the filter;
+                                     # nothing else has to change.
 
 srp:
   sr_class: A

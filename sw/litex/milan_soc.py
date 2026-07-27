@@ -4626,7 +4626,7 @@ def main():
                     help="AREA LEVER (banked, docs/NXN_ARCHITECTURE.md 6.2): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
                          "Vivado place report of the shipping 8x8 bitstream prices it at "
-                         "441 LUT / 756 FF / 1 DSP. The pruned datapath behaves exactly "
+                         "428 LUT / 756 FF / 0 DSP. The pruned datapath behaves exactly "
                          "like a shipped one with LPF_CTRL[0]=0 (raw AXIS to the DAC), so "
                          "no digital acceptance surface moves - but the analog loop THD+N "
                          "record was measured THROUGH the filter and must be re-measured "
