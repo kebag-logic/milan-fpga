@@ -552,12 +552,38 @@ def test_sweep_opts_fragments():
     print("  [gate 9] sh -n clean: sweep.sh + both fragments")
 
 
+def _tracked_owner_config():
+    """Which config owns the tracked entity definition RIGHT NOW.
+
+    The tracked ROM is ONE config's, whole - whichever config was last
+    regenerated into hdl/. Hardcoding arty_current here made this gate and
+    check_entity_shape.py's --built-config gate MUTUALLY UNSATISFIABLE the
+    moment the tree was regenerated for the 8x8 ship shape: one demanded the
+    tracked ROM be 1x1, the other demanded it be the config being built. A
+    gate that forces the tree to carry the WRONG entity definition is worse
+    than no gate - that is the 2026-07-27 defect (an 8x8 gateware carrying a
+    1x1 descriptor set) with the layers swapped. Read the same `Source :`
+    marker check_entity_shape.py reads, and hold whoever owns it to account."""
+    adp = open(os.path.join(ROOT, eb.ADP_SHAPE_REL)).read()
+    m = re.search(r"//\s*Source\s*:\s*(\S+)", adp)
+    assert m, f"{eb.ADP_SHAPE_REL}: no `Source :` marker - cannot tell which "
+    src = m.group(1)
+    for name, path in CONFIGS.items():
+        if eb.load_config(path)["source"] == src:
+            return name, path
+    raise AssertionError(
+        f"tracked entity definition names {src!r}, which is not a known "
+        f"config ({', '.join(sorted(CONFIGS))}) - regenerate hdl/ from a "
+        f"tracked config with sw/builder/endstation_builder.py --write-rtl")
+
+
 def test_gen_aem_store_consumes_overlay():
-    r = eb.build(CONFIGS["arty_current"], OUT)
+    owner, owner_path = _tracked_owner_config()
+    r = eb.build(owner_path, OUT)
     tracked = open(TRACKED_SVH, "rb").read()
     with tempfile.TemporaryDirectory() as td:
         # THE key no-regression gate: builder overlay -> gen_aem_store ->
-        # byte-identical ROM svh for the deployed shape
+        # byte-identical ROM svh for the shape the tree actually carries
         subprocess.run(
             [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
              "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
@@ -565,17 +591,32 @@ def test_gen_aem_store_consumes_overlay():
         got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
         assert got == tracked, (
             "overlay-built aecp_aem_rom.svh differs from the tracked ROM "
-            f"({len(got)} vs {len(tracked)} bytes)")
-        print(f"  [gate 10] arty_current overlay -> gen_aem_store --overlay: "
+            f"({len(got)} vs {len(tracked)} bytes) for its OWN source config "
+            f"{owner} - the tracked pair is internally inconsistent")
+        print(f"  [gate 10] {owner} overlay -> gen_aem_store --overlay: "
               f"svh BYTE-IDENTICAL to tracked ROM ({len(got)} B)")
     with tempfile.TemporaryDirectory() as td:
-        # refactor guard: the default (builtin) path is unchanged too
+        # Refactor guard on the default (builtin) path. It is pinned to
+        # arty_current's overlay, NOT to the tracked ROM: the builtin
+        # descriptor set is the 1x1 one, so tying it to whatever shape is
+        # tracked would break this guard every time the tree is regenerated
+        # for another board - which is a property of the TREE, not a
+        # regression in gen_aem_store.
+        ref = eb.build(CONFIGS["arty_current"], OUT)
         subprocess.run(
             [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
              "--out-dir", td], check=True, capture_output=True)
         got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
-        assert got == tracked, "default-path svh regressed"
-        print("  [gate 10] gen_aem_store default path: svh byte-identical "
+        with tempfile.TemporaryDirectory() as td2:
+            subprocess.run(
+                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+                 "--overlay", ref["paths"]["aem_overlay"], "--out-dir", td2],
+                check=True, capture_output=True)
+            want = open(os.path.join(td2, "aecp_aem_rom.svh"), "rb").read()
+        assert got == want, (
+            "default-path svh regressed: the builtin descriptor set no longer "
+            f"equals arty_current's overlay ({len(got)} vs {len(want)} bytes)")
+        print("  [gate 10] gen_aem_store default path == arty_current overlay "
               "(refactor guard)")
 
 
