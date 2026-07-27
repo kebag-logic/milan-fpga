@@ -11,6 +11,6 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `KL_crf_rx` | `KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | 7.3.3, M-CLK-2 |
-| ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 7.3.3, M-CLK-2 |
+| ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 4.3.5.2, 4.4.2.3, 7.3.3, M-CLK-2 |
 | ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | 7.3.3, M-CLK-2 |
 

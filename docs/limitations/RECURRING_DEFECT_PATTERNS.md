@@ -66,6 +66,21 @@ flowchart TB
 
 ## 1. Decorative ABI — a register the hardware does not consume
 
+**Seen as (2026-07-27, the newest instance).** Every talker in the fabric
+stamped the AVTP `tu` (timestamp uncertain) bit as a literal `8'h00`, and the
+listener-side `TIMESTAMP_UNCERTAIN` counter — which *is* fully wired — read 0
+because nothing on the link ever set the bit it counts. This is the pattern's
+nastier half: the counter was not decorative, the **producer** was. So a
+Milan-validated reference device received 31 M frames from a talker whose PHC
+was 216,446 s off the domain, counted 99.4 % of them LATE or EARLY, and its
+`TIMESTAMP_UNCERTAIN` stayed at 0 the whole time
+([`../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md`](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)).
+Closed at VERSION `0x0015` by `KL_ptp_clock_validity` — and note the *other*
+half of the fix, the one this section keeps insisting on: `CLKV_STAT` `0x77C`
+bit 2 says **"no live lease"**, so software can tell "the clock is fine" from
+"nobody has ever told this gateware anything about the clock". A zero
+`CLKV_TUCNT` means different things in those two worlds.
+
 **Seen as.** `milan_csr` exported `MAC_ADDR`, `MC_HASH`, promisc and allmulti;
 nothing in fabric read them, so non-matching unicast was never dropped in
 hardware. Same for `PTP_INGRESS_LAT` / `PTP_EGRESS_LAT`, which stopped at a wire

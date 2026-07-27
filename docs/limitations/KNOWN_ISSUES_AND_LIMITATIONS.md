@@ -84,6 +84,19 @@ thing to re-check._
 * **`--gtx-tx-invert` is required on the AX7101** - edge-aligned GMII TX
   launch is hold-marginal at the RTL8211E (25-40 % corrupt frames without
   it). Other boards must re-evaluate TX clock phase.
+* **A `0x0015` board stamps AVTP `tu = 1` on every stream frame until the
+  gPTP daemon leases the clock.** Nothing in fabric can observe whether the
+  PHC is disciplined - that fact lives in `ptp4l`'s servo - so `CLKV_CTRL`
+  `0x778` resets with `SYNC_OK = 0` and an expired lease, and unknown means
+  NOT valid. This is deliberate (the 2026-07-27 defect was the opposite
+  default: 31 M frames from a PHC 60 h off the domain, all claiming `tu = 0`
+  - [../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)),
+  but it is **only half a fix**: the daemon must write `CLKV_CTRL` about once
+  a second while its servo reports locked, and that change lives in the bench
+  repo's `gptp2csr.sh`, not here. Until it ships, expect a Milan listener's
+  `TIMESTAMP_UNCERTAIN` to tick against us - read `CLKV_STAT[2]` to tell
+  "no daemon" from "daemon says unsynchronised". The talker does **not**
+  stop: Milan v1.2 5.3.7.3 forbids that.
 
 ## 4. Operational hazards - lethal pairings (gateware ⇄ driver)
 

@@ -867,24 +867,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                   (acmp_talker_active &
                    (~cfg_lwsrp_enable | lwsrp_stream_gate[0])));
 
-  //! ---- per-stream talker admission (P12 follow-up: t>0 arming) ----------
-  //! [0] = aaf_gate above, bit-identical (the N=1 axiom). t>0 mirrors the
-  //! t0 composition TERM BY TERM (2026-07-26: the last honest gap - the
-  //! missing ACMP term - closed with the N-context responder):
-  //!   * enable        : TCTX w0 CTRL[0] (window-provisioned; shadowed
-  //!                     below from the accepted TCTX window writes - the
-  //!                     window is the only w0 writer). The flat
-  //!                     AAF_CTRL[0] is t0's enable only.
-  //!   * MAAP term     : ENGINE-WIDE, same expression as t0: ONE KL_maap
-  //!                     instance claims ONE BLOCK of N_STREAMS addresses;
-  //!                     stream j uses base+j (probe answers and TCTX
-  //!                     provisioning agree on that rule).
-  //!   * ACMP term     : per-stream talker_active from KL_acmp_tlkr_ctx
-  //!                     at N_SRC_P = N_STREAMS (probe window per uid |
-  //!                     per-stream listener observation), with t0's
-  //!                     cfg_aaf_bypass escape hatch mirrored.
-  //!   * lwSRP term    : per-stream P5 gate (KL_lwsrp_bw_gate via the ctx
-  //!                     rows), with t0's ~cfg_lwsrp_enable escape.
   // ==========================================================================
   //  CLOCK VALIDITY - the AVTP "tu" verdict for every talker.
   //  Milan v1.2 5.3.7.3 forbids stopping a Stream Output, so this is NOT a
@@ -915,6 +897,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tu_ivals_o     (clkv_tucnt_w)
   );
 
+  //! ---- per-stream talker admission (P12 follow-up: t>0 arming) ----------
+  //! [0] = aaf_gate above, bit-identical (the N=1 axiom). t>0 mirrors the
+  //! t0 composition TERM BY TERM (2026-07-26: the last honest gap - the
+  //! missing ACMP term - closed with the N-context responder):
+  //!   * enable        : TCTX w0 CTRL[0] (window-provisioned; shadowed
+  //!                     below from the accepted TCTX window writes - the
+  //!                     window is the only w0 writer). The flat
+  //!                     AAF_CTRL[0] is t0's enable only.
+  //!   * MAAP term     : ENGINE-WIDE, same expression as t0: ONE KL_maap
+  //!                     instance claims ONE BLOCK of N_STREAMS addresses;
+  //!                     stream j uses base+j (probe answers and TCTX
+  //!                     provisioning agree on that rule).
+  //!   * ACMP term     : per-stream talker_active from KL_acmp_tlkr_ctx
+  //!                     at N_SRC_P = N_STREAMS (probe window per uid |
+  //!                     per-stream listener observation), with t0's
+  //!                     cfg_aaf_bypass escape hatch mirrored.
+  //!   * lwSRP term    : per-stream P5 gate (KL_lwsrp_bw_gate via the ctx
+  //!                     rows), with t0's ~cfg_lwsrp_enable escape.
   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
   logic [N_STREAMS-1:0] tctx_en_r;
   assign aaf_stream_en_w[0] = aaf_gate;

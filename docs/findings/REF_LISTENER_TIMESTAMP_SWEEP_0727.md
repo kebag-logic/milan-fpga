@@ -26,7 +26,7 @@ page. Every number below is a read.
 - **[Root cause: the talker's clock, not the talker's logic](#root-cause-the-talkers-clock-not-the-talkers-logic)** — The measurement that separates the two hypotheses. Our AX board's transmitted timestamps hold constant against the domain clock; the Arty's PHC is 60 hours out and slewing at the ±1 % rail. Includes the `ptp4l` log line that names the mechanism.
 - **[The sweep signature](#the-sweep-signature)** — Why the split is not "all late" but alternating blocks of 100 % LATE and 100 % EARLY, measured at 20 s cadence. Also the one number that does *not* close, recorded honestly rather than smoothed over.
 - **[Why this is a regression against the 07-24 record](#why-this-is-a-regression-against-the-07-24-record)** — The grandmaster reboots; the PHC counts from boot, not from an epoch; a slew-only client can never re-acquire. The offset is measured *growing*, which is what makes this a trap rather than a transient.
-- **[What to change](#what-to-change)** — Three candidate fixes with the measurement that would confirm each. Deliberately not applied — this was a read-only lane.
+- **[What to change](#what-to-change)** — Three candidate fixes with the measurement that would confirm each. Read-only when written; item 2 (the talker's `tu` bit) has since landed in fabric at VERSION `0x0015`, and the entry records what the clause actually required — which was *not* the "stop streaming" half of the original suggestion.
 - **[Reproduce it](#reproduce-it)** — The exact command sequence, including our own CSR snapshot protocol and the `phc_ctl` trick that measures PHC frequency error with no network round-trip in the loop.
 
 ## Verdict
@@ -332,10 +332,24 @@ that would confirm it.
    *Confirm by:* PHC difference to the grandmaster < 1 µs, then
    `LATE_TIMESTAMP`/`EARLY_TIMESTAMP` deltas going to zero over a 5-minute
    sweep.
-2. **Gate the talker on clock validity.** Today we transmit at full rate with
-   a PHC 60 h out and advertise `TIMESTAMP_UNCERTAIN` = 0 while doing it. A
-   talker whose local clock is not synchronised to the domain should either
-   not stream or should set the uncertainty bit. *Confirm by:* the reference
+2. **Gate the talker on clock validity.** ~~Today we transmit at full rate with
+   a PHC 60 h out and advertise `TIMESTAMP_UNCERTAIN` = 0 while doing it.~~
+   **DONE IN FABRIC, VERSION `0x0015` (not yet flashed).** The clause work
+   settled the "either / or" in this bullet: it is **not** either. Milan v1.2
+   5.3.7.3 forbids stopping a Stream Output outright ("it **shall be
+   streaming** AVTP packets ... STREAMING_WAIT shall not be implemented") and
+   IEEE 1722-2016 7.5 forbids `tv = 0` on AAF when `sp = 0`, so the *only*
+   conformant lever is the `tu` bit — which Milan v1.2 4.3.5.2 makes a
+   **shall**. Every talker in the fabric (`KL_aaf_packetizer`,
+   `aaf_talker_i2s`, `KL_crf_tx`) now stamps `tu` from one verdict block,
+   `KL_ptp_clock_validity`, whose reset state is `tu = 1`: PHC steps and
+   grandmaster changes are detected in fabric, and sustained sync is a
+   software **lease** at `CLKV_CTRL` `0x778` because no fabric signal can
+   observe a servo — see
+   [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), the `0x778`
+   group. **The bench software half is still owed**: until the gPTP daemon
+   leases the claim, a `0x0015` board emits `tu = 1` continuously, which is
+   the honest reading of this very measurement. *Confirm by:* the reference
    device's `TIMESTAMP_UNCERTAIN` counter moving instead of its LATE/EARLY
    pair.
 3. **Consider whether the PHC should survive a grandmaster restart at all.**
