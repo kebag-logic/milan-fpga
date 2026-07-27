@@ -20,6 +20,7 @@ protocol-level coverage contract is
 - **[2. Migen DMA-engine sims - sw/litex/test_\*.py](#2-migen-dma-engine-sims---swlitextest_py)** — The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** — Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end — the M-A2 `"MILN"` read, in simulation, before any board exists.
 - **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** — sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
+- **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** — Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of 188 findings are width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** — What still lives under `tb/utests`, `tb/itests` and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** — The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
 - **[6b. Unattended campaigns — status file and alert webhook](#6b-unattended-campaigns--status-file-and-alert-webhook)** — The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts — that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
@@ -250,6 +251,62 @@ observer-purity check (`syn/yosys/check_tap_purity.sh` — taps/telemetry must
 never drive the observed streams' nets; standalone it is exit-coded and
 self-tests against a deliberately-broken fixture).
 
+## 4b. RTL lint - `scripts/lint_rtl.py` (the ratcheted gate)
+
+Verilator `--lint-only` over **every module in `hdl/`** — 82 elaborations,
+~10 s on a 4-core runner, wired into the `rtl` workflow as a step *before* the
+suite sweep so a lint break is a one-minute verdict rather than an hour's wait.
+
+```sh
+python3 scripts/lint_rtl.py            # sweep + census; lowers the ratchet
+python3 scripts/lint_rtl.py --check    # the CI gate; writes nothing
+python3 scripts/lint_rtl.py --pragmas  # just the `lint_off` gate (instant)
+python3 scripts/lint_rtl.py --self-test  # prove the pragma gate still bites
+```
+
+**Why Verilator and not Verible** — both were run over the same 89 files
+(2026-07-27), so this is measured, not assumed:
+
+| | findings | width findings | cost in CI |
+|---|---|---|---|
+| Verilator `--lint-only` 5.050 | 188 | **155** (`WIDTHTRUNC` 74 + `WIDTHEXPAND` 81) | zero — the suites already cache this exact binary |
+| Verible v0.0-4084, default rules | 1004 | **0** — it has no elaborator | 16.4 MB download + a second cache entry + a second version pin |
+
+916 of Verible's 1004 are pure style, the biggest single rule being 356
+`parameter-name-style` — whose default pattern rejects essentially every
+parameter in the tree, because [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md) §1
+mandates the `_C`/`_P` suffix convention Verible does not expect. Disable
+every rule that fights the house style and **three** rules survive, worth
+**15** findings (`undersized-binary-literal` 9, `posix-eof` 4,
+`case-missing-default` 2 — Verilator already reports 1 of those 2). Fifteen
+findings do not buy a second toolchain. Revisit if the tree ever adopts
+Verible's naming conventions, or if a *formatter* is wanted — a different job
+from this gate.
+
+**Three verdicts, only one of them ratcheted:**
+
+| Verdict | Ratcheted? | Why |
+|---|---|---|
+| Malformed / unbalanced / unjustified `lint_off` | **no — hard fail** | `lint_off CODE // prose` builds under 5.050 and *does not* build under 5.020; no violation count can express "this file stops building elsewhere". An unexplained `lint_off` is the same defect class as an unexplained tied-off input |
+| A module that will not elaborate (`MODMISSING`) | **no — hard fail** | that is a broken build or a broken sweep, not a finding |
+| Everything else Verilator codes | **yes** | [`../../scripts/lint.budget`](../../scripts/lint.budget), per directory |
+
+The ratchet is the [`gen_module_matrix.py --check`](../traceability/gen_module_matrix.py)
+pattern: a normal run only ever **lowers** an entry, `--check` fails when a
+directory exceeds it, and nothing can raise one. Today's baseline is **188**
+violations across 12 directories — `WIDTHEXPAND` 81, `WIDTHTRUNC` 74,
+`SELRANGE` 20, `SYNCASYNCNET` 5, `MULTIDRIVEN` 4, then one each of
+`DECLFILENAME`, `CASEINCOMPLETE`, `ENUMVALUE`, `ALWCOMBORDER`. Every one of
+them is **printed in full on every gated run**: a ratchet that hides what it
+grandfathers is a silent cap, and this project already paid for that once
+(`check_tied_inputs.sh`, §4).
+
+Waivers are tables in the script, each naming the reason *and where the reason
+is recorded* — `TIMESCALEMOD` (a lint-only artifact: two of 95 files carry a
+`` `timescale ``, so Verilator flags the other 93) and `PINMISSING` on
+`axi_stream_if`'s provably-dead `clk`/`rst_n` ports. `third_party/verilog-axis`
+is on the resolution path and is **never linted** — it is upstream code.
+
 ## 5. Legacy / auxiliary testbenches
 
 | Where | What | Status |
@@ -379,10 +436,10 @@ host-only.
   gate (twice — the second time with `.git` deleted, so the tarball/zip path
   stays honest), the traceability no-drift gate and the end-station builder
   gates; [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) runs the
-  whole Verilator sweep via `scripts/run_all_suites.sh` and the Yosys
-  portability sweep. Both RTL jobs need the `verilog-axis` submodule, which is
-  why they are a separate workflow from the submodule-free docs gates. Local
-  commands: [`../../QUICKSTART.md`](../../QUICKSTART.md) §2.
+  whole Verilator sweep via `scripts/run_all_suites.sh`, the ratcheted RTL lint
+  (§4b) and the Yosys portability sweep. Both RTL jobs need the `verilog-axis`
+  submodule, which is why they are a separate workflow from the submodule-free
+  docs gates. Local commands: [`../../QUICKSTART.md`](../../QUICKSTART.md) §2.
 * **The Verilator version matters, and distro packages are not enough.**
   Measured 2026-07-26 by running the suites under each version in a container:
 
@@ -400,7 +457,12 @@ host-only.
   is why.
 * `milan_top` (Zynq variant) is not coverable by the open flows (PS7 + the
   external verilog-ethernet MAC); its TSN content is covered via
-  `milan_dp`.
+  `milan_dp`. It is out of the §4b lint sweep for the same reason — it cannot
+  even *elaborate* without the `external/` submodule (an SSH remote CI cannot
+  fetch) and the Xilinx `milan_dma` core. Linted against a checked-out
+  `external/` it reports **116 `PINMISSING`** — 91 on its `milan_csr`
+  instance, 24 on `KL_aecp_top`, 1 on `ptp_ts_top` — i.e. it has drifted that
+  far behind the modules it wires. Budget that before reviving it.
 * The legacy xsim TBs test pre-rework interfaces in places; trust the
   Verilator suites where they disagree.
 * Check-counts quoted in READMEs are informational; the harnesses print

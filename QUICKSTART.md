@@ -108,6 +108,18 @@ ALL GATES PASS
 filesystem walk and prints which one it used. `test_builder.py` needs only Python
 and PyYAML; it writes its emissions under `sw/builder/out/` (gitignored).
 
+There is a fourth CI gate that is *not* pure Python — the RTL lint — because it
+needs the Verilator you install in §2.3:
+
+```sh
+python3 scripts/lint_rtl.py --check   # every module in hdl/, ~10 s, exit 0 = PASS
+```
+
+It fails on a **new** Verilator `--lint-only` violation; the existing 188 are
+grandfathered by a per-directory ratchet in
+[`scripts/lint.budget`](scripts/lint.budget) and printed in full on every run.
+Details and the Verible comparison: [`docs/testing/TESTING.md`](docs/testing/TESTING.md) §4b.
+
 ### 2.3 The Verilator testbenches
 
 One directory per suite under `tb/verilator/`; each is self-checking and exits
