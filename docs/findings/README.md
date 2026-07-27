@@ -18,7 +18,7 @@ their living successors on 2026-07-25.
 
 - **[Fixed-bug post-mortems](#fixed-bug-post-mortems)** — Eight closed root causes in one table — TX `last_be` truncation, the classifier `tdest` wedge, ADP falling dormant, gPTP frames delivered 8-byte-padded — each with its status and, where one exists, the gating harness that keeps it fixed.
 - **[Performance investigations & campaigns](#performance-investigations--campaigns)** — Eleven rows of measurement work, including the ones whose verdict was *do not build it*: the TX reader prefetch plan is kept solely as a refutation record. Several rows are merge sources folded into their living successors on 2026-07-25 and now link into the archive.
-- **[Handover & bench](#handover--bench)** — Bench-ops onboarding plus the two 2026-07-26 campaigns: an adversarial sweep that triggered the entry-0 blocker *on purpose* to prove the root cause by causation, and a live health sweep showing 0 format errors over ~2 G frames.
+- **[Handover & bench](#handover--bench)** — Bench-ops onboarding, the two 2026-07-26 campaigns (an adversarial sweep that triggered the entry-0 blocker *on purpose* to prove the root cause by causation, and a live health sweep showing 0 format errors over ~2 G frames), the 07-27 area-round flash, and the 07-27 lane that caught our own talker streaming from a clock 60 hours out of sync.
 - **[Conventions](#conventions)** — The two rules for adding to this log. The one that surprises people: nothing is ever deleted, and refuted theories stay in, because the refutation is the value.
 
 ## Fixed-bug post-mortems
@@ -62,6 +62,7 @@ M-A3 DMA write-up [`hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_m
 | [FLASH_0x0014_0727.md](FLASH_0x0014_0727.md) | 2026-07-27 the area round on silicon: 3 seeds placed and ALL MET TIMING (best WNS +0.147), -5,216 LUT delivered vs -4,847 estimated, but slice occupancy only 99.93 % -> 99.65 % (55 free) so the design is still slice-bound; flashed bitstream-only, VERSION 0x0001_0014 and the five-queue map read back from hardware, smoke 5/5, parsed == matched exactly |
 | [STRESS_0726.md](STRESS_0726.md) | 2026-07-26 adversarial campaign: 19 checks, 0 failures — stop/start storms, illegal CSR access, engine cycling, boundary sids, and the entry-0 blocker triggered ON PURPOSE to prove the root cause by causation |
 | [LIVE_BENCH_0726.md](LIVE_BENCH_0726.md) | 2026-07-26 live health + function sweep of both boards: gPTP converged, bidirectional streaming, 0 format errors over ~2 G frames, live audio capture, and the two known tie-offs observed on silicon |
+| [REF_LISTENER_TIMESTAMP_SWEEP_0727.md](REF_LISTENER_TIMESTAMP_SWEEP_0727.md) | 2026-07-27 the third-party reference listener's error counters verified INCREASING at ~8,000/s (99.4 % of frames LATE or EARLY) and root-caused to our Arty talker's PHC sitting 216,446 s off the domain with `ptp4l` pinned at the ±1 % rail — the talker RTL is exonerated by measurement, and the counters were read with a raw-socket AECP controller instead of `la_avdecc` |
 
 ## Conventions
 
