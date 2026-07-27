@@ -9,6 +9,20 @@ in the GitHub issues; the remaining compliance work is
 called **the bench suite** everywhere (commits, docs, comments) — never
 any other name; its material is private (see §7).
 
+## Contents
+
+- **[0. The map](#0-the-map)** — Answers "where do I plug the analyzer": tap1 is inline on the ALINX link, tap2 on the ARTY link. The caveat that follows the picture is the useful bit — a tap sees one *link*, so traffic the switch drops crosses neither tap.
+- **[1. Machines](#1-machines)** — Role and reach for every host, plus three facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
+- **[2. Boards (DUTs)](#2-boards-duts)** — The two DUTs side by side — entity ids, the FTDI serial and part each flash command needs, 50 vs 100 MHz datapath, and which one is grandmaster. Ends with the audio loop diagram and why −83.9 dB is the converter floor rather than a datapath limit: exactly one hop is analog.
+- **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** — The serial↔FIFO daemon you must **recreate after a context reset**, and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
+- **[4. Repositories & artifacts](#4-repositories--artifacts)** — Which of the five trees holds what — gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
+- **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** — The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
+- **[6. Peer-host wire tooling (all sudo, iface enp6s0)](#6-peer-host-wire-tooling-all-sudo-iface-enp6s0)** — The probe scripts and what each one proves, the capture filters with the three multicast groups, and the full THD+N chain from tap capture or ring dump to a number.
+- **[7. The bench conformance suite (PRIVATE — never in git, never pushed)](#7-the-bench-conformance-suite-private--never-in-git-never-pushed)** — The privacy rules, in force: `/private/` is never `git add`ed and only one name for the suite ever appears in committed text (a script enforces the deny-list). The score to beat is 63/63 scenarios per board.
+- **[8. Board runtime (what runs where)](#8-board-runtime-what-runs-where)** — Power-on to streaming: boot order, everything `S50milan` provisions, the four daemons, and a CSR quick map. Two rules are buried here and cost real time — the `0x654` write must bit-preserve VID 2 or the switch floods the stream as best-effort, and a new plain-RW CSR missing from `is_plain_rw()` makes reads lie.
+- **[9. State at handover (2026-07-21 morning - campaign closed)](#9-state-at-handover-2026-07-21-morning---campaign-closed)** — A dated snapshot of what was in each board's flash and what was open that morning. Read as provenance, not current state — it flags its own −73.4 dB figure as later superseded.
+- **[10. Standing rules (violating any of these has burned us)](#10-standing-rules-violating-any-of-these-has-burned-us)** — Seven rules, each written after it was broken. Includes the one people get wrong at cleanup time: kill builds by output-dir match, because killing the Python parent leaves the Vivado child running.
+
 ## 0. The map
 
 *Where do I plug the analyzer to see traffic from a given board?* Solid lines

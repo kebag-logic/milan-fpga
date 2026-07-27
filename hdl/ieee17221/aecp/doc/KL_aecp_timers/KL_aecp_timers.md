@@ -6,6 +6,12 @@ Centralised timer source for the AECP pipeline. All periodic strobes originate h
 
 ---
 
+## Contents
+
+- **[Ports](#ports)** — Nine signals, all strobes out and controls in. Two caveats to read before wiring: `ptp_ts_i` is accepted and unused, and `stale_tick_o` is today just a copy of the 1 kHz tick.
+- **[Sub-modules / counters](#sub-modules--counters)** — The four counters with their exact reload values — 124 999 for the 1 ms tick, 60 000 ms for the AECP lock, 1 000 ticks for the `GET_COUNTERS` throttle — plus the priority rule that `lock_clear_i` beats `lock_start_i`, and the open TODO that staleness is not yet tracked per controller.
+- **[Constants (from aecp_pkg.sv)](#constants-from-aecp_pkgsv)** — Three package values and which counter reloads from each. `STALE_TIMER_TICKS_C` is declared but nothing consumes it yet.
+
 ## Ports
 
 | Port | Dir | Type | Description |
