@@ -41,7 +41,21 @@
                   * SOFTWARE LEASE (sw_*). Whether the PHC is actually
                     disciplined to the domain is a servo fact: it lives
                     in ptp4l's offset/frequency state and NOTHING in
-                    fabric can observe it. So software publishes it -
+                    fabric can observe it. That is not merely a wiring
+                    gap, it is information-theoretic - see
+                    docs/design/PRESENTATION_TIME_WRAP.md: avtp_timestamp
+                    is the LOW 32 BITS of an unsigned nanosecond count,
+                    so it laps every 4.294967296 s, and once the true
+                    offset exceeds one lap the modular difference carries
+                    no information about the direction OR the magnitude
+                    of the error. A far-off clock produces blocks of
+                    100 % LATE and blocks of 100 % EARLY that are
+                    indistinguishable from a well-behaved error signal -
+                    which is precisely the square wave measured on
+                    2026-07-27. No listener-side heuristic, and no
+                    fabric-side observation of our own wire, can recover
+                    the truth; only the talker's own servo knows. So
+                    software publishes it -
                     the established gptp2csr.sh pattern (GM id 0x624/8,
                     pdelay 0x6E4, AS_PATH 0x730/4) - and it publishes it
                     as a LEASE, not a flag: every CLKV_CTRL write

@@ -284,17 +284,23 @@ Only the talker knows, and only by asking its own servo. Which makes the
 the only defensible thing to drive it from — never an observed offset sign or
 size.
 
-Today our talker hardcodes the bit clear:
+Until VERSION `0x0016` our talker hardcoded the bit clear:
 [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv)
-writes `fb[21] = 8'h00`, i.e. `tu = 0`, on every frame — including the 31 M
+wrote `fb[21] = 8'h00`, i.e. `tu = 0`, on every frame — including the 31 M
 frames it sent from a clock 60 hours out. The listener half of the contract
-already exists: the RX monitor takes a `ts_uncertain_i` input and counts
+already existed: the RX monitor takes a `ts_uncertain_i` input and counts
 `TIMESTAMP_UNCERTAIN` from it, and the parser lifts the `tu` bit at AVTP byte 3.
-It is the talker end that is missing.
+It was the talker end that was missing.
 
-**Lane AC is implementing that drive, and this page deliberately does not
-duplicate it.** What belongs here is only the reason: the wrap, not a policy
-preference, is what makes talker-side declaration the only option.
+**That drive now exists** —
+[`hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv)
+feeds `tu` to every talker, and this page's argument is exactly why its
+`SYNC_OK` term is a **software lease** (`CLKV_CTRL` `0x778`) rather than
+anything derived on the wire: past one lap there is nothing on the wire to
+derive it from. See [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md),
+the `0x778` group. This page deliberately does not duplicate that design; what
+belongs here is only the reason — the wrap, not a policy preference, is what
+makes talker-side declaration the only option.
 
 ## Reproducing the arithmetic
 
