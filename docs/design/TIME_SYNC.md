@@ -384,6 +384,15 @@ breakdown of where the time goes lives in
 [`../AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md) (the 0x870 tap block
 latches `ptp_now` epochs per measured frame).
 
+**Its validity has a hard bound.** `avtp_timestamp` is 32 unsigned bits, so
+`ts_delta` is a *modular* difference read with a half-range convention, and it
+means what it appears to mean only while the two clocks are within one
+4.294967296 s lap of each other. Beyond that it walks, and LATE/EARLY alternate
+in blocks instead of biasing — measured on silicon, and drawn out in
+[`PRESENTATION_TIME_WRAP.md`](PRESENTATION_TIME_WRAP.md), which is also where
+the case for driving `TIMESTAMP_UNCERTAIN` from servo convergence state is
+made.
+
 ## 4. Time-related CSRs — quick table
 
 Every row here now has a row in
