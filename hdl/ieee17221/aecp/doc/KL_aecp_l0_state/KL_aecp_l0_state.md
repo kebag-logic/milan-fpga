@@ -6,6 +6,13 @@ Entity-level ACQUIRE / LOCK state machine. Produces `status_o` combinationally s
 
 ---
 
+## Contents
+
+- **[Ports](#ports)** — The nine-port list. Note there is no AXI-Stream here: the module takes a parsed `aecp_hdr_t` in and drives `status_o`/`reject_o` back out **combinationally**, which is what lets the response builder latch a verdict on the same cycle as `hdr_valid`.
+- **[Registers](#registers)** — The six pieces of entity-level state: the acquire and lock owner IDs, the 17-bit tick downcounter, and the active configuration index.
+- **[Combinational decision logic](#combinational-decision-logic)** — The four-level priority ladder that produces the status code, and — more useful in practice — the 15 exempt commands that are answered regardless of lock or acquire state.
+- **[Sequential command handling](#sequential-command-handling)** — What each of the five handled commands does to the registers, including the ownership rule (only the locking controller can unlock) and the 60 s auto-expiry driven off the 1 kHz tick. Ends with the `u_flag` stub note: release/unlock is inferred from a header bit pending full payload flag extraction.
+
 ## Ports
 
 | Port | Dir | Type | Description |

@@ -32,6 +32,15 @@ device tree. This is the smallest bootable slice of
 | [`dts/bindings/kl,dma-ether.yaml`](dts/bindings/kl,dma-ether.yaml) | Normative DT binding (the DT requirements, `FR-DT-*`). |
 | [`driver/README.md`](driver/README.md) | The `kl-eth` platform driver (NAPI/XDP/PTP/ethtool, `FR-DRV-*`) and its DT match. |
 
+## Contents
+
+- **[Toolchain install (once)](#toolchain-install-once)** — One `pacman` line, a venv and `litex_setup.py`; everything is open source except the final bitstream. Carries the one trap that will otherwise cost you an hour: run builds from any directory except the litex-repos parent.
+- **[Boot the core in simulation (no Vivado, self-contained) ✅ verified](#boot-the-core-in-simulation-no-vivado-self-contained--verified)** — Two commands that get a softcore to a `litex>` prompt with no vendor tools, then read `MILN` out of the NIC's ID register — milestone M-A2, with the captured logs linked.
+- **[Build the board SoC](#build-the-board-soc)** — The `milan_soc.py` invocations, from export-only through `--full` (DMA + GMII MAC) to `--build --load`. Useful for knowing which steps need Vivado and which do not.
+- **[Boot Linux (needs the board / a bitstream)](#boot-linux-needs-the-board--a-bitstream)** — The device-tree assembly sequence — base DT from `csr.json`, NIC node from the end-station config, validate, concatenate — then the first four commands worth running on the booted board. Ends on the reminder that only the CSR *base* is host-specific; offsets are identical.
+- **[Configurability](#configurability)** — The four build axes: core count, ISA width, whether the NIC is present at all, and the `MAC_TARGET` switch between the Xilinx and generic MAC.
+- **[Status (what actually runs on this box)](#status-what-actually-runs-on-this-box)** — Step-by-step state table, honest about the one remaining gap (`milan_datapath` still a black box for this flow) and about a Vivado install without Artix-7 support being unable to P&R. Points at `ls tb/verilator/` and the yosys `tops` array as the authoritative suite lists rather than repeating counts.
+
 ## Toolchain install (once)
 
 Everything is open except the final Xilinx bitstream. On Arch:

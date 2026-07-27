@@ -5,6 +5,15 @@
 **Relates to:** `REQ-MAC-02` (RX MAC filtering), `MC_HASH_*` CSR, the AVDECC/gPTP
 control-frame tap (`OPEN`/migration §B.1).
 
+## Contents
+
+- **[1. What it is](#1-what-it-is)** — The entry format and the four-line match equation, including the two conventions you need before writing an entry: mask bit 1 means "must match", and index 0 wins on a multi-hit.
+- **[2. Why ternary (vs an exact-match CAM)](#2-why-ternary-vs-an-exact-match-cam)** — Why Forencich's `verilog-cam` was not reused: it is a binary CAM and cannot express a prefix. A three-row table shows what that buys — the whole reserved-multicast block in one entry instead of sixteen — and why a register-based parallel match is right at this table size.
+- **[3. Interface](#3-interface)** — Every port in two bullets, plus the detail that makes removal work: `wr_valid_i = 0` *is* the delete. Ends with the three parameters and their defaults.
+- **[4. How it fits the datapath](#4-how-it-fits-the-datapath)** — Where the lookup key comes from, a suggested action-bit encoding, and a power-on table a driver could install verbatim. Also the argument against the `MC_HASH` filter it upgrades: a hash admits false positives, this does not.
+- **[5. Verification](#5-verification)** — The seven behaviours the 19 checks cover — notably priority when one address hits both an exact and a ranged entry, and that remove/update actually take effect.
+- **[6. Notes / extensions](#6-notes--extensions)** — Two limits worth knowing before you scale it: the match is combinational (register it if timing bites), and register cost is linear, so past ~64 entries front it with a BCAM and keep this for the ranged patterns.
+
 ## 1. What it is
 
 A small **register-based ternary CAM** that acts as a *destination-MAC database*:

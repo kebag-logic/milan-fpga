@@ -22,6 +22,14 @@ wrong — say so.
 
 ---
 
+## Contents
+
+- **[0. The one thing to know first](#0-the-one-thing-to-know-first)** — The correction most readers arrive needing: an AAF stream never enters the classifier, the queues or the shaper. Fabric engines inject *downstream* of CBS and are paced by the lwSRP bandwidth gate, so queue assignments only bite CPU-originated traffic.
+- **[1. Egress — a captured sample becomes an AAF frame (the fabric talker)](#1-egress--a-captured-sample-becomes-an-aaf-frame-the-fabric-talker)** — Eight hops from I2S/TDM capture to the wire, each with the RTL instance name and the counter that proves the frame got that far. Also flags a contradiction it does not resolve: `LTAP_TX_D2` cannot be spanning a shaper slot on this lane, whatever the taps page attributes it to.
+- **[2. Egress — a frame the CPU sent (where the queue map applies)](#2-egress--a-frame-the-cpu-sent-where-the-queue-map-applies)** — The lane the 802.1Q machinery actually governs. Includes the three classifier entry points in priority order, and the reset fact worth remembering: every queue powers up *unshaped*, so out of reset this is plain strict priority.
+- **[3. Ingress — a frame off the wire becomes PCM](#3-ingress--a-frame-off-the-wire-becomes-pcm)** — The RX tee — taken upstream of the dest-MAC filter, which is how the fabric keeps listening while the TCAM shields the CPU. Ends with the debug recipe: four counters ordered so the first one stuck at zero names the hop that failed, the probe that was missing while the entry-0 defect was being chased.
+- **[4. What is \*not\* on either path](#4-what-is-not-on-either-path)** — Three things people go looking for in the wrong place, including the fact that capture and render are two *different* crossbars with two different map RAMs.
+
 ## 0. The one thing to know first
 
 **There are two egress paths, and an AAF stream normally takes the one that

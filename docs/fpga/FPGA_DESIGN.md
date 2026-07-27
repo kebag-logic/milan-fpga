@@ -8,6 +8,15 @@ lives. Companion pages: [../integration/INTEGRATION_GUIDE.md](../integration/INT
 datapath prose), [pipeline-telemetry.md](pipeline-telemetry.md) (the
 in-fabric observability block).
 
+## Contents
+
+- **[0. Global conventions](#0-global-conventions)** — The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic — the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
+- **[1. Top level - two wrappers, one datapath](#1-top-level---two-wrappers-one-datapath)** — What each wrapper adds around the same datapath, and the TX/RX/TS pipeline drawn out. The sentence that changes how you read every other page: only CPU-originated frames traverse the classifier, the queues and the CBS — the fabric engines inject *after* the shaper and the RX media path taps *before* the dest-MAC filter. §1.1 adds the audio chain as composed on main, both new stages defaulting to bypass.
+- **[2. Module inventory (from the RTL banners; refreshed 2026-07-26)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-07-26)** — Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
+- **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** — Which of the four domains each block lives in, and the complete crossing list — all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
+- **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** — Four things you will hunt for in the RTL tree and not find. Mainly the ring-DMA engines, which are Migen inside `milan_soc.py` rather than SystemVerilog, and the MAC, which is external by design.
+- **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** — How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
+
 ## 0. Global conventions
 
 * **AXIS:** 64-bit `tdata`, 8-bit `tkeep`, `tlast`, and `$clog2(NUMBER_OF_QUEUES)`

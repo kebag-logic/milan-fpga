@@ -6,6 +6,15 @@
 **Requirements:** FR-DISC-01..04 ([`FR_NFR.md`](../../../../docs/reference/FR_NFR.md),
 [`MILAN_V12_DEPENDENCY_MATRIX.md`](../../../../docs/reference/MILAN_V12_DEPENDENCY_MATRIX.md) §A)
 
+## Contents
+
+- **[1. Purpose](#1-purpose)** — The repo could already *decode* ADPDUs and never sent one. Also the argument for keeping advertising in fabric while the rest of AVDECC stays in software: it must be periodic, low-jitter, and alive the instant the link is.
+- **[2. Emitted frame — byte-exact layout](#2-emitted-frame--byte-exact-layout)** — The offset table you check a capture against: 82 bytes total, `control_data_length` = 0x38, subtype 0xFA at byte 14, `available_index` at 50–53. On the bus that is 11 beats with `tkeep = 0x03` on the last.
+- **[3. Behaviour](#3-behaviour)** — The event→message table and, the part that matters to a controller, exactly when `available_index` bumps: on link-up and on a real field change, *never* on a plain re-advertise or a discover response. Plus the 1 s tick / `valid_time` re-advertise period and the two-state FSM's priority arbiter.
+- **[4. Interface → CSR mapping](#4-interface--csr-mapping)** — Which fabric signal each quasi-static input is fed from, and the FR-DISC-04 obligation that the `available_index` readback agree with what is on the wire and with the ENTITY descriptor.
+- **[5. Verification (what the harness proves)](#5-verification-what-the-harness-proves)** — 121 checks that decode the frame the way a controller does, including both `available_index` directions and byte-for-byte integrity with `tready` toggling.
+- **[6. Integration status & next steps](#6-integration-status--next-steps)** — What is actually wired versus what is tied off: CSR group and TX arbiter are done, but `rcv_discover_i` and `gm_change_i` are still tied to 0 and `link_up` is tied high, so the advertise pulse fires once at power-up.
+
 ## 1. Purpose
 
 The repo already decodes received ADPDUs (`KL_adp_parser.sv`) but had **no

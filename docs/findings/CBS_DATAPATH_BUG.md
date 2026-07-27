@@ -6,6 +6,16 @@ same day** (classifier redesign, see "The fix" below). Regression:
 `tb/verilator/controller_rate` (gating) + tdest-correctness checks in
 `tb/verilator/classifier`.*
 
+## Contents
+
+- **[Symptom (silicon)](#symptom-silicon)** — Two symptoms that turned out to be different bugs: TX wedged permanently after a two-flow interference run (`tx_core` stalls pegged, `tx_dp`/`tx_wire` idle), and an `idleSlope` sweep that shaped nothing at all — 18 Mbit/s offered, 18 delivered, whatever the slope.
+- **[Root cause (sim-confirmed, tb/verilator/controller_rate)](#root-cause-sim-confirmed-tbverilatorcontroller_rate)** — The header parse needs 3 beats but the data path is delayed only 1, so under back-to-back frames the first ~2 beats of frame *N* carry frame *N−1*'s classification and get steered into the wrong queue. Explains why the block harness passed: it asserted `tdest` *stability* within a frame and never its *value*. Also the `CLS_PRIO_REGEN` reset that was a half-swap of priorities rather than the 802.1Q identity.
+- **[The fix (shipped)](#the-fix-shipped)** — The redesign around a per-frame `tdest` sideband queue, then the second and nastier defect: `traffic_queues` stacked its own round-robin arbiter on top of the CBS grant, and the two could lock onto different queues — a hard circular deadlock, captured in a grant dump as `grant=q1, hold=1` with the mux parked on q0. Ends with a harness-sampling trap that fabricated a phantom symptom and sent the investigation sideways.
+- **[Verification](#verification)** — What each regression asserts, and the check that it is a real test: the OLD classifier fails 4 of the new checks, proving bug and test together. `controller_rate` is now a gating end-to-end repro, byte-exact with a deadlock detector.
+- **[Silicon verification (ring9 = classifier fix only, 2026-07-05)](#silicon-verification-ring9--classifier-fix-only-2026-07-05)** — Textbook 802.1Qav in three rows: under slope passes untouched, over slope clips to 9.95 Mbit/s with zero loss, CBS off gives 17.9. The sting is in the last line — the two-flow run still wedged TX.
+- **[Silicon re-test with the cross-lock fix (ring10, 2026-07-05)](#silicon-re-test-with-the-cross-lock-fix-ring10-2026-07-05)** — Same rig, both flows concurrent, TX never wedged. Then the residual worth knowing before you file a bug: the reserved class degrades to ~4.86 Mbit/s — under its 10 Mbit/s reservation — because both classes share one classifier ingress. CBS bounds egress correctly; it cannot defend a reservation against ingress contention.
+- **[Status](#status)** — Four-line ledger of what is fixed and confirmed where, plus the one thing that is architectural rather than a defect and needs the multi-queue fabric to cure.
+
 ## Symptom (silicon)
 
 Programming the CBS shaper on a queue and pushing traffic through it **wedged TX

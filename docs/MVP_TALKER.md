@@ -11,6 +11,15 @@ running entirely from QSPI flash on power-up.
 > **-83.9 dB** (the converter floor). Read this doc as the flash-standalone MVP
 > talker milestone; the AAF frame/CSR content below is unchanged and accurate.
 
+## Contents
+
+- **[Signal chain (all fabric, cd_milan 50 MHz on the Arty)](#signal-chain-all-fabric-cd_milan-50-mhz-on-the-arty)** — ADC to wire in one line, and the MVP decision that made it work: injection moved AFTER the shaper because CBS credit math scaled for 1 Gb/s gated the 100 M Arty link to one frame per 30 s.
+- **[Frame (90 B, ~5.8 Mbit/s at 48k class A)](#frame-90-b-58-mbits-at-48k-class-a)** — The exact AVTPDU layout in one paragraph: tag, subtype, stream_id composition, the +2 ms timestamp offset, and 2ch x 6 samples x INT32 per 125 us.
+- **[MVP tradeoffs (documented, not hidden)](#mvp-tradeoffs-documented-not-hidden)** — Four named shortcuts, including the one this page's banner supersedes: fs = clk/1024 = 48.828 kHz declared as 48 kHz. Also the two levels of "working" — frames-on-the-wire needs no gPTP, a listener playing in sync does.
+- **[CSR (milan_csr 0x654 group)](#csr-milan_csr-0x654-group)** — AAF_CTRL enable + VID field and the AAF_DMAC pair, plus which init script turns them on at boot.
+- **[Verification](#verification)** — The 2026-07-12 silicon numbers: 8.1k frames/s, avtp_timestamp advancing exactly 122,880 ns per sequence number with zero jitter, and why captures show untagged 86-byte frames.
+- **[Flash (v3 QSPI-boot, one verb)](#flash-v3-qspi-boot-one-verb)** — The single `build.sh flash` command and the jumper position for power-on standalone streaming.
+
 ## Signal chain (all fabric, cd_milan 50 MHz on the Arty)
 
 Pmod I2S2 ADC (CS5343, JA/pmoda) -> aaf_talker_i2s (I2S master; MCLK=clk/4,

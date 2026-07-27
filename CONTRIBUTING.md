@@ -4,6 +4,13 @@ Short version: SystemVerilog only, banner-documented, one-line commits,
 lane-per-worktree, every change grows the test suite, and nothing merges on
 "looks right" — TB numbers or silicon numbers.
 
+## Contents
+
+- **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** — The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
+- **[2. Workflow](#2-workflow)** — One lane = one worktree = one branch = one PR, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
+- **[3. Verification bar](#3-verification-bar)** — What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
+- **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** — Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate the DTB from `csr.csv` on any gateware block-set change.
+
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
 
 - **SystemVerilog only** for new HDL. Python (migen/LiteX) is SoC *glue*,

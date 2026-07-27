@@ -5,6 +5,16 @@ kallsyms, and  -  as a worked example  -  the exact chain of evidence that led f
 CPU-bound" to "83 % of the app hart is one misaligned copy loop", including how each
 conclusion was checked.*
 
+## Contents
+
+- **[1. What profiling this board can and cannot do](#1-what-profiling-this-board-can-and-cannot-do)** — The four capability limits that shape every technique on this page: timer-based sampling only (no `sscof`, so no precise IP or cache-miss sampling), no kallsyms, no trustworthy call graphs, and 250-300 Hz as the practical rate on a 100 MHz core.
+- **[2. Measurement protocol (what was actually run)](#2-measurement-protocol-what-was-actually-run)** — The literal command sequence, and the trick that replaces missing tooling: reporting per hart *is* the decomposition, because the single IRQ line pins all softirq work to cpu0 while the `recv()` copy runs on cpu1. Also the attribution rule — `[k]` in a process's context means kernel-in-syscall, not softirq.
+- **[3. Symbolizing without kallsyms](#3-symbolizing-without-kallsyms)** — Offline nearest-preceding-symbol resolve against `System.map`, in three steps. The step that does the work is summing percentages per symbol — that is what turns eight 5-17 % lines into one 83 % function. Valid only because there is no KASLR on this config.
+- **[4. Reading the raw histogram \*before\* symbols: address-cluster shape](#4-reading-the-raw-histogram-before-symbols-address-cluster-shape)** — Eight PCs, consecutive, 4 bytes apart, jointly ~83 %: the signature of a single ~8-instruction loop absorbing the hart, read off the unsymbolized report. Includes why a 32-byte cluster is far wider than timer skid, so the identification survives.
+- **[5. From symbol to \*which loop\*: disassemble the exact PCs](#5-from-symbol-to-which-loop-disassemble-the-exact-pcs)** — The evidence step the symbol name alone does not give you. The function holds three copy loops; a cost-per-8-bytes table tells them apart, and every hot sample lands in the misaligned shift-merge loop with none in the fast path.
+- **[6. Drawing the conclusions (each with its check)](#6-drawing-the-conclusions-each-with-its-check)** — Four conclusions, each paired with the check that confirms it, plus the correction that falls out: the campaign's "copy = 0.64 cy/B" was a *misaligned* figure. Ends with a falsifiable prediction — if a header-split profile still shows the shift-merge loop, the misalignment story is wrong.
+- **[7. Pitfalls log (things that bit, so they're written down)](#7-pitfalls-log-things-that-bit-so-theyre-written-down)** — Four traps from this session, including the level-held MilanDebug reset CSR at `0xf0004000` that makes every probe read zero, and the first profile that was nearly misread as "the app is slow".
+
 ## 1. What profiling this board can and cannot do
 
 - **perf itself is cross-built** from the kernel tree

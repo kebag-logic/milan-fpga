@@ -2,6 +2,15 @@
 # Entity: ethernet_events 
 - **File**: ethernet_events.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — The rendered block diagram (`ethernet_events.svg`), if you want the shape before the tables.
+- **[Description](#description)** — What the module is in one paragraph: a bank of `event_counter` instances, one per event declared in `ethernet_events.svh`, each landing in its own named register.
+- **[Generics](#generics)** — Just `WIDTH` (32) — the counter width, hence where they saturate.
+- **[Ports](#ports)** — Four signals. Worth noting `stats_reset` is separate from `resetn`, so software can zero the statistics without resetting the block, and `events` is one pulse lane per counter.
+- **[Signals](#signals)** — The list of counter names, which is effectively the RMON lane inventory this block can produce: TX underflow / FIFO overflow / bad-frame / good-frame and their four RX counterparts.
+- **[Processes](#processes)** — One `always_ff` that maps the counter array onto the named registers.
+
 ## Diagram
 ![Diagram](ethernet_events.svg "Diagram")
 ## Description

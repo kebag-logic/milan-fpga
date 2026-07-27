@@ -1,5 +1,15 @@
 # ADP advertiser dormancy — silicon incident, forensics & fix (2026-07-13)
 
+## Contents
+
+- **[Incident](#incident)** — The Arty silently disappeared from ADP discovery while gPTP stayed locked at ~6 ns offset — which is what makes the case interesting, since board, link, MAC and driver TX were all provably healthy and only the fabric-autonomous ADP TX had stopped.
+- **[Forensics chain (what ruled what out)](#forensics-chain-what-ruled-what-out)** — Six steps of elimination, each naming the register that killed a theory: balanced AECP/ACMP counters ruled out a held arbiter lock, and the discriminating experiment (an enable toggle that instantly revived it) proved `available_r` was 0 — the entity had silently departed. Ends honestly: reproducible in effect, trigger not retroactively provable.
+- **[Fix (commit adp: SILICON BUG - ..., all sim-gated)](#fix-commit-adp-silicon-bug----all-sim-gated)** — Three parts: a self-re-arm so an enabled entity on a live link can never stay silent, the `A_ADP_DIAG` `0x668` witnesses that will identify the next occurrence, and the tick divider tracking `MILAN_CLK_FREQ_HZ`. Read the CORRECTION — the RTL fix was right but `milan_soc.py` never passed the parameter, and a single-period measurement was quoted as proof it worked.
+- **[Gates](#gates)** — The regression tally, including a bonus catch: the randomized classifier reference model was missing the gPTP fast path and mismatched 7.5 % of 200 k frames.
+- **[Re-validation context (what this session was doing when it hit)](#re-validation-context-what-this-session-was-doing-when-it-hit)** — What was running when the dormancy appeared, and why the Arty's `available_index` moved +2 during it: discover responses dying against the dormant state.
+- **[Open observation (benign, witnessed for next time)](#open-observation-benign-witnessed-for-next-time)** — The recovery toggle bumped `available_index` by +8 in ~2 s where the RTL predicts +1. Unexplained, monotonic-so-harmless, and recorded with the two tools to use if it recurs.
+- **[Bench state / recovery one-liner](#bench-state--recovery-one-liner)** — The two-`devmem` enable toggle that revives a dormant advertiser on gateware without the fix.
+
 ## Incident
 During post-hwts re-validation of the Milan control plane, the Arty (:02)
 vanished from ADP discovery: 35 s of `tcpdump ether proto 0x22f0` on the peer host showed

@@ -12,6 +12,15 @@ Sibling doc: [`CBS_DATAPATH_BUG.md`](CBS_DATAPATH_BUG.md)  -  an unrelated 2026-
 classifier-timing bug in the same subsystem. This one is **pure configuration**: the
 RTL shaped correctly; the *defaults* told it to shape the wrong traffic.
 
+## Contents
+
+- **[Symptom](#symptom)** — TCP TX stuck at 238-247 Mbit/s with a 39-42 % input stall, and the three-probe table that localised it: input refused 41.8 % of cycles, output never back-pressured at all, so the block itself was the culprit.
+- **[Root cause  -  two defaults contradicting each other](#root-cause-----two-defaults-contradicting-each-other)** — Neither default was wrong alone. `CBS_EN_RST = 4'b0011` shaped q0/q1 on the assumption they were SR classes, while the classifier defaults routed plain best-effort TCP to exactly q0 — so every ordinary frame was credit-paced at 300 Mb/s from power-on, and nothing in the boot chain reprogrammed it.
+- **[Verification on silicon (before fixing)](#verification-on-silicon-before-fixing)** — Two `devmem` writes, reversible, before any rebuild: stalls collapsed 418 ‰ → 4 ‰ on the spot and the TX wall moved to the CPU. The number to remember is what it unlocked — 265/339/354 Mbit/s where the plateau had been ~250.
+- **[The fix](#the-fix)** — One line, `CBS_EN_RST = 4'b0000`, and the policy behind it: CBS shapes reserved SR classes only, software opts a queue in at reservation time. Slope and credit resets stay as sensible SR presets.
+- **[Update 2026-07-27 — the 802.1Q-ordered map keeps this fix intact](#update-2026-07-27--the-8021q-ordered-map-keeps-this-fix-intact)** — The queue map went to six and then five queues, which moved every number quoted above (`CBS_IDLE_RST` is now per-queue, `cls_tcq` resets to `0x004898C0`). What is unchanged and re-asserted: no queue is shaped at reset, and best effort is still q0 — only q0 is no longer also the arbitration winner.
+- **[Lessons](#lessons)** — Three, and the first is the durable one: **a default is product behaviour**. Plus the probe-triangulation recipe for "who back-pressures" — input stalled with output clean means the block itself, equal stalls mean it merely propagates.
+
 ## Symptom
 
 TCP TX plateaued at **238–247 Mbit/s** on the 100 MHz datapath with the datapath-input

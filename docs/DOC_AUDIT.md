@@ -24,6 +24,15 @@ top-level, journey-ordered reading guide a fresh systems engineer should be hand
 
 ---
 
+## Contents
+
+- **[0. Ground-truth system state used to detect STALE content (2026-07-23)](#0-ground-truth-system-state-used-to-detect-stale-content-2026-07-23)** — The yardstick the whole audit measured against: ship shape is 1-hart + L2-32K, the servo loop is −83.9 dB (not the pre-servo −73.4), the matrix is 163/17/7/17, Vivado Artix-7 *is* installed. Frozen at 2026-07-23 — the harness/top counts here are themselves now stale.
+- **[1. Full audit table (every doc: status, action, rationale)](#1-full-audit-table-every-doc-status-action-rationale)** — All 79 pages in one table with a freshness verdict, an action and a one-line reason, totalling 31 KEEP / 33 UPDATE / 4 MERGE / 11 ARCHIVE / 1 NEW. The fastest way to see whether a page you are about to trust was already known to be stale.
+- **[2. OBSOLETE → ARCHIVE list](#2-obsolete--archive-list)** — The eleven pages moved out, each with its living successor and, in the third column, exactly what had to be preserved before the move (the latency-cliff table, the Forencich core catalog). Executed 2026-07-25 with one deviation: the destination is repo-root `historical_now_obsolete/`, not `docs/archive/`, and the files were physically moved with no stubs.
+- **[3. MERGE groups (target ← sources)](#3-merge-groups-target--sources)** — Three merges, executed. Merge A is the interesting one: six perf docs froze the same campaign at different dates with conflicting numbers (RX 298 vs 316 vs 381, TX 452 vs 525 vs 646), and the fix was one record plus a clear division of labour across the four survivors.
+- **[4. UPDATE list — per-doc stale-fact fixes](#4-update-list--per-doc-stale-fact-fixes)** — A per-page work order for the 33 UPDATE rows, headed by the seven recurring reconciliations that account for most of them (dual-hart→1-hart, −73.4→−83.9 dB, RGMII→GMII, CSR base `0x43C0_0000`→`0x9000_0000`).
+- **[5. Proposed target structure (docs/ tree for a systems engineer)](#5-proposed-target-structure-docs-tree-for-a-systems-engineer)** — The proposed tree as an annotated listing, plus the argument that the value is the reading order the guide imposes rather than the directories. Ends with four cross-lane reconciliations, including why the two CBS bug post-mortems are a sibling pair and not duplicates.
+
 ## 0. Ground-truth system state used to detect STALE content (2026-07-23)
 
 - Compliance matrix reconciled TODAY to **163 verified / 17 partial / 7 MISSING / 17 N-A**
