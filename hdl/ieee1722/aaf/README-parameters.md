@@ -13,6 +13,14 @@ Selected by the end-station config as `audio_interface.kind: i2s_philips`
 `configs/endstation_arty_current.yaml`); the item-4 audio subtask makes the
 TDM/AES3/SPDIF ser/des families sibling selections of this module.
 
+## Contents
+
+- **[Parameters](#parameters)** — The four parameters with their ranges, who sets them and which config-schema key they come from. Two warnings live here: `MCLK_DIV_LOG2` is LEGACY and nothing may be sized from it, and `CLK_FREQ_HZ` must always be passed explicitly (the CLK-PARAM GAP lesson) because a wrong value skews media-lock timing silently.
+- **[Derived localparams that matter](#derived-localparams-that-matter)** — Two derivations worth knowing: the parent's `MCLK_DIV_LOG2_C`, which `KL_tone_gen` and `aaf_talker_i2s` still depend on and which sampled wrong on the 100 MHz build, and the FIFO midpoint that defines the external media-lock condition.
+- **[Config-driven ports (not parameters, still schema-owned)](#config-driven-ports-not-parameters-still-schema-owned)** — Three inputs that behave like configuration but arrive as ports, including `wire_chans_i` — which is explicitly *not* config: the render mapping follows channels-per-frame off the last accepted PDU regardless of declared format.
+- **[Cross-parameter / cross-module pairings (STRICT)](#cross-parameter--cross-module-pairings-strict)** — Three must-match pairs and the failure each produces, all of them quiet: a wrong `CLK_FREQ_HZ` skews the convergence window silently, a wrong audio clock drifts the FIFO to a permanent rail, and `PREFILL_C` ≥ FIFO depth means playback never restarts after a rail event.
+- **[Validation](#validation)** — What the builder actually checks versus what it does not: clock consistency raises `ConfigError`, but `FIFO_LOG2`/`PREFILL_C` bounds have no elaboration assert today.
+
 ## Parameters
 
 | Parameter | Type / valid range | Default | Set by (instantiation site) | Config-schema origin | Notes |

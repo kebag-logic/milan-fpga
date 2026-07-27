@@ -13,6 +13,12 @@ Every member implements the SAME output contract toward the shared
 `KL_aaf_packetizer`, so the packetizer, TCTX partitioning and the TB
 harnesses never change per interface.
 
+## Contents
+
+- **[The pair-stream contract (all members)](#the-pair-stream-contract-all-members)** — The four output ports every capture front-end must present, plus the clock-domain discipline: serial capture in the interface's own bit-clock domain, one gray-pointer `cdc_pair_fifo` crossing, and any Philips-style data delay applied exactly ONCE in the front-end — the double-delay history is why that is stated as a rule.
+- **[Members](#members)** — The four implemented front-ends with status and how many pair slots each owns. The note underneath is the useful part: the AES3 and S/PDIF placeholders never existed as separate modules because one core covers both transports, and what is still missing is the datapath generate and the `--audio-interface` selector, not the transport.
+- **[AES3 / S-PDIF contract (the later biphase-mark members)](#aes3--s-pdif-contract-the-later-biphase-mark-members)** — The contract for the member with no external bit clock: `clk_audio_i` oversampling with edge-interval discrimination, X/Y/Z preambles for subframe sync, and why the CDC crossing stays identical anyway. Includes the deliberate wire-truth policy — a V-flagged sample is emitted and counted, never replaced with silence.
+
 ## The pair-stream contract (all members)
 
 Datapath-clock (`clk_i`) outputs:

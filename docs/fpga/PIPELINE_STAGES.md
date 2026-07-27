@@ -27,6 +27,21 @@ Conventions used below.
 - Per-queue CSR blocks have identical layouts: queue 0 base 0xf0003024,
   queue 1 base 0xf0003098.
 
+## Contents
+
+- **[RX stages](#rx-stages)** — The receive path in eight stages, wire to application. Each names its code, its live CSRs, what was measured, and what breaks if you get it wrong.
+  - [Stage R1: wire, RGMII PHY, MAC](#stage-r1-wire-rgmii-phy-mac) — Bits to AXIS beats, and the only stage that has never been a bottleneck. Carries the M-A3 trap: LiteEth `last_be` is one-hot, AXIS `tkeep` is a mask, and confusing them put nothing on the wire at all. (The heading's "RGMII" predates the GMII strap correction.)
+  - [Stage R2: gPTP steering (RxSteer, 2-queue builds)](#stage-r2-gptp-steering-rxsteer-2-queue-builds) — gPTP gets its own queue, matched by reserved DMAC *and* EtherType — the same test the egress classifier applies. The boxed note is the important part: this replaced a TCP flow hash, so the parallel-ACK split is gone and bulk RX reverts to the one-hart ceiling. Advice about engineering a split by picking client ports no longer applies.
+  - [Stage R3: RSC aggregation (RingDMAWriter slots)](#stage-r3-rsc-aggregation-ringdmawriter-slots) — The eight ways an aggregate closes, three tunable CSRs with their measured effects (`rsc_segcap` 10 was harmful), and the ACK-hold law: any store-and-forward hold enters the peer's RTT, which is what produced the ~375 Mbit plateau at every flow count.
+  - [Stage R4: page placement (header split)](#stage-r4-page-placement-header-split) — Page-size effects measured per variant (16K broke the drop famine, 4K qualifies pages for the kernel's zero-copy flip) and the LETHAL PAIRING: a driver `hs_pgsz` that disagrees with the gateware DMAs into kernel memory. Since hsq14 a capability CSR lets the driver refuse to load.
+  - [Stage R5: completion queue and BD publication](#stage-r5-completion-queue-and-bd-publication) — The BD encodings and four invariants in the order they were earned: LUTRAM CQ storage (−4866 LUTs), the full gate that turned ring laps from silent corruption into counted drops, and hsq12's cut-through allocation that removed the ACK-hold law's mechanical cause. Includes the commit-after-B pointer chronogram.
+  - [Stage R6: driver reap and repost](#stage-r6-driver-reap-and-repost) — What a maintainer must not break, chiefly: never skip-recycle a mismatched page, because skipped pages may still be DMA targets of open aggregates. Also the NAPI topology verdict — pipeline beats symmetric fanout 281-381 vs 206-220 — on the 2-hart perf SoC, not the 1-hart ship shape.
+  - [Stage R7: delivery to the stack](#stage-r7-delivery-to-the-stack) — The two skb generations and their STRICT gateware pairing. Cut-through synthesizes a TCP segment run per page and is correct only because RSC aggregates in sequence, so every early unit is a valid in-order prefix. It holds the single-flow record and loses multi-flow.
+  - [Stage R8: the consumer](#stage-r8-the-consumer) — Four consumer lanes measured against each other: copy 363-381, MSG_TRUNC 585-594 (the stack ceiling, and the proof a copy-free consumer reaches the goal), AF_PACKET 124 refuted, TCP zero-copy receive closed at 110-113 on equilibrium economics.
+- **[TX stages, briefly](#tx-stages-briefly)** — Three stages plus the CBS credit chronogram, and two operational facts: TX is scheduler-fairness bound rather than NIC bound, and it depends on its ACK stream — so always gate TX after any RX change.
+- **[Obsolete and staged-for-removal code](#obsolete-and-staged-for-removal-code)** — The 2026-07-11 cleanup, notable for its method: the byte-ring was folded out at elaboration rather than deleted, so it survives for forensics builds, and an old `bd=0` driver on folded gateware parks with counted drops instead of DMA-writing through address 0.
+- **[Build and driver lineage (what "hsqN" and "hsplitN" mean)](#build-and-driver-lineage-what-hsqn-and-hsplitn-mean)** — The decoder ring for the build names quoted everywhere else, one row per gateware with its change and its required driver. Ends with the record scoreboard and the measurement method behind every number.
+
 ## RX stages
 
 ### Stage R1: wire, RGMII PHY, MAC
