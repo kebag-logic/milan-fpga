@@ -105,6 +105,10 @@ SWEPT_TOPS = ["milan_datapath"]
 
 DEFAULT_MAX = 12
 
+#: Below this, a single-parameter cell-count delta is not evidence the override
+#: did anything - synthesis is not bit-reproducible at that resolution.
+MARGINAL_PCT = 0.5
+
 
 def all_pairs():
     """Every (param, value, param, value) pair the space can produce."""
@@ -324,14 +328,27 @@ def main():
                     print(f"  [warn] {pname}: no pair in this plan differs in "
                           f"it alone - sensitivity UNDETERMINED, not proven")
                     continue
-                moved = [(a, b) for a, b in pairs
-                         if cells_of[a] != cells_of[b]]
-                if moved:
-                    a, b = moved[0]
+                # "different" is not "meaningfully different". AUDIO_IF_SLOTS_P
+                # 8 -> 32 moved SEVENTEEN cells out of 910,000 - 0.002 %,
+                # indistinguishable from synthesis noise - and reporting that as
+                # proof the override bit would be the same mistake as the check
+                # this replaced. Anything under MARGINAL_PCT is reported as
+                # marginal, which is a fact about the parameter (it selects
+                # almost the same hardware), not a failure.
+                best = max(pairs, key=lambda ab:
+                           abs(cells_of[ab[0]] - cells_of[ab[1]]))
+                a, b = best
+                d = abs(cells_of[a] - cells_of[b])
+                pct = 100.0 * d / max(cells_of[a], cells_of[b], 1)
+                if d and pct >= MARGINAL_PCT:
                     print(f"  [ok]   {pname}: {cells_of[a]} vs {cells_of[b]} "
-                          f"({a} vs {b}) - the override bites")
+                          f"({a} vs {b}) - {d:+} cells, {pct:.2f} % - bites")
+                elif d:
+                    print(f"  [marg] {pname}: largest single-parameter delta is "
+                          f"{d} cells ({pct:.3f} %) between {a} and {b} - the "
+                          f"override is WIRED but selects near-identical "
+                          f"hardware; do not read this as proof it works")
                 else:
-                    a, b = pairs[0]
                     print(f"  [FAIL] {pname}: {a} and {b} differ ONLY in "
                           f"{pname} yet synthesised to the same "
                           f"{cells_of[a]} cells - that override is not taking "
