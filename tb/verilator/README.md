@@ -24,6 +24,7 @@ in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
 | [`ptp_sync/`](ptp_sync) | `ptp_csr_sync.sv` | CSR↔PHC CDC: settime/adjtime command-pulse ↔ payload alignment, one pulse per command, rate-config passthrough, gettime snapshot return path. | `cd ptp_sync && make` |
 | [`csr/`](csr) | `milan_csr.sv` | AXI4-Lite CSR: reset values, RO/RW/W1C, IRQ mask+event, hardware-set-beats-W1C, PTP command strobes + TOD-valid snapshot, stats snapshot, output wiring (check count printed at run time). | `cd csr && make` |
 | [`adp/`](adp) | `adp_advertiser.sv` | ADP transmit (IEEE 1722.1 / Milan v1.2, `REQ`/FR-DISC-01..04): byte-exact 82-byte ADPDU decoded like a controller — Ethernet/subtype/cdl/fields, AVAILABLE vs DEPARTING, `available_index` bump-on-change/hold-on-readvertise, advertise timer, back-pressure integrity (121 checks). | `cd adp && make` |
+| [`adp_parser/`](adp_parser) | `KL_adp_parser.sv` | ADP **receive**/decapsulate: all 18 parsed fields byte-exact off a 70-byte stream that starts at the EtherType, the AVAILABLE/DEPARTING/DISCOVER strobes one cycle wide and only on their own code, and the reserved-code contract — the named `RESERVED` (3) and every code 4..15 raise `entity_info_valid` with **no** strobe and the **raw wire code preserved**, which is what pins the "cast, do not clamp" decision at `KL_adp_parser.sv:81`. Plus back-to-back frames with a stale-by-one-frame negative, and the `association_id[15:0]`-lands-one-cycle-late quirk (228 checks). **The Makefile deliberately omits `-Wno-fatal`**, so Verilator's `%Error-ENUMVALUE` makes an uncast enum assignment a build failure here. | `cd adp_parser && make` |
 | [`adp_tx/`](adp_tx) | `adp_tx_arbiter.sv` | 2-input AXIS packet arbiter merging the ADP stream into the MAC TX: no frame interleave, per-source in-order byte-exact delivery, round-robin fairness, back-pressure integrity (26 checks). | `cd adp_tx && make` |
 | [`classifier/`](classifier) | `traffic_classifier.sv` | Full classifier after the `xpm_fifo_axis`→`axis_fifo` (Forencich) swap — proves it now Verilates; lossless in-order byte-exact passthrough, `tdest` correct+stable per frame under back-pressure, the DEI drop-eligibility sideband on `tuser[0]` (`REQ-CLS-05`, untagged negative), reserved-DMAC gating (`REQ-CLS-07`), the DMAC-keyed control fast path through the real parser (`REQ-CLS-10` — the q2 protocol table at line rate, the gPTP/MSRP split at one address, a tagged `0x22F0` staying on the SR classes, proof that `eth_type` is the **inner** type and not the TPID, and the no-row/`CLS_CTRL[2]=0` negatives) and a zero-idle line-rate burst with a stale-by-one-frame negative (`REQ-CLS-06`). Needs `third_party/verilog-axis`. | `cd classifier && make` |
 | [`queues/`](queues) | `traffic_queues.sv` | Per-queue buffering after the `axis_switch` IP + `xpm_fifo_axis` → Forencich `axis_demux`/`axis_fifo`/`axis_arb_mux` swap (T1.3): per-queue `tdest` routing, grant suppression (no drain w/o grant), `queue_has_data`, byte-exact per-queue delivery (11 checks). | `cd queues && make` |
@@ -55,7 +56,7 @@ for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 
 ### Suites without a row above (yet)
 
-The table above is not complete — **`ls` is**, and it currently lists 55 suites
+The table above is not complete — **`ls` is**, and it currently lists 56 suites
 with a `Makefile`. These 25 have no prose row here:
 
 [`aaf/`](aaf) · [`aaf_audio_loop/`](aaf_audio_loop) · [`aaf_latency_taps/`](aaf_latency_taps) · [`aecp/`](aecp) · [`avtp_rxmon/`](avtp_rxmon) · [`chmap_capture/`](chmap_capture) · [`chmap_render/`](chmap_render) · [`crf_rx/`](crf_rx) · [`crf_tx/`](crf_tx) · [`eth_tx_reset/`](eth_tx_reset) · [`i2spb/`](i2spb) · [`ifg/`](ifg) · [`lat_history_ring/`](lat_history_ring) · [`link_guard/`](link_guard) · [`lwsrp_switchpdu/`](lwsrp_switchpdu) · [`maap/`](maap) · [`mmcm_servo/`](mmcm_servo) · [`mmcm_servo_autorepair/`](mmcm_servo_autorepair) · [`pcm_ring_bram/`](pcm_ring_bram) · [`pcm_tx/`](pcm_tx) · [`pcmlpf/`](pcmlpf) · [`ptp_ts/`](ptp_ts) · [`tcam_csr/`](tcam_csr) · [`tdm_render/`](tdm_render) · [`tsn_fuzz/`](tsn_fuzz)
@@ -67,8 +68,14 @@ which is **generated** from the RTL tree and the TB Makefiles and lists, per
 module, every testbench that compiles it. (The four suites this round added —
 `aes3`, `avtp_parser`, `mac_rmon`, `persist` — *do* have rows above.)
 
-Full sweep on 2026-07-26: **55/55 PASS, 2 064 050 checks, 0 failures**
-(`scripts/run_all_suites.sh`, Verilator v5.050).
+Full sweep on 2026-07-27: **56/56 PASS, 2 062 281 checks, 0 failures**
+(`scripts/run_all_suites.sh`, Verilator v5.050). The same tree immediately
+before that round measured **55/55, 2 062 053** — so the whole delta is the new
+`adp_parser` suite's 228 checks, and a per-suite diff of the two sweeps shows
+`adp_parser` as the *only* differing row. That is part of how the round's
+`axi_stream_if` `TDATA_WIDTH_P` 32 → 64 default change was shown to move no
+elaboration (the other part being `syn/yosys/run.sh`, cell-for-cell identical
+across all 47 tops).
 
 ## Conventions
 
