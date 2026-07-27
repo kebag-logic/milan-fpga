@@ -17,7 +17,7 @@ Entity-level ACQUIRE / LOCK state machine. Produces `status_o` combinationally s
 
 | Port | Dir | Type | Description |
 |------|-----|------|-------------|
-| `clk_i` | in | `wire` | 125 MHz clock |
+| `clk_i` | in | `wire` | Datapath clock — build-parameterised by `--milan-clk-freq`, **not** a fixed 125 MHz: 100 MHz on the AX7101, 50 MHz on the Arty (`sw/litex/sweep.sh`). Nothing here is frequency-sensitive; the only real-time constant, the 60 s lock expiry, is counted in `tick_1khz_i` strobes |
 | `rst_n` | in | `wire` | Active-low reset |
 | `entity_id_i` | in | `wire [63:0]` | EUI-64, driven from top-level MAC |
 | `hdr_i` | in | `aecp_hdr_t` | Parsed header from `KL_aecp_common_parser` |

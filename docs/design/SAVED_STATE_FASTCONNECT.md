@@ -485,12 +485,33 @@ falsifiable on its own, so a failure localises.
 
 ### G0 — build with the new layout (host only, no board)
 
-1. Add the `journal` (`0xDE_0000`, 128 KiB) and `user` (`0xE0_0000`, 2 MiB)
-   slots to `FLASHBOOT_LAYOUT` and shrink `rootfs` to `0x66_0000`.
+> **The layout itself is already landed** (2026-07-26, §5 and §10 item 1):
+> `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
+> carries `journal` at `0xDE_0000` (128 KiB) and `user` at `0xE0_0000` (2 MiB),
+> and `rootfs` is already `0x66_0000`. G0 is therefore a **verification** gate,
+> not an editing one — step 1 is a check, and it should pass unchanged.
+
+1. Confirm the slots are present and the map is consistent —
+   `python3 sw/dts/gen_mtd_partitions.py --map` (it reads `milan_soc.py` with
+   `ast`, so it needs no LiteX/migen). Expect:
+
+   ```
+   rootfs     0x00780000 0x00660000 0x00DE0000  image
+   journal    0x00DE0000 0x00020000 0x00E00000  reserved
+   user       0x00E00000 0x00200000 0x01000000  reserved
+   (free)                0x00000000
+   ```
+
+   `check_flash_map()` refuses an unaligned or overlapping map at build time,
+   so a regression here fails the build rather than the bench.
 2. Rebuild; confirm the rootfs image still fits the shrunk slot **before**
    flashing anything (`ls -l` on the produced `rootfs.cpio.xz` vs `0x66_0000`).
+   This is still a **manual** check — §10 item 4 records why `deploy.sh`'s own
+   printed budget is not yet trustworthy.
 3. Regenerate the DTB from the build's `csr.csv` (CSR-rot rule) with the
-   `fixed-partitions` node from §10.
+   `fixed-partitions` node from §10. `sw/dts/gen_mtd_partitions.py --check`
+   byte-compares the checked-in fragment, and
+   `sw/trace/test_trace_roundtrip.py` gate 1 runs it in CI.
 
 ### G1 — the partition appears
 
@@ -641,7 +662,14 @@ generic cells with no vendor primitives (`hierarchy -check` clean).
 1. Wire `KL_persist_journal` into `milan_datapath` and add the `0x7B8-0x7C4`
    group to `milan_csr`, including the `rest_*` arbiter of §8. Needs a `VERSION`
    bump.
-2. Add the `journal` + `user` slots to `FLASHBOOT_LAYOUT` and the mtd node to
-   the DT (§5, §10).
+2. ~~Add the `journal` + `user` slots to `FLASHBOOT_LAYOUT` and the mtd node to
+   the DT~~ — **DONE 2026-07-26** (§5, §10 item 1). `FLASHBOOT_RESERVED` carries
+   `journal` `0xDE_0000` + `user` `0xE0_0000`, `rootfs` is `0x66_0000`, and
+   `sw/dts/gen_mtd_partitions.py` generates the `fixed-partitions` node from
+   that single source under `test_trace_roundtrip.py` gate 1. What is **still
+   open** from this line is one thing only: `deploy.sh` computes each image's
+   ceiling from the next *image* offset and ignores the `reserved` key, so an
+   oversized rootfs would silently overwrite both slots (§10 item 4 — one line
+   in `do_flash_images()`).
 3. G0-G3 on a board: the read path first — it needs no writable mtd.
 4. The writable mtd path and `journald` (§9, §10), then G4-G6.

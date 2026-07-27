@@ -7,7 +7,19 @@
 > were already parse-derived. Gates: ring 7/7 + BD 45-PASS (new 68B-gPTP /
 > 91B-replay / 66B-ACK true-length tests) + elab/codegen clean. The kl-eth
 > PTP-trim becomes a no-op on fixed gateware and stays for old bitstreams.
-> Silicon gate pending: RX perf regression (TCP ≥ switch baseline, 0-drop).
+> **Silicon gate STILL PENDING: the RX perf regression** — TCP ≥ switch
+> baseline, 0-drop, per "The fix" step 4 (200+ Mbit, 0-drop). Read the
+> "SILICON RESULT" section below for what it says and no more:
+> it validates the **gPTP function** (bad-message rate → 0, full pdelay
+> handshake, `asCapable` set). It contains **no throughput or drop
+> measurement**, and a functional pass does not close a perf gate. The RX
+> numbers in [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) (209 single-flow,
+> 223 with the 2-queue fan-out) are from the 2026-07-08/10 campaign — they
+> **predate** this 2026-07-13 gateware change and cannot serve as its
+> regression baseline. The only throughput figure on this page, the 93.6 Mbit/s
+> TCP stream in the switch-behavior matrix, was a GM-holdover decoupling test
+> on a 100 Mbit path, not a datapath perf run. Re-running the regression on
+> post-fix gateware is what closes this.
 
 ## Contents
 
@@ -15,7 +27,7 @@
 - **[The actual bug](#the-actual-bug)** — The byte-level finding, and the best-written part of the page: a 68-byte pdelay_req is *delivered* as 72 because `RingDMAWriter` throws away the last beat's `keep` and reports `beats << 3`. TCP never noticed (its length fields govern); `ptp4l` parses the four zeros as a bogus TLV and returns EBADMSG on every frame.
 - **[The fix (careful, sim-gated — NOT a rushed change)](#the-fix-careful-sim-gated--not-a-rushed-change)** — Thread a 3-bit `pad` through `len_fifo`. The table is the payoff: of the three delivery paths only the BD ring's length changes, the byte-ring ABI stays deliberately padded so it cannot desync, and **no path needs a driver change**.
 - **[After the fix](#after-the-fix)** — Short. The one durable point: any strict L2 parser would have choked on that padding, so this pre-empts the same failure in MSRP/MVRP RX.
-- **[SILICON RESULT (2026-07-12 night) — FIX VALIDATED](#silicon-result-2026-07-12-night--fix-validated)** — The measurement: bad-message rate from thousands/min to **0**, full pdelay handshake in both directions, `asCapable` set — and then an announce timeout, because the switch sends the board no Announce at all.
+- **[SILICON RESULT (2026-07-12 night) — gPTP FUNCTION VALIDATED](#silicon-result-2026-07-12-night--gptp-function-validated)** — The measurement, and note the scope: bad-message rate from thousands/min to **0**, full pdelay handshake in both directions, `asCapable` set — and then an announce timeout, because the switch sends the board no Announce at all. Functional evidence only; the banner's RX perf gate (TCP ≥ switch baseline, 0-drop) is **not** measured here and is still open.
 - **[Remaining (switch-side, NOT our stack)](#remaining-switch-side-not-our-stack)** — Where the remaining problem lives and the two ways past it: a direct board↔board cable, or enabling 802.1AS GM relay on the board-facing switch ports.
 - **[Bench note (end of session)](#bench-note-end-of-session)** — A dated bench trap worth recognising: after a dozen FPGA reconfigs the switch simply stopped sending pdelay to that port while the data plane kept working. Flap-suppression/RSTP, not the stack — power-cycle to re-validate.
 - **[What's in flash now (arty, morning-ready)](#whats-in-flash-now-arty-morning-ready)** — Historical: a 2026-07-13 snapshot of what the Arty's flash held. Superseded as board state; read it only as the provenance of that session's results.
@@ -131,7 +143,12 @@ accept-all, PHC adjfine/adjtime validated). This ALSO explains any other strict
 L2 protocol parser that would choke on the pad (future lwSRP MSRP/MVRP RX).
 
 
-## SILICON RESULT (2026-07-12 night) — FIX VALIDATED
+## SILICON RESULT (2026-07-12 night) — gPTP FUNCTION VALIDATED
+
+> **Scope.** Everything below is *functional* gPTP evidence. The RX perf
+> regression named in the banner (TCP ≥ switch baseline, 0-drop) is **not**
+> measured here and remains open.
+
 Driver trim applied (the-private-test-repo kl-eth 24438f3), .ko hot-swapped on the Arty:
 - **"bad message": thousands/min -> 0.** ptp4l accepts every switch pdelay_req.
 - Full pdelay handshake with the d&b switch BOTH ways (tcpdump): Arty sends

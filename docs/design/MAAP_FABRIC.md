@@ -14,6 +14,7 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 - **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** — The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
 - **[Fabric integration](#fabric-integration)** — Where `KL_maap` attaches (RX monitor tap on subtype 0xFE, TX after the ACMP-listener arbiter stage), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP` — note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
 - **[Open decisions](#open-decisions)** — Two unresolved questions, the load-bearing one being whether AAF admission should AND `maap_valid` when MAAP is enabled, since Milan requires a valid stream DMAC before SRP.
+- **[Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)](#appendix-get_dynamic_info-0x4b-contract-task-19-tail-pinned-07-17)** — Unrelated to MAAP, and it was an `#` heading until 2026-07-27 so it never appeared in this list. The live payload: the exact `0x4B` response layout byte-extracted from the reference `cmd-get-dynamic-info.c` — one record per descriptor carrying mutable state, in descriptor-list order, summing to a **fixed** 112 B payload (CDL 124) for our entity. Also the reason it needed an isolated commit — the records interleave const- and store-sourced fields, so the response builder's four segment slots had to grow to twelve first. **Status: implemented** in `KL_aecp_response_builder.sv`.
 
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)
 
@@ -77,7 +78,7 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 ---
 
-# Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)
+## Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)
 
 Reference `cmd-get-dynamic-info.c`: response = echo hdr + payload
 `config_index(2)+reserved(2)` then ONE record per descriptor that carries
