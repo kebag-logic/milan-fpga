@@ -76,6 +76,16 @@ here), [`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) rows M-CNT-2 (Table 7
 AAF-4 / M-FMT-2 (wire-truth channel policy), SRP-9 (per-stream attribute
 instances).
 
+## Contents
+
+- **[0. Clause references (verified via pdftotext against the local standards PDFs, $STANDARDS_DIR)](#0-clause-references-verified-via-pdftotext-against-the-local-standards-pdfs-standards_dir)** — TODO describe this section
+- **[1. Dataplane RX — shared depacketizer + monitor engine](#1-dataplane-rx--shared-depacketizer--monitor-engine)** — TODO describe this section
+- **[2. Dataplane TX — shared packetizer](#2-dataplane-tx--shared-packetizer)** — TODO describe this section
+- **[3. Control plane](#3-control-plane)** — TODO describe this section
+- **[4. Clock domains, CDC, and the timing-risk register](#4-clock-domains-cdc-and-the-timing-risk-register)** — TODO describe this section
+- **[5. Phasing — TB-gated increments (no-regression axiom throughout)](#5-phasing--tb-gated-increments-no-regression-axiom-throughout)** — TODO describe this section
+- **[6. Resource budget per subsystem](#6-resource-budget-per-subsystem)** — TODO describe this section
+
 ## 0. Clause references (verified via pdftotext against the local standards PDFs, `$STANDARDS_DIR`)
 
 | Ref | Source | Clause | Requirement grounded here |

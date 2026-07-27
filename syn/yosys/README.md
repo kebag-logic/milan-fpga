@@ -17,6 +17,13 @@ make            # generic synth (device-independent) of every top -> RESULT: PAS
 make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4)
 ```
 
+## Contents
+
+- **[How it works](#how-it-works)** — TODO describe this section
+- **[Tooling](#tooling)** — TODO describe this section
+- **[Coverage](#coverage)** — TODO describe this section
+- **[Notes](#notes)** — TODO describe this section
+
 ## How it works
 1. **[sv2v](https://github.com/zachjs/sv2v)** converts the SystemVerilog (interfaces,
    packages, assignment patterns) to Verilog-2005 — Yosys's built-in frontend does
