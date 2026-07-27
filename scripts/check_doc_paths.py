@@ -106,6 +106,23 @@ def resolves(tok, md):
     return (REPO / tok).exists() or (md.parent / tok).exists()
 
 
+def ignored(toks):
+    """Which of these paths git is told to ignore.
+
+    A gitignored path is a BUILD ARTIFACT: `sw/builder/out/` exists in a clone
+    where the builder has been run and not in a fresh worktree. Whether it is
+    on disk is a fact about your machine, not about the documentation, and a
+    gate that changes verdict between two checkouts of the same commit is
+    worse than no gate - it trains people to ignore it. Naming an output
+    directory in prose is legitimate, so these are accepted either way.
+    """
+    if not toks:
+        return set()
+    r = subprocess.run(["git", "-C", str(REPO), "check-ignore", "--stdin"],
+                       input="\n".join(toks), capture_output=True, text=True)
+    return {l.strip() for l in r.stdout.split("\n") if l.strip()}
+
+
 def main():
     listing = "--list" in sys.argv[1:]
     dangling, checked, allowed, ledgers = [], 0, 0, 0
@@ -132,6 +149,12 @@ def main():
             dangling.append((rel, tok))
             if listing:
                 print(f"  DANGL {tok}  <- {rel}")
+
+    # Build artifacts are not documentation facts - drop them before reporting.
+    art = ignored([t for _, t in dangling])
+    if art:
+        dangling = [(r, t) for r, t in dangling if t not in art]
+        allowed += len(art)
 
     if dangling:
         # group by path so one move does not print as twenty findings
