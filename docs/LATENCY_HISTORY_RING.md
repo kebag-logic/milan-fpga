@@ -8,6 +8,15 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 Roadmap item 11, DDR3 arm. Per-stage AAF pipeline latency, captured as a
 **time-series** in a wrapping DRAM ring the CPU / userspace reads back.
 
+## Contents
+
+- **[Why a ring (vs the CSR snapshot)](#why-a-ring-vs-the-csr-snapshot)** — The case against the existing `0x870` taps: a min/last/max register answers "what is the latency now" and can never give you a jitter histogram, a p99 tail, or a transient burst you were not watching for.
+- **[Record format (16 bytes, little-endian in DRAM)](#record-format-16-bytes-little-endian-in-dram)** — The byte layout plus the C struct, and the two fields that make a trace self-describing: a mod-4096 `seq` so a reader detects loss or reordering, and a `gap` bit set on the first record *after* a hole. Also how one record splits across two 64-bit beats.
+- **[Ring CSR ABI (reused verbatim from the PCM ring)](#ring-csr-abi-reused-verbatim-from-the-pcm-ring)** — Deliberately field-for-field the PCM ring's ABI, so existing mmap-and-chase userspace works unchanged. One extension at `0x1C` (`DROPPED`), and the `LOOP` choice: 1 = rolling history, 0 = one-shot that stops when full and counts the overflow.
+- **[Documented tap points (stage_id)](#documented-tap-points-stage_id)** — The eight tap ids across the TX and RX chains, and the convention that decides how you read every record: `stage_id` names the **destination** stage of the delta. The input contract below it states the producer is never back-pressured — a sample offered mid-drain is dropped and counted, not stalled.
+- **[Userspace read recipe (pw-milan-ring-source style)](#userspace-read-recipe-pw-milan-ring-source-style)** — Copy-paste program/mmap/chase loop, and the sizing rule behind it: a reader more than `RING_BYTES/16` records behind is silently reading overwritten slots, which `seq` gaps and `DROPPED` are there to reveal.
+- **[Verification](#verification)** — What the 84-check harness actually asserts by snooping every write beat — byte-exactness, wrap, stop-mode full, drop-on-full and the `gap` marker.
+
 ## Why a ring (vs the CSR snapshot)
 
 `KL_aaf_latency_taps` (PR #17, CSR base `0x870`) measures per-stage inter-stage
