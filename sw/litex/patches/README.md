@@ -4,6 +4,13 @@ Small additions to the **LiteX / LiteEth** source trees (vendored or pip-install
 shipped here as patches and applied in place by `apply.sh` (idempotent; discovers each
 tree from the active Python env; re-run after every LiteX/LiteEth update).
 
+## Contents
+
+- **[0002-liteeth-gmii-tx-clk-invert.patch — GMII TX clock phase option](#0002-liteeth-gmii-tx-clk-invertpatch--gmii-tx-clock-phase-option)** — Forwards `gtx_clk` 180° out of phase, and the measured verdict for the AX7101/RTL8211E: REQUIRED once the TX launch FFs are IOB-packed — 25-40 % corrupt frames edge-aligned vs 20/20 pings and zero CRC errors inverted. Also says what it is *not*: this was never the silence bug.
+- **[0001-milan-linux-flashboot.patch — QSPI Linux flash-boot](#0001-milan-linux-flashbootpatch--qspi-linux-flash-boot)** — A BIOS boot method that copies the Linux images out of memory-mapped QSPI into DRAM instead of waiting on a serial upload. Names the three BIOS files it touches, and why it registers at priority -10 (ahead of serialboot, which stays as fallback) and compiles to nothing on non-Milan builds.
+- **[0002-vexiiriscv-l2-depth-args.patch — VexiiRiscv L2 geometry args](#0002-vexiiriscv-l2-depth-argspatch--vexiiriscv-l2-geometry-args)** — The L2-experiment patch that `apply.sh` deliberately does NOT apply — apply it by hand only. Read this if you were confused by the duplicate `0002-` prefix: it targets a different tree.
+- **[Usage](#usage)** — The `apply.sh` verbs (apply, `--reverse`, `PYTHON=` for a specific env), why you must re-run after every LiteX upgrade, and the copy-paste recipe for re-diffing a patch that no longer applies.
+
 ## `0002-liteeth-gmii-tx-clk-invert.patch` — GMII TX clock phase option
 
 Adds `tx_clk_invert` to `LiteEthPHYGMII(CRG)`: forwards `gtx_clk` **180° out of phase**

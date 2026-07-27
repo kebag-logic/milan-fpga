@@ -21,6 +21,14 @@ parallel; this document is the contract it converges on, and its rows are
 meant to be promoted into the traceability matrix / bench features per the
 [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) review workflow.
 
+## Contents
+
+- **[1. Artifacts and flow](#1-artifacts-and-flow)** — What one config emits and, more usefully, *who reads each file and where a stale one is caught* — a per-artefact table naming its consumer and its `test_builder.py` gate number. Only four files are tracked in the repo and can therefore go stale inside a commit; everything else is regenerated. Ends with the three example shapes side by side, where the cluster row shows the policy biting (8×8 emits 80 clusters, not 128).
+- **[2. Settled design decisions](#2-settled-design-decisions)** — D1-D8 with their clause basis, opening with the index that says which four you can actually rely on today. The reasoning worth reading whole: D3 keeps talker `channels` and `clusters` as separate config fields because deriving one from the other is what produced the declared-8ch/wire-2ch silence, and D6/D7/D8 are recorded decisions with no RTL behind them yet.
+- **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** — The 27-row field-by-field contract: each config key, the descriptor or argv it generates, the clause that governs it, and which consumer reads it. Three rows generate *planned* artifacts — the config validates and the build plan marks them rather than erroring.
+- **[4. What the 8x8 shape adds (endstation_ax7101_8x8.yaml)](#4-what-the-8x8-shape-adds-endstation_ax7101_8x8yaml)** — Descriptor growth from 1×1 to 8×8 with the clause driving each count, and the new obligation the shape triggers: two or more AAF inputs make a CRF Media Clock Output mandatory, now enforced as a validation error. Also the honest split — the model half is done, the provisioning half rides with item 5, and the area cost at 100 MHz is a measurement this page declines to claim.
+- **[5. Relation to the bench suite and the traceability matrix](#5-relation-to-the-bench-suite-and-the-traceability-matrix)** — Why the builder adds no normative behaviour of its own, and the two gates that hold it honest: today's config must reproduce the shipped ROM and `sweep.sh` argv byte-for-byte, and an unchanged model must keep an unchanged `entity_model_id`.
+
 ## 1. Artifacts and flow
 
 ```

@@ -2,6 +2,14 @@
 # Entity: traffic_shaping_core 
 - **File**: traffic_shaping_core.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — Generated block symbol (`traffic_shaping_core.svg`).
+- **[Generics](#generics)** — Just two: tdata width and `NUMBER_OF_QUEUES` (5 here) — the arbiter's width is a parameter, not a hard-coded queue map.
+- **[Ports](#ports)** — The arbitration handshake as one-hot `queue_has_data_i` in and one-hot `grant_queue_o` out, plus `is_1g_i` — the link-rate input the CBS credit math scales from.
+- **[Signals](#signals)** — Per-queue transmit flags and byte counters, `allow_transmit` (the credit verdict arriving from the CBS modules), and `hold_grant`, the latch that keeps a grant pinned until tlast so a frame is never interleaved.
+- **[Processes](#processes)** — A single always_ff carrying the whole selection rule: exactly one queue granted at a time.
+
 ## Diagram
 ![Diagram](traffic_shaping_core.svg "Diagram")
 ## Generics
