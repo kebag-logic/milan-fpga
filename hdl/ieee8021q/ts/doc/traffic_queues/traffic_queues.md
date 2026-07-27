@@ -1,3 +1,13 @@
+<!--
+TerosHDL documenter output (docs/DOC_GENERATION.md section 2): the Diagram /
+Generics / Ports / Signals / Constants / Instantiations sections and
+traffic_queues.svg are MACHINE-EMITTED from traffic_queues.sv and are
+DISCARDED on the next "Save documentation" run - do not invest prose in them.
+The masters are the //! comments in the RTL. There is no headless CLI on this
+box (Node is absent), so a stale table is fixed by an editor session, not by a
+script; the "Signals" table below is stale in exactly that way and says so.
+The Contents block is gen_toc.py's and does survive.
+-->
 
 # Entity: traffic_queues 
 - **File**: traffic_queues.sv
@@ -7,8 +17,8 @@
 - **[Diagram](#diagram)** — The generated schematic: one demux fanning frames out by `tdest`, a FIFO per queue, and a single egress selector.
 - **[Generics](#generics)** — Three, and the depth is the one to read carefully — the default here is not what gets built; `traffic_controller_802_1q` instantiates it far shallower.
 - **[Ports](#ports)** — The whole contract with the shaper is two one-hot vectors: `queue_grant_i` in, `queue_has_data_o` out. Everything else is the AXIS pair and clock/reset.
-- **[Signals](#signals)** — The packed per-queue buses plus their unpacked array views for `generate` indexing. Plumbing only, and the names here lag the current RTL — read the source if you are matching signals.
-- **[Constants](#constants)** — One localparam, the `tdest` width derived from the queue count. Take the width from the RTL rather than this table.
+- **[Signals](#signals)** — **Stale generated table, banner-flagged**: it lists a pre-`axis_demux` naming (`mux_to_fifo_*`/`fifo_to_demux_*` plus `*_array` views) that the RTL no longer has — today the buses are `dm_*` and `ff_*` and there is no `tdest` bus. Plumbing only; read the source if you are matching signals.
+- **[Constants](#constants)** — The three localparams, and the one that bites: `TDEST_WIDTH` is `$clog2` of the queue count, **not** the queue count — 3 bits at the shipping 5 queues. Also the `KW` byte width and the `PROG_EMPTY_THRESH = 5` that preserves the CBS scheduler's underrun margin.
 - **[Instantiations](#instantiations)** — The three children, each annotated with what it replaced: a vendor-free demux instead of generated switch IP, `axis_fifo` instead of `xpm_fifo_axis`, and — the important one — a grant-indexed **combinational** mux on egress instead of `axis_arb_mux`, because a second arbiter stacked on the CBS grant deadlocked TX.
 
 ## Diagram
@@ -33,6 +43,13 @@
 | m_axis           |           | axi_stream_if.master        | master interface of AXIS         |
 
 ## Signals
+
+> **STALE — do not match signals against this table.** It is TerosHDL output
+> from a pre-`axis_demux` revision of `traffic_queues.sv`. In the current RTL
+> the buses are named `dm_*` (demux → FIFO) and `ff_*` (FIFO → egress mux),
+> there are no `*_array` unpacked views and no `*_tdest` bus at all
+> (`traffic_queues.sv` lines 65-72). A TerosHDL regeneration replaces this
+> table wholesale; until then read the source.
 
 | Name                                             | Type                                          | Description                                              |
 | ------------------------------------------------ | --------------------------------------------- | -------------------------------------------------------- |
@@ -64,9 +81,11 @@
 
 ## Constants
 
-| Name        | Type | Value              | Description            |
-| ----------- | ---- | ------------------ | ---------------------- |
-| TDEST_WIDTH |      | (NUMBER_OF_QUEUES) | Width of `tdest` field |
+| Name              | Type | Value                                                     | Description                                                    |
+| ----------------- | ---- | --------------------------------------------------------- | -------------------------------------------------------------- |
+| TDEST_WIDTH       |      | `(NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES)`   | Width of `tdest` field. It is `$clog2` of the queue count, **not** the queue count — at the shipping `NUMBER_OF_QUEUES = 5` that is 3 bits, not 5. The `<= 1` arm keeps a 1-queue build from asking for a zero-width bus (`traffic_queues.sv:49`) |
+| KW                | int  | `TDATA_WIDTH/8`                                            | Bytes per beat = `tkeep` width                                 |
+| PROG_EMPTY_THRESH | int  | `5`                                                        | A queue reports "has data" only above this depth — the old xpm `PROG_EMPTY_THRESH`, kept so the CBS scheduler's underrun margin is unchanged |
 
 ## Instantiations
 

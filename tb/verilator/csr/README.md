@@ -16,7 +16,8 @@ TSN datapath (the "memory-mapped configuration" called out in
 
 ```
 cd tb/verilator/csr
-make            # verilate + build + run (44 checks)
+make            # verilate + build + run; the last lines print the live
+                # "checks: N   failures: N" tally and RESULT: PASS/FAIL
 ```
 
 No Xilinx tools required — `milan_csr.sv` is a standalone AXI4-Lite slave.
