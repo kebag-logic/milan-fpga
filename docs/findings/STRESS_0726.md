@@ -9,9 +9,15 @@ pre-round gateware `VERSION 0x0001_000B`.
 healthy: accepting, `AVTPRX_ERR = 0`, `RST_EPOCH` unchanged at 1 (no MAC reset
 was ever provoked), zero kernel errors.
 
-**Includes the MAC-TX wedge drill (AX42)** — see section H. The AX42 fix is
-now **validated on silicon**: 9 induced eth-clock-death events, 9 clean
-recoveries, TX never wedged on the wire.
+**Includes the MAC-TX wedge drill (AX42)** — see section H. The drill ran 9
+induced eth-clock-death events with 9 clean recoveries and TX never wedged on
+the wire, which proves the guard's detection→`eth_rst`→recovery sequence works
+end to end and that asserting `eth_rst` does not itself break TX. It does
+**NOT** validate the AX42 fix: the control experiment in section H disproved
+that, because **no wedge was ever induced** — with the guard disabled and the
+link frozen, TX kept ticking for 24 s. `linkg_freeze` fakes the liveness
+indicators; it does not wedge anything. Read section H before quoting any of
+this.
 
 ## Contents
 
@@ -214,11 +220,22 @@ Fault detected, `eth_rst` asserted, **recovered to RUN in ~2 s**, `RST_EPOCH`
 unchanged (no MAC-domain reset was needed). Throughout, the peer's RX advanced
 97k-114k frames per 5 s with **no dip** — TX never stopped on the wire.
 
-### Repeatability — 8 consecutive cycles
+### Repeatability — 8 or 9 consecutive cycles, see the note
 
-All 8 recovered: peak `LINKG` showed HOLD + `eth_rst` each time, every cycle
-returned to RUN with TX ticking, `bounce_cnt` counted every event (1 → 9), and
-`RST_EPOCH` never moved. Final state: RUN, carrier up, **0 kernel errors**.
+All of them recovered: peak `LINKG` showed HOLD + `eth_rst` each time, every
+cycle returned to RUN with TX ticking, `bounce_cnt` counted every event
+(1 → 9), and `RST_EPOCH` never moved. Final state: RUN, carrier up,
+**0 kernel errors**.
+
+> **The cycle count on this page is inconsistent and no raw log was kept.**
+> This heading says 8; three other places say 9. `bounce_cnt 1 → 9` is
+> compatible with both readings — nine events if the counter was 0 before the
+> first, eight if it already read 1. The *qualitative* result does not depend
+> on which is right (every induced cycle recovered, `RST_EPOCH` never moved),
+> so nothing above is retracted, but do not quote a cycle count from this page
+> as measured. Settling it needs a re-run with the counter read before and
+> after; the drill recipe is in [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
+> Recording it rather than silently picking the more flattering number.
 
 This is the silicon validation roadmap item 0 was waiting for.
 

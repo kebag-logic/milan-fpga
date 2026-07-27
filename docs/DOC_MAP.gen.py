@@ -121,7 +121,7 @@ def svg():
     o.append(f'<text x="{X0+22}" y="{fy+28}" font-size="16" font-weight="bold" fill="#212121">Shared references — every lane comes back to these</text>')
     refs = ["reference/REGISTER_MAP.md — the CSR ABI", "GLOSSARY.md — every term",
             "SPEC_TRACEABILITY.md — clause→module→test", "findings/ — dated bug post-mortems",
-            "DOC_AUDIT.md — doc freshness tracker"]
+            "historical_now_obsolete/DOC_AUDIT.md — archived audit"]
     rw = (W-2*X0-44)//len(refs)
     for k,r in enumerate(refs):
         rx = X0+22+k*rw
@@ -152,7 +152,7 @@ def drawio():
         for j,(doc,blurb) in enumerate(steps):
             sy=steps_top+j*(SH+SGAP)
             add(x,sy,COLW,SH,f"{j+1}.  {doc}\n{blurb}",fill,stroke,13,0)
-    add(X0,bottom_y,W-2*X0,96,"Shared references — every lane comes back to these\n\nreference/REGISTER_MAP.md · GLOSSARY.md · SPEC_TRACEABILITY.md · findings/ · DOC_AUDIT.md",GREY[0],GREY[1],13,1)
+    add(X0,bottom_y,W-2*X0,96,"Shared references — every lane comes back to these\n\nreference/REGISTER_MAP.md · GLOSSARY.md · SPEC_TRACEABILITY.md · findings/ · historical_now_obsolete/DOC_AUDIT.md",GREY[0],GREY[1],13,1)
     body="\n".join(cells)
     return (f'<mxfile host="app.diagrams.net"><diagram name="doc-map">'
             f'<mxGraphModel dx="1400" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" '
