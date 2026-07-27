@@ -54,6 +54,20 @@ jobs:
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
 
+      # RTL lint, BEFORE the 100-minute sweep so a lint break is a ~1 min
+      # verdict rather than something you wait an hour to be told. It is a STEP
+      # and not its own job on purpose: it needs exactly this Verilator, at
+      # exactly this pin, and a separate job would either restore the same
+      # cache twice or - on a cache miss - build Verilator twice in parallel
+      # for a check that runs in nine seconds.
+      #   * --check fails on a NEW violation (per-directory ratchet in
+      #     scripts/lint.budget); today's 188 are grandfathered and printed.
+      #   * --self-test proves the malformed-pragma gate still bites, which is
+      #     never ratcheted: `lint_off CODE // prose` builds under 5.050 and
+      #     does NOT build under 5.020.
+      - name: RTL lint (whole hdl/, ratcheted)
+        run: python3 scripts/lint_rtl.py --check --self-test
+
       - name: Run every suite
         run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"
 

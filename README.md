@@ -105,10 +105,11 @@ sudo pacman -S --needed gcc make python python-yaml verilator git
 # 3 · run a self-checking testbench — no vendor tools, exit 0 = PASS
 cd tb/verilator/milan_dp && make
 
-# 4 · run the three repo gates — pure Python, seconds
+# 4 · run the repo gates — pure Python, seconds (the lint one wants verilator)
 python3 scripts/docs_check.py
 python3 docs/traceability/gen_module_matrix.py --check
 python3 sw/builder/test_builder.py
+python3 scripts/lint_rtl.py --check      # RTL lint over all of hdl/, ratcheted
 
 # 5 · build a real bitstream — needs the tier-3 toolchain + Vivado
 python3 -m venv ~/litex-milan/venv && . ~/litex-milan/venv/bin/activate
@@ -129,6 +130,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 |---|---|---|
 | **All Verilator TBs** (one dir per suite, self-checking) | `cd tb/verilator && for d in */; do (cd "$d" && make) \|\| break; done` | verilator ≥ 5.050 (the CI pin) |
 | One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
+| **RTL lint** over all of `hdl/` (ratcheted, ~10 s) | `python3 scripts/lint_rtl.py --check` | verilator (the CI pin) |
 | Docs gate (links, wording, dead references) | `python3 scripts/docs_check.py` | python3 — **git optional** |
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
