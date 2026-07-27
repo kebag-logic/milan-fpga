@@ -60,7 +60,7 @@ board:
                                      # see that config; never unify blindly)
     hs_page_bytes: 16384             # STRICT pair with kl-eth hsplit12
     strip_probes: true               # area-70 ship diet
-    num_queues: 6                    # 802.1Q shaper queues =
+    num_queues: 5                    # 802.1Q shaper queues =
                                      # ethernet_packet_pkg::NUMBER_OF_QUEUES
                                      # (q5 class A .. q0 best effort - see
                                      # docs/reference/EGRESS_QUEUE_MAP.md)
@@ -78,7 +78,7 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
   vid: 2                             # THE SR VID (VID 0 floods unshaped)
   stream_dmac_base: "0x91E0F000FE01" # MAAP range 91:E0:F0:00:FE:01
   accumulated_latency_ns: 0          # constant until measured
-  class_queue: 5                     # LWSRP_CTRL[4:2], reset PCP3->TC3->q5
+  class_queue: 4                     # LWSRP_CTRL[4:2], reset PCP3->TC3->q4
                                      # (802.1Q order: q5 = SR class A, the
                                      # top of the 6-queue egress map)
   enable_at_reset: false             # LWSRP_CTRL[0]

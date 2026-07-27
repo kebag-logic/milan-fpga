@@ -41,7 +41,7 @@ Read with:
 |---|--------------------|-----|-------|-----------|--------|--------------------|
 | Q-1 | Credit-based shaper (idleSlope/credit math) | 802.1Qav | HW | `credit_based_shaper` (CSR `0x400`) | ✅ | `RTL` cbs (87 k, vs fixed-point + ideal models); `SYN` |
 | Q-2 | Per-queue arbitration + strict-priority bypass | 802.1Qav/Q | HW | `traffic_shaping_core` | ✅ | `RTL` shaper_core (61 k); datapath (15) |
-| Q-3 | Shaping only on shaped+activated queues (q5 SR class A / q4 SR class B) | Milan/Qav | HW | `credit_based_shaper` (`CBS_EN`) | ✅ | `RTL` cbs, datapath; `BOARD` `tc qdisc … cbs offload` |
+| Q-3 | Shaping only on shaped+activated queues (q4 SR class A / q3 SR class B) | Milan/Qav | HW | `credit_based_shaper` (`CBS_EN`) | ✅ | `RTL` cbs, datapath; `BOARD` `tc qdisc … cbs offload` |
 | Q-4 | Live CBS reconfiguration (hiCredit clamp) | 802.1Qav | HW | `credit_based_shaper` | ✅ | `RTL` cbs (reconfig scenarios) |
 | Q-5 | 802.1Qbv time-aware shaper (TAS) | 802.1Qbv |  -  |  -  | ➖ future | (not in scope; row tracks intent) |
 
