@@ -229,7 +229,7 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
   link-local PDUs; expressing their queue as a PCP mapping is fiction, and at
   the reset configuration (`use_pcp = 1`) they fell through
   `CLS_DEFAULT_PCP` into the ordinary tables and landed on best effort, leaving
-  the `CONTROL_CLASS` (q2) row of
+  the `CONTROL_CLASS` (q1) row of
   [`docs/reference/EGRESS_QUEUE_MAP.md`](docs/reference/EGRESS_QUEUE_MAP.md)
   documented but unimplemented. *(802.1Q Table 8-1; 802.1Q-2018 §35.2.2.1 MSRP;
   §11.2.3.1.6 MVRP; 1722.1-2021 §6.2.1; 1722-2016 Annex B)* — *Satisfied
@@ -240,8 +240,8 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
      `01-80-C2-00-00-00` and have **no EtherType** (802.3/LLC, DSAP/SSAP
      `0x42`), so an EtherType precondition would lock them out permanently;
   3. the EtherType MAY refine **only** an address that carries two protocols —
-     today exactly one does, `01-80-C2-00-00-0E` (gPTP `0x88F7` → q3, MSRP
-     `0x22EA` → q2), and the two MUST NOT collapse into one queue;
+     today exactly one does, `01-80-C2-00-00-0E` (gPTP `0x88F7` → q2, MSRP
+     `0x22EA` → q1), and the two MUST NOT collapse into one queue;
   4. AECP has **no** group address (it is addressed to the peer entity's
      individual MAC, which on egress is the far end, not our station address),
      so it is covered by one EtherType-keyed arm — untagged `0x22F0` to a

@@ -41,7 +41,7 @@ filter → DMA.
 ## 1. Ports, group by group
 
 Parameters: `TDATA_WIDTH = 64` (all AXIS ports; `tkeep` is
-`TDATA_WIDTH/8 = 8` bits), `NUM_QUEUES = 6` (from
+`TDATA_WIDTH/8 = 8` bits), `NUM_QUEUES = 5` (from
 `ethernet_packet_pkg::NUMBER_OF_QUEUES`; **higher index = higher priority**,
 see [../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md)).
 Byte order on AXIS is big-endian (wire order = memory order; see

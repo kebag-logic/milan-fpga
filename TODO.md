@@ -266,7 +266,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   stale-by-one-frame classifier, and restoring the pre-2026-07-05 re-arm
   condition makes the suite FAIL 4 checks.
 - [x] **M — Reserved DMAC validation** `(REQ-CLS-07)` — the 0x88F7 gPTP fast path
-  (the gPTP queue, q3) now also demands the reserved multicast
+  (the gPTP queue, q2) now also demands the reserved multicast
   `01-80-C2-00-00-0E` when `CLS_CTRL[1]` is set; a spoofed 0x88F7 falls through
   to the PCP tables / BEST_EFFORT. Reset 0 = unchanged wire behaviour. TBs:
   `cls` (directed + 200k random incl. the negative), `classifier` (wire-parsed
