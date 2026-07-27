@@ -2,6 +2,18 @@
 # Entity: ptp_ts_core 
 - **File**: ptp_ts_core.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — The rendered block diagram (`ptp_ts_core.svg`).
+- **[Generics](#generics)** — Six parameters. Two decide behaviour rather than width: `IS_TX` picks the direction, and `BIG_ENDIAN` selects how header fields are lifted off the bus — the setting that a past investigation flipped and broke silicon with.
+- **[Ports](#ports)** — Note the two clock domains: the timestamp arrives in `ts_src_clk` and the frame is processed in `ts_dst_clk`, which is why this block carries CDC at all. Three stream interfaces — frames in, frames out untouched, and metadata records out separately.
+- **[Signals](#signals)** — The internal state worth knowing when reading a waveform: the captured/CDC'd timestamps, the byte counter from SOP, the extracted `eth_type` and `ptp_seq_id` with their separate valid latches, and the `src_send`/`src_rcv`/`dest_req` handshake trio.
+- **[Constants](#constants)** — `BEAT_BYTES`, derived from the stream width — the unit the byte counter and every field offset are expressed in.
+- **[Types](#types)** — The three-state enum behind the metadata emitter: idle, then the high and low words of the record.
+- **[Processes](#processes)** — The pipeline as separate `always_ff` blocks: capture in the source domain, SOP detect, byte count, field extraction, and the output FSM. Reading these in order is how the capture/qualify/emit split is visible in the source.
+- **[Instantiations](#instantiations)** — Two CDC primitives, both in-house (`cdc_pulse` and `cdc_handshake`, which replaced the XPM versions): one carries the SOP event across to trigger capture, the other returns the timestamp.
+- **[State machines](#state-machines)** — The rendered state diagram for the metadata output FSM.
+
 ## Diagram
 ![Diagram](ptp_ts_core.svg "Diagram")
 ## Generics

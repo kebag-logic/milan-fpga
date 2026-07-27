@@ -1,0 +1,272 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Open-synthesis sweep over PARAMETER CONFIGURATIONS, not just tops.
+
+The problem this closes. `run.sh` synthesises 47 tops, each at its **default**
+parameters - it passes no override anywhere. `milan_datapath` defaults to
+`N_STREAMS = 1`, `AUDIO_IF_SLOTS_P = 0`, `AAF_PLAYBACK_P = 0`, so the two
+shapes that actually ship - AX7101 at 8x8 and Arty at 4x4 - were never
+open-synthesised at all. A parameter combination that fails to elaborate is a
+build failure, and nothing in CI would have seen it.
+
+Why this is cheap. Two facts make a sweep affordable:
+
+  * **sv2v preserves parameters.** Verified: `chparam -set NUM_ENTRIES 64`
+    after sv2v moves `tcam` from 4,911 to 19,707 cells. So sv2v runs ONCE per
+    top and every configuration reuses that one conversion - only Yosys reruns.
+  * **The space is partitioned before it is sampled** (below), so it never
+    grows the way the raw legal-value count suggests.
+
+## Keeping the combination count down
+
+Three reductions, in the order they matter:
+
+1. **Only sweep tops that HAVE shape parameters.** Varying nothing across 47
+   tops is 47x the cost for zero extra coverage.
+
+2. **Equivalence-partition each parameter** - pick values that select distinct
+   structural branches, not every legal number. `AUDIO_IF_SLOTS_P` accepts
+   0/8/16/32, but 8, 16 and 32 all take the same TDM generate branch and
+   differ only in width, so {0 (I2S), 8 (TDM narrow), 32 (TDM wide)} covers
+   the shapes and 16 buys nothing.
+
+3. **Cover PAIRS, not the product.** Almost every configuration defect is a
+   two-parameter interaction, so a 2-way covering array finds them at a small
+   fraction of the cost. Here that is 36 combinations reduced to ~10 runs -
+   and the gap widens fast: add six binary prune parameters (the tier-1 levers
+   in `docs/design/AREA_BUDGET.md`) and the product is 2,304 while pairwise
+   stays near a dozen.
+
+**This is sampling, and it is honest about that.** Pairwise cannot see a
+defect that needs three specific parameters at once. The pinned configurations
+below exist so the cases we care about most are never left to the sampler.
+
+Usage:
+    python3 syn/yosys/param_sweep.py --list    # the plan + coverage, no runs
+    python3 syn/yosys/param_sweep.py           # run it (exit = failing configs)
+    python3 syn/yosys/param_sweep.py --max 6   # tighter budget
+"""
+import argparse
+import itertools
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent.parent
+
+#: Parameter -> the values worth synthesising, after equivalence partitioning.
+#: Each entry says WHY those values and not the others; a value that selects no
+#: distinct structure is cost without coverage.
+SPACE = {
+    # 1 is the degenerate single-context path (the no-regression default),
+    # 4 and 8 are the shipping NxN shapes. Intermediate widths reuse the same
+    # generate loop.
+    "N_STREAMS": [1, 4, 8],
+    # 0 selects KL_aaf_capture_i2s; anything > 0 selects KL_tdm_capture. 8 and
+    # 32 are the narrow and wide TDM shapes; 16 takes the identical branch.
+    "AUDIO_IF_SLOTS_P": [0, 8, 32],
+    # binary: instantiate KL_pcm_tx or prune it
+    "AAF_PLAYBACK_P": [0, 1],
+    # divider/counter elaboration differs between the two board clocks
+    "MILAN_CLK_FREQ_HZ": [50_000_000, 100_000_000],
+}
+
+#: Configurations that must ALWAYS run, whatever the sampler decides. These are
+#: the ones where a failure is not a curiosity but a broken product.
+PINNED = {
+    "default": dict(N_STREAMS=1, AUDIO_IF_SLOTS_P=0, AAF_PLAYBACK_P=0,
+                    MILAN_CLK_FREQ_HZ=100_000_000),
+    "ship-ax-8x8": dict(N_STREAMS=8, AUDIO_IF_SLOTS_P=8, AAF_PLAYBACK_P=1,
+                        MILAN_CLK_FREQ_HZ=100_000_000),
+    "ship-arty-4x4": dict(N_STREAMS=4, AUDIO_IF_SLOTS_P=0, AAF_PLAYBACK_P=1,
+                          MILAN_CLK_FREQ_HZ=50_000_000),
+    # the extremes: smallest shape is where degenerate/undriven logic hides,
+    # largest is where elaboration blows up
+    "min": dict(N_STREAMS=1, AUDIO_IF_SLOTS_P=0, AAF_PLAYBACK_P=0,
+                MILAN_CLK_FREQ_HZ=50_000_000),
+    "max": dict(N_STREAMS=8, AUDIO_IF_SLOTS_P=32, AAF_PLAYBACK_P=1,
+                MILAN_CLK_FREQ_HZ=100_000_000),
+}
+
+#: Tops carrying shape parameters. Everything else in run.sh has none, so
+#: sweeping it would cost time and cover nothing new.
+SWEPT_TOPS = ["milan_datapath"]
+
+DEFAULT_MAX = 12
+
+
+def all_pairs():
+    """Every (param, value, param, value) pair the space can produce."""
+    out = set()
+    for (a, av), (b, bv) in itertools.combinations(SPACE.items(), 2):
+        for x in av:
+            for y in bv:
+                out.add(((a, x), (b, y)))
+    return out
+
+
+def pairs_of(cfg):
+    return {((a, cfg[a]), (b, cfg[b]))
+            for a, b in itertools.combinations(SPACE, 2)}
+
+
+def plan(max_runs):
+    """Pinned configurations, then a greedy 2-way fill of what they missed."""
+    chosen = dict(PINNED)
+    covered = set().union(*(pairs_of(c) for c in chosen.values()))
+    target = all_pairs()
+
+    # Greedy: repeatedly take the candidate covering the most missing pairs.
+    # Not minimal - minimal covering arrays are NP-hard - but within a config
+    # or two of it, and the selection is deterministic so CI is reproducible.
+    names = list(SPACE)
+    while len(chosen) < max_runs and covered < target:
+        best, best_gain = None, 0
+        for combo in itertools.product(*(SPACE[k] for k in names)):
+            cfg = dict(zip(names, combo))
+            gain = len(pairs_of(cfg) - covered)
+            if gain > best_gain:
+                best, best_gain = cfg, gain
+        if best is None:
+            break
+        chosen[f"fill-{len(chosen) - len(PINNED) + 1}"] = best
+        covered |= pairs_of(best)
+
+    return chosen, covered, target
+
+
+def convert(top, srcs, inc, tmp):
+    """sv2v ONCE per top - the output keeps its parameters."""
+    out = tmp / f"{top}.v"
+    r = subprocess.run(["sv2v", f"--top={top}"] + inc + srcs,
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        return None, r.stderr.strip().split("\n")[0]
+    out.write_text(r.stdout)
+    return out, None
+
+
+def synth(top, vfile, cfg, tmp):
+    sets = " ".join(f"chparam -set {k} {v} {top};" for k, v in cfg.items())
+    script = f"read_verilog {vfile}; {sets} synth -top {top}; hierarchy -check; stat"
+    r = subprocess.run(["yosys", "-p", script], capture_output=True, text=True)
+    cells = re.findall(r"^\s+(\d+) cells$", r.stdout, re.M)
+    if r.returncode != 0:
+        err = [l for l in (r.stdout + r.stderr).split("\n")
+               if l.upper().startswith("ERROR")]
+        return None, (err[0] if err else "yosys failed")[:110]
+    return (int(cells[0]) if cells else None), None
+
+
+def sources_from_run_sh(top):
+    """Reuse run.sh's source list verbatim - ONE list, not two that can drift.
+
+    run.sh sets `R` from `$0`, which is meaningless when the prelude is
+    evaluated anywhere else (it silently resolved to `/home/alex`, and every
+    source path came out wrong). So `R` is pinned to the repo root here and the
+    remaining assignments are evaluated on top of it.
+    """
+    text = (REPO / "syn/yosys/run.sh").read_text()
+    m = re.search(rf'^\s*"{re.escape(top)}\|(.*?)"\s*$', text, re.M)
+    if not m:
+        return None
+    prelude = [l for l in text.split("tops=(")[0].split("\n")
+               if re.match(r"^[A-Za-z_]+=", l) and not l.startswith("R=")]
+    # `$INC` carries the -I search path; several sources `include` headers that
+    # are not resolvable without it.
+    script = (f'R={REPO}\n' + "\n".join(prelude)
+              + f'\necho {m.group(1)}\necho "---"\necho $INC\n')
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                       cwd=REPO)
+    if r.returncode != 0:
+        return None, None
+    srcs_txt, _, inc_txt = r.stdout.partition("---")
+    srcs = srcs_txt.split()
+    missing = [s for s in srcs if not Path(s).is_file()]
+    if missing:
+        print(f"  [FAIL] {top}: {len(missing)} source(s) not found, first: "
+              f"{missing[0]}")
+        return None, None
+    return srcs, inc_txt.split()
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--list", action="store_true")
+    ap.add_argument("--max", type=int, default=DEFAULT_MAX)
+    args = ap.parse_args()
+
+    chosen, covered, target = plan(args.max)
+    product = 1
+    for v in SPACE.values():
+        product *= len(v)
+
+    print(f"== parameter sweep plan ==")
+    print(f"space: {' x '.join(f'{k}({len(v)})' for k, v in SPACE.items())}"
+          f" = {product} combinations")
+    print(f"runs:  {len(chosen)}  ({len(PINNED)} pinned + "
+          f"{len(chosen) - len(PINNED)} pairwise fill)")
+    print(f"2-way coverage: {len(covered)}/{len(target)} pairs "
+          f"({100 * len(covered) // len(target)} %)")
+    if covered < target:
+        # No silent caps: say what the budget dropped.
+        print(f"NOT COVERED at --max {args.max}: {len(target - covered)} pair(s) "
+              f"- raise --max to close them")
+    print()
+    for name, cfg in chosen.items():
+        print(f"  {name:<14} " + "  ".join(f"{k}={v}" for k, v in cfg.items()))
+    if args.list:
+        return 0
+
+    for t in ("sv2v", "yosys"):
+        if not shutil.which(t):
+            print(f"missing tool: {t} (see syn/yosys/README.md)")
+            return 2
+
+    fails = 0
+    tmp = Path(tempfile.mkdtemp(prefix="paramsweep."))
+    try:
+        for top in SWEPT_TOPS:
+            srcs, inc = sources_from_run_sh(top)
+            if not srcs:
+                print(f"  [FAIL] {top}: no source list found in run.sh")
+                fails += 1
+                continue
+            t0 = time.time()
+            vfile, err = convert(top, srcs, inc, tmp)
+            if err:
+                print(f"  [FAIL] {top} sv2v: {err}")
+                fails += 1
+                continue
+            print(f"\n== {top} == (sv2v once: {time.time() - t0:.0f}s, "
+                  f"reused by all {len(chosen)} configs)")
+            base = None
+            for name, cfg in chosen.items():
+                t1 = time.time()
+                cells, err = synth(top, vfile, cfg, tmp)
+                if err:
+                    print(f"  [FAIL] {name:<14} {err}")
+                    fails += 1
+                    continue
+                if name == "default":
+                    base = cells
+                delta = ""
+                if base and cells and name != "default":
+                    delta = f"  ({cells / base:.2f}x default)"
+                print(f"  [PASS] {name:<14} cells={cells:<8} "
+                      f"{time.time() - t1:.0f}s{delta}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    print(f"\nconfigs: {len(chosen) * len(SWEPT_TOPS)}   fail: {fails}")
+    print(f"RESULT: {'PASS' if fails == 0 else 'FAIL'}")
+    return fails
+
+
+if __name__ == "__main__":
+    sys.exit(main())

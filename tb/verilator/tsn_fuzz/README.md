@@ -27,6 +27,15 @@ Current tally — 3153 checks, 0 failures, 2 tracked gaps:
 | `fuzz_acmp.py` | 123 | `KL_acmp_listener` — 15 ACMP fields, all 16 message types, BIND→state→UNBIND |
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
 
+## Contents
+
+- **[How it works](#how-it-works)** — The YAML-to-RTL loop in one diagram, and the three-way split of ownership: tsn-gen is the field/constraint oracle, `wire.py` owns the actual bytes, `cosim_axis.h` owns the session — including the 4-byte control frame that requests a state dump, so campaigns observe state machines instead of guessing from replies.
+- **[Where the results go](#where-the-results-go)** — Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the four paths. They are generated — do not hand-edit.
+- **[Why "state stability" is the real gate](#why-state-stability-is-the-real-gate)** — The argument for what this suite actually asserts: there is no software here to crash, so the test is that garbage does not *move state*. Each campaign's canary is named, including AAF's two-sided one — stay locked through malformed PDUs, but DO unlock during an accept drought, because a listener reporting MEDIA_LOCKED while accepting nothing is lying to the controller.
+- **[⚠ tsn-gen wire-layout caveat (measured 2026-07-25)](#-tsn-gen-wire-layout-caveat-measured-2026-07-25)** — The measured defect in the generator's own models: they omit the AVTPDU `sv`+`version` nibble, so a real READ_DESCRIPTOR decodes `control_data_length` 320 instead of 20. Explains the one-nibble shift `decode_pdu()` applies and why the models are used as an oracle but never as a frame builder.
+- **[Tracked gaps (visible, counted, non-failing)](#tracked-gaps-visible-counted-non-failing)** — Two defects this campaign found, each printed as `[GAP ]` rather than swept up: `LOCK_ENTITY` answering SUCCESS for any descriptor, and undersized frames bypassing the entity-id filter — with the honest impact assessment (the second is unreachable on a real link at Ethernet's 60-byte minimum).
+- **[Adding a campaign](#adding-a-campaign)** — Four steps for a new PDU family, and the rule that keeps the campaigns from ossifying: assert invariants, not the entity model — the DUT decides which descriptors exist, the campaign decides the answer is well-formed and state-stable.
+
 ## How it works
 
 ```mermaid

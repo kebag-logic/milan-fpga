@@ -16,6 +16,14 @@ MAC lives in the surviving first beat, so a truncated frame still incremented th
 
 This document records the full diagnostic chain so the technique is reusable.
 
+## Contents
+
+- **[Test rig (generic)](#test-rig-generic)** — How to reproduce the setup: a peer NIC whose per-frame counters you trust, and the `devmem` register windows (MAC control/status, TX/RX DMA, and the loopback CSR at `0xf0003810` that splits datapath from MAC core). Carries a correction — the RMON counters read 0 during this session because `i_mac_events` was tied off; they are real now, so read `STAT_TX_FIFO_GOOD_FRAME` first.
+- **[The diagnostic chain (each step ruled something in or out)](#the-diagnostic-chain-each-step-ruled-something-in-or-out)** — Seven steps from "tx_packets climbs but the peer sees nothing" to the exact line. The pivot is step 5: a hand-written `devmem` frame proved bytes 0–7 byte-perfect and 8–63 gone at exactly 60 bytes, which is truncation, not a coherency or endianness fault.
+- **[The fix (gateware  -  milan-fpga, sw/litex/milan_soc.py, MilanMAC)](#the-fix-gateware-----milan-fpga-swlitexmilan_socpy-milanmac)** — Three lines: gate `last_be` behind `last` so it is non-zero only on the final beat, plus the two-part verification (controlled frame, then a real ping with the peer's counters moving).
+- **[Reusable takeaways](#reusable-takeaways)** — Four techniques worth stealing, led by the one that made this bug latent for a whole bring-up: **dst-MAC-keyed counters cannot prove TX**, because a frame truncated to its first beat still increments them.
+- **[Second bug  -  TX-to-wire: the 2026-07-04 investigation log (OPEN, bisection running)](#second-bug-----tx-to-wire-the-2026-07-04-investigation-log-open-bisection-running)** — The long one, and the header is stale — it says OPEN but the section ends at a found root cause and a pinging board. A full chronological log with the build matrix, what was proven (`--coherent-dma` is mandatory; the PHY emitted *silence*, not corruption), two theories killed by measurement (clock phase, FF placement), and the answer: the bare LiteEth core is cut-through, so a bubbly DMA source glitches `tx_en` mid-frame — and the truncation bug had been masking it, because padding and CRC are generated locally. Fixed with a store-and-forward `PacketFIFO`; the last two layers were an skb 2-byte misalignment and a hold-marginal TX phase.
+
 ## Test rig (generic)
 
 - The FPGA `eth0` is connected  -  directly or through an inline gigabit tap  -  to a **peer host

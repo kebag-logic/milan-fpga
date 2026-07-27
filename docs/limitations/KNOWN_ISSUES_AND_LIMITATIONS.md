@@ -15,6 +15,16 @@ newer than that reconciliation._
 
 ---
 
+## Contents
+
+- **[1. Scope limitations (by design, current state)](#1-scope-limitations-by-design-current-state)** — What is deliberately absent: one port, MTU pinned at 1500, and no MDIO master anywhere in fabric — `MAC_STATUS` is software-published and reports its reset default until a driver writes it. §1.1 inside carries the fabric-listener blocker, now CLOSED: the cause was `win_commit_glue` staging one global stream-id pair for every index.
+- **[2. Build & reproducibility gaps](#2-build--reproducibility-gaps)** — The ways a correct-looking build is wrong. Includes: CI runs every paper and RTL gate but nothing on hardware; the CPU default is not the shipped config; omitting `--coherent-dma` builds a NIC that silently drops all RX; and the flashed 8×8 was placed at 16 KB L2 while its config still declares 32 KB.
+- **[3. Timing & clocking constraints](#3-timing--clocking-constraints)** — Three constraints that survive any port: the CBS slope divide is the 100 MHz critical path (hence the multicycle, or the datapath's own 50 MHz domain), 112.5 MHz was built and reverted on reset fanout, and `--gtx-tx-invert` is mandatory on the AX7101 or 25–40 % of TX frames corrupt.
+- **[4. Operational hazards - lethal pairings (gateware ⇄ driver)](#4-operational-hazards---lethal-pairings-gateware--driver)** — Combinations that work individually and are fatal together, each with its guard: header-split page-size mismatch panics the kernel, RX-queue count is now per board and the wrong one shifts every DMA window under an unchanged DTB, and an armed `t > 0` talker with the lwSRP engine off blasts ~56 k frames/s unpaced because the reservation gate *is* the pacer.
+- **[5. Refuted performance levers (measured; do not rebuild without new evidence)](#5-refuted-performance-levers-measured-do-not-rebuild-without-new-evidence)** — Six levers built or modelled, measured on silicon, and rejected — TX reader prefetch, a second core, coalescing sweeps, 112.5 MHz, bigger L2/scratchpad/prefetch, and socket zero-copy RX. Read before proposing any of them again.
+- **[6. Performance: where the numbers actually live](#6-performance-where-the-numbers-actually-live)** — The precedence rule for the conflicting throughput figures scattered across the corpus: the ledger and the campaign record win, prose snapshots lose.
+- **[7. Legacy collateral that can mislead](#7-legacy-collateral-that-can-mislead)** — Files still in the tree that describe a system we no longer build: the xsim-era testbenches, an unused RGMII PHY experiment on a GMII board, and the Zynq variant whose `0x43C0_0000`/IRQ_F2P mechanics leak into other docs.
+
 ## 1. Scope limitations (by design, current state)
 
 | Limitation | Detail |

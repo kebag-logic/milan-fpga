@@ -8,6 +8,13 @@ Second pipeline stage. Extracts the fixed AECP common header from beats 0–3, f
 
 ---
 
+## Contents
+
+- **[Ports](#ports)** — Confirms the shape: `m_axis` is a transparent passthrough, `hdr_o` is the extracted header, and `mismatch_o` is the one verdict this stage forms — target entity ID against the local one.
+- **[aecp_hdr_t fields populated](#aecp_hdr_t-fields-populated)** — The beat-and-bit map to decode against, including the two fields that straddle a beat boundary (both entity IDs). Also names what this stage deliberately leaves zeroed for the next one.
+- **[State machine](#state-machine)** — One state per header beat plus a payload drain. The note under the table is the load-bearing part: the AXI-Stream signals are combinational, so beats flow through regardless of which state the FSM is in.
+- **[Signals](#signals)** — Three internals, and the one worth knowing: `hdr_r` accumulates combinationally and is only registered on beat 3, which is the same edge `hdr_valid` pulses on.
+
 ## Ports
 
 | Port | Dir | Type | Description |

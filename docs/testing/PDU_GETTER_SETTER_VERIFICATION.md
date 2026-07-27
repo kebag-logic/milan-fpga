@@ -6,6 +6,13 @@ Each command lands as its own branch `item-10-<cmd>` → PR against `main`, revi
 Builds on the existing host-sim + tsn_gen infra (`tests/steps/aecp_common_steps.py`,
 `tests/steps/tsn_gen_steps.py`) and the real-wire bench `es-4.x` suite.
 
+## Contents
+
+- **[Prerequisites & running (common to every item-10 PR)](#prerequisites--running-common-to-every-item-10-pr)** — The setup every PR references instead of repeating: two environment variables, no board and no bench. Note that `@tsn_gen` scenarios skip cleanly when `packet_gen` is missing, so a local green run is not proof they ran.
+- **[Why a command needs a \*fixture class\* (not one generic test)](#why-a-command-needs-a-fixture-class-not-one-generic-test)** — The reasoning plus five ready-to-copy Gherkin skeletons. The argument in one line: a getter fails by shape, cross-check and non-idempotence; a setter fails by no-op writes emitting spurious notifications, or by notifying the requester instead of the *other* controllers — nothing generic catches both.
+- **[Command decomposition → fixture → PR (the backlog)](#command-decomposition--fixture--pr-the-backlog)** — The work list itself: every ATDECC command with its fixture class, what already covers it, and its branch name. Scan the "Existing coverage" column for the em-dashes — MAX_TRANSIT_TIME, CONTROLLER_AVAILABLE and SYSTEM_UNIQUE_ID have nothing today.
+- **[Workflow](#workflow)** — Branch, tag and PR conventions, and the one non-obvious rule: merge descriptor getters first, because they are the read model the other fixtures assert against.
+
 ## Prerequisites & running (common to every item-10 PR)
 
 Every item-10 fixture is **offline host-sim** — the tsn_gen `packet_gen` generates the PDUs

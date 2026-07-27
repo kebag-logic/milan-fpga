@@ -20,6 +20,14 @@ authority); status claims carry their in-repo evidence. Written 2026-07-25.
 > rsvg-convert -w 2000 docs/diagrams/timesync_chain.svg -o
 > docs/diagrams/timesync_chain.png`).
 
+## Contents
+
+- **[1. Concept — the three clocks](#1-concept--the-three-clocks)** — Why there are three and not one: the PHC that gPTP disciplines, a `CLOCK_REALTIME` nothing in the media path depends on, and a *physical* audio clock that cannot be written like a counter — only steered. Ends with the whole chain in one sentence.
+- **[2. Mechanism — the hardware timestamp path](#2-mechanism--the-hardware-timestamp-path)** — Five subsections from the fractional-ns phase accumulator to the who-runs-where table. The load-bearing idea is *qualify at TLAST* — the original core decided the record on a CDC handshake and raced the beat rate in both directions. Also the record's always-1 marker sentinel, why `tlast` is deliberately withheld from the DMA writer, and the tap-measured latency constants whose absence kept `asCapable` permanently false.
+- **[3. The media clock](#3-the-media-clock)** — How a shared nanosecond timeline becomes a 48 kHz sample edge: an integer-only MMCM chain (fractional-N jitter measurably collapsed converter THD+N to -4.5 dB), the CRF talker and the measuring receiver, and a PI servo whose real actuator is a 16.9 ps fine phase step — with `CRF_DELTA` deliberately excluded from the loop because it carries an arbitrary phase constant. Closes on the media-lock rule: an internal source locks on the first PDU, an external one has to earn it.
+- **[4. Time-related CSRs — quick table](#4-time-related-csrs--quick-table)** — Every time-related offset in one place, `CAP[9]` through `MCSRV_CTRL` and the `dma-ts` ring. Rows marked (*) are live in `milan_csr.sv` but have no row in the register map yet — real hardware, not yet ABI-blessed.
+- **[5. Status (2026-07-25)](#5-status-2026-07-25)** — Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id — no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and this page names its own doc drift.
+
 ## 1. Concept — the three clocks
 
 gPTP gives every device on the AVB segment one shared nanosecond timeline.

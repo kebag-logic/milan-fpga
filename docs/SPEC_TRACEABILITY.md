@@ -17,6 +17,16 @@ Companion documents: [`testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_
 descriptor mapping, same PDF-verification rule as this matrix). This matrix
 is the clause-anchored join between them.
 
+## Contents
+
+- **[The chain, and which file holds each link](#the-chain-and-which-file-holds-each-link)** — A flowchart from a standard clause to the status a row carries, and the point it exists to make: no single file holds the whole chain, which is why a row can read closed in one place and be unbacked in another.
+- **[Family files](#family-files)** — The five per-standard tables with their tallies, summing to 204 rows / 163 ✅ / 17 🟡 / 7 ❌ / 17 ➖, plus the legend. The HTML comment records the 2026-07-23 re-count that moved the totals from 162/18 — a summing typo, not a status change.
+- **[Why rows are N/A (taxonomy)](#why-rows-are-na-taxonomy)** — The defence of every ➖: four categories (wrong role, superseded by Milan, optional-so-only-the-refusal-is-owed, profile exclusion), the rows in each, and where the residual obligation is carried as a ✅ row. A reviewer disputing an N/A is told to attack the category, not the row.
+- **[Module → family map](#module--family-map)** — The lookup that goes the other way: given a directory under `hdl/`, which family file's sections govern it.
+- **[tsn_gen (wire-test engine) — model inventory and gaps](#tsn_gen-wire-test-engine--model-inventory-and-gaps)** — Which YAML protocol models exist today versus the eight to author, ranked by value. ACMP is first because it unlocks 24 rows and its length fuzz reproduces the 68-byte-frame field trap.
+- **[Top MISSING rows (attack-order preview)](#top-missing-rows-attack-order-preview)** — The ten open rows in attack order. M-CLK-2 dominates: CRF is fully in fabric yet still not a class A stream (no VLAN tag, wrong lane, no reservation), and its reservation costs 5.12 % of the class-A budget to carry 0.45 % of it — a structural 11.4× over-provision because 2 ms / 125 µs = 16 intervals and `MaxIntervalFrames` cannot be fractional.
+- **[Review workflow](#review-workflow)** — The intended lifecycle of a row, ending in the rule that matters day to day: when a TB or module changes, the row citing it changes in the same commit.
+
 ## The chain, and which file holds each link
 
 *One requirement, followed end to end: which file turns a clause into a row, a
@@ -141,7 +151,7 @@ category:
 | `avtp/` (aaf talker, depacketizer, playback, lpf, tone, media_adv) | 1722-2016 §2; Milan §6 |
 | `maap/KL_maap` | 1722-2016 §4 (MAAP-1..6) |
 | `802_1q_traffic_shaper/` (classifier, class_map, queues, shaping core, CBS, controller) | 802.1Q §1 (Q-1..14) |
-| `lwsrp/` (9 modules) | 802.1Q §2–3 (MRP/SRP rows), Milan §1 (M-DEV-5..10) |
+| `hdl/ieee8021q/srp/` (11 modules + `lwsrp_pkg.sv`) | 802.1Q §2–3 (MRP/SRP rows), Milan §1 (M-DEV-5..10) |
 | `ptp_timestamp/` (counter, ts core/top, csr_sync) | 802.1AS (AS-1..5) |
 | `common/` (tcam, rx_mac_filter, link_guard, ifg gasket, cdc, datapath, csr) | supporting rows inside each family (filtering, link qualification, integration) |
 

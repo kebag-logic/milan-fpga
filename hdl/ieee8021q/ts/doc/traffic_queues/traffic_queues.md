@@ -2,6 +2,15 @@
 # Entity: traffic_queues 
 - **File**: traffic_queues.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — The generated schematic: one demux fanning frames out by `tdest`, a FIFO per queue, and a single egress selector.
+- **[Generics](#generics)** — Three, and the depth is the one to read carefully — the default here is not what gets built; `traffic_controller_802_1q` instantiates it far shallower.
+- **[Ports](#ports)** — The whole contract with the shaper is two one-hot vectors: `queue_grant_i` in, `queue_has_data_o` out. Everything else is the AXIS pair and clock/reset.
+- **[Signals](#signals)** — The packed per-queue buses plus their unpacked array views for `generate` indexing. Plumbing only, and the names here lag the current RTL — read the source if you are matching signals.
+- **[Constants](#constants)** — One localparam, the `tdest` width derived from the queue count. Take the width from the RTL rather than this table.
+- **[Instantiations](#instantiations)** — The three children, each annotated with what it replaced: a vendor-free demux instead of generated switch IP, `axis_fifo` instead of `xpm_fifo_axis`, and — the important one — a grant-indexed **combinational** mux on egress instead of `axis_arb_mux`, because a second arbiter stacked on the CBS grant deadlocked TX.
+
 ## Diagram
 ![Diagram](traffic_queues.svg "Diagram")
 ## Generics

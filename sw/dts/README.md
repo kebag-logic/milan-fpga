@@ -28,6 +28,13 @@ bindings, and a checker that holds any overlay to them.
  configs/endstation_*.yaml ──endstation_builder──▶ overlay .dtsi ──milan_dt.py validate──▶ dtc + bindings/*.yaml
 ```
 
+## Contents
+
+- **[Files](#files)** — Which files are still normative and which are wreckage. The two `bindings/*.yaml` and `milan_dt.py validate` are live; the `ir/*.json`, the generated `milan-nic.*.dtsi` and `boards/ax7101.json` are two memory-map generations stale and marked do-not-deploy.
+- **[Fully-FPGA flow](#fully-fpga-flow)** — The four commands from end-station config to `.dtb`, and the trick that keeps the binding honest: `validate` also eats a complete deployed `.dts`, so the shipping tree is checked against the same schema.
+- **[Adding a new platform](#adding-a-new-platform)** — Short: add the shape to `configs/`, extend the bindings. Worth knowing that `additionalProperties: false` is enforced, so an undeclared property is a hard failure rather than a silent pass.
+- **[Notes](#notes)** — The driver caveats, and they are the reason to open this page: the LiteX build splits `csr` and `dma-*` across two windows; both are native-endian `readl`, but the `dma-*` 64-bit `base` has its MS word at the *lower* address, so a native 64-bit access swaps the halves; and the 28-byte sub-page `dma-*` ranges need `devm_ioremap`, not `devm_ioremap_resource`.
+
 ## Files
 
 | File | Role |

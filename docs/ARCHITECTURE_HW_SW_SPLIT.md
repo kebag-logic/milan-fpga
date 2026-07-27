@@ -7,6 +7,14 @@ is out of the plan of record. The softcore keeps provisioning, gPTP protocol
 `9-hw-sw-split` (rendered PNG alongside). This document is the normative
 delimitation; the diagram mirrors it.
 
+## Contents
+
+- **[The dividing principle](#the-dividing-principle)** — The test for "fabric or softcore", plus the measurement that forced rev 2: class-A AAF wants a frame every 125 us and the measured softcore wakeup is 340–560 us, so the framer cannot live in userspace.
+- **[Per-function delimitation](#per-function-delimitation)** — The normative table: every function, which side it lands on, and how far it has actually got. Read the Status column — most rows say silicon, and the bolded rows are the ones rev 2 moved into fabric.
+- **[Boundary contracts (the only crossings)](#boundary-contracts-the-only-crossings)** — The five interfaces that are allowed to cross: the 0x600 identity CSRs, the DMA rings + timestamp window, the PHC, the DMA audio ring, and the mailbox — now telemetry-and-override, explicitly not a liveness gate.
+- **[Rationale anchors (paid-for evidence)](#rationale-anchors-paid-for-evidence)** — Why the split is believed rather than asserted: la_avdecc enumerates the entity with the CPU idle, one hardware counter feeds both ADP and AEM so wire truth cannot diverge, and the TX-ceiling work showed the CPU is the scarce resource.
+- **[Open decisions (flagged, not blocking)](#open-decisions-flagged-not-blocking)** — Three things deliberately left unsettled: lwSRP scope, gPTP staying on the softcore (linuxptp, revisit only if servo jitter blocks), and whether audio ever arrives from a native I2S/TDM input instead of the DMA ring.
+
 ## The dividing principle
 
 Everything that must stay correct **per frame, at line rate, or while the CPU
@@ -52,7 +60,7 @@ the framer, the reservation gate and connection liveness are fabric work.
 | kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | silicon | exposes the fabric counter/timestamps to linuxptp; HW-ts green zero-overrides |
 | gPTP protocol (BMCA, servo, pdelay) | softcore | present, silicon-validated | linuxptp ptp4l + phc2sys in the rootfs; the PHC is real; media-clock MMCM-DRP servo silicon-proven (−83.9 dB) |
 | gPTP → entity bridge (GM id/domain into CSR 0x624/0x628 on change) | softcore | present | `gptp2csr.sh` daemon publishes GM id/domain (0x624/0x628) on change; fabric already has gm_change → re-advertise + index bump + AS_PATH/AVB_INFO truth |
-| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | silicon | RTL (`hdl/lwsrp`, 9 modules, CSR 0x680) + harness, silicon-validated; the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
+| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | silicon | RTL (`hdl/ieee8021q/srp/`, 11 modules, CSR 0x680) + harness, silicon-validated; the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
 | MAAP (multicast MAC allocation) | **fabric** | silicon | `KL_maap` probe/defend/announce, silicon-proven (CSR 0x6CC-0x6D4) |
 | **AAF framer** (AVTP talker payloads) | **fabric** | silicon | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU; RTL + harness, silicon-validated |
 | PCM producer (fills the audio ring, ms-cadence) | softcore | present (ALSA record) | any Linux source (ALSA app, test tone); ALSA record byte-exact on silicon (playback scaffold pending); PipeWire optional as a source, NOT in the datapath |

@@ -10,6 +10,15 @@ tool-agnostic JSON file, plus the notes to turn it into an implementation.
 | [`../docs/reference/FR_NFR.md`](../docs/reference/FR_NFR.md) | Functional & Non-Functional Requirements for the Milan v1.2 endpoint, incl. **scale-up / scale-out (multi-softcore)** and the Milan-compliance procedure. |
 | [`../docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md) / `../aem-and-aecp.pdf` | Prior design of the **FPGA AEM memory (4-level block)** and the **AECP state machines / MVU**, reconciled to the as-built subsystem. The JSON is the data that design consumes. |
 
+## Contents
+
+- **[Why a JSON model](#why-a-json-model)** — One file feeds three consumers (FPGA AEM image, software entity, test controller) so they cannot disagree. Also states the scope decision: one configuration, 48/96/192 kHz, no redundancy.
+- **[Schema](#schema)** — Descriptors are keyed by `(configuration_index, type, index)` — the READ_DESCRIPTOR key and the memory's L1/L2/L3 levels. The payoff is the four field classes: which NVM each field lands in, and which AEM command writes it.
+- **[How to use it](#how-to-use-it)** — Three recipes: emit the L0..L3 memory image, diff the JSON against `entity-model-milan-v12.h` (JSON wins, the header is regenerated), and use it as the expected-value oracle for READ_DESCRIPTOR tests.
+- **[Stream formats (AAF / CRF)](#stream-formats-aaf--crf)** — The raw 8-byte format constants you can paste: `0x0205022002006000` for 8-ch AAF at 48 k and its 96/192 k siblings, with the nsr and samples-per-frame derivation behind them.
+- **[Milan v1.2 conformance notes (what makes this a \*Milan\* entity, not just AVDECC)](#milan-v12-conformance-notes-what-makes-this-a-milan-entity-not-just-avdecc)** — What the JSON carries beyond plain AVDECC: MVU protocol id, `entity_capabilities` `0x0000C588`, CRF clock source. Ends with the rule that bites implementers — a listener's `formats[]` MUST have more than one entry, confirmed against `module-avb/stream.c`.
+- **[Open items to confirm against the Milan v1.2 PDF](#open-items-to-confirm-against-the-milan-v12-pdf)** — Three values in the JSON that are not yet sourced from the spec: the non-`GET_MILAN_INFO` MVU command codes, ADP `valid_time`, and the CRF `timestamp_interval` at 96/192 kHz.
+
 ## Why a JSON model
 
 The entity model is *static data* (the descriptor tree) plus a small amount of

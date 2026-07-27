@@ -7,10 +7,16 @@ not a bridge: bridge-only clauses are marked N/A. Milan MRP/MSRP deltas
 (timer tolerances, endmarks, Domain values) live in
 [`milan-v12.md`](milan-v12.md).
 
-Modules: `hdl/802_1q_traffic_shaper/` (`traffic_classifier`,
+Modules: `hdl/ieee8021q/ts/` (`traffic_classifier`,
 `traffic_class_map`, `traffic_queues`, `traffic_shaping_core`,
-`credit_based_shaper`, `traffic_controller_802_1q`), `hdl/lwsrp/` (9 modules,
-CSR 0x680), supporting `hdl/common/tcam.sv` + `rx_mac_filter.sv`.
+`credit_based_shaper`, `traffic_controller_802_1q`), `hdl/ieee8021q/srp/` (11 modules,
+CSR 0x680), supporting `hdl/ieee8021q/filtering/tcam.sv` + `rx_mac_filter.sv`.
+
+## Contents
+
+- **[1. VLAN tagging + priority (Clauses 6, 9)](#1-vlan-tagging--priority-clauses-6-9)** — Rows Q-1..Q-14: tag decode, PCP regeneration, per-class queueing and the CBS credit math, each with the module and the TB that proves it. Also the two deliberate N/A rows (bridge relay, Qbv/PSFP) and the standing tsn_gen gap — `mac_frame.yaml` has no VLAN fields at all.
+- **[2. MRP core (Clause 10) — as profiled by lwSRP](#2-mrp-core-clause-10--as-profiled-by-lwsrp)** — Rows MRP-1..MRP-8 against a deliberately *simplified applicant*: the +k packed-vector encoding that is the documented walker trap, garbage-MRPDU hardening as a DoS defense, and the timer values. MRP-7 (PeriodicTransmission) is the one amber row.
+- **[3. MSRP (Clause 35) + MVRP (Clause 11)](#3-msrp-clause-35--mvrp-clause-11)** — Rows SRP-1..SRP-9, the reservation wire contract. Carries both bench root-causes read straight off TalkerFailed codes (5 = DMAC collision, 8 = no 802.1AS on port), the MVRP lesson that skipping the VID-2 join drops our own tagged frames at the first hop, and the two open rows: class B declaration and multiple simultaneous reservations.
 
 ## 1. VLAN tagging + priority (Clauses 6, 9)
 

@@ -10,7 +10,7 @@ protocol rows are SW and verified on the wire (BENCH features at the
 ProfiShark taps). Milan gPTP deltas (priority1, pdelay rules) are in
 [`milan-v12.md`](milan-v12.md).
 
-Modules: `hdl/ptp_timestamp/` (`timestamp_counter`, `ptp_ts_core`,
+Modules: `hdl/ieee8021as/ptp_timestamp/` (`timestamp_counter`, `ptp_ts_core`,
 `ptp_ts_top`, `ptp_csr_sync`), `hdl/common/cdc_*`.
 
 | # | Clause | Required behavior | Module / agent | Verification today / tsn_gen | Why it matters |

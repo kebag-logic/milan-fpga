@@ -12,6 +12,19 @@ test run.
 Each pattern gives: what it looked like, **why it survived** (the interesting
 part), and a check that would have caught it earlier.
 
+## Contents
+
+- **[Which pattern is this?](#which-pattern-is-this)** — Start here with a symptom. A flowchart that sorts by *what told you it was fine*, plus a one-row-per-pattern table of the tell, the confirming check, and where each one bit us.
+- **[1. Decorative ABI — a register the hardware does not consume](#1-decorative-abi--a-register-the-hardware-does-not-consume)** — A CSR holds what you wrote and drives nothing, so software concludes the feature exists. Includes the second half of the fix most people skip: letting software tell "fine" from "not implemented".
+- **[2. Shared state where the protocol is per-index](#2-shared-state-where-the-protocol-is-per-index)** — One global staging register behind an indexed ABI. This was the fabric-listener blocker, and it is invisible to any test that provisions a single index.
+- **[3. A latch that sets on any write and clears only on reset](#3-a-latch-that-sets-on-any-write-and-clears-only-on-reset)** — A mode you can enter and never leave. The review question that finds it: for every `_r <= 1'b1` in a write path, name what clears it.
+- **[4. The build recipe drifts from the declarative config](#4-the-build-recipe-drifts-from-the-declarative-config)** — The build succeeds, the board boots, and the shape is wrong. Twice, including a sweep that would silently rebuild the 8×8 board as 1×1.
+- **[5. Toolchain tolerance masking malformed source](#5-toolchain-tolerance-masking-malformed-source)** — Green on your desk, unbuildable everywhere else, because one tool version forgave malformed source that others reject.
+- **[6. Comparing paths when the question is about content](#6-comparing-paths-when-the-question-is-about-content)** — A real command, really run, answering a subtly different question than the one asked — and quoted back as if it answered yours.
+- **[7. A model that shares the implementation's bug](#7-a-model-that-shares-the-implementations-bug)** — When the testbench's expected values come from the device or from an existing model, the suite agrees with the defect and passes.
+- **[8. Reads that lie: snapshots, shadows and saturated counters](#8-reads-that-lie-snapshots-shadows-and-saturated-counters)** — Zero looks idle, a stale shadow looks like configuration, and a saturated maximum looks like a measurement. How to tell a real reading from a plausible one.
+- **[The two habits behind most of these](#the-two-habits-behind-most-of-these)** — The short version, if you only remember two things from this page.
+
 ## Which pattern is this?
 
 *You arrive with a symptom and with something that told you everything was

@@ -9,6 +9,18 @@ source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/m
 
 ---
 
+## Contents
+
+- **[0. Why this exists](#0-why-this-exists)** — The one-paragraph framing: the RX wall is serial cold-miss latency at ~1424 ns each, and the question is whether those can overlap. Names the culprit — LiteX's "linux" variant ships `lsuL1RefillCount = 1`, which makes a cache its own author calls non-blocking behave as a blocking one.
+- **[1. The LSU and its L1 D-cache at a glance](#1-the-lsu-and-its-l1-d-cache-at-a-glance)** — The geometry table with a source citation per row (4 ways × 64 sets × 64 B = 16 KB). The fact that makes the whole lever attractive: refill slots are flip-flop state machines, not RAM, so 1 → 8 costs **0 BRAM**.
+- **[2. The load pipeline and what "miss" means](#2-the-load-pipeline-and-what-miss-means)** — What a miss actually does here, which is not stall: it allocates a slot and raises a REDO so the load replays from its own PC until the line lands. The flowchart isolates the single genuinely blocking condition — every slot busy — which at `refillCount=1` is reached by the *second* miss.
+- **[3. The refill engine  -  the "8 refills"](#3-the-refill-engine-----the-8-refills)** — Slot fields and the five-stage lifecycle, line-cited. Then the one Scala line that decides blocking vs non-blocking, and the four hazards the engine has to cover — including the `ackTimer` that stops two harts live-locking on the same line.
+- **[4. The L1↔L2 bus: where the parallelism is spent](#4-the-l1l2-bus-where-the-parallelism-is-spent)** — Why the slot index *is* the bus tag, with a sequence diagram of three responses returning out of order and finding their slots. The consequence: at `refillCount=1` a split-transaction bus is being used as a blocking one.
+- **[5. The honest part: how MLP actually arises on an \*in-order\* core](#5-the-honest-part-how-mlp-actually-arises-on-an-in-order-core)** — The section that predicts the result before it was measured. Because a demand miss replays in program order, a dependent load chain keeps ~1 miss in flight no matter how many slots exist — the slots are capacity, and only three things actually fill them.
+- **[6. Timeline picture](#6-timeline-picture)** — The two cases side by side as ASCII: `N × 1424 ns` serialized against one latency plus bus throughput. The fastest way to see what the prefetcher is buying.
+- **[7. What we built and MEASURED on silicon (2026-07-08)](#7-what-we-built-and-measured-on-silicon-2026-07-08)** — Five builds, then the single-variable comparisons that make them mean something. Headline: refill=8 *alone* does nothing (238→229, within noise) exactly as §5 predicted; the prefetcher is the single-flow lever (+34 %); L2 size is the aggregate one; combined they break the ~280 ceiling at 298. Read the ship-shape note — this peak config is not what production ships. Ends with `perf` showing RX is CPU-bound, 51 % of it the payload copy, and a `MSG_TRUNC` ceiling test at 481.
+- **[8. Reproduce / re-tune](#8-reproduce--re-tune)** — The full build command plus the ground-truth check that the knob actually landed in the netlist — grep `refill_slots_N_` in the generated Verilog, not the argument echo. Also the `--scala-args=--flag=value` single-token form argparse forces on you.
+
 ## 0. Why this exists
 
 The RX −P2 wall is **serial cold-miss latency**: HW DMAs each frame to DRAM, the CPU's first

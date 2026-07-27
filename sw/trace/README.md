@@ -20,6 +20,15 @@ milan_trace.yaml ──barectf──▶ generated/metadata        the DECODE ABI
         trace_segment.py unpack ────────────┴──▶ ctf_read.py / babeltrace2
 ```
 
+## Contents
+
+- **[Files](#files)** — One line per file, and the two that carry ABI weight: `milan_trace.yaml` (23 event types, the `sev`/`src` context, the packet shape) and `generated/metadata`, the copy of which travels with every unpacked trace because it is what a reader decodes against.
+- **[Run the gate](#run-the-gate)** — One command. Notable: `barectf`, `dtc` and `babeltrace2` are each optional and each produce a *loud skip* when absent, never a silent pass.
+- **[Look at a trace](#look-at-a-trace)** — The verify / unpack / read sequence over `/user/log`, including `--min-sev WARN` and the `babeltrace2` fallback.
+- **[Change the ABI](#change-the-abi)** — The venv recipe that gets barectf 3.1.2 installed past its stale pins, and the sharp edge behind it: barectf numbers event types by *sorted name*, so adding one event renumbers its alphabetical successors — hence `EVENT_IDS` and the ABI version must move in the same commit.
+- **[Build the producer into something](#build-the-producer-into-something)** — The single `cc` line; freestanding C99 with three headers. Use the `MILAN_TRACE()` macro rather than the raw call, so severity reaches the flush arming and not just the record.
+- **[What is NOT here](#what-is-not-here)** — The board half — CSR poller, compressor, `/user/log` writer, init ordering — lives in the private test repo; where the boundary is drawn.
+
 ## Files
 
 | File | Role |

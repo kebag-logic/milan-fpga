@@ -2,6 +2,15 @@
 # Entity: KL_adp_parser 
 - **File**: KL_adp_parser.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — Generated block symbol (`KL_adp_parser.svg`) — the entity and its port fan-out at a glance.
+- **[Ports](#ports)** — The interface contract: one AXIS slave in, three mutually-exclusive message-type strobes out (DISCOVER / AVAILABLE / DEPARTING), and the whole decoded ADPDU delivered as one `entity_info` struct.
+- **[Signals](#signals)** — Three internals only: the FSM state, a 4-bit beat counter, and `parse_flag_r`, the "this was a well-formed AXIS transaction" qualifier.
+- **[Constants](#constants)** — `MAX_DATA_CNT_C = 8`, the expected beat count of an ADP packet — the single number the parser measures a frame against.
+- **[Processes](#processes)** — The two always blocks and their split of duty: `parse_logic` lifts fields off tvalid, `control_logic` counts beats and gates entry into the parse state.
+- **[State machines](#state-machines)** — The generated FSM bubble diagram for the parse sequence.
+
 ## Diagram
 ![Diagram](KL_adp_parser.svg "Diagram")
 ## Ports

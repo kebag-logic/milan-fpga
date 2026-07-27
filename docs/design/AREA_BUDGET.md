@@ -9,6 +9,16 @@ This page deliberately **excludes the CPU**. The soft CPU and its caches are a
 vendored component with their own configuration surface; everything below is
 logic this project owns and can therefore choose not to build.
 
+## Contents
+
+- **[The budget](#the-budget)** — The four-way split of the device: 61,959 of 63,400 LUTs used, of which the datapath is 35,113 and the CPU 16,799. Also the fact that governs every other decision on this page — FFs are only 42 %, so **the design is LUT-bound** and trading LUTs for FFs is a win.
+- **[The datapath, by block](#the-datapath-by-block)** — The leaderboard: every leaf block over 400 LUTs with its FF and BRAM cost. `KL_aecp_response_builder` at 5,300 LUTs is the single biggest thing this project owns.
+- **[What is actually optional](#what-is-actually-optional)** — Only two elaboration prunes exist today; everything else is built whether the deployment can use it or not. Sorts the candidates into three tiers: ~3.75 k LUTs of prunable blocks, four blocks built for the largest shape regardless of config, and 17.5 k LUTs that only a redesign touches.
+- **[The 9,993 LUTs outside the datapath](#the-9993-luts-outside-the-datapath)** — A sixth of the device is SoC glue — DMA writers, RX steering, CSR bridges, the MAC — and it has had **no area review at all**, despite being comparable to the whole tier-1 + tier-2 opportunity.
+- **[The memory cascade: DDR3 for FIFOs, BRAM as register file](#the-memory-cascade-ddr3-for-fifos-bram-as-register-file)** — 44 BRAM tiles are free, which reorders the work: spend them turning LUT logic into memory lookups (`milan_csr`, `u_bld`) before freeing any. Names the one FIFO that must **not** move to DDR3 — the egress queues, because a late return mid-frame is a wire underrun, not a retry.
+- **[Rules for adding a prune parameter](#rules-for-adding-a-prune-parameter)** — Five rules for the next `*_P`: default PRESENT, elaboration-time not runtime, tie outputs inert, state what re-measurement it forces, and make the builder refuse configs that want the pruned feature.
+- **[Honest limits](#honest-limits)** — What these numbers are not. They are synthesis, not placement; slice packing — not LUT count — is what actually failed on this design, so removing a tier-1 block does not free exactly its LUTs.
+
 ## The budget
 
 | region | LUTs | share of device |

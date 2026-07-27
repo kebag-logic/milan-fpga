@@ -5,6 +5,13 @@ A self-checking [Verilator](https://verilator.org) harness for
 [REQUIREMENTS.md](../../../REQUIREMENTS.md) concern that *"the math behind the CBS logic is a little too
 complicated, propose something to verify and run it."*
 
+## Contents
+
+- **[Run it](#run-it)** — Two lines, no vendor tools, exit 0 on pass — and the reassurance that the `(* use_dsp *)` attribute is only a hint, so nothing Xilinx-specific is instantiated.
+- **[What it checks](#what-it-checks)** — The method that makes this harness worth trusting: two independent references, one bit-exact to the RTL's own Q16 arithmetic and one ideal in floating point, so a match proves intent and the gap bounds quantization error (asserted ≤ 1 byte). Carries the STRICT pairing rule for the sequential slope engine — change its state timing and `SlopeEngineRef` moves in the same commit — and the nine scenarios, ending with live reconfiguration.
+- **[Configuration](#configuration)** — The queue-under-test config is duplicated in two files and both must be edited to sweep another queue or link rate. Names the exact values in use.
+- **[Notes surfaced by this harness](#notes-surfaced-by-this-harness)** — Three findings, including the useful caveat: quantization error is zero *for this config* only because the rates divide evenly, so a slope that does not divide `clk*8 / link_rate` needs its own sweep. Also records that the older non-self-checking bench no longer matches the DUT, and that multi-queue arbitration lives in a different harness.
+
 ## Run it
 
 ```

@@ -14,6 +14,16 @@ the peer host = the remaining §6.3 gate. Listener half lands with STREAM_INPUT.
 Pattern of record: the ADP/AECP/ACMP responder recipe (registered monitor tap,
 template TX, low-rate merge, CSR status) — proven Milan=1-clean four times.
 
+## Contents
+
+- **[1. What lwSRP must do (and what it deliberately does not)](#1-what-lwsrp-must-do-and-what-it-deliberately-does-not)** — The scope cut that makes a conformant engine small: an always-declare applicant subset instead of the 12-state MRP machine, no MMRP, no class B. Also the ACTIVE predicate that gates media — declared AND ready AND domain-ok AND under 75 % of port rate.
+- **[2. Wire formats (byte-exact, the part that must never be guessed)](#2-wire-formats-byte-exact-the-part-that-must-never-be-guessed)** — Every constant you need to build or decode an MRPDU: the two link-local DMACs, EtherTypes `0x22EA`/`0x88F5`, three/four-packed event arithmetic, and each FirstValue layout. Carries the vector trap — value *k* is FirstValue incremented *k* times, so the RX walker must range-match the StreamID, not equality-match. Ends with the idleSlope formula and where the 42-byte overhead comes from.
+- **[3. Block architecture (hdl/ieee8021q/srp/, KL_lwsrp_\*)](#3-block-architecture-hdlieee8021qsrp-kl_lwsrp_)** — Where an MSRP attribute enters and what three things it leaves as, plus a module-by-module table of who owns which piece of MSRP state (the walker owns none). Includes a 2026-07-26 audit note: the tree holds 11 modules, not the 9 this page and [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) still quote, and `KL_lwsrp_applicant` was never built. §3.2 is the superseded 2026-07-14 sketch, kept as a design record.
+- **[4. CSR group (0x680-0x6A0 as built — re-homed from the original 0x660](#4-csr-group-0x680-0x6a0-as-built--re-homed-from-the-original-0x660)** — Eight registers, with `LWSRP_STATUS 0x694` broken out bit by bit — the single read that tells you whether a reservation is live and why not. Notes that the class-A queue field moved and its reset changed at `VERSION 0x0011`/`0x0014`, and that two TCAM entries must admit the link-local DMACs.
+- **[5. Integration contract](#5-integration-contract)** — What each neighbour gets from the engine: the slope mux into the shaper, `stream_gate[0]` as the AAF framer's transmit enable (no reservation, no media, by construction), real fields for GET_STREAM_INFO, and `reservation_active` as the ACMP acceptance check.
+- **[6. Verification plan (the campaign recipe)](#6-verification-plan-the-campaign-recipe)** — Three tiers and what each must prove, down to the specific bridge-side PDUs to hand-build (multi-value vectors offset from our StreamID — the +k trap). The silicon gate uses the peer host's module-avb as the listener oracle, and unplugging it must close the gate within the leave time.
+- **[7. Implementation order (each step green before the next)](#7-implementation-order-each-step-green-before-the-next)** — Five build steps in dependency order, ending with the area estimate (well under the AECP entity; the walker is the only nontrivial FSM).
+
 ## 1. What lwSRP must do (and what it deliberately does not)
 
 Milan v1.2 §5.6 pins SRP usage down enough that a small engine is conformant:
@@ -188,7 +198,9 @@ rx_axis_to_dma (the tap point, little lane) ──┐ (copy, never stalls)
                  └───────┬───────────────────┬──────────────┘
                          v                   v
         ┌───────────────────────┐  ┌───────────────────────────┐
-        │ KL_lwsrp_registrar    │  │ KL_lwsrp_applicant        │
+        │ KL_lwsrp_registrar    │  │ KL_lwsrp_applicant  NEVER │
+        │                       │  │   BUILT - shipped as      │
+        │                       │  │   KL_lwsrp_tx + _ctx_tx   │
         │ per attribute:        │  │ always-declare: Join tick │
         │ MT/IN/LV + leave      │  │ (200 ms) refresh; LeaveAll│
         │ timer 600 ms;         │  │ -> re-declare; disable -> │
