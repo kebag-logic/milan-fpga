@@ -226,6 +226,80 @@ protocol validation status: [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_
 Performance measurements on silicon are logged in the
 [findings log](../findings/README.md) with their methodology.
 
+## 6b. Unattended campaigns — status file and alert webhook
+
+A long on-silicon campaign can run for **days**. It is driven from a host, not
+from a board, and it is built so that **nobody is woken unless something is
+actually wrong**. Silence means healthy.
+
+### The contract is one file
+
+The runner maintains a single `STATUS` file containing exactly one word plus a
+one-line reason:
+
+| value | meaning |
+|---|---|
+| `RUNNING` | in progress; a heartbeat file carries `{phase, item, iteration, timestamp}` |
+| `DONE` | the campaign completed and every item passed |
+| `FAILED` | a real defect was found — the run stopped escalating and captured a forensic bundle |
+
+Everything else (the append-only JSONL record, the human-readable log, the
+per-item artefacts) is detail. "Is it alive, and is it healthy" must be
+answerable by reading two small files, without parsing a log.
+
+**`FAILED` and `BLOCKED` are deliberately different.** `FAILED` is a defect in
+the device under test. `BLOCKED` is the harness being unable to run an item — a
+board unreachable, a tool missing, a capture device busy. Blocked items are
+counted and reported but **never raise an alert**: waking someone for a blocked
+item is the false alarm that teaches people to ignore the next one.
+
+### The webhook
+
+The runner calls a notification hook exactly once, on the **first** transition
+to `FAILED`. Subsequent failures are recorded but do not re-alert, so a single
+defect cannot produce a hundred messages overnight.
+
+The hook is a **config value, not code**. If it is unset the hook is a clean
+no-op — the campaign still runs and still records everything, it simply has no
+off-site channel.
+
+```ini
+# campaign config (not committed - it carries site-specific values)
+alert_webhook = https://<your-endpoint>
+alert_timeout_s = 10
+```
+
+The call is a single POST with a short plain-text body, kept under a couple of
+hundred characters so it survives mobile truncation, and it leads with the
+actionable part:
+
+```sh
+curl -fsS --max-time "$ALERT_TIMEOUT_S" -X POST \
+     -H 'Content-Type: text/plain' \
+     --data "milan campaign FAILED: <item> — <one-line reason> (host <name>, run <id>)" \
+     "$ALERT_WEBHOOK"
+```
+
+Any endpoint that accepts a POST works — a self-hosted notifier, a chat
+integration, or a small script on a machine that is always awake. **The failure
+of the webhook must never fail the campaign**: `curl` is invoked with a timeout,
+its exit status is recorded, and the run continues either way. An alert that
+cannot be delivered is a logging problem, not a test result.
+
+### Why the log lives on the host
+
+The primary record is on the **host**, and it is complete on its own — no result
+depends on board-side storage. A multi-day campaign produces far more than the
+2 MiB the board reserves for its own writable area, and the host is also the
+only thing guaranteed to survive a board that hangs.
+
+Board-side flash logging is reserved for the one case the host cannot observe: a
+fault where the board dies before it can report. That path is designed but **not
+yet available** — no deployed tree carries an mtd node and no mtd driver is known
+to bind to the flash controller in this kernel configuration. The falsifier is
+`cat /proc/mtd` after a flash and boot. Until then the hook degrades silently to
+host-only.
+
 ## 7. Known gaps (kept honest)
 
 * **The BDD conformance suite runs on every verification round** (USER standing
