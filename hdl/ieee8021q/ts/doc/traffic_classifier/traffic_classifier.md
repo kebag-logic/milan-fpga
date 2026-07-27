@@ -2,6 +2,17 @@
 # Entity: traffic_classifier 
 - **File**: traffic_classifier.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — Generated block symbol (`traffic_classifier.svg`).
+- **[Description](#description)** — The only prose on the page, and the one rule worth carrying away: parsing is *always* done big-endian internally (converted if `BIG_ENDIAN=0`), while the payload is forwarded byte-unmodified in its original order.
+- **[Generics](#generics)** — `TDATA_WIDTH` (32/64/128 all tested), the `BIG_ENDIAN` conversion switch, and the buffer FIFO depth.
+- **[Ports](#ports)** — Clock, active-low sync reset, and a straight AXIS slave-to-master pass-through; the classification verdict leaves on `tdest`, not on a port of its own.
+- **[Signals](#signals)** — The header-capture path (`eth_header` comb vs `eth_header_buf` registered, so a back-to-back packet cannot overwrite it mid-decode) plus the tdata/tkeep/tvalid/tlast delay arrays that hold data back until tdest is ready.
+- **[Constants](#constants)** — `LATENCY` per tdata width and `LATENCY_SAFE`, which forces a depth of 1 so the delay arrays never degenerate to zero length.
+- **[Processes](#processes)** — Four always blocks: slice bytes into the header buffer, register it, decode it combinationally, and delay the master interface so tdest lands on the right beat.
+- **[Instantiations](#instantiations)** — The packet buffer that holds a frame while its headers are parsed — now `axis_fifo` from verilog-axis, the de-Xilinx replacement for `xpm_fifo_axis`.
+
 ## Diagram
 ![Diagram](traffic_classifier.svg "Diagram")
 ## Description
