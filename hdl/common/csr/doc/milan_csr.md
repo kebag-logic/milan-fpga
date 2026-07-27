@@ -11,7 +11,7 @@ docs/reference/REGISTER_MAP.md.
 - **File**: milan_csr.sv
 - **Title**: AXI4-Lite control/status-register (CSR) block for the Milan TSN NIC
 - **ABI**: [docs/reference/REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md)
-- **Verification**: [tb/verilator/csr](../../../../tb/verilator/csr) (self-checking, 44 checks)
+- **Verification**: [tb/verilator/csr](../../../../tb/verilator/csr) — self-checking; the harness prints its own live check count on every run (deliberately not quoted here, it grows with every CSR round)
 
 ## Contents
 
@@ -47,7 +47,7 @@ consumer using those strobes (`REQ-CSR-03`).
 | ------------ | ------------- | -------------- | ------------------------------------------------------- |
 | NUM_QUEUES   | int           | 5              | Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority |
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
-| VERSION      | logic [31:0]  | 32'h0001_0013  | Value returned by the read-only VERSION register (the RTL parameter's own comment carries the per-version changelog) |
+| VERSION      | logic [31:0]  | 32'h0001_0014  | Value returned by the read-only VERSION register. **Do not quote this literal** — it moves with every CSR contract change; the RTL parameter's own comment is the per-version changelog and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number |
 
 ## Ports
 

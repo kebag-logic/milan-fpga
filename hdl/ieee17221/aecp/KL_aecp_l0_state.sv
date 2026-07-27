@@ -48,8 +48,8 @@
 import aecp_pkg::*;
 
 module KL_aecp_l0_state (
-  input  wire          clk_i,
-  input  wire          rst_n,
+  input  wire          clk_i,                  //! datapath clock (--milan-clk-freq: 100 MHz AX7101, 50 MHz Arty)
+  input  wire          rst_n,                  //! active-low synchronous reset
   input  wire [63:0]   entity_id_i,            //! EUI-64, driven from top-level MAC
   input  aecp_hdr_t    hdr_i,                  //! from common_parser
   input  wire [3:0]    message_type_i,         //! from packet_validator (AEM gate)
