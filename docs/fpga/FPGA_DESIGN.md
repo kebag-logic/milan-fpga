@@ -35,7 +35,7 @@ Pipeline (identical in both wrappers):
 
 ```
 TX: DMA ──► traffic_controller_802_1q ──► ptp_ts_top(TX stamp) ──► adp_tx_arbiter ──► MAC
-            (classify ► 6 queues ► CBS)                                ▲
+            (classify ► 5 queues ► CBS)                                ▲
                           fabric engines (AAF talker, ADP/ACMP/AECP,   │
                           MAAP, CRF, lwSRP) inject HERE ───────────────┘
 RX: MAC ──► ptp_ts_top(RX stamp) ─┬─► rx_mac_filter(TCAM) ──► DMA        (host copy)

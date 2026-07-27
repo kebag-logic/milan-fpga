@@ -9,6 +9,40 @@ in the GitHub issues; the remaining compliance work is
 called **the bench suite** everywhere (commits, docs, comments) — never
 any other name; its material is private (see §7).
 
+## 0. The map
+
+*Where do I plug the analyzer to see traffic from a given board?* Solid lines
+are the AVB wire; dashed lines never carry stream traffic. Concrete values stay
+out of the picture by rule — this is roles and links only.
+
+```mermaid
+flowchart TB
+    subgraph LAB["the bench segment"]
+        SW{{"AVB switch<br/>managed bridge, no IP or UI management<br/>MSRP domain: class A, prio 3, VID 2"}}
+        ARTY["ARTY - small end-station<br/>entity :02, datapath 50 MHz, gPTP SLAVE"]
+        AX["ALINX AX7101 - full end-station<br/>entity :01, datapath 100 MHz, gPTP GM"]
+        PEER["the peer test host<br/>controller on the AVB LAN:<br/>wire probes, raw-socket tools, captures"]
+        T1(["tap1 - inline on the ALINX to switch link"])
+        T2(["tap2 - inline on the ARTY to switch link"])
+        AX --- T1 --- SW
+        ARTY --- T2 --- SW
+        SW --- PEER
+    end
+    CAP["the capture host<br/>ProfiShark recorder. Records carry a 28-byte header,<br/>so every tcpdump ether offset shifts by +28"]
+    T1 -.-> CAP
+    T2 -.-> CAP
+    DEV["dev box<br/>Vivado, repos, JTAG cables, serial consoles.<br/>NEVER gets an address on the bench AVB subnet"]
+    DEV -.->|"JTAG / QSPI flash + serial console"| ARTY
+    DEV -.->|"JTAG / QSPI flash + serial console"| AX
+    PWR["the power controller<br/>one outlet per switched device"]
+    PWR -.->|"power"| SW
+    PWR -.->|"power"| AX
+```
+
+So: **tap1 for anything the ALINX sends or receives, tap2 for the ARTY.** A tap
+sees one link, not the segment — traffic between the ARTY and the peer host
+crosses both taps, traffic the switch drops crosses neither.
+
 ## 1. Machines
 
 | Name | Reach | Role |
@@ -38,6 +72,21 @@ Audio loop: ALINX tone (S50 enables TONE_CTRL) → AAF → ARTY DAC (Pmod
 I2S2 HP out, through the render LPF) → analog cable → ARTY ADC (line in)
 → ARTY talker stream → wire. Loop THD+N record −83.9 dB (LPF on, MMCM-DRP servo
 coherent chain — the CS4344⊕CS5343 converter floor; the old −73.4 was NCO-era).
+
+*Which hops of that loop are digital, and which single hop is analog?* The
+answer is why the record is the converter floor and not the datapath's:
+
+```mermaid
+flowchart LR
+    T["ALINX tone generator<br/>TONE_CTRL, enabled by S50milan"] --> P["AAF packetizer"]
+    P -->|"AVB wire, VID 2"| D["ARTY depacketizer"]
+    D --> R["render LPF"]
+    R --> DAC["Pmod I2S2 DAC, HP out"]
+    DAC ==>|"the ONE analog hop"| ADC["ARTY ADC, line in"]
+    ADC --> TK["ARTY talker stream"]
+    TK --> W["back on the wire:<br/>capture at tap2, or dump the PCM ring"]
+    W --> M["loop THD+N record -83.9 dB<br/>= the converter floor, LPF on, servo coherent"]
+```
 
 ## 3. Consoles from the dev box
 
@@ -157,6 +206,23 @@ GM; pdelay 0x6E4; AS_PATH parent bridge 0x730/4 from PARENT_DATA_SET),
 `stream_phc_sync.sh` (dormant while ptp4l is SLAVE **or MASTER**; only
 steers after 5 consecutive dead polls — earlier versions caused the
 ~100 s media-unlock cycle).
+
+*What runs, in what order, between power-on and a provisioned streaming board?*
+
+```mermaid
+flowchart TB
+    Q["QSPI / SRAM gateware"] --> B["BIOS flash-boot, xz kernel"]
+    B --> BR["buildroot userspace"]
+    BR --> S["S50milan provisions the CSRs"]
+    S --> S1["names, model id, vt=10, MAAP adopt, kernel shield /32"]
+    S --> S2["AAF_CTRL 0x654 = 0x00020003 - bit-preserve VID 2 in bits 27:16<br/>or the switch floods the stream as best-effort"]
+    S --> S3["honest counts 0x618/0x61C, ingressLatency per board,<br/>priority1 238 on the AX, tone on the AX"]
+    S --> DMN["then the daemons"]
+    DMN --> D1["ptp4l with tx_timestamp_timeout 500, plus phc2sys"]
+    DMN --> D2["linkmon.sh - kernel rx_packets liveness, one edge-pair per outage,<br/>LINK_CTRL 0x71C reinit, RST_EPOCH 0x720 canary"]
+    DMN --> D3["gptp2csr.sh - GM 0x624/8, pdelay 0x6E4, AS_PATH parent 0x730/4"]
+    DMN --> D4["stream_phc_sync.sh - dormant while ptp4l is SLAVE or MASTER,<br/>steers only after 5 consecutive dead polls"]
+```
 
 CSR quick map (base 0x90000000, addresses = offsets): 0x600 ADP ctrl ·
 0x60C/0x610 model id · 0x618/0x61C caps+counts · 0x624/0x628 GM ·

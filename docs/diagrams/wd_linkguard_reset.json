@@ -1,0 +1,70 @@
+{
+  "signal": [
+    {
+      "name": "rx_tgl_i / tx_tgl_i",
+      "wave": "hl.......h...........",
+      "node": ".a.......b..........."
+    },
+    {
+      "name": "rx_alive_r && tx_alive_r",
+      "wave": "1..0.....1...........",
+      "node": "...c.................."
+    },
+    {},
+    {
+      "name": "state_r",
+      "wave": "3..4.....5.......3...",
+      "data": [
+        "RUN_S",
+        "HOLD_S",
+        "SETTLE_S",
+        "RUN_S"
+      ]
+    },
+    {
+      "name": "settle_r",
+      "wave": "x........2...2...x...",
+      "data": [
+        "0 .. SETTLE/2",
+        "SETTLE/2 .. SETTLE"
+      ]
+    },
+    {},
+    {
+      "name": "eth_rst_o (eth-side CDC)",
+      "wave": "0..1.........0.......",
+      "node": ".............e......."
+    },
+    {
+      "name": "guard_rst_o -> reinit_o (sys side)",
+      "wave": "0..1.............0...",
+      "node": ".................s..."
+    },
+    {},
+    {
+      "name": "man_reinit_i (LINK_CTRL[1])",
+      "wave": "0...................."
+    },
+    {
+      "name": "LINKG_STAT.bounce_cnt",
+      "wave": "2..2.................",
+      "data": [
+        "n",
+        "n+1"
+      ]
+    }
+  ],
+  "edge": [
+    "a-~>c no transition for DEAD_CYC_C -> clock declared dead",
+    "e-|>s eth released FIRST, sys held for the remaining SETTLE/2"
+  ],
+  "head": {
+    "text": "KL_link_guard.sv - RUN -> HOLD -> SETTLE -> RUN: the sequenced eth-then-sys CDC reset"
+  },
+  "foot": {
+    "text": "eth_rst_o drops at settle_r == SETTLE/2, guard_rst_o at SETTLE: release is ALWAYS eth-first-then-sys, so both CDC pointer sets restart matched."
+  },
+  "config": {
+    "hscale": 2
+  }
+}

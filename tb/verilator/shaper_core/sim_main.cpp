@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <random>
 
-static const int NQ = 6;   // 802.1Q order: q5 = highest priority, q0 = lowest
+static const int NQ = 5;   // 802.1Q order: q4 = highest priority, q0 = lowest
 
 static int64_t sx48(uint64_t v) {
     v &= (((uint64_t)1 << 48) - 1);
@@ -32,18 +32,18 @@ static int64_t sx48(uint64_t v) {
 static int popcountq(uint32_t x) { int n = 0; for (int i = 0; i < NQ; i++) n += (x >> i) & 1; return n; }
 // priority encoder: HIGHEST set bit index, or -1. Mirrors
 // ethernet_packet_pkg::priority_encode, which scans from the top index down
-// since the 6-queue map put SR class A on q5 (802.1Q order).
+// since the 802.1Q-order map put SR class A on the TOP queue (q4 at N=5).
 static int penc(uint32_t req) { for (int i = NQ - 1; i >= 0; i--) if (req & (1u << i)) return i; return -1; }
 // one-hot index (grant is always one-hot or zero, so direction is irrelevant)
 static int onehot_idx(uint32_t v) { for (int i = 0; i < NQ; i++) if (v & (1u << i)) return i; return -1; }
 
-// milan_csr CBS reset defaults for the 6-queue map, INDEXED BY QUEUE:
-// q0 BE / q1 spare / q2 control / q3 gPTP / q4 SR class B / q5 SR class A.
+// milan_csr CBS reset defaults for the 5-queue map, INDEXED BY QUEUE:
+// q0 BE / q1 control / q2 gPTP / q3 SR class B / q4 SR class A.
 struct Cfg {
-    uint32_t idle[NQ] = {25000000, 25000000, 50000000, 50000000, 150000000, 450000000};
-    int32_t  hi[NQ]   = {38, 38, 76, 76, 228, 684};
-    int32_t  lo[NQ]   = {-1483, -1483, -1445, -1445, -1293, -837};
-    uint32_t shaped   = 0x3F; // all shaped by default (this harness, NOT the reset word)
+    uint32_t idle[NQ] = {25000000, 50000000, 50000000, 150000000, 450000000};
+    int32_t  hi[NQ]   = {38, 76, 76, 228, 684};
+    int32_t  lo[NQ]   = {-1483, -1445, -1445, -1293, -837};
+    uint32_t shaped   = 0x1F; // all shaped by default (this harness, NOT the reset word)
 };
 
 struct Harness {
@@ -124,8 +124,7 @@ struct Harness {
             case 1: return sx48(dut->dbg_credit1);
             case 2: return sx48(dut->dbg_credit2);
             case 3: return sx48(dut->dbg_credit3);
-            case 4: return sx48(dut->dbg_credit4);
-            default:return sx48(dut->dbg_credit5);
+            default:return sx48(dut->dbg_credit4);
         }
     }
     int grant_index() { return onehot_idx(dut->grant_o); }
@@ -225,7 +224,7 @@ int main(int argc, char** argv) {
 
     printf("== traffic_shaping_core arbitration harness (NQ=%d, all shaped) ==\n", NQ);
 
-    // ---- Scenario 1: single queue q2 wins its own grant ----
+    // ---- Scenario 1: single queue q2 (gPTP) wins its own grant ----
     {
         long f0 = h.fails;
         // let q2 build credit while idle-waiting (has_data, no transmit)
@@ -243,7 +242,7 @@ int main(int argc, char** argv) {
     }
 
     // ---- Scenario 2: 802.1Q ORDER - the HIGHEST index wins ----
-    // q5 (SR class A) must beat q4 (class B) must beat q3 (gPTP) ... down to q0.
+    // q4 (SR class A) must beat q3 (class B) must beat q2 (gPTP) ... down to q0.
     // This is the arbitration half of the queue-map directive: the CBS-shaped
     // classes sit at the TOP of the strict-priority order, which is what
     // 802.1Q-2018 8.6.8.2 credit-based shaping assumes. If the encoder ever
@@ -264,10 +263,10 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        // and all six at once: q5 takes it
+        // and all five at once: q4 takes it
         h.reset(4);
-        for (int i = 0; i < 400; i++) h.cycle(0x3F, false, false, false, "all_build");
-        h.cycle(0x3F, true, false, true, "all_arb");
+        for (int i = 0; i < 400; i++) h.cycle(0x1F, false, false, false, "all_build");
+        h.cycle(0x1F, true, false, true, "all_arb");
         int gall = h.grant_index();
         if (gall != NQ - 1) {
             printf("  [FAIL] all queues eligible: grant idx=%d (want q%d = SR class A)\n",
@@ -275,33 +274,33 @@ int main(int argc, char** argv) {
             h.fails++;
         }
         printf("  [%s] 802.1Q order: the higher queue index always wins "
-               "(%d pairs + the all-six case, q5 = SR class A on top)\n",
+               "(%d pairs + the all-five case, q4 = SR class A on top)\n",
                (h.fails == f0) ? "PASS" : "FAIL", NQ * (NQ - 1) / 2);
     }
 
-    // ---- Scenario 3: a depleted q5 yields to q4 ----
-    // Drain q5 (SR class A) negative by transmitting many beats, then offer
-    // q5+q4: q4 (allowed) must win because q5's credit is negative (allow=0).
+    // ---- Scenario 3: a depleted q4 yields to q3 ----
+    // Drain q4 (SR class A) negative by transmitting many beats, then offer
+    // q4+q3: q3 (allowed) must win because q4's credit is negative (allow=0).
     // THE point of CBS - the top-priority shaped queue does not starve the one
     // below it once it has spent its credit.
     {
         h.reset(4);
         long f0 = h.fails;
-        const uint32_t Q5 = 1u << 5, Q4 = 1u << 4;
-        // q5 transmits a long burst to drive its credit negative
+        const uint32_t QA = 1u << 4, QB = 1u << 3;
+        // q4 transmits a long burst to drive its credit negative
         for (int i = 0; i < 300; i++) {
             bool last = (i % 30 == 29);
-            h.cycle(Q5, true, last, true, "q5_drain");
+            h.cycle(QA, true, last, true, "q4_drain");
         }
         // brief settle with no data so allow registers update
         for (int i = 0; i < 4; i++) h.cycle(0x0, false, false, false, "settle");
-        bool q5_neg = h.credit(5) < 0;
-        // build q4 credit while q5 stays negative & idle-empty
-        for (int i = 0; i < 400; i++) h.cycle(Q4, false, false, false, "q4_build");
-        h.cycle(Q5 | Q4, true, false, true, "q54_after_drain");
+        bool qa_neg = h.credit(4) < 0;
+        // build q3 credit while q4 stays negative & idle-empty
+        for (int i = 0; i < 400; i++) h.cycle(QB, false, false, false, "q3_build");
+        h.cycle(QA | QB, true, false, true, "q43_after_drain");
         int g = h.grant_index();
-        bool ok = q5_neg && (g == 4) && (h.fails == f0);
-        printf("  [%s] depleted q5 drove credit negative, then yields to q4: grant idx=%d\n",
+        bool ok = qa_neg && (g == 3) && (h.fails == f0);
+        printf("  [%s] depleted q4 drove credit negative, then yields to q3: grant idx=%d\n",
                ok ? "PASS" : "FAIL", g);
         if (!ok) h.fails++;
     }
@@ -310,7 +309,7 @@ int main(int argc, char** argv) {
     // q0 unshaped: even with zero/negative credit it must be grantable immediately.
     {
         h.reset(4);
-        Cfg c2 = cfg; c2.shaped = 0x3E;  // q0 unshaped (the reset posture for BE), rest shaped
+        Cfg c2 = cfg; c2.shaped = 0x1E;  // q0 unshaped (the reset posture for BE), rest shaped
         h.apply_cfg(c2);
         for (int i = 0; i < 4; i++) h.cycle(0, false, false, false, "reconf");
         long f0 = h.fails;
@@ -468,11 +467,11 @@ int main(int argc, char** argv) {
     }
 
     // ---- FQTSS-2: the shaped class and best effort SHARE the port ------
-    // 8.6.8.2 transmission selection with a credit-based shaper. q5 (SR class A)
+    // 8.6.8.2 transmission selection with a credit-based shaper. q4 (SR class A)
     // is shaped and permanently backlogged; q0 (best effort, unshaped) is too.
-    // q5 outranks q0 absolutely, so ONLY the credit gate can stop it - and it
+    // q4 outranks q0 absolutely, so ONLY the credit gate can stop it - and it
     // must, or a talker with one stream would black-hole every other frame the
-    // station has to send. Symmetrically q0 must never squeeze q5 out, since q5
+    // station has to send. Symmetrically q0 must never squeeze q4 out, since q4
     // wins outright whenever its credit is non-negative.
     //
     // Measured against the accounting model of REQ-CBS-07 (the egress here is
@@ -486,20 +485,20 @@ int main(int argc, char** argv) {
         const double PORT_BPC = 8.0 / (double)RDYP;
 
         struct { uint32_t slope; const char* name; } runs[] = {
-            { 100000000, "q5 @ 100 Mb/s" },
-            { 200000000, "q5 @ 200 Mb/s" },
-            { 450000000, "q5 @ 450 Mb/s (the class-A RESET slope)" },
+            { 100000000, "q4 @ 100 Mb/s" },
+            { 200000000, "q4 @ 200 Mb/s" },
+            { 450000000, "q4 @ 450 Mb/s (the class-A RESET slope)" },
         };
         double share5[3];
         for (int r = 0; r < 3; r++) {
-            Cfg c;                                  // reset slopes, then override q5
-            c.idle[5] = runs[r].slope;
-            c.shaped  = 1u << 5;                    // ONLY q5 shaped; q0 strict/unshaped
+            Cfg c;                                  // reset slopes, then override q4
+            c.idle[4] = runs[r].slope;
+            c.shaped  = 1u << 4;                    // ONLY q4 shaped; q0 strict/unshaped
             long bq[NQ]; long dummy;
-            run_share(h, c, (1u << 5) | (1u << 0), RDYP, CYCLES, FBEATS,
+            run_share(h, c, (1u << 4) | (1u << 0), RDYP, CYCLES, FBEATS,
                       bq, -1, &dummy, "fqtss_share");
             long total = 0; for (int i = 0; i < NQ; i++) total += bq[i];
-            share5[r]  = total ? (double)bq[5] / (double)total : 0.0;
+            share5[r]  = total ? (double)bq[4] / (double)total : 0.0;
             double sh0 = total ? (double)bq[0] / (double)total : 0.0;
 
             double S     = (double)runs[r].slope;
@@ -508,19 +507,19 @@ int main(int argc, char** argv) {
 
             // (a) NEITHER queue is starved - the FQTSS guarantee, both ways
             if (!(share5[r] > 0.01)) {
-                printf("  [FAIL] FQTSS: shaped q5 starved by best effort (%.3f%% of the port)\n",
+                printf("  [FAIL] FQTSS: shaped q4 starved by best effort (%.3f%% of the port)\n",
                        share5[r] * 100.0);
                 h.fails++;
             }
             if (!(sh0 > 0.01)) {
-                printf("  [FAIL] FQTSS: shaped q5 MONOPOLISED the port - q0 got %.3f%%, "
+                printf("  [FAIL] FQTSS: shaped q4 MONOPOLISED the port - q0 got %.3f%%, "
                        "so the credit gate is not stopping the top-priority queue\n",
                        sh0 * 100.0);
                 h.fails++;
             }
             // (b) every accepted beat belongs to exactly one of the two offered
             // queues (no beat attributed to a queue with no data)
-            long stray = total - bq[5] - bq[0];
+            long stray = total - bq[4] - bq[0];
             if (stray != 0) {
                 printf("  [FAIL] FQTSS: %ld beats granted to a queue with no data\n", stray);
                 h.fails++;
@@ -532,13 +531,13 @@ int main(int argc, char** argv) {
                        "%.2f%% (%.2f%% off)\n", runs[r].name, share5[r]*100.0, model*100.0, merr);
                 h.fails++;
             }
-            printf("  [INFO] FQTSS share  %-38s q5 %6.2f%% | q0 %6.2f%% | model %6.2f%% "
+            printf("  [INFO] FQTSS share  %-38s q4 %6.2f%% | q0 %6.2f%% | model %6.2f%% "
                    "| 802.1Qav reservation %5.2f%%\n",
                    runs[r].name, share5[r]*100.0, sh0*100.0, model*100.0, ideal*100.0);
         }
         // (d) non-vacuity: the split must MOVE with idleSlope, monotonically
         if (!(share5[0] < share5[1] && share5[1] < share5[2])) {
-            printf("  [FAIL] FQTSS: q5's share is not monotone in idleSlope "
+            printf("  [FAIL] FQTSS: q4's share is not monotone in idleSlope "
                    "(%.3f, %.3f, %.3f) - the measurement is not tracking the reservation\n",
                    share5[0], share5[1], share5[2]);
             h.fails++;
@@ -548,48 +547,48 @@ int main(int argc, char** argv) {
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
-    // ---- FQTSS-3: NON-VACUITY - unshape q5 and it takes everything -----
+    // ---- FQTSS-3: NON-VACUITY - unshape q4 and it takes everything -----
     // The partition above must come from the CREDIT GATE, not from the arbiter
-    // or the harness. Same stimulus, same priorities, `shaped` cleared: q5 now
+    // or the harness. Same stimulus, same priorities, `shaped` cleared: q4 now
     // outranks q0 with nothing to stop it and must take essentially the whole
     // port. If this scenario ALSO showed a split, FQTSS-2 would prove nothing.
     {
         long f0 = h.fails;
-        Cfg c; c.idle[5] = 100000000; c.shaped = 0;      // nothing shaped
+        Cfg c; c.idle[4] = 100000000; c.shaped = 0;      // nothing shaped
         long bq[NQ], dummy;
-        run_share(h, c, (1u << 5) | (1u << 0), 8, 50000, 8, bq, -1, &dummy, "fqtss_novac");
+        run_share(h, c, (1u << 4) | (1u << 0), 8, 50000, 8, bq, -1, &dummy, "fqtss_novac");
         long total = 0; for (int i = 0; i < NQ; i++) total += bq[i];
-        double sh5 = total ? (double)bq[5] / (double)total : 0.0;
+        double sh5 = total ? (double)bq[4] / (double)total : 0.0;
         if (sh5 < 0.99) {
-            printf("  [FAIL] FQTSS non-vacuity: UNSHAPED q5 took only %.2f%% of the port - "
+            printf("  [FAIL] FQTSS non-vacuity: UNSHAPED q4 took only %.2f%% of the port - "
                    "the split in FQTSS-2 is not the credit gate's doing\n", sh5 * 100.0);
             h.fails++;
         }
-        printf("  [%s] non-vacuity: with CBS off, q5 takes %.2f%% (strict priority, "
+        printf("  [%s] non-vacuity: with CBS off, q4 takes %.2f%% (strict priority, "
                "no credit gate) - so the FQTSS split above IS the shaper\n",
                (h.fails == f0) ? "PASS" : "FAIL", sh5 * 100.0);
     }
 
     // ---- FQTSS-4: gPTP is not starved by a saturating shaped class -----
-    // The 6-queue map puts gPTP on q3, BELOW the CBS-shaped q5/q4. That is a
-    // correctness requirement (a strict queue above the shaped classes voids the
-    // credit accounting that bounds class-A latency), and the argument for it
-    // being harmless is that a credit-shaped q5 MUST yield periodically by
-    // construction. This measures that claim instead of asserting it: q5 shaped
-    // at its class-A reset slope and permanently backlogged, q3 offered
-    // continuously, and we record q3's worst service gap in port slots.
+    // The 802.1Q-order map puts gPTP on q2, BELOW the CBS-shaped q4/q3. That is
+    // a correctness requirement (a strict queue above the shaped classes voids
+    // the credit accounting that bounds class-A latency), and the argument for
+    // it being harmless is that a credit-shaped q4 MUST yield periodically by
+    // construction. This measures that claim instead of asserting it: q4 shaped
+    // at its class-A reset slope and permanently backlogged, q2 offered
+    // continuously, and we record q2's worst service gap in port slots.
     {
         long f0 = h.fails;
         const int RDYP = 8, FBEATS = 8, CYCLES = 200000;
-        Cfg c;                                        // reset slopes (q5 = 450 Mb/s)
-        c.shaped = 1u << 5;                           // q5 shaped, q3 strict/unshaped
+        Cfg c;                                        // reset slopes (q4 = 450 Mb/s)
+        c.shaped = 1u << 4;                           // q4 shaped, q2 strict/unshaped
         long bq[NQ], worst = 0;
-        run_share(h, c, (1u << 5) | (1u << 3), RDYP, CYCLES, FBEATS,
-                  bq, /*wait_q=*/3, &worst, "fqtss_gptp");
+        run_share(h, c, (1u << 4) | (1u << 2), RDYP, CYCLES, FBEATS,
+                  bq, /*wait_q=*/2, &worst, "fqtss_gptp");
         long total = 0; for (int i = 0; i < NQ; i++) total += bq[i];
-        double sh3 = total ? (double)bq[3] / (double)total : 0.0;
-        if (bq[3] == 0) {
-            printf("  [FAIL] FQTSS: gPTP q3 got ZERO service under a saturating shaped q5\n");
+        double sh3 = total ? (double)bq[2] / (double)total : 0.0;
+        if (bq[2] == 0) {
+            printf("  [FAIL] FQTSS: gPTP q2 got ZERO service under a saturating shaped q4\n");
             h.fails++;
         }
         // A Milan class-A stream is 8000 frames/s; gPTP is 8-16 frames/s, i.e.
@@ -597,13 +596,13 @@ int main(int argc, char** argv) {
         // more headroom than gPTP can consume, so a regression that merely
         // *narrows* the gap still fails here rather than passing on a trickle.
         if (sh3 < 0.02) {
-            printf("  [FAIL] FQTSS: gPTP q3 got only %.3f%% of the port under a saturating "
-                   "shaped q5 - less than 10x what 802.1AS needs\n", sh3 * 100.0);
+            printf("  [FAIL] FQTSS: gPTP q2 got only %.3f%% of the port under a saturating "
+                   "shaped q4 - less than 10x what 802.1AS needs\n", sh3 * 100.0);
             h.fails++;
         }
         // worst gap, in accepted 8-byte port slots -> wire time at 1 Gb/s
         double gap_us = (double)worst * 8.0 * 8.0 / 1000.0;
-        printf("  [%s] gPTP q3 under a saturating class-A q5: %.2f%% of the port, worst "
+        printf("  [%s] gPTP q2 under a saturating class-A q4: %.2f%% of the port, worst "
                "service gap %ld slots = %.2f us of 1 Gb/s wire time (802.1AS needs "
                "8-16 frames/s)\n", (h.fails == f0) ? "PASS" : "FAIL",
                sh3 * 100.0, worst, gap_us);

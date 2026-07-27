@@ -25,9 +25,9 @@
                 priority: their CBS forces `allow_transmit` high, so the priority
                 encoder always considers them eligible when they have data.
 
-                ARBITRATION ORDER (802.1Q, 6-queue map): the HIGHEST queue index
-                wins - q5 (SR class A) over q4 (class B) over q3 (gPTP) over q2
-                (control) over q1 (spare) over q0 (best effort). The shaped
+                ARBITRATION ORDER (802.1Q, 5-queue map): the HIGHEST queue index
+                wins - q4 (SR class A) over q3 (class B) over q2 (gPTP) over q1
+                (control) over q0 (best effort). The shaped
                 classes therefore sit at the TOP of the strict-priority order,
                 which is what 802.1Q-2018 8.6.8.2 credit-based shaping assumes;
                 a strict-priority queue above them would void the credit
@@ -46,7 +46,7 @@ import ethernet_packet_pkg::*;
 
 module traffic_shaping_core #(
   parameter int TDATA_WIDTH = 64,     //! Width of tdata bus
-  parameter int NUMBER_OF_QUEUES = 6  //! Number of network queues
+  parameter int NUMBER_OF_QUEUES = 5  //! Number of network queues
 )(
   input wire clk,                     //! clock signal
   input wire resetn,                  //! synchronous active low reset

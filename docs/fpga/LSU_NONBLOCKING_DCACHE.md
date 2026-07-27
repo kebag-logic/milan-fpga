@@ -77,6 +77,29 @@ It keeps REDO-ing (cheaply) until the line has landed, then hits. **In-order ord
 preserved**  -  a later instruction never commits ahead of the missing load. Hold this fact; it
 governs §5.
 
+The whole "blocking vs non-blocking" question is one branch in this picture  - 
+**on a miss, what is it that stalls: the machine, or just this load?**
+
+```mermaid
+flowchart TB
+    AGU["AGU — compute address<br/>Agu.scala"] --> XL["translate + check<br/>PMA / PMP / MMU"]
+    XL --> RD["read all 4 ways in parallel<br/>bankReadAt / wayReadAt"]
+    RD --> CMP{"tag compare<br/>hitsAt=1, hitAt=2"}
+    CMP -->|HIT| FWD["forward data, instruction retires<br/>one access, no stall"]
+    CMP -->|MISS| FREE{"any free refill slot?<br/>full = slots.map(!_.free).andR<br/>LsuL1Plugin.scala:357"}
+    FREE -->|"yes — a slot is free"| ALLOC["allocate a refill slot<br/>push address, way, victim"]
+    FREE -->|"no — every slot busy"| BLOCK["the new miss cannot even be ISSUED<br/>the one and only blocking condition"]
+    ALLOC --> BG["64 B line fetch proceeds in the BACKGROUND<br/>L2 read tagged with the slot index"]
+    ALLOC --> REDO["lsuTrap, TrapReason.REDO<br/>THIS load replays from its own PC"]
+    BLOCK --> REDO
+    REDO --> AGU
+    BG --> LAND["line lands, tag written, slot freed"]
+    LAND -.->|"the next replay now HITS"| CMP
+```
+
+At `refillCount = 1` the `BLOCK` branch is reached by the *second* miss to a
+different line; at `refillCount = 8` it takes eight.
+
 ---
 
 ## 3. The refill engine  -  the "8 refills"
@@ -169,6 +192,32 @@ without waiting, and the L2/DRAM returns responses tagged with the same id, in a
 (`read.rsp.id` routes each response back to its slot, :421,461). So the 8 slots turn the L1 into
 an 8-deep outstanding-request generator against the shared L2 → LiteDRAM → DDR3 path. **That is
 the mechanism by which multiple 1424 ns latencies overlap.**
+
+The tag is what makes out-of-order return safe  -  **how does a response that
+comes back second find the slot that asked for it first?**
+
+```mermaid
+sequenceDiagram
+    participant S as refill slots 0..7
+    participant B as L1 to L2 read channel
+    participant L as L2 / LiteDRAM / DDR3
+
+    S->>B: read.cmd id=0, address = line A
+    S->>B: read.cmd id=1, address = line B
+    S->>B: read.cmd id=2, address = line C
+    Note over S,B: cmdSent=1 on cmd.ready — no slot waits for a response
+    L-->>B: read.rsp id=2, beats of line C
+    B-->>S: rsp.id selects slot 2, wordIndex++
+    L-->>B: read.rsp id=0, beats of line A
+    B-->>S: rsp.id selects slot 0
+    L-->>B: read.rsp id=1, beats of line B
+    B-->>S: rsp.id selects slot 1
+    Note over S,L: readIdCount = refillCount, so the slot index IS the bus tag
+```
+
+With `refillCount = 1` there is only ever one legal tag, so the channel degrades
+to one command, one response, repeat  -  a split-transaction bus used as a
+blocking one.
 
 ---
 
@@ -277,6 +326,17 @@ of the DMA'd payload. The `recv(MSG_TRUNC)` ceiling test (drains without the cop
 that same cold read for single-flow); the −P2 case just needs the read to be a **hit**, which is
 what **DDIO / allocate-on-DMA-write** does (task #15). The earlier "depth-2 interconnect / more
 parallelism / fewer touches" framing is superseded  -  see [`PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md).
+
+**One lever per row, each with the comparison that isolates it** (the build table above is
+per-build, so no single row of it answers "what did this knob buy"; a naïve build-to-build
+diff changes two variables at once):
+
+| lever | isolated by | single RX | −P2 | BRAM | what it actually buys |
+|---|---|---|---|---|---|
+| refill 1 → 8, no filler | `mlp1` vs `m1`, both 32 KB L2 | 206 → 198 | 238 → 229 | **0 tiles** (102.5 either way) | nothing measurable — capacity without a filler is the blocking case |
+| + RPT prefetcher | `mlp2` vs `mlp1`, both 32 KB L2 | 198 → **276** | 229 → 246 | +2 tiles (104.5) | single-flow / latency: it fills the slots by learning the payload-copy stride |
+| L2 32 → 64 KB | `l2x2` vs `m1`, both refill = 1 | ~flat (206 → 207) | 238 → **280** | +8 tiles (110.5) | aggregate / capacity: fewer 2-hart capacity misses |
+| all three | `mlp3`, the measured combination | 259 | **298** | 112.5 tiles (83 %) | the levers compound — first break above the ~280 ceiling, plus best TX −P4 431 |
 
 **Bottom line for the "keep BRAM for logic" question:** the frugal lever (refill alone, 0 BRAM) does
 not work; the working single-flow lever (RPT, +2 tiles) is cheap and real (+34 % single); the

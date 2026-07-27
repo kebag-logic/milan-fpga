@@ -17,6 +17,50 @@ Companion documents: [`testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_
 descriptor mapping, same PDF-verification rule as this matrix). This matrix
 is the clause-anchored join between them.
 
+## The chain, and which file holds each link
+
+*One requirement, followed end to end: which file turns a clause into a row, a
+row into a module, and a module into evidence that can flip a status?* No single
+file holds the whole chain — that is why a row can look closed in one place and
+be unbacked in another.
+
+```mermaid
+flowchart TB
+    STD["a standard clause<br/>IEEE 1722.1-2021 - 1722-2016<br/>802.1Q-2022 - 802.1AS-2020<br/>Milan v1.2"]
+    ROW["ONE ROW in the family file<br/>clause ref + required behaviour<br/>+ how it is verified today"]
+    MOD["the RTL module that<br/>owns the behaviour"]
+
+    subgraph EV["the evidence the row cites"]
+        direction TB
+        TB["a named self-checking Verilator TB"]
+        BDD["a bench behave feature"]
+        SIL["a silicon wire proof"]
+        GEN["a tsn_gen wire model"]
+    end
+
+    subgraph ST["the status the row then carries"]
+        direction TB
+        OK["verified - the evidence is named"]
+        PART["partial - the cell says which leg is missing"]
+        MISS["MISSING - no verification, or no implementation"]
+        NA["N/A - one of four taxonomy categories,<br/>any residual obligation is a separate verified row"]
+    end
+
+    STD -->|"quoted with its clause ref, then<br/>checked against the standards PDF"| ROW
+    ROW --> MOD
+    MOD --> EV
+    EV --> ST
+    ROW --> REQ["the requirement text,<br/>in the FR/NFR reference"]
+    MOD --> MAT["the GENERATED module matrix<br/>module - clause - testbench<br/>never hand-edited, gated for drift"]
+    MISS --> ATK["the attack list: top-MISSING<br/>rows and the roadmap item each names"]
+    PART --> ATK
+```
+
+The generated leg is
+[`traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md) — produced by
+[`gen_module_matrix.py`](traceability/gen_module_matrix.py), whose `--check`
+mode is a CI no-drift gate. **Never hand-edit it**; it is not restated here.
+
 ## Family files
 
 | Family | File | Rows | ✅ verified | 🟡 partial | ❌ MISSING | ➖ N/A |
@@ -51,6 +95,16 @@ obligation on this device in this role/profile — and wherever a residual
 obligation remains, that residual is a separate ✅ row. The 17 N/A rows fall
 into exactly four categories; a reviewer disputing an N/A should attack the
 category claim, not the row in isolation:
+
+| # | Category | Rows | Why no positive obligation | Where the residual obligation lives |
+|---|---|---|---|---|
+| 1 | Wrong role — controller / bridge | ADP-15, ACMP-11, AECP-7, Q-13 (**4**) | the clause binds ATDECC controllers or 802.1Q bridges; this device is an end-station entity | the counterpart behavior is the bench (Hive, `avdecc_l2`, the reference AVB switch) — what the entity is tested *against* |
+| 2 | Superseded by Milan | ACMP-12, ACMP-13 (**2**) | Milan 5.5.3/5.5.4 replaces the 1722.1 8.2.4/8.2.5 state machines wholesale — asserting the base SM would test for behavior that is *wrong* here | M-ACMP-1..8, where the replacement is fully verified |
+| 3 | Optional feature — only the refusal is owed | AEM-9, CMD-4, CMD-18, CMD-21, CMD-23 (**5**) | 1722.1 makes these optional | the exact NO_SUCH_DESCRIPTOR / NOT_IMPLEMENTED status, verified by RTL `aecp` negative reads + the unknown-command path |
+| 4 | Profile / scope exclusion | AAF-11, CRF-9, MRP-8, Q-14, AS-11, M-DEV-16 (**6**) | the profile restricts the format set (AES3, non-audio CRF); the architecture fulfills the function another way (MMRP → MAAP + TCAM); the feature is outside Milan (Qbv TAS); the medium does not exist on this hardware; or the project recorded an explicit exclusion (redundancy) | ✅ rows AEM-4, M-FMT-1 and M-DEV-16's own note |
+
+4 + 2 + 5 + 6 = the 17 N/A rows in the tally above. The prose behind each
+category:
 
 1. **Wrong role — controller/bridge obligations** (ADP-15, ACMP-11, AECP-7,
    Q-13): the clause binds ATDECC controllers or 802.1Q bridges. We are an

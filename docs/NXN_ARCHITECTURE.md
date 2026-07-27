@@ -21,6 +21,47 @@ Replication is dead. The architecture is therefore:
 > (a full 8-stream RX context is 8 Kb — 1/4 of one RAMB36); **muxing is the
 > cost**, so the design rules below exist to bound mux growth.
 
+*The one question this picture answers: when N grows, what is actually
+replicated?*
+
+```mermaid
+flowchart TB
+    RX["one MAC pipe<br/>frames arrive serialized"] --> CLS["classify ONCE<br/>avtp_stream_parser<br/>N-entry 64-bit sid table"]
+    CLS -->|"s = match_index_o"| E1
+    CLS -->|"s"| E2
+    subgraph SH["SHARED — one instance, whatever N is"]
+        E1["depacketizer FSM<br/>+ the single 2 KB frame FIFO"]
+        E2["RX monitor verdict"]
+        E3["AAF packetizer<br/>+ epoch round-robin"]
+        E4["ACMP frame engine"]
+        E5["lwSRP walker<br/>+ MRPDU serializer"]
+        E6["MAAP claim SM<br/>ONE block, no context at all"]
+    end
+    subgraph CX["PER-STREAM STATE — BRAM context rows"]
+        C1["LCTX<br/>32 words x N"]
+        C2["TCTX<br/>16 words x N"]
+        C3["ACTX<br/>12 words x (N+1)"]
+        C4["SCTX<br/>L+T-1 rows"]
+    end
+    E1 <-->|"pdus / drops at row s"| C1
+    E2 <-->|"RMW walk at row s"| C1
+    E3 <-->|"row t"| C2
+    E4 <-->|"row = listener_unique_id"| C3
+    E5 <-->|"one row per attribute"| C4
+```
+
+Only the lower band deepens with N. Term by term:
+
+| Grows with N | Stays ×1 whatever N is |
+|---|---|
+| Context-RAM depth: LCTX 32 w/stream (§1.4), TCTX 16 w/stream (§2.2), ACTX one row per sink (§3.1), SCTX `L+T-1` rows (§3.4.1) | The engines themselves — depacketizer FSM, monitor verdict, packetizer framer, ACMP frame engine, lwSRP walker and MRPDU serializer |
+| Stream-table `stream_id` flops, 64 b per entry (§6.1) | The RX frame FIFO — single, 2 KB, `{tuser=s}` tagged (§1.2) |
+| Narrow per-stream timer flop arrays: 100 ms silence = a 7-bit ms counter ×N (56 FF at N=8, §1.4); responder activation N × 6 b (§3.2) | The render path — LPF + playback walker, instantiated once; the lowest-indexed RENDER stream wins (§1.3) |
+| lwSRP match lanes — one 64-bit compare per context, 2 → 18 at N=8 (§3.4) — and the per-stream `stream_gate` (§2.4) | MAAP — ONE contiguous block claim of `T+1` addresses covers every stream; DMACs are `base + t` (§3.3) |
+| Index and mux widths — by `log2 N` only (§6.1) | `KL_crf_rx` / `KL_crf_tx` — dedicated engines, not stream slots (§2.5) |
+| | The class-A egress queue and its CBS credit accounting (§2.4) |
+| | Every clock-domain crossing: one TX capture, one RX render, one CRF event pulse (§4) |
+
 **The no-regression axiom (normative).** Every increment in §5 keeps ALL
 existing TBs green, and a build with `N = 1` SHALL produce today's behavior:
 same wire bytes from the talker, same CSR map semantics at the legacy
@@ -74,6 +115,25 @@ matcher, only new table writers. Normative:
 - `match_index_o` rides the frame as sideband (`tuser[3:0]`) into the
   depacketizer frame FIFO and the monitor pulse bundle. The index is
   computed ONCE; every downstream engine consumes it — no re-matching.
+
+*Where the stream index is born and who consumes it* — the thick arrows are
+the index itself, and it is never recomputed:
+
+```mermaid
+flowchart LR
+    ACMP["ACMP listener context<br/>bind / settle"] -->|"writes sid + enable"| TBL
+    CSR["0x800 window<br/>A_STRMW_SID / CTRL"] -->|"bench override"| TBL
+    TBL["stream_table<br/>KL_stream_table"] -.->|"armed sid + en, N entries"| PAR
+    WIRE["RX stream tap<br/>upstream of the dest-MAC filter"] --> PAR
+    PAR["avtp_rx_parser<br/>avtp_stream_parser"] ==>|"s = match_index_o<br/>THE index, computed once"| MON
+    MON["avtp_rx_monitor<br/>KL_avtp_rx_monitor_ctx"] <-->|"RMW at row s"| LCTX[("LCTX RAM<br/>32 words x N")]
+    MON ==>|"pdu_accept_p + idx = s"| DEP
+    WIRE --> DEP["aaf_rx_depkt<br/>KL_aaf_rx_depacketizer"]
+    DEP ==>|"m_axis_tuser = s"| RTE["pcm_route<br/>KL_pcm_route"]
+    RTE -->|"bit 0 DMA"| RING["PCM ring at base + s x stride"]
+    RTE -->|"bit 1 RENDER<br/>lowest index wins"| LPF["LPF then I2S / TDM playback"]
+    ACMP -.->|"bind rise: zero row s counters"| LCTX
+```
 
 ### 1.2 Shared depacketizer
 
@@ -135,11 +195,25 @@ One RAMB18 (SDP, 32-bit ports), address `{s[2:0], word[4:0]}` — 32 words
 | w11 | `DEPKT_CNT` | [15:0] pdus, [31:16] drops |
 
 **CNT region — w16..w25, in 1722.1-2021 Table 7-157 offset order** so a
-GET_COUNTERS block is a linear burst read: `MEDIA_LOCKED, MEDIA_UNLOCKED,
-STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
-UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX` (10 × 32 b,
-wrap-to-zero, reset ONLY on that stream's not-bound→bound edge —
-[M-5.3.8.10]).
+GET_COUNTERS block is a linear burst read (10 × 32 b, wrap-to-zero, reset ONLY
+on that stream's not-bound→bound edge — [M-5.3.8.10]). RAM word, wire offset
+and window address are the same ordering three times over:
+
+| Word | Table 7-157 offset | Counter | Window read (§1.5) |
+|------|------|---------|--------|
+| w16 | 0 | `MEDIA_LOCKED` | `A_STRMW_CNT0` 0x830 |
+| w17 | 4 | `MEDIA_UNLOCKED` | 0x834 |
+| w18 | 8 | `STREAM_INTERRUPTED` | 0x838 |
+| w19 | 12 | `SEQ_NUM_MISMATCH` | 0x83C |
+| w20 | 16 | `MEDIA_RESET` | 0x840 |
+| w21 | 20 | `TIMESTAMP_UNCERTAIN` | 0x844 |
+| w22 | 24 | `UNSUPPORTED_FORMAT` | 0x848 |
+| w23 | 28 | `LATE_TIMESTAMP` | 0x84C |
+| w24 | 32 | `EARLY_TIMESTAMP` | 0x850 |
+| w25 | 36 | `FRAMES_RX` | `A_STRMW_CNT9` 0x854 |
+
+The three regions start at words 0, 8 and 16 of the 32-word record; w5–w7,
+w12–w15 and w26–w31 are unallocated.
 
 **Timer rule (normative, applies to every context engine in this doc):**
 free-running per-stream timers do NOT go to RAM. They are re-based to the
@@ -367,6 +441,24 @@ An lwSRP attribute row is **not** a stream. The CSR `0x800` window
 | listener idx `k` (1..L-1) | `k` |
 | talker idx `t` (1..T-1) | `(L-1)+t` |
 
+*Which row does my selection actually reach, and does it exist in this build?*
+— the same three rules, drawn for **every shipping shape**:
+
+![The 0x800 window row map](diagrams/nxn_window_map.svg)
+
+**Generated, not drawn.** [`nxn_window_map.gen.py`](diagrams/nxn_window_map.gen.py)
+takes `L` and `T` from each `configs/endstation_*.yaml`, confirms
+`SRP_CTX_ROWS_C = 2*N_STREAMS - 1` is still what `milan_datapath.sv`
+elaborates and `ctx_rows_required = L+T-1` is still what `sw/builder` demands,
+and refuses to emit anything if either formula has moved. The dashed red line
+on each shape is where the old `max(L,T)` table stopped — the rows that were
+refused *silently* while their readback aliased row 0. Regenerate with:
+
+```
+python3 docs/diagrams/nxn_window_map.gen.py docs/diagrams/nxn_window_map
+rsvg-convert -w 1800 docs/diagrams/nxn_window_map.svg -o docs/diagrams/nxn_window_map.png
+```
+
 so the highest row an `LxT` shape can name is `(L-1)+(T-1)` and the table
 must be **`L+T-1` rows**, *not* `max(L,T)`. `milan_datapath` therefore
 elaborates
@@ -443,6 +535,16 @@ one STREAM_OUTPUT with format 0x041060010000BB80, no STREAM_PORT per D1);
 (b) MAAP DMAC slot `base + T` (§3.3); (c) lwSRP talker attribute context
 `T` (§3.4); (d) provisioning daemon arms `A_CRFT_*` from the claimed DMAC
 and station identity. The CRF sink side ([M-7.2.2]) is already compliant.
+
+*Which quarter of that list is actually done* — the four steps are settled
+individually and the rest of this section is their detail:
+
+| Step | What it is | Status |
+|---|---|---|
+| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **OPEN** — builder + the `0x600` group. Without it no controller ever learns the uid exists |
+| (b) | MAAP DMAC slot `base + T` (§3.3) | **SHIPPED 2026-07-26** — the responder answers `stream_dest_mac` = block base + `N_STREAMS`; `MAAP_CTRL`'s claimed count must therefore be `N_STREAMS+1` |
+| (c) | lwSRP talker attribute context `T` — the Class A reservation ([M-7.3.3]) | **OPEN** — the `0x800` window addresses talker idx `< T` only, so no selection reaches the row; needs `N_CTX_P = L+T` plus a way to name it |
+| (d) | provisioning daemon arms `A_CRFT_*` from the claimed DMAC and identity | **COLLAPSED TO NOTHING** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
 
 **Fabric half SHIPPED 2026-07-26 — (b) + the bindable talker context, and
 (d) reduced to nothing.** `milan_datapath` elaborates the ACMP talker
@@ -557,6 +659,53 @@ integration steps are serial at the end.
 | P11 | Indexed CSR window (0x800 block) + AECP per-stream validation tables (codegen) | E | `csr`, `aecp` 474, ROM byte-identity gate | after P2, P6 |
 | P12 | Integration: 4x4/8x8 config builds end-to-end, 2-stream smoke in `milan_dp`, estimator re-run with shared-engine rows replacing UPPER BOUNDs | — | `datapath`, `milan_dp`, full sweep, `test_builder` | serial (last) |
 
+*What can start the moment P0 lands, and what is genuinely blocked* — the
+table is the contract, this is its shape:
+
+```mermaid
+flowchart LR
+    P0["P0 — N_STREAMS parameter plumbing<br/>N=1 default, zero functional delta"]
+    subgraph LA["Lane A — RX contexts"]
+        P1["P1 stream-table authority<br/>+ tuser stream index"]
+        P2["P2 LCTX monitor contexts<br/>+ bind-edge counter reset"]
+        P3["P3 PCM routing policy<br/>RENDER / DMA flags"]
+        P1 --> P2 --> P3
+    end
+    subgraph LB["Lane B — TX"]
+        P4["P4 shared packetizer<br/>+ TCTX + epoch scheduler"]
+        P5["P5 sum-slope bw_gate<br/>+ per-stream gates"]
+        P4 --> P5
+    end
+    subgraph LC["Lane C — ACMP / MAAP"]
+        P6["P6 ACMP listener ACTX<br/>+ timer scan"]
+        P7["P7 responder per-tuid<br/>activation array"]
+        P8["P8 MAAP count T+1<br/>+ DMAC derivation adder"]
+        P6 --> P7
+    end
+    subgraph LD["Lane D — lwSRP"]
+        P9["P9 walker N-key match<br/>+ SCTX + vector-range TX"]
+        P10["P10 CRF output provisioning"]
+        P9 --> P10
+    end
+    subgraph LE["Lane E — register interface"]
+        P11["P11 indexed 0x800 window<br/>+ AECP per-stream tables"]
+    end
+    P12["P12 — integration: 4x4 / 8x8 end-to-end, estimator re-run"]
+    P0 --> P1
+    P0 --> P4
+    P0 --> P6
+    P0 --> P8
+    P0 --> P9
+    P8 --> P10
+    P2 --> P11
+    P6 --> P11
+    P3 --> P12
+    P5 --> P12
+    P7 --> P12
+    P10 --> P12
+    P11 --> P12
+```
+
 Lanes: **A (RX contexts), B (TX), C (ACMP/MAAP), D (lwSRP)** run
 concurrently after P0 (lane A additionally needs P1 first); P11 joins A+C;
 P12 closes. Silicon sweeps (3-seed Vivado rule) happen after P12, outside
@@ -631,6 +780,17 @@ shape** (§4 T6). Levers, in order, if a shape refuses to close:
    (config-selectable N is exactly what the builder emits) and keep 8x8 as
    the sweep target — the architecture does not change.
 
+*What each lever is actually worth* — the order above is the order to pull
+them in, and the sizes are two orders of magnitude apart:
+
+| # | Lever | What it buys | State |
+|---|---|---|---|
+| 1 | L2 cache 32 KB | −8 BRAM36 + placement relief | already in the 8x8 config; applies to 4x4 too, perf delta per the standing authorization |
+| 2 | `crf_rx` ts-history ring → single-port BRAM | **−3 177 LUT / −8 159 FF** / +1 RAMB18 (OOC) | **SPENT 2026-07-25** — it was the exact placer-overflow victim of the first 8x8+chmap build |
+| 3 | Prune the render LPF (`LPF_P = 0`) | −428 LUT / −756 FF (§6.2, shipping place report) | **banked, do not spend** — 0.8% of used LUTs, and the analog loop record was measured *through* it |
+| 4 | Sequentialize a remaining parallel cone (area-70 playbook) | ≈ **8 000 LUT** on the precedent (the CBS slope engine) | pattern available; T5's Σ-slope is already built this way |
+| 5 | Ship the 4x4 gateware config on AX | the whole 8x8 delta | fallback of last resort; the architecture is unchanged |
+
 The estimator's `RESOURCE_COSTS` UPPER BOUND rows are to be replaced by
 shared-engine rows (engine x1 + per-context marginal ≈ 0 LUT + BRAM model)
 in P12, keeping the calibration gate honest.
@@ -641,6 +801,19 @@ deltas of the merged engines, LUT4:LUT6 charged 1:1 = safe-side). Recomputed
 verdicts: **4x4 = 84.9% LUT, 8x8 = 89.2% LUT** — both FIT the part with
 headroom, both in the OVER band as this table predicted (87.3/87.7 modeled);
 `test_builder` gate 13 pins the envelope (< 88% / < 92%).
+
+*Why replication is dead, in one picture.* The line is the part; the two bars
+above it are shapes that cannot be built at all. Shared-engine bars are the
+post-P12 recomputed calibration:
+
+```mermaid
+xychart-beta
+    title "LUT of the xc7a100t: replication vs shared engines"
+    x-axis ["8x8 replicated", "4x4 replicated", "8x8 shared", "4x4 shared", "1x1 shipping"]
+    y-axis "percent of 63400 LUT" 0 --> 150
+    bar [142.0, 107.5, 89.2, 84.9, 81.7]
+    line [100, 100, 100, 100, 100]
+```
 
 ### 6.1 item-5 ELABORATION + SIM PROOF (2026-07-23)
 

@@ -69,7 +69,7 @@ hard-coding into your bring-up:
   first-silicon smoke test (milestone M-A2).
 * The map is decoded in `hdl/common/csr/milan_csr.sv` in 0x100-sized groups
   (0x000 ID/IRQ, 0x100 MAC, 0x200 RMON stats, 0x300 classifier,
-  0x400 CBS per-queue (`0x400`-`0x4BF`, stride `0x20` × 6 queues), 0x500 PTP,
+  0x400 CBS per-queue (`0x400`-`0x49F`, stride `0x20` × 5 queues), 0x500 PTP,
   0x600 ADP, 0x700 RX filter/TCAM).
 
 ### 1.3 DMA streams (to/from your memory engine)

@@ -52,7 +52,7 @@ import ethernet_packet_pkg::*;
 module traffic_classifier #(
   parameter int TDATA_WIDTH = 64,      //! Width of tdata bus
   parameter bit BIG_ENDIAN = 1,        //! Big endian logic
-  parameter int NUMBER_OF_QUEUES = 6,  //! Number of egress queues
+  parameter int NUMBER_OF_QUEUES = 5,  //! Number of egress queues
   parameter int FIFO_DEPTH = 64        //! FIFO depth
 )(
   input wire clk,                  //! clock signal
