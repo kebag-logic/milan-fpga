@@ -715,3 +715,219 @@ let synthesis drop the instance) added when a shape is genuinely
 space-bound: a banked headroom lever with zero cost until it is pulled,
 spent only *after* levers 1–2, and never as a first response to a
 placement failure.
+
+**BANKED AND WIRED (2026-07-27, §6.3 lever S5).** `LPF_P` now exists:
+`milan_datapath` parameter, **default 1 = filter PRESENT**, and
+`milan_soc.py --no-render-lpf` passes `p_LPF_P = 0` (passed *only* when
+pruning, so a default build's generated top stays byte-identical — the
+`AAF_PLAYBACK_P` discipline). Pruned, the render tap ties to the exact nets
+`LPF_CTRL[0] = 0` already produces (`active_o = 0` → `KL_i2s_playback` takes
+the raw AXIS path), so no new state and no new behaviour. **Terms of
+spending it, unchanged:** buys 441 LUT / 756 FF / 1 DSP (shipping place
+report); costs the analog loop THD+N record its bitstream, because that
+number was measured *through* the filter and must be re-measured before it
+is quoted against a pruned build; still to be spent only after the logic
+levers, never as a first response.
+
+### 6.3 Area round 2026-07-27: logic levers, measured (no Vivado)
+
+Three seeds overflowed the placer on the `ax8x8` shape
+(`[Place 30-487]`: 11 955 slices wanted, 11 673 available; LUTs 63 298 of a
+63 400 capacity; **1 546 control sets**). The ask was ~12 000 LUTs of
+headroom — 97.7 % → 80 %. This section records what was measured, what
+landed, what was rejected, and where the ask still stands open.
+
+#### How every number here was produced (and what it is not)
+
+**There is no Vivado on the lane that produced this section.** Every
+LUT/FF figure below is a **Yosys estimate** from
+`syn/yosys/ooc.sh` — `sv2v` → `synth_xilinx -family xc7 -flatten` → `stat`,
+counting `LUT1..6` / `FD[CPRS]E?` / `RAMB*` / `DSP48E1` / `CARRY4` cells of
+the **flattened** top. `syn/yosys/run.sh` cannot answer this question: it
+runs a *hierarchical* synth, and `stat` then counts top-level cells only, so
+a lever inside a submodule reads as exactly zero.
+
+`ooc.sh` also takes `OOC_CHPARAM`, because the SV defaults are not the ship
+shape — `milan_datapath` defaults `N_STREAMS = 1`, which constant-folds the
+NxN engines away and would read as a free win. The whole-datapath rows below
+force the ship shape (`N_STREAMS = 8`, `AUDIO_IF_SLOTS_P = 16`,
+`AAF_PLAYBACK_P = 1`) by rewriting the parameter defaults in a scratch copy
+of `hdl/`, since `chparam` cannot re-elaborate `sv2v` output.
+
+**Yosys LUTs are not Artix LUT6s.** Calibrating against the one place report
+in the tree for the same RTL, the yosys→Vivado ratio is **not** a constant:
+
+| block | yosys OOC LUT | Vivado LUT | ratio |
+|---|---|---|---|
+| `KL_pcm_lpf` | 1 738 | 441 | 0.25 |
+| `KL_lwsrp_walker` (14 lanes) | 4 471 | 2 938 | 0.66 |
+| `milan_datapath` (whole) | 40 897 | 35 113 | 0.86 |
+
+Yosys is worst on wide muxes and shared serial arithmetic — precisely the
+structures these levers attack — so a **flat scaling understates a
+mux-removal lever and overstates nothing**. Deltas below are therefore
+quoted as yosys-measured, with the Vivado band derived from the block's own
+ratio, and the band is wide. **Nothing here is a placement result.** The
+only Vivado-proven number in this section is the LPF instance cost, which
+comes from the shipping bitstream's own place report.
+
+#### What landed
+
+| # | lever | scope | yosys OOC delta | Vivado band (inferred) | proof |
+|---|---|---|---|---|---|
+| S1 | `fword_r` → reset-free RAM process | `KL_acmp_lstn_ctx` | **−158 LUT, −576 FF**, +11 `RAM32M` | −40…−105 LUT | `acmp_lstn` 0 fail; mutation caught |
+| S2 | `fword_r` → reset-free RAM process | `KL_acmp_tlkr_ctx` | **−314 LUT, −520 FF** | −80…−205 LUT | `acmp` 0 fail; mutation caught |
+| S3 | one 65-bit borrow subtract per context | `KL_lwsrp_walker` | **−635 LUT, −160 `CARRY4`** | ≈ −420 LUT | 4 lwSRP suites 0 fail; mutation caught |
+| S4 | per-phys source tracker | `KL_chan_map_render` | **−4 029 LUT, +240 FF** | −1 060…−1 800 LUT | `chmap_render` 0 fail; mutation caught |
+| S5 | `LPF_P` banked prune (default PRESENT) | `milan_datapath` | −361 LUT | **−441 LUT, −756 FF, −1 DSP (PROVEN)** | lints both ways; opt-in only |
+
+And the same measurement taken on the **whole datapath at the ship shape**,
+which is the number that matters because it includes cross-boundary
+optimisation the per-module rows cannot see (`before` = `origin/main`
+`c03ed31`; all three rows `sv2v` + `synth_xilinx -family xc7 -flatten`):
+
+| milan_datapath, ship shape | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 |
+|---|---|---|---|---|---|---|
+| before (S1–S5 absent) | 40 897 | 24 002 | 3 | 13 | 6 | 2 442 |
+| after S1–S4 (`LPF_P = 1`) | **35 045** | 24 246 | 3 | 13 | 6 | 2 366 |
+| after S1–S4 + `LPF_P = 0` | **34 684** | 24 246 | 3 | 13 | 6 | 2 366 |
+
+**−5 852 LUT (−14.3 %) for S1–S4, −6 213 (−15.2 %) with the LPF pruned**,
+for +244 FF and no change in BRAM or DSP. The four module deltas sum to
+−5 136, so ~700 LUT of the datapath figure is cross-boundary optimisation
+that only appears when the whole thing is flattened together.
+
+**S1/S2 — the reset-free RAM process.** Both ACMP context engines hold the
+in-flight frame in `fword_r [0:NUM_BEATS_C-1]` and echo the un-overridden
+response bytes straight back out of it (`rword_w = fword_r[beat_r]`). The
+write sat inside the main `always_ff @(posedge clk or negedge rst_n)`, and
+`fword_r` never appeared in that block's reset branch — so the reset bought
+nothing and cost RAM inference (Vivado Synth 8-4767 declines to infer a RAM
+written under an async reset; yosys reported the same, `Replacing memory
+\fword_r with list of registers`). `ctx_ram` one block above was already
+hoisted into its own reset-free process, with a comment saying why;
+`fword_r` had simply been missed. Hoisting it is bit-exact by construction —
+same enable, address, data and edge — and the shared capture gate is now
+**one** expression (`w_cap_hs`) used by both the RAM port and the
+field-capture branch, so they cannot drift apart.
+
+**S3 — one carry chain instead of two.** The MSRP `+k` range match asked
+`(sid >= base) && (diff[63:13] == 0) && (diff[12:0] < nv)` with `diff` a
+*separate* 64-bit subtract, so synthesis built a magnitude-compare carry
+chain **and** a subtract carry chain per context — 16 of each at the ship
+shape (14 table lanes + 2 fixed). For unsigned `a, b`, `{1'b0,a} - {1'b0,b}`
+carries the answer to both questions: the borrow-out is `!(a >= b)`, so the
+triple collapses term-for-term into `(d[64:13] == 0) && (d[12:0] < nv)`.
+The borrow bit simply joins the zero-detect it was duplicating.
+
+**S4 — the render crossbar's ten muxes become one.** `KL_chan_map_render`
+selected each of `N_PHYS_P = 10` physical channels out of the 64 + 16 entry
+sample latch with its **own** 80:1 24-bit mux, re-evaluated every 48 kHz
+tick. Those ten muxes were the module. A map word only changes when the map
+is *written* — a CSR/AEM event, one per cycle by contract — so the module
+now keeps, per physical channel, the value its map word points at
+(`sel_r[p]`), maintained by two rules: a map write re-reads through **one**
+shared mux, and a latch write is matched against the map words with 7-bit
+compares. Timing is unchanged (still one shot on `tick_i`, `phys_valid_o`
+one cycle later) and the values are identical.
+
+The one hazard this creates is a map write landing on the same edge as a
+sample for the address it is moving to: the shared read returns the
+pre-write entry, so the write-match must be tested against the *incoming*
+map word. `tb/verilator/chmap_render` phase 8 pins exactly that, and the
+**pre-transform RTL passes all 79 checks** — which is the bit-exactness
+argument in its strongest available form.
+
+#### What was rejected, and why
+
+- **Flop-array → BRAM, the `crf_rx` template.** `crf_rx` returned
+  −3 177 LUT / −8 159 FF for one RAMB18 because it held a genuine
+  256×64 = 16 384-bit flop file. **Nothing of that shape is left.** A yosys
+  memory-inference scan over the whole datapath (`Replacing memory …`)
+  found only `const_q`/`seg_*_q`/`unsol_*` in the AECP builder,
+  `slope_*`/`hold_r` in the bandwidth gate, `min/max/last_r` in the latency
+  taps and the two `fword_r` — and every one of the survivors is written at
+  **several distinct indices in the same cycle**, which is what a RAM cannot
+  do. The four blocks the placer report fingers are **logic**: their declared
+  arrays total ~5.5 k bits and LUTRAM is 784 of the datapath's 35 113 LUTs.
+  Expected FF gain from another BRAM audit: ~zero. FFs are 42 % occupied and
+  are not the constraint; **LUTs at 97.7 % are.**
+- **Control-set consolidation as a LUT lever.** It is not one, and the
+  ceiling is measurable. A slice holds **one** control set, so fragmented
+  enable/reset domains stop 53 k flops packing into slices whose LUTs are
+  already spoken for — that is what the `1 546 control sets` line in the
+  placer error is complaining about, and it is a real effect. But the
+  shipping build's own `report_control_sets` puts the entire prize at
+  **2 839 unused register locations** — ~355 slices, and **0 LUTs**. That is
+  enough to cover a 282-slice overflow and nowhere near a 12 000-LUT ask.
+  Worth spending when the miss is a few hundred slices; never a substitute
+  for logic reduction. Quantify it in **slices, never in LUTs**.
+  (The single biggest offender in that report — 266 control sets and 8 468
+  flops under `crf_rx` — is already gone with the ts-history ring of §6
+  lever 2, which is why the count fell 1 612 → 1 546. What remains is
+  fragmented across ~110 sets in the AECP builder, ~59 in the ring DMA
+  writer and ~51 in ACMP, none of them a single big win.)
+  **This lane could not measure it.** A yosys control-set proxy was built and
+  discarded — it reports 18 691 sets for the datapath's 24 002 flops against
+  Vivado's 1 612 design-wide, because yosys keeps a private enable net per
+  flop and never merges them. Control sets are a **Vivado-only** measurement
+  (`<board>_control_sets.rpt`); do not accept an open-toolchain estimate of
+  them.
+- **Serialising the walker's 14-lane scan.** The lane compare is evaluated on
+  one cycle per vector, so a serial scan across the FirstValue walk would
+  collapse 14 comparators to one — but the module's emit path passes captured
+  values *through* `vector_done` as arguments precisely because the register
+  write and the emit land on the same edge (a bug already fixed once in
+  silicon). Restructuring the scan re-opens that. Deferred, not refuted.
+- **`aem_name_lookup` → ROM** (29 arms of 48-bit compare + a 29-deep
+  priority mux inside the AECP builder, order 400–500 LUT). Real, but it
+  lives in `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`, a **generated** file —
+  the lever is a change to `avdecc/gen_aem_store.py`, not to RTL. Next
+  candidate, deliberately not started at the end of a round.
+- **`probe_byte()` replicated ×8** in `KL_acmp_lstn_ctx` (a ~66-arm byte
+  selector instantiated once per lane; order 700 LUT by the same reasoning
+  that priced the other cones). The fix shape is the per-beat 64-bit case
+  `w_resp` already uses. Next candidate after the ROM.
+
+#### Does it reach 80 %? No — and here is the arithmetic
+
+Post-synthesis the overflowing shape is **61 959 LUT** of 63 400 (97.7 %).
+80 % is 50 720, so the ask is **−11 239 LUT**.
+
+The measured datapath delta is **−6 213 yosys LUT**. Converting it needs a
+ratio, and the two defensible ratios disagree by 2.4x:
+
+- **Low (safe planning number): −2 480 Vivado LUT.** Scale each lever by
+  *its own block's* ratio (`chan_map_render` 0.26, `walker` 0.66,
+  `acmp_*_ctx` ~0.26) and add the proven LPF figure. This is the
+  conservative reading because yosys is worst exactly where these levers
+  cut — wide muxes and duplicated carry chains — so its own count of what
+  was removed is inflated.
+- **High: −5 470 Vivado LUT.** Scale the whole-datapath delta by the
+  whole-datapath ratio (35 113 / 40 897 = 0.859), which is the like-for-like
+  comparison and the one that includes cross-boundary optimisation.
+
+So this round is worth **22 % to 49 % of the ask**, landing the shape
+between **93.6 % and 89.0 %**. Take the low end for planning: it still
+clears the **282-slice** overflow by a wide margin, which was the immediate
+blocker, and the first real build will settle the ratio. What it does not do
+is reach 80 %, and no combination of levers surveyed here does — the
+remaining named candidates (`aem_name_lookup` ~450, `probe_byte` ~700,
+walker serialisation ~700) add ~1 850 more and still leave ~4 000–7 000
+LUTs unaccounted.
+
+The honest reading is that **80 % is not a fabric-lever target on this
+shape** — it is an architecture target. 61 959 LUTs is ~35 k of datapath and
+~19 k of CPU plus ~15 k of LiteX/DDR/L2 infrastructure, and a 12 000-LUT cut
+has to come from one of those three blocks wholesale: a smaller CPU
+(VexiiRiscv is already the small one), fewer traffic queues (a separate
+lane is taking 6 → 5), or the config-selectable-N fallback of §6 lever 5
+(ship the 4x4 gateware on AX and keep 8x8 as the sweep target). What this
+round does deliver is enough to clear the **282-slice** overflow with
+margin, which was the immediate blocker.
+
+**Limits of this section.** No Vivado ran; no board was touched. Nothing
+here is a placement, timing or power result, and the Vivado bands are
+inferred from per-block yosys→Vivado ratios measured on *other* code in the
+same tree. The first build after this round should re-derive the ratios from
+its own utilisation report and correct this table.
