@@ -141,7 +141,7 @@ category:
 | `avtp/` (aaf talker, depacketizer, playback, lpf, tone, media_adv) | 1722-2016 §2; Milan §6 |
 | `maap/KL_maap` | 1722-2016 §4 (MAAP-1..6) |
 | `802_1q_traffic_shaper/` (classifier, class_map, queues, shaping core, CBS, controller) | 802.1Q §1 (Q-1..14) |
-| `lwsrp/` (9 modules) | 802.1Q §2–3 (MRP/SRP rows), Milan §1 (M-DEV-5..10) |
+| `hdl/ieee8021q/srp/` (11 modules + `lwsrp_pkg.sv`) | 802.1Q §2–3 (MRP/SRP rows), Milan §1 (M-DEV-5..10) |
 | `ptp_timestamp/` (counter, ts core/top, csr_sync) | 802.1AS (AS-1..5) |
 | `common/` (tcam, rx_mac_filter, link_guard, ifg gasket, cdc, datapath, csr) | supporting rows inside each family (filtering, link qualification, integration) |
 

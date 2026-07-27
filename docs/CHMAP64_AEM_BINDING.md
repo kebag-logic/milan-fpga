@@ -11,11 +11,35 @@ side: physical capture/ADC channels → outgoing stream channels), both
 programmed by a small **map RAM**. Each RAM entry is a *map word*:
 
 ```
-map word  = { en, stream[2:0], ch[2:0] }      // 7 bits
+map word  = { en[7], src[6], idx[5:0] }       // 8 bits, as stored in the RAM
               en      1 = this physical channel is driven
-              stream  source stream index      (0..7, the 8x8 lanes)
-              ch      source channel in stream  (0..7)
+              src     0 = AVB listener stream  -> idx = { stream[2:0], ch[2:0] }
+                      1 = host playback ring   -> idx = ring channel
 ```
+
+> **`src` is not optional.** The word was 7 bits — `{en, stream, ch}` — until
+> item-7 added the host-ring source bank; the bit that chooses between the two
+> banks is `src`, and `KL_chan_map_render` reads `map_wr_data_i` as **8 bits**
+> (`hdl/ieee1722/aaf/KL_chan_map_render.sv`, `MAP_EN_B_C = 7`,
+> `MAP_SRC_B_C = 6`). The AEM projector always emits `src = 0`
+> (`KL_aecp_response_builder.sv`: `{1'b1, 1'b0, stream[2:0], ch[2:0]}`), which
+> is why every map word written before item-7 still means AVB.
+
+### Programming it directly (CSR 0x900 debug port)
+
+The AEM command set above is the **canonical** programmer. The CSR window is a
+debug port, and it does **not** take the 8-bit word — it takes a 16-bit `§5`
+word whose fields sit at scattered positions, which `milan_datapath` narrows on
+the way in:
+
+```
+CHMAP_WORD[15:0]   ->   { [15], [12], [6:4], [2:0] }   =   { en, src, stream, ch }
+        bit 15  en        bit 12  src        bits 6:4  stream      bits 2:0  ch
+```
+
+Writing the 8-bit RAM word into `CHMAP_WORD` therefore programs **nothing
+useful** — `en` would land in `ch`. The mapping is one line of
+`hdl/milan/milan_datapath.sv`; read it there before poking the port.
 
 The **canonical programmer** of that RAM is the IEEE 1722.1 / Milan dynamic
 audio-map command set, not a bespoke register poke. This document is the
