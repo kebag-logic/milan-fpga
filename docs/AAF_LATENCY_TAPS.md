@@ -17,6 +17,14 @@ in-flight frame at a time**: it arms on a stage-0 edge (latching the gPTP
 epoch) and takes the next edge at each later stage, so min/last/max
 characterise the latency *envelope*, not one threaded frame id.
 
+## Contents
+
+- **[TX pipeline (talker: capture → wire)](#tx-pipeline-talker-capture--wire)** — Flowchart of the three talker hops with their CSR pairs, and the attribution note that matters: `PKT_EOF→MAC_TX` is the arbiter merge chain, **not** a CBS queue — the fabric talker injects after the shaper and never waits for credit.
+- **[RX pipeline (listener: wire → PCM ring)](#rx-pipeline-listener-wire--pcm-ring)** — Same picture for the listener, wire to DRAM ring. Explains why the final I2S playout stage has no delta at all: it is FIFO-fill dominated, so `I2SPB_STAT` characterises it instead.
+- **[Tap → trigger → CSR (the authoritative map)](#tap--trigger--csr-the-authoritative-map)** — The lookup table — eight stage edges, each with its literal `milan_datapath.sv` trigger expression and its last/max·min register pair. Also where the 0.5 ms per-stage timeout is defined, which is what stops a dropped frame wedging a chain.
+- **[Measured on silicon — TX chain (2026-07-26)](#measured-on-silicon--tx-chain-2026-07-26)** — Real AX7101 numbers: D0 max 125.04 µs is the 6-sample accumulation window, D1 is a constant 110 ns across 65 k+ frames, D2 max 125.29 µs is one class-A interval; 0 timeouts. Worst-case fabric TX ≈ 250 µs against a 500 µs presentation offset, and both halves are protocol-structural — a faster clock does not shrink them. The RX subsection follows here with its own numbers and a saturation caveat.
+- **[Reading it live](#reading-it-live)** — The `devmem` one-liner for a whole-pipeline snapshot and the `LTAP_CTRL[0]` clear-and-re-measure. Read the warning: quote cycle deltas, never rates — `samples`/`timeouts` saturate at `0xFFFF` within seconds on a busy talker.
+
 ## TX pipeline (talker: capture → wire)
 
 ```mermaid

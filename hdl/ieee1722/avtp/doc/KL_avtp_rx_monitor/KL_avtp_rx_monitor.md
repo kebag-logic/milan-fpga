@@ -6,6 +6,12 @@ Milan STREAM_INPUT diagnostic-counter engine for the bound listener sink. Consum
 
 ---
 
+## Contents
+
+- **[Generics](#generics)** — One parameter, and it is load-bearing: the clock frequency sizes the 100 ms silence-unlock timeout, so getting it wrong changes when a stream is declared unlocked rather than failing loudly.
+- **[Ports](#ports)** — The matched-frame pulse bundle in, seven 32-bit Milan counters out. Three outputs are more than telemetry: `pdu_accept_p_o` is the commit verdict the depacketizer acts on, `dirty_p_o` is what the unsolicited-push rate limiter keys off, and `last_ts_o` is the media-clock hook surfaced at CSR `0x6C8`.
+- **[Integration](#integration)** — Where it sits and where its counters come out — the RX tap paired with the stream parser, feeding AECP `GET_COUNTERS` and the read-only CSR group `0x6B8`-`0x6C0`.
+
 ## Generics
 
 | Generic | Type | Default | Description |

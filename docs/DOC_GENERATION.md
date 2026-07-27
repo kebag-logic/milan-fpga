@@ -14,6 +14,15 @@ are the RTL `//!` comments, the `*.gen.py` scripts, the `.drawio` files and the
 WaveDrom `.json` files. Rendered `.svg`/`.png` and generated `.md` are outputs;
 hand-edits there are lost on the next run and fail review.
 
+## Contents
+
+- **[1. Module ↔ spec ↔ test matrix](#1-module--spec--test-matrix)** — The generator behind `MODULE_MATRIX.md` and the `README-tests.md` in every `hdl/` leaf. Run it after *any* RTL or TB tree change; the `--check` form is what fails CI when the committed output has gone stale.
+- **[2. Per-module HDL pages (hdl/**/doc/*.md)](#2-per-module-hdl-pages-hdldocmd)** — Driven from the editor via TerosHDL, because there is no headless path on this box. The honest coverage number is here: ~22 of 84 modules have pages while 82 of 84 already carry the `//!` comments, so the backlog is an editor session, not a writing task.
+- **[3. Block diagrams (.gen.py → .drawio + .svg → .png)](#3-block-diagrams-genpy--drawio--svg--png)** — The render chain, the four artifacts that must be committed together, and the catalog entry that goes with them. Two headless caveats: the drawio CLI hangs, and the repo's fallback renderer mangles HTML-formatted labels.
+- **[4. Waveform chronograms (WaveDrom)](#4-waveform-chronograms-wavedrom)** — `gen_wavedrom.py` over a `wd_*.json`, with the `wavedrom` package living in the LiteX venv. Includes the style rules learned the hard way: cap at ~10 lanes, write explicit `010` pulses instead of `H`, and look at the rendered `.png` before embedding it.
+- **[5. The gate and CI](#5-the-gate-and-ci)** — The five rules `docs_check.py` enforces, spelled out. Rule 4 is the one to know — a dead reference left behind by a deletion used to pass silently, so retiring a document now means adding its basename to `RETIRED`. Also covers the no-git fallback and the single opt-out token.
+- **[6. Cheat sheet — you changed X, run Y](#6-cheat-sheet--you-changed-x-run-y)** — Seven rows mapping what you touched to the one command that has to follow. The fastest way to use this page if you are already mid-change.
+
 ## 1. Module ↔ spec ↔ test matrix
 
 **Tool:** [`traceability/gen_module_matrix.py`](traceability/gen_module_matrix.py)

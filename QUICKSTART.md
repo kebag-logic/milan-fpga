@@ -31,6 +31,17 @@ git submodule update --init third_party/verilog-axis     # NOT optional — see 
 
 ---
 
+## Contents
+
+- **[1. Pick a track](#1-pick-a-track)** — Four rows: what each track gets you, what it costs to install, and which ones need something proprietary. Tracks 1 and 2 are the verified content on this page; 3 and 4 are maps, not recipes.
+- **[2. Track 1 — simulate (no FPGA, no vendor tools)](#2-track-1--simulate-no-fpga-no-vendor-tools)** — The whole no-hardware path: seven packages measured against a bare container, the three pure-Python gates, and a cold-build table from `tcam` (~5 s) to `milan_dp` (~85 s). Read the Verilator floor first — 5.020 cannot build the datapath harnesses at all and 5.032 fails six `aecp` checks.
+- **[3. Track 2 — device portability, still no vendor tools](#3-track-2--device-portability-still-no-vendor-tools)** — Two `make` targets in `syn/yosys` that end in `tops: 47 pass: 47 fail: 0` — the machine proof that no Xilinx primitive survives, plus a real ECP5 mapping. Includes the `sv2v` install, which is the step people get stuck on.
+- **[4. What works with no board at all](#4-what-works-with-no-board-at-all)** — A capability table for readers who will never buy an FPGA. Everything upstream of place & route is open; place & route on Artix-7 is the one genuinely closed step.
+- **[5. One command: the container](#5-one-command-the-container)** — `Containerfile.dev` pinned to the measured package set. The repo is bind-mounted rather than copied, so your edits are what the four gates actually test.
+- **[6. Track 3 — build a bitstream (Vivado)](#6-track-3--build-a-bitstream-vivado)** — Not re-verified while writing the page. The four extra prerequisites and why each is there — the RISC-V core is *generated* from Scala at build time — and the `import litex` namespace-package trap that catches everybody once.
+- **[7. Track 4 — run it on hardware](#7-track-4--run-it-on-hardware)** — Bench-only, and explicitly an engineering record rather than a reproducible recipe. Gives the ordering (a gateware-only flash will not boot) and five hand-offs, including the lethal gateware⇄driver pairings to check *before* flashing.
+- **[8. Where to go next](#8-where-to-go-next)** — Routing table from who you are — evaluating, integrating, about to write RTL, lost in the vocabulary — to the one page to open next.
+
 ## 1. Pick a track
 
 | Track | What you get | Toolchain | Proprietary? |
