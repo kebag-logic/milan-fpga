@@ -10,7 +10,7 @@
 
 module queues_wrap #(
   parameter int TDATA_WIDTH = 64,
-  parameter int NUMBER_OF_QUEUES = 6,
+  parameter int NUMBER_OF_QUEUES = 5,
   parameter int FIFO_DEPTH = 64,
   parameter int TDEST_WIDTH = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES)
 )(

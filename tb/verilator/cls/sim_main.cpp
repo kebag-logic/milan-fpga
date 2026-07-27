@@ -10,7 +10,7 @@
  * random sweep of configs and frames, plus directed checks for the Table-8-5
  * default map, the untagged default-priority path, legacy classification, the
  * reserved-DMAC validation of the gPTP fast path (REQ-CLS-07) and the
- * DMAC-keyed control fast path (REQ-CLS-10) that makes the q2 CONTROL_CLASS
+ * DMAC-keyed control fast path (REQ-CLS-10) that makes the q1 CONTROL_CLASS
  * row of docs/reference/EGRESS_QUEUE_MAP.md true on the wire.
  *
  * traffic_class_map is pure combinational (no FIFO/primitive), so it Verilates
@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <random>
 
-static const int NQ = 6;
+static const int NQ = 5;
 static const int TDEST_W = 3;   // ceil(log2 NQ); CLS_TC_QUEUE_MAP packs TDEST_W bits/entry
 static const int TDEST_MASK = (1 << TDEST_W) - 1;
 
@@ -36,7 +36,7 @@ static const uint16_t ETH_TYPE_MVRP = 0x88F5;
 
 // Reserved control destination group addresses (ethernet_packet_pkg.sv), wire
 // byte order with byte 0 in the MSB. 01-80-C2-00-00-0E is SHARED by gPTP and
-// MSRP and the two must NOT collapse into one queue - q3 vs q2.
+// MSRP and the two must NOT collapse into one queue - q2 vs q1.
 static const uint64_t MAC_NEAREST_BRIDGE = 0x0180C200000EULL;  // gPTP + MSRP
 static const uint64_t MAC_MVRP           = 0x0180C2000021ULL;
 static const uint64_t MAC_ATDECC         = 0x91E0F0010000ULL;  // ADP / ACMP
@@ -51,8 +51,8 @@ static const uint64_t MAC_BRIDGE_GROUP   = 0x0180C2000000ULL;  // RSTP, future
 
 // Enum ordering (ethernet_packet_pkg.sv network_priority_t). 802.1Q order:
 // the value IS the queue index and the HIGHER index is the HIGHER priority.
-enum { BEST_EFFORT = 0, RESERVED_CLASS = 1, CONTROL_CLASS = 2,
-       GPTP_CLASS = 3, SRB_CLASS = 4, SRA_CLASS = 5 };
+enum { BEST_EFFORT = 0, CONTROL_CLASS = 1, GPTP_CLASS = 2,
+       SRB_CLASS = 3, SRA_CLASS = 4 };
 
 struct Frame {
     bool     use_pcp;
@@ -94,7 +94,7 @@ static uint32_t ref_tdest(const Frame& f) {
         uint8_t tc      = (f.pcp_tc_map   >> (regen   * 3)) & 0x7;
         // TC->queue: TDEST_W bits per entry (matches the ABI / RTL bit-slice)
         uint8_t queue   = (f.tc_queue_map >> (tc * TDEST_W)) & TDEST_MASK;
-        // OUT-OF-RANGE CLAMP: at NQ=6 the 3-bit field can name q6/q7, which do
+        // OUT-OF-RANGE CLAMP: at NQ=5 the 3-bit field can name q5/q6/q7, which do
         // not exist; traffic_class_map falls back to BEST_EFFORT rather than
         // letting axis_demux silently drop the frame (`select >= M_COUNT`).
         if (queue >= NQ) queue = BEST_EFFORT;
@@ -158,11 +158,11 @@ int main(int argc, char** argv) {
     // milan_csr reset defaults (docs/reference/REGISTER_MAP.md)
     const uint32_t DEF_PCP_TC = 0x00FAC688;
     const uint32_t DEF_REGEN  = 0x00FAC688;   // identity (reset fixed 2026-07-05)
-    // milan_csr reset CLS_TC_QUEUE_MAP for the 6-queue map: 3 bits/entry,
-    // TC0/1 -> q0, TC2 -> q4 (SR class B), TC3 -> q5 (SR class A),
-    // TC4/5 -> q2 (control), TC6/7 -> q3 (gPTP). q1 is the reserved spare.
-    const uint32_t DEF_TCQ    = 0x006D2B00;
-    const int      DEF_TCQ_Q[8] = {0, 0, 4, 5, 2, 2, 3, 3};
+    // milan_csr reset CLS_TC_QUEUE_MAP for the 5-queue map: 3 bits/entry,
+    // TC0/1 -> q0, TC2 -> q3 (SR class B), TC3 -> q4 (SR class A),
+    // TC4/5 -> q1 (control), TC6/7 -> q2 (gPTP). Every queue is mapped.
+    const uint32_t DEF_TCQ    = 0x004898C0;
+    const int      DEF_TCQ_Q[8] = {0, 0, 3, 4, 1, 1, 2, 2};
 
     // ---- Directed 1: tagged frames through the default Table-8-5 map ----
     {
@@ -175,10 +175,10 @@ int main(int argc, char** argv) {
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
-    // ---- Directed 1b: the 6-queue reset CLS_TC_QUEUE_MAP, entry by entry ----
+    // ---- Directed 1b: the 5-queue reset CLS_TC_QUEUE_MAP, entry by entry ----
     // Locks the ABI intent (TDEST_W bits/entry) so a wrong field width regresses,
-    // AND locks the USER's egress map: SR class A on q5, class B on q4, control
-    // on q2, gPTP on q3, best effort on q0, nothing on the reserved q1.
+    // AND locks the USER's egress map: SR class A on q4, class B on q3, gPTP on
+    // q2, control on q1, best effort on q0. There is no spare queue any more.
     {
         long f0 = h.fails;
         // identity PCP->TC (DEF via prio_regen+pcp_tc), so route a tagged frame
@@ -191,29 +191,29 @@ int main(int argc, char** argv) {
                 printf("  [FAIL] reset TCQ: TC%d -> q%u (expect q%d)\n", tc, q, DEF_TCQ_Q[tc]);
                 h.fails++;
             }
-            if (q == 1) { printf("  [FAIL] reset TCQ: TC%d landed on the RESERVED q1\n", tc); h.fails++; }
+            if (q >= (uint32_t)NQ) { printf("  [FAIL] reset TCQ: TC%d named q%u, which does not exist\n", tc, q); h.fails++; }
             h.check(f, "tcq_reset_map");
         }
-        printf("  [%s] reset CLS_TC_QUEUE_MAP 0x006D2B00 = the 6-queue map "
-               "(TC3->q5 class A, TC2->q4 class B, TC4/5->q2, TC6/7->q3, rest q0)\n",
+        printf("  [%s] reset CLS_TC_QUEUE_MAP 0x004898C0 = the 5-queue map "
+               "(TC3->q4 class A, TC2->q3 class B, TC4/5->q1, TC6/7->q2, rest q0)\n",
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
     // ---- Directed 1c: 802.1Q ORDER - the enum value IS the queue index and a
     // higher index is a higher priority. Pins SRA above SRB above gPTP above
-    // control above the spare above best effort, which is what makes the
-    // arbiter in traffic_shaping_core grant audio before sync.
+    // control above best effort, which is what makes the arbiter in
+    // traffic_shaping_core grant audio before sync.
     {
         long f0 = h.fails;
-        bool ok = (SRA_CLASS == 5) && (SRB_CLASS == 4) && (GPTP_CLASS == 3) &&
-                  (CONTROL_CLASS == 2) && (RESERVED_CLASS == 1) && (BEST_EFFORT == 0);
-        // and the DUT agrees: legacy-mode VLAN AVTP -> q5, gPTP -> q3, IP -> q0
+        bool ok = (SRA_CLASS == 4) && (SRB_CLASS == 3) && (GPTP_CLASS == 2) &&
+                  (CONTROL_CLASS == 1) && (BEST_EFFORT == 0);
+        // and the DUT agrees: legacy-mode VLAN AVTP -> q4, gPTP -> q2, IP -> q0
         Frame avtp{false, 0, 0, 0, 0, true,  0, false, ETH_TYPE_AVTP};
         Frame ptp {false, 0, 0, 0, 0, false, 0, false, ETH_TYPE_PTP};
         Frame be  {false, 0, 0, 0, 0, false, 0, false, 0x0800};
         uint32_t qa = h.eval(avtp), qp = h.eval(ptp), qb = h.eval(be);
-        if (!(qa == 5 && qp == 3 && qb == 0)) {
-            printf("  [FAIL] 802.1Q order: AVTP q%u (want 5), gPTP q%u (want 3), BE q%u (want 0)\n",
+        if (!(qa == 4 && qp == 2 && qb == 0)) {
+            printf("  [FAIL] 802.1Q order: AVTP q%u (want 4), gPTP q%u (want 2), BE q%u (want 0)\n",
                    qa, qp, qb);
             h.fails++;
         }
@@ -222,14 +222,14 @@ int main(int argc, char** argv) {
             h.fails++;
         }
         if (!ok) { printf("  [FAIL] network_priority_t values are not the queue indices\n"); h.fails++; }
-        printf("  [%s] 802.1Q order: q5 SR-A > q4 SR-B > q3 gPTP > q2 control > q1 spare > q0 BE\n",
+        printf("  [%s] 802.1Q order: q4 SR-A > q3 SR-B > q2 gPTP > q1 control > q0 BE (no spare)\n",
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
     // ---- Directed 1d: an out-of-range programmed queue is CLAMPED to best
     // effort, not handed to the demux (which would silently drop the frame).
-    // Only reachable because 6 is not a power of two: the 3-bit field can name
-    // q6/q7. NEGATIVE-by-construction - without the clamp the DUT returns 6/7.
+    // Only reachable because 5 is not a power of two: the 3-bit field can name
+    // q5/q6/q7. NEGATIVE-by-construction - without the clamp the DUT returns 5/6/7.
     {
         long f0 = h.fails;
         uint32_t ident24 = 0; for (int i=0;i<8;i++) ident24 |= (uint32_t)i << (3*i);
@@ -315,7 +315,7 @@ int main(int argc, char** argv) {
         // 4c: NEGATIVE - check ON + foreign DMAC -> must lose the fast path.
         //     PCP mode: untagged, so default_pcp picks the table queue. Use
         //     default_pcp 0, which the reset map sends to q0 (best effort) -
-        //     provably NOT GPTP_CLASS (q3). The DMAC is a plain unicast that is
+        //     provably NOT GPTP_CLASS (q2). The DMAC is a plain unicast that is
         //     in no control row, and 0x88F7 is not the AECP EtherType, so the
         //     REQ-CLS-10 fast path must not rescue it either.
         {
@@ -365,7 +365,7 @@ int main(int argc, char** argv) {
     // MVRP and 1722.1 ADP/ACMP/AECP are UNTAGGED link-local PDUs. They carry no
     // C-TAG, therefore no PCP, therefore the three PCP tables could only ever
     // route them by `default_pcp_i` - and at the shipping reset configuration
-    // (use_pcp = 1, default_pcp = 0) that is BEST EFFORT. The q2 CONTROL_CLASS
+    // (use_pcp = 1, default_pcp = 0) that is BEST EFFORT. The CONTROL_CLASS
     // row of EGRESS_QUEUE_MAP.md was documented but not implemented.
     {
         long f0 = h.fails;
@@ -417,7 +417,7 @@ int main(int argc, char** argv) {
 
         // 5c: NEGATIVE - a TAGGED 0x22F0 is an AVTP STREAM, not control. It must
         //     keep its PCP and ride the CBS-shaped SR queues. PCP 3 (class A) ->
-        //     q5 and PCP 2 (class B) -> q4 under the reset tables; legacy mode
+        //     q4 and PCP 2 (class B) -> q3 under the reset tables; legacy mode
         //     classes it SRA_CLASS. Checked at EVERY control DMAC too, so the
         //     table can never outrank the tag.
         {
@@ -454,7 +454,7 @@ int main(int argc, char** argv) {
             uint32_t q = h.eval(f);
             h.check(f, "ctl_disabled");
             if (q == (uint32_t)CONTROL_CLASS) {
-                printf("  [FAIL] REQ-CLS-10 gate: %s reached q2 with CLS_CTRL[2]=0\n", p.name);
+                printf("  [FAIL] REQ-CLS-10 gate: %s reached CONTROL_CLASS with CLS_CTRL[2]=0\n", p.name);
                 h.fails++;
             }
             if (q != (uint32_t)DEF_TCQ_Q[0]) {
@@ -468,7 +468,7 @@ int main(int argc, char** argv) {
         //     Group Address 01-80-C2-00-00-00 is here on purpose: RSTP is
         //     anticipated but NOT implemented (a BPDU is an 802.3/LLC frame with
         //     no EtherType at all), so today it must classify like any other
-        //     unknown multicast - table queue, never q2. Whoever adds the row
+        //     unknown multicast - table queue, never CONTROL_CLASS. Whoever adds the row
         //     will see this check flip, which is the point.
         {
             const uint64_t dm[2] = { MAC_FOREIGN_MCAST, MAC_BRIDGE_GROUP };
@@ -481,7 +481,7 @@ int main(int argc, char** argv) {
                     uint32_t q = h.eval(f);
                     h.check(f, "ctl_no_row");
                     if (q == (uint32_t)CONTROL_CLASS) {
-                        printf("  [FAIL] REQ-CLS-10: %s eth %04X reached q2 with no table row\n",
+                        printf("  [FAIL] REQ-CLS-10: %s eth %04X reached CONTROL_CLASS with no table row\n",
                                nm[i], ets[e]);
                         h.fails++;
                     }
@@ -489,7 +489,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        // 5f: NEGATIVE - the EtherType alone must NOT buy q2 at an address that
+        // 5f: NEGATIVE - the EtherType alone must NOT buy CONTROL_CLASS at an address that
         //     is neither a control row nor a unicast. A forged 0x22F0 to a
         //     foreign multicast is exactly the spoof a DMAC-keyed rule is meant
         //     to reject, and an EtherType-keyed one would have accepted.
@@ -498,13 +498,13 @@ int main(int argc, char** argv) {
             uint32_t q = h.eval(f);
             h.check(f, "ctl_spoof_avtp");
             if (q == (uint32_t)CONTROL_CLASS) {
-                printf("  [FAIL] REQ-CLS-10: forged 0x22F0 to a foreign multicast stole q2\n");
+                printf("  [FAIL] REQ-CLS-10: forged 0x22F0 to a foreign multicast stole CONTROL_CLASS\n");
                 h.fails++;
             }
         }
 
-        printf("  [%s] control fast path is DMAC-keyed: MSRP/MVRP/ADP/ACMP/MAAP/AECP -> q2, "
-               "gPTP -> q3 at the SAME shared address, tagged 0x22F0 stays on the SR classes "
+        printf("  [%s] control fast path is DMAC-keyed: MSRP/MVRP/ADP/ACMP/MAAP/AECP -> q1, "
+               "gPTP -> q2 at the SAME shared address, tagged 0x22F0 stays on the SR classes "
                "(REQ-CLS-10)\n", (h.fails == f0) ? "PASS" : "FAIL");
     }
 

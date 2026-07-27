@@ -16,7 +16,7 @@ import ethernet_packet_pkg::*;
 
 module shaper_core_wrap #(
   parameter int TDATA_WIDTH = 64,      //! AXI-Stream data width
-  parameter int NQ          = 6        //! Number of queues (802.1Q order: q5 highest)
+  parameter int NQ          = 5        //! Number of queues (802.1Q order: q4 highest)
 )(
   input  wire            clk,          //! Clock
   input  wire            resetn,       //! Active-low synchronous reset
@@ -44,8 +44,7 @@ module shaper_core_wrap #(
   output wire signed [47:0]         dbg_credit1, //! Queue-1 CBS credit (Q16)
   output wire signed [47:0]         dbg_credit2, //! Queue-2 CBS credit (Q16)
   output wire signed [47:0]         dbg_credit3, //! Queue-3 CBS credit (Q16)
-  output wire signed [47:0]         dbg_credit4, //! Queue-4 CBS credit (Q16)
-  output wire signed [47:0]         dbg_credit5, //! Queue-5 CBS credit (Q16)
+  output wire signed [47:0]         dbg_credit4, //! Queue-4 CBS credit (Q16, SR class A - the top queue)
   output wire [NQ-1:0]              dbg_allow,   //! Per-queue allow_transmit
 
   // --- 802.1Q-2018 34.3.1 bandwidth availability, lifted from the PACKAGE ---
@@ -120,7 +119,6 @@ module shaper_core_wrap #(
   assign dbg_credit2 = u_core.gen_cbs[2].u_cbs.credit;
   assign dbg_credit3 = u_core.gen_cbs[3].u_cbs.credit;
   assign dbg_credit4 = u_core.gen_cbs[4].u_cbs.credit;
-  assign dbg_credit5 = u_core.gen_cbs[5].u_cbs.credit;
   assign dbg_allow   = u_core.allow_transmit;
 
 endmodule

@@ -264,14 +264,14 @@ distinct queues failed  -  everything clustered into one queue.
 
 **Cause.** The classifier's *reset* PCP→TC→queue map did not fan distinct PCPs out to
 distinct queues. (With the four-queue map of the day it clustered PCP 0–3 into one class;
-the six-queue reset map `0x006D2B00` spreads PCP 0…7 over q0/q0/q4/q5/q2/q2/q3/q3, so it
+the five-queue reset map `0x004898C0` spreads PCP 0…7 over q0/q0/q3/q4/q1/q1/q2/q2, so it
 still is not an identity — the harness fix below is unchanged in kind.)
 
 **Fix.** Program an **identity** classifier config in the harness so PCP `p` → prio
 `p` → TC `p` → queue `p` (`cls_prio_regen=0x00FAC688`, `cls_pcp_tc_map=0x00FAC688`,
-`cls_tc_queue_map=0x0002C688` — 3 bits per entry at `NUMBER_OF_QUEUES = 6`, which is
+`cls_tc_queue_map=0x00004688` — 3 bits per entry at `NUMBER_OF_QUEUES = 5`, which is
 what `tb/verilator/datapath/sim_main.cpp` computes), then assert `tdest == pcp`. The
-identity only holds for `p < 6`: TC6/TC7 name queues ≥ N and `traffic_class_map` clamps
+identity only holds for `p < 5`: TC5…TC7 name queues ≥ N and `traffic_class_map` clamps
 them to q0. This is also why the `milan_dp` harness programs the identity map over the
 CSR before the TX test.
 

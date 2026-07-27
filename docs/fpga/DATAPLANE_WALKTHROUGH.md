@@ -27,7 +27,7 @@ wrong — say so.
 **There are two egress paths, and an AAF stream normally takes the one that
 skips the shaper.**
 
-The classifier, the six queues and the credit-based shaper sit on the
+The classifier, the five queues and the credit-based shaper sit on the
 **CPU-originated** lane only — the `s_axis_tx_*` port that the SoC's TX ring
 DMA drives. Every fabric engine (the AAF talker, ADP, ACMP, AECP, MAAP, the CRF
 talker, the lwSRP MRPDUs) injects **downstream** of the shaper, through a chain
@@ -37,7 +37,7 @@ That is deliberate and it is stated in the RTL at the merge point: the AAF
 talker is *"injected AFTER the shaper (MVP: bypasses CBS for continuous
 emission, like ADP; class-A shaping = the `is_1g` follow-up)"*. Its pacing comes
 from the lwSRP bandwidth gate instead. The consequence for a reader:
-**q5/q4/q2 assignments bite for software-originated traffic today**, which is
+**q4/q3/q1 assignments bite for software-originated traffic today**, which is
 the same thing
 [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
 says from the queue's side.
@@ -86,7 +86,7 @@ accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-b
 
 ## 2. Egress — a frame the CPU sent (where the queue map applies)
 
-This is the lane the six queues, the classifier and the CBS actually govern:
+This is the lane the five queues, the classifier and the CBS actually govern:
 gPTP from `linuxptp`, a host AVDECC controller, a host MRP stack, and all bulk
 traffic.
 
@@ -105,9 +105,9 @@ All three classifier/queue/shaper blocks are children of one wrapper,
 
 | # | hop | instance | what happens | read it at |
 |---|---|---|---|---|
-| 1 | **classify** | `traffic_classifier` → `traffic_class_map` | picks the egress queue. Three ways in, in priority order: the gPTP fast path (`0x88F7`, optionally DMAC-checked), the **reserved-DMAC control table** (untagged control PDUs — they carry no PCP), then the PCP→regen→TC→queue tables for tagged traffic. An entry naming a queue ≥ `N` is clamped to q0 | `CLS_CTRL` `0x300` (reset `0x5`), `CLS_TC_QUEUE_MAP` `0x310` (reset `0x006D2B00`) |
-| 2 | **enqueue** | `traffic_queues` | `axis_demux` fans the frame out by `tdest` into one of six `axis_fifo`s. A FIFO drains only while the shaper grants it | `CAP.num_queues` `0x008` reads 6 |
-| 3 | **shape** | `traffic_shaping_core` → six `credit_based_shaper` instances | per-queue 802.1Qav credit accounting decides which backlogged queue is *eligible*; a plain grant mux (not a second arbiter) selects among the eligible ones, highest index first. **Every queue powers up unshaped**, so at reset this is pure strict priority | `0x400 + q*0x20` for `q ∈ [0,6)` → `0x400`–`0x4BF`; `CBS_CTRL[0]` at `+0x0C` per queue |
+| 1 | **classify** | `traffic_classifier` → `traffic_class_map` | picks the egress queue. Three ways in, in priority order: the gPTP fast path (`0x88F7`, optionally DMAC-checked), the **reserved-DMAC control table** (untagged control PDUs — they carry no PCP), then the PCP→regen→TC→queue tables for tagged traffic. An entry naming a queue ≥ `N` is clamped to q0 | `CLS_CTRL` `0x300` (reset `0x5`), `CLS_TC_QUEUE_MAP` `0x310` (reset `0x004898C0`) |
+| 2 | **enqueue** | `traffic_queues` | `axis_demux` fans the frame out by `tdest` into one of five `axis_fifo`s. A FIFO drains only while the shaper grants it | `CAP.num_queues` `0x008` reads 5 |
+| 3 | **shape** | `traffic_shaping_core` → five `credit_based_shaper` instances | per-queue 802.1Qav credit accounting decides which backlogged queue is *eligible*; a plain grant mux (not a second arbiter) selects among the eligible ones, highest index first. **Every queue powers up unshaped**, so at reset this is pure strict priority | `0x400 + q*0x20` for `q ∈ [0,5)` → `0x400`–`0x49F`; `CBS_CTRL[0]` at `+0x0C` per queue |
 | 4 | **timestamp** | `ptp_ts_top` | parses the frame; if it is a gPTP **event** message, captures the egress-SFD timestamp and emits a `{direction, seq_id, timestamp}` record on the separate TS AXIS stream | PTP group `0x500`; the TS records land in DRAM through the TS DMA |
 | 5–7 | **merge + MAC** | as §1 hops 5–8 | the shaped stream is the *data* port of `aaf_final_mux` and then of `adp_tx_mux` | `STAT_TX_FIFO_GOOD_FRAME` `0x21C` |
 
