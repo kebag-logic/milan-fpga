@@ -36,6 +36,16 @@ jobs:
       - name: Archive integrity gate
         run: python3 scripts/check_archive.py
 
+      # Contents gate: every page of 3+ sections carries an annotated contents
+      # list, its entries match the headings that exist, and no entry is left
+      # as a TODO placeholder. Renaming a heading DROPS its description rather
+      # than carrying a stale sentence forward, so this fails until someone
+      # writes a fresh one - which is the point.
+      - name: Per-page contents gate
+        run: |
+          python3 scripts/gen_toc.py --verify-anchors
+          python3 scripts/gen_toc.py --check
+
       # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
       # must equal the end-station config they claim to build (--num-streams,
       # --rx-queues, --l2-bytes). --self-test also proves a wrong value IS rejected.
