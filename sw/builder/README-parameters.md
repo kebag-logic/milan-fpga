@@ -19,6 +19,18 @@
   Milan 7.2.3 CRF-output rule, the lwSRP↔RTL constant cross-check and the
   CSR-rot `boot_chain_pin` refusal).
 
+## Contents
+
+- **[Pipeline](#pipeline)** — One diagram: one YAML config in, and every artifact it fans out to — SoC argv, AEM overlay, lwSRP table, platform shape, the DT fragment and the sweep-opts shell fragment. Start here to see which generated file you actually care about.
+- **[lwSRP reservation table (srp:, CSR 0x680)](#lwsrp-reservation-table-srp-csr-0x680)** — Every `srp:` knob with its default chosen so a config *without* the section emits the deployed gateware bit-for-bit. Two things worth the read: the TSpec derivation showing `MaxFrameSize + 42` is exactly the wire slot (so the deployed pinned 224 over-reserves ~2.3× for a stereo talker), and the attribute-context shortfall this emitter surfaced — an 8×8 shape needs 15 lwSRP rows and gets 8.
+- **[Platform shape (platform:) — device tree + driver-visible layout](#platform-shape-platform--device-tree--driver-visible-layout)** — Why the whole DMA window map is a function of `rx_queues`, with both layouts spelled out and byte-verified against real `csr.csv` files. Names the CSR-rot guard (`boot_chain_pin` refuses a build that would move a flashed-in address) and the addresses `kl-eth.c` hardcodes that the DT does not carry — the largest remaining un-modelled coupling.
+- **[Schema 1.1 deltas (vs the 1.0 scaffold)](#schema-11-deltas-vs-the-10-scaffold)** — The nine fields 1.1 added or changed, including `model_id_pin` (which wins over everything and is what protects already-flashed silicon), the two cluster-mapping policies, and the enforced Milan 7.2.3 rule: ≥2 AAF listener streams without a CRF output is a hard rejection.
+- **[entity_model_id: hash-derived recipe (normative)](#entity_model_id-hash-derived-recipe-normative)** — The exact recipe — which fields enter the shape, the canonical JSON encoding, and the sha256 fold under the OUI. The design point is at the end: two boards with the same audio shape share one model id, because names and serials are deliberately excluded.
+- **[Per-stream STREAM_PORT layout (overlay 2.x)](#per-stream-stream_port-layout-overlay-2x)** — The rule that determines every descriptor count in an NxN overlay: one stream port per stream, one contiguous cluster block, exactly one audio map with port-relative rows — unless the port is `map_mode: dynamic`, which carries none.
+- **[sweep.sh single-source contract](#sweepsh-single-source-contract)** — What the generated `sweep_opts_<board>.sh` fragment contains, that `sweep.sh` falls back to inline tables only when it is absent, and the gate that asserts the two agree byte-for-byte.
+- **[gen_aem_store consumption + current limits](#gen_aem_store-consumption--current-limits)** — The no-regression gate (the emitted ROM is byte-identical to the tracked one for the deployed config) and the three honest single-stream limits: format tables reach stream 0 only, a CRF sink is required, and NxN overlays build valid ROMs that nothing in fabric consumes yet.
+- **[Resource estimator (approximate, pre-Vivado)](#resource-estimator-approximate-pre-vivado)** — How the pre-Vivado area estimate is built and how much to trust it: costs calibrated from a real place report, four confidence labels (config-scaling rows are explicitly UPPER BOUND because the NxN engines do not exist yet), and a ±15 % calibration gate currently landing within 0.21 %. The payoff line: 4×4 comes out ~108 % and 8×8 ~142 % of the xc7a100t — known before burning a sweep.
+
 ## Pipeline
 
 ```

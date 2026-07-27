@@ -9,6 +9,12 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 > longer a plan/future item. The design + reference contract below is the
 > as-built spec; the CSR block has been reconciled to REGISTER_MAP.
 
+## Contents
+
+- **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** — The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
+- **[Fabric integration](#fabric-integration)** — Where `KL_maap` attaches (RX monitor tap on subtype 0xFE, TX after the ACMP-listener arbiter stage), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP` — note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
+- **[Open decisions](#open-decisions)** — Two unresolved questions, the load-bearing one being whether AAF admission should AND `maap_valid` when MAAP is enabled, since Milan requires a valid stream DMAC before SRP.
+
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)
 
 - Pool base `91:E0:F0:00:00:00`, size `0xFE00`; conflict compare = first

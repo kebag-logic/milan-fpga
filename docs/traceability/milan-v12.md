@@ -9,6 +9,15 @@ recreation of the end-station validation plan (63 scenarios, both boards
 green 2026-07-21; scope caveats in [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §6 — it is
 a recreation, not the official ATL run).
 
+## Contents
+
+- **[1. Device-level requirements (Milan §4)](#1-device-level-requirements-milan-4)** — 16 rows on gPTP posture, MRP timers and talker/listener obligations. The 🟡 cluster is instructive: pdelay edge cases (duplicate responses, negative values, turnaround bound) are the ones no bench scenario recreates today.
+- **[2. Discovery deltas (Milan §5.6)](#2-discovery-deltas-milan-56)** — Three rows on ADP under Milan. M-ADP-3 is the one that matters operationally — it is the SM that lets a listener self-heal when its talker reboots, which *is* the fast-connect experience.
+- **[3. Connection management deltas (Milan §5.5)](#3-connection-management-deltas-milan-55)** — Ten rows for the binding SM that replaces 1722.1 8.2.4 wholesale. M-ACMP-9 is the standing ❌ (saved-state fast-connect; the overnight-lapse incident); M-ACMP-10 records the deliberate default — sink 0 stays on sid-derive for wire compatibility.
+- **[4. AECP/AEM deltas (Milan §5.3 model, §5.4 commands, MVU)](#4-aecpaem-deltas-milan-53-model-54-commands-mvu)** — Twelve rows covering the descriptor tree, the 29 mandatory commands and MVU. Two are worth reading for method: M-AECP-9 was corrected from ❌ to ✅ by a fuzz census that showed the tokens were there all along, and M-AECP-5's note that four silicon-only defects proved TB-pass ≠ compliant.
+- **[5. Counters (Milan Tables 5.13–5.17 via GET_COUNTERS)](#5-counters-milan-tables-513517-via-get_counters)** — Four rows, and the lesson in M-CNT-1: the +2-per-flap bug was found *by* the bench suite, and the fix was to tap the physical event rather than derived software state.
+- **[6. Stream formats (Milan §6) and media clocking (Milan §7)](#6-stream-formats-milan-6-and-media-clocking-milan-7)** — Formats plus the media-clock chain, where the remaining ❌ rows live. M-CLK-2 spells out that CRF being in fabric is not the same as being a reserved class A stream — three jobs, not one — and explains why the interim untagged state is deliberate rather than half-done.
+
 ## 1. Device-level requirements (Milan §4)
 
 | # | Section | Required behavior | Module / agent | Verification today / tsn_gen | Why it matters |
