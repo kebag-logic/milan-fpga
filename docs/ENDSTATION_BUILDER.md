@@ -60,12 +60,29 @@ plus, repo-level and single-sourced so nothing can drift:
     hdl/common/csr/gen/lwsrp_csr_defaults.svh  the CSR-facing SUBSET of it (the
                                                0x680 reset words + the
                                                PriorityAndRank byte)
+    configs/generated/<config>/gen/            this config's ADP shape include
+      adp_shape_defaults.svh                   (select a shape by include path)
+
+and, ONLY on an explicit `--write-rtl`, the ENTITY DEFINITION the gateware
+compiles in:
+    hdl/common/csr/gen/adp_shape_defaults.svh  the advertised stream counts +
+                                               capabilities (RO 0x618/0x61C)
+                                               AND the ACMP context sizing
+    hdl/ieee17221/aecp/gen/aecp_aem_rom.svh    the AEM descriptor set
 ```
 
-That last file is the one to notice: **`milan_csr.sv` `` `include ``-s it**, so
-the end-station config and the `LWSRP_*` register reset values are the same
-source and cannot drift apart. The generator's own header
-(`sw/builder/endstation_builder.py`) is authoritative for this list.
+Those last two are the one to notice. **`milan_csr.sv` and
+`milan_datapath.sv` both `` `include `` `adp_shape_defaults.svh``**, so the
+number a controller is told, the number of ACMP contexts that can answer it,
+and the descriptor set it enumerates all come from one config in one pass.
+`--write-rtl` is explicit rather than automatic because `build()` runs on
+throwaway config variants during testing and a shape nobody chose must never
+end up in the tree; `sw/litex/build.sh` and `sweep.sh` REFUSE to launch unless
+the tracked definition is the config being built
+(`scripts/check_entity_shape.py --built-config`). Before 2026-07-27 nothing
+checked, the tracked ROM was the 1x1 shape, and every build compiled it in -
+including the 8x8 ([`ADP_SHAPE_STATIC_0727.md`](findings/ADP_SHAPE_STATIC_0727.md)). The generator's own
+header (`sw/builder/endstation_builder.py`) is authoritative for this list.
 
 The tree above says *what is emitted*; it cannot say **who reads each file
 and where a stale one gets caught** — which is the question you actually
@@ -130,6 +147,8 @@ tracked at all.
 | `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay` | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (**the** gate: generated ROM byte-identical to the tracked `aecp_aem_rom.svh`), 15–17 (CRF output, dynamic maps) |
 | `lwsrp_table.json` + `lwsrp_table.svh` | SR class, MRP timers, class-A bandwidth math, TSpec, one record per stream, the engine's elaboration parameters | the lwSRP RTL tree; the `rtl_table` config also writes the tracked copy | 18a–18d — emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column; the tracked `.svh` regenerates byte-identically |
 | `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by `hdl/common/csr/milan_csr.sv` | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
+| `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11) and both capability words | `` `include ``-d by **both** `hdl/common/csr/milan_csr.sv` (the RO `0x618`/`0x61C` words) and `hdl/milan/milan_datapath.sv` (the ACMP source/sink context array sizing) | `scripts/check_entity_shape.py` — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh` |
+| `aecp_aem_rom.svh` | the AEM **descriptor set** a controller enumerates, generated from this config's `aem_overlay.json` | `` `include ``-d by `hdl/ieee17221/aecp/KL_aecp_aem_store.sv` | 10 (byte-identical for the deployed shape) + `check_entity_shape.py` (the tracked ROM and the tracked shape name the **same** source config) |
 | `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base, the DMA window map **derived from** `board.constraints.rx_queues`, the addresses `kl-eth` hardcodes, the `kl,dma-ether` / `kl,milan-pcm` nodes | device tree / driver | 19a (queue count is one number across config, argv, sweep fragment and DT), 19b (window bases byte-match the generated CSR listing and the deployed tree), 19c (flipping `rx_queues` under a pinned boot chain is refused) |
 | `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
 | `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by `sw/litex/sweep.sh`, whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |

@@ -652,24 +652,27 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! ACMP talker source contexts = the N audio talkers plus, at N > 1, the
   //! CRF Media Clock Output at talker_unique_id = N_STREAMS (see
   //! g_acmp_crf_src). N = 1 keeps the byte-identical single-source shape.
-  localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;
+  //! THE ENTITY SHAPE IS DEFINED BY THE CONFIG, NOT BY THIS FILE.
+  //! gen/adp_shape_defaults.svh is GENERATED from configs/endstation_*.yaml
+  //! by sw/builder/endstation_builder.py, in the same pass that emits this
+  //! shape's AEM descriptor ROM. It gives ADP_TALKER_SRC_C /
+  //! ADP_LISTENER_SINK_C - the 1722.1 STREAM_OUTPUT / STREAM_INPUT counts -
+  //! and the two capability words. milan_csr `include-s the SAME file and
+  //! serves them read-only at 0x618/0x61C, so the number a controller is
+  //! told and the number of contexts that can answer it are ONE constant.
+  //! Point +incdir at configs/generated/<config>/ to elaborate a different
+  //! shape; the tracked hdl/common/csr/gen/ copy is whichever config was
+  //! last written with `endstation_builder.py --write-rtl`.
+  `include "gen/adp_shape_defaults.svh"
+  //! ACMP talker source contexts: the AAF talkers, then the CRF Media Clock
+  //! Output at talker_unique_id = the AAF talker count (see g_acmp_crf_src).
+  localparam int ACMP_SRC_C = ADP_TALKER_SRC_C;
   localparam int CRF_TUID_C = N_STREAMS;   //! only when ACMP_SRC_C > N_STREAMS
   //! ACMP listener sink contexts (see the KL_acmp_listener banner below):
-  //! the N AAF sinks plus the pinned CRF sink at listener_unique_id =
-  //! N_STREAMS. Declared HERE, with ACMP_SRC_C, because these two counts
-  //! ARE the device's advertised shape - milan_csr serves them read-only at
-  //! 0x618/0x61C and the ADPDU carries them (VERSION 0x0015).
-  localparam int ACMP_SINKS_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 2;
+  //! the AAF sinks plus the pinned CRF sink at listener_unique_id =
+  //! N_STREAMS.
+  localparam int ACMP_SINKS_C = ADP_LISTENER_SINK_C;
   localparam int ACMP_SIDXW_C = $clog2(ACMP_SINKS_C);
-  //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED | AUDIO_SOURCE,
-  //! plus MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT context actually
-  //! exists. At N = 1 there is none, so the bit is NOT set - it was set by
-  //! the boot script for years with nothing behind it.
-  localparam logic [15:0] ADP_TALKER_CAPS_C =
-      16'h4001 | ((ACMP_SRC_C > N_STREAMS) ? 16'h0800 : 16'h0000);
-  //! listener_capabilities (Table 6.5): IMPLEMENTED | AUDIO_SINK |
-  //! MEDIA_CLOCK_SINK - the CRF sink context is pinned in EVERY build.
-  localparam logic [15:0] ADP_LISTENER_CAPS_C = 16'h4801;
   wire [ACMP_SRC_C-1:0]    acmp_talker_active_v, acmp_probe_armed_v;
   wire                     acmp_talker_active, acmp_probe_armed;
   wire [31:0]              aecp_pres_offset;
@@ -1072,13 +1075,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
     .N_LISTENERS_P(N_STREAMS),
-    .N_TALKERS_P(N_STREAMS),
-    //! ADP shape: the ADVERTISED count IS the ADDRESSABLE context count, by
-    //! construction. 0x618/0x61C are read-only words built from these.
-    .N_TALKER_SRC_P(ACMP_SRC_C),
-    .N_LISTENER_SINK_P(ACMP_SINKS_C),
-    .ADP_TALKER_CAPS_P(ADP_TALKER_CAPS_C),
-    .ADP_LISTENER_CAPS_P(ADP_LISTENER_CAPS_C)
+    .N_TALKERS_P(N_STREAMS)
+    //! No ADP shape parameters: milan_csr `include-s the SAME generated
+    //! gen/adp_shape_defaults.svh this module does, so the config is the
+    //! one definition and nothing threads a second copy through a port map.
   ) csr (
     .aclk    (axis_clk),
     .aresetn (axis_resetn),
@@ -1813,15 +1813,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  and the LAST context is the pinned CRF sink at listener_unique_id =
   //  N_STREAMS, mirroring the CRF source at talker_unique_id = N_STREAMS.
   //
-  //  2026-07-27: this was max(N_STREAMS, 2), which reserved the CRF sink only
-  //  while N <= 2 and then SILENTLY DROPPED IT - a 4x4 or 8x8 build had N
-  //  sinks where its own AEM model declares N + 1 (N AAF STREAM_INPUTs plus
-  //  the CRF STREAM_INPUT), so the CRF sink was un-addressable exactly the
-  //  way the CRF source was un-advertised. N + 1 for N > 1 is symmetric with
-  //  ACMP_SRC_C above and BYTE-IDENTICAL at N = 1 (2 sinks = the deployed
-  //  1x1 shape and the tracked AEM ROM's two STREAM_INPUT descriptors).
-  //  ACMP_SINKS_C / ACMP_SIDXW_C are declared beside ACMP_SRC_C (the ADP
-  //  shape group) because milan_csr's RO 0x61C word needs them.
+  //  2026-07-27: this count was max(N_STREAMS, 2) computed HERE, which
+  //  reserved the CRF sink only while N <= 2 and then SILENTLY DROPPED IT -
+  //  a 4x4 or 8x8 build had N sinks where its own AEM model declares N + 1
+  //  (N AAF STREAM_INPUTs plus the CRF STREAM_INPUT), so the CRF sink was
+  //  un-addressable exactly the way the CRF source was un-advertised. It is
+  //  no longer computed here at all: ADP_LISTENER_SINK_C comes from the
+  //  config, which is also what generated the AEM descriptor set, so the
+  //  two cannot drift. 1x1 still elaborates 2 sinks, byte-identical.
   // ==========================================================================
   KL_acmp_listener #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),

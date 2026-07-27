@@ -33,7 +33,7 @@ their living successors on 2026-07-25.
 | [ADP_DORMANCY.md](ADP_DORMANCY.md) | ADP advertiser fell dormant on silicon; self-re-arm + `A_ADP_DIAG` forensics and fix | FIXED |
 | [GPTP_RXPAD_ROOTCAUSE.md](GPTP_RXPAD_ROOTCAUSE.md) | gPTP "bad message": RX DMA delivered 8-byte-padded frames; gateware pad-strip fix + switch-behavior matrix | FIXED |
 | [PTP_TS_METADATA_FIX.md](PTP_TS_METADATA_FIX.md) | HW-timestamp metadata pipeline root cause + the DMA record contract (v2.1) | FIXED |
-| [ADP_SHAPE_STATIC_0727.md](ADP_SHAPE_STATIC_0727.md) | The 8x8 board advertised the 1x1 shape: `ADP_TALKER`/`ADP_LISTENER` were RW registers filled in by a boot script frozen at 1x1, so it offered 1 talker source / 2 listener sinks beside a reference device offering 4/10 - and the CRF talker at uid 8 was outside the advertised range. The counts are now read-only, elaborated from the same localparams that size the ACMP context arrays | FIXED (gate: `scripts/check_entity_shape.py`) |
+| [ADP_SHAPE_STATIC_0727.md](ADP_SHAPE_STATIC_0727.md) | The 8x8 board advertised the 1x1 shape: `ADP_TALKER`/`ADP_LISTENER` were RW registers filled in by a boot script frozen at 1x1, so it offered 1 talker source / 2 listener sinks beside a reference device offering 4/10 - and the CRF talker at uid 8 was outside the advertised range. The counts are now read-only AND generated from the end-station config, by the same builder pass that emits the AEM descriptor ROM; `milan_datapath` includes the same file to size its ACMP context arrays | FIXED (gate: `scripts/check_entity_shape.py`, incl. a pre-build refusal in `build.sh`/`sweep.sh`) |
 
 ## Performance investigations & campaigns
 

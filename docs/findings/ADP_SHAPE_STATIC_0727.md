@@ -12,10 +12,10 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 - **[The symptom](#the-symptom)** — Decoded off the wire beside its neighbours: our 8×8 AX7101 advertising 1 talker source and 2 listener sinks, so every controller on the segment could bind exactly one of its eight streams.
 - **[Where the numbers came from](#where-the-numbers-came-from)** — Two lines of a boot script, correct the day they were typed, and a `milan_csr` register that faithfully held whatever was written into it.
 - **[The second casualty: the CRF talker](#the-second-casualty-the-crf-talker)** — The media clock output answers ACMP at `talker_unique_id = N_STREAMS` and its PDUs are on the wire every 2 ms; nobody ever asked, because uid 8 sat outside an advertised range of 1.
-- **[The fix: the shape is elaborated, not provisioned](#the-fix-the-shape-is-elaborated-not-provisioned)** — `0x618`/`0x61C` become read-only words built from the same localparams that size the ACMP context arrays, so the advertised range *is* the addressable range by construction.
+- **[The fix: the shape is defined by the config](#the-fix-the-shape-is-defined-by-the-config)** — Read-only words whose values are *generated from `configs/endstation_*.yaml`* alongside the AEM descriptor ROM, and included by the same file that sizes the ACMP context arrays.
 - **[The listener side had the same hole](#the-listener-side-had-the-same-hole)** — `ACMP_SINKS_C` was `max(N, 2)`, which reserved the CRF sink up to N = 2 and then silently dropped it.
-- **[What is gated now](#what-is-gated-now)** — The three-way agreement check and the five mutations that must fail it.
-- **[What this does NOT fix](#what-this-does-not-fix)** — The AEM descriptor ROM is not regenerated per build, and M-CLK-2 is a different gap.
+- **[What is gated now](#what-is-gated-now)** — The config→svh→CSR→descriptor agreement check, the pre-build refusal, and the seven mutations that must fail them.
+- **[What this does NOT fix](#what-this-does-not-fix)** — M-CLK-2 is a different gap, and none of this has been on silicon.
 
 ## The symptom
 
@@ -75,36 +75,48 @@ source. [`NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md) had this listed as step 
 with exactly the right warning — *"without it no controller ever learns the
 uid exists"* — and the fabric half shipped without it.
 
-## The fix: the shape is elaborated, not provisioned
+## The fix: the shape is defined by the config
 
-`0x618` and `0x61C` are now **read-only**. They are assembled once from
-elaboration parameters and served from the defaults ROM exactly like `CAP` and
-`VERSION` — no storage, no write arm, no `is_plain_rw` entry:
+Two things had to change, and only one of them is "make it read-only".
+
+**Read-only.** `0x618` and `0x61C` have no storage, no write arm and no
+`is_plain_rw` entry. They are assembled once and served from the defaults ROM
+exactly like `CAP` and `VERSION`.
+
+**And the values come from the config.** Making the RTL compute the shape would
+be the same mistake one layer down — RTL deciding what the entity is. The
+standing rule is that `configs/endstation_*.yaml` is the single declarative
+definition and it drives the gateware, the AEM model and lwSRP alike, so
+`sw/builder/endstation_builder.py` emits the counts as a generated include:
 
 ```systemverilog
-localparam logic [31:0] ADP_TALK_C = {ADP_TALKER_CAPS_P,   16'(N_TALKER_SRC_P)};
-localparam logic [31:0] ADP_LIST_C = {ADP_LISTENER_CAPS_P, 16'(N_LISTENER_SINK_P)};
+// hdl/common/csr/gen/adp_shape_defaults.svh - GENERATED, Source: configs/endstation_arty_current.yaml
+localparam int ADP_TALKER_SRC_C    = 1;
+localparam int ADP_LISTENER_SINK_C = 2;
+localparam logic [15:0] ADP_TALKER_CAPS_C   = 16'h4001;
+localparam logic [15:0] ADP_LISTENER_CAPS_C = 16'h4801;
 ```
 
-and `milan_datapath` passes **the very localparams that size the ACMP context
-arrays**:
+`milan_csr` builds the two RO words from it. **`milan_datapath` includes the
+same file** and sizes its ACMP context arrays from the same constants:
 
 ```systemverilog
-localparam int ACMP_SRC_C   = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;   // AAF talkers + CRF output
-localparam int ACMP_SINKS_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 2;   // AAF sinks   + CRF sink
-...
-milan_csr #(.N_TALKER_SRC_P(ACMP_SRC_C), .N_LISTENER_SINK_P(ACMP_SINKS_C), ...)
+`include "gen/adp_shape_defaults.svh"
+localparam int ACMP_SRC_C   = ADP_TALKER_SRC_C;     // was (N>1) ? N+1 : 1
+localparam int ACMP_SINKS_C = ADP_LISTENER_SINK_C;  // was max(N, 2)
 ```
 
 `KL_acmp_tlkr_ctx` accepts a probe iff `talker_unique_id < N_SRC_P`, and
-`N_SRC_P` **is** `ACMP_SRC_C`. So the advertised range and the bindable range
-are now the same expression, not two numbers that happen to agree. There is no
-edit that can move one without moving the other.
+`N_SRC_P` **is** `ACMP_SRC_C`. So the number a controller is told, the number
+of contexts that can answer it, and the descriptor set it enumerates are one
+constant from one config in one pass. Point `+incdir` at
+`configs/generated/<config>/` to elaborate a different shape — which is how the
+harnesses cover 1×1, 4×4 and 8×8 in the same build.
 
 `talker_capabilities` follows the same rule: `MEDIA_CLOCK_SOURCE` (`0x0800`)
-is set only when a CRF source context exists, so a 1×1 build advertises
+is set only when the config *has* a CRF output, so a 1×1 build advertises
 `0x4001` instead of the `0x4801` the boot script had been writing — that bit
-had nothing behind it at N = 1.
+had nothing behind it at 1×1.
 
 | build | `0x618` | `0x61C` | before |
 |---|---|---|---|
@@ -118,58 +130,72 @@ had nothing behind it at N = 1.
 `{ctx0 media, ctx1 CRF}` pair at N = 1 — and above N = 2 the `max` silently
 dropped the CRF sink, so a 4×4 or 8×8 build had **N** sink contexts where its
 own AEM model declares **N + 1** (N AAF `STREAM_INPUT`s plus the CRF one). It
-is now `(N > 1) ? N + 1 : 2`, symmetric with the talker side and byte-identical
-at N = 1.
+is not computed in the RTL at all now: the config says `N + 1`, and that is
+the same number its AEM overlay used. 1×1 still elaborates 2 sinks.
 
 ## What is gated now
 
-`scripts/check_entity_shape.py` asserts, per end-station config, that the same
-number appears in all three places: the ADPDU counts `milan_csr` will serve,
-the AEM `STREAM_OUTPUT`/`STREAM_INPUT` descriptor counts the builder emits, and
-the ACMP context counts the gateware elaborates. It **parses the two localparam
-expressions out of `milan_datapath.sv`** and evaluates them, so the gate cannot
-drift away from the design it is checking.
+`scripts/check_entity_shape.py` walks every end-station config and asserts the
+same number appears everywhere it has to: what `adp_shape()` computes from the
+config, what the generated shape include carries, what the AEM overlay's
+`entity_counts` and `descriptor_counts` say, and how many `STREAM_OUTPUT` /
+`STREAM_INPUT` descriptors the ROM generated **from that same config** actually
+contains. It also checks the tracked pair — `hdl/common/csr/gen/adp_shape_defaults.svh`
+and `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh` — name the *same* source config
+and match what it generates, and that the RTL consumes the include rather than
+recomputing anything.
 
-Five mutations must fail it, and each is proved to:
+**And it runs before a build.** `sw/litex/build.sh` and `sw/litex/sweep.sh`
+call `check_entity_shape.py --built-config <cfg>` and refuse to launch if the
+tree carries another shape's definition, printing the one command that fixes
+it. That is the arm that makes the 2026-07-27 defect unreproducible: a
+`build.sh ax8x8` against a 1×1 entity definition now stops with
 
-1. the advertised talker count drops the CRF uid (`ACMP_SRC_C = N_STREAMS`) —
-   the 2026-07-27 report, reproduced;
-2. the sink count regresses to `max(N_STREAMS, 2)`;
-3. `milan_csr` regains a write arm for `0x618`;
-4. `milan_csr` regains the `is_plain_rw` entries (the half that actually makes
-   a written value stick on readback);
-5. a config whose model loses one `STREAM_INPUT` while `N_STREAMS` does not
-   move.
+```
+tracked ADP shape is endstation_ax7101_8x8's: got False, expected True
+  the tree currently carries configs/endstation_arty_current.yaml. Fix:
+    python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml --write-rtl
+```
 
-On the RTL side the harnesses decode **ADPDU bytes 38–45 off the MAC TX port**
-(`tb/verilator/milan_dp`, N = 1) and read `0x618`/`0x61C` at N = 4 and N = 8,
-including "the CRF uid is inside the advertised range" and a write that must
-change nothing. Reverting `milan_csr` to the pre-fix RW behaviour fails 11
-checks in `tb/verilator/csr` and 8 in `tb/verilator/milan_dp`, with the ADPDU
-fields reading `0x0000` — which is what the flashed board would have advertised
-without the boot script at all.
+Seven mutations must fail the gate, and each is proved to:
+
+1. the builder's talker count excludes the CRF uid — the 2026-07-27 report,
+   reproduced at the layer that now owns the number;
+2. the sink count excludes the CRF sink (the `max(N, 2)` asymmetry);
+3. `MEDIA_CLOCK_SOURCE` claimed by a config with no CRF output — what the boot
+   script did for years;
+4. the tracked shape include and the tracked descriptor ROM come from
+   *different* configs — this defect with the layers swapped;
+5. `milan_csr` regains a write arm for `0x618`;
+6. `milan_datapath` goes back to computing its own context count;
+7. a config edited without regenerating its shape include.
+
+On the RTL side the harnesses elaborate **three different configs in one
+suite** and read the shape back: `tb/verilator/csr` `sim_main` on the tracked
+1×1 (1/2, caps `0x4001`), `sim_win` on `endstation_arty_4x4` (5/5), `sim_live`
+on `endstation_ax7101_8x8` (9/9) — the last two with 0x800 windows of 4×4 and
+2×2 respectively, so a value tracking the window instead of the config would
+show. `tb/verilator/milan_dp` decodes **ADPDU bytes 38–45 off the MAC TX port**
+at N = 1 and reads `0x618`/`0x61C` at N = 4 and N = 8, including "the CRF uid is
+inside the advertised range" and a write that must change nothing. Reverting
+`milan_csr` to the pre-fix RW behaviour fails 11 checks in `tb/verilator/csr`
+and 8 in `tb/verilator/milan_dp`, with the ADPDU fields reading `0x0000` — what
+the flashed board would advertise with no boot script at all.
 
 ## What this does NOT fix
 
-* **The AEM descriptor ROM is not regenerated per build.**
-  `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh` is a single tracked artifact
-  generated from the 1×1 `endstation_arty_current` shape (2 `STREAM_INPUT`,
-  1 `STREAM_OUTPUT`), and **every** build includes it — the 8×8 one too. The
-  builder already emits the correct overlay and `avdecc/gen_aem_store.py
-  --overlay` already consumes it (a 4×4 CRF-output overlay is test-gated), but
-  nothing in `sw/litex/build.sh` or `sweep.sh` runs that step, and no config
-  owns the tracked ROM the way `srp.rtl_table` owns the lwSRP tables. So the
-  ADPDU counts are now right and an 8×8 board's descriptor set is still the
-  1×1 one. **Before flashing an N > 1 build, the ROM has to be regenerated
-  from that config's overlay**, or a controller enumerating
-  `STREAM_OUTPUT[1..8]` gets `NO_SUCH_DESCRIPTOR`. The gate checks the tracked
-  ROM against the config that owns the RTL tables, which is where this
-  ownership hole becomes visible.
 * **[M-CLK-2] is untouched.** That gap is the CRF stream not being carried as
-  a reserved class-A stream ([`NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md) step (c): the `0x800`
-  window addresses talker idx `< T` only, so no lwSRP attribute row reaches
-  the CRF output). This finding is purely about **discoverability** — being
-  advertised so a controller can bind it. The two are independent.
+  a reserved class-A stream ([`NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md)
+  step (c): the `0x800` window addresses talker idx `< T` only, so no lwSRP
+  attribute row reaches the CRF output). This finding is purely about
+  **discoverability** — being advertised so a controller can bind it. The two
+  are independent.
+* **The ROM consumer cannot express every shape the builder can emit.** A
+  config with no CRF sink has no `AEM_CRF_FMTS_C` table, so
+  `gen_aem_store.spec_from_overlay` refuses it. `build()` records that instead
+  of failing, and `--write-rtl` refuses outright — a shape whose descriptor set
+  cannot be generated is a shape that cannot be built, and saying so is better
+  than emitting counts with no descriptors behind them.
 * **Nothing here has been on silicon.** `VERSION` moved to `0x0001_0015`; the
   flashed bitstream is `0x0001_0014` (see
   [FLASH_0x0014_0727.md](FLASH_0x0014_0727.md)) and still has writable

@@ -35,27 +35,47 @@ and it was invisible to ATDECC because uid 8 sat outside an advertised range
 of 1.  (That is NOT the same gap as M-CLK-2, which is about the CRF stream not
 holding an SRP class-A reservation.  This gate is only about discoverability.)
 
+THE SHAPE IS SOFTWARE-DEFINED, NOT SOFTWARE-WRITABLE.  The fix is not to move
+the number into the RTL - RTL choosing the entity shape is the same mistake
+one layer down.  configs/endstation_*.yaml is the single declarative
+definition and it drives the gateware, the AEM model and lwSRP alike, so
+sw/builder/endstation_builder.py emits BOTH this shape's
+hdl/common/csr/gen/adp_shape_defaults.svh (which milan_csr and milan_datapath
+`include) AND this shape's hdl/ieee17221/aecp/gen/aecp_aem_rom.svh, in one
+pass from one config.  This gate is what makes "one pass, one config" checkable.
+
 WHAT IT CHECKS, per end-station config:
 
-  A  RTL shape        milan_datapath's own ACMP_SRC_C / ACMP_SINKS_C
-                      localparam expressions, evaluated at this config's
-                      N_STREAMS (the expressions are PARSED out of the RTL, so
-                      the gate cannot drift away from the design)
-  B  wiring           milan_datapath passes them to milan_csr's
-                      N_TALKER_SRC_P / N_LISTENER_SINK_P
-  C  read-only        milan_csr builds 0x618/0x61C from those parameters, has
-                      a defaults arm for both, and has NO write arm and NO
-                      is_plain_rw entry for either
-  D  AEM model        the AEM overlay this config produces declares exactly
-                      the same STREAM_OUTPUT / STREAM_INPUT counts, and its
+  A  generated svh    the shape include the builder emits for this config
+                      carries the counts adp_shape() computes from it, and
+                      names the config it came from
+  B  AEM model        this config's AEM overlay declares the same
+                      STREAM_OUTPUT / STREAM_INPUT counts, and its
                       entity_counts agree with its descriptor_counts
-  E  tracked ROM      the tracked hdl/ieee17221/aecp/gen/aecp_aem_rom.svh
-                      matches the config that OWNS the tracked RTL tables
-                      (srp.rtl_table), descriptor for descriptor
+  C  AEM ROM          the ROM the builder generates for this config has that
+                      many STREAM_OUTPUT / STREAM_INPUT descriptors - the
+                      descriptor set a controller enumerates
+  D  per-config copy  configs/generated/<name>/gen/adp_shape_defaults.svh on
+                      disk is byte-identical to the freshly generated text
+                      (harnesses and builds select a shape by include path)
+  E  tracked pair     hdl/common/csr/gen/adp_shape_defaults.svh and
+                      hdl/ieee17221/aecp/gen/aecp_aem_rom.svh both name the
+                      SAME source config and match what it generates - a
+                      gateware cannot carry one shape's counts and another
+                      shape's descriptors
+  F  RTL consumption  milan_csr builds 0x618/0x61C from the generated
+                      constants and has a defaults arm, NO write arm and NO
+                      is_plain_rw entry for either; milan_datapath sizes its
+                      ACMP context arrays from the SAME constants, so the
+                      advertised range is the addressable range
 
 Usage:
     check_entity_shape.py                 # every configs/endstation_*.yaml
     check_entity_shape.py --self-test     # + prove disagreeing shapes FAIL
+    check_entity_shape.py --built-config configs/endstation_ax7101_8x8.yaml
+                                          # pre-build: the tracked entity
+                                          # definition IS this config's
+                                          # (what sweep.sh/build.sh call)
 
 Exit 0 = agree, 1 = drift (offending values printed), 2 = usage/setup.
 Needs pyyaml (same dependency as sw/builder/test_builder.py).
@@ -93,68 +113,41 @@ def ck(what, got, exp):
         print(f"  [ok]   {what} = {got!r}")
 
 
-# ------------------------------------------------------- RTL shape parsing --
-def sv_localparam_expr(text, name):
-    """Pull `localparam int <name> = <expr>;` out of SystemVerilog source."""
-    m = re.search(r"localparam\s+int\s+" + re.escape(name) + r"\s*=\s*([^;]+);",
-                  text)
-    if not m:
-        raise SystemExit(f"SETUP: no `localparam int {name}` in the RTL")
-    return " ".join(m.group(1).split())
-
-
-def eval_sv_ternary(expr, n_streams):
-    """Evaluate a simple SV integer expression in N_STREAMS.
-
-    Only the vocabulary these two localparams actually use is accepted -
-    N_STREAMS, integer literals, ?:, comparisons and + - * ( ). Anything else
-    is a hard error rather than a guess, because a silently mis-evaluated
-    shape is the whole class of defect this gate exists to catch."""
-    if not re.fullmatch(r"[N_STREAMS0-9\s()?:+\-*<>=]+", expr):
-        raise SystemExit(f"SETUP: refusing to evaluate {expr!r} - the gate "
-                         "only understands N_STREAMS arithmetic. Update "
-                         "check_entity_shape.py deliberately.")
-    py = expr.replace("N_STREAMS", str(n_streams))
-    # SV `c ? a : b` -> Python `a if c else b`
-    m = re.fullmatch(r"\s*\((.+?)\)\s*\?\s*(.+?)\s*:\s*(.+?)\s*", py)
-    if m:
-        py = f"({m.group(2)}) if ({m.group(1)}) else ({m.group(3)})"
-    return int(eval(py, {"__builtins__": {}}, {}))   # noqa: S307 - vetted above
-
-
-def rtl_shape(n_streams):
-    """(talker_sources, listener_sinks) the built gateware will advertise."""
-    text = open(DATAPATH).read()
-    return (eval_sv_ternary(sv_localparam_expr(text, "ACMP_SRC_C"), n_streams),
-            eval_sv_ternary(sv_localparam_expr(text, "ACMP_SINKS_C"),
-                            n_streams))
-
-
+# ------------------------------------------------------ RTL consumption --
 def check_rtl_wiring():
-    """B + C: the advertised count IS the addressable count, and it is RO."""
-    print("== RTL: the shape is elaborated, not provisioned ==")
+    """F: the RTL CONSUMES the generated shape and serves it read-only.
+
+    Nothing here recomputes a count - that is the point. It checks that the
+    two modules take their numbers from gen/adp_shape_defaults.svh and that
+    no path exists for software to overwrite them."""
+    print("== RTL: the shape is included from the config, and is read-only ==")
     dp = open(DATAPATH).read()
+    ck("milan_datapath includes the generated shape",
+       '`include "gen/adp_shape_defaults.svh"' in dp, True)
+    ck("ACMP talker contexts sized by ADP_TALKER_SRC_C",
+       bool(re.search(r"localparam\s+int\s+ACMP_SRC_C\s*=\s*ADP_TALKER_SRC_C\s*;",
+                      dp)), True)
+    ck("ACMP sink contexts sized by ADP_LISTENER_SINK_C",
+       bool(re.search(r"localparam\s+int\s+ACMP_SINKS_C\s*=\s*ADP_LISTENER_SINK_C\s*;",
+                      dp)), True)
+    # the shape must NOT be threaded through the instantiation any more: a
+    # second copy is a second thing to get wrong
     inst = re.search(r"milan_csr\s*#\((.*?)\)\s*csr\s*\(", dp, re.S)
     if not inst:
         raise SystemExit("SETUP: no milan_csr instantiation in milan_datapath")
-    params = inst.group(1)
-    ck("milan_csr .N_TALKER_SRC_P <- ACMP_SRC_C",
-       bool(re.search(r"\.N_TALKER_SRC_P\s*\(\s*ACMP_SRC_C\s*\)", params)), True)
-    ck("milan_csr .N_LISTENER_SINK_P <- ACMP_SINKS_C",
-       bool(re.search(r"\.N_LISTENER_SINK_P\s*\(\s*ACMP_SINKS_C\s*\)",
-                      params)), True)
+    ck("no ADP shape threaded through the milan_csr port map",
+       "N_TALKER_SRC_P" in inst.group(1) or "N_LISTENER_SINK_P" in inst.group(1),
+       False)
 
     csr = open(CSR).read()
-    ck("milan_csr declares N_TALKER_SRC_P",
-       bool(re.search(r"parameter\s+int\s+N_TALKER_SRC_P", csr)), True)
-    ck("milan_csr declares N_LISTENER_SINK_P",
-       bool(re.search(r"parameter\s+int\s+N_LISTENER_SINK_P", csr)), True)
-    ck("0x618 word is built from N_TALKER_SRC_P",
-       bool(re.search(r"ADP_TALK_C\s*=\s*\{[^}]*N_TALKER_SRC_P", csr, re.S)),
+    ck("milan_csr includes the generated shape",
+       '`include "gen/adp_shape_defaults.svh"' in csr, True)
+    ck("0x618 word is built from ADP_TALKER_SRC_C",
+       bool(re.search(r"ADP_TALK_C\s*=\s*\{[^}]*ADP_TALKER_SRC_C", csr, re.S)),
        True)
-    ck("0x61C word is built from N_LISTENER_SINK_P",
-       bool(re.search(r"ADP_LIST_C\s*=\s*\{[^}]*N_LISTENER_SINK_P", csr, re.S)),
-       True)
+    ck("0x61C word is built from ADP_LISTENER_SINK_C",
+       bool(re.search(r"ADP_LIST_C\s*=\s*\{[^}]*ADP_LISTENER_SINK_C", csr,
+                      re.S)), True)
     ck("0x618 has a defaults-ROM arm",
        bool(re.search(r"A_ADP_TALK\[10:0\]:\s*csr_default\s*=\s*ADP_TALK_C",
                       csr)), True)
@@ -177,12 +170,34 @@ def check_rtl_wiring():
 
 
 # ------------------------------------------------------------ AEM ROM read --
+def svh_shape(text, where):
+    """Read the four constants back out of a generated shape include."""
+    def one(name, pat):
+        m = re.search(name + r"\s*=\s*" + pat + r"\s*;", text)
+        if not m:
+            raise SystemExit(f"SETUP: no {name} in {where}")
+        return m.group(1)
+    return dict(
+        talker_stream_sources=int(one("ADP_TALKER_SRC_C", r"(\d+)")),
+        listener_stream_sinks=int(one("ADP_LISTENER_SINK_C", r"(\d+)")),
+        talker_capabilities=int(one("ADP_TALKER_CAPS_C", r"16'h([0-9A-Fa-f]{4})"),
+                                16),
+        listener_capabilities=int(
+            one("ADP_LISTENER_CAPS_C", r"16'h([0-9A-Fa-f]{4})"), 16))
+
+
+def svh_source(text):
+    """The `Source :` header line every builder-generated include carries."""
+    m = re.search(r"//\s*Source\s*:\s*(\S+)", text)
+    return m.group(1) if m else None
+
+
 def rom_descriptor_counts(path):
     """Count descriptors by type in a generated aecp_aem_rom.svh directory."""
-    text = open(path).read()
+    text = path if "\n" in path else open(path).read()
     body = re.search(r"AEM_DIR_C\s*\[[^\]]*\]\s*=\s*'\{(.*?)\};", text, re.S)
     if not body:
-        raise SystemExit(f"SETUP: no AEM_DIR_C directory in {path}")
+        raise SystemExit("SETUP: no AEM_DIR_C directory in the ROM text")
     counts = {}
     for row in re.findall(r"64'h([0-9A-Fa-f_]{4})_", body.group(1)):
         t = int(row.replace("_", ""), 16)
@@ -191,53 +206,129 @@ def rom_descriptor_counts(path):
 
 
 # -------------------------------------------------------------- the checks --
-def check_config(builder, path, tracked_rom_counts):
+def check_config(builder, path):
+    """A-D: this config -> its generated shape include -> its AEM ROM."""
     cfg = builder.load_config(path)
     name = cfg["name"]
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
-    n_streams = max(L, T)                    # emit_soc_argv's --num-streams
-    print(f"\n== {name}  ({L}x{T}, N_STREAMS={n_streams}) ==")
+    print(f"\n== {name}  ({L}x{T}) ==")
 
-    src, sink = rtl_shape(n_streams)
+    want = builder.adp_shape(cfg)
+    adp_svh = builder.emit_adp_shape_svh(cfg)
+    got = svh_shape(adp_svh, f"{name} generated shape")
+
+    # A: the generated include says what the config says
+    ck(f"{name}: svh talker_stream_sources",
+       got["talker_stream_sources"], want["talker_stream_sources"])
+    ck(f"{name}: svh listener_stream_sinks",
+       got["listener_stream_sinks"], want["listener_stream_sinks"])
+    ck(f"{name}: svh talker_capabilities",
+       f"0x{got['talker_capabilities']:04X}",
+       f"0x{want['talker_capabilities']:04X}")
+    ck(f"{name}: svh listener_capabilities",
+       f"0x{got['listener_capabilities']:04X}",
+       f"0x{want['listener_capabilities']:04X}")
+    ck(f"{name}: svh names its source config", svh_source(adp_svh),
+       cfg["source"])
+
+    # B: the AEM overlay agrees (1722.1-2021 6.2.1.9/6.2.1.11 - the ADPDU
+    # counts ARE the STREAM_OUTPUT/STREAM_INPUT descriptor counts)
     ovl = builder.emit_aem_overlay(cfg)
     dc, ec = ovl["descriptor_counts"], ovl["entity_counts"]
-
-    # D: the AEM model is self-consistent (the ADPDU counts ARE the descriptor
-    # counts - 1722.1-2021 6.2.1.9 / 6.2.1.11)
-    ck(f"{name}: entity_counts.talker == STREAM_OUTPUT descriptors",
+    ck(f"{name}: overlay entity_counts.talker == STREAM_OUTPUT",
        ec["talker_stream_sources"], dc["STREAM_OUTPUT"])
-    ck(f"{name}: entity_counts.listener == STREAM_INPUT descriptors",
+    ck(f"{name}: overlay entity_counts.listener == STREAM_INPUT",
        ec["listener_stream_sinks"], dc["STREAM_INPUT"])
-
-    # A + D: the gateware's addressable range IS the model's descriptor set.
-    # This is the arm that catches a CRF output the talker count does not
-    # cover: crf_output moves STREAM_OUTPUT to T+1 while ACMP_SRC_C is
-    # N_STREAMS+1 only when N_STREAMS > 1.
     ck(f"{name}: advertised talker sources == STREAM_OUTPUT count",
-       src, dc["STREAM_OUTPUT"])
+       got["talker_stream_sources"], dc["STREAM_OUTPUT"])
     ck(f"{name}: advertised listener sinks == STREAM_INPUT count",
-       sink, dc["STREAM_INPUT"])
+       got["listener_stream_sinks"], dc["STREAM_INPUT"])
 
-    # the CRF sources/sinks are the reason the counts are N+1: say so, so a
-    # future reader sees which uid the extra slot belongs to
+    # C: and the DESCRIPTOR SET this config generates really has that many.
+    # This is the arm that would have caught an 8x8 build shipping the 1x1
+    # ROM: the counts and the descriptors come from one pass or not at all.
+    rom = rom_descriptor_counts(builder.emit_aem_rom_svh(cfg, ovl))
+    ck(f"{name}: generated ROM STREAM_OUTPUT descriptors",
+       rom.get(STREAM_OUTPUT, 0), got["talker_stream_sources"])
+    ck(f"{name}: generated ROM STREAM_INPUT descriptors",
+       rom.get(STREAM_INPUT, 0), got["listener_stream_sinks"])
+
+    # the CRF contexts are WHY the counts are N+1: name the uid, so a reader
+    # sees which slot the extra one is
     if cfg["clocking"]["crf_output"]:
-        ck(f"{name}: CRF talker uid {n_streams} is inside the advertised range",
-           src > n_streams, True)
+        ck(f"{name}: CRF talker uid {T} is inside the advertised range",
+           got["talker_stream_sources"] > T, True)
+        ck(f"{name}: talker_capabilities claims MEDIA_CLOCK_SOURCE",
+           bool(got["talker_capabilities"] & 0x0800), True)
+    else:
+        ck(f"{name}: no CRF output -> no MEDIA_CLOCK_SOURCE claim",
+           bool(got["talker_capabilities"] & 0x0800), False)
     if cfg["clocking"]["crf_sink"]:
-        ck(f"{name}: CRF sink uid {n_streams} is inside the advertised range",
-           sink > n_streams, True)
+        ck(f"{name}: CRF sink uid {L} is inside the advertised range",
+           got["listener_stream_sinks"] > L, True)
 
-    # E: the tracked AEM ROM belongs to exactly one config - the one that owns
-    # the tracked RTL tables. Everything else builds against a ROM it did not
-    # generate, which is a build-flow fact worth stating rather than assuming.
-    if cfg["srp"]["rtl_table"]:
-        ck(f"{name} owns the tracked AEM ROM: STREAM_OUTPUT",
-           tracked_rom_counts.get(STREAM_OUTPUT, 0), dc["STREAM_OUTPUT"])
-        ck(f"{name} owns the tracked AEM ROM: STREAM_INPUT",
-           tracked_rom_counts.get(STREAM_INPUT, 0), dc["STREAM_INPUT"])
-        ck(f"{name} owns the tracked AEM ROM: matches the RTL shape",
-           (tracked_rom_counts.get(STREAM_OUTPUT, 0),
-            tracked_rom_counts.get(STREAM_INPUT, 0)), (src, sink))
+    # D: the tracked per-config copy on disk is what the builder emits now
+    p_cfg = os.path.join(ROOT, builder.GEN_CONFIG_DIR, name, "gen",
+                         "adp_shape_defaults.svh")
+    ck(f"{name}: configs/generated copy is current",
+       os.path.exists(p_cfg) and open(p_cfg).read() == adp_svh, True)
+    return cfg, adp_svh, builder.emit_aem_rom_svh(cfg, ovl)
+
+
+def check_tracked_pair(builder, configs):
+    """E: the tracked entity definition is ONE config's, whole.
+
+    hdl/common/csr/gen/adp_shape_defaults.svh and
+    hdl/ieee17221/aecp/gen/aecp_aem_rom.svh are what a build `include-s. They
+    must name the same source config AND be exactly what that config
+    generates - otherwise the gateware advertises one shape and enumerates
+    another, which is the 2026-07-27 defect with the layers swapped."""
+    print("\n== tracked entity definition (what a build includes) ==")
+    adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
+    rom = open(os.path.join(ROOT, builder.AEM_ROM_REL)).read()
+    src = svh_source(adp)
+    print(f"  tracked shape source: {src}")
+    ck("tracked ADP shape names a source config", src is not None, True)
+    owner = None
+    for path in configs:
+        cfg = builder.load_config(path)
+        if cfg["source"] == src:
+            owner = cfg
+            break
+    ck(f"tracked shape's source config exists ({src})", owner is not None, True)
+    if owner is None:
+        return
+    ovl = builder.emit_aem_overlay(owner)
+    ck("tracked ADP shape == what that config generates",
+       adp == builder.emit_adp_shape_svh(owner), True)
+    ck("tracked AEM ROM == what that config generates",
+       rom == builder.emit_aem_rom_svh(owner, ovl), True)
+    got = svh_shape(adp, "tracked shape")
+    rc = rom_descriptor_counts(rom)
+    ck("tracked ROM STREAM_OUTPUT == tracked advertised sources",
+       rc.get(STREAM_OUTPUT, 0), got["talker_stream_sources"])
+    ck("tracked ROM STREAM_INPUT == tracked advertised sinks",
+       rc.get(STREAM_INPUT, 0), got["listener_stream_sinks"])
+
+
+def check_built_config(builder, path):
+    """Pre-build gate: the tracked entity definition IS the config being
+    built. Without this a `build.sh ax8x8` silently inherits whatever shape
+    was last committed - exactly how an 8x8 gateware came to carry a 1x1
+    descriptor set. The fix is one command, and the message says it."""
+    cfg = builder.load_config(path)
+    print(f"\n== pre-build: tracked definition vs {cfg['name']} ==")
+    adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
+    rom = open(os.path.join(ROOT, builder.AEM_ROM_REL)).read()
+    ovl = builder.emit_aem_overlay(cfg)
+    ok_adp = adp == builder.emit_adp_shape_svh(cfg)
+    ok_rom = rom == builder.emit_aem_rom_svh(cfg, ovl)
+    ck(f"tracked ADP shape is {cfg['name']}'s", ok_adp, True)
+    ck(f"tracked AEM ROM is {cfg['name']}'s", ok_rom, True)
+    if not (ok_adp and ok_rom):
+        print(f"  the tree currently carries {svh_source(adp)}. Fix:\n"
+              f"    python3 sw/builder/endstation_builder.py {path} "
+              f"--write-rtl")
 
 
 def load_builder():
@@ -249,17 +340,18 @@ def load_builder():
     return b
 
 
-def run(configs=None):
+def all_configs():
+    return sorted(os.path.join(CONFIG_DIR, f) for f in os.listdir(CONFIG_DIR)
+                  if f.startswith("endstation_") and f.endswith(".yaml"))
+
+
+def run():
     builder = load_builder()
-    rom = rom_descriptor_counts(AEM_ROM)
-    print(f"tracked AEM ROM {os.path.relpath(AEM_ROM, ROOT)}: "
-          f"{rom.get(STREAM_OUTPUT, 0)} STREAM_OUTPUT, "
-          f"{rom.get(STREAM_INPUT, 0)} STREAM_INPUT")
     check_rtl_wiring()
-    for p in configs or sorted(
-            os.path.join(CONFIG_DIR, f) for f in os.listdir(CONFIG_DIR)
-            if f.startswith("endstation_") and f.endswith(".yaml")):
-        check_config(builder, p, rom)
+    cfgs = all_configs()
+    for p in cfgs:
+        check_config(builder, p)
+    check_tracked_pair(builder, cfgs)
 
 
 # ---------------------------------------------------------------- self-test --
@@ -308,43 +400,79 @@ def with_rtl(dp_text=None, csr_text=None):
 
 
 def self_test():
-    """Mutation proof: five ways the shape can disagree, each must FAIL."""
+    """Mutation proof: six ways the shape can disagree, each must FAIL."""
     print("\n== self-test: a disagreeing shape must be REJECTED ==")
     builder = load_builder()
-    rom = rom_descriptor_counts(AEM_ROM)
     src_cfg = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
     base_cfg = open(src_cfg).read()
     base_dp = open(DATAPATH).read()
     base_csr = open(CSR).read()
 
-    # 1. THE CRF CASE the bench found. The gateware keeps a CRF Media Clock
-    #    Output at talker_unique_id = N_STREAMS but the advertised source
-    #    count drops back to N_STREAMS, so uid 8 sits outside the range and
-    #    no controller can see or bind it - CRF on the wire, invisible to
-    #    ATDECC. This is the mutation that reproduces the 2026-07-27 report.
-    restore = with_rtl(dp_text=mutate(
-        base_dp,
-        "localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;",
-        "localparam int ACMP_SRC_C = N_STREAMS;"))
-    try:
-        expect_fail("advertised talker count excludes the CRF uid",
-                    lambda: check_config(builder, src_cfg, rom))
-    finally:
-        restore()
+    # 1. THE CRF CASE the bench found, at the layer that now owns it: the
+    #    builder computes a talker count that excludes the CRF Media Clock
+    #    Output while the AEM overlay still emits its STREAM_OUTPUT. The
+    #    entity would advertise 8 sources and hold 9 descriptors, and uid 8
+    #    would be un-reachable - CRF on the wire, invisible to ATDECC.
+    real_shape = builder.adp_shape
 
-    # 2. the pre-fix sink formula max(N, 2): at N = 8 that is 8 sinks against
-    #    a 9-STREAM_INPUT model - the CRF sink un-addressable the same way
-    restore = with_rtl(dp_text=mutate(
-        base_dp,
-        "localparam int ACMP_SINKS_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 2;",
-        "localparam int ACMP_SINKS_C = (N_STREAMS > 2) ? N_STREAMS : 2;"))
+    def crf_blind(cfg):
+        r = dict(real_shape(cfg))
+        r["talker_stream_sources"] = len(cfg["talkers"])
+        return r
+    builder.adp_shape = crf_blind
     try:
-        expect_fail("RTL sink count regressed to max(N_STREAMS, 2)",
-                    lambda: check_config(builder, src_cfg, rom))
+        expect_fail("builder's talker count excludes the CRF uid",
+                    lambda: check_config(builder, src_cfg))
     finally:
-        restore()
+        builder.adp_shape = real_shape
 
-    # 3. the register going back to RW: a write arm restored in milan_csr
+    # 2. the CRF SINK dropped the same way (the max(N,2) asymmetry, now
+    #    expressed where the shape is actually decided)
+    def sink_blind(cfg):
+        r = dict(real_shape(cfg))
+        r["listener_stream_sinks"] = len(cfg["listeners"])
+        return r
+    builder.adp_shape = sink_blind
+    try:
+        expect_fail("builder's sink count excludes the CRF sink",
+                    lambda: check_config(builder, src_cfg))
+    finally:
+        builder.adp_shape = real_shape
+
+    # 3. a capability with nothing behind it: MEDIA_CLOCK_SOURCE claimed by a
+    #    config that has no CRF output (what the boot script did for years)
+    def caps_lie(cfg):
+        r = dict(real_shape(cfg))
+        r["talker_capabilities"] |= 0x0800
+        return r
+    builder.adp_shape = caps_lie
+    try:
+        expect_fail("MEDIA_CLOCK_SOURCE claimed without a CRF output",
+                    lambda: check_config(
+                        builder,
+                        os.path.join(CONFIG_DIR,
+                                     "endstation_arty_current.yaml")))
+    finally:
+        builder.adp_shape = real_shape
+
+    # 4. the tracked entity definition split in half: the shape include from
+    #    one config, the descriptor ROM from another. This is the 8x8-build-
+    #    with-a-1x1-ROM defect stated exactly.
+    keep = builder.AEM_ROM_REL
+    with tempfile.TemporaryDirectory() as td:
+        other = builder.load_config(os.path.join(CONFIG_DIR,
+                                                 "endstation_arty_4x4.yaml"))
+        rom4 = os.path.join(td, "rom.svh")
+        open(rom4, "w").write(builder.emit_aem_rom_svh(
+            other, builder.emit_aem_overlay(other)))
+        builder.AEM_ROM_REL = os.path.relpath(rom4, ROOT)
+        try:
+            expect_fail("tracked ROM is a DIFFERENT config's than the shape",
+                        lambda: check_tracked_pair(builder, all_configs()))
+        finally:
+            builder.AEM_ROM_REL = keep
+
+    # 5. milan_csr regains a write arm for 0x618
     restore = with_rtl(csr_text=mutate(
         base_csr,
         "          A_ADP_CCAPS:  adp_ccaps <= s_axi_wdata;",
@@ -356,37 +484,46 @@ def self_test():
     finally:
         restore()
 
-    # 4. and the other half of RW: the shadow write-back entry restored, which
-    #    is what actually makes a written value stick on readback
-    restore = with_rtl(csr_text=mutate(
-        base_csr, "      A_ADP_ECAPS, A_ADP_CCAPS, A_ADP_GMLO,",
-        "      A_ADP_ECAPS, A_ADP_TALK, A_ADP_LIST, A_ADP_CCAPS, A_ADP_GMLO,"))
+    # 6. milan_datapath stops sizing its ACMP arrays from the generated
+    #    shape and computes its own again - RTL deciding the entity shape,
+    #    which is how the advertised and addressable ranges drift apart
+    restore = with_rtl(dp_text=mutate(
+        base_dp, "localparam int ACMP_SRC_C = ADP_TALKER_SRC_C;",
+        "localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;"))
     try:
-        expect_fail("milan_csr regained the is_plain_rw entries",
+        expect_fail("milan_datapath recomputes the talker context count",
                     check_rtl_wiring)
     finally:
         restore()
 
-    # 5. a config whose model loses one STREAM_INPUT while N_STREAMS (set by
-    #    the wider direction, 8 talkers) does not move
+    # 7. and the config itself losing a STREAM_INPUT while N_STREAMS holds
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "short_listener.yaml")
         open(p, "w").write(mutate(
             base_cfg,
             '    - { name: "Stream In 7", channels: 8, formats: '
             '["0x0205022002006000", "0x0215022002006000"] }\n', ""))
-        expect_fail("8x8 config missing one STREAM_INPUT",
-                    lambda: check_config(builder, p, rom))
+        # the model stays self-consistent; what breaks is the per-config
+        # tracked copy on disk, which is how a config edit without a builder
+        # run gets caught
+        expect_fail("config edited without regenerating its shape include",
+                    lambda: check_config(builder, p))
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
     ap.add_argument("--self-test", action="store_true",
                     help="additionally prove that disagreeing shapes FAIL")
+    ap.add_argument("--built-config", default=None,
+                    help="pre-build check: the tracked entity definition must "
+                         "be THIS config's (sweep.sh / build.sh call this)")
     args = ap.parse_args()
-    run()
-    if args.self_test:
-        self_test()
+    if args.built_config:
+        check_built_config(load_builder(), args.built_config)
+    else:
+        run()
+        if args.self_test:
+            self_test()
     print("-" * 70)
     print(f"checks: {checks}   failures: {len(fails)}")
     for f in fails:
