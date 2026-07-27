@@ -360,7 +360,8 @@ class MilanNIC(LiteXModule):
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
-                 audio_if_slots=0, aaf_playback=False, render_lpf=True):
+                 audio_if_slots=0, aaf_playback=False, render_lpf=True,
+                 optional_blocks=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -386,7 +387,7 @@ class MilanNIC(LiteXModule):
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
                            audio_if_slots=audio_if_slots, aaf_playback=aaf_playback,
-                           render_lpf=render_lpf)
+                           render_lpf=render_lpf, optional_blocks=optional_blocks)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -478,9 +479,25 @@ def _eth_event_lanes():
     return len(names) - 1          # the terminator is the count, not a lane
 
 
+#! docs/design/AREA_BUDGET.md tier-1 optional blocks: SoC keyword -> the
+#! milan_datapath parameter that prunes it. EVERY ONE DEFAULTS TO PRESENT
+#! (True); the parameter is passed to the Instance ONLY when the block is
+#! pruned, so a default build's generated top .v is byte-identical to the
+#! shipping one and no existing bitstream changes by these keywords existing.
+#! Order is the AREA_BUDGET tier-1 table order (largest first).
+MILAN_OPTIONAL_BLOCKS = {
+    "media_clock_servo": "MCSERVO_P",   # KL_mmcm_drp_servo
+    "latency_taps":      "LTAP_P",      # KL_aaf_latency_taps
+    "maap":              "MAAP_P",      # KL_maap
+    "i2s_playback":      "I2SPB_P",     # KL_i2s_playback
+    "rx_mac_filter":     "RXFILT_P",    # rx_mac_filter + tcam
+    "render_lpf":        "LPF_P",       # KL_pcm_lpf (banked lever, lane S)
+}
+
+
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
-                       aaf_playback=False, render_lpf=True):
+                       aaf_playback=False, render_lpf=True, optional_blocks=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -595,8 +612,23 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # Pruning it makes the render tap behave exactly like LPF_CTRL[0]=0 does
     # today, and costs the -72.7 dB analog loop record its bitstream (that
     # number was measured THROUGH the filter): re-measure before quoting it.
-    if not render_lpf:
-        dp_params["p_LPF_P"] = 0
+    # It is now ONE ROW of the general tier-1 table below.
+    #
+    # docs/design/AREA_BUDGET.md tier-1 prunes. `optional_blocks` is a
+    # {keyword: bool} map over MILAN_OPTIONAL_BLOCKS; a MISSING key means
+    # PRESENT, and only a False value emits a parameter. `render_lpf` is the
+    # older single-purpose keyword for the same block and still works - it is
+    # folded in here so the two cannot disagree (either says "prune" -> prune).
+    blocks = dict.fromkeys(MILAN_OPTIONAL_BLOCKS, True)
+    blocks["render_lpf"] = bool(render_lpf)
+    for k, v in (optional_blocks or {}).items():
+        if k not in MILAN_OPTIONAL_BLOCKS:
+            raise ValueError(f"unknown milan_datapath optional block '{k}' "
+                             f"(known: {sorted(MILAN_OPTIONAL_BLOCKS)})")
+        blocks[k] = blocks[k] and bool(v)
+    for k, param in MILAN_OPTIONAL_BLOCKS.items():
+        if not blocks[k]:
+            dp_params[f"p_{param}"] = 0
     host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
@@ -4235,7 +4267,7 @@ class MilanSoC(SoCCore):
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, pcm_ring="dram", aaf_playback=False,
-                 render_lpf=True, **kwargs):
+                 render_lpf=True, optional_blocks=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -4497,7 +4529,8 @@ class MilanSoC(SoCCore):
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
                                   aaf_playback=aaf_pb,
-                                  render_lpf=bool(render_lpf))
+                                  render_lpf=bool(render_lpf),
+                                  optional_blocks=optional_blocks)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -4632,6 +4665,49 @@ def main():
                          "record was measured THROUGH the filter and must be re-measured "
                          "before it is quoted against a pruned bitstream. Default off "
                          "=> filter PRESENT, build byte-identical.")
+    # ---- docs/design/AREA_BUDGET.md tier-1 optional-block prunes ----
+    # One --no-<block> flag per row of MILAN_OPTIONAL_BLOCKS. EVERY ONE
+    # DEFAULTS OFF, i.e. the block is PRESENT and the generated top is
+    # byte-identical to today's; the flag only exists so a deployment that
+    # cannot use a block can say so and get the LUTs back. Figures are yosys
+    # ESTIMATES from syn/yosys/ooc.sh on the 8x8 ship shape (measured
+    # 2026-07-27), not placement results.
+    ap.add_argument("--no-media-clock-servo", action="store_true",
+                    help="AREA LEVER: prune KL_mmcm_drp_servo (the audio-MMCM "
+                         "media-clock actuator). Legal ONLY when the media clock is "
+                         "INTERNAL - the servo is what disciplines the MMCM to a "
+                         "recovered CRF or input-stream clock, so a pruned build "
+                         "cannot slave to a remote grandmaster's media clock at all. "
+                         "A_MCSRV_STAT 0x8F8 then reads 0 STRUCTURALLY. Default off "
+                         "=> servo PRESENT.")
+    ap.add_argument("--no-latency-taps", action="store_true",
+                    help="AREA LEVER: prune KL_aaf_latency_taps. Pure instrumentation "
+                         "- nothing in the media path reads a tap - so no acceptance "
+                         "surface moves, but the whole LTAP CSR window 0x870-0x8B0 "
+                         "reads 0 and every number in docs/AAF_LATENCY_TAPS.md becomes "
+                         "unreproducible on the resulting bitstream. Default off "
+                         "=> taps PRESENT.")
+    ap.add_argument("--no-maap", action="store_true",
+                    help="AREA LEVER: prune KL_maap (IEEE 1722 Annex B dynamic stream "
+                         "DMAC allocation). Legal when stream destination addresses are "
+                         "STATICALLY provisioned (AAF_DMAC / the builder's "
+                         "srp.stream_dmac_base). MAAP_CTRL.en becomes effectively "
+                         "reserved: setting it would pin AAF admission shut, because "
+                         "the claim can never complete. Default off => MAAP PRESENT.")
+    ap.add_argument("--no-i2s-playback", action="store_true",
+                    help="AREA LEVER: prune KL_i2s_playback (the DAC serializer + its "
+                         "rate servo). For a board with no DAC: the four i2s_dac_* pins "
+                         "park at 0 and the I2SPB CSR group reads 0. Also stops "
+                         "i2spb_converged, so an EXTERNAL media clock never reports "
+                         "converged (consistent - there is no render device to "
+                         "converge). Default off => playback PRESENT.")
+    ap.add_argument("--no-rx-mac-filter", action="store_true",
+                    help="AREA LEVER: prune rx_mac_filter + its TCAM. The RX stream "
+                         "becomes a straight wire to the DMA port, which is bit-exactly "
+                         "what the filter does with promisc=1 - so this is legal only "
+                         "when the port is meant to be PROMISCUOUS or filtering is done "
+                         "in software. The TCAM_* CSR window still accepts writes and "
+                         "nothing reads them. Default off => filter PRESENT.")
     ap.add_argument("--aaf-playback", action="store_true",
                     help="item-7 ALSA playback: wire KL_pcm_tx (host PCM ring -> AAF "
                          "talker pair source) into milan_datapath, the TX mirror of the RX "
@@ -4756,6 +4832,15 @@ def main():
                    pcm_ring=args.pcm_ring,
                    aaf_playback=args.aaf_playback,
                    render_lpf=not args.no_render_lpf,
+                   # tier-1 optional blocks: a key is emitted only when the
+                   # flag is set, and False is the ONLY value that prunes.
+                   optional_blocks={
+                       "media_clock_servo": not args.no_media_clock_servo,
+                       "latency_taps":      not args.no_latency_taps,
+                       "maap":              not args.no_maap,
+                       "i2s_playback":      not args.no_i2s_playback,
+                       "rx_mac_filter":     not args.no_rx_mac_filter,
+                   },
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,

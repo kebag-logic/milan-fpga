@@ -902,6 +902,19 @@ number was measured *through* the filter and must be re-measured before it
 is quoted against a pruned build; still to be spent only after the logic
 levers, never as a first response.
 
+**GENERALISED (2026-07-27).** `LPF_P` is no longer a special case: it is one
+row of a six-block tier-1 prune table
+([docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md)) covering the
+media-clock servo, the latency taps, the MAAP engine, I2S playback, the RX
+address filter and this filter — **~4.5 k yosys-estimated LUTs**, every
+parameter defaulting to PRESENT, each with a `board.features` key, a
+`milan_soc.py --no-*` flag and a builder `ConfigError` gate that refuses a
+config asking for what the prune removed. One correction lands with it: this
+block's own **hierarchical** yosys figure is **864 LUT / 756 FF / 1 DSP**,
+not 441 — the flip-flop count agrees exactly with the place report and the
+LUT count is yosys running ~2× high, which is the calibration to carry into
+the other five (none of which has a Vivado cross-check).
+
 ### 6.3 Area round 2026-07-27: logic levers, measured (no Vivado)
 
 Three seeds overflowed the placer on the `ax8x8` shape

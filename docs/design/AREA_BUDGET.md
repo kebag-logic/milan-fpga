@@ -55,28 +55,223 @@ dominates them.
 
 ## What is actually optional
 
-**Only two elaboration prunes exist today** — `AUDIO_IF_SLOTS_P` and
-`AAF_PLAYBACK_P` — plus two SoC switches (`--aaf-playback`, `--strip-probes`).
-Everything else is built unconditionally, whether or not a given deployment can
-use it.
+Before 2026-07-27 **only two elaboration prunes existed** — `AUDIO_IF_SLOTS_P`
+and `AAF_PLAYBACK_P` — plus two SoC switches (`--aaf-playback`,
+`--strip-probes`). Everything else was built unconditionally, whether or not a
+given deployment could use it.
 
-### Tier 1 — genuinely optional blocks
+### Tier 1 — genuinely optional blocks · **IMPLEMENTED 2026-07-27**
 
 Each is dead weight in a deployment that does not use the feature. All default
-to **PRESENT**, so adding the parameter changes no shipping build.
+to **PRESENT**, so adding the parameter changed no shipping build — the
+generated top of a default build is byte-identical, and `test_builder` gate 23a
+enforces that on all three shipped configs.
 
-| candidate | LUT | FF | dead when |
+| block | `milan_datapath` | SoC flag | `board.features` | dead when |
+|---|---|---|---|---|
+| media-clock servo | `MCSERVO_P` | `--no-media-clock-servo` | `media_clock_servo` | the media clock is internal — the servo idles unless the clock source is a recovered one |
+| latency taps | `LTAP_P` | `--no-latency-taps` | `latency_taps` | pure instrumentation; nothing in the media path reads them |
+| MAAP engine | `MAAP_P` | `--no-maap` | `maap` | stream destination addresses are statically provisioned |
+| I2S playback | `I2SPB_P` | `--no-i2s-playback` | `i2s_playback` | the board has no DAC |
+| RX address filter | `RXFILT_P` | `--no-rx-mac-filter` | `rx_mac_filter` | the port is promiscuous, or filtering is done in software |
+| PCM low-pass | `LPF_P` | `--no-render-lpf` | `render_lpf` | render path only, and every digital acceptance measurement is taken upstream of it |
+
+#### What each one is worth — MEASURED, and every figure a yosys ESTIMATE
+
+Measured 2026-07-27 with `syn/yosys/ooc.sh`'s toolchain (`sv2v` →
+`yosys synth_xilinx -family xc7`) on `milan_datapath` at the **ship shape**
+(`N_STREAMS = 8`, `AUDIO_IF_SLOTS_P = 16`), hierarchy preserved, per-module
+`stat`. **These are synthesis estimates, not placement results**, and yosys
+runs roughly 2× high on LUTs against Vivado for the one block where both
+numbers exist (`KL_pcm_lpf`: yosys 864, Vivado place 428–445; the flip-flop
+figures agree exactly at 756).
+
+| block | LUT | FF | DSP | BRAM36 | replaces the estimate |
+|---|---|---|---|---|---|
+| media-clock servo (`KL_mmcm_drp_servo` + its `cdc_handshake`/`cdc_pulse`) | 814 | 789 | 1 | — | 933 / 807 |
+| latency taps (`KL_aaf_latency_taps` + 2 × `KL_aaf_latency_chain`) | 948 | 614 | — | — | 696 / 614 |
+| MAAP engine (`KL_maap`) | 634 | 269 | — | — | 621 / 268 |
+| I2S playback (`KL_i2s_playback` + its `cdc_pair_fifo`/`cdc_pulse`) | 454 | 631 | — | 1 | 552 / 624 |
+| RX address filter (`rx_mac_filter` 123/11 + `tcam` 678/1680) | 801 | 1,691 | — | — | 504 / 1,568 |
+| PCM low-pass (`KL_pcm_lpf`) | 864 | 756 | 1 | — | 445 / 756 |
+| **total** | **4,515** | **4,750** | **2** | **1** | 3,751 / 4,637 |
+
+The measured LUT total is **20 % above** the Vivado-derived estimate this page
+opened with and the flip-flop total is within **2.4 %** of it — consistent with
+yosys over-counting LUTs and counting flops exactly. Read the LUT column as
+*this is the block*, not *this is what placement will hand back*.
+
+**~4.5 k yosys LUTs**, none of it requiring a functional change — only the
+ability to say "this build does not include that".
+
+#### What that is worth to the 8×8 shape, in the builder's own estimator
+
+`sw/builder`'s resource model, run over `endstation_ax7101_8x8.yaml` with the
+levers pulled (still an **estimate**, and a *different* model again — Vivado
+place figures for the blocks it knows, yosys for the three it did not):
+
+| configuration | LUT | FF | verdict |
 |---|---|---|---|
-| media-clock servo | 933 | 807 | the media clock is internal — the servo idles unless the clock source is the recovered one |
-| latency taps | 696 | 614 | pure instrumentation; nothing in the media path reads them |
-| MAAP engine | 621 | 268 | stream destination addresses are statically provisioned |
-| I2S playback | 552 | 624 | the board has no DAC |
-| RX address filter | 504 | 1,568 | the port is promiscuous, or filtering is done in software |
-| PCM low-pass | 445 | 756 | already banked as `LPF_P` — render path only, and every digital acceptance measurement is taken upstream of it |
-| **total** | **3,751** | **4,637** | |
+| default — every block PRESENT | 56,537 | 53,751 | **OVER** 89.2 % |
+| internal-only clocking alone, no prune (isolates the CRF sink) | 53,838 | 45,294 | OVER 84.9 % |
+| five levers, servo kept | 53,081 | 49,902 | OVER 83.7 % |
+| **all six levers** (servo ⇒ internal-only ⇒ CRF sink goes too) | **49,568** | **40,656** | **TIGHT** 78.2 % |
 
-**~3.75 k LUTs = 5.9 % of the device**, none of it requiring a functional change
-— only the ability to say "this build does not include that".
+**Pulling every tier-1 lever takes the 8×8 shape out of the OVER band.** Read
+the last row honestly: **−6,969 LUT total, of which −2,699 is `KL_crf_rx`**,
+which is not a lever — pruning the servo *requires* an internal-only clock
+config, and that drops the CRF sink with it. The six levers themselves are
+**−4,270 LUT** in this model. That coupling is the single most important thing
+to understand before quoting the number.
+
+### Which method to trust when the two disagree
+
+Two whole-design methods were run for every configuration, PRESENT and PRUNED:
+
+| method | what it does | present total |
+|---|---|---|
+| **flatten** | `synth_xilinx -family xc7 -flatten` then `stat` — `ooc.sh`'s method | 31,645 LUT / 21,718 FF |
+| **hierarchical** | `synth_xilinx -family xc7` (hierarchy kept) then `stat -top` | 125,639 cells |
+
+Whole-design deltas, PRESENT minus PRUNED:
+
+| pruned | flatten ΔLUT | flatten ΔFF | hierarchical Δcells |
+|---|---|---|---|
+| media-clock servo | −682 | −749 | −2,792 |
+| latency taps | −987 | −584 | −3,577 |
+| MAAP | −348 | −108 | −940 |
+| I2S playback | −520 | −739 | −1,783 |
+| RX address filter | **−1** | **0** | −2,560 |
+| PCM low-pass | **−14** | **0** | −2,193 |
+| all six together | −2,266 | −2,180 | −12,462 |
+
+**The flatten method is wrong for two of the six, and provably so.** It reports
+the flip-flop total as *bit-identical* after removing blocks that elaboration
+shows carry 1,691 and 756 flip-flops. Deleting 1,691 flip-flops cannot leave
+the flip-flop count unchanged, so that is an artefact of whole-design
+flattening, not a measurement. The prune itself is not in doubt: with
+`RXFILT_P = 0`, `yosys hierarchy -top milan_datapath` lists neither
+`rx_mac_filter` nor `tcam` in the design at all.
+
+**Trust the hierarchical figure.** It is the one that (a) agrees with each
+block's standalone out-of-context synthesis, (b) agrees with the Vivado
+hierarchical report this page is built from, and (c) is arithmetically possible.
+This is the same disagreement a sibling lane recorded in the other direction
+(a `-flatten` run reading **+97 LUT** where its hierarchical run read **−812**),
+and the same conclusion: at ~50 k cells, optimisation noise swamps a ~1 k-cell
+lever in a flattened netlist.
+
+### The five rules, as implemented
+
+1. **Default PRESENT** — every parameter defaults to 1. `test_builder` gate 23a
+   asserts all three shipped configs carry every block, emit no `--no-*` flag,
+   and count no prune row in the resource estimate.
+2. **Elaboration-time** — each is a `generate if (…) … else …`, so synthesis
+   drops the instance. Where a runtime enable already exists the two **compose**:
+   the parameter decides whether the logic is *built*, the CSR bit decides
+   whether the built logic *runs*, and the pruned tie-off is defined to be
+   exactly the runtime-disabled state term by term (`LPF_CTRL 0x72C[0] = 0`,
+   `MAAP_CTRL.en = 0`, `LTAP_CTRL` cleared, `promisc = 1`).
+3. **Inert ties** — every pruned block's outputs are tied to that state, so the
+   interface is defined, never floating. `scripts/check_tied_inputs.sh` is
+   unaffected: it inventories `milan_datapath` **input** ports tied by the SoC,
+   and none of these prunes ties an input — the SoC still wires the real MMCM,
+   the real MAC and the real pins. The gate runs green with the same three
+   justified TDM entries and **zero** new warnings.
+4. **Stated re-measurement** — recorded per block below, and printed into every
+   pruned config's `build_plan.md` by the builder, so the obligation travels
+   with the artefact instead of with a reviewer's memory.
+5. **Gated** — `sw/builder/endstation_builder.py` `validate_features()` raises
+   `ConfigError` for a config that asks for a feature the prune removed.
+   Mutation-proven: neuter the function and gate 23b fails on its first case.
+
+### The banked levers, in the `LPF_P` style
+
+Each entry: what it costs, what it buys, what re-measurement it forces, and that
+it defaults to PRESENT.
+
+**`MCSERVO_P = 0` — media-clock servo.**
+*Buys* 814 LUT / 789 FF / 1 DSP (yosys estimate).
+*Costs* the ability to discipline the audio MMCM to a clock the fabric
+recovers. `A_MCSRV_STAT 0x8F8` becomes a **structural** zero, the DRP and
+phase-shift ports never move, and the MMCM is never reset by the datapath.
+*Legal when* the media clock is internal: the builder gate refuses it unless
+`clocking.media_clock_sources` is exactly `[internal]`.
+*Forces re-measurement of* every CRF / input-stream lock result — servo
+convergence, `MCSRV_STAT` state transitions, any recovered-clock jitter figure.
+*Note* the servo already idles at `clock_source == 0`, so on an internal-clock
+build this prune is **area-only**: `tb/verilator/milan_dp`'s pruned shape and
+its PRESENT shape both read `0x8F8` as 0 and both leave the MMCM pins still.
+That is the honest statement — the contrast is invisible from software at
+internal clock, which is exactly why the config, not a CSR bit, is what
+declares it. **Defaults to PRESENT.**
+
+**`LTAP_P = 0` — AAF latency taps.**
+*Buys* 948 LUT / 614 FF (yosys estimate).
+*Costs* the entire LTAP CSR window `0x870`–`0x8B0`, which reads 0. `LTAP_CTRL`
+reads `0x2` (the reset-1 enable bit with no status behind it).
+*Legal when* the build ships no instrumentation: the gate refuses it unless
+`board.constraints.strip_probes` is true.
+*Forces re-measurement of* **all of [`AAF_LATENCY_TAPS.md`](../AAF_LATENCY_TAPS.md)** — the CAP-SOF,
+SOF-EOF and EOF-MAC silicon numbers were read out of this block and cannot be
+re-read from a build that does not contain it. Nothing in the media path reads a
+tap, so no acceptance surface moves. A zero here is structural, not 0 ns — the
+same distinction `STATS_CAP` draws for the RMON lanes. **Defaults to PRESENT.**
+
+**`MAAP_P = 0` — MAAP engine.**
+*Buys* 634 LUT / 269 FF (yosys estimate).
+*Costs* dynamic stream-DMAC allocation and defence. `MAAP_STAT0/1`
+(`0x6D0`/`0x6D4`) read 0, the effective stream DMAC is always the
+CSR-provisioned `AAF_DMAC`, and the engine's low-rate TX leg never wins the
+arbiter. **`MAAP_CTRL.en` becomes effectively reserved**: setting it would pin
+AAF admission *shut*, because the claim can never complete.
+*Legal when* addresses are statically provisioned; the gate refuses it when
+`srp.stream_dmac_base` is the literal `maap`.
+*Forces re-measurement of* MAAP claim/defend behaviour and any address-collision
+result that depended on the engine answering. **Defaults to PRESENT.**
+
+**`I2SPB_P = 0` — I2S DAC playback.**
+*Buys* 454 LUT / 631 FF / 1 BRAM36 (yosys estimate).
+*Costs* the DAC serializer and its rate servo: the four `i2s_dac_*` pins park at
+0 and the I2SPB CSR group reads 0. Second-order effect worth stating —
+`i2spb_converged` is `KL_avtp_rx_monitor`'s `servo_conv_i`, and that block's
+media-lock rule is `clk_src == 0 || servo_conv`. So on a pruned build an
+**external** media clock **never reaches media lock**. That is consistent
+(there is no render device to converge) but it is a real behavioural
+consequence and the sharpest reason this prune needs a config gate;
+internal-clock media lock is immediate and unaffected.
+*Legal when* the board has no DAC; the gate refuses it while
+`audio_interface.kind` is `i2s_philips`, whose render half **is** this block.
+*Forces re-measurement of* every analog measurement taken at the line out — the
+loop THD+N record, the pilot-tone census — and the I2SPB underrun/overrun
+census. **Defaults to PRESENT.**
+
+**`RXFILT_P = 0` — RX station-address filter.**
+*Buys* 801 LUT / **1,691 FF** (yosys estimate) — by far the largest flip-flop
+saving of the six, and worth nothing on a LUT-bound design. Pull it for the
+LUTs or not at all.
+*Costs* hardware address filtering: the RX stream becomes a straight wire from
+the PTP stage to the DMA port, which is bit-exactly what the shipping filter
+emits with `promisc = 1`. **The port becomes promiscuous.** The `TCAM_*` window
+still accepts writes and nothing reads them.
+*Legal when* the port is meant to be promiscuous or the host does the dropping;
+the gate refuses it unless `platform.rx_address_filter` says `software` or
+`promiscuous`.
+*Forces re-measurement of* the RX drop census and any claim about what the
+station refuses. **Defaults to PRESENT.**
+
+**`LPF_P = 0` — PCM render low-pass.** (Banked 2026-07-26, wired the same day
+as the rest.)
+*Buys* 864 LUT / 756 FF / 1 DSP (yosys estimate); 428–445 LUT / 756 FF / 1 DSP
+on the shipping Vivado place report.
+*Costs* nothing digital: the pruned tap is what `LPF_CTRL[0] = 0` already
+produces.
+*Legal when* — its **only** consumer inside `milan_datapath` is
+`KL_i2s_playback`, so the gate runs the other way for this one: keeping the
+filter in a build whose player is pruned is refused, because that synthesises a
+render filter with nothing behind it.
+*Forces re-measurement of* the analog loop THD+N record, which was measured
+*through* this filter. **Defaults to PRESENT.**
 
 ### Tier 2 — blocks that should scale with the configured shape
 
@@ -184,13 +379,91 @@ is what belongs in DRAM.
    parameter pruned — a silently absent feature is the decorative-ABI failure in
    reverse.
 
+## What was rejected, and the numbers that killed it
+
+* **Pricing the prunes with `-flatten`.** It is the cheaper instrument (one
+  synth per configuration, one number out) and it is what `ooc.sh` does. It was
+  rejected for the RX filter and the LPF on the evidence in "Which method to
+  trust": −1 LUT / −0 FF and −14 LUT / −0 FF for blocks that elaboration proves
+  are gone, including an unchanged flip-flop total after deleting 1,691 flops.
+  It is retained for the other four, where it agrees with the hierarchical
+  figure to within the expected cross-boundary slack.
+* **`chparam` to set the shape.** `syn/yosys/ooc.sh` sets the ship shape with
+  `chparam -set`, but on `milan_datapath` that re-runs the AST frontend over
+  sv2v's flattened interface names and dies (`Failed to detect width for
+  identifier \traffic_controller.buffer_queues…`). The measurements here patch
+  the SV **default** in a private copy instead, which is exactly equivalent —
+  the parameter *is* its default in every build that does not override it — and
+  the patched defaults are recorded per configuration.
+* **A runtime capability bit per block** (a `STATS_CAP` for the optional
+  blocks). Attractive, and it would let software distinguish "absent" from
+  "idle" at `0x8F8` and `0x870`. Rejected for this round because it is a **CSR
+  contract change** and would owe a `VERSION` bump at default settings, which
+  this lane deliberately does not spend (see below). The declaration lives in
+  the build config and in `build_plan.md` instead. It is the obvious follow-up.
+* **Dropping pruned modules from the SoC source list.** An unused module in
+  `_MILAN_DATAPATH_SOURCES` costs nothing (nothing instantiates it) and
+  `scripts/check_soc_sources.py` gates the list's shape. Making the list
+  conditional would make that gate configuration-dependent for no gain.
+* **Adding positive `mmcm_servo` / `latency_taps` rows to the resource
+  estimator.** Both are genuinely missing from `RESOURCE_COSTS` today, and
+  adding them would be an accuracy fix — but it would move every existing
+  config's estimate by ~1.6 k LUT and break the gate-11 calibration against the
+  real `mf48` place report and the gate-13 envelopes. The accuracy fix is a
+  separate change with its own re-calibration. What landed instead splits by
+  whether the estimator already knew about the block: `rx_filter`,
+  `i2s_renderer` and `maap_claim_ctx`/`maap_dmac_slot_extra` are existing
+  **Vivado-derived** rows, so pruning counts them **0** — more accurate than
+  subtracting a yosys figure from a Vivado one; the servo, the taps and the LPF
+  (which is folded inside `aaf_listener_engine`) get a **subtractive** row
+  counted 1 only when pruned. Either way a default config counts every prune
+  row 0 and its estimate is byte-identical to what it was.
+* **Subtracting the yosys figure from blocks the estimator already prices.**
+  Tried first, and it double-books: the table would charge 539 LUT for
+  `rx_filter` and then credit back 801, netting −262 LUT for a block that is
+  simply absent. Caught by reading the generated `build_plan.md` of a pruned
+  config, which is the argument for printing the whole row table in the first
+  place.
+
+## `VERSION` was deliberately NOT bumped
+
+`milan_csr` `VERSION` stays `0x0001_0014`. At the **default** settings — every
+parameter 1 — this change is a pure no-op parametrisation: the same instances,
+the same wiring, the same CSR values, and `tb/verilator/milan_dp`'s legacy and
+NxN shapes pass unchanged at 196 / 135 / 147 checks. A `VERSION` bump announces
+*CSR-observable behaviour changed at the settings a board actually runs*, and
+nothing here does. A build that pulls a lever changes plenty — `0x8F8` reads 0,
+the LTAP window reads 0, the port goes promiscuous — but that is declared by the
+config that pulled it and printed into its `build_plan.md`, which is where a
+build-shape declaration belongs. (Same reasoning a sibling lane used for its
+byte-identical refactor.)
+
 ## Honest limits
 
-* These are **synthesis** numbers. Placement can differ, and slice occupancy —
-  not LUT count — is what actually failed on this design.
+* These are **synthesis** numbers, and the tier-1 table is a **yosys** estimate
+  — a different tool from the Vivado report the rest of this page is built on.
+  Placement can differ, and slice occupancy, not LUT count, is what actually
+  failed on this design.
 * The tier-1 total is what synthesis reports for those instances **today**; it is
   not a promise that removing them frees exactly that many slices, because
-  packing and control-set effects dominate at this occupancy.
+  packing and control-set effects dominate at this occupancy. The six together
+  measure −12,462 hierarchical cells against −13,845 summed individually, i.e.
+  **10 % of the saving is shared logic that only goes when its last consumer
+  does** — pulling two levers is worth slightly less than pulling them one at a
+  time and adding up.
+* **No Vivado run backs any of these six numbers.** The only cross-check that
+  exists is `KL_pcm_lpf`, where the shipping place report says 428–445 LUT and
+  yosys says 864. Assume the same ~2× on the other five until someone places a
+  pruned build.
+* The prunes are proven in **elaboration and simulation**, not on silicon:
+  `tb/verilator/milan_dp`'s `obj_prune` shape builds with all six pruned and
+  passes 31 checks, and the same binary against the PRESENT shape fails 12 of
+  them (the mutation proof that the checks measure the prune). No pruned
+  bitstream has been built or flashed.
+* The `MCSERVO_P` prune has **no software-visible contrast** at internal clock,
+  because the servo idles there anyway. Its correctness rests on the tie-off
+  being the servo's own idle state, which is an inspection argument backed by
+  the TB's "no MMCM pin ever moved" check — not on a behavioural difference.
 * Tier 2 is un-costed: the savings depend on the configured shape, and nobody has
   measured a small-shape build.
 * The CPU is excluded by scope, not because it is optimal. It is 26.5 % of the
