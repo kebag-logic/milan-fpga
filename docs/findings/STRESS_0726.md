@@ -124,7 +124,14 @@ they read as a clean slate that was never clean.
 spawn on the softcore**, not the CSR plane — the writes themselves are fast. A
 storm test should batch its accesses in one process rather than a shell loop.
 
-## H — the MAC-TX wedge drill (AX42): **the fix is validated on silicon**
+## H — the MAC-TX wedge drill (AX42): the guard FSM is proven, **the wedge is NOT**
+
+> **CORRECTION 2026-07-27.** An earlier revision of this section claimed the
+> AX42 fix was "validated on silicon". **It is not, and the control experiment
+> that disproved it is below.** What the drills prove is that the guard's
+> detection→`eth_rst`→recovery sequence works end to end and that asserting
+> `eth_rst` does not itself break TX. They do **not** prove the TX path recovers
+> from a real wedge, because **no wedge was ever induced**.
 
 The long-standing hazard was that a link bounce wedges the e2 TX path
 permanently — *internal TX counters keep ticking while the wire stays empty*, so
@@ -173,13 +180,42 @@ returned to RUN with TX ticking, `bounce_cnt` counted every event (1 → 9), and
 
 This is the silicon validation roadmap item 0 was waiting for.
 
-### Honest limit
+### The control experiment that settles what was actually proven
 
-`linkg_freeze` fakes **eth clock death**, which is the wedge's mechanism and the
-thing the AX42 reset scope had to cover — so the fix itself is proven. It is not
-a physical cable pull, which would additionally exercise PHY autoneg and
-link-loss detection. A cable drill remains worth doing, and is now low-risk:
-the recovery path it depends on has been exercised 9 times.
+Run the same freeze with the guard **disabled** (`LINK_CTRL[2] linkg_dis = 1`,
+so nothing can react) and see whether TX wedges on its own:
+
+```
+GUARD-OFF + FREEZE   LINKG=0x00090380   ->  freeze=1 dis=1 tx_alive=0 rx_alive=0
+t+00 .. t+22 (24 s)  TX = TICKING every sample
+peer RX deltas       92k-118k per 5 s, no dip
+```
+
+**TX never stopped.** With nothing guarding it, the faked condition did not wedge
+the path — so `linkg_freeze` forces the guard's *liveness indicators* low
+without stopping the eth clock or disturbing the datapath. That is exactly what
+"**fake** eth clock death → drills the full FSM with no cable" says; the earlier
+reading of it as "reproduces the wedge" was wrong.
+
+### What IS proven, and what is still open
+
+**Proven:** the guard detects the condition, sequences `eth_rst` (HOLD), and
+returns to RUN in ~2 s, 9 times out of 9, with `bounce_cnt` counting every event
+and `RST_EPOCH` never moving. Also proven, and not trivial: **asserting
+`eth_rst` does not break TX** — the 2026-07-24 `eth_rst` deadlock regression is
+absent. And the fix is genuinely wired on the deployed board (the netlist
+extract above).
+
+**Not proven:** that the TX path recovers from a *real* wedge. No wedge was
+induced, so the fix's core claim is untested on hardware. The original failure
+came from a **physical link bounce**, and reproducing it needs either a cable
+pull or a managed switch port — neither reachable from here. `ethtool -r`
+(renegotiate) is the one remaining programmatic candidate; the driver reports
+`version: mdio2` with no phylib `phydev` node, so whether it produces a real
+link event is unverified.
+
+Until a cable-pull drill is run, item 0 should read **logic fix landed, guard
+FSM silicon-proven, wedge recovery UNPROVEN**.
 
 ## Outstanding
 

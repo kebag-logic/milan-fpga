@@ -560,15 +560,18 @@ worse than an admitted gap.
 ## Suggested order of attack (reordered 2026-07-22 per USER)
 
 0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
-   fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED, and
-   SILICON-VALIDATED 2026-07-26.** The guard `eth_rst` reset scope covers the
+   fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED; guard FSM
+   silicon-proven 2026-07-26; **WEDGE RECOVERY STILL UNPROVEN** (corrected
+   2026-07-27).** The guard `eth_rst` reset scope covers the
    PHY-side `eth_tx`/gtx path, the deployed netlist wires it into the
    `eth_tx`/`eth_rx` async reset synchronisers and the PHY reset, and the
-   `LINK_CTRL[3]` `linkg_freeze` hook (fake eth clock death — the wedge's own
-   mechanism) was fired **9 times**: every one detected, `eth_rst` asserted,
-   recovered to RUN in ~2 s, `bounce_cnt` counted all 9, `RST_EPOCH` never
-   moved, and the **peer board's RX never dipped** — TX never wedged on the
-   wire. Evidence: [`findings/STRESS_0726.md`](findings/STRESS_0726.md) §H. Residual: a physical
+   `LINK_CTRL[3]` `linkg_freeze` hook was fired **9 times**: every one
+   detected, `eth_rst` asserted, recovered to RUN in ~2 s, `bounce_cnt` counted
+   all 9, `RST_EPOCH` never moved. **But a control run with the guard DISABLED
+   showed TX still ticking throughout** — so `linkg_freeze` fakes the liveness
+   indicators without wedging anything, and the wedge was never induced. The
+   guard's FSM and the `eth_rst` sequence are proven; **recovery from a real
+   wedge is not**, and needs a physical cable-pull drill. Evidence: [`findings/STRESS_0726.md`](findings/STRESS_0726.md) §H. Residual: a physical
    cable-pull drill (adds PHY autoneg / link-loss detection) and the same
    drills on the Arty.
    - Silicon truth: a link bounce wedges the e2 TX path permanently
