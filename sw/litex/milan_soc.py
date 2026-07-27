@@ -429,6 +429,11 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/aaf/aaf_talker_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
     "hdl/ieee1722/aaf/KL_pcm_ring_bram.sv",   # --pcm-ring bram: shed-proof on-chip PCM ring
     "hdl/ieee1722/aaf/KL_i2s_playback.sv", "hdl/ieee1722/aaf/KL_tone_gen.sv",
+    # item-7 playback: picks the DAC source AND its pace (render crossbar vs
+    # the legacy RX tap). Instantiated by milan_datapath - a missing entry
+    # here is invisible to Verilator and to yosys (both carry their own file
+    # lists) and only surfaces as a Vivado "module not found" at synthesis.
+    "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
     "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",   # item-11: per-stage AAF latency taps (LTAP CSR group 0x870)
     "hdl/ieee1722/aaf/KL_media_adv.sv", "hdl/common/cdc_pair_fifo.sv",
     "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",

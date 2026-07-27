@@ -20,6 +20,8 @@ jobs:
         run: |
           python3 -m pip install --quiet pyyaml
           python3 sw/builder/test_builder.py
+      - name: SoC source-list gate (Vivado would fail 40 min in without this)
+        run: python3 scripts/check_soc_sources.py
 
       # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
       # must equal the end-station config they claim to build (--num-streams,
