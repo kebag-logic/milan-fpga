@@ -90,6 +90,9 @@ module tdm_wrap (
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
     .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
     .ptp_ns_i (ptp_ns_i),
+    //! tu: this harness is not about clock validity - the honest
+    //! synchronised case, and the pre-2026-07-27 wire bytes
+    .ts_uncertain_i (1'b0),
     .tctx_wr_en_i (tctx_wr_en_i), .tctx_wr_addr_i (tctx_wr_addr_i),
     .tctx_wr_data_i (tctx_wr_data_i), .tctx_wr_rdy_o (tctx_wr_rdy_o),
     .tctx_rd_en_i (1'b0), .tctx_rd_addr_i (7'd0),

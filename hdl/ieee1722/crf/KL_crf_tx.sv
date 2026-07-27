@@ -71,6 +71,12 @@ module KL_crf_tx (
   input  wire [31:0]  transit_ns_i,      //! presentation time offset added to every timestamp (Milan: PTO applies to CRF like any stream)
 
   input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
+  //! AVTP "tu" (timing uncertain), IEEE 1722-2016 10.4.5 - "behaves the same
+  //! way as the tu field from the common stream header (4.4.4.7) except that
+  //! it applies to the timestamps contained in the crf_data field". Our CRF
+  //! timestamps come from the same PHC as AAF's, so they carry the same
+  //! verdict. Latched at frame launch; drive 0 for the legacy wire bytes.
+  input  wire         ts_uncertain_i,
 
   //! CRF frames out (64b AXIS little lane, low-rate control merge)
   output logic [63:0] m_axis_tdata,
@@ -142,6 +148,7 @@ module KL_crf_tx (
   reg [63:0] ts_r;
   reg [7:0]  seq_r;
   reg        frame_pend_r;
+  reg        tu_r;      //! tu frozen for the whole frame (latched with ts_r)
 
   logic [7:0] fb [0:NUM_BEATS*8-1];
   always_comb begin : frame_bytes
@@ -152,7 +159,7 @@ module KL_crf_tx (
     fb[12]=8'h22; fb[13]=8'hF0;
     // CRF AVTPDU (IEEE 1722-2016 clause 10)
     fb[14]=8'h04;                       // subtype CRF
-    fb[15]=8'h80;                       // sv=1, ver=0, mr=0, fs=0, tu=0
+    fb[15]={7'h40, tu_r};               // sv=1, ver=0, mr=0, fs=0, tu (10.4.5)
     fb[16]=seq_r;                       // sequence_num
     fb[17]=8'h01;                       // type = CRF_AUDIO_SAMPLE
     {fb[18],fb[19],fb[20],fb[21],fb[22],fb[23],fb[24],fb[25]} = sid_i;
@@ -178,12 +185,13 @@ module KL_crf_tx (
   always_ff @(posedge clk_i or negedge rst_n) begin : engine
     if (!rst_n) begin
       st_r <= IDLE_S; beat_r <= '0;
-      ts_r <= '0; seq_r <= '0; frame_pend_r <= 1'b0;
+      ts_r <= '0; seq_r <= '0; frame_pend_r <= 1'b0; tu_r <= 1'b0;
       tx_count_o <= '0;
     end
     else begin
       if (evt_milan_w && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
         ts_r         <= ptp_ns_i + 64'(transit_ns_i);
+        tu_r         <= ts_uncertain_i;   //! same PHC, same verdict
         frame_pend_r <= 1'b1;
       end
       if (!enable_i) begin

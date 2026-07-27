@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010014);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010015);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -651,6 +651,112 @@ int main(int argc, char** argv) {
             }
             ck("tone frame captured", checked?1:0, 1);
             axi_write(0x6DC, 0x0);          // tone off
+        }
+
+        // ------------------------------------------------------------------
+        // [CLKV] the 2026-07-27 defect, end to end: CSR -> wire byte 21.
+        //
+        // On 2026-07-27 this datapath streamed at full rate from a PHC 60 h
+        // out of the gPTP domain while stamping tu = 0 on every frame, so the
+        // receiving Milan device counted 99.4 % of them LATE or EARLY with no
+        // way to know why (docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md).
+        //
+        // The requirement is NOT to stop: Milan v1.2 5.3.7.3 excludes stopping
+        // a Stream Output ("STREAMING_WAIT shall not be implemented"), and
+        // IEEE 1722-2016 7.5 makes tv = 1 mandatory for AAF at sp = 0. The
+        // lever the standard gives us is the tu bit (Milan 4.3.5.2 -> IEEE
+        // 1722-2016 4.4.4.7). So: frames keep flowing, byte 21 bit 0 tells
+        // the truth, and NOTHING claims validity until software leases it.
+        //
+        // Mutation anchor: revert the RTL to a hard fb[21]=8'h00 and the very
+        // first check here fails, because a fresh datapath has no lease.
+        // ------------------------------------------------------------------
+        {
+            printf("[CLKV] clock validity -> AVTP tu on the wire (0x778)\n");
+            enum { A_CLKV_CTRL = 0x778, A_CLKV_STAT = 0x77C,
+                   A_CLKV_TUCNT = 0x780, A_PTP_CMD = 0x520,
+                   A_ADP_GMLO = 0x624 };
+
+            // grab the next AAF frame off the MAC TX port
+            auto next_aaf = [&](std::vector<uint8_t>& out) -> bool {
+                std::vector<uint8_t> fr;
+                dut->m_axis_mac_tx_tready = 1;
+                for (int c = 0; c < 60000; c++) {
+                    step();
+                    if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                        for (int l = 0; l < 8; l++)
+                            if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                                fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                        if (dut->m_axis_mac_tx_tlast) {
+                            if (fr.size() >= 42 && fr[12] == 0x81 && fr[16] == 0x22 &&
+                                fr[17] == 0xF0 && fr[18] == 0x02) { out = fr; return true; }
+                            fr.clear();
+                        }
+                    }
+                }
+                return false;
+            };
+
+            std::vector<uint8_t> f;
+            ck("CLKV: reset CLKV_CTRL = lease 8, SYNC_OK 0",
+               axi_read(A_CLKV_CTRL), 0x00000080);
+            ck("CLKV: reset STAT[0] tu = 1 (unknown clock is NOT valid)",
+               axi_read(A_CLKV_STAT) & 1, 1);
+            ck("CLKV: reset STAT[1] sync_ok = 0",
+               (axi_read(A_CLKV_STAT) >> 1) & 1, 0);
+
+            ck("CLKV: unsynchronised -> a frame is STILL emitted", next_aaf(f), 1);
+            ck("CLKV: unsynchronised -> byte 21 bit 0 = 1", f.size() ? f[21] : 0xEE, 0x01);
+            ck("CLKV: unsynchronised -> tv still 1 (1722-2016 7.5)",
+               f.size() ? f[19] : 0, 0x81);
+            ck("CLKV: unsynchronised -> frame still 90 bytes",
+               (long)f.size(), 90);
+
+            // software leases the sync claim -> tu clears
+            axi_write(A_CLKV_CTRL, 0x00000FF1);      // SYNC_OK, long lease
+            ck("CLKV: leased -> STAT[1] sync_ok", (axi_read(A_CLKV_STAT) >> 1) & 1, 1);
+            ck("CLKV: leased -> STAT[0] tu clears", axi_read(A_CLKV_STAT) & 1, 0);
+            f.clear();
+            ck("CLKV: leased -> frame emitted", next_aaf(f), 1);
+            ck("CLKV: leased -> byte 21 = 0", f.size() ? f[21] : 0xEE, 0x00);
+
+            // a PHC settime IS a gPTP discontinuity - no software help needed
+            axi_write(A_PTP_CMD, 0x1);
+            ck("CLKV: settime -> STAT[3] holdover", (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
+            f.clear();
+            ck("CLKV: settime -> frame emitted", next_aaf(f), 1);
+            ck("CLKV: settime -> byte 21 bit 0 = 1", f.size() ? f[21] : 0xEE, 0x01);
+
+            // ... and it lapses on its own (Milan Annex B.1.1 holdover)
+            for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
+            ck("CLKV: holdover ends by itself", axi_read(A_CLKV_STAT) & 1, 0);
+            f.clear();
+            ck("CLKV: post-holdover frame emitted", next_aaf(f), 1);
+            ck("CLKV: post-holdover byte 21 = 0", f.size() ? f[21] : 0xEE, 0x00);
+
+            // a grandmaster change (Milan v1.2 Annex B.1.1)
+            axi_write(A_ADP_GMLO, 0xDEADBEEF);
+            ck("CLKV: GM change -> tu asserts", axi_read(A_CLKV_STAT) & 1, 1);
+            f.clear();
+            ck("CLKV: GM change -> byte 21 bit 0 = 1 on the wire",
+               next_aaf(f) ? f[21] : 0xEE, 0x01);
+            for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
+            axi_write(A_ADP_GMLO, 0x00000000);       // restore
+            for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
+
+            // the lease EXPIRES: a claim written once and never renewed must
+            // lapse. This is what the Arty's 60-hour drift looked like.
+            axi_write(A_CLKV_CTRL, 0x00000011);      // SYNC_OK, lease = 1
+            ck("CLKV: short lease -> tu clear", axi_read(A_CLKV_STAT) & 1, 0);
+            for (int c = 0; c < 12000 && !(axi_read(A_CLKV_STAT) & 1); c++) step();
+            ck("CLKV: lease lapses -> tu re-asserts", axi_read(A_CLKV_STAT) & 1, 1);
+            ck("CLKV: lapsed -> sync_ok dropped", (axi_read(A_CLKV_STAT) >> 1) & 1, 0);
+            f.clear();
+            ck("CLKV: lapsed -> byte 21 bit 0 = 1", next_aaf(f) ? f[21] : 0xEE, 0x01);
+            ck("CLKV: TUCNT moved (not a decorative counter)",
+               axi_read(A_CLKV_TUCNT) > 0, 1);
+
+            axi_write(A_CLKV_CTRL, 0x00000FF1);      // leave it synchronised
         }
 
         // restore the reset default (bypass=1) so later sections see legacy
@@ -1309,6 +1415,11 @@ int main(int argc, char** argv) {
         // silence the AAF talker (preserve VID 2) so the TX side carries
         // control-lane frames only; the subtype filter below guards the rest
         axi_write(0x654, 0x00020000);
+        // This is a SYNCHRONISED-clock golden: lease the sync claim with the
+        // maximum lifetime so CRF byte 15 stays 0x80 (tu = 0) for the whole
+        // capture. The tu = 1 shape of the same byte is proved in the
+        // KL_crf_tx unit harness and in [CLKV] above.
+        axi_write(0x778, 0x0000FFF1);
 
         // provision: sid {02:00:00:00:00:01, uid 1}, DMAC 91:E0:F0:00:2A:07
         axi_write(A_CRFT_SIDLO, 0x00010001);

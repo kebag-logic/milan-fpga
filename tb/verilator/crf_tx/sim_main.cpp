@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
     dut->dest_mac_i = 0x91E0F0002A07ULL;
     dut->station_mac_i = 0x020000000001ULL;
     dut->transit_ns_i = 2000000;        // Milan PTO on CRF ts (like any stream)
+    dut->ts_uncertain_i = 0;            // synchronised clock (1722-2016 10.4.5)
     for (int i = 0; i < 8; i++) step();
     dut->rst_n = 1;
     for (int i = 0; i < 8; i++) step();
@@ -144,6 +145,42 @@ int main(int argc, char** argv) {
     ck("blocked events skipped, not queued", s3, 3);
     step();                             // count increments the edge after tlast
     ck("no double-emit backlog", dut->tx_count_o, 5);
+
+    // ---- tu (1722-2016 10.4.5): the CRF timestamps come from the same PHC
+    // as AAF's, so an uncertain clock must be declared on CRF too. Same
+    // rule as AAF: the stream keeps flowing, only the bit moves.
+    dut->ts_uncertain_i = 1;
+    {
+        std::vector<uint8_t> uf; bool ulast = false; int ugot = 0;
+        long ubyte15 = -1, ubytes = 0;
+        for (int i = 0; i < 300000 && ugot < 2; i++) {
+            if (dut->m_axis_tvalid) {
+                uint64_t d = dut->m_axis_tdata;
+                for (int j = 0; j < 8; j++) uf.push_back((uint8_t)(d >> (8*j)));
+                ulast = dut->m_axis_tlast;
+            }
+            step();
+            if (ulast) { ubyte15 = uf[15]; ubytes = (long)uf.size();
+                         ugot++; uf.clear(); ulast = false; }
+        }
+        ck("tu=1: CRF still streams", ugot, 2);
+        ck("tu=1: byte 15 = 0x81 (sv|tu)", ubyte15, 0x81);
+        ck("tu=1: frame size unchanged", ubytes, 64);
+    }
+    dut->ts_uncertain_i = 0;
+    {
+        std::vector<uint8_t> cf; bool clast = false; int cgot = 0; long cb15 = -1;
+        for (int i = 0; i < 300000 && cgot < 2; i++) {
+            if (dut->m_axis_tvalid) {
+                uint64_t d = dut->m_axis_tdata;
+                for (int j = 0; j < 8; j++) cf.push_back((uint8_t)(d >> (8*j)));
+                clast = dut->m_axis_tlast;
+            }
+            step();
+            if (clast) { cb15 = cf[15]; cgot++; cf.clear(); clast = false; }
+        }
+        ck("tu clears: byte 15 back to 0x80", cb15, 0x80);
+    }
 
     // disable: silent within one event period
     dut->enable_i = 0;

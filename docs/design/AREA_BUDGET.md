@@ -18,7 +18,7 @@ logic this project owns and can therefore choose not to build.
 - **[The memory cascade: DDR3 for FIFOs, BRAM as register file](#the-memory-cascade-ddr3-for-fifos-bram-as-register-file)** — 44 BRAM tiles are free, which reorders the work: spend them turning LUT logic into memory lookups (`milan_csr`, `u_bld`) before freeing any. Names the one FIFO that must **not** move to DDR3 — the egress queues, because a late return mid-frame is a wire underrun, not a retry.
 - **[Rules for adding a prune parameter](#rules-for-adding-a-prune-parameter)** — Five rules for the next `*_P`: default PRESENT, elaboration-time not runtime, tie outputs inert, state what re-measurement it forces, and make the builder refuse configs that want the pruned feature. How the six that exist satisfy each one is under 'The five rules, as implemented'.
 - **[What was rejected, and the numbers that killed it](#what-was-rejected-and-the-numbers-that-killed-it)** — Five roads not taken, each with the figure that closed it: pricing a prune with `-flatten` (it read a deleted 1,691-flop block as −0 FF), `chparam` to set the ship shape (it cannot re-elaborate sv2v's interface names), a runtime capability bit per block (it would owe a `VERSION` bump), and two estimator designs — one of which double-booked a pruned block at −262 LUT.
-- **[VERSION was deliberately NOT bumped](#version-was-deliberately-not-bumped)** — Why `0x0001_0014` stands: at the default settings this round is a pure no-op parametrisation, and a bump announces *CSR-observable behaviour changed on a board that actually runs*. A build that pulls a lever changes plenty — that is declared by the config that pulled it, not by the version word.
+- **[VERSION was deliberately NOT bumped](#version-was-deliberately-not-bumped)** — Why *this round* did not move `VERSION` (it was `0x0001_0014` then; a later, unrelated round took it to `0x0015`): at the default settings this round is a pure no-op parametrisation, and a bump announces *CSR-observable behaviour changed on a board that actually runs*. A build that pulls a lever changes plenty — that is declared by the config that pulled it, not by the version word.
 - **[Honest limits](#honest-limits)** — What these numbers are not. They are **yosys** synthesis, not Vivado placement; the one block with both figures shows yosys running ~2x high on LUTs; the six levers together are worth 10 % less than summing them one at a time; no pruned bitstream has been built; and the servo prune has no software-visible contrast at all at internal clock.
 
 ## The budget
@@ -439,7 +439,11 @@ is what belongs in DRAM.
 
 ## `VERSION` was deliberately NOT bumped
 
-`milan_csr` `VERSION` stays `0x0001_0014`. At the **default** settings — every
+*(By this round. `VERSION` is `0x0001_0015` on trunk today — the clock-validity
+round bumped it, for exactly the reason stated below: it changed CSR-observable
+behaviour at the settings a board actually runs.)*
+
+`milan_csr` `VERSION` stayed `0x0001_0014` for the area round. At the **default** settings — every
 parameter 1 — this change is a pure no-op parametrisation: the same instances,
 the same wiring, the same CSR values, and `tb/verilator/milan_dp`'s legacy and
 NxN shapes pass unchanged at 196 / 135 / 147 checks. A `VERSION` bump announces

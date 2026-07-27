@@ -41,6 +41,7 @@ static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
 static bool seen_stats_snap, seen_stats_reset;
 static bool seen_adp_adv, seen_adp_dep;
 static bool seen_i2spb_clru, seen_i2spb_clro;
+static bool seen_clkv_wr, seen_clkv_disc;
 // TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
 static bool     seen_tcam_wr;
 static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
@@ -57,6 +58,8 @@ static void posedge() {
   seen_adp_dep     |= dut->o_adp_depart_p;
   seen_i2spb_clru  |= dut->o_i2spb_clr_under;
   seen_i2spb_clro  |= dut->o_i2spb_clr_over;
+  seen_clkv_wr     |= dut->o_clkv_wr_p;
+  seen_clkv_disc   |= dut->o_clkv_disc_p;
   if (dut->o_tcam_wr_en) {          // latch the committed entry
     seen_tcam_wr = true;
     tcam_wr_index = dut->o_tcam_wr_index; tcam_wr_valid = dut->o_tcam_wr_valid;
@@ -137,7 +140,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010014);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010015);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -487,6 +490,38 @@ int main(int argc, char** argv) {
   axi_write(0x6D8, 0);                   // zero write clears nothing
   ck("I2SPB W1C zero inert", seen_i2spb_clru || seen_i2spb_clro, 0);
   ck("I2SPB_STAT still live", axi_read(0x6D8), 0x00050002);
+
+  // ---- 0x778 clock validity (the AVTP tu verdict) ----------------------
+  // The register that stops us claiming timestamps we cannot prove
+  // (docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md). Reset must be
+  // SYNC_OK=0 - a default of 1 would reproduce the defect exactly.
+  ck("CLKV_CTRL reset = lease 8, SYNC_OK 0", axi_read(0x778), 0x00000080);
+  ck("CLKV_CTRL[0] SYNC_OK resets 0", axi_read(0x778) & 1, 0);
+  ck("o_clkv_sync_ok resets 0", dut->o_clkv_sync_ok, 0);
+  ck("o_clkv_wdog_q resets 8",  dut->o_clkv_wdog_q, 8);
+  seen_clkv_wr = seen_clkv_disc = false;
+  axi_write(0x778, 0x00000041);          // SYNC_OK | lease 4
+  ck("CLKV_CTRL write pulse",  seen_clkv_wr, 1);
+  ck("CLKV_CTRL[1] not set -> no disc", seen_clkv_disc, 0);
+  ck("o_clkv_sync_ok",  dut->o_clkv_sync_ok, 1);
+  ck("o_clkv_wdog_q",   dut->o_clkv_wdog_q, 4);
+  ck("CLKV_CTRL readback", axi_read(0x778), 0x00000041);
+  seen_clkv_wr = seen_clkv_disc = false;
+  axi_write(0x778, 0x00000043);          // + W1S discontinuity report
+  ck("CLKV_CTRL[1] W1S strobe", seen_clkv_disc, 1);
+  ck("CLKV_CTRL[1] reads back 0 (self-clearing)", axi_read(0x778) & 2, 0);
+  axi_write(0x778, 0x00000000);          // software withdraws the claim
+  ck("SYNC_OK clearable", dut->o_clkv_sync_ok, 0);
+  ck("lease 0 = never trust", dut->o_clkv_wdog_q, 0);
+  dut->i_clkv_stat = 0x0000004D; dut->eval();   // lease 4, hold, no_lease, tu
+  ck("CLKV_STAT RO live", axi_read(0x77C), 0x0000004D);
+  dut->i_clkv_tucnt = 0x0000002A; dut->eval();
+  ck("CLKV_TUCNT RO live", axi_read(0x780), 0x0000002A);
+  axi_write(0x77C, 0xFFFFFFFF);          // RO: writes must not stick
+  ck("CLKV_STAT stays RO",  axi_read(0x77C), 0x0000004D);
+  axi_write(0x780, 0xFFFFFFFF);
+  ck("CLKV_TUCNT stays RO", axi_read(0x780), 0x0000002A);
+  axi_write(0x778, 0x00000080);          // restore the reset shape
 
   // link guard: RO status mux + LINK_CTRL[3:2] control outputs
   dut->i_linkg_stat = 0x00070013; dut->eval();

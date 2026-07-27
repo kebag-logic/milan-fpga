@@ -404,6 +404,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv", "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
     "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv", "hdl/common/axis_mux_rr_2in_1out.sv",
     "hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv", "hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv",
+    "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
     "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
     "hdl/ieee17221/adp/adp_advertiser.sv", "hdl/ieee17221/adp/adp_tx_arbiter.sv",

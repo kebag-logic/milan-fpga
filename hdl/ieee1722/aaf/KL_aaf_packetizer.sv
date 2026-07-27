@@ -110,6 +110,13 @@ module KL_aaf_packetizer #(
   input  wire [11:0]  vlan_vid_i,        //! t0 SR class VID
   input  wire [31:0]  transit_ns_i,      //! presentation offset (all streams)
   input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds
+  //! AVTP "tu" (timestamp uncertain) bit, IEEE 1722-2016 4.4.4.7 / Milan
+  //! v1.2 4.3.5.2. 1 = our presentation times may not correspond to gPTP
+  //! time. Latched per epoch alongside the sequence number so it cannot
+  //! change part-way through a frame. Engine-wide: one PHC, so the verdict
+  //! is the same for every talker context. Drive 0 and the wire bytes are
+  //! byte-identical to the pre-2026-07-27 shape.
+  input  wire         ts_uncertain_i,
 
   //! --- TCTX window port (P11 CSR window / TB; engine-arbitrated) --------
   input  wire         tctx_wr_en_i,      //! write request (poll wr_rdy)
@@ -283,6 +290,12 @@ module KL_aaf_packetizer #(
   //! fetched context
   logic [7:0]  eseq_r;
   logic [31:0] ets_r;
+  //! tu latched at the epoch grant - the LAST verdict before this frame
+  //! leaves. Sampling here rather than at sample-capture is deliberate: a
+  //! discontinuity between capture and transmit invalidates the timestamp
+  //! already computed, and the holdover (0.25 s) dwarfs the 125 us frame
+  //! period, so no arming edge can slip between the two points.
+  logic        etu_r;
   logic [47:0] edmac_r;
   logic [15:0] euid_r;
   logic [11:0] evid_r;
@@ -332,7 +345,7 @@ module KL_aaf_packetizer #(
     fb[18]=8'h02;                       // subtype AAF
     fb[19]=8'h81;                       // sv=1, ver=0, mr=0, tv=1
     fb[20]=eseq_r;                      // sequence_num
-    fb[21]=8'h00;                       // reserved, tu=0
+    fb[21]={7'h00, etu_r};              // reserved[7:1], tu (4.4.4.7)
     {fb[22],fb[23],fb[24],fb[25],fb[26],fb[27],fb[28],fb[29]} = stream_id_w;
     {fb[30],fb[31],fb[32],fb[33]} = ets_r;                 // avtp_timestamp
     fb[34]=8'h02;                       // format = INT_32BIT
@@ -449,6 +462,7 @@ module KL_aaf_packetizer #(
       rr_r    <= '0;
       eseq_r  <= '0;
       ets_r   <= '0;
+      etu_r   <= 1'b0;
       edmac_r <= '0;
       euid_r  <= '0;
       evid_r  <= '0;
@@ -488,6 +502,7 @@ module KL_aaf_packetizer #(
           eo_r   <= '0;
           if (grant_v_w) begin
             et_r    <= grant_t_w;
+            etu_r   <= ts_uncertain_i;        //! frozen for the whole frame
             ebank_r <= !wbank_r[grant_t_w];   //! the just-filled bank
             rr_r    <= grant_t_w;
             //! t0 uses the legacy CFG aliases: skip the CFG reads.
