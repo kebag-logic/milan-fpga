@@ -14,6 +14,13 @@ current-state documentation. The fully-superseded ones now live in
 rows below link there); the last pending merge sources were folded into
 their living successors on 2026-07-25.
 
+## Contents
+
+- **[Fixed-bug post-mortems](#fixed-bug-post-mortems)** — Eight closed root causes in one table — TX `last_be` truncation, the classifier `tdest` wedge, ADP falling dormant, gPTP frames delivered 8-byte-padded — each with its status and, where one exists, the gating harness that keeps it fixed.
+- **[Performance investigations & campaigns](#performance-investigations--campaigns)** — Eleven rows of measurement work, including the ones whose verdict was *do not build it*: the TX reader prefetch plan is kept solely as a refutation record. Several rows are merge sources folded into their living successors on 2026-07-25 and now link into the archive.
+- **[Handover & bench](#handover--bench)** — Bench-ops onboarding plus the two 2026-07-26 campaigns: an adversarial sweep that triggered the entry-0 blocker *on purpose* to prove the root cause by causation, and a live health sweep showing 0 format errors over ~2 G frames.
+- **[Conventions](#conventions)** — The two rules for adding to this log. The one that surprises people: nothing is ever deleted, and refuted theories stay in, because the refutation is the value.
+
 ## Fixed-bug post-mortems
 
 | Doc | Finding | Status |

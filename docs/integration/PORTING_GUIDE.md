@@ -19,6 +19,16 @@ and the **MAC** (attached outside the datapath on purpose).
 
 ---
 
+## Contents
+
+- **[1. The three layers, and which ones you rewrite](#1-the-three-layers-and-which-ones-you-rewrite)** — The scoping table that tells you how big the job is: the datapath RTL recompiles as-is, the host SoC gets replaced, the board I/O layer is normal bring-up. Also why the MAC sits outside the boundary on purpose.
+- **[2. What is (and is not) Xilinx-specific in the RTL - the full inventory](#2-what-is-and-is-not-xilinx-specific-in-the-rtl---the-full-inventory)** — File-and-line audit of every vendor-touching thing left, which is attributes only — `use_dsp`, `dont_touch`, `mark_debug`, `ASYNC_REG` — each with what it does off-Xilinx and what to do about it. §2.1 lists the sources missing after a plain clone, including the SSH-only submodule you should *not* try to fetch.
+- **[3. Clocking and reset requirements (vendor-independent contract)](#3-clocking-and-reset-requirements-vendor-independent-contract)** — Three clocks, their frequencies and who consumes them. The useful headroom note: 64-bit AXIS at 100 MHz is 6.4 Gb/s against a 1 GbE wire, so running `axis_clk` slower is a legitimate way out of a timing problem.
+- **[4. The per-board work list](#4-the-per-board-work-list)** — The actual bring-up work, in five parts, with a Xilinx→Intel/Lattice/Gowin/Microchip equivalence table for clock generation and DDR I/O. §4.5 is the one not to skip: the CBS slope divide is the true critical path at 100 MHz and is closed by a multicycle constraint, not by luck.
+- **[5. Proving it: the open-toolchain portability check](#5-proving-it-the-open-toolchain-portability-check)** — How vendor-neutrality is machine-checked rather than asserted — `hierarchy -check` fails on any surviving vendor cell, and `make ecp5` maps to real silicon. States plainly what this does *not* prove: synthesizability, not timing, and no off-Xilinx SoC has closed at 100 MHz.
+- **[6. Recommended porting routes](#6-recommended-porting-routes)** — Two routes, cheapest first. Route A is a six-step LiteX board swap that keeps the bring-up order which actually worked: CPU boots → read `"MILN"` at offset 0 → attach MAC → attach DMA.
+- **[7. Port-readiness checklist](#7-port-readiness-checklist)** — Nine tick-boxes to run down before you commit to a target board, ending with the known-limitations page — MTU, single-port and perf ceilings are easier to learn about now than after the order.
+
 ## 1. The three layers, and which ones you rewrite
 
 | Layer | What is in it | Vendor-specific? | Port effort |
