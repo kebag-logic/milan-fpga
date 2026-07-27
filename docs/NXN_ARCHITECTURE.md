@@ -797,7 +797,7 @@ them in, and the sizes are two orders of magnitude apart:
 |---|---|---|---|
 | 1 | L2 cache 32 KB | −8 BRAM36 + placement relief | already in the 8x8 config; applies to 4x4 too, perf delta per the standing authorization |
 | 2 | `crf_rx` ts-history ring → single-port BRAM | **−3 177 LUT / −8 159 FF** / +1 RAMB18 (OOC) | **SPENT 2026-07-25** — it was the exact placer-overflow victim of the first 8x8+chmap build |
-| 3 | Prune the render LPF (`LPF_P = 0`) | −428 LUT / −756 FF (§6.2, shipping place report) | **banked, do not spend** — 0.8% of used LUTs, and the analog loop record was measured *through* it |
+| 3 | Prune the **tier-1 optional blocks** (`LPF_P = 0` and its five siblings, [AREA_BUDGET.md](design/AREA_BUDGET.md)) | LPF alone −428 LUT / −756 FF (§6.2, shipping place report); all six ≈ **−4,515 LUT / −4,750 FF as a yosys ESTIMATE** | **banked, wired 2026-07-27, spend deliberately** — each defaults to PRESENT and each costs a stated re-measurement; the LPF's own is the analog loop record, measured *through* it |
 | 4 | Sequentialize a remaining parallel cone (area-70 playbook) | ≈ **8 000 LUT** on the precedent (the CBS slope engine) | pattern available; T5's Σ-slope is already built this way |
 | 5 | Ship the 4x4 gateware config on AX | the whole 8x8 delta | fallback of last resort; the architecture is unchanged |
 
