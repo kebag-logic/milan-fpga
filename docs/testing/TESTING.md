@@ -12,6 +12,47 @@ protocol-level coverage contract is
 > one dir per suite) and the authoritative synthesis-top count is the `tops`
 > array in `syn/yosys/run.sh`. If a doc and the tree disagree, the tree wins.
 
+## Which layer do I run?
+
+*I changed X — what is the cheapest thing that would catch me being wrong?*
+Every layer below proves something the layer above it cannot. Deliberately no
+counts here (see the warning above); the tree is authoritative for those.
+
+```mermaid
+flowchart TB
+    Q{"What did I change?"}
+    Q -->|"RTL inside one module"| V["§1 Verilator harness for that suite<br/>cd tb/verilator/&lt;suite&gt; && make"]
+    Q -->|"RTL crossing the LiteX boundary"| DP["§1 milan_dp<br/>drives the whole milan_datapath wrapper"]
+    Q -->|"a wire format or a PDU field"| FZ["§1.0 tsn_fuzz<br/>spec-modelled frames against the real RTL"]
+    Q -->|"a CSR address or bit"| CSRT["§1 csr suite + the register map"]
+    Q -->|"a DMA engine / ring contract"| MG["§2 Migen DMA sims<br/>sw/litex/test_*.py"]
+    Q -->|"SoC wiring / a new peripheral"| SOC["§3 SoC-level sim<br/>sw/litex/milan_sim.py"]
+    Q -->|"anything vendor-primitive-shaped"| YS["§4 yosys portability check<br/>syn/yosys/run.sh"]
+    Q -->|"a protocol state machine"| BDD["BDD conformance suite<br/>cd tests && behave -f plain"]
+    Q -->|"a build parameter or a config"| BLD["builder gates<br/>sw/builder/test_builder.py"]
+    Q -->|"timing, the PHY, or the switch"| SIL["§6 on-silicon validation<br/>the only layer that can prove it"]
+
+    V --> MTX["coverage: docs/traceability<br/>module ↔ spec ↔ test matrix"]
+    DP --> MTX
+    FZ --> MTX
+
+    classDef sim fill:#E8F5E9,stroke:#2E7D32
+    classDef host fill:#E3F2FD,stroke:#1565C0
+    classDef silc fill:#FFF3E0,stroke:#EF6C00
+    classDef meta fill:#F3E5F5,stroke:#6A1B9A
+    class V,DP,FZ,CSRT sim
+    class MG,SOC,YS,BDD,BLD host
+    class SIL silc
+    class MTX meta
+```
+
+**The one-way door is the bottom branch.** Timing closure, PHY behaviour and
+switch interop cannot be simulated here — everything above is free and fast,
+and silicon time is neither, so exhaust the cheap layers first. The coverage
+map that says whether a module has any of these at all is
+[`docs/traceability/MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md), and it
+is generated (§0.1).
+
 ## 0. Prerequisites
 
 | Layer | Needs |

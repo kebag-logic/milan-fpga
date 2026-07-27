@@ -372,6 +372,22 @@ which caused a false "0x774 = TCAM" reading; TCAM is 0x700–0x718 only.)
 | `0x720` | `RST_EPOCH` | RO | `0` | datapath reset-release count — the shadow-lie canary (a live tick proves a real reset happened, e.g. so a CSR-wipe is not mistaken for an unbind) |
 | `0x774` | `LINKG_STAT` | RO | — | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX seen ~1.3 s), `[6]` guard_rst (reinit held), `[5:4]` state (0 RUN, 1 HOLD, 2 SETTLE), `[2]` eth_rst (sequenced eth-CDC reset, minor ≥ 0x0007), `[1]` tx_alive, `[0]` rx_alive |
 
+**What the state field and the two reset bits do over one episode** —
+*in what order are the two resets released, and why does that order matter?*
+
+![Link-guard reset sequence](../diagrams/wd_linkguard_reset.svg)
+
+`[5:4]` walks `RUN → HOLD → SETTLE → RUN`, but the two reset bits do **not**
+move together: `eth_rst` (`[2]`) drops **half-way through SETTLE**, `guard_rst`
+(`[6]`) only at the end of it. That ordering is the whole point — the eth halves
+get at least `SETTLE_CYC_C/2` clean *clocked* reset cycles while the sys side is
+still held, so both CDC pointer sets restart matched. Reading `[6]` alone and
+concluding "the guard has released" is therefore wrong for the middle of an
+episode. A re-death inside SETTLE falls back to HOLD and re-arms `eth_rst`; a
+manual `LINK_CTRL[1]` edge runs the *same* sequence but deliberately does not
+bump `bounce_cnt`, which stays a true cable-event counter. Master:
+[`wd_linkguard_reset.json`](../diagrams/wd_linkguard_reset.json).
+
 `PTP_CMD` strobes cross into the `gtx_clk` PTP domain via `ptp_csr_sync`
 (value + toggle-synchronised apply strobe, `REQ-CSR-03`). `gettime` is
 asynchronous: writing `PTP_CMD[2]` pulses the snapshot command into the PHC; the

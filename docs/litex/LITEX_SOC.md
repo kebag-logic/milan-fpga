@@ -32,6 +32,58 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 
 ## 2. SoC anatomy (`milan_soc.py`)
 
+**Where each window lives.** Bases below are read from `milan_soc.py`, not from
+prose: `MILAN_CSR_BASE`/`MILAN_CSR_SIZE`, `MILAN_PCM_BRAM_BASE`/`_SIZE`, the
+`FLASHBOOT_LAYOUT` DRAM targets, and the CPU-map comment in `MilanSoC.__init__`
+("BOTH map csr @ `0xf000_0000` / clint @ `0xf001_0000` / plic @ `0xf0c0_0000`"),
+which is why NaxRiscv and VexiiRiscv builds need no address changes.
+
+| window | base | size | what it is |
+|---|---|---|---|
+| DRAM (LiteDRAM `main_ram`) | `0x4000_0000` | 512 MB (2 × MT41J256M16) | kernel `0x4000_0000`, dtb `0x40EF_0000`, OpenSBI entry `0x40F0_0000` (`FLASHBOOT_ENTRY`), rootfs/initrd `0x4100_0000` |
+| `milan_csr` | `0x9000_0000` | `0x1_0000` (64 KB) | the datapath's AXI4-Lite register ABI, added with `cached=False` |
+| `milan_pcm_bram` | `0x9010_0000` | `0x8000` (32 KB) | dual-port PCM window, present only when the PCM ring is elaborated as BRAM (`--pcm-ring bram`) |
+| LiteX CSR bank | `0xf000_0000` | — | the Migen-generated CSRs (DMA rings, telemetry, LiteEth, LiteDRAM) |
+| CLINT | `0xf001_0000` | — | timer + software interrupts |
+| PLIC | `0xf0c0_0000` | — | external interrupts; the Milan `EventManager` is one source here |
+
+Everything at or above `0x8000_0000` is the CPUs' uncached IO region — the
+constraint that forced the Milan CSR window off the Zynq's `0x43C0_0000`
+(§2.2, and [../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md) §2).
+
+**The skeleton.** One picture of what is instantiated and which clock domain it
+sits in — the subsections below then take each block in turn:
+
+```mermaid
+flowchart LR
+    subgraph ETH["eth_tx / eth_rx — GMII clocks, mirrored as maceth_tx / maceth_rx"]
+        PHY["LiteEthPHYGMII<br/>→ RTL8211E"]
+    end
+
+    subgraph MCD["cd_milan — own PLL output, 100 MHz in the ship build"]
+        DP["milan_datapath<br/>real RTL from _MILAN_DATAPATH_SOURCES"]
+    end
+
+    subgraph SYS["sys domain — 100 MHz, --sys-clk-freq"]
+        MACSYS["MilanMAC §2.4, cd_macsys<br/>LiteEthMACCore<br/>+ store-and-forward PacketFIFO"]
+        DMA["MilanDMA §2.3<br/>RingDMAReader TX · RingDMAWriter RX / RX1<br/>WishboneDMAWriter TS + PCM"]
+        BUS["SoC bus + dma_bus<br/>coherent AXI, 64-bit"]
+        CPU["VexiiRiscv or NaxRiscv<br/>+ L2 + LiteDRAM / A7DDRPHY"]
+        QSPI["LiteSPI flash §2.6"]
+        EV["EventManager · 4 level sources<br/>self.irq.add — ONE PLIC line"]
+    end
+
+    PHY <--> MACSYS
+    MACSYS <-->|"mac_tx_cdc / mac_rx_cdc"| DP
+    DMA <-->|"stream.ClockDomainCrossing async FIFOs"| DP
+    DMA -->|"add_master milan_dma_tx / rx / rx1 / ts / pcm"| BUS
+    BUS --- CPU
+    BUS --- QSPI
+    BUS -->|"AXI-Lite slave @ 0x9000_0000, via AXILiteClockDomainCrossing"| DP
+    DMA -->|"ring non_empty levels"| EV
+    DP -->|"CSR IRQ via MultiReg"| EV
+```
+
 ### 2.1 Clocking (`_CRG`)
 
 `S7PLL` takes the board's 200 MHz to `sys` (100 MHz for the full build - DDR3
@@ -131,11 +183,36 @@ The full named build configurations (`build.sh`) live in
 [../integration/BUILDING.md](../integration/BUILDING.md).
 
 ### 2.6 QSPI flash-boot
-`FLASHBOOT_LAYOUT`/`FLASHBOOT_MANIFESTS` in `milan_soc.py` are the **single
-source of truth** for the 16 MB N25Q128 layout (kernel @ `0x00_0000` ≤8.5 MiB,
-opensbi @ `0x88_0000`, dtb @ `0x90_0000`, rootfs @ `0x94_0000`); the build
-writes `flashboot_layout.json` so gateware and `deploy.sh flash-images` never
-drift. Guide: [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
+`FLASHBOOT_LAYOUT` / `FLASHBOOT_RESERVED` / `FLASHBOOT_MANIFESTS` in
+`milan_soc.py` are the **single source of truth** for the 16 MiB N25Q128
+layout; the build writes `flashboot_layout.json` so gateware and
+`deploy.sh flash-images` never drift. Guide:
+[../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md).
+
+*What is at which offset, and what must a reflash never erase?* — the map,
+drawn to scale and **generated from those dicts**, so this page cannot carry a
+stale copy of them:
+
+![QSPI flash map](../diagrams/flash_layout.svg)
+
+Master: [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) — it reads the
+dicts through `sw/dts/gen_mtd_partitions.py`'s `load_map()`, the same reader
+the kernel's `fixed-partitions` node comes from, and prints
+`check_flash_map()`'s verdict on the drawing.
+
+That check is not cosmetic: every slot is erase-block (`0x1_0000`) aligned
+because a partition starting or ending mid-block cannot be erased without
+destroying its neighbour. Note the open item recorded in the source:
+`deploy.sh` derives each image's ceiling from the *next image* offset and does
+not read the `reserved` key, so an oversized rootfs is still caught by
+hand-check only.
+
+> **The layout has moved twice.** v3 (2026-07-12) put the bitstream at offset 0;
+> v4 (2026-07-26) shrank `rootfs` to make room for the writable `journal` and
+> `user` slots. Any offsets quoted from memory — including the comment above
+> the dict in `milan_soc.py`, which still says "the kernel always lives at
+> offset 0" — predate one of those moves. Read the picture, or the build's own
+> `flashboot_layout.json`.
 
 ---
 

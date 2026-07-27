@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net"><diagram name="egress-queue-map"><mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="940" math="0" shadow="0"><root><mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="title" value="Egress queue map - 5 traffic classes, 802.1Q order (GENERATED from ethernet_packet_pkg.sv + milan_csr.sv)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=20;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1500" height="40" as="geometry"/></mxCell>
+<mxCell id="q0" value="#5  q0 BEST_EFFORT
+default for non-prioritized traffic (lowest)
+idleSlope 25 Mb/s (2.5 %) | 2.5 Mb/s @100M
+reset hiCredit 38 B / loCredit -1483 B
+strict priority - never CBS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="700" y="664" width="560" height="100" as="geometry"/></mxCell>
+<mxCell id="q1" value="#4  q1 CONTROL_CLASS
+MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP
+idleSlope 50 Mb/s (5 %) | 5 Mb/s @100M
+reset hiCredit 76 B / loCredit -1445 B
+strict priority - never CBS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="700" y="548" width="560" height="100" as="geometry"/></mxCell>
+<mxCell id="q2" value="#3  q2 GPTP_CLASS
+gPTP (Generalized Precision Time Protocol)
+idleSlope 50 Mb/s (5 %) | 5 Mb/s @100M
+reset hiCredit 76 B / loCredit -1445 B
+strict priority - never CBS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="700" y="432" width="560" height="100" as="geometry"/></mxCell>
+<mxCell id="q3" value="#2  q3 SRB_CLASS
+Stream Reservation Class B (CBS shaped)
+idleSlope 150 Mb/s (15 %) | 15 Mb/s @100M
+reset hiCredit 228 B / loCredit -1293 B
+CBS-capable (REQ-CBS-02)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="700" y="316" width="560" height="100" as="geometry"/></mxCell>
+<mxCell id="q4" value="#1  q4 SRA_CLASS
+Stream Reservation Class A (highest priority)
+idleSlope 450 Mb/s (45 %) | 45 Mb/s @100M
+reset hiCredit 684 B / loCredit -837 B
+CBS-capable (REQ-CBS-02)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="700" y="200" width="560" height="100" as="geometry"/></mxCell>
+<mxCell id="tagged" value="TAGGED frame - 802.1Q decides
+eff_pcp = vlan_valid ? PCP : CLS_DEFAULT_PCP (0x304)
+regen = CLS_PRIO_REGEN[eff_pcp] (0x30C)
+tc = CLS_PCP_TC_MAP[regen] (0x308)
+queue = CLS_TC_QUEUE_MAP[tc] (0x310)
+reset 0x004898C0 = TC0-&gt;q0, TC1-&gt;q0, TC2-&gt;q3, TC3-&gt;q4, TC4-&gt;q1, TC5-&gt;q1, TC6-&gt;q2, TC7-&gt;q2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="200" width="600" height="196" as="geometry"/></mxCell>
+<mxCell id="untagged" value="UNTAGGED control - the DESTINATION MAC decides
+01-80-C2-00-00-0E  gPTP (q2) and MSRP (q1)
+01-80-C2-00-00-21  MVRP
+91-E0-F0-01-00-00  1722.1 ADP / ACMP
+91-E0-F0-00-FF-00  1722 MAAP
+A row hit needs no EtherType; 0x88F7 splits the shared address." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="424" width="600" height="146" as="geometry"/></mxCell>
+<mxCell id="fall" value="FALLTHROUGH - everything else, and any out-of-range map entry, clamped to q0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="40" y="592" width="600" height="58" as="geometry"/></mxCell>
+<mxCell id="cbs" value="802.1Qav credit-based shaper
+REQ-CBS-02: SR classes only, never best effort.
+CBS_EN_RST = none shaped at reset
+hi/loCredit at MAX_FRAME_SIZE = 1522 B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1320" y="208" width="330" height="200" as="geometry"/></mxCell>
+<mxCell id="gptp" value="Why gPTP sits BELOW the shaped classes - correctness, not preference.
+802.1Q-2018 8.6.8.2 assumes the shaped queues are the top of the strict-priority order; a strict-priority queue above them voids the credit accounting that bounds class-A latency. gPTP is unharmed - every event message is hardware-stamped at the egress SFD." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="700" y="798" width="950" height="106" as="geometry"/></mxCell>
+<mxCell id="arb" value="arbiter -&gt; MAC TX
+priority_encode scans q4 down to q0, granting the first requester whose CBS gate allows it." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1320" y="798" width="330" height="106" as="geometry"/></mxCell>
+<mxCell id="e0" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="tagged" target="q4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="untagged" target="q4"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="fall" target="q4"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

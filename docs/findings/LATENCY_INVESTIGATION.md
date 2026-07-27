@@ -33,6 +33,27 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 | What is 1424 ns made of? | **50 % TLB page-table walk (713 ns) + 50 % DRAM+CPU floor (716 ns)**  -  proven by a 2 MB-hugepage vs 4 KB-page A/B. |
 | Cheapest win in hand? | `ethtool -C eth0 rx-usecs-low 2000` → **+32 % RX** (28→37), no rebuild. Live on the board now. |
 
+*Which candidate causes were eliminated by which measurement, and what
+survived?* The chain below is the spine of §1–§4; the sections expand each box.
+
+```mermaid
+flowchart TB
+    S["SYMPTOM<br/>single TCP flow: RX 30.1 / TX 26-27 Mbit/s,<br/>core 94% IDLE - so it is WAITING, not computing"]
+    S --> C1["coalescing / poll cadence?"]
+    S --> C2["per-flow TCP window?"]
+    S --> C3["a slow system clock?"]
+    S --> C4["a silicon delivery gate?"]
+    C1 --> X1["RULED OUT: rx-usecs swept 5 us to 1 ms, 200x range, flat at ~30"]
+    C2 --> X2["RULED OUT: -P4 does not aggregate - falls to ~20 at 95% idle"]
+    C3 --> X3["RETRACTED: the 1.7x claim was a corrupted console marker.<br/>Uptime advanced 31.83 s over a real 31.83 s, ratio 1.000"]
+    C4 --> X4["RULED OUT: under flood the CPU pins at 100%, 98% sys"]
+    X4 --> F["FLOOD LOCALISES IT<br/>171,942 f/s at the MAC, 14,355 f/s delivered,<br/>260,076 f/s HW-dropped = a 14x overload"]
+    F --> A["drain rate 14k pps = 70 us/frame = ~7000 cycles at 100 MHz"]
+    A --> M["ROOT CAUSE: random miss latency 1424 ns,<br/>unchanged under DMA flood - latency, not bandwidth contention"]
+    M --> D1["713 ns sv39 page-table walk, 50%"]
+    M --> D2["716 ns DRAM + LiteDRAM + CPU miss path, 50%"]
+```
+
 ---
 
 ## 1. The contradiction that drove everything
@@ -146,6 +167,16 @@ cover all 16 MB → ~zero TLB misses):
 → TLB-walk = 713 ns (50 %)  |  DRAM+CPU floor = 716 ns (50 %)
 ```
 
+*How much of a random miss is the page-table walk, and how much is physics?*
+
+```mermaid
+xychart-beta
+    title "16 MB random pointer chase - where a miss spends its 1424 ns"
+    x-axis ["4 KB pages", "2 MB hugepages", "the TLB-walk component"]
+    y-axis "nanoseconds per random miss" 0 --> 1600
+    bar [1429, 716, 713]
+```
+
 **Half the miss latency is sv39 page-table walks; half is the DRAM device + LiteDRAM
 controller + CPU miss path.** Crucially, **hugepages alone halve it**, and that is mostly
 a software change.
@@ -162,6 +193,18 @@ in-order core. Sweeping the **idle** re-arm period (`rx-usecs-low`, added this s
 | 20 | 7.3 | | 1000 | 36.1 |
 | 50 | 15.3 | | 2000 | 35.9 |
 | 200 (default) | 27.9 | | **4000** | **37.0** |
+
+*What shape is that?* Read as one curve, the knee is unmistakable — and it sits
+on the wrong side of the default.
+
+```mermaid
+xychart-beta
+    title "RX throughput vs the IDLE NAPI re-arm period (rx-usecs-low)"
+    x-axis ["5 us", "20 us", "50 us", "200 us default", "500 us", "1000 us", "2000 us", "4000 us"]
+    y-axis "RX Mbit/s" 0 --> 40
+    bar [5.1, 7.3, 15.3, 27.9, 32.3, 36.1, 35.9, 37.0]
+    line [5.1, 7.3, 15.3, 27.9, 32.3, 36.1, 35.9, 37.0]
+```
 
 Polling *faster* **collapses** throughput (empty-poll CSR stalls contend with the datapath);
 polling *less* recovers +32 %. **Model** (`poll_cost_model.py`, fit to this sweep): the

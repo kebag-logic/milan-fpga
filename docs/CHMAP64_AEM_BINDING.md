@@ -44,6 +44,37 @@ channel*.
 
 ## The projection rule (AEM → map word)
 
+One command from a controller touches three things in sequence, and the
+all-or-nothing rule means the *order* is load-bearing — **nothing is written
+until every record has passed**:
+
+```mermaid
+flowchart TB
+    CMD["ADD_AUDIO_MAPPINGS 0x2C<br/>N records: stream_index, stream_channel,<br/>cluster_offset, cluster_channel"]
+    VAL{"validate ALL records first<br/>Milan 5.4.2.27"}
+    REJ["BAD_ARGUMENTS 7<br/>NOTHING is written"]
+    STORE["dynamic store<br/>dmap_v_r key, dmap_ch_r key<br/>key = cluster_offset"]
+    PROJ["projector strobe<br/>dmap_wr_p_o + addr + 8-bit word"]
+    RMAP[("render map RAM<br/>KL_chan_map_render map_r p")]
+    XBAR["render crossbar output<br/>effective at the next 48 kHz tick"]
+    GET["GET_AUDIO_MAP 0x2B<br/>paged from the STORE, never from the RAM"]
+    CSR["CSR 0x900 debug window<br/>yields to the projector on collision"]
+
+    CMD --> VAL
+    VAL -->|"any record bad"| REJ
+    VAL -->|"all records good"| STORE
+    STORE --> PROJ
+    PROJ --> RMAP
+    CSR -.->|"same write port"| RMAP
+    RMAP --> XBAR
+    STORE --> GET
+```
+
+The store and the RAM are deliberately **not** the same truth: `GET_AUDIO_MAP`
+answers from the store, so a CSR poke at `0x900` changes what the crossbar
+does without changing what a controller reads back. That is a bench
+affordance, and it is exactly why the CSR path is not the production one.
+
 The dynamic map lives on `STREAM_PORT_INPUT[0]` (the render side). The RTL
 responder is `KL_aecp_response_builder` under ``` `AEM_DYNMAP ```; the store is
 `dmap_v_r[key]` / `dmap_ch_r[key]` with `key = cluster_offset`, sized
@@ -63,6 +94,26 @@ REMOVE (matched)   →  RAM[address] = { en=0, stream=0,  ch=0  }
 
 Packed: `word = (en<<6) | (stream<<3) | ch`. Example: adding `si=0, sc=3, co=0`
 yields `RAM[0] = 0x43` (`en=1, stream=0, ch=3`).
+
+**Field table, as the RTL emits it today.** The word gained a bit when the
+host playback ring became a render source (item-7), so the packing above is
+one bit narrower than what `KL_aecp_response_builder.sv` drives and
+`KL_chan_map_render.sv` stores — the field *positions* below are the ones to
+program against:
+
+| Bit | Field | On `ADD` (accepted) | On `REMOVE` (matched) |
+|---|---|---|---|
+| `[7]` | `en` | `1` | `0` |
+| `[6]` | `src` — source bank | `0` = AVB listener (the projector **never** emits 1) | `0` |
+| `[5:3]` | `stream` | `mapping_stream_index[2:0]` | `0` |
+| `[2:0]` | `ch` | `mapping_stream_channel[2:0]` | `0` |
+
+So the accepted word is `0x80 | (si << 3) | sc`, and a matched REMOVE writes
+`0x00`. The worked example above becomes `RAM[0] = 0x83`. `src = 1` — the
+same entry pointing at a `KL_pcm_tx` playback channel instead of a wire
+channel — is reachable only through the `0x900` debug window; no AEM command
+can produce it, which is what keeps every pre-item-7 map word meaning exactly
+what it did.
 
 ### Validity (ADD, 5.4.2.27 — all-or-nothing)
 
