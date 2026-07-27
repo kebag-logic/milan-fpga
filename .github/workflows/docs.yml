@@ -29,6 +29,13 @@ jobs:
       - name: Doc cited-path gate
         run: python3 scripts/check_doc_paths.py
 
+      # Archive gate: obsolete docs are ARCHIVED, never deleted (USER rule), so
+      # an archived page must stay labelled and reachable - a banner, one index
+      # row, and a successor that still exists. Renaming one living doc broke
+      # six forward pointers at once in testing.
+      - name: Archive integrity gate
+        run: python3 scripts/check_archive.py
+
       # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
       # must equal the end-station config they claim to build (--num-streams,
       # --rx-queues, --l2-bytes). --self-test also proves a wrong value IS rejected.
