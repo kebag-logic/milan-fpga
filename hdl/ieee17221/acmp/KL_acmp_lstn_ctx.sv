@@ -288,6 +288,24 @@ module KL_acmp_lstn_ctx #(
   reg          len_ok_r;     //! tlast beat carried >= 70 bytes
   reg          adp_len_ok_r; //! frame reached the ADP entity_id (>= 26 B)
 
+  //! THE capture gate - one expression, used by the RAM port below AND by
+  //! the field-capture branch in the main FSM, so the two can never diverge.
+  //! ALWAYS-ARMED (07-18 silicon deafness): captures run in CLASSIFY_S too,
+  //! so a frame arriving ZERO-GAP behind the one being classified is not
+  //! lost; RESPOND_S/PROBE_S stay off to protect the fword echo source.
+  wire w_cap_hs = init_done_r && rxv_r
+                  && ((st_r == COLLECT_S) || (st_r == CLASSIFY_S));
+
+  //! frame-word RAM port in its OWN reset-free process, exactly like
+  //! ctx_ram above. Vivado refuses RAM inference for an array written under
+  //! an async reset (Synth 8-4767), so leaving this write inside the main
+  //! always_ff held all 9x64 b in flops AND paid the 64-bit 9:1 rword_w mux
+  //! in logic. fword_r never appeared in that block's reset branch, so the
+  //! hoist is BIT-EXACT: same enable, same address, same data, same edge.
+  always_ff @(posedge clk_i) begin : fword_wr
+    if (w_cap_hs && (wbeat_r < 4'(NUM_BEATS_C))) fword_r[wbeat_r[3:0]] <= rxd_r;
+  end : fword_wr
+
   // -----------------------------------------------------------------------
   // Classification captures (fixed beat/lane picks)
   // -----------------------------------------------------------------------
@@ -933,14 +951,11 @@ module KL_acmp_lstn_ctx #(
 
       // ================= frame engine ===================================
 
-      //! ALWAYS-ARMED capture (07-18 silicon deafness): field captures run
-      //! in CLASSIFY_S too, so a frame arriving ZERO-GAP behind the one
-      //! being classified is not lost. During RESPOND_S/PROBE_S capture
-      //! stays off to protect the fword echo source.
-      if (init_done_r && rxv_r && (st_r == COLLECT_S || st_r == CLASSIFY_S)) begin
-            if (wbeat_r < 4'(NUM_BEATS_C))
-              fword_r[wbeat_r[3:0]] <= rxd_r;
-            else
+      //! ALWAYS-ARMED capture (07-18 silicon deafness) - see w_cap_hs, which
+      //! this branch shares with the reset-free fword_r RAM port so the two
+      //! arm on exactly the same cycles.
+      if (w_cap_hs) begin
+            if (wbeat_r >= 4'(NUM_BEATS_C))
               ovfl_r <= 1'b1;
 
             // fixed-position field captures

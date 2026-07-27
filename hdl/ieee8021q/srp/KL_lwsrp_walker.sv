@@ -208,30 +208,40 @@ module KL_lwsrp_walker #(
   //! byte is still in flight and fv_r alone would be one byte short.
   wire [63:0] fv_eff_w = (fv_idx_r < 8'd8) ? {fv_r[55:0], byte_w} : fv_r;
 
-  //! range match: base <= our_sid < base + nv
-  wire [63:0] sid_diff_w = our_sid_w - fv_eff_w;
-  wire        sid_hit_w  = (our_sid_w >= fv_eff_w) &&
-                           (sid_diff_w[63:13] == '0) &&
-                           (sid_diff_w[12:0] < nv_r);
+  //! Range match: base <= sid < base + nv, in ONE 65-bit borrow-out
+  //! subtract per context instead of a 64-bit subtract PLUS an independent
+  //! 64-bit magnitude compare.
+  //!
+  //! Why this is bit-exact. For unsigned 64-bit a, b let d = {1'b0,a} -
+  //! {1'b0,b}. If a >= b the subtract does not wrap, so d[64] = 0 and
+  //! d[63:0] is exactly the old (a - b); if a < b it wraps and d[64] = 1.
+  //! So (a >= b) == !d[64], and the old triple
+  //!   (a >= b) && (diff[63:13] == 0) && (diff[12:0] < nv)
+  //! is term-for-term the new pair
+  //!   (d[64:13] == 0)                && (d[12:0]  < nv)
+  //! - the borrow bit simply joins the zero-detect it was duplicating.
+  //! Costs one carry chain per context instead of two; k (ext_kd_w) is the
+  //! same d[12:0] as before.
+  wire [64:0] sid_sub_w = {1'b0, our_sid_w} - {1'b0, fv_eff_w};
+  wire        sid_hit_w = (sid_sub_w[64:13] == '0) &&
+                          (sid_sub_w[12:0] < nv_r);
 
   //! second context: the ACMP listener's bound stream_id
-  wire [63:0] lsid_diff_w = lsid_i - fv_eff_w;
-  wire        lsid_hit_w  = lsid_en_i && (lsid_i >= fv_eff_w) &&
-                            (lsid_diff_w[63:13] == '0) &&
-                            (lsid_diff_w[12:0] < nv_r);
+  wire [64:0] lsid_sub_w = {1'b0, lsid_i} - {1'b0, fv_eff_w};
+  wire        lsid_hit_w = lsid_en_i && (lsid_sub_w[64:13] == '0) &&
+                           (lsid_sub_w[12:0] < nv_r);
 
-  //! extra context lanes: same range rule, one 64-bit compare per lane
+  //! extra context lanes: same range rule, one 65-bit subtract per lane
   //! (the marginal cost per attribute the context-table design pays)
   wire [EXT_LANES_P-1:0]    ext_hit_w;
   wire [EXT_LANES_P*13-1:0] ext_kd_w;
   generate
     for (genvar gl = 0; gl < int'(EXT_LANES_P); gl++) begin : g_extmatch
-      wire [63:0] ediff_w = ext_sid_i[64*gl +: 64] - fv_eff_w;
+      wire [64:0] esub_w = {1'b0, ext_sid_i[64*gl +: 64]} - {1'b0, fv_eff_w};
       assign ext_hit_w[gl] = ext_en_i[gl] &&
-                             (ext_sid_i[64*gl +: 64] >= fv_eff_w) &&
-                             (ediff_w[63:13] == '0) &&
-                             (ediff_w[12:0] < nv_r);
-      assign ext_kd_w[13*gl +: 13] = ediff_w[12:0];
+                             (esub_w[64:13] == '0) &&
+                             (esub_w[12:0] < nv_r);
+      assign ext_kd_w[13*gl +: 13] = esub_w[12:0];
     end
   endgenerate
 
@@ -471,11 +481,11 @@ module KL_lwsrp_walker #(
               // FirstValue complete: resolve the value-index matches
               if (is_stream_w && attr_len_r >= 8'd8 && sid_hit_w) begin
                 val_match_r <= 1'b1;
-                k_r         <= sid_diff_w[12:0];
+                k_r         <= sid_sub_w[12:0];
               end
               if ((is_tadv_w || is_tfail_w) && attr_len_r >= 8'd8 && lsid_hit_w) begin
                 lval_match_r <= 1'b1;
-                lk_r         <= lsid_diff_w[12:0];
+                lk_r         <= lsid_sub_w[12:0];
               end
               if (is_stream_w && attr_len_r >= 8'd8) begin
                 for (int l = 0; l < int'(EXT_LANES_P); l++) begin

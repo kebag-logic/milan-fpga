@@ -360,7 +360,7 @@ class MilanNIC(LiteXModule):
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
-                 audio_if_slots=0, aaf_playback=False):
+                 audio_if_slots=0, aaf_playback=False, render_lpf=True):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -385,7 +385,8 @@ class MilanNIC(LiteXModule):
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
-                           audio_if_slots=audio_if_slots, aaf_playback=aaf_playback)
+                           audio_if_slots=audio_if_slots, aaf_playback=aaf_playback,
+                           render_lpf=render_lpf)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -479,7 +480,7 @@ def _eth_event_lanes():
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
-                       aaf_playback=False):
+                       aaf_playback=False, render_lpf=True):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -588,6 +589,14 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # this line passed p_AAF_PLAYBACK for weeks and pruned nothing in,
         # because the RTL parameter is AAF_PLAYBACK_P)
         dp_params["p_AAF_PLAYBACK_P"] = 1
+    # LPF_P: BANKED AREA LEVER (docs/NXN_ARCHITECTURE.md 6.2). Passed ONLY when
+    # the filter is pruned, so the default build's Instance - and the generated
+    # top .v - stay byte-identical; the SV default LPF_P=1 keeps KL_pcm_lpf.
+    # Pruning it makes the render tap behave exactly like LPF_CTRL[0]=0 does
+    # today, and costs the -72.7 dB analog loop record its bitstream (that
+    # number was measured THROUGH the filter): re-measure before quoting it.
+    if not render_lpf:
+        dp_params["p_LPF_P"] = 0
     host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
@@ -4225,7 +4234,8 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
-                 num_streams=1, audio_if_slots=0, pcm_ring="dram", aaf_playback=False, **kwargs):
+                 num_streams=1, audio_if_slots=0, pcm_ring="dram", aaf_playback=False,
+                 render_lpf=True, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -4486,7 +4496,8 @@ class MilanSoC(SoCCore):
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
-                                  aaf_playback=aaf_pb)
+                                  aaf_playback=aaf_pb,
+                                  render_lpf=bool(render_lpf))
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -4611,6 +4622,16 @@ def main():
                          "constant 1, so no beat can ever be shed (kills mf52 SHED + I6 at "
                          "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
                          "is unchanged. ~8 RAMB36.")
+    ap.add_argument("--no-render-lpf", action="store_true",
+                    help="AREA LEVER (banked, docs/NXN_ARCHITECTURE.md 6.2): prune "
+                         "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
+                         "Vivado place report of the shipping 8x8 bitstream prices it at "
+                         "441 LUT / 756 FF / 1 DSP. The pruned datapath behaves exactly "
+                         "like a shipped one with LPF_CTRL[0]=0 (raw AXIS to the DAC), so "
+                         "no digital acceptance surface moves - but the analog loop THD+N "
+                         "record was measured THROUGH the filter and must be re-measured "
+                         "before it is quoted against a pruned bitstream. Default off "
+                         "=> filter PRESENT, build byte-identical.")
     ap.add_argument("--aaf-playback", action="store_true",
                     help="item-7 ALSA playback: wire KL_pcm_tx (host PCM ring -> AAF "
                          "talker pair source) into milan_datapath, the TX mirror of the RX "
@@ -4734,6 +4755,7 @@ def main():
                    num_streams=args.num_streams,
                    pcm_ring=args.pcm_ring,
                    aaf_playback=args.aaf_playback,
+                   render_lpf=not args.no_render_lpf,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
