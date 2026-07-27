@@ -48,6 +48,14 @@ normative binding between the two; the executable form lives in
 `tests/steps/tsn_gen_steps.py::MilanAudioMapModel` (item-10 row
 `item-10-audio-maps`, matrix `M-AECP-4`).
 
+## Contents
+
+- **[Commands (codes verified against hdl/ieee17221/aecp/aecp_pkg.sv)](#commands-codes-verified-against-hdlieee17221aecpaecp_pkgsv)** — Three command codes, and a correction: they are decimal 43/44/45 = 0x2B/0x2C/0x2D, **not** 0x1A/0x1B/0x1C. Also why mono clusters make `cluster_offset` alone the store key.
+- **[The projection rule (AEM → map word)](#the-projection-rule-aem--map-word)** — The core of the page: the exact word an accepted `ADD` writes (`0x80 | si<<3 | sc`), the all-or-nothing rule that nothing is written until every record validates, and the deliberate split where `GET_AUDIO_MAP` answers from the store while a `0x900` poke changes only the RAM — so the two *can* legitimately disagree. Sub-sections give the five validity terms, why REMOVE is lenient, and the status-code table.
+- **[Cluster ↔ physical-channel table (I2S 2ch + TDM8 8ch)](#cluster--physical-channel-table-i2s-2ch--tdm8-8ch)** — The flattened `cluster_offset` → physical channel map you need to aim a mapping: 0/1 are the I2S pair, 2 upward are TDM8 slots. Notes that `AEM_DMAP_KEYS_C` is 10 for full render while the builder fixture uses 8.
+- **[Arbitration — who owns the map write port](#arbitration--who-owns-the-map-write-port)** — One rule: the AEM engine is authoritative, the CSR window is a bring-up override with **no lock semantics**, and driving both in production is unsupported.
+- **[Traceability — PDU_GETTER_SETTER_VERIFICATION.md audio-maps row](#traceability--pdu_getter_setter_verificationmd-audio-maps-row)** — Historical: written while the item-10 page was still on an unlanded PR, so it describes a merge hazard that no longer exists. What survives is the row it says this fixture satisfies.
+
 ## Commands (codes verified against `hdl/ieee17221/aecp/aecp_pkg.sv`)
 
 | Command | `aecp_pkg.sv` | code | Spec | Milan |

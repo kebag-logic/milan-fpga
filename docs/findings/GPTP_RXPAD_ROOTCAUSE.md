@@ -9,6 +9,21 @@
 > PTP-trim becomes a no-op on fixed gateware and stays for old bitstreams.
 > Silicon gate pending: RX perf regression (TCP ≥ switch baseline, 0-drop).
 
+## Contents
+
+- **[The overturn](#the-overturn)** — A retraction: the earlier "the switch doesn't run gPTP on the board ports" was wrong. It always sent pdelay_req; the first captures were empty because `ptp4l` was not running, not because the wire was quiet.
+- **[The actual bug](#the-actual-bug)** — The byte-level finding, and the best-written part of the page: a 68-byte pdelay_req is *delivered* as 72 because `RingDMAWriter` throws away the last beat's `keep` and reports `beats << 3`. TCP never noticed (its length fields govern); `ptp4l` parses the four zeros as a bogus TLV and returns EBADMSG on every frame.
+- **[The fix (careful, sim-gated — NOT a rushed change)](#the-fix-careful-sim-gated--not-a-rushed-change)** — Thread a 3-bit `pad` through `len_fifo`. The table is the payoff: of the three delivery paths only the BD ring's length changes, the byte-ring ABI stays deliberately padded so it cannot desync, and **no path needs a driver change**.
+- **[After the fix](#after-the-fix)** — Short. The one durable point: any strict L2 parser would have choked on that padding, so this pre-empts the same failure in MSRP/MVRP RX.
+- **[SILICON RESULT (2026-07-12 night) — FIX VALIDATED](#silicon-result-2026-07-12-night--fix-validated)** — The measurement: bad-message rate from thousands/min to **0**, full pdelay handshake in both directions, `asCapable` set — and then an announce timeout, because the switch sends the board no Announce at all.
+- **[Remaining (switch-side, NOT our stack)](#remaining-switch-side-not-our-stack)** — Where the remaining problem lives and the two ways past it: a direct board↔board cable, or enabling 802.1AS GM relay on the board-facing switch ports.
+- **[Bench note (end of session)](#bench-note-end-of-session)** — A dated bench trap worth recognising: after a dozen FPGA reconfigs the switch simply stopped sending pdelay to that port while the data plane kept working. Flap-suppression/RSTP, not the stack — power-cycle to re-validate.
+- **[What's in flash now (arty, morning-ready)](#whats-in-flash-now-arty-morning-ready)** — Historical: a 2026-07-13 snapshot of what the Arty's flash held. Superseded as board state; read it only as the provenance of that session's results.
+- **[FULL SYNC ACHIEVED (2026-07-13 early) — Sync/Follow_Up work through the switch](#full-sync-achieved-2026-07-13-early--syncfollow_up-work-through-the-switch)** — The direction that works, with numbers: board as grandmaster, switch relaying boundary-style, a hardware-timestamped slave converged at rms 2–4 ns. Carries the BMCA gotcha — 802.1AS forbids slaveOnly with `!gmCapable`, so "prefer slave" is weak priority plus `gmCapable 1`.
+- **[SWITCH BEHAVIOR MATRIX — definitive (2026-07-13 morning, post power-cycle)](#switch-behavior-matrix--definitive-2026-07-13-morning-post-power-cycle)** — The longest section, and it is mostly a self-correction: "the switch never masters into a board port" is walked back to "never *observed*", because each observation was structurally blind (a slave-side port, a deaf MAC, a faked empty capture). Settled by a 60 s promiscuous capture. Also here: keep the segment to one strong GM claimant, holdover survives GM death without losing lock, and allmulti must be pinned or a reboot silently deafens `ptp4l`.
+- **[Arty-as-slave: exhaustively tested, blocked by switch role (2026-07-13)](#arty-as-slave-exhaustively-tested-blocked-by-switch-role-2026-07-13)** — A clean negative result: with talker off, allmulti on, link stable and the switch power-cycled, the board port still receives zero gPTP in that direction. It is a per-port role in the switch's config, not something a reboot changes.
+- **[Driver gap found: kl-eth multicast RX needs allmulti](#driver-gap-found-kl-eth-multicast-rx-needs-allmulti)** — `kl_set_rx_mode` never programs the multicast filter for joined groups, so a standalone `ptp4l` is deaf. Note why this hid for so long: earlier "working" runs had `tcpdump` holding the interface promiscuous.
+
 ## The overturn
 Earlier conclusion ("the switch doesn't run gPTP on the board ports") was WRONG.
 Verified with an inbound-only capture while ptp4l runs: the switch **does** send
