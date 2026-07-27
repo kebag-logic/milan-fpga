@@ -640,6 +640,15 @@ def emit_svh_text(M):
     a("endfunction")
     a("")
     a("// Value validation tables")
+    # The COUNT, not just the table. KL_aecp_response_builder used to compare
+    # a SET_SAMPLING_RATE against AEM_RATES_C[0], [1] and [2] literally, which
+    # only worked while every config advertised exactly three rates: the 8x8
+    # ship config honestly advertises ONE (audio_unit_rates_hz: [48000]), so
+    # [1] and [2] read off the end of a [0:0] array - Verilator SELRANGE, and
+    # in synthesis an out-of-range read is simply zero, so the check "passed"
+    # by accident rather than by construction. Emit the bound and let the RTL
+    # loop over it.
+    a(f"localparam int AEM_RATES_N_C = {len(M['RATES'])};")
     a(f"localparam [31:0] AEM_RATES_C [0:{len(M['RATES'])-1}] = "
       "'{" + ", ".join(f"32'h{r:08X}" for r in M["RATES"]) + "};")
     a(f"localparam [63:0] AEM_FMTS_C  [0:{len(M['FORMATS'])-1}] = "

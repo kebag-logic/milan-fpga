@@ -374,9 +374,21 @@ module KL_aecp_response_builder (
   wire [16:0] w_name_ptr =
       aem_name_lookup(w_gs_type, w_gs_index, w_name_idx);   //! {valid, wb addr}
 
-  wire w_rate_ok = (w_set_rate == AEM_RATES_C[0]) ||
-                   (w_set_rate == AEM_RATES_C[1]) ||
-                   (w_set_rate == AEM_RATES_C[2]);
+  //! A SET_SAMPLING_RATE is accepted iff the rate is one this entity actually
+  //! ADVERTISES, so the check must range over the generated table, not over a
+  //! hardcoded three. It read AEM_RATES_C[0], [1] and [2] literally, which was
+  //! only ever correct while every config published exactly three rates: the
+  //! 8x8 ship config publishes ONE (audio_unit_rates_hz: [48000]), making [1]
+  //! and [2] reads off the end of a [0:0] array. Synthesis returns zero for an
+  //! out-of-range read, so the accept still worked - by accident, and it would
+  //! have ACCEPTED a SET of rate 0 on any entity whose table is short. Loop to
+  //! the generated bound instead (gen/aecp_aem_rom.svh AEM_RATES_N_C).
+  logic w_rate_ok;
+  always_comb begin
+    w_rate_ok = 1'b0;
+    for (int unsigned ri = 0; ri < AEM_RATES_N_C; ri++)
+      if (w_set_rate == AEM_RATES_C[ri]) w_rate_ok = 1'b1;
+  end
   //! Milan adaptive listener (FR-STR-03; USER 07-17) + Milan 6.4 family
   //! coverage (USER-caught 2026-07-21): the advertised list is the 48k
   //! ut-string (all counts 1..8 in one entry); a SET must be CONCRETE

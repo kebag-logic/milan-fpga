@@ -369,12 +369,23 @@ def hdl_files(exts=(".sv",)):
 
 
 def include_dirs():
-    """`-I` roots for `` `include ``: every hdl directory."""
-    dirs = []
+    """`-I` roots for `` `include ``: every hdl directory.
+
+    The ENTITY SHAPE comes first. Lint elaborates every module at its DEFAULT
+    parameters, and milan_datapath defaults to N_STREAMS = 1, so it must see
+    the 1x1 entity definition - not whichever config was last written into
+    hdl/common/csr/gen/ by `endstation_builder.py --write-rtl`. Regenerating
+    the tree for the 8x8 ship shape otherwise lints a 1-stream datapath
+    against a 9-source entity, which milan_datapath's elaboration guard
+    correctly rejects (and which, before that guard existed, showed up only
+    as UNDRIVEN talker DMAC/VID bits). Same rule as the testbenches: name the
+    shape you are elaborating, and put it ahead of hdl/common/csr.
+    """
+    dirs = [os.path.join("configs", "generated", "endstation_arty_current")]
     for base, sub, _ in os.walk(HDL):
         sub[:] = [d for d in sub if d != "doc"]
         dirs.append(os.path.relpath(base, ROOT))
-    return sorted(dirs)
+    return dirs[:1] + sorted(dirs[1:])
 
 
 def axis_lib():

@@ -410,6 +410,7 @@ function automatic [16:0] aem_name_lookup(input [15:0] t,
 endfunction
 
 // Value validation tables
+localparam int AEM_RATES_N_C = 3;
 localparam [31:0] AEM_RATES_C [0:2] = '{32'h0000BB80, 32'h00017700, 32'h0002EE00};
 localparam [63:0] AEM_FMTS_C  [0:1] = '{64'h0205022000806000, 64'h0215022002006000};
 localparam [63:0] AEM_CRF_FMTS_C [0:0] = '{64'h041060010000BB80};
