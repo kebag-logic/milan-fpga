@@ -70,16 +70,28 @@ KL_lwsrp_registrar and friends, which put their import above the module (house
 style).  Passing the sources explicitly costs ~2 s per top and is correct.
 Consequences worth knowing:
 
-  * a module is elaborated at its DEFAULT parameters, and ALL 20 SELRANGE are
-    that and nothing else: KL_adp_parser 14, ptp_ts_core 5,
-    KL_avtp_common_parser 1, every one of them a 64-bit `s_axis.tdata` select
-    against axi_stream_if's own `TDATA_WIDTH_P = 32` default.  KL_adp_parser in
-    particular is instantiated by NOTHING in hdl/ (its only TB is the xsim one),
-    so 32 is the only width it is ever elaborated at here.  They stay in the
-    baseline rather than being waived: the narrow elaboration is legal, the
-    module really would break at 32 bits, and the cheap fix - making the
-    interface default 64, which is the only width the tree actually uses - is
-    an RTL change that owes a suite run, not a lint-config change.
+  * a module is elaborated at its DEFAULT parameters, which is why ALL 20
+    SELRANGE used to be one bug: a 64-bit `s_axis.tdata` select against
+    axi_stream_if's own `TDATA_WIDTH_P = 32` default (KL_adp_parser 14,
+    ptp_ts_core 5, KL_avtp_common_parser 1).  CLOSED 2026-07-27 by defaulting
+    the interface to 64 - the width every one of its 53 instantiations already
+    passes explicitly, so no elaboration moved - which took the sweep from 188
+    to 150: SELRANGE 20 -> 0 plus 18 width findings that were themselves
+    artifacts of the narrow elaboration.  It also retired two `lint_off
+    SELRANGE` pragmas in hdl/ieee17221/aecp/ whose recorded justification
+    ("the parameter default is 32") had been false since those modules moved
+    to flat `input wire [63:0] s_axis_tdata` ports: they suppressed nothing,
+    and removing them left the count at 150.  NOTE the hole that let a dead
+    pragma sit there - this gate checks that a `lint_off` is well-formed,
+    balanced and justified, but not that it still SUPPRESSES anything.
+  * an %Error-rated code MASKS the findings behind it, so a count can go UP
+    when a defect is fixed and that is not a regression.  Measured: with
+    KL_adp_parser's uncast enum assignment in place Verilator stops after the
+    ENUMVALUE error and reports 0 CASEINCOMPLETE for that file; with the cast
+    it runs the later passes and reports 1 (`case (adp_state)`, no default).
+    The adp directory still fell 20 -> 6 because 15 findings went away, but a
+    reviewer seeing a NEW code appear next to a fix should suspect unmasking
+    before suspecting the fix.
   * a file that is `` `include ``-d by another (ethernet_packet_pkg.sv) is NOT
     also passed on the command line - that is a MODDUP, not a finding.
   * package/interface-only files declare no module, so they are linted as part
@@ -125,6 +137,36 @@ EXTRA_WARNINGS = [
     # synchronously by house rule (CONTRIBUTING.md §1) - so every hit is a
     # deviation from the rule, and there are only five (4 in ieee1722, 1 on
     # milan_datapath's axis_resetn).
+    #
+    # INVESTIGATED 2026-07-27, all five, and NONE was fixed - the finding is
+    # true and the selection is an artifact, so a bulk fix would have been a
+    # synthesis change bought with no evidence. Kept in the ratchet (NOT
+    # waived: an async reset really is a house-rule deviation, and "we know it
+    # is fine" is what the ratchet is for, not RULE_WAIVERS). What was found:
+    #
+    #  * `posedge clk_i or negedge rst_n` is NOT rare here - it is 43
+    #    always_ff blocks across srp/aecp/acmp/crf/aaf/common. SYNCASYNCNET
+    #    fires on 4 of them and not the other 39, purely because those 4 ALSO
+    #    carry a 2-FF reset bridge into an audio/bclk domain
+    #    (`xrst_n_r <= {xrst_n_r[0], rst_n}` in aaf_talker_i2s:95,
+    #    KL_aaf_capture_i2s:71, KL_tdm_capture:109/120, KL_crf_tx:102). So the
+    #    rule does not select "the modules with a reset problem"; it selects
+    #    "the modules that also cross a clock domain".
+    #  * Both halves are individually correct for how the reset is GENERATED.
+    #    axis_resetn is `~ResetSignal(cd_milan)` (sw/litex/milan_soc.py:528)
+    #    and LiteX's S7PLL.create_clkout installs an AsyncResetSynchronizer:
+    #    async assert, SYNCHRONOUS deassert. `negedge rst_n` is exactly the
+    #    right sensitivity for that, and a 2-FF bridge is exactly the right
+    #    way to carry an async-asserted reset into clk_audio/tdm_bclk.
+    #  * The asymmetry that would be a defect - a dual-clock FIFO whose two
+    #    sides leave reset at different times - was checked and is benign: the
+    #    cdc_pair_fifo pointers are both cleared to 0, so the <=2-clock window
+    #    where one side is still running only writes into a RAM that is empty
+    #    by pointer comparison at both ends of it.
+    #  * milan_datapath's axis_resetn hit is INHERITED, not its own: the file
+    #    contains no `negedge` at all. Proved by mutation - deleting every
+    #    `posedge clk_i or negedge rst_n` in hdl/ drops milan_datapath from
+    #    194 findings to 193, the missing one being exactly this.
     "SYNCASYNCNET",
     # filename == module name is load-bearing here, not cosmetic: this sweep
     # (and syn/yosys/run.sh) resolve children through Verilator's `-y` library
@@ -231,18 +273,6 @@ PRAGMA_WAIVERS = {
         "(meta_r[31:16], h_ver_r, rec_w_r, the cmd_r reserved bits) - present on "
         "the wire format, not consumed by this decoder",
         "hdl/ieee17221/aecp/KL_persist_journal.sv:431-434",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_common_parser.sv|SELRANGE": (
-        "tdata is 64b in every build; the module's parameter DEFAULT is 32, so "
-        "the constant selects are out of range only in a narrow elaboration "
-        "nothing instantiates",
-        "hdl/ieee17221/aecp/KL_aecp_common_parser.sv:123-127 (the //! block, "
-        "which also carries the 5.020 trailing-prose warning)",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_packet_validator.sv|SELRANGE": (
-        "same narrow-bus default as the common parser: 64b tdata at runtime, "
-        "32b parameter default",
-        "hdl/ieee17221/aecp/KL_aecp_packet_validator.sv:92-96 (the //! block)",
     ),
 }
 

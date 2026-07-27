@@ -6,6 +6,61 @@
  */
 
 /*
+==============================================================================
+  STATUS 2026-07-27: THIS FILE IS IN NO BUILD, CANNOT BE ELABORATED HERE, AND
+  HAS DRIFTED 116 PINS BEHIND THE MODULES IT WIRES. READ THIS BEFORE EDITING.
+==============================================================================
+
+  NOT BUILT. Nothing in this repository compiles milan_top.sv:
+    * the fabric flow excludes it by name - sw/litex/milan_soc.py:640,
+      "Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded";
+    * syn/yosys/run.sh's 47 tops end at milan_datapath;
+    * scripts/lint_rtl.py skips it (LINT_EXCLUDE) and
+      scripts/run_all_suites.sh has no suite that names it.
+  So no gate in this repo has an opinion about whether it is correct, and
+  every edit below since 2026-07-01 has been an UNVERIFIED sympathy edit made
+  while changing a module it happens to instantiate.
+
+  CANNOT ELABORATE, not merely "lints dirty". Two of its children are absent:
+    * eth_mac_1g_rgmii_fifo lives in the `external/` submodule
+      (git@github.com:kebag-logic/fpga-avb-ethernet.git - an SSH remote CI
+      does not and cannot fetch, and the directory is empty in a fresh clone);
+    * milan_dma is Xilinx IP generated from bd/milan-dma.tcl, not in the tree,
+      and milan_dma_wrapper.v wraps a PS7 hard macro.
+
+  COST TO REVIVE, measured 2026-07-27 by comparing each instance's connected
+  pins against the child's declared port list (no elaboration needed - both
+  are lexical - and the result reproduces the 116 PINMISSING that Verilator
+  reports against a checked-out `external/`):
+
+      milan_csr   `csr`             232 ports declared, 141 wired ->  91 unwired
+      KL_aecp_top `aecp_listener`    83 ports declared,  59 wired ->  24 unwired
+      ptp_ts_top  `ptp_timestamp`    43 ports declared,  42 wired ->   1 unwired
+                                                              TOTAL   116
+
+  That is not cosmetic drift. 39% of the CSR block's ports are unconnected, so
+  software written against docs/reference/REGISTER_MAP.md would read zeros out
+  of a large part of the register space; and the 24 missing on KL_aecp_top are
+  the dmap_* channel-map group (the 0x900 window) and the lstn1_* N-context
+  listener - i.e. essentially every feature added since this file last had a
+  full pass. Reviving it means wiring 116 pins against a design whose reference
+  assembly (milan_datapath) has moved on, then finding a way to VERIFY it -
+  which the two absent children make impossible in the open flows, which is why
+  the `Coverage : ARCHIVED` marker below is a decision and not an excuse.
+
+  THE HONEST CHOICE, for whoever owns the Zynq variant. Either:
+    (a) the Zynq variant is on the roadmap - then the drift needs a GATE, not a
+        note. The measurement above is ~100 lines of lexical port-vs-connection
+        diffing and would have failed at pin 1 instead of pin 116; or
+    (b) it is not - then this belongs in historical_now_obsolete/ alongside the
+        rest of the retired flow, and bd/ + constraints/*.xdc go with it.
+  Leaving it in hdl/ ungated is the one option that costs edit time on every
+  lane and buys no verification. This lane records the price; it does not spend
+  it, and deliberately did not attempt a revival.
+
+  Recorded in docs/testing/TESTING.md §7 "Known gaps" and
+  docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md.
+
 ------------------------------------------------------------------------------
   File        : milan_top.sv
   Author      : Oguz Kahraman / Kebag Logic
