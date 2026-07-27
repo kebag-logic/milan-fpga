@@ -9,7 +9,7 @@ complicated, propose something to verify and run it."*
 
 - **[Run it](#run-it)** — Two lines, no vendor tools, exit 0 on pass — and the reassurance that the `(* use_dsp *)` attribute is only a hint, so nothing Xilinx-specific is instantiated.
 - **[What it checks](#what-it-checks)** — The method that makes this harness worth trusting: two independent references, one bit-exact to the RTL's own Q16 arithmetic and one ideal in floating point, so a match proves intent and the gap bounds quantization error (asserted ≤ 1 byte). Carries the STRICT pairing rule for the sequential slope engine — change its state timing and `SlopeEngineRef` moves in the same commit — and the nine scenarios, ending with live reconfiguration.
-- **[Configuration](#configuration)** — The queue-under-test config is duplicated in two files and both must be edited to sweep another queue or link rate. Names the exact values in use.
+- **[Configuration](#configuration)** — Names the exact slope/credit values driven, where the single copy of them lives, and why the "queue-0 / Class-A" label they used to carry is wrong after the `0x0011`→`0x0014` renumbering: the DUT has no queue index at all, so this is a **slope** test, not a queue test.
 - **[Notes surfaced by this harness](#notes-surfaced-by-this-harness)** — Three findings, including the useful caveat: quantization error is zero *for this config* only because the rates divide evenly, so a slope that does not divide `clk*8 / link_rate` needs its own sweep. Also records that the older non-self-checking bench no longer matches the DUT, and that multi-queue arbitration lives in a different harness.
 
 ## Run it
@@ -70,16 +70,46 @@ directly, not just through the 1-bit `allow_transmit_o` output.
 
 ## Configuration
 
-The queue-under-test config lives in `cbs_ver_wrap.sv` parameter defaults and is
-mirrored in `sim_main.cpp:mk()` defaults (queue-0 / Class-A @1G: `idleSlope =
-500 Mbit/s`, `HI = +761`, `LO = -761`, `clk = 100 MHz` - i.e. the values
-`ethernet_packet_pkg.sv` computes for queue 0). Change both to sweep another
-queue/link config.
+`idleSlope`/`hiCredit`/`loCredit`/`shaped` are **runtime** ports on the wrapper,
+so the only compile-time parameter left is `CLK_FREQ_HZ` (100 MHz, the constant
+divisor). The config actually driven is one set of numbers with one home: the
+`CbsInputs` defaults in `cbs_ref_model.h`, mirrored by the `mk()` argument
+defaults in `sim_main.cpp` -
+
+```
+idleSlope = 500 Mbit/s   HI = +761   LO = -761   clk = 100 MHz   shaped = 1
+```
+
+Change those to sweep another slope or link rate; the reference models pick the
+new values up from the same struct.
+
+### It is a slope test, not a queue test
+
+This config used to be labelled "queue-0 / Class-A @1G". That name is now wrong
+twice over. It was the reset default of **q0 back when q0 was the highest
+priority queue** and carried SR class A at 50 % of 1 Gb/s (`1522 x 0.5 = 761`
+bytes of hiCredit). Since the `0x0011`->`0x0014` renumbering the map runs the
+other way - **q0 is best effort and SR class A is q4** - and
+[`ethernet_packet_pkg.sv`](../../../hdl/common/ethernet_packet_pkg.sv) now
+computes 25 Mbit/s for q0 and 450 Mbit/s for q4, so 500 Mbit/s is no longer any
+queue's provisioned share.
+
+None of that weakens the harness. `credit_based_shaper.sv` is a **single
+instance with no queue index anywhere in it**: it sees an idleSlope, a
+hiCredit, a loCredit and a `shaped` bit and nothing else, so what is under test
+is the credit arithmetic at a *slope*, not a queue. A 50 %-of-1G slope is a
+perfectly good - and slightly harder - point than either shaped queue ships
+with. Only the label was wrong.
+
+To drive the shipping class-A point instead, pass `idleSlope = 450_000_000`,
+`HI = 684`, `LO = -837` (the q4 row of
+[`EGRESS_QUEUE_MAP.md`](../../../docs/reference/EGRESS_QUEUE_MAP.md)).
 
 ## Notes surfaced by this harness
 
-* The DUT is **bit-exact** to its intended arithmetic and, for the queue-0
-  config, has **zero** quantization error vs the ideal (the rates divide evenly).
+* The DUT is **bit-exact** to its intended arithmetic and, for the 500 Mbit/s
+  config above, has **zero** quantization error vs the ideal (the rates divide
+  evenly).
   Precision is only at risk for idleSlope values that don't divide
   `clk*8` / `link_rate` evenly - sweep the config to quantify those.
 * The pre-existing `tb/utests/802_1q_traffic_shaper/tb_credit_based_shaper.sv`
