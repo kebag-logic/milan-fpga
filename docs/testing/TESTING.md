@@ -20,7 +20,7 @@ protocol-level coverage contract is
 - **[2. Migen DMA-engine sims - sw/litex/test_\*.py](#2-migen-dma-engine-sims---swlitextest_py)** — The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** — Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end — the M-A2 `"MILN"` read, in simulation, before any board exists.
 - **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** — sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
-- **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** — Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of 188 findings are width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
+- **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** — Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of the opening 188 findings were width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** — What still lives under `tb/utests`, `tb/itests` and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** — The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
 - **[6b. Unattended campaigns — status file and alert webhook](#6b-unattended-campaigns--status-file-and-alert-webhook)** — The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts — that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
@@ -159,6 +159,7 @@ rather than trusting the row count here.
 | `tb/verilator/acmp` | PASS | — |
 | `tb/verilator/acmp_lstn` | PASS | — |
 | `tb/verilator/adp` | PASS | — |
+| `tb/verilator/adp_parser` | PASS | 228 checks — ADP receive; the one suite with `-Wno-fatal` deliberately absent, so `%Error-ENUMVALUE` is a build failure |
 | `tb/verilator/adp_tx` | PASS | — |
 | `tb/verilator/aecp` | PASS | — |
 | `tb/verilator/aes3` | PASS | 50 checks — the AES3/S-PDIF ser/des family |
@@ -275,6 +276,9 @@ python3 scripts/lint_rtl.py --self-test  # prove the pragma gate still bites
 | | findings | width findings | cost in CI |
 |---|---|---|---|
 | Verilator `--lint-only` 5.050 | 188 | **155** (`WIDTHTRUNC` 74 + `WIDTHEXPAND` 81) | zero — the suites already cache this exact binary |
+
+(the 188 is the opening measurement both tools were compared on; the ratchet
+has since been paid down to 150 — see below.)
 | Verible v0.0-4084, default rules | 1004 | **0** — it has no elaborator | 16.4 MB download + a second cache entry + a second version pin |
 
 916 of Verible's 1004 are pure style, the biggest single rule being 356
@@ -298,10 +302,24 @@ from this gate.
 
 The ratchet is the [`gen_module_matrix.py --check`](../traceability/gen_module_matrix.py)
 pattern: a normal run only ever **lowers** an entry, `--check` fails when a
-directory exceeds it, and nothing can raise one. Today's baseline is **188**
-violations across 12 directories — `WIDTHEXPAND` 81, `WIDTHTRUNC` 74,
-`SELRANGE` 20, `SYNCASYNCNET` 5, `MULTIDRIVEN` 4, then one each of
-`DECLFILENAME`, `CASEINCOMPLETE`, `ENUMVALUE`, `ALWCOMBORDER`. Every one of
+directory exceeds it, and nothing can raise one. It opened at **188** on
+2026-07-27 and stands at **150** across 12 directories — `WIDTHEXPAND` 73,
+`WIDTHTRUNC` 64, `SYNCASYNCNET` 5, `MULTIDRIVEN` 4, `CASEINCOMPLETE` 2, then
+one each of `DECLFILENAME` and `ALWCOMBORDER`. The 38 that went were **one
+root cause**: `axi_stream_if` defaulted `TDATA_WIDTH_P` to 32 in a tree where
+all 53 instantiations pass 64 explicitly, so any module whose only stream port
+is the interface was linted at a width nothing builds it at. Defaulting it to
+64 took `SELRANGE` 20 → 0 plus 18 width findings, closed the `ENUMVALUE`
+(`KL_adp_parser` gained the explicit cast **and** the tree's first Verilator
+suite for it), and retired two `lint_off SELRANGE` pragmas whose recorded
+justification had been false since those modules moved to flat 64-bit ports.
+The remaining `SYNCASYNCNET` 5 were investigated and deliberately **not**
+fixed — see the note in [`../../scripts/lint_rtl.py`](../../scripts/lint_rtl.py);
+they are one house-rule deviation (`posedge clk_i or negedge rst_n`, which is
+correct for a LiteX `AsyncResetSynchronizer`-driven reset) selected by a
+second, correct thing (a 2-FF reset bridge into the audio domain), and
+`milan_datapath`'s is inherited from its children rather than its own. Every
+one of
 them is **printed in full on every gated run**: a ratchet that hides what it
 grandfathers is a silent cap, and this project already paid for that once
 (`check_tied_inputs.sh`, §4).

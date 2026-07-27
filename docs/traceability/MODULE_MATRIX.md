@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 82 modules · 79 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 82 modules · 80 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -30,10 +30,10 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 ```mermaid
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
-    x-axis ["milan", "ieee17221", "ieee1722", "ieee8021as", "common", "ieee8021q"]
+    x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
     y-axis "modules" 0 --> 30
-    bar [2, 18, 29, 4, 10, 19]
-    bar [1, 17, 28, 4, 10, 19]
+    bar [2, 29, 4, 10, 18, 19]
+    bar [1, 28, 4, 10, 18, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -41,10 +41,10 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
 | Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
-| IEEE 1722.1 (ATDECC) | 18 | 17 | 0 | 18 | 0 | 0 |
 | IEEE 1722 (AVTP) | 29 | 28 | 0 | 25 | 0 | 0 |
 | IEEE 802.1AS | 4 | 4 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
+| IEEE 1722.1 (ATDECC) | 18 | 18 | 0 | 18 | 0 | 0 |
 | IEEE 802.1Q | 19 | 19 | 0 | 0 | 0 | 0 |
 
 ## 🗄️ Archived modules (no open-flow test is possible)
@@ -65,7 +65,7 @@ _ADP / ACMP / AECP-AEM-MVU_
 | ✅ `KL_acmp_responder` | `ieee17221/acmp/KL_acmp_responder.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | ✅ `KL_acmp_tlkr_ctx` | `ieee17221/acmp/KL_acmp_tlkr_ctx.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | 📦 `acmp_pkg` | `ieee17221/acmp/acmp_pkg.sv` | 🔬`make acmp` | — |
-| 🔬 `KL_adp_parser` | `ieee17221/adp/KL_adp_parser.sv` | 🔬`make adp` | — |
+| ✅ `KL_adp_parser` | `ieee17221/adp/KL_adp_parser.sv` | `adp_parser` · 🔬`make adp` | — |
 | ✅ `adp_advertiser` | `ieee17221/adp/adp_advertiser.sv` | `adp` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make adp` | — |
 | 📦 `adp_pkg` | `ieee17221/adp/adp_pkg.sv` | 🔬`make adp` | — |
 | ✅ `adp_tx_arbiter` | `ieee17221/adp/adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` · 🔬`make adp` | 7.3.3, M-CLK-2 |

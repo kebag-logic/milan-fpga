@@ -78,7 +78,19 @@ module KL_adp_parser
         end
 
         PARSE_FIRST_S : begin
-          rcv_entity_info_o.adp_message_type <= s_axis.tdata[35:32];
+          //! EXPLICIT cast, and DELIBERATELY no clamp of the 4-bit wire code
+          //! into the four named members. adp_message_type_t names 0..3
+          //! (AVAILABLE / DEPARTING / DISCOVER / RESERVED); IEEE 1722.1
+          //! 6.2.1.6 leaves 4..15 reserved and says a receiver ignores them.
+          //! This module already does exactly that: the three strobes below
+          //! are equality compares against the three legal codes, so any code
+          //! in 3..15 raises entity_info_valid with NO strobe - which is the
+          //! required behaviour. Folding 4..15 into RESERVED would instead
+          //! make rcv_entity_info_o.adp_message_type lie about what was on
+          //! the wire, and that field is an OUTPUT: the same defect class as
+          //! a monitor that reports the table's stream_id instead of the
+          //! wire's. Pinned by tb/verilator/adp_parser adp05.
+          rcv_entity_info_o.adp_message_type <= adp_message_type_t'(s_axis.tdata[35:32]);
           rcv_entity_info_o.valid_time <= s_axis.tdata[31:27];
           rcv_entity_info_o.entity_id[63:48] <= s_axis.tdata[15:0];
           adp_state <= PARSE_REST_S;
