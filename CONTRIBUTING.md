@@ -53,7 +53,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
   See [`docs/testing/TESTING.md`](docs/testing/TESTING.md) for the suite index and tiers.
 - **Lint before you push**: `python3 scripts/lint_rtl.py --check` (~10 s,
   needs only the Verilator you already have). It sweeps every module in
-  `hdl/` and fails on a **new** violation — today's 188 are grandfathered by
+  `hdl/` and fails on a **new** violation — today's 150 are grandfathered by
   a per-directory ratchet in [`scripts/lint.budget`](scripts/lint.budget) and
   printed in full, so the backlog is never hidden. Lowering an entry is a
   normal commit: `python3 scripts/lint_rtl.py && git add scripts/lint.budget`.

@@ -115,7 +115,7 @@ needs the Verilator you install in §2.3:
 python3 scripts/lint_rtl.py --check   # every module in hdl/, ~10 s, exit 0 = PASS
 ```
 
-It fails on a **new** Verilator `--lint-only` violation; the existing 188 are
+It fails on a **new** Verilator `--lint-only` violation; the existing 150 are
 grandfathered by a per-directory ratchet in
 [`scripts/lint.budget`](scripts/lint.budget) and printed in full on every run.
 Details and the Verible comparison: [`docs/testing/TESTING.md`](docs/testing/TESTING.md) §4b.

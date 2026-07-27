@@ -15,9 +15,15 @@
 //
 // gtx_clk is tied to axis_clk (single clock) — the PTP CDC works identically.
 
+// DO NOT re-add `#include "Vmilan_datapath_axi_stream_if__T40.h"`. That name is
+// Verilator's mangled per-parameterisation variant of axi_stream_if, and it is
+// unused here (nothing below names the type) - but it made this harness the one
+// file in the tree that depended on the interface's PARAMETER SET rather than on
+// its behaviour. Defaulting TDATA_WIDTH_P 32 -> 64 on 2026-07-27 moved the
+// 64-bit instances from variant `__T40` to the base class and broke the build
+// with a missing-header error that said nothing about the actual change.
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
-#include "Vmilan_datapath_axi_stream_if__T40.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstring>
