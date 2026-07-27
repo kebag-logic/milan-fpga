@@ -59,6 +59,7 @@ M-A3 DMA write-up [`hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_m
 | Doc | What it holds |
 |---|---|
 | [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) | Bench-ops onboarding: where-is-what + the physical/tap topology |
+| [FLASH_0x0014_0727.md](FLASH_0x0014_0727.md) | 2026-07-27 the area round on silicon: 3 seeds placed and ALL MET TIMING (best WNS +0.147), -5,216 LUT delivered vs -4,847 estimated, but slice occupancy only 99.93 % -> 99.65 % (55 free) so the design is still slice-bound; flashed bitstream-only, VERSION 0x0001_0014 and the five-queue map read back from hardware, smoke 5/5, parsed == matched exactly |
 | [STRESS_0726.md](STRESS_0726.md) | 2026-07-26 adversarial campaign: 19 checks, 0 failures — stop/start storms, illegal CSR access, engine cycling, boundary sids, and the entry-0 blocker triggered ON PURPOSE to prove the root cause by causation |
 | [LIVE_BENCH_0726.md](LIVE_BENCH_0726.md) | 2026-07-26 live health + function sweep of both boards: gPTP converged, bidirectional streaming, 0 format errors over ~2 G frames, live audio capture, and the two known tie-offs observed on silicon |
 
