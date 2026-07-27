@@ -25,8 +25,8 @@ authority); status claims carry their in-repo evidence. Written 2026-07-25.
 - **[1. Concept — the three clocks](#1-concept--the-three-clocks)** — Why there are three and not one: the PHC that gPTP disciplines, a `CLOCK_REALTIME` nothing in the media path depends on, and a *physical* audio clock that cannot be written like a counter — only steered. Ends with the whole chain in one sentence.
 - **[2. Mechanism — the hardware timestamp path](#2-mechanism--the-hardware-timestamp-path)** — Five subsections from the fractional-ns phase accumulator to the who-runs-where table. The load-bearing idea is *qualify at TLAST* — the original core decided the record on a CDC handshake and raced the beat rate in both directions. Also the record's always-1 marker sentinel, why `tlast` is deliberately withheld from the DMA writer, and the tap-measured latency constants whose absence kept `asCapable` permanently false.
 - **[3. The media clock](#3-the-media-clock)** — How a shared nanosecond timeline becomes a 48 kHz sample edge: an integer-only MMCM chain (fractional-N jitter measurably collapsed converter THD+N to -4.5 dB), the CRF talker and the measuring receiver, and a PI servo whose real actuator is a 16.9 ps fine phase step — with `CRF_DELTA` deliberately excluded from the loop because it carries an arbitrary phase constant. Closes on the media-lock rule: an internal source locks on the first PDU, an external one has to earn it.
-- **[4. Time-related CSRs — quick table](#4-time-related-csrs--quick-table)** — Every time-related offset in one place, `CAP[9]` through `MCSRV_CTRL` and the `dma-ts` ring. Rows marked (*) are live in `milan_csr.sv` but have no row in the register map yet — real hardware, not yet ABI-blessed.
-- **[5. Status (2026-07-25)](#5-status-2026-07-25)** — Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id — no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and this page names its own doc drift.
+- **[4. Time-related CSRs — quick table](#4-time-related-csrs--quick-table)** — Every time-related offset in one place, `CAP[9]` through `MCSRV_CTRL` and the `dma-ts` ring. Every row is now ABI-blessed in the register map, so the `(*)` "live in RTL, undocumented" marker this table used to carry is retired.
+- **[5. Status (2026-07-25)](#5-status-2026-07-25)** — Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id — no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
 
 ## 1. Concept — the three clocks
 
@@ -386,13 +386,15 @@ latches `ptp_now` epochs per measured frame).
 
 ## 4. Time-related CSRs — quick table
 
-Rows below `PTP_EGRESS_LAT` marked (*) are live in `milan_csr.sv` and
-documented in [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md)
-section 8, but have no row in
-[`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) yet — the map
-is the ABI authority and closing that gap is listed in section 5. Meanings
-are quoted from the map where a row exists, from the RTL localparam docs
-otherwise.
+Every row here now has a row in
+[`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) — the map is the
+ABI authority and meanings below are quoted from it. The `(*)` marker this
+table used to carry (2026-07-26 and earlier: "live in `milan_csr.sv`, no map
+row yet") is **retired**: `GPTP_PDELAY` `0x6E4`, `AVTPRX_TSD` `0x6EC`,
+`AS2_LO/HI` `0x730`/`0x734`, the CRF sink group `0x738`-`0x74C`, the CRF talker
+group `0x750`-`0x764` and `MCSRV_CTRL[1]` `auto_repair` are all documented
+there. [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md)
+section 8 remains the bench-side reading of the daemon-written ones.
 
 | Offset | Name | One line |
 |--------|------|----------|
@@ -410,21 +412,21 @@ otherwise.
 | `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | gptp_grandmaster_id published into ADP/AEM (`gptp2csr.sh`) |
 | `0x62C` | `ADP_GPTP_DOMAIN` | `[7:0]` gptp_domain_number |
 | `0x6C8` | `PCMRX_TS` | avtp_timestamp of the last ring-accepted PDU |
-| `0x6E4` (*) | `A_GPTP_PDELAY` | measured neighbor propagation delay, ns (daemon-written) |
-| `0x6EC` (*) | `A_AVTPRX_TSD` | signed ts_delta at the last accepted AVTP PDU |
-| `0x730/0x734` (*) | `A_AS2_LO/HI` | AS_PATH parent bridge clock id (0 = none/unknown) |
-| `0x738` (*) | `A_CRF_CTRL` | `[0]` CRF sink enable; RO `[31]` locked |
-| `0x73C/0x740` (*) | `A_CRF_SIDLO/HI` | CRF sink stream_id |
-| `0x744` (*) | `A_CRF_DELTA` | RO signed `crf_ts - ptp_now` (phase) |
-| `0x748` (*) | `A_CRF_RATE` | RO signed ns error per 512 ms window (frequency) |
-| `0x74C` (*) | `A_CRF_STATUS` | RO `{pdu16, fmt_err8, seq_err8}` |
-| `0x750` (*) | `A_CRFT_CTRL` | `[0]` CRF talker enable |
-| `0x754/0x758` (*) | `A_CRFT_SIDLO/HI` | CRF talker stream_id |
-| `0x75C/0x760` (*) | `A_CRFT_DMLO/HI` | CRF talker destination MAC |
-| `0x764` (*) | `A_CRFT_COUNT` | RO CRF PDUs emitted |
+| `0x6E4` | `A_GPTP_PDELAY` | measured neighbor propagation delay, ns (daemon-written) |
+| `0x6EC` | `A_AVTPRX_TSD` | signed ts_delta at the last accepted AVTP PDU |
+| `0x730/0x734` | `A_AS2_LO/HI` | AS_PATH parent bridge clock id (0 = none/unknown) |
+| `0x738` | `A_CRF_CTRL` | `[0]` CRF sink enable; RO `[31]` locked |
+| `0x73C/0x740` | `A_CRF_SIDLO/HI` | CRF sink stream_id |
+| `0x744` | `A_CRF_DELTA` | RO signed `crf_ts - ptp_now` (phase) |
+| `0x748` | `A_CRF_RATE` | RO signed ns error per 512 ms window (frequency) |
+| `0x74C` | `A_CRF_STATUS` | RO `{pdu16, fmt_err8, seq_err8}` |
+| `0x750` | `A_CRFT_CTRL` | `[0]` CRF talker enable |
+| `0x754/0x758` | `A_CRFT_SIDLO/HI` | CRF talker stream_id |
+| `0x75C/0x760` | `A_CRFT_DMLO/HI` | CRF talker destination MAC |
+| `0x764` | `A_CRFT_COUNT` | RO CRF PDUs emitted |
 | `0x874` / `0x894` | `LTAP_TX_EPOCH` / `LTAP_RX_EPOCH` | gPTP ns latched at the latency-tap reference frames |
 | `0x8F8` | `MCSRV_STAT` | servo state/flags + signed trim in 1/16 ppm (`[31:16]`) |
-| `0x8FC` | `MCSRV_CTRL` | `[0]` ps_invert (bench sign knob); `[1]` auto_repair enable per `milan_csr.sv` — the map row documents `[0]` only (drift noted in section 5) |
+| `0x8FC` | `MCSRV_CTRL` | `[0]` ps_invert (bench sign knob); `[1]` auto_repair — 1 allows the DRP divider repair path, **reset 0** = verify-only. Both bits are in the map row |
 | LiteX `dma-ts` | `base/length/enable/loop/offset` | the timestamp record ring engine (address from `build/csr.csv`) |
 
 ## 5. Status (2026-07-25)
@@ -480,10 +482,12 @@ Partial or missing, each with its row id:
   SR-tagged unregistered stream would be pruned to zero ports); it needs the
   second lwSRP listener/talker attribute — row M-CLK-2;
   [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 2.
-* **M-CLK-3 — row upgrade pending**: the actuator the row calls MISSING is
-  now built and silicon-proven; the matrix row awaits the 1:1 review before
-  its status flips — [`../traceability/milan-v12.md`](../traceability/milan-v12.md)
-  row M-CLK-3.
+* **M-CLK-3 — CLOSED**: the clock-recovery actuator is built and
+  silicon-proven (servo LOCKED, coherent chain −83.9 dB), and the matrix row
+  now reads ✅ rather than carrying both "actuator MISSING" and "now BUILT" at
+  once — [`../traceability/milan-v12.md`](../traceability/milan-v12.md)
+  row M-CLK-3. What survives is the two bench-gated knobs in the "Servo
+  residuals" bullet below, not a missing function.
 * **M-CLK-5 — MISSING**: Milan 7.6 media-clock reference election /
   domain propagation logic on top of the (implemented) command layer —
   row M-CLK-5.
@@ -494,8 +498,11 @@ Partial or missing, each with its row id:
   readback is blessed on the bench, and the winning `ps_invert` polarity is
   still a CSR knob rather than the RTL default —
   [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) item 6.
-* **Doc drift (this doc's own findings)**: the 0x6E4/0x6EC/0x730-0x764
-  time CSRs and `MCSRV_CTRL[1]` are live in `milan_csr.sv` but missing from
-  [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (section 4
-  table, rows marked *); `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` exist in the map
-  but their fabric wires are unconsumed (section 2.4).
+* **Unconsumed map rows**: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` exist in
+  [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) but their
+  fabric wires are unconsumed (section 2.4) — writing them changes nothing on
+  the wire today.
+  *(The doc-drift bullet that used to sit here — 0x6E4/0x6EC/0x730-0x764 and
+  `MCSRV_CTRL[1]` live in `milan_csr.sv` but absent from the map — is CLOSED:
+  all of those rows are in the map now, and section 4's `(*)` marker is
+  retired with it.)*

@@ -120,18 +120,19 @@ For every mapping record `(si, sc, co, cc)`:
 address  = co                         // cluster-offset = physical render channel
                                       //   (cc == 0, mono clusters)
 
-ADD    (accepted)  →  RAM[address] = { en=1, stream=si, ch=sc }
-REMOVE (matched)   →  RAM[address] = { en=0, stream=0,  ch=0  }
+ADD    (accepted)  →  RAM[address] = { en=1, src=0, stream=si, ch=sc }
+REMOVE (matched)   →  RAM[address] = { en=0, src=0, stream=0,  ch=0  }
 ```
 
-Packed: `word = (en<<6) | (stream<<3) | ch`. Example: adding `si=0, sc=3, co=0`
-yields `RAM[0] = 0x43` (`en=1, stream=0, ch=3`).
+Packed: `word = (en<<7) | (src<<6) | (stream<<3) | ch`. Example: adding
+`si=0, sc=3, co=0` yields `RAM[0] = 0x83` (`en=1, src=0, stream=0, ch=3`).
 
-**Field table, as the RTL emits it today.** The word gained a bit when the
-host playback ring became a render source (item-7), so the packing above is
-one bit narrower than what `KL_aecp_response_builder.sv` drives and
-`KL_chan_map_render.sv` stores — the field *positions* below are the ones to
-program against:
+**Field table, as the RTL emits it today.** The map word is **8 bits** —
+`KL_chan_map_render.sv` declares `input wire [7:0] map_wr_data_i` with
+`MAP_EN_B_C = 7` and `MAP_SRC_B_C = 6`, which is where `en` and `src` sit. The
+`src` bit is what the host playback ring gained when it became a render source
+(item-7); a pre-item-7 7-bit reading of the same word puts every field one
+place too low, so program against the positions below:
 
 | Bit | Field | On `ADD` (accepted) | On `REMOVE` (matched) |
 |---|---|---|---|
@@ -141,7 +142,7 @@ program against:
 | `[2:0]` | `ch` | `mapping_stream_channel[2:0]` | `0` |
 
 So the accepted word is `0x80 | (si << 3) | sc`, and a matched REMOVE writes
-`0x00`. The worked example above becomes `RAM[0] = 0x83`. `src = 1` — the
+`0x00` — the same arithmetic the worked example above uses. `src = 1` — the
 same entry pointing at a `KL_pcm_tx` playback channel instead of a wire
 channel — is reachable only through the `0x900` debug window; no AEM command
 can produce it, which is what keeps every pre-item-7 map word meaning exactly
