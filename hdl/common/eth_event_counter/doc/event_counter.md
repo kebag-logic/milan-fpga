@@ -2,6 +2,14 @@
 # Entity: event_counter 
 - **File**: event_counter.sv
 
+## Contents
+
+- **[Diagram](#diagram)** — The generated symbol view: the five ports and nothing else.
+- **[Description](#description)** — The behaviour in three sentences. The part that matters is the two resets: `resetn` for system reset, and `stats_reset` to zero the count alone for periodic stats collection.
+- **[Generics](#generics)** — One knob, `WIDTH`, defaulting to 32 bits.
+- **[Ports](#ports)** — The five signals with their polarity spelled out — `resetn` is synchronous active-low, `stats_reset` is active-high, and they are easy to swap by accident.
+- **[Processes](#processes)** — One `always_ff` block, `count_event`, on the rising clock edge.
+
 ## Diagram
 ![Diagram](event_counter.svg "Diagram")
 ## Description

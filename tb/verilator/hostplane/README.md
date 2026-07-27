@@ -12,6 +12,14 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 > `KL_pcm_route` record an honest 0-cycle delta). The suite is expected
 > green everywhere.
 
+## Contents
+
+- **[Why this suite exists](#why-this-suite-exists)** — The gap it closes, stated precisely: the wrapper suite proves the *default* shape and its NxN variant asserts only on media lanes, so nothing asserted on host-facing lanes in the elaboration silicon actually ships — which is where a real regression sat while every existing harness stayed green.
+- **[Silicon-shape derivation (drift-visible mapping)](#silicon-shape-derivation-drift-visible-mapping)** — A four-column table tracing each ship-config flag through to the parameter this suite pins, so drift has exactly one place to show up. Read the drift notes under it: `milan_soc.py` passes `p_AAF_PLAYBACK` while the SV parameter is `AAF_PLAYBACK_P`, so a playback build would silently never reach the generate.
+- **[Cases](#cases)** — Five lettered cases and the claim each owns. D is the interesting one: backpressure the host lane for long windows and the stream must keep flowing byte-exact, with the tap enable knob provably unable to perturb stream data — the behavioural half of a purity claim whose structural half is a synthesis check.
+- **[Status on main as of 2026-07-25 (the honest record)](#status-on-main-as-of-2026-07-25-the-honest-record)** — A frozen record, and its failure was fixed 2026-07-26 (see the banner). Worth reading anyway for the reasoning: the host-frame and ts-record cases passing *at datapath level* is what independently exonerated the RTL and pointed the incident at a stale DTB.
+- **[Running](#running)** — Two make targets (full run, or build-only as a gate), plus the harness conventions that decide whether your new case works: little-endian byte lanes, and one universal tick pump that the CSR BFM shares so no beat is double-presented while a poll loop spins.
+
 ## Why this suite exists
 
 The wrapper-level suite (`milan_dp`) proves `milan_datapath` at the RTL
