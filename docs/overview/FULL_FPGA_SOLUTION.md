@@ -32,6 +32,18 @@ Companion documents:
 
 ---
 
+## Contents
+
+- **[1. What the full-FPGA solution is (high level)](#1-what-the-full-fpga-solution-is-high-level)** — One ASCII block plus the four claims it makes: single-hart VexiiRiscv is what ships (NaxRiscv stays the CLI *default*), the datapath contains no vendor primitives, three boundaries are separately swappable, and only the final bitstream needs Vivado.
+- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** — Plane by plane, the answer to "is this in fabric or in software?" — media, control, reservation, timing, shaping and L2. Only the gPTP daemon is software.
+- **[3. Status at a glance](#3-status-at-a-glance)** — A layer-by-layer state table where every ✅ names the log or harness that backs it, including the milestone evidence files (`hw_*_MILN*.log`, the DDR3-800 memtest, the M-A3 write-up).
+- **[4. Repository map (medium level)](#4-repository-map-medium-level)** — The annotated tree: which spec clause each `hdl/` directory mirrors, and where the SoC, the builder, the harnesses and the portability check live.
+- **[5. The three datapath boundaries (medium level)](#5-the-three-datapath-boundaries-medium-level)** — CSR, DMA and MAC taken one at a time, plus the event path. Worth reading for two facts: only the CSR *base* is host-specific (the offsets are the ABI), and the M-A2 log's `VERSION` word is stale by design — only the `"MILN"` ID is the stable part of that check.
+- **[6. Build & run (medium level)](#6-build--run-medium-level)** — Copy-pasteable commands per tier: harnesses and Yosys with no LiteX, the softcore sim, elaboration with no vendor tools, then the bitstream and the Linux device-tree generation.
+- **[7. How to extend (medium level, cookbook)](#7-how-to-extend-medium-level-cookbook)** — A "to add X, touch these files" table. Each row names the harness you also owe — the CSR row notes the harness asserts the RTL and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) agree, so documentation is not optional there.
+- **[8. The CSR / DMA / IRQ ABI (medium level)](#8-the-csr--dma--irq-abi-medium-level)** — The three ABIs in one screen: the CSR group summary (`0x000`–`0x700`; the indexed `0x800`/`0x900` windows landed later, and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is the authority), the DMA simple-mode register names as they appear in `csr.csv`, and the four PLIC source names.
+- **[9. What remains, and how to finish it (the roadmap)](#9-what-remains-and-how-to-finish-it-the-roadmap)** — Historical: all seven steps are done, and it is kept for the order and the results. The one still worth reading is step 4 — the AX7101 is GMII, and the RGMII mis-strap gave 100 % preamble errors.
+
 ## 1. What the full-FPGA solution is (high level)
 
 ```
