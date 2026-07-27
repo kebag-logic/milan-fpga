@@ -19,6 +19,24 @@ Roles (see [`BENCH_TOPOLOGY.md`](BENCH_TOPOLOGY.md) for the map):
 either, no MAC errors, no CRC errors, gPTP converged, and a live audio capture
 off the listener is bit-plausible and correctly sized.
 
+The whole sweep on one page — *what was read, on which board, and what it says.*
+A dash means the sweep did not read that quantity on that board.
+
+| what was checked | AX7101 | Arty | reading |
+|---|---|---|---|
+| gPTP role | **grandmaster** (its own entity ID) | synced to the AX | healthy two-node domain |
+| bound stream | listens to `0x0200_0000_0002_0000`, route `DMA` | listens to `0x0200_0000_0001_0000`, route `RENDER \| DMA` | both directions live, both talkers emitting |
+| AVTP frames accepted | 152.7 M | 1.95 G | both accepting |
+| SEQ_NUM_MISMATCH | 11 | 51,523 | 7 × 10⁻⁸ vs 2.6 × 10⁻⁵ — and the Arty's is a **truncating** 16-bit field on this gateware, so a floor |
+| UNSUPPORTED_FORMAT | **0** | **0** | wire format is right |
+| TIMESTAMP_UNCERTAIN | **0** | **0** | presentation timestamps are right |
+| kernel / MAC / CRC errors | 0 | 0 | clean |
+| entry-0 listener workaround | still armed 21 h later, `A_STRMW_CTRL` = `0x3` | — | stable across a long soak |
+| RMON group `0x200` | dead, reads zero | dead, reads zero | known root cause, fixed in RTL, awaiting a flash |
+| netdev link speed | — | reports `-1` while `MAC_STATUS` reads 100 Mb/s | the `REQ-MAC-03` gap, SoC-glue half unfixed |
+| `rx_dropped` | 18.4/s | 0.18/s | control-plane multicast with no socket — dropped, not errored |
+| live ALSA capture | 1,152,000 B for a 3 s capture, exact to the byte | — | no under-runs, no short reads |
+
 ## What was confirmed
 
 ### gPTP domain is converged, and the AX is grandmaster
@@ -100,6 +118,19 @@ Two things are wrong with that table. One class-A AAF stream at 48 kHz with
 6 samples per frame is **8,000 frames/s**, and every figure is 1.24-1.40× that;
 and the Arty claims to *receive* 13 % more frames than the AX claims to *send*.
 
+*How far is each reading from the only rate this packetizer can physically
+emit?* The line is 7,999.91 f/s — the integer-only clock plan's own answer,
+derived below.
+
+```mermaid
+xychart-beta
+    title "Four readings vs the rate the RTL can produce"
+    x-axis ["AX FRX", "Arty AAF_FRAMES", "Arty FRX", "AX AAF_FRAMES"]
+    y-axis "frames per second" 0 --> 12000
+    bar [9930, 10102, 11162, 9892]
+    line [7999.91, 7999.91, 7999.91, 7999.91]
+```
+
 **Read out of the RTL, both counters are frame-exact and neither can inflate.**
 `AVTPRX_FRX` (`0x6BC`) increments once per `tlast`-delimited AVTP stream-subtype
 frame whose 64-bit `stream_id` matched an enabled stream-table entry *and* whose
@@ -133,6 +164,23 @@ login round-trip per board, taken outside the timed window). The same skew is
 already recorded elsewhere in this tree: an earlier session logged 12.5 k/s,
 16.6 k/s and 9.6 k/s for the same steady stream, and its "sustained 5 s" sample
 is 47,973 frames = **exactly 6.00 s** of 8,000/s traffic.
+
+*Why does the denominator take the blame rather than the counters or the clock?*
+
+```mermaid
+flowchart TB
+    OBS["4 readings over a nominal 10 s window,<br/>all 1.24 to 1.40x the 8,000 f/s a class-A AAF stream emits.<br/>The Arty claims to RECEIVE 13% more than the AX claims to SEND"]
+    Q1{"can either counter inflate?"}
+    Q2{"can the emit rate be wrong?"}
+    Q3{"what is left?"}
+    D["the DENOMINATOR - the sampled interval is not the 10 s<br/>it was divided by. The read pair costs a login round-trip<br/>per board, taken OUTSIDE the timed window"]
+    C["close it with the board's own clock: read PTP_TOD_RD_LO/HI<br/>0x530 and 0x534 in the SAME batch as 0x660 and 0x6BC, twice,<br/>then divide the count delta by the PHC delta"]
+    OBS --> Q1
+    Q1 -->|"NO. FRX ticks once per tlast-delimited matched frame, context 0 only.<br/>AAF_FRAMES once per accepted PDU, talker 0 only.<br/>Every error path can LOSE events - none can manufacture them"| Q2
+    Q2 -->|"NO. The packetizer emits strictly per 6 captured pairs off an<br/>integer-only clock plan = 7,999.91 f/s, and the only actuator is<br/>the servo's 260 ppm fine phase shift, about 2 f/s"| Q3
+    Q3 -->|"each reading carries a DIFFERENT factor - 1.237, 1.241, 1.263, 1.395.<br/>A clock error would be ONE shared factor per board"| D
+    D --> C
+```
 
 **This is a diagnosis, not a proof** — the RTL cannot tell us what wall-clock
 interval a host script used. The measurement that would close it uses the
@@ -182,3 +230,18 @@ listener fix (`0x000F`), the lwSRP row sizing and per-stream TSpec (`0x0010`),
 the six-queue egress map (`0x0011`), DMAC-based control classification
 (`0x0012`), the playback chain, the persistence journal and the CTF trace. All
 of it is gated behind one Vivado build and a flash.
+
+*Exactly what is sitting behind that flash?*
+
+| VERSION | what it brings | where it would have changed this campaign |
+|---|---|---|
+| `0x000A` | **what the Arty is actually running** | — |
+| `0x000B` | **what the AX is actually running** | — |
+| `0x000F` | fabric-listener fix — the staging set is tagged with the index it was staged for | retires the entry-0 override workaround the AX is leaning on |
+| `0x0010` | lwSRP row sizing + per-stream TSpec | not exercised here |
+| `0x0011` | six-queue egress map | not exercised here |
+| `0x0012` | DMAC-based control classification | not exercised here |
+| `0x0013` | RMON pulses derived at the MAC boundary + honest `STATS_CAP`; SEQ_NUM_MISMATCH **saturates** instead of truncating, full width at `A_STRMW_CNT` `0x83C` | both "confirmed-still-broken" rows above, and the Arty's 51,523-gap ceiling |
+
+Not version-tagged above, and equally unflashed: the playback chain, the
+persistence journal and the CTF trace.

@@ -52,6 +52,20 @@ composed by PipeWire); TX side = 64 stream-channels each fed from a
 selected source pair + 64 ALSA playback channels (per-stream rings via
 `KL_pcm_tx`).
 
+Every count in that sentence is an elaboration parameter, not a
+convention — this is where each one is fixed, at the 8×8 shape
+(`N_STREAMS = 8`):
+
+| Quantity | 8×8 value | Where the number comes from |
+|---|---|---|
+| RX stream-channels latched | 8 streams × 8 wire ch = **64** | `KL_chan_map_render` `cur_r[N_STREAMS_P][N_CH_P]`, instantiated `N_STREAMS_P = N_STREAMS`, `N_CH_P = 8` |
+| Physical render channels | **10** (phys 0..9) | `CHMAP_PHYS_C = 10` → `N_PHYS_P` in `milan_datapath.sv` |
+| Host-playback render channels | **16** linear `pbch` | `N_PB_SLOTS_P = N_STREAMS`, `PB_CH_C = 2 × N_PB_SLOTS_P` |
+| TX pair slots | **32** (8 talkers × 4 pairs) | `KL_chan_map_capture` `N_SLOTS_P = N_STREAMS*4` |
+| TDM capture pair sources | **4** | `N_TDM_P = 8` → `N_TDM_PAIRS_C = N_TDM_P/2` |
+| ALSA ring pair sources | **16** | `N_RING_P = 16` |
+| Map entry width in the RAMs | **8 bits** each side | `map_wr_data_i [7:0]` on both map modules (§5) |
+
 ## 2. ALSA topology + per-stream ring ABI (decided; unchanged ABI)
 
 - **8× 8-channel subdevices per direction, one per stream.** Capture
@@ -69,6 +83,44 @@ selected source pair + 64 ALSA playback channels (per-stream rings via
   the AEM audio map — never a fabric responsibility in phase 1.
 
 ## 3. RENDER crossbar contract (`KL_chmap_render`, phase-1 name)
+
+*Built as `KL_chan_map_render.sv`.* One picture answers the question prose
+keeps re-asking: **what decides the sample that leaves physical channel
+`p`, and when does a map edit become audible?**
+
+```mermaid
+flowchart LR
+    DEP["KL_aaf_rx_depacketizer<br/>PCM AXIS clone: 64-bit beats,<br/>tuser = stream s, tlast = one PDU"]
+    MON["RX monitors<br/>wire_chans per stream<br/>0 treated as 2"]
+    RING["KL_pcm_tx<br/>host playback pair bus"]
+
+    subgraph LATCH["KL_chan_map_render - free-running latest-sample latches"]
+        CUR["cur_r of s, c<br/>8 streams x 8 wire channels = 64<br/>top 24 bits of each S32BE sample"]
+        PBC["pbcur_r of pbch<br/>pbch = 2 x pair_slot + 0 L / 1 R"]
+    end
+
+    RMAP[("RMAP: 10 entries<br/>en bit 7, src bit 6, idx bits 5-0")]
+    TICK["48 kHz media tick<br/>MEDIA_TICK_DIV_C"]
+    VEC["phys_smp_o 0..9<br/>WHOLE vector registered in one shot"]
+    I2S["KL_i2s_feed_mux to KL_i2s_playback<br/>phys 0 and 1"]
+    TDM["burst adapter to KL_tdm_render<br/>phys 2..9 = TDM8 slots 0..7"]
+
+    DEP --> CUR
+    MON -->|"re-stride"| CUR
+    RING --> PBC
+    CUR -->|"src = 0: idx = stream, ch"| VEC
+    PBC -->|"src = 1: idx = linear pbch"| VEC
+    RMAP -->|"one entry per phys p"| VEC
+    TICK --> VEC
+    VEC --> I2S
+    VEC --> TDM
+```
+
+The two latches free-run; **nothing is queued**. A map write lands in the
+RAM whenever it arrives, but the whole `phys` vector is re-registered in
+one shot on `tick_i`, so a mid-tick edit can never tear a frame — the
+worst-case remap latency is one sample period, and the worst-case
+staleness of any rendered sample is one sample period.
 
 **Input:** a clone of the depacketizer PCM AXIS (G1) — observe-only
 transfers (`tvalid && tready`), exactly like `KL_i2s_playback`'s tap;
@@ -113,6 +165,45 @@ underrun/overrun rails and prefill semantics are kept at the CDC).
 
 ## 4. CAPTURE mux contract (`KL_chmap_capture`, phase-1 name)
 
+*Built as `KL_chan_map_capture.sv`.* The question here is the mirror of
+§3: **what can feed talker pair slot `k`, and what happens to a slot that
+is not enabled?**
+
+```mermaid
+flowchart LR
+    FE["KL_aaf_capture_i2s or KL_tdm_capture<br/>front-end pair - or KL_pcm_tx when the<br/>playback master enable replaces it"]
+    RNG["KL_pcm_tx RAW pair bus<br/>ring pairs 0..15"]
+    TDMS["TDM capture pairs 0..3<br/>tied to 0 in milan_datapath today"]
+    TONE["KL_tone_gen sample<br/>SAME value on L and R"]
+
+    H1["i2s_hold_r"]
+    H2["ring_hold_r 16 entries"]
+    H3["tdm_hold_r 4 entries"]
+
+    CMAP[("CMAP: 32 slots<br/>en bit 7, src bits 6-4, idx bits 3-0")]
+    WALK["per-tick walk, slot 0 then up<br/>ONE pair pulse per ENABLED slot,<br/>GAP_CYC_P = 24 settle cycles between"]
+    BYP{"CHMAP_CTRL bit 0"}
+    PKT["KL_aaf_packetizer<br/>pair_slot_i is 5 bits: 0..31"]
+
+    FE --> H1
+    RNG --> H2
+    TDMS --> H3
+    H1 -->|"src = 1 I2S_IN"| WALK
+    H3 -->|"src = 2 TDM_IN"| WALK
+    H2 -->|"src = 3 RING"| WALK
+    TONE -->|"src = 4 TONE"| WALK
+    CMAP --> WALK
+    WALK -->|"1 = crossbar"| BYP
+    FE -->|"0 = bypass, bit-identical"| BYP
+    BYP --> PKT
+```
+
+Two ways to be silent, and they are not the same: `src = 0` (ZERO) and
+the reserved values 5..7 still **pulse** the slot, carrying a zero pair;
+`en = 0` makes the walk skip the slot and emit no pulse at all. The
+second is what keeps a disabled slot from skewing its stream's other
+channels (§4.1).
+
 ### 4.1 Model
 
 The capture mux becomes the **single authority over the packetizer's
@@ -141,6 +232,30 @@ emit nothing; the packetizer's slot-structural addressing (G2:
 "channel alignment is slot-structural") guarantees a disabled slot can
 never skew its stream's other channels — that stream's sample rows
 simply never complete, and the stream stays silent on the wire.
+
+**Slot arithmetic — which slots belong to talker `t`.** The packetizer
+partitions the slot space by a prefix sum of `chans/2` (G2), so with a
+*uniform* per-talker channel count `C` talker `t` owns
+`[t·C/2, t·C/2 + C/2)`. The host playback ring is a separate index space:
+`KL_pcm_tx` is elaborated `CHANS_P = 2`, so its pair slot **is** the
+talker index and its linear channels are `2t` / `2t+1`. Both, side by
+side, for the 8×8 shape:
+
+| Talker `t` | CMAP pair slots at `C` = 8 | CMAP pair slot at `C` = 2 | `KL_pcm_tx` linear `pbch` |
+|---|---|---|---|
+| 0 | 0–3 | 0 | 0, 1 |
+| 1 | 4–7 | 1 | 2, 3 |
+| 2 | 8–11 | 2 | 4, 5 |
+| 3 | 12–15 | 3 | 6, 7 |
+| 4 | 16–19 | 4 | 8, 9 |
+| 5 | 20–23 | 5 | 10, 11 |
+| 6 | 24–27 | 6 | 12, 13 |
+| 7 | 28–31 | 7 | 14, 15 |
+
+The `C` = 8 column is the one the §12.1 walk recipe means by "slots
+`4j..4j+3`". Note that a *non*-uniform `chans` configuration invalidates
+the closed form and only the prefix sum holds — which is why the map is
+programmed per slot and never per stream.
 
 ### 4.2 Pair granularity (phase-1 restriction, normative)
 
@@ -206,6 +321,42 @@ EN | AVTP_RX | stream 2 | channel 1). The 4-bit index fields match the
 fabric-wide "spec-fixed 4-bit stream index" convention (G1's `tuser`).
 Illegal encodings (reserved SRC, out-of-range index for the elaborated
 shape) behave as `EN = 0` — never a lockup, RTL-enforced.
+
+**As wired today (`milan_datapath.sv`, the two `map_wr_data_i` slices).**
+The 16-bit CSR word is the *transport*; each RAM is **8 bits wide** —
+`RMAP` is `N_PHYS_P` = 10 entries deep, `CMAP` is `N_SLOTS_P` = 32 — and
+the two sides take **different slices** of the same word, which is why
+the same hex constant does not mean the same thing on both sides. This
+table is the answer to "I wrote `0x8021`, what did the RAM actually
+receive?":
+
+| `CHMAP_WORD` bit | Render side (`CHMAP_SEL[8] = 0` → RMAP) | Capture side (`CHMAP_SEL[8] = 1` → CMAP) |
+|---|---|---|
+| `[15]` | `en` (RAM bit 7) | `en` (RAM bit 7) |
+| `[14:13]` | *dropped* | `src` high 2 bits (RAM bits 6:5) |
+| `[12]` | `src` — the whole 1-bit source bank (RAM bit 6): 0 = AVB listener, 1 = host playback ring | `src` low bit (RAM bit 4) |
+| `[11:7]` | *dropped* | *dropped* |
+| `[6:4]` | `idx[5:3]` — AVB stream `s`, or `pbch[5:3]` | *dropped* |
+| `[3]` | *dropped* | `idx[3]` |
+| `[2:0]` | `idx[2:0]` — AVB wire channel `c`, or `pbch[2:0]` | `idx[2:0]` |
+
+So the render RAM entry is `{en, src, idx[5:0]}` and the capture RAM
+entry is `{en, src[2:0], idx[3:0]}`. Bit `[7]` and bits `[11:8]` reach
+neither RAM; the render side additionally drops `[3]`, so **both of its
+index nibbles are carried 3 bits wide** — streams 0..7 and channels
+0..7, exactly the 8×8 shape, and nothing wider is expressible without a
+wider entry. Out-of-range indexes are guarded at the RAM *read*, not at
+the write port, and render as 0 / silence.
+
+Worked examples, hex as typed at the bench:
+
+| CSR word | Side | RAM entry | Meaning |
+|---|---|---|---|
+| `0x8021` | render | `0x91` | EN, AVB, stream 2, channel 1 |
+| `0x9002` | render | `0xC2` | EN, playback ring, linear `pbch` 2 = pair slot 1 LEFT |
+| `0x9000` | capture | `0x90` | EN, `I2S_IN`, pair 0 — the legacy talker-0 wiring |
+| `0xC000` | capture | `0xC0` | EN, `TONE` — the §12 all-slots pilot probe |
+| `0x8000` | capture | `0x80` | EN, `ZERO` — a slot that pulses digital silence |
 
 **Render `SRC = 1` (PCM_TX), normative.** On the render side the two
 index nibbles are NOT a `{stream, channel}` split: they concatenate into
@@ -360,6 +511,33 @@ pins its contract as the mirror of `KL_tdm_capture` (G4 conventions):
   rule of [`NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md) §4).
 - Status: `frames_out` liveness counter, CSR-exposed later (not in the
   0x900 window; it is a front-end, not the map).
+
+That lane has since landed as `hdl/ieee1722/aaf/KL_tdm_render.sv`. The
+chain below is the answer to **how a rendered channel becomes a TDM bit,
+and where the one-bclk Philips delay is produced** — the hop the prose
+above cannot hold, because it crosses a clock domain twice:
+
+```mermaid
+flowchart LR
+    XB["render crossbar<br/>phys 2..9, once per media tick"]
+    ADP["chmap_tdm_adapter in milan_datapath<br/>walks phys 2..9 into slot writes,<br/>then ONE frame-commit tick"]
+    BANK["KL_tdm_render slot bank<br/>SLOTS_P x 24-bit, clk_i side"]
+    CDC["gray-pointer cdc_pair_fifo<br/>ONE packed frame per entry"]
+    DBL["active / next double buffer<br/>bclk side - empty at frame start<br/>= repeat last frame, counted"]
+    SER["MSB-first serializer, 24-in-SLOT_BITS_P<br/>shifts on the FALLING bclk edge:<br/>the Philips delay, produced ONCE, here"]
+    OUT["tdm_dout_o - PARKED, no board pin routes it"]
+    EXT["tdm_bclk_i / tdm_fsync_i<br/>INPUTS: the module is the bus SLAVE"]
+
+    XB --> ADP --> BANK --> CDC --> DBL --> SER --> OUT
+    EXT --> SER
+```
+
+One honest correction the diagram forces: the built module is the bus
+**slave** — `tdm_bclk_i` / `tdm_fsync_i` are inputs driven by the
+codec/DSP master, per the `KL_tdm_render.sv` header, which also states
+the symmetry rule ("the master shifts on the falling edge", so this
+render shifts there). The "we are bus master, dividers off the audio
+MMCM" bullet above is the phase-1 *plan*, not what the RTL does.
 
 ## 9. Clocking and slip policy (phase 1, normative)
 

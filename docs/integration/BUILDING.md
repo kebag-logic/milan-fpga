@@ -7,6 +7,50 @@ configuration, and the per-board load/console facts you need after a build
 lands. Test layers around a build: [../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md). Live lab
 state: [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md).*
 
+## 0. The pipeline, and where it can refuse you
+
+*I typed `./build.sh ax8x8` — what actually runs, what can stop it, and what do
+I have to check by hand at the end?*
+
+```mermaid
+flowchart LR
+    CMD["build.sh CONFIG"] --> CFG["cfg_ recipe<br/>the canonical arg list"]
+    CFG --> GATE{"shape gate"}
+    GATE -->|"mismatch"| STOP["REFUSED<br/>nothing launches"]
+    GATE -->|"match"| LAUNCH["detached launch<br/>90 s stagger, max 3<br/>32 threads each"]
+    LAUNCH --> SWEEP["--sweep<br/>3 place directives"]
+    LAUNCH --> OUT["work/build_...<br/>+ .launch.log"]
+    SWEEP --> OUT
+    OUT --> G1{"WNS &gt;= 0"}
+    G1 -->|"pass"| G2{"utilization"}
+    G1 -->|"fail"| RETRY["another seed,<br/>or an area lever"]
+    G2 -->|"pass"| G3{"silicon checklist"}
+    G2 -->|"fail"| RETRY
+    G3 -->|"pass"| SHIP["ship-cleared"]
+    G3 -->|"fail"| RETRY
+    RETRY --> CMD
+
+    classDef gate fill:#FFF3E0,stroke:#EF6C00
+    classDef stop fill:#FFEBEE,stroke:#C62828
+    classDef ok fill:#E8F5E9,stroke:#2E7D32
+    class GATE,G1,G2,G3 gate
+    class STOP stop
+    class SHIP ok
+```
+
+| step | what it checks | automatic? |
+|---|---|---|
+| **shape gate** (`scripts/check_sweep_shape.py`) | the composed command line equals `configs/endstation_<shape>.yaml` — `--num-streams`, `--rx-queues`, `--l2-bytes`, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
+| **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
+| **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
+| **silicon checklist** | boot, `ID=MILN`, driver pairing probe, ghost-peer ARP, TX gate, RX cells | no — run it on the board |
+
+**Only the first one is automatic**, and that asymmetry is the point: a build
+that passes timing and area but regresses the TX gate is **not** ship-cleared,
+and nothing in the pipeline will tell you so. Section 5 has the exact rows.
+With `--sweep`, placement is noise-dominated — keep the best WNS/slices build
+of the three, do not average them.
+
 ## 1. Usage
 
 ```sh
