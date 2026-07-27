@@ -180,15 +180,28 @@ def convert(top, srcs, inc, cfg, tmp, tag):
     return out, None
 
 
+#: `stat` prints ONE BLOCK PER MODULE and only the last block, `=== design
+#: hierarchy ===`, is the whole design. Taking the first `N cells` line reads
+#: whichever leaf yosys happened to emit first - here `tcam`, which is
+#: parameter-independent, so EVERY configuration reported an identical 4,911
+#: cells and the sweep looked like it was measuring something. `stat -top`
+#: emits the hierarchy block; this anchors on it.
+DESIGN_TOTAL_RE = re.compile(r"=== design hierarchy ===.*?^\s+(\d+) cells$",
+                             re.M | re.S)
+
+
 def synth(top, vfile, cfg, tmp):
-    script = f"read_verilog {vfile}; synth -top {top}; hierarchy -check; stat"
+    script = (f"read_verilog {vfile}; synth -top {top}; hierarchy -check; "
+              f"stat -top {top}")
     r = subprocess.run(["yosys", "-p", script], capture_output=True, text=True)
-    cells = re.findall(r"^\s+(\d+) cells$", r.stdout, re.M)
     if r.returncode != 0:
         err = [l for l in (r.stdout + r.stderr).split("\n")
                if l.upper().startswith("ERROR")]
         return None, (err[0] if err else "yosys failed")[:110]
-    return (int(cells[0]) if cells else None), None
+    m = DESIGN_TOTAL_RE.search(r.stdout)
+    if not m:
+        return None, "no '=== design hierarchy ===' total in stat output"
+    return int(m.group(1)), None
 
 
 def sources_from_run_sh(top):
@@ -289,19 +302,41 @@ def main():
                 print(f"  [PASS] {name:<14} cells={cells:<8} "
                       f"{time.time() - t1:.0f}s{delta}")
 
-            # An override that changes no cell count changed NOTHING. That is
-            # this project's decorative-ABI pattern wearing a new costume: the
-            # sweep would report every configuration green while having
-            # synthesised the same netlist over and over.
-            if len(seen_cells) == 1 and len(chosen) > 1:
-                print(f"  [FAIL] every configuration produced the SAME cell "
-                      f"count ({next(iter(seen_cells))}) - the parameter "
-                      f"override is not taking effect, so this sweep proves "
-                      f"nothing")
-                fails += 1
-            elif seen_cells:
-                print(f"  distinct netlist sizes: {len(seen_cells)} across "
-                      f"{len(chosen)} configurations (the overrides bite)")
+            # PER-PARAMETER sensitivity, not "some number moved". The first
+            # version of this check only asserted the counts were not all
+            # identical, and it passed while the extraction was reading a
+            # parameter-independent leaf module: AAF_PLAYBACK_P happened to
+            # correlate with the two values seen, so "3 distinct sizes" looked
+            # like proof that all four overrides bit. It proved nothing about
+            # the other three. Now each parameter is judged on pairs that
+            # differ in IT ALONE, and a parameter with no such pair in the plan
+            # is reported undetermined rather than assumed working.
+            by_cfg = {n: c for n, c in chosen.items()}
+            cells_of = {n: c for c, ns in seen_cells.items() for n in ns}
+            for pname in SPACE:
+                pairs = [(a, b) for a, b in itertools.combinations(by_cfg, 2)
+                         if by_cfg[a][pname] != by_cfg[b][pname]
+                         and all(by_cfg[a][k] == by_cfg[b][k]
+                                 for k in SPACE if k != pname)]
+                pairs = [(a, b) for a, b in pairs
+                         if a in cells_of and b in cells_of]
+                if not pairs:
+                    print(f"  [warn] {pname}: no pair in this plan differs in "
+                          f"it alone - sensitivity UNDETERMINED, not proven")
+                    continue
+                moved = [(a, b) for a, b in pairs
+                         if cells_of[a] != cells_of[b]]
+                if moved:
+                    a, b = moved[0]
+                    print(f"  [ok]   {pname}: {cells_of[a]} vs {cells_of[b]} "
+                          f"({a} vs {b}) - the override bites")
+                else:
+                    a, b = pairs[0]
+                    print(f"  [FAIL] {pname}: {a} and {b} differ ONLY in "
+                          f"{pname} yet synthesised to the same "
+                          f"{cells_of[a]} cells - that override is not taking "
+                          f"effect")
+                    fails += 1
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
