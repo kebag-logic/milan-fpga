@@ -113,6 +113,23 @@ module KL_acmp_tlkr_ctx #(
   reg          ovfl_r;                  //! frame longer than the buffer
   reg          len_ok_r;                //! tlast beat carried >= 70 bytes
 
+  //! THE capture gate - one expression, shared by the RAM port below and by
+  //! the field-capture branch in the main FSM so the two cannot diverge.
+  //! ALWAYS-ARMED (07-18, same fix as the listener): captures run through
+  //! CLASSIFY_S so zero-gap back-to-back frames are not lost; RESPOND_S
+  //! stays off to protect the fword echo source.
+  wire w_cap_hs = rxv_r && ((st_r == COLLECT_S) || (st_r == CLASSIFY_S));
+
+  //! frame-word RAM port in its OWN reset-free process, exactly like
+  //! tmr_ram_wr below. Vivado refuses RAM inference for an array written
+  //! under an async reset (Synth 8-4767), so leaving this write inside the
+  //! main always_ff held all 9x64 b in flops AND paid the 64-bit 9:1
+  //! rword_w mux in logic. fword_r never appeared in that block's reset
+  //! branch, so the hoist is BIT-EXACT: same enable, address, data, edge.
+  always_ff @(posedge clk_i) begin : fword_wr
+    if (w_cap_hs && (wbeat_r < 4'(NUM_BEATS_C))) fword_r[wbeat_r[3:0]] <= rxd_r;
+  end : fword_wr
+
   // -----------------------------------------------------------------------
   // Classification captures — fixed beat/lane picks on the registered tap
   // -----------------------------------------------------------------------
@@ -311,14 +328,11 @@ module KL_acmp_tlkr_ctx #(
         s1_pend_r <= (tick_1s_i | s1_pend_r) & ~start;
       end
 
-      //! ALWAYS-ARMED capture (07-18, same fix as the listener): field
-      //! captures run through CLASSIFY_S so zero-gap back-to-back frames
-      //! are not lost. Capture stays off in RESPOND_S to protect the
-      //! fword echo source.
-      if (rxv_r && (st_r == COLLECT_S || st_r == CLASSIFY_S)) begin
-            if (wbeat_r < 4'(NUM_BEATS_C))
-              fword_r[wbeat_r[3:0]] <= rxd_r;
-            else
+      //! ALWAYS-ARMED capture (07-18, same fix as the listener) - see
+      //! w_cap_hs, which this branch shares with the reset-free fword_r RAM
+      //! port so the two arm on exactly the same cycles.
+      if (w_cap_hs) begin
+            if (wbeat_r >= 4'(NUM_BEATS_C))
               ovfl_r <= 1'b1;
 
             //! fresh-frame hygiene: beat 0 clears the previous frame's ovfl

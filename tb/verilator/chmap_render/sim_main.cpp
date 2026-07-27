@@ -287,6 +287,44 @@ int main(int argc, char** argv) {
   ck("pb.disarmed renders 0", phys(0), 0);
   ck("pb.disarmed clears pb_mask bit", dut->pb_mask_o & 1, 0);
 
+  // ================================================================
+  // Phase 8: SAME-CYCLE map write + latch write to the address that map
+  //   write is pointing at. The render keeps, per phys channel, the value
+  //   of the entry its map word addresses (the 07-27 area round replaced
+  //   N_PHYS_P independent 80:1 muxes with one shared read plus write-side
+  //   tracking). The shared read returns the entry as it stands BEFORE the
+  //   edge, so if a sample for the newly-mapped address lands on that very
+  //   edge the tracker must take the sample, not the stale read - i.e. the
+  //   write-match has to be tested against the INCOMING map word.
+  //   The old muxes got this for free (they re-selected at the tick, long
+  //   after both writes had settled), so nothing in Phases 1-7 covers it.
+  // ================================================================
+  {
+    drive_frame(1, 8, 0xD00);            // cur[1][0] = value(1,0,0xD05)
+    wr_map(0, 1, 0, 0);                  // phys0 <- stream0 ch0 for now
+    do_tick();
+    ck("same.baseline s0c0", phys(0), value(0, 0, 0xC05));
+
+    // ONE beat carrying stream1 ch0/ch1 with tag 0xE00, on the SAME edge as
+    // the map write that repoints phys0 at stream1 ch0.
+    dut->s_tdata_i  = beat(value(1, 0, 0xE00), 0xAA, value(1, 1, 0xE00), 0x55);
+    dut->s_tvalid_i = 1; dut->s_tuser_i = 1; dut->s_tlast_i = 1;
+    dut->map_wr_en_i   = 1;
+    dut->map_wr_addr_i = 0;
+    dut->map_wr_data_i = (1 << 7) | (1 << 3) | 0;   // en, src=AVB, s1 c0
+    step();
+    dut->s_tvalid_i = 0; dut->s_tlast_i = 0; dut->map_wr_en_i = 0;
+
+    do_tick();
+    ck("same.map+latch takes the NEW sample", phys(0), value(1, 0, 0xE00));
+
+    // and the ordinary (no collision) repoint still shows the value that was
+    // already latched, which is what makes the check above specific
+    wr_map(1, 1, 1, 1);
+    do_tick();
+    ck("same.plain repoint sees latched", phys(1), value(1, 1, 0xE00));
+  }
+
   printf("%ld checks, %ld failures, RESULT: %s\n", checks, fails,
          fails ? "FAIL" : "PASS");
   delete dut;
