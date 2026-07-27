@@ -7,6 +7,12 @@ page is the how-to-use; the diagram is the map; [HEADER_SPLIT_DESIGN.md](../fpga
 silicon history; the live state is [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) (boards, images,
 pairings) plus [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md) (the measured campaign record).*
 
+## Contents
+
+- **[How to change behavior safely (the loop)](#how-to-change-behavior-safely-the-loop)** — Four steps, and step 2 is the one that bites: the gateware⇄driver pairings here are lethal, not degrading — a `hs_pgsz` mismatch DMA-overruns kernel memory and panicked a board. Ends with the two interpretation laws that tell absorbency problems from a delivery hold in the TCP loop.
+- **[The ranked extraction list (as of 2026-07-11)](#the-ranked-extraction-list-as-of-2026-07-11)** — What is left to extract, in order, with the closed items left in place and their verdicts: zero-copy flip measured and abandoned because the economics do not work at 100 MHz, AREA-70 closed at 70.1 % LUTs, hardening shipped.
+- **[Regression net](#regression-net)** — What has to be green before place & route: `test_ring_bd.py`, 42 plain-Python tests in ~25 min, every model mirroring the real driver contract rather than the device.
+
 ## How to change behavior safely (the loop)
 
 1. **Find the knob on the diagram**  -  each is tagged with where it lives:

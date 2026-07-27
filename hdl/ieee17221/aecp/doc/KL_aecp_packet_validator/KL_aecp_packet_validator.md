@@ -13,6 +13,13 @@ First stage of the AECP pipeline. Inspects beat 0 of every incoming frame and de
 
 ---
 
+## Contents
+
+- **[Ports](#ports)** — The AXIS pair plus four sidebands. `valid_o` and `drop_o` are the two mutually exclusive verdict strobes downstream stages key off, and `status_o` carries the reason a frame was rejected.
+- **[Signals](#signals)** — Internals, including the two combinational bit-slices the whole decision rests on: `message_type` and `control_data_length` lifted straight out of beat 0's `tdata`.
+- **[State machine](#state-machine)** — Three states. The one to note is `DROP_S`: a rejected frame is still *consumed* beat by beat rather than abandoned, so a bad frame cannot stall the stream.
+- **[Timing](#timing)** — The three properties an integrator needs: the verdict is combinational on beat 0 so no latency is added, the strobes are exactly one cycle wide at `tlast`, and backpressure is honoured while forwarding.
+
 ## Ports
 
 | Port | Dir | Type | Description |
