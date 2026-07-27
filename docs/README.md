@@ -189,7 +189,7 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | Document | Purpose |
 |----------|---------|
 | [REGISTER_MAP.md](reference/REGISTER_MAP.md) | The AXI4-Lite CSR ABI (groups 0x000-0x900) + the ring-DMA CSR windows - the HDL/driver/DT contract, asserted by the `csr` harness. |
-| [EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | **The map of record for the six egress queues** (802.1Q order, higher index = higher priority): what lands on q5…q0 and how it is classified, the PCP→TC→queue tables, control classification by reserved DMAC, the CBS reset slopes, why gPTP sits *below* the shaped classes, the FQTSS measurements, and the two-queue RX ingress split. |
+| [EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | **The map of record for the five egress queues** (802.1Q order, higher index = higher priority): what lands on q4…q0 and how it is classified, why the sixth queue was dropped, the PCP→TC→queue tables, control classification by reserved DMAC, the CBS reset slopes, why gPTP sits *below* the shaped classes, the FQTSS measurements, and the two-queue RX ingress split. |
 | [FR_NFR.md](reference/FR_NFR.md) | Functional / non-functional requirement register (FR-*/NFR-*). |
 | [MILAN_V12_DEPENDENCY_MATRIX.md](reference/MILAN_V12_DEPENDENCY_MATRIX.md) | Milan v1.2 → FR/NFR dependency matrix with verification traceability. |
 | [`../REQUIREMENTS.md`](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (REQ-*; partly Zynq-era). |

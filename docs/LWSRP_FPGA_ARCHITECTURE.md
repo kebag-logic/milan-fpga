@@ -157,7 +157,7 @@ detail in [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md))
 
 | Offset | Field |
 |---|---|
-| 0x680 | LWSRP_CTRL (RW, reset `0x14`): [0] enable · [1] talker0 enable · [4:2] class-A queue for the slope mux (reset **5** = q5, the SR class A queue of the six-queue map; the field was [3:2] until VERSION `0x0011`) |
+| 0x680 | LWSRP_CTRL (RW, reset `0x10`): [0] enable · [1] talker0 enable · [4:2] class-A queue for the slope mux (reset **4** = q4, the SR class A queue of the five-queue map; the field was [3:2] until VERSION `0x0011` and its reset was 5 until `0x0014`) |
 | 0x684 | LWSRP_VID (RW): [11:0] SR VID (reset 2) |
 | 0x688/0x68C | LWSRP_DMAC lo/hi (RW): stream dest MAC (until fabric MAAP) |
 | 0x690 | LWSRP_TSPEC (RW): {MaxIntervalFrames[31:16], MaxFrameSize[15:0]} |

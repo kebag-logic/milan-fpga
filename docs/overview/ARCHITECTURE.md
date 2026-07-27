@@ -78,7 +78,7 @@ milan-fpga/
    │        ▼                                         WishboneDMAWriter (TS)           │
    │  ┌─────────────────────── milan_datapath (hdl/, vendor-neutral) ───────────────┐  │
    │  │ milan_csr ── config/status/IRQ to every block below                         │  │
-   │  │ TX: s_axis_tx ─► classify ─► 6 queues ─► CBS ─► PTP-TX ─► arb ──► mac_tx    │  │
+   │  │ TX: s_axis_tx ─► classify ─► 5 queues ─► CBS ─► PTP-TX ─► arb ──► mac_tx    │  │
    │  │     fabric engines (AAF/ADP/ACMP/AECP/MAAP/CRF/lwSRP) join at ─┘ (post-CBS) │  │
    │  │ RX: mac_rx ─► PTP-RX ─┬─► TCAM dest-MAC filter ─► m_axis_rx   (host copy)   │  │
    │  │                       └─► AVTP parse ─► monitor ─► depkt ─► PCM (media)     │  │
