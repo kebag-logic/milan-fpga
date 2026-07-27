@@ -50,6 +50,10 @@ module aaf_talker_i2s #(
     input  wire [31:0]  transit_ns_i,      //! presentation offset added to the PHC timestamp (SET_STREAM_INFO msrp_acc_lat; reset default 2 ms)
     input  wire [11:0]  vlan_vid_i,        //! SR class VID (default 2)
     input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
+    //! AVTP "tu" (timestamp uncertain), IEEE 1722-2016 4.4.4.7 / Milan v1.2
+    //! 4.3.5.2: 1 = our presentation times may not correspond to gPTP time.
+    //! Latched at frame launch. Drive 0 for the pre-2026-07-27 wire bytes.
+    input  wire         ts_uncertain_i,
     //! pilot tone override (CSR TONE_CTRL: 1 kHz 0 dBFS test source; when
     //! set, the ADC samples are replaced by tone_smp_i on both channels)
     input  wire         tone_en_i,
@@ -181,6 +185,7 @@ module aaf_talker_i2s #(
   reg [2:0]  nsamp_r;
   reg [31:0] ts_r;
   reg [7:0]  seq_r;
+  reg        tu_r;   //! tu frozen for the whole frame (latched with pend)
   reg        frame_pend_r;              //! a full frame waits for the serialiser
 
   // -----------------------------------------------------------------------
@@ -200,7 +205,7 @@ module aaf_talker_i2s #(
     fb[18]=8'h02;                       // subtype AAF
     fb[19]=8'h81;                       // sv=1, ver=0, mr=0, tv=1
     fb[20]=seq_r;                       // sequence_num
-    fb[21]=8'h00;                       // reserved, tu=0
+    fb[21]={7'h00, tu_r};               // reserved[7:1], tu (4.4.4.7)
     {fb[22],fb[23],fb[24],fb[25],fb[26],fb[27],fb[28],fb[29]} = stream_id;
     {fb[30],fb[31],fb[32],fb[33]} = ts_r;                  // avtp_timestamp
     fb[34]=8'h02;                       // format = INT_32BIT
@@ -236,7 +241,7 @@ module aaf_talker_i2s #(
 
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      st_r <= IDLE_S; beat_r <= '0; nsamp_r <= '0; seq_r <= '0;
+      st_r <= IDLE_S; beat_r <= '0; nsamp_r <= '0; seq_r <= '0; tu_r <= 1'b0;
       ts_r <= '0; frame_pend_r <= 1'b0; frames_sent_o <= '0; pairs_captured_o <= '0;
       for (int i = 0; i < SAMPLES_PER_FRAME; i++) begin
         buf_l[i] <= '0; buf_r[i] <= '0;
@@ -260,7 +265,9 @@ module aaf_talker_i2s #(
       end
 
       case (st_r)
-        IDLE_S: if (frame_pend_r) begin beat_r <= '0; st_r <= SEND_S; end
+        IDLE_S: if (frame_pend_r) begin
+          beat_r <= '0; tu_r <= ts_uncertain_i; st_r <= SEND_S;
+        end
         SEND_S: if (m_axis_tready) begin
           if (beat_r == NUM_BEATS-1) begin
             st_r <= IDLE_S; frame_pend_r <= 1'b0;

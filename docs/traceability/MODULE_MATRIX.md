@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 82 modules · 80 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 83 modules · 81 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,8 +32,8 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
     y-axis "modules" 0 --> 30
-    bar [2, 29, 4, 10, 18, 19]
-    bar [1, 28, 4, 10, 18, 19]
+    bar [2, 29, 5, 10, 18, 19]
+    bar [1, 28, 5, 10, 18, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -42,7 +42,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 |---|---|---|---|---|---|---|
 | Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
 | IEEE 1722 (AVTP) | 29 | 28 | 0 | 25 | 0 | 0 |
-| IEEE 802.1AS | 4 | 4 | 0 | 0 | 0 | 0 |
+| IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 18 | 18 | 0 | 18 | 0 | 0 |
 | IEEE 802.1Q | 19 | 19 | 0 | 0 | 0 | 0 |
@@ -152,6 +152,7 @@ _gPTP timestamping / pdelay / sync_
 
 | module | file | test | clauses |
 |---|---|---|---|
+| ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `hostplane` · `milan_dp` | — |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `hostplane` · `milan_dp` · `ptp_sync` · `ptp_ts` | — |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `ptp_ts_top` | `ieee8021as/ptp_timestamp/ptp_ts_top.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |

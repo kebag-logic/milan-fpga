@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0014 (five egress queues, compactly renumbered)",
-       axi_read(A_VERSION), 0x00010014);
+       axi_read(A_VERSION), 0x00010015);
 
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     const uint8_t sidB[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};

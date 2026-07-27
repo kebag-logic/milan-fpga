@@ -62,6 +62,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! remember the -72.7 dB analog loop record was measured THROUGH the
   //! filter, so a pruned bitstream is not the one that number belongs to.
   parameter int LPF_P = 1,
+  //! KL_ptp_clock_validity time base: cycles per 250 ms quarter-tick. The
+  //! real value is MILAN_CLK_FREQ_HZ/4; simulation shapes shrink it so a
+  //! grandmaster holdover and a lease expiry are reachable in a TB run
+  //! (the -GPB_PREFILL_C precedent). Never shrink it in a real build - the
+  //! Milan Annex B.1.1 holdover is 0.25 s of WALL time.
+  parameter int CLKV_QTICK_CYC_P = MILAN_CLK_FREQ_HZ / 4,
   // ==========================================================================
   //  OPTIONAL-BLOCK PRUNE PARAMETERS (docs/design/AREA_BUDGET.md tier 1).
   //  Every one of them DEFAULTS TO 1 = PRESENT, so a build that passes none
@@ -540,6 +546,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .vlan_vid_i (cfg_aaf_vid),
     .transit_ns_i (aecp_pres_offset),
     .ptp_ns_i (ptp_now_w),
+    .ts_uncertain_i (clkv_tu_w),
     //! P12: TCTX window port <- the CSR 0x800 window (talker dir)
     .tctx_wr_en_i (csr_tctx_wr_p_w), .tctx_wr_addr_i (csr_tctx_wr_addr_w),
     .tctx_wr_data_i (csr_tctx_wr_data_w), .tctx_wr_rdy_o (tctx_wr_rdy_w),
@@ -600,6 +607,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] cfg_ptp_incr, cfg_ptp_adj;
   wire [63:0] cfg_ptp_tod_wr, cfg_ptp_offset;
   wire        cfg_ptp_cmd_load, cfg_ptp_cmd_adjust, cfg_ptp_cmd_snapshot;
+  wire        cfg_clkv_wr_p, cfg_clkv_sync_ok, cfg_clkv_disc_p;
+  wire [11:0] cfg_clkv_wdog_q;
   wire [31:0] cfg_ptp_ingress_lat, cfg_ptp_egress_lat;
   wire [63:0] ptp_tod_rd;
   wire        ptp_tod_rd_valid;
@@ -876,6 +885,36 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!                     cfg_aaf_bypass escape hatch mirrored.
   //!   * lwSRP term    : per-stream P5 gate (KL_lwsrp_bw_gate via the ctx
   //!                     rows), with t0's ~cfg_lwsrp_enable escape.
+  // ==========================================================================
+  //  CLOCK VALIDITY - the AVTP "tu" verdict for every talker.
+  //  Milan v1.2 5.3.7.3 forbids stopping a Stream Output, so this is NOT a
+  //  stream gate: the standard's lever for "my clock may be wrong" is the tu
+  //  bit (Milan 4.3.5.2 -> IEEE 1722-2016 4.4.4.7, Annex B.1.1). Reset state
+  //  is tu = 1 (no software lease): unknown clock == not valid.
+  //  docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
+  // ==========================================================================
+  wire        clkv_tu_w;
+  wire [31:0] clkv_stat_w, clkv_tucnt_w;
+  KL_ptp_clock_validity #(
+    .QTICK_CYC_P (CLKV_QTICK_CYC_P)
+  ) ptp_clock_validity (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .sw_wr_p_i    (cfg_clkv_wr_p),
+    .sw_sync_ok_i (cfg_clkv_sync_ok),
+    .sw_disc_p_i  (cfg_clkv_disc_p),
+    .sw_wdog_q_i  (cfg_clkv_wdog_q),
+    //! a settime / adjtime IS a gPTP time discontinuity (4.4.4.7), and it is
+    //! the ONE piece of clock truth this fabric can see without being told
+    .phc_load_p_i (cfg_ptp_cmd_load),
+    .phc_adj_p_i  (cfg_ptp_cmd_adjust),
+    //! the daemon already publishes gptp_grandmaster_id for the advertiser;
+    //! a change in it is a change of grandmaster (Milan Annex B.1.1)
+    .gm_id_i      (cfg_adp_gptp_gm),
+    .ts_uncertain_o (clkv_tu_w),
+    .stat_o         (clkv_stat_w),
+    .tu_ivals_o     (clkv_tucnt_w)
+  );
+
   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
   logic [N_STREAMS-1:0] tctx_en_r;
   assign aaf_stream_en_w[0] = aaf_gate;
@@ -1114,6 +1153,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_ptp_adj         (cfg_ptp_adj),
     .o_ptp_tod_wr      (cfg_ptp_tod_wr),
     .o_ptp_offset      (cfg_ptp_offset),
+    .o_clkv_wr_p       (cfg_clkv_wr_p),
+    .o_clkv_sync_ok    (cfg_clkv_sync_ok),
+    .o_clkv_disc_p     (cfg_clkv_disc_p),
+    .o_clkv_wdog_q     (cfg_clkv_wdog_q),
+    .i_clkv_stat       (clkv_stat_w),
+    .i_clkv_tucnt      (clkv_tucnt_w),
     .o_ptp_cmd_load    (cfg_ptp_cmd_load),
     .o_ptp_cmd_adjust  (cfg_ptp_cmd_adjust),
     .o_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
@@ -2229,6 +2274,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! same source of truth as the AAF framer (SET_STREAM_INFO ACC_LAT/MTT)
     .transit_ns_i  (aecp_pres_offset),
     .ptp_ns_i      (ptp_now_w),
+    .ts_uncertain_i (clkv_tu_w),
     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
     .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
     .m_axis_tready(crft_tx_tready),

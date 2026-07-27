@@ -175,8 +175,9 @@ control/data/event pattern documented generically in
 - **Proven on the softcore:** the BIOS `mem_read 0x90000000` returns `4d 49 4c 4e`
   ("MILN") + the `VERSION` word  -  migration milestone **M-A2**. That log captured
   `0x00010003`; VERSION is bumped on every gateware change, so the current tree
-  returns `0x0001_0014` (`milan_csr.sv`, and the value read back off silicon in
-  [`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md)). Only the `"MILN"`
+  returns `0x0001_0015` (`milan_csr.sv`). The last value read back off silicon is
+  `0x0001_0014` ([`FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md)) — the
+  flashed bitstream predates the clock-validity round. Only the `"MILN"`
   ID is the stable part of this check.
 
 ### 5.2 Data  -  `MilanDMA` (§A.6, `--with-dma`)

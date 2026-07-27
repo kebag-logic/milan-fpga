@@ -85,6 +85,7 @@ int main(int argc,char**argv){
     dut->vlan_vid_i=2; dut->ptp_ns_i=0x11223344; dut->transit_ns_i=2000000;
     dut->p2_pair_valid_i=0; dut->p2_en_i=0;
     dut->p2_tctx_wr_en_i=0; dut->p2_tctx_rd_en_i=0;
+    dut->ts_uncertain_i=0;
     cyc(8); dut->rst_n=1; dut->enable_i=1;
 
     printf("== NxN talker lane harness (NXN P4) ==\n");
@@ -110,12 +111,39 @@ int main(int argc,char**argv){
     }
     ck("frame length 90 on both sides", len_ok, 1);
     ck("4 frames BYTE-EXACT gold vs shared packetizer", all_eq, 1);
+    long tu0_ok=1;
+    for(long f=0; f<nf; f++) if(dfr[f][21]!=0x00) tu0_ok=0;
+    ck("synchronised clock: tu=0 on every frame", tu0_ok, 1);
     ck("DUT seq chain 0..3", nf==4 && dfr[0][20]==0 && dfr[1][20]==1 &&
                             dfr[2][20]==2 && dfr[3][20]==3, 1);
     ck("DUT ts = ptp+transit", nf>0 ? (long)be(dfr[0],30,4)
                                     : -1, (long)(0x11223344UL+2000000UL));
     cyc(50);                            // let the last TCTX writeback land
     ck("frames_sent_o alias tracks", dut->d_frames_o >= 4, 1);
+
+    // [GBU] the same byte-compare with the clock declared UNCERTAIN. Two
+    // things must hold at once: the flat golden talker and the shared
+    // packetizer must AGREE (the N=1 axiom now covers the tu bit), and the
+    // only byte that may move is 21 bit 0 - not tv, not the length, not the
+    // cadence (Milan v1.2 5.3.7.3 forbids stopping the Stream Output).
+    printf("\n[GBU] golden byte-compare with tu asserted\n");
+    size_t g0=gfr.size(), d0=dfr.size();
+    dut->ts_uncertain_i=1;
+    for(long c=0; c<800000 && (gfr.size()<g0+3 || dfr.size()<d0+3); c++) step();
+    ck("tu=1: golden still streams", gfr.size()>=g0+3, 1);
+    ck("tu=1: DUT still streams",    dfr.size()>=d0+3, 1);
+    long u_eq=1, u_tu=1, u_len=1, u_tv=1;
+    for(size_t f=g0+1; f<g0+3 && f<gfr.size() && f<dfr.size(); f++){
+        if(gfr[f]!=dfr[f]) u_eq=0;
+        if(dfr[f].size()!=90) u_len=0;
+        if(dfr[f][21]!=0x01) u_tu=0;
+        if(dfr[f][19]!=0x81) u_tv=0;
+    }
+    ck("tu=1: gold and packetizer still BYTE-EXACT", u_eq, 1);
+    ck("tu=1: frames still 90 bytes", u_len, 1);
+    ck("tu=1: byte 21 bit 0 set on the wire", u_tu, 1);
+    ck("tu=1: tv untouched (1722-2016 7.5)", u_tv, 1);
+    dut->ts_uncertain_i=0;
 
     printf("\n[I2T] two-talker interleave (N=2, direct pair injection)\n");
     // t1 CFG via the TCTX window: DMAC base+1, uid=1, vid=2

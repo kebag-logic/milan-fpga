@@ -24,6 +24,9 @@ module aaf_nx_wrap (
   input  wire [11:0]  vlan_vid_i,
   input  wire [31:0]  transit_ns_i,
   input  wire [63:0]  ptp_ns_i,
+  //! AVTP tu (timestamp uncertain). Driven into BOTH sides so the golden
+  //! byte-compare covers the new header bit rather than stepping around it.
+  input  wire         ts_uncertain_i,
 
   //! golden (flat talker) AXIS
   output wire [63:0]  g_tdata_o,
@@ -68,7 +71,7 @@ module aaf_nx_wrap (
     .enable_i (enable_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
     .transit_ns_i (transit_ns_i), .vlan_vid_i (vlan_vid_i),
-    .ptp_ns_i (ptp_ns_i),
+    .ptp_ns_i (ptp_ns_i), .ts_uncertain_i (ts_uncertain_i),
     .tone_en_i (1'b0), .tone_smp_i (24'd0),
     .i2s_mclk_o (), .i2s_sclk_o (), .i2s_lrck_o (),
     .i2s_sdout_i (i2s_sdout_i),
@@ -100,7 +103,7 @@ module aaf_nx_wrap (
     .stream_en_i (enable_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
     .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
-    .ptp_ns_i (ptp_ns_i),
+    .ptp_ns_i (ptp_ns_i), .ts_uncertain_i (ts_uncertain_i),
     .tctx_wr_en_i (1'b0), .tctx_wr_addr_i (7'd0),
     .tctx_wr_data_i (32'd0), .tctx_wr_rdy_o (),
     .tctx_rd_en_i (1'b0), .tctx_rd_addr_i (7'd0),
@@ -119,7 +122,7 @@ module aaf_nx_wrap (
     .stream_en_i (p2_en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
     .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
-    .ptp_ns_i (ptp_ns_i),
+    .ptp_ns_i (ptp_ns_i), .ts_uncertain_i (ts_uncertain_i),
     .tctx_wr_en_i (p2_tctx_wr_en_i), .tctx_wr_addr_i (p2_tctx_wr_addr_i),
     .tctx_wr_data_i (p2_tctx_wr_data_i), .tctx_wr_rdy_o (p2_tctx_wr_rdy_o),
     .tctx_rd_en_i (p2_tctx_rd_en_i), .tctx_rd_addr_i (p2_tctx_rd_addr_i),
