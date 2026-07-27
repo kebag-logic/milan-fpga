@@ -229,7 +229,7 @@ per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 | [templates/](templates/README-tests.template.md) | Per-module doc templates (parameters, tests) — their rows roll up 1:1 into the traceability matrix. |
 | [diagrams/](diagrams/README.md) | Generated system diagrams (the giant single-page system map and friends). Every diagram ships as an editable `.drawio` + rendered `.svg`/`.png`; edit the source (`.gen.py` or the `.drawio`), never the render. |
 | [DOC_GENERATION.md](DOC_GENERATION.md) | **How to generate the docs**: the matrix generator, the TerosHDL module pages, the diagram + chronogram pipelines, the gate/CI — commands + the you-changed-X-run-Y cheat sheet. |
-| [DOC_AUDIT.md](DOC_AUDIT.md) | The 2026-07-23 doc audit + cleanup record (§2 archive move executed 2026-07-25 → `historical_now_obsolete/`). |
+| [`../historical_now_obsolete/DOC_AUDIT.md`](../historical_now_obsolete/DOC_AUDIT.md) | The 2026-07-23 doc audit + cleanup record — **archived 2026-07-27**, its own §2 move having been executed 2026-07-25. Kept for reference. |
 | [SYSTEMS_ENGINEER_GUIDE.md](SYSTEMS_ENGINEER_GUIDE.md) | The journey-ordered front-door guide (also linked at the very top). |
 
 ## Conventions

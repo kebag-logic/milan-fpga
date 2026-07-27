@@ -8,7 +8,7 @@ Every inbound link across the doc set was repaired at move time; `scripts/docs_c
 gates link integrity from here on.
 
 Orientation for current docs: [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../docs/SYSTEMS_ENGINEER_GUIDE.md).
-Full audit rationale: [`docs/DOC_AUDIT.md`](../docs/DOC_AUDIT.md).
+Full audit rationale: [`DOC_AUDIT.md`](DOC_AUDIT.md) (archived here 2026-07-27).
 
 ## Consolidations (merge groups)
 
@@ -39,6 +39,7 @@ dates with conflicting scoreboards. They consolidate to a small living set:
 | [`fpga/HSPLIT14_DESIGN.md`](fpga/HSPLIT14_DESIGN.md) | merged 2026-07-25: hsq12 cut-through chapter folded in (v3 `fill_len`/`hdr_idx` ABI lives there) | [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../docs/fpga/HEADER_SPLIT_DESIGN.md) |
 | [`integration/FULLY_FPGA_RISCV_MIGRATION.md`](integration/FULLY_FPGA_RISCV_MIGRATION.md) | completed PS→fabric migration plan | [`docs/litex/LITEX_SOC.md`](../docs/litex/LITEX_SOC.md), [`docs/integration/BOARD_PORTING_AX7101.md`](../docs/integration/BOARD_PORTING_AX7101.md), [`docs/integration/INTEGRATION_GUIDE.md`](../docs/integration/INTEGRATION_GUIDE.md) |
 | [`integration/OPEN_SOURCE_MIGRATION.md`](integration/OPEN_SOURCE_MIGRATION.md) | completed de-Xilinx plan | [`docs/integration/PORTING_GUIDE.md`](../docs/integration/PORTING_GUIDE.md) §2 |
+| [`DOC_AUDIT.md`](DOC_AUDIT.md) | completed plan — a self-declared "planning + drafting only" frozen record whose §2 archive move was executed 2026-07-25; the living ledger of what is archived is **this page** | [`docs/README.md`](../docs/README.md), [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../docs/SYSTEMS_ENGINEER_GUIDE.md) |
 
 Preserved evergreen nuggets (recorded so nothing is lost): the datapath-input TX-vs-CPU
 probe method (RX_FANOUT), the Forencich open-core catalog (OPEN_SOURCE_MIGRATION), the
