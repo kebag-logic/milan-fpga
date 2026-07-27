@@ -67,7 +67,8 @@ snd-kl-milan + pw-milan-ring-source
 (private test repo)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1240" y="1104" width="320" height="78" as="geometry"/></mxCell>
 <mxCell id="n_lpf" value="KL_pcm_lpf
 20 kHz Butterworth biquad
-serial-MAC, ~12 clk/pair" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1660" y="700" width="220" height="78" as="geometry"/></mxCell>
+serial-MAC, ~12 clk/pair
+LPF_P=0 PRUNES it (ax7101 does)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1660" y="700" width="220" height="78" as="geometry"/></mxCell>
 <mxCell id="n_i2spb" value="KL_i2s_playback
 CS4344 DAC, clean-clock free-run
 I2SPB_STAT 0x6D8, wire-truth chans" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;fontSize=12;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;" vertex="1" parent="1"><mxGeometry x="1948" y="700" width="268" height="78" as="geometry"/></mxCell>

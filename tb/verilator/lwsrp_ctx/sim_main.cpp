@@ -536,6 +536,42 @@ int main(int argc, char** argv) {
         ck("recover: CRF registered again", (dut->ctx_reg_o >> 1) & 1, 1);
     }
 
+    // 12) THE BORROW TERM ON THE CONTEXT LANES. The walker carries three
+    //   independent +k matchers: our_sid and the ACMP-bound lsid (both
+    //   pinned in the lwsrp_rx suite) and ONE PER CONTEXT ROW - EXT_LANES_P,
+    //   which is 14 at the ax7101 8x8 shape and 3 here. The 2026-07-27 area
+    //   round rewrote all three from a 64-bit subtract PLUS an independent
+    //   magnitude compare into one 65-bit borrow-out subtract, and dropping
+    //   the borrow bit from the CONTEXT LANES alone left every check in
+    //   lwsrp_rx AND lwsrp_ctx green (mutation-found). This is the only
+    //   harness that can provision a row, so it is pinned here.
+    //   The alias needs base - sid > 2^64 - 8192, i.e. a SMALL sid: exactly
+    //   what a low-numbered or not-yet-provisioned row carries.
+    {
+        drain_tx();
+        ctx_write(2, 1, 1, 5);              // row 2 = listener bound to sid 5
+        run(400);
+        // base = 2^64-1, nv = 8  ->  (5 - base) mod 2^64 = 6 < 8, so a
+        // wrap-blind lane "registers" row 2 off a vector that never covers it
+        Vec v; v.nv = 8; v.fv = fv_talker(0xFFFFFFFFFFFFFFFFULL);
+        v.evts.assign(8, EV_MT); v.evts[6] = EV_JOININ;
+        feed(bframe({msg_tadv(v)}));
+        run(400);
+        ck("wrap-ctx: base > sid never registers",
+           (dut->ctx_reg_o >> 2) & 1, 0);
+        // control: the same shape based at 0 is a genuine hit at k = 5, which
+        // is what makes the negative above the BORROW term and not a malformed
+        // vector or an unprovisioned row
+        Vec g; g.nv = 8; g.fv = fv_talker(0);
+        g.evts.assign(8, EV_MT); g.evts[5] = EV_JOININ;
+        feed(bframe({msg_tadv(g)}));
+        run(400);
+        ck("wrap-ctx: base <= sid registers", (dut->ctx_reg_o >> 2) & 1, 1);
+        ctx_write(2, 0, 0, 0);
+        run(400);
+        drain_tx();
+    }
+
     ck("final: no RX drops", dut->rx_drops_o, 0);
     ck("final: ctx MRPDUs were sent", dut->ctx_tx_count_o > 0, 1);
 

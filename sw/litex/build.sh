@@ -146,7 +146,17 @@ cfg_ax8x8() {    # 8-stream (64ch) fits+closes shape. The 8x8 was NOT area-bound
           --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --uart-baudrate 115200 --rx-queues 1 --strip-probes --hs-page-bytes 16384 \
-          --num-streams 8 --place-directive AltSpreadLogic_high"
+          --num-streams 8 --no-render-lpf --place-directive AltSpreadLogic_high"
+                 # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
+                 # docs/NXN_ARCHITECTURE.md 6.2/6.3). 428 LUT / 756 FF / 0 DSP
+                 # from the shipping 8x8 place report - the only Vivado-PROVEN
+                 # figure of that round - on the board whose 6-queue map missed
+                 # placement by 282 slices. Pruned, the render tap behaves
+                 # exactly like LPF_CTRL[0]=0 does today (raw AXIS to the DAC),
+                 # so no CSR and no digital acceptance surface moves; the analog
+                 # loop THD+N record, however, was measured THROUGH the filter
+                 # and must be re-measured before it is quoted against this
+                 # bitstream. Drop the flag to put the filter back.
                  # eth-port defaults to e1 (the bench default, same as cfg_ax7101).
                  # If the AX cable is on e2, append `-- --eth-port e2`; AX42's guard
                  # reset scope covers either PHY's tx/gtx path.
