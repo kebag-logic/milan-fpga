@@ -26,7 +26,7 @@ R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 # OPTS/L2/RXQ/NS == the end-station config named in CFG below.
 # ========================================================================
 case "$BOARD" in
-  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=65536; RXQ=2;;
+  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"; L2=16384; RXQ=1;;
   ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-render-lpf"; L2=16384; RXQ=1;;  # eth-port MUST match the physical cable: the bench cable is on e1 (USER 2026-07-27) and the shipping bitstream was built with the e1 default, so forcing e2 here produced a bitstream that could not reach the network. e2 remains the documented fallback for the 2026-07-22 e1 GMII-RX fault - move the cable FIRST, then change this. L2 16K = the 8x8 shape that closed (build.sh cfg_ax8x8), NOT the 1x1 32K. --no-render-lpf is the SPENT LPF_P area lever (428 LUT / 756 FF, the one Vivado-PROVEN figure of the 07-27 round) on the board that missed placement by 282 slices - the pruned datapath behaves exactly like LPF_CTRL[0]=0 does today, but the analog loop THD+N record was measured THROUGH the filter and must be re-measured before it is quoted against this bitstream
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac

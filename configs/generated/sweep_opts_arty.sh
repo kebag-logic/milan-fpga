@@ -6,5 +6,5 @@
 # inline tables are the fallback. Regenerate:
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
 OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6"
-L2=65536
-RXQ=2
+L2=16384
+RXQ=1
