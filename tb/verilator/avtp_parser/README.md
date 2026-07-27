@@ -18,6 +18,12 @@ the fabric listener accepts nothing on the flashed 8×8 gateware while ACMP
 reports a clean bind and both ends agree on the `stream_id`. Nothing owned the
 N=8 compare that issues that verdict.
 
+## Contents
+
+- **[Shapes](#shapes)** — The five binaries `make` builds and why each exists (N=1/4/8, the big-endian knob, and the table+parser wrap). The load-bearing sentence: the index port width is a function of `N_STREAMS`, so table entries 4..7 are only *expressible* at N=8 — the width is the coverage.
+- **[What each source covers](#what-each-source-covers)** — Groups A..H of `sim_parser.cpp` (~2 600 checks/shape) and T1..T6 of `sim_tbl.cpp`. Go here for the reject leg — every way software and the wire can disagree while both believe they agree, each asserted as *PARSED climbs, MATCHED does not*. T6 characterises TRAP-1: any override write to entry 0, evict included, permanently detaches the ACMP alias until a reset.
+- **[Notes](#notes)** — Two things left deliberately visible: the `ASCRANGE` warning from a `[-1:0]` port width at N=1 (harmless, still a wart), and why the harness models the probe words in C++ rather than mirroring the datapath latch in RTL — a mirror of a defect cannot catch it.
+
 ## Shapes
 
 `make` builds five binaries from two sources and runs them all (a red shape

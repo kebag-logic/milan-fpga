@@ -12,6 +12,20 @@ protocol-level coverage contract is
 > one dir per suite) and the authoritative synthesis-top count is the `tops`
 > array in `syn/yosys/run.sh`. If a doc and the tree disagree, the tree wins.
 
+## Contents
+
+- **[Which layer do I run?](#which-layer-do-i-run)** — Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom — timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
+- **[0. Prerequisites](#0-prerequisites)** — What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see §7 for why) and the `verilog-axis` submodule that five suites elaborate.
+- **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** — The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign, and a full per-suite result table from the 2026-07-26 sweep — with the standing reminder that `ls tb/verilator/` is the authority, not the table.
+- **[2. Migen DMA-engine sims - sw/litex/test_*.py](#2-migen-dma-engine-sims---swlitextest_py)** — The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
+- **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** — Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end — the M-A2 `"MILN"` read, in simulation, before any board exists.
+- **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** — sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
+- **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** — What still lives under `tb/utests`, `tb/itests` and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
+- **[6. On-silicon validation](#6-on-silicon-validation)** — The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
+- **[6b. Unattended campaigns — status file and alert webhook](#6b-unattended-campaigns--status-file-and-alert-webhook)** — The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts — that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
+- **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** — What CI does and does not cover now, and the measured Verilator version table worth knowing before you file a build bug: 5.020 cannot build four suites, 5.032 silently mis-reads six `aecp` checks, 5.050 is the pin. States why CI builds Verilator from source instead of trusting `apt`, and why the RTL was deliberately not contorted to satisfy the older tool.
+- **[Policy](#policy)** — The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
+
 ## Which layer do I run?
 
 *I changed X — what is the cheapest thing that would catch me being wrong?*

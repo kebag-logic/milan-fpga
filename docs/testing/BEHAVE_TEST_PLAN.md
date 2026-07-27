@@ -6,6 +6,19 @@ docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix
 [`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md), [`docs/reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md)
 (CSR ABI, base `0x90000000`), [`docs/findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) (rig + tap tools).
 
+## Contents
+
+- **[0. Principle — the suite IS the matrix](#0-principle--the-suite-is-the-matrix)** — The rule that makes this a plan rather than a wish list: every scenario carries `@clause`/`@matrix`/`@roadmap` tags, so the traceability matrix's amber and red rows *generate* the backlog and a row may go green only once a passing non-`@wip` scenario cites it.
+- **[1. Current state (reconnaissance 2026-07-23)](#1-current-state-reconnaissance-2026-07-23)** — Inventory of the four suites that already exist, what each is good for, and the two problems: no shared `behave.ini`, and suites A and B are drifting copies. Carries a 2026-07-26 update — the in-repo suite is now a CI gate and has roughly doubled to 21 features / 113 scenarios. Ends with the immediately-visible coverage holes.
+- **[2. Architecture (decisions locked with USER)](#2-architecture-decisions-locked-with-user)** — Three locked decisions: organise by subsystem (tags do the clause slicing), three tiers with T0/T1 CI-green and T2 `@bench`-gated, and P0 = the seven red matrix rows first.
+- **[3. Tag taxonomy (author into a shared behave.ini + environment.py)](#3-tag-taxonomy-author-into-a-shared-behaveini--environmentpy)** — The tag vocabulary in one block, plus the three command lines it buys you (green gate, bench gate, per-row compliance report). Note `@rtl-defect`: a scenario that deliberately asserts current NON-compliant behaviour and must be flipped when the RTL is fixed.
+- **[4. The 14-domain coverage map](#4-the-14-domain-coverage-map)** — The working table of the whole plan: per subsystem, what exists, which matrix rows are still open, the planned feature file, and — most usefully — the concrete assertion mechanism, down to the tap filter or CSR offset you would read.
+- **[5. P0 backlog — concrete feature skeletons](#5-p0-backlog--concrete-feature-skeletons)** — Real Gherkin, not prose: the seven red rows split into "lock the win" (already silicon-proven, author the scenario and flip the row), roadmap gates whose sim half already passes, and `@wip` scenarios written to drive an implementation that does not exist yet.
+- **[6. P1 backlog — the 17 🟡 partials (each pins the one missing assertion)](#6-p1-backlog--the-17--partials-each-pins-the-one-missing-assertion)** — One row per partial, each naming the *single* assertion that would close it. Also the reconciled doc bug: the old 18-partials/162✅ tally was a summing typo, and the authoritative counts are 163✅ / 17🟡 / 7❌ / 17➖.
+- **[7. P2 — regression pins + verification infrastructure](#7-p2--regression-pins--verification-infrastructure)** — Two long-tail items: a red-forever scenario per hard-won past bug, and the tsn_gen model-authoring lane in value order — ACMP first, because it is the most stateful engine with no model, which is why its green rows can be replayed but never fuzzed.
+- **[8. Cross-cutting infrastructure](#8-cross-cutting-infrastructure)** — The shared plumbing to build once, and the section to read before writing any step: a list of harness traps that will silently corrupt a result — the ProfiShark +28 offset, the multicast group raw AVDECC sockets must join, board responses that never reach the peer host, and the ≥0x800 CSR carve-out without which reads simply lie.
+- **[9. Execution phasing](#9-execution-phasing)** — The four-phase order (infra, P0, P1, P2) and the exact `behave` invocations for the green gate, the rig, and a per-row compliance report.
+
 ## 0. Principle — the suite IS the matrix
 
 The behave suite is a **live mirror of [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md)**, not a parallel pile.

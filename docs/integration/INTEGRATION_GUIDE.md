@@ -29,6 +29,15 @@ filter → DMA.
 
 ---
 
+## Contents
+
+- **[1. Ports, group by group](#1-ports-group-by-group)** — The whole boundary, one table per group: clocks (and the licence to tie `gtx_clk = axis_clk`, which is what the LiteX build does), the AXI4-Lite window that decodes only the low 16 bits so any base works, the three DMA streams, the MAC sideband, and why `o_irq_csr` is the *only* IRQ the datapath raises — DMA completion is yours to generate.
+- **[2. Minimum viable integration (the M-A2 pattern)](#2-minimum-viable-integration-the-m-a2-pattern)** — The stub-everything first step: clocks, reset, CSR port, every AXIS input tied off, then read `"MILN"` at offset `0x0`. This is how both the SoC sim and first silicon were validated, and it names the attach order — MAC, then DMA, each separately testable.
+- **[3. Source files and includes](#3-source-files-and-includes)** — Where the canonical file list lives (`_MILAN_DATAPATH_SOURCES`), and the reason it cannot silently drift: the Verilator harness and the Yosys flow consume the same list. Also the six `svh` include dirs, the submodule prerequisite, and the two files a non-Zynq build must NOT add or it drags in PS7.
+- **[4. Running the datapath on its own clock](#4-running-the-datapath-on-its-own-clock)** — The escape hatch when 100 MHz timing is tight (the CBS slope divide is the known critical path): the three crossing mechanisms `--milan-clk-freq` uses, and why it is free — a 64-bit datapath at 50 MHz still exceeds 1 GbE line rate.
+- **[5. Software contract](#5-software-contract)** — The three things software binds to: the register ABI (offsets defined once in RTL, with a harness asserting doc and RTL agree), the `kl,dma-ether-0.9` DT compatible string, and the generated device tree — add an IR JSON for a new host rather than hand-writing a dtsi.
+- **[6. Verifying your integration](#6-verifying-your-integration)** — A three-rung ladder from RTL boundary to first silicon, each rung naming its harness and the doc that walks it.
+
 ## 1. Ports, group by group
 
 Parameters: `TDATA_WIDTH = 64` (all AXIS ports; `tkeep` is

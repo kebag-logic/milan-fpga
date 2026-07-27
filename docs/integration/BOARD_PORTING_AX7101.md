@@ -5,6 +5,14 @@ pin data came from, how it was extracted, what changed, and what is verified vs.
 board-gated. The result is `sw/litex/platforms/alinx_ax7101.py` +
 `sw/litex/milan_soc.py --full` (now with DDR3).
 
+## Contents
+
+- **[1. Board facts (from the official Alinx repo)](#1-board-facts-from-the-official-alinx-repo)** — The pin-and-part table with a source citation per row: XC7A100T-2FGG484I, 200 MHz differential on R4/T4, reset T6, four RTL8211E PHYs, 512 MB DDR3. Also which two PHYs the NIC uses (`e1`/`e2`) and that `e3`/`e4` are spare.
+- **[2. Porting method (reproducible)](#2-porting-method-reproducible)** — The four-step derivation from the vendor's own XDC/UCF files (with the 68 DDR3 pins parsed programmatically rather than transcribed), so the pinout can be re-derived on a board revision. Contains the hardware-bring-up CORRECTION worth the visit: this PHY is strapped GMII 8-bit SDR, not RGMII — porting it as RGMII gave 100 % MAC preamble errors on silicon.
+- **[3. What changed](#3-what-changed)** — The two files edited and what landed in each: the real pinout replacing AX7203 placeholders, and the 512 MB LiteDRAM addition (A7DDRPHY, `sys4x`/idelay clocks, `--with-dram`) that moves main RAM to `0x4000_0000` and is what makes the SoC Linux-capable.
+- **[4. Verification (open toolchain, no Vivado)](#4-verification-open-toolchain-no-vivado)** — What `--full --xlen 64` proves without a synthesis run: DDR3 PHY and LiteDRAM instantiated, 284 `ddram` constraint lines in the generated XDC, NIC plus MAC/PHY present, device tree regenerating from `csr.json`.
+- **[5. Board-gated (needs the schematic / Vivado / the board)](#5-board-gated-needs-the-schematic--vivado--the-board)** — The three items that could not be closed from source alone, two of them since cleared on silicon. Still open: the MDIO data pin, which the vendor GMII example does not route and must be read out of the schematic PDF — PHY management runs on power-on straps meanwhile.
+
 ## 1. Board facts (from the official Alinx repo)
 
 Source of truth: **github.com/alinxalinx/AX7101** (datasheets, schematics, and example
