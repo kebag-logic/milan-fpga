@@ -20,7 +20,7 @@ is the clause-anchored join between them.
 ## Contents
 
 - **[The chain, and which file holds each link](#the-chain-and-which-file-holds-each-link)** — A flowchart from a standard clause to the status a row carries, and the point it exists to make: no single file holds the whole chain, which is why a row can read closed in one place and be unbacked in another.
-- **[Family files](#family-files)** — The five per-standard tables with their tallies, summing to 204 rows / 163 ✅ / 17 🟡 / 7 ❌ / 17 ➖, plus the legend. The HTML comment records the 2026-07-23 re-count that moved the totals from 162/18 — a summing typo, not a status change.
+- **[Family files](#family-files)** — The five per-standard tables with their tallies, summing to 208 rows / 167 ✅ / 17 🟡 / 7 ❌ / 17 ➖, plus the legend. The HTML comment records the 2026-07-23 re-count that moved the totals from 162/18 — a summing typo, not a status change.
 - **[Why rows are N/A (taxonomy)](#why-rows-are-na-taxonomy)** — The defence of every ➖: four categories (wrong role, superseded by Milan, optional-so-only-the-refusal-is-owed, profile exclusion), the rows in each, and where the residual obligation is carried as a ✅ row. A reviewer disputing an N/A is told to attack the category, not the row.
 - **[Module → family map](#module--family-map)** — The lookup that goes the other way: given a directory under `hdl/`, which family file's sections govern it.
 - **[tsn_gen (wire-test engine) — model inventory and gaps](#tsn_gen-wire-test-engine--model-inventory-and-gaps)** — Which YAML protocol models exist today versus the eight to author, ranked by value. ACMP is first because it unlocks 24 rows and its length fuzz reproduces the 68-byte-frame field trap.
@@ -76,18 +76,22 @@ mode is a CI no-drift gate. **Never hand-edit it**; it is not restated here.
 | Family | File | Rows | ✅ verified | 🟡 partial | ❌ MISSING | ➖ N/A |
 |--------|------|------|------------|-----------|-----------|--------|
 | IEEE 1722.1-2021 (ADP/ACMP/AECP+AEM) | [`traceability/ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) | 72 | 59 | 3 | 0 | 10 |
-| IEEE 1722-2016 (AVTP/AAF/CRF/MAAP) | [`traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md) | 38 | 33 | 2 | 1 | 2 |
+| IEEE 1722-2016 (AVTP/AAF/CRF/MAAP) | [`traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md) | 40 | 35 | 2 | 1 | 2 |
 | IEEE 802.1Q-2022 (VLAN/CBS/MRP/MSRP/MVRP) | [`traceability/ieee8021q.md`](traceability/ieee8021q.md) | 31 | 24 | 3 | 1 | 3 |
 | IEEE 802.1AS-2020 (gPTP HW-assist scope) | [`traceability/ieee8021as.md`](traceability/ieee8021as.md) | 11 | 8 | 1 | 1 | 1 |
-| Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 52 | 39 | 8 | 4 | 1 |
-| **Total** | | **204** | **163** | **17** | **7** | **17** |
+| Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 54 | 41 | 8 | 4 | 1 |
+| **Total** | | **208** | **167** | **17** | **7** | **17** |
 
 <!-- Tally reconciliation 2026-07-23: the Milan family previously read 38✅/9🟡;
      a 1:1 re-count of every row's leading status glyph in milan-v12.md gives
      39✅/8🟡 (§1 11✅/4🟡/1➖, §2 3✅, §3 9✅/1❌, §4 9✅/2🟡/1❌, §5 3✅/1🟡,
      §6 4✅/1🟡/2❌ = 52). No row status changed — it was a summing typo (one ✅
      counted as partial). Grand total ✅ 162→163, 🟡 18→17 accordingly. Downstream
-     quotes of "162✅/18🟡" (e.g. HANDOVER roadmap table) are now stale → 163✅/17🟡. -->
+     quotes of "162✅/18🟡" (e.g. HANDOVER roadmap table) are now stale → 163✅/17🟡.
+     2026-07-27 clock-validity round: +2 Milan rows (M-DEV-13a 5.3.7.3 streaming
+     state, M-DEV-13b Table 5.4 TIMESTAMP_UNCERTAIN) and +2 AVTP rows (AVTP-8t
+     talker tu, AVTP-6t talker tv) — all ✅. M-DEV-13 keeps its 🟡 (the silicon
+     leg against a real grandmaster change is still owed). 204→208, 163→167. -->
 
 
 Legend: **✅** requirement has a specific self-checking verification today
