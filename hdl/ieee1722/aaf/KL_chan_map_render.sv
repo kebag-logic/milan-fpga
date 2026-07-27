@@ -250,6 +250,93 @@ module KL_chan_map_render #(
   end : pb_latch
 
   // ------------------------------------------------------------------ //
+  // Per-phys SOURCE TRACKER (2026-07-27 area round).                    //
+  //                                                                     //
+  // The render used to be N_PHYS_P INDEPENDENT muxes, each selecting one //
+  // of the 64 + PB_CH_C latch entries with its own map word - ten 80:1   //
+  // 24-bit muxes standing side by side, and by far the module's whole    //
+  // LUT cost. They are redundant: a map word only changes when the map   //
+  // is written (a CSR / AEM event), so instead of RE-SELECTING every     //
+  // tick we keep, per phys channel, the value its map word points at.    //
+  //                                                                     //
+  //   sel_r[p] == <the latch entry addressed by map_r[p][6:0]>, always.  //
+  //                                                                     //
+  // The invariant needs exactly two maintenance rules, and both are      //
+  // cheap because both are driven by ONE event per cycle:                //
+  //   (1) map write to p  -> re-read the addressed entry. Map writes are //
+  //       one per cycle by contract, so this is ONE shared read mux -    //
+  //       the only wide mux left in the module.                          //
+  //   (2) latch write     -> the (<= 4) addresses written this cycle are //
+  //       compared against the map words; a phys channel pointing at a   //
+  //       written address takes the new sample. 7-bit compares, not      //
+  //       24-bit muxes.                                                  //
+  // Rule (2) must also win on the same cycle as rule (1): the shared     //
+  // read returns the PRE-write entry, so a map write that lands on the   //
+  // same edge as a sample for that very address would otherwise latch    //
+  // the stale word. The write-match test therefore runs against the      //
+  // INCOMING map word too (w_seladdr below).                             //
+  //                                                                     //
+  // BIT-EXACT vs the old muxes: after reset the latches and sel_r are    //
+  // both all-zero, and every subsequent change to a mapped entry or to a //
+  // map word updates sel_r on the same edge - so at every tick sel_r[p]  //
+  // holds precisely what cur_r/pbcur_r held for map_r[p]. The render     //
+  // below is unchanged in timing (one shot on tick_i, phys_valid_o one   //
+  // cycle later) and still applies en / out-of-range as a final gate.    //
+  // ------------------------------------------------------------------ //
+
+  //! unified source address of a map word: {src, idx[5:0]}
+  //! (src 0 -> AVB {stream[2:0], ch[2:0]}, src 1 -> linear playback ch)
+  function automatic logic [23:0] src_rd(input logic [6:0] a);
+    if (a[MAP_SRC_B_C])
+      src_rd = (32'(a[5:0]) < int'(PB_CH_C)) ? pbcur_r[a[5:0]] : 24'd0;
+    else
+      src_rd = ((32'(a[5:3]) < N_STREAMS_P) && (32'(a[2:0]) < N_CH_P))
+               ? cur_r[a[5:3]][a[2:0]] : 24'd0;
+  endfunction
+
+  //! the ONE wide read: only ever evaluated at the incoming map address
+  wire        map_wr_ok_w = map_wr_en_i && (32'(map_wr_addr_i) < N_PHYS_P);
+  wire [23:0] map_seed_w  = src_rd(map_wr_data_i[6:0]);
+
+  //! the (up to 4) latch addresses written this cycle, with the SAME range
+  //! guards the latch processes above apply - a virtual wire channel or an
+  //! out-of-range playback slot is walked but never stored, so it must not
+  //! update a tracker either.
+  wire        avb_ok_w  = s_tvalid_i && (32'(s_tuser_i) < N_STREAMS_P);
+  wire        w0_en_w   = avb_ok_w && (32'(ch0_w) < N_CH_P);
+  wire        w1_en_w   = avb_ok_w && (32'(ch1_w) < N_CH_P);
+  wire [6:0]  w0_addr_w = {1'b0, s_tuser_i[2:0], ch0_w[2:0]};
+  wire [6:0]  w1_addr_w = {1'b0, s_tuser_i[2:0], ch1_w[2:0]};
+  wire        wl_en_w   = pb_valid_i && pb_in_range_w;
+  wire [6:0]  wl_addr_w = {1'b1, pb_lch_w};
+  wire [6:0]  wr_addr_w = {1'b1, 6'(pb_lch_w + 6'd1)};
+
+  logic [23:0] sel_r [N_PHYS_P];
+
+  always_ff @(posedge clk_i) begin : source_track
+    if (!rst_n) begin
+      for (int p = 0; p < N_PHYS_P; p++) sel_r[p] <= 24'd0;
+    end
+    else begin
+      for (int p = 0; p < N_PHYS_P; p++) begin : track_one
+        logic [6:0] a;
+        //! the address this phys channel points at AFTER this edge
+        a = (map_wr_ok_w && (32'(map_wr_addr_i) == p)) ? map_wr_data_i[6:0]
+                                                       : map_r[p][6:0];
+        //! priority mirrors the latch processes' own last-write-wins order
+        //! (smp1 after smp0, R after L); AVB and playback addresses can
+        //! never alias because they differ in bit 6.
+        if      (w1_en_w && (a == w1_addr_w)) sel_r[p] <= smp1_w;
+        else if (w0_en_w && (a == w0_addr_w)) sel_r[p] <= smp0_w;
+        else if (wl_en_w && (a == wr_addr_w)) sel_r[p] <= pb_r_i;
+        else if (wl_en_w && (a == wl_addr_w)) sel_r[p] <= pb_l_i;
+        else if (map_wr_ok_w && (32'(map_wr_addr_i) == p))
+          sel_r[p] <= map_seed_w;
+      end : track_one
+    end
+  end : source_track
+
+  // ------------------------------------------------------------------ //
   // Render: the whole phys vector registers in one shot on tick_i, so   //
   // map writes between ticks are never visible (glitch-free at 48 kHz)  //
   // ------------------------------------------------------------------ //
@@ -262,19 +349,10 @@ module KL_chan_map_render #(
       phys_valid_o <= tick_i;
       if (tick_i) begin
         for (int p = 0; p < N_PHYS_P; p++) begin
-          logic [7:0] m;
-          m = map_r[p];
-          if (!m[MAP_EN_B_C])
-            phys_smp_o[p*24 +: 24] <= 24'd0;
-          else if (m[MAP_SRC_B_C])
-            //! host playback ring: idx is the LINEAR playback channel
-            phys_smp_o[p*24 +: 24] <= (32'(m[5:0]) < int'(PB_CH_C))
-                                      ? pbcur_r[m[5:0]] : 24'd0;
-          else
-            //! AVB listener: idx splits into {stream[5:3], ch[2:0]}
-            phys_smp_o[p*24 +: 24] <=
-              ((32'(m[5:3]) < N_STREAMS_P) && (32'(m[2:0]) < N_CH_P))
-                ? cur_r[m[5:3]][m[2:0]] : 24'd0;
+          //! en is the only per-tick decision left; the addressed value is
+          //! already sitting in sel_r (see source_track). Out-of-range map
+          //! words were resolved to 24'd0 by src_rd when they were written.
+          phys_smp_o[p*24 +: 24] <= map_r[p][MAP_EN_B_C] ? sel_r[p] : 24'd0;
         end
       end
     end
