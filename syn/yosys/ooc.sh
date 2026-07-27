@@ -39,7 +39,7 @@ tops=(
   "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"
   "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv"
-  "KL_lwsrp_rx|$S/lwsrp_pkg.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv"
+  "KL_lwsrp_rx|$A/axis_fifo.v $S/lwsrp_pkg.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv"
   "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $AECP_SRCS"
   "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
   "milan_datapath|$DP_SRCS"
