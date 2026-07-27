@@ -7,10 +7,10 @@ not a bridge: bridge-only clauses are marked N/A. Milan MRP/MSRP deltas
 (timer tolerances, endmarks, Domain values) live in
 [`milan-v12.md`](milan-v12.md).
 
-Modules: `hdl/802_1q_traffic_shaper/` (`traffic_classifier`,
+Modules: `hdl/ieee8021q/ts/` (`traffic_classifier`,
 `traffic_class_map`, `traffic_queues`, `traffic_shaping_core`,
-`credit_based_shaper`, `traffic_controller_802_1q`), `hdl/lwsrp/` (9 modules,
-CSR 0x680), supporting `hdl/common/tcam.sv` + `rx_mac_filter.sv`.
+`credit_based_shaper`, `traffic_controller_802_1q`), `hdl/ieee8021q/srp/` (11 modules,
+CSR 0x680), supporting `hdl/ieee8021q/filtering/tcam.sv` + `rx_mac_filter.sv`.
 
 ## 1. VLAN tagging + priority (Clauses 6, 9)
 

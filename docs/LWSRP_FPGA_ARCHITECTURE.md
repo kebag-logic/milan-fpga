@@ -188,7 +188,9 @@ rx_axis_to_dma (the tap point, little lane) ──┐ (copy, never stalls)
                  └───────┬───────────────────┬──────────────┘
                          v                   v
         ┌───────────────────────┐  ┌───────────────────────────┐
-        │ KL_lwsrp_registrar    │  │ KL_lwsrp_applicant        │
+        │ KL_lwsrp_registrar    │  │ KL_lwsrp_applicant  NEVER │
+        │                       │  │   BUILT - shipped as      │
+        │                       │  │   KL_lwsrp_tx + _ctx_tx   │
         │ per attribute:        │  │ always-declare: Join tick │
         │ MT/IN/LV + leave      │  │ (200 ms) refresh; LeaveAll│
         │ timer 600 ms;         │  │ -> re-declare; disable -> │
