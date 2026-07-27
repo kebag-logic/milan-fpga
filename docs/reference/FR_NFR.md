@@ -18,6 +18,16 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 
 ---
 
+## Contents
+
+- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** — What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives §2.7: the talker is fixed stereo, the listener is format-adaptive.
+- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** — Eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS, and then the two software contracts most requirement docs omit — the Linux driver's NAPI/XDP/PTP/ethtool surface (FR-DRV-\*) and the device-tree binding (FR-DT-\*).
+- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** — The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (§3.4) is flagged in the page as *the* key architectural NFR — both SMP and AMP must be buildable, and adding cores must not change the ABI.
+- **[4. Scalability architecture](#4-scalability-architecture)** — How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula §4.5 admits is not yet populated.
+- **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** — The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list — redundancy, rates beyond 192 kHz, AEM authentication.
+- **[6. Traceability (summary)](#6-traceability-summary)** — One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone — the index to use when you need "which requirement covers this".
+- **[7. Verification approach](#7-verification-approach)** — Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/`ptp4l`/`tc` tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
+
 ## 1. Scope, actors, and the baseline system
 
 ### 1.1 Baseline (the "small" endpoint)
