@@ -1852,8 +1852,14 @@ class RingDMAWriter(LiteXModule):
                                 (ack_wb | (fbeat < hdr_cnt)))
         self.sync += If(hdr_cnt == hdr_take,
             self.rsc_dbg.status.eq(Cat(p_totlen, p_flags, p_doff, p_eligible)))
+        # bd_mode REGISTERED (2026-07-29): the 64-bit bd_base != 0 compare was
+        # computed combinationally from the CSR storage and fanned into every
+        # dispatch site - the AX csfix build's worst path ran bd_base_storage
+        # -> the rx1 data_fifo readable cone at -0.948 (19 levels, 72% route).
+        # bd_base is written ONCE at driver init, so arming one cycle later
+        # is invisible; the flop kills the compare from every timing path.
+        self.sync += bd_mode.eq(self.bd_base.storage != 0)
         self.comb += [
-            bd_mode.eq(self.bd_base.storage != 0),
             post_fifo.sink.valid.eq(self.post.re),    # one push per CSR write
         ]
         # SHAPE-vs-GATE split for the fold: bd_shape selects datapath shape (a
