@@ -535,6 +535,123 @@ int main(int argc, char** argv) {
         ck("silence fill: unarmed talkers stayed silent", foreign, 0);
     }
 
+    printf("-- 5.5.2.7 SRP-ONLY licence: a Listener Ready opens the gate "
+           "with ZERO ACMP --\n");
+    // Milan v1.2 5.5.2.7: "Talkers rely only on SRP (not ACMP) to determine
+    // whether any Listeners are interested ... Talkers do not maintain any
+    // internal state related to bound/settled Listeners." So the licence
+    // must open on a REGISTERED LISTENER READY alone - no controller, no
+    // BIND, no PROBE_TX ever sent toward t0 in this whole sim. The
+    // composed gate already reads that way (KL_acmp_tlkr_ctx
+    // talker_active = probe_armed | listener_observed, and
+    // listener_observed IS the lwSRP registration hook - the ACMP-looking
+    // term can never block an SRP-only listener); this case is the L2
+    // proof through the real RX path. And 5.3.7.3's continuity: once open,
+    // the gate must STAY open while the registration stands
+    // (STREAMING_WAIT is excluded). The module-level term-by-term licence
+    // (Ready opens, ReadyFailed opens, AskingFailed shuts) lives in
+    // tb/verilator/lwsrp.
+    {
+        axi_write(A_AAF_CTRL, 0x00020001);   // en + VID 2, bypass CLEAR
+        for (int c = 0; c < 64; c++) step();
+        ck("SRP-only: gate CLOSED without a listener (no bypass)",
+           tap_stream_en() & 1, 0);
+        // Declare (LWSRP_CTRL 0x17 = enable + TALKER-DECLARE + queue 5; the
+        // flow above ran 0x15, no talker bit - everything before this rode
+        // the bypass). Row 0's matching StreamID is DERIVED by the walker:
+        // {station_mac, unique_id} (KL_lwsrp_walker our_sid_w) - the
+        // harness MAC is 0, so the Listener Ready must carry the all-zero
+        // sid. No window op touches the row: the whole case is pure SRP.
+        axi_write(A_LWSRP_CTRL, 0x17);
+        for (int c = 0; c < 512; c++) step();
+        uint8_t sid[8] = {0,0,0,0,0,0,0,0};
+        ck("SRP-only: still CLOSED after declaring (no listener yet)",
+           tap_stream_en() & 1, 0);
+        // Listener Ready MRPDU for that StreamID: type 4, attrlen 8,
+        // listlen 14 (VectorHeader 2 + StreamID 8 + 3-packed 1 + 4-packed 1
+        // + EndMark 2), JoinIn(1)*36, FourPacked Ready(2)*64
+        uint8_t lr[60]; memset(lr, 0, sizeof lr);
+        const uint8_t msrp_da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+        memcpy(lr, msrp_da, 6);
+        lr[6]=0x02; lr[7]=0xAA; lr[8]=0xBB; lr[9]=0xCC; lr[10]=0xDD; lr[11]=0x01;
+        lr[12]=0x22; lr[13]=0xEA;
+        lr[14]=0;                      // ProtocolVersion
+        lr[15]=3; lr[16]=8;            // Listener (type 3), AttributeLength 8
+        lr[17]=0; lr[18]=14;           // AttributeListLength
+        lr[19]=0; lr[20]=1;            // VectorHeader: LeaveAll 0, NOV 1
+        memcpy(lr+21, sid, 8);         // FirstValue = the captured StreamID
+        lr[29]=36;                     // ThreePacked JoinIn
+        lr[30]=128;                    // FourPacked Ready
+        // the lwSRP tap rides rx_axis_to_dma, and earlier flow steps leave
+        // frames PARKED against m_axis_rx_tready=0 - drain the lane so the
+        // tap sees accepted beats
+        dut->m_axis_rx_tready = 1;
+        for (int c = 0; c < 4000; c++) step();
+        // FEED, twice - a real bridge re-declares every JoinTime, so the
+        // repeat is protocol-shaped. Both copies matter here empirically:
+        // the first (true final keep 0x0F) resyncs the tap when the drain
+        // left it mid-frame on a torn parked frame, and the REGISTERING
+        // copy is inject()'s full-keep one (tkeep 0xFF = a 64 B min-size
+        // frame). A keep-0x0F copy alone does not register - the rx
+        // path's min-size/keep handling deserves a look in the lwsrp_rx
+        // suite some round.
+        {
+            size_t idx = 0;
+            std::vector<uint64_t> beats;
+            for (size_t off = 0; off < 60; off += 8) {
+                uint64_t d = 0;
+                for (int j = 0; j < 8 && off + j < 60; j++)
+                    d |= (uint64_t)lr[off + j] << (8*j);
+                beats.push_back(d);
+            }
+            for (int c = 0; c < 3000; c++) {
+                if (idx < beats.size()) {
+                    dut->s_axis_mac_rx_tdata  = beats[idx];
+                    dut->s_axis_mac_rx_tkeep  = (idx == beats.size()-1) ? 0x0F
+                                                                        : 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0;
+                    dut->s_axis_mac_rx_tlast  = 0;
+                }
+                lo();
+                bool acc = dut->s_axis_mac_rx_tvalid &&
+                           dut->s_axis_mac_rx_tready;
+                hi();
+                if (acc) idx++;
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+        }
+        inject(lr, 60, 2000);
+        // the bench-predicted bound status (8.3.6): 0x37E once the
+        // registration lands, vs 0x30 declaring-unbound
+        ck("SRP-only: LWSRP_STATUS reads the BOUND value 0x37E",
+           axi_read(0x694), 0x37E);
+        int opened = 0;
+        for (int g = 0; g < 400 && !opened; g++) {
+            for (int c = 0; c < 64; c++) step();
+            opened = tap_stream_en() & 1;
+        }
+        ck("SRP-only: Listener Ready ALONE opens the licence (no ACMP ever "
+           "sent for t0)", opened, 1);
+        // continuity: the gate holds while the registration stands
+        uint32_t f0 = axi_read(A_AAF_FRAMES);
+        bool held = true;
+        for (int g = 0; g < 40; g++) {
+            for (int c = 0; c < 128; c++) step();
+            if (!(tap_stream_en() & 1)) held = false;
+        }
+        ck("SRP-only: licence HELD (no STREAMING_WAIT, 5.3.7.3)",
+           held ? 1 : 0, 1);
+        ck("SRP-only: frames flowed under it", axi_read(A_AAF_FRAMES) > f0, 1);
+        // restore the flow's posture: engine back to the no-talker 0x15,
+        // bypass back on (no row was ever touched - pure SRP case)
+        axi_write(A_LWSRP_CTRL, 0x15);
+        axi_write(A_AAF_CTRL, 0x00020003);
+        for (int c = 0; c < 64; c++) step();
+    }
+
     axi_write(A_LWSRP_CTRL, 0x14);          // disable, class-A queue 5 kept
     for (int c = 0; c < 64; c++) step();
     ck("lwSRP off: t1 re-arms", (tap_stream_en() >> 1) & 1, 1);
@@ -1119,7 +1236,7 @@ int main(int argc, char** argv) {
 
         // ---- the shortfall flag: 0 on a correctly-sized engine --------
         ck("LWSRP_STATUS[11] ctx shortfall clear",
-           (axi_read(A_LWSRP_STATUS) >> 11) & 1, 0);
+           (axi_read(0x694) >> 11) & 1, 0);
 
         // ---- per-row TSpec ON THE WIRE --------------------------------
         // Re-declare both talker rows and read the MaxFrameSize each one
