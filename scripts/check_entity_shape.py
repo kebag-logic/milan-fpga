@@ -192,6 +192,34 @@ def svh_source(text):
     return m.group(1) if m else None
 
 
+def tracked_owner(builder, adp_text=None, configs=None):
+    """WHICH CONFIG OWNS the tracked entity definition - asked of the TREE.
+
+    `endstation_builder.py --write-rtl <cfg>` installs the tracked pair for
+    WHICHEVER config it is handed, so the owner is not a constant a gate may
+    assume: it is a fact the tree records.  The AEM ROM carries no marker of
+    its own (its header names avdecc/gen_aem_store.py, the generator, not the
+    config), so the shape include's `Source :` line is the ONE place the
+    answer lives - and this is the ONE reader of it, shared with
+    sw/builder/test_builder.py gate 10.  Two answers to "who owns the tracked
+    ROM" is exactly how a gate comes to assume a config: gate 10 hardcoded
+    endstation_arty_current and went red for every other owner, blocking any
+    other shape from being written into the tree at all.
+
+    adp_text overrides the tracked shape include, so a caller can ask the
+    question of a CANDIDATE pair without installing it in the tree.
+    Returns (source-path string or None, config dict or None).
+    """
+    if adp_text is None:
+        adp_text = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
+    src = svh_source(adp_text)
+    for path in (all_configs() if configs is None else configs):
+        cfg = builder.load_config(path)
+        if cfg["source"] == src:
+            return src, cfg
+    return src, None
+
+
 def rom_descriptor_counts(path):
     """Count descriptors by type in a generated aecp_aem_rom.svh directory."""
     text = path if "\n" in path else open(path).read()
@@ -286,15 +314,9 @@ def check_tracked_pair(builder, configs):
     print("\n== tracked entity definition (what a build includes) ==")
     adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
     rom = open(os.path.join(ROOT, builder.AEM_ROM_REL)).read()
-    src = svh_source(adp)
+    src, owner = tracked_owner(builder, adp_text=adp, configs=configs)
     print(f"  tracked shape source: {src}")
     ck("tracked ADP shape names a source config", src is not None, True)
-    owner = None
-    for path in configs:
-        cfg = builder.load_config(path)
-        if cfg["source"] == src:
-            owner = cfg
-            break
     ck(f"tracked shape's source config exists ({src})", owner is not None, True)
     if owner is None:
         return

@@ -31,11 +31,23 @@ Gates (gaps item 4, generator round):
       BYTE-FOR-BYTE (OPTS string + L2 + the PER-BOARD RXQ: each flashed boot
       chain fixes its own DMA window map) for both boards; sh -n passes on
       sweep.sh and both fragments;
-  10. gen_aem_store.py CONSUMES the arty_current overlay (--overlay,
+  10. gen_aem_store.py CONSUMES the OWNING config's overlay (--overlay,
       subprocess) and the generated aecp_aem_rom.svh is byte-identical to
       the tracked hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - THE key
-      no-regression gate; the default (no-overlay) path stays byte-identical
-      too;
+      no-regression gate.  WHICH config owns the tracked ROM is READ FROM
+      THE TREE (the shape include's `Source :` marker, via
+      check_entity_shape.tracked_owner - the same single reader its check E
+      uses), never assumed: `--write-rtl <cfg>` installs the pair for
+      whichever config it is handed, and a gate that hardcoded
+      endstation_arty_current went red for every other owner, which blocked
+      any other shape from being written into the tree at all.  The gate
+      ships its own mutations (cross-config ROM, forged marker, unowned
+      marker, a one-field ROM edit) so "follows the owner" cannot decay into
+      "accepts anything".  The default (no-overlay) builtin path is a
+      SEPARATE property - that model is arty_current's, hand-written in
+      gen_aem_store.py and pinned there by gate 3 - so it is compared
+      against arty_current's overlay-built ROM, which does not move when the
+      tracked owner does;
   11. resource-estimator calibration: the arty_current estimate lands within
       +/-15% of the REAL mf48 place-report totals per category (report
       parsed at test time; SKIPs with a message when the report is absent);
@@ -59,7 +71,18 @@ Gates (gaps item 4, generator round):
       current_format 0x041060010000BB80, AAF outputs unchanged (0x0002),
       CONFIGURATION counts advertise it, STREAM_PORT_OUTPUT count stays 4;
   17. dynamic audio maps (gaps item 8): map_mode dynamic drops the port's
-      AUDIO_MAP and emits the `AEM_DYNMAP engine constants; reject paths;
+      AUDIO_MAP (1722.1-2021 7.2.13 number_of_maps=0) and emits the
+      `AEM_DYNMAP engine constants.  The engine is CONDITIONAL codegen, so
+      the tracked ROM must carry it IF AND ONLY IF the config that OWNS the
+      tracked pair declares a dynamic port - the owner is read from the tree
+      (the shape include's `Source :` marker, via the same
+      check_entity_shape.tracked_owner gate 10 uses), never assumed.  The
+      old form hardcoded the negative ("the tracked svh has no engine"),
+      which reads the tracked artifact under an assumption about its owner
+      and would go red the day a dynamic config legitimately owns it - gate
+      10's defect in the other polarity.  Both directions are proven on
+      candidate pairs in temp dirs (a dynamic owner REQUIRES the engine, a
+      static one FORBIDS it, an unresolvable owner FAILS); reject paths;
   18a. lwSRP table emitter: the emitted 0x680 reset words + CSR offsets are
       the words milan_csr.sv elaborates - the gate walks emitted word ->
       the generated LWSRP_*_RST_C symbol -> milan_csr's reset block ->
@@ -130,10 +153,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import yaml  # noqa: E402
 
 import endstation_builder as eb  # noqa: E402
+#: The ONE reader of "which config owns the tracked entity definition"
+#: (gate 10).  Imported rather than re-implemented: a second answer to that
+#: question is how gate 10 came to assume a config in the first place.
+import check_entity_shape as ces  # noqa: E402
 
 CONFIGS = {
     "arty_current": os.path.join(ROOT, "configs/endstation_arty_current.yaml"),
@@ -142,7 +170,10 @@ CONFIGS = {
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
-TRACKED_SVH = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
+#: The TRACKED entity definition - the pair a gateware `include-s.  Paths come
+#: from the builder that writes them, so there is one spelling of each.
+TRACKED_SVH = os.path.join(ROOT, eb.AEM_ROM_REL)
+TRACKED_ADP_SVH = os.path.join(ROOT, eb.ADP_SHAPE_REL)
 
 # Flow flags: sweep.sh mechanics, never part of the end-station definition.
 FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
@@ -934,11 +965,100 @@ def test_gen_aem_store_crf_output_overlay():
           "(CRF flags/formats in the right rows)")
 
 
+def _dynmap_candidate(cfg_path, td):
+    """The tracked pair `--write-rtl <cfg>` WOULD install for cfg_path,
+    written to td.  Same technique as gate 10's candidate pairs - the real
+    tree is never touched.  It takes a PATH rather than a CONFIGS key
+    because the DYNAMIC owner this gate has to reason about does not exist
+    under configs/ and must not be added there: it is a temp-dir fixture."""
+    r = eb.build(cfg_path, OUT)
+    assert r["aem_rom_svh"] is not None, (
+        f"{cfg_path}: no descriptor ROM can be generated for this shape "
+        f"({r['aem_rom_unsupported']}) - it could never own the tracked pair")
+    adp_p = os.path.join(td, "adp_shape_defaults.svh")
+    rom_p = os.path.join(td, "aecp_aem_rom.svh")
+    with open(adp_p, "w") as f:
+        f.write(r["adp_shape_svh"])
+    with open(rom_p, "w") as f:
+        f.write(r["aem_rom_svh"])
+    return adp_p, rom_p
+
+
+def _check_tracked_dynmap(adp_path, rom_path, configs=None):
+    """Gate 17's engine-presence check, asked of ANY tracked pair.
+
+    THE PROPERTY IS UNCHANGED: `AEM_DYNMAP is CONDITIONAL codegen.  The
+    dynamic-map engine constants are in a generated descriptor ROM IF AND
+    ONLY IF the config that ROM was generated from declares a dynamic
+    audio-map port - that is what `map_mode: dynamic` means (1722.1-2021
+    7.2.13 / Milan v1.2 5.4.2.27-28: a dynamically-mapped port carries no
+    AUDIO_MAP descriptor and advertises number_of_maps = 0).  A static shape
+    must not drag the engine into a gateware that has no use for it.
+
+    WHAT MOVED is the EXPECTATION.  It used to be the constant "absent" -
+    `assert "AEM_DYNMAP" not in open(TRACKED_SVH).read()` - which reads the
+    TRACKED artifact while ASSUMING which config owns it.  Harmless while
+    all three shipped configs are static, red the day a `map_mode: dynamic`
+    config legitimately owns the tracked pair, and red for a reason that has
+    nothing to do with conditional codegen.  This is gate 10's defect in the
+    other polarity, so it gets gate 10's fix: the owner is READ from the
+    shape include's `Source :` marker through ces.tracked_owner - the ONE
+    reader of that question in this repo - and the expectation is DERIVED
+    from what that config declares.  Two answers to "who owns the tracked
+    ROM" is exactly how this defect class propagates.
+
+    The standard is SILENT on which config owns a build artifact; that part
+    is build hygiene, not conformance.  What the standard fixes is the
+    meaning of the declaration the expectation is derived from.
+
+    configs overrides the search list so a caller can ask the question of a
+    CANDIDATE pair (a temp-dir fixture) without installing it in the tree.
+    Returns (owner name, expected engine presence).
+    """
+    adp = open(adp_path).read()
+    src, owner = ces.tracked_owner(eb, adp_text=adp, configs=configs)
+    assert src is not None, (
+        f"{adp_path}: no `Source :` marker - the tree does not record WHICH "
+        "config owns the tracked entity definition, so there is nothing to "
+        "derive an `AEM_DYNMAP expectation from")
+    assert owner is not None, (
+        f"{adp_path}: `Source : {src}` names no config - the tracked entity "
+        "definition has no owner, so whether it MAY carry `AEM_DYNMAP is "
+        "unanswerable.  A gate that cannot find the owner stops, it does "
+        "not shrug and pass")
+    # "declares a dynamic port" is read from the OWNER.  load_config confines
+    # map_mode dynamic to listeners[0] (the reject paths below are the proof),
+    # so scanning the listener list is complete today and stays correct if the
+    # RTL engine's scope widens.
+    want = any(s.get("map_mode", "static") == "dynamic"
+               for s in owner["listeners"])
+    got = "AEM_DYNMAP" in open(rom_path).read()
+    assert got == want, (
+        f"{rom_path}: `AEM_DYNMAP {'present' if got else 'absent'} but its "
+        f"owner {owner['name']} ({src}) declares "
+        f"{'a dynamic' if want else 'NO dynamic'} audio-map port - the "
+        f"engine constants must be emitted IF AND ONLY IF the owning config "
+        f"asks for them")
+    return owner["name"], want
+
+
+def _expect_dynmap_rejected(label, fn):
+    """R2: a check that cannot fail is not a check."""
+    try:
+        fn()
+    except AssertionError as e:
+        print(f"  [gate 17] MUTATION rejected: {label}\n"
+              f"            ({str(e).splitlines()[0][:100]})")
+        return
+    raise AssertionError(f"gate 17 ACCEPTED a tracked ROM it must reject: "
+                         f"{label}")
+
+
 def test_dynamic_audio_map_overlay():
     # gaps item 8: listeners[0] map_mode dynamic drops the port's AUDIO_MAP
     # (7.2.13 number_of_maps=0) and the overlay -> gen_aem_store path emits
-    # the `AEM_DYNMAP engine constants; static configs never do (gate 10
-    # byte-identity stays the proof of absence).
+    # the `AEM_DYNMAP engine constants; a config that declares no dynamic
+    # port never does.
     def dyn(c):
         c["streams"]["listeners"][0]["map_mode"] = "dynamic"
         c["streams"]["listeners"][0]["map_page"] = 4
@@ -967,17 +1087,76 @@ def test_dynamic_audio_map_overlay():
         assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
         assert "localparam int unsigned AEM_DMAP_NMAPS_C = 2;" in svh
         assert "WB_AUDIO_MAP_OUT_C" in svh
-        # the deployed static shape's svh must NOT know the engine
-        assert "AEM_DYNMAP" not in open(TRACKED_SVH).read()
+        # ... and the TRACKED pair carries the engine IFF ITS OWNER asks for
+        # it.  The owner is read from the tree, never assumed (see
+        # _check_tracked_dynmap).  Today's owner declares no dynamic port, so
+        # this still demands absence - the same bytes, a different question.
+        owner_name, owner_dyn = _check_tracked_dynmap(TRACKED_ADP_SVH,
+                                                      TRACKED_SVH)
         # a dynamic listener changes the model hash (capability change) and
         # the conditional key keeps every static config's hash untouched
         assert r["overlay"]["entity"] is not None
         print("  [gate 17] dynamic audio map: listeners[0] map_mode dynamic "
               "-> port n_maps=0, input AUDIO_MAP dropped (output renumbered "
-              "to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=2; tracked "
-              "deployed svh engine-free")
+              "to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=2")
+        print(f"  [gate 17] tracked entity definition is owned by "
+              f"{owner_name} (read from its own `Source : marker); it "
+              f"declares {'a' if owner_dyn else 'NO'} dynamic port, so its "
+              f"svh must be `AEM_DYNMAP-{'bearing' if owner_dyn else 'free'} "
+              f"- and is")
     finally:
         os.unlink(p)
+
+    # R2 - BOTH directions of the iff, on CANDIDATE pairs in temp dirs.
+    # Nothing is installed: --write-rtl is never run and the tree keeps its
+    # owner.  A gate that only ever sees a static owner cannot tell "derived
+    # from the owner" from "hardcoded absent", which is the whole defect.
+    p = _variant(CONFIGS["arty_current"], dyn)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            dyn_adp, dyn_rom = _dynmap_candidate(p, td)
+            sub = os.path.join(td, "static")
+            os.makedirs(sub)
+            st_adp, st_rom = _dynmap_candidate(CONFIGS["arty_current"], sub)
+
+            # (1) a DYNAMIC owner passes the SAME check with the expectation
+            #     FLIPPED to "present".  The old hardcoded negative REJECTED
+            #     exactly this - a correct tree, refused for a reason that is
+            #     not what the gate is about.
+            name, want = _check_tracked_dynmap(dyn_adp, dyn_rom, configs=[p])
+            assert want is True, f"{name}: dynamic owner not seen as dynamic"
+            assert "AEM_DYNMAP" in open(dyn_rom).read(), (
+                "SETUP: the dynamic candidate ROM has no engine to require")
+            print(f"  [gate 17] a tracked pair owned by a map_mode-dynamic "
+                  f"config passes the SAME check with the expectation "
+                  f"FLIPPED to `AEM_DYNMAP PRESENT - the gate follows the "
+                  f"owner instead of hardcoding absence")
+
+            # (2) and it still BITES in both directions.  Both mutations are
+            #     the realistic failure - a ROM left over from the previous
+            #     owner while the shape include already moved.
+            _expect_dynmap_rejected(
+                "owner declares a dynamic port, tracked ROM has no engine",
+                lambda: _check_tracked_dynmap(dyn_adp, st_rom, configs=[p]))
+            _expect_dynmap_rejected(
+                "owner declares NO dynamic port, tracked ROM carries the "
+                "engine",
+                lambda: _check_tracked_dynmap(st_adp, dyn_rom))
+
+            # (3) an owner that cannot be resolved must FAIL, not skip: with
+            #     no owner there is no expectation to check against.
+            ghost = open(st_adp).read().replace(
+                "configs/endstation_arty_current.yaml",
+                "configs/endstation_ghost.yaml")
+            assert ces.svh_source(ghost) == "configs/endstation_ghost.yaml"
+            with open(st_adp, "w") as f:
+                f.write(ghost)
+            _expect_dynmap_rejected(
+                "shape include names a config that does not exist",
+                lambda: _check_tracked_dynmap(st_adp, st_rom))
+    finally:
+        os.unlink(p)
+
     # unsupported placements are rejected with clear errors
     def dyn_talker(c):
         c["streams"]["talkers"][0]["map_mode"] = "dynamic"
