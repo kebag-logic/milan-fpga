@@ -3,10 +3,39 @@
 #
 # Software-defined Milan End-Station config (gaps attack item 4).
 # Shape: ARTY 4x4 - the item-5 NxN test shape for the small board. 4 AAF
-# listener + 4 AAF talker streams, 4ch each, TDM8 physical audio (8 channels
-# per direction = full physical coverage of one 4ch stream pair + first half
-# of the second). VALIDATES today; stream 2..4 contexts + the TDM ser/des are
-# marked "planned" in the build plan (items 5 / 4-audio subtask).
+# listener + 4 AAF talker streams, 4ch each, over the physical audio the ARTY
+# ACTUALLY HAS. VALIDATES today; stream 2..4 contexts are marked "planned" in
+# the build plan (item 5).
+#
+# THIS CONFIG DECLARED `kind: tdm8` UNTIL 2026-07-28 AND THE ARTY CANNOT BACK IT.
+# The declaration was harmless only for as long as nothing acted on it. The
+# moment the TDM MASTER front-end lands, `tdm_bus_wired()` answers a GLOBAL
+# question ("can any SoC in this tree build a master?") and so turns true for
+# EVERY board at once - and this config, on a board with no `tdm` resource,
+# starts emitting `--audio-interface tdm8 --audio-interface-master`. That build:
+#   (a) drives tdm bclk/fsync/dout into unconnected Signal()s and reads
+#       tdm_data_i = 0, i.e. 8 channels of DIGITAL SILENCE; and
+#   (b) rebinds o_i2s_mclk_o away from the Pmod I2S2 - milan_datapath routes the
+#       TDM master's MCLK out of the I2S mclk pin - taking the CS5343 MCLK off
+#       pmoda:4 (ball D13) and killing the ONE known-good audio path in this
+#       project, the board-to-board analog loop in docs/findings/BENCH_TOPOLOGY.md.
+# ORACLE (a board-resource fact, not a spec question - there is no clause to
+# cite): the stock litex_boards Arty platform contains the string "tdm" ZERO
+# times and declares no `tdm` resource, and milan_soc.py adds no TDM extension
+# on the arty path. Its only audio extension is i2s_pmod_io("pmoda"), which
+# consumes all eight pmoda pins (G13 B11 A11 D12 D13 B18 A18 K16).
+# pmodb/pmodc/pmodd are 24 unclaimed LVCMOS33 pins, so a header COULD be routed -
+# but no TDM8 device exists to plug into it (Digilent ships no TDM Pmod; the
+# bench has none), so routing one would move the silence from a Signal() to a
+# header pin and measure the same zero. Pins are therefore NOT assigned, and
+# the interface is declared as what the board is: stereo I2S, the same kind
+# endstation_arty_current.yaml ships - the config that streams to a Milan-
+# validated reference device with zero unsupported-format frames, through that
+# Pmod. Raising this board to a real multichannel front-end is item 4's TDM
+# header subtask and needs HARDWARE, not a config edit.
+# ENFORCEMENT: sw/litex/platforms/board_audio_routing.py refuses the build, and
+# test_builder gates 24c/24d refuse the config; re-declaring tdm8 here fails
+# both.
 
 schema: kebag-logic/milan-endstation-config
 schema_version: "1.1.0"
@@ -79,14 +108,20 @@ clocking:
     format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
                                      # type 1 AUDIO_SAMPLE, 48k, interval 96,
                                      # 1 ts/PDU)
-  audio_pll_hz: 24576000             # TDM8 x 32-bit slots @48k -> BCLK 12.288M
+  audio_pll_hz: 24576000             # Pmod I2S2: MCLK /2, SCLK /8 = 64 fs,
+                                     # LRCK /512 = 48.000 kHz exactly
+                                     # (docs/design/AUDIO_STREAMING.md)
 
 audio_interface:
-  kind: tdm8                         # 8 slots per direction
-  word_length_bits: 24               # 24-in-32 slots
+  kind: i2s_philips                  # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
+                                     # The Arty routes ONE audio front-end: the
+                                     # Pmod I2S2 on pmoda (CS5343 ADC + CS4344
+                                     # DAC), stereo. See the header banner for
+                                     # why tdm8 is not declarable here.
+  word_length_bits: 24               # CS4344 24-bit Philips
   cluster_mapping:
     policy: cap-at-interface         # clusters model real endpoints only:
-                                     # per stream min(clusters, 8 TDM slots)
+                                     # per stream min(clusters, 2 I2S channels)
 
 streams:
   listeners:

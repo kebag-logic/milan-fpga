@@ -48,6 +48,7 @@ from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 # Local platform (not in upstream litex_boards).
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "platforms"))
 import alinx_ax7101
+import board_audio_routing
 
 # The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/reference/REGISTER_MAP.md;
 # only the BASE is host-specific: on this NaxRiscv SoC an MMIO peripheral must live in
@@ -5009,6 +5010,25 @@ def main():
                          "is set via --sys-clk-freq. See docs/findings/LATENCY_INVESTIGATION.md §8.")
     builder_args(ap)
     args = ap.parse_args()
+
+    # ---- L1 BINDING REFUSAL: the board must ROUTE the front-end it is asked
+    #      for. BEFORE the platform is built, so an unbackable request is a
+    #      BUILD FAILURE and never a bitstream.
+    #
+    #      `--audio-interface tdmN` selects a capture front-end in
+    #      milan_datapath; whether that front-end reaches a pin is a property of
+    #      the BOARD. On a board with no `tdm` resource the request (a) drives
+    #      bclk/fsync/dout into unconnected Signal()s and reads tdm_data_i = 0 -
+    #      digital SILENCE at the declared width - and (b) rebinds o_i2s_mclk_o
+    #      off the I2S front-end's pad, which on the Arty is pmoda:4 (D13), the
+    #      CS5343 MCLK and the only working audio input the board has. Both used
+    #      to be a printed warning; a warning is not enough
+    #      (docs/testing/methodology.md R5 - a structural zero is not a
+    #      measurement). `getattr` for the master flag so this composes with the
+    #      trees that do and do not yet have it.
+    board_audio_routing.assert_front_end_routed(
+        args.board, args.audio_interface,
+        audio_if_master=getattr(args, "audio_interface_master", False))
 
     if args.board == "arty":
         # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,

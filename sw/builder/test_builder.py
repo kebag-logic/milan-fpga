@@ -379,42 +379,58 @@ def test_capability_marks():
         planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
         assert any("item 5" in p for p in planned), f"{name}: no item-5 mark"
         # item-4 audio-interface family. THE MARK MUST STATE THE FABRIC FACT,
-        # and which fact it is depends on whether anything drives the bus:
+        # and TWO independent questions decide which fact:
         #
-        #   UNDRIVEN (measured 2026-07-28 and true until the master landed):
-        #     milan_soc.py ties i_tdm_bclk_i/i_tdm_fsync_i/i_tdm_data_i to 0 on
-        #     every SoC and no platform provides TDM pads, so the SLAVE's fsync
-        #     never toggles and it yields no pairs at all. The ser/des RTL is
-        #     supported and the INTERFACE is a placeholder, so the mark must
-        #     name which half is missing - the shape the aes3/spdif marks use.
-        #     The declaration stays (USER: "the tdm can be a placeholder").
-        #   MASTERED (2026-07-28, KL_tdm_capture_master): the fabric generates
-        #     bclk/fsync off its own MMCM output, so nobody has to drive it and
-        #     the interface is genuinely supported. The mark must then name the
-        #     MASTER module, because "KL_tdm_capture" alone would describe the
-        #     slave path that is still dead.
+        #   (a) does this config DECLARE a tdm front-end at all? Keyed off the
+        #       config's own `kind`, never a hardcoded list of config names
+        #       (methodology R4). A config declaring no tdm front-end must NOT
+        #       be required to carry a tdm mark - endstation_arty_4x4 stopped
+        #       declaring tdm8 on 2026-07-28 because the Arty routes no `tdm`
+        #       resource and has no TDM device, and once the master made
+        #       tdm_bus_wired() globally true that declaration would have
+        #       emitted --audio-interface tdm8 --audio-interface-master on a
+        #       board where it frames digital silence AND takes i2s_mclk off
+        #       pmoda:4 (D13). See gates 24c/24d + board_audio_routing.py.
+        #   (b) if it does declare one, is anything DRIVING it?
+        #       UNDRIVEN: milan_soc.py ties i_tdm_bclk_i/i_tdm_fsync_i/
+        #         i_tdm_data_i to 0 and no platform provides pads, so the
+        #         SLAVE's fsync never toggles and it yields no pairs. The
+        #         ser/des is supported and the INTERFACE is a placeholder, so
+        #         the mark names which half is missing (the aes3/spdif shape).
+        #         The declaration stays (USER: "the tdm can be a placeholder").
+        #       MASTERED (KL_tdm_capture_master): the fabric generates
+        #         bclk/fsync off its own MMCM output, so nobody has to drive it.
+        #         The mark must name the MASTER module - "KL_tdm_capture" alone
+        #         would describe the slave path that is still dead.
         #
-        # Asked of the builder rather than hardcoded, so this gate states the
-        # rule and does not need an edit when the answer moves again.
+        # Both asked of the builder rather than hardcoded, so this gate states
+        # the rule and needs no edit when either answer moves again.
+        cfg_obj = eb.load_config(CONFIGS[name])
+        kind = cfg_obj["interface"]["kind"]
         tdm = [m for m in r["marks"]
                if m[0].startswith("audio interface tdm")]
-        assert tdm, f"{name}: no tdm mark at all"
-        if eb.interface_is_placeholder(eb.load_config(CONFIGS[name])):
-            assert tdm[0][1].startswith("planned (item 4"), \
-                f"{name}: an undriven tdm bus must be a planned mark: {tdm}"
-            assert "KL_tdm_capture" in tdm[0][2] and \
-                   "NOTHING DRIVES IT" in tdm[0][2], \
-                f"{name}: the tdm mark must name the ser/des AND the missing " \
-                f"half: {tdm}"
+        if kind in ("tdm8", "tdm16", "tdm32"):
+            assert tdm, f"{name}: declares {kind} but has no tdm mark at all"
+            if eb.interface_is_placeholder(cfg_obj):
+                assert tdm[0][1].startswith("planned (item 4"), \
+                    f"{name}: an undriven tdm bus must be a planned mark: {tdm}"
+                assert "KL_tdm_capture" in tdm[0][2] and \
+                       "NOTHING DRIVES IT" in tdm[0][2], \
+                    f"{name}: the tdm mark must name the ser/des AND the " \
+                    f"missing half: {tdm}"
+            else:
+                assert tdm[0][1] == "supported", \
+                    f"{name}: a backed tdm bus must not be planned: {tdm}"
+                assert "KL_tdm_capture_master" in tdm[0][2], \
+                    f"{name}: a MASTERED bus must name the master module, not " \
+                    f"the slave that is still undriven: {tdm}"
         else:
-            assert tdm[0][1] == "supported", \
-                f"{name}: a backed tdm bus must not be planned: {tdm}"
-            assert "KL_tdm_capture_master" in tdm[0][2], \
-                f"{name}: a MASTERED bus must name the master module, not the " \
-                f"slave that is still undriven: {tdm}"
+            assert not tdm, \
+                f"{name}: declares {kind} but carries a tdm mark: {tdm}"
         assert "planned (item 5" in r["plan"], f"{name}: plan lacks marker"
-        print(f"  [gate 4] {name}: {len(planned)} planned mark(s) "
-              f"(item 5), tdm mark = {tdm[0][1]}, no failure")
+        print(f"  [gate 4] {name}: {len(planned)} planned mark(s) (item 5"
+              + (", tdm mark = " + tdm[0][1] if tdm else "")
+              + f"), declared interface {kind}, no failure")
     # aes3/spdif: the biphase-mark ser/des LANDED (KL_aes3_rx + KL_aes3_tx),
     # so the transport itself is supported and only the datapath/SoC plumbing
     # is still a planned mark - the mark must say WHICH half is missing.
@@ -2346,6 +2362,372 @@ def test_optional_block_names_reach_the_rtl():
           "p_AAF_PLAYBACK silent-no-op class, closed)")
 
 
+# ======================================================== gates 24c / 24d ====
+#  PER-BOARD AUDIO FRONT-END ROUTING - the L1 binding, one board at a time.
+#
+#  Gate 24/24b prove the TDM master binding reaches the AX7101's pins. They say
+#  nothing about the OTHER board, and the binding is not board-independent: on
+#  2026-07-28 endstation_arty_4x4.yaml declared `kind: tdm8` while the Arty
+#  routes no `tdm` resource at all, and the answer to "is a TDM front-end real"
+#  was being computed GLOBALLY - endstation_builder.tdm_bus_wired() asks "can
+#  ANY SoC in this tree build a TDM master", which turns true for EVERY board
+#  the moment the master lands. A per-board fact answered once for the whole
+#  tree. The consequence on the Arty:
+#
+#    (a) bclk / fsync / dout drive unconnected Signal()s and tdm_data_i reads 0
+#        -> 8 channels of DIGITAL SILENCE; and
+#    (b) o_i2s_mclk_o is rebound off the Pmod I2S2 - milan_datapath routes the
+#        TDM master's MCLK out of the I2S mclk pin - taking the CS5343 MCLK off
+#        pmoda:4 (ball D13). That is the ONLY working audio input the Arty has
+#        and the one the board-to-board analog loop runs through
+#        (docs/findings/BENCH_TOPOLOGY.md); endstation_arty_current.yaml streams
+#        through it to a Milan-validated reference device with zero
+#        unsupported-format frames. It is the project's negative control.
+#
+#  It was reported as a printed warning. methodology R5 - a structural zero is
+#  not a measurement - says a capability the fabric cannot back must read as
+#  UNSUPPORTED, so it is now a refusal.
+#
+#  ORACLE (R1): the platform - which pins actually exist on that board - read as
+#  text by sw/litex/platforms/board_audio_routing.py. NOT a spec question (R3):
+#  no clause in 1722/802.1BA/Milan says which balls a board brings out.
+#
+#  R4: the checks below are shaped like the property. Two layers, because the
+#  defect has two:
+#    L-decl  a config may DECLARE a TDM front-end only for a board that can
+#            have one - routed today, or on a platform this repo owns and can
+#            route. The Arty rides a stock upstream platform and has no TDM
+#            extension, so it satisfies neither.
+#    L-argv  and no config's argv may SELECT a TDM front-end for a board that
+#            does not route one. This is the layer the global tdm_bus_wired()
+#            breaks, so it is exercised in BOTH tree states - today's, and a
+#            synthesized "the master has landed" tree.
+
+sys.path.insert(0, os.path.join(ROOT, "sw/litex/platforms"))
+import board_audio_routing as bar  # noqa: E402
+
+
+def _routing_sources():
+    return {"plat": open(os.path.join(
+                ROOT, "sw/litex/platforms/alinx_ax7101.py")).read(),
+            "soc": open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()}
+
+
+def _argv_under(cfg_path, wired):
+    """This config's soc argv with tdm_bus_wired() FORCED.
+
+    `wired=True` synthesizes the tree in which the TDM master front-end has
+    landed - the state that turns the Arty's placeholder declaration into a
+    real `--audio-interface tdm8 --audio-interface-master` build. Testing only
+    today's tree would be testing the one state in which the defect is dormant.
+    """
+    saved = dict(eb._TDM_WIRED_CACHE)
+    try:
+        eb._TDM_WIRED_CACHE["cached"] = wired
+        return eb.emit_soc_argv(eb.load_config(cfg_path))
+    finally:
+        eb._TDM_WIRED_CACHE.clear()
+        eb._TDM_WIRED_CACHE.update(saved)
+
+
+def _board_can_have_tdm(board, src):
+    """Can this board back a TDM front-end at all?
+
+    True when it routes a `tdm` resource today, OR when its platform is one
+    this repo ships - in which case the header is ours to declare and the pins
+    are a decision, not a wish. False for a board riding a STOCK upstream
+    platform with no TDM extension: nothing in this tree can route it.
+    """
+    return bar.routes_tdm(board, src) or board in bar._REPO_PLATFORM
+
+
+def _front_end_routing(src, cfg_paths, argv_of=None):
+    """The gate-24c assertions over SOURCE TEXT plus config paths, so 24d can
+    hand them a mutated tree and prove each one can fail.
+
+    `argv_of(path, wired) -> argv` is injectable for the same reason: the L-ARGV
+    layer below can only be shown to fail if something can hand it an argv that
+    selects a TDM front-end on a headerless board, and no config in the tree
+    does that (which is the point). A stub supplies one."""
+    argv_of = argv_of or _argv_under
+    soc, plat = src["soc"], src["plat"]
+
+    # 0. the vocabulary the refusal keys on must be the SoC's own --audio-
+    #    interface choices, minus the non-TDM ones. A kind added on one side
+    #    only would walk straight past every check below.
+    m = re.search(r'"--audio-interface",\s*\n?\s*.*?choices=\(([^)]*)\)',
+                  soc, re.S)
+    assert m, "milan_soc.py has no --audio-interface choices tuple"
+    soc_kinds = set(re.findall(r'["\'](\w+)["\']', m.group(1)))
+    assert set(bar.TDM_KINDS) == {k for k in soc_kinds if k.startswith("tdm")}, \
+        (f"board_audio_routing.TDM_KINDS {bar.TDM_KINDS} != the SoC's tdm "
+         f"choices {sorted(k for k in soc_kinds if k.startswith('tdm'))}")
+
+    # 1. THE REFUSAL EXISTS AND RUNS BEFORE THE PLATFORM IS BUILT. A check
+    #    after elaboration is a check that already emitted the bitstream.
+    call = soc.find("board_audio_routing.assert_front_end_routed(")
+    assert call != -1, \
+        ("milan_soc.py never calls board_audio_routing.assert_front_end_routed "
+         "- an unbackable front-end would be a printed warning and then a "
+         "bitstream that emits zeros (methodology R5)")
+    built = soc.find("platform = digilent_arty.Platform(")
+    assert built != -1 and call < built, \
+        ("the front-end routing refusal must run BEFORE the platform is "
+         "constructed, so an unroutable request fails the BUILD")
+    assert re.search(r"assert_front_end_routed\(\s*\n?\s*args\.board,\s*"
+                     r"args\.audio_interface", soc), \
+        "the refusal must be keyed on args.board AND args.audio_interface"
+    assert 'getattr(args, "audio_interface_master", False)' in soc, \
+        ("the refusal must read the master flag defensively - it exists in the "
+         "tree that lands the TDM master and not in the one before it")
+
+    # 2a. L-DECL: a config may declare a TDM front-end only for a board that can
+    #     HAVE one - it routes a header today, or its pinout is this repo's to
+    #     declare one in (`_REPO_PLATFORM`: the AX7101 is not in upstream
+    #     litex_boards, so we ship and own its `_io`). A board on a STOCK
+    #     upstream platform with no TDM extension is neither: nothing here can
+    #     route it, and declaring a front-end for it is a claim about hardware
+    #     that does not exist and is not being built.
+    for name, path in cfg_paths.items():
+        cfg = eb.load_config(path)
+        board, kind = cfg["board_target"], cfg["interface"]["kind"]
+        if kind not in bar.TDM_KINDS:
+            continue
+        assert _board_can_have_tdm(board, src), (
+            f"{name} declares `{kind}` for board `{board}`, which routes no "
+            f"`tdm` resource and whose platform this repo does not own - there "
+            f"is nowhere to declare one and no device to plug in. A "
+            f"declaration the board can never back is the item-00 defect one "
+            f"layer down.")
+
+    # 2b. and a repo-owned platform that DOES declare a `tdm` resource must
+    #     route every one of its subsignals to a real ball. `Pins("")` resolves
+    #     and reaches nowhere - the `_connectors = []` defect wearing a
+    #     resource name.
+    body = "\n".join(l.split("#")[0] for l in plat.split("\n"))
+    if '("tdm", 0,' in body:
+        entry = body[body.index('("tdm", 0,'):]
+        entry = entry[:entry.index("),\n\n")] if "),\n\n" in entry else entry
+        subs = re.findall(r'Subsignal\("(\w+)",\s*Pins\("([^"]*)"\)', entry)
+        assert subs, "the platform's `tdm` resource declares no Subsignals"
+        for sub, pins in subs:
+            assert re.match(r"^[A-Z]+\d+", pins), (
+                f"platform tdm.{sub} has Pins({pins!r}) - a pad that is not "
+                f"routed is a front-end clocking in a constant zero")
+
+    # 3. L-ARGV: no config's argv may SELECT a TDM front-end for a board that
+    #    cannot back one. Checked in BOTH reachable tree states, with the
+    #    strength each state can actually know:
+    #      wired=False  THIS tree. Strict: the header must EXIST today.
+    #      wired=True   the tree the TDM master creates - and the master is only
+    #                   meaningful alongside the platform work that routes the
+    #                   header, which for a repo-owned platform lands together
+    #                   (gate 24/24b is what proves it really did). So the
+    #                   weaker "can have one" applies, which is still enough to
+    #                   refuse a board whose pinout is not ours - the Arty.
+    #    This second pass is the whole point: tdm_bus_wired() answers a GLOBAL
+    #    question ("can ANY SoC here build a master?") and so turns true for
+    #    EVERY board at once, while whether a front-end reaches a pin is PER
+    #    BOARD. Testing only today's tree tests the one state in which the
+    #    defect is dormant.
+    for wired, ok in ((False, bar.routes_tdm), (True, _board_can_have_tdm)):
+        for name, path in cfg_paths.items():
+            board = eb.load_config(path)["board_target"]
+            argv = argv_of(path, wired)
+            sel = [argv[i + 1] for i, a in enumerate(argv[:-1])
+                   if a == "--audio-interface"]
+            master = "--audio-interface-master" in argv
+            if not any(k in bar.TDM_KINDS for k in sel) and not master:
+                continue
+            assert ok(board, src), (
+                f"{name} (board {board}) emits --audio-interface "
+                f"{' '.join(sel) or '?'}{' --audio-interface-master' * master} "
+                f"with tdm_bus_wired()={wired}, but that board routes no `tdm` "
+                f"resource and cannot be given one here: bclk/fsync/dout would "
+                f"drive unconnected Signal()s, tdm_data_i would read 0 "
+                f"(digital silence at the declared width) and o_i2s_mclk_o "
+                f"would be rebound off the I2S pad.")
+
+    # 4. i2s_mclk STAYS ON THE PMOD on every build that uses the I2S front-end.
+    #    Requirement in its own right: the Arty's Pmod I2S2 is the one
+    #    known-good audio path in the project. Every binding of o_i2s_mclk_o
+    #    must be either the I2S Pmod pad or a TDM master pad - never an
+    #    unconditional bare Signal(), which is how (b) happened.
+    binds = re.findall(r"o_i2s_mclk_o\s*=\s*([^\n]*)", soc)
+    assert binds, "milan_soc.py binds o_i2s_mclk_o nowhere"
+    assert any("self.i2s_pads[0]" in b for b in binds), \
+        ("no build binds o_i2s_mclk_o to self.i2s_pads[0] - the Pmod I2S2 "
+         "MCLK (pmoda:4, ball D13) feeds the CS5343 ADC; without it the "
+         "board's only working audio input is dead")
+    for b in binds:
+        assert "self.i2s_pads[0]" in b or "tdm_pads" in b, (
+            f"o_i2s_mclk_o is bound to `{b.strip()}` - it may only ever reach "
+            f"the I2S Pmod pad or a TDM master pad. Binding it to a bare "
+            f"Signal() takes the MCLK off pmoda:4 (D13) on a board whose I2S "
+            f"front-end is the one that streams to a qualified listener.")
+
+    # 5. and the Arty pad record must still agree with the real platform,
+    #    whenever the real platform can be imported.
+    assert bar.verify_against_litex_boards() in (None, True)
+
+
+def test_front_end_routing_per_board():
+    """gate 24c - a config may not request a front-end its board does not route.
+
+    LEVEL 1 (config <-> wrapper <-> platform binding). ORACLE: the platform pad
+    tables, parsed as text. Every assertion is "the pin the consumer names is
+    really there on THAT board"."""
+    src = _routing_sources()
+    _front_end_routing(src, CONFIGS)
+    routed = {b: bar.routes_tdm(b, src) for b in ("arty", "ax7101")}
+    print(f"  [gate 24c] per-board front-end routing: tdm routed {routed}; "
+          f"3 configs checked at BOTH tdm_bus_wired() states; the refusal runs "
+          f"before the platform is built; o_i2s_mclk_o binds only to "
+          f"i2s_pads[0] (pmoda:4 D13) or tdm_pads; Arty pad record re-derived "
+          f"from litex_boards" if bar.verify_against_litex_boards()
+          else f"  [gate 24c] per-board front-end routing: tdm routed {routed}; "
+               f"3 configs checked at BOTH tdm_bus_wired() states; the refusal "
+               f"runs before the platform is built; o_i2s_mclk_o binds only to "
+               f"i2s_pads[0] (pmoda:4 D13) or tdm_pads")
+
+
+#: gate 24d negative controls. Each is a MEASURED defect shape, not an invented
+#: one, so the gate is not merely asserted to be able to fail - it is shown to,
+#: on the thing that actually happened. R2: a check that cannot fail is not a
+#: check.  (label, kind, payload) where kind is "soc" | "plat" | "cfg".
+ROUTING_MUTATIONS = [
+    # THE REPORTED DEFECT, exactly: the Arty declares tdm8 again. Dormant while
+    # tdm_bus_wired() is false, live the moment the master lands.
+    ("THE 2026-07-28 DEFECT: arty_4x4 declares tdm8 on a board with no header",
+     "cfg", ("arty_4x4", "kind: i2s_philips", "kind: tdm8")),
+    ("... and the same for tdm16",
+     "cfg", ("arty_4x4", "kind: i2s_philips", "kind: tdm16")),
+    ("... and for tdm32",
+     "cfg", ("arty_4x4", "kind: i2s_philips", "kind: tdm32")),
+    # THE (b) HALF: i2s_mclk moved off the Pmod.
+    ("i2s_mclk is bound to a bare Signal() - off pmoda:4 (D13), the CS5343 "
+     "MCLK, on the board whose I2S path is the project's negative control",
+     "soc", ("o_i2s_mclk_o = self.i2s_pads[0] if self.i2s_pads else Signal(),",
+             "o_i2s_mclk_o = Signal(),")),
+    # THE REFUSAL ITSELF.
+    ("the refusal is deleted and the warning comes back",
+     "soc", ("board_audio_routing.assert_front_end_routed(",
+             "_deleted_assert_front_end_routed(")),
+    ("the refusal stops being keyed on the BOARD - a per-board fact answered "
+     "globally is the whole defect",
+     "soc", ("assert_front_end_routed(\n        args.board,",
+             "assert_front_end_routed(\n        None,")),
+    ("the refusal runs AFTER the platform is built, i.e. too late to refuse",
+     "soc_move", None),
+    ("the refusal stops reading the master flag defensively",
+     "soc", ('getattr(args, "audio_interface_master", False)',
+             "False")),
+    # THE _connectors = [] CLASS, on the AX side of the same rule.
+    ("a routed tdm resource loses its pins (Pins(\"\") resolves, reaches "
+     "nowhere)", "plat_tdm", None),
+    # A NEW INTERFACE KIND ADDED ON ONE SIDE ONLY.
+    ("milan_soc gains a tdm kind the routing module does not know about",
+     "soc", ('choices=("i2s_philips", "tdm8", "tdm16", "tdm32")',
+             'choices=("i2s_philips", "tdm8", "tdm16", "tdm32", "tdm64")')),
+    # THE L-ARGV LAYER, which the declaration mutations above never reach
+    # because L-DECL catches them first. These hand it the argv the defect
+    # actually produced: the builder emitting a TDM front-end for the Arty.
+    ("L-ARGV, this tree: the builder emits --audio-interface tdm8 for the "
+     "Arty even with tdm_bus_wired() false",
+     "argv", (False, ["--board", "arty", "--audio-interface", "tdm8"])),
+    ("L-ARGV, once the master lands: --audio-interface-master reaches the "
+     "Arty because tdm_bus_wired() answers for the whole tree at once",
+     "argv", (True, ["--board", "arty", "--audio-interface", "tdm8",
+                     "--audio-interface-master"])),
+]
+
+
+def test_front_end_routing_gate_bites():
+    """gate 24d - prove every gate-24c assertion can FAIL.
+
+    LEVEL 1, same oracle. Config mutations are written to a temp file (the
+    builder loads by path); source mutations run in memory, so nothing is
+    written to the tree."""
+    base = _routing_sources()
+    #: the AX with the J11 header Lane 1 routes - the tree state in which the
+    #: `Pins("")` mutation is meaningful at all. Without a routed resource to
+    #: break, that negative control would be vacuous.
+    j11 = ('    ("tdm", 0,\n'
+           '        Subsignal("mclk",  Pins("B22")),\n'
+           '        Subsignal("dout",  Pins("A20")),\n'
+           '        Subsignal("bclk",  Pins("B20")),\n'
+           '        Subsignal("din",   Pins("F20")),\n'
+           '        Subsignal("fsync", Pins("F19")),\n'
+           '        IOStandard("LVCMOS33"),\n'
+           '    ),\n')
+    plat_j11 = base["plat"].replace('    ("ddram", 0,', j11 + '    ("ddram", 0,')
+    assert bar.routes_tdm("ax7101", dict(base, plat=plat_j11)), \
+        "gate 24d setup: the synthesized J11 header does not read as routed"
+    assert not bar.routes_tdm("arty", dict(base, plat=plat_j11)), \
+        "gate 24d setup: an AX header must not make the ARTY route tdm"
+
+    n = 0
+    for label, which, payload in ROUTING_MUTATIONS:
+        src, cfgs, tmp, argv_of = dict(base), dict(CONFIGS), None, None
+        try:
+            if which == "argv":
+                at, argv = payload
+
+                def argv_of(path, wired, _at=at, _argv=argv):
+                    if wired == _at and path == CONFIGS["arty_4x4"]:
+                        return list(_argv)
+                    return _argv_under(path, wired)
+            elif which == "cfg":
+                name, anchor, mutant = payload
+                raw = open(CONFIGS[name]).read()
+                assert anchor in raw, \
+                    f"gate 24d setup: anchor for '{label}' gone from {name}"
+                fd, tmp = tempfile.mkstemp(suffix=".yaml")
+                with os.fdopen(fd, "w") as fh:
+                    fh.write(raw.replace(anchor, mutant, 1))
+                cfgs[name] = tmp
+            elif which == "soc_move":
+                # RELOCATE the refusal to after the platform is constructed.
+                # Deleting a word would not test the ORDER; moving the call is
+                # the only mutation whose sole effect is lateness.
+                blk = re.search(r"\n    board_audio_routing\."
+                                r"assert_front_end_routed\((?:[^\n]*\n){2}",
+                                src["soc"])
+                assert blk, "gate 24d setup: cannot locate the refusal block"
+                anchor = "        platform = alinx_ax7101.Platform()\n"
+                assert anchor in src["soc"], \
+                    "gate 24d setup: platform construction anchor moved"
+                src["soc"] = src["soc"].replace(blk.group(0), "\n", 1) \
+                                       .replace(anchor, anchor + blk.group(0), 1)
+            elif which == "plat_tdm":
+                # break the ROUTED header rather than the absent one
+                src["plat"] = plat_j11
+                for ball in ("B22", "A20", "B20", "F20", "F19"):
+                    src["plat"] = src["plat"].replace('Pins("%s")' % ball,
+                                                      'Pins("")')
+                cfgs = {"ax7101_8x8": CONFIGS["ax7101_8x8"]}
+            else:
+                anchor, mutant = payload
+                assert anchor in src[which], \
+                    f"gate 24d setup: anchor for '{label}' gone from {which}"
+                src[which] = src[which].replace(anchor, mutant, 1)
+            try:
+                _front_end_routing(src, cfgs, argv_of)
+            except AssertionError:
+                n += 1
+                continue
+            raise AssertionError(
+                f"gate 24c ACCEPTED a mutated tree - it cannot detect: {label}")
+        finally:
+            if tmp:
+                os.unlink(tmp)
+    print(f"  [gate 24d] {n}/{len(ROUTING_MUTATIONS)} routing mutations "
+          f"REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, "
+          f"refusal deleted / mis-keyed / late / undefended, a routed header "
+          f"losing its pins, a kind added on one side only, and the argv "
+          f"itself selecting TDM for the Arty in BOTH tree states)")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -2371,7 +2753,9 @@ if __name__ == "__main__":
                test_optional_block_prune_accounting,
                test_optional_block_names_reach_the_rtl,
                test_tdm_master_binding_reaches_the_pins,
-               test_tdm_master_binding_gate_bites):
+               test_tdm_master_binding_gate_bites,
+               test_front_end_routing_per_board,
+               test_front_end_routing_gate_bites):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
