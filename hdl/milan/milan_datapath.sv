@@ -1476,6 +1476,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] csr_acmp_rest_flags_w;
   wire        acmp_rest_ack_w;
   wire [1:0]  acmp_rest_status_w;
+  //! persistence-journal restore master (E3) - shares the E1 rest port,
+  //! journal-wins arbitration at the lstn ctx instance below
+  wire        jnl_rest_req_w;
+  wire [3:0]  jnl_rest_idx_w;
+  wire [63:0] jnl_rest_talker_w, jnl_rest_ctlr_w;
+  wire [15:0] jnl_rest_tuid_w, jnl_rest_flags_w;
+  wire        cfg_jnl_start_w, cfg_jnl_wr_w, cfg_jnl_end_w, cfg_jnl_abort_w;
+  wire [31:0] cfg_jnl_data_w;
+  wire [31:0] jnl_stat_w, jnl_seq_w;
 
   //! item-11 AAF per-stage latency taps (LTAP CSR group, base 0x870):
   //! 16 packed RO words + status feed milan_csr; en/clr come back from it.
@@ -1779,8 +1788,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_acmp_rest_tuid   (csr_acmp_rest_tuid_w),
     .o_acmp_rest_ctlr   (csr_acmp_rest_ctlr_w),
     .o_acmp_rest_flags  (csr_acmp_rest_flags_w),
-    .i_acmp_rest_ack    (acmp_rest_ack_w),
+    //! owner-routed (see the rest-port arbitration note): the 0x7A0 direct
+    //! master only sees a completion while the journal is idle
+    .i_acmp_rest_ack    (acmp_rest_ack_w & ~jnl_rest_req_w),
     .i_acmp_rest_status (acmp_rest_status_w),
+    //! persistence-journal ingest group 0x7B8-0x7C4 (E3)
+    .o_jnl_start        (cfg_jnl_start_w),
+    .o_jnl_wr           (cfg_jnl_wr_w),
+    .o_jnl_data         (cfg_jnl_data_w),
+    .o_jnl_end          (cfg_jnl_end_w),
+    .o_jnl_abort        (cfg_jnl_abort_w),
+    .i_jnl_stat         (jnl_stat_w),
+    .i_jnl_seq          (jnl_seq_w),
     .o_srp_ctx_req      (csr_srp_ctx_req),
     .o_srp_ctx_we       (csr_srp_ctx_we),
     .o_srp_ctx_idx      (csr_srp_ctx_idx),
@@ -2398,15 +2417,64 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tbl_ctx_o (acmp_tbl_ctx_w),
     //! E1 saved-state fast-connect: the 0x7A0 commit injects the Milan
     //! 5.5.3.5.2 entry record (PRB_W_AVAIL / PASSIVE, SRP params cleared)
-    //! into the ctx table; the engine range/occupancy-checks and acks
-    .rest_req_i    (csr_acmp_rest_req_w),
-    .rest_idx_i    (csr_acmp_rest_idx_w),
-    .rest_talker_i (csr_acmp_rest_talker_w),
-    .rest_tuid_i   (csr_acmp_rest_tuid_w),
-    .rest_ctlr_i   (csr_acmp_rest_ctlr_w),
-    .rest_flags_i  (csr_acmp_rest_flags_w),
+    //! into the ctx table; the engine range/occupancy-checks and acks.
+    //! TWO masters share the port since the journal wired in (E3): the
+    //! atomic replay engine wins while it is restoring, the 0x7A0 direct
+    //! path otherwise - both are boot-software-sequenced and never
+    //! legitimately concurrent, and the ack routes to the owner only so a
+    //! loser cannot mistake the winner's completion for its own.
+    .rest_req_i    (jnl_rest_req_w | csr_acmp_rest_req_w),
+    .rest_idx_i    (jnl_rest_req_w ? jnl_rest_idx_w
+                                   : csr_acmp_rest_idx_w),
+    .rest_talker_i (jnl_rest_req_w ? jnl_rest_talker_w
+                                   : csr_acmp_rest_talker_w),
+    .rest_tuid_i   (jnl_rest_req_w ? jnl_rest_tuid_w
+                                   : csr_acmp_rest_tuid_w),
+    .rest_ctlr_i   (jnl_rest_req_w ? jnl_rest_ctlr_w
+                                   : csr_acmp_rest_ctlr_w),
+    .rest_flags_i  (jnl_rest_req_w ? jnl_rest_flags_w
+                                   : csr_acmp_rest_flags_w),
     .rest_ack_o    (acmp_rest_ack_w),
     .rest_status_o (acmp_rest_status_w)
+  );
+
+  // ==========================================================================
+  //  Persistence-journal ingest (saved-state fast-connect E3, Milan v1.2
+  //  5.3.8.2: "The current bound state shall be saved in a non-volatile
+  //  memory and restored after a power cycle", 5.3.8.3 the four binding
+  //  parameters). Software lifts one flash slot image VERBATIM through the
+  //  0x7B8-0x7C4 CSR group; KL_persist_journal verifies magic / format /
+  //  shape / owning entity / CRC-32 - the CRC is the LAST word, so a torn,
+  //  foreign or stale image yields ZERO restores; a half-applied context
+  //  table is not representable - and only then drives the E1 restore
+  //  port, one Milan 5.5.3.5.2 entry record per journal record. The
+  //  executable spec of this group is tb/verilator/persist/persist_wrap.sv.
+  // ==========================================================================
+  KL_persist_journal #(
+    //! records cover every sink this shape has, inside the engine's 8-slot
+    //! refusal bitmap
+    .MAX_REC_P ((ACMP_SINKS_C > 8) ? 8 : ACMP_SINKS_C)
+  ) persist_journal (
+    .clk_i         (axis_clk),
+    .rst_n         (axis_resetn),
+    .entity_id_i   (cfg_adp_entity_id),
+    .jnl_start_i   (cfg_jnl_start_w),
+    .jnl_wr_i      (cfg_jnl_wr_w),
+    .jnl_data_i    (cfg_jnl_data_w),
+    .jnl_end_i     (cfg_jnl_end_w),
+    .jnl_abort_i   (cfg_jnl_abort_w),
+    .rest_req_o    (jnl_rest_req_w),
+    .rest_idx_o    (jnl_rest_idx_w),
+    .rest_talker_o (jnl_rest_talker_w),
+    .rest_tuid_o   (jnl_rest_tuid_w),
+    .rest_ctlr_o   (jnl_rest_ctlr_w),
+    .rest_flags_o  (jnl_rest_flags_w),
+    //! owner-routed ack: the journal only sees a completion while ITS
+    //! request holds the port
+    .rest_ack_i    (acmp_rest_ack_w & jnl_rest_req_w),
+    .rest_status_i (acmp_rest_status_w),
+    .stat_o        (jnl_stat_w),
+    .seq_o         (jnl_seq_w)
   );
 
   // ==========================================================================

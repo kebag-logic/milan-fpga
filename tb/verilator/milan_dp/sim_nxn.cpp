@@ -225,8 +225,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0017 (the channel-map RAMs are readable; 0x910/0x914)",
-       axi_read(A_VERSION), 0x00010018);
+    ck("VERSION 0x0019 (saved binds survive a reboot; 0x7B8 journal ingest)",
+       axi_read(A_VERSION), 0x00010019);
 
     // ---- THE ADVERTISED SHAPE AT N > 1 (2026-07-27) --------------------
     // The CRF Media Clock Output lives at talker_unique_id = N_STREAMS and
@@ -721,6 +721,91 @@ int main(int argc, char** argv) {
     (void)axi_read(A_SW_SID_LO);
     ck("ctx0 SID reads 0 (bind left ctx0 alone)", axi_read(A_SW_SID_LO) |
                                                   axi_read(A_SW_SID_HI), 0);
+
+    printf("-- E3 journal ingest end-to-end: a saved bind survives 'reboot' "
+           "--\n");
+    // Milan v1.2 5.3.8.2: "The current bound state shall be saved in a
+    // non-volatile memory and restored after a power cycle." This is the
+    // restore half through the REAL CSR plane: the image is pushed VERBATIM
+    // over the 0x7B8 group exactly as the boot script lifts it out of the
+    // flash slot, the journal verifies it whole (magic/ver/shape/entity/
+    // CRC - the persist suite owns the rejection taxonomy) and replays a
+    // Milan 5.5.3.5.2 entry record into sink 1's ACMP context. SRP params
+    // are NOT restored (5.5.2.6 step 1 re-probes them - [J4] proves the
+    // clearing), so the assertions here are state + the E2 read-back.
+    {
+        auto crc32b = [](const std::vector<uint8_t>& b) {
+            uint32_t c = 0xFFFFFFFFu;
+            for (uint8_t x : b) { c ^= x;
+                for (int k = 0; k < 8; k++)
+                    c = (c & 1) ? ((c >> 1) ^ 0xEDB88320u) : (c >> 1); }
+            return c ^ 0xFFFFFFFFu;
+        };
+        const uint64_t ENT = 0x020000FFFE000001ULL;  // the A_ADP eid above
+        const uint64_t TK  = 0x0011BBCCDDEE0042ULL;  // saved talker
+        const uint64_t CT  = 0x00AA5511220000FFULL;  // saved controller
+        std::vector<uint32_t> w = {
+            0x314A4C4Bu, 0x00010000u, /*SEQ*/ 1u, (6u << 8) | 1u,
+            (uint32_t)ENT, (uint32_t)(ENT >> 32),
+            (uint32_t)TK, (uint32_t)(TK >> 32),
+            /*{vlan 2, tuid 7}*/ (2u << 16) | 7u,
+            (uint32_t)CT, (uint32_t)(CT >> 32),
+            /*VALID + flags 0 + sink idx 0 - the ONE probe-SM sink this
+             shape elaborates (PROBE_SM_EN_P default = bit 0; sinks 1..N-1
+             are record-only, a per-sink SM gap the gaps doc owns)*/
+            (1u << 30) | 0u };
+        std::vector<uint8_t> b;
+        for (uint32_t x : w) {
+            b.push_back(x & 0xFF); b.push_back((x >> 8) & 0xFF);
+            b.push_back((x >> 16) & 0xFF); b.push_back((x >> 24) & 0xFF);
+        }
+        w.push_back(crc32b(b));
+        axi_write(0x7B8, 1);                       // start
+        for (uint32_t x : w) axi_write(0x7BC, x);  // the image, verbatim
+        axi_write(0x7B8, 2);                       // end
+        for (int c = 0; c < 256; c++) step();
+        ck("E3: verdict ACCEPT", (axi_read(0x7C0) >> 4) & 0xF, 1);
+        ck("E3: SEQ watermark = the accepted image's", axi_read(0x7C4), 1);
+        axi_write(A_STRM_SEL, 0x000);
+        (void)axi_read(A_SW_SID_LO);
+        snap_and_wait();
+        uint32_t st = axi_read(A_SW_STATE);
+        ck("E3: sink 0 = PRB_W_AVAIL (5.5.3.5.2 step 3)", st & 0x7, 1);
+        ck("E3: E2 controller_entity_id lo", axi_read(0x860), (uint32_t)CT);
+        ck("E3: E2 controller_entity_id hi", axi_read(0x864),
+           (uint32_t)(CT >> 32));
+        ck("E3: E2 tuid = the saved source index", axi_read(0x868) & 0xFFFF, 7);
+        // exit clean: UNBIND from the SAVED controller (5.5.3.5.8 -
+        // RCV_UNBIND_RX_CMD in a probing state -> UNBOUND, binding
+        // parameters cleared per 5.3.8.3), so the flow's later sink-0
+        // cases meet the state they were written against
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x08;  // DISCONNECT_RX
+            f[16]=0x00; f[17]=44;
+            const uint8_t ct[8] = {0x00,0xAA,0x55,0x11,0x22,0x00,0x00,0xFF};
+            memcpy(f+26, ct, 8);                  // the SAVED controller
+            const uint8_t tk[8] = {0x00,0x11,0xBB,0xCC,0xDD,0xEE,0x00,0x42};
+            memcpy(f+34, tk, 8);
+            const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us, 8);
+            f[50]=0x00; f[51]=0x07;               // saved talker_unique_id
+            f[52]=0x00; f[53]=0x00;               // listener_unique_id 0
+            f[62]=0x77; f[63]=0x31;
+            inject(f, 70, 400);
+        }
+        axi_write(A_STRM_SEL, 0x000);
+        (void)axi_read(A_SW_SID_LO);
+        snap_and_wait();
+        ck("E3: unbind returns sink 0 to UNBOUND (5.5.3.5.8)",
+           axi_read(A_SW_STATE) & 0x7, 0);
+    }
+
+
 
     // ======================================================================
     // item-5 (N x N, the AX 8x8 target): full-index routing sweep. The checks
