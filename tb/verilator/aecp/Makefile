@@ -9,6 +9,9 @@
 #   sim_fmt2.cpp   -> 2-AAF-input shape (gen_fmt2_shape.py -> fmt2_inc/, which
 #     SHADOWS gen/ via include order) exercising the per-stream
 #     `AEM_PER_STREAM_FMT format tables per descriptor.
+#   sim_amap.cpp   -> 8x8 ship shape, GET_AUDIO_MAP port-relative bounds
+#     (defect A: the served map came from a hardcoded AUDIO_MAP index with a
+#     hardcoded length, which only coincides with the right one at 1x1).
 #   sim_dynmap.cpp -> dynamic-audio-map shape (gen_dynmap_shape.py ->
 #     dynmap_inc/, same shadowing) exercising the `AEM_DYNMAP
 #     ADD/REMOVE/GET_AUDIO_MAP engine (Milan 5.4.2.26-28).
@@ -71,11 +74,14 @@ run: $(GEN)
 	  $(SRCS) sim_dynmap.cpp -o Vaecp_dynmap   # -Idynmap_inc shadows gen/
 	$(VERILATOR) $(VFLAGS_NXN) --Mdir obj_nxn \
 	  $(SRCS) sim_nxn.cpp -o Vaecp_nxn         # 8x8 ship shape (D1/D2)
+	$(VERILATOR) $(VFLAGS_NXN) --Mdir obj_amap \
+	  $(SRCS) sim_amap.cpp -o Vaecp_amap       # 8x8 ship shape (defect A)
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
 	./obj_dynmap/Vaecp_dynmap
 	./obj_nxn/Vaecp_nxn
+	./obj_amap/Vaecp_amap
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -90,4 +96,4 @@ cosim: $(GEN)
 	$(VERILATOR) $(COSIM_FLAGS) $(SRCS) cosim_main.cpp -o Vaecp_cosim
 
 clean:
-	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn
+	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn obj_amap

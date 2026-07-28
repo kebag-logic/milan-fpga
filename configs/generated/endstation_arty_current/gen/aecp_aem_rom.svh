@@ -414,3 +414,18 @@ localparam int AEM_RATES_N_C = 3;
 localparam [31:0] AEM_RATES_C [0:2] = '{32'h0000BB80, 32'h00017700, 32'h0002EE00};
 localparam [63:0] AEM_FMTS_C  [0:1] = '{64'h0205022000806000, 64'h0215022002006000};
 localparam [63:0] AEM_CRF_FMTS_C [0:0] = '{64'h041060010000BB80};
+
+// Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).
+// Per STREAM_PORT: the ROM address of the AUDIO_MAP that port's OWN
+// base_map names, and THAT descriptor's own number_of_mappings. Both
+// used to be hardcoded in the RTL (descriptor index 1, 8 mappings, 64
+// bytes), which on an 8x8 shape served STREAM_PORT_INPUT[1]'s 72-byte
+// map to STREAM_PORT_OUTPUT[0] and read 40 B past its 24-byte one.
+// ROWS = 0 marks a port with no static map (7.2.13 number_of_maps = 0,
+// the dynamic-mapping signal): the RTL refuses instead of serving.
+localparam int unsigned AEM_SMAP_IN_N_C  = 1;
+localparam int unsigned AEM_SMAP_OUT_N_C = 1;
+localparam [15:0] AEM_SMAP_IN_ADDR_C [0:0] = '{16'd3509};
+localparam [15:0] AEM_SMAP_IN_ROWS_C [0:0] = '{16'd8};
+localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:0] = '{16'd3581};
+localparam [15:0] AEM_SMAP_OUT_ROWS_C [0:0] = '{16'd8};
