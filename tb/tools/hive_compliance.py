@@ -225,6 +225,14 @@ SUBTYPE_ADP, SUBTYPE_AECP = 0xFA, 0xFB
 
 CMD_READ_DESCRIPTOR = 0x0004
 CMD_GET_STREAM_FORMAT = 0x0009
+#: C12/C13 (re-added 2026-07-28; they landed as C5/C6 in e076647 and were
+#: lost to a numbering collision when 3cea0e48's C5/C6 merged first):
+#: descriptor geometry for the STREAM current_format field, and the Table
+#: 7-156 counter bit positions the wire oracle reads.
+DESCRIPTOR_OFF = 4                #: response payload: cfg(2) + reserved(2)
+STREAM_CURRENT_FORMAT_OFF = 74    #: 1722.1-2021 7.2.6 Table 7-16
+CTR_UNSUPPORTED_FORMAT = 8
+CTR_FRAMES_RX = 11
 CMD_GET_STREAM_INFO = 0x000F
 CMD_GET_NAME = 0x0011
 CMD_GET_SAMPLING_RATE = 0x0015
@@ -474,6 +482,62 @@ def ck(ok, name, detail=""):
     print(f"  [{'ok  ' if ok else 'FAIL'}] {name}" + (f"  {detail}" if detail else ""))
 
 
+
+# -------------------------------------------------------------- C13 wire ----
+#  ACMP transport for the wire oracle, copied from the bench-proven builder
+#  in avdecc/milan_controller.py rather than rewritten: the ACMPDU is 70
+#  bytes on the wire (14 eth + 4 common + 52) and a 68-byte one is RIGHTLY
+#  REJECTED - that cost a bench session once already. IEEE 1722.1-2021 Cl 8.
+ACMP_MCAST = bytes.fromhex('91e0f0010000')
+
+
+def acmp(s, src, msg_type, seq, ctlr, talker_eid, listener_eid,
+         talker_uid, listener_uid, timeout=2.0):
+    pkt = struct.pack('>BBH', 0xFC, msg_type & 0x0F, 44)
+    pkt += b'\x00' * 8                                   # stream_id
+    pkt += ctlr + talker_eid + listener_eid
+    pkt += struct.pack('>HH', talker_uid, listener_uid)
+    pkt += b'\x00' * 6                                   # stream_dest_mac
+    pkt += struct.pack('>HHHHH', 0, seq, 0, 0, 0)        # cnt/seq/flags/vlan/rsv
+    s.send(ACMP_MCAST + src + struct.pack('>H', AVTP) + pkt)
+    end = time.time() + timeout
+    while time.time() < end:
+        try:
+            f = s.recv(2048)
+        except socket.timeout:
+            return None
+        if len(f) < 70 or f[12:14] != struct.pack('>H', AVTP) or f[14] != 0xFC:
+            continue
+        if (f[15] & 0x0F) != ((msg_type & 0x0F) | 1):
+            continue
+        if struct.unpack('>H', f[62:64])[0] != seq:
+            continue
+        return f
+    return None
+
+
+def peer_counters(s, src, dst, tgt, ctl, seq, dtype, index):
+    """-> {name: value} for the peer's STREAM_INPUT counters, or None.
+
+    IEEE 1722.1-2021 7.4.42: response payload is descriptor_type(2),
+    descriptor_index(2), counters_valid(4), counters_block(32 x 4)."""
+    fr, _ = aecp_cmd(src, dst, tgt, ctl, seq, CMD_GET_COUNTERS,
+                     struct.pack('!HH', dtype, index))
+    r = xchg(s, fr, src, seq, tgt=tgt)
+    if not r:
+        return None
+    st, _, pl = resp_parts(r)
+    if st != 0 or len(pl) < 8 + 128:
+        return None
+    valid = struct.unpack('!I', pl[4:8])[0]
+    words = struct.unpack('!32I', pl[8:8 + 128])
+    out = {}
+    for bit, name in ((CTR_UNSUPPORTED_FORMAT, 'UNSUPPORTED_FORMAT'),
+                      (CTR_FRAMES_RX, 'FRAMES_RX')):
+        out[name] = words[bit] if (valid >> bit) & 1 else None
+    return out
+
+
 def open_sock(iface):
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
     s.bind((iface, 0))
@@ -537,6 +601,14 @@ def main():
     p.add_argument('--controller-eid', default='0011223344556677')
     p.add_argument('--max-index', type=int, default=16,
                    help='highest descriptor index to probe (default 16)')
+    p.add_argument('--wire-peer-eid', default=None,
+                   help='C13 wire oracle: EID of a SECOND (reference) Milan '
+                        'device to bind as the listener (e.g. '
+                        '3CC0C60102030000). Enables C13.')
+    p.add_argument('--wire-peer-mac', default=None)
+    p.add_argument('--wire-talker', type=int, default=0)
+    p.add_argument('--wire-sink', type=int, default=0)
+    p.add_argument('--wire-seconds', type=float, default=6.0)
     p.add_argument('--adp-wait', type=float, default=6.0,
                    help='seconds to wait for the target ADPDU (C3)')
     a = p.parse_args()
@@ -562,6 +634,7 @@ def main():
         return r, ccdl
 
     print(f"=== hive_compliance {a.target_eid} on {a.iface} ===")
+    fmts = {}   # dname -> {index: current_format} (C12/C13)
 
     # ---- C3 part 1: seed the advertised shape (kept fed by sniff_adp) ----
     end = time.time() + a.adp_wait
@@ -582,6 +655,11 @@ def main():
                       struct.pack('!HHHH', 0, 0, dcode, i))
             if r and resp_parts(r)[0] == 0:
                 served.append(i)
+                pl = resp_parts(r)[2]
+                o = DESCRIPTOR_OFF + STREAM_CURRENT_FORMAT_OFF
+                if len(pl) >= o + 8:
+                    fmts.setdefault(dname, {})[i] = \
+                        struct.unpack('!Q', pl[o:o + 8])[0]
 
             # GET_STREAM_INFO: type(2) index(2)
             r, _ = do(f"GET_STREAM_INFO {dname}.{i}", CMD_GET_STREAM_INFO,
@@ -621,6 +699,21 @@ def main():
                       struct.pack('!HH', dcode, i))
             if r and resp_parts(r)[0] == 0:
                 fmt_ok.append(i)
+                # C12: the descriptor's current_format (1722.1-2021 7.2.6)
+                # and the GET_STREAM_FORMAT answer are the SAME fact stated
+                # twice - a disagreement means Milan 5.5.1.2's format check
+                # ran against a format the talker will not send.
+                desc_fmt = fmts.get(dname, {}).get(i)
+                if desc_fmt is not None and len(resp_parts(r)[2]) >= 12:
+                    gsf = struct.unpack('!Q', resp_parts(r)[2][4:12])[0]
+                    nch = aaf_channels(desc_fmt)
+                    ck(gsf == desc_fmt,
+                       f"C12 {dname}.{i} descriptor current_format == "
+                       f"GET_STREAM_FORMAT",
+                       f"descriptor=0x{desc_fmt:016X} "
+                       f"GET_STREAM_FORMAT=0x{gsf:016X}"
+                       + (f" ({nch}ch AAF)" if nch is not None
+                          else " (non-AAF)"))
             r, _ = do(f"GET_COUNTERS {dname}.{i}", CMD_GET_COUNTERS,
                       struct.pack('!HH', dcode, i))
             if r and resp_parts(r)[0] == 0:
@@ -910,6 +1003,56 @@ def main():
     ck(not badhdr, "C8 every response is AEM_RESPONSE u=0 with the command's "
                    "command_type",
        f"responses={len(SEEN)} bad={badhdr[:6]}")
+
+    # C13: ADVERTISED == EMITTED, ON THE WIRE (opt-in). THE CHECK THAT WOULD
+    # HAVE CAUGHT 2026-07-27: every other check compares a declaration
+    # against another declaration; this one binds a REAL listener (the
+    # reference device) to our talker and reads THAT device's Table 7-156
+    # counters - UNSUPPORTED_FORMAT must stay 0 while FRAMES_RX advances.
+    # Baseline for the defect it exists for: 296,294 of 296,294 frames
+    # unsupported when the 8x8 advertised 8ch and the framer emitted 2.
+    if a.wire_peer_eid:
+        print(f"\n-- C13 wire oracle: bind peer {a.wire_peer_eid} and count --")
+        peid = bytes.fromhex(a.wire_peer_eid)
+        pmac = bytes.fromhex((a.wire_peer_mac or '').replace(':', ''))
+        fmt = fmts.get('STREAM_OUTPUT', {}).get(a.wire_talker)
+        nch = aaf_channels(fmt) if fmt is not None else None
+        if nch is None:
+            ck(False, f"C13 talker {a.wire_talker} advertises an AAF format",
+               f"current_format={'none' if fmt is None else hex(fmt)}")
+        else:
+            print(f"     talker {a.wire_talker} advertises 0x{fmt:016X} "
+                  f"= {nch}-channel AAF (IEEE 1722-2016 7.3.3)")
+            # DISCONNECT first: a sink left bound by an earlier run reports
+            # the OLD stream's counters and every number below would be a
+            # measurement of the previous experiment.
+            acmp(s, src, 0x02, nx(), ctl, tgt, peid, a.wire_talker, a.wire_sink)
+            r = acmp(s, src, 0x00, nx(), ctl, tgt, peid,
+                     a.wire_talker, a.wire_sink)
+            st = None if r is None else (r[16] >> 3) & 0x1F
+            ck(st == 0, f"C13 ACMP CONNECT_RX talker {a.wire_talker} -> peer "
+                        f"sink {a.wire_sink} returns SUCCESS", f"status={st}")
+            if st == 0:
+                c0 = peer_counters(s, src, pmac, peid, ctl, nx(),
+                                   DESC['STREAM_INPUT'], a.wire_sink)
+                time.sleep(a.wire_seconds)
+                c1 = peer_counters(s, src, pmac, peid, ctl, nx(),
+                                   DESC['STREAM_INPUT'], a.wire_sink)
+                if not c0 or not c1:
+                    ck(False, "C13 peer answered GET_COUNTERS on its sink",
+                       f"before={c0} after={c1}")
+                else:
+                    rx = (c1['FRAMES_RX'] or 0) - (c0['FRAMES_RX'] or 0)
+                    uf = (c1['UNSUPPORTED_FORMAT'] or 0) - \
+                         (c0['UNSUPPORTED_FORMAT'] or 0)
+                    ck(rx > 0, "C13 peer FRAMES_RX advances (the talker "
+                               "emits)", f"+{rx} in {a.wire_seconds}s")
+                    ck(uf == 0,
+                       f"C13 peer UNSUPPORTED_FORMAT == 0 for the "
+                       f"{nch}-channel format we advertise",
+                       f"+{uf} unsupported of +{rx} received")
+            acmp(s, src, 0x02, nx(), ctl, tgt, peid, a.wire_talker, a.wire_sink)
+
 
     print(f"\n----------------------------------------")
     print(f"checks: {CHECKS[0]}   failures: {len(FAILS)}")
