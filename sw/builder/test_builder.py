@@ -31,11 +31,23 @@ Gates (gaps item 4, generator round):
       BYTE-FOR-BYTE (OPTS string + L2 + the PER-BOARD RXQ: each flashed boot
       chain fixes its own DMA window map) for both boards; sh -n passes on
       sweep.sh and both fragments;
-  10. gen_aem_store.py CONSUMES the arty_current overlay (--overlay,
+  10. gen_aem_store.py CONSUMES the OWNING config's overlay (--overlay,
       subprocess) and the generated aecp_aem_rom.svh is byte-identical to
       the tracked hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - THE key
-      no-regression gate; the default (no-overlay) path stays byte-identical
-      too;
+      no-regression gate.  WHICH config owns the tracked ROM is READ FROM
+      THE TREE (the shape include's `Source :` marker, via
+      check_entity_shape.tracked_owner - the same single reader its check E
+      uses), never assumed: `--write-rtl <cfg>` installs the pair for
+      whichever config it is handed, and a gate that hardcoded
+      endstation_arty_current went red for every other owner, which blocked
+      any other shape from being written into the tree at all.  The gate
+      ships its own mutations (cross-config ROM, forged marker, unowned
+      marker, a one-field ROM edit) so "follows the owner" cannot decay into
+      "accepts anything".  The default (no-overlay) builtin path is a
+      SEPARATE property - that model is arty_current's, hand-written in
+      gen_aem_store.py and pinned there by gate 3 - so it is compared
+      against arty_current's overlay-built ROM, which does not move when the
+      tracked owner does;
   11. resource-estimator calibration: the arty_current estimate lands within
       +/-15% of the REAL mf48 place-report totals per category (report
       parsed at test time; SKIPs with a message when the report is absent);
@@ -130,10 +142,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import yaml  # noqa: E402
 
 import endstation_builder as eb  # noqa: E402
+#: The ONE reader of "which config owns the tracked entity definition"
+#: (gate 10).  Imported rather than re-implemented: a second answer to that
+#: question is how gate 10 came to assume a config in the first place.
+import check_entity_shape as ces  # noqa: E402
 
 CONFIGS = {
     "arty_current": os.path.join(ROOT, "configs/endstation_arty_current.yaml"),
@@ -142,7 +159,10 @@ CONFIGS = {
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
-TRACKED_SVH = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
+#: The TRACKED entity definition - the pair a gateware `include-s.  Paths come
+#: from the builder that writes them, so there is one spelling of each.
+TRACKED_SVH = os.path.join(ROOT, eb.AEM_ROM_REL)
+TRACKED_ADP_SVH = os.path.join(ROOT, eb.ADP_SHAPE_REL)
 
 # Flow flags: sweep.sh mechanics, never part of the end-station definition.
 FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
@@ -552,31 +572,178 @@ def test_sweep_opts_fragments():
     print("  [gate 9] sh -n clean: sweep.sh + both fragments")
 
 
+def _gen_aem_store(out_dir, overlay_path=None):
+    """Run the REAL consumer - avdecc/gen_aem_store.py as a subprocess, the
+    way a build runs it - and return the ROM bytes it wrote."""
+    argv = [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+            "--out-dir", out_dir]
+    if overlay_path is not None:
+        argv += ["--overlay", overlay_path]
+    subprocess.run(argv, check=True, capture_output=True)
+    return open(os.path.join(out_dir, "aecp_aem_rom.svh"), "rb").read()
+
+
+def _check_tracked_rom(adp_path, rom_path):
+    """Gate 10's comparison, asked of ANY tracked pair.
+
+    The oracle is THE TREE, not a constant in this file: the pair's own
+    `Source :` marker says which config owns it (ces.tracked_owner - the same
+    single reader check_entity_shape check E uses), that config is rebuilt,
+    and the ROM the real consumer emits from its overlay must be
+    BYTE-IDENTICAL to the tracked one.  Byte-identity is the whole strength
+    of this gate and is unchanged; only "which config" moved from an
+    assumption to a reading.
+
+    Returns (owner name, tracked byte count); raises AssertionError on drift.
+    """
+    adp = open(adp_path).read()
+    src, owner = ces.tracked_owner(eb, adp_text=adp)
+    assert src is not None, (
+        f"{adp_path}: no `Source :` marker - the tree does not record WHICH "
+        "config owns the tracked entity definition, so nothing can check it")
+    assert owner is not None, (
+        f"{adp_path}: `Source : {src}` names no config under configs/ - the "
+        "tracked entity definition has no owner to be checked against")
+    r = eb.build(os.path.join(ROOT, src), OUT)
+    # The marker must not be able to LIE.  Gate 10 PICKS the config from it,
+    # so a forged header would otherwise pick a config whose ROM it then
+    # happily compares.  (check_entity_shape check E states the same property
+    # for the real tree; here it is what makes the reading trustworthy.)
+    assert adp == r["adp_shape_svh"], (
+        f"{adp_path}: names {src} but is NOT what that config generates - "
+        "the ownership marker is stale or hand-edited")
+    tracked = open(rom_path, "rb").read()
+    with tempfile.TemporaryDirectory() as td:
+        got = _gen_aem_store(td, r["paths"]["aem_overlay"])
+    assert got == tracked, (
+        f"{src} overlay -> gen_aem_store ROM differs from the tracked ROM "
+        f"{rom_path} ({len(got)} vs {len(tracked)} bytes)")
+    return owner["name"], len(tracked)
+
+
+def _tracked_pair_from(cfg_key, td):
+    """The tracked pair `--write-rtl <cfg>` WOULD install, written to a temp
+    dir.  The real tree is never touched: this gate is about the BINDING
+    between a generated artifact and the check that validates it, not about
+    which shape ships."""
+    r = eb.build(CONFIGS[cfg_key], OUT)
+    assert r["aem_rom_svh"] is not None, (
+        f"{cfg_key}: no descriptor ROM can be generated for this shape "
+        f"({r['aem_rom_unsupported']}) - it could never own the tracked pair")
+    adp_p = os.path.join(td, "adp_shape_defaults.svh")
+    rom_p = os.path.join(td, "aecp_aem_rom.svh")
+    with open(adp_p, "w") as f:
+        f.write(r["adp_shape_svh"])
+    with open(rom_p, "w") as f:
+        f.write(r["aem_rom_svh"])
+    return adp_p, rom_p
+
+
+def _expect_rejected(label, fn):
+    """R2: a check that cannot fail is not a check."""
+    try:
+        fn()
+    except AssertionError as e:
+        print(f"  [gate 10] MUTATION rejected: {label}\n"
+              f"            ({str(e).splitlines()[0][:100]})")
+        return
+    raise AssertionError(f"gate 10 ACCEPTED a tracked ROM it must reject: "
+                         f"{label}")
+
+
 def test_gen_aem_store_consumes_overlay():
+    # 1. the tree AS IT STANDS - whoever owns it today
+    name, n = _check_tracked_rom(TRACKED_ADP_SVH, TRACKED_SVH)
+    print(f"  [gate 10] tracked entity definition is owned by {name} (read "
+          f"from its own `Source :` marker); that config's overlay -> "
+          f"gen_aem_store --overlay: svh BYTE-IDENTICAL to the tracked ROM "
+          f"({n} B)")
+
+    # 2. a DIFFERENT owner passes the SAME check.  This is the defect this
+    #    gate used to have: the tracked pair belongs to whichever config was
+    #    last given to --write-rtl, and asserting it is arty_current's turned
+    #    the gate red on a correct tree - blocking an 8x8 build from ever
+    #    carrying an 8x8 descriptor set.  Nothing is installed: the candidate
+    #    pairs live in temp dirs.
+    others = [k for k in CONFIGS if eb.load_config(CONFIGS[k])["name"] != name]
+    assert len(others) >= 2, ("gate 10 needs configs OTHER than today's owner "
+                              f"{name} to prove it is owner-agnostic")
+    for key in sorted(others):
+        with tempfile.TemporaryDirectory() as td:
+            adp_p, rom_p = _tracked_pair_from(key, td)
+            other, on = _check_tracked_rom(adp_p, rom_p)
+            assert other != name, f"{key} must not be today's owner {name}"
+            print(f"  [gate 10] a tracked pair owned by {other} passes the "
+                  f"SAME byte-identity check ({on} B) - the gate follows the "
+                  f"owner instead of assuming one")
+
+    # 3. and a GENUINE disagreement still FAILS, for every way the pair can
+    #    be wrong (R2 - the mutations are the proof the gate still bites).
+    with tempfile.TemporaryDirectory() as td:
+        adp_p, _ = _tracked_pair_from("ax7101_8x8", td)
+        sub = os.path.join(td, "other")
+        os.makedirs(sub)
+        _, rom_p = _tracked_pair_from("arty_4x4", sub)
+        _expect_rejected(
+            "tracked ROM is a DIFFERENT config's than the shape include names",
+            lambda: _check_tracked_rom(adp_p, rom_p))
+
+    with tempfile.TemporaryDirectory() as td:
+        # a stale/hand-edited ROM: one constant off by one byte.  The pair
+        # still names a real owner - only the bytes disagree.
+        adp_p, rom_p = _tracked_pair_from("arty_current", td)
+        txt = open(rom_p).read()
+        mut = re.sub(r"(AEM_ROM_BYTES_C = )(\d+);",
+                     lambda m: f"{m.group(1)}{int(m.group(2)) + 1};", txt,
+                     count=1)
+        assert mut != txt, "SETUP: no AEM_ROM_BYTES_C in the generated ROM"
+        with open(rom_p, "w") as f:
+            f.write(mut)
+        _expect_rejected("tracked ROM edited by one field (stale generation)",
+                         lambda: _check_tracked_rom(adp_p, rom_p))
+
+    with tempfile.TemporaryDirectory() as td:
+        # a FORGED ownership marker: arty_4x4's pair relabelled as the 8x8's.
+        # Following a marker is only safe if the marker cannot lie.
+        adp_p, rom_p = _tracked_pair_from("arty_4x4", td)
+        forged = open(adp_p).read().replace(
+            "configs/endstation_arty_4x4.yaml",
+            "configs/endstation_ax7101_8x8.yaml")
+        assert ces.svh_source(forged) == "configs/endstation_ax7101_8x8.yaml"
+        with open(adp_p, "w") as f:
+            f.write(forged)
+        _expect_rejected("shape include's `Source :` marker forged",
+                         lambda: _check_tracked_rom(adp_p, rom_p))
+
+    with tempfile.TemporaryDirectory() as td:
+        # and an UNOWNED marker must fail, not silently skip: a gate that
+        # cannot find the owner must stop the build, not shrug.
+        adp_p, rom_p = _tracked_pair_from("arty_current", td)
+        ghost = open(adp_p).read().replace(
+            "configs/endstation_arty_current.yaml",
+            "configs/endstation_ghost.yaml")
+        assert ces.svh_source(ghost) == "configs/endstation_ghost.yaml"
+        with open(adp_p, "w") as f:
+            f.write(ghost)
+        _expect_rejected("shape include names a config that does not exist",
+                         lambda: _check_tracked_rom(adp_p, rom_p))
+
+    # 4. the BUILTIN (no-overlay) path of gen_aem_store is a SEPARATE
+    #    property with a separate owner: that model is hand-written in
+    #    gen_aem_store.py and IS the deployed arty_current shape (gate 3 pins
+    #    its descriptor counts to that config).  That pairing does not move
+    #    when the tracked ROM changes owner, so the reference is
+    #    arty_current's overlay-built ROM rather than the tracked file.
+    #    While arty_current is the owner these are the same bytes, so the
+    #    refactor guard keeps its full strength.
     r = eb.build(CONFIGS["arty_current"], OUT)
-    tracked = open(TRACKED_SVH, "rb").read()
     with tempfile.TemporaryDirectory() as td:
-        # THE key no-regression gate: builder overlay -> gen_aem_store ->
-        # byte-identical ROM svh for the deployed shape
-        subprocess.run(
-            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-             "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
-            check=True, capture_output=True)
-        got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
-        assert got == tracked, (
-            "overlay-built aecp_aem_rom.svh differs from the tracked ROM "
-            f"({len(got)} vs {len(tracked)} bytes)")
-        print(f"  [gate 10] arty_current overlay -> gen_aem_store --overlay: "
-              f"svh BYTE-IDENTICAL to tracked ROM ({len(got)} B)")
-    with tempfile.TemporaryDirectory() as td:
-        # refactor guard: the default (builtin) path is unchanged too
-        subprocess.run(
-            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-             "--out-dir", td], check=True, capture_output=True)
-        got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
-        assert got == tracked, "default-path svh regressed"
-        print("  [gate 10] gen_aem_store default path: svh byte-identical "
-              "(refactor guard)")
+        ref = _gen_aem_store(os.path.join(td, "ovl"), r["paths"]["aem_overlay"])
+        got = _gen_aem_store(os.path.join(td, "default"))
+    assert got == ref, (f"default-path svh regressed ({len(got)} vs "
+                        f"{len(ref)} bytes vs the arty_current overlay path)")
+    print(f"  [gate 10] gen_aem_store default path: svh byte-identical to "
+          f"arty_current's overlay-built ROM ({len(got)} B, refactor guard)")
 
 
 def _real_totals(path):
