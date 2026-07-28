@@ -792,6 +792,7 @@ flowchart LR
     subgraph FREE["no dependency stated here"]
         I9["9 — saved-state fast-connect"]:::none
         I11["11 — AAF latency breakdown"]:::none
+        I13["13 — virtual end-to-end tier<br/>(VIRTUAL_E2E_PLAN.md)"]:::none
     end
     I0["0 — AX e2 MAC-TX wedge<br/>logic fix landed, wedge recovery unproven"]:::part
     I4["4 — software-defined end-station build"]:::part
@@ -1133,3 +1134,21 @@ this repo.
 12. **es-1.1/1.2 DUT-wins-BMCA variants — VERY END (USER 2026-07-22
     final reorder):** blocked on the bench switch's gPTP claim anyway;
     the wire-observable halves are green.
+13. **Virtual end-to-end tier (USER 2026-07-28: "so we virtually have a
+    better solution for testing"):** boot the REAL buildroot image with the
+    REAL `S50milan` against the REAL `milan_datapath` RTL on the sim SoC,
+    per commit — the tier that catches the software/boot-chain/artifact
+    seam (five hand-found defects in one session: the 1x1 model-id write,
+    the claim-base+1 CRF DMAC collision, the 8-for-9 MAAP claim, the
+    hand-migrated DTB windows, the `CRFT_CTRL 0x1` flood posture), and the
+    only way the fast-connect reboot drill becomes CI instead of a bench
+    ritual. Plan, tooling assessment (extend
+    [`sw/litex/milan_sim.py`](../sw/litex/milan_sim.py) first, Renode for
+    the multi-machine bench, raw QEMU last), phases V0-V3 with
+    replayed-defect negative controls, and the honest §2 boundary (it
+    reduces bench trips, never replaces the bench — the Vivado-vs-Verilator
+    gap and every wall-clock/PHY property stay silicon-only) are in
+    [`docs/testing/VIRTUAL_E2E_PLAN.md`](testing/VIRTUAL_E2E_PLAN.md).
+    Est. V1 = 3-5 days on the existing scaffolding; next round's tooling
+    column, deliberately NOT this round's (builds and flash are the
+    critical path).
