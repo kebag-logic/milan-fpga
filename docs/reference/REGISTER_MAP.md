@@ -136,6 +136,35 @@ window.
 
 The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
 
+#### `VERSION` is also what every ATDECC controller is told (2026-07-28)
+
+`0x004` is not only a driver probe. It is the **single source of truth** for
+this gateware's version, and the ENTITY descriptor's `firmware_version` field
+(IEEE 1722.1-2021 7.2.1 Table 7-2, offset 116, 64 octets) is **derived** from
+it — `avdecc/gen_aem_store.py` `firmware_version_string()` parses the
+`parameter logic [31:0] VERSION` out of `hdl/common/csr/milan_csr.sv` and the
+end-station builder stamps the result into the descriptor ROM. The mapping is
+this table's own field split, rendered decimal, plus one component the
+register does not carry:
+
+| ATDECC `firmware_version` | source |
+|---------------------------|--------|
+| **major** | `VERSION[31:16]` |
+| **minor** | `VERSION[15:0]` — one flat ABI ordinal, which is how this row's changelog and every `VERSION minor >=` feature gate already read it |
+| **rev** | `entity.firmware_rev` in `configs/endstation_*.yaml`, optional, default `0` — a firmware respin that changes no CSR ABI |
+
+So `VERSION = 0x0001_0016` is advertised as **`1.22.0`**, and
+`devmem 0x90000004` beside Hive's entity page is a check anyone can do by eye.
+No config declares a firmware version; the builder **refuses** the key
+(`entity.firmware_version`), because a second declaration is a second answer
+and it is the one controllers get: until 2026-07-28 all three configs said
+`"0.1.0"` while the fabric was at `0x0001_0016`, so every board we ship
+reported firmware 0.1.0 to Hive, la_avdecc and anything else enumerating it.
+IEEE 1722.1-2021 6.2.2.8 excludes `firmware_version` from the fields that make
+an entity model "changed", so bumping `VERSION` does **not** move any
+`entity_model_id` — including `endstation_arty_current`'s pinned deployed
+identity. `scripts/check_entity_shape.py` is the gate.
+
 ### 0x100  -  MAC control / status  `(REQ-MAC-01..03)`
 
 | Offset | Name | Acc | Reset | Description |

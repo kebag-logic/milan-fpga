@@ -40,8 +40,8 @@ Gherkin scenarios driven by the `avtp_aecp_packet_gen` class. Two paths:
 - **Offline** (default, no DUT binary): Python model in `tests/steps/aecp_common_steps.py` emulates admission control and lock/acquire state for fast CI.
 - **Live DUT**: Verilator-compiled binary serving AXI-Stream over a UNIX socket (harness pending).
 
-**21 features / 113 scenarios / 1169 steps**, all passing, counted by running the
-suite on 2026-07-26. It is the **conformance suite**, and it is a CI gate (the
+**22 features / 116 scenarios / 1182 steps**, all passing, counted by running the
+suite on 2026-07-28. It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
 | Feature file | Scenarios | Tier |
@@ -67,6 +67,7 @@ suite on 2026-07-26. It is the **conformance suite**, and it is a CI gate (the
 | `item10_sampling_rate.feature` | 4 | T1 |
 | `item10_stream_format.feature` | 4 | T1 |
 | `item10_stream_info.feature` | 4 | T1 |
+| `entity_firmware_version.feature` | 3 | T1 (offline; reads the shipped descriptor bytes + `milan_csr.sv`) |
 
 > Counts in prose go stale. `behave -f plain` prints the authoritative totals on
 > every run; if this table and the run disagree, the run wins.

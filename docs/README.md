@@ -71,7 +71,7 @@ Goal: build → flash → bring up the board. → **[the pipeline at a glance](B
 Goal: prove it works, per spec.
 1. [testing/TESTING.md](testing/TESTING.md) — the test taxonomy (Verilator TB · behave · bench).
 2. [../tb/verilator/README.md](../tb/verilator/README.md) — run every Verilator TB; `ls tb/verilator/` is the authoritative suite list (the listing wins over any prose count).
-3. [../tests/README.md](../tests/README.md) — run the **BDD conformance suite**: `cd tests && behave -f plain` (21 features / 113 scenarios, offline, ~3 s; the `@tsn_gen` tier additionally needs `TSAGEN_DIR`). It is a CI gate and a USER standing order on every verification round.
+3. [../tests/README.md](../tests/README.md) — run the **BDD conformance suite**: `cd tests && behave -f plain` (22 features / 116 scenarios, offline, ~3 s; the `@tsn_gen` tier additionally needs `TSAGEN_DIR`). It is a CI gate and a USER standing order on every verification round.
 4. [testing/BEHAVE_TEST_PLAN.md](testing/BEHAVE_TEST_PLAN.md) — the tag taxonomy, tiers, the `@bench` tier (the *bench* suites, which need real hardware, live in the sibling private test repo).
 5. [`../harness/README.md`](../harness/README.md) — the **unattended campaign harness**: one entry point, eight phases, days-long runs, `STATUS`/heartbeat/resume, and the 3am operator page. Its item registry lives in the private test repo; the machinery is here.
 6. [SPEC_TRACEABILITY.md](SPEC_TRACEABILITY.md) — read the pass/partial/fail matrix (✅ verified · 🟡 partial · ❌ missing · ➖ N/A).
