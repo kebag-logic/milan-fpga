@@ -13,6 +13,7 @@ and is not repeated here.
 
 ## Contents
 
+- **[0-bis. 2026-07-28 evening round — what closed, what opened (VERSION 0x0019)](#0-bis-2026-07-28-evening-round--what-closed-what-opened-version-0x0019)** — Eight closures in one pass, each with its governing clause quoted: the 5.3.7.3 silence fill (a bound talker always frames), the 8.3b Arty TDM8+I2S blend, per-index GET_COUNTERS with real Table 5.4 semantics, TSpec from the wire, the CRF class-A software half, the wired persistence journal, the SRP-only licence proof, and the recovered C12/C13 wire oracles. Then the honest other column: nine more persistence *shalls*, the sink-0-only binding SM, CRF-input counters, the talker-CBS deviation-with-rationale, and an lwSRP RX framing question — all desk-proven, none on silicon yet.
 - **[0. Where the remaining work actually lives](#0-where-the-remaining-work-actually-lives)** — Read the last column first: a triage table sorting every open item by what kind of block it is. Only three rows are RTL this project can sit down and write; the rest wait on a bench drill, a missing MDIO pad, an instrument nobody has built, or switch credentials this project does not hold.
 - **[1. AECP / AEM](#1-aecp--aem)** — Mostly a record of things that *stopped* being gaps, with their post-mortems kept: the `GET_DYNAMIC_INFO` saga of four stacked silicon-only defects (ending in LUTRAM replication serving stale zeros to one reader and correct bytes to another) and the distilled house rules it produced. Genuinely open: the D6-D8 AEM store redesign, and `SET_STREAM_INFO` accepting only `MSRP_ACC_LAT`.
 - **[2. Streaming / media](#2-streaming--media)** — The media-path ledger. Its sharpest entry is the 2026-07-26 scope correction on CRF: it is fully in fabric but is *not a class A stream*, and that is three jobs not one — no VLAN tag, merged onto the control lane rather than the shaped queue, and only then the reservation row. Also the BRAM PCM-ring proposal that would kill both DRAM-path failure classes at the root, and the 1-to-1 wire-truth channel rule.
@@ -21,6 +22,36 @@ and is not repeated here.
 - **[5. Robustness items carried as workarounds (not spec gaps)](#5-robustness-items-carried-as-workarounds-not-spec-gaps)** — The long tail, opening with a 2026-07-26 re-audit: everything here fixable in RTL has been fixed, so what is left is a missing pad, an unimplemented feature, or tooling. Then four dated addition rounds carrying the field traps worth reading before a bench session — the rotted DT window that perfectly mimicked dead silicon, the RMON event bus that was tied to zero on both boards while every module TB passed, and the MDIO sampling and ACMP sequence-id traps.
 - **[6. Conformance scope](#6-conformance-scope)** — The honest framing of what the bench suite is: an in-house recreation, not an official lab run, with the two things still not recreated named and the reason each is blocked.
 - **[Suggested order of attack (reordered 2026-07-22 per USER)](#suggested-order-of-attack-reordered-2026-07-22-per-user)** — The thirteen roadmap items with a dependency graph up front — colour-coded closed / partial / unstated / blocked — showing that only three actually wait on another item. Each item carries its current landing state, including item 0's corrected verdict: the guard FSM is silicon-proven but the freeze hook fakes the liveness indicators without wedging anything, so recovery from a *real* wedge is still unproven.
+
+## 0-bis. 2026-07-28 evening round — what closed, what opened (VERSION 0x0019)
+
+Eight items landed in one pass; every one is TB-proven at desk and **none has
+reached silicon yet** (R6 — the flash that carries them is the next step).
+
+**Closed (with the clause that governed each):**
+
+| item | clause | mechanism |
+|---|---|---|
+| a BOUND talker with no source emitted NO frames (W3) | 5.3.7.3 "…it shall be streaming AVTP packets" | `KL_pair_zero_fill`: every consumed pair slot strobes at the true media rate (`clk_audio/512`), silence where unfed; `check_wire_accountability` **PASSES for the first time** (68 checks, W5 guards the fill structurally) |
+| Arty audio shape (HANDOVER 8.3b) | — (a board decision) | TDM8 MASTER on pmodb + the I2S pair blended at slot 0 (`KL_pair_blend`, "channels 1/2 stay the I2S Pmod"); supply 5 pairs, declared == emitted == 4ch, **no new clock domain** (24.576 MHz plan A kept) |
+| GET_COUNTERS index/mask lies | 5.4.2.25 Tables 5.16/5.17 "shall implement **and return**" | `KL_talker_diag_ctx` (Table 5.4 semantics: interval counts, reset-on-start, tu **qualified by transmission**) per STREAM_OUTPUT incl the CRF; the RX monitor's all-context mirror per AAF STREAM_INPUT. Sink 1's full-mask-over-zeros lie is gone |
+| TSpec followed the declaration | 802.1Q 35.2.2.8.4 a) "the maximum frame size that the Talker **will produce**" | `load_srp` derives from `framer_wire_channels` — the same constant that resets the packetizer; `arty_current`'s pinned 224 → derived 72 (its only stated reason, "needs a reflash", is spent by this round's reflash) |
+| CRF untagged flood | 7.3.3 "An AVB Class A Stream Reservation shall be used" | landed earlier in the session (`CRFT_CTRL[1]` + the fabric-owned lwSRP row + tag-from-row-validity interlock); this round finished the SOFTWARE half: `S50milan` writes `0x3`, identity goes AUTO (the explicit dmac recomputed *claim base + 1* = **AAF talker 1's address** on the 8x8), MAAP claim sized N_STREAMS+1 |
+| binds died at power-off | 5.3.8.2 "The current bound state **shall** be saved … and restored after a power cycle" | the 0x7B8 journal-ingest group is WIRED (E3); atomic replay through E1; board-side journald + boot replay ride the flash round |
+| the talker licence vs ACMP state | 5.5.2.7 "Talkers rely **only on SRP** (not ACMP)… do not maintain any internal state related to bound/settled Listeners" | verdict: the fabric was already conformant (`talker_active = probe_armed \| listener_observed`, and `listener_observed` IS the SRP hook); the missing piece was the PROOF — the `milan_dp` SRP-only case opens the licence with a Listener Ready and zero ACMP, `LWSRP_STATUS` landing on the bench-predicted `0x37E` |
+| lost C5/C6 wire-oracle checks | — (merge collision) | re-added as C12 (descriptor `current_format` == `GET_STREAM_FORMAT`) and C13 (bind the reference device, watch ITS `UNSUPPORTED_FORMAT`); **not yet calibrated** — 8.3.2 rule applies |
+
+**Opened / recorded (new rows for the 8.4 table):**
+
+| item | clause | note |
+|---|---|---|
+| nine more persistence *shalls* | 5.3.6.x/5.3.8.x/5.3.13 | Milan mandates non-volatile save+restore for: sampling rate, STREAM_INPUT current format, presentation time offset, STREAM_OUTPUT current format, started/stopped state, output channel mappings, input channel mappings, clock source, and the user-name list ("shall save them in a non-volatile memory and restore them after a power cycle"). The binding (this round) was the fabric-critical one; the rest need an AECP-settings restore path into the store scratch that does not exist — designing it in the same round as everything else risked the byte-exact AEM behaviours, so it is the top of the next round |
+| per-sink binding SM | 5.5.3 | `PROBE_SM_EN` defaults to **sink 0 only** and the datapath never overrides it: sinks 1..N-1 carry record-only binds — no Auto Connect, no journal restore target. The full per-sink SM is the P-series listener follow-up |
+| CRF Media Clock **Input** counters | 5.4.2.25 Table 5.16 | the CRF sink answers the truthful empty mask (no monitor context). Milan's "shall implement and return" reads as wanting them; `KL_crf_rx` exports need a look |
+| talker CBS | 4.3.4 "A Talker PAAD shall implement the CBS… shall shape each individual Stream, as well as the overall SR class (34.6.1)" | fabric streams inject post-shaper with the lwSRP bw-gate as the reservation regime (USER-blessed architecture). Per-stream pacing is inherent (media clock); the residual deviation is the class-level burst of ≤ N frames per 125 µs interval that a CBS would spread. Recorded as a deviation-with-rationale, not silently |
+| lwSRP RX min-size/keep | — | a 60 B final-keep-0x0F MRPDU alone does not register where a full-keep 64 B copy does, and the first PDU after a torn tap stream only resyncs — recorded in the `milan_dp` SRP-only case for a future `lwsrp_rx` lane |
+
+---
 
 ## 0. Where the remaining work actually lives
 

@@ -20,6 +20,6 @@ hand-edit. Part of the IEEE 1722.1 (ATDECC) family; rolled up in
 | ✅ `KL_aecp_response_builder` | `KL_aecp_response_builder.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_timers` | `KL_aecp_timers.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_top` | `KL_aecp_top.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_persist_journal` | `KL_persist_journal.sv` | `persist` · 🔬`make aecp` | — |
+| ✅ `KL_persist_journal` | `KL_persist_journal.sv` | `persist` · ➰hostplane,milan_dp · 🔬`make aecp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
 | 📦 `aecp_pkg` | `aecp_pkg.sv` | 🔬`make aecp` | — |
 

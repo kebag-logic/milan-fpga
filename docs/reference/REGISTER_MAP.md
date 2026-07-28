@@ -48,7 +48,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-56-fr-srp-) — The fabric SRP endpoint, which resolves a reservation into the AAF admission gate and the class-A idleSlope through a hardware mux — no CSR write-back, so the `0x400` values you read are not what is in force. `LWSRP_STATUS[11]` is the sticky row-shortfall flag and the *only* software-visible symptom of a refused provisioning row.
   - [0x6A4  -  ACMP listener SM  (Milan v1.2 §5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-55-listener-fr-conn-01) — The largest diagnostic group: listener state ladder, the Milan Table 7-156 stream counters, MAAP claim status, pilot tone, playback drift rails and the ts_delta sync-error word. The counters now **saturate** rather than truncate — a board read SEQ_NUM_MISMATCH 51,523, four fifths of the way to a wrap that would have made a degrading link look like a healing one.
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) — Boot-time re-injection of a saved listener bind, with no new connection logic — the existing probe ladder takes over exactly as at power-on. A commit into an occupied context is **refused, not merged**, and the feature must be gated on `VERSION` plus a write/readback probe.
-  - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) — Specified and Verilator-gated but **not wired into `milan_csr`** — writes go nowhere and reads return an ambiguous 0, which is why software must gate on `VERSION`. The design point: the CRC trailer is the last word, so a torn, foreign or stale image yields zero restores — a half-applied context table is not representable.
+  - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) — **WIRED since `VERSION 0x0019`** (gate on it: on older gateware writes go nowhere and reads return an ambiguous 0). Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; software lifts one flash slot image verbatim through `DATA` between `CTRL` start/end, and the design point stands: the CRC trailer is the last word, so a torn, foreign or stale image yields zero restores — a half-applied context table is not representable. Shares the E1 restore port with journal-wins arbitration and owner-routed acks.
   - [0x800  -  Indexed per-stream window  (NxN streams, NXN_ARCHITECTURE.md §1.5)](#0x800-----indexed-per-stream-window--nxn-streams-nxn_architecturemd-15) — SELECT-then-read over N listener and N talker contexts, so decode area stays O(1) in N. The dense part of the whole map: index 0 is a hard *alias* of the flat registers rather than a copy, `0xDEADDEAD` marks a word not backed here (distinct from a true zero), route flags are independent bits not an enum, and the staging rule — a commit only overrides the stream table when a stream_id was staged **for that index** — is the fabric-listener blocker fix. Read the bench warning before arming extra talkers with the SRP engine off.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) — Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame — the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) — The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable — every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
@@ -81,7 +81,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x750` | CRF media-clock talker (`KL_crf_tx`) |
 | `0x768` | AECP GET_DYNAMIC_INFO scan forensics (BDBG) |
 | `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
-| `0x7B8` | Persistence-journal ingest (**specified, not in gateware yet**) |
+| `0x7B8` | Persistence-journal ingest (saved-state fast-connect E3, **wired at `0x0019`**) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -617,7 +617,7 @@ truthful, only the cadence stretches
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable |
+| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream") — the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `LWSRP_VID`) from that row's *validity*, so tagged-but-undeclared is unreachable; with `[1]` clear the stream falls back to the untagged control-lane shape (flooded by the bridge, but alive). Live read: `[4]` row provisioned, `[5]` frames leaving tagged, `[6]` reservation active, `[19:8]` VID, `[22:20]` PCP |
 | `0x754` | `CRFT_SIDLO` | RW | `0` | CRF talker stream_id `[31:0]`. **Reset 0 = AUTO (since VERSION `0x0010`, `N_STREAMS > 1` builds only):** the fabric uses `{station MAC, N_STREAMS}` — exactly the stream_id the ACMP talker responder answers with for `talker_unique_id = N_STREAMS`, the CRF Media Clock Output context ([NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §3.5). A non-zero pair wins outright (static provisioning, unchanged) |
 | `0x758` | `CRFT_SIDHI` | RW | `0` | stream_id `[63:32]`, same AUTO rule (the pair is tested together) |
 | `0x75C` | `CRFT_DMLO` | RW | `0` | CRF stream dest MAC `[31:0]` (same packing as `AAF_DM*`). **Reset 0 = AUTO:** the MAAP block slot `base + N_STREAMS`, one past the audio talkers — so `MAAP_CTRL`'s claimed count must be `N_STREAMS+1`. A non-zero pair wins outright |
@@ -818,13 +818,21 @@ from ever committing on such gateware.
 
 ### 0x7B8  -  Persistence-journal ingest  `(saved-state fast-connect E3)`
 
-> **NOT IN GATEWARE YET.** The RTL
+> **WIRED at `VERSION 0x0019`** (2026-07-28). The RTL
 > ([`../../hdl/ieee17221/aecp/KL_persist_journal.sv`](../../hdl/ieee17221/aecp/KL_persist_journal.sv))
 > and this ABI are Verilator-gated by `tb/verilator/persist` (96 checks), whose
-> `persist_wrap.sv` carries the decode below as an executable spec; `milan_csr`
-> has not been wired to it. Until it is, `0x7BC` writes go nowhere and `0x7C0`
-> reads `0` - which is indistinguishable from "idle, no verdict", so software
-> **must** gate on `VERSION` and not on a read of this group. Design record:
+> `persist_wrap.sv` carries the decode below as the executable spec `milan_csr`
+> now reproduces strobe-for-strobe; the end-to-end path (AXI → journal → E1 →
+> restored listener context, then a clean 5.5.3.5.8 unbind) is the `E3` case in
+> `tb/verilator/milan_dp/sim_nxn.cpp`, both NxN legs. On gateware **older than
+> `0x0019`** `0x7BC` writes go nowhere and `0x7C0` reads `0` — indistinguishable
+> from "idle, no verdict" — so software **must** gate on `VERSION`, never on a
+> read of this group. The journal and the E1 direct path SHARE the restore port
+> (journal wins while restoring; acks are owner-routed) and are boot-software-
+> sequenced, never legitimately concurrent. Restores land only on sinks with
+> the full binding SM — `PROBE_SM_EN` covers **sink 0 only** today (a recorded
+> gap). Milan v1.2 5.3.8.2: "The current bound state shall be saved in a
+> non-volatile memory and restored after a power cycle." Design record:
 > [`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md) §8.
 
 Software pushes ONE journal slot image (32-bit little-endian words, verbatim

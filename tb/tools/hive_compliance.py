@@ -134,6 +134,23 @@ one deliberately re-implements the checks a real controller stack makes:
      64-octet region taken out of a descriptor that is 24 octets long: 48
      octets of whatever followed it in the descriptor ROM went on the wire
      to any controller that asked.
+  C12 THE FORMAT IS ONE FORMAT (re-added 2026-07-28; born as C5 in e076647,
+     lost to a merge numbering collision).  A STREAM descriptor's
+     current_format (1722.1-2021 7.2.6, octets 74..81) and the
+     GET_STREAM_FORMAT (0x0009) answer are the SAME fact stated twice and
+     must agree - a controller runs Milan 5.5.1.2's compatibility check
+     against whichever it read first, so a disagreement is a bind that
+     succeeds against a format the talker will not send.
+  C13 ADVERTISED == EMITTED, ON THE WIRE (opt-in, --wire-*; born as C6 in
+     e076647).  THE CHECK THAT WOULD HAVE CAUGHT 2026-07-27: binds a REAL
+     listener (the reference device) to our talker over ACMP and reads THAT
+     device's Table 7-156 counters - UNSUPPORTED_FORMAT stays 0 while
+     FRAMES_RX advances, or the fabric is not emitting the
+     channels_per_frame the entity advertises.  LEVEL 5; needs a second
+     Milan device and ~6 s of streaming.
+     NEITHER IS CALIBRATED against the reference device yet - the 8.3.2
+     rule applies: if one fails there first, the CHECK is wrong until a
+     clause says otherwise.
 
 WHERE THE CLAUSES COME FROM. Earlier rounds of this file said the IEEE and
 Milan texts were paywalled and unavailable. They are on this machine, in

@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 84 modules · 82 with a dedicated TB · 0 exercised-only · 48 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 87 modules · 85 with a dedicated TB · 0 exercised-only · 51 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,9 +31,9 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
-    y-axis "modules" 0 --> 31
-    bar [2, 30, 5, 10, 18, 19]
-    bar [1, 29, 5, 10, 18, 19]
+    y-axis "modules" 0 --> 34
+    bar [2, 33, 5, 10, 18, 19]
+    bar [1, 32, 5, 10, 18, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -41,7 +41,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
 | Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
-| IEEE 1722 (AVTP) | 30 | 29 | 0 | 26 | 0 | 0 |
+| IEEE 1722 (AVTP) | 33 | 32 | 0 | 29 | 0 | 0 |
 | IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 18 | 18 | 0 | 18 | 0 | 0 |
@@ -61,7 +61,7 @@ _ADP / ACMP / AECP-AEM-MVU_
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `KL_acmp_listener` | `ieee17221/acmp/KL_acmp_listener.sv` | `acmp_lstn` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make acmp` | — |
-| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · 🔬`make acmp` | — |
+| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · 🔬`make acmp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
 | ✅ `KL_acmp_responder` | `ieee17221/acmp/KL_acmp_responder.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | ✅ `KL_acmp_tlkr_ctx` | `ieee17221/acmp/KL_acmp_tlkr_ctx.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | 📦 `acmp_pkg` | `ieee17221/acmp/acmp_pkg.sv` | 🔬`make acmp` | — |
@@ -79,7 +79,7 @@ _ADP / ACMP / AECP-AEM-MVU_
 | ✅ `KL_aecp_response_builder` | `ieee17221/aecp/KL_aecp_response_builder.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_timers` | `ieee17221/aecp/KL_aecp_timers.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_top` | `ieee17221/aecp/KL_aecp_top.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_persist_journal` | `ieee17221/aecp/KL_persist_journal.sv` | `persist` · 🔬`make aecp` | — |
+| ✅ `KL_persist_journal` | `ieee17221/aecp/KL_persist_journal.sv` | `persist` · ➰hostplane,milan_dp · 🔬`make aecp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
 | 📦 `aecp_pkg` | `ieee17221/aecp/aecp_pkg.sv` | 🔬`make aecp` | — |
 
 ## IEEE 1722 (AVTP)
@@ -90,7 +90,7 @@ _AAF / CRF / MAAP / AVTP common_
 |---|---|---|---|
 | ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | 7.3.3 |
 | ✅ `KL_aaf_latency_chain` | `ieee1722/aaf/KL_aaf_latency_taps.sv` | `aaf_latency_taps` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `chmap_capture` · `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, M-DEV-13 |
+| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `chmap_capture` · `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 35.2.2.8.4, 4.3.5.2, 4.4.2.3, 802.3 |
 | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | — |
 | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | — |
 | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | — |
@@ -100,6 +100,8 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `pcm_playback` · 🔬`make aaf` | — |
 | ✅ `KL_lat_history_ring` | `ieee1722/aaf/KL_lat_history_ring.sv` | `lat_history_ring` · 🔬`make aaf` | — |
 | ✅ `KL_media_adv` | `ieee1722/aaf/KL_media_adv.sv` | `hostplane` · `milan_dp` · 🔬`make aaf` | — |
+| ✅ `KL_pair_blend` | `ieee1722/aaf/KL_pair_blend.sv` | `hostplane` · `milan_dp` · `pair_fill` · 🔬`make aaf` | — |
+| ✅ `KL_pair_zero_fill` | `ieee1722/aaf/KL_pair_zero_fill.sv` | `hostplane` · `milan_dp` · `pair_fill` · 🔬`make aaf` | 5.3.7.2, 5.3.7.3, M-DEV-13 |
 | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `hostplane` · `milan_dp` · `pcmlpf` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_ring_bram` | `ieee1722/aaf/KL_pcm_ring_bram.sv` | `hostplane` · `pcm_ring_bram` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
@@ -113,6 +115,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_avtp_rx_monitor` | `ieee1722/avtp/KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.3.5.2, 4.4.2.1, M-DEV-13 |
 | ✅ `KL_avtp_rx_monitor_ctx` | `ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, 4.4.4.7, M-DEV-13 |
 | ✅ `KL_stream_table` | `ieee1722/avtp/KL_stream_table.sv` | `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
+| ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 5.17, 5.4, M-CNT-2 |
 | ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.4.3.4 |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
 | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | — |

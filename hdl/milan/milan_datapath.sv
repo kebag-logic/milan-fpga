@@ -2203,10 +2203,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   end : tkd_crf_evt
   //! context vector: AAF talkers 0..N-1, CRF (when this shape has one) at N
-  wire [ACMP_SRC_C-1:0] tkd_streaming_w =
-      (ACMP_SRC_C > N_STREAMS)
-      ? {cfg_crft_en, aaf_stream_en_w}
-      : ACMP_SRC_C'(aaf_stream_en_w);
+  //! (a generate, not a width-bending conditional: the two arms have
+  //! different exact widths and the ternary form lints as trunc+expand)
+  wire [ACMP_SRC_C-1:0] tkd_streaming_w;
+  generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+    assign tkd_streaming_w = {cfg_crft_en, aaf_stream_en_w};
+  end else begin : g_tkd_nocrf
+    assign tkd_streaming_w = aaf_stream_en_w[ACMP_SRC_C-1:0];
+  end endgenerate
   KL_talker_diag_ctx #(
     .N_CTX_P    (ACMP_SRC_C),
     .TICK_CYC_P (DIAG_TICK_CYC_P)

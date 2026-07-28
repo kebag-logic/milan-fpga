@@ -545,7 +545,7 @@ module KL_avtp_rx_monitor_ctx #(
         for (int c = 0; c < 10; c++)
           cnt_mir_r[s][c] <= '0;
     end else if (cntw_hit_w) begin
-      cnt_mir_r[ram_waddr_w[AW_C-1:5]][ram_waddr_w[4:0] - W_CNT0_C]
+      cnt_mir_r[ram_waddr_w[AW_C-1:5]][4'(ram_waddr_w[4:0] - W_CNT0_C)]
           <= ram_wdata_w;
     end
   end : diag_mirror
