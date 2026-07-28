@@ -296,8 +296,14 @@ module milan_csr #(
   input  wire [15:0]             i_chmap_rd_data,     //! RAM word (see contract)
   input  wire                    i_chmap_rd_valid,    //! rd_data is the answer
   output wire                    o_crft_en,           //! CRF talker enable (0x750)
+  //! CRFT_CTRL[1]: make the CRF Media Clock Output a real SR class A stream
+  //! (Milan v1.2 7.3.3) - provision its lwSRP Talker Advertise row AND tag
+  //! its frames, in that order. ONE bit for BOTH because tagging without
+  //! declaring is the pruned-to-zero state (802.1Q 35.1.2).
+  output wire                    o_crft_class_a,
   output wire [63:0]             o_crft_sid,          //! CRF talker stream_id (0x754/0x758)
   output wire [47:0]             o_crft_dest_mac,     //! CRF talker DMAC (0x75C/0x760)
+  input  wire [31:0]             i_crft_stat,         //! live 0x750[31:2] status
   input  wire [31:0]             i_crft_count,        //! RO 0x764: CRF PDUs emitted
   input  wire [31:0]             i_bdbg0,             //! RO 0x768-0x770: 0x4B scan forensics
   input  wire [31:0]             i_bdbg1,
@@ -413,6 +419,14 @@ module milan_csr #(
   output wire [15:0]             o_srp_ctx_interval,
   output wire [31:0]             o_srp_ctx_latency,
   input  wire                    i_srp_ctx_gnt,
+  //! ANOTHER master took the shared lwSRP ctx port for one service beat (the
+  //! fabric's CRF Media Clock Output row). That beat overwrites the engine's
+  //! ctx_rd_* snapshot registers with a row THIS window did not select, so
+  //! the snapshot must be declared stale: the window then reads 0 ("not
+  //! sampled yet", the existing srp_fresh_r contract) until its continuous
+  //! poll refills it on the next beat, instead of returning another row's
+  //! stream_id as if it were the selected one.
+  input  wire                    i_srp_ctx_stolen,
   input  wire [63:0]             i_srp_ctx_rd_sid,
   input  wire [15:0]             i_srp_ctx_rd_stat, //! {valid,dir,declared,reg,ready,failed,decl[1:0],code[7:0]}
 
@@ -502,7 +516,18 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_CRF_DELTA  = 'h744;  //! RO signed crf_ts - ptp_now
   localparam [ADDR_WIDTH-1:0] A_CRF_RATE   = 'h748;  //! RO signed ns err / 512 ms
   localparam [ADDR_WIDTH-1:0] A_CRF_STATUS = 'h74C;  //! RO {pdu16, fmt_err8, seq_err8}
-  localparam [ADDR_WIDTH-1:0] A_CRFT_CTRL  = 'h750;  //! [0] CRF talker en
+  //! 0x750 CRFT_CTRL - live read (the A_CRF_CTRL pattern: stored control
+  //! bits in the low lanes, live status above):
+  //!   [0]     RW  CRF talker enable
+  //!   [1]     RW  SR class A (declare the lwSRP TA row, then tag)
+  //!   [4]     RO  the CRF talker row is PROVISIONED and the lwSRP
+  //!               applicant is running = the Talker Advertise is declared
+  //!   [5]     RO  frames are leaving 802.1Q-TAGGED right now
+  //!   [6]     RO  the reservation is ACTIVE (bw-gate: declared + Listener
+  //!               Ready + admitted under the 75 % ceiling)
+  //!   [19:8]  RO  VID on the frames (= the declaration's, one wire)
+  //!   [22:20] RO  PCP on the frames (SR class A = 3)
+  localparam [ADDR_WIDTH-1:0] A_CRFT_CTRL  = 'h750;
   localparam [ADDR_WIDTH-1:0] A_CRFT_SIDLO = 'h754;  //! CRF talker stream_id [31:0]
   localparam [ADDR_WIDTH-1:0] A_CRFT_SIDHI = 'h758;  //! CRF talker stream_id [63:32]
   localparam [ADDR_WIDTH-1:0] A_CRFT_DMLO  = 'h75C;  //! CRF talker DMAC [31:0]
@@ -1452,7 +1477,8 @@ module milan_csr #(
       A_MAAP_CTRL, A_TONE_CTRL, A_GPTP_PDELAY, A_LINK_CTRL,
       A_ENT_NAME_LO, A_ENT_NAME_HI, A_LPF_CTRL, A_AS2_LO, A_AS2_HI,
       A_CRF_SIDLO, A_CRF_SIDHI,
-      A_CRFT_CTRL, A_CRFT_SIDLO, A_CRFT_SIDHI, A_CRFT_DMLO, A_CRFT_DMHI,
+      //! A_CRFT_CTRL is NOT here: live read (status above the RW bits)
+      A_CRFT_SIDLO, A_CRFT_SIDHI, A_CRFT_DMLO, A_CRFT_DMHI,
       A_REST_TKLO, A_REST_TKHI, A_REST_META, A_REST_CTLO, A_REST_CTHI:
         is_plain_rw = 1'b1;
       default:
@@ -1578,6 +1604,8 @@ module milan_csr #(
       A_CRF_DELTA:  live_mux = i_crf_delta;
       A_CRF_RATE:   live_mux = i_crf_rate;
       A_CRF_STATUS: live_mux = i_crf_status;
+      //! RW bits verbatim in [1:0], live class-A status above them
+      A_CRFT_CTRL:  live_mux = {i_crft_stat[31:2], crft_ctrl[1:0]};
       A_CRFT_COUNT: live_mux = i_crft_count;
       A_BDBG0:      live_mux = i_bdbg0;
       A_BDBG1:      live_mux = i_bdbg1;
@@ -1911,6 +1939,7 @@ module milan_csr #(
   assign o_crf_en           = crf_ctrl[0];
   assign o_crf_sid          = {crf_sidhi, crf_sidlo};
   assign o_crft_en          = crft_ctrl[0];
+  assign o_crft_class_a     = crft_ctrl[1];
   assign o_crft_sid         = {crft_sidhi, crft_sidlo};
   assign o_crft_dest_mac    = {crft_dmhi[15:0], crft_dmlo};
   assign o_as_parent_ckid   = {as2_hi, as2_lo};
@@ -2160,6 +2189,9 @@ module milan_csr #(
         srp_wr_dmac_r  <= {stg_dmac_hi_r[15:0], stg_dmac_lo_r};
         srp_fresh_r    <= 1'b0;
       end
+      //! LAST, so it beats the grant above: a beat we did not win cannot
+      //! leave a snapshot behind that looks like ours
+      if (i_srp_ctx_stolen) srp_fresh_r <= 1'b0;
     end
   end : strm_srp_master_S
 

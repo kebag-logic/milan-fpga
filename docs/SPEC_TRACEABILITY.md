@@ -24,7 +24,7 @@ is the clause-anchored join between them.
 - **[Why rows are N/A (taxonomy)](#why-rows-are-na-taxonomy)** — The defence of every ➖: four categories (wrong role, superseded by Milan, optional-so-only-the-refusal-is-owed, profile exclusion), the rows in each, and where the residual obligation is carried as a ✅ row. A reviewer disputing an N/A is told to attack the category, not the row.
 - **[Module → family map](#module--family-map)** — The lookup that goes the other way: given a directory under `hdl/`, which family file's sections govern it.
 - **[tsn_gen (wire-test engine) — model inventory and gaps](#tsn_gen-wire-test-engine--model-inventory-and-gaps)** — Which YAML protocol models exist today versus the eight to author, ranked by value. ACMP is first because it unlocks 24 rows and its length fuzz reproduces the 68-byte-frame field trap.
-- **[Top MISSING rows (attack-order preview)](#top-missing-rows-attack-order-preview)** — The ten open rows in attack order. M-CLK-2 dominates: CRF is fully in fabric yet still not a class A stream (no VLAN tag, wrong lane, no reservation), and its reservation costs 5.12 % of the class-A budget to carry 0.45 % of it — a structural 11.4× over-provision because 2 ms / 125 µs = 16 intervals and `MaxIntervalFrames` cannot be fractional.
+- **[Top MISSING rows (attack-order preview)](#top-missing-rows-attack-order-preview)** — The ten open rows in attack order. M-CLK-2 dominates: CRF is fully in fabric yet still not a class A stream (no VLAN tag, wrong lane, no reservation), and its reservation costs 7.17 % of the class-A budget to carry 0.45 % of it — a structural 16× over-provision because 2 ms / 125 µs = 16 intervals and `MaxIntervalFrames` cannot be fractional. (RTL landed 2026-07-28, default off, not yet silicon-verified.)
 - **[Review workflow](#review-workflow)** — The intended lifecycle of a row, ending in the rule that matters day to day: when a TB or module changes, the row citing it changes in the same commit.
 
 ## The chain, and which file holds each link
@@ -219,29 +219,54 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
 
    Closing it therefore means tagging the CRF PDU with PCP 3 on the SR VID,
    routing it through the shaped lane, **and** giving it an attribute row —
-   not just adding a context row. Note the interim compromise is deliberate:
-   an SR-tagged stream that is *unregistered* would be pruned by the bridge,
-   which is why untagged was chosen over half-done tagging.
+   not just adding a context row.
+
+   **DONE IN RTL 2026-07-28, all three together, default OFF** (`CRFT_CTRL[1]`
+   resets 0; see [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) §2).
+   The tag is DERIVED from the provisioned lwSRP talker row, so
+   tagged-but-undeclared is structurally unreachable. Still needs a Vivado
+   rebuild + reflash before any wire claim.
+
+   **Two corrections this round.**
+   (a) *The interim compromise's stated reason was wrong.* The text used to
+   say an SR-tagged **unregistered** stream "would be pruned by the bridge".
+   The bench measured the opposite and
+   [`limitations/TROUBLESHOOTING.md`](limitations/TROUBLESHOOTING.md) records
+   it: an unregistered VLAN-2 stream DMAC is **flooded**, while a
+   **registered but listener-less** stream is pruned — 802.1Q 35.1.2 working
+   exactly as specified, since pruning is what a registration BUYS. Tagging
+   alone therefore does not make the stream vanish; it puts an unreserved
+   stream inside the reserved SR VLAN. Both halves are still required, for
+   the right reason now.
+   (b) *`MaxFrameSize 18` below is wrong and is superseded by 42.* 18 makes
+   `MaxFrameSize + 42` = 60, i.e. it reserves a 60-octet wire slot — but the
+   very next line of this table measures the stream at **84 B** on the wire,
+   because the frame is PADDED to the 802.3 minimum and the pad is real
+   octets a bridge must budget for. MaxFrameSize is the MSDU: 60 L2 − 14 eth
+   − 4 tag = **42**, and 42 + 42 = the 84 the traffic row already uses. The
+   reservation is 5.376 Mb/s (`1 × (42+42) × 8 × 8000`), and the builder now
+   counts it in the class-A ceiling check (arty_4x4 41.47 % → 46.85 %,
+   ax7101_8x8 13.21 % → 13.75 %).
    **Budget this before building it (costed 2026-07-26).** The CRF Media Clock
    Output is **mandatory** whenever an AAF Media Listener has ≥2 AAF Media
    Inputs (Milan 7.2.3 — `endstation_builder` raises `ConfigError` without it),
    and it **must be SR class A**. `SRP_SR_CLASSES` therefore defines class A
    only; class B is not a permitted escape and the builder refuses it.
-   The consequence is a **structural ~11.4× over-provision**, not an
+   The consequence is a **structural 16× over-provision** on frame count, not an
    arithmetic bug:
 
    | | |
    |---|---|
    | CRF on the wire | **one PDU every 2 ms** = 500 PDU/s × 84 B = **0.336 Mb/s**. The rate is `base_frequency / (timestamp_interval × timestamps_per_pdu)` = `48000 / (96 × 1)` = 500 Hz, from the Milan 7.3.2 format word `0x041060010000BB80`; the frame is 60 B L2 (`KL_crf_tx` `FRAME_BYTES` = 14 eth + 28 CRF PDU + 18 pad) |
-   | Class-A reservation | MaxFrameSize 18, MaxIntervalFrames **1** → **3.840 Mb/s** |
-   | Cost | **5.12%** of the 75 Mb/s class-A budget, for 0.45% of it in traffic |
+   | Class-A reservation | MaxFrameSize **42** (the padded MSDU; the 18 originally written here under-declared the slot by 24 B — see correction (b)), MaxIntervalFrames **1** → **5.376 Mb/s** |
+   | Cost | **7.17%** of the 75 Mb/s class-A budget, for 0.45% of it in traffic (was quoted as 5.12% off the wrong MaxFrameSize) |
 
    The whole discrepancy is one ratio: class A's classMeasurementInterval is
    **125 µs**, and CRF sends every **2 ms** — so **2 ms / 125 µs = 16
    intervals per PDU**. `MaxIntervalFrames` is an integer count *per interval*
    and a TSpec cannot express a fraction, so **1** is the floor and the
    reservation buys 8000 frames/s of slot for a 500 frame/s stream. On the 100 Mb Arty this
-   moves class-A utilisation from 55.30% to **60.42%** — real headroom that must
+   moves class-A utilisation from 41.47% to **46.85%** on the 4x4 shape (the builder now counts it; the 55.30 -> 60.42 pair was computed off the wrong MaxFrameSize) — real headroom that must
    be planned for, and only visible since the `is_1g` fix (`REQ-MAC-03`) stopped
    the 100 Mb board admitting against a 750 Mb/s budget. On the gigabit AX it is
    0.51 points. Do not "optimise" this by weakening the class.

@@ -211,8 +211,76 @@ hold.
     GET_STREAM_INFO(input 1) reflect it (dp-TB closure: CONNECT_RX →
     lock on the bound sid → DISCONNECT cuts); **SILICON-PROVEN on mf40
     (bind → lock with CSR en=0 → disconnect cuts).**
+  - ~~CRF is not a class A stream~~ **RTL RESOLVED (2026-07-28), default
+    OFF pending a silicon run.** All three jobs landed together, wired so
+    that they cannot come apart:
+    1. **The 802.1Q C-TAG** — `KL_crf_tx` gained `vlan_en_i / vlan_pcp_i /
+       vlan_vid_i` and a second frame shape: TPID `0x8100` at octets 12–13,
+       TCI `{PCP, DEI=0, VID}` at 14–15 (802.1Q 9.5/9.6), EtherType pushed
+       to 16–17, the whole CRF AVTPDU +4. **Both shapes are the same
+       60-octet frame** — the tag eats pad, so the AXIS beat count, `tkeep`
+       and the MSRP `MaxFrameSize` all stay put. `vlan_en_i` is latched at
+       frame launch beside `ts_r`/`tu_r`.
+    2. **The lane** — the CRF AXIS moved off the low-rate control merge onto
+       the **data lane** beside AAF (`crf_dp_mux`), so the media clock no
+       longer queues behind ADP/AECP/ACMP/MAAP/lwSRP bursts *and* the
+       control min-IFG gasket's 512-cycle per-frame spacing. A Hive
+       enumeration storm was adding ~10 µs per intervening control frame to
+       a PDU that carries a gPTP timestamp. **Honest bound: this is not the
+       CBS shaped queue** — AAF is not in it either (it is injected after
+       the shaper), and credit-shaping the fabric's own stream sources
+       remains the same open `is_1g` follow-up for both.
+    3. **The reservation** — the CRF output is now a real lwSRP **talker
+       context**, provisioned *by the fabric* (its `stream_id`/DMAC are
+       derived from the ACMP answer for `talker_unique_id = N_STREAMS`, so
+       software could only restate them and get them wrong).
+       `N_TALKERS_P` = N+1 and `N_CTX_P` = L+T-1 = 2N, i.e. the CRF row is
+       ctx row 2N-1. At 8×8 that is **exactly 16 rows, the whole 4-bit
+       `ctx_idx`** — guarded by a `milan_datapath` elaboration assert and
+       by the builder's `SRP_CTX_IDX_BITS` `ConfigError`, so 9×9 fails the
+       build rather than losing a reservation in silence.
+       TSpec: `MaxFrameSize` **42** (the PADDED MSDU of the tagged 60-octet
+       frame — see the correction below), `MaxIntervalFrames` **1**,
+       `PriorityAndRank` `0x70`; idleSlope 5.376 Mb/s, now inside the
+       builder's ceiling check (arty_4x4 41.47 % → **46.85 %**, ax7101_8x8
+       13.21 % → **13.75 %**).
+  - **THE INTERLOCK, and why it is structural.** `vlan_en_i` is driven by
+    `crft_class_a_w = crf_srp_val_r & lwsrp_enable & lwsrp_talker_en` — the
+    *provisioned row*, never the CSR bit. `CRFT_CTRL[1]` **asks** for class
+    A; only a granted attribute row **grants** it, so tagged-but-undeclared
+    is unreachable rather than merely discouraged. Reset is untagged and
+    `CRFT_CTRL[1]` resets 0, so every existing bitstream behaves exactly as
+    before.
+  - **CORRECTION — the old justification here was wrong.** This section (and
+    `KL_crf_tx`'s own header) said "an SR-tagged *unregistered* stream is
+    pruned to zero ports". The bench measured the opposite and
+    [`TROUBLESHOOTING.md`](limitations/TROUBLESHOOTING.md) already recorded
+    it: *"An unregistered VLAN-2 stream DMAC is **flooded** by the bridge …
+    while a **registered but listener-less** stream is pruned."* That is
+    802.1Q behaving as specified — pruning is what a declaration BUYS
+    (35.1.2); with no registration the DMAC is ordinary multicast. So the
+    real hazard of tagging alone is not disappearance, it is an unreserved
+    stream squatting *inside* the reserved SR VLAN. Both halves are still
+    required; the reason is now the right one.
+  - **NOT SILICON-VERIFIED.** RTL green is not silicon fixed: this needs a
+    Vivado rebuild + reflash. Baseline to beat, measured 2026-07-28 with
+    `sudo python3 /tmp/floodclass.py enp6s0 8` on the peer: **4001 untagged
+    AVTP/CRF frames in 8 s** from `02:00:00:00:00:01` (= 500 pps, the
+    `KL_crf_tx` rate) on a port with **zero** AAF frames. Expected after the
+    change with `CRFT_CTRL[1]=1` and no CRF Listener registered: the CRF
+    frames are **ABSENT** from that capture, not tagged — a registered
+    stream with no Listener is pruned, and that IS the fix. They reappear,
+    tagged PCP 3 / VID 2, only once a listener ACMP-binds `talker_unique_id
+    = N_STREAMS` and declares Listener Ready. `0x750[4]/[5]/[6]` tell
+    "declared", "tagged" and "reserved" apart from software so a pruned
+    stream is readable rather than inferred from silence.
+  - **SR class B is still untested** and is not made reachable by any of
+    this; Milan 7.3.3 fixes the CRF stream at class A and the builder
+    refuses class B.
+
   - REMAINING for the full chain (**scope corrected 2026-07-26 from the
-    RTL** — this is three jobs, not one): CRF is *fully in fabric*
+    RTL** — this is three jobs, not one; **all three landed 2026-07-28,
+    see above**): CRF is *fully in fabric*
     (`KL_crf_tx`/`KL_crf_rx`/`KL_mmcm_drp_servo` all live in
     `milan_datapath`), but it is not a class A stream. (1) `KL_crf_tx`
     emits **no VLAN tag** — no `0x8100`, no PCP, no TCI — so a bridge

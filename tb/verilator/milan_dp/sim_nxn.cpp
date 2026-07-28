@@ -1258,6 +1258,246 @@ int main(int argc, char** argv) {
         axi_write(A_CRFT_CTRL, 0x0);
     }
 
+    // ==================================================================
+    //  CRF MEDIA CLOCK OUTPUT AS AN SR CLASS A STREAM
+    //  (Milan v1.2 7.3.3 "media clock stream carried under an SRP
+    //   reservation of the specified class"; 802.1Q 9.5/9.6 C-TAG;
+    //   802.1Q 34.5 / Table 34-1 SR class A = PCP 3; Milan 4.2.7.2.1
+    //   {class A, priority 3, VID 2})
+    //
+    //  Three things had to land together and this block proves all three
+    //  plus the interlock that keeps them together:
+    //    (1) the 802.1Q C-TAG on the CRF frames,
+    //    (2) the CRF PDUs on the DATA lane (they no longer pass the
+    //        control min-IFG gasket - covered by the frame still arriving
+    //        at the MAC in every leg below),
+    //    (3) the MSRP Talker Advertise attribute row for the stream.
+    //
+    //  THE TRAP: a tagged stream with no declaration is not a class A
+    //  stream, it is unshaped traffic squatting in the reserved SR VLAN.
+    //  The tag is therefore DERIVED from the declaration in RTL, and the
+    //  two negative legs below are the proof that it cannot be set alone.
+    // ==================================================================
+    printf("-- CRF media clock output: SR class A (Milan 7.3.3) --\n");
+    {
+        enum { A_CRFT_CTRL = 0x750, A_CRFT_DMLO = 0x75C, A_CRFT_DMHI = 0x760 };
+        const uint64_t CRF_DMAC = 0x91E0F000FE01ULL + NSTREAMS_TB;
+        const int      SR_VID   = 2;      // LWSRP_VID reset (Milan 4.2.7.2.1)
+        const int      SR_PCP   = 3;      // 802.1Q 34.5 / Table 34-1
+        auto be = [](const std::vector<uint8_t>& v, size_t o, int n) {
+            uint64_t r = 0; for (int i = 0; i < n; i++) r = (r<<8) | v[o+i];
+            return r;
+        };
+
+        // back to the AUTO {sid, dmac} pair - the shipping path, where the
+        // declaration and the frames are derived from ONE source
+        axi_write(A_CRFT_DMLO, 0x0);
+        axi_write(A_CRFT_DMHI, 0x0);
+
+        // grab the next CRF PDU in EITHER shape. The discriminator is the
+        // ethertype position: untagged 0x22F0 at 12, tagged 0x8100 at 12
+        // with 0x22F0 pushed to 16. subtype 0x04 = CRF either way.
+        auto grab_crf = [&](std::vector<uint8_t>& out, int budget) -> bool {
+            std::vector<uint8_t> cur3; out.clear();
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < budget; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur3.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        bool untag = cur3.size() >= 26 && cur3[12] == 0x22 &&
+                                     cur3[13] == 0xF0 && cur3[14] == 0x04;
+                        bool tag   = cur3.size() >= 30 && cur3[12] == 0x81 &&
+                                     cur3[13] == 0x00 && cur3[16] == 0x22 &&
+                                     cur3[17] == 0xF0 && cur3[18] == 0x04;
+                        if (untag || tag) { out = cur3; hi(); return true; }
+                        cur3.clear();
+                    }
+                }
+                hi();
+            }
+            return false;
+        };
+        const int CRF_BUDGET = 160000;   // > 2 event periods (49152 each)
+
+        // ---- LEG 1 (the DEFAULT BUILD): class A bit clear -------------
+        // lwSRP fully running, CRF talker running, CRFT_CTRL[1] = 0.
+        // This is what every existing bitstream does and it must not move.
+        axi_write(A_LWSRP_CTRL, 0x17);          // enable + talker declare
+        for (int c = 0; c < 256; c++) step();
+        axi_write(A_CRFT_CTRL, 0x1);            // en=1, class_a=0
+        std::vector<uint8_t> f1;
+        ck("class A off: a CRF PDU still reaches the MAC",
+           grab_crf(f1, CRF_BUDGET) ? 1 : 0, 1);
+        if (!f1.empty()) {
+            ck("class A off: UNTAGGED (ethertype 22F0 at 12)",
+               (f1[12] << 8) | f1[13], 0x22F0);
+            ck("class A off: 60-octet legacy frame", (long)f1.size(), 60);
+            ck("class A off: dmac = the ACMP answer", be(f1, 0, 6), CRF_DMAC);
+        }
+        uint32_t st = axi_read(A_CRFT_CTRL);
+        ck("class A off: 0x750[4] TA not declared", (st >> 4) & 1, 0);
+        ck("class A off: 0x750[5] not tagged",      (st >> 5) & 1, 0);
+        ck("class A off: 0x750[19:8] VID reads 0",  (st >> 8) & 0xFFF, 0);
+
+        // ---- LEG 2 (NEGATIVE - THE TRAP): class A bit SET, lwSRP OFF --
+        // Asking for the tag without an engine that can declare must NOT
+        // produce a tagged frame. If this leg ever tags, the interlock is
+        // gone and the board is emitting an unreserved stream on the SR
+        // VLAN.
+        axi_write(A_LWSRP_CTRL, 0x0);           // no engine -> no declaration
+        axi_write(A_CRFT_CTRL, 0x3);            // en=1, class_a=1
+        for (int c = 0; c < 2048; c++) step();
+        std::vector<uint8_t> f2;
+        ck("lwSRP off: a CRF PDU still reaches the MAC (Milan 5.3.7.3 - a"
+           " Stream Output is never stopped)",
+           grab_crf(f2, CRF_BUDGET) ? 1 : 0, 1);
+        if (!f2.empty())
+            ck("lwSRP off + class A asked: STILL UNTAGGED (the interlock)",
+               (f2[12] << 8) | f2[13], 0x22F0);
+        st = axi_read(A_CRFT_CTRL);
+        ck("lwSRP off: 0x750[1] readback keeps what was written",
+           (st >> 1) & 1, 1);
+        ck("lwSRP off: 0x750[5] tag refused", (st >> 5) & 1, 0);
+
+        // ---- LEG 3+4 (POSITIVE): declaration exists -> frames are tagged,
+        // and the MSRP Talker Advertise that authorises them is on the wire.
+        // ONE capture loop for both: the applicant declares on the
+        // provisioning refresh, and the next periodic re-declare is a JoinTime
+        // multiple away (millions of cycles) - a later window would miss it
+        // and "no TalkerAdvertise" would be a TB artefact, not a defect.
+        int      ta_hit = 0, ta_mf = -1, ta_iv = -1, ta_pr = -1, ta_vid = -1;
+        uint64_t ta_dmac = 0;
+        std::vector<uint8_t> f3;
+        {
+            std::vector<uint8_t> cur4;
+            axi_write(A_LWSRP_CTRL, 0x17);      // provisions the CRF row NOW
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 500000 && (!ta_hit || f3.empty()); c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur4.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        // (a) the CRF PDU, in whichever shape it left
+                        bool untag = cur4.size() >= 26 && cur4[12] == 0x22 &&
+                                     cur4[13] == 0xF0 && cur4[14] == 0x04;
+                        bool tag   = cur4.size() >= 30 && cur4[12] == 0x81 &&
+                                     cur4[13] == 0x00 && cur4[16] == 0x22 &&
+                                     cur4[17] == 0xF0 && cur4[18] == 0x04;
+                        if ((untag || tag) && f3.empty()) f3 = cur4;
+                        // (b) the MSRP MRPDU whose first message is a
+                        // TalkerAdvertise (802.1Q 35.2.2.4): eth 14 + ver 1 +
+                        // msg hdr 4, then 28-octet single-value vectors
+                        if (!ta_hit && cur4.size() >= 47 && cur4[12] == 0x22 &&
+                            cur4[13] == 0xEA && cur4[15] == 1) {
+                            size_t listlen = ((size_t)cur4[17] << 8) | cur4[18];
+                            for (size_t o = 0;
+                                 o + 28 <= listlen - 2 && 19 + o + 28 <= cur4.size();
+                                 o += 28) {
+                                const uint8_t* v = &cur4[19 + o];
+                                // FirstValue: StreamID(8) = {station MAC, uid};
+                                // the harness never sets MAC_ADDR so the low
+                                // 32 bits ARE the uid
+                                uint32_t slo = ((uint32_t)v[6] << 24) |
+                                               ((uint32_t)v[7] << 16) |
+                                               ((uint32_t)v[8] << 8) | v[9];
+                                if (slo != (uint32_t)NSTREAMS_TB) continue;
+                                ta_dmac = 0;
+                                for (int i = 0; i < 6; i++)
+                                    ta_dmac = (ta_dmac << 8) | v[10+i];
+                                ta_vid = (v[16] << 8) | v[17];
+                                ta_mf  = (v[18] << 8) | v[19];
+                                ta_iv  = (v[20] << 8) | v[21];
+                                ta_pr  = v[22];
+                                ta_hit = 1;
+                            }
+                        }
+                        cur4.clear();
+                    }
+                }
+                hi();
+            }
+        }
+        ck("class A on: a CRF PDU reaches the MAC", f3.empty() ? 0 : 1, 1);
+        if (f3.size() >= 46) {
+            ck("class A on: TPID 0x8100 at 12 (802.1Q 9.5)",
+               (f3[12] << 8) | f3[13], 0x8100);
+            ck("class A on: TCI = PCP 3 | DEI 0 | VID 2 (802.1Q 9.6)",
+               (f3[14] << 8) | f3[15], (SR_PCP << 13) | SR_VID);
+            ck("class A on: ethertype 22F0 pushed to 16",
+               (f3[16] << 8) | f3[17], 0x22F0);
+            ck("class A on: AVTP subtype CRF at 18", f3[18], 0x04);
+            ck("class A on: type CRF_AUDIO_SAMPLE at 21", f3[21], 0x01);
+            // the whole AVTPDU shifts +4: stream_id 18..25 -> 22..29
+            ck("class A on: stream_id tail still N", be(f3, 28, 2),
+               (unsigned)NSTREAMS_TB);
+            ck("class A on: base_frequency 48000 at 30",
+               be(f3, 30, 4), 0xBB80ULL);
+            ck("class A on: timestamp_interval 96 at 36", be(f3, 36, 2), 96);
+            ck("class A on: dmac unchanged by tagging",
+               be(f3, 0, 6), CRF_DMAC);
+            // the tag REPLACES pad - the frame must not grow past the
+            // 802.3 minimum, and everything after the AVTPDU stays zero
+            ck("class A on: still a 60-octet frame", (long)f3.size(), 60);
+            long tp = 1; for (size_t p = 46; p < f3.size(); p++) if (f3[p]) tp = 0;
+            ck("class A on: zero pad 46..59", tp, 1);
+        }
+        st = axi_read(A_CRFT_CTRL);
+        ck("class A on: 0x750[4] TA declared",  (st >> 4) & 1, 1);
+        ck("class A on: 0x750[5] tagged",       (st >> 5) & 1, 1);
+        ck("class A on: 0x750[19:8] VID = 2",   (st >> 8) & 0xFFF, SR_VID);
+        ck("class A on: 0x750[22:20] PCP = 3",  (st >> 20) & 0x7, SR_PCP);
+        ck("class A on: 0x750[1:0] RW bits still read back",
+           st & 0x3, 0x3);
+
+        // ---- LEG 4: the MSRP Talker Advertise for THIS stream ---------
+        // 802.1Q 35.2.2.4 FirstValue(25) inside a 28-byte single-value
+        // vector: StreamID(8) DataFrameParameters{DMAC(6) VID(2)}
+        // TSpec{MaxFrameSize(2) MaxIntervalFrames(2)} PriorityAndRank(1)
+        // AccumulatedLatency(4). Captured in the loop above.
+        ck("MSRP: a TalkerAdvertise for the CRF stream is on the wire",
+           ta_hit, 1);
+        ck("MSRP: DataFrameParameters DMAC = the CRF stream's DMAC",
+           ta_dmac, CRF_DMAC);
+        ck("MSRP: DataFrameParameters VID = the VID on the frames",
+           ta_vid, SR_VID);
+        // MaxFrameSize is the MSDU: the 60-octet L2 frame minus the tagged
+        // Ethernet header (14 + 4). NOT the 28-octet AVTPDU - the pad is on
+        // the wire and the bridge has to budget for it.
+        ck("MSRP: TSpec MaxFrameSize = padded MSDU 42", ta_mf, 42);
+        // class A measurement interval is 125 us and CRF sends every 2 ms,
+        // so 1 is the FLOOR a TSpec can express (16x over-provision, on
+        // record; not to be "fixed" by weakening the class)
+        ck("MSRP: TSpec MaxIntervalFrames = 1 (the floor)", ta_iv, 1);
+        ck("MSRP: PriorityAndRank = priority 3, rank 1 (0x70)", ta_pr, 0x70);
+        // NEGATIVE LEG: the CRF row did not just alias a neighbour - its
+        // MaxFrameSize is none of the AAF talker values (216 / 72 / the
+        // shared LWSRP_TSPEC 224)
+        ck("MSRP: CRF TSpec is its own, not an AAF row's",
+           (ta_mf == 216 || ta_mf == 72 || ta_mf == 224) ? 1 : 0, 0);
+
+        // ---- LEG 5: withdrawing class A returns the untagged shape ----
+        axi_write(A_CRFT_CTRL, 0x1);            // class_a back to 0
+        for (int c = 0; c < 2048; c++) step();
+        std::vector<uint8_t> f5;
+        ck("class A withdrawn: CRF PDU still flows",
+           grab_crf(f5, CRF_BUDGET) ? 1 : 0, 1);
+        if (!f5.empty()) {
+            ck("class A withdrawn: back to UNTAGGED",
+               (f5[12] << 8) | f5[13], 0x22F0);
+            ck("class A withdrawn: 60-octet legacy frame", (long)f5.size(), 60);
+        }
+        ck("class A withdrawn: 0x750[5] clear",
+           (axi_read(A_CRFT_CTRL) >> 5) & 1, 0);
+
+        axi_write(A_CRFT_CTRL, 0x0);
+        axi_write(A_LWSRP_CTRL, 0x0);
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

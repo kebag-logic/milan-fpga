@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // KL_crf_tx module harness: event grid cadence, frame bytes, skip-on-busy,
-// enable gating. clk_audio == clk here (the dp TB does the same); the CDC
-// structure is the library cdc_pulse.
+// enable gating, and the SR class A 802.1Q C-TAG shape. clk_audio == clk
+// here (the dp TB does the same); the CDC structure is the library
+// cdc_pulse.
 
 #include "VKL_crf_tx.h"
 #include "verilated.h"
@@ -40,6 +41,9 @@ int main(int argc, char** argv) {
     dut->station_mac_i = 0x020000000001ULL;
     dut->transit_ns_i = 2000000;        // Milan PTO on CRF ts (like any stream)
     dut->ts_uncertain_i = 0;            // synchronised clock (1722-2016 10.4.5)
+    // untagged is the RESET shape (see the module header's prune trap):
+    // the tag only turns on when the integration has a declared lwSRP row
+    dut->vlan_en_i = 0; dut->vlan_pcp_i = 3; dut->vlan_vid_i = 2;
     for (int i = 0; i < 8; i++) step();
     dut->rst_n = 1;
     for (int i = 0; i < 8; i++) step();
@@ -180,6 +184,78 @@ int main(int argc, char** argv) {
             if (clast) { cb15 = cf[15]; cgot++; cf.clear(); clast = false; }
         }
         ck("tu clears: byte 15 back to 0x80", cb15, 0x80);
+    }
+
+    // ---- SR class A 802.1Q C-TAG (job 1). The tagged shape must be the
+    // SAME 60-octet / 8-beat frame: TPID 0x8100 + TCI at 12..15, ethertype
+    // pushed to 16..17, the whole CRF AVTPDU shifted +4, and 4 fewer pad
+    // octets. TCI golden = 0x6002 (PCP 3 = SR class A per 802.1Q 34.5 /
+    // Table 34-1, DEI 0, VID 2 = the SR VID Milan 4.2.7.2.1 pins) - the
+    // same word KL_aaf_packetizer already puts on the wire.
+    dut->vlan_en_i = 1;
+    {
+        std::vector<uint8_t> tf; bool tlast = false; int tgot = 0;
+        std::vector<uint8_t> got;
+        for (int i = 0; i < 300000 && tgot < 2; i++) {
+            if (dut->m_axis_tvalid) {
+                uint64_t d = dut->m_axis_tdata;
+                for (int j = 0; j < 8; j++) tf.push_back((uint8_t)(d >> (8*j)));
+                tlast = dut->m_axis_tlast;
+            }
+            step();
+            if (tlast) { got = tf; tgot++; tf.clear(); tlast = false; }
+        }
+        ck("tagged: frames still flow", tgot, 2);
+        if (got.size() >= 60) {
+            const uint8_t* f = got.data();
+            ck("tagged: 64 lane bytes (8 beats, unchanged)", (long)got.size(), 64);
+            ck("tagged: dmac[0..2] unchanged", (f[0]<<16)|(f[1]<<8)|f[2], 0x91E0F0);
+            ck("tagged: smac[0..2] unchanged", (f[6]<<16)|(f[7]<<8)|f[8], 0x020000);
+            ck("tagged: TPID 8100 (802.1Q 9.5)", (f[12]<<8)|f[13], 0x8100);
+            ck("tagged: TCI 6002 (PCP 3 | DEI 0 | VID 2)", (f[14]<<8)|f[15], 0x6002);
+            ck("tagged: ethertype 22F0 at 16", (f[16]<<8)|f[17], 0x22F0);
+            ck("tagged: subtype 04 sv 80 at 18", (f[18]<<8)|f[19], 0x0480);
+            ck("tagged: type 01 at 21", f[21], 1);
+            ck("tagged: sid[0..3] at 22", (long)((f[22]<<24)|(f[23]<<16)|(f[24]<<8)|f[25]), 0x02000000L);
+            ck("tagged: sid[4..7] at 26", (long)(((long)f[26]<<24)|(f[27]<<16)|(f[28]<<8)|f[29]), 0x00010001L);
+            ck("tagged: pull|base 48000 at 30", (long)(((long)f[30]<<24)|(f[31]<<16)|(f[32]<<8)|f[33]), 0xBB80L);
+            ck("tagged: dlen 8 at 34", (f[34]<<8)|f[35], 8);
+            ck("tagged: interval 96 at 36", (f[36]<<8)|f[37], 96);
+            long tpad_ok = 1;
+            for (int p = 46; p < 60; p++) if (f[p]) tpad_ok = 0;
+            ck("tagged: zero pad 46..59", tpad_ok, 1);
+        }
+        // a different PCP/VID must reach the wire verbatim (no hardcode)
+        dut->vlan_pcp_i = 2; dut->vlan_vid_i = 0xABC;
+        std::vector<uint8_t> af; bool alast = false; int agot = 0; long atci = -1;
+        for (int i = 0; i < 300000 && agot < 2; i++) {
+            if (dut->m_axis_tvalid) {
+                uint64_t d = dut->m_axis_tdata;
+                for (int j = 0; j < 8; j++) af.push_back((uint8_t)(d >> (8*j)));
+                alast = dut->m_axis_tlast;
+            }
+            step();
+            if (alast) { atci = (af[14]<<8)|af[15]; agot++; af.clear(); alast = false; }
+        }
+        ck("tagged: PCP/VID are wires, not constants", atci, 0x4ABC);
+        dut->vlan_pcp_i = 3; dut->vlan_vid_i = 2;
+    }
+    // back to untagged: the byte-identical legacy shape returns
+    dut->vlan_en_i = 0;
+    {
+        std::vector<uint8_t> uf2; bool ul2 = false; int ug2 = 0; long et = -1, sz = 0;
+        for (int i = 0; i < 300000 && ug2 < 2; i++) {
+            if (dut->m_axis_tvalid) {
+                uint64_t d = dut->m_axis_tdata;
+                for (int j = 0; j < 8; j++) uf2.push_back((uint8_t)(d >> (8*j)));
+                ul2 = dut->m_axis_tlast;
+            }
+            step();
+            if (ul2) { et = (uf2[12]<<8)|uf2[13]; sz = (long)uf2.size();
+                       ug2++; uf2.clear(); ul2 = false; }
+        }
+        ck("untagged again: ethertype back at 12", et, 0x22F0);
+        ck("untagged again: frame size unchanged", sz, 64);
     }
 
     // disable: silent within one event period
