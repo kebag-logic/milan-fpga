@@ -661,7 +661,7 @@ semantics: [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md).
 | `0x648` | `AECP_STAT0` | RO | `0` | `[16]` entity locked (a controller holds LOCK_ENTITY), `[15:0]` AECP commands accepted |
 | `0x64C` | `AECP_STAT1` | RO | `0` | `[31:16]` AECP responses sent, `[15:0]` live current_configuration_index |
 | `0x650` | `ACMP_STAT` | RO | `0` | ACMP responder: `[31:16]` responses sent, `[15:0]` commands accepted |
-| `0x654` | `AAF_CTRL` | RW | `0x0002_0002` | `[0]` talker enable, `[1]` gate bypass (1 = stream whenever enabled — legacy default until the probe path is silicon-proven; 0 = Milan probe-gated), `[27:16]` SR VID (reset 2). Write bit-preserving — `0x0002_0003` to enable; a bare `0x3` zeroes the VID, and VID-0 frames leave the reserved SR tree (bridges strip the tag on egress) and flood unshaped |
+| `0x654` | `AAF_CTRL` | RW | `0x0002_0002` | `[0]` talker enable, `[1]` **gate bypass — 1 = stream whenever enabled, and THE RESET VALUE IS 1**; 0 = Milan-gated, `[27:16]` SR VID (reset 2). Write bit-preserving: **`0x0002_0001` to enable** (talker on, bypass CLEAR). A bare `0x3` zeroes the VID, and VID-0 frames leave the reserved SR tree (bridges strip the tag on egress) and flood unshaped. 🔴 **`0x0002_0003` — the recipe this table gave until 2026-07-28 — keeps the bypass set and makes the board stream SR-class-A-tagged AAF with no reservation, which Milan v1.2 5.3.7.3 does not license** (*"As long as a PAAD is declaring a Talker Advertise attribute **and receiving a Listener Ready or Listener Ready Failed attribute** for a Stream Output, it shall be streaming AVTP packets"*). Measured on both boards, nothing bound: `0x694 = 0x00000030` (no Listener, gate shut) beside 18,488 tagged AAF frames in 6 s on the inline tap. Clearing `[1]` stopped them — and a bound listener (`0x694 = 0x0000037E`) kept them flowing. The escape hatch exists for deliberate, watched experiments on a link whose other end can take it; it is not a boot setting. See `docs/MILAN_COMPLIANCE_GAPS.md` §3 |
 | `0x658` | `AAF_DMLO` | RW | `0xF000_FE01` | AAF stream dest MAC `[31:0]` (reset = MAAP-range `91:E0:F0:00:FE:01`). Fallback value: while `MAAP_CTRL[0]` is set and `MAAP_STAT1[2]` addr_valid, the datapath streams to the MAAP-claimed DMAC instead (`eff_aaf_dmac` mux) |
 | `0x65C` | `AAF_DMHI` | RW | `0x91E0` | dest MAC `[47:32]` in `[15:0]` |
 | `0x660` | `AAF_FRAMES` | RO | `0` | AAF frames sent (the window `PDUS` word latches this at talker idx 0) |
@@ -689,7 +689,17 @@ While enabled it also:
 * sources ACMP `listener_observed` (OR-ed with the manual `A_ACMP_LOBS`
   override at 0x670), and
 * makes a reservation a PRECONDITION for AAF transmit (`FR-SRP-03`;
-  `AAF_CTRL[1]` bypass remains the escape hatch).
+  `AAF_CTRL[1]` bypass remains the escape hatch — **and it is SET at
+  reset, so the precondition is not in force on a board that has not
+  explicitly cleared it**; see the `0x654` row and
+  `docs/MILAN_COMPLIANCE_GAPS.md` §3).
+
+`LWSRP_STATUS[8]` is the licence Milan v1.2 5.3.7.3 defines, and it is
+honest: it reads 0 when no Listener Ready / Ready Failed is registered.
+`ACMP_TALKER 0x66C[3]` is the *resolved* admission gate that actually
+admits frames. **When those two disagree, the bypass is engaged** — on
+2026-07-28 both boards read `0x66C = 0x08` (admission 1) beside
+`0x694 = 0x30` (licence 0), which is the signature to look for.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|

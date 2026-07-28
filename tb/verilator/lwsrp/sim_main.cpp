@@ -25,6 +25,12 @@
  *    the listener re-registers; our own LeaveAll turn fires within the
  *    LeaveAllTime.
  *  - domain mismatch kills the reservation; heal restores it.
+ *  - MILAN v1.2 5.3.7.3, the licence to stream, term by term: the gate is
+ *    SHUT with no Listener registration and with Listener AskingFailed, and
+ *    OPEN on Listener Ready AND on Listener Ready FAILED (the clause names
+ *    both) - while the Talker attribute stays declared throughout, because
+ *    5.3.7.2 makes that unconditional. Added 2026-07-28 after both boards
+ *    were measured streaming SR-class-A-tagged AAF with no Listener at all.
  */
 
 #include "VKL_lwsrp_top.h"
@@ -283,6 +289,73 @@ int main(int argc, char** argv) {
     run(400);
     ck("final: reservation active", dut->res_active_o, 1);
     ck("final: no drops", dut->rx_drops_o, 0);
+
+    // ==================================================================
+    // 9) MILAN v1.2 5.3.7.3 - THE LICENCE TO STREAM, term by term.
+    //
+    //   "As long as a PAAD is declaring a Talker Advertise attribute and
+    //    receiving a Listener Ready or Listener Ready Failed attribute for
+    //    a Stream Output, it shall be streaming AVTP packets. This
+    //    specification excludes the possibility for a Stream Output to be
+    //    stopped (STREAMING_WAIT state shall not be implemented)."
+    //
+    //   The obligation is CONDITIONAL, and stream_gate_o is the fabric's
+    //   expression of the condition. Three registration states are possible
+    //   (5.3.7.2: Ready/ReadyFailed, AskingFailed, or none) and only the
+    //   first LICENSES streaming - so the gate must distinguish all three,
+    //   and READY FAILED must open it just as Ready does. Measured on
+    //   silicon 2026-07-28: with a bind up the ALINX read LWSRP_STATUS
+    //   0x0000037E (reservation ACTIVE, gate open) and the tap counted
+    //   18,012 tagged AAF frames in 6 s; after DISCONNECT_RX the same
+    //   register read 0x00000030 and the tap counted ZERO.
+    //
+    //   Note what is NOT asserted here: that the applicant stops declaring.
+    //   5.3.7.2 makes the Talker attribute unconditional ("shall always
+    //   declare an MSRP Talker attribute as soon as it has valid SRP
+    //   parameters"), so talker_declared_o must stay 1 throughout.
+    // ==================================================================
+    printf("-- Milan 5.3.7.3 licence to stream --\n");
+    {
+        // (a) no Listener attribute at all -> no licence
+        feed(bridge_listener(EV_LV, D_IGN));
+        run(6000 + 600);
+        ck("5.3.7.3(a): no Listener attribute -> gate SHUT",
+           dut->stream_gate_o, 0);
+        ck("5.3.7.3(a): reservation not active", dut->res_active_o, 0);
+        ck("5.3.7.2(a): Talker attribute still declared",
+           dut->talker_declared_o, 1);
+
+        // (b) Listener ASKING FAILED: registered, but NOT a licence
+        feed(bridge_listener(EV_JOININ, D_ASKFAIL));
+        run(400);
+        ck("5.3.7.3(b): AskingFailed registers", dut->listener_reg_o, 1);
+        ck("5.3.7.3(b): AskingFailed is NOT listener_ready",
+           dut->listener_ready_o, 0);
+        ck("5.3.7.3(b): gate stays SHUT on AskingFailed",
+           dut->stream_gate_o, 0);
+        ck("5.3.7.3(b): no slope claimed either", dut->slope_en_o, 0);
+
+        // (c) Listener READY FAILED: the clause names it beside Ready, so
+        //     it MUST open the gate. This is the leg a "reservation
+        //     succeeded" reading of the fabric would get wrong.
+        feed(bridge_listener(EV_JOININ, D_READYFAIL));
+        run(400);
+        ck("5.3.7.3(c): ReadyFailed is listener_ready",
+           dut->listener_ready_o, 1);
+        ck("5.3.7.3(c): gate OPEN on ReadyFailed", dut->stream_gate_o, 1);
+
+        // (d) back to plain Ready, then withdraw: the licence follows the
+        //     registration in both directions (R2 - the check can fail)
+        feed(bridge_listener(EV_JOININ, D_READY));
+        run(400);
+        ck("5.3.7.3(d): gate OPEN on Ready", dut->stream_gate_o, 1);
+        feed(bridge_listener(EV_JOININ, D_ASKFAIL));
+        run(400);
+        ck("5.3.7.3(d): Ready -> AskingFailed SHUTS the gate",
+           dut->stream_gate_o, 0);
+        ck("5.3.7.2(d): Talker attribute STILL declared",
+           dut->talker_declared_o, 1);
+    }
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;

@@ -366,6 +366,74 @@ hold.
     integration lane (wire the CRF bind SM to the ctx port, VLAN-tag the
     CRF stream once Ready is registered) — the engine-side gap is gone.
 
+- 🔴 **`AAF_CTRL[1]` `gate bypass` defeats Milan 5.3.7.3, and its RESET
+  VALUE IS 1.** This is the single reason SR-class-A-tagged AAF leaves this
+  fabric with no reservation. Measured 2026-07-28 on the ProfiShark inline
+  taps, both boards, nothing bound: 18,488 tagged (VID 2, PCP 3) AAF frames
+  in 6 s from a talker reading `LWSRP_STATUS 0x694 = 0x00000030` — no
+  Listener declaration, no registration, reservation ACTIVE 0, stream gate
+  0, MSRP failure code 0.
+
+  Milan v1.2 5.3.7.3, verbatim: *"As long as a PAAD is declaring a Talker
+  Advertise attribute **and receiving a Listener Ready or Listener Ready
+  Failed attribute** for a Stream Output, it shall be streaming AVTP
+  packets. This specification excludes the possibility for a Stream Output
+  to be stopped (STREAMING_WAIT state shall not be implemented)."* The
+  obligation is **conditional**; the second sentence only forbids
+  implementing STREAMING_WAIT. This repo's own traceability row M-DEV-13a
+  paraphrased it as an unconditional "a Stream Output SHALL NOT be stopped"
+  until 2026-07-28 — that paraphrase is what licensed the bypass, and it is
+  corrected in `docs/traceability/milan-v12.md`.
+
+  **The lwSRP engine is NOT at fault and never was.** With a real Listener
+  the reservation completes and holds: binding ALINX talker 0 → Arty sink 0
+  moved `0x694` to `0x0000037E` (declaration Ready, registered, ready,
+  talker declared, domain ok, **reservation ACTIVE**, **stream gate open**,
+  **slope mux engaged**) and it stayed there — the bridge refreshes the
+  Listener attribute only in its LeaveAll PDU, every 20 s, and the
+  registration survives that cadence. What is missing when nothing is bound
+  is simply a Listener, which is correct 802.1Q behaviour, not a defect.
+
+  The mechanism, in `milan_datapath.sv`:
+
+  ```
+  aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
+             (cfg_aaf_bypass |
+              (acmp_talker_active & (~cfg_lwsrp_enable | lwsrp_stream_gate[0])))
+  ```
+
+  `cfg_aaf_bypass` ORs past **both** qualifying terms. Proof from the CSRs
+  alone, on both boards: `ACMP_TALKER 0x66C = 0x08` — bit `[3]` *resolved
+  AAF admission gate* = 1 — while bit `[1]` `talker_active` = 0 **and**
+  `LWSRP_STATUS[8]` stream gate = 0. A composed gate of 1 with both of its
+  qualifying terms at 0 is reachable only through the bypass.
+
+  **Runtime remedy, no rebuild** (proven on silicon 2026-07-28, both
+  directions, tap-verified):
+
+  ```sh
+  devmem 0x90000654 32 0x00020001   # bit-preserving: keep VID 2, clear bypass
+  ```
+
+  | state | `0x654` | `0x694` | `0x66C` | tagged AAF on the tap |
+  |---|---|---|---|---|
+  | bound, bypass **on** | `0x00020003` | `0x0000037E` | `0x0B` | 17,956 / 6 s |
+  | bound, bypass **off** | `0x00020001` | `0x0000037E` | `0x0B` | 18,012 / 6 s |
+  | unbound, bypass **on** | `0x00020003` | `0x00000030` | `0x08` | 18,488 / 6 s |
+  | unbound, bypass **off** | `0x00020001` | `0x00000030` | `0x00` | **0 / 8 s** |
+
+  MSRP TalkerAdvertise, Domain and MVRP declarations continue in every row —
+  Milan 5.3.7.2 (*"a PAAD shall always declare an MSRP Talker attribute as
+  soon as it has valid SRP parameters for this stream"*) is unaffected, and
+  must stay that way.
+
+  **The durable fix is a one-value change in `milan_csr.sv`: `AAF_CTRL`
+  reset `0x0002_0002` → `0x0002_0000`** (bypass clear at reset), plus the
+  `REGISTER_MAP.md` enable recipe moving from `0x0002_0003` to
+  `0x0002_0001`. That file is owned by another lane at the time of writing,
+  so the change is specified here rather than applied. Until it lands, every
+  board that boots with the documented recipe streams unreserved.
+
 - **Class B untested.** The engine and the bench run SR class A only;
   class-B declarations/domain and the 250 µs observation interval have
   never been exercised.
