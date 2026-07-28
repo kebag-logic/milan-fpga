@@ -49,6 +49,19 @@ rxq2-sans-RSC SoC split (+4.3k went in with rx_queues 2; the D7 fix needs
 the *steered second queue*, not the TCP-coalescing engine — separability
 unverified).
 
+## AMENDED 2026-07-28 evening (USER): AECP STAYS IN FABRIC
+
+The AECP-to-software lane was started on the USER's instruction and STOPPED
+the same evening on the USER's instruction, before any fabric change landed.
+The 6.2k-LUT lever is OFF the table; the latency table below remains as the
+*analysis* record, not a plan. What the lane produced stays PARKED and
+harmless: `avdecc/pack_aem_bin.py` and `milan-tests-avb/fpga/aecpd/` (a
+byte-exact, 283-check desk-proven software responder skeleton - never
+packaged, never deployed, no fabric hook). The fit path is therefore the
+m0019f reference flow (L2-32K + `AreaOptimized_high` + `ExploreArea`) plus
+the static-conversion rows above; ACMP/MAAP moves are NOT pursued either
+without an explicit USER instruction.
+
 ## The latency axis (USER 2026-07-28, tightened same day): 100 ms is the line
 
 **The second razor, final form:** a plane earns fabric ONLY if the protocol
