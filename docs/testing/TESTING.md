@@ -144,9 +144,40 @@ suites: 55   passed: 55   failed: 0
 checks: 2064050   in-suite failures: 0
 ```
 
-Verilator v5.050. The check total aggregates the suites that print a `checks:`
-line; the rest are exit-code gated only, which is why the third column is a note
-rather than a number for those.
+Verilator v5.050.
+
+> **The totals above predate the 2026-07-28 accounting fix and are too low.**
+> The check total used to come from `grep -o 'checks: *[0-9]*'`, and suites do
+> not all print that string — the tree emits six different summary shapes, so
+> **28 of the 57 suite logs matched none of them and contributed a silent
+> zero**. The defect was shown by adding 66 assertions to a suite and watching
+> the printed total not move at all. Rerun the sweep for a current figure; do
+> not quote the block above.
+
+Since 2026-07-28 the tallying lives in
+[`scripts/suite_tally.py`](../../scripts/suite_tally.py), which knows every
+shape in the tree and — the point — **fails the sweep on a count it cannot
+read**. A suite that reports no count, or reports one in a shape nobody taught
+the tool, is an *unknown*; the sweep says so and exits non-zero rather than
+folding it in as a zero. That is the same rule as *a structural zero is not a
+measurement*, applied to the instrument instead of the design. A new suite is
+therefore correct by default or loud, never silently uncounted.
+Run `python3 scripts/suite_tally.py --selftest` to see both verdicts fire.
+
+Two more things the sweep now refuses to guess at:
+
+* **Concurrent sweeps.** Every suite builds into a fixed `obj_*` directory
+  inside its own `tb/verilator/<suite>/`, so two sweeps in the same tree
+  compile into the same objects and contaminate each other's totals. A second
+  sweep is now REFUSED (exit 91) instead, naming the holder; `--wait` queues
+  behind it. Separate worktrees have separate roots and do not block each
+  other — point `SUITE_SWEEP_LOCK` at one shared path to serialise them all.
+* **Suites killed by the wall clock.** Each suite runs under `timeout`, and any
+  non-zero status used to be recorded as a *failing suite* — so under CPU
+  contention from parallel lanes a healthy suite (`hostplane`, more than once)
+  was reported as a test failure, costing someone a hunt for a defect that did
+  not exist. That case is now its own `TIMEOUT` verdict (exit 92): not a pass,
+  not a failure, an unknown. Raise it with `SUITE_TIMEOUT`.
 
 **This table is not the authority — `ls tb/verilator/` is.** Rerun the sweep
 rather than trusting the row count here.
@@ -470,7 +501,7 @@ host-only.
   |---|---|---|
   | 5.020 | Ubuntu 24.04 | **cannot build** `aecp`/`hostplane`/`milan_dp`/`tsn_fuzz` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
   | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Open.** |
-  | 5.050 | Arch, and the CI pin | reference: **55/55 suites green, 2 064 050 checks, 0 failures** (full sweep 2026-07-26) |
+  | 5.050 | Arch, and the CI pin | reference: **55/55 suites green, 0 failures** (full sweep 2026-07-26). The check total recorded here was 2 064 050, which is an *under-count* — see the note in §1.1; the suite/failure columns are what this row is comparing |
 
   CI therefore **builds Verilator from source at a pinned tag** (`VERILATOR_VERSION`
   in the workflow) and caches it, rather than trusting `apt`. The RTL was
