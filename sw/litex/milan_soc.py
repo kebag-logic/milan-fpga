@@ -3738,23 +3738,36 @@ class _PCMRingNxN(LiteXModule):
         sel     = Signal(4)
         addr    = Signal(64)
         en      = self._enable.storage
+        # Payload register stage (2026-07-29): the sink comes straight off the
+        # pcm CDC FIFO's BRAM read port, and computing base + stride*user +
+        # offsets[user] combinationally from that read made
+        # BRAM CLKARDCLK -> multiplier/adder chain -> writer AW the #1/#2
+        # violated path on both boards' m0019j builds (arty -0.113 floor
+        # after recovery, AX -0.596). One stream.Buffer re-times the whole
+        # cone from registers; the PCM ring is media-paced (ms-scale), so a
+        # cycle of added latency is invisible.
+        from litex.soc.interconnect import stream as _stream
+        self.submodules.inbuf = inbuf = _stream.Buffer(
+            [("data", bus.data_width), ("user", 4)])
+        self.comb += self.sink.connect(inbuf.sink)
+        src = inbuf.source
         # clamp both indexes to the elaborated stream count (the datapath only
         # emits tuser < N_STREAMS; the clamp keeps a stray sel/user in range)
         self.comb += [
-            user.eq(Mux(self.sink.user >= n_streams, 0, self.sink.user)),
+            user.eq(Mux(src.user >= n_streams, 0, src.user)),
             sel.eq(Mux(self._sel.storage >= n_streams, 0, self._sel.storage)),
             addr.eq(self._base.storage + self._stride.storage * user
                     + offsets[user]),
-            self.writer.sink.valid.eq(self.sink.valid & en),
-            self.writer.sink.data.eq(self.sink.data),
+            self.writer.sink.valid.eq(src.valid & en),
+            self.writer.sink.data.eq(src.data),
             self.writer.sink.address.eq(addr[shift:]),
-            self.sink.ready.eq(self.writer.sink.ready | ~en),
+            src.ready.eq(self.writer.sink.ready | ~en),
             self._offset.status.eq(offsets[sel]),
         ]
         self.sync += [
             If(~en,
                 *[o.eq(0) for o in offsets]
-            ).Elif(self.sink.valid & self.sink.ready,
+            ).Elif(src.valid & src.ready,
                 If(offsets[user] + nb >= self._length.storage,
                     offsets[user].eq(0)
                 ).Else(
