@@ -362,8 +362,12 @@ int main(int argc, char** argv) {
     ck("final: no RX drops", dut->rx_drops_o, 0);
     ck("final: ctx MRPDUs were sent", dut->ctx_tx_count_o > 0, 1);
 
+    // ONE tally line per executable. This used to print the same numbers twice
+    // in two different shapes - the `checks:` form was bolted on so the sweep's
+    // old `grep -o 'checks: *[0-9]*'` could see them at all. Now that
+    // scripts/suite_tally.py reads both shapes, printing both would DOUBLE this
+    // suite's contribution to the headline total.
     printf("== %ld checks, %ld failures ==\n", checks, fails);
-    printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     delete dut;
     return fails ? 1 : 0;

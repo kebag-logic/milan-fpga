@@ -131,6 +131,14 @@ int main(int argc, char** argv) {
     printf("[controller_rate] egress=%llu frames, %llu bytes, integrity_fails=%llu\n",
            (unsigned long long)egress_frames, (unsigned long long)total_out_bytes,
            (unsigned long long)integrity_fails);
+    // The sweep totals checks by reading a summary line out of this log
+    // (scripts/suite_tally.py). Without one this suite contributed a
+    // structural ZERO to the headline figure while actually integrity-checking
+    // every egressed frame - indistinguishable, from the outside, from a
+    // harness that asserts nothing. One egressed frame = one length+payload
+    // verdict, which is exactly what integrity_fails counts against.
+    printf("controller_rate: %llu checks, %llu failures\n",
+           (unsigned long long)egress_frames, (unsigned long long)integrity_fails);
     if (integrity_fails)
         printf("[controller_rate] REPRODUCED the OPEN classifier tdest bug "
                "(docs/findings/CBS_DATAPATH_BUG.md) — %llu frames egressed short.\n",

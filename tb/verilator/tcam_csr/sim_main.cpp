@@ -37,5 +37,11 @@ int main(int argc,char**argv){
         dut->s_tvalid=0; dut->s_tlast=0; step(); step();
     }
     printf("filtered-frame beats out=%d (exp 0), other=%d (exp 4)\n",out1,out2);
+    // Two verdicts: the blacklisted DMAC must be dropped whole (out1==0) and
+    // the unmatched one must pass all four beats (out2==4). Emitted in the
+    // shape scripts/suite_tally.py reads so this suite stops contributing a
+    // structural zero to the sweep's headline check total.
+    long fails = (out1!=0) + (out2!=4);
+    printf("tcam_csr: 2 checks, %ld failures\n", fails);
     return (out1==0 && out2==4)?0:1;
 }

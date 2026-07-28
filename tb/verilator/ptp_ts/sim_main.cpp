@@ -26,6 +26,11 @@
 static Vptp_ts_top *top;
 static vluint64_t cyc = 0;          // TB cycle counter == PHC ticks (20 ns each)
 static int fails = 0;
+// Every verdict this harness reaches is counted here as well as graded, so the
+// sweep can total it (scripts/suite_tally.py). Before this existed the suite
+// printed only "ALL PASS" and contributed a structural ZERO to the headline
+// check figure - identical, from the outside, to a harness asserting nothing.
+static int checks = 0;
 static const uint64_t NS_PER_CYC = 20;
 
 struct Rec { uint64_t ns, meta; };
@@ -43,8 +48,9 @@ static void tick()
         if (!rec_have_hi) {
             rec_hi = top->ts_m_axis_tdata;
             rec_have_hi = true;
-            if (top->ts_m_axis_tlast) { printf("!! 1-beat record\n"); fails++; rec_have_hi = false; }
+            if (top->ts_m_axis_tlast) { printf("!! 1-beat record\n"); fails++; checks++; rec_have_hi = false; }
         } else {
+            checks++;   // one record-framing verdict per record boundary
             if (!top->ts_m_axis_tlast) { printf("!! >2-beat record\n"); fails++; }
             recs.push_back({rec_hi, (uint64_t)top->ts_m_axis_tdata});
             rec_have_hi = false;
@@ -124,12 +130,14 @@ static void settle(int n) { for (int i = 0; i < n; i++) tick(); }
 // ---- checkers ---------------------------------------------------------------
 static void expect_recs(const char *name, size_t n)
 {
+    checks++;
     if (recs.size() != n) { printf("FAIL %s: %zu records (expected %zu)\n", name, recs.size(), n); fails++; }
     else                  { printf("PASS %s: %zu record(s)\n", name, n); }
 }
 
 static void check_rec(const char *name, size_t i, int dir, int mtype, uint16_t seq)
 {
+    checks++;
     if (i >= recs.size()) { printf("FAIL %s: record %zu missing\n", name, i); fails++; return; }
     uint64_t m = recs[i].meta;
     int rdir = m & 1, rmk = (m >> 1) & 1, rmt = (m >> 4) & 0xF;
@@ -145,6 +153,7 @@ static void check_delta(const char *name, size_t ia, size_t ib,
                         uint64_t sop_a, uint64_t sop_b)
 {
     if (ia >= recs.size() || ib >= recs.size()) return;   // counted elsewhere
+    checks++;
     uint64_t want = (sop_b - sop_a) * NS_PER_CYC;
     uint64_t got  = recs[ib].ns - recs[ia].ns;
     bool ok = got == want;
@@ -251,6 +260,7 @@ int main(int argc, char **argv)
     expect_recs("tx sync x2", 2);
     check_rec("tx sync x2", 0, 1, 0, 0x1122);
     check_rec("tx sync x2", 1, 1, 0, 0x1123);
+    checks++;
     if (ts_ready_pulses - p0 != 2) { printf("FAIL tx: %d o_tx_ts_ready pulses (want 2)\n", ts_ready_pulses - p0); fails++; }
     else printf("PASS tx: 2 o_tx_ts_ready pulses\n");
 
@@ -307,6 +317,7 @@ int main(int argc, char **argv)
             if ((r.meta & 1) == 1 && ((r.meta >> 8) & 0xFFFF) == 0x0801 && ((r.meta >> 4) & 0xF) == 0) have_tx = true;
             if ((r.meta & 1) == 0 && ((r.meta >> 8) & 0xFFFF) == 0x0802 && ((r.meta >> 4) & 0xF) == 2) have_rx = true;
         }
+        checks++;
         if (have_tx && have_rx) printf("PASS tx+rx storm: both records correct\n");
         else { printf("FAIL tx+rx storm: tx=%d rx=%d\n", have_tx, have_rx); fails++; }
     }
@@ -425,6 +436,7 @@ int main(int argc, char **argv)
                 if ((r.meta & 1) == 0 && ((r.meta >> 8) & 0xFFFF) == 0x0BEE) rx_ok = true;
                 if ((r.meta & 1) == 1 && ((r.meta >> 8) & 0xFFFF) == 0x0BEF) tx_ok = true;
             }
+            checks++;
             if (rx_ok && tx_ok) printf("PASS ptp05: RX+TX events survive the non-event storm\n");
             else { printf("FAIL ptp05: rx=%d tx=%d after storm\n", rx_ok, tx_ok); fails++; }
         }
@@ -459,6 +471,7 @@ int main(int argc, char **argv)
             uint64_t want = (r1 - r0) * NS_PER_CYC - ILAT;   // SUBTRACTED on RX
             uint64_t got  = recs[1].ns - recs[0].ns;
             bool ok = got == want;
+            checks++;
             printf("%s ptp06 rx: ingress %llu ns subtracted (delta %llu, want %llu)\n",
                    ok ? "PASS" : "FAIL", (unsigned long long)ILAT,
                    (unsigned long long)got, (unsigned long long)want);
@@ -481,6 +494,7 @@ int main(int argc, char **argv)
             uint64_t want = (t1 - t0) * NS_PER_CYC + ELAT;   // ADDED on TX
             uint64_t got  = recs[1].ns - recs[0].ns;
             bool ok = got == want;
+            checks++;
             printf("%s ptp06 tx: egress %llu ns added (delta %llu, want %llu)\n",
                    ok ? "PASS" : "FAIL", (unsigned long long)ELAT,
                    (unsigned long long)got, (unsigned long long)want);
@@ -517,6 +531,7 @@ int main(int argc, char **argv)
     printf("======================================================================\n");
     printf(fails ? "PTP-TS METADATA (interference suite): %d FAILURE(S)\n"
                  : "PTP-TS METADATA (interference suite): ALL PASS\n", fails);
+    printf("ptp_ts: %d checks, %d failures\n", checks, fails);
     delete top;
     return fails ? 1 : 0;
 }

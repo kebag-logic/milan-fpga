@@ -62,6 +62,10 @@ sw/litex/boards.local.sh
 /vivado.jou
 /vivado.log
 .suite-logs/
+# scripts/run_all_suites.sh whole-sweep lock: concurrent sweeps share the
+# per-suite obj_* build dirs, so the second one refuses rather than corrupt it
+/.run_all_suites.lock
+/.run_all_suites.lock.owner
 
 # unattended campaign harness: run directories and its optional local venv
 harness-runs/

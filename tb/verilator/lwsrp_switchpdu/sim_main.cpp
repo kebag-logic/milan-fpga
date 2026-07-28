@@ -68,8 +68,9 @@ int main(int argc, char** argv){
            dut->ta_registered_o, dut->ta_failed_o, dut->ta_fail_code_o);
 
     printf("rx_pdus=%u pdu_cnt=%u drops=%u\n", dut->rx_pdus_o, dut->pdu_cnt_o, dut->rx_drops_o);
-    int fails = 0;
+    int fails = 0, checks = 0;
     auto ck=[&](const char*n,int got,int exp){
+        checks++;
         if(got!=exp){fails++;printf("  [FAIL] %s got=%d exp=%d\n",n,got,exp);}
         else printf("  [ ok ] %s\n",n); };
     // captured switch PDU vs vid 638: TF registered, domain TRUTHFULLY not ok
@@ -96,6 +97,9 @@ int main(int argc, char** argv){
     dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
     step(4000);
     ck("domain_ok=1 vs vid 2 (class-A +k value matches)", dut->domain_ok_o, 1);
+    // The sweep totals checks from a summary line (scripts/suite_tally.py); a
+    // bare PASS/FAIL verdict left this suite contributing a structural ZERO.
+    printf("lwsrp_switchpdu: %d checks, %d failures\n", checks, fails);
     printf("lwsrp_switchpdu: %s\n", fails ? "FAIL" : "PASS");
     return fails ? 1 : 0;
 }
