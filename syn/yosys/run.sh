@@ -61,6 +61,13 @@ tops=(
   "KL_i2s_playback|$C/cdc_pair_fifo.sv $C/cdc_pulse.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
   "KL_i2s_feed_mux|$R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv"
   "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
+  # capture mux OOC: it was only ever synthesised inside milan_datapath, so
+  # nothing gated it standalone - and since the rx->talker loopback it has
+  # DEFAULT PORT VALUES on its optional pins, which sv2v must lower into
+  # call-site localparams for yosys to see a constant rather than a dangling
+  # wire. That lowering is exactly the kind of thing a full-datapath synth
+  # hides behind a driven net.
+  "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
   "KL_pcm_tx|$R/hdl/ieee1722/aaf/KL_pcm_tx.sv"
   "KL_tone_gen|$R/hdl/ieee1722/aaf/KL_tone_gen.sv"
   "KL_aaf_rx_depacketizer|$A/axis_fifo.v $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv"

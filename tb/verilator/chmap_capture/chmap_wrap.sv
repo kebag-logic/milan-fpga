@@ -6,11 +6,13 @@
 //! Verilator harness wrapper for the per-pair-slot TX source mux
 //! (KL_chan_map_capture) feeding the shared KL_aaf_packetizer. Two lanes:
 //!   A: chmap(32 slots) -> packetizer(N=2, t0=2ch slot0 / t1=8ch slots1..4) -
-//!      routing, mid-run remap, ZERO-source and disabled-slot (absence) tests.
+//!      routing, mid-run remap, ZERO-source and disabled-slot (absence) tests,
+//!      plus the rx -> talker LOOPBACK source (src 5) driven from a synthetic
+//!      depacketizer payload stream.
 //!   B: chmap(32 slots) -> packetizer(N=8, all 8ch = 32 slots) - exercises the
 //!      widened pair_slot up to slot 31 (talker 7 pair 3).
-//! Both chmaps share the source-pair stimulus pins; each has its own map
-//! write/read port and media tick.
+//! Both chmaps share the source-pair stimulus pins AND the loopback payload
+//! AXIS; each has its own map write/read port and media tick.
 
 `default_nettype none
 
@@ -39,13 +41,22 @@ module chmap_wrap (
   input  wire [23:0]  ring_r_i,
   input  wire [23:0]  tone_smp_i,
 
+  //! --- shared LOOPBACK payload AXIS (depacketizer clone; both chmaps) -----
+  input  wire [63:0]  lb_tdata_i,
+  input  wire         lb_tvalid_i,
+  input  wire         lb_tlast_i,
+  input  wire [3:0]   lb_tuser_i,
+  input  wire [31:0]  lb_wire_chans_i,
+
   //! --- lane A: chmap map ports + tick -------------------------------------
   input  wire         a_map_wr_en_i,
   input  wire [4:0]   a_map_wr_addr_i,
-  input  wire [7:0]   a_map_wr_data_i,
+  //! 12-bit TB view of the entry; split onto the module's legacy 8-bit word
+  //! pin + its idxh pin below, exactly as the datapath must
+  input  wire [11:0]  a_map_wr_data_i,
   input  wire         a_map_rd_en_i,
   input  wire [4:0]   a_map_rd_addr_i,
-  output wire [7:0]   a_map_rd_data_o,
+  output wire [15:0]  a_map_rd_data_o,
   output wire         a_map_rd_valid_o,
   input  wire         a_tick_i,
 
@@ -68,10 +79,10 @@ module chmap_wrap (
   //! --- lane B: chmap map ports + tick -------------------------------------
   input  wire         b_map_wr_en_i,
   input  wire [4:0]   b_map_wr_addr_i,
-  input  wire [7:0]   b_map_wr_data_i,
+  input  wire [11:0]  b_map_wr_data_i,
   input  wire         b_map_rd_en_i,
   input  wire [4:0]   b_map_rd_addr_i,
-  output wire [7:0]   b_map_rd_data_o,
+  output wire [15:0]  b_map_rd_data_o,
   output wire         b_map_rd_valid_o,
   input  wire         b_tick_i,
 
@@ -100,11 +111,13 @@ module chmap_wrap (
   wire [23:0] a_l_w, a_r_w;
 
   KL_chan_map_capture #(
-    .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24)
+    .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24),
+    .N_LB_STREAMS_P (8), .N_LB_CH_P (8)
   ) u_chmap_a (
     .clk_i (clk), .rst_n (rst_n),
     .map_wr_en_i (a_map_wr_en_i), .map_wr_addr_i (a_map_wr_addr_i),
-    .map_wr_data_i (a_map_wr_data_i),
+    .map_wr_data_i (a_map_wr_data_i[7:0]),
+    .map_wr_idxh_i (a_map_wr_data_i[11:8]),
     .map_rd_en_i (a_map_rd_en_i), .map_rd_addr_i (a_map_rd_addr_i),
     .map_rd_data_o (a_map_rd_data_o), .map_rd_valid_o (a_map_rd_valid_o),
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),
@@ -113,6 +126,9 @@ module chmap_wrap (
     .ring_pair_valid_i (ring_pair_valid_i), .ring_pair_slot_i (ring_pair_slot_i),
     .ring_l_i (ring_l_i), .ring_r_i (ring_r_i),
     .tone_smp_i (tone_smp_i),
+    .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
+    .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
+    .lb_wire_chans_i (lb_wire_chans_i),
     .tick_i (a_tick_i),
     .pair_valid_o (a_pv_w), .pair_slot_o (a_slot_w),
     .pair_l_o (a_l_w), .pair_r_o (a_r_w)
@@ -147,11 +163,13 @@ module chmap_wrap (
   wire [23:0] b_l_w, b_r_w;
 
   KL_chan_map_capture #(
-    .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24)
+    .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24),
+    .N_LB_STREAMS_P (8), .N_LB_CH_P (8)
   ) u_chmap_b (
     .clk_i (clk), .rst_n (rst_n),
     .map_wr_en_i (b_map_wr_en_i), .map_wr_addr_i (b_map_wr_addr_i),
-    .map_wr_data_i (b_map_wr_data_i),
+    .map_wr_data_i (b_map_wr_data_i[7:0]),
+    .map_wr_idxh_i (b_map_wr_data_i[11:8]),
     .map_rd_en_i (b_map_rd_en_i), .map_rd_addr_i (b_map_rd_addr_i),
     .map_rd_data_o (b_map_rd_data_o), .map_rd_valid_o (b_map_rd_valid_o),
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),
@@ -160,6 +178,9 @@ module chmap_wrap (
     .ring_pair_valid_i (ring_pair_valid_i), .ring_pair_slot_i (ring_pair_slot_i),
     .ring_l_i (ring_l_i), .ring_r_i (ring_r_i),
     .tone_smp_i (tone_smp_i),
+    .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
+    .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
+    .lb_wire_chans_i (lb_wire_chans_i),
     .tick_i (b_tick_i),
     .pair_valid_o (b_pv_w), .pair_slot_o (b_slot_w),
     .pair_l_o (b_l_w), .pair_r_o (b_r_w)
