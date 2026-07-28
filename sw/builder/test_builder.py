@@ -262,7 +262,23 @@ def _variant(base_path, mutate):
 def check_port_layout(ovl, n_listeners, n_talkers):
     """USER-decision invariants: one STREAM_PORT per stream, contiguous
     non-overlapping cluster blocks, unique per-port map bases, one map per
-    port with port-relative in-range rows."""
+    port with port-relative in-range rows.
+
+    The map-ROW rule is policy-dependent and that is the point of D8, so it
+    is stated per policy rather than loosened for everybody:
+
+      legacy policies - the port's cluster block IS the stream's channel
+        space, so the map is the IDENTITY over the whole block (unchanged,
+        still exact).
+      role-pools - the block is a SELECTION SET (physical + host + pilot +
+        loopback), so only the primary segment is wired at power-on: rows
+        land inside that segment, one per stream channel, and NEVER cover
+        the whole block. A role-pools shape that emitted an identity map
+        would be claiming every pool feeds the stream at once.
+
+    Both forms are checked against the 1722.1-2021 7.2.19 uniqueness rules
+    (input: at most one entry per cluster channel; output: at most one entry
+    per stream channel)."""
     P_in = ovl["stream_ports"]["input"]
     P_out = ovl["stream_ports"]["output"]
     dc = ovl["descriptor_counts"]
@@ -281,18 +297,46 @@ def check_port_layout(ovl, n_listeners, n_talkers):
     assert sorted(bases) == list(range(len(bases))), f"map bases overlap: {bases}"
     assert all(p["maps"] == 1 for p in P_in + P_out)
     assert dc["AUDIO_MAP"] == len(bases) == len(ovl["audio_maps"])
+    # every cluster carries exactly one role segment, segments tile the block
+    for p in P_in + P_out:
+        off = 0
+        for g in p["pool"]:
+            assert g["offset"] == off, f"pool not contiguous: {p}"
+            assert g["width"] >= 1 and g["role"] in eb.CLUSTER_ROLES, p
+            off += g["width"]
+        assert off == p["clusters"], f"pool does not tile the block: {p}"
+    # D10: one name per cluster, in global descriptor-index order
+    clusters = sorted(ovl["audio_clusters"], key=lambda c: c["index"])
+    assert [c["index"] for c in clusters] == list(range(dc["AUDIO_CLUSTER"]))
+    assert all(c["name"] and c["role"] in eb.CLUSTER_ROLES for c in clusters)
+    pooled = ovl["cluster_policy"] == "role-pools"
     # per-map rows: correct stream, port-relative offsets in range
     by_index = {m["index"]: m for m in ovl["audio_maps"]}
     for direction, ports in (("input", P_in), ("output", P_out)):
         for p in ports:
             m = by_index[p["base_map"]]
             assert m["direction"] == direction and m["port_index"] == p["index"]
-            assert len(m["mappings"]) == p["clusters"]
+            prim = next(g for g in p["pool"] if g["role"] == p["primary_role"])
+            if pooled:
+                assert 0 < len(m["mappings"]) <= prim["width"], \
+                    f"role-pools map {m['index']} outside its primary segment"
+            else:
+                assert len(m["mappings"]) == p["clusters"]
+            seen = set()
             for (si, ch, off, cch) in m["mappings"]:
                 assert si == p["stream_index"]
                 assert 0 <= off < p["clusters"], \
                     f"map {m['index']}: offset {off} outside port ({p})"
+                if pooled:
+                    assert prim["offset"] <= off < prim["offset"] + prim["width"], \
+                        f"map {m['index']}: offset {off} outside primary {prim}"
                 assert cch == 0
+                # 7.2.19 uniqueness: input keyed by cluster channel, output
+                # keyed by stream channel
+                key = (off, cch) if direction == "input" else (si, ch)
+                assert key not in seen, \
+                    f"map {m['index']}: 7.2.19 duplicate key {key}"
+                seen.add(key)
 
 
 def test_all_configs_build():
@@ -536,21 +580,33 @@ def test_port_layout_invariants():
 
 
 def test_both_policies_valid():
+    #: pools are read ONLY by role-pools, so switching a config's policy has
+    #: to move them with it - declaring pools under another policy is a
+    #: refused config (they would be silently ignored).
+    def set_policy(c, pol):
+        cm = c["audio_interface"]["cluster_mapping"]
+        cm["policy"] = pol
+        if pol == "role-pools":
+            cm.setdefault("pools", {"host": 4, "pilot": True, "loopback": 4})
+        else:
+            cm.pop("pools", None)
+
     for name, (nl, nt) in (("arty_4x4", (4, 4)), ("ax7101_8x8", (8, 8))):
         for pol in eb.CLUSTER_POLICIES:
-            p = _variant(CONFIGS[name], lambda c, pol=pol: c[
-                "audio_interface"]["cluster_mapping"].__setitem__("policy", pol))
+            p = _variant(CONFIGS[name],
+                         lambda c, pol=pol: set_policy(c, pol))
             try:
                 r = eb.build(p, os.path.join(OUT, "_policy_variants"))
                 check_port_layout(r["overlay"], nl, nt)
                 assert r["overlay"]["cluster_policy"] == pol
             finally:
                 os.unlink(p)
-        print(f"  [gate 7] {name}: both cluster policies -> valid layouts")
+        print(f"  [gate 7] {name}: all {len(eb.CLUSTER_POLICIES)} cluster "
+              "policies -> valid layouts")
     # cap-at-interface must actually CAP: 8ch listeners on a 2ch i2s
     def to_i2s(c):
         c["audio_interface"]["kind"] = "i2s_philips"
-        c["audio_interface"]["cluster_mapping"]["policy"] = "cap-at-interface"
+        set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
         r = eb.build(p, os.path.join(OUT, "_policy_variants"))
@@ -564,8 +620,7 @@ def test_both_policies_valid():
           "interface (32 clusters total)")
     # cluster-per-stream-channel must NOT cap (legacy-8 expressible)
     def legacy(c):
-        c["audio_interface"]["cluster_mapping"]["policy"] = \
-            "cluster-per-stream-channel"
+        set_policy(c, "cluster-per-stream-channel")
         for t in c["streams"]["talkers"]:
             t["clusters"] = 8
     p = _variant(CONFIGS["arty_4x4"], legacy)
@@ -3028,6 +3083,280 @@ def test_firmware_version_derived_from_rtl():
           f"(6.2.2.8 exclusion; arty_current still pinned "
           f"{DEPLOYED_MODEL_ID}), firmware_rev 7 -> {major}.{minor}.7 with "
           f"the same id, 4/4 bad declarations refused")
+def _pools_variant(base, phys, pools, mutate=None):
+    def m(c):
+        c["audio_interface"]["physical_channels"] = phys
+        c["audio_interface"]["cluster_mapping"] = {"policy": "role-pools",
+                                                   "pools": pools}
+        if mutate:
+            mutate(c)
+    return _variant(CONFIGS[base], m)
+
+
+def test_d8_role_pools():
+    """gate 24a - D8: the port's cluster block is the sum of its declared
+    role pools, every width derived from the platform declaration, and the
+    static AUDIO_MAP falls through to the pool that can actually source the
+    stream. The AX case (a board that routes NO audio pins) is the one the
+    round exists for."""
+    # (a) the AX shape as shipped: 0 physical, host 8, pilot, loopback 8
+    r = eb.build(CONFIGS["ax7101_8x8"], OUT)
+    ovl = r["overlay"]
+    check_port_layout(ovl, 8, 8)
+    assert ovl["cluster_policy"] == "role-pools"
+    assert ovl["physical_binding"]["physical_channels"] == \
+        {"capture": 0, "render": 0}, "the AX routes no audio pins"
+    P_in, P_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
+    assert all(p["clusters"] == 8 for p in P_in), P_in         # host only
+    assert all(p["clusters"] == 17 for p in P_out), P_out      # 8 + 1 + 8
+    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*8 + 8*17 == 200
+    assert all(g["role"] != "physical" for p in P_in + P_out for g in p["pool"]), \
+        "a board with 0 routed channels must emit NO physical clusters"
+    # (b) the primary segment: listeners fall through to host, talkers to
+    #     LOOPBACK - which is the whole point (USER 2026-07-28)
+    assert all(p["primary_role"] == "host" for p in P_in)
+    assert all(p["primary_role"] == "loopback" for p in P_out)
+    for p in P_out:
+        m = next(m for m in ovl["audio_maps"] if m["index"] == p["base_map"])
+        lb = next(g for g in p["pool"] if g["role"] == "loopback")
+        assert all(lb["offset"] <= off < lb["offset"] + lb["width"]
+                   for (_, _, off, _) in m["mappings"]), m
+    # (c) per-talker DISTINCT loopback sources: talker t defaults to rx
+    #     stream t, so eight talkers see eight different sources
+    byport = {}
+    for c in ovl["audio_clusters"]:
+        if c["role"] == "loopback":
+            byport.setdefault(c["port_index"], []).append(c["name"])
+    assert len(byport) == 8
+    assert byport[0][0] == "Loopback S0 ch 0" and byport[7][0] == "Loopback S7 ch 0"
+    assert len({tuple(v) for v in byport.values()}) == 8, \
+        "every talker port must offer a DIFFERENT loopback source set"
+    print(f"  [gate 24a] ax7101_8x8 role-pools: 200 AUDIO_CLUSTERs "
+          f"(8x host8 in; 8x host8+pilot1+loopback8 out), 0 physical because "
+          f"the board routes none, talker map -> loopback, 8 distinct sources")
+
+    # (d) physical pool APPEARS when the platform declares routed channels
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
+                       {"host": 2, "pilot": True, "loopback": 2})
+    try:
+        r = eb.build(p, os.path.join(OUT, "_pools"))
+        P = r["overlay"]["stream_ports"]["output"][0]
+        assert [g["role"] for g in P["pool"]] == \
+            ["physical", "host", "pilot", "loopback"], P
+        assert P["clusters"] == 16 + 2 + 1 + 2
+        # with physical present the static map goes THERE, not to loopback
+        assert P["primary_role"] == "physical"
+        names = [c["name"] for c in r["overlay"]["audio_clusters"]
+                 if c["port_index"] == 0 and c["direction"] == "output"]
+        # Derived from the variant's own interface kind, not hardcoded: the
+        # ax7101 shape moved tdm16 -> tdm32 when the MASTER front-end landed
+        # (USER: "do not use TDM8 use TDM32 then"), and a role name that
+        # restates the config is a test that breaks on a legitimate change
+        # rather than on a defect (methodology R4).
+        pfx = eb.load_config(p)["interface"]["kind"].upper()
+        assert names[:2] == [f"{pfx} In 0", f"{pfx} In 1"], (names[:4], pfx)
+        assert "Pilot Tone" in names
+    finally:
+        os.unlink(p)
+    print("  [gate 24a] declaring routed channels re-introduces the physical "
+          "pool AND moves the static map onto it (primary-role fallthrough)")
+
+    # (e) BOUNDARY: a 64-wide loopback pool is the shape D8 sketches and D6
+    #     predicted could not be stored - it must VALIDATE and be marked, not
+    #     crash and not silently wrap the 16-bit ROM address space.
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
+                       {"host": 8, "pilot": True, "loopback": 64})
+    try:
+        r = eb.build(p, os.path.join(OUT, "_pools"))
+        assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
+            8*(16+8) + 8*(16+8+1+64), r["overlay"]["descriptor_counts"]
+        assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
+        assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
+        # builder contract: it VALIDATES and lands in the plan, never errors
+        assert "planned" in r["plan"]
+        try:
+            eb.build(p, os.path.join(OUT, "_pools"), write_rtl=True)
+            assert False, "--write-rtl must refuse a shape with no ROM"
+        except eb.ConfigError as e:
+            assert "cannot be built" in str(e), e
+    finally:
+        os.unlink(p)
+    print("  [gate 24a] the full 64-wide D8 pool VALIDATES, exceeds the "
+          "16-bit AEM store address space, is marked rather than emitted, "
+          "and --write-rtl REFUSES it (D6 is the owner)")
+
+
+def test_d8_role_pools_reject():
+    """gate 24b - the NEGATIVE control. Every one of these configs is wrong
+    in a way that would otherwise ship a model the fabric cannot back."""
+    bad = [
+        # pools under a policy that does not read them = two meanings at once
+        ("pools ignored by policy", "ax7101_8x8",
+         lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
+             "policy", "cap-at-interface")),
+        # more routed channels than the interface family carries
+        # ONE MORE than whatever this interface family actually carries -
+        # derived, not the literal 17 that was right only while the shape was
+        # tdm16. It moved to tdm32 when the MASTER front-end landed, and a
+        # fixture that restates the config stops testing the rule the moment
+        # the config legitimately changes (methodology R4).
+        ("physical > interface width", "ax7101_8x8",
+         lambda c: c["audio_interface"].__setitem__(
+             "physical_channels",
+             {"capture": eb.INTERFACES[c["audio_interface"]["kind"]]["channels"] + 1,
+              "render": 0})),
+        ("negative physical", "ax7101_8x8",
+         lambda c: c["audio_interface"].__setitem__(
+             "physical_channels", {"capture": -1, "render": 0})),
+        ("physical_channels not a mapping", "ax7101_8x8",
+         lambda c: c["audio_interface"].__setitem__("physical_channels", 8)),
+        ("unknown physical_channels key", "ax7101_8x8",
+         lambda c: c["audio_interface"].__setitem__(
+             "physical_channels", {"capture": 0, "playback": 0})),
+        ("unknown pool key", "ax7101_8x8",
+         lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
+             "pools", {"host": 8, "tdm": 8})),
+        # every pool zero => a STREAM_PORT with no cluster block at all
+        ("all pools zero", "ax7101_8x8",
+         lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
+             "pools", {"host": 0, "pilot": False, "loopback": 0})),
+        ("unknown policy", "ax7101_8x8",
+         lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
+             "policy", "role-pool")),
+    ]
+    for why, base, mut in bad:
+        p = _variant(CONFIGS[base], mut)
+        try:
+            eb.build(p, os.path.join(OUT, "_pools_bad"))
+            assert False, f"accepted a config it must refuse: {why}"
+        except eb.ConfigError:
+            pass
+        finally:
+            os.unlink(p)
+    print(f"  [gate 24b] {len(bad)}/{len(bad)} contradictory pool configs "
+          "REFUSED with ConfigError")
+
+
+def test_d10_cluster_names():
+    """gate 24c - D10: every AUDIO_CLUSTER is named for what it IS, and the
+    rename does NOT move entity_model_id.
+
+    1722.1-2021 6.2.2.8 lists `object_name` among the fields that do NOT
+    constitute "the structure of an ATDECC Entity data model" (alongside
+    entity_name, firmware_version, serial_number, current_format, ...), so a
+    name change must keep the id AND controllers must be able to SET_NAME it
+    at runtime. This gate proves both directions: names change -> id frozen;
+    pool shape changes -> id moves."""
+    for name in CONFIGS:
+        r = eb.build(CONFIGS[name], OUT)
+        ovl = r["overlay"]
+        cl = sorted(ovl["audio_clusters"], key=lambda c: c["index"])
+        assert len(cl) == ovl["descriptor_counts"]["AUDIO_CLUSTER"]
+        assert all(c["name"] not in ("Input", "Output") for c in cl), \
+            f"{name}: a cluster is still named the pre-D10 placeholder"
+        assert all(len(c["name"].encode()) <= 63 for c in cl), \
+            "object_name must fit the 64-byte field (7.2.16)"
+        # role and name must agree - a "Pilot Tone" string on a host cluster
+        # would be exactly the lie D10 exists to remove
+        for c in cl:
+            if c["role"] == "pilot":
+                assert c["name"] == "Pilot Tone", c
+            elif c["role"] == "loopback":
+                assert c["name"].startswith("Loopback S"), c
+            elif c["role"] == "host":
+                assert c["name"].startswith("Host "), c
+            elif c["role"] == "virtual":
+                assert c["name"].startswith("Virtual "), c
+            else:
+                assert c["name"].split()[0] in eb.IFACE_LABEL.values(), c
+    # the DEPLOYED arty shape: physical first, virtual tail (the wire-truth
+    # rule is stated per DIRECTION, and the Pmod I2S2 is a 2-channel link)
+    ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
+    names = [c["name"] for c in sorted(ovl["audio_clusters"],
+                                       key=lambda c: c["index"])]
+    assert names == ["I2S Out 0", "I2S Out 1"] \
+        + [f"Virtual Out {n}" for n in range(2, 8)] \
+        + ["I2S In 0", "I2S In 1"] \
+        + [f"Virtual In {n}" for n in range(2, 8)], names
+
+    # 6.2.2.8: renaming must NOT move the id ...
+    base = eb.load_config(CONFIGS["ax7101_8x8"])
+    p = _variant(CONFIGS["ax7101_8x8"],
+                 lambda c: c["streams"]["talkers"][0].__setitem__(
+                     "name", "Renamed Talker"))
+    try:
+        assert eb.load_config(p)["model_id"]["hash"] == \
+            base["model_id"]["hash"], "a stream NAME moved the model id"
+    finally:
+        os.unlink(p)
+    # ... but a pool WIDTH must, because it changes the descriptor set
+    p = _pools_variant("ax7101_8x8", {"capture": 0, "render": 0},
+                       {"host": 8, "pilot": True, "loopback": 4})
+    try:
+        assert eb.load_config(p)["model_id"]["hash"] != \
+            base["model_id"]["hash"], "a pool WIDTH left the model id frozen"
+    finally:
+        os.unlink(p)
+    # ... and every config that predates D8 must hash EXACTLY as before
+    assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
+        "0x001BC5AB73EC9D1D"
+    # arty_4x4's hash MOVED from 0x001BC565E07E0DD6, and that is correct: its
+    # audio_interface changed tdm8 -> i2s_philips when the per-board routing
+    # gate landed (the Arty routes no `tdm` resource and has no TDM device, so
+    # declaring one would have framed digital silence and taken i2s_mclk off
+    # pmoda:4). `interface.kind` IS a model-shaping field, so a shape change
+    # SHOULD move a hash-derived id - that is the mechanism working. What must
+    # NOT move is arty_current's PINNED id above, and it has not.
+    assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
+        "0x001BC5C42E0CEE8B"
+    print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
+          "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
+          "pool width moves it; the two pre-D8 shapes hash unchanged")
+
+
+def test_d10_names_reach_the_rom():
+    """gate 24d - the names survive the WHOLE path (overlay ->
+    gen_aem_store -> ROM bytes), and the ROM the TB compares against is
+    regenerated with it.
+
+    This gate exists because of HOW the first attempt failed: the builder's
+    `--write-rtl` writes hdl/.../aecp_aem_rom.svh but NOT
+    tb/verilator/aecp/aem_golden.h, whose only writer is
+    `python3 avdecc/gen_aem_store.py`. Regenerating one and not the other
+    turned the aecp byte-exact sweep red on all 16 AUDIO_CLUSTER
+    descriptors (off=42 - the object_name field) and nothing else."""
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    import gen_aem_store as g
+    ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
+    M = g.build_model(g.spec_from_overlay(ovl))
+    # find the AUDIO_CLUSTER images and read their object_name out of the ROM
+    got = []
+    for (t, i, base, ln) in M["directory"]:
+        if t == 0x0014:
+            got.append(M["rom"][base+4:base+4+64].split(b"\0")[0].decode())
+    assert got == [c["name"] for c in sorted(ovl["audio_clusters"],
+                                             key=lambda c: c["index"])], got
+    # the TRACKED artifacts must both carry them (the aem_golden.h lesson)
+    rom = open(TRACKED_SVH, "rb").read()
+    gpath = os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h")
+    gtext = open(gpath).read()
+    body = gtext.split("AEM_ROM[] = {", 1)[1].split("};", 1)[0]
+    gbytes = bytes(int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{2})", body))
+    assert gbytes == M["rom"], \
+        (f"{gpath} does not match the ROM this config generates ("
+         f"{len(gbytes)} vs {len(M['rom'])} B) - it is STALE. Its ONLY "
+         "writer is `python3 avdecc/gen_aem_store.py`; the builder's "
+         "--write-rtl writes hdl/.../aecp_aem_rom.svh and NOT this file, "
+         "which is exactly how the first D10 attempt turned the aecp "
+         "byte-exact sweep red on all 16 AUDIO_CLUSTER descriptors.")
+    for nm in ("I2S Out 0", "Virtual In 7"):
+        assert nm.encode() in gbytes, f"golden ROM has no cluster '{nm}'"
+    # and the generated svh must equal the tracked one byte for byte
+    assert g.emit_svh_text(M).encode() == rom, \
+        "tracked aecp_aem_rom.svh is not what this config generates"
+    print("  [gate 24d] role names reach the ROM bytes; the tracked svh AND "
+          "tb/verilator/aecp/aem_golden.h both carry them (the file the "
+          "builder's --write-rtl does NOT write)")
 
 
 if __name__ == "__main__":
@@ -3058,7 +3387,9 @@ if __name__ == "__main__":
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,
                test_front_end_routing_gate_bites,
-               test_firmware_version_derived_from_rtl):
+               test_firmware_version_derived_from_rtl,
+               test_d8_role_pools, test_d8_role_pools_reject,
+               test_d10_cluster_names, test_d10_names_reach_the_rom):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

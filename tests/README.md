@@ -43,6 +43,8 @@ Gherkin scenarios driven by the `avtp_aecp_packet_gen` class. Two paths:
 **22 features / 135 scenarios / 1273 steps**, all passing, counted by running the
 **22 features / 116 scenarios / 1182 steps**, all passing, counted by running the
 suite on 2026-07-28. It is the **conformance suite**, and it is a CI gate (the
+**22 features / 122 scenarios / 1215 steps**, all passing, counted by running the
+suite on 2026-07-26. It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
 | Feature file | Scenarios | Tier |
@@ -90,7 +92,7 @@ built `packet_gen`.
 
 **Run everything (offline, no DUT, no simulator — finishes in ~3 s):**
 ```bash
-cd tests && behave -f plain          # 21 features / 113 scenarios / 1169 steps
+cd tests && behave -f plain          # 22 features / 122 scenarios / 1215 steps
 cd tests && behave --tags @tsn_gen   # just the tsn-gen tier
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do

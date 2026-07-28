@@ -15,6 +15,11 @@
 #   sim_dynmap.cpp -> dynamic-audio-map shape (gen_dynmap_shape.py ->
 #     dynmap_inc/, same shadowing) exercising the `AEM_DYNMAP
 #     ADD/REMOVE/GET_AUDIO_MAP engine (Milan 5.4.2.26-28).
+#   sim_pools.cpp  -> D8 ROLE-POOL shape (gen_pools_shape.py -> pools_inc/,
+#     same shadowing): host/pilot/loopback cluster pools on a board that
+#     routes NO audio pins, role-derived AUDIO_CLUSTER object_names, and
+#     the 1722.1-2021 7.2.19 port-relative AUDIO_MAP offsets that let two
+#     talker ports carry IDENTICAL offsets onto DIFFERENT clusters.
 #   make        - build and run all self-checking harnesses
 #   make clean  - remove build artifacts
 
@@ -76,12 +81,16 @@ run: $(GEN)
 	  $(SRCS) sim_nxn.cpp -o Vaecp_nxn         # 8x8 ship shape (D1/D2)
 	$(VERILATOR) $(VFLAGS_NXN) --Mdir obj_amap \
 	  $(SRCS) sim_amap.cpp -o Vaecp_amap       # 8x8 ship shape (defect A)
+	python3 gen_pools_shape.py pools_inc
+	$(VERILATOR) -Ipools_inc $(VFLAGS) --Mdir obj_pools \
+	  $(SRCS) sim_pools.cpp -o Vaecp_pools     # -Ipools_inc shadows gen/
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
 	./obj_dynmap/Vaecp_dynmap
 	./obj_nxn/Vaecp_nxn
 	./obj_amap/Vaecp_amap
+	./obj_pools/Vaecp_pools
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -97,3 +106,4 @@ cosim: $(GEN)
 
 clean:
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn obj_amap
+	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_pools pools_inc

@@ -131,7 +131,9 @@ SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
 
 OVERLAY_SCHEMA_ID = "kebag-logic/aem-overlay"
-OVERLAY_SCHEMA_VERSION = "2.0.0"     # 2.x: per-stream STREAM_PORT layout
+OVERLAY_SCHEMA_VERSION = "2.1.0"     # 2.x: per-stream STREAM_PORT layout
+                                     # 2.1: role-tagged cluster pools +
+                                     #      per-cluster object_name (D8/D10)
 
 LWSRP_SCHEMA_ID = "kebag-logic/lwsrp-table"
 LWSRP_SCHEMA_VERSION = "1.0.0"       # 1.x: SR class + 0x680 resets + rows
@@ -145,7 +147,39 @@ PLATFORM_SCHEMA_VERSION = "1.0.0"    # 1.x: DT node + driver-visible layout
 MODEL_ID_OUI = 0x001BC5              # Kebag Logic vendor OUI (00-1B-C5)
 MODEL_ID_HASH_BITS = 40              # EUI-64 bits taken from the sha256
 
-CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel")
+CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel",
+                    "role-pools")
+
+#: D8 cluster ROLES. Every AUDIO_CLUSTER the builder emits carries one, and
+#: the role is what names it (D10: "Input"/"Output" x N told a controller
+#: nothing - a Hive operator could not tell the pilot tone from a dead TDM
+#: slot from a loopback lane). The role is a MODEL fact derived from the
+#: platform declaration, never a hardcoded pool:
+#:   physical - a routed audio-interface channel (audio_interface.
+#:              physical_channels, per direction). ZERO is a legal and
+#:              important value: the AX7101 platform ships _connectors = []
+#:              (sw/litex/platforms/alinx_ax7101.py), so milan_soc.py leaves
+#:              i2s_pads = None and drives i_i2s_sdout_i = 0, and the TDM
+#:              pins are tied off in the wrapper too ("neither board has a
+#:              TDM header today", sw/litex/milan_soc.py) - the board has no
+#:              audio input AT ALL and a "TDM16" physical pool on it would be
+#:              an advertisement the fabric cannot back.
+#:   virtual  - a cluster past the physical width under the legacy policies
+#:              (wire-truth rule: extra stream channels are virtual, missing
+#:              physical channels render 0).
+#:   host     - a host (ALSA/PipeWire) lane channel for this port's stream.
+#:   pilot    - the KL_tone_gen pilot, one cluster per talker port (D8).
+#:   loopback - a RECEIVED stream channel offered back as a talker source
+#:              (D8's stream-loopback lane; same media-clock domain, so
+#:              coherent). On a board with no audio input this is the only
+#:              source that can give a talker per-channel-distinct audio.
+CLUSTER_ROLES = ("physical", "virtual", "host", "pilot", "loopback")
+
+#: role -> AUDIO_CLUSTER object_name template (D10). {n} is the index WITHIN
+#: the role segment; the physical/virtual names carry the interface label so
+#: "TDM16 In 3" reads as the wire it is.
+IFACE_LABEL = {"i2s_philips": "I2S", "tdm8": "TDM8", "tdm16": "TDM16",
+               "tdm32": "TDM32", "aes3": "AES3", "spdif": "S/PDIF"}
 
 
 class ConfigError(Exception):
@@ -1004,7 +1038,8 @@ def _streams(lst, ctx, direction):
 
 
 # --------------------------------------------------- cluster/port layout ----
-def cluster_layout(listeners, talkers, policy, iface_channels):
+def cluster_layout(listeners, talkers, policy, iface_channels,
+                   phys=None, pools=None):
     """USER decision: ONE STREAM_PORT per stream. Each listener stream gets a
     STREAM_PORT_INPUT, each talker stream a STREAM_PORT_OUTPUT; every port
     owns a contiguous AUDIO_CLUSTER block and exactly one AUDIO_MAP whose
@@ -1017,39 +1052,169 @@ def cluster_layout(listeners, talkers, policy, iface_channels):
         (default = channels; the legacy/pipewire-reference layout).
       cap-at-interface - min(clusters, physical interface channels/direction):
         clusters model real endpoints, never more than the wire has.
+      role-pools (D8) - the port's cluster count is NOT the stream's
+        `clusters` at all: it is the sum of the declared ROLE POOLS
+        (physical / host / pilot / loopback), each width derived from the
+        platform declaration. `clusters` is then unused for that port and the
+        config says so.
+
+    Every port comes back with a `pool` list of {role, offset, width}
+    segments covering 0..clusters-1 exactly, which is what names the
+    AUDIO_CLUSTERs (D10) and what the AUDIO_MAP is written against.
     Returns (ports_in, ports_out)."""
     if policy not in CLUSTER_POLICIES:
         raise ConfigError(f"cluster policy '{policy}' not in {CLUSTER_POLICIES}")
+    pools = pools or {}
+    # physical widths per DIRECTION. Default = the declared interface width;
+    # a platform that routes no audio pins declares 0 and every cluster on it
+    # is honestly non-physical (see CLUSTER_ROLES).
+    ph_render = iface_channels if phys is None else int(phys["render"])
+    ph_capture = iface_channels if phys is None else int(phys["capture"])
 
     def eff(s):
         if policy == "cap-at-interface":
             return min(s["clusters"], iface_channels)
         return s["clusters"]
 
+    def legacy_pool(dir_base, n, ph):
+        """Legacy policies: the wire-truth rule is stated PER DIRECTION
+        ("physical interface channels bind in order to the first clusters
+        per direction"), so a port's roles depend on where its block sits in
+        its direction, not on the port index."""
+        segs, off = [], 0
+        n_phys = max(0, min(n, ph - dir_base))
+        if n_phys:
+            segs.append(dict(role="physical", offset=0, width=n_phys,
+                             first=dir_base))
+            off = n_phys
+        if n - off:
+            segs.append(dict(role="virtual", offset=off, width=n - off,
+                             first=dir_base + off))
+        return segs
+
+    def role_pool(direction, port_index):
+        """D8 pools. Order is fixed so base_cluster arithmetic is readable:
+        physical, host, then (talker ports only) pilot and loopback."""
+        segs, off = [], 0
+        for role, width in (
+                ("physical", ph_render if direction == "input" else ph_capture),
+                ("host", int(pools.get("host", 0))),
+                ("pilot", (1 if pools.get("pilot") else 0)
+                          if direction == "output" else 0),
+                ("loopback", int(pools.get("loopback", 0))
+                             if direction == "output" else 0)):
+            if width > 0:
+                segs.append(dict(role=role, offset=off, width=width,
+                                 first=0 if role != "loopback" else port_index))
+                off += width
+        if not segs:
+            raise ConfigError(
+                f"cluster_mapping.policy role-pools: STREAM_PORT_"
+                f"{direction.upper()} {port_index} would carry ZERO clusters - "
+                "every declared pool (physical/host/pilot/loopback) is 0 wide. "
+                "A STREAM_PORT with no cluster block cannot carry audio; "
+                "declare at least one pool (audio_interface.cluster_mapping."
+                "pools) or use another policy")
+        return segs
+
     # map_mode dynamic (gaps item 8): the port carries NO AUDIO_MAP
     # (7.2.13 number_of_maps=0, base_map ignored) - static maps are
     # renumbered contiguously so the descriptor set stays gapless.
-    ports_in, base, next_map = [], 0, 0
+    ports_in, base, next_map, dir_base = [], 0, 0, 0
     for i, s in enumerate(listeners):
-        n = eff(s)
+        if policy == "role-pools":
+            pool = role_pool("input", i)
+            n = sum(g["width"] for g in pool)
+        else:
+            n = eff(s)
+            pool = legacy_pool(dir_base, n, ph_render)
         dyn = s.get("map_mode", "static") == "dynamic"
         ports_in.append(dict(index=i, stream_index=i, clusters=n,
                              base_cluster=base,
                              maps=0 if dyn else 1,
                              base_map=0 if dyn else next_map,
                              map_mode=s.get("map_mode", "static"),
-                             map_page=s.get("map_page")))
+                             map_page=s.get("map_page"), pool=pool))
         if not dyn:
             next_map += 1
         base += n
-    ports_out = []
+        dir_base += n
+    ports_out, dir_base = [], 0
     for j, s in enumerate(talkers):
-        n = eff(s)
+        if policy == "role-pools":
+            pool = role_pool("output", j)
+            n = sum(g["width"] for g in pool)
+        else:
+            n = eff(s)
+            pool = legacy_pool(dir_base, n, ph_capture)
         ports_out.append(dict(index=j, stream_index=j, clusters=n,
                               base_cluster=base, maps=1,
-                              base_map=next_map + j))
+                              base_map=next_map + j, pool=pool))
         base += n
+        dir_base += n
     return ports_in, ports_out
+
+
+#: static-AUDIO_MAP source preference under role-pools: the segment the
+#: stream channels are wired to at power-on. Physical first where it exists;
+#: on a board with no audio pins a talker falls through to LOOPBACK, which is
+#: the point of D8's loopback lane (USER 2026-07-28: "For the AX Loopback,
+#: use the loopback cluster created").
+PRIMARY_ROLE_ORDER = {
+    "input":  ("physical", "host", "virtual"),
+    "output": ("physical", "loopback", "host", "pilot", "virtual"),
+}
+
+
+def primary_segment(port, direction):
+    """The pool segment this port's static AUDIO_MAP wires its stream
+    channels to (1722.1 7.2.19 offsets are port-relative, so this is just an
+    offset inside the port's own pool)."""
+    by_role = {g["role"]: g for g in port["pool"]}
+    for role in PRIMARY_ROLE_ORDER[direction]:
+        if role in by_role:
+            return by_role[role]
+    return port["pool"][0]
+
+
+def cluster_names(cfg, port, direction):
+    """D10: one object_name per cluster of this port, in offset order.
+
+    1722.1-2021 6.2.2.8 lists `object_name` among the fields EXCLUDED from
+    "the structure of the data model", so renaming clusters must NOT move
+    entity_model_id - and it does not: model_shape() never sees a name."""
+    label = IFACE_LABEL.get(cfg["interface"]["kind"], "AUDIO")
+    # the received stream channel space, in {stream, channel} order: what a
+    # loopback cluster actually offers a talker.
+    rx = [(si, ch) for si, s in enumerate(cfg["listeners"])
+          for ch in range(s["channels"])]
+    out = []
+    for g in port["pool"]:
+        role, w, first = g["role"], g["width"], g.get("first", 0)
+        for n in range(w):
+            if role == "physical":
+                out.append(f"{label} {'Out' if direction == 'input' else 'In'}"
+                           f" {first + n}")
+            elif role == "virtual":
+                out.append(f"Virtual {'Out' if direction == 'input' else 'In'}"
+                           f" {first + n}")
+            elif role == "host":
+                out.append(f"Host {'Play' if direction == 'input' else 'Cap'}"
+                           f" {n}")
+            elif role == "pilot":
+                out.append("Pilot Tone")
+            else:  # loopback: walk the rx channel space from THIS talker's
+                   # own stream index, so talker t defaults to rx stream t
+                   # (per-channel-distinct audio, not eight copies of one)
+                if not rx:
+                    out.append(f"Loopback ch {n}")
+                    continue
+                start = next((k for k, (si, ch) in enumerate(rx)
+                              if si == first and ch == 0), 0)
+                si, ch = rx[(start + n) % len(rx)]
+                out.append(f"Loopback S{si} ch {ch}")
+    assert len(out) == port["clusters"]
+    return out
 
 
 # ------------------------------------------------------------ lwSRP table ---
@@ -2130,6 +2295,20 @@ def model_shape(cfg):
         shape["dyn_maps_in"] = [
             [p.get("map_mode", "static"), p.get("map_page") or 0]
             for p in cfg["ports_in"]]
+    # D8 role pools change the descriptor set (cluster counts AND which pool
+    # the static map is written against), so they are model shape. CONDITIONAL
+    # on the policy so every config that predates D8 hashes to exactly what it
+    # hashed before. Cluster object_names are DELIBERATELY absent: 1722.1
+    # 6.2.2.8 excludes object_name from "the structure of the data model", so
+    # the D10 rename must not - and does not - move any entity_model_id.
+    if i["cluster_policy"] == "role-pools":
+        shape["cluster_pools"] = {
+            "physical": [i["physical_channels"]["capture"],
+                         i["physical_channels"]["render"]],
+            "host": int(i["cluster_pools"].get("host", 0)),
+            "pilot": bool(i["cluster_pools"].get("pilot", False)),
+            "loopback": int(i["cluster_pools"].get("loopback", 0)),
+        }
     return shape
 
 
@@ -2307,9 +2486,45 @@ def load_config(path):
     if policy not in CLUSTER_POLICIES:
         raise ConfigError(f"cluster_mapping.policy '{policy}' not in "
                           f"{CLUSTER_POLICIES}")
+    # PHYSICAL truth, per direction. Defaults to the declared interface width
+    # (every existing config keeps exactly the roles it had), but a platform
+    # that routes no audio pins says so HERE rather than letting the model
+    # advertise a pool the fabric cannot back - see CLUSTER_ROLES.
+    pc = aif.get("physical_channels")
+    if pc is None:
+        phys = dict(capture=iinfo["channels"], render=iinfo["channels"])
+    else:
+        if not isinstance(pc, dict) or set(pc) - {"capture", "render"}:
+            raise ConfigError("audio_interface.physical_channels must be a "
+                              "mapping with keys capture/render (channels the "
+                              "BOARD actually routes, per direction)")
+        phys = dict(capture=int(pc.get("capture", iinfo["channels"])),
+                    render=int(pc.get("render", iinfo["channels"])))
+    for d, v in phys.items():
+        if not 0 <= v <= iinfo["channels"]:
+            raise ConfigError(
+                f"audio_interface.physical_channels.{d} {v} outside "
+                f"0..{iinfo['channels']} (the {kind} interface width) - a "
+                "board cannot route more channels than the selected "
+                "interface family carries")
+    # D8 role pools. Only role-pools consumes them; declaring pools under
+    # another policy is a config that means two different things at once.
+    pools = cm.get("pools") or {}
+    if not isinstance(pools, dict) or set(pools) - {"host", "pilot",
+                                                    "loopback"}:
+        raise ConfigError("audio_interface.cluster_mapping.pools must be a "
+                          "mapping with keys host/pilot/loopback (the "
+                          "physical pool width comes from "
+                          "audio_interface.physical_channels)")
+    if pools and policy != "role-pools":
+        raise ConfigError(
+            f"audio_interface.cluster_mapping.pools is only read by the "
+            f"role-pools policy; this config selects '{policy}', so the pools "
+            "would be silently ignored (D8)")
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
         cluster_policy=policy, rtl=iinfo["rtl"],
+        physical_channels=phys, cluster_pools=pools,
     )
     # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock
     # (sampling_rate_hz x 128 UI/frame x OVERSAMPLE_P). A config whose audio
@@ -2370,7 +2585,8 @@ def load_config(path):
 
     # per-stream port layout (needed by the model-id hash and the overlay)
     out["ports_in"], out["ports_out"] = cluster_layout(
-        listeners, talkers, policy, interface["channels"])
+        listeners, talkers, policy, interface["channels"],
+        phys=phys, pools=pools)
 
     # entity_model_id resolution: pin > hash-derived > literal
     shape = model_shape(out)
@@ -2463,6 +2679,43 @@ def rtl_capability_marks(cfg):
                       "milan_datapath front-end generate for the AES3 family "
                       "and the milan_soc.py --audio-interface value that "
                       "selects it (the tdm kinds' path, reused)"))
+    # D8 role pools: the MODEL half is emitted here; each pool that has no
+    # fabric source behind it is marked, never silently advertised.
+    if cfg["interface"]["cluster_policy"] == "role-pools":
+        pools = cfg["interface"]["cluster_pools"]
+        ph = cfg["interface"]["physical_channels"]
+        n_cl = (sum(p["clusters"] for p in cfg["ports_in"])
+                + sum(p["clusters"] for p in cfg["ports_out"]))
+        marks.append((f"D8 role-named cluster pools ({n_cl} AUDIO_CLUSTERs)",
+                      "supported",
+                      f"physical {ph['capture']} cap / {ph['render']} rend "
+                      f"(audio_interface.physical_channels), host "
+                      f"{pools.get('host', 0)}/port, pilot "
+                      f"{'1' if pools.get('pilot') else '0'}/talker port, "
+                      f"loopback {pools.get('loopback', 0)}/talker port; "
+                      "port-relative AUDIO_MAP offsets per 1722.1 7.2.19"))
+        if pools.get("pilot"):
+            marks.append(("D8 Pilot cluster fan-out",
+                          "planned (item 8 - D7 target-keyed dynamic maps)",
+                          "the pilot SOURCE exists (KL_tone_gen, "
+                          "KL_chan_map_capture src=4 TONE) and one talker "
+                          "channel can select it today; fanning ONE pilot "
+                          "cluster onto MANY stream channels is what the "
+                          "cluster-keyed dynamic-map store forbids - D7 "
+                          "flips the key to the target stream channel"))
+        if pools.get("loopback"):
+            marks.append((f"D8 stream-loopback lane "
+                          f"({pools['loopback']} clusters/talker port)",
+                          "planned (D8 subtask - new fabric lane)",
+                          "MODEL half emitted (the clusters exist, are named "
+                          "for the rx {stream, channel} they offer, and the "
+                          "talker's static AUDIO_MAP already points at them). "
+                          "MISSING = the fabric source: KL_chan_map_capture's "
+                          "map entry is {en, src[6:4], idx[3:0]} with buckets "
+                          "0 ZERO / 1 I2S / 2 TDM / 3 RING / 4 TONE and 5..7 "
+                          "reserved - the received pair streams are not in "
+                          "that set, so a loopback cluster selects silence "
+                          "until the bucket and its hold bank land"))
     rate = cfg["clocking"]["sampling_rate_hz"]
     if rate in RTL_TODAY["sampling_rates"]:
         marks.append((f"{rate} Hz media clock", "supported", ""))
@@ -2691,33 +2944,69 @@ def emit_aem_overlay(cfg):
     # cluster_offset RELATIVE to the port's base_cluster, cluster_channel).
     # map_mode dynamic ports (gaps item 8) emit NO map - their mappings are
     # runtime state behind ADD/REMOVE/GET_AUDIO_MAPPINGS (Milan 5.4.2.26-28).
+    #
+    # Under the legacy policies the port's cluster block IS the stream's
+    # channel space, so the map is the identity over the whole block. Under
+    # D8 role-pools it is not: the pool is a SELECTION SET (physical + host +
+    # pilot + loopback) and only ONE segment can be the power-on source, so
+    # the map carries min(stream channels, primary segment width) rows at the
+    # primary segment's port-relative offset. Both forms satisfy the 7.2.19
+    # uniqueness rules (input: <=1 entry per cluster channel; output: <=1
+    # entry per stream channel).
+    def rows(p, direction, channels):
+        if cfg["interface"]["cluster_policy"] != "role-pools":
+            return [[p["stream_index"], ch, ch, 0]
+                    for ch in range(p["clusters"])]
+        g = primary_segment(p, direction)
+        n = min(channels, g["width"])
+        return [[p["stream_index"], ch, g["offset"] + ch, 0]
+                for ch in range(n)]
+
     audio_maps = []
     for p in P_in:
         if p.get("map_mode", "static") == "dynamic":
             continue
         audio_maps.append(dict(
             index=p["base_map"], direction="input", port_index=p["index"],
-            mappings=[[p["stream_index"], ch, ch, 0]
-                      for ch in range(p["clusters"])]))
+            primary_role=primary_segment(p, "input")["role"],
+            mappings=rows(p, "input", L[p["stream_index"]]["channels"])))
     for p in P_out:
         audio_maps.append(dict(
             index=p["base_map"], direction="output", port_index=p["index"],
-            mappings=[[p["stream_index"], ch, ch, 0]
-                      for ch in range(p["clusters"])]))
+            primary_role=primary_segment(p, "output")["role"],
+            mappings=rows(p, "output", T[p["stream_index"]]["channels"])))
     audio_maps.sort(key=lambda m: m["index"])
+
+    # D10: every AUDIO_CLUSTER carries its ROLE and the object_name that role
+    # implies, in global descriptor-index order (all input clusters first).
+    audio_clusters = []
+    for direction, ports in (("input", P_in), ("output", P_out)):
+        for p in ports:
+            names = cluster_names(cfg, p, direction)
+            for g in p["pool"]:
+                for n in range(g["width"]):
+                    off = g["offset"] + n
+                    audio_clusters.append(dict(
+                        index=p["base_cluster"] + off, name=names[off],
+                        direction=direction, role=g["role"],
+                        port_index=p["index"], offset=off))
 
     # overlay port entries: map_mode/map_page keys appear ONLY on dynamic
     # ports so every static config's overlay stays byte-identical
-    def port_public(p):
+    def port_public(p, direction):
         q = {k: p[k] for k in ("index", "stream_index", "clusters",
                                "base_cluster", "maps", "base_map")}
         if p.get("map_mode", "static") == "dynamic":
             q["map_mode"] = "dynamic"
             if p.get("map_page"):
                 q["map_page"] = p["map_page"]
+        # the port's role pool (D8), port-relative like 7.2.19 offsets
+        q["pool"] = [{"role": g["role"], "offset": g["offset"],
+                      "width": g["width"]} for g in p["pool"]]
+        q["primary_role"] = primary_segment(p, direction)["role"]
         return q
-    P_in_pub = [port_public(p) for p in P_in]
-    P_out_pub = [port_public(p) for p in P_out]
+    P_in_pub = [port_public(p, "input") for p in P_in]
+    P_out_pub = [port_public(p, "output") for p in P_out]
 
     return {
         "_schema": OVERLAY_SCHEMA_ID,
@@ -2749,11 +3038,14 @@ def emit_aem_overlay(cfg):
         "clock_sources": clock_sources,
         "stream_ports": {"input": P_in_pub, "output": P_out_pub},
         "audio_maps": audio_maps,
+        "audio_clusters": audio_clusters,
         "cluster_format": "MBLA-mono",
         "cluster_policy": cfg["interface"]["cluster_policy"],
+        "cluster_pools": cfg["interface"]["cluster_pools"],
         "physical_binding": {
             "interface": cfg["interface"]["kind"],
             "channels_per_direction": cfg["interface"]["channels"],
+            "physical_channels": cfg["interface"]["physical_channels"],
             "rule": "first-N-clusters-per-direction; extra stream channels "
                     "virtual, missing physical channels render 0 "
                     "(USER wire-truth 1-to-1 rule)",
@@ -3021,14 +3313,30 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     a("")
     a("## Stream ports (one per stream)")
     a("")
-    a("| Port | Stream | Clusters | base_cluster | AUDIO_MAP index |")
-    a("|------|--------|----------|--------------|-----------------|")
+    a("| Port | Stream | Clusters | base_cluster | AUDIO_MAP index | Cluster pool (D8 roles) | Map source |")
+    a("|------|--------|----------|--------------|-----------------|-------------------------|------------|")
+
+    def _pool(p, direction):
+        return (" + ".join(f"{g['role']} x{g['width']}" for g in p["pool"]),
+                primary_segment(p, direction)["role"])
     for p in cfg["ports_in"]:
+        pool, prim = _pool(p, "input")
         a(f"| STREAM_PORT_INPUT {p['index']} | STREAM_INPUT {p['stream_index']}"
-          f" | {p['clusters']} | {p['base_cluster']} | {p['base_map']} |")
+          f" | {p['clusters']} | {p['base_cluster']} | {p['base_map']} "
+          f"| {pool} | {prim} |")
     for p in cfg["ports_out"]:
+        pool, prim = _pool(p, "output")
         a(f"| STREAM_PORT_OUTPUT {p['index']} | STREAM_OUTPUT {p['stream_index']}"
-          f" | {p['clusters']} | {p['base_cluster']} | {p['base_map']} |")
+          f" | {p['clusters']} | {p['base_cluster']} | {p['base_map']} "
+          f"| {pool} | {prim} |")
+    a("")
+    ph = i["physical_channels"]
+    a(f"Physical audio channels the BOARD routes: {ph['capture']} capture / "
+      f"{ph['render']} render (`audio_interface.physical_channels`; default = "
+      f"the {i['channels']}-channel `{i['kind']}` interface width). Clusters "
+      "past that are non-physical by construction and are named for what they "
+      "ARE - `Virtual`, `Host`, `Pilot Tone`, `Loopback S<s> ch <c>` - so a "
+      "controller operator can tell a live source from a dead slot.")
     a("")
     a("## AEM descriptor counts")
     a("")

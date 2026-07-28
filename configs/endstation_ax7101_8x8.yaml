@@ -170,9 +170,67 @@ audio_interface:
                                      # are tied to 0 in milan_soc.py and it
                                      # would yield no pairs at all.
   word_length_bits: 24               # 24-in-32 slots
+  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES, and on
+    capture: 0                       # the AX7101 that is NOTHING, in either
+    render: 0                        # direction. Measured 2026-07-28 by
+                                     # reading the platform and the SoC
+                                     # wrapper, not by guessing:
+                                     #   sw/litex/platforms/alinx_ax7101.py
+                                     #     ships `_connectors = []` - no Pmod
+                                     #     header exists on this board, so
+                                     #   sw/litex/milan_soc.py leaves
+                                     #     `self.i2s_pads = None` and wires
+                                     #     `i_i2s_sdout_i = 0`: the capture
+                                     #     front-end clocks in a CONSTANT
+                                     #     ZERO, and i2s_mclk/sclk/lrck go to
+                                     #     dangling Signal()s;
+                                     #   the TDM pins are tied off in the same
+                                     #     wrapper ("neither board has a TDM
+                                     #     header today": i_tdm_bclk_i = 0,
+                                     #     i_tdm_fsync_i = 0, i_tdm_data_i =
+                                     #     0), so `kind: tdm16` selects the
+                                     #     deserializer but there is no wire
+                                     #     behind it either.
+                                     # Declaring 16 physical channels here
+                                     # would be the roadmap-item-00 defect in
+                                     # miniature: an advertised capability the
+                                     # fabric cannot back. 0 is the truth, and
+                                     # it is WHY the loopback pool below is
+                                     # not a nicety - it is the only source on
+                                     # this board that can hand a talker
+                                     # per-channel-distinct audio.
   cluster_mapping:
-    policy: cap-at-interface         # clusters model real endpoints only:
-                                     # per stream min(clusters, 32 TDM slots)
+    policy: role-pools               # D8: the port's cluster block is a
+                                     # role-tagged POOL, not a copy of the
+                                     # stream's channel count. Widths come
+                                     # from the platform declaration above
+                                     # plus the pools below - never hardcoded.
+    pools:
+      host: 8                        # the ALSA/PipeWire lane for this port's
+                                     # stream (8ch per subdevice, the chmap64
+                                     # directive's 8 x 8 x 8ch geometry)
+      pilot: true                    # one KL_tone_gen Pilot cluster per
+                                     # talker port (D8; fan-out onto many
+                                     # stream channels is legal SELECTION and
+                                     # wants the D7 target-keyed store)
+      loopback: 8                    # D8 stream-loopback lane, talker ports
+                                     # only: the RECEIVED stream channels
+                                     # offered back as talker sources, same
+                                     # media-clock domain so coherent. Talker
+                                     # t's pool starts at rx stream t channel
+                                     # 0, so the eight talkers see eight
+                                     # DIFFERENT sources rather than eight
+                                     # copies of one. 8 (not 64) keeps the
+                                     # descriptor ROM at 23713 B - the full
+                                     # 64-wide pool D8 sketches is a D6-sized
+                                     # model (BRAM hot stub + DRAM bulk tree).
+                                     # USER 2026-07-28: "For the AX Loopback,
+                                     # use the loopback cluster created."
+                                     # THE FABRIC LANE DOES NOT EXIST YET -
+                                     # KL_chan_map_capture's src[6:4] has no
+                                     # loopback bucket (0 zero / 1 i2s / 2 tdm
+                                     # / 3 ring / 4 tone, 5..7 reserved), so
+                                     # the build plan marks this "planned".
 
 streams:
   listeners:
@@ -209,6 +267,13 @@ streams:
     # exist behind any talker stream until the item-5 NxN talker lands;
     # raise together with that RTL). The legacy-8 layout stays expressible
     # (see endstation_arty_current.yaml).
+    # `clusters` is IGNORED under cluster_mapping.policy role-pools (D8): the
+    # port's cluster block is the sum of its declared pools, not a copy of a
+    # stream field. It is kept as the value this shape would emit under
+    # cluster-per-stream-channel / cap-at-interface, and it still records
+    # WIRE TRUTH 2 - today's framer RTL is stereo, only 2 physical channels
+    # exist behind any talker stream until the item-5 NxN talker lands.
+    # The legacy-8 layout stays expressible (see endstation_arty_current.yaml).
     - { name: "Stream Out 0", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
     - { name: "Stream Out 1", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
     - { name: "Stream Out 2", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }

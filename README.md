@@ -135,7 +135,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (21 features / 113 scenarios, offline, ~3 s) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** (22 features / 122 scenarios, offline, ~3 s) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
