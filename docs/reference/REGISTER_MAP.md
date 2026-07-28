@@ -474,12 +474,44 @@ immediately" and is a legal way for software to say *never trust me*.
 | `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` sync_ok (the lease-backed claim), `[2]` no live lease (reset state, or the lease ran out), `[3]` inside a discontinuity holdover, `[15:4]` lease remaining in quarter-seconds |
 | `0x780` | `CLKV_TUCNT` | RO live | `0` | Milan v1.2 Table 5.4 / Table 5.6 `TIMESTAMP_UNCERTAIN` for the talker side: one increment per **1 s observation interval** in which `tu` was set at least once — **not** one per frame and **not** one per `tu` edge (that is the IEEE 1722.1-2021 Table 7-159 reading, which Milan overrides for a PAAD). Engine-wide: one PHC, so the value serves every STREAM_OUTPUT |
 
-**The software contract.** The gPTP daemon that already publishes GM id
-(`0x624`/`0x628`), pdelay (`0x6E4`) and AS_PATH (`0x730`/`0x734`) is the right
-place to lease this: write `CLKV_CTRL` = `{lease, 0, 0, 0, sync_ok}` once per
-second while its servo reports locked, and stop writing (or write `0`) when it
-does not. **Until that is deployed, boards emit `tu = 1` continuously** — read
-`CLKV_STAT[2]` to tell "no daemon" from "daemon says unsynchronised".
+**The software contract — implemented 2026-07-28 in `gptp2csr.sh`.** The gPTP
+daemon that already publishes GM id (`0x624`/`0x628`), pdelay (`0x6E4`) and
+AS_PATH (`0x730`/`0x734`) is the right place to lease this, and now does:
+it writes `CLKV_CTRL` = `{lease, 0, disc, sync_ok}` every loop, renewing the
+countdown while its servo reports locked and writing `sync_ok = 0` when it
+does not. Read `CLKV_STAT[2]` to tell "no daemon" from "daemon says
+unsynchronised".
+
+It claims in exactly two cases and fails **closed** in every other:
+
+| ptp4l state | claim? | why |
+|---|---|---|
+| `portState SLAVE`, `gmPresent`, `\|master_offset\| <= 1 us` | **yes** | disciplined to the domain. The offset test is load-bearing — `portState SLAVE` alone is also what a clock 216,446 s adrift reports (2026-07-27). 1 µs is Milan v1.2 4.4.2.1's own stated gPTP-accuracy budget |
+| `portState MASTER`, `gmPresent` false, `gmIdentity` == our own | **yes** | we ARE the grandmaster: our PHC *defines* gPTP time rather than approximating it, so 4.4.4.7's "may not correspond to gPTP time" cannot apply |
+| `LISTENING` / `PRE_MASTER` / `UNCALIBRATED` / `PASSIVE` / `FAULTY` | no | BMCA has not settled — not yet a grandmaster |
+| `pmc` silent (ptp4l dead), unparsable reply | no | unknown is not valid |
+
+Claiming health is deliberately harder than losing it: `LOCK_N` (default 3)
+consecutive good samples to assert, **one** bad sample to drop. The lease
+length is derived from the iteration time the loop measures, not from a
+constant — on the softcore one iteration really costs 6–11 s (it is fork- and
+`pmc`-bound), and a lease that lapses *between renewals on a healthy clock*
+makes `CLKV_TUCNT` climb, which reports a clock fault that is not there.
+
+> **Why this paragraph used to end "until that is deployed, boards emit
+> `tu = 1` continuously".** They did, for a while, and it was not benign.
+> Measured 2026-07-28 with both boards at VERSION `0x0001_0016`: `CLKV_STAT`
+> = `0x00000005` on the ALINX **and** the Arty, with `CLKV_TUCNT` climbing at
+> exactly **1.00/s since boot** — `tu` set in **100 %** of observation
+> intervals — while the ALINX was a healthy grandmaster and the Arty was
+> `SLAVE` at `master_offset` **−93 ns**. Two synchronised talkers were
+> telling every listener not to trust their timestamps. That is a
+> **conformance failure, not a conservative default**: IEEE 1722-2016 PICS
+> **AAF-10** (*"Is the tu field set to zero (0) when gPTP time is stable?"*,
+> status `AAF:M`) makes the reset half **mandatory**, and Milan v1.2 4.4.2.3
+> has a Listener PAAD free-wheel its media clock *after `tu` is reset* — so a
+> talker that never resets it never lets a conformant listener leave
+> free-wheel.
 
 **Reading it.** `CLKV_TUCNT` moving proves the path is alive; `CLKV_TUCNT`
 frozen at 0 with `CLKV_STAT[1]` set is a healthy clock. `CLKV_TUCNT` frozen at

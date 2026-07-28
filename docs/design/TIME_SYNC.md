@@ -219,7 +219,7 @@ The split is deliberate and normative
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
 | `ptp4l` | softcore | BMCA, Announce/Sync/Pdelay state machines, the clock servo |
 | `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
-| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP/AEM answer with wire truth ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) |
+| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP/AEM answer with wire truth ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
 | `stream_phc_sync.sh` | softcore daemon | media/PHC watchdog; dormant while `ptp4l` holds SLAVE or MASTER |
 
 The fabric never builds a PTP message (row AS-10 marks that N/A for RTL);
