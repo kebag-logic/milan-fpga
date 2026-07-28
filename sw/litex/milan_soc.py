@@ -466,7 +466,7 @@ class MilanNIC(LiteXModule):
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
                  audio_if_i2s_pair=False, aaf_playback=False,
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None):
+                 cbs_queues_mask=None, entity_gen_dir=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -497,7 +497,8 @@ class MilanNIC(LiteXModule):
                            audio_if_i2s_pair=audio_if_i2s_pair,
                            aaf_playback=aaf_playback,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
-                           cbs_queues_mask=cbs_queues_mask)
+                           cbs_queues_mask=cbs_queues_mask,
+                           entity_gen_dir=entity_gen_dir)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -644,7 +645,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
                        aaf_playback=False, render_lpf=True,
-                       optional_blocks=None, cbs_queues_mask=None):
+                       optional_blocks=None, cbs_queues_mask=None,
+                       entity_gen_dir=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -831,6 +833,17 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # milan-fpga/
     # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
+    # PER-CONFIG entity definition (USER 2026-07-28: both boards' 3-seed
+    # sweeps run CONCURRENTLY): when set, the generated entity svh
+    # (gen/adp_shape_defaults.svh + aecp_aem_rom.svh) resolves from THIS
+    # config's own configs/generated/<cfg>/ copy instead of the single
+    # tracked hdl/ one - two boards can then build from one tree at the same
+    # time with no svh-ownership handoff. Prepended so it WINS the include
+    # search; the tracked dirs below stay as the fallback for every other
+    # include.
+    if entity_gen_dir:
+        platform.add_verilog_include_path(entity_gen_dir)
+        platform.add_verilog_include_path(os.path.join(entity_gen_dir, "gen"))
     for inc in ("hdl/common", "hdl/ieee8021q/ts", "hdl/ieee8021as/ptp_timestamp",
                 "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter",
                 "hdl/ieee17221/aecp", "hdl/ieee17221/aecp/gen", "hdl/ieee1722/avtp"):
@@ -4470,7 +4483,7 @@ class MilanSoC(SoCCore):
                  audio_if_master=False,
                  pcm_ring="dram", aaf_playback=False,
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, **kwargs):
+                 cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -4839,7 +4852,8 @@ class MilanSoC(SoCCore):
                                   aaf_playback=aaf_pb,
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
-                                  cbs_queues_mask=cbs_queues_mask)
+                                  cbs_queues_mask=cbs_queues_mask,
+                                  entity_gen_dir=entity_gen_dir)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -5010,6 +5024,13 @@ def main():
                          "i2spb_converged, so an EXTERNAL media clock never reports "
                          "converged (consistent - there is no render device to "
                          "converge). Default off => playback PRESENT.")
+    ap.add_argument("--entity-gen-dir", default=None,
+                    help="resolve the generated entity definition "
+                         "(gen/adp_shape_defaults.svh + aecp_aem_rom.svh) from "
+                         "this directory (a configs/generated/<cfg>/ tree) "
+                         "instead of the tracked hdl/ copy - lets both boards' "
+                         "sweeps build CONCURRENTLY from one tree with no "
+                         "svh-ownership handoff")
     ap.add_argument("--cbs-queues-mask", type=lambda x: int(x, 0), default=None,
                     help="AREA LEVER: which egress queues get a credit_based_shaper "
                          "INSTANCE (bit i = queue i). A masked-out queue is strict-"
@@ -5203,6 +5224,7 @@ def main():
                        "rx_mac_filter":     not args.no_rx_mac_filter,
                    },
                    cbs_queues_mask=args.cbs_queues_mask,
+                   entity_gen_dir=args.entity_gen_dir,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),

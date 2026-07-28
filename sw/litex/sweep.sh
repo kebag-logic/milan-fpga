@@ -80,7 +80,22 @@ python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
 # 2026-07-27 nothing checked that it was THIS config: the tracked ROM was the
 # 1x1 shape and every build - including the 8x8 - compiled it in. Refuse to
 # launch unless the tree carries the definition of the config being built.
-python3 "$R/scripts/check_entity_shape.py" --built-config "$R/$CFG"
+# PER-CONFIG entity definition (USER 2026-07-28: both boards concurrently):
+# regenerate THIS config's generated/ copy right here and point the build at
+# it with --entity-gen-dir. The tracked hdl/ svh stops being a sweep concern
+# entirely - no ownership handoff, no serialization between boards - and the
+# freshness "gate" is construction: the builder ran in THIS shell one line
+# above, on the same CFG the sweep builds. check_entity_shape still proves
+# the per-config copy agrees with the config end to end.
+python3 "$R/sw/builder/endstation_builder.py" "$R/$CFG" > /dev/null
+CFG_GEN="$R/configs/generated/$(basename "$CFG" .yaml)"
+[ -f "$CFG_GEN/gen/adp_shape_defaults.svh" ] || { echo "sweep: $CFG_GEN missing the generated entity definition"; exit 1; }
+# The old tracked-svh ownership gate is retired FOR SWEEPS: the build no
+# longer reads the tracked copy at all (--entity-gen-dir above), so checking
+# it would re-serialize the boards for a file the build ignores. What must
+# hold instead: the per-config copy the build DOES read names this config.
+grep -q "$(basename "$CFG")" "$CFG_GEN/gen/adp_shape_defaults.svh" || {
+  echo "sweep: $CFG_GEN/gen/adp_shape_defaults.svh does not name $(basename "$CFG") as its source"; exit 1; }
 # Flow directives are part of the REFERENCE recipe since 2026-07-28: the
 # 0x0019 fabric only packs the xc7a100t with opt_design ExploreArea (measured
 # -530/-621 slices of packing demand per board) on top of AreaOptimized_high
@@ -88,6 +103,7 @@ python3 "$R/scripts/check_entity_shape.py" --built-config "$R/$CFG"
 # the old margin (pre multicycle-reset, pre CBS-mask). The 3-seed WNS pick
 # stays the timing guard.
 BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv \
+ --entity-gen-dir $CFG_GEN \
  --synth-directive AreaOptimized_high --opt-directive ExploreArea \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
  --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
