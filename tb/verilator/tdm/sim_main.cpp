@@ -91,7 +91,7 @@ struct BusMon {
     long fs_run = 0;
     bool armed = false;                 // measurements enabled (post-reset)
 };
-static BusMon mmon, m2mon;
+static BusMon mmon, m2mon, m3mon;
 
 static void bus_observe(BusMon& m, int bclk, int fsync, int mclk, bool have_mclk){
     if(m.armed){
@@ -197,6 +197,7 @@ static void step(){
     dut->clk=1; dut->clk_audio=1; dut->clk_tdm=1; dut->eval();
     bus_observe(mmon,  dut->m_bclk_o,  dut->m_fsync_o,  dut->m_mclk_o,  true);
     bus_observe(m2mon, dut->m2_bclk_o, dut->m2_fsync_o, 0,              false);
+    bus_observe(m3mon, dut->m3_bclk_o, dut->m3_fsync_o, 0,              false);
     sample();
 }
 static void cyc(int n=1){ for(int i=0;i<n;i++) step(); }
@@ -345,7 +346,7 @@ int main(int argc,char**argv){
     // a tied-off slave bus produces, and the two are not the same defect.
     m2drv.silent = true;
     cyc(8); dut->rst_n=1; cyc(4);
-    mmon.armed = m2mon.armed = true;      // measure only post-reset
+    mmon.armed = m2mon.armed = m3mon.armed = true;  // measure only post-reset
     dut->mp_en_i=1;                       // master-fed talker on from the start
 
     printf("== TDM front-end family harness (item-4) ==\n");
@@ -438,6 +439,24 @@ int main(int argc,char**argv){
         for(long v : m2mon.fs_gaps) if(v != M2FRAME_BITS) g = false;
         ck("M2 fsync cadence = 8*32 = 256 bclks", g, 1);
     }
+
+    printf("\n[M83B] master TDM8 (BCLK_HALF_P=1): the ARTY 8.3b shipping shape\n");
+    // HANDOVER 8.3b work item 4: assert the frequency, never assume it. At
+    // the 24.576 MHz audio clock this bus is bclk = 24.576/2 = 12.288 MHz
+    // and fsync = 24.576e6/512 = 48.000 kHz EXACTLY - the numbers the scope
+    // must show on pmodb (silicon acceptance 8.3b item 5).
+    ck("M3 bclk high width = 1 clk_tdm cycle (min)", m3mon.hi_min, 1);
+    ck("M3 bclk high width = 1 clk_tdm cycle (max)", m3mon.hi_max, 1);
+    ck("M3 bclk low  width = 1 clk_tdm cycle (max)", m3mon.lo_max, 1);
+    {   bool g = !m3mon.fs_gaps.empty();
+        for(long v : m3mon.fs_gaps) if(v != 8*WB) g = false;
+        ck("M3 fsync cadence = 8*32 = 256 bclks = 512 clk_tdm", g, 1);
+        ck("M3 frames observed", (long)(m3mon.fs_gaps.size() >= 8), 1);
+    }
+    // the datapath guard identity, stated in Hz: clk_tdm = 2 x BCLK_HALF x
+    // SLOTS x WORD_BITS x fs, i.e. 24,576,000 = 2*1*8*32*48,000
+    ck("M3 24.576 MHz == 2 x 1 x 8 x 32 x 48 kHz (guard identity)",
+       24576000L == 2L*1*8*32*48000, 1);
 
     printf("\n[MNEG] negative control: data line held 0 must still frame\n");
     // The pmoda-less AX7101 failure mode, isolated: an unfed line is DIGITAL

@@ -647,8 +647,10 @@ def test_model_id_hashing():
     # shape sensitivity: any model-shaping change -> different id
     ids = {a["model_id"]["value"]}
     for label, mutate in (
+        # arty_4x4's talkers default to clusters == channels == 4 since the
+        # 8.3b tdm8 shape, so the mutation must move AWAY from 4 to shape
         ("talker clusters", lambda c: c["streams"]["talkers"][0]
-         .__setitem__("clusters", 4)),
+         .__setitem__("clusters", 2)),
         ("cluster policy", lambda c: c["audio_interface"]["cluster_mapping"]
          .__setitem__("policy", "cluster-per-stream-channel")),
         ("listener channels", lambda c: c["streams"]["listeners"][0]
@@ -2861,14 +2863,17 @@ def test_front_end_routing_per_board():
 #: on the thing that actually happened. R2: a check that cannot fail is not a
 #: check.  (label, kind, payload) where kind is "soc" | "plat" | "cfg".
 ROUTING_MUTATIONS = [
-    # THE REPORTED DEFECT, exactly: the Arty declares tdm8 again. Dormant while
-    # tdm_bus_wired() is false, live the moment the master lands.
-    ("THE 2026-07-28 DEFECT: arty_4x4 declares tdm8 on a board with no header",
-     "cfg", ("arty_4x4", "kind: i2s_philips", "kind: tdm8")),
-    ("... and the same for tdm16",
-     "cfg", ("arty_4x4", "kind: i2s_philips", "kind: tdm16")),
-    ("... and for tdm32",
-     "cfg", ("arty_4x4", "kind: i2s_philips", "kind: tdm32")),
+    # THE 2026-07-28 DEFECT, preserved from the other side. arty_4x4 SHIPS
+    # kind: tdm8 since HANDOVER 8.3b, backed by the one add_extension line in
+    # milan_soc.py's arty path. Delete that line and this is exactly the
+    # pre-8.3b tree again - a front-end selected on a board that routes no
+    # pins - and the refusal must fire. (tdm16/tdm32 variants were dropped
+    # with the 8.3b flip: routing is a pad fact and the pads now exist; a
+    # slot count is not a routing question and is owned by the clocking
+    # guards.)
+    ("arty_4x4 declares tdm8 and the Arty's tdm extension is DELETED",
+     "soc", ('plat.add_extension(_arty_serial_io("tdm", "pmodb"))',
+             "pass")),
     # THE (b) HALF: i2s_mclk moved off the Pmod.
     ("i2s_mclk is bound to a bare Signal() - off pmoda:4 (D13), the CS5343 "
      "MCLK, on the board whose I2S path is the project's negative control",
@@ -2895,16 +2900,87 @@ ROUTING_MUTATIONS = [
      "soc", ('choices=("i2s_philips", "tdm8", "tdm16", "tdm32")',
              'choices=("i2s_philips", "tdm8", "tdm16", "tdm32", "tdm64")')),
     # THE L-ARGV LAYER, which the declaration mutations above never reach
-    # because L-DECL catches them first. These hand it the argv the defect
-    # actually produced: the builder emitting a TDM front-end for the Arty.
-    ("L-ARGV, this tree: the builder emits --audio-interface tdm8 for the "
-     "Arty even with tdm_bus_wired() false",
-     "argv", (False, ["--board", "arty", "--audio-interface", "tdm8"])),
-    ("L-ARGV, once the master lands: --audio-interface-master reaches the "
-     "Arty because tdm_bus_wired() answers for the whole tree at once",
-     "argv", (True, ["--board", "arty", "--audio-interface", "tdm8",
-                     "--audio-interface-master"])),
+    # because L-DECL catches them first. Since 8.3b the tdm8 argv for the
+    # Arty is the SHIPPING argv, so the leak is only a defect on a tree whose
+    # arty extension is gone - the mutation pairs the two, which is the argv
+    # the original defect actually produced on the original tree state.
+    ("L-ARGV: the tdm8+master argv reaches an Arty whose tdm extension is "
+     "deleted (tdm_bus_wired() answers for the whole tree at once)",
+     "argv_soc", (('plat.add_extension(_arty_serial_io("tdm", "pmodb"))',
+                   "pass"),
+                  (True, ["--board", "arty", "--audio-interface", "tdm8",
+                          "--audio-interface-master"]))),
 ]
+
+
+#: gate 24e: the 8.3b BLEND bindings - (label, which, regex) that must all
+#: hold, and each is mutated below to prove it can fail. The blend is three
+#: bindings: the parameter NAME reaches the RTL (the p_AAF_PLAYBACK class),
+#: the I2S mclk goes BACK to the Pmod (D13, the CS5343 - the pin that must
+#: not move), and the TDM header gets the master's mclk on its OWN pad.
+BLEND_BINDINGS = [
+    ("RTL declares AUDIO_IF_I2S_PAIR_P defaulting OFF", "rtl",
+     r"parameter\s+int\s+AUDIO_IF_I2S_PAIR_P\s*=\s*0\s*,"),
+    ("the SoC passes THAT name, character for character", "soc",
+     r'dp_params\[\s*["\']p_AUDIO_IF_I2S_PAIR_P["\']\s*\]\s*='),
+    ("RTL declares the dedicated tdm_mclk_o output", "rtl",
+     r"^\s*output\s+wire\s+.*\btdm_mclk_o\b"),
+    ("the blend rebinds o_i2s_mclk_o to the Pmod (D13)", "soc",
+     r'dp_ports\[\s*["\']o_i2s_mclk_o["\']\s*\]\s*=\s*self\.i2s_pads\[0\]'),
+    ("the blend binds o_tdm_mclk_o to the header's own mclk pad", "soc",
+     r'dp_ports\[\s*["\']o_tdm_mclk_o["\']\s*\]\s*=\s*self\.tdm_pads\.mclk'),
+    ("the arty tdm extension names its five subsignals", "soc",
+     r'Subsignal\("mclk",\s*Pins\(f"\{pmod\}:0"\)\)'),
+]
+
+
+def _blend_binding(soc, rtl):
+    for label, which, rx in BLEND_BINDINGS:
+        src = soc if which == "soc" else rtl
+        assert re.search(rx, src, re.M), f"8.3b blend binding missing: {label}"
+
+
+def test_i2s_pair_blend_binding():
+    """gate 24e - L1 binding for the 8.3b I2S+TDM blend.
+
+    LEVEL 1, oracle = the fabric (SoC glue + RTL text). The blend is what
+    keeps the Arty's ONE known-good audio path alive on a tdm8 build: without
+    the o_i2s_mclk_o rebind the master steals pmoda:4 (ball D13, the CS5343
+    MCLK) and the bench analog loop dies silently - the (b) half of the
+    original 2026-07-28 defect, reachable again through the blend."""
+    soc, rtl, _ = _tdm_sources()
+    _blend_binding(soc, rtl)
+    assert eb.i2s_pair_blended(eb.load_config(CONFIGS["arty_4x4"])), \
+        "arty_4x4 does not blend - framer_pair_supply loses the I2S pair"
+    assert eb.framer_pair_supply(
+        eb.load_config(CONFIGS["arty_4x4"])) == 5, \
+        "arty_4x4 pair supply != 5 (4 TDM8 pairs + the I2S pair at slot 0)"
+    assert not eb.i2s_pair_blended(eb.load_config(CONFIGS["ax7101_8x8"])), \
+        "the AX7101 must stay a solo master (no pmoda, nothing to blend)"
+    print("  [gate 24e] 8.3b blend: "
+          f"{len(BLEND_BINDINGS)} bindings held; arty_4x4 supplies 5 pairs "
+          "(I2S at slot 0), AX7101 stays solo")
+
+
+def test_i2s_pair_blend_gate_bites():
+    """gate 24e-b - every blend binding can FAIL (R2)."""
+    soc, rtl, _ = _tdm_sources()
+    base = {"soc": soc, "rtl": rtl}
+    n = 0
+    for label, which, rx in BLEND_BINDINGS:
+        src = dict(base)
+        m = re.search(rx, src[which], re.M)
+        assert m, f"gate 24e-b setup: '{label}' anchor gone"
+        src[which] = src[which].replace(m.group(0), "# mutated", 1)
+        try:
+            _blend_binding(src["soc"], src["rtl"])
+        except AssertionError:
+            n += 1
+            continue
+        raise AssertionError(
+            f"gate 24e ACCEPTED a mutated tree - cannot detect: {label}")
+    print(f"  [gate 24e-b] {n}/{len(BLEND_BINDINGS)} blend-binding "
+          "mutations REJECTED")
 
 
 def test_front_end_routing_gate_bites():
@@ -2928,7 +3004,17 @@ def test_front_end_routing_gate_bites():
     plat_j11 = base["plat"].replace('    ("ddram", 0,', j11 + '    ("ddram", 0,')
     assert bar.routes_tdm("ax7101", dict(base, plat=plat_j11)), \
         "gate 24d setup: the synthesized J11 header does not read as routed"
-    assert not bar.routes_tdm("arty", dict(base, plat=plat_j11)), \
+    # 8.3b: the Arty routes tdm through its OWN one-line soc extension; the
+    # per-board isolation property is tested on a tree with that line gone -
+    # an AX header must still never answer for the Arty.
+    _ARTY_TDM_EXT = 'plat.add_extension(_arty_serial_io("tdm", "pmodb"))'
+    assert _ARTY_TDM_EXT in base["soc"], \
+        "gate 24d setup: the Arty tdm extension line moved - update the anchor"
+    assert bar.routes_tdm("arty", base), \
+        "gate 24d setup: the Arty must route tdm via its soc extension (8.3b)"
+    soc_no_arty = base["soc"].replace(_ARTY_TDM_EXT, "pass")
+    assert not bar.routes_tdm("arty", dict(base, plat=plat_j11,
+                                           soc=soc_no_arty)), \
         "gate 24d setup: an AX header must not make the ARTY route tdm"
 
     n = 0
@@ -2937,6 +3023,16 @@ def test_front_end_routing_gate_bites():
         try:
             if which == "argv":
                 at, argv = payload
+
+                def argv_of(path, wired, _at=at, _argv=argv):
+                    if wired == _at and path == CONFIGS["arty_4x4"]:
+                        return list(_argv)
+                    return _argv_under(path, wired)
+            elif which == "argv_soc":
+                (anchor, mutant), (at, argv) = payload
+                assert anchor in src["soc"], \
+                    f"gate 24d setup: anchor for '{label}' gone from soc"
+                src["soc"] = src["soc"].replace(anchor, mutant, 1)
 
                 def argv_of(path, wired, _at=at, _argv=argv):
                     if wired == _at and path == CONFIGS["arty_4x4"]:
@@ -3300,15 +3396,16 @@ def test_d10_cluster_names():
     # ... and every config that predates D8 must hash EXACTLY as before
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
         "0x001BC5AB73EC9D1D"
-    # arty_4x4's hash MOVED from 0x001BC565E07E0DD6, and that is correct: its
-    # audio_interface changed tdm8 -> i2s_philips when the per-board routing
-    # gate landed (the Arty routes no `tdm` resource and has no TDM device, so
-    # declaring one would have framed digital silence and taken i2s_mclk off
-    # pmoda:4). `interface.kind` IS a model-shaping field, so a shape change
-    # SHOULD move a hash-derived id - that is the mechanism working. What must
-    # NOT move is arty_current's PINNED id above, and it has not.
+    # arty_4x4's hash has now moved TWICE, correctly both times:
+    # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
+    # gate forced tdm8 -> i2s_philips (no header existed), and ->
+    # 0x001BC578CBCE5FBD when HANDOVER 8.3b routed the pmodb header and the
+    # shape went back to tdm8 (now with 4-cluster talkers, the emitted
+    # width). `interface.kind` IS a model-shaping field, so a shape change
+    # SHOULD move a hash-derived id - that is the mechanism working. What
+    # must NOT move is arty_current's PINNED id above, and it has not.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC5C42E0CEE8B"
+        "0x001BC578CBCE5FBD"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; the two pre-D8 shapes hash unchanged")
@@ -3387,6 +3484,8 @@ if __name__ == "__main__":
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,
                test_front_end_routing_gate_bites,
+               test_i2s_pair_blend_binding,
+               test_i2s_pair_blend_gate_bites,
                test_firmware_version_derived_from_rtl,
                test_d8_role_pools, test_d8_role_pools_reject,
                test_d10_cluster_names, test_d10_names_reach_the_rom):

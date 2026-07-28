@@ -448,7 +448,7 @@ class MilanNIC(LiteXModule):
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 aaf_playback=False,
+                 audio_if_i2s_pair=False, aaf_playback=False,
                  render_lpf=True, optional_blocks=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
@@ -477,6 +477,7 @@ class MilanNIC(LiteXModule):
                            audio_if_slots=audio_if_slots,
                            talker_wire_chans=talker_wire_chans,
                            audio_if_master=audio_if_master,
+                           audio_if_i2s_pair=audio_if_i2s_pair,
                            aaf_playback=aaf_playback,
                            render_lpf=render_lpf, optional_blocks=optional_blocks)
 
@@ -535,7 +536,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
-    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv", "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     # RMON pulse synthesiser at the SoC's MAC boundary (MilanMAC instantiates it;
@@ -587,9 +588,43 @@ MILAN_OPTIONAL_BLOCKS = {
 }
 
 
+def _arty_serial_io(name, pmod):
+    """HANDOVER 8.3b: the Arty TDM8 MASTER header, as an add_extension resource.
+
+    Placed on pmodb - a HIGH-SPEED Pmod (straight to the FPGA, no 200 R series
+    resistors, unlike JC/JD), which is what a continuously-toggling 12.288 MHz
+    bclk wants. Pin order is the Pmod's own top row 1-4 plus bottom-row pin 7:
+
+        pmodb:0  E15  mclk   (out, 12.288 MHz = clk/2, codec master clock)
+        pmodb:1  E16  bclk   (out, 12.288 MHz = 8 slots x 32 bit x 48 kHz)
+        pmodb:2  D15  fsync  (out, 48.000 kHz, 1-bclk pulse)
+        pmodb:3  C15  din    (in,  TDM serial data, MSB first)
+        pmodb:4  J17  dout   (out, KL_tdm_render serial out)
+
+    pmoda is UNTOUCHED: the Pmod I2S2 keeps all eight pins and the CS5343
+    MCLK stays on pmoda:4 (D13) - the blend (milan_datapath
+    AUDIO_IF_I2S_PAIR_P -> KL_pair_blend) runs BOTH front-ends, I2S as pair
+    slot 0 ("channels 1/2 stay the I2S Pmod", USER 2026-07-28).
+
+    The parameterization is deliberate: the add_extension CALL LINE names the
+    resource ("tdm") and the connector ("pmodb") as string literals, which is
+    exactly what sw/litex/platforms/board_audio_routing.py reads as the
+    routing oracle - one line, and every routing answer flips with no edit
+    there."""
+    from litex.build.generic_platform import Subsignal, Pins, IOStandard
+    return [(name, 0,
+             Subsignal("mclk",  Pins(f"{pmod}:0")),
+             Subsignal("bclk",  Pins(f"{pmod}:1")),
+             Subsignal("fsync", Pins(f"{pmod}:2")),
+             Subsignal("din",   Pins(f"{pmod}:3")),
+             Subsignal("dout",  Pins(f"{pmod}:4")),
+             IOStandard("LVCMOS33"))]
+
+
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
+                       audio_if_i2s_pair=False,
                        aaf_playback=False, render_lpf=True,
                        optional_blocks=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
@@ -729,6 +764,12 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         dp_params["p_AUDIO_IF_CLK_HZ_P"] = (2 * int(audio_if_slots)
                                             * AUDIO_IF_WORD_BITS
                                             * AUDIO_IF_FS_HZ)
+        if audio_if_i2s_pair:
+            # HANDOVER 8.3b blend: keep the stereo I2S front-end alive beside
+            # the TDM master (KL_pair_blend, I2S = pair slot 0). Passed ONLY
+            # when the board routes BOTH pad sets - same byte-identical
+            # discipline, same character-for-character name rule as above.
+            dp_params["p_AUDIO_IF_I2S_PAIR_P"] = 1
     # LPF_P: BANKED AREA LEVER (docs/NXN_ARCHITECTURE.md 6.2). Passed ONLY when
     # the filter is pruned, so the default build's Instance - and the generated
     # top .v - stay byte-identical; the SV default LPF_P=1 keeps KL_pcm_lpf.
@@ -3968,6 +4009,17 @@ class MilanDMA(LiteXModule):
                 self.i2s_dac_pads = (_tmk, _tx.clk, _tx.sync, _tx.tx)
             except Exception:
                 self.i2s_pads = None
+        # ---- HANDOVER 8.3b: the Arty TDM8 MASTER header on pmodb ----
+        # Declared whenever the board has the connector, requested (loosely)
+        # only by a master build below - same connector-table gate as pmoda.
+        # This one add_extension line is what flips board_audio_routing.py's
+        # routing oracle for the Arty; pmoda and the Pmod I2S2 are untouched.
+        try:
+            _has_pmodb = "pmodb" in plat.constraint_manager.connector_manager.connector_table
+        except AttributeError:
+            _has_pmodb = False
+        if _has_pmodb:
+            plat.add_extension(_arty_serial_io("tdm", "pmodb"))
         # ---- item-7 ALSA playback: host PCM ring -> KL_pcm_tx pair source ----
         # The TX/talker mirror of the RX depacketizer PCM ring. Software writes
         # S32BE-interleaved PCM into a DRAM ring (per-stream sub-rings at
@@ -4495,6 +4547,15 @@ class MilanSoC(SoCCore):
         audio_tdm_hz = (2 * int(audio_if_slots) * AUDIO_IF_WORD_BITS
                         * AUDIO_IF_FS_HZ) if (audio_if_master and
                                               int(audio_if_slots)) else None
+        # HANDOVER 8.3b: a TDM8 master's serial clock is 24.576 MHz - the
+        # audio MMCM's own contract rate. Reuse cd_audio directly: no CLKOUT1,
+        # no cd_audio_tdm, no new closure surface, and plan A (with its
+        # bench-measured DAC numbers) stays selected. Only TDM16/TDM32 need
+        # the second output and plan B. The datapath still sees
+        # AUDIO_IF_CLK_HZ_P = 24576000 and derives BCLK_HALF_P = 1 -> a
+        # 12.288 MHz bclk, exactly.
+        if audio_tdm_hz == 24_576_000:
+            audio_tdm_hz = None
         self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
                         milan_clk_freq=milan_clk_freq, board=board,
                         audio_tdm_hz=audio_tdm_hz)
@@ -4689,7 +4750,11 @@ class MilanSoC(SoCCore):
                 # 2026-07-13).
                 self.tdm_pads = platform.request("tdm", loose=True)
                 dp_ports.update(
-                    i_clk_tdm_i   = ClockSignal("audio_tdm"),
+                    # TDM8 divides the audio clock itself (no cd_audio_tdm -
+                    # see the audio_tdm_hz note above); TDM16/32 get the
+                    # dedicated MMCM output
+                    i_clk_tdm_i   = ClockSignal("audio_tdm" if audio_tdm_hz
+                                                else "audio"),
                     o_tdm_bclk_o  = (self.tdm_pads.bclk if self.tdm_pads
                                      else Signal()),
                     o_tdm_fsync_o = (self.tdm_pads.fsync if self.tdm_pads
@@ -4704,6 +4769,16 @@ class MilanSoC(SoCCore):
                     o_i2s_mclk_o  = (self.tdm_pads.mclk if self.tdm_pads
                                      else Signal()),
                 )
+                if self.tdm_pads is not None and self.i2s_pads is not None:
+                    # HANDOVER 8.3b blend (the Arty): BOTH front-ends are
+                    # real, so the override above is itself overridden -
+                    # o_i2s_mclk_o goes BACK to the Pmod I2S2 (pmoda:4, D13,
+                    # the CS5343 - the pin that must not move) and the TDM
+                    # header gets the master's mclk on its OWN pad. The
+                    # datapath blends the pair streams (KL_pair_blend, I2S =
+                    # pair slot 0).
+                    dp_ports["o_i2s_mclk_o"] = self.i2s_pads[0]
+                    dp_ports["o_tdm_mclk_o"] = self.tdm_pads.mclk
                 if self.tdm_pads is None:
                     print("[milan] --audio-interface-master: no `tdm` pads on "
                           "this platform - bclk/fsync/dout float and the "
@@ -4719,6 +4794,11 @@ class MilanSoC(SoCCore):
                                   audio_if_slots=int(audio_if_slots),
                                   talker_wire_chans=int(talker_wire_chans),
                                   audio_if_master=bool(audio_if_master),
+                                  # 8.3b blend: on only when the board routes
+                                  # BOTH the I2S Pmod and a tdm header
+                                  audio_if_i2s_pair=(self.tdm_pads is not None
+                                                     and self.i2s_pads
+                                                     is not None),
                                   aaf_playback=aaf_pb,
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks)

@@ -480,6 +480,61 @@ int main(int argc, char** argv) {
     for (int g = 0; g < 200 && axi_read(A_AAF_FRAMES) == fr0; g++)
         for (int c = 0; c < 512; c++) step();
     ck("t0 emission alive on bypass restore", axi_read(A_AAF_FRAMES) > fr0, 1);
+
+    printf("-- 5.3.7.3 silence fill: an ARMED talker with no source FRAMES --\n");
+    // Until 2026-07-28 t1 was armed exactly here and emitted NOTHING: no
+    // pair slot had a source behind it (the W3 finding), so a listener that
+    // bound it got ACMP SUCCESS and then no packets - the state Milan v1.2
+    // 5.3.7.3's first sentence forbids ("...it shall be streaming AVTP
+    // packets"). KL_pair_zero_fill now strobes every consumed pair slot at
+    // clk_audio/512, silence where nothing feeds it, so an armed talker
+    // frames at the media rate. Talkers are told apart by the sid uid16
+    // (bytes 24-25): t0 = 0, t1 = 5 (staged into A_SW_DMAC_HI[31:16] in the
+    // TCTX section above); anything else armed here would be a defect.
+    {
+        std::vector<uint8_t> cur;
+        int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0;
+        dut->m_axis_mac_tx_tready = 1;
+        for (int c = 0; c < 60000 && t1f < 3; c++) {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                        cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                if (dut->m_axis_mac_tx_tlast) {
+                    // TX AAF rides the VID-2 C-TAG (the AAF_CTRL[27:16]
+                    // rule), so allow for the 4-byte 802.1Q shim
+                    size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                  && cur[13] == 0x00) ? 4 : 0;
+                    if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                        && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
+                        int uid = (cur[24+off] << 8) | cur[25+off];
+                        if (uid == 5) {
+                            t1f++;
+                            t1chans = cur[32+off];
+                            t1dlen  = (cur[34+off] << 8) | cur[35+off];
+                            bool z = true;
+                            for (size_t i = 38+off;
+                                 i < 38 + off + 48 && i < cur.size(); i++)
+                                if (cur[i]) z = false;
+                            if (z) t1sil++;
+                        } else if (uid != 0) {
+                            foreign++;                 // t2/t3 must NOT stream
+                        }
+                    }
+                    cur.clear();
+                }
+            }
+            hi();
+        }
+        ck("silence fill: armed t1 EMITS AAF PDUs", t1f >= 3, 1);
+        ck("silence fill: t1 channels_per_frame = wire width", t1chans, 2);
+        ck("silence fill: t1 stream_data_length = 48", t1dlen, 48);
+        ck("silence fill: t1 payload is DIGITAL SILENCE, every PDU",
+           t1sil, t1f);
+        ck("silence fill: unarmed talkers stayed silent", foreign, 0);
+    }
+
     axi_write(A_LWSRP_CTRL, 0x14);          // disable, class-A queue 5 kept
     for (int c = 0; c < 64; c++) step();
     ck("lwSRP off: t1 re-arms", (tap_stream_en() >> 1) & 1, 1);

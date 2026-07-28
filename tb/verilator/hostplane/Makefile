@@ -112,6 +112,8 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv \
        $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv $(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \

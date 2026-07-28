@@ -2,40 +2,41 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
 # Software-defined Milan End-Station config (gaps attack item 4).
-# Shape: ARTY 4x4 - the item-5 NxN test shape for the small board. 4 AAF
-# listener + 4 AAF talker streams, 4ch each, over the physical audio the ARTY
-# ACTUALLY HAS. VALIDATES today; stream 2..4 contexts are marked "planned" in
-# the build plan (item 5).
+# Shape: ARTY 4x4 - the item-5 NxN shape for the small board. 4 AAF listener
+# + 4 AAF talker streams, 4ch each, over ONE I2S lane (Pmod 1, where the Pmod
+# I2S2 sits) PLUS a TDM8 MASTER header - HANDOVER 8.3b, USER DECISION
+# 2026-07-28, which supersedes Lane 10's refusal.
 #
-# THIS CONFIG DECLARED `kind: tdm8` UNTIL 2026-07-28 AND THE ARTY CANNOT BACK IT.
-# The declaration was harmless only for as long as nothing acted on it. The
-# moment the TDM MASTER front-end lands, `tdm_bus_wired()` answers a GLOBAL
-# question ("can any SoC in this tree build a master?") and so turns true for
-# EVERY board at once - and this config, on a board with no `tdm` resource,
-# starts emitting `--audio-interface tdm8 --audio-interface-master`. That build:
-#   (a) drives tdm bclk/fsync/dout into unconnected Signal()s and reads
-#       tdm_data_i = 0, i.e. 8 channels of DIGITAL SILENCE; and
-#   (b) rebinds o_i2s_mclk_o away from the Pmod I2S2 - milan_datapath routes the
-#       TDM master's MCLK out of the I2S mclk pin - taking the CS5343 MCLK off
-#       pmoda:4 (ball D13) and killing the ONE known-good audio path in this
-#       project, the board-to-board analog loop in docs/findings/BENCH_TOPOLOGY.md.
-# ORACLE (a board-resource fact, not a spec question - there is no clause to
-# cite): the stock litex_boards Arty platform contains the string "tdm" ZERO
-# times and declares no `tdm` resource, and milan_soc.py adds no TDM extension
-# on the arty path. Its only audio extension is i2s_pmod_io("pmoda"), which
-# consumes all eight pmoda pins (G13 B11 A11 D12 D13 B18 A18 K16).
-# pmodb/pmodc/pmodd are 24 unclaimed LVCMOS33 pins, so a header COULD be routed -
-# but no TDM8 device exists to plug into it (Digilent ships no TDM Pmod; the
-# bench has none), so routing one would move the silence from a Signal() to a
-# header pin and measure the same zero. Pins are therefore NOT assigned, and
-# the interface is declared as what the board is: stereo I2S, the same kind
-# endstation_arty_current.yaml ships - the config that streams to a Milan-
-# validated reference device with zero unsupported-format frames, through that
-# Pmod. Raising this board to a real multichannel front-end is item 4's TDM
-# header subtask and needs HARDWARE, not a config edit.
-# ENFORCEMENT: sw/litex/platforms/board_audio_routing.py refuses the build, and
-# test_builder gates 24c/24d refuse the config; re-declaring tdm8 here fails
-# both.
+# WHY THE REVERSAL IS CORRECT. Lane 10 refused a TDM front-end here because
+# the board routed no `tdm` resource and a SLAVE bus nothing drives frames
+# digital silence; with real pins and a real MASTER that reasoning no longer
+# applies - a master needs nobody to drive it. The refusal MACHINERY stays
+# exactly as built: sw/litex/platforms/board_audio_routing.py READS routing,
+# and it answers "backed" now because sw/litex/milan_soc.py declares the
+# `tdm` resource on pmodb (high-speed Pmod: E15 E16 D15 C15 J17 = mclk bclk
+# fsync din dout). pmoda is UNTOUCHED: the Pmod I2S2 keeps all eight pins and
+# the CS5343 MCLK stays on pmoda:4 (ball D13) - the board-to-board analog
+# loop of docs/findings/BENCH_TOPOLOGY.md is preserved because the blend
+# gives the TDM header its OWN mclk pad instead of stealing the I2S one.
+#
+# THE CLOCKING IS FREE. TDM8 x 32-bit slots @ 48 kHz needs bclk = 12.288 MHz
+# = the existing 24.576 MHz audio MMCM / 2 (BCLK_HALF_P = 1): no new MMCM
+# output, no new clock domain, no new closure risk - unlike the AX7101's
+# TDM32, which needed its own 98.304 MHz output.
+#
+# CHANNEL BUDGET (stated honestly): the blend (milan_datapath
+# AUDIO_IF_I2S_PAIR_P -> KL_pair_blend) supplies FIVE pair slots - the I2S
+# pair at slot 0 ("channels 1/2 stay the I2S Pmod", USER 2026-07-28) and the
+# four TDM8 pairs at slots 1..4. Four 4-channel talkers consume eight, so
+# talkers 0-1 are fully backed by physical sources and talkers 2-3 frame
+# SILENCE via KL_pair_zero_fill - they stream (Milan v1.2 5.3.7.3: a bound
+# Stream Output "shall be streaming AVTP packets"), and their missing
+# physical sources are REPORTED by scripts/check_wire_accountability.py as
+# source coverage, the same W3 shape as the AX7101 (5 of 8 slots backed
+# here, 16 of 32 there). No TDM8 device is on the bench yet: until one is
+# plugged into pmodb the TDM pairs capture the header's idle level - the
+# scope acceptance is bclk 12.288 MHz / fsync 48.000 kHz on the header and
+# A_AAF_PAIRS ~= 240,000/s (5 pairs x 48 kHz).
 
 schema: kebag-logic/milan-endstation-config
 schema_version: "1.1.0"
@@ -117,15 +118,29 @@ clocking:
                                      # (docs/design/AUDIO_STREAMING.md)
 
 audio_interface:
-  kind: i2s_philips                  # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
-                                     # The Arty routes ONE audio front-end: the
-                                     # Pmod I2S2 on pmoda (CS5343 ADC + CS4344
-                                     # DAC), stereo. See the header banner for
-                                     # why tdm8 is not declarable here.
-  word_length_bits: 24               # CS4344 24-bit Philips
+  kind: tdm8                         # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
+                                     # HANDOVER 8.3b: TDM8 MASTER on pmodb +
+                                     # the I2S pair blended at slot 0 (see the
+                                     # header banner). The builder emits
+                                     # --audio-interface tdm8
+                                     # --audio-interface-master; the SoC adds
+                                     # the blend because the board routes BOTH
+                                     # pad sets.
+  word_length_bits: 24               # 24-in-32 TDM slots (and CS4344 Philips
+                                     # on the render side)
+  physical_channels:
+    capture: 8                       # the TDM8 header routes all 8 slot
+                                     # channels to pins; the I2S pair is
+                                     # EXTRA-familial supply (blend slot 0),
+                                     # counted by framer_pair_supply(), not
+                                     # here (this key is bounded by the
+                                     # declared interface family width)
+    render: 2                        # the REAL render device is the Pmod
+                                     # I2S2's CS4344 DAC (stereo); tdm dout
+                                     # is routed but no TDM device exists yet
   cluster_mapping:
     policy: cap-at-interface         # clusters model real endpoints only:
-                                     # per stream min(clusters, 2 I2S channels)
+                                     # per stream min(clusters, interface)
 
 streams:
   listeners:
@@ -136,12 +151,15 @@ streams:
     # 0x0205022001006000 = AAF PCM32 48k 4ch; 0x0215... = ut-bit 1..4 family
     # clusters default = channels (4 mono clusters per stream port)
   talkers:
-    # clusters = the single authority for the talker's cluster count; ships
-    # WIRE TRUTH 2 (today's framer RTL is stereo - only 2 physical channels
-    # exist behind any talker stream until the item-5 NxN talker lands;
-    # raise together with that RTL). The legacy-8 layout stays expressible
-    # (see endstation_arty_current.yaml).
-    - { name: "Stream Out 0", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 1", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 2", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 3", channels: 4, clusters: 2, formats: ["0x0205022001006000"] }
+    # clusters default = channels (4 mono clusters per stream port). The
+    # framer emits the declared 4 channels since HANDOVER 8.3b: the blend
+    # supplies 5 pair slots (I2S + TDM8), TALKER_WIRE_CHANS_C = 4, and the
+    # milan_datapath elaboration guard holds the equation. Talkers 2-3 have
+    # no physical source behind their slots and frame SILENCE
+    # (KL_pair_zero_fill, Milan v1.2 5.3.7.3) - reported as source coverage
+    # by check_wire_accountability, not hidden by a down-declaration (the
+    # reverted dade536 mistake).
+    - { name: "Stream Out 0", channels: 4, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 1", channels: 4, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 2", channels: 4, formats: ["0x0205022001006000"] }
+    - { name: "Stream Out 3", channels: 4, formats: ["0x0205022001006000"] }

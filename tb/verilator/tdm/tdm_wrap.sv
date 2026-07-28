@@ -59,6 +59,10 @@ module tdm_wrap (
   output wire [3:0]   m2_slot_o,
   output wire [23:0]  m2_l_o,
   output wire [23:0]  m2_r_o,
+  //! cap M3 (SLOTS_P=8, BCLK_HALF_P=1) generated bus - the ARTY 8.3b
+  //! shipping shape, frequency-asserted (bclk = clk_tdm/2, frame = 512 clk)
+  output wire         m3_bclk_o,
+  output wire         m3_fsync_o,
 
   //! cap A pair stream (also feeds the packetizer)
   output wire         a_pv_o,
@@ -148,6 +152,23 @@ module tdm_wrap (
     .tdm_fsync_o (m2_fsync_o), .tdm_data_i (m2_data_i),
     .pair_valid_o (m2_pv_o), .pair_slot_o (m2_slot_o),
     .pair_l_o (m2_l_o), .pair_r_o (m2_r_o),
+    .pairs_captured_o ()
+  );
+
+  //! ---- cap M3: the ARTY 8.3b SHIPPING combination - TDM8 x 32-bit slots
+  //! at BCLK_HALF_P = 1 off the 24.576 MHz audio clock. bclk = clk_tdm/2 =
+  //! 12.288 MHz, frame = 256 bclks = 512 clk_tdm = 48.000 kHz fsync,
+  //! EXACTLY, which is HANDOVER 8.3b work item 4: assert the frequency in
+  //! the TB rather than assume it. Data is held 0 - this instance exists
+  //! for the bus it generates; the pair path is cap M2's subject.
+  KL_tdm_capture_master #(
+    .SLOTS_P (8), .WORD_BITS_P (32), .BCLK_HALF_P (1), .DATA_DELAY_P (1'b1)
+  ) u_cap_m3 (
+    .clk_i (clk), .rst_n (rst_n), .clk_audio_i (clk_tdm),
+    .tdm_mclk_o (), .tdm_bclk_o (m3_bclk_o),
+    .tdm_fsync_o (m3_fsync_o), .tdm_data_i (1'b0),
+    .pair_valid_o (), .pair_slot_o (),
+    .pair_l_o (), .pair_r_o (),
     .pairs_captured_o ()
   );
 

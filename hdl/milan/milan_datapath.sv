@@ -87,6 +87,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! only TDM8 x 32 @ 48 kHz is realisable (24.576 MHz = 2 x 1 x 12.288 MHz).
   parameter int AUDIO_IF_CLK_HZ_P = 24576000,
   parameter int AUDIO_IF_FS_HZ_P  = 48000,
+  //! HANDOVER 8.3b (USER 2026-07-28) - the Arty audio shape: 1 = keep the
+  //! stereo I2S front-end ALIVE BESIDE a TDM MASTER and blend the two pair
+  //! streams (KL_pair_blend): the I2S pair is pair slot 0 - "channels 1/2
+  //! stay the I2S Pmod", the bench analog loop - and the TDM pairs follow at
+  //! slots 1..S/2. Supply = 1 + S/2 pairs. Only meaningful with
+  //! AUDIO_IF_MASTER_P = 1 (a SLAVE bus shares the i2s mclk pin; the guard
+  //! below refuses the combination). 0 (default) = every existing shape,
+  //! byte-identical.
+  parameter int AUDIO_IF_I2S_PAIR_P = 0,
 parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
   //! item-7 ALSA playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
@@ -225,6 +234,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   input  wire                     tdm_fsync_i,    //! SLAVE role: frame sync in
   output wire                     tdm_bclk_o,     //! MASTER role: generated bit clock
   output wire                     tdm_fsync_o,    //! MASTER role: generated frame sync (1-bclk pulse)
+  output wire                     tdm_mclk_o,     //! MASTER role: codec master clock (clk_tdm_i/2). On a blend build (AUDIO_IF_I2S_PAIR_P) the TDM header gets its OWN mclk pad so i2s_mclk_o can stay on the Pmod I2S2 (Arty D13, the CS5343 - HANDOVER 8.3b work item 1); solo-master builds keep mclk on i2s_mclk_o exactly as before and may leave this open.
   output wire                     tdm_dout_o,     //! chmap follow-up 4: KL_tdm_render serial out (TDM8, ext-clocked by tdm_bclk/fsync)
   input  wire                     tdm_data_i,
   // ---- Pmod I2S2 DAC (line-out): zero-CPU playback of the bound stream ----
@@ -455,27 +465,37 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  raising the framer first (roadmap item 5 owns that).
   //
   //  SCOPE, MEASURED FROM THE RTL RATHER THAN ASSUMED. The rule is per
-  //  TALKER, not N_STREAMS*C/2 for the whole engine. A talker whose pair
-  //  slots are never driven never advances nsamp_r, so pend_r never sets and
-  //  it emits NO FRAME AT ALL - it goes silent, it does not put a wrong
-  //  channel count on the wire. That is a real gap (an advertised stream with
-  //  no physical source) but it is a DIFFERENT one from D3, it is the
-  //  documented wire-truth rule's "extra stream channels are virtual", and
-  //  every N>1 shape in this tree has it today. Making it an elaboration
-  //  error here would refuse the milan_dp N=4/N=8 TBs and the shipping 8x8
-  //  bitstream over a pre-existing condition - the shape of the 2026-07-27
-  //  wrong attempt (a), which gated on `clusters` and refused arty_current, a
-  //  config that demonstrably works on the wire. Source coverage is REPORTED
-  //  by scripts/check_wire_accountability.py instead, where a finding costs a
-  //  CI line and not a buildable bitstream.
+  //  TALKER, not N_STREAMS*C/2 for the whole engine. Historically a talker
+  //  whose pair slots were never driven never advanced nsamp_r, so pend_r
+  //  never set and it emitted NO FRAME AT ALL after answering ACMP SUCCESS -
+  //  the W3 finding, and a violation of Milan 5.3.7.3's first sentence for a
+  //  bound Stream Output. CLOSED 2026-07-28 by KL_pair_zero_fill (below the
+  //  capture/playback mux): every consumed pair slot now strobes at the
+  //  media rate, silence where no source feeds it, so an armed talker always
+  //  frames. What remains a REPORTED fact - by
+  //  scripts/check_wire_accountability.py, as information rather than a
+  //  compliance failure - is physical SOURCE COVERAGE: which of those slots
+  //  carry a real capture channel (AX7101: 16 of 32; Arty TDM8+I2S: 5 of 8),
+  //  a product truth that no clause turns into a defect. Making the width
+  //  rule an elaboration error stays correct (this guard); making COVERAGE
+  //  one would refuse every shipping shape over unpatched inputs - the
+  //  2026-07-27 wrong attempt (a) again.
   //
   //  ONE format string ($error takes later arguments as VALUES - a "wrapped"
   //  message prints its continuation strings as integers).
   // ==========================================================================
-  localparam int AIF_PAIRS_C = (AUDIO_IF_SLOTS_P == 0) ? 1
-                                                       : AUDIO_IF_SLOTS_P / 2;
+  //! blend (HANDOVER 8.3b): the I2S pair rides at slot 0 and the TDM pairs
+  //! shift up one, so the supply grows by exactly one pair
+  localparam int AIF_PAIRS_C = (AUDIO_IF_SLOTS_P == 0)
+                             ? 1
+                             : AUDIO_IF_SLOTS_P / 2 +
+                               ((AUDIO_IF_I2S_PAIR_P != 0) ? 1 : 0);
   localparam int WIRE_PAIRS_NEEDED_C = TALKER_WIRE_CHANS_P / 2;
-  if (TALKER_WIRE_CHANS_P < 2 || TALKER_WIRE_CHANS_P > 8 ||
+  if (AUDIO_IF_I2S_PAIR_P != 0 &&
+      (AUDIO_IF_MASTER_P == 0 || AUDIO_IF_SLOTS_P == 0))
+    $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+           AUDIO_IF_MASTER_P, AUDIO_IF_SLOTS_P);
+  else if (TALKER_WIRE_CHANS_P < 2 || TALKER_WIRE_CHANS_P > 8 ||
       (TALKER_WIRE_CHANS_P % 2) != 0)
     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
            TALKER_WIRE_CHANS_P);
@@ -551,10 +571,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! open, so this constant costs nothing after synthesis)
     assign tdm_bclk_o  = 1'b0;
     assign tdm_fsync_o = 1'b0;
+    assign tdm_mclk_o  = 1'b0;
   end else if (AUDIO_IF_MASTER_P != 0) begin : g_aif_tdm_master
     //! TDM MASTER: we make bclk and fsync, so the front-end needs nobody to
     //! drive it - which is the difference between an interface the config
     //! DECLARES and one the fabric BACKS. Same {pair_slot, L, R} contract.
+    if (AUDIO_IF_I2S_PAIR_P == 0) begin : g_solo
     KL_tdm_capture_master #(
       .SLOTS_P      (AUDIO_IF_SLOTS_P),
       .WORD_BITS_P  (AIF_WORD_BITS_C),
@@ -571,6 +593,59 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     );
     assign i2s_sclk_o = 1'b0;
     assign i2s_lrck_o = 1'b0;
+    //! solo master: mclk rides i2s_mclk_o exactly as before (the AX7101 J11
+    //! binding); the dedicated pad is for the blend shape only
+    assign tdm_mclk_o = 1'b0;
+    end else begin : g_blend
+    //! HANDOVER 8.3b - the Arty audio shape: BOTH front-ends live. The I2S
+    //! capture keeps every Pmod I2S2 pin (mclk on D13 - the CS5343, the
+    //! bench analog loop) and feeds pair slot 0 ("channels 1/2 stay the I2S
+    //! Pmod", USER 2026-07-28); the TDM master gets its OWN mclk pad and its
+    //! pairs ride slots 1..S/2 (KL_pair_blend). At TDM8 off the shipping
+    //! 24.576 MHz audio clock this adds NO new clock domain: clk_tdm_i IS
+    //! clk_audio_i's rate, BCLK_HALF_P = 1, bclk = 12.288 MHz exactly.
+    wire        bl_i2s_pv_w;
+    wire [23:0] bl_i2s_l_w, bl_i2s_r_w;
+    wire        bl_tdm_pv_w;
+    wire [3:0]  bl_tdm_slot_w;
+    wire [23:0] bl_tdm_l_w, bl_tdm_r_w;
+    KL_aaf_capture_i2s aaf_capture_i2s (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .clk_audio_i (clk_audio_i),
+      .tone_en_i (cfg_tone_enable), .tone_smp_i (tone_smp),
+      .i2s_mclk_o (i2s_mclk_o), .i2s_sclk_o (i2s_sclk_o),
+      .i2s_lrck_o (i2s_lrck_o), .i2s_sdout_i (i2s_sdout_i),
+      .pair_valid_o (bl_i2s_pv_w), .pair_slot_o (),
+      .pair_l_o (bl_i2s_l_w), .pair_r_o (bl_i2s_r_w),
+      .pairs_captured_o ()
+    );
+    KL_tdm_capture_master #(
+      .SLOTS_P      (AUDIO_IF_SLOTS_P),
+      .WORD_BITS_P  (AIF_WORD_BITS_C),
+      .BCLK_HALF_P  (AIF_BCLK_HALF_C),
+      .DATA_DELAY_P (1'b1)
+    ) aaf_capture (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .clk_audio_i (clk_tdm_i),
+      .tdm_mclk_o (tdm_mclk_o), .tdm_bclk_o (tdm_bclk_o),
+      .tdm_fsync_o (tdm_fsync_o), .tdm_data_i (tdm_data_i),
+      .pair_valid_o (bl_tdm_pv_w), .pair_slot_o (bl_tdm_slot_w),
+      .pair_l_o (bl_tdm_l_w), .pair_r_o (bl_tdm_r_w),
+      .pairs_captured_o ()
+    );
+    KL_pair_blend #(.TDM_SLOTS_P (AUDIO_IF_SLOTS_P)) pair_blend (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .i2s_pair_valid_i (bl_i2s_pv_w),
+      .i2s_pair_l_i (bl_i2s_l_w), .i2s_pair_r_i (bl_i2s_r_w),
+      .tdm_pair_valid_i (bl_tdm_pv_w), .tdm_pair_slot_i (bl_tdm_slot_w),
+      .tdm_pair_l_i (bl_tdm_l_w), .tdm_pair_r_i (bl_tdm_r_w),
+      .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
+      .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
+      //! A_AAF_PAIRS: the merged PHYSICAL supply (5 pairs x 48 kHz ~=
+      //! 240,000/s on the Arty TDM8+I2S build - the 8.3b acceptance number)
+      .pairs_merged_o (aaf_pairs_w)
+    );
+    end
   end else begin : g_aif_tdm
     //! TDM slave (pulse or 50%-duty fsync, Philips-heritage 1-bit data
     //! delay, 32-bclk slots). The TONE_CTRL pilot override is an I2S-bench
@@ -593,6 +668,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! SLAVE role: the codec owns bclk/fsync, so our master pins park
     assign tdm_bclk_o  = 1'b0;
     assign tdm_fsync_o = 1'b0;
+    assign tdm_mclk_o  = 1'b0;
   end endgenerate
 
   // ==========================================================================
@@ -717,12 +793,65 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w)
   );
 
-  //! bypass mux: enable=0 -> the front-end pair drives the packetizer EXACTLY
-  //! (5'(aafcap_slot_w) == today's 4-bit slot zero-extended: bit-identical).
-  wire        pkt_pv_w   = cfg_chmap_enable ? cmap_pv_w   : cappb_pv_w;
-  wire [4:0]  pkt_slot_w = cfg_chmap_enable ? cmap_slot_w : {1'b0, cappb_slot_w};
-  wire [23:0] pkt_l_w    = cfg_chmap_enable ? cmap_l_w    : cappb_l_w;
-  wire [23:0] pkt_r_w    = cfg_chmap_enable ? cmap_r_w    : cappb_r_w;
+  // ==========================================================================
+  //  Milan 5.3.7.3 silence fill (KL_pair_zero_fill): every pair slot the
+  //  packetizer consumes strobes at the media rate, so a BOUND talker frames
+  //  whether or not a physical source feeds it - real audio where fed, legal
+  //  PCM silence where not. Before this, a talker whose slots were never
+  //  strobed emitted NO FRAME AT ALL after answering ACMP SUCCESS (the W3
+  //  finding: AX7101 talkers 4-7, Arty 4x4 talkers 2-3), which is the state
+  //  the clause's first sentence forbids. Admission is untouched: an UNBOUND
+  //  talker still emits nothing, because stream_en_i gates the packetizer -
+  //  the fill only matters for a talker that is armed and unfed.
+  //
+  //  The fill grid is clk_audio_i/512 = 48.000 kHz EXACTLY - the same VCO
+  //  every front-end divides - never the milan-clk media_tick_p divider
+  //  (48.03 kHz at 50 MHz): a +640 ppm silence stream would drift against
+  //  its own declared rate and collect LATE_TIMESTAMP at the listener.
+  // ==========================================================================
+  localparam int ZF_TOTAL_C = N_STREAMS * (TALKER_WIRE_CHANS_P / 2);
+  logic [8:0] zf_adiv_r;
+  logic       zf_apulse_r;
+  //! clk_audio domain with the axis reset - the KL_tone_gen precedent above
+  always_ff @(posedge clk_audio_i) begin : zf_audio_div
+    if (!axis_resetn) begin
+      zf_adiv_r   <= '0;
+      zf_apulse_r <= 1'b0;
+    end else begin
+      zf_adiv_r   <= zf_adiv_r + 1'b1;
+      zf_apulse_r <= (zf_adiv_r == 9'd511);
+    end
+  end : zf_audio_div
+  wire zf_tick_w;
+  cdc_pulse zf_tick_cdc (
+    .src_clk (clk_audio_i), .src_rst_n (axis_resetn),
+    .src_pulse (zf_apulse_r),
+    .dest_clk (axis_clk), .dest_rst_n (axis_resetn),
+    .dest_pulse (zf_tick_w)
+  );
+  wire        zf_pv_w;
+  wire [4:0]  zf_slot_w;
+  wire [23:0] zf_l_w, zf_r_w;
+  KL_pair_zero_fill #(.TOTAL_P (ZF_TOTAL_C), .SLOT_W_P (5)) pair_zero_fill (
+    .clk_i (axis_clk), .rst_n (axis_resetn), .tick_i (zf_tick_w),
+    .pair_valid_i (cappb_pv_w), .pair_slot_i ({1'b0, cappb_slot_w}),
+    .pair_l_i (cappb_l_w), .pair_r_i (cappb_r_w),
+    .pair_valid_o (zf_pv_w), .pair_slot_o (zf_slot_w),
+    .pair_l_o (zf_l_w), .pair_r_o (zf_r_w),
+    //! fills are deliberately NOT in A_AAF_PAIRS (that instrument counts
+    //! captured physical pairs - R5); the observable is the bound talker's
+    //! FRAMES_TX and the wire itself
+    .fill_cnt_o ()
+  );
+
+  //! bypass mux: enable=0 -> the front-end pair stream, silence-filled,
+  //! drives the packetizer. For every slot a front-end actually feeds this
+  //! is today's stream exactly (a fill never lands on a live slot); the
+  //! CHMAP path is software-programmed and owns its own slot coverage.
+  wire        pkt_pv_w   = cfg_chmap_enable ? cmap_pv_w   : zf_pv_w;
+  wire [4:0]  pkt_slot_w = cfg_chmap_enable ? cmap_slot_w : zf_slot_w;
+  wire [23:0] pkt_l_w    = cfg_chmap_enable ? cmap_l_w    : zf_l_w;
+  wire [23:0] pkt_r_w    = cfg_chmap_enable ? cmap_r_w    : zf_r_w;
 
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
                       .WIRE_CHANS_P(TALKER_WIRE_CHANS_P)) aaf_packetizer (

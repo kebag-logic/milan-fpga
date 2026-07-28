@@ -83,29 +83,26 @@
 #            i2s_tx.sync pmoda:1 B11     i2s_rx.sync pmoda:5 B18
 #            i2s_tx.clk  pmoda:2 A11     i2s_rx.clk  pmoda:6 A18
 #            i2s_tx.tx   pmoda:3 D12     i2s_rx.rx   pmoda:7 K16
-#    tdm : NO, and not by omission - the string "tdm" occurs ZERO times in the
-#          whole stock platform file, and milan_soc.py adds no TDM extension on
-#          the arty path.
+#    tdm : YES since HANDOVER 8.3b (USER DECISION 2026-07-28, superseding Lane
+#          10's refusal): milan_soc.py adds `_arty_serial_io("tdm", "pmodb")`
+#          on the arty path - mclk/bclk/fsync/din/dout on pmodb:0..4 (E15 E16
+#          D15 C15 J17), a HIGH-SPEED Pmod (no 200 R series resistors, right
+#          for a 12.288 MHz bclk).  Lane 10 refused a TDM front-end because a
+#          SLAVE bus nothing drives frames silence and the mclk override
+#          would have stolen D13; with real pins and a MASTER neither
+#          applies - a master needs nobody to drive it, and the blend
+#          (milan_datapath AUDIO_IF_I2S_PAIR_P -> KL_pair_blend) gives the
+#          TDM header its OWN mclk pad so pmoda:4 (D13) never moves.  This
+#          module answered "backed" the moment that line landed, with no
+#          edit here - which is exactly how it was built to behave.
 #
-#  FREE PINS ON THE ARTY, since the honest answer to "can it ever have one" is
-#  not "no pins": pmodb (E15 E16 D15 C15 J17 J18 K15 J15), pmodc (U12 V12 V10
-#  V11 U14 V14 T13 U13) and pmodd (D4 D3 F4 F3 E2 D2 H2 G2) are 24 LVCMOS33
-#  pins that NO resource in this design claims (verified: nothing under sw/,
-#  scripts/, configs/ or constraints/ mentions them), plus the ck_io Arduino
-#  headers.  They are deliberately NOT declared as a `tdm` resource here:
-#
-#    * there is no TDM8 device to plug into them.  Digilent ships no TDM Pmod,
-#      and the bench has none.  The AX7101's J11 choice was justified by the
-#      VENDOR's own WM8731 audio block, so a stock Alinx daughterboard plugs
-#      straight in; the Arty has no counterpart.  Routing five JC pins would
-#      move the silence from an unconnected Signal() to an unconnected header
-#      pin and change nothing measurable - R5 again.
-#    * the brief for this work is explicit: do not invent pins.  A pin that
-#      cannot be verified against a device is not assigned.
-#
-#  If a TDM daughterboard is ever specified for the Arty, declare it here as an
-#  extension milan_soc.py adds on the arty path, and this module - and the
-#  test_builder gates that read it - will accept the config with no other edit.
+#  REMAINING FREE PINS ON THE ARTY: pmodc (U12 V12 V10 V11 U14 V14 T13 U13)
+#  and pmodd (D4 D3 F4 F3 E2 D2 H2 G2) - 16 LVCMOS33 pins no resource claims -
+#  plus pmodb:5..7 (J18 K15 J15) and the ck_io Arduino headers.  No TDM8
+#  device is on the bench yet; until one is plugged into pmodb the TDM pairs
+#  capture the header's idle level and the affected talkers frame silence
+#  (KL_pair_zero_fill) - the scope acceptance is bclk 12.288 MHz and fsync
+#  48.000 kHz on the header itself.
 
 import os
 import re

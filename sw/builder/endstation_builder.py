@@ -780,6 +780,13 @@ SOC_PY = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                       "..", "litex", "milan_soc.py")
 _TDM_WIRED_CACHE = {}
 
+#: Per-board pad routing oracle (HANDOVER 8.3b): the same module the SoC's
+#: front-end refusal uses, so the builder's pair-supply arithmetic and the
+#: elaborated fabric answer from one place and cannot drift.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "..", "litex", "platforms"))
+import board_audio_routing as bar  # noqa: E402
+
 
 def tdm_bus_wired(soc_text=None):
     """Does any SoC in this tree DRIVE the TDM capture bus?
@@ -878,6 +885,24 @@ def audio_if_slots(cfg, wired=None):
     return AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
 
 
+def i2s_pair_blended(cfg, wired=None):
+    """HANDOVER 8.3b: does this build BLEND the stereo I2S pair beside the
+    TDM master (milan_datapath AUDIO_IF_I2S_PAIR_P -> KL_pair_blend)?
+
+    The I2S pair rides pair slot 0 - "channels 1/2 stay the I2S Pmod" (USER
+    2026-07-28), the bench analog loop - and the TDM pairs follow at slots
+    1..S/2, so the supply grows by one pair. True exactly when the SoC will
+    pass the parameter: a TDM MASTER build on a board that routes BOTH the
+    Pmod I2S2 and a `tdm` header (the AX7101 routes no pmoda, so it stays a
+    solo master with no argv or Instance change)."""
+    if interface_is_placeholder(cfg, wired) or not tdm_bus_master():
+        return False
+    if not AUDIO_IF_SLOTS.get(cfg["interface"]["kind"]):
+        return False
+    board = cfg["board_target"]
+    return bar.routes_tdm(board) and bar.routes_i2s_pmod(board)
+
+
 def framer_pair_supply(cfg, wired=None):
     """Pair slots the capture front-end actually delivers to the packetizer.
 
@@ -887,7 +912,7 @@ def framer_pair_supply(cfg, wired=None):
     slots = audio_if_slots(cfg, wired)
     if slots == 0:
         return 1                      # KL_aaf_capture_i2s: pair_slot_o = 4'd0
-    return slots // 2
+    return slots // 2 + (1 if i2s_pair_blended(cfg, wired) else 0)
 
 
 def framer_declared_channels(cfg):

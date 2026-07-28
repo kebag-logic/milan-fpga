@@ -67,30 +67,30 @@ jobs:
         run: python3 sw/dts/milan_dt.py selftest
 
   # ==========================================================================
-  #  THIS JOB IS EXPECTED TO BE RED (roadmap item 00). Read before "fixing" it.
+  #  THIS JOB WENT GREEN 2026-07-28 AND MUST STAY GREEN (roadmap item 00).
   #
-  #  Every gate in the job above compares a declaration against ANOTHER
-  #  declaration and none of them can see the wire, which is how the 8x8
-  #  talkers came to advertise 8-channel AAF while the framer emits stereo with
-  #  57/57 suites and 2,062,389 checks green. A Milan-validated reference
-  #  device caught it: ACMP SUCCESS, Milan 5.5.1.2 format check passed, then
-  #  UNSUPPORTED_FORMAT on 296,294 of 296,294 frames.
+  #  It was born EXPECTED-RED: every other gate compares a declaration against
+  #  ANOTHER declaration and none can see the wire, which is how the 8x8
+  #  talkers came to advertise 8-channel AAF while the framer emitted stereo
+  #  with 57/57 suites green - a Milan-validated reference device caught it at
+  #  UNSUPPORTED_FORMAT on 296,294 of 296,294 frames. This job was that prose
+  #  deviation turned into an exit code, red by design and owned by item 5.
   #
-  #  The deviation used to be a prose comment in the config, and a comment does
-  #  not fail a build. This job is that comment turned into an exit code, and
-  #  it goes green when the FRAMER is raised (roadmap item 5) - never by
-  #  lowering a declared format, which was tried on 2026-07-27 (dade536) and
-  #  reverted (e103d8e) because it would ship an 8x8 board advertising itself
-  #  as stereo forever.
+  #  It went green the specified way, in two halves: the TDM MASTER raised the
+  #  framer to the declaration (W1, never the reverse - the dade536
+  #  down-declaration was reverted), and KL_pair_zero_fill made every BOUND
+  #  talker frame at the media rate, silence where no source feeds it (Milan
+  #  v1.2 5.3.7.3, W5). Source coverage stays a printed [note], not a finding.
   #
-  #  It is a SEPARATE job on purpose: a known-red step inside docs-check would
-  #  mask the first real regression in any of the gates above it.
+  #  A failure here now is a REGRESSION of one of those two closures, or a new
+  #  advertised width the fabric cannot back. It stays a SEPARATE job so its
+  #  history keeps reading as the item-00 record.
   # ==========================================================================
   wire-accountability:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Advertised-vs-emitted gate (expected red until roadmap item 5)
+      - name: Advertised-vs-emitted gate (green since 2026-07-28, item 00)
         run: |
           python3 -m pip install --quiet pyyaml
           python3 scripts/check_wire_accountability.py --self-test
