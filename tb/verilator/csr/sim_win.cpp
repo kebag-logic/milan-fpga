@@ -126,13 +126,66 @@ static void model_pre_edge() {
   acmp_gnt_next = (dut->o_acmp_tbl_req && !dut->i_acmp_tbl_gnt) ? 1 : 0;
 }
 
+// ------------------------------------------------------------------ chmap
+//  Model of the two channel-map RAMs behind the 0x910/0x914 readback port.
+//  This executable is built with -GCHMAP_RDBK_P=3, i.e. "both read ports are
+//  wired", which is what the milan_datapath patch does.
+//
+//  Shapes are the REAL ones, not convenient ones:
+//    - the CSR's 16-bit §5 word is SLICED on the way into each RAM exactly
+//      as milan_datapath slices it (CHANNEL_MAP_64.md §5 "as wired today"),
+//      so a round-trip test proves the transport, not a tautology;
+//    - the capture RAM answers one clock after a held map_rd_en_i, the
+//      registered read port KL_chan_map_capture actually has;
+//    - the capture readback word is Lane 5's widening,
+//      {loop_fed[15], loop_mapped[14], 2'b0, entry[11:0]}. loop_fed is a
+//      property only the FABRIC can know (has any audio ever reached this
+//      slot?) - here it is a TB-owned flag, which is the point: the CSR
+//      must transport it, never synthesise it.
+static uint8_t  cmap_ram[64], rmap_ram[64];   // 8-bit RAM entries
+static bool     cmap_fed[64];                 // fabric's "ever fed" observation
+static bool     chmap_answer = true;          // false = declared but silent
+static int      chmap_v_q;                    // registered read-port pipeline
+static uint32_t chmap_d_q;
+
+static void chmap_model_pre_edge() {
+  dut->i_chmap_rd_valid = chmap_v_q;
+  dut->i_chmap_rd_data  = chmap_d_q;
+  dut->eval();
+  if (dut->o_chmap_rd_en && chmap_answer) {
+    int a = dut->o_chmap_rd_addr & 63;
+    chmap_v_q = 1;
+    if (dut->o_chmap_rd_side)                       // CMAP (capture)
+      chmap_d_q = ((uint32_t)(cmap_fed[a] ? 1 : 0) << 15) |
+                  ((uint32_t)((cmap_ram[a] >> 7) & 1) << 14) |
+                  (uint32_t)cmap_ram[a];
+    else                                            // RMAP (render): no mask
+      chmap_d_q = (uint32_t)rmap_ram[a];
+  } else {
+    chmap_v_q = 0;
+  }
+}
+
 // sticky captures of the CFG write bundles
 static bool     seen_lctx_wr, seen_tctx_wr;
 static uint32_t lctx_wr_addr, lctx_wr_data, tctx_wr_addr, tctx_wr_data;
 
 static void posedge() {
   model_pre_edge();
+  chmap_model_pre_edge();
   dut->aclk = 1; dut->eval();
+  // the shared map write port, sliced as milan_datapath slices it
+  if (dut->o_chmap_wr_en) {
+    int a = dut->o_chmap_wr_addr & 63;
+    uint32_t d = dut->o_chmap_wr_data;
+    if (dut->o_chmap_wr_side)   // capture: {en[15], src[14:12], idx[3:0]}
+      cmap_ram[a] = (uint8_t)((((d >> 15) & 1) << 7) |
+                              (((d >> 12) & 7) << 4) | (d & 0xF));
+    else                        // render:  {en[15], src[12], idx[6:4], idx[2:0]}
+      rmap_ram[a] = (uint8_t)((((d >> 15) & 1) << 7) |
+                              (((d >> 12) & 1) << 6) |
+                              (((d >> 4) & 7) << 3) | (d & 7));
+  }
   if (dut->o_lctx_wr_p) {
     seen_lctx_wr = true;
     lctx_wr_addr = dut->o_lctx_wr_addr; lctx_wr_data = dut->o_lctx_wr_data;
@@ -376,6 +429,132 @@ int main(int argc, char** argv) {
   ck("oor no LCTX write",  seen_lctx_wr, 0);
   ck("oor no SRP provision", srp_saw_wr, 0);
   ck("oor SEL readback intact", axi_read(A_STRM_SEL), 0x004);
+
+  // ------------------------------------------------------------------ //
+  //  chmap map-RAM readback (CHMAP_SNAP 0x910 / CHMAP_LOOP 0x914)
+  //
+  //  ORACLE: the fabric. Everything checked here is a word the modelled map
+  //  RAM returned on its read port; nothing is reconstructed from what
+  //  software wrote. That distinction IS the defect: CHMAP_WORD 0x908 reads
+  //  back milan_csr's own shadow, so before this register a board could not
+  //  tell a mapped-and-quiet slot from a slot that was never connected -
+  //  both emit 24'd0.
+  //
+  //  THE THREE STATES (the property, methodology R4): on hardware that
+  //  routes no audio pins the only difference between "working and silent"
+  //  and "not wired at all" is {loop_mapped, loop_fed}, so the register is
+  //  only useful if all three are distinguishable through the CSR:
+  //      mapped=1 fed=1  slot is mapped and audio has reached it
+  //      mapped=1 fed=0  MAPPED BUT NEVER FED  <- the mis-wired loopback
+  //      mapped=0        the slot is not in the map at all
+  // ------------------------------------------------------------------ //
+  {
+    long f0 = fails;
+    const uint32_t A_CH_CTRL = 0x900, A_CH_SEL = 0x904, A_CH_WORD = 0x908;
+    const uint32_t A_CH_SNAP = 0x910, A_CH_LOOP = 0x914;
+    const uint32_t POISON = 0xDEADDEADu;
+
+    printf("-- chmap map-RAM readback: 0x910 SNAP / 0x914 LOOP --\n");
+    // un-armed state FIRST: the 0x800 window's "reads 0 until SNAP" trap
+    // must NOT be reproduced here
+    ck("LOOP un-armed is POISON not 0", axi_read(A_CH_LOOP), POISON);
+    uint32_t s = axi_read(A_CH_SNAP);
+    ck("SNAP tag 0xC5",           (s >> 24) & 0xFF, 0xC5);
+    ck("SNAP cap = 3 (both ports wired)", (s >> 8) & 3, 3);
+    ck("SNAP armed = 0 at reset", (s >> 4) & 1, 0);
+
+    auto snap = [&](uint32_t sel) {
+      axi_write(A_CH_SEL, sel);
+      axi_write(A_CH_SNAP, 1);
+      for (int g = 0; g < 64; ++g) if ((axi_read(A_CH_SNAP) & 1) == 0) break;
+      return axi_read(A_CH_LOOP);
+    };
+
+    // program capture slot 5 through the debug write port. 0x9000 = EN |
+    // I2S_IN | pair 0 (CHANNEL_MAP_64.md §5 worked example), which the
+    // datapath slices to RAM entry 0x90.
+    axi_write(A_CH_CTRL, 1);                    // arm the override
+    axi_write(A_CH_SEL, 0x105);                 // side = capture, index = 5
+    axi_write(A_CH_WORD, 0x9000);
+    for (int i = 0; i < 4; ++i) posedge();
+    ck("fabric RAM took the sliced entry", cmap_ram[5], 0x90);
+
+    // ---- state 1: mapped AND fed -------------------------------------
+    cmap_fed[5] = true;
+    uint32_t v = snap(0x105);
+    ck("S1 read-back-what-was-written", v & 0xFFF, 0x090);
+    ck("S1 valid",       (v >> 26) & 1, 1);
+    ck("S1 mask_valid",  (v >> 27) & 1, 1);
+    ck("S1 mapped",      (v >> 16) & 1, 1);
+    ck("S1 fed",         (v >> 17) & 1, 1);
+    ck("S1 LOOP_SUSPECT",(v >> 18) & 1, 0);
+    ck("S1 {side,index} echo", (v >> 19) & 0x7F, (5u << 1) | 1u);
+    ck("S1 whole word", v, 0x0C5BC090u);
+
+    // ---- state 2: MAPPED BUT NEVER FED (the defect signature) ---------
+    //  same map entry, same CSR shadow, same 0x908 readback - the ONLY
+    //  thing that changed is a fabric observation, and it is now visible.
+    cmap_fed[5] = false;
+    uint32_t v2 = snap(0x105);
+    ck("S2 same entry as S1",   v2 & 0xFFF, 0x090);
+    ck("S2 mapped",            (v2 >> 16) & 1, 1);
+    ck("S2 fed",               (v2 >> 17) & 1, 0);
+    ck("S2 LOOP_SUSPECT",      (v2 >> 18) & 1, 1);
+    ck("S2 whole word", v2, 0x0C5D4090u);
+    ck("S2 differs from S1", v2 != v, 1);
+    ck("0x908 shadow CANNOT see it", axi_read(A_CH_WORD), 0x9000);
+
+    // ---- state 3: the slot is not in the map at all --------------------
+    uint32_t v3 = snap(0x106);                  // index 6, never written
+    ck("S3 entry is 0",        v3 & 0xFFFF, 0);
+    ck("S3 mapped",           (v3 >> 16) & 1, 0);
+    ck("S3 fed",              (v3 >> 17) & 1, 0);
+    ck("S3 LOOP_SUSPECT",     (v3 >> 18) & 1, 0);
+    ck("S3 valid (a MEASURED zero)", (v3 >> 26) & 1, 1);
+    ck("S3 whole word", v3, 0x0C680000u);
+    ck("S3 is not POISON",     v3 != POISON, 1);
+    ck("S3 differs from S2",   v3 != v2, 1);
+
+    // ---- render side: no loopback mask, and it SAYS so -----------------
+    //  KL_chan_map_render's readback carries the entry only. Reporting
+    //  mapped=0/fed=0 there would be exactly the structural zero this
+    //  register exists to kill, so mask_valid goes to 0 and the register
+    //  map says the EN bit is raw[7] on that side.
+    rmap_ram[2] = 0x91;                          // EN | AVB | s=2 | c=1
+    uint32_t vr = snap(0x002);                   // side = render, index = 2
+    ck("R entry from the render RAM", vr & 0xFFFF, 0x0091);
+    ck("R valid",       (vr >> 26) & 1, 1);
+    ck("R mask_valid = 0 (no mask on this side)", (vr >> 27) & 1, 0);
+    ck("R whole word", vr, 0x04200091u);
+
+    // ---- NEGATIVE CONTROL: declared capable, and silent ----------------
+    //  CHMAP_RDBK_P is a DECLARATION. The watchdog is what holds it to the
+    //  wire: a port that never answers must poison the data word, not
+    //  latch whatever the bus held and not hang busy forever.
+    chmap_answer = false;
+    axi_write(A_CH_SEL, 0x105);
+    axi_write(A_CH_SNAP, 1);
+    bool cleared = false;
+    for (int g = 0; g < 64; ++g)
+      if ((axi_read(A_CH_SNAP) & 1) == 0) { cleared = true; break; }
+    uint32_t st = axi_read(A_CH_SNAP);
+    ck("silent port: busy cleared",  cleared, 1);
+    ck("silent port: timeout = 1",  (st >> 2) & 1, 1);
+    ck("silent port: valid = 0",    (st >> 1) & 1, 0);
+    ck("silent port: unsup = 0",    (st >> 3) & 1, 0);   // declared, not absent
+    ck("silent port: LOOP is POISON", axi_read(A_CH_LOOP), POISON);
+    ck("silent port did NOT keep S2", axi_read(A_CH_LOOP) != v2, 1);
+    chmap_answer = true;
+
+    // recovery: the next snapshot measures again
+    cmap_fed[5] = true;
+    uint32_t v4 = snap(0x105);
+    ck("recovered after timeout", v4, 0x0C5BC090u);
+    ck("timeout flag cleared by the new arm", (axi_read(A_CH_SNAP) >> 2) & 1, 0);
+    axi_write(A_CH_CTRL, 0);
+    printf("  [%s] chmap readback: mapped/fed/unmapped are distinguishable,"
+           " and a silent port poisons\n", (fails == f0) ? "PASS" : "FAIL");
+  }
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
