@@ -49,21 +49,22 @@ board:
     floorplan: true
     flashboot: full
     uart_baudrate: 115200
-    rx_queues: 1                     # the SHIPPING ax8x8 boot chain (2026-07-24
-                                     # CSR-rot fix): its DTB/opensbi/driver/ring
-                                     # tooling all map the 1-queue layout - a
-                                     # 2-queue build shifts every DMA window
-                                     # (verified against the flashed csr.csv:
-                                     # no rx1_*, no steer registers)
-                                     # SHOULD BECOME 2, REFLASH-GATED: with 1
-                                     # there is no steer block at all, so gPTP
-                                     # shares the bulk ring and the USER's
-                                     # 2-ingress-queue directive is simply not
-                                     # implemented on this build. Raising it
-                                     # means moving boot_chain_pin.dma-ts and
-                                     # pcm-dma by 0x74, rebuilding, reflashing
-                                     # and re-pinning against the new csr.csv
-                                     # (builder gate 19c refuses it until then)
+    rx_queues: 2                     # RAISED 1 -> 2 on 2026-07-28 with the
+                                     # reflash that carries it (D7 root cause,
+                                     # docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD
+                                     # .md): with 1 queue there is no steer
+                                     # block at all, gPTP shares the bulk ring,
+                                     # and under a 950M iperf flood ptp4l
+                                     # starves - our GM stops transmitting and
+                                     # a CONFORMANT peer BMCA deposes it
+                                     # (802.1AS 10.3; reproduced 2/2). Two
+                                     # queues = flow-steered gPTP ingress, the
+                                     # USER's 2-CPU-ingress-queue directive.
+                                     # boot_chain_pin moved +0x74 with it (the
+                                     # steer block shifts every later window)
+                                     # and MUST be re-verified against the
+                                     # BUILD's csr.csv before flashing - the
+                                     # 5ce9a13 CSR-rot class, gate 19c.
     hs_page_bytes: 16384
     strip_probes: true
     num_queues: 5
@@ -120,12 +121,15 @@ platform:
   pcm_ring_phys: 0x7f800000          # 8 capture streams x 1 MiB stride at the
   pcm_ring_bytes: 0x800000           # top of the AX7101's 1 GiB main_ram
   pcm_ring_stride: 0x100000
-  boot_chain_pin:                    # the SHIPPING 1-queue map (verified in
-                                     # the flashed csr.csv: no rx1_*/steer,
-                                     # so dma-ts/pcm sit 0x74 LOWER than on
-                                     # the 2-queue arty build)
-    dma-ts: 0xf000308c
-    pcm-dma: 0xf00030ac
+  boot_chain_pin:                    # the 2-queue map (rx_queues 2, 2026-07-28):
+                                     # rx1_*/steer exist, so dma-ts/pcm sit
+                                     # 0x74 HIGHER than the old 1-queue flash.
+                                     # Diff against the new build's csr.csv at
+                                     # flash time (8.2 checklist) - a pin that
+                                     # is not re-verified is the rotted-DTB
+                                     # dead-hardware mimic all over again.
+    dma-ts: 0xf0003100
+    pcm-dma: 0xf0003120
 
 clocking:
   sampling_rate_hz: 48000

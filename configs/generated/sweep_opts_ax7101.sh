@@ -7,4 +7,4 @@
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
 OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-render-lpf"
 L2=16384
-RXQ=1
+RXQ=2

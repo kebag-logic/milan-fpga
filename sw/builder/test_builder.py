@@ -1262,8 +1262,14 @@ CSR_INCDIR_CONSUMERS = (
 #: Absent in a bare container -> those assertions SKIP with a message.
 CSR_CSV_2Q = os.path.expanduser(
     "~/litex-milan/work/build_arty_eppo_milanfinal53e/csr.csv")
-CSR_CSV_1Q = os.path.expanduser(
-    "~/milan-avb-multiwork/build_ax8x8_rxq1fix_eppo/csr.csv")
+#: The AX went rx_queues 2 on 2026-07-28 (the D7 fix), so its reference
+#: artifact is the FIRST 2-queue build tree - which does not exist until the
+#: 8.2 sweep runs. The exists() guard makes this row SKIP until then and BITE
+#: from the first build on; the old 1-queue tree
+#: (~/milan-avb-multiwork/build_ax8x8_rxq1fix_eppo/csr.csv) must never be
+#: compared against a 2-queue config - it would refuse the migration itself.
+CSR_CSV_AX2Q = os.path.expanduser(
+    "~/milan-avb-multiwork/build_ax8x8_rxq2_eppo/csr.csv")
 DEPLOYED_DTS = {
     "arty": os.path.expanduser(
         "~/milan-tests-avb/fpga/dts/milan_arty_vexii.dts"),
@@ -1687,7 +1693,7 @@ def test_platform_dt_and_driver_shape():
     # ---- cross-check against real artifacts when they are on disk --------
     checked = 0
     for csv, cfg_name in ((CSR_CSV_2Q, "arty_current"),
-                          (CSR_CSV_1Q, "ax7101_8x8")):
+                          (CSR_CSV_AX2Q, "ax7101_8x8")):
         if not os.path.exists(csv):
             continue
         regs = _csv_bases(csv)
@@ -1773,8 +1779,10 @@ def test_platform_rejects():
         finally:
             os.unlink(p)
     # THE gate: flip rx_queues under a pinned boot chain (5ce9a13 verbatim -
-    # sweep.sh set 1 for both boards while the deployed arty carries 2)
-    for cfg_name, flip in (("arty_current", 1), ("ax7101_8x8", 2)):
+    # sweep.sh set 1 for both boards while the deployed arty carries 2).
+    # The AX went to rx_queues 2 on 2026-07-28 (the D7 fix), so its refused
+    # flip is now DOWN to 1 - same defect shape, opposite direction.
+    for cfg_name, flip in (("arty_current", 1), ("ax7101_8x8", 1)):
         p = _variant(CONFIGS[cfg_name],
                      lambda c, n=flip: c["board"]["constraints"]
                      .__setitem__("rx_queues", n))
