@@ -147,12 +147,13 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --l2-bytes 16384 \
+          --timing-opt --floorplan --l2-bytes 32768 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --no-render-lpf --cbs-queues-mask 0x18 --place-directive AltSpreadLogic_high"
+          --no-render-lpf --cbs-queues-mask 0x18 --synth-directive AreaOptimized_high \
+          --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
                  # docs/NXN_ARCHITECTURE.md 6.2/6.3). 428 LUT / 756 FF / 0 DSP
                  # from the shipping 8x8 place report - the only Vivado-PROVEN

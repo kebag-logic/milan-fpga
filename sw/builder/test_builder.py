@@ -176,8 +176,13 @@ TRACKED_SVH = os.path.join(ROOT, eb.AEM_ROM_REL)
 TRACKED_ADP_SVH = os.path.join(ROOT, eb.ADP_SHAPE_REL)
 
 # Flow flags: sweep.sh mechanics, never part of the end-station definition.
+# synth/opt directives joined 2026-07-28 when the reference flow gained
+# AreaOptimized_high + ExploreArea (the only recipe that packs the 0x0019
+# fabric) - they shape the IMPLEMENTATION, not the design, so the config
+# argv rightly never carries them.
 FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
-              "--place-directive": 1, "--output-dir": 1}
+              "--place-directive": 1, "--output-dir": 1,
+              "--synth-directive": 1, "--opt-directive": 1}
 
 DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
 

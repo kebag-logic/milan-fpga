@@ -12,5 +12,5 @@
 # a launch whose effective flags disagree with SWEEP_CFG. Regenerate:
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
 OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x18"
-L2=65536
+L2=32768
 RXQ=2
