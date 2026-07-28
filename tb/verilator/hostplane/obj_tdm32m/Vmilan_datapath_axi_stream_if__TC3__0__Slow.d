@@ -1,0 +1,2 @@
+Vmilan_datapath_axi_stream_if__TC3__0__Slow.o: \
+ Vmilan_datapath_axi_stream_if__TC3__0__Slow.cpp Vmilan_datapath__pch.h

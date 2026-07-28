@@ -58,7 +58,10 @@ CFG = {
         "entity_model_id": "hash-derived",
         "entity_id": "mac-derived",
         "vendor_name": "Kebag Logic",
-        "firmware_version": "0.1.0",
+        # NO firmware_version: it is DERIVED from milan_csr's VERSION
+        # parameter, and the builder REFUSES a declared one (a second
+        # copy still needs an edit per ABI bump, which is how it stops
+        # agreeing). See check_entity_shape.py arm G.
         "serial_number": "AX7101-0001",
         "group_name": "",
     },

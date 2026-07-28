@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0017 (the channel-map RAMs are readable; 0x910/0x914)",
-       axi_read(A_VERSION), 0x00010017);
+       axi_read(A_VERSION), 0x00010018);
 
     // ---- THE ADVERTISED SHAPE AT N > 1 (2026-07-27) --------------------
     // The CRF Media Clock Output lives at talker_unique_id = N_STREAMS and
@@ -437,7 +437,18 @@ int main(int argc, char** argv) {
 
     printf("-- talker t>0 arming: window CTRL + per-stream gate terms --\n");
     // the [TCTX] section already committed t1 CTRL en=1 through the window;
-    // MAAP + lwSRP are still at their disabled defaults
+    // MAAP + lwSRP are still at their disabled defaults.
+    //
+    // ASK FOR THE BYPASS EXPLICITLY. This case tests the TCTX ARMING PATH -
+    // that a window CTRL commit reaches the per-stream enable - not the
+    // admission POLICY. Until VERSION 0x0018 it passed without asking,
+    // because AAF_CTRL reset to 0x0002_0002 and bit 1 (cfg_aaf_bypass) ORs
+    // past both qualifying terms, so every talker streamed from power-on
+    // whether or not a Listener Ready was ever registered. That reset value
+    // was the defect (Milan v1.2 5.3.7.3 makes the licence to stream
+    // conditional on RECEIVING a Listener Ready/Ready Failed), so the reset
+    // is now 0x0002_0000 and this check was passing BECAUSE of it.
+    axi_write(A_AAF_CTRL, 0x00020002);   // bypass on, talker enable still 0
     ck("t1 armed by the window CTRL commit", (tap_stream_en() >> 1) & 1, 1);
     ck("t0 still down (AAF_CTRL.en = 0)", tap_stream_en() & 1, 0);
     // t0 up via the legacy flat path (VID 2 + bypass + en - the VID-2 rule)
