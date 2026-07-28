@@ -289,9 +289,23 @@ def test_current_shape_matches_sweep_flags():
         # tracks today's 1x1 build, so the flag rides on top of its OPTS.
         want = dict(want)
         want["--num-streams"] = [8.0]
-        # item-4 audio-interface family: tdm kinds ride on top of the OPTS
-        # as the front-end generate select (default i2s emits nothing).
-        want["--audio-interface"] = ["tdm16"]
+        # item-4 audio-interface family: tdm kinds ride on top of the OPTS as
+        # the front-end generate select (default i2s emits nothing) - BUT NOT
+        # WHILE THE KIND IS A PLACEHOLDER. This config declares tdm16 and
+        # nothing in the fabric drives that bus: sw/litex/milan_soc.py ties
+        # i_tdm_bclk_i / i_tdm_fsync_i / i_tdm_data_i to 0 on every SoC and no
+        # platform provides TDM pads, so KL_tdm_capture's fsync never toggles
+        # and it yields no pairs - a build carrying --audio-interface tdm16
+        # would have talkers that emit NO FRAME AT ALL. The declaration stays
+        # (USER 2026-07-27: "the tdm can be a placeholder" - it states what the
+        # product will be); the flag is withheld so the bitstream elaborates
+        # the I2S front-end the board actually has, which is exactly how the
+        # shipping bitstream was hand-built. interface_is_placeholder() reads
+        # the tie out of milan_soc.py, so wiring a TDM header flips this back
+        # on with no edit here and no config change.
+        assert "--audio-interface" not in got, (
+            "placeholder tdm16 must NOT reach the soc argv while the SoC ties "
+            "the TDM bus to zero")
         assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
         # The port is NOT pinned to a literal here. It is a property of the
         # BENCH (which socket the cable is in), not of the design, and pinning
@@ -349,17 +363,24 @@ def test_capability_marks():
         r = eb.build(CONFIGS[name], OUT)
         planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
         assert any("item 5" in p for p in planned), f"{name}: no item-5 mark"
-        # item-4 audio-interface family landed: the tdm kinds are SUPPORTED
-        # (KL_tdm_capture front-end select), never a planned mark anymore
-        assert not any("item 4" in p for p in planned), \
-            f"{name}: tdm must be supported now: {planned}"
+        # item-4 audio-interface family: the KL_tdm_capture ser/des LANDED,
+        # but on 2026-07-28 the front-end was measured to be UNDRIVEN -
+        # milan_soc.py ties i_tdm_bclk_i/i_tdm_fsync_i/i_tdm_data_i to 0 on
+        # every SoC and no platform provides TDM pads, so its fsync never
+        # toggles and it yields no pairs at all. So the RTL is supported and
+        # the INTERFACE is a placeholder, and the mark must say which half is
+        # missing - the same shape the aes3/spdif marks already use below.
+        # The declaration itself stays (USER: "the tdm can be a placeholder").
         tdm = [m for m in r["marks"]
                if m[0].startswith("audio interface tdm")]
-        assert tdm and tdm[0][1] == "supported" \
-            and "KL_tdm_capture" in tdm[0][2], f"{name}: bad tdm mark {tdm}"
+        assert tdm, f"{name}: no tdm mark at all"
+        assert tdm[0][1].startswith("planned (item 4"), \
+            f"{name}: an undriven tdm bus must be a planned mark: {tdm}"
+        assert "KL_tdm_capture" in tdm[0][2] and "NOTHING DRIVES IT" in tdm[0][2], \
+            f"{name}: the tdm mark must name the ser/des AND the missing half: {tdm}"
         assert "planned (item 5" in r["plan"], f"{name}: plan lacks marker"
         print(f"  [gate 4] {name}: {len(planned)} planned mark(s) "
-              f"(item 5 only; tdm supported), no failure")
+              f"(item 5 + the undriven-tdm placeholder), no failure")
     # aes3/spdif: the biphase-mark ser/des LANDED (KL_aes3_rx + KL_aes3_tx),
     # so the transport itself is supported and only the datapath/SoC plumbing
     # is still a planned mark - the mark must say WHICH half is missing.

@@ -34,13 +34,18 @@ WHAT IT CHECKS, per configs/endstation_*.yaml:
   W1  declared == emitted   every AAF talker format's channels_per_frame
                             (IEEE 1722-2016 7.3.3) equals the channels the
                             framer puts in that talker's PDU.  Owner: item 5.
-  W2  interface is backed   an audio_interface kind only counts if the SoC
+  W2  placeholder rule      an audio_interface kind only counts if the SoC
                             actually drives that front-end's inputs.  Read out
-                            of sw/litex/milan_soc.py rather than believed:
-                            the TDM bus is tied to zero there, so a `tdm16`
-                            config elaborates KL_tdm_capture on a dead bus and
-                            its talkers emit NO FRAME AT ALL.  Owner: item 4
-                            (audio-interface subtask) / the platform.
+                            of sw/litex/milan_soc.py rather than believed: the
+                            TDM bus is tied to zero there.  This is NOT a
+                            finding - USER 2026-07-27, "the tdm can be a
+                            placeholder": declaring the interface the product
+                            will have is legitimate.  What was dangerous is a
+                            placeholder that SILENTLY changed the gateware, so
+                            the builder withholds --audio-interface for one and
+                            the build elaborates the I2S front-end the board
+                            really has.  W2 reports that the withholding is in
+                            effect.  Owner: item 4 (TDM header + SoC wiring).
   W3  source coverage       a talker with no pair slot behind it can never
                             emit.  Advertising it is an advertised capability
                             the fabric cannot back - the same defect class as
@@ -52,13 +57,15 @@ WHAT IT CHECKS, per configs/endstation_*.yaml:
                             nothing consumes is a decoration, and decorative
                             registers are what this whole item is about.
 
-WHAT IT DOES NOT CHECK, said out loud rather than left implied.  The listener
-side.  Item 00's scope includes "a SET_STREAM_FORMAT we ACCEPT must be a
-format we can EMIT", and that is unverified here: the render path follows the
-wire's channels_per_frame by the 1-to-1 wire-truth rule, so accepting an 8ch
-sink format and rendering its first pair is deliberate, not a defect.  Closing
-that half needs a runtime probe (offer a format, then read what comes back on
-the wire), not a static read of the config.
+THE LISTENER HALF IS CLOSED, and not by this file.  Item 00's scope included
+"a SET_STREAM_FORMAT we ACCEPT must be a format we can EMIT".  MEASURED on
+silicon 2026-07-28: SET_STREAM_FORMAT on our STREAM_OUTPUT returns status 7
+NOT_SUPPORTED and the readback is unchanged - we accept no such thing.  That
+refusal is CORRECT: FR-STR-03 (docs/reference/FR_NFR.md, Milan v1.2 5.4)
+requires format-adaptivity of the LISTENER - "STREAM_INPUT ... MUST NOT be
+fixed" - and imposes nothing equivalent on a talker.  USER 2026-07-28: "only
+the input stream can adapt".  So there is no accept-vs-emit defect on the
+talker side; the fault is wholly the framer's, which is what W1 measures.
 
 NEGATIVE CONTROL.  endstation_arty_current MUST pass.  It ships `clusters: 8`
 with a 2-channel format and streams to the same reference device with zero
@@ -109,20 +116,9 @@ def bad(what, owner, detail):
 
 
 # ------------------------------------------------------------- SoC reading --
-def tdm_bus_wired(soc_text):
-    """Does any SoC in this tree DRIVE the TDM capture bus?
-
-    milan_datapath's TDM front-end is only as real as its bclk/fsync/data.
-    Today add_milan_datapath ties all three to 0 and nothing overrides them
-    via extra_ports, so KL_tdm_capture's fsync never toggles and it yields no
-    pairs at all.  Read rather than assumed, so that wiring a TDM header
-    changes this answer without an edit here."""
-    # Collect every assignment and ask whether ANY is non-zero. Deliberately
-    # not a negative lookahead after `\s*=\s*`: that backtracks the whitespace
-    # to width zero and then happily matches the space in front of the `0`,
-    # so `i_tdm_fsync_i = 0` reads as "wired" and the check inverts itself.
-    vals = re.findall(r"i_tdm_fsync_i\s*=\s*([^\s,)]+)", soc_text)
-    return bool(vals) and any(v != "0" for v in vals)
+#  tdm_bus_wired() lives in endstation_builder.py: the builder needs the same
+#  answer to decide whether --audio-interface is emitted, and two copies of a
+#  fact about the fabric is how the fact stops being one fact.
 
 
 def i2s_capture_pads(soc_text):
@@ -143,25 +139,25 @@ def check_config(builder, path, soc_text):
     if not quiet:
         print(f"\n== {name} ==")
 
-    wired = tdm_bus_wired(soc_text)
+    wired = builder.tdm_bus_wired(soc_text)
     kind = cfg["interface"]["kind"]
-    slots = builder.audio_if_slots(cfg)
+    declared = builder.AUDIO_IF_SLOTS.get(kind, 0)   # what the CONFIG asks for
+    slots = builder.audio_if_slots(cfg, wired)       # what the BUILD elaborates
     pairs = builder.framer_pair_supply(cfg, wired)
     emits = builder.framer_wire_channels(cfg, wired)
     talkers = cfg["talkers"]
 
     # -- W2: is the declared audio interface backed by anything? -------------
-    if slots and not wired:
-        bad(f"{name}: audio_interface '{kind}' is not backed by the fabric",
-            "roadmap item 4 (audio-interface subtask) / platform",
-            f"the config elaborates KL_tdm_capture with AUDIO_IF_SLOTS_P="
-            f"{slots}, but sw/litex/milan_soc.py ties i_tdm_bclk_i / "
-            f"i_tdm_fsync_i / i_tdm_data_i to 0 and no platform provides TDM "
-            f"pads, so fsync never toggles and the front-end yields NO pairs: "
-            f"every talker of this build would emit no frame at all. The "
-            f"shipping bitstream avoids this only by having been built "
-            f"WITHOUT --audio-interface, i.e. as something other than what "
-            f"this config declares.")
+    # NOT a finding when unbacked - USER 2026-07-27: "the tdm can be a
+    # placeholder". Declaring the interface the product will have is
+    # legitimate; the danger was only ever that the placeholder SILENTLY
+    # changed the gateware, and the builder now withholds --audio-interface
+    # so it cannot. What this reports is that the withholding is in effect.
+    if declared and not wired:
+        ok(f"{name}: audio_interface '{kind}' is a PLACEHOLDER (declared, "
+           f"fabric does not drive it)",
+           f"--audio-interface withheld; build elaborates the I2S front-end "
+           f"({pairs} pair slot(s))")
     else:
         ok(f"{name}: audio_interface '{kind}' is backed",
            f"{pairs} pair slot(s) supplied")

@@ -111,6 +111,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 
 try:
@@ -729,27 +730,79 @@ AUDIO_IF_SLOTS = {"tdm8": 8, "tdm16": 16, "tdm32": 32}
 WIRE_CHANS_MIN, WIRE_CHANS_MAX = 2, 8
 
 
-def audio_if_slots(cfg):
-    """milan_datapath AUDIO_IF_SLOTS_P this config elaborates (0 = I2S)."""
+SOC_PY = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                      "..", "litex", "milan_soc.py")
+_TDM_WIRED_CACHE = {}
+
+
+def tdm_bus_wired(soc_text=None):
+    """Does any SoC in this tree DRIVE the TDM capture bus?
+
+    THE SINGLE SOURCE OF TRUTH for "is a TDM front-end real on this board",
+    read out of the SoC glue rather than believed, so that wiring a TDM header
+    changes every answer that depends on it - the argv, the plan mark and the
+    wire-accountability gate - without an edit in any of them.
+
+    milan_datapath's TDM front-end is only as real as its bclk/fsync/data.
+    Today add_milan_datapath ties all three to 0 and nothing overrides them via
+    extra_ports, so KL_tdm_capture's fsync never toggles and it yields no pairs
+    at all."""
+    if soc_text is None:
+        if "cached" not in _TDM_WIRED_CACHE:
+            try:
+                with open(SOC_PY) as fh:
+                    _TDM_WIRED_CACHE["cached"] = tdm_bus_wired(fh.read())
+            except OSError:
+                _TDM_WIRED_CACHE["cached"] = False
+        return _TDM_WIRED_CACHE["cached"]
+    # Collect every assignment and ask whether ANY is non-zero. Deliberately
+    # not a negative lookahead after `\s*=\s*`: that backtracks the whitespace
+    # to width zero and then happily matches the space in front of the `0`, so
+    # `i_tdm_fsync_i = 0` reads as "wired" and the check inverts itself.
+    vals = re.findall(r"i_tdm_fsync_i\s*=\s*([^\s,)]+)", soc_text)
+    return bool(vals) and any(v != "0" for v in vals)
+
+
+def interface_is_placeholder(cfg, wired=None):
+    """True when the config NAMES a TDM interface the fabric cannot provide.
+
+    USER 2026-07-27: "the tdm can be a placeholder" - declaring the interface
+    the product will have is legitimate and the declaration STAYS. What is not
+    legitimate is letting that placeholder silently change the gateware: the
+    tdm kinds drive --audio-interface, which elaborates KL_tdm_capture on a bus
+    tied to zero, and THAT build's talkers emit nothing at all. So a
+    placeholder is carried as a `planned` mark and is NOT emitted into the soc
+    argv - which is exactly how the shipping bitstream was hand-built, and now
+    it is the rule rather than an undocumented act of care."""
+    if wired is None:
+        wired = tdm_bus_wired()
+    return bool(AUDIO_IF_SLOTS.get(cfg["interface"]["kind"])) and not wired
+
+
+def audio_if_slots(cfg, wired=None):
+    """milan_datapath AUDIO_IF_SLOTS_P this config elaborates (0 = I2S).
+
+    A placeholder interface elaborates the I2S front-end the board really has,
+    so this reports 0 for it - the number the BUILD uses, not the number the
+    config wishes for."""
+    if interface_is_placeholder(cfg, wired):
+        return 0
     return AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
 
 
-def framer_pair_supply(cfg, tdm_bus_wired=False):
+def framer_pair_supply(cfg, wired=None):
     """Pair slots the capture front-end actually delivers to the packetizer.
 
-    `tdm_bus_wired` is a fact about the SoC glue, not about this config, and
-    it defaults to what is true today: nothing drives the TDM bus, so a tdm
-    front-end yields 0 pairs and its talkers emit no frames at all. The
-    parameter exists so that wiring a TDM header raises this number instead of
-    requiring an edit here (scripts/check_wire_accountability.py reads the tie
-    out of milan_soc.py and passes the answer in)."""
-    slots = audio_if_slots(cfg)
+    `wired` overrides the milan_soc.py reading; it exists so a gate can ask
+    "what would this config do if a TDM header WERE wired" without editing
+    the SoC. None = read the fabric, which is the answer that matters."""
+    slots = audio_if_slots(cfg, wired)
     if slots == 0:
         return 1                      # KL_aaf_capture_i2s: pair_slot_o = 4'd0
-    return slots // 2 if tdm_bus_wired else 0
+    return slots // 2
 
 
-def framer_wire_channels(cfg, tdm_bus_wired=False):
+def framer_wire_channels(cfg, wired=None):
     """channels_per_frame this fabric puts in a talker's AAF PDU.
 
     = milan_datapath TALKER_WIRE_CHANS_P = KL_aaf_packetizer WIRE_CHANS_P =
@@ -759,7 +812,7 @@ def framer_wire_channels(cfg, tdm_bus_wired=False):
     holds its reset chans and would stamp that shape if it ever emitted, so 0
     would claim a frame width no wire ever carries. That the talker emits
     nothing at all is a separate finding, raised where it can be read."""
-    pairs = framer_pair_supply(cfg, tdm_bus_wired)
+    pairs = framer_pair_supply(cfg, wired)
     return max(WIRE_CHANS_MIN, min(WIRE_CHANS_MAX, pairs * 2))
 
 
@@ -2190,7 +2243,21 @@ def rtl_capability_marks(cfg):
                       "+ ACMP talker context for the CRF stream (rides with "
                       "the item-5 NxN integration)"))
     kind = cfg["interface"]["kind"]
-    if kind in RTL_TODAY["interfaces"]:
+    if interface_is_placeholder(cfg):
+        marks.append((f"audio interface {kind}",
+                      "planned (item 4 subtask - TDM header + SoC wiring)",
+                      "PLACEHOLDER: the ser/des RTL (KL_tdm_capture) exists and "
+                      "is TB-proven, but NOTHING DRIVES IT - sw/litex/milan_soc.py "
+                      "ties i_tdm_bclk_i / i_tdm_fsync_i / i_tdm_data_i to 0 on "
+                      "every SoC and no platform provides TDM pads, so fsync "
+                      "never toggles and the front-end yields no pairs. The "
+                      "declaration is KEPT (it states what the product will be) "
+                      "but --audio-interface is NOT emitted, so the build "
+                      "elaborates the I2S front-end the board actually has "
+                      "instead of a TDM front-end on a dead bus whose talkers "
+                      "would emit no frame at all. Wire the header and this "
+                      "becomes 'supported' with no config change."))
+    elif kind in RTL_TODAY["interfaces"]:
         marks.append((f"audio interface {kind}", "supported",
                       "KL_i2s_playback / aaf_talker_i2s" if kind == "i2s_philips"
                       else "KL_tdm_capture -> KL_aaf_packetizer multi-channel "
@@ -2323,7 +2390,13 @@ def emit_soc_argv(cfg):
     # non-default kinds so the shipping i2s argv stays byte-identical;
     # aes3/spdif have no ser/des RTL yet (planned mark) and emit nothing.
     kind = cfg["interface"]["kind"]
-    if kind in ("tdm8", "tdm16", "tdm32"):
+    # A PLACEHOLDER interface is not emitted (USER 2026-07-27: "the tdm can be
+    # a placeholder"). Declaring the interface the product will have is fine;
+    # letting that declaration elaborate KL_tdm_capture on a bus milan_soc.py
+    # ties to zero is not - those talkers emit NO FRAME AT ALL. Omitting the
+    # flag builds the I2S front-end the board really has, which is exactly how
+    # the shipping bitstream was hand-built. See interface_is_placeholder().
+    if kind in ("tdm8", "tdm16", "tdm32") and not interface_is_placeholder(cfg):
         argv += ["--audio-interface", kind]
     # item-00 wire channel constant: milan_datapath TALKER_WIRE_CHANS_P. Emitted
     # only above the default so today's argv is byte-identical, on the same
