@@ -28,13 +28,17 @@
                   GET/SET_STREAM_FORMAT                (validated, write-back)
                   GET/SET_CLOCK_SOURCE                 (CLOCK_DOMAIN[0], 0..2)
                   GET/SET_CONTROL                      (IDENTIFY, identify_o)
-                  GET_AUDIO_MAP                        (static maps, EVERY
-                                                        STREAM_PORT of the
-                                                        shape, each served
-                                                        from its OWN base_map
-                                                        via AEM_SMAP_*;
-                                                        ADD/REMOVE ->
-                                                        NOT_SUPPORTED. Under
+                  GET_AUDIO_MAP                        (Milan 5.4.2.26 splits
+                                                        by direction: EVERY
+                                                        STREAM_PORT_INPUT is
+                                                        served from its OWN
+                                                        base_map via
+                                                        AEM_SMAP_*, and a
+                                                        STREAM_PORT_OUTPUT
+                                                        that HAS a map is
+                                                        NOT_SUPPORTED, as
+                                                        ADD/REMOVE already
+                                                        were. Under
                                                         `AEM_DYNMAP the input
                                                         port is dynamic:
                                                         ADD/REMOVE/GET served
@@ -477,15 +481,51 @@ module KL_aecp_response_builder (
   // ------------------------------------------------------------------ //
   // GET_AUDIO_MAP addressing (defect A, silicon 2026-07-28)              //
   //                                                                      //
-  // IEEE Std 1722.1-2021 7.2.19 Table 7-162 defines mapping_cluster_     //
-  // offset as "the index of the cluster OFFSET FROM base_cluster" of the  //
-  // STREAM_PORT that owns the map: the offsets are PORT-RELATIVE, so two  //
-  // ports legitimately publish the SAME offsets onto DIFFERENT global     //
-  // AUDIO_CLUSTERs. That is exactly why serving one port's map from       //
-  // another port's descriptor cannot be seen by comparing any two         //
-  // declarations - only against THE ANSWERING PORT'S OWN bounds.          //
+  // The clauses, QUOTED from the standards on this machine (the earlier  //
+  // rounds paraphrased them because $STANDARDS_DIR was unset and the      //
+  // text was believed unavailable - it is /home/alex/standards).          //
   //                                                                      //
-  // This arm used to hardcode BOTH ends of that: descriptor index 1       //
+  // IEEE Std 1722.1-2021 Table 7-162 (and Table 7-33), field             //
+  // mapping_cluster_offset:                                               //
+  //   "The offset from the base_cluster of the STREAM_PORT_INPUT or       //
+  //    STREAM_PORT_OUTPUT for mapping[0]."                                //
+  // The offsets are therefore PORT-RELATIVE: two ports legitimately       //
+  // publish the SAME offsets onto DIFFERENT global AUDIO_CLUSTERs, which  //
+  // is exactly why serving one port's map from another port's descriptor  //
+  // cannot be seen by comparing any two declarations - only against THE   //
+  // ANSWERING PORT'S OWN bounds.                                          //
+  //                                                                      //
+  // Milan Specification v1.2, 5.4.2.26 GET_AUDIO_MAP:                     //
+  //   "For each Stream Port Input and for each Stream Port Output that    //
+  //    has no Audio Map, the PAAD-AE shall implement the GET_AUDIO_MAP    //
+  //    command as specified in [ATDECC, Clause 7.4.44]. If a PAAD-AE      //
+  //    receives a GET_AUDIO_MAP command for a Stream Port Output that     //
+  //    has Audio Map(s), the PAAD-AE shall reply with the NOT_SUPPORTED   //
+  //    error code."                                                       //
+  // Our STREAM_PORT_OUTPUTs DO carry Audio Map descriptors, so the        //
+  // Milan-conformant answer on them is NOT_SUPPORTED - and that is also   //
+  // the port the over-read was measured on.                               //
+  //                                                                      //
+  // IEEE Std 1722.1-2021 7.4.44.1:                                        //
+  //   "If the map_index is beyond the range of available maps then it     //
+  //    returns a BAD_ARGUMENT status in the response."                    //
+  // (This arm used to answer NO_SUCH_DESCRIPTOR there.)                   //
+  //                                                                      //
+  // IEEE Std 1722.1-2021 7.2.13:                                          //
+  //   "These Entities set the number_of_maps field to zero (0) and the    //
+  //    base_map field is ignored when read."                              //
+  // ROWS = 0 in the generated table IS that condition: no static Audio    //
+  // Map on this port.                                                     //
+  //                                                                      //
+  // IEEE Std 1722.1-2021 7.2.19:                                          //
+  //   "The mappings field is variable length data and shall be accessed   //
+  //    by using the mappings_offset field as any fields added in the      //
+  //    future will be added before the mappings field."                   //
+  // So the mapping region start is the descriptor's OWN mappings_offset   //
+  // (AEM_SMAP_*_MOFF_C), not a hardcoded 8, even though Table 7-32 fixes  //
+  // it at 8 "for this version of AEM".                                    //
+  //                                                                      //
+  // WHAT WAS WRONG. This arm hardcoded BOTH ends: descriptor index 1      //
   // (WB_AUDIO_MAP_1_C), 8 mappings, 64 bytes. At the deployed 1x1 shape   //
   // AUDIO_MAP[1] IS the output port's map and holds 8 rows, so the        //
   // constants were accidentally right and every harness passed. At the    //
@@ -493,18 +533,17 @@ module KL_aecp_response_builder (
   // output port's map is AUDIO_MAP[8] - 24 bytes, 2 rows - so a           //
   // controller asking STREAM_PORT_OUTPUT[0] for its map got 8 mappings    //
   // with cluster_offset 0..7 out of a port declaring number_of_clusters   //
-  // = 2, read 40 bytes past the end of a 24-byte descriptor, and put      //
-  // whatever followed in the ROM on the wire.                             //
+  // = 2, read 48 bytes past the end of a 24-byte descriptor, and put      //
+  // whatever followed in the ROM on the wire. It also answered port       //
+  // index 0 only, so 14 of the 16 ports READ_DESCRIPTOR serves refused    //
+  // their own dynamic-info command.                                       //
   //                                                                      //
   // Both ends now come from the addressed port's OWN generated row:       //
-  // AEM_SMAP_*_ADDR_C[port] is the ROM address its base_map names and     //
-  // AEM_SMAP_*_ROWS_C[port] is THAT descriptor's own number_of_mappings,  //
-  // both emitted by avdecc/gen_aem_store.py, which additionally refuses   //
-  // a model whose mappings fall outside their port's bounds.              //
-  //                                                                      //
-  // ROWS = 0 means the port carries no static Audio Map (7.2.13           //
-  // number_of_maps = 0, the dynamic-mapping signal), so there is nothing  //
-  // static to serve there.                                                //
+  // AEM_SMAP_*_ADDR_C[port] is the ROM address its base_map names,        //
+  // AEM_SMAP_*_ROWS_C[port] is THAT descriptor's own number_of_mappings   //
+  // and AEM_SMAP_*_MOFF_C[port] its own mappings_offset - all emitted by  //
+  // avdecc/gen_aem_store.py, which additionally refuses a model whose     //
+  // mappings fall outside their port's bounds.                            //
   // ------------------------------------------------------------------ //
   wire w_smap_is_in  = (w_gs_type == DESC_STREAM_PORT_INPUT);
   wire w_smap_is_out = (w_gs_type == DESC_STREAM_PORT_OUTPUT);
@@ -529,12 +568,25 @@ module KL_aecp_response_builder (
                                           : AEM_SMAP_IN_ADDR_C[w_smap_pi_in];
   wire [15:0] w_smap_rows = w_smap_is_out ? AEM_SMAP_OUT_ROWS_C[w_smap_pi_out]
                                           : AEM_SMAP_IN_ROWS_C[w_smap_pi_in];
-  //! mapping region length: 8 octets per mapping (7.2.19 Table 7-162)
+  //! the descriptor's OWN mappings_offset (7.2.19 "shall be accessed by
+  //! using the mappings_offset field"), not a hardcoded 8
+  wire [15:0] w_smap_moff = w_smap_is_out ? AEM_SMAP_OUT_MOFF_C[w_smap_pi_out]
+                                          : AEM_SMAP_IN_MOFF_C[w_smap_pi_in];
+  //! mapping region length: 8 octets per mapping (7.2.19 Table 7-162 /
+  //! 7.4.44.2.1 Table 7-162, four 2-octet fields per mapping)
   wire [15:0] w_smap_blen = {w_smap_rows[12:0], 3'd0};
-  //! serveable: a real port of this shape, carrying a static map, and
-  //! map_index 0 - the only page a number_of_maps = 1 port has (7.4.44.1)
-  wire w_smap_ok = w_smap_ir && (w_smap_rows != 16'd0)
-                && ({w_b6, w_b7} == 16'd0);
+  //! Milan v1.2 5.4.2.26: a Stream Port OUTPUT that HAS Audio Map(s) must
+  //! answer NOT_SUPPORTED - the command is not implemented on that port.
+  wire w_smap_milan_ns = w_smap_out_ok && (w_smap_rows != 16'd0);
+  //! this port has a static Audio Map to serve at all (7.2.13: ROWS = 0 is
+  //! "number_of_maps ... zero (0)", the dynamic-mapping signal)
+  wire w_smap_has     = w_smap_ir && (w_smap_rows != 16'd0);
+  //! 7.4.44.1: map_index beyond the range of available maps -> BAD_ARGUMENT.
+  //! A statically-mapped port publishes number_of_maps = 1, so 0 is the only
+  //! index in range (gen_aem_store refuses any other count).
+  wire w_smap_badidx  = w_smap_has && ({w_b6, w_b7} != 16'd0);
+  //! serveable: an input port of this shape carrying a static map, page 0
+  wire w_smap_ok = w_smap_has && !w_smap_milan_ns && !w_smap_badidx;
 
   // ------------------------------------------------------------------ //
   // Response plan (filled in DECIDE_S)                                   //
@@ -1743,26 +1795,25 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
-              // GET_AUDIO_MAP (§7.4.44). Static shapes serve EVERY
-              // STREAM_PORT the shape has, each from the AUDIO_MAP its own
-              // base_map names (AEM_SMAP_* — see the w_smap_* declarations
-              // and defect A); the `AEM_DYNMAP arm below still addresses
-              // STREAM_PORT_IN/OUT[0] only, which is the whole shape it is
-              // built for. Static shapes serve the power-on AUDIO_MAP
-              // descriptors (number_of_maps=1, map_index 0 only) and ADD/REMOVE is
-              // NOT_SUPPORTED — exactly Milan 5.4.2.27/28 for ports WITH
-              // Audio Maps. Under `AEM_DYNMAP the input port carries NO
-              // Audio Map (7.2.13 number_of_maps=0): GET pages the
-              // mappings store (5.4.2.26 fixed partition; map_index >=
-              // number_of_maps -> BAD_ARGUMENTS per 7.4.44.1) and ADD/
-              // REMOVE edit it (5.4.2.27/28); the output port stays static.
+              // GET_AUDIO_MAP (§7.4.44). Milan v1.2 5.4.2.26 splits this by
+              // DIRECTION, and the split is quoted at the w_smap_*
+              // declarations: an INPUT port must implement the command per
+              // 7.4.44, an OUTPUT port that HAS Audio Map(s) "shall reply
+              // with the NOT_SUPPORTED error code". So static shapes serve
+              // every STREAM_PORT_INPUT of the shape from the AUDIO_MAP its
+              // own base_map names (AEM_SMAP_*) and refuse every output port
+              // that carries a map. ADD/REMOVE are NOT_SUPPORTED on the same
+              // output ports by the identically-worded 5.4.2.27/28. Under
+              // `AEM_DYNMAP the input port carries NO Audio Map (7.2.13
+              // number_of_maps=0): GET pages the mappings store (5.4.2.26
+              // fixed partition; map_index beyond range -> BAD_ARGUMENT per
+              // 7.4.44.1) and ADD/REMOVE edit it (5.4.2.27/28); the output
+              // port keeps its static map and therefore its NOT_SUPPORTED.
 `ifdef AEM_DYNMAP
               CMD_GET_AUDIO_MAP: begin
                 if ((w_gs_type != DESC_STREAM_PORT_INPUT &&
                      w_gs_type != DESC_STREAM_PORT_OUTPUT) ||
-                    w_gs_index != 16'd0 ||
-                    (w_gs_type == DESC_STREAM_PORT_OUTPUT &&
-                     {w_b6, w_b7} != 16'd0)) begin
+                    w_gs_index != 16'd0) begin
                   //! D2: GET_AUDIO_MAP Response (1722.1 §7.4.44.2) =
                   //! descriptor_type(2)+descriptor_index(2)+map_index(2)+
                   //! number_of_maps(2)+number_of_mappings(2)+reserved(2) =
@@ -1775,23 +1826,17 @@ module KL_aecp_response_builder (
                   seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
                   cdl_q         <= 11'd24;   // 12 + 12
                 end else if (w_gs_type == DESC_STREAM_PORT_OUTPUT) begin
-                  //! static output map — the deployed serving shape. Served
-                  //! from the SAME generated per-port row the static arm uses
-                  //! (defect A): here AEM_SMAP_OUT_*[0] is by construction the
-                  //! same address and row count the older WB_AUDIO_MAP_OUT_C /
-                  //! AEM_DMAP_OUTROWS_C pair carried, but there is now only
-                  //! ONE place a served map can come from.
-                  status_q      <= STATUS_SUCCESS;
-                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd6;
-                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
-                  const_q[0] <= 8'h00; const_q[1] <= 8'h01;   // number_of_maps
-                  const_q[2] <= w_smap_rows[15:8];            // number_of_mappings
-                  const_q[3] <= w_smap_rows[7:0];
-                  const_q[4] <= 8'h00; const_q[5] <= 8'h00;   // reserved
-                  seg_kind_q[2] <= SEG_STORE;
-                  seg_addr_q[2] <= w_smap_addr + 16'd8;
-                  seg_len_q[2]  <= w_smap_blen;
-                  cdl_q <= 11'(16'd24 + w_smap_blen);
+                  //! Milan v1.2 5.4.2.26: "If a PAAD-AE receives a
+                  //! GET_AUDIO_MAP command for a Stream Port Output that has
+                  //! Audio Map(s), the PAAD-AE shall reply with the
+                  //! NOT_SUPPORTED error code." This shape's output port
+                  //! keeps its static Audio Map (w_smap_milan_ns), so the
+                  //! command is not implemented there - same verdict, same
+                  //! generated table, as the static arm.
+                  status_q      <= STATUS_NOT_SUPPORTED;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;   // 7.4.44.2 12-octet floor
                 end else if ({w_b6, w_b7} >= 16'(AEM_DMAP_NMAPS_C)) begin
                   status_q      <= STATUS_BAD_ARGUMENTS;  // 7.4.44.1 paging
                   seg_len_q[0]  <= 16'd6;                 // + zero tail: §7.4.44.2 floor
@@ -1849,15 +1894,33 @@ module KL_aecp_response_builder (
               end
 `else
               CMD_GET_AUDIO_MAP: begin
-                //! D3 (defect A): the served map and its length come from the
-                //! ADDRESSED PORT'S OWN row (w_smap_addr / w_smap_rows, from
-                //! its base_map) instead of a hardcoded descriptor index and
-                //! a hardcoded 8 mappings / 64 bytes - see the w_smap_*
-                //! declarations for the 7.2.19 port-relative rule and the
-                //! 40-byte over-read the constants caused at 8x8.
-                if (!w_smap_ok) begin
-                  //! D2: 12-byte minimum response payload, §7.4.44.2 (see
-                  //! the `AEM_DYNMAP arm above for the field list)
+                //! D3 (defect A): the served map, its length and its start
+                //! all come from the ADDRESSED PORT'S OWN row (w_smap_addr /
+                //! w_smap_rows / w_smap_moff, from its base_map) instead of
+                //! a hardcoded descriptor index, 8 mappings and 64 bytes -
+                //! see the w_smap_* declarations for the quoted clauses and
+                //! the 48-byte over-read the constants caused at 8x8.
+                //! Every non-success exit keeps the 7.4.44.2 12-octet
+                //! response payload (D2): status changes, shape does not.
+                if (w_smap_milan_ns) begin
+                  //! Milan v1.2 5.4.2.26: "If a PAAD-AE receives a
+                  //! GET_AUDIO_MAP command for a Stream Port Output that has
+                  //! Audio Map(s), the PAAD-AE shall reply with the
+                  //! NOT_SUPPORTED error code."
+                  status_q      <= STATUS_NOT_SUPPORTED;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;   // 12 + 12
+                end else if (w_smap_badidx) begin
+                  //! 7.4.44.1: "If the map_index is beyond the range of
+                  //! available maps then it returns a BAD_ARGUMENT status in
+                  //! the response."
+                  status_q      <= STATUS_BAD_ARGUMENTS;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;
+                end else if (!w_smap_ok) begin
+                  //! not a STREAM_PORT of this shape at all
                   status_q      <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0]  <= 16'd6;
                   seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
@@ -1871,9 +1934,11 @@ module KL_aecp_response_builder (
                   const_q[3] <= w_smap_rows[7:0];             //   = the descriptor's own
                   const_q[4] <= 8'h00; const_q[5] <= 8'h00;   // reserved
                   seg_kind_q[2] <= SEG_STORE;
-                  //! + 8 = the AUDIO_MAP mappings_offset (7.2.19): the rows
-                  //! start after type/index/mappings_offset/number_of_mappings
-                  seg_addr_q[2] <= w_smap_addr + 16'd8;
+                  //! the descriptor's OWN mappings_offset (7.2.19: the
+                  //! mappings "shall be accessed by using the mappings_offset
+                  //! field as any fields added in the future will be added
+                  //! before the mappings field")
+                  seg_addr_q[2] <= w_smap_addr + w_smap_moff;
                   seg_len_q[2]  <= w_smap_blen;               // rows x 8 B
                   cdl_q <= 11'(16'd24 + w_smap_blen);         // 12 + 6 + 6 + rows*8
                 end

@@ -692,8 +692,15 @@ class MilanAudioMapModel:
 
     def process_get(self, dt, di, map_index):
         if dt == DESC_STREAM_PORT_OUTPUT and di == 0:
-            self.last_get = None                 # static output map, well-formed
-            return STATUS_SUCCESS
+            # Milan v1.2 5.4.2.26, verbatim: "If a PAAD-AE receives a
+            # GET_AUDIO_MAP command for a Stream Port Output that has Audio
+            # Map(s), the PAAD-AE shall reply with the NOT_SUPPORTED error
+            # code." This port keeps its static Audio Map, so GET refuses for
+            # the same reason ADD/REMOVE already did under the identically
+            # worded 5.4.2.27/28 - the model said SUCCESS until 2026-07-28,
+            # which is the behaviour the RTL was also serving.
+            self.last_get = None
+            return STATUS_NOT_SUPPORTED
         if dt != DESC_STREAM_PORT_INPUT or di != 0:
             self.last_get = None
             return STATUS_NO_SUCH_DESCRIPTOR

@@ -13,12 +13,59 @@
  *   Not a second declaration of the shape and not this harness's idea of it:
  *   for every port, THE PORT'S OWN STREAM_PORT descriptor supplies base_map,
  *   number_of_clusters and base_cluster, and THAT AUDIO_MAP descriptor
- *   supplies the mapping bytes GET_AUDIO_MAP must answer with. The clause
- *   supplies the RULE - 7.2.19 Table 7-162 makes mapping_cluster_offset "the
- *   index of the cluster offset from base_cluster" of the answering port, i.e.
- *   PORT-RELATIVE - and 7.4.44.2 supplies the response format (>= 12 B:
- *   descriptor_type, descriptor_index, map_index, number_of_maps,
- *   number_of_mappings, reserved).
+ *   supplies the mapping bytes GET_AUDIO_MAP must answer with.
+ *
+ * THE CLAUSES, QUOTED (the standards are on this machine at
+ * /home/alex/standards; earlier rounds paraphrased them because
+ * $STANDARDS_DIR was unset and the text was believed unavailable):
+ *
+ *   IEEE Std 1722.1-2021, Table 7-33 / Table 7-162, mapping_cluster_offset:
+ *     "The offset from the base_cluster of the STREAM_PORT_INPUT or
+ *      STREAM_PORT_OUTPUT for mapping[0]."
+ *     -> the offsets are PORT-RELATIVE. Section [3] and [5].
+ *
+ *   IEEE Std 1722.1-2021, 7.2.19 (STREAM_PORT_INPUT paragraph):
+ *     "There is at most one entry for each mapping_cluster_offset and
+ *      mapping_cluster_channel, but there may be multiple entries for each
+ *      mapping_stream_index and mapping_stream_channel."
+ *     ...and the OUTPUT paragraph swaps the two halves, which is why the
+ *     model gate checks a DIFFERENT rule per direction.
+ *
+ *   IEEE Std 1722.1-2021, 7.2.19:
+ *     "The mappings field is variable length data and shall be accessed by
+ *      using the mappings_offset field as any fields added in the future will
+ *      be added before the mappings field."
+ *     -> section [1] reads mappings_offset instead of assuming 8.
+ *
+ *   IEEE Std 1722.1-2021, 7.4.44.1:
+ *     "If the map_index is beyond the range of available maps then it returns
+ *      a BAD_ARGUMENT status in the response."
+ *     -> section [6]. This arm used to answer NO_SUCH_DESCRIPTOR.
+ *
+ *   IEEE Std 1722.1-2021, 7.4.44.2:
+ *     "The number_of_mappings field is set to the number of mappings
+ *      contained in the mappings field."
+ *     -> sections [2] and [4]: the count is not a constant, it is a statement
+ *     about the bytes that follow, and it has to be true of them.
+ *
+ *   Milan Specification v1.2, 5.4.2.26 GET_AUDIO_MAP:
+ *     "For each Stream Port Input and for each Stream Port Output that has no
+ *      Audio Map, the PAAD-AE shall implement the GET_AUDIO_MAP command as
+ *      specified in [ATDECC, Clause 7.4.44]. If a PAAD-AE receives a
+ *      GET_AUDIO_MAP command for a Stream Port Output that has Audio Map(s),
+ *      the PAAD-AE shall reply with the NOT_SUPPORTED error code."
+ *     -> our STREAM_PORT_OUTPUTs DO carry Audio Map descriptors, so the
+ *     conformant answer on all eight of them is NOT_SUPPORTED. That is both
+ *     the Milan rule AND the end of the over-read, since the port that
+ *     over-read is an output port. Section [2].
+ *
+ *   IEEE Std 1722-2016, 4.4.5.4:
+ *     "The 11-bit control_data_length field contains the length (in octets)
+ *      of the control_data_payload field."
+ *     The control AVTPDU puts stream_id (here target_entity_id) at octets
+ *     4..11, so control_data_payload starts at octet 12 and cdl = 12 +
+ *     message-specific payload, with the frame 14 + 12 + cdl. Sections [2]
+ *     and [6] assert both.
  *
  * WHY THIS SHAPE AND NOT THE DEPLOYED 1x1 ONE. At the 1x1 arty_current shape
  *   AUDIO_MAP[1] IS the output port's map and holds 8 mappings, so the
@@ -29,23 +76,24 @@
  *   0..7 and the 8 output ports own AUDIO_MAP 8..15.
  *
  * NEGATIVE CONTROL (methodology R2), measured 2026-07-28. Build this file
- *   against the pre-fix KL_aecp_response_builder and 76 of its 255 checks
- *   fail, split 35 STREAM_PORT_INPUT + 41 STREAM_PORT_OUTPUT. Two distinct
- *   defects are in there and the split says which is which:
- *     - 14 of them are "GET_AUDIO_MAP(port N) SUCCESS" for N = 1..7 in BOTH
- *       directions: the pre-fix arm answered port index 0 only, so 14 of the
- *       16 ports READ_DESCRIPTOR serves refused their own dynamic-info
- *       command - the same self-contradiction Hive reported 8+7 times for
- *       GET_STREAM_INFO, one command over.
- *     - the rest are port 0, the only port that DID answer, and they are
- *       defect A itself: number_of_mappings 8 where the descriptor says 2,
- *       cdl 88 where 12+12+8*2 = 40, cluster_offset 0..7 out of a port
- *       declaring number_of_clusters = 2, served rows that are not the
- *       port's own AUDIO_MAP bytes, and 48 octets served past the end of a
- *       24-byte descriptor.
- *   The cluster_offset line is bit-for-bit the ONE failure
- *   tb/tools/hive_compliance.py C9 measured on gateware 0x0001_0016 on
- *   2026-07-28 against the real board.
+ *   against the pre-fix KL_aecp_response_builder and 48 of its 218 checks
+ *   fail, split 37 STREAM_PORT_INPUT + 11 STREAM_PORT_OUTPUT:
+ *     - all 8 "OUTPUT NOT_SUPPORTED (Milan 5.4.2.26)" fail. Port 0 failed by
+ *       SERVING - with number_of_mappings 8 where its descriptor says 2, cdl
+ *       88 where 12+12+8*2 = 40, and 48 octets read past the end of a
+ *       24-octet descriptor, which IS the over-read; ports 1..7 failed by
+ *       answering NO_SUCH_DESCRIPTOR, the wrong refusal.
+ *     - 7 input ports (1..7) fail "SUCCESS": the pre-fix arm answered port
+ *       index 0 only, so 7 of the 8 ports READ_DESCRIPTOR serves refused
+ *       their own dynamic-info command - the same self-contradiction Hive
+ *       reported 8+7 times for GET_STREAM_INFO, one command over. Their
+ *       number_of_maps / number_of_mappings / cdl / served-bytes checks fail
+ *       with them.
+ *     - both map_index-out-of-range checks fail: the arm answered
+ *       NO_SUCH_DESCRIPTOR where 7.4.44.1 says BAD_ARGUMENT.
+ *   The output-port failures are the same defect tb/tools/hive_compliance.py
+ *   C9 measured on gateware 0x0001_0016 on 2026-07-28 against the real board
+ *   (8 mappings, cluster_offset 0..7, on a port declaring 2 clusters).
  *
  * MEASURED ON SILICON, and what it cost: the response carried 64 bytes of
  *   mapping region out of a descriptor holding 16, so 40 octets of whatever
@@ -236,6 +284,7 @@ int main(int argc, char** argv) {
     struct Port {
         int nclust, basecl, nmaps, basemap;
         int desc_n;                       // AUDIO_MAP's own number_of_mappings
+        int moff;                         // its own mappings_offset (7.2.19)
         std::vector<uint8_t> rows;        // its mapping bytes, verbatim
     };
     Port P[2][N_PORTS];
@@ -261,34 +310,66 @@ int main(int argc, char** argv) {
                      "(%s.%d base_map)", p.basemap, PNAME[d], i);
             ck(nm, r_status(m), 0);
             p.desc_n = be_at(m, O_DESC + AM_N, 2);
-            // 7.2.19: mappings_offset is where the rows start inside it
-            snprintf(nm, sizeof nm, "AUDIO_MAP[%d] mappings_offset 8", p.basemap);
-            ck(nm, be_at(m, O_DESC + AM_OFF, 2), AM_ROWS);
+            // 7.2.19: the mappings "shall be accessed by using the
+            // mappings_offset field"; Table 7-32 says "This field is 8 for
+            // this version of AEM". Read it, then check it is that 8 - the
+            // rows below are located with the value READ, not the constant.
+            p.moff = be_at(m, O_DESC + AM_OFF, 2);
+            snprintf(nm, sizeof nm, "AUDIO_MAP[%d] mappings_offset 8 "
+                     "(Table 7-32, this version of AEM)", p.basemap);
+            ck(nm, p.moff, AM_ROWS);
+            // Table 7-32: "The maximum value of this field is 62 for this
+            // version of AEM."
+            snprintf(nm, sizeof nm, "AUDIO_MAP[%d] number_of_mappings <= 62",
+                     p.basemap);
+            ck(nm, (long)(p.desc_n <= 62), 1);
             // DEFECT B's shape at the descriptor tier: the descriptor must
             // actually HOLD the mappings it declares. A controller that
             // trusts the count and reads past the end is the over-read.
             snprintf(nm, sizeof nm, "AUDIO_MAP[%d] holds the %d mappings it "
                      "declares", p.basemap, p.desc_n);
-            ck(nm, (long)(m.size() >= (size_t)(O_DESC + AM_ROWS + 8 * p.desc_n)), 1);
-            p.rows.assign(m.begin() + O_DESC + AM_ROWS,
-                          m.begin() + O_DESC + AM_ROWS + 8 * p.desc_n);
+            ck(nm, (long)(m.size() >= (size_t)(O_DESC + p.moff + 8 * p.desc_n)), 1);
+            p.rows.assign(m.begin() + O_DESC + p.moff,
+                          m.begin() + O_DESC + p.moff + 8 * p.desc_n);
         }
     }
 
     // ------------------------------------------------------------------ //
-    // [2] Every port answers GET_AUDIO_MAP, and answers with ITS OWN count.
-    //     Pre-fix this is where the output side breaks: a hardcoded 8
-    //     mappings / 64 bytes on a port whose map holds 2.
+    // [2] Milan v1.2 5.4.2.26 splits this command BY DIRECTION:
+    //       "For each Stream Port Input and for each Stream Port Output that
+    //        has no Audio Map, the PAAD-AE shall implement the GET_AUDIO_MAP
+    //        command as specified in [ATDECC, Clause 7.4.44]. If a PAAD-AE
+    //        receives a GET_AUDIO_MAP command for a Stream Port Output that
+    //        has Audio Map(s), the PAAD-AE shall reply with the NOT_SUPPORTED
+    //        error code."
+    //     Every output port of this shape HAS an Audio Map (section [1]
+    //     proved number_of_maps = 1 and read the descriptor), so all eight
+    //     must refuse - and refusing is also what ends the over-read, since
+    //     the port that over-read was an output port.
+    //     Input ports must serve, and must serve THEIR OWN count.
     // ------------------------------------------------------------------ //
-    printf("\n[2] GET_AUDIO_MAP answers with the addressed port's OWN "
-           "number_of_mappings (7.4.44.2)\n");
+    printf("\n[2] Milan 5.4.2.26: inputs serve their OWN map, outputs WITH a "
+           "map answer NOT_SUPPORTED\n");
     std::vector<uint8_t> GOT[2][N_PORTS];
     for (int d = 0; d < 2; d++) {
         for (int i = 0; i < N_PORTS; i++) {
             Port& p = P[d][i];
             auto r = xact(CMD_GET_AUDIO_MAP, am_pl(PT[d], i, 0));
             GOT[d][i] = r;
-            char nm[110];
+            char nm[120];
+            if (d == 1) {
+                snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d) NOT_SUPPORTED "
+                         "(Milan 5.4.2.26, port HAS Audio Map)", PNAME[d], i);
+                ck(nm, r_status(r), 11);
+                // the refusal still keeps the 7.4.44.2 12-octet payload
+                snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d) refusal cdl 24",
+                         PNAME[d], i);
+                ck(nm, r_cdl(r), 24);
+                snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d) refusal carries "
+                         "no mappings", PNAME[d], i);
+                ck(nm, be_at(r, O_NMAPPINGS, 2), 0);
+                continue;
+            }
             // a descriptor READ_DESCRIPTOR serves must answer its own
             // dynamic-info command (the C2/C6 self-consistency rule)
             snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d,0) SUCCESS", PNAME[d], i);
@@ -298,19 +379,20 @@ int main(int argc, char** argv) {
             snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d) number_of_mappings "
                      "== descriptor's %d", PNAME[d], i, p.desc_n);
             ck(nm, be_at(r, O_NMAPPINGS, 2), p.desc_n);
-            // control_data_length counts the octets AFTER the target
-            // entity_id (IEEE 1722-2016 control PDU: "the number of octets
-            // following the stream_id field"), so it is controller_entity_id
-            // (8) + sequence_id (2) + command_type (2) + payload = 12 +
-            // payload, and 7.4.44.2 fixes that payload at
-            // 12 + 8*number_of_mappings. Measured the same way against the
-            // reference device: GET_STREAM_INFO's 56 B payload reads 68.
+            // IEEE 1722-2016 4.4.5.4: "The 11-bit control_data_length field
+            // contains the length (in octets) of the control_data_payload
+            // field." The control AVTPDU puts stream_id (target_entity_id)
+            // at octets 4..11, so the payload starts at octet 12 and cdl =
+            // controller_entity_id(8) + sequence_id(2) + command_type(2) +
+            // message payload = 12 + payload; 7.4.44.2 fixes that payload at
+            // 12 + 8*number_of_mappings. Cross-checked on the reference
+            // device: GET_STREAM_INFO's 56 B payload reads cdl 68.
             snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d) cdl 12+12+8*%d",
                      PNAME[d], i, p.desc_n);
             ck(nm, r_cdl(r), 12 + 12 + 8 * p.desc_n);
-            // ...and the frame really carries it: 14 (Ethernet) + 4 (AVTP
-            // common) + 8 (target entity_id) + cdl. Short frames are what a
-            // strict controller drops however right the status byte is.
+            // ...and the frame really carries it: 14 (Ethernet) + 12 + cdl.
+            // Short frames are what a strict controller drops however right
+            // the status byte is.
             snprintf(nm, sizeof nm, "GET_AUDIO_MAP(%s,%d) frame is as long as "
                      "it claims", PNAME[d], i);
             ck(nm, (long)(r.size() >= (size_t)(26 + r_cdl(r))), 1);
@@ -322,9 +404,10 @@ int main(int argc, char** argv) {
     //     bounds it. This is the property, not a status byte (methodology
     //     R4): each of the four mapping fields has a DIFFERENT owner.
     // ------------------------------------------------------------------ //
-    printf("\n[3] every mapping is inside its OWN port's bounds "
-           "(7.2.19 Table 7-162 - offsets are PORT-RELATIVE)\n");
-    for (int d = 0; d < 2; d++) {
+    printf("\n[3] every mapping is inside its OWN port's bounds (Table 7-33: "
+           "\"The offset from the base_cluster of the STREAM_PORT_INPUT or "
+           "STREAM_PORT_OUTPUT\")\n");
+    for (int d = 0; d < 1; d++) {   // outputs refuse (Milan 5.4.2.26)
         for (int i = 0; i < N_PORTS; i++) {
             Port& p = P[d][i];
             auto& r = GOT[d][i];
@@ -379,8 +462,8 @@ int main(int argc, char** argv) {
     //     descriptor happened to hold in-range numbers.
     // ------------------------------------------------------------------ //
     printf("\n[4] the served bytes ARE the port's own AUDIO_MAP bytes "
-           "(the 40-octet over-read, silicon 2026-07-28)\n");
-    for (int d = 0; d < 2; d++) {
+           "(the 48-octet over-read, silicon 2026-07-28)\n");
+    for (int d = 0; d < 1; d++) {   // outputs refuse (Milan 5.4.2.26)
         for (int i = 0; i < N_PORTS; i++) {
             Port& p = P[d][i];
             auto& r = GOT[d][i];
@@ -410,15 +493,17 @@ int main(int argc, char** argv) {
     //     offsets were global these would have to differ.
     // ------------------------------------------------------------------ //
     printf("\n[5] different ports, same port-relative offsets, different "
-           "global clusters (7.2.19)\n");
+           "global clusters (Table 7-33)\n");
     {
-        long o00 = be_at(GOT[1][0], O_ROWS + 4, 2);
-        long o10 = be_at(GOT[1][1], O_ROWS + 4, 2);
-        ck("OUTPUT.0 and OUTPUT.1 publish the SAME first offset", o00, o10);
+        long o00 = be_at(GOT[0][0], O_ROWS + 4, 2);
+        long o10 = be_at(GOT[0][1], O_ROWS + 4, 2);
+        ck("INPUT.0 and INPUT.1 publish the SAME first offset", o00, o10);
         ck("...onto DIFFERENT global clusters (base_cluster differs)",
-           (long)(P[1][0].basecl != P[1][1].basecl), 1);
-        ck("OUTPUT.0 global cluster = base_cluster + offset",
-           P[1][0].basecl + o00, P[1][0].basecl + o00);
+           (long)(P[0][0].basecl != P[0][1].basecl), 1);
+        // and the two global clusters they resolve to really are different -
+        // the property a global-index model would collapse
+        ck("INPUT.0 and INPUT.1 resolve offset 0 to different clusters",
+           (long)((P[0][0].basecl + o00) != (P[0][1].basecl + o10)), 1);
     }
 
     // ------------------------------------------------------------------ //
@@ -427,19 +512,28 @@ int main(int argc, char** argv) {
     //     7.4.44.2 12-byte floor (lane 3's D2 rule: a non-success response
     //     keeps the response's shape). map_index paging: 7.4.44.1.
     // ------------------------------------------------------------------ //
-    printf("\n[6] refusals keep the 7.4.44.2 12 B floor\n");
+    printf("\n[6] refusals: the right STATUS, and the 7.4.44.2 12 B floor\n");
     {
-        struct { uint16_t t; uint16_t i; uint16_t m; const char* why; } BAD[] = {
-            { D_SP_IN,  N_PORTS, 0, "port index past the shape (INPUT)"  },
-            { D_SP_OUT, N_PORTS, 0, "port index past the shape (OUTPUT)" },
-            { D_SP_OUT, 0,       1, "map_index 1 on a number_of_maps=1 port" },
-            { 0x0006,   0,       0, "STREAM_OUTPUT is not a STREAM_PORT" },
+        // 7.4.44.1: "If the map_index is beyond the range of available maps
+        // then it returns a BAD_ARGUMENT status in the response." A port
+        // whose number_of_maps is 1 has exactly one index in range, 0 - so
+        // map_index 1 is BAD_ARGUMENTS (7), not NO_SUCH_DESCRIPTOR (2),
+        // which is what this arm used to answer. Status values are AEM
+        // Table 7-127: SUCCESS 0, NO_SUCH_DESCRIPTOR 2, BAD_ARGUMENTS 7,
+        // NOT_SUPPORTED 11 (read from hdl/ieee17221/aecp/aecp_pkg.sv, which
+        // is the same table the responder encodes).
+        struct { uint16_t t; uint16_t i; uint16_t m; int st; const char* why; } BAD[] = {
+            { D_SP_IN,  N_PORTS, 0, 2, "port index past the shape (INPUT)"  },
+            { D_SP_OUT, N_PORTS, 0, 2, "port index past the shape (OUTPUT)" },
+            { D_SP_IN,  0,       1, 7, "map_index 1 on a number_of_maps=1 INPUT port" },
+            { D_SP_OUT, 0,       1, 11, "map_index 1 on an OUTPUT port with a map" },
+            { 0x0006,   0,       0, 2, "STREAM_OUTPUT is not a STREAM_PORT" },
         };
         for (auto& b : BAD) {
             auto r = xact(CMD_GET_AUDIO_MAP, am_pl(b.t, b.i, b.m));
-            char nm[110];
-            snprintf(nm, sizeof nm, "%s refused", b.why);
-            ck(nm, (long)(r_status(r) != 0), 1);
+            char nm[120];
+            snprintf(nm, sizeof nm, "%s -> status %d", b.why, b.st);
+            ck(nm, r_status(r), b.st);
             snprintf(nm, sizeof nm, "%s cdl 24 (12 B payload)", b.why);
             ck(nm, r_cdl(r), 24);
             snprintf(nm, sizeof nm, "%s frame >= 26+24", b.why);

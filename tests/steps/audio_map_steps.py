@@ -104,6 +104,20 @@ MUTATIONS = {
     "duplicate_cluster": lambda s: s["audio_maps"][0].__setitem__(
         1, [0, 0, 0, 0]),
     "map_onto_crf": lambda s: s["audio_maps"][0].__setitem__(0, [1, 0, 0, 0]),
+    # 1722.1-2021 Table 7-32: "The maximum value of this field is 62 for this
+    # version of AEM."
+    "too_many_mappings": lambda s: s["audio_maps"].__setitem__(
+        0, [[0, c % 8, c, 0] for c in range(63)]),
+    # 7.2.19 STREAM_PORT_OUTPUT: "at most one entry for each
+    # mapping_stream_index and mapping_stream_channel across the entire
+    # Configuration"
+    "output_dup_stream": lambda s: s["audio_maps"].__setitem__(
+        1, [[0, 0, 0, 0], [0, 0, 1, 0]]),
+    # ...but the SAME paragraph permits repeating a cluster offset, which is
+    # exactly what the INPUT rule forbids. Applying the input rule to both
+    # directions would refuse this conformant model.
+    "output_dup_cluster": lambda s: s["audio_maps"].__setitem__(
+        1, [[0, 0, 0, 0], [0, 1, 0, 0]]),
 }
 
 #: the served rows of the deployed 8x8 output port (its own map) and of the
@@ -264,6 +278,16 @@ def step_refused(context, clause):
     raise AssertionError(
         f"mutation {context.mutation} built without complaint - the gate is "
         "not asserting anything (methodology R2)")
+
+
+@then("building the model is accepted")
+def step_accepted(context):
+    try:
+        G.build_model(context.spec)
+    except ValueError as e:
+        raise AssertionError(
+            f"mutation {context.mutation} was REFUSED, but 1722.1-2021 7.2.19 "
+            f"permits it on this direction: {e}")
 
 
 @then("the open AUDIO_MAP deviations are exactly the recorded list")

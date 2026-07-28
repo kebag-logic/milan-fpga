@@ -304,23 +304,42 @@ def fmt_channels(fmt):
 
 #! The RTL's port-index mux width (KL_aecp_response_builder w_smap_pi is 5 b)
 SMAP_MAX_PORTS = 32
-#! A GET_AUDIO_MAP response is 12 B of header + 8 B per mapping inside ONE
-#! AECPDU: 14 (Ethernet) + 4 (AVTP common) + 20 (AEM header) + 12 + 8*rows must
-#! stay inside a 1500-octet MTU, and control_data_length is an 11-bit field
-#! (1722.1-2021 9.2.1.1.6), which is the looser of the two.
-SMAP_MAX_ROWS = (1500 - 14 - 4 - 20 - 12) // 8
+#! IEEE Std 1722.1-2021 Table 7-32, AUDIO_MAP descriptor, number_of_mappings:
+#!   "The number of channel mappings within the descriptor. The value of this
+#!    field is referred to as N. The maximum value of this field is 62 for this
+#!    version of AEM."
+#! This bounds the DESCRIPTOR, which is what this function builds. Do not
+#! confuse it with Milan v1.2 5.4.2.26's 176, which bounds the number of
+#! DYNAMIC mappings a GET_AUDIO_MAP RESPONSE may carry for one map_index -
+#! a different object, on ports that have no Audio Map descriptor at all.
+#! (An earlier version of this constant was derived from the MTU and came out
+#! at 181, which would have accepted a descriptor the standard forbids.)
+SMAP_MAX_ROWS = 62
 
 
-#: The ONE stream_channel deviation the deployed model carries today, recorded
-#: as data so that a NEW one fails instead of joining it silently. Measured
-#: 2026-07-28 by this gate on its first run. OWNER: the same NxN talker work
-#: roadmap item 5 owns - the AUDIO_MAP is generated from the port's CLUSTER
-#: count (endstation_builder.py: one mapping per cluster) with nothing
-#: consulting the stream's channels_per_frame, so an 8-cluster port on a
-#: 2-channel talker publishes six mappings onto channels the talker cannot
-#: carry in ANY format it advertises. Down-declaring is NOT the fix (USER,
-#: commit e103d8e: the device declares what it IS); the map has to be built
-#: from min(clusters, widest advertised channels) or the talker has to grow.
+#: The stream_channel deviations the deployed model carries today, recorded as
+#: data so that a NEW one fails instead of joining it silently. Measured
+#: 2026-07-28 by this gate on its first run.
+#:
+#: THIS IS A COHERENCE FINDING, NOT A PROVEN VIOLATION, and the difference is
+#: recorded because the standards were read rather than paraphrased: no clause
+#: of 1722.1-2021 7.2.19 or 7.2.13 bounds a STATIC AUDIO_MAP's
+#: mapping_stream_channel by anything. The nearest normative sentence is Milan
+#: v1.2 5.4.2.27, and it governs the ADD_AUDIO_MAPPINGS COMMAND on dynamic
+#: ports: "A PAAD-AE shall treat as invalid a mapping that references a channel
+#: of a Stream Input/Output that does not exist in the currently set format for
+#: this Stream Input/Output." For the descriptor the spec is SILENT.
+#:
+#: What is nonetheless true: the deployed STREAM_PORT_OUTPUT[0] publishes
+#: mappings onto stream channels 2..7 of a STREAM_OUTPUT whose ONLY advertised
+#: format is 2-channel AAF, so six of its eight mappings name channels that
+#: exist in no format the talker offers - the map cannot be acted on whatever
+#: the format is set to. OWNER: the NxN talker work roadmap item 5 owns - the
+#: AUDIO_MAP is generated from the port's CLUSTER count (endstation_builder.py:
+#: one mapping per cluster) with nothing consulting channels_per_frame.
+#: Down-declaring is NOT the fix (USER, commit e103d8e: the device declares
+#: what it IS); the map has to be built from min(clusters, widest advertised
+#: channels) or the talker has to grow.
 KNOWN_MAP_DEVIATIONS = {
     "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,%d,%d,0): stream_channel "
     "%d >= 2, the widest channels_per_frame stream 0 advertises "
@@ -348,30 +367,62 @@ def static_map_tables(spec, base_of, n_str_in, n_str_out):
     bounds gate that makes them checkable (defect B, 2026-07-28).
 
     WHY A GATE AND NOT JUST A TABLE.  GET_AUDIO_MAP answers with mappings the
-    controller then uses to address AUDIO_CLUSTERs, and 1722.1-2021 7.2.19
-    Table 7-162 makes mapping_cluster_offset PORT-RELATIVE - "the index of the
-    cluster offset from base_cluster" of the STREAM_PORT that answered.  A
-    model may therefore write the SAME offsets on two ports and mean two
-    different global clusters, which is exactly why no comparison of one
-    declaration against another can see a wrong offset: it has to be compared
-    against THE PORT'S OWN number_of_clusters.  Nothing did that until now, and
-    on 2026-07-28 a controller-grade check read 8 mappings with cluster_offset
-    0..7 out of a port declaring number_of_clusters = 2.
+    controller then uses to address AUDIO_CLUSTERs, and IEEE Std 1722.1-2021
+    Table 7-33 / Table 7-162 define mapping_cluster_offset verbatim as
 
-    Every bound here is the bound of a DIFFERENT descriptor, so each one is
-    cited separately:
+        "The offset from the base_cluster of the STREAM_PORT_INPUT or
+         STREAM_PORT_OUTPUT for mapping[0]."
+
+    The offsets are therefore PORT-RELATIVE. A model may write the SAME
+    offsets on two ports and mean two different global clusters, which is
+    exactly why no comparison of one declaration against another can see a
+    wrong offset: it has to be compared against THE PORT'S OWN
+    number_of_clusters. Nothing did that until now, and on 2026-07-28 a
+    controller-grade check read 8 mappings with cluster_offset 0..7 out of a
+    port declaring number_of_clusters = 2.
+
+    Every bound here is the bound of a DIFFERENT descriptor:
       base_map                names an AUDIO_MAP this model defines   (7.2.13)
       number_of_maps == 1     the static serving path answers map_index 0 only
-      cluster_offset          < the OWNING port's number_of_clusters  (7.2.19)
-      cluster_channel         < that AUDIO_CLUSTER's channel_count    (7.2.16)
+                              (7.4.44.1: any other index is BAD_ARGUMENT)
+      number_of_mappings      <= 62                          (Table 7-32)
+      cluster_offset          < the OWNING port's number_of_clusters
+                                (Table 7-33 quoted above)
+      cluster_channel         < that AUDIO_CLUSTER's channel_count    (7.2.16
+                                Table 7-27: "The number of channels within the
+                                cluster", descriptor offset 84)
       stream_index            < the stream descriptors this direction has
                                                                      (7.2.13)
-      stream_channel          < that stream's channels_per_frame
-                                (7.2.6 current_format / IEEE 1722-2016 7.3.1)
-    A duplicate (cluster_offset, cluster_channel) would have two streams
-    driving one cluster channel; Milan v1.2 5.4.2.26 states the one-mapping-
-    per-Audio-Cluster-channel rule for the DYNAMIC store, and the same
-    physical impossibility applies to a static map, so it is refused here too.
+
+    THE DUPLICATE RULE IS DIRECTION-ASYMMETRIC, and reading 7.2.19 rather than
+    restating it is what caught that. Verbatim, for STREAM_PORT_INPUT:
+
+        "There is at most one entry for each mapping_cluster_offset and
+         mapping_cluster_channel, but there may be multiple entries for each
+         mapping_stream_index and mapping_stream_channel."
+
+    and for STREAM_PORT_OUTPUT the two halves swap:
+
+        "There is at most one entry for each mapping_stream_index and
+         mapping_stream_channel across the entire Configuration, but there may
+         be multiple entries for each mapping_cluster_offset and
+         mapping_cluster_channel."
+
+    The first version of this gate applied the INPUT rule to BOTH directions
+    (unique cluster channel), which the OUTPUT paragraph explicitly permits -
+    it would have refused a conformant model. The output rule is also scoped
+    "across the entire Configuration", so it is checked across all output
+    ports together rather than per port.
+
+    WHERE THE STANDARD IS SILENT, and it is said rather than filled in: no
+    clause bounds a STATIC AUDIO_MAP's mapping_stream_channel by the stream's
+    format. The nearest normative sentence is Milan v1.2 5.4.2.27, and it is
+    about the DYNAMIC command, not the descriptor: "A PAAD-AE shall treat as
+    invalid a mapping that references a channel of a Stream Input/Output that
+    does not exist in the currently set format for this Stream Input/Output."
+    Applying that to a static descriptor would bound a permanent structure by
+    a runtime value, so this gate bounds by the WIDEST format the descriptor
+    advertises and RECORDS rather than raises - see KNOWN_MAP_DEVIATIONS.
 
     Returns the emit dict; raises ValueError naming the offending port.
     """
@@ -384,15 +435,21 @@ def static_map_tables(spec, base_of, n_str_in, n_str_out):
     cluster_channel_count = 1
 
     def one(direction, ports, n_streams, stream_specs):
-        addr, rows_n = [], []
+        addr, rows_n, moff = [], [], []
+        #! 7.2.19 OUTPUT rule: "at most one entry for each
+        #! mapping_stream_index and mapping_stream_channel ACROSS THE ENTIRE
+        #! CONFIGURATION" - so this set spans all output ports, not one.
+        cfg_stream_ch = {}
         for k, p in enumerate(ports):
             tag = f"STREAM_PORT_{direction}[{k}]"
             if p.get("map_mode", "static") == "dynamic":
-                #! 7.2.13: number_of_maps = 0 and base_map ignored - the
-                #! mappings are runtime state, not a descriptor. ROWS = 0 tells
-                #! the RTL there is no static map to serve on this port.
+                #! 7.2.13: "These Entities set the number_of_maps field to
+                #! zero (0) and the base_map field is ignored when read." The
+                #! mappings are runtime state, not a descriptor; ROWS = 0
+                #! tells the RTL there is no static map to serve here.
                 addr.append(0)
                 rows_n.append(0)
+                moff.append(0)
                 continue
             if p["maps"] != 1:
                 raise ValueError(
@@ -410,24 +467,26 @@ def static_map_tables(spec, base_of, n_str_in, n_str_out):
             if len(rows) > SMAP_MAX_ROWS:
                 raise ValueError(
                     f"{tag} AUDIO_MAP[{bm}] has {len(rows)} mappings; "
-                    f"12 + 8*{len(rows)} does not fit one AECPDU "
-                    f"(max {SMAP_MAX_ROWS} mappings per map - split the port "
-                    "into pages, 1722.1-2021 7.4.44.1)")
+                    f"1722.1-2021 Table 7-32: \"The maximum value of this "
+                    f"field is {SMAP_MAX_ROWS} for this version of AEM\"")
             seen = set()
             for (si, sc, co, cc) in rows:
                 where = f"{tag} AUDIO_MAP[{bm}] mapping ({si},{sc},{co},{cc})"
                 if co >= p["clusters"]:
                     raise ValueError(
                         f"{where}: cluster_offset {co} >= this port's "
-                        f"number_of_clusters {p['clusters']}. 7.2.19 makes "
-                        "the offset PORT-RELATIVE (offset from base_cluster "
-                        f"{p['base_cluster']}), not a global AUDIO_CLUSTER "
-                        "index")
+                        f"number_of_clusters {p['clusters']}. 1722.1-2021 "
+                        "Table 7-33: mapping_cluster_offset is \"The offset "
+                        "from the base_cluster of the STREAM_PORT_INPUT or "
+                        "STREAM_PORT_OUTPUT\" - PORT-RELATIVE (this port's "
+                        f"base_cluster is {p['base_cluster']}), not a global "
+                        "AUDIO_CLUSTER index")
                 if cc >= cluster_channel_count:
                     raise ValueError(
                         f"{where}: cluster_channel {cc} >= channel_count "
                         f"{cluster_channel_count} of the AUDIO_CLUSTER at "
-                        f"base_cluster+{co} (7.2.16)")
+                        f"base_cluster+{co} (7.2.16 Table 7-27 channel_count: "
+                        "\"The number of channels within the cluster\")")
                 if si >= n_streams:
                     raise ValueError(
                         f"{where}: stream_index {si} >= the {n_streams} "
@@ -445,6 +504,12 @@ def static_map_tables(spec, base_of, n_str_in, n_str_out):
                 #! model is refused for being narrowly configured today. The
                 #! live controller check (tb/tools/hive_compliance.py C9) uses
                 #! the CURRENT format because on the wire there is only one.
+                #! The only normative sentence in reach is Milan v1.2 5.4.2.27
+                #! and it governs ADD_AUDIO_MAPPINGS, not the descriptor: "A
+                #! PAAD-AE shall treat as invalid a mapping that references a
+                #! channel of a Stream Input/Output that does not exist in the
+                #! currently set format for this Stream Input/Output." For a
+                #! STATIC AUDIO_MAP the standard is SILENT.
                 chans = [fmt_channels(f) for f in stream_specs[si]["formats"]]
                 chans = [c for c in chans if c is not None]
                 if not chans:
@@ -465,29 +530,60 @@ def static_map_tables(spec, base_of, n_str_in, n_str_out):
                         f"widest channels_per_frame stream {si} advertises "
                         f"({[hex(f) for f in stream_specs[si]['formats']]}) - "
                         "7.2.6 / IEEE 1722-2016 7.3.1")
-                if (co, cc) in seen:
-                    raise ValueError(
-                        f"{where}: cluster channel ({co},{cc}) is already "
-                        "mapped by an earlier mapping in this same map - two "
-                        "streams cannot drive one cluster channel (Milan v1.2 "
-                        "5.4.2.26)")
-                seen.add((co, cc))
+                #! 7.2.19, and the two directions are NOT the same rule.
+                if direction == "INPUT":
+                    #! "There is at most one entry for each
+                    #!  mapping_cluster_offset and mapping_cluster_channel,
+                    #!  but there may be multiple entries for each
+                    #!  mapping_stream_index and mapping_stream_channel."
+                    if (co, cc) in seen:
+                        raise ValueError(
+                            f"{where}: 1722.1-2021 7.2.19 for a "
+                            "STREAM_PORT_INPUT - \"There is at most one entry "
+                            "for each mapping_cluster_offset and "
+                            f"mapping_cluster_channel\" - and ({co},{cc}) is "
+                            "already mapped in this map")
+                    seen.add((co, cc))
+                else:
+                    #! "There is at most one entry for each
+                    #!  mapping_stream_index and mapping_stream_channel ACROSS
+                    #!  THE ENTIRE CONFIGURATION, but there may be multiple
+                    #!  entries for each mapping_cluster_offset and
+                    #!  mapping_cluster_channel."
+                    if (si, sc) in cfg_stream_ch:
+                        raise ValueError(
+                            f"{where}: 1722.1-2021 7.2.19 for a "
+                            "STREAM_PORT_OUTPUT - \"There is at most one "
+                            "entry for each mapping_stream_index and "
+                            "mapping_stream_channel across the entire "
+                            f"Configuration\" - and ({si},{sc}) is already "
+                            f"mapped by {cfg_stream_ch[(si, sc)]}")
+                    cfg_stream_ch[(si, sc)] = where
             addr.append(base_of(AUDIO_MAP, bm))
             rows_n.append(len(rows))
-        return addr, rows_n
+            #! the descriptor's OWN mappings_offset, read back from the bytes
+            #! this model just encoded (7.2.19: the mappings "shall be
+            #! accessed by using the mappings_offset field"). Table 7-32 fixes
+            #! it at 8 "for this version of AEM"; deriving it means the RTL
+            #! does not carry a second copy of that 8.
+            img = d_audio_map(bm, rows)
+            moff.append((img[4] << 8) | img[5])
+        return addr, rows_n, moff
 
     if len(spec["ports_in"]) > SMAP_MAX_PORTS or \
             len(spec["ports_out"]) > SMAP_MAX_PORTS:
         raise ValueError(
             f"more than {SMAP_MAX_PORTS} STREAM_PORTs in one direction: the "
             "RTL GET_AUDIO_MAP port-index mux is 5 bits wide")
-    in_addr, in_rows = one("INPUT", spec["ports_in"], n_str_in,
-                           spec["stream_inputs"])
-    out_addr, out_rows = one("OUTPUT", spec["ports_out"], n_str_out,
-                             spec["stream_outputs"])
+    in_addr, in_rows, in_moff = one("INPUT", spec["ports_in"], n_str_in,
+                                    spec["stream_inputs"])
+    out_addr, out_rows, out_moff = one("OUTPUT", spec["ports_out"], n_str_out,
+                                       spec["stream_outputs"])
     return dict(IN_N=len(in_addr), OUT_N=len(out_addr),
                 IN_ADDR=in_addr or [0], IN_ROWS=in_rows or [0],
+                IN_MOFF=in_moff or [0],
                 OUT_ADDR=out_addr or [0], OUT_ROWS=out_rows or [0],
+                OUT_MOFF=out_moff or [0],
                 DEVIATIONS=deviations)
 
 # ----------------------------------------------------------------- specs ----
@@ -898,17 +994,22 @@ def emit_svh_text(M):
     sm = M["SMAP"]
     a("// Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).")
     a("// Per STREAM_PORT: the ROM address of the AUDIO_MAP that port's OWN")
-    a("// base_map names, and THAT descriptor's own number_of_mappings. Both")
-    a("// used to be hardcoded in the RTL (descriptor index 1, 8 mappings, 64")
-    a("// bytes), which on an 8x8 shape served STREAM_PORT_INPUT[1]'s 72-byte")
-    a("// map to STREAM_PORT_OUTPUT[0] and read 40 B past its 24-byte one.")
-    a("// ROWS = 0 marks a port with no static map (7.2.13 number_of_maps = 0,")
-    a("// the dynamic-mapping signal): the RTL refuses instead of serving.")
+    a("// base_map names, THAT descriptor's own number_of_mappings, and its")
+    a("// own mappings_offset - because 7.2.19 says the mappings field \"shall")
+    a("// be accessed by using the mappings_offset field\". All three used to")
+    a("// be hardcoded in the RTL (descriptor index 1, 8 mappings, offset 8,")
+    a("// 64 bytes), which on an 8x8 shape served STREAM_PORT_INPUT[1]'s")
+    a("// 72-byte map to STREAM_PORT_OUTPUT[0] and read 48 B past its")
+    a("// 24-byte one. ROWS = 0 marks a port with no static map - 7.2.13:")
+    a("// \"These Entities set the number_of_maps field to zero (0) and the")
+    a("// base_map field is ignored when read.\" On a STREAM_PORT_OUTPUT that")
+    a("// DOES have a map, ROWS != 0 is also the condition under which Milan")
+    a("// v1.2 5.4.2.26 requires NOT_SUPPORTED rather than a served map.")
     a(f"localparam int unsigned AEM_SMAP_IN_N_C  = {sm['IN_N']};")
     a(f"localparam int unsigned AEM_SMAP_OUT_N_C = {sm['OUT_N']};")
-    for nm, key in (("IN_ADDR", "IN_ADDR"), ("IN_ROWS", "IN_ROWS"),
-                    ("OUT_ADDR", "OUT_ADDR"), ("OUT_ROWS", "OUT_ROWS")):
-        v = sm[key]
+    for nm in ("IN_ADDR", "IN_ROWS", "IN_MOFF",
+               "OUT_ADDR", "OUT_ROWS", "OUT_MOFF"):
+        v = sm[nm]
         a(f"localparam [15:0] AEM_SMAP_{nm}_C [0:{len(v)-1}] = "
           "'{" + ", ".join(f"16'd{x}" for x in v) + "};")
     a("")
@@ -1013,10 +1114,26 @@ def self_test():
             lambda s: s["audio_maps"][0].__setitem__(0, [0, 0, 0, 1]))
     refuses("stream_index past the descriptors this direction has (7.2.13)",
             lambda s: s["audio_maps"][0].__setitem__(0, [9, 0, 0, 0]))
-    refuses("two mappings onto the SAME cluster channel (Milan 5.4.2.26)",
+    refuses("INPUT: two mappings onto the SAME cluster channel (7.2.19)",
             lambda s: s["audio_maps"][0].__setitem__(1, [0, 0, 0, 0]))
     refuses("a mapping onto the CRF sink, which carries no audio channels",
             lambda s: s["audio_maps"][0].__setitem__(0, [1, 0, 0, 0]))
+    #! 7.2.19's two directions are DIFFERENT rules, and this pair is the
+    #! negative control for that: the first version of this gate applied the
+    #! INPUT rule to both and would have refused the second model, which the
+    #! OUTPUT paragraph explicitly permits.
+    refuses("OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "
+            "\"across the entire Configuration\")",
+            lambda s: s["audio_maps"].__setitem__(
+                1, [[0, 0, 0, 0], [0, 0, 1, 0]]))
+    accepts("OUTPUT: the same cluster_offset twice IS allowed (7.2.19 "
+            "\"there may be multiple entries for each mapping_cluster_"
+            "offset\")",
+            lambda s: s["audio_maps"].__setitem__(
+                1, [[0, 0, 0, 0], [0, 1, 0, 0]]))
+    refuses("more mappings in one AUDIO_MAP than Table 7-32 allows (62)",
+            lambda s: s["audio_maps"].__setitem__(
+                0, [[0, c % 8, c, 0] for c in range(63)]))
 
     # ...and the recorded deviation is exactly the recorded one, no more.
     M = build_model(builtin_spec())

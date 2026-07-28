@@ -417,15 +417,22 @@ localparam [63:0] AEM_CRF_FMTS_C [0:0] = '{64'h041060010000BB80};
 
 // Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).
 // Per STREAM_PORT: the ROM address of the AUDIO_MAP that port's OWN
-// base_map names, and THAT descriptor's own number_of_mappings. Both
-// used to be hardcoded in the RTL (descriptor index 1, 8 mappings, 64
-// bytes), which on an 8x8 shape served STREAM_PORT_INPUT[1]'s 72-byte
-// map to STREAM_PORT_OUTPUT[0] and read 40 B past its 24-byte one.
-// ROWS = 0 marks a port with no static map (7.2.13 number_of_maps = 0,
-// the dynamic-mapping signal): the RTL refuses instead of serving.
+// base_map names, THAT descriptor's own number_of_mappings, and its
+// own mappings_offset - because 7.2.19 says the mappings field "shall
+// be accessed by using the mappings_offset field". All three used to
+// be hardcoded in the RTL (descriptor index 1, 8 mappings, offset 8,
+// 64 bytes), which on an 8x8 shape served STREAM_PORT_INPUT[1]'s
+// 72-byte map to STREAM_PORT_OUTPUT[0] and read 48 B past its
+// 24-byte one. ROWS = 0 marks a port with no static map - 7.2.13:
+// "These Entities set the number_of_maps field to zero (0) and the
+// base_map field is ignored when read." On a STREAM_PORT_OUTPUT that
+// DOES have a map, ROWS != 0 is also the condition under which Milan
+// v1.2 5.4.2.26 requires NOT_SUPPORTED rather than a served map.
 localparam int unsigned AEM_SMAP_IN_N_C  = 1;
 localparam int unsigned AEM_SMAP_OUT_N_C = 1;
 localparam [15:0] AEM_SMAP_IN_ADDR_C [0:0] = '{16'd3509};
 localparam [15:0] AEM_SMAP_IN_ROWS_C [0:0] = '{16'd8};
+localparam [15:0] AEM_SMAP_IN_MOFF_C [0:0] = '{16'd8};
 localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:0] = '{16'd3581};
 localparam [15:0] AEM_SMAP_OUT_ROWS_C [0:0] = '{16'd8};
+localparam [15:0] AEM_SMAP_OUT_MOFF_C [0:0] = '{16'd8};
