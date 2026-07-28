@@ -28,14 +28,19 @@ TOP        = KL_aecp_top
 # its gen/ wins the include search.
 CFG_DIR    = ../../../configs/generated
 SHAPE_1x1  = -I$(CFG_DIR)/endstation_arty_current
+# The SHIP shape, tracked: 9 STREAM_INPUT + 9 STREAM_OUTPUT, exactly the
+# descriptor set the AX7101 gateware carries. sim_nxn.cpp needs it because
+# the 1x1 and 1x3 harnesses structurally cannot see an index-coverage defect.
+SHAPE_8x8  = -I$(CFG_DIR)/endstation_ax7101_8x8
 
-VFLAGS = --cc --exe --build -j 0 \
+VBASE  = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         $(SHAPE_1x1) \
          -I$(RTL)/ieee17221/aecp -I$(RTL)/common \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
          -CFLAGS "-std=c++17 -O2 -I.."
+VFLAGS     = $(SHAPE_1x1) $(VBASE)
+VFLAGS_NXN = $(SHAPE_8x8) $(VBASE)
 
 SRCS = $(RTL)/ieee17221/aecp/aecp_pkg.sv \
        $(RTL)/ieee17221/adp/adp_pkg.sv \
@@ -64,10 +69,13 @@ run: $(GEN)
 	python3 gen_dynmap_shape.py dynmap_inc
 	$(VERILATOR) -Idynmap_inc $(VFLAGS) --Mdir obj_dynmap \
 	  $(SRCS) sim_dynmap.cpp -o Vaecp_dynmap   # -Idynmap_inc shadows gen/
+	$(VERILATOR) $(VFLAGS_NXN) --Mdir obj_nxn \
+	  $(SRCS) sim_nxn.cpp -o Vaecp_nxn         # 8x8 ship shape (D1/D2)
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
 	./obj_dynmap/Vaecp_dynmap
+	./obj_nxn/Vaecp_nxn
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -82,4 +90,4 @@ cosim: $(GEN)
 	$(VERILATOR) $(COSIM_FLAGS) $(SRCS) cosim_main.cpp -o Vaecp_cosim
 
 clean:
-	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc
+	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn

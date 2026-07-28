@@ -75,12 +75,12 @@ mode is a CI no-drift gate. **Never hand-edit it**; it is not restated here.
 
 | Family | File | Rows | ✅ verified | 🟡 partial | ❌ MISSING | ➖ N/A |
 |--------|------|------|------------|-----------|-----------|--------|
-| IEEE 1722.1-2021 (ADP/ACMP/AECP+AEM) | [`traceability/ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) | 72 | 59 | 3 | 0 | 10 |
+| IEEE 1722.1-2021 (ADP/ACMP/AECP+AEM) | [`traceability/ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) | 78 | 65 | 3 | 0 | 10 |
 | IEEE 1722-2016 (AVTP/AAF/CRF/MAAP) | [`traceability/ieee1722-2016.md`](traceability/ieee1722-2016.md) | 40 | 35 | 2 | 1 | 2 |
 | IEEE 802.1Q-2022 (VLAN/CBS/MRP/MSRP/MVRP) | [`traceability/ieee8021q.md`](traceability/ieee8021q.md) | 31 | 24 | 3 | 1 | 3 |
 | IEEE 802.1AS-2020 (gPTP HW-assist scope) | [`traceability/ieee8021as.md`](traceability/ieee8021as.md) | 11 | 8 | 1 | 1 | 1 |
 | Milan v1.2 profile deltas | [`traceability/milan-v12.md`](traceability/milan-v12.md) | 54 | 41 | 8 | 4 | 1 |
-| **Total** | | **208** | **167** | **17** | **7** | **17** |
+| **Total** | | **214** | **173** | **17** | **7** | **17** |
 
 <!-- Tally reconciliation 2026-07-23: the Milan family previously read 38✅/9🟡;
      a 1:1 re-count of every row's leading status glyph in milan-v12.md gives
@@ -91,7 +91,18 @@ mode is a CI no-drift gate. **Never hand-edit it**; it is not restated here.
      2026-07-27 clock-validity round: +2 Milan rows (M-DEV-13a 5.3.7.3 streaming
      state, M-DEV-13b Table 5.4 TIMESTAMP_UNCERTAIN) and +2 AVTP rows (AVTP-8t
      talker tu, AVTP-6t talker tv) — all ✅. M-DEV-13 keeps its 🟡 (the silicon
-     leg against a real grandmaster change is still owed). 204→208, 163→167. -->
+     leg against a real grandmaster change is still owed). 204→208, 163→167.
+     2026-07-28 AECP response-contract round: +6 1722.1 rows, all ✅ — CMD-7a
+     (7.4.16.2+7.4.5 GET_STREAM_INFO index coverage), CMD-7b (7.4.16.2 /
+     Milan 7.3.10 non-success response size), CMD-8a (7.4.17.1/7.4.18.2
+     SET/GET_NAME size + frame-vs-cdl), CMD-15a (7.4.40.2 GET_AVB_INFO 20 B
+     floor), CMD-17a (7.4.42.2 GET_COUNTERS index coverage + empty valid
+     mask), CMD-19a (7.4.44.2 GET_AUDIO_MAP 12 B floor). Every one carries an
+     L3/L4 oracle and was calibrated against the Milan-validated reference
+     device 3CC0C60102030000 (52 checks / 0 failures on the extended
+     hive_compliance.py). The ✅ is the TB+model leg; the SILICON leg is
+     explicitly still owed on all six — they need a Vivado rebuild and a
+     reflash, which this round did not do. 208→214, 167→173. -->
 
 
 Legend: **✅** requirement has a specific self-checking verification today

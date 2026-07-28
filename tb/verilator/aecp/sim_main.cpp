@@ -1837,6 +1837,77 @@ int main(int argc, char** argv) {
         ckbytes("[25c] unregistered -> acc_lat zero", r, 62, {0,0,0,0});
     }
 
+    // ---------------------------------------------------------------- //
+    // 26. Non-success AEM responses carry the FULL response payload      //
+    //     (defect D2, silicon 2026-07-27 gw 0x0001_0016).                //
+    //                                                                    //
+    //     Hive logged "Received an invalid non-success GET_STREAM_INFO    //
+    //     AEM response (Incorrect payload size)" 15 times against the     //
+    //     board and tolerated it only because it was built with          //
+    //     IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES; a strict controller   //
+    //     DROPS the frame. The rule comes from the stack that raises      //
+    //     that line — L-Acoustics avdecc protocolAemPayloads.cpp          //
+    //     checkResponsePayload(): NOT_IMPLEMENTED reflects the COMMAND,   //
+    //     every other status carries the FULL response payload. Sizes     //
+    //     per clause: GET_STREAM_INFO Response §7.4.16.2 / Milan v1.2     //
+    //     §7.3.10 = 56 B (cdl 68); GET_AVB_INFO Response §7.4.40.2 >= 20  //
+    //     B; SET/GET_NAME Response §7.4.17.1/§7.4.18.2 = 72 B (cdl 84).   //
+    //     This is the DEPLOYED 1x1 shape; tb sim_nxn.cpp runs the same    //
+    //     rule across the 9x9 ship shape.                                 //
+    // ---------------------------------------------------------------- //
+    printf("\n[26] non-success responses keep the full payload size\n");
+    {
+        auto si_pl = [](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
+        };
+        struct { uint16_t t; uint16_t i; const char* nm; int exp_st; } probes[] = {
+            {0x0006, 0,      "STREAM_OUTPUT.0 (exists)",        0},
+            {0x0005, 0,      "STREAM_INPUT.0 (exists)",         0},
+            {0x0005, 1,      "STREAM_INPUT.1 CRF (exists)",     0},
+            {0x0006, 1,      "STREAM_OUTPUT.1 (absent)",        2},
+            {0x0005, 2,      "STREAM_INPUT.2 (absent)",         2},
+            {0x0006, 0xFFFF, "STREAM_OUTPUT.65535 (absent)",    2},
+            {0x0002, 0,      "AUDIO_UNIT.0 (exists, not a stream)", 2},
+        };
+        for (auto& p : probes) {
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+                             0x2600 + p.i, si_pl(p.t, p.i)));
+            auto r = collect_resp();
+            char nm[128];
+            snprintf(nm, sizeof nm, "[26] GSI %s status", p.nm);
+            ck(nm, r_status(r), p.exp_st);
+            snprintf(nm, sizeof nm, "[26] GSI %s cdl 68", p.nm);
+            ck(nm, r_cdl(r), 68);
+            snprintf(nm, sizeof nm, "[26] GSI %s frame 94 B", p.nm);
+            ck(nm, (long)r.size(), 94);
+        }
+        // GET_AVB_INFO: wrong INDEX is an error and still owes >= 20 B;
+        // wrong TYPE is NOT_IMPLEMENTED and REFLECTS THE COMMAND (4 B).
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x2610,
+                         si_pl(0x0009, 1)));
+        auto r = collect_resp();
+        ck("[26] GET_AVB_INFO(idx 1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        ck("[26] GET_AVB_INFO(idx 1) cdl 32 (>= 20 B payload)", r_cdl(r), 32);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x2611,
+                         si_pl(0x0002, 0)));
+        r = collect_resp();
+        ck("[26] GET_AVB_INFO(wrong type) NOT_IMPLEMENTED", r_status(r), 1);
+        ck("[26] GET_AVB_INFO(wrong type) reflects cmd cdl 16", r_cdl(r), 16);
+        // GET_NAME error paths: 72-byte payload, and the frame is as long as
+        // the cdl says (the old lock path declared 84 and emitted 20).
+        {
+            std::vector<uint8_t> gb;
+            put_be16(gb, 0x0006); put_be16(gb, 9);      // absent STREAM_OUTPUT
+            put_be16(gb, 0); put_be16(gb, 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17,
+                             0x2620, gb));
+            r = collect_resp();
+            ck("[26] GET_NAME(absent) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+            ck("[26] GET_NAME(absent) cdl 84", r_cdl(r), 84);
+            ck("[26] GET_NAME(absent) frame 110 B", (long)r.size(), 110);
+        }
+    }
+
     // counters
     printf("\n[counters] cmd=%u resp=%u\n", dut->cmd_count_o, dut->resp_count_o);
     ck("cmd_count >= 14", dut->cmd_count_o >= 14, 1);
