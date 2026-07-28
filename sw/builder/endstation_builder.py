@@ -257,6 +257,13 @@ L2_HDR_BYTES = 18                 #: DA 6 + SA 6 + VLAN 4 + EtherType 2
 #: (the AVTPDU), NOT the L2 frame: MaxFrameSize + 42 = the full wire slot.
 SRP_FRAME_OVERHEAD_B = 42
 SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
+#: MSRP TSpec MaxFrameSize of the CRF Media Clock Stream = the PADDED MSDU of
+#: the tagged 60-octet frame KL_crf_tx builds (60 - 14 eth - 4 tag). It is NOT
+#: the 28-octet CRF AVTPDU: the pad is on the wire and the bridge budgets for
+#: it, so 42 + SRP_FRAME_OVERHEAD_B = the 84-octet wire slot the stream really
+#: occupies. MaxIntervalFrames is 1, the floor a TSpec can express for a 2 ms
+#: stream against class A's 125 us classMeasurementInterval.
+CRF_SRP_MAXFRAME_B = 42
 SRP_QUEUE_BITS = 3                #: LWSRP_CTRL[4:2] class-A queue select
 #: (widened from [3:2] with the 802.1Q-order map: class A lives on the TOP
 #: queue, q4 at NUMBER_OF_QUEUES = 5. The field keeps 3 bits at N=5 because
@@ -970,10 +977,19 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
 
     link_bps = binfo["link_mbps"] * 1_000_000
     limit_bps = link_bps * s["bandwidth_limit_pct"] // 100
+    #! the CRF Media Clock Output reserves too (Milan v1.2 7.3.3), and the
+    #! bw-gate sums its slope into the SAME class A Sigma - so the ceiling
+    #! check has to see it, or a shape that only fits WITHOUT its mandatory
+    #! media clock would pass here and be refused on the wire.
+    crf_tk_c = 1 if clocking["crf_output"] else 0
+    crf_slope_c = srp_idle_slope_bps(CRF_SRP_MAXFRAME_B, 1,
+                                     cls["intervals_ps"]) if crf_tk_c else 0
+    total_slope += crf_slope_c
     if total_slope > limit_bps:
         raise ConfigError(
             f"class-{s['sr_class']} reservation {total_slope} bps over "
-            f"{len(talkers)} talker stream(s) exceeds the "
+            f"{len(talkers)} talker stream(s) + the CRF media clock "
+            f"({crf_slope_c} bps) exceeds the "
             f"{s['bandwidth_limit_pct']}% ceiling of the "
             f"{binfo['link_mbps']} Mb/s port ({limit_bps} bps) - "
             "KL_lwsrp_bw_gate would refuse the excess streams (802.1Q "
@@ -992,8 +1008,24 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
         # row k, talker t -> row (L-1)+t, row 0 = the legacy pair. Available
         # rows = N_CTX_P, which milan_datapath sizes at 2*N_STREAMS-1 since
         # 2026-07-26 (it was max(L, T), which refused every t>0 talker row).
-        ctx_rows_required=len(listeners) + len(talkers) - 1,
-        ctx_rows_available=2 * max(len(listeners), len(talkers)) - 1,
+        #
+        # 2026-07-28: T also counts the CRF Media Clock Output, which is a
+        # TALKER attribute row of its own at talker index max(L, T) - Milan
+        # v1.2 7.3.3 carries the media clock stream under an SRP reservation
+        # of class A, so it is a reservation like any other and not an
+        # un-declared side channel. An 8x8 shape WITH a CRF output therefore
+        # needs exactly 16 rows, which is the whole 4-bit ctx index: the
+        # ConfigError below is the builder-side twin of milan_datapath's
+        # srp_ctx_rows_guard, and 9x9 is the first shape it refuses.
+        ctx_rows_required=len(listeners) + len(talkers) + crf_tk_c - 1,
+        ctx_rows_available=2 * max(len(listeners), len(talkers))
+                           - 1 + crf_tk_c,
+        # the CRF stream's own class A slope, already INSIDE
+        # total_idle_slope_bps above; broken out so the media clock's share
+        # of the class A budget is visible and never "optimised" away by
+        # weakening the SR class (USER standing rule; Milan 7.3.3 fixes it
+        # at class A).
+        crf_idle_slope_bps=crf_slope_c,
     )
     if s["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS):
         raise ConfigError(
@@ -1094,6 +1126,8 @@ def emit_lwsrp_table(cfg):
         "bandwidth": dict(limit_pct=s["bandwidth_limit_pct"],
                           link_bps=s["link_bps"], limit_bps=s["limit_bps"],
                           total_idle_slope_bps=s["total_idle_slope_bps"],
+                          #! the media clock's share, already inside the total
+                          crf_idle_slope_bps=s["crf_idle_slope_bps"],
                           utilization_pct=s["utilization_pct"],
                           frame_overhead_bytes=SRP_FRAME_OVERHEAD_B),
         "tspec_policy": s["tspec_policy"],
@@ -1116,15 +1150,23 @@ def lwsrp_module_params(cfg):
     (milan_datapath -> KL_lwsrp_top / milan_csr), emitted as one table so a
     hand edit on either side is visible. Gate 18c parses the RTL."""
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
+    N = max(L, T)
+    # 2026-07-28: the CRF Media Clock Output is a TALKER attribute row of its
+    # own (Milan v1.2 7.3.3 - the media clock stream is carried under an SRP
+    # reservation of class A). It sits at talker index N, hence ctx row
+    # (N-1)+N, so a config that HAS one needs one more talker slot and one
+    # more attribute row: N_CTX_P = L + T - 1 with T = N + 1.
+    crf_tk = 1 if cfg["clocking"]["crf_output"] else 0
     return {
         "KL_lwsrp_top.CLK_FREQ_HZ_P": cfg["constraints"]["milan_clk_hz"],
         # N_CTX_P covers listener + talker attribute rows (L+T-1, and the
-        # datapath sizes it 2*N_STREAMS-1); the bw-gate stays TALKER-wide so
-        # aaf_stream_en_w still indexes by talker index.
-        "KL_lwsrp_top.N_CTX_P": 2 * max(L, T) - 1,
-        "KL_lwsrp_top.N_LISTENERS_P": max(L, T),
-        "KL_lwsrp_top.N_TALKERS_P": max(L, T),
-        "KL_lwsrp_bw_gate.N_STREAMS_P": max(L, T),
+        # datapath sizes it N_STREAMS + SRP_TALKERS_C - 1); the bw-gate stays
+        # TALKER-wide so aaf_stream_en_w still indexes by talker index, and
+        # the CRF slope joins the SAME class A Sigma as the audio streams.
+        "KL_lwsrp_top.N_CTX_P": N + (N + crf_tk) - 1,
+        "KL_lwsrp_top.N_LISTENERS_P": N,
+        "KL_lwsrp_top.N_TALKERS_P": N + crf_tk,
+        "KL_lwsrp_bw_gate.N_STREAMS_P": N + crf_tk,
         "milan_datapath.N_STREAMS": max(L, T),
         "milan_datapath.MILAN_CLK_FREQ_HZ": cfg["constraints"]["milan_clk_hz"],
         "milan_csr.N_LISTENERS_P": L,

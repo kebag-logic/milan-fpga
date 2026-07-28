@@ -1096,8 +1096,17 @@ def test_lwsrp_tspec_and_params():
     assert re.search(r"KL_lwsrp_top #\(\.CLK_FREQ_HZ_P\(MILAN_CLK_FREQ_HZ\),"
                      r"\s*\.N_CTX_P\(SRP_CTX_ROWS_C\),"
                      r"\s*\.N_LISTENERS_P\(N_STREAMS\),"
-                     r"\s*\.N_TALKERS_P\(N_STREAMS\)\)", dp), \
+                     r"\s*\.N_TALKERS_P\(SRP_TALKERS_C\)\)", dp), \
         "milan_datapath no longer sizes the ctx table at L+T-1"
+    # ...and T includes the CRF Media Clock Output's own talker row when the
+    # shape has one (Milan v1.2 7.3.3: the media clock stream is an SR class
+    # A reservation like any other stream, not an un-declared side channel)
+    assert re.search(r"localparam int SRP_TALKERS_C\s*=\s*"
+                     r"N_STREAMS \+ SRP_CRF_TK_C;", dp), \
+        "milan_datapath no longer counts the CRF output as a talker row"
+    assert re.search(r"localparam int SRP_CTX_ROWS_C\s*=\s*"
+                     r"N_STREAMS \+ SRP_TALKERS_C - 1;", dp), \
+        "milan_datapath ctx rows are no longer L+T-1"
     assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_TALKERS_P\)\)", top), \
         "KL_lwsrp_top no longer ties the bw_gate width to N_TALKERS_P"
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
@@ -1106,10 +1115,24 @@ def test_lwsrp_tspec_and_params():
         r = eb.build(CONFIGS[name], OUT)
         t, cfg = r["lwsrp"], r["cfg"]
         mp = t["module_params"]
-        assert mp["KL_lwsrp_top.N_CTX_P"] == 2 * max(L, T) - 1 >= L + T - 1, \
+        # attribute rows = L + T - 1, where T counts the CRF Media Clock
+        # Output's own talker row (Milan v1.2 7.3.3) when the shape has one
+        crf_tk = 1 if cfg["clocking"]["crf_output"] else 0
+        n_tk = max(L, T) + crf_tk
+        assert mp["KL_lwsrp_top.N_TALKERS_P"] == n_tk, \
+            "the CRF Media Clock Output must own a talker attribute row"
+        assert mp["KL_lwsrp_top.N_CTX_P"] == max(L, T) + n_tk - 1 \
+            >= L + T - 1, \
             "ctx rows must cover every listener AND talker attribute row"
-        assert max(L, T) == mp["milan_datapath.N_STREAMS"] == \
-            mp["KL_lwsrp_bw_gate.N_STREAMS_P"] == mp["KL_lwsrp_top.N_TALKERS_P"]
+        # ctx_idx_i is 4 bits: 16 rows is the hard ceiling, and 8x8 with a
+        # CRF output lands EXACTLY on it
+        assert mp["KL_lwsrp_top.N_CTX_P"] <= 2 ** eb.SRP_CTX_IDX_BITS, \
+            f"{name}: {mp['KL_lwsrp_top.N_CTX_P']} rows exceed the " \
+            f"{eb.SRP_CTX_IDX_BITS}-bit ctx index"
+        assert max(L, T) == mp["milan_datapath.N_STREAMS"]
+        assert mp["KL_lwsrp_bw_gate.N_STREAMS_P"] == \
+            mp["KL_lwsrp_top.N_TALKERS_P"], \
+            "the bw-gate must budget the CRF stream's slope too"
         assert mp["KL_lwsrp_top.CLK_FREQ_HZ_P"] == \
             cfg["constraints"]["milan_clk_hz"] == \
             mp["milan_datapath.MILAN_CLK_FREQ_HZ"]
@@ -1119,15 +1142,23 @@ def test_lwsrp_tspec_and_params():
             f"{name}: num_queues != ethernet_packet_pkg NUMBER_OF_QUEUES {nq}"
         # the class-A queue must be a real queue
         assert 0 <= cfg["srp"]["class_queue"] < nq
-        assert t["ctx_rows"]["required"] == L + T - 1
+        # T counts the CRF Media Clock Output's talker row too (2026-07-28)
+        assert t["ctx_rows"]["required"] == L + T + crf_tk - 1
         # the shortfall closed 2026-07-26: the datapath sizes the table at
         # 2*N_STREAMS-1, so every listener AND talker attribute row is backed
-        assert t["ctx_rows"]["available"] == 2 * max(L, T) - 1
+        assert t["ctx_rows"]["available"] == 2 * max(L, T) - 1 + crf_tk
         assert t["ctx_rows"]["available"] >= t["ctx_rows"]["required"], \
             "lwSRP ctx table must back every row the 0x800 window can select"
         b = t["bandwidth"]
         assert b["total_idle_slope_bps"] <= b["limit_bps"]
-        assert b["total_idle_slope_bps"] == sum(
+        # the CRF media clock reserves class A bandwidth like any stream
+        # (Milan v1.2 7.3.3) and the bw-gate sums it into the same Sigma, so
+        # the static total must carry it - a shape that only fits WITHOUT its
+        # mandatory media clock does not fit
+        assert b["crf_idle_slope_bps"] == (
+            eb.srp_idle_slope_bps(eb.CRF_SRP_MAXFRAME_B, 1, 8000)
+            if crf_tk else 0), "the CRF class A slope is not accounted"
+        assert b["total_idle_slope_bps"] == b["crf_idle_slope_bps"] + sum(
             row["idle_slope_bps"] for row in t["rows"])
         talkers = [row for row in t["rows"] if row["direction"] == "talker"]
         assert len(talkers) == T
