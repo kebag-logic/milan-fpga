@@ -5199,6 +5199,15 @@ def main():
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]",
         ]
+        # The LiteX arty platform ships SPI_BUSWIDTH 4 + a spix4 write_cfgmem;
+        # our x1 override above wins the property fight, and Vivado then
+        # refuses the platform's spix4 cfgmem against an x1 bitfile
+        # (Writecfgmem 68-20 - killed both finished arty m0019h seeds AFTER
+        # their bitstreams succeeded, 2026-07-28). One decision, both halves:
+        # the .bin is generated x1 to match the x1 bitfile.
+        platform.toolchain.additional_commands = [
+            "write_cfgmem -force -format bin -interface spix1 -size 16 "
+            "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
                    board=args.board,
