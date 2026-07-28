@@ -209,8 +209,17 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
 
 Boot: QSPI/SRAM gateware → BIOS flash-boot (xz kernel) → buildroot →
 `S50milan` provisions CSRs (names, model id, vt=10, MAAP adopt, kernel
-shield /32, **AAF_CTRL 0x654 = 0x00020003 — bit-preserve VID 2 [27:16]
-or the switch floods the stream as best-effort**, ingressLatency sed
+shield /32, **AAF_CTRL 0x654 = 0x00020001 — bit-preserve VID 2 [27:16]
+or the switch floods the stream as best-effort. NOT `0x00020003`: bit 1 is
+`cfg_aaf_bypass`, which ORs past BOTH qualifying terms of the admission gate,
+so the talker streams whether or not any Listener Ready is registered. Milan
+v1.2 5.3.7.3 conditions streaming on "declaring a Talker Advertise attribute
+**and receiving a Listener Ready or Listener Ready Failed attribute**"; the
+repo's own paraphrase of that clause read as an unconditional "a Stream Output
+SHALL NOT be stopped" and is what licensed the bypass. Measured 2026-07-28:
+with bit 1 set and nothing bound, 15,503 tagged AAF frames in 6 s; cleared, 0 —
+while MSRP TalkerAdvertise/Domain continue either way, so 5.3.7.2 is intact**,
+ingressLatency sed
 3511(ARTY)/1490(AX) ns, priority1 238 on
 AX, tone on AX) → daemons: `ptp4l` (tx_timestamp_timeout **500**),
 `phc2sys`, `linkmon.sh` (kernel rx_packets liveness, one edge-pair per
@@ -229,7 +238,7 @@ flowchart TB
     B --> BR["buildroot userspace"]
     BR --> S["S50milan provisions the CSRs"]
     S --> S1["names, model id, vt=10, MAAP adopt, kernel shield /32"]
-    S --> S2["AAF_CTRL 0x654 = 0x00020003 - bit-preserve VID 2 in bits 27:16<br/>or the switch floods the stream as best-effort"]
+    S --> S2["AAF_CTRL 0x654 = 0x00020001 - bit-preserve VID 2 in bits 27:16<br/>NOT 0x...3: bit 1 is cfg_aaf_bypass and streams with no Listener Ready<br/>(Milan 5.3.7.3); measured 15,503 frames/6s bypassed vs 0 gated"]
     S --> S3["ingressLatency per board, priority1 238 on the AX, tone on the AX<br/>(the stream counts are NOT provisioned: 0x618/0x61C are read-only)"]
     S --> DMN["then the daemons"]
     DMN --> D1["ptp4l with tx_timestamp_timeout 500, plus phc2sys"]
