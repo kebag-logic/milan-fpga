@@ -54,21 +54,21 @@
 			reg = <0x760000 0x20000>;
 			read-only;
 		};
-		/* boot image: 6528 KiB */
+		/* boot image: 7552 KiB */
 		partition@780000 {
 			label = "rootfs";
-			reg = <0x780000 0x660000>;
+			reg = <0x780000 0x760000>;
 			read-only;
 		};
 		/* WRITABLE: 128 KiB */
-		partition@de0000 {
+		partition@ee0000 {
 			label = "journal";
-			reg = <0xde0000 0x20000>;
+			reg = <0xee0000 0x20000>;
 		};
-		/* WRITABLE: 2048 KiB */
-		partition@e00000 {
+		/* WRITABLE: 1024 KiB */
+		partition@f00000 {
 			label = "user";
-			reg = <0xe00000 0x200000>;
+			reg = <0xf00000 0x100000>;
 		};
 	};
 };

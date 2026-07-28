@@ -119,12 +119,19 @@ FLASHBOOT_LAYOUT = {
     "opensbi": {"offset": 0x70_0000, "addr": 0x40F0_0000, "size": 0x06_0000},
     "dtb":     {"offset": 0x76_0000, "addr": 0x40EF_0000, "size": 0x02_0000},
     # v4 (2026-07-26): rootfs SHRUNK 8.5 -> 6.375 MiB to make room for the two
-    # writable slots below. Measured rootfs.cpio.xz was 5.6 MiB, so ~0.775 MiB
-    # of slack remains. `deploy.sh flash-images` prints each image's size next
+    # writable slots below. Measured rootfs.cpio.xz was 5.6 MiB then.
+    # v5 (2026-07-28): rootfs 6.375 -> 7.375 MiB, taken back from `user`
+    # (2 -> 1 MiB) because the 0x0019 image measured 8.6 MiB xz'd - the
+    # PipeWire/ALSA stack plus the fast-connect tooling outgrew v4's slot -
+    # and the same round prunes perf + fputest + the no-consumer libraries
+    # (fpga/buildroot commit trail) to land back under this budget WITH slack.
+    # ONLY the rootfs ceiling and the two reserved slots move: the four boot
+    # image offsets are untouched, so a bitstream built against v4 boots the
+    # same flash. `deploy.sh flash-images` prints each image's size next
     # to its budget before writing anything - READ THAT LINE, it is the
     # pre-flash check that the rootfs still fits (SAVED_STATE_FASTCONNECT.md
     # section 11 gate G0). See the OPEN ITEM note under FLASHBOOT_RESERVED.
-    "rootfs":  {"offset": 0x78_0000, "addr": 0x4100_0000, "size": 0x66_0000},
+    "rootfs":  {"offset": 0x78_0000, "addr": 0x4100_0000, "size": 0x76_0000},
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
@@ -161,8 +168,17 @@ FLASHBOOT_MANIFESTS = {
 FLASH_SIZE        = 0x100_0000   # 16 MiB (N25Q128A13 / S25FL128S)
 FLASH_ERASE_BLOCK = 0x1_0000     # 64 KiB - the unit of erase, and of slot alignment
 FLASHBOOT_RESERVED = {
-    "journal": {"offset": 0xDE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
-    "user":    {"offset": 0xE0_0000, "size": 0x20_0000},   # 2 MiB, jffs2 -> /user
+    # v5 (2026-07-28): both slots slid up 1 MiB when the rootfs ceiling grew
+    # (see the v5 note above); `user` paid, 2 -> 1 MiB. 1 MiB = 16 erase
+    # blocks - jffs2 wants >= 5 free for GC, so the fault log rotates sooner
+    # but the filesystem stays comfortable. Nothing had ever been flashed at
+    # the v4 offsets (the journal/user map ships FOR THE FIRST TIME with
+    # 0x0019), so there is no migration - but any board that DOES someday
+    # move across maps loses its saved bindings and starts clean, which the
+    # fabric's CRC/shape verification turns into "no restore", never a
+    # half-restore.
+    "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+    "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB, jffs2 -> /user
 }
 
 
@@ -449,7 +465,8 @@ class MilanNIC(LiteXModule):
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
                  audio_if_i2s_pair=False, aaf_playback=False,
-                 render_lpf=True, optional_blocks=None):
+                 render_lpf=True, optional_blocks=None,
+                 cbs_queues_mask=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -479,7 +496,8 @@ class MilanNIC(LiteXModule):
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
                            aaf_playback=aaf_playback,
-                           render_lpf=render_lpf, optional_blocks=optional_blocks)
+                           render_lpf=render_lpf, optional_blocks=optional_blocks,
+                           cbs_queues_mask=cbs_queues_mask)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -626,7 +644,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
                        aaf_playback=False, render_lpf=True,
-                       optional_blocks=None):
+                       optional_blocks=None, cbs_queues_mask=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -793,6 +811,13 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     for k, param in MILAN_OPTIONAL_BLOCKS.items():
         if not blocks[k]:
             dp_params[f"p_{param}"] = 0
+    # CBS instance mask (2026-07-28 area lever, traffic_shaping_core has the
+    # contract). Passed ONLY when it actually prunes - None or all-ones emits
+    # a byte-identical top .v (the AAF_PLAYBACK_P discipline), and the name
+    # must match the SV declaration CHARACTER FOR CHARACTER (the silent-drop
+    # trap above).
+    if cbs_queues_mask is not None and int(cbs_queues_mask) != (1 << 5) - 1:
+        dp_params["p_CBS_QUEUES_MASK_P"] = int(cbs_queues_mask)
     host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
@@ -4444,7 +4469,8 @@ class MilanSoC(SoCCore):
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
                  audio_if_master=False,
                  pcm_ring="dram", aaf_playback=False,
-                 render_lpf=True, optional_blocks=None, **kwargs):
+                 render_lpf=True, optional_blocks=None,
+                 cbs_queues_mask=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -4740,6 +4766,15 @@ class MilanSoC(SoCCore):
             # pmoda-less I2S front-end (i_i2s_sdout_i = 0 -> one pair of
             # silence, still one FED pair).
             self.tdm_pads = None
+            # The I2S pads belong to MilanDMA (it requests the Pmod I2S2);
+            # the SoC has none of its own. getattr, not self.i2s_pads: a
+            # migen Module raises AttributeError for names never assigned,
+            # and on a board with NO i2s front-end (the AX7101 tdm32 master
+            # build) nothing assigns one - the first elaboration of that
+            # path died exactly here on 2026-07-28. Hoisted above the master
+            # branch because the blend kwarg below reads it on EVERY build.
+            _dma_i2s = getattr(getattr(self, "milan_dma", None),
+                               "i2s_pads", None)
             if audio_if_master and int(audio_if_slots):
                 # `loose=True` returns None when the platform declares no
                 # `tdm` resource (the Arty today) instead of raising, so a
@@ -4769,7 +4804,7 @@ class MilanSoC(SoCCore):
                     o_i2s_mclk_o  = (self.tdm_pads.mclk if self.tdm_pads
                                      else Signal()),
                 )
-                if self.tdm_pads is not None and self.i2s_pads is not None:
+                if self.tdm_pads is not None and _dma_i2s is not None:
                     # HANDOVER 8.3b blend (the Arty): BOTH front-ends are
                     # real, so the override above is itself overridden -
                     # o_i2s_mclk_o goes BACK to the Pmod I2S2 (pmoda:4, D13,
@@ -4777,7 +4812,7 @@ class MilanSoC(SoCCore):
                     # header gets the master's mclk on its OWN pad. The
                     # datapath blends the pair streams (KL_pair_blend, I2S =
                     # pair slot 0).
-                    dp_ports["o_i2s_mclk_o"] = self.i2s_pads[0]
+                    dp_ports["o_i2s_mclk_o"] = _dma_i2s[0]
                     dp_ports["o_tdm_mclk_o"] = self.tdm_pads.mclk
                 if self.tdm_pads is None:
                     print("[milan] --audio-interface-master: no `tdm` pads on "
@@ -4795,13 +4830,16 @@ class MilanSoC(SoCCore):
                                   talker_wire_chans=int(talker_wire_chans),
                                   audio_if_master=bool(audio_if_master),
                                   # 8.3b blend: on only when the board routes
-                                  # BOTH the I2S Pmod and a tdm header
+                                  # BOTH the I2S Pmod and a tdm header (the
+                                  # same _dma_i2s the mclk rebind used - the
+                                  # pads are MilanDMA's, and a padless board
+                                  # never assigns them)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
-                                                     and self.i2s_pads
-                                                     is not None),
+                                                     and _dma_i2s is not None),
                                   aaf_playback=aaf_pb,
                                   render_lpf=bool(render_lpf),
-                                  optional_blocks=optional_blocks)
+                                  optional_blocks=optional_blocks,
+                                  cbs_queues_mask=cbs_queues_mask)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -4972,6 +5010,15 @@ def main():
                          "i2spb_converged, so an EXTERNAL media clock never reports "
                          "converged (consistent - there is no render device to "
                          "converge). Default off => playback PRESENT.")
+    ap.add_argument("--cbs-queues-mask", type=lambda x: int(x, 0), default=None,
+                    help="AREA LEVER: which egress queues get a credit_based_shaper "
+                         "INSTANCE (bit i = queue i). A masked-out queue is strict-"
+                         "priority only - bit-identical to a built CBS whose runtime "
+                         "cbs_shaped_i is 0, which is how every non-SR queue runs "
+                         "today; its cbs_* CSR words stay and read back as written. "
+                         "The builder derives this from srp.class_queue (the SR "
+                         "classes keep CBS). Default None = all queues, the "
+                         "pre-2026-07-28 build, byte-identical.")
     ap.add_argument("--no-rx-mac-filter", action="store_true",
                     help="AREA LEVER: prune rx_mac_filter + its TCAM. The RX stream "
                          "becomes a straight wire to the DMA port, which is bit-exactly "
@@ -5155,6 +5202,7 @@ def main():
                        "i2s_playback":      not args.no_i2s_playback,
                        "rx_mac_filter":     not args.no_rx_mac_filter,
                    },
+                   cbs_queues_mask=args.cbs_queues_mask,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
