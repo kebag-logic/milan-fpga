@@ -458,9 +458,11 @@ reserved to this feature, 5 words used):
 |--------|------|-----|-------|--------|
 | `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en — debug override arm; while 0, `CHMAP_WORD` writes are ignored (AEM remains the sole programmer). Readback live |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` entry index, `[8]` side (0 = RMAP/render, 1 = CMAP/capture). Out-of-range entries read 0, writes ignored (the 0x800-window out-of-range rule) |
-| `0x908` | `CHMAP_WORD` | RW | — | `[15:0]` the §5 map word of the selected entry. Write: commits through the shared write port (requires `CHMAP_CTRL[0]`; refused while an AEM burst holds the port). Read: the entry's CURRENT word — AEM- or CSR-written, one truth — served from the map RAM read port in walk-idle slots (AXI read stretches a few clocks; the engine-backed-word pattern of the 0x800 window) |
+| `0x908` | `CHMAP_WORD` | RW | — | `[15:0]` the §5 map word of the selected entry. Write: commits through the shared write port (requires `CHMAP_CTRL[0]`; refused while an AEM burst holds the port). Read: **as built, this is `milan_csr`'s own SHADOW of the last word software wrote — not the RAM.** The "entry's CURRENT word" this row originally specified is served by `CHMAP_LOOP` `0x914` instead (VERSION `0x0017`), as a new register rather than a semantic change to `0x908`, so the existing ABI is untouched |
 | `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem_commits (map words written by the AEM projector, wraps), `[23:16]` csr_refused (CSR writes dropped: override disarmed or port collision; saturates), `[24]` aem_busy (projector burst in flight) |
-| `0x910`–`0x97C` | — | — | `0` | reserved (phase 2: flat per-entry view / composed-device controls) |
+| `0x910` | `CHMAP_SNAP` | W1S / RO | `0xC500_0000` | **LANDED, VERSION `0x0017`.** W `[0]` arm a readback of the entry named by `CHMAP_SEL`; R busy/valid/timeout/unsupported/armed + the `CHMAP_RDBK_P` capability in `[9:8]` + the latched `{side,index}` + a constant `0xC5` tag. Full fields in [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) |
+| `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | **LANDED, VERSION `0x0017`.** The word the map RAM *actually holds* — the "shadow readback" this section always promised, finally served from the RAM read port rather than from `0x908`'s copy of what software wrote. `[18]` `LOOP_SUSPECT` = mapped & ~fed. Un-armed reads `0xDEADDEAD`, never `0` (`0` is a legal map entry) |
+| `0x918`–`0x97C` | — | — | `0` | reserved (phase 2: flat per-entry view / composed-device controls) |
 
 [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) gains the `0x900` group row; `VERSION` minor bumps
 (additive change).

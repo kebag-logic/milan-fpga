@@ -6,6 +6,12 @@
 #   sim_main.cpp -> Vmilan_csr        : legacy map regression at the N=1
 #     silicon shape + the P11 0x800 window index-0 hard aliases and the
 #     out-of-range rule (lane-K engine inputs at their datapath ties).
+#   CHMAP_RDBK_P: the chmap map-RAM readback capability (0x910/0x914). The
+#     THREE executables deliberately split it - sim_main/sim_live leave it at
+#     the honest default 0 ("no read port wired in this build", which is the
+#     state milan_datapath actually shipped in) so the UNSUPPORTED path is a
+#     negative control that can fail, and sim_win sets 3 (both ports wired)
+#     so the measured path is exercised against a modelled map RAM.
 #   sim_win.cpp  -> obj_win/Vcsr_win  : the window at N_LISTENERS_P=4 /
 #     N_TALKERS_P=4 against MODELED lane-K engines - LCTX/TCTX port-B
 #     pipeline + snap arbitration (SNAP atomicity under a free-running
@@ -88,7 +94,7 @@ obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
 
 obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_win --top-module $(TOP) \
-	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 \
+	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
 	  $(SRCS) sim_win.cpp -o Vcsr_win
 
 obj_live/V$(TOPL): $(LIVE_SRCS) $(GEN_CSR) $(SHAPE_8x8_F) sim_live.cpp

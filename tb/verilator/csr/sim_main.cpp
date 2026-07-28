@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010016);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010017);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -875,6 +875,64 @@ int main(int argc, char** argv) {
     axi_write(A_MAC_CTRL, 0x13);
     dut->i_speed = 2; dut->eval();
     printf("  [%s] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)\n",
+           (fails == f0) ? "PASS" : "FAIL");
+  }
+
+  // ------------------------------------------------------------------ //
+  //  chmap map-RAM readback: THE NEGATIVE CONTROL (CHMAP_RDBK_P = 0)
+  //
+  //  This executable elaborates milan_csr at its DEFAULT parameters, which
+  //  means "no map-RAM readback port is wired in this build" - exactly the
+  //  state milan_datapath shipped in (map_rd_en_i = 1'b0, map_rd_data_o
+  //  unconnected). The property under test is methodology R5: a capability
+  //  the fabric cannot back must read UNSUPPORTED, never 0. The check that
+  //  matters here is the one that CAN fail - if the register ever answered
+  //  a snapshot on a build with no port, or answered it with a zero map
+  //  word, this leg fails while sim_win's positive leg still passes.
+  //
+  //  ORACLE: the fabric. With no readback port there IS no fabric answer,
+  //  so the only honest report is "unsupported", and the data word must
+  //  stay poison.
+  // ------------------------------------------------------------------ //
+  {
+    long f0 = fails;
+    printf("-- chmap readback NEGATIVE control: no port in this build --\n");
+    const uint32_t A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904;
+    const uint32_t A_CHMAP_SNAP = 0x910, A_CHMAP_LOOP = 0x914;
+    const uint32_t POISON = 0xDEADDEADu;
+
+    // THE TRAP THIS REGISTER EXISTS TO AVOID: the 0x800 window's data words
+    // read 0 until their SNAP is armed, which is indistinguishable from a
+    // dead block. Un-armed here must be POISON.
+    ck("CHMAP_LOOP un-armed is POISON not 0", axi_read(A_CHMAP_LOOP), POISON);
+    uint32_t s = axi_read(A_CHMAP_SNAP);
+    ck("CHMAP_SNAP tag 0xC5 (feature probe)", (s >> 24) & 0xFF, 0xC5);
+    ck("CHMAP_SNAP cap = 0 (port absent)", (s >> 8) & 3, 0);
+    ck("CHMAP_SNAP armed = 0 at reset",     (s >> 4) & 1, 0);
+    ck("CHMAP_SNAP busy = 0 at reset",       s        & 1, 0);
+    ck("CHMAP_SNAP valid = 0 at reset",     (s >> 1) & 1, 0);
+    // 0x918 is still reserved: it reads 0, so the 0xC5 tag is what tells a
+    // probe that 0x910 EXISTS in this gateware
+    ck("0x918 still reserved-reads-0", axi_read(0x918), 0);
+
+    // arm a snapshot with no port behind it
+    axi_write(A_CHMAP_CTRL, 1);
+    axi_write(A_CHMAP_SEL, 0x105);            // side = capture, index = 5
+    bool saw_req = false;
+    axi_write(A_CHMAP_SNAP, 1);
+    for (int i = 0; i < 40; ++i) { if (dut->o_chmap_rd_en) saw_req = true; posedge(); }
+    s = axi_read(A_CHMAP_SNAP);
+    ck("refused arm: unsup = 1",  (s >> 3) & 1, 1);
+    ck("refused arm: valid = 0",  (s >> 1) & 1, 0);
+    ck("refused arm: busy = 0",    s       & 1, 0);
+    ck("refused arm: timeout = 0", (s >> 2) & 1, 0);   // refused, not silent
+    ck("refused arm: armed = 1",  (s >> 4) & 1, 1);    // the arm WAS seen
+    ck("refused arm latched {side,idx}", (s >> 16) & 0x7F, (1u << 6) | 5u);
+    ck("no fabric request was issued", saw_req, 0);
+    ck("CHMAP_LOOP still POISON after a refused arm",
+       axi_read(A_CHMAP_LOOP), POISON);
+    axi_write(A_CHMAP_CTRL, 0);
+    printf("  [%s] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0\n",
            (fails == f0) ? "PASS" : "FAIL");
   }
 

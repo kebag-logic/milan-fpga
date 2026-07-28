@@ -57,6 +57,20 @@ An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
   register reads back 0.
 * **Statistics** — snapshot latches `i_stats[9]` into the read window; reset
   emits a pulse.
+* **Channel-map RAM readback (`0x910` `CHMAP_SNAP` / `0x914` `CHMAP_LOOP`)** —
+  split deliberately across two executables, because the property is a
+  *capability*, not a value. `sim_win.cpp` elaborates `-GCHMAP_RDBK_P=3` and
+  drives a modelled map RAM on the readback port: a written entry reads back
+  through the *fabric* (not `0x908`'s shadow), and the three states that matter
+  on a board with no audio pins — `mapped=1 fed=1`, `mapped=1 fed=0`
+  (`LOOP_SUSPECT`, the mis-wired loopback), and unmapped — are distinguishable,
+  as is a *measured* zero from the poison `0xDEADDEAD` that means "no
+  measurement". Its negative control makes the modelled RAM go silent: the
+  watchdog must report `timeout` and re-poison the data word rather than latch
+  the bus. `sim_main.cpp` leaves `CHMAP_RDBK_P` at its default 0 — "no read
+  port in this build", the state `milan_datapath` actually shipped in — and
+  asserts that an arm is *refused* (`unsupported`), that no request reaches the
+  fabric, and that the data word never becomes 0.
 * **ACMP bind-restore (0x7A0, E1)** — staging-register RW (incl. the
   `0xA5C35A3C` feature-probe pattern at `0x7A0`), commit → held
   `o_acmp_rest_*` request with the staged record, busy/done/status readback
