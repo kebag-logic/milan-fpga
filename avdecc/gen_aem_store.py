@@ -308,6 +308,17 @@ def builtin_spec():
         ports_out=[dict(clusters=8, base_cluster=8, maps=1, base_map=1)],
         audio_maps=[[[0, ch, ch, 0] for ch in range(8)],
                     [[0, ch, ch, 0] for ch in range(8)]],
+        # D10 role names for the DEPLOYED arty shape, and the reason this
+        # list is written out rather than computed: this spec is the
+        # pre-builder model, and endstation_arty_current.yaml must reproduce
+        # it byte-for-byte through the overlay path (test_builder gate 10).
+        # The arty routes a 2-channel Philips I2S link (Pmod I2S2: CS4344 DAC
+        # out, ADC in), so clusters 0..1 per direction are PHYSICAL and 2..7
+        # are the virtual tail of the Milan 6.4 up-to-8 family.
+        cluster_names_in=[f"I2S Out {n}" for n in range(2)]
+                         + [f"Virtual Out {n}" for n in range(2, 8)],
+        cluster_names_out=[f"I2S In {n}" for n in range(2)]
+                          + [f"Virtual In {n}" for n in range(2, 8)],
     )
 
 def spec_from_overlay(ovl):
@@ -367,6 +378,17 @@ def spec_from_overlay(ovl):
                    for p in ovl["stream_ports"]["output"]],
         audio_maps=[m["mappings"] for m in
                     sorted(ovl["audio_maps"], key=lambda m: m["index"])],
+        # D10 cluster names (overlay 2.1+). An older 2.0 overlay carries no
+        # audio_clusters list and falls back to the pre-rename "Input"/
+        # "Output", so a stale overlay still builds a valid - if mute - model.
+        cluster_names_in=[c["name"] for c in
+                          sorted(ovl.get("audio_clusters", []),
+                                 key=lambda c: c["index"])
+                          if c["direction"] == "input"] or None,
+        cluster_names_out=[c["name"] for c in
+                           sorted(ovl.get("audio_clusters", []),
+                                  key=lambda c: c["index"])
+                           if c["direction"] == "output"] or None,
         _stream_flags_in=stream_flags_in,
     )
 
@@ -436,10 +458,27 @@ def build_model(spec):
                                     p["maps"], p["base_map"])))
     n_in = sum(p["clusters"] for p in spec["ports_in"])
     n_out = sum(p["clusters"] for p in spec["ports_out"])
+    # AUDIO_CLUSTER object_names (builder D10). Before 2026-07-28 every
+    # cluster of every shape was literally named "Input" or "Output", which
+    # told a controller operator nothing: on an 8x8 board Hive showed eighty
+    # identical rows and no way to tell a pilot tone from a dead TDM slot
+    # from a loopback lane. Names now come from the cluster's ROLE (the
+    # builder's cluster_names(); the overlay carries them per cluster).
+    # 1722.1-2021 6.2.2.8 lists object_name among the fields EXCLUDED from
+    # "the structure of the data model", so this rename does NOT bump any
+    # entity_model_id - and the descriptor is fixed-width (cstr pads to 64),
+    # so no offset, length or directory entry moves either.
+    names_in = spec.get("cluster_names_in") or ["Input"] * n_in
+    names_out = spec.get("cluster_names_out") or ["Output"] * n_out
+    if len(names_in) != n_in or len(names_out) != n_out:
+        raise ValueError(f"cluster name count {len(names_in)}/{len(names_out)}"
+                         f" != cluster count {n_in}/{n_out}")
     for k in range(n_in):
-        descs.append((AUDIO_CLUSTER, k, d_audio_cluster(k, "Input", NO_STRING)))
+        descs.append((AUDIO_CLUSTER, k,
+                      d_audio_cluster(k, names_in[k], NO_STRING)))
     for k in range(n_in, n_in + n_out):
-        descs.append((AUDIO_CLUSTER, k, d_audio_cluster(k, "Output", AUDIO_UNIT)))
+        descs.append((AUDIO_CLUSTER, k,
+                      d_audio_cluster(k, names_out[k - n_in], AUDIO_UNIT)))
     for k, rows in enumerate(spec["audio_maps"]):
         descs.append((AUDIO_MAP, k, d_audio_map(k, rows)))
 
@@ -448,6 +487,19 @@ def build_model(spec):
     for t, i, img in descs:
         directory.append((t, i, len(rom), len(img)))
         rom += img
+    # The svh addresses the store with 16-bit words throughout (AEM_DIR_C
+    # {type, index, base, len}, the overlay/write-back/name tables, the MVU
+    # scratch tail), so a ROM past 64 KiB would silently wrap instead of
+    # failing. Say so here: the builder catches this as aem_rom_unsupported
+    # and marks the shape "planned" rather than emitting a broken ROM.
+    # Growing past this is D6's job (BRAM hot stub + DRAM bulk tree).
+    if len(rom) + 64 > 0x10000:
+        raise ValueError(
+            f"AEM ROM {len(rom)} B + 64 B MVU scratch exceeds the 16-bit "
+            f"store address space (65536 B) - {len(directory)} descriptors, "
+            f"{n_in + n_out} AUDIO_CLUSTERs at {len(d_audio_cluster(0, '', 0))}"
+            " B each. A model this large is the D6 split (BRAM hot stub + "
+            "DRAM bulk descriptor tree), not a wider ROM")
 
     def base_of(t, i=0):
         return next(b for (tt, ii, b, _) in directory if tt == t and ii == i)

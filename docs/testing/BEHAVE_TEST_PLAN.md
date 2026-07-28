@@ -9,7 +9,7 @@ docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix
 ## Contents
 
 - **[0. Principle — the suite IS the matrix](#0-principle--the-suite-is-the-matrix)** — The rule that makes this a plan rather than a wish list: every scenario carries `@clause`/`@matrix`/`@roadmap` tags, so the traceability matrix's amber and red rows *generate* the backlog and a row may go green only once a passing non-`@wip` scenario cites it.
-- **[1. Current state (reconnaissance 2026-07-23)](#1-current-state-reconnaissance-2026-07-23)** — Inventory of the four suites that already exist, what each is good for, and the two problems: no shared `behave.ini`, and suites A and B are drifting copies. Carries a 2026-07-26 update — the in-repo suite is now a CI gate and has roughly doubled to 21 features / 113 scenarios. Ends with the immediately-visible coverage holes.
+- **[1. Current state (reconnaissance 2026-07-23)](#1-current-state-reconnaissance-2026-07-23)** — Inventory of the four suites that already exist, what each is good for, and the two problems: no shared `behave.ini`, and suites A and B are drifting copies. Carries a 2026-07-26 update — the in-repo suite is now a CI gate and has roughly doubled to 22 features / 122 scenarios. Ends with the immediately-visible coverage holes.
 - **[2. Architecture (decisions locked with USER)](#2-architecture-decisions-locked-with-user)** — Three locked decisions: organise by subsystem (tags do the clause slicing), three tiers with T0/T1 CI-green and T2 `@bench`-gated, and P0 = the seven red matrix rows first.
 - **[3. Tag taxonomy (author into a shared behave.ini + environment.py)](#3-tag-taxonomy-author-into-a-shared-behaveini--environmentpy)** — The tag vocabulary in one block, plus the three command lines it buys you (green gate, bench gate, per-row compliance report). Note `@rtl-defect`: a scenario that deliberately asserts current NON-compliant behaviour and must be flipped when the RTL is fixed.
 - **[4. The 14-domain coverage map](#4-the-14-domain-coverage-map)** — The working table of the whole plan: per subsystem, what exists, which matrix rows are still open, the planned feature file, and — most usefully — the concrete assertion mechanism, down to the tap filter or CSR offset you would read.
@@ -38,7 +38,7 @@ together, and the two conformance-suite copies are drifting.
 > **gate** in the `bdd-conformance` job of
 > [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml), per the USER
 > standing order that it runs on every verification round. It has also roughly
-> doubled: **21 features / 113 scenarios / 1169 steps** (measured 2026-07-26),
+> doubled: **22 features / 122 scenarios / 1215 steps** (measured 2026-07-26),
 > the growth being the `item10_*` command coverage. The `behave.ini` / shared
 > tag-taxonomy work below is still open, and suites A/B/C are still un-gated.
 
@@ -288,7 +288,7 @@ changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 
 - **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D.
   **The in-repo suite is already gated** — [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)
   carries a `bdd-conformance` job that runs `behave -f plain` on every push and
-  pull request (21 features / 113 scenarios / 1169 steps), alongside
+  pull request (22 features / 122 scenarios / 1215 steps), alongside
   [`docs.yml`](../../.github/workflows/docs.yml) (docs, cited paths, archive,
   contents, traceability, builder, DT, trace). What is still unwired is the
   **Suite D container** path — the DUT-sim gate, not the suite itself.

@@ -24,7 +24,7 @@ meant to be promoted into the traceability matrix / bench features per the
 ## Contents
 
 - **[1. Artifacts and flow](#1-artifacts-and-flow)** — What one config emits and, more usefully, *who reads each file and where a stale one is caught* — a per-artefact table naming its consumer and its `test_builder.py` gate number. Only four files are tracked in the repo and can therefore go stale inside a commit; everything else is regenerated. Ends with the three example shapes side by side, where the cluster row shows the policy biting (8×8 emits 80 clusters, not 128).
-- **[2. Settled design decisions](#2-settled-design-decisions)** — D1-D8 with their clause basis, opening with the index that says which four you can actually rely on today. The reasoning worth reading whole: D3 keeps talker `channels` and `clusters` as separate config fields because deriving one from the other is what produced the declared-8ch/wire-2ch silence, and D6/D7/D8 are recorded decisions with no RTL behind them yet.
+- **[2. Settled design decisions](#2-settled-design-decisions)** — D1-D10 with their clause basis, opening with the index that says which you can actually rely on today. The reasoning worth reading whole: D3 keeps talker `channels` and `clusters` as separate config fields because deriving one from the other is what produced the declared-8ch/wire-2ch silence; D8's *model* half landed 2026-07-28 (role-tagged cluster pools, and the finding that the AX7101 routes **no audio pins at all**, which is why its talkers need the loopback pool) while its *fabric* lane is still a marked gap; D10 names every cluster for what it is and proves the rename cannot move `entity_model_id`; D6/D7 remain recorded decisions with no RTL behind them.
 - **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** — The 27-row field-by-field contract: each config key, the descriptor or argv it generates, the clause that governs it, and which consumer reads it. Three rows generate *planned* artifacts — the config validates and the build plan marks them rather than erroring.
 - **[4. What the 8x8 shape adds (endstation_ax7101_8x8.yaml)](#4-what-the-8x8-shape-adds-endstation_ax7101_8x8yaml)** — Descriptor growth from 1×1 to 8×8 with the clause driving each count, and the new obligation the shape triggers: two or more AAF inputs make a CRF Media Clock Output mandatory, now enforced as a validation error. Also the honest split — the model half is done, the provisioning half rides with item 5, and the area cost at 100 MHz is a measurement this page declines to claim.
 - **[5. Relation to the bench suite and the traceability matrix](#5-relation-to-the-bench-suite-and-the-traceability-matrix)** — Why the builder adds no normative behaviour of its own, and the two gates that hold it honest: today's config must reproduce the shipped ROM and `sweep.sh` argv byte-for-byte, and an unchanged model must keep an unchanged `entity_model_id`.
@@ -149,6 +149,7 @@ tracked at all.
 | `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by `hdl/common/csr/milan_csr.sv` | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
 | `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11) and both capability words | `` `include ``-d by **both** `hdl/common/csr/milan_csr.sv` (the RO `0x618`/`0x61C` words) and `hdl/milan/milan_datapath.sv` (the ACMP source/sink context array sizing) | `scripts/check_entity_shape.py` — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh` |
 | `aecp_aem_rom.svh` | the AEM **descriptor set** a controller enumerates, generated from this config's `aem_overlay.json` | `` `include ``-d by `hdl/ieee17221/aecp/KL_aecp_aem_store.sv` | 10 (byte-identical for the deployed shape) + `check_entity_shape.py` (the tracked ROM and the tracked shape name the **same** source config) |
+| `tb/verilator/aecp/aem_golden.h` | the same ROM image as C, the oracle the `aecp` suite's full-directory sweep compares every READ_DESCRIPTOR response against | `tb/verilator/aecp/sim_main.cpp` | 24d — **its ONLY writer is `python3 avdecc/gen_aem_store.py`.** `--write-rtl` does *not* write it, so a model edit that regenerates the svh alone leaves this stale and the suite goes red on exactly the descriptors that changed |
 | `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base, the DMA window map **derived from** `board.constraints.rx_queues`, the addresses `kl-eth` hardcodes, the `kl,dma-ether` / `kl,milan-pcm` nodes | device tree / driver | 19a (queue count is one number across config, argv, sweep fragment and DT), 19b (window bases byte-match the generated CSR listing and the deployed tree), 19c (flipping `rx_queues` under a pinned boot chain is refused) |
 | `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
 | `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by `sw/litex/sweep.sh`, whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |
@@ -164,24 +165,32 @@ predicted — they are what `gen_aem_store.py` is handed:
 | Board · audio interface | arty · `i2s_philips` | arty · `tdm8` | ax7101 · `tdm16` |
 | AAF listeners × talkers | 1 × 1 | 4 × 4 | 8 × 8 |
 | Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 |
-| Talker `clusters` (D3) | 8 | 2 | 2 |
-| `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `cap-at-interface` |
+| Talker `clusters` (D3) | 8 | 2 | *(unused under `role-pools`)* |
+| `audio_interface.physical_channels` | default (2/2) | default (8/8) | **0 / 0 — the board routes no audio pins** |
+| `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `role-pools` (D8) |
 | `clocking.crf_output` | absent (legal at 1 listener) | enabled | enabled |
 | STREAM_INPUT / STREAM_OUTPUT | 2 / 1 | 5 / 5 | 9 / 9 |
 | STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 4 / 4 | 8 / 8 |
-| AUDIO_CLUSTER | 16 | 24 | 80 |
+| AUDIO_CLUSTER | 16 | 24 | **200** |
 | AUDIO_MAP | 2 | 8 | 16 |
 | CLOCK_SOURCE | 3 | 6 | 10 |
 
 The cluster row is where the policy bites and where a guess would have been
-wrong: `cap-at-interface` takes `min(stream.clusters, interface channels per
-direction)`, so the 8×8 shape emits 8 input ports × 8 + 8 output ports × 2 =
-**80** clusters, not one per stream channel in both directions.
+wrong. `cap-at-interface` takes `min(stream.clusters, interface channels per
+direction)` — that is why `arty_4x4` emits 24 and not one cluster per stream
+channel in both directions.
+
+The 8×8 row moved on 2026-07-28: it now selects **`role-pools`** (D8), so its
+ports carry role-tagged pools instead of a copy of a stream field —
+8 input ports × 8 `host` + 8 output ports × (8 `host` + 1 `pilot` +
+8 `loopback`) = **200**. Its `physical` pool is **empty**, because the AX7101
+routes no audio pins in either direction (see D8 status), and that is
+precisely why the loopback pool is there.
 
 ## 2. Settled design decisions
 
-Eight decisions, four of them still unimplemented. Read this index first —
-it is the only place that says which of D1–D8 you can rely on today:
+Ten decisions, two of them still unimplemented. Read this index first —
+it is the only place that says which of D1–D10 you can rely on today:
 
 | # | Decision, in one line | Rests on | Status |
 |---|---|---|---|
@@ -192,7 +201,8 @@ it is the only place that says which of D1–D8 you can rely on today:
 | **D5** | the config is the single source of truth; flow flags stay in `sweep.sh`; `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
 | **D6** | AEM store splits: BRAM hot stub + DRAM bulk descriptor tree loaded from a builder-emitted, hash-verified blob | engineering (area: ~80 RAMB36 vs ~36 free) | **not implemented** (recorded 2026-07-25) |
 | **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **not implemented** — today's RTL is input[0]-scoped and cluster-keyed |
-| **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane | 1722.1 7.2.19 (port-relative offsets) | **not implemented** — loopback lane and pool emission are pending |
+| **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane | 1722.1 7.2.19 (port-relative offsets) | **model implemented** (2026-07-28) — `role-pools` policy emits per-platform pools, gates 24a/24b + `sim_pools`; the loopback **fabric lane** is still pending and marked *planned* |
+| **D10** | every AUDIO_CLUSTER is named for its ROLE, not `"Input"`/`"Output"` | 1722.1 7.2.16; 6.2.2.8 (object_name excluded from model structure) | **implemented** (2026-07-28) — gates 24c/24d; `entity_model_id` provably unmoved |
 
 > **D2 has moved on since it was written.** The builder's schema is 1.1: the
 > field is `cluster_mapping.policy` (a `rule` key is an explicit error), and
@@ -521,8 +531,120 @@ render map. The all-channels pilot run uses D7 fan-out (or the 0x900 bench
 override until D7 lands). The CRF Media Clock Output rule (7.2.3) and the
 clock tree are untouched by this decision.
 
-Status: model shape recorded 2026-07-25; the loopback lane and the
-per-platform pool emission are pending subtasks.
+#### D8 status (2026-07-28): the MODEL is implemented; the FABRIC lane is not
+
+**What landed.** `cluster_mapping.policy: role-pools` is a real third
+policy. Under it a STREAM_PORT's cluster block is no longer a copy of the
+stream's `clusters` field — it is the sum of role-tagged **pools**, and
+every pool width is read out of the platform declaration:
+
+| Pool | Width from | Where |
+|---|---|---|
+| `physical` | `audio_interface.physical_channels.{capture,render}` | both directions |
+| `host` | `cluster_mapping.pools.host` (the ALSA/PipeWire lane per stream) | both directions |
+| `pilot` | `cluster_mapping.pools.pilot` (one `KL_tone_gen` cluster) | **talker ports only** |
+| `loopback` | `cluster_mapping.pools.loopback` | **talker ports only** |
+
+`physical_channels` is the load-bearing new field, and **zero is the
+important value**. The AX7101 platform ships `_connectors = []`
+(`sw/litex/platforms/alinx_ax7101.py`), so `sw/litex/milan_soc.py` leaves
+`self.i2s_pads = None` and drives `i_i2s_sdout_i = 0` — the capture
+front-end clocks in a constant zero — and the TDM pins are tied off in the
+same wrapper ("neither board has a TDM header today":
+`i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0`). **The board has no
+audio input at all.** Declaring 16 physical channels there would be the
+roadmap-item-00 defect in miniature — an advertised capability the fabric
+cannot back — so `endstation_ax7101_8x8.yaml` now declares `{capture: 0,
+render: 0}` and emits **no physical clusters**.
+
+That is *why* the loopback pool matters rather than being a nicety: on that
+board the loopback clusters are the only source that can hand a talker
+per-channel-distinct audio.
+
+**Static-map fall-through.** Only one segment can be the power-on source, so
+each port's AUDIO_MAP is written against its *primary* segment: `physical`
+first where it exists, then (talker) `loopback`, `host`, `pilot`. On the AX
+`physical` is empty, so **the talker's map lands on the loopback pool** —
+USER 2026-07-28, "For the AX Loopback, use the loopback cluster created."
+Talker *t*'s loopback pool starts at received stream *t* channel 0, so the
+eight talkers offer eight *different* source sets, not eight copies of one.
+
+Because 7.2.19 offsets are port-relative, both talker ports carry the
+**same** offsets `{3,4}` onto **different** global clusters — the property
+D1 was chosen for, now checked over the wire.
+
+**Emitted counts** (`endstation_ax7101_8x8.yaml`): 8 input ports × 8 host +
+8 output ports × (8 host + 1 pilot + 8 loopback) = **200 AUDIO_CLUSTERs**,
+descriptor ROM 23 713 B.
+
+**What is still pending, and it is the half that makes sound.** The
+loopback **fabric lane** does not exist. `KL_chan_map_capture`'s map entry
+is `{en[7], src[6:4], idx[3:0]}` with buckets `0 ZERO / 1 I2S / 2 TDM /
+3 RING / 4 TONE` and `5..7` reserved; the received pair streams are **not**
+in that source set, so a loopback cluster today selects silence. The build
+plan marks it `planned (D8 subtask - new fabric lane)` rather than letting
+the model claim it. The Pilot cluster's *source* does exist (`KL_tone_gen`,
+`src = 4 TONE`); what is planned there is fanning ONE pilot cluster onto
+MANY stream channels, which the cluster-keyed dynamic-map store forbids and
+**D7** fixes.
+
+**The size ceiling is real and now enforced.** The full pool D8 sketches
+(64-wide loopback + 16 physical + 8 host on every port) emits 792
+AUDIO_CLUSTERs and a ROM past 64 KiB. The AEM store svh addresses itself
+with 16-bit words throughout, so `gen_aem_store.py` now *refuses* to emit
+such a ROM; the builder records it as `aem_rom_unsupported`, the plan marks
+the shape planned, and `--write-rtl` refuses it. That is **D6's** job (BRAM
+hot stub + DRAM bulk descriptor tree), exactly as D6 predicted.
+
+Gates: `test_builder.py` 24a (pool composition, primary-role fall-through,
+distinct per-talker loopback sets, the 16-bit ceiling), 24b (8 refused
+contradictory pool configs), and the `aecp` suite's `sim_pools`
+harness — 120 checks reading the pooled model back over real AECP frames.
+
+### D10 — every AUDIO_CLUSTER is named for what it IS
+
+**Defect.** Every cluster of every shape was literally named `"Input"` or
+`"Output"`. On an 8×8 board a controller operator saw eighty identical rows
+with no way to tell a pilot tone from a dead TDM slot from a loopback lane.
+
+**Decision (USER).** The name comes from the cluster's **role**:
+
+| Role | object_name |
+|---|---|
+| `physical` | `"<IFACE> Out <n>"` / `"<IFACE> In <n>"` — e.g. `I2S Out 0`, `TDM16 In 3` |
+| `virtual` | `"Virtual Out <n>"` / `"Virtual In <n>"` |
+| `host` | `"Host Play <n>"` / `"Host Cap <n>"` |
+| `pilot` | `"Pilot Tone"` |
+| `loopback` | `"Loopback S<s> ch <c>"` — the received stream channel it offers |
+
+**Clause basis — and why this is free.** 1722.1-2021 6.2.2.8 lists
+`object_name` among the fields that do **not** constitute "the structure of
+an ATDECC Entity data model". So renaming clusters **must not** move
+`entity_model_id`, and it does not: `model_shape()` never sees a name, and
+all three shipped configs hash to exactly what they hashed before
+(`arty_current` `0x001BC5AB73EC9D1D`, `arty_4x4` `0x001BC565E07E0DD6`).
+`cstr()` pads every name to a fixed 64 bytes, so no descriptor length,
+offset or directory entry moves either — only the name bytes. And because
+6.2.2.8 excludes it precisely *because* it is dynamic, `SET_NAME` on a
+cluster still works and is gated.
+
+**The DEPLOYED shape's ROM did change**, deliberately: the tracked
+`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`,
+`tb/verilator/aecp/aem_golden.h` and `avdecc/aem_rom.json` were all
+regenerated together. Which is the trap:
+
+> **`tb/verilator/aecp/aem_golden.h` is written ONLY by
+> `python3 avdecc/gen_aem_store.py`.** The builder's `--write-rtl` writes
+> `hdl/.../aecp_aem_rom.svh` and `hdl/common/csr/gen/adp_shape_defaults.svh`
+> and **not** the golden. Regenerating one and not the other is what turned
+> the first D10 attempt red: measured 2026-07-28, the `aecp` suite reported
+> exactly **16 failures — `desc 0x0014[0..15] byte-exact off=42`**, one per
+> AUDIO_CLUSTER, at the `object_name` field, and nothing else. Regenerating
+> the golden alone took it back to 490 checks / 0 failures. `test_builder.py`
+> gate 24d now compares the golden's ROM bytes to the generated ones so a
+> stale golden fails the builder gate instead of the suite.
+
+Status: **implemented** — gates 24c/24d plus `sim_pools` section [2]/[6].
 
 ## 3. Config schema → AEM descriptor mapping
 
@@ -550,7 +672,10 @@ the field itself.
 | 13 | `clocking.audio_pll_hz` | audio MMCM constraint (MCLK derivation) | — | SoC |
 | 14 | `audio_interface.kind` | ser/des RTL family + params (`i2s_philips` = default front-end; `tdmN` → `--audio-interface` → `AUDIO_IF_SLOTS_P` / `KL_tdm_capture`; `aes3`/`spdif` → `KL_aes3_rx`/`KL_aes3_tx` `CONSUMER_P`, SoC plumbing planned); planned: JACK_IN/OUT `jack_type`, EXTERNAL_PORT_IN/OUT, AUDIO_UNIT ext-port counts (D5) | 1722.1 7.2.7 (Table 7-12), 7.2.14, 7.2.3 | SoC, AEM (planned) |
 | 15 | `audio_interface.word_length_bits` | ser/des word length; bounds usable AAF `bit_depth` | 1722 7.3.4 | SoC |
-| 16 | `audio_interface.cluster_mapping.policy` | AUDIO_CLUSTER + AUDIO_MAP generation policy (D2). Schema 1.1 name; `endstation_builder.py` raises `ConfigError` on a legacy `rule` key rather than accepting it | 1722.1 7.2.16, 7.2.19; Milan 5.3.9.1/5.3.10.1 | AEM |
+| 16 | `audio_interface.cluster_mapping.policy` | AUDIO_CLUSTER + AUDIO_MAP generation policy (D2). Schema 1.1 name; `endstation_builder.py` raises `ConfigError` on a legacy `rule` key rather than accepting it. Three policies: `cluster-per-stream-channel`, `cap-at-interface`, `role-pools` (D8) | 1722.1 7.2.16, 7.2.19; Milan 5.3.9.1/5.3.10.1 | AEM |
+| 16a | `audio_interface.physical_channels.{capture,render}` | the cluster ROLE split: channels the BOARD actually routes, per direction (default = the interface family width). Clusters past it are `virtual` under the legacy policies and simply absent under `role-pools`. **0 is legal and load-bearing** — the AX7101 routes none | — (platform truth; the wire-truth 1-to-1 rule) | AEM, build_plan.md |
+| 16b | `audio_interface.cluster_mapping.pools.{host,pilot,loopback}` | D8 role pools, read ONLY by `role-pools` (declaring them under another policy is a `ConfigError`). Widths become the port's cluster block; `pilot`/`loopback` are talker-port-only. The static AUDIO_MAP is written against the first non-empty of `physical`, `loopback`, `host`, `pilot`. `pilot` fan-out is *planned* (needs D7); the `loopback` **fabric lane** is *planned* (`KL_chan_map_capture` has no such source bucket) | 1722.1 7.2.13, 7.2.16, 7.2.19 | AEM (planned RTL) |
+| 16c | cluster ROLE (derived, D10) | AUDIO_CLUSTER `object_name`: `I2S Out 0` / `TDM16 In 3` / `Virtual Out 5` / `Host Cap 2` / `Pilot Tone` / `Loopback S3 ch 1`. **Excluded from the model hash** — 6.2.2.8 lists `object_name` among the fields that do not constitute model structure, so a rename never moves `entity_model_id` | 1722.1 7.2.16, 6.2.2.8 | AEM |
 | 17 | `streams.listeners[].channels` | STREAM_INPUT default `current_format` channel count (= wire `channels_per_frame`) | 1722.1 7.2.6; 1722 7.3.3; Milan 6.4 | AEM, SoC |
 | 18 | `streams.listeners[].formats` | STREAM_INPUT `formats` list (ut families per Milan) | 1722.1 7.2.6; Milan 5.3.8.1, 6.5; 1722 I.2.4 | AEM |
 | 19 | `streams.listeners[].buffer_length_ns` | STREAM_INPUT `buffer_length` (ns, MAC ingress buffer) | 1722.1 7.2.6 (Table 7-8) | AEM |
@@ -590,11 +715,13 @@ Unchanged: ENTITY, CONFIGURATION, AUDIO_UNIT (still one clock domain,
 1722.1 7.2.3), AVB_INTERFACE, CLOCK_DOMAIN, CONTROL, LOCALE, STRINGS.
 
 > **The AUDIO_CLUSTER row is the count under `cluster-per-stream-channel`
-> with talker `clusters` = 8.** The tracked `endstation_ax7101_8x8.yaml`
-> selects `cap-at-interface` and talker `clusters: 2` instead, so the overlay
-> it actually emits carries **80** clusters (8 input ports × 8 + 8 output
-> ports × 2) — see the shapes table in §1. Every other row above matches the
-> emitted overlay exactly.
+> with talker `clusters` = 8.** Since 2026-07-28 the tracked
+> `endstation_ax7101_8x8.yaml` selects **`role-pools`** (D8) instead, so the
+> overlay it actually emits carries **200** clusters (8 input ports ×
+> 8 `host`, 8 output ports × 8 `host` + 1 `pilot` + 8 `loopback`, and **no**
+> `physical` clusters because the board routes no audio pins) — see the
+> shapes table in §1 and the D8 status block. Every other row above matches
+> the emitted overlay exactly.
 
 **New Milan obligation the shape triggers — model half DONE.** With two
 or more AAF Media Inputs, Milan 7.2.3 makes a **CRF Media Clock Output**

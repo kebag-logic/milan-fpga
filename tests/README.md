@@ -40,7 +40,7 @@ Gherkin scenarios driven by the `avtp_aecp_packet_gen` class. Two paths:
 - **Offline** (default, no DUT binary): Python model in `tests/steps/aecp_common_steps.py` emulates admission control and lock/acquire state for fast CI.
 - **Live DUT**: Verilator-compiled binary serving AXI-Stream over a UNIX socket (harness pending).
 
-**21 features / 113 scenarios / 1169 steps**, all passing, counted by running the
+**22 features / 122 scenarios / 1215 steps**, all passing, counted by running the
 suite on 2026-07-26. It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
@@ -87,7 +87,7 @@ built `packet_gen`.
 
 **Run everything (offline, no DUT, no simulator — finishes in ~3 s):**
 ```bash
-cd tests && behave -f plain          # 21 features / 113 scenarios / 1169 steps
+cd tests && behave -f plain          # 22 features / 122 scenarios / 1215 steps
 cd tests && behave --tags @tsn_gen   # just the tsn-gen tier
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do
