@@ -99,6 +99,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
+       $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \

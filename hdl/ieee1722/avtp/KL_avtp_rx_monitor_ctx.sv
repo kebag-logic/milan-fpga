@@ -143,6 +143,19 @@ module KL_avtp_rx_monitor_ctx #(
   //! (the render crossbar's per-stream de-interleave truth; 0 = stream
   //! default/2ch per its contract; >15ch saturates the nibble)
   output logic [N_LISTENERS_P*4-1:0] wire_chans_all_o,
+
+  //! --- Milan 5.4.2.25 indexed counter read (AECP GET_COUNTERS) ----------
+  //! Table 5.16 makes a PAAD-AE "implement and return" the Table 5.6
+  //! counters for EACH Stream Input; the stream-0 legacy outputs above
+  //! serve exactly one. This port serves them all: the write-through
+  //! mirror below shadows every context's ten counter words into flops
+  //! (same mechanism as the stream-0 view, all streams), and the response
+  //! builder reads the descriptor_index it is serving combinationally in
+  //! its const-load cycle. Before this port, sink 1 answered a FULL 0xF3F
+  //! mask over constant zeros - a claimed-valid counter serving a frozen
+  //! zero, the exact R5 lie - and sinks >= 2 an empty mask.
+  input  wire [3:0]                  diag_idx_i,
+  output logic [10*32-1:0]           diag_cnt_o,  //! C_ML..C_FRX order
   output logic [31:0] last_ts_o,         //! stream-0 last accepted avtp_ts
   output logic [31:0] last_tsd_o         //! stream-0 last signed ts_delta
 );
@@ -515,6 +528,37 @@ module KL_avtp_rx_monitor_ctx #(
   //! stream-0 word mirrors into the flat output registers
   wire        leg_hit_w  = ram_we_w && (ram_waddr_w[AW_C-1:5] == '0);
   wire [4:0]  leg_word_w = ram_waddr_w[4:0];
+
+  //! Milan 5.4.2.25 all-context counter mirror: the SAME write-through
+  //! mechanism as the stream-0 view, applied to every stream's ten counter
+  //! words (W_CNT0_C .. W_CNT0_C+9). Flop cost N x 10 x 32; the RAM's one
+  //! read port stays wholly the walker's, and the AECP builder reads the
+  //! mirror combinationally through diag_idx_i.
+  logic [31:0] cnt_mir_r [N_LISTENERS_P][10];
+  wire cntw_hit_w = ram_we_w &&
+                    (ram_waddr_w[4:0] >= W_CNT0_C) &&
+                    (ram_waddr_w[4:0] < W_CNT0_C + 5'd10) &&
+                    (32'(ram_waddr_w[AW_C-1:5]) < N_LISTENERS_P);
+  always_ff @(posedge clk_i) begin : diag_mirror
+    if (!rst_n) begin
+      for (int s = 0; s < N_LISTENERS_P; s++)
+        for (int c = 0; c < 10; c++)
+          cnt_mir_r[s][c] <= '0;
+    end else if (cntw_hit_w) begin
+      cnt_mir_r[ram_waddr_w[AW_C-1:5]][ram_waddr_w[4:0] - W_CNT0_C]
+          <= ram_wdata_w;
+    end
+  end : diag_mirror
+
+  //! indexed combinational read: ten Table 5.6 counters for one sink, in
+  //! C_ML..C_FRX order; an out-of-range index clamps to 0 (the builder
+  //! only presents directory-served indexes)
+  wire [IDXW_C-1:0] diag_ridx_w = (32'(diag_idx_i) < N_LISTENERS_P)
+                                  ? diag_idx_i[IDXW_C-1:0] : '0;
+  always_comb begin : diag_read
+    for (int c = 0; c < 10; c++)
+      diag_cnt_o[c*32 +: 32] = cnt_mir_r[diag_ridx_w][c];
+  end : diag_read
 
   always_ff @(posedge clk_i) begin : ctx_walker
     if (!rst_n) begin

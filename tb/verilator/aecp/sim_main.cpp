@@ -20,6 +20,10 @@
 #include <string>
 #include <algorithm>
 
+// AAF sink count of this harness's entity shape (the CRF sink
+// past it answers the empty mask)
+#define N_AAF_SINKS_TB 1
+
 static VKL_aecp_top* dut;
 static vluint64_t tk = 0;
 static long checks = 0, fails = 0;
@@ -173,7 +177,12 @@ int main(int argc, char** argv) {
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0x0011223344556677ULL; dut->gptp_domain_i = 0;
     dut->pdelay_ns_i  = 0x00021F6A;   // 139,114 ns - a >125us measured pdelay (user bug 3)
-    dut->link_up_i = 1; dut->frames_tx_i = 0;
+    dut->link_up_i = 1;
+    // Milan 5.4.2.25 per-index counter buses: zero until a case models
+    // them (the fabric muxes by gs_diag_idx_o; here the harness owns them)
+    for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
+    for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
+    dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
     // station MAC [47:40]=first wire byte
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
@@ -1242,21 +1251,32 @@ int main(int argc, char** argv) {
             ck("[21b2] DEREGISTER ok", r_status(collect_resp()), 0);
         }
 
-        // (c) STREAM_OUTPUT: talker activation cycle + live FRAMES_TX
-        dut->frames_tx_i = 0x00012345;
+        // (c) STREAM_OUTPUT: the Table 5.4 set rides the tkdiag bus - the
+        // counters LIVE in KL_talker_diag_ctx in the datapath (interval +
+        // reset-on-start semantics are its own TB's subject; the mux by
+        // descriptor index is milan_dp's). This proves the BUILDER's
+        // mapping: mask 0x1F and the five 32-bit slots in Table 5.17 bit
+        // order, TIMESTAMP_UNCERTAIN included - the byte lanes that were
+        // constant zero under a claiming mask until 2026-07-28.
         dut->talker_active_i = 1;
         (void)collect_resp(); (void)collect_resp(); (void)collect_resp(); // B/C/D pushes
         dut->talker_active_i = 0;
         (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
+        dut->tkdiag_cnt_i[0] = 2;          // STREAM_START
+        dut->tkdiag_cnt_i[1] = 2;          // STREAM_STOP
+        dut->tkdiag_cnt_i[2] = 0;          // MEDIA_RESET (no mr source)
+        dut->tkdiag_cnt_i[3] = 7;          // TIMESTAMP_UNCERTAIN intervals
+        dut->tkdiag_cnt_i[4] = 0x00012345; // FRAMES_TX intervals
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2103,
                          gc_pl(0x0006, 0)));
         r = collect_resp();
         ck("[21c] GET_COUNTERS(STREAM_OUT) SUCCESS", r_status(r), 0);
         ckbytes("[21c] valid 0x1F", r, 42, {0,0,0,0x1F});
-        // test 12 already cycled talker_active once -> this is the 2nd cycle
-        ck("[21c] STREAM_START 2", be32_at(r, 46), 2);
-        ck("[21c] STREAM_STOP 2", be32_at(r, 50), 2);
-        ck("[21c] FRAMES_TX live", be32_at(r, 62), 0x00012345);
+        ck("[21c] STREAM_START", be32_at(r, 46), 2);
+        ck("[21c] STREAM_STOP", be32_at(r, 50), 2);
+        ck("[21c] MEDIA_RESET", be32_at(r, 54), 0);
+        ck("[21c] TIMESTAMP_UNCERTAIN SERVED (Table 5.4)", be32_at(r, 58), 7);
+        ck("[21c] FRAMES_TX (interval count)", be32_at(r, 62), 0x00012345);
 
         // (d) GET_MAX_TRANSIT_TIME reflects the SET_STREAM_INFO latency
         //     (test 13g left pres_offset at 1600000 ns)
@@ -1596,8 +1616,23 @@ int main(int argc, char** argv) {
             (void)collect_resp();
         }
 
-        // (g) GET_COUNTERS on sink 0: live KL_avtp_rx_monitor values behind
-        //     the Milan valid mask 0xF3F (Table 7-156; block byte 4n = bit n)
+        // (g) GET_COUNTERS on sink 0: the SOLICITED path reads the
+        //     rxdiag bus (the monitor's all-context mirror muxed by
+        //     gs_diag_idx_o in the fabric); the in0_* legacy ports now feed
+        //     only the UNSOLICITED push and CLOCK_DOMAIN. Word order is the
+        //     mirror's C_ML..C_FRX; the response maps them onto the Milan
+        //     valid mask 0xF3F (Table 7-156; block byte 4n = bit n).
+        dut->rxdiag_cnt_i[0] = 3;          // MEDIA_LOCKED
+        dut->rxdiag_cnt_i[1] = 2;          // MEDIA_UNLOCKED
+        dut->rxdiag_cnt_i[2] = 1;          // STREAM_INTERRUPTED
+        dut->rxdiag_cnt_i[3] = 0x0102;     // SEQ_NUM_MISMATCH
+        dut->rxdiag_cnt_i[4] = 0;          // MEDIA_RESET
+        dut->rxdiag_cnt_i[5] = 5;          // TIMESTAMP_UNCERTAIN
+        dut->rxdiag_cnt_i[6] = 7;          // UNSUPPORTED_FORMAT
+        dut->rxdiag_cnt_i[7] = 0;          // LATE_TIMESTAMP
+        dut->rxdiag_cnt_i[8] = 0;          // EARLY_TIMESTAMP
+        dut->rxdiag_cnt_i[9] = 0x00ABCDEF; // FRAMES_RX
+        // the unsol-push flavour still reads these:
         dut->in0_cnt_locked_i      = 3;
         dut->in0_cnt_unlocked_i    = 2;
         dut->in0_cnt_interrupted_i = 1;
@@ -1641,13 +1676,20 @@ int main(int argc, char** argv) {
         ck("[22g2] LOCKED = in0 media_locked", be32_at(r, 46), 3);
         ck("[22g2] UNLOCKED = in0 media_unlocked", be32_at(r, 50), 2);
 
-        // (h) sink 1 (CRF): same mask, all-zero counters
+        // (h) sink 1 IS the CRF Media Clock Input on this shape, and it has
+        //     no monitor context - the truthful answer is SUCCESS with an
+        //     EMPTY valid mask (1722.1-2021 7.4.42.2: the mask states which
+        //     counters the descriptor implements). It used to answer the
+        //     FULL 0xF3F mask over constant zeros: a claimed-valid counter
+        //     serving a frozen zero, the exact R5 lie this round removed.
+        //     CRF-input counters are a recorded gap (MILAN_COMPLIANCE_GAPS).
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
                          si_pl(0x0005, 1)));
         r = collect_resp();
-        ck("[22h] GET_COUNTERS(in1) SUCCESS", r_status(r), 0);
-        ck("[22h] valid mask 0xF3F", be32_at(r, 42), 0xF3F);
+        ck("[22h] GET_COUNTERS(in1=CRF) SUCCESS", r_status(r), 0);
+        ck("[22h] EMPTY valid mask (no context = no claim)", be32_at(r, 42), 0);
         ck("[22h] counters zero", be32_at(r, 46) | be32_at(r, 90), 0);
+        ck("[22h] CDL still 148 (full-size on every answer)", r_cdl(r), 148);
 
         // (i) unsolicited GET_COUNTERS push (Milan §5.4.5): register A,
         //     dirty pulse -> ONE immediate push (rate window starts

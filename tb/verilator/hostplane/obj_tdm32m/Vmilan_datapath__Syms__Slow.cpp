@@ -11,7 +11,7 @@ Vmilan_datapath__Syms::Vmilan_datapath__Syms(VerilatedContext* contextp, const c
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(8206);
+    Verilated::stackCheck(8232);
     // Setup sub module instances
     TOP__milan_datapath__DOT__ptp_timestamp__DOT__m_axis_rx.ctor(this, "milan_datapath.ptp_timestamp.m_axis_rx");
     TOP__milan_datapath__DOT__ptp_timestamp__DOT__m_axis_tx.ctor(this, "milan_datapath.ptp_timestamp.m_axis_tx");

@@ -36,10 +36,14 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__3(Vmilan_datapat
                        << 2U)) | (((IData)(vlSelfRef.milan_datapath__DOT__avtprx_accept_p_w) 
                                    << 1U) | ((~ (IData)(vlSelfRef.milan_datapath__DOT__mac_rx_inframe_r)) 
                                              & (IData)(vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_rx__DOT__beat_acc))));
+    vlSelfRef.milan_datapath__DOT__tkd_streaming_w 
+        = ((0x00000100U & (vlSelfRef.milan_datapath__DOT__csr__DOT__crft_ctrl 
+                           << 8U)) | (IData)(vlSelfRef.milan_datapath__DOT__aaf_stream_en_w));
     vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__stg_we_w 
         = (((1U & vlSelfRef.milan_datapath__DOT__csr__DOT__chmap_ctrl)
              ? (IData)(vlSelfRef.milan_datapath__DOT__cmap_pv_w)
-             : (IData)(vlSelfRef.milan_datapath__DOT__aafcap_pv_w)) 
+             : ((IData)(vlSelfRef.milan_datapath__DOT__aafcap_pv_w) 
+                | (IData)(vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c))) 
            & ((IData)(vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pown_v_w) 
               & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__own_last_w) 
                      & (vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pend_r
@@ -175,9 +179,9 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__4(Vmilan_datapat
         }
     }
     milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__m_axis_tvalid_int 
-        = (0x0000001fU & (((~ (IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_95)) 
-                           & (IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_18)) 
-                          << ((IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_17)
+        = (0x0000001fU & (((~ (IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_97)) 
+                           & (IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_19)) 
+                          << ((IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_18)
                                ? (IData)(vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.tdest)
                                : (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__select_reg))));
     vlSelfRef.milan_datapath__DOT__aaf_final_mux__DOT__active 
@@ -783,7 +787,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__4(Vmilan_datapat
                                              & (3U 
                                                 | (- (IData)(
                                                              (1U 
-                                                              & (~ (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_75)))))));
+                                                              & (~ (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_76)))))));
         } else {
             vlSelfRef.m_axis_mac_tx_tdata = vlSymsp->TOP__milan_datapath__DOT__ptp_timestamp__DOT__m_axis_tx.tdata;
             vlSelfRef.m_axis_mac_tx_tkeep = (0x000000ffU 
@@ -1177,13 +1181,13 @@ VL_ATTR_COLD void Vmilan_datapath___024root___dump_triggers__act(const VlUnpacke
         VL_DBG_MSGS("         '" + tag + "' region trigger index 0 is active: @(posedge axis_clk)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 1U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 1 is active: @(negedge axis_resetn)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 1 is active: @(posedge clk_audio_i)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 2U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 2 is active: @(posedge gtx_clk)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 2 is active: @(negedge axis_resetn)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 3U)))) {
-        VL_DBG_MSGS("         '" + tag + "' region trigger index 3 is active: @(posedge clk_audio_i)\n");
+        VL_DBG_MSGS("         '" + tag + "' region trigger index 3 is active: @(posedge gtx_clk)\n");
     }
     if ((1U & (IData)((triggers[0U] >> 4U)))) {
         VL_DBG_MSGS("         '" + tag + "' region trigger index 4 is active: @(posedge i_ps_clk)\n");
@@ -1237,6 +1241,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->tdm_fsync_i = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10282997290289300815ull);
     vlSelf->tdm_bclk_o = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6965329311526475437ull);
     vlSelf->tdm_fsync_o = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16814085176203882082ull);
+    vlSelf->tdm_mclk_o = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10274639198335473810ull);
     vlSelf->tdm_dout_o = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10075644028125443285ull);
     vlSelf->tdm_data_i = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 249104219551189225ull);
     vlSelf->i2s_dac_mclk_o = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15991117030507183412ull);
@@ -1330,7 +1335,8 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__cmap_l_w = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 15823033237472017079ull);
     vlSelf->milan_datapath__DOT__cmap_r_w = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 10996773100535320075ull);
     vlSelf->milan_datapath__DOT____Vcellinp__chan_map_capture__map_rd_en_i = 0;
-    vlSelf->milan_datapath__DOT__pkt_slot_w = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 28977694405449714ull);
+    vlSelf->milan_datapath__DOT__zf_adiv_r = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 10007575598630145481ull);
+    vlSelf->milan_datapath__DOT__zf_apulse_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10825683663302235363ull);
     VL_SCOPED_RAND_RESET_W(288, vlSelf->milan_datapath__DOT__stats_counts, __VscopeHash, 10706589549752702121ull);
     vlSelf->milan_datapath__DOT__cfg_adp_entity_id = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 12778838654269787552ull);
     vlSelf->milan_datapath__DOT__cfg_adp_entity_model_id = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 8265942394376190644ull);
@@ -1460,7 +1466,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__srp_ctx_rd_stat_w = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 14817035630974283909ull);
     vlSelf->milan_datapath__DOT__lctx_rd_data_w = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13827211125096639787ull);
     vlSelf->milan_datapath__DOT__lctx_rd_valid_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 116946274760354784ull);
-    vlSelf->milan_datapath__DOT__csr_tctx_rd_addr_w = VL_SCOPED_RAND_RESET_I(7, __VscopeHash, 2693209302874803307ull);
     vlSelf->milan_datapath__DOT__tctx_rd_data_w = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10637310815187602338ull);
     vlSelf->milan_datapath__DOT__tctx_rd_valid_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14633195025871186257ull);
     vlSelf->milan_datapath__DOT__tctx_wr_rdy_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15699263573784844206ull);
@@ -1489,6 +1494,15 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__adp_en_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17770767265017051521ull);
     vlSelf->milan_datapath__DOT__adp_link_up_p = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2379963824652114179ull);
     vlSelf->milan_datapath__DOT__adp_link_down_p = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13507144379705171434ull);
+    vlSelf->milan_datapath__DOT__aaf_frame_p_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8194287604016912902ull);
+    vlSelf->milan_datapath__DOT__aaf_frame_idx_w = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 13568086263833277174ull);
+    VL_SCOPED_RAND_RESET_W(320, vlSelf->milan_datapath__DOT__mon_diag_cnt_w, __VscopeHash, 10109929257218015994ull);
+    VL_SCOPED_RAND_RESET_W(160, vlSelf->milan_datapath__DOT__tkdiag_cnt_w, __VscopeHash, 3144959983453501658ull);
+    vlSelf->milan_datapath__DOT__tkd_crfq_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 728874270301053323ull);
+    vlSelf->milan_datapath__DOT__tkd_crf_pend_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13100405196424847648ull);
+    vlSelf->milan_datapath__DOT__tkd_crf_p_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11091641088012514478ull);
+    vlSelf->milan_datapath__DOT__tkd_streaming_w = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 7503956593502142891ull);
+    vlSelf->milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i = 0;
     vlSelf->milan_datapath__DOT____Vcellinp__aecp_listener__in0_cnt_unlocked_i = 0;
     vlSelf->milan_datapath__DOT____Vcellinp__aecp_listener__in0_cnt_locked_i = 0;
     VL_ZERO_RESET_W(317, vlSelf->milan_datapath__DOT____Vcellout__acmp_listener_sm__tbl_ctx_o);
@@ -2242,8 +2256,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__identify_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6666528757881180930ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__sysuid_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5841530680383448814ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__mcr_user_prio_r = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 10651960207873023439ull);
-    vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_start_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 642978312839721635ull);
-    vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_stop_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 501224682427381515ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkup_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 9160997504844300364ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkdn_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10932912249700572937ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_gmchg_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12763396266817414416ull);
@@ -2279,7 +2291,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_unsol_push3_idx = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 523204622280623798ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_unsol_push4_idx = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 5164180187461745089ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__started_in_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 721674006810872569ull);
-    vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk14__DOT__k = 0;
+    vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk16__DOT__k = 0;
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__rxv_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3714434160796767205ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__rxl_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6734475085553686816ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__rxd_r = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 16151775775167285203ull);
@@ -2330,96 +2342,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_val__DOT__w_ok = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3408064663686136394ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_val__DOT__s_tready_l = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13886520526285102620ull);
     vlSelf->milan_datapath__DOT__aecp_listener__DOT__u_timers__DOT__ms_ctr_r = VL_SCOPED_RAND_RESET_I(17, __VscopeHash, 235209449728710009ull);
-    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3091492968299740922ull);
-    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15300035259290159099ull);
-    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6266469597484012055ull);
-    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6243220253051098481ull);
-    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2270741442939387784ull);
-    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8329299471340960092ull);
-    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2056240750540354644ull);
-    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5568086125856953443ull);
-    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18351354645706085996ull);
-    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7100249991306488364ull);
-    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6286961003208127014ull);
-    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7701619647540268985ull);
-    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7439539410802103604ull);
-    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9782101185124163941ull);
-    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11437823046893370281ull);
-    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7114029900706214493ull);
-    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17096782294864692786ull);
-    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12765438448512317610ull);
-    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5211102162721373796ull);
-    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9797526016106493676ull);
-    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4832524414678303317ull);
-    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7253043438527589429ull);
-    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1951954717872647228ull);
-    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4815025700480575111ull);
-    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8987402998069865865ull);
-    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11654996843427477025ull);
-    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6211517217674342187ull);
-    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14125169468013899236ull);
-    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10749631496120935081ull);
-    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8530703332388534275ull);
-    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 499902486268260759ull);
-    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12800854381927060464ull);
-    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6332956348153935333ull);
-    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1767794266458840888ull);
-    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9914348830059441519ull);
-    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3610326048497818135ull);
-    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13184962848309969206ull);
-    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5550739806543779914ull);
-    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17745417963012150095ull);
-    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8329326523292947328ull);
-    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12885865259239512308ull);
-    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9527775798586372144ull);
-    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8887304342636538623ull);
-    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13422739609038153781ull);
-    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1537031116251191691ull);
-    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18098111086208080022ull);
-    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13260651693846185707ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 8999682421569456673ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4845474252695617536ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 13316604820235534526ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__prevc_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 4296525945032586500ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_pend_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2394613515968002929ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17658702619394923769ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__to_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10105195447828329145ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 14101907015455959805ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15492852327889388884ull);
-    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15241391179595562276ull);
-    }
-    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 8991065796671773981ull);
-    }
-    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2977742342598283333ull);
-    }
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 8518592359819562464ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 13225328205034623004ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 7514143673796468161ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv0_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 11410300957276403036ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8440371116942964842ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 9124457214038440919ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__prevc_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18259043154334295379ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_pend_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 830604151673692243ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16952249663792952013ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__to_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 16976400244371404462ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2488768413801506322ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3489178009994638489ull);
-    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3995902407128096139ull);
-    }
-    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5631320453847156990ull);
-    }
-    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 12957914967490242200ull);
-    }
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 9044825234529125018ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 1355620477585546534ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 17536462827761623709ull);
-    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv0_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 593163490559558659ull);
     vlSelf->milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pcm_acc_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1199367844541895023ull);
     vlSelf->milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__c_eff_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 10525660526044815813ull);
     vlSelf->milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pos_r = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 9765631063469914319ull);
@@ -2554,6 +2476,96 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__dest_out_r = VL_SCOPED_RAND_RESET_I(15, __VscopeHash, 13820377244584414907ull);
     vlSelf->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__dest_req_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4580948918296233594ull);
     vlSelf->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__ack_tog = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3632286756775668184ull);
+    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3091492968299740922ull);
+    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15300035259290159099ull);
+    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6266469597484012055ull);
+    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6243220253051098481ull);
+    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2270741442939387784ull);
+    vlSelf->milan_datapath__DOT__adp_tx_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8329299471340960092ull);
+    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2056240750540354644ull);
+    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5568086125856953443ull);
+    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18351354645706085996ull);
+    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7100249991306488364ull);
+    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6286961003208127014ull);
+    vlSelf->milan_datapath__DOT__crf_dp_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7701619647540268985ull);
+    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7439539410802103604ull);
+    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9782101185124163941ull);
+    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11437823046893370281ull);
+    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7114029900706214493ull);
+    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17096782294864692786ull);
+    vlSelf->milan_datapath__DOT__aaf_final_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12765438448512317610ull);
+    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5211102162721373796ull);
+    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9797526016106493676ull);
+    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4832524414678303317ull);
+    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7253043438527589429ull);
+    vlSelf->milan_datapath__DOT__maap_ctl_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1951954717872647228ull);
+    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4815025700480575111ull);
+    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8987402998069865865ull);
+    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11654996843427477025ull);
+    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6211517217674342187ull);
+    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14125169468013899236ull);
+    vlSelf->milan_datapath__DOT__lstn_ctl_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10749631496120935081ull);
+    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8530703332388534275ull);
+    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 499902486268260759ull);
+    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12800854381927060464ull);
+    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6332956348153935333ull);
+    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1767794266458840888ull);
+    vlSelf->milan_datapath__DOT__srp_ctl_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9914348830059441519ull);
+    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3610326048497818135ull);
+    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13184962848309969206ull);
+    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5550739806543779914ull);
+    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17745417963012150095ull);
+    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8329326523292947328ull);
+    vlSelf->milan_datapath__DOT__ctl_tx_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12885865259239512308ull);
+    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__locked_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9527775798586372144ull);
+    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__sel_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8887304342636538623ull);
+    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__last_grant_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13422739609038153781ull);
+    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__gsel = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1537031116251191691ull);
+    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__active = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18098111086208080022ull);
+    vlSelf->milan_datapath__DOT__aecp_acmp_mux__DOT__beat_accepted = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13260651693846185707ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 8999682421569456673ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4845474252695617536ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 13316604820235534526ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__prevc_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 4296525945032586500ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_pend_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2394613515968002929ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17658702619394923769ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__to_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 10105195447828329145ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 14101907015455959805ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15492852327889388884ull);
+    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 15241391179595562276ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 8991065796671773981ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2977742342598283333ull);
+    }
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 8518592359819562464ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 13225328205034623004ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 7514143673796468161ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv0_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 11410300957276403036ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8440371116942964842ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 9124457214038440919ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__prevc_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18259043154334295379ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_pend_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 830604151673692243ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16952249663792952013ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__to_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 16976400244371404462ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 2488768413801506322ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3489178009994638489ull);
+    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 3995902407128096139ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 5631320453847156990ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 3; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r[__Vi0] = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 12957914967490242200ull);
+    }
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w = VL_SCOPED_RAND_RESET_I(16, __VscopeHash, 9044825234529125018ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 1355620477585546534ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 17536462827761623709ull);
+    vlSelf->milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv0_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 593163490559558659ull);
     vlSelf->milan_datapath__DOT__crf_tx__DOT__arst_n_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 4702644607541866548ull);
     vlSelf->milan_datapath__DOT__crf_tx__DOT__adiv_r = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 13973974788862635897ull);
     vlSelf->milan_datapath__DOT__crf_tx__DOT__aevt_cnt_r = VL_SCOPED_RAND_RESET_I(7, __VscopeHash, 5324145493602299683ull);
@@ -2575,6 +2587,8 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__crf_tx__DOT__beat_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 15700616228807514895ull);
     vlSelf->milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__src_level = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14022875488956122426ull);
     vlSelf->milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 9616987612383374399ull);
+    vlSelf->milan_datapath__DOT__zf_tick_cdc__DOT__src_level = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 548858884099513199ull);
+    vlSelf->milan_datapath__DOT__zf_tick_cdc__DOT__sync = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 4131885674473170281ull);
     vlSelf->milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__dmac = VL_SCOPED_RAND_RESET_Q(48, __VscopeHash, 17766125145139645198ull);
     vlSelf->milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__in_frame = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7847582356564656787ull);
     vlSelf->milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__pass_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15346095915984653831ull);
@@ -2595,44 +2609,44 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     }
     vlSelf->milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__match_any = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2769185763766042543ull);
     vlSelf->milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__match_act = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 9667804316940675262ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__arst_n_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 5780345863806312579ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__mdiv_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10617768400604181542ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__phase_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1205232477269522957ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bclk_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7723312343373260390ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__tick_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9177837155955310825ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__brise_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2614911441105583099ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__fpos_r = VL_SCOPED_RAND_RESET_I(10, __VscopeHash, 2083020438483481422ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__fsync_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2405277967506972912ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__startp_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9100254872152422268ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bit_r = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 15554694281036593774ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__slot_r = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 13885285326471458819ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__shift_r = VL_SCOPED_RAND_RESET_I(31, __VscopeHash, 610711530095352097ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__lhold_r = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 9870540685541097047ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_wen_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15662514936581311032ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_slot_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 15864646832634814452ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_l_r = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 11577246258724900431ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_r_r = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 1065744864569866661ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_full_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12925625204695071552ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__eslot_w = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 10086602808003437751ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__ebit_w = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 7961531128369698972ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_rempty_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15623947901649562659ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_pair_w = VL_SCOPED_RAND_RESET_Q(52, __VscopeHash, 7651400428272679589ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12291540285112913121ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__arst_n_r = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 2476774103094919210ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__mdiv_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2498111400521418307ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__phase_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14677108831371684124ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bclk_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15629013256241097039ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__tick_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4535441637243028784ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__brise_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2753588130507526996ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__fpos_r = VL_SCOPED_RAND_RESET_I(10, __VscopeHash, 7556051697070904848ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__fsync_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13914011113093767510ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__startp_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8234767015817872301ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bit_r = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 16765294128626492466ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__slot_r = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 8045194235368337808ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__shift_r = VL_SCOPED_RAND_RESET_I(31, __VscopeHash, 13563618792863695310ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__lhold_r = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 11079988422540953172ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_wen_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4039308669486392913ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_slot_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 11385832974164288155ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_l_r = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 544476447420635881ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_r_r = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 10756387081609875301ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_full_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13084175364650881222ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__eslot_w = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 1281886368397213886ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__ebit_w = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 18233559848855745759ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_rempty_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18273768971909368790ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_pair_w = VL_SCOPED_RAND_RESET_Q(52, __VscopeHash, 2987941642775941216ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16078310913061559365ull);
     for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
-        vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__mem_r[__Vi0] = VL_SCOPED_RAND_RESET_Q(52, __VscopeHash, 14984401476960327603ull);
+        vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__mem_r[__Vi0] = VL_SCOPED_RAND_RESET_Q(52, __VscopeHash, 16542080081132346347ull);
     }
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1409944505477448286ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 10090815037056942202ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 4713866669571251540ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 16438382442569182436ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w1_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1767604286358972082ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w2_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 10866816778687626651ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r1_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 15646150857184446722ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r2_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 2318904494596264006ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 8366901034922122169ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1891883909302758048ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 12823448185460057898ull);
-    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 12466363350182657547ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 2344280523340294177ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 5819905194656516042ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1131790106642446810ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 16446909882011001623ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w1_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 7693130009211789205ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w2_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 14790224934314482416ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r1_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 10746217289787412819ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r2_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 15438456500732634718ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 18331291914471643890ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 12143035625734330881ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 11912461101428257688ull);
+    vlSelf->milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_n = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 15647144368498708572ull);
     for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
         vlSelf->milan_datapath__DOT__chan_tdm_render__DOT__bank_r[__Vi0] = VL_SCOPED_RAND_RESET_I(24, __VscopeHash, 13625269170046689675ull);
     }
@@ -2938,6 +2952,12 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__avtp_rx_monitor__DOT__eng_waddr_w = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 5827093552888003154ull);
     vlSelf->milan_datapath__DOT__avtp_rx_monitor__DOT__ext_wr_ok_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5004036784858595221ull);
     vlSelf->milan_datapath__DOT__avtp_rx_monitor__DOT__leg_hit_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3915359615882650407ull);
+    for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
+        for (int __Vi1 = 0; __Vi1 < 10; ++__Vi1) {
+            vlSelf->milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r[__Vi0][__Vi1] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 9729056219764228362ull);
+        }
+    }
+    vlSelf->milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 11842843849640638883ull);
     vlSelf->milan_datapath__DOT__crf_rx__DOT__w_hit = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13236602052094429364ull);
     vlSelf->milan_datapath__DOT__crf_rx__DOT__w_fmt_ok = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10522875603045515651ull);
     vlSelf->milan_datapath__DOT__crf_rx__DOT__w_crf_ts = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 11379143846798012241ull);
@@ -3018,6 +3038,28 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->milan_datapath__DOT__acmp_responder__DOT__beat_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 15278786395095511362ull);
     vlSelf->milan_datapath__DOT__acmp_responder__DOT__rword_w = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 5893376681427021834ull);
     vlSelf->milan_datapath__DOT__acmp_responder__DOT__w_beat = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 8532025559370902817ull);
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__tick_cnt_r = VL_SCOPED_RAND_RESET_I(27, __VscopeHash, 7170498985484180712ull);
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__tick_p_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5855683744885085915ull);
+    for (int __Vi0 = 0; __Vi0 < 9; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__talker_diag__DOT__start_r[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 8537183809594744008ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 9; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__talker_diag__DOT__stop_r[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 15466657672989210874ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 9; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__talker_diag__DOT__mreset_r[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5816501462738206896ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 9; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__talker_diag__DOT__tuiv_r[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 8643799597278655667ull);
+    }
+    for (int __Vi0 = 0; __Vi0 < 9; ++__Vi0) {
+        vlSelf->milan_datapath__DOT__talker_diag__DOT__ftx_r[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12152206246454849272ull);
+    }
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__seen_f_r = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 17549255226952657454ull);
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__seen_tu_r = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 16916263998414430998ull);
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__seen_mr_r = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 17281777268225639028ull);
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__strm_q_r = VL_SCOPED_RAND_RESET_I(9, __VscopeHash, 16842806567351608481ull);
+    vlSelf->milan_datapath__DOT__talker_diag__DOT__ridx_w = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 2078712402106711788ull);
     vlSelf->milan_datapath__DOT__adp_adv__DOT__available_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17265065363264681874ull);
     vlSelf->milan_datapath__DOT__adp_adv__DOT__send_pending_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5040566211666396094ull);
     vlSelf->milan_datapath__DOT__adp_adv__DOT__pend_msg_r = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 9911390000877940968ull);
@@ -3338,6 +3380,12 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     }
     vlSelf->milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_go_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7816973055398998190ull);
     vlSelf->milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_q_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6896101680176286428ull);
+    vlSelf->milan_datapath__DOT__pair_zero_fill__DOT__fed_now_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13001472491103593177ull);
+    vlSelf->milan_datapath__DOT__pair_zero_fill__DOT__fed_prev_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14158520945752770730ull);
+    vlSelf->milan_datapath__DOT__pair_zero_fill__DOT__pend_r = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 16165429449751575900ull);
+    vlSelf->milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 934086077291960599ull);
+    vlSelf->milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 2226260105636771888ull);
+    vlSelf->milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3225686926160039377ull);
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->milan_datapath__DOT__chan_map_capture__DOT__map_r[__Vi0] = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 17672175980922143777ull);
     }
@@ -3533,11 +3581,10 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdfgRegularize_h6e95ff9d_0_7 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_8 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_10 = 0;
-    VL_ZERO_RESET_W(72, vlSelf->__VdfgRegularize_h6e95ff9d_0_12);
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_15 = 0;
+    VL_ZERO_RESET_W(72, vlSelf->__VdfgRegularize_h6e95ff9d_0_13);
     vlSelf->__VdfgRegularize_h6e95ff9d_0_16 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_20 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_40 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_17 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_21 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_41 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_42 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_43 = 0;
@@ -3545,24 +3592,25 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdfgRegularize_h6e95ff9d_0_45 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_46 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_47 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_51 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_63 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_65 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_48 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_52 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_64 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_66 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_67 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_75 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_68 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_76 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_77 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_78 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_80 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_81 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_87 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_88 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_92 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_93 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_97 = 0;
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_98 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_82 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_83 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_89 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_90 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_94 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_95 = 0;
     vlSelf->__VdfgRegularize_h6e95ff9d_0_99 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_100 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_101 = 0;
     vlSelf->__Vdly__milan_datapath__DOT__media_tick_cnt_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__adp_tick_cnt = 0;
     vlSelf->__Vdly__milan_datapath__DOT__tdmr_slot_r = 0;
@@ -3655,15 +3703,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__wr_ptr_reg = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_tvalid_pipe_reg = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__rd_ptr_reg = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__was_filled_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__prefill_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__cdc_wen_r = 0;
@@ -3695,9 +3734,19 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_seq_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_tick_cdc__DOT__sync = 0;
     vlSelf->__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__ack_sync = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__zf_tick_cdc__DOT__sync = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aafcap_pv_w = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__tl_idx_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_rp_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__rbeat_r = 0;
@@ -3731,6 +3780,9 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__inc_rd_q_r = 0;
     VL_ZERO_RESET_W(448, vlSelf->__Vdly__milan_datapath__DOT__avtp_rx_parser__DOT__hdr);
     vlSelf->__Vdly__milan_datapath__DOT__avtp_rx_parser__DOT__bytes_in = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__talker_diag__DOT__tick_cnt_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__adp_adv__DOT__disc_lfsr_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__adp_adv__DOT__disc_dly_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__adp_adv__DOT__disc_pend_r = 0;
@@ -3763,6 +3815,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__hold_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__tu_seen_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__ival_r = 0;
+    vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_q_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__tsw_pend_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__est_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__eiss_r = 0;
@@ -3772,7 +3825,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__fph_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__et_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__ebank_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_q_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__chan_map_capture__DOT__slot_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__chan_map_capture__DOT__st_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__chan_map_capture__DOT__gap_r = 0;
@@ -3799,8 +3851,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__in0_rl_ms_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__in0_dirty_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_pend2_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_start_r = 0;
-    vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_stop_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkup_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkdn_r = 0;
     vlSelf->__Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_gmchg_r = 0;
@@ -3931,6 +3981,18 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdlyVal__milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0 = 0;
+    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0;
+    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0;
+    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0 = 0;
+    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v0 = 0;
     vlSelf->__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v3 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v3 = 0;
@@ -3977,18 +4039,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v7 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v8 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v9 = 0;
-    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0 = 0;
-    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0 = 0;
-    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0 = 0;
-    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0;
-    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0;
-    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0;
-    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0;
-    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0;
-    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0;
-    vlSelf->__VdlyVal__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0 = 0;
-    vlSelf->__VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0 = 0;
-    vlSelf->__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0 = 0;
     vlSelf->__VdlyVal__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_mask__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_mask__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_mask__v0 = 0;
@@ -4105,6 +4155,11 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 = 0;
+    vlSelf->__VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 = 0;
+    vlSelf->__VdlyDim1__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v1 = 0;
     VL_ZERO_RESET_W(150, vlSelf->__VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_r__v0);
     vlSelf->__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_r__v0 = 0;
     VL_ZERO_RESET_W(150, vlSelf->__VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_r__v1);
@@ -4215,6 +4270,99 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdlyVal__milan_datapath__DOT__acmp_responder__DOT__tmr_ram__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__acmp_responder__DOT__tmr_ram__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__acmp_responder__DOT__tmr_ram__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v0 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v1 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v1 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v1 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v1 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v2 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v2 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v2 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v2 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v3 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v3 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v3 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v3 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v4 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v4 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v4 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v4 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v5 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v5 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v5 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v5 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v6 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v6 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v6 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v6 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v7 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v7 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v7 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v7 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v8 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v8 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v8 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v8 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v9 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v9 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v10 = 0;
     vlSelf->__VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v0 = 0;
@@ -5778,10 +5926,6 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdlyVal__milan_datapath__DOT__aaf_packetizer__DOT__stg_r__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__stg_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__stg_r__v0 = 0;
-    vlSelf->__VdlyVal__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0 = 0;
-    vlSelf->__VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0 = 0;
-    vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0 = 0;
-    vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v1 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__pend_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_r_r__v0 = 0;
@@ -5798,6 +5942,10 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__wbank_r__v1 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v1 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v2 = 0;
+    vlSelf->__VdlyVal__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0 = 0;
+    vlSelf->__VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0 = 0;
+    vlSelf->__VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v1 = 0;
     vlSelf->__VdlyVal__milan_datapath__DOT__chan_map_capture__DOT__map_r__v0 = 0;
     vlSelf->__VdlyDim0__milan_datapath__DOT__chan_map_capture__DOT__map_r__v0 = 0;
     vlSelf->__VdlySet__milan_datapath__DOT__chan_map_capture__DOT__map_r__v0 = 0;
@@ -6018,9 +6166,9 @@ VL_ATTR_COLD void Vmilan_datapath___024root___ctor_var_reset(Vmilan_datapath___0
         vlSelf->__VactTriggered[__Vi0] = 0;
     }
     vlSelf->__Vtrigprevexpr___TOP__axis_clk__1 = 0;
+    vlSelf->__Vtrigprevexpr___TOP__clk_audio_i__1 = 0;
     vlSelf->__Vtrigprevexpr___TOP__axis_resetn__1 = 0;
     vlSelf->__Vtrigprevexpr___TOP__gtx_clk__1 = 0;
-    vlSelf->__Vtrigprevexpr___TOP__clk_audio_i__1 = 0;
     vlSelf->__Vtrigprevexpr___TOP__i_ps_clk__1 = 0;
     vlSelf->__Vtrigprevexpr___TOP__clk_tdm_i__1 = 0;
     vlSelf->__Vtrigprevexpr___TOP__tdm_bclk_i__1 = 0;

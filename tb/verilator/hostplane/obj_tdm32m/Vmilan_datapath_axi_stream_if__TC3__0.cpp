@@ -12,20 +12,20 @@ void Vmilan_datapath_axi_stream_if__TC3___nba_sequent__TOP__milan_datapath__DOT_
     vlSelfRef.tdest = (7U & vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_mem
                        [(0x0000001fU & (IData)(vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_rd))]);
     vlSelfRef.tvalid = (((IData)(vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__eth_packet_buffer__DOT__m_axis_tvalid_pipe_reg) 
-                         >> 1U) & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_97));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_18 = ((IData)(vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__s_axis_tready_reg) 
+                         >> 1U) & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_99));
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_19 = ((IData)(vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__s_axis_tready_reg) 
                                                  & (IData)(vlSelfRef.tvalid));
-    if (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_18) {
-        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 = 
+    if (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_19) {
+        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_18 = 
             (1U & (~ (IData)(vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__frame_reg)));
-        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_94 = 
+        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_96 = 
             ((~ (vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__eth_packet_buffer__DOT__m_axis_pipe_reg[1U][2U] 
                  >> 8U)) & (IData)(vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__drop_reg));
     } else {
-        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 = 0U;
-        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_94 = vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__drop_reg;
+        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_18 = 0U;
+        vlSelfRef.__VdfgRegularize_h6e95ff9d_0_96 = vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__drop_reg;
     }
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_95 = ((IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17)
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_97 = ((IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_18)
                                                   ? 
                                                  (5U 
                                                   <= (IData)(vlSelfRef.tdest))

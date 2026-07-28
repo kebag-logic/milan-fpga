@@ -60,6 +60,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath VL_NOT_FINAL : public Verilat
     VL_IN8(&tdm_fsync_i,0,0);
     VL_OUT8(&tdm_bclk_o,0,0);
     VL_OUT8(&tdm_fsync_o,0,0);
+    VL_OUT8(&tdm_mclk_o,0,0);
     VL_OUT8(&tdm_dout_o,0,0);
     VL_IN8(&tdm_data_i,0,0);
     VL_OUT8(&i2s_dac_mclk_o,0,0);

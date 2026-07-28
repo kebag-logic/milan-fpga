@@ -129,7 +129,6 @@ module KL_aecp_response_builder (
   output logic [5:0]   dmap_wr_addr_o,     //! cluster_offset = phys channel idx
   output logic [7:0]   dmap_wr_word_o,     //! render map word (see above)
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
-  input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
   input  wire          lstn_bound_i,       //! listener SM not UNBOUND
@@ -172,6 +171,20 @@ module KL_aecp_response_builder (
   input  wire          in0_cnt_dirty_p_i,  //! monitor: a counter changed
   output logic [63:0]  in0_fmt_o,          //! live STREAM_INPUT[0] format u64
   output logic [15:0]  clk_src_o,          //! live CLOCK_DOMAIN clock_source_index
+
+  // ---- Milan 5.4.2.25 per-index counters (Tables 5.16/5.17) -----------
+  //! "shall implement and return the counters" for EACH stream descriptor:
+  //! the builder presents the descriptor_index it is serving and latches
+  //! the pre-muxed counters in its const-load cycle. rxdiag = the RX
+  //! monitor's ten Table 5.6 counters (C_ML..C_FRX order) for that sink;
+  //! tkdiag = KL_talker_diag_ctx's five Table 5.4 counters
+  //! {FTX, TU, MRESET, STOP, START} for that source (CRF included).
+  output logic [3:0]   gs_diag_idx_o,
+  input  wire [10*32-1:0] rxdiag_cnt_i,
+  input  wire [5*32-1:0]  tkdiag_cnt_i,
+  //! AAF sink count: sinks at or past it (the CRF Media Clock Input) have
+  //! no monitor context and answer the truthful empty mask
+  input  wire [15:0]   n_aaf_sinks_i,
 
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
@@ -324,6 +337,10 @@ module KL_aecp_response_builder (
 
   wire [15:0] w_gs_type  = {w_b2, w_b3};   //! GET/SET_* desc type
   wire [15:0] w_gs_index = {w_b4, w_b5};
+  //! per-index counter mux select for the datapath (monitor mirror +
+  //! talker diag): valid whenever w_gs_index is, i.e. through the whole
+  //! const-load cycle of a GET_COUNTERS dispatch
+  assign gs_diag_idx_o = w_gs_index[3:0];
   //! SET_STREAM_INFO (Milan §5.4.2.9): payload byte n = buf_r[n+2] — flags at
   //! payload 4-7, msrp_accumulated_latency at payload 24-27.
   wire [31:0] w_si_flags = {w_b6,  w_b7,  w_b8,  w_b9};
@@ -863,7 +880,9 @@ module KL_aecp_response_builder (
   //! from the talker-SM activation edges; AVB_INTERFACE link/GM from the
   //! link level and the CSR-provisioned gPTP GM id (first provisioning
   //! write counts as one GM change — documented).
-  logic [31:0] cnt_start_r, cnt_stop_r;
+  //! STREAM_OUTPUT counters live in KL_talker_diag_ctx since 2026-07-28
+  //! (Milan Table 5.4 semantics per index); only the AVB_INTERFACE set
+  //! stays local
   logic [31:0] cnt_linkup_r, cnt_linkdn_r, cnt_gmchg_r;
   logic        link_prev_r;
   logic [63:0] gm_prev_r;
@@ -1100,23 +1119,52 @@ module KL_aecp_response_builder (
   // MEDIA_RESET / LATE / EARLY are advertised valid but always 0, exactly //
   // the pipewire reference (no media clock recovery in fabric yet).       //
   // ------------------------------------------------------------------ //
-  task automatic load_input_counters_consts(input logic sink0);
+  //! Milan Table 5.16 counters for the sink named by gs_diag_idx_o -
+  //! rxdiag_cnt_i is that sink's ten-counter slice out of the monitor's
+  //! all-context mirror, so EVERY AAF sink serves live values (sink 1 used
+  //! to answer this full mask over constant zeros - the R5 lie; sinks >= 2
+  //! an empty mask, against 5.4.2.25's "implement and return").
+  //! Mirror order C_ML..C_FRX maps to the 1722.1 block offsets: bits 0-5
+  //! then 8-11 (6/7 are TIMESTAMP_VALID/NOT_VALID, not in the Milan set).
+  //! sink-0 flavour for the UNSOLICITED GET_COUNTERS push: that path fires
+  //! with no command on the wire, so the gs_diag_idx_o mux (fed from the
+  //! solicited command's descriptor_index) has nothing valid to say - it
+  //! reads the dedicated stream-0 legacy ports instead, which the monitor
+  //! maintains write-through regardless.
+  task automatic load_input0_counters_consts;
     begin
       for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
       const_q[2] <= 8'h0F; const_q[3] <= 8'h3F;   // valid mask 0x00000F3F
-      if (sink0) begin
-        for (int k = 0; k < 4; k++) begin
-          const_q[4+k]  <= in0_cnt_locked_i     [8*(3-k) +: 8];  // bit0
-          const_q[8+k]  <= in0_cnt_unlocked_i   [8*(3-k) +: 8];  // bit1
-          const_q[12+k] <= in0_cnt_interrupted_i[8*(3-k) +: 8];  // bit2
-          const_q[16+k] <= in0_cnt_seqmm_i      [8*(3-k) +: 8];  // bit3
-          const_q[20+k] <= in0_cnt_mreset_i    [8*(3-k) +: 8];  // bit4
-          const_q[24+k] <= in0_cnt_tu_i         [8*(3-k) +: 8];  // bit5
-          const_q[36+k] <= in0_cnt_unsupp_i     [8*(3-k) +: 8];  // bit8
-          const_q[40+k] <= in0_cnt_late_i       [8*(3-k) +: 8];  // bit9
-          const_q[44+k] <= in0_cnt_early_i      [8*(3-k) +: 8];  // bit10
-          const_q[48+k] <= in0_cnt_frx_i        [8*(3-k) +: 8];  // bit11
-        end
+      for (int k = 0; k < 4; k++) begin
+        const_q[4+k]  <= in0_cnt_locked_i     [8*(3-k) +: 8];  // bit0
+        const_q[8+k]  <= in0_cnt_unlocked_i   [8*(3-k) +: 8];  // bit1
+        const_q[12+k] <= in0_cnt_interrupted_i[8*(3-k) +: 8];  // bit2
+        const_q[16+k] <= in0_cnt_seqmm_i      [8*(3-k) +: 8];  // bit3
+        const_q[20+k] <= in0_cnt_mreset_i     [8*(3-k) +: 8];  // bit4
+        const_q[24+k] <= in0_cnt_tu_i         [8*(3-k) +: 8];  // bit5
+        const_q[36+k] <= in0_cnt_unsupp_i     [8*(3-k) +: 8];  // bit8
+        const_q[40+k] <= in0_cnt_late_i       [8*(3-k) +: 8];  // bit9
+        const_q[44+k] <= in0_cnt_early_i      [8*(3-k) +: 8];  // bit10
+        const_q[48+k] <= in0_cnt_frx_i        [8*(3-k) +: 8];  // bit11
+      end
+    end
+  endtask
+
+  task automatic load_input_counters_consts;
+    begin
+      for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
+      const_q[2] <= 8'h0F; const_q[3] <= 8'h3F;   // valid mask 0x00000F3F
+      for (int k = 0; k < 4; k++) begin
+        const_q[4+k]  <= rxdiag_cnt_i[0*32 + 8*(3-k) +: 8];  // bit0  ML
+        const_q[8+k]  <= rxdiag_cnt_i[1*32 + 8*(3-k) +: 8];  // bit1  MU
+        const_q[12+k] <= rxdiag_cnt_i[2*32 + 8*(3-k) +: 8];  // bit2  SI
+        const_q[16+k] <= rxdiag_cnt_i[3*32 + 8*(3-k) +: 8];  // bit3  SM
+        const_q[20+k] <= rxdiag_cnt_i[4*32 + 8*(3-k) +: 8];  // bit4  MR
+        const_q[24+k] <= rxdiag_cnt_i[5*32 + 8*(3-k) +: 8];  // bit5  TU
+        const_q[36+k] <= rxdiag_cnt_i[6*32 + 8*(3-k) +: 8];  // bit8  UF
+        const_q[40+k] <= rxdiag_cnt_i[7*32 + 8*(3-k) +: 8];  // bit9  LT
+        const_q[44+k] <= rxdiag_cnt_i[8*32 + 8*(3-k) +: 8];  // bit10 ET
+        const_q[48+k] <= rxdiag_cnt_i[9*32 + 8*(3-k) +: 8];  // bit11 FRX
       end
     end
   endtask
@@ -1191,8 +1239,6 @@ module KL_aecp_response_builder (
       started_in_r <= 1'b1;
       sysuid_r     <= 32'd0;
       mcr_user_prio_r <= MCR_DEFAULT_PRIO_C;
-      cnt_start_r  <= 32'd0;
-      cnt_stop_r   <= 32'd0;
       cnt_linkup_r <= 32'd0;
       cnt_linkdn_r <= 32'd0;
       cnt_gmchg_r  <= 32'd0;
@@ -1295,8 +1341,6 @@ module KL_aecp_response_builder (
       end
 
       // ---- GET_COUNTERS event counting (edges) ------------------------
-      if (talker_active_i & ~ta_prev_r) cnt_start_r <= cnt_start_r + 32'd1;
-      if (~talker_active_i & ta_prev_r) cnt_stop_r  <= cnt_stop_r  + 32'd1;
       link_prev_r <= link_up_i;
       if (link_up_i & ~link_prev_r) cnt_linkup_r <= cnt_linkup_r + 32'd1;
       if (~link_up_i & link_prev_r) cnt_linkdn_r <= cnt_linkdn_r + 32'd1;
@@ -1437,7 +1481,7 @@ module KL_aecp_response_builder (
             seg_kind_q[3] <= SEG_NONE;  seg_addr_q[3] <= 16'd0;  seg_len_q[3] <= 16'd0;
             const_q[56] <= 8'h00; const_q[57] <= 8'h05;   // STREAM_INPUT
             const_q[58] <= 8'h00; const_q[59] <= 8'h00;   // index 0
-            load_input_counters_consts(1'b1);
+            load_input0_counters_consts;
             cdl_q      <= 11'd148;   // 12 + 136
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
@@ -2245,13 +2289,25 @@ module KL_aecp_response_builder (
                 seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd104;
                 for (int k = 0; k < 28; k++) const_q[k] <= 8'h00;
                 cdl_q <= 11'd148;   // 12 + 136
-                if (w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) begin
+                if (w_gs_type == DESC_STREAM_OUTPUT && acc_found) begin
+                  //! Milan Table 5.17, per 5.4.2.25 "implement and return"
+                  //! FOR EACH Stream Output: every directory-served index
+                  //! (the CRF Media Clock Output included) answers its own
+                  //! KL_talker_diag_ctx context - interval-based, reset-on-
+                  //! start Table 5.4 semantics. Until 2026-07-28 only index
+                  //! 0 answered, its TS_UNCERTAIN bytes were constant zero
+                  //! under a mask that claimed them (the R5 lie), and its
+                  //! FRAMES_TX served the raw frame total where the clause
+                  //! defines a per-interval count - 8000x off while
+                  //! streaming.
                   status_q   <= STATUS_SUCCESS;
                   const_q[3] <= 8'h1F;   // START|STOP|MEDIA_RESET|TS_UNC|FRAMES_TX
                   for (int k = 0; k < 4; k++) begin
-                    const_q[4+k]  <= cnt_start_r [8*(3-k) +: 8];  // bit0
-                    const_q[8+k]  <= cnt_stop_r  [8*(3-k) +: 8];  // bit1
-                    const_q[20+k] <= frames_tx_i [8*(3-k) +: 8];  // bit4
+                    const_q[4+k]  <= tkdiag_cnt_i[0*32 + 8*(3-k) +: 8]; // bit0 START
+                    const_q[8+k]  <= tkdiag_cnt_i[1*32 + 8*(3-k) +: 8]; // bit1 STOP
+                    const_q[12+k] <= tkdiag_cnt_i[2*32 + 8*(3-k) +: 8]; // bit2 MR
+                    const_q[16+k] <= tkdiag_cnt_i[3*32 + 8*(3-k) +: 8]; // bit3 TU
+                    const_q[20+k] <= tkdiag_cnt_i[4*32 + 8*(3-k) +: 8]; // bit4 FTX
                   end
                 end else if (w_gs_type == DESC_AVB_INTERFACE && w_gs_index == 16'd0) begin
                   status_q   <= STATUS_SUCCESS;
@@ -2272,14 +2328,20 @@ module KL_aecp_response_builder (
                     const_q[4+k] <= in0_cnt_locked_i  [8*(3-k) +: 8];  // bit0
                     const_q[8+k] <= in0_cnt_unlocked_i[8*(3-k) +: 8];  // bit1
                   end
-                end else if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
-                  // sinks: live KL_avtp_rx_monitor counters (Table 7-156);
-                  // the mask+counters need block bytes 0..47 (FRAMES_RX =
-                  // bit 11 at 44), so the CONST segment grows to 52
+                end else if (w_gs_type == DESC_STREAM_INPUT && acc_found
+                             && w_gs_index < n_aaf_sinks_i) begin
+                  // EVERY AAF sink: its own live monitor context out of the
+                  // all-stream mirror (Milan Table 5.16, per 5.4.2.25).
+                  // Sink 1 used to serve this full mask over constant
+                  // zeros; sinks >= 2 fell to the empty-mask arm below. The
+                  // CRF Media Clock Input (index >= n_aaf_sinks_i) still
+                  // does: it has no monitor context, and 7.4.42.2 makes the
+                  // empty mask the truthful statement (its counters are a
+                  // recorded gap, docs/MILAN_COMPLIANCE_GAPS.md).
                   status_q     <= STATUS_SUCCESS;
                   seg_len_q[1] <= 16'd52;
                   seg_len_q[2] <= 16'd80;
-                  load_input_counters_consts(w_gs_index == 16'd0);
+                  load_input_counters_consts;
                 end else if (w_gs_type == DESC_ENTITY && w_gs_index == 16'd0) begin
                   //! ENTITY GET_COUNTERS -> SUCCESS + EMPTY valid mask:
                   //! 1722.1-2021 DEFINES entity-level counters (la_avdecc

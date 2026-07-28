@@ -37,6 +37,7 @@ Vmilan_datapath::Vmilan_datapath(VerilatedContext* _vcontextp__, const char* _vc
     , tdm_fsync_i{vlSymsp->TOP.tdm_fsync_i}
     , tdm_bclk_o{vlSymsp->TOP.tdm_bclk_o}
     , tdm_fsync_o{vlSymsp->TOP.tdm_fsync_o}
+    , tdm_mclk_o{vlSymsp->TOP.tdm_mclk_o}
     , tdm_dout_o{vlSymsp->TOP.tdm_dout_o}
     , tdm_data_i{vlSymsp->TOP.tdm_data_i}
     , i2s_dac_mclk_o{vlSymsp->TOP.i2s_dac_mclk_o}

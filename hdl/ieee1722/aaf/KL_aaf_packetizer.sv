@@ -152,7 +152,13 @@ module KL_aaf_packetizer #(
   input  wire         m_axis_tready,
 
   //! --- status ------------------------------------------------------------
-  output logic [31:0] frames_sent_o      //! t0 frames (legacy CSR alias)
+  output logic [31:0] frames_sent_o,     //! t0 frames (legacy CSR alias)
+  //! per-PDU completion strobe + its talker: the event feed for the Milan
+  //! Table 5.4 diagnostic counters (KL_talker_diag_ctx - FRAMES_TX and the
+  //! tu-qualified TIMESTAMP_UNCERTAIN are per-OBSERVATION-INTERVAL counts
+  //! over TRANSMITTED PDUs, so they need the emission event, not a total)
+  output logic        frame_p_o,         //! one-cycle pulse per emitted PDU
+  output logic [3:0]  frame_idx_o        //! that PDU's talker index
 );
 
   localparam int unsigned SAMPLES_PER_FRAME_C = 6;
@@ -513,12 +519,15 @@ module KL_aaf_packetizer #(
         chans_r[t] <= WIRE_CHANS_C;
       end
       frames_sent_o   <= '0;
+      frame_p_o       <= 1'b0;
+      frame_idx_o     <= 4'd0;
       tctx_rd_data_o  <= '0;
       tctx_rd_valid_o <= 1'b0;
       ext_trd_q_r     <= 1'b0;
     end
     else begin
       tctx_rd_valid_o <= 1'b0;
+      frame_p_o       <= 1'b0;    //! one-cycle strobe (E_WBW_S re-asserts)
       if (tsw_pend_r) tsw_pend_r <= 1'b0;   //! ts write wins the port now
 
       // ---- emission FSM --------------------------------------------------
@@ -609,6 +618,9 @@ module KL_aaf_packetizer #(
           //! w5 = q+1 write (tram_q_r = FRAMES read issued in E_WBR_S)
           if (!wb_stall_w) begin
             if (et_r == '0) frames_sent_o <= tram_q_r + 32'd1;
+            //! Table 5.4 event feed: this PDU is complete
+            frame_p_o   <= 1'b1;
+            frame_idx_o <= 4'(et_r);
             est_r <= E_IDLE_S;
           end
         end

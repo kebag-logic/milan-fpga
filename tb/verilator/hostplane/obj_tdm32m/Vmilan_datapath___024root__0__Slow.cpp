@@ -128,11 +128,11 @@ VL_ATTR_COLD void Vmilan_datapath___024root___eval_static(Vmilan_datapath___024r
     vlSelfRef.__Vtrigprevexpr___TOP__pb_mem_valid_i__0 
         = vlSelfRef.pb_mem_valid_i;
     vlSelfRef.__Vtrigprevexpr___TOP__axis_clk__1 = vlSelfRef.axis_clk;
+    vlSelfRef.__Vtrigprevexpr___TOP__clk_audio_i__1 
+        = vlSelfRef.clk_audio_i;
     vlSelfRef.__Vtrigprevexpr___TOP__axis_resetn__1 
         = vlSelfRef.axis_resetn;
     vlSelfRef.__Vtrigprevexpr___TOP__gtx_clk__1 = vlSelfRef.gtx_clk;
-    vlSelfRef.__Vtrigprevexpr___TOP__clk_audio_i__1 
-        = vlSelfRef.clk_audio_i;
     vlSelfRef.__Vtrigprevexpr___TOP__i_ps_clk__1 = vlSelfRef.i_ps_clk;
     vlSelfRef.__Vtrigprevexpr___TOP__clk_tdm_i__1 = vlSelfRef.clk_tdm_i;
     vlSelfRef.__Vtrigprevexpr___TOP__tdm_bclk_i__1 
@@ -279,7 +279,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___eval_static__TOP(Vmilan_datapath__
     vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__ctx_tx_S__DOT__nrow = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 9794688078729168532ull);
     vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__ctx_tx_S__DOT__need_load = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9210442963574778068ull);
     vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__ctx_tx_S__DOT__latch_b__DOT__core = VL_SCOPED_RAND_RESET_I(10, __VscopeHash, 13880120700128582031ull);
-    vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk39__DOT__b = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 10191827239734387543ull);
+    vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk41__DOT__b = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 16982303098718373719ull);
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__wr_ptr_reg = 0U;
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__wr_ptr_commit_reg = 0U;
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__rd_ptr_reg = 0U;
@@ -351,6 +351,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___eval_initial__TOP(Vmilan_datapath_
     milan_datapath__DOT__chan_map_capture__DOT__lb_chans_raw_w = 0U;
     vlSelfRef.i2s_sclk_o = 0U;
     vlSelfRef.i2s_lrck_o = 0U;
+    vlSelfRef.tdm_mclk_o = 0U;
     vlSelfRef.pb_mem_addr_o = 0U;
     vlSelfRef.pb_mem_rd_o = 0U;
     VL_ASSIGN_W(256, vlSelfRef.pb_rd_ptr_o, Vmilan_datapath__ConstPool__CONST_h9e67c271_0);
@@ -4641,8 +4642,8 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     __Vfunc_reorder_endian_func__215__unnamedblk1__DOT__i = 0;
     QData/*63:0*/ __Vfunc_reorder_endian_func__215__data_out;
     __Vfunc_reorder_endian_func__215__data_out = 0;
-    IData/*29:0*/ __VdfgRegularize_h6e95ff9d_0_22;
-    __VdfgRegularize_h6e95ff9d_0_22 = 0;
+    IData/*29:0*/ __VdfgRegularize_h6e95ff9d_0_23;
+    __VdfgRegularize_h6e95ff9d_0_23 = 0;
     IData/*31:0*/ __Vtemp_24;
     // Body
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_unsol_push4_idx = 0U;
@@ -8364,11 +8365,11 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                          ? (- (IData)((1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_valid_r[3U])))))
                          : 2U) : 1U)));
     vlSelfRef.s_axi_rdata = vlSelfRef.milan_datapath__DOT__csr__DOT__r_data;
-    vlSelfRef.i2s_mclk_o = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__mdiv_r;
-    vlSelfRef.tdm_bclk_o = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bclk_r;
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__tick_w 
-        = (1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__phase_r)));
-    vlSelfRef.tdm_fsync_o = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__fsync_r;
+    vlSelfRef.i2s_mclk_o = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__mdiv_r;
+    vlSelfRef.tdm_bclk_o = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bclk_r;
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__tick_w 
+        = (1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__phase_r)));
+    vlSelfRef.tdm_fsync_o = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__fsync_r;
     vlSelfRef.tdm_dout_o = vlSelfRef.milan_datapath__DOT__chmap_tdm_dout_w;
     vlSelfRef.m_axis_ts_tdata = (((QData)((IData)(vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__m_axis_pipe_reg[1U][1U])) 
                                   << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__m_axis_pipe_reg[1U][0U])));
@@ -8789,11 +8790,11 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
            | ((4U == (IData)(vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__step_r)) 
               | ((8U == (IData)(vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__step_r)) 
                  | (9U == (IData)(vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__step_r)))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_63 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_64 = (1U 
                                                  & (~ (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_busy_r)));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_65 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_66 = (1U 
                                                  & (~ (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_dir_r)));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_77 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_78 = (1U 
                                                  & (~ (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_valid_r[3U])));
     vlSelfRef.milan_datapath__DOT__rmap_rd_data_w = 0U;
     if ((0U == (0x0000000fU & (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__cmrd_addr_r)))) {
@@ -8904,14 +8905,20 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_busy) 
            & ((1U <= (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_cnt)) 
               & (0x0200U >= (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_cnt))));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__brise_w 
-        = (1U & (~ ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__phase_r) 
-                    | (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bclk_r))));
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__brise_w 
+        = (1U & (~ ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__phase_r) 
+                    | (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bclk_r))));
     vlSelfRef.o_irq_csr = (0U != (vlSelfRef.milan_datapath__DOT__csr__DOT__irq_status 
                                   & vlSelfRef.milan_datapath__DOT__csr__DOT__irq_mask));
     vlSelfRef.milan_datapath__DOT__cfg_as_parent_ckid 
         = (((QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__as2_hi)) 
             << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__as2_lo)));
+    vlSelfRef.milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i 
+        = ((IData)(vlSelfRef.milan_datapath__DOT__aaf_frame_p_w)
+            ? (IData)(vlSelfRef.milan_datapath__DOT__aaf_frame_idx_w)
+            : 8U);
+    vlSelfRef.milan_datapath__DOT__tkd_crf_p_w = ((~ (IData)(vlSelfRef.milan_datapath__DOT__aaf_frame_p_w)) 
+                                                  & (IData)(vlSelfRef.milan_datapath__DOT__tkd_crf_pend_r));
     vlSelfRef.milan_datapath__DOT__adp_adv__DOT__depart_evt_w 
         = ((IData)(vlSelfRef.milan_datapath__DOT__adp_link_down_p) 
            | (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__adp_dep_p));
@@ -8922,20 +8929,20 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = ((IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__fb_cnt_r) 
            == (0x000003ffU & ((IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__frame_len_r) 
                               - (IData)(1U))));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__eslot_w 
-        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__slot_r) 
-           & (- (IData)((1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__startp_r))))));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__ebit_w 
-        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bit_r) 
-           & (- (IData)((1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__startp_r))))));
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__eslot_w 
+        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__slot_r) 
+           & (- (IData)((1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__startp_r))))));
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__ebit_w 
+        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bit_r) 
+           & (- (IData)((1U & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__startp_r))))));
     vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__bpop_w 
         = (1U & (~ ((IData)(vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__busy_r) 
                     | (0U == (IData)(vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__bcnt_r)))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_12[0U] = (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__m_axis_tdata_reg);
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_12[1U] = (IData)(
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_13[0U] = (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__m_axis_tdata_reg);
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_13[1U] = (IData)(
                                                             (vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__m_axis_tdata_reg 
                                                              >> 0x00000020U));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_12[2U] = vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__m_axis_tkeep_reg;
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_13[2U] = vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__m_axis_tkeep_reg;
     vlSelfRef.milan_datapath__DOT__cbs_enable_mux = vlSelfRef.milan_datapath__DOT__csr__DOT__cbs_en;
     vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT____Vcellout__axis_tx_rx_ts_switch_rr__m_tvalid = 0U;
     vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT____Vcellout__axis_tx_rx_ts_switch_rr__m_tdata = 0ULL;
@@ -8976,6 +8983,17 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                 }
             }
         }
+    }
+    vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c 
+        = vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_r;
+    if (vlSelfRef.milan_datapath__DOT__aafcap_pv_w) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c 
+            = (vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c 
+               | (0x00000000ffffffffULL & ((IData)(1U) 
+                                           << (0x0000000fU 
+                                               & (IData)(
+                                                         (vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_pair_w 
+                                                          >> 0x00000030U))))));
     }
     if ((2U == (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__clk_src_r))) {
         vlSelfRef.milan_datapath__DOT____Vcellinp__aecp_listener__in0_cnt_locked_i 
@@ -9150,7 +9168,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                         : ((0x0810U == (IData)(vlSelfRef.s_axi_araddr)) 
                            | ((0x0824U == (IData)(vlSelfRef.s_axi_araddr)) 
                               | (0x0828U == (IData)(vlSelfRef.s_axi_araddr)))))))));
-    __VdfgRegularize_h6e95ff9d_0_22 = (0x3fffffffU 
+    __VdfgRegularize_h6e95ff9d_0_23 = (0x3fffffffU 
                                        & ((IData)((0x00000fffffffffffULL 
                                                    & VL_SHIFTRS_QQI(44,44,32, vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__acc_r, 0x0000000eU))) 
                                           + (1U & (- (IData)(
@@ -9163,6 +9181,12 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                       | ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_busy) 
                                          | (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__rds_busy_r))))) 
                                & (IData)(vlSelfRef.s_axi_arvalid));
+    vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w 
+        = (7U & ((- (IData)((8U > (0x0000000fU & (IData)(
+                                                         (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
+                                                          >> 0x00000010U)))))) 
+                 & (IData)((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
+                            >> 0x00000010U))));
     milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__diff_w 
         = (vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r 
            - vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__prevc_r);
@@ -9180,14 +9204,14 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = (0x0000001fU & ((IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__rptr_bin_r) 
                           + ((~ (IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__rd_empty_w)) 
                              & (IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__rd_en_r))));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n 
-        = (0x0000000fU & ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_r) 
-                          + ((~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_full_w)) 
-                             & (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_wen_r))));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n 
-        = (0x0000000fU & ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_r) 
-                          + ((~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_rempty_w)) 
-                             & (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r))));
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n 
+        = (0x0000000fU & ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_r) 
+                          + ((~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_full_w)) 
+                             & (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_wen_r))));
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n 
+        = (0x0000000fU & ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_r) 
+                          + ((~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_rempty_w)) 
+                             & (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r))));
     vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__rptr_bin_n 
         = (7U & ((IData)(vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__rptr_bin_r) 
                  + ((~ (IData)(vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__rempty_w)) 
@@ -10477,6 +10501,13 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                  & ((IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__adp_len_ok_r) 
                     & ((1U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_msg_r)) 
                        | (0U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_msg_r)))))));
+    vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w 
+        = (0x0000000fU & ((- (IData)((9U > (0x0000000fU 
+                                            & (IData)(
+                                                      (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
+                                                       >> 0x00000010U)))))) 
+                          & (IData)((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
+                                     >> 0x00000010U))));
     vlSelfRef.milan_datapath__DOT__stats_counts[0U] 
         = vlSelfRef.milan_datapath__DOT__ethernet_counters__DOT____Vcellout__event_counter_gen__BRA__0__KET____DOT__counter_inst__count;
     vlSelfRef.milan_datapath__DOT__stats_counts[1U] 
@@ -10629,17 +10660,17 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_bscan_c 
         = (((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bsch_r) 
             << 8U) | (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bsc_lo_q));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_98 = ((~ 
-                                                  ((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__locked_r) 
-                                                   & (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__locking_controller_id_r 
-                                                      == 
-                                                      (((QData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[4U])) 
-                                                        << 0x0000002eU) 
-                                                       | (((QData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[3U])) 
-                                                           << 0x0000000eU) 
-                                                          | ((QData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[2U])) 
-                                                             >> 0x00000012U)))))) 
-                                                 & (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__locked_r));
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_100 = ((~ 
+                                                   ((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__locked_r) 
+                                                    & (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__locking_controller_id_r 
+                                                       == 
+                                                       (((QData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[4U])) 
+                                                         << 0x0000002eU) 
+                                                        | (((QData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[3U])) 
+                                                            << 0x0000000eU) 
+                                                           | ((QData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[2U])) 
+                                                              >> 0x00000012U)))))) 
+                                                  & (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__locked_r));
     vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__tsd_w 
         = (vlSelfRef.milan_datapath__DOT__avtprx_ts 
            - ((vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_counter__DOT__acc[1U] 
@@ -10695,6 +10726,101 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                                           == (IData)(vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__step_r))
                                                                           ? vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__yr1_r
                                                                           : vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__yr2_r)))))))))))));
+    vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 0U;
+    if ((vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r 
+         >> 0x1fU)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x40000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x20000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x10000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x08000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x04000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x02000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x01000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00800000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00400000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00200000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00100000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00080000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00040000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00020000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00010000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00008000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00004000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00002000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00001000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000800U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000400U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000200U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000100U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000080U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000040U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000020U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((0x00000010U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((8U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((4U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
+    if ((2U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
     vlSelfRef.milan_datapath__DOT__strtbl_sid_w[0U] 
         = (IData)((vlSelfRef.milan_datapath__DOT__stream_table__DOT__ovr_armed_r[0U]
                     ? vlSelfRef.milan_datapath__DOT__stream_table__DOT__ovr_sid_r[0U]
@@ -10801,7 +10927,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
               & ((0U == (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__wbeat_r))
                   ? vlSelfRef.milan_datapath__DOT__csr__DOT__adp_ctrl
                   : (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__pushing_r))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_20 = ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__strm_dir_r) 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_21 = ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__strm_dir_r) 
                                                  & (0U 
                                                     == (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__strm_idx_r)));
     vlSelfRef.milan_datapath__DOT__lwsrp__DOT__bw_gate__DOT__cand_w 
@@ -10900,7 +11026,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                    >= 
                                                    ((IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__depth_reg) 
                                                     << 3U))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_80 = ((IData)(vlSelfRef.milan_datapath__DOT__i2spb_converged) 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_82 = ((IData)(vlSelfRef.milan_datapath__DOT__i2spb_converged) 
                                                  | (0U 
                                                     == (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__clk_src_r)));
     milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_pi 
@@ -11067,6 +11193,9 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     __Vfunc_reorder_endian_func__16__data_in = vlSelfRef.s_axis_tx_tdata;
     __Vfunc_reorder_endian_func__16__data_out = 0;
     __Vfunc_reorder_endian_func__16__unnamedblk1__DOT__i = 0U;
+    if ((1U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c = 1U;
+    }
     vlSelfRef.milan_datapath__DOT__csr_srp_ctx_dir 
         = (1U & ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__srp_wr_pend_r)
                   ? (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__srp_wr_dir_r)
@@ -11325,6 +11454,18 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                    & (- (IData)((0U != (7U & (vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cur_r[9U] 
                                               >> 0x0000001aU)))))));
     }
+    vlSelfRef.o_mac_promisc = (1U & (vlSelfRef.milan_datapath__DOT__csr__DOT__mac_ctrl 
+                                     >> 2U));
+    vlSelfRef.o_mac_allmulti = (1U & (vlSelfRef.milan_datapath__DOT__csr__DOT__mac_ctrl 
+                                      >> 3U));
+    vlSelfRef.o_mc_hash = (((QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__mc_hi)) 
+                            << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__mc_lo)));
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_101 = ((0x000001feU 
+                                                   & (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_pipe_reg[1U][2U] 
+                                                      << 1U)) 
+                                                  | (1U 
+                                                     & ((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_tvalid_pipe_reg) 
+                                                        >> 1U)));
     vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pbase_w[0U] = 0U;
     vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pbase_w[1U] 
         = (0x0000003fU & ((IData)(vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pbase_w[0U]) 
@@ -11358,34 +11499,110 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = (0x0000003fU & ((IData)(vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pbase_w[7U]) 
                           + (7U & (vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__chans_r[7U] 
                                    >> 1U))));
-    vlSelfRef.o_mac_promisc = (1U & (vlSelfRef.milan_datapath__DOT__csr__DOT__mac_ctrl 
-                                     >> 2U));
-    vlSelfRef.o_mac_allmulti = (1U & (vlSelfRef.milan_datapath__DOT__csr__DOT__mac_ctrl 
-                                      >> 3U));
-    vlSelfRef.o_mc_hash = (((QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__mc_hi)) 
-                            << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__mc_lo)));
-    if ((1U & vlSelfRef.milan_datapath__DOT__csr__DOT__chmap_ctrl)) {
-        vlSelfRef.milan_datapath__DOT__pkt_slot_w = vlSelfRef.milan_datapath__DOT__cmap_slot_w;
-        vlSelfRef.milan_datapath__DOT__i2s_feed_chans_w = 2U;
-    } else {
-        vlSelfRef.milan_datapath__DOT__pkt_slot_w = 
-            (0x0000000fU & (IData)((vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_pair_w 
-                                    >> 0x00000030U)));
-        vlSelfRef.milan_datapath__DOT__i2s_feed_chans_w 
-            = vlSelfRef.milan_datapath__DOT__mon_wire_chans_w;
-    }
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_99 = ((0x000001feU 
-                                                  & (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_pipe_reg[1U][2U] 
-                                                     << 1U)) 
-                                                 | (1U 
-                                                    & ((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_tvalid_pipe_reg) 
-                                                       >> 1U)));
     vlSelfRef.milan_datapath__DOT__cfg_lwsrp_dmac = 
         (((QData)((IData)((0x0000ffffU & vlSelfRef.milan_datapath__DOT__csr__DOT__lwsrp_dmhi))) 
           << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__lwsrp_dmlo)));
     vlSelfRef.__VdfgRegularize_h6e95ff9d_0_10 = (0x0000000fU 
                                                  & vlSelfRef.milan_datapath__DOT__chan_map_capture__DOT__map_r
                                                  [vlSelfRef.milan_datapath__DOT__chan_map_capture__DOT__slot_r]);
+    vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0U;
+    if ((vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r 
+         >> 0x1fU)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x1fU;
+    }
+    if ((0x40000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x1eU;
+    }
+    if ((0x20000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x1dU;
+    }
+    if ((0x10000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x1cU;
+    }
+    if ((0x08000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x1bU;
+    }
+    if ((0x04000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x1aU;
+    }
+    if ((0x02000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x19U;
+    }
+    if ((0x01000000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x18U;
+    }
+    if ((0x00800000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x17U;
+    }
+    if ((0x00400000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x16U;
+    }
+    if ((0x00200000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x15U;
+    }
+    if ((0x00100000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x14U;
+    }
+    if ((0x00080000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x13U;
+    }
+    if ((0x00040000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x12U;
+    }
+    if ((0x00020000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x11U;
+    }
+    if ((0x00010000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x10U;
+    }
+    if ((0x00008000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x0fU;
+    }
+    if ((0x00004000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x0eU;
+    }
+    if ((0x00002000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x0dU;
+    }
+    if ((0x00001000U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x0cU;
+    }
+    if ((0x00000800U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x0bU;
+    }
+    if ((0x00000400U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0x0aU;
+    }
+    if ((0x00000200U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 9U;
+    }
+    if ((0x00000100U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 8U;
+    }
+    if ((0x00000080U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 7U;
+    }
+    if ((0x00000040U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 6U;
+    }
+    if ((0x00000020U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 5U;
+    }
+    if ((0x00000010U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 4U;
+    }
+    if ((8U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 3U;
+    }
+    if ((4U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 2U;
+    }
+    if ((2U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 1U;
+    }
+    if ((1U & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r)) {
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c = 0U;
+    }
     vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__mreset_any_w = 0U;
     if ((0U != vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__mreset_pend_r[0U])) {
         vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__mreset_any_w = 1U;
@@ -11468,6 +11685,9 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     vlSelfRef.milan_datapath__DOT__pcm_lpf_active = 
         (vlSelfRef.milan_datapath__DOT__csr__DOT__lpf_ctrl 
          & (2U == (IData)(vlSelfRef.milan_datapath__DOT__mon_wire_chans_w)));
+    vlSelfRef.milan_datapath__DOT__i2s_feed_chans_w 
+        = ((1U & vlSelfRef.milan_datapath__DOT__csr__DOT__chmap_ctrl)
+            ? 2U : (IData)(vlSelfRef.milan_datapath__DOT__mon_wire_chans_w));
     vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__sn_w[0U] 
         = vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__ctx_ram
         [((IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__swp_idx_r) 
@@ -12088,13 +12308,13 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
            & ((IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_tuid_r) 
               == (0x0000ffffU & (vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cur_r[8U] 
                                  >> 0x0000000cU))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_66 = ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_rden_r) 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_67 = ((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_rden_r) 
                                                  & (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_dir_r));
     vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__w_is_lstn_cmd 
         = ((6U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_msg_r)) 
            | ((8U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_msg_r)) 
               | (0x0aU == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_msg_r))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_97 = ((IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_wr) 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_99 = ((IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_wr) 
                                                  != (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_rd));
     vlSelfRef.milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__sof 
         = ((~ (IData)(vlSelfRef.milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__in_frame)) 
@@ -12176,7 +12396,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                            << 3U) | 
                                           (7U & (vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__view0_r[9U] 
                                                  >> 0x0000001aU))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_67 = (7U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_68 = (7U 
                                                  & (vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__chans_r
                                                     [vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__et_r] 
                                                     >> 1U));
@@ -12289,7 +12509,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__w_rest_pend 
         = ((~ (IData)(vlSelfRef.milan_datapath__DOT__acmp_rest_ack_w)) 
            & (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__rest_pend_r));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_78 = ((~ (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_dir_r)) 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_80 = ((~ (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_dir_r)) 
                                                  & (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__snap_rden_r));
     vlSelfRef.__VdfgRegularize_h6e95ff9d_0_8 = ((2U 
                                                  > 
@@ -12351,13 +12571,13 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fill_w 
         = (0x000003ffU & ((IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__wptr_r) 
                           - (IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__rptr_r)));
+    vlSelfRef.milan_datapath__DOT__cfg_adp_entity_id 
+        = (((QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__adp_eidhi)) 
+            << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__adp_eidlo)));
     vlSelfRef.__VdfgRegularize_h6e95ff9d_0_7 = (1U 
                                                 & ((~ vlSelfRef.milan_datapath__DOT__csr__DOT__maap_ctrl) 
                                                    | (2U 
                                                       == (IData)(vlSelfRef.milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__state_r))));
-    vlSelfRef.milan_datapath__DOT__cfg_adp_entity_id 
-        = (((QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__adp_eidhi)) 
-            << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__adp_eidlo)));
     vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__hold_only_w 
         = ((1U == (IData)(vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__rstate_r)) 
            & ((IData)(vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__remain_r) 
@@ -12403,7 +12623,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                           & (0xfcU == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_subtype_r))))))));
     vlSelfRef.m_axis_pcm_tuser = vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_r
         [vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_rp_r];
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_40 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_41 = (1U 
                                                  & ((0x00000080U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12422,7 +12642,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x0000000eU)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_41 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_42 = (1U 
                                                  & ((0x00000100U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12441,7 +12661,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x00000010U)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_42 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_43 = (1U 
                                                  & ((0x00000200U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12460,7 +12680,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x00000012U)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_43 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_44 = (1U 
                                                  & ((0x00000400U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12479,7 +12699,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x00000014U)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_44 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_45 = (1U 
                                                  & ((0x00000800U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12498,7 +12718,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x00000016U)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_45 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_46 = (1U 
                                                  & ((0x00001000U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12517,7 +12737,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x00000018U)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_46 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_47 = (1U 
                                                  & ((0x00002000U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12536,7 +12756,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                            (3U 
                                                             & (vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__adecl_r 
                                                                >> 0x0000001aU)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_47 = (1U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_48 = (1U 
                                                  & ((0x00004000U 
                                                      & (IData)(vlSelfRef.milan_datapath__DOT__lwsrp__DOT__ctx__DOT__dir_r))
                                                      ? 
@@ -12584,7 +12804,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                             (7U 
                                                              & (vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__view0_r[9U] 
                                                                 >> 0x0000001aU)))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_51 = ((IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__init_done_r) 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_52 = ((IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__init_done_r) 
                                                  & (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__rxv_r));
     vlSelfRef.milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__byte_w 
         = (0x000000ffU & (IData)((vlSelfRef.milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__cur_d_r 
@@ -12594,7 +12814,7 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = ((IData)(vlSelfRef.milan_datapath__DOT__lwsrp_listener_reg) 
            & ((2U == (IData)(vlSelfRef.milan_datapath__DOT__lwsrp_listener_decl)) 
               | (3U == (IData)(vlSelfRef.milan_datapath__DOT__lwsrp_listener_decl))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_76 = ((0x00ff0000U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_77 = ((0x00ff0000U 
                                                   & (vlSelfRef.milan_datapath__DOT__csr__DOT__mac_alo 
                                                      >> 8U)) 
                                                  | ((0x0000ff00U 
@@ -12626,10 +12846,65 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                       ? (~ (IData)(vlSelfRef.milan_datapath__DOT__aecp_acmp_mux__DOT__last_grant_r))
                       : (2U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_responder__DOT__st_r)))));
     vlSelfRef.milan_datapath__DOT__g_pcm_lpf__DOT__pcm_lpf__DOT__yfin_w 
-        = (VL_LTS_III(30, 0x007fffffU, __VdfgRegularize_h6e95ff9d_0_22)
-            ? 0x007fffffU : (VL_GTS_III(30, 0x3f800000U, __VdfgRegularize_h6e95ff9d_0_22)
+        = (VL_LTS_III(30, 0x007fffffU, __VdfgRegularize_h6e95ff9d_0_23)
+            ? 0x007fffffU : (VL_GTS_III(30, 0x3f800000U, __VdfgRegularize_h6e95ff9d_0_23)
                               ? 0x00800000U : (0x00ffffffU 
-                                               & __VdfgRegularize_h6e95ff9d_0_22)));
+                                               & __VdfgRegularize_h6e95ff9d_0_23)));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[0U] 
+        = (IData)((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                    [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][1U])) 
+                    << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                      [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][0U]))));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[1U] 
+        = (IData)(((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                     [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][1U])) 
+                     << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                       [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][0U]))) 
+                   >> 0x00000020U));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[2U] 
+        = (IData)((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                    [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][3U])) 
+                    << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                      [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][2U]))));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[3U] 
+        = (IData)(((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                     [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][3U])) 
+                     << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                       [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][2U]))) 
+                   >> 0x00000020U));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[4U] 
+        = (IData)((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                    [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][5U])) 
+                    << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                      [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][4U]))));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[5U] 
+        = (IData)(((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                     [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][5U])) 
+                     << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                       [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][4U]))) 
+                   >> 0x00000020U));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[6U] 
+        = (IData)((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                    [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][7U])) 
+                    << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                      [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][6U]))));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[7U] 
+        = (IData)(((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                     [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][7U])) 
+                     << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                       [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][6U]))) 
+                   >> 0x00000020U));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[8U] 
+        = (IData)((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                    [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][9U])) 
+                    << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                      [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][8U]))));
+    vlSelfRef.milan_datapath__DOT__mon_diag_cnt_w[9U] 
+        = (IData)(((((QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                     [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][9U])) 
+                     << 0x00000020U) | (QData)((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r
+                                                       [vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w][8U]))) 
+                   >> 0x00000020U));
     vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w 
         = (0x0000ffffU & (milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__diff_w 
                           | (- (IData)((0U != (milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__diff_w 
@@ -12649,13 +12924,13 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = ((IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__rptr_bin_n) 
            ^ ((IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__rptr_bin_n) 
               >> 1U));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_n 
-        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n) 
-           ^ ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n) 
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_n 
+        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n) 
+           ^ ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n) 
               >> 1U));
-    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_n 
-        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n) 
-           ^ ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n) 
+    vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_n 
+        = ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n) 
+           ^ ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n) 
               >> 1U));
     vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__rptr_gray_n 
         = ((IData)(vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__rptr_bin_n) 
@@ -12717,13 +12992,33 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
         = (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__AEM_STRIN_FMT_C
            [vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_in_fidx] 
            & (- (QData)((IData)((8U >= (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_in_fidx))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_81 = ((8U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_83 = ((8U 
                                                   >= (IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_in_fidx)) 
                                                  & vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__AEM_STRIN_CRF_C
                                                  [vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_in_fidx]);
     vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__w_adp_now 
         = ((1U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__st_r)) 
            & (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__w_adp_seen));
+    vlSelfRef.milan_datapath__DOT__tkdiag_cnt_w[0U] 
+        = (vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r
+           [vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w] 
+           & (- (IData)((8U >= (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w)))));
+    vlSelfRef.milan_datapath__DOT__tkdiag_cnt_w[1U] 
+        = (vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r
+           [vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w] 
+           & (- (IData)((8U >= (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w)))));
+    vlSelfRef.milan_datapath__DOT__tkdiag_cnt_w[2U] 
+        = (vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r
+           [vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w] 
+           & (- (IData)((8U >= (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w)))));
+    vlSelfRef.milan_datapath__DOT__tkdiag_cnt_w[3U] 
+        = (vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r
+           [vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w] 
+           & (- (IData)((8U >= (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w)))));
+    vlSelfRef.milan_datapath__DOT__tkdiag_cnt_w[4U] 
+        = (vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r
+           [vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w] 
+           & (- (IData)((8U >= (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ridx_w)))));
     vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__wptr_bin_n 
         = (7U & ((IData)(vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__wptr_bin_r) 
                  + (IData)(vlSelfRef.milan_datapath__DOT__chan_tdm_render__DOT__fifo_wen_w)));
@@ -12869,13 +13164,13 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                                              << 0x0000000eU) 
                                                                             | (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[1U] 
                                                                                >> 0x00000012U)))))))))))))))))))))))) 
-           & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_98));
+           & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_100));
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__w_lock_denied 
         = ((1U == (0x00007fffU & ((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[2U] 
                                    << 0x0000000eU) 
                                   | (vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__hdr_w[1U] 
                                      >> 0x00000012U)))) 
-           & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_98));
+           & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_100));
     vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__new_evt_w[0U] 
         = ((0xfffffffcU & vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__new_evt_w[0U]) 
            | ((VL_GTS_III(32, 0U, vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__tsd_w) 
@@ -13249,9 +13544,8 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
               & ((0U == (IData)(vlSelfRef.milan_datapath__DOT__acmp_responder__DOT__msg_r)) 
                  & (9U > (IData)(vlSelfRef.milan_datapath__DOT__acmp_responder__DOT__tuid_r)))));
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_smap_pi_in 
-        = (7U & ((- (IData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_smap_in_ok))) 
-                 & (IData)((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
-                            >> 0x00000010U))));
+        = (7U & ((IData)((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
+                          >> 0x00000010U)) & (- (IData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_smap_in_ok)))));
     vlSelfRef.milan_datapath__DOT__avtp_rx_parser__DOT__subtype 
         = (0x000000ffU & ((((0U == (0x0000001fU & (
                                                    ((IData)(0x01bfU) 
@@ -13854,9 +14148,8 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
                                                                                << 3U))) 
                                                                           - (IData)(7U)))))))))))));
     vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_smap_pi_out 
-        = (7U & ((- (IData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_smap_out_ok))) 
-                 & (IData)((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
-                            >> 0x00000010U))));
+        = (7U & ((IData)((vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r 
+                          >> 0x00000010U)) & (- (IData)((IData)(vlSelfRef.milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_smap_out_ok)))));
     vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ext_wr_ok_w 
         = ((~ (IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__eng_we_w)) 
            & (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__lctx_wr_p_r));
@@ -13902,11 +14195,11 @@ VL_ATTR_COLD void Vmilan_datapath___024root___stl_sequent__TOP__0(Vmilan_datapat
     vlSelfRef.milan_datapath__DOT__csr__DOT__win_alias_dmlo_w 
         = ((IData)(vlSelfRef.s_axi_awready) & ((0x081cU 
                                                 == (IData)(vlSelfRef.s_axi_awaddr)) 
-                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_20)));
+                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_21)));
     vlSelfRef.milan_datapath__DOT__csr__DOT__win_alias_dmhi_w 
         = ((IData)(vlSelfRef.s_axi_awready) & ((0x0820U 
                                                 == (IData)(vlSelfRef.s_axi_awaddr)) 
-                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_20)));
+                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_21)));
     vlSelfRef.milan_datapath__DOT__csr__DOT__cmrd_go_w 
         = ((IData)(vlSelfRef.s_axi_awready) & (vlSelfRef.s_axi_wdata 
                                                & ((~ (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__cmrd_busy_r)) 

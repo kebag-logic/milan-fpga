@@ -82,7 +82,11 @@ module KL_aecp_top #(
   output wire [5:0]    dmap_wr_addr_o,     //! phys channel idx (cluster_offset)
   output wire [7:0]    dmap_wr_word_o,     //! render map word {en,0,stream,ch}
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
-  input  wire [31:0]   frames_tx_i,        //! AAF frames sent (STREAM_OUTPUT counters)
+  // ---- Milan 5.4.2.25 per-index counters (Tables 5.16/5.17) -----------
+  output logic [3:0]      gs_diag_idx_o,   //! GET_COUNTERS descriptor index
+  input  wire [10*32-1:0] rxdiag_cnt_i,    //! that sink's Table 5.6 set
+  input  wire [5*32-1:0]  tkdiag_cnt_i,    //! that source's Table 5.4 set
+  input  wire [15:0]      n_aaf_sinks_i,   //! AAF sink count (CRF = empty mask)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
   input  wire          lstn_bound_i,
@@ -289,7 +293,9 @@ module KL_aecp_top #(
     .dmap_r_en_o(dmap_r_en_o),
     .dmap_wr_p_o(dmap_wr_p_o), .dmap_wr_addr_o(dmap_wr_addr_o),
     .dmap_wr_word_o(dmap_wr_word_o),
-    .link_up_i(link_up_i), .frames_tx_i(frames_tx_i),
+    .link_up_i(link_up_i),
+    .gs_diag_idx_o(gs_diag_idx_o), .rxdiag_cnt_i(rxdiag_cnt_i),
+    .tkdiag_cnt_i(tkdiag_cnt_i), .n_aaf_sinks_i(n_aaf_sinks_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
     .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),
     .lstn1_dmac_i(lstn1_dmac_i),

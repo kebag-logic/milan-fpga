@@ -48,6 +48,10 @@
 #include <string>
 #include <vector>
 
+// AAF sink count of this harness's entity shape (the CRF sink
+// past it answers the empty mask)
+#define N_AAF_SINKS_TB 1
+
 static VKL_aecp_top* dut;
 static long checks = 0, fails = 0;
 
@@ -212,7 +216,12 @@ int main(int argc, char** argv) {
     dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0; dut->gptp_domain_i = 0; dut->pdelay_ns_i = 0;
-    dut->link_up_i = 1; dut->frames_tx_i = 0;
+    dut->link_up_i = 1;
+    // Milan 5.4.2.25 per-index counter buses: zero until a case models
+    // them (the fabric muxes by gs_diag_idx_o; here the harness owns them)
+    for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
+    for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
+    dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;

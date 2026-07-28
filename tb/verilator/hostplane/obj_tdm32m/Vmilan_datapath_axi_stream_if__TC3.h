@@ -18,10 +18,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath_axi_stream_if__TC3 final {
     CData/*0:0*/ __PVT__rst_n;
     CData/*0:0*/ tvalid;
     CData/*2:0*/ tdest;
-    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_17;
     CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_18;
-    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_94;
-    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_95;
+    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_19;
+    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_96;
+    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_97;
 
     // INTERNAL VARIABLES
     Vmilan_datapath__Syms* vlSymsp;

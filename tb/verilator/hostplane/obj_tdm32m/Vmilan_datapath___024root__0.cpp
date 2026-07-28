@@ -1022,8 +1022,8 @@ void Vmilan_datapath___024root___ico_sequent__TOP__11(Vmilan_datapath___024root*
     __Vfunc_reorder_endian_func__16__unnamedblk1__DOT__i = 0;
     QData/*63:0*/ __Vfunc_reorder_endian_func__16__data_out;
     __Vfunc_reorder_endian_func__16__data_out = 0;
-    CData/*4:0*/ __VdfgRegularize_h6e95ff9d_0_91;
-    __VdfgRegularize_h6e95ff9d_0_91 = 0;
+    CData/*4:0*/ __VdfgRegularize_h6e95ff9d_0_93;
+    __VdfgRegularize_h6e95ff9d_0_93 = 0;
     // Body
     __Vfunc_reorder_endian_func__16__width = 0x00000040U;
     __Vfunc_reorder_endian_func__16__data_in = vlSelfRef.s_axis_tx_tdata;
@@ -1091,7 +1091,7 @@ void Vmilan_datapath___024root___ico_sequent__TOP__11(Vmilan_datapath___024root*
         vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__hdr_eff[5U] 
             = vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__hdr_shifted[5U];
     }
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 = ((0x8100U 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 = ((0x8100U 
                                                   == 
                                                   (vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__hdr_eff[2U] 
                                                    >> 0x00000010U))
@@ -1108,7 +1108,7 @@ void Vmilan_datapath___024root___ico_sequent__TOP__11(Vmilan_datapath___024root*
                                                   << 0x00000020U));
     vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__class_map__DOT__gptp_frame 
         = (IData)(((0x000088f700000000ULL == (0x0000ffff00000000ULL 
-                                              & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16)) 
+                                              & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17)) 
                    & ((~ (vlSelfRef.milan_datapath__DOT__csr__DOT__cls_ctrl 
                           >> 1U)) | (0x00000180c200000eULL 
                                      == (0x0000ffffffffffffULL 
@@ -1116,42 +1116,42 @@ void Vmilan_datapath___024root___ico_sequent__TOP__11(Vmilan_datapath___024root*
                                              << 0x00000010U) 
                                             | ((QData)((IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__hdr_eff[4U])) 
                                                >> 0x00000010U)))))));
-    __VdfgRegularize_h6e95ff9d_0_91 = (0x0000001fU 
+    __VdfgRegularize_h6e95ff9d_0_93 = (0x0000001fU 
                                        & ((IData)(3U) 
                                           * (7U & (
                                                    (0x8100U 
                                                     == 
                                                     (0x0000ffffU 
                                                      & (IData)(
-                                                               (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 
+                                                               (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 
                                                                 >> 0x00000010U))))
                                                     ? (IData)(
-                                                              (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 
+                                                              (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 
                                                                >> 0x0000000dU))
                                                     : vlSelfRef.milan_datapath__DOT__csr__DOT__cls_dpcp))));
     if ((1U & (~ VL_ONEHOT_I((((IData)(((0x000022f000000000ULL 
                                          == (0x0000ffff00000000ULL 
-                                             & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16)) 
+                                             & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17)) 
                                         & (0x8100U 
                                            != (0x0000ffffU 
                                                & (IData)(
-                                                         (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 
+                                                         (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 
                                                           >> 0x00000010U)))))) 
                                << 2U) | (((IData)((0x000022f081000000ULL 
                                                    == 
                                                    (0x0000ffffffff0000ULL 
-                                                    & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16))) 
+                                                    & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17))) 
                                           << 1U) | (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__class_map__DOT__gptp_frame))))))) {
         if ((0U != (((IData)(((0x000022f000000000ULL 
                                == (0x0000ffff00000000ULL 
-                                   & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16)) 
+                                   & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17)) 
                               & (0x8100U != (0x0000ffffU 
                                              & (IData)(
-                                                       (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 
+                                                       (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 
                                                         >> 0x00000010U)))))) 
                      << 2U) | (((IData)((0x000022f081000000ULL 
                                          == (0x0000ffffffff0000ULL 
-                                             & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16))) 
+                                             & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17))) 
                                 << 1U) | (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__class_map__DOT__gptp_frame))))) {
             if (VL_UNLIKELY((vlSymsp->_vm_contextp__->assertOn()))) {
                 VL_WRITEF_NX("[%0t] %%Error: traffic_class_map.sv:229: Assertion failed in %m: unique case, but multiple matches found for '1'h1'\n",3, 'M',vlSymsp->name(),"milan_datapath.traffic_controller.classifier.class_map.classify", 'T',-9
@@ -1160,16 +1160,16 @@ void Vmilan_datapath___024root___ico_sequent__TOP__11(Vmilan_datapath___024root*
             }
         }
     }
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_93 = (0x0000001fU 
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_95 = (0x0000001fU 
                                                  & (((IData)(3U) 
                                                      * 
                                                      (7U 
                                                       & (vlSelfRef.milan_datapath__DOT__csr__DOT__cls_regen 
-                                                         >> (IData)(__VdfgRegularize_h6e95ff9d_0_91)))) 
+                                                         >> (IData)(__VdfgRegularize_h6e95ff9d_0_93)))) 
                                                     & (- (IData)(
                                                                  (0x17U 
-                                                                  >= (IData)(__VdfgRegularize_h6e95ff9d_0_91))))));
-    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_92 = (7U 
+                                                                  >= (IData)(__VdfgRegularize_h6e95ff9d_0_93))))));
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_94 = (7U 
                                                  & (vlSelfRef.milan_datapath__DOT__csr__DOT__cls_tcq 
                                                     >> 
                                                     (0x0000001fU 
@@ -1177,10 +1177,10 @@ void Vmilan_datapath___024root___ico_sequent__TOP__11(Vmilan_datapath___024root*
                                                          * 
                                                          (7U 
                                                           & (vlSelfRef.milan_datapath__DOT__csr__DOT__cls_map 
-                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_93)))) 
+                                                             >> (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_95)))) 
                                                         & (- (IData)(
                                                                      (0x17U 
-                                                                      >= (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_93))))))));
+                                                                      >= (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_95))))))));
 }
 
 void Vmilan_datapath___024root___ico_comb__TOP__2(Vmilan_datapath___024root* vlSelf) {
@@ -1188,8 +1188,8 @@ void Vmilan_datapath___024root___ico_comb__TOP__2(Vmilan_datapath___024root* vlS
     Vmilan_datapath__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Locals
-    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_79;
-    __VdfgRegularize_h6e95ff9d_0_79 = 0;
+    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_81;
+    __VdfgRegularize_h6e95ff9d_0_81 = 0;
     // Body
     vlSelfRef.milan_datapath__DOT__csr__DOT__sel_wr_w 
         = ((0x0800U == (IData)(vlSelfRef.s_axi_awaddr)) 
@@ -1197,11 +1197,11 @@ void Vmilan_datapath___024root___ico_comb__TOP__2(Vmilan_datapath___024root* vlS
     vlSelfRef.milan_datapath__DOT__csr__DOT__win_alias_dmlo_w 
         = ((IData)(vlSelfRef.s_axi_awready) & ((0x081cU 
                                                 == (IData)(vlSelfRef.s_axi_awaddr)) 
-                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_20)));
+                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_21)));
     vlSelfRef.milan_datapath__DOT__csr__DOT__win_alias_dmhi_w 
         = ((IData)(vlSelfRef.s_axi_awready) & ((0x0820U 
                                                 == (IData)(vlSelfRef.s_axi_awaddr)) 
-                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_20)));
+                                               & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_21)));
     vlSelfRef.milan_datapath__DOT__csr__DOT____VlemCall_1__is_plain_rw 
         = ((IData)(vlSelfRef.s_axi_awready) & (~ (0U 
                                                   != 
@@ -3247,13 +3247,13 @@ void Vmilan_datapath___024root___ico_comb__TOP__2(Vmilan_datapath___024root* vlS
     }
     vlSelfRef.milan_datapath__DOT__csr__DOT__shadow_axi_we 
         = vlSelfRef.milan_datapath__DOT__csr__DOT____VlemCall_1__is_plain_rw;
-    __VdfgRegularize_h6e95ff9d_0_79 = ((0x0810U == (IData)(vlSelfRef.s_axi_awaddr)) 
+    __VdfgRegularize_h6e95ff9d_0_81 = ((0x0810U == (IData)(vlSelfRef.s_axi_awaddr)) 
                                        & (IData)(vlSelfRef.s_axi_awready));
     vlSelfRef.milan_datapath__DOT__csr__DOT__win_alias_ctrl_w 
-        = ((IData)(__VdfgRegularize_h6e95ff9d_0_79) 
-           & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_20));
+        = ((IData)(__VdfgRegularize_h6e95ff9d_0_81) 
+           & (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_21));
     vlSelfRef.milan_datapath__DOT__csr__DOT__srp_prov_w 
-        = ((IData)(__VdfgRegularize_h6e95ff9d_0_79) 
+        = ((IData)(__VdfgRegularize_h6e95ff9d_0_81) 
            & (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__srp_poll_w));
 }
 

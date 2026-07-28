@@ -70,27 +70,27 @@ VL_ATTR_COLD void Vmilan_datapath_axi_stream_if___stl_sequent__TOP__milan_datapa
                              >> 0x00000020U));
     vlSelfRef.tdata = ((((QData)((IData)(__Vtemp_4[
                                          (((IData)(0x0000003fU) 
-                                           + (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88)) 
+                                           + (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90)) 
                                           >> 5U)])) 
-                         << ((0U == (0x0000001fU & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88)))
+                         << ((0U == (0x0000001fU & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90)))
                               ? 0x00000020U : ((IData)(0x00000040U) 
                                                - (0x0000001fU 
-                                                  & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88))))) 
-                        | (((0U == (0x0000001fU & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88)))
+                                                  & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90))))) 
+                        | (((0U == (0x0000001fU & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90)))
                              ? 0ULL : ((QData)((IData)(__Vtemp_4
                                                        [
                                                        (((IData)(0x0000001fU) 
-                                                         + (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88)) 
+                                                         + (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90)) 
                                                         >> 5U)])) 
                                        << ((IData)(0x00000020U) 
                                            - (0x0000001fU 
-                                              & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88))))) 
+                                              & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90))))) 
                            | ((QData)((IData)(__Vtemp_4
-                                              [((IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88) 
+                                              [((IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90) 
                                                 >> 5U)])) 
-                              >> (0x0000001fU & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88))))) 
+                              >> (0x0000001fU & (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90))))) 
                        & (- (QData)((IData)((0x013fU 
-                                             >= (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_88))))));
+                                             >= (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_90))))));
     vlSelfRef.tkeep = (0x000000ffU & ((IData)(((((QData)((IData)(
                                                                  (0x000000ffU 
                                                                   & vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__DOT__m_axis_pipe_reg[1U][2U]))) 
@@ -107,10 +107,10 @@ VL_ATTR_COLD void Vmilan_datapath_axi_stream_if___stl_sequent__TOP__milan_datapa
                                                                           << 8U)) 
                                                                       | (0x000000ffU 
                                                                          & vlSymsp->TOP.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__m_axis_pipe_reg[1U][2U])))))) 
-                                               >> (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_87))) 
+                                               >> (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_89))) 
                                       & (- (IData)(
                                                    (0x27U 
-                                                    >= (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_87))))));
+                                                    >= (IData)(vlSymsp->TOP.__VdfgRegularize_h6e95ff9d_0_89))))));
 }
 
 VL_ATTR_COLD void Vmilan_datapath_axi_stream_if___ctor_var_reset(Vmilan_datapath_axi_stream_if* vlSelf) {
@@ -126,5 +126,5 @@ VL_ATTR_COLD void Vmilan_datapath_axi_stream_if___ctor_var_reset(Vmilan_datapath
     vlSelf->tlast = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9634498217090403279ull);
     vlSelf->tdata = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 17793882294932938261ull);
     vlSelf->tkeep = VL_SCOPED_RAND_RESET_I(8, __VscopeHash, 15675116905018685246ull);
-    vlSelf->__VdfgRegularize_h6e95ff9d_0_96 = 0;
+    vlSelf->__VdfgRegularize_h6e95ff9d_0_98 = 0;
 }

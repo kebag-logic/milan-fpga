@@ -35,6 +35,7 @@ VM_CLASSES_FAST += \
   Vmilan_datapath___024root__4 \
   Vmilan_datapath___024root__5 \
   Vmilan_datapath___024root__6 \
+  Vmilan_datapath___024root__7 \
   Vmilan_datapath_axi_stream_if__0 \
   Vmilan_datapath_axi_stream_if__TC3__0 \
 

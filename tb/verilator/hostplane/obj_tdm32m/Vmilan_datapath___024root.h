@@ -68,6 +68,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VL_IN8(tdm_fsync_i,0,0);
             VL_OUT8(tdm_bclk_o,0,0);
             VL_OUT8(tdm_fsync_o,0,0);
+            VL_OUT8(tdm_mclk_o,0,0);
             VL_OUT8(tdm_dout_o,0,0);
             VL_IN8(tdm_data_i,0,0);
             VL_OUT8(i2s_dac_mclk_o,0,0);
@@ -103,9 +104,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VL_OUT8(o_mac_rx_en,0,0);
             VL_OUT8(o_mac_promisc,0,0);
             VL_OUT8(o_mac_allmulti,0,0);
-            VL_OUT8(o_mac_is_1g,0,0);
         };
         struct {
+            VL_OUT8(o_mac_is_1g,0,0);
             VL_OUT8(o_mac_ifg,7,0);
             VL_OUT8(o_phy_reset_n,0,0);
             VL_IN8(i_mac_speed,1,0);
@@ -139,7 +140,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__cmap_pv_w;
             CData/*4:0*/ milan_datapath__DOT__cmap_slot_w;
             CData/*0:0*/ milan_datapath__DOT____Vcellinp__chan_map_capture__map_rd_en_i;
-            CData/*4:0*/ milan_datapath__DOT__pkt_slot_w;
+            CData/*0:0*/ milan_datapath__DOT__zf_apulse_r;
             CData/*7:0*/ milan_datapath__DOT__adp_depart_cnt;
             CData/*7:0*/ milan_datapath__DOT__adp_rearm_cnt;
             CData/*1:0*/ milan_datapath__DOT__adp_depart_src;
@@ -169,9 +170,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__acmpl_tx_tvalid;
             CData/*0:0*/ milan_datapath__DOT__avtprx_match;
             CData/*0:0*/ milan_datapath__DOT__avtprx_tu_bit;
-            CData/*7:0*/ milan_datapath__DOT__avtprx_subtype;
         };
         struct {
+            CData/*7:0*/ milan_datapath__DOT__avtprx_subtype;
             CData/*7:0*/ milan_datapath__DOT__avtprx_seq;
             CData/*0:0*/ milan_datapath__DOT__avtprx_parse_p;
             CData/*7:0*/ milan_datapath__DOT__avtprx_b3;
@@ -208,7 +209,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ milan_datapath__DOT__csr_srp_ctx_idx;
             CData/*0:0*/ milan_datapath__DOT__srp_ctx_gnt_w;
             CData/*0:0*/ milan_datapath__DOT__lctx_rd_valid_w;
-            CData/*6:0*/ milan_datapath__DOT__csr_tctx_rd_addr_w;
             CData/*0:0*/ milan_datapath__DOT__tctx_rd_valid_w;
             CData/*0:0*/ milan_datapath__DOT__tctx_wr_rdy_w;
             CData/*0:0*/ milan_datapath__DOT__acmp_tbl_gnt_w;
@@ -222,6 +222,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__adp_en_q;
             CData/*0:0*/ milan_datapath__DOT__adp_link_up_p;
             CData/*0:0*/ milan_datapath__DOT__adp_link_down_p;
+            CData/*0:0*/ milan_datapath__DOT__aaf_frame_p_w;
+            CData/*3:0*/ milan_datapath__DOT__aaf_frame_idx_w;
+            CData/*0:0*/ milan_datapath__DOT__tkd_crf_pend_r;
+            CData/*0:0*/ milan_datapath__DOT__tkd_crf_p_w;
+            CData/*3:0*/ milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i;
             CData/*7:0*/ milan_datapath__DOT__strtbl_en_w;
             CData/*7:0*/ milan_datapath__DOT__strtbl_bind_rise_w;
             CData/*2:0*/ milan_datapath__DOT__avtprx_idx;
@@ -231,13 +236,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__wing_en_r;
             CData/*1:0*/ milan_datapath__DOT__wing_route_r;
             CData/*2:0*/ milan_datapath__DOT__wing_stg_idx_r;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__wing_stg_vld_r;
             CData/*0:0*/ milan_datapath__DOT__wing_stg_hit_w;
             CData/*0:0*/ milan_datapath__DOT__tctx_w0_wr_w;
             CData/*0:0*/ milan_datapath__DOT__srp_tk_row_w;
             CData/*0:0*/ milan_datapath__DOT__crf_srp_want_w;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__crf_srp_req_r;
             CData/*0:0*/ milan_datapath__DOT__crf_srp_val_r;
             CData/*0:0*/ milan_datapath__DOT__crf_srp_last_r;
@@ -297,13 +302,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__ptp_timestamp__DOT__tx_ts_ready_r;
             CData/*7:0*/ milan_datapath__DOT__ptp_timestamp__DOT____Vcellout__axis_tx_rx_ts_switch_rr__m_tkeep;
             CData/*0:0*/ milan_datapath__DOT__ptp_timestamp__DOT____Vcellout__axis_tx_rx_ts_switch_rr__m_tlast;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__ptp_timestamp__DOT____Vcellout__axis_tx_rx_ts_switch_rr__m_tvalid;
             CData/*1:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__wr_ptr_reg;
             CData/*1:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__wr_ptr_commit_reg;
             CData/*1:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__rd_ptr_reg;
             CData/*1:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__m_axis_tvalid_pipe_reg;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__mark_frame_reg;
             CData/*1:0*/ milan_datapath__DOT__ptp_timestamp__DOT__rx_ts_buffer__DOT__wr_ptr_reg;
             CData/*1:0*/ milan_datapath__DOT__ptp_timestamp__DOT__rx_ts_buffer__DOT__wr_ptr_commit_reg;
@@ -363,13 +368,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ptp_sync__DOT__tod_rd_valid_reg;
             CData/*4:0*/ milan_datapath__DOT__traffic_controller__DOT__queue_grant;
             CData/*4:0*/ milan_datapath__DOT__traffic_controller__DOT__queue_has_data;
+        };
+        struct {
             CData/*4:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__dm_tready;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT____Vcellout__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__s_axis_tready;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT____Vcellout__fifo_gen__BRA__1__KET____DOT__eth_packet_buffer__s_axis_tready;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT____Vcellout__fifo_gen__BRA__2__KET____DOT__eth_packet_buffer__s_axis_tready;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT____Vcellout__fifo_gen__BRA__3__KET____DOT__eth_packet_buffer__s_axis_tready;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT____Vcellout__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__s_axis_tready;
             CData/*7:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__DOT__wr_ptr_reg;
             CData/*7:0*/ milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__DOT__wr_ptr_commit_reg;
@@ -429,13 +434,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__active_queue;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__hold_grant;
             CData/*6:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_cnt;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_is1g_s;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_sign;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__is_transmitting;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__queue_has_data;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__shaped;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_ge;
             CData/*6:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__3__KET____DOT__u_cbs__DOT__eng_cnt;
             CData/*0:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__3__KET____DOT__u_cbs__DOT__eng_is1g_s;
@@ -495,13 +500,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_listener_p;
             CData/*2:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_listener_evt;
             CData/*1:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_listener_decl;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_tadv_p;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_tfail_p;
             CData/*7:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_tfail_code;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_l_tadv_p;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_l_tfail_p;
-        };
-        struct {
             CData/*2:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_l_evt;
             CData/*7:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_l_tfail_code;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT____Vcellinp__ta_registrar__enable_i;
@@ -561,13 +566,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__is_tadv_w;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__is_tfail_w;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__is_stream_w;
+        };
+        struct {
             CData/*3:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__unnamedblk2__DOT__nxt;
             CData/*2:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__unnamedblk2__DOT__evt_v;
             CData/*1:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__unnamedblk2__DOT__par_v;
             CData/*2:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__unnamedblk2__DOT__levt_v;
             CData/*2:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__unnamedblk2__DOT__daevt_v;
-        };
-        struct {
             CData/*3:0*/ milan_datapath__DOT__lwsrp__DOT__bw_gate__DOT__cidx_r;
             CData/*3:0*/ milan_datapath__DOT__lwsrp__DOT__bw_gate__DOT__cidx_q1_r;
             CData/*3:0*/ milan_datapath__DOT__lwsrp__DOT__bw_gate__DOT__cidx_q2_r;
@@ -627,13 +632,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__ctx_tx_S__DOT__need_load;
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__ctx__DOT__svc_w;
             CData/*2:0*/ milan_datapath__DOT__lwsrp__DOT__ctx__DOT__jdiv_r;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__lwsrp__DOT__ctx__DOT__refresh_pend_r;
             CData/*3:0*/ milan_datapath__DOT__lwsrp__DOT__ctx__DOT__rb_row_w;
             CData/*7:0*/ milan_datapath__DOT__lwsrp__DOT__timers__DOT__join_ctr_r;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__ig_to_val_tvalid;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__ig_to_val_tlast;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__val_to_par_tready;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__mismatch_w;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__val_valid_w;
@@ -693,13 +698,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_seg;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_wb_read;
             CData/*2:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__pack_n_r;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__beat_pend_r;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__beat_last_r;
             CData/*7:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__beat_keep_r;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__is_hdr_r;
             CData/*7:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__hdrbyte_r;
-        };
-        struct {
             CData/*1:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__emseg_kind_r;
             CData/*1:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__pop_pend_r;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__identify_r;
@@ -720,7 +725,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*1:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_unsol_push3_idx;
             CData/*1:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__w_unsol_push4_idx;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__started_in_r;
-            CData/*7:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk39__DOT__b;
+            CData/*7:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk41__DOT__b;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__rxv_r;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__rxl_r;
             CData/*7:0*/ milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__rxk_r;
@@ -758,66 +763,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*1:0*/ milan_datapath__DOT__aecp_listener__DOT__u_val__DOT__state_r;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_val__DOT__w_ok;
             CData/*0:0*/ milan_datapath__DOT__aecp_listener__DOT__u_val__DOT__s_tready_l;
-            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pcm_acc_w;
         };
         struct {
-            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__beat_accepted;
-            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__beat_accepted;
-            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__beat_accepted;
-            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__beat_accepted;
-            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__beat_accepted;
-            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__locked_r;
-            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__sel_r;
-            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__last_grant_r;
-            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__gsel;
-            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__active;
-            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__beat_accepted;
-            CData/*0:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r;
-            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r;
-            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w;
-            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv0_w;
-            CData/*0:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r;
-            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r;
-            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w;
-            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv0_w;
-            CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pcm_acc_w;
             CData/*2:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__c_eff_w;
             CData/*2:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pos_r;
             CData/*2:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__p1_w;
@@ -830,8 +778,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__was_filled_r;
             CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pushA_w;
             CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__pushB_w;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_drain_w;
             CData/*2:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_space_w;
             CData/*0:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__wA_ok_w;
@@ -884,6 +830,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__drp_fault_r;
             CData/*3:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rst_settle_r;
             CData/*1:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psrst_sync_r;
+        };
+        struct {
             CData/*1:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pstate_r;
             CData/*0:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_dir_r;
             CData/*0:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pend_v_r;
@@ -896,8 +844,65 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__req_sync;
             CData/*0:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__dest_req_r;
             CData/*0:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__ack_tog;
+            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__adp_tx_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__crf_dp_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__aaf_final_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__maap_ctl_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__lstn_ctl_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__srp_ctl_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__ctl_tx_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__locked_r;
+            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__sel_r;
+            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__last_grant_r;
+            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__gsel;
+            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__active;
+            CData/*0:0*/ milan_datapath__DOT__aecp_acmp_mux__DOT__beat_accepted;
+            CData/*0:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r;
+            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r;
+            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
+            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w;
+            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv0_w;
         };
         struct {
+            CData/*0:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r;
+            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r;
+            CData/*1:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
+            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w;
+            CData/*2:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv0_w;
             CData/*1:0*/ milan_datapath__DOT__crf_tx__DOT__arst_n_r;
             CData/*6:0*/ milan_datapath__DOT__crf_tx__DOT__aevt_cnt_r;
             CData/*0:0*/ milan_datapath__DOT__crf_tx__DOT__aevt_p_r;
@@ -910,6 +915,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ milan_datapath__DOT__crf_tx__DOT__beat_r;
             CData/*0:0*/ milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__src_level;
             CData/*2:0*/ milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync;
+            CData/*0:0*/ milan_datapath__DOT__zf_tick_cdc__DOT__src_level;
+            CData/*2:0*/ milan_datapath__DOT__zf_tick_cdc__DOT__sync;
             CData/*0:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__in_frame;
             CData/*0:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__pass_r;
             CData/*0:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__sof;
@@ -917,35 +924,35 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__pass_now;
             CData/*0:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__match_any;
             CData/*7:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__match_act;
-            CData/*1:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__arst_n_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__mdiv_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__phase_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bclk_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__tick_w;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__brise_w;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__fsync_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__startp_r;
-            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__bit_r;
-            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__slot_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_wen_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_slot_r;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_full_w;
-            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__eslot_w;
-            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__ebit_w;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_rempty_w;
-            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w1_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w2_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r1_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r2_r;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_n;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n;
-            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_n;
+            CData/*1:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__arst_n_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__mdiv_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__phase_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bclk_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__tick_w;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__brise_w;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__fsync_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__startp_r;
+            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__bit_r;
+            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__slot_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_wen_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_slot_r;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_full_w;
+            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__eslot_w;
+            CData/*4:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__ebit_w;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_rempty_w;
+            CData/*0:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w1_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rgray_w2_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r1_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wgray_r2_r;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_bin_n;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__wptr_gray_n;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_bin_n;
+            CData/*3:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__rptr_gray_n;
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__wfull_w;
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__fifo_wen_w;
             CData/*1:0*/ milan_datapath__DOT__chan_tdm_render__DOT__brst_n_r;
@@ -955,6 +962,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__armed_r;
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__run_r;
             CData/*2:0*/ milan_datapath__DOT__chan_tdm_render__DOT__slot_r;
+        };
+        struct {
             CData/*4:0*/ milan_datapath__DOT__chan_tdm_render__DOT__bit_r;
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__have_next_r;
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__fetch_v_r;
@@ -962,8 +971,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__chan_tdm_render__DOT__start_w;
             CData/*2:0*/ milan_datapath__DOT__chan_tdm_render__DOT__eslot_w;
             CData/*4:0*/ milan_datapath__DOT__chan_tdm_render__DOT__ebit_w;
-        };
-        struct {
             CData/*1:0*/ milan_datapath__DOT__chan_tdm_render__DOT__nrst_n_r;
             CData/*2:0*/ milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__wptr_bin_r;
             CData/*2:0*/ milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__wptr_gray_r;
@@ -1021,6 +1028,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__m_axis_tready_pipe;
             CData/*7:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT____VlemCall_4__probe_byte;
             CData/*7:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT____VlemCall_3__tkb;
+        };
+        struct {
             CData/*7:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT____VlemCall_2__tkb;
             CData/*7:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT____VlemCall_1__tkb;
             CData/*0:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__tick_1ms_r;
@@ -1028,8 +1037,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__wr_idx_w;
             CData/*3:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__rd_idx_w;
             CData/*0:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__init_done_r;
-        };
-        struct {
             CData/*3:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__init_idx_r;
             CData/*3:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cur_idx_r;
             CData/*0:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__rxv_r;
@@ -1087,6 +1094,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__sn_wr_w;
             CData/*0:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__swp_probe_set_w;
             CData/*1:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__sweep_seq__DOT__mp;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__sweep_seq__DOT__start;
             CData/*0:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_24__conflict_hit;
             CData/*0:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_21__conflict_hit;
@@ -1094,8 +1103,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_19__lane;
             CData/*7:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_18__lane;
             CData/*7:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_17__lane;
-        };
-        struct {
             CData/*7:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_16__lane;
             CData/*7:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_15__lane;
             CData/*7:0*/ milan_datapath__DOT__g_maap__DOT__maap_engine__DOT____VlemCall_14__lane;
@@ -1153,6 +1160,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__mst_r;
             CData/*1:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__pq_cnt_r;
             CData/*2:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__ev_s_r;
+        };
+        struct {
             CData/*3:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__wrph_r;
             CData/*3:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__zero_idx_r;
             CData/*0:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__inc_rd_q_r;
@@ -1160,8 +1169,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__w11_mode_r;
             CData/*0:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__sil_mode_r;
             CData/*1:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__mr_add_r;
-        };
-        struct {
             CData/*7:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__bind_pend_r;
             CData/*7:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__sil_pend_r;
             CData/*7:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__servo_pend_r;
@@ -1184,6 +1191,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__eng_waddr_w;
             CData/*0:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__ext_wr_ok_w;
             CData/*0:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__leg_hit_w;
+            CData/*2:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__diag_ridx_w;
             CData/*0:0*/ milan_datapath__DOT__crf_rx__DOT__w_hit;
             CData/*0:0*/ milan_datapath__DOT__crf_rx__DOT__w_fmt_ok;
             CData/*0:0*/ milan_datapath__DOT__crf_rx__DOT__rate_pend_r;
@@ -1218,6 +1226,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ milan_datapath__DOT__acmp_responder__DOT____VlemCall_4__sf;
             CData/*7:0*/ milan_datapath__DOT__acmp_responder__DOT____VlemCall_3__sf;
             CData/*7:0*/ milan_datapath__DOT__acmp_responder__DOT____VlemCall_2__sf;
+        };
+        struct {
             CData/*7:0*/ milan_datapath__DOT__acmp_responder__DOT____VlemCall_1__sf;
             CData/*7:0*/ milan_datapath__DOT__acmp_responder__DOT____VlemCall_0__sf;
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__rxv_r;
@@ -1226,8 +1236,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*1:0*/ milan_datapath__DOT__acmp_responder__DOT__st_r;
             CData/*3:0*/ milan_datapath__DOT__acmp_responder__DOT__wbeat_r;
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__ovfl_r;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__len_ok_r;
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__w_cap_hs;
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__dst_ok_r;
@@ -1249,6 +1257,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__w_swp_run;
             CData/*3:0*/ milan_datapath__DOT__acmp_responder__DOT__beat_r;
             CData/*0:0*/ milan_datapath__DOT__acmp_responder__DOT__sweep_seq__DOT__start;
+            CData/*0:0*/ milan_datapath__DOT__talker_diag__DOT__tick_p_r;
+            CData/*3:0*/ milan_datapath__DOT__talker_diag__DOT__ridx_w;
             CData/*0:0*/ milan_datapath__DOT__adp_adv__DOT__available_r;
             CData/*0:0*/ milan_datapath__DOT__adp_adv__DOT__send_pending_r;
             CData/*3:0*/ milan_datapath__DOT__adp_adv__DOT__pend_msg_r;
@@ -1282,6 +1292,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__rd_pend;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__sweep_busy;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__rd_is_slow_w;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__rds_valid_w;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__rds_done_w;
             CData/*4:0*/ milan_datapath__DOT__csr__DOT__cbs_en;
@@ -1292,8 +1304,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__clkv_disc_p;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__ptp_load_p;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__ptp_adj_p;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__ptp_snap_p;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__ltap_en_r;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__ltap_clr_p;
@@ -1348,6 +1358,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*4:0*/ milan_datapath__DOT__csr__DOT__rds_word_r;
             CData/*2:0*/ milan_datapath__DOT__csr__DOT__rds_idx_r;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__mac_reinit_q;
+        };
+        struct {
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__win_alias_ctrl_w;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__win_alias_dmlo_w;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__win_alias_dmhi_w;
@@ -1358,8 +1370,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ milan_datapath__DOT__csr__DOT__rst_epoch_r;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__rstn_seen_r;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__sel_wr_w;
-        };
-        struct {
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__srp_poll_w;
             CData/*3:0*/ milan_datapath__DOT__csr__DOT__srp_sel_row_w;
             CData/*0:0*/ milan_datapath__DOT__csr__DOT__srp_prov_w;
@@ -1396,6 +1406,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ milan_datapath__DOT__aaf_packetizer__DOT__grant_t_w;
             CData/*0:0*/ milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_go_w;
             CData/*0:0*/ milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_q_r;
+            CData/*0:0*/ milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c;
+            CData/*4:0*/ milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c;
             CData/*0:0*/ milan_datapath__DOT__chan_map_capture__DOT__loop_mapped_w;
             CData/*0:0*/ milan_datapath__DOT__chan_map_capture__DOT__loop_fed_r;
             CData/*4:0*/ milan_datapath__DOT__chan_map_capture__DOT__slot_r;
@@ -1412,6 +1424,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ __Vfunc_milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__row_evt__33__row;
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__row_evt__34__Vfuncout;
             CData/*3:0*/ __Vfunc_milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__row_evt__34__row;
+        };
+        struct {
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__row_evt__35__Vfuncout;
             CData/*3:0*/ __Vfunc_milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__row_evt__35__row;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__82__n;
@@ -1424,8 +1438,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__86__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__86__n;
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__87__Vfuncout;
-        };
-        struct {
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__87__n;
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__88__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__88__n;
@@ -1478,6 +1490,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__201__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__201__s;
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__203__Vfuncout;
+        };
+        struct {
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__203__s;
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__204__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__204__s;
@@ -1490,8 +1504,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__209__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__209__s;
             CData/*4:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__209__w;
-        };
-        struct {
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__210__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__210__s;
             CData/*7:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__laddr__211__Vfuncout;
@@ -1544,6 +1556,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__275__w;
             CData/*6:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__276__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__276__t;
+        };
+        struct {
             CData/*6:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__277__Vfuncout;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__277__t;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__278__t;
@@ -1556,15 +1570,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__280__w;
             CData/*2:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__281__t;
             CData/*3:0*/ __Vfunc_milan_datapath__DOT__aaf_packetizer__DOT__taddr__281__w;
-        };
-        struct {
             CData/*2:0*/ __VdfgRegularize_h6e95ff9d_0_2;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_7;
             CData/*3:0*/ __VdfgRegularize_h6e95ff9d_0_8;
             CData/*3:0*/ __VdfgRegularize_h6e95ff9d_0_10;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_15;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_20;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_40;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_16;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_21;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_41;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_42;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_43;
@@ -1572,21 +1583,22 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_45;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_46;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_47;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_51;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_63;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_65;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_48;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_52;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_64;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_66;
-            CData/*2:0*/ __VdfgRegularize_h6e95ff9d_0_67;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_75;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_77;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_67;
+            CData/*2:0*/ __VdfgRegularize_h6e95ff9d_0_68;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_76;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_78;
             CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_80;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_81;
-            CData/*5:0*/ __VdfgRegularize_h6e95ff9d_0_87;
-            CData/*2:0*/ __VdfgRegularize_h6e95ff9d_0_92;
-            CData/*4:0*/ __VdfgRegularize_h6e95ff9d_0_93;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_97;
-            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_98;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_82;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_83;
+            CData/*5:0*/ __VdfgRegularize_h6e95ff9d_0_89;
+            CData/*2:0*/ __VdfgRegularize_h6e95ff9d_0_94;
+            CData/*4:0*/ __VdfgRegularize_h6e95ff9d_0_95;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_99;
+            CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_100;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__tdmr_slot_r;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__wr_ptr_reg;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ts_buffer_to_ps__DOT__m_axis_tvalid_pipe_reg;
@@ -1610,6 +1622,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_sync__DOT__snap_tgl;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_sync__DOT__snap_ret_s;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__DOT__wr_ptr_reg;
+        };
+        struct {
             CData/*1:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__DOT__m_axis_tvalid_pipe_reg;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__4__KET____DOT__eth_packet_buffer__DOT__rd_ptr_reg;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__3__KET____DOT__eth_packet_buffer__DOT__wr_ptr_reg;
@@ -1622,8 +1636,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*1:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__1__KET____DOT__eth_packet_buffer__DOT__m_axis_tvalid_pipe_reg;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__1__KET____DOT__eth_packet_buffer__DOT__rd_ptr_reg;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__wr_ptr_reg;
-        };
-        struct {
             CData/*1:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__m_axis_tvalid_pipe_reg;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__rd_ptr_reg;
             CData/*6:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_cnt;
@@ -1644,10 +1656,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__wr_ptr_reg;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_tvalid_pipe_reg;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__rd_ptr_reg;
-            CData/*0:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r;
-            CData/*1:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r;
-            CData/*0:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r;
-            CData/*1:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__was_filled_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__prefill_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__cdc_wen_r;
@@ -1670,11 +1678,18 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_seq_r;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_tick_cdc__DOT__sync;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__ack_sync;
+            CData/*0:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r;
+            CData/*1:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r;
+            CData/*0:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r;
+            CData/*1:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync;
+            CData/*2:0*/ __Vdly__milan_datapath__DOT__zf_tick_cdc__DOT__sync;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aafcap_pv_w;
-            CData/*0:0*/ __Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r;
+            CData/*0:0*/ __Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r;
             CData/*3:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__tl_idx_r;
             CData/*5:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_rp_r;
+        };
+        struct {
             CData/*2:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__rbeat_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__vlan_r;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__rstate_r;
@@ -1688,8 +1703,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*1:0*/ __Vdly__milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__state_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__avtprx_dirty_p;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_cnt_r;
-        };
-        struct {
             CData/*7:0*/ __Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__bind_pend_r;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_pend_r;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__servo_pend_r;
@@ -1719,6 +1732,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*1:0*/ __Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__hold_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__tu_seen_r;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__ival_r;
+            CData/*0:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_q_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__tsw_pend_r;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__est_r;
             CData/*4:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__eiss_r;
@@ -1728,7 +1742,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__fph_r;
             CData/*2:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__et_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__ebank_r;
-            CData/*0:0*/ __Vdly__milan_datapath__DOT__aaf_packetizer__DOT__ext_trd_q_r;
             CData/*4:0*/ __Vdly__milan_datapath__DOT__chan_map_capture__DOT__slot_r;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__chan_map_capture__DOT__st_r;
             CData/*4:0*/ __Vdly__milan_datapath__DOT__chan_map_capture__DOT__gap_r;
@@ -1741,6 +1754,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*7:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__d_class_r;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__d_prio_r;
             CData/*7:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__tfail_code_r;
+        };
+        struct {
             CData/*3:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__hdr_idx_r;
             CData/*3:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__ctx_tx__DOT__row_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__beat_pend_r;
@@ -1754,8 +1769,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*4:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__l0_status_q;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__l0_reject_q;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__vu_q;
-        };
-        struct {
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__discard_q;
             CData/*1:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cum_ph_r;
             CData/*0:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cum_done_q;
@@ -1807,6 +1820,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__2__KET____DOT__eth_packet_buffer__DOT__m_axis_pipe_reg__v1;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__1__KET____DOT__eth_packet_buffer__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__1__KET____DOT__eth_packet_buffer__DOT__m_axis_pipe_reg__v0;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__1__KET____DOT__eth_packet_buffer__DOT__m_axis_pipe_reg__v1;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__fifo_gen__BRA__0__KET____DOT__eth_packet_buffer__DOT__m_axis_pipe_reg__v0;
@@ -1820,8 +1835,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__m_axis_pipe_reg__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__m_axis_pipe_reg__v1;
-        };
-        struct {
             CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__lwsrp__DOT__ctx__DOT__rec_ram_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__lwsrp__DOT__ctx__DOT__rec_ram_r__v0;
             CData/*5:0*/ __VdlyDim0__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cbuf_r__v0;
@@ -1832,6 +1845,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_pipe_reg__v1;
             CData/*7:0*/ __VdlyVal__milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0;
+            CData/*1:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0;
+            CData/*1:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1;
+            CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v3;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r__v3;
@@ -1860,19 +1880,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v7;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v8;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v9;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0;
-            CData/*1:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0;
-            CData/*1:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1;
-            CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r__v0;
             CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_mask__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_mask__v0;
             CData/*0:0*/ __VdlyVal__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_valid__v0;
             CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_valid__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_valid__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_valid__v1;
+        };
+        struct {
             CData/*7:0*/ __VdlyVal__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_action__v0;
             CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_action__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_action__v0;
@@ -1886,8 +1901,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*3:0*/ __VdlyVal__milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_r__v0;
             CData/*5:0*/ __VdlyDim0__milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_r__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__mem__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__m_axis_pipe_reg__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__m_axis_pipe_reg__v1;
@@ -1939,11 +1952,17 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__chan_map_render__DOT__sel_r__v29;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__chan_map_render__DOT__sel_r__v30;
             CData/*1:0*/ __VdlyVal__milan_datapath__DOT__pcm_route__DOT__route_r__v0;
+        };
+        struct {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__pcm_route__DOT__route_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__pcm_route__DOT__route_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__pcm_route__DOT__route_r__v1;
             CData/*7:0*/ __VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r__v0;
+            CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0;
+            CData/*2:0*/ __VdlyDim1__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v1;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_r__v0;
             CData/*0:0*/ __VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_r__v1;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__pq_r__v1;
@@ -1952,8 +1971,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__dpdu_pend_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__dpdu_pend_r__v0;
             CData/*2:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__ddrop_pend_r__v0;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__ddrop_pend_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r__v0;
             CData/*6:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r__v1;
@@ -2001,6 +2018,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*6:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r__v13;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r__v13;
             CData/*2:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__dpdu_pend_r__v7;
+        };
+        struct {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__dpdu_pend_r__v7;
             CData/*2:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__ddrop_pend_r__v7;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__ddrop_pend_r__v7;
@@ -2018,8 +2037,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__ddrop_pend_r__v8;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__ddrop_pend_r__v8;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r__v17;
-        };
-        struct {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r__v17;
             CData/*1:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__mreset_pend_r__v1;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__mreset_pend_r__v1;
@@ -2050,6 +2067,56 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*4:0*/ __VdlyVal__milan_datapath__DOT__acmp_responder__DOT__tmr_ram__v0;
             CData/*3:0*/ __VdlyDim0__milan_datapath__DOT__acmp_responder__DOT__tmr_ram__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__acmp_responder__DOT__tmr_ram__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5;
+        };
+        struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v2;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v2;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v3;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v3;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v4;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v4;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v5;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v5;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v6;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v6;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v7;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v7;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v8;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v8;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v9;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v9;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v10;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v0;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v0;
@@ -2083,9 +2150,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v5;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v5;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v5;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v5;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v5;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v5;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v5;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v6;
@@ -2149,9 +2216,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v15;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v15;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v16;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v16;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v16;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v16;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v16;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v16;
@@ -2215,9 +2282,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v26;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v26;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v26;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v26;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v26;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v27;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v27;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v27;
@@ -2281,9 +2348,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v37;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v37;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v37;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v37;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v37;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v37;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v37;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v38;
@@ -2347,9 +2414,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v47;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v47;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v48;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v48;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v48;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v48;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v48;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v48;
@@ -2413,9 +2480,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v58;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v58;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v58;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v58;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v58;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v59;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v59;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v59;
@@ -2479,9 +2546,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v69;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v69;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v69;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v69;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v69;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v69;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v69;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v70;
@@ -2545,9 +2612,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v79;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v79;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v80;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v80;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v80;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v80;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v80;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v80;
@@ -2611,9 +2678,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v90;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v90;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v90;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v90;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v90;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v91;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v91;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v91;
@@ -2677,9 +2744,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v101;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v101;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v101;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v101;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v101;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v101;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v101;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v102;
@@ -2743,9 +2810,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v111;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v111;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v112;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v112;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v112;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v112;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v112;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v112;
@@ -2809,9 +2876,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v122;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v122;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v122;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v122;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v122;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v123;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v123;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v123;
@@ -2875,9 +2942,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v133;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v133;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v133;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v133;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v133;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v133;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v133;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v134;
@@ -2941,9 +3008,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v143;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v143;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v144;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v144;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v144;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v144;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v144;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v144;
@@ -3007,9 +3074,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v154;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v154;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v154;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v154;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v154;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v155;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v155;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v155;
@@ -3073,9 +3140,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v165;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v165;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_hi__v165;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v165;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_hi__v165;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_idle__v165;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v165;
             CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__cbs_lo__v166;
@@ -3121,10 +3188,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*6:0*/ __VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__tctx_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__tctx_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__stg_r__v0;
-            CData/*3:0*/ __VdlyVal__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0;
-            CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v1;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__pend_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_r_r__v0;
@@ -3140,9 +3203,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__nsamp_r__v9;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__wbank_r__v1;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v1;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v2;
+            CData/*3:0*/ __VdlyVal__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0;
+            CData/*2:0*/ __VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0;
         };
         struct {
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__buf_l_r__v2;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v0;
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aaf_packetizer__DOT__chans_r__v1;
             CData/*4:0*/ __VdlyDim0__milan_datapath__DOT__chan_map_capture__DOT__map_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__chan_map_capture__DOT__map_r__v0;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__chan_map_capture__DOT__map_r__v1;
@@ -3205,9 +3272,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_valid_r__v2;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_valid_r__v3;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v60;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_valid_r__v4;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unsol_valid_r__v4;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v61;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_len_q__v75;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_len_q__v76;
@@ -3271,9 +3338,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v106;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v107;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v108;
-            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v109;
         };
         struct {
+            CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v109;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v110;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v111;
             CData/*0:0*/ __VdlySet__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q__v112;
@@ -3337,9 +3404,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __Vtrigprevexpr___TOP__i_ethtx_tgl__0;
             CData/*0:0*/ __Vtrigprevexpr___TOP__i_ethact_tgl__0;
             CData/*0:0*/ __Vtrigprevexpr___TOP__i_ps_clk__0;
-            CData/*0:0*/ __Vtrigprevexpr___TOP__i_mmcm_drp_rdy__0;
         };
         struct {
+            CData/*0:0*/ __Vtrigprevexpr___TOP__i_mmcm_drp_rdy__0;
             CData/*0:0*/ __Vtrigprevexpr___TOP__i_mmcm_locked__0;
             CData/*0:0*/ __Vtrigprevexpr___TOP__i_mmcm_ps_done__0;
             CData/*0:0*/ __Vtrigprevexpr___TOP__pb_enable_i__0;
@@ -3349,9 +3416,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             CData/*0:0*/ __VicoDidInit;
             CData/*0:0*/ __VicoPhaseResult;
             CData/*0:0*/ __Vtrigprevexpr___TOP__axis_clk__1;
+            CData/*0:0*/ __Vtrigprevexpr___TOP__clk_audio_i__1;
             CData/*0:0*/ __Vtrigprevexpr___TOP__axis_resetn__1;
             CData/*0:0*/ __Vtrigprevexpr___TOP__gtx_clk__1;
-            CData/*0:0*/ __Vtrigprevexpr___TOP__clk_audio_i__1;
             CData/*0:0*/ __Vtrigprevexpr___TOP__i_ps_clk__1;
             CData/*0:0*/ __Vtrigprevexpr___TOP__clk_tdm_i__1;
             CData/*0:0*/ __Vtrigprevexpr___TOP__tdm_bclk_i__1;
@@ -3364,6 +3431,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VL_OUT16(o_mmcm_drp_di,15,0);
             VL_IN16(i_mmcm_drp_do,15,0);
             SData/*11:0*/ milan_datapath__DOT__media_tick_cnt_r;
+            SData/*8:0*/ milan_datapath__DOT__zf_adiv_r;
             SData/*15:0*/ milan_datapath__DOT__acmp_cmd_count;
             SData/*15:0*/ milan_datapath__DOT__acmp_resp_count;
             SData/*8:0*/ milan_datapath__DOT__acmp_talker_active_v;
@@ -3382,6 +3450,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*8:0*/ milan_datapath__DOT__acmp_lobs_v_w;
             SData/*15:0*/ milan_datapath__DOT__srp_ctx_rd_stat_w;
             SData/*15:0*/ milan_datapath__DOT__pbk_unarmed_w;
+            SData/*8:0*/ milan_datapath__DOT__tkd_streaming_w;
             SData/*15:0*/ milan_datapath__DOT____Vcellinp__lwsrp__ctx_interval_i;
             SData/*15:0*/ milan_datapath__DOT____Vcellinp__lwsrp__ctx_max_frame_i;
             SData/*8:0*/ milan_datapath__DOT__mac_events_w;
@@ -3401,11 +3470,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*14:0*/ milan_datapath__DOT__lwsrp__DOT__row_lv_w;
             SData/*14:0*/ milan_datapath__DOT__lwsrp__DOT__ctxtx_fresh_w;
             SData/*14:0*/ milan_datapath__DOT__lwsrp__DOT__ctxtx_lv_w;
+        };
+        struct {
             SData/*15:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__pdu_cnt_o;
             SData/*15:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__w_domain_vid;
             SData/*15:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__et_w;
-        };
-        struct {
             SData/*8:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__wr_ptr_reg;
             SData/*8:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__wr_ptr_commit_reg;
             SData/*8:0*/ milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__rd_ptr_reg;
@@ -3467,11 +3536,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__wb_addr_q;
             SData/*8:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bscan_ptr_q;
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bcdl_acc_q;
+        };
+        struct {
             SData/*8:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bpay_end_q;
             SData/*8:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__brec_ptr_q;
             SData/*14:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__brec_cmd_q;
-        };
-        struct {
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__brec_dlen_q;
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__brec_rlen_q;
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__brec_base_q;
@@ -3489,8 +3558,25 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__emsoff_r;
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__clk_src_r;
             SData/*9:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__in0_rl_ms_r;
-            SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk19__DOT__a;
+            SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk21__DOT__a;
             SData/*15:0*/ milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__current_config_r;
+            SData/*9:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__wptr_r;
+            SData/*9:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__rptr_r;
+            SData/*9:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fill_w;
+            SData/*8:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__adiv_r;
+            SData/*15:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__underrun_a_r;
+            SData/*15:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__under_meta_r;
+            SData/*15:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__under_sync_r;
+            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_div_r;
+            SData/*9:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r;
+            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__hs_data_r;
+            SData/*15:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rd_val_r;
+            SData/*15:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__exp_val_w;
+            SData/*15:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__exp_mask_w;
+            SData/*13:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_cnt_r;
+            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pend_r;
+            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__data_hold;
+            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__dest_out_r;
             SData/*15:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd;
             SData/*15:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd;
             SData/*15:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd;
@@ -3509,35 +3595,18 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r;
             SData/*15:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r;
             SData/*15:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-            SData/*9:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__wptr_r;
-            SData/*9:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__rptr_r;
-            SData/*9:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fill_w;
-            SData/*8:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__adiv_r;
-            SData/*15:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__underrun_a_r;
-            SData/*15:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__under_meta_r;
-            SData/*15:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__under_sync_r;
-            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_div_r;
-            SData/*9:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r;
-            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__hs_data_r;
-            SData/*15:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rd_val_r;
-            SData/*15:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__exp_val_w;
-            SData/*15:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__exp_mask_w;
-            SData/*13:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_cnt_r;
-            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pend_r;
-            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__data_hold;
-            SData/*14:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__dest_out_r;
             SData/*8:0*/ milan_datapath__DOT__crf_tx__DOT__adiv_r;
             SData/*11:0*/ milan_datapath__DOT__crf_tx__DOT__vvid_r;
-            SData/*9:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__fpos_r;
+            SData/*9:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__fpos_r;
             SData/*15:0*/ milan_datapath__DOT__chan_tdm_render__DOT__unders_b_r;
             SData/*15:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT__remain_r;
             SData/*8:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__wr_ptr_reg;
             SData/*8:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__wr_ptr_commit_reg;
+        };
+        struct {
             SData/*8:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__rd_ptr_reg;
             SData/*15:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__lfsr_r;
             SData/*8:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__active_vec_r;
-        };
-        struct {
             SData/*8:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__probe_pend_r;
             SData/*15:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__probe_seq_r;
             SData/*15:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_tuid_r;
@@ -3565,6 +3634,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ milan_datapath__DOT__acmp_responder__DOT__tuid_r;
             SData/*15:0*/ milan_datapath__DOT__acmp_responder__DOT__flag_clr_r;
             SData/*11:0*/ milan_datapath__DOT__acmp_responder__DOT__live_vid_r;
+            SData/*8:0*/ milan_datapath__DOT__talker_diag__DOT__seen_f_r;
+            SData/*8:0*/ milan_datapath__DOT__talker_diag__DOT__seen_tu_r;
+            SData/*8:0*/ milan_datapath__DOT__talker_diag__DOT__seen_mr_r;
+            SData/*8:0*/ milan_datapath__DOT__talker_diag__DOT__strm_q_r;
             SData/*12:0*/ milan_datapath__DOT__link_guard__DOT__rx_dead_r;
             SData/*12:0*/ milan_datapath__DOT__link_guard__DOT__tx_dead_r;
             SData/*15:0*/ milan_datapath__DOT__link_guard__DOT__bounce_cnt_r;
@@ -3585,26 +3658,28 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__rand_offset__151__rnd;
             SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__rand_offset__151__o;
             SData/*15:0*/ __Vfunc_milan_datapath__DOT__csr__DOT__is_plain_rw__270__a;
-            SData/*8:0*/ __VdfgRegularize_h6e95ff9d_0_88;
-            SData/*8:0*/ __VdfgRegularize_h6e95ff9d_0_99;
+            SData/*8:0*/ __VdfgRegularize_h6e95ff9d_0_90;
+            SData/*8:0*/ __VdfgRegularize_h6e95ff9d_0_101;
             SData/*11:0*/ __Vdly__milan_datapath__DOT__media_tick_cnt_r;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_rx__DOT__q1_seq;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_tx__DOT__q1_seq;
             SData/*8:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__wr_ptr_reg;
             SData/*8:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__rd_ptr_reg;
+            SData/*15:0*/ __Vdly__milan_datapath__DOT__i2spb_overruns;
+            SData/*9:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r;
+        };
+        struct {
             SData/*15:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r;
-            SData/*15:0*/ __Vdly__milan_datapath__DOT__i2spb_overruns;
-            SData/*9:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__remain_r;
             SData/*8:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__wr_ptr_reg;
             SData/*8:0*/ __Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__rd_ptr_reg;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__timer_ms_r;
-        };
-        struct {
             SData/*15:0*/ __Vdly__milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__offset_r;
+            SData/*8:0*/ __Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r;
+            SData/*8:0*/ __Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r;
             SData/*12:0*/ __Vdly__milan_datapath__DOT__link_guard__DOT__rx_dead_r;
             SData/*12:0*/ __Vdly__milan_datapath__DOT__link_guard__DOT__tx_dead_r;
             SData/*15:0*/ __Vdly__milan_datapath__DOT__link_guard__DOT__bounce_cnt_r;
@@ -3628,6 +3703,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__bytes_sent__v3;
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__bytes_sent__v4;
             SData/*14:0*/ __VdlyDim0__milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r__v0;
+            SData/*8:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0;
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v3;
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r__v3;
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r__v3;
@@ -3646,7 +3722,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v5;
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r__v5;
             SData/*15:0*/ __VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r__v5;
-            SData/*8:0*/ __VdlyDim0__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r__v0;
             SData/*8:0*/ __VdlyDim0__milan_datapath__DOT__csr__DOT__shadow_ram__v0;
             SData/*8:0*/ __VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__stg_r__v0;
             SData/*11:0*/ __VdlyVal__milan_datapath__DOT__chan_map_capture__DOT__map_r__v0;
@@ -3659,6 +3734,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VL_OUT(s_axi_rdata,31,0);
             VL_IN(pb_ring_len_i,31,0);
             VL_IN(pb_ring_stride_i,31,0);
+        };
+        struct {
             VL_INW(pb_wr_ptr_i,255,0,8);
             VL_OUT(pb_mem_addr_o,31,0);
             VL_OUTW(pb_rd_ptr_o,255,0,8);
@@ -3668,8 +3745,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*23:0*/ milan_datapath__DOT__cmap_r_w;
             VlWide<9>/*287:0*/ milan_datapath__DOT__stats_counts;
             IData/*31:0*/ milan_datapath__DOT__adp_available_index;
-        };
-        struct {
             IData/*31:0*/ milan_datapath__DOT__lwsrp_idle_slope;
             IData/*31:0*/ milan_datapath__DOT__lwsrp_ta_acclat;
             IData/*31:0*/ milan_datapath__DOT__crf_delta_w;
@@ -3708,6 +3783,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT____Vcellinp__csr__i_lwsrp_status;
             VlWide<5>/*159:0*/ milan_datapath__DOT__cbs_idle_slope_mux;
             IData/*26:0*/ milan_datapath__DOT__adp_tick_cnt;
+            VlWide<10>/*319:0*/ milan_datapath__DOT__mon_diag_cnt_w;
+            VlWide<5>/*159:0*/ milan_datapath__DOT__tkdiag_cnt_w;
+            IData/*31:0*/ milan_datapath__DOT__tkd_crfq_r;
             IData/*31:0*/ milan_datapath__DOT____Vcellinp__aecp_listener__in0_cnt_unlocked_i;
             IData/*31:0*/ milan_datapath__DOT____Vcellinp__aecp_listener__in0_cnt_locked_i;
             VlWide<16>/*511:0*/ milan_datapath__DOT__strtbl_sid_w;
@@ -3722,6 +3800,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ptp_sync__DOT__incr_sync;
             IData/*31:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ptp_sync__DOT__adj_meta;
             IData/*31:0*/ milan_datapath__DOT__ptp_timestamp__DOT__ptp_sync__DOT__adj_sync;
+        };
+        struct {
             IData/*31:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__sel_comb;
             IData/*30:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_rem;
             IData/*30:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_den;
@@ -3734,8 +3814,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__2__KET____DOT__u_cbs__DOT__eng_trial;
             IData/*30:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_rem;
             IData/*30:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_den;
-        };
-        struct {
             IData/*31:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_trial;
             IData/*30:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__eng_rem;
             IData/*30:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__eng_den;
@@ -3781,27 +3859,18 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bdbg1_q;
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__bdbg2_q;
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__sysuid_r;
-            IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_start_r;
-            IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_stop_r;
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkup_r;
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkdn_r;
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_gmchg_r;
-            IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk14__DOT__k;
+            IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__unnamedblk16__DOT__k;
             IData/*31:0*/ milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__hold_r;
             IData/*16:0*/ milan_datapath__DOT__aecp_listener__DOT__u_l0__DOT__lock_timer_r;
             IData/*16:0*/ milan_datapath__DOT__aecp_listener__DOT__u_timers__DOT__ms_ctr_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__prevc_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_pend_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__prevc_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_pend_r;
-            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_r;
+        };
+        struct {
             IData/*23:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__lhold_r;
             IData/*23:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__s0_w;
             IData/*23:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__s1_w;
-        };
-        struct {
             IData/*16:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__ms_div_r;
             IData/*31:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__shift_r;
             IData/*31:0*/ milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__dbg_sh_r;
@@ -3826,10 +3895,17 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*17:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__relock_r;
             IData/*31:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__servo_engine__DOT__dispatch__DOT__a_v;
             IData/*31:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__servo_engine__DOT__dispatch__DOT__b_v;
-            IData/*30:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__shift_r;
-            IData/*23:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__lhold_r;
-            IData/*23:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_l_r;
-            IData/*23:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_r_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__prevc_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_pend_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__prevc_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_pend_r;
+            IData/*31:0*/ milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_r;
+            IData/*30:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__shift_r;
+            IData/*23:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__lhold_r;
+            IData/*23:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_l_r;
+            IData/*23:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_r_r;
             VlWide<6>/*191:0*/ milan_datapath__DOT__chan_tdm_render__DOT__rdata_w;
             VlWide<6>/*191:0*/ milan_datapath__DOT__chan_tdm_render__DOT__active_r;
             VlWide<6>/*191:0*/ milan_datapath__DOT__chan_tdm_render__DOT__next_r;
@@ -3856,6 +3932,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__monst_r;
             IData/*31:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__ram_wdata_w;
             IData/*31:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__ram_q_r;
+        };
+        struct {
             IData/*16:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__ms_div_r;
             IData/*31:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__tsd_w;
             IData/*31:0*/ milan_datapath__DOT__avtp_rx_monitor__DOT__monst_next_w;
@@ -3863,11 +3941,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__crf_rx__DOT__ts_new_r;
             IData/*23:0*/ milan_datapath__DOT__crf_rx__DOT__tout_r;
             VlWide<14>/*447:0*/ milan_datapath__DOT__avtp_rx_parser__DOT__hdr;
+            IData/*26:0*/ milan_datapath__DOT__talker_diag__DOT__tick_cnt_r;
             IData/*25:0*/ milan_datapath__DOT__adp_adv__DOT__disc_lfsr_r;
             IData/*27:0*/ milan_datapath__DOT__adp_adv__DOT__disc_dly_r;
             IData/*31:0*/ milan_datapath__DOT__adp_adv__DOT__tx_index_r;
-        };
-        struct {
             IData/*26:0*/ milan_datapath__DOT__link_guard__DOT__act_age_r;
             IData/*21:0*/ milan_datapath__DOT__link_guard__DOT__settle_r;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT____VlemCall_0__csr_default;
@@ -3921,6 +3998,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__mcsrv_ctrl;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__chmap_ctrl;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__chmap_sel;
+        };
+        struct {
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__chmap_word;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__gptp_pdelay;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__lwsrp_vid;
@@ -3932,8 +4011,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__adp_eidhi;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__adp_midlo;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__adp_midhi;
-        };
-        struct {
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__adp_ecaps;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__adp_ccaps;
             IData/*31:0*/ milan_datapath__DOT__csr__DOT__adp_gmlo;
@@ -3971,18 +4048,24 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ milan_datapath__DOT__aaf_packetizer__DOT__tram_q_r;
             IData/*31:0*/ milan_datapath__DOT__aaf_packetizer__DOT__tsw_val_r;
             IData/*31:0*/ milan_datapath__DOT__aaf_packetizer__DOT__ets_r;
+            IData/*31:0*/ milan_datapath__DOT__pair_zero_fill__DOT__fed_now_r;
+            IData/*31:0*/ milan_datapath__DOT__pair_zero_fill__DOT__fed_prev_r;
+            IData/*31:0*/ milan_datapath__DOT__pair_zero_fill__DOT__pend_r;
+            IData/*31:0*/ milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c;
             IData/*23:0*/ milan_datapath__DOT__chan_map_capture__DOT__sel_l_w;
             IData/*23:0*/ milan_datapath__DOT__chan_map_capture__DOT__sel_r_w;
             IData/*31:0*/ __Vfunc_milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__probe_byte__149__b;
             IData/*31:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__ms_settle__187__w;
             IData/*31:0*/ __Vfunc_milan_datapath__DOT__avtp_rx_monitor__DOT__ms_settle__188__w;
             VlWide<3>/*64:0*/ __VdfgRegularize_h6e95ff9d_0_1;
-            VlWide<3>/*71:0*/ __VdfgRegularize_h6e95ff9d_0_12;
-            IData/*23:0*/ __VdfgRegularize_h6e95ff9d_0_76;
+            VlWide<3>/*71:0*/ __VdfgRegularize_h6e95ff9d_0_13;
+            IData/*23:0*/ __VdfgRegularize_h6e95ff9d_0_77;
             IData/*26:0*/ __Vdly__milan_datapath__DOT__adp_tick_cnt;
             IData/*30:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_den;
             IData/*30:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__3__KET____DOT__u_cbs__DOT__eng_den;
             IData/*30:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__2__KET____DOT__u_cbs__DOT__eng_den;
+        };
+        struct {
             IData/*30:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_den;
             IData/*30:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__eng_den;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__ethernet_counters__DOT____Vcellout__event_counter_gen__BRA__8__KET____DOT__counter_inst__count;
@@ -3994,18 +4077,17 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __Vdly__milan_datapath__DOT__ethernet_counters__DOT____Vcellout__event_counter_gen__BRA__2__KET____DOT__counter_inst__count;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__ethernet_counters__DOT____Vcellout__event_counter_gen__BRA__1__KET____DOT__counter_inst__count;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__ethernet_counters__DOT____Vcellout__event_counter_gen__BRA__0__KET____DOT__counter_inst__count;
-            IData/*31:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r;
             IData/*16:0*/ __Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__ms_div_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_gain_r;
             IData/*23:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_cmd_r;
-        };
-        struct {
             IData/*23:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__integ_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__acc_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_rate_r;
+            IData/*31:0*/ __Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r;
             IData/*16:0*/ __Vdly__milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__tickdiv_r;
             IData/*16:0*/ __Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__ms_div_r;
             VlWide<14>/*447:0*/ __Vdly__milan_datapath__DOT__avtp_rx_parser__DOT__hdr;
+            IData/*26:0*/ __Vdly__milan_datapath__DOT__talker_diag__DOT__tick_cnt_r;
             IData/*25:0*/ __Vdly__milan_datapath__DOT__adp_adv__DOT__disc_lfsr_r;
             IData/*27:0*/ __Vdly__milan_datapath__DOT__adp_adv__DOT__disc_dly_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__adp_available_index;
@@ -4016,8 +4098,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*24:0*/ __Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__qdiv_r;
             IData/*29:0*/ __Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__walker__DOT__ecap_par_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__pres_offset_r;
-            IData/*31:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_start_r;
-            IData/*31:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_stop_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkup_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_linkdn_r;
             IData/*31:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cnt_gmchg_r;
@@ -4050,6 +4130,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VlWide<3>/*73:0*/ __VdlyVal__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_pipe_reg__v0;
             VlWide<3>/*73:0*/ __VdlyVal__milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_pipe_reg__v1;
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_tdm_render__DOT__bank_r__v0;
+        };
+        struct {
             VlWide<6>/*191:0*/ __VdlyVal__milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__mem_r__v0;
             VlWide<3>/*73:0*/ __VdlyVal__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__m_axis_pipe_reg__v0;
             VlWide<3>/*73:0*/ __VdlyVal__milan_datapath__DOT__aaf_rx_depkt__DOT__frame_fifo__DOT__m_axis_pipe_reg__v1;
@@ -4064,8 +4146,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v6;
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v7;
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v8;
-        };
-        struct {
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v9;
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v10;
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v11;
@@ -4088,7 +4168,55 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v28;
             IData/*23:0*/ __VdlyVal__milan_datapath__DOT__chan_map_render__DOT__sel_r__v29;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__crf_rx__DOT__ts_hist_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8;
+        };
+        struct {
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v0;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v1;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v1;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v2;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v2;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v3;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v3;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v4;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v4;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v5;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v5;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v6;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v6;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v7;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v7;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v8;
+            IData/*31:0*/ __VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v8;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v0;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v0;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v0;
@@ -4130,12 +4258,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v12;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v13;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v13;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v13;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v14;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v14;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v14;
+        };
+    };
+    struct {
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v15;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v15;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v15;
@@ -4196,12 +4326,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v34;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v34;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v34;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v35;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v35;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v35;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v36;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v36;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v36;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v37;
@@ -4262,14 +4392,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v55;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v55;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v56;
-        };
-    };
-    struct {
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v56;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v56;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v57;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v57;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v57;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v58;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v58;
@@ -4330,12 +4458,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v76;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v77;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v77;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v77;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v78;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v78;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v78;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v79;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v79;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v79;
@@ -4396,12 +4524,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v98;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v98;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v98;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v99;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v99;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v99;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v100;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v100;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v100;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v101;
@@ -4462,12 +4590,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v119;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v119;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v120;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v120;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v120;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v121;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v121;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v121;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v122;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v122;
@@ -4528,12 +4656,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v140;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v141;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v141;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v141;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v142;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v142;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v142;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v143;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v143;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v143;
@@ -4594,12 +4722,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v162;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v162;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v162;
-        };
-        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v163;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v163;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v163;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v164;
+        };
+        struct {
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_hi__v164;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_idle__v164;
             IData/*31:0*/ __VdlyVal__milan_datapath__DOT__csr__DOT__cbs_lo__v165;
@@ -4660,12 +4788,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             QData/*47:0*/ milan_datapath__DOT__eff_crft_dmac_w;
             QData/*63:0*/ milan_datapath__DOT__eff_crft_sid_w;
             QData/*63:0*/ milan_datapath__DOT__cfg_entity_name8;
-        };
-        struct {
             QData/*63:0*/ milan_datapath__DOT__cfg_as_parent_ckid;
             QData/*63:0*/ milan_datapath__DOT__pcm_lpf_tdata;
             QData/*63:0*/ milan_datapath__DOT__srp_ctx_rd_sid_w;
             VlWide<10>/*316:0*/ milan_datapath__DOT____Vcellout__acmp_listener_sm__tbl_ctx_o;
+        };
+        struct {
             QData/*63:0*/ milan_datapath__DOT__wing_sid_r;
             QData/*63:0*/ milan_datapath__DOT__crf_srp_sid_r;
             QData/*47:0*/ milan_datapath__DOT__crf_srp_dmac_r;
@@ -4726,12 +4854,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_idle_s;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_num;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_quo;
-        };
-        struct {
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_q1;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__send_delta;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__credit_add_idle;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_ldval;
+        };
+        struct {
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_quo_s;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__credit;
             QData/*47:0*/ milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__idle_slope_per_cycle_r;
@@ -4787,17 +4915,17 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             QData/*63:0*/ milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ptp_q_r;
             QData/*63:0*/ milan_datapath__DOT__crf_tx__DOT__ts_r;
             QData/*47:0*/ milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__dmac;
-            QData/*51:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_pair_w;
+            QData/*51:0*/ milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_pair_w;
             QData/*63:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT____VlemCond_22;
             QData/*63:0*/ milan_datapath__DOT__aaf_rx_depkt__DOT__hold_r;
             VlWide<10>/*316:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__wr_data_w;
             VlWide<10>/*316:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__view0_r;
-        };
-        struct {
             VlWide<10>/*316:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__view1_r;
             VlWide<10>/*316:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cur_r;
             QData/*63:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__rxd_r;
             QData/*63:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_sid_r;
+        };
+        struct {
             QData/*63:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_ctlr_r;
             QData/*63:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_talker_r;
             QData/*47:0*/ milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__cap_dmac_r;
@@ -4845,7 +4973,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             QData/*63:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__94__v;
             QData/*63:0*/ __Vfunc_milan_datapath__DOT__aecp_listener__DOT__u_dyn__DOT__pick64__95__v;
             QData/*63:0*/ __Vfunc_milan_datapath__DOT__aaf_rx_depkt__DOT__fbyte__122__w;
-            QData/*47:0*/ __VdfgRegularize_h6e95ff9d_0_16;
+            QData/*47:0*/ __VdfgRegularize_h6e95ff9d_0_17;
             QData/*63:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_rx__DOT__q1_ts;
             QData/*63:0*/ __Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_tx__DOT__q1_ts;
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__4__KET____DOT__u_cbs__DOT__eng_q1;
@@ -4858,12 +4986,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__2__KET____DOT__u_cbs__DOT__eng_num;
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__2__KET____DOT__u_cbs__DOT__eng_quo;
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_q1;
-        };
-        struct {
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_num;
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__1__KET____DOT__u_cbs__DOT__eng_quo;
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__eng_q1;
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__eng_num;
+        };
+        struct {
             QData/*47:0*/ __Vdly__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__gen_cbs__BRA__0__KET____DOT__u_cbs__DOT__eng_quo;
             QData/*63:0*/ __Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_d_r;
             QData/*63:0*/ __Vdly__milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cw0_r;
@@ -4924,12 +5052,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VlUnpacked<IData/*29:0*/, 9> milan_datapath__DOT__lwsrp__DOT__bw_gate__DOT__slope_hold_r;
             VlUnpacked<CData/*4:0*/, 9> milan_datapath__DOT__lwsrp__DOT__bw_gate__DOT__hold_r;
             VlUnpacked<CData/*7:0*/, 88> milan_datapath__DOT__lwsrp__DOT__tx__DOT__fb;
-        };
-        struct {
             VlUnpacked<VlWide<4>/*119:0*/, 15> milan_datapath__DOT__lwsrp__DOT__ctx__DOT__rec_ram_r;
             VlUnpacked<QData/*63:0*/, 64> milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cbuf_r;
             VlUnpacked<CData/*1:0*/, 16> milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_kind_q;
             VlUnpacked<SData/*15:0*/, 16> milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_addr_q;
+        };
+        struct {
             VlUnpacked<SData/*15:0*/, 16> milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__seg_len_q;
             VlUnpacked<CData/*7:0*/, 96> milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__const_q;
             VlUnpacked<SData/*15:0*/, 16> milan_datapath__DOT__aecp_listener__DOT__u_bld__DOT__cum_q;
@@ -4941,22 +5069,22 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VlUnpacked<VlWide<3>/*73:0*/, 128> milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__mem;
             VlUnpacked<VlWide<3>/*73:0*/, 2> milan_datapath__DOT__aecp_listener__DOT__u_ingress__DOT__frame_fifo__DOT__m_axis_pipe_reg;
             VlUnpacked<CData/*7:0*/, 23777> milan_datapath__DOT__aecp_listener__DOT__u_store__DOT__mem_r;
+            VlUnpacked<QData/*47:0*/, 4> milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r;
+            VlUnpacked<QData/*47:0*/, 512> milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r;
+            VlUnpacked<QData/*47:0*/, 16> milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r;
             VlUnpacked<SData/*15:0*/, 3> milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r;
             VlUnpacked<SData/*15:0*/, 3> milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r;
             VlUnpacked<SData/*15:0*/, 3> milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r;
             VlUnpacked<SData/*15:0*/, 3> milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r;
             VlUnpacked<SData/*15:0*/, 3> milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r;
             VlUnpacked<SData/*15:0*/, 3> milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r;
-            VlUnpacked<QData/*47:0*/, 4> milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r;
-            VlUnpacked<QData/*47:0*/, 512> milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__fifo_r;
-            VlUnpacked<QData/*47:0*/, 16> milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__u_cdc__DOT__mem_r;
             VlUnpacked<CData/*7:0*/, 28> milan_datapath__DOT__crf_tx__DOT__pdu;
             VlUnpacked<CData/*7:0*/, 64> milan_datapath__DOT__crf_tx__DOT__fb;
             VlUnpacked<CData/*0:0*/, 16> milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_valid;
             VlUnpacked<QData/*47:0*/, 16> milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_key;
             VlUnpacked<QData/*47:0*/, 16> milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_mask;
             VlUnpacked<CData/*7:0*/, 16> milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_action;
-            VlUnpacked<QData/*51:0*/, 8> milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__u_tcdc__DOT__mem_r;
+            VlUnpacked<QData/*51:0*/, 8> milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__u_tcdc__DOT__mem_r;
             VlUnpacked<IData/*23:0*/, 8> milan_datapath__DOT__chan_tdm_render__DOT__bank_r;
             VlUnpacked<VlWide<6>/*191:0*/, 4> milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__mem_r;
             VlUnpacked<CData/*3:0*/, 64> milan_datapath__DOT__aaf_rx_depkt__DOT__idxq_r;
@@ -4977,21 +5105,27 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath___024root final {
             VlUnpacked<CData/*7:0*/, 8> milan_datapath__DOT__avtp_rx_monitor__DOT__chans_sh_r;
             VlUnpacked<CData/*6:0*/, 8> milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r;
             VlUnpacked<IData/*31:0*/, 256> milan_datapath__DOT__avtp_rx_monitor__DOT__lctx_r;
+            VlUnpacked<VlUnpacked<IData/*31:0*/, 10>, 8> milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r;
             VlUnpacked<IData/*31:0*/, 256> milan_datapath__DOT__crf_rx__DOT__ts_hist_r;
             VlUnpacked<QData/*63:0*/, 8> milan_datapath__DOT__stream_table__DOT__ovr_sid_r;
             VlUnpacked<CData/*0:0*/, 8> milan_datapath__DOT__stream_table__DOT__ovr_en_r;
             VlUnpacked<CData/*0:0*/, 8> milan_datapath__DOT__stream_table__DOT__ovr_armed_r;
             VlUnpacked<QData/*63:0*/, 9> milan_datapath__DOT__acmp_responder__DOT__fword_r;
             VlUnpacked<CData/*4:0*/, 9> milan_datapath__DOT__acmp_responder__DOT__tmr_ram;
+            VlUnpacked<IData/*31:0*/, 9> milan_datapath__DOT__talker_diag__DOT__start_r;
+            VlUnpacked<IData/*31:0*/, 9> milan_datapath__DOT__talker_diag__DOT__stop_r;
+            VlUnpacked<IData/*31:0*/, 9> milan_datapath__DOT__talker_diag__DOT__mreset_r;
+            VlUnpacked<IData/*31:0*/, 9> milan_datapath__DOT__talker_diag__DOT__tuiv_r;
+            VlUnpacked<IData/*31:0*/, 9> milan_datapath__DOT__talker_diag__DOT__ftx_r;
             VlUnpacked<CData/*7:0*/, 88> milan_datapath__DOT__adp_adv__DOT__fb;
             VlUnpacked<IData/*31:0*/, 9> milan_datapath__DOT__csr__DOT__stat_snap;
             VlUnpacked<IData/*31:0*/, 5> milan_datapath__DOT__csr__DOT__cbs_idle;
             VlUnpacked<IData/*31:0*/, 5> milan_datapath__DOT__csr__DOT__cbs_hi;
             VlUnpacked<IData/*31:0*/, 5> milan_datapath__DOT__csr__DOT__cbs_lo;
-            VlUnpacked<IData/*31:0*/, 12> milan_datapath__DOT__csr__DOT__snap_shadow_r;
-            VlUnpacked<IData/*31:0*/, 512> milan_datapath__DOT__csr__DOT__shadow_ram;
         };
         struct {
+            VlUnpacked<IData/*31:0*/, 12> milan_datapath__DOT__csr__DOT__snap_shadow_r;
+            VlUnpacked<IData/*31:0*/, 512> milan_datapath__DOT__csr__DOT__shadow_ram;
             VlUnpacked<IData/*31:0*/, 512> milan_datapath__DOT__csr__DOT__dflt_rom;
             VlUnpacked<IData/*31:0*/, 128> milan_datapath__DOT__aaf_packetizer__DOT__tctx_r;
             VlUnpacked<QData/*47:0*/, 512> milan_datapath__DOT__aaf_packetizer__DOT__stg_r;

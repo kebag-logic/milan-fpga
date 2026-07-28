@@ -63,6 +63,10 @@
 #include <cstdint>
 #include <vector>
 
+// AAF sink count of this harness's entity shape (the CRF sink
+// past it answers the empty mask)
+#define N_AAF_SINKS_TB 8
+
 static VKL_aecp_top* dut;
 static long checks = 0, fails = 0;
 
@@ -213,7 +217,12 @@ int main(int argc, char** argv) {
     dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0; dut->gptp_domain_i = 0; dut->pdelay_ns_i = 0;
-    dut->link_up_i = 1; dut->frames_tx_i = 0;
+    dut->link_up_i = 1;
+    // Milan 5.4.2.25 per-index counter buses: zero until a case models
+    // them (the fabric muxes by gs_diag_idx_o; here the harness owns them)
+    for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
+    for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
+    dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
     dut->station_mac_i = STA_MAC;
     dut->aaf_dmac_i = DMAC_BASE;
     dut->aaf_vid_i  = 2;
@@ -484,15 +493,27 @@ int main(int argc, char** argv) {
                 ck(nm, r_cdl(r), 148);
                 snprintf(nm, sizeof nm, "GET_COUNTERS(%s,%d) frame 174 B", TNAME[t], i);
                 ck(nm, (long)r.size(), 38 + 136);
-                if (i >= 2 && i < N_STR) {
-                    // 1722.1-2021 §7.4.42.2: counters_valid states which
-                    // counters the descriptor implements. No per-stream
-                    // monitor context exists in fabric for these, so the
-                    // honest mask is EMPTY - not the monitored sink's ten
-                    // counters zeroed.
-                    snprintf(nm, sizeof nm, "GET_COUNTERS(%s,%d) empty valid mask",
-                             TNAME[t], i);
-                    ck(nm, (long)be_at(r, 42, 4), 0);
+                if (i < N_STR) {
+                    // Milan 5.4.2.25 Tables 5.16/5.17: "shall implement
+                    // and return the counters" for EACH stream descriptor.
+                    // Since 2026-07-28 every STREAM_OUTPUT (the CRF Media
+                    // Clock Output at index 8 included) answers its
+                    // KL_talker_diag_ctx context behind mask 0x1F, and
+                    // every AAF STREAM_INPUT its monitor-mirror context
+                    // behind 0xF3F. The one truthful EMPTY mask left is
+                    // the CRF Media Clock INPUT (index 8): it has no
+                    // monitor context, and 7.4.42.2 makes the empty mask
+                    // the statement of that (its counters are a recorded
+                    // gap in MILAN_COMPLIANCE_GAPS.md).
+                    bool is_out = (TYPES[t] == 0x0006);
+                    long want = is_out ? 0x1F
+                              : (i < 8) ? 0xF3F : 0;
+                    snprintf(nm, sizeof nm, "GET_COUNTERS(%s,%d) valid mask "
+                             "%s", TNAME[t], i,
+                             want == 0 ? "EMPTY (CRF input, no context)"
+                                       : is_out ? "0x1F (Table 5.17)"
+                                                : "0xF3F (Table 5.16)");
+                    ck(nm, (long)be_at(r, 42, 4), want);
                 }
             }
         }

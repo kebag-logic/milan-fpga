@@ -423,70 +423,70 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
     // Locals
     CData/*3:0*/ __Vfunc_milan_datapath__DOT__aaf_chn_clamp__14__c;
     __Vfunc_milan_datapath__DOT__aaf_chn_clamp__14__c = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__Vfuncout;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__Vfuncout = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__v;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__v = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas = 0;
     SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__Vfuncout;
     __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__Vfuncout = 0;
     SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v;
     __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__Vfuncout;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__Vfuncout = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__v;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__v = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__Vfuncout;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__Vfuncout = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__v;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__v = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas = 0;
-    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__Vfuncout;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__Vfuncout = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__v;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__v = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__Vfuncout;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__Vfuncout = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__v;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__v = 0;
     SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__Vfuncout;
     __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__Vfuncout = 0;
     SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v;
     __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__Vfuncout;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__Vfuncout = 0;
-    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__v;
-    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__v = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas = 0;
+    IData/*31:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__Vfuncout;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__Vfuncout = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__v;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__v = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__Vfuncout;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__Vfuncout = 0;
+    SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__v;
+    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__v = 0;
     QData/*47:0*/ __Vfunc_milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__conflict_hit__172__start_a;
     __Vfunc_milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__conflict_hit__172__start_a = 0;
     SData/*15:0*/ __Vfunc_milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__conflict_hit__172__cnt_a;
@@ -583,6 +583,8 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         = vlSelfRef.milan_datapath__DOT__media_tick_cnt_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__ms_div_r 
         = vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ms_div_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__tick_cnt_r 
+        = vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tick_cnt_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__qdiv_r 
         = vlSelfRef.milan_datapath__DOT__ptp_clock_validity__DOT__qdiv_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_tick_cdc__DOT__sync 
@@ -591,6 +593,8 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__ack_sync;
     vlSelfRef.__Vdly__milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync 
         = vlSelfRef.milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync;
+    vlSelfRef.__Vdly__milan_datapath__DOT__zf_tick_cdc__DOT__sync 
+        = vlSelfRef.milan_datapath__DOT__zf_tick_cdc__DOT__sync;
     vlSelfRef.__VdlySet__milan_datapath__DOT__chan_map_render__DOT__pbcur_r__v0 = 0U;
     vlSelfRef.__Vdly__milan_datapath__DOT__adp_tick_cnt 
         = vlSelfRef.milan_datapath__DOT__adp_tick_cnt;
@@ -611,6 +615,8 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         = vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_rx__DOT__byte_counter;
     vlSelfRef.__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v0 = 0U;
     vlSelfRef.__VdlySet__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_r__v1 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v1 = 0U;
     vlSelfRef.__Vdly__milan_datapath__DOT__csr__DOT__sweep_cnt 
         = vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_cnt;
     vlSelfRef.__Vdly__milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__byte_counter 
@@ -835,18 +841,18 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         = vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__vlan_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__remain_r 
         = vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__remain_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r 
-        = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__aafcap_pv_w 
-        = vlSelfRef.milan_datapath__DOT__aafcap_pv_w;
     vlSelfRef.__Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__rstate_r 
         = vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__rstate_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r 
+        = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__was_filled_r 
         = vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__was_filled_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__prefill_r 
         = vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__prefill_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__cdc_wen_r 
         = vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__cdc_wen_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__aafcap_pv_w 
+        = vlSelfRef.milan_datapath__DOT__aafcap_pv_w;
     vlSelfRef.__Vdly__milan_datapath__DOT__ptp_clock_validity__DOT__lease_r 
         = vlSelfRef.milan_datapath__DOT__ptp_clock_validity__DOT__lease_r;
     vlSelfRef.__VdlySet__milan_datapath__DOT__chan_tdm_render__DOT__u_fcdc__DOT__mem_r__v0 = 0U;
@@ -1048,6 +1054,58 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         = vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__est_r;
     vlSelfRef.__VdlySet__milan_datapath__DOT__pcm_route__DOT__route_r__v0 = 0U;
     vlSelfRef.__VdlySet__milan_datapath__DOT__pcm_route__DOT__route_r__v1 = 0U;
+    vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+        = vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+        = vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v0 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v1 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v2 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v3 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v4 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v5 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v6 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v7 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v8 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v9 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v0 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v1 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v2 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v3 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v4 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v5 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v6 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v7 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v8 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v9 = 0U;
+    vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v10 = 0U;
     vlSelfRef.__Vdly__milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__timer_ms_r 
         = vlSelfRef.milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__timer_ms_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__g_maap__DOT__maap_engine__DOT__probe_left_r 
@@ -1104,6 +1162,50 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         = vlSelfRef.milan_datapath__DOT__adp_available_index;
     vlSelfRef.__Vdly__milan_datapath__DOT__adp_adv__DOT__state_r 
         = vlSelfRef.milan_datapath__DOT__adp_adv__DOT__state_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_gain_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_gain_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_skip_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_skip_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__lock_cnt_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__lock_cnt_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__dstate_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__dstate_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__integ_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__integ_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__acc_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__acc_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_valid_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_valid_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_run_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_run_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_hold_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_hold_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__drp_pass_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__drp_pass_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__repairing_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__repairing_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_d_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_d_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_rate_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_rate_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_run_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_run_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_seq_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_seq_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rd_second_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rd_second_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__hs_send_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__hs_send_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__state_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__state_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_cmd_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_cmd_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_cnt_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_cnt_r;
+    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psbusy_sync_r 
+        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psbusy_sync_r;
     vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v0 = 0U;
     vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v1 = 0U;
     vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__cbs_lo__v2 = 0U;
@@ -1616,50 +1718,6 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
     vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v169 = 0U;
     vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v170 = 0U;
     vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__cbs_idle__v171 = 0U;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_gain_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_gain_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_skip_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_skip_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__lock_cnt_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__lock_cnt_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__dstate_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__dstate_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__integ_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__integ_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__acc_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__acc_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_valid_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__win_valid_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_run_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_run_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_hold_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__ps_hold_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__drp_pass_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__drp_pass_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__repairing_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__repairing_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__tick_cnt_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_d_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_d_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_rate_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_rate_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_run_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_run_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_seq_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__pp_seq_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rd_second_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__rd_second_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__hs_send_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__hs_send_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__state_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__state_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_cmd_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_cmd_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_cnt_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__disc_cnt_r;
-    vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psbusy_sync_r 
-        = vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psbusy_sync_r;
     vlSelfRef.__Vdly__milan_datapath__DOT__avtprx_dirty_p 
         = vlSelfRef.milan_datapath__DOT__avtprx_dirty_p;
     vlSelfRef.__Vdly__milan_datapath__DOT__avtp_rx_monitor__DOT__locked_sh_r 
@@ -1892,6 +1950,9 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.__Vdly__milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync 
             = ((6U & ((IData)(vlSelfRef.milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync) 
                       << 1U)) | (IData)(vlSelfRef.milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__src_level));
+        vlSelfRef.__Vdly__milan_datapath__DOT__zf_tick_cdc__DOT__sync 
+            = ((6U & ((IData)(vlSelfRef.milan_datapath__DOT__zf_tick_cdc__DOT__sync) 
+                      << 1U)) | (IData)(vlSelfRef.milan_datapath__DOT__zf_tick_cdc__DOT__src_level));
         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r 
             = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r);
         if (vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__in_acc) {
@@ -1973,6 +2034,20 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_wp_r 
             = (3U & ((IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_wp_r) 
                      + (IData)(vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_wr_n_w)));
+        if (((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_we_w) 
+             & ((0x10U <= (0x0000001fU & (IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_waddr_w))) 
+                & (0x1aU > (0x0000001fU & (IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_waddr_w)))))) {
+            if ((9U >= (0x0000000fU & (IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_waddr_w)))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 
+                    = vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_wdata_w;
+                vlSelfRef.__VdlyDim0__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 
+                    = (0x0000000fU & (IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_waddr_w));
+                vlSelfRef.__VdlyDim1__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 
+                    = (7U & ((IData)(vlSelfRef.milan_datapath__DOT__avtp_rx_monitor__DOT__ram_waddr_w) 
+                             >> 5U));
+                vlSelfRef.__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v0 = 1U;
+            }
+        }
         if (vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_busy) {
             vlSelfRef.__Vdly__milan_datapath__DOT__csr__DOT__sweep_cnt 
                 = (0x000003ffU & ((IData)(1U) + (IData)(vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_cnt)));
@@ -1991,12 +2066,12 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
             vlSelfRef.__VdlyVal__milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_mem__v0 
                 = (((IData)((0x0000000081001000ULL 
                              == (0x00000000ffff1000ULL 
-                                 & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16))) 
+                                 & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17))) 
                     << 3U) | ((IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__class_map__DOT__gptp_frame)
                                ? 2U : (((0x8100U != 
                                          (0x0000ffffU 
                                           & (IData)(
-                                                    (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 
+                                                    (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 
                                                      >> 0x00000010U)))) 
                                         & ((vlSelfRef.milan_datapath__DOT__csr__DOT__cls_ctrl 
                                             >> 2U) 
@@ -2012,7 +2087,7 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                                                   & (0x000022f000000000ULL 
                                                      == 
                                                      (0x0000ffff00000000ULL 
-                                                      & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16))) 
+                                                      & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17))) 
                                                  | ((0x00000180c2000021ULL 
                                                      == 
                                                      (0x0000ffffffffffffULL 
@@ -2037,16 +2112,16 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                                         ? 1U : ((1U 
                                                  & vlSelfRef.milan_datapath__DOT__csr__DOT__cls_ctrl)
                                                  ? 
-                                                ((IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_92) 
+                                                ((IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_94) 
                                                  & (- (IData)(
                                                               (5U 
-                                                               > (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_92)))))
+                                                               > (IData)(vlSelfRef.__VdfgRegularize_h6e95ff9d_0_94)))))
                                                  : 
                                                 ((IData)(
                                                          (0x000022f081000000ULL 
                                                           == 
                                                           (0x0000ffffffff0000ULL 
-                                                           & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16)))
+                                                           & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17)))
                                                   ? 4U
                                                   : 
                                                  (1U 
@@ -2054,12 +2129,12 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                                                                        ((0x000022f000000000ULL 
                                                                          == 
                                                                          (0x0000ffff00000000ULL 
-                                                                          & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16)) 
+                                                                          & vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17)) 
                                                                         & (0x8100U 
                                                                            != 
                                                                            (0x0000ffffU 
                                                                             & (IData)(
-                                                                                (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_16 
+                                                                                (vlSelfRef.__VdfgRegularize_h6e95ff9d_0_17 
                                                                                 >> 0x00000010U))))))))))))));
             vlSelfRef.__VdlyDim0__milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_mem__v0 
                 = (0x0000001fU & (IData)(vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_wr));
@@ -24272,16 +24347,16 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
             vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__stat_snap__v9 = 1U;
         }
         vlSelfRef.__Vdly__milan_datapath__DOT__aafcap_pv_w 
-            = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r;
-        vlSelfRef.__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r 
-            = (1U & (((~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_rempty_w)) 
-                      & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r))) 
+            = vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r;
+        vlSelfRef.__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r 
+            = (1U & (((~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_rempty_w)) 
+                      & (~ (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r))) 
                      & (~ (IData)(vlSelfRef.milan_datapath__DOT__aafcap_pv_w))));
         if (vlSelfRef.milan_datapath__DOT__aafcap_pv_w) {
             vlSelfRef.milan_datapath__DOT__aaf_pairs_w 
                 = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__aaf_pairs_w);
             vlSelfRef.milan_datapath__DOT__chan_map_capture__DOT__i2s_hold_r 
-                = (0x0000ffffffffffffULL & vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_pair_w);
+                = (0x0000ffffffffffffULL & vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_pair_w);
         }
         if ((((IData)(vlSelfRef.milan_datapath__DOT__i2s_feed_mux__DOT__feed_p_w) 
               & vlSelfRef.milan_datapath__DOT__csr__DOT__chmap_ctrl) 
@@ -24920,6 +24995,332 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                 = (7U & (IData)(vlSelfRef.milan_datapath__DOT__wing_idx_r));
             vlSelfRef.__VdlySet__milan_datapath__DOT__pcm_route__DOT__route_r__v0 = 1U;
         }
+        if ((((IData)(vlSelfRef.milan_datapath__DOT__aaf_frame_p_w) 
+              | (IData)(vlSelfRef.milan_datapath__DOT__tkd_crf_p_w)) 
+             & (9U > (IData)(vlSelfRef.milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i)))) {
+            if ((8U >= (IData)(vlSelfRef.milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i))) {
+                vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                    = ((IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r) 
+                       | (0x01ffU & ((IData)(1U) << (IData)(vlSelfRef.milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i))));
+            }
+            if (vlSelfRef.milan_datapath__DOT__clkv_tu_w) {
+                if ((8U >= (IData)(vlSelfRef.milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i))) {
+                    vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                        = ((IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r) 
+                           | (0x01ffU & ((IData)(1U) 
+                                         << (IData)(vlSelfRef.milan_datapath__DOT____Vcellinp__talker_diag__frame_idx_i))));
+                }
+            }
+        }
+        if (vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tick_p_r) {
+            if ((1U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[0U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v0 = 1U;
+            }
+            if ((1U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[0U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v0 = 1U;
+            }
+            if ((1U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[0U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v0 = 1U;
+            }
+            if ((2U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[1U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v1 = 1U;
+            }
+            if ((2U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[1U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v1 = 1U;
+            }
+            if ((2U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[1U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v1 = 1U;
+            }
+            if ((4U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[2U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v2 = 1U;
+            }
+            if ((4U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[2U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v2 = 1U;
+            }
+            if ((4U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[2U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v2 = 1U;
+            }
+            if ((8U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[3U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v3 = 1U;
+            }
+            if ((8U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[3U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v3 = 1U;
+            }
+            if ((8U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[3U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v3 = 1U;
+            }
+            if ((0x00000010U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[4U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v4 = 1U;
+            }
+            if ((0x00000010U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[4U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v4 = 1U;
+            }
+            if ((0x00000010U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[4U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v4 = 1U;
+            }
+            if ((0x00000020U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[5U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v5 = 1U;
+            }
+            if ((0x00000020U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[5U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v5 = 1U;
+            }
+            if ((0x00000020U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[5U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v5 = 1U;
+            }
+            if ((0x00000040U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[6U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v6 = 1U;
+            }
+            if ((0x00000040U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[6U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v6 = 1U;
+            }
+            if ((0x00000040U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[6U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v6 = 1U;
+            }
+            if ((0x00000080U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[7U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v7 = 1U;
+            }
+            if ((0x00000080U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[7U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v7 = 1U;
+            }
+            if ((0x00000080U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[7U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v7 = 1U;
+            }
+            if ((0x00000100U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_f_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__ftx_r[8U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__ftx_r__v8 = 1U;
+            }
+            if ((0x00000100U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_tu_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__tuiv_r[8U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__tuiv_r__v8 = 1U;
+            }
+            if ((0x00000100U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r))) {
+                vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8 
+                    = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__mreset_r[8U]);
+                vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__mreset_r__v8 = 1U;
+            }
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r = 0U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r = 0U;
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r = 0U;
+        }
+        if ((1U & ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                   & (~ (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v0 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[0U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v0 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01feU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01feU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01feU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ (IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w)) 
+                          & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v0 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[0U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v0 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 1U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 1U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v1 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[1U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v1 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01fdU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01fdU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01fdU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 1U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 1U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v1 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[1U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v1 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 2U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 2U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v2 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[2U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v2 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01fbU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01fbU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01fbU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 2U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 2U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v2 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[2U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v2 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 3U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 3U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v3 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[3U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v3 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01f7U & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01f7U & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01f7U & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 3U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 3U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v3 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[3U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v3 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 4U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 4U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v4 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[4U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v4 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01efU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01efU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01efU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 4U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 4U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v4 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[4U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v4 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 5U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 5U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v5 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[5U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v5 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01dfU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01dfU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01dfU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 5U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 5U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v5 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[5U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v5 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 6U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 6U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v6 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[6U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v6 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x01bfU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x01bfU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x01bfU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 6U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 6U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v6 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[6U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v6 = 1U;
+        }
+        if ((1U & (((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                    >> 7U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                 >> 7U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v7 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[7U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v7 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x017fU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x017fU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x017fU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((1U & ((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                              >> 7U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                         >> 7U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v7 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[7U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v7 = 1U;
+        }
+        if ((IData)((((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                      >> 8U) & (~ ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                   >> 8U))))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__start_r__v8 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__start_r[8U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v8 = 1U;
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r 
+                = (0x00ffU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r));
+            vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r 
+                = (0x00ffU & (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r));
+            vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r 
+                = (0x00ffU & (IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r));
+        } else if ((IData)(((~ ((IData)(vlSelfRef.milan_datapath__DOT__tkd_streaming_w) 
+                                >> 8U)) & ((IData)(vlSelfRef.milan_datapath__DOT__talker_diag__DOT__strm_q_r) 
+                                           >> 8U)))) {
+            vlSelfRef.__VdlyVal__milan_datapath__DOT__talker_diag__DOT__stop_r__v8 
+                = ((IData)(1U) + vlSelfRef.milan_datapath__DOT__talker_diag__DOT__stop_r[8U]);
+            vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v8 = 1U;
+        }
         if (((IData)(vlSelfRef.milan_datapath__DOT__wing_tbl_we_r) 
              & (8U > (IData)(vlSelfRef.milan_datapath__DOT__wing_idx_r)))) {
             vlSelfRef.__VdlyVal__milan_datapath__DOT__stream_table__DOT__ovr_en_r__v0 
@@ -24951,6 +25352,22 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                 = ((IData)(vlSelfRef.milan_datapath__DOT__avtprx_accept_p_w)
                     ? (IData)(vlSelfRef.milan_datapath__DOT__avtprx_accept_idx_w)
                     : (IData)(vlSelfRef.milan_datapath__DOT__aaf_rx_depkt__DOT__wv_idx_r));
+        }
+        if ((1U & VL_REDXOR_32((3U & ((IData)(vlSelfRef.milan_datapath__DOT__zf_tick_cdc__DOT__sync) 
+                                      >> 1U))))) {
+            vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_r = 0U;
+            vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r 
+                = ((~ vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c) 
+                   & (~ vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_prev_r));
+        } else {
+            vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_r 
+                = vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_c;
+            if (((~ (IData)(vlSelfRef.milan_datapath__DOT__aafcap_pv_w)) 
+                 & (IData)(vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_any_c))) {
+                vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r 
+                    = ((~ ((IData)(1U) << (IData)(vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_slot_c))) 
+                       & vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r);
+            }
         }
         vlSelfRef.milan_datapath__DOT__avtp_rx_parser__DOT__s_tdata_q 
             = vlSelfRef.s_axis_mac_rx_tdata;
@@ -25076,6 +25493,12 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
             vlSelfRef.milan_datapath__DOT__csr__DOT__r_valid = 1U;
         } else if (vlSelfRef.s_axi_rready) {
             vlSelfRef.milan_datapath__DOT__csr__DOT__r_valid = 0U;
+        }
+        if ((vlSelfRef.milan_datapath__DOT__crft_count_w 
+             != vlSelfRef.milan_datapath__DOT__tkd_crfq_r)) {
+            vlSelfRef.milan_datapath__DOT__tkd_crf_pend_r = 1U;
+        } else if (vlSelfRef.milan_datapath__DOT__tkd_crf_p_w) {
+            vlSelfRef.milan_datapath__DOT__tkd_crf_pend_r = 0U;
         }
         if (vlSelfRef.milan_datapath__DOT__link_guard__DOT__tx_trans_w) {
             vlSelfRef.__Vdly__milan_datapath__DOT__link_guard__DOT__tx_dead_r = 0U;
@@ -25325,17 +25748,17 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         } else if (vlSelfRef.milan_datapath__DOT__csr__DOT__ltap_en_r) {
             if (vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r) {
                 if ((0U == (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__to_r))) {
-                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__v 
+                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v 
                         = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r;
-                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__Vfuncout 
+                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__Vfuncout 
                         = (0x0000ffffU & ((0x0000ffffU 
-                                           == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__v))
-                                           ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__v)
+                                           == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v))
+                                           ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v)
                                            : ((IData)(1U) 
-                                              + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__v))));
+                                              + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v))));
                     vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = 0U;
                     vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__timeouts_r 
-                        = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__104__Vfuncout;
+                        = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__Vfuncout;
                 } else {
                     vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__to_r 
                         = (0x0000ffffU & ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__to_r) 
@@ -25344,42 +25767,42 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if (((0U >= (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w)) 
                              & (0U < ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w) 
                                       + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w))))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_0__hopd 
-                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas)
+                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_1__hopd 
-                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas)
+                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_3__hopd 
-                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas)
+                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas)
                                     : 0U);
                             vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v3 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_0__hopd;
                             vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v3 = 1U;
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_1__hopd) 
                                  < vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r[0U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_2__hopd 
-                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas)
+                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r__v3 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_2__hopd;
@@ -25387,13 +25810,13 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                             }
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_3__hopd) 
                                  > vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r[0U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_4__hopd 
-                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas)
+                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r__v3 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_4__hopd;
@@ -25406,20 +25829,20 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if ((3U == (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r) 
                                      + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w)) 
                                     - (IData)(1U)))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__v 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__Vfuncout 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__Vfuncout 
                                 = (0x0000ffffU & ((0x0000ffffU 
-                                                   == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v))
-                                                   ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v)
+                                                   == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__v))
+                                                   ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__v)
                                                    : 
                                                   ((IData)(1U) 
-                                                   + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__v))));
+                                                   + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__v))));
                             vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = 0U;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_r 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_pend_r;
                             vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r 
-                                = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__110__Vfuncout;
+                                = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__116__Vfuncout;
                         } else {
                             vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r 
                                 = (3U & ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r) 
@@ -25428,42 +25851,42 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if (((1U >= (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w)) 
                              & (1U < ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w) 
                                       + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w))))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_0__hopd 
-                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas)
+                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_1__hopd 
-                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas)
+                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_3__hopd 
-                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas)
+                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas)
                                     : 0U);
                             vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v4 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_0__hopd;
                             vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v4 = 1U;
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_1__hopd) 
                                  < vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r[1U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_2__hopd 
-                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas)
+                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r__v4 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_2__hopd;
@@ -25471,13 +25894,13 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                             }
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_3__hopd) 
                                  > vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r[1U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_4__hopd 
-                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas)
+                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r__v4 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_4__hopd;
@@ -25487,42 +25910,42 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if (((2U >= (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w)) 
                              & (2U < ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w) 
                                       + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv_w))))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_0__hopd 
-                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__105__meas)
+                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__111__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_1__hopd 
-                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__106__meas)
+                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__112__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_3__hopd 
-                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__108__meas)
+                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__114__meas)
                                     : 0U);
                             vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v5 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_0__hopd;
                             vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v5 = 1U;
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_1__hopd) 
                                  < vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r[2U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_2__hopd 
-                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__107__meas)
+                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__113__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__min_r__v5 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_2__hopd;
@@ -25530,13 +25953,13 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                             }
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_3__hopd) 
                                  > vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r[2U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_4__hopd 
-                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__109__meas)
+                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__hopd__115__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__max_r__v5 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT____VlemCall_4__hopd;
@@ -25560,21 +25983,21 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__last_r__v6 = 1U;
                     }
                     if ((3U == (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv0_w))) {
-                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__v 
+                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__v 
                             = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r;
-                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__Vfuncout 
+                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__Vfuncout 
                             = (0x0000ffffU & ((0x0000ffffU 
-                                               == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__v))
-                                               ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__v)
+                                               == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__v))
+                                               ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__v)
                                                : ((IData)(1U) 
-                                                  + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__v))));
+                                                  + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__v))));
                         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__active_r = 0U;
                         vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__epoch_r 
                             = ((vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_counter__DOT__acc[1U] 
                                 << 8U) | (vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_counter__DOT__acc[0U] 
                                           >> 0x00000018U));
                         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__samples_r 
-                            = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__111__Vfuncout;
+                            = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__inc16__117__Vfuncout;
                     } else {
                         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__stg_r 
                             = (3U & ((IData)(1U) + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__tx_chain__DOT__nadv0_w)));
@@ -25589,17 +26012,17 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
             }
             if (vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r) {
                 if ((0U == (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__to_r))) {
-                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__v 
+                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v 
                         = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r;
-                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__Vfuncout 
+                    __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__Vfuncout 
                         = (0x0000ffffU & ((0x0000ffffU 
-                                           == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__v))
-                                           ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__v)
+                                           == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v))
+                                           ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v)
                                            : ((IData)(1U) 
-                                              + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__v))));
+                                              + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v))));
                     vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = 0U;
                     vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__timeouts_r 
-                        = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__96__Vfuncout;
+                        = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__Vfuncout;
                 } else {
                     vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__to_r 
                         = (0x0000ffffU & ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__to_r) 
@@ -25608,42 +26031,42 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if (((0U >= (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w)) 
                              & (0U < ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w) 
                                       + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w))))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_0__hopd 
-                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas)
+                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_1__hopd 
-                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas)
+                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd 
-                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas)
+                                = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas)
                                     : 0U);
                             vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v3 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_0__hopd;
                             vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v3 = 1U;
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_1__hopd) 
                                  < vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r[0U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd 
-                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas)
+                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r__v3 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd;
@@ -25651,13 +26074,13 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                             }
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd) 
                                  > vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r[0U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd 
-                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas)
+                                    = ((0U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r__v3 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd;
@@ -25670,20 +26093,20 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if ((3U == (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r) 
                                      + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w)) 
                                     - (IData)(1U)))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__v 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__Vfuncout 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__Vfuncout 
                                 = (0x0000ffffU & ((0x0000ffffU 
-                                                   == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v))
-                                                   ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v)
+                                                   == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__v))
+                                                   ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__v)
                                                    : 
                                                   ((IData)(1U) 
-                                                   + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__v))));
+                                                   + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__v))));
                             vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = 0U;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_r 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_pend_r;
                             vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r 
-                                = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__102__Vfuncout;
+                                = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__108__Vfuncout;
                         } else {
                             vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r 
                                 = (3U & ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r) 
@@ -25692,42 +26115,42 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if (((1U >= (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w)) 
                              & (1U < ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w) 
                                       + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w))))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_0__hopd 
-                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas)
+                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_1__hopd 
-                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas)
+                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd 
-                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas)
+                                = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas)
                                     : 0U);
                             vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v4 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_0__hopd;
                             vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v4 = 1U;
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_1__hopd) 
                                  < vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r[1U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd 
-                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas)
+                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r__v4 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd;
@@ -25735,13 +26158,13 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                             }
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd) 
                                  > vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r[1U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd 
-                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas)
+                                    = ((1U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r__v4 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd;
@@ -25751,42 +26174,42 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         if (((2U >= (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w)) 
                              & (2U < ((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w) 
                                       + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv_w))))) {
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
-                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx 
+                            __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_0__hopd 
-                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__97__meas)
+                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__103__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_1__hopd 
-                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__98__meas)
+                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__104__meas)
                                     : 0U);
                             vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd 
-                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__didx)
-                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__100__meas)
+                                = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__didx)
+                                    ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__106__meas)
                                     : 0U);
                             vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v5 
                                 = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_0__hopd;
                             vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v5 = 1U;
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_1__hopd) 
                                  < vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r[2U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd 
-                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__99__meas)
+                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__105__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__min_r__v5 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_2__hopd;
@@ -25794,13 +26217,13 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                             }
                             if (((IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_3__hopd) 
                                  > vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r[2U])) {
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__dsat_w;
-                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx 
+                                __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__didx_w;
                                 vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd 
-                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__didx)
-                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__101__meas)
+                                    = ((2U == __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__didx)
+                                        ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__hopd__107__meas)
                                         : 0U);
                                 vlSelfRef.__VdlyVal__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__max_r__v5 
                                     = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT____VlemCall_4__hopd;
@@ -25824,21 +26247,21 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                         vlSelfRef.__VdlySet__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__last_r__v6 = 1U;
                     }
                     if ((3U == (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv0_w))) {
-                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__v 
+                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__v 
                             = vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r;
-                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__Vfuncout 
+                        __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__Vfuncout 
                             = (0x0000ffffU & ((0x0000ffffU 
-                                               == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__v))
-                                               ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__v)
+                                               == (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__v))
+                                               ? (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__v)
                                                : ((IData)(1U) 
-                                                  + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__v))));
+                                                  + (IData)(__Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__v))));
                         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__active_r = 0U;
                         vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__epoch_r 
                             = ((vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_counter__DOT__acc[1U] 
                                 << 8U) | (vlSelfRef.milan_datapath__DOT__ptp_timestamp__DOT__ts_counter__DOT__acc[0U] 
                                           >> 0x00000018U));
                         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__samples_r 
-                            = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__103__Vfuncout;
+                            = __Vfunc_milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__inc16__109__Vfuncout;
                     } else {
                         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__stg_r 
                             = (3U & ((IData)(1U) + (IData)(vlSelfRef.milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__rx_chain__DOT__nadv0_w)));
@@ -26300,6 +26723,7 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_tick_cdc__DOT__sync = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__u_batch_hs__DOT__ack_sync = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__crf_tx__DOT__u_evt_cdc__DOT__sync = 0U;
+        vlSelfRef.__Vdly__milan_datapath__DOT__zf_tick_cdc__DOT__sync = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__g_ltap__DOT__aaf_latency_taps__DOT__cyc_r = 0U;
         vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__tq_pushed = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__ptp_timestamp__DOT__ptp_ts_tx__DOT__byte_counter = 0U;
@@ -26310,6 +26734,7 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.__VdlyVal__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__bytes_sent__v3 = 0U;
         vlSelfRef.__VdlyVal__milan_datapath__DOT__traffic_controller__DOT__traffic_shaper__DOT__bytes_sent__v4 = 0U;
         vlSelfRef.milan_datapath__DOT__g_i2s_player__DOT__i2s_player__DOT__stg_wp_r = 0U;
+        vlSelfRef.__VdlySet__milan_datapath__DOT__avtp_rx_monitor__DOT__cnt_mir_r__v1 = 1U;
         vlSelfRef.__Vdly__milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__byte_counter = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__sweep_busy = 1U;
         vlSelfRef.__Vdly__milan_datapath__DOT__csr__DOT__sweep_cnt = 0U;
@@ -26351,7 +26776,7 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.__VdlySet__milan_datapath__DOT__chan_map_render__DOT__map_r__v1 = 1U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__csr__DOT__stat_snap__v18 = 1U;
         vlSelfRef.__Vdly__milan_datapath__DOT__aafcap_pv_w = 0U;
-        vlSelfRef.__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_ren_r = 0U;
+        vlSelfRef.__Vdly__milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_ren_r = 0U;
         vlSelfRef.milan_datapath__DOT__aaf_pairs_w = 0U;
         vlSelfRef.milan_datapath__DOT__pbk_unarmed_w = 0U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__g_rx_filter__DOT__rx_filter__DOT__mac_cam__DOT__ent_valid__v1 = 1U;
@@ -26366,12 +26791,19 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.__VdlySet__milan_datapath__DOT__chan_map_capture__DOT__map_r__v1 = 1U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__tctx_chans_r__v1 = 1U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__pcm_route__DOT__route_r__v1 = 1U;
+        vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__start_r__v9 = 1U;
+        vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_f_r = 0U;
+        vlSelfRef.__Vdly__milan_datapath__DOT__talker_diag__DOT__seen_tu_r = 0U;
+        vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v9 = 1U;
+        vlSelfRef.milan_datapath__DOT__talker_diag__DOT__seen_mr_r = 0U;
+        vlSelfRef.__VdlySet__milan_datapath__DOT__talker_diag__DOT__stop_r__v10 = 1U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__stream_table__DOT__ovr_en_r__v1 = 1U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__stream_table__DOT__ovr_sid_r__v1 = 1U;
         vlSelfRef.__VdlySet__milan_datapath__DOT__stream_table__DOT__ovr_armed_r__v1 = 1U;
         vlSelfRef.milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psfault_sync_r = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__psbusy_sync_r = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__aaf_rx_depkt__DOT__tl_idx_r = 0U;
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__fed_now_r = 0U;
         vlSelfRef.milan_datapath__DOT__avtp_rx_parser__DOT__s_tdata_q = 0ULL;
         vlSelfRef.milan_datapath__DOT__csr__DOT__srp_wr_row_r = 0U;
         vlSelfRef.milan_datapath__DOT__aaf_tx_inframe_r = 0U;
@@ -26448,19 +26880,21 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.milan_datapath__DOT__csr__DOT__r_valid = 0U;
         vlSelfRef.milan_datapath__DOT__avtp_rx_parser__DOT__parsed = 0U;
         vlSelfRef.milan_datapath__DOT__adp_tx_mux__DOT__last_grant_r = 0U;
+        vlSelfRef.milan_datapath__DOT__tkd_crf_pend_r = 0U;
         vlSelfRef.__Vdly__milan_datapath__DOT__link_guard__DOT__tx_dead_r = 0U;
         vlSelfRef.milan_datapath__DOT__link_guard__DOT__tx_alive_r = 1U;
         vlSelfRef.__Vdly__milan_datapath__DOT__link_guard__DOT__rx_dead_r = 0U;
         vlSelfRef.milan_datapath__DOT__link_guard__DOT__rx_alive_r = 1U;
+        vlSelfRef.milan_datapath__DOT__pair_zero_fill__DOT__pend_r = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__srp_wr_dir_r = 0U;
         vlSelfRef.milan_datapath__DOT__adp_tx_mux__DOT__locked_r = 0U;
         vlSelfRef.milan_datapath__DOT__adp_tx_mux__DOT__sel_r = 0U;
+        vlSelfRef.milan_datapath__DOT__csr__DOT__mac_ahi = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__acmp_tuid_q_r = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__acmp_sid_q_r = 0ULL;
         vlSelfRef.milan_datapath__DOT__csr__DOT__acmp_dmac_q_r = 0ULL;
         vlSelfRef.milan_datapath__DOT__csr__DOT__acmp_ctlr_q_r = 0ULL;
         vlSelfRef.milan_datapath__DOT__csr__DOT__acmp_flags_q_r = 0U;
-        vlSelfRef.milan_datapath__DOT__csr__DOT__mac_ahi = 0U;
         vlSelfRef.milan_datapath__DOT__aprb_subtype_r = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__ptp_tod_rd = 0ULL;
         vlSelfRef.milan_datapath__DOT__maap_ctl_mux__DOT__last_grant_r = 0U;
@@ -26484,9 +26918,9 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.milan_datapath__DOT__csr__DOT__rest_stat_r = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__rest_idx_r = 0U;
         vlSelfRef.milan_datapath__DOT__csr__DOT__rest_flags_r = 0U;
-        vlSelfRef.milan_datapath__DOT__chan_map_capture__DOT__i2s_hold_r = 0ULL;
         vlSelfRef.milan_datapath__DOT__maap_ctl_mux__DOT__locked_r = 0U;
         vlSelfRef.milan_datapath__DOT__maap_ctl_mux__DOT__sel_r = 0U;
+        vlSelfRef.milan_datapath__DOT__chan_map_capture__DOT__i2s_hold_r = 0ULL;
         vlSelfRef.milan_datapath__DOT__crf_dp_mux__DOT__locked_r = 0U;
         vlSelfRef.milan_datapath__DOT__crf_dp_mux__DOT__sel_r = 0U;
         vlSelfRef.milan_datapath__DOT__wing_stg_vld_r = 0U;
@@ -26600,12 +27034,12 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
                 = (1U | (IData)(vlSelfRef.__Vdly__milan_datapath__DOT__lwsrp__DOT__rx__DOT__ingress__DOT__mrpdu_fifo__DOT__m_axis_tvalid_pipe_reg));
         }
     }
-    if (vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_17) {
-        if (vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__m_axis_fifo.__VdfgRegularize_h6e95ff9d_0_96) {
+    if (vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_18) {
+        if (vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier__DOT__m_axis_fifo.__VdfgRegularize_h6e95ff9d_0_98) {
             vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__select_reg 
                 = vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__select_reg;
             vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__drop_reg 
-                = vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_94;
+                = vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_96;
         } else {
             vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__select_reg 
                 = vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.tdest;
@@ -26616,7 +27050,7 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
         vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__select_reg 
             = vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__select_reg;
         vlSelfRef.milan_datapath__DOT__traffic_controller__DOT__buffer_queues__DOT__mux_queues__DOT__drop_reg 
-            = vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_94;
+            = vlSymsp->TOP__milan_datapath__DOT__traffic_controller__DOT__classifier_to_queue.__VdfgRegularize_h6e95ff9d_0_96;
     }
     if (((IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__w_cap_hs) 
          & (9U > (IData)(vlSelfRef.milan_datapath__DOT__acmp_listener_sm__DOT__u_ctx__DOT__wbeat_r)))) {
@@ -26909,14 +27343,18 @@ void Vmilan_datapath___024root___nba_sequent__TOP__0(Vmilan_datapath___024root* 
             = (((QData)((IData)((0x00ffffffU & ((1U 
                                                  & vlSelfRef.milan_datapath__DOT__csr__DOT__chmap_ctrl)
                                                  ? vlSelfRef.milan_datapath__DOT__cmap_l_w
-                                                 : (IData)(
-                                                           (vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_pair_w 
-                                                            >> 0x00000018U)))))) 
+                                                 : 
+                                                ((IData)(
+                                                         (vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_pair_w 
+                                                          >> 0x00000018U)) 
+                                                 & (- (IData)((IData)(vlSelfRef.milan_datapath__DOT__aafcap_pv_w)))))))) 
                 << 0x00000018U) | (QData)((IData)((0x00ffffffU 
                                                    & ((1U 
                                                        & vlSelfRef.milan_datapath__DOT__csr__DOT__chmap_ctrl)
                                                        ? vlSelfRef.milan_datapath__DOT__cmap_r_w
-                                                       : (IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__aaf_capture__DOT__cap_pair_w))))));
+                                                       : 
+                                                      ((IData)(vlSelfRef.milan_datapath__DOT__g_aif_tdm_master__DOT__g_solo__DOT__aaf_capture__DOT__cap_pair_w) 
+                                                       & (- (IData)((IData)(vlSelfRef.milan_datapath__DOT__aafcap_pv_w)))))))));
         vlSelfRef.__VdlyDim0__milan_datapath__DOT__aaf_packetizer__DOT__stg_r__v0 
             = (((((IData)(vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__pown_t_w) 
                   << 1U) | vlSelfRef.milan_datapath__DOT__aaf_packetizer__DOT__wbank_r

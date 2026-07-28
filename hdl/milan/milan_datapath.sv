@@ -140,6 +140,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 2 (CRF recovered) and for input_stream lock, so a pruned build cannot
   //! discipline the audio MMCM to a remote grandmaster at all. The builder
   //! gate keys on clocking.media_clock_sources == [internal].
+  //! Milan Table 5.4 observation interval (KL_talker_diag_ctx), in datapath
+  //! clock cycles; the clause bounds it at <= 1 s. TBs shrink it.
+  parameter int DIAG_TICK_CYC_P = MILAN_CLK_FREQ_HZ,
   parameter int MCSERVO_P = 1,
   //! AAF latency taps (KL_aaf_latency_taps, 696 LUT / 614 FF measured).
   //! PURE INSTRUMENTATION: nothing in the media path reads a tap output -
@@ -878,7 +881,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
     .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
     .m_axis_tready(aaf_tx_tready),
-    .frames_sent_o (aaf_frames_w)
+    .frames_sent_o (aaf_frames_w),
+    //! Milan Table 5.4 event feed (KL_talker_diag_ctx)
+    .frame_p_o (aaf_frame_p_w), .frame_idx_o (aaf_frame_idx_w)
   );
   // arbiter out -> MAC-facing TX
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
@@ -2148,6 +2153,60 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                 dmap_l_en_w, dmap_r_en_w};
   // verilator lint_on  UNUSED
 
+  // ==========================================================================
+  //  Milan Table 5.4 diagnostic counters, one context per Stream Output
+  //  (AAF talkers + the CRF Media Clock Output). Serves AECP GET_COUNTERS
+  //  per index - 5.4.2.25 Table 5.17 "implement and return" - with the
+  //  clause's interval + reset-on-start semantics. The streaming level is
+  //  the COMPOSED per-talker admission gate; the CRF context's level is its
+  //  enable (a CRF output emits whenever enabled - the untagged fallback is
+  //  deliberately alive), and its PDU event derives from the tx counter.
+  // ==========================================================================
+  wire        aaf_frame_p_w;
+  wire [3:0]  aaf_frame_idx_w;
+  wire [3:0]  aecp_diag_idx_w;
+  wire [10*32-1:0] mon_diag_cnt_w;
+  wire [5*32-1:0]  tkdiag_cnt_w;
+  //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
+  //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
+  //! against a 50+ MHz clock, so the skid never accumulates)
+  logic [31:0] tkd_crfq_r;
+  logic        tkd_crf_pend_r;
+  wire         tkd_crf_p_w = tkd_crf_pend_r & ~aaf_frame_p_w;
+  always_ff @(posedge axis_clk) begin : tkd_crf_evt
+    if (!axis_resetn) begin
+      tkd_crfq_r     <= 32'd0;
+      tkd_crf_pend_r <= 1'b0;
+    end else begin
+      tkd_crfq_r <= crft_count_w;
+      if (crft_count_w != tkd_crfq_r) tkd_crf_pend_r <= 1'b1;
+      else if (tkd_crf_p_w)           tkd_crf_pend_r <= 1'b0;
+    end
+  end : tkd_crf_evt
+  //! context vector: AAF talkers 0..N-1, CRF (when this shape has one) at N
+  wire [ACMP_SRC_C-1:0] tkd_streaming_w =
+      (ACMP_SRC_C > N_STREAMS)
+      ? {cfg_crft_en, aaf_stream_en_w}
+      : ACMP_SRC_C'(aaf_stream_en_w);
+  KL_talker_diag_ctx #(
+    .N_CTX_P    (ACMP_SRC_C),
+    .TICK_CYC_P (DIAG_TICK_CYC_P)
+  ) talker_diag (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .streaming_i (tkd_streaming_w),
+    .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
+    .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
+    .tu_i        (clkv_tu_w),
+    .mr_p_i      (1'b0),          //! no mr source in this fabric (banner)
+    .mr_idx_i    (4'd0),
+    .rd_idx_i    (aecp_diag_idx_w),
+    .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),
+    .rd_stop_o   (tkdiag_cnt_w[1*32 +: 32]),
+    .rd_mreset_o (tkdiag_cnt_w[2*32 +: 32]),
+    .rd_tu_o     (tkdiag_cnt_w[3*32 +: 32]),
+    .rd_ftx_o    (tkdiag_cnt_w[4*32 +: 32])
+  );
+
   KL_aecp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) aecp_listener (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
@@ -2181,7 +2240,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .dmap_wr_addr_o(aecp_dmap_wr_addr_w),
     .dmap_wr_word_o(aecp_dmap_wr_word_w),
     .link_up_i     (cnt_link_w),
-    .frames_tx_i   (aaf_frames_w),
+    .gs_diag_idx_o (aecp_diag_idx_w),
+    .rxdiag_cnt_i  (mon_diag_cnt_w),
+    .tkdiag_cnt_i  (tkdiag_cnt_w),
+    .n_aaf_sinks_i (16'(N_STREAMS)),
     .lstn_bound_i   (acmpl_bound),
     .lstn_sid_i     (acmpl_sid),
     .lstn_dmac_i    (acmpl_dmac),
@@ -2932,6 +2994,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_frames_rx_o          (avtprx_frx_c),
     .wire_chans_o             (mon_wire_chans_w),
     .wire_chans_all_o         (mon_wire_chans_all_w),
+    //! Milan 5.4.2.25: every sink's Table 5.6 set, muxed by the AECP's
+    //! GET_COUNTERS descriptor index
+    .diag_idx_i               (aecp_diag_idx_w),
+    .diag_cnt_o               (mon_diag_cnt_w),
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),

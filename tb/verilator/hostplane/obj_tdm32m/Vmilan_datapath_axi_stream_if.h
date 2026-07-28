@@ -20,7 +20,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vmilan_datapath_axi_stream_if final {
     CData/*0:0*/ tvalid;
     CData/*0:0*/ tlast;
     CData/*7:0*/ tkeep;
-    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_96;
+    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_98;
     QData/*63:0*/ tdata;
 
     // INTERNAL VARIABLES
