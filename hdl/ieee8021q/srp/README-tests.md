@@ -19,7 +19,7 @@ hand-edit. Part of the IEEE 802.1Q family; rolled up in
 | ✅ `KL_lwsrp_ta_registrar` | `KL_lwsrp_ta_registrar.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
 | ✅ `KL_lwsrp_timers` | `KL_lwsrp_timers.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
 | ✅ `KL_lwsrp_top` | `KL_lwsrp_top.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `milan_dp` | — |
-| ✅ `KL_lwsrp_tx` | `KL_lwsrp_tx.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_tx` · `milan_dp` | — |
+| ✅ `KL_lwsrp_tx` | `KL_lwsrp_tx.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_tx` · `milan_dp` | 5.3.7.2, 5.3.7.3, M-DEV-13 |
 | ✅ `KL_lwsrp_walker` | `KL_lwsrp_walker.sv` | `csr` · `hostplane` · `lwsrp` · `lwsrp_ctx` · `lwsrp_rx` · `lwsrp_switchpdu` · `milan_dp` | — |
 | 📦 `lwsrp_pkg` | `lwsrp_pkg.sv` | — | — |
 

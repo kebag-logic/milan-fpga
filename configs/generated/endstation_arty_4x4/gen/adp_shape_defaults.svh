@@ -39,4 +39,4 @@
   //! sits here so that 'what we advertise' and 'what we emit' are one
   //! generated pass apart and can be compared:
   //! scripts/check_wire_accountability.py does exactly that.
-  localparam int TALKER_WIRE_CHANS_C = 4;
+  localparam int TALKER_WIRE_CHANS_C = 2;

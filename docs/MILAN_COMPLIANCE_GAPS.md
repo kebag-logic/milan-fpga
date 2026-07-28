@@ -383,7 +383,7 @@ hold.
   implementing STREAMING_WAIT. This repo's own traceability row M-DEV-13a
   paraphrased it as an unconditional "a Stream Output SHALL NOT be stopped"
   until 2026-07-28 — that paraphrase is what licensed the bypass, and it is
-  corrected in `docs/traceability/milan-v12.md`.
+  corrected in [`docs/traceability/milan-v12.md`](traceability/milan-v12.md).
 
   **The lwSRP engine is NOT at fault and never was.** With a real Listener
   the reservation completes and holds: binding ALINX talker 0 → Arty sink 0
@@ -429,7 +429,7 @@ hold.
 
   **The durable fix is a one-value change in `milan_csr.sv`: `AAF_CTRL`
   reset `0x0002_0002` → `0x0002_0000`** (bypass clear at reset), plus the
-  `REGISTER_MAP.md` enable recipe moving from `0x0002_0003` to
+  [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) enable recipe moving from `0x0002_0003` to
   `0x0002_0001`. That file is owned by another lane at the time of writing,
   so the change is specified here rather than applied. Until it lands, every
   board that boots with the documented recipe streams unreserved.

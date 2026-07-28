@@ -582,9 +582,9 @@ localparam [15:0] WB_STROUT_FMT_ADDR_C [0:4] = '{16'd1372, 16'd1512, 16'd1652, 1
 // v1.2 5.4.2.26 requires NOT_SUPPORTED rather than a served map.
 localparam int unsigned AEM_SMAP_IN_N_C  = 4;
 localparam int unsigned AEM_SMAP_OUT_N_C = 4;
-localparam [15:0] AEM_SMAP_IN_ADDR_C [0:3] = '{16'd5585, 16'd5625, 16'd5665, 16'd5705};
-localparam [15:0] AEM_SMAP_IN_ROWS_C [0:3] = '{16'd4, 16'd4, 16'd4, 16'd4};
+localparam [15:0] AEM_SMAP_IN_ADDR_C [0:3] = '{16'd4889, 16'd4913, 16'd4937, 16'd4961};
+localparam [15:0] AEM_SMAP_IN_ROWS_C [0:3] = '{16'd2, 16'd2, 16'd2, 16'd2};
 localparam [15:0] AEM_SMAP_IN_MOFF_C [0:3] = '{16'd8, 16'd8, 16'd8, 16'd8};
-localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:3] = '{16'd5745, 16'd5769, 16'd5793, 16'd5817};
+localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:3] = '{16'd4985, 16'd5009, 16'd5033, 16'd5057};
 localparam [15:0] AEM_SMAP_OUT_ROWS_C [0:3] = '{16'd2, 16'd2, 16'd2, 16'd2};
 localparam [15:0] AEM_SMAP_OUT_MOFF_C [0:3] = '{16'd8, 16'd8, 16'd8, 16'd8};

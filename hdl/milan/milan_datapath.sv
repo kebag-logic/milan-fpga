@@ -698,8 +698,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! §5 16-bit word -> capture 8-bit {en[7], src[6:4], idx[3:0]}
     .map_wr_data_i ({cfg_chmap_wr_data[15], cfg_chmap_wr_data[14:12],
                      cfg_chmap_wr_data[3:0]}),
-    .map_rd_en_i (1'b0), .map_rd_addr_i ('0),
-    .map_rd_data_o (), .map_rd_valid_o (),
+    //! map-RAM readback -> CSR 0x910/0x914. The CSR holds map_rd_en_i with a
+    //! stable address until map_rd_valid_o; this port is the ONLY way software
+    //! can tell a mapped-and-never-fed slot from a mapped-and-quiet one.
+    .map_rd_en_i   (cfg_chmap_rd_en && cfg_chmap_rd_side),
+    .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(N_STREAMS*4)-1:0]),
+    .map_rd_data_o (cmap_rd_data_w), .map_rd_valid_o (cmap_rd_valid_w),
     .i2s_pair_valid_i (cappb_pv_w),
     .i2s_l_i (cappb_l_w), .i2s_r_i (cappb_r_w),
     .tdm_pair_valid_i (1'b0), .tdm_pair_slot_i (4'd0),
@@ -1001,6 +1005,32 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_chmap_wr_side;
   wire [5:0]  cfg_chmap_wr_addr;
   wire [15:0] cfg_chmap_wr_data;
+  //! chmap map-RAM READBACK (CSR 0x910/0x914). Both RAM read ports were tied
+  //! off here, so the ONLY view software had of the channel map was
+  //! CHMAP_WORD 0x908 - which is milan_csr's own shadow of what software last
+  //! wrote, not the RAM. A capture slot that is mapped but never fed emits
+  //! 24'd0, bit-identical to a slot that is working and quiet, and that
+  //! ambiguity is the entire diagnosis on a board with no audio pins.
+  wire        cfg_chmap_rd_en;
+  wire        cfg_chmap_rd_side;
+  wire [5:0]  cfg_chmap_rd_addr;
+  wire [15:0] cmap_rd_data_w;     //! {loop_fed, loop_mapped, 2'b0, entry[11:0]}
+  wire        cmap_rd_valid_w;
+  wire [7:0]  rmap_rd_data_w;     //! render entry only - that RAM has no mask
+  logic       rmap_rd_valid_r;
+  //! The two RAMs answer differently and the CSR sees ONE port: CMAP has a
+  //! REGISTERED read port with its own valid; RMAP's is COMBINATIONAL with no
+  //! valid at all, so register the request to give it the same 1-clock shape.
+  //! Both then satisfy the CSR's level-request/valid contract and its
+  //! watchdog sees one timing for both sides.
+  always_ff @(posedge axis_clk) begin : rmap_rd_valid_S
+    if (!axis_resetn) rmap_rd_valid_r <= 1'b0;
+    else              rmap_rd_valid_r <= cfg_chmap_rd_en && !cfg_chmap_rd_side;
+  end : rmap_rd_valid_S
+  wire [15:0] cfg_chmap_rd_data  = cfg_chmap_rd_side ? cmap_rd_data_w
+                                                     : {8'd0, rmap_rd_data_w};
+  wire        cfg_chmap_rd_valid = cfg_chmap_rd_side ? cmap_rd_valid_w
+                                                     : rmap_rd_valid_r;
   wire [15:0] crf_pducnt_w;
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
@@ -1358,7 +1388,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
     .N_LISTENERS_P(N_STREAMS),
-    .N_TALKERS_P(N_STREAMS)
+    .N_TALKERS_P(N_STREAMS),
+    //! both chmap map-RAM read ports are wired below, and the CAPTURE side
+    //! carries the {loop_fed, loop_mapped} mask. Published at CHMAP_SNAP[9:8]
+    //! so software reads UNSUPPORTED rather than a structural zero on a build
+    //! that does not wire them (the parameter's default is 0 for that reason).
+    .CHMAP_RDBK_P(3)
     //! No ADP shape parameters: milan_csr `include-s the SAME generated
     //! gen/adp_shape_defaults.svh this module does, so the config is the
     //! one definition and nothing threads a second copy through a port map.
@@ -1565,6 +1600,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_chmap_wr_side    (cfg_chmap_wr_side),
     .o_chmap_wr_addr    (cfg_chmap_wr_addr),
     .o_chmap_wr_data    (cfg_chmap_wr_data),
+    .o_chmap_rd_en      (cfg_chmap_rd_en),
+    .o_chmap_rd_side    (cfg_chmap_rd_side),
+    .o_chmap_rd_addr    (cfg_chmap_rd_addr),
+    .i_chmap_rd_data    (cfg_chmap_rd_data),
+    .i_chmap_rd_valid   (cfg_chmap_rd_valid),
     .o_crft_en          (cfg_crft_en),
     .o_crft_class_a     (cfg_crft_class_a),
     .o_crft_sid         (cfg_crft_sid),
@@ -2982,7 +3022,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
                     : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
-    .map_rd_addr_i ('0), .map_rd_data_o (),
+    //! map-RAM readback -> CSR 0x910/0x914. Combinational read port with no
+    //! valid of its own; rmap_rd_valid_r above supplies the 1-clock valid.
+    .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(CHMAP_PHYS_C)-1:0]),
+    .map_rd_data_o (rmap_rd_data_w),
     .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
     .mapped_mask_o (chmap_mapped_mask_w), .pb_mask_o (chmap_pb_mask_w)
   );
