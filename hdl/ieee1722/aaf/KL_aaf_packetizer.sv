@@ -28,11 +28,16 @@
                   w5 FRAMES  frames_sent counter
 
                 MULTI-CHANNEL (item-4): w0.chans = channels_per_frame,
-                CONSUMED for every talker (t0 included; reset default 2 -
-                never write it and the wire is byte-identical to the
-                stereo shape). Supported values: even 2..8 (the pair
-                stream is 2-channel-granular); 0/1 clamp to 2, odd to the
-                next even, > 8 to 8. A flop mirror snoops CTRL writes so
+                CONSUMED for every talker (t0 included; reset default =
+                WIRE_CHANS_P, the build's wire-channel constant, itself
+                defaulting to 2 - never write it and the wire is
+                byte-identical to the stereo shape). Supported values:
+                even 2..8 (the pair stream is 2-channel-granular); a TCTX
+                WRITE clamps 0/1 to 2, odd to the next even and > 8 to 8,
+                but WIRE_CHANS_P is checked and rejected rather than
+                rounded - an elaboration value is a build decision, and
+                silently rounding one is how a declaration stops matching
+                the wire. A flop mirror snoops CTRL writes so
                 admission never waits on a BRAM read. The pair-slot space
                 is partitioned by a prefix sum of chans/2: talker t owns
                 pair slots [sum(chans/2 below t), +chans/2) - exactly the
@@ -85,7 +90,18 @@
 `default_nettype none
 
 module KL_aaf_packetizer #(
-  parameter int unsigned N_TALKERS_P = 1   //! talker stream contexts
+  parameter int unsigned N_TALKERS_P = 1,  //! talker stream contexts
+  //! THE WIRE CHANNEL CONSTANT (roadmap item 00). channels_per_frame this
+  //! framer puts in every talker's AAF PDU out of reset - the 7.3.3 field
+  //! AND the 24*C payload, i.e. what a listener actually receives. It is a
+  //! PARAMETER and not a literal so that the number the entity ADVERTISES
+  //! can be compared against it at build time; before this existed the
+  //! framer's stereo truth lived only in the `4'd2` below and the 8x8
+  //! talkers could advertise 8ch with every gate green (measured: 100 % of
+  //! 296,294 frames returned UNSUPPORTED_FORMAT by a Milan-validated
+  //! listener). Even 2..8, clamped like any TCTX write. Default 2 = the
+  //! byte-identical shipping shape.
+  parameter int unsigned WIRE_CHANS_P = 2
 )(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
@@ -142,6 +158,16 @@ module KL_aaf_packetizer #(
   localparam int unsigned SAMPLES_PER_FRAME_C = 6;
   localparam int unsigned MAX_CHANS_C = 8;             //! even 2..8 supported
   localparam int unsigned MAX_PAIRS_C = MAX_CHANS_C/2;
+  //! The wire constant, checked instead of clamped. A TCTX *write* clamps
+  //! (a runtime poke must never wedge the framer), but an ELABORATION value
+  //! is a build decision and silently rounding one is how a declaration
+  //! stops matching the wire in the first place - so a bad one fails the
+  //! build. Even 2..MAX_CHANS_C only.
+  if (WIRE_CHANS_P < 2 || WIRE_CHANS_P > MAX_CHANS_C ||
+      (WIRE_CHANS_P % 2) != 0)
+    $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+           WIRE_CHANS_P, MAX_CHANS_C);
+  localparam logic [3:0] WIRE_CHANS_C = 4'(WIRE_CHANS_P);
   //! frame sizing at the C = MAX ceiling (fb/beat mux); the live frame ends
   //! at ebeats_w = np_w + 6 beats (42 + 8*np bytes, np = 3*C pairs)
   localparam int unsigned FRAME_BYTES_C = 14 + 4 + 24 + 24*MAX_CHANS_C; //! 234
@@ -481,7 +507,10 @@ module KL_aaf_packetizer #(
         nsamp_r[t] <= '0;
         wbank_r[t] <= 1'b0;
         pend_r[t]  <= 1'b0;
-        chans_r[t] <= 4'd2;
+        //! the build constant IS the wire: reset every talker to the
+        //! channels_per_frame this fabric emits (WIRE_CHANS_P, default 2 =
+        //! the historical 4'd2 literal, byte for byte)
+        chans_r[t] <= WIRE_CHANS_C;
       end
       frames_sent_o   <= '0;
       tctx_rd_data_o  <= '0;

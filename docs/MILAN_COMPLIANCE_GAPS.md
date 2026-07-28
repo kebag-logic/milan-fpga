@@ -691,6 +691,56 @@ this repo.
      reference-device 8ch sink and watch `UNSUPPORTED_FORMAT` go from 100 %
      of frames to zero.
 
+   **THE GATE LANDED 2026-07-27 night and is RED, as specified.**
+   [`scripts/check_wire_accountability.py`](../scripts/check_wire_accountability.py),
+   its own CI job (red-by-design, kept out of `docs-check` so it cannot mask a
+   real regression there). 53 checks, 16 findings, self-test green in both
+   directions — `arty_current` PASSES and is the negative control, because it
+   ships `clusters: 8` with a 2ch format and streams clean to the reference
+   device; gating on `clusters` was wrong attempt (a) and refused exactly that
+   config.
+   - **The one constant exists**: `TALKER_WIRE_CHANS_P` on `milan_datapath`
+     (default 2), beside `N_STREAMS`. It is not a description — it DRIVES
+     `KL_aaf_packetizer.WIRE_CHANS_P` (the reset of every talker's `chans`
+     field, i.e. the 7.3.3 `channels_per_frame` and the 24*C payload) and
+     `KL_pcm_tx.CHANS_P`, and the builder emits it as `TALKER_WIRE_CHANS_C`
+     into `gen/adp_shape_defaults.svh` so advertised and emitted are one
+     generated pass apart. Default 2 keeps every shipping build byte-identical.
+   - **It cannot be raised to silence the gate.** A `milan_datapath`
+     elaboration guard refuses any width the capture front-end cannot feed:
+     `KL_aaf_capture_i2s` hardwires `pair_slot_o = 4'd0` (ONE pair),
+     `KL_tdm_capture` gives S/2. Raising the number requires raising the
+     framer, which is item 5 — exactly the intended ownership.
+   - **Scope correction found while writing it:** the rule is per TALKER, not
+     `N_STREAMS*C/2` engine-wide. A talker whose pair slots are never driven
+     never advances `nsamp_r`, so `pend_r` never sets and it emits NO FRAME AT
+     ALL — it goes silent, it does not put a wrong channel count on the wire.
+     That is a real gap but a different one, and making it an elaboration
+     error would have refused the `milan_dp` N=4/N=8 TBs and the shipping 8x8
+     bitstream over a pre-existing condition — the shape of wrong attempt (a)
+     again. It is reported by the gate (W3) instead.
+   - **NEW FINDING, same defect one layer down: `audio_interface` is itself
+     unbacked.** Both NxN configs declare a TDM front-end (`tdm16` on the
+     AX7101, `tdm8` on the 4x4) and **nothing in the fabric drives it**:
+     `sw/litex/milan_soc.py` ties `i_tdm_bclk_i` / `i_tdm_fsync_i` /
+     `i_tdm_data_i` to 0 on every SoC in this tree ("neither board has a TDM
+     header today") and no platform provides TDM pads. `fsync` never toggles,
+     so `KL_tdm_capture` yields no pairs and **every talker of that build
+     would emit nothing at all**. The shipping bitstream only avoids this by
+     having been hand-built WITHOUT `--audio-interface` — i.e. as something
+     other than what its own config declares. Owner: item 4's audio-interface
+     subtask / the platform. Gate check W2, read out of `milan_soc.py` rather
+     than assumed, so wiring a header changes the verdict without an edit.
+   - Sharper still on the AX7101: `_connectors = []`, so there is no pmoda, so
+     `i2s_pads = None` and `i_i2s_sdout_i = 0`. Its capture front-end clocks in
+     a constant zero and produces one pair of digital SILENCE — which is
+     exactly the 2-channel frame the reference device received where 8 were
+     promised.
+   - Still deferred, and now said out loud in the gate's docstring rather than
+     left implied: the listener half ("a `SET_STREAM_FORMAT` we ACCEPT must be
+     a format we can EMIT"). It needs a runtime probe — offer a format, read
+     what comes back on the wire — not a static read of the config.
+
 0. **ROADMAP BUG FIX (USER 2026-07-23): the AX e2 MAC-TX wedge must be
    fixed IN THE LOGIC — the AX42 round. → LOGIC FIX LANDED; guard FSM
    silicon-proven 2026-07-26; **WEDGE RECOVERY STILL UNPROVEN** (corrected

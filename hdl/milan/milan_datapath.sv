@@ -40,6 +40,25 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
   parameter int N_STREAMS = 1,
+  //! THE WIRE CHANNEL CONSTANT (roadmap item 00, docs/MILAN_COMPLIANCE_GAPS.md).
+  //! channels_per_frame this fabric puts in every talker's AAF PDU - the
+  //! 7.3.3 field and the 24*C payload both. It sits beside N_STREAMS
+  //! deliberately: a stream COUNT and a stream WIDTH are the same kind of
+  //! fact about a built bitstream, and until 2026-07-27 only the count was
+  //! expressed. The width lived in a `4'd2` inside KL_aaf_packetizer, so the
+  //! 8x8 config could advertise 8-channel AAF with every gate in this repo
+  //! green - config, svh, CSR and descriptor counts all agreed with each
+  //! other, and not one of them could see the wire. A Milan-validated
+  //! listener bound to talker 0, passed the 5.5.1.2 format check, returned
+  //! ACMP SUCCESS, and discarded 296,294 of 296,294 frames as
+  //! UNSUPPORTED_FORMAT.
+  //!
+  //! It is NOT a free declaration. It DRIVES the packetizer (the chans reset
+  //! for every talker) and KL_pcm_tx, and the elaboration guard below refuses
+  //! any value the selected capture front-end cannot actually feed. Raising
+  //! it therefore requires raising the framer - which is roadmap item 5.
+  //! Default 2 = today's stereo framer, byte-identical.
+  parameter int TALKER_WIRE_CHANS_P = 2,
   //! item-4 audio-interface family: capture front-end generate select.
   //! 0 = stereo I2S master (KL_aaf_capture_i2s, the default - byte/pin
   //! compatible); 8/16/32 = TDM slave with that many slots
@@ -375,6 +394,56 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]  aafcap_slot_w;
   wire [23:0] aafcap_l_w, aafcap_r_w;
 
+  // ==========================================================================
+  //  WIRE-CHANNEL ACCOUNTABILITY GUARD (roadmap item 00).
+  //
+  //  TALKER_WIRE_CHANS_P says how many channels a talker's AAF PDU carries.
+  //  The pair stream is 2-channel-granular and the packetizer partitions its
+  //  pair-slot space by a prefix sum of chans/2, so ONE talker at C channels
+  //  needs C/2 pair slots fed with samples. The selected capture front-end is
+  //  what feeds them, and it supplies exactly:
+  //
+  //    AUDIO_IF_SLOTS_P == 0  KL_aaf_capture_i2s - ONE stereo pair, and it
+  //                           hardwires `pair_slot_o = 4'd0`, so slot 0 only
+  //    AUDIO_IF_SLOTS_P == S  KL_tdm_capture - S/2 pairs on slots 0..S/2-1
+  //
+  //  This is the check the repo did not have. Every other consistency gate
+  //  here compares a declaration against ANOTHER declaration (config ->
+  //  generated svh -> CSR -> descriptor counts); this one compares the
+  //  emitted width against the RTL that has to produce it, and it is why
+  //  TALKER_WIRE_CHANS_P cannot be raised to silence the build gate without
+  //  raising the framer first (roadmap item 5 owns that).
+  //
+  //  SCOPE, MEASURED FROM THE RTL RATHER THAN ASSUMED. The rule is per
+  //  TALKER, not N_STREAMS*C/2 for the whole engine. A talker whose pair
+  //  slots are never driven never advances nsamp_r, so pend_r never sets and
+  //  it emits NO FRAME AT ALL - it goes silent, it does not put a wrong
+  //  channel count on the wire. That is a real gap (an advertised stream with
+  //  no physical source) but it is a DIFFERENT one from D3, it is the
+  //  documented wire-truth rule's "extra stream channels are virtual", and
+  //  every N>1 shape in this tree has it today. Making it an elaboration
+  //  error here would refuse the milan_dp N=4/N=8 TBs and the shipping 8x8
+  //  bitstream over a pre-existing condition - the shape of the 2026-07-27
+  //  wrong attempt (a), which gated on `clusters` and refused arty_current, a
+  //  config that demonstrably works on the wire. Source coverage is REPORTED
+  //  by scripts/check_wire_accountability.py instead, where a finding costs a
+  //  CI line and not a buildable bitstream.
+  //
+  //  ONE format string ($error takes later arguments as VALUES - a "wrapped"
+  //  message prints its continuation strings as integers).
+  // ==========================================================================
+  localparam int AIF_PAIRS_C = (AUDIO_IF_SLOTS_P == 0) ? 1
+                                                       : AUDIO_IF_SLOTS_P / 2;
+  localparam int WIRE_PAIRS_NEEDED_C = TALKER_WIRE_CHANS_P / 2;
+  if (TALKER_WIRE_CHANS_P < 2 || TALKER_WIRE_CHANS_P > 8 ||
+      (TALKER_WIRE_CHANS_P % 2) != 0)
+    $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+           TALKER_WIRE_CHANS_P);
+  else if (WIRE_PAIRS_NEEDED_C > AIF_PAIRS_C)
+    $error("milan_datapath: the fabric cannot emit what this build declares. TALKER_WIRE_CHANS_P=%0d needs %0d fed pair slots per talker and the capture front-end selected by AUDIO_IF_SLOTS_P=%0d supplies %0d in total. Raise the framer (roadmap item 5, docs/MILAN_COMPLIANCE_GAPS.md order item 5) - do NOT lower the entity's declared format, which was tried on 2026-07-27 (dade536) and reverted (e103d8e): it makes an 8x8 board advertise itself as stereo forever.",
+           TALKER_WIRE_CHANS_P, WIRE_PAIRS_NEEDED_C, AUDIO_IF_SLOTS_P,
+           AIF_PAIRS_C);
+
   //! item-4 front-end select: the pair-stream contract is identical, so
   //! only the physical half swaps (I2S master vs TDM slave deserializer).
   generate if (AUDIO_IF_SLOTS_P == 0) begin : g_aif_i2s
@@ -443,7 +512,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     wire [23:0] pb_l_w, pb_r_w;
     KL_pcm_tx #(
       .N_STREAMS_P   (N_STREAMS),
-      .CHANS_P       (2),               //! stereo pair stream (all-stereo NxN)
+      //! the ring de-interleaver produces exactly the width the framer emits
+      //! (item-00 constant; was a literal 2 - one of the two places the
+      //! stereo truth was hiding)
+      .CHANS_P       (TALKER_WIRE_CHANS_P),
       .SAMPLE_DIV_C  (PB_SAMPLE_DIV_C),
       .USE_EXT_TICK_P(1'b0)
     ) pcm_tx (
@@ -531,7 +603,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [23:0] pkt_l_w    = cfg_chmap_enable ? cmap_l_w    : cappb_l_w;
   wire [23:0] pkt_r_w    = cfg_chmap_enable ? cmap_r_w    : cappb_r_w;
 
-  KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS)) aaf_packetizer (
+  KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
+                      .WIRE_CHANS_P(TALKER_WIRE_CHANS_P)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
     .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),

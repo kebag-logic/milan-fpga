@@ -680,6 +680,99 @@ def estimate_resources(cfg, overlay):
                 verdict=resource_verdict(pct[worst]), upper_bound=upper)
 
 
+# ================================================================ item 00 ====
+#  THE WIRE CHANNEL CONSTANT - what the FABRIC emits, not what we declare.
+#
+#  Every other derivation in this file turns one declaration into another. This
+#  one is read off the RTL and the SoC glue, because on 2026-07-27 the 8x8
+#  talkers advertised 8-channel AAF (0x0205022002006000) while the framer emitted
+#  stereo, and every gate in the repo stayed green - config, generated svh, CSR
+#  and descriptor counts all agreed with each other and none of them could see
+#  the wire. A Milan-validated listener bound to talker 0, passed the 5.5.1.2
+#  format check, returned ACMP SUCCESS with a correct MAAP dmac and MSRP
+#  latency, and counted UNSUPPORTED_FORMAT on 296,294 of 296,294 frames.
+#
+#  THE CHAIN, module by module (hdl/ieee1722/aaf/, sw/litex/milan_soc.py):
+#
+#    KL_aaf_packetizer  partitions its pair-slot space by a prefix sum of
+#                       chans/2, so one talker at C channels needs C/2 pair
+#                       slots FED WITH SAMPLES. Unfed slots do not shrink the
+#                       frame - the talker simply never emits one.
+#    KL_aaf_capture_i2s  hardwires `pair_slot_o = 4'd0`: ONE pair, slot 0.
+#    KL_tdm_capture      S/2 pairs on slots 0..S/2-1 - IF something drives its
+#                       bclk/fsync/data. On every SoC in this tree
+#                       milan_soc.py ties `i_tdm_bclk_i = 0, i_tdm_fsync_i = 0,
+#                       i_tdm_data_i = 0` ("neither board has a TDM header
+#                       today"), so fsync never toggles and the front-end
+#                       yields NOTHING. A config naming a tdm kind is an
+#                       advertised capability the fabric cannot back - the same
+#                       defect as the channel count, one layer down.
+#
+#  Note what this means for the AX7101: it has `_connectors = []`, so there is
+#  no pmoda, so `i2s_pads = None` and `i_i2s_sdout_i = 0`. Its capture front-end
+#  clocks in a constant zero and produces ONE pair of digital SILENCE - which
+#  is exactly the 2-channel frame the reference device received where 8 were
+#  promised.
+#
+#  NOT DERIVED FROM `clusters` - that was tried on 2026-07-27 and reverted: it
+#  refused endstation_arty_current, which ships `clusters: 8` with a 2ch format
+#  and demonstrably works on the wire. `clusters` is the AEM AUDIO_CLUSTER
+#  count and is not the wire width.
+# =============================================================================
+
+#: milan_datapath AUDIO_IF_SLOTS_P per interface kind. MIRRORS emit_soc_argv:
+#: only the tdm kinds emit --audio-interface, so everything else elaborates the
+#: stereo I2S front-end (slots 0).
+AUDIO_IF_SLOTS = {"tdm8": 8, "tdm16": 16, "tdm32": 32}
+
+#: KL_aaf_packetizer MAX_CHANS_C / the even-2..8 rule of its chans field.
+WIRE_CHANS_MIN, WIRE_CHANS_MAX = 2, 8
+
+
+def audio_if_slots(cfg):
+    """milan_datapath AUDIO_IF_SLOTS_P this config elaborates (0 = I2S)."""
+    return AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
+
+
+def framer_pair_supply(cfg, tdm_bus_wired=False):
+    """Pair slots the capture front-end actually delivers to the packetizer.
+
+    `tdm_bus_wired` is a fact about the SoC glue, not about this config, and
+    it defaults to what is true today: nothing drives the TDM bus, so a tdm
+    front-end yields 0 pairs and its talkers emit no frames at all. The
+    parameter exists so that wiring a TDM header raises this number instead of
+    requiring an edit here (scripts/check_wire_accountability.py reads the tie
+    out of milan_soc.py and passes the answer in)."""
+    slots = audio_if_slots(cfg)
+    if slots == 0:
+        return 1                      # KL_aaf_capture_i2s: pair_slot_o = 4'd0
+    return slots // 2 if tdm_bus_wired else 0
+
+
+def framer_wire_channels(cfg, tdm_bus_wired=False):
+    """channels_per_frame this fabric puts in a talker's AAF PDU.
+
+    = milan_datapath TALKER_WIRE_CHANS_P = KL_aaf_packetizer WIRE_CHANS_P =
+    the reset value of every talker's chans field. Even, WIRE_CHANS_MIN..MAX.
+
+    A supply of 0 pairs still reports the MINIMUM rather than 0: the packetizer
+    holds its reset chans and would stamp that shape if it ever emitted, so 0
+    would claim a frame width no wire ever carries. That the talker emits
+    nothing at all is a separate finding, raised where it can be read."""
+    pairs = framer_pair_supply(cfg, tdm_bus_wired)
+    return max(WIRE_CHANS_MIN, min(WIRE_CHANS_MAX, pairs * 2))
+
+
+def fmt_channels(fmt):
+    """channels_per_frame declared by an AAF stream-format qword (the inverse
+    of aaf_pcm32_48k: bits [31:22] of the low word). Returns None for a
+    non-AAF format (CRF has no channel count)."""
+    n = int(str(fmt), 16)
+    if (n >> 56) & 0x7F != 0x02:          # IEEE 1722 subtype 2 = AAF
+        return None
+    return (n >> 22) & 0x3FF
+
+
 def aaf_pcm32_48k(channels, ut=False):
     """AAF PCM 32-bit 48k-base stream format qword (channels at bits [31:22]
     of the low word; ut = bit 52 'up-to' family bit). Reproduces the
@@ -1387,6 +1480,14 @@ def emit_adp_shape_svh(cfg):
     a("  //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists")
     a(f"  localparam logic [15:0] ADP_LISTENER_CAPS_C  = "
       f"16'h{sh['listener_capabilities']:04X};")
+    a("  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame")
+    a("  //! the FRAMER emits, derived from the capture front-end this config")
+    a("  //! elaborates - NOT from any declared format and NOT from `clusters`")
+    a("  //! (the AEM AUDIO_CLUSTER count, which is not the wire width). It")
+    a("  //! sits here so that 'what we advertise' and 'what we emit' are one")
+    a("  //! generated pass apart and can be compared:")
+    a("  //! scripts/check_wire_accountability.py does exactly that.")
+    a(f"  localparam int TALKER_WIRE_CHANS_C = {framer_wire_channels(cfg)};")
     a("")
     return "\n".join(ln)
 
@@ -2224,6 +2325,15 @@ def emit_soc_argv(cfg):
     kind = cfg["interface"]["kind"]
     if kind in ("tdm8", "tdm16", "tdm32"):
         argv += ["--audio-interface", kind]
+    # item-00 wire channel constant: milan_datapath TALKER_WIRE_CHANS_P. Emitted
+    # only above the default so today's argv is byte-identical, on the same
+    # discipline as --num-streams and AAF_PLAYBACK_P. Raising it REQUIRES the
+    # framer to back it - the milan_datapath elaboration guard refuses a width
+    # the capture front-end cannot feed, which is what stops this from becoming
+    # one more declaration agreeing with the other declarations.
+    wire_chans = framer_wire_channels(cfg)
+    if wire_chans != WIRE_CHANS_MIN:
+        argv += ["--talker-wire-chans", str(wire_chans)]
     # docs/design/AREA_BUDGET.md tier-1 optional blocks. Emitted ONLY for a
     # PRUNED block, in OPTIONAL_BLOCKS order, so a config that omits the
     # whole board.features section produces a byte-identical argv.

@@ -66,6 +66,35 @@ jobs:
       - name: Device-tree binding gate
         run: python3 sw/dts/milan_dt.py selftest
 
+  # ==========================================================================
+  #  THIS JOB IS EXPECTED TO BE RED (roadmap item 00). Read before "fixing" it.
+  #
+  #  Every gate in the job above compares a declaration against ANOTHER
+  #  declaration and none of them can see the wire, which is how the 8x8
+  #  talkers came to advertise 8-channel AAF while the framer emits stereo with
+  #  57/57 suites and 2,062,389 checks green. A Milan-validated reference
+  #  device caught it: ACMP SUCCESS, Milan 5.5.1.2 format check passed, then
+  #  UNSUPPORTED_FORMAT on 296,294 of 296,294 frames.
+  #
+  #  The deviation used to be a prose comment in the config, and a comment does
+  #  not fail a build. This job is that comment turned into an exit code, and
+  #  it goes green when the FRAMER is raised (roadmap item 5) - never by
+  #  lowering a declared format, which was tried on 2026-07-27 (dade536) and
+  #  reverted (e103d8e) because it would ship an 8x8 board advertising itself
+  #  as stereo forever.
+  #
+  #  It is a SEPARATE job on purpose: a known-red step inside docs-check would
+  #  mask the first real regression in any of the gates above it.
+  # ==========================================================================
+  wire-accountability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Advertised-vs-emitted gate (expected red until roadmap item 5)
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/check_wire_accountability.py --self-test
+
   # The same docs gate with no git metadata at all - proves it still runs in an
   # extracted tarball or a downloaded zip, which is how most outsiders will
   # first meet this repo.

@@ -32,3 +32,11 @@
   //! listener_capabilities (Table 6.5): IMPLEMENTED | AUDIO_SINK,
   //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists
   localparam logic [15:0] ADP_LISTENER_CAPS_C  = 16'h4801;
+  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame
+  //! the FRAMER emits, derived from the capture front-end this config
+  //! elaborates - NOT from any declared format and NOT from `clusters`
+  //! (the AEM AUDIO_CLUSTER count, which is not the wire width). It
+  //! sits here so that 'what we advertise' and 'what we emit' are one
+  //! generated pass apart and can be compared:
+  //! scripts/check_wire_accountability.py does exactly that.
+  localparam int TALKER_WIRE_CHANS_C = 2;

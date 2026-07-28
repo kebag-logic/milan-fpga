@@ -360,8 +360,8 @@ class MilanNIC(LiteXModule):
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
-                 audio_if_slots=0, aaf_playback=False, render_lpf=True,
-                 optional_blocks=None):
+                 audio_if_slots=0, talker_wire_chans=2, aaf_playback=False,
+                 render_lpf=True, optional_blocks=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -386,7 +386,9 @@ class MilanNIC(LiteXModule):
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
-                           audio_if_slots=audio_if_slots, aaf_playback=aaf_playback,
+                           audio_if_slots=audio_if_slots,
+                           talker_wire_chans=talker_wire_chans,
+                           aaf_playback=aaf_playback,
                            render_lpf=render_lpf, optional_blocks=optional_blocks)
 
 
@@ -498,7 +500,8 @@ MILAN_OPTIONAL_BLOCKS = {
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
-                       aaf_playback=False, render_lpf=True, optional_blocks=None):
+                       talker_wire_chans=2, aaf_playback=False, render_lpf=True,
+                       optional_blocks=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -598,9 +601,17 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # AAF_PLAYBACK_P (item-7): passed ONLY when --aaf-playback is on, so the
     # default build's Instance (and generated top .v) is byte-identical - the
     # SV default AAF_PLAYBACK_P=0 prunes the KL_pcm_tx generate.
+    # TALKER_WIRE_CHANS_P (item 00): the channels_per_frame the framer emits.
+    # Passed ONLY above the default, on the AAF_PLAYBACK_P discipline, so the
+    # shipping build's Instance and generated top .v stay byte-identical.
+    # milan_datapath REFUSES at elaboration any width the front-end selected by
+    # audio_if_slots cannot feed - that guard is what makes this a fabric fact
+    # and not one more declaration.
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+    if int(talker_wire_chans) != 2:
+        dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
     if aaf_playback:
         # param NAME must match the SV declaration exactly - a mismatched
         # LiteX Instance param silently no-ops (latent find 2026-07-25:
@@ -4267,7 +4278,8 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv", rx_queues=1,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
-                 num_streams=1, audio_if_slots=0, pcm_ring="dram", aaf_playback=False,
+                 num_streams=1, audio_if_slots=0, talker_wire_chans=2,
+                 pcm_ring="dram", aaf_playback=False,
                  render_lpf=True, optional_blocks=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
@@ -4529,6 +4541,7 @@ class MilanSoC(SoCCore):
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
+                                  talker_wire_chans=int(talker_wire_chans),
                                   aaf_playback=aaf_pb,
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks)
@@ -4723,6 +4736,14 @@ def main():
                          "= the stereo I2S master front-end, bit-identical to the shipping "
                          "build; tdmN = the KL_tdm_capture N-slot TDM slave (the builder "
                          "emits this from audio_interface.kind).")
+    ap.add_argument("--talker-wire-chans", default=2, type=int,
+                    help="item-00 WIRE CHANNEL CONSTANT: channels_per_frame the AAF "
+                         "framer emits per talker (milan_datapath TALKER_WIRE_CHANS_P, "
+                         "even 2..8). This is what the fabric PUTS ON THE WIRE, not what "
+                         "the entity advertises - milan_datapath refuses at elaboration "
+                         "any width the capture front-end selected by --audio-interface "
+                         "cannot feed, so raising it requires raising the framer (roadmap "
+                         "item 5). Default 2 = today's stereo framer, byte-identical.")
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
     ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
@@ -4844,6 +4865,7 @@ def main():
                    },
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
+                   talker_wire_chans=int(args.talker_wire_chans),
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
                    rx_fifo_beats=int(args.rx_fifo_beats),
