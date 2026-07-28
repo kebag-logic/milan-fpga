@@ -21,13 +21,24 @@ promised 8-channel AAF and handed the stereo the framer actually produces.
 The deviation WAS recorded.  As a prose comment in the config.  A comment does
 not fail a build.  This gate is that comment turned into an exit code.
 
-THIS GATE IS EXPECTED TO FAIL TODAY.  That is the point, and it is why it
-names an owner on every finding instead of just printing a number.  Roadmap
-item 5 (NxN AAF Milan streams) owns raising the framer; the entity's declared
-8-channel format STAYS - down-declaring the talkers to 2ch was tried on
-2026-07-27 (dade536) and reverted (e103d8e) because it "fixes" the mismatch by
-abandoning the requirement and would ship an 8x8 board advertising itself as
-stereo forever.
+THIS GATE IS EXPECTED TO FAIL, and it names an owner on every finding instead
+of just printing a number.  The entity's declared 8-channel format STAYS -
+down-declaring the talkers to 2ch was tried on 2026-07-27 (dade536) and
+reverted (e103d8e) because it "fixes" the mismatch by abandoning the
+requirement and would ship an 8x8 board advertising itself as stereo forever.
+
+WHAT MOVED, 2026-07-28.  W1 is CLOSED on every shipped config: the TDM MASTER
+front-end landed (hdl/ieee1722/aaf/KL_tdm_capture_master.sv, instantiated by
+milan_datapath when AUDIO_IF_MASTER_P != 0), the fabric now GENERATES bclk and
+fsync off its own MMCM output instead of waiting for a codec that was never
+wired, and the capture supply went from ONE pair (KL_aaf_capture_i2s, which
+hardwires pair_slot_o = 4'd0) to 16 pairs on the AX7101's TDM32 bus and 4 on
+the Arty's TDM8.  Declared == emitted now reads 8 == 8 and 4 == 4 where it read
+8 == 2 and 4 == 2.  W3 is what remains: 16 pair slots feed FOUR 8-channel
+talkers, not eight, so half of the AX7101's advertised talkers still have no
+physical source.  That is a DIFFERENT defect - those talkers are silent, not
+mis-framed - and it is still owned by item 5.  It has NOT been made to pass by
+moving a number.
 
 WHAT IT CHECKS, per configs/endstation_*.yaml:
 
@@ -337,16 +348,21 @@ def self_test():
     # NEGATIVE CONTROL: the config that demonstrably works on the wire.
     probe("arty_current (streams clean to the reference device)", cur,
           soc_text, expect_fail=False)
-    # POSITIVE CONTROL: the config measured at 100 % UNSUPPORTED_FORMAT.
-    probe("ax7101_8x8 (100 % UNSUPPORTED_FORMAT on silicon)", ax,
+    # POSITIVE CONTROL: the 8x8 config. It fails on W3 now rather than W1 -
+    # the framer emits the 8 channels it advertises since the TDM master
+    # landed, but 16 pair slots back FOUR 8-channel talkers, not eight.
+    probe("ax7101_8x8 (4 of 8 talkers still have no pair source)", ax,
           soc_text, expect_fail=True)
-    # A TDM header appearing must CHANGE the verdict, or W2 is a constant.
-    probe("ax7101_8x8 with the TDM bus wired", ax,
-          soc_text.replace("i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, "
-                           "i_tdm_data_i = 0",
-                           "i_tdm_bclk_i = pads.bclk, i_tdm_fsync_i = "
-                           "pads.fsync, i_tdm_data_i = pads.data"),
-          expect_fail=True)   # still fails W1: 8ch needs 4 pairs/talker x 8
+    # W2 MUST NOT BE A CONSTANT: strip the master out of the SoC and the same
+    # config must fall back to the I2S front-end (1 pair) and report the
+    # ORIGINAL W1 defect - 8 channels advertised, 2 emitted, which is what a
+    # Milan-validated device measured at 296,294 of 296,294 frames. This probe
+    # is the one that proves the 2026-07-28 change is what moved the verdict
+    # and not a loosened rule.
+    probe("ax7101_8x8 with the TDM master removed (the 07-27 fabric)", ax,
+          soc_text.replace('dp_params["p_AUDIO_IF_MASTER_P"] = 1',
+                           'pass  # master removed for the self-test'),
+          expect_fail=True)
 
     print(f"  self-test: {'PASS' if passed else 'FAIL'}")
     return passed

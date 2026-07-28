@@ -743,10 +743,27 @@ def tdm_bus_wired(soc_text=None):
     changes every answer that depends on it - the argv, the plan mark and the
     wire-accountability gate - without an edit in any of them.
 
-    milan_datapath's TDM front-end is only as real as its bclk/fsync/data.
-    Today add_milan_datapath ties all three to 0 and nothing overrides them via
-    extra_ports, so KL_tdm_capture's fsync never toggles and it yields no pairs
-    at all."""
+    TWO WAYS THE BUS CAN BE REAL, and the question is NOT the same for both.
+
+      SLAVE (KL_tdm_capture).  bclk/fsync are INPUTS a codec must drive.  So
+      the question is "does anything assign them something other than 0", and
+      today add_milan_datapath ties all three to 0 with nothing overriding
+      them via extra_ports: fsync never toggles, the front-end yields no pairs
+      at all, and every talker built on it emits NO FRAME.
+
+      MASTER (KL_tdm_capture_master, 2026-07-28).  bclk/fsync are OUTPUTS the
+      FABRIC generates off its own MMCM clock, so asking whether anything
+      drives i_tdm_fsync_i is asking the wrong question - it will always be 0
+      and always should be.  The right question is whether the SoC can BUILD a
+      master at all: does it pass AUDIO_IF_MASTER_P to milan_datapath and give
+      it the clk_tdm_i to divide.  A master with nothing on tdm_data_i still
+      frames at the declared width (it captures digital SILENCE, exactly as
+      the pmoda-less AX7101 I2S front-end does today) - which is why the pads
+      are NOT part of this question either: what is being asked is "can this
+      fabric put N channels per frame on the wire", and the answer for a
+      master is yes.  Whether those channels carry audio is the pads' problem
+      and is reported separately.
+    """
     if soc_text is None:
         if "cached" not in _TDM_WIRED_CACHE:
             try:
@@ -755,12 +772,37 @@ def tdm_bus_wired(soc_text=None):
             except OSError:
                 _TDM_WIRED_CACHE["cached"] = False
         return _TDM_WIRED_CACHE["cached"]
-    # Collect every assignment and ask whether ANY is non-zero. Deliberately
-    # not a negative lookahead after `\s*=\s*`: that backtracks the whitespace
-    # to width zero and then happily matches the space in front of the `0`, so
-    # `i_tdm_fsync_i = 0` reads as "wired" and the check inverts itself.
+    # MASTER: the parameter must be PASSED (a dp_params entry), not merely
+    # mentioned in a comment or an argparse help string - both of which this
+    # file is full of. Anchor on the assignment form add_milan_datapath uses.
+    if re.search(r'dp_params\[\s*["\']p_AUDIO_IF_MASTER_P["\']\s*\]\s*=', soc_text) \
+       and re.search(r"i_clk_tdm_i\s*=", soc_text):
+        return True
+    # SLAVE: collect every assignment and ask whether ANY is non-zero.
+    # Deliberately not a negative lookahead after `\s*=\s*`: that backtracks
+    # the whitespace to width zero and then happily matches the space in front
+    # of the `0`, so `i_tdm_fsync_i = 0` reads as "wired" and the check
+    # inverts itself.
     vals = re.findall(r"i_tdm_fsync_i\s*=\s*([^\s,)]+)", soc_text)
     return bool(vals) and any(v != "0" for v in vals)
+
+
+def tdm_bus_master(soc_text=None):
+    """Is the TDM bus real because the FABRIC drives it (vs a codec)?
+
+    Separated from tdm_bus_wired() because only a master needs
+    --audio-interface-master in the argv and a second MMCM output in the CRG,
+    and because the two answers will diverge the day a board really does wire
+    a codec-driven slave header."""
+    if soc_text is None:
+        try:
+            with open(SOC_PY) as fh:
+                soc_text = fh.read()
+        except OSError:
+            return False
+    return bool(
+        re.search(r'dp_params\[\s*["\']p_AUDIO_IF_MASTER_P["\']\s*\]\s*=', soc_text)
+        and re.search(r"i_clk_tdm_i\s*=", soc_text))
 
 
 def interface_is_placeholder(cfg, wired=None):
@@ -802,18 +844,59 @@ def framer_pair_supply(cfg, wired=None):
     return slots // 2
 
 
+def framer_declared_channels(cfg):
+    """The WIDEST channels_per_frame any of this config's talkers advertises.
+
+    The REQUIREMENT, stated by the entity itself: a listener may bind any
+    declared format, so the framer has to be able to emit the widest of them.
+    Read from the AAF stream-format qword's own channels_per_frame field
+    (IEEE 1722-2016 7.3.3) - the one field a listener actually validates - and
+    NOT from `clusters`, which is the AEM AUDIO_CLUSTER count and was the
+    2026-07-27 wrong attempt (it refused endstation_arty_current, which ships
+    clusters 8 with a 2-channel format and demonstrably works on the wire)."""
+    want = 0
+    for t in cfg["talkers"]:
+        for fmt in t["formats"]:
+            c = fmt_channels(fmt)
+            if c is not None:
+                want = max(want, c)
+    return want or WIRE_CHANS_MIN
+
+
 def framer_wire_channels(cfg, wired=None):
     """channels_per_frame this fabric puts in a talker's AAF PDU.
 
     = milan_datapath TALKER_WIRE_CHANS_P = KL_aaf_packetizer WIRE_CHANS_P =
     the reset value of every talker's chans field. Even, WIRE_CHANS_MIN..MAX.
 
-    A supply of 0 pairs still reports the MINIMUM rather than 0: the packetizer
-    holds its reset chans and would stamp that shape if it ever emitted, so 0
-    would claim a frame width no wire ever carries. That the talker emits
-    nothing at all is a separate finding, raised where it can be read."""
+    THE SMALLER OF WHAT IS ASKED FOR AND WHAT CAN BE FED, and both halves are
+    load-bearing:
+
+      * capped by the SUPPLY, because the milan_datapath elaboration guard
+        refuses a width the capture front-end cannot feed. That cap is the
+        measured 8ch-vs-2ch gap: an I2S front-end supplies ONE pair, so an
+        8-channel declaration is emitted as 2 and a Milan-validated listener
+        discards 100 % of the frames (silicon 2026-07-27, 296,294/296,294).
+
+      * capped by the DECLARATION, because TALKER_WIRE_CHANS_P is a build
+        parameter and not a maximum to be filled. When the TDM master landed
+        (2026-07-28) the supply jumped from 1 pair to 4 (TDM8) / 8 (TDM16) /
+        16 (TDM32) and an uncapped derivation would have made endstation_
+        arty_4x4 EMIT 8 channels while advertising 4 - the same defect the
+        other way round, and just as invisible to a listener until it counted
+        its discards. Raising the framer means meeting the declaration, not
+        overshooting it.
+
+    So this is NOT "derive the wire width from the declaration": the
+    declaration states the requirement, the front-end states the capability,
+    and where they disagree the gate REPORTS it (owner item 5) rather than
+    either side quietly moving. A supply of 0 pairs still reports the MINIMUM
+    rather than 0: the packetizer holds its reset chans and would stamp that
+    shape if it ever emitted, so 0 would claim a frame width no wire ever
+    carries. That the talker emits nothing at all is a separate finding."""
     pairs = framer_pair_supply(cfg, wired)
-    return max(WIRE_CHANS_MIN, min(WIRE_CHANS_MAX, pairs * 2))
+    supply = min(WIRE_CHANS_MAX, pairs * 2)
+    return max(WIRE_CHANS_MIN, min(supply, framer_declared_channels(cfg)))
 
 
 def fmt_channels(fmt):
@@ -2260,8 +2343,15 @@ def rtl_capability_marks(cfg):
     elif kind in RTL_TODAY["interfaces"]:
         marks.append((f"audio interface {kind}", "supported",
                       "KL_i2s_playback / aaf_talker_i2s" if kind == "i2s_philips"
-                      else "KL_tdm_capture -> KL_aaf_packetizer multi-channel "
-                           "payload (milan_soc.py --audio-interface)"))
+                      else ("KL_tdm_capture_master (the fabric MASTERS the bus: "
+                            "it generates bclk/fsync off its own MMCM output at "
+                            "2 x SLOTS x 32 x 48 kHz, so nothing external has to "
+                            "drive it) -> KL_aaf_packetizer multi-channel "
+                            "payload (milan_soc.py --audio-interface "
+                            "--audio-interface-master)"
+                            if tdm_bus_master() else
+                            "KL_tdm_capture -> KL_aaf_packetizer multi-channel "
+                            "payload (milan_soc.py --audio-interface)")))
     else:
         ip = emit_interface_params(cfg)
         marks.append((f"audio interface {kind} biphase-mark ser/des",
@@ -2398,6 +2488,12 @@ def emit_soc_argv(cfg):
     # the shipping bitstream was hand-built. See interface_is_placeholder().
     if kind in ("tdm8", "tdm16", "tdm32") and not interface_is_placeholder(cfg):
         argv += ["--audio-interface", kind]
+        # The TDM front-end is only real because the fabric MASTERS the bus
+        # (KL_tdm_capture_master): a slave build's bclk/fsync are tied to 0.
+        # Emitted next to the kind because the two are one decision - the SoC
+        # refuses --audio-interface-master without a tdm kind anyway.
+        if tdm_bus_master():
+            argv += ["--audio-interface-master"]
     # item-00 wire channel constant: milan_datapath TALKER_WIRE_CHANS_P. Emitted
     # only above the default so today's argv is byte-identical, on the same
     # discipline as --num-streams and AAF_PLAYBACK_P. Raising it REQUIRES the

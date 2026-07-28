@@ -67,6 +67,18 @@ MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
 MILAN_PCM_BRAM_BASE = 0x9010_0000
 MILAN_PCM_BRAM_SIZE = 0x0000_8000  # 32 KB, power of two
 
+# ---- item-4 audio-interface family: the TDM frame's arithmetic ----------------------------------
+# A TDM slot is 32 bit clocks wide whatever the sample word inside it is - the
+# configs' `word_length_bits: 24` means "24-in-32", which is what
+# milan_datapath's AIF_WORD_BITS_C = 32 elaborates. The frame rate IS the
+# sample rate, so bclk = SLOTS x 32 x fs and a bus MASTER, which toggles a
+# divider to make bclk, needs a clock at 2 x that. These two constants are the
+# only place that arithmetic is written on the Python side; milan_datapath
+# re-derives it in SV and REFUSES any clock that is not an exact multiple, so
+# the two cannot silently disagree.
+AUDIO_IF_WORD_BITS = 32
+AUDIO_IF_FS_HZ     = 48000
+
 # ---- QSPI flash boot ("gain time"  -  skip the ~4-min serial image upload) -------------------------
 # The AX7101 flash is a Micron N25Q128 = 16 MB (confirmed from the Alinx repo datasheet).
 # The Linux boot images total ~23 MB (14 MB kernel Image + 8.7 MB rootfs.cpio.gz + 0.26 MB
@@ -201,7 +213,7 @@ class _CRG(LiteXModule):
     the Artix-7 DDR3 PHY (A7DDRPHY) and the RGMII PHY (LiteEth s7rgmii) need for their
     IODELAY calibration."""
     def __init__(self, platform, sys_clk_freq, with_dram=False, with_eth=False,
-                 milan_clk_freq=None, board="ax7101"):
+                 milan_clk_freq=None, board="ax7101", audio_tdm_hz=None):
         self.cd_sys = ClockDomain()
 
         # Board clocking: AX7101 = 200 MHz differential + active-low reset button,
@@ -267,8 +279,58 @@ class _CRG(LiteXModule):
             # clk200 pads is Place 30-475 unplaceable, AX13 2026-07-18).
             # BANDWIDTH=LOW on the MMCM filters the cascade jitter (UG472
             # "Jitter Filter"); bench THD+N re-check is on the bring-up list.
+            #
+            # ITEM-4 TDM MASTER PLAN (2026-07-28, `audio_tdm_hz`). A TDM bus
+            # MASTER generates its own bit clock, and bclk = SLOTS x 32 x fs:
+            #   TDM8  x 32 @ 48k -> 12.288 MHz -> clk_tdm 24.576 MHz
+            #   TDM16 x 32 @ 48k -> 24.576 MHz -> clk_tdm 49.152 MHz
+            #   TDM32 x 32 @ 48k -> 49.152 MHz -> clk_tdm 98.304 MHz
+            # (the master toggles a divider, so its clock is 2 x bclk). The
+            # 24.576 MHz cd_audio CANNOT be re-rated to reach those: it is
+            # 24.576 MHz BY CONTRACT - KL_crf_tx divides it /512 for the 48 kHz
+            # CRF event, KL_i2s_playback /2 /8 /512 for the DAC, and
+            # KL_mmcm_drp_servo measures it. So the master gets its OWN MMCM
+            # OUTPUT off the SAME VCO, and the two-stage integer chain is
+            # re-derived so one VCO serves both:
+            #   pre-PLL : 100 MHz /2 x23      -> VCO 1150 MHz (UNCHANGED),
+            #             /67                 -> 17.164179 MHz  (was /37)
+            #   MMCM    : 17.164179 /1 x63    -> VCO 1081.3433 MHz (600-1200 ok)
+            #             CLKOUT0 /44         -> 24.575984 MHz = -0.66 ppm
+            #             CLKOUT1 /44,/22,/11 -> 24.576 / 49.152 / 98.304 MHz
+            # The audio clock gets BETTER, not worse: -0.66 ppm against the
+            # -10.64 ppm of the default plan, because 44 divides the new VCO
+            # where 43 (odd) could never yield an integer 2x or 4x sibling.
+            # PS step = 1/(56*1081.34 MHz) = 16.51 ps (was 16.90), so the
+            # sustained-slew ceiling is (200e6/13)*16.51ps = 254 ppm (was 260)
+            # - still base 0.66 + talker 100 ppm with >2x margin. CLKOUT1 also
+            # carries USE_FINE_PS so the servo trims BOTH outputs together
+            # (UG472: the phase shift applies to every CLKOUTx that asks for
+            # it); a capture clock the media-clock servo could not reach would
+            # be a talker that ignores its own recovered media clock.
+            #
+            # DEFAULT (audio_tdm_hz None) KEEPS PLAN A BIT-FOR-BIT: this is a
+            # clocking change, and a clocking change that happened merely
+            # because a parameter now exists would move every bench number
+            # measured through the DAC (-72.7 dB analog loop, THD+N) on builds
+            # that never asked for a TDM master.
             self.cd_audio = ClockDomain()
             audio_in = clkin if board == "arty" else ClockSignal("sys")
+            audio_src_hz = clkin_freq if board == "arty" else sys_clk_freq
+            if audio_tdm_hz is None:
+                pre_div, mmcm_mult, audio_div = 37, 34.0, 43.0   # PLAN A
+            else:
+                pre_div, mmcm_mult, audio_div = 67, 63.0, 44.0   # PLAN B
+                _vco2 = audio_src_hz * 23 / 2 / pre_div * mmcm_mult
+                tdm_div = round(_vco2 / audio_tdm_hz)
+                if abs(_vco2 / tdm_div - audio_tdm_hz) / audio_tdm_hz > 20e-6:
+                    raise ValueError(
+                        f"_CRG: audio_tdm_hz={audio_tdm_hz} is not an integer "
+                        f"divide of the audio MMCM VCO {_vco2/1e6:.6f} MHz "
+                        f"(nearest /{tdm_div} = {_vco2/tdm_div/1e6:.6f} MHz). "
+                        f"The TDM master's frame rate would not be 48 kHz. "
+                        f"Supported: 24.576e6 (TDM8), 49.152e6 (TDM16), "
+                        f"98.304e6 (TDM32), all x 32-bit slots at 48 kHz.")
+                self.cd_audio_tdm = ClockDomain()
             pll_audio_fb  = Signal()
             audio_ref_raw = Signal()
             audio_ref     = Signal()
@@ -276,7 +338,7 @@ class _CRG(LiteXModule):
                 p_STARTUP_WAIT="FALSE", p_BANDWIDTH="OPTIMIZED",
                 p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=1e9/clkin_freq if board == "arty" else 1e9/sys_clk_freq,
                 p_DIVCLK_DIVIDE=2, p_CLKFBOUT_MULT=23,   # PFD 50 MHz, VCO 1150 MHz
-                p_CLKOUT0_DIVIDE=37, p_CLKOUT0_PHASE=0.0,  # 31.081081 MHz
+                p_CLKOUT0_DIVIDE=pre_div, p_CLKOUT0_PHASE=0.0,  # 31.081081 / 17.164179 MHz
                 i_CLKIN1=audio_in, i_RST=~rst_n, i_PWRDWN=0,
                 i_CLKFBIN=pll_audio_fb, o_CLKFBOUT=pll_audio_fb,
                 o_CLKOUT0=audio_ref_raw,
@@ -297,11 +359,12 @@ class _CRG(LiteXModule):
             self.audio_ps_clk     = ClockSignal("idelay") if (with_dram or with_eth) else ClockSignal("sys")
             mmcm_audio_fb  = Signal()
             audio_mclk_raw = Signal()
-            self.specials += Instance("MMCME2_ADV", name="mmcm_audio",
+            mmcm_ports = dict(
                 p_STARTUP_WAIT="FALSE", p_BANDWIDTH="LOW",
-                p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=1e9/(clkin_freq*23/(2*37)) if board == "arty" else 1e9/(sys_clk_freq*23/(2*37)),
-                p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT_F=34.0,  # PFD 31.08 MHz, VCO 1056.76 MHz
-                p_CLKOUT0_DIVIDE_F=43.0, p_CLKOUT0_PHASE=0.0,
+                p_REF_JITTER1=0.01,
+                p_CLKIN1_PERIOD=1e9/(audio_src_hz*23/(2*pre_div)),
+                p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT_F=mmcm_mult,
+                p_CLKOUT0_DIVIDE_F=audio_div, p_CLKOUT0_PHASE=0.0,
                 p_CLKOUT0_USE_FINE_PS="TRUE",               # UG472 dynamic fine PS
                 i_CLKIN1=audio_ref, i_RST=self.audio_mmcm_rst, i_PWRDWN=0,
                 i_CLKFBIN=mmcm_audio_fb, o_CLKFBOUT=mmcm_audio_fb,
@@ -315,6 +378,18 @@ class _CRG(LiteXModule):
                 i_PSCLK=self.audio_ps_clk, i_PSEN=self.audio_ps_en,
                 i_PSINCDEC=self.audio_ps_incdec, o_PSDONE=self.audio_ps_done,
             )
+            audio_tdm_raw = Signal()
+            if audio_tdm_hz is not None:
+                # CLKOUT1 = the item-4 TDM MASTER serial-domain clock. FINE_PS
+                # on as well so the media-clock servo trims the capture bit
+                # clock and the DAC clock TOGETHER - they are the same media
+                # clock seen at two rates, and a capture front-end the servo
+                # cannot reach would free-run against the stream it feeds.
+                mmcm_ports.update(p_CLKOUT1_DIVIDE=tdm_div, p_CLKOUT1_PHASE=0.0,
+                                  p_CLKOUT1_USE_FINE_PS="TRUE",
+                                  o_CLKOUT1=audio_tdm_raw)
+            self.specials += Instance("MMCME2_ADV", name="mmcm_audio",
+                                      **mmcm_ports)
             self.specials += Instance("BUFG", i_I=audio_mclk_raw, o_O=self.cd_audio.clk)
             # audio-domain reset while the MMCM is unlocked (incl. during a
             # servo DRP repair - the clock-outage sequencing class shared
@@ -322,6 +397,17 @@ class _CRG(LiteXModule):
             self.specials += AsyncResetSynchronizer(self.cd_audio, ~self.audio_mmcm_locked)
             platform.add_false_path_constraints(self.cd_sys.clk,   self.cd_audio.clk)
             platform.add_false_path_constraints(self.cd_milan.clk, self.cd_audio.clk)
+            if audio_tdm_hz is not None:
+                self.specials += Instance("BUFG", i_I=audio_tdm_raw,
+                                          o_O=self.cd_audio_tdm.clk)
+                self.specials += AsyncResetSynchronizer(
+                    self.cd_audio_tdm, ~self.audio_mmcm_locked)
+                platform.add_false_path_constraints(self.cd_sys.clk,
+                                                    self.cd_audio_tdm.clk)
+                platform.add_false_path_constraints(self.cd_milan.clk,
+                                                    self.cd_audio_tdm.clk)
+                platform.add_false_path_constraints(self.cd_audio.clk,
+                                                    self.cd_audio_tdm.clk)
 
         if with_dram:
             # A7DDRPHY needs 4x (and 4x @90° for DQS) system clocks.
@@ -360,7 +446,8 @@ class MilanNIC(LiteXModule):
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
-                 audio_if_slots=0, talker_wire_chans=2, aaf_playback=False,
+                 audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
+                 aaf_playback=False,
                  render_lpf=True, optional_blocks=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
@@ -388,6 +475,7 @@ class MilanNIC(LiteXModule):
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
                            audio_if_slots=audio_if_slots,
                            talker_wire_chans=talker_wire_chans,
+                           audio_if_master=audio_if_master,
                            aaf_playback=aaf_playback,
                            render_lpf=render_lpf, optional_blocks=optional_blocks)
 
@@ -446,7 +534,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
-    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     # RMON pulse synthesiser at the SoC's MAC boundary (MilanMAC instantiates it;
@@ -500,7 +588,8 @@ MILAN_OPTIONAL_BLOCKS = {
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
-                       talker_wire_chans=2, aaf_playback=False, render_lpf=True,
+                       talker_wire_chans=2, audio_if_master=False,
+                       aaf_playback=False, render_lpf=True,
                        optional_blocks=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
@@ -562,9 +651,16 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_i_mac_events_cap = 0,
         # no PHY in the stub: static toggles keep the link guard unarmed/inert
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
-        # TDM bus (item-4 front-end family): only sampled when
-        # AUDIO_IF_SLOTS_P > 0; neither board has a TDM header today, so a
-        # platform extension overrides these via extra_ports when it lands.
+        # TDM bus, SLAVE role (item-4 front-end family): only sampled when
+        # AUDIO_IF_SLOTS_P > 0 AND AUDIO_IF_MASTER_P == 0. These stay tied to
+        # 0 - which is precisely why a SLAVE TDM build yields no pairs at all
+        # and why the MASTER role exists: it generates bclk/fsync itself
+        # (o_tdm_bclk_o / o_tdm_fsync_o, added below only for a master build,
+        # so this dict - and the generated top .v - is unchanged otherwise).
+        # i_tdm_data_i is overridden from the platform's TDM pads by the board
+        # SoC via extra_ports; a master build with it still 0 captures digital
+        # SILENCE at the right frame width, exactly as the pmoda-less AX7101
+        # I2S front-end does today.
         i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0,
         # chmap follow-up 4: KL_tdm_render serial out is EXPORTED (tdm_dout_o);
         # open here - the same TDM-header platform extension that provides
@@ -618,6 +714,20 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # this line passed p_AAF_PLAYBACK for weeks and pruned nothing in,
         # because the RTL parameter is AAF_PLAYBACK_P)
         dp_params["p_AAF_PLAYBACK_P"] = 1
+    if audio_if_master and int(audio_if_slots):
+        # AUDIO_IF_MASTER_P / AUDIO_IF_CLK_HZ_P (item 4): the TDM bus ROLE and
+        # the clock the master divides. SAME DISCIPLINE as AAF_PLAYBACK_P -
+        # passed ONLY when asked for, so a build that does not ask emits a
+        # byte-identical top .v - and the SAME TRAP applies: the names below
+        # must match the SV parameter declarations CHARACTER FOR CHARACTER
+        # (`AUDIO_IF_MASTER_P`, `AUDIO_IF_CLK_HZ_P` in hdl/milan/
+        # milan_datapath.sv), because LiteX does not diagnose a parameter the
+        # module does not have - it silently drops it, which is how
+        # p_AAF_PLAYBACK pruned nothing for weeks.
+        dp_params["p_AUDIO_IF_MASTER_P"] = 1
+        dp_params["p_AUDIO_IF_CLK_HZ_P"] = (2 * int(audio_if_slots)
+                                            * AUDIO_IF_WORD_BITS
+                                            * AUDIO_IF_FS_HZ)
     # LPF_P: BANKED AREA LEVER (docs/NXN_ARCHITECTURE.md 6.2). Passed ONLY when
     # the filter is pruned, so the default build's Instance - and the generated
     # top .v - stay byte-identical; the SV default LPF_P=1 keeps KL_pcm_lpf.
@@ -4279,6 +4389,7 @@ class MilanSoC(SoCCore):
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
+                 audio_if_master=False,
                  pcm_ring="dram", aaf_playback=False,
                  render_lpf=True, optional_blocks=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
@@ -4363,8 +4474,29 @@ class MilanSoC(SoCCore):
                          ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core",
                          **kwargs)
 
+        # item-4 TDM MASTER: the front-end generates the bus, so it needs a
+        # clock at 2 x bclk = 2 x SLOTS x 32 x 48 kHz. Only a master build asks
+        # for one, and only then does _CRG switch to the re-derived two-stage
+        # plan (see its comment) - so every existing build's MMCM, and every
+        # bench number measured through it, is untouched.
+        if audio_if_master and not int(audio_if_slots):
+            # REFUSE, do not ignore. A flag that is accepted and does nothing
+            # is the p_AAF_PLAYBACK defect wearing a different hat: the build
+            # succeeds, the argv records the intent, and the gateware is the
+            # one you did not ask for. The stereo I2S front-end is already its
+            # own clock master, so there is no coherent thing to do here.
+            raise ValueError(
+                "--audio-interface-master needs --audio-interface tdm8|tdm16|"
+                "tdm32: the TDM bus role is only meaningful when a TDM "
+                "front-end is elaborated (the I2S capture front-end is "
+                "already an I2S clock master). milan_datapath refuses the "
+                "same combination at elaboration.")
+        audio_tdm_hz = (2 * int(audio_if_slots) * AUDIO_IF_WORD_BITS
+                        * AUDIO_IF_FS_HZ) if (audio_if_master and
+                                              int(audio_if_slots)) else None
         self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
-                        milan_clk_freq=milan_clk_freq, board=board)
+                        milan_clk_freq=milan_clk_freq, board=board,
+                        audio_tdm_hz=audio_tdm_hz)
 
         # ---- DDR3 (LiteDRAM, A7DDRPHY)  -  migration §A.3. AX7101 = MT41J256M16
         # (512 MB, 2x16); Arty A7-100 = MT41K128M16 (256 MB, 1x16). ----
@@ -4533,6 +4665,49 @@ class MilanSoC(SoCCore):
                     i_i_mmcm_ps_done   = self.crg.audio_ps_done,
                 )
                 dp_ports = dict(dp_ports or {}, **mmcm_ports)
+            # ---- item-4 TDM MASTER: the header, and the clock that drives it ----
+            # THE WHOLE POINT OF THE MASTER ROLE. A SLAVE build leaves
+            # i_tdm_bclk_i/i_tdm_fsync_i at 0 (see add_milan_datapath), so its
+            # fsync never toggles, KL_tdm_capture yields no pairs and every
+            # talker built on it emits NO FRAME AT ALL - which is why
+            # endstation_builder.interface_is_placeholder() withholds
+            # --audio-interface for a slave. A MASTER drives them itself, so
+            # the front-end is real the moment the clock exists; the PADS then
+            # decide whether it captures audio or digital silence, exactly the
+            # distinction check_wire_accountability.py draws for the AX7101's
+            # pmoda-less I2S front-end (i_i2s_sdout_i = 0 -> one pair of
+            # silence, still one FED pair).
+            self.tdm_pads = None
+            if audio_if_master and int(audio_if_slots):
+                # `loose=True` returns None when the platform declares no
+                # `tdm` resource (the Arty today) instead of raising, so a
+                # board without the header still elaborates - the same
+                # tolerance i2s_pads has, and NOT a try/except: an absent pin
+                # only asserts at constraint RESOLUTION, far outside any
+                # except here (the AX7101 'pmoda' elaboration break,
+                # 2026-07-13).
+                self.tdm_pads = platform.request("tdm", loose=True)
+                dp_ports.update(
+                    i_clk_tdm_i   = ClockSignal("audio_tdm"),
+                    o_tdm_bclk_o  = (self.tdm_pads.bclk if self.tdm_pads
+                                     else Signal()),
+                    o_tdm_fsync_o = (self.tdm_pads.fsync if self.tdm_pads
+                                     else Signal()),
+                    i_tdm_data_i  = (self.tdm_pads.din if self.tdm_pads else 0),
+                    o_tdm_dout_o  = (self.tdm_pads.dout if self.tdm_pads
+                                     else Signal()),
+                    # milan_datapath routes the TDM master's MCLK out of
+                    # i2s_mclk_o (one pin serves both front-ends; a TDM build
+                    # parks i2s_sclk/lrck), so on a master build that pin IS
+                    # the TDM MCLK - override MilanDMA's I2S-Pmod binding.
+                    o_i2s_mclk_o  = (self.tdm_pads.mclk if self.tdm_pads
+                                     else Signal()),
+                )
+                if self.tdm_pads is None:
+                    print("[milan] --audio-interface-master: no `tdm` pads on "
+                          "this platform - bclk/fsync/dout float and the "
+                          "capture front-end frames DIGITAL SILENCE at the "
+                          "declared width")
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   milan_cd=milan_cd,
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
@@ -4542,6 +4717,7 @@ class MilanSoC(SoCCore):
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
                                   talker_wire_chans=int(talker_wire_chans),
+                                  audio_if_master=bool(audio_if_master),
                                   aaf_playback=aaf_pb,
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks)
@@ -4736,6 +4912,22 @@ def main():
                          "= the stereo I2S master front-end, bit-identical to the shipping "
                          "build; tdmN = the KL_tdm_capture N-slot TDM slave (the builder "
                          "emits this from audio_interface.kind).")
+    ap.add_argument("--audio-interface-master", action="store_true",
+                    help="item-4: be the TDM bus MASTER (milan_datapath "
+                         "AUDIO_IF_MASTER_P -> KL_tdm_capture_master). The "
+                         "fabric GENERATES bclk/fsync instead of waiting for a "
+                         "codec to drive them, which is the difference between "
+                         "a declared interface and one the wire-accountability "
+                         "gate can count: with --audio-interface tdmN alone the "
+                         "SLAVE's fsync never toggles (the SoC ties it to 0) so "
+                         "the front-end yields no pairs and every talker is "
+                         "silent. Needs --audio-interface tdmN. Adds a second "
+                         "audio MMCM output at 2 x SLOTS x 32 x 48 kHz "
+                         "(TDM8 24.576 / TDM16 49.152 / TDM32 98.304 MHz) and "
+                         "re-derives the two-stage integer clock plan so one "
+                         "VCO serves it and the 24.576 MHz CRF/DAC clock; the "
+                         "audio clock's error IMPROVES from -10.6 to -0.66 ppm. "
+                         "Default off => byte-identical build.")
     ap.add_argument("--talker-wire-chans", default=2, type=int,
                     help="item-00 WIRE CHANNEL CONSTANT: channels_per_frame the AAF "
                          "framer emits per talker (milan_datapath TALKER_WIRE_CHANS_P, "
@@ -4866,6 +5058,7 @@ def main():
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
+                   audio_if_master=bool(args.audio_interface_master),
                    rx_queues=args.rx_queues, strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
                    rx_fifo_beats=int(args.rx_fifo_beats),

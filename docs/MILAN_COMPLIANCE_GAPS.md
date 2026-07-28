@@ -736,6 +736,43 @@ this repo.
      a constant zero and produces one pair of digital SILENCE — which is
      exactly the 2-channel frame the reference device received where 8 were
      promised.
+   - **CLOSED 2026-07-28 — W1 reads 8 == 8 and 4 == 4, by RAISING THE FRAMER.**
+     The unbacked-interface finding above is answered by making the fabric the
+     bus **MASTER** instead of waiting for a codec that was never wired:
+     `hdl/ieee1722/aaf/KL_tdm_capture_master.sv` generates `bclk` and `fsync`
+     itself and needs nobody to drive it, so it is a fabric fact rather than a
+     declaration. `milan_datapath` selects it on `AUDIO_IF_MASTER_P`
+     (default 0 — every existing shape stays byte-identical), the AX7101
+     platform gets a real TDM header on **J11** (bank 16, LVCMOS33, the five
+     balls the vendor's own WM8731 example uses: B22/A20/B20/F20/F19), and the
+     capture supply goes from ONE pair to 16 (TDM32) / 4 (TDM8). The gate went
+     from 27 checks / 14 findings to **53 checks / 2 findings**, and all
+     twelve "declares 8ch, fabric emits 2ch" rows are gone.
+   - **The clock had to move, and it is stated rather than assumed.** A master
+     divides its own clock, so `bclk = SLOTS × 32 × fs` and the serial domain
+     must run at `2 × bclk`: TDM32 × 32-bit slots at 48 kHz needs **98.304
+     MHz**, and the shipping audio MMCM is 24.576 MHz — 4× *below* it, not
+     above. `clk_audio` could not simply be re-rated: it is 24.576 MHz **by
+     contract** (`KL_crf_tx` /512 for the 48 kHz CRF event, `KL_i2s_playback`
+     /2 /8 /512 for the DAC, `KL_mmcm_drp_servo` measures it). So the master
+     gets its **own output off the same VCO**, and the two-stage integer plan
+     is re-derived — pre-PLL `/2 ×23` (VCO 1150 MHz, unchanged) `/67` →
+     17.164179 MHz; MMCM `×63` → VCO 1081.3433 MHz; `CLKOUT0 /44` → 24.575984
+     MHz and `CLKOUT1 /11` → 98.303935 MHz. The audio clock's error **improves
+     from −10.64 ppm to −0.66 ppm** (44 divides the new VCO where the old 43,
+     being odd, could never yield an integer 2× or 4× sibling); the fine-PS
+     step becomes 16.51 ps and the sustained-slew ceiling 254 ppm, still
+     covering base + 100 ppm talker with >2× margin. `CLKOUT1` also carries
+     `USE_FINE_PS` so the media-clock servo trims capture and render together.
+     **This plan is only selected when a master is asked for** — a clocking
+     change that happened merely because a parameter exists would move every
+     bench number measured through the DAC on builds that never asked.
+     `milan_datapath` **refuses at elaboration** any `clk_tdm_i` that is not an
+     exact even multiple of `SLOTS × 32 × fs`, naming the clock it needs.
+   - **What is still OPEN (W3), and it is a different defect.** 16 pair slots
+     back **four** 8-channel talkers, not eight; the AX7101's other four are
+     advertised, bindable, and structurally silent — they emit NO FRAME, they
+     do not put a wrong channel count on the wire. Owner: item 5.
    - Still deferred, and now said out loud in the gate's docstring rather than
      left implied: the listener half ("a `SET_STREAM_FORMAT` we ACCEPT must be
      a format we can EMIT"). It needs a runtime probe — offer a format, read

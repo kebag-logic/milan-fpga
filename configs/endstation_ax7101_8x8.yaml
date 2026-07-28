@@ -137,14 +137,38 @@ clocking:
     format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
                                      # type 1 AUDIO_SAMPLE, 48k, interval 96,
                                      # 1 ts/PDU)
-  audio_pll_hz: 24576000             # TDM16 x 32-bit slots @48k -> BCLK 24.576M
+  audio_pll_hz: 24576000             # the CRF/DAC media clock, and it is
+                                     # 24.576 MHz BY CONTRACT: KL_crf_tx
+                                     # divides it /512 for the 48 kHz CRF
+                                     # event and KL_i2s_playback /2 /8 /512
+                                     # for the DAC. The TDM MASTER's bit clock
+                                     # is NOT this clock - TDM32 x 32-bit slots
+                                     # @48k needs BCLK 49.152 MHz and therefore
+                                     # a 98.304 MHz serial-domain clock, which
+                                     # milan_soc.py _CRG takes from a SECOND
+                                     # output of the SAME audio MMCM (see its
+                                     # `audio_tdm_hz` plan). milan_datapath
+                                     # REFUSES at elaboration any clock that is
+                                     # not an exact even multiple of the bit
+                                     # clock, so this cannot drift silently.
 
 audio_interface:
-  kind: tdm16                        # 16 slots per direction
+  kind: tdm32                        # 32 slots per direction = 16 pairs.
+                                     # USER 2026-07-28 ("do not use TDM8 use
+                                     # TDM32 then"): TDM32 is what lets FOUR of
+                                     # the eight 8-channel talkers be fully
+                                     # backed (each consumes 4 pair slots),
+                                     # where TDM16 backs two and TDM8 one.
+                                     # MASTER role - the fabric generates
+                                     # bclk/fsync (KL_tdm_capture_master), so
+                                     # the front-end is real without a codec
+                                     # driving it; a SLAVE build's bclk/fsync
+                                     # are tied to 0 in milan_soc.py and it
+                                     # would yield no pairs at all.
   word_length_bits: 24               # 24-in-32 slots
   cluster_mapping:
     policy: cap-at-interface         # clusters model real endpoints only:
-                                     # per stream min(clusters, 16 TDM slots)
+                                     # per stream min(clusters, 32 TDM slots)
 
 streams:
   listeners:

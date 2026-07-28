@@ -290,22 +290,37 @@ def test_current_shape_matches_sweep_flags():
         want = dict(want)
         want["--num-streams"] = [8.0]
         # item-4 audio-interface family: tdm kinds ride on top of the OPTS as
-        # the front-end generate select (default i2s emits nothing) - BUT NOT
-        # WHILE THE KIND IS A PLACEHOLDER. This config declares tdm16 and
-        # nothing in the fabric drives that bus: sw/litex/milan_soc.py ties
-        # i_tdm_bclk_i / i_tdm_fsync_i / i_tdm_data_i to 0 on every SoC and no
-        # platform provides TDM pads, so KL_tdm_capture's fsync never toggles
-        # and it yields no pairs - a build carrying --audio-interface tdm16
-        # would have talkers that emit NO FRAME AT ALL. The declaration stays
-        # (USER 2026-07-27: "the tdm can be a placeholder" - it states what the
-        # product will be); the flag is withheld so the bitstream elaborates
-        # the I2S front-end the board actually has, which is exactly how the
-        # shipping bitstream was hand-built. interface_is_placeholder() reads
-        # the tie out of milan_soc.py, so wiring a TDM header flips this back
-        # on with no edit here and no config change.
-        assert "--audio-interface" not in got, (
-            "placeholder tdm16 must NOT reach the soc argv while the SoC ties "
-            "the TDM bus to zero")
+        # the front-end generate select (default i2s emits nothing) - BUT ONLY
+        # WHEN THE FABRIC BACKS THEM. That question is NOT hardcoded here: it
+        # is asked of endstation_builder, which reads it out of milan_soc.py,
+        # so this gate states the RULE and stays true on both sides of the
+        # 2026-07-28 change rather than needing an edit when the answer moves.
+        #
+        #   unbacked (a PLACEHOLDER) - USER 2026-07-27, "the tdm can be a
+        #     placeholder": the declaration stays, because it states what the
+        #     product will be, but the flag is WITHHELD so the bitstream
+        #     elaborates the I2S front-end the board actually has. A build
+        #     carrying --audio-interface on a bus tied to zero has talkers that
+        #     emit NO FRAME AT ALL - fsync never toggles, KL_tdm_capture yields
+        #     no pairs. Withholding it is exactly how the shipping bitstream
+        #     was hand-built.
+        #   backed - since 2026-07-28 the fabric MASTERS the bus
+        #     (KL_tdm_capture_master generates bclk/fsync off its own MMCM
+        #     output), so the front-end is real and the flag is emitted,
+        #     together with --audio-interface-master and the raised
+        #     --talker-wire-chans the front-end can now feed.
+        kind = eb.load_config(CONFIGS[name])["interface"]["kind"]
+        if eb.interface_is_placeholder(eb.load_config(CONFIGS[name])):
+            assert "--audio-interface" not in got, (
+                f"placeholder {kind} must NOT reach the soc argv while nothing "
+                f"in the fabric drives that bus")
+        else:
+            want["--audio-interface"] = [kind]
+            if eb.tdm_bus_master():
+                want["--audio-interface-master"] = []      # a bare store_true
+            chans = eb.framer_wire_channels(eb.load_config(CONFIGS[name]))
+            if chans != eb.WIRE_CHANS_MIN:
+                want["--talker-wire-chans"] = [float(chans)]
         assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
         # The port is NOT pinned to a literal here. It is a property of the
         # BENCH (which socket the cable is in), not of the design, and pinning
@@ -363,24 +378,43 @@ def test_capability_marks():
         r = eb.build(CONFIGS[name], OUT)
         planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
         assert any("item 5" in p for p in planned), f"{name}: no item-5 mark"
-        # item-4 audio-interface family: the KL_tdm_capture ser/des LANDED,
-        # but on 2026-07-28 the front-end was measured to be UNDRIVEN -
-        # milan_soc.py ties i_tdm_bclk_i/i_tdm_fsync_i/i_tdm_data_i to 0 on
-        # every SoC and no platform provides TDM pads, so its fsync never
-        # toggles and it yields no pairs at all. So the RTL is supported and
-        # the INTERFACE is a placeholder, and the mark must say which half is
-        # missing - the same shape the aes3/spdif marks already use below.
-        # The declaration itself stays (USER: "the tdm can be a placeholder").
+        # item-4 audio-interface family. THE MARK MUST STATE THE FABRIC FACT,
+        # and which fact it is depends on whether anything drives the bus:
+        #
+        #   UNDRIVEN (measured 2026-07-28 and true until the master landed):
+        #     milan_soc.py ties i_tdm_bclk_i/i_tdm_fsync_i/i_tdm_data_i to 0 on
+        #     every SoC and no platform provides TDM pads, so the SLAVE's fsync
+        #     never toggles and it yields no pairs at all. The ser/des RTL is
+        #     supported and the INTERFACE is a placeholder, so the mark must
+        #     name which half is missing - the shape the aes3/spdif marks use.
+        #     The declaration stays (USER: "the tdm can be a placeholder").
+        #   MASTERED (2026-07-28, KL_tdm_capture_master): the fabric generates
+        #     bclk/fsync off its own MMCM output, so nobody has to drive it and
+        #     the interface is genuinely supported. The mark must then name the
+        #     MASTER module, because "KL_tdm_capture" alone would describe the
+        #     slave path that is still dead.
+        #
+        # Asked of the builder rather than hardcoded, so this gate states the
+        # rule and does not need an edit when the answer moves again.
         tdm = [m for m in r["marks"]
                if m[0].startswith("audio interface tdm")]
         assert tdm, f"{name}: no tdm mark at all"
-        assert tdm[0][1].startswith("planned (item 4"), \
-            f"{name}: an undriven tdm bus must be a planned mark: {tdm}"
-        assert "KL_tdm_capture" in tdm[0][2] and "NOTHING DRIVES IT" in tdm[0][2], \
-            f"{name}: the tdm mark must name the ser/des AND the missing half: {tdm}"
+        if eb.interface_is_placeholder(eb.load_config(CONFIGS[name])):
+            assert tdm[0][1].startswith("planned (item 4"), \
+                f"{name}: an undriven tdm bus must be a planned mark: {tdm}"
+            assert "KL_tdm_capture" in tdm[0][2] and \
+                   "NOTHING DRIVES IT" in tdm[0][2], \
+                f"{name}: the tdm mark must name the ser/des AND the missing " \
+                f"half: {tdm}"
+        else:
+            assert tdm[0][1] == "supported", \
+                f"{name}: a backed tdm bus must not be planned: {tdm}"
+            assert "KL_tdm_capture_master" in tdm[0][2], \
+                f"{name}: a MASTERED bus must name the master module, not the " \
+                f"slave that is still undriven: {tdm}"
         assert "planned (item 5" in r["plan"], f"{name}: plan lacks marker"
         print(f"  [gate 4] {name}: {len(planned)} planned mark(s) "
-              f"(item 5 + the undriven-tdm placeholder), no failure")
+              f"(item 5), tdm mark = {tdm[0][1]}, no failure")
     # aes3/spdif: the biphase-mark ser/des LANDED (KL_aes3_rx + KL_aes3_tx),
     # so the transport itself is supported and only the datapath/SoC plumbing
     # is still a planned mark - the mark must say WHICH half is missing.
@@ -2041,6 +2075,204 @@ def test_optional_block_prune_accounting():
           "flag and the re-measurement it forces, labelled ESTIMATE")
 
 
+#: The five signals the TDM master binding is made of, as
+#: (milan_soc.py Instance port, milan_datapath.sv port, platform subsignal).
+#: `i2s_mclk_o` is deliberately in the list: milan_datapath routes the TDM
+#: master's MCLK out of the I2S mclk pin (one pin serves both front-ends, and a
+#: TDM build parks i2s_sclk/lrck), so on a master build that pin IS the TDM
+#: MCLK and the SoC must rebind it away from the I2S Pmod.
+TDM_MASTER_BINDING = [
+    ("o_tdm_bclk_o",  "tdm_bclk_o",  "bclk"),
+    ("o_tdm_fsync_o", "tdm_fsync_o", "fsync"),
+    ("i_tdm_data_i",  "tdm_data_i",  "din"),
+    ("o_tdm_dout_o",  "tdm_dout_o",  "dout"),
+    ("o_i2s_mclk_o",  "i2s_mclk_o",  "mclk"),
+]
+
+
+def test_tdm_master_binding_reaches_the_pins():
+    """gate 24 - THE L1 BINDING GATE for the item-4 TDM master.
+
+    LEVEL 1 (module <-> wrapper <-> platform binding).  ORACLE: the fabric
+    itself - the SoC glue and the platform pad table, parsed as text.  This is
+    not a declaration checked against another declaration: every assertion
+    below is "the thing that must be there is there, named exactly as the
+    consumer names it".
+
+    WHY IT EXISTS, three times over, all measured:
+
+      * `p_AAF_PLAYBACK` was passed for WEEKS while the SV parameter was
+        `AAF_PLAYBACK_P`. LiteX does not diagnose a parameter the module does
+        not have - it drops it - so the flag pruned nothing and every gate
+        stayed green. Gate 23d closed that for the six prune parameters; this
+        one closes it for `AUDIO_IF_MASTER_P` / `AUDIO_IF_CLK_HZ_P`.
+      * `i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0` on every SoC in
+        the tree: a TDM front-end bound to a bus nothing drove, whose talkers
+        emitted NO FRAME AT ALL, while the config declared the interface and
+        every gate agreed with every other gate.
+      * the AX7101's `_connectors = []`: no pmoda, so `i2s_pads = None` and
+        `i_i2s_sdout_i = 0` - a front-end clocking in a constant zero on a
+        board with no routed pins.
+
+    So: if the pads vanish from the platform, if bclk/fsync stop being driven
+    OUT to them, or if a parameter name stops matching the RTL, this fails."""
+    _tdm_master_binding(*_tdm_sources())
+    print(f"  [gate 24] TDM master L1 binding: 2 parameters name-matched into "
+          f"milan_datapath, KL_tdm_capture_master instantiated on clk_tdm_i, "
+          f"{len(TDM_MASTER_BINDING)} signals RTL-port -> SoC -> AX7101 J11 "
+          f"ball, collision-free, loose-requested")
+
+
+def _tdm_sources():
+    return (open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read(),
+            open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read(),
+            open(os.path.join(ROOT,
+                              "sw/litex/platforms/alinx_ax7101.py")).read())
+
+
+def _tdm_master_binding(soc, rtl, plat):
+    """The gate-24 assertions, over SOURCE TEXT rather than files, so gate 24b
+    can hand them a mutated tree and prove each one can fail."""
+    # 1. the RTL declares both parameters, and the MASTER defaults to OFF so
+    #    every build that does not ask for one is byte-identical.
+    for param, dflt in (("AUDIO_IF_MASTER_P", "0"),
+                        ("AUDIO_IF_CLK_HZ_P", None)):
+        m = re.search(r"^\s*parameter\s+int\s+%s\s*=\s*(\d+)\s*[,)]"
+                      % re.escape(param), rtl, re.M)
+        assert m, f"milan_datapath.sv has no `parameter int {param}`"
+        if dflt is not None:
+            assert m.group(1) == dflt, (
+                f"{param} defaults to {m.group(1)}; it must default to {dflt} "
+                f"so a build that does not ask for a TDM master elaborates "
+                f"the shape that ships today")
+        # 2. and milan_soc.py passes THAT NAME, character for character.
+        assert re.search(r'dp_params\[\s*["\']p_%s["\']\s*\]\s*=' % param, soc), \
+            (f"milan_soc.py never assigns dp_params['p_{param}'] - a LiteX "
+             f"Instance parameter the module does not have is SILENTLY "
+             f"DROPPED, which is exactly how p_AAF_PLAYBACK pruned nothing "
+             f"for weeks")
+
+    # 3. the CLI flag is a real, off-by-default store_true.
+    assert re.search(r'ap\.add_argument\("--audio-interface-master",\s*'
+                     r'action="store_true"', soc), \
+        "milan_soc.py has no `--audio-interface-master` store_true argument"
+
+    # 4. the master front-end is actually INSTANTIATED under that parameter,
+    #    and it is the MASTER module - naming the slave here would bind the
+    #    dead path.
+    g = re.search(r"end else if \(AUDIO_IF_MASTER_P != 0\) begin : (\w+)", rtl)
+    assert g, ("milan_datapath.sv: AUDIO_IF_MASTER_P guards no front-end "
+               "generate arm")
+    arm = rtl[g.end():rtl.find("end else begin :", g.end())]
+    assert "KL_tdm_capture_master" in arm, (
+        "the AUDIO_IF_MASTER_P arm does not instantiate KL_tdm_capture_master "
+        "- KL_tdm_capture is the SLAVE, whose bclk/fsync are tied to 0")
+    # the clock it divides must be the DEDICATED one, not clk_audio_i: 24.576
+    # MHz is a contract (KL_crf_tx /512, KL_i2s_playback, the servo).
+    assert re.search(r"\.clk_audio_i\s*\(\s*clk_tdm_i\s*\)", arm), (
+        "the TDM master is not fed clk_tdm_i - re-rating clk_audio_i would "
+        "silently move the CRF event rate, the DAC and the servo")
+
+    # 5. every signal of the binding: declared in the RTL as the right
+    #    DIRECTION, connected by the SoC, and resolved to a platform pad.
+    for soc_port, rtl_port, sub in TDM_MASTER_BINDING:
+        want_dir = "output" if soc_port.startswith("o_") else "input"
+        assert re.search(r"^\s*%s\s+(wire|logic|reg)?\s*[\[\w].*?\b%s\b"
+                         % (want_dir, re.escape(rtl_port)), rtl, re.M), \
+            (f"milan_datapath.sv declares no `{want_dir} ... {rtl_port}` - "
+             f"a port's DIRECTION cannot be parameterized in SystemVerilog, "
+             f"so a master build needs its own output pins")
+        m = re.search(r"%s\s*=\s*\(?\s*self\.tdm_pads\.%s\b"
+                      % (re.escape(soc_port), re.escape(sub)), soc)
+        assert m, (f"milan_soc.py never binds {soc_port} to self.tdm_pads."
+                   f"{sub} - the master would generate a bus into an "
+                   f"unconnected Signal() and the board would see nothing, "
+                   f"which is the `_connectors = []` defect with new pins")
+        # 6. and the PLATFORM really routes that subsignal to a ball.
+        m = re.search(r'Subsignal\("%s",\s*Pins\("([A-Z]+\d+)"\)'
+                      % re.escape(sub), plat)
+        assert m, (f"alinx_ax7101.py declares no `tdm` Subsignal '{sub}' with "
+                   f"a package pin - a pad that is not routed is a front-end "
+                   f"clocking in a constant zero")
+        assert m.group(1) not in _ax7101_taken_pins(plat, sub), \
+            f"tdm.{sub} pin {m.group(1)} collides with an existing resource"
+
+    # 7. the resource is requested LOOSELY, so a board without the header
+    #    still elaborates rather than asserting at constraint resolution
+    #    (the AX7101 'pmoda' break, 2026-07-13).
+    assert re.search(r'platform\.request\("tdm",\s*loose=True\)', soc), \
+        ("milan_soc.py must request the tdm pads with loose=True - a missing "
+         "resource asserts at constraint RESOLUTION, far outside any except")
+
+
+#: gate 24b negative controls: (label, which source, anchor, mutation).
+#: Each one reproduces a MEASURED escape class, so the gate is not merely
+#: asserted to be able to fail - it is shown to, on the exact defects that got
+#: through before. R2: a check that cannot fail is not a check.
+TDM_BINDING_MUTATIONS = [
+    ("p_AAF_PLAYBACK class: the SoC passes a name the RTL does not have",
+     "soc", 'dp_params["p_AUDIO_IF_MASTER_P"] = 1',
+     'dp_params["p_AUDIO_IF_MASTER"] = 1'),
+    ("the master reverts to clk_audio_i (24.576 MHz is a CRF/DAC contract)",
+     "rtl", ".clk_audio_i (clk_tdm_i),", ".clk_audio_i (clk_audio_i),"),
+    ("the master arm instantiates the SLAVE, whose bus is tied to 0",
+     "rtl", "KL_tdm_capture_master #(", "KL_tdm_capture #("),
+    ("bclk is generated but never bound to a pad",
+     "soc", "o_tdm_bclk_o  = (self.tdm_pads.bclk if self.tdm_pads",
+     "o_tdm_bclk_o  = (Signal() if self.tdm_pads"),
+    ("_connectors = [] class: the platform stops routing fsync",
+     "plat", 'Subsignal("fsync", Pins("F19")),',
+     'Subsignal("fsync", Pins("")),'),
+    ("AUDIO_IF_MASTER_P defaults ON, so existing builds silently change",
+     "rtl", "parameter int AUDIO_IF_MASTER_P = 0,",
+     "parameter int AUDIO_IF_MASTER_P = 1,"),
+    ("the pads are requested strictly, so a headerless board stops building",
+     "soc", 'platform.request("tdm", loose=True)', 'platform.request("tdm")'),
+]
+
+
+def test_tdm_master_binding_gate_bites():
+    """gate 24b - prove every gate-24 assertion can FAIL.
+
+    LEVEL 1, same oracle. Seven mutations of the real sources, each the shape
+    of a defect this repo actually shipped or nearly shipped; every one must be
+    REJECTED. Run in memory, so nothing is written to the tree."""
+    base = dict(zip(("soc", "rtl", "plat"), _tdm_sources()))
+    for label, which, anchor, mutant in TDM_BINDING_MUTATIONS:
+        assert anchor in base[which], \
+            f"gate 24b setup: anchor for '{label}' no longer exists in {which}"
+        src = dict(base)
+        src[which] = base[which].replace(anchor, mutant, 1)
+        try:
+            _tdm_master_binding(src["soc"], src["rtl"], src["plat"])
+        except AssertionError:
+            continue
+        raise AssertionError(
+            f"gate 24 ACCEPTED a mutated tree - it cannot detect: {label}")
+    print(f"  [gate 24b] {len(TDM_BINDING_MUTATIONS)}/"
+          f"{len(TDM_BINDING_MUTATIONS)} binding mutations REJECTED "
+          f"(name mismatch, wrong clock, slave-instead-of-master, unbound "
+          f"pad, unrouted pin, default-on, strict request)")
+
+
+def _ax7101_taken_pins(plat, exclude_sub):
+    """Every package pin the AX7101 platform claims OUTSIDE the tdm resource.
+
+    Comments are stripped first: this file documents its pin choices in prose
+    that quotes ball names, and a documented ball must not read as a claimed
+    one."""
+    body = "\n".join(l.split("#")[0] for l in plat.split("\n"))
+    tdm = body[body.index('("tdm", 0,'):] if '("tdm", 0,' in body else ""
+    tdm = tdm[:tdm.index("),\n", tdm.index("IOStandard"))] if tdm else ""
+    taken = set()
+    for m in re.finditer(r'Pins\("([^"]+)"\)', body):
+        if m.start() >= (body.index(tdm) if tdm else len(body)) and \
+           tdm and m.start() < body.index(tdm) + len(tdm):
+            continue                       # inside the tdm resource itself
+        taken.update(m.group(1).split())
+    return taken
+
+
 def test_optional_block_names_reach_the_rtl():
     """gate 23d - the DECORATIVE-ABI gate, and the reason it exists is on the
     record: `milan_soc.py` passed `p_AAF_PLAYBACK` for weeks while the SV
@@ -2137,7 +2369,9 @@ if __name__ == "__main__":
                test_optional_blocks_default_present,
                test_optional_block_gates_bite,
                test_optional_block_prune_accounting,
-               test_optional_block_names_reach_the_rtl):
+               test_optional_block_names_reach_the_rtl,
+               test_tdm_master_binding_reaches_the_pins,
+               test_tdm_master_binding_gate_bites):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

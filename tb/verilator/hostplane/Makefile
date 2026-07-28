@@ -51,6 +51,18 @@ G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0
 G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0
 G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0
 G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8
+# ---- item-4 TDM32 MASTER (case e, 2026-07-28): the shape the AX7101
+#      8x8 argv now emits - `--audio-interface tdm32
+#      --audio-interface-master --talker-wire-chans 8`. This is the L1
+#      shape: it elaborates KL_tdm_capture_master INSIDE milan_datapath,
+#      on the dedicated clk_tdm_i, with the wire constant raised to the
+#      8 channels the entity advertises - so both elaboration guards
+#      (wire width vs pair supply, and clk_tdm_i vs 2 x SLOTS x 32 x fs)
+#      must hold on a REAL build shape rather than in a parameter sweep.
+#      -Werror-USERERROR above turns either $error into a build failure.
+#      98304000 = 2 x (32 slots x 32 bclk x 48000 fs) = 2 x 49.152 MHz.
+G_TDM32M = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=32 \
+           -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GTALKER_WIRE_CHANS_P=8
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -99,6 +111,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv \
        $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv $(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
@@ -138,16 +151,47 @@ build:
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm8 $(G_TDM8) \
 		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm8-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm8
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm32m $(G_TDM32M) \
+		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm32master-8x-100MHz\\\"" \
+		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm32m
+
+# ---- NEGATIVE SHAPES: the elaboration guards must FIRE --------------------
+#  R2: a check that cannot fail is not a check. The item-00 wire-width guard
+#  and the item-4 TDM-master clock guard are the ENFORCEMENT that stops
+#  TALKER_WIRE_CHANS_P from being raised past what the front-end feeds and
+#  stops a master from framing at the wrong rate. Both are `$$error`, so with
+#  -Werror-USERERROR a REFUSED shape is a FAILED verilate - and these two
+#  targets fail if verilate SUCCEEDS. Lint-only: no C++, no build, ~2 s each.
+#    g1  8 channels needs 4 pair slots; the I2S front-end supplies 1
+#    g2  TDM32 x 32-bit slots at 48 kHz needs 98.304 MHz, not the 24.576 MHz
+#        audio clock (which is a CRF/DAC contract and cannot be re-rated)
+#    g3  a TDM master on the I2S front-end is not a coherent build
+guards:
+	@rc=0; \
+	for g in "wire width past the front-end supply|-GAUDIO_IF_SLOTS_P=0 -GTALKER_WIRE_CHANS_P=8" \
+	         "TDM32 master on the 24.576 MHz audio clock|-GAUDIO_IF_SLOTS_P=32 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=24576000 -GTALKER_WIRE_CHANS_P=8" \
+	         "TDM master with no TDM slots|-GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000"; do \
+	  d=$${g%%|*}; p=$${g#*|}; \
+	  if $(VERILATOR) --lint-only $(SHAPE_8x8) $(VFLAGS_COMMON) $$p $(SRCS) \
+	       >/dev/null 2>&1; then \
+	    echo "  [FAIL] elaboration guard did NOT fire: $$d"; rc=1; \
+	  else \
+	    echo "  [ ok ] elaboration guard REFUSED: $$d"; \
+	  fi; \
+	done; \
+	echo "checks: 3   failures: $$rc   shape: elaboration-guards"; \
+	exit $$rc
 
 # run every shape even when one fails (a red shape must not hide the others);
 # the aggregate exit code stays honest.
-run: banner build
+run: banner build guards
 	@rc=0; \
 	./obj_ax8x8/Vhostplane_ax8x8        || rc=1; \
 	./obj_small/Vhostplane_smoke_small  || rc=1; \
 	./obj_n4/Vhostplane_smoke_n4        || rc=1; \
 	./obj_tdm8/Vhostplane_smoke_tdm8    || rc=1; \
+	./obj_tdm32m/Vhostplane_smoke_tdm32m || rc=1; \
 	exit $$rc
 
 clean:
-	rm -rf obj_ax8x8 obj_small obj_n4 obj_tdm8
+	rm -rf obj_ax8x8 obj_small obj_n4 obj_tdm8 obj_tdm32m

@@ -128,7 +128,11 @@ static void collect(std::vector<Collected>& sink, bool& open, uint64_t data,
 static void tick() {
     drive_streams();
     // low phase: combinational readys/valids settle - sample what THIS edge commits
+    // clk_tdm_i (item-4 TDM master serial domain) is driven on every shape:
+    // the port exists unconditionally, and an undriven clock is how a
+    // front-end sits silent while every gate stays green.
     dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->i_ps_clk = 0;
+    dut->clk_tdm_i = 0;
     dut->eval();
     bool rx_acc  = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
     bool tx_acc  = dut->s_axis_tx_tvalid && dut->s_axis_tx_tready;
@@ -150,6 +154,7 @@ static void tick() {
     g_pre.r_d    = dut->s_axi_rdata;
     // high phase: commit
     dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->i_ps_clk = 1;
+    dut->clk_tdm_i = 1;
     dut->eval();
     if (rx_acc) { if (++rx_beat >= (rx_cur.size() + 7) / 8) { rx_cur.clear(); rx_beat = 0; } }
     if (tx_acc) { if (++tx_beat >= (tx_cur.size() + 7) / 8) { tx_cur.clear(); tx_beat = 0; } }
