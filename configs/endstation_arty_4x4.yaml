@@ -49,7 +49,11 @@ entity:
                                      # shape yet.
   entity_id: mac-derived
   vendor_name: "Kebag Logic"
-  firmware_version: "0.1.0"
+  # NO firmware_version KEY: it is DERIVED from the gateware's own VERSION
+  # parameter (hdl/common/csr/milan_csr.sv, the read-only 0x004 register) as
+  # major.minor.rev, and declaring one here is refused by the builder.
+  # Optional `firmware_rev: N` (default 0) bumps the third component for a
+  # respin that changes no CSR ABI.
   serial_number: "ARTY-0001"
   group_name: ""
 

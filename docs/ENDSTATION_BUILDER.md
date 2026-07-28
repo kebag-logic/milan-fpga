@@ -148,6 +148,7 @@ tracked at all.
 | `lwsrp_table.json` + `lwsrp_table.svh` | SR class, MRP timers, class-A bandwidth math, TSpec, one record per stream, the engine's elaboration parameters | the lwSRP RTL tree; the `rtl_table` config also writes the tracked copy | 18a–18d — emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column; the tracked `.svh` regenerates byte-identically |
 | `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by `hdl/common/csr/milan_csr.sv` | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
 | `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11), both capability words, and `TALKER_WIRE_CHANS_C` — the **emitted** channel width (roadmap item 00) | `` `include ``-d by **both** `hdl/common/csr/milan_csr.sv` (the RO `0x618`/`0x61C` words) and `hdl/milan/milan_datapath.sv` (the ACMP source/sink context array sizing) | `scripts/check_entity_shape.py` — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh`; `scripts/check_wire_accountability.py` — the advertised width against the **fabric that has to produce it** (expected red until roadmap item 5) |
+| `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11) and both capability words | `` `include ``-d by **both** `hdl/common/csr/milan_csr.sv` (the RO `0x618`/`0x61C` words) and `hdl/milan/milan_datapath.sv` (the ACMP source/sink context array sizing) | `scripts/check_entity_shape.py` — config → svh → AEM descriptor counts, for every config, plus 10 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh` |
 | `aecp_aem_rom.svh` | the AEM **descriptor set** a controller enumerates, generated from this config's `aem_overlay.json` | `` `include ``-d by `hdl/ieee17221/aecp/KL_aecp_aem_store.sv` | 10 (byte-identical for the deployed shape) + `check_entity_shape.py` (the tracked ROM and the tracked shape name the **same** source config) |
 | `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base, the DMA window map **derived from** `board.constraints.rx_queues`, the addresses `kl-eth` hardcodes, the `kl,dma-ether` / `kl,milan-pcm` nodes | device tree / driver | 19a (queue count is one number across config, argv, sweep fragment and DT), 19b (window bases byte-match the generated CSR listing and the deployed tree), 19c (flipping `rx_queues` under a pinned boot chain is refused) |
 | `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
@@ -345,7 +346,11 @@ field walk lives with the implementation lane.
   - AVB_INTERFACE `mac_address` + gPTP dynamics.
 - These must **not** feed the hash, so renaming a unit, bumping
   `firmware_version`, changing a serial number or re-selecting a clock
-  source never bumps the model id.
+  source never bumps the model id. This is what makes the derived
+  `firmware_version` (row 4b) safe: it tracks `milan_csr.sv`'s `VERSION`
+  parameter on every ABI bump and no `entity_model_id` follows it — least of
+  all `endstation_arty_current`'s **pinned** deployed identity. Builder gate
+  24 asserts exactly that.
 - NOTE in 6.2.2.8: "The entity_model_id is not a device's product or model
   number" — hence hash-of-model, not SKU constant.
 - 6.2.2.8 also defines dynamically-assigned ids via the EUI-64 I/G bit; the
@@ -538,7 +543,8 @@ the field itself.
 | 1 | `entity.name` | ENTITY `entity_name` (identity only — excluded from model hash) | 1722.1 7.2.1, 6.2.2.8 | AEM |
 | 2 | `entity.entity_model_id` (pin or hash, D4) | ENTITY + ADPDU `entity_model_id` | 1722.1 6.2.2.8 | AEM, prov |
 | 3 | `entity.entity_id: mac-derived` | ENTITY/ADPDU `entity_id` EUI-64 from port MAC | 1722.1 6.2.2.7 | prov |
-| 4 | `entity.vendor_name` / `firmware_version` / `serial_number` / `group_name` | ENTITY strings + LOCALE/STRINGS refs (all 6.2.2.8-excluded) | 1722.1 7.2.1, 7.2.11–12 | AEM |
+| 4 | `entity.vendor_name` / `serial_number` / `group_name` | ENTITY strings + LOCALE/STRINGS refs (all 6.2.2.8-excluded) | 1722.1 7.2.1, 7.2.11–12 | AEM |
+| 4b | `entity.firmware_rev` (optional, default 0) — **there is no `entity.firmware_version` key and declaring one is refused** | ENTITY `firmware_version` = `VERSION[31:16]`.`VERSION[15:0]`.`firmware_rev`, DERIVED from `hdl/common/csr/milan_csr.sv` (6.2.2.8-excluded, so it moves no model id) | 1722.1 7.2.1 Table 7-2 (offset 116, 64 octets), 7.2 (zero padding), 6.2.2.8 | AEM |
 | 5 | `board.target` + `board.constraints.*` (clk, l2, phy, flashboot, uart, probes, GMII knobs) | `milan_soc.py` design argv | — | SoC |
 | 6 | `board.constraints.rx_queues` / `hs_page_bytes` | DT/driver shape (STRICT `hsplit` pairing) | — | DT |
 | 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded) | 1722.1 7.2.3 | AEM |

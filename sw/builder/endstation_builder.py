@@ -56,7 +56,12 @@ Schema summary (see the example configs for the annotated normative form):
                                  (optional EUI-64 hex override - pins the id
                                  of already-flashed silicon), entity_id
                                  ("mac-derived" | EUI-64 hex), vendor_name,
-                                 firmware_version, serial_number, group_name
+                                 serial_number, group_name, firmware_rev
+                                 (optional int, default 0 - the third
+                                 component of the DERIVED firmware_version;
+                                 see rtl_firmware_version(). There is no
+                                 entity.firmware_version key and declaring
+                                 one is refused)
   board: target + constraints  - arty | ax7101; physical facts the SoC argv
                                  derives from (sys/milan clk, l2, phy, flash,
                                  uart, rx queues, hs page, probes, GMII knobs,
@@ -1670,6 +1675,32 @@ def emit_adp_shape_svh(cfg):
     return "\n".join(ln)
 
 
+def rtl_firmware_version(rev=0):
+    """This gateware's version string for the ENTITY descriptor.
+
+    Delegates to avdecc/gen_aem_store.py, which parses `parameter logic
+    [31:0] VERSION` out of hdl/common/csr/milan_csr.sv - the one place the
+    gateware's version exists - and is also where the string gets stamped
+    into the descriptor bytes.  ONE parser, so the builtin model, every
+    config-derived ROM and the TB golden cannot disagree about the version
+    the way the configs and the fabric did until 2026-07-28.
+
+    Yes, the builder reads RTL here.  It already does (rtl_capability_marks,
+    and test gate 21a parses module parameters): a build parameter whose
+    truth lives in the RTL is read from the RTL, not copied beside it."""
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    import gen_aem_store as g
+    return g.firmware_version_string(rev)
+
+
+def rtl_version():
+    """`(major, minor)` behind the read-only VERSION register - the raw pair
+    rtl_firmware_version() renders, for artifacts that want to show both."""
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    import gen_aem_store as g
+    return g.rtl_version()
+
+
 def emit_aem_rom_svh(cfg, overlay):
     """This config's AEM descriptor ROM, as the SystemVerilog include
     KL_aecp_aem_store.sv compiles (`include "gen/aecp_aem_rom.svh").
@@ -2128,10 +2159,31 @@ def load_config(path):
     # entity (entity_model_id resolved AFTER streams/interface: hash needs
     # the derived layout)
     ent = _req(cfg, "entity", path)
+    # THE FIRMWARE VERSION IS NOT A CONFIG DECLARATION.  It is a fact about
+    # the gateware, it lives in hdl/common/csr/milan_csr.sv's VERSION
+    # parameter, and it is DERIVED here.  A config copy - even one that
+    # happens to agree today - is a second answer to "what version is this",
+    # and the second answer is the one controllers get: all three configs
+    # said "0.1.0" while the fabric was at 0x0001_0016, so every board we
+    # ship told Hive it ran firmware 0.1.0.  Refuse the key outright rather
+    # than compare-and-prefer: an agreeing copy still has to be edited in two
+    # places on every ABI bump, which is how it stops agreeing.
+    if "firmware_version" in ent:
+        raise ConfigError(
+            f"entity.firmware_version: remove it. The firmware version is "
+            f"derived from the gateware's VERSION parameter "
+            f"(hdl/common/csr/milan_csr.sv), which is where it lives; this "
+            f"build derives {rtl_firmware_version()!r}. For a firmware "
+            f"respin with no CSR-ABI change use entity.firmware_rev.")
+    rev = ent.get("firmware_rev", 0)
+    if isinstance(rev, bool) or not isinstance(rev, int) or rev < 0:
+        raise ConfigError(
+            f"entity.firmware_rev: {rev!r} is not a non-negative integer")
     n = dict(
         name=_req(ent, "name", "entity"),
         vendor_name=ent.get("vendor_name", "Kebag Logic"),
-        firmware_version=ent.get("firmware_version", "0.1.0"),
+        firmware_version=rtl_firmware_version(rev),
+        firmware_rev=rev,
         serial_number=_req(ent, "serial_number", "entity"),
         group_name=ent.get("group_name", ""),
     )
@@ -2911,8 +2963,13 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     a("")
     a("## Entity")
     a("")
+    # fw carries the raw register beside it on purpose: this is the line a
+    # bench engineer reads with Hive open and `devmem 0x90000004` in the other
+    # terminal, and mapping 1.22 onto 0x0001_0016 by eye IS the item-00 check.
+    _fwmaj, _fwmin = rtl_version()
     a(f"- name: {e['name']}  (serial {e['serial_number']}, "
-      f"fw {e['firmware_version']})")
+      f"fw {e['firmware_version']} = milan_csr VERSION "
+      f"0x{_fwmaj:04X}_{_fwmin:04X} . rev {e['firmware_rev']})")
     a(f"- entity_id: {e['entity_id']}, entity_model_id: {e['entity_model_id']} "
       f"({cfg['model_id']['source']}; shape hash {cfg['model_id']['hash']})")
     a("")

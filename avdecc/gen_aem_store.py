@@ -18,6 +18,10 @@ would dangle and fail controller enumeration; the tree stays closed).
 Byte layouts mirror IEEE 1722.1-2021 clause 7.2 exactly as encoded by the
 reference implementation (pipewire module-avb aecp-aem-descriptors.h).
 
+The ENTITY descriptor's firmware_version (7.2.1 Table 7-2, offset 116, 64
+octets) is DERIVED from the gateware's own VERSION parameter, not declared -
+see firmware_version_string() for why that is not a style preference.
+
 Since the endstation-builder round (gaps item 4) the model can also be built
 from a builder-emitted AEM overlay (sw/builder/endstation_builder.py):
   python3 avdecc/gen_aem_store.py --overlay <aem_overlay.json> [--out-dir D]
@@ -46,10 +50,74 @@ Run from the repo root:  python3 avdecc/gen_aem_store.py
 import argparse
 import json
 import os
+import re
 import struct
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+
+# --------------------------------------------------------- firmware version --
+#: The gateware's version lives in exactly ONE place: the `VERSION` parameter
+#: behind the read-only 0x004 register in hdl/common/csr/milan_csr.sv, whose
+#: `//!` comment IS the gateware changelog (docs/reference/REGISTER_MAP.md
+#: 0x004).  The ENTITY descriptor's firmware_version field is what every
+#: controller on the segment reads that version AS - it is the first string
+#: Hive shows next to the entity - so it must be DERIVED from the parameter,
+#: never declared beside it.
+#:
+#: Until 2026-07-28 nothing connected the two: all three configs/endstation_*
+#: .yaml hardcoded `firmware_version: "0.1.0"` and this generator stamped that
+#: string into the descriptor, so every board we ship told every controller it
+#: ran firmware 0.1.0 while the fabric was at 0x0001_0016.  Same class of
+#: defect as the ADP shape registers (docs/findings/ADP_SHAPE_STATIC_0727.md):
+#: a hand-typed declaration that no gate could compare against the fabric.
+MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
+
+_VERSION_RE = re.compile(
+    r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h([0-9A-Fa-f_]+)")
+
+
+def rtl_version(path=None):
+    """`(major, minor)` as milan_csr.sv's VERSION parameter defines them.
+
+    The field split is the register map's, not this function's:
+    docs/reference/REGISTER_MAP.md 0x004 documents `[31:16] major, [15:0]
+    minor`.  The minor is a FLAT incrementing ABI number - the register map's
+    changelog is keyed on it one entry at a time ("0x0016 = ...", "0x0015 =
+    ...") and software feature-gates on it with `>=` - so it is one integer,
+    not a packed pair of sub-fields, and rendering it as one decimal integer
+    is a re-encoding of the documented field rather than a reinterpretation
+    of it.  32'h0001_0016 -> (1, 22).
+    """
+    src = path or MILAN_CSR_SV
+    m = _VERSION_RE.search(open(src).read())
+    if not m:
+        raise ValueError(
+            f"{src}: no `parameter logic [31:0] VERSION = 32'h...` - the "
+            "gateware version has no single source of truth any more")
+    v = int(m.group(1).replace("_", ""), 16)
+    return (v >> 16) & 0xFFFF, v & 0xFFFF
+
+
+def firmware_version_string(rev=0, path=None):
+    """The ENTITY descriptor's firmware_version value: `major.minor.rev`.
+
+    IEEE 1722.1-2021 7.2.1 Table 7-2 offset 116: "64-octet UTF-8 string
+    containing the firmware version of the ATDECC Entity" - the standard
+    fixes the size and the encoding and says nothing about the syntax, and
+    the Milan end-station validation test plan v1.9 (test macro 3) reads the
+    field into the enumeration model without constraining its value.  So the
+    syntax is ours to choose and the only real requirement is the one the
+    standard cannot state: it has to be TRUE.
+
+    major and minor come from the fabric.  `rev` is the one component the
+    32-bit register does not carry - a firmware respin that changes no CSR
+    ABI - and comes from the optional `entity.firmware_rev` config key,
+    default 0.  32'h0001_0016 -> "1.22.0".
+    """
+    major, minor = rtl_version(path)
+    return f"{major}.{minor}.{int(rev)}"
+
 
 # ---------------------------------------------------------------- model ----
 # Descriptor type codes (IEEE 1722.1-2021 Table 7.1)
@@ -593,7 +661,8 @@ def builtin_spec():
     assembly. The endstation builder's arty_current overlay maps onto this
     exact spec (test-gated)."""
     return dict(
-        entity=dict(name="Milan FPGA Talker", firmware_version="0.1.0",
+        entity=dict(name="Milan FPGA Talker",
+                    firmware_version=firmware_version_string(),
                     group_name="", serial_number="AX7101-0001",
                     vendor_name="Kebag Logic"),
         rates=list(RATES), current_rate=RATES[0],
@@ -635,6 +704,15 @@ def spec_from_overlay(ovl):
     rates_hz = [int(r) for r in ovl["sampling_rates_hz"]]
     if any(hz not in (48000, 96000, 192000) for hz in rates_hz):
         raise ValueError(f"unsupported sampling rates {rates_hz}")
+    if "firmware_version" not in ent:
+        # No default here on purpose: the "0.1.0" that used to sit in this
+        # position is exactly how a shape with no declared version shipped a
+        # wrong one to every controller.  An overlay that cannot say what
+        # firmware it is does not get a descriptor set.
+        raise ValueError(
+            "overlay entity has no firmware_version - the builder derives it "
+            "from hdl/common/csr/milan_csr.sv VERSION (firmware_version_"
+            "string()); regenerate the overlay")
     if not any(s["kind"] == "crf" for s in ovl["stream_inputs"]):
         raise ValueError("overlay without a CRF sink is not expressible in "
                          "the svh consumer today (AEM_CRF_FMTS_C)")
@@ -643,7 +721,7 @@ def spec_from_overlay(ovl):
     stream_flags_in = 0x0003
     return dict(
         entity=dict(name=ent["name"],
-                    firmware_version=ent.get("firmware_version", "0.1.0"),
+                    firmware_version=ent["firmware_version"],
                     group_name=ent.get("group_name", ""),
                     serial_number=ent["serial_number"],
                     vendor_name=ent.get("vendor_name", "Kebag Logic")),

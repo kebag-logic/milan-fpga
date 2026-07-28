@@ -30,7 +30,18 @@ entity:
                                      # changing reflash.
   entity_id: mac-derived             # EUI-64 from station MAC (MAC48->FF-FE)
   vendor_name: "Kebag Logic"
-  firmware_version: "0.1.0"
+  # NO firmware_version KEY - it is DERIVED, not declared. The version lives
+  # in hdl/common/csr/milan_csr.sv's `parameter logic [31:0] VERSION` (the
+  # read-only 0x004 register, whose //! comment IS the gateware changelog),
+  # and the ENTITY descriptor renders it as major.minor.rev:
+  # [31:16].[15:0].firmware_rev, so 0x0001_0016 -> "1.22.0". Until
+  # 2026-07-28 this key said "0.1.0" in all three configs while the fabric
+  # was at 0x0001_0016, so every board we ship told Hive - and every other
+  # controller on the segment - that it ran firmware 0.1.0. Same shape as
+  # the ADP shape defect: a hand-typed declaration nothing could compare
+  # against the fabric. The builder now refuses the key rather than
+  # preferring one of two answers; `firmware_rev: N` (optional, default 0)
+  # is the lever for a respin that changes no CSR ABI.
   serial_number: "AX7101-0001"       # deployed-ROM truth: the serial baked
                                      # into the shared AEM ROM image (both
                                      # boards; per-board identity rides the

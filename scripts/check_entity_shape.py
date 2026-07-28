@@ -68,6 +68,23 @@ WHAT IT CHECKS, per end-station config:
                       is_plain_rw entry for either; milan_datapath sizes its
                       ACMP context arrays from the SAME constants, so the
                       advertised range is the addressable range
+  G  firmware version the ENTITY descriptor's firmware_version (1722.1-2021
+                      7.2.1, offset 116) names the gateware's OWN VERSION
+                      parameter, in the tracked ROM and in the TB golden
+                      alike, and no config declares one of its own
+
+THE SAME DEFECT, ONE FIELD OVER (G, 2026-07-28).  All three configs hardcoded
+`firmware_version: "0.1.0"` while hdl/common/csr/milan_csr.sv said
+32'h0001_0016, and the AEM generator stamped the config's string into the
+descriptor - so every board we ship told Hive, la_avdecc and every other
+controller on the segment that it ran firmware 0.1.0.  Every gate was green,
+because every gate compared that declaration against another declaration.
+The version is now DERIVED from the parameter (major.minor.rev =
+VERSION[31:16].VERSION[15:0].entity.firmware_rev, so 0x0001_0016 -> "1.22.0")
+and arm G reads it back out of the shipped descriptor BYTES.  Note the TB
+golden is checked here and not by the aecp suite: that sweep deliberately
+EXCLUDES the ENTITY descriptor from its byte-exact compare because it carries
+live overlays, so a golden that is stale only inside ENTITY passes there.
 
 Usage:
     check_entity_shape.py                 # every configs/endstation_*.yaml
@@ -92,10 +109,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATAPATH = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
 CSR = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
 AEM_ROM = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
+AEM_GOLDEN = os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h")
 CONFIG_DIR = os.path.join(ROOT, "configs")
 
 # IEEE 1722.1-2021 Table 7.1 descriptor types
+ENTITY = 0x0000
 STREAM_INPUT, STREAM_OUTPUT = 0x0005, 0x0006
+
+#: IEEE 1722.1-2021 7.2.1 Table 7-2: the ENTITY descriptor's firmware_version
+#: field sits at offset 116 and is 64 octets - "64-octet UTF-8 string
+#: containing the firmware version of the ATDECC Entity".
+FW_OFFSET, FW_LEN = 116, 64
 
 fails = []
 checks = 0
@@ -303,6 +327,157 @@ def check_config(builder, path):
     return cfg, adp_svh, builder.emit_aem_rom_svh(cfg, ovl)
 
 
+# ------------------------------------------------ firmware version (7.2.1) --
+def _dir_entries(text, pat):
+    return [(int(t, 16), int(i, 16), int(b, 16), int(l, 16))
+            for t, i, b, l in re.findall(pat, text)]
+
+
+def svh_rom(text):
+    """(rom bytes, directory) out of a tracked aecp_aem_rom.svh."""
+    body = re.search(r"AEM_ROM_INIT_C\s*\[[^\]]*\]\s*=\s*'\{(.*?)\n\};",
+                     text, re.S)
+    dirb = re.search(r"AEM_DIR_C\s*\[[^\]]*\]\s*=\s*'\{(.*?)\n\};", text, re.S)
+    if not body or not dirb:
+        raise SystemExit("SETUP: no AEM_ROM_INIT_C / AEM_DIR_C in the ROM text")
+    rom = bytes(int(b, 16)
+                for b in re.findall(r"8'h([0-9A-Fa-f]{2})", body.group(1)))
+    return rom, _dir_entries(
+        dirb.group(1),
+        r"64'h([0-9A-Fa-f]{4})_([0-9A-Fa-f]{4})_"
+        r"([0-9A-Fa-f]{4})_([0-9A-Fa-f]{4})")
+
+
+def golden_rom(text):
+    """(rom bytes, directory) out of tb/verilator/aecp/aem_golden.h - the
+    image the aecp TB byte-compares the RTL against."""
+    body = re.search(r"AEM_ROM\[\]\s*=\s*\{(.*?)\n\};", text, re.S)
+    dirb = re.search(r"AEM_DIR\[\]\s*=\s*\{(.*?)\n\};", text, re.S)
+    if not body or not dirb:
+        raise SystemExit("SETUP: no AEM_ROM / AEM_DIR in the golden header")
+    rom = bytes(int(b, 16)
+                for b in re.findall(r"0x([0-9A-Fa-f]{2})", body.group(1)))
+    return rom, _dir_entries(
+        dirb.group(1), r"\{\s*0x([0-9A-Fa-f]{4})\s*,\s*(\d+)\s*,"
+                       r"\s*(\d+)\s*,\s*(\d+)\s*\}")
+
+
+def entity_fw_field(rom, directory, what):
+    """The raw 64 octets a controller gets back at ENTITY[0] + 116."""
+    base = [b for (t, i, b, _l) in directory if (t, i) == (ENTITY, 0)]
+    if not base:
+        raise SystemExit(f"SETUP: no ENTITY[0] in the {what} directory")
+    return rom[base[0] + FW_OFFSET: base[0] + FW_OFFSET + FW_LEN]
+
+
+def check_firmware_version(builder):
+    """G: the firmware version a controller READS is the version this
+    gateware IS.
+
+    Roadmap item 00 again, at the field a validation tool looks at first.
+    The gateware's version exists in exactly one place - `parameter logic
+    [31:0] VERSION` behind the read-only 0x004 register in milan_csr.sv,
+    whose `//!` comment is the gateware changelog - and the ENTITY
+    descriptor's firmware_version is how every controller on the segment
+    reads it.  Nothing connected the two: all three endstation configs
+    hardcoded `firmware_version: "0.1.0"` and the AEM generator stamped that
+    into the descriptor, so on 2026-07-27 a board running 0x0001_0016 told
+    Hive, la_avdecc and every other controller that it ran firmware 0.1.0.
+    Every gate in the tree was green, because every gate compared that
+    declaration against another declaration.
+
+    So this one does not re-derive anything.  It reads the parameter out of
+    the RTL and the string out of the TRACKED DESCRIPTOR BYTES - the ROM the
+    gateware compiles and the golden image the aecp TB byte-compares the RTL
+    against - which makes "VERSION bumped, artifacts not regenerated" a
+    build failure instead of a wrong answer on the wire.
+
+    Encoding is checked too, because the field is fixed-size: IEEE
+    1722.1-2021 7.2.1 Table 7-2 places it at offset 116 for 64 octets, and
+    7.2 says "The 64-octet strings do not include the NULL terminator when
+    they are 64-octets long.  If the string is shorter than 64-octets then
+    the remainder of the field shall be zero (0) padded."
+    """
+    print("\n== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==")
+    g = load_aem_store()
+    major, minor = g.rtl_version(CSR)
+    print(f"  milan_csr VERSION: 0x{major:04X}_{minor:04X} "
+          f"-> major {major}, minor {minor}")
+
+    # 1. no config re-declares it. An agreeing copy is still a second answer
+    #    to "what version is this", and it is the copy controllers get.
+    for p in all_configs():
+        cfg = builder.load_config(p)
+        raw = builder.yaml.safe_load(open(p))["entity"]
+        ck(f"{cfg['name']}: config declares no firmware_version",
+           "firmware_version" in raw, False)
+        ck(f"{cfg['name']}: emitted firmware_version",
+           cfg["entity"]["firmware_version"],
+           g.firmware_version_string(cfg["entity"]["firmware_rev"], CSR))
+
+    # 2. the DESCRIPTOR BYTES a build serves, and the ones the TB pins.
+    tracked = open(AEM_ROM).read()
+    golden = open(AEM_GOLDEN).read()
+    rom_t, dir_t = svh_rom(tracked)
+    rom_g, dir_g = golden_rom(golden)
+    owner = tracked_owner_cfg(builder, all_configs())
+    want = (g.firmware_version_string(owner["entity"]["firmware_rev"], CSR)
+            if owner else None)
+
+    for what, rom, drc in (("tracked ROM", rom_t, dir_t),
+                           ("TB golden", rom_g, dir_g)):
+        fld = entity_fw_field(rom, drc, what)
+        ck(f"{what}: firmware_version field is {FW_LEN} octets",
+           len(fld), FW_LEN)
+        # 7.2: zero padded after the string, and no interior NUL
+        s = fld.split(b"\x00", 1)[0]
+        ck(f"{what}: firmware_version is zero padded past the string (7.2)",
+           fld[len(s):] == bytes(FW_LEN - len(s)), True)
+        ck(f"{what}: firmware_version decodes as UTF-8 (7.2.1)",
+           _utf8(s), True)
+        ck(f"{what}: firmware_version == the gateware's VERSION",
+           s.decode("utf-8", "replace"), want)
+
+    # 3. and the golden is THIS ROM's, not a previous one's. Regenerating the
+    #    ROM without regenerating the golden produces N byte-exact aecp
+    #    failures at the changed offset and nothing else; catching it here
+    #    names the cause instead of leaving it to a suite diff.
+    ck("TB golden image == the tracked AEM ROM", rom_g == rom_t, True)
+
+
+def _utf8(b):
+    try:
+        b.decode("utf-8")
+        return True
+    except UnicodeDecodeError:
+        return False
+
+
+def load_aem_store():
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    try:
+        import gen_aem_store as g
+    except ImportError as e:                          # pragma: no cover
+        raise SystemExit(f"SETUP: cannot import gen_aem_store ({e})")
+    return g
+
+
+def tracked_owner_cfg(builder, configs):
+    """The config the tracked entity definition was generated from.
+
+    Returns the CONFIG DICT. Distinct from tracked_owner() above, which
+    returns a (source, config) pair and accepts an adp_text override so a
+    caller can ask the question of a CANDIDATE pair. Two functions with one
+    name shadowed each other across a merge and broke every tuple-unpacking
+    caller at import time - hence the rename rather than a second alias."""
+    src = svh_source(open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read())
+    for path in configs:
+        cfg = builder.load_config(path)
+        if cfg["source"] == src:
+            return cfg
+    return None
+
+
 def check_tracked_pair(builder, configs):
     """E: the tracked entity definition is ONE config's, whole.
 
@@ -374,6 +549,7 @@ def run():
     for p in cfgs:
         check_config(builder, p)
     check_tracked_pair(builder, cfgs)
+    check_firmware_version(builder)
 
 
 # ---------------------------------------------------------------- self-test --
@@ -402,10 +578,10 @@ def expect_fail(label, fn):
         print(f"         (rejected by: {why})")
 
 
-def with_rtl(dp_text=None, csr_text=None):
-    """Context-manager-ish helper: swap in mutated RTL for one call."""
-    global DATAPATH, CSR
-    keep = (DATAPATH, CSR)
+def with_rtl(dp_text=None, csr_text=None, golden_text=None):
+    """Context-manager-ish helper: swap in mutated sources for one call."""
+    global DATAPATH, CSR, AEM_GOLDEN
+    keep = (DATAPATH, CSR, AEM_GOLDEN)
     td = tempfile.mkdtemp()
     if dp_text is not None:
         DATAPATH = os.path.join(td, "milan_datapath.sv")
@@ -413,10 +589,13 @@ def with_rtl(dp_text=None, csr_text=None):
     if csr_text is not None:
         CSR = os.path.join(td, "milan_csr.sv")
         open(CSR, "w").write(csr_text)
+    if golden_text is not None:
+        AEM_GOLDEN = os.path.join(td, "aem_golden.h")
+        open(AEM_GOLDEN, "w").write(golden_text)
 
     def restore():
-        global DATAPATH, CSR
-        DATAPATH, CSR = keep
+        global DATAPATH, CSR, AEM_GOLDEN
+        DATAPATH, CSR, AEM_GOLDEN = keep
         shutil.rmtree(td, ignore_errors=True)
     return restore
 
@@ -518,7 +697,47 @@ def self_test():
     finally:
         restore()
 
-    # 7. and the config itself losing a STREAM_INPUT while N_STREAMS holds
+    # 7. THE VERSION DEFECT ITSELF: the gateware's VERSION moves and the
+    #    entity definition is not regenerated, so the descriptor keeps
+    #    telling controllers the old number. Read the current literal out of
+    #    the RTL rather than naming it - naming it here would be a second
+    #    copy of exactly the constant this gate exists to keep singular.
+    cur = re.search(r"(parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h)"
+                    r"([0-9A-Fa-f_]+)", base_csr)
+    if not cur:
+        raise SystemExit("SELF-TEST SETUP: no VERSION parameter in milan_csr")
+    restore = with_rtl(csr_text=mutate(
+        base_csr, cur.group(0), cur.group(1) + "0002_0003"))
+    try:
+        expect_fail("milan_csr VERSION bumped, entity NOT regenerated",
+                    lambda: check_firmware_version(builder))
+    finally:
+        restore()
+
+    # 8. the stale-golden trap, stated: the ROM is regenerated and the TB
+    #    golden is not. Flip one octet INSIDE the firmware_version field.
+    base_gold = open(AEM_GOLDEN).read()
+    rom_g, dir_g = golden_rom(base_gold)
+    stale = entity_fw_field(rom_g, dir_g, "TB golden")[:1].hex().upper()
+    restore = with_rtl(golden_text=mutate(
+        base_gold, f"0x{stale}", "0x30"))            # '1' -> '0': "0.22.0"
+    try:
+        expect_fail("TB golden not regenerated with the AEM ROM",
+                    lambda: check_firmware_version(builder))
+    finally:
+        restore()
+
+    # 9. a config declaring its own firmware_version - the second answer to
+    #    "what version is this", which is the one controllers got for months
+    with tempfile.TemporaryDirectory() as td:
+        p = os.path.join(td, "declared_fw.yaml")
+        open(p, "w").write(mutate(
+            base_cfg, '  serial_number: "AX7101-0001"',
+            '  firmware_version: "0.1.0"\n  serial_number: "AX7101-0001"'))
+        expect_fail("a config declares its own firmware_version",
+                    lambda: builder.load_config(p))
+
+    # 10. and the config itself losing a STREAM_INPUT while N_STREAMS holds
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "short_listener.yaml")
         open(p, "w").write(mutate(

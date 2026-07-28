@@ -2937,6 +2937,98 @@ def test_front_end_routing_gate_bites():
           f"losing its pins, a kind added on one side only, and the argv "
           f"itself selecting TDM for the Arty in BOTH tree states)")
 
+def test_firmware_version_derived_from_rtl():
+    """Gate 24: the version a controller reads is the version the fabric is.
+
+    The ENTITY descriptor's firmware_version (IEEE 1722.1-2021 7.2.1
+    Table 7-2, offset 116, 64 octets) is DERIVED from the gateware's own
+    VERSION parameter, never declared beside it. Until 2026-07-28 all three
+    configs hardcoded "0.1.0" while milan_csr said 0x0001_0016, so every
+    board we ship told Hive it ran firmware 0.1.0.
+
+    The literal is read out of the RTL here, so this gate follows a VERSION
+    bump instead of pinning one - a hardcoded expectation would be the same
+    second copy the gate exists to forbid."""
+    csr = open(os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")).read()
+    m = re.search(r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*"
+                  r"32'h([0-9A-Fa-f_]+)", csr)
+    assert m, "milan_csr.sv has no VERSION parameter"
+    v = int(m.group(1).replace("_", ""), 16)
+    major, minor = (v >> 16) & 0xFFFF, v & 0xFFFF
+    want = f"{major}.{minor}.0"
+
+    # every shipped config derives it, and none of them declares it
+    ids = {}
+    for name, path in CONFIGS.items():
+        raw = yaml.safe_load(open(path))["entity"]
+        assert "firmware_version" not in raw, \
+            f"{name}: config re-declares entity.firmware_version"
+        cfg = eb.load_config(path)
+        assert cfg["entity"]["firmware_version"] == want, \
+            (f"{name}: firmware_version {cfg['entity']['firmware_version']!r} "
+             f"!= {want!r} derived from VERSION 0x{v:08X}")
+        assert cfg["entity"]["firmware_rev"] == 0
+        ids[name] = cfg["entity"]["entity_model_id"]
+
+    # 1722.1-2021 6.2.2.8 EXCLUDES firmware_version from what makes an entity
+    # model "changed" ("In the ENTITY descriptor: available_index,
+    # association_id, entity_name, firmware_version, group_name,
+    # serial_number and current_configuration"), so no entity_model_id may
+    # move with it - least of all arty_current's PINNED deployed identity.
+    assert "firmware_version" not in eb.model_shape(
+        eb.load_config(CONFIGS["arty_4x4"])), \
+        "firmware_version leaked into the model-id hash input (6.2.2.8)"
+    assert ids["arty_current"] == DEPLOYED_MODEL_ID
+    assert eb.load_config(CONFIGS["arty_current"])["model_id"]["source"] == "pin"
+
+    # the rev knob moves the string and NOTHING else
+    p = _variant(CONFIGS["arty_4x4"],
+                 lambda c: c["entity"].__setitem__("firmware_rev", 7))
+    try:
+        r = eb.load_config(p)
+        assert r["entity"]["firmware_version"] == f"{major}.{minor}.7"
+        assert r["entity"]["entity_model_id"] == ids["arty_4x4"], \
+            "firmware_rev moved the entity_model_id (6.2.2.8 violation)"
+    finally:
+        os.unlink(p)
+
+    # and it reaches the descriptor bytes at the standard's offset
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    import gen_aem_store as g
+    for name in CONFIGS:
+        cfg = eb.load_config(CONFIGS[name])
+        M = g.build_model(g.spec_from_overlay(eb.emit_aem_overlay(cfg)))
+        base = next(b for (t, i, b, _l) in M["directory"] if (t, i) == (0, 0))
+        fld = M["rom"][base + 116: base + 116 + 64]
+        assert fld == want.encode() + bytes(64 - len(want)), \
+            f"{name}: ENTITY+116 is not a zero-padded {want!r} (7.2/7.2.1)"
+
+    # rejections: a declared version, and a rev that is not a count
+    bad = [("declared firmware_version", "firmware_version", "0.1.0"),
+           ("negative rev", "firmware_rev", -1),
+           ("non-integer rev", "firmware_rev", "3"),
+           ("bool rev", "firmware_rev", True)]
+    for label, key, val in bad:
+        p = _variant(CONFIGS["arty_4x4"],
+                     lambda c, k=key, x=val: c["entity"].__setitem__(k, x))
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError:
+                pass
+            else:
+                raise AssertionError(f"{label}: accepted")
+        finally:
+            os.unlink(p)
+
+    print(f"  [gate 24] firmware_version DERIVED from milan_csr VERSION "
+          f"0x{major:04X}_{minor:04X} -> {want!r}: 3/3 configs derive it and "
+          f"declare none, it lands zero-padded at ENTITY+116 in all 3 ROMs "
+          f"(1722.1 7.2.1 Table 7-2), no entity_model_id moves with it "
+          f"(6.2.2.8 exclusion; arty_current still pinned "
+          f"{DEPLOYED_MODEL_ID}), firmware_rev 7 -> {major}.{minor}.7 with "
+          f"the same id, 4/4 bad declarations refused")
+
 
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
@@ -2965,7 +3057,8 @@ if __name__ == "__main__":
                test_tdm_master_binding_reaches_the_pins,
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,
-               test_front_end_routing_gate_bites):
+               test_front_end_routing_gate_bites,
+               test_firmware_version_derived_from_rtl):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
