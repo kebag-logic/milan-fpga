@@ -39,7 +39,7 @@ virtual system with the *real* rootfs and the *real* `S50milan` against the
 *real* `milan_datapath` RTL catches all five mechanically, on every commit.
 
 The same tier is the only realistic way the saved-state fast-connect **reboot
-drill** (`../design/SAVED_STATE_FASTCONNECT.md` §11, gates G0-G2: partition
+drill** ([SAVED_STATE_FASTCONNECT](../design/SAVED_STATE_FASTCONNECT.md) §11, gates G0-G2: partition
 appears, journal restores, binds survive a power cycle) ever becomes CI
 instead of a bench ritual.
 

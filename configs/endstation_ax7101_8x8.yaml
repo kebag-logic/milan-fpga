@@ -30,6 +30,22 @@ entity:
 
 board:
   target: ax7101
+  features:
+    # AREA_BUDGET tier-1 prunes, applied 2026-07-28 when the 0x0019 fabric
+    # (per-index counters, the all-context mirror, the silence fill, the
+    # journal) took the 8x8 to 66,290 LUTs against the xc7a100t's 63,400
+    # (Vivado DRC UTLZ-1, all seeds identically). Both prunes are the
+    # honest kind - the doc's "dead when" column applies verbatim:
+    i2s_playback: false   # the AX routes NO audio pads at all
+                          # (_connectors = []); the block drives
+                          # unconnected Signals on this board
+    latency_taps: false   # pure instrumentation; stays PRESENT on the
+                          # Arty build, so item-11's telemetry lives on
+                          # the board with the known-good analog loop
+    render_lpf: false     # dependency of i2s_playback: false (the builder
+                          # refuses a filter with nothing behind it). Was
+                          # already pruned via constraints.render_lpf below
+                          # - this line makes the two levers agree.
   constraints:
     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
     milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)

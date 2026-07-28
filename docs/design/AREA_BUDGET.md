@@ -36,6 +36,52 @@ Flip-flops are **53,217 / 126,800 = 42 %** and block RAM is **91 / 135 = 67 %**.
 **The design is LUT-bound.** A change that trades LUTs for FFs is a win; a change
 that only removes FFs buys nothing.
 
+### 2026-07-28 evening — the DRC UTLZ-1 round (VERSION 0x0019), measured
+
+The 0x0019 compliance fabric plus `rx_queues: 2` took the 8×8 to **66,290
+LUT-as-logic against 63,400 sites** — every seed died at DRC, and the numbers
+below are Vivado post-synth hierarchy, not estimates:
+
+| delta vs the shipping 8×8 | LUTs | verdict |
+|---|---|---|
+| SoC glue for `rx_queues` 1→2 (steer + RX1 ring + RSC) | **+4,299** | required — the D7 GM-starvation fix |
+| Vexii netlist drift (trunk hash change) | +2,406 | not ours |
+| ACMP listener SM in fabric (`u_ctx` 444 → 2,182) | +1,738 | compliance |
+| lwSRP licence work (`ctx`/`rx`) | +1,728 | compliance |
+| `milan_csr` (journal group + growth) | +1,875 | compliance |
+| counter mirror as FF (`avtp_rx_monitor`) | +894 | **recovered** — see below |
+| depacketizer `frame_fifo` un-trimmed (266 → 1,344) | +1,078 | honest cost of real consumers |
+| CRF shaped-queue work (`traffic_controller`) | +840 | partly **recovered** — see below |
+
+Three lessons with mechanisms attached:
+
+1. **The estimator ran ~15 points optimistic at this shape** (`resources OVER
+   (worst LUT 85.4%)` printed for a design that needed 100.4 % of the device).
+   Treat the builder's percentage as a trend indicator between two configs,
+   never as a fit verdict — the fit verdict is Vivado's post-synth report and
+   nothing else (which is this document's own rule 139 restated, now with a
+   15-point casualty attached).
+2. **Vivado does not read-replicate a multi-column array into LUTRAM.** The
+   GET_COUNTERS mirror (`cnt_mir_r[N][10]`, one row read across all ten
+   columns) synthesized to 2,560 flops + muxes even with
+   `(* ram_style = "distributed" *)` on it — yosys maps the same code to
+   RAM32M, which is exactly how the OOC estimate hid the cost. Ten separate
+   per-column 1W1R arrays infer distributed RAM in both tools
+   (`KL_avtp_rx_monitor_ctx.sv` `diag_mirror`, ~−1.1 k LUT / −2.5 k FF).
+3. **The true audio shape costs what the wrong one did.** The dead seeds had
+   built the default-I2S 2-channel front-end (the fragment gap now hard-gated
+   by `check_sweep_shape`); a private-copy OOC of the datapath at the real
+   tdm32/8-channel/8-stream shape measured **33,705 LUTs vs 33,712** for the
+   wrong one. The NxN fabric is shape-dominated, not front-end-dominated, so
+   the 63,644 post-prune figure transfers to the true shape.
+
+New tier-1 lever landed this round: **`CBS_QUEUES_MASK_P`** (derived, not
+declared — the builder computes it from `srp.class_queue`; the SR A/B queues
+keep their `credit_based_shaper` instance, q0–q2 are strict-priority only,
+which is bit-identical to the `cbs_shaped_i = 0` state every non-SR queue has
+always run in). Worth ~3 × 425 LUT + 18 DSP on both boards, proven equivalent
+by the `shaper_core` suite's dual-core mask oracle.
+
 ## The datapath, by block
 
 Leaf blocks over 400 LUTs. Parent rows are omitted where a single child
