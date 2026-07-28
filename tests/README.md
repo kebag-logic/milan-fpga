@@ -40,12 +40,13 @@ Gherkin scenarios driven by the `avtp_aecp_packet_gen` class. Two paths:
 - **Offline** (default, no DUT binary): Python model in `tests/steps/aecp_common_steps.py` emulates admission control and lock/acquire state for fast CI.
 - **Live DUT**: Verilator-compiled binary serving AXI-Stream over a UNIX socket (harness pending).
 
-**21 features / 113 scenarios / 1169 steps**, all passing, counted by running the
-suite on 2026-07-26. It is the **conformance suite**, and it is a CI gate (the
+**22 features / 135 scenarios / 1273 steps**, all passing, counted by running the
+suite on 2026-07-28. It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
 | Feature file | Scenarios | Tier |
 |---|---|---|
+| `clkv_tu_lease.feature` | 22 | T1 |
 | `aecp_packet_validator.feature` | 11 | T1 |
 | `aecp_l0_state.feature` | 11 | T1 |
 | `aecp_timers.feature` | 6 | T1 |

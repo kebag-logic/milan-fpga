@@ -91,12 +91,26 @@ thing to re-check._
   NOT valid. This is deliberate (the 2026-07-27 defect was the opposite
   default: 31 M frames from a PHC 60 h off the domain, all claiming `tu = 0`
   - [../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md)),
-  but it is **only half a fix**: the daemon must write `CLKV_CTRL` about once
-  a second while its servo reports locked, and that change lives in the bench
-  repo's `gptp2csr.sh`, not here. Until it ships, expect a Milan listener's
-  `TIMESTAMP_UNCERTAIN` to tick against us - read `CLKV_STAT[2]` to tell
-  "no daemon" from "daemon says unsynchronised". The talker does **not**
-  stop: Milan v1.2 5.3.7.3 forbids that.
+  but it was **only half a fix**, and the other half shipped 2026-07-28: the
+  bench repo's `gptp2csr.sh` now leases the claim every loop (milan-tests-avb
+  `fpga/tools/gptp2csr.sh`, oracle `fpga/tests/test_gptp2csr_tu.sh`,
+  on-board acceptance `fpga/tests/accept_tu_lease.sh`). Read `CLKV_STAT[2]`
+  to tell "no daemon" from "daemon says unsynchronised". The talker does
+  **not** stop: Milan v1.2 5.3.7.3 forbids that.
+  **The half-fixed state was measured and was not benign.** With both boards
+  at `0x0001_0016` and *no* writer, `CLKV_STAT` read `0x00000005` on the
+  ALINX and the Arty and `CLKV_TUCNT` climbed at exactly **1.00/s since
+  boot** - `tu` set in **100 %** of observation intervals - while the ALINX
+  was a healthy grandmaster and the Arty was `SLAVE` at **-93 ns**. Leaving
+  `tu` asserted on a stable clock is itself a conformance failure: IEEE
+  1722-2016 PICS **AAF-10** (`AAF:M`) requires `tu = 0` when gPTP time is
+  stable, and Milan v1.2 4.4.2.3 has a Listener PAAD free-wheel its media
+  clock *after `tu` is reset*, so a talker that never resets it never lets a
+  conformant listener leave free-wheel.
+  **Deployment caveat:** the fix is board *software*. A board reflashed or
+  rebooted from an image built before 2026-07-28 carries the old
+  `gptp2csr.sh` and returns to `tu = 1` forever - check
+  `devmem 0x9000077C` and expect bit 1 set, not `0x5`.
 
 ## 4. Operational hazards - lethal pairings (gateware ⇄ driver)
 
