@@ -608,6 +608,66 @@ int main(int argc, char** argv) {
                sh3 * 100.0, worst, gap_us);
     }
 
+    // ---- Scenario: CBS_QUEUES_MASK_P equivalence oracle (2026-07-28) ----
+    // The wrap carries a SECOND core with mask 5'b11000 (the builder's
+    // derivation: SR class A q4 + class B q3 keep their CBS instance, q0-q2
+    // are strict-priority only) on the SAME stimulus. Two properties, both
+    // per cycle across everything driven below:
+    //   (a) masked-out queues report allow_transmit == 1 ALWAYS - even while
+    //       the reference core's same queue is credit-blocked;
+    //   (b) the two KEPT queues' allow bits equal the reference core's
+    //       bit-for-bit, so the mask provably does not touch them.
+    {
+        long f0 = h.fails;
+        bool saw_ref_block = false;   // the reference q0 must actually block
+        bool saw_q4_shape  = false;   // ...and q4 must actually shape (drop+return)
+        h.apply_cfg(cfg);
+        h.reset(4);
+        // the sequential slope engine needs ~2 passes before any queue has a
+        // non-zero sendSlope (same warmup run_rate does); without this the
+        // whole scenario is vacuous - credit never moves, nothing ever blocks
+        for (int i = 0; i < 400; i++) h.cycle(0x11, false, false, true, "mask_warm");
+        auto scan = [&](const char* tag) {
+            uint32_t ref = dut->dbg_allow, msk = dut->dbg_allow_masked;
+            for (int q = 0; q < 3; q++)
+                if (!((msk >> q) & 1)) {
+                    h.fail(tag, "mask_allow_const1", msk, ref);
+                    break;
+                }
+            if (((msk >> 3) & 3) != ((ref >> 3) & 3))
+                h.fail(tag, "mask_kept_equiv", msk, ref);
+            if (!((ref >> 0) & 1)) saw_ref_block = true;
+            if (!((ref >> 4) & 1)) saw_q4_shape = true;
+            h.checks++;
+        };
+        // deplete q0 in the reference core: continuous transmission burns
+        // credit at sendSlope; with q0's small hiCredit it goes negative and
+        // the reference blocks - the masked core must not care
+        for (int i = 0; i < 600; i++) {
+            h.cycle(0x01, true, (i % 10) == 9, true, "mask_q0");
+            scan("mask_q0");
+            if (getenv("MASK_DBG") && i % 50 == 0)
+                printf("    dbg i=%d credit0=%lld allow=0x%X grant=0x%X\n",
+                       i, (long long)h.credit(0), dut->dbg_allow, dut->grant_o);
+        }
+        // now the kept queue: saturate q4 so BOTH cores shape it identically
+        for (int i = 0; i < 600; i++) {
+            h.cycle(0x10, true, (i % 10) == 9, true, "mask_q4");
+            scan("mask_q4");
+        }
+        if (!saw_ref_block) {
+            printf("  [FAIL] mask oracle vacuous: reference q0 never credit-blocked\n");
+            h.fails++;
+        }
+        if (!saw_q4_shape) {
+            printf("  [FAIL] mask oracle vacuous: q4 never actually shaped\n");
+            h.fails++;
+        }
+        printf("  [%s] CBS_QUEUES_MASK_P=11000 sibling: q0-q2 allow==1 always "
+               "(ref q0 did block), kept q3/q4 bit-equal to the all-CBS core "
+               "(q4 did shape)\n", (h.fails == f0) ? "PASS" : "FAIL");
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("cycle checks: %ld   mismatches: %ld\n", h.checks, h.fails);
     printf("RESULT: %s\n", (h.fails == 0) ? "PASS" : "FAIL");

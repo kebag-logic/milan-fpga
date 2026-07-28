@@ -39,6 +39,9 @@ module traffic_controller_802_1q #(
   parameter bit BIG_ENDIAN = 1,               //! Determines byte order for classifier
   parameter int CLASSIFIER_FIFO_DEPTH = 64,   //! FIFO depth for classification stage
   parameter int NUMBER_OF_QUEUES = 5,         //! Number of traffic classes/queues
+  //! CBS instance mask, passed straight to traffic_shaping_core (its doc has
+  //! the contract). Default all-ones = the pre-2026-07-28 build, unchanged.
+  parameter bit [NUMBER_OF_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   parameter int BUFFER_FIFO_DEPTH = 1024     //! Per-queue FIFO depth
 )(
   input wire clk,                             //! Clock signal
@@ -125,7 +128,8 @@ module traffic_controller_802_1q #(
 
   traffic_shaping_core #(
     .TDATA_WIDTH(TDATA_WIDTH),
-    .NUMBER_OF_QUEUES(NUMBER_OF_QUEUES)
+    .NUMBER_OF_QUEUES(NUMBER_OF_QUEUES),
+    .CBS_QUEUES_MASK_P(CBS_QUEUES_MASK_P)
   )
   traffic_shaper(
     .clk(clk),

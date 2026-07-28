@@ -34,6 +34,14 @@
 module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int TDATA_WIDTH = 64,
   parameter int NUM_QUEUES  = NUMBER_OF_QUEUES,
+  //! CBS instance mask for the egress queues (traffic_shaping_core has the
+  //! contract; a 0 bit = strict-priority only, identical to runtime
+  //! cbs_shaped_i=0, CSR words stay and read back). Default all-ones = every
+  //! pre-2026-07-28 build. The builder derives the real mask from the SR
+  //! class queue map (srp.class_queue) - the two SR classes keep CBS, the
+  //! gPTP/control/BE queues never had a licence to be credit-shaped (USER
+  //! queue directive: gPTP MUST stay below the shaped queues).
+  parameter bit [NUM_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): AAF stream contexts
@@ -1871,7 +1879,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   traffic_controller_802_1q #(
     .TDATA_WIDTH(TDATA_WIDTH),
     .BIG_ENDIAN(0),
-    .NUMBER_OF_QUEUES(NUM_QUEUES)
+    .NUMBER_OF_QUEUES(NUM_QUEUES),
+    .CBS_QUEUES_MASK_P(CBS_QUEUES_MASK_P)
   ) traffic_controller(
     .clk(axis_clk),
     .resetn(axis_resetn),

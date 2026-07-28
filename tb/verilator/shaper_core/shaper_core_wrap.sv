@@ -46,6 +46,7 @@ module shaper_core_wrap #(
   output wire signed [47:0]         dbg_credit3, //! Queue-3 CBS credit (Q16)
   output wire signed [47:0]         dbg_credit4, //! Queue-4 CBS credit (Q16, SR class A - the top queue)
   output wire [NQ-1:0]              dbg_allow,   //! Per-queue allow_transmit
+  output wire [NQ-1:0]              dbg_allow_masked, //! Same, from the CBS_QUEUES_MASK_P=5'b11000 sibling core
 
   // --- 802.1Q-2018 34.3.1 bandwidth availability, lifted from the PACKAGE ---
   // These are elaboration-time sums over ethernet_packet_pkg's reset idleSlope
@@ -114,12 +115,48 @@ module shaper_core_wrap #(
   );
 
   // XMR into the per-queue CBS instances (read-only observability).
-  assign dbg_credit0 = u_core.gen_cbs[0].u_cbs.credit;
-  assign dbg_credit1 = u_core.gen_cbs[1].u_cbs.credit;
-  assign dbg_credit2 = u_core.gen_cbs[2].u_cbs.credit;
-  assign dbg_credit3 = u_core.gen_cbs[3].u_cbs.credit;
-  assign dbg_credit4 = u_core.gen_cbs[4].u_cbs.credit;
+  assign dbg_credit0 = u_core.gen_cbs[0].g_cbs.u_cbs.credit;
+  assign dbg_credit1 = u_core.gen_cbs[1].g_cbs.u_cbs.credit;
+  assign dbg_credit2 = u_core.gen_cbs[2].g_cbs.u_cbs.credit;
+  assign dbg_credit3 = u_core.gen_cbs[3].g_cbs.u_cbs.credit;
+  assign dbg_credit4 = u_core.gen_cbs[4].g_cbs.u_cbs.credit;
   assign dbg_allow   = u_core.allow_transmit;
+
+  // ---- CBS_QUEUES_MASK_P equivalence oracle (2026-07-28 area lever) ------
+  // A SECOND core, same stimulus, mask = the shipping derivation (SR class A
+  // q4 + class B q3 keep CBS; q0-q2 strict-priority only). The C++ harness
+  // asserts, per cycle: (a) a masked-out queue's allow_transmit is CONSTANT 1
+  // no matter what cbs_shaped_i/credit says - the instance is GONE, exactly
+  // like cbs_shaped_i=0 behaviour; (b) the two KEPT queues' allow bits track
+  // the all-CBS reference core bit-for-bit under identical stimulus, so the
+  // mask provably changes nothing for the queues that keep their shaper.
+  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH), .TDEST_WIDTH_P($clog2(NQ))) sm_if();
+  axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH), .TDEST_WIDTH_P($clog2(NQ))) mm_if();
+  assign sm_if.tdata  = s_tdata;
+  assign sm_if.tkeep  = s_tkeep;
+  assign sm_if.tvalid = s_tvalid;
+  assign sm_if.tlast  = s_tlast;
+  assign sm_if.tdest  = '0;
+  assign mm_if.tready = m_tready;
+
+  traffic_shaping_core #(
+    .TDATA_WIDTH(TDATA_WIDTH),
+    .NUMBER_OF_QUEUES(NQ),
+    .CBS_QUEUES_MASK_P(5'b11000)
+  ) u_core_masked (
+    .clk               (clk),
+    .resetn            (resetn),
+    .queue_has_data_i  (queue_has_data_i),
+    .is_1g_i           (is_1g_i),
+    .cbs_idle_slope_i  (cbs_idle_slope_i),
+    .cbs_hi_credit_i   (cbs_hi_credit_i),
+    .cbs_lo_credit_i   (cbs_lo_credit_i),
+    .cbs_shaped_i      (cbs_shaped_i),
+    .grant_queue_o     (),
+    .s_axis            (sm_if),
+    .m_axis            (mm_if)
+  );
+  assign dbg_allow_masked = u_core_masked.allow_transmit;
 
 endmodule
 

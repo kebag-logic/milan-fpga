@@ -534,31 +534,42 @@ module KL_avtp_rx_monitor_ctx #(
   //! words (W_CNT0_C .. W_CNT0_C+9). Flop cost N x 10 x 32; the RAM's one
   //! read port stays wholly the walker's, and the AECP builder reads the
   //! mirror combinationally through diag_idx_i.
-  logic [31:0] cnt_mir_r [N_LISTENERS_P][10];
+  //! NO reset ON PURPOSE: the mirror shadows a BRAM that has none either.
+  //! Both power up all-zero (Xilinx GSR / Verilator zero-init), and every
+  //! later word arrives by write-through, so a reset clause adds nothing -
+  //! except that it FORBIDS distributed-RAM inference and turns the array
+  //! into N x 10 x 32 fabric flops + a read mux (measured: +894 LUT /
+  //! +2,560 FF on the 8x8, the DRC UTLZ-1 round of 2026-07-28).
+  //!
+  //! TEN SEPARATE COLUMN ARRAYS, not one [N][10]: the single array's read
+  //! side pulls all ten columns of one row at once, i.e. ten async read
+  //! ports on one memory - yosys read-replicates that into RAM32M, Vivado
+  //! DOES NOT (measured on the m0019b seeds: the attribute was on the
+  //! declaration and the block still synthesized to 1,855 LUT of flops
+  //! and muxes). Per column the memory is textbook 1W1R - one decoded
+  //! write, one async read at diag_ridx_w - which both tools map to
+  //! distributed RAM without ceremony.
   wire cntw_hit_w = ram_we_w &&
                     (ram_waddr_w[4:0] >= W_CNT0_C) &&
                     (ram_waddr_w[4:0] < W_CNT0_C + 5'd10) &&
                     (32'(ram_waddr_w[AW_C-1:5]) < N_LISTENERS_P);
-  always_ff @(posedge clk_i) begin : diag_mirror
-    if (!rst_n) begin
-      for (int s = 0; s < N_LISTENERS_P; s++)
-        for (int c = 0; c < 10; c++)
-          cnt_mir_r[s][c] <= '0;
-    end else if (cntw_hit_w) begin
-      cnt_mir_r[ram_waddr_w[AW_C-1:5]][4'(ram_waddr_w[4:0] - W_CNT0_C)]
-          <= ram_wdata_w;
-    end
-  end : diag_mirror
+  wire [3:0] cntw_col_w = 4'(ram_waddr_w[4:0] - W_CNT0_C);
 
   //! indexed combinational read: ten Table 5.6 counters for one sink, in
   //! C_ML..C_FRX order; an out-of-range index clamps to 0 (the builder
   //! only presents directory-served indexes)
   wire [IDXW_C-1:0] diag_ridx_w = (32'(diag_idx_i) < N_LISTENERS_P)
                                   ? diag_idx_i[IDXW_C-1:0] : '0;
-  always_comb begin : diag_read
-    for (int c = 0; c < 10; c++)
-      diag_cnt_o[c*32 +: 32] = cnt_mir_r[diag_ridx_w][c];
-  end : diag_read
+
+  for (genvar c = 0; c < 10; c++) begin : diag_mirror
+    (* ram_style = "distributed" *)
+    logic [31:0] col_r [N_LISTENERS_P];
+    always_ff @(posedge clk_i) begin : col_wr
+      if (cntw_hit_w && cntw_col_w == 4'(c))
+        col_r[ram_waddr_w[AW_C-1:5]] <= ram_wdata_w;
+    end : col_wr
+    assign diag_cnt_o[c*32 +: 32] = col_r[diag_ridx_w];
+  end : diag_mirror
 
   always_ff @(posedge clk_i) begin : ctx_walker
     if (!rst_n) begin

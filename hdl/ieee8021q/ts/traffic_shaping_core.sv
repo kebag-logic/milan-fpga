@@ -46,7 +46,17 @@ import ethernet_packet_pkg::*;
 
 module traffic_shaping_core #(
   parameter int TDATA_WIDTH = 64,     //! Width of tdata bus
-  parameter int NUMBER_OF_QUEUES = 5  //! Number of network queues
+  parameter int NUMBER_OF_QUEUES = 5, //! Number of network queues
+  //! Which queues get a credit_based_shaper INSTANCE. Default all-ones =
+  //! byte-identical to every build before 2026-07-28. A masked-out queue is
+  //! strict-priority only: allow_transmit is constant 1, exactly the
+  //! behaviour a built CBS shows whenever its runtime cbs_shaped_i is 0 -
+  //! which is how the shipping config runs EVERY queue today (AAF rides the
+  //! lwSRP reservation bw-gate; per-queue CBS was never enabled on q0-q2).
+  //! The two SR-class queues keep their instances; the builder derives the
+  //! mask from srp.class_queue rather than a hand-typed constant. Measured
+  //! (ship 8x8 place report): each pruned instance returns ~425 LUT + 6 DSP.
+  parameter bit [NUMBER_OF_QUEUES-1:0] CBS_QUEUES_MASK_P = '1
 )(
   input wire clk,                     //! clock signal
   input wire resetn,                  //! synchronous active low reset
@@ -92,23 +102,33 @@ module traffic_shaping_core #(
   assign grant_queue_o = hold_grant ? (1 << active_queue) : '0;
 
   for (genvar i = 0; i < NUMBER_OF_QUEUES; i++) begin : gen_cbs
-    //! Per-queue CBS instance, configured at runtime from milan_csr.
-    credit_based_shaper #(
-      .CLK_FREQ_HZ(CLK_FREQ_HZ)
-    ) u_cbs (
-      .clk               (clk),
-      .resetn            (resetn),
-      .shaped_i          (cbs_shaped_i[i]),
-      .idle_slope_i      (cbs_idle_slope_i[i*32 +: 32]),
-      .hi_credit_i       (cbs_hi_credit_i[i*32 +: 32]),
-      .lo_credit_i       (cbs_lo_credit_i[i*32 +: 32]),
-      .queue_has_data_i  (queue_has_data_i[i]),
-      .is_1g_i           (is_1g_i),
-      .is_transmitting_i (is_transmitting[i]),
-      .is_granted_i      (hold_grant && active_queue == i),
-      .bytes_sent_i      (bytes_sent[i]),
-      .allow_transmit_o  (allow_transmit[i])
-    );
+    if (CBS_QUEUES_MASK_P[i]) begin : g_cbs
+      //! Per-queue CBS instance, configured at runtime from milan_csr.
+      credit_based_shaper #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ)
+      ) u_cbs (
+        .clk               (clk),
+        .resetn            (resetn),
+        .shaped_i          (cbs_shaped_i[i]),
+        .idle_slope_i      (cbs_idle_slope_i[i*32 +: 32]),
+        .hi_credit_i       (cbs_hi_credit_i[i*32 +: 32]),
+        .lo_credit_i       (cbs_lo_credit_i[i*32 +: 32]),
+        .queue_has_data_i  (queue_has_data_i[i]),
+        .is_1g_i           (is_1g_i),
+        .is_transmitting_i (is_transmitting[i]),
+        .is_granted_i      (hold_grant && active_queue == i),
+        .bytes_sent_i      (bytes_sent[i]),
+        .allow_transmit_o  (allow_transmit[i])
+      );
+    end : g_cbs
+    else begin : g_nocbs
+      //! Strict-priority-only queue: identical to a built CBS whose runtime
+      //! cbs_shaped_i stays 0 (allow_transmit is then constant 1 - see
+      //! credit_based_shaper's shaped_i bypass). Its cbs_* CSR words keep
+      //! their addresses and read back as written; they are inert here, the
+      //! same way LPF_CTRL is inert on a render_lpf-pruned build.
+      assign allow_transmit[i] = 1'b1;
+    end : g_nocbs
   end
 
   // --------------------------------------------------------------------------
