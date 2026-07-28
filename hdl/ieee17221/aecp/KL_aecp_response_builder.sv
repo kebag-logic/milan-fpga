@@ -419,6 +419,11 @@ module KL_aecp_response_builder (
                    (w_fmt_chm == (w_in_ref_fmt & FMT_BASE_MASK_C)));
   //! talker truth per descriptor: outputs accept ONLY their declared format
   wire w_out_fmt_ok = (w_set_fmt == w_out_ref_fmt);
+  //! which STREAM_INPUT descriptor carries the CRF (media-clock) sink — the
+  //! generated flag, so the GET_STREAM_INFO live-record pick never hardcodes
+  //! an index (NxN shapes put the CRF sink LAST: index 4 at 4x4, 8 at 8x8)
+  wire w_si_in_crf = (w_gs_index < 16'(AEM_N_STRIN_C)) &&
+                     AEM_STRIN_CRF_C[w_in_fidx];
 `else
   wire w_fmt_ok  = (w_fmt_ch >= 10'd1) && (w_fmt_ch <= 10'd8) &&
                    !w_set_fmt[52] &&
@@ -429,7 +434,40 @@ module KL_aecp_response_builder (
       (AEM_FMTS_C[0] & FMT_BASE_MASK_C) | (64'd2 << 22);
   wire w_out_fmt_ok = (w_set_fmt == AAF_OUT_FMT_C);
   wire w_crf_fmt_ok = (w_set_fmt == AEM_CRF_FMTS_C[0]);
+  //! deployed 1-AAF-input shape: STREAM_INPUT[1] IS the CRF sink
+  wire w_si_in_crf = (w_gs_index == 16'd1);
 `endif
+
+  // ------------------------------------------------------------------ //
+  // GET_STREAM_INFO addressing (defect D1, silicon 2026-07-27 gw 0x0016) //
+  //                                                                      //
+  // IEEE Std 1722.1-2021 §7.4.16.2 defines ONE GET_STREAM_INFO_RESPONSE  //
+  // per {descriptor_type, descriptor_index}; §7.4.5 makes the descriptor //
+  // DIRECTORY the statement of which of those pairs exist. This arm used //
+  // to key off literal indices (STREAM_OUTPUT == 0, STREAM_INPUT < 2)    //
+  // while READ_DESCRIPTOR keyed off the directory, so the 8x8 entity     //
+  // served STREAM_OUTPUT.0-8 and STREAM_INPUT.0-8 byte-exact and then    //
+  // answered NO_SUCH_DESCRIPTOR to GET_STREAM_INFO on 1-8 — the device   //
+  // contradicting itself between two commands about the same descriptor  //
+  // (Hive: 8x STREAM_OUTPUT + 7x STREAM_INPUT). Both commands now ask    //
+  // the SAME oracle: KL_aecp_accessor's acc_found/acc_base.              //
+  // ------------------------------------------------------------------ //
+  wire w_si_is_stream = (w_gs_type == DESC_STREAM_INPUT) ||
+                        (w_gs_type == DESC_STREAM_OUTPUT);
+  //! current_format sits at descriptor offset 74 in BOTH STREAM_INPUT and
+  //! STREAM_OUTPUT (1722.1-2021 §7.2.6: descriptor_type 2 + descriptor_index
+  //! 2 + object_name 64 + localized_description 2 + clock_domain_index 2 +
+  //! stream_flags 2 = 74). acc_base + this offset is byte-identical to the
+  //! generated WB_STREAM_*_FMT_C / WB_ST*_FMT_ADDR_C addresses for every
+  //! index of every shipped shape, and needs no per-config table — the TB
+  //! asserts GET_STREAM_INFO.current_format == the READ_DESCRIPTOR bytes.
+  localparam [15:0] STREAM_CUR_FMT_OFF_C = 16'd74;
+  //! stream_dest_mac per talker source: MAAP claims ONE contiguous block and
+  //! milan_datapath hands ACMP source uid k the address base+k
+  //! (acmp_src_dmac_w[k] = eff_aaf_dmac + k; the CRF output takes uid
+  //! N_STREAMS, same rule). GET_STREAM_INFO must report the address ACMP
+  //! hands out or the two commands disagree about the same stream.
+  wire [47:0] w_out_dmac = aaf_dmac_i + 48'(w_gs_index);
 
   // ------------------------------------------------------------------ //
   // Response plan (filled in DECIDE_S)                                   //
@@ -816,7 +854,11 @@ module KL_aecp_response_builder (
   // path and the unsolicited push): flags + the live 40-byte tail. The
   // caller still owns segments/cdl/status.                               //
   // ------------------------------------------------------------------ //
-  task automatic load_stream_info_consts;
+  //! uid  = the addressed STREAM_OUTPUT's descriptor_index = the ACMP
+  //!        talker_unique_id (the two MUST agree — see w_out_dmac)
+  //! dmac = that source's stream_dest_mac (MAAP block base + uid)
+  task automatic load_stream_info_consts(input logic [15:0] uid,
+                                         input logic [47:0] dmac);
     begin
       //! flags: FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN|CONNECTED
       //! + MSRP_FAILURE_VALID when the bridge re-declared OUR stream as
@@ -824,25 +866,26 @@ module KL_aecp_response_builder (
       const_q[0] <= tk_fail_valid_i ? 8'hFE : 8'hF6;
       const_q[1] <= 8'h00;
       const_q[2] <= 8'h00; const_q[3] <= 8'h00;
-      // stream_id = {station_mac, unique_id=0} — the stream.c formula,
+      // stream_id = {station_mac, unique_id} — the stream.c formula,
       // byte-identical to the AVTP header and the ACMP PROBE_TX response
+      // (KL_acmp_tlkr_ctx echoes the talker_unique_id into the id tail)
       const_q[8]  <= station_mac_i[47:40];
       const_q[9]  <= station_mac_i[39:32];
       const_q[10] <= station_mac_i[31:24];
       const_q[11] <= station_mac_i[23:16];
       const_q[12] <= station_mac_i[15:8];
       const_q[13] <= station_mac_i[7:0];
-      const_q[14] <= 8'h00; const_q[15] <= 8'h00;
+      const_q[14] <= uid[15:8]; const_q[15] <= uid[7:0];
       const_q[16] <= pres_offset_i[31:24];        // msrp_accumulated_latency
       const_q[17] <= pres_offset_i[23:16];
       const_q[18] <= pres_offset_i[15:8];
       const_q[19] <= pres_offset_i[7:0];
-      const_q[20] <= aaf_dmac_i[47:40];           // stream_dest_mac
-      const_q[21] <= aaf_dmac_i[39:32];
-      const_q[22] <= aaf_dmac_i[31:24];
-      const_q[23] <= aaf_dmac_i[23:16];
-      const_q[24] <= aaf_dmac_i[15:8];
-      const_q[25] <= aaf_dmac_i[7:0];
+      const_q[20] <= dmac[47:40];                 // stream_dest_mac
+      const_q[21] <= dmac[39:32];
+      const_q[22] <= dmac[31:24];
+      const_q[23] <= dmac[23:16];
+      const_q[24] <= dmac[15:8];
+      const_q[25] <= dmac[7:0];
       const_q[26] <= tk_fail_valid_i ? tk_fail_code_i : 8'h00;
       const_q[27] <= 8'h00;
       for (int k = 0; k < 8; k++)
@@ -862,13 +905,24 @@ module KL_aecp_response_builder (
   // CONNECTED|STREAMING_WAIT, TalkerFailed adds SRP_REGISTERING_FAILED|
   // MSRP_FAILURE_VALID; trailer flags_ex REGISTERING + {pbsta,acmpsta}).
   // sink0 = the ACMP listener SM; sink1 (CRF) reads as unbound.          //
+  //                                                                      //
+  // D1 (index coverage): sinks with NO live record — every AAF sink above //
+  // index 0 until the KL_acmp_lstn_ctx table port reaches this module     //
+  // (docs/NXN_ARCHITECTURE.md §3.6, "GET_STREAM_INFO ... keying the §1.5  //
+  // window by descriptor index") — take crf=0/sink0=0 and read as an      //
+  // UNBOUND sink: identity fields valid (that is what *_VALID means —     //
+  // "meaningful", and zero is a meaningful value), connection flags 0.    //
+  // That is a weaker answer than a live record, and it is the answer the  //
+  // fabric can actually back; NO_SUCH_DESCRIPTOR for a descriptor         //
+  // READ_DESCRIPTOR serves is not an answer at all.                       //
   // ------------------------------------------------------------------ //
-  task automatic load_input_stream_info_consts(input logic sink0);
+  task automatic load_input_stream_info_consts(input logic sink0,
+                                               input logic sink1);
     logic        bnd, ta_r, ta_f;
     logic [31:0] fl;
     begin
       //! sink 1 = the CRF input's bind record (no MSRP attach: ta flags 0)
-      bnd  = sink0 ? lstn_bound_i : lstn1_bound_i;
+      bnd  = sink0 ? lstn_bound_i : (sink1 & lstn1_bound_i);
       ta_r = sink0 & lstn_ta_reg_i;
       ta_f = sink0 & lstn_ta_fail_i;
       // FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN always valid. Milan v1.2:
@@ -889,8 +943,8 @@ module KL_aecp_response_builder (
       const_q[2] <= fl[15:8];  const_q[3] <= fl[7:0];
       for (int k = 0; k < 8; k++)
         const_q[8+k] <= sink0 ? lstn_sid_i[8*(7-k) +: 8]
-                              : (lstn1_bound_i ? lstn1_sid_i[8*(7-k) +: 8]
-                                               : 8'h00);
+                              : ((sink1 & lstn1_bound_i)
+                                 ? lstn1_sid_i[8*(7-k) +: 8] : 8'h00);
       //! msrp_accumulated_latency = from the registered Talker attribute
       //! (Milan 5.4.2.7); zero until one is registered
       const_q[16] <= (ta_r|ta_f) ? lstn_ta_acclat_i[31:24] : 8'h00;
@@ -899,8 +953,8 @@ module KL_aecp_response_builder (
       const_q[19] <= (ta_r|ta_f) ? lstn_ta_acclat_i[7:0]   : 8'h00;
       for (int k = 0; k < 6; k++)
         const_q[20+k] <= sink0 ? lstn_dmac_i[8*(5-k) +: 8]
-                               : (lstn1_bound_i ? lstn1_dmac_i[8*(5-k) +: 8]
-                                                : 8'h00);
+                               : ((sink1 & lstn1_bound_i)
+                                  ? lstn1_dmac_i[8*(5-k) +: 8] : 8'h00);
       const_q[26] <= ta_f ? lstn_fail_code_i : 8'h00;     // msrp_failure_code
       const_q[27] <= 8'h00;                               // reserved
       for (int k = 0; k < 8; k++)                          // failing bridge_id
@@ -1233,7 +1287,8 @@ module KL_aecp_response_builder (
             seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
             const_q[48] <= 8'h00; const_q[49] <= 8'h06;   // STREAM_OUTPUT
             const_q[50] <= 8'h00; const_q[51] <= 8'h00;   // index 0
-            load_stream_info_consts();
+            //! the push is STREAM_OUTPUT[0]: uid 0, MAAP block base
+            load_stream_info_consts(16'd0, aaf_dmac_i);
             cdl_q      <= 11'd68;
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
@@ -1488,19 +1543,28 @@ module KL_aecp_response_builder (
               end
 
               // -------------------------------------------------- //
+              //! D2 same class as GET_STREAM_INFO: SET/GET_NAME Response is
+              //! 72 B (1722.1 §7.4.17.1/§7.4.18.2 — descriptor_type(2)+
+              //! descriptor_index(2)+name_index(2)+configuration_index(2)+
+              //! object_name(64); la_avdecc AecpAemGetNameResponsePayloadSize
+              //! = 72) on EVERY status. The error exits used to declare
+              //! cdl 84 while emitting an 8-byte payload (a frame SHORTER
+              //! than its own control_data_length — worse than a short cdl),
+              //! or echo the 20-byte GET command. Both now emit the echo
+              //! plus a zero object_name tail so the declared and emitted
+              //! lengths agree at 72.
               CMD_GET_NAME, CMD_SET_NAME: begin
                 cdl_q <= 11'd84;   // 12 + 8 + 64
-                if (l0_reject_q) begin
-                  status_q     <= l0_status_q;
-                  seg_len_q[0] <= (hdr_q.command_type == CMD_SET_NAME)
-                                  ? 16'd72 : 16'd8;
-                end else if (!acc_found || w_name_cfg != 16'd0 ||
-                             !w_name_ptr[16]) begin
-                  status_q     <= acc_found ? STATUS_BAD_ARGUMENTS
-                                            : STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= (hdr_q.command_type == CMD_SET_NAME)
-                                  ? 16'd72 : 16'd8;
-                  cdl_q        <= hdr_q.control_data_length;
+                if (l0_reject_q || !acc_found || w_name_cfg != 16'd0 ||
+                    !w_name_ptr[16]) begin
+                  status_q      <= l0_reject_q ? l0_status_q
+                                 : acc_found   ? STATUS_BAD_ARGUMENTS
+                                               : STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0]  <= (hdr_q.command_type == CMD_SET_NAME)
+                                   ? 16'd72 : 16'd8;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0;
+                  seg_len_q[1]  <= (hdr_q.command_type == CMD_SET_NAME)
+                                   ? 16'd0 : 16'd64;
                 end else begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd8;
@@ -1628,9 +1692,17 @@ module KL_aecp_response_builder (
                     w_gs_index != 16'd0 ||
                     (w_gs_type == DESC_STREAM_PORT_OUTPUT &&
                      {w_b6, w_b7} != 16'd0)) begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd8;
-                  cdl_q        <= 11'd20;
+                  //! D2: GET_AUDIO_MAP Response (1722.1 §7.4.44.2) =
+                  //! descriptor_type(2)+descriptor_index(2)+map_index(2)+
+                  //! number_of_maps(2)+number_of_mappings(2)+reserved(2) =
+                  //! 12 B minimum (la_avdecc AecpAemGetAudioMapResponse
+                  //! PayloadMinSize = 12). An 8-byte error payload is under
+                  //! that floor; echo the 6 addressed bytes + a zero
+                  //! maps/mappings/reserved tail instead.
+                  status_q      <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;   // 12 + 12
                 end else if (w_gs_type == DESC_STREAM_PORT_OUTPUT) begin
                   //! static output map — the deployed serving shape
                   status_q      <= STATUS_SUCCESS;
@@ -1644,9 +1716,10 @@ module KL_aecp_response_builder (
                   seg_len_q[2]  <= 16'(8 * AEM_DMAP_OUTROWS_C);
                   cdl_q <= 11'(24 + 8 * AEM_DMAP_OUTROWS_C);
                 end else if ({w_b6, w_b7} >= 16'(AEM_DMAP_NMAPS_C)) begin
-                  status_q     <= STATUS_BAD_ARGUMENTS;   // 7.4.44.1 paging
-                  seg_len_q[0] <= 16'd8;
-                  cdl_q        <= 11'd20;
+                  status_q      <= STATUS_BAD_ARGUMENTS;  // 7.4.44.1 paging
+                  seg_len_q[0]  <= 16'd6;                 // + zero tail: §7.4.44.2 floor
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;
                 end else begin
                   //! dynamic input port: the page scan fills the const
                   //! scratch; DMAP_GET_S finalizes seg1 length + cdl
@@ -1702,9 +1775,12 @@ module KL_aecp_response_builder (
                 if ((w_gs_type != DESC_STREAM_PORT_INPUT &&
                      w_gs_type != DESC_STREAM_PORT_OUTPUT) ||
                     w_gs_index != 16'd0 || {w_b6, w_b7} != 16'd0) begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd8;
-                  cdl_q        <= 11'd20;
+                  //! D2: 12-byte minimum response payload, §7.4.44.2 (see
+                  //! the `AEM_DYNMAP arm above for the field list)
+                  status_q      <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;   // 12 + 12
                 end else begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd6;
@@ -1813,40 +1889,81 @@ module KL_aecp_response_builder (
               // index(2)+flags(4)+format(8)+stream_id(8)+msrp_lat(4)+dest_mac(6)
               // +msrp_fail(1)+rsvd(1)+bridge(8)+vlan(2)+rsvd(2)+flags_ex(4)+
               // pbsta_acmpsta(4) = 56.  CDL = 56 + 12 = 68.
+              //
+              // DEFECT D2, silicon 2026-07-27 gw 0x0001_0016 — THE PAYLOAD IS
+              // 56 BYTES ON EVERY STATUS, not only on SUCCESS. This arm used
+              // to answer NO_SUCH_DESCRIPTOR with cdl 16 (a 4-byte payload),
+              // and Hive logged "Received an invalid non-success
+              // GET_STREAM_INFO AEM response (Incorrect payload size)" 15
+              // times, continuing only because it was built with
+              // IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES; a strict controller
+              // DROPS the frame and the entity looks dead, not incomplete.
+              //
+              // THE RULE, taken from the controller stack that enforces it
+              // rather than from our own behaviour — L-Acoustics avdecc
+              // src/protocol/protocolAemPayloads.cpp checkResponsePayload(),
+              // the function that raises exactly that log line:
+              //   status == NOT_IMPLEMENTED -> the response REFLECTS THE
+              //     COMMAND (command payload length);
+              //   ANY other status, success or error -> the response carries
+              //     the FULL response payload for that command
+              //     (>= the clause-defined response length).
+              // Its per-command size constants carry the clause: GET_STREAM_
+              // INFO Response = IEEE 1722.1-2013/-2021 §7.4.16.2 (48 B at
+              // -2013, 84 B at -2021) and Milan 1.2 §7.3.10 = 56 B, which is
+              // the size we serve. §7.4.16.2 defines ONE response message
+              // format for this command and defines no truncated error
+              // variant. NOTE: the IEEE and Milan texts themselves are NOT in
+              // this repo (paywalled; docs/traceability/ieee1722_1-2021.md is
+              // our own paraphrase), so the SENTENCE stating the size rule is
+              // not quoted here — what is quoted is the clause that fixes the
+              // response format plus the reference implementation's check.
+              // Calibrated against the negative control: the Milan-validated
+              // reference device answers a non-existent descriptor with 68
+              // bytes, and Hive accepts it. "A non-success response echoes
+              // the COMMAND" was an earlier invention of ours, refuted by
+              // that same device — it is true only for NOT_IMPLEMENTED.
               CMD_GET_STREAM_INFO: begin
-                if (w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) begin
+                //! size first, unconditionally: every exit below is 68
+                cdl_q         <= 11'd68;   // 12 + 4+4+8+40
+                seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
+                if (w_si_is_stream && acc_found) begin
+                  // D1: served iff the DIRECTORY has it — the same oracle
+                  // READ_DESCRIPTOR uses, so the two commands cannot
+                  // disagree about which descriptors exist.
                   status_q      <= STATUS_SUCCESS;
-                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
                   seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
                   seg_kind_q[2] <= SEG_STORE;
-                  seg_addr_q[2] <= WB_STREAM_FORMAT_C; seg_len_q[2] <= 16'd8;
-                  seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
-                  // flags + live 40-byte tail (stream_id = {mac,0} — the
-                  // previous entity_id here could never match the stream)
-                  load_stream_info_consts();
-                  cdl_q <= 11'd68;   // 12 + 4+4+8+40
-                end else if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
-                  // Listener sinks (reference populate_input_response):
-                  // identity fields exposed unconditionally (*_VALID means
-                  // "meaningful", zero is a valid value); CONNECTED/
-                  // FAST_CONNECT/SAVED_STATE/STREAMING_WAIT when bound;
-                  // SRP failure flags from the TalkerFailed registrar;
-                  // trailer = flags_ex REGISTERING + {pbsta, acmpsta}.
-                  // Sink 1 (CRF) has no listener SM yet: unbound shape.
-                  status_q      <= STATUS_SUCCESS;
-                  seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
-                  seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
-                  seg_kind_q[2] <= SEG_STORE;
-                  seg_addr_q[2] <= (w_gs_index == 16'd0) ? WB_STREAM_IN0_FMT_C
-                                                         : WB_STREAM_IN1_FMT_C;
+                  seg_addr_q[2] <= acc_base + STREAM_CUR_FMT_OFF_C;
                   seg_len_q[2]  <= 16'd8;
                   seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
-                  load_input_stream_info_consts(w_gs_index == 16'd0);
-                  cdl_q <= 11'd68;
+                  if (w_gs_type == DESC_STREAM_OUTPUT) begin
+                    // flags + live 40-byte tail. stream_id = {mac, index}
+                    // and dest_mac = MAAP base + index: the SAME pair the
+                    // ACMP responder hands a listener for talker_unique_id
+                    // = index (the previous entity_id here could never
+                    // match the stream; a fixed index 0 could not either
+                    // once the board shipped 8 sources).
+                    load_stream_info_consts(w_gs_index, w_out_dmac);
+                  end else begin
+                    // Listener sinks (reference populate_input_response):
+                    // identity fields exposed unconditionally (*_VALID means
+                    // "meaningful", zero is a valid value); CONNECTED/
+                    // STREAMING_WAIT when bound; SRP failure flags from the
+                    // TalkerFailed registrar; trailer = flags_ex REGISTERING
+                    // + {pbsta, acmpsta}. Sink 0 = the ACMP listener SM, the
+                    // CRF sink = its own bind record, every other sink reads
+                    // unbound (no per-sink context here yet — see the task).
+                    load_input_stream_info_consts(w_gs_index == 16'd0,
+                                                  w_si_in_crf);
+                  end
                 end else begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd16;
+                  //! non-success: SAME 56-byte payload, echoed descriptor
+                  //! type/index + a zero tail. Zero flags = nothing in the
+                  //! block is claimed valid, which is the truthful reading
+                  //! of a descriptor that does not exist.
+                  status_q      <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_kind_q[1] <= SEG_NONE;  seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd52;
                 end
               end
 
@@ -1908,13 +2025,31 @@ module KL_aecp_response_builder (
                 //! that type); only a bad AVB_INTERFACE INDEX is
                 //! NO_SUCH_DESCRIPTOR.
                 if (w_gs_type != DESC_AVB_INTERFACE) begin
+                  //! NOT_IMPLEMENTED is the ONE status that reflects the
+                  //! COMMAND rather than the response (la_avdecc
+                  //! checkResponsePayload; GET_AVB_INFO command payload =
+                  //! type(2)+index(2) = 4 -> cdl 16). Correct as-is.
                   status_q     <= STATUS_NOT_IMPLEMENTED;
                   seg_len_q[0] <= 16'd4;
                   cdl_q        <= 11'd16;
                 end else if (w_gs_index != 16'd0) begin
-                  status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
-                  seg_len_q[0] <= 16'd4;
-                  cdl_q        <= 11'd16;
+                  //! D2 same class as GET_STREAM_INFO: an ERROR status still
+                  //! owes the full response. GET_AVB_INFO Response (1722.1
+                  //! §7.4.40.2) = type(2)+index(2)+gptp_grandmaster_id(8)+
+                  //! propagation_delay(4)+gptp_domain_number(1)+flags(1)+
+                  //! msrp_mappings_count(2) = 20 B minimum + count x 8 B of
+                  //! mappings (la_avdecc AecpAemGetAvbInfoResponsePayload
+                  //! MinSize = 20). We answered 4. The error response now
+                  //! carries the 20-byte minimum with count = 0 — shorter
+                  //! than our 24-byte SUCCESS because the mapping list is
+                  //! variable-length and declaring a mapping we then zero
+                  //! would be a different lie; la_avdecc's rule is a
+                  //! MINIMUM, not equality (GET_STREAM_INFO is fixed-size,
+                  //! so there minimum and equality coincide).
+                  status_q      <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0]  <= 16'd4;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd16;
+                  cdl_q         <= 11'd32;   // 12 + 4 + 16
                 end else begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
@@ -2005,6 +2140,23 @@ module KL_aecp_response_builder (
                   //! 'values deemed bad', user-caught 2026-07-20). We
                   //! implement none -> empty mask, full-size payload (the
                   //! 07-11 field report: size matters on every status).
+                  status_q <= STATUS_SUCCESS;
+                end else if (w_si_is_stream && acc_found) begin
+                  //! D1, same root cause as GET_STREAM_INFO: a STREAM
+                  //! descriptor the DIRECTORY serves must answer its
+                  //! dynamic-info commands. Every AAF stream above the
+                  //! monitored pair used to get NO_SUCH_DESCRIPTOR here
+                  //! while READ_DESCRIPTOR served it. It now answers
+                  //! SUCCESS with an EMPTY counters_valid mask: 1722.1-2021
+                  //! §7.4.42.2 makes counters_valid the statement of which
+                  //! counters the descriptor implements, and zero is the
+                  //! truthful statement for a stream with no monitor
+                  //! context in fabric (the per-stream context RAM is
+                  //! docs/NXN_ARCHITECTURE.md P2). Advertising the
+                  //! monitored sink's ten counters zeroed would claim
+                  //! counters that do not exist. Same precedent as the
+                  //! ENTITY arm above; the deployed indices 0/1 keep their
+                  //! shipped byte-exact masks.
                   status_q <= STATUS_SUCCESS;
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters

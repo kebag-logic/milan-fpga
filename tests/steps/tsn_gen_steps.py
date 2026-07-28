@@ -298,6 +298,10 @@ CMD_SET_CONFIGURATION, CMD_GET_CONFIGURATION = 6, 7
 NUM_CONFIGS = 3
 CMD_GET_CONTROL = 25   # 0x0019
 CMD_GET_CLOCK_SOURCE = 23   # 0x0017
+CMD_GET_COUNTERS = 41       # 0x0029 (aecp_pkg.sv:75)
+CMD_GET_AVB_INFO = 39       # 0x0027 (aecp_pkg.sv:73)
+CMD_GET_AS_PATH = 40        # 0x0028 (aecp_pkg.sv:74)
+CMD_GET_AUDIO_MAP_SZ = 43   # 0x002B (aecp_pkg.sv:76)
 
 # -- item-10 batch-2 constants: every code below verified 1:1 against
 # -- hdl/ieee17221/aecp/aecp_pkg.sv and the responder RTL, never memory.
@@ -313,6 +317,50 @@ LOCK_TIMER_TICKS = 60000                             # aecp_pkg.sv:168 (60 s x 1
 MAX_TRANSIT_TIME_MAX = 0x7FFFFFFF   # responder: value >0x7FFFFFFF -> BAD_ARGUMENTS
 
 
+# ---------------------------------------------------------------------------
+# DEFECT D2 - the size of a NON-SUCCESS AEM response.
+#
+# Hive logged "Received an invalid non-success GET_STREAM_INFO AEM response
+# (Incorrect payload size)" 15 times against gateware 0x0001_0016 and kept
+# going only because it was built with IGNORE_INVALID_NON_SUCCESS_AEM_
+# RESPONSES; a strict controller DROPS the frame, so the entity looks dead
+# rather than incomplete. The rule is NOT quoted from IEEE/Milan (both are
+# paywalled and absent from this repo) - it is taken from the controller
+# stack that raises that line, L-Acoustics avdecc
+# src/protocol/protocolAemPayloads.cpp checkResponsePayload():
+#
+#     status == NOT_IMPLEMENTED -> the response REFLECTS THE COMMAND
+#     any other status          -> the response carries the FULL response
+#                                  payload for that command
+#
+# and its per-command constants carry the clause each size comes from. The
+# values below are those clause sizes as control_data_length (payload + the
+# 12-byte AEM common part: target_entity_id 8 + sequence_id 2 + u/command 2).
+# All of them are also MEASURED on the Milan-validated reference device
+# 3CC0C60102030000 (2026-07-28) - it answers a non-existent descriptor with
+# the SUCCESS-sized response, which is what refuted our earlier "a non-success
+# response echoes the command" invention.
+# ---------------------------------------------------------------------------
+RESPONSE_CDL = {
+    #  command                     cdl   clause                  fixed?
+    CMD_GET_STREAM_INFO:          (68,  '7.4.16.2 / Milan 7.3.10', True),
+    CMD_GET_STREAM_FORMAT:        (24,  '7.4.10.2',               True),
+    CMD_GET_NAME:                 (84,  '7.4.18.2',               True),
+    CMD_SET_NAME:                 (84,  '7.4.17.1',               True),
+    CMD_GET_SAMPLING_RATE:        (20,  '7.4.22.2',               True),
+    CMD_GET_CLOCK_SOURCE:         (20,  '7.4.24.2',               True),
+    CMD_GET_COUNTERS:             (148, '7.4.42.2',               True),
+    CMD_GET_AVB_INFO:             (32,  '7.4.40.2 (20 B minimum)', False),
+    CMD_GET_AS_PATH:              (16,  '7.4.41.2 (4 B minimum)',  False),
+    CMD_GET_AUDIO_MAP_SZ:         (24,  '7.4.44.2 (12 B minimum)', False),
+}
+
+
+def response_cdl(cmd):
+    """-> (control_data_length, clause, is_fixed) or None if not modelled."""
+    return RESPONSE_CDL.get(cmd)
+
+
 class MilanAecpModel:
     """clock_source_index in 0..2 on CLOCK_DOMAIN[0]; IDENTIFY control is
     LINEAR_UINT8 with step 255 (only 0 / 255 legal) on CONTROL[0]. STREAM_INFO:
@@ -321,6 +369,10 @@ class MilanAecpModel:
     the MSRP_ACC_LAT sub-command is honoured (msrp_acc_lat presentation offset)."""
 
     def __init__(self):
+        #: per-instance copy: the ONE oracle for "does this descriptor exist",
+        #: shared by READ_DESCRIPTOR and by every dynamic-info command. A
+        #: scenario may reshape it (the 8x8 ship entity is 9 in / 9 out).
+        self.descriptors = dict(KNOWN_DESCRIPTORS)
         self.clock_source_index = 0
         self.identify = 0
         # -- item-10 batch-2 state --
@@ -371,12 +423,22 @@ class MilanAecpModel:
             return STATUS_SUCCESS        # getter: response carries configuration_index
         dt, di = fields['descriptor_type'], fields['descriptor_index']
         if cmd == CMD_GET_STREAM_INFO:
-            # getter: SUCCESS on the talker source[0] and the listener sinks[<2]
-            if dt == DESC_STREAM_OUTPUT and di == 0:
-                return STATUS_SUCCESS
-            if dt == DESC_STREAM_INPUT and di < 2:
-                return STATUS_SUCCESS
-            return STATUS_NO_SUCH_DESCRIPTOR
+            # DEFECT D1 (silicon 2026-07-27, gateware 0x0001_0016): this used
+            # to key off literal indices (STREAM_OUTPUT == 0, STREAM_INPUT < 2)
+            # while READ_DESCRIPTOR keyed off the descriptor directory, so the
+            # entity served STREAM_OUTPUT.0-8 byte-exact and then answered
+            # NO_SUCH_DESCRIPTOR to GET_STREAM_INFO on 1-8 (Hive: 8x
+            # STREAM_OUTPUT + 7x STREAM_INPUT). IEEE 1722.1-2021 7.4.16.2
+            # defines one response per {descriptor_type, descriptor_index} and
+            # 7.4.5 makes the DIRECTORY the statement of which exist, so both
+            # commands must consult the SAME oracle - KNOWN_DESCRIPTORS here,
+            # KL_aecp_accessor's acc_found in the RTL.
+            if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT):
+                return STATUS_NO_SUCH_DESCRIPTOR
+            n = self.descriptors.get(dt)
+            if n is None or di >= n:
+                return STATUS_NO_SUCH_DESCRIPTOR
+            return STATUS_SUCCESS
         if cmd == CMD_SET_STREAM_INFO:
             # Milan §5.4.2.9 documented-partial (KL_aecp_response_builder.sv):
             if dt == DESC_STREAM_INPUT:
@@ -405,7 +467,7 @@ class MilanAecpModel:
                 self.object_name = fields['name']
             return STATUS_SUCCESS
         if cmd == CMD_READ_DESCRIPTOR:
-            n = KNOWN_DESCRIPTORS.get(dt)
+            n = self.descriptors.get(dt)
             if n is None or di >= n:
                 return STATUS_NO_SUCH_DESCRIPTOR
             return STATUS_SUCCESS        # getter: read-only, response echoes the descriptor
@@ -1206,3 +1268,51 @@ def _model_sr(context, v):
 @then('the model configuration_index is {v:d}')
 def _model_cfg(context, v):
     assert context.aecp_model.configuration_index == v, f"cfg={context.aecp_model.configuration_index}"
+
+
+@then('the modelled response control_data_length for command {cmd:d} is {cdl:d}')
+def step_model_response_cdl(context, cmd, cdl):
+    """D2: the clause-defined response size, asserted independently of the
+    status byte - which is exactly the dimension a status-only check misses."""
+    got = response_cdl(cmd)
+    assert got is not None, f'command {cmd} has no modelled response size'
+    assert got[0] == cdl, \
+        f'command {cmd} response cdl {got[0]} (clause {got[1]}), expected {cdl}'
+
+
+@then('that size is required on every status')
+def step_model_size_every_status(context):
+    """The size does not depend on the status. NOT_IMPLEMENTED is the single
+    exception (it reflects the COMMAND, la_avdecc checkResponsePayload) and is
+    covered by its own scenario."""
+    cmd = context.frame_fields['command_type']
+    got = response_cdl(cmd)
+    assert got is not None, f'command {cmd} has no modelled response size'
+    assert context.model_status is not None, 'the frame produced no response'
+    assert context.model_status != 1, \
+        'NOT_IMPLEMENTED reflects the COMMAND, not the response - use the ' \
+        'dedicated scenario'
+
+
+@given('the entity model has {n:d} STREAM_INPUT and {m:d} STREAM_OUTPUT descriptors')
+def step_model_shape(context, n, m):
+    """Put the model into the SHIP shape. D1 is invisible at 1 in / 1 out -
+    which is exactly why the 1x1 testbench could not see it."""
+    context.aecp_model.descriptors[DESC_STREAM_INPUT] = n
+    context.aecp_model.descriptors[DESC_STREAM_OUTPUT] = m
+
+
+@then('READ_DESCRIPTOR and GET_STREAM_INFO agree for {dtype:d} index {didx:d}')
+def step_model_two_commands_agree(context, dtype, didx):
+    """D1 as the compliance layer states it: the device must not contradict
+    itself between two commands about the same descriptor (1722.1-2021 7.4.5
+    serves the descriptor, 7.4.16.2 reports its dynamic info)."""
+    m = context.aecp_model
+    rd = m.process({'command_type': CMD_READ_DESCRIPTOR,
+                    'descriptor_type': dtype, 'descriptor_index': didx})
+    gsi = m.process({'command_type': CMD_GET_STREAM_INFO,
+                     'descriptor_type': dtype, 'descriptor_index': didx})
+    assert (rd == STATUS_SUCCESS) == (gsi == STATUS_SUCCESS), \
+        f'type 0x{dtype:04X} index {didx}: READ_DESCRIPTOR={rd} but ' \
+        f'GET_STREAM_INFO={gsi} - the device contradicts itself'
+    context.model_status = gsi

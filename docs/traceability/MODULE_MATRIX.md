@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 83 modules · 81 with a dedicated TB · 0 exercised-only · 47 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 84 modules · 81 with a dedicated TB · 0 exercised-only · 48 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,8 +31,8 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
-    y-axis "modules" 0 --> 30
-    bar [2, 29, 5, 10, 18, 19]
+    y-axis "modules" 0 --> 31
+    bar [2, 30, 5, 10, 18, 19]
     bar [1, 28, 5, 10, 18, 19]
 ```
 
@@ -41,7 +41,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
 | Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
-| IEEE 1722 (AVTP) | 29 | 28 | 0 | 25 | 0 | 0 |
+| IEEE 1722 (AVTP) | 30 | 28 | 0 | 26 | 0 | 0 |
 | IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 18 | 18 | 0 | 18 | 0 | 0 |
@@ -105,6 +105,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_tx` | `ieee1722/aaf/KL_pcm_tx.sv` | `pcm_playback` · `pcm_tx` · ➰hostplane,milan_dp · 🔬`make aaf` | — |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | — |
+| 🔬 `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | 🔬`make aaf` | — |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `hostplane` · `milan_dp` · `tdm_render` · 🔬`make aaf` | — |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, M-DEV-13 |
