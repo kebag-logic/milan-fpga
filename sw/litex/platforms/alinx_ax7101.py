@@ -120,6 +120,70 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # item-4 TDM audio header on J11 — the AAF talker's capture front-end when
+    # the build is the TDM bus MASTER (milan_soc.py --audio-interface-master ->
+    # milan_datapath AUDIO_IF_MASTER_P -> KL_tdm_capture_master). WHY THIS
+    # EXISTS: the AX7101 has `_connectors = []`, so there is no pmoda, so
+    # `i2s_pads = None` and `i_i2s_sdout_i = 0` — its capture front-end clocked
+    # in a constant zero and produced ONE pair of digital SILENCE, which is the
+    # 2-channel frame a Milan-validated listener received where 8 were promised
+    # (silicon 2026-07-27, UNSUPPORTED_FORMAT on 296,294 of 296,294 frames).
+    #
+    # THE HEADER.  J11, "FPGA 40 PIN External IO", HEADER 20x2/M — the ONLY
+    # 40-pin expansion header on the board (SCH/AX7101_EX_SCH.pdf; a grep for
+    # `HEADER 20x2` over the whole EX schematic returns exactly one).  Odd pins
+    # are EX_IO1_kN, even pins EX_IO1_kP, k = 1..17, each through a 33 R series
+    # resistor (RN1..RN9) between the FPGA net and the header pin — source-
+    # series termination, which is what a 49.152 MHz bclk wants; keep the
+    # ribbon short.  All of J11 is on banks 15/16, and AC7100_CORE_SCH.pdf's
+    # power page groups VCCO_13/14/15/16 under +3.3V VCCIO (VCCO_34/35, the
+    # DDR3 banks above, are the +1.5V ones), so LVCMOS33 — which is also what
+    # every vendor XDC constrains these pins to.
+    #
+    # THE PINS.  Deliberately the block the VENDOR ITSELF uses for audio: the
+    # WM8731 codec example, SRC/08_audio_record_play/.../audio_record_play.xdc,
+    # puts its I2S bus on exactly these five balls, all bank 16, contiguous on
+    # J11 pins 3-8.  Choosing them means a stock Alinx WM8731 daughterboard
+    # plugs straight in, and it means every pin here is vendor-proven at this
+    # IOSTANDARD rather than inferred:
+    #
+    #   ball  J11  vendor net (evidence)                       role here
+    #   B22    3   clk_out, SRC/03_pll_test/.../pll.xdc:17     mclk  (out)
+    #              under the header comment "J11PIN3" — the
+    #              absolute pin-number anchor for the whole
+    #              connector, and the one J11 pin the vendor
+    #              demonstrates as an ODDR-forwarded CLOCK OUT
+    #              (pll_test.v:56,63-73).  Also wm8731_scl.
+    #   B20    6   wm8731_bclk   (audio_record_play.xdc:33)    bclk  (out)
+    #   F20    7   wm8731_adcdat (audio_record_play.xdc:34)    din   (in)
+    #   F19    8   wm8731_daclrc (audio_record_play.xdc:35)    fsync (out)
+    #   A20    5   wm8731_dacdat (audio_record_play.xdc:32)    dout  (out)
+    #
+    # The ball<->J11-pin order is confirmed three ways: SRC/06_3_an070_lcd_test
+    # and SRC/06_2_an430_lcd_test both list the identical ball sequence under
+    # "on AX7101 J11" for two DIFFERENT LCD modules, and every odd J11 pin
+    # lands on the _N half of a diff pair and every even pin on the _P half,
+    # unbroken across all 17 pairs.  Ball<->bank came from AC7100_CORE_SCH.pdf
+    # (NOT the EX schematic, whose pdftotext pairs labels one row below their
+    # nets — the trap recorded on e1_mdio above); the CORE sheet was validated
+    # against five facts already proven on this board (e1_mdio=L16,
+    # e2_mdc/mdio=AB21/AB22, e1_rxd5/6=N20/M20, QSPI_CS=T19) before being
+    # trusted.  Zero collisions with any ball already claimed in this file.
+    #
+    # NONE of the five is clock-capable, and that is correct: MRCC/SRCC only
+    # matters for a pin feeding a BUFG/MMCM, and all three clocks here are
+    # OUTPUTS.  If an external word clock is ever fed IN, move that signal to
+    # the bank-16 SRCC pair D19/E19 (J11 23/24) or the MRCC pair C19/C18
+    # (J11 31/32).
+    ("tdm", 0,
+        Subsignal("mclk",  Pins("B22")),   # J11.3
+        Subsignal("dout",  Pins("A20")),   # J11.5  fabric -> codec (render)
+        Subsignal("bclk",  Pins("B20")),   # J11.6
+        Subsignal("din",   Pins("F20")),   # J11.7  codec -> fabric (capture)
+        Subsignal("fsync", Pins("F19")),   # J11.8
+        IOStandard("LVCMOS33"),
+    ),
+
     # DDR3 — 512 MB (2× MT41J256M16, 32-bit). Parsed from the AX7101 MIG UCF (ddr3.ucf).
     ("ddram", 0,
         Subsignal("a", Pins("AA4 AB2 AA5 AB5 AB1 U3 W1 T1 V2 U2 Y1 W2 Y2 U1 V3"), IOStandard("SSTL15")),

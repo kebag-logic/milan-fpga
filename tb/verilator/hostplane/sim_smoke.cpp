@@ -72,7 +72,15 @@ static void tick() {
     dut->m_axis_rx_tready = 1; dut->m_axis_ts_tready = 1;
     dut->m_axis_pcm_tready = 1; dut->m_axis_mac_tx_tready = 1;
 
+    // clk_tdm_i: the item-4 TDM MASTER's serial-domain clock. Driven on
+    // EVERY shape - the port exists unconditionally (a port's direction
+    // cannot be parameterized in SystemVerilog) and an undriven clock on
+    // the master shape would make the front-end sit silent, which is the
+    // exact failure this lane exists to eliminate. Toggled with the others:
+    // the smoke test proves the datapath ELABORATES and runs, not the
+    // 98.304/100 MHz ratio, which tb/verilator/tdm measures directly.
     dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->i_ps_clk = 0;
+    dut->clk_tdm_i = 0;
     dut->eval();
     bool rx_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
     bool ho_acc = dut->m_axis_rx_tvalid && dut->m_axis_rx_tready;
@@ -88,6 +96,7 @@ static void tick() {
     g_pre.ar_acc = dut->s_axi_arready;
     g_pre.r_v = dut->s_axi_rvalid; g_pre.r_d = dut->s_axi_rdata;
     dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->i_ps_clk = 1;
+    dut->clk_tdm_i = 1;
     dut->eval();
     if (rx_acc) { if (++rx_beat >= (rx_cur.size() + 7) / 8) { rx_cur.clear(); rx_beat = 0; } }
     auto collect = [](std::vector<Collected>& sink, bool& open, uint64_t data,

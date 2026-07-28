@@ -65,6 +65,28 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! (KL_tdm_capture; tdm_* pins live, i2s sclk/lrck parked, i2s_mclk_o
   //! carries the codec MCLK, TONE_CTRL pilot override has no effect).
   parameter int AUDIO_IF_SLOTS_P = 0,
+  //! item-4 audio-interface family: the TDM bus ROLE, and the reason the TDM
+  //! front-end can be a fabric fact instead of a declaration. 0 (default) =
+  //! SLAVE (KL_tdm_capture) - it waits for a codec/DSP to drive bclk/fsync,
+  //! and on EVERY SoC in this tree those are tied to 0, so its fsync never
+  //! toggles, it yields no pairs, and a talker built on it emits NO FRAME AT
+  //! ALL. 1 = MASTER (KL_tdm_capture_master) - the fabric GENERATES bclk and
+  //! fsync out of clk_tdm_i and needs nobody to drive it, which is what turns
+  //! the interface into something the wire-accountability gate can count.
+  //! Only meaningful with AUDIO_IF_SLOTS_P > 0.
+  parameter int AUDIO_IF_MASTER_P = 0,
+  //! MASTER-only: the frequency of clk_tdm_i, in Hz, and the sample rate its
+  //! frame sync must run at. Together with AUDIO_IF_SLOTS_P they FIX the bclk
+  //! divider - bclk = SLOTS x 32 x fs and clk_tdm_i = 2 x BCLK_HALF x bclk -
+  //! and the guard below REFUSES any combination that is not an exact integer
+  //! division. That refusal is the whole point: TDM32 x 32-bit slots at 48 kHz
+  //! needs a 49.152 MHz bit clock and therefore a 98.304 MHz clk_tdm_i, which
+  //! the shipping 24.576 MHz audio MMCM cannot divide down to. A silent
+  //! wrong-rate front-end is exactly the class of defect roadmap item 00
+  //! exists to make loud. Defaults describe the shipping audio clock, at which
+  //! only TDM8 x 32 @ 48 kHz is realisable (24.576 MHz = 2 x 1 x 12.288 MHz).
+  parameter int AUDIO_IF_CLK_HZ_P = 24576000,
+  parameter int AUDIO_IF_FS_HZ_P  = 48000,
 parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    //! TBs shrink it to keep injections short)
   //! item-7 ALSA playback: 1 = instantiate KL_pcm_tx (host PCM ring -> AAF
@@ -152,6 +174,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
   input  wire        clk_audio_i,      //! clean MMCM audio clock (24.576 MHz nominal) for the I2S DAC serializer
+  //! item-4 TDM MASTER serial-domain clock (AUDIO_IF_MASTER_P != 0 only).
+  //! A SEPARATE net from clk_audio_i on purpose: clk_audio_i is 24.576 MHz by
+  //! CONTRACT, not by convention - KL_crf_tx divides it by 512 for the 48 kHz
+  //! CRF event, KL_i2s_playback divides it /2 /8 /512 for the DAC, and
+  //! KL_mmcm_drp_servo measures it. A TDM32 master needs 98.304 MHz and
+  //! re-rating clk_audio_i would silently move all three. Left open on every
+  //! slave/I2S build (AUDIO_IF_CLK_HZ_P then only describes a divider nothing
+  //! uses).
+  input  wire        clk_tdm_i,
   input  wire axis_resetn,
   //! gtx_clk domain (125 MHz) used by the MAC-RX timestamping in ptp_ts_top
   input  wire gtx_clk,
@@ -182,9 +213,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire                     i2s_sclk_o,
   output wire                     i2s_lrck_o,
   input  wire                     i2s_sdout_i,
-  // ---- TDM bus (AUDIO_IF_SLOTS_P > 0; we are slave - tie 0 when unused) ----
-  input  wire                     tdm_bclk_i,
-  input  wire                     tdm_fsync_i,
+  // ---- TDM bus (AUDIO_IF_SLOTS_P > 0) ------------------------------------
+  //  BOTH ROLES ARE WIRED OUT AND BOTH SETS OF PINS ALWAYS EXIST: a port's
+  //  DIRECTION cannot be parameterized in SystemVerilog, so a build that is
+  //  the bus MASTER cannot turn tdm_bclk_i around into an output. The slave
+  //  inputs are read only when AUDIO_IF_MASTER_P == 0 and the master outputs
+  //  are driven to 0 otherwise, so the SoC connects the pair its role needs
+  //  and leaves the other open (an unconnected port does not appear in the
+  //  generated top .v at all - the no-regression axiom holds by construction).
+  input  wire                     tdm_bclk_i,     //! SLAVE role: bit clock in
+  input  wire                     tdm_fsync_i,    //! SLAVE role: frame sync in
+  output wire                     tdm_bclk_o,     //! MASTER role: generated bit clock
+  output wire                     tdm_fsync_o,    //! MASTER role: generated frame sync (1-bclk pulse)
   output wire                     tdm_dout_o,     //! chmap follow-up 4: KL_tdm_render serial out (TDM8, ext-clocked by tdm_bclk/fsync)
   input  wire                     tdm_data_i,
   // ---- Pmod I2S2 DAC (line-out): zero-CPU playback of the bound stream ----
@@ -444,8 +484,58 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
            TALKER_WIRE_CHANS_P, WIRE_PAIRS_NEEDED_C, AUDIO_IF_SLOTS_P,
            AIF_PAIRS_C);
 
-  //! item-4 front-end select: the pair-stream contract is identical, so
-  //! only the physical half swaps (I2S master vs TDM slave deserializer).
+  // ==========================================================================
+  //  TDM MASTER CLOCK ACCOUNTABILITY (the same rule as above, one layer down).
+  //
+  //  A master GENERATES the bus, so its sample rate is not something a codec
+  //  hands us - it is an arithmetic consequence of the clock we divide:
+  //
+  //      bclk      = SLOTS x WORD_BITS x fs          (the TDM frame is fs)
+  //      clk_tdm_i = 2 x BCLK_HALF x bclk            (a toggle divider)
+  //
+  //  so clk_tdm_i must be an EXACT even multiple of SLOTS*32*fs. If it is not,
+  //  the front-end still runs - it just frames at the wrong rate, and a talker
+  //  whose media clock is off by percent is a talker whose listener throws
+  //  every frame away with a timestamp error instead of a format error. That
+  //  is the same shape of defect as the 8ch-vs-2ch gap: a build that looks
+  //  green and does not work on the wire. So it is refused HERE.
+  //
+  //  Worked, because the numbers are the reason this guard exists (2026-07-28):
+  //    TDM8  x 32 @ 48 kHz -> bclk 12.288 MHz -> clk_tdm_i 24.576 MHz  (HALF 1)
+  //    TDM16 x 32 @ 48 kHz -> bclk 24.576 MHz -> clk_tdm_i 49.152 MHz  (HALF 1)
+  //    TDM32 x 32 @ 48 kHz -> bclk 49.152 MHz -> clk_tdm_i 98.304 MHz  (HALF 1)
+  //  The shipping audio MMCM is 24.576 MHz, so ONLY the first is reachable
+  //  from it and the other two need their own MMCM output - see the
+  //  `audio_tdm_hz` plan in sw/litex/milan_soc.py _CRG, which re-derives the
+  //  two-stage integer chain so one VCO serves 24.576 MHz (the CRF/DAC/servo
+  //  contract, untouched in Hz) and 98.304/49.152 MHz (this clock).
+  //
+  //  ONE format string.
+  // ==========================================================================
+  localparam int AIF_WORD_BITS_C = 32;                   //! bclks per TDM slot
+  localparam int AIF_BCLK_HZ_C   = AUDIO_IF_SLOTS_P * AIF_WORD_BITS_C *
+                                   AUDIO_IF_FS_HZ_P;
+  //! guarded against 0 so the DEFAULT (I2S, SLOTS 0) elaboration never divides
+  //! by zero - it is the shape every lint run and every shipping build uses.
+  localparam int AIF_BCLK_HALF_C = (AIF_BCLK_HZ_C <= 0) ? 1
+                                 : AUDIO_IF_CLK_HZ_P / (2 * AIF_BCLK_HZ_C);
+  if (AUDIO_IF_MASTER_P != 0 && AUDIO_IF_SLOTS_P == 0)
+    $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+  else if (AUDIO_IF_MASTER_P != 0 &&
+           (AIF_BCLK_HALF_C < 1 ||
+            AUDIO_IF_CLK_HZ_P != 2 * AIF_BCLK_HALF_C * AIF_BCLK_HZ_C))
+    $error("milan_datapath: the TDM MASTER cannot generate the bus this build declares. AUDIO_IF_SLOTS_P=%0d x %0d-bit slots at AUDIO_IF_FS_HZ_P=%0d Hz needs a %0d Hz bit clock, so clk_tdm_i must be an exact even multiple of it, and AUDIO_IF_CLK_HZ_P=%0d is not (nearest half-period divider %0d). Give the master its own MMCM output at 2 x the bit clock (sw/litex/milan_soc.py _CRG audio_tdm_hz) - do NOT re-rate clk_audio_i, which is 24.576 MHz by contract for KL_crf_tx /512, KL_i2s_playback and KL_mmcm_drp_servo.",
+           AUDIO_IF_SLOTS_P, AIF_WORD_BITS_C, AUDIO_IF_FS_HZ_P, AIF_BCLK_HZ_C,
+           AUDIO_IF_CLK_HZ_P, AIF_BCLK_HALF_C);
+
+  //! item-4 front-end select: the pair-stream contract is identical, so only
+  //! the physical half swaps (I2S master / TDM slave / TDM master). The two
+  //! TDM roles are SIBLING MODULES rather than one module with a role
+  //! parameter because KL_tdm_capture genuinely clocks on `posedge
+  //! tdm_bclk_i` and a master cannot: it would have to synthesise a clock net
+  //! and close timing on it. The master runs in clk_tdm_i and treats bclk as
+  //! a generated SIGNAL with a rising-edge enable (the clean-clock discipline,
+  //! KL_aaf_capture_i2s 07-18 lineage), so the proven slave path is untouched.
   generate if (AUDIO_IF_SLOTS_P == 0) begin : g_aif_i2s
     KL_aaf_capture_i2s aaf_capture (
       .clk_i (axis_clk), .rst_n (axis_resetn),
@@ -457,6 +547,30 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
       .pairs_captured_o (aaf_pairs_w)
     );
+    //! no TDM bus on this build: the master pins park (the SoC leaves them
+    //! open, so this constant costs nothing after synthesis)
+    assign tdm_bclk_o  = 1'b0;
+    assign tdm_fsync_o = 1'b0;
+  end else if (AUDIO_IF_MASTER_P != 0) begin : g_aif_tdm_master
+    //! TDM MASTER: we make bclk and fsync, so the front-end needs nobody to
+    //! drive it - which is the difference between an interface the config
+    //! DECLARES and one the fabric BACKS. Same {pair_slot, L, R} contract.
+    KL_tdm_capture_master #(
+      .SLOTS_P      (AUDIO_IF_SLOTS_P),
+      .WORD_BITS_P  (AIF_WORD_BITS_C),
+      .BCLK_HALF_P  (AIF_BCLK_HALF_C),
+      .DATA_DELAY_P (1'b1)
+    ) aaf_capture (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .clk_audio_i (clk_tdm_i),
+      .tdm_mclk_o (i2s_mclk_o), .tdm_bclk_o (tdm_bclk_o),
+      .tdm_fsync_o (tdm_fsync_o), .tdm_data_i (tdm_data_i),
+      .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
+      .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
+      .pairs_captured_o (aaf_pairs_w)
+    );
+    assign i2s_sclk_o = 1'b0;
+    assign i2s_lrck_o = 1'b0;
   end else begin : g_aif_tdm
     //! TDM slave (pulse or 50%-duty fsync, Philips-heritage 1-bit data
     //! delay, 32-bclk slots). The TONE_CTRL pilot override is an I2S-bench
@@ -474,8 +588,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
       .pairs_captured_o (aaf_pairs_w)
     );
-    assign i2s_sclk_o = 1'b0;
-    assign i2s_lrck_o = 1'b0;
+    assign i2s_sclk_o  = 1'b0;
+    assign i2s_lrck_o  = 1'b0;
+    //! SLAVE role: the codec owns bclk/fsync, so our master pins park
+    assign tdm_bclk_o  = 1'b0;
+    assign tdm_fsync_o = 1'b0;
   end endgenerate
 
   // ==========================================================================

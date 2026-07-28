@@ -3,6 +3,7 @@ VERILATOR ?= verilator
 # delays) + KL_aaf_packetizer multi-channel payload (TCTX chans partition)
 TOP = tdm_wrap
 SRCS = ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv \
+       ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv \
        ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv \
        ../../../hdl/common/cdc_pair_fifo.sv tdm_wrap.sv
 all: run
