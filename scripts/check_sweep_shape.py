@@ -132,6 +132,31 @@ def parse_sweep(path=SWEEP):
     return boards
 
 
+def design_opts_expected(cfg_path):
+    """The FULL bitstream-shaping flag list this config implies, from the
+    builder's own emission (sw/builder/endstation_builder.emit_design_opts).
+
+    Imported, not re-derived: interface_is_placeholder / framer_wire_channels
+    / the tier-1 prune resolution are real logic, and a second copy here is
+    exactly the kind that drifts. The import is in-repo and costs pyyaml,
+    which this script already requires."""
+    sys.path.insert(0, os.path.join(ROOT, "sw/builder"))
+    import endstation_builder as eb
+    p = cfg_path if os.path.isabs(cfg_path) else os.path.join(ROOT, cfg_path)
+    return eb.emit_design_opts(eb.load_config(p))
+
+
+def parse_flags(tokens):
+    """['--a', '1', '--b'] -> {'--a': '1', '--b': True}. Values never start
+    with '--', so a missing value cannot swallow the next flag."""
+    d = {}
+    for i, t in enumerate(tokens):
+        if t.startswith("--"):
+            nxt = tokens[i + 1] if i + 1 < len(tokens) else None
+            d[t] = nxt if (nxt and not nxt.startswith("--")) else True
+    return d
+
+
 def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
     """One board's effective shape vs its config. Returns a list of problems."""
     c_board, c_ns, c_rxq, c_l2, c_lpf = config_shape(cfg_path)
@@ -152,6 +177,27 @@ def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
         bad.append(f"--no-render-lpf {'absent' if lpf else 'present'} != "
                    f"config render_lpf {c_lpf} - the LPF_P area lever must be "
                    "spent (or not) in exactly one place per board")
+    # FULL design-flag equality (2026-07-28). The per-key checks above catch
+    # the knobs that have burned this project by name; this catches the ones
+    # that have not burned it YET. Both members of this gate's header class
+    # recurred in one day - the tier-1 prunes and then the whole
+    # audio-interface/wire-chans group reached the build plan but not the
+    # fragment, so three seeds fitted a default-I2S 2-channel datapath that
+    # every artifact called tdm32 8-channel - because the fragment carried a
+    # hand-picked SUBSET of the design flags and this gate compared the same
+    # subset. Now: effective OPTS must equal the builder's emit_design_opts
+    # flag-for-flag (parsed, so ordering cannot hide a value swap; the
+    # --num-streams sweep.sh may append is part of the expectation already).
+    if opts:
+        got = parse_flags(opts.split())
+        want = parse_flags(design_opts_expected(cfg_path))
+        for k in sorted(set(got) | set(want)):
+            if got.get(k) != want.get(k):
+                bad.append(
+                    f"design flag {k}: effective "
+                    f"{got.get(k, '(absent)')} != config-implied "
+                    f"{want.get(k, '(absent)')} (emit_design_opts of "
+                    f"{os.path.basename(cfg_path)})")
     if bad:
         print(f"SHAPE DRIFT [{where}] {board} vs {cfg_path}:", file=sys.stderr)
         for b in bad:

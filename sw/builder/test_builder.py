@@ -351,10 +351,14 @@ def test_all_configs_build():
 
 
 def test_current_shape_matches_sweep_flags():
-    r = eb.build(CONFIGS["arty_current"], OUT)
+    # The shipping Arty shape is the 4x4 tdm8-master since 2026-07-28 (the
+    # 8.3b flash decision); sweep.sh's arty table says so, and this gate
+    # compares like against like. arty_current remains a valid config (and
+    # build.sh cfg_arty's), it just no longer owns the sweep table.
+    r = eb.build(CONFIGS["arty_4x4"], OUT)
     got, want = _canon(r["argv"]), sweep_expected("arty")
     assert got == want, f"arty argv mismatch:\n got  {got}\n want {want}"
-    print("  [gate 2] arty_current argv == sweep.sh arty design flags "
+    print("  [gate 2] arty_4x4 argv == sweep.sh arty design flags "
           f"({len(got)} flags)")
     for name in ("ax7101_8x8",):
         r = eb.build(CONFIGS[name], OUT)
@@ -606,6 +610,10 @@ def test_both_policies_valid():
     # cap-at-interface must actually CAP: 8ch listeners on a 2ch i2s
     def to_i2s(c):
         c["audio_interface"]["kind"] = "i2s_philips"
+        # an i2s interface implies a DAC: the mutated variant must not carry
+        # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
+        # validate_features rightly refuses next to a declared DAC
+        c["board"].pop("features", None)
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
@@ -2210,16 +2218,31 @@ def test_optional_blocks_default_present():
     emitted flags are EXACTLY the declared ones, so an undeclared prune (the
     real hazard: a block silently vanishing from a shipping build) still
     fails."""
+    # The prunes each shipped config declares IN AS MANY WORDS. Pinned here
+    # so an edit that prunes (or restores) a block on a shipping board must
+    # ALSO state that intent in this gate - two files or it didn't happen.
+    # ax7101_8x8's three: render_lpf (07-27, the Vivado-priced 428-LUT
+    # lever) + latency_taps + i2s_playback (07-28, the DRC UTLZ-1 round -
+    # 66,290 LUT vs 63,400 sites once the 0x0019 compliance fabric landed;
+    # both "dead when" levers on a board with no DAC pads). The Arty ships
+    # every block, INCLUDING the taps the AX gave up (item-11 telemetry
+    # lives on the board with the analog loop).
+    SHIPPED_PRUNES = {
+        "arty_current": set(),
+        "arty_4x4": set(),
+        "ax7101_8x8": {"latency_taps", "i2s_playback", "render_lpf"},
+    }
     for name in ("arty_current", "arty_4x4", "ax7101_8x8"):
         r = eb.build(CONFIGS[name], OUT)
         cfg = eb.load_config(CONFIGS[name])
-        assert all(cfg["features"].values()), \
-            f"{name}: a shipped config must default every board.features " \
-            f"block PRESENT"
-        # what the config DECLARES pruned, across both spellings
-        declared = {flag for key, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()
-                    if not cfg["features"].get(key, True)
-                    or not cfg.get("constraints", {}).get(key, True)}
+        declared_keys = {key for key in eb.OPTIONAL_BLOCKS
+                         if not cfg["features"].get(key, True)
+                         or not cfg.get("constraints", {}).get(key, True)}
+        assert declared_keys == SHIPPED_PRUNES[name], (
+            f"{name}: config declares prunes {sorted(declared_keys)}, this "
+            f"gate expects {sorted(SHIPPED_PRUNES[name])} - a shipping "
+            f"board's block posture changed without changing the gate")
+        declared = {eb.OPTIONAL_BLOCKS[k][0] for k in declared_keys}
         emitted = {f for f, _p, _w in eb.OPTIONAL_BLOCKS.values()} & set(r["argv"])
         assert emitted == declared, (
             f"{name}: argv prune flags {sorted(emitted)} do not match what the "
@@ -2231,20 +2254,29 @@ def test_optional_blocks_default_present():
             want = 1 if eb.OPTIONAL_BLOCKS[k][0] in declared else 0
             assert rows[f"prune_{k}"] == want, \
                 f"{name}: prune_{k} row is {rows[f'prune_{k}']}, expected {want}"
-        # ...and the three blocks that have POSITIVE rows must still be
-        # charged for, i.e. pruning did not quietly stop counting them
-        assert rows["rx_filter"] == 1 and rows["i2s_renderer"] == 1 and \
-            rows["maap_claim_ctx"] == 1, f"{name}: a present block lost its row"
-        assert "ALL PRESENT" in r["plan"], \
-            f"{name}: build plan must state the optional-block posture"
+        # ...and the blocks that have POSITIVE rows are charged for exactly
+        # when present, i.e. pruning does not quietly stop (or keep) counting
+        want_i2s = 0 if "i2s_playback" in declared_keys else 1
+        assert rows["rx_filter"] == 1 and rows["maap_claim_ctx"] == 1 and \
+            rows["i2s_renderer"] == want_i2s, \
+            f"{name}: a block's estimate row disagrees with its declared posture"
+        if declared_keys:
+            for k in declared_keys:
+                assert f"`{k}`" in r["plan"], \
+                    f"{name}: build plan must list the `{k}` prune"
+            assert "ALL PRESENT" not in r["plan"]
+        else:
+            assert "ALL PRESENT" in r["plan"], \
+                f"{name}: build plan must state the optional-block posture"
     # ...and the argv gate 2 above already pins arty/ax7101 byte-for-byte
-    # against sweep.sh, so "no flag" here means "the shipping argv".
-    print(f"  [gate 23a] 3 shipped configs: all "
-          f"{len(eb.OPTIONAL_BLOCKS)} optional blocks default PRESENT; argv "
-          f"prune flags == declared prunes exactly (ax7101_8x8 declares "
-          f"render_lpf: false and is expected to emit --no-render-lpf), and "
-          f"each subtractive estimate row is counted only where its block is "
-          f"declared pruned")
+    # against sweep.sh, so this gate's declared==emitted plus gate 2's
+    # argv==sweep.sh closes the loop: fragment, argv, plan and config all
+    # name the same prunes.
+    print(f"  [gate 23a] 3 shipped configs: prune posture == the declared "
+          f"table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 "
+          f"spends render_lpf + latency_taps + i2s_playback), argv flags == "
+          f"declared prunes, and every estimate row follows its block's "
+          f"declared posture")
 
 
 def test_optional_block_gates_bite():
@@ -2287,9 +2319,13 @@ def test_optional_block_gates_bite():
          dict(rx_mac_filter=False),
          lambda c: c.setdefault("platform", {}).update(
              rx_address_filter="software"), False),
-        # the mirror-image lie: a filter with nothing behind it
+        # the mirror-image lie: a filter with nothing behind it. The AX base
+        # config prunes render_lpf itself since 2026-07-28, so keeping the
+        # filter now takes BOTH spellings said out loud - which is exactly
+        # the config this case wants: LPF kept, playback gone.
         ("playback pruned but the render LPF kept",
-         dict(i2s_playback=False), lambda c: None, True),
+         dict(i2s_playback=False, render_lpf=True),
+         lambda c: c["board"]["constraints"].update(render_lpf=True), True),
         ("unknown feature name",
          dict(no_such_block=False), lambda c: None, True),
         ("non-boolean feature value",
@@ -2941,7 +2977,10 @@ BLEND_BINDINGS = [
     ("RTL declares the dedicated tdm_mclk_o output", "rtl",
      r"^\s*output\s+wire\s+.*\btdm_mclk_o\b"),
     ("the blend rebinds o_i2s_mclk_o to the Pmod (D13)", "soc",
-     r'dp_ports\[\s*["\']o_i2s_mclk_o["\']\s*\]\s*=\s*self\.i2s_pads\[0\]'),
+     # the pads live on MilanDMA, reached via getattr (a migen Module raises
+     # AttributeError for never-assigned names - the AX tdm32 build has no
+     # i2s front-end at all, found 2026-07-28)
+     r'dp_ports\[\s*["\']o_i2s_mclk_o["\']\s*\]\s*=\s*_dma_i2s\[0\]'),
     ("the blend binds o_tdm_mclk_o to the header's own mclk pad", "soc",
      r'dp_ports\[\s*["\']o_tdm_mclk_o["\']\s*\]\s*=\s*self\.tdm_pads\.mclk'),
     ("the arty tdm extension names its five subsignals", "soc",

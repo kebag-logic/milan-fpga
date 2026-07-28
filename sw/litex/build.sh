@@ -130,14 +130,17 @@ cfg_ax7101() {   # bench/cert shape (USER 2026-07-21: 1 hart + L2 32K - the
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --place-directive ExtraPostPlacementOpt"
 }
-cfg_ax8x8() {    # 8-stream (64ch) fits+closes shape. The 8x8 was NOT area-bound
-                 # (it placed at ~88%); it was a single-path TIMING miss. Two
-                 # measured moves close it @100 MHz with the CPU/audio/control
-                 # plane untouched: (1) --rx-queues 1 drops the RX1 DMA RSC/TCP
-                 # coalescing engine - pure Linux-throughput logic that audio
-                 # never touches - which removed the sys_clk critical path AND
-                 # freed ~3% LUT; (2) default (timing) synth instead of the blunt
-                 # AreaOptimized flag. The remaining -0.155 was a FALSE path
+cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
+                 # --rx-queues 1 (dropping the RX1 DMA RSC engine removed the
+                 # sys_clk critical path and freed ~3% LUT) - but D7 ended
+                 # that option on 2026-07-28: with one queue there is no
+                 # flow-steer block, ptp4l shares the bulk ring, and under a
+                 # 950M flood our GM starves and a conformant BMCA deposes it
+                 # (docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md, 2/2). So
+                 # rx-queues is 2 NOW, non-negotiable, and the area it costs
+                 # is why the 0x0019 round spends the tier-1 prunes below.
+                 # The other 07-24 move stands: default (timing) synth
+                 # instead of the blunt AreaOptimized flag. The remaining -0.155 was a FALSE path
                  # (cap_luid_r -> shared ctx read mux -> ACMP sweep writeback,
                  # impossible: sweep write needs !w_frame_latch) fixed in RTL by
                  # a dedicated sweep read port in KL_acmp_lstn_ctx.sv. Result
@@ -146,8 +149,10 @@ cfg_ax8x8() {    # 8-stream (64ch) fits+closes shape. The 8x8 was NOT area-bound
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
-          --uart-baudrate 115200 --rx-queues 1 --strip-probes --hs-page-bytes 16384 \
-          --num-streams 8 --no-render-lpf --place-directive AltSpreadLogic_high"
+          --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
+          --num-streams 8 --audio-interface tdm32 --audio-interface-master \
+          --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
+          --no-render-lpf --cbs-queues-mask 0x18 --place-directive AltSpreadLogic_high"
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
                  # docs/NXN_ARCHITECTURE.md 6.2/6.3). 428 LUT / 756 FF / 0 DSP
                  # from the shipping 8x8 place report - the only Vivado-PROVEN

@@ -2834,20 +2834,85 @@ def emit_board_opts(cfg):
         opts += ["--floorplan"]
     if c["eth_port"]:
         opts += ["--eth-port", c["eth_port"]]
-    # AREA lever, board-level because fit is a board property: emitted ONLY
-    # when the filter is pruned, so a config that says nothing produces the
-    # same bytes it always did (the AAF_PLAYBACK_P discipline).
-    if not c["render_lpf"]:
-        opts += ["--no-render-lpf"]
+    # AREA levers, board-level because fit is a board property: every
+    # docs/design/AREA_BUDGET.md tier-1 block emits its --no-* flag HERE, in
+    # OPTIONAL_BLOCKS order, ONLY when pruned - so a config that says nothing
+    # produces the same bytes it always did (the AAF_PLAYBACK_P discipline).
+    # block_present() folds the two prune spellings (board.features.<name>
+    # and the historical constraints.render_lpf) into one answer. These flags
+    # MUST live in the board opts, not only in the full soc argv: sweep.sh
+    # builds from this fragment, and a prune that reaches the build plan but
+    # not the fragment produces an UNPRUNED bitstream that the plan swears is
+    # pruned (found 2026-07-28, the DRC UTLZ-1 round: the i2s_playback /
+    # latency_taps prunes were invisible to the relaunched sweep).
+    for name, (flag, _param, _why) in OPTIONAL_BLOCKS.items():
+        if not block_present(cfg, name):
+            opts += [flag]
     return opts
+
+
+def emit_design_opts(cfg):
+    """emit_board_opts + every remaining BITSTREAM-SHAPING flag: this is the
+    string a sweep must carry, and the ONLY correct content for
+    configs/generated/sweep_opts_<board>.sh.
+
+    Found 2026-07-28, the second member of the check_sweep_shape header's
+    class in one day: the fragment carried only board opts, so `sweep.sh
+    ax7101` built the 8x8 with the DEFAULT I2S front-end and 2-channel wire
+    while the config, the build plan and the tracked AEM ROM all said
+    tdm32 + 8-channel (W3 zero-fill shape). check_sweep_shape passed - it
+    compared only ns/rxq/l2/lpf - so three Vivado seeds fitted the WRONG,
+    SMALLER datapath. The flags live in ONE place now (emit_soc_argv builds
+    on this) and the gate compares all of them."""
+    c = cfg["constraints"]
+    argv = list(emit_board_opts(cfg))
+    n_streams = max(len(cfg["listeners"]), len(cfg["talkers"]))
+    if n_streams > 1:
+        argv += ["--num-streams", str(n_streams)]
+    # item-4 audio-interface family: the tdm kinds select the KL_tdm_capture
+    # front-end generate (milan_datapath AUDIO_IF_SLOTS_P). Emitted only for
+    # non-default kinds so the shipping i2s argv stays byte-identical;
+    # aes3/spdif have no ser/des RTL yet (planned mark) and emit nothing.
+    # A PLACEHOLDER interface is not emitted (USER 2026-07-27: "the tdm can
+    # be a placeholder") - see interface_is_placeholder().
+    kind = cfg["interface"]["kind"]
+    if kind in ("tdm8", "tdm16", "tdm32") and not interface_is_placeholder(cfg):
+        argv += ["--audio-interface", kind]
+        if tdm_bus_master():
+            argv += ["--audio-interface-master"]
+    # item-00 wire channel constant: milan_datapath TALKER_WIRE_CHANS_P,
+    # emitted only above the default (the same byte-identity discipline).
+    wire_chans = framer_wire_channels(cfg)
+    if wire_chans != WIRE_CHANS_MIN:
+        argv += ["--talker-wire-chans", str(wire_chans)]
+    # CBS instance mask (2026-07-28 area lever): only the SR-class queues
+    # carry a credit_based_shaper INSTANCE. DERIVED, not declared - the class
+    # A queue is srp.class_queue and class B sits directly below it (the
+    # 802.1Q priority order behind the reset PCP map; the USER queue
+    # directive shapes exactly those two and forbids CBS above gPTP). A
+    # masked-out queue is bit-identical to a built CBS with cbs_shaped_i=0,
+    # which is how every non-SR queue has ALWAYS run - so this prunes ~425
+    # LUT + 6 DSP per queue (ship-report figure) and moves no behaviour.
+    # Emitted only when it prunes something, byte-identity as ever.
+    nq = cfg["constraints"]["num_queues"]
+    cq = cfg["srp"]["class_queue"]
+    cbs_mask = (1 << cq) | ((1 << (cq - 1)) if cq > 0 else 0)
+    if cbs_mask != (1 << nq) - 1:
+        argv += ["--cbs-queues-mask", f"0x{cbs_mask:x}"]
+    return argv
 
 
 def emit_soc_argv(cfg):
     """The milan_soc.py DESIGN argv this config implies (flow flags -
     --build/--vivado-max-threads/--place-directive/--output-dir - are
-    sweep.sh's business, not the end-station definition's)."""
+    sweep.sh's business, not the end-station definition's).
+
+    Bitstream-shaping flags come FIRST via emit_design_opts() - the single
+    emission the sweep fragment also uses - then the SoC/flow plumbing. Order
+    within the argv is argparse-irrelevant; every consumer re-derives from
+    this function rather than parsing the printed line."""
     c, soc = cfg["constraints"], cfg["soc"]
-    argv = list(emit_board_opts(cfg))
+    argv = list(emit_design_opts(cfg))
     argv += ["--cpu", soc["cpu"]]
     if soc["all_blocks"]:
         argv += ["--all-blocks"]
@@ -2865,46 +2930,6 @@ def emit_soc_argv(cfg):
         argv += ["--strip-probes"]
     argv += ["--hs-page-bytes", str(c["hs_page_bytes"])]
     argv += ["--cpu-count", str(soc["cpu_count"])]
-    # NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): milan_datapath
-    # N_STREAMS = the wider of the two stream directions. Emitted only when
-    # > 1 so the shipping 1x1 argv stays byte-identical (no-regression axiom).
-    n_streams = max(len(cfg["listeners"]), len(cfg["talkers"]))
-    if n_streams > 1:
-        argv += ["--num-streams", str(n_streams)]
-    # item-4 audio-interface family: the tdm kinds select the KL_tdm_capture
-    # front-end generate (milan_datapath AUDIO_IF_SLOTS_P). Emitted only for
-    # non-default kinds so the shipping i2s argv stays byte-identical;
-    # aes3/spdif have no ser/des RTL yet (planned mark) and emit nothing.
-    kind = cfg["interface"]["kind"]
-    # A PLACEHOLDER interface is not emitted (USER 2026-07-27: "the tdm can be
-    # a placeholder"). Declaring the interface the product will have is fine;
-    # letting that declaration elaborate KL_tdm_capture on a bus milan_soc.py
-    # ties to zero is not - those talkers emit NO FRAME AT ALL. Omitting the
-    # flag builds the I2S front-end the board really has, which is exactly how
-    # the shipping bitstream was hand-built. See interface_is_placeholder().
-    if kind in ("tdm8", "tdm16", "tdm32") and not interface_is_placeholder(cfg):
-        argv += ["--audio-interface", kind]
-        # The TDM front-end is only real because the fabric MASTERS the bus
-        # (KL_tdm_capture_master): a slave build's bclk/fsync are tied to 0.
-        # Emitted next to the kind because the two are one decision - the SoC
-        # refuses --audio-interface-master without a tdm kind anyway.
-        if tdm_bus_master():
-            argv += ["--audio-interface-master"]
-    # item-00 wire channel constant: milan_datapath TALKER_WIRE_CHANS_P. Emitted
-    # only above the default so today's argv is byte-identical, on the same
-    # discipline as --num-streams and AAF_PLAYBACK_P. Raising it REQUIRES the
-    # framer to back it - the milan_datapath elaboration guard refuses a width
-    # the capture front-end cannot feed, which is what stops this from becoming
-    # one more declaration agreeing with the other declarations.
-    wire_chans = framer_wire_channels(cfg)
-    if wire_chans != WIRE_CHANS_MIN:
-        argv += ["--talker-wire-chans", str(wire_chans)]
-    # docs/design/AREA_BUDGET.md tier-1 optional blocks. Emitted ONLY for a
-    # PRUNED block, in OPTIONAL_BLOCKS order, so a config that omits the
-    # whole board.features section produces a byte-identical argv.
-    for name, (flag, _param, _why) in OPTIONAL_BLOCKS.items():
-        if not cfg["features"][name]:
-            argv += [flag]
     return argv
 
 
@@ -2914,14 +2939,20 @@ def emit_sweep_opts(cfg):
     OPTS/L2, single-sourced from the end-station config. The inline case
     tables in sweep.sh are the FALLBACK only; the builder test gate asserts
     fragment == fallback byte-for-byte on the OPTS/L2 values."""
-    opts = " ".join(emit_board_opts(cfg))
+    opts = " ".join(emit_design_opts(cfg))
     return (
         "# GENERATED by sw/builder/endstation_builder.py - DO NOT EDIT.\n"
-        f"# Board-level design OPTS/L2/RXQ for {cfg['board_target']} (from the\n"
-        "# board.constraints of any configs/endstation_*.yaml of this board;\n"
-        "# header kept config-agnostic so identical constraints emit\n"
-        "# identical bytes). Sourced by sw/litex/sweep.sh when present; its\n"
-        "# inline tables are the fallback. Regenerate:\n"
+        f"# FULL bitstream-shaping OPTS/L2/RXQ for {cfg['board_target']}, from\n"
+        f"# {cfg['source']} (the last-built config of this board OWNS the\n"
+        "# fragment, exactly like the tracked gen svh). Since 2026-07-28 the\n"
+        "# OPTS carry EVERY design flag - num-streams, audio-interface,\n"
+        "# talker-wire-chans, the tier-1 --no-* prunes - not just the board\n"
+        "# constraints: a flag that reaches the build plan but not this\n"
+        "# fragment builds a bitstream the plan lies about (that is how three\n"
+        "# seeds fitted a 2-channel I2S datapath that every document called\n"
+        "# tdm32 8-channel). sweep.sh sources this when present; its inline\n"
+        "# tables are the fallback, and scripts/check_sweep_shape.py refuses\n"
+        "# a launch whose effective flags disagree with SWEEP_CFG. Regenerate:\n"
         "#   python3 sw/builder/endstation_builder.py <cfg.yaml>\n"
         f'OPTS="{opts}"\n'
         f"L2={cfg['constraints']['l2_bytes']}\n"
@@ -3447,7 +3478,7 @@ def write_rtl_entity(cfg, adp_svh, aem_rom, paths):
     paths["rtl_aem_rom_svh"] = rom_gen
 
 
-def build(config_path, outdir=None, write_rtl=False):
+def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     """Run the full pipeline for one config. Returns dict with the emitted
     paths + in-memory artifacts (for tests)."""
     cfg = load_config(config_path)
@@ -3515,13 +3546,27 @@ def build(config_path, outdir=None, write_rtl=False):
     p_dtsi = os.path.join(d, "milan-nic.dtsi")
     with open(p_dtsi, "w") as f:
         f.write(dtsi)
-    # board-level sweep fragment: canonical location, shared by every config
-    # of the board (content depends only on board constraints)
+    # Sweep fragment: written ONLY under --write-rtl, the same "this config
+    # owns the tree now" declaration that writes the tracked svh. It used to
+    # be written by EVERY build() - defensible while the content was
+    # board-constraints-only, but since the fragment carries the FULL design
+    # flags (2026-07-28) that meant last-build-wins: test_builder's twenty
+    # arty_current throwaway builds silently reverted the arty fragment from
+    # the 4x4's tdm8-master flags to the 1x1's, and the next `sweep.sh arty`
+    # would have built the wrong shape with a fragment that looked generated
+    # and current. One flag, one owner, one moment of transfer.
     gen_dir = os.path.join(ROOT, "configs/generated")
-    os.makedirs(gen_dir, exist_ok=True)
     p_sweep = os.path.join(gen_dir, f"sweep_opts_{cfg['board_target']}.sh")
-    with open(p_sweep, "w") as f:
-        f.write(sweep)
+    # write_fragment defaults to write_rtl but is separable on purpose: the
+    # fragment is PER-BOARD (sweep_opts_arty.sh vs sweep_opts_ax7101.sh, no
+    # collision), the tracked svh is PER-TREE (one owner). Updating board A's
+    # fragment while board B owns the tree needs --write-fragment alone.
+    if write_fragment is None:
+        write_fragment = write_rtl
+    if write_fragment:
+        os.makedirs(gen_dir, exist_ok=True)
+        with open(p_sweep, "w") as f:
+            f.write(sweep)
     # per-CONFIG (not per-board) shape include: an include dir whose `gen/`
     # holds this config's entity definition, so a harness or a build selects
     # a shape by pointing +incdir at it. The 1x1 copy is byte-identical to
@@ -3602,6 +3647,10 @@ def main():
     ap.add_argument("config", help="end-station YAML config")
     ap.add_argument("-o", "--outdir", default=None,
                     help="output root (default sw/builder/out/)")
+    ap.add_argument("--write-fragment", action="store_true",
+                    help="write configs/generated/sweep_opts_<board>.sh "
+                         "WITHOUT taking tracked-svh ownership (fragments "
+                         "are per-board files; the svh is per-tree)")
     ap.add_argument("--write-rtl", action="store_true",
                     help="also write THIS config's entity definition into the "
                          "tracked RTL tree (hdl/common/csr/gen/"
@@ -3612,7 +3661,8 @@ def main():
                          "last committed")
     args = ap.parse_args()
     try:
-        r = build(args.config, args.outdir, write_rtl=args.write_rtl)
+        r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+                  write_fragment=(True if args.write_fragment else None))
     except ConfigError as e:
         sys.exit(f"CONFIG ERROR: {e}")
     n_planned = sum(1 for m in r["marks"] if m[1].startswith("planned"))
