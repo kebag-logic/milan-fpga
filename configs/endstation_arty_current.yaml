@@ -97,14 +97,19 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
   bandwidth_limit_pct: 75            # Milan 5.6 / 802.1Q 34.3.1
   timers_ms: { join: 200, leave: 600, leaveall: 10000 }
   tspec:
-    policy: pinned                   # pinned = keep the deployed reset word.
-                                     # `derived` computes MaxFrameSize from
-                                     # each talker's AAF format (see the
-                                     # 4x4/8x8 configs); the deployed 224 is
-                                     # a hand-picked conservative value that
-                                     # over-reserves a 2ch stream ~2.3x
-                                     # (derived would be 72) - changing it
-                                     # needs a reflash, so it stays pinned.
+    policy: derived                  # pinned 224 until 2026-07-28: a
+                                     # hand-picked "conservative" value that
+                                     # over-reserved the 2ch stream ~3x and
+                                     # contradicted 802.1Q 35.2.2.8.4 a) -
+                                     # MaxFrameSize is "the maximum frame
+                                     # size that the Talker WILL PRODUCE",
+                                     # and this talker produces the 90-byte
+                                     # wire frame (MSDU 72, tap-measured).
+                                     # The pin's only stated reason was
+                                     # "changing it needs a reflash"; this
+                                     # round's reflash carries it. derived
+                                     # follows the WIRE constant
+                                     # (framer_wire_channels) end to end.
     max_frame_bytes: 224             # LWSRP_TSPEC[15:0]
     interval_frames: 1               # LWSRP_TSPEC[31:16]
   rtl_table: true                    # THIS config owns the tracked

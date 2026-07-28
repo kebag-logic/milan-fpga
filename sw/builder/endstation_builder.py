@@ -1271,10 +1271,20 @@ def srp_idle_slope_bps(max_frame_bytes, interval_frames, intervals_ps):
         * intervals_ps
 
 
-def load_srp(raw, listeners, talkers, clocking, cons, binfo):
+def load_srp(raw, listeners, talkers, clocking, cons, binfo,
+             wire_channels=None):
     """Validate + normalize the optional `srp:` section and resolve every
     per-stream TSpec. Raises ConfigError on a contradictory reservation
-    (unknown SR class, illegal VID/queue, over-subscribed class-A ceiling)."""
+    (unknown SR class, illegal VID/queue, over-subscribed class-A ceiling).
+
+    `wire_channels` is the channels_per_frame the FRAMER emits
+    (framer_wire_channels): 802.1Q 35.2.2.8.4 a) defines MaxFrameSize as
+    "the maximum frame size that the Talker WILL PRODUCE, excluding any
+    overhead for media-specific framing" - the wire, never the declaration.
+    Deriving from the declared channel count is how the 2026-07-28 bench
+    measured a TSpec of a frame nobody sent (declared-8ch MSDU announced
+    while the wire carried the 2ch 72-byte one). None = fall back to the
+    declaration (legacy callers/tests only; load_config always passes it)."""
     raw = raw or {}
     if not isinstance(raw, dict):
         raise ConfigError("srp: must be a mapping")
@@ -1368,10 +1378,19 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo):
             f"headers ({CSR_DEFAULTS_REL})")
 
     # ---- per-talker TSpec ------------------------------------------------
+    # Geometry from the WIRE width (see the docstring): with the
+    # accountability gate holding declared == emitted the two derivations
+    # agree numerically, but the tie must be structural - the constant that
+    # drives KL_aaf_packetizer's chans field is the one the TSpec describes,
+    # and the lwSRP engine's own talker rows already derive 24 + 24*C from
+    # TCTX chans at runtime; this makes the provisioned rows agree with it
+    # by construction.
     rate = clocking["sampling_rate_hz"]
     rows, total_slope = [], 0
     for t, st in enumerate(talkers):
-        geo = srp_frame_geometry(st["channels"], rate, cls["intervals_ps"])
+        geo = srp_frame_geometry(
+            wire_channels if wire_channels is not None else st["channels"],
+            rate, cls["intervals_ps"])
         mf = geo["avtpdu_bytes"] if s["tspec_policy"] == "derived" \
             else s["max_frame_bytes"]
         if mf > 0xFFFF:
@@ -2589,8 +2608,13 @@ def load_config(path):
     if soc["cpu"] not in ("vexiiriscv", "naxriscv"):
         raise ConfigError(f"soc.cpu '{soc['cpu']}' unknown")
 
+    # the framer's emitted width, for the TSpec derivation (802.1Q
+    # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
+    # carrying exactly the keys framer_wire_channels consumes.
+    wire_ch = framer_wire_channels(dict(talkers=talkers, interface=interface,
+                                        board_target=target))
     srp = load_srp(cfg.get("srp"), listeners, talkers, clocking, cons,
-                   BOARDS[target])
+                   BOARDS[target], wire_channels=wire_ch)
     platform = load_platform(cfg.get("platform"), cons, target, listeners)
 
     # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last

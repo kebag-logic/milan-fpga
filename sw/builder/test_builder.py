@@ -1574,12 +1574,19 @@ def test_lwsrp_rejects():
                 raise AssertionError(f"{label}: accepted")
         finally:
             os.unlink(p)
-    # over-subscription: 4 x 32ch talkers on the 100 Mb/s arty port =
-    # 213.5 Mb/s, far past the 75 % class-A ceiling
+    # over-subscription. Since the TSpec follows the WIRE (802.1Q 35.2.2.8.4
+    # a) - the frame the talker WILL PRODUCE), a fat DECLARATION no longer
+    # inflates the reservation: the old 32ch mutation derives the producible
+    # 8ch MSDU and lands under the ceiling, which is the tie working, not
+    # the gate failing. Real over-subscription is COUNT x wire MSDU: eight
+    # 8-channel talkers on the 100 Mb/s arty port = 8 x (216+42) x 8 x 8000
+    # = 132 Mb/s against the 75 Mb/s class-A ceiling.
     def fat(c):
-        for t in c["streams"]["talkers"]:
-            t["channels"] = 32
-            t["formats"] = ["0x0205022008006000"]
+        base = dict(c["streams"]["talkers"][0])
+        base["channels"] = 8
+        base["formats"] = ["0x0205022002006000"]
+        c["streams"]["talkers"] = [
+            dict(base, name=f"Fat Out {i}") for i in range(8)]
     p = _variant(CONFIGS["arty_4x4"], fat)
     try:
         try:

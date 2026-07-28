@@ -65,7 +65,7 @@
   //! verbatim; listener entries carry zeros (their sid + DMAC arrive
   //! from the ACMP bind at run time).
   localparam [119:0] LWSRP_ROW_C [0:1] = '{
-    120'h91E0F000FE017000E0000100000000,  //! talker 0: 2ch, slope 17024000 bps
+    120'h91E0F000FE01700048000100000000,  //! talker 0: 2ch, slope 7296000 bps
     120'h000000000000700000000000000000  //! listener 0: 8ch, slope 0 bps
   };
 
