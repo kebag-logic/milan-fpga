@@ -18,8 +18,18 @@ we already had.
 ## 1. Why this exists — nine escapes, sorted by cause
 
 Every one of these was green across the whole desk gate set at the moment it was
-broken — 57 Verilator suites, 2,062,389 checks, yosys 48/48, the behave
+broken — 57 Verilator suites, ~2.1 M checks, yosys 48/48, the behave
 compliance suite, and lint at ratchet.
+
+A tenth escape belongs in that list and is the reason the count above is
+approximate: **the aggregator that produced it was itself under-reporting.**
+It recognised one of the five summary shapes the tree emits, so 29 of 57 suite
+logs contributed zero, and it read `N checks: P PASS, F FAIL` as `P` — correct
+only while those suites had no failures. The instrument that measured our
+confidence had the same defect shape as escapes 2 and 3: a structural zero
+reading as a measurement (R5). Fixed 2026-07-28; the tally now fails the sweep
+on any log it cannot account for, and refuses concurrent runs rather than
+reporting a corrupted total.
 
 | # | escape | what it slipped past |
 |---|---|---|

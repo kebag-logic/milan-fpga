@@ -660,7 +660,7 @@ this repo.
    elaboration guard. Not one of them can see the wire. So the 8x8 talkers
    advertised `0x0205022002006000` — AAF 48 kHz, **8 channels** — while the
    framer emits **stereo**, and every gate stayed green: 57/57 Verilator
-   suites, 2,062,389 checks, yosys 48/48, behave 113/113, lint at ratchet.
+   suites, 2.1 M checks, yosys 48/48, behave 113/113, lint at ratchet.
    The only thing that noticed was a Milan-validated reference device on the
    bench, which bound to talker 0, passed the 5.5.1.2 format check, returned
    ACMP SUCCESS with a correct MAAP dmac and MSRP latency, and then counted

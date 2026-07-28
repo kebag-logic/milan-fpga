@@ -73,7 +73,17 @@ Full sweep on 2026-07-27: **56/56 PASS, 2 062 281 checks, 0 failures**
 (`scripts/run_all_suites.sh`, Verilator v5.050). The same tree immediately
 before that round measured **55/55, 2 062 053** — so the whole delta is the new
 `adp_parser` suite's 228 checks, and a per-suite diff of the two sweeps shows
-`adp_parser` as the *only* differing row. That is part of how the round's
+`adp_parser` as the *only* differing row.
+
+> **Those two totals are UNDER-COUNTS, kept as written because the delta
+> argument above still holds.** On 2026-07-28 the aggregator was found to
+> recognise only one of the **five** summary shapes this tree emits, so **29 of
+> 57 suite logs contributed exactly zero** and two more were counted only in
+> part. It also read `N checks: P PASS, F FAIL` as `P` rather than `N` — right
+> only while those suites had no failures, i.e. an accounting check that could
+> not fail. Corrected by `scripts/suite_tally.py`, which additionally **fails
+> the sweep** on a log with no tally or with a tally in an unknown shape.
+> Any figure quoted from before that date is low by roughly 1.8 %. That is part of how the round's
 `axi_stream_if` `TDATA_WIDTH_P` 32 → 64 default change was shown to move no
 elaboration (the other part being `syn/yosys/run.sh`, cell-for-cell identical
 across all 47 tops).
