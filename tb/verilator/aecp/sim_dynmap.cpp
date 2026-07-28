@@ -126,6 +126,12 @@ static int r_u(const std::vector<uint8_t>& b){ return b.size()>36 ? (b[36]>>7)&1
 static int r_be16(const std::vector<uint8_t>& b, size_t off){
     return b.size() > off+1 ? (b[off]<<8 | b[off+1]) : -1;
 }
+//! IEEE 1722-2016 4.4.5.4: control_data_length is "the length (in octets) of
+//! the control_data_payload field", which starts after the 8-octet stream_id
+//! (target_entity_id) at AVTPDU octet 12 -> frame bytes 16..17.
+static int r_cdl(const std::vector<uint8_t>& b) {
+    return b.size()>17 ? (((b[16]&0x7)<<8) | b[17]) : -1;
+}
 
 static uint16_t seq = 0x5000;
 static std::vector<uint8_t> xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
@@ -222,11 +228,18 @@ int main(int argc, char** argv) {
         ck("GET page2 BAD_ARGUMENTS (7.4.44.1)", r_status(r), 7);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
         ck("GET SPI1 NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        // Milan v1.2 5.4.2.26: "If a PAAD-AE receives a GET_AUDIO_MAP command
+        // for a Stream Port Output that has Audio Map(s), the PAAD-AE shall
+        // reply with the NOT_SUPPORTED error code." This shape's output port
+        // keeps its static Audio Map, so it refuses - the same verdict this
+        // file already asserts for ADD/REMOVE in [8], from the
+        // identically-worded 5.4.2.27/28. It used to assert SUCCESS and a
+        // served row.
         r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
-        ck("GET output static map SUCCESS", r_status(r), 0);
-        ck("output number_of_maps = 1", r_be16(r, 44), 1);
-        ck("output number_of_mappings = 8", r_be16(r, 46), 8);
-        ck("output row3 = {0,3,3,0}", row_is(r, 50, 3, 0,3,3,0), 1);
+        ck("GET output (has a map) NOT_SUPPORTED (Milan 5.4.2.26)",
+           r_status(r), 11);
+        ck("output refusal keeps the 7.4.44.2 12 B payload", r_cdl(r), 24);
+        ck("output refusal carries no mappings", r_be16(r, 46), 0);
     }
 
     printf("\n[3] ADD round-trip: swap map (cl0<-ch1, cl1<-ch0)\n");

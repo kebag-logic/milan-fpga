@@ -1310,3 +1310,25 @@ localparam [63:0] AEM_STRIN_FMT_C [0:8] = '{64'h0205022002006000, 64'h0205022002
 localparam [63:0] AEM_STROUT_FMT_C [0:8] = '{64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h041060010000BB80};
 localparam [15:0] WB_STRIN_FMT_ADDR_C [0:8] = '{16'd640, 16'd788, 16'd936, 16'd1084, 16'd1232, 16'd1380, 16'd1528, 16'd1676, 16'd1824};
 localparam [15:0] WB_STROUT_FMT_ADDR_C [0:8] = '{16'd1964, 16'd2104, 16'd2244, 16'd2384, 16'd2524, 16'd2664, 16'd2804, 16'd2944, 16'd3084};
+
+// Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).
+// Per STREAM_PORT: the ROM address of the AUDIO_MAP that port's OWN
+// base_map names, THAT descriptor's own number_of_mappings, and its
+// own mappings_offset - because 7.2.19 says the mappings field "shall
+// be accessed by using the mappings_offset field". All three used to
+// be hardcoded in the RTL (descriptor index 1, 8 mappings, offset 8,
+// 64 bytes), which on an 8x8 shape served STREAM_PORT_INPUT[1]'s
+// 72-byte map to STREAM_PORT_OUTPUT[0] and read 48 B past its
+// 24-byte one. ROWS = 0 marks a port with no static map - 7.2.13:
+// "These Entities set the number_of_maps field to zero (0) and the
+// base_map field is ignored when read." On a STREAM_PORT_OUTPUT that
+// DOES have a map, ROWS != 0 is also the condition under which Milan
+// v1.2 5.4.2.26 requires NOT_SUPPORTED rather than a served map.
+localparam int unsigned AEM_SMAP_IN_N_C  = 8;
+localparam int unsigned AEM_SMAP_OUT_N_C = 8;
+localparam [15:0] AEM_SMAP_IN_ADDR_C [0:7] = '{16'd12121, 16'd12193, 16'd12265, 16'd12337, 16'd12409, 16'd12481, 16'd12553, 16'd12625};
+localparam [15:0] AEM_SMAP_IN_ROWS_C [0:7] = '{16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8};
+localparam [15:0] AEM_SMAP_IN_MOFF_C [0:7] = '{16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8};
+localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:7] = '{16'd12697, 16'd12721, 16'd12745, 16'd12769, 16'd12793, 16'd12817, 16'd12841, 16'd12865};
+localparam [15:0] AEM_SMAP_OUT_ROWS_C [0:7] = '{16'd2, 16'd2, 16'd2, 16'd2, 16'd2, 16'd2, 16'd2, 16'd2};
+localparam [15:0] AEM_SMAP_OUT_MOFF_C [0:7] = '{16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8, 16'd8};

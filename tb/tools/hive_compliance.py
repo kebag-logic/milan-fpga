@@ -76,14 +76,80 @@ one deliberately re-implements the checks a real controller stack makes:
      cluster indices where the clause requires port-relative ones - two
      ports legitimately carry the SAME offsets onto DIFFERENT clusters, so
      a global-index regression stays inside every other check's blind spot.
-     It SKIPS - never fails - on NOT_SUPPORTED or NO_SUCH_DESCRIPTOR,
-     because Milan v1.2 5.4.2.28 makes NOT_SUPPORTED the CONFORMANT answer
-     on a port that carries static Audio Maps; failing there would file
-     conformance as a defect (methodology R3).
+     It SKIPS - never fails - on NOT_SUPPORTED or NO_SUCH_DESCRIPTOR.
+     NOT_SUPPORTED is the SPECIFIED answer on an output port with a map;
+     see C11 for the quoted sentence. Failing there would file conformance
+     as a defect (methodology R3).
+     ONE CAVEAT ON THE stream_channel BOUND, recorded rather than silently
+     relied on: it uses the CURRENT format, which is the only channel count
+     that exists on the wire, but a STATIC Audio Map is a property of the
+     PORT and outlives any one SET_STREAM_FORMAT. Reading the texts settled
+     what "no clause in reach" used to mean here: 1722.1-2021 7.2.19 and
+     7.2.13 bound a static map's mapping_stream_channel by NOTHING, and the
+     only normative sentence is Milan v1.2 5.4.2.27 on the ADD_AUDIO_MAPPINGS
+     COMMAND - "A PAAD-AE shall treat as invalid a mapping that references a
+     channel of a Stream Input/Output that does not exist in the currently set
+     format for this Stream Input/Output." For the descriptor the standard is
+     SILENT. That is why the model-tier twin of this bound
+     (avdecc/gen_aem_store.py static_map_tables) uses the WIDEST format the
+     descriptor advertises and records rather than raises. Neither the
+     reference device nor our board trips this one today; it is not the bound
+     that caught anything.
+  C11 MILAN'S DIRECTION SPLIT ON GET_AUDIO_MAP. Milan v1.2 5.4.2.26,
+     verbatim: "For each Stream Port Input and for each Stream Port Output
+     that has no Audio Map, the PAAD-AE shall implement the GET_AUDIO_MAP
+     command as specified in [ATDECC, Clause 7.4.44]. If a PAAD-AE receives a
+     GET_AUDIO_MAP command for a Stream Port Output that has Audio Map(s),
+     the PAAD-AE shall reply with the NOT_SUPPORTED error code."
+     So the check is per direction, and it is decided by the port's OWN
+     number_of_maps (7.2.13), not by a guess: an output port declaring
+     number_of_maps >= 1 must refuse with NOT_SUPPORTED, an input port must
+     answer. On the board this is not a cosmetic status: the port that
+     over-read a 24-octet descriptor by 48 octets on 2026-07-28 was an
+     output port that should never have served a map at all.
+     Also 7.4.44.1: "If the map_index is beyond the range of available maps
+     then it returns a BAD_ARGUMENT status in the response." - so an
+     in-range port asked for a page it does not have owes BAD_ARGUMENTS,
+     not NO_SUCH_DESCRIPTOR.
+  C10 THE MAP SERVED IS THE PORT'S OWN MAP, WHOLE AND NO MORE. Bounds are
+     not enough. A map served out of the WRONG descriptor passes every
+     bounds check whenever the neighbouring descriptor happens to hold
+     in-range numbers, so C10 compares the served mappings against the
+     AUDIO_MAP that THIS port's own base_map names (7.2.13), read back with
+     READ_DESCRIPTOR - the entity's own answer to another command, not a
+     second declaration of the shape. Three things are asserted, each of
+     which the 2026-07-28 defect broke:
+       the response CARRIES what it declares  (7.4.44.2: the payload is
+                                               12 + 8*number_of_mappings)
+       the descriptor HOLDS what it declares  (7.2.19: number_of_mappings
+                                               8-octet rows after
+                                               mappings_offset)
+       every served mapping IS in that map    (7.2.19: the map belongs to
+                                               the port)
+     Order is NOT asserted - no clause in reach fixes one, so requiring it
+     would be inventing a rule (methodology R3) - and the comparison is a
+     multiset. What it catches that C9 cannot: on gateware 0x0001_0016 the
+     entity answered STREAM_PORT_OUTPUT[0] out of AUDIO_MAP[1], which is
+     STREAM_PORT_INPUT[1]'s map, with a hardcoded 8 mappings and a hardcoded
+     64-octet region taken out of a descriptor that is 24 octets long: 48
+     octets of whatever followed it in the descriptor ROM went on the wire
+     to any controller that asked.
 
-THE SIZE RULE AND WHERE IT COMES FROM. The IEEE and Milan texts are
-paywalled and are NOT in this repo, so the rule is not quoted from them; it
-is taken from the controller stack that emits the log line above -
+WHERE THE CLAUSES COME FROM. Earlier rounds of this file said the IEEE and
+Milan texts were paywalled and unavailable. They are on this machine, in
+/home/alex/standards (1722.1-2021.pdf, 1722-2016.pdf, Milan v1.2); the
+environment variable $STANDARDS_DIR that pointed at them is simply unset,
+and that is what produced the "paraphrase only" discipline. Every clause in
+C9/C10/C11 is now quoted from the text, extracted with pdftotext -layout.
+ONE TRAP if you re-extract: the hexadecimal VALUE column of Table 7-1 comes
+out mangled (leading digits dropped, letter glyphs shifted by one - LOCALE
+reads "D16" where the value is 0xC). Take descriptor type codes from the
+CLAUSE column instead, which is intact: AUDIO_CLUSTER is the 7.2.16 row
+(0x0014) and AUDIO_MAP the 7.2.19 row (0x0017). Quote PROSE, verify numbers.
+
+THE SIZE RULE AND WHERE IT COMES FROM. The size rule is NOT quoted from the
+standard, because the standard does not state one for error responses; it is
+taken from the controller stack that emits the log line above -
 L-Acoustics avdecc, src/protocol/protocolAemPayloads.cpp,
 checkResponsePayload():
 
@@ -98,11 +164,20 @@ below is additionally calibrated against the Milan-validated reference
 device, which must stay at zero failures - a check that only ever fails
 against us proves as little as one that only ever passes.
 
---self-test runs C9's bounds predicate over crafted good/bad vectors with no
-network at all: the negative control for a check whose live subject may
-legitimately return zero mappings (methodology R2 - a check that cannot fail
-is not a check, and a vacuous pass against the reference device is not proof
-that it can).
+--self-test runs C9's bounds predicate AND C10's over-read predicate over
+crafted good/bad vectors with no network at all: the negative control for
+checks whose live subject may legitimately return zero mappings (methodology
+R2 - a check that cannot fail is not a check, and a vacuous pass against the
+reference device is not proof that it can).
+
+A VACUOUS PASS IS THE FAILURE MODE THIS FILE KEEPS HITTING. C9's
+cluster_channel bound read AUDIO_CLUSTER as descriptor type 0x0016 (which is
+SENSOR_CLUSTER; 1722.1-2021 Table 7.1 says AUDIO_CLUSTER is 0x0014), so every
+cluster READ_DESCRIPTOR came back NO_SUCH_DESCRIPTOR, the channel-count map
+stayed empty and that bound was never asserted against anything. It reported
+[ok] on both devices for the same reason a disconnected cable does. Fixed
+2026-07-28; the offset it reads (AC_CHANNEL_COUNT_OFF = 84) was verified
+against the generated ROM rather than counted from the clause a second time.
 
 LEVEL AND ORACLE (every check in this file): LEVEL 4 - what an INDEPENDENT
 controller sees. The oracle is a FOREIGN implementation (Hive / la_avdecc)
@@ -115,6 +190,23 @@ CHECK FAILS AGAINST THE REFERENCE, THE CHECK IS WRONG until a clause proves
 otherwise. Baselines measured 2026-07-28: reference 3CC0C60102030000 = 52
 checks / 0 failures; our AX board on gateware 0x0001_0016 = 53 checks / 39
 failures (29 C1 + 2 C2 + 2 C3 + 4 C5 + 2 C6).
+
+C10, C11 AND THE D_AUDIO_CLUSTER FIX HAVE NOT BEEN RUN AGAINST EITHER DEVICE.
+They were added 2026-07-28 from a Verilator reproduction (tb/verilator/aecp/
+sim_amap.cpp, 48 of 218 checks failing on the pre-fix RTL) and the boards were
+not available in that session. All three are therefore UNCALIBRATED against the
+reference device, which is the one thing this file's own rule demands: run
+    sudo ./hive_compliance.py --iface <if> --target-eid 3CC0C60102030000 \
+                              --target-mac 3c:c0:c6:01:02:03
+FIRST, and if any of them fails there, THE CHECK IS WRONG until a clause says
+otherwise. C11 is the one to watch: it is quoted from Milan 5.4.2.26 rather
+than inferred, but it asserts a REFUSAL, and a check that demands an error
+status is exactly the kind that can be right about the clause and wrong about
+the device (e.g. if the reference device's output ports carry no Audio Map, C11
+takes its other branch there and proves nothing - read the printed n_maps).
+Expected reading on our own board after a rebuild+reflash carrying this fix:
+C9 STREAM_PORT_OUTPUT 1 -> 0 failures, C10 and C11 clean. On the flashed
+0x0001_0016 image C9, C10 and C11 all fail on STREAM_PORT_OUTPUT.
 
 Exit code 0 = clean, 1 = at least one FAIL. Run it against OUR board AND the
 reference device: a check that only ever passes proves nothing.
@@ -149,7 +241,14 @@ D_AUDIO_UNIT = 0x0002
 D_AVB_INTERFACE = 0x0009
 D_STREAM_PORT_INPUT = 0x000E
 D_STREAM_PORT_OUTPUT = 0x000F
-D_AUDIO_CLUSTER = 0x0016
+#: 1722.1-2021 Table 7.1: AUDIO_CLUSTER is 0x0014. It read 0x0016 here until
+#: 2026-07-28, which is SENSOR_CLUSTER - a type this entity does not have - so
+#: every READ_DESCRIPTOR C9 issued for a cluster came back NO_SUCH_DESCRIPTOR,
+#: cluster_channels stayed empty and the 7.2.16 cluster_channel bound was
+#! never asserted at all. It did not fail; it did not run (methodology R5: a
+#: structural zero is not a measurement). Confirmed against the generated ROM:
+#: the AX7101 8x8 descriptor set carries types 0x14 and 0x17, no 0x16.
+D_AUDIO_CLUSTER = 0x0014
 D_CLOCK_DOMAIN = 0x0024
 STATUS_NO_SUCH_DESCRIPTOR = 2
 STATUS_NOT_SUPPORTED = 11
@@ -161,6 +260,12 @@ STATUS_NOT_SUPPORTED = 11
 SP_NUM_CLUSTERS_OFF = 12
 SP_BASE_CLUSTER_OFF = 14
 SP_NUM_MAPS_OFF = 16
+SP_BASE_MAP_OFF = 18
+#: AUDIO_MAP descriptor (7.2.19): type(2) index(2) mappings_offset(2)
+#: number_of_mappings(2), then number_of_mappings x 8-octet mappings
+D_AUDIO_MAP = 0x0017
+AM_NUM_MAPPINGS_OFF = 6
+AM_ROWS_OFF = 8
 #: AUDIO_CLUSTER descriptor (7.2.16): channel_count sits after object_name(64)
 #: + localized_description(2) + signal_type(2) + signal_index(2) +
 #: signal_output(2) + path_latency(4) + block_latency(4) = offset 84.
@@ -199,6 +304,70 @@ def sniff_adp(f, tgt):
         return
     ADV['STREAM_OUTPUT'] = struct.unpack('!H', f[38:40])[0]
     ADV['STREAM_INPUT'] = struct.unpack('!H', f[42:44])[0]
+
+
+def audio_map_overreads(mappings, n_mappings, payload_len, desc_rows,
+                        desc_len, desc_declared=None):
+    """C10's whole rule, as a pure function so it can be self-tested offline.
+
+    GET_AUDIO_MAP does not just have to be IN RANGE, it has to be THIS PORT'S
+    MAP.  Bounds alone cannot see a map served out of the wrong descriptor
+    whenever the neighbouring descriptor happens to hold in-range numbers, and
+    on 2026-07-28 the entity served STREAM_PORT_OUTPUT[0] from AUDIO_MAP[1] -
+    STREAM_PORT_INPUT[1]'s map - with a hardcoded 8 mappings and a hardcoded
+    64-byte region out of a descriptor holding 16, putting 48 octets of
+    whatever followed it in the descriptor ROM on the wire.
+
+    mappings    : the 8-byte rows parsed out of the GET_AUDIO_MAP response
+    n_mappings  : number_of_mappings the response DECLARED
+    payload_len : octets of AEM payload the response actually carried
+    desc_rows   : the same rows read out of the port's own AUDIO_MAP
+                  descriptor via READ_DESCRIPTOR (base_map), or None when the
+                  port declares number_of_maps = 0 and has no descriptor -
+                  then only the self-consistency half is checked
+    desc_len    : octets of that descriptor, or None with desc_rows None
+    desc_declared: the descriptor's OWN number_of_mappings, which may exceed
+                  the rows that fit in it - that gap IS defect B; defaults to
+                  len(desc_rows)
+
+    -> list of human-readable violations (empty = conformant)
+    """
+    out = []
+    # (a) the response must CARRY what it declares. 1722.1-2021 7.4.44.2,
+    #     verbatim: "The number_of_mappings field is set to the number of
+    #     mappings contained in the mappings field." So the payload is
+    #     12 + 8*number_of_mappings and anything shorter is a count a
+    #     controller will read past the end of.
+    if payload_len < AM_HDR + 8 * n_mappings:
+        out.append(f"declares {n_mappings} mappings but the payload is "
+                   f"{payload_len} B, short of {AM_HDR + 8 * n_mappings}")
+    if len(mappings) < n_mappings:
+        out.append(f"declares {n_mappings} mappings, {len(mappings)} parsed")
+    if desc_rows is None:
+        return out
+    if desc_declared is None:
+        desc_declared = len(desc_rows)
+    # (b) the descriptor must HOLD what IT declares (the same rule one tier
+    #     down: a controller that trusts an AUDIO_MAP's own count and reads
+    #     8 rows out of a 24-byte descriptor reads 6 rows of neighbours)
+    if desc_len is not None and desc_len < 8 + 8 * desc_declared:
+        out.append(f"AUDIO_MAP descriptor declares {desc_declared} mappings "
+                   f"but is {desc_len} B, short of {8 + 8 * desc_declared}")
+    # (c) and the served rows must BE the port's own rows. Compared as a
+    #     multiset, not in order: 7.4.44 does not fix an ordering, so
+    #     requiring one would be inventing a rule (methodology R3). What it
+    #     DOES catch is a row that is not in this port's map at all.
+    have = list(desc_rows)
+    for m in mappings:
+        if m in have:
+            have.remove(m)
+        else:
+            out.append(f"served mapping {m} is not in this port's own "
+                       f"AUDIO_MAP (7.2.19: the map belongs to the port)")
+    if n_mappings != desc_declared:
+        out.append(f"serves {n_mappings} mappings where the port's own "
+                   f"AUDIO_MAP descriptor declares {desc_declared}")
+    return out
 
 
 def audio_map_violations(mappings, n_streams, stream_channels,
@@ -272,7 +441,29 @@ def self_test():
       audio_map_violations([(0, 0, 0, 3)], 2, sch, 8, cch), 1)
     t("unknown format -> that ONE bound is not asserted, the others still are",
       audio_map_violations([(0, 999, 99, 0)], 2, {}, 8, cch), 1)
-    print("\nC9 self-test:", "PASS" if ok else "FAIL")
+
+    # ---- C10: the served map is THIS PORT'S map, whole and no more -------
+    # The vectors are the measured defect, not invented shapes: the deployed
+    # 8x8 output port's own AUDIO_MAP holds 2 rows in 24 bytes, and the RTL
+    # served 8 rows / 64 bytes out of the INPUT port's 72-byte map instead.
+    own2 = [(0, 0, 0, 0), (0, 1, 1, 0)]                     # its own 2 rows
+    other8 = [(1, c, c, 0) for c in range(8)]               # input port 1's
+    t("conformant: the port's own 2 rows, declared and carried",
+      audio_map_overreads(own2, 2, AM_HDR + 16, own2, 24), 0)
+    t("rows in a different ORDER are still the same map (no clause fixes one)",
+      audio_map_overreads(own2[::-1], 2, AM_HDR + 16, own2, 24), 0)
+    t("DEFECT A: 8 rows from ANOTHER port's map on a 2-row port",
+      #  8 not-mine + count 8 != 2
+      audio_map_overreads(other8, 8, AM_HDR + 64, own2, 24), 9)
+    t("declares more mappings than the payload carries (the read-past cue)",
+      audio_map_overreads(own2, 8, AM_HDR + 16, own2, 24), 3)
+    t("DEFECT B: a descriptor that declares more rows than it can hold",
+      audio_map_overreads(own2, 2, AM_HDR + 16, own2 + own2 + own2 + own2,
+                          24), 2)
+    t("no AUDIO_MAP descriptor (7.2.13 number_of_maps=0) -> only the "
+      "self-consistency half applies",
+      audio_map_overreads(own2, 2, AM_HDR + 16, None, None), 0)
+    print("\nC9/C10 self-test:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
 
@@ -580,6 +771,8 @@ def main():
                     stream_channels[i] = ch
 
         checked, skipped, viol = 0, 0, []
+        over = []                              # C10 violations, this direction
+        milan = []                             # C11 violations, this direction
         for pi in range(a.max_index):
             r, _ = do(f"READ_DESCRIPTOR {pname}.{pi}", CMD_READ_DESCRIPTOR,
                       struct.pack('!HHHH', 0, 0, pcode, pi))
@@ -594,13 +787,58 @@ def main():
                                                  SP_BASE_CLUSTER_OFF + 2])[0]
             n_maps = struct.unpack('!H', d[SP_NUM_MAPS_OFF:
                                            SP_NUM_MAPS_OFF + 2])[0]
+            base_map = struct.unpack('!H', d[SP_BASE_MAP_OFF:
+                                             SP_BASE_MAP_OFF + 2])[0]
+            # C10's oracle: THE PORT'S OWN AUDIO_MAP, the one ITS base_map
+            # names. 7.2.13 number_of_maps = 0 means there is no descriptor
+            # (the mappings are dynamic state) - then only the response's
+            # self-consistency can be checked.
+            desc_rows, desc_len, desc_declared = None, None, None
+            if n_maps:
+                rm, _ = do(f"READ_DESCRIPTOR AUDIO_MAP.{base_map} "
+                           f"({pname}.{pi} base_map)", CMD_READ_DESCRIPTOR,
+                           struct.pack('!HHHH', 0, 0, D_AUDIO_MAP, base_map))
+                if rm and resp_parts(rm)[0] == 0:
+                    _st_m, cdl_m, pl_m = resp_parts(rm)
+                    dm = pl_m[RD_DESC_OFF:]
+                    # length from control_data_length, NOT len(frame): the
+                    # 60-octet Ethernet minimum pads short frames and would
+                    # make a truncated descriptor look complete.
+                    desc_len = cdl_m - 12 - RD_DESC_OFF
+                    if desc_len >= AM_ROWS_OFF:
+                        desc_declared = struct.unpack(
+                            '!H', dm[AM_NUM_MAPPINGS_OFF:
+                                     AM_NUM_MAPPINGS_OFF + 2])[0]
+                        desc_rows = []
+                        for k in range(desc_declared):
+                            o = AM_ROWS_OFF + 8 * k
+                            if o + 8 > min(desc_len, len(dm)):
+                                break          # truncated: (b) reports it
+                            desc_rows.append(struct.unpack('!HHHH',
+                                                           dm[o:o + 8]))
             for mi in range(max(n_maps, 1)):
                 r, _ = do(f"GET_AUDIO_MAP {pname}.{pi}.{mi}", CMD_GET_AUDIO_MAP,
                           struct.pack('!HHH', pcode, pi, mi))
                 if r is None:
                     skipped += 1
                     continue
-                st, _cdl, pl = resp_parts(r)
+                st, cdl_g, pl = resp_parts(r)
+                # C11: Milan v1.2 5.4.2.26's direction split, decided by this
+                # port's OWN number_of_maps. Only map_index 0 is asked here;
+                # a paged port's later indices are C9's business.
+                if mi == 0:
+                    if pcode == D_STREAM_PORT_OUTPUT and n_maps >= 1:
+                        if st != STATUS_NOT_SUPPORTED:
+                            milan.append(
+                                f"{pname}.{pi}: has {n_maps} Audio Map(s) and "
+                                f"answered status {st}; Milan 5.4.2.26 - a "
+                                "GET_AUDIO_MAP for a Stream Port Output that "
+                                "has Audio Map(s) 'shall reply with the "
+                                "NOT_SUPPORTED error code'")
+                    elif st != 0:
+                        milan.append(
+                            f"{pname}.{pi}: Milan 5.4.2.26 requires this port "
+                            f"to implement GET_AUDIO_MAP; status {st}")
                 if st in (STATUS_NOT_SUPPORTED, STATUS_NO_SUCH_DESCRIPTOR):
                     # Milan 5.4.2.28: NOT_SUPPORTED is the CONFORMANT answer
                     # on a static-map port. Skipping is the point.
@@ -635,9 +873,21 @@ def main():
                 for v in audio_map_violations(maps, n_streams, stream_channels,
                                               n_clusters, cluster_channels):
                     viol.append(f"{pname}.{pi}.{mi}: {v}")
+                # C10: ...and it is THIS port's map, whole and no more. Only
+                # map_index 0 has a descriptor to compare against on a
+                # number_of_maps = 1 port; a paged port is left to C9.
+                if mi == 0:
+                    for v in audio_map_overreads(
+                            maps, n_map, cdl_g - 12, desc_rows, desc_len,
+                            desc_declared):
+                        over.append(f"{pname}.{pi}.{mi}: {v}")
         ck(not viol, f"C9 {pname} mappings within their port-relative bounds",
            f"mappings={checked} skipped={skipped} "
            f"streams={n_streams} violations={viol[:6]}")
+        ck(not over, f"C10 {pname} serves its OWN AUDIO_MAP, whole and no more",
+           f"violations={over[:6]}")
+        ck(not milan, f"C11 {pname} follows Milan 5.4.2.26's direction split",
+           f"ports={pi} violations={milan[:6]}")
 
     print("\n-- C7/C8 whole-frame checks over every response --")
     # C7: 1722.1-2021 9.2.1.1.6 - control_data_length counts the octets after

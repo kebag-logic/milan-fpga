@@ -1006,18 +1006,29 @@ int main(int argc, char** argv) {
         ckbytes("[18a] mapping[0]", r, 50, {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00});
         ckbytes("[18a] mapping[5]", r, 90, {0x00,0x00,0x00,0x05,0x00,0x05,0x00,0x00});
 
-        // (b) STREAM_PORT_OUTPUT[0] serves AUDIO_MAP[1]
+        // (b) STREAM_PORT_OUTPUT[0] HAS an Audio Map, so Milan v1.2 5.4.2.26
+        //     makes NOT_SUPPORTED the specified answer: "If a PAAD-AE
+        //     receives a GET_AUDIO_MAP command for a Stream Port Output that
+        //     has Audio Map(s), the PAAD-AE shall reply with the
+        //     NOT_SUPPORTED error code." This used to assert SUCCESS and a
+        //     served mapping[7] - the behaviour that, at the 8x8 shape,
+        //     over-read a 24-octet descriptor by 48 octets.
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1802,
                          map_pl(0x000F, 0, 0)));
         r = collect_resp();
-        ck("[18b] output port SUCCESS", r_status(r), 0);
-        ckbytes("[18b] mapping[7]", r, 106, {0x00,0x00,0x00,0x07,0x00,0x07,0x00,0x00});
+        ck("[18b] output port with a map NOT_SUPPORTED (Milan 5.4.2.26)",
+           r_status(r), 11);
+        ck("[18b] refusal keeps the 7.4.44.2 12 B payload", r_cdl(r), 24);
 
-        // (c) map_index 1 doesn't exist; wrong descriptor type
+        // (c) map_index 1 is beyond number_of_maps=1. 1722.1-2021 7.4.44.1:
+        //     "If the map_index is beyond the range of available maps then it
+        //     returns a BAD_ARGUMENT status in the response." (7 = the AEM
+        //     BAD_ARGUMENTS code; this used to answer NO_SUCH_DESCRIPTOR.)
+        //     ...and the wrong descriptor type stays NO_SUCH_DESCRIPTOR.
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1803,
                          map_pl(0x000E, 0, 1)));
         r = collect_resp();
-        ck("[18c] map 1 NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        ck("[18c] map_index 1 BAD_ARGUMENTS (7.4.44.1)", r_status(r), 7);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1804,
                          map_pl(0x0006, 0, 0)));
         r = collect_resp();
