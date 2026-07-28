@@ -2862,15 +2862,33 @@ class RingDMAReader(LiteXModule):
         cs_beat  = Signal(64)           # the would-be output beat during the pre-pass
         cs_keep  = Signal(8)
         cs_masked = Signal(64)
+        # stage-0 registers (2026-07-29): the keep-decode reached the lane
+        # adder COMBINATIONALLY - blen_r -> last-beat keep -> 64-bit mask ->
+        # adder tree -> cs_lanes_r was the worst path on BOTH boards' m0019h
+        # builds (arty -0.099 over exactly the cs_lanes_r[13..17] fan after
+        # two recovery passes; AX -1.079 systemic). Registering {beat, keep,
+        # take} first cuts blen_r out of the arithmetic cone; the sum is
+        # IDENTICAL one cycle later. Ordering is safe by construction:
+        # cs_clr fires at CHAIN start only, and a chain begins with a BD
+        # fetch (a DRAM read, tens of cycles after the previous chain's last
+        # take), so the deeper pipe always drains first - and cs_clr kills
+        # the in-flight stages anyway, which can only hold already-consumed
+        # data from the previous chain.
+        cs_beat_q = Signal(64)
+        cs_keep_q = Signal(8)
+        cs_tk_q   = Signal()
         self.comb += [
-            cs_masked.eq(Cat(*[Mux(cs_keep[i], cs_beat[8*i:8*i+8], 0) for i in range(8)])),
+            cs_masked.eq(Cat(*[Mux(cs_keep_q[i], cs_beat_q[8*i:8*i+8], 0) for i in range(8)])),
             cs_lanes.eq(cs_masked[0:16] + cs_masked[16:32] +
                         cs_masked[32:48] + cs_masked[48:64]),
             cs_fold1.eq(cs_acc[:16] + cs_acc[16:]),
             cs_val.eq(~(cs_fold1[:16] + cs_fold1[16])),
         ]
         self.sync += [
-            If(cs_take,
+            cs_beat_q.eq(cs_beat),
+            cs_keep_q.eq(cs_keep),
+            cs_tk_q.eq(cs_take),
+            If(cs_tk_q,
                 cs_lanes_r.eq(cs_lanes),
                 cs_lv.eq(1),
             ).Else(
@@ -2880,7 +2898,7 @@ class RingDMAReader(LiteXModule):
             # TSO seeds the accumulator with the driver's pseudo-header sum P so the
             # folded result IS the TCP checksum; non-TSO paths seed 0 (cs_seed is a
             # comb default-0, driven only by the TSO pre-pass entry).
-            If(cs_clr, cs_acc.eq(cs_seed), cs_lv.eq(0)),
+            If(cs_clr, cs_acc.eq(cs_seed), cs_lv.eq(0), cs_tk_q.eq(0)),
         ]
         # patch mux for the real pass: replace the 2 checksum bytes in their beat
         patch_hit = Signal()
