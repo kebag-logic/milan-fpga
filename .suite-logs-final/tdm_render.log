@@ -1,0 +1,58 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/tdm_render'
+verilator --cc --exe --build -j 0 --top-module KL_tdm_render +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/aaf -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2" ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv sim_main.cpp -o VKL_tdm_render_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/tdm_render/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/tdm_render/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+./obj_dir/VKL_tdm_render_sim
+== KL_tdm_render harness (TDM8 out: 8 slots x 32 bclk, 48 kHz frame) ==
+
+[align] nothing serialized before the first fsync
+  [ ok ] no golden frame before fsync                   = 0
+  [ ok ] line idle (dout=0) before fsync                = 0
+
+[run] fsync-aligned frames; golden recovers each after its boundary
+  [ ok ] EDGE slot0 bit-exact                           = 0x800000
+  [ ok ] EDGE slot1 bit-exact                           = 0x7FFFFF
+  [ ok ] EDGE slot2 bit-exact                           = 0xFFFFFF
+  [ ok ] EDGE slot3 bit-exact                           = 0x000001
+  [ ok ] EDGE slot4 bit-exact                           = 0xABCDEF
+  [ ok ] EDGE slot5 bit-exact                           = 0x123456
+  [ ok ] EDGE slot6 bit-exact                           = 0x000000
+  [ ok ] EDGE slot7 bit-exact                           = 0xA5A5A5
+  [ ok ] EDGE: all pad bits zero (24-in-32)             = 1
+  [ ok ] EDGE: sign preserved slot0 0x800000            = 0x800000
+  [ ok ] EDGE: sign preserved slot2 0xFFFFFF            = 0xFFFFFF
+  [ ok ] F1(mid-frame-stable): 8 slots bit-exact        = 1
+  [ ok ] F1(mid-frame-stable): pad bits zero            = 1
+  [ ok ] F2: 8 slots bit-exact                          = 1
+  [ ok ] F2: pad bits zero                              = 1
+  [ ok ] UNDERRUN(=F2): 8 slots bit-exact               = 1
+  [ ok ] UNDERRUN(=F2): pad bits zero                   = 1
+  [ ok ] stale frame REPEATS last sample (bit-exact)    = 1
+  [ ok ] underruns_o incremented                        = 1
+  [ ok ] F4: 8 slots bit-exact                          = 1
+  [ ok ] F4: pad bits zero                              = 1
+  [ ok ] F5: 8 slots bit-exact                          = 1
+  [ ok ] F5: pad bits zero                              = 1
+  [ ok ] F6: 8 slots bit-exact                          = 1
+  [ ok ] F6: pad bits zero                              = 1
+  [ ok ] F7: 8 slots bit-exact                          = 1
+  [ ok ] F7: pad bits zero                              = 1
+  [ ok ] F8: 8 slots bit-exact                          = 1
+  [ ok ] F8: pad bits zero                              = 1
+  [ ok ] F9: 8 slots bit-exact                          = 1
+  [ ok ] F9: pad bits zero                              = 1
+
+[status] clk_i-domain plain counters
+  [ ok ] frames_o == fsync frames issued                = 11
+  [ ok ] underruns_o == 1 (single stale frame)          = 1
+  [ ok ] overruns_o == 0 (consumer kept up)             = 0
+  [ ok ] golden completed >= 9 frames                   = 1
+
+======================================================================
+KL_tdm_render: 37 checks, 0 failures
+RESULT: PASS
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/tdm_render'

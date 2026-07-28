@@ -1,0 +1,65 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/mmcm_servo_autorepair'
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2" --top-module KL_mmcm_drp_servo -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 -GLOCK_THR_P=8192 \
+  ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_autorepair.cpp -o Vautorepair_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/mmcm_servo_autorepair/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/mmcm_servo_autorepair/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+======================================================================
+./obj_dir/Vautorepair_sim
+[AR0] auto_repair_i=0: mismatch flagged, ZERO DRP writes (safe default)
+  [ ok ] [AR0] mismatch flagged                                 = 1
+  [ ok ] [AR0] verified NOT set                                 = 0
+  [ ok ] [AR0] read-verify issued 2 reads                       = 2
+  [ ok ] [AR0] ZERO DRP writes (silicon-safe)                   = 0
+  [ ok ] [AR0] ZERO write-log entries                           = 0
+  [ ok ] [AR0] MMCM never held in reset                         = 0
+  [ ok ] [AR0] servo runs on live config (ACQUIRE/LOCKED)       = 1
+  [ ok ] [AR0] live registers untouched (0x08)                  = 4660
+  [ ok ] [AR0] live registers untouched (0x09)                  = 34560
+[AR1] auto_repair_i=1: detect + XAPP888 read-modify-write REPAIR
+  [ ok ] [AR1] mismatch was flagged                             = 1
+  [ ok ] [AR1] exactly 3 DRP writes                             = 3
+  [ ok ] [AR1] write-log has 3 entries                          = 3
+  [ ok ] [AR1] read count (2 verify + 2 RMW)                    = 4
+  seq: w0=(0x28<-0xFFFF rst=1) w1=(0x08<-0x1595 rst=1) w2=(0x09<-0x8080 rst=1)
+  [ ok ] [AR1] w0 addr = PowerReg 0x28                          = 40
+  [ ok ] [AR1] w0 data = 0xFFFF (XAPP888 T14)                   = 0xFFFF
+  [ ok ] [AR1] w0 under MMCM reset                              = 1
+  [ ok ] [AR1] w1 addr = ClkReg1 0x08                           = 8
+  [ ok ] [AR1] w1 data = RMW (O=43 HT/LT, RES[12] kept)         = 0x1595
+  [ ok ] [AR1] w1 under MMCM reset                              = 1
+  [ ok ] [AR1] w2 addr = ClkReg2 0x09                           = 9
+  [ ok ] [AR1] w2 data = RMW (EDGE=1, RES[15] kept)             = 0x8080
+  [ ok ] [AR1] w2 under MMCM reset                              = 1
+  [ ok ] [AR1]   HIGH_TIME[11:6] = 22                           = 22
+  [ ok ] [AR1]   LOW_TIME [5:0]  = 21                           = 21
+  [ ok ] [AR1]   ClkReg1 RESERVED[12] preserved                 = 1
+  [ ok ] [AR1]   divider bits set to expected                   = 1429
+  [ ok ] [AR1]   EDGE[7] = 1 (odd divide)                       = 1
+  [ ok ] [AR1]   NO_COUNT[6] = 0                                = 0
+  [ ok ] [AR1]   ClkReg2 RESERVED[15] preserved                 = 1
+  [ ok ] [AR1]   ClkReg2 non-RESERVED = expected                = 128
+  [ ok ] [AR1] no writes outside MMCM reset                     = 0
+  [ ok ] [AR1] no PS shifts during reconfig                     = 0
+  [ ok ] [AR1] no PSEN protocol violations                      = 0
+  [ ok ] [AR1] reg 0x08 committed                               = 0x1595
+  [ ok ] [AR1] reg 0x09 committed                               = 0x8080
+  [ ok ] [AR1] reg 0x28 committed                               = 0xFFFF
+  [ ok ] [AR1] MMCM reset released                              = 0
+  [ ok ] [AR1] MMCM relocked (status[5])                        = 1
+  [ ok ] [AR1] verified after repair                            = 1
+  [ ok ] [AR1] no relock-timeout fault                          = 0
+  [ ok ] [AR1] resumed servo (ACQUIRE/LOCKED)                   = 1
+[AR2] auto_repair_i=1 with a CORRECT config: repair never fires
+  [ ok ] [AR2] verified set (match)                             = 1
+  [ ok ] [AR2] no mismatch                                      = 0
+  [ ok ] [AR2] ZERO DRP writes on a live match                  = 0
+  [ ok ] [AR2] ZERO write-log entries                           = 0
+  [ ok ] [AR2] MMCM never held in reset                         = 0
+  [ ok ] [AR2] straight to servo (ACQUIRE/LOCKED)               = 1
+======================================================================
+KL_mmcm_drp_servo auto_repair: 47 checks, 0 failures
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/mmcm_servo_autorepair'

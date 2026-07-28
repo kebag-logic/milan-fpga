@@ -1,0 +1,510 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr'
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2" --top-module milan_csr ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.023 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.002 s on 96 threads; allocated 16.355 MB
+verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2" --Mdir obj_win --top-module milan_csr \
+  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
+  ../../../hdl/common/csr/milan_csr.sv sim_win.cpp -o Vcsr_win
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr/obj_win'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr/obj_win'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.010); cpu 0.002 s on 96 threads; allocated 16.355 MB
+verilator +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2" -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY -Wno-PINMISSING -Wno-IMPORTSTAR -Wno-TIMESCALEMOD --Mdir obj_live --top-module csr_win_live \
+  -GCLK_FREQ_HZ_P=10000 \
+  ../../../hdl/ieee8021q/srp/lwsrp_pkg.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_timers.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_tx.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_ingress.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_walker.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_registrar.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_ta_registrar.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_rx.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_ctx.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_ctx_tx.sv ../../../hdl/ieee8021q/srp/KL_lwsrp_top.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/acmp/acmp_pkg.sv ../../../hdl/ieee17221/acmp/KL_acmp_lstn_ctx.sv ../../../hdl/common/csr/milan_csr.sv csr_win_live.sv sim_live.cpp -o Vcsr_win_live
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr/obj_live'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr/obj_live'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.026 s (elab=0.000, cvt=0.000, bld=0.024); cpu 0.002 s on 96 threads; allocated 16.355 MB
+======================================================================
+./obj_dir/Vcsr_sim
+== milan_csr AXI4-Lite CSR verification ==
+-- identification / capabilities --
+  [ok]   ID                         = 0x4d494c4e
+  [ok]   VERSION                    = 0x10018
+  [ok]   CAP.num_queues             = 0x5
+  [ok]   CAP.CBS                    = 0x1
+  [ok]   CAP.PTP                    = 0x1
+  [ok]   CAP.STATS                  = 0x1
+  [ok]   CAP.ADP                    = 0x1
+  [ok]   CAP.TCAM                   = 0x1
+  [ok]   CAP.ts_width               = 0x40
+-- reset values --
+  [ok]   MAC_CTRL(reset)            = 0x13
+  [ok]   MAC_IFG(reset)             = 0xc
+  [ok]   PHY_RST(reset)             = 0x1
+  [ok]   CLS_CTRL(reset)            = 0x5
+  [ok]   o_cls_use_pcp(reset)       = 0x1
+  [ok]   o_cls_dmac_check(reset)    = 0x0
+  [ok]   o_cls_ctrl_class(reset)    = 0x1
+  [ok]   CLS_MAP(reset)             = 0xfac688
+  [ok]   CLS_TCQ(reset)             = 0x4898c0
+  [ok]   PTP_CTRL(reset)            = 0x1
+  [ok]   PTP_INCR(reset)            = 0x8000000
+  [ok]   CBS0_IDLE(reset q0 BE)     = 0x17d7840
+  [ok]   CBS3_IDLE(reset q3 SR-B)   = 0x8f0d180
+  [ok]   CBS4_IDLE(reset q4 SR-A)   = 0x1ad27480
+  [ok]   CBS0_EN(reset)             = 0x0
+  [ok]   CBS2_EN(reset)             = 0x0
+  [ok]   CBS3_EN(reset)             = 0x0
+  [ok]   CBS4_EN(reset)             = 0x0
+  [ok]   CBS window ends at 0x4A0   = 0x0
+  [ok]   0x4A0 is UNMAPPED (a write must not stick) = 0x0
+  [ok]   0x480 IS mapped (q4 IDLE takes the write) = 0xa5a5a5a5
+  [ok]   o_cls_tc_queue_map == CLS_TCQ readback = 0x4898c0
+  [ok]   o_cbs_idle_slope[0] == CBS0_IDLE readback = 0x17d7840
+  [ok]   o_cbs_idle_slope[4] == CBS4_IDLE readback = 0x1ad27480
+  [ok]   o_cbs_enable == 0 at reset (all five unshaped) = 0x0
+  [ok]   FQTSS 34.3.1: sum(CBSn_IDLE) <= 75% of 1 Gb/s = 0x1
+  [ok]   FQTSS 34.3.1: SR A+B <= 75% of 1 Gb/s = 0x1
+  [ok]   FQTSS: class A slope > class B slope = 0x1
+   [info] reset idleSlope sum = 725000000 bps (72.5% of 1 Gb/s), SR A+B = 600000000 bps
+-- read-only registers reject writes --
+  [ok]   ID stays RO                = 0x4d494c4e
+  [ok]   MAC_STATUS(link/spd/dup)   = 0xd
+-- RW registers + output wiring --
+  [ok]   SCRATCH rw                 = 0xdeadbeef
+  [ok]   MAC_CTRL rw                = 0x1f
+  [ok]   o_mac_promisc              = 0x1
+  [ok]   o_mac_allmulti             = 0x1
+  [ok]   o_mac_is_1g                = 0x1
+  [ok]   o_mac_addr                 = 0x554433221100
+  [ok]   CBS1_IDLE rw               = 0xaabbccd
+  [ok]   o_cbs_idle_slope[1]        = 0xaabbccd
+  [ok]   o_cbs_enable bit3          = 0x1
+  [ok]   CBS4_IDLE rw               = 0xc0ffee0
+  [ok]   o_cbs_idle_slope[4]        = 0xc0ffee0
+  [ok]   o_cbs_enable bit4          = 0x1
+-- IRQ: event latch, mask, W1C --
+  [ok]   IRQ_STATUS[0] set          = 0x1
+  [ok]   o_irq asserted             = 0x1
+  [ok]   IRQ_STATUS[0] cleared      = 0x0
+  [ok]   o_irq deasserted           = 0x0
+  [ok]   IRQ_STATUS[1] set          = 0x1
+  [ok]   event beats W1C (bit stays set) = 0x1
+  [ok]   W1C clears once event deasserts = 0x0
+-- PTP command strobes + TOD snapshot --
+  [ok]   o_ptp_cmd_snapshot pulsed  = 0x1
+  [ok]   PTP_CMD reads 0 (strobe)   = 0x0
+  [ok]   PTP_TOD_RD_LO              = 0x55667788
+  [ok]   PTP_TOD_RD_HI              = 0x11223344
+  [ok]   o_ptp_cmd_load pulsed      = 0x1
+-- statistics snapshot --
+  [ok]   o_stats_snapshot pulsed    = 0x1
+  [ok]   STAT0 latched              = 0xaaaa0000
+  [ok]   STAT8 latched              = 0xaaaa0008
+  [ok]   o_stats_reset pulsed       = 0x1
+-- STATS_CAP 0x204 (which STAT lanes are real) --
+  [ok]   STATS_CAP reads the live mask = 0x1b8
+  [ok]   STATS_CAP follows the input (no shadow latch) = 0x108
+  [ok]   STATS_CAP is read-only     = 0x108
+  [ok]   STATS_CAP survives a snapshot (not a latched word) = 0x108
+-- MAC-reset snapshot invalidate (stale-shadow fix) --
+  [ok]   STAT0 pre-reinit latched   = 0xbbbb0000
+  [ok]   STAT0 held during reinit   = 0xbbbb0000
+  [ok]   STAT0 invalidated on release = 0x0
+  [ok]   STAT8 invalidated on release = 0x0
+  [ok]   STAT0 re-armed post-reinit = 0xbbbb0000
+  [ok]   SCRATCH unaffected by reinit = 0xdeadbeef
+-- ADP advertiser identity/control (FR-DISC-*) --
+  [ok]   ADP_CTRL(reset valid_time=31) = 0x1f00
+  [ok]   o_adp_entity_id            = 0xdead00beef00feed
+  [ok]   o_adp_entity_caps          = 0xc588
+  [ok]   ADP_TALK RO = {0x4001, ADP_TALKER_SRC_C=1} = 0x40010001
+  [ok]   ADP_LIST RO = {0x4801, ADP_LISTENER_SINK_C=2} = 0x48010002
+  [ok]   o_adp_talker_sources       = 0x1
+  [ok]   o_adp_talker_caps          = 0x4001
+  [ok]   o_adp_listener_sinks       = 0x2
+  [ok]   o_adp_listener_caps        = 0x4801
+  [ok]   ADP_TALK ignores the write = 0x40010001
+  [ok]   ADP_LIST ignores the write = 0x48010002
+  [ok]   o_adp_talker_sources unmoved = 0x1
+  [ok]   o_adp_talker_caps unmoved  = 0x4001
+  [ok]   o_adp_listener_sinks unmoved = 0x2
+  [ok]   o_adp_listener_caps unmoved = 0x4801
+  [ok]   o_adp_gptp_gm              = 0x11223344556677
+  [ok]   o_adp_gptp_domain          = 0x5
+  [ok]   o_adp_current_config       = 0x2
+  [ok]   o_adp_identify_index       = 0x5
+  [ok]   o_adp_enable               = 0x1
+  [ok]   o_adp_valid_time           = 0x1f
+  [ok]   ADP_STATUS avail_index     = 0x7
+  [ok]   o_adp_advertise_p pulsed   = 0x1
+  [ok]   o_adp_depart_p pulsed      = 0x1
+  [ok]   ADP_CMD reads 0 (strobe)   = 0x0
+-- lwSRP engine (0x680 group, FR-SRP-*) --
+  [ok]   LWSRP_CTRL(reset q=4)      = 0x10
+  [ok]   LWSRP_VID(reset 2)         = 0x2
+  [ok]   LWSRP_DMAC_LO(reset)       = 0xf000fe01
+  [ok]   LWSRP_DMAC_HI(reset)       = 0x91e0
+  [ok]   LWSRP_TSPEC(reset {1,224}) = 0x100e0
+  [ok]   o_lwsrp_enable             = 0x1
+  [ok]   o_lwsrp_talker_en          = 0x1
+  [ok]   o_lwsrp_qidx               = 0x1
+  [ok]   o_lwsrp_qidx q4            = 0x4
+  [ok]   o_lwsrp_vid                = 0x2a
+  [ok]   o_lwsrp_max_frame          = 0xf0
+  [ok]   o_lwsrp_interval           = 0x2
+  [ok]   o_lwsrp_dest_mac           = 0x91e000fe0002
+  [ok]   LWSRP_STATUS RO            = 0x6c
+  [ok]   LWSRP_SLOPE RO             = 0x103c400
+  [ok]   LWSRP_CNT RO               = 0x50009
+  [ok]   o_lwsrp_latency            = 0x7a120
+  [ok]   CAP.LWSRP bit              = 0x1
+-- ACMP listener SM RO group (0x6A4) --
+  [ok]   ACMPL_STATE RO             = 0x2f0177
+  [ok]   ACMPL_TKLO RO              = 0xfe000001
+  [ok]   ACMPL_TKHI RO              = 0x2000000
+  [ok]   ACMPL_CNT RO               = 0x30002
+  [ok]   ACMPL_TUID RO              = 0x80000
+-- AVTP RX monitor RO group (0x6B8) --
+  [ok]   AVTPRX_STAT RO             = 0x1020301
+  [ok]   AVTPRX_FRX RO              = 0xdeadbeef
+  [ok]   AVTPRX_ERR RO              = 0x50702
+  [ok]   AVTPRX_FRX write ignored   = 0xdeadbeef
+-- MAAP group (0x6CC) --
+  [ok]   MAAP_CTRL reset (count=8, en=0) = 0x800
+  [ok]   MAAP_CTRL readback         = 0x12340901
+  [ok]   o_maap_enable              = 0x1
+  [ok]   o_maap_count               = 0x9
+  [ok]   o_maap_seed_offset         = 0x1234
+  [ok]   MAAP_STAT0 RO              = 0x1020055
+  [ok]   MAAP_STAT1 RO              = 0x6
+  [ok]   I2SPB_STAT RO              = 0x50002
+  [ok]   I2SPB W1C under strobe     = 0x1
+  [ok]   I2SPB W1C under only       = 0x0
+  [ok]   I2SPB W1C over strobe      = 0x1
+  [ok]   I2SPB W1C over only        = 0x0
+  [ok]   I2SPB W1C zero inert       = 0x0
+  [ok]   I2SPB_STAT still live      = 0x50002
+  [ok]   CLKV_CTRL reset = lease 8, SYNC_OK 0 = 0x80
+  [ok]   CLKV_CTRL[0] SYNC_OK resets 0 = 0x0
+  [ok]   o_clkv_sync_ok resets 0    = 0x0
+  [ok]   o_clkv_wdog_q resets 8     = 0x8
+  [ok]   CLKV_CTRL write pulse      = 0x1
+  [ok]   CLKV_CTRL[1] not set -> no disc = 0x0
+  [ok]   o_clkv_sync_ok             = 0x1
+  [ok]   o_clkv_wdog_q              = 0x4
+  [ok]   CLKV_CTRL readback         = 0x41
+  [ok]   CLKV_CTRL[1] W1S strobe    = 0x1
+  [ok]   CLKV_CTRL[1] reads back 0 (self-clearing) = 0x0
+  [ok]   SYNC_OK clearable          = 0x0
+  [ok]   lease 0 = never trust      = 0x0
+  [ok]   CLKV_STAT RO live          = 0x4d
+  [ok]   CLKV_TUCNT RO live         = 0x2a
+  [ok]   CLKV_STAT stays RO         = 0x4d
+  [ok]   CLKV_TUCNT stays RO        = 0x2a
+  [ok]   LINKG_STAT RO              = 0x70013
+  [ok]   LINKG dis out              = 0x1
+  [ok]   LINKG freeze out           = 0x1
+  [ok]   mac_reinit clear           = 0x0
+  [ok]   LINKG dis clear            = 0x0
+  [ok]   TONE_CTRL reset 0          = 0x0
+  [ok]   o_tone_enable              = 0x1
+  [ok]   TONE_CTRL readback         = 0x1
+  [ok]   o_tone_att                 = 0x2
+  [ok]   I2SPB_TRIM RO              = 0xfff00100
+  [ok]   GPTP_PDELAY reset 0        = 0x0
+  [ok]   o_gptp_pdelay_ns           = 0x21f6a
+  [ok]   GPTP_PDELAY readback       = 0x21f6a
+-- RX dest-MAC TCAM programming (REQ-MAC-02) --
+  [ok]   TCAM_CTRL(reset default_pass) = 0x1
+  [ok]   o_tcam_default_pass        = 0x1
+  [ok]   o_tcam_wr_key              = 0x91e0f0010000
+  [ok]   o_tcam_wr_mask             = 0xffffffffffff
+  [ok]   o_tcam_wr_action           = 0x22
+  [ok]   o_tcam_wr_en pulsed        = 0x1
+  [ok]   committed index            = 0x3
+  [ok]   committed valid            = 0x1
+  [ok]   committed key              = 0x91e0f0010000
+  [ok]   committed action           = 0x22
+  [ok]   TCAM_CMD reads 0 (strobe)  = 0x0
+  [ok]   remove commit pulsed       = 0x1
+  [ok]   remove valid=0             = 0x0
+  [ok]   CRFT_CTRL readback         = 0x1
+  [ok]   CRFT_SIDLO readback        = 0x10001
+  [ok]   CRFT_SIDHI readback        = 0x2000000
+  [ok]   CRFT_DMLO readback         = 0xf0002a07
+  [ok]   CRFT_DMHI readback         = 0x91e0
+  [ok]   o_crft_en                  = 0x1
+  [ok]   o_crft_sid                 = 0x200000000010001
+  [ok]   o_crft_dest_mac            = 0x91e0f0002a07
+  [ok]   CRFT_COUNT live            = 0x4d2
+-- ACMP bind-restore group (0x7A0, E1) --
+  [ok]   REST_TKLO probe pattern    = 0xa5c35a3c
+  [ok]   REST_TKHI rw               = 0x2000000
+  [ok]   REST_META rw               = 0x20005
+  [ok]   REST_CTLO rw               = 0xfe0000aa
+  [ok]   REST_CTHI rw               = 0x68050000
+  [ok]   REST_CMD idle              = 0x0
+  [ok]   rest req held              = 0x1
+  [ok]   rest idx                   = 0x0
+  [ok]   rest talker                = 0x2000000fe000001
+  [ok]   rest tuid (META[15:0])     = 0x5
+  [ok]   rest ctlr                  = 0x68050000fe0000aa
+  [ok]   rest flags (CMD[23:8])     = 0x8
+  [ok]   CMD busy readback          = 0x1
+  [ok]   rest req dropped           = 0x0
+  [ok]   CMD done                   = 0x1
+  [ok]   CMD not busy               = 0x0
+  [ok]   CMD status 0 (injected)    = 0x0
+  [ok]   CMD refused status 1       = 0x1
+  [ok]   CMD done after refusal     = 0x1
+  [ok]   no-commit write inert      = 0x0
+-- 0x800 window: SEL decode + out-of-range rule (N=1) --
+  [ok]   SEL reset                  = 0x0
+  [ok]   SEL stores {dir,idx} only  = 0x10f
+  [ok]   oor CTRL reads 0           = 0x0
+  [ok]   oor SID_LO reads 0         = 0x0
+  [ok]   oor SRP reads 0            = 0x0
+  [ok]   oor write left AAF_CTRL alone = 0x20000
+  [ok]   oor SNAP busy clears       = 0x0
+  [ok]   oor SNAP CNT0 zero         = 0x0
+-- window idx0 dir=talker: hard aliases of the flat AAF regs --
+  [ok]   win CTRL == AAF_CTRL[0]    = 0x1
+  [ok]   win DMAC_LO == AAF_DMLO    = 0xf000fe01
+  [ok]   win DMAC_HI == AAF_DMHI[15:0] = 0x91e0
+  [ok]   win CTRL wrote AAF_CTRL[0]=0 = 0x20002
+  [ok]   o_aaf_enable follows       = 0x0
+  [ok]   CTRL merge keeps VID/bypass = 0x20003
+  [ok]   win DMAC_LO write -> flat 0x658 = 0xf000ab01
+  [ok]   o_aaf_dest_mac follows     = 0x91e0f000ab01
+  [ok]   win SID_HI = mac[47:16]    = 0x112233
+  [ok]   win SID_LO = {mac[15:0],0} = 0x44550000
+-- window idx0 talker SNAP: PDUS/STATE flat latch --
+  [ok]   SNAP busy clears           = 0x0
+  [ok]   talker PDUS = AAF_FRAMES   = 0xcafe0001
+  [ok]   talker STATE pack          = 0xff80009
+  [ok]   talker CNT0 poison (not-backed rule 2026-07-26) = 0xdeaddead
+  [ok]   PDUS frozen until next SNAP = 0xcafe0001
+-- window idx0 dir=listener: FULL-WIDTH Table 7-157 counters --
+  [ok]   CNT0 MEDIA_LOCKED          = 0x103
+  [ok]   CNT1 MEDIA_UNLOCKED        = 0x1204
+  [ok]   CNT2 STREAM_INTERRUPTED    = 0x34005
+  [ok]   CNT3 SEQ_NUM_MISMATCH      = 0x1c943
+  [ok]   CNT4 MEDIA_RESET           = 0x42
+  [ok]   CNT5 TIMESTAMP_UNCERTAIN   = 0x903
+  [ok]   CNT6 UNSUPPORTED_FORMAT    = 0x2002
+  [ok]   CNT7 LATE_TS               = 0x77
+  [ok]   CNT8 EARLY_TS              = 0x88
+  [ok]   CNT9 FRAMES_RX = 0x6BC     = 0x1e240
+  [ok]   window CNT3 exceeds the 16-bit packed field = 0x1
+  [ok]   PDUS = PCMRX_CNT (0x6C4)   = 0x20064
+  [ok]   listener STATE pack        = 0xaa804f6
+  [ok]   win CNT9 == flat 0x6BC     = 0x1e240
+  [ok]   win PDUS == flat 0x6C4     = 0x20064
+  [ok]   win SRP  == flat 0x694     = 0x155
+  [ok]   listener SID_LO 0 (tbl tied) = 0x0
+  [ok]   listener DMAC_LO 0 (tbl tied) = 0x0
+  [ok]   listener CTRL 0 (LCTX tied) = 0x0
+  [ok]   listener FMT_LO 0 (LCTX tied) = 0x0
+-- RX parser probe (0x8B4-0x8C4) --
+  [ok]   APRB frames parsed 0x8B4   = 0x1234
+  [ok]   APRB frames matched 0x8B8  = 0xfe
+  [ok]   APRB last SID_LO 0x8BC     = 0x20000
+  [ok]   APRB last SID_HI 0x8C0     = 0x2000000
+  [ok]   APRB info 0x8C4            = 0x8021a
+  [ok]   APRB word 0 live           = 0xa5a50000
+  [ok]   APRB word 4 live           = 0xa5a50004
+-- playback chain probe (0x8C8-0x8D0) --
+  [ok]   PBK_STAT 0x8C8             = 0x3c0000b
+  [ok]   PBK_FEEDS 0x8CC            = 0x1d4c0
+  [ok]   PBK_RAILS 0x8D0            = 0x700ff
+  [ok]   PBK 0x8D4 unmapped reads 0 = 0x0
+  [ok]   PBK word 0 live            = 0x5a5a0000
+  [ok]   PBK word 2 live            = 0x5a5a0002
+  [ok]   mac03 auto: speed=1000 -> is_1g = 0x1
+  [ok]   mac03 auto: speed=100 -> !is_1g = 0x0
+  [ok]   mac03 auto: speed=10 -> !is_1g = 0x0
+  [ok]   mac03 MAC_STATUS speed tracks = 0x1
+  [ok]   mac03 manual=1,is_1g=1 beats speed=100 = 0x1
+  [ok]   mac03 manual=1,is_1g=0 beats speed=1000 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=1 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=0 = 0x1
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+-- chmap readback NEGATIVE control: no port in this build --
+  [ok]   CHMAP_LOOP un-armed is POISON not 0 = 0xdeaddead
+  [ok]   CHMAP_SNAP tag 0xC5 (feature probe) = 0xc5
+  [ok]   CHMAP_SNAP cap = 0 (port absent) = 0x0
+  [ok]   CHMAP_SNAP armed = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP busy = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP valid = 0 at reset = 0x0
+  [ok]   0x918 still reserved-reads-0 = 0x0
+  [ok]   refused arm: unsup = 1     = 0x1
+  [ok]   refused arm: valid = 0     = 0x0
+  [ok]   refused arm: busy = 0      = 0x0
+  [ok]   refused arm: timeout = 0   = 0x0
+  [ok]   refused arm: armed = 1     = 0x1
+  [ok]   refused arm latched {side,idx} = 0x45
+  [ok]   no fabric request was issued = 0x0
+  [ok]   CHMAP_LOOP still POISON after a refused arm = 0xdeaddead
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+--------------------------------------------------------------
+checks: 294   failures: 0
+RESULT: PASS
+./obj_win/Vcsr_win
+== milan_csr P11 window, N=4x4, modeled lane-K engines ==
+-- slow window reads from the LCTX port-B model --
+  [ok]   LCTX CTRL (w4) via port B                    = 0xc0de0004
+  [ok]   LCTX FMT_LO (w2) via port B                  = 0xc0de0002
+  [ok]   LCTX FMT_HI (w3) via port B                  = 0xc0de0003
+  [ok]   TCTX CTRL (w0) via port B                    = 0xbeef0000
+  [ok]   TCTX DMAC_LO (w1) via port B                 = 0xbeef0001
+  [ok]   TCTX DMAC_HI (w2) via port B                 = 0xbeef0002
+-- CFG write bundles: window word -> engine word map --
+  [ok]   FMT_LO write pulsed LCTX                     = 0x1
+  [ok]   LCTX wr addr {s=2,w=2}                       = 0x42
+  [ok]   LCTX wr data                                 = 0xab01
+  [ok]   SID_LO write -> LCTX w0                      = 0x40
+  [ok]   DMAC_HI write pulsed TCTX                    = 0x1
+  [ok]   TCTX wr addr {t=3,w=2}                       = 0x32
+  [ok]   TCTX wr data                                 = 0x91e0
+-- SNAP atomicity: coherent block while events keep flowing --
+  [ok]   SNAP busy while bursting                     = 0x1
+  [ok]   snap epoch nonzero                           = 0x1
+  [ok]   CNT0..9 + PDUS one epoch                     = 0x1
+  [ok]   STATE wire_chans same epoch                  = 0x1b
+  [ok]   STATE media_locked (m8[12])                  = 0x1
+  [ok]   second snap advanced                         = 0x1
+  [ok]   second snap coherent                         = 0x1
+  [ok]   talker PDUS = TCTX w5 epoch                  = 0x1
+  [ok]   talker CNT0 poison (not-backed rule 2026-07-26) = 0xdeaddead
+-- lwSRP ctx master: row map, provisioning, status readback --
+  [ok]   poll row = idx (dir=0)                       = 0x3
+  [ok]   SRP word = {16'0, rd_stat}                   = 0x8123
+  [ok]   poll row = N_L-1+idx (dir=1)                 = 0x5
+  [ok]   talker SID_LO = ctx rd_sid                   = 0x55667788
+  [ok]   talker SID_HI = ctx rd_sid                   = 0x11223344
+  [ok]   provision write granted                      = 0x1
+  [ok]   provision row                                = 0x5
+  [ok]   provision valid                              = 0x1
+  [ok]   provision dir (ctx enc: talker=0)            = 0x0
+  [ok]   provision sid staged                         = 0x20000000000aaaa
+  [ok]   provision dmac staged                        = 0x91e0f000fe05
+  [ok]   withdraw granted                             = 0x1
+  [ok]   withdraw valid=0                             = 0x0
+  [ok]   listener provision row                       = 0x1
+  [ok]   listener provision dir=1                     = 0x1
+-- ACMP tbl master: 317-bit ctx latch + field extraction --
+  [ok]   acmp SID_LO                                  = 0x112233
+  [ok]   acmp SID_HI                                  = 0xaabbccdd
+  [ok]   acmp DMAC_LO                                 = 0xf0004455
+  [ok]   acmp DMAC_HI                                 = 0x91e0
+  [ok]   acmp CTLR_LO (E2)                            = 0xfe0000aa
+  [ok]   acmp CTLR_HI (E2)                            = 0x680500ff
+  [ok]   acmp BIND {flags,tuid} (E2)                  = 0x80005
+  [ok]   window hole 0x86C poison (not-backed rule)   = 0xdeaddead
+  [ok]   talker dir CTLR_LO poison (E2, not-backed rule) = 0xdeaddead
+  [ok]   talker dir BIND poison (E2, not-backed rule) = 0xdeaddead
+  [ok]   STATE acmp state                             = 0x7
+  [ok]   STATE acmp probing                           = 0x1
+  [ok]   STATE acmp status                            = 0x15
+-- ADP shape is RO and comes from the 4x4 config (5/5) --
+  [ok]   ADP_TALK = {0x4801, 5}                       = 0x48010005
+  [ok]   ADP_LIST = {0x4801, 5}                       = 0x48010005
+  [ok]   ADP_TALK still 5 after a write               = 0x48010005
+  [ok]   ADP_LIST still 5 after a write               = 0x48010005
+-- out-of-range at N=4: idx 4+ reads 0 / writes ignored --
+  [ok]   oor CTRL reads 0                             = 0x0
+  [ok]   oor SID_LO reads 0                           = 0x0
+  [ok]   oor SRP reads 0                              = 0x0
+  [ok]   oor CTLR_LO reads 0 (E2)                     = 0x0
+  [ok]   oor BIND reads 0 (E2)                        = 0x0
+  [ok]   oor no LCTX write                            = 0x0
+  [ok]   oor no SRP provision                         = 0x0
+  [ok]   oor SEL readback intact                      = 0x4
+-- chmap map-RAM readback: 0x910 SNAP / 0x914 LOOP --
+  [ok]   LOOP un-armed is POISON not 0                = 0xdeaddead
+  [ok]   SNAP tag 0xC5                                = 0xc5
+  [ok]   SNAP cap = 3 (both ports wired)              = 0x3
+  [ok]   SNAP armed = 0 at reset                      = 0x0
+  [ok]   fabric RAM took the sliced entry             = 0x90
+  [ok]   S1 read-back-what-was-written                = 0x90
+  [ok]   S1 valid                                     = 0x1
+  [ok]   S1 mask_valid                                = 0x1
+  [ok]   S1 mapped                                    = 0x1
+  [ok]   S1 fed                                       = 0x1
+  [ok]   S1 LOOP_SUSPECT                              = 0x0
+  [ok]   S1 {side,index} echo                         = 0xb
+  [ok]   S1 whole word                                = 0xc5bc090
+  [ok]   S2 same entry as S1                          = 0x90
+  [ok]   S2 mapped                                    = 0x1
+  [ok]   S2 fed                                       = 0x0
+  [ok]   S2 LOOP_SUSPECT                              = 0x1
+  [ok]   S2 whole word                                = 0xc5d4090
+  [ok]   S2 differs from S1                           = 0x1
+  [ok]   0x908 shadow CANNOT see it                   = 0x9000
+  [ok]   S3 entry is 0                                = 0x0
+  [ok]   S3 mapped                                    = 0x0
+  [ok]   S3 fed                                       = 0x0
+  [ok]   S3 LOOP_SUSPECT                              = 0x0
+  [ok]   S3 valid (a MEASURED zero)                   = 0x1
+  [ok]   S3 whole word                                = 0xc680000
+  [ok]   S3 is not POISON                             = 0x1
+  [ok]   S3 differs from S2                           = 0x1
+  [ok]   R entry from the render RAM                  = 0x91
+  [ok]   R valid                                      = 0x1
+  [ok]   R mask_valid = 0 (no mask on this side)      = 0x0
+  [ok]   R whole word                                 = 0x4200091
+  [ok]   silent port: busy cleared                    = 0x1
+  [ok]   silent port: timeout = 1                     = 0x1
+  [ok]   silent port: valid = 0                       = 0x0
+  [ok]   silent port: unsup = 0                       = 0x0
+  [ok]   silent port: LOOP is POISON                  = 0xdeaddead
+  [ok]   silent port did NOT keep S2                  = 0x1
+  [ok]   recovered after timeout                      = 0xc5bc090
+  [ok]   timeout flag cleared by the new arm          = 0x0
+  [PASS] chmap readback: mapped/fed/unmapped are distinguishable, and a silent port poisons
+--------------------------------------------------------------
+checks: 102   failures: 0
+RESULT: PASS
+./obj_live/Vcsr_win_live
+== P11 window vs LIVE KL_lwsrp_ctx + KL_acmp_lstn_ctx ==
+-- lwSRP row provisioning through the window --
+  [ok]   live row1 valid (ctx_gnt path)               = 0x1
+  [ok]   live row1 dir = listener                     = 0x1
+  [ok]   live row1 withdrawn                          = 0x0
+  [ok]   live row2 valid                              = 0x1
+  [ok]   live row2 dir = talker                       = 0x0
+  [ok]   live row2 sid readback LO                    = 0xa
+  [ok]   live row2 sid readback HI                    = 0x2000000
+-- ACMP fast-connect bind read back via the window --
+  [ok]   ctx1 bound (compat view)                     = 0x1
+  [ok]   window SID_LO = bound sid                    = 0x10abcdef
+  [ok]   window SID_HI = bound sid                    = 0x98765432
+  [ok]   window DMAC_LO = bound dmac                  = 0xf0002a07
+  [ok]   window DMAC_HI = bound dmac                  = 0x91e0
+  [ok]   STATE.state bound (!= UNBOUND)               = 0x1
+  [ok]   CNT block zero (LCTX tied)                   = 0x0
+-- E1 bind-restore inject + E2 readback (live engine) --
+  [ok]   restore commit completed                     = 0x0
+  [ok]   restore done                                 = 0x1
+  [ok]   restore status 0 (injected)                  = 0x0
+  [ok]   E2 CTLR_LO = restored ctlr                   = 0xfe0000aa
+  [ok]   E2 CTLR_HI = restored ctlr                   = 0x680500ff
+  [ok]   E2 BIND {SW flag, tuid}                      = 0x80007
+  [ok]   injected sid CLEARED (5.5.2.6 step 1)        = 0x0
+  [ok]   injected dmac CLEARED                        = 0x0
+  [ok]   occupied re-commit refused (1)               = 0x1
+  [ok]   record-only ctx refused (2)                  = 0x2
+  [ok]   ctx1 bind survives refusals                  = 0x1
+  [ok]   ctx1 E2 tuid still 0                         = 0x0
+  [ok]   ctx1 sid intact                              = 0x10abcdef
+-- ADP shape RO, from the 8x8 config, not the 2x2 window --
+  [ok]   ADP_TALK = {0x4801, ADP_TALKER_SRC_C=9}      = 0x48010009
+  [ok]   ADP_LIST = {0x4801, ADP_LISTENER_SINK_C=9}   = 0x48010009
+  [ok]   ADP_TALK unmoved by a write                  = 0x48010009
+-- index 0 SRP word = live 0x694 alias --
+  [ok]   win SRP idx0 == flat 0x694                   = 0x20
+--------------------------------------------------------------
+checks: 31   failures: 0
+RESULT: PASS
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/csr'

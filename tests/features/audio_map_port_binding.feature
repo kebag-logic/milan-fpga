@@ -49,10 +49,17 @@ Feature: GET_AUDIO_MAP serves the ANSWERING PORT's own map, within that port's b
     And the static serving table row count is that descriptor's own number_of_mappings
 
   Scenario: at the 8x8 ship shape the pre-fix constants address the WRONG descriptor
+    # The third assertion this scenario carried ("serving 8 mappings would
+    # read past its descriptor") retired 2026-07-28: every current shape's
+    # maps hold exactly the rows they declare (8 + 8*8 = 72 B), so the
+    # pre-fix arithmetic demo no longer has a short descriptor to over-read
+    # into. The over-read CLASS stays fenced by the two invariant scenarios
+    # above ("holds exactly the mappings it declares" + "row count is that
+    # descriptor's own number_of_mappings"); what THIS scenario still proves
+    # is the wrong-descriptor half of the history.
     Given the generated AEM model for config "endstation_ax7101_8x8"
     Then AUDIO_MAP index 1 belongs to STREAM_PORT_INPUT 1, not to an output port
     And STREAM_PORT_OUTPUT 0 is served from a different address than AUDIO_MAP index 1
-    And serving 8 mappings from STREAM_PORT_OUTPUT 0 would read past its descriptor
 
   Scenario Outline: the model gate REFUSES a map that leaves its port's bounds
     Given the deployed AEM model spec

@@ -1,0 +1,68 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_tx'
+verilator --cc --exe --build -j 0 --top-module KL_crf_tx -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2" ../../../hdl/common/cdc_pulse.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv sim_main.cpp -o Vcrf_tx_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_tx/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_tx/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.022 s (elab=0.000, cvt=0.000, bld=0.020); cpu 0.001 s on 96 threads; allocated 16.355 MB
+======================================================================
+./obj_dir/Vcrf_tx_sim
+[crf_tx] event grid + frame bytes
+  [PASS] idle while disabled: no tvalid           got=0x00000000 exp=0x00000000
+  [PASS] disabled: still silent                   got=0x00000000 exp=0x00000000
+  [PASS] disabled: count 0                        got=0x00000000 exp=0x00000000
+  [PASS] 3 frames emitted                         got=0x00000003 exp=0x00000003
+  [PASS] count 3                                  got=0x00000003 exp=0x00000003
+  [PASS] frame is 64 lane bytes (8 beats)         got=0x00000040 exp=0x00000040
+  [PASS] dmac[0..2]                               got=0x0091e0f0 exp=0x0091e0f0
+  [PASS] dmac[3..5]                               got=0x00002a07 exp=0x00002a07
+  [PASS] smac[0..2]                               got=0x00020000 exp=0x00020000
+  [PASS] ethertype 22F0                           got=0x000022f0 exp=0x000022f0
+  [PASS] subtype 04 sv 80                         got=0x00000480 exp=0x00000480
+  [PASS] seq 0                                    got=0x00000000 exp=0x00000000
+  [PASS] type 01                                  got=0x00000001 exp=0x00000001
+  [PASS] sid[0..3]                                got=0x02000000 exp=0x02000000
+  [PASS] sid[4..7]                                got=0x00010001 exp=0x00010001
+  [PASS] pull|base 48000                          got=0x0000bb80 exp=0x0000bb80
+  [PASS] dlen 8                                   got=0x00000008 exp=0x00000008
+  [PASS] interval 96                              got=0x00000060 exp=0x00000060
+  [PASS] zero pad                                 got=0x00000001 exp=0x00000001
+  [PASS] seq 1 on frame 2                         got=0x00000001 exp=0x00000001
+  [PASS] seq 2 on frame 3                         got=0x00000002 exp=0x00000002
+  [PASS] ts delta = event grid (491520 ns)        got=0x00078000 exp=0x00078000
+  [PASS] ts delta stable                          got=0x00078000 exp=0x00078000
+  [PASS] inter-frame gap ~= 49152 cycles          got=0x00000001 exp=0x00000001
+  [PASS] ts future-dated by ~PTO (Milan)          got=0x00000001 exp=0x00000001
+  [dbg] blocked window: tvalid high 60857 cycles, count=3
+  [PASS] blocked window: frames resume            got=0x00000002 exp=0x00000002
+  [PASS] seq continuous across skip               got=0x00000001 exp=0x00000001
+  [PASS] post-skip ts still on the grid           got=0x00000000 exp=0x00000000
+  [PASS] blocked events skipped, not queued       got=0x00000003 exp=0x00000003
+  [PASS] no double-emit backlog                   got=0x00000005 exp=0x00000005
+  [PASS] tu=1: CRF still streams                  got=0x00000002 exp=0x00000002
+  [PASS] tu=1: byte 15 = 0x81 (sv|tu)             got=0x00000081 exp=0x00000081
+  [PASS] tu=1: frame size unchanged               got=0x00000040 exp=0x00000040
+  [PASS] tu clears: byte 15 back to 0x80          got=0x00000080 exp=0x00000080
+  [PASS] tagged: frames still flow                got=0x00000002 exp=0x00000002
+  [PASS] tagged: 64 lane bytes (8 beats, unchanged) got=0x00000040 exp=0x00000040
+  [PASS] tagged: dmac[0..2] unchanged             got=0x0091e0f0 exp=0x0091e0f0
+  [PASS] tagged: smac[0..2] unchanged             got=0x00020000 exp=0x00020000
+  [PASS] tagged: TPID 8100 (802.1Q 9.5)           got=0x00008100 exp=0x00008100
+  [PASS] tagged: TCI 6002 (PCP 3 | DEI 0 | VID 2) got=0x00006002 exp=0x00006002
+  [PASS] tagged: ethertype 22F0 at 16             got=0x000022f0 exp=0x000022f0
+  [PASS] tagged: subtype 04 sv 80 at 18           got=0x00000480 exp=0x00000480
+  [PASS] tagged: type 01 at 21                    got=0x00000001 exp=0x00000001
+  [PASS] tagged: sid[0..3] at 22                  got=0x02000000 exp=0x02000000
+  [PASS] tagged: sid[4..7] at 26                  got=0x00010001 exp=0x00010001
+  [PASS] tagged: pull|base 48000 at 30            got=0x0000bb80 exp=0x0000bb80
+  [PASS] tagged: dlen 8 at 34                     got=0x00000008 exp=0x00000008
+  [PASS] tagged: interval 96 at 36                got=0x00000060 exp=0x00000060
+  [PASS] tagged: zero pad 46..59                  got=0x00000001 exp=0x00000001
+  [PASS] tagged: PCP/VID are wires, not constants got=0x00004abc exp=0x00004abc
+  [PASS] untagged again: ethertype back at 12     got=0x000022f0 exp=0x000022f0
+  [PASS] untagged again: frame size unchanged     got=0x00000040 exp=0x00000040
+  [PASS] disable: wire silent                     got=0x00000000 exp=0x00000000
+======================================================================
+KL_crf_tx: 53 checks, 0 failures
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_tx'

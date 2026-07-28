@@ -1,0 +1,45 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_rx'
+verilator --cc --exe --build -j 0 --top-module KL_crf_rx -GCLK_FREQ_HZ_P=200000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2" ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_main.cpp -o Vcrf_rx_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_rx/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_rx/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+======================================================================
+./obj_dir/Vcrf_rx_sim
+[crf_rx] reset + selection gating
+  [PASS] reset: delta 0                                 got=0 exp=0
+  [PASS] reset: rate 0                                  got=0 exp=0
+  [PASS] reset: unlocked                                got=0 exp=0
+  [PASS] disabled: pdu_count 0                          got=0 exp=0
+  [PASS] foreign frames: pdu_count 0                    got=0 exp=0
+  [PASS] foreign frames: fmt_err 0                      got=0 exp=0
+[crf_rx] format validation (Milan 7.3.2 profile)
+  [PASS] 5 malformed: fmt_err 5                         got=5 exp=5
+  [PASS] 5 malformed: pdu_count still 0                 got=0 exp=0
+  [PASS] 5 malformed: unlocked                          got=0 exp=0
+[crf_rx] +100 ppm trajectory (300 PDUs, per-PDU pinned)
+  [PASS] lock latched                                   got=1 exp=1
+  [PASS] cnt_locked 1                                   got=1 exp=1
+  [PASS] rate first nonzero on PDU 257 (ring full)      got=257 exp=257
+  [PASS] rate == +100 ppm exactly (51200 ns/512 ms)     got=51200 exp=51200
+  [PASS] pdu_count 300                                  got=300 exp=300
+[crf_rx] -50 ppm slope change (300 PDUs, ramp pinned)
+  [info] rate_o update skew after pulse edge: 1 cycle(s)
+  [PASS] rate update skew <= 2 cycles                   got=1 exp=1
+  [PASS] rate == -50 ppm exactly (-25600 ns/512 ms)     got=-25600 exp=-25600
+[crf_rx] sequence discontinuity
+  [PASS] seq skip: seq_err 1                            got=1 exp=1
+  [PASS] seq skip: still locked                         got=1 exp=1
+  [PASS] clean resume: no extra lock event              got=1 exp=1
+[crf_rx] 100 ms silence -> unlock -> refill
+  [PASS] silence: unlocked                              got=0 exp=0
+  [PASS] silence: cnt_unlocked 1                        got=1 exp=1
+  [PASS] silence: rate holds last value                 got=-25600 exp=-25600
+  [PASS] re-lock: cnt_locked 2                          got=2 exp=2
+  [PASS] refill: rate frozen for 256 PDUs, moves on 257 got=257 exp=257
+  [PASS] refill: rate == +100 ppm again                 got=51200 exp=51200
+======================================================================
+KL_crf_rx: 7073 checks, 0 failures (881 accepted PDUs pinned)
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/crf_rx'

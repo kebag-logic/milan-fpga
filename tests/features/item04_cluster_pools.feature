@@ -49,7 +49,7 @@ Feature: Item-4 D8/D10 - the cluster model a CONTROLLER enumerates
   Scenario: the 4x4 cap-at-interface shape enumerates completely
     Given the end-station config "arty_4x4" is built
     Then the cluster policy is "cap-at-interface"
-    And the entity advertises 24 AUDIO_CLUSTER descriptors
+    And the entity advertises 32 AUDIO_CLUSTER descriptors
     And every AUDIO_CLUSTER in every STREAM_PORT block answers READ_DESCRIPTOR
     And every AUDIO_MAP row is port-relative and inside its own cluster block
     And no AUDIO_MAP violates the 7.2.19 uniqueness rules

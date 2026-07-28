@@ -1,0 +1,69 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_playback'
+verilator --cc --exe --build -j 0 --top-module pcm_playback_wrap +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/aaf -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2" -GN_STREAMS_P=2 -GTICK_DIV_P=1024 -GN_PHYS_P=10 -GCLK_FREQ_HZ_P=50000000 -GPREFILL_P=4 ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/ieee1722/aaf/KL_pcm_tx.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv pcm_playback_wrap.sv sim_main.cpp -o Vpcm_playback_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_playback/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_playback/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.019); cpu 0.002 s on 96 threads; allocated 16.355 MB
+./obj_dir/Vpcm_playback_sim
+== item-7 playback chain: host ring -> KL_pcm_tx -> render -> I2S ==
+[PASS] A map armed (en&src=PB on phys0/1)
+[PASS] A feed source = render crossbar
+[PASS] A LPF override MASKED in render mode
+[PASS] A crossbar frame is always a stereo pair
+[PASS] A engine walked (pb_playing seen / rd_ptr advanced)
+[PASS] A feeds == media ticks (one frame per tick, no stall)
+[PASS] A no disarmed-render frames
+[PASS] A KL_pcm_tx underruns
+[PASS] A KL_pcm_tx overruns
+[PASS] A enough DAC frames decoded
+  decoded 48 DAC frames, longest model-consecutive run = 41 (from j=0)
+    dac[0] L=0x000000 R=0x000000
+    dac[1] L=0x000000 R=0x000000
+    dac[2] L=0x000000 R=0x000000
+    dac[3] L=0x000000 R=0x000000
+    dac[4] L=0x000000 R=0x000000
+    dac[5] L=0x000000 R=0x000000
+[PASS] A BIT-EXACT: DAC replays the host ring words in order (>=16)
+[PASS] A neg-control: no little-lane byte order on the pin
+[PASS] B crossbar stride stays 2 at listener chans=8
+[PASS] B crossbar stride stays 2 at listener chans=3
+[PASS] B feeds still 1 per media tick under chans 2->8->3
+[PASS] B DAC overrun rail did not move (no re-strided overfeed)
+  B: 32 of 32 frames still exact ring words
+[PASS] B playback audio unaffected by the listener channel count
+  C: 18 stream-1 exact frames, 0 unexplained frames of 24
+[PASS] C repoint lands on stream 1 bit-exactly
+[PASS] C no half-old / half-new frame ever reaches the pin
+[PASS] D KL_pcm_tx underrun counted
+[PASS] D cadence held through the under-run (feeds == ticks)
+[PASS] D DAC still framed during under-run
+  D: 21 repeated frames of 40 (repeat-last policy)
+[PASS] D under-run substitutes REPEAT the last sample
+[PASS] D repeat value is a real ring word, not garbage
+  D: 17 silent frames of 24 under silence policy
+[PASS] D silence policy renders digital zero
+[PASS] E KL_pcm_tx overrun counted
+  E: fill after lap-drop = 32 bytes (ring len 256)
+[PASS] E read pointer fast-forwarded: fill bounded by the ring
+  E: 16 of 16 post-pipeline frames are real ring words after the lap-drop
+[PASS] E resumes on intact ring words (no torn/garbage samples)
+[PASS] F1 map disarmed (pb_mask clear)
+[PASS] F1 disarmed-render frames counted
+[PASS] F1 frames still delivered on cadence
+  F1: 0 nonzero of 24 post-pipeline frames after disarm
+[PASS] F1 enough post-pipeline frames observed
+[PASS] F1 disarmed render is SILENCE, never garbage
+[PASS] F2 feed count FREEZES with the tap silent
+[PASS] F2 feed source reports legacy tap
+[PASS] F2 DAC under-run rail reports the starve
+[PASS] G lpf override FORWARDED on the legacy path
+[PASS] G legacy stride follows the listener wire truth
+[PASS] G legacy tap feeds the DAC again
+  G: 11 of 13 frames are exact legacy-tap pairs
+[PASS] G CERT path still serializes the tap BIT-EXACTLY
+--------------------------------------------------------------
+pcm_playback: 40 checks: 40 PASS, 0 FAIL
+RESULT: PASS
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_playback'

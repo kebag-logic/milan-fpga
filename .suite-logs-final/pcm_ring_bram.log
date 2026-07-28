@@ -1,0 +1,64 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_ring_bram'
+# ---- N_STREAMS=1, 32 KB ring ----
+verilator --cc --exe --build -j 0 --top-module KL_pcm_ring_bram -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -GDATA_W=64 -GN_STREAMS=1 -GRING_BYTES=32768 \
+    --Mdir obj_dir_n1 \
+    -CFLAGS "-std=c++17 -O2 -DTB_N_STREAMS=1 -DTB_RING_BYTES=32768" \
+    ../../../hdl/ieee1722/aaf/KL_pcm_ring_bram.sv sim_main.cpp -o Vpcm_ring_n1
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_ring_bram/obj_dir_n1'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_ring_bram/obj_dir_n1'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.019); cpu 0.001 s on 96 threads; allocated 16.355 MB
+./obj_dir_n1/Vpcm_ring_n1
+== KL_pcm_ring_bram TB : N_STREAMS=1 RING_BYTES=32768 DEPTH=4096 words ==
+[1] N=1 no-shed under mf52 regime (concurrent CPU reads) + DRAM negative control
+[PASS] NEGATIVE CONTROL: DRAM lane (depth 16) SHEDS under this load  dropped=616 offered=720
+[PASS] beats offered  got=0x2d0 want=0x2d0
+[PASS] wr_ready_o was 1 on EVERY offered cycle (no back-pressure ever)  got=0x0 want=0x0
+[PASS] BRAM ring: every offered beat present, in order (byte-exact)
+      note: on the DRAM WishboneDMAWriter this exact load shed ~1 beat in 24 (mf52); the BRAM sink.ready is constant 1 so drops are structurally impossible.
+[2] N=1 wrap at length_i + offset_o readback
+[PASS] offset_o = (beats*8) mod length  got=0x20 want=0x20
+[PASS] wrapped ring content byte-exact (last-writer-wins per word)
+[3] N=1 enable_i=0 clears offsets + drops beats (ready still 1)
+[PASS] offset advanced before disable  got=0x10 want=0x10
+[PASS] offset_o cleared to 0 on disable  got=0x0 want=0x0
+[PASS] wr_ready_o still 1 while disabled
+[PASS] disabled beat did NOT overwrite word 0  got=0xaaaaaaaaaaaaaaaa want=0xaaaaaaaaaaaaaaaa
+[PASS] disabled beat did NOT overwrite word 1  got=0x1111111111111111 want=0x1111111111111111
+[PASS] re-enabled beat lands at word 0 (offset restarted)  got=0xbeefbeefbeefbeef want=0xbeefbeefbeefbeef
+[4] N=1 CPU read port: read-back correctness + read-during-write coherency
+[PASS] read port returns each written word at its address
+[PASS] wr_ready_o=1 during concurrent CPU read
+[PASS] read-during-write to a different word returns committed data  got=0xc0de0003 want=0xc0de0003
+[PASS] the concurrent write still landed at word 8  got=0x99998888 want=0x99998888
+[PASS] read port sees latest committed value at a re-written location  got=0x3000000000000003 want=0x3000000000000003
+
+17 checks: 17 PASS, 0 FAIL
+# ---- N_STREAMS=4, 16 KB ring (4 x 512 words) ----
+verilator --cc --exe --build -j 0 --top-module KL_pcm_ring_bram -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -GDATA_W=64 -GN_STREAMS=4 -GRING_BYTES=16384 \
+    --Mdir obj_dir_n4 \
+    -CFLAGS "-std=c++17 -O2 -DTB_N_STREAMS=4 -DTB_RING_BYTES=16384" \
+    ../../../hdl/ieee1722/aaf/KL_pcm_ring_bram.sv sim_main.cpp -o Vpcm_ring_n4
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_ring_bram/obj_dir_n4'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_ring_bram/obj_dir_n4'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+./obj_dir_n4/Vpcm_ring_n4
+== KL_pcm_ring_bram TB : N_STREAMS=4 RING_BYTES=16384 DEPTH=2048 words ==
+[1] N=4 tuser routing: per-stream sub-rings + per-stream offset + offset_o readback
+[PASS] stream 0: 144 beats at base+0*stride, in order
+[PASS] stream 0: offset_o = beats*8  got=0x480 want=0x480
+[PASS] stream 1: 144 beats at base+1*stride, in order
+[PASS] stream 1: offset_o = beats*8  got=0x480 want=0x480
+[PASS] stream 2: 144 beats at base+2*stride, in order
+[PASS] stream 2: offset_o = beats*8  got=0x480 want=0x480
+[PASS] stream 3: 144 beats at base+3*stride, in order
+[PASS] stream 3: offset_o = beats*8  got=0x480 want=0x480
+[PASS] stream 3 region does not bleed into stream 0 region
+
+9 checks: 9 PASS, 0 FAIL
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_ring_bram'

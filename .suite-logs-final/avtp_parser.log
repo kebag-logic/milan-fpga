@@ -1,0 +1,154 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser'
+======================================================================
+ tb/verilator/avtp_parser - listener accept verdict, N=1/4/8 + LE/BE
+======================================================================
+verilator --cc --exe --build -j 0 --top-module avtp_stream_parser +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2" --Mdir obj_n1 -GN_STREAMS=1 \
+	-CFLAGS "-DNSTREAMS_TB=1 -DSHAPE_NAME=\\\"N1-LE-legacy\\\"" \
+	../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv sim_parser.cpp -o Vparser_n1
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_n1'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_n1'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+verilator --cc --exe --build -j 0 --top-module avtp_stream_parser +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2" --Mdir obj_n4 -GN_STREAMS=4 \
+	-CFLAGS "-DNSTREAMS_TB=4 -DSHAPE_NAME=\\\"N4-LE-arty4x4\\\"" \
+	../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv sim_parser.cpp -o Vparser_n4
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_n4'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_n4'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.019); cpu 0.001 s on 96 threads; allocated 16.355 MB
+verilator --cc --exe --build -j 0 --top-module avtp_stream_parser +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2" --Mdir obj_n8 -GN_STREAMS=8 \
+	-CFLAGS "-DNSTREAMS_TB=8 -DSHAPE_NAME=\\\"N8-LE-cfg_ax8x8-SHIPPING\\\"" \
+	../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv sim_parser.cpp -o Vparser_n8
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_n8'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_n8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.017); cpu 0.001 s on 96 threads; allocated 16.355 MB
+verilator --cc --exe --build -j 0 --top-module avtp_stream_parser +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2" --Mdir obj_be -GN_STREAMS=8 -GBIG_ENDIAN=1 \
+	-CFLAGS "-DNSTREAMS_TB=8 -DBIG_ENDIAN_TB=1 -DSHAPE_NAME=\\\"N8-BE-beats\\\"" \
+	../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv sim_parser.cpp -o Vparser_be
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_be'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_be'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+verilator --cc --exe --build -j 0 --top-module parser_tbl_wrap +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2" --Mdir obj_tbl -GN_LISTENERS_P=8 \
+	-CFLAGS "-DNSTREAMS_TB=8" \
+	../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv parser_tbl_wrap.sv sim_tbl.cpp -o Vparser_tbl8
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_tbl'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser/obj_tbl'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 96 threads; allocated 16.355 MB
+== avtp_stream_parser deep harness - shape: N1-LE-legacy ==
+
+[A. stream_id byte order, as lifted off the wire]
+
+[B. VLAN-tagged vs untagged header offset]
+
+[C. subtype / sv gate and non-AVTP traffic]
+
+[D. stream-table width: every entry reachable at this N]
+
+[E. SID compare REJECT leg - the live-blocker signatures]
+
+[F. frame-stream integrity]
+
+[G. randomised differential vs the reference model]
+  (G: 600 random frames, 257 parsed, 91 matched)
+
+[H. reset clears the probe counters]
+--------------------------------------------------------------
+shape: N1-LE-legacy
+checks: 2595   failures: 0
+RESULT: PASS
+== avtp_stream_parser deep harness - shape: N4-LE-arty4x4 ==
+
+[A. stream_id byte order, as lifted off the wire]
+
+[B. VLAN-tagged vs untagged header offset]
+
+[C. subtype / sv gate and non-AVTP traffic]
+
+[D. stream-table width: every entry reachable at this N]
+
+[E. SID compare REJECT leg - the live-blocker signatures]
+
+[F. frame-stream integrity]
+
+[G. randomised differential vs the reference model]
+  (G: 600 random frames, 257 parsed, 95 matched)
+
+[H. reset clears the probe counters]
+--------------------------------------------------------------
+shape: N4-LE-arty4x4
+checks: 2636   failures: 0
+RESULT: PASS
+== avtp_stream_parser deep harness - shape: N8-LE-cfg_ax8x8-SHIPPING ==
+
+[A. stream_id byte order, as lifted off the wire]
+
+[B. VLAN-tagged vs untagged header offset]
+
+[C. subtype / sv gate and non-AVTP traffic]
+
+[D. stream-table width: every entry reachable at this N]
+
+[E. SID compare REJECT leg - the live-blocker signatures]
+
+[F. frame-stream integrity]
+
+[G. randomised differential vs the reference model]
+  (G: 600 random frames, 257 parsed, 93 matched)
+
+[H. reset clears the probe counters]
+--------------------------------------------------------------
+shape: N8-LE-cfg_ax8x8-SHIPPING
+checks: 2682   failures: 0
+RESULT: PASS
+== avtp_stream_parser deep harness - shape: N8-BE-beats ==
+
+[A. stream_id byte order, as lifted off the wire]
+
+[B. VLAN-tagged vs untagged header offset]
+
+[C. subtype / sv gate and non-AVTP traffic]
+
+[D. stream-table width: every entry reachable at this N]
+
+[E. SID compare REJECT leg - the live-blocker signatures]
+
+[F. frame-stream integrity]
+
+[G. randomised differential vs the reference model]
+  (G: 600 random frames, 257 parsed, 93 matched)
+
+[H. reset clears the probe counters]
+--------------------------------------------------------------
+shape: N8-BE-beats
+checks: 2682   failures: 0
+RESULT: PASS
+== KL_stream_table + avtp_stream_parser, N=8 (cfg_ax8x8 shape) ==
+
+[T1. entry-0 ACMP alias: bound is the ONLY gate]
+
+[T2. ACMP alias BYTE ORDER - the open 8x8 blocker's shape]
+
+[T3. entries 1..7 through the CSR window (4..7 reach nowhere else)]
+
+[T4. evict / disarm / re-arm, with the armed-entry count tracked]
+
+[T5. bind_rise: one pulse per not-bound -> bound edge]
+
+[T6. RELEASE-TO-ALIAS: an entry-0 evict hands entry 0 back to ACMP]
+--------------------------------------------------------------
+checks: 70   failures: 0
+RESULT: PASS
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/avtp_parser'

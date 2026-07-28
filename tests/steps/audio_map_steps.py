@@ -252,21 +252,6 @@ def step_out_not_map1(context, pi, idx):
          "- that is the defect, not the fix")
 
 
-@then("serving {n:d} mappings from STREAM_PORT_OUTPUT {pi:d} would read past "
-      "its descriptor")
-def step_overread_arith(context, n, pi):
-    M = list(context.models.values())[0]
-    maps, sm = _maps(M), M["SMAP"]
-    own = [ln for i, (base, ln, _n, _r) in maps.items()
-           if base == sm["OUT_ADDR"][pi]]
-    assert own, "no AUDIO_MAP at the port's serving address"
-    ln = own[0]
-    want = 8 + 8 * n
-    assert want > ln, \
-        f"8 + 8*{n} = {want} fits inside {ln} B; nothing would be over-read"
-    context.overread = want - ln
-
-
 @then('building the model is refused naming "{clause}"')
 def step_refused(context, clause):
     try:

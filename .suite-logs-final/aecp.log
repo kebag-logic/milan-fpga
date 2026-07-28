@@ -1,0 +1,1561 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp'
+verilator -I../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 --top-module KL_aecp_top -I../../../hdl/ieee17221/aecp -I../../../hdl/common -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.." ../../../hdl/ieee17221/aecp/aecp_pkg.sv ../../../hdl/ieee17221/adp/adp_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/aecp/KL_aecp_ingress.sv ../../../hdl/ieee17221/aecp/KL_aecp_packet_validator.sv ../../../hdl/ieee17221/aecp/KL_aecp_common_parser.sv ../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv ../../../hdl/ieee17221/aecp/KL_aecp_timers.sv ../../../hdl/ieee17221/aecp/KL_aecp_accessor.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_store.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv ../../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv ../../../hdl/ieee17221/aecp/KL_aecp_top.sv sim_main.cpp -o Vaecp_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.002 s on 96 threads; allocated 16.355 MB
+python3 gen_fmt2_shape.py fmt2_inc
+[gen_fmt2_shape] 35 descriptors, ROM 3801 B, per-stream tables emitted -> fmt2_inc
+verilator -Ifmt2_inc -I../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 --top-module KL_aecp_top -I../../../hdl/ieee17221/aecp -I../../../hdl/common -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.." --Mdir obj_fmt2 \
+  ../../../hdl/ieee17221/aecp/aecp_pkg.sv ../../../hdl/ieee17221/adp/adp_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/aecp/KL_aecp_ingress.sv ../../../hdl/ieee17221/aecp/KL_aecp_packet_validator.sv ../../../hdl/ieee17221/aecp/KL_aecp_common_parser.sv ../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv ../../../hdl/ieee17221/aecp/KL_aecp_timers.sv ../../../hdl/ieee17221/aecp/KL_aecp_accessor.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_store.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv ../../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv ../../../hdl/ieee17221/aecp/KL_aecp_top.sv sim_fmt2.cpp -o Vaecp_fmt2   # -Ifmt2_inc FIRST: shadows gen/
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_fmt2'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_fmt2'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.002 s on 96 threads; allocated 16.355 MB
+python3 gen_dynmap_shape.py dynmap_inc
+[gen_dynmap_shape] 33 descriptors, ROM 3581 B, AEM_DYNMAP keys=8 page=4 nmaps=2 -> dynmap_inc
+verilator -Idynmap_inc -I../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 --top-module KL_aecp_top -I../../../hdl/ieee17221/aecp -I../../../hdl/common -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.." --Mdir obj_dynmap \
+  ../../../hdl/ieee17221/aecp/aecp_pkg.sv ../../../hdl/ieee17221/adp/adp_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/aecp/KL_aecp_ingress.sv ../../../hdl/ieee17221/aecp/KL_aecp_packet_validator.sv ../../../hdl/ieee17221/aecp/KL_aecp_common_parser.sv ../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv ../../../hdl/ieee17221/aecp/KL_aecp_timers.sv ../../../hdl/ieee17221/aecp/KL_aecp_accessor.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_store.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv ../../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv ../../../hdl/ieee17221/aecp/KL_aecp_top.sv sim_dynmap.cpp -o Vaecp_dynmap   # -Idynmap_inc shadows gen/
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_dynmap'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_dynmap'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.002 s on 96 threads; allocated 16.355 MB
+verilator -I../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 --top-module KL_aecp_top -I../../../hdl/ieee17221/aecp -I../../../hdl/common -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.." --Mdir obj_nxn \
+  ../../../hdl/ieee17221/aecp/aecp_pkg.sv ../../../hdl/ieee17221/adp/adp_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/aecp/KL_aecp_ingress.sv ../../../hdl/ieee17221/aecp/KL_aecp_packet_validator.sv ../../../hdl/ieee17221/aecp/KL_aecp_common_parser.sv ../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv ../../../hdl/ieee17221/aecp/KL_aecp_timers.sv ../../../hdl/ieee17221/aecp/KL_aecp_accessor.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_store.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv ../../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv ../../../hdl/ieee17221/aecp/KL_aecp_top.sv sim_nxn.cpp -o Vaecp_nxn         # 8x8 ship shape (D1/D2)
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_nxn'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_nxn'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.028 s (elab=0.000, cvt=0.000, bld=0.025); cpu 0.004 s on 96 threads; allocated 16.355 MB
+verilator -I../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 --top-module KL_aecp_top -I../../../hdl/ieee17221/aecp -I../../../hdl/common -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.." --Mdir obj_amap \
+  ../../../hdl/ieee17221/aecp/aecp_pkg.sv ../../../hdl/ieee17221/adp/adp_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/aecp/KL_aecp_ingress.sv ../../../hdl/ieee17221/aecp/KL_aecp_packet_validator.sv ../../../hdl/ieee17221/aecp/KL_aecp_common_parser.sv ../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv ../../../hdl/ieee17221/aecp/KL_aecp_timers.sv ../../../hdl/ieee17221/aecp/KL_aecp_accessor.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_store.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv ../../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv ../../../hdl/ieee17221/aecp/KL_aecp_top.sv sim_amap.cpp -o Vaecp_amap       # 8x8 ship shape (defect A)
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_amap'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_amap'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.026 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.004 s on 96 threads; allocated 16.355 MB
+python3 gen_pools_shape.py pools_inc
+[gen_pools_shape] 40 descriptors, ROM 3963 B, 14 role-pooled AUDIO_CLUSTERs (host/pilot/loopback, 0 physical) -> pools_inc
+verilator -Ipools_inc -I../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 --top-module KL_aecp_top -I../../../hdl/ieee17221/aecp -I../../../hdl/common -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.." --Mdir obj_pools \
+  ../../../hdl/ieee17221/aecp/aecp_pkg.sv ../../../hdl/ieee17221/adp/adp_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../hdl/ieee17221/aecp/KL_aecp_ingress.sv ../../../hdl/ieee17221/aecp/KL_aecp_packet_validator.sv ../../../hdl/ieee17221/aecp/KL_aecp_common_parser.sv ../../../hdl/ieee17221/aecp/KL_aecp_l0_state.sv ../../../hdl/ieee17221/aecp/KL_aecp_timers.sv ../../../hdl/ieee17221/aecp/KL_aecp_accessor.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_store.sv ../../../hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv ../../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv ../../../hdl/ieee17221/aecp/KL_aecp_top.sv sim_pools.cpp -o Vaecp_pools     # -Ipools_inc shadows gen/
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_pools'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp/obj_pools'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.002 s on 96 threads; allocated 16.355 MB
+======================================================================
+./obj_dir/Vaecp_sim
+== AECP/AEM listener subsystem — Milan v1.2 entity ==
+
+[1] READ_DESCRIPTOR(ENTITY,0)
+RESP1 354 bytes: 68 05 ca 95 b2 d1 02 00 00 ff fe 01 22 f0 fb 01 01 48 02 00 00 ff fe 00 00 01 68 05 ca 95 b2 d1 00 00 10 01 00 04 00 00 00 00 00 00 00 00 02 00 00 ff fe 00 00 01 00 00 00 00 00 00 00 00 00 00 85 88 00 08 48 01 00 08 48 01 00 00 00 00 00 00
+  [ ok ] got response                             = 1
+  [ ok ] [1] READ_DESC(ENTITY) CDL correct (len-26) = 1
+  [ ok ] msg_type=AEM_RESPONSE                    = 1
+  [ ok ] status=SUCCESS                           = 0
+  [ ok ] command=READ_DESCRIPTOR                  = 4
+  [ ok ] sequence echoed                          = 4097
+  [ ok ] controller_id echoed                     = 1
+  [ ok ] descriptor_type=ENTITY                   (2 bytes @ 42)
+  [ ok ] descriptor_index=0                       (2 bytes @ 44)
+  [ ok ] entity_id overlaid                       (8 bytes @ 46)
+  [ ok ] entity_name 'Milan'                      (5 bytes @ 90)
+  [ ok ] configurations_count=1                   (2 bytes @ 350)
+
+[2] READ_DESCRIPTOR(AVB_INTERFACE,0)
+  [ ok ] status=SUCCESS                           = 0
+  [ ok ] [2] READ_DESC(AVB_IF) CDL correct (len-26) = 1
+  [ ok ] descriptor_type=AVB_INTERFACE            (2 bytes @ 42)
+  [ ok ] mac_address overlaid @70                 (6 bytes @ 112)
+  [ ok ] interface_flags=0x0007 intact @76        (2 bytes @ 118)
+  [ ok ] clock_identity EUI-64 @78                (8 bytes @ 120)
+
+[3] READ_DESCRIPTOR(STREAM_OUTPUT,0) + bad index
+  [ ok ] status=SUCCESS                           = 0
+  [ ok ] [3] READ_DESC(STREAM_OUT) CDL correct (len-26) = 1
+  [ ok ] descriptor_type=STREAM_OUTPUT            (2 bytes @ 42)
+  [ ok ] current_format 48k 2ch (wire truth)      (8 bytes @ 116)
+  [ ok ] status=NO_SUCH_DESCRIPTOR                = 2
+
+[4] ACQUIRE_ENTITY -> NOT_SUPPORTED
+  [ ok ] command=ACQUIRE_ENTITY                   = 0
+  [ ok ] status=NOT_SUPPORTED                     = 11
+
+[5] LOCK_ENTITY (owner grant / other denied)
+  [ ok ] LOCK status=SUCCESS                      = 0
+  [ ok ] [5] LOCK CDL correct (len-26)            = 1
+  [ ok ] command=LOCK_ENTITY                      = 1
+  [ ok ] 2nd controller LOCK=ENTITY_LOCKED        = 3
+  [ ok ] locked_id = owner ctlr1                  (8 bytes @ 42)
+  [ ok ] SET_CONFIG by non-owner=ENTITY_LOCKED    = 3
+  [ ok ] UNLOCK status=SUCCESS                    = 0
+
+[6] GET/SET_CONFIGURATION
+  [ ok ] GET_CONFIG status=SUCCESS                = 0
+  [ ok ] [6] GET_CONFIG CDL correct (len-26)      = 1
+  [ ok ] current_configuration=0                  (2 bytes @ 40)
+  [ ok ] SET_CONFIG(5)=NO_SUCH_DESCRIPTOR (7.4.7.1) = 2
+
+[7] SET_NAME + read-back
+  [ ok ] SET_NAME status=SUCCESS                  = 0
+  [ ok ] [7] SET_NAME CDL correct (len-26)        = 1
+  [ ok ] read-back status=SUCCESS                 = 0
+  [ ok ] entity_name updated                      (8 bytes @ 90)
+
+[8] SET_SAMPLING_RATE
+  [ ok ] SET_SAMPLING_RATE(96k)=SUCCESS           = 0
+  [ ok ] sampling_rate echoes 96k                 (4 bytes @ 42)
+  [ ok ] SET_SAMPLING_RATE(44.1k)=BAD_ARGUMENTS   = 7
+
+[9] MVU GET_MILAN_INFO
+  [ ok ] got MVU response                         = 1
+  [ ok ] [9] MVU CDL correct (len-26)             = 1
+  [ ok ] msg_type=VU_RESPONSE                     = 7
+  [ ok ] protocol_id echoed                       (6 bytes @ 36)
+  [ ok ] protocol_version=1                       (4 bytes @ 46)
+  [ ok ] certification_version=0 (not AVnu-certified) (4 bytes @ 54)
+
+[9b] GET_COUNTERS (full-size responses, all statuses)
+  [ ok ] STREAM_OUTPUT counters SUCCESS           = 0
+  [ ok ] STREAM_OUTPUT counters CDL (len-26)      = 1
+  [ ok ] counters CDL == 148                      = 148
+  [ ok ] counters_valid 0x1F                      (4 bytes @ 42)
+  [ ok ] AVB_INTERFACE counters SUCCESS           = 0
+  [ ok ] counters_valid 0x23                      (4 bytes @ 42)
+  [ ok ] ENTITY counters SUCCESS empty-mask (1722.1-2021) = 0
+  [ ok ] error response STILL full-size (CDL 148) = 148
+  [ ok ] unknown desc NO_SUCH_DESCRIPTOR          = 2
+  [ ok ] error response full-size (CDL 148)       = 148
+
+[9c] GET_AS_PATH
+  [ ok ] AS_PATH SUCCESS                          = 0
+  [ ok ] AS_PATH CDL == 32 (2 hops)               = 32
+  [ ok ] AS_PATH CDL (len-26)                     = 1
+  [ ok ] AS_PATH count == 2                       (2 bytes @ 40)
+  [ ok ] AS_PATH path[0] == grandmaster           (8 bytes @ 42)
+  [ ok ] AS_PATH path[1] == PARENT BRIDGE (the switch) (8 bytes @ 50)
+  [ ok ] AS_PATH direct-GM count == 1             = 1
+  [ ok ] AS_PATH direct-GM path[0] == GM          (8 bytes @ 42)
+  [ ok ] AS_PATH no-GM SUCCESS                    = 0
+  [ ok ] AS_PATH no-GM CDL == 24                  = 24
+  [ ok ] AS_PATH no-GM count == 1                 (2 bytes @ 40)
+  [ ok ] AS_PATH no-GM path[0] == self            (8 bytes @ 42)
+  [ ok ] AS_PATH bad index NO_SUCH_DESCRIPTOR     = 2
+  [ ok ] AS_PATH error keeps legacy payload (CDL 24) = 24
+
+[9d] GET_AVB_INFO
+  [ ok ] AVB_INFO SUCCESS                         = 0
+  [ ok ] AVB_INFO CDL == 36 (one msrp mapping)    = 36
+  [ ok ] AVB_INFO CDL (len-26)                    = 1
+  [ ok ] AVB_INFO gm == CSR grandmaster           (8 bytes @ 42)
+  [ ok ] AVB_INFO propagation_delay == CSR (139114 ns) (4 bytes @ 50)
+  [ ok ] AVB_INFO flags GPTP|SRP|AS_CAP           (1 bytes @ 55)
+  [ ok ] AVB_INFO msrp mapping {A,3,vid}          (6 bytes @ 56)
+  [ ok ] AVB_INFO no-GM flags GPTP|SRP|AS_CAP     (1 bytes @ 55)
+
+[10] wrong target entity_id -> silent
+  [ ok ] no response to foreign entity_id         = 1
+
+[11] ADP ENTITY_DISCOVER -> discover pulse
+  [ ok ] adp_discover pulse asserted              = 1
+
+[12] Milan talker stream info
+  [ ok ] [12a] GET_STREAM_INFO SUCCESS            = 0
+  [ ok ] [12a] CDL correct (len-26)               = 1
+  [ ok ] [12a] flags 0xF6000000                   = 4127195136
+  [ ok ] [12a] stream_id {mac,0}                  = 144116287553994752
+  [ ok ] [12a] msrp_lat default 2ms               = 2000000
+  [ ok ] [12a] dest_mac live                      = 160395285298689
+  [ ok ] [12a] vlan live                          = 2
+  [ ok ] [12a] flags_ex 0 (no listener)           = 0
+  [ ok ] [12b] SET(ACC_LAT) SUCCESS               = 0
+  [ ok ] [12b] SET echoes flags                   = 536870912
+  [ ok ] [12b] GET reflects 1ms                   = 1000000
+  [ ok ] [12c] SET(unsupported) NOT_SUPPORTED     = 11
+  [ ok ] [12c] value untouched                    = 1000000
+  [ ok ] [12d] SET(>0x7FFFFFFF) BAD_ARGUMENTS     = 7
+  [ ok ] [12e] SET(none) SUCCESS                  = 0
+  [ ok ] [12f] SET while running -> STREAM_IS_RUNNING = 12
+  [ ok ] [12f] flags_ex REGISTERING               = 1
+  [ ok ] [12g] SET(STREAM_INPUT) NOT_SUPPORTED    = 11
+  [ ok ] [12g] SET(ENTITY) BAD_ARGUMENTS          = 7
+  [ ok ] [12h] START_STREAMING NOT_SUPPORTED      = 11
+  [ ok ] [12h] START echoes cmd                   = 34
+  [ ok ] [12h] STOP_STREAMING NOT_SUPPORTED       = 11
+
+[13] unsolicited notifications
+  [ ok ] [13a] REGISTER SUCCESS                   = 0
+  [ ok ] [13a] re-REGISTER dedup SUCCESS          = 0
+  [ ok ] [13b] push arrived                       = 1
+  [ ok ] [13b] push dst = A's MAC                 = 1
+  [ ok ] [13b] push u-bit set                     = 1
+  [ ok ] [13b] push controller = A                = 1
+  [ ok ] [13b] push seq 0                         = 0
+  [ ok ] [13b] push cmd GET_STREAM_INFO           = 15
+  [ ok ] [13b] push status SUCCESS                = 0
+  [ ok ] [13b] push stream_id {mac,0}             = 144116287553994752
+  [ ok ] [13b] push desc STREAM_OUTPUT            = 6
+  [ ok ] [13c] second push seq 1                  = 1
+  [ ok ] [13d] SET SUCCESS                        = 0
+  [ ok ] [13d] no self-push after own SET         = 0
+  [ ok ] [13e] REGISTER B                         = 0
+  [ ok ] [13e] REGISTER C                         = 0
+  [ ok ] [13e] REGISTER D                         = 0
+  [ ok ] [13e] REGISTER E -> NO_RESOURCES         = 8
+  [ ok ] [13f] A seq 2                            = 2
+  [ ok ] [13f] B seq 0                            = 0
+  [ ok ] [13f] D u-bit                            = 1
+  [ ok ] [13f] four pushes                        = 4
+  [ ok ] [13f] all four controllers               = 1
+  [ ok ] [13g] SET SUCCESS                        = 0
+  [ ok ] [13g] three pushes (A skipped)           = 3
+  [ ok ] [13g] none to A                          = 0
+  [ ok ] [13g] no extra push                      = 0
+  [ ok ] [13h] DEREGISTER SUCCESS                 = 0
+  [ ok ] [13h] re-DEREGISTER idempotent           = 0
+  [ ok ] [13h] three pushes after dereg           = 3
+  [ ok ] [13h] none to deregistered A             = 0
+  [ ok ] [13i] DEREGISTER B                       = 0
+  [ ok ] [13i] DEREGISTER C                       = 0
+  [ ok ] [13i] DEREGISTER D                       = 0
+
+[14] READ_DESCRIPTOR sweep over all 34 directory entries
+  [ ok ] [14] desc 0x0000[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0000[0] CDL                  = 328
+  [ ok ] [14] desc 0x0001[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0001[0] CDL                  = 122
+  [ ok ] [14] desc 0x0001[0] byte-exact           (106 bytes @ 42)
+  [ ok ] [14] desc 0x0002[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0002[0] CDL                  = 172
+  [ ok ] [14] desc 0x0002[0] byte-exact           (156 bytes @ 42)
+  [ ok ] [14] desc 0x0005[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0005[0] CDL                  = 164
+  [ ok ] [14] desc 0x0005[0] byte-exact           (148 bytes @ 42)
+  [ ok ] [14] desc 0x0005[1] SUCCESS              = 0
+  [ ok ] [14] desc 0x0005[1] CDL                  = 156
+  [ ok ] [14] desc 0x0005[1] byte-exact           (140 bytes @ 42)
+  [ ok ] [14] desc 0x0006[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0006[0] CDL                  = 156
+  [ ok ] [14] desc 0x0006[0] byte-exact           (140 bytes @ 42)
+  [ ok ] [14] desc 0x0009[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0009[0] CDL                  = 114
+  [ ok ] [14] desc 0x000A[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x000A[0] CDL                  = 102
+  [ ok ] [14] desc 0x000A[0] byte-exact           (86 bytes @ 42)
+  [ ok ] [14] desc 0x000A[1] SUCCESS              = 0
+  [ ok ] [14] desc 0x000A[1] CDL                  = 102
+  [ ok ] [14] desc 0x000A[1] byte-exact           (86 bytes @ 42)
+  [ ok ] [14] desc 0x000A[2] SUCCESS              = 0
+  [ ok ] [14] desc 0x000A[2] CDL                  = 102
+  [ ok ] [14] desc 0x000A[2] byte-exact           (86 bytes @ 42)
+  [ ok ] [14] desc 0x0024[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0024[0] CDL                  = 98
+  [ ok ] [14] desc 0x0024[0] byte-exact           (82 bytes @ 42)
+  [ ok ] [14] desc 0x001A[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x001A[0] CDL                  = 129
+  [ ok ] [14] desc 0x001A[0] byte-exact           (113 bytes @ 42)
+  [ ok ] [14] desc 0x000C[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x000C[0] CDL                  = 88
+  [ ok ] [14] desc 0x000C[0] byte-exact           (72 bytes @ 42)
+  [ ok ] [14] desc 0x000D[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x000D[0] CDL                  = 468
+  [ ok ] [14] desc 0x000D[0] byte-exact           (452 bytes @ 42)
+  [ ok ] [14] desc 0x000E[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x000E[0] CDL                  = 36
+  [ ok ] [14] desc 0x000E[0] byte-exact           (20 bytes @ 42)
+  [ ok ] [14] desc 0x000F[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x000F[0] CDL                  = 36
+  [ ok ] [14] desc 0x000F[0] byte-exact           (20 bytes @ 42)
+  [ ok ] [14] desc 0x0014[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[0] CDL                  = 103
+  [ ok ] [14] desc 0x0014[0] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[1] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[1] CDL                  = 103
+  [ ok ] [14] desc 0x0014[1] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[2] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[2] CDL                  = 103
+  [ ok ] [14] desc 0x0014[2] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[3] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[3] CDL                  = 103
+  [ ok ] [14] desc 0x0014[3] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[4] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[4] CDL                  = 103
+  [ ok ] [14] desc 0x0014[4] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[5] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[5] CDL                  = 103
+  [ ok ] [14] desc 0x0014[5] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[6] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[6] CDL                  = 103
+  [ ok ] [14] desc 0x0014[6] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[7] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[7] CDL                  = 103
+  [ ok ] [14] desc 0x0014[7] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[8] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[8] CDL                  = 103
+  [ ok ] [14] desc 0x0014[8] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[9] SUCCESS              = 0
+  [ ok ] [14] desc 0x0014[9] CDL                  = 103
+  [ ok ] [14] desc 0x0014[9] byte-exact           (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[10] SUCCESS             = 0
+  [ ok ] [14] desc 0x0014[10] CDL                 = 103
+  [ ok ] [14] desc 0x0014[10] byte-exact          (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[11] SUCCESS             = 0
+  [ ok ] [14] desc 0x0014[11] CDL                 = 103
+  [ ok ] [14] desc 0x0014[11] byte-exact          (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[12] SUCCESS             = 0
+  [ ok ] [14] desc 0x0014[12] CDL                 = 103
+  [ ok ] [14] desc 0x0014[12] byte-exact          (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[13] SUCCESS             = 0
+  [ ok ] [14] desc 0x0014[13] CDL                 = 103
+  [ ok ] [14] desc 0x0014[13] byte-exact          (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[14] SUCCESS             = 0
+  [ ok ] [14] desc 0x0014[14] CDL                 = 103
+  [ ok ] [14] desc 0x0014[14] byte-exact          (87 bytes @ 42)
+  [ ok ] [14] desc 0x0014[15] SUCCESS             = 0
+  [ ok ] [14] desc 0x0014[15] CDL                 = 103
+  [ ok ] [14] desc 0x0014[15] byte-exact          (87 bytes @ 42)
+  [ ok ] [14] desc 0x0017[0] SUCCESS              = 0
+  [ ok ] [14] desc 0x0017[0] CDL                  = 88
+  [ ok ] [14] desc 0x0017[0] byte-exact           (72 bytes @ 42)
+  [ ok ] [14] desc 0x0017[1] SUCCESS              = 0
+  [ ok ] [14] desc 0x0017[1] CDL                  = 88
+  [ ok ] [14] desc 0x0017[1] byte-exact           (72 bytes @ 42)
+
+[15] new descriptor spot checks
+  [ ok ] [15a] GET_NAME(STREAM_INPUT,1) SUCCESS   = 0
+  [ ok ] [15a] name = 'CRF'                       (4 bytes @ 46)
+  [ ok ] [15b] SET_NAME(STREAM_INPUT,0) SUCCESS   = 0
+  [ ok ] [15b] readback name                      (11 bytes @ 46)
+  [ ok ] [15c] bad name_index BAD_ARGUMENTS       = 7
+  [ ok ] [15d] clock_source_index=0               (2 bytes @ 112)
+  [ ok ] [15d] sources_offset/count/list          (10 bytes @ 114)
+  [ ok ] [15e] LINEAR_UINT8 + IDENTIFY type       (10 bytes @ 122)
+  [ ok ] [15e] value format 0/255/255/0/0         (5 bytes @ 146)
+
+[16] SET/GET_CLOCK_SOURCE
+  [ ok ] [16a] GET SUCCESS                        = 0
+  [ ok ] [16a] CDL 20                             = 20
+  [ ok ] [16a] echo type/index                    (4 bytes @ 38)
+  [ ok ] [16a] source 0 + reserved                (4 bytes @ 42)
+  [ ok ] [16b] SET SUCCESS                        = 0
+  [ ok ] [16b] response reads back 1              (2 bytes @ 42)
+  [ ok ] [16b] GET readback 1                     (2 bytes @ 42)
+  [ ok ] [16b] descriptor clock_source_index 1    (2 bytes @ 112)
+  [ ok ] [16c] SET(3) BAD_ARGUMENTS               = 7
+  [ ok ] [16c] value unchanged                    (2 bytes @ 42)
+  [ ok ] [16d] GET(AUDIO_UNIT) NO_SUCH_DESCRIPTOR = 2
+
+[17] SET/GET_CONTROL identify
+  [ ok ] [17a] GET SUCCESS                        = 0
+  [ ok ] [17a] CDL 17                             = 17
+  [ ok ] [17a] value 0                            (1 bytes @ 42)
+  [ ok ] [17a] identify_o low                     = 0
+  [ ok ] [17b] SET(255) SUCCESS                   = 0
+  [ ok ] [17b] response value 255                 (1 bytes @ 42)
+  [ ok ] [17b] identify_o high                    = 1
+  [ ok ] [17b] GET readback 255                   (1 bytes @ 42)
+  [ ok ] [17c] SET(7) BAD_ARGUMENTS               = 7
+  [ ok ] [17c] identify_o still high              = 1
+  [ ok ] [17d] SET(0) SUCCESS                     = 0
+  [ ok ] [17d] identify_o low                     = 0
+  [ ok ] [17d] GET(idx 1) NO_SUCH_DESCRIPTOR      = 2
+
+[18] GET_AUDIO_MAP
+  [ ok ] [18a] GET SUCCESS                        = 0
+  [ ok ] [18a] CDL 88                             = 88
+  [ ok ] [18a] echo type/index/map                (6 bytes @ 38)
+  [ ok ] [18a] n_maps=1 n_mappings=8              (6 bytes @ 44)
+  [ ok ] [18a] mapping[0]                         (8 bytes @ 50)
+  [ ok ] [18a] mapping[5]                         (8 bytes @ 90)
+  [ ok ] [18b] output port with a map NOT_SUPPORTED (Milan 5.4.2.26) = 11
+  [ ok ] [18b] refusal keeps the 7.4.44.2 12 B payload = 24
+  [ ok ] [18c] map_index 1 BAD_ARGUMENTS (7.4.44.1) = 7
+  [ ok ] [18c] STREAM_OUTPUT NO_SUCH_DESCRIPTOR   = 2
+  [ ok ] [18d] ADD NOT_SUPPORTED                  = 11
+  [ ok ] [18d] REMOVE NOT_SUPPORTED               = 11
+
+[19] lock vs new SETs
+  [ ok ] [19] LOCK by ctlr1                       = 0
+  [ ok ] [19] SET_CLOCK_SOURCE by ctlr2 ENTITY_LOCKED = 3
+  [ ok ] [19] SET_CONTROL by ctlr2 ENTITY_LOCKED  = 3
+  [ ok ] [19] identify_o unaffected               = 0
+  [ ok ] [19] UNLOCK                              = 0
+  [ ok ] [19b] SET_CLOCK_SOURCE(2) SUCCESS        = 0
+  [ ok ] [19b] clk_src_o follows = 2              = 2
+  [ ok ] [19b] GET_CLOCK_SOURCE SUCCESS           = 0
+  [ ok ] [19b] GET readback = 2                   = 2
+  [ ok ] [19b] SET back to 0                      = 0
+  [ ok ] [19b] clk_src_o back = 0                 = 0
+
+[20] MVU system-unique-id / media-clock-reference-info
+  [ ok ] [20a] GET_SYS_UID SUCCESS                = 0
+  [ ok ] [20a] msg_type VU_RESPONSE               = 7
+  [ ok ] [20a] CDL 24                             = 24
+  [ ok ] [20a] protocol_id echoed                 (8 bytes @ 36)
+  [ ok ] [20a] uid 0                              (4 bytes @ 46)
+  [ ok ] [20b] SET_SYS_UID SUCCESS                = 0
+  [ ok ] [20b] CDL 24                             = 24
+  [ ok ] [20b] response mirrors id                (4 bytes @ 46)
+  [ ok ] [20b] GET readback                       (4 bytes @ 46)
+  [ ok ] [20c] GET_MCR SUCCESS                    = 0
+  [ ok ] [20c] CDL 92                             = 92
+  [ ok ] [20c] flags both valid                   (2 bytes @ 46)
+  [ ok ] [20c] default/user prio 192/192          (2 bytes @ 48)
+  [ ok ] [20c] name empty                         (4 bytes @ 54)
+  [ ok ] [20d] SET_MCR(prio) SUCCESS              = 0
+  [ ok ] [20d] flags echoed                       (1 bytes @ 46)
+  [ ok ] [20d] user prio 100                      (1 bytes @ 49)
+  [ ok ] [20d] GET user prio 100, name still empty (1 bytes @ 49)
+  [ ok ] [20d] name not clobbered                 (4 bytes @ 54)
+  [ ok ] [20e] SET_MCR(name) SUCCESS              = 0
+  [ ok ] [20e] name in response                   (9 bytes @ 54)
+  [ ok ] [20e] GET name persisted                 (9 bytes @ 54)
+  [ ok ] [20e] prio still 100                     (1 bytes @ 49)
+  [ ok ] [20f] MCR cdi=1 BAD_ARGUMENTS            = 7
+  [ ok ] [20f] unknown MVU NOT_IMPLEMENTED        = 1
+
+[21] live counters + max transit time
+  [ ok ] [21a] GET_COUNTERS(AVB_IF) SUCCESS       = 0
+  [ ok ] [21a] CDL 148                            = 148
+  [ ok ] [21a] valid 0x23                         (4 bytes @ 42)
+  [ ok ] [21a] LINK_UP 1                          = 1
+  [ ok ] [21a] LINK_DOWN 0                        = 0
+  [ ok ] [21a] GM_CHANGED >= 1                    = 1
+  [ ok ] [21b] LINK_UP 2                          = 2
+  [ ok ] [21b] LINK_DOWN 1                        = 1
+  [ ok ] [21b] GM_CHANGED +1                      = 6
+  [ ok ] [21b2] REGISTER ok                       = 0
+  [ ok ] [21b2] link-down push arrives            = 1
+  [ ok ] [21b2] push is GET_COUNTERS              = 41
+  [ ok ] [21b2] push desc AVB_INTERFACE           (4 bytes @ 38)
+  [ ok ] [21b2] push LINK_DOWN 2                  = 2
+  [ ok ] [21b2] link-up push arrives              = 1
+  [ ok ] [21b2] push LINK_UP 3                    = 3
+  [ ok ] [21b2] DEREGISTER ok                     = 0
+  [ ok ] [21c] GET_COUNTERS(STREAM_OUT) SUCCESS   = 0
+  [ ok ] [21c] valid 0x1F                         (4 bytes @ 42)
+  [ ok ] [21c] STREAM_START 2                     = 2
+  [ ok ] [21c] STREAM_STOP 2                      = 2
+  [ ok ] [21c] FRAMES_TX live                     = 74565
+  [ ok ] [21d] GET_MTT SUCCESS                    = 0
+  [ ok ] [21d] CDL 24                             = 24
+  [ ok ] [21d] mtt hi 0                           = 0
+  [ ok ] [21d] mtt = 1600000                      = 1600000
+  [ ok ] [21e] SET_MTT SUCCESS                    = 0
+  [ ok ] [21e] response mirrors 2000000           = 2000000
+  [ ok ] [21e] GET readback 2000000               = 2000000
+  [ ok ] [21f] SET_MTT(2^32) BAD_ARGUMENTS        = 7
+  [ ok ] [21f] GET_MTT(STREAM_INPUT) NO_SUCH_DESCRIPTOR = 2
+  [ ok ] [21g] batch SUCCESS                      = 0
+  [ ok ] [21g] batch CDL = 12 + sum(records)      = 312
+  [ ok ] [21g] GET_CONFIGURATION len              = 4
+  [ ok ] [21g] GET_CONFIGURATION status           = 0
+  [ ok ] [21g] GET_CONFIGURATION cmd echo         = 7
+  [ ok ] [21g] GET_CONFIGURATION data==classic    = 1
+  [ ok ] [21g] GET_STREAM_FORMAT len              = 12
+  [ ok ] [21g] GET_STREAM_FORMAT status           = 0
+  [ ok ] [21g] GET_STREAM_FORMAT cmd echo         = 9
+  [ ok ] [21g] GET_STREAM_FORMAT data==classic    = 1
+  [ ok ] [21g] GET_NAME len                       = 72
+  [ ok ] [21g] GET_NAME status                    = 0
+  [ ok ] [21g] GET_NAME cmd echo                  = 17
+  [ ok ] [21g] GET_NAME data==classic             = 1
+  [ ok ] [21g] GET_SAMPLING_RATE len              = 8
+  [ ok ] [21g] GET_SAMPLING_RATE status           = 0
+  [ ok ] [21g] GET_SAMPLING_RATE cmd echo         = 21
+  [ ok ] [21g] GET_SAMPLING_RATE data==classic    = 1
+  [ ok ] [21g] GET_CLOCK_SOURCE len               = 8
+  [ ok ] [21g] GET_CLOCK_SOURCE status            = 0
+  [ ok ] [21g] GET_CLOCK_SOURCE cmd echo          = 23
+  [ ok ] [21g] GET_CLOCK_SOURCE data==classic     = 1
+  [ ok ] [21g] GET_COUNTERS len                   = 136
+  [ ok ] [21g] GET_COUNTERS status                = 0
+  [ ok ] [21g] GET_COUNTERS cmd echo              = 41
+  [ ok ] [21g] GET_COUNTERS data==classic         = 1
+  [ ok ] [21g] GET_ASSOCIATION_ID(unimpl NOT_SUPPORTED echo) len = 4
+  [ ok ] [21g] GET_ASSOCIATION_ID(unimpl NOT_SUPPORTED echo) status = 11
+  [ ok ] [21g] GET_ASSOCIATION_ID(unimpl NOT_SUPPORTED echo) cmd echo = 19
+  [ ok ] [21g] GET_ASSOCIATION_ID(unimpl NOT_SUPPORTED echo) data==classic = 1
+  [ ok ] [21g] all records consumed exactly       = 338
+  [ ok ] [21g] non-fixed-size type -> BAD_ARGUMENTS = 7
+  [ ok ] [21g] BAD_ARGUMENTS echoes the request   = 1
+  [ ok ] [21g] padded 1-record batch SUCCESS      = 0
+  [ ok ] [21g] padded batch CDL 24                = 24
+  [ ok ] [21g] slow-fed padded batch SUCCESS      = 0
+  [ ok ] [21g] slow-fed batch CDL 32              = 32
+  [ ok ] [21g] lying len field -> BAD_ARGUMENTS   = 7
+  [ ok ] [21g] empty batch SUCCESS                = 0
+  [ ok ] [21g] empty batch CDL 12                 = 12
+  [ ok ] [21g] 24-record batch SUCCESS            = 0
+  [ ok ] [21g] 24-record batch CDL                = 396
+  [ ok ] [21g] all 24 records == classic GET_SAMPLING_RATE = 1
+
+[22] STREAM_INPUT listener sink commands
+  [ ok ] [22a] GET_STREAM_INFO(in0) SUCCESS       = 0
+  [ ok ] [22a] CDL 68                             = 68
+  [ ok ] [22a] flags 0xF2000000                   = 4060086272
+  [ ok ] [22a] stream_id 0                        = 0
+  [ ok ] [22b] flags connected (Milan: no FastConnect/SavedState) = 4127195136
+  [ ok ] [22b] acc_lat from registered attr       (4 bytes @ 62)
+  [ ok ] [22b] stream_id live                     (8 bytes @ 54)
+  [ ok ] [22b] dmac live                          (6 bytes @ 66)
+  [ ok ] [22b] vlan 2                             (2 bytes @ 82)
+  [ ok ] [22b] flags_ex REGISTERING               (4 bytes @ 86)
+  [ ok ] [22b] pbsta/acmpsta trailer              (4 bytes @ 90)
+  [ ok ] [22c] +MSRP_FAILURE_VALID (bit6 removed: get-state-only) = 4261412864
+  [ ok ] [22c] msrp_failure_code 8                (1 bytes @ 72)
+  [ ok ] [22c] failing bridge_id                  (8 bytes @ 74)
+  [ ok ] [22d] GET_STREAM_INFO(in1) SUCCESS       = 0
+  [ ok ] [22d] flags identity-only                = 4060086272
+  [ ok ] [22d] CRF format                         (8 bytes @ 46)
+  [ ok ] [22e] SET_FMT(in1, CRF96k) refused       = 7
+  [ ok ] [22e] readback                           (8 bytes @ 42)
+  [ ok ] [22e] SET_FMT(in1, AAF) BAD_ARGUMENTS    = 7
+  [ ok ] [22e] SET_FMT(in0, AAF96k) refused       = 7
+  [ ok ] [22f] STOP(in0) SUCCESS                  = 0
+  [ ok ] [22f] STREAMING_WAIT set                 = 4127195144
+  [ ok ] [22f] START(in0) SUCCESS                 = 0
+  [ ok ] [22f] START(output) NOT_SUPPORTED        = 11
+  [ ok ] [22f2] SET 2ch format SUCCESS            = 0
+  [ ok ] [22f2] echo carries 2ch fmt              = 1
+  [ ok ] [22f2] 9ch rejected                      = 1
+  [ ok ] [22f3] out0 8ch rejected (wire is 2ch)   = 7
+  [ ok ] [22f3] out0 wire-true 2ch accepted       = 0
+  [ ok ] [22g] GET_COUNTERS(in0) SUCCESS          = 0
+  [ ok ] [22g] CDL 148                            = 148
+  [ ok ] [22g] valid mask 0xF3F                   = 3903
+  [ ok ] [22g] MEDIA_LOCKED                       = 3
+  [ ok ] [22g] MEDIA_UNLOCKED                     = 2
+  [ ok ] [22g] STREAM_INTERRUPTED                 = 1
+  [ ok ] [22g] SEQ_NUM_MISMATCH                   = 258
+  [ ok ] [22g] MEDIA_RESET 0                      = 0
+  [ ok ] [22g] TIMESTAMP_UNCERTAIN                = 5
+  [ ok ] [22g] UNSUPPORTED_FORMAT                 = 7
+  [ ok ] [22g] LATE/EARLY 0                       = 0
+  [ ok ] [22g] FRAMES_RX                          = 11259375
+  [ ok ] [22g] block tail zero                    = 0
+  [ ok ] [22g1b] GET_COUNTERS(ENTITY) SUCCESS     = 0
+  [ ok ] [22g1b] empty valid mask                 = 0
+  [ ok ] [22g1b] CDL 148                          = 148
+  [ ok ] [22g2] GET_COUNTERS(CLOCK_DOMAIN) SUCCESS = 0
+  [ ok ] [22g2] valid mask LOCKED|UNLOCKED        = 3
+  [ ok ] [22g2] LOCKED = in0 media_locked         = 3
+  [ ok ] [22g2] UNLOCKED = in0 media_unlocked     = 2
+  [ ok ] [22h] GET_COUNTERS(in1) SUCCESS          = 0
+  [ ok ] [22h] valid mask 0xF3F                   = 3903
+  [ ok ] [22h] counters zero                      = 0
+  [ ok ] [22i] REGISTER A                         = 0
+  [ ok ] [22i] counters push arrived              = 1
+  [ ok ] [22i] push u-bit set                     = 1
+  [ ok ] [22i] push cmd GET_COUNTERS              = 41
+  [ ok ] [22i] push status SUCCESS                = 0
+  [ ok ] [22i] push desc STREAM_INPUT             = 5
+  [ ok ] [22i] push CDL 148                       = 148
+  [ ok ] [22i] push valid mask 0xF3F              = 3903
+  [ ok ] [22i] push FRAMES_RX live                = 11259375
+  [ ok ] [22i] no extra fan-out push              = 0
+  [ ok ] [22i] second dirty rate-limited (no push) = 0
+  [ ok ] [22i] DEREGISTER A                       = 0
+
+[23] state-changing SET replays
+  [ ok ] [23] REGISTER A                          = 0
+  [ ok ] [23] REGISTER B                          = 0
+  [ ok ] [23a] solicited SUCCESS to A             = 0
+  [ ok ] [23a] solicited u=0                      = 0
+  [ ok ] [23a] replay arrived                     = 1
+  [ ok ] [23a] replay to B's MAC                  = 1
+  [ ok ] [23a] replay u=1                         = 1
+  [ ok ] [23a] replay cmd SET_CLOCK_SOURCE        = 22
+  [ ok ] [23a] replay controller = B              = 1
+  [ ok ] [23a] no replay to originator A          = 0
+  [ ok ] [23b] SET rejected                       = 1
+  [ ok ] [23b] no replay on failure               = 0
+  [ ok ] [23c] GET SUCCESS                        = 0
+  [ ok ] [23c] no replay for GET                  = 0
+  [ ok ] [23d] same-value SET SUCCESS             = 0
+  [ ok ] [23d] same-value SET replays NOTHING     = 0
+  [ ok ] [23e] SET_NAME(new) SUCCESS              = 0
+  [ ok ] [23e] changed name replays u=1 to B      = 1
+  [ ok ] [23e] SET_NAME(same) SUCCESS             = 0
+  [ ok ] [23e] identical name replays NOTHING     = 0
+
+[24] ADDRESS_ACCESS commands dropped whole (9.4)
+  [ ok ] [24a] baseline READ_DESCRIPTOR ok        = 0
+  [ ok ] [24b] AA READ command: no response       = 0
+  [ ok ] [24c] AA WRITE command: no response      = 0
+  [ ok ] [24d] engine live after AA frames        = 0
+  [ ok ] [24d] store untouched (byte-exact vs baseline) = 1
+
+[25] changing acc-latency propagates to GET_STREAM_INFO
+  [ ok ] [25a] GET_STREAM_INFO SUCCESS            = 0
+  [ ok ] [25a] acc_lat initial                    (4 bytes @ 62)
+  [ ok ] [25b] GET_STREAM_INFO SUCCESS            = 0
+  [ ok ] [25b] acc_lat FOLLOWS the re-declare     (4 bytes @ 62)
+  [ ok ] [25c] unregistered -> acc_lat zero       (4 bytes @ 62)
+
+[26] non-success responses keep the full payload size
+  [ ok ] [26] GSI STREAM_OUTPUT.0 (exists) status = 0
+  [ ok ] [26] GSI STREAM_OUTPUT.0 (exists) cdl 68 = 68
+  [ ok ] [26] GSI STREAM_OUTPUT.0 (exists) frame 94 B = 94
+  [ ok ] [26] GSI STREAM_INPUT.0 (exists) status  = 0
+  [ ok ] [26] GSI STREAM_INPUT.0 (exists) cdl 68  = 68
+  [ ok ] [26] GSI STREAM_INPUT.0 (exists) frame 94 B = 94
+  [ ok ] [26] GSI STREAM_INPUT.1 CRF (exists) status = 0
+  [ ok ] [26] GSI STREAM_INPUT.1 CRF (exists) cdl 68 = 68
+  [ ok ] [26] GSI STREAM_INPUT.1 CRF (exists) frame 94 B = 94
+  [ ok ] [26] GSI STREAM_OUTPUT.1 (absent) status = 2
+  [ ok ] [26] GSI STREAM_OUTPUT.1 (absent) cdl 68 = 68
+  [ ok ] [26] GSI STREAM_OUTPUT.1 (absent) frame 94 B = 94
+  [ ok ] [26] GSI STREAM_INPUT.2 (absent) status  = 2
+  [ ok ] [26] GSI STREAM_INPUT.2 (absent) cdl 68  = 68
+  [ ok ] [26] GSI STREAM_INPUT.2 (absent) frame 94 B = 94
+  [ ok ] [26] GSI STREAM_OUTPUT.65535 (absent) status = 2
+  [ ok ] [26] GSI STREAM_OUTPUT.65535 (absent) cdl 68 = 68
+  [ ok ] [26] GSI STREAM_OUTPUT.65535 (absent) frame 94 B = 94
+  [ ok ] [26] GSI AUDIO_UNIT.0 (exists, not a stream) status = 2
+  [ ok ] [26] GSI AUDIO_UNIT.0 (exists, not a stream) cdl 68 = 68
+  [ ok ] [26] GSI AUDIO_UNIT.0 (exists, not a stream) frame 94 B = 94
+  [ ok ] [26] GET_AVB_INFO(idx 1) NO_SUCH_DESCRIPTOR = 2
+  [ ok ] [26] GET_AVB_INFO(idx 1) cdl 32 (>= 20 B payload) = 32
+  [ ok ] [26] GET_AVB_INFO(wrong type) NOT_IMPLEMENTED = 1
+  [ ok ] [26] GET_AVB_INFO(wrong type) reflects cmd cdl 16 = 16
+  [ ok ] [26] GET_NAME(absent) NO_SUCH_DESCRIPTOR = 2
+  [ ok ] [26] GET_NAME(absent) cdl 84             = 84
+  [ ok ] [26] GET_NAME(absent) frame 110 B        = 110
+
+[counters] cmd=201 resp=225
+  [ ok ] cmd_count >= 14                          = 1
+
+======================================================================
+AECP subsystem: 518 checks, 0 failures
+./obj_fmt2/Vaecp_fmt2
+== AECP per-stream format tables — 2-AAF-input shape ==
+
+[1] GET_STREAM_FORMAT per input descriptor (ROM defaults)
+  [ ok ] in0 GET SUCCESS                                = 0
+  [ ok ] in0 fmt = AAF 2ch default                      = 1
+  [ ok ] in1 GET SUCCESS (second AAF sink)              = 0
+  [ ok ] in1 fmt = AAF 2ch default                      = 1
+  [ ok ] in2 (CRF) GET SUCCESS                          = 0
+  [ ok ] in2 fmt = CRF 48k                              = 1
+  [ ok ] in3 GET NO_SUCH_DESCRIPTOR                     = 2
+
+[2] SET_STREAM_FORMAT in1: own-table validation + WB isolation
+  [ ok ] in1 SET 8ch concrete SUCCESS                   = 0
+  [ ok ] in1 SET echoes new fmt                         = 1
+  [ ok ] in1 GET readback = 8ch (WB landed)             = 1
+  [ ok ] in0 GET still 2ch (WB isolation)               = 1
+  [ ok ] in2 GET still CRF (WB isolation)               = 1
+  [ ok ] in1 SET CRF fmt BAD_ARGUMENTS                  = 7
+  [ ok ] in1 SET 11ch (2|9) BAD_ARGUMENTS               = 7
+
+[3] SET_STREAM_FORMAT in2 (CRF sink): exact-match rule
+  [ ok ] in2 SET CRF 48k SUCCESS                        = 0
+  [ ok ] in2 SET AAF BAD_ARGUMENTS                      = 7
+  [ ok ] in3 SET NO_SUCH_DESCRIPTOR                     = 2
+
+[4] STREAM_OUTPUT: per-descriptor talker truth
+  [ ok ] out0 GET SUCCESS                               = 0
+  [ ok ] out0 fmt = wire-true 2ch                       = 1
+  [ ok ] out0 SET wire-true 2ch SUCCESS                 = 0
+  [ ok ] out0 SET 8ch BAD_ARGUMENTS (wire is 2ch)       = 7
+  [ ok ] out1 GET NO_SUCH_DESCRIPTOR                    = 2
+
+[5] restore in1 default (store hygiene)
+  [ ok ] in1 SET back to 2ch SUCCESS                    = 0
+  [ ok ] in1 GET = 2ch again                            = 1
+
+----------------------------------------------------------
+checks: 24   failures: 0
+RESULT: PASS
+./obj_dynmap/Vaecp_dynmap
+== AECP dynamic audio maps — AEM_DYNMAP shape ==
+
+[1] READ_DESCRIPTOR: 7.2.13 dynamic-map capability
+  [ ok ] SPI0 READ SUCCESS                                    = 0
+  [ ok ] SPI0 number_of_maps = 0 (dynamic)                    = 0
+  [ ok ] SPI0 base_map = 0 (ignored)                          = 0
+  [ ok ] SPO0 READ SUCCESS                                    = 0
+  [ ok ] SPO0 number_of_maps = 1 (static)                     = 1
+  [ ok ] SPO0 base_map = 0 (map renumbered)                   = 0
+  [ ok ] AUDIO_MAP[1] gone (NO_SUCH_DESCRIPTOR)               = 2
+
+[2] GET_AUDIO_MAP empty store + paging bounds
+  [ ok ] GET page0 SUCCESS                                    = 0
+  [ ok ] number_of_maps = 2 (fixed partition)                 = 2
+  [ ok ] page0 number_of_mappings = 0                         = 0
+  [ ok ] GET page1 SUCCESS                                    = 0
+  [ ok ] page1 number_of_maps = 2                             = 2
+  [ ok ] page1 number_of_mappings = 0                         = 0
+  [ ok ] GET page2 BAD_ARGUMENTS (7.4.44.1)                   = 7
+  [ ok ] GET SPI1 NO_SUCH_DESCRIPTOR                          = 2
+  [ ok ] GET output (has a map) NOT_SUPPORTED (Milan 5.4.2.26) = 11
+  [ ok ] output refusal keeps the 7.4.44.2 12 B payload       = 24
+  [ ok ] output refusal carries no mappings                   = 0
+
+[3] ADD round-trip: swap map (cl0<-ch1, cl1<-ch0)
+  [ ok ] ADD SUCCESS                                          = 0
+  [ ok ] ADD echoes n=2                                       = 2
+  [ ok ] ADD echo row0 = {0,1,0,0}                            = 1
+  [ ok ] GET page0 n=2 after ADD                              = 2
+  [ ok ] row0 = cl0 <- st0 ch1                                = 1
+  [ ok ] row1 = cl1 <- st0 ch0                                = 1
+  [ ok ] render tap L en                                      = 1
+  [ ok ] render tap L ch = 1                                  = 1
+  [ ok ] render tap R en                                      = 1
+  [ ok ] render tap R ch = 0                                  = 0
+
+[4] ADD validation rejects (all-or-nothing, 5.4.2.27)
+  [ ok ] stream_channel >= current fmt (2ch) BAD_ARG          = 7
+  [ ok ] stream_index 1 (no audio channels) BAD_ARG           = 7
+  [ ok ] cluster_offset 8 (of 8) BAD_ARG                      = 7
+  [ ok ] cluster_channel 1 (mono clusters) BAD_ARG            = 7
+  [ ok ] same key twice in one command BAD_ARG                = 7
+  [ ok ] one bad of two BAD_ARG (none added)                  = 7
+  [ ok ] number_of_mappings != frame length BAD_ARG           = 7
+  [ ok ] store untouched by the rejects (n still 2)           = 2
+
+[5] format-bound follows SET_STREAM_FORMAT + real paging
+  [ ok ] SET_STREAM_FORMAT in0 8ch SUCCESS                    = 0
+  [ ok ] ADD cl5 <- ch5 SUCCESS under 8ch fmt                 = 0
+  [ ok ] page0 (keys 0-3) does NOT list key 5                 = 2
+  [ ok ] page1 (keys 4-7) lists exactly key 5                 = 1
+  [ ok ] page1 row0 = {0,5,5,0}                               = 1
+  [ ok ] REMOVE cl5 SUCCESS (state hygiene)                   = 0
+  [ ok ] SET_STREAM_FORMAT in0 back to 2ch                    = 0
+
+[6] u=1 replay to registered controllers (7.4.45/46)
+  [ ok ] ctlr2 REGISTER_UNSOLICITED SUCCESS                   = 0
+  [ ok ] ADD cl2 SUCCESS (u=0 response)                       = 0
+  [ ok ] fabric mirror: ADD -> exactly 1 map write            = 1
+  [ ok ] ... addr == cluster_offset 2                         = 2
+  [ ok ] ... word == {en,strm0,ch0} 0x80                      = 128
+  [ ok ] ... response u bit = 0                               = 0
+  [ ok ] replay frame arrived (u=1)                           = 1
+  [ ok ] replay is the ADD response                           = 44
+  [ ok ] replay status SUCCESS                                = 0
+  [ ok ] replay dst = ctlr2 MAC                               = 0
+  [ ok ] fabric mirror: u=1 replay re-commits idempotently    = 1
+  [ ok ] ... replay word identical 0x80                       = 128
+  [ ok ] same ADD again SUCCESS                               = 0
+  [ ok ] fabric mirror: idempotent re-ADD still writes        = 1
+  [ ok ] no-change ADD -> NO replay (nochg rule)              = 0
+  [ ok ] REMOVE cl2 SUCCESS                                   = 0
+  [ ok ] fabric mirror: REMOVE -> 1 clearing write            = 1
+  [ ok ] ... addr 2, word 0 (en=0)                            = 512
+  [ ok ] REMOVE change -> replay (u=1)                        = 1
+  [ ok ] REMOVE of absent mapping SUCCESS (ignored)           = 0
+  [ ok ] fabric mirror: unmatched REMOVE -> NO write          = 0
+  [ ok ] ... and NO replay (nothing changed)                  = 0
+  [ ok ] ctlr2 DEREGISTER SUCCESS                             = 0
+
+[7] REMOVE semantics: exact match, duplicates ignored
+  [ ok ] REMOVE cl0 wrong channel: SUCCESS, ignored           = 0
+  [ ok ] cl0 mapping still there (n=2)                        = 2
+  [ ok ] REMOVE cl0 exact match SUCCESS                       = 0
+  [ ok ] cl0 gone (n=1)                                       = 1
+  [ ok ] render tap L en dropped                              = 0
+  [ ok ] duplicate REMOVE rows SUCCESS (5.4.2.28)             = 0
+  [ ok ] cl1 gone too (n=0)                                   = 0
+  [ ok ] render tap R en dropped                              = 0
+
+[8] static output port + lock rule regressions
+  [ ok ] ADD on static output NOT_SUPPORTED                   = 11
+  [ ok ] REMOVE on static output NOT_SUPPORTED                = 11
+  [ ok ] ctlr2 LOCK SUCCESS                                   = 0
+  [ ok ] ADD from other controller ENTITY_LOCKED              = 3
+  [ ok ] ctlr2 UNLOCK SUCCESS                                 = 0
+  [ ok ] locked ADD left the store empty                      = 0
+
+----------------------------------------------------------
+checks: 80   failures: 0
+RESULT: PASS
+./obj_nxn/Vaecp_nxn
+== GET_STREAM_INFO on the 8x8 ship shape (D1 index coverage, D2 response size) ==
+
+[1] descriptor directory truth (READ_DESCRIPTOR, 1722.1 7.4.5)
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,0) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,1) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,2) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,3) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,4) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,5) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,6) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,7) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,8) SUCCESS              = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,9) NO_SUCH_DESCRIPTOR   = 2
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,10) NO_SUCH_DESCRIPTOR  = 2
+  [ ok ] READ_DESCRIPTOR(STREAM_INPUT,11) NO_SUCH_DESCRIPTOR  = 2
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,0) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,1) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,2) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,3) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,4) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,5) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,6) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,7) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,8) SUCCESS             = 0
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,9) NO_SUCH_DESCRIPTOR  = 2
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,10) NO_SUCH_DESCRIPTOR = 2
+  [ ok ] READ_DESCRIPTOR(STREAM_OUTPUT,11) NO_SUCH_DESCRIPTOR = 2
+
+[2] D1: GET_STREAM_INFO agrees with READ_DESCRIPTOR on EVERY index (the exact contradiction Hive reported 8+7 times)
+  [ ok ] GSI(STREAM_INPUT,0) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,0) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,0) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,0) echoes type/index                = 327680
+  [ ok ] GSI(STREAM_INPUT,0) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,0) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,1) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,1) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,1) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,1) echoes type/index                = 327681
+  [ ok ] GSI(STREAM_INPUT,1) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,1) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,2) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,2) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,2) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,2) echoes type/index                = 327682
+  [ ok ] GSI(STREAM_INPUT,2) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,2) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,3) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,3) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,3) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,3) echoes type/index                = 327683
+  [ ok ] GSI(STREAM_INPUT,3) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,3) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,4) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,4) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,4) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,4) echoes type/index                = 327684
+  [ ok ] GSI(STREAM_INPUT,4) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,4) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,5) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,5) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,5) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,5) echoes type/index                = 327685
+  [ ok ] GSI(STREAM_INPUT,5) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,5) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,6) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,6) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,6) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,6) echoes type/index                = 327686
+  [ ok ] GSI(STREAM_INPUT,6) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,6) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,7) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,7) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,7) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,7) echoes type/index                = 327687
+  [ ok ] GSI(STREAM_INPUT,7) format == descriptor bytes       = 0x205022002006000
+  [ ok ] GSI(STREAM_INPUT,7) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,8) status == READ_DESCRIPTOR's      = 1
+  [ ok ] GSI(STREAM_INPUT,8) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,8) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,8) echoes type/index                = 327688
+  [ ok ] GSI(STREAM_INPUT,8) format == descriptor bytes       = 0x41060010000BB80
+  [ ok ] GSI(STREAM_INPUT,8) flags bit24 reserved 0           = 0
+  [ ok ] GSI(STREAM_INPUT,9) status == READ_DESCRIPTOR's      = 0
+  [ ok ] GSI(STREAM_INPUT,9) cdl 68 (any status)              = 68
+  [ ok ] GSI(STREAM_INPUT,9) frame 94 B (any status)          = 94
+  [ ok ] GSI(STREAM_INPUT,9) echoes type/index                = 327689
+  [ ok ] GSI(STREAM_INPUT,9) error flags 0                    = 0
+  [ ok ] GSI(STREAM_INPUT,9) error tail all zero              = 0
+  [ ok ] GSI(STREAM_INPUT,10) status == READ_DESCRIPTOR's     = 0
+  [ ok ] GSI(STREAM_INPUT,10) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_INPUT,10) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_INPUT,10) echoes type/index               = 327690
+  [ ok ] GSI(STREAM_INPUT,10) error flags 0                   = 0
+  [ ok ] GSI(STREAM_INPUT,10) error tail all zero             = 0
+  [ ok ] GSI(STREAM_INPUT,11) status == READ_DESCRIPTOR's     = 0
+  [ ok ] GSI(STREAM_INPUT,11) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_INPUT,11) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_INPUT,11) echoes type/index               = 327691
+  [ ok ] GSI(STREAM_INPUT,11) error flags 0                   = 0
+  [ ok ] GSI(STREAM_INPUT,11) error tail all zero             = 0
+  [ ok ] GSI(STREAM_OUTPUT,0) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,0) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,0) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,0) echoes type/index               = 393216
+  [ ok ] GSI(STREAM_OUTPUT,0) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,0) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,1) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,1) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,1) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,1) echoes type/index               = 393217
+  [ ok ] GSI(STREAM_OUTPUT,1) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,1) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,2) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,2) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,2) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,2) echoes type/index               = 393218
+  [ ok ] GSI(STREAM_OUTPUT,2) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,2) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,3) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,3) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,3) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,3) echoes type/index               = 393219
+  [ ok ] GSI(STREAM_OUTPUT,3) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,3) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,4) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,4) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,4) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,4) echoes type/index               = 393220
+  [ ok ] GSI(STREAM_OUTPUT,4) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,4) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,5) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,5) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,5) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,5) echoes type/index               = 393221
+  [ ok ] GSI(STREAM_OUTPUT,5) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,5) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,6) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,6) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,6) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,6) echoes type/index               = 393222
+  [ ok ] GSI(STREAM_OUTPUT,6) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,6) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,7) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,7) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,7) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,7) echoes type/index               = 393223
+  [ ok ] GSI(STREAM_OUTPUT,7) format == descriptor bytes      = 0x205022002006000
+  [ ok ] GSI(STREAM_OUTPUT,7) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,8) status == READ_DESCRIPTOR's     = 1
+  [ ok ] GSI(STREAM_OUTPUT,8) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,8) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,8) echoes type/index               = 393224
+  [ ok ] GSI(STREAM_OUTPUT,8) format == descriptor bytes      = 0x41060010000BB80
+  [ ok ] GSI(STREAM_OUTPUT,8) flags bit24 reserved 0          = 0
+  [ ok ] GSI(STREAM_OUTPUT,9) status == READ_DESCRIPTOR's     = 0
+  [ ok ] GSI(STREAM_OUTPUT,9) cdl 68 (any status)             = 68
+  [ ok ] GSI(STREAM_OUTPUT,9) frame 94 B (any status)         = 94
+  [ ok ] GSI(STREAM_OUTPUT,9) echoes type/index               = 393225
+  [ ok ] GSI(STREAM_OUTPUT,9) error flags 0                   = 0
+  [ ok ] GSI(STREAM_OUTPUT,9) error tail all zero             = 0
+  [ ok ] GSI(STREAM_OUTPUT,10) status == READ_DESCRIPTOR's    = 0
+  [ ok ] GSI(STREAM_OUTPUT,10) cdl 68 (any status)            = 68
+  [ ok ] GSI(STREAM_OUTPUT,10) frame 94 B (any status)        = 94
+  [ ok ] GSI(STREAM_OUTPUT,10) echoes type/index              = 393226
+  [ ok ] GSI(STREAM_OUTPUT,10) error flags 0                  = 0
+  [ ok ] GSI(STREAM_OUTPUT,10) error tail all zero            = 0
+  [ ok ] GSI(STREAM_OUTPUT,11) status == READ_DESCRIPTOR's    = 0
+  [ ok ] GSI(STREAM_OUTPUT,11) cdl 68 (any status)            = 68
+  [ ok ] GSI(STREAM_OUTPUT,11) frame 94 B (any status)        = 94
+  [ ok ] GSI(STREAM_OUTPUT,11) echoes type/index              = 393227
+  [ ok ] GSI(STREAM_OUTPUT,11) error flags 0                  = 0
+  [ ok ] GSI(STREAM_OUTPUT,11) error tail all zero            = 0
+
+[3] STREAM_OUTPUT identity per index == what ACMP hands out
+  [ ok ] out0 stream_id {mac,0}                               = 0x20000FFFE010000
+  [ ok ] out0 dest_mac base+0                                 = 0x91E0F000FE01
+  [ ok ] out0 vlan live                                       = 2
+  [ ok ] out0 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out0 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out1 stream_id {mac,1}                               = 0x20000FFFE010001
+  [ ok ] out1 dest_mac base+1                                 = 0x91E0F000FE02
+  [ ok ] out1 vlan live                                       = 2
+  [ ok ] out1 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out1 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out2 stream_id {mac,2}                               = 0x20000FFFE010002
+  [ ok ] out2 dest_mac base+2                                 = 0x91E0F000FE03
+  [ ok ] out2 vlan live                                       = 2
+  [ ok ] out2 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out2 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out3 stream_id {mac,3}                               = 0x20000FFFE010003
+  [ ok ] out3 dest_mac base+3                                 = 0x91E0F000FE04
+  [ ok ] out3 vlan live                                       = 2
+  [ ok ] out3 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out3 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out4 stream_id {mac,4}                               = 0x20000FFFE010004
+  [ ok ] out4 dest_mac base+4                                 = 0x91E0F000FE05
+  [ ok ] out4 vlan live                                       = 2
+  [ ok ] out4 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out4 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out5 stream_id {mac,5}                               = 0x20000FFFE010005
+  [ ok ] out5 dest_mac base+5                                 = 0x91E0F000FE06
+  [ ok ] out5 vlan live                                       = 2
+  [ ok ] out5 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out5 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out6 stream_id {mac,6}                               = 0x20000FFFE010006
+  [ ok ] out6 dest_mac base+6                                 = 0x91E0F000FE07
+  [ ok ] out6 vlan live                                       = 2
+  [ ok ] out6 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out6 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out7 stream_id {mac,7}                               = 0x20000FFFE010007
+  [ ok ] out7 dest_mac base+7                                 = 0x91E0F000FE08
+  [ ok ] out7 vlan live                                       = 2
+  [ ok ] out7 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out7 flags 0xF6000000                                = 0xF6000000
+  [ ok ] out8 stream_id {mac,8}                               = 0x20000FFFE010008
+  [ ok ] out8 dest_mac base+8                                 = 0x91E0F000FE09
+  [ ok ] out8 vlan live                                       = 2
+  [ ok ] out8 msrp_acc_lat default 2 ms                       = 2000000
+  [ ok ] out8 flags 0xF6000000                                = 0xF6000000
+
+[3b] dest_mac derivation carries across the low byte
+  [ ok ] out0 dmac ...10FF                                    = 0x91E0F00010FF
+  [ ok ] out1 dmac ...1100 (carry)                            = 0x91E0F0001100
+  [ ok ] out8 dmac ...1107 (CRF source)                       = 0x91E0F0001107
+
+[4] STREAM_INPUT records: sink 0 live, CRF sink own record, the rest honestly unbound
+  [ ok ] in0 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in0 unbound stream_id 0                              = 0x0
+  [ ok ] in0 unbound dest_mac 0                               = 0x0
+  [ ok ] in1 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in1 unbound stream_id 0                              = 0x0
+  [ ok ] in1 unbound dest_mac 0                               = 0x0
+  [ ok ] in2 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in2 unbound stream_id 0                              = 0x0
+  [ ok ] in2 unbound dest_mac 0                               = 0x0
+  [ ok ] in3 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in3 unbound stream_id 0                              = 0x0
+  [ ok ] in3 unbound dest_mac 0                               = 0x0
+  [ ok ] in4 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in4 unbound stream_id 0                              = 0x0
+  [ ok ] in4 unbound dest_mac 0                               = 0x0
+  [ ok ] in5 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in5 unbound stream_id 0                              = 0x0
+  [ ok ] in5 unbound dest_mac 0                               = 0x0
+  [ ok ] in6 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in6 unbound stream_id 0                              = 0x0
+  [ ok ] in6 unbound dest_mac 0                               = 0x0
+  [ ok ] in7 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in7 unbound stream_id 0                              = 0x0
+  [ ok ] in7 unbound dest_mac 0                               = 0x0
+  [ ok ] in8 unbound flags 0xF2000000                         = 0xF2000000
+  [ ok ] in8 unbound stream_id 0                              = 0x0
+  [ ok ] in8 unbound dest_mac 0                               = 0x0
+  [ ok ] in0 bound flags CONNECTED (no STREAMING_WAIT)        = 0xF6000000
+  [ ok ] in0 bound stream_id                                  = 0x200000000010000
+  [ ok ] in0 bound dest_mac                                   = 0x91E0F000FE01
+  [ ok ] in8 (CRF) uses ITS OWN bind record                   = 0x3CC0C6FFFE0102FF
+  [ ok ] in8 (CRF) dest_mac                                   = 0x91E0F0001234
+  [ ok ] in1 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in1 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in1 reports NOT connected                            = 0xF2000000
+  [ ok ] in2 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in2 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in2 reports NOT connected                            = 0xF2000000
+  [ ok ] in3 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in3 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in3 reports NOT connected                            = 0xF2000000
+  [ ok ] in4 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in4 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in4 reports NOT connected                            = 0xF2000000
+  [ ok ] in5 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in5 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in5 reports NOT connected                            = 0xF2000000
+  [ ok ] in6 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in6 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in6 reports NOT connected                            = 0xF2000000
+  [ ok ] in7 does NOT inherit sink0/CRF id                    = 0x0
+  [ ok ] in7 does NOT inherit a dest_mac                      = 0x0
+  [ ok ] in7 reports NOT connected                            = 0xF2000000
+
+[5] negative controls on the STATUS side (unchanged behaviour)
+  [ ok ] GSI(AUDIO_UNIT,0) NO_SUCH_DESCRIPTOR                 = 2
+  [ ok ] GSI(AUDIO_UNIT,0) still 68 B                         = 68
+  [ ok ] GSI(bogus type) NO_SUCH_DESCRIPTOR                   = 2
+  [ ok ] GSI(bogus type) still 68 B                           = 68
+  [ ok ] GSI(out,65535) NO_SUCH_DESCRIPTOR                    = 2
+  [ ok ] GSI(out,65535) still 68 B                            = 68
+
+[6] NOT_IMPLEMENTED still REFLECTS THE COMMAND (the one status that does - la_avdecc checkResponsePayload)
+  [ ok ] unknown command NOT_IMPLEMENTED                      = 1
+  [ ok ] unknown command cdl == command cdl                   = 18
+  [ ok ] unknown command echoes the payload                   = 182130867283365
+
+[7] the same size rule on the other fixed-shape getters
+  [ ok ] GET_AVB_INFO(0) SUCCESS                              = 0
+  [ ok ] GET_AVB_INFO(0) cdl 36 (20 + 1 mapping)              = 36
+  [ ok ] GET_AVB_INFO(3) NO_SUCH_DESCRIPTOR                   = 2
+  [ ok ] GET_AVB_INFO(3) cdl 32 (>= the 20 B minimum)         = 32
+  [ ok ] GET_AVB_INFO(3) frame 12+32+26 B                     = 58
+  [ ok ] GET_AVB_INFO(wrong type) NOT_IMPLEMENTED             = 1
+  [ ok ] GET_AVB_INFO(wrong type) reflects command cdl 16     = 16
+  [ ok ] GET_NAME(out0,0) SUCCESS                             = 0
+  [ ok ] GET_NAME(out0,0) cdl 84                              = 84
+  [ ok ] GET_NAME(out0,0) frame 110 B                         = 110
+  [ ok ] GET_NAME(out99) NO_SUCH_DESCRIPTOR                   = 2
+  [ ok ] GET_NAME(out99) cdl still 84                         = 84
+  [ ok ] GET_NAME(out99) frame still 110 B                    = 110
+  [ ok ] GET_NAME(bad name_index) BAD_ARGUMENTS               = 7
+  [ ok ] GET_NAME(bad name_index) cdl still 84                = 84
+  [ ok ] GET_NAME(bad name_index) frame still 110 B           = 110
+
+[8] D1 again on the OTHER dynamic-info command: GET_COUNTERS must answer every descriptor READ_DESCRIPTOR serves
+  [ ok ] GET_COUNTERS(STREAM_INPUT,0) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,0) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,0) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,1) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,1) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,1) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,2) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,2) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,2) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,2) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,3) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,3) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,3) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,3) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,4) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,4) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,4) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,4) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,5) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,5) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,5) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,5) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,6) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,6) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,6) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,6) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,7) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,7) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,7) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,7) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,8) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_INPUT,8) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,8) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,8) empty valid mask        = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,9) status == READ_DESCRIPTOR's = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,9) cdl 148                 = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,9) frame 174 B             = 174
+  [ ok ] GET_COUNTERS(STREAM_INPUT,10) status == READ_DESCRIPTOR's = 0
+  [ ok ] GET_COUNTERS(STREAM_INPUT,10) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_INPUT,10) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,0) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,0) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,0) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,1) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,1) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,1) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,2) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,2) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,2) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,2) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,3) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,3) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,3) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,3) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,4) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,4) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,4) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,4) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,5) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,5) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,5) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,5) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,6) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,6) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,6) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,6) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,7) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,7) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,7) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,7) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,8) status == READ_DESCRIPTOR's = 1
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,8) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,8) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,8) empty valid mask       = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,9) status == READ_DESCRIPTOR's = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,9) cdl 148                = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,9) frame 174 B            = 174
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,10) status == READ_DESCRIPTOR's = 0
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,10) cdl 148               = 148
+  [ ok ] GET_COUNTERS(STREAM_OUTPUT,10) frame 174 B           = 174
+  [ ok ] GET_COUNTERS(LOCALE,0) refused                       = 0
+  [ ok ] GET_COUNTERS(LOCALE,0) still 148                     = 148
+
+[9] GET_AUDIO_MAP error payload keeps the 12 B floor (§7.4.44.2)
+  [ ok ] GET_AUDIO_MAP(absent) NO_SUCH_DESCRIPTOR             = 2
+  [ ok ] GET_AUDIO_MAP(absent) cdl 24 (12 B payload)          = 24
+  [ ok ] GET_AUDIO_MAP(absent) frame >= 12+12+26              = 1
+
+----------------------------------------------------------
+checks: 379   failures: 0
+RESULT: PASS
+./obj_amap/Vaecp_amap
+== GET_AUDIO_MAP port-relative bounds on the 8x8 ship shape (defect A) ==
+
+[1] port descriptors and the AUDIO_MAP each one's base_map names (READ_DESCRIPTOR, 1722.1 7.4.5 / 7.2.13)
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,0) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.0 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,0) SUCCESS (STREAM_PORT_INPUT.0 base_map) = 0
+  [ ok ] AUDIO_MAP[0] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[0] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[0] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,1) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.1 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,1) SUCCESS (STREAM_PORT_INPUT.1 base_map) = 0
+  [ ok ] AUDIO_MAP[1] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[1] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[1] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,2) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.2 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,2) SUCCESS (STREAM_PORT_INPUT.2 base_map) = 0
+  [ ok ] AUDIO_MAP[2] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[2] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[2] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,3) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.3 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,3) SUCCESS (STREAM_PORT_INPUT.3 base_map) = 0
+  [ ok ] AUDIO_MAP[3] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[3] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[3] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,4) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.4 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,4) SUCCESS (STREAM_PORT_INPUT.4 base_map) = 0
+  [ ok ] AUDIO_MAP[4] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[4] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[4] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,5) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.5 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,5) SUCCESS (STREAM_PORT_INPUT.5 base_map) = 0
+  [ ok ] AUDIO_MAP[5] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[5] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[5] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,6) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.6 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,6) SUCCESS (STREAM_PORT_INPUT.6 base_map) = 0
+  [ ok ] AUDIO_MAP[6] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[6] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[6] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_INPUT,7) SUCCESS               = 0
+  [ ok ] STREAM_PORT_INPUT.7 declares number_of_maps 1              = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,7) SUCCESS (STREAM_PORT_INPUT.7 base_map) = 0
+  [ ok ] AUDIO_MAP[7] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[7] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[7] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,0) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.0 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,8) SUCCESS (STREAM_PORT_OUTPUT.0 base_map) = 0
+  [ ok ] AUDIO_MAP[8] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[8] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[8] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,1) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.1 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,9) SUCCESS (STREAM_PORT_OUTPUT.1 base_map) = 0
+  [ ok ] AUDIO_MAP[9] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[9] number_of_mappings <= 62                      = 1
+  [ ok ] AUDIO_MAP[9] holds the 8 mappings it declares              = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,2) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.2 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,10) SUCCESS (STREAM_PORT_OUTPUT.2 base_map) = 0
+  [ ok ] AUDIO_MAP[10] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[10] number_of_mappings <= 62                     = 1
+  [ ok ] AUDIO_MAP[10] holds the 8 mappings it declares             = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,3) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.3 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,11) SUCCESS (STREAM_PORT_OUTPUT.3 base_map) = 0
+  [ ok ] AUDIO_MAP[11] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[11] number_of_mappings <= 62                     = 1
+  [ ok ] AUDIO_MAP[11] holds the 8 mappings it declares             = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,4) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.4 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,12) SUCCESS (STREAM_PORT_OUTPUT.4 base_map) = 0
+  [ ok ] AUDIO_MAP[12] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[12] number_of_mappings <= 62                     = 1
+  [ ok ] AUDIO_MAP[12] holds the 8 mappings it declares             = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,5) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.5 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,13) SUCCESS (STREAM_PORT_OUTPUT.5 base_map) = 0
+  [ ok ] AUDIO_MAP[13] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[13] number_of_mappings <= 62                     = 1
+  [ ok ] AUDIO_MAP[13] holds the 8 mappings it declares             = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,6) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.6 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,14) SUCCESS (STREAM_PORT_OUTPUT.6 base_map) = 0
+  [ ok ] AUDIO_MAP[14] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[14] number_of_mappings <= 62                     = 1
+  [ ok ] AUDIO_MAP[14] holds the 8 mappings it declares             = 1
+  [ ok ] READ_DESCRIPTOR(STREAM_PORT_OUTPUT,7) SUCCESS              = 0
+  [ ok ] STREAM_PORT_OUTPUT.7 declares number_of_maps 1             = 1
+  [ ok ] READ_DESCRIPTOR(AUDIO_MAP,15) SUCCESS (STREAM_PORT_OUTPUT.7 base_map) = 0
+  [ ok ] AUDIO_MAP[15] mappings_offset 8 (Table 7-32, this version of AEM) = 8
+  [ ok ] AUDIO_MAP[15] number_of_mappings <= 62                     = 1
+  [ ok ] AUDIO_MAP[15] holds the 8 mappings it declares             = 1
+
+[2] Milan 5.4.2.26: inputs serve their OWN map, outputs WITH a map answer NOT_SUPPORTED
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,0,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,0) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,0) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,0) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,0) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,1,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,1) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,1) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,1) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,1) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,2,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,2) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,2) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,2) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,2) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,3,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,3) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,3) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,3) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,3) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,4,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,4) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,4) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,4) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,4) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,5,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,5) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,5) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,5) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,5) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,6,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,6) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,6) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,6) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,6) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,7,0) SUCCESS               = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,7) number_of_maps 1        = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,7) number_of_mappings == descriptor's 8 = 8
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,7) cdl 12+12+8*8           = 88
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_INPUT,7) frame is as long as it claims = 1
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,0) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,0) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,0) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,1) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,1) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,1) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,2) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,2) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,2) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,3) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,3) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,3) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,4) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,4) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,4) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,5) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,5) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,5) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,6) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,6) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,6) refusal carries no mappings = 0
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,7) NOT_SUPPORTED (Milan 5.4.2.26, port HAS Audio Map) = 11
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,7) refusal cdl 24         = 24
+  [ ok ] GET_AUDIO_MAP(STREAM_PORT_OUTPUT,7) refusal carries no mappings = 0
+
+[3] every mapping is inside its OWN port's bounds (Table 7-33: "The offset from the base_cluster of the STREAM_PORT_INPUT or STREAM_PORT_OUTPUT")
+  [ ok ] STREAM_PORT_INPUT.0: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.0: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.0: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.1: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.1: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.1: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.2: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.2: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.2: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.3: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.3: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.3: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.4: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.4: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.4: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.5: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.5: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.5: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.6: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.6: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.6: stream_index addresses a stream that exists = 0
+  [ ok ] STREAM_PORT_INPUT.7: cluster_offset < its own number_of_clusters 8 = 0
+  [ ok ] STREAM_PORT_INPUT.7: cluster_channel < that cluster's channel_count = 0
+  [ ok ] STREAM_PORT_INPUT.7: stream_index addresses a stream that exists = 0
+
+[4] the served bytes ARE the port's own AUDIO_MAP bytes (the 48-octet over-read, silicon 2026-07-28)
+  [ ok ] STREAM_PORT_INPUT.0 served rows == AUDIO_MAP[0] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.0 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.1 served rows == AUDIO_MAP[1] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.1 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.2 served rows == AUDIO_MAP[2] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.2 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.3 served rows == AUDIO_MAP[3] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.3 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.4 served rows == AUDIO_MAP[4] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.4 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.5 served rows == AUDIO_MAP[5] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.5 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.6 served rows == AUDIO_MAP[6] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.6 serves NO byte past its own map        = 0
+  [ ok ] STREAM_PORT_INPUT.7 served rows == AUDIO_MAP[7] bytes      = 0
+  [ ok ] STREAM_PORT_INPUT.7 serves NO byte past its own map        = 0
+
+[5] different ports, same port-relative offsets, different global clusters (Table 7-33)
+  [ ok ] INPUT.0 and INPUT.1 publish the SAME first offset          = 0
+  [ ok ] ...onto DIFFERENT global clusters (base_cluster differs)   = 1
+  [ ok ] INPUT.0 and INPUT.1 resolve offset 0 to different clusters = 1
+
+[6] refusals: the right STATUS, and the 7.4.44.2 12 B floor
+  [ ok ] port index past the shape (INPUT) -> status 2              = 2
+  [ ok ] port index past the shape (INPUT) cdl 24 (12 B payload)    = 24
+  [ ok ] port index past the shape (INPUT) frame >= 26+24           = 1
+  [ ok ] port index past the shape (OUTPUT) -> status 2             = 2
+  [ ok ] port index past the shape (OUTPUT) cdl 24 (12 B payload)   = 24
+  [ ok ] port index past the shape (OUTPUT) frame >= 26+24          = 1
+  [ ok ] map_index 1 on a number_of_maps=1 INPUT port -> status 7   = 7
+  [ ok ] map_index 1 on a number_of_maps=1 INPUT port cdl 24 (12 B payload) = 24
+  [ ok ] map_index 1 on a number_of_maps=1 INPUT port frame >= 26+24 = 1
+  [ ok ] map_index 1 on an OUTPUT port with a map -> status 11      = 11
+  [ ok ] map_index 1 on an OUTPUT port with a map cdl 24 (12 B payload) = 24
+  [ ok ] map_index 1 on an OUTPUT port with a map frame >= 26+24    = 1
+  [ ok ] STREAM_OUTPUT is not a STREAM_PORT -> status 2             = 2
+  [ ok ] STREAM_OUTPUT is not a STREAM_PORT cdl 24 (12 B payload)   = 24
+  [ ok ] STREAM_OUTPUT is not a STREAM_PORT frame >= 26+24          = 1
+
+----------------------------------------------------------
+checks: 218   failures: 0
+RESULT: PASS
+./obj_pools/Vaecp_pools
+== AECP D8 role-pool model - what a controller enumerates ==
+
+[1] STREAM_PORT cluster blocks (1722.1 7.2.13 Table 7-23)
+  [ ok ] [1] SPI0 READ_DESCRIPTOR SUCCESS                       = 0
+  [ ok ] [1] SPI1 READ_DESCRIPTOR SUCCESS                       = 0
+  [ ok ] [1] SPO0 READ_DESCRIPTOR SUCCESS                       = 0
+  [ ok ] [1] SPO1 READ_DESCRIPTOR SUCCESS                       = 0
+  [ ok ] [1] SPI0 number_of_clusters (host x2)                  = 2
+  [ ok ] [1] SPI0 base_cluster                                  = 0
+  [ ok ] [1] SPI1 base_cluster (contiguous)                     = 2
+  [ ok ] [1] SPO0 number_of_clusters (2+1+2)                    = 5
+  [ ok ] [1] SPO0 base_cluster (after all inputs)               = 4
+  [ ok ] [1] SPO1 base_cluster (contiguous)                     = 9
+  [ ok ] [1] SPI0 number_of_maps                                = 1
+  [ ok ] [1] SPI0 base_map                                      = 0
+  [ ok ] [1] SPO0 number_of_maps                                = 1
+  [ ok ] [1] SPO0 base_map                                      = 2
+  [ ok ] [1] SPO1 base_map                                      = 3
+  [ ok ] [1] SPI2 NO_SUCH_DESCRIPTOR                            = 2
+  [ ok ] [1] SPO2 NO_SUCH_DESCRIPTOR                            = 2
+
+[2] AUDIO_CLUSTER names + invariant fields (1722.1 7.2.16)
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[0] name                              = 'Host Play 0'
+  [ ok ] [2] AUDIO_CLUSTER[0] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[0] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[0] signal_type                       = 65535
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[1] name                              = 'Host Play 1'
+  [ ok ] [2] AUDIO_CLUSTER[1] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[1] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[1] signal_type                       = 65535
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[2] name                              = 'Host Play 0'
+  [ ok ] [2] AUDIO_CLUSTER[2] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[2] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[2] signal_type                       = 65535
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[3] name                              = 'Host Play 1'
+  [ ok ] [2] AUDIO_CLUSTER[3] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[3] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[3] signal_type                       = 65535
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[4] name                              = 'Host Cap 0'
+  [ ok ] [2] AUDIO_CLUSTER[4] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[4] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[4] signal_type                       = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[5] name                              = 'Host Cap 1'
+  [ ok ] [2] AUDIO_CLUSTER[5] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[5] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[5] signal_type                       = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[6] name                              = 'Pilot Tone'
+  [ ok ] [2] AUDIO_CLUSTER[6] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[6] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[6] signal_type                       = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[7] name                              = 'Loopback S0 ch 0'
+  [ ok ] [2] AUDIO_CLUSTER[7] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[7] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[7] signal_type                       = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[8] name                              = 'Loopback S0 ch 1'
+  [ ok ] [2] AUDIO_CLUSTER[8] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[8] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[8] signal_type                       = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[9] name                              = 'Host Cap 0'
+  [ ok ] [2] AUDIO_CLUSTER[9] channel_count=1                   = 1
+  [ ok ] [2] AUDIO_CLUSTER[9] format MBLA 0x40                  = 64
+  [ ok ] [2] AUDIO_CLUSTER[9] signal_type                       = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[10] name                             = 'Host Cap 1'
+  [ ok ] [2] AUDIO_CLUSTER[10] channel_count=1                  = 1
+  [ ok ] [2] AUDIO_CLUSTER[10] format MBLA 0x40                 = 64
+  [ ok ] [2] AUDIO_CLUSTER[10] signal_type                      = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[11] name                             = 'Pilot Tone'
+  [ ok ] [2] AUDIO_CLUSTER[11] channel_count=1                  = 1
+  [ ok ] [2] AUDIO_CLUSTER[11] format MBLA 0x40                 = 64
+  [ ok ] [2] AUDIO_CLUSTER[11] signal_type                      = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[12] name                             = 'Loopback S1 ch 0'
+  [ ok ] [2] AUDIO_CLUSTER[12] channel_count=1                  = 1
+  [ ok ] [2] AUDIO_CLUSTER[12] format MBLA 0x40                 = 64
+  [ ok ] [2] AUDIO_CLUSTER[12] signal_type                      = 2
+  [ ok ] [2] cluster READ SUCCESS                               = 0
+  [ ok ] [2] AUDIO_CLUSTER[13] name                             = 'Loopback S1 ch 1'
+  [ ok ] [2] AUDIO_CLUSTER[13] channel_count=1                  = 1
+  [ ok ] [2] AUDIO_CLUSTER[13] format MBLA 0x40                 = 64
+  [ ok ] [2] AUDIO_CLUSTER[13] signal_type                      = 2
+  [ ok ] [2] AUDIO_CLUSTER[14] NO_SUCH_DESCRIPTOR               = 2
+
+[3] AUDIO_MAP port-relative offsets (1722.1 7.2.19)
+  [ ok ] [3] AUDIO_MAP[2] SUCCESS                               = 0
+  [ ok ] [3] AUDIO_MAP[3] SUCCESS                               = 0
+  [ ok ] [3] AUDIO_MAP[2] number_of_mappings                    = 2
+  [ ok ] [3] AUDIO_MAP[3] number_of_mappings                    = 2
+  [ ok ] [3] map2 row0 stream_index=0                           = 0
+  [ ok ] [3] map3 row0 stream_index=1                           = 1
+  [ ok ] [3] map2 row0 stream_channel                           = 0
+  [ ok ] [3] map2 row0 cluster_offset (loopback)                = 3
+  [ ok ] [3] map3 row0 cluster_offset (SAME, port-relative)     = 3
+  [ ok ] [3] map2 row0 cluster_channel=0 (mono)                 = 0
+  [ ok ] [3] map2 row1 stream_index=0                           = 0
+  [ ok ] [3] map3 row1 stream_index=1                           = 1
+  [ ok ] [3] map2 row1 stream_channel                           = 1
+  [ ok ] [3] map2 row1 cluster_offset (loopback)                = 4
+  [ ok ] [3] map3 row1 cluster_offset (SAME, port-relative)     = 4
+  [ ok ] [3] map2 row1 cluster_channel=0 (mono)                 = 0
+  [ ok ] [3] port0 offset 3 -> global cluster name              = 'Loopback S0 ch 0'
+  [ ok ] [3] port1 offset 3 -> DIFFERENT global cluster         = 'Loopback S1 ch 0'
+  [ ok ] [3] AUDIO_MAP[0] number_of_mappings                    = 2
+  [ ok ] [3] map0 row0 cluster_offset (host)                    = 0
+  [ ok ] [3] map0 row1 cluster_offset (host)                    = 1
+  [ ok ] [3] AUDIO_MAP[4] NO_SUCH_DESCRIPTOR                    = 2
+
+[4] 7.2.19 uniqueness of the emitted rows
+  [ ok ] [4] output map: one entry per stream channel (no dup)  = 1
+  [ ok ] [4] input map: one entry per cluster channel (no dup)  = 1
+  [ ok ] [4] map2 offsets < SPO0 number_of_clusters             = 1
+
+[5] Milan 5.4.2.28 static-map posture (NOT_SUPPORTED = correct)
+  [ ok ] [5] ADD_AUDIO_MAPPINGS on pooled INPUT port NOT_SUPPORTED = 11
+  [ ok ] [5] ADD_AUDIO_MAPPINGS on pooled OUTPUT port NOT_SUPPORTED = 11
+  [ ok ] [5] REMOVE_AUDIO_MAPPINGS on pooled OUTPUT port NOT_SUPPORTED = 11
+
+[6] SET_NAME on a pooled AUDIO_CLUSTER + read-back (7.4.17)
+  [ ok ] [6] SET_NAME(AUDIO_CLUSTER,7) SUCCESS                  = 0
+  [ ok ] [6] read-back shows the new name                       = 'Loopback RENAMED'
+  [ ok ] [6] neighbour cluster untouched (write isolation)      = 'Loopback S0 ch 1'
+  [ ok ] [6] SET_NAME restore SUCCESS                           = 0
+
+----------------------------------------------------------
+checks: 120   failures: 0
+RESULT: PASS
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aecp'

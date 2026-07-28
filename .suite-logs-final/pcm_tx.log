@@ -1,0 +1,39 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_tx'
+verilator --cc --exe --build -j 0 --top-module KL_pcm_tx -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2" -GN_STREAMS_P=2 -GCHANS_P=4 -GSAMPLE_DIV_C=32 -GUSE_EXT_TICK_P=0 ../../../hdl/ieee1722/aaf/KL_pcm_tx.sv sim_main.cpp -o Vpcm_tx_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_tx/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_tx/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.019); cpu 0.001 s on 96 threads; allocated 16.355 MB
+./obj_dir/Vpcm_tx_sim
+[PASS] phase1 cadence: SLOTS pairs/sample
+[PASS] phase1 slot ownership t*PAIRS+p
+[PASS] phase1 exact S32BE sample sequence
+[PASS] phase1 neg-control (not little-lane)
+[PASS] phase1 wrap exercised (rd past LEN)
+[PASS] phase1 s0 consumed words
+[PASS] phase1 s1 consumed words
+[PASS] phase1 s0 no underrun
+[PASS] phase1 s1 no underrun
+[PASS] phase1 s0 no overrun
+[PASS] phase1 s1 no overrun
+[PASS] phase2 SLOTS pair-cycles per period
+[PASS] phase2 idle gap between ticks (paced)
+[PASS] phase2 exactly one tick per period
+[PASS] phase3 underrun still emits s0 pairs
+[PASS] phase3 underrun repeats last sample
+[PASS] phase3 underrun count grew
+[PASS] phase3 cadence held under underrun
+[PASS] phase3 silence policy emits zeros
+[PASS] phase3 rd_ptr frozen on underrun
+[PASS] phase4 overrun counted once
+[PASS] phase4 rd fast-forwarded one lap
+[PASS] phase4 overrun not double-counted
+[PASS] phase4 stream resumes after overrun
+[PASS] phase5 disabled stream1 emits nothing
+[PASS] phase5 enabled  stream0 still emits
+[PASS] phase5 cadence = only enabled slots
+
+27 checks: 27 PASS, 0 FAIL
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/pcm_tx'

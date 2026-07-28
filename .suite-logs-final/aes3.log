@@ -1,0 +1,63 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aes3'
+./obj_dir/Vaes3_wrap
+== [LOCK] cold acquisition from the wire alone ==
+  [ ok ] r24 locked_o asserted                                  = 1
+  [ ok ] no pair emitted before lock                            = 0
+  [ ok ] lock took >= 2 blocks (LOCK_BLOCKS_P=2)                = 1
+  [ ok ] r24 parity errors during acquisition                   = 0
+  [ ok ] r24 sync losses during acquisition                     = 0
+  [ ok ] transmitter emitted blocks                             = 1
+  [ ok ] r24 saw the same block count                           = 1
+  [ ok ] r20 locked too                                         = 1
+  [ ok ] r16 locked too                                         = 1
+== [PAIR] sample-exact pair stream ==
+  [ ok ] pairs received                                         = 1
+  [ ok ] first received pair is a pair we handed over           = 1
+  [ ok ] every pair sample-exact and in order                   = 0
+  [ ok ] pair_slot_o is 0 (stereo members own pair 0)           = 0
+  [ ok ] pairs_captured_o counted them                          = 1
+== [WORD] the same wire at 20 and 16 bits ==
+  [ ok ] WORD_BITS_P=20 truncates to the top 20 bits            = 0
+  [ ok ] WORD_BITS_P=16 truncates to the top 16 bits            = 0
+  [ ok ] r20 sample MSB-justified (low 4 bits clear)            = 0x000000
+  [ ok ] r16 sample MSB-justified (low 8 bits clear)            = 0x000000
+== [CS] channel status round-trip, both dialects ==
+  [ ok ] r24 cs_valid_o                                         = 1
+  [ ok ] channel-status word round-tripped                      = 0x2000055
+  [ ok ] professional: cs_pro_o                                 = 1
+  [ ok ] professional: emphasis byte0[4:2]                      = 5
+  [ ok ] professional: fs byte0[7:6]                            = 1
+  [ ok ] professional: no dialect mismatch                      = 0
+  [ ok ] consumer: cs_valid_o                                   = 1
+  [ ok ] consumer: emphasis byte0[5:3] of the same word         = 2
+  [ ok ] consumer: fs byte3[3:0] of the same word               = 2
+  [ ok ] consumer: dialect MISMATCH flagged (bit0 says pro)     = 1
+== [VBIT] V=1 counts, never gags the wire truth ==
+  [ ok ] invalid_o counted the V=1 subframes                    = 1
+  [ ok ] pairs kept flowing while V was set                     = 1
+  [ ok ] V=1 did not drop lock                                  = 1
+  [ ok ] V=1 is not a parity error                              = 0
+  [ ok ] V=1 is not a sync loss                                 = 0
+== [ERR] a real biphase violation costs lock, then re-locks ==
+  [ ok ] locked_o dropped on the injected violation             = 0
+  [ ok ] sync_loss_o counted it                                 = 1
+  [ ok ] no pair emitted while unlocked                         = 56
+  [ ok ] still unlocked half a block later                      = 0
+  [ ok ] re-locked by itself                                    = 1
+  [ ok ] re-lock cost >= 2 clean blocks                         = 1
+  [ ok ] pairs resumed after re-lock                            = 1
+  [ ok ] resumed pairs are still ours                           = 1
+  [ ok ] resumed pairs sample-exact and in order                = 0
+== [UNDER] starving the transmitter keeps the line legal ==
+  [ ok ] underrun_o confessed the repeats                       = 1
+  [ ok ] the far end kept lock through the underrun             = 1
+  [ ok ] underrun is not a parity error                         = 0
+  [ ok ] underrun is not a sync loss                            = 1
+  [ ok ] the starved link repeats the LAST pair                 = 1
+  [ ok ] pairs still flow while starved                         = 1
+  [ ok ] recovered: transmitter accepting pairs again           = 1
+  [ ok ] no parity error over the whole run                     = 0
+--------------------------------------------------------------
+checks: 50   failures: 0
+RESULT: PASS
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/aes3'

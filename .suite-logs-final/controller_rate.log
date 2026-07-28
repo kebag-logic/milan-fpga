@@ -1,0 +1,13 @@
+make: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/controller_rate'
+verilator --cc --exe --build -j 0 --top-module controller_rate_wrap +incdir+../../../hdl/common +incdir+../../../hdl/ieee8021q/ts +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-TIMESCALEMOD -Wno-VARHIDDEN -CFLAGS "-std=c++17 -O2" ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_demux.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021q/ts/traffic_class_map.sv ../../../hdl/ieee8021q/ts/traffic_classifier.sv ../../../hdl/ieee8021q/ts/credit_based_shaper.sv ../../../hdl/ieee8021q/ts/traffic_shaping_core.sv ../../../hdl/ieee8021q/ts/traffic_queues.sv ../../../hdl/ieee8021q/ts/traffic_controller_802_1q.sv controller_rate_wrap.sv sim_main.cpp -o Vcontroller_rate_sim
+make[1]: Entering directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/controller_rate/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/controller_rate/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.021 s (elab=0.000, cvt=0.000, bld=0.019); cpu 0.002 s on 96 threads; allocated 16.355 MB
+./obj_dir/Vcontroller_rate_sim
+[controller_rate] egress=24518 frames, 15820178 bytes, integrity_fails=0
+controller_rate: 24518 checks, 0 failures
+[controller_rate] no integrity failures — bug appears FIXED; flip this harness to gating (return integrity_fails?1:0).
+make: Leaving directory '/home/alex/prjs-avb-on-fpga/milan-fpga/tb/verilator/controller_rate'
