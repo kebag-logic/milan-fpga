@@ -604,6 +604,7 @@ MILAN_OPTIONAL_BLOCKS = {
     "i2s_playback":      "I2SPB_P",     # KL_i2s_playback
     "rx_mac_filter":     "RXFILT_P",    # rx_mac_filter + tcam
     "render_lpf":        "LPF_P",       # KL_pcm_lpf (banked lever, lane S)
+    "datapath_probes":   "DPROBES_P",   # APRB + PBK probe groups (0x8B4-0x8D0)
 }
 
 
@@ -5077,6 +5078,11 @@ def main():
                          "The builder derives this from srp.class_queue (the SR "
                          "classes keep CBS). Default None = all queues, the "
                          "pre-2026-07-28 build, byte-identical.")
+    ap.add_argument("--no-datapath-probes", action="store_true",
+                    help="AREA LEVER: prune the APRB (0x8B4-0x8C4) and PBK "
+                         "(0x8C8-0x8D0) probe groups - closed-finding "
+                         "diagnostics; the range reads 0 on a pruned build "
+                         "(the LTAP precedent). Default off => probes PRESENT.")
     ap.add_argument("--no-rx-mac-filter", action="store_true",
                     help="AREA LEVER: prune rx_mac_filter + its TCAM. The RX stream "
                          "becomes a straight wire to the DMA port, which is bit-exactly "
@@ -5279,6 +5285,7 @@ def main():
                        "maap":              not args.no_maap,
                        "i2s_playback":      not args.no_i2s_playback,
                        "rx_mac_filter":     not args.no_rx_mac_filter,
+                       "datapath_probes":   not args.no_datapath_probes,
                    },
                    cbs_queues_mask=args.cbs_queues_mask,
                    entity_gen_dir=args.entity_gen_dir,

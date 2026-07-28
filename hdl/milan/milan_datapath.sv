@@ -189,7 +189,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! filtering is done in software; the TCAM_* CSR window keeps its
   //! addresses but nothing consumes them, so the builder gate keys on
   //! platform.rx_address_filter being declared 'software'/'promiscuous'.
-  parameter int RXFILT_P = 1
+  parameter int RXFILT_P = 1,
+  //! AREA_80_CAMPAIGN static-conversion row (2026-07-29): the APRB
+  //! (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding
+  //! diagnostics whose counters/latches die with the parameter; the CSR
+  //! range reads 0 on a pruned build (the LTAP precedent).
+  parameter int DPROBES_P = 1
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -2867,39 +2872,48 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  STREAM-subtype frame (subtype[7]=0; control subtypes ADP/ACMP/MAAP are
   //  excluded so they cannot overwrite the media evidence).
   // ==========================================================================
-  logic [63:0] aprb_sid_r;      //! stream_id of the last stream-subtype frame
-  logic [7:0]  aprb_subtype_r;  //! its subtype
-  logic        aprb_hit_r;      //! did that frame match a table entry
-  logic [3:0]  aprb_idx_r;      //! matched entry index (valid with aprb_hit_r)
-  logic [7:0]  aprb_armed_w;    //! table entries currently armed (live popcount)
+  //! DPROBES_P (AREA_80_CAMPAIGN static-conversion row, 2026-07-29): the
+  //! APRB/PBK groups are closed-finding diagnostics (fabric-listener
+  //! blocker + item-7 chain, both TB-pinned since); a build that prunes
+  //! them reads the whole 0x8B4-0x8D0 range as 0 - the LTAP precedent, an
+  //! absent block declares itself. Counting/latching logic dies with it.
+  generate if (DPROBES_P != 0) begin : g_aprb
+    logic [63:0] aprb_sid_r;      //! stream_id of the last stream-subtype frame
+    logic [7:0]  aprb_subtype_r;  //! its subtype
+    logic        aprb_hit_r;      //! did that frame match a table entry
+    logic [3:0]  aprb_idx_r;      //! matched entry index (valid with aprb_hit_r)
+    logic [7:0]  aprb_armed_w;    //! table entries currently armed (live popcount)
 
-  always_comb begin : aprb_armed_count
-    aprb_armed_w = '0;
-    for (int unsigned k = 0; k < N_STREAMS; k++)
-      if (strtbl_en_w[k]) aprb_armed_w = aprb_armed_w + 8'd1;
-  end : aprb_armed_count
+    always_comb begin : aprb_armed_count
+      aprb_armed_w = '0;
+      for (int unsigned k = 0; k < N_STREAMS; k++)
+        if (strtbl_en_w[k]) aprb_armed_w = aprb_armed_w + 8'd1;
+    end : aprb_armed_count
 
-  always_ff @(posedge axis_clk) begin : aprb_probe
-    if (!axis_resetn) begin
-      aprb_sid_r     <= '0;
-      aprb_subtype_r <= '0;
-      aprb_hit_r     <= 1'b0;
-      aprb_idx_r     <= '0;
-    end
-    else if (avtprx_parse_p && !avtprx_subtype[7]) begin
-      aprb_sid_r     <= avtprx_sid_frame;
-      aprb_subtype_r <= avtprx_subtype;
-      aprb_hit_r     <= avtprx_match;
-      aprb_idx_r     <= 4'(avtprx_idx);
-    end
-  end : aprb_probe
+    always_ff @(posedge axis_clk) begin : aprb_probe
+      if (!axis_resetn) begin
+        aprb_sid_r     <= '0;
+        aprb_subtype_r <= '0;
+        aprb_hit_r     <= 1'b0;
+        aprb_idx_r     <= '0;
+      end
+      else if (avtprx_parse_p && !avtprx_subtype[7]) begin
+        aprb_sid_r     <= avtprx_sid_frame;
+        aprb_subtype_r <= avtprx_subtype;
+        aprb_hit_r     <= avtprx_match;
+        aprb_idx_r     <= 4'(avtprx_idx);
+      end
+    end : aprb_probe
 
-  assign aprb_regs_w[32*0 +: 32] = aprb_parsed_w;
-  assign aprb_regs_w[32*1 +: 32] = aprb_matched_w;
-  assign aprb_regs_w[32*2 +: 32] = aprb_sid_r[31:0];
-  assign aprb_regs_w[32*3 +: 32] = aprb_sid_r[63:32];
-  assign aprb_regs_w[32*4 +: 32] = {8'd0, aprb_armed_w, 3'd0, aprb_idx_r,
-                                    aprb_hit_r, aprb_subtype_r};
+    assign aprb_regs_w[32*0 +: 32] = aprb_parsed_w;
+    assign aprb_regs_w[32*1 +: 32] = aprb_matched_w;
+    assign aprb_regs_w[32*2 +: 32] = aprb_sid_r[31:0];
+    assign aprb_regs_w[32*3 +: 32] = aprb_sid_r[63:32];
+    assign aprb_regs_w[32*4 +: 32] = {8'd0, aprb_armed_w, 3'd0, aprb_idx_r,
+                                      aprb_hit_r, aprb_subtype_r};
+  end else begin : g_no_aprb
+    assign aprb_regs_w = '0;
+  end endgenerate
 
   // ==========================================================================
   //  CRF Media Clock Input engine (Milan 7.3.2) - measurement half: parses
@@ -3335,27 +3349,35 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stream renders locally, but ANY starving stream is evidence the host
   //! is not feeding the ring, so the sum (not stream 0) is the honest read.
   logic [19:0] pbk_und_sum_w, pbk_ovr_sum_w;
-  always_comb begin : pbk_rail_sum
-    pbk_und_sum_w = 20'd0;
-    pbk_ovr_sum_w = 20'd0;
-    for (int s = 0; s < N_STREAMS; s++) begin
-      pbk_und_sum_w = pbk_und_sum_w + 20'(pb_underrun_o[s*16 +: 16]);
-      pbk_ovr_sum_w = pbk_ovr_sum_w + 20'(pb_overrun_o[s*16 +: 16]);
-    end
-  end : pbk_rail_sum
-  wire [15:0] pbk_und_w = (|pbk_und_sum_w[19:16]) ? 16'hFFFF
-                                                  : pbk_und_sum_w[15:0];
-  wire [15:0] pbk_ovr_w = (|pbk_ovr_sum_w[19:16]) ? 16'hFFFF
-                                                  : pbk_ovr_sum_w[15:0];
+  generate if (DPROBES_P != 0) begin : g_pbk
+    always_comb begin : pbk_rail_sum
+      pbk_und_sum_w = 20'd0;
+      pbk_ovr_sum_w = 20'd0;
+      for (int s = 0; s < N_STREAMS; s++) begin
+        pbk_und_sum_w = pbk_und_sum_w + 20'(pb_underrun_o[s*16 +: 16]);
+        pbk_ovr_sum_w = pbk_ovr_sum_w + 20'(pb_overrun_o[s*16 +: 16]);
+      end
+    end : pbk_rail_sum
+    wire [15:0] pbk_und_w = (|pbk_und_sum_w[19:16]) ? 16'hFFFF
+                                                    : pbk_und_sum_w[15:0];
+    wire [15:0] pbk_ovr_w = (|pbk_ovr_sum_w[19:16]) ? 16'hFFFF
+                                                    : pbk_ovr_sum_w[15:0];
 
-  //! 0x8C8 PBK_STAT: {pb_mask[9:0], 2'0, armed, pb_en, playing, src, unarmed}
-  assign pbk_regs_w[32*0 +: 32] = {
-    10'(chmap_pb_mask_w), 2'd0, |chmap_mapped_mask_w[1:0], pb_enable_i,
-    pb_playing_o, cfg_chmap_enable, pbk_unarmed_w };
-  //! 0x8CC PBK_FEEDS: frames handed to the DAC producer on the live source
-  assign pbk_regs_w[32*1 +: 32] = pbk_feeds_w;
-  //! 0x8D0 PBK_RAILS: {KL_pcm_tx underruns, overruns} (saturating sums)
-  assign pbk_regs_w[32*2 +: 32] = {pbk_und_w, pbk_ovr_w};
+    //! 0x8C8 PBK_STAT: {pb_mask[9:0], 2'0, armed, pb_en, playing, src, unarmed}
+    assign pbk_regs_w[32*0 +: 32] = {
+      10'(chmap_pb_mask_w), 2'd0, |chmap_mapped_mask_w[1:0], pb_enable_i,
+      pb_playing_o, cfg_chmap_enable, pbk_unarmed_w };
+    //! 0x8CC PBK_FEEDS: frames handed to the DAC producer on the live source
+    assign pbk_regs_w[32*1 +: 32] = pbk_feeds_w;
+    //! 0x8D0 PBK_RAILS: {KL_pcm_tx underruns, overruns} (saturating sums)
+    assign pbk_regs_w[32*2 +: 32] = {pbk_und_w, pbk_ovr_w};
+  end else begin : g_no_pbk
+    always_comb begin : pbk_rail_zero
+      pbk_und_sum_w = 20'd0;
+      pbk_ovr_sum_w = 20'd0;
+    end : pbk_rail_zero
+    assign pbk_regs_w = '0;
+  end endgenerate
 
   // ---- parked TDM8 render lane (docs §8): phys{2..9} -> 8 slot writes -------
   //! The render xbar emits the whole phys vector once per media tick; the TDM

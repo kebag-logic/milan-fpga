@@ -46,6 +46,12 @@ board:
                           # refuses a filter with nothing behind it). Was
                           # already pruned via constraints.render_lpf below
                           # - this line makes the two levers agree.
+    datapath_probes: false # AREA_80 static-conversion row (2026-07-29):
+                          # closed-finding diagnostics (APRB/PBK); pruned to
+                          # unlock AreaOptimized_medium synthesis - the AX
+                          # timing under _high was congestion-systemic
+                          # (three re-timed paths later still -1.x on fresh
+                          # route-dominated cones)
   constraints:
     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
     milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)

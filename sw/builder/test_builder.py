@@ -182,7 +182,11 @@ TRACKED_ADP_SVH = os.path.join(ROOT, eb.ADP_SHAPE_REL)
 # argv rightly never carries them.
 FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
               "--place-directive": 1, "--output-dir": 1,
-              "--synth-directive": 1, "--opt-directive": 1}
+              "--synth-directive": 1, "--opt-directive": 1,
+              # where the build READS its generated entity from is sweep
+              # mechanics (the 2026-07-28 concurrent-sweep change), not a
+              # property of the end-station definition
+              "--entity-gen-dir": 1}
 
 DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
 
@@ -2235,7 +2239,8 @@ def test_optional_blocks_default_present():
     SHIPPED_PRUNES = {
         "arty_current": set(),
         "arty_4x4": set(),
-        "ax7101_8x8": {"latency_taps", "i2s_playback", "render_lpf"},
+        "ax7101_8x8": {"latency_taps", "i2s_playback", "render_lpf",
+                       "datapath_probes"},
     }
     for name in ("arty_current", "arty_4x4", "ax7101_8x8"):
         r = eb.build(CONFIGS[name], OUT)

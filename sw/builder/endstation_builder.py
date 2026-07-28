@@ -369,6 +369,9 @@ OPTIONAL_BLOCKS = {
     "render_lpf":        ("--no-render-lpf", "LPF_P",
                           "KL_pcm_lpf - the 2nd-order Butterworth on the DAC "
                           "render tap"),
+    "datapath_probes":   ("--no-datapath-probes", "DPROBES_P",
+                          "the APRB + PBK probe groups (0x8B4-0x8D0) - "
+                          "closed-finding diagnostics"),
 }
 
 #: Where the RX destination-address decision is taken. `hardware` (the
@@ -3294,6 +3297,10 @@ FEATURE_REMEASURE = {
     "render_lpf":
         "the analog loop THD+N record, which was measured THROUGH this "
         "filter (docs/NXN_ARCHITECTURE.md 6.2)",
+    "datapath_probes":
+        "the APRB pre-match view (parsed/matched/last-sid) and PBK chain "
+        "evidence - the 0x8B4-0x8D0 words read 0, so bench recipes that "
+        "read them see the LTAP-style absent-block zero, not a measurement",
 }
 
 

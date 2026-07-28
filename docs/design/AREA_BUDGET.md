@@ -133,6 +133,7 @@ enforces that on all three shipped configs.
 | I2S playback | `I2SPB_P` | `--no-i2s-playback` | `i2s_playback` | the board has no DAC |
 | RX address filter | `RXFILT_P` | `--no-rx-mac-filter` | `rx_mac_filter` | the port is promiscuous, or filtering is done in software |
 | PCM low-pass | `LPF_P` | `--no-render-lpf` | `render_lpf` | render path only, and every digital acceptance measurement is taken upstream of it |
+| datapath probe groups | `DPROBES_P` | `--no-datapath-probes` | `datapath_probes` | the APRB (0x8B4–0x8C4) and PBK (0x8C8–0x8D0) groups are closed-finding diagnostics (fabric-listener blocker + item-7 chain, both TB-pinned since); the range reads 0 on a pruned build — the LTAP precedent (added 2026-07-29 to unlock AreaOptimized_medium on the AX, whose AreaOptimized_high timing was congestion-systemic) |
 
 #### What each one is worth — MEASURED, and every figure a yosys ESTIMATE
 
