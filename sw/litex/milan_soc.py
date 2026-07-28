@@ -5199,6 +5199,17 @@ def main():
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]",
         ]
+        # The litex-boards Arty platform hardcodes a SPIX4 write_cfgmem in
+        # additional_commands; against our x1 bitstream (the PROVEN boot
+        # config above) Vivado hard-errors AT THE VERY END of an otherwise
+        # complete run (Writecfgmem 68-20 - it cost the m0019h arty seeds
+        # their exit status AFTER their bitstreams were already written).
+        # Override to the matching x1 interface so the .bin exists and the
+        # flow exits 0.
+        platform.toolchain.additional_commands = [
+            "write_cfgmem -force -format bin -interface spix1 -size 16 "
+            "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin",
+        ]
         # The LiteX arty platform ships SPI_BUSWIDTH 4 + a spix4 write_cfgmem;
         # our x1 override above wins the property fight, and Vivado then
         # refuses the platform's spix4 cfgmem against an x1 bitfile
