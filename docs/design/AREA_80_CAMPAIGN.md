@@ -44,47 +44,42 @@ rxq2-sans-RSC SoC split (+4.3k went in with rx_queues 2; the D7 fix needs
 the *steered second queue*, not the TCP-coalescing engine — separability
 unverified).
 
-## The latency axis (USER 2026-07-28): what earns fabric at all
+## The latency axis (USER 2026-07-28, tightened same day): 100 ms is the line
 
-**The second razor:** classify every plane by its real deadline. At or
-under ~1 s — media, timing, reservation reaction, counter accumulation —
-stays in fabric. Over ~1 s — management, enumeration, "a human clicked
-something" — has no claim on LUTs: it runs as SOFTWARE on the softcore out
-of DDR3, reading fabric truth through the CSRs. This REVISES the rev-2
-"everything in fabric" direction for the latency-insensitive plane only;
-the media/timing planes stay fully fabric.
+**The second razor, final form:** a plane earns fabric ONLY if the protocol
+gives it a deadline at or under **100 ms**. Everything whose governing
+timeout/cadence is above 100 ms is management by definition and runs as
+SOFTWARE on the softcore out of DDR3, reading and writing fabric truth
+through the CSRs. This REVISES the rev-2 "everything in fabric" direction;
+the sub-100 ms plane stays fully fabric.
 
-| plane | real deadline, by clause | verdict |
+| plane | protocol deadline, from the PDF | verdict |
 |---|---|---|
-| AAF/CRF framing, zero-fill, packetizer/depacketizer, shaping | 125 µs class-A intervals (Milan 7.3.3, 802.1Q 34.6) | FABRIC, untouchable |
+| AAF/CRF framing, zero-fill, packetizer/depacketizer, shaping, licence/admission gates | 125 µs class-A intervals; per-frame gating | FABRIC |
 | gPTP timestamping | ns-scale capture | FABRIC |
-| lwSRP registration + streaming licence reaction | joins/TA→LR reaction well under 1 s (802.1Q 35 timers; Milan 5.3.7.3 licence) | FABRIC (also an explicit rev-2 USER directive) |
-| ACMP listener/talker SMs, fast-connect restore | Milan 5.5.3 command timeouts (sub-second), boot replay | FABRIC |
-| Table 5.4/5.16 counter ACCUMULATION | 1 s observation interval, "shall implement and return" (5.4.2.25) | FABRIC counts; anything may read |
-| CLKV/tu stamping | per-frame (4.3.5.2 shall) | FABRIC |
-| MAAP defence | Annex B probe/defend windows (~hundreds of ms) | FABRIC (634 LUTs, mandatory, borderline — revisit last) |
-| **AECP/AEM command handling** (enumeration, GET/SET descriptors, names, stream info composition) | 1722.1-2021 inflight timeout ~250 ms per command, controller retries; every command is a management action | **SOFTWARE + DDR3.** A softcore answers in single-digit ms from a DDR3-resident descriptor model, reading live words (counters, stream state) from the CSRs the fabric already exports. `aecp_listener` = **6,206 LUTs + 9 RAMB36 back** — the single biggest lever this campaign has, bigger than every static-conversion row combined |
-| ADP advertise/depart/discover | 2 s advertise cadence (valid_time), discovery is user-visible but second-scale | SOFTWARE-eligible (only ~200 LUTs — do it for coherence when AECP moves, not for area) |
-| Persistence journal writer | 5 s poll (already software); fabric ingest = boot-time verify | keep the small fabric verify (it is the torn-image guarantee) |
+| CLKV/tu stamping | per-frame (Milan 4.3.5.2 shall) | FABRIC |
+| Table 5.4/5.16 counter ACCUMULATION | per-frame events (the 1 s observation interval is the reporting bin, not the event) | FABRIC (harvest/serve may be read by anything) |
+| stream table, chan-map crossbars, PCM rings | per-frame / per-sample consumers | FABRIC (chmap also a USER directive) |
+| lwSRP | MRP joinTime is 200 ms — ABOVE the line — but the rev-2 USER directive names lwSRP fabric explicitly, and its per-frame ADMISSION GATE is sub-100 ms regardless | FABRIC by NAME (the walker/registrar ~2.6k become eligible the day the name is released; the gate stays fabric either way) |
+| **AECP/AEM command handling** | 1722.1-2021 inflight ~250 ms per command, controller retries | **SOFTWARE + DDR3** — returns **6,206 LUT + 9 RAMB36** |
+| **ACMP protocol SMs** (probe/command/response, timeouts, fast-connect orchestration) | 1722.1-2021 Table 8-1 verbatim: CONNECT_TX 2000 ms, DISCONNECT_TX 200 ms, GET_TX_STATE 200 ms, CONNECT_RX 4500 ms, DISCONNECT_RX 500 ms, GET_RX_STATE 200 ms — **the FASTEST ACMP deadline is 200 ms** | **SOFTWARE + DDR3** — the SM writes binds into the fabric stream table over the proven CSR window path (the 4-devmem workaround was the existence proof); returns ~**2.6k LUT** (`KL_acmp_listener` 2.1k + responder 0.5k) |
+| **MAAP** | 1722-2016 Table B.8: MAAP_PROBE_INTERVAL_BASE **500 ms**, ANNOUNCE_INTERVAL_BASE 30 s; defence rides the probe cadence | **SOFTWARE + DDR3** — software defence answers in ms against a 500 ms cadence; claim results program the TCAM exactly as today; returns ~**634 LUT** |
+| ADP advertise/depart/discover | 2 s cadence (valid_time/2) | SOFTWARE (~200 LUT, do with the AECP move) |
+| persistence journal fabric verify | boot-time replay, no runtime deadline | SOFTWARE-eligible (~408 LUT) — the CRC/shape refusal logic moves into the boot script that already drives 0x7B8; the E1 bind port stays as the fabric write surface |
+| IDENTIFY, unsolicited notifications | human-scale | SOFTWARE with the AECP move |
 
-**The AECP-to-software lane, sketched honestly:** the control lane already
-classifies AECP to the CPU-facing queue; the move is (1) stop diverting AEM
-commands into `KL_aecp_top` — route them up the existing control RX path,
-(2) a small C responder (the raw-socket tooling's serializer + the builder's
-`aem_overlay.json` as its model source, so the ONE config still defines the
-entity), (3) live fields keep coming from fabric CSRs (`A_STRMW_*`, diag
-counters, ADP shape words), (4) the fabric keeps ONLY what has a sub-second
-deadline: ACMP, the identify LED hook, and the unsolicited-notification
-tickle if its timing demands it. The desk suites that pin the fabric
-builder migrate to behave-on-board scenarios against the software responder
-— the byte-exact oracle survives, it just tests the new home. This is a
-FULL LANE (driver routing + daemon + test migration), not a tonight edit;
-it runs only under this campaign's trigger.
+**What "software" means concretely:** the control lane already classifies
+these PDUs to the CPU queue; the responder is one C daemon owning the
+protocol state machines, with `aem_overlay.json`/the builder outputs as its
+model source (the ONE config still defines the entity) and the CSR windows
+as its only view of live truth. The fabric keeps every per-frame effect
+(gates, tables, counters, stamps); software keeps every conversation.
 
-With the AECP move, the ledger reaches the target arithmetic honestly:
-~61,000 − 6,200 (AECP) − ~1,400 (static conversions above) − ~1,000
-(probe/alias prunes) ≈ **52,400 ≈ 82.7%**, before touching the walker,
-the csr decode, or the RSC split.
+**Arithmetic at the 100 ms razor** (from the measured 61,039):
+−6.2k AECP −2.6k ACMP −0.63k MAAP −0.2k ADP −0.4k journal-verify
+−1.4k static conversions −1.0k probes/aliases ≈ **48.6k ≈ 76.6%** —
+UNDER the 80% target with lwSRP still fabric by name, before touching
+the walker, the csr decode, or the RSC split.
 
 Every conversion lands with: the config key that pins it, the gate that
 refuses a build whose constant disagrees with the config, a TB case where
