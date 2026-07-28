@@ -31,6 +31,11 @@ software, not a controller, not a clause — is entitled to use.
 | lwSRP window CFG overrides | fabric self-provisions since 0x0015/0x0019; overrides are bring-up/test paths exercised by sim_nxn and bench recipes | KEEP (test surface; revisit only if the table above under-delivers) | — |
 | CLKV lease, `AAF_CTRL`, `CRFT_CTRL`, journal group | Milan 4.3.5.2 (tu shall), 5.3.7.3, 5.3.8.2 — the runtime-ness is the point | MUST-DYNAMIC | — |
 
+A MUST-DYNAMIC verdict above answers *static vs runtime* only — it does
+NOT award fabric. Where the dynamic behaviour lives is the latency table
+below (MAAP is the example: its allocation MUST stay dynamic per Annex B,
+AND it moves to software, because its fastest cadence is 500 ms).
+
 Static-conversion honest total: **≈0.9–1.9k LUTs.** It does NOT reach −10.3k
 alone; the campaign's second half is the block-diet ledger (in priority
 order, from the measured hierarchy): `KL_aecp_response_builder` 5.7k (the
