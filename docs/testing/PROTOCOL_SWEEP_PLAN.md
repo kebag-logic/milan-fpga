@@ -19,16 +19,16 @@ paraphrase — every lane quotes its clauses out of the PDFs on this machine
 
 ## Contents
 
-- [What already exists (do not rebuild it)](#what-already-exists-do-not-rebuild-it)
-- [Lane A — the 5.4.2 command matrix (the analysis half)](#lane-a--the-542-command-matrix-the-analysis-half)
-- [Lane B — getter/setter gap closure](#lane-b--gettersetter-gap-closure)
-- [Lane C — per-sink probe SM (the enabler RTL)](#lane-c--per-sink-probe-sm-the-enabler-rtl)
-- [Lane D — ACMP sink SM, Table 5.30 cell by cell](#lane-d--acmp-sink-sm-table-530-cell-by-cell)
-- [Lane E — ADP state machines](#lane-e--adp-state-machines)
-- [Lane F — SRP registrar/applicant walk](#lane-f--srp-registrarapplicant-walk)
-- [Lane G — live wire verification (bench, serial)](#lane-g--live-wire-verification-bench-serial)
-- [Dependency order](#dependency-order)
-- [Rules that bind every lane](#rules-that-bind-every-lane)
+- **[What already exists (do not rebuild it)](#what-already-exists-do-not-rebuild-it)** — The 60-70 % of this campaign that is already held by existing suites, named per surface so a lane spends its context on the uncovered remainder instead of re-proving the covered majority.
+- **[Lane A — the 5.4.2 command matrix (the analysis half)](#lane-a--the-542-command-matrix-the-analysis-half)** — Extract Milan's mandatory command table into matrix rows and DIFF them against existing coverage, so "what is untested" becomes a generated list instead of an impression. Names its own expected day-one holes as the extractor's sanity check.
+- **[Lane B — getter/setter gap closure](#lane-b--gettersetter-gap-closure)** — Close what lane A names: remaining SET_STREAM_INFO flags, START/STOP_STREAMING refusal paths, and the nine settings-persistence shalls — the last of which may spawn its own follow-on lane if the restore-path design is not small.
+- **[Lane C — per-sink probe SM (the enabler RTL)](#lane-c--per-sink-probe-sm-the-enabler-rtl)** — The one structural RTL item: PROBE_SM_EN_P covers sink 0 only today, so sinks 1..N-1 have no Auto Connect and no restore target. Everything lane D wants for sinks > 0 waits on this.
+- **[Lane D — ACMP sink SM, Table 5.30 cell by cell](#lane-d--acmp-sink-sm-table-530-cell-by-cell)** — One scenario per reachable transition cell of Milan's 48-cell listener table, asserting the clause's FULL exit-action list, with the timer-shrink discipline that makes second-scale MRP timers simulable.
+- **[Lane E — ADP state machines](#lane-e--adp-state-machines)** — The advertise and discovery SM walks; discovery feeds Table 5.30's talker-watch events, which is why this lands before or with lane D.
+- **[Lane F — SRP registrar/applicant walk](#lane-f--srp-registrarapplicant-walk)** — 802.1Q registrar/applicant tables plus Milan's quoted IN->MT modification and the class-A-only Domain rules; also owns the recorded min-size/keep rx question, to be decided from 802.3 rather than convenience.
+- **[Lane G — live wire verification (bench, serial)](#lane-g--live-wire-verification-bench-serial)** — Reference-device calibration of C9-C13, full hive runs on both boards, the re-staged LIVE cert suite, and SRP + stream truth on the taps. Strictly after the current round's §8.3 ladder, strictly serial.
+- **[Dependency order](#dependency-order)** — The lane graph and the parallel/serial shape: A/C/E/F first, then B/D, then G alone on the bench.
+- **[Rules that bind every lane](#rules-that-bind-every-lane)** — The standing constraints: quote clauses, ship negative controls, record-don't-detour, never down-declare, bench and Vivado stay serial.
 
 ## What already exists (do not rebuild it)
 
@@ -50,8 +50,9 @@ A lane that re-tests these is spending its context on the covered 60-70 %:
 **Level 3 / oracle = the clause.** Est. 1 day. No RTL.
 
 1. Extract Milan v1.2 5.4.2.1-5.4.2.x (the mandatory AECP command set,
-   ~30 commands) and the 1722.1-2021 7.4 command table into
-   `docs/testing/COMMAND_MATRIX.md` rows:
+   ~30 commands) and the 1722.1-2021 7.4 command table into a new
+   COMMAND_MATRIX page beside this one (the lane creates it - citing the
+   path before the file exists would fail the doc-path gate, correctly):
    `command x descriptor-kind x index-range x {success, each named error,
    unsolicited} x clause`.
 2. Diff each row against the existing coverage (behave clause tags, aecp
