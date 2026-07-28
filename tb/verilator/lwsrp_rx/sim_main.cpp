@@ -26,6 +26,15 @@
  *  - Framing: endmark-terminated parsing (AttributeListLength never trusted),
  *    zero-padding tolerated, malformed/truncated PDUs abort silently and the
  *    next frame parses clean; non-SRP frames never enter the FIFO.
+ *  - THE CERTIFIED BRIDGE'S OWN LeaveAll PDU, byte-exact off the ProfiShark
+ *    inline tap (2026-07-28, section 17). Every other vector here is built
+ *    from the same reading of 802.1Q the RTL was built from, so a shared
+ *    misreading is invisible to all of them; this one is not built at all.
+ *    Its shape is what matters: four messages ordered 1/3/4/2, LeaveAll set
+ *    in EVERY vector header so three of them are parsed after the Listener
+ *    Join, the Domain packed B-first NoV=2 so class A is the +1 value, and a
+ *    NoV=0 TalkerFailed. The registration must SURVIVE all of that past the
+ *    600 ms LeaveTime, because the bridge re-declares only every 20 s.
  */
 
 #include "VKL_lwsrp_rx.h"
@@ -629,6 +638,121 @@ int main(int argc, char** argv) {
         feed_parse(frame(true, {msg_tadv(g)}), "wrap-l: control parse");
         ck("wrap-l: base <= lsid registers", dut->ta_registered_o, 1);
         dut->lsid_en_i = 0; step(); step();
+    }
+
+    // ============================================================
+    // 17) THE CERTIFIED BRIDGE'S OWN LeaveAll PDU, BYTE-EXACT OFF THE WIRE.
+    //
+    //   Every other vector in this suite is hand-built, i.e. built from
+    //   the same reading of 802.1Q that the RTL was built from - so a
+    //   shared misreading is invisible to all of them. This one is a
+    //   VERBATIM capture from the ProfiShark inline tap on the ALINX <->
+    //   bridge link, 2026-07-28, taken while an ACMP bind was up
+    //   (ALINX talker 0 -> Arty sink 0) and the board read
+    //   LWSRP_STATUS 0x694 = 0x0000037E (declaration Ready, registered,
+    //   ready, talker declared, domain ok, reservation ACTIVE, stream gate
+    //   open, slope mux engaged). FCS stripped; nothing else touched.
+    //
+    //   What makes it worth pinning is the SHAPE, which no hand-built
+    //   vector in this file had:
+    //     * FOUR messages in one PDU, ordered TalkerAdvertise(1),
+    //       Listener(3), Domain(4), TalkerFailed(2) - NOT ascending type;
+    //     * LeaveAllEvent set in EVERY one of the four vector headers
+    //       (802.1Q-2018 10.8.1.2), so THREE of them are parsed AFTER the
+    //       Listener Join that they must not undo. KL_lwsrp_registrar arms
+    //       the 600 ms leave timer from leaveall_p_i, and a LeaveAll pulse
+    //       landing after the Join would re-arm the timer the Join had just
+    //       cancelled - the registration would then age out 600 ms later
+    //       and nothing would re-declare it for a full LeaveAll period
+    //       (measured on this bridge: 20 s). That would present exactly as
+    //       "reservation never completes, MSRP failure code 0";
+    //     * the Domain packed B-first as NoV=2 from FirstValue {5,2,VID},
+    //       so class A is the +1 value and only the +k rule finds it;
+    //     * a TalkerFailed vector with NumberOfValues = 0 (LeaveAll only).
+    //   The hardware holds the registration through all of this, so the
+    //   assertion is SURVIVAL, not merely registration.
+    // ============================================================
+    {
+        // captured payload, ProtocolVersion .. message-list EndMark
+        static const uint8_t BRIDGE_LA_PDU[] = {
+            0x00,
+            0x01,0x19,0x00,0x1e,0x20,0x01,
+            0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00,   // TA sid ...0002
+            0x91,0xe0,0xf0,0x00,0x08,0xe0,             // TA DA
+            0x00,0x02,0x00,0xe0,0x00,0x01,0x70,
+            0x00,0x02,0x17,0x52,                       // AccumulatedLatency
+            0x6c,0x00,0x00,
+            0x03,0x08,0x00,0x0e,0x20,0x01,
+            0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x00,   // Listener sid ...0001
+            0x6c,                                      // three-packed JoinMt
+            0x80,                                      // four-packed Ready
+            0x00,0x00,
+            0x04,0x04,0x00,0x09,0x20,0x02,
+            0x05,0x02,0x00,0x02,                       // Domain B-first {5,2,2}
+            0x7e,0x00,0x00,
+            0x02,0x22,0x00,0x26,0x20,0x00,
+            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+            0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+            0x00,0x00,
+            0x00,0x00,
+            0x00,0x00
+        };
+        // the capture is the ALINX's link, so adopt its identity for this
+        // section: StreamID 0200000000010000 = {station MAC, uid 0}
+        dut->enable_i = 0; step(); step();
+        dut->station_mac_i = 0x020000000001ULL;
+        dut->unique_id_i   = 0;
+        dut->enable_i = 1; step(); step();
+        ck("wire-la: start unregistered", dut->listener_reg_o, 0);
+
+        std::vector<uint8_t> f;
+        put_be(f, 0x0180C200000EULL, 6);          // MSRP group address
+        put_be(f, 0x3CC0C6FE0217ULL, 6);          // the bridge port that sent it
+        put_be(f, 0x22EA, 2);
+        f.insert(f.end(), BRIDGE_LA_PDU,
+                 BRIDGE_LA_PDU + sizeof(BRIDGE_LA_PDU));
+        ck("wire-la: frame is the captured 124 B", (uint64_t)f.size(), 124);
+
+        feed_parse(f, "wire-la: clean parse");
+        ck("wire-la: Listener registered", dut->listener_reg_o, 1);
+        ck("wire-la: declaration is Ready", dut->listener_decl_o, D_READY);
+        ck("wire-la: listener_ready (Milan 5.3.7.3 licence to stream)",
+           dut->listener_ready_o, 1);
+        ck("wire-la: class-A domain found at +1 of the B-first pair",
+           dut->domain_ok_o, 1);
+        ck("wire-la: no failure captured from the NoV=0 TalkerFailed",
+           dut->tfail_valid_o, 0);
+
+        // SURVIVAL: three LeaveAll-flagged vector headers were parsed after
+        // the Join. Past the 600 ms LeaveTime with no refresh, the
+        // registration must still stand - the bridge does not re-declare
+        // for another 20 s.
+        ticks(1200);
+        ck("wire-la: still registered past LeaveTime", dut->listener_reg_o, 1);
+        ck("wire-la: still ready past LeaveTime", dut->listener_ready_o, 1);
+
+        // NEGATIVE CONTROL - a check that cannot fail proves nothing. The
+        // SAME captured PDU with ONE byte changed: the Listener vector's
+        // three-packed event JoinMt (0x6c = 3*36) -> Lv (0xb4 = 5*36), at
+        // payload offset 49 (message @35, +4 header, +2 vector header,
+        // +8 FirstValue). Every length is untouched, so this isolates the
+        // event and nothing else. It is the bridge's withdrawal shape, and
+        // the registration must age out with it.
+        std::vector<uint8_t> g = f;
+        ck("wire-la: control targets the three-packed byte",
+           (uint64_t)g[14 + 49], 0x6c);
+        g[14 + 49] = (uint8_t)(EV_LV * 36);
+        feed_parse(g, "wire-la: withdrawal parses");
+        ticks(1200);
+        ck("wire-la: Lv withdraws the registration",
+           dut->listener_reg_o, 0);
+        ck("wire-la: and the licence to stream", dut->listener_ready_o, 0);
+
+        dut->enable_i = 0; step(); step();
+        dut->station_mac_i = STATION; dut->unique_id_i = UID;
+        dut->enable_i = 1; step(); step();
     }
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);
