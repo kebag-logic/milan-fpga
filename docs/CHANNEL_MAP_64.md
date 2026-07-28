@@ -390,6 +390,45 @@ AVTP_RX, s=0, c=0), `RMAP[1] = 0x8001`, all other RMAP = 0 — today's
 I2S_IN, pair 0) — today's I2S-capture-feeds-talker-0 wiring. All other
 CMAP = 0.
 
+**Capture `SRC = 5` (LOOP — the rx → talker loopback), normative.** The
+capture side's `IDX_HI` nibble is no longer dropped: `SRC = 5` reads it as
+the **RX stream index** and `IDX_LO` as the **channel pair within that
+stream**, so the entry names one (received stream, channel pair) and the
+mux emits it as that talker pair slot's L/R. Per IEEE 1722-2016 7.3.5
+(chronological, channel-ordered interleave) pair `p` is wire channels
+`{2p, 2p+1}` = `{L, R}`, and the packetizer emits a pair back into those
+same two channels, so a pair that goes round the loop keeps its channel
+identity. The channel count used to de-interleave is the **wire's**
+`channels_per_frame` (7.3.3) reported per stream by the RX monitors —
+never the AEM store — with the pre-first-accept value 0 read as 2, the
+same rule `KL_chan_map_render` and `KL_i2s_playback` apply.
+
+| CSR word | Side | RAM entry | Meaning |
+|---|---|---|---|
+| `0xD000` | capture | `0x0D0` | EN, `LOOP`, RX stream 0, pair 0 = its wire channels 0/1 |
+| `0xD031` | capture | `0x3D1` | EN, `LOOP`, RX stream 3, pair 1 = its wire channels 2/3 |
+| `0xD073` | capture | `0x7D3` | EN, `LOOP`, RX stream 7, pair 3 = its wire channels 6/7 |
+
+so the word is `0xD000 | (s << 4) | p`. An entry naming a stream or a pair
+this build does not keep renders **silence** and still pulses its slot
+(the §4 "two ways to be silent" rule); `EN = 0` remains absence.
+
+**Why this source exists.** It is the only per-channel-**distinct**,
+multi-channel audio source the AX7101 has. That board's `_connectors` list
+is empty, so `milan_soc.py` leaves `i2s_pads = None` and drives
+`i_i2s_sdout_i = 0` — the I2S capture front-end clocks in a constant zero;
+the TDM slave pins are tied to 0 on every SoC; and `TONE` is by
+construction the *same* sample on L and R (`{tone_smp_i, tone_smp_i}`), so
+it cannot expose a channel swap. A received stream can.
+
+**Entry width (implementation note).** `CMAP` entries are 12 bits:
+`{idxh[11:8], en[7], src[6:4], idx[3:0]}`. Bits `[7:0]` are bit-for-bit the
+pre-loopback byte and still arrive on the module's 8-bit `map_wr_data_i`;
+`idxh` arrives on its own **defaulted** pin (`map_wr_idxh_i`, default 0),
+as do the loopback payload-AXIS pins — so an integration that has not
+wired the listener side yet gets a permanently silent bucket and every map
+word ever written keeps its exact meaning.
+
 **Write-port arbitration (one port, normative):** AEM-projector commit
 wins the port; the CSR debug write takes idle cycles and is *refused*
 (counted, §6) if it collides with an in-flight AEM burst — mirroring
