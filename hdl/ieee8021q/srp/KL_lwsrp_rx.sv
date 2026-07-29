@@ -12,7 +12,14 @@
 //                bridge-PDU suite drive the identical boundary.
 //
 //                rx_leaveall_p_o is exported for the applicant (KL_lwsrp_tx
-//                re-declares promptly on a received LeaveAll).
+//                re-declares promptly on a received LeaveAll — either
+//                application's). rx_msrp_leaveall_p_o carries the
+//                MSRP-application LeaveAll alone: LeaveAll scope is per MRP
+//                application (802.1Q 10.7.1/10.7.9), so ONLY it may age the
+//                MSRP registrars (here and in KL_lwsrp_ctx) — the merged
+//                pulse let a bridge MVRP LeaveAll age a healthy Listener
+//                Ready 600 ms later with no MSRP re-declare owed inside
+//                LeaveTime (the silicon licence flap, 2026-07-29).
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -57,7 +64,10 @@ module KL_lwsrp_rx #(
     output wire         tfail_valid_o,
     output wire [7:0]   tfail_code_o,
     output wire [63:0]  tfail_bridge_o,    //! our-talker TF bridge_id
-    output wire         rx_leaveall_p_o,   //! to the applicant (re-declare)
+    output wire         rx_leaveall_p_o,   //! to the applicant (re-declare;
+                                           //! MSRP or MVRP LeaveAll)
+    output wire         rx_msrp_leaveall_p_o, //! MSRP-application LeaveAll
+                                           //! (the only registrar-aging one)
 
     // ---- extra context lanes (context table; en=0 lanes inert) -----------
     input  wire [EXT_LANES_P*64-1:0] ext_sid_i,
@@ -89,7 +99,7 @@ module KL_lwsrp_rx #(
     .rx_pdus_o (rx_pdus_o), .rx_drops_o (rx_drops_o)
   );
 
-  wire        w_leaveall_p;
+  wire        w_leaveall_p, w_mvrp_leaveall_p;
   wire        w_domain_p;
   wire [7:0]  w_domain_class, w_domain_prio;
   wire [15:0] w_domain_vid;
@@ -106,7 +116,8 @@ module KL_lwsrp_rx #(
   wire [2:0]  w_l_evt;
   wire [7:0]  w_l_tfail_code;
 
-  assign rx_leaveall_p_o = w_leaveall_p;
+  assign rx_leaveall_p_o      = w_leaveall_p | w_mvrp_leaveall_p;
+  assign rx_msrp_leaveall_p_o = w_leaveall_p;
 
   KL_lwsrp_walker #(.EXT_LANES_P(EXT_LANES_P)) walker (
     .clk_i (clk_i), .rst_n (rst_n),
@@ -120,6 +131,7 @@ module KL_lwsrp_rx #(
     .ext_evt_o (ext_evt_o), .ext_par_o (ext_par_o),
     .ext_tfail_code_o (ext_tfail_code_o),
     .leaveall_p_o (w_leaveall_p),
+    .mvrp_leaveall_p_o (w_mvrp_leaveall_p),
     .domain_p_o (w_domain_p),
     .domain_class_o (w_domain_class), .domain_prio_o (w_domain_prio),
     .domain_vid_o (w_domain_vid),     .domain_evt_o (w_domain_evt),

@@ -119,6 +119,27 @@ static std::vector<uint8_t> bridge_domain(int cls, int prio, int vid) {
     return f;
 }
 
+// single-value MVRP VID PDU (no AttributeListLength field in MVRP)
+static std::vector<uint8_t> bridge_mvrp_vid(int evt, int lva = 0) {
+    std::vector<uint8_t> f;
+    put_be(f, 0x0180C2000021ULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x88F5, 2);
+    f.push_back(0);
+    f.push_back(1); f.push_back(2);                          // type/len
+    put_be(f, (uint64_t)((lva << 13) | 1), 2);
+    put_be(f, VID, 2);
+    f.push_back((uint8_t)(evt * 36));
+    put_be(f, 0, 2); put_be(f, 0, 2);
+    while (f.size() < 60) f.push_back(0);
+    return f;
+}
+
+// scan the transition recorder for a licence (gate) drop
+static bool gate_dropped() {
+    for (auto& t : trans)
+        if (t.sig == 'g' && t.val == 0) return true;
+    return false;
+}
+
 static void feed(const std::vector<uint8_t>& f) {
     size_t n = f.size();
     for (size_t off = 0; off < n; off += 8) {
@@ -283,6 +304,39 @@ int main(int argc, char** argv) {
     run(400);
     ck("final: reservation active", dut->res_active_o, 1);
     ck("final: no drops", dut->rx_drops_o, 0);
+
+    // 9) STREAMING LICENCE vs LeaveAll (802.1Q Table 10-4): an MSRP
+    //    LeaveAll puts the registration in leave-pending (LV), it does NOT
+    //    flush it - re-declared within LeaveTime, the licence NEVER blinks
+    //    (the silicon STREAM_START/STOP flap forensics, 2026-07-29).
+    trans.clear();
+    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));   // pure LeaveAll
+    run(3000);                                        // 300 ms into LV
+    feed(bridge_listener(EV_JOININ, D_READY));        // bridge re-declares
+    run(4000);                                        // past the 600 ms mark
+    ck("la-hold: licence never dropped", gate_dropped() ? 1 : 0, 0);
+    ck("la-hold: still registered", dut->listener_reg_o, 1);
+    ck("la-hold: reservation active", dut->res_active_o, 1);
+
+    // 10) LeaveAll scope is PER MRP APPLICATION (802.1Q 10.7.1/10.7.9: one
+    //     Participant per application; a LeaveAll ages that Participant's
+    //     registrars only). A bridge MVRP LeaveAll obliges NO MSRP Listener
+    //     re-declare, so it must never age the MSRP registration - this is
+    //     the licence-flap defect pin (STREAM_START=16/STOP=15 on silicon).
+    trans.clear();
+    feed(bridge_mvrp_vid(EV_JOININ, /*lva=*/1));
+    run(7000);                                        // LeaveTime + margin
+    ck("mvrp-la: licence never dropped", gate_dropped() ? 1 : 0, 0);
+    ck("mvrp-la: still registered", dut->listener_reg_o, 1);
+    ck("mvrp-la: reservation active", dut->res_active_o, 1);
+
+    // 11) negative: an MSRP LeaveAll with NO re-declare within LeaveTime
+    //     still deregisters (the Table 10-4 leavetimer! row survived the
+    //     application-scope fix)
+    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
+    run(6600);
+    ck("la-neg: aged out at LeaveTime", dut->listener_reg_o, 0);
+    ck("la-neg: licence dropped", dut->stream_gate_o, 0);
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;

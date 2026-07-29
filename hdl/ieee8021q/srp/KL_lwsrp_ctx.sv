@@ -78,7 +78,8 @@ module KL_lwsrp_ctx #(
     input  wire        tick_1khz_i,       //! 1 ms strobe (KL_lwsrp_timers)
     input  wire        join_tick_i,       //! JoinTime strobe
     input  wire        leaveall_tick_i,   //! our LeaveAll turn
-    input  wire        rx_leaveall_i,     //! LeaveAll registered (walker)
+    input  wire        rx_leaveall_i,     //! MSRP-application LeaveAll only
+                                          //! (802.1Q 10.7.1: per-app scope)
 
     // ---- provisioning request/grant port (datapath/ACMP side) -----------
     input  wire        ctx_req_i,         //! request (hold until gnt)

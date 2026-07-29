@@ -12,9 +12,19 @@
 //                FIFO absorbs the rate mismatch) and emits event pulses for
 //                exactly what gates us:
 //
-//                  leaveall_p_o    any vector header with LeaveAllEvent != 0
+//                  leaveall_p_o    MSRP vector header with LeaveAllEvent != 0
 //                                  (once per PDU — the reference treats any
-//                                  nonzero lva field as LeaveAll)
+//                                  nonzero lva field as LeaveAll). LeaveAll
+//                                  scope is PER MRP APPLICATION (802.1Q
+//                                  10.7.1/10.7.9: one Participant per
+//                                  application), so an MVRP LeaveAll is
+//                                  surfaced on mvrp_leaveall_p_o instead and
+//                                  must never age the MSRP registrars — the
+//                                  merged pulse aged a healthy Listener
+//                                  Ready 600 ms after every bridge MVRP
+//                                  LeaveAll (no MSRP re-declare is owed
+//                                  inside LeaveTime), the silicon
+//                                  STREAM_START/STOP licence flap 2026-07-29
 //                  domain_p_o      MSRP Domain FirstValue + its event
 //                  listener_p_o    MSRP Listener vector COVERING our StreamID
 //                                  + the three-packed event + the four-packed
@@ -78,7 +88,10 @@ module KL_lwsrp_walker #(
     input  wire         lsid_en_i,        //! binding valid
 
     // ---- event pulses (data valid with the pulse) -----------------------
-    output reg          leaveall_p_o,
+    output reg          leaveall_p_o,      //! MSRP-application LeaveAll
+    output reg          mvrp_leaveall_p_o, //! MVRP-application LeaveAll
+                                           //! (applicant re-declare only —
+                                           //! never ages MSRP registrars)
     output reg          domain_p_o,
     output reg  [7:0]   domain_class_o,
     output reg  [7:0]   domain_prio_o,
@@ -347,7 +360,7 @@ module KL_lwsrp_walker #(
       ematch_r <= '0; ek_r <= '0; ecap_evt_r <= '0; ecap_par_r <= '0;
       cap_evt_r <= '0; cap_par_r <= '0; pack_idx_r <= '0; pack_n_r <= '0;
       n_evt_q <= '0; n_par_q <= '0;
-      leaveall_p_o <= 1'b0;
+      leaveall_p_o <= 1'b0; mvrp_leaveall_p_o <= 1'b0;
       domain_p_o <= 1'b0; domain_class_o <= '0; domain_prio_o <= '0;
       domain_vid_o <= '0; domain_evt_o <= '0;
       listener_p_o <= 1'b0; listener_evt_o <= '0; listener_decl_o <= '0;
@@ -359,7 +372,8 @@ module KL_lwsrp_walker #(
       pdu_cnt_o <= '0;
     end else begin
       // pulses are one-cycle
-      leaveall_p_o <= 1'b0; domain_p_o <= 1'b0; listener_p_o <= 1'b0;
+      leaveall_p_o <= 1'b0; mvrp_leaveall_p_o <= 1'b0;
+      domain_p_o <= 1'b0; listener_p_o <= 1'b0;
       tadv_p_o <= 1'b0; tfail_p_o <= 1'b0;
       l_tadv_p_o <= 1'b0; l_tfail_p_o <= 1'b0;
       ext_lstn_p_o <= '0; ext_tadv_p_o <= '0; ext_tfail_p_o <= '0;
@@ -418,8 +432,12 @@ module KL_lwsrp_walker #(
               nxt = W_MTYPE_S;
             end else begin
               if (vech_hi_r[7:5] != 3'b000 && !lva_seen_r) begin
-                leaveall_p_o <= 1'b1;    // any nonzero LeaveAllEvent
-                lva_seen_r   <= 1'b1;
+                //! any nonzero LeaveAllEvent — surfaced PER APPLICATION
+                //! (802.1Q 10.7.1/10.7.9): only an MSRP LeaveAll may age
+                //! the MSRP registrars
+                if (is_msrp_w) leaveall_p_o      <= 1'b1;
+                else           mvrp_leaveall_p_o <= 1'b1;
+                lva_seen_r <= 1'b1;
               end
               nv_r        <= nv_new_w;
               //! divides computed ONLY in W_FV_S from the settled nv_r

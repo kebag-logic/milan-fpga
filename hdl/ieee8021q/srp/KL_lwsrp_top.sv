@@ -156,7 +156,11 @@ module KL_lwsrp_top #(
   //! extra context-table rows; 1 inert lane when N_CTX_P = 1
   localparam int unsigned EXT_LANES_C = (N_CTX_P > 1) ? N_CTX_P - 1 : 1;
 
-  wire tick_1khz_w, join_tick_w, leaveall_tick_w, rx_leaveall_w;
+  //! rx_leaveall_w = either application's LeaveAll (applicant re-declare);
+  //! rx_msrp_leaveall_w = MSRP-application only — LeaveAll scope is per MRP
+  //! application (802.1Q 10.7.1/10.7.9), so only it ages the ctx registrars
+  wire tick_1khz_w, join_tick_w, leaveall_tick_w;
+  wire rx_leaveall_w, rx_msrp_leaveall_w;
 
   KL_lwsrp_timers #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) timers (
     .clk_i (clk_i), .rst_n (rst_n),
@@ -191,7 +195,7 @@ module KL_lwsrp_top #(
     .clk_i (clk_i), .rst_n (rst_n),
     .enable_i (enable_i), .tick_1khz_i (tick_1khz_w),
     .join_tick_i (join_tick_w), .leaveall_tick_i (leaveall_tick_w),
-    .rx_leaveall_i (rx_leaveall_w),
+    .rx_leaveall_i (rx_msrp_leaveall_w),
     .ctx_req_i (ctx_req_i), .ctx_we_i (ctx_we_i), .ctx_idx_i (ctx_idx_i),
     .ctx_valid_i (ctx_valid_i), .ctx_dir_i (ctx_dir_i),
     .ctx_sid_i (ctx_sid_i), .ctx_dmac_i (ctx_dmac_i),
@@ -318,6 +322,7 @@ module KL_lwsrp_top #(
     .tfail_valid_o (tfail_valid_o), .tfail_code_o (tfail_code_o),
     .tfail_bridge_o (tfail_bridge_o),
     .rx_leaveall_p_o (rx_leaveall_w),
+    .rx_msrp_leaveall_p_o (rx_msrp_leaveall_w),
     .ext_sid_i (lane_sid_w), .ext_en_i (lane_en_w),
     .ext_lstn_p_o (e_lstn_p_w), .ext_tadv_p_o (e_tadv_p_w),
     .ext_tfail_p_o (e_tfail_p_w),
