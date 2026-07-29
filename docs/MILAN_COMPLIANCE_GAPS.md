@@ -1185,11 +1185,17 @@ audio-unit directive define the next fabric round:
 3. **8-channel streams** (USER): raise the Arty audio unit / stream formats
    from the silicon-proven 4ch to 8ch (TDM8 front-end already elaborated;
    TSpec self-derives `24 + 24*C`).
-4. **Audio-unit output→input loopback + pilot tone** (USER): fabric glue
-   looping rendered outputs back into capture inputs — an internal identity
-   path like the PEER's AES3 loop, so E2E identity/THD+N no longer needs
-   external hardware — with `KL_tone_gen` (`TONE_CTRL 0x6DC`) routable
-   through it. Channel steering rides item 2's dynamic maps.
+4. **Audio-unit typed stream ports + loopback + pilot tone** (USER,
+   refined 07-29): one stream port per SOURCE/SINK TYPE so controllers
+   route them independently through item 2's dynamic maps — **TONE**
+   (output side only, backed by `KL_tone_gen`), **LOOPBACK** (an
+   output-side cluster group carrying what the render side produced, plus
+   the input-side render target feeding the loop — the internal identity
+   path that frees E2E/THD+N from external hardware), and **TDM/I2S**
+   (the physical front-end, resolved per config by the builder: tdm8 on
+   arty_4x4, i2s on arty_current, tdm32 on the AX). The capture mux /
+   render crossbar already carry the source selects; the new fabric is the
+   render→capture loop glue. Mapping persistence per 5.3.9.1/5.3.10.1.
 5. **STREAM_OUTPUT counters wrong on silicon** (measured 07-29 on the
    streaming 0x0019 Arty): STREAM_START=16/STOP=15 — the SRP-only licence
    flapped 15 times behind a wire that never visibly gapped (suspect: the
