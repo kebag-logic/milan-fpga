@@ -377,7 +377,6 @@ int main(int argc, char** argv) {
         ck("5.3.7.2(d): Talker attribute STILL declared",
            dut->talker_declared_o, 1);
     }
-=======
     // 10) STREAMING LICENCE vs LeaveAll (802.1Q Table 10-4): an MSRP
     //    LeaveAll puts the registration in leave-pending (LV), it does NOT
     //    flush it - re-declared within LeaveTime, the licence NEVER blinks
