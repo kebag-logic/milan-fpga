@@ -36,10 +36,12 @@ spec["audio_maps"] = [[[0, ch, ch, 0] for ch in range(8)]]
 M = g.build_model(spec)
 dm = M["DYNMAP"]
 assert dm["EMIT"], "dynamic input port must emit the AEM_DYNMAP block"
-assert (dm["KEYS"], dm["PAGE"], dm["NMAPS"], dm["OUTROWS"]) == (8, 4, 2, 8)
+assert (dm["KEYS"], dm["PAGE"]) == (8, 4)
+assert (dm["NPORTS"], dm["PDYN"], dm["PBASE"], dm["PCLS"],
+        dm["PNMAPS"]) == (1, [True], [0], [8], [2])
 
 os.makedirs(os.path.join(out, "gen"), exist_ok=True)
 g.emit_svh(M, os.path.join(out, "gen", "aecp_aem_rom.svh"))
 print(f"[gen_dynmap_shape] {len(M['directory'])} descriptors, "
       f"ROM {M['ROM_SIZE']} B, AEM_DYNMAP keys={dm['KEYS']} "
-      f"page={dm['PAGE']} nmaps={dm['NMAPS']} -> {out}")
+      f"page={dm['PAGE']} nmaps={dm['PNMAPS']} -> {out}")

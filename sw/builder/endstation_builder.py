@@ -1038,17 +1038,25 @@ def _streams(lst, ctx, direction):
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
-        # map_mode (gaps item 8): "dynamic" drops the port's static
-        # AUDIO_MAP (1722.1-2021 7.2.13 number_of_maps=0) and arms the RTL
-        # ADD/REMOVE/GET_AUDIO_MAP engine. RTL scope today: the FIRST
-        # listener stream only (STREAM_PORT_INPUT[0]); talkers stay static.
+        # map_mode (gaps item 8, generalized by roadmap 23): "dynamic"
+        # drops the port's static AUDIO_MAP (1722.1-2021 7.2.13
+        # number_of_maps=0) and arms the RTL ADD/REMOVE/GET_AUDIO_MAP
+        # engine. Milan v1.2 5.3.3.9 makes that the SHALL for listeners
+        # ("The Stream Port Input of a Configuration shall not contain any
+        # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
+        # dynamic mappings on all of its Stream Port Inputs"), so ANY
+        # subset of the listener ports may be dynamic. Talkers stay static:
+        # 5.3.3.9 leaves Stream Port Outputs free to keep Audio Maps, and
+        # 5.4.2.26-28 then mandate NOT_SUPPORTED there - which is exactly
+        # what the RTL answers.
         map_mode = s.get("map_mode", "static")
         if map_mode not in ("static", "dynamic"):
             raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
                               "static|dynamic")
-        if map_mode == "dynamic" and (direction != "listener" or k != 0):
+        if map_mode == "dynamic" and direction != "listener":
             raise ConfigError(f"{sctx}: map_mode dynamic is supported on "
-                              "listeners[0] only (RTL engine scope)")
+                              "listener stream ports only (Stream Port "
+                              "Outputs keep static maps per Milan 5.3.3.9)")
         map_page = s.get("map_page")
         if map_page is not None:
             if map_mode != "dynamic":
@@ -1167,6 +1175,30 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
             next_map += 1
         base += n
         dir_base += n
+    # Every dynamic port shares ONE GET_AUDIO_MAP partition size: the RTL
+    # page origin (map_index * PAGE) is a constant multiply, so PAGE is a
+    # single elaboration constant. Milan 5.4.2.26 only bounds a subset's
+    # SIZE ("disjoint subsets whose size does not exceed 176") and requires
+    # the partitioning to be fixed for a Configuration - it never requires
+    # equal subsets - so one shared bound is conformant and a port with
+    # fewer clusters than the page simply gets number_of_maps = 1 with a
+    # short last partition. An EXPLICIT map_page must agree across dynamic
+    # ports; left unset it defaults to the widest port, capped at 8.
+    dynp = [p for p in ports_in if p["map_mode"] == "dynamic"]
+    if dynp:
+        explicit = {p["map_page"] for p in dynp if p["map_page"] is not None}
+        if len(explicit) > 1:
+            raise ConfigError(
+                "every map_mode-dynamic listener must declare the SAME "
+                f"map_page (one RTL partition constant); got "
+                f"{sorted(explicit)}")
+        page = explicit.pop() if explicit \
+            else min(max(p["clusters"] for p in dynp), 8)
+        if not 1 <= page <= 11:
+            raise ConfigError(f"map_page {page} outside 1..11 (RTL "
+                              "GET_AUDIO_MAP scratch bound)")
+        for p in dynp:
+            p["map_page"] = page
     ports_out, dir_base = [], 0
     for j, s in enumerate(talkers):
         if policy == "role-pools":

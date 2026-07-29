@@ -287,7 +287,12 @@ def check_port_layout(ovl, n_listeners, n_talkers):
 
     Both forms are checked against the 1722.1-2021 7.2.19 uniqueness rules
     (input: at most one entry per cluster channel; output: at most one entry
-    per stream channel)."""
+    per stream channel).
+
+    A map_mode-dynamic port (Milan v1.2 5.3.3.9) owns NO AUDIO_MAP at all:
+    1722.1-2021 7.2.13 has it advertise number_of_maps=0 with base_map
+    ignored, so it is excluded from every map rule here and the remaining
+    STATIC maps stay densely numbered."""
     P_in = ovl["stream_ports"]["input"]
     P_out = ovl["stream_ports"]["output"]
     dc = ovl["descriptor_counts"]
@@ -301,10 +306,16 @@ def check_port_layout(ovl, n_listeners, n_talkers):
         assert p["clusters"] >= 1
         base += p["clusters"]
     assert dc["AUDIO_CLUSTER"] == base
-    # map bases: unique, one per port, densely covering 0..n_maps-1
-    bases = [p["base_map"] for p in P_in + P_out]
+    dyn = [p for p in P_in + P_out if p.get("map_mode") == "dynamic"]
+    static = [p for p in P_in + P_out if p.get("map_mode") != "dynamic"]
+    # dynamic ports: the 7.2.13 capability signal, nothing else
+    for p in dyn:
+        assert p["maps"] == 0 and p["base_map"] == 0, \
+            f"dynamic port must advertise n_maps=0/base_map=0: {p}"
+    # map bases: unique, one per STATIC port, densely covering 0..n_maps-1
+    bases = [p["base_map"] for p in static]
     assert sorted(bases) == list(range(len(bases))), f"map bases overlap: {bases}"
-    assert all(p["maps"] == 1 for p in P_in + P_out)
+    assert all(p["maps"] == 1 for p in static)
     assert dc["AUDIO_MAP"] == len(bases) == len(ovl["audio_maps"])
     # every cluster carries exactly one role segment, segments tile the block
     for p in P_in + P_out:
@@ -323,6 +334,8 @@ def check_port_layout(ovl, n_listeners, n_talkers):
     by_index = {m["index"]: m for m in ovl["audio_maps"]}
     for direction, ports in (("input", P_in), ("output", P_out)):
         for p in ports:
+            if p.get("map_mode") == "dynamic":
+                continue
             m = by_index[p["base_map"]]
             assert m["direction"] == direction and m["port_index"] == p["index"]
             prim = next(g for g in p["pool"] if g["role"] == p["primary_role"])
@@ -1159,8 +1172,9 @@ def test_dynamic_audio_map_overlay():
         assert "`define AEM_DYNMAP" in svh
         assert "localparam int unsigned AEM_DMAP_KEYS_C  = 8;" in svh
         assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
-        assert "localparam int unsigned AEM_DMAP_NMAPS_C = 2;" in svh
-        assert "WB_AUDIO_MAP_OUT_C" in svh
+        assert "localparam int unsigned AEM_DMAP_NPORTS_C = 1;" in svh
+        assert "AEM_DMAP_PNMAPS_C [0:0] = '{2}" in svh
+        assert "AEM_DMAP_PBASE_C [0:0] = '{0}" in svh
         # ... and the TRACKED pair carries the engine IFF ITS OWNER asks for
         # it.  The owner is read from the tree, never assumed (see
         # _check_tracked_dynmap).  Today's owner declares no dynamic port, so
@@ -1172,7 +1186,7 @@ def test_dynamic_audio_map_overlay():
         assert r["overlay"]["entity"] is not None
         print("  [gate 17] dynamic audio map: listeners[0] map_mode dynamic "
               "-> port n_maps=0, input AUDIO_MAP dropped (output renumbered "
-              "to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=2")
+              "to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=[2]")
         print(f"  [gate 17] tracked entity definition is owned by "
               f"{owner_name} (read from its own `Source : marker); it "
               f"declares {'a' if owner_dyn else 'NO'} dynamic port, so its "
@@ -1231,13 +1245,56 @@ def test_dynamic_audio_map_overlay():
     finally:
         os.unlink(p)
 
+    # roadmap 23: Milan v1.2 5.3.3.9 makes dynamic mappings a SHALL on
+    # EVERY Stream Port Input, so all N listeners must go dynamic together
+    # and the svh must describe each port's own cluster block.
+    def dyn_all(c):
+        for s in c["streams"]["listeners"]:
+            s["map_mode"] = "dynamic"
+    p = _variant(CONFIGS["arty_4x4"], dyn_all)
+    try:
+        r = eb.build(p, OUT)
+        ovl = r["overlay"]
+        pin = ovl["stream_ports"]["input"]
+        assert len(pin) == 4
+        assert all(q["maps"] == 0 and q["base_map"] == 0 for q in pin)
+        assert [q["base_cluster"] for q in pin] == [0, 4, 8, 12]
+        # NO input AUDIO_MAP survives; the 4 talker maps renumber from 0
+        assert [m["direction"] for m in ovl["audio_maps"]] == ["output"] * 4
+        assert [m["index"] for m in ovl["audio_maps"]] == [0, 1, 2, 3]
+        assert ovl["descriptor_counts"]["AUDIO_MAP"] == 4
+        check_port_layout(ovl, 4, 4)          # invariants hold when dynamic
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(
+                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                check=True, capture_output=True)
+            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+        assert "localparam int unsigned AEM_DMAP_NPORTS_C = 4;" in svh
+        # keys span every dynamic port's clusters: 4 ports x 4 = 16
+        assert "localparam int unsigned AEM_DMAP_KEYS_C  = 16;" in svh
+        assert "AEM_DMAP_PBASE_C [0:3] = '{0, 4, 8, 12}" in svh
+        assert "AEM_DMAP_PCLS_C [0:3] = '{4, 4, 4, 4}" in svh
+        assert "AEM_DMAP_PDYN_C [0:3] = '{1'b1, 1'b1, 1'b1, 1'b1}" in svh
+        # 4 clusters / default page min(4,8)=4 -> ONE partition per port
+        assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
+        assert "AEM_DMAP_PNMAPS_C [0:3] = '{1, 1, 1, 1}" in svh
+        # 4 AAF sinks + the CRF sink: only the AAF ones are mappable
+        assert "AEM_DMAP_SAAF_C [0:4] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b0}" in svh
+        assert "AEM_DMAP_SCH_C [0:4] = '{10'd4, 10'd4, 10'd4, 10'd4, 10'd0}" in svh
+        print("  [gate 17b] arty_4x4 ALL listeners dynamic (Milan 5.3.3.9): "
+              "4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases "
+              "0/4/8/12, CRF sink flagged unmappable")
+    finally:
+        os.unlink(p)
+
     # unsupported placements are rejected with clear errors
     def dyn_talker(c):
         c["streams"]["talkers"][0]["map_mode"] = "dynamic"
     def dyn_page_static(c):
         c["streams"]["listeners"][0]["map_page"] = 4
     for label, mutate, needle in (
-            ("talker dynamic", dyn_talker, "listeners[0] only"),
+            ("talker dynamic", dyn_talker, "listener stream ports only"),
             ("map_page without dynamic", dyn_page_static, "map_mode dynamic")):
         p = _variant(CONFIGS["arty_current"], mutate)
         try:
@@ -1249,8 +1306,25 @@ def test_dynamic_audio_map_overlay():
                 raise AssertionError(f"{label}: accepted")
         finally:
             os.unlink(p)
-    print("  [gate 17] reject paths: talker map_mode dynamic + stray "
-          "map_page raise ConfigError")
+    # one RTL partition constant: two dynamic ports may not DECLARE
+    # different map_page values (left unset they resolve to one default)
+    def dyn_split_page(c):
+        for n, s in enumerate(c["streams"]["listeners"]):
+            s["map_mode"] = "dynamic"
+            s["map_page"] = 2 if n else 4
+    p = _variant(CONFIGS["arty_4x4"], dyn_split_page)
+    try:
+        try:
+            eb.build(p, OUT)
+        except eb.ConfigError as e:
+            assert "SAME map_page" in str(e), f"split page: got {e}"
+        else:
+            raise AssertionError("split map_page: accepted")
+    finally:
+        os.unlink(p)
+    print("  [gate 17] reject paths: talker map_mode dynamic, stray "
+          "map_page, and disagreeing map_page across dynamic listeners "
+          "all raise ConfigError")
 
 
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")

@@ -820,14 +820,15 @@ def build_model(spec):
     # NO AUDIO_MAP descriptor and advertises number_of_maps=0 / base_map=0 -
     # the 1722.1-2021 7.2.13 dynamic-mapping capability signal ("These
     # Entities set the number_of_maps field to zero (0) and the base_map
-    # field is ignored"). The RTL dynamic-map engine (`AEM_DYNMAP) today
-    # serves STREAM_PORT_INPUT[0] only (the render/NxN direction); any other
-    # placement is rejected here rather than silently mis-modeled.
+    # field is ignored"). Milan v1.2 5.3.3.9 makes that the SHALL on the
+    # listener side ("The Stream Port Input of a Configuration shall not
+    # contain any AUDIO_MAP descriptor. Note: this means that a PAAD-AE
+    # implements dynamic mappings on all of its Stream Port Inputs"), so
+    # ANY subset of the input ports may be dynamic (roadmap 23). Outputs
+    # stay static: 5.3.3.9 leaves them free and 5.4.2.26-28 mandate
+    # NOT_SUPPORTED for a Stream Port Output that HAS Audio Maps.
     for k, p in enumerate(spec["ports_in"]):
         dyn = p.get("map_mode", "static") == "dynamic"
-        if dyn and k != 0:
-            raise ValueError("map_mode dynamic is supported on "
-                             "STREAM_PORT_INPUT[0] only (RTL engine scope)")
         descs.append((STREAM_PORT_INPUT, k,
                       d_stream_port(STREAM_PORT_INPUT, k, 0x0001,
                                     p["clusters"], p["base_cluster"],
@@ -956,27 +957,64 @@ def build_model(spec):
         EMIT=(len(si) > 2 or len(so) > 1),
     )
 
-    # Dynamic-map engine constants (gaps item 8). Gated exactly like
-    # PER_STREAM: emitted ONLY when input port 0 is map_mode dynamic, so the
-    # deployed static shape's svh (and the RTL path it compiles) stays
-    # byte-identical. Milan 5.4.2.26 partitioning: the port's cluster
-    # channels (mono clusters, d_audio_cluster channel_count=1 => keys ==
-    # clusters) are split into fixed subsets of PAGE keys; number_of_maps =
-    # ceil(keys/PAGE) is returned no matter the live mapping count. PAGE is
-    # capped at 11 by the RTL const-scratch (6 + 8*PAGE <= 96 bytes).
-    p0 = spec["ports_in"][0]
-    dynmap = dict(EMIT=(p0.get("map_mode", "static") == "dynamic"))
+    # Dynamic-map engine constants (gaps item 8, generalized to EVERY
+    # STREAM_PORT_INPUT by roadmap 23). Gated exactly like PER_STREAM:
+    # emitted ONLY when at least one input port is map_mode dynamic, so a
+    # fully static shape's svh (and the RTL path it compiles) stays
+    # byte-identical. Milan 5.4.2.26 partitioning: a port's cluster channels
+    # (mono clusters, d_audio_cluster channel_count=1 => keys == clusters)
+    # are split into fixed subsets of PAGE keys; number_of_maps =
+    # ceil(clusters/PAGE) is returned per port no matter the live mapping
+    # count. PAGE is capped at 11 by the RTL const-scratch (6 + 8*PAGE <= 96
+    # bytes) and is SHARED by every dynamic port (the RTL page origin is a
+    # constant multiply); per-port cluster counts may still differ.
+    #
+    # The store key is the GLOBAL cluster index (base_cluster + offset),
+    # which is exactly the render crossbar's map-RAM address - one key space
+    # for the model, the fabric and the CSR 0x900 debug port alike.
+    pin, pout = spec["ports_in"], spec["ports_out"]
+    dyn_in = [p for p in pin if p.get("map_mode", "static") == "dynamic"]
+    dynmap = dict(EMIT=bool(dyn_in))
     if dynmap["EMIT"]:
-        keys = p0["clusters"]
-        page = int(p0.get("map_page") or min(keys, 8))
+        explicit = {int(p["map_page"]) for p in dyn_in if p.get("map_page")}
+        if len(explicit) > 1:
+            raise ValueError("every dynamic STREAM_PORT_INPUT must share one "
+                             f"map_page (RTL partition constant): "
+                             f"{sorted(explicit)}")
+        page = explicit.pop() if explicit \
+            else min(max(p["clusters"] for p in dyn_in), 8)
         if not 1 <= page <= 11:
             raise ValueError(f"map_page {page} outside 1..11 (the RTL "
                              "GET_AUDIO_MAP const-scratch bound)")
-        out_map = spec["ports_out"][0]["base_map"]
+        keys = max(p["base_cluster"] + p["clusters"] for p in dyn_in)
+        if keys > 64:
+            raise ValueError(f"{keys} dynamic cluster keys exceeds the 64-key "
+                             "render map address space (chmap64)")
+
+        def _dyn(p):
+            return p.get("map_mode", "static") == "dynamic"
+
+        # A mapping may reference ANY STREAM_INPUT (1722.1-2021 Table 7-33:
+        # mapping_stream_index is "the STREAM_INPUT or STREAM_OUTPUT
+        # descriptor index for the stream carrying this channel"), so the
+        # engine validates the stream channel against THAT stream's current
+        # format (Milan 5.3.10.1 / 5.4.2.27). CRF inputs carry no audio
+        # channels and are not mappable.
+        si_aaf = [s.get("kind", "aaf") == "aaf" for s in si]
+        si_ch = [((s["formats"][0] >> 22) & 0x3FF) if a else 0
+                 for s, a in zip(si, si_aaf)]
         dynmap.update(
-            KEYS=keys, PAGE=page, NMAPS=-(-keys // page),
-            OUTROWS=len(spec["audio_maps"][out_map]),
-            OUT_WB=base_of(AUDIO_MAP, out_map))
+            KEYS=keys, PAGE=page,
+            NPORTS=len(pin),
+            PDYN=[_dyn(p) for p in pin],
+            PBASE=[p["base_cluster"] for p in pin],
+            PCLS=[p["clusters"] for p in pin],
+            #: dynamic -> ceil(clusters/PAGE) partitions; static -> its
+            #: declared AUDIO_MAP count (GET serves the ROM descriptor)
+            PNMAPS=[(-(-p["clusters"] // page) if _dyn(p) else p["maps"])
+                    for p in pin],
+            NSTRIN=len(si), SAAF=si_aaf, SCH=si_ch,
+            PHYS=CHMAP_PHYS_DEPTH)
 
     # Static AUDIO_MAP serving tables + the model's own bounds gate (defect B,
     # 2026-07-28). Emitted for EVERY shape, static or dynamic, because the
@@ -989,6 +1027,20 @@ def build_model(spec):
                 OVERLAYS=overlays, WB=wb, NAMED=named,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
                 PER_STREAM=per_stream, DYNMAP=dynmap, SMAP=smap)
+
+#: Render-crossbar DEPTH: how many physical output channels
+#: KL_chan_map_render holds a map word for, i.e. milan_datapath's
+#: CHMAP_PHYS_C (2 I2S + 8 TDM). sw/builder/test_builder.py gate 17c asserts
+#: this equals that localparam, so the AEM refusal and the fabric write gate
+#: can never disagree about which keys exist.
+#:
+#: NOT the same number as audio_interface.physical_channels.render, which is
+#: how many of those channels reach a PIN on a given board (arty_4x4 says 2,
+#: ax7101_8x8 says 0). A key inside the crossbar but past the routed width
+#: still maps onto a parked wire - that is the separate, pre-existing
+#: "audio_interface unbacked by fabric" gap, flagged in
+#: docs/MILAN_COMPLIANCE_GAPS.md and deliberately NOT silently closed here.
+CHMAP_PHYS_DEPTH = 10
 
 SRC_IDS = {name: n for n, name in enumerate(
     ["ENTITY_ID", "MODEL_ID", "ECAPS", "TALKER_SRC", "TALKER_CAP",
@@ -1145,20 +1197,50 @@ def emit_svh_text(M):
     a("")
     dm = M["DYNMAP"]
     if dm["EMIT"]:
-        a("// Dynamic audio-map engine (gaps item 8: STREAM_PORT_INPUT[0] is")
-        a("// map_mode dynamic - no AUDIO_MAP descriptor, number_of_maps=0 per")
-        a("// 1722.1-2021 7.2.13; ADD/REMOVE/GET served by the RTL mappings")
-        a("// RAM per Milan 5.4.2.26-28. Static shapes never emit this block.")
+        def arr(t, name, vals, fmt=str):
+            a(f"localparam {t} {name} [0:{len(vals)-1}] = "
+              "'{" + ", ".join(fmt(v) for v in vals) + "};")
+
+        a("// Dynamic audio-map engine (gaps item 8, roadmap 23): every")
+        a("// map_mode-dynamic STREAM_PORT_INPUT carries no AUDIO_MAP")
+        a("// descriptor and advertises number_of_maps=0 (1722.1-2021")
+        a("// 7.2.13); ADD/REMOVE/GET are served by the RTL mappings store")
+        a("// per Milan 5.4.2.26-28. Fully static shapes never emit this.")
+        a("// The store key is the GLOBAL cluster index (PBASE + offset) =")
+        a("// the render crossbar map-RAM address.")
         a("`define AEM_DYNMAP")
         a(f"localparam int unsigned AEM_DMAP_KEYS_C  = {dm['KEYS']};"
-          "   // port cluster channels (mono clusters)")
+          "   // global dynamic cluster keys (mono clusters)")
         a(f"localparam int unsigned AEM_DMAP_PAGE_C  = {dm['PAGE']};"
-          "   // GET_AUDIO_MAP fixed partition size")
-        a(f"localparam int unsigned AEM_DMAP_NMAPS_C = {dm['NMAPS']};"
-          "   // number_of_maps (ceil(keys/page))")
-        a(f"localparam int unsigned AEM_DMAP_OUTROWS_C = {dm['OUTROWS']};"
-          "   // static output map rows (GET source)")
-        a(f"localparam [15:0] WB_AUDIO_MAP_OUT_C = 16'd{dm['OUT_WB']};")
+          "   // GET_AUDIO_MAP fixed partition size (shared)")
+        #: A-F13: the GET page scan writes 6 + 8*PAGE bytes into a 96-byte
+        #: const scratch, so PAGE > 11 would run off the end of const_q at
+        #: RUNTIME. Codegen already refuses it; this makes a hand-edited svh
+        #: die at ELABORATION instead, which is the only place left to catch
+        #: it once the file is on disk.
+        a("if (AEM_DMAP_PAGE_C > 11)")
+        a("  $error(\"AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP \"")
+        a("         \"const-scratch bound of 11 (6 + 8*PAGE <= 96)\",")
+        a("         AEM_DMAP_PAGE_C);")
+        a(f"localparam int unsigned AEM_DMAP_PHYS_C  = {dm['PHYS']};"
+          "   // render crossbar depth (CHMAP_PHYS_C)")
+        a(f"localparam int unsigned AEM_DMAP_NPORTS_C = {dm['NPORTS']};"
+          "   // STREAM_PORT_INPUT descriptors")
+        arr("bit", "AEM_DMAP_PDYN_C", dm["PDYN"],
+            lambda v: "1'b1" if v else "1'b0")
+        arr("int unsigned", "AEM_DMAP_PBASE_C", dm["PBASE"])
+        arr("int unsigned", "AEM_DMAP_PCLS_C", dm["PCLS"])
+        arr("int unsigned", "AEM_DMAP_PNMAPS_C", dm["PNMAPS"])
+        a("// A STATIC port (input or output) is served from the shared")
+        a("// AEM_SMAP_* tables above - one generated source for \"what map")
+        a("// does this port serve\", static and dynamic shapes alike.")
+        a("// Per-STREAM_INPUT mappability + reset channel count: a mapping")
+        a("// names any STREAM_INPUT (Table 7-33) and 5.4.2.27 rejects a")
+        a("// channel absent from THAT stream's current format.")
+        a(f"localparam int unsigned AEM_DMAP_NSTRIN_C = {dm['NSTRIN']};")
+        arr("bit", "AEM_DMAP_SAAF_C", dm["SAAF"],
+            lambda v: "1'b1" if v else "1'b0")
+        arr("[9:0]", "AEM_DMAP_SCH_C", dm["SCH"], lambda v: f"10'd{v}")
         a("")
     return "\n".join(lines)
 

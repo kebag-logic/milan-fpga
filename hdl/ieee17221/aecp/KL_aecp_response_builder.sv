@@ -39,11 +39,15 @@
                                                         NOT_SUPPORTED, as
                                                         ADD/REMOVE already
                                                         were. Under
-                                                        `AEM_DYNMAP the input
-                                                        port is dynamic:
-                                                        ADD/REMOVE/GET served
-                                                        from a mappings RAM,
-                                                        Milan 5.4.2.26-28)
+                                                        `AEM_DYNMAP EVERY
+                                                        map_mode-dynamic
+                                                        STREAM_PORT_INPUT is
+                                                        served from the shared
+                                                        mappings store keyed by
+                                                        GLOBAL cluster index:
+                                                        ADD/REMOVE/GET per
+                                                        Milan 5.4.2.26-28,
+                                                        5.3.3.9, 5.3.10.1)
                   GET/SET_STREAM_INFO                  GET_AVB_INFO
                   GET_COUNTERS  GET_AS_PATH  START/STOP_STREAMING (NOT_SUPPORTED)
                   REGISTER/DEREGISTER_UNSOLICITED      (4-slot push engine)
@@ -311,7 +315,8 @@ module KL_aecp_response_builder (
     BREC_SETUP_S,   //! 0x4B pass 2: parse/classify one record
     RECHDR_EMIT_S,  //! 0x4B pass 2: pack the 8-byte record header
     DMAP_SCAN_S,    //! `AEM_DYNMAP: ADD/REMOVE mapping walk (validate/commit)
-    DMAP_GET_S      //! `AEM_DYNMAP: GET_AUDIO_MAP page scan -> const scratch
+    DMAP_GET_S,     //! `AEM_DYNMAP: GET_AUDIO_MAP page scan -> const scratch
+    DMAP_PRUNE_S    //! `AEM_DYNMAP: withdraw mappings a format shrink orphaned
   } state_t;
   state_t state_r;
 
@@ -347,6 +352,19 @@ module KL_aecp_response_builder (
   //! command_type (the arms' internal GET/SET disambiguation still reads
   //! hdr_q.command_type = 0x4B, which never equals a SET - GET semantics)
   wire [14:0] w_cmd_eff = bsub_q ? brec_cmd_q : hdr_q.command_type;
+
+  //! ECHOED control_data_length, clamped to what the response can actually
+  //! carry. The echo segment is already capped at 494 octets (the capture
+  //! buffer holds 64 beats = 512 B from beat 3, and 12 of the AECPDU header
+  //! precede the echo), so the HEADER field must be capped at the matching
+  //! 506 = 12 + 494. Echoing the command's raw value made the length field
+  //! LIE for any command declaring more: the response carried 506 octets
+  //! while announcing up to 2047, and a conformant receiver reading
+  //! control_data_length octets walks off the end of the frame. Raising the
+  //! 60-mapping ADD/REMOVE cap without this clamp in place would put that
+  //! path back in reach, which is why the two travel together.
+  wire [10:0] w_cdl_echo = (hdr_q.control_data_length > 11'd506)
+                           ? 11'd506 : hdr_q.control_data_length;
 
   wire [15:0] w_gs_type  = {w_b2, w_b3};   //! GET/SET_* desc type
   wire [15:0] w_gs_index = {w_b4, w_b5};
@@ -761,32 +779,84 @@ module KL_aecp_response_builder (
   endfunction
 
 `ifdef AEM_DYNMAP
-  // ---- dynamic audio-map engine (gaps item 8; Milan 5.4.2.26-28) ------
-  //! Mappings store for the dynamic STREAM_PORT_INPUT[0]: DIRECT-MAPPED by
-  //! cluster key (mono clusters => key = cluster_offset; Milan 5.4.2.26:
-  //! at most one dynamic mapping per Audio Cluster channel). stream_index
-  //! is locked to 0 - the only STREAM_INPUT carrying audio channels, so a
-  //! mapping to any other stream references a channel that does not exist
-  //! in its current format = invalid per 5.4.2.27 - and an entry stores
-  //! only {valid, stream_channel}. Small FLOP array (<= 16 x 5 b), not a
-  //! RAM: reset-initialized, written by the commit walk, read by the GET
-  //! page scan and the render taps (no inference hazard class).
+  // ---- dynamic audio-map engine (gaps item 8 + roadmap 23) ------------
+  //! Mappings store for EVERY map_mode-dynamic STREAM_PORT_INPUT, so the
+  //! entity satisfies Milan v1.2 5.3.3.9 ("The Stream Port Input of a
+  //! Configuration shall not contain any AUDIO_MAP descriptor. Note: this
+  //! means that a PAAD-AE implements dynamic mappings on all of its Stream
+  //! Port Inputs"). DIRECT-MAPPED by GLOBAL cluster key = the addressed
+  //! port's base_cluster + mapping_cluster_offset; clusters are mono
+  //! (channel_count 1, Milan 5.3.3.8) so one key IS one Audio-Cluster
+  //! channel and 5.4.2.26's "at most one dynamic mapping per Audio
+  //! Cluster's channel" holds by construction. That key is ALSO the render
+  //! crossbar's map-RAM address - model and fabric share one index space.
+  //! An entry keeps {valid, stream_index, stream_channel}: 1722.1-2021
+  //! Table 7-33 defines mapping_stream_index as "the STREAM_INPUT or
+  //! STREAM_OUTPUT descriptor index for the stream carrying this channel",
+  //! so a port may be fed from ANY Stream Input and the channel bound is
+  //! taken from THAT stream's current format (5.4.2.27 / 5.3.10.1).
+  //! Small FLOP array (<= 64 x 8 b), not a RAM: reset-initialized, written
+  //! by the commit walk, read by the GET page scan and the render taps
+  //! (no inference hazard class).
+  localparam int unsigned DMAP_KW_C =
+      (AEM_DMAP_KEYS_C <= 1) ? 1 : $clog2(AEM_DMAP_KEYS_C);
+  localparam int unsigned DMAP_PW_C =
+      (AEM_DMAP_NPORTS_C <= 1) ? 1 : $clog2(AEM_DMAP_NPORTS_C);
+  localparam int unsigned DMAP_SW_C =
+      (AEM_DMAP_NSTRIN_C <= 1) ? 1 : $clog2(AEM_DMAP_NSTRIN_C);
+  //! fabric projection bound: the render map word carries ch[2:0], so a
+  //! mapping past stream channel 7 has nowhere to land (documented; every
+  //! Milan 6.4 base format this entity declares is <= 8 channels)
+  localparam int unsigned DMAP_CHMAX_C = 8;
   logic                       dmap_v_r  [0:AEM_DMAP_KEYS_C-1];
   logic [3:0]                 dmap_ch_r [0:AEM_DMAP_KEYS_C-1];
+  logic [2:0]                 dmap_si_r [0:AEM_DMAP_KEYS_C-1];
   logic [AEM_DMAP_KEYS_C-1:0] dmap_claim_r; //! intra-command same-key guard
+  //! live per-STREAM_INPUT channel count: resets to the ROM current_format
+  //! and follows SET_STREAM_FORMAT, because 5.3.10.1 bounds a mapping by
+  //! "the number of channels in the current format of the Stream Input"
+  logic [9:0]  dm_sch_r [0:AEM_DMAP_NSTRIN_C-1];
   logic [5:0]  dmi_r;          //! mapping index in the ADD/REMOVE walk
   logic [5:0]  dmn_q;          //! number_of_mappings of the command
   logic [3:0]  dmph_r;         //! walk phase: 0..7 field bytes, 8 verdict
   logic [7:0]  dm_hi_r;        //! captured hi byte of the current field
   logic [15:0] dm_si_q;        //! mapping_stream_index
   logic [15:0] dm_sc_q;        //! mapping_stream_channel
-  logic [15:0] dm_co_q;        //! mapping_cluster_offset (the key)
+  logic [15:0] dm_co_q;        //! mapping_cluster_offset (port-relative)
   logic [15:0] dm_cc_q;        //! mapping_cluster_channel
   logic        dm_commit_q;    //! 0 = validate pass, 1 = commit pass
   logic        dm_remove_q;    //! REMOVE (single lenient commit pass)
   logic        dmap_diff_q;    //! a commit changed the store (nochg gate)
-  logic [4:0]  dmg_key_r;      //! GET page-scan key
-  logic [3:0]  dmg_left_r;     //! keys left in the page
+  //! addressed port, latched at dispatch: the walk reads no descriptor
+  logic [6:0]  dm_pbase_q;     //! base_cluster of the addressed port
+  logic [6:0]  dm_pcls_q;      //! clusters of the addressed port
+  //! Format-shrink prune (Milan 5.3.10.1). The clause is a STANDING
+  //! invariant on device state, not just an ADD-time test: "At a given
+  //! time, each channel of each Audio Cluster of each Stream Port Input is
+  //! either not mapped, or mapped to a channel of a Stream Input (in this
+  //! case, the index of the mapped Stream Input's channel shall be lower
+  //! than the number of channels in the current format of the Stream
+  //! Input)." A SET_STREAM_FORMAT that SHRINKS a stream (8ch -> 2ch) would
+  //! otherwise leave a live mapping on channel 5 of a 2-channel stream,
+  //! violating it for as long as the format holds - and in the fabric the
+  //! render word carries ch[2:0], so the crossbar would keep de-interleaving
+  //! a channel the wire no longer has.
+  //!
+  //! JUDGMENT CALL, conservative reading: PRUNE rather than REFUSE. Nothing
+  //! in 1722.1-2021 7.4.9 or Milan 5.4.2.6 lets an entity fail an otherwise
+  //! valid SET_STREAM_FORMAT because of mapping state, and the ATDECC order
+  //! of operations is set-format-then-map, so refusing would break a legal
+  //! sequence for a reason the standard never lists. The withdrawal is
+  //! observable: GET_AUDIO_MAP stops reporting the pruned rows. No
+  //! REMOVE_AUDIO_MAPPING unsolicited notification is fabricated - 5.4.2.27
+  //! offers that only for the ADD accept-and-replace case.
+  logic [6:0]  dmp_key_r;      //! prune sweep cursor (GLOBAL key)
+  logic [DMAP_SW_C-1:0] dmp_sidx_q;  //! the reformatted Stream Input
+  logic [9:0]  dmp_ch_q;       //! its NEW channel count (the new bound)
+  logic [6:0]  dmg_key_r;      //! GET page-scan key (GLOBAL)
+  logic [6:0]  dmg_end_r;      //! GET page-scan end key (exclusive, global)
+  logic [6:0]  dmg_base_r;     //! addressed port's base (offset subtrahend)
+  logic [7:0]  dmg_nmaps_q;    //! addressed port's number_of_maps (echoed)
   logic [3:0]  dmg_n_r;        //! mappings emitted into the scratch
 `endif
 
@@ -965,26 +1035,78 @@ module KL_aecp_response_builder (
 `ifdef AEM_DYNMAP
   // ---- dynamic-map walk verdict terms (fed from REGISTERS only - the ---
   // ---- BSCAN AX27 cone-split rule; consumed in DMAP_SCAN_S phase 8) ----
-  localparam int unsigned DMAP_KW_C =
-      (AEM_DMAP_KEYS_C <= 1) ? 1 : $clog2(AEM_DMAP_KEYS_C);
-  wire        w_dm_key_ok = (dm_co_q < 16'(AEM_DMAP_KEYS_C));
+  //! GLOBAL store key = the latched port base + the record's cluster
+  //! offset; a record outside the addressed port's own cluster block is
+  //! invalid (7.2.19: the offset is "from the base_cluster of the
+  //! STREAM_PORT_INPUT", so it can never reach another port's clusters)
+  wire [15:0] w_dm_gkey   = dm_co_q + {9'd0, dm_pbase_q};
+  wire        w_dm_key_ok = (dm_co_q < {9'd0, dm_pcls_q}) &&
+                            (w_dm_gkey < 16'(AEM_DMAP_KEYS_C));
   wire [DMAP_KW_C-1:0] w_dm_key =
-      w_dm_key_ok ? DMAP_KW_C'(dm_co_q) : '0;
-  //! 5.4.2.27 validity: stream_index 0 (the audio-carrying input),
-  //! cluster_channel 0 (mono clusters), cluster key in range, stream
-  //! channel inside the CURRENT format of STREAM_INPUT[0]
-  wire w_dm_shape_ok = (dm_si_q == 16'd0) && (dm_cc_q == 16'd0)
-                       && w_dm_key_ok;
-  wire w_dm_ch_ok    = (dm_sc_q < {6'd0, fmt_in0_r[31:22]});
+      w_dm_key_ok ? DMAP_KW_C'(w_dm_gkey) : '0;
+  wire        w_dm_si_in  = (dm_si_q < 16'(AEM_DMAP_NSTRIN_C));
+  wire [DMAP_SW_C-1:0] w_dm_sidx = w_dm_si_in ? DMAP_SW_C'(dm_si_q) : '0;
+  //! 5.4.2.27 validity: cluster_channel 0 (mono clusters), cluster key
+  //! inside the addressed port, a MAPPABLE (AAF, not CRF) Stream Input,
+  //! a stream channel present in THAT stream's current format, and a
+  //! cluster this gateware can PHYSICALLY render.
+  //!
+  //! The physical term is a vendor validity rule, which 7.4.45.1 delegates
+  //! explicitly: "The ADDING of a mapping is subject to the validity of the
+  //! mapping as defined by the vendor of the ATDECC Entity." The AEM model
+  //! declares one Audio Cluster per stream channel (up to 64 on the 8x8
+  //! shape) while the render crossbar has AEM_DMAP_PHYS_C physical output
+  //! channels behind it. Accepting a mapping onto a cluster with no pad
+  //! behind it would have the entity report, through GET_AUDIO_MAP, a route
+  //! that silently carries no audio - so it is refused at the door instead.
+  wire w_dm_phys_ok  = (w_dm_gkey < 16'(AEM_DMAP_PHYS_C));
+  wire w_dm_shape_ok = (dm_cc_q == 16'd0) && w_dm_key_ok && w_dm_phys_ok
+                       && w_dm_si_in && AEM_DMAP_SAAF_C[w_dm_sidx];
+  wire w_dm_ch_ok    = (dm_sc_q < {6'd0, dm_sch_r[w_dm_sidx]}) &&
+                       (dm_sc_q < 16'(DMAP_CHMAX_C));
   wire w_dm_add_bad  = !w_dm_shape_ok || !w_dm_ch_ok
                        || dmap_claim_r[w_dm_key];
+  //! 7.4.46.1, verbatim: "If any of the mappings in the command are invalid
+  //! or not present then the command shall fail with a BAD_ARGUMENTS status
+  //! and none of the mappings shall be removed." Only *invalid* is
+  //! vendor-delegated; NOT PRESENT is the standard's own word, and Milan
+  //! 5.4.2.28 overrides it for DUPLICATES only ("shall ignore duplicate
+  //! mappings that may be present in a REMOVE_AUDIO_MAPPINGS command").
+  //! Duplicates still pass because validation runs to completion BEFORE any
+  //! commit, so every copy sees the entry still present.
+  wire w_dm_rm_bad   = !w_dm_rm_hit;
   wire w_dm_add_chg  = !dmap_v_r[w_dm_key] ||
-                       (dmap_ch_r[w_dm_key] != dm_sc_q[3:0]);
+                       (dmap_ch_r[w_dm_key] != dm_sc_q[3:0]) ||
+                       (dmap_si_r[w_dm_key] != dm_si_q[2:0]);
   wire w_dm_rm_hit   = w_dm_shape_ok && (dm_sc_q < 16'd16) &&
                        dmap_v_r[w_dm_key] &&
-                       (dmap_ch_r[w_dm_key] == dm_sc_q[3:0]);
+                       (dmap_ch_r[w_dm_key] == dm_sc_q[3:0]) &&
+                       (dmap_si_r[w_dm_key] == dm_si_q[2:0]);
   wire [15:0] w_dm_n = {w_b6, w_b7};     //! number_of_mappings field
   wire [6:0]  w_dmg_base = 7'd6 + {dmg_n_r, 3'd0};  //! GET scratch cursor
+
+  // ---- addressed-port lookups (DISPATCH cone only: these read the ------
+  // ---- descriptor type/index the command carries, never the walk) ------
+  wire [DMAP_PW_C-1:0] w_dm_pidx =
+      (w_gs_index < 16'(AEM_DMAP_NPORTS_C)) ? DMAP_PW_C'(w_gs_index) : '0;
+  wire w_dm_pin_ok   = (w_gs_type == DESC_STREAM_PORT_INPUT) &&
+                       (w_gs_index < 16'(AEM_DMAP_NPORTS_C));
+  wire w_dm_pin_dyn  = w_dm_pin_ok && AEM_DMAP_PDYN_C[w_dm_pidx];
+  //! GET_AUDIO_MAP page window for the addressed dynamic input port
+  //! (Milan 5.4.2.26 fixed partition: page P covers cluster offsets
+  //! [P*PAGE, min((P+1)*PAGE, clusters)) of THAT port)
+  wire [15:0] w_dmg_p    = {w_b6, w_b7};
+  wire [15:0] w_dmg_beg  = w_dmg_p * 16'(AEM_DMAP_PAGE_C);
+  wire [15:0] w_dmg_stop = w_dmg_beg + 16'(AEM_DMAP_PAGE_C);
+  wire [15:0] w_dmg_cls  = 16'(AEM_DMAP_PCLS_C[w_dm_pidx]);
+  wire [15:0] w_dmg_pb   = 16'(AEM_DMAP_PBASE_C[w_dm_pidx]);
+  wire [6:0]  w_dmg_kbeg = 7'(w_dmg_pb + w_dmg_beg);
+  wire [6:0]  w_dmg_kend = 7'(w_dmg_pb +
+                              ((w_dmg_stop < w_dmg_cls) ? w_dmg_stop
+                                                        : w_dmg_cls));
+  //! SET_STREAM_FORMAT channel-bound follower index
+  wire [DMAP_SW_C-1:0] w_dm_fidx =
+      (w_gs_index < 16'(AEM_DMAP_NSTRIN_C)) ? DMAP_SW_C'(w_gs_index) : '0;
 `endif
 
   //! STREAM_INPUT counter push state (Milan §5.4.5: unsolicited GET_COUNTERS
@@ -1369,13 +1491,22 @@ module KL_aecp_response_builder (
       for (int k = 0; k < AEM_DMAP_KEYS_C; k++) begin
         dmap_v_r[k]  <= 1'b0;
         dmap_ch_r[k] <= 4'd0;
+        dmap_si_r[k] <= 3'd0;
       end
+      //! Milan 5.3.10.1 wants the mapping list restored after a power
+      //! cycle; this fabric store powers up EMPTY (no non-volatile plane
+      //! behind it yet) - the documented deviation, see the doc header.
+      for (int s = 0; s < AEM_DMAP_NSTRIN_C; s++)
+        dm_sch_r[s] <= AEM_DMAP_SCH_C[s];
       dmap_claim_r <= '0;
       dmi_r <= 6'd0; dmn_q <= 6'd0; dmph_r <= 4'd0; dm_hi_r <= 8'd0;
       dm_si_q <= 16'd0; dm_sc_q <= 16'd0;
       dm_co_q <= 16'd0; dm_cc_q <= 16'd0;
       dm_commit_q <= 1'b0; dm_remove_q <= 1'b0; dmap_diff_q <= 1'b0;
-      dmg_key_r <= 5'd0; dmg_left_r <= 4'd0; dmg_n_r <= 4'd0;
+      dm_pbase_q <= 7'd0; dm_pcls_q <= 7'd0;
+      dmp_key_r <= 7'd0; dmp_sidx_q <= '0; dmp_ch_q <= 10'd0;
+      dmg_key_r <= 7'd0; dmg_end_r <= 7'd0; dmg_base_r <= 7'd0;
+      dmg_nmaps_q <= 8'd0; dmg_n_r <= 4'd0;
 `endif
       pay_len_q    <= 16'd0;
       cum_done_q   <= 1'b0;
@@ -1661,7 +1792,7 @@ module KL_aecp_response_builder (
                               ? 16'd494
                               : 16'(hdr_q.control_data_length) - 16'd12)
                            : 16'd0;
-          cdl_q      <= hdr_q.control_data_length;
+          cdl_q      <= w_cdl_echo;
           cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
           wb_len_q   <= 7'd0;
           wb_cnt_r   <= 7'd0;
@@ -1915,12 +2046,12 @@ module KL_aecp_response_builder (
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= (hdr_q.command_type == CMD_SET_CONTROL)
                                   ? 16'd5 : 16'd4;
-                  cdl_q        <= hdr_q.control_data_length;
+                  cdl_q        <= w_cdl_echo;
                 end else if (w_gs_type != DESC_CONTROL || w_gs_index != 16'd0) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= (hdr_q.command_type == CMD_SET_CONTROL)
                                   ? 16'd5 : 16'd4;
-                  cdl_q        <= hdr_q.control_data_length;
+                  cdl_q        <= w_cdl_echo;
                 end else if (hdr_q.command_type == CMD_SET_CONTROL &&
                              w_b6 != 8'h00 && w_b6 != 8'hFF) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;    // step 255: 0 or 255
@@ -1944,76 +2075,98 @@ module KL_aecp_response_builder (
               // DIRECTION, and the split is quoted at the w_smap_*
               // declarations: an INPUT port must implement the command per
               // 7.4.44, an OUTPUT port that HAS Audio Map(s) "shall reply
-              // with the NOT_SUPPORTED error code". So static shapes serve
-              // every STREAM_PORT_INPUT of the shape from the AUDIO_MAP its
-              // own base_map names (AEM_SMAP_*) and refuse every output port
-              // that carries a map. ADD/REMOVE are NOT_SUPPORTED on the same
-              // output ports by the identically-worded 5.4.2.27/28. Under
-              // `AEM_DYNMAP the input port carries NO Audio Map (7.2.13
-              // number_of_maps=0): GET pages the mappings store (5.4.2.26
-              // fixed partition; map_index beyond range -> BAD_ARGUMENT per
-              // 7.4.44.1) and ADD/REMOVE edit it (5.4.2.27/28); the output
-              // port keeps its static map and therefore its NOT_SUPPORTED.
+              // with the NOT_SUPPORTED error code". A STATIC port of either
+              // direction is served from the AUDIO_MAP its OWN base_map
+              // names (AEM_SMAP_*_ADDR/ROWS/MOFF). Under `AEM_DYNMAP every
+              // map_mode-dynamic STREAM_PORT_INPUT carries NO Audio Map
+              // (7.2.13 number_of_maps=0) and is served from the shared
+              // mappings store instead: GET pages THAT port's own fixed
+              // partition (5.4.2.26; map_index beyond its own
+              // number_of_maps -> BAD_ARGUMENT per 7.4.44.1) and ADD/REMOVE
+              // edit it (5.4.2.27/28). Every non-success exit keeps the
+              // 7.4.44.2 12-octet response-payload floor (D2): the status
+              // changes, the shape does not.
 `ifdef AEM_DYNMAP
               CMD_GET_AUDIO_MAP: begin
-                if ((w_gs_type != DESC_STREAM_PORT_INPUT &&
-                     w_gs_type != DESC_STREAM_PORT_OUTPUT) ||
-                    w_gs_index != 16'd0) begin
-                  //! D2: GET_AUDIO_MAP Response (1722.1 §7.4.44.2) =
-                  //! descriptor_type(2)+descriptor_index(2)+map_index(2)+
-                  //! number_of_maps(2)+number_of_mappings(2)+reserved(2) =
-                  //! 12 B minimum (la_avdecc AecpAemGetAudioMapResponse
-                  //! PayloadMinSize = 12). An 8-byte error payload is under
-                  //! that floor; echo the 6 addressed bytes + a zero
-                  //! maps/mappings/reserved tail instead.
+                if (w_dm_pin_dyn) begin
+                  if (w_dmg_p >= 16'(AEM_DMAP_PNMAPS_C[w_dm_pidx])) begin
+                    //! 7.4.44.1 paging, at the 7.4.44.2 12-octet floor
+                    status_q      <= STATUS_BAD_ARGUMENTS;
+                    seg_len_q[0]  <= 16'd6;
+                    seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                    cdl_q         <= 11'd24;
+                  end else begin
+                    //! dynamic input port: the page scan fills the const
+                    //! scratch; DMAP_GET_S finalizes seg1 length + cdl
+                    status_q      <= STATUS_SUCCESS;
+                    seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd6;
+                    seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                    dmg_base_r  <= 7'(w_dmg_pb);
+                    dmg_key_r   <= w_dmg_kbeg;
+                    dmg_end_r   <= w_dmg_kend;
+                    dmg_nmaps_q <= 8'(AEM_DMAP_PNMAPS_C[w_dm_pidx]);
+                    dmg_n_r     <= 4'd0;
+                    state_r     <= DMAP_GET_S;
+                  end
+                end else if (w_smap_milan_ns) begin
+                  //! Milan v1.2 5.4.2.26: "If a PAAD-AE receives a
+                  //! GET_AUDIO_MAP command for a Stream Port Output that has
+                  //! Audio Map(s), the PAAD-AE shall reply with the
+                  //! NOT_SUPPORTED error code."
+                  status_q      <= STATUS_NOT_SUPPORTED;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;   // 12 + 12
+                end else if (w_smap_badidx) begin
+                  //! 7.4.44.1: "If the map_index is beyond the range of
+                  //! available maps then it returns a BAD_ARGUMENT status in
+                  //! the response."
+                  status_q      <= STATUS_BAD_ARGUMENTS;
+                  seg_len_q[0]  <= 16'd6;
+                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
+                  cdl_q         <= 11'd24;
+                end else if (!w_smap_ok) begin
+                  //! not a STREAM_PORT of this shape at all
                   status_q      <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0]  <= 16'd6;
                   seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
                   cdl_q         <= 11'd24;   // 12 + 12
-                end else if (w_gs_type == DESC_STREAM_PORT_OUTPUT) begin
-                  //! Milan v1.2 5.4.2.26: "If a PAAD-AE receives a
-                  //! GET_AUDIO_MAP command for a Stream Port Output that has
-                  //! Audio Map(s), the PAAD-AE shall reply with the
-                  //! NOT_SUPPORTED error code." This shape's output port
-                  //! keeps its static Audio Map (w_smap_milan_ns), so the
-                  //! command is not implemented there - same verdict, same
-                  //! generated table, as the static arm.
-                  status_q      <= STATUS_NOT_SUPPORTED;
-                  seg_len_q[0]  <= 16'd6;
-                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
-                  cdl_q         <= 11'd24;   // 7.4.44.2 12-octet floor
-                end else if ({w_b6, w_b7} >= 16'(AEM_DMAP_NMAPS_C)) begin
-                  status_q      <= STATUS_BAD_ARGUMENTS;  // 7.4.44.1 paging
-                  seg_len_q[0]  <= 16'd6;                 // + zero tail: §7.4.44.2 floor
-                  seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
-                  cdl_q         <= 11'd24;
                 end else begin
-                  //! dynamic input port: the page scan fills the const
-                  //! scratch; DMAP_GET_S finalizes seg1 length + cdl
+                  //! a STATIC port in a mixed shape: served from its OWN
+                  //! base_map, its own number_of_mappings and its own
+                  //! mappings_offset - never a hardcoded descriptor index
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd6;
                   seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0; seg_len_q[1] <= 16'd6;
-                  dmg_key_r  <= 5'({w_b6, w_b7} * AEM_DMAP_PAGE_C);
-                  dmg_left_r <= 4'(AEM_DMAP_PAGE_C);
-                  dmg_n_r    <= 4'd0;
-                  state_r    <= DMAP_GET_S;
+                  const_q[0] <= 8'h00; const_q[1] <= 8'h01;   // number_of_maps
+                  const_q[2] <= w_smap_rows[15:8];            // number_of_mappings
+                  const_q[3] <= w_smap_rows[7:0];             //   = the descriptor's own
+                  const_q[4] <= 8'h00; const_q[5] <= 8'h00;   // reserved
+                  seg_kind_q[2] <= SEG_STORE;
+                  seg_addr_q[2] <= w_smap_addr + w_smap_moff;
+                  seg_len_q[2]  <= w_smap_blen;               // rows x 8 B
+                  cdl_q <= 11'(16'd24 + w_smap_blen);
                 end
               end
 
               //! ADD/REMOVE_AUDIO_MAPPINGS (§7.4.45/46, Milan 5.4.2.27/28)
-              //! on the dynamic input port; the static output port keeps
-              //! the mandated NOT_SUPPORTED. The frame must carry exactly
-              //! number_of_mappings records; the walk validates then
-              //! commits (ADD all-or-nothing, REMOVE lenient: unmatched
-              //! and duplicate entries are ignored per 5.4.2.28).
+              //! on any dynamic input port; a port that HAS Audio Maps —
+              //! every output port, and a static input port in a mixed
+              //! shape — keeps the mandated NOT_SUPPORTED. The frame must
+              //! carry exactly number_of_mappings records; the walk
+              //! validates then commits (ADD all-or-nothing, REMOVE
+              //! lenient: unmatched and duplicate entries are ignored per
+              //! 5.4.2.28).
               CMD_ADD_AUDIO_MAPPINGS, CMD_REMOVE_AUDIO_MAPPINGS: begin
                 if (l0_reject_q) begin
                   status_q <= l0_status_q;   //! lock rule (5.4.2.27/28)
-                end else if (w_gs_type == DESC_STREAM_PORT_OUTPUT &&
-                             w_gs_index == 16'd0) begin
-                  status_q <= STATUS_NOT_SUPPORTED;   //! static maps
-                end else if (w_gs_type != DESC_STREAM_PORT_INPUT ||
-                             w_gs_index != 16'd0) begin
+                end else if (w_smap_milan_ns ||
+                             (w_dm_pin_ok && !w_dm_pin_dyn)) begin
+                  //! a port that HAS Audio Map(s): Milan 5.4.2.27/28 word
+                  //! this identically to 5.4.2.26 - "the PAAD-AE shall
+                  //! reply with the NOT_SUPPORTED error code"
+                  status_q <= STATUS_NOT_SUPPORTED;
+                end else if (!w_dm_pin_dyn) begin
                   status_q <= STATUS_NO_SUCH_DESCRIPTOR;
                 end else if (w_dm_n > 16'd60) begin
                   //! engine bound: 60 mappings/command (a 176-mapping edit
@@ -2030,8 +2183,14 @@ module KL_aecp_response_builder (
                   dmn_q        <= 6'(w_dm_n);
                   dmi_r        <= 6'd0;
                   dmph_r       <= 4'd0;
+                  dm_pbase_q   <= 7'(AEM_DMAP_PBASE_C[w_dm_pidx]);
+                  dm_pcls_q    <= 7'(AEM_DMAP_PCLS_C[w_dm_pidx]);
                   dm_remove_q  <= (w_cmd_eff == CMD_REMOVE_AUDIO_MAPPINGS);
-                  dm_commit_q  <= (w_cmd_eff == CMD_REMOVE_AUDIO_MAPPINGS);
+                  //! BOTH directions validate first (7.4.45.1 / 7.4.46.1
+                  //! are all-or-nothing in identical words) — REMOVE used
+                  //! to jump straight to the commit pass, which made
+                  //! "invalid or not present" unenforceable
+                  dm_commit_q  <= 1'b0;
                   dmap_claim_r <= '0;
                   dmap_diff_q  <= 1'b0;
                   state_r      <= DMAP_SCAN_S;
@@ -2135,6 +2294,24 @@ module KL_aecp_response_builder (
                     if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
                       fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
                                     w_b10, w_b11, w_b12, w_b13};
+`ifdef AEM_DYNMAP
+                    //! the dynamic-map channel bound follows the CURRENT
+                    //! format of THIS Stream Input (Milan 5.3.10.1); the
+                    //! AAF channels_per_frame field is format[31:22]
+                    if (w_gs_type == DESC_STREAM_INPUT &&
+                        w_gs_index < 16'(AEM_DMAP_NSTRIN_C)) begin
+                      dm_sch_r[w_dm_fidx] <= {w_b10, w_b11[7:6]};
+                      //! a SHRINK orphans every mapping at or above the new
+                      //! count: sweep them out so 5.3.10.1 holds for the new
+                      //! format too (see the dmp_* declarations)
+                      if ({w_b10, w_b11[7:6]} < dm_sch_r[w_dm_fidx]) begin
+                        dmp_sidx_q <= w_dm_fidx;
+                        dmp_ch_q   <= {w_b10, w_b11[7:6]};
+                        dmp_key_r  <= 7'd0;
+                        state_r    <= DMAP_PRUNE_S;
+                      end
+                    end
+`endif
                   end
                 end
 `else
@@ -2167,6 +2344,20 @@ module KL_aecp_response_builder (
                     if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
                       fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
                                     w_b10, w_b11, w_b12, w_b13};
+`ifdef AEM_DYNMAP
+                    //! see above: 5.3.10.1 channel bound per Stream Input,
+                    //! and the same shrink prune
+                    if (w_gs_type == DESC_STREAM_INPUT &&
+                        w_gs_index < 16'(AEM_DMAP_NSTRIN_C)) begin
+                      dm_sch_r[w_dm_fidx] <= {w_b10, w_b11[7:6]};
+                      if ({w_b10, w_b11[7:6]} < dm_sch_r[w_dm_fidx]) begin
+                        dmp_sidx_q <= w_dm_fidx;
+                        dmp_ch_q   <= {w_b10, w_b11[7:6]};
+                        dmp_key_r  <= 7'd0;
+                        state_r    <= DMAP_PRUNE_S;
+                      end
+                    end
+`endif
                   end
                 end
 `endif
@@ -2941,17 +3132,26 @@ module KL_aecp_response_builder (
           end else begin
             dmph_r <= 4'd0;
             if (!dm_commit_q) begin
-              //! ADD validate pass: any invalid mapping fails the WHOLE
-              //! command (5.4.2.27 "no mapping shall be added"). Same key
-              //! twice in one command = the mandated same-cluster-channel
-              //! conflict reject (identical duplicates rejected too — a
-              //! vendor rule 7.4.45.1 allows; nothing mandates accepting
-              //! them).
-              if (w_dm_add_bad) begin
+              //! Validate pass — BOTH directions run it, because both
+              //! clauses are all-or-nothing in the same words:
+              //!   7.4.45.1 / Milan 5.4.2.27 (ADD)    "In this case, no
+              //!     mapping shall be added."
+              //!   7.4.46.1 (REMOVE)                  "If any of the
+              //!     mappings in the command are invalid or not present
+              //!     then the command shall fail with a BAD_ARGUMENTS
+              //!     status and none of the mappings shall be removed."
+              //! ADD additionally claims each key so the same key twice in
+              //! one command is the mandated same-cluster-channel conflict
+              //! reject (identical duplicates rejected too — a vendor rule
+              //! 7.4.45.1 allows; nothing mandates accepting them).
+              //! REMOVE deliberately does NOT claim: Milan 5.4.2.28 says
+              //! duplicates there "shall be ignored", and since nothing has
+              //! been committed yet every copy still sees its entry.
+              if (dm_remove_q ? w_dm_rm_bad : w_dm_add_bad) begin
                 status_q <= STATUS_BAD_ARGUMENTS;
                 state_r  <= WRITE_S;
               end else begin
-                dmap_claim_r[w_dm_key] <= 1'b1;
+                if (!dm_remove_q) dmap_claim_r[w_dm_key] <= 1'b1;
                 if (dmi_r == dmn_q - 6'd1) begin
                   dmi_r       <= 6'd0;
                   dm_commit_q <= 1'b1;
@@ -2968,8 +3168,11 @@ module KL_aecp_response_builder (
               if (!dm_remove_q) begin
                 dmap_v_r [w_dm_key] <= 1'b1;
                 dmap_ch_r[w_dm_key] <= dm_sc_q[3:0];
+                dmap_si_r[w_dm_key] <= dm_si_q[2:0];
                 if (w_dm_add_chg) dmap_diff_q <= 1'b1;
-                //! fabric mirror: one render-map write per accepted record
+                //! fabric mirror: one render-map write per accepted record,
+                //! addressed by the GLOBAL cluster key = the physical
+                //! render channel (docs/CHMAP64_AEM_BINDING.md)
                 dmap_wr_p_o    <= 1'b1;
                 dmap_wr_addr_o <= 6'(w_dm_key);
                 dmap_wr_word_o <= {1'b1, 1'b0, dm_si_q[2:0], dm_sc_q[2:0]};
@@ -2996,11 +3199,11 @@ module KL_aecp_response_builder (
         // ---------------------------------------------------------- //
         DMAP_GET_S: begin   //! GET_AUDIO_MAP page scan: one key/cycle out
                             //! of the flop store into the const scratch
-          if (dmg_left_r == 4'd0 || dmg_key_r >= 5'(AEM_DMAP_KEYS_C)) begin
+          if (dmg_key_r >= dmg_end_r || dmg_key_r >= 7'(AEM_DMAP_KEYS_C)) begin
             //! finalize now that the page's live count is known.
-            //! number_of_maps is ALWAYS the fixed partition count, no
-            //! matter the mapping count (Milan 5.4.2.26).
-            const_q[0] <= 8'h00; const_q[1] <= 8'(AEM_DMAP_NMAPS_C);
+            //! number_of_maps is ALWAYS the addressed port's fixed
+            //! partition count, no matter the mapping count (5.4.2.26).
+            const_q[0] <= 8'h00; const_q[1] <= dmg_nmaps_q;
             const_q[2] <= 8'h00; const_q[3] <= {4'd0, dmg_n_r};
             const_q[4] <= 8'h00; const_q[5] <= 8'h00;
             seg_len_q[1] <= 16'd6 + {9'd0, dmg_n_r, 3'd0};
@@ -3008,21 +3211,49 @@ module KL_aecp_response_builder (
             state_r      <= WRITE_S;
           end else begin
             if (dmap_v_r[dmg_key_r[DMAP_KW_C-1:0]]) begin
-              //! Table 7-162 row: stream_index 0, stream_channel,
-              //! cluster_offset = key, cluster_channel 0
+              //! Table 7-33 row: stream_index, stream_channel,
+              //! cluster_offset = key - the port's base_cluster (7.2.19
+              //! offsets are PORT-RELATIVE), cluster_channel 0
               const_q[w_dmg_base + 7'd0] <= 8'h00;
-              const_q[w_dmg_base + 7'd1] <= 8'h00;
+              const_q[w_dmg_base + 7'd1] <=
+                  {5'd0, dmap_si_r[dmg_key_r[DMAP_KW_C-1:0]]};
               const_q[w_dmg_base + 7'd2] <= 8'h00;
               const_q[w_dmg_base + 7'd3] <=
                   {4'd0, dmap_ch_r[dmg_key_r[DMAP_KW_C-1:0]]};
               const_q[w_dmg_base + 7'd4] <= 8'h00;
-              const_q[w_dmg_base + 7'd5] <= {3'd0, dmg_key_r};
+              const_q[w_dmg_base + 7'd5] <= {1'b0, dmg_key_r - dmg_base_r};
               const_q[w_dmg_base + 7'd6] <= 8'h00;
               const_q[w_dmg_base + 7'd7] <= 8'h00;
               dmg_n_r <= dmg_n_r + 4'd1;
             end
-            dmg_key_r  <= dmg_key_r + 5'd1;
-            dmg_left_r <= dmg_left_r - 4'd1;
+            dmg_key_r <= dmg_key_r + 7'd1;
+          end
+        end
+
+        // ---------------------------------------------------------- //
+        DMAP_PRUNE_S: begin  //! Milan 5.3.10.1 after a SET_STREAM_FORMAT
+                             //! SHRINK: one key per cycle, withdrawing every
+                             //! mapping of the reformatted Stream Input whose
+                             //! stream_channel no longer exists. One key per
+                             //! cycle because the fabric mirror is a
+                             //! one-write-per-cycle port; the response plan
+                             //! was already latched at dispatch, so WRITE_S
+                             //! still emits the SET_STREAM_FORMAT response.
+          if (dmp_key_r >= 7'(AEM_DMAP_KEYS_C)) begin
+            state_r <= WRITE_S;
+          end else begin
+            if (dmap_v_r[dmp_key_r[DMAP_KW_C-1:0]] &&
+                (dmap_si_r[dmp_key_r[DMAP_KW_C-1:0]] ==
+                 3'(dmp_sidx_q)) &&
+                ({6'd0, dmap_ch_r[dmp_key_r[DMAP_KW_C-1:0]]} >= dmp_ch_q)) begin
+              dmap_v_r[dmp_key_r[DMAP_KW_C-1:0]] <= 1'b0;
+              //! withdraw it from the render crossbar too, or the map word
+              //! keeps de-interleaving a wire channel that no longer exists
+              dmap_wr_p_o    <= 1'b1;
+              dmap_wr_addr_o <= 6'(dmp_key_r);
+              dmap_wr_word_o <= 8'h00;
+            end
+            dmp_key_r <= dmp_key_r + 7'd1;
           end
         end
 `endif
@@ -3068,8 +3299,10 @@ module KL_aecp_response_builder (
   assign bdbg2_o = bdbg2_q;
 
   // ------------------------------------------------------------------ //
-  // Dynamic-map render taps: clusters 0/1 of the dynamic input port ARE //
-  // the DAC pair; the playback walker generalization that CONSUMES them  //
+  // Dynamic-map render taps: GLOBAL cluster keys 0/1 ARE the DAC pair    //
+  // (the first input port's first two clusters); the full N-port picture //
+  // rides dmap_wr_* into the render map RAM. The playback walker         //
+  // generalization that CONSUMES the taps                                //
   // is the documented follow-up (docs/MILAN_COMPLIANCE_GAPS.md §1).      //
   // Static shapes export the wire-truth defaults with en=0.              //
   // ------------------------------------------------------------------ //

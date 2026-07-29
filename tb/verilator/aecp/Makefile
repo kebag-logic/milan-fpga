@@ -20,6 +20,11 @@
 #     routes NO audio pins, role-derived AUDIO_CLUSTER object_names, and
 #     the 1722.1-2021 7.2.19 port-relative AUDIO_MAP offsets that let two
 #     talker ports carry IDENTICAL offsets onto DIFFERENT clusters.
+#   sim_dynmap2.cpp -> MULTI-PORT dynamic shape (gen_dynmap2_shape.py ->
+#     dynmap2_inc/): two dynamic STREAM_PORT_INPUTs + three stream inputs,
+#     i.e. `AEM_DYNMAP and `AEM_PER_STREAM_FMT together, which is what a
+#     4x4 / 8x8 listener build compiles (Milan 5.3.3.9 dynamic on ALL
+#     Stream Port Inputs).
 #   make        - build and run all self-checking harnesses
 #   make clean  - remove build artifacts
 
@@ -84,6 +89,9 @@ run: $(GEN)
 	python3 gen_pools_shape.py pools_inc
 	$(VERILATOR) -Ipools_inc $(VFLAGS) --Mdir obj_pools \
 	  $(SRCS) sim_pools.cpp -o Vaecp_pools     # -Ipools_inc shadows gen/
+	python3 gen_dynmap2_shape.py dynmap2_inc
+	$(VERILATOR) -Idynmap2_inc $(VFLAGS) --Mdir obj_dynmap2 \
+	  $(SRCS) sim_dynmap2.cpp -o Vaecp_dynmap2 # -Idynmap2_inc shadows gen/
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
@@ -91,6 +99,7 @@ run: $(GEN)
 	./obj_nxn/Vaecp_nxn
 	./obj_amap/Vaecp_amap
 	./obj_pools/Vaecp_pools
+	./obj_dynmap2/Vaecp_dynmap2
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -107,3 +116,5 @@ cosim: $(GEN)
 clean:
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn obj_amap
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_pools pools_inc
+	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc \
+	       obj_dynmap2 dynmap2_inc
