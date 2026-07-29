@@ -21,7 +21,7 @@
 #include <algorithm>
 
 // AAF sink count of this harness's entity shape (the CRF sink
-// past it answers the empty mask)
+// past it answers the Milan-mandatory 0xF3F from the crf_cnt_* ports)
 #define N_AAF_SINKS_TB 1
 
 static VKL_aecp_top* dut;
@@ -1685,19 +1685,36 @@ int main(int argc, char** argv) {
         ck("[22g2] LOCKED = in0 media_locked", be32_at(r, 46), 3);
         ck("[22g2] UNLOCKED = in0 media_unlocked", be32_at(r, 50), 2);
 
-        // (h) sink 1 IS the CRF Media Clock Input on this shape, and it has
-        //     no monitor context - the truthful answer is SUCCESS with an
-        //     EMPTY valid mask (1722.1-2021 7.4.42.2: the mask states which
-        //     counters the descriptor implements). It used to answer the
-        //     FULL 0xF3F mask over constant zeros: a claimed-valid counter
-        //     serving a frozen zero, the exact R5 lie this round removed.
-        //     CRF-input counters are a recorded gap (MILAN_COMPLIANCE_GAPS).
+        // (h) sink 1 IS the CRF Media Clock Input on this shape. It used
+        //     to answer SUCCESS + the truthful EMPTY mask (no monitor
+        //     context = no claim), but Milan 5.3.8.10 keeps counters "for
+        //     each Stream Input" with no CRF exemption, and la_avdecc's
+        //     mandatory-set check (s_MilanMandatoryStreamInputCounters =
+        //     the v1.2 ten, mask 0xF3F) drops the Milan badge on the empty
+        //     mask. It now serves the ten out of the KL_crf_rx sink
+        //     engine: LOCKED/UNLOCKED/SEQ_MM/UNSUPP/FRAMES_RX live,
+        //     STREAM_INTERRUPTED/MEDIA_RESET/TU/LATE/EARLY advertised
+        //     valid but 0 (no such tallies in the engine); TV/TNV (bits
+        //     6/7) stay UNCLAIMED - no tv tracking exists for CRF.
+        dut->crf_cnt_locked_i   = 4;
+        dut->crf_cnt_unlocked_i = 3;
+        dut->crf_cnt_seqerr_i   = 0x21;
+        dut->crf_cnt_fmterr_i   = 0x0A;
+        dut->crf_cnt_pdu_i      = 0x1234;
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
                          si_pl(0x0005, 1)));
         r = collect_resp();
         ck("[22h] GET_COUNTERS(in1=CRF) SUCCESS", r_status(r), 0);
-        ck("[22h] EMPTY valid mask (no context = no claim)", be32_at(r, 42), 0);
-        ck("[22h] counters zero", be32_at(r, 46) | be32_at(r, 90), 0);
+        ck("[22h] valid mask 0xF3F (Milan mandatory ten)", be32_at(r, 42), 0xF3F);
+        ck("[22h] MEDIA_LOCKED = crf lock events", be32_at(r, 46), 4);
+        ck("[22h] MEDIA_UNLOCKED = crf unlock events", be32_at(r, 50), 3);
+        ck("[22h] STREAM_INTERRUPTED advertised-0", be32_at(r, 54), 0);
+        ck("[22h] SEQ_NUM_MISMATCH = crf seq errors", be32_at(r, 58), 0x21);
+        ck("[22h] MEDIA_RESET/TU advertised-0", be32_at(r, 62) | be32_at(r, 66), 0);
+        ck("[22h] TV/TNV unclaimed zero", be32_at(r, 70) | be32_at(r, 74), 0);
+        ck("[22h] UNSUPPORTED_FORMAT = crf fmt errors", be32_at(r, 78), 0x0A);
+        ck("[22h] LATE/EARLY advertised-0", be32_at(r, 82) | be32_at(r, 86), 0);
+        ck("[22h] FRAMES_RX = crf accepted PDUs", be32_at(r, 90), 0x1234);
         ck("[22h] CDL still 148 (full-size on every answer)", r_cdl(r), 148);
 
         // (i) unsolicited GET_COUNTERS push (Milan §5.4.5): register A,

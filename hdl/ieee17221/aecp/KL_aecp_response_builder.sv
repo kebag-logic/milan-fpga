@@ -185,9 +185,15 @@ module KL_aecp_response_builder (
   output logic [3:0]   gs_diag_idx_o,
   input  wire [12*32-1:0] rxdiag_cnt_i,
   input  wire [5*32-1:0]  tkdiag_cnt_i,
-  //! AAF sink count: sinks at or past it (the CRF Media Clock Input) have
-  //! no monitor context and answer the truthful empty mask
+  //! AAF sink count: the sink at it (the CRF Media Clock Input) has no
+  //! monitor context and answers the Milan-mandatory ten from KL_crf_rx
   input  wire [15:0]   n_aaf_sinks_i,
+  // ---- CRF Media Clock Input counters (KL_crf_rx; Milan Table 5.16) ---
+  input  wire [31:0]   crf_cnt_locked_i,    //! MEDIA_LOCKED (bit 0)
+  input  wire [31:0]   crf_cnt_unlocked_i,  //! MEDIA_UNLOCKED (bit 1)
+  input  wire [7:0]    crf_cnt_seqerr_i,    //! SEQ_NUM_MISMATCH (bit 3)
+  input  wire [7:0]    crf_cnt_fmterr_i,    //! UNSUPPORTED_FORMAT (bit 8)
+  input  wire [15:0]   crf_cnt_pdu_i,       //! FRAMES_RX (bit 11)
 
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
   output logic [15:0]  st_addr_o,
@@ -1118,7 +1124,8 @@ module KL_aecp_response_builder (
   // STREAM_INPUT GET_COUNTERS payload (Table 7-156; shared by the         //
   // solicited command and the unsolicited push): valid mask 0xFFF at      //
   // const 0..3, counter for valid bit n at const 4+4n (block byte 4n).   //
-  // sink0 = live monitor counters; sink 1 (CRF, no listener SM) = zeros.  //
+  // AAF sinks = live monitor counters; the CRF sink = KL_crf_rx counters  //
+  // behind the mandatory-ten mask (its own task below).                   //
   // MEDIA_RESET / LATE / EARLY are advertised valid but always 0, exactly //
   // the pipewire reference (no media clock recovery in fabric yet).       //
   // ------------------------------------------------------------------ //
@@ -1174,6 +1181,36 @@ module KL_aecp_response_builder (
         const_q[40+k] <= rxdiag_cnt_i[7*32 + 8*(3-k) +: 8];  // bit9  LT
         const_q[44+k] <= rxdiag_cnt_i[8*32 + 8*(3-k) +: 8];  // bit10 ET
         const_q[48+k] <= rxdiag_cnt_i[9*32 + 8*(3-k) +: 8];  // bit11 FRX
+      end
+    end
+  endtask
+
+  //! Milan Table 5.16 for the CRF Media Clock Input (the sink at index
+  //! n_aaf_sinks_i): the v1.2 ten behind mask 0x0F3F. Milan 5.3.8.10 keeps
+  //! counters "for each Stream Input" with NO CRF exemption, and la_avdecc's
+  //! mandatory set (s_MilanMandatoryStreamInputCounters) is exactly these
+  //! ten - SUCCESS + the empty mask cost the entity its Milan badge.
+  //! MEDIA_LOCKED/UNLOCKED are the KL_crf_rx lock/unlock events,
+  //! SEQ_NUM_MISMATCH its sequence_num discontinuities, UNSUPPORTED_FORMAT
+  //! its 7.3.2 profile-validation rejects, FRAMES_RX its accepted-PDU
+  //! count; STREAM_INTERRUPTED, MEDIA_RESET, TIMESTAMP_UNCERTAIN and
+  //! LATE/EARLY_TIMESTAMP are advertised valid but always 0 - the engine
+  //! keeps no such tallies (the load_input0 MEDIA_RESET/LATE/EARLY
+  //! precedent). TV/TNV (bits 6/7, Milan 1.3) stay UNCLAIMED: no tv
+  //! tracking exists for the CRF stream.
+  wire [31:0] w_crf_cnt_seqmm  = {24'h0, crf_cnt_seqerr_i};
+  wire [31:0] w_crf_cnt_unsupp = {24'h0, crf_cnt_fmterr_i};
+  wire [31:0] w_crf_cnt_frx    = {16'h0, crf_cnt_pdu_i};
+  task automatic load_crf_input_counters_consts;
+    begin
+      for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
+      const_q[2] <= 8'h0F; const_q[3] <= 8'h3F;   // valid mask 0x00000F3F
+      for (int k = 0; k < 4; k++) begin
+        const_q[4+k]  <= crf_cnt_locked_i  [8*(3-k) +: 8];  // bit0  ML
+        const_q[8+k]  <= crf_cnt_unlocked_i[8*(3-k) +: 8];  // bit1  MU
+        const_q[16+k] <= w_crf_cnt_seqmm   [8*(3-k) +: 8];  // bit3  SM
+        const_q[36+k] <= w_crf_cnt_unsupp  [8*(3-k) +: 8];  // bit8  UF
+        const_q[48+k] <= w_crf_cnt_frx     [8*(3-k) +: 8];  // bit11 FRX
       end
     end
   endtask
@@ -2342,15 +2379,26 @@ module KL_aecp_response_builder (
                   // EVERY AAF sink: its own live monitor context out of the
                   // all-stream mirror (Milan Table 5.16, per 5.4.2.25).
                   // Sink 1 used to serve this full mask over constant
-                  // zeros; sinks >= 2 fell to the empty-mask arm below. The
-                  // CRF Media Clock Input (index >= n_aaf_sinks_i) still
-                  // does: it has no monitor context, and 7.4.42.2 makes the
-                  // empty mask the truthful statement (its counters are a
-                  // recorded gap, docs/MILAN_COMPLIANCE_GAPS.md).
+                  // zeros; sinks >= 2 fell to the empty-mask arm below.
                   status_q     <= STATUS_SUCCESS;
                   seg_len_q[1] <= 16'd52;
                   seg_len_q[2] <= 16'd80;
                   load_input_counters_consts;
+                end else if (w_gs_type == DESC_STREAM_INPUT && acc_found) begin
+                  //! The CRF Media Clock Input (index >= n_aaf_sinks_i):
+                  //! it answered SUCCESS + the truthful EMPTY mask until
+                  //! 2026-07-29, but Milan 5.3.8.10 keeps counters "for
+                  //! each Stream Input" with no CRF exemption, and
+                  //! la_avdecc's per-enumeration mandatory-set check
+                  //! ((mask & 0xF3F) == 0xF3F) dropped the Milan badge on
+                  //! it. It now serves the mandatory ten out of the
+                  //! KL_crf_rx sink engine (the 0x738 CSR group's own
+                  //! counters), advertised-zero where the engine keeps no
+                  //! tally - see load_crf_input_counters_consts.
+                  status_q     <= STATUS_SUCCESS;
+                  seg_len_q[1] <= 16'd52;
+                  seg_len_q[2] <= 16'd80;
+                  load_crf_input_counters_consts;
                 end else if (w_gs_type == DESC_ENTITY && w_gs_index == 16'd0) begin
                   //! ENTITY GET_COUNTERS -> SUCCESS + EMPTY valid mask:
                   //! 1722.1-2021 DEFINES entity-level counters (la_avdecc
@@ -2359,23 +2407,6 @@ module KL_aecp_response_builder (
                   //! 'values deemed bad', user-caught 2026-07-20). We
                   //! implement none -> empty mask, full-size payload (the
                   //! 07-11 field report: size matters on every status).
-                  status_q <= STATUS_SUCCESS;
-                end else if (w_si_is_stream && acc_found) begin
-                  //! D1, same root cause as GET_STREAM_INFO: a STREAM
-                  //! descriptor the DIRECTORY serves must answer its
-                  //! dynamic-info commands. Every AAF stream above the
-                  //! monitored pair used to get NO_SUCH_DESCRIPTOR here
-                  //! while READ_DESCRIPTOR served it. It now answers
-                  //! SUCCESS with an EMPTY counters_valid mask: 1722.1-2021
-                  //! §7.4.42.2 makes counters_valid the statement of which
-                  //! counters the descriptor implements, and zero is the
-                  //! truthful statement for a stream with no monitor
-                  //! context in fabric (the per-stream context RAM is
-                  //! docs/NXN_ARCHITECTURE.md P2). Advertising the
-                  //! monitored sink's ten counters zeroed would claim
-                  //! counters that do not exist. Same precedent as the
-                  //! ENTITY arm above; the deployed indices 0/1 keep their
-                  //! shipped byte-exact masks.
                   status_q <= STATUS_SUCCESS;
                 end else if (acc_found) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters

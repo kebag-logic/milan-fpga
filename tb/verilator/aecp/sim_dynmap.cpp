@@ -30,7 +30,7 @@
 #include <vector>
 
 // AAF sink count of this harness's entity shape (the CRF sink
-// past it answers the empty mask)
+// past it answers the Milan-mandatory 0xF3F from the crf_cnt_* ports)
 #define N_AAF_SINKS_TB 1
 
 static VKL_aecp_top* dut;
