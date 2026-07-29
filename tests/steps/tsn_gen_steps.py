@@ -637,7 +637,7 @@ class MilanAudioMapModel:
     executable chmap64 binding contract (docs/CHMAP64_AEM_BINDING.md)."""
 
     def __init__(self, keys=8, nmaps=2, page=4, stream_channels=8,
-                 ports=None):
+                 ports=None, phys=10):
         self.page = page              # AEM_DMAP_PAGE_C: mappings per page
         #: (base_cluster, clusters) per STREAM_PORT_INPUT — AEM_DMAP_PBASE_C
         #: / AEM_DMAP_PCLS_C. Default = the single-port shape.
@@ -652,6 +652,9 @@ class MilanAudioMapModel:
         self.stream_channels = (list(stream_channels)
                                 if isinstance(stream_channels, (list, tuple))
                                 else [stream_channels])
+        #: render-crossbar DEPTH (AEM_DMAP_PHYS_C = milan_datapath
+        #: CHMAP_PHYS_C): keys past it are model-only and refused
+        self.phys = phys
         self.store = {}               # global key -> (stream_index, stream_ch)
         self.fabric_map = {}          # global key -> {en,stream,ch} word
         self.last_get = None          # rows returned by the last GET page
@@ -663,10 +666,14 @@ class MilanAudioMapModel:
     # -- validity (5.4.2.27) ------------------------------------------------
     def _shape_ok(self, port, si, sc, co, cc):
         # mono cluster (cluster_channel 0), offset inside THIS port's own
-        # cluster block, and a mappable (non-CRF) Stream Input
+        # cluster block, a mappable (non-CRF) Stream Input, and a cluster the
+        # render crossbar can physically reach. 7.4.45.1 delegates the last
+        # one: "The ADDING of a mapping is subject to the validity of the
+        # mapping as defined by the vendor of the ATDECC Entity."
         base, n = port
         return (cc == 0 and co < n and 0 <= si < len(self.stream_channels)
-                and self.stream_channels[si] is not None)
+                and self.stream_channels[si] is not None
+                and base + co < self.phys)
 
     def _ch_ok(self, si, sc):
         # stream_channel inside the current format of THAT Stream Input
@@ -713,10 +720,18 @@ class MilanAudioMapModel:
                 self._project_add(si, sc, base + co)
             return STATUS_SUCCESS
 
-        # REMOVE — lenient single commit pass, exact (stream, channel) match
+        # REMOVE — validate ALL first, then commit. 7.4.46.1 verbatim: "If
+        # any of the mappings in the command are invalid or not present then
+        # the command shall fail with a BAD_ARGUMENTS status and none of the
+        # mappings shall be removed." Milan 5.4.2.28 overrides that for
+        # DUPLICATES only ("shall ignore duplicate mappings"), and duplicates
+        # survive precisely because nothing is committed during validation.
         for si, sc, co, cc in mappings:
-            if (self._shape_ok(port, si, sc, co, cc) and sc < 16
+            if not (self._shape_ok(port, si, sc, co, cc) and sc < 16
                     and self.store.get(base + co) == (si, sc)):
+                return STATUS_BAD_ARGUMENTS
+        for si, sc, co, cc in mappings:
+            if base + co in self.store:          # 2nd copy of a dup: no-op
                 del self.store[base + co]
                 self._project_remove(base + co)
         return STATUS_SUCCESS

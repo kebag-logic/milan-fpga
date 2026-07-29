@@ -232,14 +232,25 @@ def step_smap_rows(context):
                  f"AUDIO_MAP[{base_map}] declares {want}")
 
 
-@then("AUDIO_MAP index {idx:d} belongs to STREAM_PORT_INPUT {pi:d}, not to an "
-      "output port")
-def step_map1_is_input(context, idx, pi):
+@then("AUDIO_MAP index {idx:d} belongs to STREAM_PORT_{dirn} {pi:d}, and NOT "
+      "to the port the pre-fix constant served")
+def step_map_owner_is(context, idx, dirn, pi):
+    """The wrong-descriptor witness, parameterised by DIRECTION because the
+    owner moved when roadmap 23 made every 8x8 listener map_mode dynamic: the
+    input ports now carry no AUDIO_MAP at all (1722.1-2021 7.2.13), so the
+    descriptor a hardcoded index lands on is an OUTPUT port's - one port over
+    from the one the pre-fix RTL meant to serve. Same defect, same shape."""
     M = list(context.models.values())[0]
     owners = [(nm, i) for nm, i, d in _ports(M)
               if _be16(d, 16) and _be16(d, 18) == idx]
-    assert owners == [("STREAM_PORT_INPUT", pi)], \
+    assert owners == [(f"STREAM_PORT_{dirn}", pi)], \
         f"AUDIO_MAP[{idx}] is owned by {owners}"
+    #: and the stronger half: with dynamic inputs NO input port owns a map
+    if dirn == "OUTPUT":
+        ins = [(nm, i) for nm, i, d in _ports(M)
+               if nm == "STREAM_PORT_INPUT" and _be16(d, 16)]
+        assert ins == [], \
+            f"a dynamic-listener shape must own no input AUDIO_MAP: {ins}"
 
 
 @then("STREAM_PORT_OUTPUT {pi:d} is served from a different address than "

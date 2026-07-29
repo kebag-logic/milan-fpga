@@ -188,6 +188,7 @@ command with `BAD_ARGUMENTS` and **nothing** is written:
 | mono cluster | `cluster_channel == 0` | `w_dm_shape_ok` |
 | key in range | `cluster_offset < AEM_DMAP_PCLS_C[port]` **and** `PBASE[port] + offset < AEM_DMAP_KEYS_C` | `w_dm_key_ok` |
 | channel in format | `stream_channel < channels(STREAM_INPUT[si])` — that stream's CURRENT format, followed live from `SET_STREAM_FORMAT` (Milan 5.3.10.1) — and `< 8`, the render word's `ch[2:0]` | `w_dm_ch_ok` |
+| physically reachable | `PBASE[port] + offset < AEM_DMAP_PHYS_C` — the render crossbar's depth (`milan_datapath` `CHMAP_PHYS_C`). A vendor rule 7.4.45.1 delegates: *"The ADDING of a mapping is subject to the validity of the mapping as defined by the vendor of the ATDECC Entity."* Accepting a key with no crossbar entry behind it would have `GET_AUDIO_MAP` advertise a route that carries nothing | `w_dm_phys_ok` |
 | no intra-command dup | same GLOBAL key used twice in one command → reject (identical records included: 7.4.45.1 permits it and nothing mandates accepting them) | `dmap_claim_r[key]` |
 
 A valid ADD to an already-mapped key **replaces** it (the 5.4.2.27
@@ -197,12 +198,23 @@ name **any** AAF Stream Input, not just the one attached to the addressed
 port — 1722.1-2021 Table 7-33 defines it as "the STREAM_INPUT or
 STREAM_OUTPUT descriptor index for the stream carrying this channel".
 
-### REMOVE (5.4.2.28 — lenient)
+### REMOVE (7.4.46.1 all-or-nothing, 5.4.2.28 duplicate override)
 
-REMOVE clears an **exact** `(cluster_offset, stream_index, stream_channel)`
-match and *ignores* everything else (unmatched, duplicate); it always returns
-`SUCCESS` on a dynamic input port. GET then shows the key gone / the word
-disabled.
+REMOVE runs the **same validate-then-commit walk as ADD**, because 7.4.46.1 is
+all-or-nothing in its own words:
+
+> If any of the mappings in the command are invalid or not present then the
+> command shall fail with a BAD_ARGUMENTS status and none of the mappings
+> shall be removed.
+
+Only *invalid* is vendor-delegated; **not present** is the standard's own
+term, so a record naming a cluster/stream/channel triple that is not in the
+store fails the whole command and removes nothing. Milan 5.4.2.28 overrides
+this for **duplicates only** — *"A PAAD-AE shall ignore duplicate mappings
+that may be present in a REMOVE_AUDIO_MAPPINGS command"* — and duplicates pass
+for free: validation completes before any commit, so every copy still sees its
+entry present, and the commit pass then clears the key once. A matched REMOVE
+shows up as the key gone from GET and the map word disabled in the crossbar.
 
 ### GET_AUDIO_MAP (getter)
 

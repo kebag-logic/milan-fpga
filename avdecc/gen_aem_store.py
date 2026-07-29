@@ -1218,10 +1218,11 @@ def emit_svh_text(M):
         #: RUNTIME. Codegen already refuses it; this makes a hand-edited svh
         #: die at ELABORATION instead, which is the only place left to catch
         #: it once the file is on disk.
-        a("if (AEM_DMAP_PAGE_C > 11)")
-        a("  $error(\"AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP \"")
-        a("         \"const-scratch bound of 11 (6 + 8*PAGE <= 96)\",")
-        a("         AEM_DMAP_PAGE_C);")
+        #: ONE string literal: SystemVerilog has no C-style adjacent
+        #: string-literal concatenation, so a split message is a syntax error.
+        a("if (AEM_DMAP_PAGE_C > 11) $error(\"AEM_DMAP_PAGE_C %0d exceeds "
+          "the GET_AUDIO_MAP const-scratch bound of 11 (6 + 8*PAGE <= 96)\","
+          " AEM_DMAP_PAGE_C);")
         a(f"localparam int unsigned AEM_DMAP_PHYS_C  = {dm['PHYS']};"
           "   // render crossbar depth (CHMAP_PHYS_C)")
         a(f"localparam int unsigned AEM_DMAP_NPORTS_C = {dm['NPORTS']};"

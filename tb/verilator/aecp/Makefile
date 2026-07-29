@@ -15,6 +15,11 @@
 #   sim_dynmap.cpp -> dynamic-audio-map shape (gen_dynmap_shape.py ->
 #     dynmap_inc/, same shadowing) exercising the `AEM_DYNMAP
 #     ADD/REMOVE/GET_AUDIO_MAP engine (Milan 5.4.2.26-28).
+#   sim_amap.cpp   -> STATIC 8x8 shape (gen_smap8_shape.py -> smap8_inc/):
+#     the defect-A witness for per-port static GET_AUDIO_MAP serving. It has
+#     its OWN shape because every SHIPPED listener is map_mode dynamic since
+#     roadmap 23, and a dynamic port carries no AUDIO_MAP to serve - the
+#     static multi-port path is still live RTL and still needs a witness.
 #   sim_pools.cpp  -> D8 ROLE-POOL shape (gen_pools_shape.py -> pools_inc/,
 #     same shadowing): host/pilot/loopback cluster pools on a board that
 #     routes NO audio pins, role-derived AUDIO_CLUSTER object_names, and
@@ -84,8 +89,9 @@ run: $(GEN)
 	  $(SRCS) sim_dynmap.cpp -o Vaecp_dynmap   # -Idynmap_inc shadows gen/
 	$(VERILATOR) $(VFLAGS_NXN) --Mdir obj_nxn \
 	  $(SRCS) sim_nxn.cpp -o Vaecp_nxn         # 8x8 ship shape (D1/D2)
-	$(VERILATOR) $(VFLAGS_NXN) --Mdir obj_amap \
-	  $(SRCS) sim_amap.cpp -o Vaecp_amap       # 8x8 ship shape (defect A)
+	python3 gen_smap8_shape.py smap8_inc
+	$(VERILATOR) -Ismap8_inc $(VFLAGS) --Mdir obj_amap \
+	  $(SRCS) sim_amap.cpp -o Vaecp_amap       # STATIC 8x8 (defect A)
 	python3 gen_pools_shape.py pools_inc
 	$(VERILATOR) -Ipools_inc $(VFLAGS) --Mdir obj_pools \
 	  $(SRCS) sim_pools.cpp -o Vaecp_pools     # -Ipools_inc shadows gen/
@@ -115,6 +121,7 @@ cosim: $(GEN)
 
 clean:
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn obj_amap
+	rm -rf smap8_inc
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_pools pools_inc
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc \
 	       obj_dynmap2 dynmap2_inc

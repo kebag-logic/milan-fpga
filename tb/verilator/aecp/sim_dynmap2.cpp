@@ -4,8 +4,8 @@
  *
  * MULTI-PORT dynamic audio-map harness (roadmap 23): KL_aecp_top compiled
  * against the two-dynamic-input-port shape svh (gen_dynmap2_shape.py —
- * STREAM_PORT_INPUT 0/1 both map_mode dynamic, 4 mono clusters each at
- * base_cluster 0 and 4, map_page 2 => number_of_maps 2 per port; three
+ * STREAM_PORT_INPUT 0/1 both map_mode dynamic, 8 mono clusters each at
+ * base_cluster 0 and 8, map_page 4 => number_of_maps 2 per port; three
  * STREAM_INPUTs, the third a CRF; STREAM_PORT_OUTPUT[0] static). Milan v1.2
  * 5.3.3.9 makes dynamic mappings a shall on EVERY Stream Port Input, so this
  * is the shape a real 4x4 / 8x8 listener build compiles. Exercises what the
@@ -22,7 +22,14 @@
  *     stream's bound without touching the other's
  *   - REMOVE matches on stream_index too
  *   - an out-of-range STREAM_PORT_INPUT is NO_SUCH_DESCRIPTOR while the
- *     static output port keeps the mandated NOT_SUPPORTED (5.4.2.27/28)
+ *     static output port refuses GET as well as ADD/REMOVE (5.4.2.26-28)
+ *   - a mapping onto a cluster the render crossbar cannot reach (16 declared
+ *     keys, depth 10) is refused, not accepted-then-dropped (7.4.45.1)
+ *   - REMOVE of a mapping that is NOT PRESENT fails the whole command
+ *     (7.4.46.1) while DUPLICATES still succeed (Milan 5.4.2.28)
+ *   - a frame whose control_data_length promises more octets than it
+ *     delivered is refused outright, so no mapping is ever committed out of
+ *     the previous command's capture-buffer residue
  * Exit 0 = all pass.
  */
 
@@ -205,8 +212,8 @@ int main(int argc, char** argv) {
             ck(p ? "SPI1 number_of_maps = 0 (dynamic)"
                  : "SPI0 number_of_maps = 0 (dynamic)", r_be16(r, 58), 0);
             //! base_cluster: port 0 owns clusters 0-3, port 1 owns 4-7
-            ck(p ? "SPI1 base_cluster = 4" : "SPI0 base_cluster = 0",
-               r_be16(r, 56), p ? 4 : 0);
+            ck(p ? "SPI1 base_cluster = 8" : "SPI0 base_cluster = 0",
+               r_be16(r, 56), p ? 8 : 0);
         }
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
         put_be16(pl, SPO); put_be16(pl, 0);
@@ -223,7 +230,7 @@ int main(int argc, char** argv) {
         for (int p = 0; p < 2; p++) {
             auto r = xact(CMD_GET_MAP, gm_pl(SPI, (uint16_t)p, 0));
             ck("page0 SUCCESS", r_status(r), 0);
-            ck("number_of_maps = 2 (4 clusters / page 2)", r_be16(r, 44), 2);
+            ck("number_of_maps = 2 (8 clusters / page 4)", r_be16(r, 44), 2);
             ck("page0 number_of_mappings = 0", r_be16(r, 46), 0);
             r = xact(CMD_GET_MAP, gm_pl(SPI, (uint16_t)p, 1));
             ck("page1 SUCCESS", r_status(r), 0);
@@ -249,13 +256,13 @@ int main(int argc, char** argv) {
     printf("\n[3] the two ports are INDEPENDENT (global keys, local offsets)\n");
     {
         take_wrs();
-        //! port 1, cluster_offset 2 -> GLOBAL key 4+2 = 6 = render channel 6
-        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,1,2,0}}}));
-        ck("ADD SPI1 {st1 ch1 -> cl+2} SUCCESS", r_status(r), 0);
+        //! port 1, cluster_offset 1 -> GLOBAL key 8+1 = 9 = render channel 9
+        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,1,1,0}}}));
+        ck("ADD SPI1 {st1 ch1 -> cl+1} SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
           ck("fabric mirror: exactly 1 map write", (long)w.size(), 1);
           if (w.size()==1) {
-            ck("... addr = base_cluster 4 + offset 2 = 6", w[0].addr, 6);
+            ck("... addr = base_cluster 8 + offset 1 = 9", w[0].addr, 9);
             ck("... word = {en,src0,strm1,ch1} 0x89", w[0].word, 0x89); } }
         //! port 0, the SAME cluster_offset 2 -> GLOBAL key 2, a different row
         r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,1,2,0}}}));
@@ -266,31 +273,52 @@ int main(int argc, char** argv) {
             ck("... addr = base_cluster 0 + offset 2 = 2", w[0].addr, 2);
             ck("... word = {en,src0,strm0,ch1} 0x81", w[0].word, 0x81); } }
 
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 1));
-        ck("SPI1 page1 lists exactly its own mapping", r_be16(r, 46), 1);
-        ck("... offset is PORT-RELATIVE: {1,1,2,0}", row_is(r, 50, 0, 1,1,2,0), 1);
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
-        ck("SPI0 page1 lists exactly its own mapping", r_be16(r, 46), 1);
-        ck("... {0,1,2,0} — port 1's row is NOT visible", row_is(r, 50, 0, 0,1,2,0), 1);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
+        ck("SPI1 page0 lists exactly its own mapping", r_be16(r, 46), 1);
+        ck("... offset is PORT-RELATIVE: {1,1,1,0}", row_is(r, 50, 0, 1,1,1,0), 1);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
-        ck("SPI0 page0 (offsets 0-1) still empty", r_be16(r, 46), 0);
+        ck("SPI0 page0 lists exactly its own mapping", r_be16(r, 46), 1);
+        ck("... {0,1,2,0} — port 1's row is NOT visible", row_is(r, 50, 0, 0,1,2,0), 1);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
+        ck("SPI0 page1 (offsets 4-7) still empty", r_be16(r, 46), 0);
     }
 
     printf("\n[4] cluster_offset is bounded by the PORT, not the key space\n");
     {
         take_wrs();
-        //! offset 4 on port 0 would be global key 4 = port 1's cluster 0.
+        //! offset 8 on port 0 would be global key 8 = port 1's cluster 0.
         //! 7.2.19 offsets are "from the base_cluster of the
         //! STREAM_PORT_INPUT", so it can never reach there: BAD_ARGUMENTS.
-        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,0,4,0}}}));
-        ck("SPI0 offset 4 (of 4) BAD_ARGUMENTS", r_status(r), 7);
+        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,0,8,0}}}));
+        ck("SPI0 offset 8 (of 8) BAD_ARGUMENTS", r_status(r), 7);
         ck("... and NOTHING was written to the fabric", (long)take_wrs().size(), 0);
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
-        ck("SPI1 page0 untouched by the reject", r_be16(r, 46), 0);
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,4,0}}}));
-        ck("SPI1 offset 4 (of 4) BAD_ARGUMENTS", r_status(r), 7);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 1));
+        ck("SPI1 page1 untouched by the reject", r_be16(r, 46), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,8,0}}}));
+        ck("SPI1 offset 8 (of 8) BAD_ARGUMENTS", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPI, 2, {{{0,0,0,0}}}));
         ck("ADD on SPI2 NO_SUCH_DESCRIPTOR", r_status(r), 2);
+
+        //! 7.4.45.1: "The ADDING of a mapping is subject to the validity of
+        //! the mapping as defined by the vendor of the ATDECC Entity."
+        //! This shape declares 16 cluster keys against a render crossbar 10
+        //! deep, so port 1 offsets 2..7 (global keys 10..15) have no physical
+        //! channel behind them. Accepting one would have GET_AUDIO_MAP report
+        //! a route that carries no audio, so it is refused at the door.
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,2,0}}}));
+        ck("SPI1 offset 2 = key 10, past the crossbar: BAD_ARG", r_status(r), 7);
+        ck("... nothing written", (long)take_wrs().size(), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,7,0}}}));
+        ck("SPI1 offset 7 = key 15, likewise BAD_ARG", r_status(r), 7);
+        //! and the LAST reachable key still works, so the bound is exact
+        //! channel 0 (stream 1 is still on its 2ch reset format here)
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,1,0}}}));
+        ck("SPI1 offset 1 = key 9, the last reachable one: SUCCESS",
+           r_status(r), 0);
+        r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{1,0,1,0}}}));
+        ck("... removed again (state hygiene)", r_status(r), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,1,1,0}}}));
+        ck("... and the section-3 mapping restored", r_status(r), 0);
     }
 
     printf("\n[5] mapping_stream_index: any Stream Input, never a CRF\n");
@@ -313,65 +341,106 @@ int main(int argc, char** argv) {
 
     printf("\n[6] the channel bound is PER STREAM (Milan 5.3.10.1)\n");
     {
-        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,5,3,0}}}));
+        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,5,0,0}}}));
         ck("st1 ch5 under the 2ch reset format BAD_ARG", r_status(r), 7);
         r = setfmt(1, AAF8);
         ck("SET_STREAM_FORMAT STREAM_INPUT[1] 8ch SUCCESS", r_status(r), 0);
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,5,3,0}}}));
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,5,0,0}}}));
         ck("st1 ch5 now SUCCESS (that stream's format moved)", r_status(r), 0);
         //! stream 0 was NOT reformatted: its bound must be untouched
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,1,0}}}));
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
         ck("st0 ch5 STILL BAD_ARG (stream 0 is 2ch)", r_status(r), 7);
         r = setfmt(0, AAF8);
         ck("SET_STREAM_FORMAT STREAM_INPUT[0] 8ch SUCCESS", r_status(r), 0);
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,1,0}}}));
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
         ck("st0 ch5 now SUCCESS too", r_status(r), 0);
+
+        //! A-F7 / Milan 5.3.10.1: the invariant is STANDING, so shrinking
+        //! stream 0 back to 2 channels must not leave a live mapping on its
+        //! channel 5. We PRUNE (see the dmp_* block in the RTL): the row is
+        //! withdrawn from the store AND from the render crossbar.
+        take_wrs();
         r = setfmt(0, AAF2);
         ck("SET_STREAM_FORMAT STREAM_INPUT[0] back to 2ch", r_status(r), 0);
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,3,0}}}));
+        { auto w = take_wrs();
+          ck("shrink WITHDREW the orphaned map word", (long)w.size(), 1);
+          if (w.size()==1) {
+            ck("... addr 4 (the ch5 row), word 0", w[0].addr*256 + w[0].word,
+               4*256); } }
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
+        ck("... and GET no longer reports it", r_be16(r, 46), 0);
+        //! the SAME command must not touch a mapping that is still in range
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
+        ck("... while page0's in-range rows SURVIVE", r_be16(r, 46), 2);
+        //! offset 0 = {st1,ch0} from [5] (a DIFFERENT stream: untouched),
+        //! offset 2 = {st0,ch1} (same stream, channel still in range)
+        ck("... {1,0,0,0} untouched (other stream)", row_is(r, 50, 0, 1,0,0,0), 1);
+        ck("... {0,1,2,0} untouched (channel still in range)",
+           row_is(r, 50, 1, 0,1,2,0), 1);
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
         ck("st0 ch5 BAD_ARG again (bound followed back down)", r_status(r), 7);
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,7,3,0}}}));
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,7,0,0}}}));
         ck("st1 ch7 STILL SUCCESS (stream 1 kept 8ch)", r_status(r), 0);
     }
 
     printf("\n[7] REMOVE matches stream_index as well as channel\n");
     {
-        //! port 1 offset 2 currently holds {st1, ch1}
-        auto r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{0,1,2,0}}}));
-        ck("REMOVE with the WRONG stream_index: ignored", r_status(r), 0);
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 1));
-        ck("... mapping survives", row_is(r, 50, 0, 1,1,2,0), 1);
+        //! port 1 offset 1 currently holds {st1, ch1}; offset 0 holds ch7
+        //! 7.4.46.1: "If any of the mappings in the command are invalid or
+        //! not present then the command shall fail with a BAD_ARGUMENTS
+        //! status and none of the mappings shall be removed." A wrong
+        //! stream_index is NOT PRESENT - it used to be silently ignored.
         take_wrs();
-        r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{1,1,2,0}}}));
-        ck("REMOVE exact match SUCCESS", r_status(r), 0);
+        auto r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{0,1,1,0}}}));
+        ck("REMOVE with the WRONG stream_index: BAD_ARG (7.4.46.1)",
+           r_status(r), 7);
+        ck("... nothing withdrawn", (long)take_wrs().size(), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
+        ck("... mapping survives", row_is(r, 50, 1, 1,1,1,0), 1);
+        //! wrong CHANNEL, right stream: also not present
+        r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{1,4,1,0}}}));
+        ck("REMOVE with the WRONG channel: BAD_ARG", r_status(r), 7);
+        //! a cluster that was never mapped at all
+        r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,0,7,0}}}));
+        ck("REMOVE of a never-mapped cluster: BAD_ARG", r_status(r), 7);
+        //! ALL-OR-NOTHING: one good record + one absent one removes NEITHER
+        r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{1,1,1,0}}, {{1,3,0,0}}}));
+        ck("one present + one absent: BAD_ARG, none removed", r_status(r), 7);
+        ck("... nothing withdrawn", (long)take_wrs().size(), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
+        ck("... both rows still there", r_be16(r, 46), 2);
+        //! Milan 5.4.2.28 still overrides for DUPLICATES: validation
+        //! completes before any commit, so both copies see it present
+        r = xact(CMD_RM_MAP, am_pl(SPI, 1, {{{1,1,1,0}}, {{1,1,1,0}}}));
+        ck("DUPLICATE rows SUCCESS (Milan 5.4.2.28)", r_status(r), 0);
         { auto w = take_wrs();
-          ck("fabric mirror: 1 clearing write", (long)w.size(), 1);
+          ck("... withdrawn exactly once", (long)w.size(), 1);
           if (w.size()==1) {
-            ck("... addr 6 (global key), word 0", w[0].addr*256 + w[0].word, 6*256); } }
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 1));
+            ck("... addr 9 (global key), word 0", w[0].addr*256 + w[0].word,
+               9*256); } }
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
         ck("... and only the ch7 row is left on that page", r_be16(r, 46), 1);
-        ck("... {1,7,3,0}", row_is(r, 50, 0, 1,7,3,0), 1);
+        ck("... {1,7,0,0}", row_is(r, 50, 0, 1,7,0,0), 1);
     }
 
     printf("\n[8] multi-record ADD across a port + static-output regression\n");
     {
         take_wrs();
-        //! a full 4-cluster program of port 1 in ONE command
-        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,0,0}}, {{1,1,1,0}},
-                                                  {{1,2,2,0}}, {{1,3,3,0}}}));
-        ck("4-record ADD on SPI1 SUCCESS", r_status(r), 0);
+        //! a 4-cluster program of port 0 in ONE command (port 0's whole
+        //! block is inside the crossbar; port 1 has only offsets 0/1)
+        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{1,0,4,0}}, {{1,1,5,0}},
+                                                  {{1,2,6,0}}, {{1,3,7,0}}}));
+        ck("4-record ADD on SPI0 SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
           ck("fabric mirror: 4 writes", (long)w.size(), 4);
           if (w.size()==4) {
-            ck("... addrs 4,5,6,7 (base 4 + 0..3)",
+            ck("... addrs 4,5,6,7 (base 0 + 4..7)",
                w[0].addr*1000 + w[1].addr*100 + w[2].addr*10 + w[3].addr, 4567);
             ck("... word[3] = {en,src0,strm1,ch3} 0x8B", w[3].word, 0x8B); } }
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
-        ck("SPI1 page0 = 2 mappings", r_be16(r, 46), 2);
-        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 1));
-        ck("SPI1 page1 = 2 mappings", r_be16(r, 46), 2);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
+        ck("SPI0 page1 = 4 mappings", r_be16(r, 46), 4);
         //! same key twice in ONE command is still the mandated reject
-        r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,0,1,0}}, {{1,1,1,0}}}));
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,0,4,0}}, {{0,1,4,0}}}));
         ck("same cluster twice in one command BAD_ARG", r_status(r), 7);
 
         r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,0,0,0}}}));
@@ -380,6 +449,44 @@ int main(int argc, char** argv) {
         ck("REMOVE on the static output NOT_SUPPORTED", r_status(r), 11);
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{0,0,0,0}}}));
         ck("ADD on SPO1 (absent) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+    }
+
+    printf("\n[9] a frame that LIES about its length commits nothing "
+           "(A-F14)\n");
+    {
+        //! Build a well-formed 2-record ADD, note what it does, then send a
+        //! frame that declares the SAME control_data_length while carrying
+        //! only part of the records. control_data_length was checked for a
+        //! lower bound only, so the walk used to read the missing records out
+        //! of the PREVIOUS command's capture-buffer residue and commit them.
+        auto full = am_pl(SPI, 0, {{{0,0,0,0}}, {{0,1,1,0}}});
+        auto r = xact(CMD_ADD_MAP, full);
+        ck("reference 2-record ADD SUCCESS", r_status(r), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
+        //! offsets 0 and 1 from this command + offset 2 carried in
+        ck("... 3 rows on page0", r_be16(r, 46), 3);
+
+        //! now the liar: same declared cdl, 12 octets short on the wire
+        take_wrs();
+        auto f = aem_cmd(CMD_ADD_MAP, seq++, full);
+        //! the payload's last 12 octets are the tail of record 1 + padding;
+        //! truncate the FRAME without touching the header's length field
+        f.resize(f.size() - 12);
+        feed_rx(f);
+        auto rr = collect_resp();
+        ck("short frame produced NO response at all", (long)rr.size(), 0);
+        ck("... and committed NOTHING to the fabric",
+           (long)take_wrs().size(), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
+        ck("... the store is exactly as the honest command left it",
+           r_be16(r, 46), 3);
+        ck("... row0 unchanged", row_is(r, 50, 0, 0,0,0,0), 1);
+        ck("... row1 unchanged", row_is(r, 50, 1, 0,1,1,0), 1);
+        ck("... row2 unchanged", row_is(r, 50, 2, 0,1,2,0), 1);
+        //! the entity is still alive and answering afterwards
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
+        ck("... and the responder still serves the next command",
+           r_status(r), 0);
     }
 
     printf("\n----------------------------------------------------------\n");

@@ -1288,6 +1288,31 @@ def test_dynamic_audio_map_overlay():
         print("  [gate 17b] arty_4x4 ALL listeners dynamic (Milan 5.3.3.9): "
               "4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases "
               "0/4/8/12, CRF sink flagged unmappable")
+
+        # gate 17c: the AEM refusal and the fabric write gate must agree on
+        # WHICH KEYS EXIST, or the model accepts a mapping the crossbar drops
+        # (or refuses one it would have taken). AEM_DMAP_PHYS_C is emitted by
+        # the codegen; CHMAP_PHYS_C is a milan_datapath localparam; this is
+        # the only thing tying the two together.
+        m = re.search(r"localparam int unsigned AEM_DMAP_PHYS_C\s*=\s*(\d+);",
+                      svh)
+        assert m, "svh emits no AEM_DMAP_PHYS_C"
+        dp = open(DATAPATH_SV).read()
+        d = re.search(r"localparam int CHMAP_PHYS_C\s*=\s*(\d+);", dp)
+        assert d, "milan_datapath has no CHMAP_PHYS_C localparam"
+        assert int(m.group(1)) == int(d.group(1)), (
+            f"AEM_DMAP_PHYS_C {m.group(1)} != milan_datapath CHMAP_PHYS_C "
+            f"{d.group(1)}: the AEM refusal and the render-map write gate "
+            "would disagree about which cluster keys are reachable")
+        # and the write gate itself must be present on BOTH arms, full-width
+        assert re.search(r"32'\(aecp_dmap_wr_addr_w\)\s*<\s*CHMAP_PHYS_C", dp), \
+            "milan_datapath: AEM arm of the render-map write is not gated"
+        assert re.search(r"32'\(cfg_chmap_wr_addr\)\s*<\s*CHMAP_PHYS_C", dp), \
+            "milan_datapath: CSR-debug arm of the render-map write is not gated"
+        print(f"  [gate 17c] AEM_DMAP_PHYS_C {m.group(1)} == milan_datapath "
+              f"CHMAP_PHYS_C {d.group(1)}, and BOTH render-map write arms "
+              "(AEM projector + CSR 0x900 debug port) carry the full-width "
+              "< CHMAP_PHYS_C gate")
     finally:
         os.unlink(p)
 
@@ -3537,16 +3562,19 @@ def test_d10_cluster_names():
     # ... and every config that predates D8 must hash EXACTLY as before
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
         "0x001BC5AB73EC9D1D"
-    # arty_4x4's hash has now moved TWICE, correctly both times:
+    # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
-    # gate forced tdm8 -> i2s_philips (no header existed), and ->
+    # gate forced tdm8 -> i2s_philips (no header existed), ->
     # 0x001BC578CBCE5FBD when HANDOVER 8.3b routed the pmodb header and the
     # shape went back to tdm8 (now with 4-cluster talkers, the emitted
-    # width). `interface.kind` IS a model-shaping field, so a shape change
-    # SHOULD move a hash-derived id - that is the mechanism working. What
-    # must NOT move is arty_current's PINNED id above, and it has not.
+    # width), and -> 0x001BC5A10610BAB8 when roadmap 23 put every listener
+    # on map_mode dynamic, which DROPS four AUDIO_MAP descriptors and sets
+    # number_of_maps=0 on four STREAM_PORT_INPUTs. `interface.kind` and the
+    # descriptor set both ARE model-shaping, so a shape change SHOULD move a
+    # hash-derived id - that is the mechanism working. What must NOT move is
+    # arty_current's PINNED id above (it stays static), and it has not.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC578CBCE5FBD"
+        "0x001BC5A10610BAB8"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; the two pre-D8 shapes hash unchanged")

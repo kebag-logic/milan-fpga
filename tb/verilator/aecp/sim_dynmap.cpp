@@ -356,9 +356,16 @@ int main(int argc, char** argv) {
         feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_RM_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
-        ck("REMOVE of absent mapping SUCCESS (ignored)", r_status(r), 0);
+        //! 7.4.46.1, verbatim: "If any of the mappings in the command are
+        //! invalid or not present then the command shall fail with a
+        //! BAD_ARGUMENTS status and none of the mappings shall be removed."
+        //! Milan 5.4.2.28 overrides that for DUPLICATES only, so an ABSENT
+        //! mapping is a refusal, not a silent success (this check asserted
+        //! the violation as correct until the 7.4.46.1 read).
+        ck("REMOVE of an absent mapping BAD_ARGUMENTS (7.4.46.1)",
+           r_status(r), 7);
         { auto w = take_wrs();
-          ck("fabric mirror: unmatched REMOVE -> NO write", (long)w.size(), 0); }
+          ck("fabric mirror: refused REMOVE -> NO write", (long)w.size(), 0); }
         u = collect_resp();
         ck("... and NO replay (nothing changed)", (long)u.size(), 0);
 
@@ -368,10 +375,12 @@ int main(int argc, char** argv) {
         ck("ctlr2 DEREGISTER SUCCESS", r_status(r), 0);
     }
 
-    printf("\n[7] REMOVE semantics: exact match, duplicates ignored\n");
+    printf("\n[7] REMOVE semantics: exact match, absent refused, duplicates ignored\n");
     {
+        //! wrong stream_channel for that cluster = NOT PRESENT (7.4.46.1)
         auto r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,0,0,0}}}));
-        ck("REMOVE cl0 wrong channel: SUCCESS, ignored", r_status(r), 0);
+        ck("REMOVE cl0 wrong channel: BAD_ARGUMENTS (7.4.46.1)",
+           r_status(r), 7);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
         ck("cl0 mapping still there (n=2)", r_be16(r, 46), 2);
         r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,1,0,0}}}));

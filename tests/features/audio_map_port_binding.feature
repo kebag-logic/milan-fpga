@@ -57,8 +57,13 @@ Feature: GET_AUDIO_MAP serves the ANSWERING PORT's own map, within that port's b
     # above ("holds exactly the mappings it declares" + "row count is that
     # descriptor's own number_of_mappings"); what THIS scenario still proves
     # is the wrong-descriptor half of the history.
+    # Owner moved 2026-07-30 (roadmap 23): every 8x8 listener is now
+    # map_mode dynamic, so NO STREAM_PORT_INPUT owns an AUDIO_MAP at all
+    # (1722.1-2021 7.2.13 number_of_maps=0) and index 1 is output port 1's.
+    # The wrong-descriptor point is unchanged and if anything sharper - a
+    # hardcoded AUDIO_MAP[1] still does not belong to the port being served.
     Given the generated AEM model for config "endstation_ax7101_8x8"
-    Then AUDIO_MAP index 1 belongs to STREAM_PORT_INPUT 1, not to an output port
+    Then AUDIO_MAP index 1 belongs to STREAM_PORT_OUTPUT 1, and NOT to the port the pre-fix constant served
     And STREAM_PORT_OUTPUT 0 is served from a different address than AUDIO_MAP index 1
 
   Scenario Outline: the model gate REFUSES a map that leaves its port's bounds

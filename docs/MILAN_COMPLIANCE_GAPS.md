@@ -162,7 +162,15 @@ hold.
     records are identical - 7.4.45.1 permits that reading and nothing
     mandates accepting the duplicate. Accept-and-replace of an EXISTING
     mapping is the 5.4.2.27 option we take, without the optional
-    ("may") REMOVE_AUDIO_MAPPING unsolicited notification first.
+    ("may") REMOVE_AUDIO_MAPPING unsolicited notification first. And a
+    mapping onto a cluster the render crossbar has no entry for
+    (global key >= AEM_DMAP_PHYS_C = milan_datapath's CHMAP_PHYS_C) is
+    BAD_ARGUMENTS: 7.4.45.1 delegates this explicitly - "The ADDING of a
+    mapping is subject to the validity of the mapping as defined by the
+    vendor of the ATDECC Entity" - and accepting one would have
+    GET_AUDIO_MAP report a route that silently carries nothing. Builder
+    gate 17c ties that constant to the RTL localparam so the AEM refusal
+    and the fabric write gate cannot disagree about which keys exist.
   - **GENERALIZED TO EVERY LISTENER PORT (2026-07-29, roadmap 23,
     VERSION 0x001C).** The 07-22 engine served STREAM_PORT_INPUT[0] only
     and NO shipped config armed it, so on silicon every listener port
@@ -192,9 +200,41 @@ hold.
       `map_mode: dynamic` on every listener; endstation_arty_current.yaml
       stays static so the TRACKED entity definition + golden are
       byte-identical and check_entity_shape is unmoved.
-    - TB: tb/verilator/aecp/sim_dynmap2.cpp (70 checks, the two-port
-      shape that also crosses `AEM_PER_STREAM_FMT) alongside the
-      unchanged single-port sim_dynmap.cpp (81); builder gate 17b.
+    - REMOVE_AUDIO_MAPPINGS now runs the SAME validate-then-commit walk
+      as ADD. 7.4.46.1 is all-or-nothing in its own words - "If any of
+      the mappings in the command are invalid or not present then the
+      command shall fail with a BAD_ARGUMENTS status and none of the
+      mappings shall be removed" - and only *invalid* is vendor-delegated;
+      NOT PRESENT is the standard's own term. Milan 5.4.2.28 overrides it
+      for DUPLICATES only, and duplicates still succeed because nothing is
+      committed until validation has run to completion, so every copy sees
+      its entry present. The engine used to skip validation entirely on
+      REMOVE and silently ignore anything it could not match.
+    - A SET_STREAM_FORMAT that SHRINKS a Stream Input now PRUNES the
+      mappings it orphans, in store and in the crossbar alike. 5.3.10.1 is
+      a standing invariant on device state, not an ADD-time test ("At a
+      given time, each channel of each Audio Cluster of each Stream Port
+      Input is either not mapped, or mapped to a channel of a Stream Input
+      (in this case, the index of the mapped Stream Input's channel shall
+      be lower than the number of channels in the current format of the
+      Stream Input)"), so an 8ch->2ch change used to leave the entity in
+      standing violation AND leave the crossbar de-interleaving a wire
+      channel that no longer existed. JUDGMENT CALL: prune rather than
+      refuse the format change - nothing in 1722.1 7.4.9 or Milan 5.4.2.6
+      lets an entity fail an otherwise valid SET_STREAM_FORMAT over
+      mapping state, and set-format-then-map is the normal controller
+      order. The withdrawal is observable through GET_AUDIO_MAP; no
+      unsolicited REMOVE is fabricated (5.4.2.27 offers that only for the
+      ADD accept-and-replace case).
+    - TB: tb/verilator/aecp/sim_dynmap2.cpp (98 checks, two dynamic ports
+      of 8 clusters at bases 0/8 - 16 keys against a crossbar 10 deep, so
+      the reachability refusal is reachable - crossing `AEM_DYNMAP and
+      `AEM_PER_STREAM_FMT together) alongside the single-port
+      sim_dynmap.cpp (80); builder gates 17b/17c. sim_amap.cpp keeps
+      witnessing the STATIC multi-port serving path, now against its own
+      generated shape (gen_smap8_shape.py) instead of the shipped 8x8,
+      because every shipped listener is dynamic from this round on and a
+      dynamic port has no static map to serve.
   - **OPEN after this round:** (a) 5.3.10.1 also says the mapping list
     "shall be saved in a non-volatile memory and restored after a power
     cycle" - this store powers up EMPTY, so a dynamic build's render
@@ -207,6 +247,22 @@ hold.
     flipping it is a one-line config change plus a tracked-svh/golden
     regeneration, deliberately not done in the same round as an
     ownership-contended file.
+  - **A frame that LIES about its length is now refused outright
+    (KL_aecp_packet_validator).** control_data_length had only ever been
+    checked for a LOWER bound (>= 12), never against the octets the frame
+    actually delivered, and the response builder's capture buffer is not
+    cleared between frames. A short ADD_AUDIO_MAPPINGS declaring
+    control_data_length = 20 + 8N therefore walked its missing mapping
+    records out of the PREVIOUS command's residue and committed them, and
+    the echo segment - sized from the same declared length - could put up
+    to 494 octets of another controller's payload back on the wire. The
+    validator now latches the delivered octet count and withholds its
+    valid strobe when control_data_length + 6 exceeds it (this stream
+    begins at the EtherType, so the field counts from its byte 6), which
+    is what arms the builder at all. Separately the ECHOED
+    control_data_length is clamped to 506 = 12 + the 494-octet echo
+    segment, so the length field can no longer promise more than the
+    response carries.
   - **Render-consumption follow-up (documented flag):** the builder
     exports live render taps `dmap_l/r_{ch,en}_o` (cluster 0/1 = the DAC
     pair) through KL_aecp_top into milan_datapath, where they terminate.

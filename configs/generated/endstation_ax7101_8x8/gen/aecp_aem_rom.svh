@@ -2328,10 +2328,7 @@ localparam [15:0] AEM_SMAP_OUT_MOFF_C [0:7] = '{16'd8, 16'd8, 16'd8, 16'd8, 16'd
 `define AEM_DYNMAP
 localparam int unsigned AEM_DMAP_KEYS_C  = 64;   // global dynamic cluster keys (mono clusters)
 localparam int unsigned AEM_DMAP_PAGE_C  = 8;   // GET_AUDIO_MAP fixed partition size (shared)
-if (AEM_DMAP_PAGE_C > 11)
-  $error("AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP "
-         "const-scratch bound of 11 (6 + 8*PAGE <= 96)",
-         AEM_DMAP_PAGE_C);
+if (AEM_DMAP_PAGE_C > 11) $error("AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP const-scratch bound of 11 (6 + 8*PAGE <= 96)", AEM_DMAP_PAGE_C);
 localparam int unsigned AEM_DMAP_PHYS_C  = 10;   // render crossbar depth (CHMAP_PHYS_C)
 localparam int unsigned AEM_DMAP_NPORTS_C = 8;   // STREAM_PORT_INPUT descriptors
 localparam bit AEM_DMAP_PDYN_C [0:7] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1};

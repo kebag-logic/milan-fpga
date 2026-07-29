@@ -102,6 +102,44 @@ module KL_aecp_packet_validator (
   wire w_cdl_ok  = (w_cdl >= 11'd12);
   wire w_ok      = w_type_ok & w_cdl_ok;
 
+  // ------------------------------------------------------------------ //
+  // DECLARED length vs DELIVERED length (A-F14)                          //
+  //                                                                      //
+  // control_data_length was only ever checked for a LOWER bound. Nothing  //
+  // compared it against the octets the frame actually carried, so a       //
+  // SHORT frame could declare a long one and every consumer downstream    //
+  // believed the header: the response builder's capture buffer is not     //
+  // cleared between frames, so a 60-byte ADD_AUDIO_MAPPINGS declaring     //
+  // control_data_length = 20 + 8N walked N mapping records out of the     //
+  // PREVIOUS command's residue and committed them, and the echo segment   //
+  // - sized from the same declared length - put up to 494 octets of       //
+  // whatever the last controller sent back on the wire, to a different    //
+  // controller. Two bugs, one missing compare.                            //
+  //                                                                      //
+  // The arithmetic, from the beat-0 map above: this stream begins at the  //
+  // EtherType, so control_data_length counts octets from ITS byte 6       //
+  // (target_entity_id) onward, and a well-formed frame therefore carries  //
+  // at least 6 + control_data_length octets. Padding makes frames LONGER  //
+  // than that (a 60-byte Ethernet minimum), never shorter, so the test is //
+  // one-sided.                                                            //
+  // ------------------------------------------------------------------ //
+  localparam int unsigned CDL_ORIGIN_C = 6;   //! octets before the cdl region
+  logic [12:0] blen_r;        //! octets accepted so far THIS frame
+  logic [10:0] cdl_r;        //! this frame's declared control_data_length
+  //! octets in the beat being handshaken (tkeep is contiguous, but count it
+  //! rather than assume, so a short tail beat is measured not guessed)
+  wire [3:0] w_kcnt = 4'(s_axis_tkeep[0]) + 4'(s_axis_tkeep[1])
+                    + 4'(s_axis_tkeep[2]) + 4'(s_axis_tkeep[3])
+                    + 4'(s_axis_tkeep[4]) + 4'(s_axis_tkeep[5])
+                    + 4'(s_axis_tkeep[6]) + 4'(s_axis_tkeep[7]);
+  //! running total INCLUDING the current beat; beat 0 restarts the count
+  //! (blen_r still holds the previous frame's total at that point)
+  wire [12:0] w_blen_now = (state_r == FIRST_BEAT_S)
+                           ? {9'd0, w_kcnt} : blen_r + {9'd0, w_kcnt};
+  wire [10:0] w_cdl_now  = (state_r == FIRST_BEAT_S) ? w_cdl : cdl_r;
+  //! evaluated on the LAST beat, when the delivered length is finally known
+  wire w_len_short = ({2'd0, w_cdl_now} + 13'(CDL_ORIGIN_C)) > w_blen_now;
+
   // own outputs mirrored in local nets: reading them back through the
   // modport (s_axis_tready / m_axis_tvalid) makes sv2v emit an absolute
   // hierarchical path that only resolves when KL_aecp_top is the top —
@@ -170,10 +208,20 @@ module KL_aecp_packet_validator (
       drop_o         <= 1'b0;
       status_o       <= STATUS_SUCCESS;
       message_type_o <= 4'd0;
+      blen_r         <= 13'd0;
+      cdl_r          <= 11'd0;
     end else begin
       // Default: clear strobes
       valid_o <= 1'b0;
       drop_o  <= 1'b0;
+
+      //! delivered-octet accounting (A-F14): every beat this module accepts,
+      //! in EITHER direction (forwarded or dropped), so the total is right
+      //! whatever the verdict. Beat 0 restarts it.
+      if (w_hs_s || (state_r == DROP_S && s_axis_tvalid)) begin
+        blen_r <= w_blen_now;
+        if (state_r == FIRST_BEAT_S) cdl_r <= w_cdl;
+      end
 
       case (state_r)
         // ------------------------------------------------------------ //
@@ -188,9 +236,15 @@ module KL_aecp_packet_validator (
               // Handshake completes when master accepts
               if (m_axis_tready) begin
                 if (s_axis_tlast) begin
-                  // Single-beat frame — done immediately
-                  valid_o  <= 1'b1;
-                  status_o <= STATUS_SUCCESS;
+                  //! Single-beat frame — the delivered length is known NOW,
+                  //! so the A-F14 compare decides the verdict here.
+                  if (w_len_short) begin
+                    drop_o   <= 1'b1;
+                    status_o <= STATUS_BAD_ARGUMENTS;
+                  end else begin
+                    valid_o  <= 1'b1;
+                    status_o <= STATUS_SUCCESS;
+                  end
                   state_r  <= FIRST_BEAT_S;
                 end else begin
                   state_r <= PASS_S;
@@ -223,8 +277,18 @@ module KL_aecp_packet_validator (
         PASS_S: begin
           if (w_hs_s) begin
             if (s_axis_tlast) begin
-              valid_o  <= 1'b1;
-              status_o <= STATUS_SUCCESS;
+              //! A-F14: the frame is only GOOD if it delivered at least the
+              //! 6 + control_data_length octets its own header promised. The
+              //! beats are already downstream by now - this strobe is what
+              //! the response builder arms on, so withholding it is exactly
+              //! "do not act on this frame".
+              if (w_len_short) begin
+                drop_o   <= 1'b1;
+                status_o <= STATUS_BAD_ARGUMENTS;
+              end else begin
+                valid_o  <= 1'b1;
+                status_o <= STATUS_SUCCESS;
+              end
               state_r  <= FIRST_BEAT_S;
             end
           end

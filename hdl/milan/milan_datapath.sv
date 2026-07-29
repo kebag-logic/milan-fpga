@@ -3337,10 +3337,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! truncated - truncation would silently alias key 16 onto the I2S L
     //! channel. KL_chan_map_render bounds its own write too; this gate is
     //! what stops the narrow address bus from wrapping before it gets there.
-    .map_wr_en_i   ((aecp_dmap_wr_p_w && aecp_dmap_wr_addr_w <
-                     6'(CHMAP_PHYS_C)) ||
+    //!
+    //! BOTH arms need it. The CSR debug port carries the SAME 0..63 key
+    //! space (A_CHMAP_SEL[5:0], cfg_chmap_wr_addr is 6 bits), so
+    //! CHMAP_SEL = 16 truncated to [3:0] landed on phys 0 = the I2S L
+    //! channel just as surely as an AEM key 16 would have - a bring-up poke
+    //! at a cluster this board does not render would silently retune the
+    //! DAC's left channel.
+    //!
+    //! The compares are 32-BIT, not 6'(CHMAP_PHYS_C): the literal is only
+    //! six bits wide by accident of today's value 10, and 6'(64) is 0, so a
+    //! future depth of 64 would turn the guard into "refuse everything".
+    .map_wr_en_i   ((aecp_dmap_wr_p_w &&
+                     32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
                     (!aecp_dmap_wr_p_w && cfg_chmap_wr_en &&
-                     !cfg_chmap_wr_side)),
+                     !cfg_chmap_wr_side &&
+                     32'(cfg_chmap_wr_addr) < CHMAP_PHYS_C)),
     .map_wr_addr_i (aecp_dmap_wr_p_w
                     ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
                     : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),

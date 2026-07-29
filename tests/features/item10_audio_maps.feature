@@ -214,8 +214,12 @@ Feature: Item-10 dynamic audio maps + chmap64 AEM->fabric binding contract
     Then the audio-map model responds status 7
     When on input port 0 I ADD stream 3 channel 0 at cluster_offset 1
     Then the audio-map model responds status 7
+    # 7.4.46.1: "If any of the mappings in the command are invalid or not
+    # present then the command shall fail with a BAD_ARGUMENTS status and
+    # none of the mappings shall be removed." The stored row names stream 1,
+    # so a REMOVE naming stream 0 is NOT PRESENT - refused, not ignored.
     When on input port 0 I REMOVE stream 0 channel 2 at cluster_offset 0
-    Then the audio-map model responds status 0
+    Then the audio-map model responds status 7
     And the fabric map word at cluster_offset 0 is en 1 stream 1 ch 2
     When on input port 0 I REMOVE stream 1 channel 2 at cluster_offset 0
     Then the audio-map model responds status 0
