@@ -74,6 +74,7 @@ static const uint8_t  US_MAC[6] = {0x02,0x00,0x00,0x00,0x00,0x03};
 static const uint64_t TK_EID  = 0x020000FFFE000001ULL;  // bound talker
 static const uint64_t TK2_EID = 0x020000FFFE000002ULL;
 static const uint64_t CT_EID  = 0x680500FFFE0000AAULL;  // controller
+static const uint64_t CT2_EID = 0x680500FFFE0000BBULL;  // rebinding controller
 static const uint64_t TK_SID  = 0x0200000000010000ULL;  // {talker MAC, uid 0}
 
 static void put_be(std::vector<uint8_t>& v, uint64_t x, int n) {
@@ -340,6 +341,9 @@ int main(int argc, char** argv) {
     ck("[11] rebind-same BIND_RESP", r_msg(r), 7);
     ck("[11] state stays PRB_W_AVAIL", dut->state_o, 1);
     ck("[11] no new probe", dut->probe_count_o, pc);
+    // stale ACMP status from [9] (TALKER_NO_BANDWIDTH) still shows here:
+    // the rebind-same fast path must not touch it (5.5.3.5.43 step 2)
+    ck("[11] stale status survives rebind-same", dut->acmp_status_o, 5);
     feed(acmp(6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x105, 0, 0));
     r = wait_frame();
     ck("[11] rebind-diff BIND_RESP", r_msg(r), 7);
@@ -348,6 +352,7 @@ int main(int argc, char** argv) {
     ckh("[11] probe talker T2", r_be(p, 34, 8), TK2_EID);
     ck("[11] state PRB_W_RESP", dut->state_o, 3);
     ckh("[11] bound talker T2", dut->bound_talker_o, TK2_EID);
+    ck("[11] stale status cleared (5.5.3.5.43 step 11)", dut->acmp_status_o, 0);
 
     // ---------------------------------------------------------------- //
     printf("\n[12] settle on T2 then UNBIND_RX -> UNBOUND\n");
@@ -524,6 +529,105 @@ int main(int argc, char** argv) {
         r = wait_frame();
         ck("[S1] uid2 bind UNKNOWN_ID", r_sta(r), 1);
         ck("[S1] uid2 left s1 alone", dut->s1_bound_o, 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[R] Milan 5.5.3.5.43: CONNECT_RX while bound + STREAMING\n");
+    // The 07-29 silicon finding: a listener bound to talker X and streaming
+    // is asked to CONNECT_RX talker Y. 1722.1-2021 8.2.2.6 alone would
+    // refuse with LISTENER_EXCLUSIVE (8.2.4.2.2 listenerIsConnected); Milan
+    // v1.2 5.5.3.5.43 OVERRIDES that for a PAAD-AE: same talker = refresh
+    // ctlr/STREAMING_WAIT only (step 2), different talker = implicit rebind
+    // (steps 3..12: teardown + SUCCESS + fresh probe ladder), and the sink
+    // never passes through UNBOUND (so the [M-5.3.8.10] not-bound->bound
+    // counter reset stays silent).
+    {
+        // deterministic baseline: unbind (kills every pending sink-0 timer),
+        // drain any stray ladder frame from the earlier sections, fresh bind
+        // to X, settle via the probe response (the PEER-style probe flow
+        // itself is pinned by [8]/[9]/[14]/[15])
+        feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x2FE, 0, 0));
+        (void)wait_frame();                       // UNBIND_RESP
+        run(12000);                               // > max 1024 ms DELAY draw
+        ck("[R] baseline UNBOUND", dut->state_o, 0);
+        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x2FF, 0, 0));
+        r = wait_frame();
+        ck("[R] bind BIND_RESP", r_msg(r), 7);
+        p = wait_frame();
+        ck("[R] bind probe emitted", p.size(), 70);
+        const uint8_t dmx[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x01};
+        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dmx, 9, 0, 2));
+        ck("[R] settled on X", dut->state_o, 6);
+        dut->ta_registered_i = 1;
+        run(4);
+        ck("[R] STREAMING on X (SETTLED_RSV_OK)", dut->state_o, 7);
+        ck("[R] active", dut->stream_active_o, 1);
+
+        // (a) same talker, STREAMING_WAIT toggled, new controller: step 2 =
+        // parameter refresh ONLY - the stream must NOT be interrupted
+        long pcr = dut->probe_count_o;
+        feed(acmp(6, 0, 0, CT2_EID, TK_EID, US_EID, 0, 0, nullptr, 0x300,
+                  0x0008, 0));
+        r = wait_frame();
+        ck("[R] rebind-same(SW=1) SUCCESS", r_sta(r), 0);
+        ck("[R] stream not interrupted (RSV_OK)", dut->state_o, 7);
+        ck("[R] still active", dut->stream_active_o, 1);
+        ck("[R] no re-probe (step 2 'exit')", dut->probe_count_o, pcr);
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x301, 0, 0));
+        r = wait_frame();
+        ck("[R] stored STREAMING_WAIT refreshed", (long)r_be(r, 64, 2), 0x0008);
+
+        // (b) THE FINDING: different talker while streaming -> implicit
+        // rebind, never LISTENER_EXCLUSIVE, never an UNBOUND excursion
+        dut->ta_registered_i = 0;      // Y's TA not on the wire yet
+        bool saw_unbound = false;
+        {
+            auto f = acmp(6, 0, 0, CT2_EID, TK2_EID, US_EID, 0, 0, nullptr,
+                          0x302, 0, 0);
+            int n = f.size();
+            for (int off = 0; off < n; off += 8) {
+                uint64_t d = 0; uint8_t keep = 0;
+                for (int l = 0; l < 8; l++)
+                    if (off + l < n) { d |= (uint64_t)f[off+l] << (8*l); keep |= (1<<l); }
+                dut->rx_tvalid_i = 1; dut->rx_tdata_i = d;
+                dut->rx_tkeep_i = keep; dut->rx_tlast_i = (off + 8 >= n);
+                if (dut->state_o == 0) saw_unbound = true;
+                tick_collect(nullptr);
+            }
+            dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+            for (int i = 0; i < 6; i++) {
+                if (dut->state_o == 0) saw_unbound = true;
+                tick_collect(nullptr);
+            }
+        }
+        r = wait_frame();
+        ck("[R] rebind-diff SUCCESS (not LISTENER_EXCLUSIVE)", r_sta(r), 0);
+        ck("[R] msg BIND_RESP", r_msg(r), 7);
+        ck("[R] no UNBOUND excursion (no counter reset)", saw_unbound, 0);
+        p = wait_frame();
+        ck("[R] fresh probe to Y", p.size(), 70);
+        ckh("[R] probe talker Y", r_be(p, 34, 8), TK2_EID);
+        ckh("[R] probe ctlr = rebinding controller", r_be(p, 26, 8), CT2_EID);
+        ck("[R] state PRB_W_RESP", dut->state_o, 3);
+        ck("[R] X released: inactive", dut->stream_active_o, 0);
+        ck("[R] Listener attr withdrawn", dut->lstn_declare_o, 0);
+        ckh("[R] bound talker now Y", dut->bound_talker_o, TK2_EID);
+        ckh("[R] stale X dmac cleared (5.5.2.6 step 1)", dut->stream_dmac_o, 0);
+        ck("[R] stale X vlan cleared", dut->stream_vlan_o, 0);
+        ckh("[R] sid re-derived for Y", dut->bound_sid_o,
+            0x0200000000020000ULL);
+
+        // (c) Y answers -> the sink settles and streams on Y
+        const uint8_t dmy[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
+        feed(acmp(1, 0, 0x0200000000020000ULL, CT2_EID, TK2_EID, US_EID,
+                  0, 0, dmy, 10, 0, 2));
+        ck("[R] settled on Y", dut->state_o, 6);
+        dut->ta_registered_i = 1;
+        run(4);
+        ck("[R] STREAMING on Y (RSV_OK)", dut->state_o, 7);
+        ck("[R] active on Y", dut->stream_active_o, 1);
+        ckh("[R] Y dmac learned", dut->stream_dmac_o, 0x91E0F000FE02ULL);
+        dut->ta_registered_i = 0;
     }
 
     printf("KL_acmp_listener: %ld checks, %ld failures\n", checks, fails);

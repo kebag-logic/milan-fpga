@@ -359,10 +359,10 @@ module KL_acmp_lstn_ctx #(
                      adp_len_ok_r &&
                      (cap_msg_r == 4'd0 || cap_msg_r == 4'd1);
 
-  //! rebind-to-same fast path: same talker + STREAMING_WAIT agreement
+  //! rebind-to-same fast path (Milan 5.5.3.5.37/43 step 2): the SAME talker
+  //! named again refreshes ctlr + STREAMING_WAIT in place and never tears
+  //! down — a STREAMING_WAIT change alone must not interrupt the stream
   wire w_same_talker = (w_talker == cur_r.talker) && (w_tuid == cur_r.tuid);
-  wire w_flags_match = ((cur_r.flags & w_flags & ACMP_FLAG_STREAMING_WAIT_C) != 16'd0)
-                       || ((cur_r.flags | w_flags) & ACMP_FLAG_STREAMING_WAIT_C) == 16'd0;
 
   //! per-context sid policy (Milan 5.5.1.2): explicit fast-connect sid when
   //! configured AND nonzero, else the {talker EID, tuid} derivation
@@ -645,21 +645,35 @@ module KL_acmp_lstn_ctx #(
             wr_frame_w.flags = w_flags;
             wr_frame_w.dmac  = cap_dmac_r;
             wr_frame_w.sid   = w_bind_sid;
-          end else if (cur_r.state != LSM_UNBOUND_S &&
-                       w_same_talker && w_flags_match) begin
-            // rebind-same fast path: response only, no state change
+          end else if (cur_r.state != LSM_UNBOUND_S && w_same_talker) begin
+            //! rebind-same fast path (Milan 5.5.3.5.37/43 step 2): update
+            //! the binding parameters the clause names — controller and
+            //! STREAMING_WAIT — respond, and exit. State/timers/stream
+            //! untouched, no re-probe.
+            wr_frame_en_w    = 1'b1;
+            wr_frame_w.ctlr  = w_ctlr;
+            wr_frame_w.flags = (cur_r.flags & ~ACMP_FLAG_STREAMING_WAIT_C) |
+                               (w_flags & ACMP_FLAG_STREAMING_WAIT_C);
           end else begin
+            //! UNBOUND full bind — or a bound sink named a DIFFERENT talker:
+            //! Milan 5.5.3.5.37/43 steps 3..13 make the latter an IMPLICIT
+            //! REBIND (1722.1-2021's 8.2.4.2.2 LISTENER_EXCLUSIVE refusal
+            //! does not apply to a PAAD-AE). The old binding is torn down
+            //! like the unbind path — SRP params cleared per 5.5.2.6 step 1
+            //! (re-learned from the probe response), sink deactivated so the
+            //! Listener attribute is withdrawn downstream — then the fresh
+            //! probe ladder runs for the new talker. The record never passes
+            //! through UNBOUND, so the not-bound->bound counter-reset edge
+            //! ([M-5.3.8.10], KL_stream_table bind_rise) correctly stays
+            //! silent across the rebind.
             wr_frame_en_w     = 1'b1;
             wr_frame_w.ctlr   = w_ctlr;
             wr_frame_w.talker = w_talker;
             wr_frame_w.tuid   = w_tuid;
-            if (cur_r.state == LSM_UNBOUND_S) begin      // full bind
-              wr_frame_w.flags  = w_flags;
-              wr_frame_w.status = 5'd0;
-            end else begin                               // rebind
-              wr_frame_w.flags = (cur_r.flags & ~ACMP_FLAG_STREAMING_WAIT_C) |
-                                 (w_flags & ACMP_FLAG_STREAMING_WAIT_C);
-            end
+            wr_frame_w.flags  = w_flags;
+            wr_frame_w.status = 5'd0;    // 5.5.3.5.43 step 11
+            wr_frame_w.dmac   = 48'd0;   // stale stream-X params never
+            wr_frame_w.vlan   = 12'd0;   //   describe stream Y (5.3.8.9)
             wr_frame_w.probing = 2'd2;                   // ACTIVE
             wr_frame_w.sid     = w_bind_sid;
             if (cur_r.state == LSM_SETTLED_NO_RSV_S ||
