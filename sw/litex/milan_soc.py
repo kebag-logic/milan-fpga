@@ -925,7 +925,14 @@ class MilanMAC(LiteXModule):
         # phy_model="mii": Arty A7 DP83848 (10/100, MII 4-bit). The MAC core
         # handles the PHY-width conversion, so everything downstream of
         # self.phy (store-and-forward FIFO, last_be conversion, CDC, loopback)
-        # is identical; the GMII IOB constraints and gtx invert do not apply.
+        # is identical; the gtx invert does not apply. The IOB pad-locking
+        # DOES apply — the 2026-07-29 Arty TX wedge was this exact class:
+        # zero IOB/output constraints on the MII pads left the TX launch FFs
+        # to placement luck, the 0x001A-era trees shifted global placement,
+        # and four consecutive seeds (asl/eppo x m0019q/m001a) lost the
+        # clock-to-pad lottery the older pk seed had been winning — TX died
+        # minutes after boot as the die warmed through the marginal window
+        # while RX stayed perfect. Same commands as the GMII branch below.
         if phy_model == "mii":
             from liteeth.phy.mii import LiteEthPHYMII
             self.phy = LiteEthPHYMII(clk_pads, pads, with_hw_init_reset=True)
@@ -945,29 +952,32 @@ class MilanMAC(LiteXModule):
                                        # ordering is preserved. (MII/Arty PHY: TX_CLK is separate,
                                        # so the eth_tx domain does not die on an RXC drop - N/A.)
                                        ext_reset=self.eth_rst)
-            # GMII TX output timing is otherwise UNCONSTRAINED, so the placer may put the
-            # tx_data/tx_en launch FFs anywhere: measured on silicon, FFs at SLICE_X1 (next to
-            # the IO column, data-vs-gtx skew ~1-2 ns) TX 10/10 frames; FFs at SLICE_X14
-            # (~4-6 ns skew) TX 0/10  -  outside the RTL8211E sampling window (~(0,6) ns @ 8 ns).
-            # Pack the launch FFs into the IOB so clock-to-out is pad-locked on every build.
-            # Plain set_property lines only  -  XDC does not execute TCL `if` guards (verified:
-            # a guarded version was silently skipped and the FFs stayed in fabric).
-            platform.add_platform_command(
-                "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
-            platform.add_platform_command(
-                "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
-            # GMII RX capture is equally unconstrained. AX36 (the first build
-            # adding IOBs in the RX bank: e1 MDC J17 / MDIO L16) shifted the
-            # IO-adjacent placement and killed RX on BOTH seeds: PHY-level
-            # frames toggled act_tgl but RMON counted 0 good AND 0 bad =
-            # preamble-stage death on corrupt sampling. Pad-lock the capture
-            # FFs like the TX launch FFs.
-            platform.add_platform_command(
-                "set_property IOB TRUE [get_ports {{eth%d_rx_data[*]}}]" % phy_index)
-            platform.add_platform_command(
-                "set_property IOB TRUE [get_ports eth%d_rx_dv]" % phy_index)
-            platform.add_platform_command(
-                "set_property IOB TRUE [get_ports eth%d_rx_er]" % phy_index)
+
+        # PHY pad launch/capture timing is otherwise UNCONSTRAINED, so the placer
+        # may put the tx_data/tx_en launch FFs anywhere: measured on AX silicon,
+        # FFs at SLICE_X1 (next to the IO column, data-vs-gtx skew ~1-2 ns) TX
+        # 10/10 frames; FFs at SLICE_X14 (~4-6 ns skew) TX 0/10 - outside the
+        # RTL8211E sampling window (~(0,6) ns @ 8 ns). The Arty MII path hit the
+        # SAME class 2026-07-29 (four consecutive seeds TX-dead minutes after
+        # boot, thermal drift through the marginal window) because these
+        # commands used to live in the GMII-only branch. Pack the launch AND
+        # capture FFs into the IOB on EVERY phy_model so clock-to-out/setup is
+        # pad-locked on every build. Plain set_property lines only - XDC does
+        # not execute TCL `if` guards (verified: a guarded version was silently
+        # skipped and the FFs stayed in fabric). RX side per AX36: adding IOBs
+        # near the RX bank shifted IO-adjacent placement and killed RX on both
+        # seeds until the capture FFs were pad-locked too.
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports {{eth%d_rx_data[*]}}]" % phy_index)
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports eth%d_rx_dv]" % phy_index)
+        platform.add_platform_command(
+            "set_property IOB TRUE [get_ports eth%d_rx_er]" % phy_index)
+
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
         # halves kept their pointers = permanent desync after a link bounce
