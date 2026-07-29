@@ -361,7 +361,18 @@ int main(int argc, char** argv) {
     tbl_read(2);
     ck("[N4] ctx2 state undisturbed", (long)c_state(), 6);
     ck("[N4] ctx2 still active", (dut->stream_active_o >> 2) & 1, 1);
-    // different talker -> SUCCESS + teardown/re-probe (Milan rebind)
+    // same talker with STREAMING_WAIT toggled: Milan 5.5.3.5.43 step 2 =
+    // refresh ctlr + STREAMING_WAIT in place, still no teardown/re-probe
+    feed(acmp(6, 0, 0, CT_EID, T2_EID, US_EID, 0, 2, nullptr, 0x310, 0x0008, 0));
+    r = wait_frame();
+    ck("[N4] rebind-same(SW=1) SUCCESS", r_sta(r), 0);
+    ck("[N4] SW-toggle: still no new probe", dut->probe_count_o, pc);
+    ck("[N4] SW-toggle: ctx2 still active", (dut->stream_active_o >> 2) & 1, 1);
+    tbl_read(2);
+    ck("[N4] SW-toggle: state undisturbed", (long)c_state(), 6);
+    ck("[N4] stored SW refreshed (step 2)", (long)(c_flags() & 0x8), 0x8);
+    // different talker -> SUCCESS + teardown/re-probe (Milan rebind,
+    // 5.5.3.5.43 steps 3..12 - NOT 1722.1's LISTENER_EXCLUSIVE refusal)
     feed(acmp(6, 0, 0, CT_EID, T3_EID, US_EID, 0, 2, nullptr, 0x301, 0, 0));
     r = wait_frame();
     ck("[N4] rebind-diff SUCCESS", r_sta(r), 0);
@@ -374,6 +385,10 @@ int main(int argc, char** argv) {
     ck("[N4] ctx2 PRB_W_RESP", (long)c_state(), 3);
     ckh("[N4] ctx2 sid re-derived (zero cmd sid)",
         c_sid(), 0x0200000000040000ULL);
+    ck("[N4] status cleared (5.5.3.5.43 step 11)", (long)c_status(), 0);
+    ckh("[N4] stale T2 dmac cleared (5.5.2.6 step 1)", c_dmac(), 0);
+    ck("[N4] stale T2 vlan cleared", (long)c_vlan(), 0);
+    ck("[N4] fresh-bind flags (SW back to cmd's 0)", (long)c_flags(), 0);
     // per-context SRP_REG_FAILED sourcing while probing (ACMP-8)
     dut->ta_failed_i = (1 << 2);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 2, nullptr, 0x302, 0, 0));
