@@ -88,8 +88,14 @@ module adp_tx_arbiter #(
     if (!rst_n) begin
       locked_r <= 1'b0; sel_r <= 1'b0; last_grant_r <= 1'b0;
     end else begin
-      // lock onto the granted source on its first accepted beat
-      if (!locked_r && active && beat_accepted) begin
+      // lock onto the granted source at first PRESENTATION (not first
+      // acceptance): locking on accept let gsel flip mid-stall when the
+      // second source turned valid (round-robin re-evaluated), mutating
+      // m_tdata/m_tlast under m_tvalid && !m_tready - an AXIS stability
+      // violation at the MAC boundary (Opus review 2026-07-29). A source
+      // that asserts tvalid must hold it to acceptance (AXIS), so locking
+      // at presentation cannot deadlock.
+      if (!locked_r && m_tvalid) begin
         locked_r <= 1'b1; sel_r <= gsel;
       end
       // release at end-of-frame (this wins a same-cycle single-beat frame)

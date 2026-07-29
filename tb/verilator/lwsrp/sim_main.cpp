@@ -35,6 +35,10 @@
 
 #include "VKL_lwsrp_top.h"
 #include "verilated.h"
+#if VM_TRACE
+#include "verilated_vcd_c.h"
+static VerilatedVcdC* tfp = nullptr;
+#endif
 #include <cstdio>
 #include <cstdint>
 #include <vector>
@@ -71,15 +75,60 @@ struct Trans { long cyc; char sig; int val; };   // sig: 'g'ate, 's'lope
 static std::vector<Trans> trans;
 static int prev_gate = 0, prev_slope = 0;
 
+//! hostile MAC-arbiter model: scripted tready stalls (incl mid-frame) +
+//! the AXIS stability rule — under tvalid && !tready the source must HOLD
+//! tvalid/data; a source that drops or mutates mid-stall is exactly the
+//! frame-abort class that wedges the shared arb-mux grant forever (the
+//! m001a silicon TX wedge hunt, 2026-07-29)
+static int hostile_tready = 0;         // 0 = legacy always-ready
+static unsigned lfsr = 0xACE1u;
+static long axis_viol = 0, frames_started = 0;
+static int in_stall = 0; static uint64_t stall_data; static int stall_last, stall_keep;
 static void step() {
+    if (hostile_tready) {
+        lfsr = (lfsr >> 1) ^ (-(lfsr & 1u) & 0xB400u);
+        dut->m_axis_tready = ((lfsr & 3u) != 0);   // ~25% stall, bursty
+    }
     dut->clk_i = 0; dut->eval();
+#if VM_TRACE
+    if (tfp && cyc > 125000 && cyc < 136000) tfp->dump((vluint64_t)(2*cyc));
+#endif
+    // PRE-edge sampling: AXIS stability is judged on the values the sink
+    // captures AT this rising edge (post-edge sampling races the legal
+    // beat advance on stall-release and yields false violations)
+    if (in_stall) {
+        if (!dut->m_axis_tvalid ||
+            dut->m_axis_tdata != stall_data ||
+            (int)dut->m_axis_tlast != stall_last ||
+            (int)dut->m_axis_tkeep != stall_keep) {
+            if (axis_viol < 4)
+                printf("   [viol %ld cyc %ld] tvalid=%d data %016llx->%016llx "
+                       "last %d->%d\n",
+                       axis_viol, cyc, (int)dut->m_axis_tvalid,
+                       (unsigned long long)stall_data,
+                       (unsigned long long)dut->m_axis_tdata,
+                       stall_last, (int)dut->m_axis_tlast);
+            axis_viol++;
+        }
+    }
+    if (dut->m_axis_tvalid && !dut->m_axis_tready) {
+        in_stall = 1; stall_data = dut->m_axis_tdata;
+        stall_last = dut->m_axis_tlast; stall_keep = dut->m_axis_tkeep;
+    } else in_stall = 0;
+    bool accept = dut->m_axis_tvalid && dut->m_axis_tready;
+    uint64_t adata = dut->m_axis_tdata; int akeep = dut->m_axis_tkeep;
+    int alast = dut->m_axis_tlast;
     dut->clk_i = 1; dut->eval();
+#if VM_TRACE
+    if (tfp && cyc > 125000 && cyc < 136000) tfp->dump((vluint64_t)(2*cyc+1));
+#endif
     cyc++;
-    if (dut->m_axis_tvalid && dut->m_axis_tready) {
+    if (accept) {
+        if (partial.empty()) frames_started++;
         for (int l = 0; l < 8; l++)
-            if ((dut->m_axis_tkeep >> l) & 1)
-                partial.push_back((dut->m_axis_tdata >> (8 * l)) & 0xFF);
-        if (dut->m_axis_tlast) { tx_frames.push_back(partial); partial.clear(); }
+            if ((akeep >> l) & 1)
+                partial.push_back((adata >> (8 * l)) & 0xFF);
+        if (alast) { tx_frames.push_back(partial); partial.clear(); }
     }
     if ((int)dut->stream_gate_o != prev_gate) {
         trans.push_back({cyc, 'g', dut->stream_gate_o});
@@ -172,8 +221,16 @@ static bool msrp_has_talker(const std::vector<uint8_t>& f) {
 static void drain_tx() { tx_frames.clear(); }
 
 int main(int argc, char** argv) {
+#if VM_TRACE
+    Verilated::traceEverOn(true);
+#endif
     Verilated::commandArgs(argc, argv);
     dut = new VKL_lwsrp_top;
+#if VM_TRACE
+    tfp = new VerilatedVcdC;
+    dut->trace(tfp, 99);
+    tfp->open("wedge.vcd");
+#endif
 
     dut->rst_n = 0; dut->enable_i = 0; dut->talker_en_i = 0; dut->is_1g_i = 0;
     dut->station_mac_i = STATION; dut->unique_id_i = UID;
@@ -409,6 +466,36 @@ int main(int argc, char** argv) {
     run(6600);
     ck("la-neg: aged out at LeaveTime", dut->listener_reg_o, 0);
     ck("la-neg: licence dropped", dut->stream_gate_o, 0);
+
+    printf("\n-- [13] TX-wedge soak: hostile tready + LeaveAll turns + rx\n"
+           "   LeaveAlls of BOTH applications at random offsets (m001a wedge\n"
+           "   hunt: a frame-abort under stall holds the MAC arb grant) --\n");
+    hostile_tready = 1;
+    long f0 = (long)tx_frames.size();
+    long viol0 = axis_viol;
+    long last_frames = f0;
+    int live_ok = 1;
+    // 12 LeaveAll turns (LEAVEALL 10 s = 100k cycles at the 10 kHz scale),
+    // with bridge LeaveAlls of both applications sprinkled mid-turn
+    for (int turn = 0; turn < 12; turn++) {
+        run(30000);
+        if (turn % 3 == 0) feed(bridge_mvrp_vid(EV_JOININ, /*lva=*/1));
+        run(30000);
+        if (turn % 4 == 1) feed(bridge_listener(EV_JOININ, D_READY, /*lva=*/1));
+        run(40000);
+        long now_frames = (long)tx_frames.size();
+        if (now_frames == last_frames) {   // liveness: JoinTime beats emit
+            live_ok = 0;
+            printf("   [turn %d] NO frames emitted this whole turn\n", turn);
+        }
+        last_frames = now_frames;
+    }
+    ck("[13a] TX liveness across 12 LeaveAll turns", live_ok, 1);
+    ck("[13b] frames grew", (long)tx_frames.size() > f0, 1);
+    ck("[13c] AXIS stability under stall (no mid-frame abort/mutate)",
+       axis_viol - viol0, 0);
+    ck("[13d] no partial frame left hanging", partial.empty() ? 1 : 0, 1);
+    hostile_tready = 0; dut->m_axis_tready = 1;
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;

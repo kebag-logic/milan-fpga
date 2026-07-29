@@ -896,11 +896,14 @@ module KL_avtp_rx_monitor_ctx #(
         M_EXTRD_S : begin
           //! words 26/27 are VIRTUAL (flop-backed tv tallies); everything
           //! else is the RAM word. The requester holds rd_addr until valid.
+          //! stream select masked to the elaborated width: [7:5] is 3 bits
+          //! wide but the arrays are N_LISTENERS_P deep (4 on the Arty), so
+          //! an unmasked index 4..7 reads out of range (Opus review 07-29)
           unique case (lctx_rd_addr_i[4:0])
             (W_CNT0_C | 5'(C_TV_C))  :
-              lctx_rd_data_o <= tv_cnt_r [lctx_rd_addr_i[7:5]];
+              lctx_rd_data_o <= tv_cnt_r [IDXW_C'(lctx_rd_addr_i[7:5])];
             (W_CNT0_C | 5'(C_TNV_C)) :
-              lctx_rd_data_o <= tnv_cnt_r[lctx_rd_addr_i[7:5]];
+              lctx_rd_data_o <= tnv_cnt_r[IDXW_C'(lctx_rd_addr_i[7:5])];
             default : lctx_rd_data_o <= ram_q_r;
           endcase
           lctx_rd_valid_o <= 1'b1;
