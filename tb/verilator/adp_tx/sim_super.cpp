@@ -148,7 +148,9 @@ int main(int argc, char** argv) {
     ck("c3: stall verdict fired", stalls >= 1 ? 1 : 0, 1);
     ck("c3: no abort under refusal", aborts, 0);
     ck("c3: nothing accepted while refused", (long)sink.size(), 0);
-    ck("c3: lock still held", (long)dut->diag_locked_o, 1);
+    // accept-locking never locks a frame the downstream refuses outright -
+    // the stall verdict above comes from the watchdog's presented-beat arm
+    ck("c3: no lock formed under pure refusal", (long)dut->diag_locked_o, 0);
     // downstream returns: the SAME frame completes exactly
     dut->m_tready = 1;
     do { step(); } while (!d_acc);

@@ -1074,7 +1074,9 @@ class MilanMAC(LiteXModule):
         # mid-settle - strictly BEFORE `reinit` - so both CDC halves restart from
         # matched pointers with zero software involvement (previously only the
         # daemon's phy_crg_reset strobe covered the eth side).
-        from migen.genlib.resetsync import AsyncResetSynchronizer
+        # (AsyncResetSynchronizer comes from the module-level import: a local
+        # re-import here made the name function-local and blew up the EARLIER
+        # macsys use with UnboundLocalError - Python scoping, m001d launch.)
         # self.eth_rst is created up-front (near the eth pads request) so it can also be
         # threaded into the PHY CRG (ext_reset); here it additionally re-inits the MAC
         # core's ETH-side CDC halves.

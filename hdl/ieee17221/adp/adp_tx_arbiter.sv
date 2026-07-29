@@ -140,14 +140,21 @@ module adp_tx_arbiter #(
       abort_evt_o <= 1'b0;
       stall_evt_o <= 1'b0;
 
-      // lock onto the granted source at first PRESENTATION (not first
-      // acceptance): locking on accept let gsel flip mid-stall when the
-      // second source turned valid (round-robin re-evaluated), mutating
-      // m_tdata/m_tlast under m_tvalid && !m_tready - an AXIS stability
-      // violation at the MAC boundary (Opus review 2026-07-29). A source
-      // that asserts tvalid must hold it to acceptance (AXIS), so locking
-      // at presentation cannot deadlock.
-      if (!locked_r && m_tvalid && !flush_r) begin
+      // lock on the first ACCEPTED beat. Lock-at-presentation was tried
+      // (2026-07-29, to pin the AXIS no-mutation-under-stall rule) and
+      // WITHDRAWN the same day: under the control lane's 512-cycle IFG
+      // gasket the first PRESENTER captured the mux for the whole stall
+      // (convoy through the cascade), de-prioritizing the ACMP walker's
+      // responses enough that its single-FSM front-end ate every other
+      // inbound command (milan_dp nxn E3-unbind + TRAP-1, desk bisect).
+      // Accept-locking decides the grant at stall END - round-robin over
+      // whoever is present - the service order silicon has run for weeks.
+      // KNOWN BOUNDED DEVIATION: gsel may re-evaluate while a presented
+      // beat is stalled, mutating m_tdata/m_tlast under m_tvalid &&
+      // !m_tready. Every in-tree consumer (gasket, this cascade, stream
+      // CDC) latches only on the accepted cycle; the clean fix is a skid
+      // register (~74 FF x 8 muxes), parked at 99.9% device occupancy.
+      if (!locked_r && beat_accepted && !flush_r) begin
         locked_r <= 1'b1; sel_r <= gsel;
       end
 
@@ -163,22 +170,24 @@ module adp_tx_arbiter #(
         last_grant_r <= gsel;
       end
 
-      // lock watchdog: a held grant making no progress for a full window.
-      // The verdict at expiry is the wedge forensics: tvalid HIGH = the
-      // refusal is below this mux (report only - releasing cannot help),
-      // tvalid LOW = the granted source abandoned its frame (close + free).
-      // The counter keeps counting THROUGH a flush: an injected beat that is
-      // itself refused for a whole further window is a downstream stall and
-      // must say so - clearing on flush_r left that state permanently
-      // silent behind an abort verdict (Opus verify D4).
-      if (!locked_r || beat_accepted) to_cnt_r <= '0;
+      // No-progress watchdog. It arms in TWO shapes: (a) a HELD LOCK making
+      // no progress, and (b) a PRESENTED beat refused downstream before any
+      // lock forms (accept-locking never locks a frame the downstream
+      // refuses outright - without (b) a between-frames CDC-full wedge
+      // would report nothing). The verdict at expiry: locked with tvalid
+      // LOW = the granted source abandoned its frame (close + free);
+      // everything else = the refusal is below this mux (report only -
+      // releasing cannot help). The counter counts THROUGH a flush: an
+      // injected beat itself refused for a further whole window is a
+      // downstream stall and must say so (Opus verify D4).
+      if ((!locked_r && !m_tvalid) || beat_accepted) to_cnt_r <= '0;
       else if (to_expired_w) begin
         to_cnt_r <= '0;
-        if (flush_r || src_tvalid_w) stall_evt_o <= 1'b1;
-        else begin
+        if (locked_r && !flush_r && !src_tvalid_w) begin
           abort_evt_o <= 1'b1;
           flush_r     <= 1'b1;
         end
+        else stall_evt_o <= 1'b1;
       end
       else to_cnt_r <= to_cnt_r + 1'b1;
     end
