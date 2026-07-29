@@ -883,7 +883,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .vlan_vid_i (cfg_aaf_vid),
-    .transit_ns_i (aecp_pres_offset),
+    //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
+    //! t stamps its avtp_timestamp with ITS OWN entry t
+    .transit_ns_i (aecp_pres_offset[N_STREAMS*32-1:0]),
     .ptp_ns_i (ptp_now_w),
     .ts_uncertain_i (clkv_tu_w),
     //! P12: TCTX window port <- the CSR 0x800 window (talker dir)
@@ -1043,7 +1045,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int ACMP_SIDXW_C = $clog2(ACMP_SINKS_C);
   wire [ACMP_SRC_C-1:0]    acmp_talker_active_v, acmp_probe_armed_v;
   wire                     acmp_talker_active, acmp_probe_armed;
-  wire [31:0]              aecp_pres_offset;
+  //! per-STREAM_OUTPUT presentation offsets from the AECP responder's
+  //! register file (SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT):
+  //! entry k = talker k's transit offset; the CRF Media Clock Output's
+  //! entry sits at CRF_TUID_C. Unbacked entries read the 2 ms default.
+  wire [16*32-1:0]         aecp_pres_offset;
   //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
   wire        cfg_lwsrp_enable, cfg_lwsrp_talker_en;
   wire [2:0]  cfg_lwsrp_qidx;
@@ -3019,8 +3025,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     //! Milan: the presentation time offset applies to CRF like any stream -
-    //! same source of truth as the AAF framer (SET_STREAM_INFO ACC_LAT/MTT)
-    .transit_ns_i  (aecp_pres_offset),
+    //! same source of truth as the AAF framers (SET_STREAM_INFO ACC_LAT/
+    //! MTT), reading ITS OWN per-STREAM_OUTPUT entry: the CRF output is
+    //! talker_unique_id CRF_TUID_C = N_STREAMS. Shapes without a CRF
+    //! output leave the entry at its 2 ms default and cfg_crft_en low.
+    .transit_ns_i  (aecp_pres_offset[32*CRF_TUID_C +: 32]),
     .ptp_ns_i      (ptp_now_w),
     .ts_uncertain_i (clkv_tu_w),
     //! SR class A C-TAG. vlan_en is the RESERVATION's shadow, never a bare
@@ -3070,7 +3079,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .sid0_i         (acmpl_sid),
     .fmt0_i         (aecp_in0_fmt),
     .ptp_now_i      (ptp_now_w[31:0]),
-    .pres_ofs_i     (aecp_pres_offset),
+    //! LISTENER-side presentation window, deliberately entry 0 (the
+    //! index-0/global value, exactly what this port has always been fed):
+    //! pres_ofs_i scales the RX monitor's LATE/EARLY acceptance window and
+    //! is a property of OUR sink, not of any talker's transit time - the
+    //! per-index file above is TALKER state (per STREAM_OUTPUT), so keying
+    //! this by a talker index would conflate the two. A per-SINK window
+    //! is future LCTX work, not a per-talker mux.
+    .pres_ofs_i     (aecp_pres_offset[31:0]),
     .media_reset_p_i(i2spb_reset_p),
     .clk_src_i      (aecp_clk_src),
     .servo_conv_i   (i2spb_converged),

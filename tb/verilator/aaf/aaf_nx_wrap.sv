@@ -121,7 +121,8 @@ module aaf_nx_wrap (
     .pair_l_i (p2_pair_l_i), .pair_r_i (p2_pair_r_i),
     .stream_en_i (p2_en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
+    //! per-talker transit entries: both talkers ride the one TB offset
+    .vlan_vid_i (vlan_vid_i), .transit_ns_i ({2{transit_ns_i}}),
     .ptp_ns_i (ptp_ns_i), .ts_uncertain_i (ts_uncertain_i),
     .tctx_wr_en_i (p2_tctx_wr_en_i), .tctx_wr_addr_i (p2_tctx_wr_addr_i),
     .tctx_wr_data_i (p2_tctx_wr_data_i), .tctx_wr_rdy_o (p2_tctx_wr_rdy_o),

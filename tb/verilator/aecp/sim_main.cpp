@@ -1312,6 +1312,26 @@ int main(int argc, char** argv) {
                          gc_pl(0x0005, 0)));
         r = collect_resp();
         ck("[21f] GET_MTT(STREAM_INPUT) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+
+        // (f2) per-index directory bound on THIS shape: its STREAM_OUTPUT
+        //      directory is exactly index 0, so index 1 is out of range in
+        //      BOTH directions and entry 0 is untouched by the refusal.
+        //      (Multi-index independence — SET on 2 leaves 0 alone, the
+        //      per-index >0x7FFFFFFF guard, the CRF output's own entry —
+        //      is sim_nxn.cpp [10], where the shape HAS those indices.)
+        auto oor_pl = gc_pl(0x0006, 1);
+        for (int i = 7; i >= 0; i--) oor_pl.push_back((1000000ULL >> (8*i)) & 0xFF);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2109, oor_pl));
+        r = collect_resp();
+        ck("[21f2] SET_MTT(OUT,1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x210A,
+                         gc_pl(0x0006, 1)));
+        r = collect_resp();
+        ck("[21f2] GET_MTT(OUT,1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x210B,
+                         gc_pl(0x0006, 0)));
+        r = collect_resp();
+        ck("[21f2] GET_MTT(OUT,0) still 2000000", be32_at(r, 46), 2000000);
         // ---- [21g] GET_DYNAMIC_INFO: 1722.1-2021 7.4.76 BATCH shape ----
         // record = {len u16, rsvd u16, status u8, rsvd u8, cmd u16, data};
         // each is processed as an independent fixed-size GET. Every record's

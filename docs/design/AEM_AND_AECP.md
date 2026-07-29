@@ -366,7 +366,7 @@ per-clause evidence in the traceability rows quoted:
 | GET_AVB_INFO, GET_AS_PATH, GET_COUNTERS | implemented with live counter taps; GET_COUNTERS always the full 136-byte payload (success and error), pushes throttled 1/s | CMD-15..17 |
 | GET_AUDIO_MAP / ADD/REMOVE_AUDIO_MAPPINGS | [§7.1](#71-audio-maps-static-default-dynamic-engine) | CMD-19/20, M-AECP-4 |
 | GET_DYNAMIC_INFO (0x4B) | **implemented** — 7.4.76 batch engine: per-record dispatch, NOT_SUPPORTED echo for legal-unimplemented records, whole-command BAD_ARGUMENTS for illegal/truncated batches; byte-exact on both boards | CMD-22, M-AECP-5 |
-| SET/GET_MAX_TRANSIT_TIME (0x4C/0x4D) | implemented; u64 ns onto the same presentation offset as SET_STREAM_INFO | (subsystem README) |
+| SET/GET_MAX_TRANSIT_TIME (0x4C/0x4D) | implemented; u64 ns onto the addressed STREAM_OUTPUT's own entry of the per-index presentation-offset file (any directory-served index, the CRF output included) — the same entry SET_STREAM_INFO(ACC_LAT) drives, and the offset that stream's framer stamps | (subsystem README) |
 | MVU GET_MILAN_INFO / SET/GET_SYSTEM_UNIQUE_ID / SET/GET_MEDIA_CLOCK_REFERENCE_INFO | implemented; unknown VU protocol_id or command → NOT_IMPLEMENTED | M-AECP-6..9 |
 | WRITE_DESCRIPTOR, GET/SET_ASSOCIATION_ID, REBOOT, video/sensor, matrix/mixer, auth/security, PTP-instance suite, all others | NOT_IMPLEMENTED with the command payload echoed | CMD-4/18/21/23 |
 

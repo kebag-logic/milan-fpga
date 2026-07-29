@@ -124,7 +124,12 @@ module KL_aaf_packetizer #(
   input  wire [47:0]  dest_mac_i,        //! t0 stream DMAC
   input  wire [47:0]  station_mac_i,     //! src MAC (all streams)
   input  wire [11:0]  vlan_vid_i,        //! t0 SR class VID
-  input  wire [31:0]  transit_ns_i,      //! presentation offset (all streams)
+  //! per-talker presentation offsets: entry t = the max transit time talker
+  //! t adds to ptp_ns at first-sample capture (AECP's per-STREAM_OUTPUT
+  //! file, SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT). Replicate
+  //! one value across the vector and the wire is byte-identical to the
+  //! historical single-offset shape.
+  input  wire [N_TALKERS_P*32-1:0] transit_ns_i,
   input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds
   //! AVTP "tu" (timestamp uncertain) bit, IEEE 1722-2016 4.4.4.7 / Milan
   //! v1.2 4.3.5.2. 1 = our presentation times may not correspond to gPTP
@@ -643,10 +648,12 @@ module KL_aaf_packetizer #(
           else nsamp_r[pown_t_w] <= nsamp_r[pown_t_w] + 3'd1;
         end
         if (nsamp_r[pown_t_w] == '0 && pown_o_w == '0) begin
-          //! first pair of the epoch: latch the presentation time
+          //! first pair of the epoch: latch the presentation time with
+          //! THIS talker's own transit offset (per-context entry)
           tsw_pend_r <= 1'b1;
           tsw_t_r    <= pown_t_w;
-          tsw_val_r  <= ptp_ns_i[31:0] + transit_ns_i;
+          tsw_val_r  <= ptp_ns_i[31:0]
+                        + transit_ns_i[32*(32'(pown_t_w)) +: 32];
         end
       end
       // ---- chans mirror: snoop the single TCTX write process -------------
