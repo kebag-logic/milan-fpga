@@ -967,7 +967,10 @@ def test_crf_output_overlay_structure():
         dc = ovl["descriptor_counts"]
         assert dc["STREAM_OUTPUT"] == n + 1
         assert dc["STREAM_PORT_OUTPUT"] == n      # CRF output: NO audio port
-        assert dc["AUDIO_MAP"] == 2 * n           # ...and no map/cluster growth
+        # ...and no map/cluster growth. Both NxN shapes run map_mode
+        # dynamic on every listener (Milan 5.3.3.9), so only the n talker
+        # ports carry AUDIO_MAP descriptors.
+        assert dc["AUDIO_MAP"] == n
         assert ovl["entity_counts"]["talker_stream_sources"] == n + 1
         # CLOCK_SOURCE set unchanged by the output: 1722.1 7.2.9.2 defines
         # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + N inputs + CRF sink

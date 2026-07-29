@@ -107,25 +107,54 @@ answers from the store, so a CSR poke at `0x900` changes what the crossbar
 does without changing what a controller reads back. That is a bench
 affordance, and it is exactly why the CSR path is not the production one.
 
-The dynamic map lives on `STREAM_PORT_INPUT[0]` (the render side). The RTL
-responder is `KL_aecp_response_builder` under ``` `AEM_DYNMAP ```; the store is
-`dmap_v_r[key]` / `dmap_ch_r[key]` with `key = cluster_offset`, sized
-`AEM_DMAP_KEYS_C` (generated from the end-station JSON by
-`avdecc/gen_aem_store.py`; builder self-test defaults `KEYS=8`, `NMAPS=2`,
-`PAGE=4`).
+The dynamic map lives on **every** `map_mode: dynamic` `STREAM_PORT_INPUT`
+(the render side). Milan v1.2 5.3.3.9 is the reason it is plural:
 
-For every mapping record `(si, sc, co, cc)`:
+> The Stream Port Input of a Configuration shall not contain any AUDIO_MAP
+> descriptor. Note: this means that a PAAD-AE implements dynamic mappings on
+> all of its Stream Port Inputs.
+
+The RTL responder is `KL_aecp_response_builder` under ``` `AEM_DYNMAP ```; the
+store is `dmap_v_r[key]` / `dmap_si_r[key]` / `dmap_ch_r[key]` with
 
 ```
-address  = co                         // cluster-offset = physical render channel
-                                      //   (cc == 0, mono clusters)
+key = AEM_DMAP_PBASE_C[port] + cluster_offset     // GLOBAL cluster index
+```
+
+sized `AEM_DMAP_KEYS_C` (generated from the end-station config by
+`avdecc/gen_aem_store.py`; builder self-test defaults `KEYS=8`, `PAGE=4`,
+`PNMAPS=[2]`; `endstation_arty_4x4` = 4 ports × 4 clusters = `KEYS=16`,
+`endstation_ax7101_8x8` = 8 × 8 = `KEYS=64`).
+
+> **Global key, port-relative wire.** `mapping_cluster_offset` is
+> "the offset from the base_cluster of the STREAM_PORT_INPUT" (1722.1-2021
+> Table 7-33), so it is always **port-relative on the wire** and the engine
+> adds the port's `base_cluster` to reach the store — which is also the
+> render RAM address. An offset that would step past the addressed port's own
+> cluster block is `BAD_ARGUMENTS`; it never lands in a neighbouring port's
+> keys.
+
+For every mapping record `(si, sc, co, cc)` addressed to `STREAM_PORT_INPUT[p]`:
+
+```
+address  = AEM_DMAP_PBASE_C[p] + co   // global cluster idx = physical render
+                                      //   channel (cc == 0, mono clusters)
 
 ADD    (accepted)  →  RAM[address] = { en=1, src=0, stream=si, ch=sc }
 REMOVE (matched)   →  RAM[address] = { en=0, src=0, stream=0,  ch=0  }
 ```
 
 Packed: `word = (en<<7) | (src<<6) | (stream<<3) | ch`. Example: adding
-`si=0, sc=3, co=0` yields `RAM[0] = 0x83` (`en=1, src=0, stream=0, ch=3`).
+`si=0, sc=3, co=0` on port 0 yields `RAM[0] = 0x83` (`en=1, src=0, stream=0,
+ch=3`); the same record on port 1 of a 4-cluster shape yields `RAM[4] = 0x83`.
+
+> **Model keys outnumber pads.** `CHMAP_PHYS_C` is 10 (2 I2S + 8 TDM) while
+> the 8×8 model declares 64 input clusters. `milan_datapath` **gates** the
+> projector write on `addr < CHMAP_PHYS_C` — a key with no physical channel
+> behind it is dropped, never truncated (a 4-bit truncation would have
+> aliased key 16 onto the I2S L channel). The AEM store still holds the
+> mapping and `GET_AUDIO_MAP` still reports it: the model stays truthful
+> about a route the board has no pad for.
 
 **Field table, as the RTL emits it today.** The map word is **8 bits** —
 `KL_chan_map_render.sv` declares `input wire [7:0] map_wr_data_i` with

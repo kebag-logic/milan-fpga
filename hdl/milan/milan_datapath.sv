@@ -3330,9 +3330,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tick_i (media_tick_p),
     //! write mux: the AEM ADD/REMOVE mirror is the canonical programmer
     //! (docs/CHMAP64_AEM_BINDING.md); the CSR 0x900 window is the debug port
-    //! and yields on collision (one write/cycle, AEM strobes are 1-cycle)
-    .map_wr_en_i   (aecp_dmap_wr_p_w ||
-                    (cfg_chmap_wr_en && !cfg_chmap_wr_side)),
+    //! and yields on collision (one write/cycle, AEM strobes are 1-cycle).
+    //! The AEM key is the GLOBAL cluster index and the model may declare
+    //! MORE input clusters than this board renders (8x8 = 64 keys against
+    //! CHMAP_PHYS_C = 10), so an out-of-range key must be DROPPED, not
+    //! truncated - truncation would silently alias key 16 onto the I2S L
+    //! channel. KL_chan_map_render bounds its own write too; this gate is
+    //! what stops the narrow address bus from wrapping before it gets there.
+    .map_wr_en_i   ((aecp_dmap_wr_p_w && aecp_dmap_wr_addr_w <
+                     6'(CHMAP_PHYS_C)) ||
+                    (!aecp_dmap_wr_p_w && cfg_chmap_wr_en &&
+                     !cfg_chmap_wr_side)),
     .map_wr_addr_i (aecp_dmap_wr_p_w
                     ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
                     : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),

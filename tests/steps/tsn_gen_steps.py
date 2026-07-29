@@ -606,13 +606,24 @@ STATUS_NOT_SUPPORTED = 11
 
 
 class MilanAudioMapModel:
-    """Dynamic audio-map responder for STREAM_PORT_INPUT[0], mirroring the
-    `AEM_DYNMAP path of KL_aecp_response_builder (defaults KEYS=8, NMAPS=2,
-    PAGE=4 from avdecc/gen_aem_store.py; the RTL is verified by tb/aecp).
+    """Dynamic audio-map responder for EVERY map_mode-dynamic
+    STREAM_PORT_INPUT, mirroring the `AEM_DYNMAP path of
+    KL_aecp_response_builder (single-port defaults KEYS=8, PAGE=4 =>
+    number_of_maps 2, from avdecc/gen_aem_store.py; the RTL is verified by
+    tb/verilator/aecp sim_dynmap + sim_dynmap2).
 
-    Milan 5.4.2.26 mono clusters: the store key IS the mapping_cluster_offset
-    (at most one dynamic mapping per Audio-Cluster channel). A mapping record
-    is (stream_index, stream_channel, cluster_offset, cluster_channel).
+    Milan v1.2 5.3.3.9 is why this is plural: "The Stream Port Input of a
+    Configuration shall not contain any AUDIO_MAP descriptor. Note: this
+    means that a PAAD-AE implements dynamic mappings on all of its Stream
+    Port Inputs."
+
+    Milan 5.4.2.26 mono clusters: one store key IS one Audio-Cluster channel
+    (at most one dynamic mapping each). A mapping record is (stream_index,
+    stream_channel, cluster_offset, cluster_channel), and the offset is
+    PORT-RELATIVE on the wire (1722.1-2021 Table 7-33 - "the offset from the
+    base_cluster of the STREAM_PORT_INPUT") while the store key is the
+    GLOBAL cluster index base_cluster + offset, which is also the render
+    crossbar's map-RAM address.
 
       * ADD is all-or-nothing (5.4.2.27): any invalid record -> BAD_ARGUMENTS
         and NOTHING is written; a repeated key within one command is the
@@ -621,39 +632,57 @@ class MilanAudioMapModel:
         always SUCCESS on the input port.
 
     Each accepted record projects to a chmap64 render map word
-    {en, stream[2:0], ch[2:0]} at the cluster-offset (physical-channel)
+    {en, stream[2:0], ch[2:0]} at the GLOBAL cluster key (physical-channel)
     address; each cleared record disables that word. That projection IS the
     executable chmap64 binding contract (docs/CHMAP64_AEM_BINDING.md)."""
 
-    def __init__(self, keys=8, nmaps=2, page=4, stream_channels=8):
-        self.keys = keys              # AEM_DMAP_KEYS_C: render output channels
-        self.nmaps = nmaps            # AEM_DMAP_NMAPS_C: GET_AUDIO_MAP pages
+    def __init__(self, keys=8, nmaps=2, page=4, stream_channels=8,
+                 ports=None):
         self.page = page              # AEM_DMAP_PAGE_C: mappings per page
-        self.stream_channels = stream_channels  # channels in STREAM_INPUT[0]
-        self.store = {}               # cluster_offset -> stream_channel
-        self.fabric_map = {}          # cluster_offset -> {en,stream,ch} word
+        #: (base_cluster, clusters) per STREAM_PORT_INPUT — AEM_DMAP_PBASE_C
+        #: / AEM_DMAP_PCLS_C. Default = the single-port shape.
+        self.ports = [tuple(p) for p in ports] if ports else [(0, keys)]
+        self.keys = max(b + n for b, n in self.ports)   # AEM_DMAP_KEYS_C
+        #: AEM_DMAP_PNMAPS_C: per-port fixed partition count (5.4.2.26)
+        self.nmaps = [-(-n // page) for _, n in self.ports]
+        assert ports is not None or self.nmaps == [nmaps], \
+            f'single-port shape: derived nmaps {self.nmaps} != {nmaps}'
+        #: channels in the CURRENT format of each STREAM_INPUT; None marks an
+        #: unmappable (CRF) input. A bare int is the legacy 1-stream shape.
+        self.stream_channels = (list(stream_channels)
+                                if isinstance(stream_channels, (list, tuple))
+                                else [stream_channels])
+        self.store = {}               # global key -> (stream_index, stream_ch)
+        self.fabric_map = {}          # global key -> {en,stream,ch} word
         self.last_get = None          # rows returned by the last GET page
 
-    # -- validity (5.4.2.27) ------------------------------------------------
-    def _shape_ok(self, si, sc, co, cc):
-        # single audio-carrying input (stream_index 0), mono cluster
-        # (cluster_channel 0), cluster key in range
-        return si == 0 and cc == 0 and co < self.keys
+    # -- port lookup --------------------------------------------------------
+    def _port(self, di):
+        return self.ports[di] if 0 <= di < len(self.ports) else None
 
-    def _ch_ok(self, sc):
-        # stream_channel inside the current STREAM_INPUT[0] format
-        return sc < self.stream_channels
+    # -- validity (5.4.2.27) ------------------------------------------------
+    def _shape_ok(self, port, si, sc, co, cc):
+        # mono cluster (cluster_channel 0), offset inside THIS port's own
+        # cluster block, and a mappable (non-CRF) Stream Input
+        base, n = port
+        return (cc == 0 and co < n and 0 <= si < len(self.stream_channels)
+                and self.stream_channels[si] is not None)
+
+    def _ch_ok(self, si, sc):
+        # stream_channel inside the current format of THAT Stream Input
+        # (Milan 5.3.10.1); the render word carries ch[2:0]
+        return sc < self.stream_channels[si] and sc < 8
 
     # -- fabric projection --------------------------------------------------
-    def _project_add(self, si, sc, co):
-        self.fabric_map[co] = {'en': 1, 'stream': si, 'ch': sc}
+    def _project_add(self, si, sc, key):
+        self.fabric_map[key] = {'en': 1, 'stream': si, 'ch': sc}
 
-    def _project_remove(self, co):
-        self.fabric_map[co] = {'en': 0, 'stream': 0, 'ch': 0}
+    def _project_remove(self, key):
+        self.fabric_map[key] = {'en': 0, 'stream': 0, 'ch': 0}
 
-    def word(self, co):
+    def word(self, key):
         """The 7-bit chmap64 map word {en[6], stream[5:3], ch[2:0]}."""
-        m = self.fabric_map.get(co, {'en': 0, 'stream': 0, 'ch': 0})
+        m = self.fabric_map.get(key, {'en': 0, 'stream': 0, 'ch': 0})
         return ((m['en'] & 1) << 6) | ((m['stream'] & 0x7) << 3) | (m['ch'] & 0x7)
 
     def enabled_words(self):
@@ -663,31 +692,33 @@ class MilanAudioMapModel:
     def process_mappings(self, cmd, dt, di, mappings):
         if dt == DESC_STREAM_PORT_OUTPUT and di == 0:
             return STATUS_NOT_SUPPORTED          # static output maps
-        if dt != DESC_STREAM_PORT_INPUT or di != 0:
+        port = self._port(di)
+        if dt != DESC_STREAM_PORT_INPUT or port is None:
             return STATUS_NO_SUCH_DESCRIPTOR
         if len(mappings) > 60:                   # one-AECPDU engine bound
             return STATUS_BAD_ARGUMENTS
         if not mappings:
             return STATUS_SUCCESS                # empty edit, no change
+        base, _ = port
 
         if cmd == CMD_ADD_AUDIO_MAPPINGS:
             claim = set()                        # intra-command same-key guard
             for si, sc, co, cc in mappings:      # validate pass
-                if (not self._shape_ok(si, sc, co, cc)
-                        or not self._ch_ok(sc) or co in claim):
+                if (not self._shape_ok(port, si, sc, co, cc)
+                        or not self._ch_ok(si, sc) or base + co in claim):
                     return STATUS_BAD_ARGUMENTS  # all-or-nothing
-                claim.add(co)
+                claim.add(base + co)
             for si, sc, co, cc in mappings:      # commit pass (replace allowed)
-                self.store[co] = sc
-                self._project_add(si, sc, co)
+                self.store[base + co] = (si, sc)
+                self._project_add(si, sc, base + co)
             return STATUS_SUCCESS
 
-        # REMOVE — lenient single commit pass
+        # REMOVE — lenient single commit pass, exact (stream, channel) match
         for si, sc, co, cc in mappings:
-            if (self._shape_ok(si, sc, co, cc) and sc < 16
-                    and self.store.get(co) == sc):
-                del self.store[co]
-                self._project_remove(co)
+            if (self._shape_ok(port, si, sc, co, cc) and sc < 16
+                    and self.store.get(base + co) == (si, sc)):
+                del self.store[base + co]
+                self._project_remove(base + co)
         return STATUS_SUCCESS
 
     def process_get(self, dt, di, map_index):
@@ -701,15 +732,20 @@ class MilanAudioMapModel:
             # which is the behaviour the RTL was also serving.
             self.last_get = None
             return STATUS_NOT_SUPPORTED
-        if dt != DESC_STREAM_PORT_INPUT or di != 0:
+        port = self._port(di)
+        if dt != DESC_STREAM_PORT_INPUT or port is None:
             self.last_get = None
             return STATUS_NO_SUCH_DESCRIPTOR
-        if map_index >= self.nmaps:              # 7.4.44.1 paging
+        if map_index >= self.nmaps[di]:          # 7.4.44.1 paging
             self.last_get = None
             return STATUS_BAD_ARGUMENTS
+        base, n = port
         lo = map_index * self.page
-        self.last_get = [(0, self.store[k], k, 0)
-                         for k in range(lo, lo + self.page) if k in self.store]
+        hi = min(lo + self.page, n)              # last partition is short
+        #: rows carry the PORT-RELATIVE offset, never the global key
+        self.last_get = [(self.store[base + k][0], self.store[base + k][1],
+                          k, 0)
+                         for k in range(lo, hi) if base + k in self.store]
         return STATUS_SUCCESS
 
     def process(self, fields):
@@ -1060,6 +1096,17 @@ def step_fresh_audiomap(context):
     context.amap = MilanAudioMapModel()
 
 
+@given('a Milan audio-map model with {n:d} dynamic ports of {cl:d} clusters '
+       'and page {page:d}')
+def step_fresh_audiomap_ports(context, n, cl, page):
+    """Milan 5.3.3.9: dynamic mappings on ALL Stream Port Inputs. Ports own
+    contiguous cluster blocks, so port p's base_cluster is p*clusters, and
+    the last Stream Input is the unmappable CRF sink."""
+    context.amap = MilanAudioMapModel(
+        page=page, ports=[(p * cl, cl) for p in range(n)],
+        stream_channels=[8] * n + [None])
+
+
 @when('the audio-map model processes the frame')
 def step_audiomap_process(context):
     context.amap_status = context.amap.process(context.frame_fields)
@@ -1088,6 +1135,35 @@ def step_amap_add_dup(context, co, a, b):
 def step_amap_get(context, mi):
     context.amap_status = context.amap.process_get(
         DESC_STREAM_PORT_INPUT, 0, mi)
+
+
+@when('on input port {di:d} I ADD stream {si:d} channel {sc:d} at '
+      'cluster_offset {co:d}')
+def step_amap_add_port(context, di, si, sc, co):
+    context.amap_status = context.amap.process_mappings(
+        CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, di, [(si, sc, co, 0)])
+
+
+@when('on input port {di:d} I REMOVE stream {si:d} channel {sc:d} at '
+      'cluster_offset {co:d}')
+def step_amap_remove_port(context, di, si, sc, co):
+    context.amap_status = context.amap.process_mappings(
+        CMD_REMOVE_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, di,
+        [(si, sc, co, 0)])
+
+
+@when('the audio-map model GETs input port {di:d} page {mi:d}')
+def step_amap_get_port(context, di, mi):
+    context.amap_status = context.amap.process_get(
+        DESC_STREAM_PORT_INPUT, di, mi)
+
+
+@then('the last GET contains stream {si:d} channel {sc:d} at cluster_offset '
+      '{co:d}')
+def step_get_contains_port(context, si, sc, co):
+    assert context.amap.last_get is not None, 'no GET page captured'
+    assert (si, sc, co, 0) in context.amap.last_get, \
+        f'(si={si}, sc={sc}, co={co}) not in GET page {context.amap.last_get}'
 
 
 @then('the audio-map model responds status {code:d}')

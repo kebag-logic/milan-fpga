@@ -40,7 +40,7 @@ Answered on-wire, in hardware, with no CPU involvement:
 | `GET/SET_STREAM_FORMAT` | validated against the STREAM_OUTPUT format set |
 | `GET/SET_CLOCK_SOURCE` | CLOCK_DOMAIN[0], sources 0..2 (Internal / AAF / CRF), store write-back |
 | `GET/SET_CONTROL` | CONTROL[0] IDENTIFY (LINEAR_UINT8 step 255 → 0/255 only); level exported on `identify_o` → board LED |
-| `GET_AUDIO_MAP` | static default maps (AUDIO_MAP[0]/[1]) via STREAM_PORT_IN/OUT; `ADD/REMOVE_AUDIO_MAPPINGS` → `NOT_SUPPORTED` |
+| `GET_AUDIO_MAP` / `ADD` / `REMOVE_AUDIO_MAPPINGS` | **static shape** (the tracked `arty_current` entity): the ROM's default maps via STREAM_PORT_IN/OUT, `ADD/REMOVE_AUDIO_MAPPINGS` → `NOT_SUPPORTED` — exactly Milan 5.4.2.26–28 for a port that HAS Audio Maps. **`` `AEM_DYNMAP `` shape** (both NxN configs, roadmap 23): EVERY `map_mode: dynamic` STREAM_PORT_INPUT advertises `number_of_maps=0` (1722.1-2021 7.2.13) and is served from one mappings store keyed by GLOBAL cluster index (`base_cluster` + the port-relative `mapping_cluster_offset`) — which is also the render crossbar's map-RAM address. ADD is all-or-nothing, REMOVE lenient, GET pages each port's own fixed partition; `mapping_stream_index` may name any AAF STREAM_INPUT (Table 7-33) and the channel bound follows that stream's current format (5.3.10.1). Stream Port Outputs stay static and keep `NOT_SUPPORTED` |
 | `GET_STREAM_INFO` | Milan fixed 56-byte payload (flags 0xF6000000) |
 | `GET_AVB_INFO` | read-only status |
 | `GET_AS_PATH` | Milan-mandatory; count=1, path[0] = MAC-derived EUI64 clock_identity (matches the AVB_INTERFACE descriptor overlay) |

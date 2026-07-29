@@ -151,10 +151,62 @@ hold.
   - Static shapes: byte-identical svh, identical RTL, NOT_SUPPORTED
     regression TB-locked (sim_main [18]); the dynamic shape is TB-locked
     by tb/verilator/aecp/sim_dynmap.cpp (72 checks) + builder gate 17.
-  - Deliberate bounds: dynamic maps on STREAM_PORT_OUTPUT / ports beyond
-    input 0 are codegen-rejected (outputs keep the Milan-mandated static
-    NOT_SUPPORTED), and one ADD/REMOVE carries <= 60 mappings (an AECPDU
-    fits 63 anyway).
+  - Deliberate bounds: dynamic maps on STREAM_PORT_OUTPUT are
+    codegen-rejected (outputs keep the Milan-mandated static
+    NOT_SUPPORTED); one ADD/REMOVE carries <= 60 mappings (an AECPDU
+    fits 63 anyway); a mapping_stream_channel >= 8 is BAD_ARGUMENTS
+    because the render map word carries ch[2:0] (every Milan 6.4 base
+    format this entity declares is <= 8 channels, so the bound is not
+    reachable from a conformant SET_STREAM_FORMAT); and an ADD that
+    repeats a key INSIDE one command is rejected even when the two
+    records are identical - 7.4.45.1 permits that reading and nothing
+    mandates accepting the duplicate. Accept-and-replace of an EXISTING
+    mapping is the 5.4.2.27 option we take, without the optional
+    ("may") REMOVE_AUDIO_MAPPING unsolicited notification first.
+  - **GENERALIZED TO EVERY LISTENER PORT (2026-07-29, roadmap 23,
+    VERSION 0x001C).** The 07-22 engine served STREAM_PORT_INPUT[0] only
+    and NO shipped config armed it, so on silicon every listener port
+    still advertised a static AUDIO_MAP and ADD/REMOVE answered
+    NOT_SUPPORTED - i.e. the plural half of the shall was open. Milan
+    v1.2 5.3.3.9: "The Stream Port Input of a Configuration shall not
+    contain any AUDIO_MAP descriptor. Note: this means that a PAAD-AE
+    implements dynamic mappings on all of its Stream Port Inputs."
+    - the store is now keyed by the GLOBAL cluster index (the addressed
+      port's base_cluster + the record's port-relative
+      mapping_cluster_offset, 1722.1-2021 Table 7-33) - which is exactly
+      the render crossbar's map-RAM address, so model, fabric and the
+      0x900 debug window share ONE index space, and an offset past the
+      addressed port's own cluster block is BAD_ARGUMENTS rather than a
+      write into its neighbour;
+    - an entry carries mapping_stream_index, because Table 7-33 defines
+      it as the STREAM_INPUT descriptor index "for the stream carrying
+      this channel" - ANY Stream Input may feed ANY port - and the
+      5.4.2.27 channel bound comes from THAT stream's current format
+      through a per-STREAM_INPUT live channel-count file that follows
+      SET_STREAM_FORMAT (5.3.10.1). A CRF Stream Input is unmappable;
+    - GET_AUDIO_MAP pages each port's OWN fixed partition and reports
+      that port's own number_of_maps; one shared page size across ports
+      (our restriction - 5.4.2.26 only bounds subset SIZE);
+    - configs/endstation_arty_4x4.yaml (16 keys) and
+      configs/endstation_ax7101_8x8.yaml (64 keys) now carry
+      `map_mode: dynamic` on every listener; endstation_arty_current.yaml
+      stays static so the TRACKED entity definition + golden are
+      byte-identical and check_entity_shape is unmoved.
+    - TB: tb/verilator/aecp/sim_dynmap2.cpp (70 checks, the two-port
+      shape that also crosses `AEM_PER_STREAM_FMT) alongside the
+      unchanged single-port sim_dynmap.cpp (81); builder gate 17b.
+  - **OPEN after this round:** (a) 5.3.10.1 also says the mapping list
+    "shall be saved in a non-volatile memory and restored after a power
+    cycle" - this store powers up EMPTY, so a dynamic build's render
+    crossbar is unmapped until a controller programs it; the persistence
+    plane (KL_persist_journal) is where that belongs. (b) The talker side
+    (5.3.9.1, explicitly OPTIONAL - 5.3.3.9 lets a Stream Port Output
+    keep Audio Maps) stays static: its key space is (stream_index,
+    stream_channel) against a DIFFERENT RAM (the capture mux), not a
+    parameter change to this engine. (c) arty_current is still static -
+    flipping it is a one-line config change plus a tracked-svh/golden
+    regeneration, deliberately not done in the same round as an
+    ownership-contended file.
   - **Render-consumption follow-up (documented flag):** the builder
     exports live render taps `dmap_l/r_{ch,en}_o` (cluster 0/1 = the DAC
     pair) through KL_aecp_top into milan_datapath, where they terminate.

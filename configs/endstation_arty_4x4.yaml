@@ -147,10 +147,18 @@ audio_interface:
 
 streams:
   listeners:
-    - { name: "Stream In 0", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    - { name: "Stream In 1", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    - { name: "Stream In 2", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    - { name: "Stream In 3", channels: 4, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    # map_mode dynamic on EVERY listener (roadmap 23). Milan v1.2 5.3.3.9:
+    # "The Stream Port Input of a Configuration shall not contain any
+    # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
+    # dynamic mappings on all of its Stream Port Inputs." Each port drops
+    # its static AUDIO_MAP and advertises number_of_maps=0 (1722.1-2021
+    # 7.2.13); a controller then routes with ADD/REMOVE_AUDIO_MAPPINGS and
+    # reads back with GET_AUDIO_MAP (Milan 5.4.2.26-28). map_page defaults
+    # to min(clusters, 8) = 4 here, so each port is ONE fixed partition.
+    - { name: "Stream In 0", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    - { name: "Stream In 1", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    - { name: "Stream In 2", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
+    - { name: "Stream In 3", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
     # 0x0205022001006000 = AAF PCM32 48k 4ch; 0x0215... = ut-bit 1..4 family
     # clusters default = channels (4 mono clusters per stream port)
   talkers:

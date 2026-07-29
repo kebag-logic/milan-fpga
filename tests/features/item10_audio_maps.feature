@@ -166,3 +166,57 @@ Feature: Item-10 dynamic audio maps + chmap64 AEM->fabric binding contract
     And the fabric map word at cluster_offset 0 is en 0 stream 0 ch 0
     And the fabric map word at cluster_offset 1 equals 0x44
     And the fabric render crossbar has 1 enabled words
+
+  # (f) roadmap 23: Milan v1.2 5.3.3.9 — "The Stream Port Input of a
+  # Configuration shall not contain any AUDIO_MAP descriptor. Note: this
+  # means that a PAAD-AE implements dynamic mappings on all of its Stream
+  # Port Inputs." Both NxN configs ship map_mode: dynamic on every listener,
+  # so the engine has to keep the ports independent: the wire offset is
+  # PORT-RELATIVE (1722.1-2021 Table 7-33) while the store key — and the
+  # render crossbar address — is base_cluster + offset.
+  @class:action @fabric @roadmap23
+  Scenario: every Stream Port Input maps independently into one key space
+    Given a Milan audio-map model with 4 dynamic ports of 4 clusters and page 4
+    When on input port 1 I ADD stream 1 channel 3 at cluster_offset 2
+    Then the audio-map model responds status 0
+    And the fabric map word at cluster_offset 6 is en 1 stream 1 ch 3
+    And the fabric render crossbar has 1 enabled words
+    When on input port 0 I ADD stream 0 channel 3 at cluster_offset 2
+    Then the audio-map model responds status 0
+    And the fabric map word at cluster_offset 2 is en 1 stream 0 ch 3
+    And the fabric render crossbar has 2 enabled words
+    When the audio-map model GETs input port 1 page 0
+    Then the audio-map model responds status 0
+    And the last GET lists 1 mappings
+    And the last GET contains stream 1 channel 3 at cluster_offset 2
+    When the audio-map model GETs input port 3 page 0
+    Then the audio-map model responds status 0
+    And the last GET lists 0 mappings
+
+  @class:action @negative @roadmap23
+  Scenario: a cluster_offset past the addressed port never reaches its neighbour
+    Given a Milan audio-map model with 4 dynamic ports of 4 clusters and page 4
+    When on input port 0 I ADD stream 0 channel 0 at cluster_offset 4
+    Then the audio-map model responds status 7
+    And the fabric render crossbar has 0 enabled words
+    When on input port 4 I ADD stream 0 channel 0 at cluster_offset 0
+    Then the audio-map model responds status 2
+    When the audio-map model GETs input port 0 page 1
+    Then the audio-map model responds status 7
+
+  @class:action @negative @roadmap23
+  Scenario: mapping_stream_index names a Stream Input, and never the CRF sink
+    Given a Milan audio-map model with 2 dynamic ports of 4 clusters and page 4
+    When on input port 0 I ADD stream 1 channel 2 at cluster_offset 0
+    Then the audio-map model responds status 0
+    And the fabric map word at cluster_offset 0 is en 1 stream 1 ch 2
+    When on input port 0 I ADD stream 2 channel 0 at cluster_offset 1
+    Then the audio-map model responds status 7
+    When on input port 0 I ADD stream 3 channel 0 at cluster_offset 1
+    Then the audio-map model responds status 7
+    When on input port 0 I REMOVE stream 0 channel 2 at cluster_offset 0
+    Then the audio-map model responds status 0
+    And the fabric map word at cluster_offset 0 is en 1 stream 1 ch 2
+    When on input port 0 I REMOVE stream 1 channel 2 at cluster_offset 0
+    Then the audio-map model responds status 0
+    And the fabric render crossbar has 0 enabled words
