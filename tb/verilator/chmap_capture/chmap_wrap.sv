@@ -140,7 +140,8 @@ module chmap_wrap (
     .pair_l_i (a_l_w), .pair_r_i (a_r_w),
     .stream_en_i (a_en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
+    //! per-talker transit entries: every talker rides the one TB offset
+    .vlan_vid_i (vlan_vid_i), .transit_ns_i ({2{transit_ns_i}}),
     .ptp_ns_i (ptp_ns_i),
     //! tu: this harness is not about clock validity - the honest
     //! synchronised case, and the pre-2026-07-27 wire bytes
@@ -192,7 +193,8 @@ module chmap_wrap (
     .pair_l_i (b_l_w), .pair_r_i (b_r_w),
     .stream_en_i (b_en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
+    //! per-talker transit entries: every talker rides the one TB offset
+    .vlan_vid_i (vlan_vid_i), .transit_ns_i ({8{transit_ns_i}}),
     .ptp_ns_i (ptp_ns_i),
     //! tu: this harness is not about clock validity - the honest
     //! synchronised case, and the pre-2026-07-27 wire bytes

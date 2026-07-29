@@ -561,6 +561,69 @@ int main(int argc, char** argv) {
         ck("GET_AUDIO_MAP(absent) frame >= 12+12+26", (long)(r.size() >= 50), 1);
     }
 
+    // ------------------------------------------------------------------ //
+    printf("\n[10] per-index SET/GET_MAX_TRANSIT_TIME (1722.1-2021 7.4.39): "
+           "every directory-served STREAM_OUTPUT owns its own entry\n");
+    {
+        // Same D1 rule as sections [2]/[8]: the directory is the statement
+        // of which indices exist, and until 2026-07-29 this command
+        // hard-rejected every index != 0 while ONE global register backed
+        // all nine talkers' timestamp offsets. Response payload =
+        // type(2)+index(2)+max_transit_time u64 -> value u32 at wire 46.
+        const uint16_t SET_MTT = 0x004C, GET_MTT = 0x004D;
+        auto mtt_pl = [](uint16_t idx, uint64_t ns) {
+            std::vector<uint8_t> p; put_be16(p, OUT); put_be16(p, idx);
+            put_be64(p, ns); return p;
+        };
+        // (a) every served index resets to the 2 ms class-A default
+        for (int i = 0; i < N_STR; i++) {
+            auto ra = xact(GET_MTT, ti_pl(OUT, i));
+            char nm[96];
+            snprintf(nm, sizeof nm, "GET_MTT(OUT,%d) SUCCESS, cdl 24", i);
+            ck(nm, (r_status(ra) == 0) && (r_cdl(ra) == 24), 1);
+            snprintf(nm, sizeof nm, "GET_MTT(OUT,%d) default 2000000", i);
+            ck(nm, (long)be_at(ra, 46, 4), 2000000);
+        }
+        // (b) SET on index 2 lands on index 2 ONLY
+        auto r = xact(SET_MTT, mtt_pl(2, 1500000));
+        ck("SET_MTT(OUT,2, 1.5 ms) SUCCESS", r_status(r), 0);
+        ck("SET_MTT(OUT,2) response mirrors value", (long)be_at(r, 46, 4), 1500000);
+        r = xact(GET_MTT, ti_pl(OUT, 2));
+        ck("GET_MTT(OUT,2) reads back 1500000", (long)be_at(r, 46, 4), 1500000);
+        r = xact(GET_MTT, ti_pl(OUT, 0));
+        ck("GET_MTT(OUT,0) UNCHANGED (2000000)", (long)be_at(r, 46, 4), 2000000);
+        r = xact(GET_MTT, ti_pl(OUT, 3));
+        ck("GET_MTT(OUT,3) UNCHANGED (2000000)", (long)be_at(r, 46, 4), 2000000);
+        // (c) the CRF Media Clock Output (index 8) owns entry 8
+        r = xact(SET_MTT, mtt_pl(8, 700000));
+        ck("SET_MTT(OUT,8 = CRF) SUCCESS", r_status(r), 0);
+        r = xact(GET_MTT, ti_pl(OUT, 8));
+        ck("GET_MTT(OUT,8) reads back 700000", (long)be_at(r, 46, 4), 700000);
+        r = xact(GET_MTT, ti_pl(OUT, 2));
+        ck("GET_MTT(OUT,2) still 1500000", (long)be_at(r, 46, 4), 1500000);
+        // (d) directory bound, BOTH directions (the D1 self-agreement)
+        r = xact(SET_MTT, mtt_pl(9, 1000000));
+        ck("SET_MTT(OUT,9) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        r = xact(GET_MTT, ti_pl(OUT, 9));
+        ck("GET_MTT(OUT,9) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        r = xact(GET_MTT, ti_pl(IN, 2));
+        ck("GET_MTT(STREAM_INPUT,2) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        // (e) the > 0x7FFFFFFF ns guard fires PER INDEX and the refused
+        //     entry is untouched
+        r = xact(SET_MTT, mtt_pl(3, 0x100000000ULL));
+        ck("SET_MTT(OUT,3, 2^32) BAD_ARGUMENTS", r_status(r), 7);
+        r = xact(GET_MTT, ti_pl(OUT, 3));
+        ck("GET_MTT(OUT,3) still default after guard", (long)be_at(r, 46, 4), 2000000);
+        // (f) one source of truth: GET_STREAM_INFO's accumulated-latency
+        //     field serves the SAME per-index entry
+        r = xact(CMD_GET_SI, ti_pl(OUT, 2));
+        ck("GSI(OUT,2) acc_lat = 1500000", (long)be_at(r, O_LAT, 4), 1500000);
+        r = xact(CMD_GET_SI, ti_pl(OUT, 8));
+        ck("GSI(OUT,8) acc_lat = 700000", (long)be_at(r, O_LAT, 4), 700000);
+        r = xact(CMD_GET_SI, ti_pl(OUT, 0));
+        ck("GSI(OUT,0) acc_lat = 2000000", (long)be_at(r, O_LAT, 4), 2000000);
+    }
+
     printf("\n----------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

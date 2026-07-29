@@ -200,7 +200,8 @@ module tdm_wrap (
     .pair_l_i (a_l_o), .pair_r_i (a_r_o),
     .stream_en_i (en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
+    //! per-talker transit entries: both talkers ride the one TB offset
+    .vlan_vid_i (vlan_vid_i), .transit_ns_i ({2{transit_ns_i}}),
     .ptp_ns_i (ptp_ns_i),
     //! tu: this harness is not about clock validity - the honest
     //! synchronised case, and the pre-2026-07-27 wire bytes

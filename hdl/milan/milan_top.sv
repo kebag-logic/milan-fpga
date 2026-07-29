@@ -279,7 +279,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   //! still computed for CSR visibility and the AECP/ACMP live state)
   wire                     cfg_acmp_lobs;
   wire                     acmp_talker_active, acmp_probe_armed;
-  wire [31:0]              aecp_pres_offset;
+  wire [16*32-1:0]         aecp_pres_offset;   //! per-STREAM_OUTPUT entries
   wire aaf_gate = cfg_aaf_enable & (cfg_aaf_bypass | acmp_talker_active);
   //! merged low-rate control stream (ADP advertise + AECP response)
   wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;

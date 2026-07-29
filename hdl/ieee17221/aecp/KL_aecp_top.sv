@@ -70,7 +70,12 @@ module KL_aecp_top #(
   input  wire [11:0]   aaf_vid_i,          //! stream VLAN id (framer CSR)
   input  wire          talker_active_i,    //! ACMP probe SM state
   input  wire          listener_observed_i,//! lwSRP registrar hook
-  output wire [31:0]   pres_offset_o,      //! live presentation offset (ns) -> framer
+  //! live per-STREAM_OUTPUT presentation offsets (ns) -> framers: entry k
+  //! = talker k's max transit time (the CRF output's entry included); the
+  //! register file lives in the response builder (SET/GET_MAX_TRANSIT_TIME
+  //! + SET_STREAM_INFO ACC_LAT + GET_STREAM_INFO, one file per index).
+  //! Entries past the shape's STREAM_OUTPUT count read the 2 ms default.
+  output wire [16*32-1:0] pres_offset_o,
   output wire          identify_o,         //! IDENTIFY control active (LED hook)
 
   // ---- dynamic audio-map render taps (gaps item 8; `AEM_DYNMAP) -------
@@ -263,20 +268,11 @@ module KL_aecp_top #(
     .station_mac_i(station_mac_i), .byte_o(st_ovl_byte_w)
   );
 
-  // ---- presentation-time offset (SET_STREAM_INFO MSRP_ACC_LAT target) --
-  //      Reset = 2 000 000 ns: the Milan class-A max transit time the framer
-  //      has always stamped (aaf_talker_i2s TRANSIT) and the reference's
-  //      stream->mtt default. GET_STREAM_INFO reports it live.
-  logic        pres_wr_p_w;
-  logic [31:0] pres_wr_val_w;
-  logic [31:0] pres_offset_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
-    if (!rst_n)           pres_offset_r <= 32'd2_000_000;
-    else if (pres_wr_p_w) pres_offset_r <= pres_wr_val_w;
-  end
-  assign pres_offset_o = pres_offset_r;
-
   // ---- response builder ---------------------------------------------
+  //      (owns the per-STREAM_OUTPUT presentation-offset file — reset
+  //      2 000 000 ns per entry, the Milan class-A max transit time the
+  //      framer has always stamped and the reference's stream->mtt
+  //      default; exported flat on pres_offset_o)
   logic evt_cmd_w, evt_resp_w, evt_drop_w;
   KL_aecp_response_builder u_bld (
     .clk_i(clk_i), .rst_n(rst_n), .enable_i(enable_i),
@@ -292,8 +288,7 @@ module KL_aecp_top #(
     .aaf_dmac_i(aaf_dmac_i), .aaf_vid_i(aaf_vid_i),
     .talker_active_i(talker_active_i),
     .listener_observed_i(listener_observed_i),
-    .pres_offset_i(pres_offset_r),
-    .pres_wr_p_o(pres_wr_p_w), .pres_wr_val_o(pres_wr_val_w),
+    .pres_offset_all_o(pres_offset_o),
     .identify_o(identify_o),
     .dmap_l_ch_o(dmap_l_ch_o),
     .dmap_l_en_o(dmap_l_en_o),

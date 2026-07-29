@@ -110,9 +110,13 @@ module KL_aecp_response_builder (
   input  wire [11:0]   aaf_vid_i,          //! stream VLAN id
   input  wire          talker_active_i,    //! ACMP probe SM: declaring
   input  wire          listener_observed_i,//! lwSRP registrar hook
-  input  wire [31:0]   pres_offset_i,      //! msrp_accumulated_latency (ns)
-  output logic         pres_wr_p_o,        //! 1-cycle: SET_STREAM_INFO update
-  output logic [31:0]  pres_wr_val_o,
+  //! per-STREAM_OUTPUT presentation offsets (max transit time /
+  //! msrp_accumulated_latency, ns): flat 16-entry vector; entry k is the
+  //! offset talker k stamps into its avtp_timestamp (the CRF Media Clock
+  //! Output's entry included). The register file itself lives in this
+  //! module (see pres_file_r); entries past the shape's STREAM_OUTPUT
+  //! count are tied to the reset default.
+  output wire [16*32-1:0] pres_offset_all_o,
   output logic         identify_o,         //! IDENTIFY control active (LED hook)
 
   // ---- dynamic audio-map render taps (gaps item 8; live only under ----
@@ -503,6 +507,53 @@ module KL_aecp_response_builder (
   //! N_STREAMS, same rule). GET_STREAM_INFO must report the address ACMP
   //! hands out or the two commands disagree about the same stream.
   wire [47:0] w_out_dmac = aaf_dmac_i + 48'(w_gs_index);
+
+  // ------------------------------------------------------------------ //
+  // Per-STREAM_OUTPUT presentation-offset file (IEEE 1722.1-2021 §7.4.39 //
+  // SET/GET_MAX_TRANSIT_TIME + Milan SET_STREAM_INFO MSRP_ACC_LAT +      //
+  // GET_STREAM_INFO's msrp_accumulated_latency field).                   //
+  //                                                                      //
+  // One 32-bit ns entry per directory-served STREAM_OUTPUT (the CRF      //
+  // Media Clock Output included), each reset to the 2 ms class-A default //
+  // the single global register always held. Entry k is talker k's        //
+  // avtp_timestamp offset (KL_aaf_packetizer transit_ns_i entry k /      //
+  // KL_crf_tx for the CRF uid). All three commands read/write the SAME   //
+  // entry for a given descriptor_index — the one-source-of-truth         //
+  // property of the old register, now per index. Until 2026-07-29 ONE    //
+  // global register backed every talker and MAX_TRANSIT_TIME             //
+  // hard-rejected any index != 0 that the directory served (the D1       //
+  // defect class). Reads are combinational (the const-load cycle needs   //
+  // zero latency — same contract as the gs_diag_idx_o pre-mux); the      //
+  // directory oracle (acc_found) bounds every served index to the file.  //
+  // ------------------------------------------------------------------ //
+`ifdef AEM_PER_STREAM_FMT
+  localparam int unsigned PRES_N_C = AEM_N_STROUT_C;
+`else
+  //! legacy svh layout = the deployed 1-STREAM_OUTPUT shape (see the
+  //! AAF_OUT_FMT_C branch above: this arm already hardcodes that shape)
+  localparam int unsigned PRES_N_C = 1;
+`endif
+  localparam logic [31:0] PRES_DFLT_C = 32'd2_000_000;
+  logic [31:0] pres_file_r [0:PRES_N_C-1];
+  //! the addressed index's entry (valid whenever w_gs_index is, i.e.
+  //! through the whole const-load cycle of a dispatch)
+  logic [31:0] w_gs_pres;
+  always_comb begin : pres_pick
+    w_gs_pres = PRES_DFLT_C;
+    for (int k = 0; k < int'(PRES_N_C); k++)
+      if (w_gs_index == 16'(k)) w_gs_pres = pres_file_r[k];
+  end : pres_pick
+  //! flat export: entry k feeds talker k's framer; unbacked slots tie to
+  //! the default so the port shape never depends on the entity shape
+  generate
+    for (genvar gp = 0; gp < 16; gp++) begin : g_pres_all
+      if (gp < int'(PRES_N_C)) begin : g_live
+        assign pres_offset_all_o[32*gp +: 32] = pres_file_r[gp];
+      end else begin : g_dflt
+        assign pres_offset_all_o[32*gp +: 32] = PRES_DFLT_C;
+      end
+    end
+  endgenerate
 
   // ------------------------------------------------------------------ //
   // GET_AUDIO_MAP addressing (defect A, silicon 2026-07-28)              //
@@ -1004,8 +1055,13 @@ module KL_aecp_response_builder (
   //! uid  = the addressed STREAM_OUTPUT's descriptor_index = the ACMP
   //!        talker_unique_id (the two MUST agree — see w_out_dmac)
   //! dmac = that source's stream_dest_mac (MAAP block base + uid)
+  //! acc_lat = THAT index's presentation-offset entry (pres_file_r): the
+  //!        command path passes w_gs_pres, the unsolicited push (which
+  //!        runs from IDLE with a stale capture buffer) passes entry 0
+  //!        directly — never the w_gs_index-keyed mux
   task automatic load_stream_info_consts(input logic [15:0] uid,
-                                         input logic [47:0] dmac);
+                                         input logic [47:0] dmac,
+                                         input logic [31:0] acc_lat);
     begin
       //! flags: FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN|CONNECTED
       //! + MSRP_FAILURE_VALID when the bridge re-declared OUR stream as
@@ -1023,10 +1079,10 @@ module KL_aecp_response_builder (
       const_q[12] <= station_mac_i[15:8];
       const_q[13] <= station_mac_i[7:0];
       const_q[14] <= uid[15:8]; const_q[15] <= uid[7:0];
-      const_q[16] <= pres_offset_i[31:24];        // msrp_accumulated_latency
-      const_q[17] <= pres_offset_i[23:16];
-      const_q[18] <= pres_offset_i[15:8];
-      const_q[19] <= pres_offset_i[7:0];
+      const_q[16] <= acc_lat[31:24];              // msrp_accumulated_latency
+      const_q[17] <= acc_lat[23:16];              // (per-index pres_file_r)
+      const_q[18] <= acc_lat[15:8];
+      const_q[19] <= acc_lat[7:0];
       const_q[20] <= dmac[47:40];                 // stream_dest_mac
       const_q[21] <= dmac[39:32];
       const_q[22] <= dmac[31:24];
@@ -1279,8 +1335,7 @@ module KL_aecp_response_builder (
       evt_cmd_o    <= 1'b0;
       evt_resp_o   <= 1'b0;
       evt_drop_o   <= 1'b0;
-      pres_wr_p_o  <= 1'b0;
-      pres_wr_val_o <= 32'd0;
+      for (int k = 0; k < int'(PRES_N_C); k++) pres_file_r[k] <= PRES_DFLT_C;
       identify_r   <= 1'b0;
       started_in_r <= 1'b1;
       sysuid_r     <= 32'd0;
@@ -1340,7 +1395,6 @@ module KL_aecp_response_builder (
       evt_resp_o <= 1'b0;
       evt_drop_o <= 1'b0;
       st_wr_o    <= 1'b0;
-      pres_wr_p_o <= 1'b0;
 `ifdef AEM_DYNMAP
       dmap_wr_p_o <= 1'b0;
 `endif
@@ -1400,7 +1454,7 @@ module KL_aecp_response_builder (
       end
       //! (SET_STREAM_INFO notification: handled by the is_replay_cmd path -
       //! the SET response replays u=1 to the other controllers, which is the
-      //! CERT-es-4.5-required shape. The old GET-shaped push on pres_wr_p_o
+      //! CERT-es-4.5-required shape. The old GET-shaped push on the offset write
       //! double-notified and was removed 2026-07-20.)
 
       // ---------------- capture (runs in IDLE/CAPTURE) ----------------
@@ -1496,8 +1550,9 @@ module KL_aecp_response_builder (
             seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
             const_q[48] <= 8'h00; const_q[49] <= 8'h06;   // STREAM_OUTPUT
             const_q[50] <= 8'h00; const_q[51] <= 8'h00;   // index 0
-            //! the push is STREAM_OUTPUT[0]: uid 0, MAAP block base
-            load_stream_info_consts(16'd0, aaf_dmac_i);
+            //! the push is STREAM_OUTPUT[0]: uid 0, MAAP block base,
+            //! presentation-offset entry 0 (w_gs_index is stale here)
+            load_stream_info_consts(16'd0, aaf_dmac_i, pres_file_r[0]);
             cdl_q      <= 11'd68;
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
@@ -2182,7 +2237,8 @@ module KL_aecp_response_builder (
                     // = index (the previous entity_id here could never
                     // match the stream; a fixed index 0 could not either
                     // once the board shipped 8 sources).
-                    load_stream_info_consts(w_gs_index, w_out_dmac);
+                    load_stream_info_consts(w_gs_index, w_out_dmac,
+                                            w_gs_pres);
                   end else begin
                     // Listener sinks (reference populate_input_response):
                     // identity fields exposed unconditionally (*_VALID means
@@ -2230,10 +2286,15 @@ module KL_aecp_response_builder (
                 end else if (w_si_lat[31]) begin
                   status_q <= STATUS_BAD_ARGUMENTS;   // > 0x7FFFFFFF ns
                 end else begin
+                  //! writes THE ADDRESSED INDEX's pres_file_r entry — the
+                  //! same entry SET/GET_MAX_TRANSIT_TIME and
+                  //! GET_STREAM_INFO serve for that index (one source of
+                  //! truth; this arm still accepts index 0 only, see the
+                  //! index gate above)
                   status_q      <= STATUS_SUCCESS;
-                  nochg_q       <= (w_si_lat == pres_offset_i);
-                  pres_wr_p_o   <= 1'b1;
-                  pres_wr_val_o <= w_si_lat;
+                  nochg_q       <= (w_si_lat == w_gs_pres);
+                  for (int k = 0; k < int'(PRES_N_C); k++)
+                    if (w_gs_index == 16'(k)) pres_file_r[k] <= w_si_lat;
                 end
               end
 
@@ -2440,15 +2501,20 @@ module KL_aecp_response_builder (
               // -------------------------------------------------- //
               // SET/GET_MAX_TRANSIT_TIME (1722.1-2021 §7.4.39 at the
               // la_avdecc-verified codes 0x4C/0x4D; payload = type(2)+
-              // index(2)+max_transit_time u64 ns): reflects/updates the same
-              // presentation offset SET_STREAM_INFO(ACC_LAT) drives — one
-              // source of truth for the framer's timestamp offset.
+              // index(2)+max_transit_time u64 ns): reflects/updates THE
+              // ADDRESSED INDEX's entry of the same per-STREAM_OUTPUT
+              // presentation-offset file SET_STREAM_INFO(ACC_LAT) drives —
+              // one source of truth per talker for its framer's timestamp
+              // offset. The directory oracle (acc_found) bounds the index
+              // exactly as GET_STREAM_INFO's D1 rule; until 2026-07-29 any
+              // index != 0 was hard-rejected while READ_DESCRIPTOR served
+              // it, and one global register backed every talker.
               CMD_SET_MAX_TRANSIT_TIME, CMD_GET_MAX_TRANSIT_TIME: begin
                 cdl_q <= 11'd24;   // 12 + 12
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= 16'd12;
-                end else if (w_gs_type != DESC_STREAM_OUTPUT || w_gs_index != 16'd0) begin
+                end else if (w_gs_type != DESC_STREAM_OUTPUT || !acc_found) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME &&
@@ -2465,13 +2531,16 @@ module KL_aecp_response_builder (
                   if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME) begin
                     const_q[4] <= w_b10; const_q[5] <= w_b11;
                     const_q[6] <= w_b12; const_q[7] <= w_b13;
-                    pres_wr_p_o   <= 1'b1;
-                    pres_wr_val_o <= {w_b10, w_b11, w_b12, w_b13};
+                    //! the addressed entry only — every other talker's
+                    //! offset is untouched (per-index independence)
+                    for (int k = 0; k < int'(PRES_N_C); k++)
+                      if (w_gs_index == 16'(k))
+                        pres_file_r[k] <= {w_b10, w_b11, w_b12, w_b13};
                   end else begin
-                    const_q[4] <= pres_offset_i[31:24];
-                    const_q[5] <= pres_offset_i[23:16];
-                    const_q[6] <= pres_offset_i[15:8];
-                    const_q[7] <= pres_offset_i[7:0];
+                    const_q[4] <= w_gs_pres[31:24];
+                    const_q[5] <= w_gs_pres[23:16];
+                    const_q[6] <= w_gs_pres[15:8];
+                    const_q[7] <= w_gs_pres[7:0];
                   end
                 end
               end
