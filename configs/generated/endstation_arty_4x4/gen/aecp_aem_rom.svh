@@ -2,15 +2,15 @@
 // Milan v1.2 HW entity, FULL mandatory descriptor set (FR-ENUM-02).
 // See avdecc/milan-v12-entity.json.
 
-localparam int unsigned AEM_ROM_BYTES_C = 6601;
-localparam int unsigned AEM_DESC_N_C    = 72;
+localparam int unsigned AEM_ROM_BYTES_C = 6441;
+localparam int unsigned AEM_DESC_N_C    = 68;
 // Scratch tail (zero-init RAM past the descriptor image): Milan MVU
 // media_clock_domain_name (64 B, Milan 1.3 §5.4.4.4)
 localparam int unsigned AEM_STORE_BYTES_C = AEM_ROM_BYTES_C + 64;
-localparam [15:0] WB_MCR_DOMNAME_C = 16'd6601;
+localparam [15:0] WB_MCR_DOMNAME_C = 16'd6441;
 
 // Descriptor directory: {type[15:0], index[15:0], base[15:0], len[15:0]}
-localparam [63:0] AEM_DIR_C [0:71] = '{
+localparam [63:0] AEM_DIR_C [0:67] = '{
   64'h0000_0000_0000_0138,
   64'h0001_0000_0138_006A,
   64'h0002_0000_01A2_0094,
@@ -78,15 +78,11 @@ localparam [63:0] AEM_DIR_C [0:71] = '{
   64'h0017_0000_1889_0028,
   64'h0017_0001_18B1_0028,
   64'h0017_0002_18D9_0028,
-  64'h0017_0003_1901_0028,
-  64'h0017_0004_1929_0028,
-  64'h0017_0005_1951_0028,
-  64'h0017_0006_1979_0028,
-  64'h0017_0007_19A1_0028
+  64'h0017_0003_1901_0028
 };
 
 // ROM image (network byte order, addr 0 = first byte of ENTITY)
-localparam [7:0] AEM_ROM_INIT_C [0:6600] = '{
+localparam [7:0] AEM_ROM_INIT_C [0:6440] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -94,7 +90,7 @@ localparam [7:0] AEM_ROM_INIT_C [0:6600] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h32,8'h37,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
+  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h32,8'h38,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -296,16 +292,16 @@ localparam [7:0] AEM_ROM_INIT_C [0:6600] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h0E,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,8'h0E,8'h00,
-  8'h01,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h04,8'h00,8'h01,8'h00,
-  8'h01,8'h00,8'h0E,8'h00,8'h02,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,
-  8'h08,8'h00,8'h01,8'h00,8'h02,8'h00,8'h0E,8'h00,8'h03,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,
-  8'h00,8'h00,8'h04,8'h00,8'h0C,8'h00,8'h01,8'h00,8'h03,8'h00,8'h0F,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h10,8'h00,8'h01,8'h00,8'h04,8'h00,8'h0F,8'h00,
+  8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h0E,8'h00,
+  8'h01,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h04,8'h00,8'h00,8'h00,
+  8'h00,8'h00,8'h0E,8'h00,8'h02,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,
+  8'h08,8'h00,8'h00,8'h00,8'h00,8'h00,8'h0E,8'h00,8'h03,8'h00,8'h00,8'h00,8'h01,8'h00,8'h00,8'h00,
+  8'h00,8'h00,8'h04,8'h00,8'h0C,8'h00,8'h00,8'h00,8'h00,8'h00,8'h0F,8'h00,8'h00,8'h00,8'h00,8'h00,
+  8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h10,8'h00,8'h01,8'h00,8'h00,8'h00,8'h0F,8'h00,
   8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,8'h14,8'h00,8'h01,8'h00,
-  8'h05,8'h00,8'h0F,8'h00,8'h02,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,
-  8'h18,8'h00,8'h01,8'h00,8'h06,8'h00,8'h0F,8'h00,8'h03,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h00,8'h04,8'h00,8'h1C,8'h00,8'h01,8'h00,8'h07,8'h00,8'h14,8'h00,8'h00,8'h54,8'h44,8'h4D,
+  8'h01,8'h00,8'h0F,8'h00,8'h02,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h04,8'h00,
+  8'h18,8'h00,8'h01,8'h00,8'h02,8'h00,8'h0F,8'h00,8'h03,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
+  8'h00,8'h00,8'h04,8'h00,8'h1C,8'h00,8'h01,8'h00,8'h03,8'h00,8'h14,8'h00,8'h00,8'h54,8'h44,8'h4D,
   8'h38,8'h20,8'h4F,8'h75,8'h74,8'h20,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -489,16 +485,6 @@ localparam [7:0] AEM_ROM_INIT_C [0:6600] = '{
   8'h00,8'h00,8'h02,8'h00,8'h02,8'h00,8'h02,8'h00,8'h00,8'h00,8'h02,8'h00,8'h03,8'h00,8'h03,8'h00,
   8'h00,8'h00,8'h17,8'h00,8'h03,8'h00,8'h08,8'h00,8'h04,8'h00,8'h03,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h03,8'h00,8'h01,8'h00,8'h01,8'h00,8'h00,8'h00,8'h03,8'h00,8'h02,8'h00,8'h02,8'h00,
-  8'h00,8'h00,8'h03,8'h00,8'h03,8'h00,8'h03,8'h00,8'h00,8'h00,8'h17,8'h00,8'h04,8'h00,8'h08,8'h00,
-  8'h04,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h01,8'h00,8'h01,8'h00,
-  8'h00,8'h00,8'h00,8'h00,8'h02,8'h00,8'h02,8'h00,8'h00,8'h00,8'h00,8'h00,8'h03,8'h00,8'h03,8'h00,
-  8'h00,8'h00,8'h17,8'h00,8'h05,8'h00,8'h08,8'h00,8'h04,8'h00,8'h01,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h00,8'h01,8'h00,8'h01,8'h00,8'h01,8'h00,8'h00,8'h00,8'h01,8'h00,8'h02,8'h00,8'h02,8'h00,
-  8'h00,8'h00,8'h01,8'h00,8'h03,8'h00,8'h03,8'h00,8'h00,8'h00,8'h17,8'h00,8'h06,8'h00,8'h08,8'h00,
-  8'h04,8'h00,8'h02,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h02,8'h00,8'h01,8'h00,8'h01,8'h00,
-  8'h00,8'h00,8'h02,8'h00,8'h02,8'h00,8'h02,8'h00,8'h00,8'h00,8'h02,8'h00,8'h03,8'h00,8'h03,8'h00,
-  8'h00,8'h00,8'h17,8'h00,8'h07,8'h00,8'h08,8'h00,8'h04,8'h00,8'h03,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h00,8'h03,8'h00,8'h01,8'h00,8'h01,8'h00,8'h00,8'h00,8'h03,8'h00,8'h02,8'h00,8'h02,8'h00,
   8'h00,8'h00,8'h03,8'h00,8'h03,8'h00,8'h03,8'h00,8'h00
 };
 
@@ -568,10 +554,6 @@ localparam [15:0] WB_AUDIO_MAP_0_C = 16'd6281;
 localparam [15:0] WB_AUDIO_MAP_1_C = 16'd6321;
 localparam [15:0] WB_AUDIO_MAP_2_C = 16'd6361;
 localparam [15:0] WB_AUDIO_MAP_3_C = 16'd6401;
-localparam [15:0] WB_AUDIO_MAP_4_C = 16'd6441;
-localparam [15:0] WB_AUDIO_MAP_5_C = 16'd6481;
-localparam [15:0] WB_AUDIO_MAP_6_C = 16'd6521;
-localparam [15:0] WB_AUDIO_MAP_7_C = 16'd6561;
 
 // SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}
 function automatic [16:0] aem_name_lookup(input [15:0] t,
@@ -725,9 +707,39 @@ localparam [15:0] WB_STROUT_FMT_ADDR_C [0:4] = '{16'd1372, 16'd1512, 16'd1652, 1
 // v1.2 5.4.2.26 requires NOT_SUPPORTED rather than a served map.
 localparam int unsigned AEM_SMAP_IN_N_C  = 4;
 localparam int unsigned AEM_SMAP_OUT_N_C = 4;
-localparam [15:0] AEM_SMAP_IN_ADDR_C [0:3] = '{16'd6281, 16'd6321, 16'd6361, 16'd6401};
-localparam [15:0] AEM_SMAP_IN_ROWS_C [0:3] = '{16'd4, 16'd4, 16'd4, 16'd4};
-localparam [15:0] AEM_SMAP_IN_MOFF_C [0:3] = '{16'd8, 16'd8, 16'd8, 16'd8};
-localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:3] = '{16'd6441, 16'd6481, 16'd6521, 16'd6561};
+localparam [15:0] AEM_SMAP_IN_ADDR_C [0:3] = '{16'd0, 16'd0, 16'd0, 16'd0};
+localparam [15:0] AEM_SMAP_IN_ROWS_C [0:3] = '{16'd0, 16'd0, 16'd0, 16'd0};
+localparam [15:0] AEM_SMAP_IN_MOFF_C [0:3] = '{16'd0, 16'd0, 16'd0, 16'd0};
+localparam [15:0] AEM_SMAP_OUT_ADDR_C [0:3] = '{16'd6281, 16'd6321, 16'd6361, 16'd6401};
 localparam [15:0] AEM_SMAP_OUT_ROWS_C [0:3] = '{16'd4, 16'd4, 16'd4, 16'd4};
 localparam [15:0] AEM_SMAP_OUT_MOFF_C [0:3] = '{16'd8, 16'd8, 16'd8, 16'd8};
+
+// Dynamic audio-map engine (gaps item 8, roadmap 23): every
+// map_mode-dynamic STREAM_PORT_INPUT carries no AUDIO_MAP
+// descriptor and advertises number_of_maps=0 (1722.1-2021
+// 7.2.13); ADD/REMOVE/GET are served by the RTL mappings store
+// per Milan 5.4.2.26-28. Fully static shapes never emit this.
+// The store key is the GLOBAL cluster index (PBASE + offset) =
+// the render crossbar map-RAM address.
+`define AEM_DYNMAP
+localparam int unsigned AEM_DMAP_KEYS_C  = 16;   // global dynamic cluster keys (mono clusters)
+localparam int unsigned AEM_DMAP_PAGE_C  = 4;   // GET_AUDIO_MAP fixed partition size (shared)
+if (AEM_DMAP_PAGE_C > 11)
+  $error("AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP "
+         "const-scratch bound of 11 (6 + 8*PAGE <= 96)",
+         AEM_DMAP_PAGE_C);
+localparam int unsigned AEM_DMAP_PHYS_C  = 10;   // render crossbar depth (CHMAP_PHYS_C)
+localparam int unsigned AEM_DMAP_NPORTS_C = 4;   // STREAM_PORT_INPUT descriptors
+localparam bit AEM_DMAP_PDYN_C [0:3] = '{1'b1, 1'b1, 1'b1, 1'b1};
+localparam int unsigned AEM_DMAP_PBASE_C [0:3] = '{0, 4, 8, 12};
+localparam int unsigned AEM_DMAP_PCLS_C [0:3] = '{4, 4, 4, 4};
+localparam int unsigned AEM_DMAP_PNMAPS_C [0:3] = '{1, 1, 1, 1};
+// A STATIC port (input or output) is served from the shared
+// AEM_SMAP_* tables above - one generated source for "what map
+// does this port serve", static and dynamic shapes alike.
+// Per-STREAM_INPUT mappability + reset channel count: a mapping
+// names any STREAM_INPUT (Table 7-33) and 5.4.2.27 rejects a
+// channel absent from THAT stream's current format.
+localparam int unsigned AEM_DMAP_NSTRIN_C = 5;
+localparam bit AEM_DMAP_SAAF_C [0:4] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b0};
+localparam [9:0] AEM_DMAP_SCH_C [0:4] = '{10'd4, 10'd4, 10'd4, 10'd4, 10'd0};
