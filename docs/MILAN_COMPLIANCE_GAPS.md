@@ -1193,9 +1193,16 @@ audio-unit directive define the next fabric round:
    the input-side render target feeding the loop — the internal identity
    path that frees E2E/THD+N from external hardware), and **TDM/I2S**
    (the physical front-end, resolved per config by the builder: tdm8 on
-   arty_4x4, i2s on arty_current, tdm32 on the AX). The capture mux /
-   render crossbar already carry the source selects; the new fabric is the
-   render→capture loop glue. Mapping persistence per 5.3.9.1/5.3.10.1.
+   arty_4x4, i2s on arty_current, tdm32 on the AX), and **VIRTUAL** —
+   shared-memory ports backed by the DRAM PCM rings: output-side clusters
+   fed from the host playback rings (aplay/PipeWire through the KL_pcm_tx
+   reader) and the input-side render target writing the capture rings
+   (streams → arecord/PipeWire). The ALSA card's devices ARE the virtual
+   port's clusters, so dynamic maps decide per-stream whether audio is
+   host-memory, physical, tone, or loopback. The capture mux / render
+   crossbar already carry the source selects; the new fabric is the
+   render→capture loop glue (+ KL_pcm_tx for the virtual output side).
+   Mapping persistence per 5.3.9.1/5.3.10.1.
 5. **STREAM_OUTPUT counters wrong on silicon** (measured 07-29 on the
    streaming 0x0019 Arty): STREAM_START=16/STOP=15 — the SRP-only licence
    flapped 15 times behind a wire that never visibly gapped (suspect: the
