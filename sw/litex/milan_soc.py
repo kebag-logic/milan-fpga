@@ -971,12 +971,19 @@ class MilanMAC(LiteXModule):
             "set_property IOB TRUE [get_ports {{eth%d_tx_data[*]}}]" % phy_index)
         platform.add_platform_command(
             "set_property IOB TRUE [get_ports eth%d_tx_en]" % phy_index)
-        platform.add_platform_command(
-            "set_property IOB TRUE [get_ports {{eth%d_rx_data[*]}}]" % phy_index)
-        platform.add_platform_command(
-            "set_property IOB TRUE [get_ports eth%d_rx_dv]" % phy_index)
-        platform.add_platform_command(
-            "set_property IOB TRUE [get_ports eth%d_rx_er]" % phy_index)
+        # RX capture pad-lock is GMII-ONLY: LiteEthPHYMII's RX inputs feed
+        # more than one consumer, so forcing the capture FF into the ILOGIC
+        # trips DRC PDRC-158 (routing-mux contention, m001b: ILOGICE2.DINV
+        # two arcs -> bitgen refused). MII RX sampling has been clean on
+        # every seed including all four TX-wedged ones - it does not need
+        # the force; GMII does (AX36) and packs legally.
+        if phy_model != "mii":
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports {{eth%d_rx_data[*]}}]" % phy_index)
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports eth%d_rx_dv]" % phy_index)
+            platform.add_platform_command(
+                "set_property IOB TRUE [get_ports eth%d_rx_er]" % phy_index)
 
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
