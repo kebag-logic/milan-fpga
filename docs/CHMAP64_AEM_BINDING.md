@@ -184,31 +184,38 @@ command with `BAD_ARGUMENTS` and **nothing** is written:
 
 | Check | Rule | RTL term |
 |---|---|---|
-| single audio input | `stream_index == 0` | `w_dm_shape_ok` |
+| mappable stream | `stream_index < AEM_DMAP_NSTRIN_C` and `AEM_DMAP_SAAF_C[si]` (a CRF input carries no audio channels) | `w_dm_shape_ok` |
 | mono cluster | `cluster_channel == 0` | `w_dm_shape_ok` |
-| key in range | `cluster_offset < AEM_DMAP_KEYS_C` | `w_dm_key_ok` |
-| channel in format | `stream_channel < channels(STREAM_INPUT[0])` | `w_dm_ch_ok` |
-| no intra-command dup | same `cluster_offset` used twice in one command → reject | `dmap_claim_r[key]` |
+| key in range | `cluster_offset < AEM_DMAP_PCLS_C[port]` **and** `PBASE[port] + offset < AEM_DMAP_KEYS_C` | `w_dm_key_ok` |
+| channel in format | `stream_channel < channels(STREAM_INPUT[si])` — that stream's CURRENT format, followed live from `SET_STREAM_FORMAT` (Milan 5.3.10.1) — and `< 8`, the render word's `ch[2:0]` | `w_dm_ch_ok` |
+| no intra-command dup | same GLOBAL key used twice in one command → reject (identical records included: 7.4.45.1 permits it and nothing mandates accepting them) | `dmap_claim_r[key]` |
 
-A valid ADD to an already-mapped key **replaces** it (the 5.4.2.27 accept-and-
-replace option). `stream_index` is fixed at 0 in the current single-input build;
-the chmap64 8×8 build widens `KEYS` and the `stream` field — the projection rule
-above is unchanged.
+A valid ADD to an already-mapped key **replaces** it (the 5.4.2.27
+accept-and-replace option), without the optional ("may") preceding
+`REMOVE_AUDIO_MAPPING` unsolicited notification. `mapping_stream_index` may
+name **any** AAF Stream Input, not just the one attached to the addressed
+port — 1722.1-2021 Table 7-33 defines it as "the STREAM_INPUT or
+STREAM_OUTPUT descriptor index for the stream carrying this channel".
 
 ### REMOVE (5.4.2.28 — lenient)
 
-REMOVE clears an **exact** `(cluster_offset, stream_channel)` match and *ignores*
-everything else (unmatched, duplicate); it always returns `SUCCESS` on the input
-port. GET then shows the key gone / the word disabled.
+REMOVE clears an **exact** `(cluster_offset, stream_index, stream_channel)`
+match and *ignores* everything else (unmatched, duplicate); it always returns
+`SUCCESS` on a dynamic input port. GET then shows the key gone / the word
+disabled.
 
 ### GET_AUDIO_MAP (getter)
 
-`STREAM_PORT_INPUT[0]` pages the live store: `number_of_maps` is the fixed
-partition count `AEM_DMAP_NMAPS_C`; each page emits `PAGE` keys, listing the
-mapped ones as `(stream_index=0, stream_channel, cluster_offset, cluster_channel=0)`.
-`map_index >= NMAPS` → `BAD_ARGUMENTS` (§7.4.44.1). `STREAM_PORT_OUTPUT[0]` is
-the static capture map (well-formed, `number_of_maps=1`). Any other
-descriptor/index → `NO_SUCH_DESCRIPTOR`.
+Each dynamic `STREAM_PORT_INPUT[p]` pages **its own** live store window:
+`number_of_maps` is that port's fixed partition count
+`AEM_DMAP_PNMAPS_C[p]` = `ceil(clusters/PAGE)`; page `P` walks global keys
+`[PBASE[p] + P*PAGE, PBASE[p] + min((P+1)*PAGE, PCLS[p]))` — the last
+partition is short — and lists the mapped ones as
+`(stream_index, stream_channel, cluster_offset, cluster_channel=0)` with the
+offset back in **port-relative** form. `map_index >= PNMAPS[p]` →
+`BAD_ARGUMENTS` (§7.4.44.1). A static input port and every
+`STREAM_PORT_OUTPUT[j]` serve their ROM `AUDIO_MAP` (well-formed,
+`number_of_maps=1`). Any other descriptor/index → `NO_SUCH_DESCRIPTOR`.
 
 ### Status codes returned (as the RTL actually returns them)
 
