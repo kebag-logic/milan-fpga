@@ -47,7 +47,7 @@ reached silicon yet** (R6 — the flash that carries them is the next step).
 |---|---|---|
 | nine more persistence *shalls* | 5.3.6.x/5.3.8.x/5.3.13 | Milan mandates non-volatile save+restore for: sampling rate, STREAM_INPUT current format, presentation time offset, STREAM_OUTPUT current format, started/stopped state, output channel mappings, input channel mappings, clock source, and the user-name list ("shall save them in a non-volatile memory and restore them after a power cycle"). The binding (this round) was the fabric-critical one; the rest need an AECP-settings restore path into the store scratch that does not exist — designing it in the same round as everything else risked the byte-exact AEM behaviours, so it is the top of the next round |
 | per-sink binding SM | 5.5.3 | `PROBE_SM_EN` defaults to **sink 0 only** and the datapath never overrides it: sinks 1..N-1 carry record-only binds — no Auto Connect, no journal restore target. The full per-sink SM is the P-series listener follow-up |
-| CRF Media Clock **Input** counters | 5.4.2.25 Table 5.16 | the CRF sink answers the truthful empty mask (no monitor context). Milan's "shall implement and return" reads as wanting them; `KL_crf_rx` exports need a look |
+| CRF Media Clock **Input** counters | 5.4.2.25 Table 5.16 | **CLOSED at desk 2026-07-29** (it was the Milan-badge blocker — see "Milan 1.3 + audio-unit round" item 1): the CRF sink serves the mandatory ten behind `0xF3F` from `KL_crf_rx`'s own counters (lock/unlock events, seq/format-error tallies, accepted-PDU count), advertised-zero for the rows the engine does not tally; silicon pends the next flash |
 | talker CBS | 4.3.4 "A Talker PAAD shall implement the CBS… shall shape each individual Stream, as well as the overall SR class (34.6.1)" | fabric streams inject post-shaper with the lwSRP bw-gate as the reservation regime (USER-blessed architecture). Per-stream pacing is inherent (media clock); the residual deviation is the class-level burst of ≤ N frames per 125 µs interval that a CBS would spread. Recorded as a deviation-with-rationale, not silently |
 | lwSRP RX min-size/keep | — | a 60 B final-keep-0x0F MRPDU alone does not register where a full-keep 64 B copy does, and the first PDU after a torn tap stream only resyncs — recorded in the `milan_dp` SRP-only case for a future `lwsrp_rx` lane |
 
@@ -1165,10 +1165,19 @@ audio-unit directive define the next fabric round:
    check. What kills the `CompatibilityFlag::Milan` badge is the **CRF
    Media Clock Input's deliberate EMPTY mask** (this round's R5-lie
    removal): 5.3.8.10 says "for EACH Stream Input" with no CRF exemption,
-   so `(0 & 0xF3F) != 0xF3F` fires per enumeration. FIX (open): serve
-   `0xF3F` on the CRF input from `KL_crf_rx`'s real counters (0x738
-   block), advertised-zero for the uncounted rows per the existing AAF
-   MEDIA_RESET/LATE/EARLY precedent. SEPARATELY, commit `67d67a4e` added
+   so `(0 & 0xF3F) != 0xF3F` fires per enumeration. **CLOSED at desk
+   2026-07-29**: the CRF input now serves `0xF3F` straight out of
+   `KL_crf_rx` (the 0x738 block's own counters) —
+   MEDIA_LOCKED/MEDIA_UNLOCKED from the lock/unlock event counts,
+   SEQ_NUM_MISMATCH from the sequence-discontinuity tally,
+   UNSUPPORTED_FORMAT from the 7.3.2 profile-validation rejects,
+   FRAMES_RX from the accepted-PDU count; STREAM_INTERRUPTED,
+   MEDIA_RESET, TIMESTAMP_UNCERTAIN and LATE/EARLY_TIMESTAMP
+   advertised-zero per the existing AAF MEDIA_RESET/LATE/EARLY precedent
+   (the engine keeps no such tallies); TV/TNV deliberately NOT claimed —
+   no tv tracking exists for the CRF stream. TB: `aecp` [22h] +
+   `sim_nxn` [8] assert the mask and the live rows. Silicon proof pends
+   the next flash. SEPARATELY, commit `67d67a4e` added
    TIMESTAMP_VALID/NOT_VALID (mask `0xFFF`, per-frame tv tallies as flops,
    TV + TNV == FRAMES_RX) — PEER-reference parity and 1722.1-2021
    alignment, valid but NOT the badge blocker. Silicon pends the next

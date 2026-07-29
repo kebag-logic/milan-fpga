@@ -2282,6 +2282,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rxdiag_cnt_i  (mon_diag_cnt_w),
     .tkdiag_cnt_i  (tkdiag_cnt_w),
     .n_aaf_sinks_i (16'(N_STREAMS)),
+    //! CRF Media Clock Input GET_COUNTERS (Milan Table 5.16 mandatory
+    //! ten): served straight out of the KL_crf_rx sink engine - the same
+    //! counters the 0x738 CSR group reads
+    .crf_cnt_locked_i   (crf_cnt_locked_w),
+    .crf_cnt_unlocked_i (crf_cnt_unlocked_w),
+    .crf_cnt_seqerr_i   (crf_seqerr_w),
+    .crf_cnt_fmterr_i   (crf_fmterr_w),
+    .crf_cnt_pdu_i      (crf_pducnt_w),
     .lstn_bound_i   (acmpl_bound),
     .lstn_sid_i     (acmpl_sid),
     .lstn_dmac_i    (acmpl_dmac),

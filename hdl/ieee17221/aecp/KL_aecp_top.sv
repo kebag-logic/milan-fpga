@@ -86,7 +86,13 @@ module KL_aecp_top #(
   output logic [3:0]      gs_diag_idx_o,   //! GET_COUNTERS descriptor index
   input  wire [12*32-1:0] rxdiag_cnt_i,    //! that sink's Table 5.6 set + Milan 1.3 tv tallies
   input  wire [5*32-1:0]  tkdiag_cnt_i,    //! that source's Table 5.4 set
-  input  wire [15:0]      n_aaf_sinks_i,   //! AAF sink count (CRF = empty mask)
+  input  wire [15:0]      n_aaf_sinks_i,   //! AAF sink count (CRF sink at it)
+  // ---- CRF Media Clock Input counters (KL_crf_rx; Milan Table 5.16) ---
+  input  wire [31:0]      crf_cnt_locked_i,    //! MEDIA_LOCKED (bit 0)
+  input  wire [31:0]      crf_cnt_unlocked_i,  //! MEDIA_UNLOCKED (bit 1)
+  input  wire [7:0]       crf_cnt_seqerr_i,    //! SEQ_NUM_MISMATCH (bit 3)
+  input  wire [7:0]       crf_cnt_fmterr_i,    //! UNSUPPORTED_FORMAT (bit 8)
+  input  wire [15:0]      crf_cnt_pdu_i,       //! FRAMES_RX (bit 11)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
   input  wire          lstn_bound_i,
@@ -298,6 +304,11 @@ module KL_aecp_top #(
     .link_up_i(link_up_i),
     .gs_diag_idx_o(gs_diag_idx_o), .rxdiag_cnt_i(rxdiag_cnt_i),
     .tkdiag_cnt_i(tkdiag_cnt_i), .n_aaf_sinks_i(n_aaf_sinks_i),
+    .crf_cnt_locked_i(crf_cnt_locked_i),
+    .crf_cnt_unlocked_i(crf_cnt_unlocked_i),
+    .crf_cnt_seqerr_i(crf_cnt_seqerr_i),
+    .crf_cnt_fmterr_i(crf_cnt_fmterr_i),
+    .crf_cnt_pdu_i(crf_cnt_pdu_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
     .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),
     .lstn1_dmac_i(lstn1_dmac_i),

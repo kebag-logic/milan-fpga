@@ -64,7 +64,7 @@
 #include <vector>
 
 // AAF sink count of this harness's entity shape (the CRF sink
-// past it answers the empty mask)
+// past it answers the Milan-mandatory 0xF3F from the crf_cnt_* ports)
 #define N_AAF_SINKS_TB 8
 
 static VKL_aecp_top* dut;
@@ -223,6 +223,13 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // CRF Media Clock Input counters (KL_crf_rx in the fabric): live
+    // values so [8] can prove the CRF row serves THIS engine's counters
+    dut->crf_cnt_locked_i   = 6;
+    dut->crf_cnt_unlocked_i = 5;
+    dut->crf_cnt_seqerr_i   = 0x11;
+    dut->crf_cnt_fmterr_i   = 0x07;
+    dut->crf_cnt_pdu_i      = 0x4321;
     dut->station_mac_i = STA_MAC;
     dut->aaf_dmac_i = DMAC_BASE;
     dut->aaf_vid_i  = 2;
@@ -501,21 +508,40 @@ int main(int argc, char** argv) {
                     // KL_talker_diag_ctx context behind mask 0x1F, and
                     // every AAF STREAM_INPUT its monitor-mirror context
                     // behind 0xFFF (Milan 1.3 5.3.8.10 adds the tv
-                    // tallies to the v1.2 ten). The one truthful EMPTY
-                    // mask left is
-                    // the CRF Media Clock INPUT (index 8): it has no
-                    // monitor context, and 7.4.42.2 makes the empty mask
-                    // the statement of that (its counters are a recorded
-                    // gap in MILAN_COMPLIANCE_GAPS.md).
+                    // tallies to the v1.2 ten). The CRF Media Clock INPUT
+                    // (index 8) answered the truthful EMPTY mask until
+                    // 2026-07-29 - which la_avdecc's mandatory-set check
+                    // punished with the Milan badge (5.3.8.10 has no CRF
+                    // exemption). It now serves the v1.2 ten behind 0xF3F
+                    // straight out of the KL_crf_rx sink engine; TV/TNV
+                    // stay unclaimed (no tv tracking for CRF).
                     bool is_out = (TYPES[t] == 0x0006);
                     long want = is_out ? 0x1F
-                              : (i < 8) ? 0xFFF : 0;
+                              : (i < 8) ? 0xFFF : 0xF3F;
                     snprintf(nm, sizeof nm, "GET_COUNTERS(%s,%d) valid mask "
                              "%s", TNAME[t], i,
-                             want == 0 ? "EMPTY (CRF input, no context)"
+                             want == 0xF3F ? "0xF3F (CRF input, KL_crf_rx)"
                                        : is_out ? "0x1F (Table 5.17)"
                                                 : "0xFFF (Milan 1.3)");
                     ck(nm, (long)be_at(r, 42, 4), want);
+                    if (!is_out && i == 8) {
+                        // the CRF row is KL_crf_rx's own counters, live
+                        ck("GET_COUNTERS(CRF in) MEDIA_LOCKED live",
+                           (long)be_at(r, 46, 4), 6);
+                        ck("GET_COUNTERS(CRF in) MEDIA_UNLOCKED live",
+                           (long)be_at(r, 50, 4), 5);
+                        ck("GET_COUNTERS(CRF in) SEQ_NUM_MISMATCH live",
+                           (long)be_at(r, 58, 4), 0x11);
+                        ck("GET_COUNTERS(CRF in) UNSUPPORTED_FORMAT live",
+                           (long)be_at(r, 78, 4), 0x07);
+                        ck("GET_COUNTERS(CRF in) FRAMES_RX live",
+                           (long)be_at(r, 90, 4), 0x4321);
+                        ck("GET_COUNTERS(CRF in) advertised-zero rows 0",
+                           (long)(be_at(r, 54, 4) | be_at(r, 62, 4) |
+                                  be_at(r, 66, 4) | be_at(r, 70, 4) |
+                                  be_at(r, 74, 4) | be_at(r, 82, 4) |
+                                  be_at(r, 86, 4)), 0);
+                    }
                 }
             }
         }
