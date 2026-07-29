@@ -2088,6 +2088,10 @@ class RingDMAWriter(LiteXModule):
         off_r       = Signal(32)        # ring byte offset of the next beat to issue
         rem_r       = Signal(12)        # beats (incl. header) not yet issued
         blen_r      = Signal(10)        # burst length, registered in PREP
+        blen_m1     = Signal(10)        # blen_r - 1, registered beside it (the same
+                                        # per-beat-cone hoist as the reader's)
+        rem_z       = Signal()          # rem_r == 0 as of this burst's AW-accept
+        burst_last  = Signal()          # wcnt == blen_m1
         addr_r      = Signal(32)        # burst address, registered in PREP
         hdr_sent    = Signal()
         frame_csum  = Signal(16)        # ones-complement sum for CHECKSUM_COMPLETE
@@ -2174,6 +2178,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(total_beats, ack_beats),
                 NextValue(frame_csum, ack_csum),
                 NextValue(rem_r, ack_beats),
+                NextValue(rem_z, ack_beats == 0),
                 NextValue(off_r, 0),
                 NextValue(hdr_sent, 1),
                 NextValue(fbeat, 0),
@@ -2227,6 +2232,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(total_beats, len_fifo.source.beats),   # no header beat
                 NextValue(frame_csum, len_fifo.source.csum),
                 NextValue(rem_r, len_fifo.source.beats),
+                NextValue(rem_z, len_fifo.source.beats == 0),
                 NextValue(off_r, 0),
                 NextValue(hdr_sent, 1),                          # suppress the header
                 If(self.rsc_en.storage,
@@ -2265,6 +2271,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(total_beats, len_fifo.source.beats + 1),
                 NextValue(frame_csum, len_fifo.source.csum),
                 NextValue(rem_r, len_fifo.source.beats + 1),
+                NextValue(rem_z, 0),
                 NextValue(off_r, wr),               # header slot first
                 NextValue(hdr_sent, 0),
                 NextState("CHECK"),
@@ -2337,6 +2344,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
                 NextValue(fbeat, p_soff[3:]),
                 NextValue(rem_r, ap_outb),
+                NextValue(rem_z, ap_outb == 0),
                 NextValue(off_r, Mux(hs, Cat(C(0, 3), m_sel_off[3:PGB]),
                                          Cat(C(0, 3), m_sel_off[3:]))),
                 NextValue(ap_needswap, hs & (m_sel_off[:PGB] == 0)),
@@ -2379,6 +2387,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(ap_inrem, (s_lane + p_plen + 7)[3:]),
                 NextValue(fbeat, p_soff[3:]),
                 NextValue(rem_r, (p_plen + 7)[3:]),
+                NextValue(rem_z, (p_plen + 7)[3:] == 0),
                 NextValue(off_r, 0),
                 NextValue(hs_cross, 0),
                 NextValue(hw_cnt, 0),
@@ -2484,6 +2493,7 @@ class RingDMAWriter(LiteXModule):
                 NextState("HS_PGSWAP"),             # page full: v3 + JIT next-page pop
             ).Else(
                 NextValue(blen_r, blen),
+                NextValue(blen_m1, blen - 1),
                 NextValue(addr_r, cur_addr),
                 NextState("AW"),
             )
@@ -2564,7 +2574,7 @@ class RingDMAWriter(LiteXModule):
         fsm.act("AW",
             self.bus.aw.valid.eq(1),
             self.bus.aw.addr.eq(addr_r),
-            self.bus.aw.len.eq(blen_r - 1),
+            self.bus.aw.len.eq(blen_m1),
             self.bus.aw.size.eq(3),                 # 8 bytes/beat
             self.bus.aw.burst.eq(1),                # INCR
             If(self.bus.aw.ready,
@@ -2575,6 +2585,7 @@ class RingDMAWriter(LiteXModule):
                 NextValue(off_r, Mux(bd_shape, off_r + (blen_r << 3),
                                      (off_r + (blen_r << 3)) & self.mask.storage)),
                 NextValue(rem_r, rem_r - blen_r),
+                NextValue(rem_z, rem_r == blen_r),
                 NextState("W"),
             )
         )
@@ -2588,7 +2599,8 @@ class RingDMAWriter(LiteXModule):
             ap_srcv.eq((ap_inrem == 0) | in_hdrr | data_fifo.source.valid),
             ap_out.eq(Mux(ap_pass, raw_beat,
                       (Cat(ap_carry, raw_beat) >> Cat(C(0, 3), ap_p))[:64])),
-            ap_last.eq((rem_r == 0) & (wcnt == blen_r - 1)),
+            burst_last.eq(wcnt == blen_m1),
+            ap_last.eq(rem_z & burst_last),
         ]
         fsm.act("W",
             self.bus.w.valid.eq(Mux(ap_append, ap_srcv,
@@ -2603,7 +2615,7 @@ class RingDMAWriter(LiteXModule):
                                    Mux(ap_first, ap_head, 0xFF) &
                                    Mux(ap_last, ap_tail, 0xFF),
                                    2**len(self.bus.w.strb) - 1)),
-            self.bus.w.last.eq(wcnt == blen_r - 1),
+            self.bus.w.last.eq(burst_last),
             If(self.bus.w.valid & self.bus.w.ready,
                 data_fifo.source.ready.eq(~is_hdr & ~in_hdrr &
                                           (~ap_append | (ap_inrem != 0))),
@@ -2620,7 +2632,7 @@ class RingDMAWriter(LiteXModule):
                     NextValue(fbeat, fbeat + 1),
                 ),
                 If(self.bus.w.last,
-                    If(rem_r == 0,                  # updated at AW: post-burst remaining
+                    If(rem_z,                       # updated at AW: post-burst remaining
                         NextState("WAIT_B"),
                     ).Else(
                         NextState("PREP"),
@@ -3020,6 +3032,12 @@ class RingDMAReader(LiteXModule):
         off_r  = Signal(32)             # ring byte offset of the next payload beat
         rem_r  = Signal(12)             # payload beats not yet requested
         blen_r = Signal(12)             # burst length, registered in PREP
+        blen_m1 = Signal(12)            # blen_r - 1, registered BESIDE it: the runtime
+                                        # 12-bit decrement used to sit inside the
+                                        # per-beat in_last cone (5 of 15 logic levels,
+                                        # 4.65 ns of an 11.95 ns path - m001d analysis)
+        rem_z   = Signal()              # rem_r == 0 as of this burst's AR-accept
+        burst_last = Signal()           # bcnt == blen_m1: the only per-beat term
         addr_r = Signal(32)             # burst address, registered in PREP
         bcnt   = Signal(12)             # R beats received in the current burst
         cur_addr = Signal(32)
@@ -3074,7 +3092,8 @@ class RingDMAReader(LiteXModule):
         emit_now = Signal()
         eof_done = Signal()
         self.comb += [
-            in_last.eq((rem_r == 0) & (bcnt == blen_r - 1)),
+            burst_last.eq(bcnt == blen_m1),
+            in_last.eq(rem_z & burst_last),
             v_in.eq(Mux(first_in, f_first, Mux(in_last, f_tail, 8))),
             raw_al.eq(Mux(first_in, self.bus.r.data >> sh_lo, self.bus.r.data)),
             # CRITICAL: mask to the v_in VALID bytes  -  unmasked tail garbage ORs into
@@ -3174,6 +3193,7 @@ class RingDMAReader(LiteXModule):
             return [
                 NextValue(frame_bytes, ln),
                 NextValue(rem_r, (ln + a3 + 7)[3:]),
+                NextValue(rem_z, (ln + a3 + 7)[3:] == 0),
                 NextValue(seg_addr, addr),
                 NextValue(seg_off, a3),
                 NextValue(sh_lo, Cat(C(0, 3), a3)),
@@ -3283,6 +3303,8 @@ class RingDMAReader(LiteXModule):
                     # input beats = ceil((off + len)/8); output beats = ceil(len/8)
                     NextValue(rem_r, Mux(bd_shape,
                         (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new)),
+                    NextValue(rem_z, Mux(bd_shape,
+                        (self.bus.r.data[32:48] + self.bus.r.data[:3] + 7)[3:], fb_new) == 0),
                     NextValue(seg_addr, self.bus.r.data[:32]),
                     NextValue(seg_off, self.bus.r.data[:3]),
                     NextValue(sh_lo, Cat(C(0, 3), self.bus.r.data[:3])),
@@ -3331,13 +3353,14 @@ class RingDMAReader(LiteXModule):
         )
         fsm.act("PREP",                 # register this burst's geometry
             NextValue(blen_r, blen),
+            NextValue(blen_m1, blen - 1),
             NextValue(addr_r, cur_addr),
             NextState("PAY_AR"),
         )
         fsm.act("PAY_AR",
             self.bus.ar.valid.eq(1),
             self.bus.ar.addr.eq(addr_r),
-            self.bus.ar.len.eq(blen_r - 1),
+            self.bus.ar.len.eq(blen_m1),
             If(self.bus.ar.ready,
                 NextValue(bcnt, 0),
                 # BD mode: LINEAR segment offset  -  masking with the (BD-ring!) mask would
@@ -3346,6 +3369,7 @@ class RingDMAReader(LiteXModule):
                 NextValue(off_r, Mux(bd_shape, off_r + (blen_r << 3),
                                      (off_r + (blen_r << 3)) & self.mask.storage)),
                 NextValue(rem_r, rem_r - blen_r),
+                NextValue(rem_z, rem_r == blen_r),
                 NextState("PAY_R"),
             )
         )
@@ -3433,7 +3457,7 @@ class RingDMAReader(LiteXModule):
                     NextValue(bcnt, bcnt + 1),
                     If(rbeat == frame_beats - 1,
                         If(cs_pass, *cs_restart()).Else(*seg_finish())
-                    ).Elif(bcnt == blen_r - 1,
+                    ).Elif(burst_last,
                         NextState("PREP"),
                     )
                 )
@@ -3487,7 +3511,7 @@ class RingDMAReader(LiteXModule):
                         ).Else(
                             *seg_finish()
                         )
-                    ).Elif(bcnt == blen_r - 1,
+                    ).Elif(burst_last,
                         NextState("PREP"),
                     )
                 )
@@ -3844,6 +3868,18 @@ class _PCMRingNxN(LiteXModule):
         nb    = bus.data_width // 8
         shift = int(math.log2(nb))
         offsets = Array(Signal(32) for _ in range(n_streams))
+        # Absolute per-stream pointers (m001d net analysis, cone C): the beat
+        # address used to be base + stride*user + offsets[user] computed in
+        # the beat cone - a ~40-bit carry propagation (CARRY4=10, 15-18 logic
+        # levels, eppo's WNS). base/stride are init-time CSRs, so the multiply
+        # and both 64-bit adds are loop-invariant: sbase[] registers them off
+        # the static CSRs (stride*i with constant i is shift-add, no DSP) and
+        # ptrs[] advances by nb per beat - the addr mux is all that remains.
+        # offsets[] stays for the CSR readback + wrap test (ABI unchanged).
+        # Ordering is enforced in hardware: ~en reloads ptrs from sbase, and
+        # the driver programs base/stride before enable (it always has).
+        sbase   = Array(Signal(64) for _ in range(n_streams))
+        ptrs    = Array(Signal(64) for _ in range(n_streams))
         user    = Signal(4)
         sel     = Signal(4)
         addr    = Signal(64)
@@ -3866,8 +3902,7 @@ class _PCMRingNxN(LiteXModule):
         self.comb += [
             user.eq(Mux(src.user >= n_streams, 0, src.user)),
             sel.eq(Mux(self._sel.storage >= n_streams, 0, self._sel.storage)),
-            addr.eq(self._base.storage + self._stride.storage * user
-                    + offsets[user]),
+            addr.eq(ptrs[user]),
             self.writer.sink.valid.eq(src.valid & en),
             self.writer.sink.data.eq(src.data),
             self.writer.sink.address.eq(addr[shift:]),
@@ -3876,13 +3911,18 @@ class _PCMRingNxN(LiteXModule):
             self._cap.status.eq((0x4D << 24) | int(n_streams)),
         ]
         self.sync += [
+            *[sbase[i].eq(self._base.storage + self._stride.storage * i)
+              for i in range(n_streams)],
             If(~en,
-                *[o.eq(0) for o in offsets]
+                *[o.eq(0) for o in offsets],
+                *[p.eq(sb) for p, sb in zip(ptrs, sbase)]
             ).Elif(src.valid & src.ready,
                 If(offsets[user] + nb >= self._length.storage,
-                    offsets[user].eq(0)
+                    offsets[user].eq(0),
+                    ptrs[user].eq(sbase[user])
                 ).Else(
-                    offsets[user].eq(offsets[user] + nb)
+                    offsets[user].eq(offsets[user] + nb),
+                    ptrs[user].eq(ptrs[user] + nb)
                 )
             ),
         ]
@@ -5447,7 +5487,11 @@ def main():
     build_kwargs = dict(
         vivado_place_directive               = "ExtraTimingOpt",
         vivado_post_place_phys_opt_directive = "AggressiveExplore",
-        vivado_route_directive               = "Explore",
+        # route Explore -> AggressiveExplore (m001d net analysis): at ~100%
+        # slice occupancy every m001d seed lost 0.32-0.77 ns between the
+        # placement ESTIMATE (+0.05..-0.02) and the routed result - the
+        # router, not the placer, needed the top-effort rung.
+        vivado_route_directive               = "AggressiveExplore",
         vivado_post_route_phys_opt_directive = "AggressiveExplore",
     ) if args.timing_opt else {}
     if args.place_directive:
