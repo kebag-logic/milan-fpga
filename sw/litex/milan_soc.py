@@ -3495,8 +3495,10 @@ class _PCMRingNxN(LiteXModule):
 
     CSRs: base[64], length[32] (per-stream sub-ring BYTES, multiple of the bus
     word), stride[32] (BYTES between stream bases), enable, sel[4] + offset[32]
-    (the selected stream's write pointer readback). Disable clears all offsets
-    and drops beats (the flat writer's disabled behavior)."""
+    (the selected stream's write pointer readback), cap[32] (RO geometry
+    capability at +0x1c, the hs_pgsz precedent - snd-kl-milan refuses L>1
+    without it). Disable clears all offsets and drops beats (the flat writer's
+    disabled behavior)."""
     def __init__(self, bus, n_streams):
         from litex.soc.cores.dma import WishboneDMAWriter
         from litex.soc.interconnect import stream as _stream
@@ -3508,6 +3510,18 @@ class _PCMRingNxN(LiteXModule):
         self._enable = CSRStorage(description="ring writer enable (0 drops beats + clears offsets).")
         self._sel    = CSRStorage(4,  description="stream index for the offset readback.")
         self._offset = CSRStatus(32,  description="selected stream's write pointer (bytes).")
+        # Geometry capability word, declared right after _offset so it lands at
+        # +0x1c (LiteX maps CSRs in declaration order; the engine block ends at
+        # OFFSET +0x18). Every field is the elaboration TRUTH, never policy:
+        # [23:16] stride/64KiB = 0 because THIS engine has no baked stride (the
+        # runtime _stride CSRStorage above is driver-programmed); [15:8] T = 0
+        # because this block serves capture rings only (KL_pcm_tx playback rings
+        # live behind their own pb_* CSR block, not this geometry).
+        assert 1 <= n_streams <= 0xFF
+        self._cap = CSRStatus(32, description="geometry capability: [31:24]=0x4D 'M', "
+                              "[23:16]=stride/64KiB (0 = driver-programmed via the stride CSR), "
+                              "[15:8]=T playback rings behind this block (0), "
+                              "[7:0]=L capture rings (elaborated N_STREAMS).")
 
         # # #
 
@@ -3531,6 +3545,7 @@ class _PCMRingNxN(LiteXModule):
             self.writer.sink.address.eq(addr[shift:]),
             self.sink.ready.eq(self.writer.sink.ready | ~en),
             self._offset.status.eq(offsets[sel]),
+            self._cap.status.eq((0x4D << 24) | int(n_streams)),
         ]
         self.sync += [
             If(~en,
@@ -3550,8 +3565,8 @@ class _PCMRingBRAM(LiteXModule):
     drop-in for the WishboneDMAWriter / _PCMRingNxN DRAM ring.
 
     Same sink + SAME CSR block as _PCMRingNxN (base[64], length[32], stride[32],
-    enable, sel[4], offset[32]) so the kl-eth/PipeWire ABI is byte-for-byte
-    unchanged; N=1 is byte-identical to the flat ring. The write side rides the
+    enable, sel[4], offset[32], cap[32] at +0x1c) so the kl-eth/PipeWire ABI is
+    byte-for-byte unchanged; N=1 is byte-identical to the flat ring. The write side rides the
     pcm CDC lane and its ready is CONSTANT 1 (single-cycle BRAM write), so the
     non-stallable datapath can never be told to wait - mf52 SHED + I6 cannot
     exist. The CPU reads PCM words through a read-only wishbone slave into the
@@ -3570,6 +3585,14 @@ class _PCMRingBRAM(LiteXModule):
         self._enable = CSRStorage(description="ring enable (0 drops beats + clears offsets).")
         self._sel    = CSRStorage(4,  description="stream index for the offset readback.")
         self._offset = CSRStatus(32,  description="selected stream's write pointer (bytes).")
+        # Geometry capability at +0x1c - identical word + placement as the
+        # _PCMRingNxN one (SAME-CSR-block axiom above); see that class for the
+        # honesty notes on the zero stride/T fields.
+        assert 1 <= n_streams <= 0xFF
+        self._cap = CSRStatus(32, description="geometry capability: [31:24]=0x4D 'M', "
+                              "[23:16]=stride/64KiB (0 = driver-programmed via the stride CSR), "
+                              "[15:8]=T playback rings behind this block (0), "
+                              "[7:0]=L capture rings (elaborated N_STREAMS).")
         # CPU read port: read-only wishbone slave into BRAM port B.
         self.bus = wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
 
@@ -3602,6 +3625,7 @@ class _PCMRingBRAM(LiteXModule):
             o_wb_dat_o   = self.bus.dat_r,
             o_wb_ack_o   = self.bus.ack,
         )
+        self.comb += self._cap.status.eq((0x4D << 24) | int(n_streams))
 
 
 class MilanDMA(LiteXModule):

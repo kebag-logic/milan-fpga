@@ -1212,3 +1212,14 @@ is the ring write pointer (in 64-bit words) the consumer chases. Payload is
 full 64-bit words in wire byte order = S32BE interleaved PCM. Registered
 after `hs_pgsz_cap` — additions-only, no existing CSR address moved
 (csv-diff-verified).
+
+At N > 1 (`_PCMRingNxN`; `_PCMRingBRAM` keeps the identical block) the bank
+is `base[64]` +0x00, `length` +0x08, `stride` +0x0C, `enable` +0x10, `sel`
++0x14, `offset` +0x18 (RO, the `sel`-selected stream's write pointer, BYTES),
+followed by the geometry capability word the `snd-kl-milan` I1 gate reads
+(the `hs_pgsz_cap` precedent — without it the driver refuses any DT
+declaring more than one capture stream):
+
+| Offset  | Name  | Access | Value | Description |
+|---------|-------|--------|-------|-------------|
+| `+0x1C` | `CAP` | RO     | `0x4D0000NN` | `[31:24]` = `0x4D` `'M'` magic (guards against stray nonzero reads on older gateware, where this address reads 0 = capability absent); `[23:16]` = baked stride in 64 KiB units — **0**: this engine bakes NO stride, the runtime `stride` CSR at `+0x0C` is driver-programmed; `[15:8]` = T playback rings behind this block — **0**: capture-only, the `KL_pcm_tx` playback rings live behind their own `pb_*` CSR block; `[7:0]` = L capture rings = elaborated `N_STREAMS` (`0x08` on the AX 8x8, `0x04` on the Arty 4x4) |
