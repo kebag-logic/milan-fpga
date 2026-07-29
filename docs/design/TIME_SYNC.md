@@ -24,7 +24,7 @@ authority); status claims carry their in-repo evidence. Written 2026-07-25.
 
 - **[1. Concept — the three clocks](#1-concept--the-three-clocks)** — Why there are three and not one: the PHC that gPTP disciplines, a `CLOCK_REALTIME` nothing in the media path depends on, and a *physical* audio clock that cannot be written like a counter — only steered. Ends with the whole chain in one sentence.
 - **[2. Mechanism — the hardware timestamp path](#2-mechanism--the-hardware-timestamp-path)** — Five subsections from the fractional-ns phase accumulator to the who-runs-where table. The load-bearing idea is *qualify at TLAST* — the original core decided the record on a CDC handshake and raced the beat rate in both directions. Also the record's always-1 marker sentinel, why `tlast` is deliberately withheld from the DMA writer, and the tap-measured latency constants whose absence kept `asCapable` permanently false.
-- **[3. The media clock](#3-the-media-clock)** — How a shared nanosecond timeline becomes a 48 kHz sample edge: an integer-only MMCM chain (fractional-N jitter measurably collapsed converter THD+N to -4.5 dB), the CRF talker and the measuring receiver, and a PI servo whose real actuator is a 16.9 ps fine phase step — with `CRF_DELTA` deliberately excluded from the loop because it carries an arbitrary phase constant. Closes on the media-lock rule: an internal source locks on the first PDU, an external one has to earn it.
+- **[3. The media clock](#3-the-media-clock)** — How a shared nanosecond timeline becomes a 48 kHz sample edge: an integer-only MMCM chain (fractional-N jitter measurably collapsed converter THD+N to -4.5 dB), the CRF talker and the measuring receiver, and a PI servo whose real actuator is a 16.9 ps fine phase step — with `CRF_DELTA` deliberately excluded from the loop because it carries an arbitrary phase constant. Closes on the media-lock rule: an internal source locks on the first PDU, an external one has to earn it. New in §3.1.1: the master-role error budget — why "exactly 24.576 MHz" only binds the slave role, and the real numbers (synthesis -0.66 ppm on the TDM-master plan under a +-50 ppm oscillator, all absorbed by listeners tracking our honest timestamps).
 - **[4. Time-related CSRs — quick table](#4-time-related-csrs--quick-table)** — Every time-related offset in one place, `CAP[9]` through `MCSRV_CTRL` and the `dma-ts` ring. Every row is now ABI-blessed in the register map, so the `(*)` "live in RTL, undocumented" marker this table used to carry is retired.
 - **[5. Status (2026-07-25)](#5-status-2026-07-25)** — Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id — no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
 
@@ -236,8 +236,17 @@ converters (analog THD+N collapsed to -4.5 dB; history in
 `hdl/ieee1722/aaf/KL_i2s_playback.sv`'s header).
 
 The chain is two-stage and **integer-only** (`sw/litex/milan_soc.py`,
-`_CRG`): 100 MHz -> PLL /2 x23 /37 -> 31.081081 MHz -> MMCM x34 /43 ->
-**24.575739 MHz = 24.576 MHz -10.6 ppm**.
+`_CRG`). Two plans exist, selected by `audio_tdm_hz`:
+
+* **Plan A (default, I2S shapes):** 100 MHz -> PLL /2 x23 /37 ->
+  31.081081 MHz -> MMCM x34 /43 -> **24.575739 MHz = 24.576 MHz
+  -10.64 ppm**.
+* **Plan B (TDM-master shapes — the shipping Arty 4x4):** 100 MHz ->
+  PLL /2 x23 /67 -> 17.164179 MHz -> MMCM x63 (VCO 1081.343 MHz) ->
+  CLKOUT0 /44 -> **24.575984 MHz = -0.66 ppm**, with CLKOUT1 /44 /22 /11
+  serving the TDM bit-clock family off the same VCO. The re-derivation
+  *improved* the base error (44 divides the new VCO where odd 43 could
+  never yield an integer 2x/4x sibling).
 
 Integer dividers are a servo prerequisite: UG472 forbids fractional divide
 in fine-phase-shift mode, and the best single-stage integer alternative
@@ -246,6 +255,46 @@ lands -186 ppm — beyond the servo's trim budget
 
 `/512` of this clock is the 48 kHz sample grid; I2S (`MCLK/SCLK/LRCK`) and
 TDM front-ends are plain registered dividers of it.
+
+### 3.1.1 How exact is 24.576 MHz? — the master-role error budget
+
+"Exactly 24.576 MHz" is only a meaningful demand in the **slave** role,
+where the MMCM-DRP servo must converge on someone else's recovered media
+clock. When this end-station is the media-clock **master**, its oscillator
+*defines* the timebase — every listener (an input-stream clock domain at
+the far end, or our own servo when roles are reversed) tracks whatever
+cadence we actually produce. The requirement then relaxes to three weaker
+ones: stay inside the nominal-rate tolerance a conformant listener must
+capture (±100 ppm class), timestamp honestly (AVTP timestamps and the CRF
+grid describe the *real* cadence in gPTP time — §3.2's "the wire carries
+the actual audio-MMCM rate"), and stay internally consistent (bclk,
+packetizer pacing and timestamping all derive from the one physical
+clock).
+
+The actual static error, master role, worst case:
+
+| Contribution | Plan A (I2S) | Plan B (TDM-master) |
+|---|---|---|
+| Divider-plan synthesis (deterministic) | -10.64 ppm | -0.66 ppm |
+| 100 MHz board oscillator (physical, dominant) | +-50 ppm class | +-50 ppm class |
+| **Total vs a perfect lab reference** | **~ +-60 ppm** | **~ +-51 ppm** |
+
+At 48 kHz, +-51 ppm is +-2.4 Hz — about 2.4 samples/second of drift
+against a perfect reference, invisible to every listener because they
+servo on our honest timestamps rather than on nominal 48 kHz. The
+synthesis share alone is -0.032 Hz (Plan B). Margins: the total sits well
+inside the +-100 ppm capture range a receive servo must handle, and our
+own servo's sustained-slew ceiling is provisioned at 254 ppm (Plan B;
+260 ppm Plan A) precisely to cover the synthesis base plus a remote
+talker's +-100 ppm with >2x margin. MMCM jitter is zero-mean and does not
+move the average rate — it is a THD+N concern (the `BANDWIDTH=LOW`
+cascade-filter note in `_CRG`), not a rate error.
+
+The boundary between benign and broken is written in this repo's own
+history: the audio-pumping defect was a talker at 48,828.125 Hz — a bad
+fractional-N derivation ~1.7 % (17,000 ppm) off, far outside any servo's
+capture range. Small-ppm inexactness as master is fine *by design*;
+wrong-divider inexactness is a defect in any role.
 
 ### 3.2 CRF out — `KL_crf_tx`, the media-clock talker
 
