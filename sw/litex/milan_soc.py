@@ -867,7 +867,7 @@ class _AxisDP:
         self.dp  = dp
         self.sys = sys
 
-def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16):
+def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16, rename=None):
     """Cross one AXIS lane between the sys domain (DMA engine / MAC core) and the
     datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
     (the "use a FIFO to compensate the timing" boundary). `to_datapath=True` is a
@@ -881,11 +881,20 @@ def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16):
     # the BRAM CLK->Q cone otherwise fans straight into the datapath consumers
     # (AX33 x3-seed violator, storage cell = mac_rx_cdc). +1 cycle on a
     # handshaked stream = transparent.
+    # `rename` maps the CDC's internal clock domains onto shadow domains whose
+    # resets are EXTENDED (the 07-29 wedge lesson: these FIFOs sat outside
+    # every recovery reset - LINK_CTRL[1] reinit reset the MAC core + tx_sf
+    # around a possibly-corrupt crossing it could not touch). Both sides must
+    # rename TOGETHER: resetting one side of an async FIFO skews the gray
+    # pointers past the depth invariant and can MANUFACTURE the permanent-full
+    # state it is meant to clear.
     if to_datapath:                                        # sys -> milan_cd
         cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=depth, buffered=True)
+        if rename: cdc = ClockDomainsRenamer(rename)(cdc)
         setattr(host, name, cdc)                           # LiteXModule auto-submodule
         return _AxisDP(dp=cdc.source, sys=cdc.sink)
     cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=depth, buffered=True)  # milan_cd -> sys
+    if rename: cdc = ClockDomainsRenamer(rename)(cdc)
     setattr(host, name, cdc)
     return _AxisDP(dp=cdc.sink, sys=cdc.source)
 
@@ -985,6 +994,40 @@ class MilanMAC(LiteXModule):
             platform.add_platform_command(
                 "set_property IOB TRUE [get_ports eth%d_rx_er]" % phy_index)
 
+        # The PHY clock domains were UNTIMED in every bitstream ever shipped:
+        # the emitted XDC held exactly ONE create_clock (the board oscillator),
+        # so every path clocked by eth_rx/eth_tx - 328 endpoints on the Arty,
+        # check_timing "no_clock" - got no setup OR hold analysis and no hold
+        # fixing, making the MAC edge a per-seed placement lottery that the
+        # sweep's "STA-clean" gate could not see (2026-07-29 adversarial
+        # review). MII: the DP83848 drives BOTH pad clocks at 25 MHz. GMII:
+        # the RTL8211E drives RXC at 125 MHz and liteeth forwards the TX
+        # domain off the same clock (gtx = rxc), so the one constraint
+        # propagates to both. Each PHY clock is its own asynchronous group:
+        # the crossings into sys/milan are gray-coded AsyncFIFOs whose
+        # synchronizers LiteX already false-paths, and without the group
+        # Vivado would time those crossings as same-PLL related paths.
+        eth_clk_groups = ["eth_clocks%d_rx" % phy_index]
+        if phy_model == "mii":
+            platform.add_period_constraint(clk_pads.rx, 1e9/25e6)
+            platform.add_period_constraint(clk_pads.tx, 1e9/25e6)
+            eth_clk_groups.append("eth_clocks%d_tx" % phy_index)
+        else:
+            platform.add_period_constraint(clk_pads.rx, 1e9/125e6)
+        # MUST go through additional_xdc_commands, NOT add_platform_command:
+        # platform commands are emitted in list order and the create_clock
+        # lines are only appended at finalize() - a construction-time
+        # set_clock_groups would land BEFORE its create_clock in the XDC,
+        # resolve an empty clock list, and silently never apply, leaving the
+        # newly-timed eth clocks RELATED to sys (Opus verify D2: the worst of
+        # both worlds - every gray-coded crossing timed as a same-PLL path).
+        # additional_xdc_commands is emitted in its own section after the
+        # clock + false-path sections (vivado.py build_io_constraints).
+        for eth_clk_pad in eth_clk_groups:
+            platform.toolchain.additional_xdc_commands.add(
+                "set_clock_groups -asynchronous -group "
+                "[get_clocks -of_objects [get_ports %s]]" % eth_clk_pad)
+
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
         # halves kept their pointers = permanent desync after a link bounce
@@ -994,10 +1037,14 @@ class MilanMAC(LiteXModule):
         # WITHOUT touching the Milan datapath.
         self.reinit = Signal()   # driven from the datapath's link guard | LINK_CTRL[1]
         self.cd_macsys = ClockDomain()
-        self.comb += [
-            self.cd_macsys.clk.eq(ClockSignal("sys")),
-            self.cd_macsys.rst.eq(ResetSignal("sys") | self.reinit),
-        ]
+        self.comb += self.cd_macsys.clk.eq(ClockSignal("sys"))
+        # `reinit` comes from the milan_cd-clocked datapath Instance and
+        # sys<->milan is false-pathed, so a plain comb OR into rst releases
+        # UNTIMED w.r.t. sys - different macsys FFs could leave reset on
+        # different sys edges (Opus verify D9). Async assert + sys-synchronous
+        # release, same discipline the macdp side below gets.
+        self.specials += AsyncResetSynchronizer(
+            self.cd_macsys, ResetSignal("sys") | self.reinit)
         # Link-guard liveness toggles (KL_link_guard, 2026-07-21): plain
         # divide-by-2 FFs in each PHY-provided clock domain plus one flip per
         # received frame. The datapath's guard samples them as async data,
@@ -1074,8 +1121,31 @@ class MilanMAC(LiteXModule):
         # When they differ, an async-FIFO stream CDC bridges each direction (`keep`
         # carries the last-beat byte-enable). `_axis_dp_cdc` returns the endpoint the
         # datapath binds to, wiring the CDC (or a direct pass-through) to `sys_ep`.
-        tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False)  # dp -> MAC
-        rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True)   # MAC -> dp
+        # Both MAC crossings live in shadow domains so LINK_CTRL[1]'s reinit
+        # resets THEM TOO (07-29 wedge class: a corrupt/stuck crossing at this
+        # exact boundary was unreachable by every recovery path). macsys
+        # already carries `sys.rst | reinit`; macdp is the same extension of
+        # the datapath-side domain, with reinit crossed in async-assert /
+        # sync-release. Both sides of each FIFO reset together - see
+        # `_axis_dp_cdc` for why one-sided reset is worse than none.
+        # LOAD-BEARING INVARIANT: the two sides release a few cycles APART
+        # (each synchronizes release into its own clock). That skew is safe
+        # ONLY because reinit is held ~21 ms (KL_link_guard SETTLE) with both
+        # clocks running, so the reset_less gray-pointer MultiRegs converge
+        # to 0 long before EITHER side releases; a future "fast reinit" of a
+        # few cycles would reintroduce pointer desync - keep the hold long.
+        if milan_cd != "sys":
+            self.cd_macdp = ClockDomain()
+            self.comb += self.cd_macdp.clk.eq(ClockSignal(milan_cd))
+            self.specials += AsyncResetSynchronizer(
+                self.cd_macdp, ResetSignal(milan_cd) | self.reinit)
+            mac_cdc_rename = {"sys": "macsys", milan_cd: "macdp"}
+        else:
+            mac_cdc_rename = None
+        tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False,
+                             rename=mac_cdc_rename)  # dp -> MAC
+        rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True,
+                             rename=mac_cdc_rename)  # MAC -> dp
         # Debug/telemetry taps (sys side): datapath->MAC-TX out and MAC-RX->datapath in.
         # `MilanDebug` also taps self.core.sink/source (LiteEth in/out) and
         # self.phy.sink/source (GMII wire, eth_tx/eth_rx).

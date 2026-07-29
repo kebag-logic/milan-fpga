@@ -26,6 +26,10 @@ run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vadp_tx_sim
 	@echo "======================================================================"
 	./obj_dir/Vadp_tx_sim
+	$(VERILATOR) $(VFLAGS) -GTO_LOG2_P=7 -Mdir obj_super \
+	    $(SRCS) sim_super.cpp -o Vadp_tx_super
+	@echo "======================================================================"
+	./obj_super/Vadp_tx_super
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_super

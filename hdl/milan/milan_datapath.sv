@@ -1843,6 +1843,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_bdbg1            (aecp_bdbg1_w),
     .i_bdbg2            (aecp_bdbg2_w),
     .i_linkg_stat       (linkg_stat_w),
+    .i_txarb_diag       (txarb_diag_w),
     .i_mac_reinit       (linkg_reinit_w),
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
@@ -3611,8 +3612,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rx_pdus_o (lwsrp_rx_pdus), .rx_drops_o (lwsrp_rx_drops)
   );
 
+  //! A_TXARB_DIAG 0x784 lock supervision, one lane per TX-trunk arbiter.
+  //! Lane order (LSB first): 0 aecp_acmp, 1 ctl_tx, 2 srp_ctl, 3 lstn_ctl,
+  //! 4 maap_ctl, 5 aaf_final, 6 crf_dp, 7 adp_tx (= the MAC boundary mux).
+  //! Watchdog windows are STAGGERED shortest-upstream (control chain 2^15,
+  //! data merges 2^16, MAC boundary 2^17): an abandoned source starves every
+  //! downstream mux on the SAME cycle (the IFG gasket passes tvalid
+  //! combinationally), so equal windows would expire together and each level
+  //! would inject its own close beat - six runts on the wire per event. With
+  //! the stagger only the true origin fires; its injected tlast propagates
+  //! down as an accepted beat and clears every downstream counter normally.
+  wire [7:0] txarb_locked_w, txarb_abort_w, txarb_stall_w;
+
   //! AECP response (s_data) + ACMP response (s_adp) -> one control stream.
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) aecp_acmp_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) aecp_acmp_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (aecp_tx_tdata),  .s_data_tkeep (aecp_tx_tkeep),
     .s_data_tvalid(aecp_tx_tvalid), .s_data_tlast (aecp_tx_tlast),
@@ -3621,11 +3634,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(acmp_tx_tvalid), .s_adp_tlast (acmp_tx_tlast),
     .s_adp_tready(acmp_tx_tready),
     .m_tdata (ctl2_tx_tdata), .m_tkeep (ctl2_tx_tkeep),
-    .m_tvalid(ctl2_tx_tvalid), .m_tlast (ctl2_tx_tlast), .m_tready(ctl2_tx_tready)
+    .m_tvalid(ctl2_tx_tvalid), .m_tlast (ctl2_tx_tlast), .m_tready(ctl2_tx_tready),
+    .diag_locked_o(txarb_locked_w[0]),
+    .abort_evt_o (txarb_abort_w[0]), .stall_evt_o (txarb_stall_w[0])
   );
 
   //! Low-rate control merge: ADP advertise (s_data) + AECP response (s_adp).
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) ctl_tx_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) ctl_tx_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (adp_tx_tdata),  .s_data_tkeep (adp_tx_tkeep),
     .s_data_tvalid(adp_tx_tvalid), .s_data_tlast (adp_tx_tlast),
@@ -3634,14 +3649,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(ctl2_tx_tvalid), .s_adp_tlast (ctl2_tx_tlast),
     .s_adp_tready(ctl2_tx_tready),
     .m_tdata (ctl_tx_tdata), .m_tkeep (ctl_tx_tkeep),
-    .m_tvalid(ctl_tx_tvalid), .m_tlast (ctl_tx_tlast), .m_tready(ctl_tx_tready)
+    .m_tvalid(ctl_tx_tvalid), .m_tlast (ctl_tx_tlast), .m_tready(ctl_tx_tready),
+    .diag_locked_o(txarb_locked_w[1]),
+    .abort_evt_o (txarb_abort_w[1]), .stall_evt_o (txarb_stall_w[1])
   );
 
   //! ...then merge the lwSRP MRPDUs (4th low-rate source, established pattern).
   wire [TDATA_WIDTH-1:0]   ctlf_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlf_tx_tkeep;
   wire                     ctlf_tx_tvalid, ctlf_tx_tlast, ctlf_tx_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) srp_ctl_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) srp_ctl_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (ctl_tx_tdata),  .s_data_tkeep (ctl_tx_tkeep),
     .s_data_tvalid(ctl_tx_tvalid), .s_data_tlast (ctl_tx_tlast),
@@ -3650,14 +3667,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(lwsrp_tx_tvalid), .s_adp_tlast (lwsrp_tx_tlast),
     .s_adp_tready(lwsrp_tx_tready),
     .m_tdata (ctlf_tx_tdata), .m_tkeep (ctlf_tx_tkeep),
-    .m_tvalid(ctlf_tx_tvalid), .m_tlast (ctlf_tx_tlast), .m_tready(ctlf_tx_tready)
+    .m_tvalid(ctlf_tx_tvalid), .m_tlast (ctlf_tx_tlast), .m_tready(ctlf_tx_tready),
+    .diag_locked_o(txarb_locked_w[2]),
+    .abort_evt_o (txarb_abort_w[2]), .stall_evt_o (txarb_stall_w[2])
   );
 
   //! ...and the ACMP listener's responses/probes (5th low-rate source).
   wire [TDATA_WIDTH-1:0]   ctlg_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlg_tx_tkeep;
   wire                     ctlg_tx_tvalid, ctlg_tx_tlast, ctlg_tx_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) lstn_ctl_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) lstn_ctl_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (ctlf_tx_tdata),  .s_data_tkeep (ctlf_tx_tkeep),
     .s_data_tvalid(ctlf_tx_tvalid), .s_data_tlast (ctlf_tx_tlast),
@@ -3666,13 +3685,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(acmpl_tx_tvalid), .s_adp_tlast (acmpl_tx_tlast),
     .s_adp_tready(acmpl_tx_tready),
     .m_tdata (ctlg_tx_tdata), .m_tkeep (ctlg_tx_tkeep),
-    .m_tvalid(ctlg_tx_tvalid), .m_tlast (ctlg_tx_tlast), .m_tready(ctlg_tx_tready)
+    .m_tvalid(ctlg_tx_tvalid), .m_tlast (ctlg_tx_tlast), .m_tready(ctlg_tx_tready),
+    .diag_locked_o(txarb_locked_w[3]),
+    .abort_evt_o (txarb_abort_w[3]), .stall_evt_o (txarb_stall_w[3])
   );
 
   wire [TDATA_WIDTH-1:0]   ctlh_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlh_tx_tkeep;
   wire                     ctlh_tx_tvalid, ctlh_tx_tlast, ctlh_tx_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) maap_ctl_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) maap_ctl_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (ctlg_tx_tdata),  .s_data_tkeep (ctlg_tx_tkeep),
     .s_data_tvalid(ctlg_tx_tvalid), .s_data_tlast (ctlg_tx_tlast),
@@ -3681,7 +3702,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(maap_tx_tvalid), .s_adp_tlast (maap_tx_tlast),
     .s_adp_tready(maap_tx_tready),
     .m_tdata (ctlh_tx_tdata), .m_tkeep (ctlh_tx_tkeep),
-    .m_tvalid(ctlh_tx_tvalid), .m_tlast (ctlh_tx_tlast), .m_tready(ctlh_tx_tready)
+    .m_tvalid(ctlh_tx_tvalid), .m_tlast (ctlh_tx_tlast), .m_tready(ctlh_tx_tready),
+    .diag_locked_o(txarb_locked_w[4]),
+    .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
   );
 
   //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
@@ -3690,7 +3713,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [TDATA_WIDTH-1:0]   dpaaf_tdata;
   wire [TDATA_WIDTH/8-1:0] dpaaf_tkeep;
   wire                     dpaaf_tvalid, dpaaf_tlast, dpaaf_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) aaf_final_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) aaf_final_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (tx_axis_dp_to_arb.tdata),  .s_data_tkeep (tx_axis_dp_to_arb.tkeep),
     .s_data_tvalid(tx_axis_dp_to_arb.tvalid), .s_data_tlast (tx_axis_dp_to_arb.tlast),
@@ -3699,7 +3722,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(aaf_tx_tvalid), .s_adp_tlast (aaf_tx_tlast),
     .s_adp_tready(aaf_tx_tready),
     .m_tdata (dpaaf_tdata), .m_tkeep (dpaaf_tkeep),
-    .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready)
+    .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready),
+    .diag_locked_o(txarb_locked_w[5]),
+    .abort_evt_o (txarb_abort_w[5]), .stall_evt_o (txarb_stall_w[5])
   );
 
   //! ...and the CRF talker's PDUs - on the DATA lane beside AAF, NOT on the
@@ -3721,7 +3746,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [TDATA_WIDTH-1:0]   dpcrf_tdata;
   wire [TDATA_WIDTH/8-1:0] dpcrf_tkeep;
   wire                     dpcrf_tvalid, dpcrf_tlast, dpcrf_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) crf_dp_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) crf_dp_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_data_tdata (dpaaf_tdata),  .s_data_tkeep (dpaaf_tkeep),
     .s_data_tvalid(dpaaf_tvalid), .s_data_tlast (dpaaf_tlast),
@@ -3730,7 +3755,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tvalid(crft_tx_tvalid), .s_adp_tlast (crft_tx_tlast),
     .s_adp_tready(crft_tx_tready),
     .m_tdata (dpcrf_tdata), .m_tkeep (dpcrf_tkeep),
-    .m_tvalid(dpcrf_tvalid), .m_tlast (dpcrf_tlast), .m_tready(dpcrf_tready)
+    .m_tvalid(dpcrf_tvalid), .m_tlast (dpcrf_tlast), .m_tready(dpcrf_tready),
+    .diag_locked_o(txarb_locked_w[6]),
+    .abort_evt_o (txarb_abort_w[6]), .stall_evt_o (txarb_stall_w[6])
   );
 
   //! min-IFG gasket on the CONTROL lane ONLY (2026-07-19): the MilanMAC
@@ -3768,8 +3795,27 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),
     .m_tlast (tx_axis_to_mac.tlast),
-    .m_tready(tx_axis_to_mac.tready)
+    .m_tready(tx_axis_to_mac.tready),
+    .diag_locked_o(txarb_locked_w[7]),
+    .abort_evt_o (txarb_abort_w[7]),
+    .stall_evt_o (txarb_stall_w[7])
   );
+
+  //! Sticky event capture for A_TXARB_DIAG: which mux ever fired which
+  //! verdict since reset. Reset-only clear - the register is forensics for
+  //! a wedge class that by definition outlives every soft recovery path.
+  logic [7:0] txarb_abort_sticky_r, txarb_stall_sticky_r;
+  always_ff @(posedge axis_clk) begin : txarb_sticky
+    if (!axis_resetn) begin
+      txarb_abort_sticky_r <= 8'h0;
+      txarb_stall_sticky_r <= 8'h0;
+    end else begin
+      txarb_abort_sticky_r <= txarb_abort_sticky_r | txarb_abort_w;
+      txarb_stall_sticky_r <= txarb_stall_sticky_r | txarb_stall_w;
+    end
+  end : txarb_sticky
+  wire [31:0] txarb_diag_w = {8'hA7, txarb_stall_sticky_r,
+                              txarb_abort_sticky_r, txarb_locked_w};
 
   // ==========================================================================
   //  RMON event counters

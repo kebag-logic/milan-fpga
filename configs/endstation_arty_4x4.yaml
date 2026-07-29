@@ -63,10 +63,10 @@ board:
   constraints:
     sys_clk_hz: 83333000
     milan_clk_hz: 50000000
-    l2_bytes: 32768                  # USER 2026-07-28: 32K reference on both
-                                     # boards (was 64K; halving is also the
-                                     # space-bound lever that closes the 293-
-                                     # slice packing miss of the 07-28 fight)
+    l2_bytes: 16384                  # USER 2026-07-29: 16K next build (halved
+                                     # from the 07-28 32K reference; uniform
+                                     # with the AX 8x8 shape that closed, and
+                                     # the space lever for the 0x001B fabric)
     phy: mii-100
     gtx_tx_invert: false
     floorplan: false

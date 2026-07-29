@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0019 (saved binds survive a reboot; 0x7B8 journal ingest)",
-       axi_read(A_VERSION), 0x00010019);
+       axi_read(A_VERSION), 0x0001001B);
 
     // ---- THE ADVERTISED SHAPE AT N > 1 (2026-07-27) --------------------
     // The CRF Media Clock Output lives at talker_unique_id = N_STREAMS and
