@@ -457,13 +457,20 @@ int main(int argc, char** argv) {
         ck("multi-msg: ready", dut->listener_ready_o, 1);
     }
 
-    // 11) MVRP PDU with LeaveAll: pulses, content otherwise ignored
+    // 11) MVRP PDU with LeaveAll: pulses the applicant re-declare, content
+    //     otherwise ignored - and the MSRP registrations MUST survive it:
+    //     LeaveAll scope is per MRP application (802.1Q 10.7.1/10.7.9), an
+    //     MVRP LeaveAll obliges no MSRP re-declare inside LeaveTime (the
+    //     silicon licence-flap mechanism, 2026-07-29)
     {
         long la0 = la_pulses;
         Vec v; v.lva = 1; v.fv = {0x00, 0x02}; v.evts = {EV_JOININ};
         feed_parse(frame(false, {msg_vid(v)}), "mvrp-la: clean parse");
         ck("mvrp-la: pulse", la_pulses - la0, 1);
         ck("mvrp-la: listener untouched", dut->listener_reg_o, 1);
+        ticks(601);
+        ck("mvrp-la: survives LeaveTime (per-app scope)",
+           dut->listener_reg_o, 1);
     }
 
     // 12) robustness: bad version, truncation, foreign frames
