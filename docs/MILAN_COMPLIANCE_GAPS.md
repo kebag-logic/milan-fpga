@@ -1158,17 +1158,22 @@ this repo.
 The la_avdecc Milan-1.3 scan against the flashed 0x0019 Arty plus the USER's
 audio-unit directive define the next fabric round:
 
-1. **[Milan 1.3 5.3.8.10] STREAM_INPUT TIMESTAMP_VALID / TIMESTAMP_NOT_VALID**
-   — v1.2 Table 5.6 mandated ten counters and the fabric served exactly
-   those (`counters_valid 0xF3F`); Milan 1.3 extends the mandatory set to
-   the twelve of 1722.1-2021 Table 7-156 (the PEER reference answers
-   `0xFFF`, its TIMESTAMP_VALID tracking FRAMES_RX 1:1). **CLOSED at desk
-   this date**: per-frame tv tallies as APPENDED mirror columns 10/11 in
-   `KL_avtp_rx_monitor_ctx` (LCTX words 26/27, zeroed by the bind-zero
-   walk), served at block offsets 24/28 with mask `0xFFF` by
-   `KL_aecp_response_builder` (solicited, per-index, and unsolicited-push
-   flavours). Counted where FRAMES_RX counts, so TV + TNV == FRAMES_RX.
-   Silicon pends the next flash.
+1. **[Milan 5.3.8.10] the la_avdecc scan's "mandatory counters missing" and
+   the Milan badge** — read against la_avdecc's SOURCE (4.3.1: its
+   `s_MilanMandatoryStreamInputCounters` is the TEN v1.2 Table 5.6 counters
+   in our exact LSB-first encoding), the AAF sinks' `0xF3F` PASSES the
+   check. What kills the `CompatibilityFlag::Milan` badge is the **CRF
+   Media Clock Input's deliberate EMPTY mask** (this round's R5-lie
+   removal): 5.3.8.10 says "for EACH Stream Input" with no CRF exemption,
+   so `(0 & 0xF3F) != 0xF3F` fires per enumeration. FIX (open): serve
+   `0xF3F` on the CRF input from `KL_crf_rx`'s real counters (0x738
+   block), advertised-zero for the uncounted rows per the existing AAF
+   MEDIA_RESET/LATE/EARLY precedent. SEPARATELY, commit `67d67a4e` added
+   TIMESTAMP_VALID/NOT_VALID (mask `0xFFF`, per-frame tv tallies as flops,
+   TV + TNV == FRAMES_RX) — PEER-reference parity and 1722.1-2021
+   alignment, valid but NOT the badge blocker. Silicon pends the next
+   flash; STREAM_OUTPUT's five behind `0x1F` matches both la_avdecc's
+   mandatory talker set and the PEER.
 2. **[Milan v1.2 5.3.10.1] listener-side dynamic mapping is a SHALL** ("shall
    support changing mappings from a Stream Input at any time, even when it
    is bound") — the `AEM_DYNMAP` engine is desk-proven (gaps item 8) but
@@ -1185,3 +1190,16 @@ audio-unit directive define the next fabric round:
    path like the PEER's AES3 loop, so E2E identity/THD+N no longer needs
    external hardware — with `KL_tone_gen` (`TONE_CTRL 0x6DC`) routable
    through it. Channel steering rides item 2's dynamic maps.
+5. **STREAM_OUTPUT counters wrong on silicon** (measured 07-29 on the
+   streaming 0x0019 Arty): STREAM_START=16/STOP=15 — the SRP-only licence
+   flapped 15 times behind a wire that never visibly gapped (suspect: the
+   lwSRP registrar flushing the Listener registration on MRP LeaveAll
+   instead of holding through LeaveTime; correlates with the PEER-side
+   MEDIA_LOCKED/UNLOCKED climb); FRAMES_TX ticks per-observation-interval
+   (1/s — v1.2's literal wording permits it, the PEER counts per-frame)
+   and appears to restart at each STREAM_START (reads 16-20 after hours;
+   1722.1 defines no talker-side reset).
+6. **ACMP rebind-to-a-different-talker refused** (USER, Hive): a CONNECT
+   on a bound listener naming a different talker fails — the listener SM's
+   rebind fast-path covers only the same-talker case; clause verdict needed
+   on implicit-rebind vs LISTENER_EXCLUSIVE before calling the fix.
