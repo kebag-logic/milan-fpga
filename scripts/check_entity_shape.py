@@ -742,8 +742,8 @@ def self_test():
         p = os.path.join(td, "short_listener.yaml")
         open(p, "w").write(mutate(
             base_cfg,
-            '    - { name: "Stream In 7", channels: 8, formats: '
-            '["0x0205022002006000", "0x0215022002006000"] }\n', ""))
+            '    - { name: "Stream In 7", channels: 8, map_mode: dynamic, '
+            'formats: ["0x0205022002006000", "0x0215022002006000"] }\n', ""))
         # the model stays self-consistent; what breaks is the per-config
         # tracked copy on disk, which is how a config edit without a builder
         # run gets caught
