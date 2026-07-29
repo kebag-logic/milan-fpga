@@ -124,7 +124,7 @@ cfg_ax7101() {   # bench/cert shape (USER 2026-07-21: 1 hart + L2 32K - the
                  # variant is the previous revision of this function.)
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --l2-bytes 32768 \
+          --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
@@ -147,7 +147,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --l2-bytes 32768 \
+          --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \

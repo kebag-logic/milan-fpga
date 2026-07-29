@@ -55,14 +55,14 @@ board:
   constraints:
     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
     milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
-    l2_bytes: 32768                  # USER 2026-07-28: L2 32K on BOTH boards
-                                     # is THE REFERENCE from the 0x0019 flash
-                                     # round on (uniform L2 across the fleet;
-                                     # supersedes the 07-24 16K close note -
-                                     # that build predates the 0x0019 fabric,
-                                     # the tier-1 prunes, the CBS mask and the
-                                     # AreaOptimized_high+ExploreArea flow, so
-                                     # its numbers no longer bind this shape).
+    l2_bytes: 16384                  # USER 2026-07-29: BACK to the AX's
+                                     # measured-close 16K (the 07-24 close was
+                                     # at 16K, WNS +0.080). The 07-28 32K
+                                     # uniformity reference stands on the ARTY
+                                     # only: at 32K the AX packs but times
+                                     # -1.0..-1.8 across six configurations -
+                                     # a congestion wall at ~89%/100 MHz that
+                                     # the smaller L2 directly relieves.
     phy: gmii-1g                     # RTL8211E GMII
     gtx_tx_invert: true              # PHY samples mid-bit (GMII-TX fix)
     floorplan: true
