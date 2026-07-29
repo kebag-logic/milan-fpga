@@ -1128,7 +1128,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [TDATA_WIDTH/8-1:0] acmpl_tx_tkeep;
   wire                     acmpl_tx_tvalid, acmpl_tx_tlast, acmpl_tx_tready;
   //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
-  wire        avtprx_match, avtprx_tu_bit;
+  wire        avtprx_match, avtprx_tu_bit, avtprx_tv_bit;
   wire [7:0]  avtprx_subtype, avtprx_seq;
   wire        avtprx_parse_p;
   wire [7:0]  avtprx_b3;
@@ -1208,6 +1208,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] i2spb_fill;
   wire        i2spb_reset_p;
   wire [31:0] avtprx_mreset_c, avtprx_late_c, avtprx_early_c;
+  wire [31:0] avtprx_tv_c, avtprx_tnv_c;   //! Milan 1.3 tv tallies (in0)
   wire        cfg_tone_enable;
   wire [2:0]  cfg_tone_att;
   wire [23:0] tone_smp;
@@ -2198,7 +2199,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        aaf_frame_p_w;
   wire [3:0]  aaf_frame_idx_w;
   wire [3:0]  aecp_diag_idx_w;
-  wire [10*32-1:0] mon_diag_cnt_w;
+  wire [12*32-1:0] mon_diag_cnt_w;
   wire [5*32-1:0]  tkdiag_cnt_w;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
   //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
@@ -2318,6 +2319,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .in0_cnt_mreset_i      (avtprx_mreset_c),
     .in0_cnt_late_i        (avtprx_late_c),
     .in0_cnt_early_i       (avtprx_early_c),
+    .in0_cnt_tv_i          (avtprx_tv_c),
+    .in0_cnt_tnv_i         (avtprx_tnv_c),
     .in0_cnt_dirty_p_i     (avtprx_dirty_p),
     .in0_fmt_o             (aecp_in0_fmt),
     .clk_src_o             (aecp_clk_src),
@@ -2851,7 +2854,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .stream_id_o   (avtprx_sid_frame),
     .avtp_ts_o     (avtprx_ts),
     .subtype_o     (avtprx_subtype),
-    .ts_valid_o    (),
+    .ts_valid_o    (avtprx_tv_bit),
     .seq_num_o     (avtprx_seq),
     .ts_uncertain_o(avtprx_tu_bit),
     .fsh_o         (avtprx_fsh),
@@ -3059,6 +3062,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .subtype_i      (avtprx_subtype),
     .seq_num_i      (avtprx_seq),
     .ts_uncertain_i (avtprx_tu_bit),
+    .ts_valid_i     (avtprx_tv_bit),
     .avtp_ts_i      (avtprx_ts),
     .fsh_i          (avtprx_fsh),
     .bound_i        (strtbl_en_w),
@@ -3096,6 +3100,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),
+    .cnt_ts_valid_o     (avtprx_tv_c),
+    .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
     .dirty_p_o      (avtprx_dirty_p),
     .pdu_accept_p_o   (avtprx_accept_p_w),

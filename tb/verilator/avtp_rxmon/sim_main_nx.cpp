@@ -53,6 +53,7 @@ struct AafCfg {
     uint8_t  subtype  = 0x02;
     uint8_t  seq      = 0;
     bool     tu       = false;
+    bool     tv       = true;   // b1 bit 0 (timestamp valid)
     uint8_t  nsr      = 0x05;
     uint8_t  chans    = 8;
     uint8_t  depth    = 32;
@@ -62,7 +63,8 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
     std::vector<uint8_t> f(len,0x00);
     for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }
     f[12]=0x22; f[13]=0xF0; int o=14;
-    f[o+0]=c.subtype; f[o+1]=0x81; f[o+2]=c.seq; f[o+3]=c.tu?0x01:0x00;
+    f[o+0]=c.subtype; f[o+1]=(uint8_t)(0x80|(c.tv?0x01:0x00));
+    f[o+2]=c.seq; f[o+3]=c.tu?0x01:0x00;
     for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(c.sid>>(8*(7-i)));
     f[o+12]=0xA5; f[o+13]=0x5A; f[o+14]=0xC3; f[o+15]=0x3C;
     f[o+16]=0x02;                       // format INT32
@@ -115,9 +117,11 @@ static void lctx_wr(int s, int w, uint32_t v){
     dut->lctx_wr_en_i=0; printf("  [FAIL] lctx_wr timeout s%d w%d\n",s,w); fails++; checks++;
 }
 
-// LCTX CNT word offsets (Table 7-157 order, spec §1.4 w16..w25)
+// LCTX CNT word offsets (Table 7-157 order, spec §1.4 w16..w25; the Milan
+// 1.3 tv tallies ride the APPENDED columns at w26/w27)
 enum { W_ML=16, W_MU=17, W_SI=18, W_SM=19, W_MR=20,
-       W_TU=21, W_UF=22, W_LT=23, W_ET=24, W_FRX=25 };
+       W_TU=21, W_UF=22, W_LT=23, W_ET=24, W_FRX=25,
+       W_TV=26, W_TNV=27 };
 
 int main(int argc,char**argv){
     Verilated::commandArgs(argc,argv);
@@ -286,6 +290,28 @@ int main(int argc,char**argv){
     ck("evicted sid does not count", lctx_rd(1, W_FRX), 0);
     { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=0; feed(mkaaf(c)); }
     ck("new sid counts", lctx_rd(1, W_FRX), 1);
+
+    printf("\n[M13] TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (Milan 1.3 5.3.8.10;\n"
+           "      1722.1-2021 Table 7-157 per-frame tv tallies, appended\n"
+           "      LCTX words 26/27; TV + TNV == FRAMES_RX)\n");
+    //! s1 sits freshly rebound from [E1] with ONE tv=1 frame counted
+    ck("[M13a] TV follows the [E1] frame", lctx_rd(1, W_TV), 1);
+    ck("[M13b] TNV still 0", lctx_rd(1, W_TNV), 0);
+    { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=1; c.tv=false;
+      feed(mkaaf(c)); }
+    ck("[M13c] tv=0 PDU -> TNV=1", lctx_rd(1, W_TNV), 1);
+    ck("[M13d] TV holds", lctx_rd(1, W_TV), 1);
+    ck("[M13e] TV+TNV == FRAMES_RX",
+       lctx_rd(1, W_TV) + lctx_rd(1, W_TNV), lctx_rd(1, W_FRX));
+    { long tvs = lctx_rd(1, W_TV) + lctx_rd(1, W_TNV);
+      AafCfg c; c.sid=0x1111222233334444ULL; c.seq=2; c.chans=0;
+      feed(mkaaf(c));                          // UF early-return
+      ck("[M13f] unsupported-format PDU counts neither tally",
+         lctx_rd(1, W_TV) + lctx_rd(1, W_TNV), tvs); }
+    tblwr(1, 0x1111222233334444ULL, false); cyc(10);
+    tblwr(1, 0x1111222233334444ULL, true);  cyc(40);  // bind edge: era wipe
+    ck("[M13g] bind-zero walk clears TV (w26)", lctx_rd(1, W_TV), 0);
+    ck("[M13h] bind-zero walk clears TNV (w27)", lctx_rd(1, W_TNV), 0);
 
     printf("\n======================================================================\n");
     printf("NxN RX stack: %ld checks, %ld failures\nRESULT: %s\n",

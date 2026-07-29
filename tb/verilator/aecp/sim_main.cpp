@@ -1621,7 +1621,10 @@ int main(int argc, char** argv) {
         //     gs_diag_idx_o in the fabric); the in0_* legacy ports now feed
         //     only the UNSOLICITED push and CLOCK_DOMAIN. Word order is the
         //     mirror's C_ML..C_FRX; the response maps them onto the Milan
-        //     valid mask 0xF3F (Table 7-156; block byte 4n = bit n).
+        //     valid mask 0xFFF (Table 7-156; block byte 4n = bit n) -
+        //     Milan 1.3 5.3.8.10 adds TIMESTAMP_VALID/NOT_VALID (bits 6/7)
+        //     to the v1.2 Table 5.6 ten, served from the APPENDED mirror
+        //     slices 10/11.
         dut->rxdiag_cnt_i[0] = 3;          // MEDIA_LOCKED
         dut->rxdiag_cnt_i[1] = 2;          // MEDIA_UNLOCKED
         dut->rxdiag_cnt_i[2] = 1;          // STREAM_INTERRUPTED
@@ -1632,6 +1635,8 @@ int main(int argc, char** argv) {
         dut->rxdiag_cnt_i[7] = 0;          // LATE_TIMESTAMP
         dut->rxdiag_cnt_i[8] = 0;          // EARLY_TIMESTAMP
         dut->rxdiag_cnt_i[9] = 0x00ABCDEF; // FRAMES_RX
+        dut->rxdiag_cnt_i[10] = 0x00AB0000; // TIMESTAMP_VALID   (appended)
+        dut->rxdiag_cnt_i[11] = 0x0000CDEF; // TIMESTAMP_NOT_VALID
         // the unsol-push flavour still reads these:
         dut->in0_cnt_locked_i      = 3;
         dut->in0_cnt_unlocked_i    = 2;
@@ -1640,18 +1645,22 @@ int main(int argc, char** argv) {
         dut->in0_cnt_tu_i          = 5;
         dut->in0_cnt_unsupp_i      = 7;
         dut->in0_cnt_frx_i         = 0x00ABCDEF;
+        dut->in0_cnt_tv_i          = 0x00AB0000;
+        dut->in0_cnt_tnv_i         = 0x0000CDEF;
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220C,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22g] GET_COUNTERS(in0) SUCCESS", r_status(r), 0);
         ck("[22g] CDL 148", r_cdl(r), 148);
-        ck("[22g] valid mask 0xF3F", be32_at(r, 42), 0xF3F);
+        ck("[22g] valid mask 0xFFF", be32_at(r, 42), 0xFFF);
         ck("[22g] MEDIA_LOCKED", be32_at(r, 46), 3);
         ck("[22g] MEDIA_UNLOCKED", be32_at(r, 50), 2);
         ck("[22g] STREAM_INTERRUPTED", be32_at(r, 54), 1);
         ck("[22g] SEQ_NUM_MISMATCH", be32_at(r, 58), 0x0102);
         ck("[22g] MEDIA_RESET 0", be32_at(r, 62), 0);
         ck("[22g] TIMESTAMP_UNCERTAIN", be32_at(r, 66), 5);
+        ck("[22g] TIMESTAMP_VALID", be32_at(r, 70), 0x00AB0000);
+        ck("[22g] TIMESTAMP_NOT_VALID", be32_at(r, 74), 0x0000CDEF);
         ck("[22g] UNSUPPORTED_FORMAT", be32_at(r, 78), 7);
         ck("[22g] LATE/EARLY 0", be32_at(r, 82) | be32_at(r, 86), 0);
         ck("[22g] FRAMES_RX", be32_at(r, 90), 0x00ABCDEF);
@@ -1707,7 +1716,8 @@ int main(int argc, char** argv) {
         ck("[22i] push status SUCCESS", r_status(r), 0);
         ck("[22i] push desc STREAM_INPUT", be32_at(r, 38) >> 16, 5);
         ck("[22i] push CDL 148", r_cdl(r), 148);
-        ck("[22i] push valid mask 0xF3F", be32_at(r, 42), 0xF3F);
+        ck("[22i] push valid mask 0xFFF", be32_at(r, 42), 0xFFF);
+        ck("[22i] push TIMESTAMP_VALID live", be32_at(r, 70), 0x00AB0000);
         ck("[22i] push FRAMES_RX live", be32_at(r, 90), 0x00ABCDEF);
         // only A is registered ([13] cleans its table): no extra fan-out
         r = collect_resp(800);

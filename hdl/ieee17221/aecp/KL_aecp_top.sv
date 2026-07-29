@@ -84,7 +84,7 @@ module KL_aecp_top #(
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   // ---- Milan 5.4.2.25 per-index counters (Tables 5.16/5.17) -----------
   output logic [3:0]      gs_diag_idx_o,   //! GET_COUNTERS descriptor index
-  input  wire [10*32-1:0] rxdiag_cnt_i,    //! that sink's Table 5.6 set
+  input  wire [12*32-1:0] rxdiag_cnt_i,    //! that sink's Table 5.6 set + Milan 1.3 tv tallies
   input  wire [5*32-1:0]  tkdiag_cnt_i,    //! that source's Table 5.4 set
   input  wire [15:0]      n_aaf_sinks_i,   //! AAF sink count (CRF = empty mask)
 
@@ -124,6 +124,8 @@ module KL_aecp_top #(
   input  wire [31:0]   in0_cnt_mreset_i,
   input  wire [31:0]   in0_cnt_late_i,
   input  wire [31:0]   in0_cnt_early_i,
+  input  wire [31:0]   in0_cnt_tv_i,       //! TIMESTAMP_VALID (Milan 1.3)
+  input  wire [31:0]   in0_cnt_tnv_i,      //! TIMESTAMP_NOT_VALID
   input  wire          in0_cnt_dirty_p_i,
   output wire [63:0]   in0_fmt_o,          //! live STREAM_INPUT[0] format
   output wire [15:0]   clk_src_o,          //! live clock_source_index
@@ -319,6 +321,8 @@ module KL_aecp_top #(
     .in0_cnt_mreset_i(in0_cnt_mreset_i),
     .in0_cnt_late_i(in0_cnt_late_i),
     .in0_cnt_early_i(in0_cnt_early_i),
+    .in0_cnt_tv_i(in0_cnt_tv_i),
+    .in0_cnt_tnv_i(in0_cnt_tnv_i),
     .in0_cnt_dirty_p_i(in0_cnt_dirty_p_i),
     .in0_fmt_o(in0_fmt_o), .clk_src_o(clk_src_o),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),

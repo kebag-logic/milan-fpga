@@ -168,6 +168,8 @@ module KL_aecp_response_builder (
   input  wire [31:0]   in0_cnt_mreset_i,   //! MEDIA_RESET (bit 4)
   input  wire [31:0]   in0_cnt_late_i,     //! LATE_TIMESTAMP (bit 9)
   input  wire [31:0]   in0_cnt_early_i,    //! EARLY_TIMESTAMP (bit 10)
+  input  wire [31:0]   in0_cnt_tv_i,       //! TIMESTAMP_VALID (bit 6, Milan 1.3)
+  input  wire [31:0]   in0_cnt_tnv_i,      //! TIMESTAMP_NOT_VALID (bit 7)
   input  wire          in0_cnt_dirty_p_i,  //! monitor: a counter changed
   output logic [63:0]  in0_fmt_o,          //! live STREAM_INPUT[0] format u64
   output logic [15:0]  clk_src_o,          //! live CLOCK_DOMAIN clock_source_index
@@ -176,11 +178,12 @@ module KL_aecp_response_builder (
   //! "shall implement and return the counters" for EACH stream descriptor:
   //! the builder presents the descriptor_index it is serving and latches
   //! the pre-muxed counters in its const-load cycle. rxdiag = the RX
-  //! monitor's ten Table 5.6 counters (C_ML..C_FRX order) for that sink;
+  //! monitor's ten Table 5.6 counters plus the two Milan 1.3 tv tallies
+  //! (C_ML..C_FRX,C_TV,C_TNV order) for that sink;
   //! tkdiag = KL_talker_diag_ctx's five Table 5.4 counters
   //! {FTX, TU, MRESET, STOP, START} for that source (CRF included).
   output logic [3:0]   gs_diag_idx_o,
-  input  wire [10*32-1:0] rxdiag_cnt_i,
+  input  wire [12*32-1:0] rxdiag_cnt_i,
   input  wire [5*32-1:0]  tkdiag_cnt_i,
   //! AAF sink count: sinks at or past it (the CRF Media Clock Input) have
   //! no monitor context and answer the truthful empty mask
@@ -1113,19 +1116,21 @@ module KL_aecp_response_builder (
 
   // ------------------------------------------------------------------ //
   // STREAM_INPUT GET_COUNTERS payload (Table 7-156; shared by the         //
-  // solicited command and the unsolicited push): valid mask 0xF3F at      //
+  // solicited command and the unsolicited push): valid mask 0xFFF at      //
   // const 0..3, counter for valid bit n at const 4+4n (block byte 4n).   //
   // sink0 = live monitor counters; sink 1 (CRF, no listener SM) = zeros.  //
   // MEDIA_RESET / LATE / EARLY are advertised valid but always 0, exactly //
   // the pipewire reference (no media clock recovery in fabric yet).       //
   // ------------------------------------------------------------------ //
   //! Milan Table 5.16 counters for the sink named by gs_diag_idx_o -
-  //! rxdiag_cnt_i is that sink's ten-counter slice out of the monitor's
+  //! rxdiag_cnt_i is that sink's twelve-counter slice out of the monitor's
   //! all-context mirror, so EVERY AAF sink serves live values (sink 1 used
   //! to answer this full mask over constant zeros - the R5 lie; sinks >= 2
   //! an empty mask, against 5.4.2.25's "implement and return").
-  //! Mirror order C_ML..C_FRX maps to the 1722.1 block offsets: bits 0-5
-  //! then 8-11 (6/7 are TIMESTAMP_VALID/NOT_VALID, not in the Milan set).
+  //! Mirror order C_ML..C_FRX,C_TV,C_TNV maps to the 1722.1 block offsets:
+  //! bits 0-5 from slices 0-5, bits 6/7 (TIMESTAMP_VALID/NOT_VALID, Milan
+  //! 1.3 5.3.8.10 mandatory) from the APPENDED slices 10/11, bits 8-11
+  //! from slices 6-9.
   //! sink-0 flavour for the UNSOLICITED GET_COUNTERS push: that path fires
   //! with no command on the wire, so the gs_diag_idx_o mux (fed from the
   //! solicited command's descriptor_index) has nothing valid to say - it
@@ -1134,7 +1139,7 @@ module KL_aecp_response_builder (
   task automatic load_input0_counters_consts;
     begin
       for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
-      const_q[2] <= 8'h0F; const_q[3] <= 8'h3F;   // valid mask 0x00000F3F
+      const_q[2] <= 8'h0F; const_q[3] <= 8'hFF;   // valid mask 0x00000FFF
       for (int k = 0; k < 4; k++) begin
         const_q[4+k]  <= in0_cnt_locked_i     [8*(3-k) +: 8];  // bit0
         const_q[8+k]  <= in0_cnt_unlocked_i   [8*(3-k) +: 8];  // bit1
@@ -1142,6 +1147,8 @@ module KL_aecp_response_builder (
         const_q[16+k] <= in0_cnt_seqmm_i      [8*(3-k) +: 8];  // bit3
         const_q[20+k] <= in0_cnt_mreset_i     [8*(3-k) +: 8];  // bit4
         const_q[24+k] <= in0_cnt_tu_i         [8*(3-k) +: 8];  // bit5
+        const_q[28+k] <= in0_cnt_tv_i         [8*(3-k) +: 8];  // bit6
+        const_q[32+k] <= in0_cnt_tnv_i        [8*(3-k) +: 8];  // bit7
         const_q[36+k] <= in0_cnt_unsupp_i     [8*(3-k) +: 8];  // bit8
         const_q[40+k] <= in0_cnt_late_i       [8*(3-k) +: 8];  // bit9
         const_q[44+k] <= in0_cnt_early_i      [8*(3-k) +: 8];  // bit10
@@ -1153,7 +1160,7 @@ module KL_aecp_response_builder (
   task automatic load_input_counters_consts;
     begin
       for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
-      const_q[2] <= 8'h0F; const_q[3] <= 8'h3F;   // valid mask 0x00000F3F
+      const_q[2] <= 8'h0F; const_q[3] <= 8'hFF;   // valid mask 0x00000FFF
       for (int k = 0; k < 4; k++) begin
         const_q[4+k]  <= rxdiag_cnt_i[0*32 + 8*(3-k) +: 8];  // bit0  ML
         const_q[8+k]  <= rxdiag_cnt_i[1*32 + 8*(3-k) +: 8];  // bit1  MU
@@ -1161,6 +1168,8 @@ module KL_aecp_response_builder (
         const_q[16+k] <= rxdiag_cnt_i[3*32 + 8*(3-k) +: 8];  // bit3  SM
         const_q[20+k] <= rxdiag_cnt_i[4*32 + 8*(3-k) +: 8];  // bit4  MR
         const_q[24+k] <= rxdiag_cnt_i[5*32 + 8*(3-k) +: 8];  // bit5  TU
+        const_q[28+k] <= rxdiag_cnt_i[10*32 + 8*(3-k) +: 8]; // bit6  TV
+        const_q[32+k] <= rxdiag_cnt_i[11*32 + 8*(3-k) +: 8]; // bit7  TNV
         const_q[36+k] <= rxdiag_cnt_i[6*32 + 8*(3-k) +: 8];  // bit8  UF
         const_q[40+k] <= rxdiag_cnt_i[7*32 + 8*(3-k) +: 8];  // bit9  LT
         const_q[44+k] <= rxdiag_cnt_i[8*32 + 8*(3-k) +: 8];  // bit10 ET

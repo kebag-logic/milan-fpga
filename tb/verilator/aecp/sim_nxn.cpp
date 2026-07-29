@@ -500,19 +500,21 @@ int main(int argc, char** argv) {
                     // Clock Output at index 8 included) answers its
                     // KL_talker_diag_ctx context behind mask 0x1F, and
                     // every AAF STREAM_INPUT its monitor-mirror context
-                    // behind 0xF3F. The one truthful EMPTY mask left is
+                    // behind 0xFFF (Milan 1.3 5.3.8.10 adds the tv
+                    // tallies to the v1.2 ten). The one truthful EMPTY
+                    // mask left is
                     // the CRF Media Clock INPUT (index 8): it has no
                     // monitor context, and 7.4.42.2 makes the empty mask
                     // the statement of that (its counters are a recorded
                     // gap in MILAN_COMPLIANCE_GAPS.md).
                     bool is_out = (TYPES[t] == 0x0006);
                     long want = is_out ? 0x1F
-                              : (i < 8) ? 0xF3F : 0;
+                              : (i < 8) ? 0xFFF : 0;
                     snprintf(nm, sizeof nm, "GET_COUNTERS(%s,%d) valid mask "
                              "%s", TNAME[t], i,
                              want == 0 ? "EMPTY (CRF input, no context)"
                                        : is_out ? "0x1F (Table 5.17)"
-                                                : "0xF3F (Table 5.16)");
+                                                : "0xFFF (Milan 1.3)");
                     ck(nm, (long)be_at(r, 42, 4), want);
                 }
             }

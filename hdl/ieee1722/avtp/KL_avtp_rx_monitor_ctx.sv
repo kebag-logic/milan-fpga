@@ -88,6 +88,7 @@ module KL_avtp_rx_monitor_ctx #(
   input  wire [7:0]   subtype_i,         //! AVTP subtype of the matched PDU
   input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
+  input  wire         ts_valid_i,        //! tv bit (avtp_ts meaningful)
   input  wire [31:0]  avtp_ts_i,         //! presentation time of the PDU
   input  wire [63:0]  fsh_i,             //! bytes O+16..O+23 of the PDU
 
@@ -134,6 +135,12 @@ module KL_avtp_rx_monitor_ctx #(
   output logic [31:0] cnt_media_reset_o,
   output logic [31:0] cnt_late_ts_o,
   output logic [31:0] cnt_early_ts_o,
+  //! Milan 1.3 5.3.8.10 additions: per-frame tv-bit tallies (1722.1-2021
+  //! Table 7-157 offsets 24/28). Counted where FRAMES_RX counts, so
+  //! TIMESTAMP_VALID + TIMESTAMP_NOT_VALID == FRAMES_RX (the reference
+  //! device's observable invariant).
+  output wire [31:0] cnt_ts_valid_o,
+  output wire [31:0] cnt_ts_not_valid_o,
   output logic        media_locked_o,    //! stream-0 lock state (level)
   output logic        dirty_p_o,         //! stream-0 counter-change pulse
   output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
@@ -148,14 +155,14 @@ module KL_avtp_rx_monitor_ctx #(
   //! Table 5.16 makes a PAAD-AE "implement and return" the Table 5.6
   //! counters for EACH Stream Input; the stream-0 legacy outputs above
   //! serve exactly one. This port serves them all: the write-through
-  //! mirror below shadows every context's ten counter words into flops
+  //! mirror below shadows every context's twelve counter words into flops
   //! (same mechanism as the stream-0 view, all streams), and the response
   //! builder reads the descriptor_index it is serving combinationally in
   //! its const-load cycle. Before this port, sink 1 answered a FULL 0xF3F
   //! mask over constant zeros - a claimed-valid counter serving a frozen
   //! zero, the exact R5 lie - and sinks >= 2 an empty mask.
   input  wire [3:0]                  diag_idx_i,
-  output logic [10*32-1:0]           diag_cnt_o,  //! C_ML..C_FRX order
+  output logic [12*32-1:0]           diag_cnt_o,  //! C_ML..C_FRX,C_TV,C_TNV order
   output logic [31:0] last_ts_o,         //! stream-0 last accepted avtp_ts
   output logic [31:0] last_tsd_o         //! stream-0 last signed ts_delta
 );
@@ -179,7 +186,12 @@ module KL_avtp_rx_monitor_ctx #(
   localparam logic [3:0] C_ML_C = 4'd0, C_MU_C = 4'd1, C_SI_C = 4'd2,
                          C_SM_C = 4'd3, C_MR_C = 4'd4, C_TU_C = 4'd5,
                          C_UF_C = 4'd6, C_LT_C = 4'd7, C_ET_C = 4'd8,
-                         C_FRX_C = 4'd9;
+                         C_FRX_C = 4'd9,
+                         //! Milan 1.3 tv tallies APPENDED (columns 10/11 =
+                         //! LCTX words 26/27) so every existing C_* consumer
+                         //! keeps its index; the response builder alone maps
+                         //! them to the 1722.1 block offsets 24/28
+                         C_TV_C = 4'd10, C_TNV_C = 4'd11;
 
   function automatic [AW_C-1:0] laddr(input [IDXW_C-1:0] s, input [4:0] w);
     laddr = {s, w};
@@ -193,6 +205,7 @@ module KL_avtp_rx_monitor_ctx #(
     logic [7:0]        subtype;
     logic [7:0]        seq;
     logic              tu;
+    logic              tv;
     logic [31:0]       ts;
     logic [63:0]       fsh;
     logic [31:0]       tsd;
@@ -215,12 +228,17 @@ module KL_avtp_rx_monitor_ctx #(
   mstate_t           mst_r;
   pdu_evt_t          pq_r [2];
   logic [1:0]        pq_cnt_r;
+  //! Milan 1.3 5.3.8.10 tv tallies as per-context FLOPS - counted at the
+  //! accept verdict with zero added walk cycles; served to the AECP mirror
+  //! slices 10/11 and the window's virtual LCTX words 26/27 from here
+  logic [31:0]       tv_cnt_r  [N_LISTENERS_P];
+  logic [31:0]       tnv_cnt_r [N_LISTENERS_P];
   pdu_evt_t          cur_r;
   logic [IDXW_C-1:0] ev_s_r;
   logic [63:0]       fmt_r;
   logic [31:0]       monst_r;
   logic [3:0]        wrph_r;
-  logic [9:0]        inc_list_r;
+  logic [11:0]       inc_list_r;
   logic [3:0]        zero_idx_r;
   logic              inc_rd_q_r;
   logic              bind_zero_r;
@@ -295,8 +313,9 @@ module KL_avtp_rx_monitor_ctx #(
   pdu_evt_t          new_evt_w;
   always_comb begin : new_evt_pack
     new_evt_w = '{s: midx_w, subtype: subtype_i, seq: seq_num_i,
-                  tu: ts_uncertain_i, ts: avtp_ts_i, fsh: fsh_i,
-                  tsd: unsigned'(tsd_w), late: late_w, early: early_w};
+                  tu: ts_uncertain_i, tv: ts_valid_i, ts: avtp_ts_i,
+                  fsh: fsh_i, tsd: unsigned'(tsd_w), late: late_w,
+                  early: early_w};
   end : new_evt_pack
 
   wire [IDXW_C-1:0] rsel_w = render_sel_i[IDXW_C-1:0];
@@ -383,7 +402,7 @@ module KL_avtp_rx_monitor_ctx #(
   logic [3:0] inc_next_w;
   always_comb begin : inc_pick
     inc_next_w = 4'd15;
-    for (int k = 9; k >= 0; k--)
+    for (int k = 11; k >= 0; k--)
       if (inc_list_r[k]) inc_next_w = 4'(k);
   end : inc_pick
 
@@ -555,9 +574,10 @@ module KL_avtp_rx_monitor_ctx #(
                     (32'(ram_waddr_w[AW_C-1:5]) < N_LISTENERS_P);
   wire [3:0] cntw_col_w = 4'(ram_waddr_w[4:0] - W_CNT0_C);
 
-  //! indexed combinational read: ten Table 5.6 counters for one sink, in
-  //! C_ML..C_FRX order; an out-of-range index clamps to 0 (the builder
-  //! only presents directory-served indexes)
+  //! indexed combinational read: the ten Table 5.6 counters plus the two
+  //! Milan 1.3 tv tallies for one sink, in C_ML..C_FRX,C_TV,C_TNV order;
+  //! an out-of-range index clamps to 0 (the builder only presents
+  //! directory-served indexes)
   wire [IDXW_C-1:0] diag_ridx_w = (32'(diag_idx_i) < N_LISTENERS_P)
                                   ? diag_idx_i[IDXW_C-1:0] : '0;
 
@@ -570,6 +590,11 @@ module KL_avtp_rx_monitor_ctx #(
     end : col_wr
     assign diag_cnt_o[c*32 +: 32] = col_r[diag_ridx_w];
   end : diag_mirror
+  //! appended slices 10/11 = the tv tallies straight from the flop arrays
+  assign diag_cnt_o[10*32 +: 32] = tv_cnt_r [diag_ridx_w];
+  assign diag_cnt_o[11*32 +: 32] = tnv_cnt_r[diag_ridx_w];
+  assign cnt_ts_valid_o     = tv_cnt_r [0];
+  assign cnt_ts_not_valid_o = tnv_cnt_r[0];
 
   always_ff @(posedge clk_i) begin : ctx_walker
     if (!rst_n) begin
@@ -577,6 +602,10 @@ module KL_avtp_rx_monitor_ctx #(
       pq_cnt_r    <= '0;
       pq_r[0]     <= '0;
       pq_r[1]     <= '0;
+      for (int s2 = 0; s2 < N_LISTENERS_P; s2++) begin
+        tv_cnt_r[s2]  <= '0;
+        tnv_cnt_r[s2] <= '0;
+      end
       cur_r       <= '0;
       ev_s_r      <= '0;
       fmt_r       <= '0;
@@ -708,7 +737,7 @@ module KL_avtp_rx_monitor_ctx #(
                 ev_s_r   <= IDXW_C'(s);
                 mr_add_r <= mreset_pend_r[s];
               end
-            inc_list_r <= 10'b1 << C_MR_C;
+            inc_list_r <= 12'b1 << C_MR_C;
             mst_r      <= M_INC_S;
           end
           else if (depkt_any_w) begin
@@ -738,7 +767,7 @@ module KL_avtp_rx_monitor_ctx #(
         M_PDEC_S : begin
           if (!fmt_ok_w) begin
             //! counts nothing else (reference early-return)
-            inc_list_r <= 10'b1 << C_UF_C;
+            inc_list_r <= 12'b1 << C_UF_C;
             if (ev_s_r == '0) dirty_p_o <= 1'b1;
             mst_r <= M_INC_S;
           end
@@ -750,15 +779,21 @@ module KL_avtp_rx_monitor_ctx #(
             if (lock_now_w) locked_sh_r[ev_s_r] <= 1'b1;
             if (ev_s_r == '0) dirty_p_o <= 1'b1;
             monst_r <= monst_next_w;
+            //! TV/TNV live in flops (below), NOT in this serial walk: a
+            //! 12th RMW step per accepted PDU delayed the next verdict
+            //! enough that the hostplane ax8x8 shape dropped the 3rd of 3
+            //! back-to-back frames at the depacketizer commit
+            if (cur_r.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
+            else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
             inc_list_r <=
-                (10'b1 << C_FRX_C)
-              | (cur_r.tu    ? (10'b1 << C_TU_C) : 10'b0)
-              | (cur_r.late  ? (10'b1 << C_LT_C) : 10'b0)
-              | (cur_r.early ? (10'b1 << C_ET_C) : 10'b0)
-              | (lock_now_w  ? (10'b1 << C_ML_C) : 10'b0)
-              | (seq_mm_w    ? (10'b1 << C_SM_C) : 10'b0)
+                (12'b1 << C_FRX_C)
+              | (cur_r.tu    ? (12'b1 << C_TU_C) : 12'b0)
+              | (cur_r.late  ? (12'b1 << C_LT_C) : 12'b0)
+              | (cur_r.early ? (12'b1 << C_ET_C) : 12'b0)
+              | (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
+              | (seq_mm_w    ? (12'b1 << C_SM_C) : 12'b0)
               | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
-                             ? (10'b1 << C_SI_C) : 10'b0);
+                             ? (12'b1 << C_SI_C) : 12'b0);
             wrph_r <= '0;
             mst_r  <= M_PWR_S;
           end
@@ -842,6 +877,8 @@ module KL_avtp_rx_monitor_ctx #(
           if (wrph_r == 4'd0) begin
             locked_sh_r[ev_s_r] <= 1'b0;
             sil_ms_r[ev_s_r]    <= '0;
+            tv_cnt_r[ev_s_r]    <= '0;   //! Milan era wipe (Table 5.6 rule)
+            tnv_cnt_r[ev_s_r]   <= '0;
             //! only stream 0 records the legacy sid/fmt aliases; other
             //! streams' CFG words are CSR-window-owned
             wrph_r <= (ev_s_r == '0) ? 4'd1 : 4'd5;
@@ -857,7 +894,15 @@ module KL_avtp_rx_monitor_ctx #(
         end
 
         M_EXTRD_S : begin
-          lctx_rd_data_o  <= ram_q_r;
+          //! words 26/27 are VIRTUAL (flop-backed tv tallies); everything
+          //! else is the RAM word. The requester holds rd_addr until valid.
+          unique case (lctx_rd_addr_i[4:0])
+            (W_CNT0_C | 5'(C_TV_C))  :
+              lctx_rd_data_o <= tv_cnt_r [lctx_rd_addr_i[7:5]];
+            (W_CNT0_C | 5'(C_TNV_C)) :
+              lctx_rd_data_o <= tnv_cnt_r[lctx_rd_addr_i[7:5]];
+            default : lctx_rd_data_o <= ram_q_r;
+          endcase
           lctx_rd_valid_o <= 1'b1;
           mst_r <= M_IDLE_S;
         end

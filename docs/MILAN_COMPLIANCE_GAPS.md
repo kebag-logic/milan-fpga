@@ -1152,3 +1152,36 @@ this repo.
     Est. V1 = 3-5 days on the existing scaffolding; next round's tooling
     column, deliberately NOT this round's (builds and flash are the
     critical path).
+
+## Milan 1.3 + audio-unit round (USER 2026-07-29)
+
+The la_avdecc Milan-1.3 scan against the flashed 0x0019 Arty plus the USER's
+audio-unit directive define the next fabric round:
+
+1. **[Milan 1.3 5.3.8.10] STREAM_INPUT TIMESTAMP_VALID / TIMESTAMP_NOT_VALID**
+   — v1.2 Table 5.6 mandated ten counters and the fabric served exactly
+   those (`counters_valid 0xF3F`); Milan 1.3 extends the mandatory set to
+   the twelve of 1722.1-2021 Table 7-156 (the PEER reference answers
+   `0xFFF`, its TIMESTAMP_VALID tracking FRAMES_RX 1:1). **CLOSED at desk
+   this date**: per-frame tv tallies as APPENDED mirror columns 10/11 in
+   `KL_avtp_rx_monitor_ctx` (LCTX words 26/27, zeroed by the bind-zero
+   walk), served at block offsets 24/28 with mask `0xFFF` by
+   `KL_aecp_response_builder` (solicited, per-index, and unsolicited-push
+   flavours). Counted where FRAMES_RX counts, so TV + TNV == FRAMES_RX.
+   Silicon pends the next flash.
+2. **[Milan v1.2 5.3.10.1] listener-side dynamic mapping is a SHALL** ("shall
+   support changing mappings from a Stream Input at any time, even when it
+   is bound") — the `AEM_DYNMAP` engine is desk-proven (gaps item 8) but
+   every shipped config says `map_mode: static`, so silicon answers
+   NOT_SUPPORTED. Flip the STREAM_PORT_INPUTs of both board configs to
+   `map_mode: dynamic` (outputs may stay static per 5.3.9.1's "If") and
+   verify the 5.3.10.1/5.3.9.1 NVM persistence of the mapping list through
+   the saved-state machinery. USER 2026-07-29: prerequisite for items 3-4.
+3. **8-channel streams** (USER): raise the Arty audio unit / stream formats
+   from the silicon-proven 4ch to 8ch (TDM8 front-end already elaborated;
+   TSpec self-derives `24 + 24*C`).
+4. **Audio-unit output→input loopback + pilot tone** (USER): fabric glue
+   looping rendered outputs back into capture inputs — an internal identity
+   path like the PEER's AES3 loop, so E2E identity/THD+N no longer needs
+   external hardware — with `KL_tone_gen` (`TONE_CTRL 0x6DC`) routable
+   through it. Channel steering rides item 2's dynamic maps.

@@ -67,6 +67,8 @@ module avtp_rxmon_nx_wrap #(
   output wire [31:0] cnt_media_reset_o,
   output wire [31:0] cnt_late_ts_o,
   output wire [31:0] cnt_early_ts_o,
+  output wire [31:0] cnt_ts_valid_o,
+  output wire [31:0] cnt_ts_not_valid_o,
   output wire        media_locked_o,
   output wire        pdu_accept_p_o,
   output wire [3:0]  pdu_accept_idx_o,
@@ -87,7 +89,7 @@ module avtp_rxmon_nx_wrap #(
   output wire [15:0] pcm_drops_o
 );
 
-  wire        match_w, tu_w;
+  wire        match_w, tu_w, tv_w;
   wire [7:0]  subtype_w, seq_w;
   wire [1:0]  midx_w;
   wire [31:0] ts_w;
@@ -114,7 +116,7 @@ module avtp_rxmon_nx_wrap #(
     .s_tvalid_i (s_tvalid_i), .s_tready_i (1'b1), .s_tlast_i (s_tlast_i),
     .match_valid_o (match_w),
     .match_index_o (midx_w), .stream_id_o (), .avtp_ts_o (ts_w),
-    .subtype_o (subtype_w), .ts_valid_o (),
+    .subtype_o (subtype_w), .ts_valid_o (tv_w),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
     .fsh2_o (), .parse_valid_o (), .b3_o (),
     .avtp_frames_o (), .matched_frames_o ()
@@ -129,7 +131,8 @@ module avtp_rxmon_nx_wrap #(
     .clk_i (clk), .rst_n (resetn),
     .match_valid_i (match_w), .match_index_i ({2'b00, midx_w}),
     .subtype_i (subtype_w), .seq_num_i (seq_w),
-    .ts_uncertain_i (tu_w), .avtp_ts_i (ts_w), .fsh_i (fsh_w),
+    .ts_uncertain_i (tu_w), .ts_valid_i (tv_w),
+    .avtp_ts_i (ts_w), .fsh_i (fsh_w),
     .bound_i (tbl_en_w), .bind_rise_i (bind_rise_w),
     .sid0_i (sid0_i), .fmt0_i (fmt0_i),
     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
@@ -152,6 +155,8 @@ module avtp_rxmon_nx_wrap #(
     .cnt_media_reset_o (cnt_media_reset_o),
     .cnt_late_ts_o (cnt_late_ts_o),
     .cnt_early_ts_o (cnt_early_ts_o),
+    .cnt_ts_valid_o (cnt_ts_valid_o),
+    .cnt_ts_not_valid_o (cnt_ts_not_valid_o),
     .media_locked_o (media_locked_o),
     .dirty_p_o (),
     .pdu_accept_p_o (pdu_accept_p_o),
