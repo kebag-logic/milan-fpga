@@ -3022,10 +3022,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         assign srp_fab_want_v_w[gw] = 1'b0;   //! row 0 = the legacy pair
         assign srp_fab_req_v_w[gw]  = 1'b0;
       end else if (gw < N_STREAMS) begin : g_slot_aaf
-        //! UPSTREAM terms only (see the banner): this talker context is
-        //! configured and enabled, software has not claimed the row, and the
-        //! engine is running as a talker.
-        assign srp_fab_want_v_w[gw] = tctx_en_r[gw] & ~srp_sw_own_r[gw] &
+        //! SHAPE-DERIVED (USER "shape is STATIC, not a runtime poke"): every
+        //! talker gw < N_STREAMS EXISTS in this elaborated shape and its AEM
+        //! model advertises a STREAM_OUTPUT for it, so it must declare a
+        //! MSRP TalkerAdvertise from reset - the same way row 0 and the CRF
+        //! output declare on enable alone. The per-context runtime enable
+        //! `tctx_en_r[gw]` (A_STRMW_CTRL[0], reset 0) was gating this, so a
+        //! fresh boot declared nothing for gw>0 and only stream 0 could ever
+        //! reserve (silicon + ProfiShark, 2026-07-30): S50milan never writes
+        //! the 0x800 window, so those enables stayed 0 forever. DECLARING is
+        //! not STREAMING: `aaf_stream_en_w[gw]` still independently gates the
+        //! wire on acmp_talker_active AND the lwSRP stream gate (a registered
+        //! Listener Ready) or the AAF_CTRL bypass, so a shape-on declaration
+        //! advertises availability without emitting one AAF frame unlicensed
+        //! (Milan v1.2 5.3.7.3). Software still WINS a row it claims with a
+        //! non-zero sid (`~srp_sw_own_r`); the derived {MAC,uid=gw} identity
+        //! is what advertises otherwise. Upstream terms only - never the
+        //! stream gate, which would be a provisioning<->streaming deadlock.
+        assign srp_fab_want_v_w[gw] = ~srp_sw_own_r[gw] &
                                       cfg_lwsrp_enable & cfg_lwsrp_talker_en;
         assign srp_fab_req_v_w[gw]  = aafsrp_req_r[gw];
       end else begin : g_slot_crf

@@ -1572,14 +1572,35 @@ int main(int argc, char** argv) {
         ck("no fabric starvation: the CRF row is declared too (0x750[4])",
            (axi_read(A_CRFT_CTRL) >> 4) & 1, 1);
 
-        // ---- WITHDRAWAL: the want drops, the row goes -----------------
-        // Disable EVERY talker in one burst - N-1 pending fabric writes -
-        // and commit a LISTENER row (a CSR WRITE) in the same breath. The
-        // write must not be dropped, and the withdrawals must all complete.
+        // ---- SHAPE-STATIC: the per-context enable does NOT withdraw ---
+        // (2026-07-30, USER "shape is STATIC, not a runtime poke") A declared
+        // Stream Output advertises for the life of the entity; toggling the
+        // per-context runtime enable A_STRMW_CTRL[0] must NOT pull the
+        // TalkerAdvertise. The 0x001E fix gated the declaration on that bit,
+        // so S50milan - which never writes the 0x800 window - declared
+        // nothing for t>0 and only stream 0 could reserve (silicon +
+        // ProfiShark). BITES the pre-shape RTL, where disabling the enable
+        // withdrew the row.
         for (int t = 1; t < NSTREAMS_TB; t++) {
             axi_write(A_STRM_SEL, 0x100 + t);
-            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(t) << 1) | 0u);
+            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(t) << 1) | 0u);  // enable OFF
         }
+        for (int c = 0; c < 4096; c++) step();
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            char nm[96];
+            axi_write(A_STRM_SEL, 0x100 + t);
+            uint32_t srp = axi_read(A_SW_SRP);
+            snprintf(nm, sizeof nm,
+                     "talker idx%d: per-context disable does NOT withdraw", t);
+            ck(nm, (srp >> 15) & 1, 1);
+        }
+
+        // ---- WITHDRAWAL on ENGINE-OFF: the trigger that DOES pull it ---
+        // Clearing cfg_lwsrp_talker_en (A_LWSRP_CTRL[1]) drops the want for
+        // every AAF talker AND the CRF at once - the N-way simultaneous
+        // withdrawal - and a LISTENER CSR WRITE committed in the same breath
+        // must not be dropped under that burst.
+        axi_write(A_LWSRP_CTRL, 0x15);         // enable + queue 5, talker declare OFF
         axi_write(A_STRM_SEL, 0x002);          // listener idx 2 -> ctx row 2
         axi_write(A_SW_SID_LO, 0x00C0FFEE);
         axi_write(A_SW_SID_HI, 0x0000C0DE);
@@ -1591,7 +1612,7 @@ int main(int argc, char** argv) {
                 for (int c = 0; c < 256; c++) step();
                 l = axi_read(A_SW_SRP);
             }
-            ck("no window starvation: the CSR WRITE landed under the burst",
+            ck("no window starvation: the CSR WRITE landed under the withdrawal",
                (l >> 15) & 1, 1);
             ck("no window starvation: ...and it is the LISTENER direction",
                (l >> 14) & 1, 1);
@@ -1599,28 +1620,16 @@ int main(int argc, char** argv) {
         for (int t = 1; t < NSTREAMS_TB; t++) {
             char nm[96];
             axi_write(A_STRM_SEL, 0x100 + t);
-            uint32_t sl = axi_read(A_SW_SID_LO);
-            for (int g = 0; g < 64 && sl != sid_lo_of(t); g++) {
-                for (int c = 0; c < 512; c++) step();
-                sl = axi_read(A_SW_SID_LO);
-            }
             uint32_t srp = axi_read(A_SW_SRP);
             for (int g = 0; g < 64 && ((srp >> 15) & 1); g++) {
                 for (int c = 0; c < 512; c++) step();
                 srp = axi_read(A_SW_SRP);
             }
-            // the sid still reads back, so the word IS fresh - the valid bit
-            // is a withdrawal, not a stale snapshot
-            snprintf(nm, sizeof nm, "talker idx%d: withdrawal CLEARED the row", t);
+            snprintf(nm, sizeof nm, "talker idx%d: engine-off WITHDREW the row", t);
             ck(nm, (srp >> 15) & 1, 0);
-            snprintf(nm, sizeof nm, "talker idx%d: ...and the read is fresh", t);
-            ck(nm, axi_read(A_SW_SID_LO), sid_lo_of(t));
         }
         // ---- and it re-arms (a withdrawal is not a one-way latch) -----
-        for (int t = 1; t < NSTREAMS_TB; t++) {
-            axi_write(A_STRM_SEL, 0x100 + t);
-            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(t) << 1) | 1u);
-        }
+        axi_write(A_LWSRP_CTRL, 0x17);         // talker declare back ON
         for (int c = 0; c < 8192; c++) step();
         for (int t = 1; t < NSTREAMS_TB; t++) {
             char nm[96];
@@ -1630,7 +1639,7 @@ int main(int argc, char** argv) {
                 for (int c = 0; c < 512; c++) step();
                 srp = axi_read(A_SW_SRP);
             }
-            snprintf(nm, sizeof nm, "talker idx%d: re-enable re-declares", t);
+            snprintf(nm, sizeof nm, "talker idx%d: engine re-enable re-declares", t);
             ck(nm, (srp >> 15) & 1, 1);
         }
 
