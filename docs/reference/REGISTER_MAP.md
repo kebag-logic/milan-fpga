@@ -895,8 +895,8 @@ selection reads 0, which is indistinguishable from a real zero at a glance.
 |--------|------|-----|-------|-------------|
 | `0x800` | `A_STRM_SEL` | RW | `0` | `[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker). Only these bits are stored/read back. Writing SEL invalidates the ACMP/SRP read snapshots (they re-poll for the new selection). **Until a re-poll lands, the snapshot-served words read literal `0`** — a listener `SID`/`DMAC` of 0 right after a SEL write means "not fresh yet", NOT "no bind" (and on a running board a persistence daemon may be moving SEL in its own loop: read until a value repeats — [TROUBLESHOOTING §21](../limitations/TROUBLESHOOTING.md)) |
 | `0x804` | `A_STRM_SNAP` | W1S / RO | `0` | Write `[0]`=1: latch the selected stream's `STATE` + `CNT0..9` + `PDUS` into the window shadow as ONE coherent block. Read: `[0]` busy. Poll busy=0 before reading the latched words |
-| `0x810` | `A_STRMW_CTRL` | RW | — | listener: `[0]` en, `[2:1]` route FLAGS `{[2] RENDER, [1] DMA}` — independently combinable, see the route paragraph below (LCTX w4, engine-backed); talker idx 0: `[0]` en = **hard alias of `AAF_CTRL[0]`** (merge write — VID/bypass bits untouched); talker idx>0: TCTX w0 (`[0]` en arms the stream — the per-stream admission composition, see the talker t>0 paragraph). A CTRL write at idx>0 also COMMITS the lwSRP provisioning record (see below). **Staging rule (VERSION ≥ `0x000F`): a CTRL commit overrides the stream table only when a stream_id was staged FOR THIS INDEX** via `A_STRMW_SID_LO/HI` — staging for one index then committing another no longer arms the second with the first's sid. **`[0]`=0 with no sid staged for this index is RELEASE-TO-ALIAS**: it commits the zero sid, which disarms the override so entry 0 returns to the live ACMP bound record. An eviction that *does* carry a staged sid is a deliberate disable and keeps the override armed |
-| `0x814` | `A_STRMW_SID_LO` | RW/RO | — | stream_id `[31:0]`. listener: RO from the ACMP bind context (tbl port); talker idx 0: RO derived `{station MAC, uid=0}`; talker idx>0: RO from the lwSRP row snapshot. Writes stage the provisioning sid (and forward to LCTX w0 for listeners) |
+| `0x810` | `A_STRMW_CTRL` | RW | — | listener: `[0]` en, `[2:1]` route FLAGS `{[2] RENDER, [1] DMA}` — independently combinable, see the route paragraph below (LCTX w4, engine-backed); talker idx 0: `[0]` en = **hard alias of `AAF_CTRL[0]`** (merge write — VID/bypass bits untouched); talker idx>0: TCTX w0 (`[0]` en arms the stream — the per-stream admission composition, see the talker t>0 paragraph). A CTRL write at idx>0 also COMMITS the lwSRP provisioning record (see below). **Staging rule (VERSION ≥ `0x000F`): a CTRL commit overrides the stream table only when a stream_id was staged FOR THIS INDEX** via `A_STRMW_SID_LO/HI` — staging for one index then committing another no longer arms the second with the first's sid. **`[0]`=0 with no sid staged for this index is RELEASE-TO-ALIAS**: it commits the zero sid, which disarms the override so entry 0 returns to the live ACMP bound record. An eviction that *does* carry a staged sid is a deliberate disable and keeps the override armed. **The SAME staging guard now covers the lwSRP provisioning record (2026-07-30)** — it used to take the staging set unconditionally, and those four words are ONE register set shared by every index, so a sid staged for one selection was written into whatever row was committed next (measured at the desk: talker idx2's attribute row read back the sid staged for listener idx2, i.e. a Talker Advertise for a stream this station does not emit). A commit that names **no** sid for this selection provisions the row with a ZERO sid, which for an AAF talker row idx>0 is RELEASE-TO-FABRIC (see the talker-row provisioning paragraph). Ownership is by SELECTION, not spent by the commit: repeated `CTRL` writes at the index a sid was staged for keep that sid |
+| `0x814` | `A_STRMW_SID_LO` | RW/RO | — | stream_id `[31:0]`. listener: RO from the ACMP bind context (tbl port); talker idx 0: RO derived `{station MAC, uid=0}`; talker idx>0: RO from the lwSRP row snapshot — which since 2026-07-30 reads the FABRIC-derived `{station MAC, uid=idx}` unless software named a sid for this selection. Writes stage the provisioning sid (and forward to LCTX w0 for listeners); the staging set is bound to the `{dir, idx}` it was written under |
 | `0x818` | `A_STRMW_SID_HI` | RW/RO | — | stream_id `[63:32]`, same rules (LCTX w1) |
 | `0x81C` | `A_STRMW_DMAC_LO` | RW/RO | — | stream DMAC `[31:0]`. listener: RO ACMP bind context; talker idx 0: **hard alias of `AAF_DMLO`** (RW, exact); talker idx>0: TCTX w1 (engine-backed). Writes stage the provisioning DMAC |
 | `0x820` | `A_STRMW_DMAC_HI` | RW/RO | — | DMAC `[47:32]` in `[15:0]`; talker idx 0 = **hard alias of `AAF_DMHI`**; talker idx>0: TCTX w2 |
@@ -905,7 +905,7 @@ selection reads 0, which is indistinguishable from a real zero at a glance.
 | `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C — bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |
 | `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. **Full 32-bit** — this is the authoritative width; the flat `AVTPRX_STAT`/`AVTPRX_ERR` words are saturating 8/16-bit summaries of these. Until VERSION `0x0013` the index-0 words were re-derived from those packed views and inherited their truncation (and MEDIA_RESET / LATE / EARLY_TIMESTAMP read a hard 0 while the monitor was counting them), so there was **no** full-width path anywhere. Talker contexts read `0xDEADDEAD` (the not-backed rule below). **The two Milan 1.3 5.3.8.10 additions — TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (per-frame tv-bit tallies, LCTX words 26/27, `TV + TNV == FRAMES_RX`) — are NOT window-exposed** (the `0x858+` words were already claimed); they are served by AECP GET_COUNTERS at the 1722.1-2021 block offsets 24/28 under valid mask `0xFFF` (was `0xF3F`), and a bench read can fetch LCTX w26/w27 through the raw `lctx` read port if ever needed |
 | `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: per-stream frames_sent (idx 0 = `AAF_FRAMES`; idx>0 = the packetizer ctx FRAMES word, snap-fetched through the TCTX port) |
-| `0x85C` | `A_STRMW_SRP` | RO | — | per-stream lwSRP attribute status. idx 0: **live hard alias of `LWSRP_STATUS` (0x694)**. idx>0: `{16'0, ctx_rd_stat}` = `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the live lwSRP context row — listener idx `k` = ctx row `k`, talker idx `t` = ctx row `(L-1)+t`, so the table is `L+T-1` rows deep ([NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §3.4.1). **`0xDEAD` = NOT BACKED** (since VERSION `0x0010`): the selected row is `>= N_CTX_P` in this build. It used to alias row 0 instead, i.e. report the legacy pair's live reservation for a row that was never provisioned; `LWSRP_STATUS[11]` latches whenever this happens. The ctx port only grants while `LWSRP_CTRL[0]` is set, so with the engine disabled the SRP-served words (`SRP`, and `SID_*` at talker idx>0) stay at their "not fresh" 0 |
+| `0x85C` | `A_STRMW_SRP` | RO | — | per-stream lwSRP attribute status. idx 0: **live hard alias of `LWSRP_STATUS` (0x694)**. idx>0: `{16'0, ctx_rd_stat}` = `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the live lwSRP context row — listener idx `k` = ctx row `k`, talker idx `t` = ctx row `(L-1)+t`, so the table is `L+T-1` rows deep ([NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §3.4.1). **`0xDEAD` = NOT BACKED** (since VERSION `0x0010`): the selected row is `>= N_CTX_P` in this build. It used to alias row 0 instead, i.e. report the legacy pair's live reservation for a row that was never provisioned; `LWSRP_STATUS[11]` latches whenever this happens. The ctx port only grants while `LWSRP_CTRL[0]` is set, so with the engine disabled the SRP-served words (`SRP`, and `SID_*` at talker idx>0) stay at their "not fresh" 0. **AAF talker rows idx>0 are FABRIC-provisioned since 2026-07-30** — they used to read `0x0000_0000` (valid clear) on a live board because nothing drove this window; see the talker-row provisioning paragraph. `valid` alone is NOT proof a row is usable: a `CTRL` commit sets it, and pre-fix it was set on rows carrying the NULL stream_id |
 | `0x860` | `A_STRMW_CTLR_LO` | RO | — | **E2 (saved-state fast-connect):** binding controller_entity_id `[31:0]` from the ACMP bind context (5.5.3.5.3 step 2). Listener contexts only — talker dir reads `0xDEADDEAD` |
 | `0x864` | `A_STRMW_CTLR_HI` | RO | — | controller_entity_id `[63:32]` (talker dir `0xDEADDEAD`) |
 | `0x868` | `A_STRMW_BIND` | RO | — | `{flags[31:16], tuid[15:0]}` from the ACMP bind context — `flags` are the stored binding flags (bit 3 = STREAMING_WAIT, 5.5.2.4), `tuid` the bound talker_unique_id. Talker dir reads `0xDEADDEAD`; `0x86C` (window hole) reads `0xDEADDEAD` |
@@ -998,6 +998,59 @@ reality: the PHYSICAL I2S capture front-end emits slot 0 only — an armed
 t>0 emits frames when the chmap capture crossbar
 ([`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §4/§5) feeds its pair
 slots (any source, TONE included).
+
+**AAF talker-row provisioning is FABRIC-OWNED (2026-07-30).** The lwSRP
+provisioning port used to have exactly two writers — this window and the
+fabric's CRF Media Clock Output row — and **no board software drives this
+window**, so no AAF talker row above 0 ever held a reservation. Measured
+twice:
+
+* CSR, live read through `A_STRM_SEL` `0x100+idx`: `A_STRMW_SRP`
+  (`0x85C`) = `0x0000_037E` at talker idx 0 and `0x0000_0000` at idx
+  1/2/3 on a 4×4 board. Idx 0 is a live hard alias of the legacy flat row,
+  which is exactly why idx-0-only reads looked healthy.
+* WIRE, ProfiShark inline on the board link with a licensed stream
+  running: MSRP declared a Talker Advertise for exactly
+  `{02:00:00:00:00:02, uid 0x0000}` and `{…, uid 0x0004}` — uid 4 is
+  `N_STREAMS`, i.e. the CRF output — and **nothing** for uid 1/2/3. The
+  two stream_ids on the wire were precisely the two rows that had a
+  provisioner.
+
+Milan v1.2 §5.3.7.3 conditions streaming on declaring a Talker Advertise
+AND receiving a Listener Ready/Ready Failed, so an unadvertised stream can
+never be licensed: no talker but 0 could stream. Every AAF talker row now
+has a fabric requester of its own (`milan_datapath` `aaf_srp_prov`),
+modelled on the CRF one and sharing one rotating arbiter with it:
+
+* the **want** is `TCTX CTRL[0]` (this window's `0x810` en) AND
+  `LWSRP_CTRL[0]` AND `LWSRP_CTRL[1]`. Upstream terms only — the
+  per-stream bw-gate is an *output* of the engine, so wanting on it
+  deadlocks. It deliberately does NOT include ACMP talker-active: Milan
+  §5.5.2.7 licences a stream on SRP alone, so the advertisement has to
+  exist BEFORE a controller binds or fast-connect (§5.5.3.5.3) finds no
+  reservation to register against;
+* the **identity** is derived: stream_id `{station MAC, uid = idx}` and
+  DMAC = MAAP block base+idx, the same values the ACMP responder answers
+  a `PROBE_TX` for that `talker_unique_id` with, so the declaration and
+  the answer cannot disagree. TSpec `MaxFrameSize` = `24 + 24*C` from that
+  row's own TCTX `CTRL` chans field; `MaxIntervalFrames` stays shared (an
+  SR-class property);
+* clearing `CTRL[0]` **withdraws** the row (valid → 0, one LV PDU if the
+  attribute was on the wire), and re-enabling re-declares it;
+* **software still wins if it names a stream_id** — the `CRFT_SID`
+  precedent applied per row. A `CTRL` commit carrying a non-zero sid
+  staged for THAT selection takes the row and the fabric stands down
+  without withdrawing it; a commit naming none (which is what every plain
+  enable is) is retaken by the fabric, because a row holding the zero sid
+  is a reservation for a stream this station does not emit.
+
+Arbitration, for anyone adding a third fabric writer: a pending CSR
+**write** masks every fabric grant (a write is a discrete committed
+operation), the CSR **poll** does not (it is level-high forever while a
+non-zero row is selected — gating on it pinned the first fabric requester
+off permanently), a yielded poll beat is marked stale through
+`i_srp_ctx_stolen`, and the fabric slots rotate so a served slot becomes
+the lowest priority.
 
 **Bench warning (2026-07-26 silicon).** With `LWSRP_CTRL[0]` cleared the
 CBS slope mux disengages, so an admitted talker stream transmits UNPACED

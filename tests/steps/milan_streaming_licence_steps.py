@@ -206,6 +206,69 @@ def step_gate_requires_lwsrp(context):
     assert "acmp_talker_active" in context.expr, context.expr
 
 
+@when("I read the per-talker lwSRP provisioning want from milan_datapath")
+def step_read_srp_want(context):
+    path = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
+    context.dp_src = _strip_comments(_read(path))
+    # the AAF slot arm of the per-slot want vector (the generate branch that
+    # covers talkers 1..N-1; the top slot is the CRF Media Clock Output)
+    m = re.search(r"assign\s+srp_fab_want_v_w\[gw\]\s*=\s*tctx_en_r(.*?);",
+                  context.dp_src, flags=re.S)
+    assert m, "no per-AAF-talker srp_fab_want_v_w arm in milan_datapath"
+    context.expr = " ".join(("tctx_en_r" + m.group(1)).split())
+
+
+@then("the want requires that talker's own context enable")
+def step_want_tctx_en(context):
+    assert "tctx_en_r[gw]" in context.expr, context.expr
+
+
+@then("the want requires the lwSRP engine and its talker declaration")
+def step_want_engine(context):
+    assert "cfg_lwsrp_enable" in context.expr, context.expr
+    assert "cfg_lwsrp_talker_en" in context.expr, context.expr
+
+
+@then("the want does NOT depend on the lwSRP stream gate")
+def step_want_not_circular(context):
+    # THE CIRCULAR-DEPENDENCY TRAP. lwsrp_stream_gate[] is an OUTPUT of this
+    # engine - it needs the row provisioned AND a Listener Ready - so a want
+    # built on it (or on the composed aaf_stream_en_w, which contains it)
+    # can never be satisfied: no row because no stream, no stream because no
+    # row. Only UPSTREAM terms may appear here.
+    for bad in ("lwsrp_stream_gate", "aaf_stream_en_w", "lwsrp_res_active"):
+        assert bad not in context.expr, (
+            "%s is an engine OUTPUT - wanting on it deadlocks provisioning: %s"
+            % (bad, context.expr))
+
+
+@then("the want does NOT depend on ACMP talker_active, per 5.5.2.7")
+def step_want_not_acmp(context):
+    # Milan 5.5.2.7: "Talkers rely only on SRP (not ACMP) to determine when to
+    # transmit", so a registered Listener Ready starts the stream with no ACMP
+    # involvement at all - the advertisement has to exist BEFORE a controller
+    # binds, or fast-connect (5.5.3.5.3) finds no reservation to register
+    # against.
+    assert "acmp_talker_active" not in context.expr, (
+        "an SRP-only listener could never be served: %s" % context.expr)
+
+
+@then("the fabric yields the provisioning port to a CSR write, never to its poll")
+def step_arbiter_yields_write_only(context):
+    gnt = _assign(context.dp_src, "srp_fab_gnt_w")
+    assert "csr_srp_ctx_we" in gnt, gnt
+    # gating on the REQUEST is the recorded starvation bug: milan_csr's window
+    # master polls level-high for as long as a non-zero row is selected, which
+    # every boot script and TB leave in place, so the fabric would never be
+    # granted at all.
+    assert "csr_srp_ctx_req" not in gnt, (
+        "yielding to the CSR POLL pins the fabric requesters off forever: %s"
+        % gnt)
+    # and the beat that writes must be KL_lwsrp_ctx's own service expression
+    svc = _assign(context.dp_src, "srp_fab_svc_w")
+    assert "srp_fab_gnt_w" in svc and "srp_ctx_gnt_w" in svc, svc
+
+
 @then("the escape hatch is recorded as a Milan 5.3.7.3 conformance defect")
 def step_escape_hatch_recorded(context):
     gaps = _read(os.path.join(_ROOT, "docs", "MILAN_COMPLIANCE_GAPS.md"))

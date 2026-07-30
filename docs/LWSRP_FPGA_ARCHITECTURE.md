@@ -167,6 +167,25 @@ not answer, because most of these modules are on the same wire:
 `lwsrp_pkg.sv` holds the wire-format and timing constants the whole engine
 shares; it is a package, not a module.
 
+> **WHO PROVISIONS `KL_lwsrp_ctx`'s ROWS (2026-07-30).** The single
+> request/grant port on that table is shared by three kinds of writer, and
+> for a long time only two of them existed — which is a defect, not a
+> design: the 0x800 CSR window (software staging) and the fabric's CRF
+> Media Clock Output row. **No board software drives that window**, so on a
+> 4×4 board `A_STRMW_SRP` read `0x0000_0000` for talkers 1/2/3 and a
+> ProfiShark capture with a licensed stream running showed MSRP declaring a
+> Talker Advertise for exactly `uid 0` and `uid 4` (the CRF output) — the
+> two rows that had a provisioner. Under Milan v1.2 §5.3.7.3 an
+> unadvertised stream can never be licensed, so no talker but 0 could
+> stream. `milan_datapath` now gives **every AAF talker row its own fabric
+> requester** (`aaf_srp_prov`), wanting on the row's own TCTX enable and
+> deriving `{station MAC, uid}` / MAAP base+uid / `24 + 24*C`; all fabric
+> slots share ONE rotating arbiter with the CRF row so the
+> window-versus-fabric priority rule (yield to a pending CSR **write**,
+> never to its level-high **poll**) lives in exactly one place. Full
+> register-level rules: [`reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md)
+> "AAF talker-row provisioning is FABRIC-OWNED".
+
 > **Counted against the source, 2026-07-26 — reported, not resolved.**
 > `hdl/ieee8021q/srp/` contains **11** `KL_lwsrp_*` modules plus `lwsrp_pkg.sv`,
 > not the nine this page and the module-to-family map in

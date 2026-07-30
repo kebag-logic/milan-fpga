@@ -1393,6 +1393,16 @@ int main(int argc, char** argv) {
     //  that the talker be ENABLED. Every index, because idx 0 is the
     //  alias/legacy path and the least representative one there is.
     //
+    //  WHAT ACTUALLY BITES, measured by reverting the datapath hunk in a
+    //  scratch copy of this tree (2026-07-30: 248 checks / 30 failures at
+    //  4x4, 248/0 with the fix): NOT the valid bit. The window's own CTRL
+    //  commit writes the row valid=1 as a side effect, so pre-fix all three
+    //  rows read VALID and DECLARED - carrying the NULL stream_id, three
+    //  rows declaring streamID 0 at once. The identity is the discriminator:
+    //  the derived sid words read 0 and NO TalkerAdvertise for uid 1/2/3 is
+    //  on the wire, which is exactly the ProfiShark symptom. Never read
+    //  "valid == 1" here as proof that a row is usable.
+    //
     //  It also runs the two STARVATION legs in their worst shape:
     //  A_STRM_SEL is parked on a talker row for the whole burst (that
     //  level-high poll is exactly what pinned the first fabric requester

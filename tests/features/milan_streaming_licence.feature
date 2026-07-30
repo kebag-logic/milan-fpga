@@ -57,6 +57,22 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     And with the escape hatch clear the gate requires the lwSRP stream gate
     And the escape hatch is recorded as a Milan 5.3.7.3 conformance defect
 
+  @class:structure @matrix:M-DEV-13d
+  Scenario: every AAF talker Stream Output has a Talker Advertise provisioner
+    # 5.3.7.2 "shall always declare an MSRP Talker attribute as soon as it has
+    # valid SRP parameters" makes the ADVERTISE half unconditional, and
+    # 5.3.7.3 makes it a PRECONDITION of the licence. Until 2026-07-30 the
+    # provisioning port had two writers and neither served the AAF talker
+    # rows: A_STRMW_SRP read 0x00000000 for talkers 1/2/3 on a 4x4 board and
+    # the ProfiShark tap saw a Talker Advertise for uid 0 and uid 4 (the CRF
+    # output) only, so no talker but 0 could ever be licensed.
+    When I read the per-talker lwSRP provisioning want from milan_datapath
+    Then the want requires that talker's own context enable
+    And the want requires the lwSRP engine and its talker declaration
+    And the want does NOT depend on the lwSRP stream gate
+    And the want does NOT depend on ACMP talker_active, per 5.5.2.7
+    And the fabric yields the provisioning port to a CSR write, never to its poll
+
   @class:wire
   Scenario: the bench bridge declares Listener Ready for our StreamID
     Given the MSRPDU captured from the bench bridge on 2026-07-28

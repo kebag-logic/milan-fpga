@@ -296,9 +296,22 @@ def step_csr_cannot_tag(context):
 def step_fabric_provisions(context):
     # The CRF stream_id and DMAC are DERIVED (they follow the ACMP answer
     # for talker_unique_id = N_STREAMS); software could only restate them.
-    for sig in ("eff_crft_sid_w", "eff_crft_dmac_w"):
-        assert re.search(r"crf_srp_gnt_w\s*\?\s*" + sig, context.dp_src), \
-            "%s is not what the fabric provisioning port presents" % sig
+    #
+    # 2026-07-30: the CRF row became ONE SLOT of a rotating fabric arbiter
+    # (every AAF talker row joined it), so the port is presented the slot's
+    # record rather than the CRF wires directly. The property is unchanged
+    # and now needs BOTH links: the port takes the fabric record under a
+    # fabric grant, and the fabric record resolves to the derived CRF
+    # identity on the CRF slot.
+    for port, rec, sig in (("ctx_sid_i", "srp_fab_sid_w", "eff_crft_sid_w"),
+                           ("ctx_dmac_i", "srp_fab_dmac_w", "eff_crft_dmac_w")):
+        assert re.search(r"\." + port + r"\s*\(srp_fab_gnt_w\s*\?\s*" + rec,
+                         context.dp_src), \
+            "%s is not the fabric record's own port arm" % port
+        assert re.search(r"wire.*" + rec +
+                         r"\s*=\s*srp_fab_is_crf_w\s*\r?\n?\s*\?\s*" + sig,
+                         context.dp_src), \
+            "%s is not what the fabric presents for the CRF slot" % sig
 
 
 @then('the request retires only on the beat the engine sampled it')
